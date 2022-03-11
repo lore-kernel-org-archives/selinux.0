@@ -2,197 +2,208 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1294BC43219
-	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 14:01:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F34D3C433F5
+	for <selinux@archiver.kernel.org>; Fri, 11 Mar 2022 14:57:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349040AbiCKOCp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 09:02:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34722 "EHLO
+        id S244671AbiCKO6Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Mar 2022 09:58:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349032AbiCKOCo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 09:02:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7F9BB1C57D7
-        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 06:01:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647007299;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=I+nWv4ywDxtdW2kAMKWAd/9h8AiRGVEXkvqyetpKnWc=;
-        b=dWQFvdLKw//Dc84MFg9J4h3vnUbZ87VC6gRC0/Y90m7Kk90HSYH1+yxZdInEGp19iCvG0z
-        5Cnvw7Erx3fmuKMtQnGObTJSSavMcnjZV5cG5CY13eo6mTQktzWQBDgjAvZnR7c7SWG/Mv
-        ed6n7kd7Q2CDqa2pAqwdFXllfVmyhM8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-669-sly5me0lPe6uMFhCLHqmOA-1; Fri, 11 Mar 2022 09:01:36 -0500
-X-MC-Unique: sly5me0lPe6uMFhCLHqmOA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C64741854E21;
-        Fri, 11 Mar 2022 14:01:31 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.16.83])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 06A257AD1B;
-        Fri, 11 Mar 2022 14:01:30 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 58049223A46; Fri, 11 Mar 2022 09:01:30 -0500 (EST)
-Date:   Fri, 11 Mar 2022 09:01:30 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        David Anderson <dvander@google.com>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        John Stultz <john.stultz@linaro.org>,
-        linux-doc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>, selinux@vger.kernel.org,
-        paulmoore@microsoft.com, luca.boccassi@microsoft.com
-Subject: Re: [PATCH v19 0/4] overlayfs override_creds=off & nested get xattr
- fix
-Message-ID: <YitWOqzIRjnP1lok@redhat.com>
-References: <20211117015806.2192263-1-dvander@google.com>
- <CAOQ4uxjjapFeOAFGLmsXObdgFVYLfNer-rnnee1RR+joxK3xYg@mail.gmail.com>
- <Yao51m9EXszPsxNN@redhat.com>
- <CAOQ4uxjk4piLyx67Ena-FfypDVWzRqVN0xmFUXXPYa+SC4Q-vQ@mail.gmail.com>
- <YapjNRrjpDu2a5qQ@redhat.com>
- <CAHC9VhQTUgBRBEz_wFX8daSA70nGJCJLXj8Yvcqr5+DHcfDmwA@mail.gmail.com>
- <CA+FmFJA-r+JgMqObNCvE_X+L6jxWtDrczM9Jh0L38Fq-6mnbbA@mail.gmail.com>
- <CAHC9VhRer7UWdZyizWO4VuxrgQDnLCOyj8LO7P6T5BGjd=s9zQ@mail.gmail.com>
- <CAHC9VhQkLSBGQ-F5Oi9p3G6L7Bf_jQMWAxug_G4bSOJ0_cYXxQ@mail.gmail.com>
- <CAOQ4uxhfU+LGunL3cweorPPdoCXCZU0xMtF=MekOAe-F-68t_Q@mail.gmail.com>
+        with ESMTP id S229784AbiCKO6Z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 09:58:25 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4BD1B3A62
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 06:57:22 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id b188so9527922oia.13
+        for <selinux@vger.kernel.org>; Fri, 11 Mar 2022 06:57:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=wo6294Wov9hPCGXj5o5Rb9r4rsx7B/R66Pmjhvy1K0w=;
+        b=pkJL76gvsbOhZ2oYhEk4ISJCYKQQj+DxrkW3T+aeMK8+EjeHCWF3DPMk7PuuXmhqoC
+         m+rTGlfsgP0Cd9YhVGY3CIfA0sqzFqDXoEfDX7Pq3St3mqJNPop6/nQvMlOMHRHMp4W7
+         05DZxrzJtFdusBYAMaEhodifuhfj6goh7Up6j9KGzbcjdPg/p8Jb0d6irYyD7WMW1IVy
+         f+yf38Wkq7RLqbq8ifwP+sAUAYPl9kuS8R1UduenSI98XJEByaDv/2nkPnZ3gGVnwL3q
+         o7uPn6GvqYwqHhWc8gRe/VqF4IyIpakEQP9ni7BEC5Ds6oZG9fz73xUB7Ii3IXGAcGFU
+         txUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=wo6294Wov9hPCGXj5o5Rb9r4rsx7B/R66Pmjhvy1K0w=;
+        b=ZhEWHbIqhLWgOP3oEZQ3A7syzjwlwvnNrBdwHrejjblbbq/oweDZxh3l0jfS58fMcf
+         TUU+NzBzb5ra+UOFF7KBC282vUaT5EQuPxvTLlZd4o2RsSOOMw8Qh1vl/A8HdCCPioXb
+         h2lRc7uYPpz0/4dwdnNgRu+onWG0Rta+QB8NYKQB+SB5DY3kvtCCkrj2UHvX64368eKy
+         ublya+wjylU8e4PsFEpGJt0ec+XPpJa4syQdnfWbToYX81T6qMl5kkwtowjmfk9zvjXe
+         5U4u8J5mcgnBx8LNIUc9sc2NBdocfyM3SDXeEzbLvw4/7IRUhjxw4hc7MtF8Mvwh8/CK
+         14nQ==
+X-Gm-Message-State: AOAM531fM0SuhAboCqMI8weacCHFgYOdRlD5SOygPuSvZtHApZhXAmpI
+        X8nq4/NJe+W0zeHkt24HU1ZL+41utSoHsZU7+G5MXC/Koi8=
+X-Google-Smtp-Source: ABdhPJz9remF+17orcTcn3ab0JpP3ublTtHDT3xuGtDwSAKw3cupnYEyBO5ohULXtG8luNMprZUsE3pa6A27tfW2u/g=
+X-Received: by 2002:a54:4611:0:b0:2d7:988a:5784 with SMTP id
+ p17-20020a544611000000b002d7988a5784mr12454998oip.156.1647010641636; Fri, 11
+ Mar 2022 06:57:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxhfU+LGunL3cweorPPdoCXCZU0xMtF=MekOAe-F-68t_Q@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+References: <20220308185811.72407-1-cgzones@googlemail.com>
+In-Reply-To: <20220308185811.72407-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 11 Mar 2022 09:57:10 -0500
+Message-ID: <CAP+JOzQzJHNgxdOFj1LA6BKNpcxmVmA=vnF=EzsQoAeip+KqEw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsepol: reject xperm av rules in conditional statements
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 11, 2022 at 06:09:56AM +0200, Amir Goldstein wrote:
-> On Fri, Mar 11, 2022 at 12:11 AM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > On Wed, Mar 9, 2022 at 4:13 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Tue, Mar 1, 2022 at 12:05 AM David Anderson <dvander@google.com> wrote:
-> > > > On Mon, Feb 28, 2022 at 5:09 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > ...
-> >
-> > > >> This patchset may not have been The Answer, but surely there is
-> > > >> something we can do to support this use-case.
-> > > >
-> > > > Yup exactly, and we still need patches 3 & 4 to deal with this. My current plan is to try and rework our sepolicy (we have some ideas on how it could be made compatible with how overlayfs works). If that doesn't pan out we'll revisit these patches and think harder about how to deal with the coherency issues.
-> > >
-> > > Can you elaborate a bit more on the coherency issues?  Is this the dir
-> > > cache issue that is alluded to in the patchset?  Anything else that
-> > > has come up on review?
-> > >
-> > > Before I start looking at the dir cache in any detail, did you have
-> > > any thoughts on how to resolve the problems that have arisen?
-> >
-> > David, Vivek, Amir, Miklos, or anyone for that matter, can you please
-> > go into more detail on the cache issues?  I *think* I may have found a
-> > potential solution for an issue that could arise when the credential
-> > override is not in place, but I'm not certain it's the only issue :)
-> >
-> 
-> Hi Paul,
-> 
-> In this thread I claimed that the authors of the patches did not present
-> a security model for overlayfs, such as the one currently in overlayfs.rst.
-> If we had a model we could have debated its correctness and review its
-> implementation.
+On Tue, Mar 8, 2022 at 2:35 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Extended permission and neverallow rules are not permitted in
+> conditional statements.
+>
+> This causes issues on policy optimization where avtab_search() might
+> return a non extended permission rule when searching for one.
+>
+> Found by oss-fuzz (#45327)
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Agreed. After going through the patch set, I was wondering what's the
-overall security model and how to visualize that.
+For both patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-So probably there needs to be a documentation patch which explains
-what's the new security model and how does it work.
-
-Also think both in terms of DAC and MAC. (Instead of just focussing too
-hard on SELinux).
-
-My understanding is that in current model, some of the overlayfs
-operations require priviliges. So mounter is supposed to be priviliged
-and does the operation on underlying layers.
-
-Now in this new model, there will be two levels of check. Both overlay
-level and underlying layer checks will happen in the context of task
-which is doing the operation. So first of all, all tasks will need
-to have enough priviliges to be able to perform various operations
-on lower layer. 
-
-If we do checks at both the levels in with the creds of calling task,
-I guess that probably is fine. (But will require a closer code inspection
-to make sure there is no privilege escalation both for mounter as well
-calling task).
-
-> 
-> As a proof that there is no solid model, I gave an *example* regarding
-> the overlay readdir cache.
-> 
-> When listing a merged dir, meaning, a directory containing entries from
-> several overlay layers, ovl_permission() is called to check user's permission,
-> but ovl_permission() does not currently check permissions to read all layers,
-> because that is not the current overlayfs model.
-> 
-> Overlayfs has a readdir cache, so without override_cred, a user with high
-> credentials can populate the readdir cache and then a user will fewer
-> credentials, not enough to access the lower layers, but enough to access
-> the upper most layer, will pass ovl_permission() check and be allowed to
-> read from readdir cache.
-
-I am not very familiar with dir caching code. When I read through the
-overlayfs.rst, it gave the impression that caching is per "struct file".
-
-"This merged name list is cached in the
-'struct file' and so remains as long as the file is kept open."
-
-And I was wondering if that's the case, then one user should not be able
-to access the cache built by another priviliged user (until and unless
-privileged user passed fd).
-
-But looks like we build this cache and store in ovl inode and that's
-why this issue of cache built by higher privileged process will be
-accessible to lower privileged process.
-
-With current model this is not an issue because "mounter" is providing
-those privileges to unprivileged process. So while unprivileged process
-can't do "readdir" on an underlying lower dir, it might still be able
-to do that through an overlay mount. But if we don't switch to mounter's
-creds, then we probably can't rely on this dir caching. Agreed that
-disabling dir caching seems simplest solution if we were to do
-override_creds=off.
-
-Thanks
-Vivek
-
-> 
-> This specific problem can be solved in several ways - disable readdir
-> cache with override_cred=off, check all layers in ovl_permission().
-> That's not my point. My point is that I provided a proof that the current
-> model of override_cred=off is flawed and it is up to the authors of the
-> patch to fix the model and provide the analysis of overlayfs code to
-> prove the model's correctness.
-> 
-> The core of the matter is there is no easy way to "merge" the permissions
-> from all layers into a single permission blob that could be checked once.
-> 
-> Maybe the example I gave is the only flaw in the model, maybe not
-> I am not sure. I will be happy to help you in review of a model and the
-> solution that you may have found.
-> 
-> Thanks,
-> Amir.
-> 
-
+> ---
+>  libsepol/src/policydb_validate.c | 28 +++++++++++++++++-----------
+>  1 file changed, 17 insertions(+), 11 deletions(-)
+>
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
+idate.c
+> index 735c7a33..72063351 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -658,7 +658,7 @@ bad:
+>   * Functions to validate a kernel policydb
+>   */
+>
+> -static int validate_avtab_key(avtab_key_t *key, validate_t flavors[])
+> +static int validate_avtab_key(avtab_key_t *key, int conditional, validat=
+e_t flavors[])
+>  {
+>         if (validate_value(key->source_type, &flavors[SYM_TYPES]))
+>                 goto bad;
+> @@ -670,13 +670,16 @@ static int validate_avtab_key(avtab_key_t *key, val=
+idate_t flavors[])
+>         case AVTAB_ALLOWED:
+>         case AVTAB_AUDITALLOW:
+>         case AVTAB_AUDITDENY:
+> -       case AVTAB_XPERMS_ALLOWED:
+> -       case AVTAB_XPERMS_AUDITALLOW:
+> -       case AVTAB_XPERMS_DONTAUDIT:
+>         case AVTAB_TRANSITION:
+>         case AVTAB_MEMBER:
+>         case AVTAB_CHANGE:
+>                 break;
+> +       case AVTAB_XPERMS_ALLOWED:
+> +       case AVTAB_XPERMS_AUDITALLOW:
+> +       case AVTAB_XPERMS_DONTAUDIT:
+> +               if (conditional)
+> +                       goto bad;
+> +               break;
+>         default:
+>                 goto bad;
+>         }
+> @@ -691,7 +694,7 @@ static int validate_avtab_key_and_datum(avtab_key_t *=
+k, avtab_datum_t *d, void *
+>  {
+>         validate_t *flavors =3D (validate_t *)args;
+>
+> -       if (validate_avtab_key(k, flavors))
+> +       if (validate_avtab_key(k, 0, flavors))
+>                 return -1;
+>
+>         if ((k->specified & AVTAB_TYPE) && validate_value(d->data, &flavo=
+rs[SYM_TYPES]))
+> @@ -716,7 +719,7 @@ static int validate_cond_av_list(sepol_handle_t *hand=
+le, cond_av_list_t *cond_av
+>
+>         for (; cond_av; cond_av =3D cond_av->next) {
+>                 for (avtab_ptr =3D cond_av->node; avtab_ptr; avtab_ptr =
+=3D avtab_ptr->next) {
+> -                       if (validate_avtab_key(&avtab_ptr->key, flavors))=
+ {
+> +                       if (validate_avtab_key(&avtab_ptr->key, 1, flavor=
+s)) {
+>                                 ERR(handle, "Invalid cond av list");
+>                                 return -1;
+>                         }
+> @@ -726,7 +729,7 @@ static int validate_cond_av_list(sepol_handle_t *hand=
+le, cond_av_list_t *cond_av
+>         return 0;
+>  }
+>
+> -static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, va=
+lidate_t flavors[])
+> +static int validate_avrules(sepol_handle_t *handle, avrule_t *avrule, in=
+t conditional, validate_t flavors[])
+>  {
+>         class_perm_node_t *class;
+>
+> @@ -746,14 +749,17 @@ static int validate_avrules(sepol_handle_t *handle,=
+ avrule_t *avrule, validate_t
+>                 case AVRULE_AUDITALLOW:
+>                 case AVRULE_AUDITDENY:
+>                 case AVRULE_DONTAUDIT:
+> -               case AVRULE_NEVERALLOW:
+>                 case AVRULE_TRANSITION:
+>                 case AVRULE_MEMBER:
+>                 case AVRULE_CHANGE:
+> +                       break;
+> +               case AVRULE_NEVERALLOW:
+>                 case AVRULE_XPERMS_ALLOWED:
+>                 case AVRULE_XPERMS_AUDITALLOW:
+>                 case AVRULE_XPERMS_DONTAUDIT:
+>                 case AVRULE_XPERMS_NEVERALLOW:
+> +                       if (conditional)
+> +                               goto bad;
+>                         break;
+>                 default:
+>                         goto bad;
+> @@ -814,9 +820,9 @@ static int validate_cond_list(sepol_handle_t *handle,=
+ cond_list_t *cond, validat
+>                         goto bad;
+>                 if (validate_cond_av_list(handle, cond->false_list, flavo=
+rs))
+>                         goto bad;
+> -               if (validate_avrules(handle, cond->avtrue_list, flavors))
+> +               if (validate_avrules(handle, cond->avtrue_list, 1, flavor=
+s))
+>                         goto bad;
+> -               if (validate_avrules(handle, cond->avfalse_list, flavors)=
+)
+> +               if (validate_avrules(handle, cond->avfalse_list, 1, flavo=
+rs))
+>                         goto bad;
+>                 if (validate_bool_id_array(handle, cond->bool_ids, cond->=
+nbools, &flavors[SYM_BOOLS]))
+>                         goto bad;
+> @@ -1098,7 +1104,7 @@ static int validate_avrule_blocks(sepol_handle_t *h=
+andle, avrule_block_t *avrule
+>                 for (decl =3D avrule_block->branch_list; decl !=3D NULL; =
+decl =3D decl->next) {
+>                         if (validate_cond_list(handle, decl->cond_list, f=
+lavors))
+>                                 goto bad;
+> -                       if (validate_avrules(handle, decl->avrules, flavo=
+rs))
+> +                       if (validate_avrules(handle, decl->avrules, 0, fl=
+avors))
+>                                 goto bad;
+>                         if (validate_role_trans_rules(handle, decl->role_=
+tr_rules, flavors))
+>                                 goto bad;
+> --
+> 2.35.1
+>
