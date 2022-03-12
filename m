@@ -2,116 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D848C4332F
-	for <selinux@archiver.kernel.org>; Sat, 12 Mar 2022 04:51:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55058C433F5
+	for <selinux@archiver.kernel.org>; Sat, 12 Mar 2022 15:17:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230380AbiCLEwu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Mar 2022 23:52:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
+        id S230413AbiCLPSp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 12 Mar 2022 10:18:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230015AbiCLEwu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Mar 2022 23:52:50 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EAA9E9D;
-        Fri, 11 Mar 2022 20:51:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1647060703; x=1678596703;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ZfF/lzNX9XMkZ21coHM0wPTpmygS6/b4qFfbU1ZtBVs=;
-  b=R3t0O7y8fpYnAMSvpPCrpn577lD9ibGrZWs0NJdSnvRqaihqDE5o0uO5
-   LXxC9TmVMUP/OhNgVWmkWRfLxi0EyONTlXnMtQ4LUTheNzRtRObIHfBcb
-   SiRId0t6qxovmxA8daTDHL/j9ZVcg24vG4RFDN6TEKWYah4MPKdbvyaqi
-   mLxgAR7DUQ4R7MBC/8vq+cD/XjRK5j1K46mn0K1NTt3U7ksGop4yRM73v
-   9EvJ2ZYsFJ/VX/lZoiUhndBRpQ88ztfufOgO2JutljVg81Mz9XEaUMSU2
-   gjuSeeTq+qM3Vt+j58ggOugioSKT2TJnOzUalqIIF1gGyVp0yHTHUXxxy
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10283"; a="280502984"
-X-IronPort-AV: E=Sophos;i="5.90,175,1643702400"; 
-   d="scan'208";a="280502984"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2022 20:51:23 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,175,1643702400"; 
-   d="scan'208";a="497025121"
-Received: from lkp-server02.sh.intel.com (HELO 89b41b6ae01c) ([10.239.97.151])
-  by orsmga003.jf.intel.com with ESMTP; 11 Mar 2022 20:51:19 -0800
-Received: from kbuild by 89b41b6ae01c with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nStio-0007WW-PR; Sat, 12 Mar 2022 04:51:18 +0000
-Date:   Sat, 12 Mar 2022 12:50:47 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org
-Subject: Re: [PATCH v33 13/29] LSM: Use lsmblob in security_cred_getsecid
-Message-ID: <202203121225.Ab2lmSD3-lkp@intel.com>
-References: <20220310234632.16194-14-casey@schaufler-ca.com>
+        with ESMTP id S231629AbiCLPSp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 12 Mar 2022 10:18:45 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A8E820BCFE
+        for <selinux@vger.kernel.org>; Sat, 12 Mar 2022 07:17:38 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id c20so14289388edr.8
+        for <selinux@vger.kernel.org>; Sat, 12 Mar 2022 07:17:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Pxin1j5j6CcmsdIEAHJPFzyAPatANahFw6X6/cFoxnM=;
+        b=SU4xr4X6+2waARawoylMlsiCPWBIBETU0MciuaZEiWdrDk2hx5UmhtjVBnOvAg/j8Y
+         P5AEc3LcMVyzxEP5nHlv2Olz53uvkKS0fxrgUxGcRFmX98+Qq6Q6eMA/vwzJmqCvzO/O
+         j+/mBzE+2Hp2rK2NI//4QDTmfX1LS9FohQxULpnfR8tTvY+r5fNWcupz8YhvqN+Qfuv8
+         G8GJScHk8gdOrtgUA2dETidap7xy6kcyCZ5Ayh4fMOWadoH7T5SieRyl6yB9ATdxntP9
+         /mrpSZqnk7afxXSrRZfLG9VUNA1B3WEMpKhYck68O+2UM4Q/g0ZrqJAGonS296H4uEre
+         YMyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Pxin1j5j6CcmsdIEAHJPFzyAPatANahFw6X6/cFoxnM=;
+        b=X63CS7G3i/eYKvgFbAjgGsVvmKGsBPiyJR1NF3+AAI7UJsU12aESWi/uziI7iQjVEl
+         1BJxLmvNG7kWAHf+4QhRJyFWKWhflOPKmGpTY+oebPXpr/ZzM0wdegSUbvgkNN/60/1V
+         o/Tw5bKIrRaaXcSfLv2vZ69idZ4dQUkIFnyflRWOGX8JMrHoTOQr59Hx3pXkiQrD6oyS
+         jyAZj+HCsIuVQ7s5F6qpjb6iJSoI8eiFQrjxMuGNfGwXwOx7eTRDQOXGZwAoDAmGi30M
+         FEpvTINujp6dqRBszUf93th+5t3QHtdieBkHRBW51gx+JjfE57FpFTRV2Ze+/wVojXnx
+         A07A==
+X-Gm-Message-State: AOAM533/7vLmR95kqtM2wxGJC3vZsRedKzNXqGI4vzPz9AsJxX2S2+oE
+        S89rpCuqRUnMuXGL8u8UrZHUeXS8DtFONeP5WWiA
+X-Google-Smtp-Source: ABdhPJx4I73OmpEwBz9ywyJrJAWk2KLqVxBU5gzL/MTLzVaMx0+vl+oJ6aU8A6EOZmbP9Kz1KnrnrjH5oF/o50aIp00=
+X-Received: by 2002:a05:6402:2552:b0:416:a745:9626 with SMTP id
+ l18-20020a056402255200b00416a7459626mr13558015edb.405.1647098256718; Sat, 12
+ Mar 2022 07:17:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220310234632.16194-14-casey@schaufler-ca.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20220228215935.748017-1-mic@digikod.net> <20220301092232.wh7m3fxbe7hyxmcu@wittgenstein>
+ <f6b63133-d555-a77c-0847-de15a9302283@digikod.net> <CAHC9VhQd3rL-13k0u39Krkdjp2_dtPfgEPxr=kawWUM9FjjOsw@mail.gmail.com>
+ <8d520529-4d3e-4874-f359-0ead9207cead@canonical.com> <CAHC9VhRrjqe1AdZYtjpzLJyBF6FTeQ4EcEwsOd2YMimA5_tzEA@mail.gmail.com>
+ <b848fe63-e86d-af38-5198-5519cb3c02ef@I-love.SAKURA.ne.jp>
+In-Reply-To: <b848fe63-e86d-af38-5198-5519cb3c02ef@I-love.SAKURA.ne.jp>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sat, 12 Mar 2022 10:17:25 -0500
+Message-ID: <CAHC9VhQqx7B+6Ji_92eMZ1o9O_yaDQQoPVw92Av0Zznv7i8F8w@mail.gmail.com>
+Subject: Re: [PATCH v1] fs: Fix inconsistent f_mode
+To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc:     John Johansen <john.johansen@canonical.com>,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>,
+        Kentaro Takeda <takedakn@nttdata.co.jp>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Steve French <sfrench@samba.org>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>,
+        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Casey,
+On Fri, Mar 11, 2022 at 8:35 PM Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> On 2022/03/12 7:15, Paul Moore wrote:
+> > The silence on this has been deafening :/  No thoughts on fixing, or
+> > not fixing OPEN_FMODE(), Al?
+>
+> On 2022/03/01 19:15, Micka=C3=ABl Sala=C3=BCn wrote:
+> >
+> > On 01/03/2022 10:22, Christian Brauner wrote:
+> >> That specific part seems a bit risky at first glance. Given that the
+> >> patch referenced is from 2009 this means we've been allowing O_WRONLY =
+|
+> >> O_RDWR to succeed for almost 13 years now.
+> >
+> > Yeah, it's an old bug, but we should keep in mind that a file descripto=
+r
+> > created with such flags cannot be used to read nor write. However,
+> > unfortunately, it can be used for things like ioctl, fstat, chdir=E2=80=
+=A6 I
+> > don't know if there is any user of this trick.
+>
+> I got a reply from Al at https://lkml.kernel.org/r/20090212032821.GD28946=
+@ZenIV.linux.org.uk
+> that sys_open(path, 3) is for ioctls only. And I'm using this trick when =
+opening something
+> for ioctls only.
 
-I love your patch! Perhaps something to improve:
+Thanks Tetsuo, that's helpful.  After reading your email I went
+digging around to see if this was documented anywhere, and buried in
+the open(2) manpage, towards the bottom under the "File access mode"
+header, is this paragraph:
 
-[auto build test WARNING on pcmoore-audit/next]
-[also build test WARNING on linus/master v5.17-rc7]
-[cannot apply to pcmoore-selinux/next jmorris-security/next-testing next-20220310]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+ "Linux reserves the special, nonstandard access mode 3 (binary 11)
+  in flags to mean: check for read and write permission on the file
+  and return a file descriptor that can't be used for reading or
+  writing.  This nonstandard access mode is used by some Linux
+  drivers to return a file descriptor that is to be used only for
+  device-specific ioctl(2) operations."
 
-url:    https://github.com/0day-ci/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220311-084644
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git next
-config: microblaze-randconfig-s031-20220310 (https://download.01.org/0day-ci/archive/20220312/202203121225.Ab2lmSD3-lkp@intel.com/config)
-compiler: microblaze-linux-gcc (GCC) 11.2.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # apt-get install sparse
-        # sparse version: v0.6.4-dirty
-        # https://github.com/0day-ci/linux/commit/77c3979bacdff1630a3c6211db065f2c79412621
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220311-084644
-        git checkout 77c3979bacdff1630a3c6211db065f2c79412621
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=microblaze SHELL=/bin/bash
+I learned something new today :)  With this in mind it looks like
+doing a SELinux file:ioctl check is the correct thing to do.
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+Thanks again Tetsuo for clearing things up.
 
-
-sparse warnings: (new ones prefixed by >>)
->> kernel/audit.c:128:25: sparse: sparse: symbol 'audit_sig_lsm' was not declared. Should it be static?
-   kernel/audit.c:2197:9: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-   kernel/audit.c:2197:9: sparse:     expected struct spinlock [usertype] *lock
-   kernel/audit.c:2197:9: sparse:     got struct spinlock [noderef] __rcu *
-   kernel/audit.c:2200:40: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
-   kernel/audit.c:2200:40: sparse:     expected struct spinlock [usertype] *lock
-   kernel/audit.c:2200:40: sparse:     got struct spinlock [noderef] __rcu *
-
-vim +/audit_sig_lsm +128 kernel/audit.c
-
-   124	
-   125	/* The identity of the user shutting down the audit system. */
-   126	static kuid_t		audit_sig_uid = INVALID_UID;
-   127	static pid_t		audit_sig_pid = -1;
- > 128	struct lsmblob		audit_sig_lsm;
-   129	
-
----
-0-DAY CI Kernel Test Service
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+--=20
+paul-moore.com
