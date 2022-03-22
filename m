@@ -2,184 +2,68 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EDD9C4332F
-	for <selinux@archiver.kernel.org>; Mon, 21 Mar 2022 22:48:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5E1CC433EF
+	for <selinux@archiver.kernel.org>; Tue, 22 Mar 2022 03:56:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230152AbiCUWtk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Mar 2022 18:49:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54766 "EHLO
+        id S236326AbiCVD6C (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Mar 2022 23:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229812AbiCUWt3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Mar 2022 18:49:29 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E70A3DDCF0
-        for <selinux@vger.kernel.org>; Mon, 21 Mar 2022 15:44:17 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id pv16so32833926ejb.0
-        for <selinux@vger.kernel.org>; Mon, 21 Mar 2022 15:44:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=9C6i1V5W4MCeD/1gLMcJ+GxUdwOY2A6vsDcUchCpRHU=;
-        b=h21Ke7djN8csNxDP0N2xUzZGpjd3brsfArHEu7cU+flfuHfn3v0Qyr+wOLxIHDFCH6
-         AKO2Nkn2l++CSvp7bh98y0Ew0PaOUHaaN5+JBd8Mzrt+OtVqUz3Joomtfskoj7Z2WCz5
-         TblZNEJThXjP3MnSTLuZ6knslhebdT0Ex1hEjlt5CJD/ickAO0dJxanf///Nv9q/hapJ
-         BjBOIHWNXDn7OYSUsCggoG/uy9Yoyj0t1EleEP+48trZdChMtuA7CYKld/xSsKnB4bo0
-         GH1CCYnG52Smn9ykPcCZFiplkUvwDPciyMQ5HZ1noQmiqo93cNtUqf+6dlijUv1KpJN4
-         78Ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=9C6i1V5W4MCeD/1gLMcJ+GxUdwOY2A6vsDcUchCpRHU=;
-        b=3XxsRbAP/+lPH/nxwqGVd634thMOKzUWzzjQbXHx5XtimPYqlX8LruV1BCSBvio3jV
-         CVZpiJoFDC5lweXAhfxadGy6LZpfu7jqKkJxkqPN7GPojldiG309ESquFHBMpdqwMW7a
-         dN9xMENHHr92ZFS1FvaOq9H2fXV7RpNO8dNz2eGPOEnYOeVCic8ih7SIrplAYPW6yIDI
-         /LsO8V9jk0c+B4pl+nhM6yvvIDd3wl45XJtv1uR22ZBukoWFiKYbbV4PTkeCBjB+TFDA
-         7yI/+cijqDiaAVwn1AVKVU4hCgjm624uoFCshBoIp7oBZDhjvwqOJxHWOeaAmj7UnFkk
-         TyKg==
-X-Gm-Message-State: AOAM531pB75xw21pZE30R7x8y33Fhg9zs2z6ycacctTGpTWUM7FYghrp
-        6UvckP1hVlZ8nlBr2qrfgWztk45M6OGD+BpD3wbsNJi43wA3
-X-Google-Smtp-Source: ABdhPJyiMez9ZfWnO8QSTwIMXiv9ZaXQhOY7r3oIbxQAI+nwTkPaLLqfCwO6rIX4TQN62sPtD15z8P7mdGRwCRoEAig=
-X-Received: by 2002:a17:907:1b09:b0:6d8:faa8:4a06 with SMTP id
- mp9-20020a1709071b0900b006d8faa84a06mr22563111ejc.701.1647900842214; Mon, 21
- Mar 2022 15:14:02 -0700 (PDT)
-MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 21 Mar 2022 18:13:51 -0400
-Message-ID: <CAHC9VhTA1O4J_dS9T_U-Vrmi-7JeHTM6fEOfS8JJBfvoNgDrfg@mail.gmail.com>
-Subject: [GIT PULL] SELinux patches for v5.18
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        with ESMTP id S236317AbiCVD6B (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Mar 2022 23:58:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D341F62D;
+        Mon, 21 Mar 2022 20:56:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9FDDB81B6E;
+        Tue, 22 Mar 2022 03:56:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6F06DC340F2;
+        Tue, 22 Mar 2022 03:56:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647921392;
+        bh=wYq4KHls0ARPH7MwZtBRS6RLp/3gUxPYnQSK7XbHOBg=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=rtVVCBk3k/6OpCtHHspzpYsf7d60SylhPfeQ/GWSseREJgDzo0kVdXjoZt+Cy+5Vc
+         /H4URhkXxeBNUCS23nSMYifczfToPlT0eL2fchxFVgttYNYkU0YbyfRDMC+s/Sy3KR
+         GuTEyeqSUvZF2T/5oBdFbpaEWYAHd0HQbIHZ30QS7MY1o4g5ZXjllmuHTRcLjYknCx
+         AKDlF8Eo9DgAJ/99upRNZcq1tB1+brMaXyBv/e0/rd9t1zovuWlPucPRObf3QbsGSD
+         dUZ95HK4F3pWq8p8Hedwy+562/XsLAbbJZ98frYwEq3nLE/sbCA4nx4Gpm9Ot0ZecV
+         0Tq+UW/lI3kTg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 5DF65E6D402;
+        Tue, 22 Mar 2022 03:56:32 +0000 (UTC)
+Subject: Re: [GIT PULL] SELinux patches for v5.18
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <CAHC9VhTA1O4J_dS9T_U-Vrmi-7JeHTM6fEOfS8JJBfvoNgDrfg@mail.gmail.com>
+References: <CAHC9VhTA1O4J_dS9T_U-Vrmi-7JeHTM6fEOfS8JJBfvoNgDrfg@mail.gmail.com>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <CAHC9VhTA1O4J_dS9T_U-Vrmi-7JeHTM6fEOfS8JJBfvoNgDrfg@mail.gmail.com>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20220321
+X-PR-Tracked-Commit-Id: cdbec3ede0b8cb318c36f5cc945b9360329cbd25
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: c269497d248e43558aafc6b3f87b49d4dd3c2713
+Message-Id: <164792139238.6005.9149948654096517063.pr-tracker-bot@kernel.org>
+Date:   Tue, 22 Mar 2022 03:56:32 +0000
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Linus,
+The pull request you sent on Mon, 21 Mar 2022 18:13:51 -0400:
 
-We've got a number of SELinux patches queued up for v5.18, the
-highlights are below:
+> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20220321
 
-- Fixup the security_fs_context_parse_param() LSM hook so it executes
-all of the LSM hook implementations unless a serious error occurs.  We
-also correct the SELinux hook implementation so that it returns zero
-on success.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/c269497d248e43558aafc6b3f87b49d4dd3c2713
 
-- In addition to a few SELinux mount option parsing fixes, we
-simplified the parsing by moving it earlier in the process.  The logic
-was that it was unlikely an admin/user would use the new mount API and
-not have the policy loaded before passing the SELinux options.
+Thank you!
 
-- Properly fixed the LSM/SELinux/SCTP hooks with the addition of the
-security_sctp_assoc_established() hook.  This work was done in
-conjunction with the netdev folks and should complete the move of the
-SCTP labeling from the endpoints to the associations.
-
-- Fixed a variety of sparse warnings caused by changes in the "__rcu"
-markings of some core kernel structures.
-
-- Ensure we access the superblock's LSM security blob using the
-stacking-safe accessors.
-
-- Added the ability for the kernel to always allow FIOCLEX and
-FIONCLEX if the "ioctl_skip_cloexec" policy capability is specified.
-
-- Various constifications improvements, type casting improvements,
-additional return value checks, and dead code/parameter removal.
-
-- Documentation fixes.
-
-Please merge.
--Paul
-
---
-The following changes since commit e783362eb54cd99b2cac8b3a9aeac942e6f6ac07=
-:
-
- Linux 5.17-rc1 (2022-01-23 10:12:53 +0200)
-
-are available in the Git repository at:
-
- https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20220321
-
-for you to fetch changes up to cdbec3ede0b8cb318c36f5cc945b9360329cbd25:
-
- selinux: shorten the policy capability enum names
-   (2022-03-02 11:37:03 -0500)
-
-----------------------------------------------------------------
-selinux/stable-5.18 PR 20220321
-
-----------------------------------------------------------------
-Casey Schaufler (1):
-     LSM: general protection fault in legacy_parse_param
-
-Christian G=C3=B6ttsche (11):
-     selinux: check return value of sel_make_avc_files
-     selinux: declare path parameters of _genfs_sid const
-     selinux: declare name parameter of hash_eval const
-     selinux: enclose macro arguments in parenthesis
-     selinux: drop cast to same type
-     selinux: drop unused parameter of avtab_insert_node
-     selinux: do not discard const qualifier in cast
-     selinux: simplify cred_init_security
-     selinux: drop unused macro
-     selinux: drop return statement at end of void functions
-     selinux: use correct type for context length
-
-GONG, Ruiqi (1):
-     selinux: access superblock_security_struct in LSM blob way
-
-Ondrej Mosnacek (3):
-     selinux: parse contexts for mount options early
-     security: add sctp_assoc_established hook
-     security: implement sctp_assoc_established hook in selinux
-
-Paul Moore (3):
-     selinux: fix a type cast problem in cred_init_security()
-     selinux: various sparse fixes
-     selinux: shorten the policy capability enum names
-
-Richard Haines (1):
-     selinux: allow FIOCLEX and FIONCLEX with policy capability
-
-Scott Mayhew (2):
-     selinux: Fix selinux_sb_mnt_opts_compat()
-     selinux: try to use preparsed sid before calling parse_sid()
-
-Wan Jiabing (1):
-     docs: fix 'make htmldocs' warning in SCTP.rst
-
-Documentation/security/SCTP.rst            |  26 ++-
-include/linux/lsm_hook_defs.h              |   2 +
-include/linux/lsm_hooks.h                  |   5 +
-include/linux/security.h                   |   8 +
-net/sctp/sm_statefuns.c                    |   8 +-
-security/security.c                        |  24 ++-
-security/selinux/hooks.c                   | 299 ++++++++++++++------------=
----
-security/selinux/ibpkey.c                  |   2 +-
-security/selinux/ima.c                     |   4 +-
-security/selinux/include/policycap.h       |  21 +-
-security/selinux/include/policycap_names.h |   5 +-
-security/selinux/include/security.h        |  31 +--
-security/selinux/netnode.c                 |   9 +-
-security/selinux/netport.c                 |   2 +-
-security/selinux/selinuxfs.c               |   4 +-
-security/selinux/ss/avtab.c                |   6 +-
-security/selinux/ss/conditional.c          |   2 -
-security/selinux/ss/ebitmap.c              |   1 -
-security/selinux/ss/ebitmap.h              |   6 +-
-security/selinux/ss/mls.c                  |   1 -
-security/selinux/ss/policydb.c             |   4 +-
-security/selinux/ss/services.c             |  10 +-
-security/selinux/ss/sidtab.c               |   4 +-
-security/selinux/xfrm.c                    |   2 +-
-24 files changed, 255 insertions(+), 231 deletions(-)
-
---=20
-paul-moore.com
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
