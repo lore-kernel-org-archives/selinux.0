@@ -2,50 +2,48 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBA9DC433F5
-	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77A48C433EF
+	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:30:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241141AbiC1Lag (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Mar 2022 07:30:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46668 "EHLO
+        id S241120AbiC1Lb7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Mar 2022 07:31:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241334AbiC1LaJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:30:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AA9E62D6;
-        Mon, 28 Mar 2022 04:23:56 -0700 (PDT)
+        with ESMTP id S241456AbiC1Lax (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:30:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 378D656C2A;
+        Mon, 28 Mar 2022 04:24:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8ACF6114A;
-        Mon, 28 Mar 2022 11:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0178C340ED;
-        Mon, 28 Mar 2022 11:23:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DB046CE12EF;
+        Mon, 28 Mar 2022 11:24:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 795A8C34110;
+        Mon, 28 Mar 2022 11:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466629;
-        bh=69LG3LRf0yfNZTzLYNNB0TPVKM9hryNAVfUJeGF9CKM=;
+        s=k20201202; t=1648466660;
+        bh=utaBIuZOLBtXiQN4N4Zh4kTBVWVw5hJbIvn9YJrb1B0=;
         h=From:To:Cc:Subject:Date:From;
-        b=JyvfzHUpR3iUjJbmRBs9j/RhZWGw1aWol/USV5/MDaCFWLViqqWipPAX6G1Yp2HUq
-         9jyDzDlW0dlnQw2K47oL/v5xsjfkVxb3+sxn+ySbzv0JGQj43u0Iq8xv32nkQsyPxJ
-         nrEefGSoVJAU1HcTO+imWyT2WqajeUWzEj+ax4n9XA7MY1eAWuQ7aH5JWwTEyLzAJS
-         6Tdu6weTR1nI9tJMsPvrCA8CxlCsJ2Y89L3QjiP8OsR3fFykYwOQU7S8s/UpyeN22o
-         AP/pVFEJcAbDxKZYtm14ryUtiAfvnIoSXucEfWaU1vCU7SY+vhlMppdaQmclJkLQuF
-         IaH89rKrCjq8g==
+        b=vR3TAlwEyggGr2rEKKMCrjSBP/eUHEOxTfurej2OaoxjH5gh2lVEIpPBg8JaF3hvI
+         xE2HKQhnIYiIwyhbtby19ncUfcmBIDmj/LsIhEHUNZnQ4EJRFwNnBC7JGhM2Kt2ZOl
+         eH697u2iHJeqmHko+z1XLd2RGRBespcLpUYmG9CR58hf+LdCEUlehMxj0vE0v488Dh
+         i3Yc1M6BTAQZxZFl3oqzT4/mIrMVd3JjDLzA9AdsYgi+ZaaGeLJ2Ct00Y8MfzhlrPk
+         OUUB3l8lQTWOY6JXOF9MWxWW2YBYcsYwbuQgL8GPPmWZ4S2POHDeckdH4LsSQ2pyHk
+         I0pPrQezhTlzg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com,
-        James Morris <jamorris@linux.microsoft.com>,
+Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, linux-security-module@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
         selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 01/16] LSM: general protection fault in legacy_parse_param
-Date:   Mon, 28 Mar 2022 07:23:30 -0400
-Message-Id: <20220328112345.1556601-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 01/12] selinux: use correct type for context length
+Date:   Mon, 28 Mar 2022 07:24:06 -0400
+Message-Id: <20220328112417.1556946-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,77 +51,42 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-[ Upstream commit ecff30575b5ad0eda149aadad247b7f75411fd47 ]
+[ Upstream commit b97df7c098c531010e445da88d02b7bf7bf59ef6 ]
 
-The usual LSM hook "bail on fail" scheme doesn't work for cases where
-a security module may return an error code indicating that it does not
-recognize an input.  In this particular case Smack sees a mount option
-that it recognizes, and returns 0. A call to a BPF hook follows, which
-returns -ENOPARAM, which confuses the caller because Smack has processed
-its data.
+security_sid_to_context() expects a pointer to an u32 as the address
+where to store the length of the computed context.
 
-The SELinux hook incorrectly returns 1 on success. There was a time
-when this was correct, however the current expectation is that it
-return 0 on success. This is repaired.
+Reported by sparse:
 
-Reported-by: syzbot+d1e3b1d92d25abf97943@syzkaller.appspotmail.com
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Acked-by: James Morris <jamorris@linux.microsoft.com>
+    security/selinux/xfrm.c:359:39: warning: incorrect type in arg 4
+                                    (different signedness)
+    security/selinux/xfrm.c:359:39:    expected unsigned int
+                                       [usertype] *scontext_len
+    security/selinux/xfrm.c:359:39:    got int *
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+[PM: wrapped commit description]
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/security.c      | 17 +++++++++++++++--
- security/selinux/hooks.c |  5 ++---
- 2 files changed, 17 insertions(+), 5 deletions(-)
+ security/selinux/xfrm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/security.c b/security/security.c
-index c34ec4c7d98c..f633717311a3 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -802,9 +802,22 @@ int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc)
- 	return call_int_hook(fs_context_dup, 0, fc, src_fc);
- }
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 91dc3783ed94..9e803d2a687a 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -349,7 +349,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+ 	int rc;
+ 	struct xfrm_sec_ctx *ctx;
+ 	char *ctx_str = NULL;
+-	int str_len;
++	u32 str_len;
  
--int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *param)
-+int security_fs_context_parse_param(struct fs_context *fc,
-+				    struct fs_parameter *param)
- {
--	return call_int_hook(fs_context_parse_param, -ENOPARAM, fc, param);
-+	struct security_hook_list *hp;
-+	int trc;
-+	int rc = -ENOPARAM;
-+
-+	hlist_for_each_entry(hp, &security_hook_heads.fs_context_parse_param,
-+			     list) {
-+		trc = hp->hook.fs_context_parse_param(fc, param);
-+		if (trc == 0)
-+			rc = 0;
-+		else if (trc != -ENOPARAM)
-+			return trc;
-+	}
-+	return rc;
- }
- 
- int security_sb_alloc(struct super_block *sb)
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 56418cf72069..d9f15c84aab7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2855,10 +2855,9 @@ static int selinux_fs_context_parse_param(struct fs_context *fc,
- 		return opt;
- 
- 	rc = selinux_add_opt(opt, param->string, &fc->security);
--	if (!rc) {
-+	if (!rc)
- 		param->string = NULL;
--		rc = 1;
--	}
-+
- 	return rc;
- }
- 
+ 	if (!polsec)
+ 		return 0;
 -- 
 2.34.1
 
