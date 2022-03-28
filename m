@@ -2,35 +2,35 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3262BC433F5
-	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:39:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCB94C433EF
+	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:39:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241640AbiC1Lkl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Mar 2022 07:40:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        id S241652AbiC1Lkm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Mar 2022 07:40:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241902AbiC1Ld4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:33:56 -0400
+        with ESMTP id S241636AbiC1LdI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:33:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BC835838F;
-        Mon, 28 Mar 2022 04:25:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5645838E;
+        Mon, 28 Mar 2022 04:24:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10AE2B81055;
-        Mon, 28 Mar 2022 11:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1ED7C340EC;
-        Mon, 28 Mar 2022 11:24:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E4E4B80D13;
+        Mon, 28 Mar 2022 11:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E68B3C340EC;
+        Mon, 28 Mar 2022 11:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466698;
+        s=k20201202; t=1648466682;
         bh=zZZ8+bt+swbdKgisPUds2B86Lnz7Y1ZXyD/TXnFQ/U8=;
         h=From:To:Cc:Subject:Date:From;
-        b=g/68It5+Vs6MG/zmg69c4xiQcT/sMm5PMZEN7KjgFyVcQYS5xUa6vEPw+wUAt8vz0
-         QgpoHAzegm/ikk8yqa2d2qINbFG7UDwtHdtVifr/bj4ttvT7NCFEL5azwcarp2DTjy
-         L8rSeysTgjI3kFMeUNGprN0pVh49evl3Evwfwnj5/0bjw/9BT9TnlxcIkIN9gf6a4c
-         P6I6h8pp6DHhMplM2/vij7BmMSVwkvB+5RPTIJNpwQhoA5SKXPpH7lHYOQaMi0kLRS
-         5Swso7/524C/gpcp5ICcpjZPuRRzTF1etnaJcLGSgYXmtfIYUhbWB6rqu7ULusPb1f
-         tqY0QMwlnSLuQ==
+        b=RZadlyaqcCtLQnqqPkFDmnHPv+Mebg3N5ffXyI782VhCLqFEqR3OUZonhi4QZEo5l
+         QFFVXUEX/WOVAbxE1GYbxz6wS0SWrFW9uueWJeNRC8jXYXsdQFtJoAF3KVqXZ/hbtp
+         ldPYQjTIhqlasZBatD4O+5FzfUD85amIXT2gg+XpNS7qBpILOcDSk2UAos6JIAFIp3
+         UKHXz30s8Q7pUEkKdpQkJ6HMAZi6NCnZH0gOBdIO1HZ18GwFiRcs581/9HjojBYUY2
+         tl7tJIxsAIaCBdID+a5fuA0p65HX78/88Bg3hpN3C5AhE3jV7yaieub8HHRTsSYonO
+         yTwgSoqghZFTg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
@@ -38,9 +38,9 @@ Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Sasha Levin <sashal@kernel.org>,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
         selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 1/8] selinux: use correct type for context length
-Date:   Mon, 28 Mar 2022 07:24:49 -0400
-Message-Id: <20220328112456.1557226-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 1/8] selinux: use correct type for context length
+Date:   Mon, 28 Mar 2022 07:24:32 -0400
+Message-Id: <20220328112440.1557113-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
