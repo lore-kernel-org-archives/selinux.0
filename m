@@ -2,35 +2,35 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B81D3C4332F
-	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:24:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 012C2C4332F
+	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:24:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241132AbiC1LZg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Mar 2022 07:25:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
+        id S241756AbiC1LYS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Mar 2022 07:24:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241136AbiC1LZN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:25:13 -0400
+        with ESMTP id S240811AbiC1LVg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:21:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FF89D;
-        Mon, 28 Mar 2022 04:23:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A8855741;
+        Mon, 28 Mar 2022 04:19:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BDBDB81056;
-        Mon, 28 Mar 2022 11:23:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41184C340ED;
-        Mon, 28 Mar 2022 11:23:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C820B80ED8;
+        Mon, 28 Mar 2022 11:19:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC37C340EC;
+        Mon, 28 Mar 2022 11:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466596;
-        bh=aHVl+/EsQrR9neBjGG86Q9pePZdY475UvksKXzhKhz8=;
+        s=k20201202; t=1648466355;
+        bh=7qvzKpOmCq+KJ4POlL/Aj0pWv98sM06BVFyOzeSxcEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iac471Iz/CHb3CyRdoWr8hkjToTtjqdYUnngmyvuj+RY+Fg++B0aO6gIfcCSDW7/H
-         /Mv5NuUFyn4hvxy98YfrUqGsqvZVLJASlKVoEwZDNO48MXQ+j9f9vSHAsp4wMthnx2
-         TXFLm2DkgNiYASrF+ZixtCDLCxCcw2HRbKngq5mQvaGUHsYr1MxlspDM3QvSbytVFL
-         p/n1v8q61+YUXC2VlHfQqOpiJjS6vOgPSo6WvaUhaDkUBkWDdTI199CH9enQNgOKaM
-         l6Hk2Z70a8bqDpHZNFJyn6aplAY0EceDz44xe21myxN/nkuFqc1d4R74WrvTNqD8Mz
-         8wOH0e+x5j6Wg==
+        b=BUWq2j3fel1puBZii+A+0k2i4eUBybNBm3FaDA+NG+EA8mgIb+KtfhfUVJqzzwMN+
+         UsRdGBT5iKJJuq/5MuCnmREJ9b1KaebmtqF1hwNLPU2V0XuIkGaHmD4AmjpMRzG7dc
+         mgvs/3T8f5jiQCO3acWH8D8WWqy8pTe0XQGmLF0YyK6nkCQmlzgteaUx1STHuvs3yb
+         vurlxvzgatZLWf7vR/C6T9A/RZAqTmkQqzITtaZ4xS40E3BAF+kQFD4SZklgV1aI52
+         aVpDbdkox2wSXnbPPWnSjQx0BQw/rvDzFTJgl9ypMvsBWbDwUFj7VZqwyp9Ej07DE/
+         tirW5PWnaZu+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>,
@@ -40,12 +40,12 @@ Cc:     Richard Haines <richard_c_haines@btinternet.com>,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
         cgzones@googlemail.com, ndesaulniers@google.com,
         selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/21] selinux: allow FIOCLEX and FIONCLEX with policy capability
-Date:   Mon, 28 Mar 2022 07:22:40 -0400
-Message-Id: <20220328112254.1556286-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 22/43] selinux: allow FIOCLEX and FIONCLEX with policy capability
+Date:   Mon, 28 Mar 2022 07:18:06 -0400
+Message-Id: <20220328111828.1554086-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220328112254.1556286-1-sashal@kernel.org>
-References: <20220328112254.1556286-1-sashal@kernel.org>
+In-Reply-To: <20220328111828.1554086-1-sashal@kernel.org>
+References: <20220328111828.1554086-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -78,10 +78,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  4 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 63e61f2f1ad6..8c901ae05dd8 100644
+index 371f67a37f9a..141220308307 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3647,6 +3647,12 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+@@ -3744,6 +3744,12 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
  					    CAP_OPT_NONE, true);
  		break;
  
@@ -121,7 +121,7 @@ index b89289f092c9..ebd64afe1def 100644
  
  #endif /* _SELINUX_POLICYCAP_NAMES_H_ */
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 63ca6e79daeb..1521460a97d4 100644
+index ac0ece01305a..c0d966020ebd 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
 @@ -219,6 +219,13 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
