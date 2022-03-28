@@ -2,35 +2,35 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77EF4C433F5
-	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:22:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57E4AC4321E
+	for <selinux@archiver.kernel.org>; Mon, 28 Mar 2022 11:22:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240854AbiC1LYX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Mar 2022 07:24:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59800 "EHLO
+        id S240870AbiC1LYZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Mar 2022 07:24:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241365AbiC1LXq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:23:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E155883A;
-        Mon, 28 Mar 2022 04:20:43 -0700 (PDT)
+        with ESMTP id S241730AbiC1LYJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Mar 2022 07:24:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C3B55BF2;
+        Mon, 28 Mar 2022 04:21:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0BA7611B7;
-        Mon, 28 Mar 2022 11:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E26C36AE9;
-        Mon, 28 Mar 2022 11:20:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A71BB81055;
+        Mon, 28 Mar 2022 11:21:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD2EC34110;
+        Mon, 28 Mar 2022 11:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1648466435;
+        s=k20201202; t=1648466511;
         bh=vb2rgtgo3AKuSL5FE0QmtfS6g/HFe+78n9tRIvZUl7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1LGeE6UJq3+nTR1ZNMqbM9fDbTttR6HOFzXdnWC/8lWjxus+BJoivxmqSfh8/7rg
-         PodZmj1UI1t40GKu8OHwhXV27Mw9+7f5pOpYdXlrLu7VNzPwnn8825NcY1jeyCQcnW
-         WFslaCf3zgG5yKfbR9vEEhv422ZeHBqah9jSx8cdwFFU0P3WzaMuzGRFj4Speo4Xt9
-         P0xNa3/SLn+EG/nWe4udlfNi0IGCSTTijtHJaoO6ov8gtaJUTf3fbWv+F07cR7l7Q1
-         GnpEya1NI79MDo6SkJxeD16l2KkPkCFG/r3XXapDv8TqSHAaEkNtP3iceB0Ajxg87Y
-         YA8qxe0CwO2oA==
+        b=MQ10Dg8a4ZAsQKyTXB5ow5bvtK8Xjz/V+h5hkMYSQ0PfPx0wlq7mF2PgZsd8+hq+9
+         4OoKneQnH/Loc2SE10EANQ8BYb6/Zo6qkymdVSUFC7sRTMHg5gCU2Xewd/cZpUmF7W
+         uBDlaOztmpIhUtluHIrwFVqqnKYHBFvj6giFdh95n+Splje7Hi2AUsycDBL+gUYK3l
+         H/QtW/FhP3fTSdc10lO3IkJ9fGdLGsL+DRL/kV9TPNWwP3PY/wfJlOcycc62OpQmnp
+         Oa2odX3msFZLwHoUsHnu2R96d1Faomf1LVAAxe/J0XS3vGIhTyYiY3onr0kofK/1e+
+         ZAVB5GBePm50Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
@@ -38,12 +38,12 @@ Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Sasha Levin <sashal@kernel.org>,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
         selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 14/35] selinux: use correct type for context length
-Date:   Mon, 28 Mar 2022 07:19:50 -0400
-Message-Id: <20220328112011.1555169-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 11/29] selinux: use correct type for context length
+Date:   Mon, 28 Mar 2022 07:21:13 -0400
+Message-Id: <20220328112132.1555683-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220328112011.1555169-1-sashal@kernel.org>
-References: <20220328112011.1555169-1-sashal@kernel.org>
+In-Reply-To: <20220328112132.1555683-1-sashal@kernel.org>
+References: <20220328112132.1555683-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
