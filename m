@@ -2,118 +2,133 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DDDAC433EF
-	for <selinux@archiver.kernel.org>; Wed, 30 Mar 2022 19:06:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF17FC433FE
+	for <selinux@archiver.kernel.org>; Wed, 30 Mar 2022 19:06:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350516AbiC3TII (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Mar 2022 15:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48386 "EHLO
+        id S1345876AbiC3TIc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Mar 2022 15:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350514AbiC3TIE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Mar 2022 15:08:04 -0400
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38CC82F387
-        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 12:06:19 -0700 (PDT)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-de3ca1efbaso22999290fac.9
-        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 12:06:19 -0700 (PDT)
+        with ESMTP id S1344730AbiC3TIc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Mar 2022 15:08:32 -0400
+Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 855DB13B
+        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 12:06:46 -0700 (PDT)
+Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-de3eda6b5dso23060833fac.0
+        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 12:06:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Ep/B5jCmKQky3+DkX38CJKthsuL7hQk7n7nL5T7ds3A=;
-        b=MNnqTgCE4+njj9ItvBSzTCABDTg8EUPDyg9myUqLZNN7eDSEx8aKWDsvAdBpzjqc2z
-         ZpRS7w5/rMGDVo/aUH0OdoXxQehPMAWNXt0HUackEshc/v+jvw/o3tZ3HQWPe/rYyrx7
-         44Zm0AOxFoSFsXcISlqkSkNZghRYVPvmTQbXzOvKSawxdmj76RZMxeWqHYQ2anQoQq/J
-         RAoDBqgdsVQ3BlbCtBctC+dzZ0SDXZPYboOIAnxZIYfv9TZFKstdC+/AXALsp+IjN0Zj
-         2SmMZO9n7wcNp7T9xZmD7ukS86Y7l5LQ6wetxEaVD7V4T4wHeBPRP6DUD3gtbo5SmGz9
-         hFng==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=ESEmyX+T5xuiJScPWDsEyGBRIbcaozjU4xz2b86iZh4=;
+        b=Ilf2jkFlYxNyEATV4AxkiFI48Dsf6q6M0hf0aC8tjUyk5mwhkU9rZ6Zvr+n3db298i
+         ftHViKdCG/yAAJ+fft2wgGb7LSlVJKywcT4gFKSl7dwpZJuCRXcCcLwqd6KUIIs0LD/5
+         ocGC9RfyR/GnsUIqPeG7gg4sCL+obkwgNveYiOSLlW/3NCxpzehjc2NrkG/4WJkRAjpX
+         2mR4qZmnAt8CYFRKhacdBmcE8WUKHvRkV9DAUoUNygGhA2cFjdeC47uEnBzK27ubnTOg
+         Ku6kegZAKJjxMiP4sR5ocbEorbmnYwEJfb1np8rIXdyPj22EdUMRwpW7y4t1/DoROPFc
+         E3YQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Ep/B5jCmKQky3+DkX38CJKthsuL7hQk7n7nL5T7ds3A=;
-        b=T58Pf3WzoYqdktHwvhTSPA4D5Xo7j67CGYZ4cf0zskmO3vpja31YqtYbE0+p320y6F
-         24CRB0HvOQiodINu+12lrL+maGZxdayPh9phize4Ccc2pPA0MRgFAeKZHZ3ZdNr3rzZ9
-         B7K1Sk3D35vMO1n1UuHOz0aOZjdhHXvb9zFHqyFM5c9TLSzdC8uCuLYCnpB5KM3OrvXf
-         FlExrKjas7AfyD8gsaQP4Wvp8nMtOSURtLz2XewaHFWahrgRZD6svaFIyRNig5QFjc6W
-         cib3oGdoSupPmoLAb7VOlcPbuuUoH4tgeRLN2VpwZWYxCzbcru9K1p3KInVRUldvbM7g
-         c/4w==
-X-Gm-Message-State: AOAM532bboG3+zcOov3/ceZkcS4QKE2bVIdkhw3kus8w9bSR59dsY/JH
-        yo8GaEOZqRyYwR6FIU3A5ZwetoGkxOaSPsu7VDWCqspl
-X-Google-Smtp-Source: ABdhPJyQh8L1nC9ml6sresfDTs1bckIvTzjxMaMWyycTMl1YHmMRNgC/H6nYeshdXgBLNqpaqbCJjsmpMRnb6gPD1is=
-X-Received: by 2002:a05:6871:81e:b0:dd:9f3e:c94a with SMTP id
- q30-20020a056871081e00b000dd9f3ec94amr630477oap.156.1648667178412; Wed, 30
- Mar 2022 12:06:18 -0700 (PDT)
+         :message-id:subject:to;
+        bh=ESEmyX+T5xuiJScPWDsEyGBRIbcaozjU4xz2b86iZh4=;
+        b=PXiNhwNX1klP36M0w0/2ELPeemBU4MaPn2thXLXIDZrIYlpL1YDz8PEO7KISVdkRC1
+         1/5LYzU1cU0tLHS7zoXt5WK7yXxZjBq+PQBAsO/YWotSr82tlEdcQNCUewFsmpyc+Cqo
+         lVbkZQFBMaFE2A6BAbQkEyhIhJgOFSi+D56cbEJ34QfheukH4FjeRlgexVIxlaFl6Ab6
+         sdHb50gKx2gHGYkMXNhnvhDq+4hT9IH/DbD+ytF236oNeJOnPeAVR9jqA0NVaLzf/mXz
+         +CSSIkX2RSEKR5jrKYVhbvNIS0lz+lPs8Cvs/nHuCqtrdCIunfIB03CDBe0VIbtRQxNj
+         +vTw==
+X-Gm-Message-State: AOAM53337MOWWHY4R2jZLF0Ccb/ujS8drmEp5hMrWNVz/dUQYoTjA/F4
+        NXvVUrPgO0bfL5L0833w8ijE9Rm7vIaPdaJ/uFJJno2q
+X-Google-Smtp-Source: ABdhPJy1RYSwk3jnNBihzqRfLh77bWZmNWw12Hb2+nDb6THSAU/bTDze5yPodkjzRA2AeOLPbN75OLstHCb2JTgZQXA=
+X-Received: by 2002:a05:6870:5a4:b0:da:b3f:3206 with SMTP id
+ m36-20020a05687005a400b000da0b3f3206mr641028oap.182.1648667205798; Wed, 30
+ Mar 2022 12:06:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220314182400.121510-1-jwcart2@gmail.com> <CAJ2a_Dd-c=xTsnz9q95dhQkwTD+iFcVuRyMCUAG2TopASY739Q@mail.gmail.com>
-In-Reply-To: <CAJ2a_Dd-c=xTsnz9q95dhQkwTD+iFcVuRyMCUAG2TopASY739Q@mail.gmail.com>
+References: <20220316205346.260080-1-jwcart2@gmail.com>
+In-Reply-To: <20220316205346.260080-1-jwcart2@gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 30 Mar 2022 15:06:07 -0400
-Message-ID: <CAP+JOzRsMCuTeY_ee9+SrOE=6DvridAo-F8W=8sN6hefztRa1Q@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Use calloc when initializing bool_val_to_struct array
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Wed, 30 Mar 2022 15:06:35 -0400
+Message-ID: <CAP+JOzTDRrv+CuuSopryjN7yTg2JhER8ePAGtgbYZWepSGjYyg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Validate conditional expressions
+To:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 29, 2022 at 3:43 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, Mar 16, 2022 at 4:53 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Mon, 14 Mar 2022 at 19:24, James Carter <jwcart2@gmail.com> wrote:
-> >
-> > Use calloc() instead of mallocarray() so that everything is
-> > initialized to zero to prevent the use of unitialized memory when
-> > validating malformed binary policies.
-> >
-> > Found by oss-fuzz (#45493)
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  libsepol/src/conditional.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
-> > index f78b38a2..a620451d 100644
-> > --- a/libsepol/src/conditional.c
-> > +++ b/libsepol/src/conditional.c
-> > @@ -522,7 +522,7 @@ int cond_init_bool_indexes(policydb_t * p)
-> >         if (p->bool_val_to_struct)
-> >                 free(p->bool_val_to_struct);
-> >         p->bool_val_to_struct =3D (cond_bool_datum_t **)
-> > -           mallocarray(p->p_bools.nprim, sizeof(cond_bool_datum_t *));
-> > +           calloc(p->p_bools.nprim, sizeof(cond_bool_datum_t *));
-> >         if (!p->bool_val_to_struct)
-> >                 return -1;
-> >         return 0;
-> > --
-> > 2.34.1
-> >
+> When validating a policydb, validate the conditional expressions
+> including the values of the booleans within them.
 >
-> Can this be merged? I think it might hurt the fuzzer, e.g. cause the
-> flakiness in issue #45327.
+> Found by oss-fuzz (#45523)
 >
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-This has been merged.
+Merged.
 Jim
 
-> On a technical note:
-> In src/policydb.c::policydb_index_others() the return value of
-> cond_init_bool_indexes() is not checked.
+> ---
+>  libsepol/src/policydb_validate.c | 43 ++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
 >
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index fc71463e..e29cbd51 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1252,7 +1252,8 @@ int policydb_index_others(sepol_handle_t * handle,
->        if (!p->type_val_to_struct)
->                return -1;
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+> index a2dcebe4..13d9480d 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -881,9 +881,52 @@ bad:
+>         return -1;
+>  }
 >
-> -       cond_init_bool_indexes(p);
-> +       if (cond_init_bool_indexes(p) =3D=3D -1)
-> +               return -1;
+> +static int validate_cond_expr(sepol_handle_t *handle, struct cond_expr *expr, validate_t *bool)
+> +{
+> +       int depth = -1;
+> +
+> +       for (; expr; expr = expr->next) {
+> +               switch(expr->expr_type) {
+> +               case COND_BOOL:
+> +                       if (validate_value(expr->bool, bool))
+> +                               goto bad;
+> +                       if (depth == (COND_EXPR_MAXDEPTH - 1))
+> +                               goto bad;
+> +                       depth++;
+> +                       break;
+> +               case COND_NOT:
+> +                       if (depth < 0)
+> +                               goto bad;
+> +                       break;
+> +               case COND_OR:
+> +               case COND_AND:
+> +               case COND_XOR:
+> +               case COND_EQ:
+> +               case COND_NEQ:
+> +                       if (depth < 1)
+> +                               goto bad;
+> +                       depth--;
+> +                       break;
+> +               default:
+> +                       goto bad;
+> +               }
+> +       }
+> +
+> +       if (depth != 0)
+> +               goto bad;
+> +
+> +       return 0;
+> +
+> +bad:
+> +       ERR(handle, "Invalid cond expression");
+> +       return -1;
+> +}
+> +
+>  static int validate_cond_list(sepol_handle_t *handle, cond_list_t *cond, validate_t flavors[])
+>  {
+>         for (; cond; cond = cond->next) {
+> +               if (validate_cond_expr(handle, cond->expr, &flavors[SYM_BOOLS]))
+> +                       goto bad;
+>                 if (validate_cond_av_list(handle, cond->true_list, flavors))
+>                         goto bad;
+>                 if (validate_cond_av_list(handle, cond->false_list, flavors))
+> --
+> 2.34.1
 >
->        for (i =3D SYM_ROLES; i < SYM_NUM; i++) {
->                free(p->sym_val_to_name[i]);
