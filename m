@@ -2,142 +2,137 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E6BC433FE
-	for <selinux@archiver.kernel.org>; Wed, 30 Mar 2022 15:17:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8166BC433F5
+	for <selinux@archiver.kernel.org>; Wed, 30 Mar 2022 15:22:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348062AbiC3PS7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Mar 2022 11:18:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37854 "EHLO
+        id S244023AbiC3PXu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Mar 2022 11:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348130AbiC3PST (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 30 Mar 2022 11:18:19 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5BD81480F2
-        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 08:16:33 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id t21so17472730oie.11
-        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 08:16:33 -0700 (PDT)
+        with ESMTP id S243242AbiC3PXs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Mar 2022 11:23:48 -0400
+Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0B8192362
+        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 08:22:01 -0700 (PDT)
+Received: by mail-il1-x12b.google.com with SMTP id h18so10195041ila.12
+        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 08:22:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=crunchydata.com; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=4ctLAFJP74QSx1OjJbRAQDli0eWzSCOSfiPZsyqmZXA=;
-        b=KoSyx7CQyCVTYVtGQY/5PpDcfRuZjVttAcvM9x+DpZ9SViirrgUyRzd3qevj5KaAXk
-         bfTA5bQhwJSrXV/IxBlp+FV1Jt2RoBncFo01zEGjoyBYJbDlWE+ZVdVlZztkE2ThmvfS
-         Gx8AfaG+Un6i8WGRUy1AfDu3RDfLVKudwtPPiSVbcFAhDrlo7hobIjciJISOX0g/Cpm6
-         Q2JeeXwL4AjxBEfO3hvxLE1Fr5ykV5eHluEcRVX/Ir7ZXsPUYGmPn/w7NumzoWblqeQo
-         yqjy6vNvFj4wOXypC9c/v5ISbrTLb5V1LnlnhmNyQ+Lz4MawbNQkVBsuYfPLPNal3o9f
-         Q6/w==
+        bh=qHM8xkqLSlTxZ5CWW+E97Lf9LYJLU9OmLftw5n5cgwY=;
+        b=oC0kIUT16fUAYmYhRPVeBPjl3zCzEOPCXOq2/TCJLkdCLOZYiI4gZfMG/aOUXTbDUG
+         Xw+g5h8lV5/LSFgLsi2AIQPNxZRFuWdADV53ubELckez3r01wuld7GS0jVxGOHQbs0zD
+         dEUjP5rYHTGar/ShYznTHVmYcW5PBjk+s+N7OfeZUtiSgbPG9AXl+yl3FgRAkVbn23si
+         7MIJQzBQqKuz34ROk2WmuB98O/dLbpWJVCXS9VJJ+HnelgvWukddiCqcHA2hnspXizHE
+         Qi1iifqZP1vW+gV8Plr9PmhgnqZBttZp0KHAgkPYc3x7mF3C8KMDKeJS/fNvQQ/YlLUx
+         TO9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=4ctLAFJP74QSx1OjJbRAQDli0eWzSCOSfiPZsyqmZXA=;
-        b=SdrDnfoK1JtcRujCDZ54oI3SAZJnO0VeGrOuTelrxjinrRuLCXUPGw5bpRgC7OhLyL
-         thpnZvWNJbzLx2bmUPQt9PlCYWe5CdHd7UcuMjEkP7ydqVfZ76TipKDr38Pt4REJhHx7
-         9jzNx3fJ9o5U4szuLKcuy+cSDTmFoOWocG/QS/J9hJcLoSMQC9bBIxVc1E/leRNZzPD9
-         Qck1vw70N1yogbPAM5M/3w8gvfTFMvxo/LuPGzB+ZOgoyMCfs+0XYhMs1AD4FAi84MNg
-         F4BoNT1FbyMBMjJIUAQV5oaBSfcHhP1iWcEppgFtUHNJ3VCViDRYQjRGo3zhKNEz9VNy
-         tTng==
-X-Gm-Message-State: AOAM533c1dD935QuTMT24zabMiVBLDEV1Agsanl8MBfwNid4O9WtSOlx
-        L/zTUWkWh8oYH+wePxyMfLWwpSPpLCHHSBJxDK8=
-X-Google-Smtp-Source: ABdhPJybk1BYaofVB3xIiDPUm/uxglitEtfmf6D54S3bfAVv49fR6C/oq/I9XYFAKhsWTjOoKX3FU3ezPPJ5DmGe8Vc=
-X-Received: by 2002:a05:6808:210b:b0:2d9:a6d3:b029 with SMTP id
- r11-20020a056808210b00b002d9a6d3b029mr60208oiw.182.1648653393040; Wed, 30 Mar
- 2022 08:16:33 -0700 (PDT)
+        bh=qHM8xkqLSlTxZ5CWW+E97Lf9LYJLU9OmLftw5n5cgwY=;
+        b=MN1dRTebRKonxtOKE0lkrBV99cyp5ljFBO83lnxlp08gj8EGKLvasAyYQ0bIXZi7ks
+         TlZRJiBa3GvZ2XWEWURYKtd2D0oNcMp4te25vL9d2hOZUf0wc/pJnVehehUYU2CkzmaA
+         JNxuAQLtFMZBSxW2Owfb2beAVNixTv4JyvbX2/B11AUDsmFCeEU6tScNnqhDyJhHdLJA
+         M7u7eprApjTW2+YSTz3l/wG32XQ9B3c48+CZg7jfGc7KApFNut1nzKpm7ZaXd++Ptl8x
+         BLAEIlILlLchVgOUxltfLP9ExWaIwP6Zy2kJvSmlsNo7kcejarHSApoSmQeHTrtUKRVy
+         Rk1A==
+X-Gm-Message-State: AOAM531bygDr1i8SSukWBjNMPJ1HOxFGgYL2bxUrDkC9KumZvIIB7Kcn
+        JRm4UoJObAHyLbqvKB6O8K/cKgOekNTboisrTF7kFg==
+X-Google-Smtp-Source: ABdhPJzjXiN0E/JaCQoupB44azLEopG8iA8btrLo9RnaSNSzmRqQeepvDx/SfWPMRUykk2XKrZJfAonSmG+8+V0p+d4=
+X-Received: by 2002:a05:6e02:164b:b0:2c7:f5b9:214e with SMTP id
+ v11-20020a056e02164b00b002c7f5b9214emr11551297ilu.188.1648653721027; Wed, 30
+ Mar 2022 08:22:01 -0700 (PDT)
 MIME-Version: 1.0
-References: <87pmm43dfc.fsf@redhat.com>
-In-Reply-To: <87pmm43dfc.fsf@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 30 Mar 2022 11:16:21 -0400
-Message-ID: <CAP+JOzTnOW9A7iyDeysC6pNcZA9sAqJxP1UhMYJx3-Umk6R3Ag@mail.gmail.com>
-Subject: Re: Lets start with 3.4 userspace release
-To:     Petr Lautrbach <plautrba@redhat.com>
+References: <20220314182400.121510-1-jwcart2@gmail.com> <CAGB+Vh59mbuLpAAXU2vikcF+3H9t_DY9N8GNHEkWv7bzP0hXGQ@mail.gmail.com>
+ <CAP+JOzSm3S4xkzRAwvs+5Diy39LimcSr44dH48_gqjTwcwG1EA@mail.gmail.com>
+ <CAGB+Vh7aBin48a2yrwG2ei_K6jKQJH5DH-vfroJ_xWnved6smA@mail.gmail.com> <CAP+JOzSoCCUJD1fD05Fz1po+qnOch5zaY3uUNo1yXsvGOMTy2A@mail.gmail.com>
+In-Reply-To: <CAP+JOzSoCCUJD1fD05Fz1po+qnOch5zaY3uUNo1yXsvGOMTy2A@mail.gmail.com>
+From:   Joshua Brindle <joshua.brindle@crunchydata.com>
+Date:   Wed, 30 Mar 2022 11:21:50 -0400
+Message-ID: <CAGB+Vh6nFp2fj0KzSd-vr-hG3nz1SpdDX2YP8snkpdmN1C=dRg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Use calloc when initializing bool_val_to_struct array
+To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 29, 2022 at 3:06 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Wed, Mar 30, 2022 at 11:10 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> Hello,
+> On Wed, Mar 30, 2022 at 11:09 AM Joshua Brindle
+> <joshua.brindle@crunchydata.com> wrote:
+> >
+> > On Wed, Mar 30, 2022 at 10:51 AM James Carter <jwcart2@gmail.com> wrote:
+> > >
+> > > On Wed, Mar 30, 2022 at 9:55 AM Joshua Brindle
+> > > <joshua.brindle@crunchydata.com> wrote:
+> > > >
+> > > > On Mon, Mar 14, 2022 at 2:24 PM James Carter <jwcart2@gmail.com> wrote:
+> > > > >
+> > > > > Use calloc() instead of mallocarray() so that everything is
+> > > > > initialized to zero to prevent the use of unitialized memory when
+> > > > > validating malformed binary policies.
+> > > > >
+> > > > > Found by oss-fuzz (#45493)
+> > > > >
+> > > > > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > > > > ---
+> > > > >  libsepol/src/conditional.c | 2 +-
+> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > >
+> > > > > diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+> > > > > index f78b38a2..a620451d 100644
+> > > > > --- a/libsepol/src/conditional.c
+> > > > > +++ b/libsepol/src/conditional.c
+> > > > > @@ -522,7 +522,7 @@ int cond_init_bool_indexes(policydb_t * p)
+> > > > >         if (p->bool_val_to_struct)
+> > > > >                 free(p->bool_val_to_struct);
+> > > > >         p->bool_val_to_struct = (cond_bool_datum_t **)
+> > > > > -           mallocarray(p->p_bools.nprim, sizeof(cond_bool_datum_t *));
+> > > > > +           calloc(p->p_bools.nprim, sizeof(cond_bool_datum_t *));
+> > > > >         if (!p->bool_val_to_struct)
+> > > > >                 return -1;
+> > > > >         return 0;
+> > > > > --
+> > > > > 2.34.1
+> > > >
+> > > > Why not change the mallocarray macro to use calloc? I see a number of
+> > > > mallocarray calls that should be audited if this approach is taken.
+> > >
+> > > Many of the calls to mallocarray() should be replaced by calloc()
+> > > because the array is initialized to zero right after the mallocarray()
+> > > call. I guess all of the calls can be replaced if you don't mind
+> > > having the memory set to zero and then immediately setting the array
+> > > to different values.
+> > >
+> > > I will merge this patch and send another patch replacing mallocarray()
+> > > where appropriate.
+> > >
+> >
+> > Hrm, I meant something like:
+> >
+> > diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+> > index a8cc1472..9a51fb34 100644
+> > --- a/libsepol/src/private.h
+> > +++ b/libsepol/src/private.h
+> > @@ -90,7 +90,7 @@ static inline void* mallocarray(size_t nmemb, size_t size) {
+> >                 return NULL;
+> >         }
+> >
+> > -       return malloc(nmemb * size);
+> > +       return calloc(nmemb, size);
+> >  }
+> >
+> >  #ifndef HAVE_REALLOCARRAY
+> >
+> >
+> > Since mallocarray has additional length checking logic that you lose
+> > if you just switch from mallocarray to calloc.
 >
-> after 142 commits and 5 months since last SELinux userspace release,
-> it's time to think about another release.
->
-> The current backlog of patches is bellow. Please take a look.
->
-> This time, I'd like to release rcX every 14 days -
-> rc1 - 04-06-2022
-> rc2 - 04-20-2022
-> ...
->
-> I'll try send patches with the release number change on Mondays before every
-> release.
->
->
-> Also when rc1 is out, please consider postponing non-bugfix patches
-> after the release or provide a comment that the change is not necessary
-> for this release.
->
->
->
-> * https://patchwork.kernel.org/patch/12617693/ New [v2] Support static-only builds
->
-> - v2 of https://lore.kernel.org/selinux/87lf1scgd6.fsf@alyssa.is/
-> - waits for another review
->
-> * https://patchwork.kernel.org/patch/12639767/ New libsepol: free ebitmap on end of function
->
-This is part of the notself patches which will not be ready for this release.
+> Does it? The man page for calloc says that it will return an error if
+> nmemb * size will overflow.
 
-> * https://patchwork.kernel.org/project/selinux/list/?series=590259 add not-self neverallow support
->
-Still working, but not for this release.
-
-> * https://patchwork.kernel.org/patch/12672523/ New [v2] secilc: kernel policy language is infix
->
-This one fell off my radar. I can ack and merge it.
-
-> * https://patchwork.kernel.org/project/selinux/list/?series=604679  libsepol: Adding support for not-self rules
->
-Still working, but not for this release.
-
-> * https://patchwork.kernel.org/patch/12718352/ New [libselinux] libselinux: make threadsafe for discover_class_cache
->
-> * https://patchwork.kernel.org/patch/12726783/ New libselinux: Prevent cached context giving wrong results
->
-> * https://patchwork.kernel.org/project/selinux/list/?series=616731 libsepol: add sepol_av_perm_to_string |
->
-> """
-> Since most of these functions are used in either checkpolicy or
-> audit2why (or both), it is probably fine to export these, but I would
-> appreciate any thoughts that Chris and others might have.
-> """
->
-I need to think about this one.
-
-> * https://patchwork.kernel.org/patch/12775701/ New libsepol/cil: Write a message when a log message is truncated
->
-I will merge this.
-
-> * https://patchwork.kernel.org/patch/12780657/ New libsepol: Use calloc when initializing bool_val_to_struct array
->
-I will merge this.
-
-> * https://patchwork.kernel.org/patch/12783189/ New libsepol: Validate conditional expressions
->
-I will merge this.
-
-> * https://patchwork.kernel.org/patch/12790631/ New [v3] libsemanage: Fall back to semanage_copy_dir when rename() fails
->
-I don't know if Ondrej was planning on ack'ing it, but it seems like
-he is satisfied.
-
-Jim
-
-
->
->
-> Petr
->
+Alright, +1
