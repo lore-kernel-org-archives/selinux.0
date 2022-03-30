@@ -2,54 +2,54 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDE03C433F5
-	for <selinux@archiver.kernel.org>; Tue, 29 Mar 2022 19:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44141C433F5
+	for <selinux@archiver.kernel.org>; Wed, 30 Mar 2022 13:55:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236494AbiC2Tp2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Mar 2022 15:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40194 "EHLO
+        id S1346179AbiC3N4t (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Mar 2022 09:56:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240582AbiC2TpZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Mar 2022 15:45:25 -0400
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37CA2316C
-        for <selinux@vger.kernel.org>; Tue, 29 Mar 2022 12:43:40 -0700 (PDT)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-de48295467so19888592fac.2
-        for <selinux@vger.kernel.org>; Tue, 29 Mar 2022 12:43:40 -0700 (PDT)
+        with ESMTP id S245107AbiC3N4s (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Mar 2022 09:56:48 -0400
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0247C6EB1E
+        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 06:55:03 -0700 (PDT)
+Received: by mail-io1-xd32.google.com with SMTP id q11so24790212iod.6
+        for <selinux@vger.kernel.org>; Wed, 30 Mar 2022 06:55:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
+        d=crunchydata.com; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=COLOv2W6kb98p/qqe60XK5otMso3FIUd0noWuXfSJQs=;
-        b=Z0DqcddA5jji77hcPYj4CLEDQI9cz5xj71rGzMj7Lq2av1lf+jqdtU/+55zukmxopA
-         /wkCOg7GggNcBPbl3M6LnA9cjpMdNYcIYovUxBUCCkK1HuglJWorxE64quPlJ3BlLSze
-         CDbtci/OsflT74wwL5lstgo+DppxZEHjzWdW6GCV8Exx6F68O7YA8PE8v223rAPrFkxG
-         3M0VXDwk3LqOKha57+rbQSeLNk7DHYKl7+IWuNreOPZP22m7ofPut/2FgpJvDG1uHXCH
-         m3BgTFFUbvtumb6f49THphLCAbzgU1xCAKNbhU44Fs9dRzIqpGHoTx/fxK+PGSecW0T2
-         FPSA==
+        bh=8FcK7QmkIiYJSoQw2INEcc2ogTo2eh1Iq2n21s2DHUY=;
+        b=fXWvPM6W1jxz/Z7rQjc4QFPf1WnATQ69T+/sez9ryYVjX7UuxOgSoinJD5cUNr2EDz
+         Mxkci9hjz1mYPp4uCfdzwNzVQ5AO6CbOdcvu71RUgBB5jHLLdmiihyiNsTY7vJoxC+Ci
+         +WlSKoNM6tbmHTgtVRaVZ7UTLaZUaYosTKn6lxYKhJgdWaXSB2eu73zjGdwDb1x1aRa9
+         wPFGvkQT8HYqYlvH7l7lMi5gazpu6ZvecGgkFz2DsOa+Hk3zaKWIPIj8o3/kDIbECjVo
+         MVCB5A1cQXv2BQsM3RQDDk+oCm6o/yGo2D+LWhJ8PUN/S1KS5U79+4+Z9bn1Quuo3cYx
+         DUFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=COLOv2W6kb98p/qqe60XK5otMso3FIUd0noWuXfSJQs=;
-        b=2DLZxOa9EqAnLaWJiYnPwpJe5A0olU3G+0TATEgPw8B546BobtWWd6EXJM8UJw10Ob
-         ZfA+33d0tQ2cg1dDikiczg6NnCgG7n6xsj8NmN0EATmn9ozQfynXcRy0hJF6aUcSY+TI
-         iW7zx0KAC0csuLVMo/p8dSNAtUMC+CCeOyVsgf19U/VKrpN0bmAmAEvMNoxjAVCNRgBQ
-         hmVa/OuTHkDpKx1Af5sd8wFK+1JhKFfXhp/Z7/0JOZnrhiMa4JtdEYX/5K/hdPsDROiy
-         4KR03X5PVpZeJ0byrL0Kvw402PfLKllRN8LbkbGMT4jEZrQrlTL2JNRBj2n+kkIfbaca
-         uMuw==
-X-Gm-Message-State: AOAM532MvH0mSybGXoZAnWCWKqELOIAbsfXJScxL+WAmQ43X6yKMJ7nJ
-        8u5CjtUSpI1WGUtH8L8lgG/TUte9T4QJX7xs1jJAXbr94eI=
-X-Google-Smtp-Source: ABdhPJxjNYV3Uc1NboKexsaLontsUY6ju1rvTM9P28lfIAIdkdMlNlgnohaosE6VScx9JUJEQYsg9FwFaKNthT5LNYM=
-X-Received: by 2002:a05:6870:e408:b0:de:b929:5206 with SMTP id
- n8-20020a056870e40800b000deb9295206mr466615oag.71.1648583020092; Tue, 29 Mar
- 2022 12:43:40 -0700 (PDT)
+        bh=8FcK7QmkIiYJSoQw2INEcc2ogTo2eh1Iq2n21s2DHUY=;
+        b=uy5uJIvTNWw7XzOrOek268DiPFdfndxgVHo1XXl2yXcUlu8/znu86//3VtD8HzZCrV
+         puO2t2X2AW0tEsZ8AczJipvczLElM+xiBYFwjSnB7TWvUFIvZx0TcFLWeYgWWs+965Tw
+         +ISCzYSQi0Ya/Cu67j2H6l2tNzmPsnaQbBcpDlnUmLgLBhm0TNA3Ly9KPTNv4468K7bw
+         E/MduFLz4wuG9im8ooAjLfavYCfmej5V/nTYOoazRoeFZaU1bLy8fn8BFO3uHkC2AMDa
+         irElWim1cDcU30u5hKzFJthWTbOjONT36hlT10zF4URvdbOxRIh3lUb/9ssMi7GukvSK
+         YG7w==
+X-Gm-Message-State: AOAM533Q2zY2s0yTSNcKBL5VimQKOhitPCCAwcSIZA7oojwpnc2OI6+a
+        m26ZyzDJ6+/k9loTQLTtBtFTwLLE8ET94eYnN1VFLg==
+X-Google-Smtp-Source: ABdhPJzTiUQTToFkyOPJRB/TwF70NjXdErTbh21wJZxtb2Vj3+tSzKzQ34sXnXPRabammXURjXgK+MNAb9Xq6V+xgDQ=
+X-Received: by 2002:a05:6602:2c0c:b0:5f0:793f:cb9e with SMTP id
+ w12-20020a0566022c0c00b005f0793fcb9emr10908223iov.122.1648648502126; Wed, 30
+ Mar 2022 06:55:02 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220314182400.121510-1-jwcart2@gmail.com>
 In-Reply-To: <20220314182400.121510-1-jwcart2@gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 29 Mar 2022 21:43:29 +0200
-Message-ID: <CAJ2a_Dd-c=xTsnz9q95dhQkwTD+iFcVuRyMCUAG2TopASY739Q@mail.gmail.com>
+From:   Joshua Brindle <joshua.brindle@crunchydata.com>
+Date:   Wed, 30 Mar 2022 09:54:51 -0400
+Message-ID: <CAGB+Vh59mbuLpAAXU2vikcF+3H9t_DY9N8GNHEkWv7bzP0hXGQ@mail.gmail.com>
 Subject: Re: [PATCH] libsepol: Use calloc when initializing bool_val_to_struct array
 To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
@@ -58,7 +58,7 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 14 Mar 2022 at 19:24, James Carter <jwcart2@gmail.com> wrote:
+On Mon, Mar 14, 2022 at 2:24 PM James Carter <jwcart2@gmail.com> wrote:
 >
 > Use calloc() instead of mallocarray() so that everything is
 > initialized to zero to prevent the use of unitialized memory when
@@ -86,26 +86,6 @@ On Mon, 14 Mar 2022 at 19:24, James Carter <jwcart2@gmail.com> wrote:
 >         return 0;
 > --
 > 2.34.1
->
 
-Can this be merged? I think it might hurt the fuzzer, e.g. cause the
-flakiness in issue #45327.
-
-On a technical note:
-In src/policydb.c::policydb_index_others() the return value of
-cond_init_bool_indexes() is not checked.
-
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index fc71463e..e29cbd51 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1252,7 +1252,8 @@ int policydb_index_others(sepol_handle_t * handle,
-       if (!p->type_val_to_struct)
-               return -1;
-
--       cond_init_bool_indexes(p);
-+       if (cond_init_bool_indexes(p) == -1)
-+               return -1;
-
-       for (i = SYM_ROLES; i < SYM_NUM; i++) {
-               free(p->sym_val_to_name[i]);
+Why not change the mallocarray macro to use calloc? I see a number of
+mallocarray calls that should be audited if this approach is taken.
