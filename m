@@ -2,173 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CC77C433F5
-	for <selinux@archiver.kernel.org>; Thu, 31 Mar 2022 15:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BF01C433FE
+	for <selinux@archiver.kernel.org>; Thu, 31 Mar 2022 17:34:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233506AbiCaPRH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Mar 2022 11:17:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46382 "EHLO
+        id S231666AbiCaRgj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Mar 2022 13:36:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238016AbiCaPRG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Mar 2022 11:17:06 -0400
-Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92D511229AB
-        for <selinux@vger.kernel.org>; Thu, 31 Mar 2022 08:15:18 -0700 (PDT)
-Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-d6ca46da48so25651100fac.12
-        for <selinux@vger.kernel.org>; Thu, 31 Mar 2022 08:15:18 -0700 (PDT)
+        with ESMTP id S231633AbiCaRgh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Mar 2022 13:36:37 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076A960D90;
+        Thu, 31 Mar 2022 10:34:43 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id t25so422239lfg.7;
+        Thu, 31 Mar 2022 10:34:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TCvBL2cOdcFOVuw/9bxrTZGVVODJB6m4W/aUvHTadZY=;
-        b=D5CyKc6gYxKUeEPD1oRFx2DK2DCvfkEy9K/8XzI79wjgGPHo5poC3NKEtKNCa+HBSE
-         S7JqzN3W2X+5xbuajN/Dsy2+AgvANCc/7H0YduXnncZ8/ie7v9T4wWwlzh/BVdNMlWTv
-         V2Sm8m636UdqZpHuSR0lqDfb+iX2Lit6Aa6u4vM93Q/n2YYrcNjVgwRSXlrblTu/xfQh
-         1AoKiH+C4mQLufLFLLntJ28tFTVMRT9kO1uk/fOgwCgzYF/5Gj/dG5oFNIW5MXFNCOvp
-         YTlPCF0mu5DzQtk7gbfiAaNWglwNttRO1o36695xeaF6mKmSMWObVI7RYOOfUdm71VM6
-         02xw==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=uGpI0S583UU/uYnq20CAy/qk3XmWiJWZUHQ3a1WXMdM=;
+        b=PYSG8ddN405RCUgLDBXXCtCIC6HpTYluXuPt/057e2V4DclMUqXQwQvJ0zMbZvfFyr
+         aAm/PuvMFBfbtSrsvGUc2lHct1QOsEFwfq27OlMtn1ImHgMdPZQFrwWqsuyt4gPuCSgD
+         g82mLZH8LMMC4oBTmrxinWyAqshonbOqJAsrcaa69OwwsB3ec8O2SHYBv54oD45/77uu
+         qapIbXjqKW3jTv13KLf0DfBWoItNI6OgItAEQI/DRV71d7Ck8pEvzrTrydLLX1/mLUI7
+         bg8YVAzg8KBNzs4Awq2Aw6lpjpg/CuTtzqfwQ/mF9qHR5DmVi3EbO38PuKPazR3/a3fO
+         m38A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TCvBL2cOdcFOVuw/9bxrTZGVVODJB6m4W/aUvHTadZY=;
-        b=BAC55WXb8AqpWjs+2RitXDhxV+koAKH5WlZxSs9jeZQiykWAe16x/b24wcA2qtSsky
-         kBLYarkfElhkKfcdi5DHno/CW3gdQNdbasd33JseITlPXVtBvXefJoymIAGm9ckAIMmQ
-         vUEIqcb3YapoquWFrnknMr6u52iQ9Vt8keV4KpxiItsQVjltP2Z/W6/2Q8/V6RX6SVg5
-         CdRmMIn8MQAp8zqq4KVHGmA2f2IGqOQhZwhz53EoOklKOX5NaMQIIQ3/XZ//WJEk4Z/c
-         mOKg2Rz6OhWcJmkXTa7NMCVfnxLZ2qN3VDNHk+qd+kM0PvMYWjKTywQ1cT6U2uudubAH
-         EYVw==
-X-Gm-Message-State: AOAM533x3Lg7+NNC6Z4y0ZwYuBBM7bxROOVeeoynqx6aOcIOIowoq/A8
-        tAX+6D3f6y0SisT7jHR+GjKIpehVH5a9t5+Ztew=
-X-Google-Smtp-Source: ABdhPJwGzyH9CnfcK2tES7zTQ6P8l6lCGJnK2ifO6zJMi2yHlZRiFBP9EkdThjCB6gYuS1QZVnkBIJejIAwu7aZKJFI=
-X-Received: by 2002:a05:6870:e408:b0:de:b929:5206 with SMTP id
- n8-20020a056870e40800b000deb9295206mr2861279oag.71.1648739717872; Thu, 31 Mar
- 2022 08:15:17 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=uGpI0S583UU/uYnq20CAy/qk3XmWiJWZUHQ3a1WXMdM=;
+        b=6KlnOnwJ6xZkiJB+PuFJEjL7yY6CTU1Rdemox+Z+B3kMi/2DleTlYkqrCOMw/jlEhX
+         7Xbw3fPElfWKYNLGmQp+seM7m7th23CoI0UOezLceTSFnPFoIN5CYaQ2XUsKgVGDzVJJ
+         tpmogzJlm5JijX4BP2nSNFIEBZajk9k3jY7p+EJor0xj5lXiEUZsc8QX72ntg+Y37UnM
+         hfeu86Rcv5HGTMSyNHbZicVTPlAKuQo03wspbAU/m3imLeR9r9OBKNyYS2vN9VlS+jlX
+         Qced4gDxULmJSX3Btijh83wkWPzuJ5F1xTTFV87fvm9d9O5SAxzd85EOqcTkaVDlCgPv
+         Gnkw==
+X-Gm-Message-State: AOAM530O6YbPaC6/TUU6KumvMScT2oH2KuCUpzf6ql8OSkPpl315au0S
+        H5ZMYQnNRas5RF1HtGkukA4=
+X-Google-Smtp-Source: ABdhPJzoCjHE9997aLT2xV1HstS47RUvZQXYjAqGmUzjBaX4scHX8SyADAAdRpFMv7hEnouPfjryZw==
+X-Received: by 2002:a05:6512:3186:b0:44a:c200:61e1 with SMTP id i6-20020a056512318600b0044ac20061e1mr6120837lfe.534.1648748077558;
+        Thu, 31 Mar 2022 10:34:37 -0700 (PDT)
+Received: from morzel-asus.lan (static-91-225-135-18.devs.futuro.pl. [91.225.135.18])
+        by smtp.gmail.com with ESMTPSA id bd10-20020a05651c168a00b00247fe29d83csm2746992ljb.73.2022.03.31.10.34.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Mar 2022 10:34:37 -0700 (PDT)
+From:   Michal Orzel <michalorzel.eng@gmail.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Michal Orzel <michalorzel.eng@gmail.com>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH 4/5] selinux: Remove redundant assignments
+Date:   Thu, 31 Mar 2022 19:33:57 +0200
+Message-Id: <20220331173358.40939-4-michalorzel.eng@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220331173358.40939-1-michalorzel.eng@gmail.com>
+References: <20220331173358.40939-1-michalorzel.eng@gmail.com>
 MIME-Version: 1.0
-References: <87pmm43dfc.fsf@redhat.com> <CAP+JOzTnOW9A7iyDeysC6pNcZA9sAqJxP1UhMYJx3-Umk6R3Ag@mail.gmail.com>
- <87o81mbb8y.fsf@redhat.com>
-In-Reply-To: <87o81mbb8y.fsf@redhat.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Thu, 31 Mar 2022 17:15:06 +0200
-Message-ID: <CAJ2a_DdnyOeYfE6P+7NLsRusp=Vow7JjEsTguU7yzQnfsMgmBA@mail.gmail.com>
-Subject: Re: Lets start with 3.4 userspace release
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     James Carter <jwcart2@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 31 Mar 2022 at 13:41, Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> James Carter <jwcart2@gmail.com> writes:
->
-> > On Tue, Mar 29, 2022 at 3:06 PM Petr Lautrbach <plautrba@redhat.com> wrote:
-> >>
-> >> Hello,
-> >>
-> >> after 142 commits and 5 months since last SELinux userspace release,
-> >> it's time to think about another release.
-> >>
-> >> The current backlog of patches is bellow. Please take a look.
-> >>
-> >> This time, I'd like to release rcX every 14 days -
-> >> rc1 - 04-06-2022
-> >> rc2 - 04-20-2022
-> >> ...
-> >>
-> >> I'll try send patches with the release number change on Mondays before every
-> >> release.
-> >>
-> >>
-> >> Also when rc1 is out, please consider postponing non-bugfix patches
-> >> after the release or provide a comment that the change is not necessary
-> >> for this release.
-> >>
-> >>
-> >>
-> >> * https://patchwork.kernel.org/patch/12617693/ New [v2] Support static-only builds
-> >>
-> >> - v2 of https://lore.kernel.org/selinux/87lf1scgd6.fsf@alyssa.is/
-> >> - waits for another review
-> >>
-> >> * https://patchwork.kernel.org/patch/12639767/ New libsepol: free ebitmap on end of function
-> >>
-> > This is part of the notself patches which will not be ready for this release.
+Get rid of redundant assignments which end up in values not being
+read either because they are overwritten or the function ends.
 
-It was not specific to the not-self patches, but it is rendered
-obsolete by 3b71e516 ("libsepol: Make use of previously created
-ebitmap when checking self ").
+Reported by clang-tidy [deadcode.DeadStores]
 
-> >
-> >> * https://patchwork.kernel.org/project/selinux/list/?series=590259 add not-self neverallow support
-> >>
-> > Still working, but not for this release.
-> >
-> >> * https://patchwork.kernel.org/patch/12672523/ New [v2] secilc: kernel policy language is infix
-> >>
-> > This one fell off my radar. I can ack and merge it.
-> >
-> >> * https://patchwork.kernel.org/project/selinux/list/?series=604679  libsepol: Adding support for not-self rules
-> >>
-> > Still working, but not for this release.
+Signed-off-by: Michal Orzel <michalorzel.eng@gmail.com>
+---
+ security/selinux/avc.c         | 4 ++--
+ security/selinux/hooks.c       | 1 -
+ security/selinux/ss/services.c | 1 -
+ 3 files changed, 2 insertions(+), 4 deletions(-)
 
-What is missing, it worked fine for me.
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index abcd9740d10f..874c1c6fe10b 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -1059,7 +1059,7 @@ int avc_has_extended_perms(struct selinux_state *state,
+ 
+ 	node = avc_lookup(state->avc, ssid, tsid, tclass);
+ 	if (unlikely(!node)) {
+-		node = avc_compute_av(state, ssid, tsid, tclass, &avd, xp_node);
++		avc_compute_av(state, ssid, tsid, tclass, &avd, xp_node);
+ 	} else {
+ 		memcpy(&avd, &node->ae.avd, sizeof(avd));
+ 		xp_node = node->ae.xp_node;
+@@ -1151,7 +1151,7 @@ inline int avc_has_perm_noaudit(struct selinux_state *state,
+ 
+ 	node = avc_lookup(state->avc, ssid, tsid, tclass);
+ 	if (unlikely(!node))
+-		node = avc_compute_av(state, ssid, tsid, tclass, avd, &xp_node);
++		avc_compute_av(state, ssid, tsid, tclass, avd, &xp_node);
+ 	else
+ 		memcpy(avd, &node->ae.avd, sizeof(*avd));
+ 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e9e959343de9..f792835b3fb6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6487,7 +6487,6 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 			goto abort_change;
+ 
+ 		/* Only allow single threaded processes to change context */
+-		error = -EPERM;
+ 		if (!current_is_single_threaded()) {
+ 			error = security_bounded_transition(&selinux_state,
+ 							    tsec->sid, sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 6901dc07680d..802a80648c6c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2980,7 +2980,6 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ 	}
+ 
+ retry:
+-	rc = 0;
+ 	rcu_read_lock();
+ 	policy = rcu_dereference(state->policy);
+ 	policydb = &policy->policydb;
+-- 
+2.25.1
 
-> >> * https://patchwork.kernel.org/patch/12718352/ New [libselinux] libselinux: make threadsafe for discover_class_cache
-> >>
-> >> * https://patchwork.kernel.org/patch/12726783/ New libselinux: Prevent cached context giving wrong results
-> >>
-> >> * https://patchwork.kernel.org/project/selinux/list/?series=616731 libsepol: add sepol_av_perm_to_string |
-> >>
-> >> """
-> >> Since most of these functions are used in either checkpolicy or
-> >> audit2why (or both), it is probably fine to export these, but I would
-> >> appreciate any thoughts that Chris and others might have.
-> >> """
-> >>
-> > I need to think about this one.
-> >
-> >> * https://patchwork.kernel.org/patch/12775701/ New libsepol/cil: Write a message when a log message is truncated
-> >>
-> > I will merge this.
-> >
-> >> * https://patchwork.kernel.org/patch/12780657/ New libsepol: Use calloc when initializing bool_val_to_struct array
-> >>
-> > I will merge this.
-> >
-> >> * https://patchwork.kernel.org/patch/12783189/ New libsepol: Validate conditional expressions
-> >>
-> > I will merge this.
-> >
-> >> * https://patchwork.kernel.org/patch/12790631/ New [v3] libsemanage: Fall back to semanage_copy_dir when rename() fails
-> >>
-> > I don't know if Ondrej was planning on ack'ing it, but it seems like
-> > he is satisfied.
-> >
->
-> Thank You!
->
->
-> >
-> >>
-> >>
-> >> Petr
-> >>
->
-
-The Fedora fork[1] seems to contain several Coverity related fixes.
-Any chance of upstreaming those?
-
-
-The permission map[2], used to weight the interface permissions in the
-database generated by sepolgen-ifgen used by `audit2allow(1) -R`, is
-quite out of date, while the one from setools[3] is.
-Could it get synced by a maintainer, as a patch would be more than
-3000 lines and hard to review.
-
-
-[1]: https://github.com/fedora-selinux/selinux/commits/rawhide
-[2]: https://github.com/SELinuxProject/selinux/blob/master/python/sepolgen/src/share/perm_map
-[3]: https://github.com/SELinuxProject/setools/blob/master/setools/perm_map
