@@ -2,141 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1D38C433EF
-	for <selinux@archiver.kernel.org>; Thu, 31 Mar 2022 11:41:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC048C433EF
+	for <selinux@archiver.kernel.org>; Thu, 31 Mar 2022 14:43:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235281AbiCaLnB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Mar 2022 07:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48030 "EHLO
+        id S237741AbiCaOpo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Mar 2022 10:45:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234517AbiCaLmy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Mar 2022 07:42:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6A9E9154712
-        for <selinux@vger.kernel.org>; Thu, 31 Mar 2022 04:41:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1648726866;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=j9cuaP0CBNYKYptXS1NwoGCd0+90Cz1s+q1Ojzcw2nw=;
-        b=hU6uOfU+Rp+oZCIQQ/xkA3n1HzE2WIg0wK0x7PAf7evLmR915UmJ4FSUpf9wxFpYJUvwzt
-        hhx/7R+V3k35kPvGvR0SEWOLOITlw9SA+AYdauohdN4hrPBz03kVF87QdUjIwh4tfwdQeB
-        kP/G3EJrrkP0TWElE0primUsutACGos=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-258-XL2c00WVOWmhDXjgQE50dg-1; Thu, 31 Mar 2022 07:41:03 -0400
-X-MC-Unique: XL2c00WVOWmhDXjgQE50dg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BE27228035F9;
-        Thu, 31 Mar 2022 11:41:02 +0000 (UTC)
-Received: from localhost (unknown [10.40.195.157])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 67E26400E42D;
-        Thu, 31 Mar 2022 11:41:02 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: Lets start with 3.4 userspace release
-In-Reply-To: <CAP+JOzTnOW9A7iyDeysC6pNcZA9sAqJxP1UhMYJx3-Umk6R3Ag@mail.gmail.com>
-References: <87pmm43dfc.fsf@redhat.com>
- <CAP+JOzTnOW9A7iyDeysC6pNcZA9sAqJxP1UhMYJx3-Umk6R3Ag@mail.gmail.com>
-Date:   Thu, 31 Mar 2022 13:41:01 +0200
-Message-ID: <87o81mbb8y.fsf@redhat.com>
+        with ESMTP id S232975AbiCaOpn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Mar 2022 10:45:43 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287468D6B5
+        for <selinux@vger.kernel.org>; Thu, 31 Mar 2022 07:43:56 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id dr20so48541362ejc.6
+        for <selinux@vger.kernel.org>; Thu, 31 Mar 2022 07:43:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8PKJoyJsbyRYF3mCLKGMginW5UtSQ9vy2pxrxAZ6Czo=;
+        b=dhbInhkhkdcSt/u34YhPQx2gxCBh5Ao1RxuhZc26c4xZruuYxij1hQ9A+AUKk0c30x
+         A7zDHLWtx7t5zUf1a7q7YeBXaHwuszU0Aa1qEjoTYDDGICGokt16zf7qWpaCcODE7+Ij
+         4MqGM7uqy53gtYQXTDu+kVaTmtiSTWRs6YzHV3rXLFGE905kDXMx2euccwzfcwCmR/yy
+         Wr37FocEcrMNSUzolYgiRxTjt+NNnZnjRK69bRsi66PLaNlvzjdetzZD8xkuGTAqocvz
+         OqORT78OY434CN35XTO3N4tSLWwuZuIo62oU6rM7tecpZqxgdqq9jX+v6ylS2yMbrm5U
+         9+pQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8PKJoyJsbyRYF3mCLKGMginW5UtSQ9vy2pxrxAZ6Czo=;
+        b=Kyq88osVxfRCATjCCIb/8u/KQqRh60wr8g7C9mt7/yTr7xNQFVVFHUcpERT9hnqH5H
+         BdFp8izeN6IiNcIAJR31myofHJ83SxURYNgeXSoqJbjV1Q5ewI6QFRGPmthgeNF3C26s
+         rh4CqdvUF8eJaKhiyiVN8+01F6gdwgS3uJAEs9c9Puk2zcT8+cE+a7S6+Eu0hnNyhKi9
+         ynsl64C60b8euiZXHS0D3TGE4sGLyYPpagrvhSZRo2++4CRh3Bqd48wfPmU0VF8GWJs3
+         VNnv3LpmVWZ+Q37RJfcxl+65J63HSqZg8hyz6MjUEp9S8hf4fZ1ueZeuylzyuO464chK
+         8CXQ==
+X-Gm-Message-State: AOAM532bclSlroX7mGczCL1QLt5EinRZCmvnjlmUX6G0QyX6UxyGcvPM
+        tGQp3aRkulR2TKsqLcPFOE3c42AK3a0=
+X-Google-Smtp-Source: ABdhPJx7y2MRWIDysjvniemQ1WrU7x90TjulI0aH6WsdJPYLTkSSPyh8cM27XB4sSnzhmCIEWzN65A==
+X-Received: by 2002:a17:906:c092:b0:6ce:1018:9f4e with SMTP id f18-20020a170906c09200b006ce10189f4emr5307335ejz.430.1648737834611;
+        Thu, 31 Mar 2022 07:43:54 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-006-065-043.77.6.pool.telefonica.de. [77.6.65.43])
+        by smtp.gmail.com with ESMTPSA id z13-20020a17090674cd00b006df78d85eabsm9601492ejl.111.2022.03.31.07.43.53
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Mar 2022 07:43:54 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol/cil: silence GCC 12 array-bounds false positive
+Date:   Thu, 31 Mar 2022 16:43:43 +0200
+Message-Id: <20220331144343.30689-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
+GCC 12 produces an array-bounds warning:
 
-> On Tue, Mar 29, 2022 at 3:06 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Hello,
->>
->> after 142 commits and 5 months since last SELinux userspace release,
->> it's time to think about another release.
->>
->> The current backlog of patches is bellow. Please take a look.
->>
->> This time, I'd like to release rcX every 14 days -
->> rc1 - 04-06-2022
->> rc2 - 04-20-2022
->> ...
->>
->> I'll try send patches with the release number change on Mondays before every
->> release.
->>
->>
->> Also when rc1 is out, please consider postponing non-bugfix patches
->> after the release or provide a comment that the change is not necessary
->> for this release.
->>
->>
->>
->> * https://patchwork.kernel.org/patch/12617693/ New [v2] Support static-only builds
->>
->> - v2 of https://lore.kernel.org/selinux/87lf1scgd6.fsf@alyssa.is/
->> - waits for another review
->>
->> * https://patchwork.kernel.org/patch/12639767/ New libsepol: free ebitmap on end of function
->>
-> This is part of the notself patches which will not be ready for this release.
->
->> * https://patchwork.kernel.org/project/selinux/list/?series=590259 add not-self neverallow support
->>
-> Still working, but not for this release.
->
->> * https://patchwork.kernel.org/patch/12672523/ New [v2] secilc: kernel policy language is infix
->>
-> This one fell off my radar. I can ack and merge it.
->
->> * https://patchwork.kernel.org/project/selinux/list/?series=604679  libsepol: Adding support for not-self rules
->>
-> Still working, but not for this release.
->
->> * https://patchwork.kernel.org/patch/12718352/ New [libselinux] libselinux: make threadsafe for discover_class_cache
->>
->> * https://patchwork.kernel.org/patch/12726783/ New libselinux: Prevent cached context giving wrong results
->>
->> * https://patchwork.kernel.org/project/selinux/list/?series=616731 libsepol: add sepol_av_perm_to_string |
->>
->> """
->> Since most of these functions are used in either checkpolicy or
->> audit2why (or both), it is probably fine to export these, but I would
->> appreciate any thoughts that Chris and others might have.
->> """
->>
-> I need to think about this one.
->
->> * https://patchwork.kernel.org/patch/12775701/ New libsepol/cil: Write a message when a log message is truncated
->>
-> I will merge this.
->
->> * https://patchwork.kernel.org/patch/12780657/ New libsepol: Use calloc when initializing bool_val_to_struct array
->>
-> I will merge this.
->
->> * https://patchwork.kernel.org/patch/12783189/ New libsepol: Validate conditional expressions
->>
-> I will merge this.
->
->> * https://patchwork.kernel.org/patch/12790631/ New [v3] libsemanage: Fall back to semanage_copy_dir when rename() fails
->>
-> I don't know if Ondrej was planning on ack'ing it, but it seems like
-> he is satisfied.
->
+    In file included from ../include/sepol/policydb/context.h:23,
+                     from ../include/sepol/policydb/policydb.h:62,
+                     from ../cil/src/cil_binary.c:41:
+    In function ‘mls_level_init’,
+        inlined from ‘mls_level_destroy’ at ../include/sepol/policydb/mls_types.h:99:2,
+        inlined from ‘mls_level_destroy’ at ../include/sepol/policydb/mls_types.h:92:20,
+        inlined from ‘mls_range_destroy’ at ../include/sepol/policydb/mls_types.h:149:2,
+        inlined from ‘cil_rangetransition_to_policydb’ at ../cil/src/cil_binary.c:3231:6:
+    ../include/sepol/policydb/mls_types.h:89:9: error: ‘memset’ offset [0, 23] is out of the bounds [0, 0] [-Werror=array-bounds]
+       89 |         memset(level, 0, sizeof(mls_level_t));
+          |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ../include/sepol/policydb/mls_types.h:89:9: error: ‘memset’ offset [0, 23] is out of the bounds [0, 0] [-Werror=array-bounds]
+    cc1: all warnings being treated as errors
 
-Thank You!
+This is a false positive, by inspecting the code and compiling with -O3
+and -flto.
 
+Closes: https://github.com/SELinuxProject/selinux/issues/339
 
->
->>
->>
->> Petr
->>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/cil/src/cil_binary.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 53017e2d..d5211f69 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -3222,7 +3222,16 @@ int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, st
+ 					} else {
+ 						cil_log(CIL_ERR, "Out of memory\n");
+ 					}
++// TODO: add upper version bound once fixed in upstream GCC
++#if defined(__GNUC__) && (__GNUC__ >= 12)
++# pragma GCC diagnostic push
++# pragma GCC diagnostic ignored "-Warray-bounds"
++# pragma GCC diagnostic ignored "-Wstringop-overflow"
++#endif
+ 					mls_range_destroy(newdatum);
++#if defined(__GNUC__) && (__GNUC__ >= 12)
++# pragma GCC diagnostic pop
++#endif
+ 					free(newdatum);
+ 					free(newkey);
+ 					if (rc != SEPOL_OK) {
+-- 
+2.35.1
 
