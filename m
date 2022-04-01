@@ -2,129 +2,71 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BF01C433FE
-	for <selinux@archiver.kernel.org>; Thu, 31 Mar 2022 17:34:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58E4FC433EF
+	for <selinux@archiver.kernel.org>; Fri,  1 Apr 2022 09:57:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231666AbiCaRgj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Mar 2022 13:36:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50728 "EHLO
+        id S239154AbiDAJ7a (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 Apr 2022 05:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231633AbiCaRgh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Mar 2022 13:36:37 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076A960D90;
-        Thu, 31 Mar 2022 10:34:43 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id t25so422239lfg.7;
-        Thu, 31 Mar 2022 10:34:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=uGpI0S583UU/uYnq20CAy/qk3XmWiJWZUHQ3a1WXMdM=;
-        b=PYSG8ddN405RCUgLDBXXCtCIC6HpTYluXuPt/057e2V4DclMUqXQwQvJ0zMbZvfFyr
-         aAm/PuvMFBfbtSrsvGUc2lHct1QOsEFwfq27OlMtn1ImHgMdPZQFrwWqsuyt4gPuCSgD
-         g82mLZH8LMMC4oBTmrxinWyAqshonbOqJAsrcaa69OwwsB3ec8O2SHYBv54oD45/77uu
-         qapIbXjqKW3jTv13KLf0DfBWoItNI6OgItAEQI/DRV71d7Ck8pEvzrTrydLLX1/mLUI7
-         bg8YVAzg8KBNzs4Awq2Aw6lpjpg/CuTtzqfwQ/mF9qHR5DmVi3EbO38PuKPazR3/a3fO
-         m38A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=uGpI0S583UU/uYnq20CAy/qk3XmWiJWZUHQ3a1WXMdM=;
-        b=6KlnOnwJ6xZkiJB+PuFJEjL7yY6CTU1Rdemox+Z+B3kMi/2DleTlYkqrCOMw/jlEhX
-         7Xbw3fPElfWKYNLGmQp+seM7m7th23CoI0UOezLceTSFnPFoIN5CYaQ2XUsKgVGDzVJJ
-         tpmogzJlm5JijX4BP2nSNFIEBZajk9k3jY7p+EJor0xj5lXiEUZsc8QX72ntg+Y37UnM
-         hfeu86Rcv5HGTMSyNHbZicVTPlAKuQo03wspbAU/m3imLeR9r9OBKNyYS2vN9VlS+jlX
-         Qced4gDxULmJSX3Btijh83wkWPzuJ5F1xTTFV87fvm9d9O5SAxzd85EOqcTkaVDlCgPv
-         Gnkw==
-X-Gm-Message-State: AOAM530O6YbPaC6/TUU6KumvMScT2oH2KuCUpzf6ql8OSkPpl315au0S
-        H5ZMYQnNRas5RF1HtGkukA4=
-X-Google-Smtp-Source: ABdhPJzoCjHE9997aLT2xV1HstS47RUvZQXYjAqGmUzjBaX4scHX8SyADAAdRpFMv7hEnouPfjryZw==
-X-Received: by 2002:a05:6512:3186:b0:44a:c200:61e1 with SMTP id i6-20020a056512318600b0044ac20061e1mr6120837lfe.534.1648748077558;
-        Thu, 31 Mar 2022 10:34:37 -0700 (PDT)
-Received: from morzel-asus.lan (static-91-225-135-18.devs.futuro.pl. [91.225.135.18])
-        by smtp.gmail.com with ESMTPSA id bd10-20020a05651c168a00b00247fe29d83csm2746992ljb.73.2022.03.31.10.34.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Mar 2022 10:34:37 -0700 (PDT)
-From:   Michal Orzel <michalorzel.eng@gmail.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Michal Orzel <michalorzel.eng@gmail.com>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH 4/5] selinux: Remove redundant assignments
-Date:   Thu, 31 Mar 2022 19:33:57 +0200
-Message-Id: <20220331173358.40939-4-michalorzel.eng@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220331173358.40939-1-michalorzel.eng@gmail.com>
-References: <20220331173358.40939-1-michalorzel.eng@gmail.com>
+        with ESMTP id S237951AbiDAJ73 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 Apr 2022 05:59:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8278A26C557
+        for <selinux@vger.kernel.org>; Fri,  1 Apr 2022 02:57:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1648807058;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=yuDP1Bvn14Fq2yiv6at6cYWw4U15ZtHxR8jqm/zdMEg=;
+        b=KBHpMdXTFj9h8ghU2zcTr/yCTG1QlAfYzxuslPODEx1t1BTsMQNNzUzH4r05Uv0TL6S8jg
+        K9ZrXxIvOiRxvTlzzDi8R/SlOjGJN2YpicfF/JSMat1OYYRGT1DDiGIwV82Ns03Kkdb2ar
+        nBs0Lx1gSoBS3rlnE5csbX4LLZ5QPKY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-231-I-rV5AdzPkCmP2TU-MiGSA-1; Fri, 01 Apr 2022 05:57:37 -0400
+X-MC-Unique: I-rV5AdzPkCmP2TU-MiGSA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F2B079730C2
+        for <selinux@vger.kernel.org>; Fri,  1 Apr 2022 09:57:36 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.194.37])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 78FD740D0160
+        for <selinux@vger.kernel.org>; Fri,  1 Apr 2022 09:57:36 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: Translate or not?
+Date:   Fri,  1 Apr 2022 11:57:23 +0200
+Message-Id: <20220401095724.98956-1-plautrba@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Get rid of redundant assignments which end up in values not being
-read either because they are overwritten or the function ends.
+Hello,
 
-Reported by clang-tidy [deadcode.DeadStores]
+the translations in this project wasn't really updated since 2013. There was only a minor French
+translation update in 2016.
 
-Signed-off-by: Michal Orzel <michalorzel.eng@gmail.com>
----
- security/selinux/avc.c         | 4 ++--
- security/selinux/hooks.c       | 1 -
- security/selinux/ss/services.c | 1 -
- 3 files changed, 2 insertions(+), 4 deletions(-)
+OTOH Fedora project still provides translations which are used there
+https://translate.fedoraproject.org/projects/selinux/
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index abcd9740d10f..874c1c6fe10b 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -1059,7 +1059,7 @@ int avc_has_extended_perms(struct selinux_state *state,
- 
- 	node = avc_lookup(state->avc, ssid, tsid, tclass);
- 	if (unlikely(!node)) {
--		node = avc_compute_av(state, ssid, tsid, tclass, &avd, xp_node);
-+		avc_compute_av(state, ssid, tsid, tclass, &avd, xp_node);
- 	} else {
- 		memcpy(&avd, &node->ae.avd, sizeof(avd));
- 		xp_node = node->ae.xp_node;
-@@ -1151,7 +1151,7 @@ inline int avc_has_perm_noaudit(struct selinux_state *state,
- 
- 	node = avc_lookup(state->avc, ssid, tsid, tclass);
- 	if (unlikely(!node))
--		node = avc_compute_av(state, ssid, tsid, tclass, avd, &xp_node);
-+		avc_compute_av(state, ssid, tsid, tclass, avd, &xp_node);
- 	else
- 		memcpy(avd, &node->ae.avd, sizeof(*avd));
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e9e959343de9..f792835b3fb6 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6487,7 +6487,6 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 			goto abort_change;
- 
- 		/* Only allow single threaded processes to change context */
--		error = -EPERM;
- 		if (!current_is_single_threaded()) {
- 			error = security_bounded_transition(&selinux_state,
- 							    tsec->sid, sid);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 6901dc07680d..802a80648c6c 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2980,7 +2980,6 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
- 	}
- 
- retry:
--	rc = 0;
- 	rcu_read_lock();
- 	policy = rcu_dereference(state->policy);
- 	policydb = &policy->policydb;
--- 
-2.25.1
+Also there's was a split back in 2016 which moved gui, python and sandbox out of
+policycoreutils.
+
+The following patch splits also the translations. And there's second patch
+available in my github repository which updates the translations from
+https://translate.fedoraproject.org/projects/selinux/ and which is too big
+for this list:
+
+https://github.com/bachradsusi/SELinuxProject-selinux/commit/afa35aea4a95089d9c99504e627fb573d836f7e8
+
+Thanks,
+
+Petr
 
