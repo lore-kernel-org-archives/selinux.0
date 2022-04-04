@@ -2,67 +2,144 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFC0FC433FE
-	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 21:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DD7FC4167D
+	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 21:29:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241640AbiDDVbC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Apr 2022 17:31:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51312 "EHLO
+        id S1353864AbiDDVbF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Apr 2022 17:31:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380380AbiDDTx1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 15:53:27 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDA2559A
-        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 12:51:31 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id bh17so22215927ejb.8
-        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 12:51:31 -0700 (PDT)
+        with ESMTP id S1380414AbiDDUFb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 16:05:31 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2814C51
+        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 13:03:33 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id qh7so12246569ejb.11
+        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 13:03:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=lFAH71l5hLiHoLrZZzcQ02KILOzB/xZrhEV5P4Wdld0=;
-        b=Qtgc6aj81PF27HwqIjmLraR6kbD2g1Edk4JH8jLfIYET3iNb8qoEFoYXBH7BjQQ4GM
-         8tI8gHZon9drp8BlL8xeRuAcE5a116BvXuPVakbHx/K7tjVwbPt2Iv0EgfnkErFL7ZKb
-         GNPkfF0lafnWM+sKawmBrReiH9Tf1xoDFXKhOshkxy3PvO+49x7jxaf+NtrpcqbqDN0u
-         HF9O5wopaviUM8YsGqJWOON5RVGwN4Hc+4xtI+iR3JwhkL3kDBu86Vv5xOpzCU2D+Oi6
-         xN8IfSCARpRBNSNax9wqlfP4rVBgL6u1JtzjiRUMQAoOcFfi1RpuPbk7nXbPj+R2zLB6
-         Z+KA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=CrpYt5lVlKuy2k+kKWnZgQywx0bCmkEjtjH6HYRoOhQ=;
+        b=QWtilS35liU4Gd847ayqzl1+Xu3q5LYVHMfUzUizuln6K7VajF0VthS1a5ivhzNuZs
+         Vb0AbMMPTtLaqQ4fs96PTRsH5w8FZuGJQgk7wadg4Zc3h1TT5TsDl2lEcelg9XECB2ef
+         q6pR6ZpG0WiArgQVkKPp2zQvs80GH3EFdkk8IBI8n7UhuS1QqVotwHz2FlEBLP/5/tB2
+         CJ6tkq0oJXB2dZ1K3zGKK1n8+9u3/7xygKNh015o9+LY81o7hMI+cCH66leOlKSBgFnw
+         BXGjLKXGVsCcw0zfsHm7B1VvznCY4DVSqevmzZrA6DknE0HLN8njsh9vZ7s6qDiGhw+Y
+         jS3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=lFAH71l5hLiHoLrZZzcQ02KILOzB/xZrhEV5P4Wdld0=;
-        b=um/9UXlT126Es1xRcnuKapIpznMDL1LvyZXfrisvxg38TqgwuyBcuFmmOyfbm2qV9N
-         ffInc8ZYxGDVotVv7L90Q1JsNX3Uy7wdtVut73TMaEhRw/7T41wucSUNOMy87XHn+R2C
-         8+DpCEOMeYMlRe/tTDIcGkcDEfjI6Bje2OegsWABYkRGpiMSaGKCKG6cyb8GCrHiWu+o
-         Y/RGZImgHDVM3QGea08BJT8okMTqvloGLDdP1zu6lTf45fM1jOwrbkPFuIjDuYDFdKDU
-         Wg+sdiD2vRhEpcwFy2Om1nITwCIEy3vij60Ev/Vh++NORc148bXj7VCl/afvQDQBRbMN
-         1B/A==
-X-Gm-Message-State: AOAM532yoI3wLqYU6iMqp5rDEomSf78IQWAx0zQ46r8p2VXtMO3SKhsm
-        d1CIFHbD3vNsJcwzpeyhaY6Vh3hxTNaZAdEfvthg
-X-Google-Smtp-Source: ABdhPJzZaJUJ9iytdCtow0Lr48mbggrWmuIS5YY0v6kb4vhoY/DawljwRSvPi9PvR8qF8W/yV7rYMKSCXNkibAXEfJE=
-X-Received: by 2002:a17:907:216f:b0:6ce:d85f:35cf with SMTP id
- rl15-20020a170907216f00b006ced85f35cfmr1720054ejb.517.1649101889842; Mon, 04
- Apr 2022 12:51:29 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=CrpYt5lVlKuy2k+kKWnZgQywx0bCmkEjtjH6HYRoOhQ=;
+        b=t8obQqvglTULipJ8fY/GB7fNa/8f6CrxDa5R+keadR5+pYOkmRQYraZfpbvvuJJ+s/
+         4H4cHKOh48wZS+baDwTGGiVZI67G1evRAqygAs3NK4LxfZwfu7Z1bu2Cmy3DcrpQqdlx
+         5g2m2iyFhq3TcLO4ESCYNW7lG4Vhu/XR5fzkdTOe15p53mj5qVnvJiplOvQidK06QEH6
+         J87VCLycm+FaKH7wGvFVOODS3aCzJUERdU7Sz5R3YSpXd4rpSsC35gjtZDibBrh3U5NK
+         qO/SFwPQoPDAc0WlbVpSxoQlSufIioawnCBFUlGzNw36k8l4He8KEHBU6XNcIec7i20A
+         PYZg==
+X-Gm-Message-State: AOAM530rsSXWWoxcgBV2vk7WWuPfYKmVYiOLetJeMocIS3RV8LF+Z+7l
+        lybrGLr4rxdOcjFKFTa3jpQN7Z8QCdv7SOvHXHEk
+X-Google-Smtp-Source: ABdhPJyIZr77gRBKBLN+KRty/vPEiELEMcVGmq1Bl8JpZPMVFi21TaeAcOxBzdX6c3pksfR5Ragz6OdS5QPYOCAQBHg=
+X-Received: by 2002:a17:906:4443:b0:6cf:6a7d:5f9b with SMTP id
+ i3-20020a170906444300b006cf6a7d5f9bmr1776503ejp.12.1649102612452; Mon, 04 Apr
+ 2022 13:03:32 -0700 (PDT)
 MIME-Version: 1.0
+References: <20220217142133.72205-3-cgzones@googlemail.com> <20220308165527.45456-1-cgzones@googlemail.com>
+In-Reply-To: <20220308165527.45456-1-cgzones@googlemail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 4 Apr 2022 15:51:19 -0400
-Message-ID: <CAHC9VhT2fgrZ5Kcv=-xizUnv0kpr0x+v827YsHYGfos88LjkcQ@mail.gmail.com>
-Subject: Re: [PATCH 4/5] selinux: Remove redundant assignments
-To:     michalorzel.eng@gmail.com
-Cc:     Eric Paris <eparis@parisplace.org>, linux-kernel@vger.kernel.org,
-        llvm@lists.linux.dev, nathan@kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 4 Apr 2022 16:03:21 -0400
+Message-ID: <CAHC9VhSGggUV2po0mj0qqMBBX1n56BzR99khcYfhjv4jZprEiQ@mail.gmail.com>
+Subject: Re: [PATCH v2 4/5] selinux: declare data arrays const
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Austin Kim <austin.kim@lge.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-For some reason this patch never hit my inbox, despite all the other
-patches in this series arriving ... who knows ... ?
+On Tue, Mar 8, 2022 at 11:55 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> The arrays for the policy capability names, the initial sid identifiers
+> and the class and permission names are not changed at runtime.  Declare
+> them const to avoid accidental modification.
+>
+> Do not override the classmap and the initial sid list in the build time
+> script genheaders, by using a static buffer in the conversion function
+> stoupperx().  In cases we need to compare or print more than one
+> identifier allocate a temporary copy.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+> v2:
+>    Drop const exemption for genheaders script by rewriting stoupperx().
+> ---
+>  scripts/selinux/genheaders/genheaders.c       | 76 ++++++++++---------
+>  scripts/selinux/mdp/mdp.c                     |  4 +-
+>  security/selinux/avc.c                        |  2 +-
+>  security/selinux/include/avc_ss.h             |  2 +-
+>  security/selinux/include/classmap.h           |  2 +-
+>  .../selinux/include/initial_sid_to_string.h   |  3 +-
+>  security/selinux/include/policycap.h          |  2 +-
+>  security/selinux/include/policycap_names.h    |  2 +-
+>  security/selinux/ss/services.c                |  4 +-
+>  9 files changed, 51 insertions(+), 46 deletions(-)
+>
+> diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/ge=
+nheaders/genheaders.c
+> index f355b3e0e968..a2caff3c997f 100644
+> --- a/scripts/selinux/genheaders/genheaders.c
+> +++ b/scripts/selinux/genheaders/genheaders.c
+> @@ -26,19 +26,23 @@ static void usage(void)
+>         exit(1);
+>  }
+>
+> -static char *stoupperx(const char *s)
+> +static const char *stoupperx(const char *s)
+>  {
+> -       char *s2 =3D strdup(s);
+> -       char *p;
+> +       static char buffer[256];
+> +       unsigned int i;
+> +       char *p =3D buffer;
+>
+> -       if (!s2) {
+> -               fprintf(stderr, "%s:  out of memory\n", progname);
+> +       for (i =3D 0; i < (sizeof(buffer) - 1) && *s; i++)
+> +               *p++ =3D toupper(*s++);
+> +
+> +       if (*s) {
+> +               fprintf(stderr, "%s:  buffer too small\n", progname);
+>                 exit(3);
+>         }
+>
+> -       for (p =3D s2; *p; p++)
+> -               *p =3D toupper(*p);
+> -       return s2;
+> +       *p =3D '\0';
+> +
+> +       return buffer;
+>  }
 
-Regardless, it looks good to me so I've just merged it into
-selinux/next, thanks!
+Hmmm.  I recognize this is just build time code so it's not as
+critical, but I still don't like the idea of passing back a static
+buffer to the caller; it just seems like we are asking for future
+trouble.  I'm also curious as to why you made this choice in this
+revision when the existing code should have worked (passed a const,
+returned a non-const).  I'm sure I'm missing something obvious, but
+can you help me understand why this is necessary?
 
--- 
+--=20
 paul-moore.com
