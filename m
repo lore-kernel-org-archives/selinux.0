@@ -2,149 +2,245 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BFBFC433F5
-	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 10:15:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDF60C433F5
+	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 14:16:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356187AbiDDKRu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Apr 2022 06:17:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36266 "EHLO
+        id S1376979AbiDDOS3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Apr 2022 10:18:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356799AbiDDKRt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 06:17:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3DD0433342
-        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 03:15:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649067352;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tkadsSkOjK69IKBzXKLPhJkIYMQazPSW8bFoteNrRDk=;
-        b=BRUNIh4wMoTbnwpKb6aSirtTSZJ6cExtxEczSXRNImTCEOXGXmheNsN60kPsgsr0s7gOlV
-        5/KrBuuO6ydAq342XqCSZH574bIHFbik9D4C68bbhsPTg4cJjvtKz/BwlCLgk2hlbdR0sI
-        LgXVrUs8howrlHG5Y0osa0HCCybBBLE=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-375-dHnjp4SNM-GwY2b-KvNj_A-1; Mon, 04 Apr 2022 06:15:50 -0400
-X-MC-Unique: dHnjp4SNM-GwY2b-KvNj_A-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-2e5db04460cso77595297b3.17
-        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 03:15:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tkadsSkOjK69IKBzXKLPhJkIYMQazPSW8bFoteNrRDk=;
-        b=gk3bJlmesPPkFDDFIIsAQ9V2/yVJzPcUlLGkc4Xv05MTYwyLGc8UH8bDlQz3/GTGhE
-         UO2wLRjpR2qCz+zT+rz3PcOhCn2fGZQwD5+q+IOOfAhlZjAJVnBB8l6npHB99tzSVOib
-         JDNrLEagUsbUsNaHteVlhA3TCM+uhuIIYvrw4VtCtw7IbCwl+zC66qPxmY+q2Kytfmuo
-         Dk14ChtkoJDiN61R6Y+glblmfQf0Rad31K/ybtF5O7/OZz57i557J9+qeAFjH3SWYm0G
-         1rMD6h7IB729W777flWk8m0xSGgmBVcny6/YWpL4BkNWE1CEEm18EOSHIGyNHi+b5BtW
-         GDSg==
-X-Gm-Message-State: AOAM5327KbDzLjP+cNBeEb/9FsEXbqxRqwmq15XEc1h8N8fal67lFNZJ
-        fBlGcVkaxRLHvbqXSgbJjbJsfmsyzrTMwjUvr06V6gvqD7L6J2crnF8/mnpIYcNFJ47tcLs88E2
-        Q0xJ29yy8zWckLPQX8vqjhC11WtxrN1Zzuw==
-X-Received: by 2002:a05:6902:1351:b0:63d:d3ae:da8d with SMTP id g17-20020a056902135100b0063dd3aeda8dmr3484102ybu.445.1649067350034;
-        Mon, 04 Apr 2022 03:15:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy/FA2nG9CkjljMIizKp+3/BvFXdYTIKnSCHt2T/Y90OrnODavbrP29hqG+N35/79K//FRULtfAcH3chse8oaE=
-X-Received: by 2002:a05:6902:1351:b0:63d:d3ae:da8d with SMTP id
- g17-20020a056902135100b0063dd3aeda8dmr3484083ybu.445.1649067349845; Mon, 04
- Apr 2022 03:15:49 -0700 (PDT)
+        with ESMTP id S237149AbiDDOS2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 10:18:28 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EB7BC3D1DB
+        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 07:16:31 -0700 (PDT)
+Received: from [192.168.1.10] (pool-173-66-191-184.washdc.fios.verizon.net [173.66.191.184])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 39A1020DFD48;
+        Mon,  4 Apr 2022 07:16:31 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 39A1020DFD48
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1649081791;
+        bh=YlTqWc/5FIve88guK7FJO+zOri7Y+PuvfuOh8pmV6o4=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=l/XVUbFjLWCXGfBGAV+yFFsvglTW6fg2r/ykc447JUtTJ2hUYcP+qPqDFr+mxtXxs
+         LFTurcEOc/NuH3d4WA4C2YEuRUb/wv5aZNu373LC5HrMNVutPp5pdDNKHmzTBgRGto
+         ZY3bQpwfFnpMwLbzt4FfdR9Gs13hdI24dFYSJHp8=
+Message-ID: <d593edf2-8442-dc27-dce9-27b3b6363757@linux.microsoft.com>
+Date:   Mon, 4 Apr 2022 10:16:24 -0400
 MIME-Version: 1.0
-References: <a77a584b3ce9761eb5dda5828192e1cab94571f0.1649037151.git.lucien.xin@gmail.com>
-In-Reply-To: <a77a584b3ce9761eb5dda5828192e1cab94571f0.1649037151.git.lucien.xin@gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 4 Apr 2022 12:15:38 +0200
-Message-ID: <CAFqZXNt=Ca+x7PaYgc1jXq-3cKxin-_=UNCSiyVHjbP7OYUKvA@mail.gmail.com>
-Subject: Re: [PATCH net] sctp: use the correct skb for security_sctp_assoc_request
-To:     Xin Long <lucien.xin@gmail.com>
-Cc:     network dev <netdev@vger.kernel.org>,
-        "linux-sctp @ vger . kernel . org" <linux-sctp@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH V2 Notebook] How to add a new policy capability
+Content-Language: en-US
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+Cc:     paul@paul-moore.com
+References: <20220404082947.5817-1-richard_c_haines@btinternet.com>
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <20220404082947.5817-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Adding LSM and SELinux lists to CC for awareness; the original patch
-is available at:
-https://lore.kernel.org/netdev/a77a584b3ce9761eb5dda5828192e1cab94571f0.1649037151.git.lucien.xin@gmail.com/T/
-https://patchwork.kernel.org/project/netdevbpf/patch/a77a584b3ce9761eb5dda5828192e1cab94571f0.1649037151.git.lucien.xin@gmail.com/
-
-On Mon, Apr 4, 2022 at 3:53 AM Xin Long <lucien.xin@gmail.com> wrote:
->
-> Yi Chen reported an unexpected sctp connection abort, and it occurred when
-> COOKIE_ECHO is bundled with DATA Fragment by SCTP HW GSO. As the IP header
-> is included in chunk->head_skb instead of chunk->skb, it failed to check
-> IP header version in security_sctp_assoc_request().
->
-> According to Ondrej, SELinux only looks at IP header (address and IPsec
-> options) and XFRM state data, and these are all included in head_skb for
-> SCTP HW GSO packets. So fix it by using head_skb when calling
-> security_sctp_assoc_request() in processing COOKIE_ECHO.
-
-The logic looks good to me, but I still have one unanswered concern.
-The head_skb member of struct sctp_chunk is defined inside a union:
-
-struct sctp_chunk {
-        [...]
-        union {
-                /* In case of GSO packets, this will store the head one */
-                struct sk_buff *head_skb;
-                /* In case of auth enabled, this will point to the shkey */
-                struct sctp_shared_key *shkey;
-        };
-        [...]
-};
-
-What guarantees that this chunk doesn't have "auth enabled" and the
-head_skb pointer isn't actually a non-NULL shkey pointer? Maybe it's
-obvious to a Linux SCTP expert, but at least for me as an outsider it
-isn't - that's usually a good hint that there should be a code comment
-explaining it.
-
->
-> Fixes: e215dab1c490 ("security: call security_sctp_assoc_request in sctp_sf_do_5_1D_ce")
-> Reported-by: Yi Chen <yiche@redhat.com>
-> Signed-off-by: Xin Long <lucien.xin@gmail.com>
+On 4/4/2022 4:29 AM, Richard Haines wrote:
+> Describes the steps required to add a new policy capability to:
+> kernel, libsepol, and policy.
+> 
+> Also add the ioctl_skip_cloexec capability description.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  net/sctp/sm_statefuns.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-> index 7f342bc12735..883f9b849ee5 100644
-> --- a/net/sctp/sm_statefuns.c
-> +++ b/net/sctp/sm_statefuns.c
-> @@ -781,7 +781,7 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
->                 }
->         }
->
-> -       if (security_sctp_assoc_request(new_asoc, chunk->skb)) {
-> +       if (security_sctp_assoc_request(new_asoc, chunk->head_skb ?: chunk->skb)) {
->                 sctp_association_free(new_asoc);
->                 return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
->         }
-> @@ -2262,7 +2262,7 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
->         }
->
->         /* Update socket peer label if first association. */
-> -       if (security_sctp_assoc_request(new_asoc, chunk->skb)) {
-> +       if (security_sctp_assoc_request(new_asoc, chunk->head_skb ?: chunk->skb)) {
->                 sctp_association_free(new_asoc);
->                 return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
->         }
-> --
-> 2.31.1
->
+> V2 Changes:
+> Clarify naming conventions.
+> Change enums from POLICYDB_CAPABILITY to POLICYDB_CAP
+> Add ioctl_skip_cloexec
+> 
+>   src/lsm_selinux.md              |   4 +
+>   src/policy_config_statements.md | 139 ++++++++++++++++++++++++++++++++
+>   2 files changed, 143 insertions(+)
+> 
+> diff --git a/src/lsm_selinux.md b/src/lsm_selinux.md
+> index 560d89f..2fa34dd 100644
+> --- a/src/lsm_selinux.md
+> +++ b/src/lsm_selinux.md
+> @@ -712,6 +712,10 @@ or *libsepol* library.
+>   - Enables fine-grained labeling of symlinks in pseudo filesystems based
+>     on *genfscon* rules.
+>   
+> +*policy_capabilities/ioctl_skip_cloexec*
+> +
+> +- If true always allow FIOCLEX and FIONCLEXE ioctl permissions (from kernel 5.18).
+> +
+>   *policy_capabilities/network_peer_controls*
+>   
+>   - If true the following *network_peer_controls* are enabled:
+> diff --git a/src/policy_config_statements.md b/src/policy_config_statements.md
+> index d4eee48..90bf440 100644
+> --- a/src/policy_config_statements.md
+> +++ b/src/policy_config_statements.md
+> @@ -1,5 +1,12 @@
+>   # Policy Configuration Statements
+>   
+> +- [*policycap*](#policycap)
+> +  - [Adding A New Policy Capability](#adding-a-new-policy-capability)
+> +    - [Kernel Updates](#kernel-updates)
+> +    - [*libsepol* Library Updates](#libsepol-library-updates)
+> +    - [Reference Policy Updates](#reference-policy-updates)
+> +    - [CIL Policy Updates](#cil-policy-updates)
+> +
+>   ## *policycap*
+>   
+>   Policy version 22 introduced the *policycap* statement to allow new
+> @@ -47,6 +54,138 @@ Conditional Policy Statements
+>   policycap network_peer_controls;
+>   ```
+>   
+> +## Adding A New Policy Capability
+> +
+> +The kernel, userspace libsepol library and policy must be updated to enable
+> +the new capability as described below. For readability, the new capability
+> +should follow a consistent naming convention, where:
+> +
+> +- policy capability identifier is a lower-case string.
+> +- enum definition is ```POLICYDB_CAP_``` with the indentifier appended in
+> +  upper-case.
+> +- kernel function call is ```selinux_policycap_``` with the indentifier
+> +  appended in lower-case.
 
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Second and third bullets have a typo of "indentifier" instead of 
+"identifier"
+
+> +
+> +### Kernel Updates
+> +
+> +In kernel source update the following three files with the new capability:
+> +
+> +***security/selinux/include/policycap_names.h***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +/* Policy capability names */
+> +const char *selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+> +	...
+> +	"genfs_seclabel_symlinks",
+> +	"ioctl_skip_cloexec",
+> +	"new_name"
+> +};
+> +```
+> +
+> +***security/selinux/include/policycap.h***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +/* Policy capabilities */
+> +enum {
+> +	...
+> +	POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS,
+> +	POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
+> +	POLICYDB_CAP_NEW_NAME,
+> +	__POLICYDB_CAP_MAX
+> +};
+> +```
+> +
+> +***security/selinux/include/security.h***
+> +
+> +Add a new call to retrieve the loaded policy capability state:
+> +
+> +```
+> +static inline bool selinux_policycap_new_name(void)
+> +{
+> +	struct selinux_state *state = &selinux_state;
+> +
+> +	return READ_ONCE(state->policycap[POLICYDB_CAP_NEW_NAME]);
+> +}
+> +```
+> +
+> +Finally in the updated code that utilises the new policy capability do
+> +something like:
+> +
+> +```
+> +if (selinux_policycap_new_name())
+> +	do this;
+> +else
+> +	do that;
+> +```
+> +
+> +### *libsepol* Library Updates
+> +
+> +In selinux userspace source update the following two files with the new
+> +capability:
+> +
+> +***selinux/libsepol/src/polcaps.c***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +static const char * const polcap_names[] = {
+> +	...
+> +	"genfs_seclabel_symlinks",	/* POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS */
+> +	"ioctl_skip_cloexec",		/* POLICYDB_CAP_IOCTL_SKIP_CLOEXEC */
+> +	"new_name",			/* POLICYDB_CAP_NEW_NAME */
+> +	NULL
+> +};
+> +```
+> +
+> +***selinux/libsepol/include/sepol/policydb/polcaps.h***
+> +
+> +Add new entry at end of this list:
+> +
+> +```
+> +/* Policy capabilities */
+> +enum {
+> +	...
+> +	POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS,
+> +	POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
+> +	POLICYDB_CAP_NEW_NAME,
+> +	__POLICYDB_CAP_MAX
+> +};
+> +```
+> +
+> +### Reference Policy Updates
+> +
+> +The new policy capability identifier is then added to the Reference Policy file:
+
+This should probably be written as a directive to match the other 
+instructions rather than in passive voice?
+
+> +
+> +***policy/policy_capabilities***
+> +
+> +To enable the capability in policy:
+> +
+> +```
+> +# A description of the capability
+> +policycap new_name;
+> +```
+> +
+> +To disable the capability comment out the entry:
+
+nit: I'd put a comma after capability
+
+> +
+> +```
+> +# A description of the capability
+> +#policycap new_name;
+> +```
+> +
+> +### CIL Policy Updates
+> +
+> +To enable the capability in policy, add the following entry to a CIL
+> +source file:
+> +
+> +```
+> +; A description of the capability
+> +(policycap new_name)
+> +```
+> +
+>   <!-- %CUTHERE% -->
+>   
+>   ---
 
