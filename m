@@ -2,100 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D0EC433EF
-	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 14:54:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 918A8C43217
+	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 21:29:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241915AbiDDO4C (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Apr 2022 10:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56990 "EHLO
+        id S1382536AbiDDVaz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Apr 2022 17:30:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238922AbiDDO4B (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 10:56:01 -0400
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E891513D21
-        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 07:54:04 -0700 (PDT)
-Received: by mail-oi1-x232.google.com with SMTP id e189so10298571oia.8
-        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 07:54:04 -0700 (PDT)
+        with ESMTP id S1380262AbiDDTYt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 15:24:49 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C16693B295
+        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 12:22:52 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id z8so11098050oix.3
+        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 12:22:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JdohMB0pWSwUMaAyBY6M8ZlkyJQxS5S40FEXu/3u17k=;
-        b=F3rIknapVe27oM3eII8lpXZdD5QYwXF7Oj/8WPzMeLkB6gfdD98KK9iBYrRkSIsHmg
-         WlzIrs6ctw7p4w3pkfWEbUFR5FNH2Aq9xl/2z5v8QKipiMwQcrBmGUmf66HiUHr9ptt7
-         xCc30m/oljLeCw42YINdFCxsgqsRNaPh52woL8lhKgVS4Nt/arQzQ6GdFOTY+DWV+p9s
-         MAq+ac5grPutG5RI1qpyvy3oVyfObLF6xzh1lJ/fXXdNrcif8Tc69LITd/qJIVnjb/QE
-         +1TAXHr7out7ynlZY6DYcX+RXR5Ytg2/VXH0kgrFADU8jn6B86+EPBlpWlgUOxStnaOq
-         yN3Q==
+        bh=WqHsdvRU/0ykENmNgIW+D4WkbuIiPWrv0VvIpPlw958=;
+        b=cH2LsBI1mzHdw54mmcYTIyV0BZtUgjDaASfHI0fO2c9FwSg8chgz7KMaoRx4dn4Gkh
+         Ywg/zG5t+1Zri5c0uFedWSvBUyoNoQaMLxalxkkGKj2MC9+CFbqfgeQRHyIq6Lnk0dEu
+         LI0SKvB/2NK453FFZdRpsUWzXjO2hjNF3VhMslhOOeb4qRuvcCpO8QrubW6WijXUaR9d
+         y6JGLLNAJsKoUfbJda8GpyrLYXI/41+L6INd8AsPnt5M+SYx0hVzGiPcBVnpBowMV6+t
+         uLbjsV9mpZmkdMzdG42rUNpKsxjkWsKNAaX72Ne3i2FCpjCdu2V5bePktTC91FJkozjk
+         X0eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JdohMB0pWSwUMaAyBY6M8ZlkyJQxS5S40FEXu/3u17k=;
-        b=CxTHVIsGnoYn95QtKILlt5AkpDG3o8St/3xQEVqko/ubSx8imHvgEh4R+t7AiWAjfz
-         KQ57u9qUGKnwlcRV8UGqca/X9ASeJck+vAMkrhsgQfIVwVxPlAVqmP0GRiCucn0cVKXu
-         XwY8KRTa4OtzMTpfoIs/LbokBmLoq0/nDSmoJ4Kur8zCI9s+lvIDUgHAO7gQiuQyk6RC
-         3qVsva2qxl7xrH/PEoT50Qd1wVUQoOHvCzvcXBByNDlzLl1JYR1BBDTUqGJk6Q9QKtJW
-         jn0x7l4yQsf20oAo978LWMTsCgQP3Mz/zKDLnT6p5Fayo7FSytXTuHc8xP8jQxgZOoOb
-         t2wA==
-X-Gm-Message-State: AOAM533rlX/Vwa/P3s0cOZradK/B6YpcLJzH94DhuvHNRl8D00FL5yF3
-        LjzwJbnvTKPA//BqpjgdK8bh57L2X6ueQEJy24fWe7fm
-X-Google-Smtp-Source: ABdhPJzLHEIyGJV4pgRAx6hxeuRPXBgWFEEvEaadFqg9Mq5yxO2Wv8ZlbhL0vyosiO5tYNS77qD7VFsLXp9FDAoBB14=
-X-Received: by 2002:a05:6808:ecb:b0:2f7:41cc:21b9 with SMTP id
- q11-20020a0568080ecb00b002f741cc21b9mr10061607oiv.156.1649084044313; Mon, 04
- Apr 2022 07:54:04 -0700 (PDT)
+        bh=WqHsdvRU/0ykENmNgIW+D4WkbuIiPWrv0VvIpPlw958=;
+        b=1CqdrPhdT99GncG+ErE7wYwE/tfFMsnQJZO7qzzW/PqdFiamw1CdvVgNE7Gkf4FJmq
+         DPEoYzThxNnJXCn4E7twyUvXOZ5qKsbKzuvisP3IDtQDqyOCXXVKaC4XkbrmoHIEsKhw
+         zGGYQVt5oGpQo9n06SqA2/KFbSxw4voJhIuZ9jLc4JsBTDNZzACh0hu+wjyLZTlT0Pnk
+         p/ajTocQhfXP2RLCyTExZoZX2Ltv9SOm9qHSFWMt6Xj+zOMFeHfhlOUTtiwR4QzVd2DJ
+         myi9qGCCr4YFgiWCU6+2xzhXtMf11ctNZnoOe+p7x+BSZWynxqD4xSX0W89svP8rTkOQ
+         No8w==
+X-Gm-Message-State: AOAM533yEth5s9+hsEn0TkV2IkxSr08OmggomJO5Q/BegHCSgux8jQg1
+        FEykPJXTECmG94q02L4hVC4BNXpFF+2R72tWVbkkCX9Yavk=
+X-Google-Smtp-Source: ABdhPJw+IKu4RkXwxIlrxyF/ZoLQIf02qUACluvlz8xNSzNA+AHJoAKq7owW9ZcKUXW0wt0eFng7GfD6BEx3EcGguRc=
+X-Received: by 2002:a05:6808:210b:b0:2d9:a6d3:b029 with SMTP id
+ r11-20020a056808210b00b002d9a6d3b029mr309551oiw.182.1649100172151; Mon, 04
+ Apr 2022 12:22:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220401112730.108257-1-plautrba@redhat.com>
-In-Reply-To: <20220401112730.108257-1-plautrba@redhat.com>
+References: <20220401133549.122069-1-plautrba@redhat.com>
+In-Reply-To: <20220401133549.122069-1-plautrba@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 4 Apr 2022 10:53:53 -0400
-Message-ID: <CAP+JOzTVdo2N8YKuhaS7xBVYCUjNFfb7NHk=yqTN1LZRncB+gA@mail.gmail.com>
-Subject: Re: [PATCH] policycoreutils/setfiles: Improve description of -d switch
+Date:   Mon, 4 Apr 2022 15:22:41 -0400
+Message-ID: <CAP+JOzTF1BC6hF7-nb+qBGpoAuC_VH5Ts+=CZZGj3hE1DD=X-g@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsemanage: Fix USE_AFTER_FREE (CWE-672) in semanage_direct_get_module_info()
 To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Vit Mojzis <vmojzis@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 1, 2022 at 9:45 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Fri, Apr 1, 2022 at 11:54 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
-> From: Vit Mojzis <vmojzis@redhat.com>
+> >From fclose(3):
+> Upon successful completion, 0 is returned.  Otherwise, EOF is returned
+> and errno is set to indicate the error. In either case, any further
+> access (including another call to fclose()) to the stream results in
+> undefined behavior.
 >
-> The "-q" switch is becoming obsolete (completely unused in fedora) and
-> debug output ("-d" switch) makes sense in any scenario. Therefore both
-> options can be specified at once.
->
-> Resolves: rhbz#1271327
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+
+For all three patches:
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  policycoreutils/setfiles/setfiles.8 | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libsemanage/src/direct_api.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-> index 15f939d1bee0..0aab2aa24681 100644
-> --- a/policycoreutils/setfiles/setfiles.8
-> +++ b/policycoreutils/setfiles/setfiles.8
-> @@ -59,7 +59,7 @@ option will force a replacement of the entire context.
->  check the validity of the contexts against the specified binary policy.
->  .TP
->  .B \-d
-> -show what specification matched each file.
-> +show what specification matched each file. Not affected by "\-q".
->  .TP
->  .BI \-e \ directory
->  directory to exclude (repeat option for more than one directory).
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index d83941b05ca1..d5716ce579e9 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -2293,6 +2293,7 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
+>         tmp = NULL;
+>
+>         if (fclose(fp) != 0) {
+> +               fp = NULL;
+>                 ERR(sh,
+>                     "Unable to close %s module lang ext file.",
+>                     (*modinfo)->name);
 > --
 > 2.35.1
 >
-
-Looking at setfiles.c, specifying "-q" doesn't do anything at all, so
-it makes more sense to me to change what it says for "-q".
-
-Maybe:
-Deprecated and replaced by "-v". Has no effect on other options or on
-program behavior.
-
-Jim
