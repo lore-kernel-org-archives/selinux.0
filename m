@@ -2,104 +2,136 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7911C433F5
-	for <selinux@archiver.kernel.org>; Fri,  1 Apr 2022 20:58:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BD70C433EF
+	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 05:46:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236796AbiDAVA3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 Apr 2022 17:00:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46306 "EHLO
+        id S242697AbiDDFsv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Apr 2022 01:48:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbiDAVA2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 Apr 2022 17:00:28 -0400
-Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE4819C08
-        for <selinux@vger.kernel.org>; Fri,  1 Apr 2022 13:58:35 -0700 (PDT)
-Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-dee0378ce7so4026718fac.4
-        for <selinux@vger.kernel.org>; Fri, 01 Apr 2022 13:58:35 -0700 (PDT)
+        with ESMTP id S232158AbiDDFsu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 01:48:50 -0400
+Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C41A32042
+        for <selinux@vger.kernel.org>; Sun,  3 Apr 2022 22:46:55 -0700 (PDT)
+Received: by mail-pf1-x449.google.com with SMTP id j17-20020a62b611000000b004fa6338bd77so5383116pff.10
+        for <selinux@vger.kernel.org>; Sun, 03 Apr 2022 22:46:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/0WYxOZUqoBcQvDuJURX4kSx7Py0urZ/dVWQDYu9lRw=;
-        b=PMjJjZUIs1Ne43a/puien7wA5lNgyINrCJRiA+KB8oNVhtB9VC7qBZ77aW/Z6fPgx5
-         XQhVixD+2rWpron1D7I36EaJfgEh+yH3VESgjjjAqOwLWJeJ32ecpZgwtWGzelSbWDjp
-         tpttnG77hn+tv+L+OHo3SRKjLYfPVEWFWvqU33gItdlyFhY8yf+od/n++FS1E50fOEkB
-         U8MNvt2/2Ip2wTBckEgP+2McAo/qEgqJFoRjCBImuLvyOrFnHhjX4XJTmalUMySb6i2O
-         0+luNHhX655NJYAZ+k9GrEvfLRBhGs+bOpSRTIqvDpyJBGfRJi6lif8QqQ9jjWblG8E3
-         6p2w==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=7OKq+V4z+/z7bE/KfbCOq7/YDmk7SsCN1GtNgHHkIig=;
+        b=AtyjSLuY+l6HPOeH/KuqQffpRiID3JGX0i/TDY0yvoxMAh9n2YwfYGd9O+mOSnlRhk
+         wyw8XpPe5n77k93t2vlcShIfIRTk6NfQ/f26eDb+3fmcewm90TZ5wsj8MgM7D+r6OB/F
+         RhdRW4G1C0rNDW+P/X+mYSmJzTShZF/pB+RG89EpnKdDJMCKOkcJPT8P8RM8JOQO7lal
+         FwGk9ljHm6NCwphOHqNhXUC+4FHRTQIN7r1S0p6XEJDiQGV0md6FRDq+GvdLUiZnWu54
+         4CNWEQ6SXJ1wNRvmuvGMEKxGt6Hwzi84hpiFjjFQ7RCcd7sc1DJZeuov4Yq3ipbJTPtq
+         oYEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/0WYxOZUqoBcQvDuJURX4kSx7Py0urZ/dVWQDYu9lRw=;
-        b=X89htx6KCUrIXT8UR3091QAJIqnWWh7MpTgAapY2H6YFwZMWHGlmH23w8feUX6o4Wk
-         TapRipQ9inieNSPZNA0pCl+j28Ym+ZotscA9Hhz8QITB97GbGjeXnH4fwJLSUG9/zj3w
-         rGBN4WrAWOGL3t16VyaIH46J7v+J00Z99Wx04k5ZtmiIkzyFkGVlfXC5BtsHgpLGPL2a
-         LaBpoAI9fuhxd3kcwqytzkXUTMqUvjmEh8/TCMdkR644N4HE9FgoNe8CcrbMy4VoytJA
-         uSTTFUYbZBHaxWNPCblX+M5DCuSDkmgIBaAjPoqxaXsH+20FMs4pEahsl9+dNi3n4954
-         sdCw==
-X-Gm-Message-State: AOAM530c6RiedqFr0tjsG2BZPMBNwKB3lW4T2fWJCsIDoYRuTO6HPw0s
-        DorryM0FSSn6GBk5BjUeFf6jQQ1FRGeOyJWDm8g=
-X-Google-Smtp-Source: ABdhPJwfJiwYBBvJcSmF1Ers5x4cMeH53lqicwisbnE9IzlCuDaAexH2hScxMe2nnLyoR6PY7US4fOZxoRsPsDG4tb4=
-X-Received: by 2002:a05:6871:81e:b0:dd:9f3e:c94a with SMTP id
- q30-20020a056871081e00b000dd9f3ec94amr5843921oap.156.1648846714436; Fri, 01
- Apr 2022 13:58:34 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220331144752.31495-1-cgzones@googlemail.com> <20220331144752.31495-4-cgzones@googlemail.com>
-In-Reply-To: <20220331144752.31495-4-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 1 Apr 2022 16:58:23 -0400
-Message-ID: <CAP+JOzQZxXYyosq8emxgkddJkrT3OwgtWgKNByTFFg5rZr2aTQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/4] Enable missing prototypes
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=7OKq+V4z+/z7bE/KfbCOq7/YDmk7SsCN1GtNgHHkIig=;
+        b=oDzluXMl16tzkfEM6P1P4nOeJ9EVizAD/MP5m1VUIqd8rOZyX/WqJLO/b1Ikdft+3l
+         7qrNGaueFEb5Dt5Co5p/YISFfMFfv5RtrKcA7XBNypNyhzGE7GeaPVw+/5G++W9LtXm6
+         4nKHb0mbfdxoHfmoxmwrjW/ScMTWQO7ATpHRYebNS4ZkYM5Kz8wBTVkBEst75ae0yLOS
+         mBml8yHXGAUjmNc9Gzv5NVRaNO2LmCDRzkLhl3m5VpPTJZuypPJIzpZHFyX7J7IGoVFD
+         rt/8QIYngz/3yFzimHJnyi1nxYRt0ok55Hx85BfHYMfRxp6FMea7FoVJ6lRQu0iD/Bwl
+         4DOg==
+X-Gm-Message-State: AOAM533owJ8WU2PZf5bZmWDgsrvfDydLoPdpTb+0A3cXxJ8BByuvwPsK
+        nH3XCe2mMecMTc6XTEa/TqsXpjbs6w==
+X-Google-Smtp-Source: ABdhPJyDkBXV2hdGWgExw6NUIdWYovinEwjXG7uGzSLjZuFmR+EpaFyCINBtAii5P7vrtAMbZ8S3RPu5hg==
+X-Received: from tweek-sin.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:2bfd])
+ (user=tweek job=sendgmr) by 2002:a17:90a:db48:b0:1ca:ab67:d75 with SMTP id
+ u8-20020a17090adb4800b001caab670d75mr61873pjx.1.1649051214731; Sun, 03 Apr
+ 2022 22:46:54 -0700 (PDT)
+Date:   Mon,  4 Apr 2022 15:46:42 +1000
+Message-Id: <20220404054642.3095732-1-tweek@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.1094.g7c7d902a7c-goog
+Subject: [PATCH] firmware_loader: use kernel credentials when reading firmware
+From:   "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Jeffrey Vander Stoep <jeffv@google.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Adam Shih <adamshih@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 31, 2022 at 2:36 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Check for missing prototypes like file local functions not declared
-> static or external functions not being declared to avoid declaration/
-> definition desynchronizations.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Device drivers may decide to not load firmware when probed to avoid
+slowing down the boot process should the firmware filesystem not be
+available yet. In this case, the firmware loading request may be done
+when a device file associated with the driver is first accessed. The
+credentials of the userspace process accessing the device file may be
+used to validate access to the firmware files requested by the driver.
+Ensure that the kernel assumes the responsibility of reading the
+firmware.
 
-We're not ready for this one yet.
+This was observed on Android for a graphic driver loading their firmware
+when the device file (e.g. /dev/mali0) was first opened by userspace
+(i.e. surfaceflinger). The security context of surfaceflinger was used
+to validate the access to the firmware file (e.g.
+/vendor/firmware/mali.bin).
 
-    ../cil/src/cil_verify.c:973:5: warning: no previous prototype for
-=E2=80=98__cil_verify_rule=E2=80=99 [-Wmissing-prototypes]
+Because previous configurations were relying on the userspace fallback
+mechanism, the security context of the userspace daemon (i.e. ueventd)
+was consistently used to read firmware files. More devices are found to
+use the command line argument firmware_class.path which gives the kernel
+the opportunity to read the firmware directly, hence surfacing this
+misattribution.
 
-This one is easy to handle. The function is not used, or, rather, not
-fully implemented and not used. So it can be removed.
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ drivers/base/firmware_loader/main.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-    semanageswig_wrap.c:2759:24: warning: no previous prototype for
-=E2=80=98PyInit__semanage=E2=80=99 [-Wmissing-prototypes]
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_lo=
+ader/main.c
+index 94d1789a233e..416ee3cc6584 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -735,6 +735,8 @@ _request_firmware(const struct firmware **firmware_p, c=
+onst char *name,
+ 		  size_t offset, u32 opt_flags)
+ {
+ 	struct firmware *fw =3D NULL;
++	struct cred *kern_cred =3D NULL;
++	const struct cred *old_cred;
+ 	bool nondirect =3D false;
+ 	int ret;
+=20
+@@ -751,6 +753,13 @@ _request_firmware(const struct firmware **firmware_p, =
+const char *name,
+ 	if (ret <=3D 0) /* error or already assigned */
+ 		goto out;
+=20
++	kern_cred =3D prepare_kernel_cred(NULL);
++	if (!kern_cred) {
++		ret =3D -ENOMEM;
++		goto out;
++	}
++	old_cred =3D override_creds(kern_cred);
++
+ 	ret =3D fw_get_filesystem_firmware(device, fw->priv, "", NULL);
+=20
+ 	/* Only full reads can support decompression, platform, and sysfs. */
+@@ -776,6 +785,8 @@ _request_firmware(const struct firmware **firmware_p, c=
+onst char *name,
+ 	} else
+ 		ret =3D assign_fw(fw, device);
+=20
++	revert_creds(old_cred);
++
+  out:
+ 	if (ret < 0) {
+ 		fw_abort_batch_reqs(fw);
+--=20
+2.35.1.1094.g7c7d902a7c-goog
 
-This one I am not sure about.
-
-Jim
-
-
-> ---
->  Makefile | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/Makefile b/Makefile
-> index 215e313e..2ffba8e9 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -14,6 +14,7 @@ else
->                 -Winit-self \
->                 -Wmissing-format-attribute \
->                 -Wmissing-noreturn \
-> +               -Wmissing-prototypes \
->                 -Wnull-dereference \
->                 -Wpointer-arith \
->                 -Wshadow \
-> --
-> 2.35.1
->
