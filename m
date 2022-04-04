@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57AF8C433FE
-	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 21:53:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C704C433EF
+	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 21:53:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239180AbiDDVzC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Apr 2022 17:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57274 "EHLO
+        id S1345440AbiDDVzF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Apr 2022 17:55:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358071AbiDDVpJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 17:45:09 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B7A2B18B
-        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 14:38:10 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id yy13so22769186ejb.2
-        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 14:38:10 -0700 (PDT)
+        with ESMTP id S1387210AbiDDVmz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 17:42:55 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04EFD3B548
+        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 14:35:44 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id qh7so12673251ejb.11
+        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 14:35:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=wreKhBNjpxhFIdG1uIbYXh+IiBmghiePSHwhMRF83lc=;
-        b=bg9yhYml1s6SgHRBhY3Y+SX+EYkOH+9iMukL8ts4XCQ5Xinc069dclFMqpMUtz74cB
-         whzlW+JN93gEyGiaXAQ9KoCkLl/0kChfTAOhKDpNMTq4i6v2stEjcnFClpPWYLVDHFvT
-         AsfEcb5XYLXltCGzPQb4WmvkpoJ75XKlyY0JATLA+pFwl/+gqPEOaW4taut3Z4cpF0lf
-         PkJ5tQrOaepUJ2KaKfN5rHecGYjB92qFZX7LFmm3H5XlGsSKfuokYBqwSbS4QAFvrZRX
-         8cyMskJsupkTF2yKjycw4TqmZF01Cq1RcoveQNuQKYJR9XFQ/5lhGevRe5e7+iFQSRxv
-         5QMQ==
+        bh=Tf1D4Xbki6A0dJIf0PMTMKbNakwNw9muVlMNpce32D8=;
+        b=jdYyKRHl9ZEUEywy84LuNQBNUtN7FR1Nwlh4mMbDkTKeDljRMaGYjtM6RVtaOzJQkc
+         rVyOzZWfO9XP57+yYo/Ev+xxWbmbyxU3vnGw9uJ/Jzsbpfdt4xwApqyKpxL1xKAmMd5b
+         6paHwTtYlcchP8RmRuONdztBLRxCnIEwzY0DirQbCUTD34oHjNTxIKeeFbLbEQYzXgJy
+         LMdIk8+OHKVIK0Nks9jIX3kXBY6iT7RMqJtLzzO6K2+dwAYXrf4a6PHK/8vjJdzOAt6Q
+         wdR7rwacYb9TDZ4t6/JZZs+CdPGCHPm56kTTqoaOG1W+T4y+n2LOR+5vpyWmGHHTLKRI
+         /Uug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=wreKhBNjpxhFIdG1uIbYXh+IiBmghiePSHwhMRF83lc=;
-        b=xPGMXOTRg+l4Ol85rvoDkor3EaiUuXb/ehoAMp7asDO7xbpyTSEN48f7eH17Wsbcus
-         nofQ1mPjOmvC08bA6MatDdBH2oTGyL0dJpeVebropLVS2sUSG6b5iZDGDrvcJ9EZIYCp
-         putJnpRPcwP2UEujA5b7Bv5iA+vnCQ0oLQjGJE+NkHfoFzvDDW47ybPYj6zdUmGBO8/N
-         pYRwxrjdVDQJb6ZCXHdQsmZP+KEOkxKto3dicoVr3WrWb8V1lEtxY2IMaCygKE5UuxxA
-         soViDGx1M4ME/VMmKphfcnBa8zdW9aXRfGQvS/qP/zq9mHx7BSiwPmHr+WZOP450ohW9
-         8ycA==
-X-Gm-Message-State: AOAM532iQ8wMyMER0KeHEZ1NTUD36aboltbTxkCUWw7rn3izdwGD9LuY
-        Jiitl+uQLx7vGsN/GwXaFC9jvcZMGjPNlFchjPvP6/62Xg==
-X-Google-Smtp-Source: ABdhPJzcpZuKR4NEH4H/BwARdEu+wCzN9t7cdG+YP2RMKxy7MgyqLEcxKZ22++qAb3SEe/R50/xNvaZlkuKJtXTmFrI=
-X-Received: by 2002:a17:907:216f:b0:6ce:d85f:35cf with SMTP id
- rl15-20020a170907216f00b006ced85f35cfmr194416ejb.517.1649108289453; Mon, 04
- Apr 2022 14:38:09 -0700 (PDT)
+        bh=Tf1D4Xbki6A0dJIf0PMTMKbNakwNw9muVlMNpce32D8=;
+        b=XfmG/2yLVWDbWs/7ttiwEglk1Uh6ZN95/m/98CBVW7Lfd1P5lqZB8pXaf+aLVHOf6l
+         BeUFe+UNwnXMihuIxUUus5WJViwmrbOKQGWo32PX7J9SnUJC2hPWshpysxICajMYypxY
+         gz1a5fJLt/v/BiVzxJ3WHJ2ZPLIUFh+vulNGFRQ+cyaKsDHgtrcPuPvTOnH10UzISAS3
+         mbCIuDpzIAlYiYYxETf80T6hI2u4WWBVzj0xjqYP4TucYc9wCd7FuBz/4jmoLnAxc3TY
+         6K+0lB9f2zcXxd66PcefK0duDZSboByh+tx/AxSaVXTXahJ7cMrRbuZeQZdQIhUGOSs3
+         Tt1w==
+X-Gm-Message-State: AOAM531sb98rbCAAj0BtNkTuFNHUF87DEt4eRjpofQCcSrzP/ZWE0aJz
+        nvm9CuWgKs/3Yd0iSE4aw2pptN5f0zuF16GbOlz+
+X-Google-Smtp-Source: ABdhPJw9FJvqpRAnEIROp0fCJxKcHKxNF8Eu99KdEZdU93wEInPS47S3syk/XytRwV5qjOyCyJhh5QXA6FaXk4Aumr4=
+X-Received: by 2002:a17:907:7202:b0:6df:83a9:67d2 with SMTP id
+ dr2-20020a170907720200b006df83a967d2mr184807ejc.327.1649108142542; Mon, 04
+ Apr 2022 14:35:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220404093115.6451-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220404093115.6451-1-richard_c_haines@btinternet.com>
+References: <20220404092900.6400-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20220404092900.6400-1-richard_c_haines@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 4 Apr 2022 17:37:58 -0400
-Message-ID: <CAHC9VhT++=yTLMOmDpLaJTfz6CLavZ0673sydaXdQhESgd14Vg@mail.gmail.com>
-Subject: Re: [PATCH Notebook] checkreqprot is being deprecated
+Date:   Mon, 4 Apr 2022 17:35:31 -0400
+Message-ID: <CAHC9VhSUrcDNCjk9p7tbfxc_rXOkjeuMgJ8Bpw_guoaD2e+0wg@mail.gmail.com>
+Subject: Re: [PATCH Notebook] SELINUX=disabled is being deprecated
 To:     Richard Haines <richard_c_haines@btinternet.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -58,16 +58,18 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 4, 2022 at 5:31 AM Richard Haines
+On Mon, Apr 4, 2022 at 5:29 AM Richard Haines
 <richard_c_haines@btinternet.com> wrote:
 >
-> This will be deprecated at some stage, with the default set to 0.
+> The existing kernel command line switch selinux=0, which allows users to
+> disable SELinux at system boot should be used instead.
 >
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  src/lsm_selinux.md                | 8 +++++---
->  src/object_classes_permissions.md | 2 +-
->  2 files changed, 6 insertions(+), 4 deletions(-)
+>  src/core_components.md     | 6 +++++-
+>  src/embedded_systems.md    | 6 ++++++
+>  src/global_config_files.md | 5 +++++
+>  3 files changed, 16 insertions(+), 1 deletion(-)
 
 Merged, thanks!
 
