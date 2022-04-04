@@ -2,76 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BCD0C433EF
-	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 21:53:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40F41C433F5
+	for <selinux@archiver.kernel.org>; Mon,  4 Apr 2022 22:51:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbiDDVzD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Apr 2022 17:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58380 "EHLO
+        id S237719AbiDDWxk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Apr 2022 18:53:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386472AbiDDVmp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 17:42:45 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5544C1EC6C
-        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 14:34:27 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id b24so12647952edu.10
-        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 14:34:27 -0700 (PDT)
+        with ESMTP id S231759AbiDDWxa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Apr 2022 18:53:30 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A434B849
+        for <selinux@vger.kernel.org>; Mon,  4 Apr 2022 15:11:45 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id yy13so22914492ejb.2
+        for <selinux@vger.kernel.org>; Mon, 04 Apr 2022 15:11:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YzwUyuTI5gSLqTotPRzVG9YIm07ovz4YulzYRDgpudU=;
-        b=XYhkRN8zHKNuTpYyHf/m75FKFfdLyDPCSnBAzycymo4yzHe57aEjX/WgnqUbN9ZT9W
-         mwTZ+LJgDsQPNF6hbA2G3eQ3zzR5ShIr2w11jKQAUZMlvDt7G1cuhTabgmkkGpJStajE
-         zsMsZIwBJm0WoCkwmfzoLejiiGk6JZn6ESj5R3hxg5zOIKbOGao/R9vud3sykfYNQK2m
-         eSqeNXz5mAsmFsF/SyCKr/j8oDl3szFEr6sqHUwcmz+hOW6RcVw8clof1BtSs6U5ojck
-         23I4YoPRUfPY+1LlMGpj8hnZZkOo8PBcDkKj9zvXUjDlbMVPwY26GXfFFS9YSE77CmI9
-         Gfww==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=03G+ISMoy1jLWeWaov6SzUgH2M6Hbrw0dvW5LCM2wbk=;
+        b=Ul4uxm92/LPnHi7osYJ9g56/dsR+iEsWJZzoxHxLIJej05apnRAChlfwxWN1oNy9iW
+         Jh5mlhKWKSIZgkmnTp/O1Sp/UjlxH5NPNyuCoQfDkIGsJkB6Eg1adWfEUiiIz3tIjg+0
+         ohyYaoGOVt4p0ivx1myDvbJcnZEAwbzVRMbYqTKc4f8VJzZArrtKyx/03MkN8YdUPT6V
+         YjRCSXm5F2erZMwwtrm04vxcunSGXAPe7wCOKTQ67zBum7tzseXuPJdR8sLKqIpK0MiD
+         dvoq+z/in4DagfSEKN4x1PsN56BCy2eAio4smxiqSi7OH8tnccdrUFlPTG9THszVG6fp
+         OtNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YzwUyuTI5gSLqTotPRzVG9YIm07ovz4YulzYRDgpudU=;
-        b=4BzgplxX4fEtoM6C+kSJjaNS6KFl60uY7dnO+U3HFD6up3y3E/rBk/lOKlEjxXduRZ
-         piyu+BIC4AwGUcjHQuczPPbzJNfNuCpFg4tLQTXqrRHRo5NmOQYEvi5RGmVKqBWmuCdm
-         ZyL9ecHUaYqKEFns44qDHIvYNVVyPKTddPqZ1m7Dx3IITCnJRfA9rVZm0TmmHC81ASvL
-         HxvXCjHOMS+tydkkS9+9p2ETZF0hcZDw8WZ4oscPDigCJ+kMUOAXqViVcyy3M8GJtT7G
-         5xL1wcv9+9ejg4naWAuj8TObqbaqVpiW2ZFlxWnnrWr8PgsOId4kM2X9w1yvLa0IPwL6
-         0xzg==
-X-Gm-Message-State: AOAM532z5BN7YzCC3SQRqMIYtw3FwczGpAH9xqWYDzIdKR0yW73NFfko
-        RuE2oyq5951xyczjncD6wosT/TKqTA+5JhA4rgVBrWF/lQ==
-X-Google-Smtp-Source: ABdhPJwZUICQSBI6XZgNY1ZNtweE3kg7XsWpHKlPeM0jut/3YrZ9DYqcrIoZH9ClEjf9xGusEPO19RyVkbrR6FOEIxQ=
-X-Received: by 2002:a05:6402:d2:b0:413:2e50:d6fd with SMTP id
- i18-20020a05640200d200b004132e50d6fdmr157380edu.171.1649108065797; Mon, 04
- Apr 2022 14:34:25 -0700 (PDT)
+         :message-id:subject:to;
+        bh=03G+ISMoy1jLWeWaov6SzUgH2M6Hbrw0dvW5LCM2wbk=;
+        b=3Yy9TF46D/3cqt4fxmOrZ58Wgx2l3f7bRC+NtdMofSMtNnldmyc7XooluOIYZwVILA
+         dH5Sc7PqEtru25/X4aneqbI0OAbomCerTHYVtuG++wx24genYBbBmqE98YAfdmwre7kr
+         J35rKl7kQAZ73/YmYTRTH/6G3GlwiiyiS+VMMsNLpF6rYcRbOaSRJUpXotrXjvqtHEzD
+         BLGjZgO29VwApuNo3JjKnHi3D4nL1mTaKZ8psTsu1WkJWhCzoRAZLiIPlOMZ70TSlH1q
+         HIADGCvXmuWm5TJ6EnVcAfKbG5ECJdf9ufs2G06JerCrqvXZER5mffvyTU0L5oYgvtbo
+         fb0w==
+X-Gm-Message-State: AOAM532hbeFuuIQEvluRxRewZIK/lDjmQzZNrVLejxwA2QxDw+jdWiHf
+        AeAOnbWQBdU1dpOxKYQR2MDJY6iZnHkz+PAq621Djzh1Fg==
+X-Google-Smtp-Source: ABdhPJxVcdqq7H1UFQgyfPwITT8IZeJ06ARen4hzMDFpCfhAZtio6N6ulrntru5w7KvvdbEl4foWwIP45hRAtvSSl0A=
+X-Received: by 2002:a17:907:9803:b0:6db:ab21:738e with SMTP id
+ ji3-20020a170907980300b006dbab21738emr366870ejc.112.1649110303036; Mon, 04
+ Apr 2022 15:11:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220404083746.5929-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220404083746.5929-1-richard_c_haines@btinternet.com>
+References: <164911024356.258070.13216631741313822218.stgit@olly>
+In-Reply-To: <164911024356.258070.13216631741313822218.stgit@olly>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 4 Apr 2022 17:34:14 -0400
-Message-ID: <CAHC9VhTP7Ww4G6wK3eFbkTkH1BRdP6f7LVzKfVYGdRNEUWMjkQ@mail.gmail.com>
-Subject: Re: [PATCH Notebook] Reference Policy: Module versioning now optional
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
+Date:   Mon, 4 Apr 2022 18:11:32 -0400
+Message-ID: <CAHC9VhSjNFMoFvB-Y1f8j6+=GDYMNxX6ef-_2MVPXYU_2Yn-4w@mail.gmail.com>
+Subject: Re: [PATCH] github: add some basic GH Actions to build the notebook
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 4, 2022 at 4:37 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
+On Mon, Apr 4, 2022 at 6:10 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> Since Reference Policy release 2.20220106 the version_number argument
-> is optional. If missing '1' is set as a default to satisfy the policy
-> syntax.
+> This patch adds GH Actions to built the HTML, PDF, and EPUB variants
+> of The SELinux Notebook when the GH repo is updated or a pull request
+> is submitted.  This should make it much easier for people to validate
+> their changes as well as providing fully rendered copies for each
+> revision moving forward.
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  src/modular_policy_statements.md | 4 +++-
->  src/reference_policy.md          | 4 +++-
->  2 files changed, 6 insertions(+), 2 deletions(-)
+>  .github/actions/setup/action.yml |   16 ++++++++++++++++
+>  .github/workflows/epub.yml       |   26 ++++++++++++++++++++++++++
+>  .github/workflows/html.yml       |   26 ++++++++++++++++++++++++++
+>  .github/workflows/pdf.yml        |   26 ++++++++++++++++++++++++++
+>  4 files changed, 94 insertions(+)
+>  create mode 100644 .github/actions/setup/action.yml
+>  create mode 100644 .github/workflows/epub.yml
+>  create mode 100644 .github/workflows/html.yml
+>  create mode 100644 .github/workflows/pdf.yml
 
-Merged, thank you!
+Since this is more of a tooling patch and not a content patch I'm
+merging this now.
 
 -- 
 paul-moore.com
