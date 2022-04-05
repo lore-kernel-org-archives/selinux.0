@@ -2,61 +2,58 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B9FC3527B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72C29C3527D
 	for <selinux@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345616AbiDEVlo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:41:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46934 "EHLO
+        id S241428AbiDEVlh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:41:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389255AbiDEPVM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Apr 2022 11:21:12 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF959CF49A
-        for <selinux@vger.kernel.org>; Tue,  5 Apr 2022 06:35:55 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id l26so10437357ejx.1
-        for <selinux@vger.kernel.org>; Tue, 05 Apr 2022 06:35:55 -0700 (PDT)
+        with ESMTP id S1391026AbiDEPdj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Apr 2022 11:33:39 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6FE34AE2B
+        for <selinux@vger.kernel.org>; Tue,  5 Apr 2022 06:40:03 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id bg10so26821259ejb.4
+        for <selinux@vger.kernel.org>; Tue, 05 Apr 2022 06:40:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=WQOPOuPkhVBGmToDYqZgLtsuD/b3lfwf9bcY7XQFo34=;
-        b=MhCJ2e6D2TeyB0XFxrYDKRZqTrfgSmo7TKiqN5fzduNcYtS2850KNuDpDdUdJ/wQ2d
-         feT7aaRtzVjuvqXeFIE+9yg1T4uBjr+hPnvjLwah3hvgunxP9sveH4OXWDAgbwtXIBLG
-         RDN0S6dFWHjWb+pwqogkUW8pBph6/gMQZHDCKoK7ZByB4tqge9XTwlnwCFLyooix36HM
-         k6LKsjDZJurPJIvEsSv2OSlTbOsTt2IcKU1DvqbgN80BcI/dVL2c5sqXi5C20ZRWEb/9
-         WNRIgh2uOJCWh5MIhA3ew089rck4IbIpNIAiViLgopBRij7HN2xkBqQn3/HMLiVmN73Z
-         HGKQ==
+        bh=Ets4y11vEqdCFUKXiCZb839pOE0bfEf4L2YjS8uHhl0=;
+        b=gxFz5Kugw9U2jKXQ8redqBJdzaaUgoxd210NsbC9XofNiFuErDVqjNZs8SrQSdR1xv
+         rBjSuD+dt17VV5hxv0LnBl+Ac/Y98YlRGDZUUrhG+g7eWh045AFlrh7zEmVdYjv1l8bU
+         fybBIQyBJHepkhAoxr3wPq0md9jGRUAdDKpBi56DOnExDXjtz5TdsOhof/HhRhTr7N0g
+         mbnD7gERCHsskyUhjOIamnYHsnFkSPcYkLZQdVEtfn7Q3rVo2W8zFRWFT9Vqaabx/Ymb
+         38heccVXZawgW/wnjTmhBgv/DNxDEp7qZ47D8wwemVL98WebTP86FAyumutFBA0RSMUh
+         SnBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=WQOPOuPkhVBGmToDYqZgLtsuD/b3lfwf9bcY7XQFo34=;
-        b=6MK88ooC7RXDhckwK3qitn8jwHeuK0mouIazSaQvgVmwIgQYe8FrrPq969VCryiaTh
-         D4xpVRzd5L4CBzOLHdJdT2c5WwLslnQPg42xH0F1cMIHPoP4MsV6y4plcNfec7k5UfMt
-         JymcvdHJK8vBONCz4NoVE4wQRqS0TRWqhIWUG9vL8oNvh7AP+GxBcIn5TMKR0FTjjFBx
-         GVSu737W1KRAkdc7w9UlzravR6mGPPN93HTyBm1KvVWuqK1sMtCZ3eXzRBevaN6/X+nv
-         grzgrXTjBzu8ubGLTYXP/Bz+YDDMSIWgkZ+FTU3ybhDLxb+c+vz3YH6q3HTzJc0eruN0
-         kQxw==
-X-Gm-Message-State: AOAM532kxKai9FaISHX72UxVSDYPM6s87PqL0faTQCEmtLZK2gXbl+ZA
-        /KT9NuLn7LExnYvf+a4AHt3JDZz1FgI=
-X-Google-Smtp-Source: ABdhPJwegvDpk1GlOme0jnr0qEV+kDlztq2D+U3OuFftF7rXhvozUWoVF357TXQo58VBXvexECeHMw==
-X-Received: by 2002:a17:906:1e94:b0:6cc:4382:f12e with SMTP id e20-20020a1709061e9400b006cc4382f12emr3574732ejj.482.1649165754250;
-        Tue, 05 Apr 2022 06:35:54 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ets4y11vEqdCFUKXiCZb839pOE0bfEf4L2YjS8uHhl0=;
+        b=6NUywVZiLNqY5gXp0ukNYd1f3wWLnyMxlyJbiaCk8v70ic4JKtBO5W7rb/H9GcZVit
+         baiGE8WWQU0t+caF5wNPQXg9ApEBXY8lj/ygpnfZEaOPNmvSjf5pUajc/VxcSbbjoUim
+         ipCGqtTLbBFv/dnm7gSEQAw0w8ewZR+g7UPiCWyE9K3Xf4pUcq/YJsN2mBiA8SzU/Jdm
+         74D1ZkOH4h+QkXHYreM5YREL/IKObNBTYUKdoOjeoL4XIjQtZYPULiwNBmDtH8tk8GYy
+         ssW6Vk2/TrjXdfgUpEte48t6ckI9qILIJ++joG4bqbJNcqy/WoAokrzw/be0brGcLpXk
+         7w9g==
+X-Gm-Message-State: AOAM5300QhkiCFENeQPU3M6KlNbDn7K+hZUtsE8PNQOr46RptvUT8f+6
+        M8WeIm3xxumEOOKHHrQpDLsC58HYSQ0=
+X-Google-Smtp-Source: ABdhPJzSFU3RDunmPPfgs7RXBkRmZ3No6AO2nlcC/nO94kWQb0TYTdt8w/lODiQkGPhvBsOYkeH8xA==
+X-Received: by 2002:a17:907:8a19:b0:6e8:a7e:5f50 with SMTP id sc25-20020a1709078a1900b006e80a7e5f50mr3717126ejc.322.1649166002378;
+        Tue, 05 Apr 2022 06:40:02 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-008-134-094.77.8.pool.telefonica.de. [77.8.134.94])
-        by smtp.gmail.com with ESMTPSA id l25-20020a1709060e1900b006e7fe06664esm1620627eji.106.2022.04.05.06.35.53
+        by smtp.gmail.com with ESMTPSA id c5-20020a170906d18500b006ce371f09d4sm5472863ejz.57.2022.04.05.06.40.01
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 06:35:53 -0700 (PDT)
+        Tue, 05 Apr 2022 06:40:01 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2 2/6] libsepol/cil: drop unused function cil_tree_error
-Date:   Tue,  5 Apr 2022 15:35:44 +0200
-Message-Id: <20220405133548.51598-2-cgzones@googlemail.com>
+Subject: [PATCH] policycoreutils: drop usage of egrep in fixfiles
+Date:   Tue,  5 Apr 2022 15:39:58 +0200
+Message-Id: <20220405133958.52460-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220405133548.51598-1-cgzones@googlemail.com>
-References: <20220331144752.31495-1-cgzones@googlemail.com>
- <20220405133548.51598-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -64,34 +61,55 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-It seems to be unused since its initial addition in 76ba6eaa
-("Squashed 'libsepol/cil/' changes from 08520e9..28ad56e").
+egrep(1) is deprecated, use `grep -E`.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/cil/src/cil_tree.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ policycoreutils/scripts/fixfiles | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-index 525b60d4..6376c208 100644
---- a/libsepol/cil/src/cil_tree.c
-+++ b/libsepol/cil/src/cil_tree.c
-@@ -41,15 +41,6 @@
- #include "cil_parser.h"
- #include "cil_strpool.h"
+diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+index 7df4303a..c72ca0eb 100755
+--- a/policycoreutils/scripts/fixfiles
++++ b/policycoreutils/scripts/fixfiles
+@@ -45,9 +45,9 @@ FS="`cat /proc/self/mounts | sort | uniq | awk '{print $2}'`"
+ for i in $FS; do
+ 	if [ `useseclabel` -ge 0 ]
+ 	then
+-		grep " $i " /proc/self/mounts | awk '{print $4}' | egrep --silent '(^|,)seclabel(,|$)' && echo $i
++		grep " $i " /proc/self/mounts | awk '{print $4}' | grep -E --silent '(^|,)seclabel(,|$)' && echo $i
+ 	else
+-		grep " $i " /proc/self/mounts | grep -v "context=" | egrep --silent '(ext[234]| ext4dev | gfs2 | xfs | jfs | btrfs )' && echo $i
++		grep " $i " /proc/self/mounts | grep -v "context=" | grep -E --silent '(ext[234]| ext4dev | gfs2 | xfs | jfs | btrfs )' && echo $i
+ 	fi
+ done
+ }
+@@ -55,14 +55,14 @@ done
+ get_rw_labeled_mounts() {
+ FS=`get_all_labeled_mounts | sort | uniq`
+ for i in $FS; do
+-	grep " $i " /proc/self/mounts | awk '{print $4}' | egrep --silent '(^|,)rw(,|$)' && echo $i
++	grep " $i " /proc/self/mounts | awk '{print $4}' | grep -E --silent '(^|,)rw(,|$)' && echo $i
+ done
+ }
  
--__attribute__((noreturn)) __attribute__((format (printf, 1, 2))) void cil_tree_error(const char* msg, ...)
--{
--	va_list ap;
--	va_start(ap, msg);
--	cil_vlog(CIL_ERR, msg, ap);
--	va_end(ap);
--	exit(1);
--}
--
- struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **info_kind, uint32_t *hll_line, char **path)
- {
- 	int rc;
+ get_ro_labeled_mounts() {
+ FS=`get_all_labeled_mounts | sort | uniq`
+ for i in $FS; do
+-	grep " $i " /proc/self/mounts | awk '{print $4}' | egrep --silent '(^|,)ro(,|$)' && echo $i
++	grep " $i " /proc/self/mounts | awk '{print $4}' | grep -E --silent '(^|,)ro(,|$)' && echo $i
+ done
+ }
+ 
+@@ -176,7 +176,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+ 	sed -r -e 's,:s0, ,g' $FC | sort -u | \
+ 	/usr/bin/diff -b ${PREFCTEMPFILE} - | \
+ 	    grep '^[<>]'|cut -c3-| grep ^/ | \
+-	    egrep -v '(^/home|^/root|^/tmp)' |\
++	    grep -Ev '(^/home|^/root|^/tmp)' |\
+ 	sed -r -e 's,[[:blank:]].*,,g' \
+ 	       -e 's|\(([/[:alnum:]]+)\)\?|{\1,}|g' \
+ 	       -e 's|([/[:alnum:]])\?|{\1,}|g' \
 -- 
 2.35.1
 
