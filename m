@@ -2,249 +2,190 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81E00C47080
-	for <selinux@archiver.kernel.org>; Tue,  5 Apr 2022 21:40:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EEE2C433FE
+	for <selinux@archiver.kernel.org>; Wed,  6 Apr 2022 13:00:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232353AbiDEVl3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53620 "EHLO
+        id S231281AbiDFNB7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Apr 2022 09:01:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383127AbiDEPOk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Apr 2022 11:14:40 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB30C17584D
-        for <selinux@vger.kernel.org>; Tue,  5 Apr 2022 06:26:38 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id r13so26688872ejd.5
-        for <selinux@vger.kernel.org>; Tue, 05 Apr 2022 06:26:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=GEzap0/9F5oXhEiX19oOnrbM44NUaH+4hANHPd1nDm0=;
-        b=KAOoge+Ggkr4+qyfER7sKOGc9Lioljo9BSMg/JrcV2qqKVvzjzV0H2uKi7SgkwfqQb
-         6c1IqHQvBwXhFLmb/S3a4WEycN72mVxY9ikwYixsmrpQPuVt9IJnkEd5xLHM+VjmU9ir
-         8a9XaLQnZCW87U9dDmR6+xMqOqRyxfC2Ro7JOsKkH3OAmzCk+uaNofgyOvSrpWS6vFa9
-         HUIShUg5aqR/KG0aErUOzm9eRHy0j1GLnvhn+j7LuXuIkg8t6jFe6hBYaFHFM6oVuU3p
-         7HnacA/TjcKBfksDd8lsVEM6v/o8UY2OhDMme+Ofo390EWCyUf04YOe9ulv0TgYKrM8E
-         vn0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=GEzap0/9F5oXhEiX19oOnrbM44NUaH+4hANHPd1nDm0=;
-        b=i+PkHl1Z8/nWMPuArrSoxtBGiBB38bpNhhfshWNLgMighex0utRVTH7o7M03Sz5CEl
-         o1lPKZkM+GSj+qhIl5TYMTMTLg9uYpcHHzARFFyhbMQAv2qEOQs41RJGAPOB8b5p6Xld
-         Eyn60TwZNSe9VsdJH5s3hIBIKgPTbPzDr18mBYbVMs1u82UmIlllXga09bV5K3gThtxb
-         Ga2uE1rrwee22fGIYijN5sKajcAXy/O6EDHzonZTmpJVBfRYYK33ORaG45EuB9QgH3jS
-         vXuIx9mdBouXe3T+3r0YFtpmGPBpDn6wt8UEADiH/qUjI1s5NReDnbJCwrm+EUGpopsC
-         pxbg==
-X-Gm-Message-State: AOAM530qLzdPHVcO2SLvKcplRDIB/b1bfhuwzDxNZUZhG6WD9P4aJzx4
-        yrpDoI/O1feWjgAeq+oksg2zjaCgNIE=
-X-Google-Smtp-Source: ABdhPJxL3X5TNZwldWm4bdj3/DsYCB3xLBnoj8aDau2Sa4OE8zy1/+ZN08DlDHOIK7NQPtJalLI7Mg==
-X-Received: by 2002:a17:907:7f8d:b0:6da:b3d6:a427 with SMTP id qk13-20020a1709077f8d00b006dab3d6a427mr3444310ejc.509.1649165197027;
-        Tue, 05 Apr 2022 06:26:37 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-008-134-094.77.8.pool.telefonica.de. [77.8.134.94])
-        by smtp.gmail.com with ESMTPSA id l26-20020a1709062a9a00b006e7ee7ad20bsm2769901eje.149.2022.04.05.06.26.36
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 06:26:36 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2] libselinux/utils: check for valid contexts to improve error causes
-Date:   Tue,  5 Apr 2022 15:26:30 +0200
-Message-Id: <20220405132630.47946-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220331144653.31178-1-cgzones@googlemail.com>
-References: <20220331144653.31178-1-cgzones@googlemail.com>
+        with ESMTP id S231612AbiDFNBl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Apr 2022 09:01:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3AA4A5BE11B
+        for <selinux@vger.kernel.org>; Wed,  6 Apr 2022 02:26:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649237186;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7wGJnNFmggKQl+vpsdvM/TCwBCkWW0Nz8Fc+bLwtrQo=;
+        b=QU9ZcMqd/AwlEIX51We03Uc3MFt6NHn/A45sJmzhaRz6YpBuohQItVtkfy5hFuyK4FHvio
+        cIwZ5AmoGw4yJW1Y/B98Wj7NUboZZoG0kjklcU/i5gRJZA4eWVxXMWg4aZIbiupGzY6JGt
+        i+Q+hxqiBAOaM2Qkg3uviwwl9jxbeW8=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-104-dIGrUNHEOhCJs-c8bvp-Ww-1; Wed, 06 Apr 2022 05:26:23 -0400
+X-MC-Unique: dIGrUNHEOhCJs-c8bvp-Ww-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A862A800B28;
+        Wed,  6 Apr 2022 09:26:22 +0000 (UTC)
+Received: from localhost (unknown [10.40.193.153])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4F16B401E65;
+        Wed,  6 Apr 2022 09:26:22 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     James Carter <jwcart2@gmail.com>,
+        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: Re: [PATCH] libsepol: add missing oom checks
+In-Reply-To: <CAP+JOzSXbEZuEy_oMgWPbu_mcTZo_HBb6-YVR1ULKpY36z2nkQ@mail.gmail.com>
+References: <20220331144452.30869-1-cgzones@googlemail.com>
+ <CAP+JOzSXbEZuEy_oMgWPbu_mcTZo_HBb6-YVR1ULKpY36z2nkQ@mail.gmail.com>
+Date:   Wed, 06 Apr 2022 11:26:21 +0200
+Message-ID: <87k0c2pnpe.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Return more detailed error messages when the supplied contexts are
-invalid.
+James Carter <jwcart2@gmail.com> writes:
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> On Thu, Mar 31, 2022 at 11:34 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+>>
+>> Check return values of memory allocation functions and propagate their
+>> failure.
+>>
+>> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
----
-v2:
-   check new context in validatetrans
----
- libselinux/utils/compute_av.c      | 10 ++++++++++
- libselinux/utils/compute_create.c  | 12 +++++++++++-
- libselinux/utils/compute_member.c  | 12 +++++++++++-
- libselinux/utils/compute_relabel.c | 10 ++++++++++
- libselinux/utils/getdefaultcon.c   |  5 +++++
- libselinux/utils/selinuxexeccon.c  |  6 +++++-
- libselinux/utils/validatetrans.c   | 15 +++++++++++++++
- 7 files changed, 67 insertions(+), 3 deletions(-)
+Merged.
 
-diff --git a/libselinux/utils/compute_av.c b/libselinux/utils/compute_av.c
-index df4a77e8..ef08338f 100644
---- a/libselinux/utils/compute_av.c
-+++ b/libselinux/utils/compute_av.c
-@@ -17,6 +17,16 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (security_check_context(argv[1])) {
-+		fprintf(stderr, "%s:  invalid source context '%s'\n", argv[0], argv[1]);
-+		exit(4);
-+	}
-+
-+	if (security_check_context(argv[2])) {
-+		fprintf(stderr, "%s:  invalid target context '%s'\n", argv[0], argv[2]);
-+		exit(5);
-+	}
-+
- 	tclass = string_to_security_class(argv[3]);
- 	if (!tclass) {
- 		fprintf(stderr, "%s:  invalid class '%s'\n", argv[0], argv[3]);
-diff --git a/libselinux/utils/compute_create.c b/libselinux/utils/compute_create.c
-index 449ccd90..63029c19 100644
---- a/libselinux/utils/compute_create.c
-+++ b/libselinux/utils/compute_create.c
-@@ -17,9 +17,19 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (security_check_context(argv[1])) {
-+		fprintf(stderr, "%s:  invalid source context '%s'\n", argv[0], argv[1]);
-+		exit(4);
-+	}
-+
-+	if (security_check_context(argv[2])) {
-+		fprintf(stderr, "%s:  invalid target context '%s'\n", argv[0], argv[2]);
-+		exit(5);
-+	}
-+
- 	tclass = string_to_security_class(argv[3]);
- 	if (!tclass) {
--		fprintf(stderr, "Invalid class '%s'\n", argv[3]);
-+		fprintf(stderr, "%s:  invalid class '%s'\n", argv[0], argv[3]);
- 		exit(2);
- 	}
- 
-diff --git a/libselinux/utils/compute_member.c b/libselinux/utils/compute_member.c
-index c6dad19e..1ef47c25 100644
---- a/libselinux/utils/compute_member.c
-+++ b/libselinux/utils/compute_member.c
-@@ -17,9 +17,19 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (security_check_context(argv[1])) {
-+		fprintf(stderr, "%s:  invalid source context '%s'\n", argv[0], argv[1]);
-+		exit(4);
-+	}
-+
-+	if (security_check_context(argv[2])) {
-+		fprintf(stderr, "%s:  invalid target context '%s'\n", argv[0], argv[2]);
-+		exit(5);
-+	}
-+
- 	tclass = string_to_security_class(argv[3]);
- 	if (!tclass) {
--		fprintf(stderr, "Invalid class '%s'\n", argv[3]);
-+		fprintf(stderr, "%s:  invalid class '%s'\n", argv[0], argv[3]);
- 		exit(2);
- 	}
- 
-diff --git a/libselinux/utils/compute_relabel.c b/libselinux/utils/compute_relabel.c
-index 85c760bc..f6a957da 100644
---- a/libselinux/utils/compute_relabel.c
-+++ b/libselinux/utils/compute_relabel.c
-@@ -17,6 +17,16 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (security_check_context(argv[1])) {
-+		fprintf(stderr, "%s:  invalid source context '%s'\n", argv[0], argv[1]);
-+		exit(4);
-+	}
-+
-+	if (security_check_context(argv[2])) {
-+		fprintf(stderr, "%s:  invalid target context '%s'\n", argv[0], argv[2]);
-+		exit(5);
-+	}
-+
- 	tclass = string_to_security_class(argv[3]);
- 	if (!tclass) {
- 		fprintf(stderr, "%s:  invalid class '%s'\n", argv[0], argv[3]);
-diff --git a/libselinux/utils/getdefaultcon.c b/libselinux/utils/getdefaultcon.c
-index 957c1cb2..590e98d9 100644
---- a/libselinux/utils/getdefaultcon.c
-+++ b/libselinux/utils/getdefaultcon.c
-@@ -68,6 +68,11 @@ int main(int argc, char **argv)
- 	} else
- 		cur_context = argv[optind + 1];
- 
-+	if (security_check_context(cur_context)) {
-+		fprintf(stderr, "%s:  invalid from context '%s'\n", argv[0], cur_context);
-+		return 3;
-+	}
-+
- 	if ((ret = getseuser(user, service, &seuser, &dlevel)) == 0) {
- 		if (! level) level=dlevel;
- 		if (role != NULL && role[0]) 
-diff --git a/libselinux/utils/selinuxexeccon.c b/libselinux/utils/selinuxexeccon.c
-index b50e7886..66754b6a 100644
---- a/libselinux/utils/selinuxexeccon.c
-+++ b/libselinux/utils/selinuxexeccon.c
-@@ -16,7 +16,7 @@ static __attribute__ ((__noreturn__)) void usage(const char *name, const char *d
- 	exit(rc);
- }
- 
--static char * get_selinux_proc_context(const char *command, char * execcon) {
-+static char * get_selinux_proc_context(const char *command, const char * execcon) {
- 	char * fcon = NULL, *newcon = NULL;
- 
- 	int ret = getfilecon(command, &fcon);
-@@ -43,6 +43,10 @@ int main(int argc, char **argv)
- 		}
- 	} else {
- 		con = strdup(argv[2]);
-+		if (security_check_context(con)) {
-+			fprintf(stderr, "%s:  invalid from context '%s'\n", argv[0], con);
-+			return -1;
-+		}
- 	}
- 
- 	proccon = get_selinux_proc_context(argv[1], con);
-diff --git a/libselinux/utils/validatetrans.c b/libselinux/utils/validatetrans.c
-index 1db33e66..9d642a93 100644
---- a/libselinux/utils/validatetrans.c
-+++ b/libselinux/utils/validatetrans.c
-@@ -17,12 +17,27 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	if (security_check_context(argv[1])) {
-+		fprintf(stderr, "%s:  invalid source context '%s'\n", argv[0], argv[1]);
-+		exit(4);
-+	}
-+
-+	if (security_check_context(argv[2])) {
-+		fprintf(stderr, "%s:  invalid target context '%s'\n", argv[0], argv[2]);
-+		exit(5);
-+	}
-+
- 	tclass = string_to_security_class(argv[3]);
- 	if (!tclass) {
- 		fprintf(stderr, "%s:  invalid class '%s'\n", argv[0], argv[3]);
- 		exit(2);
- 	}
- 
-+	if (security_check_context(argv[4])) {
-+		fprintf(stderr, "%s:  invalid new context '%s'\n", argv[0], argv[4]);
-+		exit(6);
-+	}
-+
- 	ret = security_validatetrans(argv[1], argv[2], tclass, argv[4]);
- 	printf("security_validatetrans returned %d errno: %s\n", ret, strerror(errno));
- 
--- 
-2.35.1
+>> ---
+>>  libsepol/src/kernel_to_cil.c  |  9 +++++++++
+>>  libsepol/src/kernel_to_conf.c |  4 ++++
+>>  libsepol/src/module_to_cil.c  | 11 +++++++++++
+>>  libsepol/src/policydb.c       |  3 ++-
+>>  4 files changed, 26 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+>> index 869f6940..9128ac55 100644
+>> --- a/libsepol/src/kernel_to_cil.c
+>> +++ b/libsepol/src/kernel_to_cil.c
+>> @@ -190,6 +190,10 @@ static char *constraint_expr_to_str(struct policydb=
+ *pdb, struct constraint_expr
+>>                                 }
+>>                                 if (!names) {
+>>                                         names =3D strdup("NO_IDENTIFIER"=
+);
+>> +                                       if (!names) {
+>> +                                               sepol_log_err("Out of me=
+mory");
+>> +                                               goto exit;
+>> +                                       }
+>>                                 }
+>>                                 if (strchr(names, ' ')) {
+>>                                         new_val =3D create_str("(%s %s (=
+%s))", 3, op, attr1, names);
+>> @@ -568,6 +572,11 @@ static int write_sids_to_cil(FILE *out, const char =
+*const *sid_to_str,
+>>                 } else {
+>>                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+>>                         sid =3D strdup(unknown);
+>> +                       if (!sid) {
+>> +                               sepol_log_err("Out of memory");
+>> +                               rc =3D -1;
+>> +                               goto exit;
+>> +                       }
+>>                 }
+>>                 rc =3D strs_add_at_index(strs, sid, i);
+>>                 if (rc !=3D 0) {
+>> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf=
+.c
+>> index 3544f73d..63dffd9b 100644
+>> --- a/libsepol/src/kernel_to_conf.c
+>> +++ b/libsepol/src/kernel_to_conf.c
+>> @@ -187,6 +187,10 @@ static char *constraint_expr_to_str(struct policydb=
+ *pdb, struct constraint_expr
+>>                                 }
+>>                                 if (!names) {
+>>                                         names =3D strdup("NO_IDENTIFIER"=
+);
+>> +                                       if (!names) {
+>> +                                               sepol_log_err("Out of me=
+mory");
+>> +                                               goto exit;
+>> +                                       }
+>>                                 }
+>>                                 if (strchr(names, ' ')) {
+>>                                         new_val =3D create_str("%s %s { =
+%s }", 3, attr1, op, names);
+>> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+>> index c9e88f1e..f2e8aff0 100644
+>> --- a/libsepol/src/module_to_cil.c
+>> +++ b/libsepol/src/module_to_cil.c
+>> @@ -393,6 +393,8 @@ static int typealias_list_create(struct policydb *pd=
+b)
+>>         }
+>>
+>>         typealias_lists =3D calloc(max_decl_id + 1, sizeof(*typealias_li=
+sts));
+>> +       if (!typealias_lists)
+>> +               goto exit;
+>>         typealias_lists_len =3D max_decl_id + 1;
+>>
+>>         rc =3D hashtab_map(pdb->p_types.table, typealiases_gather_map, p=
+db);
+>> @@ -1792,6 +1794,10 @@ static int constraint_expr_to_string(struct polic=
+ydb *pdb, struct constraint_exp
+>>                                 }
+>>                                 if (num_names =3D=3D 0) {
+>>                                         names =3D strdup("NO_IDENTIFIER"=
+);
+>> +                                       if (!names) {
+>> +                                               rc =3D -1;
+>> +                                               goto exit;
+>> +                                       }
+>>                                 } else {
+>>                                         rc =3D name_list_to_string(name_=
+list, num_names, &names);
+>>                                         if (rc !=3D 0) {
+>> @@ -2556,6 +2562,11 @@ static int ocontext_isid_to_cil(struct policydb *=
+pdb, const char *const *sid_to_
+>>                         goto exit;
+>>                 }
+>>                 item->sid_key =3D strdup(sid);
+>> +               if (!item->sid_key) {
+>> +                       log_err("Out of memory");
+>> +                       rc =3D -1;
+>> +                       goto exit;
+>> +               }
+>>                 item->next =3D head;
+>>                 head =3D item;
+>>         }
+>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+>> index fc71463e..5c7e35e8 100644
+>> --- a/libsepol/src/policydb.c
+>> +++ b/libsepol/src/policydb.c
+>> @@ -1252,7 +1252,8 @@ int policydb_index_others(sepol_handle_t * handle,
+>>         if (!p->type_val_to_struct)
+>>                 return -1;
+>>
+>> -       cond_init_bool_indexes(p);
+>> +       if (cond_init_bool_indexes(p))
+>> +               return -1;
+>>
+>>         for (i =3D SYM_ROLES; i < SYM_NUM; i++) {
+>>                 free(p->sym_val_to_name[i]);
+>> --
+>> 2.35.1
+>>
 
