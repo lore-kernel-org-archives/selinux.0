@@ -2,66 +2,67 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5195C433F5
-	for <selinux@archiver.kernel.org>; Thu,  7 Apr 2022 21:26:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE7EFC43217
+	for <selinux@archiver.kernel.org>; Thu,  7 Apr 2022 21:26:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231426AbiDGV2I (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Apr 2022 17:28:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37978 "EHLO
+        id S231424AbiDGV2Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Apr 2022 17:28:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231405AbiDGV2G (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 Apr 2022 17:28:06 -0400
-Received: from sonic310-30.consmr.mail.ne1.yahoo.com (sonic310-30.consmr.mail.ne1.yahoo.com [66.163.186.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8BD195335
-        for <selinux@vger.kernel.org>; Thu,  7 Apr 2022 14:26:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1649366764; bh=Wc9vmFaSeLclWZW27NYtiPedH82eAks2io6BkS5TCZI=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=gWOaFu07S7cPza5o0ekd0b1kRg1LeXhT3gGhRnldbk/k8x5YEdRJKrwUDvNWtStlko1e+CWDlZHrMwlCGYzM+PrlsdMdCAPuiYIXdzqLvQ4E1IvrFWtevXOGoLbYNJdPCuh3ehs22RFEur0lzDsJYzp4w0kWDQZ9bDb4CBt8kDftvhoVmsvXgZUWCbJAD728sSWSESIDLTw9XkLTCHre99PN/8mJ3hocCSxnn0jL/8qtHWUVjX220MZhpXlHpa5nKqI0KiaPc9X8Qx2s5kKXmcaur3B32cp+B0+ND3rRr5aBPe3/CM4940Ha+7cvRXxWmEIUJJ2qhrScEAKNVQ99KA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1649366764; bh=AZPn5ul8F/mkfF6r5mq3iq6JT7j5Dm5/xDPT2H8Nh5Z=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=sTSX4VJSDX5ZmpgPIXpcdxO2o6h6JLUc41BItTdcH4b4H4LUVgSJTCiJwAPMz2PlSci8YbK0T8NnfQ8tF+AMJjFxZDMAJRs6DJVqBQ5SQSkZBG3W5lsZhz1xeaaXjgVPtt9Z582Z42PmiyxvlTHat0m1IuPlGL8UTXF1IYy+E0sCq0/zY6xSnNYKeyfcnDzFNRsG3lx2sNokovfjjUg9ZGgeAFsJdLRjN5zvXA1PYQqLM5mRd7HxIQcmwpliBU9JAHPBlWpVcKzx7ZJmj+xIDfckJUL7U9xJvrb0C/om9Ssx2nYcp6r3m1idDHCUj8XJdiJ7xUhTkXyn6iiF08LtBA==
-X-YMail-OSG: j.O1JaAVM1ncJMWEhQyF7RiU08eVkE_09ECKwjlzwCobwO7iSsOw5jqCdZ6mwnp
- OnA3BokKurEHiipkKh5G.z0bRuRBEqpYm2erC3jgJvF1ZjWZIgmKOhna57Y28gq5IQo8yFLVjIuX
- tnpxqhtuJ4e4Mqq8t_Vy_frtkZCzYmfvEn93LE2CVfw_qYW26DAu3KVIcInOL2XI_ekvD3fONsLo
- ZIx4DNbmKgkY1xZfGH1P.9cqGujce4CRkn0SihY4q4pXDqJ8hh6VBWTN0dL1VmWTWRJfXdKJC4Ts
- Jni4zURH7..TxXAbuEsSNmUEAWmkNog3g2Gz4gt50lscfz9q7tS1p1DdQ94w5BAg5BEwLX6JO8KD
- edb_3TPQHK_mMJ7BHIKXRq6wbdxALEXAbL7m4G.fwWrkVRvJn67OwgPU1BPb5Up1QfinFFuLxyj5
- Luw6Cy0jgmloZJYU2FnVnU3Cu7qMcmMCf.oEtscThyI4JyhJaHk8VTqxAe0aVXY.1Xcc1kvsdw6n
- RJqNko4ach8bXEmwaC0LdZ9GbHz39GTmebsV997qGBwpgtyEjocmLDLdYsp2ngg2waLI0Wz3uEMH
- 7UmWkV1OVJ_kKdnykeIXIowPFvhmkodpg4EXK4kA7AQmbgNSKvcbS6XbnfGlsQgYm_YIQFggoAbl
- .Blv3gNjrIatNqn5wXMIpti6LTbQjJ17WicGGAGaj4P_aobcQYPeRhA8kIK68pUEIbocDCsZgJPO
- xDSZczq9L1xhIppuqqb0vhYUeP71lS0KU5JZX_IAr8.UXUdLCdK0LEblHYVbp33dJBDxus5gi2k8
- HpGQ.eUHtIQB9mBTq0A_zy.g95xWclRnUeScVwIR55eTwlCHDaiomWDMJjFX53_mLNANq3APltSd
- Q5DIOxsKy98OAEShdipxXeE2FHe4uqTtV8FsaUbqfUUhV3w1avZght1Mt_gy5rWUucSzuHrsIZBn
- FvPD4qefDPYXhEZIz69F0F6u7O6dC.GxJnDXRHr6GWqb.02E80Q33XqhPOv2VwIdGmU6NXGr4I3K
- .JHOJUM3ai3.cFk4sYzW0S35bY7VLVRnTfnUuZlRBdDatj13oJq0u8k.IfJT6VCLiCdqepQ8ZtU8
- hqNWK0RjOFwc8iFai64N0Fx1z74KabdGEc1HvPclc0aU74_sVHWdzr12ulRsF3x5p31x67BA8YE7
- .dkeuqhBYWhnsY5xNbQgG2ePZEVXQB3gCf1IB8.1ZYbF.c7AGwoAWFH81p2TJUWhnLaQPHtenVoZ
- llM0VZQCNiPaoGt5uODc2hs3dQeZKDyO4oN_3zsiMf00yCO4DbxFhpwahiWhqvVqteO7BYGlFmyu
- RWOBPb8.aTi39SXe4mfXxEqHAzxd3DnOuPKY.F3S1ryCR4xVxnZv2ckQYnlTwAG7EeA16H0hXNtp
- WOfcFM6FNHICaA6p6OHPY4eKT9wiV4BtzuS9xwYtRNe4oH0RP7CToty_j74RBCfhCyIszNWpBf5e
- pZkS5WKXncgBgFBZJJFUNW_Jc5VkvOurvC2aneS_96rjUfLhICl5doU_4Ky32mMVIFXyCsp82xAV
- cAYYEfX1nnfZUwyUHNOrP4c4Akpt3lR6Gzw0HpWr77ONQyG.nFX.OH_vNwz3gL0ooQYTMfpEXKL4
- m1ihYXY74JnerRjKitpk2gU9KOACj8c08VqcUkXT4w9.UY5VHGYdiBuLWUxk6EWIQc9SAdpOwUbV
- ra4uT3Lh_k5o5htWsX_guzRyhFivQx7aBk_fVHoPnsTGfn_3oCG3zYOfAMM0Ur9_s_AUoieiNBXE
- 7EhiIRfP7aTraT5A2gI1u2TkiFqR99BwGJTNe8NN0x0WE9aT9Pol7talRsXSfjXM09cZggDuWixZ
- 9ZGqmpsRGGCicwvPwtPa9iUI7Ycb_nQE1Epf3WgxFDaobcJwh84vT138EupJ5KekLPa4uS5FxwKA
- WqlT.pCnD.q8DhIdeQtQdHO2ZEz7s57kqulX5cZQC0_gu1ElwicSGJROSUZ7VvFUHJcR9pZ4YGlb
- VHfFMibPut1y6TUP_HdGfFYJdnTmmTEXc402NkusJORLiIh7pjJ29SHbtN7wX5aB.UwKl_y_t2F_
- dnETcUgEL2D8P.oFupPsYu.mC0FYXPIgsY9WFjmr_lPvps9NZrSOVUgL1f7EQ5LvbClJwztwHEWF
- nvhlyzTG29r7S97r6ArvE5aHBVj5oq0FHkeFaAhS1y7WtdXtH9Yt1GyiFByfOeImo.6wyBA2DGL7
- 17pNflE5BVtkf8LY_VztPPMXdLQh9oaBrujhmixH3I_j1PxM1_cUWdHCffgiRGXy81GxsjixPX.0
- SFlW98eEhwes1A8_8FD5WRO21t1Tg_CE-
+        with ESMTP id S231448AbiDGV2M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Apr 2022 17:28:12 -0400
+Received: from sonic305-28.consmr.mail.ne1.yahoo.com (sonic305-28.consmr.mail.ne1.yahoo.com [66.163.185.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D4D19ABDF
+        for <selinux@vger.kernel.org>; Thu,  7 Apr 2022 14:26:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1649366770; bh=KzbFwwhuwjYfTBU4tfTxK1dAwBTSVWuzxkwCQg5qsUw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=oSMFN1NXgj5nT4hKPSc4GG+4fnWK1CZ5bjUbH8NTGAm2xjEvWr+dyqPBM8nnflIDINXN6kldvhV2L6KESnmzDIKZ+brRuUkxAz5eRGoew5pSKjHRQuGYiOK9V9nSDgnezN1ln+oMlR40e3vdM70FVRvHbM+aZgxhXOdnmNuyY3ScIgiclZJf1PlpzVHOMAbwNcaLDeNVzJw2rI56tblV2b9KExw8NSmlQeFLJRQzLR7U3I0d3gp5W2IXbRTVIf55ZhLATcW72j4vJ7Lq4LWHE4C0rkl6cxNzV50aGh4u8dY8Q3Ed97vHQ44tP9jdE1+7eOgZV0E6yy4HY5sUbs2nsw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1649366770; bh=xDz3OU9PDS8Hz3vIt1H+suPQtNOH14jBaooUb2W5sc8=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=kLrtIzaVzKmcpaXa6VckGZznZoYy7j7+KWT1RGKrgmsE1nodjlQcYCrizD2SwhIZDe4AtA03VLPDUxewf14n1+wayQgGn95bRNNAtnPivYtvGQVQdZQDhSIAKr+rQWWqXowLXCFltKw59+wd6qVims93HSqne5yNGo/0uCaDxpl59TMeHq68y2zhu/YiqL9nNhkvnz90hQwq5IRLNJUU5O9derX04otTJhfzqIyxp6ZnfskKJMdT5RwaqNht+cFj8wh7cat5JNrbywsZ/ZoObW0B+ZWyCyFb4h8BKvglGBwZn2thmIUuLi86GBWgbtOPvkNWyQSMPaw9d/NAN3ywiw==
+X-YMail-OSG: MzyUCcgVM1ltKIjPm6j7qa.8FIaE6f6l9wXggunUKktQq5N72GVK1ey1w1qZZbc
+ xg9pb.0AgGm2ZmHNKflOpl6ZyT7YG_Lv3YoC14bNlfWUas03qKKM2yk4aSHnUjjZbv4yO8gbho3K
+ rikpppNY51LNf_XTBbLcUIO.tdXBxPmC.4TicHa6YNbf3HpnZQAVAJ2PyUWRTcTg077MLbulL5_Q
+ mYjDuEItFlOWudyI_EWutNBXzXT5Y4RL8kWgirywC7.38_zUNnu_VHH9FMG2SbdX6oM1AW7r4K8A
+ Sst7dlSSI2NhttzYzlb0qMvUyYJt_oSS_deIFDs1kGTUTnnZ4CDEx4lg6mugQqU801z5gz3qp.tl
+ TU7cXj4B5gcZT2kIpvXGnUvrFDCekX6ua8u_BSVLRbLSAFXfPgZ9PGqkda4En3pxLtwBzMXkQjCC
+ DYsmsH1.by7_dVtXlJfxzYagZPLmIUf7T5KKFSpV.FEdSNGItRbLT2PMfoEJmgDCR.5cY1PSEJVe
+ 4mTf5PRtYHGJ95abB_86el.9L5zsjZ1LQ_KW.fOUud84UobC6bwPaPfrC9mJuZ51_gk3ZlrGK7_h
+ EnkvsQQxNd4.ebaiI7jZjQB..l8yBhOGh1Sm3AI0gOrCJFfW_11tC5vACVmn5j8qNxVCPHkXPqjK
+ xHX6HiGvT4WUYhPHHnZyhkWujjMXnhXaK8yqqC_qhG_iFZGk7t3PY7LMN9oITyx9iEsQkKq4EZx2
+ QmCfoKhk.cb2yiqLbuCCwssu7dTSZMlBzBesIZPlEvLPRiGtvdO8N1oTKB1BJwME9ufVL3fYWmvS
+ mBFoyUBbsIstgI9KhIUAFnTwx5VlJapGi79vO7RL0nrKULsAEk224O8wkTRl0WYQhJzlUcKV1ggh
+ 6rdJ1Rrjomsz.jMgmDN4JipHcdCrUVkXVyqfT1_P8syoxhk6UwVolEwdM741Z7SVtosR1b5Xadk5
+ flkfMTlOs7D1OoEENmJDD_u2.kIbSumkVyNAhR3Uxjvfulp12eQV1CK1Zuaerrjjs9qsj14X7rar
+ nPT7EcR.AZn9eCIzY2xbeErQFryYTyjYR53qfhovE9THT9m.VNCpAPrna6UZgD8924nheQbpbEPk
+ iaXqmYmp7scZ49Nh2n3Ucon3b71O8tojVZ9Qwm_s0ZceyK.aw8A6qiTan__N1C8iJ6YetyXp9irU
+ r20ihzZAHE6UI6arba0q.PINjAezaoD2vA2W.1sQZOkMtX6qJAlUKVBV5xbtphfvQV9uQtVgUjgb
+ JwGgZCy4x736XzDB1Uit.RmXgbBChy0tfPkbAQNzSJGYyE.CCQTYz2lxHthzhelwHppBZvGByDrM
+ W2ETLeMBmAhgDPJ5v4H9RgS6PsN1UE9qx6XDdatO6zN0mc0kTfQIdMts6hFORf0mJoXZJh6QHPXc
+ LzLurR4AbLAaqzY9rkUl9iVHvlwwsxFZJEXBGLQa7.dfQ.6L72qwuEvOVRNKYhMh2xRZlSqIUWbB
+ OcuwWSChxeb92yIjhcwNblydWxgZ3_bQcm4aXMXKDapayZ.RBYfE9Ssxpt42KpzONeSF9hd73jmJ
+ DQkOCHVOFLWJDOvuy0DfKIXpa9zvPd8fBiG9mFOWrCYQvpjsXWZZwwNw5NOkS0DJf17pYt5Bal6q
+ .yfLXPwWqMdiOOj7XDh6QpEArmGvkg2Y_eLf2MKqebD_FZewxIpjkwVJXvWu0i1PgyX74vePzQXG
+ S06FhHovs00kiUG3RvVQ1ZNnbOhpGfIXNjSZlzYsRSkMpr7Vz441Vi2N9kZDQ9hmLCSy8Dil.NmT
+ g1qjvrsq08RSARU51K1dfANh5BN9fyvFUWhLpxdoU_iTCZTWqCsKssV.2PP2uUi99iZz0OHzRDKc
+ 3u26ZrFEiJIxBVftFpWQVtF5P.3V1nxYDFXaTxyl8oMj7bON2YEnwhNMqG7bqiaKtZK4xMQnY0cH
+ 5eX7dYbpEA6lC8XCXOXofZzNqOj8G6aXDhLXv6XWXHxw1Kycl1qGISQBa8ipcMJezK6SVaL6JNuo
+ 2fvZAI.KmW4z11OabV3UlHFMkON3TJ0uaQmerAuqp6jRf6vbRs7AGOFHViK1Fmwe19Jd1hkUJWqh
+ trsndhZigYiDLrg4YZNqlfrxMJzODSkOJATUp0f3pQBTJjEKEtuTtNe0nL802lsxi.djUXWG17mW
+ DhNIfqzzuRmxy2ewK0m_DxdxiKgYMFRyGqy5GWCwUtJhFPz2UAG8BREffj9aI2c7UVV2CNATtHD1
+ 4E1d4lr8.saw36tQUImulFcEVULXS_Z0KG.gSlkti9rE3iqVKLEleDorvkhmqoAcxCI5kbf8OhrQ
+ 9wyU-
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Thu, 7 Apr 2022 21:26:04 +0000
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Thu, 7 Apr 2022 21:26:10 +0000
 Received: by hermes--canary-production-bf1-665cdb9985-zm65g (VZM Hermes SMTP Server) with ESMTPA ID 1b8a787888cf9c0809abffd2a20a44f0;
-          Thu, 07 Apr 2022 21:25:59 +0000 (UTC)
+          Thu, 07 Apr 2022 21:26:04 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
-Subject: [PATCH v34 06/29] LSM: Use lsmblob in security_audit_rule_match
-Date:   Thu,  7 Apr 2022 14:22:07 -0700
-Message-Id: <20220407212230.12893-7-casey@schaufler-ca.com>
+        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org
+Subject: [PATCH v34 08/29] LSM: Use lsmblob in security_secctx_to_secid
+Date:   Thu,  7 Apr 2022 14:22:09 -0700
+Message-Id: <20220407212230.12893-9-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220407212230.12893-1-casey@schaufler-ca.com>
 References: <20220407212230.12893-1-casey@schaufler-ca.com>
@@ -71,153 +72,284 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the secid parameter of security_audit_rule_match
-to a lsmblob structure pointer. Pass the entry from the
-lsmblob structure for the approprite slot to the LSM hook.
+Change the security_secctx_to_secid interface to use a lsmblob
+structure in place of the single u32 secid in support of
+module stacking. Change its callers to do the same.
 
-Change the users of security_audit_rule_match to use the
-lsmblob instead of a u32. The scaffolding function lsmblob_init()
-fills the blob with the value of the old secid, ensuring that
-it is available to the appropriate module hook. The sources of
-the secid, security_task_getsecid() and security_inode_getsecid(),
-will be converted to use the blob structure later in the series.
-At the point the use of lsmblob_init() is dropped.
+The security module hook is unchanged, still passing back a secid.
+The infrastructure passes the correct entry from the lsmblob.
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Acked-by: Paul Moore <paul@paul-moore.com>
-Cc: linux-audit@redhat.com
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Cc: netdev@vger.kernel.org
+Cc: netfilter-devel@vger.kernel.org
+To: Pablo Neira Ayuso <pablo@netfilter.org>
 ---
- include/linux/security.h |  5 +++--
- kernel/auditfilter.c     |  6 ++++--
- kernel/auditsc.c         | 16 +++++++++++-----
- security/security.c      |  5 +++--
- 4 files changed, 21 insertions(+), 11 deletions(-)
+ include/linux/security.h          | 26 ++++++++++++++++++--
+ kernel/cred.c                     |  4 +---
+ net/netfilter/nft_meta.c          | 10 ++++----
+ net/netfilter/xt_SECMARK.c        |  7 +++++-
+ net/netlabel/netlabel_unlabeled.c | 23 +++++++++++-------
+ security/security.c               | 40 ++++++++++++++++++++++++++-----
+ 6 files changed, 85 insertions(+), 25 deletions(-)
 
 diff --git a/include/linux/security.h b/include/linux/security.h
-index fbc9318ca288..8fc599317f79 100644
+index e9f185e9162a..310edbdaa14f 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -1955,7 +1955,7 @@ static inline int security_key_getsecurity(struct key *key, char **_buffer)
- int security_audit_rule_init(u32 field, u32 op, char *rulestr,
- 			     struct audit_lsm_rules *lsmrules);
- int security_audit_rule_known(struct audit_krule *krule);
--int security_audit_rule_match(u32 secid, u32 field, u32 op,
-+int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
- 			      struct audit_lsm_rules *lsmrules);
- void security_audit_rule_free(struct audit_lsm_rules *lsmrules);
+@@ -199,6 +199,27 @@ static inline bool lsmblob_equal(const struct lsmblob *bloba,
+ extern int lsm_name_to_slot(char *name);
+ extern const char *lsm_slot_to_name(int slot);
  
-@@ -1972,7 +1972,8 @@ static inline int security_audit_rule_known(struct audit_krule *krule)
++/**
++ * lsmblob_value - find the first non-zero value in an lsmblob structure.
++ * @blob: Pointer to the data
++ *
++ * This needs to be used with extreme caution, as the cases where
++ * it is appropriate are rare.
++ *
++ * Return the first secid value set in the lsmblob.
++ * There should only be one.
++ */
++static inline u32 lsmblob_value(const struct lsmblob *blob)
++{
++	int i;
++
++	for (i = 0; i < LSMBLOB_ENTRIES; i++)
++		if (blob->secid[i])
++			return blob->secid[i];
++
++	return 0;
++}
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, unsigned int opts);
+@@ -529,7 +550,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_ismaclabel(const char *name);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen,
++			     struct lsmblob *blob);
+ void security_release_secctx(char *secdata, u32 seclen);
+ void security_inode_invalidate_secctx(struct inode *inode);
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+@@ -1384,7 +1406,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 
+ static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+-					   u32 *secid)
++					   struct lsmblob *blob)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 3925d38f49f4..adea727744f4 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -791,14 +791,12 @@ EXPORT_SYMBOL(set_security_override);
+ int set_security_override_from_ctx(struct cred *new, const char *secctx)
+ {
+ 	struct lsmblob blob;
+-	u32 secid;
+ 	int ret;
+ 
+-	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
++	ret = security_secctx_to_secid(secctx, strlen(secctx), &blob);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	lsmblob_init(&blob, secid);
+ 	return set_security_override(new, &blob);
+ }
+ EXPORT_SYMBOL(set_security_override_from_ctx);
+diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+index ac4859241e17..fc0028c9e33d 100644
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -860,21 +860,21 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
+ 
+ static int nft_secmark_compute_secid(struct nft_secmark *priv)
+ {
+-	u32 tmp_secid = 0;
++	struct lsmblob blob;
+ 	int err;
+ 
+-	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
++	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &blob);
+ 	if (err)
+ 		return err;
+ 
+-	if (!tmp_secid)
++	if (!lsmblob_is_set(&blob))
+ 		return -ENOENT;
+ 
+-	err = security_secmark_relabel_packet(tmp_secid);
++	err = security_secmark_relabel_packet(lsmblob_value(&blob));
+ 	if (err)
+ 		return err;
+ 
+-	priv->secid = tmp_secid;
++	priv->secid = lsmblob_value(&blob);
  	return 0;
  }
  
--static inline int security_audit_rule_match(u32 secid, u32 field, u32 op,
-+static inline int security_audit_rule_match(struct lsmblob *blob,
-+					    u32 field, u32 op,
- 					    struct audit_lsm_rules *lsmrules)
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index 498a0bf6f044..87ca3a537d1c 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -42,13 +42,14 @@ secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
+ 
+ static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
  {
- 	return 0;
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index de75bd6ad866..15cd4fe35e9c 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -1337,6 +1337,7 @@ int audit_filter(int msgtype, unsigned int listtype)
- 
- 		for (i = 0; i < e->rule.field_count; i++) {
- 			struct audit_field *f = &e->rule.fields[i];
-+			struct lsmblob blob;
- 			pid_t pid;
- 			u32 sid;
- 
-@@ -1369,8 +1370,9 @@ int audit_filter(int msgtype, unsigned int listtype)
- 			case AUDIT_SUBJ_CLR:
- 				if (f->lsm_str) {
- 					security_current_getsecid_subj(&sid);
--					result = security_audit_rule_match(sid,
--						   f->type, f->op,
-+					lsmblob_init(&blob, sid);
-+					result = security_audit_rule_match(
-+						   &blob, f->type, f->op,
- 						   &f->lsm_rules);
- 				}
- 				break;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index d272b5cf18a8..a9d5bfa37cb3 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -468,6 +468,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 	const struct cred *cred;
- 	int i, need_sid = 1;
- 	u32 sid;
 +	struct lsmblob blob;
- 	unsigned int sessionid;
+ 	int err;
  
- 	if (ctx && rule->prio <= ctx->prio)
-@@ -678,8 +679,10 @@ static int audit_filter_rules(struct task_struct *tsk,
- 					security_current_getsecid_subj(&sid);
- 					need_sid = 0;
- 				}
--				result = security_audit_rule_match(sid, f->type,
--							f->op, &f->lsm_rules);
-+				lsmblob_init(&blob, sid);
-+				result = security_audit_rule_match(&blob,
-+							f->type, f->op,
-+							&f->lsm_rules);
- 			}
- 			break;
- 		case AUDIT_OBJ_USER:
-@@ -692,15 +695,17 @@ static int audit_filter_rules(struct task_struct *tsk,
- 			if (f->lsm_str) {
- 				/* Find files that match */
- 				if (name) {
-+					lsmblob_init(&blob, name->osid);
- 					result = security_audit_rule_match(
--								name->osid,
-+								&blob,
- 								f->type,
- 								f->op,
- 								&f->lsm_rules);
- 				} else if (ctx) {
- 					list_for_each_entry(n, &ctx->names_list, list) {
-+						lsmblob_init(&blob, n->osid);
- 						if (security_audit_rule_match(
--							n->osid, f->type, f->op,
-+							&blob, f->type, f->op,
- 							&f->lsm_rules)) {
- 							++result;
- 							break;
-@@ -710,7 +715,8 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				if (security_audit_rule_match(ctx->ipc.osid,
-+				lsmblob_init(&blob, ctx->ipc.osid);
-+				if (security_audit_rule_match(&blob,
- 							      f->type, f->op,
- 							      &f->lsm_rules))
- 					++result;
+ 	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
+ 	info->secid = 0;
+ 
+ 	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
+-				       &info->secid);
++				       &blob);
+ 	if (err) {
+ 		if (err == -EINVAL)
+ 			pr_info_ratelimited("invalid security context \'%s\'\n",
+@@ -56,6 +57,10 @@ static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
+ 		return err;
+ 	}
+ 
++	/* xt_secmark_target_info can't be changed to use lsmblobs because
++	 * it is exposed as an API. Use lsmblob_value() to get the one
++	 * value that got set by security_secctx_to_secid(). */
++	info->secid = lsmblob_value(&blob);
+ 	if (!info->secid) {
+ 		pr_info_ratelimited("unable to map security context \'%s\'\n",
+ 				    info->secctx);
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 8490e46359ae..f3e2cde76919 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -880,7 +880,7 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
+ 	void *addr;
+ 	void *mask;
+ 	u32 addr_len;
+-	u32 secid;
++	struct lsmblob blob;
+ 	struct netlbl_audit audit_info;
+ 
+ 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
+@@ -904,13 +904,18 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
+ 	ret_val = security_secctx_to_secid(
+ 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+ 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+-				  &secid);
++				  &blob);
+ 	if (ret_val != 0)
+ 		return ret_val;
+ 
++	/* netlbl_unlhsh_add will be changed to pass a struct lsmblob *
++	 * instead of a u32 later in this patch set. security_secctx_to_secid()
++	 * will only be setting one entry in the lsmblob struct, so it is
++	 * safe to use lsmblob_value() to get that one value. */
++
+ 	return netlbl_unlhsh_add(&init_net,
+-				 dev_name, addr, mask, addr_len, secid,
+-				 &audit_info);
++				 dev_name, addr, mask, addr_len,
++				 lsmblob_value(&blob), &audit_info);
+ }
+ 
+ /**
+@@ -931,7 +936,7 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
+ 	void *addr;
+ 	void *mask;
+ 	u32 addr_len;
+-	u32 secid;
++	struct lsmblob blob;
+ 	struct netlbl_audit audit_info;
+ 
+ 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
+@@ -953,13 +958,15 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
+ 	ret_val = security_secctx_to_secid(
+ 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+ 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
+-				  &secid);
++				  &blob);
+ 	if (ret_val != 0)
+ 		return ret_val;
+ 
++	/* security_secctx_to_secid() will only put one secid into the lsmblob
++	 * so it's safe to use lsmblob_value() to get the secid. */
+ 	return netlbl_unlhsh_add(&init_net,
+-				 NULL, addr, mask, addr_len, secid,
+-				 &audit_info);
++				 NULL, addr, mask, addr_len,
++				 lsmblob_value(&blob), &audit_info);
+ }
+ 
+ /**
 diff --git a/security/security.c b/security/security.c
-index 9e0139b0d346..ced1c76a380f 100644
+index e9f1487af0e5..f814a41c5d9f 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -2703,7 +2703,7 @@ void security_audit_rule_free(struct audit_lsm_rules *lsmrules)
- 	}
+@@ -2211,10 +2211,22 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+-int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen,
++			     struct lsmblob *blob)
+ {
+-	*secid = 0;
+-	return call_int_hook(secctx_to_secid, 0, secdata, seclen, secid);
++	struct security_hook_list *hp;
++	int rc;
++
++	lsmblob_init(blob, 0);
++	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		rc = hp->hook.secctx_to_secid(secdata, seclen,
++					      &blob->secid[hp->lsmid->slot]);
++		if (rc != 0)
++			return rc;
++	}
++	return 0;
+ }
+ EXPORT_SYMBOL(security_secctx_to_secid);
+ 
+@@ -2365,10 +2377,26 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				optval, optlen, len);
  }
  
--int security_audit_rule_match(u32 secid, u32 field, u32 op,
-+int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
- 			      struct audit_lsm_rules *lsmrules)
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     u32 *secid)
  {
- 	struct security_hook_list *hp;
-@@ -2714,7 +2714,8 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op,
- 			continue;
- 		if (lsmrules->rule[hp->lsmid->slot] == NULL)
- 			continue;
--		rc = hp->hook.audit_rule_match(secid, field, op,
-+		rc = hp->hook.audit_rule_match(blob->secid[hp->lsmid->slot],
-+					field, op,
- 					&lsmrules->rule[hp->lsmid->slot]);
- 		if (rc)
- 			return rc;
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
++	struct security_hook_list *hp;
++	int rc = -ENOPROTOOPT;
++
++	/*
++	 * Only one security module should provide a real hook for
++	 * this. A stub or bypass like is used in BPF should either
++	 * (somehow) leave rc unaltered or return -ENOPROTOOPT.
++	 */
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
++			     list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		rc = hp->hook.socket_getpeersec_dgram(sock, skb, secid);
++		if (rc != -ENOPROTOOPT)
++			break;
++	}
++	return rc;
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
 -- 
 2.35.1
 
