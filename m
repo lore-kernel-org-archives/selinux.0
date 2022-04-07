@@ -2,84 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01043C433EF
-	for <selinux@archiver.kernel.org>; Thu,  7 Apr 2022 00:55:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A28F2C433F5
+	for <selinux@archiver.kernel.org>; Thu,  7 Apr 2022 06:46:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232630AbiDGA45 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Apr 2022 20:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54132 "EHLO
+        id S240042AbiDGGsD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Apr 2022 02:48:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230047AbiDGA44 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Apr 2022 20:56:56 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E3256206
-        for <selinux@vger.kernel.org>; Wed,  6 Apr 2022 17:54:57 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id p15so7650861ejc.7
-        for <selinux@vger.kernel.org>; Wed, 06 Apr 2022 17:54:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nBY7MfURAnrk3e2eMPUupiDZ9us+zriUazkPG0w9nls=;
-        b=IB/+6gjqe1fengOd2CqzChI2WnIKh/Q+pSJWdnS1VOBus4VrIE5UfiADd9Zkx64rwE
-         72oqBnVRAO/DkzrtkyR6P+mjFPUV4gBSXS7W+/pJBF1oU90kLIGh5gbaC3caAcy8NlES
-         lgQMC4aGO8x+e0veH8iA4H+9DZbxNd9ZPTwuhluK5iQ9uW3zOSrq0HUeCE33lqOD0Cd5
-         wsdWDPOcAp99jZYiwyatKLMJtOwO/wKGV75Sjyfm7MIl36UM9i5N6LgV4fI70UYLRzyG
-         OsSrc/YjQM7ELhM78+iQb4Hi/CtltKTgc09rugbvMyjHrQmC5sTeFw8UrSw7/XSYBV/Q
-         BEpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nBY7MfURAnrk3e2eMPUupiDZ9us+zriUazkPG0w9nls=;
-        b=nF3d/4e1EqRMzKHe1F0M0eEqLU0BTcGmiKgvuJ3N/xS1w/AGt6kW5kiNh91aTxl31h
-         jzXTiET08ryfVF89WYDyXojfOUlolL+ARbcoHK7c3sobvs/zi3nTgmU3tvwQrmL5SrPf
-         Vg70HVrpQP7lRdIjeSRLW18ArSnp/3+ORhYp7tlkqfOH+8tdxWlKQz+4mVOpWv4OZeZg
-         c3K0ETYsv43w6N1NdFGuqEPYvrnFmFxbAXY3NvG50EKGC3tjGq+ZA/ebekk6PrRWChVF
-         JF0qYpbYcqRy0qBKtToPVSPNNwfJa+0kUMrO0fcaChY9JGJNVl/mc3N2h21HBr9hDyv1
-         Budw==
-X-Gm-Message-State: AOAM530+yLBKLTflqbUg0F06jGn45EtrVV71lABXM0RchMaiFyuzPhXk
-        /GoyqCvrgbosIxKzRwj2+ZFTxGquxj4I9/3iLR02ApNdAg==
-X-Google-Smtp-Source: ABdhPJzST3gAun8XH0s6FTXYG7dfbL6h2zebw6qddCmOyGm7QCy8uRgNXK0gKwxA62Dg1LC9+N3SmSz+2+Ew1klt73M=
-X-Received: by 2002:a17:907:1b09:b0:6d8:faa8:4a06 with SMTP id
- mp9-20020a1709071b0900b006d8faa84a06mr10683679ejc.701.1649292896452; Wed, 06
- Apr 2022 17:54:56 -0700 (PDT)
+        with ESMTP id S235680AbiDGGr7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Apr 2022 02:47:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0E68021046D
+        for <selinux@vger.kernel.org>; Wed,  6 Apr 2022 23:46:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649313960;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=v8cUENk1fkY1QAkdTkVl/DYG/QWnboHLI1djfIV9prA=;
+        b=M9ro05AmfYoyZhEPxvQSJp+w13+W5QKslC9PCZ5IPvA1xJHxA2kNNxgxF5nMJbl2rxDJkV
+        bYyIIET5VGKgWOkkXYlbKYiZXK7+5fXWrf038sVasSk+gDksDu64aRHZ1uFjN03rsAiWl8
+        eO+96/m1/IuVi/hlCpuX0M5UKyEPan4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-606-ZEHw3oH3NNGMS7dqWV00tQ-1; Thu, 07 Apr 2022 02:45:59 -0400
+X-MC-Unique: ZEHw3oH3NNGMS7dqWV00tQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B793383396C;
+        Thu,  7 Apr 2022 06:45:58 +0000 (UTC)
+Received: from localhost (unknown [10.40.193.108])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6233D40CF91F;
+        Thu,  7 Apr 2022 06:45:58 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>,
+        James Carter <jwcart2@gmail.com>
+Subject: Re: [PATCH v2] setfiles.8: -q is deprecated and has no effect
+In-Reply-To: <CAP+JOzQq2oEwLoe=AzguxnyA4oLnSyAdUjeSWa0Dg4RqSJ2zaA@mail.gmail.com>
+References: <CAP+JOzTVdo2N8YKuhaS7xBVYCUjNFfb7NHk=yqTN1LZRncB+gA@mail.gmail.com>
+ <20220405071735.251995-1-plautrba@redhat.com>
+ <CAP+JOzQq2oEwLoe=AzguxnyA4oLnSyAdUjeSWa0Dg4RqSJ2zaA@mail.gmail.com>
+Date:   Thu, 07 Apr 2022 08:45:57 +0200
+Message-ID: <87r169o0gq.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20220405081925.5668-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20220405081925.5668-1-richard_c_haines@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 6 Apr 2022 20:54:45 -0400
-Message-ID: <CAHC9VhT+fd-CZuBMmGK=5H6ouNDG9+11qQYmJ0nhm-YVadG7Cw@mail.gmail.com>
-Subject: Re: [PATCH V3 Notebook] How to add a new policy capability
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org, dburgener@linux.microsoft.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 5, 2022 at 4:19 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
->
-> Describes the steps required to add a new policy capability to:
-> kernel, libsepol, and policy.
->
-> Also add the ioctl_skip_cloexec capability description.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2 Changes:
-> Clarify naming conventions.
-> Change enums from POLICYDB_CAPABILITY to POLICYDB_CAP
-> Add ioctl_skip_cloexec
-> V3 Changes:
-> Fix typos and 'Policy Updates' text.
->
->  src/lsm_selinux.md              |   4 +
->  src/policy_config_statements.md | 139 ++++++++++++++++++++++++++++++++
->  2 files changed, 143 insertions(+)
+James Carter <jwcart2@gmail.com> writes:
 
-Merged, thanks everyone!
+> On Tue, Apr 5, 2022 at 3:38 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>>  policycoreutils/setfiles/setfiles.8 | 4 +++-
+>>  1 file changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+>> index 15f939d1bee0..5267064de3b5 100644
+>> --- a/policycoreutils/setfiles/setfiles.8
+>> +++ b/policycoreutils/setfiles/setfiles.8
+>> @@ -124,7 +124,9 @@ and
+>>  options are mutually exclusive.
+>>  .TP
+>>  .B \-q
+>> -Deprecated, was only used to stop printing inode association parameters.
+>> +Deprecated and replaced by
+>> +.B \-v
+>> +. Has no effect on other options or on program behavior.
+>
+> The "." at the beginning causes that line to not appear.
+>
+> I am no man page expert, but this seems to work.
+>
+> .B \-q
+> Deprecated and replaced by \fB\-v\fR. Has no effect on other options
+> or on program
+> behavior.
+>
 
--- 
-paul-moore.com
+I'm sorry for that. I really thought I opened the page and checked it
+works. Apparently I didn't :(
+
+
+> Thanks,
+> Jim
+>
+>>  .TP
+>>  .BI \-r \ rootpath
+>>  use an alternate root path. Used in meta-selinux for OpenEmbedded/Yocto builds
+>> --
+>> 2.35.1
+>>
+
