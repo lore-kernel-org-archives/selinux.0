@@ -2,93 +2,97 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBC47C433EF
-	for <selinux@archiver.kernel.org>; Tue, 12 Apr 2022 18:15:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 471ACC433F5
+	for <selinux@archiver.kernel.org>; Wed, 13 Apr 2022 08:49:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233236AbiDLSRR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Apr 2022 14:17:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43166 "EHLO
+        id S229563AbiDMIv3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Apr 2022 04:51:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231250AbiDLSRR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Apr 2022 14:17:17 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A471B7B1
-        for <selinux@vger.kernel.org>; Tue, 12 Apr 2022 11:14:58 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-d6ca46da48so21568450fac.12
-        for <selinux@vger.kernel.org>; Tue, 12 Apr 2022 11:14:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=d39wkv4dlBFRt1G8rGNpGXD7kDmEHZK1KlFpuMnsu8A=;
-        b=DLP7mB2LLYV/O6Oz4PnNxbfR5CdHA0fksR5GZF7/Zm7U4VbdP+32uoJzQB2ug6HBmK
-         q33K0kEoQps4kWdkC4n0yZJgX46+BqYbrkmMLHcmJ5e2wus/YkwPOXjrqOetq9oHtw20
-         /xV9WEO9048e/qlVW/Ku+1KR+6vhgNYWcQIYlbEth+3D3hKERHE/W1ci99uAUSsgdAM/
-         WwsivljQr5LysVUV8yHWHQuTPTVSaAcpwhRuwNZ4uWKUnwnEnvqvy5QjmiRrB1L2UZ8S
-         GmOCwU0E/V1NF3N9fG0kj0gcv7lHYM2g4//B8aNP7Te9aAKY/LZwLs4ulEF4EcSHqc1W
-         Uevg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=d39wkv4dlBFRt1G8rGNpGXD7kDmEHZK1KlFpuMnsu8A=;
-        b=bBTkOVCBJbqGIr/F9evyAoJ9sqvTdi/0LkRnERGuLeyla3XaaxbFP4CvImZGhtvIz7
-         bx3jph0CxDExppSaNyKLXp48BnAfY+Nw9HpXWj+WAKOwAfCUmHTSuPvviKk0cFhY0uem
-         f09Z9PEpFJuKoT0ZcHpPOVkP/wnWALxaQ8En4n0gfJqMtqmd+47TXHpmhLqQaQXc7+gW
-         CKIvJCkX6HVU67FTdBNKV9vrvlF/Aino6O1Z4F3P6t9ptWVmjsMLga9azbm8R6Cbxm6Q
-         wws/JCC3qGI41eIZhFccJ/wrKRE1InpfPGuwTr7r3rmaUZ44pBGMMQl9T9qvJCceiod+
-         aOzg==
-X-Gm-Message-State: AOAM531ZFyOS0x0fWqlpE5hidHb/iESf7hiyDiTk6ssLBkMRAWTemkll
-        4nWvYr9wr5YNp7uP3zNdamQLh3JOrXd0FhNYw3lQWp5E
-X-Google-Smtp-Source: ABdhPJydt6+QgFywXZjh5W8n58BdKF0O83tKYfARdRDZEu4LRfEcTDRpFXyvZ2TKb0rSD56qt7fvwLlykHmJVcCZT6s=
-X-Received: by 2002:a05:6870:f624:b0:e1:c071:121c with SMTP id
- ek36-20020a056870f62400b000e1c071121cmr2702721oab.182.1649787298219; Tue, 12
- Apr 2022 11:14:58 -0700 (PDT)
+        with ESMTP id S233117AbiDMIv3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 Apr 2022 04:51:29 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C504C50466
+        for <selinux@vger.kernel.org>; Wed, 13 Apr 2022 01:49:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649839746;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VhhDi1lcDscWFHofSNZJGIlPWP5ka98Qtg9pAVP3SRU=;
+        b=U/BUsHcRG5emIEwRJYpLVX85UghHI1PW7G0tTcH5OjOH5MZyF1Wu0LqThzc08MqUZHrSXY
+        BVJvktYfKfpLHW/f5TTAC8wSVXMu5kJ+lquO0CnjVDUzJjNSQ7TqKQq5uaPA+9VjpifqNq
+        A9RGBy95FBRq/Z/0BLEHqQwS3TD+4PM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-261-3ihcCNA6N46ORgkDhMrXxw-1; Wed, 13 Apr 2022 04:49:02 -0400
+X-MC-Unique: 3ihcCNA6N46ORgkDhMrXxw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7C6D2185A7A4
+        for <selinux@vger.kernel.org>; Wed, 13 Apr 2022 08:49:02 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.193.194])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C96F8C44B1D;
+        Wed, 13 Apr 2022 08:49:01 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [HEADS UP MISSING PATCH] Update python library and binding versions to 3.4-rc1
+Date:   Wed, 13 Apr 2022 10:48:53 +0200
+Message-Id: <20220413084853.158546-1-plautrba@redhat.com>
+In-Reply-To: <87bkxdnesk.fsf@redhat.com>
+References: <87bkxdnesk.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20220331144752.31495-1-cgzones@googlemail.com>
- <20220405133548.51598-1-cgzones@googlemail.com> <20220405133548.51598-6-cgzones@googlemail.com>
-In-Reply-To: <20220405133548.51598-6-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 12 Apr 2022 14:14:47 -0400
-Message-ID: <CAP+JOzTT3qqF+qNBtvXQcFvVt=rKwxLWqgg2_6JSZg64OdXD-w@mail.gmail.com>
-Subject: Re: [PATCH v2 6/6] Enable missing prototypes
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 6, 2022 at 9:34 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Check for missing prototypes like file local functions not declared
-> static or external functions not being declared to avoid declaration/
-> definition desynchronizations.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
 
-There are still some problems when making some of the tests, like
-libsepol/tests.
-Jim
+I forgot to update python libraries and bindings versions in 3.4-rc1.
 
-> ---
->  Makefile | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/Makefile b/Makefile
-> index 215e313e..2ffba8e9 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -14,6 +14,7 @@ else
->                 -Winit-self \
->                 -Wmissing-format-attribute \
->                 -Wmissing-noreturn \
-> +               -Wmissing-prototypes \
->                 -Wnull-dereference \
->                 -Wpointer-arith \
->                 -Wshadow \
-> --
-> 2.35.1
->
+If you're building them, please apply this patch.
+
+Given that 3.4-rc2 is planned on the next Wednesday, I don't think it's necessary to merge this.
+
+
+ libselinux/src/setup.py  | 2 +-
+ python/sepolicy/setup.py | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libselinux/src/setup.py b/libselinux/src/setup.py
+index b79b27507480..4dd119aca32e 100644
+--- a/libselinux/src/setup.py
++++ b/libselinux/src/setup.py
+@@ -4,7 +4,7 @@ from distutils.core import Extension, setup
+ 
+ setup(
+     name="selinux",
+-    version="3.3",
++    version="3.4-rc1",
+     description="SELinux python 3 bindings",
+     author="SELinux Project",
+     author_email="selinux@vger.kernel.org",
+diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
+index e81b6cc73380..62cf7dc47c5c 100644
+--- a/python/sepolicy/setup.py
++++ b/python/sepolicy/setup.py
+@@ -6,7 +6,7 @@ from distutils.core import setup
+ 
+ setup(
+     name="sepolicy",
+-    version="3.3",
++    version="3.4-rc1",
+     description="Python SELinux Policy Analyses bindings",
+     author="Daniel Walsh",
+     author_email="dwalsh@redhat.com",
+-- 
+2.35.1
+
