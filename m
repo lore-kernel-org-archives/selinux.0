@@ -2,109 +2,263 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EAC5C43219
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22ED5C4332F
 	for <selinux@archiver.kernel.org>; Thu, 14 Apr 2022 14:40:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238969AbiDNOnR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Apr 2022 10:43:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42490 "EHLO
+        id S237655AbiDNOnP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Apr 2022 10:43:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347704AbiDNN7a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 511E7BBE20
-        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 06:52:02 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id o18so3540909qtk.7
-        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 06:52:02 -0700 (PDT)
+        with ESMTP id S1352945AbiDNOea (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Apr 2022 10:34:30 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF08CF482
+        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 07:25:46 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id bj24so95329oib.11
+        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 07:25:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ZXVecjHHthg2gOVFiNcdfcarsEfa6CXU2XGClV9sI9g=;
-        b=m0uaFN/O0KjEpM7uJH2d20tq4aPQLE3+MuOH0fbCD4J5zwmf+MZJUYmNQZl4YC1rNi
-         qmWkBBQvBHyQXjmuW6LMw8UdK+c4Xj+vHAepZdMEux1TIRJnb8NXd0jkfpvsDTUrptWE
-         hjyKzsV3fVIFqjINAjRdpKfEOx92ki3JMLswkgWjo0lQFa/AM3mKAnwOLqGmHqdSAZn+
-         5ys4CjkDKRD2a2oiDQ8njz3shCyYr84IuRl9x648hoRMeAE5RLSUAd5ZMQ7LMF4WfmQO
-         +WHyUgu5HFTO/CNKljCs6vYzEM/P2pEh16xIVbElJpVTNORMPR7SseM6uqo16kRlP9ZK
-         AEAA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Jj9OEJTyWm3xDCCui8xZy8jF6aYNcjLzHCfjiakGvCU=;
+        b=pZRCPMIjTlkZUGKo5UvQc0q6QOepdzihHwTQJD2p9ykGlndp26hRGkLZUXraXfggZ8
+         hu9COXl/J3iW8yO7AfPNayHntZbhFXQqPB6HjwU9rZAqeTbWAhSLY4uswI20/tAGy/qv
+         7Q1OLAW2CUMruqAURuxzpCvAe4oROQMI7tKq+rolzpfGQ8ZXz9v7Vx4FDe6UMdz6rre+
+         cZsCkK73dHffMxtbI51TqSWwqMGXI0/SlRueFXLGXBKBRVeYPROvl1cYTMLtpwpc7yB6
+         SqnWwqrNwrdqsHw7qSh5phaMZQyJ8HHFbNERKyohFhvarpw759+X/siSN6MZq99gnPIJ
+         xgHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ZXVecjHHthg2gOVFiNcdfcarsEfa6CXU2XGClV9sI9g=;
-        b=iPA55k1oOWYZUXScGc+wJHccx+I0+92gcT3/X+8dvVox6+6RGBm0Sl72oTbKDxEuh+
-         uGL+1ixTH/S3LS9Hgm80a/uRZbnkBXd0QWd86pNsrZbhIX4hKjKJOmuFa7Gw+mR6wJbP
-         8qVTBqCQKL/Usk0L/+CSNRE8dscFxGdFPWNJsSrnuyaPkRaBOEz/hy0t80fJbhSUBNOV
-         gOq79g4u0wf76WYK57IXzDP/ROeuwsvcSCHik11Wtrhk6lseSvovuaRE50RsmC8jX70T
-         /bQwH98x/O/hNdfzAnG7QFEIAD17OKzt/wsw20Vq4UHpeliDmNmT1+EN73CpuRilMru+
-         rmhA==
-X-Gm-Message-State: AOAM530VatN8W8kji5XxlS5JiVy4n0YHstc7BdRFGgzWESUApSDqdAiW
-        iUi6TD8A9sWeHOceykZ6CpwtRVnhGJM=
-X-Google-Smtp-Source: ABdhPJxrOTnacuUe2wcayDJAikDV+kaV+X15tiYDQU2oQMUCDxdvPTJHQC04Jh2Eg87r61ouhl9bNA==
-X-Received: by 2002:ac8:70da:0:b0:2f1:d195:cfaf with SMTP id g26-20020ac870da000000b002f1d195cfafmr1806017qtp.247.1649944321298;
-        Thu, 14 Apr 2022 06:52:01 -0700 (PDT)
-Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
-        by smtp.gmail.com with ESMTPSA id 14-20020a37090e000000b0069bfe98662csm999748qkj.17.2022.04.14.06.52.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Apr 2022 06:52:00 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     cgzones@googlemail.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/5] libsepol/test: Declare file local functions as static
-Date:   Thu, 14 Apr 2022 09:51:39 -0400
-Message-Id: <20220414135141.1723610-3-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220414135141.1723610-1-jwcart2@gmail.com>
-References: <20220414135141.1723610-1-jwcart2@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Jj9OEJTyWm3xDCCui8xZy8jF6aYNcjLzHCfjiakGvCU=;
+        b=vBxkjd6Xf06iBiH+NqzIYf24f/blI72y4DxRM7qb3welU0xAroFeSVnKLxu1z90Ln0
+         est917OxpeadX0lIke3fI2NPCZSC+ElLPcBIvkgFu8j/MKsnY2P0aAfisRukiQWJC6w0
+         6TqDFPjyLnnSfN1C+5kh1JhJ4MmR3hYp5mNzTUMgRvh8imtbu5+mOyjWxaGKOViGowq7
+         WBJK2hDdG9ZZk0hz8CdRo5jEFSxXQmq2msETMobhLPGJNBpRLqP/IoeZFoY/sseTG0Bq
+         X6Xe32aE4QZAEoRe5/iX2Mc0nCa4UjB2mBgtGtM4YzHoGL91ArDfYWsw7ZsbkvPPhSxX
+         euLw==
+X-Gm-Message-State: AOAM532eAiZUrPAsI/MpQ8o46sTALVRr1sOYmS8kipZguovznRFpmlHE
+        pJTb6TupDQYhjkM2PggSg+2hRmbT30gylb3MjxUeuVoenNA=
+X-Google-Smtp-Source: ABdhPJwxDwSSAefUShdeYCFMNmOfz2QhUpDOt/i3MWGX1mlYtcSStdMxBP24neeUsAXw+LApqGKSnK772q4JUS5P1Q4=
+X-Received: by 2002:a05:6808:14c1:b0:2fa:72d6:5dfa with SMTP id
+ f1-20020a05680814c100b002fa72d65dfamr1436747oiw.182.1649946346155; Thu, 14
+ Apr 2022 07:25:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220413160517.64145-1-cgzones@googlemail.com>
+In-Reply-To: <20220413160517.64145-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 14 Apr 2022 10:25:35 -0400
+Message-ID: <CAP+JOzTsbTBE9BC5+Oku_wQysYzcgcA63JBppb0zNWHaSM9knA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/tests: adjust IPv6 netmasks
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This is needed to use "-Wmissing-prototypes".
+On Wed, Apr 13, 2022 at 9:25 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> checkpolicy(8) since 01b88ac3 ("checkpolicy: warn on bogus IP address or
+> netmask in nodecon statement") warns about host bits set in IPv6
+> addresses.
+> Adjust IPv6 netmasks in the libsepol tests so that the used address ::1
+> does not set any host bits and running the tests does not print several
+> of the following warnings:
+>
+>     net_contexts:15:WARNING 'host bits in ipv6 address set' at token '' o=
+n line 594:
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/tests/test-expander.c        | 2 +-
- libsepol/tests/test-linker-cond-map.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/libsepol/tests/test-expander.c b/libsepol/tests/test-expander.c
-index ee70e220..a9e66ed8 100644
---- a/libsepol/tests/test-expander.c
-+++ b/libsepol/tests/test-expander.c
-@@ -67,7 +67,7 @@ extern int mls;
- /* Takes base, some number of modules, links them, and expands them
-    reads source from myfiles array, which has the base string followed by
-    each module string */
--int expander_policy_init(policydb_t * mybase, int num_modules, policydb_t ** mymodules, policydb_t * myexpanded, const char *const *myfiles)
-+static int expander_policy_init(policydb_t * mybase, int num_modules, policydb_t ** mymodules, policydb_t * myexpanded, const char *const *myfiles)
- {
- 	char *filename[num_modules + 1];
- 	int i;
-diff --git a/libsepol/tests/test-linker-cond-map.c b/libsepol/tests/test-linker-cond-map.c
-index 5400c46b..694a7346 100644
---- a/libsepol/tests/test-linker-cond-map.c
-+++ b/libsepol/tests/test-linker-cond-map.c
-@@ -55,7 +55,7 @@ typedef struct test_cond_expr {
- 	uint32_t expr_type;
- } test_cond_expr_t;
- 
--void test_cond_expr_mapping(policydb_t * p, avrule_decl_t * d, test_cond_expr_t * bools, int len)
-+static void test_cond_expr_mapping(policydb_t * p, avrule_decl_t * d, test_cond_expr_t * bools, int len)
- {
- 	int i;
- 	cond_expr_t *expr;
-@@ -76,7 +76,7 @@ void test_cond_expr_mapping(policydb_t * p, avrule_decl_t * d, test_cond_expr_t
- 	}
- }
- 
--void test_bool_state(policydb_t * p, const char *bool, int state)
-+static void test_bool_state(policydb_t * p, const char *bool, int state)
- {
- 	cond_bool_datum_t *b;
- 
--- 
-2.34.1
-
+> ---
+>  libsepol/tests/policies/test-deps/base-metreq.conf    | 2 +-
+>  libsepol/tests/policies/test-deps/base-notmetreq.conf | 2 +-
+>  libsepol/tests/policies/test-deps/small-base.conf     | 2 +-
+>  libsepol/tests/policies/test-expander/alias-base.conf | 2 +-
+>  libsepol/tests/policies/test-expander/role-base.conf  | 2 +-
+>  libsepol/tests/policies/test-expander/small-base.conf | 2 +-
+>  libsepol/tests/policies/test-expander/user-base.conf  | 2 +-
+>  libsepol/tests/policies/test-hooks/cmp_policy.conf    | 2 +-
+>  libsepol/tests/policies/test-hooks/small-base.conf    | 2 +-
+>  libsepol/tests/policies/test-linker/small-base.conf   | 2 +-
+>  10 files changed, 10 insertions(+), 10 deletions(-)
+>
+> diff --git a/libsepol/tests/policies/test-deps/base-metreq.conf b/libsepo=
+l/tests/policies/test-deps/base-metreq.conf
+> index 3e2f8407..b7528dde 100644
+> --- a/libsepol/tests/policies/test-deps/base-metreq.conf
+> +++ b/libsepol/tests/policies/test-deps/base-metreq.conf
+> @@ -516,7 +516,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:sys_foo_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:net_foo_=
+t, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:net_foo_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-deps/base-notmetreq.conf b/libs=
+epol/tests/policies/test-deps/base-notmetreq.conf
+> index 8ff3d204..eee36dca 100644
+> --- a/libsepol/tests/policies/test-deps/base-notmetreq.conf
+> +++ b/libsepol/tests/policies/test-deps/base-notmetreq.conf
+> @@ -503,7 +503,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:sys_foo_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:net_foo_=
+t, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:net_foo_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-deps/small-base.conf b/libsepol=
+/tests/policies/test-deps/small-base.conf
+> index 1411e624..98f49c23 100644
+> --- a/libsepol/tests/policies/test-deps/small-base.conf
+> +++ b/libsepol/tests/policies/test-deps/small-base.conf
+> @@ -504,7 +504,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:sys_foo_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:net_foo_=
+t, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:net_foo_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-expander/alias-base.conf b/libs=
+epol/tests/policies/test-expander/alias-base.conf
+> index 57d4520e..b950039d 100644
+> --- a/libsepol/tests/policies/test-expander/alias-base.conf
+> +++ b/libsepol/tests/policies/test-expander/alias-base.conf
+> @@ -494,7 +494,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:system_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:system_t=
+, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:system_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-expander/role-base.conf b/libse=
+pol/tests/policies/test-expander/role-base.conf
+> index a603390b..8e88b4be 100644
+> --- a/libsepol/tests/policies/test-expander/role-base.conf
+> +++ b/libsepol/tests/policies/test-expander/role-base.conf
+> @@ -476,7 +476,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:system_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:system_t=
+, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:system_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-expander/small-base.conf b/libs=
+epol/tests/policies/test-expander/small-base.conf
+> index 20005e3f..055ea054 100644
+> --- a/libsepol/tests/policies/test-expander/small-base.conf
+> +++ b/libsepol/tests/policies/test-expander/small-base.conf
+> @@ -714,7 +714,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:sys_foo_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:net_foo_=
+t, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:net_foo_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-expander/user-base.conf b/libse=
+pol/tests/policies/test-expander/user-base.conf
+> index 1f84fd76..b31ee8cd 100644
+> --- a/libsepol/tests/policies/test-expander/user-base.conf
+> +++ b/libsepol/tests/policies/test-expander/user-base.conf
+> @@ -480,7 +480,7 @@ genfscon proc /                             gen_conte=
+xt(system_u:object_r:system_t, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 system_u:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(system_u:object_r:system_t=
+, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(system_u=
+:object_r:system_t, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-hooks/cmp_policy.conf b/libsepo=
+l/tests/policies/test-hooks/cmp_policy.conf
+> index 1eccf4a8..9082b333 100644
+> --- a/libsepol/tests/policies/test-hooks/cmp_policy.conf
+> +++ b/libsepol/tests/policies/test-hooks/cmp_policy.conf
+> @@ -464,7 +464,7 @@ genfscon proc /                             gen_conte=
+xt(g_b_user_1:object_r:g_b_type_1, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 g_b_user_1:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(g_b_user_1:object_r:g_b_ty=
+pe_1, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(g_b_user=
+_1:object_r:g_b_type_1, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-hooks/small-base.conf b/libsepo=
+l/tests/policies/test-hooks/small-base.conf
+> index 1eccf4a8..9082b333 100644
+> --- a/libsepol/tests/policies/test-hooks/small-base.conf
+> +++ b/libsepol/tests/policies/test-hooks/small-base.conf
+> @@ -464,7 +464,7 @@ genfscon proc /                             gen_conte=
+xt(g_b_user_1:object_r:g_b_type_1, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 g_b_user_1:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(g_b_user_1:object_r:g_b_ty=
+pe_1, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(g_b_user=
+_1:object_r:g_b_type_1, s0)
+>
+>
+>
+> diff --git a/libsepol/tests/policies/test-linker/small-base.conf b/libsep=
+ol/tests/policies/test-linker/small-base.conf
+> index 2bc14656..890ebbeb 100644
+> --- a/libsepol/tests/policies/test-linker/small-base.conf
+> +++ b/libsepol/tests/policies/test-linker/small-base.conf
+> @@ -593,7 +593,7 @@ genfscon proc /                             gen_conte=
+xt(g_b_user_1:object_r:g_b_type_1, s0)
+>  #
+>  #nodecon 127.0.0.1 255.255.255.255 g_b_user_1:object_r:net_foo_t:s0
+>
+> -nodecon ::1 FFFF:FFFF:FFFF:FFFF:: gen_context(g_b_user_1:object_r:g_b_ty=
+pe_1, s0)
+> +nodecon ::1 FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF gen_context(g_b_user=
+_1:object_r:g_b_type_1, s0)
+>
+>
+>
+> --
+> 2.35.2
+>
