@@ -2,136 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03D57C433FE
-	for <selinux@archiver.kernel.org>; Wed, 13 Apr 2022 16:48:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A0CC433EF
+	for <selinux@archiver.kernel.org>; Thu, 14 Apr 2022 12:10:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234640AbiDMQul (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Apr 2022 12:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
+        id S241176AbiDNMNF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Apr 2022 08:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235357AbiDMQuh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Apr 2022 12:50:37 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 29059694A8
-        for <selinux@vger.kernel.org>; Wed, 13 Apr 2022 09:48:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649868495;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Hr6zrDMIEqWAmyjpPwyMqgOOAysOXSxntLvl/qPR2EE=;
-        b=gqidc+ErJUsA2p90IXfy1AiG7dmYmBlttrWEdXOSFHVW1iH606cZwb0Bqcg+pQurRpkZ+8
-        ijHvfHBR4Rag3tyn5TqaeZ/1l5fBGg9MUUHwHaK/s6SwFwSxS0yeKdBm2pkNv5utSGvyC6
-        CGcs7A26QPQ7uNtUjJ2t6ns7QOF1cWQ=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-185-F_J65YTVM2uIjgZtRXvN5w-1; Wed, 13 Apr 2022 12:48:13 -0400
-X-MC-Unique: F_J65YTVM2uIjgZtRXvN5w-1
-Received: by mail-wm1-f71.google.com with SMTP id o35-20020a05600c512300b0038e83a52c71so1115193wms.7
-        for <selinux@vger.kernel.org>; Wed, 13 Apr 2022 09:48:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Hr6zrDMIEqWAmyjpPwyMqgOOAysOXSxntLvl/qPR2EE=;
-        b=oaDXI3aX2ch3IDWSlAEAb6mNlNndjv9eULvyDDfZso+Xk/Oam0lr2R+ykykzpr9JgC
-         zELoJ73SUaDChItqth0dkb6RWwLTadJLwgP68pIb4+pPzsgt9m5X9ciJl6OkrjvG24Ag
-         K1+iC+RvQMKu6sfxCHDb5opAwGgP5XgJER5IWbRdx2ocCVzL0EwpckpvZOl7pjpdLi+3
-         awqHSozeHHXNhDaC/zr28cP50jSjaJndsDiQZJJlyKCHlGKCFXiNKe9Ueeapo9NWJnR0
-         x5QmjCFdoVQs0hzkctO6xeCFqSrx/EFvz3/Ffmz5fk0DEDuR6TXuzjzgjw0nOzx2EEzd
-         WCZw==
-X-Gm-Message-State: AOAM532wFOS5G3vQwLvud64eBg3kEzBv9mBfTmKl2htKL0ZKifJdk0dU
-        cq6NnzlgVEpBX3gP8jk75X9dKywqkLMMJ3M61QMclay4lWeJMLlP8HeraqpVDJ4qefevHHSpENj
-        c4DKoqRf1SowFSzricujlbULJUVBgIoCBLZyDaEYJYhjTGgv9BFewmnZAvLhUerhMSlaQDg==
-X-Received: by 2002:a05:600c:1f0f:b0:38e:c9c8:9983 with SMTP id bd15-20020a05600c1f0f00b0038ec9c89983mr7610862wmb.105.1649868492538;
-        Wed, 13 Apr 2022 09:48:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzWlPrS0a8yV9nLThQuMrB15Wq0wUFB5K9koUB1vxWIEDjCZTzABWccxtcmJTLaR6yQcXws6Q==
-X-Received: by 2002:a05:600c:1f0f:b0:38e:c9c8:9983 with SMTP id bd15-20020a05600c1f0f00b0038ec9c89983mr7610843wmb.105.1649868492312;
-        Wed, 13 Apr 2022 09:48:12 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
-        by smtp.gmail.com with ESMTPSA id l126-20020a1c2584000000b00387d4f35651sm2991747wml.10.2022.04.13.09.48.11
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Apr 2022 09:48:11 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 1/2] tests/extended_socket_class: make Bluetooth support optional
-Date:   Wed, 13 Apr 2022 18:48:09 +0200
-Message-Id: <20220413164810.2122305-2-omosnace@redhat.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220413164810.2122305-1-omosnace@redhat.com>
-References: <20220413164810.2122305-1-omosnace@redhat.com>
+        with ESMTP id S243012AbiDNMM3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Apr 2022 08:12:29 -0400
+Received: from re-prd-fep-043.btinternet.com (mailomta21-re.btinternet.com [213.120.69.114])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14411C91B
+        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 05:10:01 -0700 (PDT)
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-043.btinternet.com with ESMTP
+          id <20220414121000.LCWW3055.re-prd-fep-043.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Thu, 14 Apr 2022 13:10:00 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1649938200; 
+        bh=g7d9fxhKMKILDTTKmjvoXj32aXm/MyqTyb0ey/mvK4M=;
+        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
+        b=LzZBvwiRwPCD2cNFtd/aIZdNx/a/+qVKksQUtgyC+evodb5qY+/7IXATpnOvQQxcJ4Z+Z+PkXH2I64pTr3xFuIq8FF3J/HwfxwklR+zFtlD5blBaH89cRZCS1+1B9lp87qsvEEuqD2NKunyZVaUerN9N9+cxXLDC1tzw54ahg56akf61XjWHl1YWAxoTQdGX63VyeCp2F4D5DfeQ+NoFQi288CLQ+dVjAN6zyJKfN/clbKj9nxLwfVMfCkti8Say3WzIDsiM22RqWFgGbJ2KOTPu5p8b3z4NYNiu03BBPNV11K47uQXDJUVApyDSCf5mHpJSyvEscex7atAb6b4slQ==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
+    bimi=skipped
+X-SNCR-Rigid: 61A69BAC12983E3B
+X-Originating-IP: [86.133.207.109]
+X-OWM-Source-IP: 86.133.207.109 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrudelfedggeekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtkeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpefhkeegheduudeggfffkeehheettefgjedugefhhfevuedvveduhedtleejkeduveenucfkphepkeeirddufeefrddvtdejrddutdelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplgduledvrdduieekrddurdduleekngdpihhnvghtpeekiedrudeffedrvddtjedruddtledpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopedvpdhrtghpthhtohepohhmohhsnhgrtggvsehrvgguhhgrthdrtghomhdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from [192.168.1.198] (86.133.207.109) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
+        id 61A69BAC12983E3B; Thu, 14 Apr 2022 13:10:00 +0100
+Message-ID: <2634e3d64c31ef611d93e2b13c03dbb542969426.camel@btinternet.com>
+Subject: Re: [PATCH testsuite v4] tests/sctp: add client peeloff tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Date:   Thu, 14 Apr 2022 13:10:00 +0100
+In-Reply-To: <20220413114734.1704750-1-omosnace@redhat.com>
+References: <20220413114734.1704750-1-omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-CONFIG_BT is commonly disabled on some architectures due to lack of
-relevant HW - for example s390x on Fedora/RHEL and aarch64 on RHEL. Make
-the testsuite work without it to make testing easier in such
-environments.
+On Wed, 2022-04-13 at 13:47 +0200, Ondrej Mosnacek wrote:
+> Currently the testsuite only verifies that SCTP peeloff works on the
+> server side. However, it can just as well be used on the client side
+> as
+> well, which isn't being tested (and actually is buggy at the time of
+> writing).
+> 
+> To correct this, add a simple SCTP peeloff client and a couple tests
+> that verify that the client-side peeloff works well with SELinux.
+> 
+> The new tests are enabled on kernels 5.18+, where the fixes were
+> introduced. While the fixes are now queued also for some stable
+> streams,
+> it's much simpler to just check the version against 5.18 and skip the
+> test for all older kernels.
+> 
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+> 
+> v4: added a kernel version check
+> v3: fixed uninitialized "sinlen" variable in sctp_peeloff_client.c
+> v2: rebased and resolved a conflict
+> 
+>  tests/sctp/.gitignore            |   1 +
+>  tests/sctp/Makefile              |   3 +-
+>  tests/sctp/sctp_peeloff_client.c | 254
+> +++++++++++++++++++++++++++++++
+>  tests/sctp/test                  | 170 ++++++++++++++++++++-
+>  4 files changed, 419 insertions(+), 9 deletions(-)
+>  create mode 100644 tests/sctp/sctp_peeloff_client.c
+> 
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- tests/extended_socket_class/test | 32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+Tested on kernel 5.18-rc2
 
-diff --git a/tests/extended_socket_class/test b/tests/extended_socket_class/test
-index 6e334d1..022993d 100755
---- a/tests/extended_socket_class/test
-+++ b/tests/extended_socket_class/test
-@@ -1,7 +1,18 @@
- #!/usr/bin/perl
- 
- use Test;
--BEGIN { plan tests => 16 }
-+
-+BEGIN {
-+    $test_count     = 14;
-+    $test_bluetooth = 0;
-+
-+    # check if Bluetooth is supported (commonly disabled e.g. on s390x)
-+    if ( system("modprobe bluetooth 2>/dev/null") eq 0 ) {
-+        $test_count += 2;
-+        $test_bluetooth = 1;
-+    }
-+    plan tests => $test_count;
-+}
- 
- $basedir = $0;
- $basedir =~ s|(.*)/[^/]*|$1|;
-@@ -83,17 +94,20 @@ $result = system(
- );
- ok($result);
- 
--# Verify that test_bluetooth_socket_t can create a Bluetooth socket.
--$result = system(
-+if ($test_bluetooth) {
-+
-+    # Verify that test_bluetooth_socket_t can create a Bluetooth socket.
-+    $result = system(
- "runcon -t test_bluetooth_socket_t -- $basedir/sockcreate bluetooth stream default 2>&1"
--);
--ok( $result, 0 );
-+    );
-+    ok( $result, 0 );
- 
--# Verify that test_no_bluetooth_socket_t cannot create a Bluetooth socket.
--$result = system(
-+    # Verify that test_no_bluetooth_socket_t cannot create a Bluetooth socket.
-+    $result = system(
- "runcon -t test_no_bluetooth_socket_t -- $basedir/sockcreate bluetooth stream default 2>&1"
--);
--ok($result);
-+    );
-+    ok($result);
-+}
- 
- # Verify that test_alg_socket_t can create a Crypto API socket.
- $result = system(
--- 
-2.35.1
-
+Tested-by: Richard Haines <richard_c_haines@btinternet.com>
