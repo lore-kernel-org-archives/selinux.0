@@ -2,87 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A0CC433EF
-	for <selinux@archiver.kernel.org>; Thu, 14 Apr 2022 12:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09195C433F5
+	for <selinux@archiver.kernel.org>; Thu, 14 Apr 2022 14:40:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241176AbiDNMNF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Apr 2022 08:13:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47512 "EHLO
+        id S233374AbiDNOnQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Apr 2022 10:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243012AbiDNMM3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Apr 2022 08:12:29 -0400
-Received: from re-prd-fep-043.btinternet.com (mailomta21-re.btinternet.com [213.120.69.114])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14411C91B
-        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 05:10:01 -0700 (PDT)
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-043.btinternet.com with ESMTP
-          id <20220414121000.LCWW3055.re-prd-fep-043.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Thu, 14 Apr 2022 13:10:00 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1649938200; 
-        bh=g7d9fxhKMKILDTTKmjvoXj32aXm/MyqTyb0ey/mvK4M=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
-        b=LzZBvwiRwPCD2cNFtd/aIZdNx/a/+qVKksQUtgyC+evodb5qY+/7IXATpnOvQQxcJ4Z+Z+PkXH2I64pTr3xFuIq8FF3J/HwfxwklR+zFtlD5blBaH89cRZCS1+1B9lp87qsvEEuqD2NKunyZVaUerN9N9+cxXLDC1tzw54ahg56akf61XjWHl1YWAxoTQdGX63VyeCp2F4D5DfeQ+NoFQi288CLQ+dVjAN6zyJKfN/clbKj9nxLwfVMfCkti8Say3WzIDsiM22RqWFgGbJ2KOTPu5p8b3z4NYNiu03BBPNV11K47uQXDJUVApyDSCf5mHpJSyvEscex7atAb6b4slQ==
-Authentication-Results: btinternet.com;
-    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com;
-    bimi=skipped
-X-SNCR-Rigid: 61A69BAC12983E3B
-X-Originating-IP: [86.133.207.109]
-X-OWM-Source-IP: 86.133.207.109 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvvddrudelfedggeekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtkeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpefhkeegheduudeggfffkeehheettefgjedugefhhfevuedvveduhedtleejkeduveenucfkphepkeeirddufeefrddvtdejrddutdelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplgduledvrdduieekrddurdduleekngdpihhnvghtpeekiedrudeffedrvddtjedruddtledpmhgrihhlfhhrohhmpehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhnsggprhgtphhtthhopedvpdhrtghpthhtohepohhmohhsnhgrtggvsehrvgguhhgrthdrtghomhdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from [192.168.1.198] (86.133.207.109) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.716.04) (authenticated as richard_c_haines@btinternet.com)
-        id 61A69BAC12983E3B; Thu, 14 Apr 2022 13:10:00 +0100
-Message-ID: <2634e3d64c31ef611d93e2b13c03dbb542969426.camel@btinternet.com>
-Subject: Re: [PATCH testsuite v4] tests/sctp: add client peeloff tests
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Date:   Thu, 14 Apr 2022 13:10:00 +0100
-In-Reply-To: <20220413114734.1704750-1-omosnace@redhat.com>
-References: <20220413114734.1704750-1-omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S1347714AbiDNN7a (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
+Received: from mail-qv1-xf29.google.com (mail-qv1-xf29.google.com [IPv6:2607:f8b0:4864:20::f29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F1F9BB089
+        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 06:51:55 -0700 (PDT)
+Received: by mail-qv1-xf29.google.com with SMTP id b17so3988034qvf.12
+        for <selinux@vger.kernel.org>; Thu, 14 Apr 2022 06:51:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qs300j/btaVZ6AavQKGDKrLd+SW62q9Tdl20lEJvtLw=;
+        b=XHE4TvzDxvoa37R0mMaH3Iv97604YYZVAsdgl7nMFpoWEj0znANz1lXahKS2XmwhJW
+         6ssn96hnslXvOcmjDd/7pewiJReB0bWf770NPiAL3MBx1xfsXKKJgcybMx9X4Twnh1CA
+         /izKhtIwwEsWrNpKDkGjCLsuEr4AQNjJFlBgBMLN75l6Wp/92Gj8LZlAlKZ4zQK3SLDe
+         telWej/n81OqWcTan5YidnH4xDeuc+d+wxY4nSc0PaYnAXPUDKDpTjdPLIEu+QOUlztH
+         u2wulolBfr9Vt+nOENmGEJnUTFpKGdeCdBfj6oG7qzwDYOW+sj2Sn507+zT6TehyjGm8
+         EGFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qs300j/btaVZ6AavQKGDKrLd+SW62q9Tdl20lEJvtLw=;
+        b=z7YUj1PywanynSW5/fhhDvYlPlxiakE9KQlJnJOOsDDDmO487TUxf5GUrWb/2oJy0E
+         1iFJVFnx4TwVGJjMBkxJazpKq2VJGCc1fPz7cZrVixPoUnIyP/trvquXIMMQV8nQ4MKz
+         tPxXrJL4GbLAJXeaxm9UgmqdPoV8NHnCg7LHmiSMI7TB2uW6EB+sC8t5Jn/I4G1KfhhE
+         TsOp+m50ChpD3XxydrC34vkScdo7LzTcz9sonKgC5jPiSYn5+KRXFP2PblpaET2e/Fj8
+         boXezA46BrYmaDNBGQFowwkHpN22whOWzRMeB/T6JD3HbGJfgL+K9JtPakuhXEtjtMLB
+         2geg==
+X-Gm-Message-State: AOAM531Fw4EEU5y4ZKLDrk7VMAsJomxsmXagglPjOb8ZFnnlCdeTSYCD
+        qTULfD5S0l/P9QpSoDZaqoe1/PxWKCg=
+X-Google-Smtp-Source: ABdhPJwpCpk0s5oQSPKz+NiRNqVbTkXbJ7HpE3QbZZ9XIiLAWCuydzaZBR7WQiyj4fgfC0X4nawT3w==
+X-Received: by 2002:a05:6214:e67:b0:441:6ecc:51ae with SMTP id jz7-20020a0562140e6700b004416ecc51aemr3449661qvb.22.1649944314505;
+        Thu, 14 Apr 2022 06:51:54 -0700 (PDT)
+Received: from localhost.localdomain (c-69-250-217-147.hsd1.md.comcast.net. [69.250.217.147])
+        by smtp.gmail.com with ESMTPSA id 14-20020a37090e000000b0069bfe98662csm999748qkj.17.2022.04.14.06.51.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Apr 2022 06:51:54 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     cgzones@googlemail.com, James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/5] libsepol/test Include policydb.h header for policydb_t declaration
+Date:   Thu, 14 Apr 2022 09:51:37 -0400
+Message-Id: <20220414135141.1723610-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2022-04-13 at 13:47 +0200, Ondrej Mosnacek wrote:
-> Currently the testsuite only verifies that SCTP peeloff works on the
-> server side. However, it can just as well be used on the client side
-> as
-> well, which isn't being tested (and actually is buggy at the time of
-> writing).
-> 
-> To correct this, add a simple SCTP peeloff client and a couple tests
-> that verify that the client-side peeloff works well with SELinux.
-> 
-> The new tests are enabled on kernels 5.18+, where the fixes were
-> introduced. While the fixes are now queued also for some stable
-> streams,
-> it's much simpler to just check the version against 5.18 and skip the
-> test for all older kernels.
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
-> 
-> v4: added a kernel version check
-> v3: fixed uninitialized "sinlen" variable in sctp_peeloff_client.c
-> v2: rebased and resolved a conflict
-> 
->  tests/sctp/.gitignore            |   1 +
->  tests/sctp/Makefile              |   3 +-
->  tests/sctp/sctp_peeloff_client.c | 254
-> +++++++++++++++++++++++++++++++
->  tests/sctp/test                  | 170 ++++++++++++++++++++-
->  4 files changed, 419 insertions(+), 9 deletions(-)
->  create mode 100644 tests/sctp/sctp_peeloff_client.c
-> 
+Since test-linker-cond-map.h and test-linker-types.h references
+policydb_t, include the policydb header file.
 
-Tested on kernel 5.18-rc2
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/tests/test-linker-cond-map.h | 2 ++
+ libsepol/tests/test-linker-types.h    | 2 ++
+ 2 files changed, 4 insertions(+)
 
-Tested-by: Richard Haines <richard_c_haines@btinternet.com>
+diff --git a/libsepol/tests/test-linker-cond-map.h b/libsepol/tests/test-linker-cond-map.h
+index 148c6f62..740a722e 100644
+--- a/libsepol/tests/test-linker-cond-map.h
++++ b/libsepol/tests/test-linker-cond-map.h
+@@ -21,6 +21,8 @@
+ #ifndef __TEST_LINKER_COND_MAP_H__
+ #define __TEST_LINKER_COND_MAP_H__
+ 
++#include <sepol/policydb/policydb.h>
++
+ extern void base_cond_tests(policydb_t * base);
+ extern void module_cond_tests(policydb_t * base);
+ 
+diff --git a/libsepol/tests/test-linker-types.h b/libsepol/tests/test-linker-types.h
+index 0c860ebf..acad5e0e 100644
+--- a/libsepol/tests/test-linker-types.h
++++ b/libsepol/tests/test-linker-types.h
+@@ -21,6 +21,8 @@
+ #ifndef __TEST_LINKER_TYPES_H__
+ #define __TEST_LINKER_TYPES_H__
+ 
++#include <sepol/policydb/policydb.h>
++
+ extern void base_type_tests(policydb_t * base);
+ extern void module_type_tests(policydb_t * base);
+ 
+-- 
+2.34.1
+
