@@ -2,29 +2,29 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE61FC433F5
-	for <selinux@archiver.kernel.org>; Mon, 18 Apr 2022 09:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29B3AC43217
+	for <selinux@archiver.kernel.org>; Mon, 18 Apr 2022 09:46:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237553AbiDRJtN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Apr 2022 05:49:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60296 "EHLO
+        id S232313AbiDRJtO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Apr 2022 05:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236991AbiDRJtE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Apr 2022 05:49:04 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEED5165A2;
-        Mon, 18 Apr 2022 02:46:25 -0700 (PDT)
-Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KhhpM02G1zFq5F;
-        Mon, 18 Apr 2022 17:43:55 +0800 (CST)
+        with ESMTP id S237546AbiDRJtH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Apr 2022 05:49:07 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A56F165AF;
+        Mon, 18 Apr 2022 02:46:28 -0700 (PDT)
+Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4KhhsB2W5YzdZQt;
+        Mon, 18 Apr 2022 17:46:22 +0800 (CST)
 Received: from dggpemm500011.china.huawei.com (7.185.36.110) by
- dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
+ dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 18 Apr 2022 17:46:20 +0800
+ 15.1.2375.24; Mon, 18 Apr 2022 17:46:26 +0800
 Received: from mscphmkozh00002.huawei.com (10.219.174.70) by
  dggpemm500011.china.huawei.com (7.185.36.110) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 18 Apr 2022 17:46:18 +0800
+ 15.1.2375.24; Mon, 18 Apr 2022 17:46:24 +0800
 From:   Alexander Kozhevnikov <alexander.kozhevnikov@huawei.com>
 To:     <paul@paul-moore.com>
 CC:     <alexander.kozhevnikov@huawei.com>, <artem.kuzin@huawei.com>,
@@ -33,9 +33,9 @@ CC:     <alexander.kozhevnikov@huawei.com>, <artem.kuzin@huawei.com>,
         <linux-security-module@vger.kernel.org>, <selinux@vger.kernel.org>,
         <stephen.smalley.work@gmail.com>, <xiujianfeng@huawei.com>,
         <yusongping@huawei.com>, <anton.sirazetdinov@huawei.com>
-Subject: [RFC PATCH 2/7] selinux: support per-namespace superblock security structures
-Date:   Mon, 18 Apr 2022 17:45:47 +0800
-Message-ID: <20220418094552.128898-3-alexander.kozhevnikov@huawei.com>
+Subject: [RFC PATCH 5/7] SELINUXNS: Migrate all open files and all vma to new namespace
+Date:   Mon, 18 Apr 2022 17:45:50 +0800
+Message-ID: <20220418094552.128898-6-alexander.kozhevnikov@huawei.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220418094552.128898-1-alexander.kozhevnikov@huawei.com>
 References: <CAHC9VhTDu1GDxJwFg5gAMWhuMKUWEU5eXuTr_6eG=tGwiGsMTw@mail.gmail.com>
@@ -53,311 +53,167 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: Igor Baranov <igor.baranov@huawei.com>
 
-This port of commit
-https://github.com/stephensmalley/selinux-kernel/commit/3378718ef7d4a837f32c63bdfcc0b70342cdd55d
-Rebased to working-selinuxns and refactored.
+When process switched to another namespace and loads a new policy, the
+following problem occurs: the current open files in their
+file_security_struct contain the sid's relevant to the loaded policy
+in the old namespace. Under the new policy, they have completely
+random (incorrect) values, and, as a rule, accessing such descriptors
+leads to failure. For example, a process gets EACCES when writing to its
+own stdout.
 
-Extend the superblock security structure to include a reference
-to the associated selinux namespace, and turn it into a list so
-that we can maintain per-superblock security state for each namespace.
-This is necessary because the superblock SIDs and labeling behavior
-are per selinux namespace.  It further enables one to context-mount
-a filesystem with a particular context in one namespace while using
-xattrs in another, e.g. one might context mount a container filesystem
-in the init selinux namespace to provide MCS-style isolation of the
-containers while using per-file xattrs within the container to support
-conventional SELinux targeted policy.
+Our solution: reinitialize sid's and isid's to actual values in new policy
+of all opened files, as well as of files referenced by process's VMA.
 
-Introduce a superblock_security() helper to return the superblock
-security blob for the current selinux namespace and replace direct uses
-of sb->s_security with calls to it.
-
-Also revert the changes made by
-commit a64c54cf0811b8032fdab8c9d52576f0370837fa ("SELinux: pass a
-superblock to security_fs_use") so that access to the superblock
-security structure is properly encapsulated and we can support
-per-namespace structures.
-
-This change has similar problems as with the inode security structure
-change, see the list of issues in that commit.
-
-Not-signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 Signed-off-by: Alexander Kozhevnikov <alexander.kozhevnikov@huawei.com>
 Signed-off-by: Igor Baranov <igor.baranov@huawei.com>
 ---
- security/selinux/hooks.c            | 90 ++++++++++++++++++++++++++---
- security/selinux/include/objsec.h   | 20 ++++++-
- security/selinux/include/security.h |  3 +-
- security/selinux/ss/services.c      | 19 +++---
- 4 files changed, 112 insertions(+), 20 deletions(-)
+ security/selinux/hooks.c     | 94 +++++++++++++++++++++++++++++++++++-
+ security/selinux/selinuxfs.c |  2 +-
+ 2 files changed, 93 insertions(+), 3 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8d88b6bec24b..a1716ce534dd 100644
+index b618c4e0ef36..74d32b6a4855 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -613,7 +613,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+@@ -91,6 +91,7 @@
+ #include <uapi/linux/mount.h>
+ #include <linux/fsnotify.h>
+ #include <linux/fanotify.h>
++#include <linux/sched/mm.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
+@@ -4159,8 +4160,7 @@ static int selinux_file_open(struct file *file)
+ 	 * Task label is already saved in the file security
+ 	 * struct as its SID.
+ 	 */
+-	//TODO: namespace?
+-	fsec->isid = isec->sid;
++	fsec->isid = update_sid(isec);
+ 	fsec->pseqno = avc_policy_seqno(current_selinux_state);
+ 	/*
+ 	 * Since the inode label or policy seqno may have changed
+@@ -7659,6 +7659,8 @@ static void delayed_superblock_init(struct super_block *sb, void *unused)
+ 	selinux_set_mnt_opts(sb, NULL, 0, NULL);
+ }
+ 
++static void migrate_files(void);
++
+ void selinux_complete_init(void)
  {
- 	const struct cred *cred = current_cred();
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
--	struct dentry *root = sbsec->sb->s_root;
-+	struct dentry *root = sb->s_root;
- 	struct selinux_mnt_opts *opts = mnt_opts;
- 	struct inode_security_struct *root_isec;
- 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
-@@ -730,7 +730,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		 * Determine the labeling behavior to use for this
- 		 * filesystem type.
- 		 */
--		rc = security_fs_use(current_selinux_state, sb);
-+		rc = security_fs_use(current_selinux_state, sb->s_type->name,
-+				     &sbsec->behavior, &sbsec->sid);
- 		if (rc) {
- 			pr_warn("%s: security_fs_use(%s) returned %d\n",
- 					__func__, sb->s_type->name, rc);
-@@ -924,7 +925,8 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 	pr_debug("SELinux:  Completing initialization.\n");
+@@ -7666,6 +7668,9 @@ void selinux_complete_init(void)
+ 	/* Set up any superblocks initialized prior to the policy load. */
+ 	pr_debug("SELinux:  Setting up existing superblocks.\n");
+ 	iterate_supers(delayed_superblock_init, NULL);
++
++	if (current_selinux_state->id != 0)
++		migrate_files();
+ }
  
- 	if (newsbsec->behavior == SECURITY_FS_USE_NATIVE &&
- 		!(kern_flags & SECURITY_LSM_NATIVE_LABELS) && !set_context) {
--		rc = security_fs_use(current_selinux_state, newsb);
-+		rc = security_fs_use(current_selinux_state, newsb->s_type->name,
-+				     &newsbsec->behavior, &newsbsec->sid);
- 		if (rc)
- 			goto out;
- 	}
-@@ -1094,7 +1096,7 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
- 			return rc;
- 	}
- 	if (sbsec->flags & ROOTCONTEXT_MNT) {
--		struct dentry *root = sbsec->sb->s_root;
-+		struct dentry *root = sb->s_root;
- 		struct inode_security_struct *isec = backing_inode_security(root);
- 		seq_putc(m, ',');
- 		seq_puts(m, ROOTCONTEXT_STR);
-@@ -2564,21 +2566,94 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
- 
- /* superblock security operations */
- 
--static int selinux_sb_alloc_security(struct super_block *sb)
-+static void sbsec_head_init(struct super_block *sb,
-+			    struct superblock_security_head *sbsech)
- {
--	struct superblock_security_struct *sbsec = selinux_superblock(sb);
-+	INIT_LIST_HEAD(&sbsech->head);
-+	spin_lock_init(&sbsech->lock);
-+}
- 
-+static struct superblock_security_struct *
-+sbsec_alloc(struct superblock_security_head *sbsech)
-+{
-+	struct superblock_security_struct *sbsec;
-+
-+	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_NOFS);
-+	if (!sbsec)
-+		return NULL;
- 	mutex_init(&sbsec->lock);
- 	INIT_LIST_HEAD(&sbsec->isec_head);
- 	spin_lock_init(&sbsec->isec_lock);
--	sbsec->sb = sb;
-+	sbsec->sbsech = sbsech;
- 	sbsec->sid = SECINITSID_UNLABELED;
- 	sbsec->def_sid = SECINITSID_FILE;
- 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
-+	sbsec->state = get_selinux_state(current_selinux_state);
-+
-+	return sbsec;
-+}
-+
-+struct superblock_security_struct *
-+find_sbsec(struct superblock_security_head *sbsech)
-+{
-+	struct superblock_security_struct *cur, *new;
-+
-+	cur = container_of(sbsech->head.next, struct superblock_security_struct, sbsec_list);
-+	if (cur->state == current_selinux_state)
-+		return cur;
- 
-+	spin_lock(&sbsech->lock);
-+	list_for_each_entry(cur, &sbsech->head, sbsec_list) {
-+		if (cur->state == current_selinux_state)
-+			goto unlock;
-+	}
-+	spin_unlock(&sbsech->lock);
-+
-+	new = sbsec_alloc(sbsech);
-+	if (!new) {
-+		cur = NULL;
-+		goto out;
-+	}
-+
-+	spin_lock(&sbsech->lock);
-+	list_for_each_entry(cur, &sbsech->head, sbsec_list) {
-+		if (cur->state == current_selinux_state)
-+			goto unlock;
-+	}
-+	list_add(&new->sbsec_list, &sbsech->head);
-+	cur = new;
-+unlock:
-+	spin_unlock(&sbsech->lock);
-+out:
-+	return cur;
-+}
-+
-+static int selinux_sb_alloc_security(struct super_block *sb)
-+{
-+	struct superblock_security_struct *sbsec;
-+	struct superblock_security_head *sbsech = selinux_head_of_superblock(sb);
-+
-+	sbsec_head_init(sb, sbsech);
-+	sbsec = sbsec_alloc(sbsech);
-+	if (!sbsec)
-+		return -ENOMEM;
-+	spin_lock(&sbsech->lock);
-+	list_add(&sbsec->sbsec_list, &sbsech->head);
-+	spin_unlock(&sbsech->lock);
+ /* SELinux requires early initialization in order to label
+@@ -7816,3 +7821,88 @@ int selinux_disable(struct selinux_state *state)
  	return 0;
  }
- 
-+static void selinux_sb_free_security(struct super_block *sb)
-+{
-+	struct superblock_security_struct *entry, *tmp;
-+	struct superblock_security_head *sbsech = selinux_head_of_superblock(sb);
+ #endif
 +
-+	list_for_each_entry_safe(entry, tmp, &sbsech->head, sbsec_list) {
-+		put_selinux_state(entry->state);
-+		kfree(entry);
++
++/* TODO: check&return errors? */
++static void migrate_fds(void)
++{
++	unsigned int fd;
++	struct files_struct *files = current->files;
++	u32 tsid = current_sid();
++
++	rcu_read_lock();
++	for (fd = 0; fd < files_fdtable(files)->max_fds; fd++) {
++		struct inode *inode;
++		struct file_security_struct *fsec;
++		struct file *file = fcheck_files(files, fd);
++
++		if (!file)
++			continue;
++
++		fsec = selinux_file(file);
++
++		fsec->sid = fsec->fown_sid = tsid;
++		inode = file_inode(file);
++		if (inode) {
++			get_file(file);
++			rcu_read_unlock();
++			fsec->isid = update_sid(inode_security(inode));
++			rcu_read_lock();
++			fput(file);
++		}
 +	}
++	rcu_read_unlock();
 +}
 +
- static inline int opt_len(const char *s)
- {
- 	bool open_quote = false;
-@@ -7224,6 +7299,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 		      selinux_msg_queue_alloc_security),
- 	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
- 	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
-+	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
- 	LSM_HOOK_INIT(inode_alloc_security, selinux_inode_alloc_security),
- 	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
- 	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index f456bb5782a3..6ad1db45b0d9 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -51,8 +51,13 @@ struct file_security_struct {
- 	u32 pseqno;		/* Policy seqno at the time of file open */
- };
- 
-+struct superblock_security_head {
-+	struct list_head head;		/* list head of superblock_security_struct */
-+	spinlock_t lock;
-+};
-+
- struct superblock_security_struct {
--	struct super_block *sb;		/* back pointer to sb object */
-+	struct superblock_security_head *sbsech;	/* back pointer to superbock_security_head */
- 	u32 sid;			/* SID of file system superblock */
- 	u32 def_sid;			/* default SID for labeling */
- 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
-@@ -61,6 +66,8 @@ struct superblock_security_struct {
- 	struct mutex lock;
- 	struct list_head isec_head;
- 	spinlock_t isec_lock;
-+	struct selinux_state *state;	/* pointer to selinux_state */
-+	struct list_head sbsec_list;
- };
- 
- struct msg_security_struct {
-@@ -176,10 +183,19 @@ static inline u32 current_sid(void)
- 	return tsec->sid;
- }
- 
--static inline struct superblock_security_struct *selinux_superblock(
-+static inline struct superblock_security_head *selinux_head_of_superblock(
- 					const struct super_block *superblock)
- {
- 	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
- }
- 
-+extern struct superblock_security_struct *
-+find_sbsec(struct superblock_security_head *sbsech);
-+
-+static inline struct superblock_security_struct *selinux_superblock(
-+					const struct super_block *superblock)
++static int migrate_vmas(void)
 +{
-+	return find_sbsec(selinux_head_of_superblock(superblock));
++	int ret;
++	struct mempolicy *task_mempolicy;
++	struct vm_area_struct *vma;
++	u32 tsid = current_sid();
++	struct mm_struct *mm =  mm_access(current, PTRACE_MODE_READ | PTRACE_MODE_FSCREDS);
++
++	if (IS_ERR_OR_NULL(mm))
++		return PTR_ERR(mm);
++
++	ret = mmap_read_lock_killable(mm);
++	if (ret)
++		goto out_put_mm;
++
++	task_mempolicy = get_task_policy(current);
++	mpol_get(task_mempolicy);
++
++	for (vma = mm->mmap; vma; vma = vma->vm_next) {
++		struct file *file = vma->vm_file;
++		struct file_security_struct *fsec;
++		struct inode *inode;
++
++		if (!file)
++			continue;
++
++		fsec = selinux_file(file);
++
++		inode = file_inode(file);
++		if (inode)
++			fsec->isid = update_sid(inode_security(inode));
++
++		fsec->sid = fsec->fown_sid = tsid;
++	}
++
++	mpol_put(task_mempolicy);
++	mmap_read_unlock(mm);
++
++out_put_mm:
++	mmput(mm);
++
++	return ret;
 +}
 +
- #endif /* _SELINUX_OBJSEC_H_ */
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 1a7d76f0faf3..a5b698aae38c 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -410,7 +410,8 @@ int security_get_allow_unknown(struct selinux_state *state);
- #define SECURITY_FS_USE_NATIVE		7 /* use native label support */
- #define SECURITY_FS_USE_MAX		7 /* Highest SECURITY_FS_USE_XXX */
- 
--int security_fs_use(struct selinux_state *state, struct super_block *sb);
-+int security_fs_use(struct selinux_state *state, const char *fstype,
-+		    unsigned short *behavior, u32 *sid);
- 
- int security_genfs_sid(struct selinux_state *state,
- 		       const char *fstype, char *name, u16 sclass,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2c9e77ca4754..548acdecafa8 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2868,19 +2868,18 @@ int selinux_policy_genfs_sid(struct selinux_policy *policy,
-  * security_fs_use - Determine how to handle labeling for a filesystem.
-  * @sb: superblock in question
-  */
--int security_fs_use(struct selinux_state *state, struct super_block *sb)
-+int security_fs_use(struct selinux_state *state, const char *fstype,
-+		    unsigned short *behavior, u32 *sid)
++/* TODO return error? */
++void migrate_files(void)
++{
++	migrate_fds();
++
++/* TODO: return error */
++	migrate_vmas();
++}
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 2da27f2fc2e3..18c5383b87a9 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -2306,7 +2306,7 @@ static int selinuxfs_compare(struct super_block *sb, struct fs_context *fc)
  {
- 	struct selinux_policy *policy;
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
- 	int rc = 0;
- 	struct ocontext *c;
--	struct superblock_security_struct *sbsec = selinux_superblock(sb);
--	const char *fstype = sb->s_type->name;
+ 	struct selinux_fs_info *fsi = sb->s_fs_info;
  
- 	if (!selinux_initialized(state)) {
--		sbsec->behavior = SECURITY_FS_USE_NONE;
--		sbsec->sid = SECINITSID_UNLABELED;
-+		*behavior = SECURITY_FS_USE_NONE;
-+		*sid = SECINITSID_UNLABELED;
- 		return 0;
- 	}
+-	return (current_selinux_state == fsi->state);
++	return (current_selinux_state->id == fsi->state->id);
+ }
  
-@@ -2897,22 +2896,22 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
- 	}
- 
- 	if (c) {
--		sbsec->behavior = c->v.behavior;
-+		*behavior = c->v.behavior;
- 		if (!c->sid[0]) {
- 			rc = sidtab_context_to_sid(sidtab, &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
- 				goto out;
- 		}
--		sbsec->sid = c->sid[0];
-+		*sid = c->sid[0];
- 	} else {
- 		rc = __security_genfs_sid(policy, fstype, "/",
--					SECCLASS_DIR, &sbsec->sid);
-+					SECCLASS_DIR, sid);
- 		if (rc) {
--			sbsec->behavior = SECURITY_FS_USE_NONE;
-+			*behavior = SECURITY_FS_USE_NONE;
- 			rc = 0;
- 		} else {
--			sbsec->behavior = SECURITY_FS_USE_GENFS;
-+			*behavior = SECURITY_FS_USE_GENFS;
- 		}
- 	}
- 
+ static int sel_get_tree(struct fs_context *fc)
 -- 
 2.34.1
 
