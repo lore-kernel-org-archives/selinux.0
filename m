@@ -2,436 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3FFCC433F5
-	for <selinux@archiver.kernel.org>; Tue, 19 Apr 2022 00:52:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9604C433F5
+	for <selinux@archiver.kernel.org>; Wed, 20 Apr 2022 08:51:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243373AbiDSAyz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Apr 2022 20:54:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57674 "EHLO
+        id S1376899AbiDTIx6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Apr 2022 04:53:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243401AbiDSAyy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Apr 2022 20:54:54 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3F6113E33;
-        Mon, 18 Apr 2022 17:52:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1650329532; x=1681865532;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=1AgANzggJiFl4EBvW8198YXhTne+11IBxyoAEmpeCLM=;
-  b=codMTYZr0SC7pWDIkg7RG50MOaHgL+rkhcGdRtGSxYVI/NwSVQPgnbHF
-   ijqH0D1MYH46rddZLIBlVbsUB83cEnE/wYveW88N44Go44JVIwRQ9/6n7
-   8xbXhpSWuHpTp2mocCA9ZXeUP1LjXMyMTPYUo3nfx3GzJOY+dTGd3gVsL
-   HJTzu45G/pNhYqDlm+J2vE9bf/vMeHzawaOjxTdaykz7w4JE5UYhG4RQo
-   wD5/rT+jsiEubvVkCm53x3Ng1xG/KVPhb18kpiM5e6EwviOrBCsGrvvy8
-   CgaJFEM1w95LnFqqmWGkcGInLpRJ2M7q+bqyOPfhkZCUuhv/BCug2B8z2
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10321"; a="262503366"
-X-IronPort-AV: E=Sophos;i="5.90,271,1643702400"; 
-   d="scan'208";a="262503366"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Apr 2022 17:52:12 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,271,1643702400"; 
-   d="scan'208";a="860389365"
-Received: from lkp-server01.sh.intel.com (HELO 3abc53900bec) ([10.239.97.150])
-  by fmsmga005.fm.intel.com with ESMTP; 18 Apr 2022 17:52:08 -0700
-Received: from kbuild by 3abc53900bec with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1ngc6C-00058e-5r;
-        Tue, 19 Apr 2022 00:52:08 +0000
-Date:   Tue, 19 Apr 2022 08:51:25 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
-        casey@schaufler-ca.com, linux-audit@redhat.com,
-        keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        linux-integrity@vger.kernel.org
-Subject: Re: [PATCH v35 13/29] LSM: Use lsmblob in security_cred_getsecid
-Message-ID: <202204190819.XVXsdhdo-lkp@intel.com>
-References: <20220418145945.38797-14-casey@schaufler-ca.com>
+        with ESMTP id S1351539AbiDTIx4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Apr 2022 04:53:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DD1C53818C
+        for <selinux@vger.kernel.org>; Wed, 20 Apr 2022 01:51:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650444670;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/1D2R34qiVyQjwlCavuy9y7NCqvh6G2g9lilJgP8R38=;
+        b=X1n5tbmbOrvZH15WfYXl5GAV6vL/041ffvAtkLt7378dsSORdPiijg49FdgoEPtcc7PVhO
+        abMAJ6rdiZBaXPKBl8APpn4Kfz+ZVW/8tpfEQjSPMrIXCw8jrPLKx3VvOwobrxtQlrqdsg
+        CsXIwmidMoPqiU0eJkH5u/K+YKGd9QU=
+Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
+ [209.85.219.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-637-5jPh60WAMSeGBZzg-e4hWQ-1; Wed, 20 Apr 2022 04:51:06 -0400
+X-MC-Unique: 5jPh60WAMSeGBZzg-e4hWQ-1
+Received: by mail-yb1-f198.google.com with SMTP id e4-20020a056902034400b00633691534d5so895806ybs.7
+        for <selinux@vger.kernel.org>; Wed, 20 Apr 2022 01:51:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/1D2R34qiVyQjwlCavuy9y7NCqvh6G2g9lilJgP8R38=;
+        b=Ssu84rTW8ZpWG2ANqef6nHV03XZltSIj6mjqvyE6bqUv75Txoe6r7CGBcay/JY/KHk
+         eb3yd/NwaVMfVoFFital1Pl6W+w9LM75RXqLRK79Nf8bGlanARDqyRUyt73gNfx/Bxpd
+         XYpEhl5nIVoISZQwvcTHuVswpMK0LkNK214S3bcx6x9d2vSrRPRNrbMoMmTDA/vOSI5F
+         8jB59OuOr/lsf1dPuBq9JJ9wRPxth8ckGmFX2+HLIYPOcSe6257yaBS8xus8cj5BsxRu
+         snNuIN5GbAPCXAMQs3N0pZ/iHFzC5fVAwbKmtv1APiPY4D8IB+58o/Lr6vmg58s147OG
+         Us2A==
+X-Gm-Message-State: AOAM532HnnX2Yf50gdiDgUvJ/P7KAw3HYMCHU2hhm8gUxMb6re2YvNGp
+        fBB6XmkxBZ29GsEJE0352tAdkPuxORErAOE4C5qyP7RFJp76PaNw+nCc4UE6UsDLxPLBSLaoW0X
+        Rce81IRQ8u9vaw9DkKYK/vphISO09K5z5Jg==
+X-Received: by 2002:a0d:cc0e:0:b0:2ed:7fac:4e08 with SMTP id o14-20020a0dcc0e000000b002ed7fac4e08mr19052960ywd.106.1650444666195;
+        Wed, 20 Apr 2022 01:51:06 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyt91eIaQDr5C6EhTu9WyGaD+ZbhzwPTUG2zZfGzX09YGJn3usQteWkhQAyG52HozrJERRINTFeLcF9M/Acy3E=
+X-Received: by 2002:a0d:cc0e:0:b0:2ed:7fac:4e08 with SMTP id
+ o14-20020a0dcc0e000000b002ed7fac4e08mr19052950ywd.106.1650444665969; Wed, 20
+ Apr 2022 01:51:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220418145945.38797-14-casey@schaufler-ca.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20220413114734.1704750-1-omosnace@redhat.com> <2634e3d64c31ef611d93e2b13c03dbb542969426.camel@btinternet.com>
+In-Reply-To: <2634e3d64c31ef611d93e2b13c03dbb542969426.camel@btinternet.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 20 Apr 2022 10:50:55 +0200
+Message-ID: <CAFqZXNs22+2C=fKzey0BV-zgb8hvP_vQEgJW-FWNTDyRSyWULw@mail.gmail.com>
+Subject: Re: [PATCH testsuite v4] tests/sctp: add client peeloff tests
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Casey,
+On Thu, Apr 14, 2022 at 2:10 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Wed, 2022-04-13 at 13:47 +0200, Ondrej Mosnacek wrote:
+> > Currently the testsuite only verifies that SCTP peeloff works on the
+> > server side. However, it can just as well be used on the client side
+> > as
+> > well, which isn't being tested (and actually is buggy at the time of
+> > writing).
+> >
+> > To correct this, add a simple SCTP peeloff client and a couple tests
+> > that verify that the client-side peeloff works well with SELinux.
+> >
+> > The new tests are enabled on kernels 5.18+, where the fixes were
+> > introduced. While the fixes are now queued also for some stable
+> > streams,
+> > it's much simpler to just check the version against 5.18 and skip the
+> > test for all older kernels.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >
+> > v4: added a kernel version check
+> > v3: fixed uninitialized "sinlen" variable in sctp_peeloff_client.c
+> > v2: rebased and resolved a conflict
+> >
+> >  tests/sctp/.gitignore            |   1 +
+> >  tests/sctp/Makefile              |   3 +-
+> >  tests/sctp/sctp_peeloff_client.c | 254
+> > +++++++++++++++++++++++++++++++
+> >  tests/sctp/test                  | 170 ++++++++++++++++++++-
+> >  4 files changed, 419 insertions(+), 9 deletions(-)
+> >  create mode 100644 tests/sctp/sctp_peeloff_client.c
+> >
+>
+> Tested on kernel 5.18-rc2
+>
+> Tested-by: Richard Haines <richard_c_haines@btinternet.com>
 
-I love your patch! Yet something to improve:
-
-[auto build test ERROR on pcmoore-selinux/next]
-[also build test ERROR on linus/master v5.18-rc3 next-20220414]
-[cannot apply to pcmoore-audit/next jmorris-security/next-testing]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220419-000109
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-config: s390-randconfig-r044-20220418 (https://download.01.org/0day-ci/archive/20220419/202204190819.XVXsdhdo-lkp@intel.com/config)
-compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project 429cbac0390654f90bba18a41799464adf31a5ec)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # install s390 cross compiling tool for clang build
-        # apt-get install binutils-s390x-linux-gnu
-        # https://github.com/intel-lab-lkp/linux/commit/2fa01492487f9135e9ea9e59924289cc23a66576
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220419-000109
-        git checkout 2fa01492487f9135e9ea9e59924289cc23a66576
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash drivers/net/ethernet/broadcom/bnx2x/ drivers/net/ethernet/hisilicon/hns/ drivers/net/ethernet/marvell/octeontx2/nic/ drivers/net/ethernet/netronome/nfp/ drivers/net/ethernet/pensando/ionic/
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All error/warnings (new ones prefixed by >>):
-
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c:31:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:464:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:477:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-                                                             ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-   #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c:31:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:490:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-                                                             ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-   #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c:31:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:501:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:511:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:521:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:609:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsb(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:617:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsw(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:625:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsl(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:634:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesb(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:643:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesw(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:652:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesl(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c:34:
-   In file included from include/linux/netdevice.h:46:
-   In file included from include/uapi/linux/neighbour.h:6:
-   In file included from include/linux/netlink.h:9:
-   In file included from include/net/scm.h:8:
->> include/linux/security.h:1147:3: error: use of undeclared identifier 'secid'
-           *secid = 0;
-            ^
-   drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c:13117:49: warning: shift count >= width of type [-Wshift-count-overflow]
-           rc = dma_set_mask_and_coherent(&bp->pdev->dev, DMA_BIT_MASK(64));
-                                                          ^~~~~~~~~~~~~~~~
-   include/linux/dma-mapping.h:76:54: note: expanded from macro 'DMA_BIT_MASK'
-   #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                        ^ ~~~
->> drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c:15204:26: warning: shift count >= width of type [-Wshift-count-overflow]
-           bp->cyclecounter.mask = CYCLECOUNTER_MASK(64);
-                                   ^~~~~~~~~~~~~~~~~~~~~
-   include/linux/timecounter.h:14:59: note: expanded from macro 'CYCLECOUNTER_MASK'
-   #define CYCLECOUNTER_MASK(bits) (u64)((bits) < 64 ? ((1ULL<<(bits))-1) : -1)
-                                                             ^ ~~~~~~
-   14 warnings and 1 error generated.
---
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.c:23:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:464:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:477:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-                                                             ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-   #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.c:23:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:490:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-                                                             ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-   #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.c:23:
-   In file included from include/linux/pci.h:39:
-   In file included from include/linux/io.h:13:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:501:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:511:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:521:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:609:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsb(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:617:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsw(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:625:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsl(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:634:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesb(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:643:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesw(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:652:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesl(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   In file included from drivers/net/ethernet/broadcom/bnx2x/bnx2x_link.c:24:
-   In file included from include/linux/netdevice.h:46:
-   In file included from include/uapi/linux/neighbour.h:6:
-   In file included from include/linux/netlink.h:9:
-   In file included from include/net/scm.h:8:
->> include/linux/security.h:1147:3: error: use of undeclared identifier 'secid'
-           *secid = 0;
-            ^
-   12 warnings and 1 error generated.
---
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:40:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:464:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:477:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-                                                             ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-   #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:40:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:490:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-                                                             ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-   #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c:12:
-   In file included from include/linux/netdevice.h:38:
-   In file included from include/net/net_namespace.h:40:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:501:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:511:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:521:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:609:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsb(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:617:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsw(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:625:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsl(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:634:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesb(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:643:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesw(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:652:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesl(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c:12:
-   In file included from include/linux/netdevice.h:46:
-   In file included from include/uapi/linux/neighbour.h:6:
-   In file included from include/linux/netlink.h:9:
-   In file included from include/net/scm.h:8:
->> include/linux/security.h:1147:3: error: use of undeclared identifier 'secid'
-           *secid = 0;
-            ^
->> drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c:200:48: warning: shift count >= width of type [-Wshift-count-overflow]
-           if (!dma_set_mask_and_coherent(dsaf_dev->dev, DMA_BIT_MASK(64ULL)))
-                                                         ^~~~~~~~~~~~~~~~~~~
-   include/linux/dma-mapping.h:76:54: note: expanded from macro 'DMA_BIT_MASK'
-   #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                        ^ ~~~
-   13 warnings and 1 error generated.
---
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_enet.c:8:
-   In file included from include/linux/etherdevice.h:20:
-   In file included from include/linux/if_ether.h:19:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:464:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __raw_readb(PCI_IOBASE + addr);
-                             ~~~~~~~~~~ ^
-   include/asm-generic/io.h:477:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:37:59: note: expanded from macro '__le16_to_cpu'
-   #define __le16_to_cpu(x) __swab16((__force __u16)(__le16)(x))
-                                                             ^
-   include/uapi/linux/swab.h:102:54: note: expanded from macro '__swab16'
-   #define __swab16(x) (__u16)__builtin_bswap16((__u16)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_enet.c:8:
-   In file included from include/linux/etherdevice.h:20:
-   In file included from include/linux/if_ether.h:19:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:490:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
-                                                           ~~~~~~~~~~ ^
-   include/uapi/linux/byteorder/big_endian.h:35:59: note: expanded from macro '__le32_to_cpu'
-   #define __le32_to_cpu(x) __swab32((__force __u32)(__le32)(x))
-                                                             ^
-   include/uapi/linux/swab.h:115:54: note: expanded from macro '__swab32'
-   #define __swab32(x) (__u32)__builtin_bswap32((__u32)(x))
-                                                        ^
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_enet.c:8:
-   In file included from include/linux/etherdevice.h:20:
-   In file included from include/linux/if_ether.h:19:
-   In file included from include/linux/skbuff.h:31:
-   In file included from include/linux/dma-mapping.h:10:
-   In file included from include/linux/scatterlist.h:9:
-   In file included from arch/s390/include/asm/io.h:75:
-   include/asm-generic/io.h:501:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writeb(value, PCI_IOBASE + addr);
-                               ~~~~~~~~~~ ^
-   include/asm-generic/io.h:511:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:521:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
-                                                         ~~~~~~~~~~ ^
-   include/asm-generic/io.h:609:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsb(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:617:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsw(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:625:20: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           readsl(PCI_IOBASE + addr, buffer, count);
-                  ~~~~~~~~~~ ^
-   include/asm-generic/io.h:634:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesb(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:643:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesw(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   include/asm-generic/io.h:652:21: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
-           writesl(PCI_IOBASE + addr, buffer, count);
-                   ~~~~~~~~~~ ^
-   In file included from drivers/net/ethernet/hisilicon/hns/hns_enet.c:8:
-   In file included from include/linux/etherdevice.h:21:
-   In file included from include/linux/netdevice.h:46:
-   In file included from include/uapi/linux/neighbour.h:6:
-   In file included from include/linux/netlink.h:9:
-   In file included from include/net/scm.h:8:
->> include/linux/security.h:1147:3: error: use of undeclared identifier 'secid'
-           *secid = 0;
-            ^
-   drivers/net/ethernet/hisilicon/hns/hns_enet.c:2355:38: warning: shift count >= width of type [-Wshift-count-overflow]
-           if (!dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64)))
-                                               ^~~~~~~~~~~~~~~~
-   include/linux/dma-mapping.h:76:54: note: expanded from macro 'DMA_BIT_MASK'
-   #define DMA_BIT_MASK(n) (((n) == 64) ? ~0ULL : ((1ULL<<(n))-1))
-                                                        ^ ~~~
-   13 warnings and 1 error generated.
-..
-
-
-vim +/secid +1147 include/linux/security.h
-
-ee18d64c1f6320 David Howells   2009-09-02  1143  
-2fa01492487f91 Casey Schaufler 2022-04-18  1144  static inline void security_cred_getsecid(const struct cred *c,
-2fa01492487f91 Casey Schaufler 2022-04-18  1145  					  struct lsmblob *blob)
-4d5b5539742d25 Todd Kjos       2021-10-12  1146  {
-4d5b5539742d25 Todd Kjos       2021-10-12 @1147  	*secid = 0;
-4d5b5539742d25 Todd Kjos       2021-10-12  1148  }
-4d5b5539742d25 Todd Kjos       2021-10-12  1149  
+Thanks! The patch is now applied.
 
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
