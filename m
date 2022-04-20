@@ -2,110 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CE8DC433EF
-	for <selinux@archiver.kernel.org>; Wed, 20 Apr 2022 17:07:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA4BBC433F5
+	for <selinux@archiver.kernel.org>; Wed, 20 Apr 2022 18:54:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348960AbiDTRKQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Apr 2022 13:10:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56354 "EHLO
+        id S1346947AbiDTS44 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Apr 2022 14:56:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356013AbiDTRKL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Apr 2022 13:10:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872D2BE15;
-        Wed, 20 Apr 2022 10:07:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S1346847AbiDTS4z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Apr 2022 14:56:55 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E18B946645
+        for <selinux@vger.kernel.org>; Wed, 20 Apr 2022 11:54:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650480848;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SMFuta+ToLpfRYJmHaZ8ODShu/KesOqWwJvNu43j23Q=;
+        b=EtgY8AnBvGc32bweAOsV6RcAArcuFXlm74KBqUBtKvQCnlhtRNzzznjmgPNeolkYhNrtJx
+        949mhOi7aUCWz1ouCRROKmR7RLAGORNff5IRiemFKVOhgRQauamCaDZj/PeZNKLNSTP/Ly
+        999VAV3vTSSP8zrK8oXf4UKel+fgjnI=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-217-xW2YxR0SNF2skzBYpwc0jg-1; Wed, 20 Apr 2022 14:54:04 -0400
+X-MC-Unique: xW2YxR0SNF2skzBYpwc0jg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E621B8210D;
-        Wed, 20 Apr 2022 17:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79355C385A1;
-        Wed, 20 Apr 2022 17:07:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650474442;
-        bh=QAxVP4eS9yUe2My8LiKu9u/E2UpxORATLT2tPbgMn48=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RmO8Q/g16xTHL/UFejqaVxdr/oHqxuONTfP4M47wVeBSn0Gy710Bm2+2hFccoUH0p
-         aebHP9JNC4xtR4K2spDiYH82/Zen8UtXR94yWWGyDn3QBUDKxk7wFdc7WYoq5A3qdr
-         fe8qAJLmkqrvAWeZZUJ1YaZS4CYabd1i72I8CESQ=
-Date:   Wed, 20 Apr 2022 19:07:19 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     =?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Saravana Kannan <saravanak@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] firmware_loader: use kernel credentials when reading
- firmware
-Message-ID: <YmA9x/Yn9lJwegsu@kroah.com>
-References: <20220404054642.3095732-1-tweek@google.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2987B1014A60;
+        Wed, 20 Apr 2022 18:54:04 +0000 (UTC)
+Received: from localhost (unknown [10.40.192.87])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C19AA40CF91D;
+        Wed, 20 Apr 2022 18:54:03 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+Cc:     cgzones@googlemail.com
+Subject: Re: [PATCH 1/5] libsepol/test Include policydb.h header for
+ policydb_t declaration
+In-Reply-To: <20220414135141.1723610-1-jwcart2@gmail.com>
+References: <20220414135141.1723610-1-jwcart2@gmail.com>
+Date:   Wed, 20 Apr 2022 20:54:02 +0200
+Message-ID: <875yn3twl1.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220404054642.3095732-1-tweek@google.com>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 04, 2022 at 03:46:42PM +1000, Thiébaud Weksteen wrote:
-> Device drivers may decide to not load firmware when probed to avoid
-> slowing down the boot process should the firmware filesystem not be
-> available yet. In this case, the firmware loading request may be done
-> when a device file associated with the driver is first accessed. The
-> credentials of the userspace process accessing the device file may be
-> used to validate access to the firmware files requested by the driver.
-> Ensure that the kernel assumes the responsibility of reading the
-> firmware.
-> 
-> This was observed on Android for a graphic driver loading their firmware
-> when the device file (e.g. /dev/mali0) was first opened by userspace
-> (i.e. surfaceflinger). The security context of surfaceflinger was used
-> to validate the access to the firmware file (e.g.
-> /vendor/firmware/mali.bin).
-> 
-> Because previous configurations were relying on the userspace fallback
-> mechanism, the security context of the userspace daemon (i.e. ueventd)
-> was consistently used to read firmware files. More devices are found to
-> use the command line argument firmware_class.path which gives the kernel
-> the opportunity to read the firmware directly, hence surfacing this
-> misattribution.
-> 
-> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
+James Carter <jwcart2@gmail.com> writes:
+
+> Since test-linker-cond-map.h and test-linker-types.h references
+> policydb_t, include the policydb header file.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+
+For all 5 patches:
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
 > ---
->  drivers/base/firmware_loader/main.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
-> index 94d1789a233e..416ee3cc6584 100644
-> --- a/drivers/base/firmware_loader/main.c
-> +++ b/drivers/base/firmware_loader/main.c
-> @@ -735,6 +735,8 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
->  		  size_t offset, u32 opt_flags)
->  {
->  	struct firmware *fw = NULL;
-> +	struct cred *kern_cred = NULL;
-> +	const struct cred *old_cred;
->  	bool nondirect = false;
->  	int ret;
+>  libsepol/tests/test-linker-cond-map.h | 2 ++
+>  libsepol/tests/test-linker-types.h    | 2 ++
+>  2 files changed, 4 insertions(+)
+>
+> diff --git a/libsepol/tests/test-linker-cond-map.h b/libsepol/tests/test-linker-cond-map.h
+> index 148c6f62..740a722e 100644
+> --- a/libsepol/tests/test-linker-cond-map.h
+> +++ b/libsepol/tests/test-linker-cond-map.h
+> @@ -21,6 +21,8 @@
+>  #ifndef __TEST_LINKER_COND_MAP_H__
+>  #define __TEST_LINKER_COND_MAP_H__
 >  
-> @@ -751,6 +753,13 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
->  	if (ret <= 0) /* error or already assigned */
->  		goto out;
+> +#include <sepol/policydb/policydb.h>
+> +
+>  extern void base_cond_tests(policydb_t * base);
+>  extern void module_cond_tests(policydb_t * base);
 >  
-> +	kern_cred = prepare_kernel_cred(NULL);
-> +	if (!kern_cred) {
-> +		ret = -ENOMEM;
-> +		goto out;
-> +	}
-> +	old_cred = override_creds(kern_cred);
+> diff --git a/libsepol/tests/test-linker-types.h b/libsepol/tests/test-linker-types.h
+> index 0c860ebf..acad5e0e 100644
+> --- a/libsepol/tests/test-linker-types.h
+> +++ b/libsepol/tests/test-linker-types.h
+> @@ -21,6 +21,8 @@
+>  #ifndef __TEST_LINKER_TYPES_H__
+>  #define __TEST_LINKER_TYPES_H__
+>  
+> +#include <sepol/policydb/policydb.h>
+> +
+>  extern void base_type_tests(policydb_t * base);
+>  extern void module_type_tests(policydb_t * base);
+>  
+> -- 
+> 2.34.1
 
-Can you add a comment here before the call to prepare_kernel_cred() to
-say why you are doing this and what it is for?  Otherwise it is not
-obvious at all.
-
-thanks,
-
-greg k-h
