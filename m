@@ -2,43 +2,41 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0965C433EF
-	for <selinux@archiver.kernel.org>; Thu, 21 Apr 2022 16:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 163F1C433EF
+	for <selinux@archiver.kernel.org>; Thu, 21 Apr 2022 16:55:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235103AbiDUQyK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Apr 2022 12:54:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35238 "EHLO
+        id S1390541AbiDUQ6C (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Apr 2022 12:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232072AbiDUQyI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Apr 2022 12:54:08 -0400
-X-Greylist: delayed 81 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Apr 2022 09:51:18 PDT
+        with ESMTP id S1390518AbiDUQ5z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Apr 2022 12:57:55 -0400
 Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1556749266;
-        Thu, 21 Apr 2022 09:51:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68560626D
+        for <selinux@vger.kernel.org>; Thu, 21 Apr 2022 09:55:03 -0700 (PDT)
 Received: from [192.168.192.153] (unknown [50.126.114.69])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 387AF4019D;
-        Thu, 21 Apr 2022 16:51:12 +0000 (UTC)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 5275D3F212;
+        Thu, 21 Apr 2022 16:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1650559876;
-        bh=ld8fVszvK/3E4H3tYAuLWfYLXCWj/coqjBjg5dU3/hE=;
+        s=20210705; t=1650559793;
+        bh=cE0mr3ujI3By6bbSMsOYsbG0H9B5mOQfowagLjHY8uE=;
         h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
          In-Reply-To:Content-Type;
-        b=tONA08z62V/uN3+5EEYlJVI+wxGcCu0XsugILzrpOZLXguQ570uO+oFgo4w3HWfae
-         vT0BM16cYtQ8tTQ4pzZgjLcO4ra6caoo2mM9iWYNXa+gAWcaRDpuDCd0yJ7bN20fbT
-         CxqdJdei+nW7ToJQNYkNl9qF1tlMFVkM/xDc6TUmddOhbK42+CabJjFvCfFFnyxOAr
-         3LjaMXwTuVzGI+Otc7sXFKg080BrUddn/HD2uqJnMFWjWdx6yiESSI4YbyDPJ00UAS
-         MYP0fnGYEgXzTfo8otaic99n2S0V/VK4d5JH8tSeEKvnUk/5rtIwqwZX9iSCb52Q+6
-         XlS6Z9RypQCRw==
-Message-ID: <9aff97f4-ae7b-905f-5c06-3bb3904ae525@canonical.com>
-Date:   Thu, 21 Apr 2022 09:51:10 -0700
+        b=VOFCPwOBYkQuJ0ehu2hFXzRHENWvA/GCeQ+0pzKigqwMpgde470YQdArfwtnpvhYS
+         eBTHYb0ilcA1jISHq8xnCr0mcxWOcFWMy4BwodZyP3Q2IhRqYEqPpH/z6LiXfJmks5
+         VOLZpgGmiYGOnKySPp6JUu2QHsckGFR/Ft6OygAxNK+d+xyZ5vcvLt70QdBsaWewPH
+         +otsB9YVXh5CJ0J6DZyUwbalEWE8HvE7kSDwtfHonuP2XGjXFO5ArDwKPZNgiIp6nI
+         SXUZeybDizbNSR04yFGtA0ouYiZiDzp0/JTLYC0gaFlo3kXNUCUce+8Dod1ht9hiAO
+         gHOzpD+oOxEJQ==
+Message-ID: <0673dfee-4968-9b72-dd4e-b5fdffac0a7d@canonical.com>
+Date:   Thu, 21 Apr 2022 09:49:39 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
-Subject: Re: [PATCH v35 01/29] integrity: disassociate ima_filter_rule from
- security_audit_rule
+Subject: Re: [PATCH v35 06/29] LSM: Use lsmblob in security_audit_rule_match
 Content-Language: en-US
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
@@ -47,10 +45,10 @@ Cc:     linux-audit@redhat.com, keescook@chromium.org,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
 References: <20220418145945.38797-1-casey@schaufler-ca.com>
- <20220418145945.38797-2-casey@schaufler-ca.com>
+ <20220418145945.38797-7-casey@schaufler-ca.com>
 From:   John Johansen <john.johansen@canonical.com>
 Organization: Canonical
-In-Reply-To: <20220418145945.38797-2-casey@schaufler-ca.com>
+In-Reply-To: <20220418145945.38797-7-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -58,125 +56,154 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 4/18/22 07:59, Casey Schaufler wrote:
-> Create real functions for the ima_filter_rule interfaces.
-> These replace #defines that obscure the reuse of audit
-> interfaces. The new fuctions are put in security.c because
-> they use security module registered hooks that we don't
-> want exported.
+> Change the secid parameter of security_audit_rule_match
+> to a lsmblob structure pointer. Pass the entry from the
+> lsmblob structure for the approprite slot to the LSM hook.
+> 
+> Change the users of security_audit_rule_match to use the
+> lsmblob instead of a u32. The scaffolding function lsmblob_init()
+> fills the blob with the value of the old secid, ensuring that
+> it is available to the appropriate module hook. The sources of
+> the secid, security_task_getsecid() and security_inode_getsecid(),
+> will be converted to use the blob structure later in the series.
+> At the point the use of lsmblob_init() is dropped.
 > 
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > Acked-by: Paul Moore <paul@paul-moore.com>
 
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 
+> Cc: linux-audit@redhat.com
 > ---
->  include/linux/security.h     | 24 ++++++++++++++++++++++++
->  security/integrity/ima/ima.h | 26 --------------------------
->  security/security.c          | 21 +++++++++++++++++++++
->  3 files changed, 45 insertions(+), 26 deletions(-)
+>  include/linux/security.h |  5 +++--
+>  kernel/auditfilter.c     |  6 ++++--
+>  kernel/auditsc.c         | 16 +++++++++++-----
+>  security/security.c      |  5 +++--
+>  4 files changed, 21 insertions(+), 11 deletions(-)
 > 
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index 25b3ef71f495..2986342dad41 100644
+> index 3666eddad59a..ee5d14dac65f 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -1917,6 +1917,30 @@ static inline void security_audit_rule_free(void *lsmrule)
->  #endif /* CONFIG_SECURITY */
->  #endif /* CONFIG_AUDIT */
+> @@ -1955,7 +1955,7 @@ static inline int security_key_getsecurity(struct key *key, char **_buffer)
+>  int security_audit_rule_init(u32 field, u32 op, char *rulestr,
+>  			     struct audit_lsm_rules *lsmrules);
+>  int security_audit_rule_known(struct audit_krule *krule);
+> -int security_audit_rule_match(u32 secid, u32 field, u32 op,
+> +int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
+>  			      struct audit_lsm_rules *lsmrules);
+>  void security_audit_rule_free(struct audit_lsm_rules *lsmrules);
 >  
-> +#if defined(CONFIG_IMA_LSM_RULES) && defined(CONFIG_SECURITY)
-> +int ima_filter_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule);
-> +int ima_filter_rule_match(u32 secid, u32 field, u32 op, void *lsmrule);
-> +void ima_filter_rule_free(void *lsmrule);
-> +
-> +#else
-> +
-> +static inline int ima_filter_rule_init(u32 field, u32 op, char *rulestr,
-> +					   void **lsmrule)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline int ima_filter_rule_match(u32 secid, u32 field, u32 op,
-> +					    void *lsmrule)
-> +{
-> +	return 0;
-> +}
-> +
-> +static inline void ima_filter_rule_free(void *lsmrule)
-> +{ }
-> +
-> +#endif /* defined(CONFIG_IMA_LSM_RULES) && defined(CONFIG_SECURITY) */
-> +
->  #ifdef CONFIG_SECURITYFS
->  
->  extern struct dentry *securityfs_create_file(const char *name, umode_t mode,
-> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-> index be965a8715e4..1b5d70ac2dc9 100644
-> --- a/security/integrity/ima/ima.h
-> +++ b/security/integrity/ima/ima.h
-> @@ -418,32 +418,6 @@ static inline void ima_free_modsig(struct modsig *modsig)
+> @@ -1972,7 +1972,8 @@ static inline int security_audit_rule_known(struct audit_krule *krule)
+>  	return 0;
 >  }
->  #endif /* CONFIG_IMA_APPRAISE_MODSIG */
 >  
-> -/* LSM based policy rules require audit */
-> -#ifdef CONFIG_IMA_LSM_RULES
-> -
-> -#define ima_filter_rule_init security_audit_rule_init
-> -#define ima_filter_rule_free security_audit_rule_free
-> -#define ima_filter_rule_match security_audit_rule_match
-> -
-> -#else
-> -
-> -static inline int ima_filter_rule_init(u32 field, u32 op, char *rulestr,
-> -				       void **lsmrule)
-> -{
-> -	return -EINVAL;
-> -}
-> -
-> -static inline void ima_filter_rule_free(void *lsmrule)
-> -{
-> -}
-> -
-> -static inline int ima_filter_rule_match(u32 secid, u32 field, u32 op,
-> -					void *lsmrule)
-> -{
-> -	return -EINVAL;
-> -}
-> -#endif /* CONFIG_IMA_LSM_RULES */
-> -
->  #ifdef	CONFIG_IMA_READ_POLICY
->  #define	POLICY_FILE_FLAGS	(S_IWUSR | S_IRUSR)
->  #else
+> -static inline int security_audit_rule_match(u32 secid, u32 field, u32 op,
+> +static inline int security_audit_rule_match(struct lsmblob *blob,
+> +					    u32 field, u32 op,
+>  					    struct audit_lsm_rules *lsmrules)
+>  {
+>  	return 0;
+> diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+> index de75bd6ad866..15cd4fe35e9c 100644
+> --- a/kernel/auditfilter.c
+> +++ b/kernel/auditfilter.c
+> @@ -1337,6 +1337,7 @@ int audit_filter(int msgtype, unsigned int listtype)
+>  
+>  		for (i = 0; i < e->rule.field_count; i++) {
+>  			struct audit_field *f = &e->rule.fields[i];
+> +			struct lsmblob blob;
+>  			pid_t pid;
+>  			u32 sid;
+>  
+> @@ -1369,8 +1370,9 @@ int audit_filter(int msgtype, unsigned int listtype)
+>  			case AUDIT_SUBJ_CLR:
+>  				if (f->lsm_str) {
+>  					security_current_getsecid_subj(&sid);
+> -					result = security_audit_rule_match(sid,
+> -						   f->type, f->op,
+> +					lsmblob_init(&blob, sid);
+> +					result = security_audit_rule_match(
+> +						   &blob, f->type, f->op,
+>  						   &f->lsm_rules);
+>  				}
+>  				break;
+> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> index d272b5cf18a8..a9d5bfa37cb3 100644
+> --- a/kernel/auditsc.c
+> +++ b/kernel/auditsc.c
+> @@ -468,6 +468,7 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  	const struct cred *cred;
+>  	int i, need_sid = 1;
+>  	u32 sid;
+> +	struct lsmblob blob;
+>  	unsigned int sessionid;
+>  
+>  	if (ctx && rule->prio <= ctx->prio)
+> @@ -678,8 +679,10 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  					security_current_getsecid_subj(&sid);
+>  					need_sid = 0;
+>  				}
+> -				result = security_audit_rule_match(sid, f->type,
+> -							f->op, &f->lsm_rules);
+> +				lsmblob_init(&blob, sid);
+> +				result = security_audit_rule_match(&blob,
+> +							f->type, f->op,
+> +							&f->lsm_rules);
+>  			}
+>  			break;
+>  		case AUDIT_OBJ_USER:
+> @@ -692,15 +695,17 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  			if (f->lsm_str) {
+>  				/* Find files that match */
+>  				if (name) {
+> +					lsmblob_init(&blob, name->osid);
+>  					result = security_audit_rule_match(
+> -								name->osid,
+> +								&blob,
+>  								f->type,
+>  								f->op,
+>  								&f->lsm_rules);
+>  				} else if (ctx) {
+>  					list_for_each_entry(n, &ctx->names_list, list) {
+> +						lsmblob_init(&blob, n->osid);
+>  						if (security_audit_rule_match(
+> -							n->osid, f->type, f->op,
+> +							&blob, f->type, f->op,
+>  							&f->lsm_rules)) {
+>  							++result;
+>  							break;
+> @@ -710,7 +715,8 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  				/* Find ipc objects that match */
+>  				if (!ctx || ctx->type != AUDIT_IPC)
+>  					break;
+> -				if (security_audit_rule_match(ctx->ipc.osid,
+> +				lsmblob_init(&blob, ctx->ipc.osid);
+> +				if (security_audit_rule_match(&blob,
+>  							      f->type, f->op,
+>  							      &f->lsm_rules))
+>  					++result;
 > diff --git a/security/security.c b/security/security.c
-> index b7cf5cbfdc67..22543fdb6041 100644
+> index 9e0139b0d346..ced1c76a380f 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -2586,6 +2586,27 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
+> @@ -2703,7 +2703,7 @@ void security_audit_rule_free(struct audit_lsm_rules *lsmrules)
+>  	}
 >  }
->  #endif /* CONFIG_AUDIT */
 >  
-> +#ifdef CONFIG_IMA_LSM_RULES
-> +/*
-> + * The integrity subsystem uses the same hooks as
-> + * the audit subsystem.
-> + */
-> +int ima_filter_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule)
-> +{
-> +	return call_int_hook(audit_rule_init, 0, field, op, rulestr, lsmrule);
-> +}
-> +
-> +void ima_filter_rule_free(void *lsmrule)
-> +{
-> +	call_void_hook(audit_rule_free, lsmrule);
-> +}
-> +
-> +int ima_filter_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
-> +{
-> +	return call_int_hook(audit_rule_match, 0, secid, field, op, lsmrule);
-> +}
-> +#endif /* CONFIG_IMA_LSM_RULES */
-> +
->  #ifdef CONFIG_BPF_SYSCALL
->  int security_bpf(int cmd, union bpf_attr *attr, unsigned int size)
+> -int security_audit_rule_match(u32 secid, u32 field, u32 op,
+> +int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
+>  			      struct audit_lsm_rules *lsmrules)
 >  {
+>  	struct security_hook_list *hp;
+> @@ -2714,7 +2714,8 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op,
+>  			continue;
+>  		if (lsmrules->rule[hp->lsmid->slot] == NULL)
+>  			continue;
+> -		rc = hp->hook.audit_rule_match(secid, field, op,
+> +		rc = hp->hook.audit_rule_match(blob->secid[hp->lsmid->slot],
+> +					field, op,
+>  					&lsmrules->rule[hp->lsmid->slot]);
+>  		if (rc)
+>  			return rc;
 
