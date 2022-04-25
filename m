@@ -2,186 +2,229 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7046C433EF
-	for <selinux@archiver.kernel.org>; Mon, 25 Apr 2022 11:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 736E6C433F5
+	for <selinux@archiver.kernel.org>; Mon, 25 Apr 2022 23:32:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234613AbiDYLfm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Apr 2022 07:35:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51028 "EHLO
+        id S238016AbiDYXfI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Apr 2022 19:35:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbiDYLfl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Apr 2022 07:35:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 38FF5FE5
-        for <selinux@vger.kernel.org>; Mon, 25 Apr 2022 04:32:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650886355;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=chYrFMuJMrj2l45U81J/xVWg6taKyndownj0dsE1Yrg=;
-        b=cv8zW5T78MzJ2clFvbQMFOosk6vFMLRS8a8aWqB8mYnQbHG6R/nLmVsU6bX5DMHbo1Pfa7
-        uzIqIOo5obnGkf4DGd7LXjFi4VnzJPYGJdoYBVqmhZxdvUzWu+Y6b78ylUlgmiF3JVGO7H
-        hu94QkFCi0k94oLvbCAHu60GnETMRXM=
-Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
- [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-479-euZSZqn6NwejsI52gjjiOw-1; Mon, 25 Apr 2022 07:32:34 -0400
-X-MC-Unique: euZSZqn6NwejsI52gjjiOw-1
-Received: by mail-yb1-f200.google.com with SMTP id a17-20020a258051000000b00648703d0c56so1789432ybn.22
-        for <selinux@vger.kernel.org>; Mon, 25 Apr 2022 04:32:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=chYrFMuJMrj2l45U81J/xVWg6taKyndownj0dsE1Yrg=;
-        b=PM/y8BQN4WCkSR8DfFz3691GG8zpD2TojnBQ67nQApxz8dS/DiNLR1D6y0lIoOSg7B
-         CO8/RxLp/gRJnIx/K7vgTLycNO72cyhknI2VPjYmyhapdBJ+N/vFACQO3vFjUQ3jDbaA
-         8wKklPn+5wVIu+GniIM9V4Msf7ixIzo2PpGA2Fy0uRSoD9+w7m0y7AXFbyNm/C2cZKy1
-         fGfVSG5F4akzDPfOJYJZbH7rv224Whs0Ck3ORAglLLKi2qAlLFImJOpnmpRTD0pZ2Msc
-         hHtWVIPlSkUhJpnPOWsTGuNrpfhTH9f7L6rG5hbyHj3ZPOnW+jTZ+mECtby8CG8bwKoc
-         Vhhg==
-X-Gm-Message-State: AOAM532OMoXG4R3dFx7egmvOrJFFlSr2zmWYYgq04Ag0XJyF/HQ77S9l
-        mVO1Z//nEERF6+NCaB4KTMUWGXPlfZUISqO7Z0mOp4Zj5suYakM+1PYo36fzLAzjiaS6nG58wL6
-        dSfmRkzbvzTYSUVdCp27HK4x/kTiL4POOWA==
-X-Received: by 2002:a81:1796:0:b0:2f7:d7bc:5110 with SMTP id 144-20020a811796000000b002f7d7bc5110mr5940758ywx.12.1650886353483;
-        Mon, 25 Apr 2022 04:32:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy88o5ynoM/A2V9yWf4hsDX/+sCB1Wolqpqfoyi6k3eEchF+alI7tcndaGx3XQV6BfsMiRFIxFKXwTPyLC8WL4=
-X-Received: by 2002:a81:1796:0:b0:2f7:d7bc:5110 with SMTP id
- 144-20020a811796000000b002f7d7bc5110mr5940744ywx.12.1650886353192; Mon, 25
- Apr 2022 04:32:33 -0700 (PDT)
+        with ESMTP id S237992AbiDYXfE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Apr 2022 19:35:04 -0400
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44836B09D;
+        Mon, 25 Apr 2022 16:31:58 -0700 (PDT)
+Received: from [192.168.192.153] (unknown [50.126.114.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id EEEA43F62C;
+        Mon, 25 Apr 2022 23:31:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1650929516;
+        bh=vZU9o7P+73HXfEhvvq52ZBBcLXvcmL+Dku5ZH6YO5v4=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=Bb0Eu9bHYUOxTsOAi++SC3zSpmtRONaYTljhwonzE4z4H+k7RcJMkJUo071KC2tio
+         uk1YG7Ode6JilYWL19phnH2xEuni1spfSqpGXifuzSNl7MO9hTlkTTcqtifpUIrKYg
+         iVzLa91TH4tc2W3p/pV1WMg36jcWxKJA19hi1hWBKGFPnW0kpASvnoHkV+riKK0lpv
+         0twngsOVqLTaESp5KmbjfTZouvr5ZAj8m924UOyIOpEigZ0IeGLxEZmEOoAB5sq32e
+         /rE21Mkb5aj2MceGKoyWCdjz+DL3jJzKYFJqdw0pQZlS2/qBd2a0Jo5rGj4D/9FMPc
+         vh6a657qgYuPw==
+Message-ID: <a1702622-5980-1eb4-1cf8-b6fc6cd98b25@canonical.com>
+Date:   Mon, 25 Apr 2022 16:31:44 -0700
 MIME-Version: 1.0
-References: <20220422154307.968527-1-omosnace@redhat.com> <20220422154307.968527-3-omosnace@redhat.com>
- <CAJ2a_DcOi6QmRPYq1CtyP15STrnK6KgPKqJ-qpyOZ_QDWELvsQ@mail.gmail.com>
-In-Reply-To: <CAJ2a_DcOi6QmRPYq1CtyP15STrnK6KgPKqJ-qpyOZ_QDWELvsQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 25 Apr 2022 13:32:20 +0200
-Message-ID: <CAFqZXNsRR+e1gn2ktGRNXNy1inSfVZtMmp3Lhq13TmjNPVOfFg@mail.gmail.com>
-Subject: Re: [PATCH userspace 2/2] libsepol,checkpolicy: add support for self
- keyword in type transitions
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Dominick Grift <dominick.grift@defensec.nl>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v35 23/29] Audit: Create audit_stamp structure
+Content-Language: en-US
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     linux-audit@redhat.com, keescook@chromium.org,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
+References: <20220418145945.38797-1-casey@schaufler-ca.com>
+ <20220418145945.38797-24-casey@schaufler-ca.com>
+From:   John Johansen <john.johansen@canonical.com>
+Organization: Canonical
+In-Reply-To: <20220418145945.38797-24-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Apr 23, 2022 at 9:43 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> On Fri, 22 Apr 2022 at 17:44, Ondrej Mosnacek <omosnace@redhat.com> wrote=
-:
-> >
-> > With the addition of the anon_inode class in the kernel, 'self'
-> > transition rules became useful, but haven't been implemented.
-> >
-> > This patch implements the self keyword in all 'typetransition'
-> > statements at the TE language level and adds the support to the module
-> > policydb format. Note that changing the kernel policydb format is not
-> > necessary at all, as type transitions are always expanded in the kernel
-> > policydb.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  checkpolicy/policy_define.c                | 42 ++++++++++++-
-> >  libsepol/include/sepol/policydb/policydb.h |  4 +-
-> >  libsepol/src/expand.c                      | 69 ++++++++++++++--------
-> >  libsepol/src/link.c                        |  1 +
-> >  libsepol/src/module_to_cil.c               | 30 ++++++----
-> >  libsepol/src/policydb.c                    | 33 +++++++++--
-> >  libsepol/src/write.c                       | 19 +++---
-> >  7 files changed, 148 insertions(+), 50 deletions(-)
-> >
-[...]
-> > diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> > index d7ac2b25..0b4f5d9a 100644
-> > --- a/libsepol/src/write.c
-> > +++ b/libsepol/src/write.c
-> > @@ -1929,11 +1929,12 @@ static int role_allow_rule_write(role_allow_rul=
-e_t * r, struct policy_file *fp)
-> >         return POLICYDB_SUCCESS;
-> >  }
-> >
-> > -static int filename_trans_rule_write(filename_trans_rule_t * t, struct=
- policy_file *fp)
-> > +static int filename_trans_rule_write(policydb_t *p, filename_trans_rul=
-e_t *t,
-> > +                                    struct policy_file *fp)
-> >  {
-> >         int nel =3D 0;
-> > -       size_t items;
-> > -       uint32_t buf[2], len;
-> > +       size_t items, entries;
-> > +       uint32_t buf[3], len;
-> >         filename_trans_rule_t *ftr;
-> >
-> >         for (ftr =3D t; ftr; ftr =3D ftr->next)
-> > @@ -1962,10 +1963,14 @@ static int filename_trans_rule_write(filename_t=
-rans_rule_t * t, struct policy_fi
-> >
-> >                 buf[0] =3D cpu_to_le32(ftr->tclass);
-> >                 buf[1] =3D cpu_to_le32(ftr->otype);
-> > +               buf[2] =3D cpu_to_le32(ftr->flags);
-> >
-> > -               items =3D put_entry(buf, sizeof(uint32_t), 2, fp);
-> > -               if (items !=3D 2)
-> > -                       return POLICYDB_ERROR;
-> > +               if (p->policyvers >=3D MOD_POLICYDB_VERSION_SELF_TYPETR=
-ANS)
-> > +                       entries =3D 3;
-> > +               else
-> > +                       entries =3D 2;
-> > +
-> > +               items =3D put_entry(buf, sizeof(uint32_t), entries, fp)=
-;
->
-> + if (items !=3D entries)
-> +     return POLICYDB_ERROR;
->
-> >         }
-> >         return POLICYDB_SUCCESS;
-> >  }
-> > @@ -2039,7 +2044,7 @@ static int avrule_decl_write(avrule_decl_t * decl=
-, int num_scope_syms,
-> >         }
-> >
-> >         if (p->policyvers >=3D MOD_POLICYDB_VERSION_FILENAME_TRANS &&
-> > -           filename_trans_rule_write(decl->filename_trans_rules, fp))
-> > +           filename_trans_rule_write(p, decl->filename_trans_rules, fp=
-))
-> >                 return POLICYDB_ERROR;
-> >
-> >         if (p->policyvers >=3D MOD_POLICYDB_VERSION_RANGETRANS &&
-> > --
-> > 2.35.1
-> >
->
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -1184,6 +1184,14 @@ static int
-> validate_filename_trans_rules(sepol_handle_t *handle, filename_trans_
->                        goto bad;
->                if (validate_value(filename_trans->otype, &flavors[SYM_TYP=
-ES]))
->                        goto bad;
+On 4/18/22 07:59, Casey Schaufler wrote:
+> Replace the timestamp and serial number pair used in audit records
+> with a structure containing the two elements.
+> 
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Acked-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  kernel/audit.c   | 17 +++++++++--------
+>  kernel/audit.h   | 12 +++++++++---
+>  kernel/auditsc.c | 22 +++++++++-------------
+>  3 files changed, 27 insertions(+), 24 deletions(-)
+> 
+> diff --git a/kernel/audit.c b/kernel/audit.c
+> index 28ff7a5f90bd..6b6c089512f7 100644
+> --- a/kernel/audit.c
+> +++ b/kernel/audit.c
+> @@ -1822,11 +1822,11 @@ unsigned int audit_serial(void)
+>  }
+>  
+>  static inline void audit_get_stamp(struct audit_context *ctx,
+> -				   struct timespec64 *t, unsigned int *serial)
+> +				   struct audit_stamp *stamp)
+>  {
+> -	if (!ctx || !auditsc_get_stamp(ctx, t, serial)) {
+> -		ktime_get_coarse_real_ts64(t);
+> -		*serial = audit_serial();
+> +	if (!ctx || !auditsc_get_stamp(ctx, stamp)) {
+> +		ktime_get_coarse_real_ts64(&stamp->ctime);
+> +		stamp->serial = audit_serial();
+>  	}
+>  }
+>  
+> @@ -1849,8 +1849,7 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+>  				     int type)
+>  {
+>  	struct audit_buffer *ab;
+> -	struct timespec64 t;
+> -	unsigned int serial;
+> +	struct audit_stamp stamp;
+>  
+>  	if (audit_initialized != AUDIT_INITIALIZED)
+>  		return NULL;
+> @@ -1905,12 +1904,14 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+>  		return NULL;
+>  	}
+>  
+> -	audit_get_stamp(ab->ctx, &t, &serial);
+> +	audit_get_stamp(ab->ctx, &stamp);
+>  	/* cancel dummy context to enable supporting records */
+>  	if (ctx)
+>  		ctx->dummy = 0;
+>  	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
+> -			 (unsigned long long)t.tv_sec, t.tv_nsec/1000000, serial);
+> +			 (unsigned long long)stamp.ctime.tv_sec,
+> +			 stamp.ctime.tv_nsec/1000000,
+> +			 stamp.serial);
+>  
+>  	return ab;
+>  }
+> diff --git a/kernel/audit.h b/kernel/audit.h
+> index 4af63e7dde17..260dab6e0e15 100644
+> --- a/kernel/audit.h
+> +++ b/kernel/audit.h
+> @@ -99,6 +99,12 @@ struct audit_proctitle {
+>  	char	*value;	/* the cmdline field */
+>  };
+>  
+> +/* A timestamp/serial pair to identify an event */
+> +struct audit_stamp {
+> +	struct timespec64	ctime;	/* time of syscall entry */
+> +	unsigned int		serial;	/* serial number for record */
+> +};
 > +
-> +               switch (filename_trans->flags) {
-> +               case 0:
-> +               case RULE_SELF:
-> +                       break;
-> +               default:
-> +                       goto bad;
-> +               }
->        }
->
->        return 0;
+>  /* The per-task audit context. */
+>  struct audit_context {
+>  	int		    dummy;	/* must be the first element */
+> @@ -108,10 +114,10 @@ struct audit_context {
+>  		AUDIT_CTX_URING,	/* in use by io_uring */
+>  	} context;
+>  	enum audit_state    state, current_state;
+> +	struct audit_stamp  stamp;	/* event identifier */
+>  	unsigned int	    serial;     /* serial number for record */
 
-Good catches, thanks! I will include these changes in the next respin.
+shouldn't we be dropping serial from the audit_context, since we have
+moved it into the audit_stamp?
 
---
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+>  	int		    major;      /* syscall number */
+>  	int		    uring_op;   /* uring operation */
+> -	struct timespec64   ctime;      /* time of syscall entry */
+>  	unsigned long	    argv[4];    /* syscall arguments */
+>  	long		    return_code;/* syscall return code */
+>  	u64		    prio;
+> @@ -265,7 +271,7 @@ extern void audit_put_tty(struct tty_struct *tty);
+>  #ifdef CONFIG_AUDITSYSCALL
+>  extern unsigned int audit_serial(void);
+>  extern int auditsc_get_stamp(struct audit_context *ctx,
+> -			      struct timespec64 *t, unsigned int *serial);
+> +			     struct audit_stamp *stamp);
+>  
+>  extern void audit_put_watch(struct audit_watch *watch);
+>  extern void audit_get_watch(struct audit_watch *watch);
+> @@ -306,7 +312,7 @@ extern void audit_filter_inodes(struct task_struct *tsk,
+>  				struct audit_context *ctx);
+>  extern struct list_head *audit_killed_trees(void);
+>  #else /* CONFIG_AUDITSYSCALL */
+> -#define auditsc_get_stamp(c, t, s) 0
+> +#define auditsc_get_stamp(c, s) 0
+>  #define audit_put_watch(w) do { } while (0)
+>  #define audit_get_watch(w) do { } while (0)
+>  #define audit_to_watch(k, p, l, o) (-EINVAL)
+> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> index 6fe9f2525fc1..557713954a69 100644
+> --- a/kernel/auditsc.c
+> +++ b/kernel/auditsc.c
+> @@ -992,10 +992,10 @@ static void audit_reset_context(struct audit_context *ctx)
+>  	 */
+>  
+>  	ctx->current_state = ctx->state;
+> -	ctx->serial = 0;
+> +	ctx->stamp.serial = 0;
+>  	ctx->major = 0;
+>  	ctx->uring_op = 0;
+> -	ctx->ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+> +	ctx->stamp.ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+>  	memset(ctx->argv, 0, sizeof(ctx->argv));
+>  	ctx->return_code = 0;
+>  	ctx->prio = (ctx->state == AUDIT_STATE_RECORD ? ~0ULL : 0);
+> @@ -1950,7 +1950,7 @@ void __audit_uring_entry(u8 op)
+>  
+>  	ctx->context = AUDIT_CTX_URING;
+>  	ctx->current_state = ctx->state;
+> -	ktime_get_coarse_real_ts64(&ctx->ctime);
+> +	ktime_get_coarse_real_ts64(&ctx->stamp.ctime);
+>  }
+>  
+>  /**
+> @@ -2066,7 +2066,7 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
+>  	context->argv[3]    = a4;
+>  	context->context = AUDIT_CTX_SYSCALL;
+>  	context->current_state  = state;
+> -	ktime_get_coarse_real_ts64(&context->ctime);
+> +	ktime_get_coarse_real_ts64(&context->stamp.ctime);
+>  }
+>  
+>  /**
+> @@ -2535,21 +2535,17 @@ EXPORT_SYMBOL_GPL(__audit_inode_child);
+>  /**
+>   * auditsc_get_stamp - get local copies of audit_context values
+>   * @ctx: audit_context for the task
+> - * @t: timespec64 to store time recorded in the audit_context
+> - * @serial: serial value that is recorded in the audit_context
+> + * @stamp: timestamp to record
+>   *
+>   * Also sets the context as auditable.
+>   */
+> -int auditsc_get_stamp(struct audit_context *ctx,
+> -		       struct timespec64 *t, unsigned int *serial)
+> +int auditsc_get_stamp(struct audit_context *ctx, struct audit_stamp *stamp)
+>  {
+>  	if (ctx->context == AUDIT_CTX_UNUSED)
+>  		return 0;
+> -	if (!ctx->serial)
+> -		ctx->serial = audit_serial();
+> -	t->tv_sec  = ctx->ctime.tv_sec;
+> -	t->tv_nsec = ctx->ctime.tv_nsec;
+> -	*serial    = ctx->serial;
+> +	if (!ctx->stamp.serial)
+> +		ctx->stamp.serial = audit_serial();
+> +	*stamp = ctx->stamp;
+>  	if (!ctx->prio) {
+>  		ctx->prio = 1;
+>  		ctx->current_state = AUDIT_STATE_RECORD;
 
