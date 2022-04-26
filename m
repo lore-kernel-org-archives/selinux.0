@@ -2,115 +2,196 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69F4FC433EF
-	for <selinux@archiver.kernel.org>; Tue, 26 Apr 2022 19:18:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62850C433F5
+	for <selinux@archiver.kernel.org>; Tue, 26 Apr 2022 19:25:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349485AbiDZTVf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Apr 2022 15:21:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48240 "EHLO
+        id S1353980AbiDZT2N (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Apr 2022 15:28:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349398AbiDZTVf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Apr 2022 15:21:35 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D079644FC
-        for <selinux@vger.kernel.org>; Tue, 26 Apr 2022 12:18:26 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id q23so13929652wra.1
-        for <selinux@vger.kernel.org>; Tue, 26 Apr 2022 12:18:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=D51WhcFY/UMeRUO4RGgJqs3BnSIqLPLR50R7pSPgCJk=;
-        b=41hn5Zs+Qibe7XUS82jY/4Yq9kjs81xMeDW2Al5Wv4emYj7RXpxHg9m/a74sGulFA4
-         u7y1fTPot16F8zf/57piTeqrziJ+vUuuPyb5/ArPm07y0CptVtmUNy+cPC1+xb7/ZFg6
-         hJ+GeLntfyA7sCcy02UFG8KSwAVd49QPBMi0gGNIu/M/Sn6ha74BLytHSk5CuzBBUSdB
-         vGt0pDb7OsvHBuTS2jYecFd14v1eBEIRWVzLLoXNdSq6JxWX6Tal26NvfjJkZ0Gj9i+a
-         qv0KixQFvy4J/D9N+b5mlflsWKcS/uT4A4UBBU7+ZlGBMMDvcR672AWcOC+20JFsxnhA
-         UQeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=D51WhcFY/UMeRUO4RGgJqs3BnSIqLPLR50R7pSPgCJk=;
-        b=1T2qgJxphnDcZct6+YQdEU4e3NojbTGi7VJGeXNIoh538TSAtGZvyvmEx357Ri4XY1
-         EwgLp0JHAV382+jiF2lKfAhU4FJpDu4KySVP1zJ+u4KxgSxT4RPgP4K+l6dvYdUwGHD2
-         e7J7kfUWjA+endnEyBRJXXFVMEAAfCx6q78J12eklAsHpRpg335IQ3nmb3ww0DVUcv+8
-         tsFXYDileXYVqmtKslZqwpKYjrW1soK+z9E21cPCjQQbU1ce1AeNhV2V5t9L7ZtPm3fP
-         NtI9KuoBi6M8qYhnhpwee7RoAh+n06bmQzK/2d+5xtyGerGUax6LTd/G/1BoKdZlmsgn
-         +1yw==
-X-Gm-Message-State: AOAM532iJcdDNE7ePOtMrls1Gc4Bx8mCKJzz2EZ4pU9t7OUQEjTNQ7Hj
-        69YJq3ttO0f2xupw0NNMNV1ONUAH4w0AaIdgzM+m
-X-Google-Smtp-Source: ABdhPJyN5wrn3K+iI2j26/cBIbWY3KxJyXj68+WgqqkU4W4HlKBXb8XI2ye1xUXf6KEOe8QcVbMtcJEumNqu4jkWPrM=
-X-Received: by 2002:a5d:590d:0:b0:20a:c3eb:2584 with SMTP id
- v13-20020a5d590d000000b0020ac3eb2584mr18829655wrd.18.1651000705042; Tue, 26
- Apr 2022 12:18:25 -0700 (PDT)
+        with ESMTP id S1354004AbiDZT2M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Apr 2022 15:28:12 -0400
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 873CEDF3;
+        Tue, 26 Apr 2022 12:25:01 -0700 (PDT)
+Received: from [192.168.192.153] (unknown [50.126.114.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 002703F62C;
+        Tue, 26 Apr 2022 19:24:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1651001099;
+        bh=ZV4VMgEemFkbKsO/BobT4va3EFuCw9GFALUPwGhS2q0=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=SKue6RWYRrNekb15Qc5uEHWG1Vsx8fVmYNJs11V/kH8dF7yn+yUWbt3Wiq9uBMRvK
+         ZByWB7RX/ENeMc7jsEReVBQ81ksBcbRbf0ooalfcVo9M+9rUvnuoj99OEmmCA1I39f
+         TsMzh4SACZYoyt4dk8jSCcSvkvHe+RA4txV2AGF8ezcfvuOZjzQjYGPu3IDgRZajEQ
+         agPb+hVq7SC+WpDw1hODrkCG7PZJ8XaBE0hZcKXns0UcENn4VmEcOEo01xuyMm+OJ9
+         s/pzEt1G42hSG6p2gqSIu+Ad5Z+yS11UHqhzAq/qbPC0GPRwwQfxziAXfdSH2AZnVG
+         DMake7KkcKKKQ==
+Message-ID: <271d9de4-3673-e130-8197-60d8640bca0f@canonical.com>
+Date:   Tue, 26 Apr 2022 12:24:56 -0700
 MIME-Version: 1.0
-References: <20220418145945.38797-1-casey@schaufler-ca.com>
- <20220418145945.38797-24-casey@schaufler-ca.com> <a1702622-5980-1eb4-1cf8-b6fc6cd98b25@canonical.com>
- <CAHC9VhRzJKAARW1rnUMu0Y6RVo_uq=i=Jzh4LmA9grtQ1W2C1Q@mail.gmail.com> <26eca0aa-111a-9473-8925-e4b12cadbd79@canonical.com>
-In-Reply-To: <26eca0aa-111a-9473-8925-e4b12cadbd79@canonical.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 26 Apr 2022 15:18:13 -0400
-Message-ID: <CAHC9VhQQysL8aEt8w5G-nemJzapY-Q4pYKn0TCdnVjpuiTKqhw@mail.gmail.com>
-Subject: Re: [PATCH v35 23/29] Audit: Create audit_stamp structure
-To:     John Johansen <john.johansen@canonical.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v35 27/29] Audit: Add record for multiple object contexts
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, keescook@chromium.org,
         penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
         linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+References: <20220418145945.38797-1-casey@schaufler-ca.com>
+ <20220418145945.38797-28-casey@schaufler-ca.com>
+ <f2186f22-5bcd-d962-7e49-c816fc5fbd07@canonical.com>
+ <CAHC9VhTXgBTH+7ny-fcMP_HC1ojA1ass38PGHS2tJny0bCGXzA@mail.gmail.com>
+From:   John Johansen <john.johansen@canonical.com>
+Organization: Canonical
+In-Reply-To: <CAHC9VhTXgBTH+7ny-fcMP_HC1ojA1ass38PGHS2tJny0bCGXzA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 2:58 PM John Johansen
-<john.johansen@canonical.com> wrote:
-> On 4/26/22 11:03, Paul Moore wrote:
-> > On Mon, Apr 25, 2022 at 7:31 PM John Johansen
-> > <john.johansen@canonical.com> wrote:
-> >> On 4/18/22 07:59, Casey Schaufler wrote:
-> >>> Replace the timestamp and serial number pair used in audit records
-> >>> with a structure containing the two elements.
-> >>>
-> >>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >>> Acked-by: Paul Moore <paul@paul-moore.com>
-> >>> ---
-> >>>  kernel/audit.c   | 17 +++++++++--------
-> >>>  kernel/audit.h   | 12 +++++++++---
-> >>>  kernel/auditsc.c | 22 +++++++++-------------
-> >>>  3 files changed, 27 insertions(+), 24 deletions(-)
-> >
-> > ...
-> >
-> >>> diff --git a/kernel/audit.h b/kernel/audit.h
-> >>> index 4af63e7dde17..260dab6e0e15 100644
-> >>> --- a/kernel/audit.h
-> >>> +++ b/kernel/audit.h
-> >>> @@ -108,10 +114,10 @@ struct audit_context {
-> >>>               AUDIT_CTX_URING,        /* in use by io_uring */
-> >>>       } context;
-> >>>       enum audit_state    state, current_state;
-> >>> +     struct audit_stamp  stamp;      /* event identifier */
-> >>>       unsigned int        serial;     /* serial number for record */
-> >>
-> >> shouldn't we be dropping serial from the audit_context, since we have
-> >> moved it into the audit_stamp?
-> >
-> > Unless we make some significant changes to audit_log_start() we still
-> > need to preserve a timestamp in the audit_context so that regularly
-> > associated audit records can share a common timestamp (which is what
-> > groups multiple records into a single "event").
-> >
-> sure, but the patch changes things to use ctx->stamp.serial instead of
-> ctx->serial ...
+On 4/26/22 11:57, Paul Moore wrote:
+> On Mon, Apr 25, 2022 at 11:38 PM John Johansen
+> <john.johansen@canonical.com> wrote:
+>> On 4/18/22 07:59, Casey Schaufler wrote:
+>>> Create a new audit record AUDIT_MAC_OBJ_CONTEXTS.
+>>> An example of the MAC_OBJ_CONTEXTS (1421) record is:
+>>>
+>>>     type=MAC_OBJ_CONTEXTS[1421]
+>>>     msg=audit(1601152467.009:1050):
+>>>     obj_selinux=unconfined_u:object_r:user_home_t:s0
+>>>
+>>> When an audit event includes a AUDIT_MAC_OBJ_CONTEXTS record
+>>> the "obj=" field in other records in the event will be "obj=?".
+>>> An AUDIT_MAC_OBJ_CONTEXTS record is supplied when the system has
+>>> multiple security modules that may make access decisions based
+>>> on an object security context.
+>>>
+>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>> ---
+>>>  include/linux/audit.h      |  5 +++
+>>>  include/uapi/linux/audit.h |  1 +
+>>>  kernel/audit.c             | 47 +++++++++++++++++++++++
+>>>  kernel/auditsc.c           | 79 ++++++++++++--------------------------
+>>>  4 files changed, 77 insertions(+), 55 deletions(-)
+> 
+> ...
+> 
+>>> diff --git a/kernel/audit.c b/kernel/audit.c
+>>> index 8ed2d717c217..a8c3ec6ba60b 100644
+>>> --- a/kernel/audit.c
+>>> +++ b/kernel/audit.c
+>>> @@ -2226,6 +2226,53 @@ static void audit_buffer_aux_end(struct audit_buffer *ab)
+>>>       ab->skb = skb_peek(&ab->skb_list);
+>>>  }
+>>>
+>>> +void audit_log_object_context(struct audit_buffer *ab, struct lsmblob *blob)
+>>> +{
+>>> +     int i;
+>>> +     int error;
+>>> +     struct lsmcontext context;
+>>> +
+>>> +     if (!lsm_multiple_contexts()) {
+>>> +             error = security_secid_to_secctx(blob, &context, LSMBLOB_FIRST);
+>>> +             if (error) {
+>>> +                     if (error != -EINVAL)
+>>> +                             goto error_path;
+>>> +                     return;
+>>> +             }
+>>> +             audit_log_format(ab, " obj=%s", context.context);
+>>> +             security_release_secctx(&context);
+>>> +     } else {
+>>> +             audit_log_format(ab, " obj=?");
+>>> +             error = audit_buffer_aux_new(ab, AUDIT_MAC_OBJ_CONTEXTS);
+>>> +             if (error)
+>>> +                     goto error_path;
+>>> +
+>>> +             for (i = 0; i < LSMBLOB_ENTRIES; i++) {
+>>> +                     if (blob->secid[i] == 0)
+>>> +                             continue;
+>>> +                     error = security_secid_to_secctx(blob, &context, i);
+>>> +                     if (error) {
+>>> +                             audit_log_format(ab, "%sobj_%s=?",
+>>> +                                              i ? " " : "",
+>>> +                                              lsm_slot_to_name(i));
+>>> +                             if (error != -EINVAL)
+>>> +                                     audit_panic("error in audit_log_object_context");
+>>> +                     } else {
+>>> +                             audit_log_format(ab, "%sobj_%s=%s",
+>>> +                                              i ? " " : "",
+>>> +                                              lsm_slot_to_name(i),
+>>> +                                              context.context);
+>>> +                             security_release_secctx(&context);
+>>> +                     }
+>>> +             }
+>>> +
+>>> +             audit_buffer_aux_end(ab);
+>>> +     }
+>>> +     return;
+>>> +
+>>> +error_path:
+>>> +     audit_panic("error in audit_log_object_context");
+>>
+>> This moves the audit_panic around, so certain operations are not
+>> done before the call. I am currently not sure of the implications.
+> 
+> Short version: It's okay.
+> 
+> Longer version: The audit_panic() call is either going to panic the
+> kernel (NOT the default), do a pr_err(), or essentially be a no-op.
+> In the case of the full blown kernel panic we don't really care, the
+> system is going to die before there is any chance of this record in
+> progress getting logged.  In the case of a pr_err() or no-op the key
+> part is making sure we leave the audit_buffer in a consistent state so
+> that we preserve whatever information is already present.  In the
+> !lsm_multiple_contexts case we simply return without making any
+> changes to the audit_buffer so we're good there; in the multiple LSM
+> case we always end the aux record properly (using a "?" when
+> necessary) if an aux record has been successfully created.
+> 
+> Feel free to point out a specific scenario that you think looks wrong
+> - I may have missed it - but I believe this code to be correct.
+> 
 
-My apologies, I read your original comment wrong; I was thinking you
-were suggesting removing the timestamp info from audit_context in
-favor of using the timestamp info contained in the audit_buffer.
+mostly I am good, I was worried I was missing something since the old
+code made an effort to have the call of audit_panic() at the end.
 
-Yes, audit_context:serial is no longer needed with audit_context:stamp.
+The current change does result in potential multiple calls to
+audit_panic() in a single audit_log_exit(). This doesn't matter in
+the case of a full blown kernel panic, but it could result in multiple
+pr_err() messages where previously the code would only generate one.
 
--- 
-paul-moore.com
+It does simplify the code, and the case should be quite rare so I
+am fine with the trade-off.
+
+
+
+>>> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+>>> index 557713954a69..04bf3c04ef3d 100644
+>>> --- a/kernel/auditsc.c
+>>> +++ b/kernel/auditsc.c
+>>> @@ -1420,18 +1409,10 @@ static void show_special(struct audit_context *context, int *call_panic)
+>>
+>> If pushing audit_panic into audit_log_object_context() is acceptable then this call_panic arg is
+>> no longer needed. The same goes for the call_panic arg in audit_log_name(). And call_panic can
+>> be dropped from audit_log_exit()
+> 
+> Good catch.
+> 
+> I suspect this is a vestige from when audit_log_end() used to do the
+> record's skb write to userspace, meaning it was possible that you
+> might get some of the records written to userspace before the system
+> killed itself.  Now with all of the queuing involved it's less likely
+> that this would be the case, and even if it does happen in some cases,
+> it's basically a toss up depending on how the system is loaded, the
+> scheduler, etc.
+> 
+
