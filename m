@@ -2,125 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A7C9C433F5
-	for <selinux@archiver.kernel.org>; Tue, 26 Apr 2022 19:08:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69F4FC433EF
+	for <selinux@archiver.kernel.org>; Tue, 26 Apr 2022 19:18:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354094AbiDZTLL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Apr 2022 15:11:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
+        id S1349485AbiDZTVf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Apr 2022 15:21:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354063AbiDZTKw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Apr 2022 15:10:52 -0400
-Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E68D3B2BB;
-        Tue, 26 Apr 2022 12:07:38 -0700 (PDT)
-Received: from [192.168.192.153] (unknown [50.126.114.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 82A363FD0A;
-        Tue, 26 Apr 2022 19:07:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1651000056;
-        bh=HPxmSK5Le3qsa+l2VTTCM7colhsO1wQuYMTZrz1Rts0=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=fp+qrwHvrE1agHdpm/r8T9Eh9E2o+3NHdX1otpm/RkbLBI4gjnphrOdLeRrlSm7SG
-         za1js7pN5n9ZzLUfH67vmUVuxs95XN4q3isEXG6K/x/oAbghjkih13QflnB4Xr6UA8
-         MgfJLvPJ4OAEBxuKruw3vtRoriPHGlcVePWt9TjrNH40TCFX+a+X6KHvb0qD2hJove
-         a+WdFFliafhGMl8WWlBEFqEq56Tg+D6uTp3Ad8FTlz8RKnPrXdTwSOBKTZ2engG2I5
-         OgQOZScgbD+xyfT2Q9FQlKEpSlBU7gWNqL55NRRiUlOumLbNa1C1vB80hEyXXpzZgi
-         7KEOjgAdRk+lQ==
-Message-ID: <4b21a4f0-4b53-2fee-4ea0-c21b95279b1d@canonical.com>
-Date:   Tue, 26 Apr 2022 12:07:33 -0700
+        with ESMTP id S1349398AbiDZTVf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Apr 2022 15:21:35 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D079644FC
+        for <selinux@vger.kernel.org>; Tue, 26 Apr 2022 12:18:26 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id q23so13929652wra.1
+        for <selinux@vger.kernel.org>; Tue, 26 Apr 2022 12:18:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=D51WhcFY/UMeRUO4RGgJqs3BnSIqLPLR50R7pSPgCJk=;
+        b=41hn5Zs+Qibe7XUS82jY/4Yq9kjs81xMeDW2Al5Wv4emYj7RXpxHg9m/a74sGulFA4
+         u7y1fTPot16F8zf/57piTeqrziJ+vUuuPyb5/ArPm07y0CptVtmUNy+cPC1+xb7/ZFg6
+         hJ+GeLntfyA7sCcy02UFG8KSwAVd49QPBMi0gGNIu/M/Sn6ha74BLytHSk5CuzBBUSdB
+         vGt0pDb7OsvHBuTS2jYecFd14v1eBEIRWVzLLoXNdSq6JxWX6Tal26NvfjJkZ0Gj9i+a
+         qv0KixQFvy4J/D9N+b5mlflsWKcS/uT4A4UBBU7+ZlGBMMDvcR672AWcOC+20JFsxnhA
+         UQeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=D51WhcFY/UMeRUO4RGgJqs3BnSIqLPLR50R7pSPgCJk=;
+        b=1T2qgJxphnDcZct6+YQdEU4e3NojbTGi7VJGeXNIoh538TSAtGZvyvmEx357Ri4XY1
+         EwgLp0JHAV382+jiF2lKfAhU4FJpDu4KySVP1zJ+u4KxgSxT4RPgP4K+l6dvYdUwGHD2
+         e7J7kfUWjA+endnEyBRJXXFVMEAAfCx6q78J12eklAsHpRpg335IQ3nmb3ww0DVUcv+8
+         tsFXYDileXYVqmtKslZqwpKYjrW1soK+z9E21cPCjQQbU1ce1AeNhV2V5t9L7ZtPm3fP
+         NtI9KuoBi6M8qYhnhpwee7RoAh+n06bmQzK/2d+5xtyGerGUax6LTd/G/1BoKdZlmsgn
+         +1yw==
+X-Gm-Message-State: AOAM532iJcdDNE7ePOtMrls1Gc4Bx8mCKJzz2EZ4pU9t7OUQEjTNQ7Hj
+        69YJq3ttO0f2xupw0NNMNV1ONUAH4w0AaIdgzM+m
+X-Google-Smtp-Source: ABdhPJyN5wrn3K+iI2j26/cBIbWY3KxJyXj68+WgqqkU4W4HlKBXb8XI2ye1xUXf6KEOe8QcVbMtcJEumNqu4jkWPrM=
+X-Received: by 2002:a5d:590d:0:b0:20a:c3eb:2584 with SMTP id
+ v13-20020a5d590d000000b0020ac3eb2584mr18829655wrd.18.1651000705042; Tue, 26
+ Apr 2022 12:18:25 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v35 26/29] Audit: Add record for multiple task security
- contexts
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
+References: <20220418145945.38797-1-casey@schaufler-ca.com>
+ <20220418145945.38797-24-casey@schaufler-ca.com> <a1702622-5980-1eb4-1cf8-b6fc6cd98b25@canonical.com>
+ <CAHC9VhRzJKAARW1rnUMu0Y6RVo_uq=i=Jzh4LmA9grtQ1W2C1Q@mail.gmail.com> <26eca0aa-111a-9473-8925-e4b12cadbd79@canonical.com>
+In-Reply-To: <26eca0aa-111a-9473-8925-e4b12cadbd79@canonical.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 26 Apr 2022 15:18:13 -0400
+Message-ID: <CAHC9VhQQysL8aEt8w5G-nemJzapY-Q4pYKn0TCdnVjpuiTKqhw@mail.gmail.com>
+Subject: Re: [PATCH v35 23/29] Audit: Create audit_stamp structure
+To:     John Johansen <john.johansen@canonical.com>
 Cc:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-audit@redhat.com, keescook@chromium.org,
         penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
         linux-kernel@vger.kernel.org
-References: <20220418145945.38797-1-casey@schaufler-ca.com>
- <20220418145945.38797-27-casey@schaufler-ca.com>
- <ad1e85e1-8706-7b93-59cd-99ccef273be4@canonical.com>
- <CAHC9VhS0ht0wWtruDjVvOsy_1LOCswF0kjmd9u8XZXm00jHvOw@mail.gmail.com>
-From:   John Johansen <john.johansen@canonical.com>
-Organization: Canonical
-In-Reply-To: <CAHC9VhS0ht0wWtruDjVvOsy_1LOCswF0kjmd9u8XZXm00jHvOw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/26/22 11:15, Paul Moore wrote:
-> On Mon, Apr 25, 2022 at 9:08 PM John Johansen
-> <john.johansen@canonical.com> wrote:
->> On 4/18/22 07:59, Casey Schaufler wrote:
->>> Create a new audit record AUDIT_MAC_TASK_CONTEXTS.
->>> An example of the MAC_TASK_CONTEXTS (1420) record is:
->>>
->>>     type=MAC_TASK_CONTEXTS[1420]
->>>     msg=audit(1600880931.832:113)
->>>     subj_apparmor=unconfined
->>>     subj_smack=_
->>>
->>> When an audit event includes a AUDIT_MAC_TASK_CONTEXTS record
->>> the "subj=" field in other records in the event will be "subj=?".
->>> An AUDIT_MAC_TASK_CONTEXTS record is supplied when the system has
->>> multiple security modules that may make access decisions based
->>> on a subject security context.
->>>
->>> Functions are created to manage the skb list in the audit_buffer.
->>>
->>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>
->> Besides moving the aux fns, and the whining below
->> Reviewed-by: John Johansen <john.johansen@canonical.com>
-> 
-> ...
-> 
->>> diff --git a/kernel/audit.c b/kernel/audit.c
->>> index 4d44c05053b0..8ed2d717c217 100644
->>> --- a/kernel/audit.c
->>> +++ b/kernel/audit.c
->>> @@ -2185,16 +2238,44 @@ int audit_log_task_context(struct audit_buffer *ab)
->>>       if (!lsmblob_is_set(&blob))
->>>               return 0;
->>>
->>> -     error = security_secid_to_secctx(&blob, &context, LSMBLOB_FIRST);
->>> +     if (!lsm_multiple_contexts()) {
->>> +             error = security_secid_to_secctx(&blob, &context,
->>> +                                              LSMBLOB_FIRST);
->>> +             if (error) {
->>> +                     if (error != -EINVAL)
->>> +                             goto error_path;
->>> +                     return 0;
->>> +             }
->>>
->>> -     if (error) {
->>> -             if (error != -EINVAL)
->>> +             audit_log_format(ab, " subj=%s", context.context);
->>> +             security_release_secctx(&context);
->>> +     } else {
->>> +             /* Multiple LSMs provide contexts. Include an aux record. */
->>> +             audit_log_format(ab, " subj=?");
->>
->> just me whining, you sure we can't just drop subj= here
-> 
-> Have I recently given you my "the audit code is crap" speech? ;)
-> 
-hehehe, I get it, something about glass houses and stones. the whole newline
-mess in path 28/29 that I would dearly love to drop.
+On Tue, Apr 26, 2022 at 2:58 PM John Johansen
+<john.johansen@canonical.com> wrote:
+> On 4/26/22 11:03, Paul Moore wrote:
+> > On Mon, Apr 25, 2022 at 7:31 PM John Johansen
+> > <john.johansen@canonical.com> wrote:
+> >> On 4/18/22 07:59, Casey Schaufler wrote:
+> >>> Replace the timestamp and serial number pair used in audit records
+> >>> with a structure containing the two elements.
+> >>>
+> >>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> >>> Acked-by: Paul Moore <paul@paul-moore.com>
+> >>> ---
+> >>>  kernel/audit.c   | 17 +++++++++--------
+> >>>  kernel/audit.h   | 12 +++++++++---
+> >>>  kernel/auditsc.c | 22 +++++++++-------------
+> >>>  3 files changed, 27 insertions(+), 24 deletions(-)
+> >
+> > ...
+> >
+> >>> diff --git a/kernel/audit.h b/kernel/audit.h
+> >>> index 4af63e7dde17..260dab6e0e15 100644
+> >>> --- a/kernel/audit.h
+> >>> +++ b/kernel/audit.h
+> >>> @@ -108,10 +114,10 @@ struct audit_context {
+> >>>               AUDIT_CTX_URING,        /* in use by io_uring */
+> >>>       } context;
+> >>>       enum audit_state    state, current_state;
+> >>> +     struct audit_stamp  stamp;      /* event identifier */
+> >>>       unsigned int        serial;     /* serial number for record */
+> >>
+> >> shouldn't we be dropping serial from the audit_context, since we have
+> >> moved it into the audit_stamp?
+> >
+> > Unless we make some significant changes to audit_log_start() we still
+> > need to preserve a timestamp in the audit_context so that regularly
+> > associated audit records can share a common timestamp (which is what
+> > groups multiple records into a single "event").
+> >
+> sure, but the patch changes things to use ctx->stamp.serial instead of
+> ctx->serial ...
 
-> I more or less answered this with my comments on the earlier patch,
-> but we need to keep this around for compatibility.  It will get better
-> in the future.
-> 
+My apologies, I read your original comment wrong; I was thinking you
+were suggesting removing the timestamp info from audit_context in
+favor of using the timestamp info contained in the audit_buffer.
 
+Yes, audit_context:serial is no longer needed with audit_context:stamp.
+
+-- 
+paul-moore.com
