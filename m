@@ -2,340 +2,153 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9490FC433F5
-	for <selinux@archiver.kernel.org>; Wed, 27 Apr 2022 00:39:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6544C433FE
+	for <selinux@archiver.kernel.org>; Wed, 27 Apr 2022 13:19:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356417AbiD0AmZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Apr 2022 20:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60136 "EHLO
+        id S235542AbiD0NW3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Apr 2022 09:22:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356393AbiD0AmY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Apr 2022 20:42:24 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4040338D83;
-        Tue, 26 Apr 2022 17:39:12 -0700 (PDT)
-Received: from [192.168.192.153] (unknown [50.126.114.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 737AC3F1BD;
-        Wed, 27 Apr 2022 00:39:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1651019950;
-        bh=I7+zcYF8QLc268zL8zDKCWLmq8xiUApEbjYZ+StRn3U=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=sNLQO6FS2xs5PHuaYB9mERrK7Gvh5Y1Ql0mHYv1KNL96j1Jt/nzu6xSrdE7t1JgYK
-         YjLTjZ9VsxHcaFL56ZIqs5Wny+rMxXs0ed0Rsjd3qS1nzkloAOgIfPbdqqee6vXUJ8
-         ap+oLttRWdGEDH1TMnyTNro85gKafpFNnVlgW8QXjdfd3WLuQHkYHGMQL0Dqjw+fjl
-         2mTIsTHw3c6Ne9bxO90GYCFDS2t/HRjlIkkKe81KeBSAG3wyZof9wxZT9ESZaH5Zw7
-         EkLDVrPs3h7D6lgY1obxqpRfo7GF1WWpnY8AiCBglhaCj5iuzXoW9OsIYwbaDaBHVF
-         h/d9YcSWD7Y8g==
-Message-ID: <1795819d-661a-3859-39e2-ba17a84508dd@canonical.com>
-Date:   Tue, 26 Apr 2022 17:38:55 -0700
+        with ESMTP id S235420AbiD0NW1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Apr 2022 09:22:27 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F4613DF6
+        for <selinux@vger.kernel.org>; Wed, 27 Apr 2022 06:19:07 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id v12so2451521wrv.10
+        for <selinux@vger.kernel.org>; Wed, 27 Apr 2022 06:19:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=tN2tlewy0jrtdqoRAyVen4TTXWYKbcGUUb+F7FNds44=;
+        b=sILlvjaoa79+Jq01+MGUwsyPooetRBFU1iAlpEECl2cPudJppo1YinTxtU6abSgyo/
+         QTA8Zal/mY1bq/1gXa5bGs4VCzXMxQlrYPPkvWhOuipPIJddCI7Pl5S355jWcNB+KXTF
+         copiZnvjqGPWxS19fl3NAkgziHJJbzpJxxIpU/iRFfS3o9ahS+EiHPRyrAZZv0dneyrr
+         5vcYzflMyfO1bzHOj2sjGFMgAZxmEtB1HqdkKRvTR8P7rovFcv6QLT51Qe+3Lot7TJgV
+         eu9bENb+UHFZIHYs8z+oKsQfqK0SHXvNR9xROa3FqIXFFz326OB6yvDRdAPvR++9Xxln
+         FavA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=tN2tlewy0jrtdqoRAyVen4TTXWYKbcGUUb+F7FNds44=;
+        b=p7/xRf9f7PjpI7KtTA9JPu0VrAbLyq2yyZyu+Ghjacx8TkkDBgadFV/87PXZ6KXTOv
+         Yl/wSKtiNne1ygeZGXFXVgnuIdKMXr8xSivhZXwAZJWok+NaSXTRKrNbYEsE6ksMTAgN
+         Lui5c+U4bZIFfVqZprbFzoNmi3JpPi+w3WYjlME6rqFToopjImC1LhocejfQLYakOmyj
+         blwpEvVEbMKjvtNrzqeZHGiAcOdJQGYWBs4jiWqrf5glhs0DWrR2lTqw7W0Pz/iHMnNv
+         g0YiirnchSKnAoYR2iAGovt5ppYSX/O2j175Hqgd7yT9pMDHcpBWJtAAooUFNnrRBF6h
+         fwEg==
+X-Gm-Message-State: AOAM5307xuZzD7PtYomQ4Pu+MeHLKXTuEmlP/5bdUA3gonJa/BfiRwbg
+        e3aHwAqoHSzVYlSlRMxK47J/H65AEwhtszbe5ITu
+X-Google-Smtp-Source: ABdhPJziiXjvIwMJT7dfv53VTvmnoS9K6s+GynI9tKTuYMuTtw+zl4pVm4a+yn0Aihr2c/ScXnnE4CTOiPRxDImKy5A=
+X-Received: by 2002:a05:6000:10cc:b0:20a:de6f:3c48 with SMTP id
+ b12-20020a05600010cc00b0020ade6f3c48mr10712609wrx.650.1651065546145; Wed, 27
+ Apr 2022 06:19:06 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v35 08/29] LSM: Use lsmblob in security_secctx_to_secid
-Content-Language: en-US
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     linux-audit@redhat.com, keescook@chromium.org,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org
-References: <20220418145945.38797-1-casey@schaufler-ca.com>
- <20220418145945.38797-9-casey@schaufler-ca.com>
-From:   John Johansen <john.johansen@canonical.com>
-Organization: Canonical
-In-Reply-To: <20220418145945.38797-9-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20220217143457.75229-1-cgzones@googlemail.com>
+ <20220308170928.58040-1-cgzones@googlemail.com> <CAHC9VhSiqvCbKQHYTGAj3vqECNto6eNm0MyzLd92kcJnvZSw1A@mail.gmail.com>
+In-Reply-To: <CAHC9VhSiqvCbKQHYTGAj3vqECNto6eNm0MyzLd92kcJnvZSw1A@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 27 Apr 2022 09:18:55 -0400
+Message-ID: <CAHC9VhR1d2aLKsZOxLb6b1uuTcWOpnJ22S5=mXygvjcv6Sm=xg@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: log anon inode class name
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/18/22 07:59, Casey Schaufler wrote:
-> Change the security_secctx_to_secid interface to use a lsmblob
-> structure in place of the single u32 secid in support of
-> module stacking. Change its callers to do the same.
-> 
-> The security module hook is unchanged, still passing back a secid.
-> The infrastructure passes the correct entry from the lsmblob.
-> 
-> Acked-by: Paul Moore <paul@paul-moore.com>
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: netdev@vger.kernel.org
-> Cc: netfilter-devel@vger.kernel.org
-> To: Pablo Neira Ayuso <pablo@netfilter.org>
+On Mon, Apr 4, 2022 at 4:18 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Tue, Mar 8, 2022 at 12:09 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Log the anonymous inode class name in the security hook
+> > inode_init_security_anon.  This name is the key for name based type
+> > transitions on the anon_inode security class on creation.  Example:
+> >
+> >     type=3DAVC msg=3Daudit(02/16/22 22:02:50.585:216) : avc:  granted \
+> >         { create } for  pid=3D2136 comm=3Dmariadbd anonclass=3D"[io_uri=
+ng]" \
+> >         scontext=3Dsystem_u:system_r:mysqld_t:s0 \
+> >         tcontext=3Dsystem_u:system_r:mysqld_iouring_t:s0 tclass=3Danon_=
+inode
+> >
+> > Add a new LSM audit data type holding the inode and the class name.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > ---
+> > v2:
+> >   - drop dev=3D and name=3D output for anonymous inodes, and hence simp=
+lify
+> >     the common_audit_data union member.
+> >   - drop WARN_ON() on empty name passed to inode_init_security_anon hoo=
+k
+> > ---
+> >  include/linux/lsm_audit.h | 2 ++
+> >  security/lsm_audit.c      | 4 ++++
+> >  security/selinux/hooks.c  | 4 ++--
+> >  3 files changed, 8 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+> > index 17d02eda9538..97a8b21eb033 100644
+> > --- a/include/linux/lsm_audit.h
+> > +++ b/include/linux/lsm_audit.h
+> > @@ -76,6 +76,7 @@ struct common_audit_data {
+> >  #define LSM_AUDIT_DATA_IBENDPORT 14
+> >  #define LSM_AUDIT_DATA_LOCKDOWN 15
+> >  #define LSM_AUDIT_DATA_NOTIFICATION 16
+> > +#define LSM_AUDIT_DATA_ANONINODE       17
+> >         union   {
+> >                 struct path path;
+> >                 struct dentry *dentry;
+> > @@ -96,6 +97,7 @@ struct common_audit_data {
+> >                 struct lsm_ibpkey_audit *ibpkey;
+> >                 struct lsm_ibendport_audit *ibendport;
+> >                 int reason;
+> > +               const char *anonclass;
+> >         } u;
+> >         /* this union contains LSM specific data */
+> >         union {
+> > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> > index 1897cbf6fc69..981f6a4e4590 100644
+> > --- a/security/lsm_audit.c
+> > +++ b/security/lsm_audit.c
+> > @@ -433,6 +433,10 @@ static void dump_common_audit_data(struct audit_bu=
+ffer *ab,
+> >                 audit_log_format(ab, " lockdown_reason=3D\"%s\"",
+> >                                  lockdown_reasons[a->u.reason]);
+> >                 break;
+> > +       case LSM_AUDIT_DATA_ANONINODE:
+> > +               audit_log_format(ab, " anonclass=3D");
+> > +               audit_log_untrustedstring(ab, a->u.anonclass);
+>
+> My apologies, I didn't notice this in the previous patch ... I don't
+> think we need to log this as an untrusted string as the string value
+> is coming from the kernel, not userspace, so we could rewrite the
+> above as the following:
+>
+>   audit_log_format(ab, " anonclass=3D%s", a->u.anonclass);
+>
+> ... if you are okay with that, I can make the change when I merge the
+> patch or you can submit another revision, let me know which you would
+> prefer.
+>
+> The rest of the patch looks good, thanks!
 
-Reviewed-by: John Johansen <john.johansen@canonical.com>
+Hi Christian,
 
-> ---
->  include/linux/security.h          | 26 ++++++++++++++++++--
->  kernel/cred.c                     |  4 +---
->  net/netfilter/nft_meta.c          | 10 ++++----
->  net/netfilter/xt_SECMARK.c        |  7 +++++-
->  net/netlabel/netlabel_unlabeled.c | 23 +++++++++++-------
->  security/security.c               | 40 ++++++++++++++++++++++++++-----
->  6 files changed, 85 insertions(+), 25 deletions(-)
-> 
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 68ab0add23d3..57879f0b9f89 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -199,6 +199,27 @@ static inline bool lsmblob_equal(const struct lsmblob *bloba,
->  extern int lsm_name_to_slot(char *name);
->  extern const char *lsm_slot_to_name(int slot);
->  
-> +/**
-> + * lsmblob_value - find the first non-zero value in an lsmblob structure.
-> + * @blob: Pointer to the data
-> + *
-> + * This needs to be used with extreme caution, as the cases where
-> + * it is appropriate are rare.
-> + *
-> + * Return the first secid value set in the lsmblob.
-> + * There should only be one.
-> + */
-> +static inline u32 lsmblob_value(const struct lsmblob *blob)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < LSMBLOB_ENTRIES; i++)
-> +		if (blob->secid[i])
-> +			return blob->secid[i];
-> +
-> +	return 0;
-> +}
-> +
->  /* These functions are in security/commoncap.c */
->  extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
->  		       int cap, unsigned int opts);
-> @@ -529,7 +550,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
->  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
->  int security_ismaclabel(const char *name);
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
-> -int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
-> +int security_secctx_to_secid(const char *secdata, u32 seclen,
-> +			     struct lsmblob *blob);
->  void security_release_secctx(char *secdata, u32 seclen);
->  void security_inode_invalidate_secctx(struct inode *inode);
->  int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-> @@ -1384,7 +1406,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
->  
->  static inline int security_secctx_to_secid(const char *secdata,
->  					   u32 seclen,
-> -					   u32 *secid)
-> +					   struct lsmblob *blob)
->  {
->  	return -EOPNOTSUPP;
->  }
-> diff --git a/kernel/cred.c b/kernel/cred.c
-> index 3925d38f49f4..adea727744f4 100644
-> --- a/kernel/cred.c
-> +++ b/kernel/cred.c
-> @@ -791,14 +791,12 @@ EXPORT_SYMBOL(set_security_override);
->  int set_security_override_from_ctx(struct cred *new, const char *secctx)
->  {
->  	struct lsmblob blob;
-> -	u32 secid;
->  	int ret;
->  
-> -	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
-> +	ret = security_secctx_to_secid(secctx, strlen(secctx), &blob);
->  	if (ret < 0)
->  		return ret;
->  
-> -	lsmblob_init(&blob, secid);
->  	return set_security_override(new, &blob);
->  }
->  EXPORT_SYMBOL(set_security_override_from_ctx);
-> diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-> index ac4859241e17..fc0028c9e33d 100644
-> --- a/net/netfilter/nft_meta.c
-> +++ b/net/netfilter/nft_meta.c
-> @@ -860,21 +860,21 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
->  
->  static int nft_secmark_compute_secid(struct nft_secmark *priv)
->  {
-> -	u32 tmp_secid = 0;
-> +	struct lsmblob blob;
->  	int err;
->  
-> -	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
-> +	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &blob);
->  	if (err)
->  		return err;
->  
-> -	if (!tmp_secid)
-> +	if (!lsmblob_is_set(&blob))
->  		return -ENOENT;
->  
-> -	err = security_secmark_relabel_packet(tmp_secid);
-> +	err = security_secmark_relabel_packet(lsmblob_value(&blob));
->  	if (err)
->  		return err;
->  
-> -	priv->secid = tmp_secid;
-> +	priv->secid = lsmblob_value(&blob);
->  	return 0;
->  }
->  
-> diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-> index 498a0bf6f044..87ca3a537d1c 100644
-> --- a/net/netfilter/xt_SECMARK.c
-> +++ b/net/netfilter/xt_SECMARK.c
-> @@ -42,13 +42,14 @@ secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
->  
->  static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
->  {
-> +	struct lsmblob blob;
->  	int err;
->  
->  	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
->  	info->secid = 0;
->  
->  	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
-> -				       &info->secid);
-> +				       &blob);
->  	if (err) {
->  		if (err == -EINVAL)
->  			pr_info_ratelimited("invalid security context \'%s\'\n",
-> @@ -56,6 +57,10 @@ static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
->  		return err;
->  	}
->  
-> +	/* xt_secmark_target_info can't be changed to use lsmblobs because
-> +	 * it is exposed as an API. Use lsmblob_value() to get the one
-> +	 * value that got set by security_secctx_to_secid(). */
-> +	info->secid = lsmblob_value(&blob);
->  	if (!info->secid) {
->  		pr_info_ratelimited("unable to map security context \'%s\'\n",
->  				    info->secctx);
-> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-> index 8490e46359ae..f3e2cde76919 100644
-> --- a/net/netlabel/netlabel_unlabeled.c
-> +++ b/net/netlabel/netlabel_unlabeled.c
-> @@ -880,7 +880,7 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
->  	void *addr;
->  	void *mask;
->  	u32 addr_len;
-> -	u32 secid;
-> +	struct lsmblob blob;
->  	struct netlbl_audit audit_info;
->  
->  	/* Don't allow users to add both IPv4 and IPv6 addresses for a
-> @@ -904,13 +904,18 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
->  	ret_val = security_secctx_to_secid(
->  		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
->  				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
-> -				  &secid);
-> +				  &blob);
->  	if (ret_val != 0)
->  		return ret_val;
->  
-> +	/* netlbl_unlhsh_add will be changed to pass a struct lsmblob *
-> +	 * instead of a u32 later in this patch set. security_secctx_to_secid()
-> +	 * will only be setting one entry in the lsmblob struct, so it is
-> +	 * safe to use lsmblob_value() to get that one value. */
-> +
->  	return netlbl_unlhsh_add(&init_net,
-> -				 dev_name, addr, mask, addr_len, secid,
-> -				 &audit_info);
-> +				 dev_name, addr, mask, addr_len,
-> +				 lsmblob_value(&blob), &audit_info);
->  }
->  
->  /**
-> @@ -931,7 +936,7 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
->  	void *addr;
->  	void *mask;
->  	u32 addr_len;
-> -	u32 secid;
-> +	struct lsmblob blob;
->  	struct netlbl_audit audit_info;
->  
->  	/* Don't allow users to add both IPv4 and IPv6 addresses for a
-> @@ -953,13 +958,15 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
->  	ret_val = security_secctx_to_secid(
->  		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
->  				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
-> -				  &secid);
-> +				  &blob);
->  	if (ret_val != 0)
->  		return ret_val;
->  
-> +	/* security_secctx_to_secid() will only put one secid into the lsmblob
-> +	 * so it's safe to use lsmblob_value() to get the secid. */
->  	return netlbl_unlhsh_add(&init_net,
-> -				 NULL, addr, mask, addr_len, secid,
-> -				 &audit_info);
-> +				 NULL, addr, mask, addr_len,
-> +				 lsmblob_value(&blob), &audit_info);
->  }
->  
->  /**
-> diff --git a/security/security.c b/security/security.c
-> index e9f1487af0e5..f814a41c5d9f 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -2211,10 +2211,22 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
->  }
->  EXPORT_SYMBOL(security_secid_to_secctx);
->  
-> -int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
-> +int security_secctx_to_secid(const char *secdata, u32 seclen,
-> +			     struct lsmblob *blob)
->  {
-> -	*secid = 0;
-> -	return call_int_hook(secctx_to_secid, 0, secdata, seclen, secid);
-> +	struct security_hook_list *hp;
-> +	int rc;
-> +
-> +	lsmblob_init(blob, 0);
-> +	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
-> +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
-> +			continue;
-> +		rc = hp->hook.secctx_to_secid(secdata, seclen,
-> +					      &blob->secid[hp->lsmid->slot]);
-> +		if (rc != 0)
-> +			return rc;
-> +	}
-> +	return 0;
->  }
->  EXPORT_SYMBOL(security_secctx_to_secid);
->  
-> @@ -2365,10 +2377,26 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
->  				optval, optlen, len);
->  }
->  
-> -int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
-> +int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
-> +				     u32 *secid)
->  {
-> -	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
-> -			     skb, secid);
-> +	struct security_hook_list *hp;
-> +	int rc = -ENOPROTOOPT;
-> +
-> +	/*
-> +	 * Only one security module should provide a real hook for
-> +	 * this. A stub or bypass like is used in BPF should either
-> +	 * (somehow) leave rc unaltered or return -ENOPROTOOPT.
-> +	 */
-> +	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
-> +			     list) {
-> +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
-> +			continue;
-> +		rc = hp->hook.socket_getpeersec_dgram(sock, skb, secid);
-> +		if (rc != -ENOPROTOOPT)
-> +			break;
-> +	}
-> +	return rc;
->  }
->  EXPORT_SYMBOL(security_socket_getpeersec_dgram);
->  
+I just wanted to follow up on this as we are at -rc4 this week and if
+we want this to go during the next merge window this would need to be
+merged soon ...
 
+--=20
+paul-moore.com
