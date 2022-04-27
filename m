@@ -2,153 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6544C433FE
-	for <selinux@archiver.kernel.org>; Wed, 27 Apr 2022 13:19:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1091C433EF
+	for <selinux@archiver.kernel.org>; Wed, 27 Apr 2022 13:59:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235542AbiD0NW3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Apr 2022 09:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48450 "EHLO
+        id S236897AbiD0OC0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Apr 2022 10:02:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235420AbiD0NW1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Apr 2022 09:22:27 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F4613DF6
-        for <selinux@vger.kernel.org>; Wed, 27 Apr 2022 06:19:07 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id v12so2451521wrv.10
-        for <selinux@vger.kernel.org>; Wed, 27 Apr 2022 06:19:07 -0700 (PDT)
+        with ESMTP id S236807AbiD0OCT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Apr 2022 10:02:19 -0400
+Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4AF04738F;
+        Wed, 27 Apr 2022 06:58:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=tN2tlewy0jrtdqoRAyVen4TTXWYKbcGUUb+F7FNds44=;
-        b=sILlvjaoa79+Jq01+MGUwsyPooetRBFU1iAlpEECl2cPudJppo1YinTxtU6abSgyo/
-         QTA8Zal/mY1bq/1gXa5bGs4VCzXMxQlrYPPkvWhOuipPIJddCI7Pl5S355jWcNB+KXTF
-         copiZnvjqGPWxS19fl3NAkgziHJJbzpJxxIpU/iRFfS3o9ahS+EiHPRyrAZZv0dneyrr
-         5vcYzflMyfO1bzHOj2sjGFMgAZxmEtB1HqdkKRvTR8P7rovFcv6QLT51Qe+3Lot7TJgV
-         eu9bENb+UHFZIHYs8z+oKsQfqK0SHXvNR9xROa3FqIXFFz326OB6yvDRdAPvR++9Xxln
-         FavA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=tN2tlewy0jrtdqoRAyVen4TTXWYKbcGUUb+F7FNds44=;
-        b=p7/xRf9f7PjpI7KtTA9JPu0VrAbLyq2yyZyu+Ghjacx8TkkDBgadFV/87PXZ6KXTOv
-         Yl/wSKtiNne1ygeZGXFXVgnuIdKMXr8xSivhZXwAZJWok+NaSXTRKrNbYEsE6ksMTAgN
-         Lui5c+U4bZIFfVqZprbFzoNmi3JpPi+w3WYjlME6rqFToopjImC1LhocejfQLYakOmyj
-         blwpEvVEbMKjvtNrzqeZHGiAcOdJQGYWBs4jiWqrf5glhs0DWrR2lTqw7W0Pz/iHMnNv
-         g0YiirnchSKnAoYR2iAGovt5ppYSX/O2j175Hqgd7yT9pMDHcpBWJtAAooUFNnrRBF6h
-         fwEg==
-X-Gm-Message-State: AOAM5307xuZzD7PtYomQ4Pu+MeHLKXTuEmlP/5bdUA3gonJa/BfiRwbg
-        e3aHwAqoHSzVYlSlRMxK47J/H65AEwhtszbe5ITu
-X-Google-Smtp-Source: ABdhPJziiXjvIwMJT7dfv53VTvmnoS9K6s+GynI9tKTuYMuTtw+zl4pVm4a+yn0Aihr2c/ScXnnE4CTOiPRxDImKy5A=
-X-Received: by 2002:a05:6000:10cc:b0:20a:de6f:3c48 with SMTP id
- b12-20020a05600010cc00b0020ade6f3c48mr10712609wrx.650.1651065546145; Wed, 27
- Apr 2022 06:19:06 -0700 (PDT)
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1651067919; x=1682603919;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=cQkL9trQUR2+NQzgjdaYFGiSEDlNIUcLL65oyUxQarg=;
+  b=klOP8OWwbSYSkTt75BegfHoYXzjI797kNT7WT6DrK3nZ6wDTc8v4dQcS
+   5bBGOr0RLZGetdbGuo/Y0NmD69QzsyM21qswclBQSbfPszJEgKea0v38r
+   1SXE/nWPuOY2t+nZOcO4dEQQuErCh4kFia3S1p7nqTsSkReSyPRDywfD9
+   o=;
+Received: from unknown (HELO ironmsg05-sd.qualcomm.com) ([10.53.140.145])
+  by alexa-out-sd-02.qualcomm.com with ESMTP; 27 Apr 2022 06:58:28 -0700
+X-QCInternal: smtphost
+Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
+  by ironmsg05-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Apr 2022 06:58:27 -0700
+Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
+ nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Wed, 27 Apr 2022 06:58:26 -0700
+Received: from qian (10.80.80.8) by nalasex01a.na.qualcomm.com (10.47.209.196)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Wed, 27 Apr
+ 2022 06:58:25 -0700
+Date:   Wed, 27 Apr 2022 09:58:23 -0400
+From:   Qian Cai <quic_qiancai@quicinc.com>
+To:     =?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>
+CC:     Luis Chamberlain <mcgrof@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Adam Shih <adamshih@google.com>, <selinux@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] firmware_loader: use kernel credentials when reading
+ firmware
+Message-ID: <20220427135823.GD71@qian>
+References: <20220422013215.2301793-1-tweek@google.com>
 MIME-Version: 1.0
-References: <20220217143457.75229-1-cgzones@googlemail.com>
- <20220308170928.58040-1-cgzones@googlemail.com> <CAHC9VhSiqvCbKQHYTGAj3vqECNto6eNm0MyzLd92kcJnvZSw1A@mail.gmail.com>
-In-Reply-To: <CAHC9VhSiqvCbKQHYTGAj3vqECNto6eNm0MyzLd92kcJnvZSw1A@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 27 Apr 2022 09:18:55 -0400
-Message-ID: <CAHC9VhR1d2aLKsZOxLb6b1uuTcWOpnJ22S5=mXygvjcv6Sm=xg@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: log anon inode class name
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220422013215.2301793-1-tweek@google.com>
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 4, 2022 at 4:18 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Tue, Mar 8, 2022 at 12:09 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Log the anonymous inode class name in the security hook
-> > inode_init_security_anon.  This name is the key for name based type
-> > transitions on the anon_inode security class on creation.  Example:
-> >
-> >     type=3DAVC msg=3Daudit(02/16/22 22:02:50.585:216) : avc:  granted \
-> >         { create } for  pid=3D2136 comm=3Dmariadbd anonclass=3D"[io_uri=
-ng]" \
-> >         scontext=3Dsystem_u:system_r:mysqld_t:s0 \
-> >         tcontext=3Dsystem_u:system_r:mysqld_iouring_t:s0 tclass=3Danon_=
-inode
-> >
-> > Add a new LSM audit data type holding the inode and the class name.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > ---
-> > v2:
-> >   - drop dev=3D and name=3D output for anonymous inodes, and hence simp=
-lify
-> >     the common_audit_data union member.
-> >   - drop WARN_ON() on empty name passed to inode_init_security_anon hoo=
-k
-> > ---
-> >  include/linux/lsm_audit.h | 2 ++
-> >  security/lsm_audit.c      | 4 ++++
-> >  security/selinux/hooks.c  | 4 ++--
-> >  3 files changed, 8 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-> > index 17d02eda9538..97a8b21eb033 100644
-> > --- a/include/linux/lsm_audit.h
-> > +++ b/include/linux/lsm_audit.h
-> > @@ -76,6 +76,7 @@ struct common_audit_data {
-> >  #define LSM_AUDIT_DATA_IBENDPORT 14
-> >  #define LSM_AUDIT_DATA_LOCKDOWN 15
-> >  #define LSM_AUDIT_DATA_NOTIFICATION 16
-> > +#define LSM_AUDIT_DATA_ANONINODE       17
-> >         union   {
-> >                 struct path path;
-> >                 struct dentry *dentry;
-> > @@ -96,6 +97,7 @@ struct common_audit_data {
-> >                 struct lsm_ibpkey_audit *ibpkey;
-> >                 struct lsm_ibendport_audit *ibendport;
-> >                 int reason;
-> > +               const char *anonclass;
-> >         } u;
-> >         /* this union contains LSM specific data */
-> >         union {
-> > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-> > index 1897cbf6fc69..981f6a4e4590 100644
-> > --- a/security/lsm_audit.c
-> > +++ b/security/lsm_audit.c
-> > @@ -433,6 +433,10 @@ static void dump_common_audit_data(struct audit_bu=
-ffer *ab,
-> >                 audit_log_format(ab, " lockdown_reason=3D\"%s\"",
-> >                                  lockdown_reasons[a->u.reason]);
-> >                 break;
-> > +       case LSM_AUDIT_DATA_ANONINODE:
-> > +               audit_log_format(ab, " anonclass=3D");
-> > +               audit_log_untrustedstring(ab, a->u.anonclass);
->
-> My apologies, I didn't notice this in the previous patch ... I don't
-> think we need to log this as an untrusted string as the string value
-> is coming from the kernel, not userspace, so we could rewrite the
-> above as the following:
->
->   audit_log_format(ab, " anonclass=3D%s", a->u.anonclass);
->
-> ... if you are okay with that, I can make the change when I merge the
-> patch or you can submit another revision, let me know which you would
-> prefer.
->
-> The rest of the patch looks good, thanks!
+On Fri, Apr 22, 2022 at 11:32:15AM +1000, Thiébaud Weksteen wrote:
+>  drivers/base/firmware_loader/main.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
+> diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
+> index 94d1789a233e..8f3c2b2cfc61 100644
+> --- a/drivers/base/firmware_loader/main.c
+> +++ b/drivers/base/firmware_loader/main.c
+> @@ -735,6 +735,8 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
+>  		  size_t offset, u32 opt_flags)
+>  {
+>  	struct firmware *fw = NULL;
+> +	struct cred *kern_cred = NULL;
+> +	const struct cred *old_cred;
+>  	bool nondirect = false;
+>  	int ret;
+>  
+> @@ -751,6 +753,18 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
+>  	if (ret <= 0) /* error or already assigned */
+>  		goto out;
+>  
+> +	/*
+> +	 * We are about to try to access the firmware file. Because we may have been
+> +	 * called by a driver when serving an unrelated request from userland, we use
+> +	 * the kernel credentials to read the file.
+> +	 */
+> +	kern_cred = prepare_kernel_cred(NULL);
 
-Hi Christian,
+This triggers quite some leak reports from kmemleak.
 
-I just wanted to follow up on this as we are at -rc4 this week and if
-we want this to go during the next merge window this would need to be
-merged soon ...
+unreferenced object 0xffff0801e47690c0 (size 176):
+  comm "kworker/0:1", pid 14, jiffies 4294904047 (age 2208.624s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+     kmem_cache_alloc
+     prepare_kernel_cred
+     _request_firmware
+     firmware_request_nowarn
+     firmware_request_nowarn at drivers/base/firmware_loader/main.c:933
+     nvkm_firmware_get [nouveau]
+     nvkm_firmware_get at drivers/gpu/drm/nouveau/nvkm/core/firmware.c:92
+     nvkm_firmware_load_name [nouveau]
+     nvkm_acr_lsfw_load_bl_inst_data_sig [nouveau]
+     gm200_gr_load [nouveau]
+     gf100_gr_new_ [nouveau]
+     tu102_gr_new [nouveau]
+     nvkm_device_ctor [nouveau]
+     nvkm_device_pci_new [nouveau]
+     nouveau_drm_probe [nouveau]
+     local_pci_probe
+     work_for_cpu_fn
+     process_one_work
 
---=20
-paul-moore.com
+
+> +	if (!kern_cred) {
+> +		ret = -ENOMEM;
+> +		goto out;
+> +	}
+> +	old_cred = override_creds(kern_cred);
+> +
+>  	ret = fw_get_filesystem_firmware(device, fw->priv, "", NULL);
+>  
+>  	/* Only full reads can support decompression, platform, and sysfs. */
+> @@ -776,6 +790,8 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
+>  	} else
+>  		ret = assign_fw(fw, device);
+>  
+> +	revert_creds(old_cred);
+> +
+>   out:
+>  	if (ret < 0) {
+>  		fw_abort_batch_reqs(fw);
+> -- 
+> 2.36.0.rc2.479.g8af0fa9b8e-goog
+> 
