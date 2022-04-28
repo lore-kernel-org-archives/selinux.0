@@ -2,171 +2,89 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90DCEC433F5
-	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 06:54:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94C92C433F5
+	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 08:32:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244659AbiD1G53 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Apr 2022 02:57:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59836 "EHLO
+        id S1344402AbiD1Ifu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Apr 2022 04:35:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244618AbiD1G5Y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 02:57:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A8FFF985B2
-        for <selinux@vger.kernel.org>; Wed, 27 Apr 2022 23:54:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651128849;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kIz0Cu4Ol620es4MTJLbyzZp+QPTEI2gwSpjPd+S0kY=;
-        b=DYN8pyTlvPgkXgeegUBpoVUZ/1qtOdcRgrl723c5HdOMbuQXhAIzsUeLgL+cvCNmNuOX6v
-        VagW6ahbGsDdiA4zZOKJRVKLnAGqtXU3wawLZHnO46F22sP/x1JRwY6X3Lb6v7S0lqhZkZ
-        bP/4A56MLWS2bkgsLdbphRQwAfJ1cJY=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-507-L8bo9p8MOeeOt7fud5ECWA-1; Thu, 28 Apr 2022 02:54:08 -0400
-X-MC-Unique: L8bo9p8MOeeOt7fud5ECWA-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S1344532AbiD1IeI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 04:34:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6E5A27FF;
+        Thu, 28 Apr 2022 01:28:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 37DF31C08543
-        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 06:54:08 +0000 (UTC)
-Received: from lacos-laptop-7.usersys.redhat.com (unknown [10.39.192.29])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4B158416385;
-        Thu, 28 Apr 2022 06:54:07 +0000 (UTC)
-From:   Laszlo Ersek <lersek@redhat.com>
-To:     SELinux List <selinux@vger.kernel.org>,
-        Laszlo Ersek <lersek@redhat.com>
-Cc:     "Richard W.M. Jones" <rjones@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH for-3.5 5/5] setfiles: introduce the -C option for distinguishing file tree walk errors
-Date:   Thu, 28 Apr 2022 08:53:54 +0200
-Message-Id: <20220428065354.27605-6-lersek@redhat.com>
-In-Reply-To: <20220428065354.27605-1-lersek@redhat.com>
-References: <20220428065354.27605-1-lersek@redhat.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E257B82B47;
+        Thu, 28 Apr 2022 08:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CBA8C385A9;
+        Thu, 28 Apr 2022 08:28:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651134524;
+        bh=FQ7tkUBDxzmIQSIuGVBUfG+AlREALsjEt5yG5PjK1+Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WTZb83o9GLYWJwu5A6wCFd9vhs9TWHnnQMLn9YPQvTKTWatkDPxOxcRjCCLvpt0xE
+         gdX0ZvAECJ1PkQafYq81Fr0s2sYLtY1y2R5LiQ2sI8ZmPtJymzoy0SUU9i79cr57fM
+         AMB1B2Xuzv0sDgWi8K2qlDCtllq7+6Ywl+OMBYeI=
+Date:   Thu, 28 Apr 2022 10:28:41 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>,
+        Qian Cai <quic_qiancai@quicinc.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] firmware_loader: use kernel credentials when reading
+ firmware
+Message-ID: <YmpQOSf0bdOcIZSU@kroah.com>
+References: <20220428061707.768468-1-tweek@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220428061707.768468-1-tweek@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-c2V0ZmlsZXMoOCkgZXhpdHMgd2l0aCBzdGF0dXMgMjU1IGlmIGl0IGVuY291bnRlcnMgYW55IGVy
-cm9yLiBJbnRyb2R1Y2UKdGhlICItQyIgb3B0aW9uOiBpZiB0aGUgb25seSBlcnJvcnMgdGhhdCBz
-ZXRmaWxlcyg4KSBlbmNvdW50ZXJzIGFyZQpsYWJlbGluZyBlcnJvcnMgc2VlbiBkdXJpbmcgdGhl
-IGZpbGUgdHJlZSB3YWxrKHMpLCB0aGVuIGxldCBzZXRmaWxlcyg4KQpleGl0IHdpdGggc3RhdHVz
-IDEuCgpDYzogIlJpY2hhcmQgVy5NLiBKb25lcyIgPHJqb25lc0ByZWRoYXQuY29tPgpDYzogUGV0
-ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+CkJ1Z3ppbGxhOiBodHRwczovL2J1Z3pp
-bGxhLnJlZGhhdC5jb20vc2hvd19idWcuY2dpP2lkPTE3OTQ1MTgKU2lnbmVkLW9mZi1ieTogTGFz
-emxvIEVyc2VrIDxsZXJzZWtAcmVkaGF0LmNvbT4KLS0tCiBwb2xpY3ljb3JldXRpbHMvc2V0Zmls
-ZXMvcmVzdG9yZS5oICB8ICA0ICsrKy0KIHBvbGljeWNvcmV1dGlscy9zZXRmaWxlcy9yZXN0b3Jl
-LmMgIHwgIDggKysrKystLQogcG9saWN5Y29yZXV0aWxzL3NldGZpbGVzL3NldGZpbGVzLmMgfCAx
-OSArKysrKysrKysrKy0tLS0tLQogcG9saWN5Y29yZXV0aWxzL3NldGZpbGVzL3NldGZpbGVzLjgg
-fCAyMiArKysrKysrKysrKysrKysrKysrKwogNCBmaWxlcyBjaGFuZ2VkLCA0NCBpbnNlcnRpb25z
-KCspLCA5IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3BvbGljeWNvcmV1dGlscy9zZXRmaWxl
-cy9yZXN0b3JlLmggYi9wb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvcmVzdG9yZS5oCmluZGV4IGJi
-MzVhMWRiOWUzNC4uYTVhZjgxZmUzYmI0IDEwMDY0NAotLS0gYS9wb2xpY3ljb3JldXRpbHMvc2V0
-ZmlsZXMvcmVzdG9yZS5oCisrKyBiL3BvbGljeWNvcmV1dGlscy9zZXRmaWxlcy9yZXN0b3JlLmgK
-QEAgLTM1LDYgKzM1LDcgQEAgc3RydWN0IHJlc3RvcmVfb3B0cyB7CiAJdW5zaWduZWQgaW50IGln
-bm9yZV9ub2VudDsKIAl1bnNpZ25lZCBpbnQgaWdub3JlX21vdW50czsKIAl1bnNpZ25lZCBpbnQg
-Y29uZmxpY3RfZXJyb3I7CisJdW5zaWduZWQgaW50IGNvdW50X2Vycm9yczsKIAkvKiByZXN0b3Jl
-Y29uX2ZsYWdzIGhvbGRzIHwgb2YgYWJvdmUgZm9yIHJlc3RvcmVfaW5pdCgpICovCiAJdW5zaWdu
-ZWQgaW50IHJlc3RvcmVjb25fZmxhZ3M7CiAJY2hhciAqcm9vdHBhdGg7CkBAIC00OSw3ICs1MCw4
-IEBAIHN0cnVjdCByZXN0b3JlX29wdHMgewogdm9pZCByZXN0b3JlX2luaXQoc3RydWN0IHJlc3Rv
-cmVfb3B0cyAqb3B0cyk7CiB2b2lkIHJlc3RvcmVfZmluaXNoKHZvaWQpOwogdm9pZCBhZGRfZXhj
-bHVkZShjb25zdCBjaGFyICpkaXJlY3RvcnkpOwotaW50IHByb2Nlc3NfZ2xvYihjaGFyICpuYW1l
-LCBzdHJ1Y3QgcmVzdG9yZV9vcHRzICpvcHRzLCBzaXplX3QgbnRocmVhZHMpOworaW50IHByb2Nl
-c3NfZ2xvYihjaGFyICpuYW1lLCBzdHJ1Y3QgcmVzdG9yZV9vcHRzICpvcHRzLCBzaXplX3QgbnRo
-cmVhZHMsCisJCSBsb25nIHVuc2lnbmVkICpza2lwcGVkX2Vycm9ycyk7CiBleHRlcm4gY2hhciAq
-KmV4Y2x1ZGVfbGlzdDsKIAogI2VuZGlmCmRpZmYgLS1naXQgYS9wb2xpY3ljb3JldXRpbHMvc2V0
-ZmlsZXMvcmVzdG9yZS5jIGIvcG9saWN5Y29yZXV0aWxzL3NldGZpbGVzL3Jlc3RvcmUuYwppbmRl
-eCBlOWFlMzNhZDAzOWEuLjYxMzFmNDZhNzUyMyAxMDA2NDQKLS0tIGEvcG9saWN5Y29yZXV0aWxz
-L3NldGZpbGVzL3Jlc3RvcmUuYworKysgYi9wb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvcmVzdG9y
-ZS5jCkBAIC00MSw3ICs0MSw4IEBAIHZvaWQgcmVzdG9yZV9pbml0KHN0cnVjdCByZXN0b3JlX29w
-dHMgKm9wdHMpCiAJCQkgICBvcHRzLT54ZGV2IHwgb3B0cy0+YWJvcnRfb25fZXJyb3IgfAogCQkJ
-ICAgb3B0cy0+c3lzbG9nX2NoYW5nZXMgfCBvcHRzLT5sb2dfbWF0Y2hlcyB8CiAJCQkgICBvcHRz
-LT5pZ25vcmVfbm9lbnQgfCBvcHRzLT5pZ25vcmVfbW91bnRzIHwKLQkJCSAgIG9wdHMtPm1hc3Nf
-cmVsYWJlbCB8IG9wdHMtPmNvbmZsaWN0X2Vycm9yOworCQkJICAgb3B0cy0+bWFzc19yZWxhYmVs
-IHwgb3B0cy0+Y29uZmxpY3RfZXJyb3IgfAorCQkJICAgb3B0cy0+Y291bnRfZXJyb3JzOwogCiAJ
-LyogVXNlIHNldGZpbGVzLCByZXN0b3JlY29uIGFuZCByZXN0b3JlY29uZCBvd24gaGFuZGxlcyAq
-LwogCXNlbGludXhfcmVzdG9yZWNvbl9zZXRfc2VoYW5kbGUob3B0cy0+aG5kKTsKQEAgLTcyLDcg
-KzczLDggQEAgdm9pZCByZXN0b3JlX2ZpbmlzaCh2b2lkKQogCX0KIH0KIAotaW50IHByb2Nlc3Nf
-Z2xvYihjaGFyICpuYW1lLCBzdHJ1Y3QgcmVzdG9yZV9vcHRzICpvcHRzLCBzaXplX3QgbnRocmVh
-ZHMpCitpbnQgcHJvY2Vzc19nbG9iKGNoYXIgKm5hbWUsIHN0cnVjdCByZXN0b3JlX29wdHMgKm9w
-dHMsIHNpemVfdCBudGhyZWFkcywKKwkJIGxvbmcgdW5zaWduZWQgKnNraXBwZWRfZXJyb3JzKQog
-ewogCWdsb2JfdCBnbG9iYnVmOwogCXNpemVfdCBpID0gMDsKQEAgLTk2LDYgKzk4LDggQEAgaW50
-IHByb2Nlc3NfZ2xvYihjaGFyICpuYW1lLCBzdHJ1Y3QgcmVzdG9yZV9vcHRzICpvcHRzLCBzaXpl
-X3QgbnRocmVhZHMpCiAJCQkJCQkgbnRocmVhZHMpOwogCQlpZiAocmMgPCAwKQogCQkJZXJyb3Jz
-ID0gcmM7CisJCWVsc2UgaWYgKG9wdHMtPnJlc3RvcmVjb25fZmxhZ3MgJiBTRUxJTlVYX1JFU1RP
-UkVDT05fQ09VTlRfRVJST1JTKQorCQkJKnNraXBwZWRfZXJyb3JzICs9IHNlbGludXhfcmVzdG9y
-ZWNvbl9nZXRfc2tpcHBlZF9lcnJvcnMoKTsKIAl9CiAKIAlnbG9iZnJlZSgmZ2xvYmJ1Zik7CmRp
-ZmYgLS1naXQgYS9wb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvc2V0ZmlsZXMuYyBiL3BvbGljeWNv
-cmV1dGlscy9zZXRmaWxlcy9zZXRmaWxlcy5jCmluZGV4IGFlZWMxZmRjYzJhYi4uNGRkMGQwZGMz
-ODM1IDEwMDY0NAotLS0gYS9wb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvc2V0ZmlsZXMuYworKysg
-Yi9wb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvc2V0ZmlsZXMuYwpAQCAtNDAsOCArNDAsOCBAQCBz
-dGF0aWMgX19hdHRyaWJ1dGVfXygoX19ub3JldHVybl9fKSkgdm9pZCB1c2FnZShjb25zdCBjaGFy
-ICpjb25zdCBuYW1lKQogCQkJbmFtZSwgbmFtZSk7CiAJfSBlbHNlIHsKIAkJZnByaW50ZihzdGRl
-cnIsCi0JCQkidXNhZ2U6ICAlcyBbLWRpSURsbW5wcXZFRldUXSBbLWUgZXhjbHVkZWRpcl0gWy1y
-IGFsdF9yb290X3BhdGhdIFstYyBwb2xpY3lmaWxlXSBzcGVjX2ZpbGUgcGF0aG5hbWUuLi5cbiIK
-LQkJCSJ1c2FnZTogICVzIFstZGlJRGxtbnBxdkVGV1RdIFstZSBleGNsdWRlZGlyXSBbLXIgYWx0
-X3Jvb3RfcGF0aF0gWy1jIHBvbGljeWZpbGVdIHNwZWNfZmlsZSAtZiBmaWxlbmFtZVxuIgorCQkJ
-InVzYWdlOiAgJXMgWy1kaUlEbG1ucHF2Q0VGV1RdIFstZSBleGNsdWRlZGlyXSBbLXIgYWx0X3Jv
-b3RfcGF0aF0gWy1jIHBvbGljeWZpbGVdIHNwZWNfZmlsZSBwYXRobmFtZS4uLlxuIgorCQkJInVz
-YWdlOiAgJXMgWy1kaUlEbG1ucHF2Q0VGV1RdIFstZSBleGNsdWRlZGlyXSBbLXIgYWx0X3Jvb3Rf
-cGF0aF0gWy1jIHBvbGljeWZpbGVdIHNwZWNfZmlsZSAtZiBmaWxlbmFtZVxuIgogCQkJInVzYWdl
-OiAgJXMgLXMgWy1kaUlEbG1ucHF2RldUXSBzcGVjX2ZpbGVcbiIsCiAJCQluYW1lLCBuYW1lLCBu
-YW1lKTsKIAl9CkBAIC0xNTAsOSArMTUwLDEwIEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICoq
-YXJndikKIAljb25zdCBjaGFyICpiYXNlOwogCWludCBlcnJvcnMgPSAwOwogCWNvbnN0IGNoYXIg
-KnJvcHRzID0gImU6ZjpoaUlEbG1ubzpwcXJzdkZSVzB4VDoiOwotCWNvbnN0IGNoYXIgKnNvcHRz
-ID0gImM6ZGU6ZjpoaUlEbG1ubzpwcXI6c3ZFRlI6VzBUOiI7CisJY29uc3QgY2hhciAqc29wdHMg
-PSAiYzpkZTpmOmhpSURsbW5vOnBxcjpzdkNFRlI6VzBUOiI7CiAJY29uc3QgY2hhciAqb3B0czsK
-IAl1bmlvbiBzZWxpbnV4X2NhbGxiYWNrIGNiOworCWxvbmcgdW5zaWduZWQgc2tpcHBlZF9lcnJv
-cnM7CiAKIAkvKiBJbml0aWFsaXplIHZhcmlhYmxlcyAqLwogCW1lbXNldCgmcl9vcHRzLCAwLCBz
-aXplb2Yocl9vcHRzKSk7CkBAIC0xNjEsNiArMTYyLDcgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNo
-YXIgKiphcmd2KQogCXdhcm5fbm9fbWF0Y2ggPSAwOwogCXJlcXVlc3RfZGlnZXN0ID0gMDsKIAlw
-b2xpY3lmaWxlID0gTlVMTDsKKwlza2lwcGVkX2Vycm9ycyA9IDA7CiAKIAlpZiAoIWFyZ3ZbMF0p
-IHsKIAkJZnByaW50ZihzdGRlcnIsICJDYWxsZWQgd2l0aG91dCByZXF1aXJlZCBwcm9ncmFtIG5h
-bWUhXG4iKTsKQEAgLTI4OCw2ICsyOTAsOSBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFy
-Z3YpCiAJCQlyX29wdHMuc3lzbG9nX2NoYW5nZXMgPQogCQkJCQkgICBTRUxJTlVYX1JFU1RPUkVD
-T05fU1lTTE9HX0NIQU5HRVM7CiAJCQlicmVhazsKKwkJY2FzZSAnQyc6CisJCQlyX29wdHMuY291
-bnRfZXJyb3JzID0gU0VMSU5VWF9SRVNUT1JFQ09OX0NPVU5UX0VSUk9SUzsKKwkJCWJyZWFrOwog
-CQljYXNlICdFJzoKIAkJCXJfb3B0cy5jb25mbGljdF9lcnJvciA9CiAJCQkJCSAgIFNFTElOVVhf
-UkVTVE9SRUNPTl9DT05GTElDVF9FUlJPUjsKQEAgLTQ0NywxMyArNDUyLDE1IEBAIGludCBtYWlu
-KGludCBhcmdjLCBjaGFyICoqYXJndikKIAkJCWJ1ZltsZW4gLSAxXSA9IDA7CiAJCQlpZiAoIXN0
-cmNtcChidWYsICIvIikpCiAJCQkJcl9vcHRzLm1hc3NfcmVsYWJlbCA9IFNFTElOVVhfUkVTVE9S
-RUNPTl9NQVNTX1JFTEFCRUw7Ci0JCQllcnJvcnMgfD0gcHJvY2Vzc19nbG9iKGJ1ZiwgJnJfb3B0
-cywgbnRocmVhZHMpIDwgMDsKKwkJCWVycm9ycyB8PSBwcm9jZXNzX2dsb2IoYnVmLCAmcl9vcHRz
-LCBudGhyZWFkcywKKwkJCQkJICAgICAgICZza2lwcGVkX2Vycm9ycykgPCAwOwogCQl9CiAJCWlm
-IChzdHJjbXAoaW5wdXRfZmlsZW5hbWUsICItIikgIT0gMCkKIAkJCWZjbG9zZShmKTsKIAl9IGVs
-c2UgewogCQlmb3IgKGkgPSBvcHRpbmQ7IGkgPCBhcmdjOyBpKyspCi0JCQllcnJvcnMgfD0gcHJv
-Y2Vzc19nbG9iKGFyZ3ZbaV0sICZyX29wdHMsIG50aHJlYWRzKSA8IDA7CisJCQllcnJvcnMgfD0g
-cHJvY2Vzc19nbG9iKGFyZ3ZbaV0sICZyX29wdHMsIG50aHJlYWRzLAorCQkJCQkgICAgICAgJnNr
-aXBwZWRfZXJyb3JzKSA8IDA7CiAJfQogCiAJbWF5YmVfYXVkaXRfbWFzc19yZWxhYmVsKHJfb3B0
-cy5tYXNzX3JlbGFiZWwsIGVycm9ycyk7CkBAIC00NjcsNSArNDc0LDUgQEAgaW50IG1haW4oaW50
-IGFyZ2MsIGNoYXIgKiphcmd2KQogCWlmIChyX29wdHMucHJvZ3Jlc3MpCiAJCWZwcmludGYoc3Rk
-b3V0LCAiXG4iKTsKIAotCWV4aXQoZXJyb3JzID8gLTEgOiAwKTsKKwlleGl0KGVycm9ycyA/IC0x
-IDogc2tpcHBlZF9lcnJvcnMgPyAxIDogMCk7CiB9CmRpZmYgLS1naXQgYS9wb2xpY3ljb3JldXRp
-bHMvc2V0ZmlsZXMvc2V0ZmlsZXMuOCBiL3BvbGljeWNvcmV1dGlscy9zZXRmaWxlcy9zZXRmaWxl
-cy44CmluZGV4IDE5YjU5YTJjYzkwZC4uYmYyNmUxNjFhNzFkIDEwMDY0NAotLS0gYS9wb2xpY3lj
-b3JldXRpbHMvc2V0ZmlsZXMvc2V0ZmlsZXMuOAorKysgYi9wb2xpY3ljb3JldXRpbHMvc2V0Zmls
-ZXMvc2V0ZmlsZXMuOApAQCAtNiw2ICs2LDcgQEAgc2V0ZmlsZXMgXC0gc2V0IFNFTGludXggZmls
-ZSBzZWN1cml0eSBjb250ZXh0cy4KIC5CIHNldGZpbGVzCiAuUkIgWyBcLWMKIC5JUiBwb2xpY3kg
-XQorLlJCIFsgXC1DIF0KIC5SQiBbIFwtZCBdCiAuUkIgWyBcLWwgXQogLlJCIFsgXC1tIF0KQEAg
-LTU4LDYgKzU5LDEzIEBAIG9wdGlvbiB3aWxsIGZvcmNlIGEgcmVwbGFjZW1lbnQgb2YgdGhlIGVu
-dGlyZSBjb250ZXh0LgogLkIgXC1jCiBjaGVjayB0aGUgdmFsaWRpdHkgb2YgdGhlIGNvbnRleHRz
-IGFnYWluc3QgdGhlIHNwZWNpZmllZCBiaW5hcnkgcG9saWN5LgogLlRQCisuQiBcLUMKK0lmIG9u
-bHkgcmVsYWJlbGluZyBlcnJvcnMgYXJlIGVuY291bnRlcmVkIGR1cmluZyB0aGUgZmlsZSB0cmVl
-IHdhbGtzLAorZXhpdCB3aXRoIHN0YXR1cworLkIgMQorcmF0aGVyIHRoYW4KKy5CUiAyNTUgLgor
-LlRQCiAuQiBcLWQKIHNob3cgd2hhdCBzcGVjaWZpY2F0aW9uIG1hdGNoZWQgZWFjaCBmaWxlLgog
-LlRQCkBAIC0yMTksNiArMjI3LDIwIEBAIG9yIHRoZQogLkIgXC1zCiBvcHRpb24gaXMgdXNlZC4K
-IAorLlNIICJFWElUIFNUQVRVUyIKKy5CIHNldGZpbGVzCitleGl0cyB3aXRoIHN0YXR1cworLkIg
-MAoraWYgaXQgZW5jb3VudGVycyBubyBlcnJvcnMuIEZhdGFsIGVycm9ycyByZXN1bHQgaW4gc3Rh
-dHVzCisuQlIgMjU1IC4KK0xhYmVsaW5nIGVycm9ycyBlbmNvdW50ZXJlZCBkdXJpbmcgZmlsZSB0
-cmVlIHdhbGsocykgcmVzdWx0IGluIHN0YXR1cworLkIgMQoraWYgdGhlCisuQiAtQworb3B0aW9u
-IGlzIHNwZWNpZmllZCBhbmQgbm8gb3RoZXIga2luZCBvZiBlcnJvciBpcyBlbmNvdW50ZXJlZCwg
-YW5kIGluIHN0YXR1cworLkIgMjU1CitvdGhlcndpc2UuCisKIC5TSCAiTk9URVMiCiAuSVAgIjEu
-IiA0CiAuQiBzZXRmaWxlcwotLSAKMi4xOS4xLjMuZzMwMjQ3YWE1ZDIwMQoK
+On Thu, Apr 28, 2022 at 04:17:07PM +1000, Thiébaud Weksteen wrote:
+> Device drivers may decide to not load firmware when probed to avoid
+> slowing down the boot process should the firmware filesystem not be
+> available yet. In this case, the firmware loading request may be done
+> when a device file associated with the driver is first accessed. The
+> credentials of the userspace process accessing the device file may be
+> used to validate access to the firmware files requested by the driver.
+> Ensure that the kernel assumes the responsibility of reading the
+> firmware.
+> 
+> This was observed on Android for a graphic driver loading their firmware
+> when the device file (e.g. /dev/mali0) was first opened by userspace
+> (i.e. surfaceflinger). The security context of surfaceflinger was used
+> to validate the access to the firmware file (e.g.
+> /vendor/firmware/mali.bin).
+> 
+> Previously, Android configurations were not setting up the
+> firmware_class.path command line argument and were relying on the
+> userspace fallback mechanism. In this case, the security context of the
+> userspace daemon (i.e. ueventd) was consistently used to read firmware
+> files. More Android devices are now found to set firmware_class.path
+> which gives the kernel the opportunity to read the firmware directly
+> (via kernel_read_file_from_path_initns). In this scenario, the current
+> process credentials were used, even if unrelated to the loading of the
+> firmware file.
+> 
+> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
+> ---
 
+As stated before, should this go to stable kernels?  If so, how far
+back?
+
+And you forgot to cc: John?
+
+thanks,
+
+greg k-h
