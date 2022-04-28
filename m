@@ -2,89 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94C92C433F5
-	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 08:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8522C433EF
+	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 09:46:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344402AbiD1Ifu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Apr 2022 04:35:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
+        id S230224AbiD1JuF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Apr 2022 05:50:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344532AbiD1IeI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 04:34:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB6E5A27FF;
-        Thu, 28 Apr 2022 01:28:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S1349106AbiD1JoE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 05:44:04 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 74FA098F5F
+        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 02:40:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651138849;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=icLwfjLes+vf1PUAu7h9TpoMnoj5kVg31I/cvzuVTss=;
+        b=JEvyyONQKqaFR1ST0BxCwRI1YxCBfjfvYNO6XXkc+hP8BWKNQxb1VvaOqAMst+kNqq9VPA
+        yiCANvQfoFMiOc2Q5bMJt90HhGf9MoPjWxUkjOFB78QoLG5o2XLhmTV3hOjaAi3lux3Pe6
+        7u+EwYMTu3XTUwABEQ8AeWVS1HSTFTc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-537-y8SaCFa7NxaD66xrtssXYg-1; Thu, 28 Apr 2022 05:40:48 -0400
+X-MC-Unique: y8SaCFa7NxaD66xrtssXYg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E257B82B47;
-        Thu, 28 Apr 2022 08:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CBA8C385A9;
-        Thu, 28 Apr 2022 08:28:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651134524;
-        bh=FQ7tkUBDxzmIQSIuGVBUfG+AlREALsjEt5yG5PjK1+Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WTZb83o9GLYWJwu5A6wCFd9vhs9TWHnnQMLn9YPQvTKTWatkDPxOxcRjCCLvpt0xE
-         gdX0ZvAECJ1PkQafYq81Fr0s2sYLtY1y2R5LiQ2sI8ZmPtJymzoy0SUU9i79cr57fM
-         AMB1B2Xuzv0sDgWi8K2qlDCtllq7+6Ywl+OMBYeI=
-Date:   Thu, 28 Apr 2022 10:28:41 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     =?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>,
-        Qian Cai <quic_qiancai@quicinc.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Saravana Kannan <saravanak@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] firmware_loader: use kernel credentials when reading
- firmware
-Message-ID: <YmpQOSf0bdOcIZSU@kroah.com>
-References: <20220428061707.768468-1-tweek@google.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BBF4A833961
+        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 09:40:47 +0000 (UTC)
+Received: from lacos-laptop-7.usersys.redhat.com (unknown [10.39.192.29])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 25F249E6D;
+        Thu, 28 Apr 2022 09:40:44 +0000 (UTC)
+Subject: Re: [PATCH for-3.5 0/5] selinux_restorecon(3), setfiles(8): skip
+ relabeling errors
+To:     "Richard W.M. Jones" <rjones@redhat.com>
+Cc:     SELinux List <selinux@vger.kernel.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+References: <20220428065354.27605-1-lersek@redhat.com>
+ <20220428092251.GJ1127@redhat.com>
+From:   Laszlo Ersek <lersek@redhat.com>
+Message-ID: <cdf16622-c2c9-9e63-e60c-ef5f3e6e2a63@redhat.com>
+Date:   Thu, 28 Apr 2022 11:40:43 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220428061707.768468-1-tweek@google.com>
+In-Reply-To: <20220428092251.GJ1127@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 28, 2022 at 04:17:07PM +1000, Thiébaud Weksteen wrote:
-> Device drivers may decide to not load firmware when probed to avoid
-> slowing down the boot process should the firmware filesystem not be
-> available yet. In this case, the firmware loading request may be done
-> when a device file associated with the driver is first accessed. The
-> credentials of the userspace process accessing the device file may be
-> used to validate access to the firmware files requested by the driver.
-> Ensure that the kernel assumes the responsibility of reading the
-> firmware.
+On 04/28/22 11:22, Richard W.M. Jones wrote:
 > 
-> This was observed on Android for a graphic driver loading their firmware
-> when the device file (e.g. /dev/mali0) was first opened by userspace
-> (i.e. surfaceflinger). The security context of surfaceflinger was used
-> to validate the access to the firmware file (e.g.
-> /vendor/firmware/mali.bin).
+> A couple of comments:
 > 
-> Previously, Android configurations were not setting up the
-> firmware_class.path command line argument and were relying on the
-> userspace fallback mechanism. In this case, the security context of the
-> userspace daemon (i.e. ueventd) was consistently used to read firmware
-> files. More Android devices are now found to set firmware_class.path
-> which gives the kernel the opportunity to read the firmware directly
-> (via kernel_read_file_from_path_initns). In this scenario, the current
-> process credentials were used, even if unrelated to the loading of the
-> firmware file.
-> 
-> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
-> ---
+> I'm not clear from the patch series what the difference is between an
+> error which ignored (and counted) and an error that would actually
+> stop setfiles immediately.
 
-As stated before, should this go to stable kernels?  If so, how far
-back?
+The difference is: with the new flag, we count and ignore exactly those
+errors that would abort the processing (the file tree walk) in case
+SELINUX_RESTORECON_ABORT_ON_ERROR were specified.
 
-And you forgot to cc: John?
+This is based on Petr's comments in RHBZ#1794518.
 
-thanks,
+The whole idea is: stick with non-aborting, but *also* don't fail the
+whole function in case you had aborted with ABORT_ON_ERROR. Because
+right now, even though we don't abort, we still fail the whole function.
 
-greg k-h
+> With setfiles -C, will all errors now be
+> counted and cause setfiles to exit with 1, or will some errors still
+> be fatal (exit with 255)?
+
+The latter, definitely.
+
+> Why on earth is setfiles originally calling exit(-1) at all?!  I
+> didn't even know that was allowed.  I wrote a test program and this
+> does indeed cause the exit status to be 255 (because the status is
+> &-ed with 0xff).  Never seen a program before calling exit(-1).
+
+I noticed that immediately, but that's not something I want to get
+into... ;)
+
+Laszlo
+
