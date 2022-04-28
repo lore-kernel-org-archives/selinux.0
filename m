@@ -2,102 +2,179 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0651BC433F5
-	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 16:24:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AC9EC433EF
+	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 17:22:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349959AbiD1Q1q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Apr 2022 12:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34658 "EHLO
+        id S1343562AbiD1RZt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Apr 2022 13:25:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239094AbiD1Q1o (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 12:27:44 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9AFAD6D979
-        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 09:24:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651163068;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=v6dEH2Is1dsv2aKSnWcn6aar4lCC+P8+XqL0CnaG4Lo=;
-        b=Y15lDzNygD/1kZd+/EduYm8tZ8N9BcWqDjeSl/9jACVkvJ/8MRAUlCclE9qUqCTOpARZvz
-        xQT5QBKVdqJ7YIes9rXtOe8hd3RCgVBp0AeqIqWZV0+euSLG4l+lgvoI+n5+4jdA0VssNC
-        +dli5GyWWyIpIyuceFUSORHqq/zjWn4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-150-J8RuA-5UNQ2ThMJx303P7w-1; Thu, 28 Apr 2022 12:24:26 -0400
-X-MC-Unique: J8RuA-5UNQ2ThMJx303P7w-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 751A180231F
-        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 16:24:26 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.194.13])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C543540D2821;
-        Thu, 28 Apr 2022 16:24:25 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
+        with ESMTP id S1343575AbiD1RZr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 13:25:47 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD085BD39
+        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 10:22:32 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id g6so10941847ejw.1
+        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 10:22:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=lP7jSxzwJFxP7qTqUwyhijHQrQPoPLEBhpWzJn4tphg=;
+        b=N3W6Bh1kPjAC22pn4+SCIIfBsRic8HrXISqs7l6quWXHKZZ2RdJHIKeHvQsrLl3roQ
+         LdNMZYwlX0FovVQtxwaqj5aGBUl3H1OyxTpS5OQrGoGy6dYHd6ACQks1YEcpEWcuG+Hk
+         B0ZKCKCcuCeu2Fv/Haq5Qzzxb9vKirRaJP1mqkj70dMmG3poBsLNsy/JSM/03LIb4ACv
+         OVCMiNQbmVmHSrqfdmH4+GfICfPLBZ5UtJo55t/m4olsVI+YI+E32OirEfA1qE7CradO
+         9qpbmqvuAaXCKNB6JQedl4D8Z4aOVHJrUwWwTM/yYD3iqoqzCSNqHwtwTgYlCs9sACUR
+         5CuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=lP7jSxzwJFxP7qTqUwyhijHQrQPoPLEBhpWzJn4tphg=;
+        b=6CCz64UA7Xe8P6H62HZJAZAHY/Y9fvvFl6NI5A/4JQFp/z2T2XjmgP8FHFuJm8fELV
+         /WXqe38F7iH83ZAPehhQ6rNuKgoptEK2HpVrIGFfQIUzGVN+ERwujiFX1474BObSnpcb
+         TxB/WTQQu7RE/uwHMsriBKll3UOrcY4yPpgeWK2BZpB3YByBnN0r/aOi987Pl5rFEKeR
+         4Sbl6IVIRCknmGkHjeqNpxpxuc9ZIUblBgcaSYWeIElIwNasOCxGrfvqB5HSdNuVK7Ei
+         NvjO2powWdSUOZON5iC/S0fMblp5tdI1hcvbVYLV7ZdiHopGnOqbSqGilW1OYCvmlaNB
+         jgyA==
+X-Gm-Message-State: AOAM532MEf593A5XdcFXtSOAyCC7UjHrKsxZO580pFBzCpkrN4OLrj3D
+        cZWcweFRgM2lh41U3qMXCNpT27ycuZc=
+X-Google-Smtp-Source: ABdhPJwInwzjVseuQ5TztVmlEInFPmfG3b4OA9nT5yZ8n2NOxV0Jc7ZP/4Mzxzz7+73Sry8LFcNnUA==
+X-Received: by 2002:a17:907:6d9d:b0:6da:7d4c:287f with SMTP id sb29-20020a1709076d9d00b006da7d4c287fmr31814245ejc.741.1651166551131;
+        Thu, 28 Apr 2022 10:22:31 -0700 (PDT)
+Received: from dlaptop.localdomain (dynamic-077-010-136-150.77.10.pool.telefonica.de. [77.10.136.150])
+        by smtp.gmail.com with ESMTPSA id ci21-20020a170906c35500b006f394323ccesm215301ejb.34.2022.04.28.10.22.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Apr 2022 10:22:30 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] Update missing sandbox translations
-Date:   Thu, 28 Apr 2022 18:23:59 +0200
-Message-Id: <20220428162358.396459-1-plautrba@redhat.com>
+Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libselinux/utils/getsebool: add options to display en-/disabled booleans
+Date:   Thu, 28 Apr 2022 19:22:19 +0200
+Message-Id: <20220428172219.28520-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
-Content-type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Source https://translate.fedoraproject.org/projects/selinux/
+Add command line options to getsebool(8) to display either all enabled
+or all disabled booleans.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
+ libselinux/man/man8/getsebool.8 |  8 +++++++-
+ libselinux/utils/getsebool.c    | 36 +++++++++++++++++++++++++++------
+ 2 files changed, 37 insertions(+), 7 deletions(-)
 
-Available at https://github.com/bachradsusi/SELinuxProject-selinux/commit/d108226d3fc6ac2b83d7de61fe9c626877df7870
-
-
- sandbox/po/cs.po       | 154 +++++++++++++++++++++++++++++++++
- sandbox/po/da.po       | 176 +++++++++++++++++++++++++++++++++++++
- sandbox/po/de.po       | 175 +++++++++++++++++++++++++++++++++++++
- sandbox/po/es.po       | 178 ++++++++++++++++++++++++++++++++++++++
- sandbox/po/fi.po       | 181 ++++++++++++++++++++++++++++++++++++++
- sandbox/po/fr.po       | 183 +++++++++++++++++++++++++++++++++++++++
- sandbox/po/hu.po       | 158 +++++++++++++++++++++++++++++++++
- sandbox/po/it.po       | 192 +++++++++++++++++++++++++++++++++++++++++
- sandbox/po/ja.po       | 178 ++++++++++++++++++++++++++++++++++++++
- sandbox/po/ko.po       | 171 ++++++++++++++++++++++++++++++++++++
- sandbox/po/nl.po       | 177 +++++++++++++++++++++++++++++++++++++
- sandbox/po/pl.po       | 178 ++++++++++++++++++++++++++++++++++++++
- sandbox/po/pt_BR.po    | 174 +++++++++++++++++++++++++++++++++++++
- sandbox/po/ru.po       | 176 +++++++++++++++++++++++++++++++++++++
- sandbox/po/sandbox.pot |   6 +-
- sandbox/po/si.po       | 156 +++++++++++++++++++++++++++++++++
- sandbox/po/sv.po       | 176 +++++++++++++++++++++++++++++++++++++
- sandbox/po/tr.po       | 182 ++++++++++++++++++++++++++++++++++++++
- sandbox/po/uk.po       | 178 ++++++++++++++++++++++++++++++++++++++
- sandbox/po/zh_CN.po    | 171 ++++++++++++++++++++++++++++++++++++
- sandbox/po/zh_TW.po    | 169 ++++++++++++++++++++++++++++++++++++
- 21 files changed, 3486 insertions(+), 3 deletions(-)
- create mode 100644 sandbox/po/cs.po
- create mode 100644 sandbox/po/da.po
- create mode 100644 sandbox/po/de.po
- create mode 100644 sandbox/po/es.po
- create mode 100644 sandbox/po/fi.po
- create mode 100644 sandbox/po/fr.po
- create mode 100644 sandbox/po/hu.po
- create mode 100644 sandbox/po/it.po
- create mode 100644 sandbox/po/ja.po
- create mode 100644 sandbox/po/ko.po
- create mode 100644 sandbox/po/nl.po
- create mode 100644 sandbox/po/pl.po
- create mode 100644 sandbox/po/pt_BR.po
- create mode 100644 sandbox/po/ru.po
- create mode 100644 sandbox/po/si.po
- create mode 100644 sandbox/po/sv.po
- create mode 100644 sandbox/po/tr.po
- create mode 100644 sandbox/po/uk.po
- create mode 100644 sandbox/po/zh_CN.po
- create mode 100644 sandbox/po/zh_TW.po
+diff --git a/libselinux/man/man8/getsebool.8 b/libselinux/man/man8/getsebool.8
+index d70bf1e4..d8356d36 100644
+--- a/libselinux/man/man8/getsebool.8
++++ b/libselinux/man/man8/getsebool.8
+@@ -4,7 +4,7 @@ getsebool \- get SELinux boolean value(s)
+ .
+ .SH "SYNOPSIS"
+ .B getsebool
+-.RB [ \-a ]
++.RB [ \-a | \-0 | \-1 ]
+ .RI [ boolean ]
+ .
+ .SH "DESCRIPTION"
+@@ -26,6 +26,12 @@ their pending values as desired and then committing once.
+ .TP
+ .B \-a
+ Show all SELinux booleans.
++.TP
++.B \-0
++Show all disabled SELinux booleans.
++.TP
++.B \-1
++Show all enabled SELinux booleans.
+ .
+ .SH AUTHOR
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+diff --git a/libselinux/utils/getsebool.c b/libselinux/utils/getsebool.c
+index 36994536..7fb0b58b 100644
+--- a/libselinux/utils/getsebool.c
++++ b/libselinux/utils/getsebool.c
+@@ -6,21 +6,31 @@
+ #include <string.h>
+ #include <selinux/selinux.h>
+ 
++enum list_mode {
++	SPECIFIED,
++	ALL,
++	DISABLED,
++	ENABLED,
++};
++
+ static __attribute__ ((__noreturn__)) void usage(const char *progname)
+ {
+-	fprintf(stderr, "usage:  %s -a or %s boolean...\n", progname, progname);
++	fprintf(stderr, "usage:  %s [-a|-0|-1] or %s boolean...\n", progname, progname);
+ 	exit(1);
+ }
+ 
+ int main(int argc, char **argv)
+ {
+-	int i, get_all = 0, rc = 0, active, pending, len = 0, opt;
++	int i, rc = 0, active, pending, len = 0, opt;
++	enum list_mode mode = SPECIFIED;
+ 	char **names = NULL;
+ 
+-	while ((opt = getopt(argc, argv, "a")) > 0) {
++	while ((opt = getopt(argc, argv, "a01")) > 0) {
+ 		switch (opt) {
+ 		case 'a':
+-			if (argc > 2)
++		case '0':
++		case '1':
++			if (argc > 2 || mode != SPECIFIED)
+ 				usage(argv[0]);
+ 			if (is_selinux_enabled() <= 0) {
+ 				fprintf(stderr, "%s:  SELinux is disabled\n",
+@@ -39,7 +49,17 @@ int main(int argc, char **argv)
+ 				printf("No booleans\n");
+ 				return 0;
+ 			}
+-			get_all = 1;
++			switch (opt) {
++			case 'a':
++				mode = ALL;
++				break;
++			case '0':
++				mode = DISABLED;
++				break;
++			case '1':
++				mode = ENABLED;
++				break;
++			}
+ 			break;
+ 		default:
+ 			usage(argv[0]);
+@@ -74,7 +94,7 @@ int main(int argc, char **argv)
+ 	for (i = 0; i < len; i++) {
+ 		active = security_get_boolean_active(names[i]);
+ 		if (active < 0) {
+-			if (get_all && errno == EACCES) 
++			if (mode != SPECIFIED && errno == EACCES)
+ 				continue;
+ 			fprintf(stderr, "Error getting active value for %s\n",
+ 				names[i]);
+@@ -88,6 +108,10 @@ int main(int argc, char **argv)
+ 			rc = -1;
+ 			goto out;
+ 		}
++		if ((mode == ENABLED  && active == 0 && pending == 0) ||
++		    (mode == DISABLED && active == 1 && pending == 1)) {
++			continue;
++		}
+ 		char *alt_name = selinux_boolean_sub(names[i]);
+ 		if (! alt_name) {
+ 			perror("Out of memory\n");
+-- 
+2.36.0
 
