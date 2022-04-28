@@ -2,78 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAC7FC433EF
-	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 09:46:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B11FEC433EF
+	for <selinux@archiver.kernel.org>; Thu, 28 Apr 2022 16:08:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231610AbiD1JuJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Apr 2022 05:50:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58156 "EHLO
+        id S236129AbiD1QLQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Apr 2022 12:11:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346620AbiD1J0J (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 05:26:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8E83B7B571
-        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 02:22:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651137774;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YJP5mV4jzpHRZn0otYuAKveMulHHSOpNMyewdi5952M=;
-        b=Bo2Gck3xY1rVt7OJHQoJwI3lwN56qzGxyE6OXGheiOrfBVjyc73r80K3oiIz2o5l2UspSX
-        R0aTqIthlOG70Lrmo22iOs07oArNuiMa7Wda0bBLIVxsolA2QAQDe6W4sGuQbPuUA3qxGl
-        /7qDjZilcr9FaNgwAul8TpUZAP3Oybo=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-594-gyGbr_e9PoK711oauwU2xw-1; Thu, 28 Apr 2022 05:22:53 -0400
-X-MC-Unique: gyGbr_e9PoK711oauwU2xw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 162641E17FE3
-        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 09:22:53 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.129])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BCD30C44CD6;
-        Thu, 28 Apr 2022 09:22:52 +0000 (UTC)
-Date:   Thu, 28 Apr 2022 10:22:51 +0100
-From:   "Richard W.M. Jones" <rjones@redhat.com>
-To:     Laszlo Ersek <lersek@redhat.com>
-Cc:     SELinux List <selinux@vger.kernel.org>,
-        Petr Lautrbach <plautrba@redhat.com>
-Subject: Re: [PATCH for-3.5 0/5] selinux_restorecon(3), setfiles(8): skip
- relabeling errors
-Message-ID: <20220428092251.GJ1127@redhat.com>
-References: <20220428065354.27605-1-lersek@redhat.com>
+        with ESMTP id S232927AbiD1QLQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Apr 2022 12:11:16 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5A7A85BE43
+        for <selinux@vger.kernel.org>; Thu, 28 Apr 2022 09:08:01 -0700 (PDT)
+Received: from [192.168.1.10] (pool-173-66-191-184.washdc.fios.verizon.net [173.66.191.184])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 9873A20E99B0;
+        Thu, 28 Apr 2022 09:08:00 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9873A20E99B0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1651162081;
+        bh=IiJzQKnIEfLvkQDF1rKQWdLJxzCzqEvBILvcCKcRw0E=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=a0usU0rfUOCt12C1gDHO4rZqEk/2R+C557ipuyOj/LuVeJJ1nNzPzsmXxVl82FQdE
+         sn/fyFioPiGKO5sz5CW+LsUN/3to2ju2OoAVXlkKg9pYCF+Wibknp/HtjLZqBwVu4y
+         iFXGnhySuA+fr2I6FDsqScWzW6lg8hAqYGZtVuS8=
+Message-ID: <45e6ae63-efef-5ee8-6238-81476e250965@linux.microsoft.com>
+Date:   Thu, 28 Apr 2022 12:07:53 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220428065354.27605-1-lersek@redhat.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH for-3.5 3/5] setfiles: remove useless "iamrestorecon"
+ checks in option parsing
+Content-Language: en-US
+To:     Laszlo Ersek <lersek@redhat.com>,
+        SELinux List <selinux@vger.kernel.org>
+Cc:     "Richard W.M. Jones" <rjones@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>
+References: <20220428065354.27605-1-lersek@redhat.com>
+ <20220428065354.27605-4-lersek@redhat.com>
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <20220428065354.27605-4-lersek@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On 4/28/2022 2:53 AM, Laszlo Ersek wrote:
+> Commit 219eea83cea9 ("policycoreutils: setfiles/restorecon: fix -r/-R
+> option", 2015-04-16) split the option strings between "setfiles" and
+> "restorecon". Since that commit, an "iamrestorecon" check has only been
+> necessary for an option that is (a) accepted by both "setfiles" and
+> "restorecon", but (b) behaves differently between "setfiles" and
+> "restorecon". Currently, the only such options are "-r" and "-R". Remove
+> the "iamrestorecon" checks from the "setfiles"-only "-c" and "-d" options,
+> and from the "restorecon"-only "-x" option.
+> 
+> Cc: "Richard W.M. Jones" <rjones@redhat.com>
+> Cc: Petr Lautrbach <plautrba@redhat.com>
+> Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1794518
+> Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+> ---
+>   policycoreutils/setfiles/setfiles.c | 11 +----------
+>   1 file changed, 1 insertion(+), 10 deletions(-)
+> 
+> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+> index cf504618d38f..aeec1fdcc2ab 100644
+> --- a/policycoreutils/setfiles/setfiles.c
+> +++ b/policycoreutils/setfiles/setfiles.c
+> @@ -227,9 +227,6 @@ int main(int argc, char **argv)
+>   			{
+>   				FILE *policystream;
+>   
+> -				if (iamrestorecon)
+> -					usage(argv[0]);
+> -
+>   				policyfile = optarg;
+>   
+>   				policystream = fopen(policyfile, "r");
+> @@ -267,8 +264,6 @@ int main(int argc, char **argv)
+>   			input_filename = optarg;
+>   			break;
+>   		case 'd':
+> -			if (iamrestorecon)
+> -				usage(argv[0]);
+>   			r_opts.debug = 1;
+>   			r_opts.log_matches =
+>   					   SELINUX_RESTORECON_LOG_MATCHES;
+> @@ -367,11 +362,7 @@ int main(int argc, char **argv)
+>   			null_terminated = 1;
+>   			break;
+>   		case 'x':
+> -			if (iamrestorecon) {
+> -				r_opts.xdev = SELINUX_RESTORECON_XDEV;
+> -			} else {
+> -				usage(argv[0]);
+> -			}
+> +			r_opts.xdev = SELINUX_RESTORECON_XDEV;
+>   			break;
+>   		case 'T':
+>   			nthreads = strtoull(optarg, &endptr, 10);
 
-A couple of comments:
-
-I'm not clear from the patch series what the difference is between an
-error which ignored (and counted) and an error that would actually
-stop setfiles immediately.  With setfiles -C, will all errors now be
-counted and cause setfiles to exit with 1, or will some errors still
-be fatal (exit with 255)?
-
-Why on earth is setfiles originally calling exit(-1) at all?!  I
-didn't even know that was allowed.  I wrote a test program and this
-does indeed cause the exit status to be 255 (because the status is
-&-ed with 0xff).  Never seen a program before calling exit(-1).
-
-Rich.
-
--- 
-Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-Read my programming and virtualization blog: http://rwmj.wordpress.com
-nbdkit - Flexible, fast NBD server with plugins
-https://gitlab.com/nbdkit/nbdkit
-
+Reviewed-By: Daniel Burgener <dburgener@linux.microsoft.com>
