@@ -2,65 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED578C433EF
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 13:59:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7570C433F5
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:02:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236631AbiEBOCo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 10:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38840 "EHLO
+        id S1352128AbiEBOFd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 10:05:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236512AbiEBOCn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:02:43 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8FFD97;
-        Mon,  2 May 2022 06:59:14 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id n10so10510619ejk.5;
-        Mon, 02 May 2022 06:59:14 -0700 (PDT)
+        with ESMTP id S236925AbiEBOFd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:05:33 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C03B3898;
+        Mon,  2 May 2022 07:02:02 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id y3so27898447ejo.12;
+        Mon, 02 May 2022 07:02:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Os0MOBateTIZNqGjk/IqRphgpNZOrSipT31T6veAyYk=;
-        b=SIRqaRBqFV0HHZ+/Vu7/WSPskHyhS93OTkvi6AITANAX2lHITs/J/43bE+uWWBF722
-         Qe+lr2AC0cEcRUXwfF6QyXXZJQklA9vSri2LbxioWYErtirEUBPDRX4AvANVC5LviLoB
-         a/1VPZxO/MiHyXBkwIf+EOVlJYjZJnE3Fe5b/dSLP3axPiY6K6/m2bv8oPJo79SlYXnW
-         pro26581vF0c3CSB9NaLG26cZ06Buw4g1XlBIzPR010+iBrAxB+KqEVkf3Y66w666dNl
-         hDeTZF3IJGrC9dDEQvjF04eM2mDmSQ3QHj8hBZ0yNvvQAUOd/XIdd7gGxlGTXU6C7dbP
-         yU7w==
+        bh=WkFaJgQfY8xafjGsalWc3iud3tYP7nWYcNFdHaIwP9Q=;
+        b=MjdhurxCNSwDwDeoauPjdn+WJkbwFr3TJmtEgqnUWnBlfaQ39uoIHPGb2FYpc45V1r
+         AT5c6NDRvLZVlR7YLpUAMgHgs2HiyTXurPuCvoe7sZPP+ymNxNqgaVek/S6FyXiIYbvM
+         5NLWxN/ehx2C0/WvaN8JgBBkVvdEVuwOdac8z+jlrV4hZLZZLVAWvN6SOk4B9dZcMv3a
+         iq+wqIQk8DGDhvy9cwC3KDRLFeZKwTXUIZXzWcycEW2O9Zz3gfuK/fwM4z6kcD0gvl/O
+         Z5Pu10J7m+jlKvKH3Fa/LIEf+WxbcWN0me5AAFIcARMIug4P33sPAYcnsbjZppMSgiP2
+         8pJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Os0MOBateTIZNqGjk/IqRphgpNZOrSipT31T6veAyYk=;
-        b=Dth+K2tGeaXMenn26h9YRJ/Scycdr7n1ZzMJZAzxj+HLUp0bdCbRns1seFhMNmEjj5
-         qDurjA0cBpK8hHiVho18vJUKbVVN3yHHBIJFo1BLrDOM7c7vXaEqEG20/OSbdm+uFRo4
-         HQcLEDdiYG1SiaXp89+w4BGkenWzGKtRGhVizMdicyirO86x1oT6PBS4kYPD/fV7pW1g
-         XKA5HxzKtoN74dPFKoDriP1f0LIqu48PjamPJ6l92dG8iXtKYRp94ThzkQC4mYQ/lnmC
-         stoghAjgFieZmVd2iN0fs8BR5tH5ZfivTIs+rm0fjjcUr665lAQE8EhX9jWxMw/ljJnw
-         tAyA==
-X-Gm-Message-State: AOAM5304379G3LY7fZRoLGMz0I2Tx93Cy9Kcqb0VuZPpWxNaD8VeqUT0
-        ysaHp4R2nharkYBT/+KmLBYoLCexSI8=
-X-Google-Smtp-Source: ABdhPJwZ74FxBXyKA241QxksU85nE3PXih88C+jd2HSekSna/oxLcshq7GYaNT5HSSAVW5JStN+b8A==
-X-Received: by 2002:a17:906:c0d6:b0:6ca:457e:f1b7 with SMTP id bn22-20020a170906c0d600b006ca457ef1b7mr11362817ejb.399.1651499952950;
-        Mon, 02 May 2022 06:59:12 -0700 (PDT)
+        bh=WkFaJgQfY8xafjGsalWc3iud3tYP7nWYcNFdHaIwP9Q=;
+        b=fjGws7QNdlOx8Lr639bEJyYbYOqT+GElPFV+lWoY3Lr/fWfdo9imjC5wRC/4sCHckR
+         Bo3ofsE3Z9IzkZRnquQ02umh0IEdJegVtbRhspckiapqukRp0pFTbgKp/eWQ70Jr2rb7
+         xUaiH5jWA98i/4EjFuvM3Tg5GWCZ75hCoxADaqALR8nLOl2C58RaMlzgL+K0qvAwcbsd
+         XWQ3Y01Wrxmud8NVn+c5dAcwIakPOQstmDj9yI/V0YQ3ehU6VbhzmjwsaWoVJ4g3lcNi
+         EWRLvhJTKsY5d6wHH/Z6dKRs0LWsfjml8ZvLbkCHlXajHp2uxzKBn0eszOuCLI93RhB1
+         CITw==
+X-Gm-Message-State: AOAM533sAjyR9hYtBnM+C7YlChf/gNQqpvisjI0O0Ia80cJ26c8DoAf8
+        Eqc3vzkDWJQECD2xtLdeHHLjfru8L38=
+X-Google-Smtp-Source: ABdhPJwM4mPi+VJVSc99REy3rsk6vnxjwUSJLUlUCoiv8ZwuixH/ZOgfYZcjZK2un67w9jatoehGhA==
+X-Received: by 2002:a17:907:7618:b0:6f3:9722:3dd1 with SMTP id jx24-20020a170907761800b006f397223dd1mr6159925ejc.424.1651500114261;
+        Mon, 02 May 2022 07:01:54 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id jl13-20020a17090775cd00b006f3ef214e0csm3649494ejc.114.2022.05.02.06.59.11
+        by smtp.gmail.com with ESMTPSA id r22-20020a056402035600b00425d6c76494sm6681193edw.1.2022.05.02.07.01.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 06:59:12 -0700 (PDT)
+        Mon, 02 May 2022 07:01:53 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Austin Kim <austin.kim@lge.com>,
-        Michal Orzel <michalorzel.eng@gmail.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: use unsigned char for boolean values
-Date:   Mon,  2 May 2022 15:59:04 +0200
-Message-Id: <20220502135907.31035-1-cgzones@googlemail.com>
+        Al Viro <viro@zeniv.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: update parameter documentation
+Date:   Mon,  2 May 2022 16:01:50 +0200
+Message-Id: <20220502140151.31767-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,165 +64,44 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Reported by sparse:
+security/selinux/include/audit.h:54: warning: Function parameter or member 'krule' not described in 'selinux_audit_rule_known'
+security/selinux/include/audit.h:54: warning: Excess function parameter 'rule' description in 'selinux_audit_rule_known'
+security/selinux/include/avc.h:130: warning: Function parameter or member 'state' not described in 'avc_audit'
 
-    security/selinux/selinuxfs.c:1483:30: warning: incorrect type in assignment (different signedness)
-    security/selinux/selinuxfs.c:1483:30:    expected unsigned int *
-    security/selinux/selinuxfs.c:1483:30:    got int *[addressable] values
-    security/selinux/selinuxfs.c:1400:48: warning: incorrect type in argument 3 (different signedness)
-    security/selinux/selinuxfs.c:1400:48:    expected int *values
-    security/selinux/selinuxfs.c:1400:48:    got unsigned int *bool_pending_values
-
-Also mark the read-only boolean array parameter of security_set_bools()
-const.
+This also bring the parameter name of selinux_audit_rule_known() in sync
+between declaration and definition.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/include/conditional.h |  4 ++--
- security/selinux/selinuxfs.c           | 12 ++++++------
- security/selinux/ss/policydb.h         |  2 +-
- security/selinux/ss/services.c         | 13 +++++++------
- 4 files changed, 16 insertions(+), 15 deletions(-)
+ security/selinux/include/audit.h | 2 +-
+ security/selinux/include/avc.h   | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
-index b09343346e3f..f1b52115e0a3 100644
---- a/security/selinux/include/conditional.h
-+++ b/security/selinux/include/conditional.h
-@@ -14,9 +14,9 @@
- #include "security.h"
+diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
+index 073a3d34a0d2..549a382fe6e7 100644
+--- a/security/selinux/include/audit.h
++++ b/security/selinux/include/audit.h
+@@ -51,7 +51,7 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *rule);
+  *	@rule: rule to be checked
+  *	Returns 1 if there are selinux fields specified in the rule, 0 otherwise.
+  */
+-int selinux_audit_rule_known(struct audit_krule *krule);
++int selinux_audit_rule_known(struct audit_krule *rule);
  
- int security_get_bools(struct selinux_policy *policy,
--		       u32 *len, char ***names, int **values);
-+		       u32 *len, char ***names, unsigned char **values);
+ #endif /* _SELINUX_AUDIT_H */
  
--int security_set_bools(struct selinux_state *state, u32 len, int *values);
-+int security_set_bools(struct selinux_state *state, u32 len, const unsigned char *values);
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 00f78be48283..2b372f98f2d7 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -104,6 +104,7 @@ int slow_avc_audit(struct selinux_state *state,
  
- int security_get_bool_value(struct selinux_state *state, u32 index);
- 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8fcdd494af27..404b4561f8b0 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -71,7 +71,7 @@ struct selinux_fs_info {
- 	struct dentry *bool_dir;
- 	unsigned int bool_num;
- 	char **bool_pending_names;
--	unsigned int *bool_pending_values;
-+	unsigned char *bool_pending_values;
- 	struct dentry *class_dir;
- 	unsigned long last_class_ino;
- 	bool policy_opened;
-@@ -356,7 +356,7 @@ static const struct file_operations sel_policyvers_ops = {
- /* declaration for sel_write_load */
- static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
- 			  unsigned int *bool_num, char ***bool_pending_names,
--			  unsigned int **bool_pending_values);
-+			  unsigned char **bool_pending_values);
- static int sel_make_classes(struct selinux_policy *newpolicy,
- 			    struct dentry *class_dir,
- 			    unsigned long *last_class_ino);
-@@ -527,7 +527,7 @@ static const struct file_operations sel_policy_ops = {
- };
- 
- static void sel_remove_old_bool_data(unsigned int bool_num, char **bool_names,
--				unsigned int *bool_values)
-+				unsigned char *bool_values)
- {
- 	u32 i;
- 
-@@ -545,7 +545,7 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
- 	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir, *old_dentry;
- 	unsigned int tmp_bool_num, old_bool_num;
- 	char **tmp_bool_names, **old_bool_names;
--	unsigned int *tmp_bool_values, *old_bool_values;
-+	unsigned char *tmp_bool_values, *old_bool_values;
- 	unsigned long tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
- 
- 	tmp_parent = sel_make_disconnected_dir(fsi->sb, &tmp_ino);
-@@ -1423,7 +1423,7 @@ static void sel_remove_entries(struct dentry *de)
- 
- static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
- 			  unsigned int *bool_num, char ***bool_pending_names,
--			  unsigned int **bool_pending_values)
-+			  unsigned char **bool_pending_values)
- {
- 	int ret;
- 	ssize_t len;
-@@ -1432,7 +1432,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
- 	struct inode_security_struct *isec;
- 	char **names = NULL, *page;
- 	u32 i, num;
--	int *values = NULL;
-+	unsigned char *values = NULL;
- 	u32 sid;
- 
- 	ret = -ENOMEM;
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index c24d4e1063ea..f85e875a7799 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -148,7 +148,7 @@ struct range_trans {
- /* Boolean data type */
- struct cond_bool_datum {
- 	__u32 value;		/* internal type value */
--	int state;
-+	unsigned char state;
- };
- 
- struct cond_node;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 802a80648c6c..7349ed4a4d0d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3022,7 +3022,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
- }
- 
- int security_get_bools(struct selinux_policy *policy,
--		       u32 *len, char ***names, int **values)
-+		       u32 *len, char ***names, unsigned char **values)
- {
- 	struct policydb *policydb;
- 	u32 i;
-@@ -3044,7 +3044,7 @@ int security_get_bools(struct selinux_policy *policy,
- 		goto err;
- 
- 	rc = -ENOMEM;
--	*values = kcalloc(*len, sizeof(int), GFP_ATOMIC);
-+	*values = kcalloc(*len, sizeof(unsigned char), GFP_ATOMIC);
- 	if (!*values)
- 		goto err;
- 
-@@ -3074,7 +3074,7 @@ int security_get_bools(struct selinux_policy *policy,
- }
- 
- 
--int security_set_bools(struct selinux_state *state, u32 len, int *values)
-+int security_set_bools(struct selinux_state *state, u32 len, const unsigned char *values)
- {
- 	struct selinux_policy *newpolicy, *oldpolicy;
- 	int rc;
-@@ -3106,8 +3106,8 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
- 
- 	/* Update the boolean states in the copy */
- 	for (i = 0; i < len; i++) {
--		int new_state = !!values[i];
--		int old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
-+		unsigned char new_state = !!values[i];
-+		unsigned char old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
- 
- 		if (new_state != old_state) {
- 			audit_log(audit_context(), GFP_ATOMIC,
-@@ -3174,7 +3174,8 @@ int security_get_bool_value(struct selinux_state *state,
- static int security_preserve_bools(struct selinux_policy *oldpolicy,
- 				struct selinux_policy *newpolicy)
- {
--	int rc, *bvalues = NULL;
-+	int rc;
-+	unsigned char *bvalues = NULL;
- 	char **bnames = NULL;
- 	struct cond_bool_datum *booldatum;
- 	u32 i, nbools = 0;
+ /**
+  * avc_audit - Audit the granting or denial of permissions.
++ * @state: SELinux state
+  * @ssid: source security identifier
+  * @tsid: target security identifier
+  * @tclass: target security class
 -- 
 2.36.0
 
