@@ -2,68 +2,61 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD2CAC433F5
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 15:24:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 719FFC433EF
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 16:00:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239579AbiEBP2C (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 11:28:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
+        id S1386039AbiEBQEO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 12:04:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239588AbiEBP17 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 11:27:59 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFFB13CCD;
-        Mon,  2 May 2022 08:24:29 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id gh6so28500015ejb.0;
-        Mon, 02 May 2022 08:24:29 -0700 (PDT)
+        with ESMTP id S241345AbiEBQEN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 12:04:13 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A165F93;
+        Mon,  2 May 2022 09:00:44 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id kq17so28609143ejb.4;
+        Mon, 02 May 2022 09:00:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=5JlRQCvAcuJPfq+J5yVcoCOkpKkMcU56ENlg86d7ai8=;
-        b=pJu49czcNYpe0rC6GeFENSl/WLDwHSVM5d56cL3COHRer/SHDhAc6nvpgSRHmPFvJa
-         lGmKgJJp0dXvB8UK4fhxFkske3G4yOY3XV4ys3nXHOTCtWQ4qXwAxJuNnjsXGkOENUKx
-         MxGdTes95b970fM0J87w17qIpkvZ0bBMq/ONxlF2Fjtg25O/KHkq1Wlo+EferYDSfljS
-         vmA0vGWjPEfhO+tDdaEoCThBtKbtLLVZw+CFiWurUOZvHw4wfWQLDl94qRAWtBL0dpEQ
-         T1+smn1nrlEAKC+/dB0HI+tFPzIrlZaOvOw+Fn8AfFaqyBrjMOV2ZeU6ym0mAfIfEX84
-         byUA==
+        bh=busCb+Om5lGBi8mOWmr9OZyYy/vhvqsiFL5/BXL6zqA=;
+        b=ghk5NXhphzM2gG989XZFhRAZZGZycbT6Xm1juiPzyiJ9UWfO8/jJt8Y905OOl6IeCV
+         StRbo7WnSDtUgPaLnm48Gq7edKbikw4gDhZOtb33pF+vhKu9POC5LHE1FhZLxWGehz+L
+         I5cGaZRIegguH5Enu7D/TXvhLfkMrb7WiHEh9a58D0laKm9jnp5LskhUbH4Nrh3XthN0
+         MzWJaCk6Nz4X6UOp5hZSCibk7EROY0K6aauOALrXk1CHbzgR5+BCuJQWGw5r7MJfcshI
+         Dq5eNcmau6KflTW8SWsYMcQNqaqBcEooEeRaNLwkG+rTo7NNbANgLC0zwAwBVKj5tHtX
+         tTqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=5JlRQCvAcuJPfq+J5yVcoCOkpKkMcU56ENlg86d7ai8=;
-        b=iKJmR7PBa1I2i+8F7zBvbQoirSM/Gi3xqbIfVMVkQw40UBFtIhHCJED593QxxCby37
-         xNsvYgHZBUV2vik9vdgxVDvaAQelO0RI2Rr2/3NyV0KWU1yZxnw208Hk02BiuMqLpZzq
-         BdWVG3pCK44bF9dgVm4DqbDLCKKtj9gLq5Ee7tWxIx2fRa3Y29LVjFYj/qA9pwQ4zEYZ
-         Gx01wELixpNWVldRbYAIooafZgmLvUi6uoBIYKAoAvAAWGZwOtunmt8Z5HUmMGl2AmvS
-         ywLSGCJ8ODgfcycHW+CTqyAkFAhv/ol+BKpD3t9maOtjF8pQ9Y9g5RRLjpG8+9/cIM1I
-         ECYg==
-X-Gm-Message-State: AOAM533iOqoRwPGf5metbpKgyHJI/bv6aPTdBtnWJg++gIGIjVMEsgfy
-        1U7ELKrR1jQQGdnO/PFad8EiIcuGG65JTQ==
-X-Google-Smtp-Source: ABdhPJzb+5ieXFsu0eXyyU2x+aSBTk3OL+QJNpbY6q1pm/iOpFUlMnHZ617ZOGJbdaq4srMD4470gw==
-X-Received: by 2002:a17:907:6daa:b0:6f4:4822:549d with SMTP id sb42-20020a1709076daa00b006f44822549dmr5737046ejc.322.1651505068151;
-        Mon, 02 May 2022 08:24:28 -0700 (PDT)
+        bh=busCb+Om5lGBi8mOWmr9OZyYy/vhvqsiFL5/BXL6zqA=;
+        b=ERbALm5eqCky8ZJ1Y8L4xG+SHrNSXL9u41gtowRv6phNeY7j/IqO09UvB9CKkIOCKF
+         uZrFjxGqYbbgEbDypS9549GH9DvFk5yvAddmUFPP6qcsuORB+Dn08qe8UnFImPMV1ygi
+         V+dJgc4SXkZpAf6DW/0AVlh3iCeSgqaweiUhIVuLMgb/35Jr5WaiKqSYR5scJSXkmeGD
+         qFCzgbaumfxPb3Y7GUSl+VT9WCMxZKPqkcxjko8bfF2reEMCoP4LFKo2egxuGO5uMHSf
+         V9Zz8wNnCVJERfJ0S9WdFPdmX8f2FZyXa+LOaMYSXHsdUgz3EYSX6NM4XElDvXSoNeTx
+         3dAg==
+X-Gm-Message-State: AOAM531ZWcUAIS9/qXa4/lndY0Mnm3uuPNlKvAvYIP/q0z+PHVF7RM8j
+        NRlotN0VyZN+qnSKLLuaunjn65ywYxCX4g==
+X-Google-Smtp-Source: ABdhPJznP7hHNSMc6KAkJzb55uU2vdD7o+qcKVDmADHxYa4PbgS0HNkxS0e9NHIHM/Y7m2OIX9eouQ==
+X-Received: by 2002:a17:907:3e25:b0:6f4:2c9a:709d with SMTP id hp37-20020a1709073e2500b006f42c9a709dmr8293319ejc.175.1651507242418;
+        Mon, 02 May 2022 09:00:42 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id hx8-20020a170906846800b006f3ef214dd0sm3641947ejc.54.2022.05.02.08.24.26
+        by smtp.gmail.com with ESMTPSA id h18-20020a1709070b1200b006f3ef214dd3sm3689996ejl.57.2022.05.02.09.00.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 08:24:26 -0700 (PDT)
+        Mon, 02 May 2022 09:00:42 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2] [RFC PATCH] sched: only perform capability check on privileged operation
-Date:   Mon,  2 May 2022 17:24:14 +0200
-Message-Id: <20220502152414.110922-1-cgzones@googlemail.com>
+Cc:     Serge Hallyn <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 2/8] capability: use new capable_or functionality
+Date:   Mon,  2 May 2022 18:00:23 +0200
+Message-Id: <20220502160030.131168-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20200904160031.6444-1-cgzones@googlemail.com>
-References: <20200904160031.6444-1-cgzones@googlemail.com>
+In-Reply-To: <20220217145003.78982-2-cgzones@googlemail.com>
+References: <20220217145003.78982-2-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -71,191 +64,33 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-sched_setattr(2) issues via kernel/sched/core.c:__sched_setscheduler()
-a CAP_SYS_NICE audit event unconditionally, even when the requested
-operation does not require that capability / is unprivileged, i.e. for
-reducing niceness.
-This is relevant in connection with SELinux, where a capability check
-results in a policy decision and by default a denial message on
-insufficient permission is issued.
-It can lead to three undesired cases:
-  1. A denial message is generated, even in case the operation was an
-     unprivileged one and thus the syscall succeeded, creating noise.
-  2. To avoid the noise from 1. the policy writer adds a rule to ignore
-     those denial messages, hiding future syscalls, where the task
-     performs an actual privileged operation, leading to hidden limited
-     functionality of that task.
-  3. To avoid the noise from 1. the policy writer adds a rule to allow
-     the task the capability CAP_SYS_NICE, while it does not need it,
-     violating the principle of least privilege.
-
-Conduct privilged/unprivileged categorization first and perform a
-capable test (and at most once) only if needed.
+Use the new added capable_or function in appropriate cases, where a task
+is required to have any of two capabilities.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-
 ---
-v2:
-  add is_nice_reduction() to avoid duplicate capable(CAP_SYS_NICE)
-  checks via can_nice()
----
- kernel/sched/core.c | 135 +++++++++++++++++++++++++++-----------------
- 1 file changed, 84 insertions(+), 51 deletions(-)
+ include/linux/capability.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index d575b4914925..b9c1e67af46f 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -7211,6 +7211,86 @@ static bool check_same_owner(struct task_struct *p)
- 	return match;
+diff --git a/include/linux/capability.h b/include/linux/capability.h
+index a16d1edea9b3..1f26d6bae4f3 100644
+--- a/include/linux/capability.h
++++ b/include/linux/capability.h
+@@ -261,12 +261,12 @@ extern bool file_ns_capable(const struct file *file, struct user_namespace *ns,
+ extern bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns);
+ static inline bool perfmon_capable(void)
+ {
+-	return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
++	return capable_or(CAP_PERFMON, CAP_SYS_ADMIN);
  }
  
-+/*
-+ * is_nice_reduction - check if nice value is an actual reduction
-+ *
-+ * Similar to can_nice() but does not perform a capability check.
-+ *
-+ * @p: task
-+ * @nice: nice value
-+ */
-+static bool is_nice_reduction(const struct task_struct *p, const int nice)
-+{
-+	/* Convert nice value [19,-20] to rlimit style value [1,40]: */
-+	int nice_rlim = nice_to_rlimit(nice);
-+
-+	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE));
-+}
-+
-+/*
-+ * Allow unprivileged RT tasks to decrease priority.
-+ * Only issue a capable test if needed and only once to avoid an audit
-+ * event on permitted non-privileged operations:
-+ */
-+static int user_check_sched_setscheduler(struct task_struct *p,
-+					 const struct sched_attr *attr,
-+					 int policy, int reset_on_fork)
-+{
-+	if (fair_policy(policy)) {
-+		if (attr->sched_nice < task_nice(p) &&
-+			!is_nice_reduction(p, attr->sched_nice))
-+			goto req_priv;
-+	}
-+
-+	if (rt_policy(policy)) {
-+		unsigned long rlim_rtprio =
-+		task_rlimit(p, RLIMIT_RTPRIO);
-+
-+		/* Can't set/change the rt policy: */
-+		if (policy != p->policy && !rlim_rtprio)
-+			goto req_priv;
-+
-+		/* Can't increase priority: */
-+		if (attr->sched_priority > p->rt_priority &&
-+			attr->sched_priority > rlim_rtprio)
-+			goto req_priv;
-+	}
-+
-+	/*
-+	 * Can't set/change SCHED_DEADLINE policy at all for now
-+	 * (safest behavior); in the future we would like to allow
-+	 * unprivileged DL tasks to increase their relative deadline
-+	 * or reduce their runtime (both ways reducing utilization)
-+	 */
-+	if (dl_policy(policy))
-+		goto req_priv;
-+
-+	/*
-+	 * Treat SCHED_IDLE as nice 20. Only allow a switch to
-+	 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
-+	 */
-+	if (task_has_idle_policy(p) && !idle_policy(policy)) {
-+		if (!is_nice_reduction(p, task_nice(p)))
-+			goto req_priv;
-+	}
-+
-+	/* Can't change other user's priorities: */
-+	if (!check_same_owner(p))
-+		goto req_priv;
-+
-+	/* Normal users shall not reset the sched_reset_on_fork flag: */
-+	if (p->sched_reset_on_fork && !reset_on_fork)
-+		goto req_priv;
-+
-+	return 0;
-+
-+req_priv:
-+	if (!capable(CAP_SYS_NICE))
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
- static int __sched_setscheduler(struct task_struct *p,
- 				const struct sched_attr *attr,
- 				bool user, bool pi)
-@@ -7252,58 +7332,11 @@ static int __sched_setscheduler(struct task_struct *p,
- 	    (rt_policy(policy) != (attr->sched_priority != 0)))
- 		return -EINVAL;
+ static inline bool bpf_capable(void)
+ {
+-	return capable(CAP_BPF) || capable(CAP_SYS_ADMIN);
++	return capable_or(CAP_BPF, CAP_SYS_ADMIN);
+ }
  
--	/*
--	 * Allow unprivileged RT tasks to decrease priority:
--	 */
--	if (user && !capable(CAP_SYS_NICE)) {
--		if (fair_policy(policy)) {
--			if (attr->sched_nice < task_nice(p) &&
--			    !can_nice(p, attr->sched_nice))
--				return -EPERM;
--		}
--
--		if (rt_policy(policy)) {
--			unsigned long rlim_rtprio =
--					task_rlimit(p, RLIMIT_RTPRIO);
--
--			/* Can't set/change the rt policy: */
--			if (policy != p->policy && !rlim_rtprio)
--				return -EPERM;
--
--			/* Can't increase priority: */
--			if (attr->sched_priority > p->rt_priority &&
--			    attr->sched_priority > rlim_rtprio)
--				return -EPERM;
--		}
--
--		 /*
--		  * Can't set/change SCHED_DEADLINE policy at all for now
--		  * (safest behavior); in the future we would like to allow
--		  * unprivileged DL tasks to increase their relative deadline
--		  * or reduce their runtime (both ways reducing utilization)
--		  */
--		if (dl_policy(policy))
--			return -EPERM;
--
--		/*
--		 * Treat SCHED_IDLE as nice 20. Only allow a switch to
--		 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
--		 */
--		if (task_has_idle_policy(p) && !idle_policy(policy)) {
--			if (!can_nice(p, task_nice(p)))
--				return -EPERM;
--		}
--
--		/* Can't change other user's priorities: */
--		if (!check_same_owner(p))
--			return -EPERM;
--
--		/* Normal users shall not reset the sched_reset_on_fork flag: */
--		if (p->sched_reset_on_fork && !reset_on_fork)
--			return -EPERM;
--	}
--
- 	if (user) {
-+		retval = user_check_sched_setscheduler(p, attr, policy, reset_on_fork);
-+		if (retval)
-+			return retval;
-+
- 		if (attr->sched_flags & SCHED_FLAG_SUGOV)
- 			return -EINVAL;
- 
+ static inline bool checkpoint_restore_ns_capable(struct user_namespace *ns)
 -- 
 2.36.0
 
