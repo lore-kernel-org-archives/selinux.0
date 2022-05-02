@@ -2,63 +2,61 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A724C433EF
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:11:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C217C433FE
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:15:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237107AbiEBOO3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 10:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52928 "EHLO
+        id S1385542AbiEBOTJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 10:19:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385495AbiEBOO1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:14:27 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FCD15A09;
-        Mon,  2 May 2022 07:10:57 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id y21so16774088edo.2;
-        Mon, 02 May 2022 07:10:57 -0700 (PDT)
+        with ESMTP id S1385627AbiEBOS5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:18:57 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95167DED5;
+        Mon,  2 May 2022 07:15:27 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id a1so16782820edt.3;
+        Mon, 02 May 2022 07:15:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=joK5j7ew5SKN/cHxslItBx63j5PdrPIBK5veE/G0SHQ=;
-        b=HoTx0fI9k/wNi8rf31TR+bf9CBgvi+XlcN26lQIR2oH50DFX3uY8EjYs8+G9Ly2AX6
-         VPiXuWl7g1L+R+0+J1tpVhf4zprGMtz4C9LDN/Qc721rO0peoxWUrcKYLl0kciA4tqxQ
-         1KowbweQSYEX5KdI3o8/+qh+R7PyJ3OccMWbBK10okckN8R3Q0gY6c3EkRMJegBaKMZI
-         936Msgv+6Au0TlDpcEAoY7o80jMmf/3NxXozY4m+iJ2RyuL0MOCa1VWtSr08jqiE4A6L
-         C73Sp9OLZalQdJcEQEHzDVNfcQs9a/u0xbXkxTGFvEY5Oul2MsuNymLbIj8SGyfqGbeK
-         T0Pg==
+        bh=PR2akzjSHzRoLtewUgMac6+Y64PGqXA5YmcADTBjoU4=;
+        b=X7wEduK/sxNWcNtLYd0sc7+yrcRgmJh25G5yNy5TWFjEQdBZCMPhgaVDdOumB9XAMC
+         7xQxydrHn/tGdmLO9sK536W9YcTX8qRpG5zcaQEmHJuP0ohRIRIeXDicO0mNCYM65Teu
+         fBZbPs4HFzP7x1d7WBHr6flZpeyDaRwskBFU1FoPlE6CnEXHndnzPZe118SZSUMB/MDi
+         F3ZoZAiEowignsRgGSCUkAADIyAehrvUI8ekDGRi7PlavmoIan/OVGS7hXNHQve8OVOq
+         hRLepkxyn1ECWbKGdcANNmIIlxsWgEBgM7c8bbnucktUTSyR0pUncsIOMNyYWtfaGD0+
+         tbIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=joK5j7ew5SKN/cHxslItBx63j5PdrPIBK5veE/G0SHQ=;
-        b=dRuV5eaY38O+aBx4w8/pMtLlw4RYWLJsyvc0uoIp3vRHTUukHqby9dlyFX7NFwqNTC
-         r0MjWk77d1G5OqdutR5It+hPQmcyfys/3S+Yht4IzMWa7EAvd/6vB8KBvb1NWx0NAGhS
-         nuDtvPEeYgksizkJ81JgYXaTjEkaAcngN7EqPMESU75LQacZIqTiHWWcCJGkDWVGjpdC
-         bXsYkGhdLNoyTkgmjj1Bx+KBz9GiG2NGp4fy1CctgHGWeaAAj1pcD5U1rYXpo9sOtJYt
-         vUZc19Bj5Ccpv1nN0t3k9CpjObUGcpkolu1LFGwOK3Pxx3eGfANaQpsDBfYwmmEmhmcY
-         qiLA==
-X-Gm-Message-State: AOAM532eYFKBZKDHUQySsbJpvucyRd59mWSOw5wu+29cgQiCAAnY/1aW
-        uay2MEKn8RR78mW1Ph0i9mXdBuMHsjY=
-X-Google-Smtp-Source: ABdhPJz6NFDvTejbV7HnVzqZN55zXR3cWNJXtPu/IPMmkDmCdKUEg/L8wi7+Q3qw3YfQxCG1r7+jBA==
-X-Received: by 2002:aa7:dd91:0:b0:427:b2c4:1c7a with SMTP id g17-20020aa7dd91000000b00427b2c41c7amr9825791edv.91.1651500655633;
-        Mon, 02 May 2022 07:10:55 -0700 (PDT)
+        bh=PR2akzjSHzRoLtewUgMac6+Y64PGqXA5YmcADTBjoU4=;
+        b=erqnaEvt/3J5F5JMmtkSP1q7k7XvtmvVpO2tkAJ/FJbOkoqPDw15/OT4LpbFCCfiy0
+         a7hozlRvgsDNULKiR5MBn4wbTCQFYFqmwk0ez1VBQbMmJzYjQKhpTBw+ig6Ck4lWnnvJ
+         S/pMCpik0RYcmtMlazA8a/NEwIBLK5OrFZVymKxVTtIWLak5G7MLreAGYXtf3mXXDUy4
+         IU1qW9ZjNctyuh3Q7Xl9otSblBM14HF5YSyXcXZiY515004NwXCZojwvYx9ox2nYhL/W
+         XEE+MeqcV7w9EqzgCd5XIz95vm530oUKpAtKlKOLXOZ8loIKX7or18hvP5mUsGqKaJTZ
+         rdxQ==
+X-Gm-Message-State: AOAM533JkfwhaWrn+jxVJvsSRguhS6iDdNzuEPx9a6Cuu3/t5oLk5sDc
+        an0PL5m9tTUHXycUhbfhKzEThoITvNE=
+X-Google-Smtp-Source: ABdhPJw+jDtp4IfHKIp26ybwHOkEk7fjBevcj7sFZ4t1Gq4UbzD+N99TSN8TYTqNZ3C95MsC3MT1yA==
+X-Received: by 2002:aa7:df15:0:b0:41d:675f:ea9a with SMTP id c21-20020aa7df15000000b0041d675fea9amr13886093edy.148.1651500926165;
+        Mon, 02 May 2022 07:15:26 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id s23-20020a056402037700b0042617ba639bsm6732338edw.37.2022.05.02.07.10.54
+        by smtp.gmail.com with ESMTPSA id ig11-20020a1709072e0b00b006f3ef214e2dsm3771770ejc.147.2022.05.02.07.15.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 07:10:55 -0700 (PDT)
+        Mon, 02 May 2022 07:15:25 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH] selinux: avoid extra semicolon
-Date:   Mon,  2 May 2022 16:10:51 +0200
-Message-Id: <20220502141052.34413-1-cgzones@googlemail.com>
+        Zhongjun Tan <tanzhongjun@yulong.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: include necessary headers in headers
+Date:   Mon,  2 May 2022 16:15:20 +0200
+Message-Id: <20220502141524.35268-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,38 +65,100 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Wrap macro into `do { } while (0)` to avoid Clang emitting warnings
-about extra semicolons.
-Similar to userspace commit
-https://github.com/SELinuxProject/selinux/commit/9d85aa60d12e468e7fd510c2b5475b5299b71622
+Include header files required for struct or typedef declarations in
+header files.  This is for example helpful when working with an IDE, which
+needs to resolve those symbols.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/avtab.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/selinux/include/audit.h   | 3 +++
+ security/selinux/include/avc_ss.h  | 2 +-
+ security/selinux/include/ibpkey.h  | 2 ++
+ security/selinux/include/netnode.h | 2 ++
+ security/selinux/include/netport.h | 2 ++
+ security/selinux/include/xfrm.h    | 2 ++
+ 6 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index cfdae20792e1..6178af5fedbe 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -40,7 +40,7 @@ static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
+diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
+index 073a3d34a0d2..be42d7dc2c0c 100644
+--- a/security/selinux/include/audit.h
++++ b/security/selinux/include/audit.h
+@@ -12,6 +12,9 @@
+ #ifndef _SELINUX_AUDIT_H
+ #define _SELINUX_AUDIT_H
  
- 	u32 hash = 0;
++#include <linux/audit.h>
++#include <linux/types.h>
++
+ /**
+  *	selinux_audit_rule_init - alloc/init an selinux audit rule structure.
+  *	@field: the field this rule refers to
+diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
+index 88c384c5c09e..66a87559b788 100644
+--- a/security/selinux/include/avc_ss.h
++++ b/security/selinux/include/avc_ss.h
+@@ -7,7 +7,7 @@
+ #ifndef _SELINUX_AVC_SS_H_
+ #define _SELINUX_AVC_SS_H_
  
--#define mix(input) { \
-+#define mix(input) do { \
- 	u32 v = input; \
- 	v *= c1; \
- 	v = (v << r1) | (v >> (32 - r1)); \
-@@ -48,7 +48,7 @@ static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
- 	hash ^= v; \
- 	hash = (hash << r2) | (hash >> (32 - r2)); \
- 	hash = hash * m + n; \
--}
-+} while (0)
+-#include "flask.h"
++#include <linux/types.h>
  
- 	mix(keyp->target_class);
- 	mix(keyp->target_type);
+ struct selinux_avc;
+ int avc_ss_reset(struct selinux_avc *avc, u32 seqno);
+diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
+index e6ac1d23320b..c992f83b0aae 100644
+--- a/security/selinux/include/ibpkey.h
++++ b/security/selinux/include/ibpkey.h
+@@ -14,6 +14,8 @@
+ #ifndef _SELINUX_IB_PKEY_H
+ #define _SELINUX_IB_PKEY_H
+ 
++#include <linux/types.h>
++
+ #ifdef CONFIG_SECURITY_INFINIBAND
+ void sel_ib_pkey_flush(void);
+ int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
+diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
+index e3f784a85840..9b8b655a8cd3 100644
+--- a/security/selinux/include/netnode.h
++++ b/security/selinux/include/netnode.h
+@@ -17,6 +17,8 @@
+ #ifndef _SELINUX_NETNODE_H
+ #define _SELINUX_NETNODE_H
+ 
++#include <linux/types.h>
++
+ void sel_netnode_flush(void);
+ 
+ int sel_netnode_sid(void *addr, u16 family, u32 *sid);
+diff --git a/security/selinux/include/netport.h b/security/selinux/include/netport.h
+index 31bc16e29cd1..9096a8289948 100644
+--- a/security/selinux/include/netport.h
++++ b/security/selinux/include/netport.h
+@@ -16,6 +16,8 @@
+ #ifndef _SELINUX_NETPORT_H
+ #define _SELINUX_NETPORT_H
+ 
++#include <linux/types.h>
++
+ void sel_netport_flush(void);
+ 
+ int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid);
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index 74159400eeee..c75839860200 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -8,7 +8,9 @@
+ #ifndef _SELINUX_XFRM_H_
+ #define _SELINUX_XFRM_H_
+ 
++#include <linux/lsm_audit.h>
+ #include <net/flow.h>
++#include <net/xfrm.h>
+ 
+ int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
+ 			      struct xfrm_user_sec_ctx *uctx,
 -- 
 2.36.0
 
