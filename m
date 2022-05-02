@@ -2,65 +2,63 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED48CC433EF
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:06:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A724C433EF
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:11:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236824AbiEBOJ1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 10:09:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47060 "EHLO
+        id S237107AbiEBOO3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 10:14:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385647AbiEBOJV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:09:21 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247A611C0F;
-        Mon,  2 May 2022 07:05:51 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id t5so6097343edw.11;
-        Mon, 02 May 2022 07:05:51 -0700 (PDT)
+        with ESMTP id S1385495AbiEBOO1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:14:27 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22FCD15A09;
+        Mon,  2 May 2022 07:10:57 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id y21so16774088edo.2;
+        Mon, 02 May 2022 07:10:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=pPLLrK87W5L0xDS+IAmgyi2hotQv2CviI90UwehzET8=;
-        b=hmwoWd+7A0ykHs4a7yIByjDsaD/555iYWv+o5vIkKMRNFHBgkVh08WtoVS0qZy5qg1
-         aursqahrAnvKBXwaEm7qNxfzmpO6HTMQo9GBKFBPmEtgDCw78/7MqlLwChTtfIyYmmgF
-         EanfTT6fkKHKzycCLw6k5nAC2vT9HY51Hmbq25Ec4o3thDyf1lpQDIoi6nhVD1SPZM1k
-         p/TRfT5KJQ52fRbDo0oKgiWgKdf6+QUFu8820KL5vh4vPpR7QWHijDRPmZKymg0NoZ4I
-         e5QexQWmWNwKU0eBDUHnoMT6XFhtD/w0cUbamJxfsjXjNeNOuLW9XFkEjAH3ICfO7WmF
-         XiqQ==
+        bh=joK5j7ew5SKN/cHxslItBx63j5PdrPIBK5veE/G0SHQ=;
+        b=HoTx0fI9k/wNi8rf31TR+bf9CBgvi+XlcN26lQIR2oH50DFX3uY8EjYs8+G9Ly2AX6
+         VPiXuWl7g1L+R+0+J1tpVhf4zprGMtz4C9LDN/Qc721rO0peoxWUrcKYLl0kciA4tqxQ
+         1KowbweQSYEX5KdI3o8/+qh+R7PyJ3OccMWbBK10okckN8R3Q0gY6c3EkRMJegBaKMZI
+         936Msgv+6Au0TlDpcEAoY7o80jMmf/3NxXozY4m+iJ2RyuL0MOCa1VWtSr08jqiE4A6L
+         C73Sp9OLZalQdJcEQEHzDVNfcQs9a/u0xbXkxTGFvEY5Oul2MsuNymLbIj8SGyfqGbeK
+         T0Pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=pPLLrK87W5L0xDS+IAmgyi2hotQv2CviI90UwehzET8=;
-        b=bpyxXgv6qk9PJMwZMTvNxhtgD846rziHusczV8JOckgS+42iV6c28O2R7jNr1oZVTV
-         ZcXD61ThMwTaJzEJvO6WvTrxW8DYO2gWeEXMEcVW5Gjr53ygC82b7BrNwdMiqHgbAZmo
-         Dw92eMFPuKiWmwkjHF3BeXD4l4xTZXd3yAgBh8sDXd23cs+frmtEyZWuEIflinJhNrJO
-         0bV096Xry+ONT1nSmPcQmX6EGNdqsonLa96FS3jFVs+E/lKNatELDriHLrvFTbsb2gVQ
-         2IiAVZgVvFpiHjWHHnW1Yuahjbo458SP3W6WXaYL+c9pFvu4t4dBOl9ZNOCNdRibVxd9
-         pO8g==
-X-Gm-Message-State: AOAM532Y/OyBwhJfFzkJwAkW3vTboO7FQxZ+6FNcctnrMAc/pBSSZV/6
-        Ll8n8RvH9ZK8sOQHZPxfgQnHKwcO+nI=
-X-Google-Smtp-Source: ABdhPJz6MwjmAyI5sDX00wnuRU4QLpTrLSXCZiWltNObVS9OTx1QifsXZ0NGMiXZyfadV36KrOFXWw==
-X-Received: by 2002:a50:e78d:0:b0:41d:c8ec:81b0 with SMTP id b13-20020a50e78d000000b0041dc8ec81b0mr13340760edn.56.1651500349642;
-        Mon, 02 May 2022 07:05:49 -0700 (PDT)
+        bh=joK5j7ew5SKN/cHxslItBx63j5PdrPIBK5veE/G0SHQ=;
+        b=dRuV5eaY38O+aBx4w8/pMtLlw4RYWLJsyvc0uoIp3vRHTUukHqby9dlyFX7NFwqNTC
+         r0MjWk77d1G5OqdutR5It+hPQmcyfys/3S+Yht4IzMWa7EAvd/6vB8KBvb1NWx0NAGhS
+         nuDtvPEeYgksizkJ81JgYXaTjEkaAcngN7EqPMESU75LQacZIqTiHWWcCJGkDWVGjpdC
+         bXsYkGhdLNoyTkgmjj1Bx+KBz9GiG2NGp4fy1CctgHGWeaAAj1pcD5U1rYXpo9sOtJYt
+         vUZc19Bj5Ccpv1nN0t3k9CpjObUGcpkolu1LFGwOK3Pxx3eGfANaQpsDBfYwmmEmhmcY
+         qiLA==
+X-Gm-Message-State: AOAM532eYFKBZKDHUQySsbJpvucyRd59mWSOw5wu+29cgQiCAAnY/1aW
+        uay2MEKn8RR78mW1Ph0i9mXdBuMHsjY=
+X-Google-Smtp-Source: ABdhPJz6NFDvTejbV7HnVzqZN55zXR3cWNJXtPu/IPMmkDmCdKUEg/L8wi7+Q3qw3YfQxCG1r7+jBA==
+X-Received: by 2002:aa7:dd91:0:b0:427:b2c4:1c7a with SMTP id g17-20020aa7dd91000000b00427b2c41c7amr9825791edv.91.1651500655633;
+        Mon, 02 May 2022 07:10:55 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id jx28-20020a170907761c00b006f3ef214e29sm3682355ejc.143.2022.05.02.07.05.48
+        by smtp.gmail.com with ESMTPSA id s23-20020a056402037700b0042617ba639bsm6732338edw.37.2022.05.02.07.10.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 07:05:49 -0700 (PDT)
+        Mon, 02 May 2022 07:10:55 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Michal Orzel <michalorzel.eng@gmail.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
-        Austin Kim <austin.kim@lge.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: fix indentation level of mls_ops block
-Date:   Mon,  2 May 2022 16:05:46 +0200
-Message-Id: <20220502140547.32685-1-cgzones@googlemail.com>
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH] selinux: avoid extra semicolon
+Date:   Mon,  2 May 2022 16:10:51 +0200
+Message-Id: <20220502141052.34413-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,68 +67,38 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add one level of indentation to the code block of the label mls_ops in
-constraint_expr_eval(), to adjust the trailing break; to the parent
-case: branch.
+Wrap macro into `do { } while (0)` to avoid Clang emitting warnings
+about extra semicolons.
+Similar to userspace commit
+https://github.com/SELinuxProject/selinux/commit/9d85aa60d12e468e7fd510c2b5475b5299b71622
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/services.c | 42 +++++++++++++++++-----------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ security/selinux/ss/avtab.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 802a80648c6c..e62e04b1ec6c 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -358,27 +358,27 @@ static int constraint_expr_eval(struct policydb *policydb,
- 				l2 = &(tcontext->range.level[1]);
- 				goto mls_ops;
- mls_ops:
--			switch (e->op) {
--			case CEXPR_EQ:
--				s[++sp] = mls_level_eq(l1, l2);
--				continue;
--			case CEXPR_NEQ:
--				s[++sp] = !mls_level_eq(l1, l2);
--				continue;
--			case CEXPR_DOM:
--				s[++sp] = mls_level_dom(l1, l2);
--				continue;
--			case CEXPR_DOMBY:
--				s[++sp] = mls_level_dom(l2, l1);
--				continue;
--			case CEXPR_INCOMP:
--				s[++sp] = mls_level_incomp(l2, l1);
--				continue;
--			default:
--				BUG();
--				return 0;
--			}
--			break;
-+				switch (e->op) {
-+				case CEXPR_EQ:
-+					s[++sp] = mls_level_eq(l1, l2);
-+					continue;
-+				case CEXPR_NEQ:
-+					s[++sp] = !mls_level_eq(l1, l2);
-+					continue;
-+				case CEXPR_DOM:
-+					s[++sp] = mls_level_dom(l1, l2);
-+					continue;
-+				case CEXPR_DOMBY:
-+					s[++sp] = mls_level_dom(l2, l1);
-+					continue;
-+				case CEXPR_INCOMP:
-+					s[++sp] = mls_level_incomp(l2, l1);
-+					continue;
-+				default:
-+					BUG();
-+					return 0;
-+				}
-+				break;
- 			default:
- 				BUG();
- 				return 0;
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index cfdae20792e1..6178af5fedbe 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -40,7 +40,7 @@ static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
+ 
+ 	u32 hash = 0;
+ 
+-#define mix(input) { \
++#define mix(input) do { \
+ 	u32 v = input; \
+ 	v *= c1; \
+ 	v = (v << r1) | (v >> (32 - r1)); \
+@@ -48,7 +48,7 @@ static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
+ 	hash ^= v; \
+ 	hash = (hash << r2) | (hash >> (32 - r2)); \
+ 	hash = hash * m + n; \
+-}
++} while (0)
+ 
+ 	mix(keyp->target_class);
+ 	mix(keyp->target_type);
 -- 
 2.36.0
 
