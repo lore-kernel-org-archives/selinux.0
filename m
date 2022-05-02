@@ -2,63 +2,65 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9802C433EF
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 13:49:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED578C433EF
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 13:59:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385428AbiEBNwd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 09:52:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58472 "EHLO
+        id S236631AbiEBOCo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 10:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236253AbiEBNwc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 09:52:32 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C8A12743;
-        Mon,  2 May 2022 06:49:03 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id y21so16698901edo.2;
-        Mon, 02 May 2022 06:49:03 -0700 (PDT)
+        with ESMTP id S236512AbiEBOCn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:02:43 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F8FFD97;
+        Mon,  2 May 2022 06:59:14 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id n10so10510619ejk.5;
+        Mon, 02 May 2022 06:59:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=H/4xzLqwIKeVu+ASklRt4sq1liyEda8jvxXULguh/dk=;
-        b=i3bi4gEuL9OUDxzPR9IK8VOscpCIL2KCndLusI2KNDb5JCyfMVRMvKwZ+9k2HBZrIs
-         YLeBcY/R7S4rWKZIbkbBP6eL1GzwPa7tiFzstGTxWzx9q9Rh/XSim1VVMo79h6a6CMAj
-         e0hQtew11gSzQDJRYGRz/NK7BfXAa0bSfVP3DZFwsCxXvBn6l+sp8zkuyV1uoPFGJ/X2
-         gF8WAetV6KZe9cAA1FRV/jxTnZFVsBtcTWH1Bx46H1mJEhMaV/qOfR4sGvJ7NPNCKrOs
-         jY1E8UwW+9+WJDi6mIt3+fPHEoCNSS4KRZ1rgLGOIDf5O4u1acE6Z0DR2t7ej9yQxP6k
-         zyIg==
+        bh=Os0MOBateTIZNqGjk/IqRphgpNZOrSipT31T6veAyYk=;
+        b=SIRqaRBqFV0HHZ+/Vu7/WSPskHyhS93OTkvi6AITANAX2lHITs/J/43bE+uWWBF722
+         Qe+lr2AC0cEcRUXwfF6QyXXZJQklA9vSri2LbxioWYErtirEUBPDRX4AvANVC5LviLoB
+         a/1VPZxO/MiHyXBkwIf+EOVlJYjZJnE3Fe5b/dSLP3axPiY6K6/m2bv8oPJo79SlYXnW
+         pro26581vF0c3CSB9NaLG26cZ06Buw4g1XlBIzPR010+iBrAxB+KqEVkf3Y66w666dNl
+         hDeTZF3IJGrC9dDEQvjF04eM2mDmSQ3QHj8hBZ0yNvvQAUOd/XIdd7gGxlGTXU6C7dbP
+         yU7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=H/4xzLqwIKeVu+ASklRt4sq1liyEda8jvxXULguh/dk=;
-        b=Sv5uNGAPT1ISrIHGG9AsTbR7WnA9R9py5CKeCnFeIL3B3DMOl1/fqfPbFlmwcuYpan
-         xU8QWBtwYeP4v2Vfuh8maBTPMD5VaP0Yx7SOQgq6ud/OLJGlioeL/8vdsGZJLupxWexX
-         SVQXM4dNA66h9Fsvef6ruGI8w14VmXtLtQPJOn0kkJWe9Lx2CI5amHV5gBSARy19Lw81
-         c5/2zF0F2xoXIgdv8MZz1GE+EMEAczeHiQoMiO3PrpgvWmkUgFV8hCfH8wZY7Ow/4iZq
-         p24Py19vX70aQkj6WiJ2kPBVNvJjFxkx/9MKeJ7TT1Ni1XLy+wO1agQqFwy2DrRRqcIj
-         sBsQ==
-X-Gm-Message-State: AOAM533gGCE60bICs2UVYYq7gOeHRklWCxHnDvvXiwVEEvjMghamXhGn
-        OZFt/Ci++30cBUKvrcn/LZirl9n7hv8=
-X-Google-Smtp-Source: ABdhPJxiNKXh5nPY15pU839tLBO6aAYIIVVNTlYlbnwB1x18cYzeh3ZoIfK/fJqKr/p65ndsEcQDbw==
-X-Received: by 2002:a05:6402:ea8:b0:41d:78ca:b929 with SMTP id h40-20020a0564020ea800b0041d78cab929mr13345949eda.289.1651499342008;
-        Mon, 02 May 2022 06:49:02 -0700 (PDT)
+        bh=Os0MOBateTIZNqGjk/IqRphgpNZOrSipT31T6veAyYk=;
+        b=Dth+K2tGeaXMenn26h9YRJ/Scycdr7n1ZzMJZAzxj+HLUp0bdCbRns1seFhMNmEjj5
+         qDurjA0cBpK8hHiVho18vJUKbVVN3yHHBIJFo1BLrDOM7c7vXaEqEG20/OSbdm+uFRo4
+         HQcLEDdiYG1SiaXp89+w4BGkenWzGKtRGhVizMdicyirO86x1oT6PBS4kYPD/fV7pW1g
+         XKA5HxzKtoN74dPFKoDriP1f0LIqu48PjamPJ6l92dG8iXtKYRp94ThzkQC4mYQ/lnmC
+         stoghAjgFieZmVd2iN0fs8BR5tH5ZfivTIs+rm0fjjcUr665lAQE8EhX9jWxMw/ljJnw
+         tAyA==
+X-Gm-Message-State: AOAM5304379G3LY7fZRoLGMz0I2Tx93Cy9Kcqb0VuZPpWxNaD8VeqUT0
+        ysaHp4R2nharkYBT/+KmLBYoLCexSI8=
+X-Google-Smtp-Source: ABdhPJwZ74FxBXyKA241QxksU85nE3PXih88C+jd2HSekSna/oxLcshq7GYaNT5HSSAVW5JStN+b8A==
+X-Received: by 2002:a17:906:c0d6:b0:6ca:457e:f1b7 with SMTP id bn22-20020a170906c0d600b006ca457ef1b7mr11362817ejb.399.1651499952950;
+        Mon, 02 May 2022 06:59:12 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id em22-20020a170907289600b006f3ef214e5fsm3595732ejc.197.2022.05.02.06.49.01
+        by smtp.gmail.com with ESMTPSA id jl13-20020a17090775cd00b006f3ef214e0csm3649494ejc.114.2022.05.02.06.59.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 06:49:01 -0700 (PDT)
+        Mon, 02 May 2022 06:59:12 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
+        Austin Kim <austin.kim@lge.com>,
+        Michal Orzel <michalorzel.eng@gmail.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
         Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: resolve checkpatch errors
-Date:   Mon,  2 May 2022 15:48:48 +0200
-Message-Id: <20220502134850.28372-1-cgzones@googlemail.com>
+Subject: [PATCH] selinux: use unsigned char for boolean values
+Date:   Mon,  2 May 2022 15:59:04 +0200
+Message-Id: <20220502135907.31035-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,158 +69,165 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Reported by checkpatch:
+Reported by sparse:
 
-    security/selinux/nlmsgtab.c
-    ---------------------------
-    ERROR: that open brace { should be on the previous line
-    #29: FILE: security/selinux/nlmsgtab.c:29:
-    +static const struct nlmsg_perm nlmsg_route_perms[] =
-    +{
+    security/selinux/selinuxfs.c:1483:30: warning: incorrect type in assignment (different signedness)
+    security/selinux/selinuxfs.c:1483:30:    expected unsigned int *
+    security/selinux/selinuxfs.c:1483:30:    got int *[addressable] values
+    security/selinux/selinuxfs.c:1400:48: warning: incorrect type in argument 3 (different signedness)
+    security/selinux/selinuxfs.c:1400:48:    expected int *values
+    security/selinux/selinuxfs.c:1400:48:    got unsigned int *bool_pending_values
 
-    ERROR: that open brace { should be on the previous line
-    #97: FILE: security/selinux/nlmsgtab.c:97:
-    +static const struct nlmsg_perm nlmsg_tcpdiag_perms[] =
-    +{
-
-    ERROR: that open brace { should be on the previous line
-    #105: FILE: security/selinux/nlmsgtab.c:105:
-    +static const struct nlmsg_perm nlmsg_xfrm_perms[] =
-    +{
-
-    ERROR: that open brace { should be on the previous line
-    #134: FILE: security/selinux/nlmsgtab.c:134:
-    +static const struct nlmsg_perm nlmsg_audit_perms[] =
-    +{
-
-    security/selinux/ss/policydb.c
-    ------------------------------
-    ERROR: that open brace { should be on the previous line
-    #318: FILE: security/selinux/ss/policydb.c:318:
-    +static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) =
-    +{
-
-    ERROR: that open brace { should be on the previous line
-    #674: FILE: security/selinux/ss/policydb.c:674:
-    +static int (*index_f[SYM_NUM]) (void *key, void *datum, void *datap) =
-    +{
-
-    ERROR: that open brace { should be on the previous line
-    #1643: FILE: security/selinux/ss/policydb.c:1643:
-    +static int (*read_f[SYM_NUM]) (struct policydb *p, struct symtab *s, void *fp) =
-    +{
-
-    ERROR: that open brace { should be on the previous line
-    #3246: FILE: security/selinux/ss/policydb.c:3246:
-    +                               void *datap) =
-    +{
+Also mark the read-only boolean array parameter of security_set_bools()
+const.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/include/initial_sid_to_string.h |  3 +--
- security/selinux/nlmsgtab.c                      | 12 ++++--------
- security/selinux/ss/policydb.c                   | 12 ++++--------
- 3 files changed, 9 insertions(+), 18 deletions(-)
+ security/selinux/include/conditional.h |  4 ++--
+ security/selinux/selinuxfs.c           | 12 ++++++------
+ security/selinux/ss/policydb.h         |  2 +-
+ security/selinux/ss/services.c         | 13 +++++++------
+ 4 files changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
-index 5d332aeb8b6c..9683f0ddecbc 100644
---- a/security/selinux/include/initial_sid_to_string.h
-+++ b/security/selinux/include/initial_sid_to_string.h
-@@ -1,6 +1,5 @@
- /* SPDX-License-Identifier: GPL-2.0 */
--static const char *initial_sid_to_string[] =
--{
-+static const char *initial_sid_to_string[] = {
- 	NULL,
- 	"kernel",
- 	"security",
-diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index d8ceee9e0d6f..2ee7b4ed43ef 100644
---- a/security/selinux/nlmsgtab.c
-+++ b/security/selinux/nlmsgtab.c
-@@ -25,8 +25,7 @@ struct nlmsg_perm {
- 	u32	perm;
+diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
+index b09343346e3f..f1b52115e0a3 100644
+--- a/security/selinux/include/conditional.h
++++ b/security/selinux/include/conditional.h
+@@ -14,9 +14,9 @@
+ #include "security.h"
+ 
+ int security_get_bools(struct selinux_policy *policy,
+-		       u32 *len, char ***names, int **values);
++		       u32 *len, char ***names, unsigned char **values);
+ 
+-int security_set_bools(struct selinux_state *state, u32 len, int *values);
++int security_set_bools(struct selinux_state *state, u32 len, const unsigned char *values);
+ 
+ int security_get_bool_value(struct selinux_state *state, u32 index);
+ 
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 8fcdd494af27..404b4561f8b0 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -71,7 +71,7 @@ struct selinux_fs_info {
+ 	struct dentry *bool_dir;
+ 	unsigned int bool_num;
+ 	char **bool_pending_names;
+-	unsigned int *bool_pending_values;
++	unsigned char *bool_pending_values;
+ 	struct dentry *class_dir;
+ 	unsigned long last_class_ino;
+ 	bool policy_opened;
+@@ -356,7 +356,7 @@ static const struct file_operations sel_policyvers_ops = {
+ /* declaration for sel_write_load */
+ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
+ 			  unsigned int *bool_num, char ***bool_pending_names,
+-			  unsigned int **bool_pending_values);
++			  unsigned char **bool_pending_values);
+ static int sel_make_classes(struct selinux_policy *newpolicy,
+ 			    struct dentry *class_dir,
+ 			    unsigned long *last_class_ino);
+@@ -527,7 +527,7 @@ static const struct file_operations sel_policy_ops = {
  };
  
--static const struct nlmsg_perm nlmsg_route_perms[] =
--{
-+static const struct nlmsg_perm nlmsg_route_perms[] = {
- 	{ RTM_NEWLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_DELLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_GETLINK,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
-@@ -97,16 +96,14 @@ static const struct nlmsg_perm nlmsg_route_perms[] =
- 	{ RTM_GETTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+ static void sel_remove_old_bool_data(unsigned int bool_num, char **bool_names,
+-				unsigned int *bool_values)
++				unsigned char *bool_values)
+ {
+ 	u32 i;
+ 
+@@ -545,7 +545,7 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir, *old_dentry;
+ 	unsigned int tmp_bool_num, old_bool_num;
+ 	char **tmp_bool_names, **old_bool_names;
+-	unsigned int *tmp_bool_values, *old_bool_values;
++	unsigned char *tmp_bool_values, *old_bool_values;
+ 	unsigned long tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
+ 
+ 	tmp_parent = sel_make_disconnected_dir(fsi->sb, &tmp_ino);
+@@ -1423,7 +1423,7 @@ static void sel_remove_entries(struct dentry *de)
+ 
+ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
+ 			  unsigned int *bool_num, char ***bool_pending_names,
+-			  unsigned int **bool_pending_values)
++			  unsigned char **bool_pending_values)
+ {
+ 	int ret;
+ 	ssize_t len;
+@@ -1432,7 +1432,7 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
+ 	struct inode_security_struct *isec;
+ 	char **names = NULL, *page;
+ 	u32 i, num;
+-	int *values = NULL;
++	unsigned char *values = NULL;
+ 	u32 sid;
+ 
+ 	ret = -ENOMEM;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index c24d4e1063ea..f85e875a7799 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -148,7 +148,7 @@ struct range_trans {
+ /* Boolean data type */
+ struct cond_bool_datum {
+ 	__u32 value;		/* internal type value */
+-	int state;
++	unsigned char state;
  };
  
--static const struct nlmsg_perm nlmsg_tcpdiag_perms[] =
--{
-+static const struct nlmsg_perm nlmsg_tcpdiag_perms[] = {
- 	{ TCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
- 	{ DCCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
- 	{ SOCK_DIAG_BY_FAMILY,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
- 	{ SOCK_DESTROY,		NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE },
- };
- 
--static const struct nlmsg_perm nlmsg_xfrm_perms[] =
--{
-+static const struct nlmsg_perm nlmsg_xfrm_perms[] = {
- 	{ XFRM_MSG_NEWSA,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
- 	{ XFRM_MSG_DELSA,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
- 	{ XFRM_MSG_GETSA,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
-@@ -134,8 +131,7 @@ static const struct nlmsg_perm nlmsg_xfrm_perms[] =
- 	{ XFRM_MSG_GETDEFAULT,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
- };
- 
--static const struct nlmsg_perm nlmsg_audit_perms[] =
--{
-+static const struct nlmsg_perm nlmsg_audit_perms[] = {
- 	{ AUDIT_GET,		NETLINK_AUDIT_SOCKET__NLMSG_READ     },
- 	{ AUDIT_SET,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
- 	{ AUDIT_LIST,		NETLINK_AUDIT_SOCKET__NLMSG_READPRIV },
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index d036e1238e77..3d50dfb0211b 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -314,8 +314,7 @@ static int cat_destroy(void *key, void *datum, void *p)
- 	return 0;
+ struct cond_node;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 802a80648c6c..7349ed4a4d0d 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -3022,7 +3022,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
  }
  
--static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) =
--{
-+static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) = {
- 	common_destroy,
- 	cls_destroy,
- 	role_destroy,
-@@ -670,8 +669,7 @@ static int cat_index(void *key, void *datum, void *datap)
- 	return 0;
+ int security_get_bools(struct selinux_policy *policy,
+-		       u32 *len, char ***names, int **values)
++		       u32 *len, char ***names, unsigned char **values)
+ {
+ 	struct policydb *policydb;
+ 	u32 i;
+@@ -3044,7 +3044,7 @@ int security_get_bools(struct selinux_policy *policy,
+ 		goto err;
+ 
+ 	rc = -ENOMEM;
+-	*values = kcalloc(*len, sizeof(int), GFP_ATOMIC);
++	*values = kcalloc(*len, sizeof(unsigned char), GFP_ATOMIC);
+ 	if (!*values)
+ 		goto err;
+ 
+@@ -3074,7 +3074,7 @@ int security_get_bools(struct selinux_policy *policy,
  }
  
--static int (*index_f[SYM_NUM]) (void *key, void *datum, void *datap) =
--{
-+static int (*index_f[SYM_NUM]) (void *key, void *datum, void *datap) = {
- 	common_index,
- 	class_index,
- 	role_index,
-@@ -1639,8 +1637,7 @@ static int cat_read(struct policydb *p, struct symtab *s, void *fp)
- 	return rc;
- }
  
--static int (*read_f[SYM_NUM]) (struct policydb *p, struct symtab *s, void *fp) =
--{
-+static int (*read_f[SYM_NUM]) (struct policydb *p, struct symtab *s, void *fp) = {
- 	common_read,
- 	class_read,
- 	role_read,
-@@ -3242,8 +3239,7 @@ static int user_write(void *vkey, void *datum, void *ptr)
- }
+-int security_set_bools(struct selinux_state *state, u32 len, int *values)
++int security_set_bools(struct selinux_state *state, u32 len, const unsigned char *values)
+ {
+ 	struct selinux_policy *newpolicy, *oldpolicy;
+ 	int rc;
+@@ -3106,8 +3106,8 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
  
- static int (*write_f[SYM_NUM]) (void *key, void *datum,
--				void *datap) =
--{
-+				void *datap) = {
- 	common_write,
- 	class_write,
- 	role_write,
+ 	/* Update the boolean states in the copy */
+ 	for (i = 0; i < len; i++) {
+-		int new_state = !!values[i];
+-		int old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
++		unsigned char new_state = !!values[i];
++		unsigned char old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
+ 
+ 		if (new_state != old_state) {
+ 			audit_log(audit_context(), GFP_ATOMIC,
+@@ -3174,7 +3174,8 @@ int security_get_bool_value(struct selinux_state *state,
+ static int security_preserve_bools(struct selinux_policy *oldpolicy,
+ 				struct selinux_policy *newpolicy)
+ {
+-	int rc, *bvalues = NULL;
++	int rc;
++	unsigned char *bvalues = NULL;
+ 	char **bnames = NULL;
+ 	struct cond_bool_datum *booldatum;
+ 	u32 i, nbools = 0;
 -- 
 2.36.0
 
