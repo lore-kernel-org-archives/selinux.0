@@ -2,118 +2,158 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 966FCC433EF
-	for <selinux@archiver.kernel.org>; Fri, 29 Apr 2022 10:20:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A786C433F5
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 00:50:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350522AbiD2KYG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 Apr 2022 06:24:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
+        id S1356359AbiEBAyE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 1 May 2022 20:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239042AbiD2KYF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 Apr 2022 06:24:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F3D9F21BE
-        for <selinux@vger.kernel.org>; Fri, 29 Apr 2022 03:20:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651227647;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=A4jQfo5cHAgVJf2k0D+2TL8iCCzC3HKmj15/C8rpzpk=;
-        b=bMoatCglI8KSp1aabCN9CHlOowxOr328RhbdmZc/Xsxexm1JoX2PK6N7qR50H1+GuYhBcN
-        /IDMF61NvTnnCWgNMMoZoWCIgb1dbGDjWE8Wdc6KXrSvX0y8Cy3HPmZfkCfZ3vf9C9LLmD
-        2jWNPyDi2zpVQ1yMDwCRSJuUVgic7hE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-511-xuwrn-8gNJCKEa_rmAYJsg-1; Fri, 29 Apr 2022 06:20:45 -0400
-X-MC-Unique: xuwrn-8gNJCKEa_rmAYJsg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 677E5803D4E
-        for <selinux@vger.kernel.org>; Fri, 29 Apr 2022 10:20:45 +0000 (UTC)
-Received: from lacos-laptop-7.usersys.redhat.com (unknown [10.39.195.69])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C21F1401D45;
-        Fri, 29 Apr 2022 10:20:44 +0000 (UTC)
-Subject: Re: [PATCH for-3.5 4/5] selinux_restorecon: introduce
- SELINUX_RESTORECON_COUNT_ERRORS
-To:     Petr Lautrbach <plautrba@redhat.com>,
-        SELinux List <selinux@vger.kernel.org>
-Cc:     "Richard W.M. Jones" <rjones@redhat.com>
-References: <20220428065354.27605-1-lersek@redhat.com>
- <20220428065354.27605-5-lersek@redhat.com> <87r15gs3xv.fsf@redhat.com>
-From:   Laszlo Ersek <lersek@redhat.com>
-Message-ID: <16892687-0eff-d186-6582-929104351687@redhat.com>
-Date:   Fri, 29 Apr 2022 12:20:43 +0200
-MIME-Version: 1.0
-In-Reply-To: <87r15gs3xv.fsf@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+        with ESMTP id S1356457AbiEBAxu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 1 May 2022 20:53:50 -0400
+Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D81D510FD1
+        for <selinux@vger.kernel.org>; Sun,  1 May 2022 17:50:22 -0700 (PDT)
+Received: by mail-pg1-x549.google.com with SMTP id l72-20020a63914b000000b003c1ac4355f5so3047386pge.4
+        for <selinux@vger.kernel.org>; Sun, 01 May 2022 17:50:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=FOMU61QtLNIhCcO443IaAbPythoovtkrDMR8bH0Vhu8=;
+        b=H/HLblGgD5zGZse8AT1acfVSeM49QjDg79wsGCl7L9/XBqXSNg3gxiHjZgEG6HpQ8q
+         aLNKL7jPld9jWS5findWpdmJJfvyxQ8xz6bEgteN1jSTAbP2tOpaFN+Hc+1xSAPtUztJ
+         wrA75uF5O0XKkM1LYMsmUUkvXmbZRRU5b/1UWvKM1ZuiE8DAc2PuhbTXRbgoTmzKq8lY
+         H39d6lX/9SnLCKOlxd+IrkhPKOkaD1UZWZuov5ADI/UqKCsHZvyTBMuxWWjDrfWJ9x0k
+         4oJOWcjxbsxuTi5hBNDLfd2BDE1U7eVN03avaJjXaJAEtdpIonXWl4+A2QlaUt/64b/+
+         ZR7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=FOMU61QtLNIhCcO443IaAbPythoovtkrDMR8bH0Vhu8=;
+        b=gt/UHNqk3VXJjlLbWNCVD+h9ey+3/phUPwECcOoK9NVSvAzwc8Fp6oD0l1kYxQyUJ/
+         0gTHWt3FpTkvgMq07PZkWwnUMeOTHl1XISCNgdWhIuY59QMw/a6Ro3Qg9cyKeKLtWjzS
+         +AQbySODwwr+YOcuESh2oUBjiukaFLwAn/JY6+YyK7+rftJ7Gb6+UvIWiBlpIDTh09/2
+         QHvrCuvNZaY7c1ySnZvtT4q7zzaOQJaCHcO+/AHbQ+BGyO4FNbpfPwKcczNO4aTw0cSB
+         wcfL/q93hI7sL0VkbFgROXsDOuui7kGkmVWDCk/fsQtODsr+u3cdz06vd6ZQvHRxpxDz
+         rgnQ==
+X-Gm-Message-State: AOAM531d5/8n9p627Iwgd5BnIP3UZWGLURLYE49QFlVsLOvTyVFA2CXl
+        7iuWgH2ROcYGKv4WV1b5T2HzuwP9ow==
+X-Google-Smtp-Source: ABdhPJwSd2rb9tf3DwgKCKN7b010akS/OEJ9N3Mh3m5C9KDQB9QenIfe6km5KgRs4wnXspScktDrWXynGg==
+X-Received: from tweek-sin.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:2bfd])
+ (user=tweek job=sendgmr) by 2002:a17:902:f28b:b0:15c:5c21:dc15 with SMTP id
+ k11-20020a170902f28b00b0015c5c21dc15mr9690735plc.16.1651452621491; Sun, 01
+ May 2022 17:50:21 -0700 (PDT)
+Date:   Mon,  2 May 2022 10:49:52 +1000
+Message-Id: <20220502004952.3970800-1-tweek@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.36.0.464.gb9c8b46e94-goog
+Subject: [PATCH v4] firmware_loader: use kernel credentials when reading firmware
+From:   "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To:     Luis Chamberlain <mcgrof@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Qian Cai <quic_qiancai@quicinc.com>,
+        John Stultz <jstultz@google.com>
+Cc:     Jeffrey Vander Stoep <jeffv@google.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 04/29/22 10:13, Petr Lautrbach wrote:
-> Laszlo Ersek <lersek@redhat.com> writes:
-> 
->> Currently, if the SELINUX_RESTORECON_ABORT_ON_ERROR flag is clear, then
->> selinux_restorecon[_parallel]() does not abort the file tree walk upon an
->> error, but the function itself fails the same, with the same (-1) return
->> value. This in turn is reported by the setfiles(8) utility to its parent
->> process with the same exit code (255).
->>
->> In libguestfs we want to proceed after setfiles(8) fails *at most* with
->> such errors that occur during the file tree walk. We need setfiles(8) to
->> exit with a distinct exit status in that situation.
->>
->> For this, introduce the SELINUX_RESTORECON_COUNT_ERRORS flag, and the
->> corresponding selinux_restorecon_get_skipped_errors() function, for
->> selinux_restorecon[_parallel]() to count, but otherwise ignore, errors
->> during the file tree walk. When no other kind of error occurs, the
->> relabeling functions will return zero, and the caller can fetch the number
->> of errors ignored during the file tree walk with
->> selinux_restorecon_get_skipped_errors().
->>
->> Importantly, when at least one such error is skipped, we don't write
->> partial match digests for subdirectories, as any masked error means that
->> any subdirectory may not have been completely relabeled.
->>
->> Cc: "Richard W.M. Jones" <rjones@redhat.com>
->> Cc: Petr Lautrbach <plautrba@redhat.com>
->> Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1794518
->> Signed-off-by: Laszlo Ersek <lersek@redhat.com>
->> ---
-> [...]
->> --- a/libselinux/src/libselinux.map
->> +++ b/libselinux/src/libselinux.map
->> @@ -245,3 +245,8 @@ LIBSELINUX_3.4 {
->>    global:
->>      selinux_restorecon_parallel;
->>  } LIBSELINUX_1.0;
->> +
->> +LIBSELINUX_3.5 {
-> 
-> It's still possible to put this into LIBSELINUX_3.4. Next week we will
-> release 3.4-rc3 and GA of 3.4 is planned two weeks later.
+Device drivers may decide to not load firmware when probed to avoid
+slowing down the boot process should the firmware filesystem not be
+available yet. In this case, the firmware loading request may be done
+when a device file associated with the driver is first accessed. The
+credentials of the userspace process accessing the device file may be
+used to validate access to the firmware files requested by the driver.
+Ensure that the kernel assumes the responsibility of reading the
+firmware.
 
-I assumed the project wouldn't assume new features after rc2 :)
+This was observed on Android for a graphic driver loading their firmware
+when the device file (e.g. /dev/mali0) was first opened by userspace
+(i.e. surfaceflinger). The security context of surfaceflinger was used
+to validate the access to the firmware file (e.g.
+/vendor/firmware/mali.bin).
 
-I'll post v2, with this updated; but first I'll wait for the reviews to
-complete.
+Previously, Android configurations were not setting up the
+firmware_class.path command line argument and were relying on the
+userspace fallback mechanism. In this case, the security context of the
+userspace daemon (i.e. ueventd) was consistently used to read firmware
+files. More Android devices are now found to set firmware_class.path
+which gives the kernel the opportunity to read the firmware directly
+(via kernel_read_file_from_path_initns). In this scenario, the current
+process credentials were used, even if unrelated to the loading of the
+firmware file.
 
-Thanks!
-Laszlo
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+Cc: <stable@vger.kernel.org> # 5.10
+---
+v4: Add stable to Cc
+v3:
+	- Add call to put_cred to avoid a memory leak. Confirmed that no new
+		memory leak occurs on a Pixel 4a.
+	- Update commit log.
+v2: Add comment
 
-> 
-> 
->> +  global:
->> +    selinux_restorecon_get_skipped_errors;
->> +} LIBSELINUX_3.4;
->> -- 
->> 2.19.1.3.g30247aa5d201
-> 
+ drivers/base/firmware_loader/main.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_lo=
+ader/main.c
+index 94d1789a233e..406a907a4cae 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -735,6 +735,8 @@ _request_firmware(const struct firmware **firmware_p, c=
+onst char *name,
+ 		  size_t offset, u32 opt_flags)
+ {
+ 	struct firmware *fw =3D NULL;
++	struct cred *kern_cred =3D NULL;
++	const struct cred *old_cred;
+ 	bool nondirect =3D false;
+ 	int ret;
+=20
+@@ -751,6 +753,18 @@ _request_firmware(const struct firmware **firmware_p, =
+const char *name,
+ 	if (ret <=3D 0) /* error or already assigned */
+ 		goto out;
+=20
++	/*
++	 * We are about to try to access the firmware file. Because we may have b=
+een
++	 * called by a driver when serving an unrelated request from userland, we=
+ use
++	 * the kernel credentials to read the file.
++	 */
++	kern_cred =3D prepare_kernel_cred(NULL);
++	if (!kern_cred) {
++		ret =3D -ENOMEM;
++		goto out;
++	}
++	old_cred =3D override_creds(kern_cred);
++
+ 	ret =3D fw_get_filesystem_firmware(device, fw->priv, "", NULL);
+=20
+ 	/* Only full reads can support decompression, platform, and sysfs. */
+@@ -776,6 +790,9 @@ _request_firmware(const struct firmware **firmware_p, c=
+onst char *name,
+ 	} else
+ 		ret =3D assign_fw(fw, device);
+=20
++	revert_creds(old_cred);
++	put_cred(kern_cred);
++
+  out:
+ 	if (ret < 0) {
+ 		fw_abort_batch_reqs(fw);
+--=20
+2.36.0.464.gb9c8b46e94-goog
 
