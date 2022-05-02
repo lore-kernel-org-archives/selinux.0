@@ -2,163 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C217C433FE
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:15:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E0C8C433F5
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 14:33:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385542AbiEBOTJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 10:19:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55808 "EHLO
+        id S1385559AbiEBOhU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 10:37:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385627AbiEBOS5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:18:57 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95167DED5;
-        Mon,  2 May 2022 07:15:27 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id a1so16782820edt.3;
-        Mon, 02 May 2022 07:15:27 -0700 (PDT)
+        with ESMTP id S1385518AbiEBOhT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 10:37:19 -0400
+Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532705F81
+        for <selinux@vger.kernel.org>; Mon,  2 May 2022 07:33:49 -0700 (PDT)
+Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-ed9a75c453so3897975fac.11
+        for <selinux@vger.kernel.org>; Mon, 02 May 2022 07:33:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PR2akzjSHzRoLtewUgMac6+Y64PGqXA5YmcADTBjoU4=;
-        b=X7wEduK/sxNWcNtLYd0sc7+yrcRgmJh25G5yNy5TWFjEQdBZCMPhgaVDdOumB9XAMC
-         7xQxydrHn/tGdmLO9sK536W9YcTX8qRpG5zcaQEmHJuP0ohRIRIeXDicO0mNCYM65Teu
-         fBZbPs4HFzP7x1d7WBHr6flZpeyDaRwskBFU1FoPlE6CnEXHndnzPZe118SZSUMB/MDi
-         F3ZoZAiEowignsRgGSCUkAADIyAehrvUI8ekDGRi7PlavmoIan/OVGS7hXNHQve8OVOq
-         hRLepkxyn1ECWbKGdcANNmIIlxsWgEBgM7c8bbnucktUTSyR0pUncsIOMNyYWtfaGD0+
-         tbIg==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=FAHMd9Y3KkKmf9ZjCG+s1Ss6l/cI4Ju8NyB+j0mWocw=;
+        b=CgKkbNg2D13zkO7krefi2wD63YoUx97iqxCNvjb9sH4kOE+lxhq2hH9iGLJ1vQgLJw
+         EdV2fHzgRnqqStwXLvtdZhQGPWICn8s43QoUR73cxs2gD0adryL0REuaqxNGoToQOly5
+         sX38UEDJ5qjDOuxBy370m6con6NQkYAcpiY6rhec/UYODKYi478oVG/uznRXm/BFD5dz
+         NJ+ecjH8dWSaUAKlZX8YR0xK/o04SsaDwGiKu3jASUtGeic4k8KE37F7GyAPSsMroR4t
+         R0QZ6qFe0n1OCFn3IWbLdSZdXhNeEXaaYa5gzkAy7xIKfjFrBpAYRSCe/q/YQ2w8k/Ve
+         QRsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=PR2akzjSHzRoLtewUgMac6+Y64PGqXA5YmcADTBjoU4=;
-        b=erqnaEvt/3J5F5JMmtkSP1q7k7XvtmvVpO2tkAJ/FJbOkoqPDw15/OT4LpbFCCfiy0
-         a7hozlRvgsDNULKiR5MBn4wbTCQFYFqmwk0ez1VBQbMmJzYjQKhpTBw+ig6Ck4lWnnvJ
-         S/pMCpik0RYcmtMlazA8a/NEwIBLK5OrFZVymKxVTtIWLak5G7MLreAGYXtf3mXXDUy4
-         IU1qW9ZjNctyuh3Q7Xl9otSblBM14HF5YSyXcXZiY515004NwXCZojwvYx9ox2nYhL/W
-         XEE+MeqcV7w9EqzgCd5XIz95vm530oUKpAtKlKOLXOZ8loIKX7or18hvP5mUsGqKaJTZ
-         rdxQ==
-X-Gm-Message-State: AOAM533JkfwhaWrn+jxVJvsSRguhS6iDdNzuEPx9a6Cuu3/t5oLk5sDc
-        an0PL5m9tTUHXycUhbfhKzEThoITvNE=
-X-Google-Smtp-Source: ABdhPJw+jDtp4IfHKIp26ybwHOkEk7fjBevcj7sFZ4t1Gq4UbzD+N99TSN8TYTqNZ3C95MsC3MT1yA==
-X-Received: by 2002:aa7:df15:0:b0:41d:675f:ea9a with SMTP id c21-20020aa7df15000000b0041d675fea9amr13886093edy.148.1651500926165;
-        Mon, 02 May 2022 07:15:26 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id ig11-20020a1709072e0b00b006f3ef214e2dsm3771770ejc.147.2022.05.02.07.15.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 07:15:25 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Zhongjun Tan <tanzhongjun@yulong.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: include necessary headers in headers
-Date:   Mon,  2 May 2022 16:15:20 +0200
-Message-Id: <20220502141524.35268-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=FAHMd9Y3KkKmf9ZjCG+s1Ss6l/cI4Ju8NyB+j0mWocw=;
+        b=0brosADpg4RL3hbBMd08xU0AEN6j4kCQymvslbavGJbRa/3LtIanar3PeBTcUU3fNK
+         ZX5eFuInp9SaRXK0a0Perwa7T6ClDu4AT8VSsOQM4q9iigi91afM2ipwdZEzJMinI3aH
+         QhLCiHTfMroNAMwz//RL3f8sqG4XIQWpF7Ioc4ne5pTEnFM13SHN4r830wy7tYaDmv15
+         gXK7DIGuGRRtLSpKxrEY3qF5IJJC04sy/pLTiqNDH5FUSI8vz7gnVdlGaqoc/YTaJrKZ
+         cweyVuXjcumFBm9ys3u0UhsQrIbruqQYxO7+OHH4dSkiZ3ieMaE7er5UIl4brKLLTiPz
+         9iIg==
+X-Gm-Message-State: AOAM531QyyRv8aIftoTw2ce7oUI085TpK8quyOYK+0dIR3noBXoxsQvF
+        ZDyBb7Fw4LsTUEXB45nAZxxu55Mzgs++jE744v0OIMPj494=
+X-Google-Smtp-Source: ABdhPJzqrNPwwsEOxPw90PzGFksznIJXDvU/mjGJiVhUtMsBJZuaY51LbDC1XkIPEsaqUZEgqxtfI0N3yrBhdqBn8Ok=
+X-Received: by 2002:a05:6870:c692:b0:e9:5368:10df with SMTP id
+ cv18-20020a056870c69200b000e9536810dfmr4796764oab.182.1651502028680; Mon, 02
+ May 2022 07:33:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220428162358.396459-1-plautrba@redhat.com>
+In-Reply-To: <20220428162358.396459-1-plautrba@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 2 May 2022 10:33:37 -0400
+Message-ID: <CAP+JOzQndjcqLA2=QNC-9u4C_Tj04Gd+1xaZfodp43WUYqUf8A@mail.gmail.com>
+Subject: Re: [PATCH] Update missing sandbox translations
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Include header files required for struct or typedef declarations in
-header files.  This is for example helpful when working with an IDE, which
-needs to resolve those symbols.
+On Sat, Apr 30, 2022 at 4:19 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Source https://translate.fedoraproject.org/projects/selinux/
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- security/selinux/include/audit.h   | 3 +++
- security/selinux/include/avc_ss.h  | 2 +-
- security/selinux/include/ibpkey.h  | 2 ++
- security/selinux/include/netnode.h | 2 ++
- security/selinux/include/netport.h | 2 ++
- security/selinux/include/xfrm.h    | 2 ++
- 6 files changed, 12 insertions(+), 1 deletion(-)
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
-index 073a3d34a0d2..be42d7dc2c0c 100644
---- a/security/selinux/include/audit.h
-+++ b/security/selinux/include/audit.h
-@@ -12,6 +12,9 @@
- #ifndef _SELINUX_AUDIT_H
- #define _SELINUX_AUDIT_H
- 
-+#include <linux/audit.h>
-+#include <linux/types.h>
-+
- /**
-  *	selinux_audit_rule_init - alloc/init an selinux audit rule structure.
-  *	@field: the field this rule refers to
-diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
-index 88c384c5c09e..66a87559b788 100644
---- a/security/selinux/include/avc_ss.h
-+++ b/security/selinux/include/avc_ss.h
-@@ -7,7 +7,7 @@
- #ifndef _SELINUX_AVC_SS_H_
- #define _SELINUX_AVC_SS_H_
- 
--#include "flask.h"
-+#include <linux/types.h>
- 
- struct selinux_avc;
- int avc_ss_reset(struct selinux_avc *avc, u32 seqno);
-diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
-index e6ac1d23320b..c992f83b0aae 100644
---- a/security/selinux/include/ibpkey.h
-+++ b/security/selinux/include/ibpkey.h
-@@ -14,6 +14,8 @@
- #ifndef _SELINUX_IB_PKEY_H
- #define _SELINUX_IB_PKEY_H
- 
-+#include <linux/types.h>
-+
- #ifdef CONFIG_SECURITY_INFINIBAND
- void sel_ib_pkey_flush(void);
- int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
-diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
-index e3f784a85840..9b8b655a8cd3 100644
---- a/security/selinux/include/netnode.h
-+++ b/security/selinux/include/netnode.h
-@@ -17,6 +17,8 @@
- #ifndef _SELINUX_NETNODE_H
- #define _SELINUX_NETNODE_H
- 
-+#include <linux/types.h>
-+
- void sel_netnode_flush(void);
- 
- int sel_netnode_sid(void *addr, u16 family, u32 *sid);
-diff --git a/security/selinux/include/netport.h b/security/selinux/include/netport.h
-index 31bc16e29cd1..9096a8289948 100644
---- a/security/selinux/include/netport.h
-+++ b/security/selinux/include/netport.h
-@@ -16,6 +16,8 @@
- #ifndef _SELINUX_NETPORT_H
- #define _SELINUX_NETPORT_H
- 
-+#include <linux/types.h>
-+
- void sel_netport_flush(void);
- 
- int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid);
-diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index 74159400eeee..c75839860200 100644
---- a/security/selinux/include/xfrm.h
-+++ b/security/selinux/include/xfrm.h
-@@ -8,7 +8,9 @@
- #ifndef _SELINUX_XFRM_H_
- #define _SELINUX_XFRM_H_
- 
-+#include <linux/lsm_audit.h>
- #include <net/flow.h>
-+#include <net/xfrm.h>
- 
- int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
- 			      struct xfrm_user_sec_ctx *uctx,
--- 
-2.36.0
-
+> ---
+>
+> Available at https://github.com/bachradsusi/SELinuxProject-selinux/commit/d108226d3fc6ac2b83d7de61fe9c626877df7870
+>
+>
+>  sandbox/po/cs.po       | 154 +++++++++++++++++++++++++++++++++
+>  sandbox/po/da.po       | 176 +++++++++++++++++++++++++++++++++++++
+>  sandbox/po/de.po       | 175 +++++++++++++++++++++++++++++++++++++
+>  sandbox/po/es.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/fi.po       | 181 ++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/fr.po       | 183 +++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/hu.po       | 158 +++++++++++++++++++++++++++++++++
+>  sandbox/po/it.po       | 192 +++++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/ja.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/ko.po       | 171 ++++++++++++++++++++++++++++++++++++
+>  sandbox/po/nl.po       | 177 +++++++++++++++++++++++++++++++++++++
+>  sandbox/po/pl.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/pt_BR.po    | 174 +++++++++++++++++++++++++++++++++++++
+>  sandbox/po/ru.po       | 176 +++++++++++++++++++++++++++++++++++++
+>  sandbox/po/sandbox.pot |   6 +-
+>  sandbox/po/si.po       | 156 +++++++++++++++++++++++++++++++++
+>  sandbox/po/sv.po       | 176 +++++++++++++++++++++++++++++++++++++
+>  sandbox/po/tr.po       | 182 ++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/uk.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>  sandbox/po/zh_CN.po    | 171 ++++++++++++++++++++++++++++++++++++
+>  sandbox/po/zh_TW.po    | 169 ++++++++++++++++++++++++++++++++++++
+>  21 files changed, 3486 insertions(+), 3 deletions(-)
+>  create mode 100644 sandbox/po/cs.po
+>  create mode 100644 sandbox/po/da.po
+>  create mode 100644 sandbox/po/de.po
+>  create mode 100644 sandbox/po/es.po
+>  create mode 100644 sandbox/po/fi.po
+>  create mode 100644 sandbox/po/fr.po
+>  create mode 100644 sandbox/po/hu.po
+>  create mode 100644 sandbox/po/it.po
+>  create mode 100644 sandbox/po/ja.po
+>  create mode 100644 sandbox/po/ko.po
+>  create mode 100644 sandbox/po/nl.po
+>  create mode 100644 sandbox/po/pl.po
+>  create mode 100644 sandbox/po/pt_BR.po
+>  create mode 100644 sandbox/po/ru.po
+>  create mode 100644 sandbox/po/si.po
+>  create mode 100644 sandbox/po/sv.po
+>  create mode 100644 sandbox/po/tr.po
+>  create mode 100644 sandbox/po/uk.po
+>  create mode 100644 sandbox/po/zh_CN.po
+>  create mode 100644 sandbox/po/zh_TW.po
+>
