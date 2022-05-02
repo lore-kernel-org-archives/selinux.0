@@ -2,229 +2,125 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 564A7C433F5
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 13:43:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CEEFC433F5
+	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 13:45:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385394AbiEBNrS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 09:47:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52730 "EHLO
+        id S1385396AbiEBNtX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 May 2022 09:49:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385388AbiEBNrP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 09:47:15 -0400
-Received: from mail-oa1-x32.google.com (mail-oa1-x32.google.com [IPv6:2001:4860:4864:20::32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB17512083;
-        Mon,  2 May 2022 06:43:46 -0700 (PDT)
-Received: by mail-oa1-x32.google.com with SMTP id 586e51a60fabf-e2442907a1so14286099fac.8;
-        Mon, 02 May 2022 06:43:46 -0700 (PDT)
+        with ESMTP id S1385518AbiEBNtU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 09:49:20 -0400
+Received: from mail-oa1-x2d.google.com (mail-oa1-x2d.google.com [IPv6:2001:4860:4864:20::2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0786512614;
+        Mon,  2 May 2022 06:45:52 -0700 (PDT)
+Received: by mail-oa1-x2d.google.com with SMTP id 586e51a60fabf-ed9ac77cbbso3710387fac.1;
+        Mon, 02 May 2022 06:45:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=SZS23R8/3aS8hn+ag0EZfvYi/qn+HWC2fpxjigLbwL8=;
-        b=UNP4TjQWPwuVfp6XRBKcHnbi9I4brVINNlFFUvNcomXdIyUvMEsQNN/iBMGOIy6qXa
-         U3HAa0YA6qIqgWWa7RDcWOuxj4VFnBkmEPEEDXzGU5fgiifoe8kN99AuoMjGF64Y5i5P
-         80X+b7Sf99p7MyvucsH42RJOdepw/RQmgftXwISAoVFzarZzYeropcyinM1RCiN0MZnw
-         cWN8rbJqp19kEs9oY6XOVASDAzidg4e3jOKDIEpX3699n5X31emqcJlE9vLMVGieyZPH
-         lbl6f4fl/XE7+ICY+6C7n0BzFjikw56P8rtVitnftt0aqaKDGbyvux2ZfxFXUF8nmgFe
-         WZfA==
+        bh=KlkPJd9IPwI3xuM5T+5Eqx8x2n4AENEmfcA0g1h3kb8=;
+        b=Y9Ge8Zh0P8Nn7vrmdfyiKMNSXTRSp9YFHQZim+UHkCEFcfwdVdW7Vb8ezfueGEUcHa
+         B1aAFddnxIPGLjcRzkP7XtGk2dlF8RTkPlKJaCYmt9O1naej9QSykekHptyii+fwZRQy
+         l1EWiBVCqbJWRkZ4Klnvtx0ozhx62AmU09qkR9Ola2hClwQjEQZyfYh6q/uEpQuAyrm/
+         YDfjUjrwscX61c0ALQUvQcDFIU5370j4EfVKP7iQobmAodMzzuNMPCmW4S2LWhgAbo8X
+         VwWzk9s3kNbfC3hUgXGX/2R2pel9rOhniwQEMnG5Tpm9jRGvRtVuWVtt1ofUS4hLNBNY
+         P3Eg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SZS23R8/3aS8hn+ag0EZfvYi/qn+HWC2fpxjigLbwL8=;
-        b=vIx75l6WsQlkQRGbl3C7s6cNZj+oex3Bbua21XVOywPiLJRzVwP3JZjkZvvpBVpvmC
-         KljfcIuLdTj8xhVUFI7iMsH5Lkg4TKipOkFIIT4XR57AdpZQqelRzTJIT7RVEMUhA0Cg
-         yLZztf09sGp8T/byXx1TXU4rzivJbPHLpQ32RtXcsJPKX71/m1nUlJ4KVGgvJm2bY9v0
-         eWX12eR09545dNwfBqK45ojFPBKjeB25k6vMAiYgMy8XUvEys+proUPKYiTla+o3QoBE
-         TQxdp6J8kyj5pbe4cJ4CxqXa52iCfkDi1UPUfk/M8rP1CrwAhbmoX7WNqCGJy5cP0cPO
-         U0Iw==
-X-Gm-Message-State: AOAM533d6ViGG29Uk8FgmwxF1NNzsKEs3T0t3GY6cDkkuExXND8nIwjY
-        Hi88bQynfkyN5hldBcox/+ixwKbO/J+Z158FVmM=
-X-Google-Smtp-Source: ABdhPJwHclCFT2TQxVLkZG72hIFxYuXSoE1SrnGa/xh8TsP31EvTN9bhqMxe1iprI9aSI30jJu4aiUovupdu6b4WshU=
-X-Received: by 2002:a05:6870:d0ce:b0:ed:9988:ba91 with SMTP id
- k14-20020a056870d0ce00b000ed9988ba91mr3217956oaa.205.1651499026041; Mon, 02
- May 2022 06:43:46 -0700 (PDT)
+        bh=KlkPJd9IPwI3xuM5T+5Eqx8x2n4AENEmfcA0g1h3kb8=;
+        b=GlaqFoK98nXaEEYvyCg7kUV2gvAIhFDe7jvAcGk5OPws8WwO7CX7y7roSQPVnZVebg
+         80brvven4c0dIYkmGfxyCDAmYaEayqTQRgjJRVU+06XTVWojlpFudpuyNQiwAqqIKLMG
+         nz0hSosO/BoWUL2TayosZULy7xhUG4rM3PjX7C9omb0ghmO5KsFMmwabF/pHkjP7uwee
+         emPp6qXPpnRkyk9Io72nKjmhAhcmK1vxKdbKvjjTOVcCjzgPzD/m8mIIUbWM2gUrA0hL
+         LS627xsLm+EnZyCz2hk4LxvI/7LA6UjE7jsntNZXV8DWnhMQ09KU+KNAFgZQYyNn9A2N
+         6c1w==
+X-Gm-Message-State: AOAM531tY60jo5iauU6oCT2LzUvclGVdGN4j9DcdeIMxf9NkYrvNj747
+        F+dw6UGdetW9/GvaGgmNo1t/1naRFi4rZ2G5mZs=
+X-Google-Smtp-Source: ABdhPJx5rwU6X5NnnuNmcAS5EItDn5UYn1+bETi6E6Je7tDTBL6rzvnM5hyy2El994VvmDm+qlbjgH1Ln9bev9p14BE=
+X-Received: by 2002:a05:6870:5b8a:b0:e6:589e:201d with SMTP id
+ em10-20020a0568705b8a00b000e6589e201dmr6394064oab.71.1651499145960; Mon, 02
+ May 2022 06:45:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220217142133.72205-1-cgzones@googlemail.com>
- <20220217142133.72205-4-cgzones@googlemail.com> <CAKwvOdkNZ3W9amcQKHOEfQLbdWC=4VDtrBdbOVHtWruipQnyKg@mail.gmail.com>
- <CAJ2a_DcY3=jz_zBQ7QZ_gycsvL1mn=TxKaWqWr3gGLhEAXTcQA@mail.gmail.com>
-In-Reply-To: <CAJ2a_DcY3=jz_zBQ7QZ_gycsvL1mn=TxKaWqWr3gGLhEAXTcQA@mail.gmail.com>
+References: <20220125143304.34628-1-cgzones@googlemail.com>
+ <CAHC9VhSdGeZ9x-0Hvk9mE=YMXbpk-tC5Ek+uGFGq5U+51qjChw@mail.gmail.com>
+ <CAJ2a_DeAUcGTGm_fk8viVbeFXr6FLrJ-oLw-abwFND6Kv0u0gQ@mail.gmail.com> <CAHC9VhRRBrLVtvmbJSTZ7fOkD-8AN4iM0WRmeL4ND001d3viJg@mail.gmail.com>
+In-Reply-To: <CAHC9VhRRBrLVtvmbJSTZ7fOkD-8AN4iM0WRmeL4ND001d3viJg@mail.gmail.com>
 From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Mon, 2 May 2022 15:43:35 +0200
-Message-ID: <CAJ2a_De2o7+v2v4QDnXNB=q9N6J84iMz8QMe6vK7ojvxVhfqqQ@mail.gmail.com>
-Subject: Re: [PATCH 5/5] selinux: drop unnecessary NULL check
-To:     Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 2 May 2022 15:45:35 +0200
+Message-ID: <CAJ2a_DeT6AG0jp4gTdsEy7nh=s6cLR7QCsYXAz2+3vsdRKxddg@mail.gmail.com>
+Subject: Re: [RFC PATCH] mm: create security context for memfd_secret inodes
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Austin Kim <austin.kim@lge.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        llvm@lists.linux.dev
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 8 Mar 2022 at 17:09, Christian G=C3=B6ttsche <cgzones@googlemail.co=
-m> wrote:
+On Thu, 17 Feb 2022 at 23:32, Paul Moore <paul@paul-moore.com> wrote:
 >
-> On Fri, 18 Feb 2022 at 18:31, Nick Desaulniers <ndesaulniers@google.com> =
-wrote:
+> On Thu, Feb 17, 2022 at 9:24 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> > On Thu, 27 Jan 2022 at 00:01, Paul Moore <paul@paul-moore.com> wrote:
+> > > On Tue, Jan 25, 2022 at 9:33 AM Christian G=C3=B6ttsche
+> > > <cgzones@googlemail.com> wrote:
+> > > >
+> > > > Create a security context for the inodes created by memfd_secret(2)=
+ via
+> > > > the LSM hook inode_init_security_anon to allow a fine grained contr=
+ol.
+> > > > As secret memory areas can affect hibernation and have a global sha=
+red
+> > > > limit access control might be desirable.
+> > > >
+> > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > > ---
+> > > > An alternative way of checking memfd_secret(2) is to create a new L=
+SM
+> > > > hook and e.g. for SELinux check via a new process class permission.
+> > > > ---
+> > > >  mm/secretmem.c | 9 +++++++++
+> > > >  1 file changed, 9 insertions(+)
+> > >
+> > > This seems reasonable to me, and I like the idea of labeling the anon
+> > > inode as opposed to creating a new set of LSM hooks.  If we want to
+> > > apply access control policy to the memfd_secret() fds we are going to
+> > > need to attach some sort of LSM state to the inode, we might as well
+> > > use the mechanism we already have instead of inventing another one.
 > >
-> > On Thu, Feb 17, 2022 at 6:22 AM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> > >
-> > > Commit e3489f8974e1 ("selinux: kill selinux_sb_get_mnt_opts()")
-> > > introduced a NULL check on the context after a successful call to
-> > > security_sid_to_context().  This is on the one hand redundant after
-> > > checking for success and on the other hand insufficient on an actual
-> > > NULL pointer, since the context is passed to seq_escape() leading to =
-a
-> > > call of strlen() on it.
-> > >
-> > > Reported by Clang analyzer:
-> > >
-> > >     In file included from security/selinux/hooks.c:28:
-> > >     In file included from ./include/linux/tracehook.h:50:
-> > >     In file included from ./include/linux/memcontrol.h:13:
-> > >     In file included from ./include/linux/cgroup.h:18:
-> > >     ./include/linux/seq_file.h:136:25: warning: Null pointer passed a=
-s 1st argument to string length function [unix.cstring.NullArg]
-> > >             seq_escape_mem(m, src, strlen(src), flags, esc);
-> > >                                    ^~~~~~~~~~~
+> > Any further comments (on design or implementation)?
 > >
-> > I'm guessing there was more to this trace for this instance of this war=
-ning?
+> > Should I resend a non-rfc?
 >
-> Yes, complete output appended at the end.
->
-> >
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > ---
-> > >  security/selinux/hooks.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 1e69f88eb326..ac802b99d36c 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -1020,7 +1020,7 @@ static int show_sid(struct seq_file *m, u32 sid=
-)
-> > >         rc =3D security_sid_to_context(&selinux_state, sid,
-> > >                                              &context, &len);
-> > >         if (!rc) {
-> >
-> > ^ perhaps changing this condition to:
-> >
-> > if (!rc && context) {
-> >
-> > It might be nice to retain the null ptr check should the semantics of
-> > security_sid_to_context ever change.
->
-> If I read the implementation of security_sid_to_context() and its callees
-> correctly it should never return 0 (success) and not have populated its 3
-> argument, unless the passed pointer was zero, which by passing the addres=
-s
-> of a stack variable - &context - is not the case).
+> I personally would really like to see a selinux-testsuite for this so
+> that we can verify it works not just now but in the future too.  I
+> think having a test would also help demonstrate the usefulness of the
+> additional LSM controls.
 >
 
-Kindly ping;
-is my analysis correct that after
+Any comments (especially from the mm people)?
 
-    rc =3D security_sid_to_context(&selinux_state, sid,
-                                                  &context, &len);
+Draft SELinux testsuite patch:
+https://github.com/SELinuxProject/selinux-testsuite/pull/80
 
-there is no possibility that rc is 0 AND context is NULL?
-
-> >
-> > > -               bool has_comma =3D context && strchr(context, ',');
-> > > +               bool has_comma =3D strchr(context, ',');
-> > >
-> > >                 seq_putc(m, '=3D');
-> > >                 if (has_comma)
-> > > --
-> > > 2.35.1
-> > >
-> >
-> >
-> > --
-> > Thanks,
-> > ~Nick Desaulniers
+> > One naming question:
+> > Should the anonymous inode class be named "[secretmem]", like
+> > "[userfaultfd]", or "[secret_mem]" similar to "[io_uring]"?
 >
+> The pr_fmt() string in mm/secretmem.c uses "secretmem" so I would
+> suggest sticking with "[secretmem]", although that is question best
+> answered by the secretmem maintainer.
 >
-> clang-tidy report:
->
-> ./include/linux/seq_file.h:136:25: warning: Null pointer passed as 1st
-> argument to string length function
-> [clang-analyzer-unix.cstring.NullArg]
->         seq_escape_mem(m, src, strlen(src), flags, esc);
->                                ^
-> ./security/selinux/hooks.c:1041:6: note: Assuming the condition is false
->         if (!(sbsec->flags & SE_SBINITIALIZED))
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ./security/selinux/hooks.c:1041:2: note: Taking false branch
->         if (!(sbsec->flags & SE_SBINITIALIZED))
->         ^
-> ./security/selinux/hooks.c:1044:6: note: Assuming the condition is false
->         if (!selinux_initialized(&selinux_state))
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ./security/selinux/hooks.c:1044:2: note: Taking false branch
->         if (!selinux_initialized(&selinux_state))
->         ^
-> ./security/selinux/hooks.c:1047:6: note: Assuming the condition is true
->         if (sbsec->flags & FSCONTEXT_MNT) {
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ./security/selinux/hooks.c:1047:2: note: Taking true branch
->         if (sbsec->flags & FSCONTEXT_MNT) {
->         ^
-> ./security/selinux/hooks.c:1050:8: note: Calling 'show_sid'
->                 rc =3D show_sid(m, sbsec->sid);
->                      ^~~~~~~~~~~~~~~~~~~~~~~
-> ./security/selinux/hooks.c:1020:7: note: Value assigned to 'context'
->         rc =3D security_sid_to_context(&selinux_state, sid,
->              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ./security/selinux/hooks.c:1022:6: note: Assuming 'rc' is 0
->         if (!rc) {
->             ^~~
-> ./security/selinux/hooks.c:1022:2: note: Taking true branch
->         if (!rc) {
->         ^
-> ./security/selinux/hooks.c:1023:20: note: Assuming 'context' is null
->                 bool has_comma =3D context && strchr(context, ',');
->                                  ^~~~~~~
-> ./security/selinux/hooks.c:1023:28: note: Left side of '&&' is false
->                 bool has_comma =3D context && strchr(context, ',');
->                                          ^
-> ./security/selinux/hooks.c:1026:7: note: 'has_comma' is false
->                 if (has_comma)
->                     ^~~~~~~~~
-> ./security/selinux/hooks.c:1026:3: note: Taking false branch
->                 if (has_comma)
->                 ^
-> ./security/selinux/hooks.c:1028:17: note: Passing null pointer value
-> via 2nd parameter 's'
->                 seq_escape(m, context, "\"\n\\");
->                               ^~~~~~~
-> ./security/selinux/hooks.c:1028:3: note: Calling 'seq_escape'
->                 seq_escape(m, context, "\"\n\\");
->                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ././include/linux/seq_file.h:152:20: note: Passing null pointer value
-> via 2nd parameter 'src'
->         seq_escape_str(m, s, ESCAPE_OCTAL, esc);
->                           ^
-> ././include/linux/seq_file.h:152:2: note: Calling 'seq_escape_str'
->         seq_escape_str(m, s, ESCAPE_OCTAL, esc);
->         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> ././include/linux/seq_file.h:136:25: note: Null pointer passed as 1st
-> argument to string length function
->         seq_escape_mem(m, src, strlen(src), flags, esc);
->                                ^      ~~~
+> --
+> paul-moore.com
