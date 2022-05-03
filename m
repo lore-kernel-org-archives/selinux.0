@@ -2,113 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1038C433EF
-	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 19:59:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2045C433FE
+	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 20:02:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235693AbiECUCq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 May 2022 16:02:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58284 "EHLO
+        id S236188AbiECUGU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 May 2022 16:06:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbiECUCp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 16:02:45 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8F7403C3
-        for <selinux@vger.kernel.org>; Tue,  3 May 2022 12:59:12 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id iq2-20020a17090afb4200b001d93cf33ae9so3219941pjb.5
-        for <selinux@vger.kernel.org>; Tue, 03 May 2022 12:59:12 -0700 (PDT)
+        with ESMTP id S235548AbiECUGT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 16:06:19 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 288B5403CB
+        for <selinux@vger.kernel.org>; Tue,  3 May 2022 13:02:46 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id d22so5725948plr.9
+        for <selinux@vger.kernel.org>; Tue, 03 May 2022 13:02:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=br876lXgoKnwNSah9sz+Nro9CuCjWyEdAR5ePv2IfYc=;
-        b=6fuea+VF2h7bfZGs4cNm6a/vwBAOvCpaUnQ4ck8ginaLolPOwrrZQP+oOTTEiMNhT8
-         I6J0sI+mHmDRQuYDcG6bFQ4nCzwZOUX4fO+fzzywiBtzPHy3QkYGA3KiEx0Y7O40yV7S
-         qOMqt50XcklYwLTzEfbFIhHalmMuEFCyHg8cCKsidEnACQj9itWPCqDRmbXwtikUmjVe
-         gXdIuRsTzljxw8/JnOtusAf8OSXimTvZubtWOFWUI4f9LfCOsC5IbvYzQZowuQ2hAXoE
-         OFvsgRnK4Lm2oYtHZcnyGtfrfmYX8MU+Lp8u0Ki4X1amSfvFQFX292i6SM/BvcxsCDt3
-         l9bg==
+        bh=lO/St+o2/PonjjcblNEybj23wOVCI5+m6U1+OI/TnZE=;
+        b=PCvGCzsvIlu1EuXOzDqVzSwE4DAmJ15LlcKthP3s6kp4sJdaVpq9wwEcFLGha/McMd
+         E2KG//amULHo4ISJDsiQ3tbmqYzmtcZUlJtCvhMEch/LKDRQZK8W0ShcLlfggWS3h0q7
+         qkw6Ff1OihT0y0Hk+heZknTEeRzZmualGVja8NdrYSVda816O8WOKHPBRZ1XM0xH48Zp
+         pheeFma0vOK2GncA1jZ/fqB0SubqSY44XUX/dLcAp8fUoktfTTqKnq2YJbL+oeV4X4ht
+         4lCKXiUK/OJoyFM/YS8HdWvMOfMgFbGuz2D/V8hmJUhMncrWk2CW4UwrQeubLmzIzkw4
+         k6Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=br876lXgoKnwNSah9sz+Nro9CuCjWyEdAR5ePv2IfYc=;
-        b=KaOXjzTzpJmvauBnOg1puzgil/t2kg6X3frBMG1y/1VQPGcPZtzt4WIc33tZUMwrMi
-         i06s/NuyIjuiGz2z14lOTCGhY1aev3RcCEs+oO0Yfl+Ez2Fnz3UCnCNax2DWWgnoY9Sx
-         7rHKeMc1eRXuiXhqc/0TPDKA6Q1ZfXt6tbju4Wz0KhzbeLTy2ut6+JJZHyJrPJwldvH9
-         z6oyiE8njL90TZS6aryiNmGeDRCVsxDIAPzjgekW+m/NLEjIl4cnKiJg7DQugs5oSwCX
-         xpkAP87bjImDrlyAkl4ALqDPqUacweTbOUkbm5Sg8wEed4P+irP+Cy3XcbrLSy9zKuXS
-         dOsg==
-X-Gm-Message-State: AOAM532dPlA/X9oYrPtgBoQ8ILIqxNRNZJTDgO7bk6Pvq6lrTkGhBU9+
-        34Z000+A87PuCl38jzPRvasB2QleEnm78VchsFbA
-X-Google-Smtp-Source: ABdhPJw9EKdTly/DgbIhDLGWnjmswNtCrk+mCRGjhS0WEEm/jYfwLptQ0upL2OqF4YBy3SqWNTxHqLPrA3t+E5bU2ZM=
-X-Received: by 2002:a17:902:b094:b0:15c:dee8:74c8 with SMTP id
- p20-20020a170902b09400b0015cdee874c8mr18054438plr.6.1651607951529; Tue, 03
- May 2022 12:59:11 -0700 (PDT)
+        bh=lO/St+o2/PonjjcblNEybj23wOVCI5+m6U1+OI/TnZE=;
+        b=DmgJu7wnHRIzmv9Rf6uoPUbHF0aPqAot4JsscB/1WTVAN0LwGdCUxDjJ+o97D4Sjni
+         1EOAr0BGk5h0y0ofqpS4gLF+qY3p3uJkvx2rVYZoAMKYAkcerVjBLmtsLihWEnrCN9QN
+         Y/G3RGCSu9TKJzSCEgHTn46hc8DCUinjLVyaL5woerbvAUJlemycL67oyBmn5LYl24Xh
+         3Fe3ATv2Wjxon3oW7iCRBKnhH2eJI06swA3YGCmD4poxvjWeEpNgdYGrtSAqokyl9v1S
+         DKR3OPX2qrafNaYDmFtQgCcHkebkg9hmOCXXW/ywvDu6//eKQJ1pGPniaDaYQ0EpHplI
+         LKJg==
+X-Gm-Message-State: AOAM5331xT+uH7SVqGIGXRYveWHfqbeC34S2xn9rTpwEEv74BZV3edzI
+        W98XmLzGjj/drwgcRyCZoG6f9RXX0sE6gCb3IrBv
+X-Google-Smtp-Source: ABdhPJyGr+c8LNlbNNBXcpq/E9lvU6ileaoiIgySTkkuyQiPg6JdjkUnr0umPie0YLBfSrHZOOgapp9FoirQubuXdyk=
+X-Received: by 2002:a17:90a:9294:b0:1b9:48e9:a030 with SMTP id
+ n20-20020a17090a929400b001b948e9a030mr6495804pjo.200.1651608165644; Tue, 03
+ May 2022 13:02:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220308165527.45456-1-cgzones@googlemail.com> <20220502144345.81949-1-cgzones@googlemail.com>
-In-Reply-To: <20220502144345.81949-1-cgzones@googlemail.com>
+References: <20220217141858.71281-1-cgzones@googlemail.com>
+ <41224e84-2da7-3f69-0fdb-bb309ad6a3d4@schaufler-ca.com> <CAJ2a_Dfqm92Am5PFPh+3itWZmArWRuVadcRO+=i-BPhQ8QmA8Q@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dfqm92Am5PFPh+3itWZmArWRuVadcRO+=i-BPhQ8QmA8Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 3 May 2022 15:59:00 -0400
-Message-ID: <CAHC9VhRhi_dA5XyvQpBmh3aBz-zLp9y4iGuGc4pV2qKc=Q-ouw@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: declare data arrays const
+Date:   Tue, 3 May 2022 16:02:34 -0400
+Message-ID: <CAHC9VhR-Xk65iSfZxVvaK+mJoFszxT2E8vF=cus1aAKcB0EgYg@mail.gmail.com>
+Subject: Re: [PATCH] security: declare member holding string literal const
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jeremy Kerr <jk@codeconstruct.com.au>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Nathan Chancellor <nathan@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Michal Orzel <michalorzel.eng@gmail.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Austin Kim <austin.kim@lge.com>, linux-kernel@vger.kernel.org
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@linux.microsoft.com>,
+        Todd Kjos <tkjos@google.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        linux-security-module@vger.kernel.org, llvm@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 2, 2022 at 10:43 AM Christian G=C3=B6ttsche
+On Mon, May 2, 2022 at 9:38 AM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
+> On Thu, 17 Feb 2022 at 23:50, Casey Schaufler <casey@schaufler-ca.com> wr=
+ote:
+> > On 2/17/2022 6:18 AM, Christian G=C3=B6ttsche wrote:
+> > > The struct security_hook_list member lsm is assigned in
+> > > security_add_hooks() with string literals passed from the individual
+> > > security modules.  Declare the function parameter and the struct memb=
+er
+> > > const to signal their immutability.
+> > >
+> > > Reported by Clang [-Wwrite-strings]:
+> > >
+> > >      security/selinux/hooks.c:7388:63: error: passing 'const char [8]=
+' to parameter of type 'char *' discards qualifiers [-Werror,-Wincompatible=
+-pointer-types-discards-qualifiers]
+> > >              security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hoo=
+ks), selinux);
+> > >                                                                      =
+     ^~~~~~~~~
+> > >      ./include/linux/lsm_hooks.h:1629:11: note: passing argument to p=
+arameter 'lsm' here
+> > >                                      char *lsm);
+> > >                                            ^
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> >
 >
-> The arrays for the policy capability names, the initial sid identifiers
-> and the class and permission names are not changed at runtime.  Declare
-> them const to avoid accidental modification.
->
-> Do not override the classmap and the initial sid list in the build time
-> script genheaders.
->
-> Check flose(3) is successful in genheaders.c, otherwise the written data
-> might be corrupted or incomplete.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
-> v2:
->   Drop const exemption for genheaders script by rewriting stoupperx().
-> v3:
->   - Declare some additional data array const
->   - Do not use static buffer in genheaders.c::stoupperx()
->   - Check fclose(3) in genheaders.c
-> ---
->  scripts/selinux/genheaders/genheaders.c       | 75 +++++++++++--------
->  scripts/selinux/mdp/mdp.c                     |  4 +-
->  security/selinux/avc.c                        |  2 +-
->  security/selinux/include/avc_ss.h             |  2 +-
->  security/selinux/include/classmap.h           |  2 +-
->  .../selinux/include/initial_sid_to_string.h   |  4 +-
->  security/selinux/include/policycap.h          |  2 +-
->  security/selinux/include/policycap_names.h    |  2 +-
->  security/selinux/ss/avtab.c                   |  2 +-
->  security/selinux/ss/policydb.c                | 36 ++++-----
->  security/selinux/ss/services.c                |  4 +-
->  11 files changed, 72 insertions(+), 63 deletions(-)
+> Kindly ping;
+> any progress on this one?
 
-Thanks this revision is much better, merged into selinux/next.  I did
-have to apply parts of this patch manually, so if you notice anything
-wrong with the commit please let me know.
+I've already added my Reviewed-by tag, as has Casey, so I think it's
+pretty "safe" at this point.  The next step is for James to pull this
+into the LSM tree.  If it is still collecting dust at the end of this
+week, ping us again and I can just go ahead and pull it into the
+SELinux tree, it's small enough that it shouldn't cause any problems.
 
 --=20
 paul-moore.com
