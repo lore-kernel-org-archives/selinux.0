@@ -2,84 +2,156 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 733D0C433F5
-	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 20:04:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA27C433FE
+	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 20:12:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235284AbiECUHi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 May 2022 16:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36216 "EHLO
+        id S242219AbiECUPz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 May 2022 16:15:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230514AbiECUHe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 16:07:34 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB18403C6;
-        Tue,  3 May 2022 13:04:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:
-        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description;
-        bh=QwbxKW/u1C+Gw4rhvaiXK5OBQkHPMzPp/1lAC0EgVgY=; b=hXj3RdTJQJZS0m9a+3dmdiPVYD
-        9AKTxlTpaHHH1tc1UZSwB9gfZPqmaH0wTyJiwX+X6NaqIsC+O79vyuLbKIcmbsH27MRBPvYT5Y1nF
-        Gl6bSq+z3ErnocVhEJByW/YhiHi0FsUfD3d9ila4PNOUDiyefh778CeGp5qpDEbcgH9dPlCfyLW8Q
-        a1XWRMdD6YT00hXthG7QDbIVZXp3Yu1r/ZudW5qHaKwjC9xN4lvFEB/n8na/BAslEfYfS53d+JWaz
-        9XRD/fKaHQcuvfyUAI0UEwwefl+Gr0WzgBNLXKmA7zKmsbFqZIrKfIuTVqOmjCcriK/BDYjleZbPk
-        eKnzBIQg==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nlykU-007U4h-AT; Tue, 03 May 2022 20:03:54 +0000
-Date:   Tue, 3 May 2022 13:03:54 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     =?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Qian Cai <quic_qiancai@quicinc.com>,
-        John Stultz <jstultz@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Saravana Kannan <saravanak@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4] firmware_loader: use kernel credentials when reading
- firmware
-Message-ID: <YnGKqjE+KydNnWRw@bombadil.infradead.org>
-References: <20220502004952.3970800-1-tweek@google.com>
+        with ESMTP id S242605AbiECUPa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 16:15:30 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25BFA40E53
+        for <selinux@vger.kernel.org>; Tue,  3 May 2022 13:10:53 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id cu23-20020a17090afa9700b001d98d8e53b7so2578502pjb.0
+        for <selinux@vger.kernel.org>; Tue, 03 May 2022 13:10:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=F1Z4/d6DDe3J/2+a6zGvXw/SwahIrpiTzs4QPSGop1Q=;
+        b=AhDLELavTudJm4Q4HJmBysN8XtrTMfFnCe15RLGV4KJnUqdms/L3RqTK7tRVF4QFVC
+         T6H+NTDqgYEzJEVqsZdpnLa+6ApN4LBlt6glH8keHBix5Y828v4Fwk4F8EAVosiwPEt8
+         hWWFmf4NCVfMVLqHTyCJcaJDHAeQIdUUkXs1dj8yQN4H8MsJ/K+51jHPKxSBqGOP5J3Y
+         it8s9sBRuEku0sppDBxiZN4y2pWV6M1ulo5q+Wc49JUTMJ9GBDpBJ7nJvoNkRAkpQCkP
+         XbCyCFRw74gGN4A95lOX6TXnYvydrTRttTx4839DDBzRNwd443p7jf8iMZ8HrbCcE38S
+         1Tgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=F1Z4/d6DDe3J/2+a6zGvXw/SwahIrpiTzs4QPSGop1Q=;
+        b=nTyNX3p1UT816ChAM2E9mU/Jcc5WS/5LV3DYbXcFHVDxYa60TBV8N4CufcQt9wLuZB
+         ZKFFnT14UwEqTp8mBCjvrD/FJ94gdazNkV9VC1pWczXDkPqmQbMl8sbjD7t+oziwX3vw
+         cICFsVxHPiP4tLTmIXOmU7trlONCHVCcFJn6IPlAvt1/mnsn/02GkTFgY4jhEenM5x5W
+         hKUVqo2XNtzwmALyccX4Swn/t6KUr2IPOtPvtymBYGx4DYjam+GTjSsU4EK3Jd5SB6Ak
+         noeenckZj+b2gaXy7QopH1d6LSvrhWb/Xhe4EwxJGKhxuwZqxSOXS8D+G+X2cbOjX/cT
+         /2ig==
+X-Gm-Message-State: AOAM531aiZ2CgyT00iY7MEXPvnYVwyM0o43OprmAuJ8AuUgPEnW2CofP
+        ZpyMoaUFaQ2D9jCaFZfZjUXMRA1i5c3BOFsUZMLk9AxI6g==
+X-Google-Smtp-Source: ABdhPJzC8uRUEmor5TSiXSaoorAevlrZJXQ06HarNkBGXZKYY+cwiBMvymFFqCd4CEY2Xo2nfn+MwlAPLNc/IT20HvA=
+X-Received: by 2002:a17:902:b094:b0:15c:dee8:74c8 with SMTP id
+ p20-20020a170902b09400b0015cdee874c8mr18100490plr.6.1651608653214; Tue, 03
+ May 2022 13:10:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220502004952.3970800-1-tweek@google.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
+References: <20220217143457.75229-1-cgzones@googlemail.com>
+ <20220308170928.58040-1-cgzones@googlemail.com> <CAHC9VhSiqvCbKQHYTGAj3vqECNto6eNm0MyzLd92kcJnvZSw1A@mail.gmail.com>
+ <CAHC9VhR1d2aLKsZOxLb6b1uuTcWOpnJ22S5=mXygvjcv6Sm=xg@mail.gmail.com> <CAJ2a_DeWWoSYwhmbNpSuDhve9KUfEnoPiHdd5s_CpKHRUbi8Bw@mail.gmail.com>
+In-Reply-To: <CAJ2a_DeWWoSYwhmbNpSuDhve9KUfEnoPiHdd5s_CpKHRUbi8Bw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 3 May 2022 16:10:42 -0400
+Message-ID: <CAHC9VhQYpo38Bv6tHYh=L-Bkxe=ym97xG8pt1tE6wR+V0Qy+WA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: log anon inode class name
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 02, 2022 at 10:49:52AM +1000, Thiébaud Weksteen wrote:
-> Device drivers may decide to not load firmware when probed to avoid
-> slowing down the boot process should the firmware filesystem not be
-> available yet. In this case, the firmware loading request may be done
-> when a device file associated with the driver is first accessed. The
-> credentials of the userspace process accessing the device file may be
-> used to validate access to the firmware files requested by the driver.
-> Ensure that the kernel assumes the responsibility of reading the
-> firmware.
-> 
-> This was observed on Android for a graphic driver loading their firmware
-> when the device file (e.g. /dev/mali0) was first opened by userspace
-> (i.e. surfaceflinger). The security context of surfaceflinger was used
-> to validate the access to the firmware file (e.g.
-> /vendor/firmware/mali.bin).
-> 
-> Previously, Android configurations were not setting up the
-> firmware_class.path command line argument and were relying on the
-> userspace fallback mechanism. In this case, the security context of the
-> userspace daemon (i.e. ueventd) was consistently used to read firmware
-> files. More Android devices are now found to set firmware_class.path
-> which gives the kernel the opportunity to read the firmware directly
-> (via kernel_read_file_from_path_initns). In this scenario, the current
-> process credentials were used, even if unrelated to the loading of the
-> firmware file.
-> 
-> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
-> Cc: <stable@vger.kernel.org> # 5.10
+On Mon, May 2, 2022 at 9:39 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> On Wed, 27 Apr 2022 at 15:19, Paul Moore <paul@paul-moore.com> wrote:
+> > On Mon, Apr 4, 2022 at 4:18 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > On Tue, Mar 8, 2022 at 12:09 PM Christian G=C3=B6ttsche
+> > > <cgzones@googlemail.com> wrote:
+> > > >
+> > > > Log the anonymous inode class name in the security hook
+> > > > inode_init_security_anon.  This name is the key for name based type
+> > > > transitions on the anon_inode security class on creation.  Example:
+> > > >
+> > > >     type=3DAVC msg=3Daudit(02/16/22 22:02:50.585:216) : avc:  grant=
+ed \
+> > > >         { create } for  pid=3D2136 comm=3Dmariadbd anonclass=3D"[io=
+_uring]" \
+> > > >         scontext=3Dsystem_u:system_r:mysqld_t:s0 \
+> > > >         tcontext=3Dsystem_u:system_r:mysqld_iouring_t:s0 tclass=3Da=
+non_inode
+> > > >
+> > > > Add a new LSM audit data type holding the inode and the class name.
+> > > >
+> > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > >
+> > > > ---
+> > > > v2:
+> > > >   - drop dev=3D and name=3D output for anonymous inodes, and hence =
+simplify
+> > > >     the common_audit_data union member.
+> > > >   - drop WARN_ON() on empty name passed to inode_init_security_anon=
+ hook
+> > > > ---
+> > > >  include/linux/lsm_audit.h | 2 ++
+> > > >  security/lsm_audit.c      | 4 ++++
+> > > >  security/selinux/hooks.c  | 4 ++--
+> > > >  3 files changed, 8 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+> > > > index 17d02eda9538..97a8b21eb033 100644
+> > > > --- a/include/linux/lsm_audit.h
+> > > > +++ b/include/linux/lsm_audit.h
+> > > > @@ -76,6 +76,7 @@ struct common_audit_data {
+> > > >  #define LSM_AUDIT_DATA_IBENDPORT 14
+> > > >  #define LSM_AUDIT_DATA_LOCKDOWN 15
+> > > >  #define LSM_AUDIT_DATA_NOTIFICATION 16
+> > > > +#define LSM_AUDIT_DATA_ANONINODE       17
+> > > >         union   {
+> > > >                 struct path path;
+> > > >                 struct dentry *dentry;
+> > > > @@ -96,6 +97,7 @@ struct common_audit_data {
+> > > >                 struct lsm_ibpkey_audit *ibpkey;
+> > > >                 struct lsm_ibendport_audit *ibendport;
+> > > >                 int reason;
+> > > > +               const char *anonclass;
+> > > >         } u;
+> > > >         /* this union contains LSM specific data */
+> > > >         union {
+> > > > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> > > > index 1897cbf6fc69..981f6a4e4590 100644
+> > > > --- a/security/lsm_audit.c
+> > > > +++ b/security/lsm_audit.c
+> > > > @@ -433,6 +433,10 @@ static void dump_common_audit_data(struct audi=
+t_buffer *ab,
+> > > >                 audit_log_format(ab, " lockdown_reason=3D\"%s\"",
+> > > >                                  lockdown_reasons[a->u.reason]);
+> > > >                 break;
+> > > > +       case LSM_AUDIT_DATA_ANONINODE:
+> > > > +               audit_log_format(ab, " anonclass=3D");
+> > > > +               audit_log_untrustedstring(ab, a->u.anonclass);
+> > >
+> > > My apologies, I didn't notice this in the previous patch ... I don't
+> > > think we need to log this as an untrusted string as the string value
+> > > is coming from the kernel, not userspace, so we could rewrite the
+> > > above as the following:
+> > >
+> > >   audit_log_format(ab, " anonclass=3D%s", a->u.anonclass);
+> > >
+> > > ... if you are okay with that, I can make the change when I merge the
+> > > patch or you can submit another revision, let me know which you would
+> > > prefer.
+>
+> Feel free to adjust while merging, thanks.
 
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Adjusted and merged, thanks.
 
-  Luis
+--=20
+paul-moore.com
