@@ -2,157 +2,79 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 019D6C433FE
-	for <selinux@archiver.kernel.org>; Mon,  2 May 2022 16:01:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11602C433EF
+	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 08:23:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386216AbiEBQFP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 May 2022 12:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43252 "EHLO
+        id S232725AbiECI1E (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 May 2022 04:27:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386161AbiEBQEr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 May 2022 12:04:47 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0AFDEE7;
-        Mon,  2 May 2022 09:00:58 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id gh6so28686239ejb.0;
-        Mon, 02 May 2022 09:00:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=B/k9asq89XDwMG68daWGZty3oeCwoDEDaFSOuEQBtd0=;
-        b=Kks+DHgbblcpg3oeQsjmU6As85p9JWAM6iYN03INHpKmsDsZDYUt9RmrNZO+a4yTOj
-         3IcLeT4NcmDHllUnAJB3GGxDkNWXGSp3RhnAVE31QSplhnuc8HfzGDFE1orJPHWX9JxU
-         eD+R8gvRB50EsPNi3c9tiOztuxPYAbJOSc5MTHUKy0Byz88hfDo62Duf9JXQaY1+/K56
-         lhkuInv8yRcfj4eCQDF3Lc2mKyXcLX5MBDDvvov0tQlyTCpwqwThMODe75U7RXq5ytGj
-         qe7EfAnsQ1rhxrPvEMey38x7me6Xjkuy5IdEiBlVyrUtE/mo6DEySlwhGFlcmuo/nfSh
-         Zmlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=B/k9asq89XDwMG68daWGZty3oeCwoDEDaFSOuEQBtd0=;
-        b=Y/7OydD6Hg0HmoNTwXst8xFFeYrYKXqwRlP9IB6d8ggDGZOGcwG8MFuhV+APHmRIS2
-         MdPiorXa3iO4MO8FJkU0Phb62wtC1gFd44XNwldl1DhV7vFntphZJg5hNO81gQUmoP8F
-         cvG5VvRRpHEbh6zURZzr4UYKbeSa4dwinrG2ZTcODf+fDqEBBWNtAXk1nnjurzNJ0su8
-         BuDFDDxDpWmBw6WVl/5VVRbaao6jJE5JtxB5z3p9YdKhoJfl3wzbtau5VMiOXJgyaYH3
-         YCFc8Om/6+ypIaIM67883LDs/ilwyFsfMhzjtGPgLwW/wh0MQqV4vPFy2oxIV41jnY+X
-         i0WQ==
-X-Gm-Message-State: AOAM532Cg8iodUPPPjogh6FPCdkoO7eeBKWkEjzzrdpyhhSCBZly2XQF
-        sTDwde/XWQfK1EtaZxOWcxDTlrwDBxlKsg==
-X-Google-Smtp-Source: ABdhPJyGrEf0l0QdeT1UVkkGDk/FoP0BwN4rrVHQ6HPsh9J12efhB4B6hiKMIq71/OS1e/S6vs9qBQ==
-X-Received: by 2002:a17:907:6e8a:b0:6f4:2a65:eb4b with SMTP id sh10-20020a1709076e8a00b006f42a65eb4bmr8588785ejc.597.1651507257320;
-        Mon, 02 May 2022 09:00:57 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-001-135-067.77.1.pool.telefonica.de. [77.1.135.67])
-        by smtp.gmail.com with ESMTPSA id h18-20020a1709070b1200b006f3ef214dd3sm3689996ejl.57.2022.05.02.09.00.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 09:00:56 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     Serge Hallyn <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/8] capability: add capable_or to test for multiple caps with exactly one audit message
-Date:   Mon,  2 May 2022 18:00:30 +0200
-Message-Id: <20220502160030.131168-8-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220502160030.131168-1-cgzones@googlemail.com>
-References: <20220217145003.78982-2-cgzones@googlemail.com>
- <20220502160030.131168-1-cgzones@googlemail.com>
+        with ESMTP id S231240AbiECI1D (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 04:27:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 28EE329800
+        for <selinux@vger.kernel.org>; Tue,  3 May 2022 01:23:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651566211;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=r/taJ9sE0u0byJCX8Eni1IyaMwiCBepL38AsaKItU+M=;
+        b=T1dGFpa30N0qS9yDUGqeY6yaHkFl7UBhQ4/XpUnrEyC5j8yPuX6ZDxDaJHG/677tiF2nkg
+        qBAkc97NaQz/kLQLcsOdNizeDsy3uQbRzSlscM+az00Vgo/xf4hDgi4fjR4QHbNzCA7mSR
+        zzQNB3NuavJhUvXhg/NmX1zQt4YioUk=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-605-DU14Ls9PMcmspjwsah5qNg-1; Tue, 03 May 2022 04:23:29 -0400
+X-MC-Unique: DU14Ls9PMcmspjwsah5qNg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 78FA71C01E83
+        for <selinux@vger.kernel.org>; Tue,  3 May 2022 08:23:29 +0000 (UTC)
+Received: from lacos-laptop-7.usersys.redhat.com (unknown [10.39.192.166])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 95C9940CFD29;
+        Tue,  3 May 2022 08:23:28 +0000 (UTC)
+From:   Laszlo Ersek <lersek@redhat.com>
+To:     SELinux List <selinux@vger.kernel.org>,
+        Laszlo Ersek <lersek@redhat.com>
+Cc:     "Richard W.M. Jones" <rjones@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH v2 1/5] setfiles: fix up inconsistent indentation
+Date:   Tue,  3 May 2022 10:23:22 +0200
+Message-Id: <20220503082326.11621-2-lersek@redhat.com>
+In-Reply-To: <20220503082326.11621-1-lersek@redhat.com>
+References: <20220503082326.11621-1-lersek@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add the interface `capable_or()` as an alternative to or multiple
-`capable()` calls, like `capable_or(CAP_SYS_NICE, CAP_SYS_ADMIN)`
-instead of `capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
-`capable_or()` will in particular generate exactly one audit message,
-either for the left most capability in effect or, if the task has none,
-the first one.
-This is especially helpful with regard to SELinux, where each audit
-message about a not allowed capability will create an avc denial.
-Using this function with the least invasive capability as left most
-argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables policy writers
-to only allow the least invasive one and SELinux domains pass this check
-with only capability:sys_nice or capability:sys_admin allowed without
-any avc denial message.
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-
----
-v2:
-   avoid varargs and fix to two capabilities; capable_or3() can be added
-   later if needed
----
- include/linux/capability.h |  5 +++++
- kernel/capability.c        | 29 +++++++++++++++++++++++++++++
- 2 files changed, 34 insertions(+)
-
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index 65efb74c3585..a16d1edea9b3 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -207,6 +207,7 @@ extern bool has_ns_capability(struct task_struct *t,
- extern bool has_capability_noaudit(struct task_struct *t, int cap);
- extern bool has_ns_capability_noaudit(struct task_struct *t,
- 				      struct user_namespace *ns, int cap);
-+extern bool capable_or(int cap1, int cap2);
- extern bool capable(int cap);
- extern bool ns_capable(struct user_namespace *ns, int cap);
- extern bool ns_capable_noaudit(struct user_namespace *ns, int cap);
-@@ -230,6 +231,10 @@ static inline bool has_ns_capability_noaudit(struct task_struct *t,
- {
- 	return true;
- }
-+static inline bool capable_or(int cap1, int cap2)
-+{
-+	return true;
-+}
- static inline bool capable(int cap)
- {
- 	return true;
-diff --git a/kernel/capability.c b/kernel/capability.c
-index 765194f5d678..cd8f3efe6d08 100644
---- a/kernel/capability.c
-+++ b/kernel/capability.c
-@@ -435,6 +435,35 @@ bool ns_capable_setid(struct user_namespace *ns, int cap)
- }
- EXPORT_SYMBOL(ns_capable_setid);
- 
-+/**
-+ * capable_or - Determine if the current task has one of two superior capabilities in effect
-+ * @cap1: The capabilities to be tested for first
-+ * @cap2: The capabilities to be tested for secondly
-+ *
-+ * Return true if the current task has at one of the two given superior
-+ * capabilities currently available for use, false if not.
-+ *
-+ * In contrast to or'ing capable() this call will create exactly one audit
-+ * message, either for @cap1, if it is granted or both are not permitted,
-+ * or @cap2, if it is granted while the other one is not.
-+ *
-+ * The capabilities should be ordered from least to most invasive, i.e. CAP_SYS_ADMIN last.
-+ *
-+ * This sets PF_SUPERPRIV on the task if the capability is available on the
-+ * assumption that it's about to be used.
-+ */
-+bool capable_or(int cap1, int cap2)
-+{
-+	if (ns_capable_noaudit(&init_user_ns, cap1))
-+		return ns_capable(&init_user_ns, cap1);
-+
-+	if (ns_capable_noaudit(&init_user_ns, cap2))
-+		return ns_capable(&init_user_ns, cap2);
-+
-+	return ns_capable(&init_user_ns, cap1);
-+}
-+EXPORT_SYMBOL(capable_or);
-+
- /**
-  * capable - Determine if the current task has a superior capability in effect
-  * @cap: The capability to be tested for
--- 
-2.36.0
+Q29tbWl0IDdhZDg0ZTdjOGQ0ZiAoIkFkZCByZXN0b3JlY29uIC14IG9wdGlvbiB0byBub3QgY3Jv
+c3MgRlMKYm91bmRhcmllcyIsIDIwMjAtMDYtMTgpIHVzZWQgc3BhY2VzIHZzLiBUQUJzIGluY29u
+c2lzdGVudGx5OyBydW4KInVuZXhwYW5kIiBvbiB0aGUgYWZmZWN0ZWQgbGluZXMgdG8gbWFrZSB0
+aGUgaW5kZW50YXRpb24gY29uZm9ybSB0byB0aGUKcmVzdCBvZiB0aGUgc291cmNlIGNvZGUuCgpD
+YzogIlJpY2hhcmQgVy5NLiBKb25lcyIgPHJqb25lc0ByZWRoYXQuY29tPgpDYzogUGV0ciBMYXV0
+cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+CkJ1Z3ppbGxhOiBodHRwczovL2J1Z3ppbGxhLnJl
+ZGhhdC5jb20vc2hvd19idWcuY2dpP2lkPTE3OTQ1MTgKU2lnbmVkLW9mZi1ieTogTGFzemxvIEVy
+c2VrIDxsZXJzZWtAcmVkaGF0LmNvbT4KLS0tCiBwb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvc2V0
+ZmlsZXMuYyB8IDEwICsrKysrLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyks
+IDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvcG9saWN5Y29yZXV0aWxzL3NldGZpbGVzL3Nl
+dGZpbGVzLmMgYi9wb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMvc2V0ZmlsZXMuYwppbmRleCBhYjcw
+MTZhY2E5YTYuLmJlODhiZTVkNTQ5NyAxMDA2NDQKLS0tIGEvcG9saWN5Y29yZXV0aWxzL3NldGZp
+bGVzL3NldGZpbGVzLmMKKysrIGIvcG9saWN5Y29yZXV0aWxzL3NldGZpbGVzL3NldGZpbGVzLmMK
+QEAgLTM2OCwxMyArMzY4LDEzIEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikKIAkJ
+Y2FzZSAnMCc6CiAJCQludWxsX3Rlcm1pbmF0ZWQgPSAxOwogCQkJYnJlYWs7Ci0gICAgICAgICAg
+ICAgICAgY2FzZSAneCc6Ci0gICAgICAgICAgICAgICAgICAgICAgICBpZiAoaWFtcmVzdG9yZWNv
+bikgeworCQljYXNlICd4JzoKKwkJCWlmIChpYW1yZXN0b3JlY29uKSB7CiAJCQkJcl9vcHRzLnhk
+ZXYgPSBTRUxJTlVYX1JFU1RPUkVDT05fWERFVjsKLSAgICAgICAgICAgICAgICAgICAgICAgIH0g
+ZWxzZSB7CisJCQl9IGVsc2UgewogCQkJCXVzYWdlKGFyZ3ZbMF0pOwotICAgICAgICAgICAgICAg
+ICAgICAgICAgfQotICAgICAgICAgICAgICAgICAgICAgICAgYnJlYWs7CisJCQl9CisJCQlicmVh
+azsKIAkJY2FzZSAnVCc6CiAJCQludGhyZWFkcyA9IHN0cnRvdWxsKG9wdGFyZywgJmVuZHB0ciwg
+MTApOwogCQkJaWYgKCpvcHRhcmcgPT0gJ1wwJyB8fCAqZW5kcHRyICE9ICdcMCcpCi0tIAoyLjE5
+LjEuMy5nMzAyNDdhYTVkMjAxCgoK
 
