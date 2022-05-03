@@ -2,156 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA27C433FE
-	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 20:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2338EC433EF
+	for <selinux@archiver.kernel.org>; Tue,  3 May 2022 20:18:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242219AbiECUPz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 May 2022 16:15:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
+        id S234990AbiECUVt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 May 2022 16:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242605AbiECUPa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 16:15:30 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25BFA40E53
-        for <selinux@vger.kernel.org>; Tue,  3 May 2022 13:10:53 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id cu23-20020a17090afa9700b001d98d8e53b7so2578502pjb.0
-        for <selinux@vger.kernel.org>; Tue, 03 May 2022 13:10:53 -0700 (PDT)
+        with ESMTP id S229510AbiECUVr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 16:21:47 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8FD2BB3C
+        for <selinux@vger.kernel.org>; Tue,  3 May 2022 13:18:13 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id l11-20020a17090a49cb00b001d923a9ca99so2942251pjm.1
+        for <selinux@vger.kernel.org>; Tue, 03 May 2022 13:18:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=F1Z4/d6DDe3J/2+a6zGvXw/SwahIrpiTzs4QPSGop1Q=;
-        b=AhDLELavTudJm4Q4HJmBysN8XtrTMfFnCe15RLGV4KJnUqdms/L3RqTK7tRVF4QFVC
-         T6H+NTDqgYEzJEVqsZdpnLa+6ApN4LBlt6glH8keHBix5Y828v4Fwk4F8EAVosiwPEt8
-         hWWFmf4NCVfMVLqHTyCJcaJDHAeQIdUUkXs1dj8yQN4H8MsJ/K+51jHPKxSBqGOP5J3Y
-         it8s9sBRuEku0sppDBxiZN4y2pWV6M1ulo5q+Wc49JUTMJ9GBDpBJ7nJvoNkRAkpQCkP
-         XbCyCFRw74gGN4A95lOX6TXnYvydrTRttTx4839DDBzRNwd443p7jf8iMZ8HrbCcE38S
-         1Tgg==
+        bh=h+anUim6N8kPhedaRXqtOLw9+/rgUrHm7QzUFJPNxuM=;
+        b=2hWm19ckEKWfsMbIjsekIVatx68j91DvHaRPoS0oToKiAtQkyaNB09ti8snB7nohNF
+         Rces+wM3fsi8aNPXfMa3adr9mWjqtwcYDefEp6weeIn8ldSfAw481Nv1cj1bS9WnPztm
+         46sFYb9MDoU/K4MQPBcaKWoVNUGI84f4CtqcZDDEoPKm4n88jtp/5QZdON8wp5I+lvfx
+         4rMxaYdy35MBFaxOKaDCBV06psf7kGaTwE979BBf1e66t9j1g6eVhYkmWxa8+8/KMLEN
+         EZd510MBpgJb+tem3lnYEXSYfROuOkHk3f89z9jfydZj3mSC8irtIz5hatG1CP8bdwdV
+         bU/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=F1Z4/d6DDe3J/2+a6zGvXw/SwahIrpiTzs4QPSGop1Q=;
-        b=nTyNX3p1UT816ChAM2E9mU/Jcc5WS/5LV3DYbXcFHVDxYa60TBV8N4CufcQt9wLuZB
-         ZKFFnT14UwEqTp8mBCjvrD/FJ94gdazNkV9VC1pWczXDkPqmQbMl8sbjD7t+oziwX3vw
-         cICFsVxHPiP4tLTmIXOmU7trlONCHVCcFJn6IPlAvt1/mnsn/02GkTFgY4jhEenM5x5W
-         hKUVqo2XNtzwmALyccX4Swn/t6KUr2IPOtPvtymBYGx4DYjam+GTjSsU4EK3Jd5SB6Ak
-         noeenckZj+b2gaXy7QopH1d6LSvrhWb/Xhe4EwxJGKhxuwZqxSOXS8D+G+X2cbOjX/cT
-         /2ig==
-X-Gm-Message-State: AOAM531aiZ2CgyT00iY7MEXPvnYVwyM0o43OprmAuJ8AuUgPEnW2CofP
-        ZpyMoaUFaQ2D9jCaFZfZjUXMRA1i5c3BOFsUZMLk9AxI6g==
-X-Google-Smtp-Source: ABdhPJzC8uRUEmor5TSiXSaoorAevlrZJXQ06HarNkBGXZKYY+cwiBMvymFFqCd4CEY2Xo2nfn+MwlAPLNc/IT20HvA=
-X-Received: by 2002:a17:902:b094:b0:15c:dee8:74c8 with SMTP id
- p20-20020a170902b09400b0015cdee874c8mr18100490plr.6.1651608653214; Tue, 03
- May 2022 13:10:53 -0700 (PDT)
+        bh=h+anUim6N8kPhedaRXqtOLw9+/rgUrHm7QzUFJPNxuM=;
+        b=kDGjoUS/YRdkj9NtUJqHpZr53j55qF+soM9nbzOAL0wjcVAp6rbT06Uo1OEOGv/0rU
+         ODxEEwJui7VEskzUbQq8OVM/cp3jfaH8emPytAtf3XTKCB9UBgbglcQHYTbP0TJ8Yyhy
+         J+eGkReZCQKmnSaJA9NkZkYahhCmBBwFDjCZQAtAzaD963xxVqdSpPxf/sqmXOvPHiX8
+         5HP+xUAym/LpLJkUFah86HpnZREsw9wQi1Ujr5F0LuE+pSez+cFx5J9UvZesTfSqT2F5
+         94k1EmZYh/jnp2b1yA3MQEiJEwuTKlPtyVRWHYoniBKNMiqbiA7Qij4E0nWVIP34eSfq
+         dF6g==
+X-Gm-Message-State: AOAM533yrUICob9YUh+ayyWYpcef/EpN/TLLvlVHTmDAw6EhF0EVO3lN
+        AMdNBiGOGPvdJEVrxJoWVAneVwfN/vpeMcmtj1q8
+X-Google-Smtp-Source: ABdhPJzNQ1Ikl3OEEhw7PvSoDXi42stUzXvXKxep3deRkG07vGxBwIa9Rpr8pNvCKqjomXJ6kaWa27JatI5y/a+aD+8=
+X-Received: by 2002:a17:90a:9294:b0:1b9:48e9:a030 with SMTP id
+ n20-20020a17090a929400b001b948e9a030mr6559960pjo.200.1651609093031; Tue, 03
+ May 2022 13:18:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220217143457.75229-1-cgzones@googlemail.com>
- <20220308170928.58040-1-cgzones@googlemail.com> <CAHC9VhSiqvCbKQHYTGAj3vqECNto6eNm0MyzLd92kcJnvZSw1A@mail.gmail.com>
- <CAHC9VhR1d2aLKsZOxLb6b1uuTcWOpnJ22S5=mXygvjcv6Sm=xg@mail.gmail.com> <CAJ2a_DeWWoSYwhmbNpSuDhve9KUfEnoPiHdd5s_CpKHRUbi8Bw@mail.gmail.com>
-In-Reply-To: <CAJ2a_DeWWoSYwhmbNpSuDhve9KUfEnoPiHdd5s_CpKHRUbi8Bw@mail.gmail.com>
+References: <20220502135907.31035-1-cgzones@googlemail.com>
+In-Reply-To: <20220502135907.31035-1-cgzones@googlemail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 3 May 2022 16:10:42 -0400
-Message-ID: <CAHC9VhQYpo38Bv6tHYh=L-Bkxe=ym97xG8pt1tE6wR+V0Qy+WA@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: log anon inode class name
+Date:   Tue, 3 May 2022 16:18:02 -0400
+Message-ID: <CAHC9VhRVTMegCwVCVBmp8E9uHawYhpRkXicvOQL-djuTV7dAkg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: use unsigned char for boolean values
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+Cc:     selinux@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Richard Guy Briggs <rgb@redhat.com>,
+        Austin Kim <austin.kim@lge.com>,
+        Michal Orzel <michalorzel.eng@gmail.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        linux-security-module@vger.kernel.org
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 2, 2022 at 9:39 AM Christian G=C3=B6ttsche
+On Mon, May 2, 2022 at 9:59 AM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
-> On Wed, 27 Apr 2022 at 15:19, Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Apr 4, 2022 at 4:18 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Tue, Mar 8, 2022 at 12:09 PM Christian G=C3=B6ttsche
-> > > <cgzones@googlemail.com> wrote:
-> > > >
-> > > > Log the anonymous inode class name in the security hook
-> > > > inode_init_security_anon.  This name is the key for name based type
-> > > > transitions on the anon_inode security class on creation.  Example:
-> > > >
-> > > >     type=3DAVC msg=3Daudit(02/16/22 22:02:50.585:216) : avc:  grant=
-ed \
-> > > >         { create } for  pid=3D2136 comm=3Dmariadbd anonclass=3D"[io=
-_uring]" \
-> > > >         scontext=3Dsystem_u:system_r:mysqld_t:s0 \
-> > > >         tcontext=3Dsystem_u:system_r:mysqld_iouring_t:s0 tclass=3Da=
-non_inode
-> > > >
-> > > > Add a new LSM audit data type holding the inode and the class name.
-> > > >
-> > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > >
-> > > > ---
-> > > > v2:
-> > > >   - drop dev=3D and name=3D output for anonymous inodes, and hence =
-simplify
-> > > >     the common_audit_data union member.
-> > > >   - drop WARN_ON() on empty name passed to inode_init_security_anon=
- hook
-> > > > ---
-> > > >  include/linux/lsm_audit.h | 2 ++
-> > > >  security/lsm_audit.c      | 4 ++++
-> > > >  security/selinux/hooks.c  | 4 ++--
-> > > >  3 files changed, 8 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-> > > > index 17d02eda9538..97a8b21eb033 100644
-> > > > --- a/include/linux/lsm_audit.h
-> > > > +++ b/include/linux/lsm_audit.h
-> > > > @@ -76,6 +76,7 @@ struct common_audit_data {
-> > > >  #define LSM_AUDIT_DATA_IBENDPORT 14
-> > > >  #define LSM_AUDIT_DATA_LOCKDOWN 15
-> > > >  #define LSM_AUDIT_DATA_NOTIFICATION 16
-> > > > +#define LSM_AUDIT_DATA_ANONINODE       17
-> > > >         union   {
-> > > >                 struct path path;
-> > > >                 struct dentry *dentry;
-> > > > @@ -96,6 +97,7 @@ struct common_audit_data {
-> > > >                 struct lsm_ibpkey_audit *ibpkey;
-> > > >                 struct lsm_ibendport_audit *ibendport;
-> > > >                 int reason;
-> > > > +               const char *anonclass;
-> > > >         } u;
-> > > >         /* this union contains LSM specific data */
-> > > >         union {
-> > > > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-> > > > index 1897cbf6fc69..981f6a4e4590 100644
-> > > > --- a/security/lsm_audit.c
-> > > > +++ b/security/lsm_audit.c
-> > > > @@ -433,6 +433,10 @@ static void dump_common_audit_data(struct audi=
-t_buffer *ab,
-> > > >                 audit_log_format(ab, " lockdown_reason=3D\"%s\"",
-> > > >                                  lockdown_reasons[a->u.reason]);
-> > > >                 break;
-> > > > +       case LSM_AUDIT_DATA_ANONINODE:
-> > > > +               audit_log_format(ab, " anonclass=3D");
-> > > > +               audit_log_untrustedstring(ab, a->u.anonclass);
-> > >
-> > > My apologies, I didn't notice this in the previous patch ... I don't
-> > > think we need to log this as an untrusted string as the string value
-> > > is coming from the kernel, not userspace, so we could rewrite the
-> > > above as the following:
-> > >
-> > >   audit_log_format(ab, " anonclass=3D%s", a->u.anonclass);
-> > >
-> > > ... if you are okay with that, I can make the change when I merge the
-> > > patch or you can submit another revision, let me know which you would
-> > > prefer.
 >
-> Feel free to adjust while merging, thanks.
+> Reported by sparse:
+>
+>     security/selinux/selinuxfs.c:1483:30: warning: incorrect type in assi=
+gnment (different signedness)
+>     security/selinux/selinuxfs.c:1483:30:    expected unsigned int *
+>     security/selinux/selinuxfs.c:1483:30:    got int *[addressable] value=
+s
+>     security/selinux/selinuxfs.c:1400:48: warning: incorrect type in argu=
+ment 3 (different signedness)
+>     security/selinux/selinuxfs.c:1400:48:    expected int *values
+>     security/selinux/selinuxfs.c:1400:48:    got unsigned int *bool_pendi=
+ng_values
+>
+> Also mark the read-only boolean array parameter of security_set_bools()
+> const.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  security/selinux/include/conditional.h |  4 ++--
+>  security/selinux/selinuxfs.c           | 12 ++++++------
+>  security/selinux/ss/policydb.h         |  2 +-
+>  security/selinux/ss/services.c         | 13 +++++++------
+>  4 files changed, 16 insertions(+), 15 deletions(-)
 
-Adjusted and merged, thanks.
+I could understand fixing the signed/unsigned type mismatch, but I
+don't quite understand the move from an int type to a char; is it
+simply to save space, i.e. 32-bits vs 8-bits?  I think I would prefer
+either simply fixing the signed/unsigned mismatch and leaving the
+booleans as ints, or moving completely to a bool type, although that
+is likely to be much more involved.
 
 --=20
 paul-moore.com
