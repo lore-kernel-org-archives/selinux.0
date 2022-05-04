@@ -2,152 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF9EEC43219
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 18:29:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 323A0C433F5
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 18:48:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376865AbiEDSc7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 14:32:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57506 "EHLO
+        id S1377335AbiEDSwc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 14:52:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376932AbiEDScm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 14:32:42 -0400
-Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C50E5AA43;
-        Wed,  4 May 2022 11:09:11 -0700 (PDT)
-Received: by mail-ot1-f43.google.com with SMTP id m6-20020a05683023a600b0060612720715so1395504ots.10;
-        Wed, 04 May 2022 11:09:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=D+E9lNuRbHFdd170vr+MtjOcic+cq6LuKuOZKRSFmmQ=;
-        b=hqu6R1IRae0VoX6RVScHw+Zzo1GjIz7JEVjL/qj/M5RsjpSzZPnxbWaJ2QRNj9pG/V
-         GzcagHr+46Vvmokee05IR5m2irmd6EgL7Zj5NeOxB9mO4H+0VWs7t+QY6SdSEHLAFOQX
-         7nlxFOlTSSaPyJczzOi0IByyUPBRQBxkBJureHxsnNNwZLVdOxVmsPv3XR9dms/Hhmdq
-         Dpei6T4pf7hR9BSOp3RbmeuXVXYkTBZhjTdTpNg8Sjcc5Id2RNDvW92doze4AoQiouKc
-         /p5ZsjI6uJj0BqaJNqAfTwSy3ZnrnJ6J4Wl3iDw286tyYbPdWZk0VQKlkpwQfXgmyYMV
-         dCDg==
-X-Gm-Message-State: AOAM531GBGiEJMipM7x6IPEegxYs2k8skR7Jmuzu2kokd0nLw2UfSWFh
-        7VEkFE2UyuEFyw5s9SPLig==
-X-Google-Smtp-Source: ABdhPJz7UxGCoN/1mtQLUptxPhW193aedSmrIFdTLYGH8vHQEwAOv7HLwELKhlP+txzkjgVxGZbMKA==
-X-Received: by 2002:a05:6830:116:b0:606:3fb1:e89e with SMTP id i22-20020a056830011600b006063fb1e89emr2227922otp.310.1651687750783;
-        Wed, 04 May 2022 11:09:10 -0700 (PDT)
-Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id d19-20020a4ad353000000b0035eb4e5a6bfsm6240803oos.21.2022.05.04.11.09.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 11:09:10 -0700 (PDT)
-Received: (nullmailer pid 1975953 invoked by uid 1000);
-        Wed, 04 May 2022 18:09:09 -0000
-Date:   Wed, 4 May 2022 13:09:09 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-xtensa@linux-xtensa.org, devicetree@vger.kernel.org,
-        kunit-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org,
-        linux-bluetooth@vger.kernel.org, linux-hardening@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-rdma@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-wireless@vger.kernel.org, llvm@lists.linux.dev,
-        netdev@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 29/32] xtensa: Use mem_to_flex_dup() with struct property
-Message-ID: <YnKbaXEUHyu+btOD@robh.at.kernel.org>
-References: <20220504014440.3697851-1-keescook@chromium.org>
- <20220504014440.3697851-30-keescook@chromium.org>
+        with ESMTP id S1377355AbiEDSwa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 14:52:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 71DF415FC8
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 11:48:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651690132;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=OsPPmwqjTj2ObYlu51dLweVoYvqdv0QYqdclmtJUXbc=;
+        b=JC71qS8A5hTnxMevXswdD4NHeI4CSTqYNlkKpzUVNuVZkzM0pHULzPkzJ5OKzmX5Somf0a
+        iGqsZjGVOII9G7PgPA4rz5HM3R518IqVHa/jTqyfSRWEaZ91Pq/7xx/17+1u9Jfmr28+V8
+        nGYxxRIN+bgRzxqhjyWJ9a2eAaUImYk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-281-voL_XHd0MfKKM3k9NCZAXA-1; Wed, 04 May 2022 14:48:51 -0400
+X-MC-Unique: voL_XHd0MfKKM3k9NCZAXA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EF97F805F71
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 18:48:50 +0000 (UTC)
+Received: from localhost (unknown [10.40.195.71])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4914B200C0EB
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 18:48:43 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: ANN: SELinux userspace 3.4-rc3 release candidate
+Date:   Wed, 04 May 2022 20:48:41 +0200
+Message-ID: <878rrh877a.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220504014440.3697851-30-keescook@chromium.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Gmail won't send this, so I've trimmed the recipients...
+Hello,
 
-On Tue, May 03, 2022 at 06:44:38PM -0700, Kees Cook wrote:
-> As part of the work to perform bounds checking on all memcpy() uses,
-> replace the open-coded a deserialization of bytes out of memory into a
-> trailing flexible array by using a flex_array.h helper to perform the
-> allocation, bounds checking, and copying.
-> 
-> Cc: Chris Zankel <chris@zankel.net>
-> Cc: Max Filippov <jcmvbkbc@gmail.com>
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Frank Rowand <frowand.list@gmail.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-xtensa@linux-xtensa.org
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  arch/xtensa/platforms/xtfpga/setup.c | 9 +++------
->  include/linux/of.h                   | 3 ++-
->  2 files changed, 5 insertions(+), 7 deletions(-)
-> 
-> diff --git a/arch/xtensa/platforms/xtfpga/setup.c b/arch/xtensa/platforms/xtfpga/setup.c
-> index 538e6748e85a..31c1fa4ba4ec 100644
-> --- a/arch/xtensa/platforms/xtfpga/setup.c
-> +++ b/arch/xtensa/platforms/xtfpga/setup.c
-> @@ -102,7 +102,7 @@ CLK_OF_DECLARE(xtfpga_clk, "cdns,xtfpga-clock", xtfpga_clk_setup);
->  #define MAC_LEN 6
->  static void __init update_local_mac(struct device_node *node)
->  {
-> -	struct property *newmac;
-> +	struct property *newmac = NULL;
->  	const u8* macaddr;
->  	int prop_len;
->  
-> @@ -110,19 +110,16 @@ static void __init update_local_mac(struct device_node *node)
->  	if (macaddr == NULL || prop_len != MAC_LEN)
->  		return;
->  
-> -	newmac = kzalloc(sizeof(*newmac) + MAC_LEN, GFP_KERNEL);
-> -	if (newmac == NULL)
-> +	if (mem_to_flex_dup(&newmac, macaddr, MAC_LEN, GFP_KERNEL))
->  		return;
->  
-> -	newmac->value = newmac + 1;
-> -	newmac->length = MAC_LEN;
-> +	newmac->value = newmac->contents;
->  	newmac->name = kstrdup("local-mac-address", GFP_KERNEL);
->  	if (newmac->name == NULL) {
->  		kfree(newmac);
->  		return;
->  	}
->  
-> -	memcpy(newmac->value, macaddr, MAC_LEN);
->  	((u8*)newmac->value)[5] = (*(u32*)DIP_SWITCHES_VADDR) & 0x3f;
->  	of_update_property(node, newmac);
->  }
-> diff --git a/include/linux/of.h b/include/linux/of.h
-> index 17741eee0ca4..efb0f419fd1f 100644
-> --- a/include/linux/of.h
-> +++ b/include/linux/of.h
-> @@ -30,7 +30,7 @@ typedef u32 ihandle;
->  
->  struct property {
->  	char	*name;
-> -	int	length;
-> +	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(int, length);
->  	void	*value;
->  	struct property *next;
->  #if defined(CONFIG_OF_DYNAMIC) || defined(CONFIG_SPARC)
-> @@ -42,6 +42,7 @@ struct property {
->  #if defined(CONFIG_OF_KOBJ)
->  	struct bin_attribute attr;
->  #endif
-> +	DECLARE_FLEX_ARRAY_ELEMENTS(u8, contents);
+A 3.4-rc3 release candidate for the SELinux userspace is now
+available at:
 
-99.9% of the time, this is not where the property value is stored as it 
-points into an FDT blob. I suppose that is okay, but just want to make 
-sure.
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-The DT API for creating new nodes and properties is horrible as it is 
-multiple allocs and strdups which makes for tricky error paths. A better 
-API to centralize it would be welcome, but if this is the only case you 
-came across it's certainly not a requirement.
+Tarballs are signed with
+https://people.redhat.com/plautrba/plautrba@redhat.com.asc
 
-Rob
+Please give it a test and let us know if there are any issues.
+
+If there are specific changes that you think should be called out
+in release notes for packagers and users in the final release
+announcement, let us know.
+
+Thanks to all the contributors to this release candidate!
+
+Changes since 3.4-rc2
+---------------------
+* A new setfiles option [-C] for distinguishing file tree walk errors
+
+* Added missing sandbox translations
+
+Shortlog of changes since the 3.4-rc2 release
+---------------------------------------------
+Christian G=C3=B6ttsche (1):
+      checkpolicy: mention class name on invalid permission
+
+Laszlo Ersek (5):
+      setfiles: fix up inconsistent indentation
+      setfiles: remove useless assignment and comment (after RHBZ#1926386)
+      setfiles: remove useless "iamrestorecon" checks in option parsing
+      selinux_restorecon: introduce SELINUX_RESTORECON_COUNT_ERRORS
+      setfiles: introduce the -C option for distinguishing file tree walk e=
+rrors
+
+Petr Lautrbach (2):
+      Update missing sandbox translations
+      Update VERSIONs to 3.4-rc3 for release.
+
