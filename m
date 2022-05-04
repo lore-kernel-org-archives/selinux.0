@@ -2,190 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58818C433F5
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 05:43:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51CEDC433FE
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 07:02:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344711AbiEDFqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 01:46:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54278 "EHLO
+        id S1345167AbiEDHFj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 03:05:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiEDFqv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 01:46:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545CD2610B;
-        Tue,  3 May 2022 22:43:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7F9360B6B;
-        Wed,  4 May 2022 05:43:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1EF2C385A5;
-        Wed,  4 May 2022 05:42:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651642995;
-        bh=JrTxy6eXsiDtGM/F/9OTUVdSC11/W1yM6qcTiJhEEWY=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=ptNmZdYs+o6KHSEb902G1QgyncrLgIYxwRjyZ9+W9VTxnFGJHKAdTcbe0JtEXzd4l
-         aYwCxztA+GFA6BxNwpRJ+fwdrhYF+K4ZZZLdzPKi8lBBWFO/VNZwdIAlyDMFIxmOWz
-         hAmvQ+5DrbHNQghYSGB1afStWvfnMlPcYreVpeGPzS9YPA/9Y4p/yFDlQcLqjzbi/7
-         oTPIz0yt7M1rWvdVDxqtNaenj2/snIMXH2fVjjBqgI4xeMRFMaS+uomXQ38nO6fIxg
-         l9QT60aMp2PNBolRmvUG9+MmaPk4GD+QjG/dwTaQmabfDmxvYb7M7hfSFb2fcWpc9I
-         jV5YMv8gNlmpA==
-From:   Kalle Valo <kvalo@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, wcn36xx@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        Alexei Starovoitov <ast@kernel.org>,
-        alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Bradley Grove <linuxdrivers@attotech.com>,
-        brcm80211-dev-list.pdl@broadcom.com,
-        Christian Brauner <brauner@kernel.org>,
-        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        Chris Zankel <chris@zankel.net>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        David Gow <davidgow@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        devicetree@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Eli Cohen <elic@nvidia.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Francis Laniel <laniel_francis@privacyrequired.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hulk Robot <hulkci@huawei.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>,
-        Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
-        kunit-dev@googlegroups.com,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux1394-devel@lists.sourceforge.net,
-        linux-afs@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        llvm@lists.linux.dev, Louis Peens <louis.peens@corigine.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nuno =?utf-8?Q?S=C3=A1?= <nuno.sa@analog.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Rich Felker <dalias@aerifal.cx>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        SHA-cyfmac-dev-list@infineon.com,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Wei Liu <wei.liu@kernel.org>, xen-devel@lists.xenproject.org,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>
-Subject: Re: [PATCH 10/32] wcn36xx: Use mem_to_flex_dup() with struct wcn36xx_hal_ind_msg
-References: <20220504014440.3697851-1-keescook@chromium.org>
-        <20220504014440.3697851-11-keescook@chromium.org>
-Date:   Wed, 04 May 2022 08:42:46 +0300
-In-Reply-To: <20220504014440.3697851-11-keescook@chromium.org> (Kees Cook's
-        message of "Tue, 3 May 2022 18:44:19 -0700")
-Message-ID: <8735hpc0q1.fsf@kernel.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        with ESMTP id S232560AbiEDHFi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 03:05:38 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EDAA21260;
+        Wed,  4 May 2022 00:02:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651647722; x=1683183722;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=7ZCqlQA5sx7gnt6UXenHJLpYVoVKeBIUo5U3B8t8rmE=;
+  b=JgsQrAjNoJ2bKHpmeKPP0rymm4WqEYDo24MUUewYIoYW2YCZbO+tbXTg
+   W3A8ppj9USsIf09Ak+kXTlJKXTJri9oiCdi/rQvT44YlYz8v394LWa0dN
+   Kfn/VssNM90dJL2YaLpgQNwjDYoURjPIp++ntxf/J6NvMN+LJgNsMqMJu
+   ajep2Urat2qbuK0ZHEDlqugapvSSsztxSVYApTPV0FGhLCRu26/YL8xM1
+   3SlErWBs+K4t6mqQ8bra2384HEma3siIYo2NaHQyD4dm/Umz/52mULEaO
+   e2tCUZZw5/9M4opfpxyUgreVIiLXLgP0GQ/aI7N/r6fLRlB6NJb0nUDxn
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10336"; a="267279980"
+X-IronPort-AV: E=Sophos;i="5.91,197,1647327600"; 
+   d="scan'208";a="267279980"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2022 00:02:01 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,197,1647327600"; 
+   d="scan'208";a="653603446"
+Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
+  by FMSMGA003.fm.intel.com with ESMTP; 04 May 2022 00:01:55 -0700
+Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1nm91G-000B9r-MZ;
+        Wed, 04 May 2022 07:01:54 +0000
+Date:   Wed, 4 May 2022 15:01:44 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Guowei Du <duguoweisz@gmail.com>, jack@suse.cz
+Cc:     kbuild-all@lists.01.org, amir73il@gmail.com,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, jmorris@namei.org, serge@hallyn.com,
+        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, kpsingh@kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, anton@enomsg.org, ccross@android.com,
+        tony.luck@intel.com, selinux@vger.kernel.org, duguoweisz@gmail.com,
+        duguowei <duguowei@xiaomi.com>
+Subject: Re: [PATCH] fsnotify: add generic perm check for unlink/rmdir
+Message-ID: <202205041421.bHwZBEFK-lkp@intel.com>
+References: <20220503183750.1977-1-duguoweisz@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220503183750.1977-1-duguoweisz@gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Kees Cook <keescook@chromium.org> writes:
+Hi Guowei,
 
-> As part of the work to perform bounds checking on all memcpy() uses,
-> replace the open-coded a deserialization of bytes out of memory into a
-> trailing flexible array by using a flex_array.h helper to perform the
-> allocation, bounds checking, and copying.
->
-> Cc: Loic Poulain <loic.poulain@linaro.org>
-> Cc: Kalle Valo <kvalo@kernel.org>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: wcn36xx@lists.infradead.org
-> Cc: linux-wireless@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+Thank you for the patch! Perhaps something to improve:
 
-[...]
+[auto build test WARNING on pcmoore-selinux/next]
+[also build test WARNING on linus/master jmorris-security/next-testing v5.18-rc5]
+[cannot apply to jack-fs/fsnotify next-20220503]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-> --- a/drivers/net/wireless/ath/wcn36xx/smd.h
-> +++ b/drivers/net/wireless/ath/wcn36xx/smd.h
-> @@ -46,8 +46,8 @@ struct wcn36xx_fw_msg_status_rsp {
->  
->  struct wcn36xx_hal_ind_msg {
->  	struct list_head list;
-> -	size_t msg_len;
-> -	u8 msg[];
-> +	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(size_t, msg_len);
-> +	DECLARE_FLEX_ARRAY_ELEMENTS(u8, msg);
+url:    https://github.com/intel-lab-lkp/linux/commits/Guowei-Du/fsnotify-add-generic-perm-check-for-unlink-rmdir/20220504-024310
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+config: h8300-randconfig-s032-20220501 (https://download.01.org/0day-ci/archive/20220504/202205041421.bHwZBEFK-lkp@intel.com/config)
+compiler: h8300-linux-gcc (GCC) 11.3.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # apt-get install sparse
+        # sparse version: v0.6.4-dirty
+        # https://github.com/intel-lab-lkp/linux/commit/6f635019bbd2ab22a64e03164c8812a46531966e
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Guowei-Du/fsnotify-add-generic-perm-check-for-unlink-rmdir/20220504-024310
+        git checkout 6f635019bbd2ab22a64e03164c8812a46531966e
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=h8300 SHELL=/bin/bash
 
-This affects readability quite a lot and tbh I don't like it. Isn't
-there any simpler way to solve this?
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+
+sparse warnings: (new ones prefixed by >>)
+   security/security.c:358:25: sparse: sparse: cast removes address space '__rcu' of expression
+>> security/security.c:1169:35: sparse: sparse: incorrect type in argument 1 (different modifiers) @@     expected struct path *path @@     got struct path const *dir @@
+   security/security.c:1169:35: sparse:     expected struct path *path
+   security/security.c:1169:35: sparse:     got struct path const *dir
+   security/security.c:1180:35: sparse: sparse: incorrect type in argument 1 (different modifiers) @@     expected struct path *path @@     got struct path const *dir @@
+   security/security.c:1180:35: sparse:     expected struct path *path
+   security/security.c:1180:35: sparse:     got struct path const *dir
+
+vim +1169 security/security.c
+
+  1160	
+  1161	int security_path_rmdir(const struct path *dir, struct dentry *dentry)
+  1162	{
+  1163		int ret;
+  1164		if (unlikely(IS_PRIVATE(d_backing_inode(dir->dentry))))
+  1165			return 0;
+  1166		ret = call_int_hook(path_rmdir, 0, dir, dentry);
+  1167		if (ret)
+  1168			return ret;
+> 1169		return fsnotify_path_perm(dir, dentry, MAY_RMDIR);
+  1170	}
+  1171	
 
 -- 
-https://patchwork.kernel.org/project/linux-wireless/list/
-
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+0-DAY CI Kernel Test Service
+https://01.org/lkp
