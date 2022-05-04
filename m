@@ -2,189 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EE4CC433FE
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 07:30:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB52C433F5
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 07:41:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345475AbiEDHeQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 03:34:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54106 "EHLO
+        id S239214AbiEDHpG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 03:45:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345509AbiEDHeI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 03:34:08 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 345C82647;
-        Wed,  4 May 2022 00:30:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=VhRMkWupHGEpu4hR7M12B8TWP/ZW0H0fx/g6wrBtOIU=;
-        t=1651649432; x=1652859032; b=lT+BoT7kzbehmIS4CE6tmnrNCaaMxC4ZC6lWOapcFoPAPDK
-        ivwD9L+TNY4ukXj7zmgHhbTz3x6Tc3SV0Eclg4IivKdtaoIhIPmv3/kOG1Hs3stt+sZYyGkiO9+6V
-        owmtPBnbKGrLhWnYlDrLZEDw7uo6wXChACSfuAQl/hfOCjl4lXTzOPy4xr/HkQRVd5xeST21zUOg+
-        eagjwkTPt+DkjP546h0kleKkFB8GmTwBSqL/1KvlDT1O2/wVtM3Zp6oqDYk5TVAlYnS1nsm9DdJwT
-        c18ih50SkMX+SiLKowBo4knf4fyHVmT3WXccgI5g7BaPwsULbewodpDd7UmE1G9w==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1nm9RJ-001wsH-EM;
-        Wed, 04 May 2022 09:28:49 +0200
-Message-ID: <c31c1752cf6393319f5c7abd178ef43e0fbec5c1.camel@sipsolutions.net>
-Subject: Re: [PATCH 12/32] cfg80211: Use mem_to_flex_dup() with struct
- cfg80211_bss_ies
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Kees Cook <keescook@chromium.org>,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        Alexei Starovoitov <ast@kernel.org>,
-        alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Bradley Grove <linuxdrivers@attotech.com>,
-        brcm80211-dev-list.pdl@broadcom.com,
-        Christian Brauner <brauner@kernel.org>,
-        Christian =?ISO-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        Chris Zankel <chris@zankel.net>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        David Gow <davidgow@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        devicetree@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Eli Cohen <elic@nvidia.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Francis Laniel <laniel_francis@privacyrequired.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hulk Robot <hulkci@huawei.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
-        Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
-        kunit-dev@googlegroups.com,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux1394-devel@lists.sourceforge.net,
-        linux-afs@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        llvm@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
-        Louis Peens <louis.peens@corigine.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nuno =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Rich Felker <dalias@aerifal.cx>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        SHA-cyfmac-dev-list@infineon.com,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        wcn36xx@lists.infradead.org, Wei Liu <wei.liu@kernel.org>,
-        xen-devel@lists.xenproject.org,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>
-Date:   Wed, 04 May 2022 09:28:46 +0200
-In-Reply-To: <20220504014440.3697851-13-keescook@chromium.org>
-References: <20220504014440.3697851-1-keescook@chromium.org>
-         <20220504014440.3697851-13-keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S235940AbiEDHpF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 03:45:05 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6DB9B1277C
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 00:41:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651650088;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MZaN4Zw3GppZGlgznel6M7VHt1vIIGMiwaBDd+H0k8M=;
+        b=GmlUSzEpV1Bm45Hg1nBCB+FyS5h8dt2hwE/vvcRjKaW2HFfYRHh59nbYObtzYyo7Fp77vo
+        m2cpwEJim71Fn1opy2PgPOf5dTTduhBKxDhGVY7hGyTBoSf2sOt59T2ruPJSJ2/IUPMfz6
+        Upl41jlZPPb2qOAn+LH9q33YbsF3AlQ=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-100-MW6UTFu3P0-Ky0cwPjaDOA-1; Wed, 04 May 2022 03:41:25 -0400
+X-MC-Unique: MW6UTFu3P0-Ky0cwPjaDOA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0F61E1C05AE4;
+        Wed,  4 May 2022 07:41:25 +0000 (UTC)
+Received: from localhost (unknown [10.40.194.3])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AE67B40D2820;
+        Wed,  4 May 2022 07:41:24 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>,
+        James Carter <jwcart2@gmail.com>
+Subject: Re: [PATCH] Update missing sandbox translations
+In-Reply-To: <CAP+JOzQndjcqLA2=QNC-9u4C_Tj04Gd+1xaZfodp43WUYqUf8A@mail.gmail.com>
+References: <20220428162358.396459-1-plautrba@redhat.com>
+ <CAP+JOzQndjcqLA2=QNC-9u4C_Tj04Gd+1xaZfodp43WUYqUf8A@mail.gmail.com>
+Date:   Wed, 04 May 2022 09:41:23 +0200
+Message-ID: <87tua5923g.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-malware-bazaar: not-scanned
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2022-05-03 at 18:44 -0700, Kees Cook wrote:
-> 
-> @@ -2277,7 +2274,7 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
->  	size_t ielen = len - offsetof(struct ieee80211_mgmt,
->  				      u.probe_resp.variable);
->  	size_t new_ie_len;
-> -	struct cfg80211_bss_ies *new_ies;
-> +	struct cfg80211_bss_ies *new_ies = NULL;
->  	const struct cfg80211_bss_ies *old;
->  	u8 cpy_len;
->  
-> @@ -2314,8 +2311,7 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
->  	if (!new_ie)
->  		return;
->  
-> -	new_ies = kzalloc(sizeof(*new_ies) + new_ie_len, GFP_ATOMIC);
-> -	if (!new_ies)
-> +	if (mem_to_flex_dup(&new_ies, new_ie, new_ie_len, GFP_ATOMIC))
->  		goto out_free;
->  
->  	pos = new_ie;
-> @@ -2333,10 +2329,8 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
->  	memcpy(pos, mbssid + cpy_len, ((ie + ielen) - (mbssid + cpy_len)));
->  
->  	/* update ie */
-> -	new_ies->len = new_ie_len;
->  	new_ies->tsf = le64_to_cpu(mgmt->u.probe_resp.timestamp);
->  	new_ies->from_beacon = ieee80211_is_beacon(mgmt->frame_control);
-> -	memcpy(new_ies->data, new_ie, new_ie_len);
+James Carter <jwcart2@gmail.com> writes:
 
-This introduces a bug, "new_ie" is modified between the kzalloc() and
-the memcpy(), but you've moved the memcpy() into the allocation. In
-fact, new_ie is completely freshly kzalloc()'ed at this point. So you
-need to change the ordering here, but since new_ie is freed pretty much
-immediately, we can probably just build the stuff directly inside
-new_ies->data, though then of course we cannot use your helper anymore?
+> On Sat, Apr 30, 2022 at 4:19 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>>
+>> Source https://translate.fedoraproject.org/projects/selinux/
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-johannes
+Merged, thanks.
+
+
+>> ---
+>>
+>> Available at https://github.com/bachradsusi/SELinuxProject-selinux/commit/d108226d3fc6ac2b83d7de61fe9c626877df7870
+>>
+>>
+>>  sandbox/po/cs.po       | 154 +++++++++++++++++++++++++++++++++
+>>  sandbox/po/da.po       | 176 +++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/de.po       | 175 +++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/es.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/fi.po       | 181 ++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/fr.po       | 183 +++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/hu.po       | 158 +++++++++++++++++++++++++++++++++
+>>  sandbox/po/it.po       | 192 +++++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/ja.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/ko.po       | 171 ++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/nl.po       | 177 +++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/pl.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/pt_BR.po    | 174 +++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/ru.po       | 176 +++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/sandbox.pot |   6 +-
+>>  sandbox/po/si.po       | 156 +++++++++++++++++++++++++++++++++
+>>  sandbox/po/sv.po       | 176 +++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/tr.po       | 182 ++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/uk.po       | 178 ++++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/zh_CN.po    | 171 ++++++++++++++++++++++++++++++++++++
+>>  sandbox/po/zh_TW.po    | 169 ++++++++++++++++++++++++++++++++++++
+>>  21 files changed, 3486 insertions(+), 3 deletions(-)
+>>  create mode 100644 sandbox/po/cs.po
+>>  create mode 100644 sandbox/po/da.po
+>>  create mode 100644 sandbox/po/de.po
+>>  create mode 100644 sandbox/po/es.po
+>>  create mode 100644 sandbox/po/fi.po
+>>  create mode 100644 sandbox/po/fr.po
+>>  create mode 100644 sandbox/po/hu.po
+>>  create mode 100644 sandbox/po/it.po
+>>  create mode 100644 sandbox/po/ja.po
+>>  create mode 100644 sandbox/po/ko.po
+>>  create mode 100644 sandbox/po/nl.po
+>>  create mode 100644 sandbox/po/pl.po
+>>  create mode 100644 sandbox/po/pt_BR.po
+>>  create mode 100644 sandbox/po/ru.po
+>>  create mode 100644 sandbox/po/si.po
+>>  create mode 100644 sandbox/po/sv.po
+>>  create mode 100644 sandbox/po/tr.po
+>>  create mode 100644 sandbox/po/uk.po
+>>  create mode 100644 sandbox/po/zh_CN.po
+>>  create mode 100644 sandbox/po/zh_TW.po
+>>
+
