@@ -2,121 +2,169 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B931C433FE
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 14:12:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C27C433F5
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 14:23:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351165AbiEDOQF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 10:16:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32980 "EHLO
+        id S1345746AbiEDO1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 10:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239972AbiEDOQE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 10:16:04 -0400
-Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5733A419B9;
-        Wed,  4 May 2022 07:12:28 -0700 (PDT)
-Received: by mail-qk1-x732.google.com with SMTP id j6so993128qkp.9;
-        Wed, 04 May 2022 07:12:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Psvejb3DIehY3FGS9OyKG4+k8ZBKjnluQzek7tyYtG0=;
-        b=NVB19D360rzy8jza0DSZqGtGiZmC/x80ZU3H7ffmisxM/CTB+/votosoMhNguUMfTY
-         WlYYS0N8ZD8z/v9Lg3OXnVYB5t6J29WqUnzVXKmr5OxRvWHyWn1SZnpD0pMSlmNXJttS
-         W1W58AUFxiFeOe/JfNiK/O8waBaVshPzEL9nY5R0LOIjfQBy2Xq1PzgmWtJg0yN37azB
-         0UkhuWM0/abUZ/KYz1gW/I9BREH4B4jb3Gbn0nm3yK3GIsepCC4RLdYjYcWaRQSs4RPN
-         CELV+afKwSipQ1Bn0Hnzz27TM4DPrOhMvBdRhtH3Wn7VCl7j+DJptSiEJuumZoYgZ40z
-         QEWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Psvejb3DIehY3FGS9OyKG4+k8ZBKjnluQzek7tyYtG0=;
-        b=sBwWG877Vp2X7EyDElftfF2L54YIbwCvDliV+but8xND9RACDMBydL7guhj1ebb868
-         Um1p6jJhxO8mS9TgUVZl/ihod7dRbkI//nXfYPxfPBIfb5t4pIuNy4DCJRm+Txt5ntGn
-         EdYcqMIRhggf9f/6XGSnEwY9iUR1TlGF0Fg3Xtt+7bNOGATwFYL223b2XhWZE+cIPF4z
-         b4tgaAy9WrOM4SV2h/40URGat9bJCAxndSOHCAnZJCUd1Ep8oXwEFdcDWKwlOBJlU1Pe
-         5JAis5//s4chjE6rz76xyjrSLkaJF+1orLLbsIbd7PWk435vSRbZL3Vao/0KqxP4r1Un
-         7Tuw==
-X-Gm-Message-State: AOAM531m11k6IdR2AgIVMToozTNeyoYt/6JVLuRXN8n/KcAw0b1MTk9P
-        VgXtkIX0Dl8ydb6ezeTaKOT43yjh/jhkD6ae89s=
-X-Google-Smtp-Source: ABdhPJzz5bsZ8/aL9Y1deFid+bYg1ncUA1yDgx1BsSvWd8Twv3mzJ31ZoSG7kzsDEfKgcKrQ0EbXFGJdCiFmfS36M2U=
-X-Received: by 2002:a37:9381:0:b0:69f:62c6:56a7 with SMTP id
- v123-20020a379381000000b0069f62c656a7mr16131554qkd.643.1651673547434; Wed, 04
- May 2022 07:12:27 -0700 (PDT)
+        with ESMTP id S233115AbiEDO1M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 10:27:12 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D3A20BC8;
+        Wed,  4 May 2022 07:23:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+        Sender:Reply-To:Content-ID:Content-Description;
+        bh=bytPlWllFbXUh+y4MCYGituXos4p9j3B01XAJo0H3+E=; b=TnYqUjICVRT/3N3eRKski13fzl
+        LcW+I3scGMM0C8sU16Tc+Th7Aek/tXKoDBWy/s9BCs2KzsrvddBDH3nCcJH+mP2Bf2r2puR+TsogC
+        fm3dL2IFMK7bhPLlRSyDc8jUXm8vvJb4oCb2nEufIXOB2h2PXy/24vYBIm9p3ImDKK+rI4/7fVdza
+        XslmI0lyQzDIJVKOUFCxcT2tSqJiVr7ltebssvIIHyrOhMRfMvw8v1CRHu4ZC+3Sxr5gSkbPyTqdr
+        pG7z57FdzzIBZIZhtAbUCK8/y9Ku804m92zmQopBhnkeM/VykNFZcP4N2aKYxhNdMqfseDdAy0BTy
+        TnQLJ6lA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nmFuR-00B5lf-VS; Wed, 04 May 2022 14:23:20 +0000
+Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 8E627980E57; Wed,  4 May 2022 16:23:19 +0200 (CEST)
+Date:   Wed, 4 May 2022 16:23:19 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] [RFC PATCH] sched: only perform capability check on
+ privileged operation
+Message-ID: <20220504142319.GB2501@worktop.programming.kicks-ass.net>
+References: <20200904160031.6444-1-cgzones@googlemail.com>
+ <20220502152414.110922-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20220503183750.1977-1-duguoweisz@gmail.com> <20220503194943.6bcmsxjvinfjrqxa@quack3.lan>
-In-Reply-To: <20220503194943.6bcmsxjvinfjrqxa@quack3.lan>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Wed, 4 May 2022 17:12:16 +0300
-Message-ID: <CAOQ4uxguXW05_YSpgT=kGgxztQYqhJ3x4MFsz9ZTO0crc9=4tA@mail.gmail.com>
-Subject: Re: [PATCH] fsnotify: add generic perm check for unlink/rmdir
-To:     Jan Kara <jack@suse.cz>
-Cc:     Guowei Du <duguoweisz@gmail.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>, bpf@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>, anton@enomsg.org,
-        ccross@android.com, tony.luck@intel.com, selinux@vger.kernel.org,
-        duguowei <duguowei@xiaomi.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220502152414.110922-1-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, May 3, 2022 at 10:49 PM Jan Kara <jack@suse.cz> wrote:
->
-> On Wed 04-05-22 02:37:50, Guowei Du wrote:
-> > From: duguowei <duguowei@xiaomi.com>
-> >
-> > For now, there have been open/access/open_exec perms for file operation,
-> > so we add new perms check with unlink/rmdir syscall. if one app deletes
-> > any file/dir within pubic area, fsnotify can sends fsnotify_event to
-> > listener to deny that, even if the app have right dac/mac permissions.
-> >
-> > Signed-off-by: duguowei <duguowei@xiaomi.com>
->
-> Before we go into technical details of implementation can you tell me more
-> details about the usecase? Why do you need to check specifically for unlink
-> / delete?
->
-> Also on the design side of things: Do you realize these permission events
-> will not be usable together with other permission events like
-> FAN_OPEN_PERM? Because these require notification group returning file
-> descriptors while your events will return file handles... I guess we should
-> somehow fix that.
->
+On Mon, May 02, 2022 at 05:24:14PM +0200, Christian Göttsche wrote:
+> sched_setattr(2) issues via kernel/sched/core.c:__sched_setscheduler()
+> a CAP_SYS_NICE audit event unconditionally, even when the requested
+> operation does not require that capability / is unprivileged, i.e. for
+> reducing niceness.
+> This is relevant in connection with SELinux, where a capability check
+> results in a policy decision and by default a denial message on
+> insufficient permission is issued.
+> It can lead to three undesired cases:
+>   1. A denial message is generated, even in case the operation was an
+>      unprivileged one and thus the syscall succeeded, creating noise.
+>   2. To avoid the noise from 1. the policy writer adds a rule to ignore
+>      those denial messages, hiding future syscalls, where the task
+>      performs an actual privileged operation, leading to hidden limited
+>      functionality of that task.
+>   3. To avoid the noise from 1. the policy writer adds a rule to allow
+>      the task the capability CAP_SYS_NICE, while it does not need it,
+>      violating the principle of least privilege.
+> 
+> Conduct privilged/unprivileged categorization first and perform a
+> capable test (and at most once) only if needed.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
-IMO, regardless of file descriptions vs. file handles, blocking events have
-no business with async events in the same group at all.
-What is the use case for that?
-Sure, we have the legacy permission event, but if we do add new blocking
-events to UAPI, IMO they should be added to a group that was initialized with a
-different class to indicate "blocking events only".
+Does something like so on top work?
 
-And if we do that, we will not need to pollute the event mask namespace
-for every permission event.
-When users request to get FAN_UNLINK/FAN_RMDIR events in a
-FAN_CLASS_PERMISSION group, internally, that only captures
-events reported from fsnotify_perm()/fsnotify_path_perm().
+---
+ kernel/sched/core.c | 41 +++++++++++++++++------------------------
+ 1 file changed, 17 insertions(+), 24 deletions(-)
 
-FYI, I do intend to try and upload "pre-modify events" [1].
-I had no intention to expose those in fanotify and my implementation
-does not have the granularity of UNLINK/RMDIR, but we do need
-to think about not duplicating too much code with those overlapping
-features.
-
-Thanks,
-Amir.
-
-[1] https://github.com/amir73il/linux/commits/fsnotify_pre_modify
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index ba5a9a1ce1e5..d3b5a2757c5f 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6931,17 +6931,27 @@ void set_user_nice(struct task_struct *p, long nice)
+ EXPORT_SYMBOL(set_user_nice);
+ 
+ /*
+- * can_nice - check if a task can reduce its nice value
++ * is_nice_reduction - check if nice value is an actual reduction
++ *
+  * @p: task
+  * @nice: nice value
+  */
+-int can_nice(const struct task_struct *p, const int nice)
++static bool is_nice_reduction(const struct task_struct *p, const int nice)
+ {
+ 	/* Convert nice value [19,-20] to rlimit style value [1,40]: */
+ 	int nice_rlim = nice_to_rlimit(nice);
+ 
+-	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE) ||
+-		capable(CAP_SYS_NICE));
++	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE));
++}
++
++/*
++ * can_nice - check if a task can reduce its nice value
++ * @p: task
++ * @nice: nice value
++ */
++int can_nice(const struct task_struct *p, const int nice)
++{
++	return is_nice_reduction(p, nice) || capable(CAP_SYS_NICE);
+ }
+ 
+ #ifdef __ARCH_WANT_SYS_NICE
+@@ -7220,22 +7230,6 @@ static bool check_same_owner(struct task_struct *p)
+ 	return match;
+ }
+ 
+-/*
+- * is_nice_reduction - check if nice value is an actual reduction
+- *
+- * Similar to can_nice() but does not perform a capability check.
+- *
+- * @p: task
+- * @nice: nice value
+- */
+-static bool is_nice_reduction(const struct task_struct *p, const int nice)
+-{
+-	/* Convert nice value [19,-20] to rlimit style value [1,40]: */
+-	int nice_rlim = nice_to_rlimit(nice);
+-
+-	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE));
+-}
+-
+ /*
+  * Allow unprivileged RT tasks to decrease priority.
+  * Only issue a capable test if needed and only once to avoid an audit
+@@ -7247,13 +7241,12 @@ static int user_check_sched_setscheduler(struct task_struct *p,
+ {
+ 	if (fair_policy(policy)) {
+ 		if (attr->sched_nice < task_nice(p) &&
+-			!is_nice_reduction(p, attr->sched_nice))
++		    !is_nice_reduction(p, attr->sched_nice))
+ 			goto req_priv;
+ 	}
+ 
+ 	if (rt_policy(policy)) {
+-		unsigned long rlim_rtprio =
+-		task_rlimit(p, RLIMIT_RTPRIO);
++		unsigned long rlim_rtprio = task_rlimit(p, RLIMIT_RTPRIO);
+ 
+ 		/* Can't set/change the rt policy: */
+ 		if (policy != p->policy && !rlim_rtprio)
+@@ -7261,7 +7254,7 @@ static int user_check_sched_setscheduler(struct task_struct *p,
+ 
+ 		/* Can't increase priority: */
+ 		if (attr->sched_priority > p->rt_priority &&
+-			attr->sched_priority > rlim_rtprio)
++		    attr->sched_priority > rlim_rtprio)
+ 			goto req_priv;
+ 	}
+ 
