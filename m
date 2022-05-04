@@ -2,292 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D02E5C433EF
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 15:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CAFCC4332F
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 15:50:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231284AbiEDPnj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 11:43:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
+        id S1352757AbiEDPxl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 11:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352586AbiEDPly (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 11:41:54 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C110818B30
-        for <selinux@vger.kernel.org>; Wed,  4 May 2022 08:38:15 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id i62so1453037pgd.6
-        for <selinux@vger.kernel.org>; Wed, 04 May 2022 08:38:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=KqAJb/V6gfBBDG6bSPIb4vESmdq1P/sKe2F177CTgUM=;
-        b=fQrMYNAIqMyggez1Cxk6MO5ffmDcMsHa95ZyVgeB+XLocHYSpcdXLdDMIvfhtVHebJ
-         c6KLuD9O1zHpfXOArUQ9i6OPKZN0wLEdS36xK8UGnJ7GhAZoY1ZaUI/INEIjt/aYGDme
-         7yPqIKR/2ePc228VdQYx3R6Gd7ox0JMkE5pTk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=KqAJb/V6gfBBDG6bSPIb4vESmdq1P/sKe2F177CTgUM=;
-        b=FtclWVro/khiLXrKRO+rmtCGe/CkuhUyxJ+sIjxrSlD2a7KEgo6C43ISVl9y8o02B/
-         PaCiIV4GnfQnc8uAZ8uJaww27ow7dTdQy75kUZHKESgfdQEYAREnhZIfCss2jJzTsCEj
-         mcZSMbibjr8EPdSGzUM7cPrl4l9cng5IcURm+g/XeCC2vjlWp0y5t3r0XXMO3TgYQ5hU
-         LYrb9RiXCKlF/XAhQ5iNFGMny48jovgja+qL6msT3mDf8Qq2L7K/LxYOm7y07OAOxQWZ
-         KZKxbjIOPjRziDYiRy2CbnGkHN17NWyQr52jtj797cjnO/0Aml4hd1c95Io4TiGdU7Bj
-         bPwA==
-X-Gm-Message-State: AOAM531S2MPduW+5303nNmXi8+YV/yAIhGo2bxxfQyx+mJSSnOajEhTz
-        IWXP/6gaE+SOp6zwlL4oJROdaA==
-X-Google-Smtp-Source: ABdhPJzzQnECj6TQ/WMnbIXyOhNDieYzy1koe+Zij9CEDYVoBr0fSGu6X0G/3k8EfFivormHMckX3w==
-X-Received: by 2002:a63:6b82:0:b0:39d:a6ce:14dc with SMTP id g124-20020a636b82000000b0039da6ce14dcmr8170661pgc.476.1651678695154;
-        Wed, 04 May 2022 08:38:15 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id t4-20020a170902bc4400b0015e8d4eb1f9sm8430240plz.67.2022.05.04.08.38.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 08:38:14 -0700 (PDT)
-Date:   Wed, 4 May 2022 08:38:13 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Keith Packard <keithp@keithp.com>,
-        Francis Laniel <laniel_francis@privacyrequired.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Bradley Grove <linuxdrivers@attotech.com>,
-        brcm80211-dev-list.pdl@broadcom.com,
-        Christian Brauner <brauner@kernel.org>,
-        Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        Chris Zankel <chris@zankel.net>,
-        Cong Wang <cong.wang@bytedance.com>,
-        David Gow <davidgow@google.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        devicetree@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Eli Cohen <elic@nvidia.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hulk Robot <hulkci@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        with ESMTP id S237205AbiEDPxk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 11:53:40 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223A740E55;
+        Wed,  4 May 2022 08:50:01 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 882461F38D;
+        Wed,  4 May 2022 15:50:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1651679400; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=pzZYtAWqOK0x1bSyjKyxPqiIg9Fcdav21K/7m+CpVfI=;
+        b=nbktz7u6eEaio1WfVT0QxWoaaEy+CZrGEGVR4d92gPZQIffDVi7oRxfPHukHGEfd1LTqsa
+        gKHZBdiINI8+YI8Wb0+dYMc3NG/ugKVPfWZLqdTEHqVWtojPnc+zujn4TIFwcEtdn+K7e8
+        ZObvRRMNDYaTLvnodYDN66RRhon/cNY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1651679400;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=pzZYtAWqOK0x1bSyjKyxPqiIg9Fcdav21K/7m+CpVfI=;
+        b=txd/qOvmCUnW5d1S8GXNeHvBc6OD0LaoLQiFXYUco0/UgoF5iwrWeH7kyxXV+u9btcig+i
+        X5vmWtZZuPxuDgDw==
+Received: from quack3.suse.cz (unknown [10.100.224.230])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 3673E2C141;
+        Wed,  4 May 2022 15:49:59 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id D2BFAA061E; Wed,  4 May 2022 17:49:58 +0200 (CEST)
+Date:   Wed, 4 May 2022 17:49:58 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Jan Kara <jack@suse.cz>, Guowei Du <duguoweisz@gmail.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
-        keyrings@vger.kernel.org, kunit-dev@googlegroups.com,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux1394-devel@lists.sourceforge.net,
-        linux-afs@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, llvm@lists.linux.dev,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Louis Peens <louis.peens@corigine.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Nathan Chancellor <nathan@kernel.org>, netdev@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        kpsingh@kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>, bpf@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>,
-        Rich Felker <dalias@aerifal.cx>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        SHA-cyfmac-dev-list@infineon.com,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        wcn36xx@lists.infradead.org, Wei Liu <wei.liu@kernel.org>,
-        xen-devel@lists.xenproject.org,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>
-Subject: Re: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
-Message-ID: <202205040819.DEA70BD@keescook>
-References: <20220504014440.3697851-1-keescook@chromium.org>
- <20220504014440.3697851-3-keescook@chromium.org>
- <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
+        Eric Paris <eparis@parisplace.org>,
+        Kees Cook <keescook@chromium.org>, anton@enomsg.org,
+        ccross@android.com, tony.luck@intel.com, selinux@vger.kernel.org,
+        duguowei <duguowei@xiaomi.com>
+Subject: Re: [PATCH] fsnotify: add generic perm check for unlink/rmdir
+Message-ID: <20220504154958.cnagolihr65vkmjf@quack3.lan>
+References: <20220503183750.1977-1-duguoweisz@gmail.com>
+ <20220503194943.6bcmsxjvinfjrqxa@quack3.lan>
+ <CAOQ4uxguXW05_YSpgT=kGgxztQYqhJ3x4MFsz9ZTO0crc9=4tA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
+In-Reply-To: <CAOQ4uxguXW05_YSpgT=kGgxztQYqhJ3x4MFsz9ZTO0crc9=4tA@mail.gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 04, 2022 at 09:25:56AM +0200, Johannes Berg wrote:
-> On Tue, 2022-05-03 at 18:44 -0700, Kees Cook wrote:
-> > 
-> > For example, using the most complicated helper, mem_to_flex_dup():
-> > 
-> >     /* Flexible array struct with members identified. */
-> >     struct something {
-> >         int mode;
-> >         DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(int, how_many);
-> >         unsigned long flags;
-> >         DECLARE_FLEX_ARRAY_ELEMENTS(u32, value);
+On Wed 04-05-22 17:12:16, Amir Goldstein wrote:
+> On Tue, May 3, 2022 at 10:49 PM Jan Kara <jack@suse.cz> wrote:
+> >
+> > On Wed 04-05-22 02:37:50, Guowei Du wrote:
+> > > From: duguowei <duguowei@xiaomi.com>
+> > >
+> > > For now, there have been open/access/open_exec perms for file operation,
+> > > so we add new perms check with unlink/rmdir syscall. if one app deletes
+> > > any file/dir within pubic area, fsnotify can sends fsnotify_event to
+> > > listener to deny that, even if the app have right dac/mac permissions.
+> > >
+> > > Signed-off-by: duguowei <duguowei@xiaomi.com>
+> >
+> > Before we go into technical details of implementation can you tell me more
+> > details about the usecase? Why do you need to check specifically for unlink
+> > / delete?
+> >
+> > Also on the design side of things: Do you realize these permission events
+> > will not be usable together with other permission events like
+> > FAN_OPEN_PERM? Because these require notification group returning file
+> > descriptors while your events will return file handles... I guess we should
+> > somehow fix that.
+> >
 > 
-> In many cases, the order of the elements doesn't really matter, so maybe
-> it'd be nicer to be able to write it as something like
+> IMO, regardless of file descriptions vs. file handles, blocking events have
+> no business with async events in the same group at all.
+> What is the use case for that?
+> Sure, we have the legacy permission event, but if we do add new blocking
+> events to UAPI, IMO they should be added to a group that was initialized with a
+> different class to indicate "blocking events only".
 > 
-> DECLARE_FLEX_STRUCT(something,
-> 	int mode;
-> 	unsigned long flags;
-> 	,
-> 	int, how_many,
-> 	u32, value);
+> And if we do that, we will not need to pollute the event mask namespace
+> for every permission event.
+
+That's an interesting idea. I agree mixing of permission and normal events
+is not very useful and separating event mask for permission and other
+events looks like a compelling reason to really forbid that :). It's a pity
+nobody had this idea when proposing fanotify permission events.
+
+> When users request to get FAN_UNLINK/FAN_RMDIR events in a
+> FAN_CLASS_PERMISSION group, internally, that only captures
+> events reported from fsnotify_perm()/fsnotify_path_perm().
 > 
-> perhaps? OK, that doesn't seem so nice either.
-> 
-> Maybe
-> 
-> struct something {
-> 	int mode;
-> 	unsigned long flags;
-> 	FLEX_ARRAY(
-> 		int, how_many,
-> 		u32, value
-> 	);
-> };
+> FYI, I do intend to try and upload "pre-modify events" [1].
+> I had no intention to expose those in fanotify and my implementation
+> does not have the granularity of UNLINK/RMDIR, but we do need
+> to think about not duplicating too much code with those overlapping
+> features.
 
-Yeah, I mention some of my exploration of this idea in the sibling reply:
-https://lore.kernel.org/linux-hardening/202205040730.161645EC@keescook/#t
+Definitely.
 
-It seemed like requiring a structure be rearranged to take advantage of
-the "automatic layout introspection" wasn't very friendly. On the other
-hand, looking at the examples, most of them are already neighboring
-members. Hmmm.
+								Honza
 
-> or so? The long and duplicated DECLARE_FLEX_ARRAY_ELEMENTS_COUNT and
-> DECLARE_FLEX_ARRAY_ELEMENTS seems a bit tedious to me, at least in cases
-> where the struct layout is not the most important thing (or it's already
-> at the end anyway).
-
-The names aren't great, but I wanted to distinguish "elements" as the
-array not the count. Yay naming.
-
-However, perhaps the solution is to have _both_. i.e using
-BOUNDED_FLEX_ARRAY(count_type, count_name, array_type, array_name) for
-the "neighboring" case, and the DECLARE...{ELEMENTS,COUNT} for the
-"split" case.
-
-And DECLARE_FLEX_ARRAY_ELEMENTS could actually be expanded to include
-the count_name too, so both methods could be "forward portable" to a
-future where C grew the syntax for bounded flex arrays.
-
-> 
-> >     struct something *instance = NULL;
-> >     int rc;
-> > 
-> >     rc = mem_to_flex_dup(&instance, byte_array, count, GFP_KERNEL);
-> >     if (rc)
-> >         return rc;
-> 
-> This seems rather awkward, having to set it to NULL, then checking rc
-> (and possibly needing a separate variable for it), etc.
-
-I think the errno return is completely required. I had an earlier version
-of this that was much more like a drop-in replacement for memcpy that
-would just truncate or panic, and when I had it all together, I could
-just imagine hearing Linus telling me to start over because it was unsafe
-(truncation may be just as bad as overflow) and disruptive ("never BUG"),
-and that it should be recoverable. So, I rewrote it all to return a
-__must_check errno.
-
-Requiring instance to be NULL is debatable, but I feel pretty strongly
-about it because it does handle a class of mistakes (resource leaks),
-and it's not much of a burden to require a known-good starting state.
-
-> But I can understand how you arrived at this:
->  - need to pass instance or &instance or such for typeof()
->    or offsetof() or such
-
-Right.
-
->  - instance = mem_to_flex_dup(instance, ...)
->    looks too much like it would actually dup 'instance', rather than
->    'byte_array'
-
-And I need an errno output to keep imaginary Linus happy. :)
-
->  - if you pass &instance anyway, checking for NULL is simple and adds a
->    bit of safety
-
-Right.
-
-> but still, honestly, I don't like it. As APIs go, it feels a bit
-> cumbersome and awkward to use, and you really need everyone to use this,
-> and not say "uh what, I'll memcpy() instead".
-
-Sure, and I have tried to get it down as small as possible. The earlier
-"just put all the member names in every call" version was horrid. :P I
-realize it's more work to check errno, but the memcpy() API we've all
-been trained to use is just plain dangerous. I don't think it's
-unreasonable to ask people to retrain themselves to avoid it. All that
-said, yes, I want it to be as friendly as possible.
-
-> Maybe there should also be a realloc() version of it?
-
-Sure! Seems reasonable. I'd like to see the code pattern for this
-though. Do you have any examples? Most of what I'd been able to find for
-the fragile memcpy() usage was just basic serialize/deserialize or
-direct copying.
-
-> > +/** __fas_bytes - Calculate potential size of flexible array structure
-> 
-> I think you forgot "\n *" in many cases here after "/**".
-
-Oops! Yes, thank you. I'll fix these.
-
--Kees
-
+> [1] https://github.com/amir73il/linux/commits/fsnotify_pre_modify
 -- 
-Kees Cook
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
