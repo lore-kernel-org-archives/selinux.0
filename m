@@ -2,56 +2,44 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48035C433FE
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 03:37:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58818C433F5
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 05:43:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344377AbiEDDlR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 May 2022 23:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44452 "EHLO
+        id S1344711AbiEDFqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 01:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243507AbiEDDlP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 23:41:15 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74ABF2899C
-        for <selinux@vger.kernel.org>; Tue,  3 May 2022 20:37:37 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id g8so162797pfh.5
-        for <selinux@vger.kernel.org>; Tue, 03 May 2022 20:37:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=lsBVjxx2frcPFNjY4/BLqdzh7cys7mpO3LyMH5LAbSE=;
-        b=e/seADFb6dKCy5O35I2lb3QkGM1U1AG+HWJjIUEuWUaLYiQ/bRCqVwsL3BCOvWYEuK
-         9qpY1aU7RmqPGGBT5JUv2H6Jc6siGFaT+PVsx+FN+n4iHis5NM0gOyiK9HY2IIWzLhh4
-         mk3V/alwvU0/DDln8pB7kZALicerW3KUceFLU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=lsBVjxx2frcPFNjY4/BLqdzh7cys7mpO3LyMH5LAbSE=;
-        b=3IYEt8AMT9S3j4n6hjIWohevR/uYSqh/JVOyUEYSz33M68Lu3Bb3os1397Dju6BSIq
-         p9sEm3cvcnOo51ZeBKI/1+aoBR4pu+yCDkv3JaTVgS/GxKJ1MKqknhdByql+Hqbl0aLo
-         xTfX8ImPhmbySS/cWEbVMj0l97/kgEVPXtnHeOvCAEqO4YfTvinjdxkJL2I+apfbICHZ
-         Be4yOGSd0jhvqiyjAVJ4Qu6i6ICmpGdssCQ/4yTChEz6l+brMnaD961sfTEiLHWNhDmc
-         FvYelZG44WnmRflgda5TcJCuwk4MT9OZ4ces1X8gY6Z/vBe1IoYHgR3rWjmihvF2utnE
-         dDbw==
-X-Gm-Message-State: AOAM530TkpA9uueLO6w+mo9vFVd2tXIXto3uyxnky+8W8uxgw3I8WalS
-        82muOpup+qZlDmgmYhP2PyND5g==
-X-Google-Smtp-Source: ABdhPJwD/uvCKEJ4PY5hYyja46c4g0gVoPoVIrAV6/UTN/22EI1oLPF2GDVC1zkPD9qJOD+dW3FeWQ==
-X-Received: by 2002:a63:8c1a:0:b0:3ab:35a9:5f8f with SMTP id m26-20020a638c1a000000b003ab35a95f8fmr16187660pgd.598.1651635457000;
-        Tue, 03 May 2022 20:37:37 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j17-20020a62b611000000b0050dc7628170sm7022939pff.74.2022.05.03.20.37.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 20:37:36 -0700 (PDT)
-Date:   Tue, 3 May 2022 20:37:35 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        with ESMTP id S230474AbiEDFqv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 01:46:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545CD2610B;
+        Tue,  3 May 2022 22:43:16 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7F9360B6B;
+        Wed,  4 May 2022 05:43:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1EF2C385A5;
+        Wed,  4 May 2022 05:42:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651642995;
+        bh=JrTxy6eXsiDtGM/F/9OTUVdSC11/W1yM6qcTiJhEEWY=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=ptNmZdYs+o6KHSEb902G1QgyncrLgIYxwRjyZ9+W9VTxnFGJHKAdTcbe0JtEXzd4l
+         aYwCxztA+GFA6BxNwpRJ+fwdrhYF+K4ZZZLdzPKi8lBBWFO/VNZwdIAlyDMFIxmOWz
+         hAmvQ+5DrbHNQghYSGB1afStWvfnMlPcYreVpeGPzS9YPA/9Y4p/yFDlQcLqjzbi/7
+         oTPIz0yt7M1rWvdVDxqtNaenj2/snIMXH2fVjjBqgI4xeMRFMaS+uomXQ38nO6fIxg
+         l9QT60aMp2PNBolRmvUG9+MmaPk4GD+QjG/dwTaQmabfDmxvYb7M7hfSFb2fcWpc9I
+         jV5YMv8gNlmpA==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
         "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Rich Felker <dalias@aerifal.cx>,
-        Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
+        Paolo Abeni <pabeni@redhat.com>, wcn36xx@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         Alexei Starovoitov <ast@kernel.org>,
         alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
         Andrew Gabbasov <andrew_gabbasov@mentor.com>,
@@ -65,7 +53,7 @@ Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Bradley Grove <linuxdrivers@attotech.com>,
         brcm80211-dev-list.pdl@broadcom.com,
         Christian Brauner <brauner@kernel.org>,
-        Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Christian Lamparter <chunkeey@googlemail.com>,
         Chris Zankel <chris@zankel.net>,
         Cong Wang <cong.wang@bytedance.com>,
@@ -100,7 +88,7 @@ Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Johannes Berg <johannes.berg@intel.com>,
         Johannes Berg <johannes@sipsolutions.net>,
         John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
         Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
         kunit-dev@googlegroups.com,
         Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
@@ -116,10 +104,8 @@ Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
         linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
         linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, llvm@lists.linux.dev,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Louis Peens <louis.peens@corigine.com>,
+        linux-usb@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        llvm@lists.linux.dev, Louis Peens <louis.peens@corigine.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
         Marc Dionne <marc.dionne@auristor.com>,
@@ -131,9 +117,9 @@ Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Muchun Song <songmuchun@bytedance.com>,
         Nathan Chancellor <nathan@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
-        Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        Nuno =?utf-8?Q?S=C3=A1?= <nuno.sa@analog.com>,
         Paul Moore <paul@paul-moore.com>,
+        Rich Felker <dalias@aerifal.cx>,
         Rob Herring <robh+dt@kernel.org>,
         Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
         "Serge E. Hallyn" <serge@hallyn.com>,
@@ -148,104 +134,58 @@ Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
         Udipto Goswami <quic_ugoswami@quicinc.com>,
         Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        wcn36xx@lists.infradead.org, Wei Liu <wei.liu@kernel.org>,
-        xen-devel@lists.xenproject.org,
+        Wei Liu <wei.liu@kernel.org>, xen-devel@lists.xenproject.org,
         Xiu Jianfeng <xiujianfeng@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>
-Subject: Re: [PATCH 01/32] netlink: Avoid memcpy() across flexible array
- boundary
-Message-ID: <202205032027.B2A9FB4AA@keescook>
+Subject: Re: [PATCH 10/32] wcn36xx: Use mem_to_flex_dup() with struct wcn36xx_hal_ind_msg
 References: <20220504014440.3697851-1-keescook@chromium.org>
- <20220504014440.3697851-2-keescook@chromium.org>
- <20220504033105.GA13667@embeddedor>
+        <20220504014440.3697851-11-keescook@chromium.org>
+Date:   Wed, 04 May 2022 08:42:46 +0300
+In-Reply-To: <20220504014440.3697851-11-keescook@chromium.org> (Kees Cook's
+        message of "Tue, 3 May 2022 18:44:19 -0700")
+Message-ID: <8735hpc0q1.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220504033105.GA13667@embeddedor>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, May 03, 2022 at 10:31:05PM -0500, Gustavo A. R. Silva wrote:
-> On Tue, May 03, 2022 at 06:44:10PM -0700, Kees Cook wrote:
-> [...]
-> > diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-> > index 1b5a9c2e1c29..09346aee1022 100644
-> > --- a/net/netlink/af_netlink.c
-> > +++ b/net/netlink/af_netlink.c
-> > @@ -2445,7 +2445,10 @@ void netlink_ack(struct sk_buff *in_skb, struct nlmsghdr *nlh, int err,
-> >  			  NLMSG_ERROR, payload, flags);
-> >  	errmsg = nlmsg_data(rep);
-> >  	errmsg->error = err;
-> > -	memcpy(&errmsg->msg, nlh, payload > sizeof(*errmsg) ? nlh->nlmsg_len : sizeof(*nlh));
-> > +	errmsg->msg = *nlh;
-> > +	if (payload > sizeof(*errmsg))
-> > +		memcpy(errmsg->msg.nlmsg_payload, nlh->nlmsg_payload,
-> > +		       nlh->nlmsg_len - sizeof(*nlh));
-> 
-> They have nlmsg_len()[1] for the length of the payload without the header:
-> 
-> /**
->  * nlmsg_len - length of message payload
->  * @nlh: netlink message header
->  */
-> static inline int nlmsg_len(const struct nlmsghdr *nlh)
-> {
-> 	return nlh->nlmsg_len - NLMSG_HDRLEN;
-> }
+Kees Cook <keescook@chromium.org> writes:
 
-Oh, hm, yeah, that would be much cleaner. The relationship between
-"payload" and nlmsg_len is confusing in here. :)
+> As part of the work to perform bounds checking on all memcpy() uses,
+> replace the open-coded a deserialization of bytes out of memory into a
+> trailing flexible array by using a flex_array.h helper to perform the
+> allocation, bounds checking, and copying.
+>
+> Cc: Loic Poulain <loic.poulain@linaro.org>
+> Cc: Kalle Valo <kvalo@kernel.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Paolo Abeni <pabeni@redhat.com>
+> Cc: wcn36xx@lists.infradead.org
+> Cc: linux-wireless@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-So, this should be simpler:
+[...]
 
--	memcpy(&errmsg->msg, nlh, payload > sizeof(*errmsg) ? nlh->nlmsg_len : sizeof(*nlh));
-+	errmsg->msg = *nlh;
-+	memcpy(errmsg->msg.nlmsg_payload, nlh->nlmsg_payload, nlmsg_len(nlh));
+> --- a/drivers/net/wireless/ath/wcn36xx/smd.h
+> +++ b/drivers/net/wireless/ath/wcn36xx/smd.h
+> @@ -46,8 +46,8 @@ struct wcn36xx_fw_msg_status_rsp {
+>  
+>  struct wcn36xx_hal_ind_msg {
+>  	struct list_head list;
+> -	size_t msg_len;
+> -	u8 msg[];
+> +	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(size_t, msg_len);
+> +	DECLARE_FLEX_ARRAY_ELEMENTS(u8, msg);
 
-It's actually this case that triggered my investigation in __bos(1)'s
-misbehavior around sub-structs, since this case wasn't getting silenced:
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101832
-
-It still feels like it should be possible to get this right without
-splitting the memcpy, though. Hmpf.
-
-> (would that function use some sanitization, though? what if nlmsg_len is
-> somehow manipulated to be less than NLMSG_HDRLEN?...)
-
-Maybe something like:
-
-static inline int nlmsg_len(const struct nlmsghdr *nlh)
-{
-	if (WARN_ON(nlh->nlmsg_len < NLMSG_HDRLEN))
-		return 0;
-	return nlh->nlmsg_len - NLMSG_HDRLEN;
-}
-
-> Also, it seems there is at least one more instance of this same issue:
-> 
-> diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-> index 16ae92054baa..d06184b94af5 100644
-> --- a/net/netfilter/ipset/ip_set_core.c
-> +++ b/net/netfilter/ipset/ip_set_core.c
-> @@ -1723,7 +1723,8 @@ call_ad(struct net *net, struct sock *ctnl, struct sk_buff *skb,
->                                   nlh->nlmsg_seq, NLMSG_ERROR, payload, 0);
->                 errmsg = nlmsg_data(rep);
->                 errmsg->error = ret;
-> -               memcpy(&errmsg->msg, nlh, nlh->nlmsg_len);
-> +               errmsg->msg = *nlh;
-> +               memcpy(errmsg->msg.nlmsg_payload, nlh->nlmsg_payload, nlmsg_len(nlh));
-
-Ah, yes, nice catch!
-
->                 cmdattr = (void *)&errmsg->msg + min_len;
-> 
->                 ret = nla_parse(cda, IPSET_ATTR_CMD_MAX, cmdattr,
-> 
-> --
-> Gustavo
-> 
-> [1] https://elixir.bootlin.com/linux/v5.18-rc5/source/include/net/netlink.h#L577
+This affects readability quite a lot and tbh I don't like it. Isn't
+there any simpler way to solve this?
 
 -- 
-Kees Cook
+https://patchwork.kernel.org/project/linux-wireless/list/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
