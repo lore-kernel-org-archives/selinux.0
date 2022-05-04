@@ -2,219 +2,85 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74765C433F5
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 16:08:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78C4BC4332F
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 17:06:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352817AbiEDQME convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Wed, 4 May 2022 12:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
+        id S1355313AbiEDRKV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 13:10:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352851AbiEDQMD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 12:12:03 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2A6D8289BC
-        for <selinux@vger.kernel.org>; Wed,  4 May 2022 09:08:25 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-304-ZFewZZfvOMewltUmmE4nqg-2; Wed, 04 May 2022 17:08:23 +0100
-X-MC-Unique: ZFewZZfvOMewltUmmE4nqg-2
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Wed, 4 May 2022 17:08:15 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Wed, 4 May 2022 17:08:15 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Kees Cook' <keescook@chromium.org>,
-        Johannes Berg <johannes@sipsolutions.net>
-CC:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Keith Packard <keithp@keithp.com>,
-        Francis Laniel <laniel_francis@privacyrequired.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arend van Spriel <aspriel@gmail.com>,
-        "Baowen Zheng" <baowen.zheng@corigine.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Bradley Grove <linuxdrivers@attotech.com>,
-        "brcm80211-dev-list.pdl@broadcom.com" 
-        <brcm80211-dev-list.pdl@broadcom.com>,
-        Christian Brauner <brauner@kernel.org>,
-        =?iso-8859-1?Q?Christian_G=F6ttsche?= <cgzones@googlemail.com>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        Chris Zankel <chris@zankel.net>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David Gow" <davidgow@google.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
-        Eli Cohen <elic@nvidia.com>,
-        "Eric Dumazet" <edumazet@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "Eugeniu Rosca" <erosca@de.adit-jv.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        "Hante Meuleman" <hante.meuleman@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hulk Robot <hulkci@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "kunit-dev@googlegroups.com" <kunit-dev@googlegroups.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        "Lars-Peter Clausen" <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        "linux1394-devel@lists.sourceforge.net" 
-        <linux1394-devel@lists.sourceforge.net>,
-        "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        "llvm@lists.linux.dev" <llvm@lists.linux.dev>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Louis Peens <louis.peens@corigine.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        "Luiz Augusto von Dentz" <luiz.dentz@gmail.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Max Filippov" <jcmvbkbc@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        =?iso-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "Rich Felker" <dalias@aerifal.cx>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        "SHA-cyfmac-dev-list@infineon.com" <SHA-cyfmac-dev-list@infineon.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        "wcn36xx@lists.infradead.org" <wcn36xx@lists.infradead.org>,
-        Wei Liu <wei.liu@kernel.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        "Yang Yingliang" <yangyingliang@huawei.com>
-Subject: RE: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
-Thread-Topic: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
-Thread-Index: AQHYX80GRJFxZRupFEigWcMQWGiaSK0O4MfQ
-Date:   Wed, 4 May 2022 16:08:15 +0000
-Message-ID: <bc2efc31d25e4f42a98f0a5d7a8ad88a@AcuMS.aculab.com>
-References: <20220504014440.3697851-1-keescook@chromium.org>
- <20220504014440.3697851-3-keescook@chromium.org>
- <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
- <202205040819.DEA70BD@keescook>
-In-Reply-To: <202205040819.DEA70BD@keescook>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S1356773AbiEDRJm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 13:09:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0869219C1A
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 09:55:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651683332;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=i/8tEEIRxqpe4ElSJJ94RDqsuPUh4CaZRSGMppcSKdg=;
+        b=a+K2K+amcFUdhggZShXpTwC1b6yClxc2XfbeH9dYws5vrU9o+bS3q0msNMCWjubrfMtiJb
+        9dSjnt0I8XQWRm2I6TpbKlieVHtj+FlE5pJfIt6b2MWXDyV0OX0sJFudJd9ZET0WYf31vQ
+        y5crbZM6BDxww2Tk+QnoudKkRECbVFw=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-115-psgnwU4DMBCM9cxtH7R4Kw-1; Wed, 04 May 2022 12:55:31 -0400
+X-MC-Unique: psgnwU4DMBCM9cxtH7R4Kw-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AB54C1D32368;
+        Wed,  4 May 2022 16:55:30 +0000 (UTC)
+Received: from localhost (unknown [10.40.195.71])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 56FB843E77A;
+        Wed,  4 May 2022 16:55:30 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Cc:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: Re: [PATCH] checkpolicy: mention class name on invalid permission
+In-Reply-To: <20220426105914.15817-1-cgzones@googlemail.com>
+References: <20220426105914.15817-1-cgzones@googlemail.com>
+Date:   Wed, 04 May 2022 18:55:29 +0200
+Message-ID: <87ilql8cfy.fsf@redhat.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Kees Cook
-> Sent: 04 May 2022 16:38
-...
-> > >     struct something *instance = NULL;
-> > >     int rc;
-> > >
-> > >     rc = mem_to_flex_dup(&instance, byte_array, count, GFP_KERNEL);
-> > >     if (rc)
-> > >         return rc;
-> >
-> > This seems rather awkward, having to set it to NULL, then checking rc
-> > (and possibly needing a separate variable for it), etc.
-> 
-> I think the errno return is completely required. I had an earlier version
-> of this that was much more like a drop-in replacement for memcpy that
-> would just truncate or panic, and when I had it all together, I could
-> just imagine hearing Linus telling me to start over because it was unsafe
-> (truncation may be just as bad as overflow) and disruptive ("never BUG"),
-> and that it should be recoverable. So, I rewrote it all to return a
-> __must_check errno.
-> 
-> Requiring instance to be NULL is debatable, but I feel pretty strongly
-> about it because it does handle a class of mistakes (resource leaks),
-> and it's not much of a burden to require a known-good starting state.
+Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
 
-Why not make it look like malloc() since it seems to be malloc().
-That gives a much better calling convention.
-Passing pointers and integers by reference can generate horrid code.
-(Mostly because it stops the compiler keeping values in registers.)
+> When a permission for a constraint statement cannot be found also
+> mention the related class name.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-If you want the type information inside the 'function'
-use a #define so that the use is:
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-	mem_to_flex_dup(instance, byte_array, count, GFP_KERNEL);
-	if (!instance)
-		return ...
-(or use ERR_PTR() etc).
 
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+> ---
+>  checkpolicy/policy_define.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 16b78346..a4c24115 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -3627,7 +3627,7 @@ int define_constraint(constraint_expr_t * expr)
+>  				}
+>  				if (!perdatum) {
+>  					yyerror2("permission %s is not"
+> -						 " defined", id);
+> +						 " defined for class %s", id, policydbp->p_class_val_to_name[i]);
+>  					free(id);
+>  					ebitmap_destroy(&classmap);
+>  					return -1;
+> --=20
+> 2.36.0
 
