@@ -2,131 +2,219 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CAFCC4332F
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 15:50:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74765C433F5
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 16:08:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352757AbiEDPxl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 11:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49238 "EHLO
+        id S1352817AbiEDQME convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Wed, 4 May 2022 12:12:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237205AbiEDPxk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 11:53:40 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223A740E55;
-        Wed,  4 May 2022 08:50:01 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 882461F38D;
-        Wed,  4 May 2022 15:50:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1651679400; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=pzZYtAWqOK0x1bSyjKyxPqiIg9Fcdav21K/7m+CpVfI=;
-        b=nbktz7u6eEaio1WfVT0QxWoaaEy+CZrGEGVR4d92gPZQIffDVi7oRxfPHukHGEfd1LTqsa
-        gKHZBdiINI8+YI8Wb0+dYMc3NG/ugKVPfWZLqdTEHqVWtojPnc+zujn4TIFwcEtdn+K7e8
-        ZObvRRMNDYaTLvnodYDN66RRhon/cNY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1651679400;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=pzZYtAWqOK0x1bSyjKyxPqiIg9Fcdav21K/7m+CpVfI=;
-        b=txd/qOvmCUnW5d1S8GXNeHvBc6OD0LaoLQiFXYUco0/UgoF5iwrWeH7kyxXV+u9btcig+i
-        X5vmWtZZuPxuDgDw==
-Received: from quack3.suse.cz (unknown [10.100.224.230])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 3673E2C141;
-        Wed,  4 May 2022 15:49:59 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id D2BFAA061E; Wed,  4 May 2022 17:49:58 +0200 (CEST)
-Date:   Wed, 4 May 2022 17:49:58 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Jan Kara <jack@suse.cz>, Guowei Du <duguoweisz@gmail.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
+        with ESMTP id S1352851AbiEDQMD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 12:12:03 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2A6D8289BC
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 09:08:25 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-304-ZFewZZfvOMewltUmmE4nqg-2; Wed, 04 May 2022 17:08:23 +0100
+X-MC-Unique: ZFewZZfvOMewltUmmE4nqg-2
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.32; Wed, 4 May 2022 17:08:15 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.033; Wed, 4 May 2022 17:08:15 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Kees Cook' <keescook@chromium.org>,
+        Johannes Berg <johannes@sipsolutions.net>
+CC:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Keith Packard <keithp@keithp.com>,
+        Francis Laniel <laniel_francis@privacyrequired.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
         Al Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>, bpf@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Gross <agross@kernel.org>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Arend van Spriel <aspriel@gmail.com>,
+        "Baowen Zheng" <baowen.zheng@corigine.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Bradley Grove <linuxdrivers@attotech.com>,
+        "brcm80211-dev-list.pdl@broadcom.com" 
+        <brcm80211-dev-list.pdl@broadcom.com>,
+        Christian Brauner <brauner@kernel.org>,
+        =?iso-8859-1?Q?Christian_G=F6ttsche?= <cgzones@googlemail.com>,
+        Christian Lamparter <chunkeey@googlemail.com>,
+        Chris Zankel <chris@zankel.net>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David Gow" <davidgow@google.com>,
+        David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
+        Eli Cohen <elic@nvidia.com>,
+        "Eric Dumazet" <edumazet@google.com>,
         Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>, anton@enomsg.org,
-        ccross@android.com, tony.luck@intel.com, selinux@vger.kernel.org,
-        duguowei <duguowei@xiaomi.com>
-Subject: Re: [PATCH] fsnotify: add generic perm check for unlink/rmdir
-Message-ID: <20220504154958.cnagolihr65vkmjf@quack3.lan>
-References: <20220503183750.1977-1-duguoweisz@gmail.com>
- <20220503194943.6bcmsxjvinfjrqxa@quack3.lan>
- <CAOQ4uxguXW05_YSpgT=kGgxztQYqhJ3x4MFsz9ZTO0crc9=4tA@mail.gmail.com>
+        "Eugeniu Rosca" <erosca@de.adit-jv.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "Hante Meuleman" <hante.meuleman@broadcom.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Hulk Robot <hulkci@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        James Morris <jmorris@namei.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        John Keeping <john@metanate.com>,
+        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
+        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
+        "kunit-dev@googlegroups.com" <kunit-dev@googlegroups.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        "Lars-Peter Clausen" <lars@metafoo.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        "linux1394-devel@lists.sourceforge.net" 
+        <linux1394-devel@lists.sourceforge.net>,
+        "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
+        "llvm@lists.linux.dev" <llvm@lists.linux.dev>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Louis Peens <louis.peens@corigine.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        "Luiz Augusto von Dentz" <luiz.dentz@gmail.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Max Filippov" <jcmvbkbc@gmail.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        =?iso-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "Rich Felker" <dalias@aerifal.cx>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "SHA-cyfmac-dev-list@infineon.com" <SHA-cyfmac-dev-list@infineon.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
+        "wcn36xx@lists.infradead.org" <wcn36xx@lists.infradead.org>,
+        Wei Liu <wei.liu@kernel.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        "Yang Yingliang" <yangyingliang@huawei.com>
+Subject: RE: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
+Thread-Topic: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
+Thread-Index: AQHYX80GRJFxZRupFEigWcMQWGiaSK0O4MfQ
+Date:   Wed, 4 May 2022 16:08:15 +0000
+Message-ID: <bc2efc31d25e4f42a98f0a5d7a8ad88a@AcuMS.aculab.com>
+References: <20220504014440.3697851-1-keescook@chromium.org>
+ <20220504014440.3697851-3-keescook@chromium.org>
+ <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
+ <202205040819.DEA70BD@keescook>
+In-Reply-To: <202205040819.DEA70BD@keescook>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxguXW05_YSpgT=kGgxztQYqhJ3x4MFsz9ZTO0crc9=4tA@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed 04-05-22 17:12:16, Amir Goldstein wrote:
-> On Tue, May 3, 2022 at 10:49 PM Jan Kara <jack@suse.cz> wrote:
-> >
-> > On Wed 04-05-22 02:37:50, Guowei Du wrote:
-> > > From: duguowei <duguowei@xiaomi.com>
+From: Kees Cook
+> Sent: 04 May 2022 16:38
+...
+> > >     struct something *instance = NULL;
+> > >     int rc;
 > > >
-> > > For now, there have been open/access/open_exec perms for file operation,
-> > > so we add new perms check with unlink/rmdir syscall. if one app deletes
-> > > any file/dir within pubic area, fsnotify can sends fsnotify_event to
-> > > listener to deny that, even if the app have right dac/mac permissions.
-> > >
-> > > Signed-off-by: duguowei <duguowei@xiaomi.com>
+> > >     rc = mem_to_flex_dup(&instance, byte_array, count, GFP_KERNEL);
+> > >     if (rc)
+> > >         return rc;
 > >
-> > Before we go into technical details of implementation can you tell me more
-> > details about the usecase? Why do you need to check specifically for unlink
-> > / delete?
-> >
-> > Also on the design side of things: Do you realize these permission events
-> > will not be usable together with other permission events like
-> > FAN_OPEN_PERM? Because these require notification group returning file
-> > descriptors while your events will return file handles... I guess we should
-> > somehow fix that.
-> >
+> > This seems rather awkward, having to set it to NULL, then checking rc
+> > (and possibly needing a separate variable for it), etc.
 > 
-> IMO, regardless of file descriptions vs. file handles, blocking events have
-> no business with async events in the same group at all.
-> What is the use case for that?
-> Sure, we have the legacy permission event, but if we do add new blocking
-> events to UAPI, IMO they should be added to a group that was initialized with a
-> different class to indicate "blocking events only".
+> I think the errno return is completely required. I had an earlier version
+> of this that was much more like a drop-in replacement for memcpy that
+> would just truncate or panic, and when I had it all together, I could
+> just imagine hearing Linus telling me to start over because it was unsafe
+> (truncation may be just as bad as overflow) and disruptive ("never BUG"),
+> and that it should be recoverable. So, I rewrote it all to return a
+> __must_check errno.
 > 
-> And if we do that, we will not need to pollute the event mask namespace
-> for every permission event.
+> Requiring instance to be NULL is debatable, but I feel pretty strongly
+> about it because it does handle a class of mistakes (resource leaks),
+> and it's not much of a burden to require a known-good starting state.
 
-That's an interesting idea. I agree mixing of permission and normal events
-is not very useful and separating event mask for permission and other
-events looks like a compelling reason to really forbid that :). It's a pity
-nobody had this idea when proposing fanotify permission events.
+Why not make it look like malloc() since it seems to be malloc().
+That gives a much better calling convention.
+Passing pointers and integers by reference can generate horrid code.
+(Mostly because it stops the compiler keeping values in registers.)
 
-> When users request to get FAN_UNLINK/FAN_RMDIR events in a
-> FAN_CLASS_PERMISSION group, internally, that only captures
-> events reported from fsnotify_perm()/fsnotify_path_perm().
-> 
-> FYI, I do intend to try and upload "pre-modify events" [1].
-> I had no intention to expose those in fanotify and my implementation
-> does not have the granularity of UNLINK/RMDIR, but we do need
-> to think about not duplicating too much code with those overlapping
-> features.
+If you want the type information inside the 'function'
+use a #define so that the use is:
 
-Definitely.
+	mem_to_flex_dup(instance, byte_array, count, GFP_KERNEL);
+	if (!instance)
+		return ...
+(or use ERR_PTR() etc).
 
-								Honza
+	David
 
-> [1] https://github.com/amir73il/linux/commits/fsnotify_pre_modify
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
