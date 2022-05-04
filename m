@@ -2,70 +2,72 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 581A8C4167E
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 01:49:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84C60C43219
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 01:49:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245745AbiEDBwa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 May 2022 21:52:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
+        id S1343581AbiEDBwf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 May 2022 21:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240872AbiEDBw0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 21:52:26 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 329F53AA6A
-        for <selinux@vger.kernel.org>; Tue,  3 May 2022 18:47:39 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id o69so15532714pjo.3
-        for <selinux@vger.kernel.org>; Tue, 03 May 2022 18:47:38 -0700 (PDT)
+        with ESMTP id S245643AbiEDBw1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 May 2022 21:52:27 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 640DC2E9E7
+        for <selinux@vger.kernel.org>; Tue,  3 May 2022 18:47:41 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id qe3-20020a17090b4f8300b001dc24e4da73so2750462pjb.1
+        for <selinux@vger.kernel.org>; Tue, 03 May 2022 18:47:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=xU+lft0xYFj1fS1yuTZSbozxjgBGk0a+m2yFd6VoFH8=;
-        b=a+tRkUtoblEDLjvFId++UphGjoZEaQCYI3Vk83Wii7jOQPjtu5Lszr9szx/ri1HX51
-         wV1jt/Of6XxA4HH6Vf9VLVYuUYeTQ2uz41Vd4xndvpOP8cB9qurXZHACinwkcuuAVoNS
-         S4kXDV6k7pYw97SFuBD/SAZ91ynDl2QAdaG/0=
+        bh=szeqM9M0yrMyJS9vcuYR4tTzvEASeBs+sh1JgS4qPAo=;
+        b=SNMym2HDPaFxMLeJFcK68nelvSK8kE0Z3iij6ppE4Nnk5PkLPyihqCWqJWEyxTK+Ad
+         Wlo0fMMZpa7cEJ44ZnUWiYYlbNhSmn3I+2rzPJ3v+90je6UlKRw4Aqz10rVm1pygvoeV
+         KVh5PeFOgavCCRafhGFy8OhJb2FMOsRW4OkVk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=xU+lft0xYFj1fS1yuTZSbozxjgBGk0a+m2yFd6VoFH8=;
-        b=VusVWeWhKt/6RYCEB7iD8WxUoiBqE56XkE0z7xwW7Er3Ss2MW97Bkd5epuicZLASg+
-         nWuH8Zf4eGu8VSi3aXc8rynXccC59y/DfRm3xNsiKSEm979V6LCfkl9uo2Pe6fpSBIJh
-         VfMLmpn13iGkebj5kuQdlFYIzTkeOSZRBExq5KiJtzoFGX8v6qj+HX+yhyKawVIUor3a
-         vWEXLBIAEd8oGotHexwPvO64N4e2GYBwoS0om72eMUpqthSSGgoXXRS8qqCslA1EiRul
-         b6gfzCvDawCImLFdPxLab+dFnvUF7d9nhIiZFdINluiu7dPzIsy3sQBPdgwpr6WOpMrd
-         +tGw==
-X-Gm-Message-State: AOAM531pZ8o6yW7UK3XuJZML6aRpuGZU23MH3UGh4FKKW8XZfPYVLEua
-        H5zqNnVYjFa5PqVr1oZP7/1XiA==
-X-Google-Smtp-Source: ABdhPJym7M+DImW/Jqb3OQWBvYlyqklXqWcPP05A/qCeDGaoGZArCRBHN6sBE2ZReqB74PMUZr0+qw==
-X-Received: by 2002:a17:90a:730c:b0:1da:4630:518e with SMTP id m12-20020a17090a730c00b001da4630518emr7902816pjk.239.1651628857841;
-        Tue, 03 May 2022 18:47:37 -0700 (PDT)
+        bh=szeqM9M0yrMyJS9vcuYR4tTzvEASeBs+sh1JgS4qPAo=;
+        b=YRxQ1waAHktjzKYSvIA0NMRqXRcnf+U54+X0dyC5zd8c1uX4uDHsMof3rTKxkaoYWX
+         lGrw372Xvs46xqlrLbnRu+v6wjBI8d4q4h432YhOrLczjnY5Fo80ORug1T4Lf3NPGelo
+         DelSrcIwzB285wipq8CoptPdkB9iEvAGo8SxUFdnNRZciX5rQo+LBpVprJGFyoqm0knZ
+         X2RFSCowMCa8Z2jseP2jrNu5vphJ/91egE1tFtdkFvTfvCbYIXK6+9G40CPwefTB8vWV
+         cCtzpTsdX1X1xjE5GrJwqiJ8pYNLgQpNGsWxtJY0ZgA4lN/XkDztwfteiPwFqnfwZbJl
+         0udQ==
+X-Gm-Message-State: AOAM533htAdVTdFz0Fnz0+NnqN5yn2uzhRHYohMFa1M+4ibUJHQePQO4
+        TRYHzhywrIlo0YY3L/j4+zLK2A==
+X-Google-Smtp-Source: ABdhPJyLljkiQcnpMeBAkbABtu5tfsx1RQAtFvxNI6eRYUdVP5PUSieP/fvUB77typ12OdIz4mCUCg==
+X-Received: by 2002:a17:902:c952:b0:15e:9e3d:8e16 with SMTP id i18-20020a170902c95200b0015e9e3d8e16mr14572083pla.51.1651628858230;
+        Tue, 03 May 2022 18:47:38 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id c21-20020aa781d5000000b0050dc7628163sm6917221pfn.61.2022.05.03.18.47.36
+        by smtp.gmail.com with ESMTPSA id k21-20020aa792d5000000b0050dc7628159sm6928738pfa.51.2022.05.03.18.47.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 03 May 2022 18:47:37 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
 To:     "Gustavo A . R . Silva" <gustavoars@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>, Andy Lavr <andy.lavr@gmail.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        Arend van Spriel <aspriel@gmail.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
         Kalle Valo <kvalo@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Paolo Abeni <pabeni@redhat.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Eric Dumazet <edumazet@google.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        SHA-cyfmac-dev-list@infineon.com, netdev@vger.kernel.org,
         Alexei Starovoitov <ast@kernel.org>,
         alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
         Andrew Gabbasov <andrew_gabbasov@mentor.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Andy Gross <agross@kernel.org>,
-        Arend van Spriel <aspriel@gmail.com>,
+        Andy Lavr <andy.lavr@gmail.com>,
         Baowen Zheng <baowen.zheng@corigine.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Bradley Grove <linuxdrivers@attotech.com>,
-        brcm80211-dev-list.pdl@broadcom.com,
         Christian Brauner <brauner@kernel.org>,
         =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Christian Lamparter <chunkeey@googlemail.com>,
@@ -85,11 +87,10 @@ Cc:     Kees Cook <keescook@chromium.org>, Andy Lavr <andy.lavr@gmail.com>,
         Felipe Balbi <balbi@kernel.org>,
         Francis Laniel <laniel_francis@privacyrequired.com>,
         Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Gregory Greenman <gregory.greenman@intel.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Haiyang Zhang <haiyangz@microsoft.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Hulk Robot <hulkci@huawei.com>,
         "James E.J. Bottomley" <jejb@linux.ibm.com>,
@@ -120,6 +121,7 @@ Cc:     Kees Cook <keescook@chromium.org>, Andy Lavr <andy.lavr@gmail.com>,
         linux-usb@vger.kernel.org, linux-xtensa@linux-xtensa.org,
         llvm@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
         Louis Peens <louis.peens@corigine.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
         Marc Dionne <marc.dionne@auristor.com>,
         Marcel Holtmann <marcel@holtmann.org>,
@@ -136,7 +138,6 @@ Cc:     Kees Cook <keescook@chromium.org>, Andy Lavr <andy.lavr@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
         "Serge E. Hallyn" <serge@hallyn.com>,
-        SHA-cyfmac-dev-list@infineon.com,
         Simon Horman <simon.horman@corigine.com>,
         Stefano Stabellini <sstabellini@kernel.org>,
         Stefan Richter <stefanr@s5r6.in-berlin.de>,
@@ -151,14 +152,14 @@ Cc:     Kees Cook <keescook@chromium.org>, Andy Lavr <andy.lavr@gmail.com>,
         xen-devel@lists.xenproject.org,
         Xiu Jianfeng <xiujianfeng@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>
-Subject: [PATCH 07/32] iwlwifi: calib: Use mem_to_flex_dup() with struct iwl_calib_result
-Date:   Tue,  3 May 2022 18:44:16 -0700
-Message-Id: <20220504014440.3697851-8-keescook@chromium.org>
+Subject: [PATCH 05/32] brcmfmac: Use mem_to_flex_dup() with struct brcmf_fweh_queue_item
+Date:   Tue,  3 May 2022 18:44:14 -0700
+Message-Id: <20220504014440.3697851-6-keescook@chromium.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220504014440.3697851-1-keescook@chromium.org>
 References: <20220504014440.3697851-1-keescook@chromium.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2309; h=from:subject; bh=WpodBqq01jqwxM1KRcJO62uugaWovPAJ5k8Asd34efc=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBicdqCGKNTo/e4rYqRS6JHFIWEcMsPl6ZUWQBFBFL/ Wqla2nSJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYnHaggAKCRCJcvTf3G3AJvqCD/ 9KMmQRVL3p5s+EO2ziT+OnA/bWRcfyVrpdD2apYiZrAvV6jv+ChcK5o9LNvgU6liqmGQvBK56XO3bQ qrNnEnu62KEpY0aEShwY6YNXdwdTLw3FEMK42jV6f34XbajiPo0MoQoS/x/QSbL1eIG6JO5d4TRjIe 0/Q48qkArPdlLvI5pKeSr1lsEVPndfc9NGHCI6nA2+bBonwbXOWfAC7HZPfrpPcmTgLfoKTkBLXai4 ePDPJtwC3/jzsxtTC7J9DHOmQvRPHeYKpPXefkrkgeOaZf2ToPQ3uG49rEHXnkAeJVNemhQ1DJPNcQ HudzUsakTefZTR7ato8r+9r+0+ie8aFfQEAagdWcpPFVR9EyXHXbSWIWZPdHaXSsvv+zcH2BVwp+lX PHt2bIY0X/x3Uouh1It3/uSZlg30A1qnqeXxqNsMc6p4qaHY4pJywV1EkrsZwZd1PdBaiWc6LsdWnm g/rpEfcleSaFr5QGOmd7i7ErfwdtNTNDj5n6eo7f/rD6qfq1dEAIa3IkdH7xRECGPpT/2qd+a747A7 vm2gjfh13/ghhPAbVTSZORt9oZN46upeJxwm83wHp0XHC4gVbEH+bjDqXYQAWbhNyUaOA8Ua7uIonu l7HgMXAQ7eoMMallt3TbHeAxvHxkwxcyt1LUHi517rK5CcCYO26DROhVZXYw==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2425; h=from:subject; bh=LUlPP0dMftItb3yi/Nge8ZTfomS6k0b5Ud+psHgt9Uk=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBicdqBCnVywLtiCXwEUYb08oAOpk1h97YdS8IXrTwN m34sdVuJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYnHagQAKCRCJcvTf3G3AJokcD/ 944yjyiL4MM2Llyg3BhqwjaPE/1VNwGW9grsHKNIASpW8lInBdW90HjydT+vZ0wCt1VpknFi2upnQI XFtVoH0BT1G9pp4WHMjMMAaSqS3XB0bqdYs4DVvPzTKh5kGr5jX6k9+GTSve/itnWwnYDdM80IlUNt S0IhtkWMACqLlgyqGlt11fTu2Zpj0mRgIVFYh1FPaQRGj+skxj5+tzJqnIxOvBBPtzMq5leG8tzvRp gGF1ADH/0BhWsidIuY5CltVSgionGZ0at33CGy6Yb686fc3WZxfkwUqwKd4kWy0/RHSdYt4O0S9KnY r3h5ztCJtoyE+LsOyQfAjweyIO2LhMxNdieb0lZcJ/4W95rILXttIhcQ8iyf4yAsY69UgQuHPKDcAf nBH2PYzGNfEsEHmEr7bOtF2WG7xXUZXn6gi1luh2tpxiaDAkWSbwC0/Hg4An1+r4RDKB8TaO47Qgsp PG9QvJ1Ej3BAp6hSui4/P+qsMcNSEBBM0dZS2Ro11mi+jDDxK5En0Xgd/el0xn+qwqq+NFNlC0jKcW /QhhJ9GSxPsZzAT51pgi/Q//ZlDNoXI6Xmoho22SXd2se2PmaeWQDnuPK8bWnerpItxcrS1KP5jR9H przw+F/g76E2CP74njdcHJE58D4/zsqYKWbbLWi2QfpgIWTEZ+hV+/A44Ihw==
 X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -170,63 +171,66 @@ replace the open-coded a deserialization of bytes out of memory into a
 trailing flexible array by using a flex_array.h helper to perform the
 allocation, bounds checking, and copying.
 
-Avoids future false-positive warning when strict run-time memcpy()
-bounds checking is enabled:
-
-memcpy: detected field-spanning write (size 8) of single field "&res->hdr" (size 4)
-
-Adds an additional size check since the minimum isn't 0.
-
-Reported-by: Andy Lavr <andy.lavr@gmail.com>
-Cc: Luca Coelho <luciano.coelho@intel.com>
+Cc: Arend van Spriel <aspriel@gmail.com>
+Cc: Franky Lin <franky.lin@broadcom.com>
+Cc: Hante Meuleman <hante.meuleman@broadcom.com>
 Cc: Kalle Valo <kvalo@kernel.org>
 Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
 Cc: Jakub Kicinski <kuba@kernel.org>
 Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Gregory Greenman <gregory.greenman@intel.com>
-Cc: Eric Dumazet <edumazet@google.com>
 Cc: linux-wireless@vger.kernel.org
+Cc: brcm80211-dev-list.pdl@broadcom.com
+Cc: SHA-cyfmac-dev-list@infineon.com
 Cc: netdev@vger.kernel.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/net/wireless/intel/iwlwifi/dvm/calib.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ .../net/wireless/broadcom/brcm80211/brcmfmac/fweh.c   | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/calib.c b/drivers/net/wireless/intel/iwlwifi/dvm/calib.c
-index ae1f0cf560e2..7480c19d7af0 100644
---- a/drivers/net/wireless/intel/iwlwifi/dvm/calib.c
-+++ b/drivers/net/wireless/intel/iwlwifi/dvm/calib.c
-@@ -18,8 +18,11 @@
- /* Opaque calibration results */
- struct iwl_calib_result {
- 	struct list_head list;
--	size_t cmd_len;
--	struct iwl_calib_cmd cmd;
-+	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(size_t, cmd_len);
-+	union {
-+		struct iwl_calib_cmd cmd;
-+		DECLARE_FLEX_ARRAY_ELEMENTS(u8, data);
-+	};
- 	/* data follows */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+index bc3f4e4edcdf..bea798ca6466 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.c
+@@ -32,8 +32,8 @@ struct brcmf_fweh_queue_item {
+ 	u8 ifidx;
+ 	u8 ifaddr[ETH_ALEN];
+ 	struct brcmf_event_msg_be emsg;
+-	u32 datalen;
+-	u8 data[];
++	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(u32, datalen);
++	DECLARE_FLEX_ARRAY_ELEMENTS(u8, data);
  };
  
-@@ -59,14 +62,10 @@ int iwl_send_calib_results(struct iwl_priv *priv)
- int iwl_calib_set(struct iwl_priv *priv,
- 		  const struct iwl_calib_cmd *cmd, int len)
+ /*
+@@ -395,7 +395,7 @@ void brcmf_fweh_process_event(struct brcmf_pub *drvr,
  {
--	struct iwl_calib_result *res, *tmp;
-+	struct iwl_calib_result *res = NULL, *tmp;
+ 	enum brcmf_fweh_event_code code;
+ 	struct brcmf_fweh_info *fweh = &drvr->fweh;
+-	struct brcmf_fweh_queue_item *event;
++	struct brcmf_fweh_queue_item *event = NULL;
+ 	void *data;
+ 	u32 datalen;
  
--	res = kmalloc(sizeof(*res) + len - sizeof(struct iwl_calib_hdr),
--		      GFP_ATOMIC);
--	if (!res)
-+	if (len < sizeof(*cmd) || mem_to_flex_dup(&res, cmd, len, GFP_ATOMIC))
- 		return -ENOMEM;
--	memcpy(&res->hdr, cmd, len);
--	res->cmd_len = len;
+@@ -414,8 +414,7 @@ void brcmf_fweh_process_event(struct brcmf_pub *drvr,
+ 	    datalen + sizeof(*event_packet) > packet_len)
+ 		return;
  
- 	list_for_each_entry(tmp, &priv->calib_results, list) {
- 		if (tmp->cmd.hdr.op_code == res->cmd.hdr.op_code) {
+-	event = kzalloc(sizeof(*event) + datalen, gfp);
+-	if (!event)
++	if (mem_to_flex_dup(&event, data, datalen, gfp))
+ 		return;
+ 
+ 	event->code = code;
+@@ -423,8 +422,6 @@ void brcmf_fweh_process_event(struct brcmf_pub *drvr,
+ 
+ 	/* use memcpy to get aligned event message */
+ 	memcpy(&event->emsg, &event_packet->msg, sizeof(event->emsg));
+-	memcpy(event->data, data, datalen);
+-	event->datalen = datalen;
+ 	memcpy(event->ifaddr, event_packet->eth.h_dest, ETH_ALEN);
+ 
+ 	brcmf_fweh_queue_event(fweh, event);
 -- 
 2.32.0
 
