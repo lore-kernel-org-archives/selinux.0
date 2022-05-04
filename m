@@ -2,57 +2,56 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17C5EC43219
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 15:08:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37F55C43219
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 15:13:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230402AbiEDPML (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 11:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33656 "EHLO
+        id S1352003AbiEDPQz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 11:16:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351924AbiEDPMG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 11:12:06 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA5D31908
-        for <selinux@vger.kernel.org>; Wed,  4 May 2022 08:08:28 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id k1so1666752pll.4
-        for <selinux@vger.kernel.org>; Wed, 04 May 2022 08:08:28 -0700 (PDT)
+        with ESMTP id S1352059AbiEDPQw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 11:16:52 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18CAA43EC6
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 08:13:13 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id t13so1384887pgn.8
+        for <selinux@vger.kernel.org>; Wed, 04 May 2022 08:13:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=Qb+1GrJs8SRgE6Wq+GlmzxuejfTqdKZ3b89DzJavSQw=;
-        b=QW7CQXai9IiD71Wvf+o2VYxsrI+DMXmN1vsS0b5DV0rtrX+G8r3eGzQnrLgcSNLS6o
-         18VjexLmt9t17aqS0qc4jCF5CPslGIy/SB1vEauI+iOiw3aemKigwzjm7wU//Osg3Pbt
-         9wMF/4HUhAaX0invtmDD41DdrKFbACP1VK8u0=
+        bh=K5o0mxzRhIj/1qVaf+Qsisfgid2WQLM66dSEL7WW688=;
+        b=XkqjtCLvOAHdMweJpAE7OFgXj0jWG7id7d0Hhskj9BPIqKJFUoqoOWLf2YUT5xAOL1
+         wZmhUNtZAmbQT4d6fpbwfM2QOncu2zNn3djMX16s2PmGSDIstIDxugPIALaO8utyKIj7
+         sKwWZedxfPJh4WLIB65ege/77jViBz9SzZ4sg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=Qb+1GrJs8SRgE6Wq+GlmzxuejfTqdKZ3b89DzJavSQw=;
-        b=Z3VFPTtQ/MufrV3ExSpIbry0wQvA5gnYm7iyLqBG6Oa2iCuLioFNElLK6xS+RH3qBW
-         JQKpxMPENiKpmyEBspoLP4PA9ubNztTLFbG5/2H+hV2+NDya9elxlWbEE2Cl8eMwRXay
-         2TpTNkuUGvuJmR8uxl5VBJf/xVxXk0tEP5vCZ3T1+qxCYkEpwxL1RWvE6u1VHr3hkO9Y
-         82zusrvl2EBpJb3/DZidU0mCDu57Q6kg00bSyQ4SYPhCkCqhd+YRGNxysX/JseU8cxsI
-         KBJrwtqH21oOISkJT0VHgJGmBhxqJByQwUahuJTFQwZPsnkhwGwUBPjwknszbbib634f
-         WzVA==
-X-Gm-Message-State: AOAM532BDe8QQPxP5emSQeu/MgnSQhqv5GxeMopqkES9HtV42J0Cr2og
-        hZ4WQuR7x96CpagfEqV3N5DbSg==
-X-Google-Smtp-Source: ABdhPJxppSZTl5CKjnq8a5hBmltXmdlckYUA+zJjxmwbiUJP9s+fG0NYe/ezZfchAEYBzvKm6cdN0g==
-X-Received: by 2002:a17:90a:e7d2:b0:1dc:3762:c72d with SMTP id kb18-20020a17090ae7d200b001dc3762c72dmr10809021pjb.243.1651676908004;
-        Wed, 04 May 2022 08:08:28 -0700 (PDT)
+        bh=K5o0mxzRhIj/1qVaf+Qsisfgid2WQLM66dSEL7WW688=;
+        b=h+CeOSaJmlqHwOV1HkwBFJw+/h/qDyT7bJF15aAqZXf+WES0SZxKLvnbwIOFzmS1cM
+         iJ7fxlF6HhOD8OVP1WgP1pkw3DGIc3cjlYlSz7vEjZ5JeTcpvl9rVjWpcxGGv6zHkJqR
+         3TgfCEXXBy4lCgVzG0L+RVryuGm+gWrNZfZms9T94A13D+6oAGkhbqcrLfjnf6K4S4rW
+         6+4m6fkPMToCy9EWFtk4IOZrCQsa8YnT5eDTuLJzPRcCmm5JbfIrPYiEysJPhBmmrdR2
+         zvpBi2J9LHkd4HQtubJVnUhrVF1V7Xyexf15W9cfJUj/D1g0RUPlFpS+KsRWKIRxZS6T
+         tuUA==
+X-Gm-Message-State: AOAM530uyX2egsCg9ewtvHzhMmvFItJwQN9H7XYgOXwSKhYQQv0ZkCIr
+        nRlm0HpPFyzLT2ANAdUK+SlJLQ==
+X-Google-Smtp-Source: ABdhPJz90TOpMyff1PtQa6IsHmC44gl1STwuqZnossp54kBJNr59JnE6SQEpdVpiz10qBB7q+ENACA==
+X-Received: by 2002:a63:9d46:0:b0:3ab:573b:d7ca with SMTP id i67-20020a639d46000000b003ab573bd7camr18269533pgd.349.1651677193254;
+        Wed, 04 May 2022 08:13:13 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id q10-20020a170902bd8a00b0015e8d4eb2c8sm8430976pls.274.2022.05.04.08.08.27
+        by smtp.gmail.com with ESMTPSA id t1-20020a170902b20100b0015e8d4eb20bsm8443013plr.85.2022.05.04.08.13.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 08:08:27 -0700 (PDT)
-Date:   Wed, 4 May 2022 08:08:26 -0700
+        Wed, 04 May 2022 08:13:12 -0700 (PDT)
+Date:   Wed, 4 May 2022 08:13:12 -0700
 From:   Kees Cook <keescook@chromium.org>
-To:     Kalle Valo <kvalo@kernel.org>
+To:     Johannes Berg <johannes@sipsolutions.net>
 Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
         "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, wcn36xx@lists.infradead.org,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         Alexei Starovoitov <ast@kernel.org>,
         alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
@@ -99,10 +98,8 @@ Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
         Jaroslav Kysela <perex@perex.cz>,
         Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
         Johan Hedberg <johan.hedberg@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
         John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>,
+        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
         Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
         kunit-dev@googlegroups.com,
         Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
@@ -119,9 +116,11 @@ Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
         linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
         linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-usb@vger.kernel.org, linux-xtensa@linux-xtensa.org,
-        llvm@lists.linux.dev, Louis Peens <louis.peens@corigine.com>,
+        llvm@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
+        Louis Peens <louis.peens@corigine.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Mark Brown <broonie@kernel.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
@@ -147,122 +146,65 @@ Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
         Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
         Udipto Goswami <quic_ugoswami@quicinc.com>,
         Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Wei Liu <wei.liu@kernel.org>, xen-devel@lists.xenproject.org,
+        wcn36xx@lists.infradead.org, Wei Liu <wei.liu@kernel.org>,
+        xen-devel@lists.xenproject.org,
         Xiu Jianfeng <xiujianfeng@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>
-Subject: Re: [PATCH 10/32] wcn36xx: Use mem_to_flex_dup() with struct
- wcn36xx_hal_ind_msg
-Message-ID: <202205040730.161645EC@keescook>
+Subject: Re: [PATCH 12/32] cfg80211: Use mem_to_flex_dup() with struct
+ cfg80211_bss_ies
+Message-ID: <202205040811.05D7E61@keescook>
 References: <20220504014440.3697851-1-keescook@chromium.org>
- <20220504014440.3697851-11-keescook@chromium.org>
- <8735hpc0q1.fsf@kernel.org>
+ <20220504014440.3697851-13-keescook@chromium.org>
+ <c31c1752cf6393319f5c7abd178ef43e0fbec5c1.camel@sipsolutions.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8735hpc0q1.fsf@kernel.org>
+In-Reply-To: <c31c1752cf6393319f5c7abd178ef43e0fbec5c1.camel@sipsolutions.net>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 04, 2022 at 08:42:46AM +0300, Kalle Valo wrote:
-> Kees Cook <keescook@chromium.org> writes:
-> 
-> > As part of the work to perform bounds checking on all memcpy() uses,
-> > replace the open-coded a deserialization of bytes out of memory into a
-> > trailing flexible array by using a flex_array.h helper to perform the
-> > allocation, bounds checking, and copying.
-> >
-> > Cc: Loic Poulain <loic.poulain@linaro.org>
-> > Cc: Kalle Valo <kvalo@kernel.org>
-> > Cc: "David S. Miller" <davem@davemloft.net>
-> > Cc: Eric Dumazet <edumazet@google.com>
-> > Cc: Jakub Kicinski <kuba@kernel.org>
-> > Cc: Paolo Abeni <pabeni@redhat.com>
-> > Cc: wcn36xx@lists.infradead.org
-> > Cc: linux-wireless@vger.kernel.org
-> > Cc: netdev@vger.kernel.org
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> 
-> [...]
-> 
-> > --- a/drivers/net/wireless/ath/wcn36xx/smd.h
-> > +++ b/drivers/net/wireless/ath/wcn36xx/smd.h
-> > @@ -46,8 +46,8 @@ struct wcn36xx_fw_msg_status_rsp {
+On Wed, May 04, 2022 at 09:28:46AM +0200, Johannes Berg wrote:
+> On Tue, 2022-05-03 at 18:44 -0700, Kees Cook wrote:
+> > 
+> > @@ -2277,7 +2274,7 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
+> >  	size_t ielen = len - offsetof(struct ieee80211_mgmt,
+> >  				      u.probe_resp.variable);
+> >  	size_t new_ie_len;
+> > -	struct cfg80211_bss_ies *new_ies;
+> > +	struct cfg80211_bss_ies *new_ies = NULL;
+> >  	const struct cfg80211_bss_ies *old;
+> >  	u8 cpy_len;
 > >  
-> >  struct wcn36xx_hal_ind_msg {
-> >  	struct list_head list;
-> > -	size_t msg_len;
-> > -	u8 msg[];
-> > +	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(size_t, msg_len);
-> > +	DECLARE_FLEX_ARRAY_ELEMENTS(u8, msg);
+> > @@ -2314,8 +2311,7 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
+> >  	if (!new_ie)
+> >  		return;
+> >  
+> > -	new_ies = kzalloc(sizeof(*new_ies) + new_ie_len, GFP_ATOMIC);
+> > -	if (!new_ies)
+> > +	if (mem_to_flex_dup(&new_ies, new_ie, new_ie_len, GFP_ATOMIC))
+> >  		goto out_free;
+> >  
+> >  	pos = new_ie;
+> > @@ -2333,10 +2329,8 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
+> >  	memcpy(pos, mbssid + cpy_len, ((ie + ielen) - (mbssid + cpy_len)));
+> >  
+> >  	/* update ie */
+> > -	new_ies->len = new_ie_len;
+> >  	new_ies->tsf = le64_to_cpu(mgmt->u.probe_resp.timestamp);
+> >  	new_ies->from_beacon = ieee80211_is_beacon(mgmt->frame_control);
+> > -	memcpy(new_ies->data, new_ie, new_ie_len);
 > 
-> This affects readability quite a lot and tbh I don't like it. Isn't
-> there any simpler way to solve this?
+> This introduces a bug, "new_ie" is modified between the kzalloc() and
+> the memcpy(), but you've moved the memcpy() into the allocation. In
+> fact, new_ie is completely freshly kzalloc()'ed at this point. So you
+> need to change the ordering here, but since new_ie is freed pretty much
+> immediately, we can probably just build the stuff directly inside
+> new_ies->data, though then of course we cannot use your helper anymore?
 
-Similar to how I plumbed member names into __mem_to_flex(), I could do
-the same for __mem_to_flex_dup(). That way if the struct member aliases
-(DECLARE_FLEX...)  aren't added, the longer form of the helper could
-be used. Instead of:
-
-	if (mem_to_flex_dup(&msg_ind, buf, len, GFP_ATOMIC)) {
-
-it would be:
-
-	if (__mem_to_flex_dup(&msg_ind, /* self */, msg,
-			      msg_len, buf, len, GFP_ATOMIC)) {
-
-This was how I'd written the helpers in an earlier version, but it
-seemed much cleaner to avoid repeating structure layout details at each
-call site.
-
-I couldn't find any other way to encode the needed information. It'd be
-wonderful if C would let us do:
-
-	struct wcn36xx_hal_ind_msg {
-		struct list_head list;
-		size_t msg_len;
-		u8 msg[msg_len];
-	}
-
-And provide some kind of interrogation:
-
-	__builtin_flex_array_member(msg_ind) -> msg_ind->msg
-	__builtin_flex_array_count(msg_ind)  -> msg_ind->msg_len
-
-My hope would be to actually use the member aliases to teach things like
--fsanitize=array-bounds about flexible arrays. If it encounters a
-structure with the aliases, it could add the instrumentation to do the
-bounds checking of things like:
-
-	msg_ind->msg[42]; /* check that 42 is < msg_ind->msg_len */
-
-I also wish I could find a way to make the proposed macros "forward
-portable" into proposed C syntax above, but this eluded me as well.
-For example:
-
-	struct wcn36xx_hal_ind_msg {
-		size_t msg_len;
-		struct list_head list;
-		BOUNDED_FLEX_ARRAY(u8, msg, msg_len);
-	}
-
-	#ifdef CC_HAS_DYNAMIC_ARRAY_LEN
-	# define BOUNDED_FLEX_ARRAY(type, name, bounds)	type name[bounds]
-	#else
-	# define BOUNDED_FLEX_ARRAY(type, name, bounds)			\
-		magic_alias_of msg_len __flex_array_elements_count;	\
-		union {							\
-			type name[];					\
-			type __flex_array_elements[];			\
-		}
-	#endif
-
-But I couldn't sort out the "magic_alias_of" syntax that wouldn't force
-structures into having the count member immediately before the flex
-array, which would impose more limitations on where this could be
-used...
-
-Anyway, I'm open to ideas on how to improve this!
+Eek, yes, thanks. My attempt to locate the alloc/memcpy pattern failed
+to take into account anything touch the source between alloc and memcpy.
+I'll double check the other examples.
 
 -Kees
 
