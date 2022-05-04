@@ -2,169 +2,269 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C27C433F5
-	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 14:23:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17C5EC43219
+	for <selinux@archiver.kernel.org>; Wed,  4 May 2022 15:08:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345746AbiEDO1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 May 2022 10:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41778 "EHLO
+        id S230402AbiEDPML (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 May 2022 11:12:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233115AbiEDO1M (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 10:27:12 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D3A20BC8;
-        Wed,  4 May 2022 07:23:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-        Sender:Reply-To:Content-ID:Content-Description;
-        bh=bytPlWllFbXUh+y4MCYGituXos4p9j3B01XAJo0H3+E=; b=TnYqUjICVRT/3N3eRKski13fzl
-        LcW+I3scGMM0C8sU16Tc+Th7Aek/tXKoDBWy/s9BCs2KzsrvddBDH3nCcJH+mP2Bf2r2puR+TsogC
-        fm3dL2IFMK7bhPLlRSyDc8jUXm8vvJb4oCb2nEufIXOB2h2PXy/24vYBIm9p3ImDKK+rI4/7fVdza
-        XslmI0lyQzDIJVKOUFCxcT2tSqJiVr7ltebssvIIHyrOhMRfMvw8v1CRHu4ZC+3Sxr5gSkbPyTqdr
-        pG7z57FdzzIBZIZhtAbUCK8/y9Ku804m92zmQopBhnkeM/VykNFZcP4N2aKYxhNdMqfseDdAy0BTy
-        TnQLJ6lA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=worktop.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nmFuR-00B5lf-VS; Wed, 04 May 2022 14:23:20 +0000
-Received: by worktop.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 8E627980E57; Wed,  4 May 2022 16:23:19 +0200 (CEST)
-Date:   Wed, 4 May 2022 16:23:19 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] [RFC PATCH] sched: only perform capability check on
- privileged operation
-Message-ID: <20220504142319.GB2501@worktop.programming.kicks-ass.net>
-References: <20200904160031.6444-1-cgzones@googlemail.com>
- <20220502152414.110922-1-cgzones@googlemail.com>
+        with ESMTP id S1351924AbiEDPMG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 May 2022 11:12:06 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA5D31908
+        for <selinux@vger.kernel.org>; Wed,  4 May 2022 08:08:28 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id k1so1666752pll.4
+        for <selinux@vger.kernel.org>; Wed, 04 May 2022 08:08:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Qb+1GrJs8SRgE6Wq+GlmzxuejfTqdKZ3b89DzJavSQw=;
+        b=QW7CQXai9IiD71Wvf+o2VYxsrI+DMXmN1vsS0b5DV0rtrX+G8r3eGzQnrLgcSNLS6o
+         18VjexLmt9t17aqS0qc4jCF5CPslGIy/SB1vEauI+iOiw3aemKigwzjm7wU//Osg3Pbt
+         9wMF/4HUhAaX0invtmDD41DdrKFbACP1VK8u0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Qb+1GrJs8SRgE6Wq+GlmzxuejfTqdKZ3b89DzJavSQw=;
+        b=Z3VFPTtQ/MufrV3ExSpIbry0wQvA5gnYm7iyLqBG6Oa2iCuLioFNElLK6xS+RH3qBW
+         JQKpxMPENiKpmyEBspoLP4PA9ubNztTLFbG5/2H+hV2+NDya9elxlWbEE2Cl8eMwRXay
+         2TpTNkuUGvuJmR8uxl5VBJf/xVxXk0tEP5vCZ3T1+qxCYkEpwxL1RWvE6u1VHr3hkO9Y
+         82zusrvl2EBpJb3/DZidU0mCDu57Q6kg00bSyQ4SYPhCkCqhd+YRGNxysX/JseU8cxsI
+         KBJrwtqH21oOISkJT0VHgJGmBhxqJByQwUahuJTFQwZPsnkhwGwUBPjwknszbbib634f
+         WzVA==
+X-Gm-Message-State: AOAM532BDe8QQPxP5emSQeu/MgnSQhqv5GxeMopqkES9HtV42J0Cr2og
+        hZ4WQuR7x96CpagfEqV3N5DbSg==
+X-Google-Smtp-Source: ABdhPJxppSZTl5CKjnq8a5hBmltXmdlckYUA+zJjxmwbiUJP9s+fG0NYe/ezZfchAEYBzvKm6cdN0g==
+X-Received: by 2002:a17:90a:e7d2:b0:1dc:3762:c72d with SMTP id kb18-20020a17090ae7d200b001dc3762c72dmr10809021pjb.243.1651676908004;
+        Wed, 04 May 2022 08:08:28 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id q10-20020a170902bd8a00b0015e8d4eb2c8sm8430976pls.274.2022.05.04.08.08.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 May 2022 08:08:27 -0700 (PDT)
+Date:   Wed, 4 May 2022 08:08:26 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Kalle Valo <kvalo@kernel.org>
+Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, wcn36xx@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        Alexei Starovoitov <ast@kernel.org>,
+        alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Gross <agross@kernel.org>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Arend van Spriel <aspriel@gmail.com>,
+        Baowen Zheng <baowen.zheng@corigine.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Bradley Grove <linuxdrivers@attotech.com>,
+        brcm80211-dev-list.pdl@broadcom.com,
+        Christian Brauner <brauner@kernel.org>,
+        Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        Christian Lamparter <chunkeey@googlemail.com>,
+        Chris Zankel <chris@zankel.net>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dan Williams <dan.j.williams@intel.com>,
+        David Gow <davidgow@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        devicetree@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Eli Cohen <elic@nvidia.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Francis Laniel <laniel_francis@privacyrequired.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Hulk Robot <hulkci@huawei.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        James Morris <jmorris@namei.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        John Keeping <john@metanate.com>,
+        Juergen Gross <jgross@suse.com>,
+        Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
+        kunit-dev@googlegroups.com,
+        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        linux1394-devel@lists.sourceforge.net,
+        linux-afs@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+        linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-xtensa@linux-xtensa.org,
+        llvm@lists.linux.dev, Louis Peens <louis.peens@corigine.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Rich Felker <dalias@aerifal.cx>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        SHA-cyfmac-dev-list@infineon.com,
+        Simon Horman <simon.horman@corigine.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Wei Liu <wei.liu@kernel.org>, xen-devel@lists.xenproject.org,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>
+Subject: Re: [PATCH 10/32] wcn36xx: Use mem_to_flex_dup() with struct
+ wcn36xx_hal_ind_msg
+Message-ID: <202205040730.161645EC@keescook>
+References: <20220504014440.3697851-1-keescook@chromium.org>
+ <20220504014440.3697851-11-keescook@chromium.org>
+ <8735hpc0q1.fsf@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220502152414.110922-1-cgzones@googlemail.com>
+In-Reply-To: <8735hpc0q1.fsf@kernel.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 02, 2022 at 05:24:14PM +0200, Christian Göttsche wrote:
-> sched_setattr(2) issues via kernel/sched/core.c:__sched_setscheduler()
-> a CAP_SYS_NICE audit event unconditionally, even when the requested
-> operation does not require that capability / is unprivileged, i.e. for
-> reducing niceness.
-> This is relevant in connection with SELinux, where a capability check
-> results in a policy decision and by default a denial message on
-> insufficient permission is issued.
-> It can lead to three undesired cases:
->   1. A denial message is generated, even in case the operation was an
->      unprivileged one and thus the syscall succeeded, creating noise.
->   2. To avoid the noise from 1. the policy writer adds a rule to ignore
->      those denial messages, hiding future syscalls, where the task
->      performs an actual privileged operation, leading to hidden limited
->      functionality of that task.
->   3. To avoid the noise from 1. the policy writer adds a rule to allow
->      the task the capability CAP_SYS_NICE, while it does not need it,
->      violating the principle of least privilege.
+On Wed, May 04, 2022 at 08:42:46AM +0300, Kalle Valo wrote:
+> Kees Cook <keescook@chromium.org> writes:
 > 
-> Conduct privilged/unprivileged categorization first and perform a
-> capable test (and at most once) only if needed.
+> > As part of the work to perform bounds checking on all memcpy() uses,
+> > replace the open-coded a deserialization of bytes out of memory into a
+> > trailing flexible array by using a flex_array.h helper to perform the
+> > allocation, bounds checking, and copying.
+> >
+> > Cc: Loic Poulain <loic.poulain@linaro.org>
+> > Cc: Kalle Valo <kvalo@kernel.org>
+> > Cc: "David S. Miller" <davem@davemloft.net>
+> > Cc: Eric Dumazet <edumazet@google.com>
+> > Cc: Jakub Kicinski <kuba@kernel.org>
+> > Cc: Paolo Abeni <pabeni@redhat.com>
+> > Cc: wcn36xx@lists.infradead.org
+> > Cc: linux-wireless@vger.kernel.org
+> > Cc: netdev@vger.kernel.org
+> > Signed-off-by: Kees Cook <keescook@chromium.org>
 > 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> [...]
+> 
+> > --- a/drivers/net/wireless/ath/wcn36xx/smd.h
+> > +++ b/drivers/net/wireless/ath/wcn36xx/smd.h
+> > @@ -46,8 +46,8 @@ struct wcn36xx_fw_msg_status_rsp {
+> >  
+> >  struct wcn36xx_hal_ind_msg {
+> >  	struct list_head list;
+> > -	size_t msg_len;
+> > -	u8 msg[];
+> > +	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(size_t, msg_len);
+> > +	DECLARE_FLEX_ARRAY_ELEMENTS(u8, msg);
+> 
+> This affects readability quite a lot and tbh I don't like it. Isn't
+> there any simpler way to solve this?
 
-Does something like so on top work?
+Similar to how I plumbed member names into __mem_to_flex(), I could do
+the same for __mem_to_flex_dup(). That way if the struct member aliases
+(DECLARE_FLEX...)  aren't added, the longer form of the helper could
+be used. Instead of:
 
----
- kernel/sched/core.c | 41 +++++++++++++++++------------------------
- 1 file changed, 17 insertions(+), 24 deletions(-)
+	if (mem_to_flex_dup(&msg_ind, buf, len, GFP_ATOMIC)) {
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index ba5a9a1ce1e5..d3b5a2757c5f 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6931,17 +6931,27 @@ void set_user_nice(struct task_struct *p, long nice)
- EXPORT_SYMBOL(set_user_nice);
- 
- /*
-- * can_nice - check if a task can reduce its nice value
-+ * is_nice_reduction - check if nice value is an actual reduction
-+ *
-  * @p: task
-  * @nice: nice value
-  */
--int can_nice(const struct task_struct *p, const int nice)
-+static bool is_nice_reduction(const struct task_struct *p, const int nice)
- {
- 	/* Convert nice value [19,-20] to rlimit style value [1,40]: */
- 	int nice_rlim = nice_to_rlimit(nice);
- 
--	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE) ||
--		capable(CAP_SYS_NICE));
-+	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE));
-+}
-+
-+/*
-+ * can_nice - check if a task can reduce its nice value
-+ * @p: task
-+ * @nice: nice value
-+ */
-+int can_nice(const struct task_struct *p, const int nice)
-+{
-+	return is_nice_reduction(p, nice) || capable(CAP_SYS_NICE);
- }
- 
- #ifdef __ARCH_WANT_SYS_NICE
-@@ -7220,22 +7230,6 @@ static bool check_same_owner(struct task_struct *p)
- 	return match;
- }
- 
--/*
-- * is_nice_reduction - check if nice value is an actual reduction
-- *
-- * Similar to can_nice() but does not perform a capability check.
-- *
-- * @p: task
-- * @nice: nice value
-- */
--static bool is_nice_reduction(const struct task_struct *p, const int nice)
--{
--	/* Convert nice value [19,-20] to rlimit style value [1,40]: */
--	int nice_rlim = nice_to_rlimit(nice);
--
--	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE));
--}
--
- /*
-  * Allow unprivileged RT tasks to decrease priority.
-  * Only issue a capable test if needed and only once to avoid an audit
-@@ -7247,13 +7241,12 @@ static int user_check_sched_setscheduler(struct task_struct *p,
- {
- 	if (fair_policy(policy)) {
- 		if (attr->sched_nice < task_nice(p) &&
--			!is_nice_reduction(p, attr->sched_nice))
-+		    !is_nice_reduction(p, attr->sched_nice))
- 			goto req_priv;
- 	}
- 
- 	if (rt_policy(policy)) {
--		unsigned long rlim_rtprio =
--		task_rlimit(p, RLIMIT_RTPRIO);
-+		unsigned long rlim_rtprio = task_rlimit(p, RLIMIT_RTPRIO);
- 
- 		/* Can't set/change the rt policy: */
- 		if (policy != p->policy && !rlim_rtprio)
-@@ -7261,7 +7254,7 @@ static int user_check_sched_setscheduler(struct task_struct *p,
- 
- 		/* Can't increase priority: */
- 		if (attr->sched_priority > p->rt_priority &&
--			attr->sched_priority > rlim_rtprio)
-+		    attr->sched_priority > rlim_rtprio)
- 			goto req_priv;
- 	}
- 
+it would be:
+
+	if (__mem_to_flex_dup(&msg_ind, /* self */, msg,
+			      msg_len, buf, len, GFP_ATOMIC)) {
+
+This was how I'd written the helpers in an earlier version, but it
+seemed much cleaner to avoid repeating structure layout details at each
+call site.
+
+I couldn't find any other way to encode the needed information. It'd be
+wonderful if C would let us do:
+
+	struct wcn36xx_hal_ind_msg {
+		struct list_head list;
+		size_t msg_len;
+		u8 msg[msg_len];
+	}
+
+And provide some kind of interrogation:
+
+	__builtin_flex_array_member(msg_ind) -> msg_ind->msg
+	__builtin_flex_array_count(msg_ind)  -> msg_ind->msg_len
+
+My hope would be to actually use the member aliases to teach things like
+-fsanitize=array-bounds about flexible arrays. If it encounters a
+structure with the aliases, it could add the instrumentation to do the
+bounds checking of things like:
+
+	msg_ind->msg[42]; /* check that 42 is < msg_ind->msg_len */
+
+I also wish I could find a way to make the proposed macros "forward
+portable" into proposed C syntax above, but this eluded me as well.
+For example:
+
+	struct wcn36xx_hal_ind_msg {
+		size_t msg_len;
+		struct list_head list;
+		BOUNDED_FLEX_ARRAY(u8, msg, msg_len);
+	}
+
+	#ifdef CC_HAS_DYNAMIC_ARRAY_LEN
+	# define BOUNDED_FLEX_ARRAY(type, name, bounds)	type name[bounds]
+	#else
+	# define BOUNDED_FLEX_ARRAY(type, name, bounds)			\
+		magic_alias_of msg_len __flex_array_elements_count;	\
+		union {							\
+			type name[];					\
+			type __flex_array_elements[];			\
+		}
+	#endif
+
+But I couldn't sort out the "magic_alias_of" syntax that wouldn't force
+structures into having the count member immediately before the flex
+array, which would impose more limitations on where this could be
+used...
+
+Anyway, I'm open to ideas on how to improve this!
+
+-Kees
+
+-- 
+Kees Cook
