@@ -2,39 +2,53 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F272AC4167B
-	for <selinux@archiver.kernel.org>; Thu,  5 May 2022 13:19:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 187F5C433F5
+	for <selinux@archiver.kernel.org>; Thu,  5 May 2022 15:22:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379203AbiEENXC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 May 2022 09:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
+        id S1381252AbiEEPZh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 May 2022 11:25:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236579AbiEENW6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 May 2022 09:22:58 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE58542EC9;
-        Thu,  5 May 2022 06:19:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=WOqM4DKEC8qEB5Nc8Asp0yMdSAPt0BrvJUl7fGL2K2o=;
-        t=1651756758; x=1652966358; b=VlPjU//FNXa2+XxsG73YHHulvZS9LU1Ok/2Gr9U1udS3ClE
-        gggIn61BX96CpB7Ev+Na+syeXPKWxqroWgqIhhVP9CcvNs+ZUeF9ru4Hgk5+IJYQFsVqZ/jpcfF6b
-        +cYxGWJCtu7d22kSwdnXxhbbkUvm0YOS0PSvMRyuLmd3/IUHs69f64s5/PkDAYh6/9dg+xKKoqLkL
-        MK7v/u3ZQBkLUUCMZ8d2YxNKjC2UIKIbu17RYhSwkQTUP9KyJG8aVfpDoZD+Pj7tFfaRoDSTF49fC
-        dWqQ6DUUZRcVUBWBnlwDbyxvb4M45fmuQnwHrqOAL+nt+iG9j3PRoD0+FZJ2Jyjg==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1nmbLD-002nmQ-2E;
-        Thu, 05 May 2022 15:16:23 +0200
-Message-ID: <970a674df04271b5fd1971b495c6b11a996c20c2.camel@sipsolutions.net>
-Subject: Re: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Kees Cook <keescook@chromium.org>
+        with ESMTP id S232495AbiEEPZd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 May 2022 11:25:33 -0400
+X-Greylist: delayed 338 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 05 May 2022 08:21:52 PDT
+Received: from elaine.keithp.com (home.keithp.com [63.227.221.253])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91427554A8;
+        Thu,  5 May 2022 08:21:52 -0700 (PDT)
+Received: from localhost (localhost [127.0.0.1])
+        by elaine.keithp.com (Postfix) with ESMTP id 373F23F3296A;
+        Thu,  5 May 2022 08:16:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=keithp.com; s=mail;
+        t=1651763774; bh=O3aXJOWYxVTqOu3VmcXxOiZZOhMrUjqY/t6cXMT24+E=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=M3zB+WUy+cYZq4HgtgtbfmLljWbRpIeJ5Zkg9r1D71YqvPlgOkiQ4tXheXCRGUa8+
+         RMuby4CqFAMCoPUIrwdzYTZDTf78io+RFFo6OcdGBDUFDZRaGhZfKKcTtwdj7WCFy4
+         6tn6om4NwF6owZoCYEHNTlN4dA5iODmOFbhrxNDmu4q/fHHXFfSRYzNqzWEthWHBp3
+         hB3E0o3k1G8NwFJfKh9rQpVZYZLwPg6CF6he0rk/+KFPQLpotGYN+CgB1L7QQOYecl
+         ymeV9rACfLcKoB95CZdy6K628IEeM8t07ROlSN+X9O0IbQydzX/BQ3xj9k+MYZwzPf
+         UxJC+uQh0iuJw==
+X-Virus-Scanned: Debian amavisd-new at keithp.com
+Received: from elaine.keithp.com ([127.0.0.1])
+        by localhost (elaine.keithp.com [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id AExLuWAu_LJ4; Thu,  5 May 2022 08:16:13 -0700 (PDT)
+Received: from keithp.com (koto.keithp.com [192.168.11.2])
+        by elaine.keithp.com (Postfix) with ESMTPSA id 046443F32465;
+        Thu,  5 May 2022 08:16:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=keithp.com; s=mail;
+        t=1651763773; bh=O3aXJOWYxVTqOu3VmcXxOiZZOhMrUjqY/t6cXMT24+E=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=krSTvH+KcMYcsYiJs+brgDawkHD6ep7gtAt/7ImbSH+PVnVS6n5TIWQoiUP+PjBfQ
+         TTV9zZEzFSNSLzQmSsEIJT24ancVfic/4tw1+i19H4UqIv2Soci174vL3i+L8WgOn3
+         3GAVx4Wwdu1vRPL7EVqx5qPLOOTreMDXIScBgNd+X5AcHfMZWw538tPrPoKpSSqHZH
+         dCLZclbzdDsdQUL6m86l3cbny8WccVcefFqv7gslHwR8P3ZsfbW/X+4PLXD3hTeyro
+         XMqcEagdrGN5NURX0L6R0oPpkf8LkkkUJo0DYZf6b68EQ+TuLV1TgvwIq/q3gwMiYO
+         4YgvEK7vCGplw==
+Received: by keithp.com (Postfix, from userid 1000)
+        id 4874D1E601B9; Thu,  5 May 2022 08:16:12 -0700 (PDT)
+From:   Keith Packard <keithp@keithp.com>
+To:     Johannes Berg <johannes@sipsolutions.net>,
+        Kees Cook <keescook@chromium.org>
 Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Keith Packard <keithp@keithp.com>,
         Francis Laniel <laniel_francis@privacyrequired.com>,
         Daniel Axtens <dja@axtens.net>,
         Dan Williams <dan.j.williams@intel.com>,
@@ -55,7 +69,7 @@ Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
         Bradley Grove <linuxdrivers@attotech.com>,
         brcm80211-dev-list.pdl@broadcom.com,
         Christian Brauner <brauner@kernel.org>,
-        Christian =?ISO-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Christian Lamparter <chunkeey@googlemail.com>,
         Chris Zankel <chris@zankel.net>,
         Cong Wang <cong.wang@bytedance.com>,
@@ -116,7 +130,7 @@ Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
         Muchun Song <songmuchun@bytedance.com>,
         Nathan Chancellor <nathan@kernel.org>, netdev@vger.kernel.org,
         Nick Desaulniers <ndesaulniers@google.com>,
-        Nuno =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+        Nuno =?utf-8?Q?S=C3=A1?= <nuno.sa@analog.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Paul Moore <paul@paul-moore.com>,
         Rich Felker <dalias@aerifal.cx>,
@@ -136,169 +150,61 @@ Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
         xen-devel@lists.xenproject.org,
         Xiu Jianfeng <xiujianfeng@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>
-Date:   Thu, 05 May 2022 15:16:19 +0200
-In-Reply-To: <202205040819.DEA70BD@keescook>
+Subject: Re: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
+In-Reply-To: <970a674df04271b5fd1971b495c6b11a996c20c2.camel@sipsolutions.net>
 References: <20220504014440.3697851-1-keescook@chromium.org>
-         <20220504014440.3697851-3-keescook@chromium.org>
-         <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
-         <202205040819.DEA70BD@keescook>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+ <20220504014440.3697851-3-keescook@chromium.org>
+ <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
+ <202205040819.DEA70BD@keescook>
+ <970a674df04271b5fd1971b495c6b11a996c20c2.camel@sipsolutions.net>
+Date:   Thu, 05 May 2022 08:16:11 -0700
+Message-ID: <871qx8qabo.fsf@keithp.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-malware-bazaar: not-scanned
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2022-05-04 at 08:38 -0700, Kees Cook wrote:
-> 
-> It seemed like requiring a structure be rearranged to take advantage of
-> the "automatic layout introspection" wasn't very friendly. On the other
-> hand, looking at the examples, most of them are already neighboring
-> members. Hmmm.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-A lot of them are, and many could be, though not all.
+Johannes Berg <johannes@sipsolutions.net> writes:
 
-> > or so? The long and duplicated DECLARE_FLEX_ARRAY_ELEMENTS_COUNT and
-> > DECLARE_FLEX_ARRAY_ELEMENTS seems a bit tedious to me, at least in cases
-> > where the struct layout is not the most important thing (or it's already
-> > at the end anyway).
-> 
-> The names aren't great, but I wanted to distinguish "elements" as the
-> array not the count. Yay naming.
+> Yeah, dunno, I guess I'm slightly more on the side of not requiring it,
+> since we don't do the same for kmalloc() etc. and probably really
+> wouldn't want to add kmalloc_s() that does it ;-)
 
-:-)
+I suspect the number of bugs this catches will be small, but they'll be
+in places where the flow of control is complicated. What we want is to
+know that there's no "real" value already present. I'd love it if we
+could make the macro declare a new name (yeah, I know, mixing
+declarations and code).
 
-> However, perhaps the solution is to have _both_. i.e using
-> BOUNDED_FLEX_ARRAY(count_type, count_name, array_type, array_name) for
-> the "neighboring" case, and the DECLARE...{ELEMENTS,COUNT} for the
-> "split" case.
+Of course, we could also end up with people writing a wrapping macro
+that sets the variable to NULL before invoking the underlying macro...
 
-Seems reasonable to me.
+=2D-=20
+=2Dkeith
 
-> And DECLARE_FLEX_ARRAY_ELEMENTS could actually be expanded to include
-> the count_name too, so both methods could be "forward portable" to a
-> future where C grew the syntax for bounded flex arrays.
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I guess I don't see that happening :)
+-----BEGIN PGP SIGNATURE-----
 
-> > This seems rather awkward, having to set it to NULL, then checking rc
-> > (and possibly needing a separate variable for it), etc.
-> 
-> I think the errno return is completely required. I had an earlier version
-> of this that was much more like a drop-in replacement for memcpy that
-> would just truncate or panic, 
-> 
-
-Oh, I didn't mean to imply it should truncate or panic or such - but if
-it returns a pointer it can still be an ERR_PTR() or NULL instead of
-having this separate indication, which even often confuses static type
-checkers since they don't always see the "errno == 0 <=> ptr != NULL"
-relation.
-
-So not saying you shouldn't have any error return - clearly you need
-that, just saying that I'm not sure that having the two separated is
-great.
-
-
-> Requiring instance to be NULL is debatable, but I feel pretty strongly
-> about it because it does handle a class of mistakes (resource leaks),
-> and it's not much of a burden to require a known-good starting state.
-
-Yeah, dunno, I guess I'm slightly more on the side of not requiring it,
-since we don't do the same for kmalloc() etc. and probably really
-wouldn't want to add kmalloc_s() that does it ;-)
-
-I mean, you _could_ go there:
-
-int kmalloc_s(void **ptr, size_t size, gfp_t gfp)
-{
-  void *ret;
-
-  if (*ptr)
-    return -EINVAL;
-
-  ret = kmalloc(size, gfp);
-  if (!ret)
-    return -ENOMEM;
-  *ptr = ret;
-  return 0;  
-}
-
-right? But we don't really do that, and I'm not sure it'd be a win if
-done over the whole code base.
-
-So I'm not really sure why this aspect here should need to be different,
-except of course that you already need the input argument for the magic.
-
-But we could still have (this prototype is theoretical, of course, it
-cannot be implemented in C):
-
-void *mem_to_flex_dup(void *ptr, const void *data, size_t elements,
-                      gfp_t gfp);
-
-
-which isn't really that much better though.
-
-And btw, while I was writing it down I was looking to see if it should
-be "size_t elements" or "size_t len" (like memcpy), it took me some time
-to figure out, and I was looking at the examples:
-
- 1) most of them actually use __u8 or some variant thereof, so you
-    could probably add an even simpler macro like
-       BOUNDED_FLEX_DATA(int, bytes, data)
-    which has the u8 type internally.
-
- 2) Unless I'm confusing myself, you got the firewire change wrong,
-    because __mem_to_flex_dup takes the "elements_count", but the
-    memcpy() there wasn't multiplied by the sizeof(element)? Or maybe
-    the fact that it was declared as __u32 header[0] is wrong, and it
-    should be __u8, but it's all very confusing, and I'm really not
-    sure about this at all.
-
-
-
-One "perhaps you'll laugh me out of the room" suggestion might be to
-actually be able to initialize the whole thing too?
-
-
-mydata = flex_struct_alloc(mydata, GFP_KERNEL,
-                           variable_data, variable_len,
-                           .member = 1,
-                           .another = 2);
-
-(the ordering can't really be otherwise since you have to use
-__VA_ARGS__).
-
-That might reduce some more code too, though I guess it's quite some
-additional magic ... :)
-
-
-> > but still, honestly, I don't like it. As APIs go, it feels a bit
-> > cumbersome and awkward to use, and you really need everyone to use this,
-> > and not say "uh what, I'll memcpy() instead".
-> 
-> Sure, and I have tried to get it down as small as possible. The earlier
-> "just put all the member names in every call" version was horrid. :P
-
-:-D
-
-> I
-> realize it's more work to check errno, but the memcpy() API we've all
-> been trained to use is just plain dangerous. I don't think it's
-> unreasonable to ask people to retrain themselves to avoid it. All that
-> said, yes, I want it to be as friendly as possible.
-> 
-> > Maybe there should also be a realloc() version of it?
-> 
-> Sure! Seems reasonable. I'd like to see the code pattern for this
-> though. Do you have any examples?
-
-I was going to point to struct cfg80211_bss_ies, but I realize now
-they're RCU-managed, so we never resize them anyway ... So maybe it's
-less common than I thought it might be.
-
-I suppose you know better since you converted a lot of stuff already :-)
-
-johannes
+iQIzBAEBCAAdFiEEw4O3eCVWE9/bQJ2R2yIaaQAAABEFAmJz6jsACgkQ2yIaaQAA
+ABGQAg/+NFgE01jSUQAsZc8G2KY9qfifpQ5rzrWtedUNXoOhcAo33tvPHnED0AxP
+Q4MXv/X4TRCTOD/5aBjZeKgy9I9G2jYbZq9iYf5uaD9zIECpE5XyznDZzo15cWBE
+B+W7olq9dqiARf6CuwNpYCjB8zv2ubR42c+faTCJNM63owpN9xpGT/7OEbE0HoKg
+TawmusqNU2nOkT82kjh1iVoK0BbmPSATiKkCH9ZpUVQYOQvsyieFtAlQREms/pip
+ccnHssDAaV1dgAg2NlKDzU30XA3rIIsfX+v3Bh+CWoj77Az7IO8+/V+nmNm5GHyy
+bs8LUQY3Z7/otHyGVfjVN9eU6LcEvstr7tOPLWxF0h+YxJk12uKhUZnmt4NisYrL
+uOcx/MC4y6tx9+kdn1U5KoV+O/ekhW/N/WwYcE6YUYZeol3Ahpve77B7uzLbwyOj
+TMLF83DtVqGLwl1y5mdKUfdeUeYhVMYo+eaq0ChKHdYdKj9ra2BaL1oiTc3lKqVW
+FdHX7C9qLA4LsTzfuDiEQDOrnwMDXhvtQrysTOjlQLIcivarCfxIKQw0co8Vubug
+sceCDXCr5qY2cCr51YqbDSVqEXK5Dos7IGlIyIlZH0YCktIbgOGTEPZDcidplXy2
+LWWWFIK6Viz1AgjSRxRU24qmTbFCFLZdboKDuzsCHG8HDByLmNM=
+=BTwc
+-----END PGP SIGNATURE-----
+--=-=-=--
