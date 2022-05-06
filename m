@@ -2,205 +2,140 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F3EFC433F5
-	for <selinux@archiver.kernel.org>; Fri,  6 May 2022 11:15:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9386FC433F5
+	for <selinux@archiver.kernel.org>; Fri,  6 May 2022 13:49:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234960AbiEFLTS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 May 2022 07:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
+        id S231588AbiEFNxX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 May 2022 09:53:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244042AbiEFLTR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 May 2022 07:19:17 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1333F1EAE5
-        for <selinux@vger.kernel.org>; Fri,  6 May 2022 04:15:32 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-141-BS4UFLXEN-G9ZvjPcy_Qeg-2; Fri, 06 May 2022 12:15:30 +0100
-X-MC-Unique: BS4UFLXEN-G9ZvjPcy_Qeg-2
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Fri, 6 May 2022 12:15:23 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Fri, 6 May 2022 12:15:23 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Johannes Berg' <johannes@sipsolutions.net>,
-        Keith Packard <keithp@keithp.com>,
-        Kees Cook <keescook@chromium.org>
-CC:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Francis Laniel <laniel_francis@privacyrequired.com>,
-        Daniel Axtens <dja@axtens.net>,
-        "Dan Williams" <dan.j.williams@intel.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        "Daniel Vetter" <daniel.vetter@ffwll.ch>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Andrew Gabbasov" <andrew_gabbasov@mentor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Bradley Grove <linuxdrivers@attotech.com>,
-        "brcm80211-dev-list.pdl@broadcom.com" 
-        <brcm80211-dev-list.pdl@broadcom.com>,
-        Christian Brauner <brauner@kernel.org>,
-        =?utf-8?B?Q2hyaXN0aWFuIEfDtnR0c2NoZQ==?= <cgzones@googlemail.com>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        Chris Zankel <chris@zankel.net>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David Gow" <davidgow@google.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        Dexuan Cui <decui@microsoft.com>,
-        "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
-        Eli Cohen <elic@nvidia.com>,
-        "Eric Dumazet" <edumazet@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "Eugeniu Rosca" <erosca@de.adit-jv.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        "Hante Meuleman" <hante.meuleman@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hulk Robot <hulkci@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "kunit-dev@googlegroups.com" <kunit-dev@googlegroups.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        "Lars-Peter Clausen" <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        "linux1394-devel@lists.sourceforge.net" 
-        <linux1394-devel@lists.sourceforge.net>,
-        "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>,
-        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>,
-        "llvm@lists.linux.dev" <llvm@lists.linux.dev>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Louis Peens <louis.peens@corigine.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        "Luiz Augusto von Dentz" <luiz.dentz@gmail.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Max Filippov" <jcmvbkbc@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        =?utf-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "Rich Felker" <dalias@aerifal.cx>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        "SHA-cyfmac-dev-list@infineon.com" <SHA-cyfmac-dev-list@infineon.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        "wcn36xx@lists.infradead.org" <wcn36xx@lists.infradead.org>,
-        Wei Liu <wei.liu@kernel.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        "Yang Yingliang" <yangyingliang@huawei.com>
-Subject: RE: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
-Thread-Topic: [PATCH 02/32] Introduce flexible array struct memcpy() helpers
-Thread-Index: AQHYYLyA1R9dSzYVM0KNCrE+uTLPFK0RsSYw
-Date:   Fri, 6 May 2022 11:15:23 +0000
-Message-ID: <46ec2f1d6e9347eaba1feeb00e8c508a@AcuMS.aculab.com>
-References: <20220504014440.3697851-1-keescook@chromium.org>
-         <20220504014440.3697851-3-keescook@chromium.org>
-         <d3b73d80f66325fdfaf2d1f00ea97ab3db03146a.camel@sipsolutions.net>
-         <202205040819.DEA70BD@keescook>
-         <970a674df04271b5fd1971b495c6b11a996c20c2.camel@sipsolutions.net>
-         <871qx8qabo.fsf@keithp.com> <202205051228.4D5B8CD624@keescook>
-         <87pmkrpwrs.fsf@keithp.com>
- <e1ea4926f105b456f6a86ce30a0380ee5f48fe6d.camel@sipsolutions.net>
-In-Reply-To: <e1ea4926f105b456f6a86ce30a0380ee5f48fe6d.camel@sipsolutions.net>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S230036AbiEFNxW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 May 2022 09:53:22 -0400
+Received: from us-smtp-delivery-74.mimecast.com (us-smtp-delivery-74.mimecast.com [170.10.133.74])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BE8F95DA34
+        for <selinux@vger.kernel.org>; Fri,  6 May 2022 06:49:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651844978;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jkWuunTubxHfs7GNOEIDmyRqsmd41KRhGYLaGrQqxjU=;
+        b=d17mhCjswNMXP9MEk3HbL5Mi2veXRb12eFPQdQpyXHXU2iud7m0eVsvV2hP75iRi4AhEKH
+        RO0Snl65M7hClKl5lIUWgWbfAechg6gtpGGhrvnA5rLOHLuRxI4WS9hmOPfdPZIPzrphE/
+        GhbbKXaDx/q3bTob5jbAP5dNP55ThSo=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-642-DqHYCmddNmaSIglFwwevYg-1; Fri, 06 May 2022 09:49:38 -0400
+X-MC-Unique: DqHYCmddNmaSIglFwwevYg-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-2eb7d137101so65388427b3.12
+        for <selinux@vger.kernel.org>; Fri, 06 May 2022 06:49:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jkWuunTubxHfs7GNOEIDmyRqsmd41KRhGYLaGrQqxjU=;
+        b=O4lyKw8ljTyomAdESmbTCG2qUL4nBziB/IhDty2wNAixkTR5x9Ngk50fsZ6/nJHYlp
+         E21GCqpdJ6QIRdS8e8FxTh3Fq/NeUryexB+5NODL3O/S0kq8gpmnolcpGiqGkjY+xdRL
+         DsYdzBxM1EpGsHPD5PsPSBkbEzBLJ/gxWJA4UnD5OccZmXRUvH8sMYr+f9E279QckwAU
+         2NbLHGuola8ZaQW0D3dVMGCkGJBbzb9BLjA2HECt0ViXXkp1xFMgqB0MW+142JAm9Uk+
+         uPL2IhGwaHAravhMcOy7oZMnNTunc3Vmx0yLV95hBIHxknKmBN5NwNtIMILcR5dK2gYg
+         b60g==
+X-Gm-Message-State: AOAM531sfL8PA2ZVa60XGuqXJF0Lg7ONRskPzMQrs4c/1H1FYvGKM/Li
+        WspyUV/6SLM3S2YOyhWKfAf1bc6zDlJSzoYuXSnqhLU8XXrnB5P5uC8jW5pdBO9epOCT3RIinO0
+        bOF3bDR7vPAPY8i8ZCEb+/GnVq/2xFsNTKg==
+X-Received: by 2002:a25:938d:0:b0:648:c0cd:3339 with SMTP id a13-20020a25938d000000b00648c0cd3339mr2316621ybm.336.1651844977019;
+        Fri, 06 May 2022 06:49:37 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwYZEVWrFw4QwsfgjWHTlDk0o6wPAz0TMx9H9gl6UFoZ+WC5AR7rW4pl2y9YM7MTMhkKzbiQenakpNAl32qj38=
+X-Received: by 2002:a25:938d:0:b0:648:c0cd:3339 with SMTP id
+ a13-20020a25938d000000b00648c0cd3339mr2316608ybm.336.1651844976848; Fri, 06
+ May 2022 06:49:36 -0700 (PDT)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+References: <20220426105118.506847-1-omosnace@redhat.com> <20220426105118.506847-3-omosnace@redhat.com>
+ <CAP+JOzTpJ4XROVjo9-rOmh97rwiEOp2YPxXSuUOQtLbRWX0kGg@mail.gmail.com>
+In-Reply-To: <CAP+JOzTpJ4XROVjo9-rOmh97rwiEOp2YPxXSuUOQtLbRWX0kGg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 6 May 2022 15:49:25 +0200
+Message-ID: <CAFqZXNtiHRZPsGD62y78ek7KwvdhuOqT_CizsaBcNV7ci9ng0A@mail.gmail.com>
+Subject: Re: [PATCH userspace v2 2/2] libsepol,checkpolicy: add support for
+ self keyword in type transitions
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Dominick Grift <dominick.grift@defensec.nl>,
+        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-RnJvbTogSm9oYW5uZXMgQmVyZw0KPiBTZW50OiAwNSBNYXkgMjAyMiAyMToxMw0KPiBPbiBUaHUs
-IDIwMjItMDUtMDUgYXQgMTM6MDggLTA3MDAsIEtlaXRoIFBhY2thcmQgd3JvdGU6DQo+IA0KPiAN
-Cj4gPiBJIGJldCB5b3UndmUgYWxyZWFkeSBjb25zaWRlcmVkIHRoZSBzaW1wbGVyIGZvcm06DQo+
-ID4NCj4gPiAgICAgICAgIHN0cnVjdCBzb21ldGhpbmcgKmluc3RhbmNlID0gbWVtX3RvX2ZsZXhf
-ZHVwKGJ5dGVfYXJyYXksIGNvdW50LCBHRlBfS0VSTkVMKTsNCj4gPiAgICAgICAgIGlmIChJU19F
-UlIoaW5zdGFuY2UpKQ0KPiA+ICAgICAgICAgICAgIHJldHVybiBQVFJfRVJSKGluc3RhbmNlKTsN
-Cj4gPg0KPiANCj4gU2FkbHksIHRoaXMgZG9lc24ndCB3b3JrIGluIGFueSB3YXkgYmVjYXVzZSBt
-ZW1fdG9fZmxleF9kdXAoKSBuZWVkcyB0bw0KPiBrbm93IGF0IGxlYXN0IHRoZSB0eXBlLCBoZW5j
-ZSBwYXNzaW5nICdpbnN0YW5jZScsIHdoaWNoIGlzIHNpbXBsZXIgdGhhbg0KPiBwYXNzaW5nICdz
-dHJ1Y3Qgc29tZXRoaW5nJy4NCg0KWW91IGNhbiB1c2U6DQogICAgICAgICBzdHJ1Y3Qgc29tZXRo
-aW5nICppbnN0YW5jZTsNCiAgICAgICAgIG1lbV90b19mbGV4X2R1cChpbnN0YW5jZSwgYnl0ZV9h
-cnJheSwgY291bnQsIEdGUF9LRVJORUwpOw0KICAgICAgICAgaWYgKElTX0VSUihpbnN0YW5jZSkp
-DQogICAgICAgICAgICAgcmV0dXJuIFBUUl9FUlIoaW5zdGFuY2UpOw0KYW5kIGhhdmUgbWVtX3Rv
-X2ZsZXhfZHVwKCkgKHdoaWNoIG11c3QgYmUgYSAjZGVmaW5lKSB1cGRhdGUgJ2luc3RhbmNlJy4N
-CihZb3UgY2FuIHJlcXVpcmUgJmluc3RhbmNlIC0gYW5kIGp1c3QgcHJlY2VkZSBhbGwgdGhlIHVz
-ZXMgd2l0aA0KYW4gZXh0cmEgJyonIHRvIG1ha2UgaXQgbW9yZSBvYnZpb3VzIHRoZSB2YXJpYWJs
-ZSBpcyB1cGRhdGVkLg0KQnV0IHRoZXJlIGlzIGxpdHRsZSBwb2ludCByZXF1aXJpbmcgaXQgYmUg
-TlVMTC4pDQoNCklmIHlvdSByZWFsbHkgd2FudCB0byBkZWZpbmUgdGhlIHZhcmlhYmxlIG1pZC1i
-bG9jayB5b3UgY2FuIHVzZToNCiAgICAgICAgIG1lbV90b19mbGV4X2R1cChzdHJ1Y3Qgc29tZXRo
-aW5nICosIGluc3RhbmNlLCBieXRlX2FycmF5LCBjb3VudCwgR0ZQX0tFUk5FTCk7DQoNCmJ1dCBJ
-IHJlYWxseSBoYXRlIGhhdmluZyBkZWNsYXJhdGlvbnMgYW55d2hlcmUgb3RoZXIgdGhhbiB0aGUg
-dG9wIG9mDQphIGZ1bmN0aW9uIGJlY2F1c2UgaXQgbWFrZXMgdGhlbSBoYXJkIGZvciB0aGUgJ21r
-MSBleWViYWxsJyB0byBzcG90Lg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExh
-a2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQs
-IFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+On Thu, Apr 28, 2022 at 9:23 PM James Carter <jwcart2@gmail.com> wrote:
+> On Wed, Apr 27, 2022 at 6:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > With the addition of the anon_inode class in the kernel, 'self'
+> > transition rules became useful, but haven't been implemented.
+> >
+> > This patch implements the self keyword in all 'typetransition'
+> > statements at the TE language level and adds the support to the module
+> > policydb format. Note that changing the kernel policydb format is not
+> > necessary at all, as type transitions are always expanded in the kernel
+> > policydb.
+> >
+>
+> These patches also cause "self" to be allowed in type change and type
+> member rules as well. That is fine, but it should be stated.
+
+Good point, I'll update the commit messages.
+
+[...]
+> > diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> > index d7ac2b25..5f593c1d 100644
+> > --- a/libsepol/src/write.c
+> > +++ b/libsepol/src/write.c
+> > @@ -1929,11 +1929,12 @@ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
+> >         return POLICYDB_SUCCESS;
+> >  }
+> >
+> > -static int filename_trans_rule_write(filename_trans_rule_t * t, struct policy_file *fp)
+> > +static int filename_trans_rule_write(policydb_t *p, filename_trans_rule_t *t,
+> > +                                    struct policy_file *fp)
+> >  {
+> >         int nel = 0;
+> > -       size_t items;
+> > -       uint32_t buf[2], len;
+> > +       size_t items, entries;
+> > +       uint32_t buf[3], len;
+> >         filename_trans_rule_t *ftr;
+> >
+> >         for (ftr = t; ftr; ftr = ftr->next)
+>
+>
+> The flags field needs to be cleared if the policy version being
+> written is < MOD_POLICYDB_VERSION_SELF_TYPETRANS.
+>
+> Something like:
+> +        if ((p->policyvers < MOD_POLICYDB_VERSION_SELF_TYPETRANS) &&
+> +            (ftr->flags & RULE_SELF)) {
+> +            WARN(fp->handle, "Module policy version %u does not support using "
+> +                 "\"self\" in a filename type transition rule", p->policyvers);
+> +            ftr->flags &= ~RULE_SELF;
+> +        }
+>
+> A similar check is needed in avrule_write(), but there needs to be a
+> check that the rule is an AVRULE_TYPE as well.
+
+I agree we need to handle this case, but should we really just discard
+the flag? It seems that currently avrule->ttypes is empty if
+(avrule->flags & RULE_SELF) is set, so we would create an empty (or
+maybe even invalid?) rule in the policy module. Setting ttypes =
+stypes would not be equivalent and expanding the rule also doesn't
+seem like a great idea. IMHO we should just return an error on any
+attempt to downgrade a module containing self AVRULE_TYPE rules below
+MOD_POLICYDB_VERSION_SELF_TYPETRANS.
+
+What do you think?
+
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
