@@ -2,176 +2,200 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A7DBC433FE
-	for <selinux@archiver.kernel.org>; Mon,  9 May 2022 09:49:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 822D7C433FE
+	for <selinux@archiver.kernel.org>; Mon,  9 May 2022 10:46:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbiEIJxC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 May 2022 05:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50460 "EHLO
+        id S231458AbiEIKuI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 May 2022 06:50:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234160AbiEIJbi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 May 2022 05:31:38 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8FB7B210887
-        for <selinux@vger.kernel.org>; Mon,  9 May 2022 02:27:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652088458;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=heV4LVy5iAofFAqtLCwAhDQGAQfupGvWAoNkxiMbWLA=;
-        b=Wl4Tms8XSBEsoY287wuSBg0OoaqbNX+rCtu66RL2ENnpqo6vPDIdRnu9IU5uuo3T1xLUnL
-        kSW6UUEKpD1xuEWlNUmozLKh7CBPPAuV0v100LxQaqkVY65C1LO3YvEdsj+dUC/rGMaJJn
-        hENpWWfkSwILclxHPYpbZeJ69hDUYeI=
-Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
- [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-626-M-10pldKMuqIiWJYHquXpA-1; Mon, 09 May 2022 05:27:37 -0400
-X-MC-Unique: M-10pldKMuqIiWJYHquXpA-1
-Received: by mail-yb1-f200.google.com with SMTP id 192-20020a250cc9000000b0064a5bbea6a7so8461259ybm.9
-        for <selinux@vger.kernel.org>; Mon, 09 May 2022 02:27:36 -0700 (PDT)
+        with ESMTP id S231304AbiEIKtu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 May 2022 06:49:50 -0400
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80DC0165D5F;
+        Mon,  9 May 2022 03:44:13 -0700 (PDT)
+Received: by mail-wm1-f53.google.com with SMTP id n6-20020a05600c3b8600b0039492b44ce7so1027208wms.5;
+        Mon, 09 May 2022 03:44:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=heV4LVy5iAofFAqtLCwAhDQGAQfupGvWAoNkxiMbWLA=;
-        b=3atY+xm0af8pgQEBjaJBT2Qbas6hu3Ytl9FDcO/MZu8R821ooZ7bH8dcl6VGj+dPV2
-         mlFa5uXwhsZD9+dE3PmxJFKqMCHLEnzZwb+PwS8zPBdC4z5yyQm5pZ1uyziZBYB8kMAX
-         mEYLgX7DcNNImc6/3RUURKQtntKRsH1MIjh6cosQ6gwz5lOdSR7dzJfoun5sXjwKvahK
-         KzT93zrZdoIIiVSVeyx+4xCBZyCrvjyN0VVw6FBYJForbRqNzrQIh6x4VYP/cAwJMAkF
-         Gvi04YKb9gfPAmR7lo8jORd2pus3EYBYYFZP6E9fvCUtt5WfU8jtz77kcTEHjGiLDDpf
-         GoQQ==
-X-Gm-Message-State: AOAM532HMxR/wZFmdMr8uQtmQJf3Hjzbs0cPkCVM4qIfittji3PDCpWb
-        gilZvcNcFyIVtNrBQkZBGH3d4LOnwoFz+ncCK0XyIorziR3CbWapRxOPFlzNKs0SyID7oIW6jEo
-        d5WQXbFRzDk4Ai/l8MnafIlkKRpnfaT/Czw==
-X-Received: by 2002:a25:74cc:0:b0:648:4697:9722 with SMTP id p195-20020a2574cc000000b0064846979722mr12564881ybc.21.1652088456446;
-        Mon, 09 May 2022 02:27:36 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzkVrHmV1PU8PMQgZX6bBBJxsY1j6kY2Qtk0cTC7+cgMD52jUnR8LiZihxiMoK1w0P+5XANCPkC1t2SCt35NcY=
-X-Received: by 2002:a25:74cc:0:b0:648:4697:9722 with SMTP id
- p195-20020a2574cc000000b0064846979722mr12564869ybc.21.1652088456256; Mon, 09
- May 2022 02:27:36 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=/AsWycpf07jduXjzH2VNWrB+QTWZXkpPIzj9j/mTLnY=;
+        b=WGDzzNprLAPAUZdI9HQvEBLWWgqFG3Gadgv7ghlmlOVTukZlTZvmGp//DST9QwME5g
+         HLY7/xUJwOCTUldW4z7g6bOcOIGNNFkd30NGr8xN4KLXdM6GBvqtaEuQoAni8cepVEV5
+         7WQc+tyZDEpYYgPma54VlV5a0iGHFG5DsMmysegbyVJVF59jV0xSfrpQ2nb9GCaiwPs7
+         AQMnDfbGfZ7IiC2a/irvNpxoNPdiTDV1DZSvtAVT7iz3/pDoSHmoaCB5LiVYeXUKf+Ok
+         YP4NTC3fbzhqgVKOarTh14OjQROOYXzu//314z841oM+4g0+rMD68w4BU2GCfWo1mz0d
+         Iwrg==
+X-Gm-Message-State: AOAM5301iRr2GATQToqmHjJFu2ClevfbjrTFRwtRB3w8poCd/sH2lkay
+        yjd3MAEsnmavQRhLknQK2GM=
+X-Google-Smtp-Source: ABdhPJwyu0UVEUzmpQEdWqmiHLLdF4bAT8AIED/6I8B1uHX2KqdbK4FXRu7TbYZQRO9V4fkufneL3A==
+X-Received: by 2002:a05:600c:26d2:b0:393:fb8c:dc31 with SMTP id 18-20020a05600c26d200b00393fb8cdc31mr22167324wmv.129.1652093052075;
+        Mon, 09 May 2022 03:44:12 -0700 (PDT)
+Received: from [192.168.1.49] (185-219-167-24-static.vivo.cz. [185.219.167.24])
+        by smtp.gmail.com with ESMTPSA id k21-20020adfb355000000b0020c5253d905sm13727381wrd.81.2022.05.09.03.44.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 May 2022 03:44:11 -0700 (PDT)
+Message-ID: <09374557-8c8d-1925-340c-784f29630ec5@kernel.org>
+Date:   Mon, 9 May 2022 12:44:08 +0200
 MIME-Version: 1.0
-References: <20220426105118.506847-1-omosnace@redhat.com> <20220426105118.506847-3-omosnace@redhat.com>
- <CAP+JOzTpJ4XROVjo9-rOmh97rwiEOp2YPxXSuUOQtLbRWX0kGg@mail.gmail.com>
- <CAFqZXNtiHRZPsGD62y78ek7KwvdhuOqT_CizsaBcNV7ci9ng0A@mail.gmail.com> <CAP+JOzTMNuPiERmtTFgGbP5fWWSgsTkmty3HFnzQoPigc08Wrg@mail.gmail.com>
-In-Reply-To: <CAP+JOzTMNuPiERmtTFgGbP5fWWSgsTkmty3HFnzQoPigc08Wrg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 9 May 2022 11:27:25 +0200
-Message-ID: <CAFqZXNu7puwNG+9w8GAusG++X3nQzmfrv9TZJDgrcqO9hMZ4WA@mail.gmail.com>
-Subject: Re: [PATCH userspace v2 2/2] libsepol,checkpolicy: add support for
- self keyword in type transitions
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Dominick Grift <dominick.grift@defensec.nl>,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH v2 4/8] drivers: use new capable_or functionality
+Content-Language: en-US
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Serge Hallyn <serge@hallyn.com>, Arnd Bergmann <arnd@arndb.de>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Ondrej Zary <linux@zary.sk>,
+        David Yang <davidcomponentone@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Colin Ian King <colin.king@intel.com>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        Julia Lawall <Julia.Lawall@inria.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Du Cheng <ducheng2@gmail.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+References: <20220217145003.78982-2-cgzones@googlemail.com>
+ <20220502160030.131168-1-cgzones@googlemail.com>
+ <20220502160030.131168-3-cgzones@googlemail.com>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <20220502160030.131168-3-cgzones@googlemail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 6, 2022 at 5:42 PM James Carter <jwcart2@gmail.com> wrote:
->
-> On Fri, May 6, 2022 at 9:49 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > On Thu, Apr 28, 2022 at 9:23 PM James Carter <jwcart2@gmail.com> wrote:
-> > > On Wed, Apr 27, 2022 at 6:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > >
-> > > > With the addition of the anon_inode class in the kernel, 'self'
-> > > > transition rules became useful, but haven't been implemented.
-> > > >
-> > > > This patch implements the self keyword in all 'typetransition'
-> > > > statements at the TE language level and adds the support to the module
-> > > > policydb format. Note that changing the kernel policydb format is not
-> > > > necessary at all, as type transitions are always expanded in the kernel
-> > > > policydb.
-> > > >
-> > >
-> > > These patches also cause "self" to be allowed in type change and type
-> > > member rules as well. That is fine, but it should be stated.
-> >
-> > Good point, I'll update the commit messages.
-> >
-> > [...]
-> > > > diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> > > > index d7ac2b25..5f593c1d 100644
-> > > > --- a/libsepol/src/write.c
-> > > > +++ b/libsepol/src/write.c
-> > > > @@ -1929,11 +1929,12 @@ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
-> > > >         return POLICYDB_SUCCESS;
-> > > >  }
-> > > >
-> > > > -static int filename_trans_rule_write(filename_trans_rule_t * t, struct policy_file *fp)
-> > > > +static int filename_trans_rule_write(policydb_t *p, filename_trans_rule_t *t,
-> > > > +                                    struct policy_file *fp)
-> > > >  {
-> > > >         int nel = 0;
-> > > > -       size_t items;
-> > > > -       uint32_t buf[2], len;
-> > > > +       size_t items, entries;
-> > > > +       uint32_t buf[3], len;
-> > > >         filename_trans_rule_t *ftr;
-> > > >
-> > > >         for (ftr = t; ftr; ftr = ftr->next)
-> > >
-> > >
-> > > The flags field needs to be cleared if the policy version being
-> > > written is < MOD_POLICYDB_VERSION_SELF_TYPETRANS.
-> > >
-> > > Something like:
-> > > +        if ((p->policyvers < MOD_POLICYDB_VERSION_SELF_TYPETRANS) &&
-> > > +            (ftr->flags & RULE_SELF)) {
-> > > +            WARN(fp->handle, "Module policy version %u does not support using "
-> > > +                 "\"self\" in a filename type transition rule", p->policyvers);
-> > > +            ftr->flags &= ~RULE_SELF;
-> > > +        }
-> > >
-> > > A similar check is needed in avrule_write(), but there needs to be a
-> > > check that the rule is an AVRULE_TYPE as well.
-> >
-> > I agree we need to handle this case, but should we really just discard
-> > the flag? It seems that currently avrule->ttypes is empty if
-> > (avrule->flags & RULE_SELF) is set, so we would create an empty (or
-> > maybe even invalid?) rule in the policy module. Setting ttypes =
-> > stypes would not be equivalent and expanding the rule also doesn't
-> > seem like a great idea. IMHO we should just return an error on any
-> > attempt to downgrade a module containing self AVRULE_TYPE rules below
-> > MOD_POLICYDB_VERSION_SELF_TYPETRANS.
-> >
-> > What do you think?
-> >
->
-> avrule->ttypes is not necessarily empty when self is used. I didn't
-> realize that myself until recently.
-> It is possible to have a (very ugly) rule like:
->   type_transition t1 { t2 attr1 self }:file t3;
+On 02. 05. 22, 18:00, Christian Göttsche wrote:
+> Use the new added capable_or function in appropriate cases, where a task
+> is required to have any of two capabilities.
+> 
+> Reorder CAP_SYS_ADMIN last.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
 
-Ah, so it actually extends the target type list instead of overriding
-it... Yes, looking at the code more carefully I can see that it indeed
-matches this semantic.
+>   drivers/net/caif/caif_serial.c                   | 2 +-
 
-> Ideally, it would be nice to get rid of the empty rules when writing
-> out the policy, but the number of rules has already been determined so
-> there would be extra work involved. Since it doesn't cause any
-> problems (that I have found) and it should be unusual to downgrade the
-> policy version anyway, writing the empty rule seems like the best
-> choice.
->
-> We definitely can't expand the rule because we might not have all of
-> the information for an attribute when we are writing a module's
-> policy.
->
-> Returning an error is fine. We do that when we encounter xperm rules.
-> We just discard the rule for default_range rules using GLBLUB,
-> permissive types, boolean and conditional rules, and filename
-> typetransition rules when the policy version doesn't support them. An
-> argument can be made for either behavior.
+For the above:
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
 
-It would be against my conscience to post a patch that drops rules
-from the policy with "only" a warning, so I'll opt for returning an
-error :)
+
+>   7 files changed, 7 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/media/common/saa7146/saa7146_video.c b/drivers/media/common/saa7146/saa7146_video.c
+> index 66215d9106a4..5eabc2e77cc2 100644
+> --- a/drivers/media/common/saa7146/saa7146_video.c
+> +++ b/drivers/media/common/saa7146/saa7146_video.c
+> @@ -470,7 +470,7 @@ static int vidioc_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuf
+>   
+>   	DEB_EE("VIDIOC_S_FBUF\n");
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+> index 5ca3d0cc653a..4143f380d44d 100644
+> --- a/drivers/media/pci/bt8xx/bttv-driver.c
+> +++ b/drivers/media/pci/bt8xx/bttv-driver.c
+> @@ -2569,8 +2569,7 @@ static int bttv_s_fbuf(struct file *file, void *f,
+>   	const struct bttv_format *fmt;
+>   	int retval;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) &&
+> -		!capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
+> index 48543ad3d595..684208ebfdbd 100644
+> --- a/drivers/media/pci/saa7134/saa7134-video.c
+> +++ b/drivers/media/pci/saa7134/saa7134-video.c
+> @@ -1798,8 +1798,7 @@ static int saa7134_s_fbuf(struct file *file, void *f,
+>   	struct saa7134_dev *dev = video_drvdata(file);
+>   	struct saa7134_format *fmt;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) &&
+> -	   !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/platform/nxp/fsl-viu.c b/drivers/media/platform/nxp/fsl-viu.c
+> index afc96f6db2a1..c5ed4c4a1587 100644
+> --- a/drivers/media/platform/nxp/fsl-viu.c
+> +++ b/drivers/media/platform/nxp/fsl-viu.c
+> @@ -803,7 +803,7 @@ static int vidioc_s_fbuf(struct file *file, void *priv, const struct v4l2_frameb
+>   	const struct v4l2_framebuffer *fb = arg;
+>   	struct viu_fmt *fmt;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* check args */
+> diff --git a/drivers/media/test-drivers/vivid/vivid-vid-cap.c b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> index b9caa4b26209..a0cfcf6c22c4 100644
+> --- a/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> +++ b/drivers/media/test-drivers/vivid/vivid-vid-cap.c
+> @@ -1253,7 +1253,7 @@ int vivid_vid_cap_s_fbuf(struct file *file, void *fh,
+>   	if (dev->multiplanar)
+>   		return -ENOTTY;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	if (dev->overlay_cap_owner)
+> diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+> index 688075859ae4..f17b618d8858 100644
+> --- a/drivers/net/caif/caif_serial.c
+> +++ b/drivers/net/caif/caif_serial.c
+> @@ -326,7 +326,7 @@ static int ldisc_open(struct tty_struct *tty)
+>   	/* No write no play */
+>   	if (tty->ops->write == NULL)
+>   		return -EOPNOTSUPP;
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_TTY_CONFIG))
+> +	if (!capable_or(CAP_SYS_TTY_CONFIG, CAP_SYS_ADMIN))
+>   		return -EPERM;
+>   
+>   	/* release devices to avoid name collision */
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index 8410a25a65c1..9b5d22dd3e7b 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -5319,7 +5319,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+>   	char psf0, psf1;
+>   	int rc;
+>   
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_or(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>   		return -EACCES;
+>   	psf0 = psf1 = 0;
+>   
+
 
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+js
+suse labs
