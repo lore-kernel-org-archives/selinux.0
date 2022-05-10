@@ -2,139 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD331C433FE
-	for <selinux@archiver.kernel.org>; Mon,  9 May 2022 17:18:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22704C433F5
+	for <selinux@archiver.kernel.org>; Tue, 10 May 2022 11:39:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239606AbiEIRWM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 May 2022 13:22:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
+        id S238057AbiEJLnd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 10 May 2022 07:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239599AbiEIRWK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 May 2022 13:22:10 -0400
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAC5124DC62;
-        Mon,  9 May 2022 10:18:12 -0700 (PDT)
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id 1B270683; Mon,  9 May 2022 12:12:39 -0500 (CDT)
-Date:   Mon, 9 May 2022 12:12:39 -0500
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Serge Hallyn <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/8] capability: add capable_or to test for multiple
- caps with exactly one audit message
-Message-ID: <20220509171239.GA28406@mail.hallyn.com>
-References: <20220217145003.78982-2-cgzones@googlemail.com>
- <20220502160030.131168-1-cgzones@googlemail.com>
- <20220502160030.131168-8-cgzones@googlemail.com>
+        with ESMTP id S238495AbiEJLnc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 10 May 2022 07:43:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9D81424BB18
+        for <selinux@vger.kernel.org>; Tue, 10 May 2022 04:39:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652182773;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=EdeFh9Bix50UVBlmt8JJzJ2deQwguEbqWXaOBtKfQ+c=;
+        b=DeDDuyMvTo16fyBbsWeF7Stb52XKeGclF0vooK0H1HgmbJi6F16bXKHUIOgNwiqqMvmlXD
+        XIzefXPw3lM6gUnda/4e6Qhl3Xsl95+eF5+L73OvPrnW+gS+zAMZFlyz2Nk5Wz89LuMlv+
+        qO+CA319cCCrCUxYXwzJmkOUaz5z72U=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-186-lZaOf2XLOuScvvINy-4DzQ-1; Tue, 10 May 2022 07:39:32 -0400
+X-MC-Unique: lZaOf2XLOuScvvINy-4DzQ-1
+Received: by mail-wm1-f70.google.com with SMTP id s14-20020a05600c29ce00b00394611a8059so1157527wmd.4
+        for <selinux@vger.kernel.org>; Tue, 10 May 2022 04:39:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EdeFh9Bix50UVBlmt8JJzJ2deQwguEbqWXaOBtKfQ+c=;
+        b=y+vB90g349YrFIqrrrB+ur4FcpA7FCbccaDRxqK7O+HdcDVaM0/hFzV3NMVtMBCO20
+         id1cSKKYPXmmQB1kcSTv86RLaSJfYEI5rsiF8A6hoe9oJl18FjHtU9EZnh3Kd+OtTMhV
+         MHQMtKWPcdxGto5M+dPZ+Y432zhR4L4c2YhZhMfDHMJJugx4l9OwXD+zZjA1Dxnr5ChI
+         BUDnZIOUlz4KVFc3wY0HZSOWwbw04lf3yGzfquOR2irygmUB+Go8g8TiEhwSqBegbCvC
+         Aa3p7uAo38vzH/ccyDW4bf0UhSebTREoDhdkhPJ/BCTHhqA0OZU9MUR/yAW/j07pm0uc
+         gfbg==
+X-Gm-Message-State: AOAM532KAez/09/2AP7mCZmAclT+9ylEwb3YR44X0KC/pJmO0NuaHQ4V
+        NGw+vbsnGi7yVd+SPjUuIuJAgMvjOJrqluyDAAA+szu+IoICEbytlsQFUMhHf0MWdftSkD9U1TA
+        EBhNdNXqVnNgyKgU+3t59ZQowhW9WvQZUYbPXkToFU1Qk6EYkNpLOUPFazavYKpzi9EI8yw==
+X-Received: by 2002:adf:ec8c:0:b0:20a:dfe5:749e with SMTP id z12-20020adfec8c000000b0020adfe5749emr18568135wrn.615.1652182771059;
+        Tue, 10 May 2022 04:39:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwV0rQ+CC755S/DDj49dP63MuJtW/nsTBAVoCfX0rm2n+KoFCnO9MlDbJeZEflrGVN1g8M5ZQ==
+X-Received: by 2002:adf:ec8c:0:b0:20a:dfe5:749e with SMTP id z12-20020adfec8c000000b0020adfe5749emr18568116wrn.615.1652182770803;
+        Tue, 10 May 2022 04:39:30 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id n37-20020a05600c502500b003942a244ee7sm2368855wmr.44.2022.05.10.04.39.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 May 2022 04:39:30 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        James Carter <jwcart2@gmail.com>
+Subject: [PATCH userspace v3 0/2] Support the 'self' keyword in type transitions
+Date:   Tue, 10 May 2022 13:39:27 +0200
+Message-Id: <20220510113929.2780308-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220502160030.131168-8-cgzones@googlemail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 02, 2022 at 06:00:30PM +0200, Christian Göttsche wrote:
-> Add the interface `capable_or()` as an alternative to or multiple
+With the addition of the anon_inode class in the kernel, 'self'
+transition rules became useful, but haven't been implemented.
 
-How about 'capable_contains_oneof(x, y)' or 'capable_of_one(a, b)'?
+This series implements the self keyword support in the CIL & TE
+languages and the module policydb format. The kernel policydb format
+doesn't need any changes, as type transitions are always expanded in the
+kernel policydb. Since type_change and type_member rules are handled by
+the same common code, these are extended with self keyword support as
+well.
 
-> `capable()` calls, like `capable_or(CAP_SYS_NICE, CAP_SYS_ADMIN)`
-> instead of `capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
-> `capable_or()` will in particular generate exactly one audit message,
-> either for the left most capability in effect or, if the task has none,
-> the first one.
-> This is especially helpful with regard to SELinux, where each audit
-> message about a not allowed capability will create an avc denial.
-> Using this function with the least invasive capability as left most
-> argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables policy writers
-> to only allow the least invasive one and SELinux domains pass this check
-> with only capability:sys_nice or capability:sys_admin allowed without
-> any avc denial message.
-> 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> 
-> ---
-> v2:
->    avoid varargs and fix to two capabilities; capable_or3() can be added
->    later if needed
-> ---
->  include/linux/capability.h |  5 +++++
->  kernel/capability.c        | 29 +++++++++++++++++++++++++++++
->  2 files changed, 34 insertions(+)
-> 
-> diff --git a/include/linux/capability.h b/include/linux/capability.h
-> index 65efb74c3585..a16d1edea9b3 100644
-> --- a/include/linux/capability.h
-> +++ b/include/linux/capability.h
-> @@ -207,6 +207,7 @@ extern bool has_ns_capability(struct task_struct *t,
->  extern bool has_capability_noaudit(struct task_struct *t, int cap);
->  extern bool has_ns_capability_noaudit(struct task_struct *t,
->  				      struct user_namespace *ns, int cap);
-> +extern bool capable_or(int cap1, int cap2);
->  extern bool capable(int cap);
->  extern bool ns_capable(struct user_namespace *ns, int cap);
->  extern bool ns_capable_noaudit(struct user_namespace *ns, int cap);
-> @@ -230,6 +231,10 @@ static inline bool has_ns_capability_noaudit(struct task_struct *t,
->  {
->  	return true;
->  }
-> +static inline bool capable_or(int cap1, int cap2)
-> +{
-> +	return true;
-> +}
->  static inline bool capable(int cap)
->  {
->  	return true;
-> diff --git a/kernel/capability.c b/kernel/capability.c
-> index 765194f5d678..cd8f3efe6d08 100644
-> --- a/kernel/capability.c
-> +++ b/kernel/capability.c
-> @@ -435,6 +435,35 @@ bool ns_capable_setid(struct user_namespace *ns, int cap)
->  }
->  EXPORT_SYMBOL(ns_capable_setid);
->  
-> +/**
-> + * capable_or - Determine if the current task has one of two superior capabilities in effect
-> + * @cap1: The capabilities to be tested for first
-> + * @cap2: The capabilities to be tested for secondly
-> + *
-> + * Return true if the current task has at one of the two given superior
+The patches have been tested using the following WIP beakerlib/tmt test:
+https://src.fedoraproject.org/fork/omos/tests/selinux/blob/self-in-tt/f/libsepol/self-keyword-in-type-transitions
 
-s/has at one/has at least one/ ?
+Changes in v3:
+- update commit messages and cover letter to state that other type rules
+  also gain self keyword support with these patches (James Carter)
+- error out in case a policy module containing the newly supported rules
+  is downgraded to an earlier module policy version (James Carter)
 
-> + * capabilities currently available for use, false if not.
-> + *
-> + * In contrast to or'ing capable() this call will create exactly one audit
-> + * message, either for @cap1, if it is granted or both are not permitted,
-> + * or @cap2, if it is granted while the other one is not.
-> + *
-> + * The capabilities should be ordered from least to most invasive, i.e. CAP_SYS_ADMIN last.
-> + *
-> + * This sets PF_SUPERPRIV on the task if the capability is available on the
-> + * assumption that it's about to be used.
-> + */
-> +bool capable_or(int cap1, int cap2)
-> +{
-> +	if (ns_capable_noaudit(&init_user_ns, cap1))
-> +		return ns_capable(&init_user_ns, cap1);
-> +
-> +	if (ns_capable_noaudit(&init_user_ns, cap2))
-> +		return ns_capable(&init_user_ns, cap2);
-> +
-> +	return ns_capable(&init_user_ns, cap1);
+Changes in v2:
+- validate the flags member of filename_trans_rule_t in
+  policy_validate.c (Christian GÃ¶ttsche)
+- add missing error check in filename_trans_rule_write()
+  (Christian GÃ¶ttsche)
 
-Hm, too bad about the repetition of work, but I guess it has to be
-this way right now.
+Ondrej Mosnacek (2):
+  libsepol/cil: add support for self keyword in type transitions
+  libsepol,checkpolicy: add support for self keyword in type transitions
 
-> +}
-> +EXPORT_SYMBOL(capable_or);
-> +
->  /**
->   * capable - Determine if the current task has a superior capability in effect
->   * @cap: The capability to be tested for
-> -- 
-> 2.36.0
+ checkpolicy/policy_define.c                |  42 +++++-
+ libsepol/cil/src/cil_binary.c              | 168 +++++++++++++++------
+ libsepol/cil/src/cil_resolve_ast.c         |  25 ++-
+ libsepol/include/sepol/policydb/policydb.h |   4 +-
+ libsepol/src/expand.c                      |  69 ++++++---
+ libsepol/src/link.c                        |   1 +
+ libsepol/src/module_to_cil.c               |  30 ++--
+ libsepol/src/policydb.c                    |  33 +++-
+ libsepol/src/policydb_validate.c           |   4 +
+ libsepol/src/write.c                       |  32 +++-
+ secilc/test/policy.cil                     |   7 +
+ 11 files changed, 315 insertions(+), 100 deletions(-)
+
+-- 
+2.35.3
+
