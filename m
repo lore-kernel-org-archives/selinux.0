@@ -2,205 +2,450 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B241C433F5
-	for <selinux@archiver.kernel.org>; Thu, 12 May 2022 17:58:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06BB5C433EF
+	for <selinux@archiver.kernel.org>; Thu, 12 May 2022 19:37:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357401AbiELR6x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 May 2022 13:58:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
+        id S241861AbiELThi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 May 2022 15:37:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357371AbiELR6s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 May 2022 13:58:48 -0400
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0EF8C5E65
-        for <selinux@vger.kernel.org>; Thu, 12 May 2022 10:58:47 -0700 (PDT)
-Received: by mail-oi1-x235.google.com with SMTP id w123so7353464oiw.5
-        for <selinux@vger.kernel.org>; Thu, 12 May 2022 10:58:47 -0700 (PDT)
+        with ESMTP id S238899AbiELThg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 May 2022 15:37:36 -0400
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF31262CC9
+        for <selinux@vger.kernel.org>; Thu, 12 May 2022 12:37:34 -0700 (PDT)
+Received: by mail-ot1-x336.google.com with SMTP id y20-20020a056830071400b00606a2ebd91bso3427699ots.5
+        for <selinux@vger.kernel.org>; Thu, 12 May 2022 12:37:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=sW7hriktRNsH1wKB8Ddq3xv2eT/uN/X+U+/RsVYKGSA=;
-        b=bzszQ2NIY0NgsAhVKeJ9VjFiCqLpYtDii9OVfgUlSc265XNM6C3n8XxB4zz18UEoNk
-         F3JGl7D0yiNG7pJs4D5dqAcoklkRJ2dISmbZufkD4tLv2YMseWIY92bou7HhEU4aKOho
-         gXrM+CM44KllEy9ISmv3Zk0PHQn3F6oDAmEMlSR+sYipr55VMEKaV0AWAyIVWGufuts/
-         iShzWr6X9oy64oMHTtL8LDqoYGhyqVIX/oCrmxcS7niFzNFZ3eHydOoSaSilKK8hyM/2
-         Jx2gzdPJuV2BkH4bi/FizDXZg/dPDcX1L5dN5vLDBfrUJqTkKhbpCcnKeKMlVKCgZu5x
-         WnyQ==
+         :cc;
+        bh=msWef0jqezlgv7MLzTw2wGQgt07USSgG19IHR3QGqXY=;
+        b=iWmjioHSOImuP37tu1FOhSoOsjNMZO4qBx+cXuYO4fHl3xbcd5KylWeZ53KPtrwdkd
+         oj/SckgxC/vaDE15W3YTnw2x9ptRaQOLI1DZq4VyfrQxwAWJBTNaHUp4M9W+gtFbrg/p
+         BxLPesLJlu+3apDiev1xe39RVpjn6nPL2fH5NpQa1rw7LOWZXd9g/GAOeyB9Bna1eNU1
+         VkN9D+SM+LljklN0j15o97ec/mrrRk54xZWEWLHIiVNojaWoVung/HHbq85psdsAnh1s
+         9xy1s0pM0HVJWU+ayUx52Cxx+UtNYms9KYZAAOS6MyIpUenYH9250Nz+6qbbAVHSZrs4
+         qN0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=sW7hriktRNsH1wKB8Ddq3xv2eT/uN/X+U+/RsVYKGSA=;
-        b=O+ctXhmZWOoBjCxRF/IgYM2xjahHAQB6vHPzSF3NV2JddCbgE5tDaF7wW8BAu7n0xM
-         gE+CRSyFzANm8w1b9B7UlK0ZI5VE/eMebPMHaG99uQAAn/6MF0L5rN2VgxfbZv9fi5aE
-         OPNQ7uaEC6wpZeU+Kzjs6IC3KYA8mRcl/yR+AtcPUK4SPRppzAGtuj3l0Zg4fFOVwaL7
-         D8Y3NyqtoePt29WxO45t+1p/tSaDxiyfYJoWb7nvcfborv/3U/ouz4RoWSjlSBnVG2xj
-         Lz5x1nR6XMNwyZqleILC71JUOdpDyb9V85atWxCsEofxhJIkYVtxquxa74FA0/bRwnF1
-         jeGA==
-X-Gm-Message-State: AOAM532LcU/Us3cy4apJMIImBTzvN4Z9ihhPZCcI6ZrABNil5RYDMuqG
-        /zWoArSLko6o47D2C3LDzgojSwmnON/TWkfu0hc=
-X-Google-Smtp-Source: ABdhPJzjj2qlT5v23dv74SM4LCFkxayqVHsQfl/Y0qMpdZWhgV5qA1QAWlmfFlWwFvWbA1ZlsMcBkZ4wjCcyU1L2YEI=
-X-Received: by 2002:a05:6808:2082:b0:326:9857:840b with SMTP id
- s2-20020a056808208200b003269857840bmr562765oiw.182.1652378327122; Thu, 12 May
- 2022 10:58:47 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=msWef0jqezlgv7MLzTw2wGQgt07USSgG19IHR3QGqXY=;
+        b=z0KI7Hz1XEIREQTrqGl+Ix1Mzt6LnvVjm8eozOQYCsVVjtPfcqcWhz3j6dLTqyJxqz
+         TQcGRL5t5GMz/FtMHL8fDTjPpCiAinThAulYEHFgort/MJwlI6rMjoWyGIJbrqg2y2wW
+         RU1+qIpq1ZjnZIg63KRRkGGW7OLFTsx8cyCwyT93dQQP0wJ8GDQCLEchRx5FxkOeuQgr
+         yj19LcwLKPRlCrDl2SMgy80/4lpPor6jQke28O9pCttmfIZAmU3KvaP6p145MsdFr3WF
+         aE/kyM8CvdkcMflrtP9dRGntnBe8kDMaSRJMuYyyKmOaoS3AbXWCSdrc05iLCAQUrlHc
+         G0fg==
+X-Gm-Message-State: AOAM532fDdw7wVSAEBxZWaZkMYT6JL4uAlND5BqkP+vqDKnkbScv3Xig
+        iBvWgkLJ779m1jxgaunQfPqGkvjv+o9ghHHcHV3MhMbjibs=
+X-Google-Smtp-Source: ABdhPJyY3KN/L/PKT1bkB33XzAQjCrZBpVWY2yWukvcxgKnJD2ySoxyP4vTCqEcj07s++z1KqMQxHSTLWuT1vUb9/r0=
+X-Received: by 2002:a9d:12f6:0:b0:606:5f8:a407 with SMTP id
+ g109-20020a9d12f6000000b0060605f8a407mr621549otg.154.1652384254010; Thu, 12
+ May 2022 12:37:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220511184132.217891-1-cgzones@googlemail.com>
-In-Reply-To: <20220511184132.217891-1-cgzones@googlemail.com>
+References: <20220506140623.736036-1-vmojzis@redhat.com>
+In-Reply-To: <20220506140623.736036-1-vmojzis@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 12 May 2022 13:58:36 -0400
-Message-ID: <CAP+JOzQfnzb-FRB9rMOiej0YE1ESTOc51JNNdwaWhO5GdmQF_A@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: preserve errno in selinux_log()
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 12 May 2022 15:37:23 -0400
+Message-ID: <CAP+JOzRHZrjAv3UUkbBD=E0SPWgv47PnVyme9bKGNwHAu7DEng@mail.gmail.com>
+Subject: Re: [PATCH] gettext: set _ on module level instead of builtins namespace
+To:     Vit Mojzis <vmojzis@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 12, 2022 at 12:02 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Sun, May 8, 2022 at 10:48 PM Vit Mojzis <vmojzis@redhat.com> wrote:
 >
-> selinux_log() is used in many error branches, where the caller might
-> expect errno to bet set, e.g. label_file.c::lookup_all():
+> Some calls to "_" where unsuccessful because the function was
+> initialized with a different translation domain than the string.
+> e.g. selinux-polgengui calls functions from sepolicy.generate, which end
+> up printing untranslated strings because polgengui uses selinux-gui
+> domain while sepolicy uses selinux-python
 >
->     if (match_count) {
->                 *match_count =3D 0;
->                 result =3D calloc(data->nspec, sizeof(struct spec*));
->         } else {
->                 result =3D calloc(1, sizeof(struct spec*));
->         }
->         if (!result) {
->                 selinux_log(SELINUX_ERROR, "Failed to allocate %zu bytes =
-of data\n",
->                             data->nspec * sizeof(struct spec*));
->                 goto finish;
->         }
+> - Set "_" in module namespace instead of "builtins"
+> - Set the whole "sepolicy.generate()" confirmation as translatable
+> - Drop "codeset" parameter since it is deprecated
 >
-> Preserve errno in the macro wrapper itself, also preventing accidental
-> errno modifications in client specified SELINUX_CB_LOG callbacks.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libselinux/src/callbacks.h              | 3 +++
->  libselinux/src/label_backends_android.c | 2 --
->  libselinux/src/label_file.h             | 2 --
->  libselinux/src/selinux_restorecon.c     | 6 +-----
->  4 files changed, 4 insertions(+), 9 deletions(-)
+>  gui/booleansPage.py                   | 4 ++--
+>  gui/domainsPage.py                    | 4 ++--
+>  gui/fcontextPage.py                   | 4 ++--
+>  gui/loginsPage.py                     | 4 ++--
+>  gui/modulesPage.py                    | 4 ++--
+>  gui/polgengui.py                      | 4 ++--
+>  gui/portsPage.py                      | 4 ++--
+>  gui/semanagePage.py                   | 4 ++--
+>  gui/statusPage.py                     | 4 ++--
+>  gui/system-config-selinux.py          | 4 ++--
+>  gui/usersPage.py                      | 4 ++--
+>  python/chcat/chcat                    | 4 ++--
+>  python/semanage/semanage              | 4 ++--
+>  python/semanage/seobject.py           | 4 ++--
+>  python/sepolicy/sepolicy.py           | 4 ++--
+>  python/sepolicy/sepolicy/__init__.py  | 4 ++--
+>  python/sepolicy/sepolicy/generate.py  | 6 +++---
+>  python/sepolicy/sepolicy/gui.py       | 4 ++--
+>  python/sepolicy/sepolicy/interface.py | 4 ++--
+>  sandbox/sandbox                       | 4 ++--
+>  20 files changed, 41 insertions(+), 41 deletions(-)
 >
-> diff --git a/libselinux/src/callbacks.h b/libselinux/src/callbacks.h
-> index f4dab157..5a4d0f8a 100644
-> --- a/libselinux/src/callbacks.h
-> +++ b/libselinux/src/callbacks.h
-> @@ -5,6 +5,7 @@
->  #ifndef _SELINUX_CALLBACKS_H_
->  #define _SELINUX_CALLBACKS_H_
+> diff --git a/gui/booleansPage.py b/gui/booleansPage.py
+> index dd12b6d6..5beec58b 100644
+> --- a/gui/booleansPage.py
+> +++ b/gui/booleansPage.py
+> @@ -44,10 +44,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/domainsPage.py b/gui/domainsPage.py
+> index 6bbe4de5..e08f34b4 100644
+> --- a/gui/domainsPage.py
+> +++ b/gui/domainsPage.py
+> @@ -36,10 +36,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/fcontextPage.py b/gui/fcontextPage.py
+> index 52292cae..bac2bec3 100644
+> --- a/gui/fcontextPage.py
+> +++ b/gui/fcontextPage.py
+> @@ -53,10 +53,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/loginsPage.py b/gui/loginsPage.py
+> index cbfb0cc2..18b93d8c 100644
+> --- a/gui/loginsPage.py
+> +++ b/gui/loginsPage.py
+> @@ -35,10 +35,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/modulesPage.py b/gui/modulesPage.py
+> index 35a0129b..c546d455 100644
+> --- a/gui/modulesPage.py
+> +++ b/gui/modulesPage.py
+> @@ -36,10 +36,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/polgengui.py b/gui/polgengui.py
+> index 01f541ba..a18f1cba 100644
+> --- a/gui/polgengui.py
+> +++ b/gui/polgengui.py
+> @@ -69,10 +69,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/portsPage.py b/gui/portsPage.py
+> index a537ecc8..54aa80de 100644
+> --- a/gui/portsPage.py
+> +++ b/gui/portsPage.py
+> @@ -41,10 +41,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/semanagePage.py b/gui/semanagePage.py
+> index 5361d69c..1371d4e7 100644
+> --- a/gui/semanagePage.py
+> +++ b/gui/semanagePage.py
+> @@ -28,10 +28,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/statusPage.py b/gui/statusPage.py
+> index a8f079b9..c241ef83 100644
+> --- a/gui/statusPage.py
+> +++ b/gui/statusPage.py
+> @@ -41,10 +41,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/system-config-selinux.py b/gui/system-config-selinux.py
+> index 8c46c987..1b460c99 100644
+> --- a/gui/system-config-selinux.py
+> +++ b/gui/system-config-selinux.py
+> @@ -51,10 +51,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/gui/usersPage.py b/gui/usersPage.py
+> index d15d4c5a..d51bd968 100644
+> --- a/gui/usersPage.py
+> +++ b/gui/usersPage.py
+> @@ -35,10 +35,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/python/chcat/chcat b/python/chcat/chcat
+> index 839ddd3b..e779fcc6 100755
+> --- a/python/chcat/chcat
+> +++ b/python/chcat/chcat
+> @@ -36,10 +36,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except ImportError:
+>      try:
+>          import builtins
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index 12bb159e..8f4e44a7 100644
+> --- a/python/semanage/semanage
+> +++ b/python/semanage/semanage
+> @@ -36,10 +36,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index 69e60db8..ff8f4e9c 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -40,10 +40,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> index 32956e58..7ebe0efa 100755
+> --- a/python/sepolicy/sepolicy.py
+> +++ b/python/sepolicy/sepolicy.py
+> @@ -34,10 +34,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+> index 203ca25f..7208234b 100644
+> --- a/python/sepolicy/sepolicy/__init__.py
+> +++ b/python/sepolicy/sepolicy/__init__.py
+> @@ -29,10 +29,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
+> index 43180ca6..67189fc3 100644
+> --- a/python/sepolicy/sepolicy/generate.py
+> +++ b/python/sepolicy/sepolicy/generate.py
+> @@ -54,10 +54,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> @@ -1372,7 +1372,7 @@ Warning %s does not exist
+>          fd.close()
 >
-> +#include <errno.h>
->  #include <stdio.h>
->  #include <stdlib.h>
->  #include <string.h>
-> @@ -32,9 +33,11 @@ extern int
->  extern pthread_mutex_t log_mutex;
->
->  #define selinux_log(type, ...) do { \
-> +       int saved_errno__ =3D errno; \
->         __pthread_mutex_lock(&log_mutex); \
->         selinux_log_direct(type, __VA_ARGS__); \
->         __pthread_mutex_unlock(&log_mutex); \
-> +       errno =3D saved_errno__; \
->  } while(0)
->
->  #endif                         /* _SELINUX_CALLBACKS_H_ */
-> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/lab=
-el_backends_android.c
-> index 66d4df2d..c2d78360 100644
-> --- a/libselinux/src/label_backends_android.c
-> +++ b/libselinux/src/label_backends_android.c
-> @@ -93,7 +93,6 @@ static int process_line(struct selabel_handle *rec,
->
->         items =3D read_spec_entries(line_buf, &errbuf, 2, &prop, &context=
-);
->         if (items < 0) {
-> -               items =3D errno;
->                 if (errbuf) {
->                         selinux_log(SELINUX_ERROR,
->                                     "%s:  line %u error due to: %s\n", pa=
-th,
-> @@ -103,7 +102,6 @@ static int process_line(struct selabel_handle *rec,
->                                     "%s:  line %u error due to: %m\n", pa=
-th,
->                                     lineno);
->                 }
-> -               errno =3D items;
->                 return -1;
->         }
->
-> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> index b453e13f..190bc175 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -444,7 +444,6 @@ static inline int process_line(struct selabel_handle =
-*rec,
->
->         items =3D read_spec_entries(line_buf, &errbuf, 3, &regex, &type, =
-&context);
->         if (items < 0) {
-> -               rc =3D errno;
->                 if (errbuf) {
->                         selinux_log(SELINUX_ERROR,
->                                     "%s:  line %u error due to: %s\n", pa=
-th,
-> @@ -454,7 +453,6 @@ static inline int process_line(struct selabel_handle =
-*rec,
->                                     "%s:  line %u error due to: %m\n", pa=
-th,
->                                     lineno);
->                 }
-> -               errno =3D rc;
->                 return -1;
->         }
->
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index e6192912..ba7b3692 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -1032,7 +1032,7 @@ static int selinux_restorecon_common(const char *pa=
-thname_orig,
->         struct stat sb;
->         char *pathname =3D NULL, *pathdnamer =3D NULL, *pathdname, *pathb=
-name;
->         char *paths[2] =3D { NULL, NULL };
-> -       int fts_flags, error, sverrno;
-> +       int fts_flags, error;
->         struct dir_hash_node *current =3D NULL;
->
->         if (state.flags.verbose && state.flags.progress)
-> @@ -1286,18 +1286,14 @@ cleanup:
->         return error;
->
->  oom:
-> -       sverrno =3D errno;
->         selinux_log(SELINUX_ERROR, "%s:  Out of memory\n", __func__);
-> -       errno =3D sverrno;
->         error =3D -1;
->         goto cleanup;
->
->  realpatherr:
-> -       sverrno =3D errno;
->         selinux_log(SELINUX_ERROR,
->                     "SELinux: Could not get canonical path for %s restore=
-con: %m.\n",
->                     pathname_orig);
-> -       errno =3D sverrno;
->         error =3D -1;
->         goto cleanup;
->
+>      def generate(self, out_dir=os.getcwd()):
+> -        out = "Created the following files:\n"
+> +        out = _("Created the following files:\n")
+>          out += "%s # %s\n" % (self.write_te(out_dir), _("Type Enforcement file"))
+>          out += "%s # %s\n" % (self.write_if(out_dir), _("Interface file"))
+>          out += "%s # %s\n" % (self.write_fc(out_dir), _("File Contexts file"))
+> diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+> index 4f892f82..b0263740 100644
+> --- a/python/sepolicy/sepolicy/gui.py
+> +++ b/python/sepolicy/sepolicy/gui.py
+> @@ -47,10 +47,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
+> index 9d40aea1..599f97fd 100644
+> --- a/python/sepolicy/sepolicy/interface.py
+> +++ b/python/sepolicy/sepolicy/interface.py
+> @@ -36,10 +36,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
+> diff --git a/sandbox/sandbox b/sandbox/sandbox
+> index 16c43b51..cd5709fb 100644
+> --- a/sandbox/sandbox
+> +++ b/sandbox/sandbox
+> @@ -43,10 +43,10 @@ try:
+>      kwargs = {}
+>      if sys.version_info < (3,):
+>          kwargs['unicode'] = True
+> -    gettext.install(PROGNAME,
+> +    t = gettext.translation(PROGNAME,
+>                      localedir="/usr/share/locale",
+> -                    codeset='utf-8',
+>                      **kwargs)
+> +    _ = t.gettext
+>  except:
+>      try:
+>          import builtins
 > --
-> 2.36.1
+> 2.35.1
 >
