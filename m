@@ -2,489 +2,195 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A226FC433F5
-	for <selinux@archiver.kernel.org>; Fri, 13 May 2022 09:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA237C433F5
+	for <selinux@archiver.kernel.org>; Fri, 13 May 2022 15:44:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379238AbiEMJ4n (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 May 2022 05:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        id S1382175AbiEMPol (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 May 2022 11:44:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348636AbiEMJ4j (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 May 2022 05:56:39 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 729B41C925
-        for <selinux@vger.kernel.org>; Fri, 13 May 2022 02:56:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652435794;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=53XTkzepD0KXtCxK3dLlzPYRyWcQpnqrBlsZVNw6yv4=;
-        b=ftIGDINd2XqtaFc53nd9xcgIXWkigur9ZiJ/q851LBWD13cpDBtPgN07fKWKImGLlyd4i1
-        sKfhyKErZlTSFgHQmueOf+T7mVag8DAXWs+RZJvvsgdEQTj94dKQQcYgYZF4xR5s6MraHz
-        wJ3eD1VE1hMn2s66+NKmR4+mqprDhlo=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-426-C9f9iDmBP7-SYpWc5ctL_Q-1; Fri, 13 May 2022 05:56:33 -0400
-X-MC-Unique: C9f9iDmBP7-SYpWc5ctL_Q-1
-Received: by mail-ej1-f70.google.com with SMTP id qw30-20020a1709066a1e00b006f45e7f44b0so3903892ejc.5
-        for <selinux@vger.kernel.org>; Fri, 13 May 2022 02:56:33 -0700 (PDT)
+        with ESMTP id S1345252AbiEMPok (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 May 2022 11:44:40 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BED83B026
+        for <selinux@vger.kernel.org>; Fri, 13 May 2022 08:44:38 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id w17-20020a17090a529100b001db302efed6so8113684pjh.4
+        for <selinux@vger.kernel.org>; Fri, 13 May 2022 08:44:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ptf+f5eGDE5JGEu9b++jcke6m+bu7vV+b5hUvmlYQQo=;
+        b=SjhK1c9Qotr1qDOqwKlBj3Rw1mlIdcXMiMnONLsDWXIlWQego7JtnDd+2u8lNhcb5o
+         VntS/+cGhwP5NiXqFa0xo4Eurcd+QW1c6ntV0GvlsEyq5axRcQY1ctFnycyCWVGns4We
+         RoLfLtxqMSNKYzeck8DbrFFmqTXggtzGcj49k=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=53XTkzepD0KXtCxK3dLlzPYRyWcQpnqrBlsZVNw6yv4=;
-        b=GlmrPWijzXFqN/qVCxcc4fscm75XB9Mbf+DsGk9UfUTiT2Q3T79sRUTBP76SWLNW8i
-         FZgsYi4yl0xVN4QqpGM76sNcgjYMHh+kDSaXEk7aTmPG6GtTfWxpg/9MmpdsKKxSibSm
-         395CNfZSETk7E+KP1n9L79kkUZa8oA5vndad7Hij2YGPTuOjOJ1oWv0zmHsb8a26Fk5v
-         A1N1c92hJ2/pIfQCli0SWGILJd0y9CTd5JErNo3uO4PTYY5oEF6PDcGJJToZC6Xk/QKP
-         4MpdqvrQhvchK6bvjTMNb2/h2sIaXezbNWq2AGoPIpOWyzG9u4GWiVulGERkmRoUWInu
-         O89g==
-X-Gm-Message-State: AOAM533RM6ZSbBA56l0wxb8ElryzdZoLDIZibQSxCHbc5sU3Seejm322
-        6o41ZNvo+NNjDm9svRTWD+0ZItoB43IlkJWxuZxdBYDmCaCyUdhe2rxvHpyGVmEH+PYX9iyz6kV
-        84PYC5z3vTU/oUqtCz5klkdX6L+V2/eVa4X0w5QRdg+AwhaPorFD+lgHinofGjx0R+E70Og==
-X-Received: by 2002:a05:6402:296:b0:427:e497:29ef with SMTP id l22-20020a056402029600b00427e49729efmr40312887edv.399.1652435791970;
-        Fri, 13 May 2022 02:56:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxUL7ncocfdF5/UK0z6JNHv17c4saWkSZOxWgLuy9ozCrS8IlbIWqObgo3FlKsXvmGJp5OR6A==
-X-Received: by 2002:a05:6402:296:b0:427:e497:29ef with SMTP id l22-20020a056402029600b00427e49729efmr40312861edv.399.1652435791661;
-        Fri, 13 May 2022 02:56:31 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
-        by smtp.gmail.com with ESMTPSA id 13-20020a17090602cd00b006f3ef214e1asm588189ejk.128.2022.05.13.02.56.30
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=ptf+f5eGDE5JGEu9b++jcke6m+bu7vV+b5hUvmlYQQo=;
+        b=HHmZedtBJkF/98YFGXKkcALYMkCrjFDjoT75+gXRTXhwhY+nZLfh8tL658qkU6jzsu
+         YK8sB84AVHtruFK3DoAYhd8AOVHedylRSs5iqk5NUYCIBQ4RIwxqjsNI+Uwy84bwDP1w
+         bwu0W4NA4VT9TFMKKgpBk1vcBVXpAsRf76DZp1gx67+/VzbMVf2OCZxuvCR0RowW4oJP
+         Jy2dLVUWToSQFD+RYhTsnqnRHMnxCvuA7DSELGKGMRM2FCpO4rUK/FjFBR3HxBdcXZNH
+         dGy0ify5setUtDJVOSU5hh2mXcg5YD9UpAIvSpFwk4YeHqCtpJHoB2C/pTPGkCRnRsHo
+         e6Ug==
+X-Gm-Message-State: AOAM533iOgw24wg6Zd18HfFjKvIEI44MOhLKxKF+Co8LEd1dKdAyQmTv
+        XN8W3DuNnDE57b/wUOi4YIn9pw==
+X-Google-Smtp-Source: ABdhPJxasBICZO798rz+17+y+t9nZitCCqENVQI5RwTabPKWbsVJ7C2OmZDJ+yTA2ILgpXFaCw37jw==
+X-Received: by 2002:a17:902:ecc8:b0:15e:9e46:cb7e with SMTP id a8-20020a170902ecc800b0015e9e46cb7emr5389423plh.111.1652456677896;
+        Fri, 13 May 2022 08:44:37 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id q6-20020a170902a3c600b0015e8d4eb1c9sm2059662plb.19.2022.05.13.08.44.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 May 2022 02:56:31 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        James Carter <jwcart2@gmail.com>
-Subject: [PATCH userspace v4 2/2] libsepol,checkpolicy: add support for self keyword in type transitions
-Date:   Fri, 13 May 2022 11:56:28 +0200
-Message-Id: <20220513095628.154274-3-omosnace@redhat.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513095628.154274-1-omosnace@redhat.com>
-References: <20220513095628.154274-1-omosnace@redhat.com>
+        Fri, 13 May 2022 08:44:37 -0700 (PDT)
+Date:   Fri, 13 May 2022 08:44:33 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     David Howells <dhowells@redhat.com>
+Cc:     "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, Alexei Starovoitov <ast@kernel.org>,
+        alsa-devel@alsa-project.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Gross <agross@kernel.org>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Arend van Spriel <aspriel@gmail.com>,
+        Baowen Zheng <baowen.zheng@corigine.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Bradley Grove <linuxdrivers@attotech.com>,
+        brcm80211-dev-list.pdl@broadcom.com,
+        Christian Brauner <brauner@kernel.org>,
+        Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        Christian Lamparter <chunkeey@googlemail.com>,
+        Chris Zankel <chris@zankel.net>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Daniel Axtens <dja@axtens.net>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dan Williams <dan.j.williams@intel.com>,
+        David Gow <davidgow@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        devicetree@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        Eli Cohen <elic@nvidia.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Francis Laniel <laniel_francis@privacyrequired.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Hulk Robot <hulkci@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        James Morris <jmorris@namei.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        John Keeping <john@metanate.com>,
+        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
+        Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
+        kunit-dev@googlegroups.com,
+        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Leon Romanovsky <leon@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        linux1394-devel@lists.sourceforge.net,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+        linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-xtensa@linux-xtensa.org, llvm@lists.linux.dev,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Louis Peens <louis.peens@corigine.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Mark Brown <broonie@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Nathan Chancellor <nathan@kernel.org>, netdev@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Rich Felker <dalias@aerifal.cx>,
+        Rob Herring <robh+dt@kernel.org>,
+        Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        SHA-cyfmac-dev-list@infineon.com,
+        Simon Horman <simon.horman@corigine.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        wcn36xx@lists.infradead.org, Wei Liu <wei.liu@kernel.org>,
+        xen-devel@lists.xenproject.org,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>
+Subject: Re: [PATCH 19/32] afs: Use mem_to_flex_dup() with struct afs_acl
+Message-ID: <202205130841.686F21B64@keescook>
+References: <20220504014440.3697851-20-keescook@chromium.org>
+ <20220504014440.3697851-1-keescook@chromium.org>
+ <898803.1652391665@warthog.procyon.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <898803.1652391665@warthog.procyon.org.uk>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-With the addition of the anon_inode class in the kernel, 'self'
-transition rules became useful, but haven't been implemented.
+On Thu, May 12, 2022 at 10:41:05PM +0100, David Howells wrote:
+> 
+> Kees Cook <keescook@chromium.org> wrote:
+> 
+> >  struct afs_acl {
+> > -	u32	size;
+> > -	u8	data[];
+> > +	DECLARE_FLEX_ARRAY_ELEMENTS_COUNT(u32, size);
+> > +	DECLARE_FLEX_ARRAY_ELEMENTS(u8, data);
+> >  };
+> 
+> Oof...  That's really quite unpleasant syntax.  Is it not possible to have
+> mem_to_flex_dup() and friends work without that?  You are telling them the
+> fields they have to fill in.
 
-The typetransition, typemember, and typechange statements share the
-relevant code, so this patch implements the self keyword in all of them
-at the TE language level and adds the support to the module policydb
-format. Note that changing the kernel policydb format is not necessary
-at all, as type transitions are always expanded in the kernel policydb.
+Other threads discussed this too. I'm hoping to have something more
+flexible (pardon the pun) in v2.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- checkpolicy/policy_define.c                | 42 ++++++++++++-
- libsepol/include/sepol/policydb/policydb.h |  4 +-
- libsepol/src/expand.c                      | 69 ++++++++++++++--------
- libsepol/src/link.c                        |  1 +
- libsepol/src/module_to_cil.c               |  7 +++
- libsepol/src/policydb.c                    | 33 +++++++++--
- libsepol/src/policydb_validate.c           |  4 ++
- libsepol/src/write.c                       | 32 ++++++++--
- 8 files changed, 153 insertions(+), 39 deletions(-)
+> [...]
+> or:
+> 
+> 	ret = mem_to_flex_dup(&acl, buffer, size, GFP_KERNEL);
+> 	if (ret < 0)
+> 
+> (or use != 0 rather than < 0)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 16b78346..7e328edc 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1634,6 +1634,15 @@ static int define_compute_type_helper(int which, avrule_t ** rule)
- 	}
- 	add = 1;
- 	while ((id = queue_remove(id_queue))) {
-+		if (strcmp(id, "self") == 0) {
-+			free(id);
-+			if (add == 0) {
-+				yyerror("-self is not supported");
-+				goto bad;
-+			}
-+			avrule->flags |= RULE_SELF;
-+			continue;
-+		}
- 		if (set_types(&avrule->ttypes, id, &add, 0))
- 			goto bad;
- 	}
-@@ -3300,7 +3309,7 @@ int define_filename_trans(void)
- 	type_datum_t *typdatum;
- 	uint32_t otype;
- 	unsigned int c, s, t;
--	int add, rc;
-+	int add, self, rc;
- 
- 	if (pass == 1) {
- 		/* stype */
-@@ -3333,8 +3342,18 @@ int define_filename_trans(void)
- 			goto bad;
- 	}
- 
--	add =1;
-+	self = 0;
-+	add = 1;
- 	while ((id = queue_remove(id_queue))) {
-+		if (strcmp(id, "self") == 0) {
-+			free(id);
-+			if (add == 0) {
-+				yyerror("-self is not supported");
-+				goto bad;
-+			}
-+			self = 1;
-+			continue;
-+		}
- 		if (set_types(&ttypes, id, &add, 0))
- 			goto bad;
- 	}
-@@ -3396,6 +3415,24 @@ int define_filename_trans(void)
- 					goto bad;
- 				}
- 			}
-+			if (self) {
-+				rc = policydb_filetrans_insert(
-+					policydbp, s+1, s+1, c+1, name,
-+					NULL, otype, NULL
-+				);
-+				if (rc != SEPOL_OK) {
-+					if (rc == SEPOL_EEXIST) {
-+						yyerror2("duplicate filename transition for: filename_trans %s %s %s:%s",
-+							name,
-+							policydbp->p_type_val_to_name[s],
-+							policydbp->p_type_val_to_name[s],
-+							policydbp->p_class_val_to_name[c]);
-+						goto bad;
-+					}
-+					yyerror("out of memory");
-+					goto bad;
-+				}
-+			}
- 		}
- 	
- 		/* Now add the real rule since we didn't find any duplicates */
-@@ -3418,6 +3455,7 @@ int define_filename_trans(void)
- 		}
- 		ftr->tclass = c + 1;
- 		ftr->otype = otype;
-+		ftr->flags = self ? RULE_SELF : 0;
- 	}
- 
- 	free(name);
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 4bf9f05d..de0068a6 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -314,6 +314,7 @@ typedef struct role_allow_rule {
- } role_allow_rule_t;
- 
- typedef struct filename_trans_rule {
-+	uint32_t flags; /* may have RULE_SELF set */
- 	type_set_t stypes;
- 	type_set_t ttypes;
- 	uint32_t tclass;
-@@ -781,9 +782,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define MOD_POLICYDB_VERSION_XPERMS_IOCTL  18
- #define MOD_POLICYDB_VERSION_INFINIBAND		19
- #define MOD_POLICYDB_VERSION_GLBLUB		20
-+#define MOD_POLICYDB_VERSION_SELF_TYPETRANS	21
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_GLBLUB
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_SELF_TYPETRANS
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 7316124f..8d19850e 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1407,6 +1407,40 @@ static int copy_role_trans(expand_state_t * state, role_trans_rule_t * rules)
- 	return 0;
- }
- 
-+static int expand_filename_trans_helper(expand_state_t *state,
-+					filename_trans_rule_t *rule,
-+					unsigned int s, unsigned int t)
-+{
-+	uint32_t mapped_otype, present_otype;
-+	int rc;
-+
-+	mapped_otype = state->typemap[rule->otype - 1];
-+
-+	rc = policydb_filetrans_insert(
-+		state->out, s + 1, t + 1,
-+		rule->tclass, rule->name,
-+		NULL, mapped_otype, &present_otype
-+	);
-+	if (rc == SEPOL_EEXIST) {
-+		/* duplicate rule, ignore */
-+		if (present_otype == mapped_otype)
-+			return 0;
-+
-+		ERR(state->handle, "Conflicting name-based type_transition %s %s:%s \"%s\":  %s vs %s",
-+		    state->out->p_type_val_to_name[s],
-+		    state->out->p_type_val_to_name[t],
-+		    state->out->p_class_val_to_name[rule->tclass - 1],
-+		    rule->name,
-+		    state->out->p_type_val_to_name[present_otype - 1],
-+		    state->out->p_type_val_to_name[mapped_otype - 1]);
-+		return -1;
-+	} else if (rc < 0) {
-+		ERR(state->handle, "Out of memory!");
-+		return -1;
-+	}
-+	return 0;
-+}
-+
- static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *rules)
- {
- 	unsigned int i, j;
-@@ -1417,8 +1451,6 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
- 
- 	cur_rule = rules;
- 	while (cur_rule) {
--		uint32_t mapped_otype, present_otype;
--
- 		ebitmap_init(&stypes);
- 		ebitmap_init(&ttypes);
- 
-@@ -1434,32 +1466,21 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
- 			return -1;
- 		}
- 
--		mapped_otype = state->typemap[cur_rule->otype - 1];
- 
- 		ebitmap_for_each_positive_bit(&stypes, snode, i) {
- 			ebitmap_for_each_positive_bit(&ttypes, tnode, j) {
--				rc = policydb_filetrans_insert(
--					state->out, i + 1, j + 1,
--					cur_rule->tclass, cur_rule->name,
--					NULL, mapped_otype, &present_otype
-+				rc = expand_filename_trans_helper(
-+					state, cur_rule, i, j
- 				);
--				if (rc == SEPOL_EEXIST) {
--					/* duplicate rule, ignore */
--					if (present_otype == mapped_otype)
--						continue;
--
--					ERR(state->handle, "Conflicting name-based type_transition %s %s:%s \"%s\":  %s vs %s",
--					    state->out->p_type_val_to_name[i],
--					    state->out->p_type_val_to_name[j],
--					    state->out->p_class_val_to_name[cur_rule->tclass - 1],
--					    cur_rule->name,
--					    state->out->p_type_val_to_name[present_otype - 1],
--					    state->out->p_type_val_to_name[mapped_otype - 1]);
--					return -1;
--				} else if (rc < 0) {
--					ERR(state->handle, "Out of memory!");
--					return -1;
--				}
-+				if (rc)
-+					return rc;
-+			}
-+			if (cur_rule->flags & RULE_SELF) {
-+				rc = expand_filename_trans_helper(
-+					state, cur_rule, i, i
-+				);
-+				if (rc)
-+					return rc;
- 			}
- 		}
- 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index ecfb5786..7e8313cb 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -1482,6 +1482,7 @@ static int copy_filename_trans_list(filename_trans_rule_t * list,
- 
- 		new_rule->tclass = module->map[SYM_CLASSES][cur->tclass - 1];
- 		new_rule->otype = module->map[SYM_TYPES][cur->otype - 1];
-+		new_rule->flags = cur->flags;
- 
- 		cur = cur->next;
- 	}
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 156a74a2..b35bf055 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -1622,6 +1622,13 @@ static int filename_trans_to_cil(int indent, struct policydb *pdb, struct filena
- 					    rule->name,
- 					    pdb->p_type_val_to_name[rule->otype - 1]);
- 			}
-+			if (rule->flags & RULE_SELF) {
-+				cil_println(indent, "(typetransition %s self %s \"%s\" %s)",
-+					    stypes[stype],
-+					    pdb->p_class_val_to_name[rule->tclass - 1],
-+					    rule->name,
-+					    pdb->p_type_val_to_name[rule->otype - 1]);
-+			}
- 		}
- 
- 		names_destroy(&stypes, &num_stypes);
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 7c99571f..fc260eb6 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -327,6 +327,13 @@ static const struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_IBENDPORT + 1,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_SELF_TYPETRANS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_IBENDPORT + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- 	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
-@@ -446,7 +453,13 @@ static const struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
--
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_SELF_TYPETRANS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- };
- 
- #if 0
-@@ -3822,10 +3835,11 @@ static int role_allow_rule_read(role_allow_rule_t ** r, struct policy_file *fp)
- 	return 0;
- }
- 
--static int filename_trans_rule_read(filename_trans_rule_t ** r, struct policy_file *fp)
-+static int filename_trans_rule_read(policydb_t *p, filename_trans_rule_t **r,
-+				    struct policy_file *fp)
- {
--	uint32_t buf[2], nel;
--	unsigned int i, len;
-+	uint32_t buf[3], nel, i, len;
-+	unsigned int entries;
- 	filename_trans_rule_t *ftr, *lftr;
- 	int rc;
- 
-@@ -3870,11 +3884,18 @@ static int filename_trans_rule_read(filename_trans_rule_t ** r, struct policy_fi
- 		if (type_set_read(&ftr->ttypes, fp))
- 			return -1;
- 
--		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_SELF_TYPETRANS)
-+			entries = 3;
-+		else
-+			entries = 2;
-+
-+		rc = next_entry(buf, fp, sizeof(uint32_t) * entries);
- 		if (rc < 0)
- 			return -1;
- 		ftr->tclass = le32_to_cpu(buf[0]);
- 		ftr->otype = le32_to_cpu(buf[1]);
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_SELF_TYPETRANS)
-+			ftr->flags = le32_to_cpu(buf[2]);
- 	}
- 
- 	return 0;
-@@ -3977,7 +3998,7 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
- 	}
- 
- 	if (p->policyvers >= MOD_POLICYDB_VERSION_FILENAME_TRANS &&
--	    filename_trans_rule_read(&decl->filename_trans_rules, fp))
-+	    filename_trans_rule_read(p, &decl->filename_trans_rules, fp))
- 		return -1;
- 
- 	if (p->policyvers >= MOD_POLICYDB_VERSION_RANGETRANS &&
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 13d9480d..da18282b 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -1184,6 +1184,10 @@ static int validate_filename_trans_rules(sepol_handle_t *handle, filename_trans_
- 			goto bad;
- 		if (validate_value(filename_trans->otype, &flavors[SYM_TYPES]))
- 			goto bad;
-+
-+		/* currently only the RULE_SELF flag can be set */
-+		if ((filename_trans->flags & ~RULE_SELF) != 0)
-+			goto bad;
- 	}
- 
- 	return 0;
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index d7ac2b25..48ed21ea 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1745,6 +1745,14 @@ static int avrule_write(policydb_t *p, avrule_t * avrule,
- 	uint32_t buf[32], len;
- 	class_perm_node_t *cur;
- 
-+	if (p->policyvers < MOD_POLICYDB_VERSION_SELF_TYPETRANS &&
-+	    (avrule->specified & AVRULE_TYPE) &&
-+	    (avrule->flags & RULE_SELF)) {
-+		ERR(fp->handle,
-+		    "Module contains a self rule not supported by the target module policy version");
-+		return POLICYDB_ERROR;
-+	}
-+
- 	items = 0;
- 	buf[items++] = cpu_to_le32(avrule->specified);
- 	buf[items++] = cpu_to_le32(avrule->flags);
-@@ -1929,11 +1937,12 @@ static int role_allow_rule_write(role_allow_rule_t * r, struct policy_file *fp)
- 	return POLICYDB_SUCCESS;
- }
- 
--static int filename_trans_rule_write(filename_trans_rule_t * t, struct policy_file *fp)
-+static int filename_trans_rule_write(policydb_t *p, filename_trans_rule_t *t,
-+				     struct policy_file *fp)
- {
- 	int nel = 0;
--	size_t items;
--	uint32_t buf[2], len;
-+	size_t items, entries;
-+	uint32_t buf[3], len;
- 	filename_trans_rule_t *ftr;
- 
- 	for (ftr = t; ftr; ftr = ftr->next)
-@@ -1962,9 +1971,20 @@ static int filename_trans_rule_write(filename_trans_rule_t * t, struct policy_fi
- 
- 		buf[0] = cpu_to_le32(ftr->tclass);
- 		buf[1] = cpu_to_le32(ftr->otype);
-+		buf[2] = cpu_to_le32(ftr->flags);
- 
--		items = put_entry(buf, sizeof(uint32_t), 2, fp);
--		if (items != 2)
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_SELF_TYPETRANS) {
-+			entries = 3;
-+		} else if (!(ftr->flags & RULE_SELF)) {
-+			entries = 2;
-+		} else {
-+			ERR(fp->handle,
-+			    "Module contains a self rule not supported by the target module policy version");
-+			return POLICYDB_ERROR;
-+		}
-+
-+		items = put_entry(buf, sizeof(uint32_t), entries, fp);
-+		if (items != entries)
- 			return POLICYDB_ERROR;
- 	}
- 	return POLICYDB_SUCCESS;
-@@ -2039,7 +2059,7 @@ static int avrule_decl_write(avrule_decl_t * decl, int num_scope_syms,
- 	}
- 
- 	if (p->policyvers >= MOD_POLICYDB_VERSION_FILENAME_TRANS &&
--	    filename_trans_rule_write(decl->filename_trans_rules, fp))
-+	    filename_trans_rule_write(p, decl->filename_trans_rules, fp))
- 		return POLICYDB_ERROR;
- 
- 	if (p->policyvers >= MOD_POLICYDB_VERSION_RANGETRANS &&
+Sure, I can make the tests more explicit. The kerndoc, etc all shows it's
+using < 0 for errors.
+
 -- 
-2.36.1
-
+Kees Cook
