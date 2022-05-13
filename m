@@ -2,182 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FFF2C43217
-	for <selinux@archiver.kernel.org>; Thu, 12 May 2022 21:48:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D95CC433EF
+	for <selinux@archiver.kernel.org>; Fri, 13 May 2022 09:56:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358935AbiELVsc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 May 2022 17:48:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53888 "EHLO
+        id S230340AbiEMJ4i (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 May 2022 05:56:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358925AbiELVsI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 May 2022 17:48:08 -0400
+        with ESMTP id S1379235AbiEMJ4g (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 May 2022 05:56:36 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B2DB927EB85
-        for <selinux@vger.kernel.org>; Thu, 12 May 2022 14:47:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 60F642B27E
+        for <selinux@vger.kernel.org>; Fri, 13 May 2022 02:56:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652392071;
+        s=mimecast20190719; t=1652435793;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YWzVrdFw3n8EH2Ce8k4daz33bBf83epcMdzHAJNT8tE=;
-        b=PJ+AYPyj8pLd2Z53EbADYFV5StVYRn6S6jED85CI2KX0LlZFLoUwWpJgqxLVR1cCp1TA7w
-        Ee+yFuIUie++p0yEbE/jlRz3u/BKcr+QXYIEz+i/gmydFs8giFyA8SPefd+tYPxjE25Y4f
-        XVAG82zZg9XBaQNlBcyJxcIQAVNriuI=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+         content-transfer-encoding:content-transfer-encoding;
+        bh=/A/pl6VstgfdtzSJv80crgQSx2eN7/oeq9l1Ed6O6oQ=;
+        b=KEBYH/F/gA9i/If75frZS21h2hSGoohjOQssJEh3LjcSu05RiXOMcsh9O4uUPIAJJybeZ6
+        F93WlJyT+SukKuVqwOnYYg4Zpas06bGrQGmaqpE8H0mpIUNh+RjlTxZdc/ALy9eED9NGOA
+        j5XGZ4U/9xIYLdk5xL20IA/FLgLjuKw=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-617-E2haYQIaNmW7kVC3uepXEg-1; Thu, 12 May 2022 17:47:46 -0400
-X-MC-Unique: E2haYQIaNmW7kVC3uepXEg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DD7EB383328C;
-        Thu, 12 May 2022 21:47:45 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.37.67])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A13B84010E23;
-        Thu, 12 May 2022 21:47:31 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <20220504014440.3697851-1-keescook@chromium.org>
-References: <20220504014440.3697851-1-keescook@chromium.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Alexei Starovoitov <ast@kernel.org>, alsa-devel@alsa-project.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Gross <agross@kernel.org>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Baowen Zheng <baowen.zheng@corigine.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Bradley Grove <linuxdrivers@attotech.com>,
-        brcm80211-dev-list.pdl@broadcom.com,
-        Christian Brauner <brauner@kernel.org>,
-        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        Chris Zankel <chris@zankel.net>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Williams <dan.j.williams@intel.com>,
-        David Gow <davidgow@google.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        devicetree@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Eli Cohen <elic@nvidia.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Francis Laniel <laniel_francis@privacyrequired.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Hulk Robot <hulkci@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Jens Axboe <axboe@kernel.dk>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        John Keeping <john@metanate.com>,
-        Juergen Gross <jgross@suse.com>, Kalle Valo <kvalo@kernel.org>,
-        Keith Packard <keithp@keithp.com>, keyrings@vger.kernel.org,
-        kunit-dev@googlegroups.com,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        linux1394-devel@lists.sourceforge.net,
-        linux-afs@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
-        linux-xtensa@linux-xtensa.org, llvm@lists.linux.dev,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Louis Peens <louis.peens@corigine.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mark Brown <broonie@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Nathan Chancellor <nathan@kernel.org>, netdev@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nuno =?utf-8?Q?S=C3=A1?= <nuno.sa@analog.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Rich Felker <dalias@aerifal.cx>,
-        Rob Herring <robh+dt@kernel.org>,
-        Russell King <linux@armlinux.org.uk>, selinux@vger.kernel.org,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        SHA-cyfmac-dev-list@infineon.com,
-        Simon Horman <simon.horman@corigine.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Stefan Richter <stefanr@s5r6.in-berlin.de>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Takashi Iwai <tiwai@suse.com>, Tom Rix <trix@redhat.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        wcn36xx@lists.infradead.org, Wei Liu <wei.liu@kernel.org>,
-        xen-devel@lists.xenproject.org,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>
-Subject: Re: [PATCH 00/32] Introduce flexible array struct memcpy() helpers
+ us-mta-641-H1fdbfdgMSqZ_SNAwWuS9A-1; Fri, 13 May 2022 05:56:31 -0400
+X-MC-Unique: H1fdbfdgMSqZ_SNAwWuS9A-1
+Received: by mail-ej1-f70.google.com with SMTP id qa15-20020a170907868f00b006f4c89bf2e3so3872044ejc.9
+        for <selinux@vger.kernel.org>; Fri, 13 May 2022 02:56:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=/A/pl6VstgfdtzSJv80crgQSx2eN7/oeq9l1Ed6O6oQ=;
+        b=SAjOGqx3J7cXMEknCiuVqM1Pizky9pNxd8LC8YaMeEZVHYsN/GO8kV0rv4B5nbuQ+U
+         oIaqed8NAZAyklJEswz77yHwNKMmjd14sm5NljtI7NVPFR/4cbejiDXb02fSgP6elZ0g
+         YCBpOckfhlQqHJ5iHJAyzG3EDoqBfqJmidCCAQw/xx6LgGgZzyw7VKN6vcY172+f2NbU
+         RJWlwTcSJW/V312Z9agvO6b5GX3I2/Ladn3dMaWuI2tLO6Y52EZR4nsr0QqTWUDEQEkE
+         173Bv5kdFTtHvXtvW9ndfBN3SrEHnd1vU/T29bg8hDM4GDtewj2AL9cB4MlYkM5B3h2F
+         kHtQ==
+X-Gm-Message-State: AOAM533AIIpySEPfbpMxOCsNMiz6XB17UVQZcmoCoEaTaoGoq61SYd2m
+        d8tCCWvFcjC4za9zX0LxFYUD1i7USIxZ81yoND5R0pHT5kYXZCgSOcwIhJAl+0UI1gayTIfOOxZ
+        VzVYNdBjhZCpWmTu7CPiWsHmC5zXzb2s8wrQLybPwum8Qq4ajLUKWVrhaw1fcwLFF4Zt/lw==
+X-Received: by 2002:a17:907:948c:b0:6f5:183f:eb6 with SMTP id dm12-20020a170907948c00b006f5183f0eb6mr3392986ejc.112.1652435789919;
+        Fri, 13 May 2022 02:56:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzjLpX/s2MSIN2d28yhEMNF71WEFnLoj3SXrR2jmQcsz9zEszOtj5VDBrSs8mb3S5qa10nlTg==
+X-Received: by 2002:a17:907:948c:b0:6f5:183f:eb6 with SMTP id dm12-20020a170907948c00b006f5183f0eb6mr3392962ejc.112.1652435789655;
+        Fri, 13 May 2022 02:56:29 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
+        by smtp.gmail.com with ESMTPSA id 13-20020a17090602cd00b006f3ef214e1asm588189ejk.128.2022.05.13.02.56.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 May 2022 02:56:29 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        James Carter <jwcart2@gmail.com>
+Subject: [PATCH userspace v4 0/2] Support the 'self' keyword in type transitions
+Date:   Fri, 13 May 2022 11:56:26 +0200
+Message-Id: <20220513095628.154274-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain
-Date:   Thu, 12 May 2022 22:47:31 +0100
-Message-ID: <899235.1652392051@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+With the addition of the anon_inode class in the kernel, 'self'
+transition rules became useful, but haven't been implemented.
 
-Kees Cook <keescook@chromium.org> wrote:
+This series implements the self keyword support in the CIL & TE
+languages and the module policydb format. The kernel policydb format
+doesn't need any changes, as type transitions are always expanded in the
+kernel policydb. Since type_change and type_member rules are handled by
+the same common code, these are extended with self keyword support as
+well.
 
-> I'm happy to also point out that the conversions (patches 5+) are actually
-> a net reduction in lines of code:
->  49 files changed, 154 insertions(+), 244 deletions(-)
+The patches have been tested using the following WIP beakerlib/tmt test:
+https://src.fedoraproject.org/fork/omos/tests/selinux/blob/self-in-tt/f/libsepol/self-keyword-in-type-rules
 
-That doesn't mean that it's actually code that's clearer to read.  I would say
-that it's actually less clear.  In a bunch of places, you've done something
-like:
+Changes in v4:
+- fix module_to_cil.c behavior for rules with the including self + other
+  types/attributes (James Carter)
+- update the test to verify the above + also type_change and type_member
 
--	e = kmalloc(...);
--	if (!e)
-+	if (__mem_to_flex_dup(&e, ...))
+Changes in v3:
+- update commit messages and cover letter to state that other type rules
+  also gain self keyword support with these patches (James Carter)
+- error out in case a policy module containing the newly supported rules
+  is downgraded to an earlier module policy version (James Carter)
 
-The problem is that, to me at least, it looks like:
+Changes in v2:
+- validate the flags member of filename_trans_rule_t in
+  policy_validate.c (Christian Göttsche)
+- add missing error check in filename_trans_rule_write()
+  (Christian Göttsche)
 
--	e = kmalloc(...);
--	if (kmalloc failed)
-+	if (__mem_to_flex_dup(&e, ...) succeeded)
+Ondrej Mosnacek (2):
+  libsepol/cil: add support for self keyword in type transitions
+  libsepol,checkpolicy: add support for self keyword in type transitions
 
-David
+ checkpolicy/policy_define.c                |  42 +++++-
+ libsepol/cil/src/cil_binary.c              | 168 +++++++++++++++------
+ libsepol/cil/src/cil_resolve_ast.c         |  25 ++-
+ libsepol/include/sepol/policydb/policydb.h |   4 +-
+ libsepol/src/expand.c                      |  69 ++++++---
+ libsepol/src/link.c                        |   1 +
+ libsepol/src/module_to_cil.c               |   7 +
+ libsepol/src/policydb.c                    |  33 +++-
+ libsepol/src/policydb_validate.c           |   4 +
+ libsepol/src/write.c                       |  32 +++-
+ secilc/test/policy.cil                     |   7 +
+ 11 files changed, 302 insertions(+), 90 deletions(-)
+
+-- 
+2.36.1
 
