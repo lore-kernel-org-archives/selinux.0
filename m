@@ -2,56 +2,58 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34422C433EF
-	for <selinux@archiver.kernel.org>; Mon, 16 May 2022 17:14:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 572FAC433F5
+	for <selinux@archiver.kernel.org>; Mon, 16 May 2022 19:01:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344110AbiEPROK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 May 2022 13:14:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48536 "EHLO
+        id S1345167AbiEPTBk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 May 2022 15:01:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230183AbiEPROJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 May 2022 13:14:09 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD3532ECB
-        for <selinux@vger.kernel.org>; Mon, 16 May 2022 10:14:08 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-d6e29fb3d7so20975832fac.7
-        for <selinux@vger.kernel.org>; Mon, 16 May 2022 10:14:08 -0700 (PDT)
+        with ESMTP id S242157AbiEPTBk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 May 2022 15:01:40 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F194F18B12
+        for <selinux@vger.kernel.org>; Mon, 16 May 2022 12:01:38 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-edf3b6b0f2so21374953fac.9
+        for <selinux@vger.kernel.org>; Mon, 16 May 2022 12:01:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=N4IDTTetA4isW2EYHnXJe79pEeDlOTrbwFQ/6ns9wsE=;
-        b=XOjw4fublbMNwAzONIcF75NX8goCi/PNohvFs8oti8q2svcn59B0sd9wqjJ/UFjINc
-         5jqbpS1gSm8bXprIiE4fgV7ZSx+pDO6gJjeKn1LlL7h38IIU/9vQ2pPSaWQHBdhhqB6/
-         iCnN+HAtVZNsLNyShgV+NovXGzS13AQ5ZGT8KRz5i1URAwvQKqcIII0BG2M9hL/NNEql
-         tkvNg0lIkRoL9BjhCjuBrJUmW60ISsMMcKD22ulVXxaXGSv0KkvFu1Hn+q6aXpxog6lT
-         F49cmkJ89FlrKZNX6IRdkJur0Ow1nHiHngS/1nObaLGmZi9h8xzBLXgnIVm6DhGnNhIx
-         3wBw==
+        bh=QB6FjMZ4C1NDN5aBya9j5lzUAFsG1wnOCQf9JJXgfKc=;
+        b=dmsDWwh61w+MDcWTl6Ci2NsKnvVcj6rkPp0LpbnrPkoJ2x2/kYe6eiiJCaRlgI+fuj
+         eZZmzqr9HkrtIosaoRcFVZIqE+sO2hw6Q5zQoP0hcfb6DApXQsLtpNubypDYrJ/KPrkW
+         paRj4qhBOXcAKLTwyD4vKzFlYNiqDYh6GL9OB3QQV9Q1V6ihFH4/704XvGWFmfbf/PQY
+         bmk0gA7EfjpRy51NlLlmRW5t2ujaNjECrM8OzJNzp4TGvVu/5pbHwAERJzrrllbSPyGl
+         DR5FE8UaUnank862Dj2Cl4DzUVPoYPIcE2lHzv461E5IsALbABtMVrCjnEFVcq7hxUX5
+         eDzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=N4IDTTetA4isW2EYHnXJe79pEeDlOTrbwFQ/6ns9wsE=;
-        b=omOz5H+W6YuwQUZ3ZEwJGH0uRgoDM44ABgKQLNbGxjaEY6RvfXtWpcPqRRW68MBYl4
-         4Qxie8lyxB7UMs4nfP6y3xzj/bG8UJRWilDI5/rgn7eZwi/QsXRgNzzTL3XKyC6cDSq/
-         EdAmgYAt1JeJE6luqLsh4SV5sqXM/YDJPZ4RH7tgfXEN7RT4n3UonLNSXKUyCzteuDFY
-         N6PqVGgmvzeWxKf2NiT0vvjKigDyDsLFX8kojwajvgWPoY6QuTis9+EW3MnVvkd2XItX
-         4Sobk2axh0kb8OpIz6QmUmWLVXeizKcImv0J4j1knT4BgLX3wGNXUGxUfUvR/L+kv0QL
-         CdoA==
-X-Gm-Message-State: AOAM533qxDzLHFwzN+tmhB7xuOwwndlAATc796RewO4RWE0HQwqUuzVp
-        58I1Cnb7CH4Ir+j+hiIJjsKq2aiBYaIjfia+T7Deenzv
-X-Google-Smtp-Source: ABdhPJxQrhsTC0s7WUAZx9aLy1G7PaDsPNUgEQmpgqiwJtSzasvPykThDUdLqkza5KPnY5mdxthHVs7wyoadboZq2j0=
-X-Received: by 2002:a05:6870:c692:b0:e9:5368:10df with SMTP id
- cv18-20020a056870c69200b000e9536810dfmr10096606oab.182.1652721248344; Mon, 16
- May 2022 10:14:08 -0700 (PDT)
+        bh=QB6FjMZ4C1NDN5aBya9j5lzUAFsG1wnOCQf9JJXgfKc=;
+        b=WPZz3s9IIPcehRc0eceJvXrZcxEMER8esB+eUiQ/oL3YuLpm/hO2PVoWe6B5Rb7NPk
+         F/ZqWSJH6YN1QBvvYBHsFq91mH4FQ4AJXHKDjRVN/qhAsZeMyI/q8Kr/NEl3j9z88sG/
+         WzgK9oPvp33ZsGgscGySSKCwythAULpkUmY/jtNv+Nzlbpm8RgXV48Z6Q+QPef71va6z
+         yZaacT0ycr5OFoyZ4Lu3i03UTqyGWbDcS91EfUgpfvhljk90SdKIWNNuxXBTQxsSORiP
+         EHpMRA+MEclJM5UR92IJn1NfNvD9C8NvILxyuFVy4ASuDYG6KMyjdTlOjAy8LQstN73D
+         A/PQ==
+X-Gm-Message-State: AOAM533dcJfsxyYmiSPfFqlkpjN2mAOQ96KEssGOZEhJg1K9B6+M2aJu
+        +TKK1+aKt1fFPoxW8gWU8Qw6Cvz1zNiOqQDx0lnsjDAsLgc=
+X-Google-Smtp-Source: ABdhPJxqUoUvGmJZ3VocQQyI7rgDFZ9e/9Dxs3RDKdCdznx61POmQCnB9ZEkrhJ6eMiGT+5wahcdSUODGvwrnOF0IIM=
+X-Received: by 2002:a05:6870:5b8a:b0:e6:589e:201d with SMTP id
+ em10-20020a0568705b8a00b000e6589e201dmr16182798oab.71.1652727697991; Mon, 16
+ May 2022 12:01:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220511184132.217891-1-cgzones@googlemail.com> <CAP+JOzQfnzb-FRB9rMOiej0YE1ESTOc51JNNdwaWhO5GdmQF_A@mail.gmail.com>
-In-Reply-To: <CAP+JOzQfnzb-FRB9rMOiej0YE1ESTOc51JNNdwaWhO5GdmQF_A@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 16 May 2022 13:13:57 -0400
-Message-ID: <CAP+JOzTALVPhf=+HjavbM2Cj0QfCFC0HBrU=mvmq42MpjX0Kuw@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: preserve errno in selinux_log()
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+References: <20220505174420.24537-1-cgzones@googlemail.com>
+ <20220511184225.218062-1-cgzones@googlemail.com> <20220511184225.218062-3-cgzones@googlemail.com>
+ <CAP+JOzQYsC_n=vx=iv6xze0Lk3A1UPVkLqM3EFtytSTLjzxa-Q@mail.gmail.com> <CAP+JOzT512Mq+dTyXM0GPXyTP9w5scd=W3gO=PMBOq1L1Vr5rg@mail.gmail.com>
+In-Reply-To: <CAP+JOzT512Mq+dTyXM0GPXyTP9w5scd=W3gO=PMBOq1L1Vr5rg@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Mon, 16 May 2022 21:01:27 +0200
+Message-ID: <CAJ2a_Dc3f9ALpZvTwBqF-kPiPE3anN7Jz8jjzAqWDNMF3W-VTw@mail.gmail.com>
+Subject: Re: [RFC PATCH 4/4] libselinux: restorecon: pin file to avoid TOCTOU issues
+To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -59,155 +61,221 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 12, 2022 at 1:58 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, 16 May 2022 at 19:13, James Carter <jwcart2@gmail.com> wrote:
 >
-> On Thu, May 12, 2022 at 12:02 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
+> On Thu, May 12, 2022 at 1:39 PM James Carter <jwcart2@gmail.com> wrote:
 > >
-> > selinux_log() is used in many error branches, where the caller might
-> > expect errno to bet set, e.g. label_file.c::lookup_all():
+> > On Wed, May 11, 2022 at 3:32 PM Christian G=C3=B6ttsche
+> > <cgzones@googlemail.com> wrote:
+> > >
+> > > Pin the file to operate on in restorecon_sb() to prevent symlink atta=
+cks
+> > > in between the label database lookup, the current context query and t=
+he
+> > > final context write.  Also don't use the file information from
+> > > fts_read(3), which might also be out of sync.
+> > >
+> > > Due to querying file information twice, one in fts_read(3) needed for
+> > > the cross device check and one on the pinned file descriptor for the
+> > > database lookup, there is a slight slowdown:
+> > >
+> > >     [current]
+> > >     Time (mean =C2=B1 =CF=83):     14.456 s =C2=B1  0.306 s    [User:=
+ 45.863 s, System: 4.463 s]
+> > >     Range (min =E2=80=A6 max):   14.275 s =E2=80=A6 15.294 s    10 ru=
+ns
+> > >
+> > >     [changed]
+> > >     Time (mean =C2=B1 =CF=83):     15.843 s =C2=B1  0.045 s    [User:=
+ 46.274 s, System: 9.495 s]
+> > >     Range (min =E2=80=A6 max):   15.787 s =E2=80=A6 15.916 s    10 ru=
+ns
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> >     if (match_count) {
-> >                 *match_count =3D 0;
-> >                 result =3D calloc(data->nspec, sizeof(struct spec*));
-> >         } else {
-> >                 result =3D calloc(1, sizeof(struct spec*));
-> >         }
-> >         if (!result) {
-> >                 selinux_log(SELINUX_ERROR, "Failed to allocate %zu byte=
-s of data\n",
-> >                             data->nspec * sizeof(struct spec*));
-> >                 goto finish;
-> >         }
+> > Acked-by: James Carter <jwcart2@gmail.com>
 > >
-> > Preserve errno in the macro wrapper itself, also preventing accidental
-> > errno modifications in client specified SELINUX_CB_LOG callbacks.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Merged.
+> Thanks,
+> Jim
 >
+> > > ---
+> > >  libselinux/src/selinux_restorecon.c | 43 +++++++++++++++++----------=
+--
+> > >  1 file changed, 25 insertions(+), 18 deletions(-)
+> > >
+> > > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/sel=
+inux_restorecon.c
+> > > index 42ef30cb..12b85101 100644
+> > > --- a/libselinux/src/selinux_restorecon.c
+> > > +++ b/libselinux/src/selinux_restorecon.c
+> > > @@ -621,13 +621,13 @@ out:
+> > >         return rc;
+> > >  }
+> > >
+> > > -static int restorecon_sb(const char *pathname, const struct stat *sb=
+,
+> > > -                           struct rest_flags *flags, bool first)
+> > > +static int restorecon_sb(const char *pathname, struct rest_flags *fl=
+ags, bool first)
+> > >  {
+> > >         char *newcon =3D NULL;
+> > >         char *curcon =3D NULL;
+> > >         char *newtypecon =3D NULL;
+> > > -       int rc;
+> > > +       int fd =3D -1, rc;
+> > > +       struct stat stat_buf;
+> > >         bool updated =3D false;
+> > >         const char *lookup_path =3D pathname;
+> > >         float pc;
+> > > @@ -642,13 +642,21 @@ static int restorecon_sb(const char *pathname, =
+const struct stat *sb,
+> > >                 lookup_path +=3D rootpathlen;
+> > >         }
+> > >
+> > > +       fd =3D open(pathname, O_PATH | O_NOFOLLOW | O_EXCL);
+> > > +       if (fd < 0)
+> > > +               goto err;
+> > > +
+> > > +       rc =3D fstat(fd, &stat_buf);
 
-Merged.
-Thanks,
-Jim
+According to man:open(2) fstat(2) on a file descriptor obtained via
+O_PATH is only available since Linux 3.6.
+What versions should be supported by libselinux?
+Or should there exist a fallback, checked similarly at [1].
 
-> > ---
-> >  libselinux/src/callbacks.h              | 3 +++
-> >  libselinux/src/label_backends_android.c | 2 --
-> >  libselinux/src/label_file.h             | 2 --
-> >  libselinux/src/selinux_restorecon.c     | 6 +-----
-> >  4 files changed, 4 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/libselinux/src/callbacks.h b/libselinux/src/callbacks.h
-> > index f4dab157..5a4d0f8a 100644
-> > --- a/libselinux/src/callbacks.h
-> > +++ b/libselinux/src/callbacks.h
-> > @@ -5,6 +5,7 @@
-> >  #ifndef _SELINUX_CALLBACKS_H_
-> >  #define _SELINUX_CALLBACKS_H_
-> >
-> > +#include <errno.h>
-> >  #include <stdio.h>
-> >  #include <stdlib.h>
-> >  #include <string.h>
-> > @@ -32,9 +33,11 @@ extern int
-> >  extern pthread_mutex_t log_mutex;
-> >
-> >  #define selinux_log(type, ...) do { \
-> > +       int saved_errno__ =3D errno; \
-> >         __pthread_mutex_lock(&log_mutex); \
-> >         selinux_log_direct(type, __VA_ARGS__); \
-> >         __pthread_mutex_unlock(&log_mutex); \
-> > +       errno =3D saved_errno__; \
-> >  } while(0)
-> >
-> >  #endif                         /* _SELINUX_CALLBACKS_H_ */
-> > diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/l=
-abel_backends_android.c
-> > index 66d4df2d..c2d78360 100644
-> > --- a/libselinux/src/label_backends_android.c
-> > +++ b/libselinux/src/label_backends_android.c
-> > @@ -93,7 +93,6 @@ static int process_line(struct selabel_handle *rec,
-> >
-> >         items =3D read_spec_entries(line_buf, &errbuf, 2, &prop, &conte=
-xt);
-> >         if (items < 0) {
-> > -               items =3D errno;
-> >                 if (errbuf) {
-> >                         selinux_log(SELINUX_ERROR,
-> >                                     "%s:  line %u error due to: %s\n", =
-path,
-> > @@ -103,7 +102,6 @@ static int process_line(struct selabel_handle *rec,
-> >                                     "%s:  line %u error due to: %m\n", =
-path,
-> >                                     lineno);
-> >                 }
-> > -               errno =3D items;
-> >                 return -1;
-> >         }
-> >
-> > diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> > index b453e13f..190bc175 100644
-> > --- a/libselinux/src/label_file.h
-> > +++ b/libselinux/src/label_file.h
-> > @@ -444,7 +444,6 @@ static inline int process_line(struct selabel_handl=
-e *rec,
-> >
-> >         items =3D read_spec_entries(line_buf, &errbuf, 3, &regex, &type=
-, &context);
-> >         if (items < 0) {
-> > -               rc =3D errno;
-> >                 if (errbuf) {
-> >                         selinux_log(SELINUX_ERROR,
-> >                                     "%s:  line %u error due to: %s\n", =
-path,
-> > @@ -454,7 +453,6 @@ static inline int process_line(struct selabel_handl=
-e *rec,
-> >                                     "%s:  line %u error due to: %m\n", =
-path,
-> >                                     lineno);
-> >                 }
-> > -               errno =3D rc;
-> >                 return -1;
-> >         }
-> >
-> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
-ux_restorecon.c
-> > index e6192912..ba7b3692 100644
-> > --- a/libselinux/src/selinux_restorecon.c
-> > +++ b/libselinux/src/selinux_restorecon.c
-> > @@ -1032,7 +1032,7 @@ static int selinux_restorecon_common(const char *=
-pathname_orig,
-> >         struct stat sb;
-> >         char *pathname =3D NULL, *pathdnamer =3D NULL, *pathdname, *pat=
-hbname;
-> >         char *paths[2] =3D { NULL, NULL };
-> > -       int fts_flags, error, sverrno;
-> > +       int fts_flags, error;
-> >         struct dir_hash_node *current =3D NULL;
-> >
-> >         if (state.flags.verbose && state.flags.progress)
-> > @@ -1286,18 +1286,14 @@ cleanup:
-> >         return error;
-> >
-> >  oom:
-> > -       sverrno =3D errno;
-> >         selinux_log(SELINUX_ERROR, "%s:  Out of memory\n", __func__);
-> > -       errno =3D sverrno;
-> >         error =3D -1;
-> >         goto cleanup;
-> >
-> >  realpatherr:
-> > -       sverrno =3D errno;
-> >         selinux_log(SELINUX_ERROR,
-> >                     "SELinux: Could not get canonical path for %s resto=
-recon: %m.\n",
-> >                     pathname_orig);
-> > -       errno =3D sverrno;
-> >         error =3D -1;
-> >         goto cleanup;
-> >
-> > --
-> > 2.36.1
-> >
+
+[1]: https://github.com/SELinuxProject/selinux/blob/9e096e6ef0a87b05c11ce57=
+077ecb20a1b2a6995/libselinux/src/selinux_restorecon.c#L250
+
+> > > +       if (rc < 0)
+> > > +               goto err;
+> > > +
+> > >         if (rootpath !=3D NULL && lookup_path[0] =3D=3D '\0')
+> > >                 /* this is actually the root dir of the alt root. */
+> > >                 rc =3D selabel_lookup_raw(fc_sehandle, &newcon, "/",
+> > > -                                                   sb->st_mode);
+> > > +                                                   stat_buf.st_mode)=
+;
+> > >         else
+> > >                 rc =3D selabel_lookup_raw(fc_sehandle, &newcon, looku=
+p_path,
+> > > -                                                   sb->st_mode);
+> > > +                                                   stat_buf.st_mode)=
+;
+> > >
+> > >         if (rc < 0) {
+> > >                 if (errno =3D=3D ENOENT) {
+> > > @@ -657,10 +665,10 @@ static int restorecon_sb(const char *pathname, =
+const struct stat *sb,
+> > >                                             "Warning no default label=
+ for %s\n",
+> > >                                             lookup_path);
+> > >
+> > > -                       return 0; /* no match, but not an error */
+> > > +                       goto out; /* no match, but not an error */
+> > >                 }
+> > >
+> > > -               return -1;
+> > > +               goto err;
+> > >         }
+> > >
+> > >         if (flags->progress) {
+> > > @@ -680,19 +688,17 @@ static int restorecon_sb(const char *pathname, =
+const struct stat *sb,
+> > >         }
+> > >
+> > >         if (flags->add_assoc) {
+> > > -               rc =3D filespec_add(sb->st_ino, newcon, pathname, fla=
+gs);
+> > > +               rc =3D filespec_add(stat_buf.st_ino, newcon, pathname=
+, flags);
+> > >
+> > >                 if (rc < 0) {
+> > >                         selinux_log(SELINUX_ERROR,
+> > >                                     "filespec_add error: %s\n", pathn=
+ame);
+> > > -                       freecon(newcon);
+> > > -                       return -1;
+> > > +                       goto out1;
+> > >                 }
+> > >
+> > >                 if (rc > 0) {
+> > >                         /* Already an association and it took precede=
+nce. */
+> > > -                       freecon(newcon);
+> > > -                       return 0;
+> > > +                       goto out;
+> > >                 }
+> > >         }
+> > >
+> > > @@ -700,7 +706,7 @@ static int restorecon_sb(const char *pathname, co=
+nst struct stat *sb,
+> > >                 selinux_log(SELINUX_INFO, "%s matched by %s\n",
+> > >                             pathname, newcon);
+> > >
+> > > -       if (lgetfilecon_raw(pathname, &curcon) < 0) {
+> > > +       if (fgetfilecon_raw(fd, &curcon) < 0) {
+> > >                 if (errno !=3D ENODATA)
+> > >                         goto err;
+> > >
+> > > @@ -733,7 +739,7 @@ static int restorecon_sb(const char *pathname, co=
+nst struct stat *sb,
+> > >                 }
+> > >
+> > >                 if (!flags->nochange) {
+> > > -                       if (lsetfilecon(pathname, newcon) < 0)
+> > > +                       if (fsetfilecon(fd, newcon) < 0)
+> > >                                 goto err;
+> > >                         updated =3D true;
+> > >                 }
+> > > @@ -758,6 +764,8 @@ static int restorecon_sb(const char *pathname, co=
+nst struct stat *sb,
+> > >  out:
+> > >         rc =3D 0;
+> > >  out1:
+> > > +       if (fd >=3D 0)
+> > > +               close(fd);
+> > >         freecon(curcon);
+> > >         freecon(newcon);
+> > >         return rc;
+> > > @@ -855,7 +863,6 @@ static void *selinux_restorecon_thread(void *arg)
+> > >         FTSENT *ftsent;
+> > >         int error;
+> > >         char ent_path[PATH_MAX];
+> > > -       struct stat ent_st;
+> > >         bool first =3D false;
+> > >
+> > >         if (state->parallel)
+> > > @@ -953,11 +960,11 @@ loop_body:
+> > >                         /* fall through */
+> > >                 default:
+> > >                         strcpy(ent_path, ftsent->fts_path);
+> > > -                       ent_st =3D *ftsent->fts_statp;
+> > > +
+> > >                         if (state->parallel)
+> > >                                 pthread_mutex_unlock(&state->mutex);
+> > >
+> > > -                       error =3D restorecon_sb(ent_path, &ent_st, &s=
+tate->flags,
+> > > +                       error =3D restorecon_sb(ent_path, &state->fla=
+gs,
+> > >                                               first);
+> > >
+> > >                         if (state->parallel) {
+> > > @@ -1153,7 +1160,7 @@ static int selinux_restorecon_common(const char=
+ *pathname_orig,
+> > >                         goto cleanup;
+> > >                 }
+> > >
+> > > -               error =3D restorecon_sb(pathname, &sb, &state.flags, =
+true);
+> > > +               error =3D restorecon_sb(pathname, &state.flags, true)=
+;
+> > >                 goto cleanup;
+> > >         }
+> > >
+> > > --
+> > > 2.36.1
+> > >
