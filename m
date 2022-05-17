@@ -2,221 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0275AC433FE
-	for <selinux@archiver.kernel.org>; Tue, 17 May 2022 12:26:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25E8CC433EF
+	for <selinux@archiver.kernel.org>; Tue, 17 May 2022 13:26:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345989AbiEQM0f (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 17 May 2022 08:26:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54626 "EHLO
+        id S241884AbiEQN0d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 17 May 2022 09:26:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345996AbiEQM0d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 17 May 2022 08:26:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 61F9ABF6D
-        for <selinux@vger.kernel.org>; Tue, 17 May 2022 05:26:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652790391;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nFIumYQX00kt85dX0qA+6qRhgINuJnwRx4MltJtWDgE=;
-        b=b3CbmxQbUb1qypfuc8CiadYc1OQlYyLXt/eRPaJOiQ+0wLwVK53XutqnFe7NRS2ZJj+0HH
-        iYP5jmEr/mp9ZcG9JBEG85eKuWJ7CH5lL3ACSvLop/N3zrfk1Dv3wMMIa2yuwqIxqqCgSn
-        xGpHt8rrnQkMP5kW5DP/UrzE5z1WdSE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-636-ucP0E55yPZ2a0eEON0YiHg-1; Tue, 17 May 2022 08:26:27 -0400
-X-MC-Unique: ucP0E55yPZ2a0eEON0YiHg-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5D47B800B21;
-        Tue, 17 May 2022 12:26:27 +0000 (UTC)
-Received: from localhost (unknown [10.40.194.210])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0BA37492C14;
-        Tue, 17 May 2022 12:26:26 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: [PATCH] libselinux/utils/getsebool: add options to display
- en-/disabled booleans
-In-Reply-To: <CAJ2a_Df6L3sjTmVHKT7UVVBp9PxB_EJtygQ2gOwbjVopePq=8Q@mail.gmail.com>
-References: <20220428172219.28520-1-cgzones@googlemail.com>
- <87levh8noj.fsf@redhat.com>
- <CAJ2a_Df6L3sjTmVHKT7UVVBp9PxB_EJtygQ2gOwbjVopePq=8Q@mail.gmail.com>
-Date:   Tue, 17 May 2022 14:26:26 +0200
-Message-ID: <87y1z073bh.fsf@redhat.com>
+        with ESMTP id S240551AbiEQN0b (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 17 May 2022 09:26:31 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872E8419BE
+        for <selinux@vger.kernel.org>; Tue, 17 May 2022 06:26:29 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id g6so34737439ejw.1
+        for <selinux@vger.kernel.org>; Tue, 17 May 2022 06:26:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Jn3Iod+qjASDPF/4d0l54Hqv+tM1a7fNKNPQ1VjpqQs=;
+        b=Ge6ui1ldDWJIVvjBA0OvrAG6HFbBBKUHRj++ppX/2MgDZqZ2fxyOhnSLlUx0D5xBFf
+         fBBIkO0SdAIRyuyOegUOVxugCvjadeZF23uob2YbFygVwtKo08mzcEejXJPZqw1bS1Pn
+         OSplBCeg3HAo6rHlObFBdjXFMl6cxluUT+iTLWglAXdLlEDLGql9lMFP9Ix+quMcrEZx
+         nsyKUVt/zc7iZxC0iRB0OfxukpUXoR49GADETIRQFjJUbOe/6i7yWG3KQjinWkIrFPWT
+         6j6ePslQVnpRvsJuDcL8LzkMKUxiNFJnq7oswdTMY3NC0Dht85jsyvSMFwzy2efe+99T
+         8B4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Jn3Iod+qjASDPF/4d0l54Hqv+tM1a7fNKNPQ1VjpqQs=;
+        b=tg9M90S+UDd6Jq9UBh20aIMYTrCdvkG288qUjt+KoU3VueWfVqf98rq0s9hKO5eopb
+         5F4jsvZcm+jWHp+FKG1vJzJU6b9KtzOj3/fRxGbEnEg3iGARBbXJWpq3UjWD0yJYldHn
+         0H4ou9WGrr6JQygosFp6cBlPgSeXtFcx1ZZFHLvzKpSPxFS0VTHQAUsQOtR7qRzzupf1
+         3Bzaa4juIxBg/1HmlpNwksv0D5h38PdvV13YEA++e7ggeG3INZg8rB65ftjoREHD0jjN
+         2rMkH5+uTGHm5xnsjbUdvttQTufTWJc2KnwhRjTcD3OtU5gHKsj/qpddcXkNCxO+PlZt
+         kaEw==
+X-Gm-Message-State: AOAM532CYEGK8EAViiKN3hyky2JmfFs3kPnzdJNnVXwApIXMs5l5oZQz
+        iDXKtPteNr7EygWZtLy3LXHbNx6FfiY=
+X-Google-Smtp-Source: ABdhPJwN3wqH2WAk7bxoIogIZkpFeP5SY3MwYWzgu84+NxWjrwQDmh/elrhr09iHsHEq0fTHvMQhSw==
+X-Received: by 2002:a17:907:6e05:b0:6fe:2f42:449e with SMTP id sd5-20020a1709076e0500b006fe2f42449emr9997947ejc.164.1652793988118;
+        Tue, 17 May 2022 06:26:28 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-112-065-249.95.112.pool.telefonica.de. [95.112.65.249])
+        by smtp.gmail.com with ESMTPSA id ec33-20020a0564020d6100b0042ab48ea729sm3085176edb.88.2022.05.17.06.26.27
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 May 2022 06:26:27 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] ci: declare git repository a safe directory
+Date:   Tue, 17 May 2022 15:26:22 +0200
+Message-Id: <20220517132622.3380-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
+Since version 2.35.2, due to CVE-2022-24765, git refuses to operate by
+default on a repository owned by a different user.
 
-> On Wed, 4 May 2022 at 14:52, Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
->>
->> > Add command line options to getsebool(8) to display either all enabled
->> > or all disabled booleans.
->>
->> I'm curious what would you use this for?
->
-> I tried to list all enabled booleans and `getsebool -a | grep on`
-> listed also ones with 'on' in their name.
-> Using `getsebool -a | grep on'` works however, so this patch is not essen=
-tial.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+test run: https://github.com/cgzones/selinux/actions/runs/2337320823
+---
+ scripts/ci/fedora-test-runner.sh | 1 +
+ 1 file changed, 1 insertion(+)
 
-I see.
-
->>
->> Another comment is bellow
->>
->>
->> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->> > ---
->> >  libselinux/man/man8/getsebool.8 |  8 +++++++-
->> >  libselinux/utils/getsebool.c    | 36 +++++++++++++++++++++++++++------
->> >  2 files changed, 37 insertions(+), 7 deletions(-)
->> >
->> > diff --git a/libselinux/man/man8/getsebool.8 b/libselinux/man/man8/get=
-sebool.8
->> > index d70bf1e4..d8356d36 100644
->> > --- a/libselinux/man/man8/getsebool.8
->> > +++ b/libselinux/man/man8/getsebool.8
->> > @@ -4,7 +4,7 @@ getsebool \- get SELinux boolean value(s)
->> >  .
->> >  .SH "SYNOPSIS"
->> >  .B getsebool
->> > -.RB [ \-a ]
->> > +.RB [ \-a | \-0 | \-1 ]
->> >  .RI [ boolean ]
->> >  .
->> >  .SH "DESCRIPTION"
->> > @@ -26,6 +26,12 @@ their pending values as desired and then committing=
- once.
->> >  .TP
->> >  .B \-a
->> >  Show all SELinux booleans.
->> > +.TP
->> > +.B \-0
->> > +Show all disabled SELinux booleans.
->> > +.TP
->> > +.B \-1
->> > +Show all enabled SELinux booleans.
->> >  .
->> >  .SH AUTHOR
->> >  This manual page was written by Dan Walsh <dwalsh@redhat.com>.
->> > diff --git a/libselinux/utils/getsebool.c b/libselinux/utils/getsebool=
-.c
->> > index 36994536..7fb0b58b 100644
->> > --- a/libselinux/utils/getsebool.c
->> > +++ b/libselinux/utils/getsebool.c
->> > @@ -6,21 +6,31 @@
->> >  #include <string.h>
->> >  #include <selinux/selinux.h>
->> >
->> > +enum list_mode {
->> > +     SPECIFIED,
->> > +     ALL,
->> > +     DISABLED,
->> > +     ENABLED,
->> > +};
->> > +
->> >  static __attribute__ ((__noreturn__)) void usage(const char *progname)
->> >  {
->> > -     fprintf(stderr, "usage:  %s -a or %s boolean...\n", progname, pr=
-ogname);
->> > +     fprintf(stderr, "usage:  %s [-a|-0|-1] or %s boolean...\n", prog=
-name, progname);
->> >       exit(1);
->> >  }
->> >
->> >  int main(int argc, char **argv)
->> >  {
->> > -     int i, get_all =3D 0, rc =3D 0, active, pending, len =3D 0, opt;
->> > +     int i, rc =3D 0, active, pending, len =3D 0, opt;
->> > +     enum list_mode mode =3D SPECIFIED;
->> >       char **names =3D NULL;
->> >
->> > -     while ((opt =3D getopt(argc, argv, "a")) > 0) {
->> > +     while ((opt =3D getopt(argc, argv, "a01")) > 0) {
->> >               switch (opt) {
->> >               case 'a':
->> > -                     if (argc > 2)
->> > +             case '0':
->> > +             case '1':
->> > +                     if (argc > 2 || mode !=3D SPECIFIED)
->> >                               usage(argv[0]);
->> >                       if (is_selinux_enabled() <=3D 0) {
->> >                               fprintf(stderr, "%s:  SELinux is disable=
-d\n",
->> > @@ -39,7 +49,17 @@ int main(int argc, char **argv)
->> >                               printf("No booleans\n");
->> >                               return 0;
->> >                       }
->> > -                     get_all =3D 1;
->> > +                     switch (opt) {
->> > +                     case 'a':
->> > +                             mode =3D ALL;
->> > +                             break;
->> > +                     case '0':
->> > +                             mode =3D DISABLED;
->> > +                             break;
->> > +                     case '1':
->> > +                             mode =3D ENABLED;
->> > +                             break;
->> > +                     }
->>
->> switch(opt) inside switch(opt) block looks strange for me. Would it make
->> sense to have just this switch to set mode and move the code from line
->> 35 around is_selinux_enabled() and security_get_boolean_names() after th=
-e switch?
->>
->
-> Yes, that would make sense; the change I made aimed for a minimal diff si=
-ze.
-
-
-Could you please change it?
-
-
->
->> Petr
->>
->>
->> >                       break;
->> >               default:
->> >                       usage(argv[0]);
->> > @@ -74,7 +94,7 @@ int main(int argc, char **argv)
->> >       for (i =3D 0; i < len; i++) {
->> >               active =3D security_get_boolean_active(names[i]);
->> >               if (active < 0) {
->> > -                     if (get_all && errno =3D=3D EACCES)
->> > +                     if (mode !=3D SPECIFIED && errno =3D=3D EACCES)
->> >                               continue;
->> >                       fprintf(stderr, "Error getting active value for =
-%s\n",
->> >                               names[i]);
->> > @@ -88,6 +108,10 @@ int main(int argc, char **argv)
->> >                       rc =3D -1;
->> >                       goto out;
->> >               }
->> > +             if ((mode =3D=3D ENABLED  && active =3D=3D 0 && pending =
-=3D=3D 0) ||
->> > +                 (mode =3D=3D DISABLED && active =3D=3D 1 && pending =
-=3D=3D 1)) {
->> > +                     continue;
->> > +             }
->> >               char *alt_name =3D selinux_boolean_sub(names[i]);
->> >               if (! alt_name) {
->> >                       perror("Out of memory\n");
->> > --
->> > 2.36.0
->>
+diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
+index 3ce2c3a6..7676f6ea 100755
+--- a/scripts/ci/fedora-test-runner.sh
++++ b/scripts/ci/fedora-test-runner.sh
+@@ -70,6 +70,7 @@ dnf install -y \
+ cd "$SELINUX_DIR"
+ 
+ # Show HEAD commit for sanity checking
++git config --global --add safe.directory "$SELINUX_DIR"
+ git log --oneline -1
+ 
+ #
+-- 
+2.36.1
 
