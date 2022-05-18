@@ -2,101 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C837C433EF
-	for <selinux@archiver.kernel.org>; Wed, 18 May 2022 06:53:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7374CC433F5
+	for <selinux@archiver.kernel.org>; Wed, 18 May 2022 10:32:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231575AbiERGxj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 May 2022 02:53:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49726 "EHLO
+        id S235128AbiERKcc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 May 2022 06:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231520AbiERGxi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 May 2022 02:53:38 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325EA1D320;
-        Tue, 17 May 2022 23:53:37 -0700 (PDT)
-Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4L33bJ0tMDzhZ5T;
-        Wed, 18 May 2022 14:53:00 +0800 (CST)
-Received: from dggpemm500016.china.huawei.com (7.185.36.25) by
- dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 18 May 2022 14:53:35 +0800
-Received: from [10.67.108.157] (10.67.108.157) by
- dggpemm500016.china.huawei.com (7.185.36.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 18 May 2022 14:53:35 +0800
-Message-ID: <6e2534c3-9af1-0c84-96ac-79075f79ab39@huawei.com>
-Date:   Wed, 18 May 2022 14:53:35 +0800
+        with ESMTP id S235098AbiERKc1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 May 2022 06:32:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 617EE1EEC5
+        for <selinux@vger.kernel.org>; Wed, 18 May 2022 03:32:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652869944;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FoO0znx8y7Hgxke2wHi1vn8oHSlnBFJSTFQQvN+Iy5U=;
+        b=NJdn0LMPJdep43k0pD0iq/5PB0WIDXmQvznCamNEyOzvCVAWqB4a0CvQ0iXOTL/wa5q+6Z
+        f/1YJ3/Sg/XhlOXBssDjsMhHtbddbHq8Xt/6lWNIDeo8CKTtKLzRVS0zMqaFrnIVyrvuK8
+        WKzpwNgQMEJwP8cwkOc8xH0lDVeTmjc=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-351-16mESyA9O9qXtlan1VOAwg-1; Wed, 18 May 2022 06:32:23 -0400
+X-MC-Unique: 16mESyA9O9qXtlan1VOAwg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A67143C01DA6;
+        Wed, 18 May 2022 10:32:22 +0000 (UTC)
+Received: from localhost (unknown [10.40.192.180])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 50325492C14;
+        Wed, 18 May 2022 10:32:22 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH] ci: declare git repository a safe directory
+In-Reply-To: <87v8u46qek.fsf@redhat.com>
+References: <20220517132622.3380-1-cgzones@googlemail.com>
+ <87v8u46qek.fsf@redhat.com>
+Date:   Wed, 18 May 2022 12:32:21 +0200
+Message-ID: <87r14r6si2.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH] selinux: add __randomize_layout to selinux_audit_data
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
-CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>, <selinux@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Wang Weiyang <wangweiyang2@huawei.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
-References: <20220518092137.141626-1-gongruiqi1@huawei.com>
- <CAHC9VhTj365p3SJvX+8eBqRO3wddnj0sXtRDp=jEhSdADwiGrg@mail.gmail.com>
-From:   Gong Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <CAHC9VhTj365p3SJvX+8eBqRO3wddnj0sXtRDp=jEhSdADwiGrg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.108.157]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500016.china.huawei.com (7.185.36.25)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Petr Lautrbach <plautrba@redhat.com> writes:
+
+> Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
+>
+>> Since version 2.35.2, due to CVE-2022-24765, git refuses to operate by
+>> default on a repository owned by a different user.
+>>
+>> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+Merged.
 
 
-On 2022/05/18 9:39, Paul Moore wrote:
-> On Tue, May 17, 2022 at 9:21 PM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
->>
->> Randomize the layout of struct selinux_audit_data as suggested in [1],
->> since it contains a pointer to struct selinux_state, an already
->> randomized strucure.
->>
->> [1]: https://github.com/KSPP/linux/issues/188
->>
->> Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
 >> ---
->>  security/selinux/include/avc.h | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
+>> test run: https://github.com/cgzones/selinux/actions/runs/2337320823
+>> ---
+>>  scripts/ci/fedora-test-runner.sh | 1 +
+>>  1 file changed, 1 insertion(+)
 >>
->> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
->> index 2b372f98f2d7..5525b94fd266 100644
->> --- a/security/selinux/include/avc.h
->> +++ b/security/selinux/include/avc.h
->> @@ -53,7 +53,7 @@ struct selinux_audit_data {
->>         u32 denied;
->>         int result;
->>         struct selinux_state *state;
->> -};
->> +} __randomize_layout;
-> 
-> I'll apologize in advance for the stupid question, but does
+>> diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-r=
+unner.sh
+>> index 3ce2c3a6..7676f6ea 100755
+>> --- a/scripts/ci/fedora-test-runner.sh
+>> +++ b/scripts/ci/fedora-test-runner.sh
+>> @@ -70,6 +70,7 @@ dnf install -y \
+>>  cd "$SELINUX_DIR"
+>>=20=20
+>>  # Show HEAD commit for sanity checking
+>> +git config --global --add safe.directory "$SELINUX_DIR"
+>>  git log --oneline -1
+>>=20=20
+>>  #
+>> --=20
+>> 2.36.1
 
-Not at all :)
-
-> __randomize_layout result in any problems when the struct is used in a
-> trace event?  (see include/trace/events/avc.h)
-> 
-
-No, as least it doesn't in the testing I did. I believe we can use the
-struct tagged with __randomize_layout as normal except that 1) it should
-be initialized with a designated initializer, and 2) pointers to this
-type can't be cast to/from pointers to another type. Other operations
-like dereferencing members of the struct (as in
-include/trace/events/avc.h) shouldn't be a problem.
-
-I did a testing to the patch on a qemu vm by running the selinux
-testsuite with tracing events "avc:selinux_audited" enabled. The
-testsuite completed successfully and from the tracing log I saw nothing
-abnormal with my bare eyes. You can do more testing if you want or you
-have other ideas of how to do so ;)
