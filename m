@@ -2,96 +2,68 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C994C433F5
-	for <selinux@archiver.kernel.org>; Sun, 22 May 2022 17:33:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CEC7C4332F
+	for <selinux@archiver.kernel.org>; Mon, 23 May 2022 07:24:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349682AbiEVRdD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 22 May 2022 13:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52232 "EHLO
+        id S229569AbiEWHXz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 May 2022 03:23:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238490AbiEVRdC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 22 May 2022 13:33:02 -0400
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF3522C659;
-        Sun, 22 May 2022 10:33:01 -0700 (PDT)
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id A0C633F4; Sun, 22 May 2022 12:33:00 -0500 (CDT)
-Date:   Sun, 22 May 2022 12:33:00 -0500
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     "Serge E. Hallyn" <serge@hallyn.com>
-Cc:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Eric Dumazet <edumazet@google.com>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH v2 8/8] net: use new capable_or functionality
-Message-ID: <20220522173300.GA24324@mail.hallyn.com>
-References: <20220217145003.78982-2-cgzones@googlemail.com>
- <20220502160030.131168-1-cgzones@googlemail.com>
- <20220502160030.131168-7-cgzones@googlemail.com>
- <20220509171509.GB28406@mail.hallyn.com>
+        with ESMTP id S230009AbiEWHXg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 May 2022 03:23:36 -0400
+Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2a10:3781:2099::123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AAA32EDB
+        for <selinux@vger.kernel.org>; Mon, 23 May 2022 00:15:13 -0700 (PDT)
+Received: from brutus.. (brutus.lan [IPv6:2a10:3781:2099::438])
+        by markus.defensec.nl (Postfix) with ESMTPSA id 4D805FC06CC;
+        Mon, 23 May 2022 09:07:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+        s=default; t=1653289627;
+        bh=N3rYA3cjj6biVXhgKuEKOnP2q5mRmrz3kIVF+n0UNNU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ccs2DSfudB32bv8eRjfMjzJs/XDwLx75QCyPMRjOsUEU3EimwtunOa2CXiuiFfQSP
+         smOKNygVyAyi1dCQ/hpkvKs8i+dPI3ccs66gbrA+wps2l1NPElI8JZr0yW2WL0kWby
+         z8hdOq9LL9giGfLmWUz5PBo+dlgjcW8w868iAYvU=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>
+Subject: [SELinux-notebook PATCH] network_support.md: clarify local port range and name_bind
+Date:   Mon, 23 May 2022 09:06:52 +0200
+Message-Id: <20220523070652.81984-1-dominick.grift@defensec.nl>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220509171509.GB28406@mail.hallyn.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 09, 2022 at 12:15:09PM -0500, Serge E. Hallyn wrote:
-> On Mon, May 02, 2022 at 06:00:29PM +0200, Christian Göttsche wrote:
-> > Use the new added capable_or function in appropriate cases, where a task
-> > is required to have any of two capabilities.
-> > 
-> > Reorder CAP_SYS_ADMIN last.
-> > 
-> > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> 
-> Thanks, for 2-8:
-> 
-> Reviewed-by: Serge Hallyn <serge@hallyn.com>
-> 
-> though I'd still like to talk about the name :)
+Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+---
+ src/network_support.md | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Just checking in - is this being discussed elsewhere?
+diff --git a/src/network_support.md b/src/network_support.md
+index bec725e..05ec0e8 100644
+--- a/src/network_support.md
++++ b/src/network_support.md
+@@ -668,6 +668,17 @@ statements):
+ semanage port -a -t my_server_port_t -p tcp -r s0 12345
+ ```
+ 
++Ports in the local port range can be auto-assigned by the kernel to
++unbound sockets on first use. Controlling binding to ports is only
++useful when the port number is a "name" (i.e. a well-defined value that
++is expected to correspond to a specific service).
++
++The *name_bind* operation is not controlled on sockets associated
++with ports in the local port range:
++```
++sysctl net.ipv4.ip_local_port_range
++```
++
+ ## Labeled Network FileSystem (NFS)
+ 
+ Version 4.2 of NFS supports labeling between client/server and requires
+-- 
+2.36.1
 
-> > ---
-> >  net/caif/caif_socket.c | 2 +-
-> >  net/unix/scm.c         | 2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/net/caif/caif_socket.c b/net/caif/caif_socket.c
-> > index 2b8892d502f7..60498148126c 100644
-> > --- a/net/caif/caif_socket.c
-> > +++ b/net/caif/caif_socket.c
-> > @@ -1036,7 +1036,7 @@ static int caif_create(struct net *net, struct socket *sock, int protocol,
-> >  		.usersize = sizeof_field(struct caifsock, conn_req.param)
-> >  	};
-> >  
-> > -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_NET_ADMIN))
-> > +	if (!capable_or(CAP_NET_ADMIN, CAP_SYS_ADMIN))
-> >  		return -EPERM;
-> >  	/*
-> >  	 * The sock->type specifies the socket type to use.
-> > diff --git a/net/unix/scm.c b/net/unix/scm.c
-> > index aa27a02478dc..821be80e6c85 100644
-> > --- a/net/unix/scm.c
-> > +++ b/net/unix/scm.c
-> > @@ -99,7 +99,7 @@ static inline bool too_many_unix_fds(struct task_struct *p)
-> >  	struct user_struct *user = current_user();
-> >  
-> >  	if (unlikely(user->unix_inflight > task_rlimit(p, RLIMIT_NOFILE)))
-> > -		return !capable(CAP_SYS_RESOURCE) && !capable(CAP_SYS_ADMIN);
-> > +		return !capable_or(CAP_SYS_RESOURCE, CAP_SYS_ADMIN);
-> >  	return false;
-> >  }
-> >  
-> > -- 
-> > 2.36.0
