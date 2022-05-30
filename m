@@ -2,97 +2,108 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E822AC433EF
-	for <selinux@archiver.kernel.org>; Sun, 29 May 2022 22:52:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68D96C433EF
+	for <selinux@archiver.kernel.org>; Mon, 30 May 2022 12:20:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231760AbiE2Wwb convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Sun, 29 May 2022 18:52:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33522 "EHLO
+        id S234975AbiE3MUj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 May 2022 08:20:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230417AbiE2Wwa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 29 May 2022 18:52:30 -0400
-Received: from mx1.polytechnique.org (mx1.polytechnique.org [129.104.30.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D261B45518
-        for <selinux@vger.kernel.org>; Sun, 29 May 2022 15:52:29 -0700 (PDT)
-Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        with ESMTP id S233558AbiE3MUj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 May 2022 08:20:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6C84A6CF6F
+        for <selinux@vger.kernel.org>; Mon, 30 May 2022 05:20:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653913237;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=XxhAPuj8a9B6AJHwMTiQ8h//Us3/GYAKRQLGbjEepho=;
+        b=azidp7HkObMkxXJrrXy1i1ay0EEk7DyRi6rwRQuE2VNxqpGjtLj1cKQNXbfFV4d1Nn9bGL
+        qYtgVf+wR1/JRECwxP7TVaSD2hiB8at6KKZ3RVcCXXx9sM5HKHFecGoRxc8dgpaLBqkuSr
+        lnNTi8vr8VcbiNW0W3ApzoWreoEgkdk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-641-dyhQfix_MgW2KabIp7nIQw-1; Mon, 30 May 2022 08:20:36 -0400
+X-MC-Unique: dyhQfix_MgW2KabIp7nIQw-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id A589156493F
-        for <selinux@vger.kernel.org>; Mon, 30 May 2022 00:52:27 +0200 (CEST)
-Received: by mail-pf1-f181.google.com with SMTP id c65so8529349pfb.1
-        for <selinux@vger.kernel.org>; Sun, 29 May 2022 15:52:27 -0700 (PDT)
-X-Gm-Message-State: AOAM5320Lp5ylro1eqqlPH2yquyOg47M1oXvx5/OTvJ7oX0gROzIm0Uu
-        oN1QWgTn3M+2HMOMknH0xIVV+6s7cGPRMcVTm9c=
-X-Google-Smtp-Source: ABdhPJxAiPVIFHJIMoiZ24nqon8NUSAnvzEz6qetBlH3D4i8sJCIIOYrPhVVBKu+xSr3RT5wBUDhY2TMaXJHxe8rjMA=
-X-Received: by 2002:a63:ba48:0:b0:3fc:136f:a1d7 with SMTP id
- l8-20020a63ba48000000b003fc136fa1d7mr2640689pgu.200.1653864746505; Sun, 29
- May 2022 15:52:26 -0700 (PDT)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0BE9E185A794
+        for <selinux@vger.kernel.org>; Mon, 30 May 2022 12:20:36 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.40.192.197])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9E525492C3B
+        for <selinux@vger.kernel.org>; Mon, 30 May 2022 12:20:35 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] python: Split "semanage import" into two transactions
+Date:   Mon, 30 May 2022 14:20:21 +0200
+Message-Id: <20220530122021.3952270-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-References: <20220520131952.12286-1-cgzones@googlemail.com>
-In-Reply-To: <20220520131952.12286-1-cgzones@googlemail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 30 May 2022 00:52:15 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=k7C5tozzohGREYNuj8OP7VzrN_E3Ng0yi+=Vi0JW3weA@mail.gmail.com>
-Message-ID: <CAJfZ7=k7C5tozzohGREYNuj8OP7VzrN_E3Ng0yi+=Vi0JW3weA@mail.gmail.com>
-Subject: Re: [PATCH] semodule: avoid toctou on output module
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon May 30 00:52:28 2022 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 20, 2022 at 3:20 PM Christian Göttsche
-<cgzones@googlemail.com> wrote:
->
-> Do not check for file existence and open afterwards, open with the
-> exclusive flag (supported in Glibc and musl 0.9.6 and also standardized
-> in C11).
->
-> Found by GitHub CodeQL.
->
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+First transaction applies all deletion operations, so that there are no
+collisions when applying the rest of the changes.
 
-This looks good to me.
+Fixes:
+  # semanage port -a -t http_cache_port_t -r s0 -p tcp 3024
+  # semanage export | semanage import
+  ValueError: Port tcp/3024 already defined
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ python/semanage/semanage | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-Thanks!
-
-> ---
->  policycoreutils/semodule/semodule.c | 13 +++++--------
->  1 file changed, 5 insertions(+), 8 deletions(-)
->
-> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-> index 1ed8e690..48bc28dd 100644
-> --- a/policycoreutils/semodule/semodule.c
-> +++ b/policycoreutils/semodule/semodule.c
-> @@ -550,15 +550,12 @@ int main(int argc, char *argv[])
->                                         goto cleanup_extract;
->                                 }
->
-> -                               if (access(output_path, F_OK) == 0) {
-> -                                       fprintf(stderr, "%s: %s is already extracted with extension %s.\n", argv[0], mode_arg, lang_ext);
-> -                                       result = -1;
-> -                                       goto cleanup_extract;
-> -                               }
-> -
-> -                               output_fd = fopen(output_path, "w");
-> +                               output_fd = fopen(output_path, "wx");
->                                 if (output_fd == NULL) {
-> -                                       fprintf(stderr, "%s: Unable to open %s\n", argv[0], output_path);
-> +                                       if (errno == EEXIST)
-> +                                               fprintf(stderr, "%s: %s is already extracted with extension %s.\n", argv[0], mode_arg, lang_ext);
-> +                                       else
-> +                                               fprintf(stderr, "%s: Unable to open %s:  %s\n", argv[0], output_path, strerror(errno));
->                                         result = -1;
->                                         goto cleanup_extract;
->                                 }
-> --
-> 2.36.1
->
+diff --git a/python/semanage/semanage b/python/semanage/semanage
+index 8f4e44a7..1d828128 100644
+--- a/python/semanage/semanage
++++ b/python/semanage/semanage
+@@ -852,10 +852,29 @@ def handleImport(args):
+     trans = seobject.semanageRecords(args)
+     trans.start()
+ 
++    deleteCommands = []
++    commands = []
++    # separate commands for deletion from the rest so they can be
++    # applied in a separate transaction
+     for l in sys.stdin.readlines():
+         if len(l.strip()) == 0:
+             continue
++        if "-d" in l or "-D" in l:
++            deleteCommands.append(l)
++        else:
++            commands.append(l)
++
++    if deleteCommands:
++        importHelper(deleteCommands)
++        trans.finish()
++        trans.start()
++
++    importHelper(commands)
++    trans.finish()
+ 
++
++def importHelper(commands):
++    for l in commands:
+         try:
+             commandParser = createCommandParser()
+             args = commandParser.parse_args(mkargv(l))
+@@ -869,8 +888,6 @@ def handleImport(args):
+         except KeyboardInterrupt:
+             sys.exit(0)
+ 
+-    trans.finish()
+-
+ 
+ def setupImportParser(subparsers):
+     importParser = subparsers.add_parser('import', help=_('Import local customizations'))
+-- 
+2.35.1
 
