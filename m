@@ -2,169 +2,230 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92658CCA468
-	for <selinux@archiver.kernel.org>; Wed,  1 Jun 2022 13:46:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A7D1C43334
+	for <selinux@archiver.kernel.org>; Wed,  1 Jun 2022 18:14:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350199AbiFANqt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Jun 2022 09:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34580 "EHLO
+        id S240794AbiFASOQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Jun 2022 14:14:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242256AbiFANqt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Jun 2022 09:46:49 -0400
-Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF613627E
-        for <selinux@vger.kernel.org>; Wed,  1 Jun 2022 06:46:46 -0700 (PDT)
-Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-d39f741ba0so2717745fac.13
-        for <selinux@vger.kernel.org>; Wed, 01 Jun 2022 06:46:46 -0700 (PDT)
+        with ESMTP id S230345AbiFASOP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Jun 2022 14:14:15 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86738880DC
+        for <selinux@vger.kernel.org>; Wed,  1 Jun 2022 11:14:14 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id s188so3694670oie.4
+        for <selinux@vger.kernel.org>; Wed, 01 Jun 2022 11:14:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
+        d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=LnncdfP4PtwcHc4mRdORDVa1U9go5Bk7eQYVu5tOfJI=;
-        b=WpaSvBZyTxFptqTWvnV3/wgdprjv8pmdwLVfBJ2fBQdtaq9QIprLCYrw3Lc5cRh4CT
-         kW33O80mLBjePYgfSQ28h6T+Tr+0XoNiFB5IzaWZs2+8ZT4RoKWRE1KorwXP/BQyhsjz
-         /b8ZBsEMZCeAwn0Fo2o5Dq7CUEkjufW9iFrapFtuBW/hUq7a+SWiGzludB9dEgw3oAbg
-         tTg/81xtmRF/Kgvnuwz3Y07U0jsXmPC01Uc+3SuuTftcBwxHFF+ZV2sDNNCWioSWZ5yM
-         9J4pS7TOrTblXkz58x1cFx/DblbEy3kly1x23SXH08iWB5R+tEN76pKG5aYlzPzuNpFP
-         IXGQ==
+         :cc;
+        bh=tJrdc8tXiR7WnlhHOK2UeGfZ9MeVdfg3v3Z1sCy1u2M=;
+        b=TNmm5l3JopMn9ahJkwHfkeU4UrxBTQMJwxp/ya58hgqL7j+Ko0PZO42AJ1HfAXoLtE
+         c54NFaT4+Tz8PY2MNv2j8wQTKxgAkYgoPFI7zxUAM0Sn0Oh1fpdpsgWZXmAEGHAm0eeP
+         hiEAEB/aHhvyFCscnkwBYCo2OBHO/dYKctPTiQBtPwA80HeimZeyePCeRLceuOrKKvz/
+         fJ/tkNnUrc2xF2G03uv0JwjSa6GgAyciqJ4rMzBMXKOihHwTLYzbR5ueL7uTzw1lqiYK
+         dLZrx8r6Y3d9M4s3HiDjAmmWtLLMbuuTAcsId+JiDZv4FD4rUbxGBdLHOCnDchE7L48U
+         CXXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=LnncdfP4PtwcHc4mRdORDVa1U9go5Bk7eQYVu5tOfJI=;
-        b=CREvjVz/WyKHp2e/D3FPrBAMRstBRarZHq7y3zRloAnskdq9x1gRSAvn2zkKE26o1d
-         bBDk0wq066SRchDulgyR62Yf2yGkqdsfOhstJQzIrRwPBOO4M0ZUjnHqH4o6iexw2Mzg
-         yt6A+DnYARnxV2E6QGJ8hTWXZ8vwgwK4sWh13c+3hB8FhZxhHDaChYnaPPkwJZna3DCL
-         K/qILnNglYt9BkGEfk8Gdje3v+7ZHXFK4HUJmUZYJjS40oT5Mr1+2/2uJIKqyTec1tad
-         Y6SjXcXawM7LEj/tRNeoo/uUK6OxihfDO78zI9Wf4Tog9fTtnUtqUT7sJ6QWYyYsgX5K
-         ixzw==
-X-Gm-Message-State: AOAM5333UVbvqVuYMXf87gUCu4ClLoAhQFvxuUVGPNs3EDZkj8VMAI85
-        lafL4A13N8iq+ZLErUUNfrHp75+kT4Kd7xm0oj8MjcX1KsU=
-X-Google-Smtp-Source: ABdhPJzE+G9Ou8ZBVrWWajMWz7pAzbpWAyYffwswuVp3Msk1cZRDmgI9B3q6MFf2Bb7Qxh69UTbDnrZ0AEU1sCUBui8=
-X-Received: by 2002:a05:6870:e40c:b0:f3:2f32:7c3d with SMTP id
- n12-20020a056870e40c00b000f32f327c3dmr9314460oag.71.1654091206185; Wed, 01
- Jun 2022 06:46:46 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=tJrdc8tXiR7WnlhHOK2UeGfZ9MeVdfg3v3Z1sCy1u2M=;
+        b=uj9l888g2OJR88GtolcUNVomRaZSt9hl1VJn+bRDv554OWo0WlpR/DqH8Arw0cxDbl
+         LprUiJtjiJ1xg9D15NdXtKMiVheaLfEjlJUTmWfuIwYxA9D682cTKaVXVvxRLx3pSPoe
+         q3+DfbazlYHwBeHrEMsPMFJncLUXNwLlpBjIDL+cFaezFbiPbiWqS0sLggpgAvQvtGMf
+         L0OBld9Fz3qEDJV6Aek/wyO6Yjcx0Q7yrrI2oyCDBuIPY9LQi6oH/OtKpxBHxsQUlqGs
+         pMiVBTtOMmos9dmusXWq6GBJhUMFJZD22NGDltXVl5xvh8r2OOgB83gWcg1EciPhXNq/
+         jHdA==
+X-Gm-Message-State: AOAM5336dMUcIUVfBGO5ijQOswb/Uc1bmWZtwgOFUcm9XLBfu9YkmzD6
+        g/du78l/GHoFazjacU5lEPSaWVePL8fX0kMZS29CXR2kxXo=
+X-Google-Smtp-Source: ABdhPJwBU7GYhjRNbBF7xBnzt/54C5Ezji/uZuXv1xspvjPmliiHBiEC/LdXpXPMR8D3kMreIch64+GN8aLsr+pbKT8=
+X-Received: by 2002:a05:6808:ec5:b0:2f9:a7fb:4dfb with SMTP id
+ q5-20020a0568080ec500b002f9a7fb4dfbmr16238520oiv.156.1654107253901; Wed, 01
+ Jun 2022 11:14:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220520130004.9096-1-cgzones@googlemail.com> <CAJfZ7=mjPwViS6umaq=BPF1=bDHZZfSwGwMq=-Ajtj2RoLcLUA@mail.gmail.com>
-In-Reply-To: <CAJfZ7=mjPwViS6umaq=BPF1=bDHZZfSwGwMq=-Ajtj2RoLcLUA@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Wed, 1 Jun 2022 15:46:35 +0200
-Message-ID: <CAJ2a_DdG3xu3JwTqJ_H5p0TfWKc_o7MkaR=UJmd=GTS3z-w9og@mail.gmail.com>
-Subject: Re: [PATCH] Makefile: always include and link with DESTDIR
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20220531125750.278211-1-plautrba@redhat.com>
+In-Reply-To: <20220531125750.278211-1-plautrba@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 1 Jun 2022 14:14:02 -0400
+Message-ID: <CAP+JOzRpqRFWZsKW5nrvhRqiRH=Mo1coWG1h7SsoH17K54R54Q@mail.gmail.com>
+Subject: Re: [PATCH] Revert "libselinux: restorecon: pin file to avoid TOCTOU issues"
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 30 May 2022 at 00:49, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Wed, Jun 1, 2022 at 12:39 PM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
-> On Fri, May 20, 2022 at 3:00 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > The top level Makefile adds, if the environment variable DESTDIR is
-> > defined, the according include and link directory to CFLAGS and LDFLAGS
-> > to build all userspace tools against dependencies from this repository
-> > and not the system.
-> > If CFLAGS or LDFLAGS are specified by the user, e.g.
-> >
-> >     DESTDIR=3D~/destdir CFLAGS=3D-Dfoo LDFLAGS=3D-Lbar make install
-> >
-> > use the override directive to force adding DESTDIR paths to the user
-> > specified CFLAGS or LDFLAGS.
-> >
-> > Note that
-> >
-> >     DESTDIR=3D~/destdir make CFLAGS=3D-Dfoo LDFLAGS=3D-Lbar install
-> >
-> > does not work, since in sub-directories the internal make options take
-> > precedence over the overridden environment variables in the top
-> > Makefile.
+> This reverts commit 7e979b56fd2cee28f647376a7233d2ac2d12ca50.
 >
-> Hello,
+> The reverted commit broke `setfiles` when it's run from a chroot
+> without /proc mounted, e.g.
 >
-> >From my understanding of the documentation of "override"
-> (https://www.gnu.org/software/make/manual/html_node/Override-Directive.ht=
-ml)
-> it only matters when setting variables which come from the command
-> line, not from the environment. On my system (Arch Linux with "GNU
-> Make 4.3"), your first command works fine. To really be sure I
-> understood things correctly, I added a target into the main Makefile:
+>     # chroot /mnt/sysimage
 >
-> testenv:
->     @echo Root Makefile: CFLAGS=3D$(CFLAGS)
->     (cd libsepol && $(MAKE) $@)
+>     chroot# setfiles -e /proc -e /sys /sys /etc/selinux/targeted/contexts/files/file_contexts /
+>     [strace]
+>     openat(AT_FDCWD, "/", O_RDONLY|O_EXCL|O_NOFOLLOW|O_PATH) = 3
+>     newfstatat(3, "", {st_mode=S_IFDIR|0555, st_size=4096, ...}, AT_EMPTY_PATH) = 0
+>     mmap(NULL, 2101248, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f1697c91000
+>     fgetxattr(3, "security.selinux", 0x55be8881d3f0, 255) = -1 EBADF (Bad file descriptor)
+>     fcntl(3, F_GETFL)                       = 0x220000 (flags O_RDONLY|O_NOFOLLOW|O_PATH)
+>     getxattr("/proc/self/fd/3", "security.selinux", 0x55be8881d3f0, 255) = -1 ENOENT (No such file or directory)
+>     [/strace]
+>     setfiles: Could not set context for /:  No such file or directory
 >
-> ... and added similar commands to libsepol/Makefile and
-> libsepol/src/Makefile. Without override, "DESTDIR=3D/tmp/destdir
-> CFLAGS=3D-Dfoo make testenv" displays:
->
-> Root Makefile: CFLAGS=3D-Dfoo -I/tmp/destdir/usr/include
-> libsepol Makefile: CFLAGS=3D-Dfoo -I/tmp/destdir/usr/include
-> libsepol/src Makefile: CFLAGS=3D-Dfoo -I/tmp/destdir/usr/include -I.
-> -I../include -D_GNU_SOURCE -I../cil/include -DHAVE_REALLOCARRAY
->
-> ... which shows that the Makefile works as expected. Adding "override"
-> does not change this output. It only changes it with
-> "DESTDIR=3D/tmp/destdir make CFLAGS=3D-Dfoo testenv":
->
-> Root Makefile: CFLAGS=3D-Dfoo -I/tmp/destdir/usr/include
-> libsepol Makefile: CFLAGS=3D-Dfoo
-> libsepol/src Makefile: CFLAGS=3D-Dfoo -I. -I../include -D_GNU_SOURCE
-> -I../cil/include -DHAVE_REALLOCARRAY
->
-> Your patch makes the first output have " -I/tmp/destdir/usr/include"
-> but not the other lines, because $(MAKEFLAGS) contains "CFLAGS=3D-Dfoo"
-> (as documented on
-> https://www.gnu.org/software/make/manual/html_node/Variables_002fRecursio=
-n.html
-> ). So using CFLAGS in command-line argument does not work and making
-> it work would require removing CFLAGS and LDFLAGS from MAKEFLAGS,
-> which seems fragile.
->
-> Therefore, I did not manage to reproduce the issue that your patch was
-> fixing and I did not understand why using "override" helped. You could
-> be using a specific kind of make which behaves differently as mine.
-> Could you please provide some way to reproduce the issue you were
-> experiencing (that "DESTDIR=3D~/destdir CFLAGS=3D-Dfoo LDFLAGS=3D-Lbar ma=
-ke
-> install" did not work on your system)?
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-Thanks for reviewing.
-I must have mixed up something, cause
+Acked-by: James Carter <jwcart2@gmail.com>
 
-    DESTDIR=3D~/destdir CFLAGS=3D-Dfoo LDFLAGS=3D-Lbar make install
-
-works indeed.
-Please disregard this patch.
-
+> ---
+>  libselinux/src/selinux_restorecon.c | 43 ++++++++++++-----------------
+>  1 file changed, 18 insertions(+), 25 deletions(-)
 >
-> Thanks,
-> Nicolas
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+> index 9dd6be817832..9f5b326c19ec 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -623,13 +623,13 @@ out:
+>         return rc;
+>  }
 >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  Makefile | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/Makefile b/Makefile
-> > index 2ffba8e9..e05e924b 100644
-> > --- a/Makefile
-> > +++ b/Makefile
-> > @@ -29,8 +29,8 @@ ifneq ($(DESTDIR),)
-> >         LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
-> >         LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
-> >
-> > -       CFLAGS +=3D -I$(DESTDIR)$(PREFIX)/include
-> > -       LDFLAGS +=3D -L$(DESTDIR)$(PREFIX)/lib -L$(LIBDIR)
-> > +       override CFLAGS +=3D -I$(DESTDIR)$(PREFIX)/include
-> > +       override LDFLAGS +=3D -L$(DESTDIR)$(PREFIX)/lib -L$(LIBDIR)
-> >         export CFLAGS
-> >         export LDFLAGS
-> >         export LIBSEPOLA
-> > --
-> > 2.36.1
-> >
+> -static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool first)
+> +static int restorecon_sb(const char *pathname, const struct stat *sb,
+> +                           struct rest_flags *flags, bool first)
+>  {
+>         char *newcon = NULL;
+>         char *curcon = NULL;
+>         char *newtypecon = NULL;
+> -       int fd = -1, rc;
+> -       struct stat stat_buf;
+> +       int rc;
+>         bool updated = false;
+>         const char *lookup_path = pathname;
+>         float pc;
+> @@ -644,21 +644,13 @@ static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool fi
+>                 lookup_path += rootpathlen;
+>         }
+>
+> -       fd = open(pathname, O_PATH | O_NOFOLLOW | O_EXCL);
+> -       if (fd < 0)
+> -               goto err;
+> -
+> -       rc = fstat(fd, &stat_buf);
+> -       if (rc < 0)
+> -               goto err;
+> -
+>         if (rootpath != NULL && lookup_path[0] == '\0')
+>                 /* this is actually the root dir of the alt root. */
+>                 rc = selabel_lookup_raw(fc_sehandle, &newcon, "/",
+> -                                                   stat_buf.st_mode);
+> +                                                   sb->st_mode);
+>         else
+>                 rc = selabel_lookup_raw(fc_sehandle, &newcon, lookup_path,
+> -                                                   stat_buf.st_mode);
+> +                                                   sb->st_mode);
+>
+>         if (rc < 0) {
+>                 if (errno == ENOENT) {
+> @@ -667,10 +659,10 @@ static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool fi
+>                                             "Warning no default label for %s\n",
+>                                             lookup_path);
+>
+> -                       goto out; /* no match, but not an error */
+> +                       return 0; /* no match, but not an error */
+>                 }
+>
+> -               goto err;
+> +               return -1;
+>         }
+>
+>         if (flags->progress) {
+> @@ -690,17 +682,19 @@ static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool fi
+>         }
+>
+>         if (flags->add_assoc) {
+> -               rc = filespec_add(stat_buf.st_ino, newcon, pathname, flags);
+> +               rc = filespec_add(sb->st_ino, newcon, pathname, flags);
+>
+>                 if (rc < 0) {
+>                         selinux_log(SELINUX_ERROR,
+>                                     "filespec_add error: %s\n", pathname);
+> -                       goto out1;
+> +                       freecon(newcon);
+> +                       return -1;
+>                 }
+>
+>                 if (rc > 0) {
+>                         /* Already an association and it took precedence. */
+> -                       goto out;
+> +                       freecon(newcon);
+> +                       return 0;
+>                 }
+>         }
+>
+> @@ -708,7 +702,7 @@ static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool fi
+>                 selinux_log(SELINUX_INFO, "%s matched by %s\n",
+>                             pathname, newcon);
+>
+> -       if (fgetfilecon_raw(fd, &curcon) < 0) {
+> +       if (lgetfilecon_raw(pathname, &curcon) < 0) {
+>                 if (errno != ENODATA)
+>                         goto err;
+>
+> @@ -741,7 +735,7 @@ static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool fi
+>                 }
+>
+>                 if (!flags->nochange) {
+> -                       if (fsetfilecon(fd, newcon) < 0)
+> +                       if (lsetfilecon(pathname, newcon) < 0)
+>                                 goto err;
+>                         updated = true;
+>                 }
+> @@ -766,8 +760,6 @@ static int restorecon_sb(const char *pathname, struct rest_flags *flags, bool fi
+>  out:
+>         rc = 0;
+>  out1:
+> -       if (fd >= 0)
+> -               close(fd);
+>         freecon(curcon);
+>         freecon(newcon);
+>         return rc;
+> @@ -865,6 +857,7 @@ static void *selinux_restorecon_thread(void *arg)
+>         FTSENT *ftsent;
+>         int error;
+>         char ent_path[PATH_MAX];
+> +       struct stat ent_st;
+>         bool first = false;
+>
+>         if (state->parallel)
+> @@ -962,11 +955,11 @@ loop_body:
+>                         /* fall through */
+>                 default:
+>                         strcpy(ent_path, ftsent->fts_path);
+> -
+> +                       ent_st = *ftsent->fts_statp;
+>                         if (state->parallel)
+>                                 pthread_mutex_unlock(&state->mutex);
+>
+> -                       error = restorecon_sb(ent_path, &state->flags,
+> +                       error = restorecon_sb(ent_path, &ent_st, &state->flags,
+>                                               first);
+>
+>                         if (state->parallel) {
+> @@ -1162,7 +1155,7 @@ static int selinux_restorecon_common(const char *pathname_orig,
+>                         goto cleanup;
+>                 }
+>
+> -               error = restorecon_sb(pathname, &state.flags, true);
+> +               error = restorecon_sb(pathname, &sb, &state.flags, true);
+>                 goto cleanup;
+>         }
+>
+> --
+> 2.36.1
 >
