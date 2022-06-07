@@ -2,125 +2,116 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6AC4C43334
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 00:42:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE6B6C433EF
+	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 00:43:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237191AbiFHAmx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Jun 2022 20:42:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55192 "EHLO
+        id S237399AbiFHAmz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Jun 2022 20:42:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442756AbiFGW7d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 18:59:33 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA23227A91F
-        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 13:05:43 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id p10so25586187wrg.12
-        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 13:05:43 -0700 (PDT)
+        with ESMTP id S1457219AbiFGXVb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 19:21:31 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7306155305
+        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 14:26:53 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id m25so17328854lji.11
+        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 14:26:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=google.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pd5HmXzw2LiQl7Nbi5AmuOCXhxxQgLw+foKsZ+NlrZ8=;
-        b=YSpmaKxMgWWXWlkkxWlzGY152XPpIKdfkW2FYUJ0o2OzjW8oslWYxLwlxMVkDxQm31
-         s232FPT5okj5Amzsq9Kax2MHFPwDtgcEfsdFCIiQM8g9ILorj+a13NTCdvYwWk5zRlv6
-         Dp4X+p6w9PBdDbdxntT/6zVjAhqLz0aMkbzXJnBfi7RSxhUsHnrTIAk5UbtfzSeYQ0Q0
-         CQWZtPnV2X3WXO1ulVOZkztNFWDAgPOlWdbMuxOSgkjZUVZ0H1WEIANoeVrtjTqnKYco
-         bX1gAbs5yHuHcxi6rYpuSQ3mK0+H53uEbyM46hwmBf122WwOgQd1v3mM9qx8nyvYjBM1
-         wSZQ==
+         :cc:content-transfer-encoding;
+        bh=Ep1+a3HeOPpgu3hZd7BAShv2CX5jwkZf7oxyMYNwCV0=;
+        b=LX4m06Etsnh22gUtFXJ+6gfUR93G9RlS8CVyCQJnfZWMA5+6xidFGiTebuujaWWZ0u
+         JA5WLRJAKr8OepBXQ99AIbck5rnaiuu53AYagVE0FkP9bRf8kRugMGPP5t+hs1JzrqGS
+         GVpLC+MLZXUpZJ4gQ+xCNaGytLafae9MlFQieeQMSysDHA25vvq/z2jRg1NsoZ7MpiJ5
+         J2hmObMV+BqbD544TXQhT12OVKfqUfRXj3qxe0dVvaBuJmynduBMQtHBbQxA7UXLTrvF
+         sycVHD/HaQoi7SJ/QEsSLii2BgkHOnkK4zgjoMm4im63+YtLKSge2qLXrPB484lpF4ck
+         ZdfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pd5HmXzw2LiQl7Nbi5AmuOCXhxxQgLw+foKsZ+NlrZ8=;
-        b=wLkcxShD1xWBh3VdtXb5IFsUCFW+CBhC0i0ngyAgNrXAtyujyvw6/3IhKlOsyvdTMv
-         lynhK7wsxHNA54VIDV3KqLaVsA10g5I12CcgGqJuaVS9NhluxmIzYlkW3d/cL80AobRE
-         qxPk02O4zq64xKWR5Dc+OSzyIEweRKVET5iWVT0fHinLitN9VJgAXnAsvQRYM/u84e00
-         GkslysBq0BTvX8tmwUgO2Ju00dzxbuh8s0JIhX4lXzWkgdaQrsKiVCRUesVLeJrkhrhb
-         jEes7GMuWfz36yg8VrOswD69mb/Chgfk5FusZhzsnD7SyqtBpBfs+CeyBIMJsI/U96kQ
-         veJg==
-X-Gm-Message-State: AOAM530ntWNgF5e45AgchTEbnkkmd9Cq+HUf7MoWGtLvjUIES9JiMfSS
-        UDqlXSy3b1nPIsrIKGsROFvxMdqM03nxzRkAWRL1
-X-Google-Smtp-Source: ABdhPJyut9JzrwEhHN7uQfxWKSV6Z0lT4wSLEWR6jyWzpXrAYWB13JGzRQc+WT0vDTTfKFSSVrE7yduFRivHG5t6/js=
-X-Received: by 2002:a5d:6d8c:0:b0:217:a419:c3f8 with SMTP id
- l12-20020a5d6d8c000000b00217a419c3f8mr15256654wrs.260.1654632342187; Tue, 07
- Jun 2022 13:05:42 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Ep1+a3HeOPpgu3hZd7BAShv2CX5jwkZf7oxyMYNwCV0=;
+        b=muilxy/1J6WPqXHohE9SUyQ+VY0NeVxM3EJC62VMlj+OqCkTROx469EklTK2CMy9vt
+         vSL6mmfhWnHfIjkyRA+yzBTQlVn7I20XqovSVJkaY41p8v1edygBr8CU8wxy9A/dUizJ
+         oXj/SB6wtbcWcMQIj9mVS0IxzTBOzCOhivQa00kDdknk8vqON//kbsryNWTqgYoDYiyo
+         wZDragBbu4FDC52XZgBsr3QlYp4bwOssGsuvpLF32ChQeJz61cIxdgdtrPst+ZXlI96n
+         /JhNX7GYt/M6JMile2X7VkCq/0D/Yj3uC+qEaRrBID3wQrABdLJwwYVkQYY9C/dCibsb
+         fTsA==
+X-Gm-Message-State: AOAM532IU5iXpM52ozbCta7JAk5DhiBWpLWQhr3dsJl9p1FI+RPLrmyj
+        QtdBD/c6ywMApyzkNUsfjdUDZ7pdBy4V3TjneJY8iA==
+X-Google-Smtp-Source: ABdhPJw86SeB6jsB+X5HMH4kpjqI05wOixA35dmBKOx3sOc/Z9yHcWliUzri8FWVCavoz8bRiYCR4sjn+Hu76zW572M=
+X-Received: by 2002:a2e:8715:0:b0:255:a7e5:d50d with SMTP id
+ m21-20020a2e8715000000b00255a7e5d50dmr4084745lji.26.1654637211947; Tue, 07
+ Jun 2022 14:26:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220518092137.141626-1-gongruiqi1@huawei.com>
- <CAHC9VhTj365p3SJvX+8eBqRO3wddnj0sXtRDp=jEhSdADwiGrg@mail.gmail.com>
- <6e2534c3-9af1-0c84-96ac-79075f79ab39@huawei.com> <CAHC9VhQRPqyMrja5L+8VTb-dsUrmb1cJq+wrQ5GyA5NupPLfZg@mail.gmail.com>
-In-Reply-To: <CAHC9VhQRPqyMrja5L+8VTb-dsUrmb1cJq+wrQ5GyA5NupPLfZg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 7 Jun 2022 16:05:31 -0400
-Message-ID: <CAHC9VhQypD0NdqVk2uW4NhMjf=zhv5Vb+LmATaEwY-RT+tF9hA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: add __randomize_layout to selinux_audit_data
-To:     Gong Ruiqi <gongruiqi1@huawei.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+References: <20220217142133.72205-1-cgzones@googlemail.com>
+ <20220217142133.72205-4-cgzones@googlemail.com> <CAHC9VhRatc13ZsBSsjZeGtBfz0ouUGL9n0LTjbQtuZtYv2M43w@mail.gmail.com>
+In-Reply-To: <CAHC9VhRatc13ZsBSsjZeGtBfz0ouUGL9n0LTjbQtuZtYv2M43w@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Tue, 7 Jun 2022 14:26:40 -0700
+Message-ID: <CAKwvOdkpA-P5763rt39q4HRjOdqC2Ca_Wu4suHU-qxpz3FkO8Q@mail.gmail.com>
+Subject: Re: [PATCH 5/5] selinux: drop unnecessary NULL check
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Wang Weiyang <wangweiyang2@huawei.com>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
+        Nathan Chancellor <nathan@kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        Austin Kim <austin.kim@lge.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 18, 2022 at 12:03 PM Paul Moore <paul@paul-moore.com> wrote:
+On Tue, Jun 7, 2022 at 2:22 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> On Wed, May 18, 2022 at 2:53 AM Gong Ruiqi <gongruiqi1@huawei.com> wrote:
-> > On 2022/05/18 9:39, Paul Moore wrote:
-> > > On Tue, May 17, 2022 at 9:21 PM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
-> > >>
-> > >> Randomize the layout of struct selinux_audit_data as suggested in [1],
-> > >> since it contains a pointer to struct selinux_state, an already
-> > >> randomized strucure.
-> > >>
-> > >> [1]: https://github.com/KSPP/linux/issues/188
-> > >>
-> > >> Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
-> > >> ---
-> > >>  security/selinux/include/avc.h | 2 +-
-> > >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >>
-> > >> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-> > >> index 2b372f98f2d7..5525b94fd266 100644
-> > >> --- a/security/selinux/include/avc.h
-> > >> +++ b/security/selinux/include/avc.h
-> > >> @@ -53,7 +53,7 @@ struct selinux_audit_data {
-> > >>         u32 denied;
-> > >>         int result;
-> > >>         struct selinux_state *state;
-> > >> -};
-> > >> +} __randomize_layout;
-> > >
-> > > I'll apologize in advance for the stupid question, but does
+> On Thu, Feb 17, 2022 at 9:22 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > Not at all :)
+> > Commit e3489f8974e1 ("selinux: kill selinux_sb_get_mnt_opts()")
+> > introduced a NULL check on the context after a successful call to
+> > security_sid_to_context().  This is on the one hand redundant after
+> > checking for success and on the other hand insufficient on an actual
+> > NULL pointer, since the context is passed to seq_escape() leading to a
+> > call of strlen() on it.
 > >
-> > > __randomize_layout result in any problems when the struct is used in a
-> > > trace event?  (see include/trace/events/avc.h)
+> > Reported by Clang analyzer:
 > >
-> > No, as least it doesn't in the testing I did. I believe we can use the
-> > struct tagged with __randomize_layout as normal except that 1) it should
-> > be initialized with a designated initializer, and 2) pointers to this
-> > type can't be cast to/from pointers to another type. Other operations
-> > like dereferencing members of the struct (as in
-> > include/trace/events/avc.h) shouldn't be a problem.
+> >     In file included from security/selinux/hooks.c:28:
+> >     In file included from ./include/linux/tracehook.h:50:
+> >     In file included from ./include/linux/memcontrol.h:13:
+> >     In file included from ./include/linux/cgroup.h:18:
+> >     ./include/linux/seq_file.h:136:25: warning: Null pointer passed as =
+1st argument to string length function [unix.cstring.NullArg]
+> >             seq_escape_mem(m, src, strlen(src), flags, esc);
+> >                                    ^~~~~~~~~~~
 > >
-> > I did a testing to the patch on a qemu vm by running the selinux
-> > testsuite with tracing events "avc:selinux_audited" enabled. The
-> > testsuite completed successfully and from the tracing log I saw nothing
-> > abnormal with my bare eyes. You can do more testing if you want or you
-> > have other ideas of how to do so ;)
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  security/selinux/hooks.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> That's great, thanks for verifying this.  I was aware of the other
-> restrictions but wasn't sure about tracing.  Now I know :)
->
-> It's too late to go into selinux/next for this dev cycle, but I'll
-> queue this up for selinux/next once the merge window closes.
+> I was waiting for Nick to reply, but he never did, and this looks good
+> to me so I just merged it into selinux/next.  Thanks for your patience
+> Christian.
 
-I just merged this into my local selinux/next branch and I'll be
-pushing it up to the mail selinux tree later today - thanks!
+LGTM; you can ping me on irc #ndesaulniers on most kernel channels if
+you're waiting on me. ;)
 
--- 
-paul-moore.com
+>
+> --
+> paul-moore.com
+
+
+
+--=20
+Thanks,
+~Nick Desaulniers
