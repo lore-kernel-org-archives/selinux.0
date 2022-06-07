@@ -2,61 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2914CCA483
-	for <selinux@archiver.kernel.org>; Tue,  7 Jun 2022 15:32:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ABABC433EF
+	for <selinux@archiver.kernel.org>; Tue,  7 Jun 2022 17:00:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344124AbiFGPcJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Jun 2022 11:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51194 "EHLO
+        id S1345312AbiFGRAs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Jun 2022 13:00:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344112AbiFGPcA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 11:32:00 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658A6F551C;
-        Tue,  7 Jun 2022 08:31:57 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id v25so23515011eda.6;
-        Tue, 07 Jun 2022 08:31:57 -0700 (PDT)
+        with ESMTP id S1345319AbiFGRAr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 13:00:47 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E489F102750
+        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 10:00:46 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id bg6so16639771ejb.0
+        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 10:00:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=w0Hdg77AgoPG+P9TsvX0MGr6YMoh94u++wV7R/8mG6Q=;
-        b=UrlZfICkRAZGfTAxgXamkUF1euwIXz/dlpvevt15u/GXuGmNhmXjx+8+VHEyd1fe8z
-         Weg+hLtYIdvErfuTKGZe9T861PjQQqTb5yTkMVKRy2mRPzGshG+AtZSIJjfwnG8Hn7NF
-         0t7ik+wYMi689h3lZ70iLHInepJesqv/anMj7Nze/F7nNvBynY0INZ61KE008DZagKul
-         VtQ0A8MdGAjp/YefQZiN6B0tvOBfKQEgEwczSwGPRe3hhwXHFq4J1M+xIlrdmIPMyL5I
-         zoYW8xs+KCy0qqsfPUO6lRVGof3loBpEaijhmdt86A39468D5vZIz/HW+vAldcF9cjwe
-         JX8w==
+        bh=tJfUtbZ/t8nRSw8R2AEUFydGIk6UvKuNFj5I7SrIoRg=;
+        b=YiiLDvnYcDvj/jkFDn4XAwH539d4PSHoS2OI08QMEFjl3WvoTAMnMb0kFkZE1L42px
+         geJeIPRPg0bkWO9gG2BDwTs8N4n7xnuxoWPOP7L6Ubmy15gK4KC0iyHGKWGZS1Ivq1yL
+         nc1WGZtRxRqEfsuu+/NjY4AZy2nitt546KsgO6cj1bX3jHTtaqR8aLg/cv7crpfJ8/d7
+         1QervBHX+tOAATAZCMo91gq6JKp4aTmeVcnC0mLI+G0N9dleudPVTFYYMxrZqO6QOCm+
+         aKOTEJwbRGKBRBeJWrhMR6ASNujONQivQwdtb+a14VRHnkrWPuHPGqcmIJ+Rv/swuWAt
+         zsQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=w0Hdg77AgoPG+P9TsvX0MGr6YMoh94u++wV7R/8mG6Q=;
-        b=lAOSNdcFH0mdIO35+CBZO3bWJ8cR/cWl1DEVQvmBO/F7ol9GiSZOx2Kj7NDi/HI2Zp
-         Jtn/LG7kJOul1/Beuwe+5G0ZwNL1WGA+nVEfGM5BedNicYWwlSR0ByHaTu9sG78suATO
-         ypH7kGJMIwJDFYZeC4iwCE+tmHLfMFT2XnO75yJvsCpXfAn1Pg3yBn2uXPk8NkTgvcCN
-         ZtNy3IgOFdQFiPnSqV51vQgifdc+RPwotz/NXy3YNsIXVfHw5VIukltWJ4qKx1OvTiRg
-         b4l0eequIe1H1jL19uawr4NaObpRHMvOIKOjhviru7F1j+KqY0hu5ThYUvEpeD1VVjMO
-         /jyQ==
-X-Gm-Message-State: AOAM5304QAxzT4OROE68R7YorXXOy+a9ZoDiV9ETelW7GeUbDHlzlW9s
-        t+vXyhVt7fh29fiMTly1+cxhd/SsgQ8=
-X-Google-Smtp-Source: ABdhPJw5O8Mix5sJdiw5XuZUUJ6C5dUvQIiC5WMe0/YwVvV1sO2SkEmWjUN8DtVmS9GesJcUxvlSug==
-X-Received: by 2002:a05:6402:1341:b0:42a:f7cb:44dc with SMTP id y1-20020a056402134100b0042af7cb44dcmr34808302edw.165.1654615915837;
-        Tue, 07 Jun 2022 08:31:55 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tJfUtbZ/t8nRSw8R2AEUFydGIk6UvKuNFj5I7SrIoRg=;
+        b=FnGh6XgM+ydd63SNprtbzuK+qPhqJSciOHlAQ4V1DjO92CHuF/Zo5DgdjJgU4uXC4u
+         GPgDFjpzmYj9UwnoT5nYF5UGakGqgNtEyZvW/O4AFq+zl25RrM8Svi5Kh0fNexlrwqNS
+         UkyXbB7B4uSFh5naFTXfb5dS+YKCkTfJkns0y309md6E+DUlvgRTjQi5NMSY2+plwMlh
+         t6dHWB+Cn7JUbfD4QjEHJ1rYmunS/FUpKsIXsdVueFVR5W5HuWAA8INYvZ36oAfvzj1d
+         Ns84yePznEDc2PFLPyD5DZ9aFk6Yhmwxs7CUbbYf7wbOidXzp8A9SQrhbx7SUDVjr+Lk
+         szRQ==
+X-Gm-Message-State: AOAM532KdnkqdlishIPuG0s+IM+Y9O4+qyBrRTcu2jpGKD40YLk/55zC
+        1ocEePZVXuu1Z0LKvLQVUDsudJ1rG2s=
+X-Google-Smtp-Source: ABdhPJxGGOMflRJAE3xlx1qJOLo4Cexuakf4RXTVNADAO4GWeLVgwjQMVlsZZP2Evo63z077x4GrWA==
+X-Received: by 2002:a17:907:c23:b0:711:ea32:afce with SMTP id ga35-20020a1709070c2300b00711ea32afcemr2183080ejc.174.1654621243000;
+        Tue, 07 Jun 2022 10:00:43 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-008-054-039.77.8.pool.telefonica.de. [77.8.54.39])
-        by smtp.gmail.com with ESMTPSA id jg36-20020a170907972400b00701eb600df8sm8143445ejc.169.2022.06.07.08.31.54
+        by smtp.gmail.com with ESMTPSA id p11-20020a1709060dcb00b006fe9f9d0938sm8056247eji.175.2022.06.07.10.00.42
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 08:31:55 -0700 (PDT)
+        Tue, 07 Jun 2022 10:00:42 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     Miklos Szeredi <mszeredi@redhat.com>, linux-api@vger.kernel.org,
-        linux-man@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] f*xattr: allow O_PATH descriptors
-Date:   Tue,  7 Jun 2022 17:31:39 +0200
-Message-Id: <20220607153139.35588-1-cgzones@googlemail.com>
+Subject: [PATCH v2] libselinux: restorecon: avoid printing NULL pointer
+Date:   Tue,  7 Jun 2022 19:00:35 +0200
+Message-Id: <20220607170035.40090-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220517140748.24238-2-cgzones@googlemail.com>
+References: <20220517140748.24238-2-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -64,80 +63,33 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+The variable `curcon` is NULL in case the file has no current security
+context.  Most C standard libraries handle it fine, avoid it nonetheless
+for standard conformance.
 
-Support file descriptors obtained via O_PATH for extended attribute
-operations.
-
-Extended attributes are for example used by SELinux for the security
-context of file objects. To avoid time-of-check-time-of-use issues while
-setting those contexts it is advisable to pin the file in question and
-operate on a file descriptor instead of the path name. This can be
-emulated in userspace via /proc/self/fd/NN [1] but requires a procfs,
-which might not be mounted e.g. inside of chroots, see[2].
-
-[1]: https://github.com/SELinuxProject/selinux/commit/7e979b56fd2cee28f647376a7233d2ac2d12ca50
-[2]: https://github.com/SELinuxProject/selinux/commit/de285252a1801397306032e070793889c9466845
-
-Original patch by Miklos Szeredi <mszeredi@redhat.com>
-https://patchwork.kernel.org/project/linux-fsdevel/patch/20200505095915.11275-6-mszeredi@redhat.com/
-
-> While this carries a minute risk of someone relying on the property of
-> xattr syscalls rejecting O_PATH descriptors, it saves the trouble of
-> introducing another set of syscalls.
->
-> Only file->f_path and file->f_inode are accessed in these functions.
->
-> Current versions return EBADF, hence easy to detect the presense of
-> this feature and fall back in case it's missing.
-
-CC: linux-api@vger.kernel.org
-CC: linux-man@vger.kernel.org
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- fs/xattr.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+v2:
+   print "<no context>" instead of "(null)"
+---
+ libselinux/src/selinux_restorecon.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index e8dd03e4561e..16360ac4eb1b 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -656,7 +656,7 @@ SYSCALL_DEFINE5(lsetxattr, const char __user *, pathname,
- SYSCALL_DEFINE5(fsetxattr, int, fd, const char __user *, name,
- 		const void __user *,value, size_t, size, int, flags)
- {
--	struct fd f = fdget(fd);
-+	struct fd f = fdget_raw(fd);
- 	int error = -EBADF;
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 9f5b326c..3c441119 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -744,7 +744,9 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 			selinux_log(SELINUX_INFO,
+ 				    "%s %s from %s to %s\n",
+ 				    updated ? "Relabeled" : "Would relabel",
+-				    pathname, curcon, newcon);
++				    pathname,
++				    curcon ? curcon : "<no context>",
++				    newcon);
  
- 	if (!f.file)
-@@ -768,7 +768,7 @@ SYSCALL_DEFINE4(lgetxattr, const char __user *, pathname,
- SYSCALL_DEFINE4(fgetxattr, int, fd, const char __user *, name,
- 		void __user *, value, size_t, size)
- {
--	struct fd f = fdget(fd);
-+	struct fd f = fdget_raw(fd);
- 	ssize_t error = -EBADF;
- 
- 	if (!f.file)
-@@ -844,7 +844,7 @@ SYSCALL_DEFINE3(llistxattr, const char __user *, pathname, char __user *, list,
- 
- SYSCALL_DEFINE3(flistxattr, int, fd, char __user *, list, size_t, size)
- {
--	struct fd f = fdget(fd);
-+	struct fd f = fdget_raw(fd);
- 	ssize_t error = -EBADF;
- 
- 	if (!f.file)
-@@ -910,7 +910,7 @@ SYSCALL_DEFINE2(lremovexattr, const char __user *, pathname,
- 
- SYSCALL_DEFINE2(fremovexattr, int, fd, const char __user *, name)
- {
--	struct fd f = fdget(fd);
-+	struct fd f = fdget_raw(fd);
- 	int error = -EBADF;
- 
- 	if (!f.file)
+ 		if (flags->syslog_changes && !flags->nochange) {
+ 			if (curcon)
 -- 
 2.36.1
 
