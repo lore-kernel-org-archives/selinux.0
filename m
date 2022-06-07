@@ -2,103 +2,128 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66A8FC43334
-	for <selinux@archiver.kernel.org>; Tue,  7 Jun 2022 14:17:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01D77C43334
+	for <selinux@archiver.kernel.org>; Tue,  7 Jun 2022 15:01:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235723AbiFGORp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Jun 2022 10:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46064 "EHLO
+        id S1343787AbiFGPB5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Jun 2022 11:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229797AbiFGORn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 10:17:43 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6082A4E387
-        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 07:17:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1654611460;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4Xvw9zM8tcEvE1WoBgoY8ZX/lW3NrMqoIBLsn907tUs=;
-        b=VfbzqFjVXEv4qxOBpZEZmRAs2/7rkdoePpfEy4Y+j4+b8uygtcRcv3BugOAQ3JzYsvO7Ou
-        vGg0pvGEpQgNqtM9oDHADl93fVsKZXG3QAwvXd9OgkKBO1SilRwB0wdSlBTENHLHjZJI1t
-        r+Dp+7g8TsEaGj46Eoz7RC7N2h/bPZs=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-54-MeARbYAfNDm2ufEIM-Y2Og-1; Tue, 07 Jun 2022 10:17:38 -0400
-X-MC-Unique: MeARbYAfNDm2ufEIM-Y2Og-1
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-30974094b5cso149360997b3.20
-        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 07:17:32 -0700 (PDT)
+        with ESMTP id S239469AbiFGPB5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 11:01:57 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF2C36B60
+        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 08:01:55 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id v25so23394331eda.6
+        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 08:01:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Fhdo6t0AgySV89c6Tu3foX4/jnq002/77ckkzUgCbg4=;
+        b=BBDEq6AkPJ+0ONH0pReqCr45alx0Zb1kXRvXzD74oMAb9+flqMIXx0W05P+kON2hcz
+         6yAxaEKsqnoXJB4qk31/JI8/JgRK2Mu/9jmw++yBUVuMA7bKd63mU2/FBCCL9b7DCku0
+         Kvj6OGO0owdOasZ6BdLLpdKGWz7P3kywmC/vw+A5hQ/B1qKKmJ0YBDGZuwFBuzW1Fz2i
+         r4//bwd6gM/ur/aF9KArS+CTNlZ9I60NmVJPye/GhivV0nX18PhPs8M4RQ32dwIyWYJR
+         f+1ZaVZeOAaQ3+QI8+U/CMQc3NYjzYZ7lidwmmQIiTugZSOKhpOVZta0opc9PqWb1jZg
+         6EZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4Xvw9zM8tcEvE1WoBgoY8ZX/lW3NrMqoIBLsn907tUs=;
-        b=2MeIx8W5jJ9e5+xuGz3URsoXKINRe+GGdO+Ten1+MDBAV7x3J/XMVzDElCqRlp+9oM
-         mN2DVrIR1AGpoU9+l/QMfiKVN+2fj8W9+mj5bBWDmoksn2pd7Dxfe5Yv+SWPwfmcrZEB
-         sfbZmv2S/VjyZMs5xiAHM/L5rPgfoH53R/Pmf90Gv09T/te77fqXA3YGkfBEO73meBwu
-         cQFNE47DFKkIrn14VnUcDslcWCzcbmHzAQJxAqLaloe+NERVG5P71mMDWMc+waVkbE46
-         H1yjPT1/iBf2rl8lN6R9ZQfdtDWF25Lop7td3Otb6VntIcxqX/yoHIj1GFbfG4kl0BVA
-         dIzA==
-X-Gm-Message-State: AOAM533TSLkc9BrxXB9CdA6CIv8ezZHgFYlnneIq3S3b8fCJqEC8CGOM
-        ElUSrDMqJAmaT4LN+HNN2Vfkxs+WLVf4/iI6NENbBoTjVNYEM7efNO78hjSHKvqyvnRO331PHYa
-        Gu8B+vP+nb79o3UEPkcwsmKp4L8haoIBb2w==
-X-Received: by 2002:a81:a50c:0:b0:30c:1f68:a375 with SMTP id u12-20020a81a50c000000b0030c1f68a375mr30797091ywg.106.1654611451602;
-        Tue, 07 Jun 2022 07:17:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy2+2FPvcX7rYJi7jsZI+iJ23F5aWSwZUu5vjgtqKkcp+fy/ypTgMaAq5yeNnQgQpGuPLzfzOv+Vwpdr+hskAw=
-X-Received: by 2002:a81:a50c:0:b0:30c:1f68:a375 with SMTP id
- u12-20020a81a50c000000b0030c1f68a375mr30797074ywg.106.1654611451419; Tue, 07
- Jun 2022 07:17:31 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Fhdo6t0AgySV89c6Tu3foX4/jnq002/77ckkzUgCbg4=;
+        b=jEmxLwnFrwTmu9fpbCnbXD8JSuBgtRz6VjjGj5LumrYPXv/Zvg+/240TlkUGSkNYOR
+         p5yXtT2uCQWDeTntZp9KQ79Fmi5rLWv94z0Mw+Hf5PaPO4C/EXDU4z3MX2HFBlBYO0ng
+         UksFKBXvlx+OYA4tmsNv8Qwi9HOSuceR00j16r6jgGkAr8L3cLJMWynXymDeGMyHU+OH
+         CpQFnuGZi8dTVkwBUXHdnd9yBT1JERyyiiFXmMQH0XJs7KRsE0BDJxU3WfojuUwNihml
+         GIYf3EJV1dZnRW63/rJQGSFxxae90A219G6icOd3WvTuEt3b56SF49IMM4RxgMl1P0av
+         WMjQ==
+X-Gm-Message-State: AOAM530zqYe+J9QzpKgyBMeRP/pLvdAmOfA+uLlaFpworrKLICUfVypA
+        KzriKlnByktIVB3DsIr2Zw454uTG4go=
+X-Google-Smtp-Source: ABdhPJxrAU7vq7OqlrihoHaou685NDJr0P/ZBKggXu4LMN+PdUh0BUk5RV1t/RGeQyqEvSkPofCPDg==
+X-Received: by 2002:a05:6402:1d48:b0:42d:d1a2:7c6d with SMTP id dz8-20020a0564021d4800b0042dd1a27c6dmr34288764edb.43.1654614113558;
+        Tue, 07 Jun 2022 08:01:53 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-008-054-039.77.8.pool.telefonica.de. [77.8.54.39])
+        by smtp.gmail.com with ESMTPSA id v7-20020aa7d647000000b0042bd2012196sm10456130edr.85.2022.06.07.08.01.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jun 2022 08:01:52 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     bauen1 <j2468h@gmail.com>
+Subject: [PATCH] libsepol: fix validation of user declarations in modules
+Date:   Tue,  7 Jun 2022 17:01:45 +0200
+Message-Id: <20220607150145.29757-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220602145312.888125-1-omosnace@redhat.com>
-In-Reply-To: <20220602145312.888125-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 7 Jun 2022 16:17:21 +0200
-Message-ID: <CAFqZXNtYPm86gcY23ixAhQxVqNUm+TYtpU65JaA6Ea_TLMpp+g@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/sctp: temporarily disable ASCONF tests
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 2, 2022 at 4:53 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> The implementation is buggy and can't be reliably tested right now, so
-> disable the tests until the kernel is fixed and tests updated.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  tests/sctp/test | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/tests/sctp/test b/tests/sctp/test
-> index 7e84ab0..e28d214 100755
-> --- a/tests/sctp/test
-> +++ b/tests/sctp/test
-> @@ -57,8 +57,11 @@ BEGIN {
->          }
->
->          if ( $ipaddress[1] ne 0 and $ipaddress[0] ne $ipaddress[1] ) {
-> -            $test_count += 3;
-> -            $test_asconf = 1;
-> +
-> +# Disable ASCONF tests for now due to a known issue:
-> +# https://lore.kernel.org/selinux/CAFqZXNsO0HSqP2n3W_Su07LPggUm5_M1tGJBuJDW_VL-pWHOWw@mail.gmail.com/T/
-> +#$test_count += 3;
-> +#$test_asconf = 1;
->          }
->
->          # SCTP client peeloff has been fixed in kernel 5.18+
-> --
-> 2.36.1
+Users are allowed to be declared in modules. Modules do not get expanded
+leaving the `struct user_datum` members `exp_range` and `exp_dfltlevel`
+empty.
+Do no validate the expanded range and level for modular polices.
 
-Merged as:
-https://github.com/SELinuxProject/selinux-testsuite/commit/3e93ece73da162fe58f9ec7d16b01915a4568c11
+Reported-by: bauen1 <j2468h@gmail.com>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/policydb_validate.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index da18282b..99d4eb7f 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -18,7 +18,7 @@ typedef struct validate {
+ typedef struct map_arg {
+ 	validate_t *flavors;
+ 	sepol_handle_t *handle;
+-	int mls;
++	policydb_t *policy;
+ } map_arg_t;
+ 
+ static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebitmap_t *gaps)
+@@ -571,7 +571,7 @@ static int validate_mls_range(mls_range_t *range, validate_t *sens, validate_t *
+ 	return -1;
+ }
+ 
+-static int validate_user_datum(sepol_handle_t *handle, user_datum_t *user, validate_t flavors[], int mls)
++static int validate_user_datum(sepol_handle_t *handle, user_datum_t *user, validate_t flavors[], policydb_t *p)
+ {
+ 	if (validate_value(user->s.value, &flavors[SYM_USERS]))
+ 		goto bad;
+@@ -581,9 +581,9 @@ static int validate_user_datum(sepol_handle_t *handle, user_datum_t *user, valid
+ 		goto bad;
+ 	if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
+ 		goto bad;
+-	if (mls && validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
++	if (p->mls && p->policy_type != POLICY_MOD && validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
+ 		goto bad;
+-	if (mls && validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
++	if (p->mls && p->policy_type != POLICY_MOD && validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
+ 		goto bad;
+ 	if (user->bounds && validate_value(user->bounds, &flavors[SYM_USERS]))
+ 		goto bad;
+@@ -599,7 +599,7 @@ static int validate_user_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
+ {
+ 	map_arg_t *margs = args;
+ 
+-	return validate_user_datum(margs->handle, d, margs->flavors, margs->mls);
++	return validate_user_datum(margs->handle, d, margs->flavors, margs->policy);
+ }
+ 
+ static int validate_bool_datum(sepol_handle_t *handle, cond_bool_datum_t *boolean, validate_t flavors[])
+@@ -689,7 +689,7 @@ static int validate_datum(__attribute__ ((unused))hashtab_key_t k, hashtab_datum
+ 
+ static int validate_datum_array_entries(sepol_handle_t *handle, policydb_t *p, validate_t flavors[])
+ {
+-	map_arg_t margs = { flavors, handle, p->mls };
++	map_arg_t margs = { flavors, handle, p };
+ 
+ 	if (hashtab_map(p->p_commons.table, validate_common_datum_wrapper, &margs))
+ 		goto bad;
 -- 
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+2.36.1
 
