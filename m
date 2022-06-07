@@ -2,138 +2,125 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57D3ACCA48B
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 00:42:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6AC4C43334
+	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 00:42:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231342AbiFHAms (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Jun 2022 20:42:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34652 "EHLO
+        id S237191AbiFHAmx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Jun 2022 20:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444024AbiFGXBh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 19:01:37 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B21E27CD42
-        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 13:10:40 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id n124-20020a1c2782000000b003972dfca96cso10062319wmn.4
-        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 13:10:40 -0700 (PDT)
+        with ESMTP id S1442756AbiFGW7d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jun 2022 18:59:33 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA23227A91F
+        for <selinux@vger.kernel.org>; Tue,  7 Jun 2022 13:05:43 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id p10so25586187wrg.12
+        for <selinux@vger.kernel.org>; Tue, 07 Jun 2022 13:05:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=PLD8bMvN51Cij4xdm7K//UbBPopjl8IHgVt7TPHocZY=;
-        b=i2kaYQ6j5Q8SFA4O5Y3knelSOyr95qvMEWqsg29kMrTB8PQiNOrW1HRsCY0v9REmUA
-         MNnKCXpGrmr8D7QexF3moz6L5iuMd8l0FTkbqhLRp9QxBQGVBe5LGE+DngOXpbQ4nww3
-         Wqj82xBn8bye0OsYOcmrN7MAU43F5L73GrSpnM9BEnREQ3yUW7+Y4RtVEJvawoK1TVmG
-         KDlhsp2EQmehusDg2ubUvtXKe4RhIwrl2QTJWx3/Ak+80wjoOQjkOY4jdj+2Ft54GtSK
-         m6l5rpqDgdvNoh0XKRLtkEBAokvaVGkzqAgRX8uGk/gxtUkMhKVTqvkK/W+JyI4JYSJY
-         L63A==
+         :cc;
+        bh=pd5HmXzw2LiQl7Nbi5AmuOCXhxxQgLw+foKsZ+NlrZ8=;
+        b=YSpmaKxMgWWXWlkkxWlzGY152XPpIKdfkW2FYUJ0o2OzjW8oslWYxLwlxMVkDxQm31
+         s232FPT5okj5Amzsq9Kax2MHFPwDtgcEfsdFCIiQM8g9ILorj+a13NTCdvYwWk5zRlv6
+         Dp4X+p6w9PBdDbdxntT/6zVjAhqLz0aMkbzXJnBfi7RSxhUsHnrTIAk5UbtfzSeYQ0Q0
+         CQWZtPnV2X3WXO1ulVOZkztNFWDAgPOlWdbMuxOSgkjZUVZ0H1WEIANoeVrtjTqnKYco
+         bX1gAbs5yHuHcxi6rYpuSQ3mK0+H53uEbyM46hwmBf122WwOgQd1v3mM9qx8nyvYjBM1
+         wSZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=PLD8bMvN51Cij4xdm7K//UbBPopjl8IHgVt7TPHocZY=;
-        b=R37y4Gh68xTd/snbdlvwwwJlpv0j9V16yuf4VRLv+obEAVlo61RhVDZ/IvlwWoHRAB
-         UPZVwhlFoSBjkA4wmciDWWzijZskT2vIUe0OsZvgktW+o5U+0nZV0Rc8pFjmzAWS/RGy
-         CNT5GpLMWN/sAcU/wf4owQPxPAqIpI8G6g9QH/cYJAII6T8WkDp4gFNYDrTSA3P0HE3F
-         xkAlV0No1UC2iSyK1jDK9RFDd0W5qLKN59l1eDaxTcak5T2Kh096YcGVw+aE9rXzZWbN
-         78m3vEYIA2M8IzEjxRsteSzTuHl66TFTODcMEsMegaFtn1sEG3o0u4rjEhUhhm+2n+1d
-         SUqQ==
-X-Gm-Message-State: AOAM530SiSBGoYdb+euibkKzxpdN6wq/0qDF6lczZyaIyNJ1xqbhF6Mf
-        5d/jugcqW8SE2a13fB2IU/51/GabncxFhsbnrN96
-X-Google-Smtp-Source: ABdhPJwyFkl5Wu37OltnZgyQnBX2dD7guis4PxRqva+UdiTXRjPsIzjBlv+N77/IeKSH93JcMAUzMvIjfEltCOeIf0g=
-X-Received: by 2002:a05:600c:414e:b0:397:55aa:ccc0 with SMTP id
- h14-20020a05600c414e00b0039755aaccc0mr61318457wmm.51.1654632638942; Tue, 07
- Jun 2022 13:10:38 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=pd5HmXzw2LiQl7Nbi5AmuOCXhxxQgLw+foKsZ+NlrZ8=;
+        b=wLkcxShD1xWBh3VdtXb5IFsUCFW+CBhC0i0ngyAgNrXAtyujyvw6/3IhKlOsyvdTMv
+         lynhK7wsxHNA54VIDV3KqLaVsA10g5I12CcgGqJuaVS9NhluxmIzYlkW3d/cL80AobRE
+         qxPk02O4zq64xKWR5Dc+OSzyIEweRKVET5iWVT0fHinLitN9VJgAXnAsvQRYM/u84e00
+         GkslysBq0BTvX8tmwUgO2Ju00dzxbuh8s0JIhX4lXzWkgdaQrsKiVCRUesVLeJrkhrhb
+         jEes7GMuWfz36yg8VrOswD69mb/Chgfk5FusZhzsnD7SyqtBpBfs+CeyBIMJsI/U96kQ
+         veJg==
+X-Gm-Message-State: AOAM530ntWNgF5e45AgchTEbnkkmd9Cq+HUf7MoWGtLvjUIES9JiMfSS
+        UDqlXSy3b1nPIsrIKGsROFvxMdqM03nxzRkAWRL1
+X-Google-Smtp-Source: ABdhPJyut9JzrwEhHN7uQfxWKSV6Z0lT4wSLEWR6jyWzpXrAYWB13JGzRQc+WT0vDTTfKFSSVrE7yduFRivHG5t6/js=
+X-Received: by 2002:a5d:6d8c:0:b0:217:a419:c3f8 with SMTP id
+ l12-20020a5d6d8c000000b00217a419c3f8mr15256654wrs.260.1654632342187; Tue, 07
+ Jun 2022 13:05:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220125143304.34628-1-cgzones@googlemail.com>
- <CAHC9VhSdGeZ9x-0Hvk9mE=YMXbpk-tC5Ek+uGFGq5U+51qjChw@mail.gmail.com>
- <CAJ2a_DeAUcGTGm_fk8viVbeFXr6FLrJ-oLw-abwFND6Kv0u0gQ@mail.gmail.com>
- <CAHC9VhRRBrLVtvmbJSTZ7fOkD-8AN4iM0WRmeL4ND001d3viJg@mail.gmail.com> <CAJ2a_DeT6AG0jp4gTdsEy7nh=s6cLR7QCsYXAz2+3vsdRKxddg@mail.gmail.com>
-In-Reply-To: <CAJ2a_DeT6AG0jp4gTdsEy7nh=s6cLR7QCsYXAz2+3vsdRKxddg@mail.gmail.com>
+References: <20220518092137.141626-1-gongruiqi1@huawei.com>
+ <CAHC9VhTj365p3SJvX+8eBqRO3wddnj0sXtRDp=jEhSdADwiGrg@mail.gmail.com>
+ <6e2534c3-9af1-0c84-96ac-79075f79ab39@huawei.com> <CAHC9VhQRPqyMrja5L+8VTb-dsUrmb1cJq+wrQ5GyA5NupPLfZg@mail.gmail.com>
+In-Reply-To: <CAHC9VhQRPqyMrja5L+8VTb-dsUrmb1cJq+wrQ5GyA5NupPLfZg@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 7 Jun 2022 16:10:28 -0400
-Message-ID: <CAHC9VhQXdNieG8_uWBfCCFSow6AVaxNBhB3GNU8ea1j5rjgZiA@mail.gmail.com>
-Subject: Re: [RFC PATCH] mm: create security context for memfd_secret inodes
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
+Date:   Tue, 7 Jun 2022 16:05:31 -0400
+Message-ID: <CAHC9VhQypD0NdqVk2uW4NhMjf=zhv5Vb+LmATaEwY-RT+tF9hA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: add __randomize_layout to selinux_audit_data
+To:     Gong Ruiqi <gongruiqi1@huawei.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+        Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Wang Weiyang <wangweiyang2@huawei.com>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 2, 2022 at 9:45 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> On Thu, 17 Feb 2022 at 23:32, Paul Moore <paul@paul-moore.com> wrote:
-> > On Thu, Feb 17, 2022 at 9:24 AM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> > > On Thu, 27 Jan 2022 at 00:01, Paul Moore <paul@paul-moore.com> wrote:
-> > > > On Tue, Jan 25, 2022 at 9:33 AM Christian G=C3=B6ttsche
-> > > > <cgzones@googlemail.com> wrote:
-> > > > >
-> > > > > Create a security context for the inodes created by memfd_secret(=
-2) via
-> > > > > the LSM hook inode_init_security_anon to allow a fine grained con=
-trol.
-> > > > > As secret memory areas can affect hibernation and have a global s=
-hared
-> > > > > limit access control might be desirable.
-> > > > >
-> > > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > > > ---
-> > > > > An alternative way of checking memfd_secret(2) is to create a new=
- LSM
-> > > > > hook and e.g. for SELinux check via a new process class permissio=
-n.
-> > > > > ---
-> > > > >  mm/secretmem.c | 9 +++++++++
-> > > > >  1 file changed, 9 insertions(+)
-> > > >
-> > > > This seems reasonable to me, and I like the idea of labeling the an=
-on
-> > > > inode as opposed to creating a new set of LSM hooks.  If we want to
-> > > > apply access control policy to the memfd_secret() fds we are going =
-to
-> > > > need to attach some sort of LSM state to the inode, we might as wel=
-l
-> > > > use the mechanism we already have instead of inventing another one.
+On Wed, May 18, 2022 at 12:03 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Wed, May 18, 2022 at 2:53 AM Gong Ruiqi <gongruiqi1@huawei.com> wrote:
+> > On 2022/05/18 9:39, Paul Moore wrote:
+> > > On Tue, May 17, 2022 at 9:21 PM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
+> > >>
+> > >> Randomize the layout of struct selinux_audit_data as suggested in [1],
+> > >> since it contains a pointer to struct selinux_state, an already
+> > >> randomized strucure.
+> > >>
+> > >> [1]: https://github.com/KSPP/linux/issues/188
+> > >>
+> > >> Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+> > >> ---
+> > >>  security/selinux/include/avc.h | 2 +-
+> > >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >>
+> > >> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+> > >> index 2b372f98f2d7..5525b94fd266 100644
+> > >> --- a/security/selinux/include/avc.h
+> > >> +++ b/security/selinux/include/avc.h
+> > >> @@ -53,7 +53,7 @@ struct selinux_audit_data {
+> > >>         u32 denied;
+> > >>         int result;
+> > >>         struct selinux_state *state;
+> > >> -};
+> > >> +} __randomize_layout;
 > > >
-> > > Any further comments (on design or implementation)?
-> > >
-> > > Should I resend a non-rfc?
+> > > I'll apologize in advance for the stupid question, but does
 > >
-> > I personally would really like to see a selinux-testsuite for this so
-> > that we can verify it works not just now but in the future too.  I
-> > think having a test would also help demonstrate the usefulness of the
-> > additional LSM controls.
+> > Not at all :)
 > >
->
-> Any comments (especially from the mm people)?
->
-> Draft SELinux testsuite patch:
-> https://github.com/SELinuxProject/selinux-testsuite/pull/80
->
-> > > One naming question:
-> > > Should the anonymous inode class be named "[secretmem]", like
-> > > "[userfaultfd]", or "[secret_mem]" similar to "[io_uring]"?
+> > > __randomize_layout result in any problems when the struct is used in a
+> > > trace event?  (see include/trace/events/avc.h)
 > >
-> > The pr_fmt() string in mm/secretmem.c uses "secretmem" so I would
-> > suggest sticking with "[secretmem]", although that is question best
-> > answered by the secretmem maintainer.
+> > No, as least it doesn't in the testing I did. I believe we can use the
+> > struct tagged with __randomize_layout as normal except that 1) it should
+> > be initialized with a designated initializer, and 2) pointers to this
+> > type can't be cast to/from pointers to another type. Other operations
+> > like dereferencing members of the struct (as in
+> > include/trace/events/avc.h) shouldn't be a problem.
+> >
+> > I did a testing to the patch on a qemu vm by running the selinux
+> > testsuite with tracing events "avc:selinux_audited" enabled. The
+> > testsuite completed successfully and from the tracing log I saw nothing
+> > abnormal with my bare eyes. You can do more testing if you want or you
+> > have other ideas of how to do so ;)
+>
+> That's great, thanks for verifying this.  I was aware of the other
+> restrictions but wasn't sure about tracing.  Now I know :)
+>
+> It's too late to go into selinux/next for this dev cycle, but I'll
+> queue this up for selinux/next once the merge window closes.
 
-I think this patchset has been posted for long enough with no
-comments, and no objections, that I can pull this into the
-selinux/next tree.  However, I'll give it until the end of this week
-just to give folks one last chance to comment.  If I don't hear any
-objections by the end of day on Friday, June 10th I'll go ahead and
-merge this.
+I just merged this into my local selinux/next branch and I'll be
+pushing it up to the mail selinux tree later today - thanks!
 
---=20
+-- 
 paul-moore.com
