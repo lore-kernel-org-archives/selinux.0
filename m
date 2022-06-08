@@ -2,83 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AAE2C43334
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 19:23:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E5DC43334
+	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 22:37:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbiFHTXT convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Wed, 8 Jun 2022 15:23:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36790 "EHLO
+        id S236632AbiFHWhf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jun 2022 18:37:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231183AbiFHTXS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 15:23:18 -0400
-X-Greylist: delayed 401 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Jun 2022 12:23:16 PDT
-Received: from mx1.polytechnique.org (mx1.polytechnique.org [129.104.30.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3894D1DC86D
-        for <selinux@vger.kernel.org>; Wed,  8 Jun 2022 12:23:16 -0700 (PDT)
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id D0A5D56128B
-        for <selinux@vger.kernel.org>; Wed,  8 Jun 2022 21:16:32 +0200 (CEST)
-Received: by mail-pj1-f44.google.com with SMTP id e24so19511032pjt.0
-        for <selinux@vger.kernel.org>; Wed, 08 Jun 2022 12:16:32 -0700 (PDT)
-X-Gm-Message-State: AOAM532PQusBrpql9a3Ayll/ocwIMHEpAneE1qycPKOVw+o04arSgB0Z
-        kH4pYLcI2M7m6YjHFP0x+wJjU49f7SZKQ+XaxUM=
-X-Google-Smtp-Source: ABdhPJwAZHorXfzeZkSVST0GAiendHvVRbUgmmZojWxUl5aF0ZmPPNWw3PnXczixJUdq3ymcQAPn19z2FhaQSjP/vG4=
-X-Received: by 2002:a17:90b:3e85:b0:1e8:8f2f:bd2f with SMTP id
- rj5-20020a17090b3e8500b001e88f2fbd2fmr719021pjb.120.1654715791620; Wed, 08
- Jun 2022 12:16:31 -0700 (PDT)
+        with ESMTP id S234574AbiFHWhd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 18:37:33 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5525A23F887;
+        Wed,  8 Jun 2022 15:37:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1654727830;
+        bh=6UcI+eHcxXsjfyDUhrglMMSQWDVdg3SyxvdHwQBpES0=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=VL2nl8Zk1TeimCboWYa0kHvwhrF264awD8AUAUKR3r/sHr/4LA2yU7X1ZiUesn6BB
+         BuGvni/P8v2Ialm3RzhMM+yicfA4z4wLkC1TWv5xaGYbbdPfFQdJlayn8g7uUcZBea
+         iRwloFN01MPpfyy3iBGA2iP2bBy8jtosrjjxM2YU=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from zweiundvierzig.fritz.box ([217.239.16.253]) by mail.gmx.net
+ (mrgmx004 [212.227.17.190]) with ESMTPSA (Nemesis) id
+ 1MRmfo-1oAfAy0BoY-00TDFV; Thu, 09 Jun 2022 00:37:10 +0200
+From:   Jonas Lindner <jolindner@gmx.de>
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org
+Cc:     trivial@kernel.org, Jonas Lindner <jolindner@gmx.de>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH] selinux: fix typos in comments
+Date:   Thu,  9 Jun 2022 00:36:16 +0200
+Message-Id: <20220608223619.2287162-1-jolindner@gmx.de>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220607150145.29757-1-cgzones@googlemail.com>
-In-Reply-To: <20220607150145.29757-1-cgzones@googlemail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 8 Jun 2022 21:16:20 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==wRe=5QXr=g4VGwudXGiiWLdJeiyP9kM97TZS=D=nySg@mail.gmail.com>
-Message-ID: <CAJfZ7==wRe=5QXr=g4VGwudXGiiWLdJeiyP9kM97TZS=D=nySg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: fix validation of user declarations in modules
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>, bauen1 <j2468h@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Jun  8 21:16:33 2022 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:E+DvfH46gyv8+k9caVZG/w/zdElgiIB/JC/XVRJZakZ/NLVeFjv
+ G+ha2gL0vRrLCftm/OC1EvjzNCWqa7IAwgQgkE8sdNTN5nqY7k7edaOsYdMybtawxiMNCpz
+ qcRUTypUBq6Kx2P7iPg5j0fy7Xd6ZGm0TPEcBQje9cWg5QBppeAojuJbQy2F24XtJPn0XHi
+ BUYUVFUbLpt8POUyiUDjQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:mqIas/Cr+H8=:7a1wAZKwOkfYZYBqT31v63
+ NveO4N/ZKZcq4RtTdBQ5uJDsQEq6s6SM0Z29D2k9vcjB5BljfOmTW94/LzkbFoRXgxC2nnSZs
+ UJdhTGqrsgjGItXB6AWokO0ED0YpqrUSGpyReKbPjSSe5DbiOOwVQQsskgnRIKQnRn1ZTX4NE
+ j9387e8zMk8Y2ExOiLNnwI6CI2zpXgJB15qkLlY/+oMYd5BLdHhvsvNHL62V/SdZmhiAahZit
+ hx2HQXJTkryJtLGMQqYMle2doR9nyApX2klNVp0SICHYB/YYKBGDCyYdbdrhZuaqTOcmuAiFH
+ gy/yQrGjs1Wh3NewD+a8xoWomlTw5NlYhGmneVsBufnVdaeZo6JVoPMnxR8XzdkyUKRHgSwwd
+ g84t9FFapl2M22enE6isL/gUhTtG/Ry3LRylGEsNzQrP1NHJ5ieae36UVVEd+dhJxU4nc03Yc
+ 7frq8Z/VXJtCrZJBPhah5MQqAm+crR3MJzK8Yz/7KSdvm3pUalwgmkWh515muL9PDpH68j1hO
+ Zy6/yqunqlS3qviWFJrGF67Bft+9A/6j+xOLpw2e3z5PIWXKPYw5azgDF3pIPldae4dWcPuql
+ tgZjwAmkO/vopuS6z//l480iuWFDZeqVH0vJu7ihedznnOq0o9T2olP6U4vX2+CK+7opGEPLA
+ 3g6mc9u/4Fc0daoKEe5feLTCLMjaL/pULSawHbbwhWNqQCULloEdmxYJeTQshdgtk4ZCSHubO
+ ug2E8XdJhFGwLy5kBz78nY3VejeLS7HrGv4EUHjWnhxgmq9yrB/aakeuSy6Y6ycH/T54ZHwfb
+ QDlQYgmSEntQcm1/6gXHo5DD2aIDeNHrSzyBQT1kmdA3uQdU1Emqcwr/t3NDEvYDESqUGgiY1
+ y7wug+71EQs4BRtUapsEma/YczUpZN6iOvvumpeb1HK/cXNSnfPA19iWw5Qpsqqi2lZvFJc38
+ xEGPGMcX5EMLlfD8fTeWs5McfPj6xsE1gNa4beoOTo0mIoRUkW4yST8Nx62a44nPvo54TR1wV
+ voEBkVHft8tof2LLoZvaiFRosyVIQDaorhYlvfCQIHZBDLUIRUUXVKriYZWrC988rvPYs6aek
+ sL+TiBh+uqxxa9dQp6QK8xVkb1jqSDGETOavGsfsppwPS7viI8hpFULQw==
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 7, 2022 at 5:02 PM Christian Göttsche
-<cgzones@googlemail.com> wrote:
->
-> Users are allowed to be declared in modules. Modules do not get expanded
-> leaving the `struct user_datum` members `exp_range` and `exp_dfltlevel`
-> empty.
-> Do no validate the expanded range and level for modular polices.
->
-> Reported-by: bauen1 <j2468h@gmail.com>
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> ---
->  libsepol/src/policydb_validate.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-> index da18282b..99d4eb7f 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -18,7 +18,7 @@ typedef struct validate {
->  typedef struct map_arg {
->         validate_t *flavors;
->         sepol_handle_t *handle;
-> -       int mls;
-> +       policydb_t *policy;
->  } map_arg_t;
+selinux: fix typos in comments
+Signed-off-by: Jonas Lindner <jolindner@gmx.de>
+=2D--
+ security/selinux/hooks.c         | 4 ++--
+ security/selinux/include/audit.h | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Hello,
-As the policy is not modified, could this pointer be "const policydb_t
-*policy;"? (And the last parameter of validate_user_datum be "const
-policydb_t *p"). On the other hand, as policydb_validate.c does not
-use any const pointer, feel free to disregard my comment.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index beceb89f68d9..d3f18d4a03c0 100644
+=2D-- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -640,7 +640,7 @@ static int selinux_set_mnt_opts(struct super_block *sb=
+,
+ 	 * we need to skip the double mount verification.
+ 	 *
+ 	 * This does open a hole in which we will not notice if the first
+-	 * mount using this sb set explict options and a second mount using
++	 * mount using this sb set explicit options and a second mount using
+ 	 * this sb does not set any security options.  (The first options
+ 	 * will be used for both mounts)
+ 	 */
+@@ -6795,7 +6795,7 @@ static u32 bpf_map_fmode_to_av(fmode_t fmode)
+ }
 
-This patch nevertheless looks good to me too.
-Thanks!
-Nicolas
+ /* This function will check the file pass through unix socket or binder t=
+o see
+- * if it is a bpf related object. And apply correspinding checks on the b=
+pf
++ * if it is a bpf related object. And apply corresponding checks on the b=
+pf
+  * object based on the type. The bpf maps and programs, not like other fi=
+les and
+  * socket, are using a shared anonymous inode inside the kernel as their =
+inode.
+  * So checking that inode cannot identify if the process have privilege t=
+o
+diff --git a/security/selinux/include/audit.h b/security/selinux/include/a=
+udit.h
+index 1cba83d17f41..406bceb90c6c 100644
+=2D-- a/security/selinux/include/audit.h
++++ b/security/selinux/include/audit.h
+@@ -18,7 +18,7 @@
+ /**
+  *	selinux_audit_rule_init - alloc/init an selinux audit rule structure.
+  *	@field: the field this rule refers to
+- *	@op: the operater the rule uses
++ *	@op: the operator the rule uses
+  *	@rulestr: the text "target" of the rule
+  *	@rule: pointer to the new rule structure returned via this
+  *
+=2D-
+2.34.1
 
