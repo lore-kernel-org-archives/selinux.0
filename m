@@ -2,211 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A6B9CCA482
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 17:06:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4BAAC43334
+	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 17:22:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229887AbiFHRGn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jun 2022 13:06:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56130 "EHLO
+        id S230476AbiFHRWG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jun 2022 13:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231687AbiFHRBt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 13:01:49 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC633DB6FB
-        for <selinux@vger.kernel.org>; Wed,  8 Jun 2022 09:52:59 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id y187so19457887pgd.3
-        for <selinux@vger.kernel.org>; Wed, 08 Jun 2022 09:52:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dilger-ca.20210112.gappssmtp.com; s=20210112;
-        h=from:message-id:mime-version:subject:date:in-reply-to:cc:to
-         :references;
-        bh=fnPN3qV01P3JmXHU8gW5ko0hf6xSVYre2n0YUp+eUSM=;
-        b=iMN/bMnLY5zPHxO3z021Ssj9b09dXulhc9izzTBvxBYD/4i+JJizkdR+Cn3b+Thmkl
-         JEo/Si6S074JQ57IsXq+Zgx53XhA81/+D7bDP98wny13GU0ThZ2YCiSvjdSRMKo70pbi
-         9jfcv76OV2UMkJ4ttFAnYSAS8ujK4mqqBoL6465yPREa2H36m9ekaf0YuAdfjgVdPnAd
-         k07og7lBaEIOUOQMLU0vZ89P8wyLRvg2OVz3PbWzqgYnRfLW47VdfoPL4nk8rrk2PV+I
-         8Tk85greJtZabPE5TABw/ZOauNycrmuh68RIEDgmrN6MLDywh+l1Erz6Dkxeff1Q63MZ
-         gBgg==
+        with ESMTP id S231260AbiFHRV4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 13:21:56 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 67990476465
+        for <selinux@vger.kernel.org>; Wed,  8 Jun 2022 10:09:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1654708197;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=25JTg/nosGe2gqOZaDilJWQ+SF+g6VnDW83fvdKgXeQ=;
+        b=C+t9ebF9jNWwXWEsiADcIfGyO/NBXASLYNv3AdYCaKsFPI33ZPpIKW+toja9m/0BDL6t7h
+        YaxeDjuKXi5nNotVGhEihMuYs2NQrlRn/8Iej0Lzh6Qfi3Vb8qVy3HX8dUj8yPY+pqXQbd
+        xHg6PjU/ZMWTg1jqoWxQS2YzwuX3U4M=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-416-w9XIpyrDM2m7fxrg1VSsMQ-1; Wed, 08 Jun 2022 13:09:56 -0400
+X-MC-Unique: w9XIpyrDM2m7fxrg1VSsMQ-1
+Received: by mail-wm1-f72.google.com with SMTP id k5-20020a05600c1c8500b003974c5d636dso10142428wms.1
+        for <selinux@vger.kernel.org>; Wed, 08 Jun 2022 10:09:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:message-id:mime-version:subject:date
-         :in-reply-to:cc:to:references;
-        bh=fnPN3qV01P3JmXHU8gW5ko0hf6xSVYre2n0YUp+eUSM=;
-        b=aK5YZisfrdpr3YjvBAyidBsv4FSdvFJfaNZASeCGQr5hxCXAQSeNal884mAb9mhlq8
-         dFpQwI/4o25M5Nv5l9WsK+7FQpWbkyQXEaP1q7F1Nf9Jcb2Xq+8YBYLswj0/WaBE/9/t
-         fQbBb4zYfGiAOkM/voljeWxKFrRpROYrixPC7nxfuPdeKRLBGTJyKOA+jRvQqeYYQG6c
-         TvODw6QnuT+vPoXFWROVs/DZw6LlYEOjL+uIBXpwTbFrj+bY1m5yJzdZ0RpPJnCIyc3m
-         joC/uBpWYXfE5pPTJlMfICd7X1U2jmNAOEwJ5xZhbuHkBNMuZ/ZgJAkkee1m9Nvwh4Lh
-         Sl8w==
-X-Gm-Message-State: AOAM53065ubj7TBNELLyHf1XT18BwnzcXzlJfUroVIQktifEH9lOjMmM
-        uzvtRPu9ILJFYW1Cyv46t/Hs5g==
-X-Google-Smtp-Source: ABdhPJyYOxJT4qNu/PrIgO1lgsUudJcnOLVnOnGhyamodZr6ktOlCvuznkFn470anfKLLkzQiqt1dQ==
-X-Received: by 2002:a05:6a00:1811:b0:51b:fec8:be7b with SMTP id y17-20020a056a00181100b0051bfec8be7bmr21576391pfa.22.1654707179152;
-        Wed, 08 Jun 2022 09:52:59 -0700 (PDT)
-Received: from cabot.adilger.int (S01061cabc081bf83.cg.shawcable.net. [70.77.221.9])
-        by smtp.gmail.com with ESMTPSA id a14-20020aa794ae000000b0050dc7628146sm15230078pfl.32.2022.06.08.09.52.57
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 08 Jun 2022 09:52:58 -0700 (PDT)
-From:   Andreas Dilger <adilger@dilger.ca>
-Message-Id: <08A11E25-0208-4B4F-8759-75C1841E7017@dilger.ca>
-Content-Type: multipart/signed;
- boundary="Apple-Mail=_5498CD26-7CAB-44EA-B8BC-C75BC8DD9F40";
- protocol="application/pgp-signature"; micalg=pgp-sha256
-Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
-Subject: Re: [RFC PATCH] f*xattr: allow O_PATH descriptors
-Date:   Wed, 8 Jun 2022 10:53:11 -0600
-In-Reply-To: <20220607153139.35588-1-cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        linux-api@vger.kernel.org, linux-man@vger.kernel.org,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-To:     =?utf-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-References: <20220607153139.35588-1-cgzones@googlemail.com>
-X-Mailer: Apple Mail (2.3273)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=25JTg/nosGe2gqOZaDilJWQ+SF+g6VnDW83fvdKgXeQ=;
+        b=Vv7I+xv7RkkOV585saBcwQO1X7GYcqNe4kBB3VaEZX/0i8Wlr1gNgiDQza11Dzzq4m
+         Lt+CHwcRrGgHbZ+5sMA+BhtspF1DHqk5beoB+9KgtKyXlftNQgcQWtJGesB0+5x8Vjn4
+         yfCbHxaIqD3BSdBlEOt8LlwrfcyWcVnuiduebRwXLoAWhbJtFYoRgA9ZbUblG47ghG/H
+         y9n5Qs6o8ukoJh4bj5E8rRN0LUDYdBUa0MtNs45GYUFFxfF3TgTDwO+0QKwWpq6MwlaY
+         wvr/g0bn0f8GLwyZR4p6l1xT1E4W8TIaeMiuOiZcuhpyG4Otiwl/7kkjT10GzOCtbAi/
+         pi2Q==
+X-Gm-Message-State: AOAM531WrnTB4a5QLkuQgbhc8Bh4S6c9ACx/yNU242EvPfJW3LHdS7KU
+        lvjmj/ZCg1sUYbue7YSBCu0oVxyJ3MdQEvDZWcTxsDN65aNVZ0hRpWlK8ASyiYZjPKL+0rvdYYS
+        8J/w6/ocGcY/kpbTyJ55yqSoOaSK9t3jh5qE+iHITK3fWa43kI3GzQkmie8ljgdZvD0UeYw==
+X-Received: by 2002:a5d:5c07:0:b0:218:544d:4347 with SMTP id cc7-20020a5d5c07000000b00218544d4347mr8174586wrb.107.1654708194906;
+        Wed, 08 Jun 2022 10:09:54 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyM6QExF485LVWbEo5415V+BR390+BQF2nayJ9M9JJ9XJzjCLjufEQGxvtlDzU+nPHkU3w/vQ==
+X-Received: by 2002:a5d:5c07:0:b0:218:544d:4347 with SMTP id cc7-20020a5d5c07000000b00218544d4347mr8174570wrb.107.1654708194602;
+        Wed, 08 Jun 2022 10:09:54 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
+        by smtp.gmail.com with ESMTPSA id m2-20020adfe942000000b0020fcaba73bcsm22176194wrn.104.2022.06.08.10.09.53
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Jun 2022 10:09:53 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH userspace 0/2] Refine semantics of libsemanage's check_ext_changes
+Date:   Wed,  8 Jun 2022 19:09:52 +0200
+Message-Id: <20220608170954.114668-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.36.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Make it always do the "do_write_kernel" step so that the semantic is
+essentially "--build but with the module content checksum optimization",
+as otherwise the final policy doesn't get updated when there are no
+changes in modules, but other customizations are applied.
 
---Apple-Mail=_5498CD26-7CAB-44EA-B8BC-C75BC8DD9F40
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
+Since the name --rebuild-if-modules-changed no longer matches the
+semantics, also change that to just --refresh, which fits better.
 
-On Jun 7, 2022, at 9:31 AM, Christian G=C3=B6ttsche =
-<cgzones@googlemail.com> wrote:
->=20
-> From: Miklos Szeredi <mszeredi@redhat.com>
->=20
-> Support file descriptors obtained via O_PATH for extended attribute
-> operations.
->=20
-> Extended attributes are for example used by SELinux for the security
-> context of file objects. To avoid time-of-check-time-of-use issues =
-while
-> setting those contexts it is advisable to pin the file in question and
-> operate on a file descriptor instead of the path name. This can be
-> emulated in userspace via /proc/self/fd/NN [1] but requires a procfs,
-> which might not be mounted e.g. inside of chroots, see[2].
+Also update man pages and code comments.
 
-Will this allow get/set xattrs directly on symlinks?  That is one =
-problem
-that we have with some of the xattrs that are inherited on symlinks, but
-there is no way to change them.  Allowing setxattr directly on a symlink
-would be very useful.
+Ondrej Mosnacek (2):
+  libsemanage: always write kernel policy when check_ext_changes is
+    specified
+  semodule: rename --rebuild-if-modules-changed to --refresh
 
-Cheers, Andreas
+ libsemanage/include/semanage/handle.h |  2 +-
+ libsemanage/src/direct_api.c          |  8 +++++---
+ policycoreutils/semodule/semodule.8   | 12 ++++++------
+ policycoreutils/semodule/semodule.c   | 13 ++++++++++---
+ 4 files changed, 22 insertions(+), 13 deletions(-)
 
-> [1]: =
-https://github.com/SELinuxProject/selinux/commit/7e979b56fd2cee28f647376a7=
-233d2ac2d12ca50
-> [2]: =
-https://github.com/SELinuxProject/selinux/commit/de285252a1801397306032e07=
-0793889c9466845
->=20
-> Original patch by Miklos Szeredi <mszeredi@redhat.com>
-> =
-https://patchwork.kernel.org/project/linux-fsdevel/patch/20200505095915.11=
-275-6-mszeredi@redhat.com/
->=20
->> While this carries a minute risk of someone relying on the property =
-of
->> xattr syscalls rejecting O_PATH descriptors, it saves the trouble of
->> introducing another set of syscalls.
->>=20
->> Only file->f_path and file->f_inode are accessed in these functions.
->>=20
->> Current versions return EBADF, hence easy to detect the presense of
->> this feature and fall back in case it's missing.
->=20
-> CC: linux-api@vger.kernel.org
-> CC: linux-man@vger.kernel.org
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
-> fs/xattr.c | 8 ++++----
-> 1 file changed, 4 insertions(+), 4 deletions(-)
->=20
-> diff --git a/fs/xattr.c b/fs/xattr.c
-> index e8dd03e4561e..16360ac4eb1b 100644
-> --- a/fs/xattr.c
-> +++ b/fs/xattr.c
-> @@ -656,7 +656,7 @@ SYSCALL_DEFINE5(lsetxattr, const char __user *, =
-pathname,
-> SYSCALL_DEFINE5(fsetxattr, int, fd, const char __user *, name,
-> 		const void __user *,value, size_t, size, int, flags)
-> {
-> -	struct fd f =3D fdget(fd);
-> +	struct fd f =3D fdget_raw(fd);
-> 	int error =3D -EBADF;
->=20
-> 	if (!f.file)
-> @@ -768,7 +768,7 @@ SYSCALL_DEFINE4(lgetxattr, const char __user *, =
-pathname,
-> SYSCALL_DEFINE4(fgetxattr, int, fd, const char __user *, name,
-> 		void __user *, value, size_t, size)
-> {
-> -	struct fd f =3D fdget(fd);
-> +	struct fd f =3D fdget_raw(fd);
-> 	ssize_t error =3D -EBADF;
->=20
-> 	if (!f.file)
-> @@ -844,7 +844,7 @@ SYSCALL_DEFINE3(llistxattr, const char __user *, =
-pathname, char __user *, list,
->=20
-> SYSCALL_DEFINE3(flistxattr, int, fd, char __user *, list, size_t, =
-size)
-> {
-> -	struct fd f =3D fdget(fd);
-> +	struct fd f =3D fdget_raw(fd);
-> 	ssize_t error =3D -EBADF;
->=20
-> 	if (!f.file)
-> @@ -910,7 +910,7 @@ SYSCALL_DEFINE2(lremovexattr, const char __user *, =
-pathname,
->=20
-> SYSCALL_DEFINE2(fremovexattr, int, fd, const char __user *, name)
-> {
-> -	struct fd f =3D fdget(fd);
-> +	struct fd f =3D fdget_raw(fd);
-> 	int error =3D -EBADF;
->=20
-> 	if (!f.file)
-> --
-> 2.36.1
->=20
+-- 
+2.36.1
 
-
-Cheers, Andreas
-
-
-
-
-
-
---Apple-Mail=_5498CD26-7CAB-44EA-B8BC-C75BC8DD9F40
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename=signature.asc
-Content-Type: application/pgp-signature;
-	name=signature.asc
-Content-Description: Message signed with OpenPGP
-
------BEGIN PGP SIGNATURE-----
-Comment: GPGTools - http://gpgtools.org
-
-iQIzBAEBCAAdFiEEDb73u6ZejP5ZMprvcqXauRfMH+AFAmKg0/cACgkQcqXauRfM
-H+Cr1A/9GWZGOg+kt6I+09zL5KisPWOXiA1uxzaae5CcnznwYr60ZJQz2Hn7NEnR
-PfvHoyl1GS01x19rtV7TFszbjtwmiPvhh+zfjhLYzEUFnou3QTJhgVFcIzKqDnMJ
-t366qvA7dIcnGxqVPCWNepIELFOv2na8+AO6S/q6MeeTTS2P3KmqhWOsvioe1N+H
-93NN+vCPCIjs0pDM22V4GJ9BP4adrJZRUG0UGIForSpgjyNpGn2KVXtmM9gntYS5
-gCv6vm6VQpcTIkJrwXI8nebI2MrsG752HZT3H5E5byGzoY6XUPnFuIdRurifeR/m
-mjA+ZrqTycEbGbULpZ6/W+mYCpi/64d/voYqF9akMgqoaj5CGT/IpKpdgZKDsfR6
-qsbZeuvkBnzGqlgZcKlN8ArFnx56SonH+H/LgDGKoQEi+LlGkXTBw+YT262tQAZU
-8OVwDUIGCi98pq+ZCr2mlCUu/p3aOeKZbjJXxbPlSkjZy7RFdqPFdmO5wmlcCsUu
-chzNHpo3cUpGwbesF++ArwboJV3/ffKwo7+9UxzIb+qJGPKcfSaB3Xbrjj3igOKy
-tjG2jLlpfvN8lxHMY036peNmFXH6Ok95a8Zd8vZDaZxhrbT6J0gb3wyZ/NgDkeTJ
-0DlIrUibeXEH4VHzGlkuYiwmN1HlOhynJ2SB9afRYw6WgoAvcX8=
-=76kK
------END PGP SIGNATURE-----
-
---Apple-Mail=_5498CD26-7CAB-44EA-B8BC-C75BC8DD9F40--
