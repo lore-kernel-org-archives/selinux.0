@@ -2,136 +2,156 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18C99C43334
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 12:48:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45B7CC433EF
+	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 13:40:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239551AbiFHMsX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jun 2022 08:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34176 "EHLO
+        id S240270AbiFHNkx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jun 2022 09:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239514AbiFHMsT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 08:48:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB2692D0C;
-        Wed,  8 Jun 2022 05:48:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF7B4B8276C;
-        Wed,  8 Jun 2022 12:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D66FC34116;
-        Wed,  8 Jun 2022 12:48:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654692494;
-        bh=kL7aqTzSrEHcf3xZnL9DdRnwdBZsFUKtW/2ujP1VUbA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=t+UPSSFw+vgYMzwwfmzMdDix74pc+PpAiHwFtFPbm0Rmj5nt+c93ofl1Absuy8yre
-         2rVzdZOxFIttdCCnGT4hEBVVtOVHP281fHSOQCtzoiy2GxMTKLGW9dqw9eUJ8DRfoI
-         59Xc/ltMZWoqXp5QV75udZRKq1gDkWO7ore0oaD9pXJ9cLK2oG4OzhE2jP4/CTyf1J
-         BPJtzBgsFnYlWlZoKRPO3ZXpHq3PJ/Wn1kqdoqFnzSiQ/x0naJwOERiFExY+Eo/Hsb
-         0Z7orm0A5tvTn2jhiZUJusrIEYY21CSypQxJxVEtR60fAyBy4zofy73/IwZczAMKPK
-         Tan82+dxllvFw==
-Date:   Wed, 8 Jun 2022 14:48:08 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-man <linux-man@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] f*xattr: allow O_PATH descriptors
-Message-ID: <20220608124808.uylo5lntzfgxxmns@wittgenstein>
-References: <20220607153139.35588-1-cgzones@googlemail.com>
- <20220608112728.b4xrdppxqmyqmtwf@wittgenstein>
- <CAOQ4uxipD6khNUYuZT80WUa0KOMdyyP0ia55uhmeRCLj4NBicg@mail.gmail.com>
+        with ESMTP id S240333AbiFHNkw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 09:40:52 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34E141D92C2
+        for <selinux@vger.kernel.org>; Wed,  8 Jun 2022 06:40:46 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id i66so28045889oia.11
+        for <selinux@vger.kernel.org>; Wed, 08 Jun 2022 06:40:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=C7XXeH0bIvSuZTMyQ03g4bEsny6UERHyPSL+Y2dAjGo=;
+        b=MvreLzyhmXI9oDT/PRR24fmBlXFeUw7ZDKc/imisu8MSHIVyDDMLjaAljYysChAOGp
+         1aKvFiv3r1qArUt4u6Eee4waWI/iVczsAEgQlpZUca1g+MyLfLSO32hrUykTaf9N01pL
+         FVDlibGn9Tl6YoR+7R6tTjA6jmsOzLHYAQKnjOZehnP4jsRcQWbFWers4g6QlghBYgbJ
+         mmgnvtqciuq78edcvSimpZ/rM0ePvsetRei1md6abP9offRuCnBtmoby1BGS4+K/Lqxh
+         Otkfz0hzn35yXWUeEmgVdyeFdRr7dDRw0oSf8Rj1cJWqJIZoM4GQ21LJ+bGx/xsAevBS
+         eTvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=C7XXeH0bIvSuZTMyQ03g4bEsny6UERHyPSL+Y2dAjGo=;
+        b=FkT5gneSaHZuSWt8GHyh/8hRezcdmsgp3F7R86aRTexQ9YlGvQqE9EBojIZPTt3qBl
+         o9CGxIzoOvXUQtn0n0Rnc4lMd4DkEo8a5CImGb7EfhOsZKEsgtoxOkn1nbdrjGZrxbSP
+         kgQg4bhn98SxYv5hTVRAXP+ofGMexsY+2nPk+rl4NgMd4jITiyGd8DZ/NINOTybfuLqx
+         ZgeMtbitVa7DZygN0hzhrUkyoBHa027t1N9nLlC0lE7KiWYn5LIGBojaT4YwXeHHkDF2
+         vuPVdmqf+3v9iCCEKfzSiENC8YCya9UVpo4icNlOx5ugHG/DwZ3CFuVm/TwJ0ZxoBTuT
+         Gmjw==
+X-Gm-Message-State: AOAM531LMn6E338Oa4MSA5hXsaSqERKwpQ7m/Lt4zJLDEmt3t9sgEj2G
+        DzhwUDuAZR886HdRWXGRy6JsgrNen1p9OswgX3ruzmjz
+X-Google-Smtp-Source: ABdhPJwhaoxhYlGY8EDYshHZ4TCzVrVd17C1fTBwCf8YkGsMwGLgP+s4e2z3KDG1hBiPLHKzGTbOa1c4vu/YUUcqthU=
+X-Received: by 2002:a05:6808:ec5:b0:2f9:a7fb:4dfb with SMTP id
+ q5-20020a0568080ec500b002f9a7fb4dfbmr2413973oiv.156.1654695645157; Wed, 08
+ Jun 2022 06:40:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOQ4uxipD6khNUYuZT80WUa0KOMdyyP0ia55uhmeRCLj4NBicg@mail.gmail.com>
+References: <20220510182039.28771-1-cgzones@googlemail.com> <CAP+JOzSVrU+bg20mkKkT_qsVAh7ciKB_xa7s9XpEHGu0Pax_vA@mail.gmail.com>
+In-Reply-To: <CAP+JOzSVrU+bg20mkKkT_qsVAh7ciKB_xa7s9XpEHGu0Pax_vA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 8 Jun 2022 09:40:34 -0400
+Message-ID: <CAP+JOzS_RdAT4oZa3iVu7H-Ud3GxYhzK9dQa_CHCYSucH8KJ0w@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/4] libselinux: simplify policy path logic to avoid
+ uninitialized read
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 03:28:52PM +0300, Amir Goldstein wrote:
-> On Wed, Jun 8, 2022 at 2:57 PM Christian Brauner <brauner@kernel.org> wrote:
+On Wed, May 18, 2022 at 11:22 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Tue, May 10, 2022 at 4:53 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > On Tue, Jun 07, 2022 at 05:31:39PM +0200, Christian Göttsche wrote:
-> > > From: Miklos Szeredi <mszeredi@redhat.com>
-> > >
-> > > Support file descriptors obtained via O_PATH for extended attribute
-> > > operations.
-> > >
-> > > Extended attributes are for example used by SELinux for the security
-> > > context of file objects. To avoid time-of-check-time-of-use issues while
-> > > setting those contexts it is advisable to pin the file in question and
-> > > operate on a file descriptor instead of the path name. This can be
-> > > emulated in userspace via /proc/self/fd/NN [1] but requires a procfs,
-> > > which might not be mounted e.g. inside of chroots, see[2].
-> > >
-> > > [1]: https://github.com/SELinuxProject/selinux/commit/7e979b56fd2cee28f647376a7233d2ac2d12ca50
-> > > [2]: https://github.com/SELinuxProject/selinux/commit/de285252a1801397306032e070793889c9466845
-> > >
-> > > Original patch by Miklos Szeredi <mszeredi@redhat.com>
-> > > https://patchwork.kernel.org/project/linux-fsdevel/patch/20200505095915.11275-6-mszeredi@redhat.com/
-> > >
-> > > > While this carries a minute risk of someone relying on the property of
-> > > > xattr syscalls rejecting O_PATH descriptors, it saves the trouble of
-> > > > introducing another set of syscalls.
-> > > >
-> > > > Only file->f_path and file->f_inode are accessed in these functions.
-> > > >
-> > > > Current versions return EBADF, hence easy to detect the presense of
-> > > > this feature and fall back in case it's missing.
-> > >
-> > > CC: linux-api@vger.kernel.org
-> > > CC: linux-man@vger.kernel.org
-> > > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> > > ---
+> > In case the function __policy_init() gets called with a NULL pointer,
+> > the stack variable path remains uninitialized (except at its last
+> > index).  If parsing the binary policy fails in sepol_policydb_read() th=
+e
+> > error branch would access those uninitialized memory.
 > >
-> > I'd be somewhat fine with getxattr and listxattr but I'm worried that
-> > setxattr/removexattr waters down O_PATH semantics even more. I don't
-> > want O_PATH fds to be useable for operations which are semantically
-> > equivalent to a write.
-> 
-> It is not really semantically equivalent to a write if it works on a
-> O_RDONLY fd already.
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> For the series with v2 of patch 4:
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
+Merged with v4 of patch 4.
+Thanks,
+Jim
 
-The fact that it works on a O_RDONLY fd has always been weird. And is
-probably a bug. If you look at xattr_permission() you can see that it
-checks for MAY_WRITE for set operations... setxattr() writes to disk for
-real filesystems. I don't know how much closer to a write this can get.
-
-In general, one semantic aberration doesn't justify piling another one
-on top.
-
-(And one thing that speaks for O_RDONLY is at least that it actually
-opens the file wheres O_PATH doesn't.)
-
-> 
+> > ---
+> >  libselinux/src/audit2why.c | 34 +++++++++++++---------------------
+> >  1 file changed, 13 insertions(+), 21 deletions(-)
 > >
-> > In sensitive environments such as service management/container runtimes
-> > we often send O_PATH fds around precisely because it is restricted what
-> > they can be used for. I'd prefer to not to plug at this string.
-> 
-> But unless I am mistaken, path_setxattr() and syscall_fsetxattr()
-> are almost identical w.r.t permission checks and everything else.
-> 
-> So this change introduces nothing new that a user in said environment
-> cannot already accomplish with setxattr().
-> 
-> Besides, as the commit message said, doing setxattr() on an O_PATH
-> fd is already possible with setxattr("/proc/self/$fd"), so whatever security
-> hole you are trying to prevent is already wide open.
-
-That is very much a something that we're trying to restrict for this
-exact reason and is one of the main motivator for upgrade mask in
-openat2(). If I want to send a O_PATH around I want it to not be
-upgradable. Aleksa is working on upgrade masks with openat2() (see [1]
-and part of the original patchset in [2]. O_PATH semantics don't need to
-become weird.
-
-[1]: https://lore.kernel.org/all/20220526130355.fo6gzbst455fxywy@senku
-[2]: https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20190728010207.9781-8-cyphar@cyphar.com
+> > diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+> > index ca38e13c..44a9a341 100644
+> > --- a/libselinux/src/audit2why.c
+> > +++ b/libselinux/src/audit2why.c
+> > @@ -192,25 +192,16 @@ static PyObject *finish(PyObject *self __attribut=
+e__((unused)), PyObject *args)
+> >  static int __policy_init(const char *init_path)
+> >  {
+> >         FILE *fp;
+> > -       char path[PATH_MAX];
+> > +       const char *curpolicy;
+> >         char errormsg[PATH_MAX+1024+20];
+> >         struct sepol_policy_file *pf =3D NULL;
+> >         int rc;
+> >         unsigned int cnt;
+> >
+> > -       path[PATH_MAX-1] =3D '\0';
+> >         if (init_path) {
+> > -               strncpy(path, init_path, PATH_MAX-1);
+> > -               fp =3D fopen(path, "re");
+> > -               if (!fp) {
+> > -                       snprintf(errormsg, sizeof(errormsg),
+> > -                                "unable to open %s:  %m\n",
+> > -                                path);
+> > -                       PyErr_SetString( PyExc_ValueError, errormsg);
+> > -                       return 1;
+> > -               }
+> > +               curpolicy =3D init_path;
+> >         } else {
+> > -               const char *curpolicy =3D selinux_current_policy_path()=
+;
+> > +               curpolicy =3D selinux_current_policy_path();
+> >                 if (!curpolicy) {
+> >                         /* SELinux disabled, must use -p option. */
+> >                         snprintf(errormsg, sizeof(errormsg),
+> > @@ -218,14 +209,15 @@ static int __policy_init(const char *init_path)
+> >                         PyErr_SetString( PyExc_ValueError, errormsg);
+> >                         return 1;
+> >                 }
+> > -               fp =3D fopen(curpolicy, "re");
+> > -               if (!fp) {
+> > -                       snprintf(errormsg, sizeof(errormsg),
+> > -                                "unable to open %s:  %m\n",
+> > -                                curpolicy);
+> > -                       PyErr_SetString( PyExc_ValueError, errormsg);
+> > -                       return 1;
+> > -               }
+> > +       }
+> > +
+> > +       fp =3D fopen(curpolicy, "re");
+> > +       if (!fp) {
+> > +               snprintf(errormsg, sizeof(errormsg),
+> > +                        "unable to open %s:  %m\n",
+> > +                        curpolicy);
+> > +               PyErr_SetString( PyExc_ValueError, errormsg);
+> > +               return 1;
+> >         }
+> >
+> >         avc =3D calloc(sizeof(struct avc_t), 1);
+> > @@ -249,7 +241,7 @@ static int __policy_init(const char *init_path)
+> >         sepol_policy_file_set_fp(pf, fp);
+> >         if (sepol_policydb_read(avc->policydb, pf)) {
+> >                 snprintf(errormsg, sizeof(errormsg),
+> > -                        "invalid binary policy %s\n", path);
+> > +                        "invalid binary policy %s\n", curpolicy);
+> >                 PyErr_SetString( PyExc_ValueError, errormsg);
+> >                 fclose(fp);
+> >                 return 1;
+> > --
+> > 2.36.1
+> >
