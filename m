@@ -2,178 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B74B1C43334
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 06:57:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE5DAC43334
+	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 11:27:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234650AbiFHG5Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jun 2022 02:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55428 "EHLO
+        id S238186AbiFHL1h (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jun 2022 07:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241477AbiFHGI0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 02:08:26 -0400
-Received: from mail-vs1-f51.google.com (mail-vs1-f51.google.com [209.85.217.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B279417CD3;
-        Tue,  7 Jun 2022 22:14:49 -0700 (PDT)
-Received: by mail-vs1-f51.google.com with SMTP id q14so18642885vsr.12;
-        Tue, 07 Jun 2022 22:14:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=QBGwtKpyTYcwHawGkkLJIlVc8uYMzI2DXbLnehmXfbE=;
-        b=SB0WOTvPTBDL580CNJpBSrVLBNq9/eKKCK8hLOT6KVBVv0TrGp2zn/JM1IUJQw6u9G
-         eK8IYj3exswHjhWEXQrSbAZHl8f5WSnJ6kfjSaI8FwZM4nJ8zOM+lwXCPaFkazROYF+R
-         hyhMO1E8boquWtsici45GjRKvi9pPRiAar2Ozft3hQec274g2MwkIgoEJD1Y9bByBJJf
-         FVbLqu7oDS75iva6nVklYe4zTkwweuUxGq+mWeccpUXcr+xwOEKkmVfMcRpVbOkClACN
-         5gYHGH9BHx2AY9PLsi+YeDZSFKy2I3p+HojZR8U2QLhLQ78UHqRbK+044hBz3mbTDBrB
-         A1fg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=QBGwtKpyTYcwHawGkkLJIlVc8uYMzI2DXbLnehmXfbE=;
-        b=vfjEH6tL6pGAbJyASqQG5WbS/Ag5XyyI7q5UeULH5sX9JE0sFjtJkH9jsoIvlVZCKh
-         H+K2jVlrn7AyYTinmHpl1EZpYMQgp9uI1eBE27mVvnvxVIZTkoyZKE6RBKzcKNYQoW0Q
-         oBgxAsW+4AAH9KMwdFAUpD+ScMS9DzPBCxnZYpNPLwUberHgU6Kj9hPw5kwCBWJoWCIw
-         +MitgL7bwvT5yNNL+dIURoo+PHs75qmfUfbQlIotq7jixvPiAZ6GJMeJCuzVDdAgeBor
-         AJ0wHreZEFFc+4vJCbFqxzYQ4OryTTPyjp5/OCo7mjzW5rROBydLilIYQXd/0n91pWos
-         xTOg==
-X-Gm-Message-State: AOAM533uNSVOURNrmncryBxkn+g5cM8iCM2gyDhiRe/AUR4SO+fJPohb
-        rdrkaIb68yT7TAMIeUrSeY8PmYuLprHG+MbxwYA=
-X-Google-Smtp-Source: ABdhPJzt4gBGzWHwFbcparAl2vI/ut9cXMxIMjE1fE+uM8+vrXAB9MlTphllB1wBrc+bU0jzx0MMIHnKz47kUKFMKSQ=
-X-Received: by 2002:a67:70c4:0:b0:349:d442:f287 with SMTP id
- l187-20020a6770c4000000b00349d442f287mr15008426vsc.2.1654665199165; Tue, 07
- Jun 2022 22:13:19 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220607153139.35588-1-cgzones@googlemail.com>
-In-Reply-To: <20220607153139.35588-1-cgzones@googlemail.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Wed, 8 Jun 2022 08:13:07 +0300
-Message-ID: <CAOQ4uxhu3urLps09B8zxnJPJpQXO7g67mEv3yoPRKBeZRdJb7g@mail.gmail.com>
-Subject: Re: [RFC PATCH] f*xattr: allow O_PATH descriptors
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+        with ESMTP id S238209AbiFHL1f (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 07:27:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C541673D1;
+        Wed,  8 Jun 2022 04:27:34 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35337615B3;
+        Wed,  8 Jun 2022 11:27:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F0B3C34116;
+        Wed,  8 Jun 2022 11:27:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1654687653;
+        bh=mw/8TTzcVjw2Heammx4s/Kl/78h76VgQk6zFg4QLP4w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WlFAibnCvGU1+f/+rCYQSyeyXOW0jQAf3vYCJG3DfXUYZInQ2s6gx5FLhQCF/Y/K2
+         XqQPblVMpU4oDHt6uMyraFdx8J77OTimMxURh0L93rSDmYWaayZbHkgNbl+FZZQ5np
+         V10Un2CYmhO52QU3XYCdDD30hf25xyC8HQca5jqlIEh++sUqua1biWtWQnSbzA9F8c
+         3D9BP2yb6WSxk5Qvpsos2Zy/oVoOESAQ4xhogmLsi43jDtEZwP8G/9evFnl4qtf8gD
+         1KMcIQqvj/LCWtDip4MIkSxumkP3WCj2sP7RQxZ2BmcaJSs+YEGerBBIqkx3YPl2F1
+         J0yiCCDxbJdpA==
+Date:   Wed, 8 Jun 2022 13:27:28 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-man <linux-man@vger.kernel.org>,
+        linux-api@vger.kernel.org, linux-man@vger.kernel.org,
         Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alejandro Colomar <alx.manpages@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] f*xattr: allow O_PATH descriptors
+Message-ID: <20220608112728.b4xrdppxqmyqmtwf@wittgenstein>
+References: <20220607153139.35588-1-cgzones@googlemail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220607153139.35588-1-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 8, 2022 at 5:23 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
+On Tue, Jun 07, 2022 at 05:31:39PM +0200, Christian Göttsche wrote:
 > From: Miklos Szeredi <mszeredi@redhat.com>
->
+> 
 > Support file descriptors obtained via O_PATH for extended attribute
 > operations.
->
+> 
 > Extended attributes are for example used by SELinux for the security
 > context of file objects. To avoid time-of-check-time-of-use issues while
 > setting those contexts it is advisable to pin the file in question and
 > operate on a file descriptor instead of the path name. This can be
 > emulated in userspace via /proc/self/fd/NN [1] but requires a procfs,
 > which might not be mounted e.g. inside of chroots, see[2].
->
-> [1]: https://github.com/SELinuxProject/selinux/commit/7e979b56fd2cee28f64=
-7376a7233d2ac2d12ca50
-> [2]: https://github.com/SELinuxProject/selinux/commit/de285252a1801397306=
-032e070793889c9466845
->
+> 
+> [1]: https://github.com/SELinuxProject/selinux/commit/7e979b56fd2cee28f647376a7233d2ac2d12ca50
+> [2]: https://github.com/SELinuxProject/selinux/commit/de285252a1801397306032e070793889c9466845
+> 
 > Original patch by Miklos Szeredi <mszeredi@redhat.com>
-> https://patchwork.kernel.org/project/linux-fsdevel/patch/20200505095915.1=
-1275-6-mszeredi@redhat.com/
->
+> https://patchwork.kernel.org/project/linux-fsdevel/patch/20200505095915.11275-6-mszeredi@redhat.com/
+> 
 > > While this carries a minute risk of someone relying on the property of
 > > xattr syscalls rejecting O_PATH descriptors, it saves the trouble of
 > > introducing another set of syscalls.
-
-The bitter irony is that we now want to add another set of syscalls ;-)
-
-https://lore.kernel.org/linux-fsdevel/CAOQ4uxiqG-w8s+zRqk945UtJcE4u0zjPhSs=
-=3DMSYJ0jMLLjUTFg@mail.gmail.com/
-
 > >
 > > Only file->f_path and file->f_inode are accessed in these functions.
 > >
 > > Current versions return EBADF, hence easy to detect the presense of
 > > this feature and fall back in case it's missing.
->
+> 
 > CC: linux-api@vger.kernel.org
 > CC: linux-man@vger.kernel.org
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-I think it is important to inspect this with consistency of the UAPI in min=
-d.
-What I see is that fchdir(), fcntl(), fstat(), fstatat() already accept O_P=
-ATH
-so surely they behave the same w.r.t old kernels and EBADF.
-Those could all be better documented in their man pages.
-
-w.r.t permission checks, this is no different than what *xattr() variants
-already provide.
-
-Therefore, I see no reason to object to this UAPI change.
-
-You may add:
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-
-Thanks,
-Amir.
-
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  fs/xattr.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/fs/xattr.c b/fs/xattr.c
-> index e8dd03e4561e..16360ac4eb1b 100644
-> --- a/fs/xattr.c
-> +++ b/fs/xattr.c
-> @@ -656,7 +656,7 @@ SYSCALL_DEFINE5(lsetxattr, const char __user *, pathn=
-ame,
->  SYSCALL_DEFINE5(fsetxattr, int, fd, const char __user *, name,
->                 const void __user *,value, size_t, size, int, flags)
->  {
-> -       struct fd f =3D fdget(fd);
-> +       struct fd f =3D fdget_raw(fd);
->         int error =3D -EBADF;
->
->         if (!f.file)
-> @@ -768,7 +768,7 @@ SYSCALL_DEFINE4(lgetxattr, const char __user *, pathn=
-ame,
->  SYSCALL_DEFINE4(fgetxattr, int, fd, const char __user *, name,
->                 void __user *, value, size_t, size)
->  {
-> -       struct fd f =3D fdget(fd);
-> +       struct fd f =3D fdget_raw(fd);
->         ssize_t error =3D -EBADF;
->
->         if (!f.file)
-> @@ -844,7 +844,7 @@ SYSCALL_DEFINE3(llistxattr, const char __user *, path=
-name, char __user *, list,
->
->  SYSCALL_DEFINE3(flistxattr, int, fd, char __user *, list, size_t, size)
->  {
-> -       struct fd f =3D fdget(fd);
-> +       struct fd f =3D fdget_raw(fd);
->         ssize_t error =3D -EBADF;
->
->         if (!f.file)
-> @@ -910,7 +910,7 @@ SYSCALL_DEFINE2(lremovexattr, const char __user *, pa=
-thname,
->
->  SYSCALL_DEFINE2(fremovexattr, int, fd, const char __user *, name)
->  {
-> -       struct fd f =3D fdget(fd);
-> +       struct fd f =3D fdget_raw(fd);
->         int error =3D -EBADF;
->
->         if (!f.file)
-> --
-> 2.36.1
->
+
+I'd be somewhat fine with getxattr and listxattr but I'm worried that
+setxattr/removexattr waters down O_PATH semantics even more. I don't
+want O_PATH fds to be useable for operations which are semantically
+equivalent to a write.
+
+In sensitive environments such as service management/container runtimes
+we often send O_PATH fds around precisely because it is restricted what
+they can be used for. I'd prefer to not to plug at this string.
