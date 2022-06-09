@@ -2,135 +2,114 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7795AC433EF
-	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 08:20:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53C8DC433EF
+	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 08:27:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbiFIIUR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jun 2022 04:20:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59222 "EHLO
+        id S229893AbiFII1j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jun 2022 04:27:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229625AbiFIIUQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 04:20:16 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391413A4CC0
-        for <selinux@vger.kernel.org>; Thu,  9 Jun 2022 01:20:15 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id gl15so32083676ejb.4
-        for <selinux@vger.kernel.org>; Thu, 09 Jun 2022 01:20:15 -0700 (PDT)
+        with ESMTP id S229441AbiFII1h (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 04:27:37 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF6214D7AD
+        for <selinux@vger.kernel.org>; Thu,  9 Jun 2022 01:27:33 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id g13-20020a9d6b0d000000b0060b13026e0dso16844061otp.8
+        for <selinux@vger.kernel.org>; Thu, 09 Jun 2022 01:27:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=IJj4wFWS9Iy4sZboDWeGP8LlNcqHuxqQxLIhJPBOMRs=;
-        b=ee1SG0WB1X7gEmvV6UiUaWOKosmQEhGmi8maUdsEAUpc+HwF2ZHqC22OKTJN0l95cF
-         3T+5zAcM5mCvpLHs9G+eL4gn8bYt5xkgTVQ7j+qWeooIoAwzcbXca5Vu2zY27d3QZ+yE
-         tbyNGAIUsSOCDs2oZyr1UdaUYIp6DZlEAEm2MgLg/ctx/f64Bjra4VIYK0inVj+KFXzR
-         rgbPBBLgxHTWCtFF/5/lvI9eYnlu03k4++yZAqn7ZQpoptQvibqFcxQi8qJLcdkU4ke1
-         6qBGUPl2SCdItYljeoCcVRQaig9SxSa5JUjrxWWGgpn0n24GJG/Ws5/RMjO5Xd3X1GwK
-         DEbw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=sSZ1ebQqwmnHo/5tp3l4c21li7cAfjvbiRqKDvA70qI=;
+        b=oGLlEyjkt8sxzta4f13dl8bnxFmU8+UdWgehxFFzARiXIxAUC1TCG8wc06t0kL2SjN
+         hq5TIHTHzwuxth8I/VQyJKUksaUFX/O3LaMf14tu7sfWXP236ip/j4Jl14uhH5vKEtQv
+         A5Lq6rfKiJNT1Ob57qCCnJ6ycOGD+vfrtJeji5vpZcYQ4C8IHbDbS3uSKxikXGJnMjhZ
+         xLd5jNfEi+O9wlFnsVugha46ZNRU++9Vu3xlxU9E5SVwDUcVuf1DgKKUyEvKTBNe/Klg
+         8R0OGw5XPPrgTkmvHZ0hMgDux9Qkv0/WbaYZ/vnEiyRY3iHaZLfqWrdYCAYSeAHX9WMP
+         mKSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=IJj4wFWS9Iy4sZboDWeGP8LlNcqHuxqQxLIhJPBOMRs=;
-        b=13kLH5C30N88xtPo2hH3OEynCWKKGcz7mz2SUD02SmEou4d0xzuv9QtACQ8pIGh8Gh
-         lOVZavzzCOTqIvsXUGgXr/MKsuPaXizryYPdLsZPxKHwNmoK3uOoEQgWGn7HybhaG4eI
-         PSv5g4tk2Xj6txjxlF0aGsVhWTeuv5owjngCT5Q6OEE5Lc5W1pf1yxFPN84+L74+HCbD
-         690lxvMIzwSZdfdUF42u+n8pWH50/Cci/iID9UOo/3ePLF0VD2sYguCevd077MbJewZ8
-         7DJBvFlctLsEaTxQ/7TDXN1CW/uPw94uOAEzJhgBr8uOBNfUdyruWHyUjJQFbvjMltga
-         brvA==
-X-Gm-Message-State: AOAM533kIni45MEIUSrNKN4JvuHeElzOLCHINfcJ13/qsllDxrdYO8sR
-        VanxFXWc25p0N9UjORHcSF2NabwF5Hs=
-X-Google-Smtp-Source: ABdhPJw2b8Kd5JtWIN3bKUh61+s+RygJx8Cn4GtVLIh7Cq3MrStQdNHR1Pe5TnTJ2tiHR63zK/PivQ==
-X-Received: by 2002:a17:907:3e99:b0:6fe:f823:ab96 with SMTP id hs25-20020a1709073e9900b006fef823ab96mr35353379ejc.428.1654762813669;
-        Thu, 09 Jun 2022 01:20:13 -0700 (PDT)
-Received: from dlaptop.localdomain (dynamic-095-112-077-013.95.112.pool.telefonica.de. [95.112.77.13])
-        by smtp.gmail.com with ESMTPSA id l6-20020a170906414600b007025015599bsm10278939ejk.214.2022.06.09.01.20.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jun 2022 01:20:13 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        bauen1 <j2468h@gmail.com>
-Subject: [PATCH v2] libsepol: fix validation of user declarations in non-base modules
-Date:   Thu,  9 Jun 2022 10:19:55 +0200
-Message-Id: <20220609081955.3887-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220607150145.29757-1-cgzones@googlemail.com>
-References: <20220607150145.29757-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=sSZ1ebQqwmnHo/5tp3l4c21li7cAfjvbiRqKDvA70qI=;
+        b=UrXujnvAIGH+8qrqDPn4TnS2LtQA2ZBdTj8VW2NyPD7aFxZpBO4jrg7kbYWNxxZqSu
+         BBjsyW8GGU3sH5x8lZgwyxpVYQt1konqtmrrUvWPYd+m1nzdQvYFDFcWxtRJUgwWmmgf
+         g8WdI8cpgiEa1NQoc0rwPjSV3P/FR5r3tDG4n7M63VOmMy/b7oo8Wxn6oVjIlWaJG3td
+         Odva5agVBFHKHBEIvUCqJuB/4w1eG2xYPgdzusF9pWiiP4Is8pkyNcfOtUDs58V6PawZ
+         wCgYOqfAJiQ3H7Ozca+uigr6xzdAgWxDGBmoLXi69mwxlVnZ0Dj5kT5jxCegL02rU8B2
+         23nw==
+X-Gm-Message-State: AOAM5305owlr4FoNe0d2Van6liePX/idXPQY9H4zEC/ZPDntqbHcBo/2
+        EOOvCje3ZZlsD4Arv7p8L1pEvONbXdvJxJdeOZI=
+X-Google-Smtp-Source: ABdhPJxvx2ASZ2uZrVb7YRUDH/PW0TNuAGQS5cLjX3Rr3YwyCCm5LXWvYFkwHVQbUEvszK/i7Q8MzpBPZV+Cz04dHVw=
+X-Received: by 2002:a9d:6a83:0:b0:60b:ebf5:1c3a with SMTP id
+ l3-20020a9d6a83000000b0060bebf51c3amr10817206otq.56.1654763253277; Thu, 09
+ Jun 2022 01:27:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220607150145.29757-1-cgzones@googlemail.com> <CAJfZ7==wRe=5QXr=g4VGwudXGiiWLdJeiyP9kM97TZS=D=nySg@mail.gmail.com>
+In-Reply-To: <CAJfZ7==wRe=5QXr=g4VGwudXGiiWLdJeiyP9kM97TZS=D=nySg@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 9 Jun 2022 10:27:22 +0200
+Message-ID: <CAJ2a_DddXxaKvRDHPTe6mG_mTWZ+HfVV122URY+_XqvMzGTkKQ@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: fix validation of user declarations in modules
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>, bauen1 <j2468h@gmail.com>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Users may be declared in non-base modules, which do not get expanded,
-leaving the `struct user_datum` members `exp_range` and `exp_dfltlevel`
-empty.
-Skip validation of the expanded range and level for non-base module
-polices.
+On Wed, 8 Jun 2022 at 21:16, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Tue, Jun 7, 2022 at 5:02 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Users are allowed to be declared in modules. Modules do not get expande=
+d
+> > leaving the `struct user_datum` members `exp_range` and `exp_dfltlevel`
+> > empty.
+> > Do no validate the expanded range and level for modular polices.
+> >
+> > Reported-by: bauen1 <j2468h@gmail.com>
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  libsepol/src/policydb_validate.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index da18282b..99d4eb7f 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -18,7 +18,7 @@ typedef struct validate {
+> >  typedef struct map_arg {
+> >         validate_t *flavors;
+> >         sepol_handle_t *handle;
+> > -       int mls;
+> > +       policydb_t *policy;
+> >  } map_arg_t;
+>
+> Hello,
+> As the policy is not modified, could this pointer be "const policydb_t
+> *policy;"? (And the last parameter of validate_user_datum be "const
+> policydb_t *p"). On the other hand, as policydb_validate.c does not
+> use any const pointer, feel free to disregard my comment.
+>
 
-Reported-by: bauen1 <j2468h@gmail.com>
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2:
-   - update commit description and fix typos
----
- libsepol/src/policydb_validate.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Since policydb_validate.c does not use const pointer at all yet I
+followed that style.
+I might prepare a patch to constify all pointers and refactor the
+logging mechanism,
+since I like to add validation into the kernel to avoid crashes like
+[1], especially
+if SELinux gets namespace support [2].
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index da18282b..99d4eb7f 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -18,7 +18,7 @@ typedef struct validate {
- typedef struct map_arg {
- 	validate_t *flavors;
- 	sepol_handle_t *handle;
--	int mls;
-+	policydb_t *policy;
- } map_arg_t;
- 
- static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebitmap_t *gaps)
-@@ -571,7 +571,7 @@ static int validate_mls_range(mls_range_t *range, validate_t *sens, validate_t *
- 	return -1;
- }
- 
--static int validate_user_datum(sepol_handle_t *handle, user_datum_t *user, validate_t flavors[], int mls)
-+static int validate_user_datum(sepol_handle_t *handle, user_datum_t *user, validate_t flavors[], policydb_t *p)
- {
- 	if (validate_value(user->s.value, &flavors[SYM_USERS]))
- 		goto bad;
-@@ -581,9 +581,9 @@ static int validate_user_datum(sepol_handle_t *handle, user_datum_t *user, valid
- 		goto bad;
- 	if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
- 		goto bad;
--	if (mls && validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-+	if (p->mls && p->policy_type != POLICY_MOD && validate_mls_range(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
- 		goto bad;
--	if (mls && validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-+	if (p->mls && p->policy_type != POLICY_MOD && validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
- 		goto bad;
- 	if (user->bounds && validate_value(user->bounds, &flavors[SYM_USERS]))
- 		goto bad;
-@@ -599,7 +599,7 @@ static int validate_user_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
- {
- 	map_arg_t *margs = args;
- 
--	return validate_user_datum(margs->handle, d, margs->flavors, margs->mls);
-+	return validate_user_datum(margs->handle, d, margs->flavors, margs->policy);
- }
- 
- static int validate_bool_datum(sepol_handle_t *handle, cond_bool_datum_t *boolean, validate_t flavors[])
-@@ -689,7 +689,7 @@ static int validate_datum(__attribute__ ((unused))hashtab_key_t k, hashtab_datum
- 
- static int validate_datum_array_entries(sepol_handle_t *handle, policydb_t *p, validate_t flavors[])
- {
--	map_arg_t margs = { flavors, handle, p->mls };
-+	map_arg_t margs = { flavors, handle, p };
- 
- 	if (hashtab_map(p->p_commons.table, validate_common_datum_wrapper, &margs))
- 		goto bad;
--- 
-2.36.1
 
+[1]: https://github.com/SELinuxProject/selinux-testsuite/issues/76
+[2]: https://patchwork.kernel.org/project/selinux/list/?series=3D632975
+
+> This patch nevertheless looks good to me too.
+> Thanks!
+> Nicolas
+>
