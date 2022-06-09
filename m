@@ -2,124 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E5DC43334
-	for <selinux@archiver.kernel.org>; Wed,  8 Jun 2022 22:37:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF7B4C43334
+	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 04:36:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236632AbiFHWhf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jun 2022 18:37:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55158 "EHLO
+        id S237299AbiFIEgL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jun 2022 00:36:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234574AbiFHWhd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jun 2022 18:37:33 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5525A23F887;
-        Wed,  8 Jun 2022 15:37:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1654727830;
-        bh=6UcI+eHcxXsjfyDUhrglMMSQWDVdg3SyxvdHwQBpES0=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=VL2nl8Zk1TeimCboWYa0kHvwhrF264awD8AUAUKR3r/sHr/4LA2yU7X1ZiUesn6BB
-         BuGvni/P8v2Ialm3RzhMM+yicfA4z4wLkC1TWv5xaGYbbdPfFQdJlayn8g7uUcZBea
-         iRwloFN01MPpfyy3iBGA2iP2bBy8jtosrjjxM2YU=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from zweiundvierzig.fritz.box ([217.239.16.253]) by mail.gmx.net
- (mrgmx004 [212.227.17.190]) with ESMTPSA (Nemesis) id
- 1MRmfo-1oAfAy0BoY-00TDFV; Thu, 09 Jun 2022 00:37:10 +0200
-From:   Jonas Lindner <jolindner@gmx.de>
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     trivial@kernel.org, Jonas Lindner <jolindner@gmx.de>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH] selinux: fix typos in comments
-Date:   Thu,  9 Jun 2022 00:36:16 +0200
-Message-Id: <20220608223619.2287162-1-jolindner@gmx.de>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S232169AbiFIEgK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 00:36:10 -0400
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98247B07;
+        Wed,  8 Jun 2022 21:36:08 -0700 (PDT)
+Received: by mail-vs1-xe2a.google.com with SMTP id g6so3248969vsb.2;
+        Wed, 08 Jun 2022 21:36:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=K/i8DYT2ygHvcWIB+TGUjE1cSyP6RpUZJ+cTGMu/weo=;
+        b=MkX92/OX5Jd4R4X4Wew8Jy/pDaEgc8pKlkmzkvLpPA1RUmP9CwVAp4mDE0zWuRwoUN
+         sHJfzwPkd7kyPFb1HFLU+lLqulZbVnaaJGRs1WgCYAIsflL3FZJ8DzogP+jRp2TVLwf1
+         Ne13c4/6HFu8/8IzAfMynFRc/lfRr7q2bylvhRRBJ1mj8iNGM0XBm0zXYDQ04W8q0RVJ
+         M024CeoPPCByj+d1HofI1imrGXkc0KUN8Xmnu7ET4Vy0hhKGQ6DU3tpsZQyrpFEgPPJU
+         AszWyNxmxvXHkSVqZngAalYpGEcQqo3tNjp0yZ7iw/HSovXDXWPJqho0jtJwHvyzbefv
+         4wZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=K/i8DYT2ygHvcWIB+TGUjE1cSyP6RpUZJ+cTGMu/weo=;
+        b=Y89a01FnxkPJe0XhmH37dkKgHDR1Upl1a+2s6tMrspHz60jLkcPB7c0aWxP2vem9t8
+         tl1Hwt0wVX+vf3swW2iIBExUvtxGoWmvefaku7XY/qx/vr5jBNyO90wjH/W39B+9PC4D
+         AzjgSHan21K3YpRg4RQWL7NqJZ/C33QawvS5GfERvmbMIDLU0kjQbKgjPyVvMx+iRaB9
+         n8yWuc8lz1USrGa1SSZnFnO+SKP1iovCwu75KrbihX7q99rRcS+eZJ7R267YGoYwQ2wd
+         DwJOJZ89S/qcstG3YOezK+k5EXkjNsNlb/TL/4PiN68UnDXMiP5IqJk+/6fOsZqGzoao
+         o9Vg==
+X-Gm-Message-State: AOAM532mCVz7072ZAJgyzG2nNZ6uei+re07zrdJuQa9v/f6ArpW75Qv6
+        To57dIeLXQd5zbnxgcVOxZ7zLuJG8fz9RQ0o5No=
+X-Google-Smtp-Source: ABdhPJxATreDqd9IudoNJR6VJZ9zNaC3pZreydmxwBOzXGiSBfrzQ6mEOynR6Y9h2KoqVyCehMYW3nQHz1cKElRa+b4=
+X-Received: by 2002:a67:70c4:0:b0:349:d442:f287 with SMTP id
+ l187-20020a6770c4000000b00349d442f287mr17213314vsc.2.1654749367725; Wed, 08
+ Jun 2022 21:36:07 -0700 (PDT)
 MIME-Version: 1.0
+References: <20220607153139.35588-1-cgzones@googlemail.com> <08A11E25-0208-4B4F-8759-75C1841E7017@dilger.ca>
+In-Reply-To: <08A11E25-0208-4B4F-8759-75C1841E7017@dilger.ca>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Thu, 9 Jun 2022 07:35:56 +0300
+Message-ID: <CAOQ4uxh1QG_xJ0Ffh=wKksxWKm1ioazmc8SxeYYH9yHT1PMasg@mail.gmail.com>
+Subject: Re: [RFC PATCH] f*xattr: allow O_PATH descriptors
+To:     Andreas Dilger <adilger@dilger.ca>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-man <linux-man@vger.kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:E+DvfH46gyv8+k9caVZG/w/zdElgiIB/JC/XVRJZakZ/NLVeFjv
- G+ha2gL0vRrLCftm/OC1EvjzNCWqa7IAwgQgkE8sdNTN5nqY7k7edaOsYdMybtawxiMNCpz
- qcRUTypUBq6Kx2P7iPg5j0fy7Xd6ZGm0TPEcBQje9cWg5QBppeAojuJbQy2F24XtJPn0XHi
- BUYUVFUbLpt8POUyiUDjQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:mqIas/Cr+H8=:7a1wAZKwOkfYZYBqT31v63
- NveO4N/ZKZcq4RtTdBQ5uJDsQEq6s6SM0Z29D2k9vcjB5BljfOmTW94/LzkbFoRXgxC2nnSZs
- UJdhTGqrsgjGItXB6AWokO0ED0YpqrUSGpyReKbPjSSe5DbiOOwVQQsskgnRIKQnRn1ZTX4NE
- j9387e8zMk8Y2ExOiLNnwI6CI2zpXgJB15qkLlY/+oMYd5BLdHhvsvNHL62V/SdZmhiAahZit
- hx2HQXJTkryJtLGMQqYMle2doR9nyApX2klNVp0SICHYB/YYKBGDCyYdbdrhZuaqTOcmuAiFH
- gy/yQrGjs1Wh3NewD+a8xoWomlTw5NlYhGmneVsBufnVdaeZo6JVoPMnxR8XzdkyUKRHgSwwd
- g84t9FFapl2M22enE6isL/gUhTtG/Ry3LRylGEsNzQrP1NHJ5ieae36UVVEd+dhJxU4nc03Yc
- 7frq8Z/VXJtCrZJBPhah5MQqAm+crR3MJzK8Yz/7KSdvm3pUalwgmkWh515muL9PDpH68j1hO
- Zy6/yqunqlS3qviWFJrGF67Bft+9A/6j+xOLpw2e3z5PIWXKPYw5azgDF3pIPldae4dWcPuql
- tgZjwAmkO/vopuS6z//l480iuWFDZeqVH0vJu7ihedznnOq0o9T2olP6U4vX2+CK+7opGEPLA
- 3g6mc9u/4Fc0daoKEe5feLTCLMjaL/pULSawHbbwhWNqQCULloEdmxYJeTQshdgtk4ZCSHubO
- ug2E8XdJhFGwLy5kBz78nY3VejeLS7HrGv4EUHjWnhxgmq9yrB/aakeuSy6Y6ycH/T54ZHwfb
- QDlQYgmSEntQcm1/6gXHo5DD2aIDeNHrSzyBQT1kmdA3uQdU1Emqcwr/t3NDEvYDESqUGgiY1
- y7wug+71EQs4BRtUapsEma/YczUpZN6iOvvumpeb1HK/cXNSnfPA19iWw5Qpsqqi2lZvFJc38
- xEGPGMcX5EMLlfD8fTeWs5McfPj6xsE1gNa4beoOTo0mIoRUkW4yST8Nx62a44nPvo54TR1wV
- voEBkVHft8tof2LLoZvaiFRosyVIQDaorhYlvfCQIHZBDLUIRUUXVKriYZWrC988rvPYs6aek
- sL+TiBh+uqxxa9dQp6QK8xVkb1jqSDGETOavGsfsppwPS7viI8hpFULQw==
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-selinux: fix typos in comments
-Signed-off-by: Jonas Lindner <jolindner@gmx.de>
-=2D--
- security/selinux/hooks.c         | 4 ++--
- security/selinux/include/audit.h | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+On Wed, Jun 8, 2022 at 9:01 PM Andreas Dilger <adilger@dilger.ca> wrote:
+>
+> On Jun 7, 2022, at 9:31 AM, Christian G=C3=B6ttsche <cgzones@googlemail.c=
+om> wrote:
+> >
+> > From: Miklos Szeredi <mszeredi@redhat.com>
+> >
+> > Support file descriptors obtained via O_PATH for extended attribute
+> > operations.
+> >
+> > Extended attributes are for example used by SELinux for the security
+> > context of file objects. To avoid time-of-check-time-of-use issues whil=
+e
+> > setting those contexts it is advisable to pin the file in question and
+> > operate on a file descriptor instead of the path name. This can be
+> > emulated in userspace via /proc/self/fd/NN [1] but requires a procfs,
+> > which might not be mounted e.g. inside of chroots, see[2].
+>
+> Will this allow get/set xattrs directly on symlinks?  That is one problem
+> that we have with some of the xattrs that are inherited on symlinks, but
+> there is no way to change them.  Allowing setxattr directly on a symlink
+> would be very useful.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index beceb89f68d9..d3f18d4a03c0 100644
-=2D-- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -640,7 +640,7 @@ static int selinux_set_mnt_opts(struct super_block *sb=
-,
- 	 * we need to skip the double mount verification.
- 	 *
- 	 * This does open a hole in which we will not notice if the first
--	 * mount using this sb set explict options and a second mount using
-+	 * mount using this sb set explicit options and a second mount using
- 	 * this sb does not set any security options.  (The first options
- 	 * will be used for both mounts)
- 	 */
-@@ -6795,7 +6795,7 @@ static u32 bpf_map_fmode_to_av(fmode_t fmode)
- }
+It is possible.
+See: https://github.com/libfuse/libfuse/pull/514
 
- /* This function will check the file pass through unix socket or binder t=
-o see
-- * if it is a bpf related object. And apply correspinding checks on the b=
-pf
-+ * if it is a bpf related object. And apply corresponding checks on the b=
-pf
-  * object based on the type. The bpf maps and programs, not like other fi=
-les and
-  * socket, are using a shared anonymous inode inside the kernel as their =
-inode.
-  * So checking that inode cannot identify if the process have privilege t=
-o
-diff --git a/security/selinux/include/audit.h b/security/selinux/include/a=
-udit.h
-index 1cba83d17f41..406bceb90c6c 100644
-=2D-- a/security/selinux/include/audit.h
-+++ b/security/selinux/include/audit.h
-@@ -18,7 +18,7 @@
- /**
-  *	selinux_audit_rule_init - alloc/init an selinux audit rule structure.
-  *	@field: the field this rule refers to
-- *	@op: the operater the rule uses
-+ *	@op: the operator the rule uses
-  *	@rulestr: the text "target" of the rule
-  *	@rule: pointer to the new rule structure returned via this
-  *
-=2D-
-2.34.1
+That's why Miklos withdrew this patch:
+https://lore.kernel.org/linux-fsdevel/CAOssrKeV7g0wPg4ozspG4R7a+5qARqWdG+Gx=
+WtXB-MCfbVM=3D9A@mail.gmail.com/
 
+Thanks,
+Amir.
