@@ -2,192 +2,198 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7619AC43334
-	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 17:42:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F13ADC43334
+	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 23:02:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238980AbiFIRmv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jun 2022 13:42:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55942 "EHLO
+        id S237145AbiFIXB7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jun 2022 19:01:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240869AbiFIRms (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 13:42:48 -0400
-Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D2B7E1F4
-        for <selinux@vger.kernel.org>; Thu,  9 Jun 2022 10:42:47 -0700 (PDT)
-Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-fe4ac3b87fso350961fac.3
-        for <selinux@vger.kernel.org>; Thu, 09 Jun 2022 10:42:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=886X5iUOO4uL8GQH6afwNWQL4cJfoy6JcTYWutnBNUI=;
-        b=jHxFVfj/rl6Qn6PgA3ajknPNbPMIxiqq6H9S6+c//EpezmCuzZQRal3RwdgON8VI4h
-         1oIGllN+SpFO200j0/PNtu/TS/pSLz2bBwU/fbG0Ljwj+bj6xapjx/hYZIxgvIdQ9k+Y
-         597eVOga9YGmAeTphA2yxOf367GXW/SDjPgEkujassCVdwe1gHK5Pap+qsTUTfOOJ3+n
-         mcqSx7edXVmiR1sVmBtiS+u9ETtMCD8P1cqQNHmFpd1x69hZgsmbzZtaLcD7jUoHoJ4H
-         PvcrIfycJVyjGzb5zV4CcYy4MzEXK/Adhed8BICu2YxTajIeL8hDepTfFBAJY4G6Os4t
-         QBeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=886X5iUOO4uL8GQH6afwNWQL4cJfoy6JcTYWutnBNUI=;
-        b=6uAUdKjZ//gU6Ru8EtAzoZGo5tSoFRB1WWs+yVkg6GmyiAOHhilUq4cKLWPJemS8ir
-         YizgSUwBFf9UXqM8+o2CAk/NxetSdaZ98GUVsD0I4+lOJV4iZsNtLuWnxX1QRYqPyMCI
-         6WWpXT4+XhxlK3lvfPu9LbUUrdq5v4hG7k7aRTX4RngRqU2IE9E4esEnFB2g9MpbFUHI
-         NeG3TzFP9Fqd27pUwulp1Wf4eno1FVknlaAkChbHCMABI/5oaM+yt/cAqmMdom0cKDwe
-         Ti1/sxLwWRN22ybjdle6RY2+gjQjgskURAjAlHE9nhZO35rqmWM9SBe24j3rIec46EmV
-         jeIA==
-X-Gm-Message-State: AOAM532kH+sutAwoDJIa87w90IJ1ze2En2FHpds9PN0mo0XP4m5uVoES
-        wrv7o5WBmeIR5jyh9R3bF38iqgPAl1fxVwt/X1EdQf5O
-X-Google-Smtp-Source: ABdhPJxpDPcKDja9CIYzOW3LxyiKB5TVZLHHpwskhZiuP4awbEku107b3A117/nWT80trAaqsIk/Qmvw53MiL+rd2iU=
-X-Received: by 2002:a05:6870:4604:b0:f2:5b64:fad9 with SMTP id
- z4-20020a056870460400b000f25b64fad9mr2400111oao.182.1654796566820; Thu, 09
- Jun 2022 10:42:46 -0700 (PDT)
+        with ESMTP id S232346AbiFIXB7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 19:01:59 -0400
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDE736165
+        for <selinux@vger.kernel.org>; Thu,  9 Jun 2022 16:01:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1654815716; bh=3o5SNPwTygO2LFJJxsuqLI+/nYBK+jKK5VhgaHDFflQ=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=MB0GbsJpA9f+Go2z+Gg1OD7CbkwIhsEW6qVqdyv8KJQMR1TiJtdhm5PQpoa3viYnzwQ+FGEjOrmi8pt7qSAcbRGwsEso3cMrL0CMsiKuCUGoW7lBBadsxTyn7PVX5iASlMkCmIxRcKyHAe1F1pFogUWo/JmCCSawKl2sSwe37mfdyGwAyANbI6hvV7JvcSesDjDXA12Kp8p0dUNcP6sYO3dzpVXCYZaO4NXlk4j0gCKhG24Mu3Ef1J9nN6MXcv5U2LO/MiDut1OzKACGnllDWO5NX+5IuEddVGx+xcb5SvWJ4BqmlrcXViWwiunxuolPgsPIH2wX3qso4/x0jNIAYA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1654815716; bh=ImdRA8lD7GaElGNVKGeK5gfGoIW5FujHb1sXef9nKX2=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=qbEDwjx3KO1UvaJyjxGwEvce1IR7kPma+s/2eL+393BK/zuWQdf524oG3/Jfowj8kJ26YIqpBpnYAp6AS0/neZuPG/zL6sJKQljpKlc6NtEZzTGwaTGe+gfiLIYDIVNzloNJDe0uqssnc0jHIMInfqMAUnP8+f9Ply/VkTqhu2Nyq0i7BVUJOGagCE/Q+6Kb6fMO+pU2C4zyhhGwC2BkBHnX4yQ8fC+QBHqtDbh77z4W5r1HiYI2xkwoLBRpMgL8fiCOrwUtK0fMJmWi/m4yN+gUAd0VGhQAU+iPLLRuxM58VDJ7exxjGnoJmkthTlI2/OjBR1Zf1AtFUkZHd9DHiQ==
+X-YMail-OSG: iUOlzhAVM1l_HU.psXHgLSlUCS46SpbDejCxG0EL.cHrwH.MCXY0ci8HCty5TY0
+ B22PWoVxqs0lMz0wAR5iH.ASwNmxW0Btp7WkRX727UWQM6_FsLlzt9QpwvOG17E3QdIpcEmK7siQ
+ 3USPrkBvjA_yKX4Yni4gCa.u4TwTHNYTnz5MgJ6wSPynmcsT6dce2ipmezBp0qlyFYwvqFuqx3EA
+ 8u44SycOl84w4Tvi4gaEU983uJhA9ujsZGJkSUXfzajSII1z.egsIvzirXUPpQO7G27YTg9BgcPU
+ Ap3LGnUn1zuKK9ec6L2S0B2LlNWAQLg1WQ21Ov7ZOyPebGecn4bgUfggiNW70yRzWtEbuvNWRVf3
+ 4YmA6k.HXLUhlfiOkr1iW9mRNmRZf6dWNXSn6Za2J5p2sLc2D2HDzjiBESZ8RGXg953X6emS2orr
+ fuBSwynmF821CM0rpbA8IfbB_qI8tF7vRWu7ujD0f75VuTjiJNYwdrk8n42NR4G8vbqW68lEWUJe
+ JoIbFCg5ny.9kk1fx7FExuJ.811eJz5DMHzuIuf1svBK62fuT6.GmMMNYGQfjCdwI..mUJq9K1yE
+ s4Bpyh_8u_FB4lHVx2DMIMQsbX3K8iwihDd1YockhMKOofzhuxdLtdaAV_NKZ8yF9ScXkJVG2tLb
+ uOFwSPf4svEL8gYz7v6MbBbgkKrgOiU3uHtmoNW7asJwMbwGwKAnHEveOVS9680JylY6fDQscfw.
+ X_hTW88lhZwbUFBkvGDeEHAxefoQyiFT2A0ZgQyTVuRBsnf9fojiyj.9i5RrwU3p1mfPF_TUdkdC
+ pafeS_zmYEV5AKjKCR8gyte0mr1SZtDCujmdynYanH62XzvSyy53Ga8tgt5zEF0NdwHxeSBflvjF
+ eXd8Yhjkfbrg2bEdajgNsFC8ioSYRORKvkpNojQfTjB6vbujE4KPawb7791bSyDX_M8DTU5cVL70
+ poIEmlnlSLjPrDz1XocyLru6gCKyY95E7QY0ZHYZ_jqIJCvbXhjRbr.thxAHd3fTzFmMMA13tulg
+ 85BMxnoHvGotQc3aZiY7pqKZtl1XNRwiwRBA3bxzP6ddSAkoTkmxwbP5hj4oriDXKU5PS5ztxBvN
+ zfOL8HzXQE5sk9Ix14FXG1MlkMmyzRLy9Y_o.rcBv8J.nJvLM3uyywB2LSprApLVv505lEx0p.Zm
+ hsK3e5VRy4qLTvVf7RzdwJoz.iT2gNKZBybY3GGrDngWJXy0bpm2pTgmc7UXwFmiTAz4T9PKrtzQ
+ jjx1k8YoRU72Robar0WOyAR1JqT3qZsWETWWFh5mCV0IIqe9RRsZmFz48CcrhGwpxe.VWxu4lqKk
+ j0dSDNjQr06IRdVoouYgM2H_7gzsgv1cBO1rd.y322xLTz.ea1eJTB_zBL6j5AjBHYBbXm4zNs.X
+ tr590AFYbxb9OJ6krDGvyH3AtlmvgHwoK2xoWwxWwgyzi4tLqYsdOgq1RokOJHafK9lPaPn_Feib
+ wDeyZ.EUFQ2MrGOhkIVL4EBA1JE4VI_Kj_OZEV2W6.GrKdf0Mm_FAvyCqaWhL_9wqBll.zl3P81i
+ .s9OyZfWphRUBDywAKUMXee8kRk_HEHrMcshNyR_lkRvcklSwOnzuAbnABaPvokqHmqRRnRGlzEp
+ xOvG1ex3sUDjV47D7ow4Pcq4V5EOhNUkyOD2_puGBOtm9BE9Q6hj5.LsvM8ayz9HC9z2Pb23UOQG
+ bpHmGZPz83S_Zslm9WquGOoET.c9Y0yrBJ35A9b53OBolk41IG00PLzYPRAPPNrBpVIBc69ZSQDD
+ 0Dhwyqwh236rDJslpCRG5ljFFE_wKC3hsqyMHDHaQZf5UstTH7zi5P.4EnW9iKI_IhIDkXFXwb2n
+ 7ictLf8ahGIanqXR1wrF41MIo2yvmf5clU1WNXFokD0Ey57ZrqhzSyFp.o68A28GUGbmgPcv2HMz
+ atWJtyq9CvukSyvVJOT4llXWYgGo140aVnqzAqhkoVh9CbPedlEOv5LtQhLZXL8CVIljlwtFMzMQ
+ ydH5e6c7F7GyWf2Oh6UO.WhyOqNtkIVQLN0y5OOS4KHPc3W4A0H1UqzbnCvxZTwavtTALhO_jnQw
+ WUuFWFFAXFdsWp8DlTtf2F5mt8FKKFae3bn7erBDVIdv2rbmAhhBd3_LuEg_sQ8IYQEt5kl1ayTh
+ TFBIyqT6sWyzTDenvXqC5g4zQ0u2xaxwty6LoqpHPTJy6Dm8LDesuk3CPjQerLM7keCm5nNRNdXX
+ WdEm4qrz8lhUJU39UWW7r.Z_wCS6f1uGgm3kiOjTJYSfbIGKHy6Xip4qOiVK7RXjiwT5.spzjVah
+ .dKP8NCJSbrp.Xp1ushv5Ju7UY4QnC_FmSmaYSRLtyAki9L2EVa0Qxz08jzHofBYY4ESaJHEFya1
+ 1
+X-Sonic-MF: <casey@schaufler-ca.com>
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Thu, 9 Jun 2022 23:01:56 +0000
+Received: by hermes--canary-production-gq1-54945cc758-xkjn5 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 0e6e0ce8663761707dd7260b164b0053;
+          Thu, 09 Jun 2022 23:01:52 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+        linux-integrity@vger.kernel.org
+Subject: [PATCH v36 01/33] integrity: disassociate ima_filter_rule from security_audit_rule
+Date:   Thu,  9 Jun 2022 16:01:14 -0700
+Message-Id: <20220609230146.319210-2-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220609230146.319210-1-casey@schaufler-ca.com>
+References: <20220609230146.319210-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-References: <20220607174145.51330-1-cgzones@googlemail.com> <20220607174145.51330-3-cgzones@googlemail.com>
-In-Reply-To: <20220607174145.51330-3-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 9 Jun 2022 13:42:35 -0400
-Message-ID: <CAP+JOzTopQXiGfzF7Bk+Xvc65LhGk5kWAYz_BrmJ_7sZrhtjxw@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] checkpolicy: rework initial SID handling
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 7, 2022 at 3:01 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The kernel removed [1] some unused initial SIDs.  Also libsepol got
-> support for omitting unused ones [2].
->
-> Currently in traditional policy all initial SIDs have to be defined and
-> also the order of declarations has to follow the order of the libsepol
-> internal representation.  Support omitting unused initial SIDs in the
-> traditional policy and do not require a specific order of declarations.
->
+Create real functions for the ima_filter_rule interfaces.
+These replace #defines that obscure the reuse of audit
+interfaces. The new functions are put in security.c because
+they use security module registered hooks that we don't
+want exported.
 
-I think that your goal is good, but see below.
+Acked-by: Paul Moore <paul@paul-moore.com>
+Reviewed-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+To: Mimi Zohar <zohar@linux.ibm.com>
+Cc: linux-integrity@vger.kernel.org
+---
+ include/linux/security.h     | 24 ++++++++++++++++++++++++
+ security/integrity/ima/ima.h | 26 --------------------------
+ security/security.c          | 21 +++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 26 deletions(-)
 
-> [1]: https://github.com/SELinuxProject/selinux-kernel/commit/e3e0b582c321=
-aefd72db0e7083a0adfe285e96b5
-> [2]: https://github.com/SELinuxProject/selinux/commit/8677ce5e8f592950ae6=
-f14cea1b68a20ddc1ac25
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  checkpolicy/policy_define.c | 39 ++++++++++++++++++++++++-------------
->  1 file changed, 26 insertions(+), 13 deletions(-)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 8bf36859..8f55650d 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -54,6 +54,7 @@
->  #include <sepol/policydb/services.h>
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/hierarchy.h>
-> +#include <sepol/policydb/initialsids.h>
->  #include <sepol/policydb/polcaps.h>
->  #include "queue.h"
->  #include "checkpolicy.h"
-> @@ -287,6 +288,7 @@ int define_polcap(void)
->  int define_initial_sid(void)
->  {
->         char *id =3D 0;
-> +       sepol_security_id_t sid;
->         ocontext_t *newc =3D 0, *c, *head;
->
->         if (pass =3D=3D 2) {
-> @@ -300,28 +302,30 @@ int define_initial_sid(void)
->                 yyerror("no sid name for SID definition?");
->                 return -1;
->         }
-> -       newc =3D (ocontext_t *) malloc(sizeof(ocontext_t));
-> -       if (!newc) {
-> -               yyerror("out of memory");
-> +
-> +       sid =3D selinux_str_to_sid(id);
-> +       if (sid =3D=3D 0) {
-> +               yyerror2("invalid initial SID %s", id);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 7fc4e9f49f54..5260dbe9ef0d 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1919,6 +1919,30 @@ static inline void security_audit_rule_free(void *lsmrule)
+ #endif /* CONFIG_SECURITY */
+ #endif /* CONFIG_AUDIT */
+ 
++#if defined(CONFIG_IMA_LSM_RULES) && defined(CONFIG_SECURITY)
++int ima_filter_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule);
++int ima_filter_rule_match(u32 secid, u32 field, u32 op, void *lsmrule);
++void ima_filter_rule_free(void *lsmrule);
++
++#else
++
++static inline int ima_filter_rule_init(u32 field, u32 op, char *rulestr,
++					   void **lsmrule)
++{
++	return 0;
++}
++
++static inline int ima_filter_rule_match(u32 secid, u32 field, u32 op,
++					    void *lsmrule)
++{
++	return 0;
++}
++
++static inline void ima_filter_rule_free(void *lsmrule)
++{ }
++
++#endif /* defined(CONFIG_IMA_LSM_RULES) && defined(CONFIG_SECURITY) */
++
+ #ifdef CONFIG_SECURITYFS
+ 
+ extern struct dentry *securityfs_create_file(const char *name, umode_t mode,
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index be965a8715e4..1b5d70ac2dc9 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -418,32 +418,6 @@ static inline void ima_free_modsig(struct modsig *modsig)
+ }
+ #endif /* CONFIG_IMA_APPRAISE_MODSIG */
+ 
+-/* LSM based policy rules require audit */
+-#ifdef CONFIG_IMA_LSM_RULES
+-
+-#define ima_filter_rule_init security_audit_rule_init
+-#define ima_filter_rule_free security_audit_rule_free
+-#define ima_filter_rule_match security_audit_rule_match
+-
+-#else
+-
+-static inline int ima_filter_rule_init(u32 field, u32 op, char *rulestr,
+-				       void **lsmrule)
+-{
+-	return -EINVAL;
+-}
+-
+-static inline void ima_filter_rule_free(void *lsmrule)
+-{
+-}
+-
+-static inline int ima_filter_rule_match(u32 secid, u32 field, u32 op,
+-					void *lsmrule)
+-{
+-	return -EINVAL;
+-}
+-#endif /* CONFIG_IMA_LSM_RULES */
+-
+ #ifdef	CONFIG_IMA_READ_POLICY
+ #define	POLICY_FILE_FLAGS	(S_IWUSR | S_IRUSR)
+ #else
+diff --git a/security/security.c b/security/security.c
+index 188b8f782220..8b176769dd86 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2580,6 +2580,27 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
+ }
+ #endif /* CONFIG_AUDIT */
+ 
++#ifdef CONFIG_IMA_LSM_RULES
++/*
++ * The integrity subsystem uses the same hooks as
++ * the audit subsystem.
++ */
++int ima_filter_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule)
++{
++	return call_int_hook(audit_rule_init, 0, field, op, rulestr, lsmrule);
++}
++
++void ima_filter_rule_free(void *lsmrule)
++{
++	call_void_hook(audit_rule_free, lsmrule);
++}
++
++int ima_filter_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
++{
++	return call_int_hook(audit_rule_match, 0, secid, field, op, lsmrule);
++}
++#endif /* CONFIG_IMA_LSM_RULES */
++
+ #ifdef CONFIG_BPF_SYSCALL
+ int security_bpf(int cmd, union bpf_attr *attr, unsigned int size)
+ {
+-- 
+2.35.1
 
-We can't give an error if the name is not found. In your reference
-[2], it is stated that unused SIDs can be renamed and it even suggests
-using an "unamed_" prefix.
-
-I am not sure what to suggest here. In the past, one could
-theoretically use any name, because all that mattered was the
-ordering. I doubt if there are any policies that use any other names,
-but I don't know.
-
-Thanks,
-Jim
-
-
->                 goto bad;
->         }
-> -       memset(newc, 0, sizeof(ocontext_t));
-> -       newc->u.name =3D id;
-> -       context_init(&newc->context[0]);
-> -       head =3D policydbp->ocontexts[OCON_ISID];
->
-> +       head =3D policydbp->ocontexts[OCON_ISID];
->         for (c =3D head; c; c =3D c->next) {
-> -               if (!strcmp(newc->u.name, c->u.name)) {
-> +               if (sid =3D=3D c->sid[0]) {
->                         yyerror2("duplicate initial SID %s", id);
->                         goto bad;
->                 }
->         }
->
-> -       if (head) {
-> -               newc->sid[0] =3D head->sid[0] + 1;
-> -       } else {
-> -               newc->sid[0] =3D 1;
-> +       newc =3D (ocontext_t *) malloc(sizeof(ocontext_t));
-> +       if (!newc) {
-> +               yyerror("out of memory");
-> +               goto bad;
->         }
-> +       memset(newc, 0, sizeof(ocontext_t));
-> +       newc->u.name =3D id;
-> +       context_init(&newc->context[0]);
-> +       newc->sid[0] =3D sid;
->         newc->next =3D head;
->         policydbp->ocontexts[OCON_ISID] =3D newc;
->
-> @@ -4567,6 +4571,7 @@ static int parse_security_context(context_struct_t =
-* c)
->  int define_initial_sid_context(void)
->  {
->         char *id;
-> +       sepol_security_id_t sid;
->         ocontext_t *c, *head;
->
->         if (pass =3D=3D 1) {
-> @@ -4581,9 +4586,17 @@ int define_initial_sid_context(void)
->                 yyerror("no sid name for SID context definition?");
->                 return -1;
->         }
-> +
-> +       sid =3D selinux_str_to_sid(id);
-> +       if (sid =3D=3D 0) {
-> +               yyerror2("invalid initial SID %s", id);
-> +               free(id);
-> +               return -1;
-> +       }
-> +
->         head =3D policydbp->ocontexts[OCON_ISID];
->         for (c =3D head; c; c =3D c->next) {
-> -               if (!strcmp(id, c->u.name))
-> +               if (sid =3D=3D c->sid[0])
->                         break;
->         }
->
-> --
-> 2.36.1
->
