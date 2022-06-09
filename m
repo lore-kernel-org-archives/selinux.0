@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46982C43334
-	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 17:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7619AC43334
+	for <selinux@archiver.kernel.org>; Thu,  9 Jun 2022 17:42:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344952AbiFIR0J (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jun 2022 13:26:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37074 "EHLO
+        id S238980AbiFIRmv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jun 2022 13:42:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344964AbiFIR0I (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 13:26:08 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD82442EF2
-        for <selinux@vger.kernel.org>; Thu,  9 Jun 2022 10:26:03 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-fdfe64231dso309516fac.1
-        for <selinux@vger.kernel.org>; Thu, 09 Jun 2022 10:26:03 -0700 (PDT)
+        with ESMTP id S240869AbiFIRms (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jun 2022 13:42:48 -0400
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D2B7E1F4
+        for <selinux@vger.kernel.org>; Thu,  9 Jun 2022 10:42:47 -0700 (PDT)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-fe4ac3b87fso350961fac.3
+        for <selinux@vger.kernel.org>; Thu, 09 Jun 2022 10:42:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=5KJWMVqK3L1eryPN/LRverdw3SUbShEXANl3e3cHgbQ=;
-        b=Dq5FdXtlYWn7tgTq015YPxYTp62rUhjAz8F2DqQV19G/Cup1mM2Sja9vFou8BWjZCl
-         EqitJI3N83vJS6i7Jvhnn/3BFCajy55nEkNeq34jCxAFFT1i6cVqsF3/VSMjpCL+p9vp
-         vvQkEvNr4VD1NTW3LgXg60USDt7HZxtLtW22Rmy0Fa7DiMIDnSG0fxIcB52iuaLwGVS1
-         v4E4VSuocyUopCb7wzj0ssoxcG1KxWfrHesfLm24IVMOuRyvrEzv15fHcqcvRZUhDB81
-         04HVPPbUckdDXUG754eNF/AiSmxAReFWlkA9MFI+6MvT/m9T7qnRQ0kM7A3cypqSbQvP
-         eBDQ==
+        bh=886X5iUOO4uL8GQH6afwNWQL4cJfoy6JcTYWutnBNUI=;
+        b=jHxFVfj/rl6Qn6PgA3ajknPNbPMIxiqq6H9S6+c//EpezmCuzZQRal3RwdgON8VI4h
+         1oIGllN+SpFO200j0/PNtu/TS/pSLz2bBwU/fbG0Ljwj+bj6xapjx/hYZIxgvIdQ9k+Y
+         597eVOga9YGmAeTphA2yxOf367GXW/SDjPgEkujassCVdwe1gHK5Pap+qsTUTfOOJ3+n
+         mcqSx7edXVmiR1sVmBtiS+u9ETtMCD8P1cqQNHmFpd1x69hZgsmbzZtaLcD7jUoHoJ4H
+         PvcrIfycJVyjGzb5zV4CcYy4MzEXK/Adhed8BICu2YxTajIeL8hDepTfFBAJY4G6Os4t
+         QBeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5KJWMVqK3L1eryPN/LRverdw3SUbShEXANl3e3cHgbQ=;
-        b=ULNHMe4yoyAYVfrahn3WzWulZTRdo08AJH+00WzIbxmABiUSxHf2+KymyBFLMdRZXH
-         sIGEX6Yjdo6Dq47plGjpk1QomXJPvceOmCf/1MOtvkgtto+3YMv87WZmmy5oMgjMSWdK
-         86tcT8uAjGl8k/faS44qv2FV+25HC3HIdCD7xLop0bpmqQD24eJz5mEvk4q4mVDs4lfJ
-         SlN7wJqIFik8DuEK34JZYXwycs4RZb1AFgrn1s7EBhrGoLIvyEXqSvwWeeTkxKnxxRPr
-         ia4Eitzlf9KAOiNxlNdU04G5VaK+0PH5v75axXbekO3Os35Fdeh0rtLWyYw8qzg69c+W
-         Ba0Q==
-X-Gm-Message-State: AOAM5310TD0r72/8R+nUJ4IzCAUxeca0CJlrym5+8A434p1xEtmm3/Q7
-        qTmE+0pCCOcU1YhE0uIn0EET9SQy+OZyj3P2TmaLIFQdI5c=
-X-Google-Smtp-Source: ABdhPJzMja2mdZIlSuq70/a8xV4/ip8qcuoBwHeB96fp1otTAntHNAkeMQGRf/ehKRKCpKjXssMhFcMujvyi61bYXNE=
+        bh=886X5iUOO4uL8GQH6afwNWQL4cJfoy6JcTYWutnBNUI=;
+        b=6uAUdKjZ//gU6Ru8EtAzoZGo5tSoFRB1WWs+yVkg6GmyiAOHhilUq4cKLWPJemS8ir
+         YizgSUwBFf9UXqM8+o2CAk/NxetSdaZ98GUVsD0I4+lOJV4iZsNtLuWnxX1QRYqPyMCI
+         6WWpXT4+XhxlK3lvfPu9LbUUrdq5v4hG7k7aRTX4RngRqU2IE9E4esEnFB2g9MpbFUHI
+         NeG3TzFP9Fqd27pUwulp1Wf4eno1FVknlaAkChbHCMABI/5oaM+yt/cAqmMdom0cKDwe
+         Ti1/sxLwWRN22ybjdle6RY2+gjQjgskURAjAlHE9nhZO35rqmWM9SBe24j3rIec46EmV
+         jeIA==
+X-Gm-Message-State: AOAM532kH+sutAwoDJIa87w90IJ1ze2En2FHpds9PN0mo0XP4m5uVoES
+        wrv7o5WBmeIR5jyh9R3bF38iqgPAl1fxVwt/X1EdQf5O
+X-Google-Smtp-Source: ABdhPJxpDPcKDja9CIYzOW3LxyiKB5TVZLHHpwskhZiuP4awbEku107b3A117/nWT80trAaqsIk/Qmvw53MiL+rd2iU=
 X-Received: by 2002:a05:6870:4604:b0:f2:5b64:fad9 with SMTP id
- z4-20020a056870460400b000f25b64fad9mr2356897oao.182.1654795563034; Thu, 09
- Jun 2022 10:26:03 -0700 (PDT)
+ z4-20020a056870460400b000f25b64fad9mr2400111oao.182.1654796566820; Thu, 09
+ Jun 2022 10:42:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220607174145.51330-1-cgzones@googlemail.com>
-In-Reply-To: <20220607174145.51330-1-cgzones@googlemail.com>
+References: <20220607174145.51330-1-cgzones@googlemail.com> <20220607174145.51330-3-cgzones@googlemail.com>
+In-Reply-To: <20220607174145.51330-3-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 9 Jun 2022 13:25:51 -0400
-Message-ID: <CAP+JOzQtbZV-nR1tWMv5jG7gZRaCKqxTtru1gJm_TUOKxjrwjw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/3] libsepol: export initial SIDs
+Date:   Thu, 9 Jun 2022 13:42:35 -0400
+Message-ID: <CAP+JOzTopQXiGfzF7Bk+Xvc65LhGk5kWAYz_BrmJ_7sZrhtjxw@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/3] checkpolicy: rework initial SID handling
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -59,254 +59,135 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 7, 2022 at 3:02 PM Christian G=C3=B6ttsche
+On Tue, Jun 7, 2022 at 3:01 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Export initial SIDs, so they can be used for example in checkpolicy.
+> The kernel removed [1] some unused initial SIDs.  Also libsepol got
+> support for omitting unused ones [2].
+>
+> Currently in traditional policy all initial SIDs have to be defined and
+> also the order of declarations has to follow the order of the libsepol
+> internal representation.  Support omitting unused initial SIDs in the
+> traditional policy and do not require a specific order of declarations.
 >
 
-We don't want to export the initial SID names. See commit 8677ce5e
-"libsepol,checkpolicy: support omitting unused initial sid contexts"
-and https://github.com/SELinuxProject/selinux-kernel/issues/12 for
-more information. Eventually, we want to go to a dynamic discovery of
-initial SIDs. The initial SID names are in kernel_to_common.h as a
-hack because the name is not stored in the binary policy, but we don't
-want to encourage more use.
+I think that your goal is good, but see below.
+
+> [1]: https://github.com/SELinuxProject/selinux-kernel/commit/e3e0b582c321=
+aefd72db0e7083a0adfe285e96b5
+> [2]: https://github.com/SELinuxProject/selinux/commit/8677ce5e8f592950ae6=
+f14cea1b68a20ddc1ac25
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  checkpolicy/policy_define.c | 39 ++++++++++++++++++++++++-------------
+>  1 file changed, 26 insertions(+), 13 deletions(-)
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 8bf36859..8f55650d 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -54,6 +54,7 @@
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/hierarchy.h>
+> +#include <sepol/policydb/initialsids.h>
+>  #include <sepol/policydb/polcaps.h>
+>  #include "queue.h"
+>  #include "checkpolicy.h"
+> @@ -287,6 +288,7 @@ int define_polcap(void)
+>  int define_initial_sid(void)
+>  {
+>         char *id =3D 0;
+> +       sepol_security_id_t sid;
+>         ocontext_t *newc =3D 0, *c, *head;
+>
+>         if (pass =3D=3D 2) {
+> @@ -300,28 +302,30 @@ int define_initial_sid(void)
+>                 yyerror("no sid name for SID definition?");
+>                 return -1;
+>         }
+> -       newc =3D (ocontext_t *) malloc(sizeof(ocontext_t));
+> -       if (!newc) {
+> -               yyerror("out of memory");
+> +
+> +       sid =3D selinux_str_to_sid(id);
+> +       if (sid =3D=3D 0) {
+> +               yyerror2("invalid initial SID %s", id);
+
+We can't give an error if the name is not found. In your reference
+[2], it is stated that unused SIDs can be renamed and it even suggests
+using an "unamed_" prefix.
+
+I am not sure what to suggest here. In the past, one could
+theoretically use any name, because all that mattered was the
+ordering. I doubt if there are any policies that use any other names,
+but I don't know.
 
 Thanks,
 Jim
 
-> Add helper functions for name lookup.
+
+>                 goto bad;
+>         }
+> -       memset(newc, 0, sizeof(ocontext_t));
+> -       newc->u.name =3D id;
+> -       context_init(&newc->context[0]);
+> -       head =3D policydbp->ocontexts[OCON_ISID];
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libsepol/include/sepol/policydb/initialsids.h | 89 +++++++++++++++++++
->  libsepol/include/sepol/policydb/policydb.h    |  2 +-
->  libsepol/src/kernel_to_cil.c                  |  1 +
->  libsepol/src/kernel_to_common.h               | 53 -----------
->  libsepol/src/kernel_to_conf.c                 |  1 +
->  libsepol/src/module_to_cil.c                  |  1 +
->  6 files changed, 93 insertions(+), 54 deletions(-)
->  create mode 100644 libsepol/include/sepol/policydb/initialsids.h
+> +       head =3D policydbp->ocontexts[OCON_ISID];
+>         for (c =3D head; c; c =3D c->next) {
+> -               if (!strcmp(newc->u.name, c->u.name)) {
+> +               if (sid =3D=3D c->sid[0]) {
+>                         yyerror2("duplicate initial SID %s", id);
+>                         goto bad;
+>                 }
+>         }
 >
-> diff --git a/libsepol/include/sepol/policydb/initialsids.h b/libsepol/inc=
-lude/sepol/policydb/initialsids.h
-> new file mode 100644
-> index 00000000..7b2fe021
-> --- /dev/null
-> +++ b/libsepol/include/sepol/policydb/initialsids.h
-> @@ -0,0 +1,89 @@
-> +#ifndef _SEPOL_POLICYDB_INITIALSIDS_H_
-> +#define _SEPOL_POLICYDB_INITIALSIDS_H_
+> -       if (head) {
+> -               newc->sid[0] =3D head->sid[0] + 1;
+> -       } else {
+> -               newc->sid[0] =3D 1;
+> +       newc =3D (ocontext_t *) malloc(sizeof(ocontext_t));
+> +       if (!newc) {
+> +               yyerror("out of memory");
+> +               goto bad;
+>         }
+> +       memset(newc, 0, sizeof(ocontext_t));
+> +       newc->u.name =3D id;
+> +       context_init(&newc->context[0]);
+> +       newc->sid[0] =3D sid;
+>         newc->next =3D head;
+>         policydbp->ocontexts[OCON_ISID] =3D newc;
+>
+> @@ -4567,6 +4571,7 @@ static int parse_security_context(context_struct_t =
+* c)
+>  int define_initial_sid_context(void)
+>  {
+>         char *id;
+> +       sepol_security_id_t sid;
+>         ocontext_t *c, *head;
+>
+>         if (pass =3D=3D 1) {
+> @@ -4581,9 +4586,17 @@ int define_initial_sid_context(void)
+>                 yyerror("no sid name for SID context definition?");
+>                 return -1;
+>         }
 > +
-> +#ifdef __cplusplus
-> +extern "C" {
-> +#endif
-> +
-> +// initial sid names aren't actually stored in the pp files, need to a h=
-ave
-> +// a mapping, taken from the linux kernel
-> +static const char * const selinux_sid_to_str[] =3D {
-> +       "null",
-> +       "kernel",
-> +       "security",
-> +       "unlabeled",
-> +       "fs",
-> +       "file",
-> +       "file_labels",
-> +       "init",
-> +       "any_socket",
-> +       "port",
-> +       "netif",
-> +       "netmsg",
-> +       "node",
-> +       "igmp_packet",
-> +       "icmp_socket",
-> +       "tcp_socket",
-> +       "sysctl_modprobe",
-> +       "sysctl",
-> +       "sysctl_fs",
-> +       "sysctl_kernel",
-> +       "sysctl_net",
-> +       "sysctl_net_unix",
-> +       "sysctl_vm",
-> +       "sysctl_dev",
-> +       "kmod",
-> +       "policy",
-> +       "scmp_packet",
-> +       "devnull",
-> +};
-> +
-> +#define SELINUX_SID_SZ (sizeof(selinux_sid_to_str)/sizeof(selinux_sid_to=
-_str[0]))
-> +
-> +static inline unsigned int selinux_str_to_sid(const char *name)
-> +{
-> +       unsigned i;
-> +
-> +       for (i =3D 1; i < SELINUX_SID_SZ; i++) {
-> +               if (strcmp(name, selinux_sid_to_str[i]) =3D=3D 0)
-> +                       return i;
+> +       sid =3D selinux_str_to_sid(id);
+> +       if (sid =3D=3D 0) {
+> +               yyerror2("invalid initial SID %s", id);
+> +               free(id);
+> +               return -1;
 > +       }
 > +
-> +       return 0;
-> +}
-> +
-> +static const char * const xen_sid_to_str[] =3D {
-> +       "null",
-> +       "xen",
-> +       "dom0",
-> +       "domio",
-> +       "domxen",
-> +       "unlabeled",
-> +       "security",
-> +       "ioport",
-> +       "iomem",
-> +       "irq",
-> +       "device",
-> +       "domU",
-> +       "domDM",
-> +};
-> +
-> +#define XEN_SID_SZ (sizeof(xen_sid_to_str)/sizeof(xen_sid_to_str[0]))
-> +
-> +static inline unsigned int xen_str_to_sid(const char *name)
-> +{
-> +       unsigned i;
-> +
-> +       for (i =3D 1; i < XEN_SID_SZ; i++) {
-> +               if (strcmp(name, xen_sid_to_str[i]) =3D=3D 0)
-> +                       return i;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +#ifdef __cplusplus
-> +}
-> +#endif
-> +
-> +#endif                         /* _SEPOL_POLICYDB_INITIALSIDS_H_ */
-> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/includ=
-e/sepol/policydb/policydb.h
-> index de0068a6..2ce4da5d 100644
-> --- a/libsepol/include/sepol/policydb/policydb.h
-> +++ b/libsepol/include/sepol/policydb/policydb.h
-> @@ -340,7 +340,7 @@ typedef struct range_trans_rule {
->   */
->  typedef struct ocontext {
->         union {
-> -               char *name;     /* name of initial SID, fs, netif, fstype=
-, path */
-> +               char *name;     /* name of initial SID (not saved in bina=
-ry policy), fs, netif, fstype, path */
->                 struct {
->                         uint8_t protocol;
->                         uint16_t low_port;
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index 9128ac55..42251684 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -20,6 +20,7 @@
->  #include <sepol/policydb/avtab.h>
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/hashtab.h>
-> +#include <sepol/policydb/initialsids.h>
->  #include <sepol/policydb/polcaps.h>
->  #include <sepol/policydb/policydb.h>
->  #include <sepol/policydb/services.h>
-> diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
-mon.h
-> index 159c4289..5e8482bf 100644
-> --- a/libsepol/src/kernel_to_common.h
-> +++ b/libsepol/src/kernel_to_common.h
-> @@ -10,59 +10,6 @@
->  #define DEFAULT_LEVEL "systemlow"
->  #define DEFAULT_OBJECT "object_r"
+>         head =3D policydbp->ocontexts[OCON_ISID];
+>         for (c =3D head; c; c =3D c->next) {
+> -               if (!strcmp(id, c->u.name))
+> +               if (sid =3D=3D c->sid[0])
+>                         break;
+>         }
 >
-> -// initial sid names aren't actually stored in the pp files, need to a h=
-ave
-> -// a mapping, taken from the linux kernel
-> -static const char * const selinux_sid_to_str[] =3D {
-> -       "null",
-> -       "kernel",
-> -       "security",
-> -       "unlabeled",
-> -       "fs",
-> -       "file",
-> -       "file_labels",
-> -       "init",
-> -       "any_socket",
-> -       "port",
-> -       "netif",
-> -       "netmsg",
-> -       "node",
-> -       "igmp_packet",
-> -       "icmp_socket",
-> -       "tcp_socket",
-> -       "sysctl_modprobe",
-> -       "sysctl",
-> -       "sysctl_fs",
-> -       "sysctl_kernel",
-> -       "sysctl_net",
-> -       "sysctl_net_unix",
-> -       "sysctl_vm",
-> -       "sysctl_dev",
-> -       "kmod",
-> -       "policy",
-> -       "scmp_packet",
-> -       "devnull",
-> -};
-> -
-> -#define SELINUX_SID_SZ (sizeof(selinux_sid_to_str)/sizeof(selinux_sid_to=
-_str[0]))
-> -
-> -static const char * const xen_sid_to_str[] =3D {
-> -       "null",
-> -       "xen",
-> -       "dom0",
-> -       "domio",
-> -       "domxen",
-> -       "unlabeled",
-> -       "security",
-> -       "ioport",
-> -       "iomem",
-> -       "irq",
-> -       "device",
-> -       "domU",
-> -       "domDM",
-> -};
-> -
-> -#define XEN_SID_SZ (sizeof(xen_sid_to_str)/sizeof(xen_sid_to_str[0]))
-> -
->  static const uint32_t avtab_flavors[] =3D {
->         AVTAB_ALLOWED,
->         AVTAB_AUDITALLOW,
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index 63dffd9b..51a8270d 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -19,6 +19,7 @@
->  #include <sepol/policydb/avtab.h>
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/hashtab.h>
-> +#include <sepol/policydb/initialsids.h>
->  #include <sepol/policydb/polcaps.h>
->  #include <sepol/policydb/policydb.h>
->  #include <sepol/policydb/services.h>
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index b35bf055..1945b369 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -47,6 +47,7 @@
->  #include <sepol/module_to_cil.h>
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/hashtab.h>
-> +#include <sepol/policydb/initialsids.h>
->  #include <sepol/policydb/polcaps.h>
->  #include <sepol/policydb/policydb.h>
->  #include <sepol/policydb/services.h>
 > --
 > 2.36.1
 >
