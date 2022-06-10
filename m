@@ -2,102 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34F8DC43334
-	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 15:06:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 961A2C43334
+	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 19:52:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244946AbiFJPGp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jun 2022 11:06:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54386 "EHLO
+        id S1350382AbiFJTwY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jun 2022 15:52:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbiFJPGo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 11:06:44 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4264A22A628
-        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 08:06:43 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id n28so35684877edb.9
-        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 08:06:43 -0700 (PDT)
+        with ESMTP id S1350389AbiFJTwW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 15:52:22 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9347A23CCF5
+        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 12:52:19 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id a15so29290597wrh.2
+        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 12:52:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=WeeG9ptY77+n/BKo/tmcItSWHWLzdrkvKuObO2MdiPU=;
-        b=aS5qtJjFR6FBanx+ZTcn+lLM9UObvoYcYDpjFcvDtLmcQ7k+roOAwHnD6YInLfTxiN
-         Za5yX1F6598L9IX6ZVJYSVSTjxiSdjwwWlvB4CKvWBYojjL54fRyWy1hjPgRXYUnpQuK
-         5xKi0/lUieQI4R/qvDVDmpNhnAHjAkotBLC2viHbCYtjQ+bG/AwUmtl1j3NhflwAfeJx
-         aDrzMXjENebIjiRriJmogkRXQyWRFjddo7MHUtWAZj3vPJ1IvoWvu97gmWkQzZ53UP8i
-         Ae9edN/BjnDxIqrYR007FcMadwXbduzm5NtLho7kadFx9Py/S8pRgVjO7/rOS3H5hdrP
-         W6UQ==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=x81CyVir3pjK/ztFro5SKkqWERq2me/APMv8atNQetU=;
+        b=y3UITEx0SBsS5g1x4ULHaE+KbdORxtcufS3I0QAPCfO7rtbWxyDxBifiPRqpMkPjus
+         X0sbLUkmKgfJJrjCa5GcA1ZmTsM0uVG5p3FSerp8mgTJDqYzZ0Dd+0w8n+ZqqlZCMhFx
+         gqR+XnYmehwlcDxCZ6WGP1BL5334b88RrOQmFrgNaFHzzk72zUGuTQKkEYAMCW4oqMak
+         O7tp4NaIScT82Cf4oFocLCBqueORdOGv1sW98SblpZ+FIX3X+MMo/dv5P0BkfAeHVoSN
+         CgYDNH6EWMFDwa3blv4+sp0n2zD09/4LQ4PJ1rb+i93BTauFioHs9iM2Nm1KavIWTw2q
+         LRFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=WeeG9ptY77+n/BKo/tmcItSWHWLzdrkvKuObO2MdiPU=;
-        b=Nlucc/2Fmbje1f74UwMYypW5AjWfggX4vy47tZW0Tyt19TCvxGxvIA3CppJYpeAJni
-         6UgOjP3r9T2t84pUQR+ipTP45gTmIB5UUpRuRPZeRUQnNaoTOlL5IaVMCABftSJsIXNR
-         hFCiYAI8sK5ymeSKn7JEnTxfkS2deUQSGveNa14e0XT9JSrTBGTLVX5Iw6tHzvFNZpY3
-         OxLcEZN52LdXBroBSxkxa8QGUd8ZVKVjTHeNuLplpg6NOe05XINO9rBudXaQLB6sy9h+
-         vB2YXQMKO4Eza7mF1Z98uwh8FDw6bw1qC5Tfyv1agioyhZrIgZEN/CGXsfkB8gagJEx4
-         dMbw==
-X-Gm-Message-State: AOAM532R0rNU9Ep//PZkX3Zo2/MHdbmDojyTp5DF8bTOk6O3zpGmcFya
-        6EG6j1csZBZdmTyd8P/Z6XCNn1Ig8jY=
-X-Google-Smtp-Source: ABdhPJxZclVtZWOmRHS4JLlrGWINXslXRE6nMVXjDDMoPq6sIextSa9JaGJD2kkDLRoUyAYtuPMMow==
-X-Received: by 2002:aa7:d295:0:b0:42d:e371:ded2 with SMTP id w21-20020aa7d295000000b0042de371ded2mr52282863edq.336.1654873601724;
-        Fri, 10 Jun 2022 08:06:41 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-095-116-083-029.95.116.pool.telefonica.de. [95.116.83.29])
-        by smtp.gmail.com with ESMTPSA id h14-20020aa7c94e000000b0042e03eed448sm15203440edt.20.2022.06.10.08.06.40
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Jun 2022 08:06:40 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] checkpolicy: error out if required permission would exceed limit
-Date:   Fri, 10 Jun 2022 17:06:37 +0200
-Message-Id: <20220610150637.21133-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=x81CyVir3pjK/ztFro5SKkqWERq2me/APMv8atNQetU=;
+        b=3CqbobpM7aF1SGsjwO73H7XBELLdO4J4zufnAZWBrD+Wud+sbDhaKtJRq18TEtuwMk
+         /0YVs1ie1Rj4AYNv8/my5eViIzuQETuWVBAjhHzl+vVrw5pbBXj2qiPwmDYY92LxE/rS
+         wkrw4cl6kopYwzvRpGyYWkYAAehOaSmlGY5yFUMBiMe5WSl2qTFkbpQgkT9wrVs0HJ2I
+         lgausr9bq26AUJCC5tO4FM0syAdAa881D/HEezHcoyzNWZGxoiZ9hahLSWpgqpCTDohn
+         mwAwGIeKjdFamkRGxH0t6EY+/QoJBPxS6/RfzgeR0jsEdI4RcXTOE265iRBgQDu2RBNU
+         yPhQ==
+X-Gm-Message-State: AOAM531Jlo3XA25nFxkNKq9K+d9Ya7zOrKghAs4GKSa/6PqqW2Edvqlz
+        jnf4lWBh4IECSA9zOuxUpOmPP6NN4H/lBlodHbkx
+X-Google-Smtp-Source: ABdhPJxM/c/b1H9ScCDVgTvg2CB9+5vuNvzZtf1lT8GASYKGK0T+lA3Wsnt70X/aY1aiYxbBDIvNYa/0m9HC35uYgEY=
+X-Received: by 2002:a5d:64c7:0:b0:216:5021:687f with SMTP id
+ f7-20020a5d64c7000000b002165021687fmr36417844wri.295.1654890738143; Fri, 10
+ Jun 2022 12:52:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220608223619.2287162-1-jolindner@gmx.de>
+In-Reply-To: <20220608223619.2287162-1-jolindner@gmx.de>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 10 Jun 2022 15:52:07 -0400
+Message-ID: <CAHC9VhRfM0_zA6TbZiOGo8nCSRoh-g_J3iZG14DemnXTxGRsoA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix typos in comments
+To:     Jonas Lindner <jolindner@gmx.de>
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        trivial@kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-A require statement for a class permission adds that permission to the
-class representation for the current module.  In case the resulting
-class would have more than the supported amount of 32 permissions
-assigned the resulting binary module will fail to load at link-time
-without an informative error message (since [1]).
+On Wed, Jun 8, 2022 at 6:37 PM Jonas Lindner <jolindner@gmx.de> wrote:
+>
+> selinux: fix typos in comments
+> Signed-off-by: Jonas Lindner <jolindner@gmx.de>
+> ---
+>  security/selinux/hooks.c         | 4 ++--
+>  security/selinux/include/audit.h | 2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 
-Bail out if adding a permission would result in a class having more then
-the supported amount of 32 permissions assigned.
+Merged into selinux/next (with the duplicated subject line removed), thanks!
 
-[1]: https://github.com/SELinuxProject/selinux/commit/97af65f69644a3233d073ae93980a0d2e51f42e1
-
-Closes: https://github.com/SELinuxProject/selinux/issues/356
-Reported-by: Julie Pichon
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- checkpolicy/module_compiler.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 129650fa..3188af89 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -851,6 +851,14 @@ int require_class(int pass)
- 				free(perm_id);
- 				return -1;
- 			}
-+			if (datum->permissions.nprim >= PERM_SYMTAB_SIZE) {
-+				yyerror2("Class %s would have too many permissions "
-+					 "to fit in an access vector with permission %s",
-+					 policydbp->p_class_val_to_name[datum->s.value - 1],
-+					 perm_id);
-+				free(perm_id);
-+				return -1;
-+			}
- 			allocated = 1;
- 			if ((perm = malloc(sizeof(*perm))) == NULL) {
- 				yyerror("Out of memory!");
 -- 
-2.36.1
-
+paul-moore.com
