@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7E49CCA47B
-	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 21:06:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4094CCA47B
+	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 21:11:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350784AbiFJVGa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jun 2022 17:06:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35810 "EHLO
+        id S243046AbiFJVLO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jun 2022 17:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348166AbiFJVG0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 17:06:26 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C170A2A955
-        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 14:06:24 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id q12-20020a17090a304c00b001e2d4fb0eb4so3388779pjl.4
-        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 14:06:24 -0700 (PDT)
+        with ESMTP id S1347096AbiFJVLL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 17:11:11 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E505049267
+        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 14:11:09 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id h192so283819pgc.4
+        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 14:11:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=AVhfbIukOKEVFvNF87H3xskC9Oa1vruUMas0TKGSYm0=;
-        b=nUaBKVT5J8mwmiDpTKFhYMr5X6B97KvxMCWwwWjCo69v2K9ZvUkTEC5pE8DyMQG1mU
-         JNFVAkbelc/drapO000q+0h0xtP5KanI5Z1wF+j0iYcWFcmL66vgbkyZsfMb0xV14Wrz
-         n9YCGn9EmO0MoppPxe9cAtWTqQpvKEf9rTAcXycm8s/y2L5sMuXmXX9WI7n5pMD2V9DL
-         pOw5uJ6CSSBSiiZKbwLOvzafe3tnkgR9ohmxQ/04zaTeiGXbFUxahNfU9xiBU7tQHqhv
-         eR6ZN6RiS0RuxU8DIaPHvmJE/3xCM9nDZN4SQuRvqmMCezf/4MOxVabPuhq4m477txoq
-         h3OQ==
+        bh=mAlhHjicxdibTZDY5HOZ3HLGftkcyfsPbsuBXvhev58=;
+        b=rZoLQeeoRRIJfdLUJHE4dnrv8nvOAt9iOR0vH2qVCqvRI5W3AZ+mv8x+IW7fCeK6ba
+         OVKZBg+dmXyW9W+XodkUKv8lx+avXiEFgpHK17IIYAWUXvzSmlWwi9ZgEJByV24JtQVO
+         yqMzskfHsVeIjFMHcrNFCLiOvBVonmGQq2DEtnnHc9yOLy++SvJkgef5FG4G+cG43fEd
+         /Fvg5ax3RpWb3XiCYQeuzl/1lH4B3XataJDDAwrYOiiTIg3FxWNSp0B+/gxNwomFI++O
+         03qLVVKkULvOYqTllPPH4HMOJPK4F6Da8bvMMDw6+uMoPLYmWDrfFLEGDTdRsqCouOQ6
+         n14w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=AVhfbIukOKEVFvNF87H3xskC9Oa1vruUMas0TKGSYm0=;
-        b=JC4feb8JDUJOEKwHYQSoTeNyR4m/6weVf1tj/8pvbfIE8GV1C2YORxnE5XhpT7qqET
-         wTpEnKNtiVNj1kY5faiZ7RJ5au6B7bFY0f1u40wD5IDoBZhZNeEWiV3JfHrU+2LmrFQK
-         92HXcXeTOjeEm+RMEslBOtwxHIHaRtMYEAfN6bfgEp2dy2XnvfR8Fb1roYqKqGK1Xt0w
-         niZaZdMUJ7C5/CqQvCZHVV9xe0FHLrFynNKOTQ3dau/0O3+5MSSib9YTGgKfYKqn6tRW
-         JyO30IV6OY7Z1ljUTEsUqGKI90wgU868/po/DbgwnIVQeDcVOvJGYPSLosdSW5MtfxWI
-         cpHg==
-X-Gm-Message-State: AOAM53110amNPqEvnKfE2M4/FSAXWtM6P1EJdrCBljxRyZEejv0wT1cw
-        T7XVOeJxy80nc7/TkVROf9TFZ4umKrXNaPNABv0Y
-X-Google-Smtp-Source: ABdhPJzIMHgsZ4tZhpk9aRuapm/Sl7e4TCz9bkJJUYRDpM0VclwMSgMCBCsHtkFgTHE9/eqfYCAPhNwufAxTaQy/2io=
-X-Received: by 2002:a17:902:f54b:b0:163:e2fd:10a5 with SMTP id
- h11-20020a170902f54b00b00163e2fd10a5mr47483065plf.28.1654895184250; Fri, 10
- Jun 2022 14:06:24 -0700 (PDT)
+        bh=mAlhHjicxdibTZDY5HOZ3HLGftkcyfsPbsuBXvhev58=;
+        b=W8QS+w/UtvIXIZInZYY7EcReG32mczvg4LUKP7wKUYPn8JoOK4vdK2YRTNduxQ5xfZ
+         uxZbXWUSjgJTyIeCtYu+X5YNK7DZqcifEz5hopfr6y7gZ5zdek1vf82B0ilytIujqHip
+         7fgJGh/mdYjWYVFS//iRS3tlZq2fsRTLd80EXRpHUthkyeEAA0g4hu/+kz1ygpnuyPZF
+         N9b/Z4Ie37ZYSCgXpjtH/5dZEqrbT7azCzFzC3dPm1w4IWcdvVBjxQJagAFFKQcyOIW3
+         L2YDWmfpWI1QiHYwglNIhCA6PhvAaVPwqZ/pgiD1ex3Bl69WNLSC0jmmr7k56VJO8my8
+         /98A==
+X-Gm-Message-State: AOAM5301nejIn+8KFZyPxNRWJc5WqSSI737S7L0FGQSAUv72TBw35Crp
+        TnVrPsUDdRjce+hEoGwhGj8WZZyINObtSxwR/1nYMRd95g==
+X-Google-Smtp-Source: ABdhPJwx7n3musHGFyiyfqvl/EdH710RryS6Xm5TNC7u0DL6j33BjBGOdeGMogcoVPAETgbUEuZ93EmDm/ToHyuQPv0=
+X-Received: by 2002:a63:31d0:0:b0:3fc:5770:e779 with SMTP id
+ x199-20020a6331d0000000b003fc5770e779mr40782512pgx.376.1654895469427; Fri, 10
+ Jun 2022 14:11:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220609230146.319210-1-casey@schaufler-ca.com> <20220609230146.319210-28-casey@schaufler-ca.com>
-In-Reply-To: <20220609230146.319210-28-casey@schaufler-ca.com>
+References: <20220609230146.319210-1-casey@schaufler-ca.com> <20220609230146.319210-29-casey@schaufler-ca.com>
+In-Reply-To: <20220609230146.319210-29-casey@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 10 Jun 2022 17:06:13 -0400
-Message-ID: <CAHC9VhR4xUpe4fQrUqvUfH_zaBSzfCS2yZ62XHN2+ugKg=Kd4g@mail.gmail.com>
-Subject: Re: [PATCH v36 27/33] Audit: Add record for multiple task security contexts
+Date:   Fri, 10 Jun 2022 17:10:58 -0400
+Message-ID: <CAHC9VhSTdZVVAbSS_kT-Qtk6iy7w+GdAx7-F=aPQLtG5Ncb_ZA@mail.gmail.com>
+Subject: Re: [PATCH v36 28/33] audit: multiple subject lsm values for netlabel
 To:     Casey Schaufler <casey@schaufler-ca.com>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
@@ -64,25 +64,16 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Thu, Jun 9, 2022 at 7:16 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
 >
-> Create a new audit record AUDIT_MAC_TASK_CONTEXTS.
-> An example of the MAC_TASK_CONTEXTS (1420) record is:
->
->     type=MAC_TASK_CONTEXTS[1420]
->     msg=audit(1600880931.832:113)
->     subj_apparmor=unconfined
->     subj_smack=_
->
-> When an audit event includes a AUDIT_MAC_TASK_CONTEXTS record
-> the "subj=" field in other records in the event will be "subj=?".
-> An AUDIT_MAC_TASK_CONTEXTS record is supplied when the system has
-> multiple security modules that may make access decisions based
-> on a subject security context.
+> Refactor audit_log_task_context(), creating a new
+> audit_log_subject_context(). This is used in netlabel auditing
+> to provide multiple subject security contexts as necessary.
 >
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  include/uapi/linux/audit.h |  1 +
->  kernel/audit.c             | 42 +++++++++++++++++++++++++++++++-------
->  2 files changed, 36 insertions(+), 7 deletions(-)
+>  include/linux/audit.h        |  7 +++++++
+>  kernel/audit.c               | 26 ++++++++++++++++----------
+>  net/netlabel/netlabel_user.c |  7 +------
+>  3 files changed, 24 insertions(+), 16 deletions(-)
 
 Acked-by: Paul Moore <paul@paul-moore.com>
 
