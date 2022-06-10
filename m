@@ -2,207 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB44C433EF
-	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 07:52:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD6BDC43334
+	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 15:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245131AbiFJHwQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jun 2022 03:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47154 "EHLO
+        id S244045AbiFJPGe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jun 2022 11:06:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244463AbiFJHwP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 03:52:15 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D56D1C284F;
-        Fri, 10 Jun 2022 00:52:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1654847534; x=1686383534;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Vi/Cl0PyJOCXlWY+DAGC0EAW94aIzRv2dNjS6RisAUg=;
-  b=h3LCxusJBB3qrT8698ODwct78Fxd67dNb+Eem3PEg3vXpxhqFly6szAd
-   xNqbbuDCPticV4f5l4q3F7eSWbvPbJMc/yuksrNRaB+ISDl8rWT1K8GPD
-   kfzi32TnqssY/G48BnFknXCtXFgr19YG/CZBbqLwIUQ+qw0iQ0kUVNiLq
-   5aJio8YqsKdXnWSkMISD/O/las1Ip5m/aqGjiBHuVH+GS91t2JKsMxSGU
-   ej3wM8qJQVX7G+sW+4c/N5Ntr8uDuPV/OHJzMWdtySd1WeswlBfFNeK06
-   PxW58b9YkOUK891VYZG+dRaIlRMKb4i2JQre8CaPmXXIj+gybR5IjuOV4
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10373"; a="363881095"
-X-IronPort-AV: E=Sophos;i="5.91,288,1647327600"; 
-   d="scan'208";a="363881095"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2022 00:52:14 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,288,1647327600"; 
-   d="scan'208";a="616379856"
-Received: from lkp-server01.sh.intel.com (HELO 60dabacc1df6) ([10.239.97.150])
-  by orsmga001.jf.intel.com with ESMTP; 10 Jun 2022 00:52:05 -0700
-Received: from kbuild by 60dabacc1df6 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1nzZR6-000GoA-Vi;
-        Fri, 10 Jun 2022 07:52:04 +0000
-Date:   Fri, 10 Jun 2022 15:51:40 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v36 04/33] LSM: provide lsm name and id slot mappings
-Message-ID: <202206101543.IWAKe4Qx-lkp@intel.com>
-References: <20220609230146.319210-5-casey@schaufler-ca.com>
+        with ESMTP id S233117AbiFJPGc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 11:06:32 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4E06223BD7
+        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 08:06:31 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id z7so35659073edm.13
+        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 08:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IswP33oDLgRHcyfg9LVWX2XNcNqlY2uaS/6KbLvlzBQ=;
+        b=fuogGdrFMCt1hPiA1sWBYGRX7KP/ztP4CGRHWBjULlb0xl9GkutrhzD/BYoffB0b8Y
+         WmfwqnFFCJSPTGK0qs5KPmTdkiATfwvMS3HsmmKuY8tpHyeDUb4dwsfA50JZwaMrrzTk
+         A3D9QAwmzLfhuT5soPf79dOG9fmMFNpcYQnuwc/S+uB2cMjlxgbSvfzhLm8M+x70oJNO
+         BiO+/zklleqQWytkLjkUqoRQoKIt6HqG8hMJv7XI+i1dJmrglrbakfH7WZDqvix7rBiB
+         opjtg3xIVOu6xwKDsJGt5HCjIhDK8MJdT+C+e54hZNOoFO45QLVctQDol97ZjNDz3gOm
+         Mzeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IswP33oDLgRHcyfg9LVWX2XNcNqlY2uaS/6KbLvlzBQ=;
+        b=BcTF4EgqISghLmi2Iq6Pb/uDqw38z/Mttmk7GxMNfTTEZ2QklXsGuVCNlzQfuaR4GF
+         jsbEKZ1C1gHXkhrNxxoSoDVygNo/8a2UXlg/lpvCszVDbMnZIdduF6ATRH0QLnBkt7+6
+         bG6rQRFy06Dn0vXuZBKDWVDI9zrzhULQ8LQ5/mFlA+Y9aN5A0LXqHMx/+lmwrCWwTwU4
+         PnxKTGDPcdEQcPTfCa6dLaN8vZhRhQfcNlxkW/b1SD1XeNb5T2TZ/x1tqh3dOMevCKV3
+         Ida0NRWyF/zdWax6BAnMurPA0sPhlabh+T2H3JXLh1q1DJemTkgdn0RI1QGlr7V/xKmb
+         tAOg==
+X-Gm-Message-State: AOAM530O21H7NOFq997B10htUTxVvfUIOpIg+T7U7ubZjDmQR/OfiFzU
+        RfCbw10ci9eUFCBJQkC84JXdV+7qWI4=
+X-Google-Smtp-Source: ABdhPJxBBzzXQfq2wOLqqbGlYCNLhFKjSLef9BRO7tAcNn/9QxD8FfUwlnDlm96ce7oTTA7wylTiOQ==
+X-Received: by 2002:a05:6402:5211:b0:42e:2e1c:5bce with SMTP id s17-20020a056402521100b0042e2e1c5bcemr44701780edd.198.1654873590316;
+        Fri, 10 Jun 2022 08:06:30 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-116-083-029.95.116.pool.telefonica.de. [95.116.83.29])
+        by smtp.gmail.com with ESMTPSA id lk24-20020a170906cb1800b006fa84a0af2asm12529724ejb.16.2022.06.10.08.06.29
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jun 2022 08:06:29 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol: avoid potential NULL dereference on optional parameter
+Date:   Fri, 10 Jun 2022 17:06:23 +0200
+Message-Id: <20220610150623.21082-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220609230146.319210-5-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Casey,
+The parameter `reason` of `context_struct_compute_av()` is optional and
+can be passed in as NULL, like from `type_attribute_bounds_av()`.
 
-I love your patch! Perhaps something to improve:
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/services.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-[auto build test WARNING on pcmoore-audit/next]
-[also build test WARNING on pcmoore-selinux/next linus/master v5.19-rc1 next-20220610]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220610-080129
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git next
-config: sparc-randconfig-r014-20220609 (https://download.01.org/0day-ci/archive/20220610/202206101543.IWAKe4Qx-lkp@intel.com/config)
-compiler: sparc-linux-gcc (GCC) 11.3.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/767517968014af3744e00ba2c0c956b290a56ecb
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220610-080129
-        git checkout 767517968014af3744e00ba2c0c956b290a56ecb
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=sparc SHELL=/bin/bash
-
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   security/security.c: In function 'lsm_name_to_slot':
->> security/security.c:496:40: warning: array subscript i is outside array bounds of 'struct lsm_id *[0]' [-Warray-bounds]
-     496 |                 if (strcmp(lsm_slotlist[i]->lsm, name) == 0)
-         |                            ~~~~~~~~~~~~^~~
-   security/security.c:481:23: note: while referencing 'lsm_slotlist'
-     481 | static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES] __lsm_ro_after_init;
-         |                       ^~~~~~~~~~~~
-   security/security.c: In function 'lsm_slot_to_name':
->> security/security.c:521:25: warning: array subscript 0 is outside array bounds of 'struct lsm_id *[0]' [-Warray-bounds]
-     521 |         if (lsm_slotlist[slot] == NULL)
-         |             ~~~~~~~~~~~~^~~~~~
-   security/security.c:481:23: note: while referencing 'lsm_slotlist'
-     481 | static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES] __lsm_ro_after_init;
-         |                       ^~~~~~~~~~~~
-   security/security.c: In function 'security_add_hooks':
->> security/security.c:546:29: warning: array subscript <unknown> is outside array bounds of 'struct lsm_id *[0]' [-Warray-bounds]
-     546 |                 lsm_slotlist[lsm_slot] = lsmid;
-         |                 ~~~~~~~~~~~~^~~~~~~~~~
-   security/security.c:481:23: note: while referencing 'lsm_slotlist'
-     481 | static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES] __lsm_ro_after_init;
-         |                       ^~~~~~~~~~~~
-
-
-vim +496 security/security.c
-
-   482	
-   483	/**
-   484	 * lsm_name_to_slot - Report the slot number for a security module
-   485	 * @name: name of the security module
-   486	 *
-   487	 * Look up the slot number for the named security module.
-   488	 * Returns the slot number or LSMBLOB_INVALID if @name is not
-   489	 * a registered security module name.
-   490	 */
-   491	int lsm_name_to_slot(char *name)
-   492	{
-   493		int i;
-   494	
-   495		for (i = 0; i < lsm_slot; i++)
- > 496			if (strcmp(lsm_slotlist[i]->lsm, name) == 0)
-   497				return i;
-   498	
-   499		return LSMBLOB_INVALID;
-   500	}
-   501	
-   502	/**
-   503	 * lsm_slot_to_name - Get the name of the security module in a slot
-   504	 * @slot: index into the interface LSM slot list.
-   505	 *
-   506	 * Provide the name of the security module associated with
-   507	 * a interface LSM slot.
-   508	 *
-   509	 * If @slot is LSMBLOB_INVALID return the value
-   510	 * for slot 0 if it has been set, otherwise NULL.
-   511	 *
-   512	 * Returns a pointer to the name string or NULL.
-   513	 */
-   514	const char *lsm_slot_to_name(int slot)
-   515	{
-   516		if (slot == LSMBLOB_INVALID)
-   517			slot = 0;
-   518		else if (slot >= LSMBLOB_ENTRIES || slot < 0)
-   519			return NULL;
-   520	
- > 521		if (lsm_slotlist[slot] == NULL)
-   522			return NULL;
-   523		return lsm_slotlist[slot]->lsm;
-   524	}
-   525	
-   526	/**
-   527	 * security_add_hooks - Add a modules hooks to the hook lists.
-   528	 * @hooks: the hooks to add
-   529	 * @count: the number of hooks to add
-   530	 * @lsmid: the identification information for the security module
-   531	 *
-   532	 * Each LSM has to register its hooks with the infrastructure.
-   533	 * If the LSM is using hooks that export secids allocate a slot
-   534	 * for it in the lsmblob.
-   535	 */
-   536	void __init security_add_hooks(struct security_hook_list *hooks, int count,
-   537				       struct lsm_id *lsmid)
-   538	{
-   539		int i;
-   540	
-   541		WARN_ON(!lsmid->slot || !lsmid->lsm);
-   542	
-   543		if (lsmid->slot == LSMBLOB_NEEDED) {
-   544			if (lsm_slot >= LSMBLOB_ENTRIES)
-   545				panic("%s Too many LSMs registered.\n", __func__);
- > 546			lsm_slotlist[lsm_slot] = lsmid;
-   547			lsmid->slot = lsm_slot++;
-   548			init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
-   549				   lsmid->slot);
-   550		}
-   551	
-   552		for (i = 0; i < count; i++) {
-   553			hooks[i].lsmid = lsmid;
-   554			hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
-   555		}
-   556	
-   557		/*
-   558		 * Don't try to append during early_security_init(), we'll come back
-   559		 * and fix this up afterwards.
-   560		 */
-   561		if (slab_is_available()) {
-   562			if (lsm_append(lsmid->lsm, &lsm_names) < 0)
-   563				panic("%s - Cannot get early memory.\n", __func__);
-   564		}
-   565	}
-   566	
-
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index d7510e9d..24412d83 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -894,7 +894,8 @@ static void type_attribute_bounds_av(context_struct_t *scontext,
+ 	/* mask violated permissions */
+ 	avd->allowed &= ~masked;
+ 
+-	*reason |= SEPOL_COMPUTEAV_BOUNDS;
++	if (reason)
++		*reason |= SEPOL_COMPUTEAV_BOUNDS;
+ }
+ 
+ /*
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.36.1
+
