@@ -2,81 +2,97 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54589C433EF
-	for <selinux@archiver.kernel.org>; Fri, 10 Jun 2022 21:12:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D31DC43334
+	for <selinux@archiver.kernel.org>; Sat, 11 Jun 2022 09:07:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350853AbiFJVMf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jun 2022 17:12:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34170 "EHLO
+        id S231844AbiFKJHx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 11 Jun 2022 05:07:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348971AbiFJVMd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jun 2022 17:12:33 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE344968F
-        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 14:12:32 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id d129so264599pgc.9
-        for <selinux@vger.kernel.org>; Fri, 10 Jun 2022 14:12:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KLh8UWaxnG0XK4ejvWk5/7UEox62WuaIhi58ed8ZfqU=;
-        b=oOOlocAR4BVT+CnGqmu5nFRQMD1z12qGrPh1buMTIuQt0LNbf3DZw0xZbNVlhc2y8n
-         FYgbC30cstY+yvj2do6UDu46k7Vn5VFACCt0OQI1llYzuP3t8TKupeqiOl0mKnB7mEpx
-         GBoXMrfeGKfVaH95mQ0aAmGMQl6kRSoID0l58jpYnm3rtiS1dksHi2ylQ1VCEV4L44Kk
-         UDUm0pt38qW8TufTPezTvFPQNn59gduH4kJYvkmStSEnxU5vdWZHSf7q147zlIdmvwUs
-         QtRPWAHObALA+wYaEq6Hz5Sjniu8RYXrZmOBthtCEfkCX7c09rysGegcLy4dFk/63PZR
-         Ubxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KLh8UWaxnG0XK4ejvWk5/7UEox62WuaIhi58ed8ZfqU=;
-        b=QBUsWvFfhKtOBqh04wos10FtO1zt3FEVOpcaM9M0FwwWMFJWKdV+lDUE7DnVSCScmy
-         5lLNlJmvuUlLW0VapCYU4ZVVUFlPSraAMCohDJeyu48xeH8BM8UIrKozT+XO8ejIpnlz
-         Et4JeAteGuq1asfWwgb5dg47HZvbhkkprdUO0QEfLBr36EXAkv/9jAQl0LzGWhYtAsOK
-         kzWNs5uriNqiDkc/Wccai8tE9qZprfJEqNJZwm+q3NLNQkIURTKLH6FPVhFZ/Q8I62N4
-         dqJ7qcCPCnZruqMXfDo+PTrPCoWciA8Wd37j7l5WDNPD6dc7aFBZjHVSYJ+LhqBLNoqr
-         ys8Q==
-X-Gm-Message-State: AOAM532Ze8AwYjzOIzC1E4xkTxWW2ix8hCIqbMAYpwP5395p1MBQOHg9
-        zF56Qiaui3vZCkXi8mVZ/7shEasqh/egOBGLYvAD
-X-Google-Smtp-Source: ABdhPJwOyrpg1AqxhhST810M59Pif6MyGpe2uAsQzlGWQ8QXwysQpCn4KgUWCSY2xql44klzbHEzPc92Valgmk5MxIw=
-X-Received: by 2002:a63:8449:0:b0:3fc:85a5:5b69 with SMTP id
- k70-20020a638449000000b003fc85a55b69mr40873314pgd.261.1654895552080; Fri, 10
- Jun 2022 14:12:32 -0700 (PDT)
+        with ESMTP id S231823AbiFKJHw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 11 Jun 2022 05:07:52 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B982CE097;
+        Sat, 11 Jun 2022 02:07:49 -0700 (PDT)
+Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.56])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4LKsPb2Cqwz1K9Bg;
+        Sat, 11 Jun 2022 17:05:55 +0800 (CST)
+Received: from ubuntu1804.huawei.com (10.67.174.58) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Sat, 11 Jun 2022 17:07:47 +0800
+From:   Xiu Jianfeng <xiujianfeng@huawei.com>
+To:     <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+        <eparis@parisplace.org>, <omosnace@redhat.com>
+CC:     <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH -next] selinux: Fix potential memory leak in selinux_add_opt
+Date:   Sat, 11 Jun 2022 17:05:50 +0800
+Message-ID: <20220611090550.135674-1-xiujianfeng@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-References: <20220609230146.319210-1-casey@schaufler-ca.com> <20220609230146.319210-31-casey@schaufler-ca.com>
-In-Reply-To: <20220609230146.319210-31-casey@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 10 Jun 2022 17:12:21 -0400
-Message-ID: <CAHC9VhTraB9D962b9j8J0HxUE9RPbAp6ATNFuvucdccTHx_xmQ@mail.gmail.com>
-Subject: Re: [PATCH v36 30/33] netlabel: Use a struct lsmblob in audit data
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-audit@redhat.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.58]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpeml500023.china.huawei.com (7.185.36.114)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 9, 2022 at 7:18 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> Remove scaffolding in netlabel audit by keeping subject
-> lsm information in an lsmblob structure instead of a secid.
->
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  include/net/netlabel.h            | 2 +-
->  net/netlabel/netlabel_unlabeled.c | 4 +---
->  net/netlabel/netlabel_user.c      | 4 +---
->  net/netlabel/netlabel_user.h      | 6 +-----
->  security/smack/smackfs.c          | 2 +-
->  5 files changed, 5 insertions(+), 13 deletions(-)
+In the entry of selinux_add_opt, *mnt_opts may be assigned to new
+allocated memory, and also may be freed and reset at the end of the
+function. however, if security_context_str_to_sid failed, it returns
+directly and skips the procedure for free and reset, even if it may be
+handled at the caller of this function, It is better to handle it
+inside.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+---
+ security/selinux/hooks.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 4af4986d3893..3d67c1dab2c6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -949,7 +949,7 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 	struct selinux_mnt_opts *opts = *mnt_opts;
+ 	bool is_alloc_opts = false;
+ 	u32 *dst_sid;
+-	int rc;
++	int rc = -EINVAL;
+ 
+ 	if (token == Opt_seclabel)
+ 		/* eaten and completely ignored */
+@@ -993,13 +993,15 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 		break;
+ 	default:
+ 		WARN_ON(1);
+-		return -EINVAL;
++		goto err;
+ 	}
+ 	rc = security_context_str_to_sid(&selinux_state, s, dst_sid, GFP_KERNEL);
+-	if (rc)
++	if (rc) {
+ 		pr_warn("SELinux: security_context_str_to_sid (%s) failed with errno=%d\n",
+ 			s, rc);
+-	return rc;
++		goto err;
++	}
++	return 0;
+ 
+ err:
+ 	if (is_alloc_opts) {
+@@ -1007,7 +1009,7 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 		*mnt_opts = NULL;
+ 	}
+ 	pr_warn(SEL_MOUNT_FAIL_MSG);
+-	return -EINVAL;
++	return rc;
+ }
+ 
+ static int show_sid(struct seq_file *m, u32 sid)
 -- 
-paul-moore.com
+2.17.1
+
