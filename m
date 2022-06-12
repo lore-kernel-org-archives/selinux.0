@@ -2,97 +2,114 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D31DC43334
-	for <selinux@archiver.kernel.org>; Sat, 11 Jun 2022 09:07:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8BFEC433EF
+	for <selinux@archiver.kernel.org>; Sun, 12 Jun 2022 19:36:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231844AbiFKJHx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 11 Jun 2022 05:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60340 "EHLO
+        id S234545AbiFLTgX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 12 Jun 2022 15:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231823AbiFKJHw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 11 Jun 2022 05:07:52 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B982CE097;
-        Sat, 11 Jun 2022 02:07:49 -0700 (PDT)
-Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4LKsPb2Cqwz1K9Bg;
-        Sat, 11 Jun 2022 17:05:55 +0800 (CST)
-Received: from ubuntu1804.huawei.com (10.67.174.58) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Sat, 11 Jun 2022 17:07:47 +0800
-From:   Xiu Jianfeng <xiujianfeng@huawei.com>
-To:     <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
-        <eparis@parisplace.org>, <omosnace@redhat.com>
-CC:     <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH -next] selinux: Fix potential memory leak in selinux_add_opt
-Date:   Sat, 11 Jun 2022 17:05:50 +0800
-Message-ID: <20220611090550.135674-1-xiujianfeng@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S232011AbiFLTgX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 12 Jun 2022 15:36:23 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD6042490;
+        Sun, 12 Jun 2022 12:36:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655062582; x=1686598582;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Ojtznw2WjdPPDjXzrimd0H0ovfxUgD9/l5NTXljPMIw=;
+  b=U1reWOQjHSCtJCbki7Xk6FuvZQcou3pcCyLd4bCgdue2tFAmQ8e9/0NE
+   D9n4qkUSegOY3KErUAo0Ni7G9yNZwT/AxrN+CheNAQhs3/8qHji1HWBrN
+   iTnal9dYsn1W9g9/9c5EoXlOlwhd5nYVAvJJufu+D/zJqc6le7cwfUME+
+   f3GL9NB+WZP80VsNRZooDvysikav8b1cxTF0KBpEv8+wDLYY4lvfsueHy
+   etx2KgSQ3mI1HoU/Kf6+EHXtll4YGksIGiOJ1R5YsWNTgTl0bvXWELc9X
+   D7sr4vOHJhx8HZx18A/1sMwmDKBDSKT7KERINJIq0Mte4j+5ciOM2pPsF
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10376"; a="266794730"
+X-IronPort-AV: E=Sophos;i="5.91,296,1647327600"; 
+   d="scan'208";a="266794730"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jun 2022 12:36:21 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,296,1647327600"; 
+   d="scan'208";a="617212492"
+Received: from lkp-server01.sh.intel.com (HELO 60dabacc1df6) ([10.239.97.150])
+  by orsmga001.jf.intel.com with ESMTP; 12 Jun 2022 12:36:18 -0700
+Received: from kbuild by 60dabacc1df6 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1o0TNh-000KAn-Po;
+        Sun, 12 Jun 2022 19:36:17 +0000
+Date:   Mon, 13 Jun 2022 03:35:32 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
+        linux-audit@redhat.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org
+Subject: Re: [PATCH v36 13/33] LSM: Use lsmblob in security_cred_getsecid
+Message-ID: <202206130334.JHM4wNvh-lkp@intel.com>
+References: <20220609230146.319210-14-casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.174.58]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpeml500023.china.huawei.com (7.185.36.114)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220609230146.319210-14-casey@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In the entry of selinux_add_opt, *mnt_opts may be assigned to new
-allocated memory, and also may be freed and reset at the end of the
-function. however, if security_context_str_to_sid failed, it returns
-directly and skips the procedure for free and reset, even if it may be
-handled at the caller of this function, It is better to handle it
-inside.
+Hi Casey,
 
-Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
----
- security/selinux/hooks.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+I love your patch! Perhaps something to improve:
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 4af4986d3893..3d67c1dab2c6 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -949,7 +949,7 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 	struct selinux_mnt_opts *opts = *mnt_opts;
- 	bool is_alloc_opts = false;
- 	u32 *dst_sid;
--	int rc;
-+	int rc = -EINVAL;
- 
- 	if (token == Opt_seclabel)
- 		/* eaten and completely ignored */
-@@ -993,13 +993,15 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 		break;
- 	default:
- 		WARN_ON(1);
--		return -EINVAL;
-+		goto err;
- 	}
- 	rc = security_context_str_to_sid(&selinux_state, s, dst_sid, GFP_KERNEL);
--	if (rc)
-+	if (rc) {
- 		pr_warn("SELinux: security_context_str_to_sid (%s) failed with errno=%d\n",
- 			s, rc);
--	return rc;
-+		goto err;
-+	}
-+	return 0;
- 
- err:
- 	if (is_alloc_opts) {
-@@ -1007,7 +1009,7 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 		*mnt_opts = NULL;
- 	}
- 	pr_warn(SEL_MOUNT_FAIL_MSG);
--	return -EINVAL;
-+	return rc;
- }
- 
- static int show_sid(struct seq_file *m, u32 sid)
+[auto build test WARNING on pcmoore-audit/next]
+[also build test WARNING on pcmoore-selinux/next linus/master v5.19-rc1 next-20220610]
+[cannot apply to jmorris-security/next-testing]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220610-080129
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git next
+config: x86_64-randconfig-s021 (https://download.01.org/0day-ci/archive/20220613/202206130334.JHM4wNvh-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-3) 11.3.0
+reproduce:
+        # apt-get install sparse
+        # sparse version: v0.6.4-30-g92122700-dirty
+        # https://github.com/intel-lab-lkp/linux/commit/c8f05b8d441f9790d67351b44e4c7c55013048ca
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Casey-Schaufler/integrity-disassociate-ima_filter_rule-from-security_audit_rule/20220610-080129
+        git checkout c8f05b8d441f9790d67351b44e4c7c55013048ca
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        make W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=x86_64 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
+
+
+sparse warnings: (new ones prefixed by >>)
+>> kernel/audit.c:128:25: sparse: sparse: symbol 'audit_sig_lsm' was not declared. Should it be static?
+   kernel/audit.c:2221:9: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
+   kernel/audit.c:2221:9: sparse:     expected struct spinlock [usertype] *lock
+   kernel/audit.c:2221:9: sparse:     got struct spinlock [noderef] __rcu *
+   kernel/audit.c:2224:40: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct spinlock [usertype] *lock @@     got struct spinlock [noderef] __rcu * @@
+   kernel/audit.c:2224:40: sparse:     expected struct spinlock [usertype] *lock
+   kernel/audit.c:2224:40: sparse:     got struct spinlock [noderef] __rcu *
+
+vim +/audit_sig_lsm +128 kernel/audit.c
+
+   124	
+   125	/* The identity of the user shutting down the audit system. */
+   126	static kuid_t		audit_sig_uid = INVALID_UID;
+   127	static pid_t		audit_sig_pid = -1;
+ > 128	struct lsmblob		audit_sig_lsm;
+   129	
+
 -- 
-2.17.1
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp
