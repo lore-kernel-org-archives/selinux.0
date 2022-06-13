@@ -2,77 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A64F6CCA481
-	for <selinux@archiver.kernel.org>; Mon, 13 Jun 2022 20:59:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55106C43334
+	for <selinux@archiver.kernel.org>; Mon, 13 Jun 2022 21:15:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351445AbiFMU74 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jun 2022 16:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42916 "EHLO
+        id S245740AbiFMVPQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Jun 2022 17:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351971AbiFMU6q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 16:58:46 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED320167E8
-        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:34:22 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id k19so8510894wrd.8
-        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:34:22 -0700 (PDT)
+        with ESMTP id S1351675AbiFMVNH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 17:13:07 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD82A252AB
+        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:52:41 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id bd16so1115739oib.6
+        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:52:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=F++4mxvxKCq3D0MOi1hm7r02V15ZXV/REZlzwvy9ouk=;
-        b=j2adBRuldeFOlyGNeZXecupRfS1od6Xh2itNTGnXKvNwuvuj0sTo4+tBpwbOoQUjoZ
-         Xw5/Y6VRboaE9ShCfnwDIZnZGzNe0UBnP7p85yggpZ996Zj6EDVLRZ/MwJuINbvAcmJZ
-         wKNXfVZM/+zjJLD17EzOm6Q3qZ6slsFQMs35GciHNu/KM+rORkItSwa0C+04oGDuRuDV
-         7xFjk4xk8JwQA8P3q+5YrQmQWZN6mHNP/xv/JzGOi96zHLEWBAINtzy31gOteVHeGA58
-         eWgmH0arr8cGZulxXYnGAPuynMx0dJM6F5D11HkGOHyFsF4lIGR3zqFmLjhGeoCY6JW7
-         0DMg==
+        d=cloudflare.com; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=Ie2xrfdugqSnUY/lUmZJBYqEw/Jj5HQgDROYZDI7Ljg=;
+        b=q8Sos2zHH2cqeJpqAWGopwq4BFpy5d162ZHvWsGBGzD8dXmnX4TsH4oGd9xtjxFj3k
+         kkiT7ORHTaWO7TVdzrFrUtvSJwyodFHKf3kDLk5zfyB6+Q4t7bACoSZoThK4QulFXt66
+         4eu47sTHknmVkiiSbjTEY+HxauLbTxzPeZ3t8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=F++4mxvxKCq3D0MOi1hm7r02V15ZXV/REZlzwvy9ouk=;
-        b=XB30avInQ/y2jCvPdT+1CNcmh272NONzsR9+HgIPaCrSUAnKWNz0AneQywM1xc6iLK
-         247hqnuWmDriMiMUAVMh7Y8D35OKRfpYseUcjW3SHBj8uEogR/9BPEFIJxOjnDV6Q5xW
-         nLuo3ssD7DsmrrUPJ/sFcliWu/RqaboyZcmueXZ6DzJJ59ZemFYDCmBv0pwoQOsohIH3
-         xxv6ATPMORPRN2iYQCKQ8EE3PUnR8aKZgn6esLIXKbm2ziMNh9RnoHs6XQoueut1jKdE
-         c4wnK/XYvVPPzJkEwS1Lv6aV8es2oXPbW58o2f16divOJg1hpCApITKPz9c4DJKg5Gry
-         Vm2Q==
-X-Gm-Message-State: AJIora/krIGYtn6A/bxXK82ghRohIG6aT3XbM++AYvIUoXTvjk8d3aks
-        Qo3awLmwAhGYKEYf6rPh8WKqpt4tcHU2YsKJY1hM
-X-Google-Smtp-Source: AGRyM1vYniplidzOuY5TAIYbimsWA/grGb4GRxaY2HWhql3MwuRYoLgOrYQtewKpRFU1AZ1P3cpbpdbefd+744wWgbU=
-X-Received: by 2002:adf:fd84:0:b0:216:1595:82d3 with SMTP id
- d4-20020adffd84000000b00216159582d3mr1427711wrr.239.1655152461446; Mon, 13
- Jun 2022 13:34:21 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Ie2xrfdugqSnUY/lUmZJBYqEw/Jj5HQgDROYZDI7Ljg=;
+        b=A14BE0yN24YbQ/slrdRuzVmlWbckvvnYCG2NDuHbXjlOiu+co/tunCqFzhO2m9HKdg
+         0AWl4IH8XxMcCrzSMgriGOmDKcxLjT7xvYvaJl+Xx1bODCAEUyc1LiF+PNOYFRTD3Yoe
+         pfDXjqwI4xSbEh0Xz5rUgo+mEQgKF2qGiDfLwHmVoCZo+crGA7mJ0lkiryyCiJmSmor2
+         axKMdKKu61uX6kDO3FRF2VPpoxeo6FDQNMt3cgrAFROvrBTzty+8eqgPhNGX1kBZprGa
+         FybTRQC4sYcm/i3uT0UceTgCL9QC56Hr32JBKnxhMueTobnDDVgS9R7HkvoDQ2WEKNB7
+         kR6w==
+X-Gm-Message-State: AOAM530ciFc41BBkGA7Nv4oRYwnFZPdaTdfyvAuQMIXnMjk/AACGjcFQ
+        O+c30MrhdLDAHnsvye4rkCVTUg==
+X-Google-Smtp-Source: ABdhPJxwqO943xteTGAgFieA/vZp5/Zn/6Qxyj5rF6Le0Sf8rKMQHGa/+OpWxWOapQGjDXa0MQVMLw==
+X-Received: by 2002:a05:6808:2394:b0:326:d5d6:a4ba with SMTP id bp20-20020a056808239400b00326d5d6a4bamr321996oib.67.1655153561069;
+        Mon, 13 Jun 2022 13:52:41 -0700 (PDT)
+Received: from [192.168.0.41] ([184.4.90.121])
+        by smtp.gmail.com with ESMTPSA id dv8-20020a056870d88800b000f5eb6b409bsm4444747oab.45.2022.06.13.13.52.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Jun 2022 13:52:40 -0700 (PDT)
+Message-ID: <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com>
+Date:   Mon, 13 Jun 2022 15:52:38 -0500
 MIME-Version: 1.0
-References: <20220613135953.135998-1-xiujianfeng@huawei.com>
-In-Reply-To: <20220613135953.135998-1-xiujianfeng@huawei.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 13 Jun 2022 16:34:10 -0400
-Message-ID: <CAHC9VhR0-814-YsC3ugTsCzL1be37tyxZHTs7Dq2mY+iC8pjgA@mail.gmail.com>
-Subject: Re: [PATCH -next] selinux: Fix memleak in security_read_state_kernel
-To:     Xiu Jianfeng <xiujianfeng@huawei.com>
-Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        cgzones@googlemail.com, omosnace@redhat.com,
-        michalorzel.eng@gmail.com, austin.kim@lge.com,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
+Content-Language: en-US
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org, linux-mm@kvack.org,
+        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+References: <20220608150942.776446-1-fred@cloudflare.com>
+ <87tu8oze94.fsf@email.froward.int.ebiederm.org>
+From:   Frederick Lawler <fred@cloudflare.com>
+In-Reply-To: <87tu8oze94.fsf@email.froward.int.ebiederm.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 10:01 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
->
-> In this function, it directly returns the result of __security_read_policy
-> without freeing the allocated memory in *data, cause memory leak issue,
-> so free the memory if __security_read_policy failed.
->
-> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-> ---
->  security/selinux/ss/services.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+Hi Eric,
 
-Merged into selinux/next, thanks.
+On 6/13/22 12:04 PM, Eric W. Biederman wrote:
+> Frederick Lawler <fred@cloudflare.com> writes:
+> 
+>> While experimenting with the security_prepare_creds() LSM hook, we
+>> noticed that our EPERM error code was not propagated up the callstack.
+>> Instead ENOMEM is always returned.  As a result, some tools may send a
+>> confusing error message to the user:
+>>
+>> $ unshare -rU
+>> unshare: unshare failed: Cannot allocate memory
+>>
+>> A user would think that the system didn't have enough memory, when
+>> instead the action was denied.
+>>
+>> This problem occurs because prepare_creds() and prepare_kernel_cred()
+>> return NULL when security_prepare_creds() returns an error code. Later,
+>> functions calling prepare_creds() and prepare_kernel_cred() return
+>> ENOMEM because they assume that a NULL meant there was no memory
+>> allocated.
+>>
+>> Fix this by propagating an error code from security_prepare_creds() up
+>> the callstack.
+> 
+> Why would it make sense for security_prepare_creds to return an error
+> code other than ENOMEM?
+>  > That seems a bit of a violation of what that function is supposed to do
+>
 
--- 
-paul-moore.com
+The API allows LSM authors to decide what error code is returned from 
+the cred_prepare hook. security_task_alloc() is a similar hook, and has 
+its return code propagated.
+
+I'm proposing we follow security_task_allocs() pattern, and add 
+visibility for failure cases in prepare_creds().
+
+> I have probably missed a very interesting discussion where that was
+> mentioned but I don't see link to the discussion or anything explaining
+> why we want to do that in this change.
+> 
+
+AFAIK, this is the start of the discussion.
+
+> Eric
+> 
+
+
