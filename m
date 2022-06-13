@@ -2,93 +2,90 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E072C43334
-	for <selinux@archiver.kernel.org>; Mon, 13 Jun 2022 20:54:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA6CCCA47D
+	for <selinux@archiver.kernel.org>; Mon, 13 Jun 2022 20:54:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235878AbiFMUy1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jun 2022 16:54:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35514 "EHLO
+        id S1350928AbiFMUym (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Jun 2022 16:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347992AbiFMUw7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 16:52:59 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85483E70
-        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:12:29 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id u8so8436776wrm.13
-        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:12:29 -0700 (PDT)
+        with ESMTP id S1352295AbiFMUyW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 16:54:22 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 678A62AE1F
+        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:22:58 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id h19so5267828wrc.12
+        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:22:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=LOq+BPckvYHQKeGJ0rXgOkEOuJiM+yu8YvLI9pqoBQg=;
-        b=qbUZAt+v2CC3Q4p5lcEFp4Xh1PKc/r5H9G7bNEQigUvWNsRWB4MhuO/Ezj6rAtwRO+
-         9mxq2US6cR+VK5ELpo/lGOXCy78OLH1Tte5aNJVOG4tYTk0sKdkGGmSJrf9QJPeJu7xq
-         a2mnDe8z6Gw/ibphd2lPonjlj8G1gllZSrn+7X3QreVjL5oJL/N1/g0V/JQHoBFNFjeF
-         L3ZOnnkwPt1+XHBfbkUf14MLpuDJIx33DbK4PBkMPCSV5lqJT15pIdKLc8WKKPGoAhrG
-         zQiGgqA6N42M154UgN1I44grr8G7D7qc2rLsUF6yRkhfkcH5jgl6Aw9HNcA2oteX4aNf
-         vQVg==
+        bh=XNSQOYdF4aUChA2evFn2lCgcdKNRBXwLiO2UBbZQeSk=;
+        b=azkHDkclWS6CSHjmTjRpoEBREa2BAJJcqk8J3vYFeMO3o/Cik4sXq6jqK5Vvr77saw
+         l8b/AxE+syxDBIKtk0RTME80ml2RdygAUYKT/ZAeATvHnjjRn7T0H4P/6yaPqobKPQ5E
+         CRgXXd9xZrV2/NCT4Kj6TifnRxO7+wXkSbhtZQj7ch9RtICkVEYiX5ehiF0WOthOcl7e
+         YUkQHXRCQ2SJHKmi3hlMW/T+abNsnY0jt0dGySXf/KlSqVV74nCytJAHuY2MJ7GLlCUn
+         RcaoiXbWMWRq/a/ea8asagGzWZDe708N8Tjp4vL7fR1AhFKqTv0dkM0L5QJ10B3WOOy/
+         rq3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=LOq+BPckvYHQKeGJ0rXgOkEOuJiM+yu8YvLI9pqoBQg=;
-        b=M/jNI1naBs8V87O8t0Tsow+OoEGODhMcU+suQapuQkYBuAk21bRs6qup1rOlqIRLdW
-         7RO0Gj5yQHIUjYj8Nn6HUdcgbjprYlztFDgpPl2IBx7t1ZYnVGvpmlksDaV2Lh1d3J5J
-         dUsHY3Zkh8DBGf3afKhEESfXnvI8Rl65ktMB59/G8nXMn4lmPVhOwpAw5OcLM1f2mRq5
-         fXlah3+UYXhREbBrX6FqXdI/fmRXVM+96tWwxVC0/fFrNI+VZPkNHGYhlmCcasG8dCaD
-         fcqzG97BRpteY3VKS3xG+0oTN1Z2xzI1lXHR/bCm7qMpHRu14Rol9WNwJ200J2r77XJH
-         j1RQ==
-X-Gm-Message-State: AJIora+nG2lrctN++ndvtq6Ol4Bqi5B+3sKq0HcAe/n03TdOwJU+6Gcx
-        0ZB0cOfXW/ffdqhkqruz4cLQXKDM7gLnJR4Ivnh/
-X-Google-Smtp-Source: AGRyM1tFkfiIW9amUpPXfaCCRQ/xd+Xqwkzg6K5j832uqkVmOJDT5j0HzXP4wx7mJlOsDpCCDoWXKNtJYb1IDHc0cQQ=
+        bh=XNSQOYdF4aUChA2evFn2lCgcdKNRBXwLiO2UBbZQeSk=;
+        b=DqLHJ1BKosdreBOnr8gVVA12PuCcvpm3IQiDQT55XZMHQV/CG99fFpH/a2aLsbjrAb
+         wvykkm4fm9lm7Pw+oj5NtmsiDA6rVBLAipFy34S/21MyVoNyK9NFShLC3vHfkbVoV8cV
+         Zyg6EVWBaD8saEUTWm5My14YVNVKJU2rxTmWoB3OFxFggeZ0dTcuBspkDFJxJieS0f7z
+         dAJFnY0lGzcgHQvPjvqtIjytA5lPRRjs9u+ZXiqi7ui8pIc3/vmXodJ5DQA4souT1m53
+         wB2RFXbqRytOktU+iQaGjH4xFZptEGCldNYVlKOfHnVYuZ41/cSPr4dq2BXT6KHkF2yk
+         ELeA==
+X-Gm-Message-State: AJIora/5TuYRCB44hwakUq665+0MwumKp43AEsmGG+H38N1+/Cp4zXig
+        RR71/Rt2AM5f6de84EevD76Kf5nXNPyULZVBy7+9
+X-Google-Smtp-Source: AGRyM1vicqR0MGly968BIwuj3k9Dkrrdns5uJdk9zY4Ip3egIEtSLmZV9bqPpVp7rF2jk1ikFhmbRnX+5kS5IsTME74=
 X-Received: by 2002:a5d:64e7:0:b0:218:5626:7e7f with SMTP id
- g7-20020a5d64e7000000b0021856267e7fmr1374504wri.245.1655151148059; Mon, 13
- Jun 2022 13:12:28 -0700 (PDT)
+ g7-20020a5d64e7000000b0021856267e7fmr1404151wri.245.1655151776983; Mon, 13
+ Jun 2022 13:22:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220301041454.18960-1-rdunlap@infradead.org> <CAHC9VhSuzpuEm437SCYC8pf0mU6qdWXRU38sb2+JjVtj-8T4Kw@mail.gmail.com>
- <CAHC9VhSa74OFVV=XcceO12kVOxivm5cnyvBo-yeMbyPT8+t5Kg@mail.gmail.com> <87mtegz7t5.fsf@meer.lwn.net>
-In-Reply-To: <87mtegz7t5.fsf@meer.lwn.net>
+References: <20220611090550.135674-1-xiujianfeng@huawei.com>
+In-Reply-To: <20220611090550.135674-1-xiujianfeng@huawei.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 13 Jun 2022 16:12:26 -0400
-Message-ID: <CAHC9VhTSzVH+jrYieE8WbRLGgkAR65jDX7qtATuFCQRSX+dSgg@mail.gmail.com>
-Subject: Re: [PATCH] docs: selinux: add '=' signs to kernel boot options
-To:     Jonathan Corbet <corbet@lwn.net>
-Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-doc@vger.kernel.org,
-        patches@lists.linux.dev,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Date:   Mon, 13 Jun 2022 16:22:46 -0400
+Message-ID: <CAHC9VhSwYdrHw8jNYxWApPYMjnmX-ZDN1=CzmRBeS1HoL-KOOA@mail.gmail.com>
+Subject: Re: [PATCH -next] selinux: Fix potential memory leak in selinux_add_opt
+To:     Xiu Jianfeng <xiujianfeng@huawei.com>
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        omosnace@redhat.com, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 13, 2022 at 3:23 PM Jonathan Corbet <corbet@lwn.net> wrote:
-> Paul Moore <paul@paul-moore.com> writes:
+On Sat, Jun 11, 2022 at 5:07 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
 >
-> > I assumed the doc folks would have picked this up but I don't see it
-> > in the tree so I'm going to pull it into the selinux/next tree right
-> > now.  Thanks again Randy, I'm sorry for the delay.
+> In the entry of selinux_add_opt, *mnt_opts may be assigned to new
+> allocated memory, and also may be freed and reset at the end of the
+> function. however, if security_context_str_to_sid failed, it returns
+> directly and skips the procedure for free and reset, even if it may be
+> handled at the caller of this function, It is better to handle it
+> inside.
 >
-> Sorry, the "doc folks" have learned that, in general, folks in the
-> security subsystems prefer to carry their own patches upward, so I
-> assumed this one was taken care of.  If you'd rather I picked up SELinux
-> documentation patches, I'd be glad to do so.
+> Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
+> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+> ---
+>  security/selinux/hooks.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 
-Hi Jon,
+Have you actually observed a memory leak from the selinux_mnt_opts
+allocation in selinux_add_opt()?
 
-I don't care much either way, as long as Linus' tree is correct I'm
-happy.  In this particular case there were no changes under
-security/selinux so I assumed that the "doc folks" would merge it; I
-have similar assumptions regarding other subsystems when it comes to
-SELinux adjacent patches.  However, we all know the old joke about
-making assumptions, so I generally keep tracking those patches for a
-while and apply them myself if the other subsystems do not.
+The selinux_add_opt() function has two callers:
+selinux_sb_eat_lsm_opts() and selinux_fs_context_parse_param().  The
+former cleans up the selinux_mnt_opts allocation it its error handler
+while the latter will end up calling
+security_free_mnt_opts()/selinux_free_mnt_opts() to free the
+fs_context:security when the fs_context is destroyed.
 
-Generally speaking, if I add an Acked-by for a patch I'm not expecting
-to merge that patch (hence the ACK to let the other maintainer know
-I'm okay with the patch).  Otherwise I'll merge the patch and send a
-reply to the thread that it has been merged into the relevant SELinux
-branch.
+This patch shouldn't be necessary.
 
 -- 
 paul-moore.com
