@@ -2,172 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F836CCA47E
-	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 14:39:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F1E5C43334
+	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 14:50:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345652AbiFNOjr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jun 2022 10:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35568 "EHLO
+        id S234934AbiFNOut (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jun 2022 10:50:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348963AbiFNOjg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jun 2022 10:39:36 -0400
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA402251B
-        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 07:39:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1655217569; bh=Gk+oETTOXCvl6hKJwiKfVQx247tk4GOZsL6eS8rtiko=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=fRFIaqLcfobn1LNVl0zrObgmf1hRdINcfRrUmpLcvSg3N0XuqRqgsWlZn5KxMH8l49l0D/abHlPhyAMUUO2GGCDJesuNH8Kpmaa3YgqX0v4VvY06jPrF5HScxPs366YY2ONTePIsLO6+bsIrz/oFE0ETMPJwiL5Fc7l9A5O52eqlUVEn2u6Hv446oiu3mS7Em6viRQw0Eerb2KZ/WLQFgjnvwinwyVZgUZqVxvTHUHjPZlUOcpmI7z+3pcZ+UkItKYPlyw2PX6J4h25WWNn2cNwE4TCrQ8Jlmq2H+Rgpn+lDH1kZESTNcLpJSjPABDc+86KBFATzQZC91mBFay1TDw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1655217569; bh=lRUBSB76OG5uRwjsyAtEUmfLb2iPR7sDD1HFxFWV66b=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Qf8RR/99yPxdxlUs+k9WbY66HCWw5zL3eg/AG/d8PaF2ZW7sRQsWq6gmO9A/l7NZTWI7UdRqKM5bDHbs6wupQkeVNnPnRU2E5aJ02Zk+dMR4zD7/s5cNknCyMX/GityW/LiHFvSd/XM7aartsEujYu09UY1GhHeq1D712AxFIJsY8aK/OlILZVF6egzn6sq8A7407LfIYkuACSJL8g1M/mmbhUgbiOsQ+CYK1mUY0RpwWvYX8gqa2sPB3WEOxqty1MukDjP2FW6rxr1jRuQBeQgVCqktKQ2g163zpXEobbQtJYRhHhj9nK4BnkDO+kDP4JBwDWeJ+g1U93EjktSC1Q==
-X-YMail-OSG: l34EP_4VM1mCZNS.V_eCLpRm9dh5I1CsXixH4kuccuVcaljnubvC2j4A6MMQ129
- Y2Pi1pBZKWkGXaXj27i38I8ExPjiKP1Xgpcl4tm9xqnMiwV4KKbA3RIP0pHjrVRzdj7MRxTx9iBG
- YkdEQiInROMc3joMrXGCf9wmezHz6P8mJ.fFwD3SDeBlElgidwY8jLECc4hnW5TJm2DZ.k.jf483
- xuskZUVuBZ_.7nYZM3Q6oMDqD16BRAXdGDrt0RJ_foeLdgA5bonrmkWFCR3gASY_oflWZvXQixlq
- UF1m.qP9YXbSsWZFj812VhzLVpyQ.9F32n9h1HmEh69jx_hRtAaRIdgwaAfngbVWVJSKavMjVMfQ
- XSXz0eYuXsWCwdfhD196BTPVVtMbrJkHzY6Xk9iE5UHCsUBamqZuh8ubo3QILsuwtLsCNFKyzrlY
- vF4UN_H53gUTXszFFk2yLOyY55uNmgcqWwzFBPIfnM150R3f0Jfb8fh5Mzo_Cg0qaQvSchBKjCXj
- nTjHJJOq.fI2fCTCBN3A870QDzGDAkOKrM.MsNpsLweC7IaQy.BbmtdwUXg3AQDgxaX8sTWqySH_
- YK5rjqHBdeevCU9nZl2LemqBf.vLuvTdVi3q0_6s36rQkUJeC8EDY4s_ity57vDuikZT8YgGAV2k
- GQo4ZHWmnm4lDk7xTd50gp0t_DJ.Hafgjqy64gvtibxS1SHL0D9MqZg76zZNAcQl5zu0Exhv4OcW
- mDH5_kPytoYBvgcpDzUXj5OtiUT.rs03EresI6Qrd1muzCGUw99JUhwVKK40RSvSZXMM815o3TH6
- fIwQnXzwajujE9szKg5ZCG.oh8QawNsxRxn.qck.uP4fzRlaBP9DE545T2hkZSFslMoNmyD9YjDu
- DPyG49HGFuxQy6RMUV5D6tgRq2Jopfx_d.mJpEqNoUiuIWnKil4PEXFovbbhpvuyUhOL3VE2GmDX
- VDBVqCAZbiZhRu7UKrQLPpAf4FtH9tiEdWyHvyrkqbXg__AQJ_N3sxY4nnv6lAtDCk3xv8g4zA7q
- br.dMb13NA4a2TtcCtBHvVIzzWlvGv4U9JfN73FVEuv77CejNVNcPQ8XO0e3i2_eBbyDtuzTowpF
- r7tocTWs53b.gwK4kDv_pTqO0hkqXLBV9X.I0Z6r8V3u504t5eb2cOQisOd4Mhos8dnXyaAN9cvu
- 7acgLpOpZcWqyW9UMNNm1ShkpPPdBQprBadtvMrLPJFHbWwRyzdUL1sXWTpogylt3tdIon.0FUKm
- rYQHTIZKXN0FbJz4FKuZgtnj76nzxXdow3yqiqKvKnjZ5MSJnwK0MtpYhCeyLNxltgJfN4K5iM2N
- 7_UXaTuwcmiKL82RDIrVJ_m4tLhQSD0TMdB.C2.RuC3DLR6EZjR8icmJ5Pcyp1FBSAS.nzoMlvyG
- wQetEXAUX6UnRnxz4Y.joRItG62ICV6zPRT7DkNFqhLrhD49oEyY7OTpUAHfUzW96T3TjU.z.xtX
- BRJ59.VxAXDse4eqIhZpOo67ruAxITzCz2bwWgj9_3BVGoKrKa2hdF1EbK_wrXYCphFhgdP591BM
- 8Dx4nw.OvDUtcFSmwaX38z91xvkNg2gGzURgEg.1aIahIoxGy.8HwC2Lo.9sDMjQ0LoYEOVKAezC
- pGYewkGVTBsGHmpazBNDJ2yGdk1YnZ2RsxVQ6cVhAQ9oSC.UcB_QDBHfOgxJ0tQNNGx1hsc2BMQ7
- fEPpEXJ8GKjioBsLIWpvl67R9boFpyk8B0YFa.DQk0VZ10896guGPPSX8tQw0bHPw998u2wOlfFK
- r4iYVN6y2wwWwSC6Fp.DmjY5e6rtZVgjns0R9CrneHrhI2xoZjTxHqHrwpBEtqFrzK3GFPPTQtAK
- 8hT6WRqTR8iJ_lz5fcEMBfDgXpLb2mzq7IppLiwFTDPN0ML7c0cKS8RDnYr0QMe9gdGZvRZcaZ81
- oYqSjE5Ttah8mMWG6l3Obhj.YZXwg55XNndIG65ct.wK5BmQd6aYUN9KcjQYh._prdA3e2KLlb8V
- tqRYdouhudJUpS29Eru77mKyHJcKeNct9WUI81o1XVVm1AGD8KRjrhBrE7_R.Nf_EiTNWlcVA8hx
- BP.uDsYOJpVvf8mbQloJ5acD1I.TpGP2NfRbjr1FwYfk8z6l8gQUDe39HzYrWKeDUt_IRlNJ7_gD
- KwvB64DCfDs5Yr2pbiRmfb0WwIP2scfxv4AA1X3gcjY0nFjSemkRJmqKpJEA2xu5VIOqoZ9kt3Fy
- lGpmYgJNyn592qSxpIAHi28oenfQQFZhXz4JO5sR.3hWwhS2Z
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 14 Jun 2022 14:39:29 +0000
-Received: by hermes--canary-production-bf1-856dbf94db-nwd6f (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 047d13c43786ba81a547ff9186866ac4;
-          Tue, 14 Jun 2022 14:39:27 +0000 (UTC)
-Message-ID: <b9d27b14-3b45-470d-9c7b-c6f7fb0ca8a5@schaufler-ca.com>
-Date:   Tue, 14 Jun 2022 07:39:24 -0700
+        with ESMTP id S231607AbiFNOus (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jun 2022 10:50:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DF72D3137E
+        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 07:50:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655218245;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Vyh9tiiTxbsj+ZV0swvA2n1z/qVs5gsat+X9riKC1d4=;
+        b=f//Xs27zVxNwo03VrPgmBZuoGmQghkcL+j4EZY07LCcdSTjqXDrMicGZgW61+n41Jt1Fam
+        JU/WdH9zNKYmpldSiXflN5/sA+Qy+p6x2jvbFrKdrqGkuNIQl45YuIIrCpAqKXPuHPu9F3
+        ANIF0hsOpUw3mmRXDCGlxGXNme43I8g=
+Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
+ [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-591-lurqGdiPNHyC0aIDWPBYLw-1; Tue, 14 Jun 2022 10:50:43 -0400
+X-MC-Unique: lurqGdiPNHyC0aIDWPBYLw-1
+Received: by mail-yb1-f197.google.com with SMTP id q200-20020a252ad1000000b006632baa38deso7804448ybq.15
+        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 07:50:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Vyh9tiiTxbsj+ZV0swvA2n1z/qVs5gsat+X9riKC1d4=;
+        b=DwieDfUgQtFlYq0CVAPrCIUihRFLcZAeTMHxigM2k2CLFYKEIsKE96pRsTQ9CdxV8W
+         yeWqiMNPOzolWjmPqHj2QrxWTEzrYvC4hbEIsIQUZYQOgomYZX7STKdg6psbRViVXTZu
+         xNMpSA4J8R+C/Xb2NZdP7MpACdLPpsRgWyfPIpn+ZekU+LZUdoRJ3XjyoZ6hcT8JQeex
+         BG62BZ5dE2KRMJO5poVsMOTIOy/VtXLU31PYZO2JYpqQPeLf8ehJAvzilZgRDf59XKCZ
+         JF5a2OciTElRppMboBIE2Vs9b3DL3HLrNZwplTxrmwIQ5p2PBNYuvwCNjRP+1Y1Q4nfI
+         vsoQ==
+X-Gm-Message-State: AJIora/VgZRIJSujGk3f0lHIHxx9psjpBe6DuTkMH3bzAKGdH5eOZHl2
+        wkO1657Xh+RCl91FT5Fla8g+bui4CV81aTTZZjshzb520ZCMgEEKqbYRhTbS92RnZOSR8q60X7c
+        vARuC6OW9fnizSI6sLJwMjcKdqemgxPSLEg==
+X-Received: by 2002:a25:3810:0:b0:664:4424:e9f9 with SMTP id f16-20020a253810000000b006644424e9f9mr5365507yba.21.1655218242999;
+        Tue, 14 Jun 2022 07:50:42 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1sMsYdawDfgmoDnFazx94FFG0eicDxLuCmaJE/gD5WabiZFrXWhtyy1H7sO7xx6cojFV5daFluoqb29d9QdLlQ=
+X-Received: by 2002:a25:3810:0:b0:664:4424:e9f9 with SMTP id
+ f16-20020a253810000000b006644424e9f9mr5365463yba.21.1655218242426; Tue, 14
+ Jun 2022 07:50:42 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
-Content-Language: en-US
-To:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Frederick Lawler <fred@cloudflare.com>
-Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, linux-mm@kvack.org,
-        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
-        keyrings@vger.kernel.org, selinux@vger.kernel.org,
-        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20220608150942.776446-1-fred@cloudflare.com>
- <87tu8oze94.fsf@email.froward.int.ebiederm.org>
- <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com>
- <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20280 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20220614102029.13006-1-cgzones@googlemail.com>
+In-Reply-To: <20220614102029.13006-1-cgzones@googlemail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 14 Jun 2022 16:50:31 +0200
+Message-ID: <CAFqZXNt8rPZR-EdKD_yc6xKY0eQLUh51Kj4EpreF-Gek-pJYGA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] support Dash as default shell
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/13/2022 9:44 PM, Eric W. Biederman wrote:
-> Frederick Lawler <fred@cloudflare.com> writes:
+On Tue, Jun 14, 2022 at 12:21 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> Debian uses Dash as default shell and switching via
 >
->> Hi Eric,
->>
->> On 6/13/22 12:04 PM, Eric W. Biederman wrote:
->>> Frederick Lawler <fred@cloudflare.com> writes:
->>>
->>>> While experimenting with the security_prepare_creds() LSM hook, we
->>>> noticed that our EPERM error code was not propagated up the callstack.
->>>> Instead ENOMEM is always returned.  As a result, some tools may send a
->>>> confusing error message to the user:
->>>>
->>>> $ unshare -rU
->>>> unshare: unshare failed: Cannot allocate memory
->>>>
->>>> A user would think that the system didn't have enough memory, when
->>>> instead the action was denied.
->>>>
->>>> This problem occurs because prepare_creds() and prepare_kernel_cred()
->>>> return NULL when security_prepare_creds() returns an error code. Later,
->>>> functions calling prepare_creds() and prepare_kernel_cred() return
->>>> ENOMEM because they assume that a NULL meant there was no memory
->>>> allocated.
->>>>
->>>> Fix this by propagating an error code from security_prepare_creds() up
->>>> the callstack.
->>> Why would it make sense for security_prepare_creds to return an error
->>> code other than ENOMEM?
->>>   > That seems a bit of a violation of what that function is supposed to do
->>>
->> The API allows LSM authors to decide what error code is returned from the
->> cred_prepare hook. security_task_alloc() is a similar hook, and has its return
->> code propagated.
-> It is not an api.  It is an implementation detail of the linux kernel.
-> It is a set of convenient functions that do a job.
+>     dpkg-reconfigure dash
+>
+> has become deprecated.
+>
+> * Use POSIX compliant `> target 2>&1` instead of `>& target`.
 
-Yeah, sort of. We still don't want to change it willy-nilly as it
-has multiple users from both ends.
+I'm fine with this subset of changes.
+
+> * Call runcon directly to avoid a fork within Dash, which breaks tests
+>   requiring to not change the PID of executing commands
+
+I don't seem to have such problem when I change the default shell to
+dash on Fedora. Can you provide a minimal reproducer?
+
+> * Use bash explicitly for non POSIX read option -t
+
+I'd like to try to find some nicer alternative for this one first...
+If I don't find one, then yours will have to do, I guess.
+
+Any specific reason why you used `` instead of system()? AFAIK the
+only difference is that `` return the command's stdout as a string,
+while system() returns the exit code and forwards stdout.
 
 >
-> The general rule is we don't support cases without an in-tree user.  I
-> don't see an in-tree user.
-
-Unfortunately, the BPF security module allows arbitrary out-of-tree programs
-in any hook. While returns other than -ENOMEM may be nonsensical, they are
-possible. This is driving the LSM infrastructure in the direction of being
-an API, in that users of BPF need to know what they are allowed to do in
-their hook programs.
-
-> I'm proposing we follow security_task_allocs() pattern, and add visibility for
-> failure cases in prepare_creds().
-> I am asking why we would want to.  Especially as it is not an API, and I
-> don't see any good reason for anything but an -ENOMEM failure to be
-> supported.
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  README.md                      |  7 -------
+>  tests/binder/test              |  2 +-
+>  tests/bpf/test                 |  4 ++--
+>  tests/fdreceive/test           |  2 +-
+>  tests/filesystem/Filesystem.pm | 14 +++++++-------
+>  tests/inet_socket/test         |  2 +-
+>  tests/ptrace/test              |  6 +++---
+>  tests/sctp/test                |  2 +-
+>  tests/sigkill/test             |  2 +-
+>  tests/task_getpgid/test        |  6 +++---
+>  tests/task_getscheduler/test   |  6 +++---
+>  tests/task_getsid/test         |  6 +++---
+>  tests/task_setnice/test        |  6 +++---
+>  tests/task_setscheduler/test   |  6 +++---
+>  tests/unix_socket/test         |  2 +-
+>  tests/vsock_socket/test        |  2 +-
+>  16 files changed, 34 insertions(+), 41 deletions(-)
 >
-> Without an in-tree user that cares it is probably better to go the
-> opposite direction and remove the possibility of return anything but
-> memory allocation failure.  That will make it clearer to implementors
-> that a general error code is not supported and this is not a location
-> to implement policy, this is only a hook to allocate state for the LSM.
+(snip)
 
-The more clearly we define how a function is to be used the more it looks
-like an API. The LSM security_ interfaces are not well designed. They have
-appeared, changed and disappeared organically. This was fine when there was
-one user and tolerable when there were a few, but is getting to be painful
-as the number of security modules increases and their assumptions and
-behavior diverges from subject/object mandatory access control.
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
-
->>> I have probably missed a very interesting discussion where that was
->>> mentioned but I don't see link to the discussion or anything explaining
->>> why we want to do that in this change.
->>>
->> AFAIK, this is the start of the discussion.
-> You were on v3 and had an out of tree piece of code so I assumed someone
-> had at least thought about why you want to implement policy in a piece
-> of code whose only purpose is to allocate memory to store state.
-
-I agree with both sides to some extent. The caller shouldn't assume that
-the only possible error is -ENOMEM, but the LSM hook should never do anything
-else, either. If there is a legitimate case where an different error may
-be returned and a reasonable, different action the caller(s) would take in
-that case, the change makes sense. Otherwise, no.
-
-> Eric
->
