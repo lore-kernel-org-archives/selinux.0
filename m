@@ -2,122 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55106C43334
-	for <selinux@archiver.kernel.org>; Mon, 13 Jun 2022 21:15:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BAC3C433EF
+	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 01:18:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245740AbiFMVPQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jun 2022 17:15:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37146 "EHLO
+        id S229853AbiFNBSx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Jun 2022 21:18:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351675AbiFMVNH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 17:13:07 -0400
-Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD82A252AB
-        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:52:41 -0700 (PDT)
-Received: by mail-oi1-x235.google.com with SMTP id bd16so1115739oib.6
-        for <selinux@vger.kernel.org>; Mon, 13 Jun 2022 13:52:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=Ie2xrfdugqSnUY/lUmZJBYqEw/Jj5HQgDROYZDI7Ljg=;
-        b=q8Sos2zHH2cqeJpqAWGopwq4BFpy5d162ZHvWsGBGzD8dXmnX4TsH4oGd9xtjxFj3k
-         kkiT7ORHTaWO7TVdzrFrUtvSJwyodFHKf3kDLk5zfyB6+Q4t7bACoSZoThK4QulFXt66
-         4eu47sTHknmVkiiSbjTEY+HxauLbTxzPeZ3t8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Ie2xrfdugqSnUY/lUmZJBYqEw/Jj5HQgDROYZDI7Ljg=;
-        b=A14BE0yN24YbQ/slrdRuzVmlWbckvvnYCG2NDuHbXjlOiu+co/tunCqFzhO2m9HKdg
-         0AWl4IH8XxMcCrzSMgriGOmDKcxLjT7xvYvaJl+Xx1bODCAEUyc1LiF+PNOYFRTD3Yoe
-         pfDXjqwI4xSbEh0Xz5rUgo+mEQgKF2qGiDfLwHmVoCZo+crGA7mJ0lkiryyCiJmSmor2
-         axKMdKKu61uX6kDO3FRF2VPpoxeo6FDQNMt3cgrAFROvrBTzty+8eqgPhNGX1kBZprGa
-         FybTRQC4sYcm/i3uT0UceTgCL9QC56Hr32JBKnxhMueTobnDDVgS9R7HkvoDQ2WEKNB7
-         kR6w==
-X-Gm-Message-State: AOAM530ciFc41BBkGA7Nv4oRYwnFZPdaTdfyvAuQMIXnMjk/AACGjcFQ
-        O+c30MrhdLDAHnsvye4rkCVTUg==
-X-Google-Smtp-Source: ABdhPJxwqO943xteTGAgFieA/vZp5/Zn/6Qxyj5rF6Le0Sf8rKMQHGa/+OpWxWOapQGjDXa0MQVMLw==
-X-Received: by 2002:a05:6808:2394:b0:326:d5d6:a4ba with SMTP id bp20-20020a056808239400b00326d5d6a4bamr321996oib.67.1655153561069;
-        Mon, 13 Jun 2022 13:52:41 -0700 (PDT)
-Received: from [192.168.0.41] ([184.4.90.121])
-        by smtp.gmail.com with ESMTPSA id dv8-20020a056870d88800b000f5eb6b409bsm4444747oab.45.2022.06.13.13.52.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Jun 2022 13:52:40 -0700 (PDT)
-Message-ID: <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com>
-Date:   Mon, 13 Jun 2022 15:52:38 -0500
+        with ESMTP id S1349139AbiFNBSp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 21:18:45 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9272A13CD0;
+        Mon, 13 Jun 2022 18:18:41 -0700 (PDT)
+Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4LMVq95HPPzRjHT;
+        Tue, 14 Jun 2022 09:15:17 +0800 (CST)
+Received: from [10.67.110.112] (10.67.110.112) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Tue, 14 Jun 2022 09:18:34 +0800
+Subject: Re: [PATCH -next] selinux: Fix potential memory leak in
+ selinux_add_opt
+To:     Paul Moore <paul@paul-moore.com>
+CC:     <stephen.smalley.work@gmail.com>, <eparis@parisplace.org>,
+        <omosnace@redhat.com>, <selinux@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+References: <20220611090550.135674-1-xiujianfeng@huawei.com>
+ <CAHC9VhSwYdrHw8jNYxWApPYMjnmX-ZDN1=CzmRBeS1HoL-KOOA@mail.gmail.com>
+From:   xiujianfeng <xiujianfeng@huawei.com>
+Message-ID: <c54658e5-f0bd-b3f6-3cf8-d7d0e8b1c4df@huawei.com>
+Date:   Tue, 14 Jun 2022 09:18:34 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
-Content-Language: en-US
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, linux-mm@kvack.org,
-        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
-        keyrings@vger.kernel.org, selinux@vger.kernel.org,
-        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-References: <20220608150942.776446-1-fred@cloudflare.com>
- <87tu8oze94.fsf@email.froward.int.ebiederm.org>
-From:   Frederick Lawler <fred@cloudflare.com>
-In-Reply-To: <87tu8oze94.fsf@email.froward.int.ebiederm.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CAHC9VhSwYdrHw8jNYxWApPYMjnmX-ZDN1=CzmRBeS1HoL-KOOA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.110.112]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggpeml500023.china.huawei.com (7.185.36.114)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Eric,
+Hi,
 
-On 6/13/22 12:04 PM, Eric W. Biederman wrote:
-> Frederick Lawler <fred@cloudflare.com> writes:
-> 
->> While experimenting with the security_prepare_creds() LSM hook, we
->> noticed that our EPERM error code was not propagated up the callstack.
->> Instead ENOMEM is always returned.  As a result, some tools may send a
->> confusing error message to the user:
+在 2022/6/14 4:22, Paul Moore 写道:
+> On Sat, Jun 11, 2022 at 5:07 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
+>> In the entry of selinux_add_opt, *mnt_opts may be assigned to new
+>> allocated memory, and also may be freed and reset at the end of the
+>> function. however, if security_context_str_to_sid failed, it returns
+>> directly and skips the procedure for free and reset, even if it may be
+>> handled at the caller of this function, It is better to handle it
+>> inside.
 >>
->> $ unshare -rU
->> unshare: unshare failed: Cannot allocate memory
->>
->> A user would think that the system didn't have enough memory, when
->> instead the action was denied.
->>
->> This problem occurs because prepare_creds() and prepare_kernel_cred()
->> return NULL when security_prepare_creds() returns an error code. Later,
->> functions calling prepare_creds() and prepare_kernel_cred() return
->> ENOMEM because they assume that a NULL meant there was no memory
->> allocated.
->>
->> Fix this by propagating an error code from security_prepare_creds() up
->> the callstack.
-> 
-> Why would it make sense for security_prepare_creds to return an error
-> code other than ENOMEM?
->  > That seems a bit of a violation of what that function is supposed to do
+>> Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
+>> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+>> ---
+>>   security/selinux/hooks.c | 12 +++++++-----
+>>   1 file changed, 7 insertions(+), 5 deletions(-)
+> Have you actually observed a memory leak from the selinux_mnt_opts
+> allocation in selinux_add_opt()?
 >
+> The selinux_add_opt() function has two callers:
+> selinux_sb_eat_lsm_opts() and selinux_fs_context_parse_param().  The
+> former cleans up the selinux_mnt_opts allocation it its error handler
+> while the latter will end up calling
+> security_free_mnt_opts()/selinux_free_mnt_opts() to free the
+> fs_context:security when the fs_context is destroyed.
+>
+> This patch shouldn't be necessary.
 
-The API allows LSM authors to decide what error code is returned from 
-the cred_prepare hook. security_task_alloc() is a similar hook, and has 
-its return code propagated.
+I may not have made it clear, I said potential means may have a third 
+caller in the future. Anyway,
 
-I'm proposing we follow security_task_allocs() pattern, and add 
-visibility for failure cases in prepare_creds().
+Yes, you are right,  currently no memleak here, because the two callers 
+will do the cleanup, from this point of view,
 
-> I have probably missed a very interesting discussion where that was
-> mentioned but I don't see link to the discussion or anything explaining
-> why we want to do that in this change.
-> 
+I think the error handler as following is not necessary:
 
-AFAIK, this is the start of the discussion.
+err:
+         if (is_alloc_opts) {
+                 kfree(opts);
+                 *mnt_opts = NULL;
+         }
 
-> Eric
-> 
-
+otherwise, some error paths goto err label while others don't, It's 
+confusing.
 
