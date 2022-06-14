@@ -2,64 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED027C433EF
-	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 02:39:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90955CCA47F
+	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 04:44:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236706AbiFNCjx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jun 2022 22:39:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58330 "EHLO
+        id S237491AbiFNEok (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jun 2022 00:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237003AbiFNCiL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jun 2022 22:38:11 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FD4548E5E;
-        Mon, 13 Jun 2022 19:17:02 -0700 (PDT)
-Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LMX7w2F7fzgZBl;
-        Tue, 14 Jun 2022 10:14:52 +0800 (CST)
-Received: from ubuntu1804.huawei.com (10.67.174.58) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 14 Jun 2022 10:16:48 +0800
-From:   Xiu Jianfeng <xiujianfeng@huawei.com>
-To:     <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
-        <eparis@parisplace.org>
-CC:     <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH -next] selinux: Add boundary check in put_entry()
-Date:   Tue, 14 Jun 2022 10:14:49 +0800
-Message-ID: <20220614021449.39255-1-xiujianfeng@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S229611AbiFNEoi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jun 2022 00:44:38 -0400
+Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032D52E9E4;
+        Mon, 13 Jun 2022 21:44:37 -0700 (PDT)
+Received: from in02.mta.xmission.com ([166.70.13.52]:60056)
+        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1o0yPs-002t3o-D4; Mon, 13 Jun 2022 22:44:36 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:40374 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1o0yPr-008Y07-9H; Mon, 13 Jun 2022 22:44:36 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Frederick Lawler <fred@cloudflare.com>
+Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org, linux-mm@kvack.org,
+        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+References: <20220608150942.776446-1-fred@cloudflare.com>
+        <87tu8oze94.fsf@email.froward.int.ebiederm.org>
+        <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com>
+Date:   Mon, 13 Jun 2022 23:44:28 -0500
+In-Reply-To: <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com> (Frederick
+        Lawler's message of "Mon, 13 Jun 2022 15:52:38 -0500")
+Message-ID: <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Originating-IP: [10.67.174.58]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpeml500023.china.huawei.com (7.185.36.114)
-X-CFilter-Loop: Reflected
+X-XM-SPF: eid=1o0yPr-008Y07-9H;;;mid=<87y1xzyhub.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX1+prA+7T4gv0KWu4+rCykKSU9Ye39R87hA=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Just like next_entry(), boundary check is necessary to prevent memory
-out-of-bound access.
+Frederick Lawler <fred@cloudflare.com> writes:
 
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
----
- security/selinux/ss/policydb.h | 2 ++
- 1 file changed, 2 insertions(+)
+> Hi Eric,
+>
+> On 6/13/22 12:04 PM, Eric W. Biederman wrote:
+>> Frederick Lawler <fred@cloudflare.com> writes:
+>> 
+>>> While experimenting with the security_prepare_creds() LSM hook, we
+>>> noticed that our EPERM error code was not propagated up the callstack.
+>>> Instead ENOMEM is always returned.  As a result, some tools may send a
+>>> confusing error message to the user:
+>>>
+>>> $ unshare -rU
+>>> unshare: unshare failed: Cannot allocate memory
+>>>
+>>> A user would think that the system didn't have enough memory, when
+>>> instead the action was denied.
+>>>
+>>> This problem occurs because prepare_creds() and prepare_kernel_cred()
+>>> return NULL when security_prepare_creds() returns an error code. Later,
+>>> functions calling prepare_creds() and prepare_kernel_cred() return
+>>> ENOMEM because they assume that a NULL meant there was no memory
+>>> allocated.
+>>>
+>>> Fix this by propagating an error code from security_prepare_creds() up
+>>> the callstack.
+>> Why would it make sense for security_prepare_creds to return an error
+>> code other than ENOMEM?
+>>  > That seems a bit of a violation of what that function is supposed to do
+>>
+>
+> The API allows LSM authors to decide what error code is returned from the
+> cred_prepare hook. security_task_alloc() is a similar hook, and has its return
+> code propagated.
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index c24d4e1063ea..ffc4e7bad205 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -370,6 +370,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
- {
- 	size_t len = bytes * num;
- 
-+	if (len > fp->len)
-+		return -EINVAL;
- 	memcpy(fp->data, buf, len);
- 	fp->data += len;
- 	fp->len -= len;
--- 
-2.17.1
+It is not an api.  It is an implementation detail of the linux kernel.
+It is a set of convenient functions that do a job.
+
+The general rule is we don't support cases without an in-tree user.  I
+don't see an in-tree user.
+
+> I'm proposing we follow security_task_allocs() pattern, and add visibility for
+> failure cases in prepare_creds().
+
+I am asking why we would want to.  Especially as it is not an API, and I
+don't see any good reason for anything but an -ENOMEM failure to be
+supported.
+
+Without an in-tree user that cares it is probably better to go the
+opposite direction and remove the possibility of return anything but
+memory allocation failure.  That will make it clearer to implementors
+that a general error code is not supported and this is not a location
+to implement policy, this is only a hook to allocate state for the LSM.
+
+>> I have probably missed a very interesting discussion where that was
+>> mentioned but I don't see link to the discussion or anything explaining
+>> why we want to do that in this change.
+>> 
+>
+> AFAIK, this is the start of the discussion.
+
+You were on v3 and had an out of tree piece of code so I assumed someone
+had at least thought about why you want to implement policy in a piece
+of code whose only purpose is to allocate memory to store state.
+
+Eric
+
+
 
