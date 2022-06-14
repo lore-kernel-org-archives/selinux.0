@@ -2,134 +2,167 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1475DC43334
-	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 14:57:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD86CC433EF
+	for <selinux@archiver.kernel.org>; Tue, 14 Jun 2022 16:06:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344150AbiFNO5s (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jun 2022 10:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55218 "EHLO
+        id S1356793AbiFNQGr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jun 2022 12:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343980AbiFNO5s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jun 2022 10:57:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 26DA81CFD9
-        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 07:57:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655218665;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YeP+puKC7iqc3JqJxcTM30hLBB3IQ9iXeo4CTxtOs1Q=;
-        b=KkSArLTQ/EvpXl1gg4Kz2GcJXyVNUTRzyNCaqego3FtQTSkMMchCHJIBsB/eFJhffzDa8l
-        9J0VJl/jWIRy2qRDkUNKllKcF0WK43qJxcZn3l67Y5lzZ4dmU+0R7EJqNH2eRMQTJcRMVh
-        /Oe9dU/YRf15nIpLbotUCUR0ap4Gu4Y=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-631-3p0Y_J7BPj-61C47rR5CUw-1; Tue, 14 Jun 2022 10:57:44 -0400
-X-MC-Unique: 3p0Y_J7BPj-61C47rR5CUw-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-31382419c22so27191957b3.18
-        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 07:57:44 -0700 (PDT)
+        with ESMTP id S1356528AbiFNQGa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jun 2022 12:06:30 -0400
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E573E5C4
+        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 09:06:27 -0700 (PDT)
+Received: by mail-oi1-x234.google.com with SMTP id q11so12124564oih.10
+        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 09:06:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=X4xRWyF9vr8qnasqfhsd+VAGIzL+N4al4cfXIWCdc0g=;
+        b=NLNTK/3yOlui/8PDUrYDNIdgpprrS90aWM+WjqJ+L2bMU+1Ozbmg2rD4fkMgfuWnpm
+         aMGJEYfd5nogbWyMEV3d9AdrsFTbd/ai3JvhNvWmxQgkmSCNpEsOoNznE37pK/knJYQu
+         8Aw2b9wKcBroceGAhUyVkpxk3cOL+KGNAnLUM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=YeP+puKC7iqc3JqJxcTM30hLBB3IQ9iXeo4CTxtOs1Q=;
-        b=eIHr6cZaO24Zvz1WKJRnh0ieMjMOAH7UiR3Y/h+Xsa5xiB6DX18YfeBmgyMGjoKH9s
-         H9uUKIhrREDfnGsnzQdhfk/OT1O81K3t1k7Jgfra5CT/fYpbwgapPGFfKPOvYdgZ1h7/
-         7cCMLJpG+/cRg5Z8oWuHyX1o+pPp/5PbfXgDjRw7r2sXmQEKIVS+iezkPJ2uXbRkkRcH
-         TdcyFas/4Oyyd9pdM6l2P/kPIF16TkRBEpimFtSwubJuJ86e6sR7peCb/kMB1djNGC7g
-         18KH0lX5q/IOHbZB9312RhFbT56uH4Ck5Zxntmz9rVj/aHeziQq0cdntQmFc4KyU3VC5
-         dQfg==
-X-Gm-Message-State: AJIora+l0xSvaRWmIfV8kQ2NCcGoekhMLK4GlF6Ls/pZtTi3GwTaZYv6
-        Mq4ce0EbDub76Wp9O5vtUokauDKimeuqX7//3igshBqZS4og+/Q09mFoqTt43nhW0vrq1o0CHMh
-        tB0mP94CB0Ig0Ifelc7CJaYRobb+pmSzhdw==
-X-Received: by 2002:a81:7010:0:b0:30c:c6cf:d4af with SMTP id l16-20020a817010000000b0030cc6cfd4afmr5862953ywc.459.1655218663602;
-        Tue, 14 Jun 2022 07:57:43 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1t8GVmlpkJpn57LvMwqo6xyPSPwlUXKLw0485OkqUNbYQO5UFtXFwV5ecJBeDNPb/f1EuNf+nKY6oA09EKvnac=
-X-Received: by 2002:a81:7010:0:b0:30c:c6cf:d4af with SMTP id
- l16-20020a817010000000b0030cc6cfd4afmr5862927ywc.459.1655218663378; Tue, 14
- Jun 2022 07:57:43 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=X4xRWyF9vr8qnasqfhsd+VAGIzL+N4al4cfXIWCdc0g=;
+        b=GThZFubjm3BwwvjARiD3Tjr8EwWqexJ8V0GQxuaqLKaR/2Zxf9nhXvMSIzmGZ429VD
+         x0f1gChV2X8TaP7AZhxjPDjWFmn+NvfI1hfqY4ayC6SB+pcOWcrm5NUwQXayqYe8DyhF
+         VoaUVoqQbesYItg3H3RIi/aEkGFr5qCGgZdsEb2Kq6S8REDYqwXfEA/dLxGtyb+1VMFx
+         5Te1UaWi925pkd4iGgBzVKaQUuoXmy9omxmDLZhFcwHA6Re+Xk0BSutVDPOw1cGUS9SD
+         sbC7ylYWUT1FxuOXU7mwXnXL8Fjl/3d+6uELTo/sS+nUR2C1Y6QN84aB5YCPVZuqLtfe
+         moGw==
+X-Gm-Message-State: AOAM533wa9CAZ62fqU/T7Lwrj4OifcfE21CNGjq5ItxXD9b405cKBh/p
+        gVFzTtslvucctSj0HnAq2jvzBw==
+X-Google-Smtp-Source: ABdhPJz9B/kSdK+3GB7ULQc4BQgTDB3yrng0XI1+iE7DuZFwNplTTKpOWFeQG4wG0wSczvdmVlxS5A==
+X-Received: by 2002:aca:3945:0:b0:32b:3a61:35d6 with SMTP id g66-20020aca3945000000b0032b3a6135d6mr2484880oia.293.1655222787108;
+        Tue, 14 Jun 2022 09:06:27 -0700 (PDT)
+Received: from [192.168.0.41] ([184.4.90.121])
+        by smtp.gmail.com with ESMTPSA id d1-20020a0568301b6100b0060bec21ffcdsm4939272ote.22.2022.06.14.09.06.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Jun 2022 09:06:26 -0700 (PDT)
+Message-ID: <859cb593-9e96-5846-2191-6613677b07c5@cloudflare.com>
+Date:   Tue, 14 Jun 2022 11:06:24 -0500
 MIME-Version: 1.0
-References: <20220613135953.135998-1-xiujianfeng@huawei.com>
- <CAFqZXNvHB0cftgbK+mScbZbcO71OLpXrBMxWAx1z1eB27mm8Cw@mail.gmail.com> <f7151722-6450-7efd-1e3d-e31245dc3da2@huawei.com>
-In-Reply-To: <f7151722-6450-7efd-1e3d-e31245dc3da2@huawei.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 14 Jun 2022 16:57:32 +0200
-Message-ID: <CAFqZXNvb2AD6T6NcubAbbzdbNoU1ThZ_P+5ioG844mnEs_9=xA@mail.gmail.com>
-Subject: Re: [PATCH -next] selinux: Fix memleak in security_read_state_kernel
-To:     xiujianfeng <xiujianfeng@huawei.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        michalorzel.eng@gmail.com, Austin Kim <austin.kim@lge.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
+Content-Language: en-US
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org, linux-mm@kvack.org,
+        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+References: <20220608150942.776446-1-fred@cloudflare.com>
+ <87tu8oze94.fsf@email.froward.int.ebiederm.org>
+ <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com>
+ <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
+From:   Frederick Lawler <fred@cloudflare.com>
+In-Reply-To: <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 3:35 PM xiujianfeng <xiujianfeng@huawei.com> wrote:
+On 6/13/22 11:44 PM, Eric W. Biederman wrote:
+> Frederick Lawler <fred@cloudflare.com> writes:
+> 
+>> Hi Eric,
+>>
+>> On 6/13/22 12:04 PM, Eric W. Biederman wrote:
+>>> Frederick Lawler <fred@cloudflare.com> writes:
+>>>
+>>>> While experimenting with the security_prepare_creds() LSM hook, we
+>>>> noticed that our EPERM error code was not propagated up the callstack.
+>>>> Instead ENOMEM is always returned.  As a result, some tools may send a
+>>>> confusing error message to the user:
+>>>>
+>>>> $ unshare -rU
+>>>> unshare: unshare failed: Cannot allocate memory
+>>>>
+>>>> A user would think that the system didn't have enough memory, when
+>>>> instead the action was denied.
+>>>>
+>>>> This problem occurs because prepare_creds() and prepare_kernel_cred()
+>>>> return NULL when security_prepare_creds() returns an error code. Later,
+>>>> functions calling prepare_creds() and prepare_kernel_cred() return
+>>>> ENOMEM because they assume that a NULL meant there was no memory
+>>>> allocated.
+>>>>
+>>>> Fix this by propagating an error code from security_prepare_creds() up
+>>>> the callstack.
+>>> Why would it make sense for security_prepare_creds to return an error
+>>> code other than ENOMEM?
+>>>   > That seems a bit of a violation of what that function is supposed to do
+>>>
+>>
+>> The API allows LSM authors to decide what error code is returned from the
+>> cred_prepare hook. security_task_alloc() is a similar hook, and has its return
+>> code propagated.
+> 
+> It is not an api.  It is an implementation detail of the linux kernel.
+> It is a set of convenient functions that do a job.
+> 
+> The general rule is we don't support cases without an in-tree user.  I
+> don't see an in-tree user.
+> 
+>> I'm proposing we follow security_task_allocs() pattern, and add visibility for
+>> failure cases in prepare_creds().
+> 
+> I am asking why we would want to.  Especially as it is not an API, and I
+> don't see any good reason for anything but an -ENOMEM failure to be
+> supported.
 >
->
-> =E5=9C=A8 2022/6/14 20:57, Ondrej Mosnacek =E5=86=99=E9=81=93:
-> > On Mon, Jun 13, 2022 at 4:02 PM Xiu Jianfeng <xiujianfeng@huawei.com> w=
-rote:
-> >> In this function, it directly returns the result of __security_read_po=
-licy
-> >> without freeing the allocated memory in *data, cause memory leak issue=
-,
-> >> so free the memory if __security_read_policy failed.
-> >>
-> >> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-> >> ---
-> >>   security/selinux/ss/services.c | 9 ++++++++-
-> >>   1 file changed, 8 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/serv=
-ices.c
-> >> index 69b2734311a6..fe5fcf571c56 100644
-> >> --- a/security/selinux/ss/services.c
-> >> +++ b/security/selinux/ss/services.c
-> >> @@ -4048,6 +4048,7 @@ int security_read_policy(struct selinux_state *s=
-tate,
-> >>   int security_read_state_kernel(struct selinux_state *state,
-> >>                                 void **data, size_t *len)
-> >>   {
-> >> +       int err;
-> >>          struct selinux_policy *policy;
-> >>
-> >>          policy =3D rcu_dereference_protected(
-> >> @@ -4060,5 +4061,11 @@ int security_read_state_kernel(struct selinux_s=
-tate *state,
-> >>          if (!*data)
-> >>                  return -ENOMEM;
-> >>
-> >> -       return __security_read_policy(policy, *data, len);
-> >> +       err =3D __security_read_policy(policy, *data, len);
-> >> +       if (err) {
-> >> +               vfree(*data);
-> >> +               *data =3D NULL;
-> >> +               *len =3D 0;
-> >> +       }
-> >> +       return err;
-> >>   }
-> >> --
-> >> 2.17.1
-> >>
-> > security_read_policy() defined a few lines above has the same pattern
-> > (just with vmalloc_user() in place of vmalloc()). Would you like to
-> > send another patch to fix that function as well?
-> No problem, patch already sent.
+We're writing a LSM BPF policy, and not a new LSM. Our policy aims to 
+solve unprivileged unshare, similar to Debian's patch [1]. We're in a 
+position such that we can't use that patch because we can't block _all_ 
+of our applications from performing an unshare. We prefer a granular 
+approach. LSM BPF seems like a good choice.
 
-Wow, you're fast :) Thanks!
+Because LSM BPF exposes these hooks, we should probably treat them as an 
+API. From that perspective, userspace expects unshare to return a EPERM 
+when the call is denied permissions.
 
---=20
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+> Without an in-tree user that cares it is probably better to go the
+> opposite direction and remove the possibility of return anything but
+> memory allocation failure.  That will make it clearer to implementors
+> that a general error code is not supported and this is not a location
+> to implement policy, this is only a hook to allocate state for the LSM.
+> 
 
+That's a good point, and it's possible we're using the wrong hook for 
+the policy. Do you know of other hooks we can look into?
+
+>>> I have probably missed a very interesting discussion where that was
+>>> mentioned but I don't see link to the discussion or anything explaining
+>>> why we want to do that in this change.
+>>>
+>>
+>> AFAIK, this is the start of the discussion.
+> 
+> You were on v3 and had an out of tree piece of code so I assumed someone
+> had at least thought about why you want to implement policy in a piece
+> of code whose only purpose is to allocate memory to store state.
+> 
+
+No worries.
+
+> Eric
+> 
+> 
+> 
+
+Links:
+1: 
+https://sources.debian.org/patches/linux/3.16.56-1+deb8u1/debian/add-sysctl-to-disallow-unprivileged-CLONE_NEWUSER-by-default.patch/
