@@ -2,102 +2,138 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 147D2CCA473
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 12:27:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A67C43334
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 13:46:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343846AbiFOM1Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 08:27:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58494 "EHLO
+        id S1345449AbiFONqA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 09:46:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348484AbiFOM1V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 08:27:21 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D2CF43AC8
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 05:27:20 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id 25so15851546edw.8
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 05:27:20 -0700 (PDT)
+        with ESMTP id S240502AbiFONp7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 09:45:59 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09BA130F55
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:45:58 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id w16so15524952oie.5
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:45:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=JvgN82kSDnFHT1qIJj3dyspOHbh7t9/i8LuvQ1xWf88=;
-        b=eKpJGROU5xWUQbLu/zKam2uRHgD7WbS/F9GI2v/y7G0lsgSnPY7Rb486aIGy98MZ0T
-         DX3rhX8squCqbuplSY3K8qgSV32O5DlLkkKnFe1QncJ/eBniyU3mZApy9GwW3SdqAQMC
-         +DAh2+x9C8RYqohu+lu8ATXmYRI+mR3gEHC+TkuexiAjieQJU6YwKG8jgaDuVZLw3DKB
-         2fa79EdIdX80GNoKhUoI7Gkf0rZKqbfOm5nDi+kvXZUT4e+8s+lokjnkmI6i+pHRyDFL
-         Odah5pAL1H+LDNReJoqDl6YEdT77opOyiAkhjpajQUJyhulQynqYNn/tOhstPjqzaOIT
-         ftXg==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=6eTjngrprdXJVGw0/PyyfipfbqRJPdyZIMuHpHkzqME=;
+        b=o+IGmCl4qQb5HfIzcAo1yHP7unTcFy8ZuVuSl9ThCyL4CdQAeCi+deYdpsbzoeWx6y
+         +lU9nes72lXogGFCAb8SMw14oRFGSjjnLa01oOKWHyBdXufk00ZW4Ph0YXnTyiLqRtZ1
+         j447qSR0+DTcO1CdcOOdEdu8LW3PNoOQmM8sA4JdJDYadxHwmI8ejBM0gQjs/jTeGIug
+         NtI54eM6SDb/UJvUb0Od5ZN301Q6BLBVEfW/GmKwsQCsvYCqnIHtZcY6no8Azb+fwHb/
+         +KI1m4R2u+G8QtfyuNmKnsrxKLOAu8lTnUclqTV+GORSZzyVk7yXyei27D3g17j08BPa
+         qSRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=JvgN82kSDnFHT1qIJj3dyspOHbh7t9/i8LuvQ1xWf88=;
-        b=7LNsWJZwd7aasPfOmu49AkRtFq3tIcRWGYLG/Npx52d1aeCeCIy5B97aoHv6QW+Lw/
-         L34o3hB0+ixACXDhg5JEXm9RcoORahUWntOX+jnNunz4cnG+GHBk6VImc4OALWilLPQj
-         YVtlqLjIzMiGNK8LfsFZ3pUu3CRoFINovlXiJ3t4mpYX1MPJKNOm2V8G+dN+HI6xuO4r
-         JJ2dL7UzemCQadct7qZnRKFeLytpSQFkIga9wMkbNTiX6dVR3+a0Dzd+0EPOSB1l95hd
-         4CXYGKNSknc1pMFXhGSyWxb1yXpLyLO33DjLYLtfZCRAoTPbfAEVXB7OaG5eIzMuB9WQ
-         5IZQ==
-X-Gm-Message-State: AOAM530Po3pnq3EIVlqRl4ebnZ9VEGrfNfUPs8R/oZKru6xyIB/mOwG0
-        pLL10pkuiIUd3Aytlzqc1b12AMyZjuU=
-X-Google-Smtp-Source: ABdhPJx2C3WFwu8Ra3n1JDwfhc15wZgbSN3ZSLOZbnY3tDCSJYYt5l+ZeAfgdrjZmcjEMbOQj1t7MA==
-X-Received: by 2002:a05:6402:278d:b0:42e:d3d5:922e with SMTP id b13-20020a056402278d00b0042ed3d5922emr12322324ede.154.1655296038651;
-        Wed, 15 Jun 2022 05:27:18 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-003-151-196.77.3.pool.telefonica.de. [77.3.151.196])
-        by smtp.gmail.com with ESMTPSA id l9-20020a056402028900b0042dd3bf1403sm9190336edv.54.2022.06.15.05.27.18
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jun 2022 05:27:18 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2 3/4] filesystem: allow getfilecon(3) to pass test
-Date:   Wed, 15 Jun 2022 14:27:10 +0200
-Message-Id: <20220615122711.9895-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220615122711.9895-1-cgzones@googlemail.com>
-References: <20220614102029.13006-1-cgzones@googlemail.com>
- <20220615122711.9895-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=6eTjngrprdXJVGw0/PyyfipfbqRJPdyZIMuHpHkzqME=;
+        b=hnuqtHayjnfceSXDgY9dqqf2JHmoY/5tHMT0oqy5PAG7eaMyR7MpCwHugG6PJnPFNC
+         U42wiRj2z2mHxaJLjP9OaU7T+UHFmT5X81/x/4YaW/r00j6o/9IFCwUehx4NUxbkeuip
+         aCFKIUXtEfwyUjNChpGtp/lHYkyUMCdJOcNbWwjn+y2BdaYtYlwJC7ofDAT4D2Sj/M7F
+         ytitnEgkrF6R51lsiG7Bz3lBsLjmKH4qwxuq8WMnku1G5CSjFZRyp883iCZhQ1oErYPr
+         QBjR11CtrxfY7tqkC59YzUGJeKnNRKNPrkHGJKUOJxVVn71CwCAjcN5qTrp119icwWAA
+         YjOg==
+X-Gm-Message-State: AOAM5323nV6vAegFd5fRiHuDV72p2csLJ2eLdoaDpoGhy/lf4qqnl5Ms
+        c669dkL2F/Ew164pTZkXhQ3Ecs8uUic2LJzi1pUSos2v
+X-Google-Smtp-Source: ABdhPJy8dM7MosvUlba+gBjWzLNfZ5EiJEWHtArM8fMaiI4oyFCxWgo82/fZjbsTKe9H1vGPP1ivydD+kkcv8RVSakk=
+X-Received: by 2002:a05:6808:20a6:b0:32f:3376:46f1 with SMTP id
+ s38-20020a05680820a600b0032f337646f1mr5135002oiw.182.1655300757123; Wed, 15
+ Jun 2022 06:45:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220520130847.10958-1-cgzones@googlemail.com> <CAP+JOzSmYALmPjrKYaL4kLJY7RaY8+ypzR9evHmrWUih58vyHQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzSmYALmPjrKYaL4kLJY7RaY8+ypzR9evHmrWUih58vyHQ@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 15 Jun 2022 09:45:46 -0400
+Message-ID: <CAP+JOzQvro7Wfk0aBQNGZingdecsL5eSu=-VXbhD4Ne8Ou5j+w@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libselinux: add man page redirections
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-    filesystem/ext4/test .. 67/83 getfilecon(3) Failed: Permission denied
-    filesystem/ext4/test .. 71/83
-    filesystem/ext4/test .. 75/83 # Looks like you failed 1 test of 83.
-    filesystem/ext4/test .. Dubious, test returned 1 (wstat 256, 0x100)
+On Wed, Jun 8, 2022 at 1:51 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Fri, May 20, 2022 at 9:36 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > The following interfaces are documented but do not have a redirection:
+> >
+> >   - context_str(3)
+> >   - security_get_checkreqprot(3)
+> >   - security_set_boolean_list(3)
+> >   - selinux_sepgsql_context_path(3)
+> >   - setexecfilecon(3)
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> For these four patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
+This series has been merged.
+Thanks,
+Jim
 
-    type=PROCTITLE msg=audit(02/05/22 11:47:03.170:7047) : proctitle=/root/workspace/selinux/selinux-testsuite/tests/filesystem/ext4/check_mount_context -r -m /root/workspace/selinux/selinux-testsu
-    type=PATH msg=audit(02/05/22 11:47:03.170:7047) : item=0 name=/root/workspace/selinux/selinux-testsuite/tests/filesystem/ext4/mntpoint/mp1 inode=390506 dev=fe:01 mode=dir,750 ouid=root ogid=root rdev=00:00 obj=unconfined_u:object_r:unlabeled_t:s0 nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0
-    type=CWD msg=audit(02/05/22 11:47:03.170:7047) : cwd=/root/workspace/selinux/selinux-testsuite/tests
-    type=SYSCALL msg=audit(02/05/22 11:47:03.170:7047) : arch=x86_64 syscall=getxattr success=no exit=EACCES(Permission denied) a0=0x7ffcd27c5651 a1=0x7fec8529078d a2=0x645b39a13550 a3=0xff items=1 ppid=76535 pid=77228 auid=root uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=pts1 ses=1 comm=check_mount_con exe=/root/workspace/selinux/selinux-testsuite/tests/filesystem/check_mount_context subj=unconfined_u:unconfined_r:test_filesystem_context_t:s0-s0:c0.c1023 key=(null)
-    type=AVC msg=audit(02/05/22 11:47:03.170:7047) : avc:  denied  { getattr } for  pid=77228 comm=check_mount_con name=mp1 dev="vda1" ino=390506 scontext=unconfined_u:unconfined_r:test_filesystem_context_t:s0-s0:c0.c1023 tcontext=unconfined_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
-
-In fedora-policy unlabeled_t is associated with the attribute file_type
-and thus the access granted by the rule
-
-    allow test_filesystem_context_t file_type:dir { getattr open search };
-
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- policy/test_filesystem.te | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
-index 4e27134..46e3f1a 100644
---- a/policy/test_filesystem.te
-+++ b/policy/test_filesystem.te
-@@ -382,7 +382,7 @@ allow test_filesystem_fscontext_t test_filesystem_context_file_t:file { create g
- 
- # For testing rootcontext= Set mountpoint to unlabeled first
- allow test_filesystem_context_t test_file_t:dir { relabelfrom };
--allow test_filesystem_context_t unlabeled_t:dir { mounton relabelto };
-+allow test_filesystem_context_t unlabeled_t:dir { getattr mounton relabelto };
- 
- #
- ####################### Rules for nfs_filesystem/test ###################
--- 
-2.36.1
-
+> > ---
+> >  libselinux/man/man3/context_str.3                  | 1 +
+> >  libselinux/man/man3/security_get_checkreqprot.3    | 1 +
+> >  libselinux/man/man3/security_set_boolean_list.3    | 1 +
+> >  libselinux/man/man3/selinux_sepgsql_context_path.3 | 1 +
+> >  libselinux/man/man3/setexecfilecon.3               | 1 +
+> >  5 files changed, 5 insertions(+)
+> >  create mode 100644 libselinux/man/man3/context_str.3
+> >  create mode 100644 libselinux/man/man3/security_get_checkreqprot.3
+> >  create mode 100644 libselinux/man/man3/security_set_boolean_list.3
+> >  create mode 100644 libselinux/man/man3/selinux_sepgsql_context_path.3
+> >  create mode 100644 libselinux/man/man3/setexecfilecon.3
+> >
+> > diff --git a/libselinux/man/man3/context_str.3 b/libselinux/man/man3/co=
+ntext_str.3
+> > new file mode 100644
+> > index 00000000..f4f03a6d
+> > --- /dev/null
+> > +++ b/libselinux/man/man3/context_str.3
+> > @@ -0,0 +1 @@
+> > +.so man3/context_new.3
+> > diff --git a/libselinux/man/man3/security_get_checkreqprot.3 b/libselin=
+ux/man/man3/security_get_checkreqprot.3
+> > new file mode 100644
+> > index 00000000..d59e5c2c
+> > --- /dev/null
+> > +++ b/libselinux/man/man3/security_get_checkreqprot.3
+> > @@ -0,0 +1 @@
+> > +.so man3/security_getenforce.3
+> > diff --git a/libselinux/man/man3/security_set_boolean_list.3 b/libselin=
+ux/man/man3/security_set_boolean_list.3
+> > new file mode 100644
+> > index 00000000..29731efa
+> > --- /dev/null
+> > +++ b/libselinux/man/man3/security_set_boolean_list.3
+> > @@ -0,0 +1 @@
+> > +.so man3/security_load_booleans.3
+> > diff --git a/libselinux/man/man3/selinux_sepgsql_context_path.3 b/libse=
+linux/man/man3/selinux_sepgsql_context_path.3
+> > new file mode 100644
+> > index 00000000..175a611a
+> > --- /dev/null
+> > +++ b/libselinux/man/man3/selinux_sepgsql_context_path.3
+> > @@ -0,0 +1 @@
+> > +.so man3/selinux_binary_policy_path.3
+> > diff --git a/libselinux/man/man3/setexecfilecon.3 b/libselinux/man/man3=
+/setexecfilecon.3
+> > new file mode 100644
+> > index 00000000..b2e6ab81
+> > --- /dev/null
+> > +++ b/libselinux/man/man3/setexecfilecon.3
+> > @@ -0,0 +1 @@
+> > +.so man3/getexeccon.3
+> > --
+> > 2.36.1
+> >
