@@ -2,119 +2,137 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 155DEC433EF
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 15:33:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 657B1CCA473
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 15:39:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348706AbiFOPdy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 11:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
+        id S1354769AbiFOPi6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 11:38:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344140AbiFOPdw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 11:33:52 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B60A320BE9
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 08:33:50 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id i17-20020a7bc951000000b0039c4760ec3fso2384192wml.0
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 08:33:50 -0700 (PDT)
+        with ESMTP id S1355063AbiFOPir (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 11:38:47 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B8313DC6
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 08:38:45 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id h23so23996445ejj.12
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 08:38:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=J5eKPAN5lqKWqHRVMFEt8bECLi2YfU3n/Xvj8y2gEBE=;
-        b=Zv2JhKlV+WgmpireahD92+ZSg2KnCdRZZvKLhjp5oxI5lNh/Plc3RXY+mQgK5+7Vg0
-         YcEbwmKcYO+eUdZVm8cnx1XTn3jFZkr+/y958BJAt6RHw6tO4gb/qGpriKZF4237xYW8
-         XdcUnlcVAybauV76RUaKKOU+9Jk1HAP8Ybq8jFsO4UP/QfChfQnRT6ZMjB1JSUkSG5A+
-         eeKIxvMjnfgD/uvv36ColBnfjqbtL+d7YJ45Q6RgQZkCXiULCPAF4BJO7j+EvyygfMPL
-         eLCZ6VWgFpV+KubW52X0faomk4hEuBQnOj14ASkrNV4X772O83FKpX8IgKteHTah4Jpx
-         0t5Q==
+        d=googlemail.com; s=20210112;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jJ8ffxeT0iHz0XntzlGTrEeeiqV0BUSbMNvSqdQXuwY=;
+        b=bZfdENfigEX87gM/Y3vn8fkB3ef4qcZQGbIKj9NtyrO9ZeblKtuqsp/M12QHM2KSKk
+         g26RK1oBlL7kg4OEz3jrtLa4Hd2bV+e1HgiiGr7wJxjXanSl72Af6k3vw79AkpfRiWub
+         UVKDTI40Dm2X2DGlZwRR16en9tM4JxxP9QjMjGYSF1uP10UXBK3WDpGEJv5ia7rc6nkl
+         iVQtChFIiKlU9s7hX1HAs9fBm/SU5zRObYP/MJAxxon376HIsXMSEi1NoCg7vJqtfEn5
+         HfssgoK8sInSJFSfyS1yQtAB54sdo4bNokwynL9RjpRyv5eRRT1Vj4cidTkZrxUvCMBc
+         oOMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=J5eKPAN5lqKWqHRVMFEt8bECLi2YfU3n/Xvj8y2gEBE=;
-        b=x5rzDwx8cT8GezqioQkbDUxzil6D0bLaLMhjAq5eX2qPmJF5ttmfRtu3Ll+TUfM4GR
-         l7Uv4CLBgsftumrhvEvOOsZLb5fiizhCdqj4yxKbKXLZA1LMQIKiZBP1JbzAo0ZkWb6i
-         ZZHqEXLWqE44bLX687S5+WH3nyCKTtv0ytnYCObDdRibUlZruqYvc1/BGR/+ROp78xtU
-         YEB2oCMZ5TzPxCMfgZAzPgxN970tdYw5lyruhvPOZ8CTrzk9v4+1RGjWXMW845pDFY2U
-         dwoZEFEVLc1CJ59UiFBJzdLI7mZDob5/lBz74g8GuuNJL5Qc+BgHAK64o0f7RywhViOn
-         BNyw==
-X-Gm-Message-State: AJIora+WPYWT3SfE9xaJhaUun6JZyeu6khZvKcU0mFz39B24lJqFs4BY
-        7SCvbh4Z9u4EANn0eOvyiYDU/LTlTMUCXi1tPB31
-X-Google-Smtp-Source: AGRyM1tbSXhyojX0sdqJuy36Y8CiIJerDEBwNNO0en1/SGp4CFCRbzqu86TVD3k4/Lh2/5SBr3CWSXHz2TZ3Gh292cQ=
-X-Received: by 2002:a05:600c:1d91:b0:39c:544b:abdd with SMTP id
- p17-20020a05600c1d9100b0039c544babddmr20003wms.70.1655307229181; Wed, 15 Jun
- 2022 08:33:49 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jJ8ffxeT0iHz0XntzlGTrEeeiqV0BUSbMNvSqdQXuwY=;
+        b=iOTQO08ErtKkDpGzwQ4RRa7ZQFfDTi5uk8Qj6ke6LhP5F6puRn/OUmoNqeFma3KQgv
+         fMW1KnBmDd2b+Hvcm1yU7d+xh0zfo3Afz+BPMnOgXq8GpKEkXwNfsGMlALAx9cz4iDSS
+         iYLwvKOy4xlvJrmUxrcy0AMCJyPLC7jWWalEL+ioAy/yLOXu5K7vW56FHnSEB9tukxL6
+         ZkM328ynZ2GJj74pcg4yfacvNrzBoz8IUT2gnB5pY22ypNQF/va/CpSnhe2qltCt7t8Y
+         Qbaa7ZITCaRz9nEwXzP8PbrpqyXPI6FjQwgrJkqHLb14XVZ04pziFLI32I1mJk9ibTRf
+         UqeQ==
+X-Gm-Message-State: AJIora+0bLbW0IK6paifsp+zGgrWVIOcPDyNWgaeFLWezv/l5Mbn+a0G
+        YCbZAw1v26OlgRpg1IkeEuHyEMPtugxc4Q==
+X-Google-Smtp-Source: AGRyM1v43Ma8v5v/KWXPjYrN53j47L8a8x1omADryKE5yPNZ7I1G/51YncC2X5/NF6qWZ7KA07Uxog==
+X-Received: by 2002:a17:907:1620:b0:711:da21:d836 with SMTP id hb32-20020a170907162000b00711da21d836mr355765ejc.427.1655307524012;
+        Wed, 15 Jun 2022 08:38:44 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-003-151-196.77.3.pool.telefonica.de. [77.3.151.196])
+        by smtp.gmail.com with ESMTPSA id e11-20020a056402190b00b0043120d5f3dcsm9888021edz.14.2022.06.15.08.38.42
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jun 2022 08:38:43 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] selinux: free contexts previously transferred in selinux_add_opt()
+Date:   Wed, 15 Jun 2022 17:38:39 +0200
+Message-Id: <20220615153839.314007-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220608150942.776446-1-fred@cloudflare.com> <87tu8oze94.fsf@email.froward.int.ebiederm.org>
- <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com> <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
- <859cb593-9e96-5846-2191-6613677b07c5@cloudflare.com> <87o7yvxl4x.fsf@email.froward.int.ebiederm.org>
- <9ed91f15-420c-3db6-8b3b-85438b02bf97@cloudflare.com> <20220615103031.qkzae4xr34wysj4b@wittgenstein>
- <CAHC9VhR8yPHZb2sCu4JGgXOSs7rudm=9opB+-LsG6_Lta9466A@mail.gmail.com> <CALrw=nGZtrNYn+CV+Q_w-2=Va_9m3C8PDvvPtd01d0tS=2NMWQ@mail.gmail.com>
-In-Reply-To: <CALrw=nGZtrNYn+CV+Q_w-2=Va_9m3C8PDvvPtd01d0tS=2NMWQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 15 Jun 2022 11:33:38 -0400
-Message-ID: <CAHC9VhRSzXeAZmBdNSAFEh=6XR57ecO7Ov+6BV9b0xVN1YR_Qw@mail.gmail.com>
-Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
-To:     Ignat Korchagin <ignat@cloudflare.com>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Frederick Lawler <fred@cloudflare.com>,
-        linux-doc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>, linux-aio@kvack.org,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org,
-        linux-mm@kvack.org, linux-nfs@vger.kernel.org,
-        linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        netdev <netdev@vger.kernel.org>, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, serge@hallyn.com, amir73il@gmail.com,
-        kernel-team <kernel-team@cloudflare.com>,
-        Jeff Moyer <jmoyer@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 11:06 AM Ignat Korchagin <ignat@cloudflare.com> wrote:
-> On Wed, Jun 15, 2022 at 3:14 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Wed, Jun 15, 2022 at 6:30 AM Christian Brauner <brauner@kernel.org> wrote:
+`selinux_add_opt()` stopped taking ownership of the passed context since
+commit 70f4169ab421 ("selinux: parse contexts for mount options early").
 
-...
+    unreferenced object 0xffff888114dfd140 (size 64):
+      comm "mount", pid 15182, jiffies 4295687028 (age 796.340s)
+      hex dump (first 32 bytes):
+        73 79 73 74 65 6d 5f 75 3a 6f 62 6a 65 63 74 5f  system_u:object_
+        72 3a 74 65 73 74 5f 66 69 6c 65 73 79 73 74 65  r:test_filesyste
+      backtrace:
+        [<ffffffffa07dbef4>] kmemdup_nul+0x24/0x80
+        [<ffffffffa0d34253>] selinux_sb_eat_lsm_opts+0x293/0x560
+        [<ffffffffa0d13f08>] security_sb_eat_lsm_opts+0x58/0x80
+        [<ffffffffa0af1eb2>] generic_parse_monolithic+0x82/0x180
+        [<ffffffffa0a9c1a5>] do_new_mount+0x1f5/0x550
+        [<ffffffffa0a9eccb>] path_mount+0x2ab/0x1570
+        [<ffffffffa0aa019e>] __x64_sys_mount+0x20e/0x280
+        [<ffffffffa1f47124>] do_syscall_64+0x34/0x80
+        [<ffffffffa200007e>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-> > > Fwiw, from this commit it wasn't very clear what you wanted to achieve
-> > > with this. It might be worth considering adding a new security hook for
-> > > this. Within msft it recently came up SELinux might have an interest in
-> > > something like this as well.
-> >
-> > Just to clarify things a bit, I believe SELinux would have an interest
-> > in a LSM hook capable of implementing an access control point for user
-> > namespaces regardless of Microsoft's current needs.  I suspect due to
-> > the security relevant nature of user namespaces most other LSMs would
-> > be interested as well; it seems like a well crafted hook would be
-> > welcome by most folks I think.
->
-> Just to get the full picture: is there actually a good reason not to
-> make this hook support this scenario? I understand it was not
-> originally intended for this, but it is well positioned in the code,
-> covers multiple subsystems (not only user namespaces), doesn't require
-> changing the LSM interface and it already does the job - just the
-> kernel internals need to respect the error code better. What bad
-> things can happen if we extend its use case to not only allocate
-> resources in LSMs?
+    unreferenced object 0xffff888108e71640 (size 64):
+      comm "fsmount", pid 7607, jiffies 4295044974 (age 1601.016s)
+      hex dump (first 32 bytes):
+        73 79 73 74 65 6d 5f 75 3a 6f 62 6a 65 63 74 5f  system_u:object_
+        72 3a 74 65 73 74 5f 66 69 6c 65 73 79 73 74 65  r:test_filesyste
+      backtrace:
+        [<ffffffff861dc2b1>] memdup_user+0x21/0x90
+        [<ffffffff861dc367>] strndup_user+0x47/0xa0
+        [<ffffffff864f6965>] __do_sys_fsconfig+0x485/0x9f0
+        [<ffffffff87940124>] do_syscall_64+0x34/0x80
+        [<ffffffff87a0007e>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
 
-My concern is that the security_prepare_creds() hook, while only
-called from two different functions, ends up being called for a
-variety of different uses (look at the prepare_creds() and
-perpare_kernel_cred() callers) and I think it would be a challenge to
-identify the proper calling context in the LSM hook implementation
-given the current hook parameters.  One might be able to modify the
-hook to pass the necessary information, but I don't think that would
-be any cleaner than adding a userns specific hook.  I'm also guessing
-that the modified security_prepare_creds() hook implementations would
-also be more likely to encounter future maintenance issues as
-overriding credentials in the kernel seems only to be increasing, and
-each future caller would risk using the modified hook wrong by passing
-the wrong context and triggering the wrong behavior in the LSM.
+Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ security/selinux/hooks.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 4d20a139a86d..fdf8465aa97b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2600,8 +2600,9 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 				}
+ 			}
+ 			rc = selinux_add_opt(token, arg, mnt_opts);
++			kfree(arg);
++			arg = NULL;
+ 			if (unlikely(rc)) {
+-				kfree(arg);
+ 				goto free_opt;
+ 			}
+ 		} else {
+@@ -2792,17 +2793,13 @@ static int selinux_fs_context_parse_param(struct fs_context *fc,
+ 					  struct fs_parameter *param)
+ {
+ 	struct fs_parse_result result;
+-	int opt, rc;
++	int opt;
+ 
+ 	opt = fs_parse(fc, selinux_fs_parameters, param, &result);
+ 	if (opt < 0)
+ 		return opt;
+ 
+-	rc = selinux_add_opt(opt, param->string, &fc->security);
+-	if (!rc)
+-		param->string = NULL;
+-
+-	return rc;
++	return selinux_add_opt(opt, param->string, &fc->security);
+ }
+ 
+ /* inode security operations */
 -- 
-paul-moore.com
+2.36.1
+
