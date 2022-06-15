@@ -2,82 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 358FDC43334
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 02:03:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EF2BC43334
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 09:34:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237469AbiFOCDL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jun 2022 22:03:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60478 "EHLO
+        id S243446AbiFOJej (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 05:34:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236964AbiFOCDL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jun 2022 22:03:11 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9AD3123D
-        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 19:03:10 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id c21so13448041wrb.1
-        for <selinux@vger.kernel.org>; Tue, 14 Jun 2022 19:03:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ipK2xVBLHPOftN34BUGWDsuGecY3n8XAM7hkfiv9VF4=;
-        b=Zen+bt9CQG1jdU1YiXYkeHp9jlh/y0vhgUUgRbxEZorTRPzLh8JTV5pMycsNGdDP0t
-         G68vwkv78mv6nAbqqd/4LrH2Rj0/SQwOT85GtDJ0x8VDpQER+SL2Rk59c0guy3EPYyhN
-         IVeSqTTw/+zH4ykdL7br+qCy0o28w0gxq0L7NS30DUgUw+r3svCpKu9bErunvw8vzQ7N
-         esxy7hKjzLZ+a+bSkOB+oBx5HEV0Upg9iog+2CoxTxAmNeGWWdlvW80OigRUPXn1AFX8
-         eFPOqzBZkoIckGZ9lTPDw2txUnxiuSdEp5poFo61UnLJmpZKZTFHKr5jdYFo5d9wJUk5
-         AgCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ipK2xVBLHPOftN34BUGWDsuGecY3n8XAM7hkfiv9VF4=;
-        b=DERHmVo2Pyx23wC/g5Bih8PfN0Wm5vxigCsKDjgXKGwXK6/nTIt0UYUbjbDCmMRua8
-         U55kSxIAUuzY9b+onHMmWFXjkSVg4tCUghpk+w3GK3HPCUGBKGC/mn5852kGoPkK9+/b
-         +eQBzKYtUOMpTmGPbWeLnxY4dnP7ch3c2Az9ibxLaGTf85DAG0562U4X2HsqX8fucLY7
-         1Gco932Q5CVfWDF9vpEfkKom9dUNWnyFPLDViMiNP7WgvSuX9aaCMW5f39FWRiFnLrgw
-         FXo9qmGmkG/cAaqU3K3ZcAF4QRjCzd99VwhNwsSaSkPzaL+QPFk5laPynN3Ds/3CEwk8
-         HlZg==
-X-Gm-Message-State: AJIora/QcvYC9CDQEJMaDckdfcG7RZmwD2Ep+alOxwL0845YU4amzOv3
-        jxUKtIcrSCI/T7JiSdEe9eJjM7xVRc33ZYLhbQdB
-X-Google-Smtp-Source: AGRyM1uENCeZZiPlJ60c8bFL+8XMUT4yEx1bjPhq9c8jfwIxvy/DROo9GfXYu0M9IaIA2YUcX+QZ9K7MdkLEOuwYH0Y=
-X-Received: by 2002:a5d:6348:0:b0:213:3a8e:e75d with SMTP id
- b8-20020a5d6348000000b002133a8ee75dmr7142240wrw.55.1655258588850; Tue, 14 Jun
- 2022 19:03:08 -0700 (PDT)
+        with ESMTP id S242322AbiFOJei (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 05:34:38 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0D0220E1;
+        Wed, 15 Jun 2022 02:34:37 -0700 (PDT)
+Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.53])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4LNKrK43bBzDqt9;
+        Wed, 15 Jun 2022 17:34:09 +0800 (CST)
+Received: from [10.67.110.112] (10.67.110.112) by
+ dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Wed, 15 Jun 2022 17:34:35 +0800
+Subject: Re: [PATCH -next] selinux: Fix potential memory leak in
+ selinux_add_opt
+To:     Paul Moore <paul@paul-moore.com>
+CC:     <stephen.smalley.work@gmail.com>, <eparis@parisplace.org>,
+        <omosnace@redhat.com>, <selinux@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+References: <20220611090550.135674-1-xiujianfeng@huawei.com>
+ <CAHC9VhSwYdrHw8jNYxWApPYMjnmX-ZDN1=CzmRBeS1HoL-KOOA@mail.gmail.com>
+ <c54658e5-f0bd-b3f6-3cf8-d7d0e8b1c4df@huawei.com>
+ <CAHC9VhTkfBm8zCDw=m+jaDZW15LB+bRJ5+ymxsSJKW=V645S2g@mail.gmail.com>
+From:   xiujianfeng <xiujianfeng@huawei.com>
+Message-ID: <d7947bfd-b8f4-9ca5-ad1d-ce9489f6ab4e@huawei.com>
+Date:   Wed, 15 Jun 2022 17:34:35 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-References: <20220614132333.143042-1-xiujianfeng@huawei.com>
-In-Reply-To: <20220614132333.143042-1-xiujianfeng@huawei.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 14 Jun 2022 22:02:58 -0400
-Message-ID: <CAHC9VhQdfPBn4kbY0xRPaCvNBJJGdQQe_90A4Hhdsj6gVr6pAQ@mail.gmail.com>
-Subject: Re: [PATCH -next] selinux: Fix memleak in security_read_policy
-To:     Xiu Jianfeng <xiujianfeng@huawei.com>
-Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        cgzones@googlemail.com, austin.kim@lge.com, omosnace@redhat.com,
-        michalorzel.eng@gmail.com, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhTkfBm8zCDw=m+jaDZW15LB+bRJ5+ymxsSJKW=V645S2g@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.110.112]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpeml500023.china.huawei.com (7.185.36.114)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 9:25 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
+
+在 2022/6/15 9:17, Paul Moore 写道:
+> On Mon, Jun 13, 2022 at 9:18 PM xiujianfeng <xiujianfeng@huawei.com> wrote:
+>> 在 2022/6/14 4:22, Paul Moore 写道:
+>>> On Sat, Jun 11, 2022 at 5:07 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
+>>>> In the entry of selinux_add_opt, *mnt_opts may be assigned to new
+>>>> allocated memory, and also may be freed and reset at the end of the
+>>>> function. however, if security_context_str_to_sid failed, it returns
+>>>> directly and skips the procedure for free and reset, even if it may be
+>>>> handled at the caller of this function, It is better to handle it
+>>>> inside.
+>>>>
+>>>> Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
+>>>> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+>>>> ---
+>>>>    security/selinux/hooks.c | 12 +++++++-----
+>>>>    1 file changed, 7 insertions(+), 5 deletions(-)
+>>> Have you actually observed a memory leak from the selinux_mnt_opts
+>>> allocation in selinux_add_opt()?
+>>>
+>>> The selinux_add_opt() function has two callers:
+>>> selinux_sb_eat_lsm_opts() and selinux_fs_context_parse_param().  The
+>>> former cleans up the selinux_mnt_opts allocation it its error handler
+>>> while the latter will end up calling
+>>> security_free_mnt_opts()/selinux_free_mnt_opts() to free the
+>>> fs_context:security when the fs_context is destroyed.
+>>>
+>>> This patch shouldn't be necessary.
+>> I may not have made it clear, I said potential means may have a third
+>> caller in the future.
+> Let's not worry about it.  If you wanted to add a comment header to
+> the function (see selinux_skb_peerlbl_sid() for an example) to make it
+> clear that callers are responsible for cleaning up @mnt_opts on error
+> I think that would be okay ... although even that is going to be a
+> problem in the new mount API case where selinux_add_opt() is going to
+> be called multiple times.
 >
-> In this function, it directly returns the result of __security_read_policy
-> without freeing the allocated memory in *data, cause memory leak issue,
-> so free the memory if __security_read_policy failed.
+>> I think the error handler as following is not necessary:
+>>
+>> err:
+>>           if (is_alloc_opts) {
+>>                   kfree(opts);
+>>                   *mnt_opts = NULL;
+>>           }
+>>
+>> otherwise, some error paths goto err label while others don't, It's
+>> confusing.
+> That's a fair point.  Looking at the patch which added it, we should
+> probably also return EINVAL when @s is NULL instead of ENOMEM.  In
+> fact, in all the cases where we currently jump to @err, I think we are
+> guaranteed that @is_alloc_opts is false as it requires a previously
+> populated @opts.
 >
-> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-> ---
->  security/selinux/ss/services.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+> If you want to submit another patch, I would suggest doing the
+> following in the patch:
+>
+> 1. Change the @s NULL check to return -EINVAL when @s is NULL.
+> 2. Allocate @opts/@mnt_opts if NULL, but don't call kfree() on the
+> object in case of error.  The new mount API will cleanup when it is
+> done and selinux_sb_eat_lsm_opts() will cleanup on error.
+>
+> If you don't have time to put together a patch for this, let me know and I will.
 
-This is another case where there is not actually a memory leak as the
-only caller of security_read_policy() is sel_open_policy() which will
-free the buffer it passes to security_read_policy() on error.
+no problem, I will do it, thanks for your suggestion.
 
-If you want you could add a comment to security_read_policy()
-indicating that the caller is responsible for freeing the memory.
-
--- 
-paul-moore.com
+>
