@@ -2,157 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8629C433EF
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 18:18:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BC7AC43334
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 18:31:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244186AbiFOSSt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 14:18:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
+        id S244809AbiFOSb6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 14:31:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242198AbiFOSSr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 14:18:47 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA3C3CFD5
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 11:18:46 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id i25so3531084oii.7
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 11:18:46 -0700 (PDT)
+        with ESMTP id S236325AbiFOSb6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 14:31:58 -0400
+Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A47A393C2
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 11:31:57 -0700 (PDT)
+Received: by mail-oi1-x22b.google.com with SMTP id w16so16560925oie.5
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 11:31:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=pqKDnVRTbEb8n6ahLqtrk51nmOklgalLN56htTnydaI=;
-        b=Eg4HiaN2P3vdMEW+MTm3Ym2iILGI9N8/SHpbQZ8NokThhFoqb5qws4UgKdHv/t+0ig
-         h4Dt/B1hpwppKAwu/uMifm5uWv4LBWaR06qe1gGIpzNXY5dEQCeaVF3fsLrKA6qiXMzq
-         rrqgJJxjcrhaYfSNc5Yl5n4Bmu1SuhzszpC6pVT/KRPyVNaX7xiV4GNlE3vsLH+EsL4X
-         X6OyGhnqMmyv7A0CgQxG7vuehPWvTbDiT5MVpP6xuxu9V06RZfHY+22z+KZ5gHUluX/B
-         9HpJsFm+hlreqJPv5DHsMYU4CuFNnjI++8zIhdh0RH21TkGFGCGWHD6a6WKg2YCCBopX
-         htSQ==
+        bh=9OdgGwKVZS3NC1R0yK//M02vocQzw7P4tzDCd6kMhZE=;
+        b=eUhvaBOQltbuUen6U1mlFnuS+ZDMmvwENAF8Eq2+zZ3gldT/HgmHr2zixuWLp6ct8a
+         VWd5TvBhbzU20CZCHAqW4+GwKXIx5yEP1V5kIxCXSbnfsw4gTv2QJMxM9ggPMz7qmh7a
+         uxqoH2amenDWYrMueetpr9afDHLYqQKYWk4ewne0EPFYvy3t4qRayheU1vRlAlQJ/sSa
+         NDjARyOZQz6uP42QZ5jg4Bo4PgBAD0hw2ui5nflzbGGsHvAbZPcK51mNzbGjky7u4vYz
+         PtNxgS2r51TpjU8sba1AeYMMFbwmTn0WcltuEOMN6hNlC5qeyEAwxMo5wb8epnGmM8Fc
+         3Jog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=pqKDnVRTbEb8n6ahLqtrk51nmOklgalLN56htTnydaI=;
-        b=1QCYM3yvD0FLiv6QtiUqzfY/n0WipU4cnOeHG+c2N052lrq+AX0T9ASIC2l7XVggOO
-         KVHxpm0Q7/99RhKqY9OHSM4xFCden4JpnOujMyRJCpNLW/ngrYSfeyr5WetIPrQLKz8S
-         BJj6EZi+xKH0lq7kDhZQjEQVuklLek+jnC63zI/I/+N5W3wtk6DsFm+YH9XHSCxtLRYI
-         HoP5WwVHrFI48Q3U2xiL8E3OVwv276eO2AlDpX6PPq91HmL/3VqUsC5XIhImzc6Zk3UP
-         ZD14qWh1143EqaBh1rr6r/A+2a0tMJRFbV4v5TsWlfF+gIfaFuRID2uFQRNVNpLkUZNx
-         05hg==
-X-Gm-Message-State: AJIora8e6oUoOzw7Ystp/4giV2t97lSz1BbItmCZE1oeKe7FqjyvjkNK
-        o2r6MdAaO20lE7pj158aQ1+YJ6J5RlfOQc9ljM46MVYy
-X-Google-Smtp-Source: AGRyM1sydHSLCW3KesmFrmfEErXyzk79OgDzfckOuiybBEHGX5hNp198RlkIAvrYKbI6F1C673f/7KCDvhZG5pVsqH8=
-X-Received: by 2002:a05:6808:20a6:b0:32f:3376:46f1 with SMTP id
- s38-20020a05680820a600b0032f337646f1mr525560oiw.182.1655317126009; Wed, 15
- Jun 2022 11:18:46 -0700 (PDT)
+        bh=9OdgGwKVZS3NC1R0yK//M02vocQzw7P4tzDCd6kMhZE=;
+        b=tOrWmxPxzynHUwrcdo1I9qeKShBwfkAgTOouZccCC0KbtkiiUq8ZmtkMVFzxNrgC+P
+         5pHHn8O94iRJ60bhyH2LAp5NmSjr5OyhlNWxrggvxGS9Yyl/rBVKR7Hq1HmPYg5oRNoJ
+         e8D4E6ooTMmBzFALPU6jNGBWlmObwhxNs2otnnl0B1y18Lc9gF8GDrHMrAeq5JzsumzQ
+         9x7Ha0xEquROt7KbafEpI6iPwgP3Y4MqEqAsPxWkPj4OMmD3lXYcOevzbvturs42Pc54
+         LBn2trniNzKwPc3GngSlxF9VPZDg2qFRq9kLTV6pkQkVmnRUaaFaD4E4n1KXGpQGUeVp
+         MKjw==
+X-Gm-Message-State: AJIora/XcE6J5uWfvNa9z0Ia9ffFSG4K/BKj1Pd9lQmdZs0PbE/KSHE4
+        AsTRM6n7/w4Yll6VF79Te0kmziNLwux1APiQ153LTJTkPu4=
+X-Google-Smtp-Source: AGRyM1vKXWBfXM1UfI8Ghdardso+eO1uT4itLUJFiRd7p0WKMyEznaC6NKV25s3pNEshymh5mHQe6bhKbAJJOHi65wA=
+X-Received: by 2002:a05:6808:1805:b0:32e:fa16:59b9 with SMTP id
+ bh5-20020a056808180500b0032efa1659b9mr502298oib.205.1655317916316; Wed, 15
+ Jun 2022 11:31:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220607150145.29757-1-cgzones@googlemail.com> <20220609081955.3887-1-cgzones@googlemail.com>
-In-Reply-To: <20220609081955.3887-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 15 Jun 2022 14:18:35 -0400
-Message-ID: <CAP+JOzSOgTt7qi_u788kKhdnwFcCemJuv8KinREHXrzeUg6M4A@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol: fix validation of user declarations in
- non-base modules
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>, bauen1 <j2468h@gmail.com>
+References: <20220610150637.21133-1-cgzones@googlemail.com> <CAP+JOzSYuPN-W-qsruMq1xGjUq-kwf_WXxz0VZAt1q_9sRY5cw@mail.gmail.com>
+In-Reply-To: <CAP+JOzSYuPN-W-qsruMq1xGjUq-kwf_WXxz0VZAt1q_9sRY5cw@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Wed, 15 Jun 2022 20:31:45 +0200
+Message-ID: <CAJ2a_Df8QY92WENiLMcpiayr_QgJP-pyckb5XWcsb-i8YjhqVA@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: error out if required permission would
+ exceed limit
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 9, 2022 at 4:27 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, 15 Jun 2022 at 20:18, James Carter <jwcart2@gmail.com> wrote:
 >
-> Users may be declared in non-base modules, which do not get expanded,
-> leaving the `struct user_datum` members `exp_range` and `exp_dfltlevel`
-> empty.
-> Skip validation of the expanded range and level for non-base module
-> polices.
->
-> Reported-by: bauen1 <j2468h@gmail.com>
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
-> v2:
->    - update commit description and fix typos
+> On Fri, Jun 10, 2022 at 11:12 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > A require statement for a class permission adds that permission to the
+> > class representation for the current module.  In case the resulting
+> > class would have more than the supported amount of 32 permissions
+> > assigned the resulting binary module will fail to load at link-time
+> > without an informative error message (since [1]).
+> >
+> > Bail out if adding a permission would result in a class having more the=
+n
 
-Sorry, I didn't see this patch before I applied the first one.
-Jim
+s/then/than/
 
-> ---
->  libsepol/src/policydb_validate.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+> > the supported amount of 32 permissions assigned.
+> >
+> > [1]: https://github.com/SELinuxProject/selinux/commit/97af65f69644a3233=
+d073ae93980a0d2e51f42e1
+> >
+> > Closes: https://github.com/SELinuxProject/selinux/issues/356
+> > Reported-by: Julie Pichon
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index da18282b..99d4eb7f 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -18,7 +18,7 @@ typedef struct validate {
->  typedef struct map_arg {
->         validate_t *flavors;
->         sepol_handle_t *handle;
-> -       int mls;
-> +       policydb_t *policy;
->  } map_arg_t;
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
->  static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebitma=
-p_t *gaps)
-> @@ -571,7 +571,7 @@ static int validate_mls_range(mls_range_t *range, val=
-idate_t *sens, validate_t *
->         return -1;
->  }
->
-> -static int validate_user_datum(sepol_handle_t *handle, user_datum_t *use=
-r, validate_t flavors[], int mls)
-> +static int validate_user_datum(sepol_handle_t *handle, user_datum_t *use=
-r, validate_t flavors[], policydb_t *p)
->  {
->         if (validate_value(user->s.value, &flavors[SYM_USERS]))
->                 goto bad;
-> @@ -581,9 +581,9 @@ static int validate_user_datum(sepol_handle_t *handle=
-, user_datum_t *user, valid
->                 goto bad;
->         if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_LE=
-VELS], &flavors[SYM_CATS]))
->                 goto bad;
-> -       if (mls && validate_mls_range(&user->exp_range, &flavors[SYM_LEVE=
-LS], &flavors[SYM_CATS]))
-> +       if (p->mls && p->policy_type !=3D POLICY_MOD && validate_mls_rang=
-e(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
->                 goto bad;
-> -       if (mls && validate_mls_level(&user->exp_dfltlevel, &flavors[SYM_=
-LEVELS], &flavors[SYM_CATS]))
-> +       if (p->mls && p->policy_type !=3D POLICY_MOD && validate_mls_leve=
-l(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
->                 goto bad;
->         if (user->bounds && validate_value(user->bounds, &flavors[SYM_USE=
-RS]))
->                 goto bad;
-> @@ -599,7 +599,7 @@ static int validate_user_datum_wrapper(__attribute__(=
-(unused)) hashtab_key_t k,
->  {
->         map_arg_t *margs =3D args;
->
-> -       return validate_user_datum(margs->handle, d, margs->flavors, marg=
-s->mls);
-> +       return validate_user_datum(margs->handle, d, margs->flavors, marg=
-s->policy);
->  }
->
->  static int validate_bool_datum(sepol_handle_t *handle, cond_bool_datum_t=
- *boolean, validate_t flavors[])
-> @@ -689,7 +689,7 @@ static int validate_datum(__attribute__ ((unused))has=
-htab_key_t k, hashtab_datum
->
->  static int validate_datum_array_entries(sepol_handle_t *handle, policydb=
-_t *p, validate_t flavors[])
->  {
-> -       map_arg_t margs =3D { flavors, handle, p->mls };
-> +       map_arg_t margs =3D { flavors, handle, p };
->
->         if (hashtab_map(p->p_commons.table, validate_common_datum_wrapper=
-, &margs))
->                 goto bad;
-> --
-> 2.36.1
->
+> > ---
+> >  checkpolicy/module_compiler.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> >
+> > diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compile=
+r.c
+> > index 129650fa..3188af89 100644
+> > --- a/checkpolicy/module_compiler.c
+> > +++ b/checkpolicy/module_compiler.c
+> > @@ -851,6 +851,14 @@ int require_class(int pass)
+> >                                 free(perm_id);
+> >                                 return -1;
+> >                         }
+> > +                       if (datum->permissions.nprim >=3D PERM_SYMTAB_S=
+IZE) {
+> > +                               yyerror2("Class %s would have too many =
+permissions "
+> > +                                        "to fit in an access vector wi=
+th permission %s",
+> > +                                        policydbp->p_class_val_to_name=
+[datum->s.value - 1],
+> > +                                        perm_id);
+> > +                               free(perm_id);
+> > +                               return -1;
+> > +                       }
+> >                         allocated =3D 1;
+> >                         if ((perm =3D malloc(sizeof(*perm))) =3D=3D NUL=
+L) {
+> >                                 yyerror("Out of memory!");
+> > --
+> > 2.36.1
+> >
