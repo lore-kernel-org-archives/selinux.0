@@ -2,158 +2,176 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35389C433EF
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 13:47:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A80CCA47F
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 14:15:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239711AbiFONrj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 09:47:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
+        id S231311AbiFOOO5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 10:14:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348694AbiFONrf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 09:47:35 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F98A31383
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:47:34 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id v143so15478692oie.13
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:47:34 -0700 (PDT)
+        with ESMTP id S1343803AbiFOOOy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 10:14:54 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD2F31363
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 07:14:51 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id s1so15555180wra.9
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 07:14:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=t4IGFJ5Zb1EfJqkt+PZBM02Ta5EPJxethEJDFEqJit8=;
-        b=KAoDsm14kBOXzKt6Pj/2mcr1KRT692lmUVTC4T12csTULJYnQToATgz5ruYgkybPrE
-         sr3jpyH8yHS8RHjjCcJ98dPqaXp4spV/Eek+6gGavbIfdIUR62bswLpHzU3PSVeVgyqP
-         zShVWWHDQBplENip770HbmFpN48ZUm93ip16xkMZnKr0IF/eaHovECUcyPcpDGSBaAkP
-         QNp8jKbWnY/bCC17Kc2iHUVDa7JSWCl0CU9V9KmTHTSWk/gJDbkdCahmQzqvwpxMbG1b
-         ypacbqXnJEu9G/yXf2f2ksgO1W9mk+T+BJ/QFhVzEpPWn8PgjaqFw93zHmRNJaiS0EpH
-         TL0g==
+         :cc;
+        bh=TmFspR35i19OaG7kIq4BfP3Z5+5KHooJY8o+wf2Eu7g=;
+        b=hnjS0y0DJB+Pgxck/o6M0KR1CyJPsNohu8wEV1ngzYEvfR3BNgdCgc8bBCjYcSn/q2
+         LGrABHBIuN5wiJVr3vFBZSQoyuo+ow5O4zy8y+xuerraxDm52W00Ql6GN8mxJBK7Aged
+         DMepzdaFMPS1SBM8wU0DjvHn5zjVaCWGHNtmseACjEovZd9TfrOheGRLWXnnpvnFbk3L
+         Oh5JBbb6A+TcxaBr62FlW4W2kMYFlFl4qBPFa5Vljf/kfuiWpPulvsvFhKfMVnlp7H1I
+         /Ewf9GWseGoqqzdlh7+S2YPdnfxgjB6XJIAkXpRzobHf9nGOIaKrkjPQFKm48HdjqWaG
+         xCzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=t4IGFJ5Zb1EfJqkt+PZBM02Ta5EPJxethEJDFEqJit8=;
-        b=gATnkSDsC5G3PG9nG3aQFfXeWjvHmkuFy3boovzUi0xPP2FnhogD7kWshhykinqgJ1
-         4+kH1jYynDrwQ0c1r/WbqxMxDYBGcQ+tXi5rk6O4UzTTCP/NEclLvpmMNhygI4mJQHBr
-         jx1Eltp6egzR6CXeduFZxHRwsI5xCPdUl5f1REj+2KIcUgAgzKqkjOAZFykN7h1DqouM
-         up9V+R3ykVjwCAmuBCpQSpJmrLPtoGQxVGtqTvI0/5aek1azJtIWVlV4SY00CIXt4Z5t
-         ek2DLidc8sO9l2tRixsmId355lvRDcFBQJHJBr3pIYWOqjYOU5Bx20oGpUDxfsjNV6xH
-         aWAQ==
-X-Gm-Message-State: AOAM533+nOObnzYRW0JFLu1twGwgCgbPBG0cSR1TBnAdFrDNMPsCCZTs
-        j9PcGAQ/UpVnvN+CGV53H7Hk6ipe5Z3G3XmLJqvzXoBh
-X-Google-Smtp-Source: ABdhPJyGEsEA8poXih0Ce3QAaKTmrND3hDfaqS6MMNNEJ0G7bCNGCkMrzjkGF4zvHbMcG9ZDdX7qyg7sRumg+vwvdzE=
-X-Received: by 2002:a05:6808:20a6:b0:32f:3376:46f1 with SMTP id
- s38-20020a05680820a600b0032f337646f1mr5139318oiw.182.1655300853605; Wed, 15
- Jun 2022 06:47:33 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=TmFspR35i19OaG7kIq4BfP3Z5+5KHooJY8o+wf2Eu7g=;
+        b=OkXIekpTv8srJqtV1fVZJ4EcEeYA4r6Z+38GeSEcqfkRqa183NRJd/rZUq5bl2lVoS
+         uGucOsAr52kW5r7i6WNmoy90M0f1tZavqarojZwhGSuHeou3JhJi/KL768A0KA7CMa/k
+         JjYcwsU1A6G5aeLUsbgyC+wKPEP5YEoqAtw6aBq4YkEuIM10EURa8cD13GJ83QVzzRDg
+         R39jTPfu36FdRmo1eCOg1HoeOToQwXBOdky22668fcAVgpm+puPpYoMm5E8lp7T2Aw5W
+         iLTikDOP5Zhy3UuQ3aiRHVpe4qFUvvEpXxRNTnv6zaEjxJMOUhVsWNhbctfYj6XNhcJr
+         jGiA==
+X-Gm-Message-State: AJIora8C6C2tOpdfd1Vw+lrxw1WDTamKUkVCh1ruoRYS7LL+rtZpWknj
+        D5AkGuCw4dptbyLdojTJpUg/ulr1042rAqikH18Y
+X-Google-Smtp-Source: AGRyM1shZLCqZkkSojukqCXaW+5XT6IN8fQuWUaigb52d2YijY5GHtpeOYg1i3lr6LTItEcWJJFmcKwvqWFcwysL51U=
+X-Received: by 2002:a05:6000:1447:b0:21a:278a:181c with SMTP id
+ v7-20020a056000144700b0021a278a181cmr27393wrx.161.1655302489487; Wed, 15 Jun
+ 2022 07:14:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220607150145.29757-1-cgzones@googlemail.com> <CAP+JOzT+AaQgOa1T0zxVOERwQZnjkkQ0dGiiarHbPCxVJo7pFg@mail.gmail.com>
-In-Reply-To: <CAP+JOzT+AaQgOa1T0zxVOERwQZnjkkQ0dGiiarHbPCxVJo7pFg@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 15 Jun 2022 09:47:22 -0400
-Message-ID: <CAP+JOzRdX4x+2LQf+dY6Q5i-Y+J2-_z+S7ygXaBn=JDNA1Qxpw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: fix validation of user declarations in modules
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>, bauen1 <j2468h@gmail.com>
+References: <20220608150942.776446-1-fred@cloudflare.com> <87tu8oze94.fsf@email.froward.int.ebiederm.org>
+ <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com> <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
+ <859cb593-9e96-5846-2191-6613677b07c5@cloudflare.com> <87o7yvxl4x.fsf@email.froward.int.ebiederm.org>
+ <9ed91f15-420c-3db6-8b3b-85438b02bf97@cloudflare.com> <20220615103031.qkzae4xr34wysj4b@wittgenstein>
+In-Reply-To: <20220615103031.qkzae4xr34wysj4b@wittgenstein>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 15 Jun 2022 10:14:38 -0400
+Message-ID: <CAHC9VhR8yPHZb2sCu4JGgXOSs7rudm=9opB+-LsG6_Lta9466A@mail.gmail.com>
+Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Frederick Lawler <fred@cloudflare.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org, linux-mm@kvack.org,
+        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
+        Jeff Moyer <jmoyer@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 8, 2022 at 2:41 PM James Carter <jwcart2@gmail.com> wrote:
+On Wed, Jun 15, 2022 at 6:30 AM Christian Brauner <brauner@kernel.org> wrote:
 >
-> On Tue, Jun 7, 2022 at 11:54 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
+> On Tue, Jun 14, 2022 at 01:59:08PM -0500, Frederick Lawler wrote:
+> > On 6/14/22 11:30 AM, Eric W. Biederman wrote:
+> > > Frederick Lawler <fred@cloudflare.com> writes:
+> > >
+> > > > On 6/13/22 11:44 PM, Eric W. Biederman wrote:
+> > > > > Frederick Lawler <fred@cloudflare.com> writes:
+> > > > >
+> > > > > > Hi Eric,
+> > > > > >
+> > > > > > On 6/13/22 12:04 PM, Eric W. Biederman wrote:
+> > > > > > > Frederick Lawler <fred@cloudflare.com> writes:
+> > > > > > >
+> > > > > > > > While experimenting with the security_prepare_creds() LSM hook, we
+> > > > > > > > noticed that our EPERM error code was not propagated up the callstack.
+> > > > > > > > Instead ENOMEM is always returned.  As a result, some tools may send a
+> > > > > > > > confusing error message to the user:
+> > > > > > > >
+> > > > > > > > $ unshare -rU
+> > > > > > > > unshare: unshare failed: Cannot allocate memory
+> > > > > > > >
+> > > > > > > > A user would think that the system didn't have enough memory, when
+> > > > > > > > instead the action was denied.
+> > > > > > > >
+> > > > > > > > This problem occurs because prepare_creds() and prepare_kernel_cred()
+> > > > > > > > return NULL when security_prepare_creds() returns an error code. Later,
+> > > > > > > > functions calling prepare_creds() and prepare_kernel_cred() return
+> > > > > > > > ENOMEM because they assume that a NULL meant there was no memory
+> > > > > > > > allocated.
+> > > > > > > >
+> > > > > > > > Fix this by propagating an error code from security_prepare_creds() up
+> > > > > > > > the callstack.
+> > > > > > > Why would it make sense for security_prepare_creds to return an error
+> > > > > > > code other than ENOMEM?
+> > > > > > >    > That seems a bit of a violation of what that function is supposed to do
+> > > > > > >
+> > > > > >
+> > > > > > The API allows LSM authors to decide what error code is returned from the
+> > > > > > cred_prepare hook. security_task_alloc() is a similar hook, and has its return
+> > > > > > code propagated.
+> > > > > It is not an api.  It is an implementation detail of the linux kernel.
+> > > > > It is a set of convenient functions that do a job.
+> > > > > The general rule is we don't support cases without an in-tree user.  I
+> > > > > don't see an in-tree user.
+> > > > >
+> > > > > > I'm proposing we follow security_task_allocs() pattern, and add visibility for
+> > > > > > failure cases in prepare_creds().
+> > > > > I am asking why we would want to.  Especially as it is not an API, and I
+> > > > > don't see any good reason for anything but an -ENOMEM failure to be
+> > > > > supported.
+> > > > >
+> > > > We're writing a LSM BPF policy, and not a new LSM. Our policy aims to solve
+> > > > unprivileged unshare, similar to Debian's patch [1]. We're in a position such
+> > > > that we can't use that patch because we can't block _all_ of our applications
+> > > > from performing an unshare. We prefer a granular approach. LSM BPF seems like a
+> > > > good choice.
+> > >
+> > > I am quite puzzled why doesn't /proc/sys/user/max_user_namespaces work
+> > > for you?
+> > >
 > >
-> > Users are allowed to be declared in modules. Modules do not get expande=
-d
-> > leaving the `struct user_datum` members `exp_range` and `exp_dfltlevel`
-> > empty.
-> > Do no validate the expanded range and level for modular polices.
+> > We have the following requirements:
 > >
-> > Reported-by: bauen1 <j2468h@gmail.com>
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > 1. Allow list criteria
+> > 2. root user must be able to create namespaces whenever
+> > 3. Everything else not in 1 & 2 must be denied
+> >
+> > We use per task attributes to determine whether or not we allow/deny the
+> > current call to unshare().
+> >
+> > /proc/sys/user/max_user_namespaces limits are a bit broad for this level of
+> > detail.
+> >
+> > > > Because LSM BPF exposes these hooks, we should probably treat them as an
+> > > > API. From that perspective, userspace expects unshare to return a EPERM
+> > > > when the call is denied permissions.
+> > >
+> > > The BPF code gets to be treated as a out of tree kernel module.
+> > >
+> > > > > Without an in-tree user that cares it is probably better to go the
+> > > > > opposite direction and remove the possibility of return anything but
+> > > > > memory allocation failure.  That will make it clearer to implementors
+> > > > > that a general error code is not supported and this is not a location
+> > > > > to implement policy, this is only a hook to allocate state for the LSM.
+> > > > >
+> > > >
+> > > > That's a good point, and it's possible we're using the wrong hook for the
+> > > > policy. Do you know of other hooks we can look into?
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
->
-Merged.
-Thanks,
-Jim
+> Fwiw, from this commit it wasn't very clear what you wanted to achieve
+> with this. It might be worth considering adding a new security hook for
+> this. Within msft it recently came up SELinux might have an interest in
+> something like this as well.
 
-> > ---
-> >  libsepol/src/policydb_validate.c | 12 ++++++------
-> >  1 file changed, 6 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
-alidate.c
-> > index da18282b..99d4eb7f 100644
-> > --- a/libsepol/src/policydb_validate.c
-> > +++ b/libsepol/src/policydb_validate.c
-> > @@ -18,7 +18,7 @@ typedef struct validate {
-> >  typedef struct map_arg {
-> >         validate_t *flavors;
-> >         sepol_handle_t *handle;
-> > -       int mls;
-> > +       policydb_t *policy;
-> >  } map_arg_t;
-> >
-> >  static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebit=
-map_t *gaps)
-> > @@ -571,7 +571,7 @@ static int validate_mls_range(mls_range_t *range, v=
-alidate_t *sens, validate_t *
-> >         return -1;
-> >  }
-> >
-> > -static int validate_user_datum(sepol_handle_t *handle, user_datum_t *u=
-ser, validate_t flavors[], int mls)
-> > +static int validate_user_datum(sepol_handle_t *handle, user_datum_t *u=
-ser, validate_t flavors[], policydb_t *p)
-> >  {
-> >         if (validate_value(user->s.value, &flavors[SYM_USERS]))
-> >                 goto bad;
-> > @@ -581,9 +581,9 @@ static int validate_user_datum(sepol_handle_t *hand=
-le, user_datum_t *user, valid
-> >                 goto bad;
-> >         if (validate_mls_semantic_level(&user->dfltlevel, &flavors[SYM_=
-LEVELS], &flavors[SYM_CATS]))
-> >                 goto bad;
-> > -       if (mls && validate_mls_range(&user->exp_range, &flavors[SYM_LE=
-VELS], &flavors[SYM_CATS]))
-> > +       if (p->mls && p->policy_type !=3D POLICY_MOD && validate_mls_ra=
-nge(&user->exp_range, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-> >                 goto bad;
-> > -       if (mls && validate_mls_level(&user->exp_dfltlevel, &flavors[SY=
-M_LEVELS], &flavors[SYM_CATS]))
-> > +       if (p->mls && p->policy_type !=3D POLICY_MOD && validate_mls_le=
-vel(&user->exp_dfltlevel, &flavors[SYM_LEVELS], &flavors[SYM_CATS]))
-> >                 goto bad;
-> >         if (user->bounds && validate_value(user->bounds, &flavors[SYM_U=
-SERS]))
-> >                 goto bad;
-> > @@ -599,7 +599,7 @@ static int validate_user_datum_wrapper(__attribute_=
-_((unused)) hashtab_key_t k,
-> >  {
-> >         map_arg_t *margs =3D args;
-> >
-> > -       return validate_user_datum(margs->handle, d, margs->flavors, ma=
-rgs->mls);
-> > +       return validate_user_datum(margs->handle, d, margs->flavors, ma=
-rgs->policy);
-> >  }
-> >
-> >  static int validate_bool_datum(sepol_handle_t *handle, cond_bool_datum=
-_t *boolean, validate_t flavors[])
-> > @@ -689,7 +689,7 @@ static int validate_datum(__attribute__ ((unused))h=
-ashtab_key_t k, hashtab_datum
-> >
-> >  static int validate_datum_array_entries(sepol_handle_t *handle, policy=
-db_t *p, validate_t flavors[])
-> >  {
-> > -       map_arg_t margs =3D { flavors, handle, p->mls };
-> > +       map_arg_t margs =3D { flavors, handle, p };
-> >
-> >         if (hashtab_map(p->p_commons.table, validate_common_datum_wrapp=
-er, &margs))
-> >                 goto bad;
-> > --
-> > 2.36.1
-> >
+Just to clarify things a bit, I believe SELinux would have an interest
+in a LSM hook capable of implementing an access control point for user
+namespaces regardless of Microsoft's current needs.  I suspect due to
+the security relevant nature of user namespaces most other LSMs would
+be interested as well; it seems like a well crafted hook would be
+welcome by most folks I think.
+
+-- 
+paul-moore.com
