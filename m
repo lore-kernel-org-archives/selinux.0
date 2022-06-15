@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A67C43334
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 13:46:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F248C433EF
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 13:46:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345449AbiFONqA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 09:46:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54656 "EHLO
+        id S1344054AbiFONqs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 09:46:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240502AbiFONp7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 09:45:59 -0400
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09BA130F55
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:45:58 -0700 (PDT)
-Received: by mail-oi1-x22c.google.com with SMTP id w16so15524952oie.5
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:45:58 -0700 (PDT)
+        with ESMTP id S244347AbiFONqr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 09:46:47 -0400
+Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ADE22CCB4
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:46:46 -0700 (PDT)
+Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-10113b4c2b5so14870834fac.6
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 06:46:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=6eTjngrprdXJVGw0/PyyfipfbqRJPdyZIMuHpHkzqME=;
-        b=o+IGmCl4qQb5HfIzcAo1yHP7unTcFy8ZuVuSl9ThCyL4CdQAeCi+deYdpsbzoeWx6y
-         +lU9nes72lXogGFCAb8SMw14oRFGSjjnLa01oOKWHyBdXufk00ZW4Ph0YXnTyiLqRtZ1
-         j447qSR0+DTcO1CdcOOdEdu8LW3PNoOQmM8sA4JdJDYadxHwmI8ejBM0gQjs/jTeGIug
-         NtI54eM6SDb/UJvUb0Od5ZN301Q6BLBVEfW/GmKwsQCsvYCqnIHtZcY6no8Azb+fwHb/
-         +KI1m4R2u+G8QtfyuNmKnsrxKLOAu8lTnUclqTV+GORSZzyVk7yXyei27D3g17j08BPa
-         qSRw==
+        bh=MT8vdOi69oDWdVKw8GAa1IrXY0Y0CH3xRnKdy5WotAI=;
+        b=B2p0t/uWoTUZpSNuCzXIaWmGpDT97ncg6JGLbJJtGDgBAPPBdGHiF6g9EKNf9AMp3P
+         yyEm9x5uSOFtPBBn83w6PnVIaaZEB9BAuFU2xvL+0YOCXGs1B8z+eCgxYI0z7XmEBcZ2
+         XmQtO/Fn0DBCaujsts4BQ++LYPLqiA9ZaSId9gF4svBVQDehk1fcytzQDVTJ0IOIhGLD
+         GClsRPnh6FbbTlrUvP3dWBxtYnnkeQ1/ZKQXU7WAYq4qJIjHd+sIKnlRYTaskdi0AU4y
+         jrwvcJUWXXfzCK7m55o+HkV1CLq7Q5h/1vdmkjsGHCsul7hlnxxM12OGJBekK1G0WJ9I
+         /poA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6eTjngrprdXJVGw0/PyyfipfbqRJPdyZIMuHpHkzqME=;
-        b=hnuqtHayjnfceSXDgY9dqqf2JHmoY/5tHMT0oqy5PAG7eaMyR7MpCwHugG6PJnPFNC
-         U42wiRj2z2mHxaJLjP9OaU7T+UHFmT5X81/x/4YaW/r00j6o/9IFCwUehx4NUxbkeuip
-         aCFKIUXtEfwyUjNChpGtp/lHYkyUMCdJOcNbWwjn+y2BdaYtYlwJC7ofDAT4D2Sj/M7F
-         ytitnEgkrF6R51lsiG7Bz3lBsLjmKH4qwxuq8WMnku1G5CSjFZRyp883iCZhQ1oErYPr
-         QBjR11CtrxfY7tqkC59YzUGJeKnNRKNPrkHGJKUOJxVVn71CwCAjcN5qTrp119icwWAA
-         YjOg==
-X-Gm-Message-State: AOAM5323nV6vAegFd5fRiHuDV72p2csLJ2eLdoaDpoGhy/lf4qqnl5Ms
-        c669dkL2F/Ew164pTZkXhQ3Ecs8uUic2LJzi1pUSos2v
-X-Google-Smtp-Source: ABdhPJy8dM7MosvUlba+gBjWzLNfZ5EiJEWHtArM8fMaiI4oyFCxWgo82/fZjbsTKe9H1vGPP1ivydD+kkcv8RVSakk=
-X-Received: by 2002:a05:6808:20a6:b0:32f:3376:46f1 with SMTP id
- s38-20020a05680820a600b0032f337646f1mr5135002oiw.182.1655300757123; Wed, 15
- Jun 2022 06:45:57 -0700 (PDT)
+        bh=MT8vdOi69oDWdVKw8GAa1IrXY0Y0CH3xRnKdy5WotAI=;
+        b=T6OzW1divL03+c2qUPswnMJ2NTiwaUh0Ky/cKrdP8fa7+XfmGdokuIgo5zUZzP0PWd
+         +dVWVwj8+bxpv/EDAYa9ewQ2pzFvjn1t6cQFwKbl6eOyrlJwmCRqvUOm9vPwZ/szWa3K
+         6nJCfstrdqXg9qy7c1T/G/rFDmHQqRqvIfb0thAvSuENPQYvCr1IKHkAKv10or/ps8KQ
+         9nQTYNCUuqslFvpSj7sTG+K9WWzQvRT10E/IgDF9W/U5rstetszy/fTsLrDsE7XwUnZG
+         BJP11sxidbE476IkNRHKlNL/5l8Lk9TPV0sukqmLrHKaeltKUeX8XAx6OqOMKEQu2H5W
+         /xpw==
+X-Gm-Message-State: AJIora9UGYohiUluu0u3W399bLvz0Pud4B9gXVSl/pqwWOrOYDAjnTD0
+        U42bD0MzcGoIllForGLtcydM3a/9H2C0QmclHaSzwBfg
+X-Google-Smtp-Source: AGRyM1s3WBiX6WulSY+sIfvX0zzeFb/NP0vh0UDvvUgbUrvXkT4dbz+yYilXHLTwXzR84uySy/n1CJK4zorbsjPk0G0=
+X-Received: by 2002:a05:6870:4604:b0:f2:5b64:fad9 with SMTP id
+ z4-20020a056870460400b000f25b64fad9mr5663413oao.182.1655300805782; Wed, 15
+ Jun 2022 06:46:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220520130847.10958-1-cgzones@googlemail.com> <CAP+JOzSmYALmPjrKYaL4kLJY7RaY8+ypzR9evHmrWUih58vyHQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzSmYALmPjrKYaL4kLJY7RaY8+ypzR9evHmrWUih58vyHQ@mail.gmail.com>
+References: <20220520125107.8423-1-cgzones@googlemail.com> <CAP+JOzQgBDg5dJPLvMON9MOnqFsaOSjLZoQ6cpPEkbr=2N-S7A@mail.gmail.com>
+In-Reply-To: <CAP+JOzQgBDg5dJPLvMON9MOnqFsaOSjLZoQ6cpPEkbr=2N-S7A@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 15 Jun 2022 09:45:46 -0400
-Message-ID: <CAP+JOzQvro7Wfk0aBQNGZingdecsL5eSu=-VXbhD4Ne8Ou5j+w@mail.gmail.com>
-Subject: Re: [PATCH 1/4] libselinux: add man page redirections
+Date:   Wed, 15 Jun 2022 09:46:35 -0400
+Message-ID: <CAP+JOzREhaJkfoaUWyaavrEdgTPVYcxnhjW1PGyYQbww2NQAgw@mail.gmail.com>
+Subject: Re: [PATCH] python/audit2allow: close file stream on error
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -59,81 +59,61 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 8, 2022 at 1:51 PM James Carter <jwcart2@gmail.com> wrote:
+On Wed, Jun 8, 2022 at 2:03 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Fri, May 20, 2022 at 9:36 AM Christian G=C3=B6ttsche
+> On Mon, May 23, 2022 at 4:10 AM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > The following interfaces are documented but do not have a redirection:
-> >
-> >   - context_str(3)
-> >   - security_get_checkreqprot(3)
-> >   - security_set_boolean_list(3)
-> >   - selinux_sepgsql_context_path(3)
-> >   - setexecfilecon(3)
+> >     sepolgen-ifgen-attr-helper.c: In function =E2=80=98load_policy=E2=
+=80=99:
+> >     sepolgen-ifgen-attr-helper.c:196:17: warning: leak of FILE =E2=80=
+=98fp=E2=80=99 [CWE-775] [-Wanalyzer-file-leak]
+> >       196 |                 fprintf(stderr, "Out of memory!\n");
+> >           |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these four patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
-This series has been merged.
+Merged.
 Thanks,
 Jim
 
 > > ---
-> >  libselinux/man/man3/context_str.3                  | 1 +
-> >  libselinux/man/man3/security_get_checkreqprot.3    | 1 +
-> >  libselinux/man/man3/security_set_boolean_list.3    | 1 +
-> >  libselinux/man/man3/selinux_sepgsql_context_path.3 | 1 +
-> >  libselinux/man/man3/setexecfilecon.3               | 1 +
-> >  5 files changed, 5 insertions(+)
-> >  create mode 100644 libselinux/man/man3/context_str.3
-> >  create mode 100644 libselinux/man/man3/security_get_checkreqprot.3
-> >  create mode 100644 libselinux/man/man3/security_set_boolean_list.3
-> >  create mode 100644 libselinux/man/man3/selinux_sepgsql_context_path.3
-> >  create mode 100644 libselinux/man/man3/setexecfilecon.3
+> >  python/audit2allow/sepolgen-ifgen-attr-helper.c | 3 +++
+> >  1 file changed, 3 insertions(+)
 > >
-> > diff --git a/libselinux/man/man3/context_str.3 b/libselinux/man/man3/co=
-ntext_str.3
-> > new file mode 100644
-> > index 00000000..f4f03a6d
-> > --- /dev/null
-> > +++ b/libselinux/man/man3/context_str.3
-> > @@ -0,0 +1 @@
-> > +.so man3/context_new.3
-> > diff --git a/libselinux/man/man3/security_get_checkreqprot.3 b/libselin=
-ux/man/man3/security_get_checkreqprot.3
-> > new file mode 100644
-> > index 00000000..d59e5c2c
-> > --- /dev/null
-> > +++ b/libselinux/man/man3/security_get_checkreqprot.3
-> > @@ -0,0 +1 @@
-> > +.so man3/security_getenforce.3
-> > diff --git a/libselinux/man/man3/security_set_boolean_list.3 b/libselin=
-ux/man/man3/security_set_boolean_list.3
-> > new file mode 100644
-> > index 00000000..29731efa
-> > --- /dev/null
-> > +++ b/libselinux/man/man3/security_set_boolean_list.3
-> > @@ -0,0 +1 @@
-> > +.so man3/security_load_booleans.3
-> > diff --git a/libselinux/man/man3/selinux_sepgsql_context_path.3 b/libse=
-linux/man/man3/selinux_sepgsql_context_path.3
-> > new file mode 100644
-> > index 00000000..175a611a
-> > --- /dev/null
-> > +++ b/libselinux/man/man3/selinux_sepgsql_context_path.3
-> > @@ -0,0 +1 @@
-> > +.so man3/selinux_binary_policy_path.3
-> > diff --git a/libselinux/man/man3/setexecfilecon.3 b/libselinux/man/man3=
-/setexecfilecon.3
-> > new file mode 100644
-> > index 00000000..b2e6ab81
-> > --- /dev/null
-> > +++ b/libselinux/man/man3/setexecfilecon.3
-> > @@ -0,0 +1 @@
-> > +.so man3/getexeccon.3
+> > diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c b/python/a=
+udit2allow/sepolgen-ifgen-attr-helper.c
+> > index 6f3ba962..5e6cffc1 100644
+> > --- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> > +++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> > @@ -194,12 +194,14 @@ static policydb_t *load_policy(const char *filena=
+me)
+> >         policydb =3D malloc(sizeof(policydb_t));
+> >         if (policydb =3D=3D NULL) {
+> >                 fprintf(stderr, "Out of memory!\n");
+> > +               fclose(fp);
+> >                 return NULL;
+> >         }
+> >
+> >         if (policydb_init(policydb)) {
+> >                 fprintf(stderr, "Out of memory!\n");
+> >                 free(policydb);
+> > +               fclose(fp);
+> >                 return NULL;
+> >         }
+> >
+> > @@ -208,6 +210,7 @@ static policydb_t *load_policy(const char *filename=
+)
+> >                 fprintf(stderr,
+> >                         "error(s) encountered while parsing configurati=
+on\n");
+> >                 free(policydb);
+> > +               fclose(fp);
+> >                 return NULL;
+> >         }
+> >
 > > --
 > > 2.36.1
 > >
