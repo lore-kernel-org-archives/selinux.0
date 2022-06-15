@@ -2,192 +2,281 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F3AC43334
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 15:06:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91C0CC43334
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 15:25:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241427AbiFOPGV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 11:06:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55138 "EHLO
+        id S241258AbiFOPZP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 11:25:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344340AbiFOPGU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 11:06:20 -0400
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA213AA42
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 08:06:18 -0700 (PDT)
-Received: by mail-il1-x131.google.com with SMTP id a15so8945474ilq.12
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 08:06:18 -0700 (PDT)
+        with ESMTP id S234890AbiFOPZO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 11:25:14 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DF202F03F;
+        Wed, 15 Jun 2022 08:25:13 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id me5so23996307ejb.2;
+        Wed, 15 Jun 2022 08:25:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=j6yW8cSNxyHcKGLBH/RzzZpKDGH+HEQvUp5OHLJ1vSg=;
-        b=nHFIWSpabtnN+Um1pljyrhwwDAfJjxUkuJ6rvWuwYZgQx3aHiUVOzZBoQ315+IY0IK
-         y9sYTVz0n6GHUXTI1hng+qIVv9i00u8NOVnfVbThgFFOBxMJPVRnOoLGZMJaolcOFg0W
-         l4S0cC3C+ob82bPzHmurYZcuzY3FwqJYYvn3E=
+        d=googlemail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Tkasiz2VdFEx0wIyx22YEN0VIlDwF9mGn+ZZCWxv0X4=;
+        b=Ej3+3lHJkoqrYCERFbBloJWL7x0gtbiAOHIPt6xVfXz4N1H4YJxPnXR9311KhRuNfA
+         1otorx9Rk1Bivv5kEkcha+wFfp0O+s4SdEyvvrcSz3euOc2TY+Ggp6Qwvp33ProckBkS
+         xerfFMqKAmD4fh6qx3THmCtQrnNk0wJXnzFOpg+UTh4CfM5rf4Ynypcjk2XAZxMOBKdr
+         ZEyIqLfv0mEGjQebnTr0r78N3wLS51eyhewYAknPGbFjZMhx3GeuUFxZcEUJTKhfKAmv
+         GVD5RhwkzS+LqbBenZ2b5wIVYhjGVWlKk05ajsKrPLNGRV+9tmvsGbf1iJmdxFSADzaB
+         XNCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=j6yW8cSNxyHcKGLBH/RzzZpKDGH+HEQvUp5OHLJ1vSg=;
-        b=emLF2CoVS5OPXCLkBb77ezQeS4bA8MQpcizVb0p5L7zJBvTPBA7zeHH3XpirOMx3v+
-         5SBpA6RgWulOVEUjC0LesEwbiP2IkFPHSsKXLcOZmO+mCOOoICo3h2yofpdZYjPWkdUR
-         J9A4yRhkfqi7LZ9WWqeZktyZBut3dW/CWyPcK012UxCsnKJj/HR/NlsHmxOmvYQoCDAF
-         20AjwAl8QabOrSVT3h72ewBKNTl/+K7kzaVJN/HqPSfeUsS0DARREiRbFYDT8n4ENWHg
-         0b/VazaNYFobN0UUmJfPI44Xp5dzEOafRnfZiSvdmPLdocw2Y0o3HgQNila+DGwq6GDZ
-         iinw==
-X-Gm-Message-State: AJIora+67SLz+fGdFIdlQNymXlNm4uS0yW9jGFiWK7TGqLd33mIS0YbY
-        zFNK2m+RLZrpHsF2jc4bRBpDHqJraq6bFrs7zKNR5Q==
-X-Google-Smtp-Source: AGRyM1vl6hb3B14OhbZ5pyrW5E0uvZJEWyTkyieVnvYbDV9l4KSiSfWp3W3NzE6bbMlKOpxyW1c3ccvo1VZk+jYZkps=
-X-Received: by 2002:a05:6e02:1747:b0:2d3:e571:5058 with SMTP id
- y7-20020a056e02174700b002d3e5715058mr142461ill.309.1655305577283; Wed, 15 Jun
- 2022 08:06:17 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Tkasiz2VdFEx0wIyx22YEN0VIlDwF9mGn+ZZCWxv0X4=;
+        b=4a/Qp4Dhu9kzF6FHMDL20p22OfPIinD+slOOFvxzyNE9t6sBFxFxte8exIzYTaz5l/
+         yA30F2p4i9rTdEL5Jjg8dmmNh/UGBRWpj6UNz4TokIFBRE6xU9EkHsGCUJ3hMuQZMMYH
+         sy3077QsfUOlLGRmP01vF13JfCcEeaMeqUYSf3rzmCWBYxPe/lwqW8PP8EnZtu/ExzM+
+         XWlrd0f/aBk/nMb2aOvOvEQGzZh4clDMpfUrpey2R1imNyJLJ074rpnQhfn16UjbZ5ew
+         RaGUoHK3GgphJtY10nCDZFC9Afx0h0cODr6m2HzPBOSX8emV6JmxVHPYf9r8+DNM2mEV
+         PtQA==
+X-Gm-Message-State: AJIora80E4KRMkU5GsmRjHpuIuhoe0cDhNhQZ/TQSBch7W6VeIiY5rK6
+        uFkJfubcPN2s8Cl+WbRNF/UFNmMStaQcSA==
+X-Google-Smtp-Source: AGRyM1uaw/xtibq0ndbannqRH/v9yCjRHCO8+w5IQ7wp20/tIAiwWj7HTOqMwS6lHcLgs14FDRxUwA==
+X-Received: by 2002:a17:907:1694:b0:716:14a4:fba with SMTP id hc20-20020a170907169400b0071614a40fbamr340602ejc.290.1655306711486;
+        Wed, 15 Jun 2022 08:25:11 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-077-003-151-196.77.3.pool.telefonica.de. [77.3.151.196])
+        by smtp.gmail.com with ESMTPSA id f2-20020a056402004200b0042617ba6396sm9567336edu.32.2022.06.15.08.25.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jun 2022 08:25:10 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3] [RFC PATCH] sched: only perform capability check on privileged operation
+Date:   Wed, 15 Jun 2022 17:25:04 +0200
+Message-Id: <20220615152505.310488-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220502152414.110922-1-cgzones@googlemail.com>
+References: <20220502152414.110922-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20220608150942.776446-1-fred@cloudflare.com> <87tu8oze94.fsf@email.froward.int.ebiederm.org>
- <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com> <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
- <859cb593-9e96-5846-2191-6613677b07c5@cloudflare.com> <87o7yvxl4x.fsf@email.froward.int.ebiederm.org>
- <9ed91f15-420c-3db6-8b3b-85438b02bf97@cloudflare.com> <20220615103031.qkzae4xr34wysj4b@wittgenstein>
- <CAHC9VhR8yPHZb2sCu4JGgXOSs7rudm=9opB+-LsG6_Lta9466A@mail.gmail.com>
-In-Reply-To: <CAHC9VhR8yPHZb2sCu4JGgXOSs7rudm=9opB+-LsG6_Lta9466A@mail.gmail.com>
-From:   Ignat Korchagin <ignat@cloudflare.com>
-Date:   Wed, 15 Jun 2022 16:06:06 +0100
-Message-ID: <CALrw=nGZtrNYn+CV+Q_w-2=Va_9m3C8PDvvPtd01d0tS=2NMWQ@mail.gmail.com>
-Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
-To:     Paul Moore <paul@paul-moore.com>,
-        Christian Brauner <brauner@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Frederick Lawler <fred@cloudflare.com>, linux-doc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>, linux-aio@kvack.org,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org,
-        linux-mm@kvack.org, linux-nfs@vger.kernel.org,
-        linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        netdev <netdev@vger.kernel.org>, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, serge@hallyn.com, amir73il@gmail.com,
-        kernel-team <kernel-team@cloudflare.com>,
-        Jeff Moyer <jmoyer@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 3:14 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Wed, Jun 15, 2022 at 6:30 AM Christian Brauner <brauner@kernel.org> wrote:
-> >
-> > On Tue, Jun 14, 2022 at 01:59:08PM -0500, Frederick Lawler wrote:
-> > > On 6/14/22 11:30 AM, Eric W. Biederman wrote:
-> > > > Frederick Lawler <fred@cloudflare.com> writes:
-> > > >
-> > > > > On 6/13/22 11:44 PM, Eric W. Biederman wrote:
-> > > > > > Frederick Lawler <fred@cloudflare.com> writes:
-> > > > > >
-> > > > > > > Hi Eric,
-> > > > > > >
-> > > > > > > On 6/13/22 12:04 PM, Eric W. Biederman wrote:
-> > > > > > > > Frederick Lawler <fred@cloudflare.com> writes:
-> > > > > > > >
-> > > > > > > > > While experimenting with the security_prepare_creds() LSM hook, we
-> > > > > > > > > noticed that our EPERM error code was not propagated up the callstack.
-> > > > > > > > > Instead ENOMEM is always returned.  As a result, some tools may send a
-> > > > > > > > > confusing error message to the user:
-> > > > > > > > >
-> > > > > > > > > $ unshare -rU
-> > > > > > > > > unshare: unshare failed: Cannot allocate memory
-> > > > > > > > >
-> > > > > > > > > A user would think that the system didn't have enough memory, when
-> > > > > > > > > instead the action was denied.
-> > > > > > > > >
-> > > > > > > > > This problem occurs because prepare_creds() and prepare_kernel_cred()
-> > > > > > > > > return NULL when security_prepare_creds() returns an error code. Later,
-> > > > > > > > > functions calling prepare_creds() and prepare_kernel_cred() return
-> > > > > > > > > ENOMEM because they assume that a NULL meant there was no memory
-> > > > > > > > > allocated.
-> > > > > > > > >
-> > > > > > > > > Fix this by propagating an error code from security_prepare_creds() up
-> > > > > > > > > the callstack.
-> > > > > > > > Why would it make sense for security_prepare_creds to return an error
-> > > > > > > > code other than ENOMEM?
-> > > > > > > >    > That seems a bit of a violation of what that function is supposed to do
-> > > > > > > >
-> > > > > > >
-> > > > > > > The API allows LSM authors to decide what error code is returned from the
-> > > > > > > cred_prepare hook. security_task_alloc() is a similar hook, and has its return
-> > > > > > > code propagated.
-> > > > > > It is not an api.  It is an implementation detail of the linux kernel.
-> > > > > > It is a set of convenient functions that do a job.
-> > > > > > The general rule is we don't support cases without an in-tree user.  I
-> > > > > > don't see an in-tree user.
-> > > > > >
-> > > > > > > I'm proposing we follow security_task_allocs() pattern, and add visibility for
-> > > > > > > failure cases in prepare_creds().
-> > > > > > I am asking why we would want to.  Especially as it is not an API, and I
-> > > > > > don't see any good reason for anything but an -ENOMEM failure to be
-> > > > > > supported.
-> > > > > >
-> > > > > We're writing a LSM BPF policy, and not a new LSM. Our policy aims to solve
-> > > > > unprivileged unshare, similar to Debian's patch [1]. We're in a position such
-> > > > > that we can't use that patch because we can't block _all_ of our applications
-> > > > > from performing an unshare. We prefer a granular approach. LSM BPF seems like a
-> > > > > good choice.
-> > > >
-> > > > I am quite puzzled why doesn't /proc/sys/user/max_user_namespaces work
-> > > > for you?
-> > > >
-> > >
-> > > We have the following requirements:
-> > >
-> > > 1. Allow list criteria
-> > > 2. root user must be able to create namespaces whenever
-> > > 3. Everything else not in 1 & 2 must be denied
-> > >
-> > > We use per task attributes to determine whether or not we allow/deny the
-> > > current call to unshare().
-> > >
-> > > /proc/sys/user/max_user_namespaces limits are a bit broad for this level of
-> > > detail.
-> > >
-> > > > > Because LSM BPF exposes these hooks, we should probably treat them as an
-> > > > > API. From that perspective, userspace expects unshare to return a EPERM
-> > > > > when the call is denied permissions.
-> > > >
-> > > > The BPF code gets to be treated as a out of tree kernel module.
-> > > >
-> > > > > > Without an in-tree user that cares it is probably better to go the
-> > > > > > opposite direction and remove the possibility of return anything but
-> > > > > > memory allocation failure.  That will make it clearer to implementors
-> > > > > > that a general error code is not supported and this is not a location
-> > > > > > to implement policy, this is only a hook to allocate state for the LSM.
-> > > > > >
-> > > > >
-> > > > > That's a good point, and it's possible we're using the wrong hook for the
-> > > > > policy. Do you know of other hooks we can look into?
-> >
-> > Fwiw, from this commit it wasn't very clear what you wanted to achieve
-> > with this. It might be worth considering adding a new security hook for
-> > this. Within msft it recently came up SELinux might have an interest in
-> > something like this as well.
->
-> Just to clarify things a bit, I believe SELinux would have an interest
-> in a LSM hook capable of implementing an access control point for user
-> namespaces regardless of Microsoft's current needs.  I suspect due to
-> the security relevant nature of user namespaces most other LSMs would
-> be interested as well; it seems like a well crafted hook would be
-> welcome by most folks I think.
->
-> --
-> paul-moore.com
+sched_setattr(2) issues via kernel/sched/core.c:__sched_setscheduler()
+a CAP_SYS_NICE audit event unconditionally, even when the requested
+operation does not require that capability / is unprivileged, i.e. for
+reducing niceness.
+This is relevant in connection with SELinux, where a capability check
+results in a policy decision and by default a denial message on
+insufficient permission is issued.
+It can lead to three undesired cases:
+  1. A denial message is generated, even in case the operation was an
+     unprivileged one and thus the syscall succeeded, creating noise.
+  2. To avoid the noise from 1. the policy writer adds a rule to ignore
+     those denial messages, hiding future syscalls, where the task
+     performs an actual privileged operation, leading to hidden limited
+     functionality of that task.
+  3. To avoid the noise from 1. the policy writer adds a rule to allow
+     the task the capability CAP_SYS_NICE, while it does not need it,
+     violating the principle of least privilege.
 
-Just to get the full picture: is there actually a good reason not to
-make this hook support this scenario? I understand it was not
-originally intended for this, but it is well positioned in the code,
-covers multiple subsystems (not only user namespaces), doesn't require
-changing the LSM interface and it already does the job - just the
-kernel internals need to respect the error code better. What bad
-things can happen if we extend its use case to not only allocate
-resources in LSMs?
+Conduct privilged/unprivileged categorization first and perform a
+capable test (and at most once) only if needed.
 
-After all, the original Linus email introducing Linux stated that
-Linux was not intended to be a great OS, but here we are :)
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v3:
+  incorporate feedback from Peter Zijlstra
+  - use is_nice_reduction() in can_nice()
+  - adjust indentation
+v2:
+  add is_nice_reduction() to avoid duplicate capable(CAP_SYS_NICE)
+  checks via can_nice()
+---
+ kernel/sched/core.c | 138 ++++++++++++++++++++++++++------------------
+ 1 file changed, 83 insertions(+), 55 deletions(-)
 
-Ignat
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index bfa7452ca92e..c3647db8872d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6968,17 +6968,29 @@ void set_user_nice(struct task_struct *p, long nice)
+ EXPORT_SYMBOL(set_user_nice);
+ 
+ /*
+- * can_nice - check if a task can reduce its nice value
++ * is_nice_reduction - check if nice value is an actual reduction
++ *
++ * Similar to can_nice() but does not perform a capability check.
++ *
+  * @p: task
+  * @nice: nice value
+  */
+-int can_nice(const struct task_struct *p, const int nice)
++static bool is_nice_reduction(const struct task_struct *p, const int nice)
+ {
+ 	/* Convert nice value [19,-20] to rlimit style value [1,40]: */
+ 	int nice_rlim = nice_to_rlimit(nice);
+ 
+-	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE) ||
+-		capable(CAP_SYS_NICE));
++	return (nice_rlim <= task_rlimit(p, RLIMIT_NICE));
++}
++
++/*
++ * can_nice - check if a task can reduce its nice value
++ * @p: task
++ * @nice: nice value
++ */
++int can_nice(const struct task_struct *p, const int nice)
++{
++	return is_nice_reduction(p, nice) || capable(CAP_SYS_NICE);
+ }
+ 
+ #ifdef __ARCH_WANT_SYS_NICE
+@@ -7257,6 +7269,69 @@ static bool check_same_owner(struct task_struct *p)
+ 	return match;
+ }
+ 
++/*
++ * Allow unprivileged RT tasks to decrease priority.
++ * Only issue a capable test if needed and only once to avoid an audit
++ * event on permitted non-privileged operations:
++ */
++static int user_check_sched_setscheduler(struct task_struct *p,
++					 const struct sched_attr *attr,
++					 int policy, int reset_on_fork)
++{
++	if (fair_policy(policy)) {
++		if (attr->sched_nice < task_nice(p) &&
++		    !is_nice_reduction(p, attr->sched_nice))
++			goto req_priv;
++	}
++
++	if (rt_policy(policy)) {
++		unsigned long rlim_rtprio = task_rlimit(p, RLIMIT_RTPRIO);
++
++		/* Can't set/change the rt policy: */
++		if (policy != p->policy && !rlim_rtprio)
++			goto req_priv;
++
++		/* Can't increase priority: */
++		if (attr->sched_priority > p->rt_priority &&
++		    attr->sched_priority > rlim_rtprio)
++			goto req_priv;
++	}
++
++	/*
++	 * Can't set/change SCHED_DEADLINE policy at all for now
++	 * (safest behavior); in the future we would like to allow
++	 * unprivileged DL tasks to increase their relative deadline
++	 * or reduce their runtime (both ways reducing utilization)
++	 */
++	if (dl_policy(policy))
++		goto req_priv;
++
++	/*
++	 * Treat SCHED_IDLE as nice 20. Only allow a switch to
++	 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
++	 */
++	if (task_has_idle_policy(p) && !idle_policy(policy)) {
++		if (!is_nice_reduction(p, task_nice(p)))
++			goto req_priv;
++	}
++
++	/* Can't change other user's priorities: */
++	if (!check_same_owner(p))
++		goto req_priv;
++
++	/* Normal users shall not reset the sched_reset_on_fork flag: */
++	if (p->sched_reset_on_fork && !reset_on_fork)
++		goto req_priv;
++
++	return 0;
++
++req_priv:
++	if (!capable(CAP_SYS_NICE))
++		return -EPERM;
++
++	return 0;
++}
++
+ static int __sched_setscheduler(struct task_struct *p,
+ 				const struct sched_attr *attr,
+ 				bool user, bool pi)
+@@ -7298,58 +7373,11 @@ static int __sched_setscheduler(struct task_struct *p,
+ 	    (rt_policy(policy) != (attr->sched_priority != 0)))
+ 		return -EINVAL;
+ 
+-	/*
+-	 * Allow unprivileged RT tasks to decrease priority:
+-	 */
+-	if (user && !capable(CAP_SYS_NICE)) {
+-		if (fair_policy(policy)) {
+-			if (attr->sched_nice < task_nice(p) &&
+-			    !can_nice(p, attr->sched_nice))
+-				return -EPERM;
+-		}
+-
+-		if (rt_policy(policy)) {
+-			unsigned long rlim_rtprio =
+-					task_rlimit(p, RLIMIT_RTPRIO);
+-
+-			/* Can't set/change the rt policy: */
+-			if (policy != p->policy && !rlim_rtprio)
+-				return -EPERM;
+-
+-			/* Can't increase priority: */
+-			if (attr->sched_priority > p->rt_priority &&
+-			    attr->sched_priority > rlim_rtprio)
+-				return -EPERM;
+-		}
+-
+-		 /*
+-		  * Can't set/change SCHED_DEADLINE policy at all for now
+-		  * (safest behavior); in the future we would like to allow
+-		  * unprivileged DL tasks to increase their relative deadline
+-		  * or reduce their runtime (both ways reducing utilization)
+-		  */
+-		if (dl_policy(policy))
+-			return -EPERM;
+-
+-		/*
+-		 * Treat SCHED_IDLE as nice 20. Only allow a switch to
+-		 * SCHED_NORMAL if the RLIMIT_NICE would normally permit it.
+-		 */
+-		if (task_has_idle_policy(p) && !idle_policy(policy)) {
+-			if (!can_nice(p, task_nice(p)))
+-				return -EPERM;
+-		}
+-
+-		/* Can't change other user's priorities: */
+-		if (!check_same_owner(p))
+-			return -EPERM;
+-
+-		/* Normal users shall not reset the sched_reset_on_fork flag: */
+-		if (p->sched_reset_on_fork && !reset_on_fork)
+-			return -EPERM;
+-	}
+-
+ 	if (user) {
++		retval = user_check_sched_setscheduler(p, attr, policy, reset_on_fork);
++		if (retval)
++			return retval;
++
+ 		if (attr->sched_flags & SCHED_FLAG_SUGOV)
+ 			return -EINVAL;
+ 
+-- 
+2.36.1
+
