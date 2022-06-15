@@ -2,176 +2,172 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A80CCA47F
-	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 14:15:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68615C43334
+	for <selinux@archiver.kernel.org>; Wed, 15 Jun 2022 14:31:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231311AbiFOOO5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 10:14:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59524 "EHLO
+        id S244347AbiFOObf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 10:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343803AbiFOOOy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 10:14:54 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CD2F31363
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 07:14:51 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id s1so15555180wra.9
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 07:14:50 -0700 (PDT)
+        with ESMTP id S235495AbiFOObf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 10:31:35 -0400
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81E824B1DD
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 07:31:31 -0700 (PDT)
+Received: by mail-ot1-x32e.google.com with SMTP id 111-20020a9d0378000000b0060c2db66d44so8948101otv.6
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 07:31:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TmFspR35i19OaG7kIq4BfP3Z5+5KHooJY8o+wf2Eu7g=;
-        b=hnjS0y0DJB+Pgxck/o6M0KR1CyJPsNohu8wEV1ngzYEvfR3BNgdCgc8bBCjYcSn/q2
-         LGrABHBIuN5wiJVr3vFBZSQoyuo+ow5O4zy8y+xuerraxDm52W00Ql6GN8mxJBK7Aged
-         DMepzdaFMPS1SBM8wU0DjvHn5zjVaCWGHNtmseACjEovZd9TfrOheGRLWXnnpvnFbk3L
-         Oh5JBbb6A+TcxaBr62FlW4W2kMYFlFl4qBPFa5Vljf/kfuiWpPulvsvFhKfMVnlp7H1I
-         /Ewf9GWseGoqqzdlh7+S2YPdnfxgjB6XJIAkXpRzobHf9nGOIaKrkjPQFKm48HdjqWaG
-         xCzw==
+         :cc:content-transfer-encoding;
+        bh=mEof1+r5FN6g8rO/9MHvL6zAU+AsEtzz1vfZ0dtNv8E=;
+        b=j6+7xHwCz6CGC6hC5r3P5vSFFvTDU0S4eYBTDC8WK67vPiINQoVY75yzwIMx0uEY7K
+         79JMhdihyDlS6uNW4r23mpN49COpE6Qd9qdfGa0S2hDuVR0Hza5JSM9hJUTPrB7MLuj8
+         BzLS3FX9tec7V8vOcxyBAadrzyHRij8xC4T04suk9jd8H9kzo6/CddEpKGjdKe+Dqm6e
+         9l38l7dGwJ/gVq+LaoZLggzIB+TpOhfqTO3nUYfpYISO22YS8Pue71lzos/TvUNF2B/4
+         3CzkRbc/nFApRgjqxSBqMKDl4OwBidqLC8DjyvsYNipooKaP8OuAzMyerpSjzNHXgE6j
+         5AHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TmFspR35i19OaG7kIq4BfP3Z5+5KHooJY8o+wf2Eu7g=;
-        b=OkXIekpTv8srJqtV1fVZJ4EcEeYA4r6Z+38GeSEcqfkRqa183NRJd/rZUq5bl2lVoS
-         uGucOsAr52kW5r7i6WNmoy90M0f1tZavqarojZwhGSuHeou3JhJi/KL768A0KA7CMa/k
-         JjYcwsU1A6G5aeLUsbgyC+wKPEP5YEoqAtw6aBq4YkEuIM10EURa8cD13GJ83QVzzRDg
-         R39jTPfu36FdRmo1eCOg1HoeOToQwXBOdky22668fcAVgpm+puPpYoMm5E8lp7T2Aw5W
-         iLTikDOP5Zhy3UuQ3aiRHVpe4qFUvvEpXxRNTnv6zaEjxJMOUhVsWNhbctfYj6XNhcJr
-         jGiA==
-X-Gm-Message-State: AJIora8C6C2tOpdfd1Vw+lrxw1WDTamKUkVCh1ruoRYS7LL+rtZpWknj
-        D5AkGuCw4dptbyLdojTJpUg/ulr1042rAqikH18Y
-X-Google-Smtp-Source: AGRyM1shZLCqZkkSojukqCXaW+5XT6IN8fQuWUaigb52d2YijY5GHtpeOYg1i3lr6LTItEcWJJFmcKwvqWFcwysL51U=
-X-Received: by 2002:a05:6000:1447:b0:21a:278a:181c with SMTP id
- v7-20020a056000144700b0021a278a181cmr27393wrx.161.1655302489487; Wed, 15 Jun
- 2022 07:14:49 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mEof1+r5FN6g8rO/9MHvL6zAU+AsEtzz1vfZ0dtNv8E=;
+        b=I9Tym+CBK9KxdDna+RDZ9BZftMYODUG9i6FmuIdD7sPZSTaAHQ1sBveEphMQnSXIw2
+         7C0Ye1y7/9kTVbBWuThlr4z5c/TAtmuJ9gZ+R9JtNrVRumqMiohAPY6ldfI/VlSfZhAg
+         kdIt6VS8euRIA7oyFnDwiq4rUsHJxZHi0aVE1Iwsc6aOALF7F5FbRFlK5NzTZi0CKxhi
+         IgUPc3ksD4EYJ1f+Nu+utKBLYy02jGKau4Zl9+ZYKqIe1v5PHtrUFvB5qG4gLIARYPCE
+         SL3fvJYOwdz7diiamJmNVj7BmTybxzWD26JxfEeQ+qj4Rlw4SKkvK7O95TopDlh/1r26
+         ODlA==
+X-Gm-Message-State: AJIora/uE6YKU8F8vS9DOMDhXfHLA3yB7KG18wDEVpfm4aMTRh5YQIoG
+        /nqLAMOxYyaOxbdLuSoUeOl/hKWfsjNRtqzpIq8=
+X-Google-Smtp-Source: AGRyM1vgy/WB7i9FhA3IwB5TQhgrOu5nanV2ULcMYpFy9dDg44VXbGcOznWQ5UkrAaJhib6ZnJeUaVgAe36UTqmeRyU=
+X-Received: by 2002:a9d:360a:0:b0:60b:e5b3:4f0c with SMTP id
+ w10-20020a9d360a000000b0060be5b34f0cmr44118otb.117.1655303490521; Wed, 15 Jun
+ 2022 07:31:30 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220608150942.776446-1-fred@cloudflare.com> <87tu8oze94.fsf@email.froward.int.ebiederm.org>
- <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com> <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
- <859cb593-9e96-5846-2191-6613677b07c5@cloudflare.com> <87o7yvxl4x.fsf@email.froward.int.ebiederm.org>
- <9ed91f15-420c-3db6-8b3b-85438b02bf97@cloudflare.com> <20220615103031.qkzae4xr34wysj4b@wittgenstein>
-In-Reply-To: <20220615103031.qkzae4xr34wysj4b@wittgenstein>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 15 Jun 2022 10:14:38 -0400
-Message-ID: <CAHC9VhR8yPHZb2sCu4JGgXOSs7rudm=9opB+-LsG6_Lta9466A@mail.gmail.com>
-Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Frederick Lawler <fred@cloudflare.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-cachefs@redhat.com, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org, linux-mm@kvack.org,
-        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
-        keyrings@vger.kernel.org, selinux@vger.kernel.org,
-        serge@hallyn.com, amir73il@gmail.com, kernel-team@cloudflare.com,
-        Jeff Moyer <jmoyer@redhat.com>
+References: <20220614102029.13006-1-cgzones@googlemail.com> <CAFqZXNt8rPZR-EdKD_yc6xKY0eQLUh51Kj4EpreF-Gek-pJYGA@mail.gmail.com>
+In-Reply-To: <CAFqZXNt8rPZR-EdKD_yc6xKY0eQLUh51Kj4EpreF-Gek-pJYGA@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Wed, 15 Jun 2022 16:31:19 +0200
+Message-ID: <CAJ2a_DfPn777=2zLjGFbCOjP-0JR2n7MwK6gVtU9vbQynuU-LA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] support Dash as default shell
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 6:30 AM Christian Brauner <brauner@kernel.org> wrote:
+On Tue, 14 Jun 2022 at 16:50, Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On Tue, Jun 14, 2022 at 01:59:08PM -0500, Frederick Lawler wrote:
-> > On 6/14/22 11:30 AM, Eric W. Biederman wrote:
-> > > Frederick Lawler <fred@cloudflare.com> writes:
-> > >
-> > > > On 6/13/22 11:44 PM, Eric W. Biederman wrote:
-> > > > > Frederick Lawler <fred@cloudflare.com> writes:
-> > > > >
-> > > > > > Hi Eric,
-> > > > > >
-> > > > > > On 6/13/22 12:04 PM, Eric W. Biederman wrote:
-> > > > > > > Frederick Lawler <fred@cloudflare.com> writes:
-> > > > > > >
-> > > > > > > > While experimenting with the security_prepare_creds() LSM hook, we
-> > > > > > > > noticed that our EPERM error code was not propagated up the callstack.
-> > > > > > > > Instead ENOMEM is always returned.  As a result, some tools may send a
-> > > > > > > > confusing error message to the user:
-> > > > > > > >
-> > > > > > > > $ unshare -rU
-> > > > > > > > unshare: unshare failed: Cannot allocate memory
-> > > > > > > >
-> > > > > > > > A user would think that the system didn't have enough memory, when
-> > > > > > > > instead the action was denied.
-> > > > > > > >
-> > > > > > > > This problem occurs because prepare_creds() and prepare_kernel_cred()
-> > > > > > > > return NULL when security_prepare_creds() returns an error code. Later,
-> > > > > > > > functions calling prepare_creds() and prepare_kernel_cred() return
-> > > > > > > > ENOMEM because they assume that a NULL meant there was no memory
-> > > > > > > > allocated.
-> > > > > > > >
-> > > > > > > > Fix this by propagating an error code from security_prepare_creds() up
-> > > > > > > > the callstack.
-> > > > > > > Why would it make sense for security_prepare_creds to return an error
-> > > > > > > code other than ENOMEM?
-> > > > > > >    > That seems a bit of a violation of what that function is supposed to do
-> > > > > > >
-> > > > > >
-> > > > > > The API allows LSM authors to decide what error code is returned from the
-> > > > > > cred_prepare hook. security_task_alloc() is a similar hook, and has its return
-> > > > > > code propagated.
-> > > > > It is not an api.  It is an implementation detail of the linux kernel.
-> > > > > It is a set of convenient functions that do a job.
-> > > > > The general rule is we don't support cases without an in-tree user.  I
-> > > > > don't see an in-tree user.
-> > > > >
-> > > > > > I'm proposing we follow security_task_allocs() pattern, and add visibility for
-> > > > > > failure cases in prepare_creds().
-> > > > > I am asking why we would want to.  Especially as it is not an API, and I
-> > > > > don't see any good reason for anything but an -ENOMEM failure to be
-> > > > > supported.
-> > > > >
-> > > > We're writing a LSM BPF policy, and not a new LSM. Our policy aims to solve
-> > > > unprivileged unshare, similar to Debian's patch [1]. We're in a position such
-> > > > that we can't use that patch because we can't block _all_ of our applications
-> > > > from performing an unshare. We prefer a granular approach. LSM BPF seems like a
-> > > > good choice.
-> > >
-> > > I am quite puzzled why doesn't /proc/sys/user/max_user_namespaces work
-> > > for you?
-> > >
+> On Tue, Jun 14, 2022 at 12:21 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> > Debian uses Dash as default shell and switching via
 > >
-> > We have the following requirements:
+> >     dpkg-reconfigure dash
 > >
-> > 1. Allow list criteria
-> > 2. root user must be able to create namespaces whenever
-> > 3. Everything else not in 1 & 2 must be denied
+> > has become deprecated.
 > >
-> > We use per task attributes to determine whether or not we allow/deny the
-> > current call to unshare().
-> >
-> > /proc/sys/user/max_user_namespaces limits are a bit broad for this level of
-> > detail.
-> >
-> > > > Because LSM BPF exposes these hooks, we should probably treat them as an
-> > > > API. From that perspective, userspace expects unshare to return a EPERM
-> > > > when the call is denied permissions.
-> > >
-> > > The BPF code gets to be treated as a out of tree kernel module.
-> > >
-> > > > > Without an in-tree user that cares it is probably better to go the
-> > > > > opposite direction and remove the possibility of return anything but
-> > > > > memory allocation failure.  That will make it clearer to implementors
-> > > > > that a general error code is not supported and this is not a location
-> > > > > to implement policy, this is only a hook to allocate state for the LSM.
-> > > > >
-> > > >
-> > > > That's a good point, and it's possible we're using the wrong hook for the
-> > > > policy. Do you know of other hooks we can look into?
+> > * Use POSIX compliant `> target 2>&1` instead of `>& target`.
 >
-> Fwiw, from this commit it wasn't very clear what you wanted to achieve
-> with this. It might be worth considering adding a new security hook for
-> this. Within msft it recently came up SELinux might have an interest in
-> something like this as well.
+> I'm fine with this subset of changes.
+>
+> > * Call runcon directly to avoid a fork within Dash, which breaks tests
+> >   requiring to not change the PID of executing commands
+>
+> I don't seem to have such problem when I change the default shell to
+> dash on Fedora. Can you provide a minimal reproducer?
 
-Just to clarify things a bit, I believe SELinux would have an interest
-in a LSM hook capable of implementing an access control point for user
-namespaces regardless of Microsoft's current needs.  I suspect due to
-the security relevant nature of user namespaces most other LSMs would
-be interested as well; it seems like a well crafted hook would be
-welcome by most folks I think.
 
--- 
-paul-moore.com
+=3D=3D=3D=3D test.pl =3D=3D=3D=3D
+#!/usr/bin/perl
+
+$basedir =3D $0;
+$basedir =3D~ s|(.*)/[^/]*|$1|;
+
+print "current PID: $$\n";
+
+if ( ( $pid =3D fork() ) =3D=3D 0 ) {
+   print "child PID: $$\n";
+   exec "runcon -t unconfined_execmem_t sh -c 'echo >$basedir/flag;
+while :; do :; done'";
+   #alternative: exec 'runcon', '-t', 'unconfined_execmem_t', 'sh',
+'-c', "echo >$basedir/flag; while :; do :; done";
+   exit;
+}
+
+# Wait for it to start.
+#system("bash -c 'read -t 5 <>$basedir/flag'");
+`/bin/bash -c 'read -t 5 <>$basedir/flag'`;
+
+$exists =3D kill 0, $pid;
+if ( $exists ) {
+   print "Process $pid is running:\n";
+   system("pstree -alpZ $pid");
+} else {
+   print "Process $pid is NOT running\n";
+}
+
+# Kill the process.
+kill KILL, $pid;
+
+exit;
+=3D=3D=3D=3D test.pl =3D=3D=3D=3D
+
+normal;
+current PID: 8558
+child PID: 8559
+Process 8559 is running:
+sh,8559,`unconfined_u:unconfined_r:unconfined_execmem_t:s0-s0:c0.c1023
+-c runcon -t unconfined_execmem_t bash -c 'echo >./flag; while :; do
+:; done'
+ =E2=94=94=E2=94=80bash,8561,`unconfined_u:unconfined_r:unconfined_execmem_=
+t:s0-s0:c0.c1023
+-c echo >./flag; while :; do :; done
+
+alternative:
+current PID: 8599
+child PID: 8600
+Process 8600 is running:
+sh,8600,`unconfined_u:unconfined_r:unconfined_execmem_t:s0-s0:c0.c1023
+-c echo >./flag; while :; do :; done
+
+
+> > * Use bash explicitly for non POSIX read option -t
+>
+> I'd like to try to find some nicer alternative for this one first...
+> If I don't find one, then yours will have to do, I guess.
+>
+> Any specific reason why you used `` instead of system()? AFAIK the
+> only difference is that `` return the command's stdout as a string,
+> while system() returns the exit code and forwards stdout.
+>
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  README.md                      |  7 -------
+> >  tests/binder/test              |  2 +-
+> >  tests/bpf/test                 |  4 ++--
+> >  tests/fdreceive/test           |  2 +-
+> >  tests/filesystem/Filesystem.pm | 14 +++++++-------
+> >  tests/inet_socket/test         |  2 +-
+> >  tests/ptrace/test              |  6 +++---
+> >  tests/sctp/test                |  2 +-
+> >  tests/sigkill/test             |  2 +-
+> >  tests/task_getpgid/test        |  6 +++---
+> >  tests/task_getscheduler/test   |  6 +++---
+> >  tests/task_getsid/test         |  6 +++---
+> >  tests/task_setnice/test        |  6 +++---
+> >  tests/task_setscheduler/test   |  6 +++---
+> >  tests/unix_socket/test         |  2 +-
+> >  tests/vsock_socket/test        |  2 +-
+> >  16 files changed, 34 insertions(+), 41 deletions(-)
+> >
+> (snip)
+>
+> --
+> Ondrej Mosnacek
+> Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+>
