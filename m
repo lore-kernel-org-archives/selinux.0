@@ -2,91 +2,161 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB268C433EF
-	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 05:13:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5851FC433EF
+	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 10:01:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242913AbiFPFNg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jun 2022 01:13:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
+        id S1359728AbiFPKBd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jun 2022 06:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229547AbiFPFNg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 01:13:36 -0400
-Received: from sender4-of-o54.zoho.com (sender4-of-o54.zoho.com [136.143.188.54])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6252B13DDF
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 22:13:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1655356412; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=D//SoCs10Kqc4b0CeaSN4CBbWxo1njtKFqExX6gHIPcwJHN42rAKK53ExldHihbpE4G9iLI3DG036eZiOOs415CdGDLBeUZ96DoJolWTjDn7Sb+tJRvwMUiZ15NP2VnrRkxOmbxbIWruBieENhNCpoNsQEVbJDbRlxuzzvii3Sg=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1655356412; h=Content-Type:Content-Transfer-Encoding:Date:From:MIME-Version:Message-ID:Subject:To; 
-        bh=7qyltt/G0cj1E1Qt0QZtftCNr3XBT+Glqm3YSsYdA74=; 
-        b=dTGc7DvYSUjJoiowZ98gwXwdPVpoXKyAJ5GPGjtEpWZu3tNswrtaVg5XiBJx85w7WZAO4/rNzVgqTn/0HkBHkaofjyU1YExFc6lEZZZdu/P4nh4zcIdrRxZVShnLdBPncrBe/3I39KiOsDi3uwTIMAoLN0opVHNH1df2n5A9l2c=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        spf=pass  smtp.mailfrom=business@elijahpepe.com;
-        dmarc=pass header.from=<business@elijahpepe.com>
-Received: from mail.zoho.com by mx.zohomail.com
-        with SMTP id 1655356411806606.0242182896188; Wed, 15 Jun 2022 22:13:31 -0700 (PDT)
-Date:   Wed, 15 Jun 2022 22:13:31 -0700
-From:   Elijah Conners <business@elijahpepe.com>
-To:     "selinux" <selinux@vger.kernel.org>
-Message-ID: <1816aee4f80.1026d4b311254470.8507588530121880177@elijahpepe.com>
-Subject: [PATCH] python: remove IOError in certain cases
+        with ESMTP id S1359757AbiFPKBc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 06:01:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D3C985C875
+        for <selinux@vger.kernel.org>; Thu, 16 Jun 2022 03:01:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655373687;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ozoDvph0K6BA3g6r3howFDfcKnBzIAsGo6PsSlBh0Hw=;
+        b=jPJvbCk1Fs4QEKbBfUY0CsSXuaEffIS2THdlXjxZETykxZGeL6XPo3BhKzq+YKgkgVY5oN
+        Lr/mTaaaV6V+CMXAuPzZDAaBF1s+L5xTJsuFkaXymWqRIyfsncZwOqLeNumD68k30zpQUZ
+        XO/xLuhZBB9cMrjxbkc40jqVWLC4PRs=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-582-5Kr5POu2NiCGtKJPZBWdoA-1; Thu, 16 Jun 2022 06:01:25 -0400
+X-MC-Unique: 5Kr5POu2NiCGtKJPZBWdoA-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-317597643bfso8479877b3.20
+        for <selinux@vger.kernel.org>; Thu, 16 Jun 2022 03:01:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ozoDvph0K6BA3g6r3howFDfcKnBzIAsGo6PsSlBh0Hw=;
+        b=0Vjvaw+ioPi2hTt9NB+HCJ/waBq0+OcOUNtx0C9NqohprNpch5T6rO8ajvWhAQsuTI
+         15063QewOYNBgopctheyGz8kwWnkPwSwWWZrrkuBogbZeITVFUIf9Hg5/Zx1IV5Ucb48
+         2s/ykD22IdQzDkGATr/Lc3xaLgFRCzgBiLY/PRRSva4SOuhYXwCwbCa/Ooaee+Cv2+UU
+         AmM9HLV0uCF5EpEy2+2DlzrCkK1LPGKeheCU9jddfD3089mrFGj5qrG0X8j8Bb9eqLgS
+         CM4EtClhaRu8VGMm9aLHVx+1uN9gsQx1WNswOrFs6KgS+GqyLSxQiX5mAdgxoMd3Fuzf
+         4/cg==
+X-Gm-Message-State: AJIora+SNwZPctWe9im3k0nyfOsHFFfhyQkPLZ5XkxLDjy5k6GlBnGY1
+        5ZpFuK3odpY17u9Xdou3dAODhP2dYj8lobibQv9GguM1t/4iLZxjcFku1QEga52GSXeAJIuxXrD
+        bnjM7n35fXg8xeZJYk9LNysP7JsPpl9IOnQ==
+X-Received: by 2002:a25:5e87:0:b0:660:240c:784 with SMTP id s129-20020a255e87000000b00660240c0784mr4115347ybb.445.1655373684783;
+        Thu, 16 Jun 2022 03:01:24 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1ui7ESU6WffT6qj6SxFCwH4bvODzlCpQFC9BAQpAG52y5btPcyiS2azyJ9nUnq57Yas/SVGBWmfQY4dLiT9YXo=
+X-Received: by 2002:a25:5e87:0:b0:660:240c:784 with SMTP id
+ s129-20020a255e87000000b00660240c0784mr4115323ybb.445.1655373684527; Thu, 16
+ Jun 2022 03:01:24 -0700 (PDT)
 MIME-Version: 1.0
+References: <20220614102029.13006-1-cgzones@googlemail.com>
+ <CAFqZXNt8rPZR-EdKD_yc6xKY0eQLUh51Kj4EpreF-Gek-pJYGA@mail.gmail.com> <CAJ2a_DfPn777=2zLjGFbCOjP-0JR2n7MwK6gVtU9vbQynuU-LA@mail.gmail.com>
+In-Reply-To: <CAJ2a_DfPn777=2zLjGFbCOjP-0JR2n7MwK6gVtU9vbQynuU-LA@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 16 Jun 2022 12:01:13 +0200
+Message-ID: <CAFqZXNuvEazZ96vPiRmNaQ3x7XKc436etGykZnj62_UU7B_jSQ@mail.gmail.com>
+Subject: Re: [PATCH 1/4] support Dash as default shell
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In certain cases, IOError caused the much more general exception OSError
-to be unreachable.
+On Wed, Jun 15, 2022 at 4:31 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> On Tue, 14 Jun 2022 at 16:50, Ondrej Mosnacek <omosnace@redhat.com> wrote=
+:
+> >
+> > On Tue, Jun 14, 2022 at 12:21 PM Christian G=C3=B6ttsche
+> > <cgzones@googlemail.com> wrote:
+> > > Debian uses Dash as default shell and switching via
+> > >
+> > >     dpkg-reconfigure dash
+> > >
+> > > has become deprecated.
+> > >
+> > > * Use POSIX compliant `> target 2>&1` instead of `>& target`.
+> >
+> > I'm fine with this subset of changes.
+> >
+> > > * Call runcon directly to avoid a fork within Dash, which breaks test=
+s
+> > >   requiring to not change the PID of executing commands
+> >
+> > I don't seem to have such problem when I change the default shell to
+> > dash on Fedora. Can you provide a minimal reproducer?
+>
+>
+> =3D=3D=3D=3D test.pl =3D=3D=3D=3D
+> #!/usr/bin/perl
+>
+> $basedir =3D $0;
+> $basedir =3D~ s|(.*)/[^/]*|$1|;
+>
+> print "current PID: $$\n";
+>
+> if ( ( $pid =3D fork() ) =3D=3D 0 ) {
+>    print "child PID: $$\n";
+>    exec "runcon -t unconfined_execmem_t sh -c 'echo >$basedir/flag;
+> while :; do :; done'";
+>    #alternative: exec 'runcon', '-t', 'unconfined_execmem_t', 'sh',
+> '-c', "echo >$basedir/flag; while :; do :; done";
+>    exit;
+> }
+>
+> # Wait for it to start.
+> #system("bash -c 'read -t 5 <>$basedir/flag'");
+> `/bin/bash -c 'read -t 5 <>$basedir/flag'`;
+>
+> $exists =3D kill 0, $pid;
+> if ( $exists ) {
+>    print "Process $pid is running:\n";
+>    system("pstree -alpZ $pid");
+> } else {
+>    print "Process $pid is NOT running\n";
+> }
+>
+> # Kill the process.
+> kill KILL, $pid;
+>
+> exit;
+> =3D=3D=3D=3D test.pl =3D=3D=3D=3D
+>
+> normal;
+> current PID: 8558
+> child PID: 8559
+> Process 8559 is running:
+> sh,8559,`unconfined_u:unconfined_r:unconfined_execmem_t:s0-s0:c0.c1023
+> -c runcon -t unconfined_execmem_t bash -c 'echo >./flag; while :; do
+> :; done'
+>  =E2=94=94=E2=94=80bash,8561,`unconfined_u:unconfined_r:unconfined_execme=
+m_t:s0-s0:c0.c1023
+> -c echo >./flag; while :; do :; done
 
-Signed-off-by: Elijah Conners <business@elijahpepe.com>
----
- python/semanage/semanage | 7 ++-----
- sandbox/sandbox          | 2 --
- 2 files changed, 2 insertions(+), 7 deletions(-)
+Hm, still not able to reproduce this behavior... Perhaps Debian's
+version of dash doesn't implicitly exec the last command like bash and
+Fedora 36's dash seem to do? Can you try if just adding "exec " before
+"runcon" also fixes the issue?
 
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index 1d828128..c7a35fe4 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -970,8 +970,8 @@ def do_parser():
-         devnull = os.open(os.devnull, os.O_WRONLY)
-         os.dup2(devnull, sys.stdout.fileno())
-         sys.exit(1)
--    except IOError as e:
--        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
-+    except OSError as e:
-+        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
-         sys.exit(1)
-     except KeyboardInterrupt:
-         sys.exit(0)
-@@ -981,9 +981,6 @@ def do_parser():
-     except KeyError as e:
-         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
-         sys.exit(1)
--    except OSError as e:
--        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
--        sys.exit(1)
-     except RuntimeError as e:
-         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
-         sys.exit(1)
-diff --git a/sandbox/sandbox b/sandbox/sandbox
-index cd5709fb..1c9379ef 100644
---- a/sandbox/sandbox
-+++ b/sandbox/sandbox
-@@ -533,8 +533,6 @@ if __name__ == '__main__':
-         error_exit(error.args[0])
-     except KeyError as error:
-         error_exit(_("Invalid value %s") % error.args[0])
--    except IOError as error:
--        error_exit(error)
-     except KeyboardInterrupt:
-         rc = 0
- 
--- 
-2.29.2.windows.2
+exec "exec runcon -t unconfined_execmem_t sh -c 'echo >$basedir/flag;
+while :; do :; done'";
+
+>
+> alternative:
+> current PID: 8599
+> child PID: 8600
+> Process 8600 is running:
+> sh,8600,`unconfined_u:unconfined_r:unconfined_execmem_t:s0-s0:c0.c1023
+> -c echo >./flag; while :; do :; done
+
+--
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
