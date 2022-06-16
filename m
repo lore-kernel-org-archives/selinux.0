@@ -2,146 +2,160 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 272E7C433EF
-	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 15:04:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8B68C43334
+	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 15:31:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236304AbiFPPEN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jun 2022 11:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43774 "EHLO
+        id S1377939AbiFPPbO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jun 2022 11:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377758AbiFPPEM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 11:04:12 -0400
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3C7E326E2
-        for <selinux@vger.kernel.org>; Thu, 16 Jun 2022 08:04:10 -0700 (PDT)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-100eb6f7782so2216398fac.2
-        for <selinux@vger.kernel.org>; Thu, 16 Jun 2022 08:04:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=zoPzQU7tFCHKbazE96n62nKhOYL6lpl30iCKAfHWF3k=;
-        b=hzB+iWkLegyX/YVU4Z4Uk20/fD5mQ12Bb87V6Eh8E5BihrifNpR/2Kid3c5IL3kULj
-         /Kav66ARa+qN/N67YFml7VO4vjU3H+d51tIoMenFO1qIG1cNa0TEMy6orpmxvFp0gMGw
-         /kiER4gc6alC0Jl/FnyoXaEN+XA94MiTxlaik=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=zoPzQU7tFCHKbazE96n62nKhOYL6lpl30iCKAfHWF3k=;
-        b=YnJQMZIJrz+206jFltv6/H99bHChlZM6MjPrGFGFLNAZN7bsRaFPBKzAJyfQ8Iu+MG
-         AMHQuwj93zEIndlAwmkSfzTt/PEp4RAZzFziQ6DUVMjVvvb72Is10p2oe2SuczpDq1Wi
-         LESJKI47BfEXMPJ8pSKSJ8A5nwX8N9Ssd5DYNmL3XHMELZ31R5SBaFH+0TtpYarZzmdO
-         LIJ372NAYKcMnFRqzCaHh2qVDdVoaSTnYWP/D+DEhegJvk8PY4AvmwqNf8Hm6GscbRIt
-         TW+vDjLcN9O82Md1KY8sXWldMN/7KWjC02M73UdNmYZFVPQbf8Tx5FpMoAzDnhHy7jCx
-         2G4w==
-X-Gm-Message-State: AJIora8hAJfA3QQP+b7ZDPoxNW5vEsUFS4xnnG1egT22PdC0PdkQjBuC
-        RqJNv4KGVf+ysHZNM2utu0AYmQ==
-X-Google-Smtp-Source: AGRyM1t/ql2JMv1ewpAojMoM3/cs4LVSN9IuvwaxwKyqaHE21iNNhZqbPJBxqQN/Cljh9oFWXsyihg==
-X-Received: by 2002:a05:6870:c181:b0:f1:ea2f:f7f7 with SMTP id h1-20020a056870c18100b000f1ea2ff7f7mr8618905oad.18.1655391849854;
-        Thu, 16 Jun 2022 08:04:09 -0700 (PDT)
-Received: from [192.168.0.41] ([184.4.90.121])
-        by smtp.gmail.com with ESMTPSA id n5-20020a4ab345000000b0035eb4e5a6d6sm1098587ooo.44.2022.06.16.08.04.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Jun 2022 08:04:08 -0700 (PDT)
-Message-ID: <9fe9cd9f-1ded-a179-8ded-5fde8960a586@cloudflare.com>
-Date:   Thu, 16 Jun 2022 10:04:07 -0500
+        with ESMTP id S1377940AbiFPPbK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 11:31:10 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C724D4132A;
+        Thu, 16 Jun 2022 08:31:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1655393466; x=1686929466;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=wj9r9CuSdiIkzUo1Tfr3bxXXszNFSDpXmy9xq7XvWus=;
+  b=jYP7TjveHEazgpWSAjag//eX8xbaBVerWqUJD25kFVOU1zhq/pxXuWns
+   36hNE7cbblc9jewklAG0A9X4dNABEg6JPH/ebv/wlVE99Vj+f1g1M6D3G
+   ElVgWJXRanE7uF2PD1kFjwgqLPurHXRc2EzLGaMK2fL5ji2d5qZMas+JX
+   sWIcjg8qDzxlnKbS2PXGvc7OdFJ3zKc8GNwRL1tAK+PtXqaECpysLGktd
+   DPS74F8KJJn13JuB81uRt7QbcK190NjLqB6zfD27fnPGxN0fh6kt8SrxN
+   tMg3KRgZjxT92PlOt2ilT2v//OahtkUql0wf+Fdscg0DtJmCnvsEwmYLx
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10379"; a="279989356"
+X-IronPort-AV: E=Sophos;i="5.92,305,1650956400"; 
+   d="scan'208";a="279989356"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2022 08:31:06 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.92,305,1650956400"; 
+   d="scan'208";a="762897900"
+Received: from lkp-server01.sh.intel.com (HELO 60dabacc1df6) ([10.239.97.150])
+  by orsmga005.jf.intel.com with ESMTP; 16 Jun 2022 08:31:04 -0700
+Received: from kbuild by 60dabacc1df6 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1o1rSZ-000OUj-RM;
+        Thu, 16 Jun 2022 15:31:03 +0000
+Date:   Thu, 16 Jun 2022 23:30:23 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Xiu Jianfeng <xiujianfeng@huawei.com>, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org
+Cc:     kbuild-all@lists.01.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -next] selinux: Let the caller free the momory in
+ *mnt_opts on error
+Message-ID: <202206162324.W061Fv9o-lkp@intel.com>
+References: <20220616115052.221803-1-xiujianfeng@huawei.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v3] cred: Propagate security_prepare_creds() error code
-Content-Language: en-US
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Ignat Korchagin <ignat@cloudflare.com>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-doc@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>, linux-aio@kvack.org,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org,
-        linux-mm@kvack.org, linux-nfs@vger.kernel.org,
-        linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        netdev <netdev@vger.kernel.org>, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, serge@hallyn.com, amir73il@gmail.com,
-        kernel-team <kernel-team@cloudflare.com>,
-        Jeff Moyer <jmoyer@redhat.com>
-References: <20220608150942.776446-1-fred@cloudflare.com>
- <87tu8oze94.fsf@email.froward.int.ebiederm.org>
- <e1b62234-9b8a-e7c2-2946-5ef9f6f23a08@cloudflare.com>
- <87y1xzyhub.fsf@email.froward.int.ebiederm.org>
- <859cb593-9e96-5846-2191-6613677b07c5@cloudflare.com>
- <87o7yvxl4x.fsf@email.froward.int.ebiederm.org>
- <9ed91f15-420c-3db6-8b3b-85438b02bf97@cloudflare.com>
- <20220615103031.qkzae4xr34wysj4b@wittgenstein>
- <CAHC9VhR8yPHZb2sCu4JGgXOSs7rudm=9opB+-LsG6_Lta9466A@mail.gmail.com>
- <CALrw=nGZtrNYn+CV+Q_w-2=Va_9m3C8PDvvPtd01d0tS=2NMWQ@mail.gmail.com>
- <CAHC9VhRSzXeAZmBdNSAFEh=6XR57ecO7Ov+6BV9b0xVN1YR_Qw@mail.gmail.com>
- <1c4b1c0d-12f6-6e9e-a6a3-cdce7418110c@schaufler-ca.com>
-From:   Frederick Lawler <fred@cloudflare.com>
-In-Reply-To: <1c4b1c0d-12f6-6e9e-a6a3-cdce7418110c@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220616115052.221803-1-xiujianfeng@huawei.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/15/22 10:55 AM, Casey Schaufler wrote:
-> On 6/15/2022 8:33 AM, Paul Moore wrote:
->> On Wed, Jun 15, 2022 at 11:06 AM Ignat Korchagin 
->> <ignat@cloudflare.com> wrote:
->>> On Wed, Jun 15, 2022 at 3:14 PM Paul Moore <paul@paul-moore.com> wrote:
->>>> On Wed, Jun 15, 2022 at 6:30 AM Christian Brauner 
->>>> <brauner@kernel.org> wrote:
->> ...
->>
->>>>> Fwiw, from this commit it wasn't very clear what you wanted to achieve
->>>>> with this. It might be worth considering adding a new security hook 
->>>>> for
->>>>> this. Within msft it recently came up SELinux might have an 
->>>>> interest in
->>>>> something like this as well.
->>>> Just to clarify things a bit, I believe SELinux would have an interest
->>>> in a LSM hook capable of implementing an access control point for user
->>>> namespaces regardless of Microsoft's current needs.  I suspect due to
->>>> the security relevant nature of user namespaces most other LSMs would
->>>> be interested as well; it seems like a well crafted hook would be
->>>> welcome by most folks I think.
->>> Just to get the full picture: is there actually a good reason not to
->>> make this hook support this scenario? I understand it was not
->>> originally intended for this, but it is well positioned in the code,
->>> covers multiple subsystems (not only user namespaces), doesn't require
->>> changing the LSM interface and it already does the job - just the
->>> kernel internals need to respect the error code better. What bad
->>> things can happen if we extend its use case to not only allocate
->>> resources in LSMs?
->> My concern is that the security_prepare_creds() hook, while only
->> called from two different functions, ends up being called for a
->> variety of different uses (look at the prepare_creds() and
->> perpare_kernel_cred() callers) and I think it would be a challenge to
->> identify the proper calling context in the LSM hook implementation
->> given the current hook parameters.  One might be able to modify the
->> hook to pass the necessary information, but I don't think that would
->> be any cleaner than adding a userns specific hook.  I'm also guessing
->> that the modified security_prepare_creds() hook implementations would
->> also be more likely to encounter future maintenance issues as
->> overriding credentials in the kernel seems only to be increasing, and
->> each future caller would risk using the modified hook wrong by passing
->> the wrong context and triggering the wrong behavior in the LSM.
-> 
-> We don't usually have hooks that do both attribute management and
-> access control. Some people seem excessively concerned about "cluttering"
-> calling code with security_something() instances, but for the most
-> part I think we're past that. I agree that making security_prepare_creds()
-> multi-purpose is a bad idea. Shared cred management isn't simple, and
-> adding access checks there is only going to make it worse.
-> 
+Hi Xiu,
 
-Sounds like we've reached the conclusion not to proceed with a v4 of 
-this patch. I'll pivot to propose a new hook instead.
+Thank you for the patch! Perhaps something to improve:
 
-Thanks for the feedback everyone :)
+[auto build test WARNING on next-20220616]
 
-Fred
+url:    https://github.com/intel-lab-lkp/linux/commits/Xiu-Jianfeng/selinux-Let-the-caller-free-the-momory-in-mnt_opts-on-error/20220616-195514
+base:    c6d7e3b385f19869ab96e9404c92ff1abc34f2c8
+config: i386-allyesconfig (https://download.01.org/0day-ci/archive/20220616/202206162324.W061Fv9o-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-3) 11.3.0
+reproduce (this is a W=1 build):
+        # https://github.com/intel-lab-lkp/linux/commit/ea1d224d611591b835ce446dea3e769eb2d5492f
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Xiu-Jianfeng/selinux-Let-the-caller-free-the-momory-in-mnt_opts-on-error/20220616-195514
+        git checkout ea1d224d611591b835ce446dea3e769eb2d5492f
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag where applicable
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+   security/selinux/hooks.c:951: warning: Function parameter or member 'token' not described in 'selinux_add_opt'
+   security/selinux/hooks.c:951: warning: Function parameter or member 's' not described in 'selinux_add_opt'
+   security/selinux/hooks.c:951: warning: Function parameter or member 'mnt_opts' not described in 'selinux_add_opt'
+>> security/selinux/hooks.c:951: warning: expecting prototype for NOTE(). Prototype was for selinux_add_opt() instead
+
+
+vim +951 security/selinux/hooks.c
+
+^1da177e4c3f41 Linus Torvalds   2005-04-16   946  
+ea1d224d611591 Xiu Jianfeng     2022-06-16   947  /**
+ea1d224d611591 Xiu Jianfeng     2022-06-16   948   * NOTE: the caller is resposible for freeing the memory even if on error.
+ea1d224d611591 Xiu Jianfeng     2022-06-16   949   */
+ba6418623385ab Al Viro          2018-12-14   950  static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+^1da177e4c3f41 Linus Torvalds   2005-04-16  @951  {
+bd3236557bb256 Al Viro          2018-12-13   952  	struct selinux_mnt_opts *opts = *mnt_opts;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   953  	u32 *dst_sid;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   954  	int rc;
+c9180a57a9ab2d Eric Paris       2007-11-30   955  
+6cd9d4b9789156 Paul Moore       2021-12-21   956  	if (token == Opt_seclabel)
+6cd9d4b9789156 Paul Moore       2021-12-21   957  		/* eaten and completely ignored */
+169d68efb03b72 Al Viro          2018-12-14   958  		return 0;
+2e08df3c7c4e4e Bernard Zhao     2021-12-10   959  	if (!s)
+ea1d224d611591 Xiu Jianfeng     2022-06-16   960  		return -EINVAL;
+c9180a57a9ab2d Eric Paris       2007-11-30   961  
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   962  	if (!selinux_initialized(&selinux_state)) {
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   963  		pr_warn("SELinux: Unable to set superblock options before the security server is initialized\n");
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   964  		return -EINVAL;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   965  	}
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   966  
+bd3236557bb256 Al Viro          2018-12-13   967  	if (!opts) {
+6cd9d4b9789156 Paul Moore       2021-12-21   968  		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
+bd3236557bb256 Al Viro          2018-12-13   969  		if (!opts)
+bd3236557bb256 Al Viro          2018-12-13   970  			return -ENOMEM;
+ba6418623385ab Al Viro          2018-12-14   971  		*mnt_opts = opts;
+bd3236557bb256 Al Viro          2018-12-13   972  	}
+2e08df3c7c4e4e Bernard Zhao     2021-12-10   973  
+c9180a57a9ab2d Eric Paris       2007-11-30   974  	switch (token) {
+c9180a57a9ab2d Eric Paris       2007-11-30   975  	case Opt_context:
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   976  		if (opts->context_sid || opts->defcontext_sid)
+6cd9d4b9789156 Paul Moore       2021-12-21   977  			goto err;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   978  		dst_sid = &opts->context_sid;
+c9180a57a9ab2d Eric Paris       2007-11-30   979  		break;
+c9180a57a9ab2d Eric Paris       2007-11-30   980  	case Opt_fscontext:
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   981  		if (opts->fscontext_sid)
+6cd9d4b9789156 Paul Moore       2021-12-21   982  			goto err;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   983  		dst_sid = &opts->fscontext_sid;
+c9180a57a9ab2d Eric Paris       2007-11-30   984  		break;
+c9180a57a9ab2d Eric Paris       2007-11-30   985  	case Opt_rootcontext:
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   986  		if (opts->rootcontext_sid)
+6cd9d4b9789156 Paul Moore       2021-12-21   987  			goto err;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   988  		dst_sid = &opts->rootcontext_sid;
+c9180a57a9ab2d Eric Paris       2007-11-30   989  		break;
+c9180a57a9ab2d Eric Paris       2007-11-30   990  	case Opt_defcontext:
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   991  		if (opts->context_sid || opts->defcontext_sid)
+6cd9d4b9789156 Paul Moore       2021-12-21   992  			goto err;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   993  		dst_sid = &opts->defcontext_sid;
+11689d47f09571 David P. Quigley 2009-01-16   994  		break;
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   995  	default:
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   996  		WARN_ON(1);
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   997  		return -EINVAL;
+^1da177e4c3f41 Linus Torvalds   2005-04-16   998  	}
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02   999  	rc = security_context_str_to_sid(&selinux_state, s, dst_sid, GFP_KERNEL);
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1000  	if (rc)
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1001  		pr_warn("SELinux: security_context_str_to_sid (%s) failed with errno=%d\n",
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1002  			s, rc);
+70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1003  	return rc;
+e2e0e09758a6f7 Gen Zhang        2019-06-12  1004  
+6cd9d4b9789156 Paul Moore       2021-12-21  1005  err:
+ba6418623385ab Al Viro          2018-12-14  1006  	pr_warn(SEL_MOUNT_FAIL_MSG);
+ba6418623385ab Al Viro          2018-12-14  1007  	return -EINVAL;
+e0007529893c1c Eric Paris       2008-03-05  1008  }
+^1da177e4c3f41 Linus Torvalds   2005-04-16  1009  
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp
