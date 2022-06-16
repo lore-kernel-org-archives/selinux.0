@@ -2,160 +2,123 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8B68C43334
-	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 15:31:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E7C5C433EF
+	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 18:08:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377939AbiFPPbO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jun 2022 11:31:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40444 "EHLO
+        id S1376878AbiFPSIR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jun 2022 14:08:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377940AbiFPPbK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 11:31:10 -0400
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C724D4132A;
-        Thu, 16 Jun 2022 08:31:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1655393466; x=1686929466;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=wj9r9CuSdiIkzUo1Tfr3bxXXszNFSDpXmy9xq7XvWus=;
-  b=jYP7TjveHEazgpWSAjag//eX8xbaBVerWqUJD25kFVOU1zhq/pxXuWns
-   36hNE7cbblc9jewklAG0A9X4dNABEg6JPH/ebv/wlVE99Vj+f1g1M6D3G
-   ElVgWJXRanE7uF2PD1kFjwgqLPurHXRc2EzLGaMK2fL5ji2d5qZMas+JX
-   sWIcjg8qDzxlnKbS2PXGvc7OdFJ3zKc8GNwRL1tAK+PtXqaECpysLGktd
-   DPS74F8KJJn13JuB81uRt7QbcK190NjLqB6zfD27fnPGxN0fh6kt8SrxN
-   tMg3KRgZjxT92PlOt2ilT2v//OahtkUql0wf+Fdscg0DtJmCnvsEwmYLx
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10379"; a="279989356"
-X-IronPort-AV: E=Sophos;i="5.92,305,1650956400"; 
-   d="scan'208";a="279989356"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2022 08:31:06 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,305,1650956400"; 
-   d="scan'208";a="762897900"
-Received: from lkp-server01.sh.intel.com (HELO 60dabacc1df6) ([10.239.97.150])
-  by orsmga005.jf.intel.com with ESMTP; 16 Jun 2022 08:31:04 -0700
-Received: from kbuild by 60dabacc1df6 with local (Exim 4.95)
-        (envelope-from <lkp@intel.com>)
-        id 1o1rSZ-000OUj-RM;
-        Thu, 16 Jun 2022 15:31:03 +0000
-Date:   Thu, 16 Jun 2022 23:30:23 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Xiu Jianfeng <xiujianfeng@huawei.com>, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org
-Cc:     kbuild-all@lists.01.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -next] selinux: Let the caller free the momory in
- *mnt_opts on error
-Message-ID: <202206162324.W061Fv9o-lkp@intel.com>
-References: <20220616115052.221803-1-xiujianfeng@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220616115052.221803-1-xiujianfeng@huawei.com>
+        with ESMTP id S1359622AbiFPSIP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 14:08:15 -0400
+X-Greylist: delayed 300 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 16 Jun 2022 11:08:11 PDT
+Received: from aib29ajc196.phx1.oracleemaildelivery.com (aib29ajc196.phx1.oracleemaildelivery.com [192.29.103.196])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A42D50015
+        for <selinux@vger.kernel.org>; Thu, 16 Jun 2022 11:08:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=prod-phx-20191217;
+ d=phx1.rp.oracleemaildelivery.com;
+ h=Date:To:From:Subject:Message-Id:MIME-Version:Sender;
+ bh=jeZQtiCBfQxO4hrTX457ReT7Ubn6lDyxl4iWol4JPHo=;
+ b=JlAQmGwC38rvV6MGEYpIEI+YBai8meY3SGNLfW4AHL6B2gCrwV6dtSjRHXuF6vxz3GVJrT7OO+V2
+   DhcQwfgeq1ccIe92ZT0ZP+2vFy628lH4xmh4IsmEKlWq4wND2+YAMMieEQQqE2qswYgyuCaR/ZJi
+   kc+1YrMqMvsTY0hAAysrm/N0Ks5IbWEHPTI4b/l5ZwuOkWBQyILrHwzYUfUsdvsWOBBoDeDO/zxm
+   BvtbWNhV3Nyl+xUzh5KfZXUog0bkIebhUOIclU1PBy0Ld8vOSOCoV7/Y3sWC5/rH4y++VX4cywwF
+   df5yNSqBKHfW4C2d4w+8xuOdlhogqVqJP6DYAA==
+Received: by omta-ad2-fd1-202-us-phoenix-1.omtaad2.vcndpphx.oraclevcn.com
+ (Oracle Communications Messaging Server 8.1.0.1.20220531 64bit (built May 31
+ 2022))
+ with ESMTPS id <0RDL00IP10TA9870@omta-ad2-fd1-202-us-phoenix-1.omtaad2.vcndpphx.oraclevcn.com> for
+ selinux@vger.kernel.org; Thu, 16 Jun 2022 18:03:10 +0000 (GMT)
+Authentication-results: mail.spots.edu (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)" header.d=mx.spots.edu
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mx.spots.edu; h=
+        x-mailer:to:message-id:subject:date:mime-version
+        :content-transfer-encoding:content-type:from; s=dkim; t=        1655402588;
+ x=1657994589; bh=qrGJqDL0n85C+RXuos6MNEDD94sfON4Y7qX   7IId5JqI=;
+ b=nrZmcflYpyKTYKNVcj5UEbSN/xqnG4SHV19RLZ5F+XAl8/meZOa
+        bYEDF0gJC3WXuTBnmHgfxLdAch8keXH9H2yl5UP0snFRIa9uuUtAR8DtTPDjsrNk
+        kotx/0yQp2V2CWfzAUtnug9DBpCJqcIuKAcBRI6cVLmd1v5R1jXduPKc3gSSyBuK
+        2Cs0O88JDZkP3Eqm+ookaGzH/uaB3Ton13v5Wfvd86eTyA5ChZnbOCkykXZ6UKNe
+        4EtUUhBT1lV+omWVwewrcF9d5lroYeSNBcb5KQjNHClcvv/lrQWEgcSlJun7enGL
+        7qvm3rlVEQVTOSKQKb/h3xjkCKPJOGC+4Iw==
+From:   Father Vlasie <fv@spots.edu>
+Content-type: text/plain;       charset=us-ascii
+Content-transfer-encoding: quoted-printable
+MIME-version: 1.0 (Mac OS X Mail 16.0 \(3696.100.31\))
+Date:   Thu, 16 Jun 2022 11:03:04 -0700
+Subject: PHP-FPM restriction bug
+Message-id: <9F285127-0DCC-42F2-B808-63129C440A54@spots.edu>
+To:     selinux@vger.kernel.org
+X-Mailer: Apple Mail (2.3696.100.31)
+Reporting-Meta: AAFJfVELPR+GZlE4BBjN8DMz4vnFqnVa3jkNvffb4TND91w+9O3e/JD9iW0b6jWK
+ newOxGdstboazBl+NelkSBLYJEIc2Z+hVUNovPk3liCHR0eXRIRn9d6Supqb4uNN
+ M/v88VOeZ29JL/9tHYAswWOaQuB066cVzbocuDtiPYLbyt2HTHJoPH36rCh0tKXO
+ gXuLExhpu9Gjr5XjbADAeQ0sfy/T6nx8CKPJERZQARMiyRi17aJRIhx6ktf26foy
+ WH34Kpfq6bRayTt798N4R0DN+ANWTW3fQ06A1TxJ86cm5lo5lTi72LptpUEoTaBF
+ s9LJRuEN8Y7udYt9nJ/09ks/D6T4iHJ7Su79Z3nl2u8lrvNNKiy+2KbqIixVGPfp
+ BEDvdHWGPAYp/7YiJRUumMPZChzVkanWABLDKU1xTzFHaWd5AsPO/Np2Av279iIw
+ fMuGjqJ5O7/zaxMU03sQSMQgAL8ovaGZvwIQ+QJpHvoN92Jd0dgGl1vsdHIb
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Xiu,
+I am trying to run Magento on Oracle Linux 8. I have found php-fpm will =
+not run because of an SELinux policy.
 
-Thank you for the patch! Perhaps something to improve:
+Please see report below:
 
-[auto build test WARNING on next-20220616]
+--------------------------------
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Xiu-Jianfeng/selinux-Let-the-caller-free-the-momory-in-mnt_opts-on-error/20220616-195514
-base:    c6d7e3b385f19869ab96e9404c92ff1abc34f2c8
-config: i386-allyesconfig (https://download.01.org/0day-ci/archive/20220616/202206162324.W061Fv9o-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-3) 11.3.0
-reproduce (this is a W=1 build):
-        # https://github.com/intel-lab-lkp/linux/commit/ea1d224d611591b835ce446dea3e769eb2d5492f
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Xiu-Jianfeng/selinux-Let-the-caller-free-the-momory-in-mnt_opts-on-error/20220616-195514
-        git checkout ea1d224d611591b835ce446dea3e769eb2d5492f
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash
+SELinux is preventing php-fpm from execmod access on the file =
+/usr/sbin/php-fpm.
 
-If you fix the issue, kindly add following tag where applicable
-Reported-by: kernel test robot <lkp@intel.com>
+*****  Plugin catchall (100. confidence) suggests   =
+**************************
 
-All warnings (new ones prefixed by >>):
-
-   security/selinux/hooks.c:951: warning: Function parameter or member 'token' not described in 'selinux_add_opt'
-   security/selinux/hooks.c:951: warning: Function parameter or member 's' not described in 'selinux_add_opt'
-   security/selinux/hooks.c:951: warning: Function parameter or member 'mnt_opts' not described in 'selinux_add_opt'
->> security/selinux/hooks.c:951: warning: expecting prototype for NOTE(). Prototype was for selinux_add_opt() instead
+If you believe that php-fpm should be allowed execmod access on the =
+php-fpm file by default.
+Then you should report this as a bug.
+You can generate a local policy module to allow this access.
+Do
+allow this access for now by executing:
+# ausearch -c 'php-fpm' --raw | audit2allow -M my-phpfpm
+# semodule -X 300 -i my-phpfpm.pp
 
 
-vim +951 security/selinux/hooks.c
+Additional Information:
+Source Context                system_u:system_r:httpd_t:s0
+Target Context                system_u:object_r:httpd_exec_t:s0
+Target Objects                /usr/sbin/php-fpm [ file ]
+Source                        php-fpm
+Source Path                   php-fpm
+Port                          <Unknown>
+Host                          <Unknown>
+Source RPM Packages          =20
+Target RPM Packages           php-
+                              =
+fpm-7.4.19-2.module+el8.6.0+20552+0a59ce9f.aarch64
+SELinux Policy RPM            =
+selinux-policy-targeted-3.14.3-95.0.1.el8.noarch
+Local Policy RPM              =
+selinux-policy-targeted-3.14.3-95.0.1.el8.noarch
+Selinux Enabled               True
+Policy Type                   targeted
+Enforcing Mode                Permissive
+Host Name                     staging
+Platform                      Linux staging =
+5.4.17-2136.308.9.el8uek.aarch64 #2
+                              SMP Mon Jun 13 21:08:46 PDT 2022 aarch64 =
+aarch64
+Alert Count                   1
+First Seen                    2022-06-16 10:47:38 PDT
+Last Seen                     2022-06-16 10:47:38 PDT
+Local ID                      2fe0bf84-2db7-4517-8c7e-4a4156f23d1f
 
-^1da177e4c3f41 Linus Torvalds   2005-04-16   946  
-ea1d224d611591 Xiu Jianfeng     2022-06-16   947  /**
-ea1d224d611591 Xiu Jianfeng     2022-06-16   948   * NOTE: the caller is resposible for freeing the memory even if on error.
-ea1d224d611591 Xiu Jianfeng     2022-06-16   949   */
-ba6418623385ab Al Viro          2018-12-14   950  static int selinux_add_opt(int token, const char *s, void **mnt_opts)
-^1da177e4c3f41 Linus Torvalds   2005-04-16  @951  {
-bd3236557bb256 Al Viro          2018-12-13   952  	struct selinux_mnt_opts *opts = *mnt_opts;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   953  	u32 *dst_sid;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   954  	int rc;
-c9180a57a9ab2d Eric Paris       2007-11-30   955  
-6cd9d4b9789156 Paul Moore       2021-12-21   956  	if (token == Opt_seclabel)
-6cd9d4b9789156 Paul Moore       2021-12-21   957  		/* eaten and completely ignored */
-169d68efb03b72 Al Viro          2018-12-14   958  		return 0;
-2e08df3c7c4e4e Bernard Zhao     2021-12-10   959  	if (!s)
-ea1d224d611591 Xiu Jianfeng     2022-06-16   960  		return -EINVAL;
-c9180a57a9ab2d Eric Paris       2007-11-30   961  
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   962  	if (!selinux_initialized(&selinux_state)) {
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   963  		pr_warn("SELinux: Unable to set superblock options before the security server is initialized\n");
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   964  		return -EINVAL;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   965  	}
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   966  
-bd3236557bb256 Al Viro          2018-12-13   967  	if (!opts) {
-6cd9d4b9789156 Paul Moore       2021-12-21   968  		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-bd3236557bb256 Al Viro          2018-12-13   969  		if (!opts)
-bd3236557bb256 Al Viro          2018-12-13   970  			return -ENOMEM;
-ba6418623385ab Al Viro          2018-12-14   971  		*mnt_opts = opts;
-bd3236557bb256 Al Viro          2018-12-13   972  	}
-2e08df3c7c4e4e Bernard Zhao     2021-12-10   973  
-c9180a57a9ab2d Eric Paris       2007-11-30   974  	switch (token) {
-c9180a57a9ab2d Eric Paris       2007-11-30   975  	case Opt_context:
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   976  		if (opts->context_sid || opts->defcontext_sid)
-6cd9d4b9789156 Paul Moore       2021-12-21   977  			goto err;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   978  		dst_sid = &opts->context_sid;
-c9180a57a9ab2d Eric Paris       2007-11-30   979  		break;
-c9180a57a9ab2d Eric Paris       2007-11-30   980  	case Opt_fscontext:
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   981  		if (opts->fscontext_sid)
-6cd9d4b9789156 Paul Moore       2021-12-21   982  			goto err;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   983  		dst_sid = &opts->fscontext_sid;
-c9180a57a9ab2d Eric Paris       2007-11-30   984  		break;
-c9180a57a9ab2d Eric Paris       2007-11-30   985  	case Opt_rootcontext:
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   986  		if (opts->rootcontext_sid)
-6cd9d4b9789156 Paul Moore       2021-12-21   987  			goto err;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   988  		dst_sid = &opts->rootcontext_sid;
-c9180a57a9ab2d Eric Paris       2007-11-30   989  		break;
-c9180a57a9ab2d Eric Paris       2007-11-30   990  	case Opt_defcontext:
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   991  		if (opts->context_sid || opts->defcontext_sid)
-6cd9d4b9789156 Paul Moore       2021-12-21   992  			goto err;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   993  		dst_sid = &opts->defcontext_sid;
-11689d47f09571 David P. Quigley 2009-01-16   994  		break;
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   995  	default:
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   996  		WARN_ON(1);
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   997  		return -EINVAL;
-^1da177e4c3f41 Linus Torvalds   2005-04-16   998  	}
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02   999  	rc = security_context_str_to_sid(&selinux_state, s, dst_sid, GFP_KERNEL);
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1000  	if (rc)
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1001  		pr_warn("SELinux: security_context_str_to_sid (%s) failed with errno=%d\n",
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1002  			s, rc);
-70f4169ab421b2 Ondrej Mosnacek  2022-02-02  1003  	return rc;
-e2e0e09758a6f7 Gen Zhang        2019-06-12  1004  
-6cd9d4b9789156 Paul Moore       2021-12-21  1005  err:
-ba6418623385ab Al Viro          2018-12-14  1006  	pr_warn(SEL_MOUNT_FAIL_MSG);
-ba6418623385ab Al Viro          2018-12-14  1007  	return -EINVAL;
-e0007529893c1c Eric Paris       2008-03-05  1008  }
-^1da177e4c3f41 Linus Torvalds   2005-04-16  1009  
+Raw Audit Messages
+type=3DAVC msg=3Daudit(1655401658.658:32659): avc:  denied  { execmod } =
+for  pid=3D66257 comm=3D"php-fpm" path=3D"/usr/sbin/php-fpm" dev=3D"dm-0" =
+ino=3D2409990 scontext=3Dsystem_u:system_r:httpd_t:s0 =
+tcontext=3Dsystem_u:object_r:httpd_exec_t:s0 tclass=3Dfile permissive=3D1
 
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+
+Hash: php-fpm,httpd_t,httpd_exec_t,file,execmod=
