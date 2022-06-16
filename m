@@ -2,100 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B73F2CCA473
-	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 03:00:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB268C433EF
+	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 05:13:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355839AbiFPDAX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 23:00:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59948 "EHLO
+        id S242913AbiFPFNg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jun 2022 01:13:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355750AbiFPDAV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 23:00:21 -0400
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74A45A2C3;
-        Wed, 15 Jun 2022 20:00:20 -0700 (PDT)
-Received: by mail-pf1-f174.google.com with SMTP id s37so293663pfg.11;
-        Wed, 15 Jun 2022 20:00:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=kLu0AyZbwG8o8hfD/fv5Wh7BJxHL6y7f8uHQKEJJV6U=;
-        b=k3iAfz3repC7wE79wV5V9jmg7OTywTvZQCS6xd/4rdeiVtRUs0zT9HlIgTw3IePSeR
-         RhNy43WOSAVQPzquN2IkpzIK3DaNPvyghrQKhV8EtL9nTDjnZy8dostvB+cHEdQec+fH
-         Tg1u+9a5gEZUfGxYUqUF6kAk5XJIloDHXEtwOmprLD96Cc4f1TaWyTuKpc7UPOlpIbTh
-         TUyqq8jlRcHsWcnv4FUU3SpHDTyMi7ZzI1cAKHqppeeoQ91cGVaHIuBafjPSSwXfdMDm
-         RrJVihVqm/2zPKAfCvC1Z3fboamcD/gW9o/naihh9dpTp6dWE8IuYZ86uc7S1O7XDPmP
-         XF/A==
-X-Gm-Message-State: AJIora/hGBWpHXq9W1K2Y/z6dQ+HtYNyZaHKLTZzo+xs0Hs3aFn0PFqO
-        4qPQQBd5g1Po6nc3QnU1++4=
-X-Google-Smtp-Source: AGRyM1uRqJci6ZIfCJSBxo3jFrvP6GWbLFgj40m+japCby9a0CiFohY8D+yndlsBrHLluXlD0d2bTA==
-X-Received: by 2002:a63:8a42:0:b0:3fc:f8b5:291f with SMTP id y63-20020a638a42000000b003fcf8b5291fmr2547392pgd.550.1655348420055;
-        Wed, 15 Jun 2022 20:00:20 -0700 (PDT)
-Received: from ?IPV6:2601:647:4000:d7:feaa:14ff:fe9d:6dbd? ([2601:647:4000:d7:feaa:14ff:fe9d:6dbd])
-        by smtp.gmail.com with ESMTPSA id fu13-20020a17090ad18d00b001cb6527ca39sm2582309pjb.0.2022.06.15.20.00.18
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Jun 2022 20:00:19 -0700 (PDT)
-Message-ID: <7fd6f544-0bd2-62fe-bddd-869364f351e8@acm.org>
-Date:   Wed, 15 Jun 2022 20:00:17 -0700
+        with ESMTP id S229547AbiFPFNg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jun 2022 01:13:36 -0400
+Received: from sender4-of-o54.zoho.com (sender4-of-o54.zoho.com [136.143.188.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6252B13DDF
+        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 22:13:34 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1655356412; cv=none; 
+        d=zohomail.com; s=zohoarc; 
+        b=D//SoCs10Kqc4b0CeaSN4CBbWxo1njtKFqExX6gHIPcwJHN42rAKK53ExldHihbpE4G9iLI3DG036eZiOOs415CdGDLBeUZ96DoJolWTjDn7Sb+tJRvwMUiZ15NP2VnrRkxOmbxbIWruBieENhNCpoNsQEVbJDbRlxuzzvii3Sg=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+        t=1655356412; h=Content-Type:Content-Transfer-Encoding:Date:From:MIME-Version:Message-ID:Subject:To; 
+        bh=7qyltt/G0cj1E1Qt0QZtftCNr3XBT+Glqm3YSsYdA74=; 
+        b=dTGc7DvYSUjJoiowZ98gwXwdPVpoXKyAJ5GPGjtEpWZu3tNswrtaVg5XiBJx85w7WZAO4/rNzVgqTn/0HkBHkaofjyU1YExFc6lEZZZdu/P4nh4zcIdrRxZVShnLdBPncrBe/3I39KiOsDi3uwTIMAoLN0opVHNH1df2n5A9l2c=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+        spf=pass  smtp.mailfrom=business@elijahpepe.com;
+        dmarc=pass header.from=<business@elijahpepe.com>
+Received: from mail.zoho.com by mx.zohomail.com
+        with SMTP id 1655356411806606.0242182896188; Wed, 15 Jun 2022 22:13:31 -0700 (PDT)
+Date:   Wed, 15 Jun 2022 22:13:31 -0700
+From:   Elijah Conners <business@elijahpepe.com>
+To:     "selinux" <selinux@vger.kernel.org>
+Message-ID: <1816aee4f80.1026d4b311254470.8507588530121880177@elijahpepe.com>
+Subject: [PATCH] python: remove IOError in certain cases
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH v3 3/8] block: use new capable_any functionality
-Content-Language: en-US
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Serge Hallyn <serge@hallyn.com>,
-        Alistair Delva <adelva@google.com>,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-References: <20220502160030.131168-8-cgzones@googlemail.com>
- <20220615152623.311223-1-cgzones@googlemail.com>
- <20220615152623.311223-2-cgzones@googlemail.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20220615152623.311223-2-cgzones@googlemail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/15/22 08:26, Christian Göttsche wrote:
-> Use the new added capable_any function in appropriate cases, where a
-> task is required to have any of two capabilities.
-> 
-> Reorder CAP_SYS_ADMIN last.
-> 
-> Fixes: 94c4b4fd25e6 ("block: Check ADMIN before NICE for IOPRIO_CLASS_RT")
-> 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> ---
-> v3:
->     rename to capable_any()
-> ---
->   block/ioprio.c | 9 +--------
->   1 file changed, 1 insertion(+), 8 deletions(-)
-> 
-> diff --git a/block/ioprio.c b/block/ioprio.c
-> index 2fe068fcaad5..6441c052f837 100644
-> --- a/block/ioprio.c
-> +++ b/block/ioprio.c
-> @@ -37,14 +37,7 @@ int ioprio_check_cap(int ioprio)
->   
->   	switch (class) {
->   		case IOPRIO_CLASS_RT:
-> -			/*
-> -			 * Originally this only checked for CAP_SYS_ADMIN,
-> -			 * which was implicitly allowed for pid 0 by security
-> -			 * modules such as SELinux. Make sure we check
-> -			 * CAP_SYS_ADMIN first to avoid a denial/avc for
-> -			 * possibly missing CAP_SYS_NICE permission.
-> -			 */
-> -			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
-> +			if (!capable_any(CAP_SYS_NICE, CAP_SYS_ADMIN))
->   				return -EPERM;
->   			fallthrough;
->   			/* rt has prio field too */
+In certain cases, IOError caused the much more general exception OSError
+to be unreachable.
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Elijah Conners <business@elijahpepe.com>
+---
+ python/semanage/semanage | 7 ++-----
+ sandbox/sandbox          | 2 --
+ 2 files changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/python/semanage/semanage b/python/semanage/semanage
+index 1d828128..c7a35fe4 100644
+--- a/python/semanage/semanage
++++ b/python/semanage/semanage
+@@ -970,8 +970,8 @@ def do_parser():
+         devnull = os.open(os.devnull, os.O_WRONLY)
+         os.dup2(devnull, sys.stdout.fileno())
+         sys.exit(1)
+-    except IOError as e:
+-        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
++    except OSError as e:
++        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
+         sys.exit(1)
+     except KeyboardInterrupt:
+         sys.exit(0)
+@@ -981,9 +981,6 @@ def do_parser():
+     except KeyError as e:
+         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
+         sys.exit(1)
+-    except OSError as e:
+-        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
+-        sys.exit(1)
+     except RuntimeError as e:
+         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
+         sys.exit(1)
+diff --git a/sandbox/sandbox b/sandbox/sandbox
+index cd5709fb..1c9379ef 100644
+--- a/sandbox/sandbox
++++ b/sandbox/sandbox
+@@ -533,8 +533,6 @@ if __name__ == '__main__':
+         error_exit(error.args[0])
+     except KeyError as error:
+         error_exit(_("Invalid value %s") % error.args[0])
+-    except IOError as error:
+-        error_exit(error)
+     except KeyboardInterrupt:
+         rc = 0
+ 
+-- 
+2.29.2.windows.2
