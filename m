@@ -2,105 +2,100 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A62EC43334
-	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 01:23:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B73F2CCA473
+	for <selinux@archiver.kernel.org>; Thu, 16 Jun 2022 03:00:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236585AbiFPBXm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jun 2022 21:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58610 "EHLO
+        id S1355839AbiFPDAX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jun 2022 23:00:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346887AbiFPBXk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 21:23:40 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63DA437BCA
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 18:23:39 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id m16-20020a7bca50000000b0039c8a224c95so75383wml.2
-        for <selinux@vger.kernel.org>; Wed, 15 Jun 2022 18:23:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5beKOIePOHDcSdyCTJnmbPVPydJjL0ifJ6rL5/iJBz4=;
-        b=W+O0kqWD2r/3gK92AEWBFlvFIJue6uqA3PrZMX4Q6693Jzb4GMFxgTlunh3+ZkcQxr
-         5kmHYdCWigvCHbxAYmzcSP72st71IX8zRIkZiKpBLFn3sBVkHWrNJBcqsnU5AXJynz03
-         0T7HhXj4M5jY2RlSL25dG5tEbmP8C3tScX+2tFyk03rNEQuq90wPJjsEEOjFjOLE2nfS
-         xmlYu6vElG2xoop9i3xbuqJMPmuSV298KmGui2jyHMj2TL8+dOVIbWU3MSNCwL0/168+
-         +mHrZCWiL5Z+RJhInV3TPvYLbTSCRS0iq4IEvdLwpa9fnSJZvW4+BSVxirJhTFNkF+nt
-         LSaQ==
+        with ESMTP id S1355750AbiFPDAV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jun 2022 23:00:21 -0400
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74A45A2C3;
+        Wed, 15 Jun 2022 20:00:20 -0700 (PDT)
+Received: by mail-pf1-f174.google.com with SMTP id s37so293663pfg.11;
+        Wed, 15 Jun 2022 20:00:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5beKOIePOHDcSdyCTJnmbPVPydJjL0ifJ6rL5/iJBz4=;
-        b=Ui1/9a8Zv3pbCWcOFg5+xEfhYKR2FVJOpEs2kwqEDXldHkpqXt0TKJzgRbOCgr2l+N
-         OOzbxU8IdWFE+LKFXiZCHyOMS34aobyXiDPE99xaFxeJsXyEUV7yO2u2g+qFNXwPcpQY
-         1V9jWU4GHR3Rf3tKgdGEzFUL4c0Ezn5cbnT24WlGpPHfo/qhzcNEJsfOUbPwLVxGzpoQ
-         odqZm9ENv2l37uXsYA4268WF57hijvdCFsg4OggLBMxUQ9A0Cn2J5SoLeV1g8efutpWN
-         46Xy8meGzc0aQCqB/XmAigm3AFUGEufP8QBMhzrCzE5DuUVny8lblGFC8Gvn44AiXMYd
-         1fZA==
-X-Gm-Message-State: AOAM530PfBqiPGFuybb7gQurS+dijJPMTtVHhtEZGOBAgZjBUJdbwEHE
-        IfGfaKxoAtwXsBkAMcw+K75ww6NoDfrkjcYuCigchjJBfc3T
-X-Google-Smtp-Source: ABdhPJy+tpSnfCS++5eS83lIi55ozR3xGVf3kOSfVcclfH7we/r63ukXv3HxoJqnYQDpNc2yek4PBRLvdrqRobj7Ek0=
-X-Received: by 2002:a05:600c:1c24:b0:39c:6530:2a60 with SMTP id
- j36-20020a05600c1c2400b0039c65302a60mr12778063wms.78.1655342617944; Wed, 15
- Jun 2022 18:23:37 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=kLu0AyZbwG8o8hfD/fv5Wh7BJxHL6y7f8uHQKEJJV6U=;
+        b=k3iAfz3repC7wE79wV5V9jmg7OTywTvZQCS6xd/4rdeiVtRUs0zT9HlIgTw3IePSeR
+         RhNy43WOSAVQPzquN2IkpzIK3DaNPvyghrQKhV8EtL9nTDjnZy8dostvB+cHEdQec+fH
+         Tg1u+9a5gEZUfGxYUqUF6kAk5XJIloDHXEtwOmprLD96Cc4f1TaWyTuKpc7UPOlpIbTh
+         TUyqq8jlRcHsWcnv4FUU3SpHDTyMi7ZzI1cAKHqppeeoQ91cGVaHIuBafjPSSwXfdMDm
+         RrJVihVqm/2zPKAfCvC1Z3fboamcD/gW9o/naihh9dpTp6dWE8IuYZ86uc7S1O7XDPmP
+         XF/A==
+X-Gm-Message-State: AJIora/hGBWpHXq9W1K2Y/z6dQ+HtYNyZaHKLTZzo+xs0Hs3aFn0PFqO
+        4qPQQBd5g1Po6nc3QnU1++4=
+X-Google-Smtp-Source: AGRyM1uRqJci6ZIfCJSBxo3jFrvP6GWbLFgj40m+japCby9a0CiFohY8D+yndlsBrHLluXlD0d2bTA==
+X-Received: by 2002:a63:8a42:0:b0:3fc:f8b5:291f with SMTP id y63-20020a638a42000000b003fcf8b5291fmr2547392pgd.550.1655348420055;
+        Wed, 15 Jun 2022 20:00:20 -0700 (PDT)
+Received: from ?IPV6:2601:647:4000:d7:feaa:14ff:fe9d:6dbd? ([2601:647:4000:d7:feaa:14ff:fe9d:6dbd])
+        by smtp.gmail.com with ESMTPSA id fu13-20020a17090ad18d00b001cb6527ca39sm2582309pjb.0.2022.06.15.20.00.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Jun 2022 20:00:19 -0700 (PDT)
+Message-ID: <7fd6f544-0bd2-62fe-bddd-869364f351e8@acm.org>
+Date:   Wed, 15 Jun 2022 20:00:17 -0700
 MIME-Version: 1.0
-References: <20220615153839.314007-1-cgzones@googlemail.com>
-In-Reply-To: <20220615153839.314007-1-cgzones@googlemail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 15 Jun 2022 21:23:27 -0400
-Message-ID: <CAHC9VhSAUEYas_dEdn6BLaKO7RiaCQpaucXLf4yM0OrMSZo8bw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: free contexts previously transferred in selinux_add_opt()
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH v3 3/8] block: use new capable_any functionality
+Content-Language: en-US
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, Serge Hallyn <serge@hallyn.com>,
+        Alistair Delva <adelva@google.com>,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+References: <20220502160030.131168-8-cgzones@googlemail.com>
+ <20220615152623.311223-1-cgzones@googlemail.com>
+ <20220615152623.311223-2-cgzones@googlemail.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20220615152623.311223-2-cgzones@googlemail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 11:39 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> `selinux_add_opt()` stopped taking ownership of the passed context since
-> commit 70f4169ab421 ("selinux: parse contexts for mount options early").
->
->     unreferenced object 0xffff888114dfd140 (size 64):
->       comm "mount", pid 15182, jiffies 4295687028 (age 796.340s)
->       hex dump (first 32 bytes):
->         73 79 73 74 65 6d 5f 75 3a 6f 62 6a 65 63 74 5f  system_u:object_
->         72 3a 74 65 73 74 5f 66 69 6c 65 73 79 73 74 65  r:test_filesyste
->       backtrace:
->         [<ffffffffa07dbef4>] kmemdup_nul+0x24/0x80
->         [<ffffffffa0d34253>] selinux_sb_eat_lsm_opts+0x293/0x560
->         [<ffffffffa0d13f08>] security_sb_eat_lsm_opts+0x58/0x80
->         [<ffffffffa0af1eb2>] generic_parse_monolithic+0x82/0x180
->         [<ffffffffa0a9c1a5>] do_new_mount+0x1f5/0x550
->         [<ffffffffa0a9eccb>] path_mount+0x2ab/0x1570
->         [<ffffffffa0aa019e>] __x64_sys_mount+0x20e/0x280
->         [<ffffffffa1f47124>] do_syscall_64+0x34/0x80
->         [<ffffffffa200007e>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
->
->     unreferenced object 0xffff888108e71640 (size 64):
->       comm "fsmount", pid 7607, jiffies 4295044974 (age 1601.016s)
->       hex dump (first 32 bytes):
->         73 79 73 74 65 6d 5f 75 3a 6f 62 6a 65 63 74 5f  system_u:object_
->         72 3a 74 65 73 74 5f 66 69 6c 65 73 79 73 74 65  r:test_filesyste
->       backtrace:
->         [<ffffffff861dc2b1>] memdup_user+0x21/0x90
->         [<ffffffff861dc367>] strndup_user+0x47/0xa0
->         [<ffffffff864f6965>] __do_sys_fsconfig+0x485/0x9f0
->         [<ffffffff87940124>] do_syscall_64+0x34/0x80
->         [<ffffffff87a0007e>] entry_SYSCALL_64_after_hwframe+0x46/0xb0
->
-> Fixes: 70f4169ab421 ("selinux: parse contexts for mount options early")
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On 6/15/22 08:26, Christian Göttsche wrote:
+> Use the new added capable_any function in appropriate cases, where a
+> task is required to have any of two capabilities.
+> 
+> Reorder CAP_SYS_ADMIN last.
+> 
+> Fixes: 94c4b4fd25e6 ("block: Check ADMIN before NICE for IOPRIO_CLASS_RT")
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/hooks.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
+> v3:
+>     rename to capable_any()
+> ---
+>   block/ioprio.c | 9 +--------
+>   1 file changed, 1 insertion(+), 8 deletions(-)
+> 
+> diff --git a/block/ioprio.c b/block/ioprio.c
+> index 2fe068fcaad5..6441c052f837 100644
+> --- a/block/ioprio.c
+> +++ b/block/ioprio.c
+> @@ -37,14 +37,7 @@ int ioprio_check_cap(int ioprio)
+>   
+>   	switch (class) {
+>   		case IOPRIO_CLASS_RT:
+> -			/*
+> -			 * Originally this only checked for CAP_SYS_ADMIN,
+> -			 * which was implicitly allowed for pid 0 by security
+> -			 * modules such as SELinux. Make sure we check
+> -			 * CAP_SYS_ADMIN first to avoid a denial/avc for
+> -			 * possibly missing CAP_SYS_NICE permission.
+> -			 */
+> -			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
+> +			if (!capable_any(CAP_SYS_NICE, CAP_SYS_ADMIN))
+>   				return -EPERM;
+>   			fallthrough;
+>   			/* rt has prio field too */
 
-Thanks Christian, I've merged this into selinux/stable-5.19 and I'll
-send this up to Linus once the automated tests come back clean.
-
---=20
-paul-moore.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
