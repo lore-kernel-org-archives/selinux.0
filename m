@@ -2,114 +2,59 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C5C5C43334
-	for <selinux@archiver.kernel.org>; Mon, 20 Jun 2022 18:04:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8103DC433EF
+	for <selinux@archiver.kernel.org>; Mon, 20 Jun 2022 22:22:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243531AbiFTSE0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jun 2022 14:04:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52268 "EHLO
+        id S1344489AbiFTWWc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jun 2022 18:22:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241816AbiFTSEZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jun 2022 14:04:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0C2F818E3B
-        for <selinux@vger.kernel.org>; Mon, 20 Jun 2022 11:04:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655748262;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+Dw3q+UtAIcrY99nyvOl4suwhXmLj8Er3gWExG5Sdqw=;
-        b=BOpft8lMjxEA3hKEC21Zld7+3Wvktcj7t8oxuwH0mOR4Xi0y3xOwQ64SkrS9FwxqrZADYT
-        uqSDtemAkCRof1py4EELq8IFsvSmz1bqiPZQktfVqXu2pP/C5kLm8O/1MdyHW3aQzL1cI4
-        o3gjHtv5GBnLCadHWQrvAH0Kg6Hj4OU=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-362-pj_wQ_iMO-iDEUTTM8OcQg-1; Mon, 20 Jun 2022 14:04:18 -0400
-X-MC-Unique: pj_wQ_iMO-iDEUTTM8OcQg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 87E121097AEE;
-        Mon, 20 Jun 2022 18:04:18 +0000 (UTC)
-Received: from localhost (unknown [10.40.193.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 33A9F492C3B;
-        Mon, 20 Jun 2022 18:04:18 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Elijah Conners <business@elijahpepe.com>,
-        selinux <selinux@vger.kernel.org>
+        with ESMTP id S1344450AbiFTWWN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jun 2022 18:22:13 -0400
+Received: from sender4-of-o53.zoho.com (sender4-of-o53.zoho.com [136.143.188.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882391FCD0
+        for <selinux@vger.kernel.org>; Mon, 20 Jun 2022 15:21:31 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1655763688; cv=none; 
+        d=zohomail.com; s=zohoarc; 
+        b=CqxXpqmGuSpoRCZtJHy3geLG+7+9aH8RCLjh3RoaXiQ6j930OmzbHjzBkAIvNG9QsuwSzNdPDe5fW7ipPLVOh68aDHve5gfmeLtki7MFc8ACuH8ARYPxsDm7fxkFpb3W7yARd5tgeG1/NWd7YWIaatHlYW/3SfwICX5tqI/XqNw=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+        t=1655763688; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=a0K27eVUac+96+Fq25FOURy3+ZtdV2iEkSC7VwcYYYc=; 
+        b=b7FwrcMqvrp/ZxMkiwJWgc+KrhmpOJ9VwfUnQUya/Lb9N0hvzvTjEj1flBMRWg9xMQBg0oLoVyO0m30UugZG3MASGez07ruo90prGm7Ly7TCS77f4SsMlEscDaFz1w2RxUJEJeixYg0xWhnB4svHNH4naYlkz+BnGn/fo3LqpCg=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+        spf=pass  smtp.mailfrom=business@elijahpepe.com;
+        dmarc=pass header.from=<business@elijahpepe.com>
+Received: from mail.zoho.com by mx.zohomail.com
+        with SMTP id 1655763685644758.1226300240223; Mon, 20 Jun 2022 15:21:25 -0700 (PDT)
+Date:   Mon, 20 Jun 2022 15:21:25 -0700
+From:   Elijah Conners <business@elijahpepe.com>
+To:     "Petr Lautrbach" <plautrba@redhat.com>
+Cc:     "selinux" <selinux@vger.kernel.org>
+Message-ID: <1818334d0f5.f7cac46b398301.621270242316399821@elijahpepe.com>
+In-Reply-To: <87letrrz32.fsf@redhat.com>
+References: <1816aee4f80.1026d4b311254470.8507588530121880177@elijahpepe.com> <87letrrz32.fsf@redhat.com>
 Subject: Re: [PATCH] python: remove IOError in certain cases
-In-Reply-To: <1816aee4f80.1026d4b311254470.8507588530121880177@elijahpepe.com>
-References: <1816aee4f80.1026d4b311254470.8507588530121880177@elijahpepe.com>
-Date:   Mon, 20 Jun 2022 20:04:17 +0200
-Message-ID: <87letrrz32.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Elijah Conners <business@elijahpepe.com> writes:
+On Mon, 20 Jun 2022 11:04:17 -0700  Petr Lautrbach <plautrba@redhat.com> wrote
+> Could you please provide more details about the certain cases,
+> preferably with a reproducer?
 
-> In certain cases, IOError caused the much more general exception OSError
-> to be unreachable.
->
-> Signed-off-by: Elijah Conners <business@elijahpepe.com>
+Yes, I can. In this patch, I change two files: python/semanage/semanage and sandbox/sandbox
 
-Could you please provide more details about the certain cases,
-preferably with a reproducer?
+In sandbox/sandbox, IOError is unreachable as OSError always takes precedence, so it serves as useless code. The ambiguous nature of IOError and OSError, despite both serving the same purpose, is why I've submitted this patch.
+
+To reproduce, if the Sandbox() function were to be called, and an IOError occurred, OSError would handle the error_exit, not IOError (which is fine enough, since both exceptions lead to the same result, but IOError is redundant here).
+
+On the contrary, if an OSError exception occurred in the createCommandParser() function in python/semanage/semanage file while attempting to call do_parser(), since IOError is an alias of OSError in 3.3, the IOError exception would actually take precedence over the OSError exception. I'm not entirely sure what version SELinux is attempting to target, but the try except block in do_parser() is ambiguous and its implementation should be reconsidered. In that file, I've had OSError directly handle the exception. This, however, does change this function a little bit; the second argument will be displayed as an error, not the error itself. This might need to be changed.
 
 Thanks,
-
-Petr
-
-
-
-> ---
->  python/semanage/semanage | 7 ++-----
->  sandbox/sandbox          | 2 --
->  2 files changed, 2 insertions(+), 7 deletions(-)
->
-> diff --git a/python/semanage/semanage b/python/semanage/semanage
-> index 1d828128..c7a35fe4 100644
-> --- a/python/semanage/semanage
-> +++ b/python/semanage/semanage
-> @@ -970,8 +970,8 @@ def do_parser():
->          devnull = os.open(os.devnull, os.O_WRONLY)
->          os.dup2(devnull, sys.stdout.fileno())
->          sys.exit(1)
-> -    except IOError as e:
-> -        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
-> +    except OSError as e:
-> +        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
->          sys.exit(1)
->      except KeyboardInterrupt:
->          sys.exit(0)
-> @@ -981,9 +981,6 @@ def do_parser():
->      except KeyError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
->          sys.exit(1)
-> -    except OSError as e:
-> -        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
-> -        sys.exit(1)
->      except RuntimeError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
->          sys.exit(1)
-> diff --git a/sandbox/sandbox b/sandbox/sandbox
-> index cd5709fb..1c9379ef 100644
-> --- a/sandbox/sandbox
-> +++ b/sandbox/sandbox
-> @@ -533,8 +533,6 @@ if __name__ == '__main__':
->          error_exit(error.args[0])
->      except KeyError as error:
->          error_exit(_("Invalid value %s") % error.args[0])
-> -    except IOError as error:
-> -        error_exit(error)
->      except KeyboardInterrupt:
->          rc = 0
->  
-> -- 
-> 2.29.2.windows.2
-
+Elijah
