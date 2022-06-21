@@ -2,123 +2,91 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4079C433EF
-	for <selinux@archiver.kernel.org>; Tue, 21 Jun 2022 13:24:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC8F7C43334
+	for <selinux@archiver.kernel.org>; Tue, 21 Jun 2022 15:31:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232707AbiFUNYE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jun 2022 09:24:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52490 "EHLO
+        id S1351921AbiFUPbN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jun 2022 11:31:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351410AbiFUNXX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jun 2022 09:23:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 29623DF75
-        for <selinux@vger.kernel.org>; Tue, 21 Jun 2022 06:23:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1655817801;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UB/ttOui23WdnyqzUDbf/aED7t+RJZ7NKQaBZqY+fMs=;
-        b=BE6Oh+aYKR/2HHdIutT8DC9mWtcc1dOtvJfkCFX8m8/Q1/Z4mAg29ELQOmHlNtHdUtcBSy
-        UMFUKsx3Q6qQuNw2PH7YHYSWHOP67VzGw/RPXtcBLkb5xVZ8WfiWrgQmiwCGqCl7434fHm
-        w9C9JWgU1Pt9Gn9Go13hJOwoXkqYEHA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-641-z_g_6akTMIKKZLKVjnHU5Q-1; Tue, 21 Jun 2022 09:23:17 -0400
-X-MC-Unique: z_g_6akTMIKKZLKVjnHU5Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7C265811E75;
-        Tue, 21 Jun 2022 13:23:17 +0000 (UTC)
-Received: from localhost (unknown [10.40.193.179])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 256471121314;
-        Tue, 21 Jun 2022 13:23:16 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        James Carter <jwcart2@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Subject: Re: [PATCH] checkpolicy: error out if required permission would
- exceed limit
-In-Reply-To: <CAJ2a_Df8QY92WENiLMcpiayr_QgJP-pyckb5XWcsb-i8YjhqVA@mail.gmail.com>
-References: <20220610150637.21133-1-cgzones@googlemail.com>
- <CAP+JOzSYuPN-W-qsruMq1xGjUq-kwf_WXxz0VZAt1q_9sRY5cw@mail.gmail.com>
- <CAJ2a_Df8QY92WENiLMcpiayr_QgJP-pyckb5XWcsb-i8YjhqVA@mail.gmail.com>
-Date:   Tue, 21 Jun 2022 15:23:16 +0200
-Message-ID: <87ilourvzv.fsf@redhat.com>
+        with ESMTP id S1351717AbiFUPbL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jun 2022 11:31:11 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02C2A2AE35
+        for <selinux@vger.kernel.org>; Tue, 21 Jun 2022 08:31:09 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id j5-20020a05600c1c0500b0039c5dbbfa48so9519050wms.5
+        for <selinux@vger.kernel.org>; Tue, 21 Jun 2022 08:31:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=YT/g1l+EhzOy6M+nS+bPwU5QfP9vQQuvmLes4FWs9nA=;
+        b=zm+1B948VVBoC9zdmS3mRHOhlTzOOstEX1Msg5XVi49sfVCOnSIpk8b2dkPB7fCY+b
+         Goajm2o/+0sxjayYUUrpCaauVigP981n/ef88s3lg6Uqd5IfgNwqM53vWLn6uYW44CJO
+         lkW+eFe9poXybTn/y6UBnLxcT0pP53FHB87n0FydsMHrArcwuEOqj0Ylj1LCz2b+ZhfP
+         Kx7dzCo3ZOFJQwnU+k51JdhWtP75KrzU6M7WiyIbwxRqRT05baeCa9ONMuUMG7eAPqW4
+         f8ljW+lxxbIxsxEiA4J/qXviadQuo9KvaXEr4SF9Om93jcCcnr4DsHENocUxEsi/XAcw
+         VsDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YT/g1l+EhzOy6M+nS+bPwU5QfP9vQQuvmLes4FWs9nA=;
+        b=t0yFpmAKVxC5XriAnA/6st+g6lk7QVlG7oOP/5/b5pLke4MdkEkYT/9DKHuUPPWlNs
+         9VrAqvAoBfp9bGS4dNfr4fjrNwFBD5WaUqQeu+Mig1gAXkHCztuF1LpMbACSgW8WUDtY
+         vJAQotmJvflPPdDnoCFDrsWuideOyqwEz+GNVIWjpUp+1ox1HWx47p8axadWK+x7eORt
+         thONgr4ns2nhjG+7JlWmyoVOFuTTF0pz+NMBKo4+sY33RY14p9b+yGC3oV3Tgc4+BARz
+         LOA8lJKhu8Sj9INvxLUnJvdZqr0XsaYJ/WPz7Iz12u4WiQPgsJ2KXJDGE3AxqgNsRiSp
+         5ujg==
+X-Gm-Message-State: AJIora/QZlqaXcSe+LhMqWimRH8ZrRJ4ydTbuUtzwoqNuwULbCPQV63e
+        wbx+vmEsou1GpFoBBR2o8mnF8Ls4oL+HED84sIcJ
+X-Google-Smtp-Source: AGRyM1tFlJzbaN0YRLI5nskwlap9strrp/mdu6n5GbB1zR8mMrlXwMjuJjoJ9Y5PdA6fFEJb3dRbMrNRS3BfacwgBKA=
+X-Received: by 2002:a05:600c:2215:b0:39c:55a0:9531 with SMTP id
+ z21-20020a05600c221500b0039c55a09531mr30734498wml.29.1655825467479; Tue, 21
+ Jun 2022 08:31:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
+References: <20220621063824.241527-1-xiujianfeng@huawei.com>
+In-Reply-To: <20220621063824.241527-1-xiujianfeng@huawei.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 21 Jun 2022 11:30:56 -0400
+Message-ID: <CAHC9VhTXf=L97d9zuMOXr0JOm-vVgifJx7cSOJT+wLZZ7uA=gg@mail.gmail.com>
+Subject: Re: [PATCH -next] selinux: Cleanup the enum SEL_COMPAT_NET
+To:     Xiu Jianfeng <xiujianfeng@huawei.com>
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
-
-> On Wed, 15 Jun 2022 at 20:18, James Carter <jwcart2@gmail.com> wrote:
->>
->> On Fri, Jun 10, 2022 at 11:12 AM Christian G=C3=B6ttsche
->> <cgzones@googlemail.com> wrote:
->> >
->> > A require statement for a class permission adds that permission to the
->> > class representation for the current module.  In case the resulting
->> > class would have more than the supported amount of 32 permissions
->> > assigned the resulting binary module will fail to load at link-time
->> > without an informative error message (since [1]).
->> >
->> > Bail out if adding a permission would result in a class having more th=
-en
+On Tue, Jun 21, 2022 at 2:40 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
 >
-> s/then/than/
+> The "compat_net" compatibility code has been removed since commit
+> 58bfbb51ff2b ("selinux: Remove the "compat_net" compatibility code"),
+> so SEL_COMPAT_NET need to be removed as well.
+>
+> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+> ---
+>  security/selinux/selinuxfs.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 8fcdd494af27..7115ca91ec05 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -58,7 +58,6 @@ enum sel_inos {
+>         SEL_DISABLE,    /* disable SELinux until next reboot */
+>         SEL_MEMBER,     /* compute polyinstantiation membership decision */
+>         SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
+> -       SEL_COMPAT_NET, /* whether to use old compat network packet controls */
+>         SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
+>         SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
+>         SEL_STATUS,     /* export current status using mmap() */
 
-Merged, thanks!
+Thanks for the patch, but keeping the old enum value is harmless
+considering the size of sel_inos and I would rather see it preserved
+just on the odd chance that some userspace tool is relying on specific
+inode values.
 
-
->> > the supported amount of 32 permissions assigned.
->> >
->> > [1]: https://github.com/SELinuxProject/selinux/commit/97af65f69644a323=
-3d073ae93980a0d2e51f42e1
->> >
->> > Closes: https://github.com/SELinuxProject/selinux/issues/356
->> > Reported-by: Julie Pichon
->> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->>
->> Acked-by: James Carter <jwcart2@gmail.com>
->>
->> > ---
->> >  checkpolicy/module_compiler.c | 8 ++++++++
->> >  1 file changed, 8 insertions(+)
->> >
->> > diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compil=
-er.c
->> > index 129650fa..3188af89 100644
->> > --- a/checkpolicy/module_compiler.c
->> > +++ b/checkpolicy/module_compiler.c
->> > @@ -851,6 +851,14 @@ int require_class(int pass)
->> >                                 free(perm_id);
->> >                                 return -1;
->> >                         }
->> > +                       if (datum->permissions.nprim >=3D PERM_SYMTAB_=
-SIZE) {
->> > +                               yyerror2("Class %s would have too many=
- permissions "
->> > +                                        "to fit in an access vector w=
-ith permission %s",
->> > +                                        policydbp->p_class_val_to_nam=
-e[datum->s.value - 1],
->> > +                                        perm_id);
->> > +                               free(perm_id);
->> > +                               return -1;
->> > +                       }
->> >                         allocated =3D 1;
->> >                         if ((perm =3D malloc(sizeof(*perm))) =3D=3D NU=
-LL) {
->> >                                 yyerror("Out of memory!");
->> > --
->> > 2.36.1
->> >
-
+-- 
+paul-moore.com
