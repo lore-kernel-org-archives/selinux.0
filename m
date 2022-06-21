@@ -2,64 +2,123 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 613AAC433EF
-	for <selinux@archiver.kernel.org>; Tue, 21 Jun 2022 06:40:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4079C433EF
+	for <selinux@archiver.kernel.org>; Tue, 21 Jun 2022 13:24:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345570AbiFUGkg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jun 2022 02:40:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53332 "EHLO
+        id S232707AbiFUNYE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jun 2022 09:24:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242106AbiFUGkg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jun 2022 02:40:36 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91E491900A;
-        Mon, 20 Jun 2022 23:40:34 -0700 (PDT)
-Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4LRxgs3ChgzkWcr;
-        Tue, 21 Jun 2022 14:39:21 +0800 (CST)
-Received: from ubuntu1804.huawei.com (10.67.174.58) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 21 Jun 2022 14:40:32 +0800
-From:   Xiu Jianfeng <xiujianfeng@huawei.com>
-To:     <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
-        <eparis@parisplace.org>
-CC:     <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH -next] selinux: Cleanup the enum SEL_COMPAT_NET
-Date:   Tue, 21 Jun 2022 14:38:24 +0800
-Message-ID: <20220621063824.241527-1-xiujianfeng@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S1351410AbiFUNXX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jun 2022 09:23:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 29623DF75
+        for <selinux@vger.kernel.org>; Tue, 21 Jun 2022 06:23:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655817801;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UB/ttOui23WdnyqzUDbf/aED7t+RJZ7NKQaBZqY+fMs=;
+        b=BE6Oh+aYKR/2HHdIutT8DC9mWtcc1dOtvJfkCFX8m8/Q1/Z4mAg29ELQOmHlNtHdUtcBSy
+        UMFUKsx3Q6qQuNw2PH7YHYSWHOP67VzGw/RPXtcBLkb5xVZ8WfiWrgQmiwCGqCl7434fHm
+        w9C9JWgU1Pt9Gn9Go13hJOwoXkqYEHA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-641-z_g_6akTMIKKZLKVjnHU5Q-1; Tue, 21 Jun 2022 09:23:17 -0400
+X-MC-Unique: z_g_6akTMIKKZLKVjnHU5Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7C265811E75;
+        Tue, 21 Jun 2022 13:23:17 +0000 (UTC)
+Received: from localhost (unknown [10.40.193.179])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 256471121314;
+        Tue, 21 Jun 2022 13:23:16 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        James Carter <jwcart2@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Subject: Re: [PATCH] checkpolicy: error out if required permission would
+ exceed limit
+In-Reply-To: <CAJ2a_Df8QY92WENiLMcpiayr_QgJP-pyckb5XWcsb-i8YjhqVA@mail.gmail.com>
+References: <20220610150637.21133-1-cgzones@googlemail.com>
+ <CAP+JOzSYuPN-W-qsruMq1xGjUq-kwf_WXxz0VZAt1q_9sRY5cw@mail.gmail.com>
+ <CAJ2a_Df8QY92WENiLMcpiayr_QgJP-pyckb5XWcsb-i8YjhqVA@mail.gmail.com>
+Date:   Tue, 21 Jun 2022 15:23:16 +0200
+Message-ID: <87ilourvzv.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.174.58]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpeml500023.china.huawei.com (7.185.36.114)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The "compat_net" compatibility code has been removed since commit
-58bfbb51ff2b ("selinux: Remove the "compat_net" compatibility code"),
-so SEL_COMPAT_NET need to be removed as well.
+Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
 
-Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
----
- security/selinux/selinuxfs.c | 1 -
- 1 file changed, 1 deletion(-)
+> On Wed, 15 Jun 2022 at 20:18, James Carter <jwcart2@gmail.com> wrote:
+>>
+>> On Fri, Jun 10, 2022 at 11:12 AM Christian G=C3=B6ttsche
+>> <cgzones@googlemail.com> wrote:
+>> >
+>> > A require statement for a class permission adds that permission to the
+>> > class representation for the current module.  In case the resulting
+>> > class would have more than the supported amount of 32 permissions
+>> > assigned the resulting binary module will fail to load at link-time
+>> > without an informative error message (since [1]).
+>> >
+>> > Bail out if adding a permission would result in a class having more th=
+en
+>
+> s/then/than/
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8fcdd494af27..7115ca91ec05 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -58,7 +58,6 @@ enum sel_inos {
- 	SEL_DISABLE,	/* disable SELinux until next reboot */
- 	SEL_MEMBER,	/* compute polyinstantiation membership decision */
- 	SEL_CHECKREQPROT, /* check requested protection, not kernel-applied one */
--	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
- 	SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
- 	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
- 	SEL_STATUS,	/* export current status using mmap() */
--- 
-2.17.1
+Merged, thanks!
+
+
+>> > the supported amount of 32 permissions assigned.
+>> >
+>> > [1]: https://github.com/SELinuxProject/selinux/commit/97af65f69644a323=
+3d073ae93980a0d2e51f42e1
+>> >
+>> > Closes: https://github.com/SELinuxProject/selinux/issues/356
+>> > Reported-by: Julie Pichon
+>> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>>
+>> Acked-by: James Carter <jwcart2@gmail.com>
+>>
+>> > ---
+>> >  checkpolicy/module_compiler.c | 8 ++++++++
+>> >  1 file changed, 8 insertions(+)
+>> >
+>> > diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compil=
+er.c
+>> > index 129650fa..3188af89 100644
+>> > --- a/checkpolicy/module_compiler.c
+>> > +++ b/checkpolicy/module_compiler.c
+>> > @@ -851,6 +851,14 @@ int require_class(int pass)
+>> >                                 free(perm_id);
+>> >                                 return -1;
+>> >                         }
+>> > +                       if (datum->permissions.nprim >=3D PERM_SYMTAB_=
+SIZE) {
+>> > +                               yyerror2("Class %s would have too many=
+ permissions "
+>> > +                                        "to fit in an access vector w=
+ith permission %s",
+>> > +                                        policydbp->p_class_val_to_nam=
+e[datum->s.value - 1],
+>> > +                                        perm_id);
+>> > +                               free(perm_id);
+>> > +                               return -1;
+>> > +                       }
+>> >                         allocated =3D 1;
+>> >                         if ((perm =3D malloc(sizeof(*perm))) =3D=3D NU=
+LL) {
+>> >                                 yyerror("Out of memory!");
+>> > --
+>> > 2.36.1
+>> >
 
