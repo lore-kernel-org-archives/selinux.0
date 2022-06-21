@@ -2,59 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8103DC433EF
-	for <selinux@archiver.kernel.org>; Mon, 20 Jun 2022 22:22:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A514BC433EF
+	for <selinux@archiver.kernel.org>; Tue, 21 Jun 2022 01:22:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344489AbiFTWWc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jun 2022 18:22:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38066 "EHLO
+        id S238710AbiFUBWR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jun 2022 21:22:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344450AbiFTWWN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jun 2022 18:22:13 -0400
-Received: from sender4-of-o53.zoho.com (sender4-of-o53.zoho.com [136.143.188.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882391FCD0
-        for <selinux@vger.kernel.org>; Mon, 20 Jun 2022 15:21:31 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1655763688; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=CqxXpqmGuSpoRCZtJHy3geLG+7+9aH8RCLjh3RoaXiQ6j930OmzbHjzBkAIvNG9QsuwSzNdPDe5fW7ipPLVOh68aDHve5gfmeLtki7MFc8ACuH8ARYPxsDm7fxkFpb3W7yARd5tgeG1/NWd7YWIaatHlYW/3SfwICX5tqI/XqNw=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1655763688; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=a0K27eVUac+96+Fq25FOURy3+ZtdV2iEkSC7VwcYYYc=; 
-        b=b7FwrcMqvrp/ZxMkiwJWgc+KrhmpOJ9VwfUnQUya/Lb9N0hvzvTjEj1flBMRWg9xMQBg0oLoVyO0m30UugZG3MASGez07ruo90prGm7Ly7TCS77f4SsMlEscDaFz1w2RxUJEJeixYg0xWhnB4svHNH4naYlkz+BnGn/fo3LqpCg=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        spf=pass  smtp.mailfrom=business@elijahpepe.com;
-        dmarc=pass header.from=<business@elijahpepe.com>
-Received: from mail.zoho.com by mx.zohomail.com
-        with SMTP id 1655763685644758.1226300240223; Mon, 20 Jun 2022 15:21:25 -0700 (PDT)
-Date:   Mon, 20 Jun 2022 15:21:25 -0700
-From:   Elijah Conners <business@elijahpepe.com>
-To:     "Petr Lautrbach" <plautrba@redhat.com>
-Cc:     "selinux" <selinux@vger.kernel.org>
-Message-ID: <1818334d0f5.f7cac46b398301.621270242316399821@elijahpepe.com>
-In-Reply-To: <87letrrz32.fsf@redhat.com>
-References: <1816aee4f80.1026d4b311254470.8507588530121880177@elijahpepe.com> <87letrrz32.fsf@redhat.com>
-Subject: Re: [PATCH] python: remove IOError in certain cases
+        with ESMTP id S238705AbiFUBWP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jun 2022 21:22:15 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A2D6395
+        for <selinux@vger.kernel.org>; Mon, 20 Jun 2022 18:22:14 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id o8so16810010wro.3
+        for <selinux@vger.kernel.org>; Mon, 20 Jun 2022 18:22:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iGjjY3HwOIbttDwUviSsDQPsfAs3UUDt07n3f4W7ebQ=;
+        b=hnD5iao8QXyX4Am/IkpwLe36L0lhcFXUS9xABII7VIuDsCodgNb9mLuww/8hvhAQ+U
+         dURvI7VLHfSpnufrdyDrHeMM5PYellEIW7LsmQ+COuxxgo+evSCiCFouKZJfw6l4uL11
+         ASLeErBCwWndAVyF2EuOX+uK632Op8J3u8vq6ZhedSixDg8Tw2pq48sL0imLE9RFfM0Z
+         sbro9vvE7qH6o5Bl5+8zcxPeDCqpNklnbANFwGnOXgN9jghips19+aIUwdslj8p6MVGj
+         Xj329321iOTelgM4m7YEeEuhvqG+j+0XGOP/95Pd3HSuPMgnVLJ1HP3QomhQefqB7hdV
+         WOvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iGjjY3HwOIbttDwUviSsDQPsfAs3UUDt07n3f4W7ebQ=;
+        b=LDQqd9s67No+b43TFUXk+886IPza6lHhC8+gmlLdlCWa+wx4oIZ7luCu8qWTspuvjs
+         2k5v/8KQQfMdkEbsmUrQb/Nov2FCOUykGmmKeTi1cb4Eu+x1J6O6Kr5nkU19JCyR/nvu
+         QbNThiurvP0HnimR/VqZyNBysBE9MU+QaYM8JEOmBgHATXlkq5UTGWjCOurkukXzNHnS
+         /hlEKUeZbH8x4gxPWXrmZ9BxfLehOERtRq1LmSgRH0qA56e9BpfnNdRWa4HijBs9EKcA
+         T+3i3oYWG+FimT/W/va/NOWzJTOiX2Z0aI1sMMlOM5TRWFZRzbcMrEWuHrzKgpl3jVrH
+         lmMw==
+X-Gm-Message-State: AJIora83+NJUKu0nJTLHCh6yKBl5Qu7OGNuHqgOzhZ4/GvCxvvZ+7Vw4
+        UsNvyLasqvB+hRrTJMDTRwXbUoi6DN0n2gtMDcLc/ARmjw==
+X-Google-Smtp-Source: AGRyM1srvmz0sxYpUL+j7hh3Nxp9SHP3Rpo4co7pFbz2Zx5Ri5/ae/iUzcou5p1/HoxjxoYMy50uLEJPD/myCX07iXE=
+X-Received: by 2002:a5d:4848:0:b0:21b:8cda:5747 with SMTP id
+ n8-20020a5d4848000000b0021b8cda5747mr9405276wrs.483.1655774532923; Mon, 20
+ Jun 2022 18:22:12 -0700 (PDT)
 MIME-Version: 1.0
+References: <20220617094412.197479-1-xiujianfeng@huawei.com>
+In-Reply-To: <20220617094412.197479-1-xiujianfeng@huawei.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 20 Jun 2022 21:22:02 -0400
+Message-ID: <CAHC9VhTD0Z=9M_7TRBoOUDgNigLyYCW2SgNAtaZdPj8nJNCV2Q@mail.gmail.com>
+Subject: Re: [PATCH RESEND -next] selinux: Let the caller free the momory in
+ *mnt_opts on error
+To:     Xiu Jianfeng <xiujianfeng@huawei.com>
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 20 Jun 2022 11:04:17 -0700  Petr Lautrbach <plautrba@redhat.com> wrote
-> Could you please provide more details about the certain cases,
-> preferably with a reproducer?
+On Fri, Jun 17, 2022 at 5:46 AM Xiu Jianfeng <xiujianfeng@huawei.com> wrote:
+>
+> It may allocate memory for @mnt_opts if NULL in selinux_add_opt(), and
+> now some error paths goto @err label to free memory while others don't,
+> as suggested by Paul, don't free memory in case of error and let the
+> caller to cleanup on error.
+>
+> And also this patch changes the @s NULL check to return -EINVAL instead.
+>
+> Link: https://lore.kernel.org/lkml/20220611090550.135674-1-xiujianfeng@huawei.com/T/
+> Suggested-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+> ---
+>  security/selinux/hooks.c | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
 
-Yes, I can. In this patch, I change two files: python/semanage/semanage and sandbox/sandbox
+Thanks, merged into selinux/next with some rewording of the subject
+line and commit description.
 
-In sandbox/sandbox, IOError is unreachable as OSError always takes precedence, so it serves as useless code. The ambiguous nature of IOError and OSError, despite both serving the same purpose, is why I've submitted this patch.
-
-To reproduce, if the Sandbox() function were to be called, and an IOError occurred, OSError would handle the error_exit, not IOError (which is fine enough, since both exceptions lead to the same result, but IOError is redundant here).
-
-On the contrary, if an OSError exception occurred in the createCommandParser() function in python/semanage/semanage file while attempting to call do_parser(), since IOError is an alias of OSError in 3.3, the IOError exception would actually take precedence over the OSError exception. I'm not entirely sure what version SELinux is attempting to target, but the try except block in do_parser() is ambiguous and its implementation should be reconsidered. In that file, I've had OSError directly handle the exception. This, however, does change this function a little bit; the second argument will be displayed as an error, not the error itself. This might need to be changed.
-
-Thanks,
-Elijah
+-- 
+paul-moore.com
