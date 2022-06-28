@@ -2,56 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED65CCA47B
-	for <selinux@archiver.kernel.org>; Tue, 28 Jun 2022 01:10:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC0AEC43334
+	for <selinux@archiver.kernel.org>; Tue, 28 Jun 2022 01:10:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241727AbiF1BKj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S241752AbiF1BKj (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Mon, 27 Jun 2022 21:10:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37638 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241375AbiF1BKh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jun 2022 21:10:37 -0400
-Received: from sonic304-28.consmr.mail.ne1.yahoo.com (sonic304-28.consmr.mail.ne1.yahoo.com [66.163.191.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8A122BDC
-        for <selinux@vger.kernel.org>; Mon, 27 Jun 2022 18:10:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1656378634; bh=d2AZFBkxP9+t+hI8o1br7sFS1euNhHyUWMYU7J/f0uI=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=U8Xg/bdHp7SZgXnt8iiNX/e+8Yt/0XUO0uZSS7vKUeSTW65BsJhCQgxf9lOKtwEreJ4zMVlncm2q1Cwl8j5otvLWFiO7akAoecXhLN81TNw83ppamJ/6q1IiGxPaHWN73mjoGbsCzdywU+yg2f/mZJuj/wdHp+msnjUID5HC2TBqmenG11IECwofQGOedPawH/OtrNn4akCwmhMHe3kbrHcr+o5IRShWOCWhIjx3WhlGkNn89yJk4EvgOlVR9PZcQdyuLRJjsb0WtGhUhSJuBeSfyLWdhDwnD1/6WUl0hkFH/GVxz9pXRiU1JZwjaeJoaXYplVVM8qgobreg+Sb6Jg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1656378634; bh=7mR1+yjsZfiJOWVu7teps0jEx5GlJML0R8ndmJQmrk5=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=TQ8KDe4G0q1UyHhfHr79ILds9y9JUGSsJDWilqudG6VSDDRdVBbF0fS7954FwONvK7npDcRvgQMnnq10NrItj/7+i/sIBLaCjPJv2vsIm4ehTUEYLnm66JECI1T/OETlM0VLxFXdafsPTPHRo4SW35UGeySBiXoIHSiNv1bE3Eqa3tOITxyn5ALKu83reG16adqPRUe0jbwhRInj1tnp9ju/GE8lRSfYzhr2SC44tJ9Zl7s3lk6b6F/8UTQhDp+IY2DwV9aTYV84nuYu3jSYo7atrf1J7a1LxXhFlyWayP+PGNPkmU+JZ4y0GcCjEOKM/JKSY2uzRHBU8zBUcgWMAA==
-X-YMail-OSG: PWJKTvQVM1m0LaNnzeyV5SiZKnQe6p5ZH_o3JvdCR.UyeC5BxTqSQA6sFjav.jV
- TrLHy8uetLOAp5tVAwRgb.nX7RYxFKIUyAPagY1oF.EJMVRDEafesrpWVG5Mnz1FEym9DmujE68o
- 24HNxzxZBiQrCvdniwV9kc2Yypx2.WvwgYWqC_MmMXmMgoVLahHnYi616ezmdwDDt771AzTnk2eo
- IR6fRFSC1DA3wD9gWJYsWo_R02Yi5p1CmAWRyqTE5Cjynit1k8LQtn6_Tk4gKe0B_34LuoFWoJQ8
- kiwR36bGk8I_KVCCiYeZt.4z0wInXRj67XvHHQ5TOcYG0jOJp2NjCAi0cS3j5p7D0pjFz7Zj57qS
- rzPtKy469MU_GMXN4VAhvt3PmiQHcg61g4rwZ5cN9S_3L8KK.vjBHvJmrIYwe5yFfAOTrS.Xr3TM
- IYQxzjh2qm6ZKX53zKagu4tZ2_xSvRBKPAAqAL_sPJgm4V.33ctHeBTjEg0Xm1E8.J2ilm5UoBYF
- ka1xhOnB0VSKXQCj3cxuecfQjJDtZe4qrXJQzxG_Tk9BmMiVOgxbm_3pU4tyULHO4ApEAEuNcLA8
- eVDvpn1YnKrCMe6lCxPuMabgUOAUvblnF99veSpDzWkuN3PI_hiEtOXOmnJEcFpjfLVQrj7uVgOG
- Y2Jck6g7E5gUNqmIkzMNsLmnII2E9OnNhLNDwRo.dQ8PZdtlnbZoYskfPFUST8wucWjLZZw6B_1M
- Wa1nE3rh1DzHUpizodATnxqV94b1TZz01z2RZWV9q2AliCMFG9l2hsm458y17w_6MDjx2TZu_tQc
- 0kqohy1quon76XW4BEippfBEm_JIAp8gFZMu84T58MV0xBeaC1Dn2N.5n4kOcLAsb9uVgKpdfzM4
- fswyviPDrtlBuRjiO1j_RO75h3BuJWc7PvpWCsoAQRg2HD.jfYOZzZOmwJjrr6BFxo4bZmiNkxKK
- 9z6JGI3C0o8tFbXj7i7qYDZwwaP0QJMP5Y51TmQ4fpohXQNJpg_F66yYIIJGbVCh1c0bTkwsam5o
- olfcqCwBmTtCHz5k3t0EcBgJ9UAztirVwXiO_EM.oNhW9cHLk_1pTOjlJEn0N5ZbuhLRe7Ngm810
- PfR_TjAQhnfMKp7NyulcdpN5j4hMhGE0e3VqETwh0XjsoUo_1KxzNo5tZvycn5nwKESYVKO.qCna
- 3HOhitMLlI3PM6GB1MopKjVUjpvLORS7l_iHKLZ1zNXOxjhASd8AlcyZsavDshJypra6V7iwTl0I
- fto.Q_YI7IhZi6sr.bsFrm9WUKvIVmAIgZf9aQZ_jgas4CuTttwLhEl9Yk5Izg6KYgg8PnPnCcmt
- 8IRukGrxWrnkdvCcijPGWjmELdA3kZqvNClIjXsV5OOkhiER7.9ruh5x7aXVt.QG6Z0GHWRpm5hV
- OCqWJJ4ESF._.UKHH2T4X56QG5jevKrOV_a2xrwF_NnrTorcJ45N21OgtO1cbblk.EqQJwHw3qM1
- HDNs0hsg.wQ00NSFgarAs_RnKhwIob5MwGHR2jwqV8Qj0YOpZUkR8hDriWLunKoa1l_tZfAP6VXd
- 3Jy1XMsIKYA0TWvULApi5N5e.431FQV1NK74QzHNvao2F.UGJoSlR10UP.LL1XjxfZ_10OzbIhdq
- FOKgCWOdmvn7MZWYlkYTpqTiMxig2qMbYR2u8xdYbt1SuKrg8tEXhT7p1nmfZwsRQ6vFg6S7oyjw
- 7PUucnWEnu52FNopY3uAGstu7aC3zEDXp7S4bB0UfuWVei1_kdpnXvhQB1RqtTmuugX7aEiD.xDw
- kmvRnJ_FRcrvgs3lykt5mmUlh56jgiml3f5p8PmI1fujo8laP0q6vsLlPmjI.cvmqe6PBarz7JBh
- TNfA2WnK5abn889WBEgj4APcw0EelCyi2rL6iozx3vLW.jWEGc3HTe.cE6asIivEwk1o.1QxMIjZ
- LXtWEcHNk.ZDG1qfd8zYMmNX8af1XM5XBlg0_IUxOA2Og_ZxE0In7HfN.Ooz7nIdtkNUj.DQmteg
- q3FIL4d9sFhbBXGCOBOl7UjQuvdL46Z6Xq9NO7mH.jnolOFlbDh0FzN.iS2KwhIuBoQExl42stEY
- jhJeOd2XCs8QxarZepemrkYplyXBSy4J7x_NPxyhsp3.0_Mq4V5DF0_qTuCLedByNTmjfom0Y1GQ
- 92sbzdelCasWG5svhaljNrThQUXMHRlhJslG_eRE2sU1MOHcENdM8tlvMljkSmRhHzLyhYYC6rOU
- mAQmi05S8hSLv7RxAtxgOs5QIgpU8eqgQ1kxPrvvz_2Ol01_s.VCHtxe8Kid0B9tegjtSoSQJXiQ
- mmxp2KWd_qFtLBlXUPpX7wnAGBiYGs9Jdd0E41BHdAaaS
+        with ESMTP id S241636AbiF1BKi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jun 2022 21:10:38 -0400
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E44B237D4
+        for <selinux@vger.kernel.org>; Mon, 27 Jun 2022 18:10:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1656378636; bh=BPhMUhQdQqXWBnr2/wS0HlsrVSNQU5rfnCK53B9aoW8=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=byNoP1G/cvobMsrA33k/OMed/JUoo9muJuUJRjKws0H1EF1zVzaVjaDEQnrugZUPFLP9hmcGekVCcfr2cs7d6aBCHVhTNkoK7RQUnkd2zEsUTfnCmU9rl8R3wc9+njh/VJPW9i2SnL2ZQddqYFWqhwFhuhMZb5hWlDt8IkKooZdgc0Zfl3pA57V6sODOZdX7C5JGLLhIvt9/Z8turl314/7lrYL1gjKG5/to1AwypheVSQXRJAUz4rVEMR0obj9TfiXlm3VKrsHJwqLD5/mRU1cB0iiJj9Aa1bsf7npiZWdSpeObjModU3t1cVf54WlqIKAw5hyB9XD1K0NAOHl+ew==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1656378636; bh=uEFw0lf7JDnug4vhMYc7Kph0lryGz6Bk0Vc/VsEc6+Y=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=qERoDO1BJ/QQCck4gGee/t+Y2Np1lv3wzfW65uI1QTSFo+OVUgD+nn8zio24X1hVEX7eZo/EAtqcRFlFudRlPR7/mHmYB4LiirHGkktPRiahhQ39woXN82U0QrieAB1Snkgc6ZtEuSIYawGQhevMjtMCKoiHAdaMWd9uGPyQGNG3wpNN14LMGgA/YKtoE39w2+FR9mJq2EpTWBMHetZdi1S/YXPudAvFAD6A0+IYZSA9QebiKP8QOUMzIYItX76Rv5FOBMN/zsZ7j1EOKq6A+MfiHH7Ubz0uqKCf7VfnEyaEugWpUyqp/1WcvH+KtvNy4SByNfLONSvpbMKlBEmadg==
+X-YMail-OSG: DxY_U5AVM1kExmWdyB1hqH9IgrYG50hP5Psn5DEBurKVDtB2U4uhNuDEuXNFwjW
+ ymAJBGtmpFW0c3Au.c_IuP01C0rpghYpZk4QvHW1vlVLkFNpjK.cHvaXOKNqs55O9XOgOX3mP5_K
+ Ks60SfekHDsj5Hl1hC6rp4oWefw0f1CjKF0fPK6BpGjkq_Kgxs7SKdAV25zWmvWdcnf2FAmD2Rxy
+ 9yBH81XP3ltOiN5jWWjNEQM04EVXE1p7R1tzO2gOTjPUahMZvGvY7fnTzG0aj3i.RQIv4sM7L7eY
+ 8O1X9Jhs7e26BFZXAQ7dKvcHxuPYAq32Spb7Nrqry2OB8oHWDheP_MGiPfcc05SpVURFTjYFoqso
+ _.TM9n8nfIHEmSlnKmMsOzJk1DjqDd6O1cwxpe7Z3xjm59aHdndEWMDQObiH.Vad_HPj8JzSSVs1
+ jMv68sKUqlKF9_AHghQWWCu6JFbk01mCOlf2739A7N9bdW8DCL3DEUi7jXzxtzwCve_SYYvH8y3r
+ dXLwDxxI.RugiTL_3rEfaxPT3uHlhsCl8s2i4WZ31TGG6a.IUz8XfkkEEx0Cx7osU_Atmvwkf4tt
+ sgDPPlgHHVyxyA0PiCoe5HGp.Qke9uY.I0SyysueSiWtGMNVRzlkGJHaJJ26Z9hz5dNZJ6UNZmso
+ wpI_Ml_M2bWzfPwd5FNa_tZ0M6FVlXUfYS9aOUpgijoeXgRs8orfhv5Z8g539VU4nbJHtPX.u6z4
+ R6tgMhHbUDBhupvDIyK1s7lvxnbgfugTHRDEJMqtBQKHeT9rY0cbarDxOBK53nLJ6ybRb4ER1IlD
+ bbSAxm8EEUpC6ZPpDLmWgx2lrpU8EM4V0AITYbP59PIExuUGs3ync6xH4H0h7ANoqVNhQrRNrphG
+ 1xWk2ZZxNScNOQCG1FHA9tP_8yG4OLgGA.TC9rgQ7pdgGw5Cj2umqhutXQTcgJfuwPmfvPqalbNq
+ TbNDr5mw9iDYnzB6JQcYcptwvRElyy1vo0EGgsOpyQxGsDTQlmNs5b6jjm4Y0v0qDY1rPaDxsSmc
+ HdcPJd_RH.JIGUBlAPKX7.dXIvDKQo5mg8BaVkqqpFmWPq8A0nfzqG989SJGDnrJkoL_GrHo36gT
+ ugH5._ebiACysHa028tfzsMBlfwz26IpEBUtaybJ6iTaL8PCGiyXIaGFJ5uH2yQJp8EgrhKle8CG
+ 1GEYK8JXYzJiJ_ZKsHB4RrPLLZN0wcto9eLBeC9iyrEKggAqR3mKMXOuBKkQJ32giwSnFQzIZttg
+ T3hv2r8ZHQZPrTDtY4dHqIku9pWaCGRuEBjemf5oZ9x9aL4AbEe2n4J.D6SZshj4_Q5fhB4b18bt
+ dANFoYdimhKlRm_GwRAFfUvBa1lPLgFbir_8Tb06a0FiQZvOo8a3pXxYb9nqmUn9KnE1xveXTadi
+ e0QFxXpeJHcTHAVEO3IUx5PZ9sPmMlQYlryhK.nUrWTGZuaFcPtFmAt0NSelNXNS8zBPHdIPm6jn
+ bqag2AZVRP79MKNcA7vMQ._buIZ6N22ShOyrw2WH76u4CT9tKW_f0UIbFpzbXNDmHE1D3mC0TxXD
+ SPjMqaXe6BBZAdwbdoV9QZ31WcVlmZZeNWgkil.BLLK745xZ514ExLTAL00D8o7GgMQ71M.vpDTl
+ ghhgq7s85qpwpr8OdfcVDY37rLPL7idfNCI1aeZMmd25EMkhAfdHHeTC4o6wAlLWwaU2UHGp3ldf
+ oTxHc3vvO8jK3E1dXcygcBtTDh8HS83wO4TKQmB1yT_URymI6iCrWXJVjtCXh7GwLlXSo8hGXZyk
+ 0xZA90T6Dg.K_0nCCIvnkSZJzsR.mMsABfqXi5RbbvCUqpI.GLfYt54B62hkJSpJLVCP6gAsTEr4
+ gzarlQU6ng_uy0m__RiQJqswA3hWqRkiPx5S7ojQM6IKiNvpy88m1qu5H9i20GISDBOz2uNzE.m2
+ XfettuRkiDz41vAa0.lBZqSG4TD4IQEwjuDLVQW8AwHhkNXo3GT6kRIobdom0TNynfHGjvgv.6U4
+ rztDMSQhzhPdGQgoK7aZ93ddSbfEDlN_V.nPSoSzkQSxKAo2.dKhxh4GIA6xgywjF0atoST4SZOZ
+ y16cUSA4HPeDrXvNJ4IAWVlznslVZCuj.QvTHnyvo25E43JS9Kahy41os0ayMqz3rnMswBpeE8ZC
+ zcnPe318tflzEkQ.ZA6rG4aXuQrjG42CLDk3_yuWM7vG3AgIPenyky_tMQ_6P96jAUioIWcNi4z_
+ ou20RY9TaGlJGFyQvPjYjul6yhRc5e.BO_WF6ffPj8JapVbiiNHmgEC0kjH9fbVkauFs-
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Tue, 28 Jun 2022 01:10:34 +0000
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 28 Jun 2022 01:10:36 +0000
 Received: by hermes--canary-production-gq1-677bd878b7-wc7mq (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID e584f9a769c6d1ee8a468863bbdfebe6;
-          Tue, 28 Jun 2022 01:10:30 +0000 (UTC)
+          Tue, 28 Jun 2022 01:10:33 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
@@ -59,9 +58,9 @@ Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
-Subject: [PATCH v37 21/33] binder: Pass LSM identifier for confirmation
-Date:   Mon, 27 Jun 2022 17:55:59 -0700
-Message-Id: <20220628005611.13106-22-casey@schaufler-ca.com>
+Subject: [PATCH v37 23/33] Audit: Keep multiple LSM data in audit_names
+Date:   Mon, 27 Jun 2022 17:56:01 -0700
+Message-Id: <20220628005611.13106-24-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220628005611.13106-1-casey@schaufler-ca.com>
 References: <20220628005611.13106-1-casey@schaufler-ca.com>
@@ -71,69 +70,93 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Send an identifier for the security module interface_lsm
-along with the security context. This allows the receiver
-to verify that the receiver and the sender agree on which
-security module's context is being used. If they don't
-agree the message is rejected.
+Replace the osid field in the audit_names structure
+with a lsmblob structure. This accommodates the use
+of an lsmblob in security_audit_rule_match() and
+security_inode_getsecid().
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
 ---
- drivers/android/binder.c          | 21 +++++++++++++++++++++
- drivers/android/binder_internal.h |  1 +
- 2 files changed, 22 insertions(+)
+ kernel/audit.h   |  2 +-
+ kernel/auditsc.c | 22 ++++++++--------------
+ 2 files changed, 9 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 8ae1a624cd37..f2a0faf6d9c6 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -3107,6 +3107,7 @@ static void binder_transaction(struct binder_proc *proc,
- 				    ALIGN(extra_buffers_size, sizeof(void *)) -
- 				    ALIGN(lsmctx.len, sizeof(u64));
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 316fac62d5f7..4af63e7dde17 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -82,7 +82,7 @@ struct audit_names {
+ 	kuid_t			uid;
+ 	kgid_t			gid;
+ 	dev_t			rdev;
+-	u32			osid;
++	struct lsmblob		lsmblob;
+ 	struct audit_cap_data	fcap;
+ 	unsigned int		fcap_ver;
+ 	unsigned char		type;		/* record type */
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 318529b1f930..4f141655ac0b 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -700,17 +700,16 @@ static int audit_filter_rules(struct task_struct *tsk,
+ 					 * lsmblob, which happens later in
+ 					 * this patch set.
+ 					 */
+-					lsmblob_init(&blob, name->osid);
+ 					result = security_audit_rule_match(
+-								&blob,
++								&name->lsmblob,
+ 								f->type,
+ 								f->op,
+ 								&f->lsm_rules);
+ 				} else if (ctx) {
+ 					list_for_each_entry(n, &ctx->names_list, list) {
+-						lsmblob_init(&blob, n->osid);
+ 						if (security_audit_rule_match(
+-							&blob, f->type, f->op,
++							&n->lsmblob,
++							f->type, f->op,
+ 							&f->lsm_rules)) {
+ 							++result;
+ 							break;
+@@ -1589,13 +1588,12 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
+ 				 from_kgid(&init_user_ns, n->gid),
+ 				 MAJOR(n->rdev),
+ 				 MINOR(n->rdev));
+-	if (n->osid != 0) {
+-		struct lsmblob blob;
++	if (lsmblob_is_set(&n->lsmblob)) {
+ 		struct lsmcontext lsmctx;
  
-+		t->security_interface = lsm_task_ilsm(current);
- 		t->security_ctx = (uintptr_t)t->buffer->user_data + buf_offset;
- 		err = binder_alloc_copy_to_buffer(&target_proc->alloc,
- 						  t->buffer, buf_offset,
-@@ -4552,6 +4553,26 @@ static int binder_thread_read(struct binder_proc *proc,
- 
- 		tr.secctx = t->security_ctx;
- 		if (t->security_ctx) {
-+			int to_ilsm = lsm_task_ilsm(current);
-+			int from_ilsm = t->security_interface;
-+
-+			if (to_ilsm == LSMBLOB_INVALID)
-+				to_ilsm = 0;
-+			if (from_ilsm == LSMBLOB_INVALID)
-+				from_ilsm = 0;
-+			/*
-+			 * The sender provided a security context from
-+			 * a different security module than the one this
-+			 * process wants to report if these don't match.
-+			 */
-+			if (from_ilsm != to_ilsm) {
-+				if (t_from)
-+					binder_thread_dec_tmpref(t_from);
-+
-+				binder_cleanup_transaction(t, "security context mismatch",
-+							   BR_FAILED_REPLY);
-+				return -EINVAL;
-+			}
- 			cmd = BR_TRANSACTION_SEC_CTX;
- 			trsize = sizeof(tr);
- 		}
-diff --git a/drivers/android/binder_internal.h b/drivers/android/binder_internal.h
-index 8dc0bccf8513..7233bfdb72db 100644
---- a/drivers/android/binder_internal.h
-+++ b/drivers/android/binder_internal.h
-@@ -550,6 +550,7 @@ struct binder_transaction {
- 	long    saved_priority;
- 	kuid_t  sender_euid;
- 	struct list_head fd_fixups;
-+	int	security_interface;
- 	binder_uintptr_t security_ctx;
- 	/**
- 	 * @lock:  protects @from, @to_proc, and @to_thread
+-		lsmblob_init(&blob, n->osid);
+-		if (security_secid_to_secctx(&blob, &lsmctx, LSMBLOB_FIRST)) {
+-			audit_log_format(ab, " osid=%u", n->osid);
++		if (security_secid_to_secctx(&n->lsmblob, &lsmctx,
++					     LSMBLOB_FIRST)) {
++			audit_log_format(ab, " osid=?");
+ 			if (call_panic)
+ 				*call_panic = 2;
+ 		} else {
+@@ -2303,17 +2301,13 @@ static void audit_copy_inode(struct audit_names *name,
+ 			     const struct dentry *dentry,
+ 			     struct inode *inode, unsigned int flags)
+ {
+-	struct lsmblob blob;
+-
+ 	name->ino   = inode->i_ino;
+ 	name->dev   = inode->i_sb->s_dev;
+ 	name->mode  = inode->i_mode;
+ 	name->uid   = inode->i_uid;
+ 	name->gid   = inode->i_gid;
+ 	name->rdev  = inode->i_rdev;
+-	security_inode_getsecid(inode, &blob);
+-	/* scaffolding until osid is updated */
+-	name->osid = lsmblob_first(&blob);
++	security_inode_getsecid(inode, &name->lsmblob);
+ 	if (flags & AUDIT_INODE_NOEVAL) {
+ 		name->fcap_ver = -1;
+ 		return;
 -- 
 2.36.1
 
