@@ -2,68 +2,73 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9166C43334
-	for <selinux@archiver.kernel.org>; Tue, 28 Jun 2022 21:05:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D9D8C433EF
+	for <selinux@archiver.kernel.org>; Tue, 28 Jun 2022 21:07:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229869AbiF1VFS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jun 2022 17:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51290 "EHLO
+        id S229979AbiF1VHc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jun 2022 17:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229707AbiF1VFR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jun 2022 17:05:17 -0400
-X-Greylist: delayed 222 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Jun 2022 14:05:15 PDT
+        with ESMTP id S231492AbiF1VHa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jun 2022 17:07:30 -0400
 Received: from mx1.polytechnique.org (mx1.polytechnique.org [129.104.30.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED02F387A1
-        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 14:05:15 -0700 (PDT)
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402143A70A
+        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 14:07:29 -0700 (PDT)
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id D174A564864
-        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 23:05:13 +0200 (CEST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 55A075647D4
+        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 23:01:30 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=m4x.org; s=svoboda;
-        t=1656450314; bh=azAwtiEpjHQ+1at8SDXrM4EFoRA/0lAJ6u55GRdnPhc=;
+        t=1656450090; bh=NS84iI7MySItbb1XT/Jg8w18SCfvzqbTh4PRU5MZGzU=;
         h=References:In-Reply-To:From:Date:Message-ID:Subject:To:Cc;
-        b=wKIGPrFsIqJUQXfywqHdq0zhvngDhKr9WJCDjmYelris5Kf7R2YAjxoRoSdhQI34o
-         VpJo1CZBrsGNPyJkLewmRvPBNr727YkFhM4+n9LL+qJjXFxlUo1jPQSRaRmb+3Lym/
-         OMScRdclx9NRPupTw+va/7v/4AVV7f7ysu1pLlgg=
-Received: by mail-pj1-f54.google.com with SMTP id g20-20020a17090a579400b001ed52939d72so8490310pji.4
-        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 14:05:13 -0700 (PDT)
-X-Gm-Message-State: AJIora8Kg6AnAoBiPUgoNlZi85zZgis33YEmIfV3A8AdBYHRwRMJWTRj
-        Vf1c/TjthGem56BAylTHGLOHk0nMNpTFqdW9ygQ=
-X-Google-Smtp-Source: AGRyM1v8S58CKE7TLMeyvbjltojEpmyiYC3LA9UHGKRh6PQzD0v6eR+hw3dw3xKtSh0Bei4vwMjnef2qiTahTkSQ3Og=
-X-Received: by 2002:a17:902:e543:b0:16a:7d9e:6517 with SMTP id
- n3-20020a170902e54300b0016a7d9e6517mr5615091plf.151.1656450312706; Tue, 28
- Jun 2022 14:05:12 -0700 (PDT)
+        b=02MBzSUob7anfZh3AVhdCUghmoFaODPhIG+CNPgFAEGs4POW8j1w7y6BamQdMWenZ
+         qoRkeMO4c9Spm7Tt1v2dy77e6K8O+2yB9oK9D5GcvJvngMZ+azfCKvFzRzLD6NnWb0
+         zWq9ccRcUN/Y1J2WrAwNJFpZZlsyD10Y2E7cNTo8=
+Received: by mail-pl1-f179.google.com with SMTP id m14so12172219plg.5
+        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 14:01:30 -0700 (PDT)
+X-Gm-Message-State: AJIora8uUIk5YqM5t5gZ86jSskTGtkwia9XUIMGxZKEBQ/Gg50XGPz4Z
+        N/Mbk7PHS3wI/F/johUegA9qVt1MWZzr5xluGvk=
+X-Google-Smtp-Source: AGRyM1vj2P5lNC6ZXaEXYV+/lZUuY0gG5lH2f58Getl3FRmVoS7Pt3VYwt0bOpIOlmuRe5oTAaXWYVRx7j9uA2EAytQ=
+X-Received: by 2002:a17:902:ea47:b0:16b:997b:5fd6 with SMTP id
+ r7-20020a170902ea4700b0016b997b5fd6mr2234503plg.16.1656450089014; Tue, 28 Jun
+ 2022 14:01:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220517140748.24238-2-cgzones@googlemail.com> <20220607170035.40090-1-cgzones@googlemail.com>
-In-Reply-To: <20220607170035.40090-1-cgzones@googlemail.com>
+References: <20220608170954.114668-1-omosnace@redhat.com> <20220608170954.114668-2-omosnace@redhat.com>
+In-Reply-To: <20220608170954.114668-2-omosnace@redhat.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 28 Jun 2022 23:05:01 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==gTydDpHQN2YC_n1iVRsSqZGmHxhfu1CFGgniZ8a-Z3w@mail.gmail.com>
-Message-ID: <CAJfZ7==gTydDpHQN2YC_n1iVRsSqZGmHxhfu1CFGgniZ8a-Z3w@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: restorecon: avoid printing NULL pointer
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 28 Jun 2022 23:01:17 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==gbwH8-SaNxEVRU0CCnP-HaDemC7GqhK9CmkYG+p05vA@mail.gmail.com>
+Message-ID: <CAJfZ7==gbwH8-SaNxEVRU0CCnP-HaDemC7GqhK9CmkYG+p05vA@mail.gmail.com>
+Subject: Re: [PATCH userspace 1/2] libsemanage: always write kernel policy
+ when check_ext_changes is specified
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jun 28 23:05:14 2022 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jun 28 23:01:30 2022 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 7, 2022 at 7:00 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, Jun 8, 2022 at 7:23 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> The variable `curcon` is NULL in case the file has no current security
-> context.  Most C standard libraries handle it fine, avoid it nonetheless
-> for standard conformance.
+> For the use case of rebuilding the policy afte package updates, we need
+> the check_ext_changes operation to always do at least the do_write_kernel
+> step, because the various semanage dbs may have also changed content
+> relative to the current binary policy. As this step is itself relatively
+> fast, we can do it unconditionally.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Fixes: 286a679fadc4 ("libsemanage: optionally rebuild policy when modules are changed externally")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
 Hello,
-What is the status of this patch? As it looks good to me, I can merge
-it if nobody has any more comments.
+This patch and the next one ("semodule: rename
+--rebuild-if-modules-changed to --refresh") look good to me. Has
+anyone also taken a look at them?
+
+If nobody objects, I will merge it tomorrow, with a small misspelling
+fix in the commit message (afte -> after).
 
 Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
@@ -71,30 +76,46 @@ Thanks,
 Nicolas
 
 > ---
-> v2:
->    print "<no context>" instead of "(null)"
-> ---
->  libselinux/src/selinux_restorecon.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  libsemanage/include/semanage/handle.h | 2 +-
+>  libsemanage/src/direct_api.c          | 8 +++++---
+>  2 files changed, 6 insertions(+), 4 deletions(-)
 >
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index 9f5b326c..3c441119 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -744,7 +744,9 @@ static int restorecon_sb(const char *pathname, const =
-struct stat *sb,
->                         selinux_log(SELINUX_INFO,
->                                     "%s %s from %s to %s\n",
->                                     updated ? "Relabeled" : "Would relabe=
-l",
-> -                                   pathname, curcon, newcon);
-> +                                   pathname,
-> +                                   curcon ? curcon : "<no context>",
-> +                                   newcon);
+> diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+> index 0157be4f..4cf30815 100644
+> --- a/libsemanage/include/semanage/handle.h
+> +++ b/libsemanage/include/semanage/handle.h
+> @@ -67,7 +67,7 @@ extern void semanage_set_reload(semanage_handle_t * handle, int do_reload);
+>  extern void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
 >
->                 if (flags->syslog_changes && !flags->nochange) {
->                         if (curcon)
+>  /* set whether to rebuild the policy on commit when potential changes
+> - * to module files since last rebuild are detected,
+> + * to store files since last rebuild are detected,
+>   * 1 for yes (default), 0 for no */
+>  extern void semanage_set_check_ext_changes(semanage_handle_t * handle, int do_check);
+>
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index 7206483a..7aa081ab 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -1437,13 +1437,15 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>          * Determine what else needs to be done.
+>          * We need to write the kernel policy if we are rebuilding
+>          * or if any other policy component that lives in the kernel
+> -        * policy has been modified.
+> +        * policy has been modified. We also want to force it when
+> +        * check_ext_changes was specified as the various dbases may have
+> +        * changes as well.
+>          * We need to install the policy files if any of the managed files
+>          * that live under /etc/selinux (kernel policy, seusers, file contexts)
+>          * will be modified.
+>          */
+> -       do_write_kernel = do_rebuild | ports_modified | ibpkeys_modified |
+> -               ibendports_modified |
+> +       do_write_kernel = do_rebuild | sh->check_ext_changes |
+> +               ports_modified | ibpkeys_modified | ibendports_modified |
+>                 bools->dtable->is_modified(bools->dbase) |
+>                 ifaces->dtable->is_modified(ifaces->dbase) |
+>                 nodes->dtable->is_modified(nodes->dbase) |
 > --
 > 2.36.1
 >
