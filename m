@@ -2,64 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A03A5CCA479
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 581E0C43334
 	for <selinux@archiver.kernel.org>; Tue, 28 Jun 2022 10:02:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244454AbiF1KCn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jun 2022 06:02:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57670 "EHLO
+        id S1344051AbiF1KCl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jun 2022 06:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238949AbiF1KCR (ORCPT
+        with ESMTP id S1344695AbiF1KCR (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 28 Jun 2022 06:02:17 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1A0B72F3A8
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 30E832F015
         for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 03:01:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656410507;
+        s=mimecast20190719; t=1656410506;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=6nh2SFajP8MBBhUcc6X52pNjEEek+u0YDiGxENyNkEc=;
-        b=RPDhg5K5QRK5SC0A6kYewLhw40lWulvICHZR+e5+3vVjbqajkIulNDZpnr2757ZAwONkRh
-        lPZ/BDO1Xw0RtIioSuGKi2D/ZngvDLGKx4UsePjJI8NwBTkgW+kgYxZqhxonEgDPDweAA+
-        jyQm3Jwtq4v3QuOqRUyStQpoX5rpGPE=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=GJaFeRHiM+MkPIvF0ekPdDOiNnwXrae+YNyFQLpa/B4=;
+        b=Q8u8vxOX1edVxZb7MgbAhOmiv0o5y43V1LSX8Snt9Lhy4/qez/phsLTLU6qMwJBUthE/37
+        gO2N+SRZLt7bXM9nqirnjBZVxThYaP8ZfdSfuMo0B67a6+9NuOLakIqwo5Hi5LiwhNjUYn
+        tSyOZ1x7P8xl4LF+wWJTRCCrtYX4j8c=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-2-_w6WxgeaOv6vrOAf8R02Wg-1; Tue, 28 Jun 2022 06:01:45 -0400
-X-MC-Unique: _w6WxgeaOv6vrOAf8R02Wg-1
-Received: by mail-ej1-f69.google.com with SMTP id go10-20020a1709070d8a00b00722e8ee15b4so3445047ejc.22
-        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 03:01:45 -0700 (PDT)
+ us-mta-25-iIa3zNsiNvGHKugBut1X9Q-1; Tue, 28 Jun 2022 06:01:45 -0400
+X-MC-Unique: iIa3zNsiNvGHKugBut1X9Q-1
+Received: by mail-ed1-f72.google.com with SMTP id c20-20020a05640227d400b004369cf00c6bso9104305ede.22
+        for <selinux@vger.kernel.org>; Tue, 28 Jun 2022 03:01:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=6nh2SFajP8MBBhUcc6X52pNjEEek+u0YDiGxENyNkEc=;
-        b=gTnVzw7tJFY2UC6yx1ODh6TE8OkQl89BgQ0qwWXMtHaZA0Q/NTsAnyBxjzXAPZ370+
-         y0i6hkM/7OF0DGf3U5wXEGuYcTr+HZQrwFRa0HDbb0sXbBox9cJij3whiMYqrz4DhQkw
-         ChOtm4OMvgZH49PJoa0jQFJEgQeEekgj3T2nacMHIGcANB2ff/WSr8viRxx3SeJBjZ34
-         vrXN89Wrs176CN9BnB1qPohamkE5Oz41UEihyRHUOiFWtQgvGvROvfvuFB0IS+b25met
-         vzSC0rFXhMWWDBVUbyC2clHjUEiaGa94cHopIf+lFDvNnoZwEPLKwOUNdjcF4YXX/5fp
-         oOBg==
-X-Gm-Message-State: AJIora9y8as2lrziyxcdBD75szohmVu5/ZI8ADqYYAYieDwaJ1VjEByP
-        f8cul/4BcRd5RDOhc2l4frWehNgi0Q7kCwO/XnDa7cQxyumRNqSGcPTCDs+VUnwD7KiYnnvFy4D
-        2SlVN6cJAEAPNYMKEh75sIUuiA2zjm5qMBgfN9MwVcQ99ryC12ZSmklQWpnk0xuSFun64gw==
-X-Received: by 2002:a17:907:3a11:b0:726:4573:1b6 with SMTP id fb17-20020a1709073a1100b00726457301b6mr15937057ejc.672.1656410504162;
-        Tue, 28 Jun 2022 03:01:44 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1vox0RNL89YEh65rdfINsSs1PO1+lFteqjHGhHAjiD0OIIcOjc4aHmUjus2VqFEM1JDQ+N5BA==
-X-Received: by 2002:a17:907:3a11:b0:726:4573:1b6 with SMTP id fb17-20020a1709073a1100b00726457301b6mr15937035ejc.672.1656410503912;
+        bh=GJaFeRHiM+MkPIvF0ekPdDOiNnwXrae+YNyFQLpa/B4=;
+        b=2rr0wH8l8J5uhyLxuOYIwe00U3gWENKM8HKt+7taLRpWu40/o/j3GpfCBqWX+toOd1
+         2doKJ4H8ZUwFLJlP8+La6xMsIGqR+WYw1RJrtWBXueVjYjjNxmCQa5wuHEbM5ylwO6fM
+         BlcyQynVKusMyWw4WTo2Kqtv8+YezG4dbcpngzoKhl8L4F8ZFKlv++BXBOyi1UnpHKHk
+         GzhRmXv/gq7GDE3mQkC3rkZWAvFq4H9ixWxk7bOBC1mnJhqPTmrzOALzK1DL30MhTNyI
+         WZFabjd5S9QUeQAW1tk3ooGokxaeZJZjUqGZKAhdRjE4oagx/ksNYjLEfDt2Ojj6+yjo
+         WyCg==
+X-Gm-Message-State: AJIora+aFh4fY31Wuxbui6ewSiiCrYKiSiHXF/pdZ5huvcJ1hQ2+VnNC
+        rAmTUdrRyJVzKFKz24yqu27icwmJ6ycKR6TGVfjzW73aOPz+3/Fl6bW7OiOSqqwGTgeZ4nxkz5K
+        DeVDLpoB/rXrZc2TAfjtcm+6cGC93Ooa+aucbAzGOkvDSqe6As11ByjzkUzoOYQigaTFv4Q==
+X-Received: by 2002:a17:907:1c11:b0:726:851e:179e with SMTP id nc17-20020a1709071c1100b00726851e179emr15062776ejc.39.1656410503552;
         Tue, 28 Jun 2022 03:01:43 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1v69r7PDqHL7sj68864ecydXicZNOS3HjTVg30GWWx/qRcNjLiPtcDpA8sbFrZVajZjn9ri/Q==
+X-Received: by 2002:a17:907:1c11:b0:726:851e:179e with SMTP id nc17-20020a1709071c1100b00726851e179emr15062737ejc.39.1656410502929;
+        Tue, 28 Jun 2022 03:01:42 -0700 (PDT)
 Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
-        by smtp.gmail.com with ESMTPSA id g10-20020aa7dc4a000000b0043567edac3csm9243873edu.61.2022.06.28.03.01.43
+        by smtp.gmail.com with ESMTPSA id g10-20020aa7dc4a000000b0043567edac3csm9243873edu.61.2022.06.28.03.01.41
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 03:01:43 -0700 (PDT)
+        Tue, 28 Jun 2022 03:01:42 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 2/2] tests/keys: fix Makefile dependencies
-Date:   Tue, 28 Jun 2022 12:01:38 +0200
-Message-Id: <20220628100138.297047-3-omosnace@redhat.com>
+Subject: [PATCH testsuite 1/2] tests/keys: use a longer prime in DH params
+Date:   Tue, 28 Jun 2022 12:01:37 +0200
+Message-Id: <20220628100138.297047-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220628100138.297047-1-omosnace@redhat.com>
 References: <20220628100138.297047-1-omosnace@redhat.com>
@@ -69,26 +69,74 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The tools need to be rebuild when the common header file changes.
+In FIPS mode the kernel rejects DH params with prime size < 2048 bits,
+so use a 2048-bit prime so that the subtest can pass in FIPS mode.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- tests/keys/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
+ tests/keys/keys_common.h | 48 ++++++++++++++++++++++------------------
+ 1 file changed, 27 insertions(+), 21 deletions(-)
 
-diff --git a/tests/keys/Makefile b/tests/keys/Makefile
-index d3793db..d9f36ff 100644
---- a/tests/keys/Makefile
-+++ b/tests/keys/Makefile
-@@ -1,6 +1,8 @@
- TARGETS = keyctl keyctl_relabel keyring_service request_keys
- LDLIBS += -lselinux -lkeyutils
+diff --git a/tests/keys/keys_common.h b/tests/keys/keys_common.h
+index 55cc4eb..64385bf 100644
+--- a/tests/keys/keys_common.h
++++ b/tests/keys/keys_common.h
+@@ -11,28 +11,34 @@
+ #include <selinux/selinux.h>
+ #include <selinux/context.h>
  
-+$(TARGETS): keys_common.h
-+
- all: $(TARGETS)
- 
- clean:
+-/* dummy values - the prime was genearted using `openssl dhparam -C` */
++/* dummy values - prime generated by `openssl dhparam -text -2 2048` */
+ static const unsigned char payload_prime[] = {
+-	0x96, 0xC1, 0xFA, 0xA4, 0xD4, 0xAB, 0xD6, 0x6D, 0x6F, 0x99,
+-	0x3A, 0xCC, 0xD4, 0x74, 0x71, 0xE9, 0x5B, 0x77, 0xA4, 0x5E,
+-	0x68, 0x81, 0x04, 0x83, 0xE4, 0x92, 0x3C, 0xDD, 0x4B, 0xCA,
+-	0x16, 0x83, 0xB4, 0x5B, 0x1A, 0x0A, 0x80, 0xA3, 0xFA, 0xCD,
+-	0x24, 0xA5, 0xFF, 0x46, 0x49, 0x86, 0x7B, 0x42, 0xDC, 0x39,
+-	0x20, 0x2A, 0x6A, 0x86, 0x17, 0x12, 0x95, 0x3F, 0x13, 0xAD,
+-	0x5E, 0x98, 0x67, 0xAE, 0xA2, 0xA5, 0x78, 0x9D, 0x6D, 0x7D,
+-	0x78, 0xF6, 0xB2, 0x85, 0x7A, 0xA4, 0xB2, 0xC1, 0x96, 0x03,
+-	0x09, 0x15, 0x66, 0xBE, 0xFD, 0xA6, 0x63, 0xEA, 0xF6, 0xC4,
+-	0x61, 0x1A, 0x78, 0x9E, 0x9C, 0x82, 0x53, 0x8A, 0xCF, 0x07,
+-	0x90, 0x89, 0xE5, 0x28, 0x4A, 0x53, 0x77, 0x92, 0x72, 0xCB,
+-	0xBD, 0x17, 0x51, 0xE9, 0xC6, 0x34, 0xC4, 0xC9, 0x9A, 0x6A,
+-	0xFE, 0x55, 0x58, 0xD6, 0x7D, 0x3F, 0x67, 0xCD, 0xAF, 0x5C,
+-	0xCB, 0x46, 0x9B, 0xD1, 0x25, 0x43, 0x80, 0xE0, 0xA6, 0x80,
+-	0x1A, 0x15, 0xE6, 0xC6, 0x24, 0xB5, 0x8F, 0xC1, 0xA5, 0xAF,
+-	0x23, 0xCD, 0xA9, 0x21, 0x1E, 0x1E, 0xA1, 0x6A, 0xC9, 0xA7,
+-	0x17, 0xE9, 0xF5, 0x00, 0x94, 0x84, 0x7B, 0xF2, 0xD8, 0x28,
+-	0xE2, 0x8A, 0xC5, 0x58, 0x34, 0xE8, 0xCE, 0xFD, 0x72, 0xA4,
+-	0xC7, 0xEB, 0x93, 0x87, 0xC7, 0x54, 0x3D, 0x23, 0x75, 0x77,
+-	0x50, 0x73
++	0x00, 0xad, 0xf4, 0x89, 0x34, 0x97, 0xf0, 0x98, 0x83, 0xb3,
++	0x99, 0x38, 0xb7, 0x35, 0xed, 0xf6, 0x81, 0xe8, 0xdd, 0x0f,
++	0x37, 0x50, 0x81, 0xbf, 0x06, 0x82, 0xe6, 0x0f, 0x39, 0x90,
++	0xd2, 0x8e, 0xc6, 0x69, 0xa4, 0x84, 0x79, 0xc9, 0x6a, 0x16,
++	0x1d, 0x6c, 0x5c, 0xf7, 0x5e, 0x74, 0x51, 0xef, 0x94, 0x33,
++	0x7c, 0x4a, 0x37, 0x26, 0x76, 0x20, 0x96, 0xf5, 0x54, 0xb7,
++	0x22, 0x09, 0xe4, 0xec, 0x35, 0x4c, 0x58, 0xf2, 0xf7, 0x27,
++	0x98, 0xb0, 0xc5, 0x66, 0x59, 0x00, 0x5a, 0xa5, 0x24, 0x2b,
++	0x5a, 0x27, 0x9e, 0xce, 0x28, 0x3d, 0x03, 0x97, 0x42, 0x8f,
++	0xd7, 0xc1, 0xcd, 0x93, 0x5c, 0xf0, 0x53, 0x66, 0xbf, 0x72,
++	0x29, 0xcd, 0xc3, 0xc9, 0x64, 0x85, 0xd4, 0xf6, 0x86, 0x5d,
++	0xb1, 0x99, 0xf6, 0x8c, 0xd7, 0xdf, 0xd0, 0x49, 0x7a, 0xd3,
++	0x5e, 0x17, 0xeb, 0xdf, 0xf3, 0xdf, 0xaa, 0x76, 0x2b, 0xa4,
++	0x43, 0xc8, 0xc6, 0xfd, 0xab, 0xf9, 0xf7, 0xb3, 0x21, 0x73,
++	0x06, 0xe7, 0x1f, 0x51, 0x1a, 0x51, 0x57, 0x15, 0xbe, 0x52,
++	0x26, 0xc9, 0x87, 0x24, 0x15, 0x4b, 0xf2, 0x39, 0x51, 0x92,
++	0xb9, 0xbe, 0xcf, 0xd3, 0xc6, 0xca, 0xdc, 0xbb, 0x5b, 0x1f,
++	0x60, 0x89, 0x96, 0x08, 0xf5, 0xe6, 0xa4, 0xb7, 0xf7, 0x72,
++	0x5d, 0xe2, 0x95, 0x04, 0x1c, 0x4a, 0xd6, 0x85, 0x18, 0x3b,
++	0xaf, 0x1a, 0x6a, 0xf3, 0x5a, 0xc1, 0x29, 0x47, 0x71, 0xe5,
++	0x39, 0x4d, 0x35, 0x31, 0xc6, 0xe9, 0x81, 0xc4, 0x90, 0xd1,
++	0x40, 0xf5, 0x08, 0x80, 0x6c, 0x91, 0x05, 0xcc, 0x24, 0x8d,
++	0x80, 0xc1, 0x7d, 0x27, 0xa2, 0xfd, 0x51, 0xfd, 0xc6, 0xd7,
++	0x11, 0x9d, 0x62, 0x89, 0xc3, 0x57, 0x71, 0xbf, 0x1a, 0x75,
++	0xaa, 0x6d, 0x37, 0x3f, 0xb1, 0x53, 0xf6, 0xa4, 0xa6, 0x6d,
++	0xd5, 0xbb, 0xc2, 0x9d, 0xb9, 0x31, 0xbf
+ };
+ static const unsigned char payload_base[] = { 0x02 };
+ static const unsigned char payload_private[] = { 42 };
 -- 
 2.36.1
 
