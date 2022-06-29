@@ -2,141 +2,139 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C0E0C43334
-	for <selinux@archiver.kernel.org>; Wed, 29 Jun 2022 13:52:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E41BAC43334
+	for <selinux@archiver.kernel.org>; Wed, 29 Jun 2022 16:55:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232982AbiF2Nwi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jun 2022 09:52:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52596 "EHLO
+        id S229479AbiF2Qzw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jun 2022 12:55:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233215AbiF2Nwg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jun 2022 09:52:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ACFB4192B2
-        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 06:52:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656510754;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=oPPKULBITEHPM/2tHOc4zO504NY3ahZrQ6nHe93Gvds=;
-        b=XDi/MA0zJgwxEB4TFx20OZFijMeYvoJtmWRFzjUwhw2Wors66Y2aMxmW8oKoDu6sq4MEIy
-        MKRN+9vfxwJlT3QYLLJ585JPAJ594QlO0VZVS2wp1RaAbIieWipDildTHuyxdjy3Ql54CQ
-        1u+yj5mwwJyWi76Eh2pEqK74cR34/40=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-300-mNV9j8TZNCGjVuQ-4fsu5Q-1; Wed, 29 Jun 2022 09:52:33 -0400
-X-MC-Unique: mNV9j8TZNCGjVuQ-4fsu5Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 22AB83804532;
-        Wed, 29 Jun 2022 13:52:33 +0000 (UTC)
-Received: from localhost (unknown [10.40.193.109])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BE41B1121314;
-        Wed, 29 Jun 2022 13:52:32 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Daniel Burgener <dburgener@linux.microsoft.com>,
-        Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH] gettext: handle unsupported languages properly
-In-Reply-To: <871qvasere.fsf@redhat.com>
-References: <20220624142425.3836193-1-vmojzis@redhat.com>
- <bea122a5-5a68-2c81-25c1-ec9d3a3aa7e5@linux.microsoft.com>
- <a85f9664-aa08-fcc9-aa69-f944479eb0fd@redhat.com>
- <7563a56c-5527-abaf-f33b-ab9d9f1487dc@linux.microsoft.com>
- <871qvasere.fsf@redhat.com>
-Date:   Wed, 29 Jun 2022 15:52:31 +0200
-Message-ID: <87tu83r2zk.fsf@redhat.com>
+        with ESMTP id S229457AbiF2Qzv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jun 2022 12:55:51 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3D3258
+        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 09:55:50 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id s13-20020a0568301e0d00b00616ad12fee7so11708709otr.10
+        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 09:55:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3FeSFOQkR8i4iLodTYu6DBOP6nkzQc75O2CJ80ivjrE=;
+        b=DBUyCCtshlsrtGBPz9R6Xgc55wZ0ADElXEUmeNIXe+cMVG2LNJrO5bbOau8cljI0Lr
+         h63lB5G4g3wCN38e4eAYHCr3xO+tDKZYrde9+QwioSRpMmwgkvPD/pa4o90/NF6JioYZ
+         4m8I4w+/ePPyJEH4I4Ca/x5YzUuVuA+wrmjTByxQjAK25noMLOKlEqosUfG0yG4YqDq3
+         3GDBe/JqwfW/ea75O/8pYYsjEKkO6WNKX+o5/Jp62R0mDgFDn/ITR5FIVIWhN9fo2CU4
+         iQxl7s9z0ZcxoMo7obwqKo5HR3nprx0Q7SlVeuhiQASgnD0tqi6wVAgNalVH6sj0fITC
+         wlJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3FeSFOQkR8i4iLodTYu6DBOP6nkzQc75O2CJ80ivjrE=;
+        b=BGR/Sn3x+LEYGAVIovIg99t+JpQ7cQPiHltD+Gjhnndyrw6y5tdRTATla0RdDm/EgN
+         zR+M+Mk7ItWi0DEOd8Vd3G0zOzLXD340G5BSiCcjdRrksQbuusctsNcR+DHdANi3E1nY
+         4iGgLn8JjjuatV41APJDIAh+Sfh0ne14Y/73UVS2oonhR5xMcC0Xz/tZZ6Ad7qIIZbko
+         WIX8+bCs1m81YeuQOHzuLYhAM/VuXnS0YdSPsHIav99RHYydXI/TPimdKLHtvoxLVQ/3
+         l4gKT0ozdYgIRNDMNzTbey5ok6bmhmDc7BL9EZyavwFSiwBMUWRy/V8s12N1zlva/d9H
+         rGGw==
+X-Gm-Message-State: AJIora9u2DdMpf8thPLSKg6Y1H0qwz69XK0Us6WRTVT2C2dpXheR6ide
+        B5Jpg85QNB5AobkIrtQsyQ4uiEyZF1yuxzjyV0En0p7t
+X-Google-Smtp-Source: AGRyM1uDuRaYoiD8p5OL6HgbakaWr5ENp1h5EDNjJXck8NCdKjtujSzMjKAv6+/y1XTfRkNYl+j3apDF323XW+TJjdA=
+X-Received: by 2002:a05:6830:91d:b0:616:e98c:2581 with SMTP id
+ v29-20020a056830091d00b00616e98c2581mr1960131ott.53.1656521750109; Wed, 29
+ Jun 2022 09:55:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
+References: <20220608170954.114668-1-omosnace@redhat.com> <20220608170954.114668-2-omosnace@redhat.com>
+ <CAJfZ7==gbwH8-SaNxEVRU0CCnP-HaDemC7GqhK9CmkYG+p05vA@mail.gmail.com>
+In-Reply-To: <CAJfZ7==gbwH8-SaNxEVRU0CCnP-HaDemC7GqhK9CmkYG+p05vA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 29 Jun 2022 12:55:39 -0400
+Message-ID: <CAP+JOzR0oxga_drqVhDi3yCgSkeSzXmuMcgWwh3=snVb8FgCTw@mail.gmail.com>
+Subject: Re: [PATCH userspace 1/2] libsemanage: always write kernel policy
+ when check_ext_changes is specified
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Petr Lautrbach <plautrba@redhat.com> writes:
-
-> Daniel Burgener <dburgener@linux.microsoft.com> writes:
+On Tue, Jun 28, 2022 at 5:08 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
->> On 6/24/2022 1:27 PM, Vit Mojzis wrote:
->>>=20
->>>=20
->>> On 6/24/22 18:37, Daniel Burgener wrote:
->>>> On 6/24/2022 10:24 AM, Vit Mojzis wrote:
->>>>> With "fallback=3DTrue" gettext.translation behaves the same as
->>>>> gettext.install and uses NullTranslations in case the
->>>>> translation file for given language was not found (as opposed to
->>>>> throwing an exception).
->>>>>
->>>>> Fixes:
->>>>> =C2=A0=C2=A0 # LANG is set to any "unsupported" language, e.g. en_US.=
-UTF-8
->>>>> =C2=A0=C2=A0 $ chcat --help
->>>>> =C2=A0=C2=A0 Traceback (most recent call last):
->>>>> =C2=A0=C2=A0 File "/usr/bin/chcat", line 39, in <module>
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0 t =3D gettext.translation(PROGNAME,
->>>>> =C2=A0=C2=A0 File "/usr/lib64/python3.9/gettext.py", line 592, in tra=
-nslation
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0 raise FileNotFoundError(ENOENT,
->>>>> =C2=A0=C2=A0 FileNotFoundError: [Errno 2] No translation file found f=
-or domain:=20
->>>>> 'selinux-python'
->>>>>
->>>>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->>>>> ---
-[...]
->>>>
->>>> Isn't the point of the overall change that gettext.translation()=20
->>>> doesn't throw an exception anymore?=C2=A0 So we don't need to handle=20
->>>> OSError/IOError here once fallback=3DTrue.=C2=A0 I see that this stand=
-ardizes=20
->>>> with the other call sites, but I wonder if standardizing on the more=20
->>>> specific exceptions (or just leaving as is) wouldn't be better?
->>>=20
->>> Yes, we do not need to handle OSError/IOError exceptions any more.
->>> I agree that standardizing on the more specific exception handling woul=
-d=20
->>> be more proper. However, translation handling is probably the least=20
->>> important feature of this tool (most people probably use it in English=
-=20
->>> and those who don't wish they did) -- we don't want people to be unable=
-=20
->>> to use the tool at all because of some translation issue and "catch all=
-"=20
->>> exception handling is the easiest way to avoid that.
->>> As this bug showed, not settling on a single approach is probably the=20
->>> worst alternative (I tested the previous patch with multiple tools, but=
-=20
->>> apparently missed the one that was different).
->>>=20
->>> That being said, either approach is fine by me. Please let me know if I=
-=20
->>> should change the patch.
->>> Vit
->>
->> Well, I'll leave questions of what you *should* do up to the=20
->> maintainers, but I think as far as I'm concerned your point that we=20
->> really don't want to fail hard on translations makes a lot of sense (and=
-=20
->> I definitely agree that inconsistency is a pretty bad alternative.  So=20
->> I'm on board with this approach.  I was initially worried about "what if=
-=20
->> in some future version gettext adds an exception?", but to your point,=20
->> we want the same fallback logic in that case, so the general except=20
->> seems reasonable.
->>
->> Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
->>
+> On Wed, Jun 8, 2022 at 7:23 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > For the use case of rebuilding the policy afte package updates, we need
+> > the check_ext_changes operation to always do at least the do_write_kernel
+> > step, because the various semanage dbs may have also changed content
+> > relative to the current binary policy. As this step is itself relatively
+> > fast, we can do it unconditionally.
+> >
+> > Fixes: 286a679fadc4 ("libsemanage: optionally rebuild policy when modules are changed externally")
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> Thanks!
+> Hello,
+> This patch and the next one ("semodule: rename
+> --rebuild-if-modules-changed to --refresh") look good to me. Has
+> anyone also taken a look at them?
 >
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
->
+> If nobody objects, I will merge it tomorrow, with a small misspelling
+> fix in the commit message (afte -> after).
 >
 
+These look good to me as well.
+Thanks,
+Jim
 
-Merged.
 
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> Thanks,
+> Nicolas
+>
+> > ---
+> >  libsemanage/include/semanage/handle.h | 2 +-
+> >  libsemanage/src/direct_api.c          | 8 +++++---
+> >  2 files changed, 6 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+> > index 0157be4f..4cf30815 100644
+> > --- a/libsemanage/include/semanage/handle.h
+> > +++ b/libsemanage/include/semanage/handle.h
+> > @@ -67,7 +67,7 @@ extern void semanage_set_reload(semanage_handle_t * handle, int do_reload);
+> >  extern void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
+> >
+> >  /* set whether to rebuild the policy on commit when potential changes
+> > - * to module files since last rebuild are detected,
+> > + * to store files since last rebuild are detected,
+> >   * 1 for yes (default), 0 for no */
+> >  extern void semanage_set_check_ext_changes(semanage_handle_t * handle, int do_check);
+> >
+> > diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> > index 7206483a..7aa081ab 100644
+> > --- a/libsemanage/src/direct_api.c
+> > +++ b/libsemanage/src/direct_api.c
+> > @@ -1437,13 +1437,15 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+> >          * Determine what else needs to be done.
+> >          * We need to write the kernel policy if we are rebuilding
+> >          * or if any other policy component that lives in the kernel
+> > -        * policy has been modified.
+> > +        * policy has been modified. We also want to force it when
+> > +        * check_ext_changes was specified as the various dbases may have
+> > +        * changes as well.
+> >          * We need to install the policy files if any of the managed files
+> >          * that live under /etc/selinux (kernel policy, seusers, file contexts)
+> >          * will be modified.
+> >          */
+> > -       do_write_kernel = do_rebuild | ports_modified | ibpkeys_modified |
+> > -               ibendports_modified |
+> > +       do_write_kernel = do_rebuild | sh->check_ext_changes |
+> > +               ports_modified | ibpkeys_modified | ibendports_modified |
+> >                 bools->dtable->is_modified(bools->dbase) |
+> >                 ifaces->dtable->is_modified(ifaces->dbase) |
+> >                 nodes->dtable->is_modified(nodes->dbase) |
+> > --
+> > 2.36.1
+> >
+>
