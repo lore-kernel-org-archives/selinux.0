@@ -2,92 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1460C43334
-	for <selinux@archiver.kernel.org>; Wed, 29 Jun 2022 17:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C914BC433EF
+	for <selinux@archiver.kernel.org>; Wed, 29 Jun 2022 19:09:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbiF2R7g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jun 2022 13:59:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39648 "EHLO
+        id S229799AbiF2TJV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jun 2022 15:09:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231772AbiF2R7g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jun 2022 13:59:36 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBAD8E9
-        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 10:59:35 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id be10so22673008oib.7
-        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 10:59:35 -0700 (PDT)
+        with ESMTP id S230301AbiF2TJS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jun 2022 15:09:18 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2B22BB17
+        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 12:09:17 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-101d96fe0a5so22728629fac.2
+        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 12:09:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=nVV/qUp4Me14YG9vpS6wOtW0gqHRoldyqO7K4md5U5Y=;
-        b=Rgh15pllovqqLr7mx4ESEWLjcNBTBTgNJ7nxcTx+vOBvywee/8XxntNFyyvBA8fWYx
-         EeIPq9Plqsu3gRUx63VamyjKaK/Y0Ft55ixA9DfU2uAdg7QoUd+hMFZLh4LmGFBNvFL+
-         mJy3PyibycEd89wD8qQfsU7m+juCegcUoP8NA7u9bXGDHkK4OvvBm1tPsdC9lv47n94o
-         IJjInO2RjdO5rE7jCtf9EWKZKR0RT/1+qvkMwHtPSJur92VqaP1VeGh68vSyWs3YCJHa
-         YR0UbuWbuHT5YB6wLOpow70Hsxtwi1IR7d/LMMgkCv8Iw2Qs8m8WFLIrZouazeRZHw2h
-         Qg9g==
+        bh=Y+M+0nqUTXzoPZnnnrgQvLffGSn77BbkZwSBJp9U/gQ=;
+        b=beHcJphEVvDDt8fggB607tm26c7jaBQVbV33nnZZUFJHWFevd1yN+RstJkTwOGjHOs
+         nYhO/VonlsOOc9pwaSTEyTPiDJas/JmHpMYyAo6T5udBrZkpYJo0sh3H3AU0CTbo1KUb
+         hs3K/Frj56x7st46bQ1p+A7Al4fGZCksMqbu0tfYoCG50L8ElZqj60yVVuvIF/db/cBL
+         44H8mVHzUoLA93gFhJV6slbPtDDwj/TA1vvRnFfYEbWlrmIFXkOHmQDOWXTMh7Ht1Vms
+         kTRq9LCdMXujlXky8WUgBnUJtprhM48Izmzw4w9HaHiHLl+si4e0SeBTpqT2YZcsXTuw
+         ciAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nVV/qUp4Me14YG9vpS6wOtW0gqHRoldyqO7K4md5U5Y=;
-        b=235/DZG5vSXzYTMrLXhVLzS5FypzOj7Yw3qKQmCfpF8BEGf5O5zsRYb+tR9nVcaYYA
-         xHApX7GnW8Si+uJEDBu/+ba2CxqMEifLNR48WZhlai+b74IzK9Ur1Sce/EuBsYN9MMZ1
-         E11g15RIoGu6Hbyn2CCbbF0Qas2RP1eL1JUaqwP7JhttqwIM/dYwkdrMB7Y2/4ZgW4Li
-         Ez57cWVrjz8ISTJyf3fTylI1EKtFVH21NB/vT9/7QH96fCOy9QyoLjNQd01NLIMnDsnu
-         veub4Pk9kWSYqhohrSpTVF8w0A/m9QfV4yOBDxTgGuw0/YKPzbJt6vWfkTe1WkTIHXhn
-         FMIg==
-X-Gm-Message-State: AJIora82hU1qRQJxBlUJBpx+vKLDVduTUoUg7smE7ZWocgOtruJd9cvc
-        ZhCM+uG9X5O1xfKKfWP86KQt+Eq3Nc8nQIcyG08=
-X-Google-Smtp-Source: AGRyM1s51P8eSkrJs4fSm/lXdvUit5NN+iYp3BZTz+z3Vjs9Ceon/Dy1iQA/tTZuQ7I+D66sbN5pyQKVAP1jKMSWBgs=
-X-Received: by 2002:a05:6808:198c:b0:335:9b27:95b with SMTP id
- bj12-20020a056808198c00b003359b27095bmr2725766oib.182.1656525575197; Wed, 29
- Jun 2022 10:59:35 -0700 (PDT)
+        bh=Y+M+0nqUTXzoPZnnnrgQvLffGSn77BbkZwSBJp9U/gQ=;
+        b=L5HNaBzylbDVH4jwzwDOxwvbGo/YCc3iByv9c5/MrA7qe7+265BqgN2ZJsJcbRBCxI
+         +Lb0oHCOApz34wTP+ZFiaBmitFUNydc5wk6FrxdeI2LPqpEMDxnusgUMGp6muddTLpsE
+         NadBZPtFwhX3NdjTqymIqwCYjTOD6hczSZRIJn565siXcsISkX5RJN879IJjlCeelI6e
+         wqJvw5SVKXRc69eLf+nG+ROAHa2WCj4Mg6K562pYj0R6Cb9HdpzGhk5kfX1+j2xC3YtN
+         LmrVhfrBjdPitZL5nZNmTkkRPcqmiYc6lLdo2IMK+v0pYPjkRh1mOokiFEf63h5bef4Y
+         Yeiw==
+X-Gm-Message-State: AJIora8KaLxKZkbt88oLuZUBh3pS61DUcITF465M0/ddb3oRR/IJm3K7
+        D6Q7cXwgf3L0z2XEWmupZ/HwDsvLQZOFv06uEeg=
+X-Google-Smtp-Source: AGRyM1uSgrLrDiwMMhmzIb3eBb9vbt0wzcB4Tt0UdDVhwYQ2PO/GJE9dkSypcdAibz4iaaTb5PBgHMZ+eRDk0/w+Rt8=
+X-Received: by 2002:a05:6870:d68e:b0:e2:861:8b15 with SMTP id
+ z14-20020a056870d68e00b000e208618b15mr4188371oap.156.1656529756994; Wed, 29
+ Jun 2022 12:09:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220610150623.21082-1-cgzones@googlemail.com>
-In-Reply-To: <20220610150623.21082-1-cgzones@googlemail.com>
+References: <20220517140748.24238-2-cgzones@googlemail.com>
+ <20220607170035.40090-1-cgzones@googlemail.com> <CAJfZ7==gTydDpHQN2YC_n1iVRsSqZGmHxhfu1CFGgniZ8a-Z3w@mail.gmail.com>
+In-Reply-To: <CAJfZ7==gTydDpHQN2YC_n1iVRsSqZGmHxhfu1CFGgniZ8a-Z3w@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 29 Jun 2022 13:59:24 -0400
-Message-ID: <CAP+JOzTgmEChGDe-7j8rrh1PNJQBY9AOJx4gkTdtxM_FxNauaw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: avoid potential NULL dereference on optional parameter
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Wed, 29 Jun 2022 15:09:05 -0400
+Message-ID: <CAP+JOzQ1UFE2auipdctQTJNOATJjiaicb1mxQiDfa3uS5_mRbA@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: restorecon: avoid printing NULL pointer
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 10, 2022 at 11:12 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Tue, Jun 28, 2022 at 5:06 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote=
+:
 >
-> The parameter `reason` of `context_struct_compute_av()` is optional and
-> can be passed in as NULL, like from `type_attribute_bounds_av()`.
+> On Tue, Jun 7, 2022 at 7:00 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > The variable `curcon` is NULL in case the file has no current security
+> > context.  Most C standard libraries handle it fine, avoid it nonetheles=
+s
+> > for standard conformance.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Hello,
+> What is the status of this patch? As it looks good to me, I can merge
+> it if nobody has any more comments.
+>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+This patch is fine. Patch 1 fixes a commit that has been reverted, so
+it is not needed.
+Thanks,
+Jim
 
-> ---
->  libsepol/src/services.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index d7510e9d..24412d83 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -894,7 +894,8 @@ static void type_attribute_bounds_av(context_struct_t=
- *scontext,
->         /* mask violated permissions */
->         avd->allowed &=3D ~masked;
+> Thanks,
+> Nicolas
 >
-> -       *reason |=3D SEPOL_COMPUTEAV_BOUNDS;
-> +       if (reason)
-> +               *reason |=3D SEPOL_COMPUTEAV_BOUNDS;
->  }
->
->  /*
-> --
-> 2.36.1
+> > ---
+> > v2:
+> >    print "<no context>" instead of "(null)"
+> > ---
+> >  libselinux/src/selinux_restorecon.c | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
+ux_restorecon.c
+> > index 9f5b326c..3c441119 100644
+> > --- a/libselinux/src/selinux_restorecon.c
+> > +++ b/libselinux/src/selinux_restorecon.c
+> > @@ -744,7 +744,9 @@ static int restorecon_sb(const char *pathname, cons=
+t struct stat *sb,
+> >                         selinux_log(SELINUX_INFO,
+> >                                     "%s %s from %s to %s\n",
+> >                                     updated ? "Relabeled" : "Would rela=
+bel",
+> > -                                   pathname, curcon, newcon);
+> > +                                   pathname,
+> > +                                   curcon ? curcon : "<no context>",
+> > +                                   newcon);
+> >
+> >                 if (flags->syslog_changes && !flags->nochange) {
+> >                         if (curcon)
+> > --
+> > 2.36.1
+> >
 >
