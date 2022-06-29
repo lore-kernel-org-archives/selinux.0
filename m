@@ -2,235 +2,141 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39C51C43334
-	for <selinux@archiver.kernel.org>; Wed, 29 Jun 2022 12:00:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C0E0C43334
+	for <selinux@archiver.kernel.org>; Wed, 29 Jun 2022 13:52:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233289AbiF2MAf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jun 2022 08:00:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35034 "EHLO
+        id S232982AbiF2Nwi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jun 2022 09:52:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233017AbiF2MAd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jun 2022 08:00:33 -0400
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2163F8B5
-        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 05:00:32 -0700 (PDT)
-Received: by mail-io1-f71.google.com with SMTP id t2-20020a6b0902000000b006753087a104so5274223ioi.18
-        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 05:00:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=WDRWbThtfSIQ+NVMjf/9uTC6N33PQCiGK2DCZ90URgQ=;
-        b=NGnJmLDd3v2lCTcnu3m4NNDz4IrLrtU0ujlCCqQq4qavBKPHY9tdMqR20l6rjY9ODB
-         gU0b1MQgNHsVfqU90JF5MCUv+z0PdOWXBaoXSigKpAovPCret2aIT0xG+oqzopV5GqYZ
-         b5wcgTrE2fjMxRMVdfU77B7UqIG19cBpOj8RTZrZb8CidUdS6MZxUUfBE3EmrKR8I53m
-         W2ARX77R/8MBMHr2IjHz+M0QaZxTY1gD3I8GJSDJjl6GKuJFP+NVg1cPvF3qrWde3JMZ
-         rs+jH2NFNjgT5m19Yq/DhBB+3o8u62/zdWTnXiFuN09SHY08SkQlMijNCI2Uiu6UK9Wy
-         pTEA==
-X-Gm-Message-State: AJIora+PbMx3tIgMzEeefSJa1H5EWE02AGQhVRjZ1up7kgUQcFlK9CkZ
-        v1ls2aPvyM/B2ZyA/shEdJHrehKFrhOZs8ezQRI7HABMl1uT
-X-Google-Smtp-Source: AGRyM1t/NYtcYWZ0/NgaC5GXdqqiFjmGL+eyiHUJ8rJNant217kQxlYWz/WKOnntffBP4mhIpXcBqG/cBLII5sI3kV/9NyoUZpuk
+        with ESMTP id S233215AbiF2Nwg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jun 2022 09:52:36 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ACFB4192B2
+        for <selinux@vger.kernel.org>; Wed, 29 Jun 2022 06:52:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1656510754;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oPPKULBITEHPM/2tHOc4zO504NY3ahZrQ6nHe93Gvds=;
+        b=XDi/MA0zJgwxEB4TFx20OZFijMeYvoJtmWRFzjUwhw2Wors66Y2aMxmW8oKoDu6sq4MEIy
+        MKRN+9vfxwJlT3QYLLJ585JPAJ594QlO0VZVS2wp1RaAbIieWipDildTHuyxdjy3Ql54CQ
+        1u+yj5mwwJyWi76Eh2pEqK74cR34/40=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-300-mNV9j8TZNCGjVuQ-4fsu5Q-1; Wed, 29 Jun 2022 09:52:33 -0400
+X-MC-Unique: mNV9j8TZNCGjVuQ-4fsu5Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 22AB83804532;
+        Wed, 29 Jun 2022 13:52:33 +0000 (UTC)
+Received: from localhost (unknown [10.40.193.109])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BE41B1121314;
+        Wed, 29 Jun 2022 13:52:32 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Daniel Burgener <dburgener@linux.microsoft.com>,
+        Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH] gettext: handle unsupported languages properly
+In-Reply-To: <871qvasere.fsf@redhat.com>
+References: <20220624142425.3836193-1-vmojzis@redhat.com>
+ <bea122a5-5a68-2c81-25c1-ec9d3a3aa7e5@linux.microsoft.com>
+ <a85f9664-aa08-fcc9-aa69-f944479eb0fd@redhat.com>
+ <7563a56c-5527-abaf-f33b-ab9d9f1487dc@linux.microsoft.com>
+ <871qvasere.fsf@redhat.com>
+Date:   Wed, 29 Jun 2022 15:52:31 +0200
+Message-ID: <87tu83r2zk.fsf@redhat.com>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:410e:b0:33c:d3b8:a4bd with SMTP id
- ay14-20020a056638410e00b0033cd3b8a4bdmr970111jab.264.1656504032004; Wed, 29
- Jun 2022 05:00:32 -0700 (PDT)
-Date:   Wed, 29 Jun 2022 05:00:31 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000065911f05e294e691@google.com>
-Subject: [syzbot] KASAN: use-after-free Read in selinux_socket_recvmsg
-From:   syzbot <syzbot+04b20e641c99a5d99ac2@syzkaller.appspotmail.com>
-To:     andrii@kernel.org, anton@enomsg.org, ast@kernel.org,
-        bpf@vger.kernel.org, ccross@android.com, daniel@iogearbox.net,
-        eparis@parisplace.org, john.fastabend@gmail.com, kafai@fb.com,
-        keescook@chromium.org, kpsingh@kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        paul@paul-moore.com, selinux@vger.kernel.org,
-        songliubraving@fb.com, stephen.smalley.work@gmail.com,
-        syzkaller-bugs@googlegroups.com, tony.luck@intel.com, yhs@fb.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.3
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+Petr Lautrbach <plautrba@redhat.com> writes:
 
-syzbot found the following issue on:
-
-HEAD commit:    941e3e791269 Merge tag 'for_linus' of git://git.kernel.org..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=175b3f90080000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=3a010dbf6a7af480
-dashboard link: https://syzkaller.appspot.com/bug?extid=04b20e641c99a5d99ac2
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+04b20e641c99a5d99ac2@syzkaller.appspotmail.com
-
-==================================================================
-BUG: KASAN: use-after-free in sock_has_perm security/selinux/hooks.c:4535 [inline]
-BUG: KASAN: use-after-free in selinux_socket_recvmsg+0x278/0x2b0 security/selinux/hooks.c:4899
-Read of size 8 at addr ffff8880787ec480 by task syz-executor.3/5491
-
-CPU: 0 PID: 5491 Comm: syz-executor.3 Not tainted 5.19.0-rc4-syzkaller-00014-g941e3e791269 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
- print_report mm/kasan/report.c:429 [inline]
- kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
- sock_has_perm security/selinux/hooks.c:4535 [inline]
- selinux_socket_recvmsg+0x278/0x2b0 security/selinux/hooks.c:4899
- security_socket_recvmsg+0x5c/0xc0 security/security.c:2223
- sock_recvmsg net/socket.c:1011 [inline]
- ____sys_recvmsg+0x23b/0x600 net/socket.c:2711
- ___sys_recvmsg+0x127/0x200 net/socket.c:2753
- do_recvmmsg+0x254/0x6d0 net/socket.c:2847
- __sys_recvmmsg net/socket.c:2926 [inline]
- __do_sys_recvmmsg net/socket.c:2949 [inline]
- __se_sys_recvmmsg net/socket.c:2942 [inline]
- __x64_sys_recvmmsg+0x20b/0x260 net/socket.c:2942
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-RIP: 0033:0x7fa488689109
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa4875dd168 EFLAGS: 00000246 ORIG_RAX: 000000000000012b
-RAX: ffffffffffffffda RBX: 00007fa48879c100 RCX: 00007fa488689109
-RDX: 00000000000005dd RSI: 0000000020000540 RDI: 0000000000000004
-RBP: 00007fa4886e305d R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000040012062 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffd8d55b81f R14: 00007fa4875dd300 R15: 0000000000022000
- </TASK>
-
-Allocated by task 5468:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:45 [inline]
- set_alloc_info mm/kasan/common.c:436 [inline]
- ____kasan_kmalloc mm/kasan/common.c:515 [inline]
- ____kasan_kmalloc mm/kasan/common.c:474 [inline]
- __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:524
- kasan_kmalloc include/linux/kasan.h:234 [inline]
- __do_kmalloc mm/slab.c:3696 [inline]
- __kmalloc+0x209/0x4d0 mm/slab.c:3705
- kmalloc include/linux/slab.h:605 [inline]
- sk_prot_alloc+0x110/0x290 net/core/sock.c:1975
- sk_alloc+0x36/0x770 net/core/sock.c:2028
- nr_create+0xb2/0x5f0 net/netrom/af_netrom.c:433
- __sock_create+0x353/0x790 net/socket.c:1515
- sock_create net/socket.c:1566 [inline]
- __sys_socket_create net/socket.c:1603 [inline]
- __sys_socket_create net/socket.c:1588 [inline]
- __sys_socket+0x12f/0x240 net/socket.c:1636
- __do_sys_socket net/socket.c:1649 [inline]
- __se_sys_socket net/socket.c:1647 [inline]
- __x64_sys_socket+0x6f/0xb0 net/socket.c:1647
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x46/0xb0
-
-Freed by task 15:
- kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
- kasan_set_track+0x21/0x30 mm/kasan/common.c:45
- kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
- ____kasan_slab_free mm/kasan/common.c:366 [inline]
- ____kasan_slab_free+0x13d/0x180 mm/kasan/common.c:328
- kasan_slab_free include/linux/kasan.h:200 [inline]
- __cache_free mm/slab.c:3425 [inline]
- kfree+0x113/0x310 mm/slab.c:3796
- sk_prot_free net/core/sock.c:2011 [inline]
- __sk_destruct+0x5e5/0x710 net/core/sock.c:2097
- sk_destruct net/core/sock.c:2112 [inline]
- __sk_free+0x1a4/0x4a0 net/core/sock.c:2123
- sk_free+0x78/0xa0 net/core/sock.c:2134
- sock_put include/net/sock.h:1927 [inline]
- nr_heartbeat_expiry+0x2de/0x460 net/netrom/nr_timer.c:148
- call_timer_fn+0x1a5/0x6b0 kernel/time/timer.c:1474
- expire_timers kernel/time/timer.c:1519 [inline]
- __run_timers.part.0+0x679/0xa80 kernel/time/timer.c:1790
- __run_timers kernel/time/timer.c:1768 [inline]
- run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1803
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:571
-
-The buggy address belongs to the object at ffff8880787ec000
- which belongs to the cache kmalloc-2k of size 2048
-The buggy address is located 1152 bytes inside of
- 2048-byte region [ffff8880787ec000, ffff8880787ec800)
-
-The buggy address belongs to the physical page:
-page:ffffea0001e1fb00 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x787ec
-flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
-raw: 00fff00000000200 ffffea000099a248 ffffea0001e40888 ffff888011840800
-raw: 0000000000000000 ffff8880787ec000 0000000100000001 0000000000000000
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 0, migratetype Unmovable, gfp_mask 0x3420c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_COMP|__GFP_HARDWALL|__GFP_THISNODE), pid 5390, tgid 5382 (syz-executor.5), ts 476769442431, free_ts 475866169421
- prep_new_page mm/page_alloc.c:2456 [inline]
- get_page_from_freelist+0x1290/0x3b70 mm/page_alloc.c:4198
- __alloc_pages+0x1c7/0x510 mm/page_alloc.c:5426
- __alloc_pages_node include/linux/gfp.h:587 [inline]
- kmem_getpages mm/slab.c:1363 [inline]
- cache_grow_begin+0x75/0x350 mm/slab.c:2569
- cache_alloc_refill+0x27f/0x380 mm/slab.c:2942
- ____cache_alloc mm/slab.c:3024 [inline]
- ____cache_alloc mm/slab.c:3007 [inline]
- __do_cache_alloc mm/slab.c:3253 [inline]
- slab_alloc mm/slab.c:3295 [inline]
- __do_kmalloc mm/slab.c:3694 [inline]
- __kmalloc_track_caller+0x3b0/0x4d0 mm/slab.c:3711
- __do_krealloc mm/slab_common.c:1185 [inline]
- krealloc+0x87/0xf0 mm/slab_common.c:1218
- krealloc_array include/linux/slab.h:660 [inline]
- snd_pcm_hw_rule_add+0x41c/0x590 sound/core/pcm_lib.c:1133
- snd_pcm_hw_constraints_init sound/core/pcm_native.c:2582 [inline]
- snd_pcm_open_substream+0x958/0x1820 sound/core/pcm_native.c:2733
- snd_pcm_oss_open_file sound/core/oss/pcm_oss.c:2454 [inline]
- snd_pcm_oss_open.part.0+0x6dc/0x1320 sound/core/oss/pcm_oss.c:2535
- snd_pcm_oss_open+0x3c/0x50 sound/core/oss/pcm_oss.c:2499
- soundcore_open+0x44e/0x620 sound/sound_core.c:593
- chrdev_open+0x266/0x770 fs/char_dev.c:414
- do_dentry_open+0x4a1/0x11f0 fs/open.c:848
- do_open fs/namei.c:3520 [inline]
- path_openat+0x1c71/0x2910 fs/namei.c:3653
- do_filp_open+0x1aa/0x400 fs/namei.c:3680
- do_sys_openat2+0x16d/0x4c0 fs/open.c:1278
-page last free stack trace:
- reset_page_owner include/linux/page_owner.h:24 [inline]
- free_pages_prepare mm/page_alloc.c:1371 [inline]
- free_pcp_prepare+0x549/0xd20 mm/page_alloc.c:1421
- free_unref_page_prepare mm/page_alloc.c:3343 [inline]
- free_unref_page+0x19/0x6a0 mm/page_alloc.c:3438
- kasan_depopulate_vmalloc_pte+0x5c/0x70 mm/kasan/shadow.c:359
- apply_to_pte_range mm/memory.c:2625 [inline]
- apply_to_pmd_range mm/memory.c:2669 [inline]
- apply_to_pud_range mm/memory.c:2705 [inline]
- apply_to_p4d_range mm/memory.c:2741 [inline]
- __apply_to_page_range+0x686/0x1030 mm/memory.c:2775
- kasan_release_vmalloc+0xa7/0xc0 mm/kasan/shadow.c:469
- __purge_vmap_area_lazy+0x8f9/0x1c50 mm/vmalloc.c:1722
- drain_vmap_area_work+0x52/0xe0 mm/vmalloc.c:1751
- process_one_work+0x996/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e9/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:302
-
-Memory state around the buggy address:
- ffff8880787ec380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880787ec400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->ffff8880787ec480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                   ^
- ffff8880787ec500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880787ec580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
+> Daniel Burgener <dburgener@linux.microsoft.com> writes:
+>
+>> On 6/24/2022 1:27 PM, Vit Mojzis wrote:
+>>>=20
+>>>=20
+>>> On 6/24/22 18:37, Daniel Burgener wrote:
+>>>> On 6/24/2022 10:24 AM, Vit Mojzis wrote:
+>>>>> With "fallback=3DTrue" gettext.translation behaves the same as
+>>>>> gettext.install and uses NullTranslations in case the
+>>>>> translation file for given language was not found (as opposed to
+>>>>> throwing an exception).
+>>>>>
+>>>>> Fixes:
+>>>>> =C2=A0=C2=A0 # LANG is set to any "unsupported" language, e.g. en_US.=
+UTF-8
+>>>>> =C2=A0=C2=A0 $ chcat --help
+>>>>> =C2=A0=C2=A0 Traceback (most recent call last):
+>>>>> =C2=A0=C2=A0 File "/usr/bin/chcat", line 39, in <module>
+>>>>> =C2=A0=C2=A0=C2=A0=C2=A0 t =3D gettext.translation(PROGNAME,
+>>>>> =C2=A0=C2=A0 File "/usr/lib64/python3.9/gettext.py", line 592, in tra=
+nslation
+>>>>> =C2=A0=C2=A0=C2=A0=C2=A0 raise FileNotFoundError(ENOENT,
+>>>>> =C2=A0=C2=A0 FileNotFoundError: [Errno 2] No translation file found f=
+or domain:=20
+>>>>> 'selinux-python'
+>>>>>
+>>>>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>>>>> ---
+[...]
+>>>>
+>>>> Isn't the point of the overall change that gettext.translation()=20
+>>>> doesn't throw an exception anymore?=C2=A0 So we don't need to handle=20
+>>>> OSError/IOError here once fallback=3DTrue.=C2=A0 I see that this stand=
+ardizes=20
+>>>> with the other call sites, but I wonder if standardizing on the more=20
+>>>> specific exceptions (or just leaving as is) wouldn't be better?
+>>>=20
+>>> Yes, we do not need to handle OSError/IOError exceptions any more.
+>>> I agree that standardizing on the more specific exception handling woul=
+d=20
+>>> be more proper. However, translation handling is probably the least=20
+>>> important feature of this tool (most people probably use it in English=
+=20
+>>> and those who don't wish they did) -- we don't want people to be unable=
+=20
+>>> to use the tool at all because of some translation issue and "catch all=
+"=20
+>>> exception handling is the easiest way to avoid that.
+>>> As this bug showed, not settling on a single approach is probably the=20
+>>> worst alternative (I tested the previous patch with multiple tools, but=
+=20
+>>> apparently missed the one that was different).
+>>>=20
+>>> That being said, either approach is fine by me. Please let me know if I=
+=20
+>>> should change the patch.
+>>> Vit
+>>
+>> Well, I'll leave questions of what you *should* do up to the=20
+>> maintainers, but I think as far as I'm concerned your point that we=20
+>> really don't want to fail hard on translations makes a lot of sense (and=
+=20
+>> I definitely agree that inconsistency is a pretty bad alternative.  So=20
+>> I'm on board with this approach.  I was initially worried about "what if=
+=20
+>> in some future version gettext adds an exception?", but to your point,=20
+>> we want the same fallback logic in that case, so the general except=20
+>> seems reasonable.
+>>
+>> Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
+>>
+>
+> Thanks!
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+>
+>
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Merged.
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
