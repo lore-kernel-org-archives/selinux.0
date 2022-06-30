@@ -2,122 +2,95 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29512C433EF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jun 2022 18:14:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F660CCA481
+	for <selinux@archiver.kernel.org>; Thu, 30 Jun 2022 18:30:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236605AbiF3SOo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jun 2022 14:14:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33384 "EHLO
+        id S233056AbiF3SaU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jun 2022 14:30:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236453AbiF3SOd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jun 2022 14:14:33 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B897741619
-        for <selinux@vger.kernel.org>; Thu, 30 Jun 2022 11:14:19 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id m24-20020a0568301e7800b00616b5c114d4so13448171otr.11
-        for <selinux@vger.kernel.org>; Thu, 30 Jun 2022 11:14:19 -0700 (PDT)
+        with ESMTP id S236652AbiF3SaU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jun 2022 14:30:20 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C400C427E9
+        for <selinux@vger.kernel.org>; Thu, 30 Jun 2022 11:30:19 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id i3so325336oif.13
+        for <selinux@vger.kernel.org>; Thu, 30 Jun 2022 11:30:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JWR1DJGBkpxDbRsFivnnSx8ff2dcDnqZ6V3MYTBaVVY=;
-        b=CgcAvXd2zrAlUnUvVX9wqXmtkmIdfMd1WPgWBnfzSWhHcavIORxSsOAZOgB3mB7v7p
-         cDVZOSXHDOyLvgVvmxGoiOfXPi6IOw1BGllvBgY1jXvh+sXzjQRf+Y/qig2JgLWZmNNM
-         mMO5vCVN7yNa0MEBXHK8og/2RUW7q8f8GYQWXHWq+PAEHKhUKlT5TUfinoybTNvXsK9k
-         P31l5VXUEdAPvqcuFPJXvtx5Hnmr4S9uOlUEWMfasQ7F9U6tPx3UIZ5GZMsAtYAp8iTz
-         TE325wy5rE48QFXiH57NQS4P4+tKd54ngpQsF2VmN2x9QO0PghSdNKKHSS2JXbOuMhKz
-         b/Gg==
+         :cc:content-transfer-encoding;
+        bh=Kruxgj0HNjVP0SlKaMB0fNhG5oKUXGvxAXbaD0XCWGA=;
+        b=Uw6HIznhixGvoI3seoLxsSkK+8hgCNx4jOb3IXhmiYbHgfBuLN+8cmkuX3v379CZgx
+         sycJySuw0ryJKRLhZB4eCFbnKW7QJbyWtZpRNYxE3X15t7sfjf5tkoDD/AGa/BQHKEze
+         Tc2gttUBIYYN7zqcYj0BSacmE/3tKTLSA6K+WRm3irBY0iAqhw5fobHSjRHhk5l2RX61
+         KfxUtsw6Vdrlew+nzhDI8y75D8jVbnewbqrdlHs6HzVK33pW3z1lTFmBviha9rClxFCV
+         w2P+xX/M+IMLdpidkTuBMgiaZt0JYrwpAMSmNmXfn7v42X4luDNcdU4Yh+XpQ2T8QU0n
+         yzaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JWR1DJGBkpxDbRsFivnnSx8ff2dcDnqZ6V3MYTBaVVY=;
-        b=6hqvSl8j0LyK17GIqzb/wjyF4EMlN/SL9jYa0Zv1BUw9DCZUgXzK21rXIlpj/oyQOL
-         ebG3s/g+MIymR7dbAhThn23lw2S3ywad8/LrFSIaWLVXPjkQEellbdaJCoL2rTFJ/PHg
-         eLAa3DsnN68Mm66NKCIua0jT4LMrnnfXJksBVqVFbPef49947dyN0K6wXaE9dDBxnAzc
-         umZ6ZuwhLdHis2UL9uR7aOhWSuduueCmHvAAHEn44Cx1ft4T0GUoXSSi4pGJEr3wUDKl
-         vtIVeACxIW7cSnkUdp9etHYHqT47TZ8rw1cemRffWSbCfjzWf0t66dqIT2WFsS2i1NTo
-         O42A==
-X-Gm-Message-State: AJIora9JEeRNmwEXw25YPFYuh5dhJ70/1b7/7Ugf0tolCnFGvpBSHVmj
-        l5/WZmqWzA8aLfSxuZReYx7u5gJVVbFE9JsQt/YpTH9emaU=
-X-Google-Smtp-Source: AGRyM1vFWmiIrsxgWKzL5RycstF2dNgMxqWCs9n2NqWB/aErh8Zx6Y93Em6z6rvpgvpzN35xkT5/TCrbSZcK84WQesE=
-X-Received: by 2002:a05:6830:91d:b0:616:e98c:2581 with SMTP id
- v29-20020a056830091d00b00616e98c2581mr4763479ott.53.1656612858941; Thu, 30
- Jun 2022 11:14:18 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Kruxgj0HNjVP0SlKaMB0fNhG5oKUXGvxAXbaD0XCWGA=;
+        b=d24WHXMVbCPU7XHkohr/ffDc2i+KwGqFU8sspXqiISnUngzdZnI5qyH0UGaPfB8EnB
+         NqX/T3mrF0lIQ/YEFnjk3yodixzpQDLnV+TDStgvcGou7huHNJY8JiK3eoJYEtXjKCjA
+         gvrTRicCw1I7K4HvPotA8tiU8k9zHEURRJgpZy2BaIaMjY9pxgw2YRMsVpPcyF7wfaQq
+         oA88Ys3Liu+1DRTYZ+L7UWvTyUSUNKC7FMtlmBl4l5D/OYTl8ke6WkkNkdUIC2gZdbje
+         0vIKz4XtSDR3mfXIk83IeorDk0K9bcx7U5nQDBf2Q93V04LslMLQc08lw0LiNROzgkmq
+         4NYQ==
+X-Gm-Message-State: AJIora8L7ZIniYyR8W7BAkn6y4g80sbGoUTFPFt++ora5hnCpLtgDHeY
+        go+hR5nxDAcU6sLRtR/jm5Nm0BXMBasIcjTpqCs=
+X-Google-Smtp-Source: AGRyM1sD5KxUEw3Lfy6iMFA/WMhhm51HLzLJ35VHDneHZ8ay5OFlyDnobT2KYiQ4E+BfhEEw9gV+YxaJsYG12u0a93w=
+X-Received: by 2002:a05:6808:198c:b0:335:9b27:95b with SMTP id
+ bj12-20020a056808198c00b003359b27095bmr6160606oib.182.1656613819195; Thu, 30
+ Jun 2022 11:30:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220629071254.2653210-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20220629071254.2653210-1-nicolas.iooss@m4x.org>
+References: <20220629110512.5067-1-cgzones@googlemail.com>
+In-Reply-To: <20220629110512.5067-1-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 30 Jun 2022 14:14:08 -0400
-Message-ID: <CAP+JOzTjz=5sn0e=R1cNZKwodP6bFnuV8dxOwQwevFof0pWYLA@mail.gmail.com>
-Subject: Re: [PATCH userspace 1/1] CircleCI: do not add Debian-specific
- parameter when invoking setup.py
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Thu, 30 Jun 2022 14:30:08 -0400
+Message-ID: <CAP+JOzSiHaokD7P8aXa-qUB5vCvx6kOC2zs1on4e4a+f0YRvww@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/utils: improve wording
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 29, 2022 at 3:37 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Wed, Jun 29, 2022 at 7:06 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Runners on https://circleci.com/ use a custom version of Python without
-> Debian-specific patches which added option --install-layout=deb. This
-> leads to the following error:
+> A request is denied with SEPOL_COMPUTEAV_RBAC if the source role is not
+> allowed to transition to the target role, granted via a
 >
->     error: option --install-layout not recognized
+>     allow source_role target_role;
 >
-> Fix this by creating a new environment variable dedicated to detect
-> CircleCI platform.
+> statement.
 >
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
-> Hello,
-> Even though the https://github.com/SELinuxProject/selinux is not using CircleCI,
-> I have been using it for some years to generate a scan-build output which is
-> directly hosted as build artifacts. This commit is about making the CircleCI
-> work again.
+>  libsepol/utils/sepol_check_access.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> If you are interested about the results, the "pipeline" I am using is on
-> https://app.circleci.com/pipelines/github/fishilico/selinux?filter=all
-> and it generates scan-build reports such as
-> https://output.circle-artifacts.com/output/job/20523141-5b39-4604-913b-78701e506f2b/artifacts/0/output-scan-build/2022-06-28-220742-7144-1/index.html
->
-> Cheers,
-> Nicolas
->
->  .circleci/config.yml   | 1 +
->  scripts/run-scan-build | 2 +-
->  2 files changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/.circleci/config.yml b/.circleci/config.yml
-> index af20484b9ca5..a75d34c23959 100644
-> --- a/.circleci/config.yml
-> +++ b/.circleci/config.yml
-> @@ -19,6 +19,7 @@ jobs:
->          name: Setup environment variables
->          command: |
->            echo 'export DESTDIR=$HOME/destdir' >> "$BASH_ENV"
-> +          echo 'export IS_CIRCLE_CI=1' >> "$BASH_ENV"
->
->      # Download and install refpolicy headers for sepolgen tests
->      - run:
-> diff --git a/scripts/run-scan-build b/scripts/run-scan-build
-> index fad2a887bc5b..9c3bf0877332 100755
-> --- a/scripts/run-scan-build
-> +++ b/scripts/run-scan-build
-> @@ -24,7 +24,7 @@ export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH
->  export PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
->  export RUBYLIB="$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
->
-> -if [ -f /etc/debian_version ]; then
-> +if [ -f /etc/debian_version ] && [ -z "${IS_CIRCLE_CI:-}" ] ; then
->      export PYTHON_SETUP_ARGS='--install-layout=deb'
->  fi
->
+> diff --git a/libsepol/utils/sepol_check_access.c b/libsepol/utils/sepol_c=
+heck_access.c
+> index bd2ea896..5d2bf679 100644
+> --- a/libsepol/utils/sepol_check_access.c
+> +++ b/libsepol/utils/sepol_check_access.c
+> @@ -109,7 +109,7 @@ int main(int argc, char *argv[])
+>         if (reason & SEPOL_COMPUTEAV_RBAC) {
+>                 if (i > 0)
+>                         printf(", ");
+> -               printf("transition-constraint");
+> +               printf("role-transition");
+>                 i++;
+>         }
+>         if (reason & SEPOL_COMPUTEAV_BOUNDS) {
 > --
 > 2.36.1
 >
