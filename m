@@ -2,129 +2,146 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 962DAC433EF
-	for <selinux@archiver.kernel.org>; Fri,  1 Jul 2022 08:59:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CC9BC43334
+	for <selinux@archiver.kernel.org>; Fri,  1 Jul 2022 09:21:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233002AbiGAI7T (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 Jul 2022 04:59:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42690 "EHLO
+        id S231735AbiGAJVt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 Jul 2022 05:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231503AbiGAI7S (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 Jul 2022 04:59:18 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6BD8F18B0B
-        for <selinux@vger.kernel.org>; Fri,  1 Jul 2022 01:59:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1656665955;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ml7wCj/9ZuM62c7wvT8A0FmUomnk8kXPN0fXAec7qys=;
-        b=BI775+EO/l96K0EGnMttF5soesvi0WaAeigjOBRlJph5jCBG6SfUruMRKPjNmdr0rTnIgg
-        5+HQgqqN7Jp93nGVV0jydvhwR46D31P7qxYp+kZBh9mwUMzc9PrjUZgfN/FmfvqM3Ga1J8
-        cyQAWticPW8vQX+vPtiNJPqEBsMA1IQ=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-260-Lej-k2JdPCaW2L8CvJCmrA-1; Fri, 01 Jul 2022 04:59:14 -0400
-X-MC-Unique: Lej-k2JdPCaW2L8CvJCmrA-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-31797057755so14628937b3.16
-        for <selinux@vger.kernel.org>; Fri, 01 Jul 2022 01:59:14 -0700 (PDT)
+        with ESMTP id S229808AbiGAJVs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 Jul 2022 05:21:48 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E319558FC0
+        for <selinux@vger.kernel.org>; Fri,  1 Jul 2022 02:21:43 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id s13-20020a0568301e0d00b00616ad12fee7so1384275otr.10
+        for <selinux@vger.kernel.org>; Fri, 01 Jul 2022 02:21:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hxHldyNGjxMXzowFw50Y2rFuv0HyV9n3klELICJHlxw=;
+        b=cWFvkTDJdkJpYT62zmkGNrXiEAwa2JSc11BdVvAgWmugrtNkJGEkVKKGmuUSd0h34P
+         1Q33SjXmgpx3QlWBmeDEZq78c1A5JqlZco95watbCFByrbiU4o1XPltzgrZ21D7bZDVV
+         fNYHFkQ7ms2ZjK6u1AiSl07oJTKRzh5lJfOMgAawQOXfEj1l5vQBMpTHnJ6H7DJND4rJ
+         4SeyCmqmw6qQfoqCMJdNLqf4j+b4Wl5int6NAG/NIiJtBELmJCdFijZq49pyNMj1BnhY
+         YBNAVr4PyqGcUcvKg6LGP9u5GAHP+hjlzRvfZrPWFWbVaGLu2m/UZtUCgXmhQ5FvMvhM
+         aCAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ml7wCj/9ZuM62c7wvT8A0FmUomnk8kXPN0fXAec7qys=;
-        b=bghTHmv50TKfZAZKOqjL+HF7/Pu2Z+ORgbpdmPBmG/JLw5B2ncMtcrBQAo53QMXZ2e
-         RSyAgQuNC0ceQ2aUiakcvrymPgwinL8OXxKbI+IC7RfhcGdpe9duIBXjqDeeFP3VBo7O
-         xWvCfXHT+rhYhSE1XiubtTu78wNawmztqFvL8x3dVsyNQCQWVuWsN5n2R5wSHF+sVW8P
-         6qdfFaO3HHeCh3/nMbuJcZcnMyaV1gKobsnLn6Ihzq3mJrb4NfqzbxPNde2avyDdCBpA
-         mwX+e6EixTw7vRlpBnlVIxk/OxS8YsOoaVnsaO5PZwH096Qbl1gfaTo7NBpr62y9wOSf
-         /Prg==
-X-Gm-Message-State: AJIora/fXvDTvZn8FLQAgw7xVPs0bLXrFiLXRpPQk2Cep6TB5fer4Xdl
-        uspgzx6KVl7TOJ7Za1wIFGWp9rKqZ6fmoKkfC4nlUBaa3HfMF8EV3nOGlnwEQOAE1n8+vR+DboV
-        LK8SOKRmUf/SAPJIys8NMDFwp4DyLvIL29w==
-X-Received: by 2002:a25:df15:0:b0:66c:8c2d:7897 with SMTP id w21-20020a25df15000000b0066c8c2d7897mr13748004ybg.445.1656665953721;
-        Fri, 01 Jul 2022 01:59:13 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1t8T2vLjFKhbkxcXUyaKsMgjzSkEsgmdb5V7rvb2ryYSUf1FTx/D5FkJtHuSoz0EBrFmjuAirvbqwpkGjmnzU0=
-X-Received: by 2002:a25:df15:0:b0:66c:8c2d:7897 with SMTP id
- w21-20020a25df15000000b0066c8c2d7897mr13747986ybg.445.1656665953465; Fri, 01
- Jul 2022 01:59:13 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=hxHldyNGjxMXzowFw50Y2rFuv0HyV9n3klELICJHlxw=;
+        b=LolY3F4SNadNdesKMLctsoKRLPUZshaYWx+U3bf7g9ODBh8QlTIQOouellrcA2xKZP
+         3ObngYreshAzhJMeeQ3D4NcLOfr8+eEzmdGm7N5nz/PP+HB5MfqDvdw0WeytCA5EN0+g
+         aECVPv9dyLFpnt6DhiGTBYwOyeLJ81A33xeuCF+Yqv+CNUGRHWLnunmwAdpgvcRZpj20
+         Eg3oQ3weDDSZoQS3zN7eTA7La5V123C6ZDm4vr6dTNCDxUOBUGO3Fx9GwENOwxjDHWyO
+         N1mCRz6OBnr8jVmjCQL/UDr90ZjpZLzaphtMJZJhHPMjEY7HAwhQaRF2+ARLaJkRxRb7
+         GfUQ==
+X-Gm-Message-State: AJIora8aOTfnfGTLhlxvk4O5OvU4uqiyMh5/bgcvbdUGQnhxqc0sCxYj
+        qcdfkU4aMFR1Bp+lqb/XvW+thYOvWns6lke750o=
+X-Google-Smtp-Source: AGRyM1tz+Cdt26nDr61XkajY0vnnRG/QRF0OykpEOcfRpc9IK9tuvAcvvMg0JNrbjQJOyINcu27Xq3/uXtfcxVMLrto=
+X-Received: by 2002:a05:6830:2692:b0:618:b992:cbc9 with SMTP id
+ l18-20020a056830269200b00618b992cbc9mr3054451otu.117.1656667302306; Fri, 01
+ Jul 2022 02:21:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220615122711.9895-1-cgzones@googlemail.com> <20220628143408.76329-1-cgzones@googlemail.com>
-In-Reply-To: <20220628143408.76329-1-cgzones@googlemail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 1 Jul 2022 10:59:02 +0200
-Message-ID: <CAFqZXNupuiCX2A1rDv1aQbmtRsyVEVrCNLp=690BnJdePfddWQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/4] support Dash as default shell
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20220629072055.2653695-1-nicolas.iooss@m4x.org> <CAP+JOzRXjoneNg4sQ3W9sMSneQETHqCw1yGUP1hdmXqbXXMwsQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzRXjoneNg4sQ3W9sMSneQETHqCw1yGUP1hdmXqbXXMwsQ@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Fri, 1 Jul 2022 11:21:31 +0200
+Message-ID: <CAJ2a_Dco+NbrnnZvb1tm_o37-ykKbkQZb3kp5vvH7nffKZ0UZQ@mail.gmail.com>
+Subject: Re: [PATCH userspace 1/1] libsepol: initialize s in constraint_expr_eval_reason
+To:     James Carter <jwcart2@gmail.com>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 5:20 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, 29 Jun 2022 at 22:07, James Carter <jwcart2@gmail.com> wrote:
 >
-> Debian uses Dash as default shell and switching via
+> On Wed, Jun 29, 2022 at 3:37 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > clang's static analyzer reports that s[0] can be uninitialized when used
+> > in:
+> >
+> >     sprintf(tmp_buf, "%s %s\n",
+> >                     xcontext ? "Validatetrans" : "Constraint",
+> >                     s[0] ? "GRANTED" : "DENIED");
+> >
+
+The trace for the reports shows:
+
+    441 for (e = constraint->expr; e; e = e->next) {
+        Loop condition is false. Execution continues on line 708
+
+and clang-tidy also reports:
+
+     libsepol/src/services.c:715:16: warning: Call to 'calloc' has an
+allocation size of 0 bytes [clang-analyzer-optin.portability.UnixAPI]
+           answer_list = calloc(expr_count, sizeof(*answer_list));
+                         ^      ~~~~~~~~~~
+    libsepol/src/services.c:433:6: note: Assuming 'class_buf' is
+non-null
+           if (!class_buf) {
+               ^~~~~~~~~~
+    libsepol/src/services.c:433:2: note: Taking false branch
+           if (!class_buf) {
+           ^
+    libsepol/src/services.c:439:2: note: The value 0 is assigned to
+'expr_counter'
+           expr_counter = 0;
+           ^~~~~~~~~~~~~~~~
+    libsepol/src/services.c:441:2: note: Loop condition is false.
+Execution continues on line 708
+           for (e = constraint->expr; e; e = e->next) {
+           ^
+    libsepol/src/services.c:708:2: note: The value 0 is assigned to
+'expr_count'
+           expr_count = expr_counter;
+           ^~~~~~~~~~~~~~~~~~~~~~~~~
+    libsepol/src/services.c:715:16: note: Call to 'calloc' has an
+allocation size of 0 bytes
+           answer_list = calloc(expr_count, sizeof(*answer_list));
+                         ^      ~~~~~~~~~~
+
+I think the root cause is the possibility of `constraint->expr` being
+NULL, i.e. the constraint having no expression, which seems invalid to
+me.
+Maybe add a check `if(!constraint->expr) { BUG(); return -EINVAL; }`?
+
+Also validation should probably catch this at
+https://github.com/SELinuxProject/selinux/blob/956bda08f6183078f13b70f6aa27d0529a3ec20a/libsepol/src/policydb_validate.c#L238
+
+    + if (!cons->expr)
+    +     goto bad;
+    +
+    for (cexp = cons->expr; cexp; cexp = cexp->next) {
+
+> > Silence this false-positive issue by making s always initialized.
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
->     dpkg-reconfigure dash
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
-> has become deprecated.
->
-> * Use POSIX compliant `> target 2>&1` instead of `>& target`.
-> * Call runcon via exec to avoid a fork within the Debian version of
->   Dash, which breaks tests requiring to not change the PID of executing
->   commands
-> * Use bash explicitly for non POSIX read option -t
-
-I came up with this alternative Perl-native implementation of the
-`read -t` idiom:
-https://github.com/WOnder93/selinux-testsuite/commit/36c072871f82960f51035a=
-3fcd60db2c7adaf339
-
-It is more code, but OTOH it gets rid of the dependence on bash
-completely. What do you think about that approach?
-
-In case you have no objections, feel free to pick that commit and
-rebase the rest on top. I'd say you can skip emailing the patches and
-just update the GitHub PR, since it's really just the two of us
-discussing this anyway :) I'm fine with the rest of the changes in
-their current form, so if you do this, I'm ready to merge the PR.
-
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
-> v3:
->    perpend runcon by exec instead of splitting arguments
-> v2:
->    use system("bash -c ...") instead of `bash -c ...`
-> ---
->  README.md                      |  7 -------
->  tests/Makefile                 |  2 +-
->  tests/binder/test              |  2 +-
->  tests/bpf/test                 |  4 ++--
->  tests/fdreceive/test           |  2 +-
->  tests/filesystem/Filesystem.pm | 14 +++++++-------
->  tests/inet_socket/test         |  2 +-
->  tests/ptrace/test              |  4 ++--
->  tests/sctp/test                |  2 +-
->  tests/sigkill/test             |  2 +-
->  tests/task_getpgid/test        |  4 ++--
->  tests/task_getscheduler/test   |  4 ++--
->  tests/task_getsid/test         |  4 ++--
->  tests/task_setnice/test        |  4 ++--
->  tests/task_setscheduler/test   |  4 ++--
->  tests/unix_socket/test         |  2 +-
->  tests/vsock_socket/test        |  2 +-
->  17 files changed, 29 insertions(+), 36 deletions(-)
-[...]
-
---=20
-Ondrej Mosnacek
-Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+> > ---
+> >  libsepol/src/services.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> > index d7510e9dae51..db769cdcfaf9 100644
+> > --- a/libsepol/src/services.c
+> > +++ b/libsepol/src/services.c
+> > @@ -394,7 +394,7 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
+> >         role_datum_t *r1, *r2;
+> >         mls_level_t *l1, *l2;
+> >         constraint_expr_t *e;
+> > -       int s[CEXPR_MAXDEPTH];
+> > +       int s[CEXPR_MAXDEPTH] = {};
+> >         int sp = -1;
+> >         char tmp_buf[128];
+> >
+> > --
+> > 2.36.1
+> >
