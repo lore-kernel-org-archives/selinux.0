@@ -2,146 +2,153 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CC9BC43334
-	for <selinux@archiver.kernel.org>; Fri,  1 Jul 2022 09:21:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C65DC433EF
+	for <selinux@archiver.kernel.org>; Fri,  1 Jul 2022 09:27:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231735AbiGAJVt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 Jul 2022 05:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37208 "EHLO
+        id S235234AbiGAJ1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 Jul 2022 05:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiGAJVs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 Jul 2022 05:21:48 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E319558FC0
-        for <selinux@vger.kernel.org>; Fri,  1 Jul 2022 02:21:43 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id s13-20020a0568301e0d00b00616ad12fee7so1384275otr.10
-        for <selinux@vger.kernel.org>; Fri, 01 Jul 2022 02:21:43 -0700 (PDT)
+        with ESMTP id S235980AbiGAJ0v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 Jul 2022 05:26:51 -0400
+Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2E876965
+        for <selinux@vger.kernel.org>; Fri,  1 Jul 2022 02:26:31 -0700 (PDT)
+Received: by mail-oi1-x232.google.com with SMTP id h65so2740384oia.11
+        for <selinux@vger.kernel.org>; Fri, 01 Jul 2022 02:26:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=hxHldyNGjxMXzowFw50Y2rFuv0HyV9n3klELICJHlxw=;
-        b=cWFvkTDJdkJpYT62zmkGNrXiEAwa2JSc11BdVvAgWmugrtNkJGEkVKKGmuUSd0h34P
-         1Q33SjXmgpx3QlWBmeDEZq78c1A5JqlZco95watbCFByrbiU4o1XPltzgrZ21D7bZDVV
-         fNYHFkQ7ms2ZjK6u1AiSl07oJTKRzh5lJfOMgAawQOXfEj1l5vQBMpTHnJ6H7DJND4rJ
-         4SeyCmqmw6qQfoqCMJdNLqf4j+b4Wl5int6NAG/NIiJtBELmJCdFijZq49pyNMj1BnhY
-         YBNAVr4PyqGcUcvKg6LGP9u5GAHP+hjlzRvfZrPWFWbVaGLu2m/UZtUCgXmhQ5FvMvhM
-         aCAA==
+        bh=cgIHzUm25ppwWhBnafZ0FEvF0E7MfJqpn9HJYdfXNIc=;
+        b=l+pQ6UxFj4vK9uYR4qkR1dPYVrW3ptWmxfeWXljkCpmEXpz5SKtb0tcYiPPFp3TwUJ
+         YxYtEwDsR64K55+lkS/3+ci0zvTdmiqoZITinNFicXucDRUzFvtigvjEsKc2djTqfX0J
+         uzHegUsUmz3Ign6HNlFQIZTSwuR/QUUvNDAMorU+zWOt7m7nxU/aVa/Mgr1yZpJXnv6U
+         9srALi797SYp9VA4kbtjGUT7ux+dcYfu1+NTcE1K2wC79928x5MW6ddVbV5VbAZdiBbS
+         FaVyCIC//Bkxs25dsJcKGC3hV909RSRkKB4Gyq5GoCiqapmRz4JxI8B9af1pBrExPxEO
+         xGcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=hxHldyNGjxMXzowFw50Y2rFuv0HyV9n3klELICJHlxw=;
-        b=LolY3F4SNadNdesKMLctsoKRLPUZshaYWx+U3bf7g9ODBh8QlTIQOouellrcA2xKZP
-         3ObngYreshAzhJMeeQ3D4NcLOfr8+eEzmdGm7N5nz/PP+HB5MfqDvdw0WeytCA5EN0+g
-         aECVPv9dyLFpnt6DhiGTBYwOyeLJ81A33xeuCF+Yqv+CNUGRHWLnunmwAdpgvcRZpj20
-         Eg3oQ3weDDSZoQS3zN7eTA7La5V123C6ZDm4vr6dTNCDxUOBUGO3Fx9GwENOwxjDHWyO
-         N1mCRz6OBnr8jVmjCQL/UDr90ZjpZLzaphtMJZJhHPMjEY7HAwhQaRF2+ARLaJkRxRb7
-         GfUQ==
-X-Gm-Message-State: AJIora8aOTfnfGTLhlxvk4O5OvU4uqiyMh5/bgcvbdUGQnhxqc0sCxYj
-        qcdfkU4aMFR1Bp+lqb/XvW+thYOvWns6lke750o=
-X-Google-Smtp-Source: AGRyM1tz+Cdt26nDr61XkajY0vnnRG/QRF0OykpEOcfRpc9IK9tuvAcvvMg0JNrbjQJOyINcu27Xq3/uXtfcxVMLrto=
-X-Received: by 2002:a05:6830:2692:b0:618:b992:cbc9 with SMTP id
- l18-20020a056830269200b00618b992cbc9mr3054451otu.117.1656667302306; Fri, 01
- Jul 2022 02:21:42 -0700 (PDT)
+        bh=cgIHzUm25ppwWhBnafZ0FEvF0E7MfJqpn9HJYdfXNIc=;
+        b=3vthc2iqL6rM2th7rV3ItWBfBjdrfr+xyhitFG41VeWrBpVquV0SfBb+RaPgkoO5w/
+         c91FGjND/pEB6Pvc1YlNIBCcEMdg4iWH2WLKtFfhrgbyt+FK3R1TPByZZDDg72JwWOKc
+         al3If3FlAfv7Mhu0lUQhPbTh9sU5RXnnRnTA7jfZr2eTLYhZmOWNhYKkeIL39QTcw2kT
+         WFsyVbz0sm3JXtTgw1ewvXVlIyQhTANE8xPue0uBTN5yHdd5eCtR3xfhW1sfE8xrwm7w
+         ddU97z4L5/u1XDnfnGHXbcX/LzhfKZy7yXtxXx3B7egwsNWujMKjaPwRPlvB+EFS8nws
+         jZ+g==
+X-Gm-Message-State: AJIora/pzcY0nmtaJ829JsXlmmcQVb81EEpRB8kR88MJCd0b1hDB2CiW
+        NmY+9TzkaOAGpEBxuNPp+mg1hJdXzoac/L4pQrY=
+X-Google-Smtp-Source: AGRyM1uf+o9XYSg/INpV2lWVIGevxhNP2nsaZ2jOFWxyBcAnGLsT83DWXJq/E4bjxnGtcbWeLWXBGadiCQWiU3Y9Zgc=
+X-Received: by 2002:a05:6808:1509:b0:336:77e:d668 with SMTP id
+ u9-20020a056808150900b00336077ed668mr3478196oiw.71.1656667590559; Fri, 01 Jul
+ 2022 02:26:30 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220629072055.2653695-1-nicolas.iooss@m4x.org> <CAP+JOzRXjoneNg4sQ3W9sMSneQETHqCw1yGUP1hdmXqbXXMwsQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzRXjoneNg4sQ3W9sMSneQETHqCw1yGUP1hdmXqbXXMwsQ@mail.gmail.com>
+References: <CAJfZ7=mP2eJaq2BfO3y0VnwUJaY2cS2p=HZMN71z1pKjzaT0Eg@mail.gmail.com>
+ <CA+EEuAiG1B8i1xTt+K1QO1UPgynZVYiRkiLTY6nTVi9Rm4uA1A@mail.gmail.com>
+In-Reply-To: <CA+EEuAiG1B8i1xTt+K1QO1UPgynZVYiRkiLTY6nTVi9Rm4uA1A@mail.gmail.com>
 From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Fri, 1 Jul 2022 11:21:31 +0200
-Message-ID: <CAJ2a_Dco+NbrnnZvb1tm_o37-ykKbkQZb3kp5vvH7nffKZ0UZQ@mail.gmail.com>
-Subject: Re: [PATCH userspace 1/1] libsepol: initialize s in constraint_expr_eval_reason
-To:     James Carter <jwcart2@gmail.com>
+Date:   Fri, 1 Jul 2022 11:26:19 +0200
+Message-ID: <CAJ2a_De9=CoyWS=EEgWHpbzoXK6O1H21Lwf_hMFfFUtGBMUfJg@mail.gmail.com>
+Subject: Re: What is "fscon" statement in a base policy?
+To:     Karl MacMillan <karl@bigbadwolfsecurity.com>
 Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>
+        SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 29 Jun 2022 at 22:07, James Carter <jwcart2@gmail.com> wrote:
+On Fri, 1 Jul 2022 at 03:58, Karl MacMillan <karl@bigbadwolfsecurity.com> wrote:
 >
-> On Wed, Jun 29, 2022 at 3:37 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> >
-> > clang's static analyzer reports that s[0] can be uninitialized when used
-> > in:
-> >
-> >     sprintf(tmp_buf, "%s %s\n",
-> >                     xcontext ? "Validatetrans" : "Constraint",
-> >                     s[0] ? "GRANTED" : "DENIED");
-> >
-
-The trace for the reports shows:
-
-    441 for (e = constraint->expr; e; e = e->next) {
-        Loop condition is false. Execution continues on line 708
-
-and clang-tidy also reports:
-
-     libsepol/src/services.c:715:16: warning: Call to 'calloc' has an
-allocation size of 0 bytes [clang-analyzer-optin.portability.UnixAPI]
-           answer_list = calloc(expr_count, sizeof(*answer_list));
-                         ^      ~~~~~~~~~~
-    libsepol/src/services.c:433:6: note: Assuming 'class_buf' is
-non-null
-           if (!class_buf) {
-               ^~~~~~~~~~
-    libsepol/src/services.c:433:2: note: Taking false branch
-           if (!class_buf) {
-           ^
-    libsepol/src/services.c:439:2: note: The value 0 is assigned to
-'expr_counter'
-           expr_counter = 0;
-           ^~~~~~~~~~~~~~~~
-    libsepol/src/services.c:441:2: note: Loop condition is false.
-Execution continues on line 708
-           for (e = constraint->expr; e; e = e->next) {
-           ^
-    libsepol/src/services.c:708:2: note: The value 0 is assigned to
-'expr_count'
-           expr_count = expr_counter;
-           ^~~~~~~~~~~~~~~~~~~~~~~~~
-    libsepol/src/services.c:715:16: note: Call to 'calloc' has an
-allocation size of 0 bytes
-           answer_list = calloc(expr_count, sizeof(*answer_list));
-                         ^      ~~~~~~~~~~
-
-I think the root cause is the possibility of `constraint->expr` being
-NULL, i.e. the constraint having no expression, which seems invalid to
-me.
-Maybe add a check `if(!constraint->expr) { BUG(); return -EINVAL; }`?
-
-Also validation should probably catch this at
-https://github.com/SELinuxProject/selinux/blob/956bda08f6183078f13b70f6aa27d0529a3ec20a/libsepol/src/policydb_validate.c#L238
-
-    + if (!cons->expr)
-    +     goto bad;
-    +
-    for (cexp = cons->expr; cexp; cexp = cexp->next) {
-
-> > Silence this false-positive issue by making s always initialized.
-> >
-> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Hi Nicolas,
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> I believe these are described on page 19 of the old "A Security Policy
+> Configuration for the Security-Enhanced Linux" [1].
+
+Quote from 7.2 File System Contexts:
+
+    Currently, this configuration is unused.
+
+> There is still support for these in the kernel [2], so it seems unwise to me to drop
+> them even if they are not used in policies.
+
+git log -S OCON_FS lists
+
+    335c818c5a7a can: mcp251xfd: move chip FIFO init into separate file
+    55e5b97f003e can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN
+    875347fe5756 can: mcp25xxfd: add regmap infrastructure
+    cee74f47a6ba SELinux: allow userspace to read policy back out of the kernel
+    1da177e4c3f4 (tag: v2.6.12-rc2) Linux-2.6.12-rc2
+
+and grepping the source shows
+
+    $ grep -Rw OCON_FS security/selinux/
+    security/selinux/ss/policydb.h:#define OCON_FS          1 /*
+unlabeled file systems */
+    security/selinux/ss/policydb.c: if (i == OCON_ISID || i == OCON_FS ||
+    security/selinux/ss/policydb.c:                 case OCON_FS:
+    security/selinux/ss/policydb.c:                 case OCON_FS:
+
+OCON_FS is only used while parsing a policy and on cleanup, but there
+is no actual usage, e.g. for OCON_FSUSE:
+
+    security/selinux/ss/services.c: c = policydb->ocontexts[OCON_FSUSE];
+
+So for me fscon is not used at all.
+
+> Good catch though!
 >
-> > ---
-> >  libsepol/src/services.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> Karl
+>
+> 1. https://media.defense.gov/2021/Jul/29/2002815735/-1/-1/0/SELINUX-SECURITY-POLICY-CONFIGURATION-REPORT.PDF
+> 2. https://github.com/torvalds/linux/blob/master/security/selinux/ss/policydb.h#L228
+>
+> On Thu, Jun 30, 2022 at 5:05 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 > >
-> > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> > index d7510e9dae51..db769cdcfaf9 100644
-> > --- a/libsepol/src/services.c
-> > +++ b/libsepol/src/services.c
-> > @@ -394,7 +394,7 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
-> >         role_datum_t *r1, *r2;
-> >         mls_level_t *l1, *l2;
-> >         constraint_expr_t *e;
-> > -       int s[CEXPR_MAXDEPTH];
-> > +       int s[CEXPR_MAXDEPTH] = {};
-> >         int sp = -1;
-> >         char tmp_buf[128];
+> > Hello,
 > >
-> > --
-> > 2.36.1
+> > While studying some malloc calls in libsepol and checkpolicy, I
+> > stumbled upon function define_fs_context(), which allocates a
+> > fixed-size buffer in
+> > https://github.com/SELinuxProject/selinux/blob/956bda08f6183078f13b70f6aa27d0529a3ec20a/checkpolicy/policy_define.c#L4631-L4637
+> >
+> >     newc->u.name = (char *)malloc(6);
+> >     if (!newc->u.name) {
+> >         yyerror("out of memory");
+> >         free(newc);
+> >         return -1;
+> >     }
+> >     sprintf(newc->u.name, "%02x:%02x", major, minor);
+> >
+> > As major and minor are unsigned int (so 32-bit integers) without any
+> > value checking, there seems to be a possible heap buffer overflow
+> > issue. This function is called when parsing a fscon statement in a
+> > "base" policy. So I copied tmp/base.conf from a build of the Reference
+> > Policy, added "fscon 1000 1000 system_u:object_r:unlabeled_t
+> > system_u:object_r:unlabeled_t" right after "sid security
+> > system_u:object_r:security_t" (the order of the statements matters),
+> > and ran:
+> >
+> >     $ checkpolicy -o test.pol base.conf
+> >     *** buffer overflow detected ***: terminated
+> >     Aborted (core dumped)
+> >
+> > For whatever it's worth, the stack trace of this abort tells that the
+> > buffer overflow occurs in a call to __sprintf_chk(): my gcc compiler
+> > seems to be "smart enough" to find out that the size of newc->u.name
+> > was 6, and it replaced sprintf() with __sprintf_chk() to ensure that
+> > the buffer was not written past its bounds.
+> >
+> > Now, I can submit a patch to fix this issue, for example by replacing
+> > malloc()+sprintf() with asprintf() and by checking that major and
+> > minor are below 256. But before doing so, I was wondering: what is
+> > this fscon syntax? I have never encountered it, did not find any
+> > policy using it, and I am wondering whether we could instead drop its
+> > support and remove function define_fs_context() from checkpolicy.
+> >
+> > Thanks,
+> > Nicolas
 > >
