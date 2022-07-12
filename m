@@ -2,137 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C048CCA483
-	for <selinux@archiver.kernel.org>; Tue, 12 Jul 2022 16:09:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB719C43334
+	for <selinux@archiver.kernel.org>; Tue, 12 Jul 2022 21:14:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbiGLQJS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jul 2022 12:09:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52540 "EHLO
+        id S231283AbiGLVOe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jul 2022 17:14:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234256AbiGLQJJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jul 2022 12:09:09 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93FE02625
-        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 09:09:08 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id fd6so10713311edb.5
-        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 09:09:08 -0700 (PDT)
+        with ESMTP id S231364AbiGLVOd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jul 2022 17:14:33 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62314A58FB
+        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 14:14:31 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id h17so12937060wrx.0
+        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 14:14:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=CAWUvuH2vtDhqU49owxtq8l4iLBUVe5BvEM74A+7J58=;
-        b=ihzDE9ZDUa8Rv4WAGGJAZHJP/X2olFgES+L0/REfLv0Yfo4azjSCIKwexv5VbzqXpw
-         7Fk507AELQz15VFcJEQq3D99DbiuxPTMWaOK/lC3lJKs8x0goosXuMbhsKfNMREJ648A
-         Q8S3yNSDEr2heQeDDiUcczkCYxgpCc2O9EujazCasQHbZU/zEUpjiyHtRQPtftYAWRv9
-         WeiQtQKBm0h6ARK8kW65HyIKAjUL4MdmEe2pSIgy4YpOpIn8EtqWiy4M0EqjTRn0H05d
-         db7jIl5FyHxlsvyFozRgY+ENIZsUgV32pZHYsf2zHuarLNfVRE+gPx2W/2toeAcahRMQ
-         0aWg==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vWD5yMUrDJWawVJXPESDlam9I0gkjM1YF8IS+nJ/eUg=;
+        b=qLft1sMDs8QXpay4jg1/0uosoW+V9QY/3cM7yYAHFjaqroCwYlah2XO0Z27OtKZ9Il
+         DLwFpEXTO3rrFshJm0s6uRytGZytz4HayipKlY0s7n9L4H8l9rk0A4587E3Xa0Uh5jaw
+         8mll5zhbM2opo6Uv1w76n+mQXOkxZJe1C5UT+cu2zmq5VrTnjLTP+rh89jF/UyQZps01
+         RVpf0gmFiQBpFedyAcdjv6DusuEVu89kOknwR4tJ4+nauIBo+ImGbZKZrSEz9mqT67M/
+         Zt2w835LhEBqnwY4xeSQ7X4xCxh0SHOI23azm/782RsIeQflVZlSyMbBXg+bApUQkM07
+         cDAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=CAWUvuH2vtDhqU49owxtq8l4iLBUVe5BvEM74A+7J58=;
-        b=v1hCSPbUGuFGew3WqEGq1lm/sEpL6b1V0ACdtiPg3mLPU3ODyMh1YjL1SQnmkDAp1y
-         NWVWQjpEwNLIABNeDO9xCkEELdQ23K+LX44StNj7UkSFFwha1vTcray5IbHfvO6BgO6M
-         W+gp8UEqGx6PN7Z5oY8Ko3xDUZGWjQC1oCI7UF9rJb0JHTmdIpgRdDo9GPTgrlzqTG+K
-         giUD7xsPio857U3YuHMYrczruMkwBxpLCMr3aW+w5OjiUb6BRxTXaPVBQKXbwFtFXqqw
-         LwVFQ/hx0yCBwxqz0d3FSUjliVjOt28Jl0gFE2SCYATtCEdUWP+2KJ0g0KMC6xAVlcju
-         QQVw==
-X-Gm-Message-State: AJIora9ulhUczzLDDqVO2AYRCsHoAtkazn4xB7lJgm8H4roSVhiGNaVI
-        A3CLHB9Doyz2it1vClDGLVeWdb98ZkoLZw==
-X-Google-Smtp-Source: AGRyM1ur4U/tMvTNIEa5TIdQkRMwx8ddFqT6R2nxqo5rH5JHiaI6yGKZ7WGfb83OVNUob9kLxw7JYQ==
-X-Received: by 2002:a05:6402:909:b0:435:a8b:5232 with SMTP id g9-20020a056402090900b004350a8b5232mr32659034edz.240.1657642147114;
-        Tue, 12 Jul 2022 09:09:07 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-010-190-079.77.10.pool.telefonica.de. [77.10.190.79])
-        by smtp.gmail.com with ESMTPSA id p13-20020a17090653cd00b006fed85c1a8fsm3887127ejo.202.2022.07.12.09.09.06
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Jul 2022 09:09:06 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 6/7] libsepol: optimize ebitmap_xor
-Date:   Tue, 12 Jul 2022 18:08:57 +0200
-Message-Id: <20220712160858.22677-6-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220712160858.22677-1-cgzones@googlemail.com>
-References: <20220712160858.22677-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vWD5yMUrDJWawVJXPESDlam9I0gkjM1YF8IS+nJ/eUg=;
+        b=K+Z7KOZ7nN9Bz2c6Iu6nPbjRTS0XKz/4na4OXjPFwzlxgFjDoXWpTOqVGiTCj7VcIU
+         TiMPq/smsVebRwdutm3d/2ZdPNymToI0Sr5QV0ZlOLmpWbp1QGTbKdQGxvmvEO/E4ye0
+         PDbwq/9LEwm0F/7dYo7IziDIrd93aJO0CiH04AJnBenYerhKDVGmmdvEX8l7yACcXJ0a
+         YO9cLL4N/FFZNitTj+0K9kEFoUHRd67sD/vWxWRInxzdBQ1PRfWhbxbIgAmdGA5nBQOz
+         3Z25nrbMEvePtYfN6DIQ4H5NmnJ6j1tESJd0i/D9JYLpEH9luI5vpUMCftQeLeI4EIIN
+         y2zg==
+X-Gm-Message-State: AJIora+oFO7UA92UQypAFirdV1vguQN2C2gqXCfWyNmH0eD5pp5/zwBy
+        nRkeNZiDiDt2Jre/3V6WA7YwaFgpH81IIxyD9Kav
+X-Google-Smtp-Source: AGRyM1vwkI0ULptv3WWRetQFdg/JSozkW5e0cGV2LC0oWbxfgoZnzI0JO4I+wYsTBBCk0/eCzn9YgvxeSzbIyNgM2i0=
+X-Received: by 2002:a5d:4f0b:0:b0:21d:705c:caf with SMTP id
+ c11-20020a5d4f0b000000b0021d705c0cafmr24389233wru.55.1657660469867; Tue, 12
+ Jul 2022 14:14:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <CAFqZXNsO0HSqP2n3W_Su07LPggUm5_M1tGJBuJDW_VL-pWHOWw@mail.gmail.com>
+ <CAHC9VhTqrPeqSFhBKNXvmyf-upN4L73qKSPxBSSRKa+3Ks3oPg@mail.gmail.com>
+ <CAHC9VhQ9FG9kFBJrwS2P_cxkGs8frQ0b=Wz+Hu=e6mrnZXi23A@mail.gmail.com>
+ <CAFqZXNs49z1z5CE_sb8_fJAOGfFNhOc2PmFY516WOSfcj-2Zfw@mail.gmail.com>
+ <CAHC9VhRrQVNwZw6dzAiYJZxwfUwdzN7+3Ki0EEsNNupH6jphRw@mail.gmail.com>
+ <CAFqZXNtxnzc_UYfm6Q-UWLf3zK5BNL-Miji2WJDw7Mnu+cU9TA@mail.gmail.com>
+ <CAHC9VhRyJ5d9fZYWFVmNaKGAmZr09Lrcc+5rAXjg38GPAO=erA@mail.gmail.com> <CAFqZXNtnjoLEhxguzfVKNVBAfdMdPH8ct+Zsifun4v1X=YpubQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNtnjoLEhxguzfVKNVBAfdMdPH8ct+Zsifun4v1X=YpubQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 12 Jul 2022 17:14:18 -0400
+Message-ID: <CAHC9VhTO8WjOXQvJoSGhLW=s09LN-ovxSzmheXd2s0RmEk4rtw@mail.gmail.com>
+Subject: Re: Bug in SELinux SCTP ASCONF handling
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Iterate on nodes instead of single bits to save node resolution for each
-single bit.
+On Tue, Jun 14, 2022 at 8:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Tue, Jun 7, 2022 at 5:08 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Tue, Jun 7, 2022 at 8:28 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > On Fri, Jun 3, 2022 at 12:45 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Thu, Jun 2, 2022 at 10:49 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > On Wed, Jun 1, 2022 at 3:32 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > On Tue, May 31, 2022 at 7:53 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > > On Tue, May 31, 2022 at 1:05 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > ...
+> >
+> > > > > > From a quick skim of the SCTP RFCs, the ASCONF chunk is sent from a
+> > > > > > remote endpoint to update the SCTP parameters so in this case I
+> > > > > > believe the subject should be the remote peer (the association/sock's
+> > > > > > peer_secid) and the object should be the local association/socket.
+> > > > > > It's important to note that any access control checks using the remote
+> > > > > > peer label should be gated by the selinux_peerlbl_enabled() function,
+> > > > > > see selinux_socket_sock_rcv_skb() for an example.
+> > > > >
+> > > > > I don't like the idea of using peer_secid as the subject for
+> > > > > socket::connect, which normally has a task sid as the subject.
+> > > >
+> > > > While I have concerns about reusing the socket:connect permission for
+> > > > the ASCONF updates, it isn't because of the peer_secid.  The
+> > > > peer_secid represents the security label of the remote peer and it is
+> > > > the subject label for ASCONF operations.
+> > >
+> > > It does make sense to use it as a subject label, but not for the
+> > > connect permission, where the convention is that the subject context
+> > > is a process context. While we don't have any hard rule against mixing
+> > > different "kinds" of contexts in the subject/target of a given
+> > > permission, it makes both figuring out AVC denials and reasoning about
+> > > policy harder and I want to avoid it wherever possible.
+> >
+> > The network peer label is a process label, it is intended to represent
+> > the security attributes of the remote process.
+>
+> Hm, indeed, I misunderstood the semantics behind it. Let's disregard
+> that argument then.
+>
+> Still, I'd say the situation "a remote process wants to potentially
+> redirect communication to a different address" is different enough
+> from "local process intends to initiate a connection to a given
+> endpoint" that it warrants a special permission.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/ebitmap.c | 49 ++++++++++++++++++++++++++++++++++++------
- 1 file changed, 43 insertions(+), 6 deletions(-)
+I had really hoped to have a patch on the list by now, but in the
+process of fixing the original SCTP issue I found another related to
+how SCTP traffic is labeled.  Fixing that problem exposed a bad
+assumption in the selinux-testsuite SCTP tests which I'm currently
+working on fixing.  I'm hopeful that it shouldn't be *too* much longer
+before the patches hit the list, so let's just hold off on this thread
+until we have some proper patches to discuss.
 
-diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-index c3d706e9..e0541abb 100644
---- a/libsepol/src/ebitmap.c
-+++ b/libsepol/src/ebitmap.c
-@@ -116,14 +116,51 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2)
- 
- int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2)
- {
--	unsigned int i, length = max(ebitmap_length(e1), ebitmap_length(e2));
-+	const ebitmap_node_t *n1, *n2;
-+	ebitmap_node_t *new, *prev = NULL;
-+	uint32_t startbit;
-+	MAPTYPE map;
-+
- 	ebitmap_init(dst);
--	for (i=0; i < length; i++) {
--		int val = ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, i);
--		int rc = ebitmap_set_bit(dst, i, val);
--		if (rc < 0)
--			return rc;
-+
-+	n1 = e1->node;
-+	n2 = e2->node;
-+	while (n1 || n2) {
-+		if (n1 && n2 && n1->startbit == n2->startbit) {
-+			startbit = n1->startbit;
-+			map = n1->map ^ n2->map;
-+			n1 = n1->next;
-+			n2 = n2->next;
-+		} else if (!n2 || (n1 && n1->startbit < n2->startbit)) {
-+			startbit = n1->startbit;
-+			map = n1->map;
-+			n1 = n1->next;
-+		} else {
-+			startbit = n2->startbit;
-+			map = n2->map;
-+			n2 = n2->next;
-+		}
-+
-+		if (map != 0) {
-+			new = malloc(sizeof(ebitmap_node_t));
-+			if (!new) {
-+				ebitmap_destroy(dst);
-+				return -ENOMEM;
-+			}
-+			new->startbit = startbit;
-+			new->map = map;
-+			new->next = NULL;
-+			if (prev)
-+				prev->next = new;
-+			else
-+				dst->node = new;
-+			prev = new;
-+		}
- 	}
-+
-+	if (prev)
-+		dst->highbit = prev->startbit + MAPSIZE;
-+
- 	return 0;
- }
- 
 -- 
-2.36.1
-
+paul-moore.com
