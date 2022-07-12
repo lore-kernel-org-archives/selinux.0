@@ -2,122 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB719C43334
-	for <selinux@archiver.kernel.org>; Tue, 12 Jul 2022 21:14:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 665D1C43334
+	for <selinux@archiver.kernel.org>; Tue, 12 Jul 2022 21:17:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231283AbiGLVOe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Jul 2022 17:14:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51638 "EHLO
+        id S232963AbiGLVRI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Jul 2022 17:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231364AbiGLVOd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jul 2022 17:14:33 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62314A58FB
-        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 14:14:31 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id h17so12937060wrx.0
-        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 14:14:31 -0700 (PDT)
+        with ESMTP id S232386AbiGLVQ7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Jul 2022 17:16:59 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFBBAD03BC
+        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 14:16:57 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id h17so12943832wrx.0
+        for <selinux@vger.kernel.org>; Tue, 12 Jul 2022 14:16:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=vWD5yMUrDJWawVJXPESDlam9I0gkjM1YF8IS+nJ/eUg=;
-        b=qLft1sMDs8QXpay4jg1/0uosoW+V9QY/3cM7yYAHFjaqroCwYlah2XO0Z27OtKZ9Il
-         DLwFpEXTO3rrFshJm0s6uRytGZytz4HayipKlY0s7n9L4H8l9rk0A4587E3Xa0Uh5jaw
-         8mll5zhbM2opo6Uv1w76n+mQXOkxZJe1C5UT+cu2zmq5VrTnjLTP+rh89jF/UyQZps01
-         RVpf0gmFiQBpFedyAcdjv6DusuEVu89kOknwR4tJ4+nauIBo+ImGbZKZrSEz9mqT67M/
-         Zt2w835LhEBqnwY4xeSQ7X4xCxh0SHOI23azm/782RsIeQflVZlSyMbBXg+bApUQkM07
-         cDAw==
+        bh=tdOEioFO23wO9jT+v84Uq6yR/rM6WjphFOowXqeZg+8=;
+        b=FGMgDJ/UWUUwxtjgAbMXHbpKlAFja3YZGN8NTh9r5gki2J1eTGIrihjn5kYu8Zp5m4
+         6VTF06qBe97J1CxPU3T14bt6XIuwgM9FBXtDhrpqJEJRIUmhzBQG7IK+T7h8yE7VdA5a
+         I70IGaN4H1bfFHKVCsYsxL34OJK1NRAnfx/0yh1pnxcRJXal4rH+p6RYOdQrahufvonY
+         fWO0KQmvYb+As0YFoNmK/y+Vj75uZM2InxTtWMWRkuQ6q1O5gPBztxVzh4L3IWpslSUJ
+         Y2NpYIgYdzc37H3yOAl5XR3vg+AuNRrMZP+8+WIw7tZouCd93viYtW4+bYH/RYk0XbUP
+         D/3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=vWD5yMUrDJWawVJXPESDlam9I0gkjM1YF8IS+nJ/eUg=;
-        b=K+Z7KOZ7nN9Bz2c6Iu6nPbjRTS0XKz/4na4OXjPFwzlxgFjDoXWpTOqVGiTCj7VcIU
-         TiMPq/smsVebRwdutm3d/2ZdPNymToI0Sr5QV0ZlOLmpWbp1QGTbKdQGxvmvEO/E4ye0
-         PDbwq/9LEwm0F/7dYo7IziDIrd93aJO0CiH04AJnBenYerhKDVGmmdvEX8l7yACcXJ0a
-         YO9cLL4N/FFZNitTj+0K9kEFoUHRd67sD/vWxWRInxzdBQ1PRfWhbxbIgAmdGA5nBQOz
-         3Z25nrbMEvePtYfN6DIQ4H5NmnJ6j1tESJd0i/D9JYLpEH9luI5vpUMCftQeLeI4EIIN
-         y2zg==
-X-Gm-Message-State: AJIora+oFO7UA92UQypAFirdV1vguQN2C2gqXCfWyNmH0eD5pp5/zwBy
-        nRkeNZiDiDt2Jre/3V6WA7YwaFgpH81IIxyD9Kav
-X-Google-Smtp-Source: AGRyM1vwkI0ULptv3WWRetQFdg/JSozkW5e0cGV2LC0oWbxfgoZnzI0JO4I+wYsTBBCk0/eCzn9YgvxeSzbIyNgM2i0=
-X-Received: by 2002:a5d:4f0b:0:b0:21d:705c:caf with SMTP id
- c11-20020a5d4f0b000000b0021d705c0cafmr24389233wru.55.1657660469867; Tue, 12
- Jul 2022 14:14:29 -0700 (PDT)
+        bh=tdOEioFO23wO9jT+v84Uq6yR/rM6WjphFOowXqeZg+8=;
+        b=PWODjfiDU7xUdiiCTifmI47EYaOltdHX2aA4YOWaU/A0Nt6x+PKt24XJ4IVtgeOEOv
+         0hEVKqy3ovYcvNscFaaq1FFvi5Ug/DsWWiXgIgpFWIaHij/fFoTTKZlD8Liw1mdfmBx2
+         Td+7y0mI+CuzG2rUopCUwtiOCYSndtFGmZ+JAKSWaZNLN34jsxVxjfQEKVePC6SLIY/g
+         5zI+o4ZZc4mV/dzUKd6L7n0KUqJ3vLpM6E/twEo1+6on4uCb0fUArwsdbkNrYLGw+5Sg
+         WRnZ4KV/xIAP/Fnc3vX+F2e+LZK3xqviQH1PyixYyLVMRJpNCdvPfr2tpRhyMPIT1KYY
+         khHA==
+X-Gm-Message-State: AJIora8xyvLhgnV6HYXrLJmP9PKRkN+AdmCs8UD0/w7a8zKvyb5xZPLj
+        PuZ9ujaIQdm+vA64TOWg0LzdmfdczV7wuNmYQd89
+X-Google-Smtp-Source: AGRyM1t6+kJwHmyatPByBWwaapf9v8hUQbiKnGv5L2vOBVFV2hCN6Zjs9bYVu18D1T6dN31FclApp8UbXipJerOfjYM=
+X-Received: by 2002:a5d:64a3:0:b0:21d:adaa:ce4c with SMTP id
+ m3-20020a5d64a3000000b0021dadaace4cmr7514967wrp.161.1657660616240; Tue, 12
+ Jul 2022 14:16:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFqZXNsO0HSqP2n3W_Su07LPggUm5_M1tGJBuJDW_VL-pWHOWw@mail.gmail.com>
- <CAHC9VhTqrPeqSFhBKNXvmyf-upN4L73qKSPxBSSRKa+3Ks3oPg@mail.gmail.com>
- <CAHC9VhQ9FG9kFBJrwS2P_cxkGs8frQ0b=Wz+Hu=e6mrnZXi23A@mail.gmail.com>
- <CAFqZXNs49z1z5CE_sb8_fJAOGfFNhOc2PmFY516WOSfcj-2Zfw@mail.gmail.com>
- <CAHC9VhRrQVNwZw6dzAiYJZxwfUwdzN7+3Ki0EEsNNupH6jphRw@mail.gmail.com>
- <CAFqZXNtxnzc_UYfm6Q-UWLf3zK5BNL-Miji2WJDw7Mnu+cU9TA@mail.gmail.com>
- <CAHC9VhRyJ5d9fZYWFVmNaKGAmZr09Lrcc+5rAXjg38GPAO=erA@mail.gmail.com> <CAFqZXNtnjoLEhxguzfVKNVBAfdMdPH8ct+Zsifun4v1X=YpubQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNtnjoLEhxguzfVKNVBAfdMdPH8ct+Zsifun4v1X=YpubQ@mail.gmail.com>
+References: <20220708093451.472870-1-omosnace@redhat.com> <Ys2DobolHlrXP4/M@xz-m1.local>
+In-Reply-To: <Ys2DobolHlrXP4/M@xz-m1.local>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 12 Jul 2022 17:14:18 -0400
-Message-ID: <CAHC9VhTO8WjOXQvJoSGhLW=s09LN-ovxSzmheXd2s0RmEk4rtw@mail.gmail.com>
-Subject: Re: Bug in SELinux SCTP ASCONF handling
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 12 Jul 2022 17:16:45 -0400
+Message-ID: <CAHC9VhRv2VPvUAbpDo0D0oK9gEHL=vcOh84M9Fg+AN1c1SR0pA@mail.gmail.com>
+Subject: Re: [RFC PATCH RESEND] userfaultfd: open userfaultfds with O_RDONLY
+To:     Peter Xu <peterx@redhat.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Lokesh Gidra <lokeshgidra@google.com>, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        "Robert O'Callahan" <roc@ocallahan.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 14, 2022 at 8:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Tue, Jun 7, 2022 at 5:08 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Tue, Jun 7, 2022 at 8:28 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > On Fri, Jun 3, 2022 at 12:45 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > On Thu, Jun 2, 2022 at 10:49 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > > On Wed, Jun 1, 2022 at 3:32 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > > > On Tue, May 31, 2022 at 7:53 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > > > > > On Tue, May 31, 2022 at 1:05 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Tue, Jul 12, 2022 at 10:22 AM Peter Xu <peterx@redhat.com> wrote:
+> On Fri, Jul 08, 2022 at 11:34:51AM +0200, Ondrej Mosnacek wrote:
+> > Since userfaultfd doesn't implement a write operation, it is more
+> > appropriate to open it read-only.
 > >
-> > ...
+> > When userfaultfds are opened read-write like it is now, and such fd is
+> > passed from one process to another, SELinux will check both read and
+> > write permissions for the target process, even though it can't actually
+> > do any write operation on the fd later.
 > >
-> > > > > > From a quick skim of the SCTP RFCs, the ASCONF chunk is sent from a
-> > > > > > remote endpoint to update the SCTP parameters so in this case I
-> > > > > > believe the subject should be the remote peer (the association/sock's
-> > > > > > peer_secid) and the object should be the local association/socket.
-> > > > > > It's important to note that any access control checks using the remote
-> > > > > > peer label should be gated by the selinux_peerlbl_enabled() function,
-> > > > > > see selinux_socket_sock_rcv_skb() for an example.
-> > > > >
-> > > > > I don't like the idea of using peer_secid as the subject for
-> > > > > socket::connect, which normally has a task sid as the subject.
-> > > >
-> > > > While I have concerns about reusing the socket:connect permission for
-> > > > the ASCONF updates, it isn't because of the peer_secid.  The
-> > > > peer_secid represents the security label of the remote peer and it is
-> > > > the subject label for ASCONF operations.
-> > >
-> > > It does make sense to use it as a subject label, but not for the
-> > > connect permission, where the convention is that the subject context
-> > > is a process context. While we don't have any hard rule against mixing
-> > > different "kinds" of contexts in the subject/target of a given
-> > > permission, it makes both figuring out AVC denials and reasoning about
-> > > policy harder and I want to avoid it wherever possible.
+> > Inspired by the following bug report, which has hit the SELinux scenario
+> > described above:
+> > https://bugzilla.redhat.com/show_bug.cgi?id=1974559
 > >
-> > The network peer label is a process label, it is intended to represent
-> > the security attributes of the remote process.
+> > Reported-by: Robert O'Callahan <roc@ocallahan.org>
+> > Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> Hm, indeed, I misunderstood the semantics behind it. Let's disregard
-> that argument then.
->
-> Still, I'd say the situation "a remote process wants to potentially
-> redirect communication to a different address" is different enough
-> from "local process intends to initiate a connection to a given
-> endpoint" that it warrants a special permission.
+> Acked-by: Peter Xu <peterx@redhat.com>
 
-I had really hoped to have a patch on the list by now, but in the
-process of fixing the original SCTP issue I found another related to
-how SCTP traffic is labeled.  Fixing that problem exposed a bad
-assumption in the selinux-testsuite SCTP tests which I'm currently
-working on fixing.  I'm hopeful that it shouldn't be *too* much longer
-before the patches hit the list, so let's just hold off on this thread
-until we have some proper patches to discuss.
+Thanks Peter.
 
 -- 
 paul-moore.com
