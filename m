@@ -2,58 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A32BCCA479
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C280C433EF
 	for <selinux@archiver.kernel.org>; Wed, 13 Jul 2022 14:11:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231151AbiGMOL4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S231740AbiGMOL4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 13 Jul 2022 10:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46252 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230041AbiGMOLz (ORCPT
+        with ESMTP id S229770AbiGMOLz (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 13 Jul 2022 10:11:55 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B71DB326FB
-        for <selinux@vger.kernel.org>; Wed, 13 Jul 2022 07:11:53 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id t1so4339946ejd.12
-        for <selinux@vger.kernel.org>; Wed, 13 Jul 2022 07:11:53 -0700 (PDT)
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591EB326FF
+        for <selinux@vger.kernel.org>; Wed, 13 Jul 2022 07:11:54 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id b11so20050690eju.10
+        for <selinux@vger.kernel.org>; Wed, 13 Jul 2022 07:11:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=D23e2evORQwQTl87LF+PFyms/PEiOJ7GNcQ7WjcFOI8=;
-        b=P6XXEJj0O5L/KZX3RZvyozz6oG7Ns0Nb/6zuTEcIfWj77Q/v/Na4rc8VHutkcGo3/7
-         EQF+J7hC49j1FWR+r2XJBpEZwc5/27A6b1vLzTkkndeuAuohSz50MTbDMyKozgqX4qb8
-         yuT3PbyEiQBKZfKXvhZ/9klQb5PyiDLjlnCYPK8AyocXzfKjjt++F/4Z03bMve+/PTF3
-         ezaL8xpOXTheJRNNWQ/Twyx1EDxLYBS3b/3FanP/Lnkw5l/6xgtkNtBQar1BXGoa1vas
-         ptVH70CiWRWufXZNcjchOVmzI2VeeH4VXyacsHpb8329qwQ2phfSispm4rIURi5tIvtB
-         +YTA==
+        bh=3aVSf916MDtcF5XRj5uEjp8oDwGTilyw0x4YsS+vi2Y=;
+        b=iVqqRCSFk6Ey/YUe153Q4orL8POzhHdVaGdB4KGbxpXvZiwJ4s4SrvUh8MUS5XyksN
+         bMCxyGXzFQlSDJ2+Zrb3twFBhvGC8g7KFYdZUWSBIqeWzUKjwqu/dtKAhibg4sMKJypL
+         UBbq9WoAVJ+eBQeLwHq8Y29m1+tWSkTYpeACU28Y+Ln8+1/xi+iRaWCClYT78+Y4E1P+
+         05GNx13ayaI8nq8YTE4g0i03MmBwNQZ6x0zrKXj2WXwj8cGU0X2t3WgK94eJ6l3KUFiP
+         oMR+sroZy4moCmP3gatDgqNR4QizZVWpXBWgRas8HcgK2fn/Kgf1vruGHKewD6wkN5be
+         jaJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=D23e2evORQwQTl87LF+PFyms/PEiOJ7GNcQ7WjcFOI8=;
-        b=ff5mdEac9kBbDIOygwaobwN3ORtGNJrmQ0r6DrJgNYo6vaKi02ML3wlkd82FTzx0ST
-         vmGyhcOwn4raG0zNZWUW6ZXOLGFMMYlmPya+lPxaQQWIseDS1EzVW6xverJ3//5TNzW2
-         lZk0Dx8pFE1PNmHd/hH9AICkC7v5fONc5bMzz7gTOM6Xk2l+0by2l01oOT7QHMKbJDw9
-         nz6jgIFQoMd6vFZfAfFSzxM/eI2hjWGkvMOpE5BY2x1V4w1QnYHLv4HjM8OQ/0JnLdXE
-         rTBsLdUP6lsnLNP1L57eqsU9UMw9G46RaVYfZyx4c+VDSnWG0e6PgxJ+w2l4AmGzBB6v
-         U3kA==
-X-Gm-Message-State: AJIora8ufSO0W5f/dy0ijNJb+n17BXe26CEYQaOZrX4S3qJVlZYrVdY9
-        asPNh90iSi53hYUZdomrF07K6Bhu4gIx2Q==
-X-Google-Smtp-Source: AGRyM1syhW3QdyiPfegNvtidcoXdNX4JzMrOepEdkcroUEOvBepb947nqNDZQEv1GaBzcvO0raTzEw==
-X-Received: by 2002:a17:907:2856:b0:72b:54bd:40eb with SMTP id el22-20020a170907285600b0072b54bd40ebmr3599588ejc.542.1657721512283;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=3aVSf916MDtcF5XRj5uEjp8oDwGTilyw0x4YsS+vi2Y=;
+        b=nKCyrSjyvFEprFAznYoCkbD2Hi+IY1e5g8wCPQLznsPApKQM3RTi9HmxmpDHRaZ+JH
+         UeFZSb3ObVCeKai4mBLoAeb5bcg+BYs0KxWcWUwWXedfbNv8gghav4GERbk49Fn9zEH4
+         E6V9xgMdjnF6UMXP+XsjYtgJtqMv/y8hD5890pxVSraQYKRM6+exD0gThLAA6VQh34Sf
+         nwqCQBb7VW8/x32IgrI2O293TWKN5c/xJw6EuYMbmhNCP60JYtjlnThDMxa+AbD5QMlx
+         ILaSTy4gYEaj9dTUSERHrEQOFiTTr++u8iX3Lpyj3t/2NLajFAUQL5OgWHLnfEUTgoZ3
+         CPVw==
+X-Gm-Message-State: AJIora8XIsIMlwHVeDiVxBwzcAtIJTbXb8tx7gOmAMdNk0BbDbLGJp+q
+        YSvmeQG24e8pwTbKAU3VtEcs7VKwNO3QKA==
+X-Google-Smtp-Source: AGRyM1sEmoRUdw6ZYGAxjzmqqFU6wkkFbMx7ifw4MgdQ6LTPVFvk+dIs2HVZzqxBV8VwRDyytofqmQ==
+X-Received: by 2002:a17:907:2d2b:b0:72b:546a:bd03 with SMTP id gs43-20020a1709072d2b00b0072b546abd03mr3954384ejc.149.1657721512845;
         Wed, 13 Jul 2022 07:11:52 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-116-083-213.95.116.pool.telefonica.de. [95.116.83.213])
-        by smtp.gmail.com with ESMTPSA id j21-20020aa7c415000000b0043589eba83bsm8010570edq.58.2022.07.13.07.11.51
+        by smtp.gmail.com with ESMTPSA id j21-20020aa7c415000000b0043589eba83bsm8010570edq.58.2022.07.13.07.11.52
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Jul 2022 07:11:51 -0700 (PDT)
+        Wed, 13 Jul 2022 07:11:52 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/5] libsepol: rename validate_policydb to policydb_validate
-Date:   Wed, 13 Jul 2022 16:11:44 +0200
-Message-Id: <20220713141148.35524-1-cgzones@googlemail.com>
+Subject: [PATCH 2/5] libsepol: support const avtab_t pointer in avtab_map()
+Date:   Wed, 13 Jul 2022 16:11:45 +0200
+Message-Id: <20220713141148.35524-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220713141148.35524-1-cgzones@googlemail.com>
+References: <20220713141148.35524-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,55 +63,45 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Most global functions operating on a policy database use policydb as
-prefix.
+The access vector table itself is not modified in avtab_map() thus
+support passing a const pointer.
 
-Since this function is not exported there should not be any external
-use.
+Logically the content might be changed by the passed callback, but C
+does not support transitive const-ness well, and C also does not support
+function overloading, e.g. like for strchr(3).
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/policydb.c          | 2 +-
- libsepol/src/policydb_validate.c | 2 +-
- libsepol/src/policydb_validate.h | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ libsepol/include/sepol/policydb/avtab.h | 2 +-
+ libsepol/src/avtab.c                    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index fc260eb6..8a65df05 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -4570,7 +4570,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- 		}
- 	}
+diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
+index 10ecde9a..e4c48576 100644
+--- a/libsepol/include/sepol/policydb/avtab.h
++++ b/libsepol/include/sepol/policydb/avtab.h
+@@ -112,7 +112,7 @@ extern avtab_datum_t *avtab_search(avtab_t * h, avtab_key_t * k);
  
--	if (validate_policydb(fp->handle, p))
-+	if (policydb_validate(fp->handle, p))
- 		goto bad;
+ extern void avtab_destroy(avtab_t * h);
  
- 	return POLICYDB_SUCCESS;
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 99d4eb7f..e1dad236 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -1330,7 +1330,7 @@ static void validate_array_destroy(validate_t flavors[])
- /*
-  * Validate policydb
-  */
--int validate_policydb(sepol_handle_t *handle, policydb_t *p)
-+int policydb_validate(sepol_handle_t *handle, policydb_t *p)
+-extern int avtab_map(avtab_t * h,
++extern int avtab_map(const avtab_t * h,
+ 		     int (*apply) (avtab_key_t * k,
+ 				   avtab_datum_t * d, void *args), void *args);
+ 
+diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+index 7920b60a..82fec783 100644
+--- a/libsepol/src/avtab.c
++++ b/libsepol/src/avtab.c
+@@ -330,7 +330,7 @@ void avtab_destroy(avtab_t * h)
+ 	h->mask = 0;
+ }
+ 
+-int avtab_map(avtab_t * h,
++int avtab_map(const avtab_t * h,
+ 	      int (*apply) (avtab_key_t * k,
+ 			    avtab_datum_t * d, void *args), void *args)
  {
- 	validate_t flavors[SYM_NUM] = {};
- 
-diff --git a/libsepol/src/policydb_validate.h b/libsepol/src/policydb_validate.h
-index d9f7229b..b7f9f191 100644
---- a/libsepol/src/policydb_validate.h
-+++ b/libsepol/src/policydb_validate.h
-@@ -4,4 +4,4 @@
- #include <sepol/policydb/policydb.h>
- 
- int value_isvalid(uint32_t value, uint32_t nprim);
--int validate_policydb(sepol_handle_t *handle, policydb_t *p);
-+int policydb_validate(sepol_handle_t *handle, policydb_t *p);
 -- 
 2.36.1
 
