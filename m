@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 194F8C433EF
-	for <selinux@archiver.kernel.org>; Mon, 18 Jul 2022 20:48:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EF4BC433EF
+	for <selinux@archiver.kernel.org>; Mon, 18 Jul 2022 20:48:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbiGRUsa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Jul 2022 16:48:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49256 "EHLO
+        id S229700AbiGRUsu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Jul 2022 16:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229700AbiGRUs3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Jul 2022 16:48:29 -0400
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E1D530F5F
-        for <selinux@vger.kernel.org>; Mon, 18 Jul 2022 13:48:28 -0700 (PDT)
-Received: by mail-ot1-x32c.google.com with SMTP id k8-20020a9d4b88000000b0061c7f8c4f77so9261370otf.10
-        for <selinux@vger.kernel.org>; Mon, 18 Jul 2022 13:48:28 -0700 (PDT)
+        with ESMTP id S233195AbiGRUst (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Jul 2022 16:48:49 -0400
+Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8166BFF
+        for <selinux@vger.kernel.org>; Mon, 18 Jul 2022 13:48:47 -0700 (PDT)
+Received: by mail-oo1-xc31.google.com with SMTP id c203-20020a4a4fd4000000b0043566a4e265so2528319oob.2
+        for <selinux@vger.kernel.org>; Mon, 18 Jul 2022 13:48:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=1wrgl/Z4tPeogDX8eRmcYNG3Ae24/UxBNqwoA4bjGWc=;
-        b=QaGAaRgvLb/uAEWtddCpzz5S5E+46OcZs2OwZU4POx+N8FEhPODXMfv6aMVjw0fK8H
-         q34Rzd7SZtRVJnJl3Rgi7fn6qbeCn2ARHY6i0Av1AuihDdl2MEdc+vzE5B68Cz6mg4VH
-         m8F4FfyQjtgUYvZ7NwwLHCLRMVoftQizZpyfXBjgN4wYaWH4txHmnpuAhkHe4xfCFOdJ
-         O0nFvDDOdSurJP6MLjkjxpK10tLTI2bPAQUbI+oDkzwgWtiwrGxRptb5SODysPpV9h+x
-         ShaN4iBpYjKE+9Sljxkav+vfBVmSqZn6fHeK0ndYuLRrr88EsxThrlhkv+Lye/EtqgB3
-         jleQ==
+        bh=eW4BUMl3rB6ORHSQ8ZHFQ96GFEASBQFwOaSOetLhbCY=;
+        b=gSgwRuaaszCVjjr99MiEHA0eDNgnMocIJUMfj9lqnYvoLQXFN5VcG9m0/rn1BmD8+P
+         MbXfJJdE5hCkPjI+5rap+14vVUZH+XeGAwLXnEZsWem5kqG32v/xkeSHooogqFv/l16x
+         O1lnKZfZ6JaeAmow+jVshqJdgFPwHQoKgJ0KZRaUNAoCvH3VT73raNNCZcKMKQPilkp+
+         Hc41xMO5iGwAidg9wuL4P8gmECxY8wkhgvRDcA/RUZfSycLaLYOkTlrNkng2wFUNM0S1
+         5ZGNl0W6/qLvX48D3ofXiZWBIUrAdyXiW0XcalsHrR8ZFFsKabyJbj38IfulnWO9GcWI
+         4IPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1wrgl/Z4tPeogDX8eRmcYNG3Ae24/UxBNqwoA4bjGWc=;
-        b=ZWBmprQeJrVX/5k/CSv4zG1W0Bkvdndzj6+zp6Axin5oXWpXQ+zovZFkvFxmlWSbOV
-         XDivL8kMWs5+6tjeuzIFTmk9DqYbF7GQh+ax7ciwrw/6kiehX9jXOOWGxptS/NNXzd9m
-         NKGoU2yKyVF/0t+jo1V3yI4iB6T4It0LVLp/as46mMsZwJpaRMQO/uA7YuYVWkiQwGtM
-         PJJ593NodXbxr5nsZV51WcCGOczZTdWgYCdk7GaP1Sk0YNSFcjWmdtCuwuJ38RS+QXIN
-         omWmhqiVlmOg/MTGsh6ydPlxofpAGWixQVh2B8QB5oh9yVPtk3mNd7BC2oig52TIItoJ
-         aswQ==
-X-Gm-Message-State: AJIora/jL6ZNfWgN8jXHtVXcuEKu+xGVkStcd7di5UTzqix9MuOdtgQR
-        1M5G3K3odu5/NGdlHt2w82HwaB7/vLfE70znjUSh87dlcY8=
-X-Google-Smtp-Source: AGRyM1syyF6Dc+A1zh7Ur0OX3HID1U/mpUquQ1uoYWvaEzMiFOXeawK9/IAYJ294fLl/E5m4xqEPHw4g6F90+8kmbPw=
-X-Received: by 2002:a05:6830:61cd:b0:618:d560:b787 with SMTP id
- cc13-20020a05683061cd00b00618d560b787mr12322921otb.154.1658177307783; Mon, 18
- Jul 2022 13:48:27 -0700 (PDT)
+        bh=eW4BUMl3rB6ORHSQ8ZHFQ96GFEASBQFwOaSOetLhbCY=;
+        b=BoDriPKhRMaYrAoWtZZ8po7VVg2BIyj9OSJ0DImFATw7cUUphVULq81p9CahgdWbPz
+         aAPvbWpTHw3TN9lHI9tHdlNDbTP4unTDxzATcUffrzCaO8PLX/PdY8ScVT7uHzHn8m+q
+         UrOrvjVdkVLq7/CRn01FrIVkL4Wncsz9jakOAcknQzrJAYpwPODRIfQHJDhx7OYL6efz
+         lyiVz5Nw46DmQ1o6UOZM20h9R765Et+a3FpSbSi2FdQPKGogCUBmGW4KajR1+lM8E/wC
+         N0Gjb9iryi+JgTDfBe5MkkJT3+DFZwYsVTWJ6Buw9vu3pxW1exNh6u/y/cc1js76oMjL
+         txfA==
+X-Gm-Message-State: AJIora/rE/udA8EV/Zr5MB5UqgEUeNeZSIs9x0JXor0QC+Tl0O6matXP
+        1Y7x6tdbIKJgyz+RQ3WNsyef5Cq7SH3L3dUZHH8=
+X-Google-Smtp-Source: AGRyM1t1589Hpob+QKKRRv7brhMlNJvjhv5zAI3FpMRWZmQqTm7WXtzSML9kBnOHMgeXABddzxb0vFzFI5kcdbk9gkk=
+X-Received: by 2002:a4a:9731:0:b0:35e:fd1a:d452 with SMTP id
+ u46-20020a4a9731000000b0035efd1ad452mr10186212ooi.8.1658177327228; Mon, 18
+ Jul 2022 13:48:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220712160858.22677-1-cgzones@googlemail.com> <20220712160858.22677-6-cgzones@googlemail.com>
-In-Reply-To: <20220712160858.22677-6-cgzones@googlemail.com>
+References: <20220712160858.22677-1-cgzones@googlemail.com> <20220712160858.22677-7-cgzones@googlemail.com>
+In-Reply-To: <20220712160858.22677-7-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 18 Jul 2022 16:48:17 -0400
-Message-ID: <CAP+JOzRJQE9nxpr94EYqXObP-2zPD3Rm3MC6pt=F_xYAXD=48Q@mail.gmail.com>
-Subject: Re: [PATCH 6/7] libsepol: optimize ebitmap_xor
+Date:   Mon, 18 Jul 2022 16:48:36 -0400
+Message-ID: <CAP+JOzRUwmXB0dmcPsHZC3mD0qcS5P2=OkfErhUyXpnoceTvwA@mail.gmail.com>
+Subject: Re: [PATCH 7/7] libsepol: skip superfluous memset calls in ebitmap operations
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -62,83 +62,50 @@ X-Mailing-List: selinux@vger.kernel.org
 On Tue, Jul 12, 2022 at 12:09 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Iterate on nodes instead of single bits to save node resolution for each
-> single bit.
+> The three members of struct ebitmap_node are all unconditionally
+> initialized.  Hinder compilers to optimize malloc() and memset() into
+> calloc(), which might be slightly slower.  Especially affects
+> ebitmap_or().
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/ebitmap.c | 49 ++++++++++++++++++++++++++++++++++++------
->  1 file changed, 43 insertions(+), 6 deletions(-)
+>  libsepol/src/ebitmap.c | 3 ---
+>  1 file changed, 3 deletions(-)
 >
 > diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-> index c3d706e9..e0541abb 100644
+> index e0541abb..d0f7daba 100644
 > --- a/libsepol/src/ebitmap.c
 > +++ b/libsepol/src/ebitmap.c
-> @@ -116,14 +116,51 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1=
-, const ebitmap_t *e2)
+> @@ -31,7 +31,6 @@ int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, c=
+onst ebitmap_t * e2)
+>                         ebitmap_destroy(dst);
+>                         return -ENOMEM;
+>                 }
+> -               memset(new, 0, sizeof(ebitmap_node_t));
+>                 if (n1 && n2 && n1->startbit =3D=3D n2->startbit) {
+>                         new->startbit =3D n1->startbit;
+>                         new->map =3D n1->map | n2->map;
+> @@ -289,7 +288,6 @@ int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * sr=
+c)
+>                         ebitmap_destroy(dst);
+>                         return -ENOMEM;
+>                 }
+> -               memset(new, 0, sizeof(ebitmap_node_t));
+>                 new->startbit =3D n->startbit;
+>                 new->map =3D n->map;
+>                 new->next =3D 0;
+> @@ -429,7 +427,6 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, =
+int value)
+>         new =3D (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t));
+>         if (!new)
+>                 return -ENOMEM;
+> -       memset(new, 0, sizeof(ebitmap_node_t));
 >
->  int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2=
-)
->  {
-> -       unsigned int i, length =3D max(ebitmap_length(e1), ebitmap_length=
-(e2));
-> +       const ebitmap_node_t *n1, *n2;
-> +       ebitmap_node_t *new, *prev =3D NULL;
-> +       uint32_t startbit;
-> +       MAPTYPE map;
-> +
->         ebitmap_init(dst);
-> -       for (i=3D0; i < length; i++) {
-> -               int val =3D ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, =
-i);
-> -               int rc =3D ebitmap_set_bit(dst, i, val);
-> -               if (rc < 0)
-> -                       return rc;
-> +
-> +       n1 =3D e1->node;
-> +       n2 =3D e2->node;
-> +       while (n1 || n2) {
-> +               if (n1 && n2 && n1->startbit =3D=3D n2->startbit) {
-> +                       startbit =3D n1->startbit;
-> +                       map =3D n1->map ^ n2->map;
-> +                       n1 =3D n1->next;
-> +                       n2 =3D n2->next;
-> +               } else if (!n2 || (n1 && n1->startbit < n2->startbit)) {
-> +                       startbit =3D n1->startbit;
-> +                       map =3D n1->map;
-> +                       n1 =3D n1->next;
-> +               } else {
-> +                       startbit =3D n2->startbit;
-> +                       map =3D n2->map;
-> +                       n2 =3D n2->next;
-> +               }
-> +
-> +               if (map !=3D 0) {
-> +                       new =3D malloc(sizeof(ebitmap_node_t));
-> +                       if (!new) {
-> +                               ebitmap_destroy(dst);
-> +                               return -ENOMEM;
-> +                       }
-> +                       new->startbit =3D startbit;
-> +                       new->map =3D map;
-> +                       new->next =3D NULL;
-> +                       if (prev)
-> +                               prev->next =3D new;
-> +                       else
-> +                               dst->node =3D new;
-> +                       prev =3D new;
-> +               }
->         }
-> +
-> +       if (prev)
-> +               dst->highbit =3D prev->startbit + MAPSIZE;
-> +
->         return 0;
->  }
->
+>         new->startbit =3D startbit;
+>         new->map =3D (MAPBIT << (bit - new->startbit));
 > --
 > 2.36.1
 >
