@@ -2,105 +2,102 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7463FCCA485
-	for <selinux@archiver.kernel.org>; Tue, 19 Jul 2022 15:31:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58433C433EF
+	for <selinux@archiver.kernel.org>; Tue, 19 Jul 2022 16:29:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230253AbiGSPbM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Jul 2022 11:31:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34112 "EHLO
+        id S232193AbiGSQ3v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Jul 2022 12:29:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236458AbiGSPbJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jul 2022 11:31:09 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5845885F
-        for <selinux@vger.kernel.org>; Tue, 19 Jul 2022 08:31:08 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id l23so27886427ejr.5
-        for <selinux@vger.kernel.org>; Tue, 19 Jul 2022 08:31:08 -0700 (PDT)
+        with ESMTP id S231495AbiGSQ3v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Jul 2022 12:29:51 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D95564F0
+        for <selinux@vger.kernel.org>; Tue, 19 Jul 2022 09:29:50 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id g20-20020a9d6a14000000b0061c84e679f5so9408135otn.2
+        for <selinux@vger.kernel.org>; Tue, 19 Jul 2022 09:29:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=YYAya2IjPo0e6G7r+k7JrvFxc/U5lYIslrGMlcbbDvg=;
-        b=Y/LMHPF6a81NuPuuAisd7c6z6pDiDwaNOTLKGxyj6KS7E1yLfbaSRVa4QVZfDXPbq8
-         uGscSZMhhmqeiGhL/aOcGKj7Wc1O0wgGYuhixvdQEaGuWYZQ4bngAvZ5l8grwod71EQR
-         CH4uYvdLL1nyOShsSi5as2NXT8svBTK7gUdmfmRBYtM6YX2Z5HT3wcmDIsP1M6BL9x6O
-         wMPREBY//66ohZtS4cKSWFpekzlnf6h2mbzAyECj1Tg20vY+/K97sZlWD8GrBSJfLsKM
-         wcEjUWMJK4eNAYGepUr2ojhPveM3gr6bbNbIz/0ispLlsI2n7PEFTVfZPqC82mnfYt9j
-         hc3A==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=kNd1GmVTxoW3go/QgvE+2Ko2+IPNNhQNqEu5sADJO3U=;
+        b=P9FNP3sBuske+WoBdn/kcshFPV26iqgIMrSEG39yFgMrADY9RMlFoCQ+8DXLcSUHh/
+         ji9RtR89MRkd4NPOhuiwN5k0+0DndW2bHWtgCQoEWiP+aGLRvrmWAtrEUaK14lz8h7oV
+         bbeY6syM8q44qWx4AKgtdJxrpOLmPABEZ6aypV8mPCtG8E/XDY2awaJRIiGGiw1Oq5Q7
+         UjYyB3jqOzVJwBW65d0v14KEj92Ab2/QIX3UMJjhLcXnCYvJgiMqTGdUYJPj4jhioPW4
+         Y8M67mlgmxXo6BOAGYhHKe7fFSY9BkhLta5cRnI98X4N+6oWTOWSPsSMQlOWZ2zoKEr3
+         PerA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YYAya2IjPo0e6G7r+k7JrvFxc/U5lYIslrGMlcbbDvg=;
-        b=HHctwG6qsbwe9bsu5lmGB3xiBlbsDSSyJlnBOqjlDiVdOyvDFJdM5dmSktA+iKM6Tc
-         CRLjJhJqk2xuzQIo6c9AfGkQK/ctSHQg2rZxJXTQ1g4aPnQXiU8904dheguVVopmi7aB
-         Ls5LLas9HZc+Sxq6lrKCdW6Roo5rxRF3aGtN4k1dEMmNYsBd1zPodN1kfNHBH2brGoTW
-         hu5Kww30SOPCX8NOnJEiTxBJtsYuSyaZbgtAIo86sPCaJSb+5mM4RkUQUomd7EWAPaCT
-         PSVBsy+MEfxn5K2IdTgjpqbrbQSP7MXMHE6PYKPEEJeByDKTdhzDIWYuHTpwXTg3xYqj
-         lm0A==
-X-Gm-Message-State: AJIora/1vGrzxWkI9grncNG+o0KSsILTQBLdQniAHmQViaZ9QGgFkGD+
-        GNymJhG13ClGZZ21f4u17ajYGoZzOMF5rw==
-X-Google-Smtp-Source: AGRyM1vV3EBnGj9/I5wf7jg6y7FY7zfUQwd2z13PRr3wa/m7ND7LzTB+y6U6qMXVCbxTc4Joao6UPw==
-X-Received: by 2002:a17:907:728d:b0:72f:38d0:b8ae with SMTP id dt13-20020a170907728d00b0072f38d0b8aemr9218202ejc.30.1658244667107;
-        Tue, 19 Jul 2022 08:31:07 -0700 (PDT)
-Received: from dlaptop.localdomain (dynamic-077-001-147-221.77.1.pool.telefonica.de. [77.1.147.221])
-        by smtp.gmail.com with ESMTPSA id 27-20020a170906311b00b0072b7b317aadsm6809621ejx.150.2022.07.19.08.31.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Jul 2022 08:31:06 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 7/7] libsepol: skip superfluous memset calls in ebitmap operations
-Date:   Tue, 19 Jul 2022 17:30:44 +0200
-Message-Id: <20220719153045.70041-7-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220719153045.70041-1-cgzones@googlemail.com>
-References: <20220719153045.70041-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=kNd1GmVTxoW3go/QgvE+2Ko2+IPNNhQNqEu5sADJO3U=;
+        b=GHlo/zRCHtuchK6h5wRhg85+MQvm3H6znTezq/qFDs0Qqmwn7DVFt2DCIMHuBOIpDX
+         HzzliqQL9sLQEE77GBZqZJ83J67e3CZeSZdKbRL9tXWIMerOwRHHr0+s71gqGBiUkT7C
+         kjptmRF838eUXFgfsYDCI6X7uh+mvTfTxtOz178U0QR0hKuUel6SxepzTzMs8XZxDJ0b
+         TaOu5ihnewXN5HBqClQU1YBl4MwnE/08ykWfDEbW+DgUCBTC0ITcRALp95DLXmYU+L9M
+         Hqbk89s3CM4jqL6Y/5ch5mqg6G4Bflu6JYNTqAyqRJgPyrahzgyKNpKGRROlKO+R9brS
+         B1TQ==
+X-Gm-Message-State: AJIora8bLj42Tt8ILwsm1u7kNy4PSoQqpZWqkaq2Sz/rM+7Y4CdKHsIt
+        dAErtGXA8qi3WaIS//GXGhQ+fY+kFHRTuQdOA+1LJo5gZU8=
+X-Google-Smtp-Source: AGRyM1s7Y03vWrjiUkPya/Q4JYyRJsddq4sXWdNbB7GudFGCRetV3+SP4gYpgGGmhUTcFhGP/opXeL6NiJVaeyyZngg=
+X-Received: by 2002:a05:6830:61cd:b0:618:d560:b787 with SMTP id
+ cc13-20020a05683061cd00b00618d560b787mr14209089otb.154.1658248189658; Tue, 19
+ Jul 2022 09:29:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220713134343.19811-1-cgzones@googlemail.com>
+In-Reply-To: <20220713134343.19811-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 19 Jul 2022 12:29:33 -0400
+Message-ID: <CAP+JOzSFzXmTTXBevMra4d6isCCW8uRP_Q0V8neHEA+Yeq=QFQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsepol: break circular include
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The three members of struct ebitmap_node are all unconditionally
-initialized.  Hinder compilers to optimize malloc() and memset() into
-calloc(), which might be slightly slower.  Especially affects
-ebitmap_or().
+On Wed, Jul 13, 2022 at 9:50 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Since `struct type_set` is forward declared including
+> policydb/policydb.h is not necessary and creates a circular include.
+>
+> Also drop the unnecessary forward declaration of `struct policydb`.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/ebitmap.c | 3 ---
- 1 file changed, 3 deletions(-)
+For these three patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-index 7d26f949..3ec1042f 100644
---- a/libsepol/src/ebitmap.c
-+++ b/libsepol/src/ebitmap.c
-@@ -31,7 +31,6 @@ int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * e2)
- 			ebitmap_destroy(dst);
- 			return -ENOMEM;
- 		}
--		memset(new, 0, sizeof(ebitmap_node_t));
- 		if (n1 && n2 && n1->startbit == n2->startbit) {
- 			new->startbit = n1->startbit;
- 			new->map = n1->map | n2->map;
-@@ -290,7 +289,6 @@ int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src)
- 			ebitmap_destroy(dst);
- 			return -ENOMEM;
- 		}
--		memset(new, 0, sizeof(ebitmap_node_t));
- 		new->startbit = n->startbit;
- 		new->map = n->map;
- 		new->next = 0;
-@@ -430,7 +428,6 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value)
- 	new = (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t));
- 	if (!new)
- 		return -ENOMEM;
--	memset(new, 0, sizeof(ebitmap_node_t));
- 
- 	new->startbit = startbit;
- 	new->map = (MAPBIT << (bit - new->startbit));
--- 
-2.36.1
-
+> ---
+>  libsepol/include/sepol/policydb/constraint.h | 3 ---
+>  1 file changed, 3 deletions(-)
+>
+> diff --git a/libsepol/include/sepol/policydb/constraint.h b/libsepol/incl=
+ude/sepol/policydb/constraint.h
+> index b91fc4e9..82335e21 100644
+> --- a/libsepol/include/sepol/policydb/constraint.h
+> +++ b/libsepol/include/sepol/policydb/constraint.h
+> @@ -18,7 +18,6 @@
+>  #ifndef _SEPOL_POLICYDB_CONSTRAINT_H_
+>  #define _SEPOL_POLICYDB_CONSTRAINT_H_
+>
+> -#include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/ebitmap.h>
+>  #include <sepol/policydb/flask_types.h>
+>
+> @@ -70,8 +69,6 @@ typedef struct constraint_node {
+>         struct constraint_node *next;   /* next constraint */
+>  } constraint_node_t;
+>
+> -struct policydb;
+> -
+>  extern int constraint_expr_init(constraint_expr_t * expr);
+>  extern void constraint_expr_destroy(constraint_expr_t * expr);
+>
+> --
+> 2.36.1
+>
