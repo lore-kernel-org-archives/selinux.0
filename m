@@ -2,170 +2,171 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BD47CCA483
-	for <selinux@archiver.kernel.org>; Wed, 20 Jul 2022 22:39:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52C26C433EF
+	for <selinux@archiver.kernel.org>; Thu, 21 Jul 2022 08:14:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230504AbiGTWjV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Jul 2022 18:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37274 "EHLO
+        id S230010AbiGUIO0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Jul 2022 04:14:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbiGTWjT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Jul 2022 18:39:19 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5EE2F3AF
-        for <selinux@vger.kernel.org>; Wed, 20 Jul 2022 15:39:17 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id bk26so28044665wrb.11
-        for <selinux@vger.kernel.org>; Wed, 20 Jul 2022 15:39:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=gjQxo0hKIVF1YVkSJ8Tt3ejloLl3VpIsO9hirXnFH+U=;
-        b=zI4b6Z/wGUUgwWeOD3pQ7dMozzrzLOSSr5UB4/ki36H/h/zC0Qb1NCR/RhxeQdHB+Z
-         3FCKUbPYT5+bU3pmhLvpKxSDvhXulocHKjQJIK9p2OWuINXr0ivOwxxFVq8r2AsYJL0k
-         h2jIEJlNGTvnLKbR2B1DBtIZIcqD7gzg4o3ocXh3FpoC1frMzUOTzgFrhv924XvD3qy6
-         bGkXIyFJEC3lxyxyiCQL50o2Lakud4qBn1yd2/Ofteeaj17Q+3Q2Y9JWICUkKp2nG3tu
-         nmWKI3COxvtxiKvkkyvYG9tb5TN1DQ3EJhT9fkaryBkGsfd6tZY/Q5QUvQapNTufNH1C
-         bPlA==
+        with ESMTP id S229591AbiGUIOZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Jul 2022 04:14:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 28490785BA
+        for <selinux@vger.kernel.org>; Thu, 21 Jul 2022 01:14:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1658391263;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=JID7iFRH196xATPYpsw4Ioaqobxf5S15NjnkhwLJRZc=;
+        b=X0p5M6yUlFRESKgHqsLUrD/OuRtE6qGYL2hCQzETeGRFNB9qvepYM4PMcLOGtLV5Z09rWs
+        zov+SGYpRvO4d0sXefBpPfKGMvNF/f0MFuzDKAas2Jw4rSml4cUCduVA2gyViT1cH+HqMm
+        Kbgen+3UC9OeU8b+6BvoU5RoEBoTuKU=
+Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
+ [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-6-A8x9ewmRNW2Y6j1E-C9snQ-1; Thu, 21 Jul 2022 04:14:21 -0400
+X-MC-Unique: A8x9ewmRNW2Y6j1E-C9snQ-1
+Received: by mail-yb1-f200.google.com with SMTP id y4-20020a25b9c4000000b0066e573fb0fcso793427ybj.21
+        for <selinux@vger.kernel.org>; Thu, 21 Jul 2022 01:14:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=gjQxo0hKIVF1YVkSJ8Tt3ejloLl3VpIsO9hirXnFH+U=;
-        b=YCSwksozi2/K9EV7YxuZl3HPWT/+f8b8xbFcTA+WR2/YRqYLsPdVnOD8vjPP2X6UuG
-         sOfIf4lolp1cthANKF8QT4XfZSHyjLGGDZU/5XKGvGEmaESKwka5L1Ce/3OE4C1FDhIs
-         4qZFdKTXsGGHLvOR05Z6T978Bl9shc3obrnsziwYKBSIL83YbQMpNjsXsPQMncJ+s8D6
-         K2lPO8RCyFfRMqA8K8JLYPrlbhw5amXMnV0rZVnhbNfr6nQxTTJ/nrgmjb1sk2Os9V7J
-         AyTXCB192JaW+Qgdz73jcBgpxHKWd0RCXdSII6I8ClH9KV0VMQBCx2zi4nx4QOxwOVPN
-         xa6g==
-X-Gm-Message-State: AJIora+gFvCOXgppnJIHBL18f/yCqyCihP649N223V6BAc6T1dks7Blf
-        8ckph1Mo1FYGlE1JGu/uwhFaBaR4JDxXluLF7oxg
-X-Google-Smtp-Source: AGRyM1tdrjUF8cXJwhaIP6PHYKjrB2YVUyMErv5SbIcoUCr7yadS90weIQu40rllAkj9qSRNkrh4MkilhnWcTexYRQo=
-X-Received: by 2002:adf:e492:0:b0:21e:45af:5070 with SMTP id
- i18-20020adfe492000000b0021e45af5070mr5887107wrm.483.1658356756213; Wed, 20
- Jul 2022 15:39:16 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=JID7iFRH196xATPYpsw4Ioaqobxf5S15NjnkhwLJRZc=;
+        b=NRXgcjTWMj343/nusHzTfh3TL1/O7byKBHtHJQRZjFBzmkoGm4bY/IMgnxS20BeugK
+         yRdJvrVE0SUBexhcIzHEzs6O6TIzQl8ocpwLih1rrcuO31wcoNSULrwGqS8eJLjCzCzx
+         G3lWZPDw1oUnd6haauauL7KGxLdhlRjzjGd8t4eFIuRjDnxCDfrwEZry0sdcWWK3PYxD
+         BS7Dz4cAuGtrC77U2PhdLo5sbclZYUFhMAbC5xhmUey8QdTrhOZ3CqrGtsS1pD/LriD5
+         /QsJWj1fvwZ75CTayl3G2W2PayUR+zwUnoAUDw0aCyACkiObm7xJ7fO/+wxsP/xLAA/k
+         Dylg==
+X-Gm-Message-State: AJIora+SHnQEoEpb1u8LzkGphuR+e2odFsNkyrUQtC69+vI1nYT366I0
+        7eUwB2pVhww0wAqVU6ZMrEPGHCpYwDe2IzDt8lqueYPTe1B9JDG+v4gsos02kkqvB8ijzouRodT
+        UzxtOQbN5lUPNeD58s9DDBTvrOn+Fw2v+hA==
+X-Received: by 2002:a81:1442:0:b0:31e:7d43:59a6 with SMTP id 63-20020a811442000000b0031e7d4359a6mr1329781ywu.247.1658391260597;
+        Thu, 21 Jul 2022 01:14:20 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1uOktEfXCvSJt1BunCAo1cusJqGl7eemAHpFG70CqPtQvXBWoaEguM6OnUJARfeFT4XFEM/I7MIG26cd9EJf2Q=
+X-Received: by 2002:a81:1442:0:b0:31e:7d43:59a6 with SMTP id
+ 63-20020a811442000000b0031e7d4359a6mr1329766ywu.247.1658391260288; Thu, 21
+ Jul 2022 01:14:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220707223228.1940249-1-fred@cloudflare.com> <CAJ2a_DezgSpc28jvJuU_stT7V7et-gD7qjy409oy=ZFaUxJneg@mail.gmail.com>
- <3dbd5b30-f869-b284-1383-309ca6994557@cloudflare.com> <84fbd508-65da-1930-9ed3-f53f16679043@schaufler-ca.com>
- <CAHC9VhQ-mBYH-GwSULDyyQ6mNC6K8GNB4fra0pJ+s0ZnEpCgcg@mail.gmail.com> <f1f8b350-4dc5-b975-3854-ecbf9f4e54ba@schaufler-ca.com>
-In-Reply-To: <f1f8b350-4dc5-b975-3854-ecbf9f4e54ba@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 20 Jul 2022 18:39:05 -0400
-Message-ID: <CAHC9VhTFb7=FUyq4oM8ULtnZpZYj3ztpNhASy3WtHnn6QWwZig@mail.gmail.com>
-Subject: Re: [PATCH v2 0/4] Introduce security_create_user_ns()
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Frederick Lawler <fred@cloudflare.com>,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        KP Singh <kpsingh@kernel.org>, revest@chromium.org,
-        jackmanb@chromium.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, shuah@kernel.org,
-        Christian Brauner <brauner@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, bpf@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        linux-kselftest@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        netdev@vger.kernel.org, kernel-team@cloudflare.com
+References: <165818338297.423746.2325119921845739520.stgit@olly>
+ <CAFqZXNvit5QK5zGjwp1tzFKSEyz0t85iqoE=Qv_yYnNYO1tsDQ@mail.gmail.com>
+ <CAHC9VhRCyo6Fuq1iorFJpjn2wvN2VQba87tSfNwBdjyULZc-2Q@mail.gmail.com>
+ <CAFqZXNus=Rnn=5qpQ4goLWvuinAA__ayjBCT0W3tR2HwtgOm=Q@mail.gmail.com> <CAHC9VhTg2jB_9F74yRsW59bHdMKQPPftV6EWGM0rK0zh0xeNuA@mail.gmail.com>
+In-Reply-To: <CAHC9VhTg2jB_9F74yRsW59bHdMKQPPftV6EWGM0rK0zh0xeNuA@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 21 Jul 2022 10:14:08 +0200
+Message-ID: <CAFqZXNs3+wcA_g0aojkmPACKM9tLwxxYV7OjiSjBfZNOnJeLrA@mail.gmail.com>
+Subject: Re: [PATCH] tests/sctp: remove assumptions in the SCTP tests
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 20, 2022 at 5:42 PM Casey Schaufler <casey@schaufler-ca.com> wr=
-ote:
-> On 7/19/2022 6:32 PM, Paul Moore wrote:
-> > On Fri, Jul 8, 2022 at 12:11 PM Casey Schaufler <casey@schaufler-ca.com=
-> wrote:
-> >> On 7/8/2022 7:01 AM, Frederick Lawler wrote:
-> >>> On 7/8/22 7:10 AM, Christian G=C3=B6ttsche wrote:
-> >>>> ,On Fri, 8 Jul 2022 at 00:32, Frederick Lawler <fred@cloudflare.com>
-> >>>> wrote:
-
-...
-
-> >>>> III.
-> >>>>
-> >>>> Maybe even attach a security context to namespaces so they can be
-> >>>> further governed?
-> >> That would likely add confusion to the existing security module namesp=
-ace
-> >> efforts. SELinux, Smack and AppArmor have all developed namespace mode=
-ls.
+On Thu, Jul 21, 2022 at 12:17 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Jul 20, 2022 at 7:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > On Tue, Jul 19, 2022 at 4:28 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > On Tue, Jul 19, 2022 at 7:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > On Tue, Jul 19, 2022 at 12:31 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > Rework the SCTP tests slightly to remove two assumptions which are
+> > > > > not always guaranteed to be true (below).  This should have not any
+> > > > > affect on the current test suite or released kernels, but it will
+> > > > > help ensure that the test suite continues to work with upcoming
+> > > > > kernel releases.
+> > > > >
+> > > > >  * Do not rely on IP options attached to a socket.  Depending on the
+> > > > >    kernel configuration, the on-the-wire packet labels may be
+> > > > >    generated on a per-packet basis as opposed to a per-socket basis.
+> > > >
+> > > > Could you expand a bit on why this would be a problem? It's not clear
+> > > > to me how switching to per-packet would break the tests. (Maybe I'm
+> > > > just not thinking about it hard enough, but ideally the commit message
+> > > > would explain the problem to me so I don't have to :)
+> > >
+> > > NetLabel can either attach on-the-wire packet labels (IP options)
+> > > directly to the packet or to the socket, in the latter case the
+> > > network stack handles writing the on-the-wire labels to the packet
+> > > when it is generated.  Deciding on when to attach IP options
+> > > (on-the-wire labels) to the socket versus the packet is an
+> > > implementation detail and depends on the specific configuration of the
+> > > system and the protocols involved.  It is my opinion that going into
+> > > the level of detail necessary to explain the differences would involve
+> > > a discussion about how the Linux network stacks works, the design of
+> > > the NetLabel subsystem, and how the different network protocols work.
+> > > The important takeaway is that one can not safely rely on IP options
+> > > attached to a socket as a means of determining the labeling behavior
+> > > of a socket/connection/association/etc., this is why we have APIs such
+> > > as getpeercon() and the LSM specific socket options.
 > >
-> > I'm not sure I fully understand what Casey is saying here as SELinux
-> > does not yet have an established namespace model to the best of my
-> > understanding, but perhaps we are talking about different concepts for
-> > the word "namespace"?
+> > Oh wait... I looked closer at what the test is actually doing with the
+> > -i options and I get it now.
 >
-> Stephen Smalley proposed a SELinux namespace model, with patches,
-> some time back. It hasn't been adopted, but I've seen at least one
-> attempt to revive it. You're right that there isn't an established
-> model.
-
-If it isn't in the mainline kernel, it isn't an established namespace model=
-.
-
-I ported Stephen's initial namespace patches to new kernels for quite
-some time, look at the working-selinuxns branch in the main SELinux
-repository, but that doesn't mean they are ready for upstreaming.
-Aside from some pretty critical implementation holes, there is the
-much larger conceptual issue of how to deal with persistent filesystem
-objects.  We've discussed that quite a bit among the SELinux
-developers but have yet to arrive at a good-enough solution.  I have
-some thoughts on how we might be able to make forward progress on
-that, but it's wildly off-topic for this patchset discussion.  I
-mostly wanted to make sure I was understanding what you were
-referencing when you talked about a "SELinux namespace model", and it
-is what I suspected ... which I believe is unrelated to the patches
-being discussed here.
-
-> >> That, or it could replace the various independent efforts with a singl=
-e,
-> >> unified security module namespace effort.
-> >
-> > We've talked about this before and I just don't see how that could
-> > ever work, the LSM implementations are just too different to do
-> > namespacing at the LSM layer.
+> The labeled networking stuff can be a little confusing at times, I'm
+> glad you were able to wrap your head around it.
 >
-> It's possible that fresh eyes might see options that those who have
-> been staring at the current state and historical proposals may have
-> missed.
-
-That's always a possibility, and I'm definitely open to a clever
-approach that would resolve all the current issues and not paint us
-into a corner in the future, but I haven't seen anything close (or any
-serious effort for that matter).
-
-... and this still remains way off-topic for a discussion around
-adding a hook to allow LSMs to enforce access controls on user
-namespace creation.
-
-> >   If a LSM is going to namespace
-> > themselves, they need the ability to define what that means without
-> > having to worry about what other LSMs want to do.
+> > However, I'm pondering whether in the seq server case we shouldn't
+> > change the approach a bit... Currently (after your patch) we are
+> > basically testing the "unified" socket-level peercon and that forces
+> > us to restart the server.
 >
-> Possibly. On the other hand, if someone came up with a rational scheme
-> for general xattr namespacing I don't see that anyone would pass it up.
+> /me nods
+>
+> > But we could also ignore the socket-level
+> > peercon in case of SOCK_SEQPACKET and instead extract the per-packet
+> > peercon via IP_PASSSEC and SCM_SECURITY control messages, like we do
+> > in tests/inet_socket/server.c in the SOCK_DGRAM case.
+>
+> Yes, we could do that.  I do think there is some value in checking the
+> peer label when sending SEQPACKETs and the two labels differ, but we
+> can do both, the tests are not mutually exclusive :)
 
-Oh geez ...
+True, but then we need to preserve the server restarting to work
+around the "pinning" of the socket-level peercon, which is a bit
+awkward... Or we could separate the expected values for the two
+peercons and test that the socket-level one is always the one from the
+first connection, while the packet-level ones correspond to the actual
+peer.
 
-Namespacing xattrs is not the same thing as namespacing LSMs.  LSMs
-may make use of xattrs, and namespacing xattrs may make it easier to
-namespace a given LSM, but I'm not aware of an in-tree LSM that would
-be magically namespaced if xattrs were namespaced.
+> > I think this
+> > should be the main way for users to get peercon when using
+> > SOCK_SEQPACKET SCTP sockets with multiple peers and we should test it
+> > with higher priority than the socket-level peercon.
+>
+> I'm not entirely sure what you are suggesting, but just to be clear,
+> the peer label should always be the label of the remote ("peer").  If
+> the remote end of the connection is running with s0:c0.c10, it doesn't
+> matter if the local end initiates communication at s0:c5, the peer
+> label from the local's perspective should be s0:c0.c10 as that is
+> label of the remote/server.
+>
+> It gets a little confusing when you start thinking about how
+> setsockcreatecon() affects this, and SCTP adds its own twists with the
+> different associations, but the core idea should remain the same.
 
-This patchset has nothing to do with xattrs, it deals with adding a
-LSM hook to implement LSM-based access controls for user namespace
-creation.
+The problem with the socket-level peercon on a SOCK_SEQPACKET socket
+is that due to the multi-peer nature of it we resort to setting it
+based on the first peer and then just revalidate any new differing
+peer contexts through the SCTP_SOCKET__ASSOCIATION permission. To me
+it feels like a sort of desperate attempt to provide at least some
+peer context, even if it might not be meaningful. It can be convenient
+if you know you are going have just one peer context per socket (and
+the policy enforces it), but other than that it's better to ignore the
+socket peercon and just look at the packet peercons (which are always
+accurate) or peel off each new association into a 1-to-1 socket, where
+the socket's peer context is accurate.
 
---=20
-paul-moore.com
+I'm of the opinion that it would be better to not return any peercon
+at all for sockets that might end up receiving from multiple peers,
+like we do with SOCK_DGRAM/UDP sockets. (Now it's probably too late to
+change it, but that's what I would propose if the SCTP support was
+being introduced now.)
+
+-- 
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
