@@ -2,155 +2,281 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D5ECCA47F
-	for <selinux@archiver.kernel.org>; Fri, 22 Jul 2022 06:12:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D459CCA489
+	for <selinux@archiver.kernel.org>; Fri, 22 Jul 2022 08:15:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233906AbiGVGMJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Jul 2022 02:12:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53734 "EHLO
+        id S234374AbiGVIPV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Jul 2022 04:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbiGVGMG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Jul 2022 02:12:06 -0400
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C71E52A405;
-        Thu, 21 Jul 2022 23:12:05 -0700 (PDT)
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26LJkjnj005571;
-        Thu, 21 Jul 2022 23:11:42 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=facebook; bh=jxyf7fJqEfbGTHHyEsXWrNTHTDbw+WkUkjKW0uDgyqg=;
- b=XFswxkD0faHjy2VRaUq3gX0CQjlZq3spRwKQAdLwm3pCWX+v4OZHr9FnDlMgLuY+zIZz
- lAvkmz2Nw8zgi7BnrBVocENgbO7GLV9Znurgl1e0wW4Wd6Sy1hNFp59ZuRzxxcTdnrh5
- 6X6hIYOuNBEL3C37J43RU/AL8gvSZbx3S/s= 
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2169.outbound.protection.outlook.com [104.47.55.169])
-        by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 3hehn2vp6t-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 23:11:42 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KVizv6Au5ycBWFzrS9ugzRhZ3+4FGvm9o6DeD0rTDhrgJzHdaIO+QBCr6OsEkdxg1MZgM965WSK0hYTkrkY9F8R0zFK0xqe1Lo86q4W3xIOXGZOMvG0tTlqrjfHvgiRD816ePMZKdMJfggWG3TsTB2WSQYAGlacDRpWhEiHBx/RuyqPLfpRySUOJRpUrDyHYMeYiHLqtI1tmIGmjTjK3jdy617skjuFCThurCObtywq5BVa3Qwc6ZEkqOf9EuEjhS2ooDVGcADJs8piwfHklCK1dR/TFh/cW5bIPxFSHED/KdCsU1ZaPqNlq8CB6M4HV3NHCXeT3JjSoJaX/6zUPow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jxyf7fJqEfbGTHHyEsXWrNTHTDbw+WkUkjKW0uDgyqg=;
- b=LHWz1yqiYQKSha9mQwwecHRRtCgodM4QVBPFa0kCcYYHSzt7AL2IgYURuMjebVLjN7wgVL1olHDkvS5FARdZtbf9TIdM94GF/P2nxI3gZhxtYxELpmNFCN8BNu6VmZyNaYnsnuzzpBJ6NvWh29kDmWus3+RXAIdRHiB7ASmGN3wGhX619JJkdK24MQ7BqecN4kucdGLK3dj2lh8lFRrjd6xSSQoNAzRKNbtyeNL0Xw2Bqx12Ktxtuj3s1DvnGbhaUKcmvJlxT+RJTIdIujHiTQcjlup906j2dpdGdTGHs1xzqGW1UT1yrwkUupfX65JPnr/ctV9y2zwp7rcloAT8Nw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
- header.d=fb.com; arc=none
-Received: from MW4PR15MB4475.namprd15.prod.outlook.com (2603:10b6:303:104::16)
- by SJ0PR15MB4328.namprd15.prod.outlook.com (2603:10b6:a03:359::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5458.20; Fri, 22 Jul
- 2022 06:11:40 +0000
-Received: from MW4PR15MB4475.namprd15.prod.outlook.com
- ([fe80::a88e:613f:76a7:a5a2]) by MW4PR15MB4475.namprd15.prod.outlook.com
- ([fe80::a88e:613f:76a7:a5a2%9]) with mapi id 15.20.5458.019; Fri, 22 Jul 2022
- 06:11:40 +0000
-Date:   Thu, 21 Jul 2022 23:11:37 -0700
-From:   Martin KaFai Lau <kafai@fb.com>
+        with ESMTP id S230429AbiGVIPU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Jul 2022 04:15:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C8A15834;
+        Fri, 22 Jul 2022 01:15:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5CE95CE27AA;
+        Fri, 22 Jul 2022 08:15:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBA88C341C6;
+        Fri, 22 Jul 2022 08:15:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1658477715;
+        bh=wq8AeLzmn31RtGz2c8gYFnNwmHHMpqM6iqim4vaEza4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cngYB1j8u/zgpMZ96HSQTGkq9t1nKNZqoWH2upgMQ1rlhqzYDWggv26aQOsMcHFW+
+         zN2AGbVwOuuj3bAQYjI/RZn2nCgbaQC9mJqZ0f+JmlI32HeWDNy+SMxq3NDuOR5iKR
+         kKnWc85Y0b9bTlPgJQg9MxyQyZZIjd3IBt6B2AxVIQhHYhegeIEYxlb0878W1MIqoj
+         LsLLaBWu5E50Lws/tjgERoTubRX/imJgTpFrCKV7MECnmBnyFzB3mag1enl+zHPEo9
+         p41CnimGKdVgTbDlXZNgKlPVPAgQd7QkciimIRvMW8T2ZrETZK+37yaOX9bEW5rt4i
+         cwIQZNLIgh6OQ==
+Date:   Fri, 22 Jul 2022 10:15:05 +0200
+From:   Christian Brauner <brauner@kernel.org>
 To:     Frederick Lawler <fred@cloudflare.com>
 Cc:     kpsingh@kernel.org, revest@chromium.org, jackmanb@chromium.org,
         ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        jmorris@namei.org, serge@hallyn.com, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, jmorris@namei.org, serge@hallyn.com,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, shuah@kernel.org, casey@schaufler-ca.com,
         ebiederm@xmission.com, bpf@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
         netdev@vger.kernel.org, kernel-team@cloudflare.com,
         cgzones@googlemail.com, karl@bigbadwolfsecurity.com
-Subject: Re: [PATCH v3 0/4] Introduce security_create_user_ns()
-Message-ID: <20220722061137.jahbjeucrljn2y45@kafai-mbp.dhcp.thefacebook.com>
+Subject: Re: [PATCH v3 3/4] selftests/bpf: Add tests verifying bpf lsm
+ userns_create hook
+Message-ID: <20220722081505.klaf3wzg6fnx3typ@wittgenstein>
 References: <20220721172808.585539-1-fred@cloudflare.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220721172808.585539-1-fred@cloudflare.com>
-X-ClientProxiedBy: SJ0PR03CA0169.namprd03.prod.outlook.com
- (2603:10b6:a03:338::24) To MW4PR15MB4475.namprd15.prod.outlook.com
- (2603:10b6:303:104::16)
+ <20220721172808.585539-4-fred@cloudflare.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 9ea058df-5384-4944-8ba1-08da6ba90a8f
-X-MS-TrafficTypeDiagnostic: SJ0PR15MB4328:EE_
-X-FB-Source: Internal
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 06GXRo7/XA2ysd70VekfSrUNT0fq5IDv+VzcO+pZQoBcLETEijiDAuAI5FZYfHX5TGCG33nJ4gjDlmtDB8GkIogWQ/YJgHPzSr5+/BU1/e60G6H5sMKdGKSd6lpH8E8QgcUP/kYiIJe99h/tsH52UAxgNTFsm51YU88xG85XMJdzPN6jvIzx3pGs4t5RvyHsezDU+AAg8sqxk8zksfAD50GZ/9wuoyl3rAD6Z4vZYDgucmxdAaQiXg493e7ccfQh7TFDYj/dVNUIKHJRu81BCLXFPrbf8odJjFs3sf6ympVpt9sDrUiAtxR3ebxq18VeLUQUnDSYU2u8zDS1KBPqDrVYY/qLK++jUtl1wWFEDAu6Z9AJQPuwgBP7sJWQF4qH1WPXd2gpv3x+CjqUIkd8fGb4J2A5SIJH396lRlZiHdpfFiWLjypOVLT+BZ70Br8yVyU+h7wn1tvCEHAzUhEN2VhiUmKsJduAK0IhtQjD64NBnwa6CxyMe0rDlqiXTh3Zt48ackg4j3z3PC8Bhzs8LJsu853nOKhTziAdPm9CV4V6bK+uFeXeSOtppt3lCp8BEpuYMy/96fulYugUZ8L3WoeWYQjiSrOYC/AhuKNRgdcYlhzHocK7XcbYvC6kzHTEBfNnSpu8s39SRbA9Pj/70fW17FnwYv4j7kzOyH8umA5C6Q0U5Oaif/tFXA8Rv8BUyBeG6aqQ1TzjTAticoUCMDq2tpFe8832BRJwWKlue2WRqjsb1Mp8HHZhUr2uCtgr
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MW4PR15MB4475.namprd15.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(396003)(136003)(39860400002)(366004)(346002)(316002)(6916009)(86362001)(8936002)(7416002)(5660300002)(4326008)(8676002)(66946007)(66476007)(66556008)(1076003)(186003)(83380400001)(38100700002)(41300700001)(6486002)(6666004)(478600001)(6512007)(9686003)(52116002)(6506007)(15650500001)(2906002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ETPW4kDzs7kZljRE/+D3C/ZFCjpnlcZy5INxArRhtEzP/rbJl49+PmjkdFLU?=
- =?us-ascii?Q?SAQDmMl3DxLYT7t6ve/NRcjKnSyVDT0T8/7QvhBINXyc79z4NHs5RMxeN6i2?=
- =?us-ascii?Q?PW41XCgPxzij/9SQujJasGvGgrUGxvl4a/b7r6Jb4zJPggiXor/bijeRBjjT?=
- =?us-ascii?Q?tGJy2joKHQd6/MeqVkW0pBUuJSu2XdLP3uLTVwJ1I5Zr1f5HqQnLl+ncvq3D?=
- =?us-ascii?Q?xvyHmc7T/aPThFyR9ebkVDYRCTq21T2C2r+S1A1ZcUlNKqFK1PrU+lnj0Bvi?=
- =?us-ascii?Q?1HRFJfo/5NOqqMD3boZFrsH+BxpdxUuSVbCMw9tovaXcKASVpxLpz8okCfmf?=
- =?us-ascii?Q?ELBY/ryW/4hwYA4L1+9Q1B8z9buCzllV6iayNw62CLRrJ+FWFHXl2bmMo05f?=
- =?us-ascii?Q?F35TBspGA9C9AMYW/1e1laC8Be4IkD0Fa60lqp0WDmU0ENv9z3t1WHzv7i6w?=
- =?us-ascii?Q?o3ibUY7nbIYX1GH6evTJCYIxTY+z+kutofbekwkWSijT/y2ZFyQNVLnVcS+9?=
- =?us-ascii?Q?kPOPUbLWxiDCCAoeD/PhUTydqlH6D2AAVjsPX/iETq5Y3dPakPHBT+8tnEPO?=
- =?us-ascii?Q?dBr6oAUK+dbMyoQArJnfXBsa4w8iQmGAMlzAtJWkMMH6u7+uphom0VS/N/Yj?=
- =?us-ascii?Q?ytgykIhv309JZGA1UqQx8mpHD+QdbMq600hx4sUbe9IPOnvB6v43ysoDPcOE?=
- =?us-ascii?Q?kkuEeRvrOj4OLywXszBRQJkKjWN+qGX0hzP1B25loD3jeir5ZEyLBY5Of0Tm?=
- =?us-ascii?Q?9LMfBWJK9ZUrDXAfYvq3+azfSj52YfxOOqYDXZZT6aNZZU+5596fOd0dcNpY?=
- =?us-ascii?Q?jq3gT2B7yzBeIud3cjwc3npJL/OaJQISV1gpQPHCu8A0RonYkD3SfT+7bM/D?=
- =?us-ascii?Q?fShvVrud0YPMyvljl5VkYEyh4mtCibEKqBx0bu0HDkCtJ5lFcyYBew7WgSSh?=
- =?us-ascii?Q?S6KQKcpJjW45Qm/+x71ly01jvEB94Gq+Ep6UjH3B6/gLeNDSpD9j8T+HGxOQ?=
- =?us-ascii?Q?stVmcwDPit8sEEUg3iyb5Vi0RaL7NKgN3NuEz1iZqti+xcMCPygPVk/ATTh3?=
- =?us-ascii?Q?+e0ZpwGkUpgpRwCzmpxJ/VTMG4iWY2vYSMEPbXcoljVX7f8Hy8S0GRhpURAr?=
- =?us-ascii?Q?9yZf4qp/jogxEaWmNF/XXIxrpZ2zE/94kIV6qVtIt1aybooyFQj+MXQKf2V/?=
- =?us-ascii?Q?/R5GOOwW/5bbuCEjpvt+XFsl4Pg1G3mNo7V0s2qgwGhRLeHW1xuFRbujq0KC?=
- =?us-ascii?Q?QWVmPdqDhgIt7rpxaPBwlXxnNCShWOzjGKN82vtGxgEyKvvLXne2zfI7elkV?=
- =?us-ascii?Q?/3CHz68Hl9yUzacIdDJx+aIVxoDiUNvR5E6+xp9GE71FC4aRNqavjQcnC4Hv?=
- =?us-ascii?Q?zmK5WZZAaXbTa/LvrIG/4goSAsg0CR5J9ioU3Mm56ZPZgr/j6onuVMBb2YJM?=
- =?us-ascii?Q?f0ELEctrOWIYeY9vqdC9a7zdOWQPb/+F/GAy2cUeRUM/1WMpXPs+tQ5+oEqV?=
- =?us-ascii?Q?x4NEkAeyJNShCujlmMgQyuS8sHDMO7GIdffRD+jTWcbw0e+64sJWWifLIzTi?=
- =?us-ascii?Q?YiWVP0qjG1ewWA5lrZJTXZNrI6WPv1fPoPUIWlrjRi7vQVevSqqJfZTQpcdP?=
- =?us-ascii?Q?Ww=3D=3D?=
-X-OriginatorOrg: fb.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9ea058df-5384-4944-8ba1-08da6ba90a8f
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR15MB4475.namprd15.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jul 2022 06:11:39.9201
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: JKjWgYOy+UI/ylJd3yKQMh5paPyf5epSIudMvJ3JCzOpkFxFKQ6wcjqbGhirMS/p
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR15MB4328
-X-Proofpoint-GUID: fNgtJ6KDVgM05xSMF9OI1uMuWXKF2vjY
-X-Proofpoint-ORIG-GUID: fNgtJ6KDVgM05xSMF9OI1uMuWXKF2vjY
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-21_28,2022-07-21_02,2022-06-22_01
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220721172808.585539-4-fred@cloudflare.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 21, 2022 at 12:28:04PM -0500, Frederick Lawler wrote:
-> While creating a LSM BPF MAC policy to block user namespace creation, we
-> used the LSM cred_prepare hook because that is the closest hook to prevent
-> a call to create_user_ns().
+On Thu, Jul 21, 2022 at 12:28:07PM -0500, Frederick Lawler wrote:
+> The LSM hook userns_create was introduced to provide LSM's an
+> opportunity to block or allow unprivileged user namespace creation. This
+> test serves two purposes: it provides a test eBPF implementation, and
+> tests the hook successfully blocks or allows user namespace creation.
 > 
-> The calls look something like this:
+> This tests 4 cases:
 > 
->     cred = prepare_creds()
->         security_prepare_creds()
->             call_int_hook(cred_prepare, ...
->     if (cred)
->         create_user_ns(cred)
+>         1. Unattached bpf program does not block unpriv user namespace
+>            creation.
+>         2. Attached bpf program allows user namespace creation given
+>            CAP_SYS_ADMIN privileges.
+>         3. Attached bpf program denies user namespace creation for a
+>            user without CAP_SYS_ADMIN.
+>         4. The sleepable implementation loads
+
+Sounds good!
+
 > 
-> We noticed that error codes were not propagated from this hook and
-> introduced a patch [1] to propagate those errors.
+> Signed-off-by: Frederick Lawler <fred@cloudflare.com>
 > 
-> The discussion notes that security_prepare_creds()
-> is not appropriate for MAC policies, and instead the hook is
-> meant for LSM authors to prepare credentials for mutation. [2]
+> ---
+> The generic deny_namespace file name is used for future namespace
+> expansion. I didn't want to limit these files to just the create_user_ns
+> hook.
+> Changes since v2:
+> - Rename create_user_ns hook to userns_create
+> Changes since v1:
+> - Introduce this patch
+> ---
+>  .../selftests/bpf/prog_tests/deny_namespace.c | 88 +++++++++++++++++++
+>  .../selftests/bpf/progs/test_deny_namespace.c | 39 ++++++++
+>  2 files changed, 127 insertions(+)
+>  create mode 100644 tools/testing/selftests/bpf/prog_tests/deny_namespace.c
+>  create mode 100644 tools/testing/selftests/bpf/progs/test_deny_namespace.c
 > 
-> Ultimately, we concluded that a better course of action is to introduce
-> a new security hook for LSM authors. [3]
-> 
-> This patch set first introduces a new security_create_user_ns() function
-> and userns_create LSM hook, then marks the hook as sleepable in BPF.
-Patch 1 and 4 still need review from the lsm/security side.
+> diff --git a/tools/testing/selftests/bpf/prog_tests/deny_namespace.c b/tools/testing/selftests/bpf/prog_tests/deny_namespace.c
+> new file mode 100644
+> index 000000000000..9e4714295008
+> --- /dev/null
+> +++ b/tools/testing/selftests/bpf/prog_tests/deny_namespace.c
+> @@ -0,0 +1,88 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +#define _GNU_SOURCE
+> +#include <test_progs.h>
+> +#include "test_deny_namespace.skel.h"
+> +#include <sched.h>
+> +#include "cap_helpers.h"
+> +
+> +#define STACK_SIZE (1024 * 1024)
+> +static char child_stack[STACK_SIZE];
+> +
+> +int clone_callback(void *arg)
+> +{
+> +	return 0;
+> +}
+> +
+> +static int create_new_user_ns(void)
+> +{
+> +	int status;
+> +	pid_t cpid;
+> +
+> +	cpid = clone(clone_callback, child_stack + STACK_SIZE,
+> +		     CLONE_NEWUSER | SIGCHLD, NULL);
+> +
+> +	if (cpid == -1)
+> +		return errno;
+> +
+> +	if (cpid == 0)
+> +		return 0;
+
+Martin asked about this already but fwiw, this cannot happen with
+clone(). The clone() function doesn't return twice. It always returns
+the PID of the child process or an error.
+
+> +
+> +	waitpid(cpid, &status, 0);
+> +	if (WIFEXITED(status))
+> +		return WEXITSTATUS(status);
+> +
+> +	return -1;
+> +}
+
+You can also just avoid the clone() dance and simply do sm like:
+
+static int wait_for_pid(pid_t pid)
+{
+	int status, ret;
+
+again:
+	ret = waitpid(pid, &status, 0);
+	if (ret == -1) {
+		if (errno == EINTR)
+			goto again;
+
+		return -1;
+	}
+
+	if (!WIFEXITED(status))
+		return -1;
+
+	return WEXITSTATUS(status);
+}
+
+/* negative return value -> some internal error
+ * positive return value -> userns creation failed
+ * 0                     -> userns creation succeeded
+ */
+static int create_user_ns(void)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0)
+		return -1;
+
+	if (pid == 0) {
+		if (unshare(CLONE_NEWUSER))
+			_exit(EXIT_FAILURE);
+		_exit(EXIT_SUCCESS);
+	}
+
+	return wait_for_pid(pid);
+}
+
+Same difference since both codepaths hit the right spot in the kernel.
+
+> +
+> +static void test_userns_create_bpf(void)
+> +{
+> +	__u32 cap_mask = 1ULL << CAP_SYS_ADMIN;
+> +	__u64 old_caps = 0;
+> +
+> +	ASSERT_OK(create_new_user_ns(), "priv new user ns");
+> +
+> +	cap_disable_effective(cap_mask, &old_caps);
+> +
+> +	ASSERT_EQ(create_new_user_ns(), EPERM, "unpriv new user ns");
+> +
+> +	if (cap_mask & old_caps)
+> +		cap_enable_effective(cap_mask, NULL);
+> +}
+> +
+> +static void test_unpriv_userns_create_no_bpf(void)
+> +{
+> +	__u32 cap_mask = 1ULL << CAP_SYS_ADMIN;
+> +	__u64 old_caps = 0;
+> +
+> +	cap_disable_effective(cap_mask, &old_caps);
+> +
+> +	ASSERT_OK(create_new_user_ns(), "no-bpf unpriv new user ns");
+> +
+> +	if (cap_mask & old_caps)
+> +		cap_enable_effective(cap_mask, NULL);
+> +}
+> +
+> +void test_deny_namespace(void)
+> +{
+> +	struct test_deny_namespace *skel = NULL;
+> +	int err;
+> +
+> +	if (test__start_subtest("unpriv_userns_create_no_bpf"))
+> +		test_unpriv_userns_create_no_bpf();
+> +
+> +	skel = test_deny_namespace__open_and_load();
+> +	if (!ASSERT_OK_PTR(skel, "skel load"))
+> +		goto close_prog;
+> +
+> +	err = test_deny_namespace__attach(skel);
+> +	if (!ASSERT_OK(err, "attach"))
+> +		goto close_prog;
+> +
+> +	if (test__start_subtest("userns_create_bpf"))
+> +		test_userns_create_bpf();
+> +
+> +	test_deny_namespace__detach(skel);
+> +
+> +close_prog:
+> +	test_deny_namespace__destroy(skel);
+> +}
+> diff --git a/tools/testing/selftests/bpf/progs/test_deny_namespace.c b/tools/testing/selftests/bpf/progs/test_deny_namespace.c
+> new file mode 100644
+> index 000000000000..9ec9dabc8372
+> --- /dev/null
+> +++ b/tools/testing/selftests/bpf/progs/test_deny_namespace.c
+> @@ -0,0 +1,39 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +#include <linux/bpf.h>
+> +#include <bpf/bpf_helpers.h>
+> +#include <bpf/bpf_tracing.h>
+> +#include <errno.h>
+> +#include <linux/capability.h>
+> +
+> +struct kernel_cap_struct {
+> +	__u32 cap[_LINUX_CAPABILITY_U32S_3];
+> +} __attribute__((preserve_access_index));
+> +
+> +struct cred {
+> +	struct kernel_cap_struct cap_effective;
+> +} __attribute__((preserve_access_index));
+> +
+> +char _license[] SEC("license") = "GPL";
+> +
+> +SEC("lsm/userns_create")
+> +int BPF_PROG(test_userns_create, const struct cred *cred, int ret)
+> +{
+> +	struct kernel_cap_struct caps = cred->cap_effective;
+> +	int cap_index = CAP_TO_INDEX(CAP_SYS_ADMIN);
+> +	__u32 cap_mask = CAP_TO_MASK(CAP_SYS_ADMIN);
+> +
+> +	if (ret)
+> +		return 0;
+> +
+> +	ret = -EPERM;
+> +	if (caps.cap[cap_index] & cap_mask)
+> +		return 0;
+> +
+> +	return -EPERM;
+> +}
+
+Looks nice and simple.
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
