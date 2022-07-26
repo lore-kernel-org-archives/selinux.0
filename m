@@ -2,82 +2,74 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C9D3C43334
-	for <selinux@archiver.kernel.org>; Tue, 26 Jul 2022 12:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF2C4C19F21
+	for <selinux@archiver.kernel.org>; Tue, 26 Jul 2022 14:41:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239039AbiGZMC7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Jul 2022 08:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
+        id S239402AbiGZOlQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Jul 2022 10:41:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239036AbiGZMCz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jul 2022 08:02:55 -0400
-Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D90F3342E;
-        Tue, 26 Jul 2022 05:02:54 -0700 (PDT)
-Received: by mail-vs1-xe33.google.com with SMTP id 66so10633566vse.4;
-        Tue, 26 Jul 2022 05:02:54 -0700 (PDT)
+        with ESMTP id S239346AbiGZOlP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jul 2022 10:41:15 -0400
+Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1F72873A
+        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 07:41:12 -0700 (PDT)
+Received: by mail-il1-x12b.google.com with SMTP id n13so7349111ilk.1
+        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 07:41:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=cloudflare.com; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=KtaXkWhGacXoZCpMy7nyfriLMatRzT4A6igO1RBUHPo=;
-        b=RbjF1rdPTyO2tw9Yz+mkfpmrUfTHxX4BSGAYDyIu8eDnstEazKhSJWG1VfMkaiWvw6
-         65PgKI6Ce6BOZu4MwbbN7pyFMgXyv3rN8YP5KYvr06r85CqajjrAeJLEZo/xBozzt+vy
-         nFLlEeVewTk7we8Rm+kqwadez/wBkpKI8rtlvaMxI9os9TRuzUQteaDxUB1xoZ+ISDu7
-         BCKMKBjtSyiMoeGC0zNja2EPc12+sdgNwdVJjsyLFP9w7+XVDo4/Q9CKQaC1ZNkMa6BA
-         JZLXAL5cTLwZkX7PdoYsWW4D0VgIsPV3wezdeMdKyCJCfRioqQFdFoCjxE8D+bzLIZUr
-         4LXQ==
+        bh=e1kweWPqCc/tBFU0OU9GCkOUijk7o0nT66eaI6NMorI=;
+        b=i61EPXgwER3DOjwmcIsQTQzv6gSQbEHyGanTbNrTyaPqEOsdVh42WvKJo/9pbpcpZS
+         BTrtxcRDQidX7WCwTs/AN4uafMp/23Jz13CdoBX6OeSg2TUuEucu4pPHOmzmvn8d3YhT
+         fiKHWsaxKkT05q2IbRx1A7J2J8WDIhwTitOZI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KtaXkWhGacXoZCpMy7nyfriLMatRzT4A6igO1RBUHPo=;
-        b=IK3YwmGr3vvmxhgZKJeYzRhotReKVwt7EEaLQHB1/jRpK4ho6O632IuLqx35I9vG4p
-         NXBi0J4qXLwF73dwxBU+Jy20y+68C7AVd+CpJtZVYOivQSe5GjavVAY4VzMo59Y0/Ivd
-         1EbWPvUgSJ8bEX0GRPRJ7r0Mj2gIUmxOI4SAdo5lZzbsosm6cjrYRrJvpS8IW52RhjcX
-         udRgE3DVJ9lytIxdSbP7zirX0CNnO7fuSgyLxczYaXjlGXdcoXT6Z9zYg9TOF7WLwpaw
-         gLgnJ9jcXTHJvXmfTVXNd58IeggYqTQVjdWmTqL+EtQbEu6hNQY6D77oXTuGdAoLVcoH
-         Xe1A==
-X-Gm-Message-State: AJIora+cHVxQXgVmXA2j9Corc1RCOyVj/Qo2WDQf4AoYWTE/8IAFZCpG
-        CEsuQyBKqxg4yjxQGLiV6eAehinbGqVq2jwZ/pU=
-X-Google-Smtp-Source: AGRyM1ufus2ahum67DnRC7F3xxb3xz3gr3Y+e9Qm4V9dLcVGJNH0Tu8+ofs5fhLcN9Ex2YVcvGyk8j+5LIP2gpBwIYU=
-X-Received: by 2002:a67:c886:0:b0:358:539d:e1a4 with SMTP id
- v6-20020a67c886000000b00358539de1a4mr3391706vsk.78.1658836972979; Tue, 26 Jul
- 2022 05:02:52 -0700 (PDT)
+        bh=e1kweWPqCc/tBFU0OU9GCkOUijk7o0nT66eaI6NMorI=;
+        b=vvfILIEY7t5z7OFwCuRzjE9PNeFy6DbPe08ZHOZKx/hN0QhowJeW6oUvyaer/YDC8y
+         XVzRVJqreoP2TYp4yxEuVkuLPxLlcwWRnuqQTY0ZllLtUuJs/Pv8aGEQsbZJ9iuRMEa9
+         Pp6re0nhjaxHsi5xD+C/v28WklyJVRvuQvsk2W6b3C4Oc0A9ksZ9dnGZYqvWylCUjDMJ
+         uSwEEzvF8uBf+BAUXIkZ0Mijp+9K6aSqbK1kt/yo2kj+yGBDhk2kQHE8vJjTOVuoAc1g
+         u8jgH3bnQYgJ4TjUxqlJJoD9DgiKk//2jf9+k/wTOfaR9+aM+yZG2k23SqQwutfH2LZn
+         zMjw==
+X-Gm-Message-State: AJIora9QyHdLHf0/znsPeMi2p3E9jUb8Si/bFPJQkV8nsBvY1cjn/xfb
+        fUQTTVxSWFgN+58GExWTmhs8VI/GTpi3l8zgfmTylg==
+X-Google-Smtp-Source: AGRyM1tkabEKEkDMdpDbQ7ttjjCuhMKuPirK9Ul1i0a8JzqLJs3vv8V82jWRnDnuYDU1b0QMTVvmq8M8FBJFf08ynDE=
+X-Received: by 2002:a05:6e02:148c:b0:2dd:a828:9382 with SMTP id
+ n12-20020a056e02148c00b002dda8289382mr663795ilk.235.1658846472223; Tue, 26
+ Jul 2022 07:41:12 -0700 (PDT)
 MIME-Version: 1.0
 References: <20220721172808.585539-1-fred@cloudflare.com> <877d45kri4.fsf@email.froward.int.ebiederm.org>
 In-Reply-To: <877d45kri4.fsf@email.froward.int.ebiederm.org>
-From:   Djalal Harouni <tixxdz@gmail.com>
-Date:   Tue, 26 Jul 2022 14:02:26 +0200
-Message-ID: <CAEiveUdPhEPAk7Y0ZXjPsD=Vb5hn453CHzS9aG-tkyRa8bf_eg@mail.gmail.com>
+From:   Ignat Korchagin <ignat@cloudflare.com>
+Date:   Tue, 26 Jul 2022 15:41:01 +0100
+Message-ID: <CALrw=nGT0kcHh4wyBwUF-Q8+v8DgnyEJM55vfmABwfU67EQn=g@mail.gmail.com>
 Subject: Re: [PATCH v3 0/4] Introduce security_create_user_ns()
 To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Frederick Lawler <fred@cloudflare.com>,
-        KP Singh <kpsingh@kernel.org>, revest@chromium.org,
-        jackmanb@chromium.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>, andrii@kernel.org,
-        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        john fastabend <john.fastabend@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
+        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
         Paul Moore <paul@paul-moore.com>,
-        stephen.smalley.work@gmail.com, Eric Paris <eparis@parisplace.org>,
-        Shuah Khan <shuah@kernel.org>, brauner@kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>, bpf@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        shuah@kernel.org, Christian Brauner <brauner@kernel.org>,
+        casey@schaufler-ca.com, bpf@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
         linux-kernel <linux-kernel@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        kernel-team@cloudflare.com, cgzones@googlemail.com,
+        netdev <netdev@vger.kernel.org>,
+        kernel-team <kernel-team@cloudflare.com>, cgzones@googlemail.com,
         karl@bigbadwolfsecurity.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Eric,
-
-On Fri, Jul 22, 2022 at 7:07 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+On Fri, Jul 22, 2022 at 6:05 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
 >
 > Frederick Lawler <fred@cloudflare.com> writes:
 >
@@ -96,20 +88,18 @@ On Fri, Jul 22, 2022 at 7:07 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
 > Achieving the protection you seek requires talking and thinking clearly
 > about the goal.
 >
-
-We have valid use cases not specifically related to the attack surface,
-but go into the middle from bpf observability to enforcement. As we want
-to track namespace creation, changes, nesting and per task creds context
-depending on the nature of the workload.
-
-Obvious example is nesting as we want to track namespace creations
-not necessarily user namespace but all to report hierarchies to dashboards,
-then from kubernetes namespace view, we would like some applications to
-setup namespaces privileged or not, but deny other apps creation of nested
-pidns, userns, etc, it depends on users how they setup their kubernetes
-namespaces and labels...
-
-...
+>
+>
+>
+> I have a couple of deep and fundamental problems with this approach,
+> to limiting access to potentially exploitable code.
+>
+> 1) The first is that unless there is a high probability (say 90%) that at
+>    any time the only exploitable code in the kernel can only be accessed
+>    by an unprivileged user with the help of user namespaces, attackers
+>    will just route around this restriction and so it will achieve
+>    nothing in practice, while at the same time incur an extra
+>    maintenance burden.
 >
 > 2) The second is that there is a long standing problem with code that
 >    gets added to the kernel.  Many times new kernel code because it has
@@ -124,42 +114,30 @@ namespaces and labels...
 >    namespaces will be available on linux.
 >
 >    An assumption that ordinary applications like chromium make today.
+>
+>    Your intentions seem to be to place a capability check so that only
+>    root can use user namespaces or something of the sort.  Thus breaking
+>    the general availability of user namespaces for ordinary applications
+>    on your systems.
 
-I don't necessarily disagree with statement 2. and in a perfect world yes.
-But practically as noted by Paul in his email, Linux is flexible and
-speaking about kubernetes world we have multiple workload per
-namespaces, and we would like a solution that we can support in the
-next months.
+I would like to comment here that our intention with the hook is quite
+the opposite:
+we do want to embrace user namespaces in our code and some of our workloads
+already depend on it. Hence we didn't agree to Debian's approach of just
+having a global sysctl. But there is "our code" and there is "third
+party" code, which
+might not even be open source due to various reasons. And while the path exists
+for that code to do something bad - we want to block it.
 
-Also these are features that some user space may use, some may not, we
-will never be able to dictate to all user space applications how to do things.
+So in a way, I think this hook allows better adoption of user
+namespaces in the first
+place and gives distros and other system maintainers a reasonable
+alternative than
+just providing a global "kill" sysctl (which is de-facto is used by
+many, thus actually
+limiting userspace applications accessing the user namespace functionality)
 
-From bpf side observability or bpf-lsm enforcement it allows to escalate how
-to respond to the task and *make lsm and bpf (bpf-lsm) have a consistent
-design* where they both follow the same path.
-
-It is unfortunate that the security_task_alloc() [1] hook is  _late_ and can't
-be used for context initialization as the credentials and even user namespace
-have already been created. Strictly speaking we have a context that has
-been already created and applied and we can't properly catch it !
-
-There is no way to do that from user space as most bpf based tools
-(observability and enforcement) do not and should not mess up at the
-user space level with the namespace configuration of tasks (/proc...), they
-are external programs to the running tasks, they do not set up the
-environment. Having the hook before the namespaces and creds copying
-allows to properly track this and construct the _right_ context. From lsm
-and bpf-lsm this will definitely offer a better interface that is not prone to
-errors.
-
-We would like an answer here or an alternative hook that is placed before
-the creation/setting of any namespace, credentials or creating new keyring.
-So we can provide bpf-based transparent solutions that work.
-
-[1] https://elixir.bootlin.com/linux/v5.18.13/source/kernel/fork.c#L2216
-
-
-
+>
 > My apologies if this has been addressed somewhere in the conversation
 > already.  I don't see these issues addressed in the descriptions of your
 > patches.
