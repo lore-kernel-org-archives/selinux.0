@@ -2,216 +2,96 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF2C4C19F21
-	for <selinux@archiver.kernel.org>; Tue, 26 Jul 2022 14:41:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EEE3C00140
+	for <selinux@archiver.kernel.org>; Tue, 26 Jul 2022 19:17:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239402AbiGZOlQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Jul 2022 10:41:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
+        id S239780AbiGZTRL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Jul 2022 15:17:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239346AbiGZOlP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jul 2022 10:41:15 -0400
-Received: from mail-il1-x12b.google.com (mail-il1-x12b.google.com [IPv6:2607:f8b0:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1F72873A
-        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 07:41:12 -0700 (PDT)
-Received: by mail-il1-x12b.google.com with SMTP id n13so7349111ilk.1
-        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 07:41:12 -0700 (PDT)
+        with ESMTP id S233380AbiGZTRJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jul 2022 15:17:09 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8AB29C84
+        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 12:17:08 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id v67-20020a1cac46000000b003a1888b9d36so11923156wme.0
+        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 12:17:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=e1kweWPqCc/tBFU0OU9GCkOUijk7o0nT66eaI6NMorI=;
-        b=i61EPXgwER3DOjwmcIsQTQzv6gSQbEHyGanTbNrTyaPqEOsdVh42WvKJo/9pbpcpZS
-         BTrtxcRDQidX7WCwTs/AN4uafMp/23Jz13CdoBX6OeSg2TUuEucu4pPHOmzmvn8d3YhT
-         fiKHWsaxKkT05q2IbRx1A7J2J8WDIhwTitOZI=
+        bh=IN6jsLzzDm9Bg5VLYyR1jQid6gxLtPqKOGesbc2Ib2s=;
+        b=FfhnaTkvEoW3v2svHGtfW03udJyaSoCToOyt8VpsTfLGPcGaIGtsn8ZEZodMp/j6GE
+         FXdOmQNtbEXtSHzSexNNacBtwoxXHB7Ae/AlIcF3n3GbR8EAlto7sQOw1ImlLaEmqmMP
+         thop6o0KzyQkmXRiJztC67Tzt+nXJL/hwbuBWJTBasPSTzKSMKNm11pgD9Bj7kGzWJNl
+         CXYJnVXcsdHKopNVsa5gCxX8NvIfKDQYb1JoohHbMasBXzsy/VG6c+q+KtQUkVS9JvPn
+         wPPNHWEB+4oSdLgT8S861znFvKI98TycI5vfDWXOgiHHiTKbxq0JawJrAWxLMnbHlU2M
+         dweA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=e1kweWPqCc/tBFU0OU9GCkOUijk7o0nT66eaI6NMorI=;
-        b=vvfILIEY7t5z7OFwCuRzjE9PNeFy6DbPe08ZHOZKx/hN0QhowJeW6oUvyaer/YDC8y
-         XVzRVJqreoP2TYp4yxEuVkuLPxLlcwWRnuqQTY0ZllLtUuJs/Pv8aGEQsbZJ9iuRMEa9
-         Pp6re0nhjaxHsi5xD+C/v28WklyJVRvuQvsk2W6b3C4Oc0A9ksZ9dnGZYqvWylCUjDMJ
-         uSwEEzvF8uBf+BAUXIkZ0Mijp+9K6aSqbK1kt/yo2kj+yGBDhk2kQHE8vJjTOVuoAc1g
-         u8jgH3bnQYgJ4TjUxqlJJoD9DgiKk//2jf9+k/wTOfaR9+aM+yZG2k23SqQwutfH2LZn
-         zMjw==
-X-Gm-Message-State: AJIora9QyHdLHf0/znsPeMi2p3E9jUb8Si/bFPJQkV8nsBvY1cjn/xfb
-        fUQTTVxSWFgN+58GExWTmhs8VI/GTpi3l8zgfmTylg==
-X-Google-Smtp-Source: AGRyM1tkabEKEkDMdpDbQ7ttjjCuhMKuPirK9Ul1i0a8JzqLJs3vv8V82jWRnDnuYDU1b0QMTVvmq8M8FBJFf08ynDE=
-X-Received: by 2002:a05:6e02:148c:b0:2dd:a828:9382 with SMTP id
- n12-20020a056e02148c00b002dda8289382mr663795ilk.235.1658846472223; Tue, 26
- Jul 2022 07:41:12 -0700 (PDT)
+        bh=IN6jsLzzDm9Bg5VLYyR1jQid6gxLtPqKOGesbc2Ib2s=;
+        b=6160PO0ymoukjGyqlRM4GVM43uNYqE9lER51Zap13iTJTdusAcjUudXAjjB5+0wapS
+         QNCGECvnVWFBqVVWclcXYgRjycvkxtT7/rkT+DDcrm7RrOTyblbz0bj/qUbChz/iBU5S
+         m1s4j7dii4Cel7iOBQjiES6uo8chV7KQCz5J8zVdVxqbbZ14bX91zMWMqa3cDcxQ7wuI
+         nGY0R3WPiyHGzFeFrJeWb4DeA6+DZHjBJGbWfVxqy6z2zsDt9j5s7k06rv94jWwA4yu/
+         twYHiQOJK76AqT3nkEP13wVCo6OCsFDFN4MpOo8fQ9iC64YvOgYvsK03E4mgX+TJnyLb
+         hU6A==
+X-Gm-Message-State: AJIora8APS5HZwYah/pjqKdpMgAf6/NhwWfjIOprOcl0eRsOa2MT4k6u
+        QV3eVYTZL/sgHWvOZLCNsBH5cqS2Nynx1ee7bPKrrjVesQ==
+X-Google-Smtp-Source: AGRyM1scdlVZhU4FWKSuKZpGoUoUWqUr4HxdM3l1BSDxch3HC0WsIlkvNN0kBsfOdnVAmH/gfd87VQZEq3mrBpf5m6k=
+X-Received: by 2002:a7b:ce8f:0:b0:3a2:ff2d:915f with SMTP id
+ q15-20020a7bce8f000000b003a2ff2d915fmr437033wmj.165.1658863027125; Tue, 26
+ Jul 2022 12:17:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220721172808.585539-1-fred@cloudflare.com> <877d45kri4.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <877d45kri4.fsf@email.froward.int.ebiederm.org>
-From:   Ignat Korchagin <ignat@cloudflare.com>
-Date:   Tue, 26 Jul 2022 15:41:01 +0100
-Message-ID: <CALrw=nGT0kcHh4wyBwUF-Q8+v8DgnyEJM55vfmABwfU67EQn=g@mail.gmail.com>
-Subject: Re: [PATCH v3 0/4] Introduce security_create_user_ns()
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
-        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        jmorris@namei.org, serge@hallyn.com,
-        Paul Moore <paul@paul-moore.com>,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        shuah@kernel.org, Christian Brauner <brauner@kernel.org>,
-        casey@schaufler-ca.com, bpf@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        kernel-team <kernel-team@cloudflare.com>, cgzones@googlemail.com,
-        karl@bigbadwolfsecurity.com
+References: <165818338297.423746.2325119921845739520.stgit@olly>
+ <CAFqZXNvit5QK5zGjwp1tzFKSEyz0t85iqoE=Qv_yYnNYO1tsDQ@mail.gmail.com>
+ <CAHC9VhRCyo6Fuq1iorFJpjn2wvN2VQba87tSfNwBdjyULZc-2Q@mail.gmail.com>
+ <CAFqZXNus=Rnn=5qpQ4goLWvuinAA__ayjBCT0W3tR2HwtgOm=Q@mail.gmail.com>
+ <CAHC9VhTg2jB_9F74yRsW59bHdMKQPPftV6EWGM0rK0zh0xeNuA@mail.gmail.com>
+ <CAFqZXNs3+wcA_g0aojkmPACKM9tLwxxYV7OjiSjBfZNOnJeLrA@mail.gmail.com>
+ <CAHC9VhT_JvJfafywYiHHdV93TAvgKZAPKQooshpG3CWyF+870w@mail.gmail.com>
+ <CAFqZXNuCb+ugR0btKdBbQb7-MiHhEnm2L7XEKByVBf8+yb-x9Q@mail.gmail.com>
+ <CAHC9VhTEG7DLqy4PiuJJuSgAR7L_zvMpoJauRYc_i99UjO=jWg@mail.gmail.com> <CAFqZXNuVxtDwwDHPGjCrJcO4VgDfx7DJsi1fk99XqVboawRiLQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNuVxtDwwDHPGjCrJcO4VgDfx7DJsi1fk99XqVboawRiLQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 26 Jul 2022 15:16:55 -0400
+Message-ID: <CAHC9VhQzcPhzS-quFeuk03zwjE1smE16YjvZQ9Cw8jxXhMRJeg@mail.gmail.com>
+Subject: Re: [PATCH] tests/sctp: remove assumptions in the SCTP tests
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 22, 2022 at 6:05 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+On Tue, Jul 26, 2022 at 4:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Mon, Jul 25, 2022 at 10:40 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Mon, Jul 25, 2022 at 5:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > On Thu, Jul 21, 2022 at 3:51 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Thu, Jul 21, 2022 at 4:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > On Thu, Jul 21, 2022 at 12:17 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > On Wed, Jul 20, 2022 at 7:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > > > On Tue, Jul 19, 2022 at 4:28 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > > > On Tue, Jul 19, 2022 at 7:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > > > > > On Tue, Jul 19, 2022 at 12:31 AM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > ...
+> >
+> > > Ok, I'm going to merge this patch with some minor edits (see [1]) if
+> > > you're okay with them and then I'll look into further improvements.
+> > >
+> > > [1] https://github.com/WOnder93/selinux-testsuite/commit/0f7bb1696a15972a555d997377348b8e4ae56b38
+> >
+> > Whatever you need to do so you'll merge it is fine with me.  My goal
+> > is a functional test suite, I don't care that much how we arrive at
+> > that point :)
 >
-> Frederick Lawler <fred@cloudflare.com> writes:
->
-> > While creating a LSM BPF MAC policy to block user namespace creation, we
-> > used the LSM cred_prepare hook because that is the closest hook to prevent
-> > a call to create_user_ns().
->
-> That description is wrong.  Your goal his is not to limit access to
-> the user namespace.  Your goal is to reduce the attack surface of the
-> kernel by not allowing some processes access to a user namespace.
->
-> You have already said that you don't have concerns about the
-> fundamentals of the user namespace, and what it enables only that
-> it allows access to exploitable code.
->
-> Achieving the protection you seek requires talking and thinking clearly
-> about the goal.
->
->
->
->
-> I have a couple of deep and fundamental problems with this approach,
-> to limiting access to potentially exploitable code.
->
-> 1) The first is that unless there is a high probability (say 90%) that at
->    any time the only exploitable code in the kernel can only be accessed
->    by an unprivileged user with the help of user namespaces, attackers
->    will just route around this restriction and so it will achieve
->    nothing in practice, while at the same time incur an extra
->    maintenance burden.
->
-> 2) The second is that there is a long standing problem with code that
->    gets added to the kernel.  Many times new kernel code because it has
->    the potential to confuse suid root executables that code has been
->    made root only.  Over time that results in more and more code running
->    as root to be able to make use of the useful features of the linux
->    kernel.
->
->    One of the goals of the user namespace is to avoid more and more code
->    migrating to running as root.  To achieve that goal ordinary
->    application developers need to be able to assume that typically user
->    namespaces will be available on linux.
->
->    An assumption that ordinary applications like chromium make today.
->
->    Your intentions seem to be to place a capability check so that only
->    root can use user namespaces or something of the sort.  Thus breaking
->    the general availability of user namespaces for ordinary applications
->    on your systems.
+> Thanks, I applied that patch:
+> https://github.com/SELinuxProject/selinux-testsuite/commit/db1c3fbf5a718797365576d0b449dc7658da056c
 
-I would like to comment here that our intention with the hook is quite
-the opposite:
-we do want to embrace user namespaces in our code and some of our workloads
-already depend on it. Hence we didn't agree to Debian's approach of just
-having a global sysctl. But there is "our code" and there is "third
-party" code, which
-might not even be open source due to various reasons. And while the path exists
-for that code to do something bad - we want to block it.
+Great, thank you.
 
-So in a way, I think this hook allows better adoption of user
-namespaces in the first
-place and gives distros and other system maintainers a reasonable
-alternative than
-just providing a global "kill" sysctl (which is de-facto is used by
-many, thus actually
-limiting userspace applications accessing the user namespace functionality)
-
->
-> My apologies if this has been addressed somewhere in the conversation
-> already.  I don't see these issues addressed in the descriptions of your
-> patches.
->
-> Until these issues are firmly addressed and you are not proposing a
-> patch that can only cause regressions in userspace applications.
->
-> Nacked-by: "Eric W. Biederman" <ebiederm@xmission.com>
->
-> >
-> > The calls look something like this:
-> >
-> >     cred = prepare_creds()
-> >         security_prepare_creds()
-> >             call_int_hook(cred_prepare, ...
-> >     if (cred)
-> >         create_user_ns(cred)
-> >
-> > We noticed that error codes were not propagated from this hook and
-> > introduced a patch [1] to propagate those errors.
-> >
-> > The discussion notes that security_prepare_creds()
-> > is not appropriate for MAC policies, and instead the hook is
-> > meant for LSM authors to prepare credentials for mutation. [2]
-> >
-> > Ultimately, we concluded that a better course of action is to introduce
-> > a new security hook for LSM authors. [3]
-> >
-> > This patch set first introduces a new security_create_user_ns() function
-> > and userns_create LSM hook, then marks the hook as sleepable in BPF.
-> >
-> > Links:
-> > 1. https://lore.kernel.org/all/20220608150942.776446-1-fred@cloudflare.com/
-> > 2. https://lore.kernel.org/all/87y1xzyhub.fsf@email.froward.int.ebiederm.org/
-> > 3. https://lore.kernel.org/all/9fe9cd9f-1ded-a179-8ded-5fde8960a586@cloudflare.com/
-> >
-> > Past discussions:
-> > V2: https://lore.kernel.org/all/20220707223228.1940249-1-fred@cloudflare.com/
-> > V1: https://lore.kernel.org/all/20220621233939.993579-1-fred@cloudflare.com/
-> >
-> > Changes since v2:
-> > - Rename create_user_ns hook to userns_create
-> > - Use user_namespace as an object opposed to a generic namespace object
-> > - s/domB_t/domA_t in commit message
-> > Changes since v1:
-> > - Add selftests/bpf: Add tests verifying bpf lsm create_user_ns hook patch
-> > - Add selinux: Implement create_user_ns hook patch
-> > - Change function signature of security_create_user_ns() to only take
-> >   struct cred
-> > - Move security_create_user_ns() call after id mapping check in
-> >   create_user_ns()
-> > - Update documentation to reflect changes
-> >
-> > Frederick Lawler (4):
-> >   security, lsm: Introduce security_create_user_ns()
-> >   bpf-lsm: Make bpf_lsm_userns_create() sleepable
-> >   selftests/bpf: Add tests verifying bpf lsm userns_create hook
-> >   selinux: Implement userns_create hook
-> >
-> >  include/linux/lsm_hook_defs.h                 |  1 +
-> >  include/linux/lsm_hooks.h                     |  4 +
-> >  include/linux/security.h                      |  6 ++
-> >  kernel/bpf/bpf_lsm.c                          |  1 +
-> >  kernel/user_namespace.c                       |  5 ++
-> >  security/security.c                           |  5 ++
-> >  security/selinux/hooks.c                      |  9 ++
-> >  security/selinux/include/classmap.h           |  2 +
-> >  .../selftests/bpf/prog_tests/deny_namespace.c | 88 +++++++++++++++++++
-> >  .../selftests/bpf/progs/test_deny_namespace.c | 39 ++++++++
-> >  10 files changed, 160 insertions(+)
-> >  create mode 100644 tools/testing/selftests/bpf/prog_tests/deny_namespace.c
-> >  create mode 100644 tools/testing/selftests/bpf/progs/test_deny_namespace.c
-> >
-> > --
-> > 2.30.2
->
-> Eric
+-- 
+paul-moore.com
