@@ -2,64 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9BAEC19F29
-	for <selinux@archiver.kernel.org>; Fri, 29 Jul 2022 12:02:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F5CCC00144
+	for <selinux@archiver.kernel.org>; Fri, 29 Jul 2022 12:03:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235368AbiG2MCy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 Jul 2022 08:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
+        id S235978AbiG2MDB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 Jul 2022 08:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235885AbiG2MCy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 08:02:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F1515863E2
-        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:02:51 -0700 (PDT)
+        with ESMTP id S235885AbiG2MDA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 08:03:00 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1BBA1863DF
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:02:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659096171;
+        s=mimecast20190719; t=1659096178;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ek1WsD0jgerpMK6h16W2N412NDepdks0lBqkQEQupco=;
-        b=MoH/uJgBYKRyGpIG5uOzMV42VLQAtEXe2kNuUKZvi6P6ZBepFjenZCDyM3otG91KqBjPYr
-        M4ydV5lWs1zrxtN6LE3b4A4vGPNl21uF3ZoFvMf7rHDHsQKzkz1LvUye4+SgBvd9v3boZE
-        BizBaGwZ21ZqMsCvIIDiosNNgpV0Wtc=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Cocu316jVRhoeyTW9cWYvYQslMZseX7yCYpwaa9v45w=;
+        b=ZsU74dsL5WTjgovQnOXPBTGZKpLVeXpq84RERAPxZGIqF/+FD9AHBLJstEGu8tV77VOIr1
+        91kcTK3YWYgWQtbRdD334++xxJp8dgr5jJik/hkJlKjYr21tiR8U1Cbmn5+TEc6MXzzjxV
+        rWOU1rCVMu51Ocg0Hnq6VAT0Z+4907Q=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-526-MYACXNmrO6G-AgDYvdkrBQ-1; Fri, 29 Jul 2022 08:02:48 -0400
-X-MC-Unique: MYACXNmrO6G-AgDYvdkrBQ-1
-Received: by mail-wm1-f71.google.com with SMTP id q19-20020a7bce93000000b003a3264f3de9so795104wmj.3
-        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:02:47 -0700 (PDT)
+ us-mta-517-5bDkV_AnMSSOpwGMOq7IMQ-1; Fri, 29 Jul 2022 08:02:56 -0400
+X-MC-Unique: 5bDkV_AnMSSOpwGMOq7IMQ-1
+Received: by mail-wr1-f70.google.com with SMTP id m2-20020adfc582000000b0021e28acded7so1141298wrg.13
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:02:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc;
-        bh=ek1WsD0jgerpMK6h16W2N412NDepdks0lBqkQEQupco=;
-        b=U2R31ivTk34pS7zFNjzGYYC1TRnnhSyaj60VYjSrhNOWMVEBLK/B2Zk5k25V1q4piW
-         ZoiskGfuArT4H0CBbvAeN6wrK3LxbVARYbqkgJth/xQDyEmfMxFzVC51XQ50VeLIBLna
-         Y5rZoFt+URXrqxJHAB1qxXKCPXX1ZnPlMznC5/RoDawlYgF7YHKdapJoSr5ME1UphnRR
-         7iRZxUVBd+nLTONl86KUOYIRJBCR60fwRK8qmtR4VRsYWStMomgn46vakPqJ9p81/45P
-         Z8NQCw9enYRerYGDKwG4nXp4RAH6c2ron/4oEcXV11tSaDw5LSOYL23FXNNcRwC14KY0
-         pOlA==
-X-Gm-Message-State: AJIora+bpXt6CeM+VdBtkaiqZFf1Umo0KOp71v3bb5a5QZJpcElisDzb
-        WIsm4afAO+D1I2mjaFnyP/oqrOOEzGAdOf3Hr1kkCNds1G2N78xcMplYR4GmW9JorLhR//bmMv1
-        21vSlIiK2mSDBjA759rIiLVDhgVIK+n40vrvq9mdHoZFxsDQoKDKbY6+sNCbygLEXvfxftA==
-X-Received: by 2002:a05:600c:a184:b0:3a3:e5c3:e5c2 with SMTP id id4-20020a05600ca18400b003a3e5c3e5c2mr2617991wmb.130.1659096166082;
-        Fri, 29 Jul 2022 05:02:46 -0700 (PDT)
-X-Google-Smtp-Source: AGRyM1s9YbXDQu3geffGatClJ/Mp2h8mpcp8nEuYXBYZq51hf1tIUFvrR/R5T+U9BUvxa98QsB71QA==
-X-Received: by 2002:a05:600c:a184:b0:3a3:e5c3:e5c2 with SMTP id id4-20020a05600ca18400b003a3e5c3e5c2mr2617943wmb.130.1659096165297;
-        Fri, 29 Jul 2022 05:02:45 -0700 (PDT)
+        bh=Cocu316jVRhoeyTW9cWYvYQslMZseX7yCYpwaa9v45w=;
+        b=Z6fmh1wCwG2v69F0VM47SFmYKIeQkIl0VRNJGUEcMDwlveDpBl6W/0JjMgCU7bdQ4q
+         rJlHGc0upxr+KS7/+EnylK/6gY5oqEDIfv7nnZLPoEh4azI+/FHZ9IdnLzRIAzTvJuVc
+         +HK5WU6HEzRIyXNHZNpqYcf4ldgNHNkKy8pbwCg9y1zWqJicj/l1f/5DZWpmdT54I3Vb
+         lvVCeQ9+bNoDZk512oOKBCwHhuFGsYggwUzE4VgcoVfvWo7ivO7zvb70OFECEVEG2yki
+         9OtaPg3tKmSWS2AFR+O2lMSCP8PRDTrBcvmC+dM8KvptMKEMgnfi6Mx4uRrqOXyjom4b
+         230A==
+X-Gm-Message-State: ACgBeo3DGtw12xxm5f0XzvopRsTr3/+kuBlAyFXUHRyPWcyZfziWD1yI
+        83BsDhDADbxh704yj6OVHcXtlrY7dB+10IOkDH6pH5BXeOybjpm3DxW4xJi19jmQEcduW2Gr1FJ
+        UYhwYhzYhZnILwvg8pFDrmf/N2SohArNO7l3PTcQ1BhWlSUckTd2Tq87pDI9cIyioKhwzUQ==
+X-Received: by 2002:a5d:4704:0:b0:21e:c011:c7ce with SMTP id y4-20020a5d4704000000b0021ec011c7cemr2194231wrq.197.1659096175123;
+        Fri, 29 Jul 2022 05:02:55 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4ljWnZBlNYNv+cZjyfmdoQSjWF1+Q97vld4Aac8+Gmno4kSMPjghlAnwyEzESl37T214J11Q==
+X-Received: by 2002:a5d:4704:0:b0:21e:c011:c7ce with SMTP id y4-20020a5d4704000000b0021ec011c7cemr2194191wrq.197.1659096174496;
+        Fri, 29 Jul 2022 05:02:54 -0700 (PDT)
 Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
-        by smtp.gmail.com with ESMTPSA id i3-20020a05600c354300b003a2e92edeccsm9590622wmq.46.2022.07.29.05.02.43
+        by smtp.gmail.com with ESMTPSA id i3-20020a05600c354300b003a2e92edeccsm9590622wmq.46.2022.07.29.05.02.53
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Jul 2022 05:02:44 -0700 (PDT)
+        Fri, 29 Jul 2022 05:02:53 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 08/24] policy: move userdom_sysadm_entry_spec_domtrans_to() to general policy
-Date:   Fri, 29 Jul 2022 14:02:13 +0200
-Message-Id: <20220729120229.207584-9-omosnace@redhat.com>
+Subject: [PATCH testsuite 14/24] tests/nnp_nosuid: avoid hardcoding unconfined_t in the policy
+Date:   Fri, 29 Jul 2022 14:02:19 +0200
+Message-Id: <20220729120229.207584-15-omosnace@redhat.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220729120229.207584-1-omosnace@redhat.com>
 References: <20220729120229.207584-1-omosnace@redhat.com>
@@ -69,561 +69,252 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This is good to have for pretty much all domains, so remove the
-individual calls and move it to test_general.te.
+Add an intermediate domain which is entered first to avoid the need to
+reference the calling domain in the policy.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- policy/test_atsecure.te              | 3 ---
- policy/test_binder.te                | 1 -
- policy/test_binder_bpf.te            | 1 -
- policy/test_bpf.te                   | 1 -
- policy/test_capable_file.te          | 1 -
- policy/test_dyntrace.te              | 1 -
- policy/test_dyntrans.te              | 1 -
- policy/test_entrypoint.te            | 1 -
- policy/test_execshare.te             | 1 -
- policy/test_exectrace.te             | 1 -
- policy/test_execute_no_trans.te      | 1 -
- policy/test_extended_socket_class.te | 1 -
- policy/test_fdreceive.te             | 1 -
- policy/test_fdreceive_bpf.te         | 1 -
- policy/test_file.te                  | 1 -
- policy/test_filesystem.te            | 1 -
- policy/test_global.te                | 3 +++
- policy/test_ibendport.te             | 1 -
- policy/test_ibpkey.te                | 1 -
- policy/test_inet_socket.te           | 1 -
- policy/test_inherit.te               | 1 -
- policy/test_ioctl.te                 | 1 -
- policy/test_ipc.te                   | 1 -
- policy/test_key_socket.te            | 1 -
- policy/test_keys.te                  | 1 -
- policy/test_mac_admin.te             | 1 -
- policy/test_module_load.te           | 1 -
- policy/test_mqueue.te                | 1 -
- policy/test_netlink_socket.te        | 1 -
- policy/test_notify.te                | 1 -
- policy/test_open.te                  | 1 -
- policy/test_perf_event.te            | 1 -
- policy/test_prlimit.te               | 1 -
- policy/test_ptrace.te                | 1 -
- policy/test_sctp.te                  | 1 -
- policy/test_sigkill.te               | 1 -
- policy/test_task_create.te           | 1 -
- policy/test_task_getpgid.te          | 1 -
- policy/test_task_getsched.te         | 1 -
- policy/test_task_getsid.te           | 1 -
- policy/test_task_setpgid.te          | 1 -
- policy/test_task_setsched.te         | 1 -
- policy/test_transition.te            | 3 ---
- policy/test_tun_tap.te               | 1 -
- policy/test_unix_socket.te           | 1 -
- policy/test_userfaultfd.te           | 1 -
- policy/test_vsock_socket.te          | 1 -
- policy/test_watchkey.te              | 1 -
- 48 files changed, 3 insertions(+), 51 deletions(-)
+ policy/test_nnp_nosuid.te | 26 +++++++++++++---------
+ tests/nnp_nosuid/test     | 45 +++++++++++++++++++++++----------------
+ 2 files changed, 43 insertions(+), 28 deletions(-)
 
-diff --git a/policy/test_atsecure.te b/policy/test_atsecure.te
-index f7ab29a..90e58f1 100644
---- a/policy/test_atsecure.te
-+++ b/policy/test_atsecure.te
-@@ -35,6 +35,3 @@ allow_map(atsecuredomain, test_file_t, file)
- # Only allow the allowed domain noatsecure permission to the
- # new domain.
- allow test_atsecure_allowed_t test_atsecure_newdomain_t:process noatsecure;
--
--# Allow all of these domains to be entered from the sysadm domain.
--userdom_sysadm_entry_spec_domtrans_to(atsecuredomain)
-diff --git a/policy/test_binder.te b/policy/test_binder.te
-index e74a2fc..096c467 100644
---- a/policy/test_binder.te
-+++ b/policy/test_binder.te
-@@ -99,4 +99,3 @@ allow_map(test_binder_client_no_transfer_t, device_t, chr_file)
- ########### Allow these domains to be entered from sysadm domain ############
+diff --git a/policy/test_nnp_nosuid.te b/policy/test_nnp_nosuid.te
+index ad5f742..8d5a1c6 100644
+--- a/policy/test_nnp_nosuid.te
++++ b/policy/test_nnp_nosuid.te
+@@ -3,19 +3,25 @@
+ # Policy for testing NO_NEW_PRIVS and nosuid transitions.
  #
- miscfiles_domain_entry_test_files(binderdomain)
--userdom_sysadm_entry_spec_domtrans_to(binderdomain)
-diff --git a/policy/test_binder_bpf.te b/policy/test_binder_bpf.te
-index 8c04d19..2d91af2 100644
---- a/policy/test_binder_bpf.te
-+++ b/policy/test_binder_bpf.te
-@@ -62,4 +62,3 @@ allow_map(test_binder_client_no_bpf_perm_t, device_t, chr_file)
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(binderbpfdomain)
--userdom_sysadm_entry_spec_domtrans_to(binderbpfdomain)
-diff --git a/policy/test_bpf.te b/policy/test_bpf.te
-index 58daebd..fb21c29 100644
---- a/policy/test_bpf.te
-+++ b/policy/test_bpf.te
-@@ -62,4 +62,3 @@ allow test_bpf_deny_prog_run_t self:bpf { map_create map_read map_write prog_loa
- ############ Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(bpfdomain)
--userdom_sysadm_entry_spec_domtrans_to(bpfdomain)
-diff --git a/policy/test_capable_file.te b/policy/test_capable_file.te
-index 73ad856..9ce9487 100644
---- a/policy/test_capable_file.te
-+++ b/policy/test_capable_file.te
-@@ -40,7 +40,6 @@ libs_exec_lib_files(capabledomain)
  
- # Allow test_file_t and bin_t to be entered from sysadm role
- miscfiles_domain_entry_test_files(capabledomain)
--userdom_sysadm_entry_spec_domtrans_to(capabledomain)
- corecmd_bin_entry_type(capabledomain)
- sysadm_bin_spec_domtrans_to(capabledomain)
- 
-diff --git a/policy/test_dyntrace.te b/policy/test_dyntrace.te
-index 28836b8..0a598a4 100644
---- a/policy/test_dyntrace.te
-+++ b/policy/test_dyntrace.te
-@@ -26,7 +26,6 @@ typeattribute test_dyntrace_notchild_t dyntracedomain;
- 
- # Allow test_files_t to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(dyntracedomain)
--userdom_sysadm_entry_spec_domtrans_to(dyntracedomain)
- miscfiles_exec_test_files(dyntracedomain)
- 
- # Grant the necessary permissions for the child domain.
-diff --git a/policy/test_dyntrans.te b/policy/test_dyntrans.te
-index c749340..e4110c5 100644
---- a/policy/test_dyntrans.te
-+++ b/policy/test_dyntrans.te
-@@ -26,5 +26,4 @@ allow test_dyntrans_fromdomain_t test_dyntrans_todomain_t:process dyntransition;
- 
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(dyntransdomain)
--userdom_sysadm_entry_spec_domtrans_to(dyntransdomain)
- 
-diff --git a/policy/test_entrypoint.te b/policy/test_entrypoint.te
-index 28f4705..1fcbf0c 100644
---- a/policy/test_entrypoint.te
-+++ b/policy/test_entrypoint.te
-@@ -16,5 +16,4 @@ corecmd_exec_bin(test_entrypoint_t)
- 
- # Allow this domain to be entered via its entrypoint type.
- domain_entry_file(test_entrypoint_t, test_entrypoint_execute_t)
--userdom_sysadm_entry_spec_domtrans_to(test_entrypoint_t)
- 
-diff --git a/policy/test_execshare.te b/policy/test_execshare.te
-index 6d8b12e..22ed09f 100644
---- a/policy/test_execshare.te
-+++ b/policy/test_execshare.te
-@@ -22,7 +22,6 @@ typeattribute test_execshare_notchild_t execsharedomain;
- 
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(execsharedomain)
--userdom_sysadm_entry_spec_domtrans_to(execsharedomain)
- 
- # Grant the necessary permissions for the child domain.
- domain_entry_file_spec_domtrans(test_execshare_parent_t, test_execshare_child_t)
-diff --git a/policy/test_exectrace.te b/policy/test_exectrace.te
-index a4a8b96..302ba80 100644
---- a/policy/test_exectrace.te
-+++ b/policy/test_exectrace.te
-@@ -25,7 +25,6 @@ typeattribute test_exectrace_notchild_t exectracedomain;
- 
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(exectracedomain)
--userdom_sysadm_entry_spec_domtrans_to(exectracedomain)
- 
- # Grant the necessary permissions for the child domain.
- domain_entry_file_spec_domtrans(test_exectrace_parent_t, test_exectrace_child_t)
-diff --git a/policy/test_execute_no_trans.te b/policy/test_execute_no_trans.te
-index d0a46bc..e310353 100644
---- a/policy/test_execute_no_trans.te
-+++ b/policy/test_execute_no_trans.te
-@@ -18,7 +18,6 @@ testsuite_domain_type(test_execute_notrans_t);
- 
- # Allow this domain to be entered via the shell.
- corecmd_shell_entry_type(test_execute_notrans_t)
--userdom_sysadm_entry_spec_domtrans_to(test_execute_notrans_t)
- 
- #Allow test_execute_notrans permissions to the allowed type
- can_exec(test_execute_notrans_t,test_execute_notrans_allowed_t)
-diff --git a/policy/test_extended_socket_class.te b/policy/test_extended_socket_class.te
-index 75636ec..681a71d 100644
---- a/policy/test_extended_socket_class.te
-+++ b/policy/test_extended_socket_class.te
-@@ -57,4 +57,3 @@ kernel_request_load_module(extsocktestdomain)
- 
- # Entry into the test domains via the test program.
- miscfiles_domain_entry_test_files(extsocktestdomain)
--userdom_sysadm_entry_spec_domtrans_to(extsocktestdomain)
-diff --git a/policy/test_fdreceive.te b/policy/test_fdreceive.te
-index e060ffd..9987503 100644
---- a/policy/test_fdreceive.te
-+++ b/policy/test_fdreceive.te
-@@ -32,7 +32,6 @@ typeattribute test_fdreceive_server_t fdreceivedomain;
- 
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(fdreceivedomain)
--userdom_sysadm_entry_spec_domtrans_to(fdreceivedomain)
- 
- # Grant the necessary permissions for the server domain.
- ## Create the Unix domain socket file.
-diff --git a/policy/test_fdreceive_bpf.te b/policy/test_fdreceive_bpf.te
-index 5a23931..264a703 100644
---- a/policy/test_fdreceive_bpf.te
-+++ b/policy/test_fdreceive_bpf.te
-@@ -51,4 +51,3 @@ allow test_fdreceive_server_t test_fdreceive_bpf_client3_t:bpf { map_write };
- 
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(fdreceivebpfdomain)
--userdom_sysadm_entry_spec_domtrans_to(fdreceivebpfdomain)
-diff --git a/policy/test_file.te b/policy/test_file.te
-index e20ae3e..9acc211 100644
---- a/policy/test_file.te
-+++ b/policy/test_file.te
-@@ -55,7 +55,6 @@ libs_exec_lib_files(fileopdomain)
- 
- # Allow all of these domains to be entered from sysadm domain
- miscfiles_domain_entry_test_files(fileopdomain)
--userdom_sysadm_entry_spec_domtrans_to(fileopdomain)
- 
- corecmd_bin_entry_type(fileopdomain)
- sysadm_bin_spec_domtrans_to(fileopdomain)
-diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
-index 71075fb..fd06d5d 100644
---- a/policy/test_filesystem.te
-+++ b/policy/test_filesystem.te
-@@ -413,4 +413,3 @@ allow test_move_mount_no_mounton_t dosfs_t:filesystem { associate };
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(filesystemdomain)
--userdom_sysadm_entry_spec_domtrans_to(filesystemdomain)
-diff --git a/policy/test_global.te b/policy/test_global.te
-index 03acc19..5ef3b02 100644
---- a/policy/test_global.te
-+++ b/policy/test_global.te
-@@ -40,6 +40,9 @@ term_use_all_terms(testsuite_domain)
- allow testsuite_domain init_t:fd use;
- allow testsuite_domain initrc_t:fd use;
- 
-+# Allow the test domain to be entered from sysadm_t
-+userdom_sysadm_entry_spec_domtrans_to(testsuite_domain)
++# An intermediate domain to avoid referencing the caller domain.
++type test_intermediate_t;
++testsuite_domain_type(test_intermediate_t)
++# executes runcon
++corecmd_exec_bin(test_intermediate_t)
 +
- # Allow the test domains to access the test directory and files
- # even if they are not root owned.
- allow testsuite_domain self:capability { dac_override dac_read_search };
-diff --git a/policy/test_ibendport.te b/policy/test_ibendport.te
-index 674293f..a403be0 100644
---- a/policy/test_ibendport.te
-+++ b/policy/test_ibendport.te
-@@ -32,4 +32,3 @@ allow test_ibendport_manage_subnet_t test_ibendport_t:infiniband_endport manage_
+ # A domain bounded by the unconfined domain.
+ type test_bounded_t;
+ testsuite_domain_type(test_bounded_t)
+-typebounds unconfined_t test_bounded_t;
++typebounds test_intermediate_t test_bounded_t;
  
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(ibendportdomain)
--userdom_sysadm_entry_spec_domtrans_to(ibendportdomain)
-diff --git a/policy/test_ibpkey.te b/policy/test_ibpkey.te
-index e65895f..de0f5e1 100644
---- a/policy/test_ibpkey.te
-+++ b/policy/test_ibpkey.te
-@@ -25,4 +25,3 @@ corenet_ib_access_unlabeled_pkeys(test_ibpkey_access_t)
+ # The entrypoint type for this domain.
+ type test_bounded_exec_t;
+ files_type(test_bounded_exec_t)
+ domain_entry_file(test_bounded_t, test_bounded_exec_t)
+-domain_entry_file(unconfined_t, test_bounded_exec_t)
++domain_entry_file(test_intermediate_t, test_bounded_exec_t)
  
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(ibpkeydomain)
--userdom_sysadm_entry_spec_domtrans_to(ibpkeydomain)
-diff --git a/policy/test_inet_socket.te b/policy/test_inet_socket.te
-index da507d1..dd0e83c 100644
---- a/policy/test_inet_socket.te
-+++ b/policy/test_inet_socket.te
-@@ -161,4 +161,3 @@ kernel_recvfrom_unlabeled_peer(inetsocketdomain)
+ # Run it!  This should succeed on v3.18 or later, fail on older kernels.
+-unconfined_run_to(test_bounded_t, test_bounded_exec_t)
++domtrans_pattern(test_intermediate_t, test_bounded_exec_t, test_bounded_t)
  
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(inetsocketdomain)
--userdom_sysadm_entry_spec_domtrans_to(inetsocketdomain)
-diff --git a/policy/test_inherit.te b/policy/test_inherit.te
-index 31d719e..15ab8fc 100644
---- a/policy/test_inherit.te
-+++ b/policy/test_inherit.te
-@@ -33,7 +33,6 @@ typeattribute test_inherit_nowrite_t inheritdomain;
+ # A domain that is not bounded by the unconfined domain.
+ type test_notbounded_t;
+@@ -27,7 +33,7 @@ files_type(test_notbounded_exec_t)
+ domain_entry_file(test_notbounded_t, test_notbounded_exec_t)
  
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(inheritdomain)
--userdom_sysadm_entry_spec_domtrans_to(inheritdomain)
+ # Run it!  This should fail always.
+-unconfined_run_to(test_notbounded_t, test_notbounded_exec_t)
++domtrans_pattern(test_intermediate_t, test_notbounded_exec_t, test_notbounded_t)
  
- # Grant the necessary permissions for the parent domain.
- allow test_inherit_parent_t test_inherit_file_t:file rw_file_perms;
-diff --git a/policy/test_ioctl.te b/policy/test_ioctl.te
-index 24cff32..955695d 100644
---- a/policy/test_ioctl.te
-+++ b/policy/test_ioctl.te
-@@ -31,7 +31,6 @@ libs_exec_lib_files(ioctldomain)
- # Allow all of these domains to be entered from sysadm domain
- # via a shell script in the test directory or by....
- miscfiles_domain_entry_test_files(ioctldomain)
--userdom_sysadm_entry_spec_domtrans_to(ioctldomain)
- corecmd_bin_entry_type(ioctldomain)
- sysadm_bin_spec_domtrans_to(ioctldomain)
+ # A domain to which the unconfined domain is allowed nnp_transition.
+ type test_nnptransition_t;
+@@ -39,9 +45,9 @@ files_type(test_nnptransition_exec_t)
+ domain_entry_file(test_nnptransition_t, test_nnptransition_exec_t)
  
-diff --git a/policy/test_ipc.te b/policy/test_ipc.te
-index 07f8b4a..f68d35c 100644
---- a/policy/test_ipc.te
-+++ b/policy/test_ipc.te
-@@ -68,7 +68,6 @@ fs_rw_tmpfs_files(ipcdomain)
- # Allow all of these domains to be entered from user domains.
- # via a shell script in the test directory or by another program.
- miscfiles_domain_entry_test_files(ipcdomain)
--userdom_sysadm_entry_spec_domtrans_to(ipcdomain)
- corecmd_bin_entry_type(ipcdomain)
- sysadm_bin_spec_domtrans_to(ipcdomain)
+ # Run it!  This should succeed on v4.14 or later.
+-unconfined_run_to(test_nnptransition_t, test_nnptransition_exec_t)
++domtrans_pattern(test_intermediate_t, test_nnptransition_exec_t, test_nnptransition_t)
+ ifdef(`nnp_nosuid_transition_permission_defined', `
+-allow unconfined_t test_nnptransition_t:process2 nnp_transition;
++allow test_intermediate_t test_nnptransition_t:process2 nnp_transition;
+ ')
  
-diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
-index fad5dfd..2763472 100644
---- a/policy/test_key_socket.te
-+++ b/policy/test_key_socket.te
-@@ -52,7 +52,6 @@ allow test_key_sock_no_read_t self:key_socket { create write setopt };
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(keysockdomain)
--userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
+ # A domain to which the unconfined domain is allowed nosuid_transition.
+@@ -54,9 +60,9 @@ files_type(test_nosuidtransition_exec_t)
+ domain_entry_file(test_nosuidtransition_t, test_nosuidtransition_exec_t)
  
- # For CONFIG_NET_KEY=m
- kernel_request_load_module(keysockdomain)
-diff --git a/policy/test_keys.te b/policy/test_keys.te
-index 142a70c..de1b46c 100644
---- a/policy/test_keys.te
-+++ b/policy/test_keys.te
-@@ -169,4 +169,3 @@ allow test_request_keys_no_link_t test_keyring_service_t:key { read write search
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(keydomain)
--userdom_sysadm_entry_spec_domtrans_to(keydomain)
-diff --git a/policy/test_mac_admin.te b/policy/test_mac_admin.te
-index e816b03..d63dc80 100644
---- a/policy/test_mac_admin.te
-+++ b/policy/test_mac_admin.te
-@@ -47,4 +47,3 @@ allow mac_admintestdomain unlabeled_t:dir { getattr create };
+ # Run it!  This should succeed on v4.14 or later.
+-unconfined_run_to(test_nosuidtransition_t, test_nosuidtransition_exec_t)
++domtrans_pattern(test_intermediate_t, test_nosuidtransition_exec_t, test_nosuidtransition_t)
+ ifdef(`nnp_nosuid_transition_permission_defined', `
+-allow unconfined_t test_nosuidtransition_t:process2 nosuid_transition;
++allow test_intermediate_t test_nosuidtransition_t:process2 nosuid_transition;
+ ')
  
- # Entry into the test domains via the test program.
- corecmd_bin_entry_type(mac_admintestdomain)
--userdom_sysadm_entry_spec_domtrans_to(mac_admintestdomain)
-diff --git a/policy/test_module_load.te b/policy/test_module_load.te
-index bbb805a..770b2dd 100644
---- a/policy/test_module_load.te
-+++ b/policy/test_module_load.te
-@@ -46,4 +46,3 @@ neverallow test_kmodule_deny_module_request_t kernel_t:system { module_request }
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(kmoduledomain)
--userdom_sysadm_entry_spec_domtrans_to(kmoduledomain)
-diff --git a/policy/test_mqueue.te b/policy/test_mqueue.te
-index b9e84e7..ea3fa68 100644
---- a/policy/test_mqueue.te
-+++ b/policy/test_mqueue.te
-@@ -57,7 +57,6 @@ files_type(mqop_mqrw_t)
+ # A domain to which the unconfined domain is allowed both nosuid_transition and nnp_transition.
+@@ -69,7 +75,7 @@ files_type(test_nosuidtransition_exec_t)
+ domain_entry_file(test_nnpnosuidtransition_t, test_nnpnosuidtransition_exec_t)
  
- # basic permision for all mqopdomains
- miscfiles_domain_entry_test_files(mqopdomain)
--userdom_sysadm_entry_spec_domtrans_to(mqopdomain)
+ # Run it!  This should succeed on v4.14 or later.
+-unconfined_run_to(test_nnpnosuidtransition_t, test_nnpnosuidtransition_exec_t)
++domtrans_pattern(test_intermediate_t, test_nnpnosuidtransition_exec_t, test_nnpnosuidtransition_t)
+ ifdef(`nnp_nosuid_transition_permission_defined', `
+-allow unconfined_t test_nnpnosuidtransition_t:process2 { nnp_transition nosuid_transition };
++allow test_intermediate_t test_nnpnosuidtransition_t:process2 { nnp_transition nosuid_transition };
+ ')
+diff --git a/tests/nnp_nosuid/test b/tests/nnp_nosuid/test
+index 4e13927..bebe575 100755
+--- a/tests/nnp_nosuid/test
++++ b/tests/nnp_nosuid/test
+@@ -31,31 +31,36 @@ system("chcon -t test_bounded_exec_t $basedir/checkcon");
+ # Create nosuid mount.
+ system("mkdir -p $basedir/testdir");
+ system("mount -t tmpfs -o nosuid none $basedir/testdir");
++system("chcon -t test_file_t $basedir/testdir");
  
- corecmd_bin_entry_type(mqopdomain)
- sysadm_bin_spec_domtrans_to(mqopdomain)
-diff --git a/policy/test_netlink_socket.te b/policy/test_netlink_socket.te
-index 0d6fc5e..589e372 100644
---- a/policy/test_netlink_socket.te
-+++ b/policy/test_netlink_socket.te
-@@ -43,7 +43,6 @@ netlink_socket_test(netlink_crypto_socket)
+ # Set entrypoint type for bounded domain under nosuid.
+ system("cp $basedir/checkcon $basedir/testdir");
+ system("chcon -t test_bounded_exec_t $basedir/testdir/checkcon");
  
- # Entry into the test domains via the test program.
- miscfiles_domain_entry_test_files(netlinksocktestdomain)
--userdom_sysadm_entry_spec_domtrans_to(netlinksocktestdomain)
++# Run everything from test_intermediate_t (to simplify the policy)
++$run = "runcon -t test_intermediate_t --";
++
+ # Transition under NNP to bounded type via setexec.
+ $result = system(
+-"$basedir/execnnp -n -- runcon -t test_bounded_t $basedir/checkcon test_bounded_t 2>&1"
++"$run $basedir/execnnp -n -- runcon -t test_bounded_t $basedir/checkcon test_bounded_t 2>&1"
+ );
+ ok( $result, 0 );    #this should pass
  
- # Trigger kernel module auto-loading of the protocol implementations.
- kernel_request_load_module(netlinksocktestdomain)
-diff --git a/policy/test_notify.te b/policy/test_notify.te
-index 86979a5..4ffd287 100644
---- a/policy/test_notify.te
-+++ b/policy/test_notify.te
-@@ -75,4 +75,3 @@ typeattribute test_rdonly_t test_notify_domain;
- allow test_rdonly_t test_notify_file_t:dir { read open watch };
+ # Transition on nosuid to bounded type via setexec.
+ $result = system(
+-"$basedir/execnnp -- runcon -t test_bounded_t $basedir/testdir/checkcon test_bounded_t 2>&1"
++"$run $basedir/execnnp -- runcon -t test_bounded_t $basedir/testdir/checkcon test_bounded_t 2>&1"
+ );
+ ok( $result, 0 );    #this should pass
  
- miscfiles_domain_entry_test_files(test_notify_domain)
--userdom_sysadm_entry_spec_domtrans_to(test_notify_domain)
-diff --git a/policy/test_open.te b/policy/test_open.te
-index acb31d8..0d662f0 100644
---- a/policy/test_open.te
-+++ b/policy/test_open.te
-@@ -31,4 +31,3 @@ allow test_append_t test_open_file_t:file append_file_perms;
+ # Automatic transition under NNP to bounded domain via exec.
+ $result =
+-  system("$basedir/execnnp -n -- $basedir/checkcon test_bounded_t 2>&1");
++  system("$run $basedir/execnnp -n -- $basedir/checkcon test_bounded_t 2>&1");
+ ok( $result, 0 );    #this should pass
  
- # Allow all of these domains to be entered from sysadm domain
- miscfiles_domain_entry_test_files(test_open_domain)
--userdom_sysadm_entry_spec_domtrans_to(test_open_domain)
-diff --git a/policy/test_perf_event.te b/policy/test_perf_event.te
-index 6d3828a..8a914ff 100644
---- a/policy/test_perf_event.te
-+++ b/policy/test_perf_event.te
-@@ -75,4 +75,3 @@ allow_lockdown_confidentiality(test_perf_no_write_t)
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(perfdomain)
--userdom_sysadm_entry_spec_domtrans_to(perfdomain)
-diff --git a/policy/test_prlimit.te b/policy/test_prlimit.te
-index 3f32136..4b6a5c8 100644
---- a/policy/test_prlimit.te
-+++ b/policy/test_prlimit.te
-@@ -43,4 +43,3 @@ prlimit_test(getrlimit)
+ # Automatic transition on nosuid to bounded domain via exec.
+ $result =
+-  system("$basedir/execnnp -- $basedir/testdir/checkcon test_bounded_t 2>&1");
++  system(
++    "$run $basedir/execnnp -- $basedir/testdir/checkcon test_bounded_t 2>&1");
+ ok( $result, 0 );    #this should pass
  
- # Entry into the test domains via the test program.
- miscfiles_domain_entry_test_files(prlimittestdomain)
--userdom_sysadm_entry_spec_domtrans_to(prlimittestdomain)
-diff --git a/policy/test_ptrace.te b/policy/test_ptrace.te
-index 34aa636..f327cc5 100644
---- a/policy/test_ptrace.te
-+++ b/policy/test_ptrace.te
-@@ -36,7 +36,6 @@ allow test_ptrace_traced_t test_ptrace_tracer_t:process sigchld;
- # Allow all of these domains to be entered from the sysadm domains.
- # via a program in the test directory.
- miscfiles_domain_entry_test_files(ptracedomain)
--userdom_sysadm_entry_spec_domtrans_to(ptracedomain)
+ # Use true as an entrypoint program to test ability to exec at all.
+@@ -71,25 +76,28 @@ system(
+ # Transition under NNP to notbounded domain via setexec.
+ $result =
+   system(
+-    "$basedir/execnnp -n -- runcon -t test_notbounded_t $basedir/true 2>&1");
++    "$run $basedir/execnnp -n -- runcon -t test_notbounded_t $basedir/true 2>&1"
++  );
+ ok($result);    #this should fail
  
- # Allow execution of helper programs.
- corecmd_exec_bin(ptracedomain)
-diff --git a/policy/test_sctp.te b/policy/test_sctp.te
-index 4c18c72..7b24b8c 100644
---- a/policy/test_sctp.te
-+++ b/policy/test_sctp.te
-@@ -234,4 +234,3 @@ allow sctpsocketdomain self:unix_dgram_socket { create ioctl };
- ############ Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(sctpsocketdomain)
--userdom_sysadm_entry_spec_domtrans_to(sctpsocketdomain)
-diff --git a/policy/test_sigkill.te b/policy/test_sigkill.te
-index a0dce3b..04bed89 100644
---- a/policy/test_sigkill.te
-+++ b/policy/test_sigkill.te
-@@ -41,7 +41,6 @@ allow test_kill_signal_t test_kill_server_t:process signal;
- # Allow all of these domains to be entered from the sysadm domains,
- # via kill or a program in the test directory.
- miscfiles_domain_entry_test_files(killdomain)
--userdom_sysadm_entry_spec_domtrans_to(killdomain)
- corecmd_bin_entry_type(killdomain)
- sysadm_bin_spec_domtrans_to(killdomain)
+ # Transition on nosuid to notbounded domain via setexec.
+ $result =
+   system(
+-    "$basedir/execnnp -- runcon -t test_notbounded_t $basedir/testdir/true 2>&1"
++"$run $basedir/execnnp -- runcon -t test_notbounded_t $basedir/testdir/true 2>&1"
+   );
+ ok($result);    #this should fail
  
-diff --git a/policy/test_task_create.te b/policy/test_task_create.te
-index eb51cd2..54acb50 100644
---- a/policy/test_task_create.te
-+++ b/policy/test_task_create.te
-@@ -25,4 +25,3 @@ typeattribute test_create_no_t test_create_d;
+ # Automatic transition under NNP to notbounded domain via exec.
+ $result =
+-  system("$basedir/execnnp -n -- $basedir/checkcon test_notbounded_t 2>&1");
++  system(
++    "$run $basedir/execnnp -n -- $basedir/checkcon test_notbounded_t 2>&1");
+ ok($result);    #this should fail
  
- # Allow domain to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(test_create_d)
--userdom_sysadm_entry_spec_domtrans_to(test_create_d)
-diff --git a/policy/test_task_getpgid.te b/policy/test_task_getpgid.te
-index 1f81f56..dad584e 100644
---- a/policy/test_task_getpgid.te
-+++ b/policy/test_task_getpgid.te
-@@ -26,7 +26,6 @@ typeattribute test_getpgid_no_t test_getpgid_d;
+ # Automatic transition on nosuid to notbounded domain via exec.
+ $result =
+   system(
+-    "$basedir/execnnp -- $basedir/testdir/checkcon test_notbounded_t 2>&1");
++    "$run $basedir/execnnp -- $basedir/testdir/checkcon test_notbounded_t 2>&1"
++  );
+ ok($result);    #this should fail
  
- # Allow domain to be entered from the sysadm domain
- miscfiles_domain_entry_test_files(test_getpgid_d)
--userdom_sysadm_entry_spec_domtrans_to(test_getpgid_d)
+ if ($test_nnp_nosuid_transition) {
+@@ -104,27 +112,28 @@ if ($test_nnp_nosuid_transition) {
+     # Transition under NNP to nnptransition domain via setexec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- runcon -t test_nnptransition_t $basedir/true 2>&1"
++"$run $basedir/execnnp -n -- runcon -t test_nnptransition_t $basedir/true 2>&1"
+       );
+     ok( $result, 0 );    #this should succeed
  
- # Give test_getpgid_yes_t the permission needed.
- allow test_getpgid_yes_t test_getpgid_target_t:process getpgid;
-diff --git a/policy/test_task_getsched.te b/policy/test_task_getsched.te
-index c67019b..f541d58 100644
---- a/policy/test_task_getsched.te
-+++ b/policy/test_task_getsched.te
-@@ -26,7 +26,6 @@ typeattribute test_getsched_no_t test_getsched_d;
+     # Transition under NNP+nosuid to nnptransition domain via setexec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- runcon -t test_nnptransition_t $basedir/testdir/true 2>&1"
++"$run $basedir/execnnp -n -- runcon -t test_nnptransition_t $basedir/testdir/true 2>&1"
+       );
+     ok($result);         #this should fail
  
- # Allow domain to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(test_getsched_d)
--userdom_sysadm_entry_spec_domtrans_to(test_getsched_d)
+     # Automatic transition under NNP to nnptransition domain via exec.
+     $result =
+       system(
+-        "$basedir/execnnp -n -- $basedir/checkcon test_nnptransition_t 2>&1");
++"$run $basedir/execnnp -n -- $basedir/checkcon test_nnptransition_t 2>&1"
++      );
+     ok( $result, 0 );    #this should succeed
  
- # Give test_getsched_yes_t the permission needed.
- allow test_getsched_yes_t test_getsched_target_t:process getsched;
-diff --git a/policy/test_task_getsid.te b/policy/test_task_getsid.te
-index e5a62f8..8c21d9a 100644
---- a/policy/test_task_getsid.te
-+++ b/policy/test_task_getsid.te
-@@ -26,7 +26,6 @@ typeattribute test_getsid_no_t test_getsid_d;
+     # Automatic transition under NNP+nosuid to nnptransition domain via exec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- $basedir/testdir/checkcon test_nnptransition_t 2>&1"
++"$run $basedir/execnnp -n -- $basedir/testdir/checkcon test_nnptransition_t 2>&1"
+       );
+     ok($result);         #this should fail
  
- # Allow domain to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(test_getsid_d)
--userdom_sysadm_entry_spec_domtrans_to(test_getsid_d)
+@@ -136,28 +145,28 @@ if ($test_nnp_nosuid_transition) {
+     # Transition under nosuid to nosuidtransition domain via setexec.
+     $result =
+       system(
+-"$basedir/execnnp -- runcon -t test_nosuidtransition_t $basedir/testdir/true 2>&1"
++"$run $basedir/execnnp -- runcon -t test_nosuidtransition_t $basedir/testdir/true 2>&1"
+       );
+     ok( $result, 0 );    #this should succeed
  
- # Give test_getsid_yes_t the permission needed.
- allow test_getsid_yes_t test_getsid_target_t:process getsession;
-diff --git a/policy/test_task_setpgid.te b/policy/test_task_setpgid.te
-index 8e98859..25e06d4 100644
---- a/policy/test_task_setpgid.te
-+++ b/policy/test_task_setpgid.te
-@@ -18,4 +18,3 @@ typeattribute test_setpgid_no_t test_setpgid_d;
+     # Transition under NNP+nosuid to nosuidtransition domain via setexec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- runcon -t test_nosuidtransition_t $basedir/testdir/true 2>&1"
++"$run $basedir/execnnp -n -- runcon -t test_nosuidtransition_t $basedir/testdir/true 2>&1"
+       );
+     ok($result);         #this should fail
  
- # Allow domain to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(test_setpgid_d)
--userdom_sysadm_entry_spec_domtrans_to(test_setpgid_d)
-diff --git a/policy/test_task_setsched.te b/policy/test_task_setsched.te
-index c30157e..432135e 100644
---- a/policy/test_task_setsched.te
-+++ b/policy/test_task_setsched.te
-@@ -28,7 +28,6 @@ typeattribute test_setsched_no_t test_setsched_d;
+     # Automatic transition under nosuid to nosuidtransition domain via exec.
+     $result =
+       system(
+-"$basedir/execnnp -- $basedir/testdir/checkcon test_nosuidtransition_t 2>&1"
++"$run $basedir/execnnp -- $basedir/testdir/checkcon test_nosuidtransition_t 2>&1"
+       );
+     ok( $result, 0 );    #this should succeed
  
- # Allow domain to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(test_setsched_d)
--userdom_sysadm_entry_spec_domtrans_to(test_setsched_d)
+     # Automatic transition under NNP+nosuid to nosuidtransition domain via exec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- $basedir/testdir/checkcon test_nosuidtransition_t 2>&1"
++"$run $basedir/execnnp -n -- $basedir/testdir/checkcon test_nosuidtransition_t 2>&1"
+       );
+     ok($result);         #this should fail
  
- # Allow these domains to execute renice.
- corecmd_bin_entry_type(test_setsched_d)
-diff --git a/policy/test_transition.te b/policy/test_transition.te
-index 8f1f4bf..4adc423 100644
---- a/policy/test_transition.te
-+++ b/policy/test_transition.te
-@@ -25,6 +25,3 @@ corecmd_bin_entry_type(transitiondomain)
- domain_transition_pattern(test_transition_fromdomain_t,bin_t,test_transition_todomain_t)
- allow test_transition_fromdomain_t test_transition_todomain_t:fd use;
- allow test_transition_todomain_t test_transition_fromdomain_t:fd use;
--
--# Allow all of these domains to be entered from the sysadm domain.
--userdom_sysadm_entry_spec_domtrans_to(transitiondomain)
-diff --git a/policy/test_tun_tap.te b/policy/test_tun_tap.te
-index be317a2..e1aef8d 100644
---- a/policy/test_tun_tap.te
-+++ b/policy/test_tun_tap.te
-@@ -96,4 +96,3 @@ allow test_newcon_no_from_tun_tap_t test_tun_tap_t:process { dyntransition };
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(tuntapdomain)
--userdom_sysadm_entry_spec_domtrans_to(tuntapdomain)
-diff --git a/policy/test_unix_socket.te b/policy/test_unix_socket.te
-index 924475e..69720f0 100644
---- a/policy/test_unix_socket.te
-+++ b/policy/test_unix_socket.te
-@@ -61,4 +61,3 @@ typeattribute test_socketpair_t unixsocketdomain;
+@@ -169,14 +178,14 @@ if ($test_nnp_nosuid_transition) {
+     # Transition under NNP+nosuid to nnpnosuidtransition domain via setexec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- runcon -t test_nnpnosuidtransition_t $basedir/testdir/true 2>&1"
++"$run $basedir/execnnp -n -- runcon -t test_nnpnosuidtransition_t $basedir/testdir/true 2>&1"
+       );
+     ok( $result, 0 );    #this should succeed
  
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(unixsocketdomain)
--userdom_sysadm_entry_spec_domtrans_to(unixsocketdomain)
-diff --git a/policy/test_userfaultfd.te b/policy/test_userfaultfd.te
-index 0ca733b..5cb7d1c 100644
---- a/policy/test_userfaultfd.te
-+++ b/policy/test_userfaultfd.te
-@@ -48,4 +48,3 @@ allow test_uffd_domain self:capability { sys_ptrace };
- 
- # Allow all of these domains to be executed
- miscfiles_domain_entry_test_files(test_uffd_domain)
--userdom_sysadm_entry_spec_domtrans_to(test_uffd_domain)
-diff --git a/policy/test_vsock_socket.te b/policy/test_vsock_socket.te
-index abbcc0b..4bb989a 100644
---- a/policy/test_vsock_socket.te
-+++ b/policy/test_vsock_socket.te
-@@ -45,4 +45,3 @@ vsock_client(nosetopt, connect create getattr getopt read shutdown write)
- 
- # Allow all of these domains to be entered from the sysadm domain.
- miscfiles_domain_entry_test_files(vsocksocketdomain)
--userdom_sysadm_entry_spec_domtrans_to(vsocksocketdomain)
-diff --git a/policy/test_watchkey.te b/policy/test_watchkey.te
-index 9fa5a70..101d68a 100644
---- a/policy/test_watchkey.te
-+++ b/policy/test_watchkey.te
-@@ -20,4 +20,3 @@ typeattribute test_watchkey_no_view_t watchkeydomain;
- ########### Allow these domains to be entered from sysadm domain ############
- #
- miscfiles_domain_entry_test_files(watchkeydomain)
--userdom_sysadm_entry_spec_domtrans_to(watchkeydomain)
+  # Automatic transition under NNP+nosuid to nnpnosuidtransition domain via exec.
+     $result =
+       system(
+-"$basedir/execnnp -n -- $basedir/testdir/checkcon test_nnpnosuidtransition_t 2>&1"
++"$run $basedir/execnnp -n -- $basedir/testdir/checkcon test_nnpnosuidtransition_t 2>&1"
+       );
+     ok( $result, 0 );    #this should succeed
+ }
 -- 
 2.37.1
 
