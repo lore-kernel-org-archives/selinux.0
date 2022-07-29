@@ -2,96 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EEE3C00140
-	for <selinux@archiver.kernel.org>; Tue, 26 Jul 2022 19:17:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D240C00144
+	for <selinux@archiver.kernel.org>; Fri, 29 Jul 2022 12:02:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239780AbiGZTRL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Jul 2022 15:17:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
+        id S235311AbiG2MCk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 Jul 2022 08:02:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233380AbiGZTRJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Jul 2022 15:17:09 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D8AB29C84
-        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 12:17:08 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id v67-20020a1cac46000000b003a1888b9d36so11923156wme.0
-        for <selinux@vger.kernel.org>; Tue, 26 Jul 2022 12:17:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IN6jsLzzDm9Bg5VLYyR1jQid6gxLtPqKOGesbc2Ib2s=;
-        b=FfhnaTkvEoW3v2svHGtfW03udJyaSoCToOyt8VpsTfLGPcGaIGtsn8ZEZodMp/j6GE
-         FXdOmQNtbEXtSHzSexNNacBtwoxXHB7Ae/AlIcF3n3GbR8EAlto7sQOw1ImlLaEmqmMP
-         thop6o0KzyQkmXRiJztC67Tzt+nXJL/hwbuBWJTBasPSTzKSMKNm11pgD9Bj7kGzWJNl
-         CXYJnVXcsdHKopNVsa5gCxX8NvIfKDQYb1JoohHbMasBXzsy/VG6c+q+KtQUkVS9JvPn
-         wPPNHWEB+4oSdLgT8S861znFvKI98TycI5vfDWXOgiHHiTKbxq0JawJrAWxLMnbHlU2M
-         dweA==
+        with ESMTP id S234954AbiG2MCj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 08:02:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A0E0D863E2
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:02:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659096157;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ru7AO4+krIi1b4RrFRybUL38uPz5oXMkGuUPMxkiesU=;
+        b=EUN7zWKStpZPp6eTFnD7mwsPf/uc5/chvTmJWPhiOzveZIx6X1v+/EHCE8zLmSSYaa+LLM
+        xb8y5j/uGutEO/xSfxRuFJamqkzAb2NtUEXK71gAeyUWpPYx4U8ZDyFyGXN2KDv0jizvZx
+        /jt1231I5IJfaTdn3Fp8UGJbJsPT9Yc=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-470-3qpG9hXBPn2lYeh5cYToIA-1; Fri, 29 Jul 2022 08:02:36 -0400
+X-MC-Unique: 3qpG9hXBPn2lYeh5cYToIA-1
+Received: by mail-wm1-f72.google.com with SMTP id z20-20020a1c4c14000000b003a3020da654so790519wmf.5
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:02:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IN6jsLzzDm9Bg5VLYyR1jQid6gxLtPqKOGesbc2Ib2s=;
-        b=6160PO0ymoukjGyqlRM4GVM43uNYqE9lER51Zap13iTJTdusAcjUudXAjjB5+0wapS
-         QNCGECvnVWFBqVVWclcXYgRjycvkxtT7/rkT+DDcrm7RrOTyblbz0bj/qUbChz/iBU5S
-         m1s4j7dii4Cel7iOBQjiES6uo8chV7KQCz5J8zVdVxqbbZ14bX91zMWMqa3cDcxQ7wuI
-         nGY0R3WPiyHGzFeFrJeWb4DeA6+DZHjBJGbWfVxqy6z2zsDt9j5s7k06rv94jWwA4yu/
-         twYHiQOJK76AqT3nkEP13wVCo6OCsFDFN4MpOo8fQ9iC64YvOgYvsK03E4mgX+TJnyLb
-         hU6A==
-X-Gm-Message-State: AJIora8APS5HZwYah/pjqKdpMgAf6/NhwWfjIOprOcl0eRsOa2MT4k6u
-        QV3eVYTZL/sgHWvOZLCNsBH5cqS2Nynx1ee7bPKrrjVesQ==
-X-Google-Smtp-Source: AGRyM1scdlVZhU4FWKSuKZpGoUoUWqUr4HxdM3l1BSDxch3HC0WsIlkvNN0kBsfOdnVAmH/gfd87VQZEq3mrBpf5m6k=
-X-Received: by 2002:a7b:ce8f:0:b0:3a2:ff2d:915f with SMTP id
- q15-20020a7bce8f000000b003a2ff2d915fmr437033wmj.165.1658863027125; Tue, 26
- Jul 2022 12:17:07 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc;
+        bh=Ru7AO4+krIi1b4RrFRybUL38uPz5oXMkGuUPMxkiesU=;
+        b=LOAEZQFuh9Y7L9IXyJ1JtbQbeAUuM8+X9NA2cD93LOSCtkTvgnZY5YPjutGarCFM3h
+         L5h0tLf1J7Io57w6CJOl7xT6emzDN4RjWzKtSpsZ1fPntaoVwGe9Z0qFmRZrxTttOJaM
+         QkI/sVeQwuQmotTk5DM0QZyDnweClAbc0HC/CAEFOlEDqQxCbGx8f/2yuq77URtUH3kk
+         mN+yoD9gOV+oiQGlTSztnPvWRN0CtIFzPz+jR7HMAp5ucAqeNCWi+S49EY1LEE8aINN8
+         VrWcGw9zfyh2ozREmBFf18xclkE/gV7+a2ZDkw492pfgmtab2+kTV5JfgTjgzN4URuNw
+         00rQ==
+X-Gm-Message-State: AJIora/MQoDBxEdy/PTruhl6KO17l3NwgtX+iABEm59ZoYoF3dBxiPmE
+        /aWWRobJglE+9h1ctGtOhO9Ab3IJqDUnu8EQmq2b48F1FGOqXL7ka3giJ0fssb1XxzkpshXIfUo
+        wk4AzMDdRIsXVepayvV2Zyxvgn4TNF2RK5nb6Pw1Xaqqs/CWcXe9W+tQJqGizxsHVeLEBow==
+X-Received: by 2002:a05:600c:1c2a:b0:3a3:25f7:184d with SMTP id j42-20020a05600c1c2a00b003a325f7184dmr2293408wms.2.1659096154713;
+        Fri, 29 Jul 2022 05:02:34 -0700 (PDT)
+X-Google-Smtp-Source: AGRyM1t0+1NEwF7/qJMf/MN/zj59ilFonMjkPhgXITTlvUuXX0FJWw7tTe84Tw1NKUsAnhmFcygw5w==
+X-Received: by 2002:a05:600c:1c2a:b0:3a3:25f7:184d with SMTP id j42-20020a05600c1c2a00b003a325f7184dmr2293375wms.2.1659096154205;
+        Fri, 29 Jul 2022 05:02:34 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
+        by smtp.gmail.com with ESMTPSA id i3-20020a05600c354300b003a2e92edeccsm9590622wmq.46.2022.07.29.05.02.33
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Jul 2022 05:02:33 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite 01/24] keys: change test_newcon_key_t to be just an object context
+Date:   Fri, 29 Jul 2022 14:02:06 +0200
+Message-Id: <20220729120229.207584-2-omosnace@redhat.com>
+X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20220729120229.207584-1-omosnace@redhat.com>
+References: <20220729120229.207584-1-omosnace@redhat.com>
 MIME-Version: 1.0
-References: <165818338297.423746.2325119921845739520.stgit@olly>
- <CAFqZXNvit5QK5zGjwp1tzFKSEyz0t85iqoE=Qv_yYnNYO1tsDQ@mail.gmail.com>
- <CAHC9VhRCyo6Fuq1iorFJpjn2wvN2VQba87tSfNwBdjyULZc-2Q@mail.gmail.com>
- <CAFqZXNus=Rnn=5qpQ4goLWvuinAA__ayjBCT0W3tR2HwtgOm=Q@mail.gmail.com>
- <CAHC9VhTg2jB_9F74yRsW59bHdMKQPPftV6EWGM0rK0zh0xeNuA@mail.gmail.com>
- <CAFqZXNs3+wcA_g0aojkmPACKM9tLwxxYV7OjiSjBfZNOnJeLrA@mail.gmail.com>
- <CAHC9VhT_JvJfafywYiHHdV93TAvgKZAPKQooshpG3CWyF+870w@mail.gmail.com>
- <CAFqZXNuCb+ugR0btKdBbQb7-MiHhEnm2L7XEKByVBf8+yb-x9Q@mail.gmail.com>
- <CAHC9VhTEG7DLqy4PiuJJuSgAR7L_zvMpoJauRYc_i99UjO=jWg@mail.gmail.com> <CAFqZXNuVxtDwwDHPGjCrJcO4VgDfx7DJsi1fk99XqVboawRiLQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNuVxtDwwDHPGjCrJcO4VgDfx7DJsi1fk99XqVboawRiLQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 26 Jul 2022 15:16:55 -0400
-Message-ID: <CAHC9VhQzcPhzS-quFeuk03zwjE1smE16YjvZQ9Cw8jxXhMRJeg@mail.gmail.com>
-Subject: Re: [PATCH] tests/sctp: remove assumptions in the SCTP tests
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 26, 2022 at 4:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Mon, Jul 25, 2022 at 10:40 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Jul 25, 2022 at 5:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > On Thu, Jul 21, 2022 at 3:51 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > > On Thu, Jul 21, 2022 at 4:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > > On Thu, Jul 21, 2022 at 12:17 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > > > On Wed, Jul 20, 2022 at 7:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > > > > On Tue, Jul 19, 2022 at 4:28 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > > > > > > On Tue, Jul 19, 2022 at 7:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > > > > > > On Tue, Jul 19, 2022 at 12:31 AM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > ...
-> >
-> > > Ok, I'm going to merge this patch with some minor edits (see [1]) if
-> > > you're okay with them and then I'll look into further improvements.
-> > >
-> > > [1] https://github.com/WOnder93/selinux-testsuite/commit/0f7bb1696a15972a555d997377348b8e4ae56b38
-> >
-> > Whatever you need to do so you'll merge it is fine with me.  My goal
-> > is a functional test suite, I don't care that much how we arrive at
-> > that point :)
->
-> Thanks, I applied that patch:
-> https://github.com/SELinuxProject/selinux-testsuite/commit/db1c3fbf5a718797365576d0b449dc7658da056c
+It's only used to test chaing the label of a key, so there is no need to
+declare it as a domain type.
 
-Great, thank you.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ policy/test_keys.te | 4 ----
+ tests/keys/test     | 2 +-
+ 2 files changed, 1 insertion(+), 5 deletions(-)
 
+diff --git a/policy/test_keys.te b/policy/test_keys.te
+index 78c0663..f6a3f2c 100644
+--- a/policy/test_keys.te
++++ b/policy/test_keys.te
+@@ -40,10 +40,6 @@ allow test_key_t self:key { create write search read view link setattr };
+ 
+ # Set new context on a keyring:
+ type test_newcon_key_t;
+-key_domain_type(test_newcon_key_t)
+-unconfined_runs_test(test_newcon_key_t)
+-typeattribute test_newcon_key_t testdomain;
+-typeattribute test_newcon_key_t keydomain;
+ 
+ allow test_key_t test_newcon_key_t:key { create write search view };
+ 
+diff --git a/tests/keys/test b/tests/keys/test
+index 2dafb17..061bc62 100755
+--- a/tests/keys/test
++++ b/tests/keys/test
+@@ -67,7 +67,7 @@ ok( $result >> 8 eq 11 );
+ 
+ print "Change keyring context\n";
+ $result = system
+-"runcon -t test_key_t $basedir/keyctl_relabel $v system_u:system_r:test_newcon_key_t:s0";
++"runcon -t test_key_t $basedir/keyctl_relabel $v system_u:object_r:test_newcon_key_t:s0";
+ ok( $result eq 0 );
+ 
+ print "Test permission checks between a keyring created by another process\n";
 -- 
-paul-moore.com
+2.37.1
+
