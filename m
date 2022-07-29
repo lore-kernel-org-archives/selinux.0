@@ -2,64 +2,64 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2942DC00144
-	for <selinux@archiver.kernel.org>; Fri, 29 Jul 2022 12:04:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DC88C00144
+	for <selinux@archiver.kernel.org>; Fri, 29 Jul 2022 12:04:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234954AbiG2MEX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 Jul 2022 08:04:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42014 "EHLO
+        id S230456AbiG2ME0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 Jul 2022 08:04:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230456AbiG2MEW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 08:04:22 -0400
+        with ESMTP id S236168AbiG2MEY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 08:04:24 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8803187F78
-        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:04:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9355587F7B
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:04:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659096255;
+        s=mimecast20190719; t=1659096259;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=KRxjHHqzHBqY4RziYhDHZxHV/fCKj6E/Apg+1qTky88=;
-        b=DA6v6f5LeJqHZ2VdWyg/HuEVUzQAnZk8fZKrJw0n7SuCiLv0DLIhA3fm7r5K/74vhGTNp1
-        Ix4pKSkCoRdS+5f14IQ8qI1gZq0ker6UWP/VRW1bH2hSzz8lG+ptdDjcuhtaRHQ8LhaM1+
-        tO+zy4DQ8gdWTA1Wx/xhujDvAaVJ6Gg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=Lekwp2+k18inaPiX9G1L4k74QP1pdsetvo6xop+Kblk=;
+        b=bqmzrtds+japEd0so9Q6StfNeaj/fYtuHjevH4vBmw4Idup3UFyAeqh7bYMceWhBgUsrHr
+        BWN0yFWjMd6LlrJFuh5jjHCGV8SjS0S9aOfL3W4hMjW3c9/8Bbgl3aONxsmFwlf31kRndR
+        v3nswR/wJNXJbN15qqfkPYqKZKvSXdY=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-257-Pcp24iJIMC2KZzlcr9iMbg-1; Fri, 29 Jul 2022 08:03:06 -0400
-X-MC-Unique: Pcp24iJIMC2KZzlcr9iMbg-1
-Received: by mail-wr1-f72.google.com with SMTP id x5-20020adfbb45000000b0021ee56506dfso1150122wrg.11
-        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:03:05 -0700 (PDT)
+ us-mta-152-G6I6YKwSP6eTjpCDIsQNtA-1; Fri, 29 Jul 2022 08:03:04 -0400
+X-MC-Unique: G6I6YKwSP6eTjpCDIsQNtA-1
+Received: by mail-wr1-f69.google.com with SMTP id c7-20020adfc6c7000000b0021db3d6961bso1142344wrh.23
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:03:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc;
-        bh=KRxjHHqzHBqY4RziYhDHZxHV/fCKj6E/Apg+1qTky88=;
-        b=KMn8V/8NAAeHlexOTtciqJOuC2a2Ah7e/P63reoIghBB483QB3AahZwh7OpEn49CqP
-         /p5mepeFMiljPe0PDLOn/lDsWatfMIPmmoLxlcaKr5iDl0rRJ+uhonicnjSI+/dGNk+m
-         Ivj4nqVtTeyGVt6xg7EqHZPrIiMI8j4ekoR7h7LMA7tbMP0PbCrNig1mMGPBPHfgqZa6
-         DTC3+r7fIUIpBIiEGp1ng/yVXPZjFY4wvBU0rxywIeTZbVjSmD8A81GKTHmD2gjwhVh6
-         mM9EE4YqOANrlmlWhJnbpNAH5/rVDj+CJIDMolAZSEiEc0UULAcv9VAYc3e0VwLTfbVY
-         SYtg==
-X-Gm-Message-State: ACgBeo3Zfe0HLVvRyZGGR5/YVSE9xga58TWBsZiJ4BpcTmJXC9qOVCT1
-        DDy/lnRvKxIkZ88KPTFeIhbEz5A2WoI6QBOg4pePx2ov4Tv1GV5ZK/GnpAwiiKsYk/TJ6dpZcHS
-        lLzHg9f668GUJMsbqwRQZyFA1sDrVvAjVYLBWPuR2iJ58GI01IC7piyDoPjIW/s4MHeTrjg==
-X-Received: by 2002:a5d:6608:0:b0:21f:127d:6f8c with SMTP id n8-20020a5d6608000000b0021f127d6f8cmr1448864wru.75.1659096184349;
-        Fri, 29 Jul 2022 05:03:04 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR58kdwYip8qx1eyOJ1ZEWncXLKx+bj6ZULlFn7RmmFxUhlX4DPIJA33z7zVe0peraMN04dZhA==
-X-Received: by 2002:a5d:6608:0:b0:21f:127d:6f8c with SMTP id n8-20020a5d6608000000b0021f127d6f8cmr1448833wru.75.1659096183998;
-        Fri, 29 Jul 2022 05:03:03 -0700 (PDT)
+        bh=Lekwp2+k18inaPiX9G1L4k74QP1pdsetvo6xop+Kblk=;
+        b=79u3rUq63XEAsiTMNdhx3E44L2U4W+jmJ+Ht7/+ZlRv2Sk/UYo7tdLZhmGsky/q9bI
+         PSKpOPksH0hFFPeqKyDk1QKxT9P+n2Ke+aDFdvtVEsyDYYaBPzGivPRBW8wEKfNpEGKO
+         HPWCAodYVaGC1tFlabOwYXA68PLs5S3k7jICOkZPV1xVPQ0iujybpKMSGfTMzidMzZRK
+         8RV7hBihmIIXCtoE6mGYHpDK90Sa1PJbzPPpHPybP048kWZ5QSBr8U9dyhoo5tdFXnYL
+         feA44bdH91U+11VcCAH2y4g+UqI/9EyZ3NdjUvM8u5jbSCCxGmaZ/Ffja9Z64RlytGZj
+         0xLQ==
+X-Gm-Message-State: ACgBeo3aXcF756YyAddVS5/MQBQsAbdnCLxFeMcSrDM5gy8Q28rN+u22
+        1E8feG/Mh4l5wX34fA2FMfcBxW+ZBbIKFiAlOUhmEo8hhBJXByRJkFdrQeomZKi/1mHc+Q2Of1d
+        aBG197AMIyE+K9z6s/IN30H4vUFcDNAjv94Ig0tePeUfZBj0e9wpEiZ87zySRLWGxxTncrg==
+X-Received: by 2002:a5d:4b81:0:b0:21e:e3c8:7055 with SMTP id b1-20020a5d4b81000000b0021ee3c87055mr2236430wrt.519.1659096182625;
+        Fri, 29 Jul 2022 05:03:02 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7me49zztZdpVQFIFzKAHxXaFT9wECAIKhpfMbyg/nsOr5ruTLA9LIJyaUNqcFwCBjf3ZxJpw==
+X-Received: by 2002:a5d:4b81:0:b0:21e:e3c8:7055 with SMTP id b1-20020a5d4b81000000b0021ee3c87055mr2236406wrt.519.1659096182319;
+        Fri, 29 Jul 2022 05:03:02 -0700 (PDT)
 Received: from localhost.localdomain ([2a02:8308:b106:e300:32b0:6ebb:8ca4:d4d3])
-        by smtp.gmail.com with ESMTPSA id i3-20020a05600c354300b003a2e92edeccsm9590622wmq.46.2022.07.29.05.03.02
+        by smtp.gmail.com with ESMTPSA id i3-20020a05600c354300b003a2e92edeccsm9590622wmq.46.2022.07.29.05.03.00
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Jul 2022 05:03:02 -0700 (PDT)
+        Fri, 29 Jul 2022 05:03:01 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 21/24] tests/overlay: don't hard-code SELinux user of the caller
-Date:   Fri, 29 Jul 2022 14:02:26 +0200
-Message-Id: <20220729120229.207584-22-omosnace@redhat.com>
+Subject: [PATCH testsuite 20/24] tests/binder: check only the type part of the context
+Date:   Fri, 29 Jul 2022 14:02:25 +0200
+Message-Id: <20220729120229.207584-21-omosnace@redhat.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220729120229.207584-1-omosnace@redhat.com>
 References: <20220729120229.207584-1-omosnace@redhat.com>
@@ -69,158 +69,118 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-We want to allow the testsuite caller to be other than unconfined, so
-extract the user from current context and use it instead of hard-coding
-unconfined_u.
+This will allow running the testsuite from other contexts than the usual
+unconfined.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- tests/overlay/setup-overlay |  2 +-
- tests/overlay/test          | 34 ++++++++++++++++------------------
- 2 files changed, 17 insertions(+), 19 deletions(-)
+ tests/binder/binder_common.h    |  1 +
+ tests/binder/service_provider.c | 31 +++++++++++++++++++------------
+ tests/binder/test               |  2 +-
+ 3 files changed, 21 insertions(+), 13 deletions(-)
 
-diff --git a/tests/overlay/setup-overlay b/tests/overlay/setup-overlay
-index 4fcd023..3f33499 100755
---- a/tests/overlay/setup-overlay
-+++ b/tests/overlay/setup-overlay
-@@ -41,7 +41,7 @@ setup () {
+diff --git a/tests/binder/binder_common.h b/tests/binder/binder_common.h
+index 319b5dd..e516617 100644
+--- a/tests/binder/binder_common.h
++++ b/tests/binder/binder_common.h
+@@ -14,6 +14,7 @@
+ #include <sys/mman.h>
+ #include <sys/ioctl.h>
+ #include <selinux/selinux.h>
++#include <selinux/context.h>
+ #include <linux/android/binder.h>
+ #if HAVE_BINDERFS
+ #include <linux/android/binderfs.h>
+diff --git a/tests/binder/service_provider.c b/tests/binder/service_provider.c
+index 56d8a43..f47365c 100644
+--- a/tests/binder/service_provider.c
++++ b/tests/binder/service_provider.c
+@@ -1,14 +1,14 @@
+ #include "binder_common.h"
  
-     # Create upper, work, and overlay directories per container.
-     mkdir -p $BASEDIR/container1/upper $BASEDIR/container1/work $BASEDIR/container1/merged
--    chcon -R unconfined_u:object_r:test_overlay_files_ro_t:s0:c10,c20 $BASEDIR/container1
-+    chcon -R -t test_overlay_files_ro_t -l s0:c10,c20 $BASEDIR/container1
+-static char *expected_ctx;
++static char *expected_type;
+ static int binder_parse(int fd, binder_uintptr_t ptr, binder_size_t size);
  
-     # Label the container directories to match the container context.
-     # This is simply to ensure correct label inheritance on new file
-diff --git a/tests/overlay/test b/tests/overlay/test
-index 2b28c47..c8367dd 100755
---- a/tests/overlay/test
-+++ b/tests/overlay/test
-@@ -5,6 +5,10 @@ BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
+ static void usage(char *progname)
+ {
+ 	fprintf(stderr,
+-		"usage:  %s -e expected_ctx] [-f file] [-n] [-m|-p|-t] [-v]\n"
++		"usage:  %s [-e expected_type] [-f file] [-n] [-m|-p|-t] [-v]\n"
+ 		"Where:\n\t"
+-		"-e  Expected security context.\n\t"
++		"-e  Expected security type.\n\t"
+ 		"-f  Write a line to the file when listening starts.\n\t"
+ 		"-n  Use the /dev/binderfs name service.\n\t"
+ 		"-m  Use BPF map fd for transfer.\n\t"
+@@ -162,23 +162,30 @@ static int binder_parse(int fd, binder_uintptr_t ptr, binder_size_t size)
+ 		case BR_TRANSACTION_SEC_CTX: {
+ 			struct binder_transaction_data_secctx *txn_ctx =
+ 				(struct binder_transaction_data_secctx *)ptr;
+-
+ 			if (verbose) {
+ 				printf("\tclient context:\n\t\t%s\n",
+ 				       (char *)txn_ctx->secctx);
+ 				print_trans_data(&txn_ctx->transaction_data);
+ 			}
  
-+    $seuser = `id -Z`;
-+    chop($seuser);
-+    $seuser =~ s|^(\w+):.*$|$1|;
+-			if (expected_ctx) {
+-				int result = strcmp(expected_ctx,
+-						    (char *)txn_ctx->secctx);
+-				if (result) {
++			if (expected_type) {
++				context_t ctx = context_new((const char *)txn_ctx->secctx);
 +
-     $isnfs = `stat -f --print %T $basedir`;
++				if (!ctx) {
++					fprintf(stderr,
++						"Service Provider context_new: %s\n",
++						strerror(errno));
++					exit(82);
++				}
++
++				if (strcmp(expected_type, context_type_get(ctx))) {
+ 					fprintf(stderr, "Service Provider received incorrect context:\n");
+ 					fprintf(stderr, "Expected: %s\nReceived: %s\n",
+-						expected_ctx,
+-						(char *)txn_ctx->secctx);
++						expected_type,
++						context_type_get(ctx));
+ 					exit(80);
+ 				}
++				context_free(ctx);
+ 			}
  
-     # check if kernel supports overlayfs and SELinux labeling
-@@ -92,7 +96,7 @@ sub test_4_0 {
-     $output = getfilecon("$basedir/container1/upper/writefile");
+ 			if (txn_ctx->transaction_data.code == TEST_SERVICE_SEND_FD)
+@@ -240,14 +247,14 @@ int main(int argc, char **argv)
+ 	} __attribute__((packed)) writebuf;
+ 	unsigned int readbuf[32];
  
-     # Newly created writefile should have s0 MCS Label since it was copied up
--    ok( $output eq "unconfined_u:object_r:test_overlay_files_rwx_t:s0" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0" );
- }
+-	expected_ctx = NULL;
++	expected_type = NULL;
+ 	fd_type = BINDER_FD;
+ 	fd_type_str = "SP";
  
- sub test_4_0_ctx {
-@@ -100,8 +104,7 @@ sub test_4_0_ctx {
-     $output = getfilecon("$basedir/container1/upper/writefile");
+ 	while ((opt = getopt(argc, argv, "e:f:nvmpt")) != -1) {
+ 		switch (opt) {
+ 		case 'e':
+-			expected_ctx = optarg;
++			expected_type = optarg;
+ 			break;
+ 		case 'f':
+ 			flag_file = optarg;
+diff --git a/tests/binder/test b/tests/binder/test
+index 9914759..95af41a 100755
+--- a/tests/binder/test
++++ b/tests/binder/test
+@@ -163,7 +163,7 @@ if ($test_binder_ctx) {
+     $sp_pid = service_start(
+         "service_provider",
+         "-t test_binder_provider_t",
+-        "$n $v -e unconfined_u:unconfined_r:test_binder_client_t:s0-s0:c0.c1023"
++        "$n $v -e test_binder_client_t"
+     );
  
-     # Newly created writefile should have s0 MCS Label since it was copied up
--    ok( $output eq
--          "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
- }
- 
- sub test_5 {
-@@ -127,8 +130,7 @@ sub test_5_1 {
-     $output = getfilecon("$basedir/container1/upper/newdir");
- 
-     # Newly created writedir should have s0:c10,c20 since it was created new
--    ok( $output eq
--          "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
- }
- 
- sub test_5_2 {
-@@ -146,8 +148,7 @@ sub test_5_3 {
-     $output = getfilecon("$basedir/container1/upper/newdir/touchlink");
- 
-     # Newly created writelink should have s0:c10,c20 since it was created new
--    ok( $output eq
--          "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
- }
- 
- sub test_6 {
-@@ -173,7 +174,7 @@ sub test_7_0 {
-     $output = getfilecon("$basedir/container1/upper/writedir/bar");
- 
-     # Newly created bar should have s0:c10,c20 since it was created new
--    ok( $output eq "unconfined_u:object_r:test_overlay_files_rwx_t:s0" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0" );
- }
- 
- sub test_7_0_ctx {
-@@ -181,8 +182,7 @@ sub test_7_0_ctx {
-     $output = getfilecon("$basedir/container1/upper/writedir/bar");
- 
-     # Newly created bar should have s0:c10,c20 since it was created new
--    ok( $output eq
--          "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
- }
- 
- sub test_7_1 {
-@@ -200,7 +200,7 @@ sub test_7_1_0 {
-     $output = getfilecon("$basedir/container1/upper/writedir/writelink");
- 
-     # Newly created writelink should have s0:c10,c20 since it was created new
--    ok( $output eq "unconfined_u:object_r:test_overlay_files_rwx_t:s0" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0" );
- }
- 
- sub test_7_1_0_ctx {
-@@ -208,8 +208,7 @@ sub test_7_1_0_ctx {
-     $output = getfilecon("$basedir/container1/upper/writedir/writelink");
- 
-     # Newly created writelink should have s0:c10,c20 since it was created new
--    ok( $output eq
--          "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
- }
- 
- sub test_7_2 {
-@@ -445,7 +444,7 @@ sub test_42 {
- 
-     # Newly created writeout should have s0:c10,c20 since it was created new
-     ok( $output eq
--          "unconfined_u:object_r:test_overlay_transition_files_t:s0:c10,c20" );
-+          "$seuser:object_r:test_overlay_transition_files_t:s0:c10,c20" );
- }
- 
- sub test_42_ctx {
-@@ -453,8 +452,7 @@ sub test_42_ctx {
-     $output = getfilecon("$basedir/container1/upper/transition");
- 
-     # Newly created writeout should have s0:c10,c20 since it was created new
--    ok( $output eq
--          "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
-+    ok( $output eq "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20" );
- }
- 
- sub test_43 {
-@@ -822,7 +820,7 @@ sub nocontext_test {
- sub context_test {
- 
-     cleanup();
--    $context = "unconfined_u:object_r:test_overlay_files_rwx_t:s0:c10,c20";
-+    $context = "$seuser:object_r:test_overlay_files_rwx_t:s0:c10,c20";
-     print "\n\n=====================================================\n";
-     print "Testing mounting overlayfs with context switch\n";
-     print "context=$context\n";
-@@ -943,7 +941,7 @@ sub context_test {
- sub context_rot_t_test {
- 
-     cleanup();
--    $context = "unconfined_u:object_r:test_overlay_files_ro_t:s0:c10,c20";
-+    $context = "$seuser:object_r:test_overlay_files_ro_t:s0:c10,c20";
-     print "\n\n=====================================================\n";
-     print "Testing mounting overlayfs with context switch\n";
-     print "context=$context\n";
+ # 8 Verify that authorized client and service provider can communicate with the binder service manager.
 -- 
 2.37.1
 
