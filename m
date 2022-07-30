@@ -2,94 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDE70C00144
-	for <selinux@archiver.kernel.org>; Fri, 29 Jul 2022 12:28:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4675FC04A68
+	for <selinux@archiver.kernel.org>; Sat, 30 Jul 2022 03:36:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235978AbiG2M2D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 Jul 2022 08:28:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56738 "EHLO
+        id S231386AbiG3DgU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 Jul 2022 23:36:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232085AbiG2M2C (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 08:28:02 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2170FBE3D
-        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:28:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659097679;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=zuOIThWLHPQrIV9Xk3qs7WdEGfL6EXCSxRj75kPC1Yg=;
-        b=BlkEq6UM5vWAF9BelzClMZRTFdz0qSOK1q5iBRC9ZMVdb+7DnnKKIZozVVSnk0KsFv5Skt
-        gwyIWM9WMvtbONZV11fdkYvRPa2UHhyRwj1uh6L0zbt+f7+pMQS9Ay+J66R9/wLrxDisvn
-        z6Ck6+sSpVvUH1gIGWvmp10194wNp+k=
-Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
- [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-93-oPWcnYVxNhClrk7yPaq7Kg-1; Fri, 29 Jul 2022 08:27:50 -0400
-X-MC-Unique: oPWcnYVxNhClrk7yPaq7Kg-1
-Received: by mail-yb1-f200.google.com with SMTP id v19-20020a252f13000000b0067174f085e9so3773592ybv.1
-        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 05:27:50 -0700 (PDT)
+        with ESMTP id S239943AbiG3DgS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 Jul 2022 23:36:18 -0400
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A6C3134E
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 20:36:17 -0700 (PDT)
+Received: by mail-qk1-x730.google.com with SMTP id m7so4949411qkk.6
+        for <selinux@vger.kernel.org>; Fri, 29 Jul 2022 20:36:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bigbadwolfsecurity-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=xfdj+hKd8XAAiryHfVNdJvL9rYQ3W2Ef3MvdPqfXcdE=;
+        b=Zp6ObGIi9mR1HF6yYU/vfwbCFFwUoqK5OVa2FOcPipErdKd9oF8Xfk6+0SX8wtTOed
+         mcGtftz4KJKtiKMgQ4gChRUSrYnuU7J4n91SqLE5QGOmkK7LBBiFRqayN/AOmCCzEjKu
+         Y0xJBEq9EDpn/elGQiXEbAw4Ps8iEiehbOL/zFcL4mI8v4nWVvWiN0ZFH6zVD80wvujk
+         WDjFQpZJwtaVI2sFnycLQIYiWp9I/V0aLG7jyQNYLxCPlKViEuNy4KnEwIcAE9EVwg8B
+         r1df0TDAgpKmVPHYfCP2IHG2amPbYc+sTlmQ3pRdfnwS9DGBhsY8UNeOZduDf+QgxOG8
+         RtmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :x-gm-message-state:from:to:cc;
-        bh=zuOIThWLHPQrIV9Xk3qs7WdEGfL6EXCSxRj75kPC1Yg=;
-        b=wZ5ThB4nosLlwk5uNFYiSxO4e/ebiicJGwt4Fs2KSInEpAZpNKEsMmXiG83SZiurWA
-         bPvs8HLd84QRyKjDfZKvC28j3+kK9uOfU64r63PFBebI+wvB5jNByauDK7hqzoNbWPKS
-         cGUvmTtkRZMYgF9I48UYX7mAt8PhUakN/xEDbJqXt2w+fW3Wo0mcEQKsX948AMVD4ymN
-         n2gHe52PhlpuRprpSfKm6MQWxwSHgP48DYTHqajsrqVJg6Uk4x5cpfYr1uC5ZsdnWjsF
-         wwt+r1vYejNze9OEmxwtLKt4JrjLU6q1JxUKmn79+qO5fmKel4cOYBQeLjiEvRWCQ37e
-         s1Pg==
-X-Gm-Message-State: ACgBeo1H3jKf1LhDpibZPKTUbtZU7w50UlOxbfyGaSaXGtV20+9RUOV3
-        wO1RO+fWCvBlghK9vUYssJG4bvgLnLAO0R6exe4oSjy8CPEGthVYdrnMF2kIJSO1MPf7CfD2Ajf
-        +t4/65uqh5ajSaYgXIrE9sRJT4i9bTElvmw==
-X-Received: by 2002:a81:844c:0:b0:322:b95f:5a35 with SMTP id u73-20020a81844c000000b00322b95f5a35mr2832989ywf.29.1659097670256;
-        Fri, 29 Jul 2022 05:27:50 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR63SiRgClJDsYzTXax0tPSPMSEXeWbYkxO0cmEN5Sl4ff3LqIuBWD4NPnXfkSSjT6Ddx+VFLSA4qiF2ipOZPr0=
-X-Received: by 2002:a81:844c:0:b0:322:b95f:5a35 with SMTP id
- u73-20020a81844c000000b00322b95f5a35mr2832979ywf.29.1659097670026; Fri, 29
- Jul 2022 05:27:50 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=xfdj+hKd8XAAiryHfVNdJvL9rYQ3W2Ef3MvdPqfXcdE=;
+        b=qVTKSVQWegxfMhkN0J9keEyR3+kDE3Ee3TsaHCFQfbT1sonmoZc2k9/aoaBhst7i1I
+         Lb8xqEmw0n0PgR97PYe/K1zO6xBrjS0qxzDOpHKWxqg5WMadXdgjOuNweKZx13mYKUMj
+         5zqeM9dz0pTCc/UTlBFBx4WSmPHVmFvO/VAGZAyaoRaGetIoSSR6oQjzh5TYYZvsHs4d
+         mZ5ZoQzuBldMjqnE5yBI4ydIXTjpsPGkts35LnTttkucm5WUGXUb+8//fA+ArQkqJ95f
+         +goCt+ce/qpzOiHGzuYv/DgciTXesHx9BQXaBOO57ZnZXEMiJ+C+pHSQdPP/oJIYBHyj
+         WgoA==
+X-Gm-Message-State: AJIora81fZJ5jDb5pVjNiCXqT7wFzFUJs0sbuybiBTC4HeXqqGMPUp6b
+        PSrhfELcNzY9IXDWzzK4eJE5flGmGzJ6aQ+LQ3oZa7wPEHIHaQ==
+X-Google-Smtp-Source: AGRyM1ujhRY4zSiCcTEFkCHa159nZ2wkfrfeYZkfdfLd3pXTgCVY7ojnpuu1btv54YW5bHO8YqD27JI4byf3DK80Dvo=
+X-Received: by 2002:a05:620a:143c:b0:6b8:8d43:5581 with SMTP id
+ k28-20020a05620a143c00b006b88d435581mr51278qkj.179.1659152176390; Fri, 29 Jul
+ 2022 20:36:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220729120229.207584-1-omosnace@redhat.com>
-In-Reply-To: <20220729120229.207584-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 29 Jul 2022 14:27:37 +0200
-Message-ID: <CAFqZXNvZFeOcgRtVKG3JPCPMb2E42Ot-B+BxbnRxWF9Jz-TvhA@mail.gmail.com>
-Subject: Re: [PATCH testsuite 00/24] Clean up testsuite policy and support
- running as sysadm_t
-To:     SElinux list <selinux@vger.kernel.org>
+From:   Karl MacMillan <karl@bigbadwolfsecurity.com>
+Date:   Fri, 29 Jul 2022 23:36:05 -0400
+Message-ID: <CA+EEuAgfGhTWBWXgtHSVU22feM+0PS=h-z-eVF4JxmSf2qyZzg@mail.gmail.com>
+Subject: KVM / virtual networking access control
+To:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 29, 2022 at 2:02 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> This series aim for two things:
-> 1. Refactor the policy so that it is easier to work with.
-> 2. Leverage the refactoring to fully support running the testsuite
->    as sysadm_u:sysadm_r:sysadm_t.
->
-> The gist of this work lies in unifying how test domains are defined,
-> deduplicating the various boilerplate spread out all across the
-> individual files (and not even used consistently), and in abstracting
-> the policy caller domain/role away from the individual test policies
-> into test_general.te. Some tests also had to be massaged to not
-> hard-code unconfined_* and be generic against the context of the
-> testsuite caller.
->
-> The series also extends the CI to test running the testsuite as sysadm_*
-> and also verify that no unconfined_t/sysadm_t unexpected denials are
-> produced (which would usually indicate a missing dontaudit rule in the
-> testsuite policy).
+Hi,
 
-Lol, I got a bounce for patches 4 and 5 because they are too long :D
-Hopefully the list owners can approve them manually. If not, I'll
-submit this series as a GitHub PR and post a link here.
+I'm trying to do some access control over the networking between KVM
+virtual machines using Secmark and things are not working as I expect.
+The key is that this is _between_ virtual machines, not just ingress /
+egress to the virtual machines from external address.
 
--- 
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Quick summary: I'm connecting two VMs together using veth pairs and a
+virtual bridge and I only ever see:
 
+    allow unlabeled_t bare_packet_a_t:packet { forward_in forward_out };
+
+What I want is packet { send recv } because that would be against the
+label of the KVM process rather than the peer label (which on the same
+system would always be unlabeled - I see no way to use CIPSO/CALIPSO
+to get peer labels to work here).
+
+I can see that the packet send / recv LSM hook is in netfilter
+postrouting code, but I simply cannot trigger this with the setup that
+I have. Here are things that I have tried:
+
+1. br_netfilter - I thought initially that my problem was that the
+traffic was at layer 2 and was not traversing the netfilter hooks.
+This was, in fact, a problem with my initial setup (both VMs on the
+same subnet) and br_netfilter got traffic to hit netfilter hooks. But
+no matter what hook I chose, the best I could get was forward_in /
+forward_out.
+
+2. various traffic selectors - I've used mac address, ip address, and
+physical interface (all of the different interfaces) to set the
+secmark labels.
+
+3. ebtables - secmark support seems totally broken in ebtables, both
+what is in RHEL 8.6 and upstream. It's in the options parsing.
+
+4. nftables - to work around ebtables I used nftables bridge family to
+label layer 2 traffic. None of the hooks would yield anything other
+than forward_in / forward_out.
+
+5. routing - I placed the VMs on separate subnets and added multiple
+addresses to the bridge. My thought was that forcing the traffic to
+route would push it up to layer 3 and would make it hit the
+postrouting hook (this may be a completely broken mental model of
+things).
+
+You can see how I'm doing this with some very rough / poorly
+documented scripts at
+https://github.com/BigBadWolfSecurity/kvm-access-control. VMs are
+created / managed through libvirt / virt-manager.
+
+I would appreciate any insight into what might be going on. This is
+mainly tested on a RHEL 8.6 box, but some testing has been done on a
+Fedora 36 box as well.
+
+Thanks - Karl
