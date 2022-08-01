@@ -2,140 +2,121 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B5C5C00144
-	for <selinux@archiver.kernel.org>; Mon,  1 Aug 2022 09:06:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D55CC3F6B0
+	for <selinux@archiver.kernel.org>; Mon,  1 Aug 2022 13:14:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiHAJGb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 1 Aug 2022 05:06:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
+        id S231384AbiHANN7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 1 Aug 2022 09:13:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230320AbiHAJGb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 1 Aug 2022 05:06:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 20DAA32DB5
-        for <selinux@vger.kernel.org>; Mon,  1 Aug 2022 02:06:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659344789;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=KjciaUseXeya76AcpXke56RrL9+AzZBFfaBkfdUOkuE=;
-        b=bbmW/1sh4jg5f84iKEk/nUVqoz17tCdudWvLyd8wH5qKO5fsTkOfrYg+DKL11PwbUmT/5J
-        Q5Czce+8ZS2ZJWWAGzbtUz/gdvwzoeAUkbiqKVxRp7yj6N3LKgMVH9GBJSyCjwZm5wyaeJ
-        hS/pgZyQnvOuWIJX1Z4t4HRv767N6CY=
-Received: from mail-yb1-f197.google.com (mail-yb1-f197.google.com
- [209.85.219.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-62-V0Oxb4miODGDQVBJ4YRZVw-1; Mon, 01 Aug 2022 05:06:27 -0400
-X-MC-Unique: V0Oxb4miODGDQVBJ4YRZVw-1
-Received: by mail-yb1-f197.google.com with SMTP id m11-20020a5b040b000000b0066fcc60d1a0so8236547ybp.19
-        for <selinux@vger.kernel.org>; Mon, 01 Aug 2022 02:06:27 -0700 (PDT)
+        with ESMTP id S231497AbiHANN6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 1 Aug 2022 09:13:58 -0400
+Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9702255A7
+        for <selinux@vger.kernel.org>; Mon,  1 Aug 2022 06:13:56 -0700 (PDT)
+Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-1013ecaf7e0so13546565fac.13
+        for <selinux@vger.kernel.org>; Mon, 01 Aug 2022 06:13:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc;
+        bh=S4v2xzmivjkPNxxCfifaPK4xR7fi1R2DYRzw0gzDhqk=;
+        b=aU/EMjwvPmQHuC3EBkgE95P1u4OscFyLNRNnnObQ+qrX4FI5VdaEavlkuJv0eLaafS
+         LRfaSM+ftYFZBzQXUQVTjMlxhJ82TBVrX2MBIhQvsXC+TEYUHrHEHfxiIZvTEcQvnkne
+         otTWe5IN176ijSIBTW+IPCt5doE2JAB8vJu0Q=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc;
-        bh=KjciaUseXeya76AcpXke56RrL9+AzZBFfaBkfdUOkuE=;
-        b=wWbT/cxq0yO2yZWUb4Wp7Wm9dqLsG6CdxMshEHnelVEpqdK4vQXQoW+UmR1sb3wXCm
-         7jFUv9KaEUA+1b8pYdJjohpdRo9cl2wJv0Nht7W55qXa19nj9n50Gh3ZaCei297e9LmR
-         Q2kEbBF+bp3XlzXSq6EWJK++7wmNtzd5l8eRPt/tKMhWQ0xGOmN+7JboINFLu58u9Cqj
-         K0HQFatE7Bud5y3kmezB17tajX6gnrfWX5QbX7aO5E9YYjvI43XfY7hRqbh+dCJVSpL3
-         kkRFMAovte1w/LheNBzAWwvqlxma3TBTvv47pKzPngpYr+8e+0QOnz0dDfPKH+Co0q3E
-         wzQw==
-X-Gm-Message-State: ACgBeo358eUQNVZfird3xMGSaP+ArNuBvWXhVfhBPsF1bEzb/qd4uMmE
-        IqMWbWsre9iUmT7/TmP+72U2nyT7HZDF98aiwErHfEzQ5hw/F5zyonT6T5oWH8CRXdAZp/mT2Cj
-        IYzNF7nbCsjq8EdmKChp23ty94YhOK8nQPg==
-X-Received: by 2002:a0d:d513:0:b0:31f:5267:f9c4 with SMTP id x19-20020a0dd513000000b0031f5267f9c4mr11962948ywd.247.1659344786903;
-        Mon, 01 Aug 2022 02:06:26 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7up0CnstDpI9spVNqKGiUd467hDUYjKzhTvKgARH+E7uPCjIW7cXc4UVu45pZJlNcrAMPvOmquPgmiv5FBSzc=
-X-Received: by 2002:a0d:d513:0:b0:31f:5267:f9c4 with SMTP id
- x19-20020a0dd513000000b0031f5267f9c4mr11962934ywd.247.1659344786615; Mon, 01
- Aug 2022 02:06:26 -0700 (PDT)
+        bh=S4v2xzmivjkPNxxCfifaPK4xR7fi1R2DYRzw0gzDhqk=;
+        b=GrEqsiFkONkBc81mvzJkxEpD56PmWo5g1ukb8ikjYJ8wWukcakk1T1Z6djQfMwFVAw
+         XRxTm2tYVDEWKTA5uyUjQ2JpPsJb4DUoAVOrZig0nqVPRR8tlQECjSE6ZNIHc782NaG5
+         x+tUbGg3TpDuYKDL1v1GdG40+sFhWksp9Md+XoUciraZdh5PsFQ9lfjBgoYAUTMP7qHW
+         fBQt/4pfUT2myLQc4JO4CyNM3veuNp/LJ1/vyKpLNApl7gMLbUayWpMu7b9w0nYiR2Yu
+         ptpUqS684rqyGq6wDzz2UkTOJ8a7CV5MX1pN3/lq4WBadtkK2vsbNNNGXGlLOU871q/w
+         FcuA==
+X-Gm-Message-State: AJIora95q3tjjUijiJUXrlNT4O3HJ1swVGoFO5PyOX7hUwL8SKMA/qvC
+        3VPioPuveJqdADEb5DlTbSomhg==
+X-Google-Smtp-Source: AGRyM1vAYe6eYSqkhNEffp5nkSzS3sTGEFR4Fq4tFcvvlB80G4i7/GERIpfxWhXyvbYGQjvJ5+67TQ==
+X-Received: by 2002:a05:6870:f149:b0:de:e873:4a46 with SMTP id l9-20020a056870f14900b000dee8734a46mr6761101oac.286.1659359635202;
+        Mon, 01 Aug 2022 06:13:55 -0700 (PDT)
+Received: from [192.168.0.41] ([184.4.90.121])
+        by smtp.gmail.com with ESMTPSA id 22-20020aca2816000000b00339ff117f38sm2400911oix.53.2022.08.01.06.13.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 01 Aug 2022 06:13:54 -0700 (PDT)
+Message-ID: <a4db1154-94bc-9833-1665-a88a5eee48de@cloudflare.com>
+Date:   Mon, 1 Aug 2022 08:13:57 -0500
 MIME-Version: 1.0
-References: <20220718105120.674121-1-omosnace@redhat.com>
-In-Reply-To: <20220718105120.674121-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 1 Aug 2022 11:06:15 +0200
-Message-ID: <CAFqZXNubrxhFhL=RsReTRRSx7j7rpKdoA=8gYyYX=8gOSkmgJA@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/module_load: detect the linker to use for
- module build
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v3 0/4] Introduce security_create_user_ns()
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>, Martin KaFai Lau <kafai@fb.com>
+Cc:     kpsingh@kernel.org, revest@chromium.org, jackmanb@chromium.org,
+        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
+        ebiederm@xmission.com, bpf@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, kernel-team@cloudflare.com,
+        cgzones@googlemail.com, karl@bigbadwolfsecurity.com
+References: <20220721172808.585539-1-fred@cloudflare.com>
+ <20220722061137.jahbjeucrljn2y45@kafai-mbp.dhcp.thefacebook.com>
+ <18225d94bf0.28e3.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+From:   Frederick Lawler <fred@cloudflare.com>
+In-Reply-To: <18225d94bf0.28e3.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 18, 2022 at 12:51 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> Similar to the compiler, matching the linker used to compile the kernel
-> is also important for an external kernel module build. Add code to
-> detect the linker from the kernel config similar to the existing
-> compiler detection.
->
-> Speicifically, this fixes kernel module builds under kernels built with
-> clang and with LTO enabled.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  tests/module_load/Makefile | 30 +++++++++++++++++++++++-------
->  1 file changed, 23 insertions(+), 7 deletions(-)
->
-> diff --git a/tests/module_load/Makefile b/tests/module_load/Makefile
-> index 272872d..0839532 100644
-> --- a/tests/module_load/Makefile
-> +++ b/tests/module_load/Makefile
-> @@ -4,12 +4,15 @@ TARGETS = finit_load init_load
->  LDLIBS += -lselinux
->  KDIR = /lib/modules/$(shell uname -r)/build
->
-> -# Make sure to use the same compiler as the kernel was built with.
-> -# If the compilers don't match, the build will fail on unsupported compiler
-> +# Make sure to use the same compiler+linker as the kernel was built with.
-> +# If the compilers/linkers don't match, the build could fail on unsupported
->  # flags and even if not, the resulting module would likely fail to load.
-> -# If the kernel was compiled with neither GCC nor clang (currently the only
-> -# supported compilers), fall back to the default compiler and hope for the best.
-> -# In all cases allow the user to override the compiler via the KCC variable.
-> +# If the kernel was compiled with a compiler other than GCC or clang or a
-> +# linker other than ld.bfd or ld.lld, fall back to the default compiler/linker
-> +# and hope for the best.
-> +# In all cases allow the user to override the compiler via the KCC/KLD
-> +# variables.
-> +
->  DETECTED_KCC = unknown
->  ifeq ($(shell grep -qFx CONFIG_CC_IS_GCC=y $(KDIR)/.config && echo true),true)
->         DETECTED_KCC = gcc
-> @@ -23,9 +26,22 @@ else
->         KCC ?= $(CC)
->  endif
->
-> +DETECTED_KLD = unknown
-> +ifeq ($(shell grep -qFx CONFIG_LD_IS_BFD=y $(KDIR)/.config && echo true),true)
-> +       DETECTED_KLD = ld.bfd
-> +endif
-> +ifeq ($(shell grep -qFx CONFIG_LD_IS_LLD=y $(KDIR)/.config && echo true),true)
-> +       DETECTED_KLD = ld.lld
-> +endif
-> +ifneq ($(DETECTED_KLD),unknown)
-> +       KLD ?= $(DETECTED_KLD)
-> +else
-> +       KLD ?= $(LD)
-> +endif
-> +
->  all: $(TARGETS)
-> -       $(MAKE) -C $(KDIR) CC=$(KCC) M=$(PWD)
-> +       $(MAKE) -C $(KDIR) CC=$(KCC) LD=$(KLD) M=$(PWD)
->
->  clean:
->         rm -f $(TARGETS)
-> -       $(MAKE) -C $(KDIR) CC=$(KCC) M=$(PWD) clean
-> +       $(MAKE) -C $(KDIR) CC=$(KCC) LD=$(KLD) M=$(PWD) clean
+On 7/22/22 7:20 AM, Paul Moore wrote:
+> On July 22, 2022 2:12:03 AM Martin KaFai Lau <kafai@fb.com> wrote:
+> 
+>> On Thu, Jul 21, 2022 at 12:28:04PM -0500, Frederick Lawler wrote:
+>>> While creating a LSM BPF MAC policy to block user namespace creation, we
+>>> used the LSM cred_prepare hook because that is the closest hook to prevent
+>>> a call to create_user_ns().
+>>>
+>>> The calls look something like this:
+>>>
+>>> cred = prepare_creds()
+>>> security_prepare_creds()
+>>> call_int_hook(cred_prepare, ...
+>>> if (cred)
+>>> create_user_ns(cred)
+>>>
+>>> We noticed that error codes were not propagated from this hook and
+>>> introduced a patch [1] to propagate those errors.
+>>>
+>>> The discussion notes that security_prepare_creds()
+>>> is not appropriate for MAC policies, and instead the hook is
+>>> meant for LSM authors to prepare credentials for mutation. [2]
+>>>
+>>> Ultimately, we concluded that a better course of action is to introduce
+>>> a new security hook for LSM authors. [3]
+>>>
+>>> This patch set first introduces a new security_create_user_ns() function
+>>> and userns_create LSM hook, then marks the hook as sleepable in BPF.
+>> Patch 1 and 4 still need review from the lsm/security side.
+> 
+> 
+> This patchset is in my review queue and assuming everything checks out, I expect to merge it after the upcoming merge window closes.
+> 
+> I would also need an ACK from the BPF LSM folks, but they're CC'd on this patchset.
+> 
+
+Based on last weeks comments, should I go ahead and put up v4 for 
+5.20-rc1 when that drops, or do I need to wait for more feedback?
+
 > --
-> 2.36.1
-
-Whoops, forgot about this patch... Now applied as:
-https://github.com/SELinuxProject/selinux-testsuite/commit/deeff9d73d9abf84fbb76a019186de06004e121e
-
--- 
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+> paul-moore.com
+> 
+> 
 
