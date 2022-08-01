@@ -2,136 +2,144 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8447DC19F2C
-	for <selinux@archiver.kernel.org>; Mon,  1 Aug 2022 16:35:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA4D0C25B06
+	for <selinux@archiver.kernel.org>; Mon,  1 Aug 2022 18:02:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233092AbiHAQfm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 1 Aug 2022 12:35:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55268 "EHLO
+        id S233721AbiHASCT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 1 Aug 2022 14:02:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233106AbiHAQfS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 1 Aug 2022 12:35:18 -0400
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A74038D
-        for <selinux@vger.kernel.org>; Mon,  1 Aug 2022 09:35:10 -0700 (PDT)
-Received: by mail-oi1-x22e.google.com with SMTP id u9so13619515oiv.12
-        for <selinux@vger.kernel.org>; Mon, 01 Aug 2022 09:35:10 -0700 (PDT)
+        with ESMTP id S233660AbiHASCR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 1 Aug 2022 14:02:17 -0400
+Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E612D2409E
+        for <selinux@vger.kernel.org>; Mon,  1 Aug 2022 11:02:15 -0700 (PDT)
+Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-10bd4812c29so14560264fac.11
+        for <selinux@vger.kernel.org>; Mon, 01 Aug 2022 11:02:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=Fto1MpscWUFMNnBCFYXAwkIBHHJszVTIcxuhyhUimb8=;
-        b=FI+OTAEIYz2VsoXDkzo0BCE6i9UMDcLbhJ8KfQlM/Yb9whP/Aso6fJ6y77PQwhSnmh
-         LxrcRuG9r+1+NvdtFo31ZVrKx3dxqveIXaUH1MX9/P2cjvo8vJJiQImvUd5srpvFqSjX
-         gWd329LBF4+LFX44YhtcZ3a9uJTsRResZet1+XcU1+rNQD/w9pcinpKpIdIqvt9yl5gw
-         iXliFpwyHfGGnu7OpXt6GjUGhpaateed5310JLq6R84x7GmQyYp1iRpuyOIIhQXgRxzD
-         S3YHp7JVREAfFsiFCf0AWwsBF5mWhs1fqm12YsQRTrLC8OkjHs5jWq2wHG7W89qukPgb
-         shyw==
+        d=cloudflare.com; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=neYCRoMJHZhrkPomT+D8lBoa9lWbM2Zjq7tdhg++BD8=;
+        b=Mhxk6WOQ1kBwvZATBE/fUmbfdcWPONvbLqPeeFwjgpXx30ZOq9K8e9XiO+heooXplM
+         yIxZGuPYi6Y3upntqiTXP/fp9FqKCw4yfTan+k9O5EO5dpK1xku83lnqrHR4EC2zmuYi
+         1Wtv13AgwXk1J74t2M0Zv22JEVrbvaw3bB9ww=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=Fto1MpscWUFMNnBCFYXAwkIBHHJszVTIcxuhyhUimb8=;
-        b=h/Ejxd+oZ+Ipkv0RXFDaDFfDV8FxJCN9U4PynDYwMZxAgRdRv7CH5f1GXRAjoE5yNl
-         D5FvCZGOouysSIeQu/+7YISbBFl9vlHULWEecpFj1Y+67+c6aUW+VwP1WHaHciSLdc+W
-         1sEH3XbRlUxfsQWjVFb2dlG2GcpFTBKVp6sz//KFVBPexbUtT82Q4ztowpuPNuTdkm+s
-         ji9RZWPnrNyrGoSRBrtMwV/nUH+wfqfh9z4ZLeZvoY5y/DiaVYtX64f2FApiAvbVILpU
-         hciIW+qkRxj8WhbWhxrPb4yApX1yxSVFLHpP2kw5UldNGSBSWqqjdR63dHSd5Q5kzD60
-         zM1Q==
-X-Gm-Message-State: AJIora/cxsXXLSVdWHT153LCefu2DOZ4ebO6HwwCZtNvDVL3bMDiecmj
-        5F8vVa619nbobKX71zGaAcABm1WKS09Lb7Aidy7C
-X-Google-Smtp-Source: AGRyM1sRwoHyAz1+k6JJUYUkUrZCg+t9c/gxOPl7fh2C55+kVa8+g83QHhkhNo8kDmE2GSBbgnazRbcpMAgwbTLYWjE=
-X-Received: by 2002:a05:6808:3087:b0:33a:a6ae:7bf7 with SMTP id
- bl7-20020a056808308700b0033aa6ae7bf7mr7223113oib.41.1659371710188; Mon, 01
- Aug 2022 09:35:10 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220721172808.585539-1-fred@cloudflare.com> <20220722061137.jahbjeucrljn2y45@kafai-mbp.dhcp.thefacebook.com>
- <18225d94bf0.28e3.85c95baa4474aabc7814e68940a78392@paul-moore.com>
- <a4db1154-94bc-9833-1665-a88a5eee48de@cloudflare.com> <9eee1d03-3153-67d3-fe21-14fcb5fe8d27@schaufler-ca.com>
-In-Reply-To: <9eee1d03-3153-67d3-fe21-14fcb5fe8d27@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 1 Aug 2022 12:34:59 -0400
-Message-ID: <CAHC9VhS9NN9a0=4ANwOf1e74+mKMD5BwE+rKhXcno3dtrZ7GVg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/4] Introduce security_create_user_ns()
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Frederick Lawler <fred@cloudflare.com>,
-        Martin KaFai Lau <kafai@fb.com>, kpsingh@kernel.org,
-        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, songliubraving@fb.com,
-        yhs@fb.com, john.fastabend@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=neYCRoMJHZhrkPomT+D8lBoa9lWbM2Zjq7tdhg++BD8=;
+        b=zAxXyE1pTQDzWk77k/ap27wojMykg6sL3wx0HOpv6tmTiswg58r1Z/j1fjdMbwfD4A
+         d4U2/SvqlVWu8i6mb6ZJbYUuRXnXE97Dg6eKRPTGE9BuMUzq5kxldLnPg1PO5ZfSQzJZ
+         yk+HW0eQNVlcrFAr1OKyXLwOYMlQykHdQkcqexK9vwnKZjv7oWtkND2n0efX9hRNbT0D
+         rab3bx+f0TukSFQLZHPATIAPfRg/oSsPv2Th/t5l6O1EJQoojEsIzc9Xsc7ovA/eXTQb
+         fRd4uzlLSqEHwdYYelA3SwTufr9Zilv8z5WiCwk9KlYkikZJWhPFN+5s0AgIIpwr2KN7
+         EMlw==
+X-Gm-Message-State: AJIora807EDSRq/j1Pt4WJ3noJdOcJLERlhAHRCdSkySuvhFA9d2pH/X
+        rX3YwF51RZ5gbqTVXQg36Q57FA==
+X-Google-Smtp-Source: AGRyM1s00uyA5RxFeoJiOwnWUCMdS5VnKo6fHkNTdsQVmzGj5TtMhEcfqeGl5rB5c+kZha+7htuYfg==
+X-Received: by 2002:a05:6870:4302:b0:10d:c587:d30e with SMTP id w2-20020a056870430200b0010dc587d30emr7992216oah.28.1659376935129;
+        Mon, 01 Aug 2022 11:02:15 -0700 (PDT)
+Received: from localhost.localdomain ([184.4.90.121])
+        by smtp.gmail.com with ESMTPSA id n14-20020a9d64ce000000b00618fa37308csm2881348otl.35.2022.08.01.11.02.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Aug 2022 11:02:14 -0700 (PDT)
+From:   Frederick Lawler <fred@cloudflare.com>
+To:     kpsingh@kernel.org, revest@chromium.org, jackmanb@chromium.org,
+        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
+        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
+        john.fastabend@gmail.com, jmorris@namei.org, serge@hallyn.com,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
         eparis@parisplace.org, shuah@kernel.org, brauner@kernel.org,
-        ebiederm@xmission.com, bpf@vger.kernel.org,
+        casey@schaufler-ca.com, ebiederm@xmission.com, bpf@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-team@cloudflare.com,
-        cgzones@googlemail.com, karl@bigbadwolfsecurity.com
-Content-Type: text/plain; charset="UTF-8"
+        linux-kselftest@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        kernel-team@cloudflare.com, cgzones@googlemail.com,
+        karl@bigbadwolfsecurity.com, Frederick Lawler <fred@cloudflare.com>
+Subject: [PATCH v4 0/4] Introduce security_create_user_ns()
+Date:   Mon,  1 Aug 2022 13:01:42 -0500
+Message-Id: <20220801180146.1157914-1-fred@cloudflare.com>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 1, 2022 at 11:25 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 8/1/2022 6:13 AM, Frederick Lawler wrote:
-> > On 7/22/22 7:20 AM, Paul Moore wrote:
-> >> On July 22, 2022 2:12:03 AM Martin KaFai Lau <kafai@fb.com> wrote:
-> >>
-> >>> On Thu, Jul 21, 2022 at 12:28:04PM -0500, Frederick Lawler wrote:
-> >>>> While creating a LSM BPF MAC policy to block user namespace
-> >>>> creation, we
-> >>>> used the LSM cred_prepare hook because that is the closest hook to
-> >>>> prevent
-> >>>> a call to create_user_ns().
-> >>>>
-> >>>> The calls look something like this:
-> >>>>
-> >>>> cred = prepare_creds()
-> >>>> security_prepare_creds()
-> >>>> call_int_hook(cred_prepare, ...
-> >>>> if (cred)
-> >>>> create_user_ns(cred)
-> >>>>
-> >>>> We noticed that error codes were not propagated from this hook and
-> >>>> introduced a patch [1] to propagate those errors.
-> >>>>
-> >>>> The discussion notes that security_prepare_creds()
-> >>>> is not appropriate for MAC policies, and instead the hook is
-> >>>> meant for LSM authors to prepare credentials for mutation. [2]
-> >>>>
-> >>>> Ultimately, we concluded that a better course of action is to
-> >>>> introduce
-> >>>> a new security hook for LSM authors. [3]
-> >>>>
-> >>>> This patch set first introduces a new security_create_user_ns()
-> >>>> function
-> >>>> and userns_create LSM hook, then marks the hook as sleepable in BPF.
-> >>> Patch 1 and 4 still need review from the lsm/security side.
-> >>
-> >>
-> >> This patchset is in my review queue and assuming everything checks
-> >> out, I expect to merge it after the upcoming merge window closes.
-> >>
-> >> I would also need an ACK from the BPF LSM folks, but they're CC'd on
-> >> this patchset.
-> >
-> > Based on last weeks comments, should I go ahead and put up v4 for
-> > 5.20-rc1 when that drops, or do I need to wait for more feedback?
->
-> As the primary consumer of this hook is BPF I would really expect their
-> reviewed-by before accepting this.
+While creating a LSM BPF MAC policy to block user namespace creation, we
+used the LSM cred_prepare hook because that is the closest hook to prevent
+a call to create_user_ns().
 
-We love all our in-tree LSMs equally.  As long as there is at least
-one LSM which provides an implementation and has ACK'd the hook, and
-no other LSMs have NACK'd the hook, then I have no problem merging it.
-I doubt it will be necessary in this case, but if we need to tweak the
-hook in the future we can definitely do that; we've done this in the
-past when it has made sense.
+The calls look something like this:
 
-As a reminder, the LSM hooks are *not* part of the "don't break
-userspace" promise.  I know it gets a little muddy with the way the
-BPF LSM works, but just as we don't want to allow one LSM to impact
-the runtime controls on another, we don't want to allow one LSM to
-freeze the hooks for everyone.
+    cred = prepare_creds()
+        security_prepare_creds()
+            call_int_hook(cred_prepare, ...
+    if (cred)
+        create_user_ns(cred)
+
+We noticed that error codes were not propagated from this hook and
+introduced a patch [1] to propagate those errors.
+
+The discussion notes that security_prepare_creds()
+is not appropriate for MAC policies, and instead the hook is
+meant for LSM authors to prepare credentials for mutation. [2]
+
+Ultimately, we concluded that a better course of action is to introduce
+a new security hook for LSM authors. [3]
+
+This patch set first introduces a new security_create_user_ns() function
+and userns_create LSM hook, then marks the hook as sleepable in BPF.
+
+Links:
+1. https://lore.kernel.org/all/20220608150942.776446-1-fred@cloudflare.com/
+2. https://lore.kernel.org/all/87y1xzyhub.fsf@email.froward.int.ebiederm.org/
+3. https://lore.kernel.org/all/9fe9cd9f-1ded-a179-8ded-5fde8960a586@cloudflare.com/
+
+Past discussions:
+V3: https://lore.kernel.org/all/20220721172808.585539-1-fred@cloudflare.com/
+V2: https://lore.kernel.org/all/20220707223228.1940249-1-fred@cloudflare.com/
+V1: https://lore.kernel.org/all/20220621233939.993579-1-fred@cloudflare.com/
+
+Changes since v3:
+- Explicitly set CAP_SYS_ADMIN to test namespace is created given
+  permission
+- Simplify BPF test to use sleepable hook only
+- Prefer unshare() over clone() for tests
+Changes since v2:
+- Rename create_user_ns hook to userns_create
+- Use user_namespace as an object opposed to a generic namespace object
+- s/domB_t/domA_t in commit message
+Changes since v1:
+- Add selftests/bpf: Add tests verifying bpf lsm create_user_ns hook patch
+- Add selinux: Implement create_user_ns hook patch
+- Change function signature of security_create_user_ns() to only take
+  struct cred
+- Move security_create_user_ns() call after id mapping check in
+  create_user_ns()
+- Update documentation to reflect changes
+
+Frederick Lawler (4):
+  security, lsm: Introduce security_create_user_ns()
+  bpf-lsm: Make bpf_lsm_userns_create() sleepable
+  selftests/bpf: Add tests verifying bpf lsm userns_create hook
+  selinux: Implement userns_create hook
+
+ include/linux/lsm_hook_defs.h                 |   1 +
+ include/linux/lsm_hooks.h                     |   4 +
+ include/linux/security.h                      |   6 ++
+ kernel/bpf/bpf_lsm.c                          |   1 +
+ kernel/user_namespace.c                       |   5 +
+ security/security.c                           |   5 +
+ security/selinux/hooks.c                      |   9 ++
+ security/selinux/include/classmap.h           |   2 +
+ .../selftests/bpf/prog_tests/deny_namespace.c | 102 ++++++++++++++++++
+ .../selftests/bpf/progs/test_deny_namespace.c |  33 ++++++
+ 10 files changed, 168 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/deny_namespace.c
+ create mode 100644 tools/testing/selftests/bpf/progs/test_deny_namespace.c
 
 -- 
-paul-moore.com
+2.30.2
+
