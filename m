@@ -2,121 +2,73 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 230B0C00140
-	for <selinux@archiver.kernel.org>; Sun, 31 Jul 2022 16:45:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D333C00140
+	for <selinux@archiver.kernel.org>; Mon,  1 Aug 2022 01:57:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232791AbiGaQpt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 31 Jul 2022 12:45:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45842 "EHLO
+        id S232307AbiHAB5h (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 31 Jul 2022 21:57:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbiGaQps (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 31 Jul 2022 12:45:48 -0400
-Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E55E011
-        for <selinux@vger.kernel.org>; Sun, 31 Jul 2022 09:45:47 -0700 (PDT)
-Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-1013ecaf7e0so11053878fac.13
-        for <selinux@vger.kernel.org>; Sun, 31 Jul 2022 09:45:46 -0700 (PDT)
+        with ESMTP id S231974AbiHAB5g (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 31 Jul 2022 21:57:36 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC88DE81
+        for <selinux@vger.kernel.org>; Sun, 31 Jul 2022 18:57:35 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id o16-20020a9d4110000000b0061cac66bd6dso7331134ote.11
+        for <selinux@vger.kernel.org>; Sun, 31 Jul 2022 18:57:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=yWKcNi8pv3NLgu4jfdLQABVQjKSZmdG3vAFHE5A8CNM=;
-        b=ZTe5W0rX0B1cgIhAUbAT7TwIERbD6LV6qXfOZXt2KNTn6vaAVldgf9dIuBlDMan/YN
-         hIaUDVthMDe1C6chEXS+K2Su1xsMRPp5K/mqQwjoW8ctWMeF9z6Af3kobvEF/idVRgWq
-         fbLVpTt7dFPrEfjRA9TJ7hxLxm60hTTj1dSKgWwWpmoYaCWasj3LMQHZeU7QxPXltQ4D
-         G79KNi5lTB85Km4RdKnCnp5NqOnQH4RVp1JIY7RVg5UTDJPnq4RSdjlKDQqhFo7zlN6E
-         m5Ln32HxH4GKoHDR+UZgHadjS4knhdSKJEP6WM9Xzdiw1gYCnma3U+xOcAS6jm49OrH9
-         s/ig==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=VJhz2pk41wsZl7aCEn0lBmRP0jblxEYJZNi694UUD9A=;
+        b=mgo0H905PbOEYetlGnM0u3LTSQZTqRaYcjURPSNQz3EzF+WeUSkEOTXlgNc0rkv4D9
+         q7mv7/wjXf0/w9c2NqrGXSNdFqN7qLgLSjeZrYm3F7odJW8NZ6W5bnGa6ter1VdoJ2dY
+         MB95QUNYLON2zCpSSljxB3U6RPsvOjCnScDJ48suw8kKCxnNqibwAJLgpioR/fwoYGA7
+         pcQhPE/TdIZQsR7e86BhGuKXEGQEDB/uCQmvkNTLFW36mE8rb+YQvCqybWg4Bxuu5a0s
+         i43ST57oGQMhGQeNwz3QD8FF+92t4u6zrLzHCdOaKw0VnDZ7achRsD+W20PdA04XMtYm
+         t1cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=yWKcNi8pv3NLgu4jfdLQABVQjKSZmdG3vAFHE5A8CNM=;
-        b=vzU1mX49EqlKM1TU67Jx5Z5tJyqOv1CieWEQlUTaXnKnB8SfN3dUXzC2sHAT9+VRyS
-         2rdvdcIECWHjT1ckWCM72Ki/RHeqXCaFW69jp9zce+1rIi6A0r/IDzGpBhIfmasAUXi/
-         PW4jZA/Ed54/zQ4Z2CtEi7mBcd7Nn+H1C/LWryDKM2WwzxNtURwBOlT4/QBOhPZvAU5K
-         poWHW16x4doD6PtbmE6PHJLrcEbX2t9NPX5ZZzA4JTKqcH9DjWuDE8smA/47aYEi9NBT
-         94O2mwiITnUNAcL21qpnghFp1inxvsB/Rt12k3bXgVIYe4Tj7bQP/GKG4uzBWYaTwSqR
-         YmfA==
-X-Gm-Message-State: AJIora/neDYTcNMo3knD0+bL/wyQt2F9gA8ZuuB/ZJfACD1WvRUnEqb5
-        CaH62+VaIQILVhO1LOC3hk3v7DfgyDDIvD0dzeUsnYBiyayQ
-X-Google-Smtp-Source: AGRyM1uOPKoL5PiY0r4L1PTOUSg0Y0zQBTWKvQZEyxl8plnLhPHDPaf3wzdqHnL62FwY8TzwAD9IYYbO91phBlnx5UM=
-X-Received: by 2002:a05:6870:b40d:b0:10b:8586:9d91 with SMTP id
- x13-20020a056870b40d00b0010b85869d91mr6004248oap.136.1659285945479; Sun, 31
- Jul 2022 09:45:45 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=VJhz2pk41wsZl7aCEn0lBmRP0jblxEYJZNi694UUD9A=;
+        b=sTjUWIBb3nwgiixNhpWcBCo+gRlh8AheNwSDEgzjaeqoGHHUJlfB8C+cx97Of3d/Q1
+         FDhHvr6dl/Eq5z1gjweVQbx9aKtvIQppoCJBwX2TAVaM2ZiaqdlFVUrs/bLTaJKUwYXh
+         HSjSkEyST/HGrRQv+ToVshlwq0TFI/ToxQRyBFu5RuNCJwmrLUM8ibCNIxbgiOrLu/y/
+         EEB6RTLkb0Iupbes3S28rNlLwR6KR1L/tw6nG7go43PFD3VcPpPT3FJNoF98ErPrg+Em
+         B3SsnnJeFP4bDDjiZ0q44lo0We+7O/6wTfksDpgBzYf4107Itc8s894+9mG7C386QMF3
+         wY3A==
+X-Gm-Message-State: AJIora/fI17tDPDgi7oTUagxN3dn3GnpwOBVMS5GOKj52LGzY71q/w3p
+        ZEn5Lono5cLMylHcQmXAuYEhfH8MGn8=
+X-Google-Smtp-Source: AGRyM1uCK84dNyQoSn2Bryuh7P+KcgKYsob4zIQrfxPvl7fTkzlPJuy1qbe5dRZN4dOa00GfMl2zGg==
+X-Received: by 2002:a9d:6d08:0:b0:61c:bbc4:7996 with SMTP id o8-20020a9d6d08000000b0061cbbc47996mr5160551otp.277.1659319054754;
+        Sun, 31 Jul 2022 18:57:34 -0700 (PDT)
+Received: from metis.hsd1.tx.comcast.net ([2601:2c3:c880:1cb0:f1dd:9542:7e38:c208])
+        by smtp.gmail.com with ESMTPSA id h4-20020a056830164400b0061c9c7813d4sm2553084otr.24.2022.07.31.18.57.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 31 Jul 2022 18:57:34 -0700 (PDT)
+From:   chris.lindee@gmail.com
+X-Google-Original-From: chris.lindee+git@gmail.com
+To:     selinux@vger.kernel.org
+Cc:     Chris Lindee <chris.lindee+github@gmail.com>
+Subject: Adjust sepolgen grammar to support allowxperm, et. al.
+Date:   Sun, 31 Jul 2022 20:57:19 -0500
+Message-Id: <20220801015721.393211-1-chris.lindee+git@gmail.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-References: <CA+EEuAgfGhTWBWXgtHSVU22feM+0PS=h-z-eVF4JxmSf2qyZzg@mail.gmail.com>
-In-Reply-To: <CA+EEuAgfGhTWBWXgtHSVU22feM+0PS=h-z-eVF4JxmSf2qyZzg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 31 Jul 2022 12:45:34 -0400
-Message-ID: <CAHC9VhS6A9yaywmRBVg9+AijAqZXxeB=e=HiZ3sUe_Zf+uahuw@mail.gmail.com>
-Subject: Re: KVM / virtual networking access control
-To:     Karl MacMillan <karl@bigbadwolfsecurity.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 29, 2022 at 11:36 PM Karl MacMillan
-<karl@bigbadwolfsecurity.com> wrote:
->
-> Hi,
->
-> I'm trying to do some access control over the networking between KVM
-> virtual machines using Secmark and things are not working as I expect.
-> The key is that this is _between_ virtual machines, not just ingress /
-> egress to the virtual machines from external address.
->
-> Quick summary: I'm connecting two VMs together using veth pairs and a
-> virtual bridge and I only ever see:
->
->     allow unlabeled_t bare_packet_a_t:packet { forward_in forward_out };
+Provide basic support for allowxperm, auditallowxperm, dontauditxperm and neverallowxperm.  While I would prefer additional changes to help avoid the presence of magic numbers (e.g. a new macro, much like interface, but for recursively defining named xperm numbers), this patch set is sufficient for my and - hopefully - the majority of the community's needs.
 
-Just to make sure I'm understanding this correctly, we are talking
-about the SELinux controls from the perspective of the
-host/hypervisor, yes?
+In particular, this change will keep /usr/bin/sepolgen-ifgen from spewing errors on the following policy every time selinux-policy-targeted gets updated: https://github.com/openzfs/zfs/pull/13271/files#diff-70b325e496b997b3c4a5a9f0aacee16343b82e07a8ed8220304ccb5f6504a582
 
-Assuming that is the case, the "packet/{ forward_in forward_out }"
-permissions look correct to me.  In the case of the secmark forwarding
-rules you basically have this:
+Signed-off-by: Chris Lindee <chris.lindee+github@gmail.com>
+---
+ python/sepolgen/src/sepolgen/refparser.py | 96 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ python/sepolgen/src/sepolgen/refpolicy.py | 18 ++++++++++++++++++
+ 2 files changed, 113 insertions(+), 1 deletion(-)
 
-  allow <peer> <secmark>:packet { forward_in };
-  allow <peer> <secmark>:packet { forward_out };
 
-... and I'm guessing you haven't setup any peer labeling between the
-two guests so you are seeing unlabeled_t for "<peer>".
-
-> What I want is packet { send recv } because that would be against the
-> label of the KVM process rather than the peer label (which on the same
-> system would always be unlabeled - I see no way to use CIPSO/CALIPSO
-> to get peer labels to work here).
-
-The "packet/{ send recv }" controls are for packets that originate and
-terminate on the node applying the policy; think of your typical
-client/server nodes.  The "packet/{ forward_in forward_out }" controls
-are for packets that are passing through the node applying the policy,
-e.g. intermediate nodes such as bridges and switches ... even software
-bridges like that found in hypervisors ;)
-
-> I would appreciate any insight into what might be going on. This is
-> mainly tested on a RHEL 8.6 box, but some testing has been done on a
-> Fedora 36 box as well.
-
-I don't know all the details of your setup, or the security goals you
-are trying to enforce, but since it looks like you are bridging the
-network traffic between the guests, you might want to try setting up
-the NetLabel static/fallback mechanism to assign a peer label to
-traffic on those interfaces (no more unlabeled_t in the secmark
-forwarding rules).  Adding the peer labeling information will also
-trigger the network peer label controls in the kernel so you will see
-additional "netif/{ ingress egress}" and "node/{ recvfrom sendto }"
-checks.
-
-Here are few slides that might be helpful (they are older, but still relevant):
-
-https://www.paul-moore.com/docs/selinux_network_controls-pmoore-122012-r1.pdf
-https://www.paul-moore.com/docs/labeled_networking-lfjapan-07092008.pdf
-
--- 
-paul-moore.com
