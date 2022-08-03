@@ -2,97 +2,72 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98764C00140
-	for <selinux@archiver.kernel.org>; Wed,  3 Aug 2022 02:33:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 904F0C19F28
+	for <selinux@archiver.kernel.org>; Wed,  3 Aug 2022 02:34:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234288AbiHCCdo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Aug 2022 22:33:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52516 "EHLO
+        id S234895AbiHCCeJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Aug 2022 22:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230348AbiHCCdm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Aug 2022 22:33:42 -0400
-Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7341EAC0
-        for <selinux@vger.kernel.org>; Tue,  2 Aug 2022 19:33:41 -0700 (PDT)
-Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-10dc1b16c12so19360765fac.6
-        for <selinux@vger.kernel.org>; Tue, 02 Aug 2022 19:33:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=A6gftZrcUdueQmKWdeTE1pp+8j/wkTp6MNQ4hN4qL2Y=;
-        b=0gOmKY/DXHFbApK1fX2d/gE+w0U9FEQi3IOF9IC7iJhQrc8zrEwYAkzZomAQhpnBfn
-         7e2MdLaABK2zOcUDZAwxEH6umf/RntAlP7Cn8pEAt1dpNDFgV4Zj+w0RxWMbg8j8hIhN
-         Jd5KxCWU4QzO2kYrcRz+z58+rpHLxtHS4GP7KR93WIb+V19+qQ97BmxGbBXiKPaZDWP0
-         80MRJnU7NxaEtFVHYN50VHbAjclqG7yQrPmmEN0t2xe99//Z+i9jDR3laRYEO9USJCPz
-         Sg/I7bB2CP6digOrlzxv4J7ihYWVKiIir2TV5tq9l5KLC5t4UMlBZ65Ndu0Dn1tZuhCl
-         w8oQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=A6gftZrcUdueQmKWdeTE1pp+8j/wkTp6MNQ4hN4qL2Y=;
-        b=1+aiwLjMYeZnXfBCrttactQezXDst5pFQX9+0RsLbxBG23DzhttW4GwRzWS5iet43f
-         qeEvgr8aQ87+562bVSKnf0JkYlxby7k4g7JFB3GZCEHtwUZNtFxZf2/UYiyd026g079B
-         i9TBlxYLpyqERB+F3zBBNL4+JXQz8H2QrpSBLiTEbWSzzzq+j+J9DkkYQOiiX8A3xfwU
-         H8T9uvtXm9AJkw4zcThvlG7T4iaNXbLKtfXNaaNHQiLQn2sHonT6BT6YbnQsmMnREmgn
-         ZWwi4AWJnDZOjYCT3yCM7Z3+81V29HWqPjCTlCOi2KNrhgEJzVfxgNkmLL5qfMHX6SoG
-         H57w==
-X-Gm-Message-State: ACgBeo1f3xrixGzNB1BlfXqcZkbP6pZCGDLEW/+377OXddwkw+YT5gJE
-        T3JBJeuomE4E3Ffzdz6EYc1OtA6m5Fz38uGtaDym
-X-Google-Smtp-Source: AA6agR7V9272OqR7+vcNI0x2j6crLxhlP9fCQynwUgBy1I/QIMbooxN3LBVlLTFHyodt4VK0wMAGDhLuZd5vjlMdycs=
-X-Received: by 2002:a05:6870:b40d:b0:10b:8586:9d91 with SMTP id
- x13-20020a056870b40d00b0010b85869d91mr1071626oap.136.1659494020938; Tue, 02
- Aug 2022 19:33:40 -0700 (PDT)
-MIME-Version: 1.0
-References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com> <CAHC9VhSF8hWg=7tbFiCrizNF61vpwJcU3793LcStiu-anW4i1g@mail.gmail.com>
- <d54b304b-ac52-7bd8-5444-334cad48bfac@schaufler-ca.com>
-In-Reply-To: <d54b304b-ac52-7bd8-5444-334cad48bfac@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 2 Aug 2022 22:33:30 -0400
-Message-ID: <CAHC9VhTY=ek-U2pvQHjZ27Vd1S-wHH0p6GepAV2kJuvnM17=uw@mail.gmail.com>
+        with ESMTP id S230348AbiHCCeJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 2 Aug 2022 22:34:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A29911EAC0
+        for <selinux@vger.kernel.org>; Tue,  2 Aug 2022 19:34:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1659494047;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NfwT9+DKgt5KFT0+SHG/ijwTJyDJ1NCJzxhIr/kPWCA=;
+        b=Nq/cdoOI6aJ14YeGSpaxQCVBUwBanGcl5dBFPxGnBmUm+LTgDgoZlL7IBp6D8y5NdB/4s6
+        73zKC+60ZGk9u1z1ht0DFYpPzgQRua0MA5JCmE5q31WqhZ7afoAPc1Awkkm9/N9XXa9HYi
+        w74nT2YKTUTuSUxE8V4AHJqbwSIiV4Y=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-269-eDOHdqxQOc2Cl54yr-Jqsg-1; Tue, 02 Aug 2022 22:34:02 -0400
+X-MC-Unique: eDOHdqxQOc2Cl54yr-Jqsg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A122185A585;
+        Wed,  3 Aug 2022 02:34:01 +0000 (UTC)
+Received: from x2.localnet (unknown [10.22.32.88])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id F0A1990A11;
+        Wed,  3 Aug 2022 02:34:00 +0000 (UTC)
+From:   Steve Grubb <sgrubb@redhat.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>, linux-audit@redhat.com
+Cc:     John Johansen <john.johansen@canonical.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-audit@redhat.com, Paul Moore <paul@paul-moore.com>
 Subject: Re: LSM stacking in next for 6.1?
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     LSM List <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
-        John Johansen <john.johansen@canonical.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Date:   Tue, 02 Aug 2022 22:34:00 -0400
+Message-ID: <2642904.mvXUDI8C0e@x2>
+Organization: Red Hat
+In-Reply-To: <CAHC9VhSF8hWg=7tbFiCrizNF61vpwJcU3793LcStiu-anW4i1g@mail.gmail.com>
+References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com> <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com> <CAHC9VhSF8hWg=7tbFiCrizNF61vpwJcU3793LcStiu-anW4i1g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 2, 2022 at 10:15 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 8/2/2022 5:56 PM, Paul Moore wrote:
-> > On Tue, Aug 2, 2022 at 8:01 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> I would like very much to get v38 or v39 of the LSM stacking for Apparmor
-> >> patch set in the LSM next branch for 6.1. The audit changes have polished
-> >> up nicely and I believe that all comments on the integrity code have been
-> >> addressed. The interface_lsm mechanism has been beaten to a frothy peak.
-> >> There are serious binder changes, but I think they address issues beyond
-> >> the needs of stacking. Changes outside these areas are pretty well limited
-> >> to LSM interface improvements.
-> > The LSM stacking patches are near the very top of my list to review
-> > once the merge window clears, the io_uring fixes are in (bug fix), and
-> > SCTP is somewhat sane again (bug fix).  I'm hopeful that the io_uring
-> > and SCTP stuff can be finished up in the next week or two.
-> >
-> > Since I'm the designated first stuckee now for the stacking stuff I
-> > want to go back through everything with fresh eyes, which probably
-> > isn't a bad idea since it has been a while since I looked at the full
-> > patchset from bottom to top.  I can tell you that I've never been
-> > really excited about the /proc changes,
->
-> I have been and remain perfectly happy to do something completely
-> different provided it works. The interface_lsm scheme as implemented
-> is horrible, but it's better than the half dozen alternatives I've
-> proposed. At least no one has pointed out a use case that it can't
-> satisfy. I take full responsibility for mucking up "current".
+On Tuesday, August 2, 2022 8:56:21 PM EDT Paul Moore wrote:
+>  I can tell you that I've never been really excited about the /proc
+>  changes, and believe it or not I've been thinking about those a fair
+>  amount since James asked me to start maintaining the LSM.
 
-Yes, I have no concerns around your willingness to do the Right Thing
-Casey, whatever that may be :)
+Why do we not have auid and sessionid in /proc/<pid>/status  ?
 
--- 
-paul-moore.com
+This has been needed for 10 - 15 years.
+
+-Steve
+
+
