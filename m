@@ -2,35 +2,35 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F013C25B0C
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:57:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69333C25B07
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:58:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243809AbiHHB5l (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 7 Aug 2022 21:57:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47098 "EHLO
+        id S243854AbiHHB6k (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 7 Aug 2022 21:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243944AbiHHB4k (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:56:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1022E1CB26;
-        Sun,  7 Aug 2022 18:40:06 -0700 (PDT)
+        with ESMTP id S244090AbiHHB4z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:56:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F51B7D3;
+        Sun,  7 Aug 2022 18:40:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99AE1B80E05;
-        Mon,  8 Aug 2022 01:40:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86FDFC433D6;
-        Mon,  8 Aug 2022 01:40:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F76060EE6;
+        Mon,  8 Aug 2022 01:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A6EC433D6;
+        Mon,  8 Aug 2022 01:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922803;
-        bh=FPDq19YmQbyACbhIMdsFfnd/zvD9KE4s0mLFIVXUVOE=;
+        s=k20201202; t=1659922819;
+        bh=tvv5zKTRORCPg5nIx/6yTuFX5HiE0u44vXPAHIgH6PM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gm/PcT96YUtsx4iuP87h22UoAsFi4CSdKSvvxGBkUlM60J77eZ+6qdjRBrT93HAU7
-         UWMfYzV62XUbIbMQ4euPf706fEVQzW9B760grpjf7dcUtEaONSVClWP5nPl/bq0VZr
-         tk1KImjdS0SJuyp1XCrYNIrg6kW4AQiBzI7ygwQbdzF2FX/zVfJIlgYH+hwsPM3YuV
-         6G8gthH1WqystQIc2eUcb19kuGezd/vXTcbbL7ojrj5+jv/wN8RD3fIzoQGwHUoqrq
-         IhtKwRi7Cih0oibs7Edoxnv1o4/JzVGrBhdXbrq/z+3sd2N6WExqTGXkroePGNpIxb
-         3dtF5XqSue2rg==
+        b=haVs4VcWP9M2CfUTAHUzpoULTK7aSQfSmnEG/3ccS/lAaBt89AfLkNB7xoMlRpdwv
+         VcfuX3Zmtl3tuE2KWVum9WnWQcknQVsARnLbKjkvnYJVZ9qC4bQwDdgfszQMU0s5YG
+         0yDcpNOmx0dJ9b0IGS+3J9FdnBkyjS+ttazFUEDMPwg39MFpCYsmGk5X5MhahJSn+0
+         0bsNbTHxnOdqQ1yrbvpSku4AL74orv6OsGDTvQNjGy9IwtYKN8xynR/vDWHg0S3oa2
+         MSukhtWgdntFzNBbDp6bQ5RZaa7xiFMVIQxkkaSby/mSi942R+mWrRpBciexzMbwQb
+         1DAFl0tztPldA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
@@ -38,12 +38,12 @@ Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
         Sasha Levin <sashal@kernel.org>,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
         selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/12] selinux: Add boundary check in put_entry()
-Date:   Sun,  7 Aug 2022 21:39:42 -0400
-Message-Id: <20220808013943.316907-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 8/8] selinux: Add boundary check in put_entry()
+Date:   Sun,  7 Aug 2022 21:40:03 -0400
+Message-Id: <20220808014005.317064-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220808013943.316907-1-sashal@kernel.org>
-References: <20220808013943.316907-1-sashal@kernel.org>
+In-Reply-To: <20220808014005.317064-1-sashal@kernel.org>
+References: <20220808014005.317064-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -67,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 215f8f30ac5a..2a479785ebd4 100644
+index 725d5945a97e..178d8804ecb1 100644
 --- a/security/selinux/ss/policydb.h
 +++ b/security/selinux/ss/policydb.h
-@@ -360,6 +360,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
+@@ -349,6 +349,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
  {
  	size_t len = bytes * num;
  
