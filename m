@@ -2,80 +2,98 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2FD1C3F6B0
-	for <selinux@archiver.kernel.org>; Fri,  5 Aug 2022 13:43:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB80BC25B07
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:38:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229640AbiHENnY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Aug 2022 09:43:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52694 "EHLO
+        id S242468AbiHHBiL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 7 Aug 2022 21:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240611AbiHENnX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Aug 2022 09:43:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B673226AD3
-        for <selinux@vger.kernel.org>; Fri,  5 Aug 2022 06:43:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659707001;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=igi80iPjpA0KzxzMwA83MX2LOBEAPPVwmOqawso8N0w=;
-        b=b6rNF4gCsIR6cBLmFqt9Io7pZe9Ti+7FwXXRiBLR5zKpO3wAVX1zJ6UJ+8NcEXW1/bbQEx
-        uk2W9bUuNPGRQDD3VsCCAeYNapvGWRfoytqZo6MNMvua9xKGQHuSTP168JOYW7gDqhLEJ8
-        KVgpqybS/xNJoJudQa74qDPEY8AW/CQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-492-FLYBmdePNGW6Y_1HaqsnKA-1; Fri, 05 Aug 2022 09:43:17 -0400
-X-MC-Unique: FLYBmdePNGW6Y_1HaqsnKA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S242466AbiHHBgq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:36:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7B7E008;
+        Sun,  7 Aug 2022 18:33:35 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3018C100AF91;
-        Fri,  5 Aug 2022 13:43:17 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.10])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 934234010D27;
-        Fri,  5 Aug 2022 13:43:15 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <b767fd4f14469005035eca04cc74ea5222601566.camel@kernel.org>
-References: <b767fd4f14469005035eca04cc74ea5222601566.camel@kernel.org> <165962729225.3357250.14350728846471527137.stgit@warthog.procyon.org.uk>
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     dhowells@redhat.com, viro@zeniv.linux.org.uk,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 798AF60DB9;
+        Mon,  8 Aug 2022 01:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2429C433D6;
+        Mon,  8 Aug 2022 01:33:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659922414;
+        bh=D3RJWswlgttNeCNoxN0JrftIQMlO2blD6GKPcxf8Rqo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Ya9e9eCrflc1u6syTyVPZ0+4w9eQQztKPhy1TFrKCzlx0L81aFJ626+J1U9xZKiWW
+         b95Or1CUJITNORV54TGkR5qi0gY51t6IL9zEMw5lmFycmux+vmjmjk9+y9ea+rgawS
+         CGmJOjYcxKnBARV9epj+jVDMyJpNkr1dt5xOpCtAQO82j6CPdtOEWhMstvvg6v8dCV
+         cFUfyGmfsB9/Kp6uJmFs8Q+IW8tTczQa3eqhVlJkGkjF/QgDc2ALFM46KWMWEYwpEa
+         7gf8ZmvhTkDl7ujkDHBMIlXnguxx9Q0QVHI+YCzSn9luxnNck/Bt2daVsJtFgX9wVB
+         RJTuj9Z0E0SXA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
         Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        linux-nfs@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, dwysocha@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] nfs: Fix automount superblock LSM init problem, preventing sb sharing
+        Sasha Levin <sashal@kernel.org>,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        cgzones@googlemail.com, omosnace@redhat.com,
+        michalorzel.eng@gmail.com, selinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 53/58] selinux: fix memleak in security_read_state_kernel()
+Date:   Sun,  7 Aug 2022 21:31:11 -0400
+Message-Id: <20220808013118.313965-53-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220808013118.313965-1-sashal@kernel.org>
+References: <20220808013118.313965-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <2835065.1659706995.1@warthog.procyon.org.uk>
-Date:   Fri, 05 Aug 2022 14:43:15 +0100
-Message-ID: <2835066.1659706995@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Jeff Layton <jlayton@kernel.org> wrote:
+From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-> I hit a problem when testing this:
+[ Upstream commit 73de1befcc53a7c68b0c5e76b9b5ac41c517760f ]
 
-	if (reference) {
+In this function, it directly returns the result of __security_read_policy
+without freeing the allocated memory in *data, cause memory leak issue,
+so free the memory if __security_read_policy failed.
 
-should be:
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+[PM: subject line tweak]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ security/selinux/ss/services.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
-
-in both selinux and smack.
-
-David
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 69b2734311a6..fe5fcf571c56 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -4048,6 +4048,7 @@ int security_read_policy(struct selinux_state *state,
+ int security_read_state_kernel(struct selinux_state *state,
+ 			       void **data, size_t *len)
+ {
++	int err;
+ 	struct selinux_policy *policy;
+ 
+ 	policy = rcu_dereference_protected(
+@@ -4060,5 +4061,11 @@ int security_read_state_kernel(struct selinux_state *state,
+ 	if (!*data)
+ 		return -ENOMEM;
+ 
+-	return __security_read_policy(policy, *data, len);
++	err = __security_read_policy(policy, *data, len);
++	if (err) {
++		vfree(*data);
++		*data = NULL;
++		*len = 0;
++	}
++	return err;
+ }
+-- 
+2.35.1
 
