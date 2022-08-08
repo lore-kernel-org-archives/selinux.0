@@ -2,263 +2,410 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 787F7C00140
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 14:49:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B69DFC00140
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 15:02:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243101AbiHHOtI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Aug 2022 10:49:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40720 "EHLO
+        id S235896AbiHHPCO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Aug 2022 11:02:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243478AbiHHOtH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 10:49:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4410D1274D
-        for <selinux@vger.kernel.org>; Mon,  8 Aug 2022 07:49:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1659970145;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Zm3OK/Toa986j3N5b84tZW8GXQ7LFn1yTftrmhbykps=;
-        b=d5Gg/ZikxJ/Hi4pzngsCc/k6YOKqhBRyfDDvOD2I5NA+b4xcnzdzN81dzEXJpbCXB+C2ed
-        ZTQap7312aCRVd934TwnhHXe13AaHCE5sgRegclSHBVng7L3o8EoWpjBOo12gJSeWqZ5Z3
-        Mft2G+u65PuNDtXdFndvj+9s6z1lHJU=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-141-S1lOG85JON-ycpvmDbeMbg-1; Mon, 08 Aug 2022 10:49:03 -0400
-X-MC-Unique: S1lOG85JON-ycpvmDbeMbg-1
-Received: by mail-ej1-f69.google.com with SMTP id gn23-20020a1709070d1700b0073094d0e02cso2504701ejc.20
-        for <selinux@vger.kernel.org>; Mon, 08 Aug 2022 07:49:03 -0700 (PDT)
+        with ESMTP id S235685AbiHHPCN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 11:02:13 -0400
+Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C361B855
+        for <selinux@vger.kernel.org>; Mon,  8 Aug 2022 08:02:12 -0700 (PDT)
+Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-10e6bdbe218so10790573fac.10
+        for <selinux@vger.kernel.org>; Mon, 08 Aug 2022 08:02:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc;
+        bh=tA7M/btmbdvByCOTR0v5HY2dJcSM2WaInhbBvXaJxTY=;
+        b=phOHGR2WQdyIu0QAOshWiN6QEV+rcT4rsuHSH/qaC1LJE7FrlRVu4v0ImBs+fyIT0w
+         G33N89FCEF2I+mbjbd5J3MXx+o8e/3Nc8AZ+aE9fnE18f2vQ+/f/l3bTBewGYt4q88Y8
+         5obp4rYCtC6uQKsIgDvuNw4586vvJWgHsHWbdNZIrRWgZhwCmOeJHDakfJlDOlHI1kQl
+         bIJOEbgNfW7sEp0XVSrPxdnf0Ju1OfGa1UPIzJtwYEGLfYI8jkt9u9tHHiiAsiSiGxZU
+         Gb+GVpj85cB9HpzF1nR9X4KJMrAAt8fgLVpd3J7sUPfZRKnweiO8jMkvkgf3xAv+yxPL
+         sYIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=Zm3OK/Toa986j3N5b84tZW8GXQ7LFn1yTftrmhbykps=;
-        b=IpNyLBfB0GiP55YV5sXQBQ90fM1+5IvEFZN2bcQ/ojfYmvViQ4dM/aWJ1sbne4OcKz
-         1+hMbne439ddnmR1r21+WN0bqN4wmJgZK744TJ/YfG2tMG78ttQj6NhAqn0cMVJ2/W/u
-         FsBF85M26uvhWPiyF77/4p5Rrdxmz0N1n8OYDh3PCRk2EocUzVmTxZXILAts7U92IaYB
-         fIdxDLK8uX75qvbAgrxUBgcUmjKPMDvZTFyumJYszKgcD01e1Hm2kbYSPvexmFEMpT8n
-         HCa1+fhTkDO5idFSJ9nCB848tg69U2Mc90cBGxlV18JWO1oWrtJrIYjsjudQfZKZv5rb
-         adXw==
-X-Gm-Message-State: ACgBeo3GqpbM6ZD6Xtctn+uZBMhxNWoW0GN0/aUGuSKHOWf5PjfgGamo
-        8bvqVW1lmNwmBeLpYdDMB/5R4mmC/3DvpL59ZNsyqJD2qrr4446Yauue5UkNuuFtsERC2Zxx05J
-        cTDr4m/6udUz+BP2aRg==
-X-Received: by 2002:a05:6402:5516:b0:43a:42f9:24d6 with SMTP id fi22-20020a056402551600b0043a42f924d6mr18343609edb.204.1659970142413;
-        Mon, 08 Aug 2022 07:49:02 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR7qlAx7s6VGg+V8lUJp06XY14zF++0PZsUfwluoP8WBqVk2HglRVF6eAMmmuZbbvxvHheHZ+Q==
-X-Received: by 2002:a05:6402:5516:b0:43a:42f9:24d6 with SMTP id fi22-20020a056402551600b0043a42f924d6mr18343596edb.204.1659970142183;
-        Mon, 08 Aug 2022 07:49:02 -0700 (PDT)
-Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id s15-20020a170906a18f00b0071cef8bafc3sm5065970ejy.1.2022.08.08.07.49.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Aug 2022 07:49:01 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-Subject: [PATCH] selinux: add a new warn_on_audited debug flag to selinuxfs
-Date:   Mon,  8 Aug 2022 16:49:00 +0200
-Message-Id: <20220808144900.125242-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.37.1
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
+        bh=tA7M/btmbdvByCOTR0v5HY2dJcSM2WaInhbBvXaJxTY=;
+        b=SymiCpFnExYEO/W95UgRBVk5OvOWgbFnnCCxEfpSl3M6oZ5wGx3CptjTlRNPGS/tjt
+         7RFvh/OlJOepSF84IX5BQpIoi5iZGzeYy+3soESwoq40i+xkzmXKHenzL720S4pab3k3
+         xzMUY5psvKlGYAlHxChpykqc0JJ+B0LFk3AJlR6Cd+PyMXXwLWpDbbQCdLEL2FItaU0F
+         1/P6ruUHjk8Z/kxAiFl+TxpIi5Vu7DtBEMIE8Ujc3eToIojB4TXxD805TusBKKc+YlKu
+         EMwi5dghG2+kI+TwC1dbczFFY6l2i42os0LziiHY/+onn7zp3ZgPYzkdt+MCQDX6w9rj
+         n2lw==
+X-Gm-Message-State: ACgBeo281etNlFoc+yf6/z+cA8SMOAGSJSz45cgTgmNrPYcq9PoW2wYg
+        cujoxRm13ecwf4xwFvNxRh6dPUQcBXJithXMSh9T3ggDp+Y=
+X-Google-Smtp-Source: AA6agR6jfY6cG9ZSII7HYlztTnJQNnIDHJTpQ82XEH4dH42bZsu/bMi4AwX5I3ldtkA+hU8ZBb0LReumhmw0jXsDyFA=
+X-Received: by 2002:a05:6870:c0c5:b0:10d:5f5c:9ab1 with SMTP id
+ e5-20020a056870c0c500b0010d5f5c9ab1mr12782781oad.156.1659970930836; Mon, 08
+ Aug 2022 08:02:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220721150515.19843-1-cgzones@googlemail.com>
+In-Reply-To: <20220721150515.19843-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 8 Aug 2022 11:01:59 -0400
+Message-ID: <CAP+JOzTEQa79dmOiN0CqStPEieo6QMjdaqYOrR9mPMH-r5yASQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/8] libsepol: refactor ebitmap conversion in link.c
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When debugging SELinux denials, it is often helpful to know which part
-of kernel code triggered the denial. Thus, this patch adds a new
-/sys/fs/selinux/warn_on_audited flag that, when set to 1, will cause any
-audited AVC event to log a WARNING to the kernel console, which
-naturally comes with a kernel stack trace.
+On Thu, Jul 21, 2022 at 11:11 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Refactor the ebitmap conversions in link.c into its own function.
+>
+> Do not log an OOM message twice on type_set_or_convert() failure.
+>
+> Drop the now unused state parameter from type_set_or_convert() and
+> type_set_convert().
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-While the same can be achieved via the "avc:selinux_audited" kernel
-tracepoint and the perf tool, that approach has several practical
-disadvantages:
-1. It requires perf to be installed on the machine.
-2. It requires kernel debug symbols to be available when decoding the
-   stack trace.
-3. It requires a perf process to be running in the background.
-4. The stack traces can only be obtained at the end, after the perf
-   process is terminated, not live during the capture. (Though this may
-   be solved by writing a custom tool on top of libtraceevent.)
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Thus, providing a simple native knob for this in selinuxfs is still
-valuable.
-
-The warn_on_audited flag is always set to 0 on boot and is expected to
-be set to 1 only temporarily by system administrator in order to debug
-SELinux denials. It is not intended to be used on production systems.
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/avc.c              |  6 +++
- security/selinux/ima.c              | 11 +++++-
- security/selinux/include/security.h | 11 ++++++
- security/selinux/selinuxfs.c        | 61 +++++++++++++++++++++++++++++
- 4 files changed, 88 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 9a43af0ebd7d..0e615c9e8e79 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -736,6 +736,12 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
- 		audit_log_format(ab, " permissive=%u", sad->result ? 0 : 1);
- 
- 	trace_selinux_audited(sad, scontext, tcontext, tclass);
-+
-+	WARN(warn_on_audited_get(sad->state),
-+	     "SELinux:  AV: requested=0x%x denied=0x%x audited=0x%x result=%d scontext=%s tcontext=%s tclass=%s",
-+	     sad->requested, sad->denied, sad->audited, sad->result,
-+	     scontext, tcontext, tclass);
-+
- 	kfree(tcontext);
- 	kfree(scontext);
- 
-diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-index a915b89d55b0..506e880040f5 100644
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -26,7 +26,10 @@ static char *selinux_ima_collect_state(struct selinux_state *state)
- 	char *buf;
- 	int buf_len, len, i, rc;
- 
--	buf_len = strlen("initialized=0;enforcing=0;checkreqprot=0;") + 1;
-+	buf_len = strlen("initialized=0;"
-+			 "enforcing=0;"
-+			 "checkreqprot=0;"
-+			 "warn_on_audited=0;") + 1;
- 
- 	len = strlen(on);
- 	for (i = 0; i < __POLICYDB_CAP_MAX; i++)
-@@ -54,6 +57,12 @@ static char *selinux_ima_collect_state(struct selinux_state *state)
- 	rc = strlcat(buf, checkreqprot_get(state) ? on : off, buf_len);
- 	WARN_ON(rc >= buf_len);
- 
-+	rc = strlcat(buf, "warn_on_audited", buf_len);
-+	WARN_ON(rc >= buf_len);
-+
-+	rc = strlcat(buf, warn_on_audited_get(state) ? on : off, buf_len);
-+	WARN_ON(rc >= buf_len);
-+
- 	for (i = 0; i < __POLICYDB_CAP_MAX; i++) {
- 		rc = strlcat(buf, selinux_policycap_names[i], buf_len);
- 		WARN_ON(rc >= buf_len);
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 393aff41d3ef..bb1f0507edb6 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -97,6 +97,7 @@ struct selinux_state {
- 	bool enforcing;
- #endif
- 	bool checkreqprot;
-+	bool warn_on_audited;
- 	bool initialized;
- 	bool policycap[__POLICYDB_CAP_MAX];
- 
-@@ -157,6 +158,16 @@ static inline void checkreqprot_set(struct selinux_state *state, bool value)
- 	WRITE_ONCE(state->checkreqprot, value);
- }
- 
-+static inline bool warn_on_audited_get(const struct selinux_state *state)
-+{
-+	return READ_ONCE(state->warn_on_audited);
-+}
-+
-+static inline void warn_on_audited_set(struct selinux_state *state, bool value)
-+{
-+	WRITE_ONCE(state->warn_on_audited, value);
-+}
-+
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- static inline bool selinux_disabled(struct selinux_state *state)
- {
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8fcdd494af27..c3774ba39cf8 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -64,6 +64,7 @@ enum sel_inos {
- 	SEL_STATUS,	/* export current status using mmap() */
- 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
- 	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
-+	SEL_WARN_ON_AUDITED, /* whether to WARN() when a denial is audited */
- 	SEL_INO_NEXT,	/* The next inode number to use */
- };
- 
-@@ -857,6 +858,64 @@ static const struct file_operations sel_transition_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
-+static ssize_t sel_read_warn_on_audited(struct file *filp, char __user *buf,
-+				     size_t count, loff_t *ppos)
-+{
-+	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
-+	char tmpbuf[TMPBUFLEN];
-+	ssize_t length;
-+
-+	length = scnprintf(tmpbuf, TMPBUFLEN, "%u",
-+			   warn_on_audited_get(fsi->state));
-+	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
-+}
-+
-+static ssize_t sel_write_warn_on_audited(struct file *file, const char __user *buf,
-+				      size_t count, loff_t *ppos)
-+{
-+	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
-+	char *page;
-+	ssize_t length;
-+	unsigned int new_value;
-+
-+	length = avc_has_perm(&selinux_state,
-+			      current_sid(), SECINITSID_SECURITY,
-+			      SECCLASS_SECURITY, SECURITY__SETSECPARAM,
-+			      NULL);
-+	if (length)
-+		return length;
-+
-+	if (count >= PAGE_SIZE)
-+		return -ENOMEM;
-+
-+	/* No partial writes. */
-+	if (*ppos != 0)
-+		return -EINVAL;
-+
-+	page = memdup_user_nul(buf, count);
-+	if (IS_ERR(page))
-+		return PTR_ERR(page);
-+
-+	length = -EINVAL;
-+	if (sscanf(page, "%u", &new_value) != 1)
-+		goto out;
-+
-+	warn_on_audited_set(fsi->state, !!new_value);
-+	length = count;
-+
-+	selinux_ima_measure_state(fsi->state);
-+
-+out:
-+	kfree(page);
-+	return length;
-+}
-+
-+static const struct file_operations sel_warn_on_audited_ops = {
-+	.read		= sel_read_warn_on_audited,
-+	.write		= sel_write_warn_on_audited,
-+	.llseek		= generic_file_llseek,
-+};
-+
- /*
-  * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
-  */
-@@ -2084,6 +2143,8 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
- 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
- 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
- 					S_IWUGO},
-+		[SEL_WARN_ON_AUDITED] = {"warn_on_audited", &sel_warn_on_audited_ops,
-+					 S_IRUGO|S_IWUSR},
- 		/* last one */ {""}
- 	};
- 
--- 
-2.37.1
-
+> ---
+>  libsepol/src/link.c | 140 +++++++++++++++-----------------------------
+>  1 file changed, 47 insertions(+), 93 deletions(-)
+>
+> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+> index 7e8313cb..cbe4cea4 100644
+> --- a/libsepol/src/link.c
+> +++ b/libsepol/src/link.c
+> @@ -958,26 +958,28 @@ static int alias_copy_callback(hashtab_key_t key, h=
+ashtab_datum_t datum,
+>
+>  /*********** callbacks that fix bitmaps ***********/
+>
+> -static int type_set_convert(type_set_t * types, type_set_t * dst,
+> -                           policy_module_t * mod, link_state_t * state
+> -                           __attribute__ ((unused)))
+> +static int ebitmap_convert(const ebitmap_t *src, ebitmap_t *dst, const u=
+int32_t *map)
+>  {
+> -       unsigned int i;
+> -       ebitmap_node_t *tnode;
+> -       ebitmap_for_each_positive_bit(&types->types, tnode, i) {
+> -               assert(mod->map[SYM_TYPES][i]);
+> -               if (ebitmap_set_bit
+> -                   (&dst->types, mod->map[SYM_TYPES][i] - 1, 1)) {
+> -                       goto cleanup;
+> -               }
+> -       }
+> -       ebitmap_for_each_positive_bit(&types->negset, tnode, i) {
+> -               assert(mod->map[SYM_TYPES][i]);
+> -               if (ebitmap_set_bit
+> -                   (&dst->negset, mod->map[SYM_TYPES][i] - 1, 1)) {
+> -                       goto cleanup;
+> -               }
+> +       unsigned int bit;
+> +       ebitmap_node_t *node;
+> +       ebitmap_for_each_positive_bit(src, node, bit) {
+> +               assert(map[bit]);
+> +               if (ebitmap_set_bit(dst, map[bit] - 1, 1))
+> +                       return -1;
+>         }
+> +
+> +       return 0;
+> +}
+> +
+> +static int type_set_convert(const type_set_t * types, type_set_t * dst,
+> +                           const policy_module_t * mod)
+> +{
+> +       if (ebitmap_convert(&types->types, &dst->types, mod->map[SYM_TYPE=
+S]))
+> +               goto cleanup;
+> +
+> +       if (ebitmap_convert(&types->negset, &dst->negset, mod->map[SYM_TY=
+PES]))
+> +               goto cleanup;
+> +
+>         dst->flags =3D types->flags;
+>         return 0;
+>
+> @@ -988,13 +990,13 @@ static int type_set_convert(type_set_t * types, typ=
+e_set_t * dst,
+>  /* OR 2 typemaps together and at the same time map the src types to
+>   * the correct values in the dst typeset.
+>   */
+> -static int type_set_or_convert(type_set_t * types, type_set_t * dst,
+> -                              policy_module_t * mod, link_state_t * stat=
+e)
+> +static int type_set_or_convert(const type_set_t * types, type_set_t * ds=
+t,
+> +                              const policy_module_t * mod)
+>  {
+>         type_set_t ts_tmp;
+>
+>         type_set_init(&ts_tmp);
+> -       if (type_set_convert(types, &ts_tmp, mod, state) =3D=3D -1) {
+> +       if (type_set_convert(types, &ts_tmp, mod) =3D=3D -1) {
+>                 goto cleanup;
+>         }
+>         if (type_set_or_eq(dst, &ts_tmp)) {
+> @@ -1004,7 +1006,6 @@ static int type_set_or_convert(type_set_t * types, =
+type_set_t * dst,
+>         return 0;
+>
+>        cleanup:
+> -       ERR(state->handle, "Out of memory!");
+>         type_set_destroy(&ts_tmp);
+>         return -1;
+>  }
+> @@ -1012,18 +1013,11 @@ static int type_set_or_convert(type_set_t * types=
+, type_set_t * dst,
+>  static int role_set_or_convert(role_set_t * roles, role_set_t * dst,
+>                                policy_module_t * mod, link_state_t * stat=
+e)
+>  {
+> -       unsigned int i;
+>         ebitmap_t tmp;
+> -       ebitmap_node_t *rnode;
+>
+>         ebitmap_init(&tmp);
+> -       ebitmap_for_each_positive_bit(&roles->roles, rnode, i) {
+> -               assert(mod->map[SYM_ROLES][i]);
+> -               if (ebitmap_set_bit
+> -                   (&tmp, mod->map[SYM_ROLES][i] - 1, 1)) {
+> -                       goto cleanup;
+> -               }
+> -       }
+> +       if (ebitmap_convert(&roles->roles, &tmp, mod->map[SYM_ROLES]))
+> +               goto cleanup;
+>         if (ebitmap_union(&dst->roles, &tmp)) {
+>                 goto cleanup;
+>         }
+> @@ -1088,13 +1082,11 @@ static int mls_range_convert(mls_semantic_range_t=
+ * src, mls_semantic_range_t *
+>  static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
+>                              void *data)
+>  {
+> -       unsigned int i;
+>         char *id =3D key;
+>         role_datum_t *role, *dest_role =3D NULL;
+>         link_state_t *state =3D (link_state_t *) data;
+>         ebitmap_t e_tmp;
+>         policy_module_t *mod =3D state->cur;
+> -       ebitmap_node_t *rnode;
+>         hashtab_t role_tab;
+>
+>         role =3D (role_datum_t *) datum;
+> @@ -1111,30 +1103,20 @@ static int role_fix_callback(hashtab_key_t key, h=
+ashtab_datum_t datum,
+>         }
+>
+>         ebitmap_init(&e_tmp);
+> -       ebitmap_for_each_positive_bit(&role->dominates, rnode, i) {
+> -               assert(mod->map[SYM_ROLES][i]);
+> -               if (ebitmap_set_bit
+> -                   (&e_tmp, mod->map[SYM_ROLES][i] - 1, 1)) {
+> -                       goto cleanup;
+> -               }
+> -       }
+> +       if (ebitmap_convert(&role->dominates, &e_tmp, mod->map[SYM_ROLES]=
+))
+> +               goto cleanup;
+>         if (ebitmap_union(&dest_role->dominates, &e_tmp)) {
+>                 goto cleanup;
+>         }
+> -       if (type_set_or_convert(&role->types, &dest_role->types, mod, sta=
+te)) {
+> +       if (type_set_or_convert(&role->types, &dest_role->types, mod)) {
+>                 goto cleanup;
+>         }
+>         ebitmap_destroy(&e_tmp);
+>
+>         if (role->flavor =3D=3D ROLE_ATTRIB) {
+>                 ebitmap_init(&e_tmp);
+> -               ebitmap_for_each_positive_bit(&role->roles, rnode, i) {
+> -                       assert(mod->map[SYM_ROLES][i]);
+> -                       if (ebitmap_set_bit
+> -                           (&e_tmp, mod->map[SYM_ROLES][i] - 1, 1)) {
+> -                               goto cleanup;
+> -                       }
+> -               }
+> +               if (ebitmap_convert(&role->roles, &e_tmp, mod->map[SYM_RO=
+LES]))
+> +                       goto cleanup;
+>                 if (ebitmap_union(&dest_role->roles, &e_tmp)) {
+>                         goto cleanup;
+>                 }
+> @@ -1152,13 +1134,11 @@ static int role_fix_callback(hashtab_key_t key, h=
+ashtab_datum_t datum,
+>  static int type_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
+>                              void *data)
+>  {
+> -       unsigned int i;
+>         char *id =3D key;
+>         type_datum_t *type, *new_type =3D NULL;
+>         link_state_t *state =3D (link_state_t *) data;
+>         ebitmap_t e_tmp;
+>         policy_module_t *mod =3D state->cur;
+> -       ebitmap_node_t *tnode;
+>         symtab_t *typetab;
+>
+>         type =3D (type_datum_t *) datum;
+> @@ -1181,13 +1161,8 @@ static int type_fix_callback(hashtab_key_t key, ha=
+shtab_datum_t datum,
+>         }
+>
+>         ebitmap_init(&e_tmp);
+> -       ebitmap_for_each_positive_bit(&type->types, tnode, i) {
+> -               assert(mod->map[SYM_TYPES][i]);
+> -               if (ebitmap_set_bit
+> -                   (&e_tmp, mod->map[SYM_TYPES][i] - 1, 1)) {
+> -                       goto cleanup;
+> -               }
+> -       }
+> +       if (ebitmap_convert(&type->types, &e_tmp, mod->map[SYM_TYPES]))
+> +               goto cleanup;
+>         if (ebitmap_union(&new_type->types, &e_tmp)) {
+>                 goto cleanup;
+>         }
+> @@ -1269,9 +1244,8 @@ static int copy_avrule_list(avrule_t * list, avrule=
+_t ** dst,
+>                 new_rule->specified =3D cur->specified;
+>                 new_rule->flags =3D cur->flags;
+>                 if (type_set_convert
+> -                   (&cur->stypes, &new_rule->stypes, module, state) =3D=
+=3D -1
+> -                   || type_set_convert(&cur->ttypes, &new_rule->ttypes, =
+module,
+> -                                       state) =3D=3D -1) {
+> +                   (&cur->stypes, &new_rule->stypes, module) =3D=3D -1
+> +                   || type_set_convert(&cur->ttypes, &new_rule->ttypes, =
+module) =3D=3D -1) {
+>                         goto cleanup;
+>                 }
+>
+> @@ -1355,8 +1329,6 @@ static int copy_role_trans_list(role_trans_rule_t *=
+ list,
+>                                 policy_module_t * module, link_state_t * =
+state)
+>  {
+>         role_trans_rule_t *cur, *new_rule =3D NULL, *tail;
+> -       unsigned int i;
+> -       ebitmap_node_t *cnode;
+>
+>         cur =3D list;
+>         tail =3D *dst;
+> @@ -1374,19 +1346,12 @@ static int copy_role_trans_list(role_trans_rule_t=
+ * list,
+>                 if (role_set_or_convert
+>                     (&cur->roles, &new_rule->roles, module, state)
+>                     || type_set_or_convert(&cur->types, &new_rule->types,
+> -                                          module, state)) {
+> +                                          module)) {
+>                         goto cleanup;
+>                 }
+>
+> -               ebitmap_for_each_positive_bit(&cur->classes, cnode, i) {
+> -                       assert(module->map[SYM_CLASSES][i]);
+> -                       if (ebitmap_set_bit(&new_rule->classes,
+> -                                           module->
+> -                                           map[SYM_CLASSES][i] - 1,
+> -                                           1)) {
+> -                               goto cleanup;
+> -                       }
+> -               }
+> +               if (ebitmap_convert(&cur->classes, &new_rule->classes, mo=
+dule->map[SYM_CLASSES]))
+> +                       goto cleanup;
+>
+>                 new_rule->new_role =3D module->map[SYM_ROLES][cur->new_ro=
+le - 1];
+>
+> @@ -1476,8 +1441,8 @@ static int copy_filename_trans_list(filename_trans_=
+rule_t * list,
+>                 if (!new_rule->name)
+>                         goto err;
+>
+> -               if (type_set_or_convert(&cur->stypes, &new_rule->stypes, =
+module, state) ||
+> -                   type_set_or_convert(&cur->ttypes, &new_rule->ttypes, =
+module, state))
+> +               if (type_set_or_convert(&cur->stypes, &new_rule->stypes, =
+module) ||
+> +                   type_set_or_convert(&cur->ttypes, &new_rule->ttypes, =
+module))
+>                         goto err;
+>
+>                 new_rule->tclass =3D module->map[SYM_CLASSES][cur->tclass=
+ - 1];
+> @@ -1497,8 +1462,6 @@ static int copy_range_trans_list(range_trans_rule_t=
+ * rules,
+>                                  policy_module_t * mod, link_state_t * st=
+ate)
+>  {
+>         range_trans_rule_t *rule, *new_rule =3D NULL;
+> -       unsigned int i;
+> -       ebitmap_node_t *cnode;
+>
+>         for (rule =3D rules; rule; rule =3D rule->next) {
+>                 new_rule =3D
+> @@ -1512,21 +1475,15 @@ static int copy_range_trans_list(range_trans_rule=
+_t * rules,
+>                 *dst =3D new_rule;
+>
+>                 if (type_set_convert(&rule->stypes, &new_rule->stypes,
+> -                                    mod, state))
+> +                                    mod))
+>                         goto cleanup;
+>
+>                 if (type_set_convert(&rule->ttypes, &new_rule->ttypes,
+> -                                    mod, state))
+> +                                    mod))
+>                         goto cleanup;
+>
+> -               ebitmap_for_each_positive_bit(&rule->tclasses, cnode, i) =
+{
+> -                       assert(mod->map[SYM_CLASSES][i]);
+> -                       if (ebitmap_set_bit
+> -                           (&new_rule->tclasses,
+> -                            mod->map[SYM_CLASSES][i] - 1, 1)) {
+> -                               goto cleanup;
+> -                       }
+> -               }
+> +               if (ebitmap_convert(&rule->tclasses, &new_rule->tclasses,=
+ mod->map[SYM_CLASSES]))
+> +                       goto cleanup;
+>
+>                 if (mls_range_convert(&rule->trange, &new_rule->trange, m=
+od, state))
+>                         goto cleanup;
+> @@ -1688,15 +1645,12 @@ static int copy_scope_index(scope_index_t * src, =
+scope_index_t * dest,
+>         }
+>         dest->class_perms_len =3D largest_mapped_class_value;
+>         for (i =3D 0; i < src->class_perms_len; i++) {
+> -               ebitmap_t *srcmap =3D src->class_perms_map + i;
+> +               const ebitmap_t *srcmap =3D src->class_perms_map + i;
+>                 ebitmap_t *destmap =3D
+>                     dest->class_perms_map + module->map[SYM_CLASSES][i] -=
+ 1;
+> -               ebitmap_for_each_positive_bit(srcmap, node, j) {
+> -                       if (ebitmap_set_bit(destmap, module->perm_map[i][=
+j] - 1,
+> -                                           1)) {
+> -                               goto cleanup;
+> -                       }
+> -               }
+> +
+> +               if (ebitmap_convert(srcmap, destmap, module->perm_map[i])=
+)
+> +                       goto cleanup;
+>         }
+>
+>         return 0;
+> --
+> 2.36.1
+>
