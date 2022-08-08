@@ -2,48 +2,49 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69F25C25B0C
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:38:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C682C25B0C
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:44:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242272AbiHHBiO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 7 Aug 2022 21:38:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39902 "EHLO
+        id S242694AbiHHBoV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 7 Aug 2022 21:44:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242474AbiHHBgu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:36:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B511FBE31;
-        Sun,  7 Aug 2022 18:33:38 -0700 (PDT)
+        with ESMTP id S242703AbiHHBmU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:42:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8548013EBD;
+        Sun,  7 Aug 2022 18:35:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51BCE60DB9;
-        Mon,  8 Aug 2022 01:33:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50EAC433C1;
-        Mon,  8 Aug 2022 01:33:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3CBF3B80E06;
+        Mon,  8 Aug 2022 01:35:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5884C433D6;
+        Mon,  8 Aug 2022 01:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922417;
-        bh=VJCmYCac8+0GtJU2jX1P9L9/IdytulRpy/aYEWsiEso=;
+        s=k20201202; t=1659922542;
+        bh=FlO2+rc4HsuR7lvaoZ66kubdG1FhTpV3XY3NhuCS+jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U241++5m7O03Qy5CYM056QlRGhhkm3HhSrLFVMRhX9AmqjgaX3SdbG4vSqC3X5D2D
-         mwe2NLbyzjteUa2vW7b9p1wuoJIDE/Y6CcPRI21NgH9+rxFb9I4/XHqt8cPTjd9egj
-         t62YlQkYoeLin1hEW+zKNtDp0IgfyaxaDgBgThQFU1r25llhXvTzG3QfpRhjHeN4I8
-         vrE6ewBgbYBuFC0uVBHOk3wjTZIsdtDcgehGGjOrCUEzSCPSp3sRN1WdOiCCsVKNms
-         6fUlSY2r/vTNZAMCnDh8eBrxK1ZG/Ql6yMJBQUaUxeh7+2wrSMVTrb/0MRIFBEndiw
-         xzt1UnE++5SMQ==
+        b=dah1+ylvW2R4CIyRLbLRXgQER+ZrHu7mmNh0gYajQkYa+EfqUH8NlVzskK2Ck3I2U
+         AlVU4wB5iIlAUHGk4tLagmriOW8L5AQZCsxpi+0lod/4q4dryTzXuSBcVXt6klVVe5
+         4KimlTQYaNlyUrlRud5XRTWcpxQsK5fZlNh/ixKpNJ5+P09BUA3kslHtNvVgPYRzCU
+         FJ9WD69Ms0vv81eMwKrwyOB8Usvkk97NrMFVAS+c9jrJCX4yG2WfdLf5ooq2WO0bxB
+         lMuEp39xPdnXbV+nFiSeJHpSnGeJBrjpFOBFQsHKCh/p5FhEXtjyHFBvj6GHpXsauP
+         caVyuH/DFpicw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
         Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 54/58] selinux: Add boundary check in put_entry()
-Date:   Sun,  7 Aug 2022 21:31:12 -0400
-Message-Id: <20220808013118.313965-54-sashal@kernel.org>
+        cgzones@googlemail.com, omosnace@redhat.com,
+        michalorzel.eng@gmail.com, selinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 50/53] selinux: fix memleak in security_read_state_kernel()
+Date:   Sun,  7 Aug 2022 21:33:45 -0400
+Message-Id: <20220808013350.314757-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220808013118.313965-1-sashal@kernel.org>
-References: <20220808013118.313965-1-sashal@kernel.org>
+In-Reply-To: <20220808013350.314757-1-sashal@kernel.org>
+References: <20220808013350.314757-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,31 +55,45 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-[ Upstream commit 15ec76fb29be31df2bccb30fc09875274cba2776 ]
+[ Upstream commit 73de1befcc53a7c68b0c5e76b9b5ac41c517760f ]
 
-Just like next_entry(), boundary check is necessary to prevent memory
-out-of-bound access.
+In this function, it directly returns the result of __security_read_policy
+without freeing the allocated memory in *data, cause memory leak issue,
+so free the memory if __security_read_policy failed.
 
 Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+[PM: subject line tweak]
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/policydb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ security/selinux/ss/services.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index c24d4e1063ea..ffc4e7bad205 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -370,6 +370,8 @@ static inline int put_entry(const void *buf, size_t bytes, int num, struct polic
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 6901dc07680d..cad54f454d01 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -4049,6 +4049,7 @@ int security_read_policy(struct selinux_state *state,
+ int security_read_state_kernel(struct selinux_state *state,
+ 			       void **data, size_t *len)
  {
- 	size_t len = bytes * num;
++	int err;
+ 	struct selinux_policy *policy;
  
-+	if (len > fp->len)
-+		return -EINVAL;
- 	memcpy(fp->data, buf, len);
- 	fp->data += len;
- 	fp->len -= len;
+ 	policy = rcu_dereference_protected(
+@@ -4061,5 +4062,11 @@ int security_read_state_kernel(struct selinux_state *state,
+ 	if (!*data)
+ 		return -ENOMEM;
+ 
+-	return __security_read_policy(policy, *data, len);
++	err = __security_read_policy(policy, *data, len);
++	if (err) {
++		vfree(*data);
++		*data = NULL;
++		*len = 0;
++	}
++	return err;
+ }
 -- 
 2.35.1
 
