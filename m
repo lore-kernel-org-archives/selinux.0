@@ -2,104 +2,174 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8767FC25B08
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 17:37:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B0F3C25B0E
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 18:56:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237287AbiHHRhI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Aug 2022 13:37:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40164 "EHLO
+        id S244070AbiHHS4u (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Aug 2022 14:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242984AbiHHRhE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 13:37:04 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90B213E8B
-        for <selinux@vger.kernel.org>; Mon,  8 Aug 2022 10:37:02 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id gb36so17847569ejc.10
-        for <selinux@vger.kernel.org>; Mon, 08 Aug 2022 10:37:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc;
-        bh=+SQLaRXNkRgvTh8+/lJgnMERAvNcJs9FJBTusKHFKZA=;
-        b=b2e8ML4djVTHb6Em8flHNKi1uS5+Go2QX34i/0GIC0wfkzqZ6JUrI1NAVlvcpM24fh
-         2255PDgzbdKa0mCWjZxUJMgFjxPQZarCL0MTBlyvlHlMckk5HjniLW64RI2lIGL0RGoy
-         SbJsYYSw6DVS3fkdNr4cn59aSOdyNMjNAJipNGaYxhFtQdQeTuqaWQQkfrOl4didzD7A
-         Qud7NWadf7CcSiBOQHCh8r2+4O1y/jA90WkQXqwiz4zAljwAumT4KQ8M42MPPw7ph34P
-         N+sG3hrtnrRECVAoEZeYmyn/aZc7hBuhdh8fh5KwEtM5IRXA47hxmyGzyNTQyRE+54aq
-         VBzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc;
-        bh=+SQLaRXNkRgvTh8+/lJgnMERAvNcJs9FJBTusKHFKZA=;
-        b=3M4/RaEI4dK2p6pvWD3FhBi1BxfzxLrpBqGG9TcLSsEDlgrHLCWzqSt1A5mKuzysjp
-         mVhY1fKXGfYGlHArrrVWp7I6hFyiENAn3fH8DpqkgiBcpyXbBR6fYNoRVTkh5tq4CvP+
-         VTz/hVfNxYm1MoQ/A2960CzHSHuHD2N8h3uC4yCvsTvZCiQKPwfPS5lLfhjYku8y1C/Z
-         TuKW9G+7aKQD6A0D1ibPh2qBWqbkyqLNFHQnofH0hruS5/4euDq0hcu4+c445XwQSOL0
-         c/FA1+a2kLRUKvWBaPNJeu+os9US5cr4IeDMYWhyYpc+LGBMcCKZ45/tGTtHGouEbdxu
-         oqeA==
-X-Gm-Message-State: ACgBeo333SOqWqu28pdNJN+zbZRCAoS72gK89JH6ybLVpDEnzFw8tScO
-        LYWL8m+AHlxApzAvd1Pr2AxH/GaLV34=
-X-Google-Smtp-Source: AA6agR6lz2RUMkDIGvmn3IIGdq4kuO8kTc7FxDmtROASyFTRdVnYq105CS2eXBTzAS9Lf4MOt4pvWw==
-X-Received: by 2002:a17:906:9749:b0:730:aaee:30e2 with SMTP id o9-20020a170906974900b00730aaee30e2mr13894282ejy.248.1659980221489;
-        Mon, 08 Aug 2022 10:37:01 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-000-248-038.77.0.pool.telefonica.de. [77.0.248.38])
-        by smtp.gmail.com with ESMTPSA id es25-20020a056402381900b0043a61f6c389sm4851900edb.4.2022.08.08.10.37.00
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Aug 2022 10:37:00 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 3/4] scripts: ignore Flake8 tag E275
-Date:   Mon,  8 Aug 2022 19:36:54 +0200
-Message-Id: <20220808173655.16867-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220808173655.16867-1-cgzones@googlemail.com>
-References: <20220808173655.16867-1-cgzones@googlemail.com>
+        with ESMTP id S243680AbiHHS4t (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 14:56:49 -0400
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6B61834B;
+        Mon,  8 Aug 2022 11:56:48 -0700 (PDT)
+Received: from in01.mta.xmission.com ([166.70.13.51]:35272)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oL7vh-00BiRy-6H; Mon, 08 Aug 2022 12:56:45 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:45314 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oL7vf-00HUDL-GZ; Mon, 08 Aug 2022 12:56:44 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
+        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
+        bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        kernel-team@cloudflare.com, cgzones@googlemail.com,
+        karl@bigbadwolfsecurity.com
+References: <20220801180146.1157914-1-fred@cloudflare.com>
+        <87les7cq03.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhRpUxyxkPaTz1scGeRm+i4KviQQA7WismOX2q5agzC+DQ@mail.gmail.com>
+Date:   Mon, 08 Aug 2022 13:56:18 -0500
+In-Reply-To: <CAHC9VhRpUxyxkPaTz1scGeRm+i4KviQQA7WismOX2q5agzC+DQ@mail.gmail.com>
+        (Paul Moore's message of "Tue, 2 Aug 2022 22:10:07 -0400")
+Message-ID: <87wnbia7jh.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-XM-SPF: eid=1oL7vf-00HUDL-GZ;;;mid=<87wnbia7jh.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX1+Nfaifvy48ZLTWFCOzOsrcFXZE8jWgnyo=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v4 0/4] Introduce security_create_user_ns()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-    ./gui/polgengui.py:484:18: E275 missing whitespace after keyword
-    ./gui/polgengui.py:530:18: E275 missing whitespace after keyword
-    ./python/sepolgen/src/sepolgen/policygen.py:327:19: E275 missing whitespace after keyword
-    ./python/sepolgen/src/sepolgen/policygen.py:329:11: E275 missing whitespace after keyword
-    ./python/sepolicy/build/lib/sepolicy/__init__.py:453:15: E275 missing whitespace after keyword
-    ./python/sepolicy/build/lib/sepolicy/generate.py:1349:28: E275 missing whitespace after keyword
-    ./python/sepolicy/build/lib/sepolicy/generate.py:1351:28: E275 missing whitespace after keyword
-    ./python/sepolicy/build/lib/sepolicy/gui.py:638:24: E275 missing whitespace after keyword
-    ./python/sepolicy/build/lib/sepolicy/gui.py:863:23: E275 missing whitespace after keyword
-    ./python/sepolicy/build/lib/sepolicy/gui.py:2177:16: E275 missing whitespace after keyword
-    ./python/sepolicy/sepolicy/__init__.py:453:15: E275 missing whitespace after keyword
-    ./python/sepolicy/sepolicy/generate.py:1349:28: E275 missing whitespace after keyword
-    ./python/sepolicy/sepolicy/generate.py:1351:28: E275 missing whitespace after keyword
-    ./python/sepolicy/sepolicy/gui.py:638:24: E275 missing whitespace after keyword
-    ./python/sepolicy/sepolicy/gui.py:863:23: E275 missing whitespace after keyword
-    ./python/sepolicy/sepolicy/gui.py:2177:16: E275 missing whitespace after keyword
-    ./sandbox/sandbox:114:7: E275 missing whitespace after keyword
-    ./sandbox/sandbox:134:11: E275 missing whitespace after keyword
-    ./sandbox/sandbox:136:7: E275 missing whitespace after keyword
+Paul Moore <paul@paul-moore.com> writes:
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- scripts/run-flake8 | 1 +
- 1 file changed, 1 insertion(+)
+> On Mon, Aug 1, 2022 at 10:56 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> Frederick Lawler <fred@cloudflare.com> writes:
+>>
+>> > While creating a LSM BPF MAC policy to block user namespace creation, we
+>> > used the LSM cred_prepare hook because that is the closest hook to prevent
+>> > a call to create_user_ns().
+>>
+>> Re-nack for all of the same reasons.
+>> AKA This can only break the users of the user namespace.
+>>
+>> Nacked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>>
+>> You aren't fixing what your problem you are papering over it by denying
+>> access to the user namespace.
+>>
+>> Nack Nack Nack.
+>>
+>> Stop.
+>>
+>> Go back to the drawing board.
+>>
+>> Do not pass go.
+>>
+>> Do not collect $200.
+>
+> If you want us to take your comments seriously Eric, you need to
+> provide the list with some constructive feedback that would allow
+> Frederick to move forward with a solution to the use case that has
+> been proposed.  You response above may be many things, but it is
+> certainly not that.
 
-diff --git a/scripts/run-flake8 b/scripts/run-flake8
-index 67cccfe9..ad15f3d4 100755
---- a/scripts/run-flake8
-+++ b/scripts/run-flake8
-@@ -58,6 +58,7 @@ IGNORE_LIST="$IGNORE_LIST,E261" # at least two spaces before inline comment
- IGNORE_LIST="$IGNORE_LIST,E265" # block comment should start with '# '
- IGNORE_LIST="$IGNORE_LIST,E266" # too many leading '#' for block comment
- IGNORE_LIST="$IGNORE_LIST,E272" # multiple spaces before keyword
-+IGNORE_LIST="$IGNORE_LIST,E275" # missing whitespace after keyword
- IGNORE_LIST="$IGNORE_LIST,E301" # expected 1 blank line, found 0
- IGNORE_LIST="$IGNORE_LIST,E302" # expected 2 blank lines, found 1
- IGNORE_LIST="$IGNORE_LIST,E303" # too many blank lines
--- 
-2.36.1
+I did provide constructive feedback.  My feedback to his problem
+was to address the real problem of bugs in the kernel.
+
+It is not a constructive approach to shoot the messenger
+and is not a constructive approach to blow me off every time you
+reply.
+
+I have proposed that is there is a subsystem that is unduly buggy we
+stop it from being enabled with a user-namespaces.
+
+Further this is a hook really should have extra-ordinary requirements,
+as all it can do is add additional failure modes to something that
+does not really fail.  AKA all it can do is break-userspace.
+
+As such I need to see a justification on why it makes sense to
+break-userspace.
+
+> We've heard from different users now that there are very real use
+> cases for this LSM hook.  I understand you are concerned about adding
+ > additional controls to user namespaces, but these are controls
+> requested by real users, and the controls being requested (LSM hooks,
+> with BPF and SELinux implementations) are configurable by the *users*
+> at *runtime*.  This patchset does not force additional restrictions on
+> user namespaces, it provides a mechanism that *users* can leverage to
+> add additional granularity to the access controls surrounding user
+> namespaces.
+
+But that is not the problem that cloudfare encountered and are trying to
+solve.
+
+At least that is not what I was told when I asked early in the review
+cycle.
+
+All saying that is user-configurable does is shift the blame from the
+kernel maintainers to the users.  Shift the responsibility from people
+who should have enough expertise to know what is going on to people
+who are by definition have other concerns, so are less likely to be as
+well informed, and less likely to come up with good solutions.
+
+> Eric, if you have a different approach in mind to adding a LSM hook to
+> user namespace creation I think we would all very much like to hear
+> about it.  However, if you do not have any suggestions along those
+> lines, and simply want to NACK any effort to add a LSM hook to user
+> namespace creation, I think we all understand your point of view and
+> respectfully disagree.  Barring any new approaches or suggestions, I
+> think Frederick's patches look reasonable and I still plan on merging
+> them into the LSM next branch when the merge window closes.
+
+
+But it is my code you are planning to merge this into, and your are
+asking me to support something.
+
+I admit I have not had time to read everything.  I am sick and tired
+and quite frankly very tired that people are busy wanting to shoot
+the messenger to the fact that there are bugs in the kernel.
+
+I am speaking up and engaging as best as I can with objections that
+are not hot-air.
+
+You are very much proposing to merge code that can only cause
+regressions and cause me grief.  At least that is all I see.  I don't
+see anything in the change descriptions of the change that refutes that.
+
+I don't see any interaction in fact with my concerns.
+
+In fact your last reply was to completely blow off my request on how to
+address the concerns that inspired this patch and to say other people
+have a use too.
+
+At this point I am happy to turn your request around and ask that you
+address my concerns and not blow them off.  As I have seen no
+constructive engagement with my concerns.   I think that is reasonable
+as by definition I will get the support issues when some LSM has some
+ill-thought out idea of how things should work and I get the bug report.
+
+Eric
+
+
+
+
 
