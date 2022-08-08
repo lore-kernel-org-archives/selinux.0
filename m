@@ -2,28 +2,28 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D960C25B0D
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 19:26:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBCC4C25B08
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 19:43:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244331AbiHHT0R (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Aug 2022 15:26:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42302 "EHLO
+        id S244232AbiHHTnz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Aug 2022 15:43:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229765AbiHHT0P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 15:26:15 -0400
+        with ESMTP id S229448AbiHHTnx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 15:43:53 -0400
 Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23268A186;
-        Mon,  8 Aug 2022 12:26:14 -0700 (PDT)
-Received: from in01.mta.xmission.com ([166.70.13.51]:40090)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF07E15FCE;
+        Mon,  8 Aug 2022 12:43:52 -0700 (PDT)
+Received: from in01.mta.xmission.com ([166.70.13.51]:46388)
         by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.93)
         (envelope-from <ebiederm@xmission.com>)
-        id 1oL8OC-001noO-Bu; Mon, 08 Aug 2022 13:26:12 -0600
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:47070 helo=email.froward.int.ebiederm.org.xmission.com)
+        id 1oL8fH-001pl8-Ah; Mon, 08 Aug 2022 13:43:51 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:48182 helo=email.froward.int.ebiederm.org.xmission.com)
         by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.93)
         (envelope-from <ebiederm@xmission.com>)
-        id 1oL8OB-00HYY7-HW; Mon, 08 Aug 2022 13:26:11 -0600
+        id 1oL8fF-0000Cc-8i; Mon, 08 Aug 2022 13:43:50 -0600
 From:   "Eric W. Biederman" <ebiederm@xmission.com>
 To:     Paul Moore <paul@paul-moore.com>
 Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
@@ -43,15 +43,16 @@ References: <20220801180146.1157914-1-fred@cloudflare.com>
         <CAHC9VhRpUxyxkPaTz1scGeRm+i4KviQQA7WismOX2q5agzC+DQ@mail.gmail.com>
         <87wnbia7jh.fsf@email.froward.int.ebiederm.org>
         <CAHC9VhS3udhEecVYVvHm=tuqiPGh034-xPqXYtFjBk23+p-Szg@mail.gmail.com>
-Date:   Mon, 08 Aug 2022 14:26:04 -0500
-In-Reply-To: <CAHC9VhS3udhEecVYVvHm=tuqiPGh034-xPqXYtFjBk23+p-Szg@mail.gmail.com>
-        (Paul Moore's message of "Mon, 8 Aug 2022 15:16:16 -0400")
-Message-ID: <877d3ia65v.fsf@email.froward.int.ebiederm.org>
+        <877d3ia65v.fsf@email.froward.int.ebiederm.org>
+Date:   Mon, 08 Aug 2022 14:43:41 -0500
+In-Reply-To: <877d3ia65v.fsf@email.froward.int.ebiederm.org> (Eric
+        W. Biederman's message of "Mon, 08 Aug 2022 14:26:04 -0500")
+Message-ID: <87bksu8qs2.fsf@email.froward.int.ebiederm.org>
 User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-XM-SPF: eid=1oL8OB-00HYY7-HW;;;mid=<877d3ia65v.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
-X-XM-AID: U2FsdGVkX1+z7lTpSBDaB94moY7v76QqS9bgdJh4/0Y=
+X-XM-SPF: eid=1oL8fF-0000Cc-8i;;;mid=<87bksu8qs2.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX18w+E5Cxj1n69OoP6ymAbIqRscQLirhtVs=
 X-SA-Exim-Connect-IP: 68.227.174.4
 X-SA-Exim-Mail-From: ebiederm@xmission.com
 Subject: Re: [PATCH v4 0/4] Introduce security_create_user_ns()
@@ -61,26 +62,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Paul Moore <paul@paul-moore.com> writes:
+"Eric W. Biederman" <ebiederm@xmission.com> writes:
 
->> I did provide constructive feedback.  My feedback to his problem
->> was to address the real problem of bugs in the kernel.
+> Paul Moore <paul@paul-moore.com> writes:
 >
-> We've heard from several people who have use cases which require
-> adding LSM-level access controls and observability to user namespace
-> creation.  This is the problem we are trying to solve here; if you do
-> not like the approach proposed in this patchset please suggest another
-> implementation that allows LSMs visibility into user namespace
-> creation.
+>>> I did provide constructive feedback.  My feedback to his problem
+>>> was to address the real problem of bugs in the kernel.
+>>
+>> We've heard from several people who have use cases which require
+>> adding LSM-level access controls and observability to user namespace
+>> creation.  This is the problem we are trying to solve here; if you do
+>> not like the approach proposed in this patchset please suggest another
+>> implementation that allows LSMs visibility into user namespace
+>> creation.
+>
+> Please stop, ignoring my feedback, not detailing what problem or
+> problems you are actually trying to be solved, and threatening to merge
+> code into files that I maintain that has the express purpose of breaking
+> my users.
+>
+> You just artificially constrained the problems, so that no other
+> solution is acceptable.  On that basis alone I am object to this whole
+> approach to steam roll over me and my code.
 
-Please stop, ignoring my feedback, not detailing what problem or
-problems you are actually trying to be solved, and threatening to merge
-code into files that I maintain that has the express purpose of breaking
-my users.
+If you want an example of what kind of harm it can cause to introduce a
+failure where no failure was before I invite you to look at what
+happened with sendmail when setuid was modified to fail, when changing
+the user of a process would cause RLIMIT_NPROC to be exceeded.
 
-You just artificially constrained the problems, so that no other
-solution is acceptable.  On that basis alone I am object to this whole
-approach to steam roll over me and my code.
+I am not arguing that what you are proposing is that bad but unexpected
+failures cause real problems, and at a minimum that needs a better
+response than: "There is at least one user that wants a failure here".
+
+Frankly I would love to see an argument that semantically it ever makes
+sense for creating a user namespace to fail.  If that argument has
+already been made, my apologies to the person who made as I missed it,
+in being sick and tired, and frustrated at being blown off, when
+I asked for a proper discuss of the problem at hand.
 
 Eric
 
