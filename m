@@ -2,47 +2,47 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E990DC00140
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 17:36:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE8CC25B0C
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 17:36:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237349AbiHHRg1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S235852AbiHHRg1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Mon, 8 Aug 2022 13:36:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39936 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235852AbiHHRg0 (ORCPT
+        with ESMTP id S236004AbiHHRg0 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Mon, 8 Aug 2022 13:36:26 -0400
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B9BF13E8A
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C020413E8B
         for <selinux@vger.kernel.org>; Mon,  8 Aug 2022 10:36:25 -0700 (PDT)
-Received: by mail-ej1-x635.google.com with SMTP id gk3so17854424ejb.8
+Received: by mail-ed1-x529.google.com with SMTP id a89so12250389edf.5
         for <selinux@vger.kernel.org>; Mon, 08 Aug 2022 10:36:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc;
-        bh=qCDZppFSRlDppZliGP9bIbpmHrLntIxE2wWhyDlKi/A=;
-        b=WvqQ2v+o0URp7iZv6xCwPMVDD/yZqyECWaSKR+aWnABEu0ZxH5RleDyHA3x72lJDjN
-         7uZgGASWIOrcch2IapQ9wt7hp1Rz6sfXf2qgNLH1i/+9EU47QzoXTBlBDTlzklGpqaei
-         M7vgYLPHNDuL7IQkKjxo+GEK1WlbBaLYic875NMxbdPLr9BGufXVvly/0fMD5R6UFGov
-         gGhyA4d/dM+88FYF+bc7m8+hfYe/gnmXMSOOM6PNT6/aKp0K0cSoXzQvJKOMlAWZ/FVG
-         Zbq7CBb3ykxXaJ1071pm34Q2qfHbBh8x1PS2L//lPtqaXkaIENRhz1XK9J4rSU4gWFlc
-         eY3A==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc;
+        bh=FndC9WBXKlxW/+HjI+6NDeqk6tCbX5qNytGC6ksicaQ=;
+        b=ps9gO0QB3cZNpKjBU0guhnvCMBDdYWQefnEybs/yC5mLu+IieCj/oO4IQaWvjnVj0C
+         o/uFjZjwQn2PQJnuelbSLXstnMz34tE8tbXpdtaLmL7Oqpzt/dNBaUrvYwz0QrFv7OXO
+         fhGYmqgo9+M5XbSdd7AZTJh4V9egtCjsZRWB9gzFDN/xUAKpQpugA4xQwvEr6croGoq/
+         WEbFKvmLp/0Y2uTMXUctpYazgbPHMe1qdgHeglMV9//uHMTlZcIL71CZwLvQv8ga+gCs
+         5QvjUtVgRGeZ9SIG6UjfdxMooNlIslPM1SaQ2PuoE4j6kvUl5nTf72ue5X2tpcxkexfX
+         I7vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc;
-        bh=qCDZppFSRlDppZliGP9bIbpmHrLntIxE2wWhyDlKi/A=;
-        b=N5ozon2lHJNLjbFUYqqnQqFJo4Cd/lEwS7SV12LqZ8gTiBc5zuLT6/eUoINEEtkx3I
-         3Vlt+MnZRcmDokwpQd0Rsh2gR7+oxAPy5UHmK1wRw/H2Ey9V0Ns6is28QlG8RMQcVZ0s
-         eEitt5L+E7Y3CVgSo74LZ7f/CuXVky82Fbpu1IyuXR4GeT0gDReS51h56wQ+ovhSQZtL
-         SjbqbeIZ0H8UzUuLbdYEJbOX6g4Bhrs1fwm48iGAGf6OJv1ws66QN4FkCK63/BBbEq5S
-         0fNTOBd3iODZpPxqq1eg5gBSXJxC8JWi/M9DLJ9hsPQ+qLUUbSvBUGnYPjbEqQi0JC8S
-         wGbA==
-X-Gm-Message-State: ACgBeo1xup1MNO9cwqb3L2Agz+roHKzRpIB3Mz6BMxODt9GnhuGRfDyi
-        9QCswfErwxCL5uISZ8TSZK1JBKL1hgE=
-X-Google-Smtp-Source: AA6agR7y6HYvN3o5a55lnXgGANzfMywAvTqJtx1cPQkMNwvAVexlHscMp86s9q7PdPrMLtKo1hm3pQ==
-X-Received: by 2002:a17:907:781a:b0:730:ccea:7c29 with SMTP id la26-20020a170907781a00b00730ccea7c29mr14661695ejc.85.1659980183630;
-        Mon, 08 Aug 2022 10:36:23 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc;
+        bh=FndC9WBXKlxW/+HjI+6NDeqk6tCbX5qNytGC6ksicaQ=;
+        b=LqLCAzy59BLJyx++tTI4yued+5MOURwyQbxKyuqHo0BFscfjO7ml0IwOVI33HjbdrD
+         clgivvcGvrlrlr6GyTZgLSiVGY1V7zVGVN0pDrNFSgyiJBTqM/FBTUaT3sf6CIG/LVHG
+         boUSQsrKzz5O9x7plNhxjAVWCaeLlpsv3a8TG505GK77fHH0Z3CuX2I+9j1VUKY6fKll
+         g6pEH6KjSBqyMJhaVgIfvkolkDQ5IIWEwN5cCashy1SMgKmim41VQqGJF1aLsxu+I1zp
+         Avy22VIqLHJv2gWYfQrNMCgMJaucI2XjHlHIDs5hz/sMO5Qu2hgRan+UxFSUsiZEOa9G
+         Vb8w==
+X-Gm-Message-State: ACgBeo1wyPzY/ozKNH6CwA13bFlYxCthFnaNH77OeOqPMdisSzzhYeHv
+        NJzUzKy16gpownLqkQWEBITM5LuEQpo=
+X-Google-Smtp-Source: AA6agR5W7dfTuxsXoWLp/F4N1mJwDDXRy595jJYNR4R+DMnpgsNRPxhBvnW/4hY3di59KtQHVEV+ag==
+X-Received: by 2002:a05:6402:3485:b0:43d:7fe0:74d1 with SMTP id v5-20020a056402348500b0043d7fe074d1mr18682140edc.413.1659980184340;
+        Mon, 08 Aug 2022 10:36:24 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-248-038.77.0.pool.telefonica.de. [77.0.248.38])
         by smtp.gmail.com with ESMTPSA id h14-20020a50ed8e000000b0043a2b8ab377sm4844027edr.88.2022.08.08.10.36.23
         for <selinux@vger.kernel.org>
@@ -50,10 +50,12 @@ Received: from debianHome.localdomain (dynamic-077-000-248-038.77.0.pool.telefon
         Mon, 08 Aug 2022 10:36:23 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/2] checkpolicy: use strict function prototype for definitions
-Date:   Mon,  8 Aug 2022 19:36:19 +0200
-Message-Id: <20220808173620.16760-1-cgzones@googlemail.com>
+Subject: [PATCH 2/2] restorecond: use strict function prototype for definition
+Date:   Mon,  8 Aug 2022 19:36:20 +0200
+Message-Id: <20220808173620.16760-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <20220808173620.16760-1-cgzones@googlemail.com>
+References: <20220808173620.16760-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -63,42 +65,29 @@ X-Mailing-List: selinux@vger.kernel.org
 
 Clang 15 starts to complain about non strict function definitions:
 
-    policy_define.c:4907:30: error: a function declaration without a prototype is deprecated in all versions of C [-Werror,-Wstrict-prototypes]
-    int define_devicetree_context()
-                                 ^
-                                  void
-    policy_define.c:5298:29: error: a function declaration without a prototype is deprecated in all versions of C [-Werror,-Wstrict-prototypes]
-    int define_ipv4_node_context()
-                                ^
-                                 void
+    user.c:172:10: error: a function declaration without a prototype is deprecated in all versions of C [-Werror,-Wstrict-prototypes]
+    int start() {
+             ^
+              void
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/policy_define.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ restorecond/user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 8bf36859..f3b48870 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -4904,7 +4904,7 @@ bad:
- 	return -1;
+diff --git a/restorecond/user.c b/restorecond/user.c
+index 47b86823..3ae3ebbb 100644
+--- a/restorecond/user.c
++++ b/restorecond/user.c
+@@ -169,7 +169,7 @@ io_channel_callback
+   return TRUE;
  }
  
--int define_devicetree_context()
-+int define_devicetree_context(void)
- {
- 	ocontext_t *newc, *c, *l, *head;
- 
-@@ -5295,7 +5295,7 @@ int define_netif_context(void)
- 	return 0;
- }
- 
--int define_ipv4_node_context()
-+int define_ipv4_node_context(void)
- {	
- 	char *id;
- 	int rc = 0;
+-int start() {
++int start(void) {
+ #ifdef HAVE_DBUS
+ 	GDBusConnection *bus;
+ 	GError *err = NULL;
 -- 
 2.36.1
 
