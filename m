@@ -2,35 +2,35 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8E3DC25B07
-	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:44:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D559C25B07
+	for <selinux@archiver.kernel.org>; Mon,  8 Aug 2022 01:50:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242700AbiHHBoX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 7 Aug 2022 21:44:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43334 "EHLO
+        id S243247AbiHHBue (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 7 Aug 2022 21:50:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242680AbiHHBmU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:42:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A9EDEE0;
-        Sun,  7 Aug 2022 18:35:45 -0700 (PDT)
+        with ESMTP id S243248AbiHHBtq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 7 Aug 2022 21:49:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A64186EB;
+        Sun,  7 Aug 2022 18:37:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34EE460C94;
-        Mon,  8 Aug 2022 01:35:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFCEC433C1;
-        Mon,  8 Aug 2022 01:35:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50BCBB80E13;
+        Mon,  8 Aug 2022 01:37:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D98FC433C1;
+        Mon,  8 Aug 2022 01:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1659922544;
+        s=k20201202; t=1659922654;
         bh=VJCmYCac8+0GtJU2jX1P9L9/IdytulRpy/aYEWsiEso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f23v+CuXZ50ESLvcIvvUpXV4dGfgAwT2af0X0GoJM3b3PSFM4XktI3Mhf26SvffgM
-         KhjYcwzBC9KrYwnBhgQ9EkPT9lv1140sybEe5FEk2tsgPHXnHTyMvyWD54SoB0cIj8
-         3ZkRKOkEi6ULei2WexqU9rShGSo9mHedt+CWp3ovb4X7b6QWia7bo9Go76umIOmJyE
-         YkIFBK0KCV5QBAVusK7K32ltUa/LoLPfH/Ie/PHRKnpWaXV1CL8dlCxOchReKq9+2k
-         MycJey0G6qI7PIybhl/vnbEhdA5VU5Sxs9hAtzFSkhh+VqX00MeYRuZRMbER3wSR7L
-         LSm0R3vpbHhXw==
+        b=dinTtSQ+oI3TXu+bur5+GOYwmTrt1R/Jwt3hnTKrBkZ/bEfUvUzfSnOYDzirr2ENk
+         h5jrO+9+Aay6LYdOc9AF14zRcfWofTc9v7hjEf0aTGCFZ2Uo3SkM/uDjz1OFDqyKhO
+         xGbEi92GVNR4dXP9TiKdXyGRuCXwKW5Y7gWoGYeaI53b9eUvfFvpwKqHQwuh/rqqhY
+         xbEG06Or/McLTM8UHGmCue/Xt4fhI4lYPQFLUV04BYuyTLd5APi0VVT+zMLW2GcIg7
+         Ed7oUA9kz+XQo1URLeaF/e1kN0qlq6ToWjLMMNhQliW2knmwAeUn8QJZlBYJi10vja
+         gbNYAyXYgRjEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
@@ -38,12 +38,12 @@ Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>,
         Sasha Levin <sashal@kernel.org>,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
         selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 51/53] selinux: Add boundary check in put_entry()
-Date:   Sun,  7 Aug 2022 21:33:46 -0400
-Message-Id: <20220808013350.314757-51-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 43/45] selinux: Add boundary check in put_entry()
+Date:   Sun,  7 Aug 2022 21:35:47 -0400
+Message-Id: <20220808013551.315446-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220808013350.314757-1-sashal@kernel.org>
-References: <20220808013350.314757-1-sashal@kernel.org>
+In-Reply-To: <20220808013551.315446-1-sashal@kernel.org>
+References: <20220808013551.315446-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
