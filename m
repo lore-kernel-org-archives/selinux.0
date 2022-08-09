@@ -2,214 +2,210 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2443C25B0E
-	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 17:43:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57DA9C25B08
+	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 19:07:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245054AbiHIRnu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Aug 2022 13:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
+        id S1345203AbiHITHb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Aug 2022 15:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbiHIRnp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 13:43:45 -0400
-Received: from sonic302-28.consmr.mail.ne1.yahoo.com (sonic302-28.consmr.mail.ne1.yahoo.com [66.163.186.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B47F2DC2
-        for <selinux@vger.kernel.org>; Tue,  9 Aug 2022 10:43:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1660067021; bh=/lt1B0+3gQrk+qA1hOIwkyMvMFHUu5Vs4KYKvJUHQl0=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Np7RIKJ8nioFbX5GbfRt3ebD8T3+td1+plR9qt9Zdaywa/bVR0bEn+hLZKn3ZBaxaKe0vHbeQ/5kIZTyWRfxYYSZkZBx7v+LzHHrl9O9HClutGcsypgoVus1GFtU0a+VaAaw/6IDXfiJGukxhsrcihEh/Jxn2iV94f9S38FiwzPC6+hqV/uUhimVPwKnAWXmeyPObk2f8wvq7mn2YxNiIOvKR86YINb6zgflF5kZ6bjJJNJ4+C498sg9EB5v6g78JGwUFBFhDKeLrWQhvGqj0TnFTw3XhR0Lt6TfH+Fw4rydfO+MQ0ST+Oudb2uoati20Nt26n1k9as67AqTtKlbyw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1660067021; bh=uONldD82uJIMHRNSZFAd7sXZw7QJJL30/SLvpBnBisf=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=EBo1DMjAJejmgpmdW/ISlEcSmXQkNwkc5UMYj9dKLykL6YBVRKomf27hujfr/NeNzkrzjFd4JFboTwVi+YO74dX8lYdyn7R1e+xqQi8NrzbpSUQM+ImO8lY7Ku7zU4TzFU1OmEvdrBh8YhLa0Rp0zcqP6cLG6vvrgL1n57eQPSF8I4uVQjw4jc/ebgp0i0/oSW+B0YQbhbR0367GMf2vkcEwHnVe5uWF14qlkkWAr4+x4MEnsqbQrwG4QP+VXYjX5dQBm6BIg+ARwYWIUuDgTkYyfpkANGr3Zrngm1yUHD0m9QPh+QHPVUIiYvmruZZe93GXpjknChAH7rlgHhXXsA==
-X-YMail-OSG: lUepY3QVM1mIg3ykFRX_VkPtsNFoVtCtjt5uOD3dzMLdddnv9KWKxEVYna37dIj
- MlVgSM5gQr6lXH25dBht6CJawo2Tg71t9s5Pxpe1PwbfYytbWNh3q3Ax6eX7WT2H66_8RzV2kIHH
- atXAS62gp4q2XDJBfVrzDWX8y5x.qDb3iYnPL3SqeDp_RlTryrT7woLpko4yVI5NFZEd2JnGCCNB
- I7M2jmfSrP9sfHJFoit_JWlALPqVFpoWLeR9aPxz1YYN.J7Y0CFmKGQs2E__LYDZ2DQjMwJPp9lc
- QVkAimnUGLt__Idf1dwEHdM9M8y2WhixPTFYI13qSudAahsXVCdrXb5.aJZxBIbbcODhMzPDHqMH
- PqotkRcjH1iCm5f4Je5MAVmciEOTUFrBPQMQ4k8SL0RCQ12yxfNUn.GXpOwuSzCx0bnvGzOt3_KQ
- cQBRCLZQ6RQ5OoyK6TxyBkILjBUfyMO3Q1lNI7r4cS0SM9eCLYrfedKC37riUh_ajb.dCDjleiRk
- LH.AQnImWQOfrh6ENhcnsdo0uZmRoo6CYLVBAF0ljqA4DzNXEnlsidYkbt.dXLJQUSVNwRF7DlQ_
- GvgZW_DG6aPvrMurZdi1i6.8QIRi6XB_DZQozqoQjWRca0x8eCG7uW9avqrIwjK0oWyaKccG2Jwz
- NlOr7OI5_61cYKT6Mn0V9OxLm0kZGYuVQpz_di47GBnL2qNIhI8lgZd5PYp0nRpiYnLkKen4qxeO
- 2xREPO0k0JyKaHO8vcs40YhSBnE6BuknHvOKZAqj3w0wuYfQ1RjuBkOD4lgJepDvbwUJrcSJVB6w
- qSRL91H4zhF3a3GQJIojHlz6DJJ9MdiM9aNsvXo8G97EjA1KGCCnmAHPyb5OQ88ii8KQjRaqKP1T
- rO93P4H77GGN_aw2rq5FrjUiAVg_ad63SapQQjyK68Pxj3UVhAhCXSNaQQGVypcK0nae1xnZvUre
- OhIB_A8gWAK.ZuGndmvYlABVgrTMxkfe03N_mihVew72.uekMni4y5U8UVv8ce.SzPuWZOrFYWc1
- GTD7MMj.91.NxViJXTu1qFdRR4VrAMa3k7VCzXxYWjb5TxoFVEiPHfLD9yMatIgRE3ONMEurFu1N
- 9oT9RdjrxSUJnfUO5NKRVkMICfn44Q6pe6q1jZ_ngrRlweTP9JA2HUYa0l96o85TZI7WkWx_mXDi
- HPXS2Q8Zyg2pY9x5m4ekts9kZrE4Y0irJeacSnh3iJc6iMML6fUQkAT7tn1L1yuShjcDdf1qbnqW
- bofbnDIcFjqzNBatHWKQc6w4JXY7tjVeZEbYaQfMepskqJRA_eJ_LJPPThLGnRsQ5JPQRTu_YtMZ
- R1MxMjSTbqTc7gGlnNyo4PnnDgUgJkESaMlQ8FCuNJVqRk_7tM.zx2P.2ljR7GcI1rGggCqlNULZ
- .t03NAlb6gx1yOVQFKL4h.l.ybG098cEmfBTQbxLZxpgBAi4c0MmhWju_Ad2Sh6aKBM8_FGkkjKy
- 9Tid9pnxjYDTyTE.ZAGSB42nZZSvjwW_SywtYkCp4awlX02VQOdM6WuQDM74TqHm4txipnpgny_e
- ubhl70.9uN_P_xljIzBQksJdb1iiKVfyS_PwXbLEnrzyc7BVJIOjuPuDNHU4F_A3TEJsV_eIt7V6
- OzXVwLz_XQ.v43k6AcHE2KVoZlb.z3pb6g_1ibv.CP2vCoVfpNRTzUYe790EZmsuNAllAmJcrZRM
- N21O6Y4gIn2PnY.CkJQ.dFzoVosQ5sAbs492A2Nrnf4CsMC9BGSGw.FN7DQK76kI40wklGgM.hUk
- 2WenM1oeHkBeKre06_ReJ8Z2XuTzV9Zg_hXre0aF83dId1HQpsnwiVQ4AfQ0AbfzdhNuWXoJT_uy
- Ihht0rFxCkW0ZfBYRgtn8jv.4Y5NHz2k6QhRzhQYzmYF9HQgYenChmM4Na1J2KW_1VB5sze8g6Qj
- FSwVPJ3ywpGzNjpdbjpuoNVF0tcwYb5KBJdKaiz2ne1QAheWPDFHNkWnaWwA8PGgXbz4IOHzs0wG
- 06hhIuJnhguvfuAE4J7puqmFFuWMH3jorhRh9QElKPe33e4x6Xc5bU6qukKpau2UIBic5YLcCf7U
- T5kUIPnNjJK.1jcfQLuq8ozQMFS4pJnT5gdKmPF.yBwu0z0usOkD03cYuFJRMLfC486yJdS5NqSb
- 13l3elNPXafdvKwZhXXzkgh7gsL8dDrsJa1BfoOVncypNVDUo03_aibhjIoFDvygsuOuYAnI0zci
- hzzjbQ4VIfCWlGM0t5CorbJudWwQ3e3.8uDvO.PT0hwI-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Aug 2022 17:43:41 +0000
-Received: by hermes--production-bf1-7586675c46-95jxt (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID aa23cd124b564927be4f82c5e8078940;
-          Tue, 09 Aug 2022 17:43:35 +0000 (UTC)
-Message-ID: <f38216d8-8ee4-d6fd-a5b1-0d21013e09c6@schaufler-ca.com>
-Date:   Tue, 9 Aug 2022 10:43:30 -0700
+        with ESMTP id S1345832AbiHITGH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 15:06:07 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C826B248C1
+        for <selinux@vger.kernel.org>; Tue,  9 Aug 2022 11:45:32 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id z7so4044945qki.11
+        for <selinux@vger.kernel.org>; Tue, 09 Aug 2022 11:45:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bigbadwolfsecurity-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=PjOAWYH6F7PbOe6YGeH854bcKIVmnLZoi9DCG2tWn/o=;
+        b=FpS+/R3V7uDaqRh9156Fgd/q3ldRRSbttSIr/DEgMo/ECGFJ82JZTqmBUVndhaH0x9
+         Zax0AdjKtsyb3AcbfGypptlR3nN/lO5QIScWANv+rHaOZmt7BJ0Txtqkm7gp6Thw7aYE
+         tosWiaGiOKF//jo/4w3esYXeJo55h2T6WLkZ25nWvHffup6dqz5hCCWxct1N8Hj2Nt+1
+         Ajf0efLztbSjvTQ8FSHcwsrZKbcMhkQ4KGc3BPro0pusFYSQDu4/buPtKvfCsy51HWtW
+         ngoF0Vhoywt4aiQC1fC6ZU92s+FcaaYiNonva2qXOm6JXBoxtGKVZ6MraFY2Q68UdkNC
+         DY5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=PjOAWYH6F7PbOe6YGeH854bcKIVmnLZoi9DCG2tWn/o=;
+        b=6aJ8QaYocuhDX+QLGWjI0/AGLjKgaKGPg+iPbCAe4mDmc5k222f92pY/UAfglBb1bI
+         sBR3f+JqvhcKzUr0NSf65ecir51VPApV04U6Lv9HocGmCHqAR+UurAy3QG1Q9vsRW+cn
+         eufw2BWxnv4nC72G5qZoKKeZdvxwKpFLFw3stSbgZzvmv3RFE+EJ2pW5iPgM0mzDHtEI
+         7G6mJ19zW9XKlvIeSDjRwktUUtdEcHrJrc14XVWdXrqyxUo6wQbFUPjszXUZetBXf0PU
+         nYinoM5Yi/RP3bjgE6MINE9LjXV+VRmbxKQ6AEDs2g7AbzA7UeXmRwhGx/cK5KHKKFoK
+         xS6A==
+X-Gm-Message-State: ACgBeo3m5lL2yTOhUSYHEKxdKpJwaOM7FaKocay991di8e2MY7jEJnrb
+        Gy9J/l9IA/DC6o834Ugjw5/TtHyHi3ktQl1536r+7V3f+PGBuMgX
+X-Google-Smtp-Source: AA6agR5vHEM7AZs3FLoWvPDgfwIV36VCYcIoShiOBSmr3EqN7vhhtxVmZflqGNIUjPi7NtIQBfXe/PW8xhlMqhZvYXA=
+X-Received: by 2002:a37:b147:0:b0:6b5:fa14:ac00 with SMTP id
+ a68-20020a37b147000000b006b5fa14ac00mr18431427qkf.606.1660070731797; Tue, 09
+ Aug 2022 11:45:31 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v4 0/4] Introduce security_create_user_ns()
-Content-Language: en-US
-To:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
-        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        shuah@kernel.org, brauner@kernel.org, bpf@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-team@cloudflare.com,
-        cgzones@googlemail.com, karl@bigbadwolfsecurity.com,
-        casey@schaufler-ca.com
-References: <20220801180146.1157914-1-fred@cloudflare.com>
- <87les7cq03.fsf@email.froward.int.ebiederm.org>
- <CAHC9VhRpUxyxkPaTz1scGeRm+i4KviQQA7WismOX2q5agzC+DQ@mail.gmail.com>
- <87wnbia7jh.fsf@email.froward.int.ebiederm.org>
- <CAHC9VhS3udhEecVYVvHm=tuqiPGh034-xPqXYtFjBk23+p-Szg@mail.gmail.com>
- <877d3ia65v.fsf@email.froward.int.ebiederm.org>
- <87bksu8qs2.fsf@email.froward.int.ebiederm.org>
- <CAHC9VhTEwD2y9Witj-1z3e2TC-NGjghQ4KT4Dqf3UOLzDcDc3Q@mail.gmail.com>
- <87czd95rjc.fsf@email.froward.int.ebiederm.org>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <87czd95rjc.fsf@email.froward.int.ebiederm.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20491 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <CA+EEuAgfGhTWBWXgtHSVU22feM+0PS=h-z-eVF4JxmSf2qyZzg@mail.gmail.com>
+ <CAHC9VhS6A9yaywmRBVg9+AijAqZXxeB=e=HiZ3sUe_Zf+uahuw@mail.gmail.com>
+In-Reply-To: <CAHC9VhS6A9yaywmRBVg9+AijAqZXxeB=e=HiZ3sUe_Zf+uahuw@mail.gmail.com>
+From:   Karl MacMillan <karl@bigbadwolfsecurity.com>
+Date:   Tue, 9 Aug 2022 14:45:21 -0400
+Message-ID: <CA+EEuAgBiMXh+MMdE8pCYHqeqHXUJVmtrHgv8wGNHCEYMsuW5w@mail.gmail.com>
+Subject: Re: KVM / virtual networking access control
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/9/2022 9:07 AM, Eric W. Biederman wrote:
-> Paul Moore <paul@paul-moore.com> writes:
+On Sun, Jul 31, 2022 at 12:45 PM Paul Moore <paul@paul-moore.com> wrote:
 >
->> On Mon, Aug 8, 2022 at 3:43 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
->>> "Eric W. Biederman" <ebiederm@xmission.com> writes:
->>>> Paul Moore <paul@paul-moore.com> writes:
->>>>
->>>>>> I did provide constructive feedback.  My feedback to his problem
->>>>>> was to address the real problem of bugs in the kernel.
->>>>> We've heard from several people who have use cases which require
->>>>> adding LSM-level access controls and observability to user namespace
->>>>> creation.  This is the problem we are trying to solve here; if you do
->>>>> not like the approach proposed in this patchset please suggest another
->>>>> implementation that allows LSMs visibility into user namespace
->>>>> creation.
->>>> Please stop, ignoring my feedback, not detailing what problem or
->>>> problems you are actually trying to be solved, and threatening to merge
->>>> code into files that I maintain that has the express purpose of breaking
->>>> my users.
->>>>
->>>> You just artificially constrained the problems, so that no other
->>>> solution is acceptable.  On that basis alone I am object to this whole
->>>> approach to steam roll over me and my code.
->>> If you want an example of what kind of harm it can cause to introduce a
->>> failure where no failure was before I invite you to look at what
->>> happened with sendmail when setuid was modified to fail, when changing
->>> the user of a process would cause RLIMIT_NPROC to be exceeded.
->> I think we are all familiar with the sendmail capabilities bug and the
->> others like it, but using that as an excuse to block additional access
->> controls seems very weak.  The Linux Kernel is very different from
->> when the sendmail bug hit (what was that, ~20 years ago?), with
->> advancements in capabilities and other discretionary controls, as well
->> as mandatory access controls which have enabled Linux to be certified
->> through a number of third party security evaluations.
-> If you are familiar with scenarios like that then why is there not
-> being due diligence performed to ensure that userspace won't break?
+> On Fri, Jul 29, 2022 at 11:36 PM Karl MacMillan
+> <karl@bigbadwolfsecurity.com> wrote:
+> >
+> > Hi,
+> >
+> > I'm trying to do some access control over the networking between KVM
+> > virtual machines using Secmark and things are not working as I expect.
+> > The key is that this is _between_ virtual machines, not just ingress /
+> > egress to the virtual machines from external address.
+> >
+> > Quick summary: I'm connecting two VMs together using veth pairs and a
+> > virtual bridge and I only ever see:
+> >
+> >     allow unlabeled_t bare_packet_a_t:packet { forward_in forward_out }=
+;
 >
-> Certainly none of the paperwork you are talking about does that kind
-> of checking and it most definitely is not happening before the code
-> gets merged. 
+> Just to make sure I'm understanding this correctly, we are talking
+> about the SELinux controls from the perspective of the
+> host/hypervisor, yes?
 >
-> I am saying that performing that due diligence should be a requirement
-> before anyone even thinks about merging a patch that adds permission
-> checks where no existed before.
->
-> Sometimes changes to fix security bugs can get away with adding new
-> restrictions because we know with a very very high degree of probability
-> that the only thing that will break will be exploit code.  In the rare
-> case when real world applications are broken such changes need to be
-> reverted or adapted.  No one has even made the argument that only
-> exploit code will be affected.
->
-> So I am sorry I am the one who has to be the one to get in the way of a
-> broken process with semantic review,  but due diligence has not been
-> done.  So I am say no way this code should be merged.
->
->
-> In addition to actually breaking existing userspace, I think there is a
-> very real danger of breaking userspace, I think there is a very real
-> danger of breaking network effects by making such a large change to the
-> design of user namespaces.
->
->
->>> I am not arguing that what you are proposing is that bad but unexpected
->>> failures cause real problems, and at a minimum that needs a better
->>> response than: "There is at least one user that wants a failure here".
->> Let me fix that for you: "There are multiple users who want to have
->> better visibility and access control for user namespace creation."
-> Visibility sure.  Design a proper hook for that.  All the proposed hook
-> can do is print an audit message.  It can't allocate or manage any state
-> as there is not the corresponding hook when a user namespace is freed.
-> So the proposed hook is not appropriate for increasing visibility.
->
->
-> Access control.  Not a chance unless it is carefully designed and
-> reviewed.  There is a very large cost to adding access control where
-> it has not previously existed.
->
-> I talk about that cost as people breaking my users as that is how I see
-> it.  I don't see any discussion on why I am wrong.
->
-> If we are going to add an access controls I want to see someone point
-> out something that is actually semantically a problem.  What motivates
-> an access control?
 
-Smack has no interest in using the proposed hook because user namespaces
-are neither subjects nor objects. They are collections of DAC and/or
-privilege configuration alternatives. Or something like that. From the
-viewpoint of a security module that only implements old fashioned MAC
-there is no value in constraining user namespaces.
+Yes
 
-SELinux, on the other hand, seeks to be comprehensive well beyond
-controlling accesses between subjects and objects. Asking the question
-"should there be a control on this operation?" seems sufficient to justify
-adding the control to SELinux policy. This is characteristic of
-"Fine Grain" control.
+> Assuming that is the case, the "packet/{ forward_in forward_out }"
+> permissions look correct to me.  In the case of the secmark forwarding
+> rules you basically have this:
+>
+>   allow <peer> <secmark>:packet { forward_in };
+>   allow <peer> <secmark>:packet { forward_out };
+>
 
-So I'm of two minds on this. I don't need the hook, but I also understand
-why SELinux and BPF want it. I don't necessarily agree with their logic,
-but it is consistent with existing behavior. Any system that uses either
-of those security modules needs to be ready for unexpected denials based
-on any potential security concern. Keeping namespaces completely orthogonal
-to LSM seems doomed to failure eventually.
+So I get this - that the host is basically forwarding packets
+generated by the virtual machines. And I'll say that was really the
+piece I was missing, so thanks for clearing that up.
 
+I'm curious under what other circumstances processes can generate
+network traffic that are treated in this way. Packet sockets? Tun /
+tap devices?
+
+I'm sure I'm preaching to the choir, but some more documentation on
+this would be great. I know you've done so much (and those pdfs
+helped). But I was aware of much of that content, I just didn't know
+how it all applied to this specific area. See - part of why I was
+confused here was that here we have these KVM processes where we
+already _know_ the process context. It just seemed unimaginable that
+what we have to do is a) enable some sort of labeled networking and b)
+tell the kernel all over what the label of the peer is using network
+information rather than process information it already knows! I know
+you've added special casing for the loopback devices so that this is
+not required there. But I kept thinking that surely there must be a
+way to trigger something more like the packet { send recv }
+permissions because we have a process generating network traffic on
+the same host that is trying to enforce those controls.
+
+> ... and I'm guessing you haven't setup any peer labeling between the
+> two guests so you are seeing unlabeled_t for "<peer>".
 >
-> So far the only answer I have received is people want to reduce the
-> attack surface of the kernel.  I don't possibly see how reducing the
-> attack surface by removing user namespaces makes the probability of
-> having an exploitable kernel bug, anything approaching zero.
+
+I see your suggestion below (which worked), but I will say that I
+tried CIPSO / CALIPSO before sending this email. I just did not know
+how to get the fallback labeling to do what I needed.
+
+> > What I want is packet { send recv } because that would be against the
+> > label of the KVM process rather than the peer label (which on the same
+> > system would always be unlabeled - I see no way to use CIPSO/CALIPSO
+> > to get peer labels to work here).
 >
-> So I look at the calculus.  Chance of actually breaking userspace, or
-> preventing people with a legitimate use from using user namespaces > 0%.
-> Chance of actually preventing a determined attacker from exploiting the
-> kernel < 1%.  Amount of work to maintain, non-zero, and I really don't
-> like it.
+> The "packet/{ send recv }" controls are for packets that originate and
+> terminate on the node applying the policy; think of your typical
+> client/server nodes.  The "packet/{ forward_in forward_out }" controls
+> are for packets that are passing through the node applying the policy,
+> e.g. intermediate nodes such as bridges and switches ... even software
+> bridges like that found in hypervisors ;)
 >
-> Lots of work to achieve nothing but breaking some of my users.
+> > I would appreciate any insight into what might be going on. This is
+> > mainly tested on a RHEL 8.6 box, but some testing has been done on a
+> > Fedora 36 box as well.
 >
-> So please stop trying to redesign my subsystem and cause me headaches,
-> unless you are going to do the due diligence necessary to do so
-> responsibly.
+> I don't know all the details of your setup, or the security goals you
+> are trying to enforce, but since it looks like you are bridging the
+> network traffic between the guests, you might want to try setting up
+> the NetLabel static/fallback mechanism to assign a peer label to
+> traffic on those interfaces (no more unlabeled_t in the secmark
+> forwarding rules).  Adding the peer labeling information will also
+> trigger the network peer label controls in the kernel so you will see
+> additional "netif/{ ingress egress}" and "node/{ recvfrom sendto }"
+> checks.
 >
-> Eric
+
+So this works . . . with some interesting caveats. What works for me is:
+
+1. Setting CIPSO fallback labels on the bridge interface and using IP
+selectors to set labels per-VM.
+2. Using physdev-in in SECMARK rules to set packet labels on packets
+based on which veth pair is connected to the bridge (and I can use
+other selectors for SECMARK - but this one is nice).
+
+So at this point I can do what I want (except the namespace issue
+below) - which is to control how my VMs talk on a single box and build
+pipelines of VMs or other interesting topologies. I can also do some
+coarse-grained enforcement using netif {ingress egress} which is also
+wnice.
+
+What is not working:
+
+1. I cannot do CIPSO fallback labeling based on either the macvtap or
+the veth pairs. It will accept the fallback rules, but I still get
+unlabeled for the peer. This is not great because it means that I have
+to use labeling based upon IP addresses to differentiate VMs (vs
+interfaces), which means that my labeling is dependent on the
+configuration inside of my VMs. I don't like having to trust my VMs at
+all. Or I could add a lot more bridges I guess, but I've not tried
+that.
+2. I cannot get netlabelct to run inside of a network namespace, so I
+can't do fallback labeling of bridges in a namespace. I get the error
+"netlabelctl: error, failed to initialize the NetLabel library". This
+makes many of the topologies I want to do much harder.
+
+I have an overall concern, which is back to what I was saying above
+about process labels. At that point, it doesn't feel like there is a
+lot of advantage of doing SELinux enforcement of the networking vs
+just the iptables network enforcement. Much of the power of the
+SELinux enforcement, to me, is to tie iptables to process labels or,
+with labeled networking, to transmit remote process labels. Here . . .
+well, we are generating peer labels on box based on network properties
+and then writing rules that are based solely on information that
+iptables already had (ip addresses and interface names). Am I missing
+something?
+
+Thanks so much for all of your help,
+
+Karl
+
+> Here are few slides that might be helpful (they are older, but still rele=
+vant):
+>
+> https://www.paul-moore.com/docs/selinux_network_controls-pmoore-122012-r1=
+.pdf
+> https://www.paul-moore.com/docs/labeled_networking-lfjapan-07092008.pdf
+>
+> --
+> paul-moore.com
+
+[1] https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/=
+8/html/configuring_and_managing_virtualization/configuring-virtual-machine-=
+network-connections_configuring-and-managing-virtualization#understanding-v=
+irtual-networking-overview_configuring-virtual-machine-network-connections
