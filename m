@@ -2,93 +2,191 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B9C0C19F2D
-	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 16:24:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E69DCC3F6B0
+	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 16:40:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245001AbiHIQYP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Aug 2022 12:24:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42792 "EHLO
+        id S243719AbiHIQk2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Aug 2022 12:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244955AbiHIQYO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 12:24:14 -0400
-Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EAEF6251
-        for <selinux@vger.kernel.org>; Tue,  9 Aug 2022 09:24:14 -0700 (PDT)
-Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-10e6bdbe218so14512612fac.10
-        for <selinux@vger.kernel.org>; Tue, 09 Aug 2022 09:24:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=Z9smeiHaowhZIMNz4dkj+u/pPU6V5N9JLwKRjUQKdm8=;
-        b=7jLBqF/l6tiTgMBgzDF4sY9CkUgNYCCW+RkX7NClFhNvzPZv63lFNymbKgEqIlhz8L
-         BwcfneJKPQACnhB802skKl6CFF8QjosFw1y0RgBjT3nBImk8UpBKxG1Fplw7Auu2OL+8
-         As/v09E7bWMOGjCeUJLp5vNqBdTbUnH8vYLbuA8xsPSJ2Y6DDNdmOMw/SyxsRCebrN8+
-         7KnyNuAY6dYotzHbwniEu4U42ZeB0swQgdm7WCIa5oFA/niUz+zl45mRWGKdbW+tx4qT
-         DSCSlmQ6cRs8/65T5qIQU4217q8i9+th8LV7BCvDdKb7rDrTgs7xNdvd5FEvTueX5koz
-         vx0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=Z9smeiHaowhZIMNz4dkj+u/pPU6V5N9JLwKRjUQKdm8=;
-        b=HgeHvE2sXZnQ62ktWhhnzMwmHqaPYZkazwtbIJbq9HsayAdw/J67TBrQ2OyD6flcNe
-         dyhZpGKZ9Vzr7ctvnZgudddA44h/mo/wSdd/rHxvV29BluWLzrBJN8aXR0qUmRNZgMF2
-         q3QRnj9vOz+796kqWfHzhBxP3VdHUDtlrdRu2drpo0DAud0LaaQaw8iuBCWusvW2L6Vu
-         2LxFlx31jEHCv2e3sqImZMnwmsDHz+uefutf0IQNQG3XnSowi9feCsFx42/AVTOBd6YA
-         gIYFKjUk6p7x5J35JJcuRVr99rL+/EZ5i+H/XpskgJEHaRoRIlYmVa4CimhrdfmktLZ+
-         8xMQ==
-X-Gm-Message-State: ACgBeo3kioEgr7stkHw4PyFClAw9rl/lEhrT8ea9XZ1DEcm/eqUuk9/X
-        /4FRM6rYhXcjMxfxTwAaeskf/A6uuoAW0ItfJHhh
-X-Google-Smtp-Source: AA6agR5t3t2xYDAO2iIxFDr6OWwjPrx0zk4ZEHM+NUNxA3iKzvoRk9AGh0Letj7Dw1vUFcjokNJoHSj78KPToQPYQRw=
-X-Received: by 2002:a05:6870:9588:b0:101:c003:bfe6 with SMTP id
- k8-20020a056870958800b00101c003bfe6mr14799112oao.41.1660062253476; Tue, 09
- Aug 2022 09:24:13 -0700 (PDT)
+        with ESMTP id S231409AbiHIQkZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 12:40:25 -0400
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E821138;
+        Tue,  9 Aug 2022 09:40:23 -0700 (PDT)
+Received: from in01.mta.xmission.com ([166.70.13.51]:40688)
+        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oLSHF-003Ve1-S8; Tue, 09 Aug 2022 10:40:21 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:59198 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oLSHE-002Sv9-L4; Tue, 09 Aug 2022 10:40:21 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
+        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
+        bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        kernel-team@cloudflare.com, cgzones@googlemail.com,
+        karl@bigbadwolfsecurity.com
+References: <20220801180146.1157914-1-fred@cloudflare.com>
+        <87les7cq03.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhRpUxyxkPaTz1scGeRm+i4KviQQA7WismOX2q5agzC+DQ@mail.gmail.com>
+        <87wnbia7jh.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhS3udhEecVYVvHm=tuqiPGh034-xPqXYtFjBk23+p-Szg@mail.gmail.com>
+        <877d3ia65v.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhSKmqn5wxF3BZ67Z+-CV7sZzdnO+JODq48rZJ4WAe8ULA@mail.gmail.com>
+Date:   Tue, 09 Aug 2022 11:40:12 -0500
+In-Reply-To: <CAHC9VhSKmqn5wxF3BZ67Z+-CV7sZzdnO+JODq48rZJ4WAe8ULA@mail.gmail.com>
+        (Paul Moore's message of "Mon, 8 Aug 2022 15:49:48 -0400")
+Message-ID: <87a68d4bgz.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-References: <ffbb5ff1-cec7-3dad-7330-31fdfb67fecc@huawei.com> <cc760579-36f4-fe32-3526-bb647efd438c@huawei.com>
-In-Reply-To: <cc760579-36f4-fe32-3526-bb647efd438c@huawei.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 9 Aug 2022 12:24:02 -0400
-Message-ID: <CAHC9VhRCt9UKih_VzawKr9dL5oZ7fgOoiU5edLp3hGZ2LkhAYw@mail.gmail.com>
-Subject: Re: Race conditioned discovered between ima_match_rules and ima_update_lsm_update_rules
-To:     "Guozihua (Scott)" <guozihua@huawei.com>
-Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        selinux@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-        "xiujianfeng@huawei.com" <xiujianfeng@huawei.com>,
-        luhuaxin <luhuaxin1@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-XM-SPF: eid=1oLSHE-002Sv9-L4;;;mid=<87a68d4bgz.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX18HBy/xVu3Fi4ZlEEXadKSoHy1u0KD36K8=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v4 0/4] Introduce security_create_user_ns()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Aug 7, 2022 at 11:19 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
+Paul Moore <paul@paul-moore.com> writes:
+
+> On Mon, Aug 8, 2022 at 3:26 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> Paul Moore <paul@paul-moore.com> writes:
+>> >> I did provide constructive feedback.  My feedback to his problem
+>> >> was to address the real problem of bugs in the kernel.
+>> >
+>> > We've heard from several people who have use cases which require
+>> > adding LSM-level access controls and observability to user namespace
+>> > creation.  This is the problem we are trying to solve here; if you do
+>> > not like the approach proposed in this patchset please suggest another
+>> > implementation that allows LSMs visibility into user namespace
+>> > creation.
+>>
+>> Please stop, ignoring my feedback, not detailing what problem or
+>> problems you are actually trying to be solved, and threatening to merge
+>> code into files that I maintain that has the express purpose of breaking
+>> my users.
 >
-> On 2022/8/8 11:02, Guozihua (Scott) wrote:
-> > Hi Community,
-> >
-> > Recently we discovered a race condition while updating SELinux policy
-> > with IMA lsm rule enabled. Which would lead to extra files being measured.
-> >
-> > While SELinux policy is updated, the IDs for object types and such would
-> > be changed, and ima_lsm_update_rules would be called.
-> >
-> > There are no lock applied in ima_lsm_update_rules. If user accesses a
-> > file during this time, ima_match_rules will be matching rules based on
-> > old SELinux au_seqno resulting in selinux_audit_rule_match returning
-> > -ESTALE.
-> >
-> > However, in ima_match_rules, this error number is not handled, causing
-> > IMA to think the LSM rule is also a match, leading to measuring extra
-> > files.
+> I've heard you talk about bugs being the only reason why people would
+> want to ever block user namespaces, but I think we've all seen use
+> cases now where it goes beyond that.
 
-...
+I really have not, and I don't appreciate being called a liar.
 
-> > Is this the intended behavior? Or is it a good idea to add a lock for
-> > LSM rules during update?
+> However, even if it didn't, the
+> need to build high confidence/assurance systems where big chunks of
+> functionality can be disabled based on a security policy is a very
+> real use case, and this patchset would help enable that.
 
-I'm not the IMA expert here, but a lot of effort has been into the
-SELinux code to enable lockless/RCU SELinux policy access and I
-*really* don't want to have to backtrack on that.
+Details please.  What does this look like.  What is the overall plan for
+attack surface reduction in one of these systems.  How does it differ
+from seccomp?
 
--- 
-paul-moore.com
+How does this differ from setting /proc/sys/user/max_usernamespaces to 0?
+
+Why is it only the user namespace that needs to be modified to implement
+such a system?
+
+Why is there no discussion of that in the change description.
+
+> I've noticed
+> you like to talk about these hooks being a source of "regressions",
+> but access controls are not regressions Eric, they are tools that
+> system builders, administrators, and users use to secure their
+> systems.
+>
+> From my perspective, I believe that addresses your feedback around
+> "fix the bugs" and "this is a regression", which is the only thing
+> I've noted from your responses in this thread and others, but if I'm
+> missing something more technical please let me/us know.
+
+Which is a short way of saying that the using this hook for attack
+surface reduction without a larger plan will be ineffective.  If the
+attack surface is not sufficiently reduced it will not achieve a
+prevention of exploits and the attacks will still happen and be
+successful.
+
+With a change that is designed to prevent exploits not actually doing so
+all that is left is breaking userspace and causing maintenance problems.
+
+Earlier I asked to confirm that was the only reason cloudfare was
+interested in this change.  I have asked that we have an actual
+conversation about what is trying to be achieved.
+
+Instead the conversation has simply been about implementation issues
+and not about if the code will be worth having.  So far in my book the
+code very much does not look worth having.  That is my technical
+judgment and I don't see anyone taking about my arguments or even
+really engaging in them.
+
+Since I keep getting blown off, instead of having my concerns addressed
+I say this code should not go.
+
+
+>> You just artificially constrained the problems, so that no other
+>> solution is acceptable.
+>
+> There is a real need to be able to gain both additional visibility and
+> access control over user namespace creation, please suggest the
+> approach(es) you would find acceptable.
+
+The suggested hook is not at all appropriate for visibility.  Either the
+user namespace needs to have some state that can be set, or there needs
+to be something that is notified when the user namespace goes away.  At
+best the hook can print an audit message.  So the proposed hook is
+really not appropriate to add visibility to the user namespace.
+
+For the record I don't object to adding visibility, I am just pointing
+out the proposed hook is not appropriate to that task.
+
+
+What is the need to have an access control?
+
+Why do you need to fundamentally change the design of user namespaces?
+
+Those are questions I have not seen any answers to.  Without actual
+answers of what the actual problems are I can't have a reasonable
+technical conversation.
+
+>> On that basis alone I am object to this whole
+>> approach to steam roll over me and my code.
+>
+> I saw that choice of wording in your last email and thought it a bit
+> curious, so I did a quick git log dump on kernel/user_namespace.c and
+> I see approximately 31 contributors to that one file.  I've always
+> thought of the open source maintainer role as more of a "steward" and
+> less of an "owner", but that's just my opinion.
+
+As such it is unfortunately my responsibility to say no to badly thought
+out proposals.  Proposals that will negatively affect the people using
+the code I maintain.
+
+
+My apologies if I have not been more elegant right now when I have been
+constantly sick, and tired.  People getting scared of user namespaces
+for no real reason has been an on-going trend for a decade or so.  This
+isn't a new issue, and it irritates me that it is still going on.  I
+have addressed real concerns and fixed code, for many many years.
+
+This round of the people being afraid of user namespaces, I have yet to
+find any real concerns.
+
+So when I express my concerns that this is a pointless exercise and
+people don't address my concern.  I say no.
+
+Eric
