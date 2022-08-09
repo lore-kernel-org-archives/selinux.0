@@ -2,74 +2,134 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FA1DC19F2D
-	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 13:59:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 168F3C19F2D
+	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 15:18:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244685AbiHIN7I (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Aug 2022 09:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36560 "EHLO
+        id S239161AbiHIPSR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Aug 2022 11:18:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230380AbiHIN7I (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 09:59:08 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5129218368
-        for <selinux@vger.kernel.org>; Tue,  9 Aug 2022 06:59:07 -0700 (PDT)
-Received: from [192.168.1.10] (pool-173-66-202-112.washdc.fios.verizon.net [173.66.202.112])
-        by linux.microsoft.com (Postfix) with ESMTPSA id DB09E210C890;
-        Tue,  9 Aug 2022 06:59:06 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com DB09E210C890
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1660053547;
-        bh=nUbgIBz5q/WSx1WifwDYi5NmE7Y3TWoIh8JNr+0qV14=;
-        h=Date:Subject:To:References:From:In-Reply-To:From;
-        b=F7c74PjtcZh0vMjy6UyXXCGbkk8iaWjepIP3zdpxITUsmGHB2PnM3BT/p95d1gHO0
-         MWnUhe9iJIIDPTyA10li5c4WOFSC8mhnEw6FC1/GCfzDsn580WHVXiR/ol5Lo0awXu
-         bA/xRN/73SfQ78qZztxvW2l8leju6lc/kVnJCIgA=
-Message-ID: <d9bbf441-34d2-313c-33d1-3e6b886f9bd9@linux.microsoft.com>
-Date:   Tue, 9 Aug 2022 09:59:05 -0400
+        with ESMTP id S232994AbiHIPSP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 11:18:15 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22EA010549
+        for <selinux@vger.kernel.org>; Tue,  9 Aug 2022 08:18:15 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id y10-20020a9d634a000000b006167f7ce0c5so8721002otk.0
+        for <selinux@vger.kernel.org>; Tue, 09 Aug 2022 08:18:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc;
+        bh=9TB8H19X152UOh74DvtAyFZu+Kqtbh0GLJiY11MEy3o=;
+        b=FsSUrQAjXFY5KIcnmYqy7vBt5j3ZGgNL91LRZJaQofe+Cj7y3bEpd963jkzzXHFi4z
+         9WMPJGo/vn11Q6oPgSuC8QuqMed2MhyYrM1+vhzPyXPkudJpoXUV2skenSvIHEvwiq3j
+         o5TxasFW+mRFid//bYHqSUW57YYweMnIbq4uMosopwhvH/ZZBg9YxCq6tmebuLng4ZZX
+         WfYI2xzcEcuMKQ9GohCcdXUWJqYBc/87DsEpze31QVjYIbhZ1V5w6v/BtysJhY9EEcot
+         /XkFd2rkFRw+InCd7Jn3/ll4mYkqGczaYSrqs2Mprj1z7XAt34SBParPpNm0WkGviRhX
+         BpQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
+        bh=9TB8H19X152UOh74DvtAyFZu+Kqtbh0GLJiY11MEy3o=;
+        b=FGMaRC9vvAVVAzoHVy4yFcR7wfs769WokPiy526qgK/F3laup2Ggq20oZSQ6B/cPip
+         cjkYZ83HWVOKkks9RX3XkWBTGzBPFleVkO1YpFCI8mN3P355cHLrLB+AgG7B31Ey2LiM
+         xNl7t5t8lvFeYjSM1hiNCEwPSjBywDqgpRAM0wp1TjjRNnIdemjlDwtYx3AsNuKGLgrU
+         l2qcEF44lPeE0l+CWbXf2er1c+XWIRFxETbFA79ihob8w1n7me3kYYrWU8GWpQD1Pr4s
+         kcugQUE1iaw8FW2pU8BpVDJ3e24q+7UFTjUgFTzFAQRPxNMopn6IBZEkiL1wZYPiEkAq
+         8c9g==
+X-Gm-Message-State: ACgBeo11sgLzfmbybe5i+mqSk4IbYOhNcf3X+4mMeSfhr4DHS4ghSqw8
+        kiFdgnPlJFUXL1UqCe1PuLl/kB03mkvFxlH823s=
+X-Google-Smtp-Source: AA6agR679mRQ20nVum+2X/aX2QvipaCEGV+zxfp4rb55Th/F3hUbqAn9qzth5hSTnTmLUOU99hsuF1cX53d2/+S/09o=
+X-Received: by 2002:a05:6830:61cd:b0:618:d560:b787 with SMTP id
+ cc13-20020a05683061cd00b00618d560b787mr9021405otb.154.1660058294430; Tue, 09
+ Aug 2022 08:18:14 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH 2/2] restorecond: use strict function prototype for
- definition
-Content-Language: en-US
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-References: <20220808173620.16760-1-cgzones@googlemail.com>
- <20220808173620.16760-2-cgzones@googlemail.com>
-From:   Daniel Burgener <dburgener@linux.microsoft.com>
-In-Reply-To: <20220808173620.16760-2-cgzones@googlemail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20220706104729.14975-1-cgzones@googlemail.com>
+ <20220706113804.8272-1-cgzones@googlemail.com> <CAP+JOzSrhTZwa=nYZEXntYzKTCUTtos-p72aXdiLqOzvR9s0tg@mail.gmail.com>
+In-Reply-To: <CAP+JOzSrhTZwa=nYZEXntYzKTCUTtos-p72aXdiLqOzvR9s0tg@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 9 Aug 2022 11:18:03 -0400
+Message-ID: <CAP+JOzRT8wUnZz9vbdtnJ2KZU6qZagSrzi6vxzCb3OMNt6w=GA@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: set errno to EBADF on O_PATH emulation
+ ENOENT failure
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/8/2022 1:36 PM, Christian Göttsche wrote:
-> Clang 15 starts to complain about non strict function definitions:
-> 
->      user.c:172:10: error: a function declaration without a prototype is deprecated in all versions of C [-Werror,-Wstrict-prototypes]
->      int start() {
->               ^
->                void
-> 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> ---
->   restorecond/user.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/restorecond/user.c b/restorecond/user.c
-> index 47b86823..3ae3ebbb 100644
-> --- a/restorecond/user.c
-> +++ b/restorecond/user.c
-> @@ -169,7 +169,7 @@ io_channel_callback
->     return TRUE;
->   }
->   
-> -int start() {
-> +int start(void) {
->   #ifdef HAVE_DBUS
->   	GDBusConnection *bus;
->   	GError *err = NULL;
+On Thu, Jul 7, 2022 at 1:44 PM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Wed, Jul 6, 2022 at 7:42 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > When the O_PATH emulation fails due to getxattr(2)/setxattr(2) failing
+> > with ENOENT, e.g. because no procfs being available, override the errno
+> > value to EBADF.  This avoids confusion to the caller as it would sugges=
+t
+> > the target of the operation does not exist, which is not the case:
+> >
+> >     setfiles: Could not set context for /:  No such file or directory
+> >
+> > Fixes: a782abf2 ("libselinux: emulate O_PATH support in fgetfilecon/fse=
+tfilecon")
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
+Merged.
+Thanks,
+Jim
+
+> > ---
+> > v2:
+> >    only override errno on ENOENT
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  libselinux/src/fgetfilecon.c | 5 ++++-
+> >  libselinux/src/fsetfilecon.c | 5 ++++-
+> >  2 files changed, 8 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libselinux/src/fgetfilecon.c b/libselinux/src/fgetfilecon.=
+c
+> > index baf38ec1..d7051171 100644
+> > --- a/libselinux/src/fgetfilecon.c
+> > +++ b/libselinux/src/fgetfilecon.c
+> > @@ -26,7 +26,10 @@ static ssize_t fgetxattr_wrapper(int fd, const char =
+*name, void *value, size_t s
+> >
+> >         snprintf(buf, sizeof(buf), "/proc/self/fd/%d", fd);
+> >         errno =3D saved_errno;
+> > -       return getxattr(buf, name, value, size);
+> > +       ret =3D getxattr(buf, name, value, size);
+> > +       if (ret < 0 && errno =3D=3D ENOENT)
+> > +               errno =3D EBADF;
+> > +       return ret;
+> >  }
+> >
+> >  int fgetfilecon_raw(int fd, char ** context)
+> > diff --git a/libselinux/src/fsetfilecon.c b/libselinux/src/fsetfilecon.=
+c
+> > index be821c7a..19ea15b7 100644
+> > --- a/libselinux/src/fsetfilecon.c
+> > +++ b/libselinux/src/fsetfilecon.c
+> > @@ -25,7 +25,10 @@ static int fsetxattr_wrapper(int fd, const char* nam=
+e, const void* value, size_t
+> >
+> >         snprintf(buf, sizeof(buf), "/proc/self/fd/%d", fd);
+> >         errno =3D saved_errno;
+> > -       return setxattr(buf, name, value, size, flags);
+> > +       rc =3D setxattr(buf, name, value, size, flags);
+> > +       if (rc < 0 && errno =3D=3D ENOENT)
+> > +               errno =3D EBADF;
+> > +       return rc;
+> >  }
+> >
+> >  int fsetfilecon_raw(int fd, const char * context)
+> > --
+> > 2.36.1
+> >
