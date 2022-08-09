@@ -2,210 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57DA9C25B08
-	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 19:07:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C18C19F2D
+	for <selinux@archiver.kernel.org>; Tue,  9 Aug 2022 21:41:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345203AbiHITHb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Aug 2022 15:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
+        id S229550AbiHIVlU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Aug 2022 17:41:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345832AbiHITGH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 15:06:07 -0400
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C826B248C1
-        for <selinux@vger.kernel.org>; Tue,  9 Aug 2022 11:45:32 -0700 (PDT)
-Received: by mail-qk1-x72c.google.com with SMTP id z7so4044945qki.11
-        for <selinux@vger.kernel.org>; Tue, 09 Aug 2022 11:45:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bigbadwolfsecurity-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=PjOAWYH6F7PbOe6YGeH854bcKIVmnLZoi9DCG2tWn/o=;
-        b=FpS+/R3V7uDaqRh9156Fgd/q3ldRRSbttSIr/DEgMo/ECGFJ82JZTqmBUVndhaH0x9
-         Zax0AdjKtsyb3AcbfGypptlR3nN/lO5QIScWANv+rHaOZmt7BJ0Txtqkm7gp6Thw7aYE
-         tosWiaGiOKF//jo/4w3esYXeJo55h2T6WLkZ25nWvHffup6dqz5hCCWxct1N8Hj2Nt+1
-         Ajf0efLztbSjvTQ8FSHcwsrZKbcMhkQ4KGc3BPro0pusFYSQDu4/buPtKvfCsy51HWtW
-         ngoF0Vhoywt4aiQC1fC6ZU92s+FcaaYiNonva2qXOm6JXBoxtGKVZ6MraFY2Q68UdkNC
-         DY5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=PjOAWYH6F7PbOe6YGeH854bcKIVmnLZoi9DCG2tWn/o=;
-        b=6aJ8QaYocuhDX+QLGWjI0/AGLjKgaKGPg+iPbCAe4mDmc5k222f92pY/UAfglBb1bI
-         sBR3f+JqvhcKzUr0NSf65ecir51VPApV04U6Lv9HocGmCHqAR+UurAy3QG1Q9vsRW+cn
-         eufw2BWxnv4nC72G5qZoKKeZdvxwKpFLFw3stSbgZzvmv3RFE+EJ2pW5iPgM0mzDHtEI
-         7G6mJ19zW9XKlvIeSDjRwktUUtdEcHrJrc14XVWdXrqyxUo6wQbFUPjszXUZetBXf0PU
-         nYinoM5Yi/RP3bjgE6MINE9LjXV+VRmbxKQ6AEDs2g7AbzA7UeXmRwhGx/cK5KHKKFoK
-         xS6A==
-X-Gm-Message-State: ACgBeo3m5lL2yTOhUSYHEKxdKpJwaOM7FaKocay991di8e2MY7jEJnrb
-        Gy9J/l9IA/DC6o834Ugjw5/TtHyHi3ktQl1536r+7V3f+PGBuMgX
-X-Google-Smtp-Source: AA6agR5vHEM7AZs3FLoWvPDgfwIV36VCYcIoShiOBSmr3EqN7vhhtxVmZflqGNIUjPi7NtIQBfXe/PW8xhlMqhZvYXA=
-X-Received: by 2002:a37:b147:0:b0:6b5:fa14:ac00 with SMTP id
- a68-20020a37b147000000b006b5fa14ac00mr18431427qkf.606.1660070731797; Tue, 09
- Aug 2022 11:45:31 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+EEuAgfGhTWBWXgtHSVU22feM+0PS=h-z-eVF4JxmSf2qyZzg@mail.gmail.com>
- <CAHC9VhS6A9yaywmRBVg9+AijAqZXxeB=e=HiZ3sUe_Zf+uahuw@mail.gmail.com>
-In-Reply-To: <CAHC9VhS6A9yaywmRBVg9+AijAqZXxeB=e=HiZ3sUe_Zf+uahuw@mail.gmail.com>
-From:   Karl MacMillan <karl@bigbadwolfsecurity.com>
-Date:   Tue, 9 Aug 2022 14:45:21 -0400
-Message-ID: <CA+EEuAgBiMXh+MMdE8pCYHqeqHXUJVmtrHgv8wGNHCEYMsuW5w@mail.gmail.com>
-Subject: Re: KVM / virtual networking access control
+        with ESMTP id S229489AbiHIVlQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Aug 2022 17:41:16 -0400
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E3A5D0E8;
+        Tue,  9 Aug 2022 14:41:14 -0700 (PDT)
+Received: from in01.mta.xmission.com ([166.70.13.51]:53108)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oLWyM-00E7HV-Jn; Tue, 09 Aug 2022 15:41:11 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:49148 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oLWyL-003L0d-Hd; Tue, 09 Aug 2022 15:41:10 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
 To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
+        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
+        bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        kernel-team@cloudflare.com, cgzones@googlemail.com,
+        karl@bigbadwolfsecurity.com
+References: <20220801180146.1157914-1-fred@cloudflare.com>
+        <87les7cq03.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhRpUxyxkPaTz1scGeRm+i4KviQQA7WismOX2q5agzC+DQ@mail.gmail.com>
+        <87wnbia7jh.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhS3udhEecVYVvHm=tuqiPGh034-xPqXYtFjBk23+p-Szg@mail.gmail.com>
+        <877d3ia65v.fsf@email.froward.int.ebiederm.org>
+        <87bksu8qs2.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhTEwD2y9Witj-1z3e2TC-NGjghQ4KT4Dqf3UOLzDcDc3Q@mail.gmail.com>
+        <87czd95rjc.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhQY6H4JxOvSYWk2cpH8E3LYeOkMP_ay+ih+ULKKdeob=Q@mail.gmail.com>
+Date:   Tue, 09 Aug 2022 16:40:41 -0500
+In-Reply-To: <CAHC9VhQY6H4JxOvSYWk2cpH8E3LYeOkMP_ay+ih+ULKKdeob=Q@mail.gmail.com>
+        (Paul Moore's message of "Tue, 9 Aug 2022 12:47:03 -0400")
+Message-ID: <87a68dccyu.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-XM-SPF: eid=1oLWyL-003L0d-Hd;;;mid=<87a68dccyu.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX18KQ9aFqAGQLWmWStMCKmpNtmakBekivvk=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v4 0/4] Introduce security_create_user_ns()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jul 31, 2022 at 12:45 PM Paul Moore <paul@paul-moore.com> wrote:
+Paul Moore <paul@paul-moore.com> writes:
 >
-> On Fri, Jul 29, 2022 at 11:36 PM Karl MacMillan
-> <karl@bigbadwolfsecurity.com> wrote:
-> >
-> > Hi,
-> >
-> > I'm trying to do some access control over the networking between KVM
-> > virtual machines using Secmark and things are not working as I expect.
-> > The key is that this is _between_ virtual machines, not just ingress /
-> > egress to the virtual machines from external address.
-> >
-> > Quick summary: I'm connecting two VMs together using veth pairs and a
-> > virtual bridge and I only ever see:
-> >
-> >     allow unlabeled_t bare_packet_a_t:packet { forward_in forward_out }=
-;
->
-> Just to make sure I'm understanding this correctly, we are talking
-> about the SELinux controls from the perspective of the
-> host/hypervisor, yes?
->
+> What level of due diligence would satisfy you Eric?
 
-Yes
+Having a real conversation about what a change is doing and to talk
+about it's merits and it's pro's and cons.  I can't promise I would be
+convinced but that is the kind of conversation it would take.
 
-> Assuming that is the case, the "packet/{ forward_in forward_out }"
-> permissions look correct to me.  In the case of the secmark forwarding
-> rules you basically have this:
->
->   allow <peer> <secmark>:packet { forward_in };
->   allow <peer> <secmark>:packet { forward_out };
->
+I was not trying to place an insurmountable barrier I was simply looking
+to see if people had been being careful and doing what is generally
+accepted for submitting a kernel patch.  From all I can see that has
+completely not happened here.
 
-So I get this - that the host is basically forwarding packets
-generated by the virtual machines. And I'll say that was really the
-piece I was missing, so thanks for clearing that up.
+> If that isn't the case, and this request is being made in good faith
 
-I'm curious under what other circumstances processes can generate
-network traffic that are treated in this way. Packet sockets? Tun /
-tap devices?
+Again you are calling me a liar. I really don't appreciate that.
 
-I'm sure I'm preaching to the choir, but some more documentation on
-this would be great. I know you've done so much (and those pdfs
-helped). But I was aware of much of that content, I just didn't know
-how it all applied to this specific area. See - part of why I was
-confused here was that here we have these KVM processes where we
-already _know_ the process context. It just seemed unimaginable that
-what we have to do is a) enable some sort of labeled networking and b)
-tell the kernel all over what the label of the peer is using network
-information rather than process information it already knows! I know
-you've added special casing for the loopback devices so that this is
-not required there. But I kept thinking that surely there must be a
-way to trigger something more like the packet { send recv }
-permissions because we have a process generating network traffic on
-the same host that is trying to enforce those controls.
+As for something already returning an error.  The setuid system call
+also has error returns, and enforcing RLIMIT_NPROC caused sendmail to
+misbehave.
 
-> ... and I'm guessing you haven't setup any peer labeling between the
-> two guests so you are seeing unlabeled_t for "<peer>".
->
+I bring up the past in this way only to illustrate that things can
+happen.  That simply examining the kernel and not thinking about
+userspace really isn't enough.
 
-I see your suggestion below (which worked), but I will say that I
-tried CIPSO / CALIPSO before sending this email. I just did not know
-how to get the fallback labeling to do what I needed.
+I am also concerned about the ecosystem effects of adding random access
+control checks to a system call that does not perform access control
+checks.
 
-> > What I want is packet { send recv } because that would be against the
-> > label of the KVM process rather than the peer label (which on the same
-> > system would always be unlabeled - I see no way to use CIPSO/CALIPSO
-> > to get peer labels to work here).
->
-> The "packet/{ send recv }" controls are for packets that originate and
-> terminate on the node applying the policy; think of your typical
-> client/server nodes.  The "packet/{ forward_in forward_out }" controls
-> are for packets that are passing through the node applying the policy,
-> e.g. intermediate nodes such as bridges and switches ... even software
-> bridges like that found in hypervisors ;)
->
-> > I would appreciate any insight into what might be going on. This is
-> > mainly tested on a RHEL 8.6 box, but some testing has been done on a
-> > Fedora 36 box as well.
->
-> I don't know all the details of your setup, or the security goals you
-> are trying to enforce, but since it looks like you are bridging the
-> network traffic between the guests, you might want to try setting up
-> the NetLabel static/fallback mechanism to assign a peer label to
-> traffic on those interfaces (no more unlabeled_t in the secmark
-> forwarding rules).  Adding the peer labeling information will also
-> trigger the network peer label controls in the kernel so you will see
-> additional "netif/{ ingress egress}" and "node/{ recvfrom sendto }"
-> checks.
->
+As I said this patch is changing a rather fundamental design decision by
+adding an access control.  A design decision that for the most part has
+worked out quite well, and has allowed applications to add sandboxing
+support to themselves without asking permission to anyone.
 
-So this works . . . with some interesting caveats. What works for me is:
+Adding an access control all of a sudden means application developers
+are having to ask for permission to things that are perfectly safe,
+and it means many parts of the kernel gets less love both in use
+and in maintenance.
 
-1. Setting CIPSO fallback labels on the bridge interface and using IP
-selectors to set labels per-VM.
-2. Using physdev-in in SECMARK rules to set packet labels on packets
-based on which veth pair is connected to the bridge (and I can use
-other selectors for SECMARK - but this one is nice).
+It might be possible to convince me that design decision needs to
+change, or that what is being proposed is small enough it does not
+practically change that design decision.
 
-So at this point I can do what I want (except the namespace issue
-below) - which is to control how my VMs talk on a single box and build
-pipelines of VMs or other interesting topologies. I can also do some
-coarse-grained enforcement using netif {ingress egress} which is also
-wnice.
+Calling me a liar is not the way to change my mind.  Ignoring me
+and pushing this through without addressing my concerns is not
+the way to change my mind.
 
-What is not working:
+I honestly I want what I asked for at the start.  I want discussion of
+what problems are being solved so we can talk about the problem or
+problems and if this is even the appropriate solution to them.
 
-1. I cannot do CIPSO fallback labeling based on either the macvtap or
-the veth pairs. It will accept the fallback rules, but I still get
-unlabeled for the peer. This is not great because it means that I have
-to use labeling based upon IP addresses to differentiate VMs (vs
-interfaces), which means that my labeling is dependent on the
-configuration inside of my VMs. I don't like having to trust my VMs at
-all. Or I could add a lot more bridges I guess, but I've not tried
-that.
-2. I cannot get netlabelct to run inside of a network namespace, so I
-can't do fallback labeling of bridges in a namespace. I get the error
-"netlabelctl: error, failed to initialize the NetLabel library". This
-makes many of the topologies I want to do much harder.
+Eric
 
-I have an overall concern, which is back to what I was saying above
-about process labels. At that point, it doesn't feel like there is a
-lot of advantage of doing SELinux enforcement of the networking vs
-just the iptables network enforcement. Much of the power of the
-SELinux enforcement, to me, is to tie iptables to process labels or,
-with labeled networking, to transmit remote process labels. Here . . .
-well, we are generating peer labels on box based on network properties
-and then writing rules that are based solely on information that
-iptables already had (ip addresses and interface names). Am I missing
-something?
-
-Thanks so much for all of your help,
-
-Karl
-
-> Here are few slides that might be helpful (they are older, but still rele=
-vant):
->
-> https://www.paul-moore.com/docs/selinux_network_controls-pmoore-122012-r1=
-.pdf
-> https://www.paul-moore.com/docs/labeled_networking-lfjapan-07092008.pdf
->
-> --
-> paul-moore.com
-
-[1] https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/=
-8/html/configuring_and_managing_virtualization/configuring-virtual-machine-=
-network-connections_configuring-and-managing-virtualization#understanding-v=
-irtual-networking-overview_configuring-virtual-machine-network-connections
