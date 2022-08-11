@@ -2,231 +2,260 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A46FBC19F2A
-	for <selinux@archiver.kernel.org>; Thu, 11 Aug 2022 15:04:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 814D3C19F2A
+	for <selinux@archiver.kernel.org>; Thu, 11 Aug 2022 17:14:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234070AbiHKPEl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Aug 2022 11:04:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51060 "EHLO
+        id S235932AbiHKROC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Aug 2022 13:14:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234657AbiHKPEk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Aug 2022 11:04:40 -0400
-Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22870422E4
-        for <selinux@vger.kernel.org>; Thu, 11 Aug 2022 08:04:36 -0700 (PDT)
-Received: by mail-oo1-xc2f.google.com with SMTP id n16-20020a4a9550000000b0043568f1343bso3153701ooi.3
-        for <selinux@vger.kernel.org>; Thu, 11 Aug 2022 08:04:36 -0700 (PDT)
+        with ESMTP id S235270AbiHKRNl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Aug 2022 13:13:41 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51775252BB
+        for <selinux@vger.kernel.org>; Thu, 11 Aug 2022 09:55:19 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id j5so16326423oih.6
+        for <selinux@vger.kernel.org>; Thu, 11 Aug 2022 09:55:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=VN6mfTUn9SW8CJ1h86IqaLlyHP5dspsHetg3Tb071cM=;
-        b=6P5iWw4PzyoFfL45+KOLW8Ss5aYHs8SMhZV0D73ATjK9nLtSDG9ZZozfHRJzm9eC4q
-         LdOV2oNrvmIPktUHV10yXs+URcJhKRZk+aWDWYD6lBXVHWG3fA9NIUOO0UyOzOCJAJ7t
-         /e94+n+4sfsXS/vJErag1O8B7szbzfWUHannGys2IgidPiIvBMYWLNGRr/a+4ExKODLQ
-         CoTiJaA/R60oq+UoJcKgkzB1cM9IZsUJyspXsQNzQKCt3IKGMak9Vz9YdbZby4yhBV3Y
-         zFFsoKGZuUql/RDBrm1zxtd+hSQkL3gIa7StG1fnQeHRnON5RjE0a00/jL0+/UOSiQ4u
-         LPqg==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc;
+        bh=D17GdxCU4LJVFFa8lFaIk+u9vWaKInqpidXcdeZs2es=;
+        b=WY5lPXzfy9t5tRDH1dXLAtdMrC6ZtNmgk24DL86VdMZ+zmULUL0wFG07je4xX1gDx7
+         HrDo5278UcophOdWgd1CKzfN3UFeGeGtrwbT+BJEGgI+yHYQunawA+HSgFAcQOIK70sj
+         XceWXU2zy/cpp0dt3zO7rP9mBqhCJ3i403pkzibnNo/+tUiuo7pnDvfrrNnAgEaXKs0c
+         sAGHuZ4DiqXojrtmf/f5aGf90m8xGVszpPgbJRh9DPPUA34OfyYjzk0GeRLaCa3kn0j4
+         10riTNyW7pi7xqgkYD/Ew3QlK2yHZMOKnNEj1L1v040LkEgWfSyUC+VDr+5ul+MOd+UZ
+         /1BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=VN6mfTUn9SW8CJ1h86IqaLlyHP5dspsHetg3Tb071cM=;
-        b=Y84xJXSRefxvjqnQ5HB9LmRHoo0vdmgbboHK/PxbC8c88EomYgbn6T6ne2B1CD61y4
-         tK8E7vcmtHupMOkP+XOloHd0QqFTsU1ZBv9x02pEIeEuFX1zoXhyDPt/h/w56NMiQoGs
-         D99DYtwLYLXVdhLBOur0tEXZRZkdRJZnKxTQ7CxZgL6vi6RgCDC2geTPClMhHnh4HK3Z
-         oEsGAtBMqSqIbayQJ36Fdm+K3kHzPeou1zIpMtw2/mtpaGsz8UEvw4q+HZ2UwLDWvOCF
-         oBfiWZVZtF4TM1Hf0Sm3njT2vVnQT3teJw8m/7CbH145K9SgeINaTtFDUtLXIMiz2FP5
-         EmOw==
-X-Gm-Message-State: ACgBeo21qRzUQ9flZrVAsQnyCYHz45vQl+i4wB3Tk0PJAiT3KGj0fBuI
-        60SmiPwcNqEljC9g3QVHOGTKbPKGQPMs6Jit7lIS
-X-Google-Smtp-Source: AA6agR75lkh5V530HmRN5pfuLZisNc78n+bvScVcYrIYPmCJyMBAT8F0+9P1x1pecdBskN8vcqQQLRpSvjC0qliR56k=
-X-Received: by 2002:a4a:1103:0:b0:435:4c6c:6f92 with SMTP id
- 3-20020a4a1103000000b004354c6c6f92mr11218157ooc.26.1660230275194; Thu, 11 Aug
- 2022 08:04:35 -0700 (PDT)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
+        bh=D17GdxCU4LJVFFa8lFaIk+u9vWaKInqpidXcdeZs2es=;
+        b=MGTZkYH3olf+tkZShAvYyTl3jG80B3G2KAkC1Ppggb+eE7DnfrauEdbd4UE3wflE6X
+         gcsJ6rCAF3nkrojYIbtZyI8oG8F0jR9ILY6PymgBpBmBY63nYtfJ30qqpTmJgiwiKEjh
+         89cT7WuKPkmB/lvAY0uvm8CxvaPgDZrbAPbSpCbDgmnUwoBmeii4VrGNNQW/DSqdh/ND
+         EpEfZE2QGpc9TulABT/DMpUlskkz6WocIy7fmdcxqeMFrf07tQg9juiuhFMAYt0JcUT5
+         Vfabm7wprAde9dwfBKs/i9XgzCGjrxFmGXJrWfC6iBBalSKWDofYJgjEH9Mj1DMWAJVQ
+         qyBg==
+X-Gm-Message-State: ACgBeo0kcATf9Ekfv6vNEPK1ydz9cqr8Nf2IPJaiXFMBta4aZ1s67MYR
+        nfoP9HiXtucabkwpdKi+VOhYcmnRHriW+bJD7zWDKE4LEPI=
+X-Google-Smtp-Source: AA6agR7LviuA8NTYAqn1u+fcrNSPK4aMLb7z6jw+EfpABr4aC625w4OH/FCeiw8CSkD2cEQTFFdjBwLMRzJp27ptnbE=
+X-Received: by 2002:a05:6808:9b9:b0:343:b4d:592f with SMTP id
+ e25-20020a05680809b900b003430b4d592fmr4098081oig.156.1660236918610; Thu, 11
+ Aug 2022 09:55:18 -0700 (PDT)
 MIME-Version: 1.0
-References: <166008317384.447519.7250489605112175227.stgit@olly> <CAFqZXNshzY2L1yUMyCxTa2njgScUg5gwzmq-UP4SSnFnph-XuA@mail.gmail.com>
-In-Reply-To: <CAFqZXNshzY2L1yUMyCxTa2njgScUg5gwzmq-UP4SSnFnph-XuA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 11 Aug 2022 11:04:16 -0400
-Message-ID: <CAHC9VhRpTR_zdj+cdeGGKoe1vZKBy4FK4JP6iyurXR0NOr2tXw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: SCTP fixes, including ASCONF
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20220808173655.16867-1-cgzones@googlemail.com>
+In-Reply-To: <20220808173655.16867-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 11 Aug 2022 12:55:07 -0400
+Message-ID: <CAP+JOzSSptmKyETXZakgEGogdxdAaDqGT06uPyspk4jKETtF6A@mail.gmail.com>
+Subject: Re: [PATCH 1/4] ci: bump versions in GitHub Actions
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 11, 2022 at 6:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Wed, Aug 10, 2022 at 12:14 AM Paul Moore <paul@paul-moore.com> wrote:
-> > This patch makes two changes to how SELinux processes SCTP traffic:
+On Mon, Aug 8, 2022 at 1:38 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Why one patch for two independent changes?
-
-Taken separately the REQSKB change would be somewhat difficult to
-detect as a regular user, putting the two changes into a single patch
-means that one can use the presence of the "sctp_asconf" policy
-capability as an indicator that the REQSKB fix is present in the
-running kernel.
-
-> > @@ -5421,6 +5437,22 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
-> >                          */
-> >                         err = selinux_netlbl_socket_connect_locked(sk, addr);
-> >                         break;
-> > +               /* ASCONF checks (IETF RFC 5061) */
-> > +               case SCTP_PARAM_ADD_IP:
-> > +               case SCTP_PARAM_SET_PRIMARY:
-> > +                       if (pcap_asconf) {
-> > +                               if (peerlbl) {
-> > +                                       err = sock_has_perm_subj(sksec->peer_sid,
-> > +                                               sk, SCTP_SOCKET__ASCONF_ADDIP);
+> * Move from deprecated actions/setup-ruby to ruby/setup-ruby.
+> * Bump python and ruby upper versions.
+> * Bump Reference Policy version
+> * Do not install recommend packages and output package resolution
+> * Bump to macOS 12
 >
-> How about splitting this into SCTP_SOCKET__ADD_IP_FROM and
-> SCTP_SOCKET__SET_PRIMARY_FROM? "_FROM" to give a hint that the
-> scontext is a peer label as with NODE__RECVFROM ...
-
-I prefer the permission names as they are (without the "_FROM" suffix)
-as they better align with the SCTP RFCs.
-
-> ... and split so that one
-> can allow SET_PRIMARY and not ADD_IP, as the former is much less of a
-> security concern than the latter.
-
-I agree that ADD_IP is a much larger concern, arguably really the only
-concern, since you can't set the primary address without first adding
-it to the association.  It may sound odd, but since SET_PRIMARY MUST
-(let's use some of that RFC language here <g>) come after a matching
-ADD_IP, I made them equivalent in this patch so that both would be
-covered by the same set of allow rules.  In other words, the policy
-author really only needs to worry about the ADD_IP operation since
-that is the critical parameter/op.  I did debate dropping the
-SET_PRIMARY entirely, but keeping it made the legacy case easier and
-in the peerlbl/TRUE case it still offers some value in the case where
-the SET_PRIMARY is done at a different time from the ADD_IP
-(potentially different network peer labels for each parameter/op).
-
-> Also, using the "ADDIP" name for both is just misleading as
-> SET_PRIMARY doesn't add any address, only switches between the already
-> added ones (and note that these might be added not only via a previous
-> ADD_IP, but also by the client itself via CONNECTX).
-
-Yes, I read the RFC too, but see my comments above.
-
-> > +                                       if (err)
-> > +                                               return err;
-> > +                               }
-> > +                               perm = SCTP_SOCKET__ASCONF_CONNECT;
+>   macOS 10 is deprecated since 5/31/22 [1].
+>   VirtualBox and Vagrant seems to be supported [2][3].
 >
-> Again, if it was up to me, I'd split the permission up into ADD_IP and
-> SET_PRIMARY. And I'd like to reiterate once more that validating the
-> port seems unnecessary here ...
-
-To touch on the port issue quickly - while part of the motivation was
-to blend better with the existing legacy case, I think there may also
-be value in being able to control different ASCONF policies on a
-port-by-port basis.  For example, maybe you want to allow pretty much
-anything from an ASCONF perspective for the http ports but you want to
-be much more restrictive about ssh.
-
-> > diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-> > index 1321f15799e2..28d0ead32416 100644
-> > --- a/security/selinux/netlabel.c
-> > +++ b/security/selinux/netlabel.c
+> [1]: https://github.com/actions/virtual-environments/issues/5583
+> [2]: https://github.com/actions/virtual-environments/pull/5594
+> [3]: https://github.com/actions/virtual-environments/pull/5854
 >
-> I believe you forgot to modify also
-> selinux_netlbl_sctp_assoc_request() in a similar fashion as the other
-> functions below?
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Good point.  I suspect selinux_netlbl_sctp_assoc_request() will be
-greatly simplified too, that will be nice.
+For this series:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-> > @@ -373,10 +373,10 @@ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
-> >   */
-> >  void selinux_netlbl_sctp_sk_clone(struct sock *sk, struct sock *newsk)
-> >  {
-> > -       struct sk_security_struct *sksec = sk->sk_security;
-> >         struct sk_security_struct *newsksec = newsk->sk_security;
-> >
-> > -       newsksec->nlbl_state = sksec->nlbl_state;
-> > +       /* SCTP is multi-homed so we must label each packet based on dest IP */
-> > +       newsksec->nlbl_state = NLBL_REQSKB;
-> >  }
-> >
-> >  /**
-> > @@ -401,6 +401,17 @@ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
-> >         secattr = selinux_netlbl_sock_genattr(sk);
-> >         if (secattr == NULL)
-> >                 return -ENOMEM;
-> > +
-> > +       /* SCTP has the ability to communicate with multiple endpoints for a
-> > +        * given association so we need to force NLBL_REQSKB so that we always
-> > +        * label traffic based on the destination endpoint and not the
-> > +        * association's connection
-> > +        */
-> > +       if (sk->sk_protocol == IPPROTO_SCTP) {
-> > +               sksec->nlbl_state = NLBL_REQSKB;
-> > +               return 0;
-> > +       }
-> > +
-> >         rc = netlbl_sock_setattr(sk, family, secattr);
-> >         switch (rc) {
-> >         case 0:
-> > @@ -548,10 +559,17 @@ static int selinux_netlbl_socket_connect_helper(struct sock *sk,
-> >         struct sk_security_struct *sksec = sk->sk_security;
-> >         struct netlbl_lsm_secattr *secattr;
-> >
-> > -       /* connected sockets are allowed to disconnect when the address family
-> > -        * is set to AF_UNSPEC, if that is what is happening we want to reset
-> > -        * the socket */
-> > -       if (addr->sa_family == AF_UNSPEC) {
-> > +       /* special handling for AF_UNSPEC and IPPROTO_SCTP:
-> > +        * - sockets are allowed to disconnect when the address family
-> > +        *   is set to AF_UNSPEC, if that is what is happening we want to reset
-> > +        *   the socket
-> > +        * - SCTP has the ability to communicate with multiple endpoints for
-> > +        *   a given association so we need to force NLBL_REQSKB so that we
-> > +        *   always label traffic based on the destination endpoint and not
-> > +        *   the association's connection, see similar comment in
-> > +        *   selinux_netlbl_socket_post_create()
-> > +        */
-> > +       if (addr->sa_family == AF_UNSPEC || sk->sk_protocol == IPPROTO_SCTP) {
-> >                 netlbl_sock_delattr(sk);
-> >                 sksec->nlbl_state = NLBL_REQSKB;
-> >                 rc = 0;
+> ---
+>  .github/workflows/run_tests.yml    | 62 +++++++++++++++++-------------
+>  .github/workflows/vm_testsuite.yml |  5 +--
+>  2 files changed, 38 insertions(+), 29 deletions(-)
 >
-> Instead of overloading the AF_UNSPEC condition, how about just adding:
+> diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_test=
+s.yml
+> index 8b7cb720..db0e1af5 100644
+> --- a/.github/workflows/run_tests.yml
+> +++ b/.github/workflows/run_tests.yml
+> @@ -10,48 +10,51 @@ jobs:
+>        matrix:
+>          compiler: [gcc, clang]
+>          python-ruby-version:
+> -          - {python: 3.9, ruby: 2.7}
+> -          - {python: 3.9, ruby: 2.7, other: test-flags-override}
+> -          - {python: 3.9, ruby: 2.7, other: test-debug}
+> -          - {python: 3.9, ruby: 2.7, other: linker-bfd}
+> -          - {python: 3.9, ruby: 2.7, other: linker-gold}
+> +          - {python: '3.10', ruby: '3.1'}
+> +          - {python: '3.10', ruby: '3.1', other: test-flags-override}
+> +          - {python: '3.10', ruby: '3.1', other: test-debug}
+> +          - {python: '3.10', ruby: '3.1', other: linker-bfd}
+> +          - {python: '3.10', ruby: '3.1', other: linker-gold}
+>            # Test several Python versions with the latest Ruby version
+> -          - {python: 3.8, ruby: 2.7}
+> -          - {python: 3.7, ruby: 2.7}
+> -          - {python: 3.6, ruby: 2.7}
+> -          - {python: 3.5, ruby: 2.7}
+> -          - {python: pypy3, ruby: 2.7}
+> +          - {python: '3.9', ruby: '3.1'}
+> +          - {python: '3.8', ruby: '3.1'}
+> +          - {python: '3.7', ruby: '3.1'}
+> +          - {python: '3.6', ruby: '3.1'}
+> +          - {python: '3.5', ruby: '3.1'}
+> +          - {python: 'pypy3.7', ruby: '3.1'}
+>            # Test several Ruby versions with the latest Python version
+> -          - {python: 3.9, ruby: 2.6}
+> -          - {python: 3.9, ruby: 2.5}
+> +          - {python: '3.10', ruby: '3.0'}
+> +          - {python: '3.10', ruby: '2.7'}
+> +          - {python: '3.10', ruby: '2.6'}
+> +          - {python: '3.10', ruby: '2.5'}
+>          exclude:
+>            - compiler: clang
+> -            python-ruby-version: {python: 3.9, ruby: 2.7, other: linker-=
+bfd}
+> +            python-ruby-version: {python: '3.10', ruby: '3.1', other: li=
+nker-bfd}
+>            - compiler: clang
+> -            python-ruby-version: {python: 3.9, ruby: 2.7, other: linker-=
+gold}
+> +            python-ruby-version: {python: '3.10', ruby: '3.1', other: li=
+nker-gold}
+>          include:
+>            - compiler: gcc
+> -            python-ruby-version: {python: 3.9, ruby: 2.7, other: sanitiz=
+ers}
+> +            python-ruby-version: {python: '3.10', ruby: '3.1', other: sa=
+nitizers}
 >
-> if (sk->sk_protocol == IPPROTO_SCTP)
->         return 0;
+>      steps:
+> -    - uses: actions/checkout@v2
+> +    - uses: actions/checkout@v3
 >
-> ...before this one with a separate comment? Overloading the disconnect
-> condition just makes the code harder to follow.
-
-Heh.  Okay, I see your point, but if that bit of code is too hard to
-follow for someone they are going to have a very rough time with the
-rest of the kernel code ;)
-
-I'm going to leave this as-is.
-
-> Just bailing out in
-> the connect helper should be enough once you also patch up
-> selinux_netlbl_sctp_assoc_request(), since those are the only places
-> that could change an SCTP socket's nlbl_state away from NLBL_REQSKB or
-> set any netlabel options on it (well, except when a user explicitly
-> sets some via setsockopt(2), but in that case we probably shouldn't
-> delete them even on a disconnect...
-
-Just as a FYI, the socket_setsockopt hook prevents a user from
-overwriting an existing NetLabel socket option, and in the REQSKB case
-we either overwrite any socket inherited NetLabel socket options in
-the case of CIPSO or add another hop-by-hop option in the case of
-CALIPSO (it's quicker that way).  We don't explicitly block a user
-form setting a on-the-wire packet label using setsockopt() in the case
-where no labeling is configured in case the application wants to
-manage things on their own, but we do provide a socket-level
-permission check (socket/setopt) so that policy developers can block
-this if they want.
-
--- 
-paul-moore.com
+>      - name: Set up Python ${{ matrix.python-ruby-version.python }}
+> -      uses: actions/setup-python@v2
+> +      uses: actions/setup-python@v4
+>        with:
+>          python-version: ${{ matrix.python-ruby-version.python }}
+>
+>      - name: Set up Ruby ${{ matrix.python-ruby-version.ruby }}
+> -      uses: actions/setup-ruby@v1
+> +      uses: ruby/setup-ruby@v1
+>        with:
+>          ruby-version: ${{ matrix.python-ruby-version.ruby }}
+> +        bundler-cache: true
+>
+>      - name: Install dependencies
+>        run: |
+> -        sudo apt-get update -qq
+> -        sudo apt-get install -qqy \
+> +        sudo apt-get update -q
+> +        sudo apt-get install -qy --no-install-recommends \
+>              bison \
+> -            clang \
+>              flex \
+>              gawk \
+>              gettext \
+> @@ -61,14 +64,16 @@ jobs:
+>              libcunit1-dev \
+>              libdbus-glib-1-dev \
+>              libpcre2-dev \
+> -            python3-dev \
+> -            python-dev \
+>              ruby-dev \
+>              swig \
+>              xmlto
+>
+>          pip install flake8
+>
+> +    - name: Install Clang
+> +      if: ${{ matrix.compiler =3D=3D 'clang' }}
+> +      run: sudo apt-get install -qqy clang
+> +
+>      - name: Configure the environment
+>        run: |
+>          DESTDIR=3D/tmp/destdir
+> @@ -82,6 +87,11 @@ jobs:
+>          elif [ "${{ matrix.python-ruby-version.other }}" =3D "linker-gol=
+d" ] ; then
+>              CC=3D"$CC -fuse-ld=3Dgold"
+>          fi
+> +        # https://bugs.ruby-lang.org/issues/18616
+> +        # https://github.com/llvm/llvm-project/issues/49958
+> +        if [ "${{ matrix.compiler }}" =3D "clang" ] && [[ "${{ matrix.py=
+thon-ruby-version.ruby }}" =3D 3* ]] ; then
+> +            CC=3D"$CC -fdeclspec"
+> +        fi
+>          echo "CC=3D$CC" >> $GITHUB_ENV
+>
+>          EXPLICIT_MAKE_VARS=3D
+> @@ -110,7 +120,7 @@ jobs:
+>          PYTHON_SYS_PREFIX=3D"$(python -c 'import sys;print(sys.prefix)')=
+"
+>          echo "PKG_CONFIG_PATH=3D${PYTHON_SYS_PREFIX}/lib/pkgconfig" >> $=
+GITHUB_ENV
+>
+> -        if [ "${{ matrix.python-ruby-version.python }}" =3D "pypy3" ] ; =
+then
+> +        if [[ "${{ matrix.python-ruby-version.python }}" =3D pypy* ]] ; =
+then
+>              # PyPy does not provide a config file for pkg-config
+>              # libpypy-c.so is provided in bin/libpypy-c.so for PyPy and =
+bin/libpypy3-c.so for PyPy3
+>              echo "PYINC=3D-I${PYTHON_SYS_PREFIX}/include" >> $GITHUB_ENV
+> @@ -122,10 +132,10 @@ jobs:
+>
+>      - name: Download and install refpolicy headers for sepolgen tests
+>        run: |
+> -        curl --location --retry 10 -o refpolicy.tar.bz2 https://github.c=
+om/SELinuxProject/refpolicy/releases/download/RELEASE_2_20180701/refpolicy-=
+2.20180701.tar.bz2
+> +        curl --location --retry 10 -o refpolicy.tar.bz2 https://github.c=
+om/SELinuxProject/refpolicy/releases/download/RELEASE_2_20220520/refpolicy-=
+2.20220520.tar.bz2
+>          tar -xvjf refpolicy.tar.bz2
+>          sed -e "s,^PREFIX :=3D.*,PREFIX :=3D $DESTDIR/usr," -i refpolicy=
+/support/Makefile.devel
+> -        sudo make -C refpolicy install-headers clean
+> +        sudo make -C refpolicy install-headers bare
+>          sudo mkdir -p /etc/selinux
+>          echo 'SELINUXTYPE=3Drefpolicy' | sudo tee /etc/selinux/config
+>          echo 'SELINUX_DEVEL_PATH =3D /usr/share/selinux/refpolicy' | sud=
+o tee /etc/selinux/sepolgen.conf
+> diff --git a/.github/workflows/vm_testsuite.yml b/.github/workflows/vm_te=
+stsuite.yml
+> index 601276dd..92155da2 100644
+> --- a/.github/workflows/vm_testsuite.yml
+> +++ b/.github/workflows/vm_testsuite.yml
+> @@ -6,11 +6,10 @@ jobs:
+>    vm_testsuite:
+>
+>      # Use VirtualBox+vagrant on macOS, as described in https://github.co=
+m/actions/virtual-environments/issues/433
+> -    # Use an old version of macOS until https://github.com/actions/virtu=
+al-environments/pull/4010 is merged.
+> -    runs-on: macos-10.15
+> +    runs-on: macos-12
+>
+>      steps:
+> -    - uses: actions/checkout@v2
+> +    - uses: actions/checkout@v3
+>
+>      - name: Create Vagrant VM
+>        run: |
+> --
+> 2.36.1
+>
