@@ -2,48 +2,48 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 880CFC00140
-	for <selinux@archiver.kernel.org>; Mon, 15 Aug 2022 16:21:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6285BC25B0D
+	for <selinux@archiver.kernel.org>; Mon, 15 Aug 2022 16:21:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232518AbiHOQVI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Aug 2022 12:21:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39758 "EHLO
+        id S233243AbiHOQVi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Aug 2022 12:21:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232762AbiHOQUp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Aug 2022 12:20:45 -0400
-Received: from mail-oa1-x2d.google.com (mail-oa1-x2d.google.com [IPv6:2001:4860:4864:20::2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB13E11153
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 09:20:40 -0700 (PDT)
-Received: by mail-oa1-x2d.google.com with SMTP id 586e51a60fabf-10e6bdbe218so8647090fac.10
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 09:20:40 -0700 (PDT)
+        with ESMTP id S232897AbiHOQUq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Aug 2022 12:20:46 -0400
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD51C1EEDC
+        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 09:20:42 -0700 (PDT)
+Received: by mail-ot1-x335.google.com with SMTP id l5-20020a05683004a500b0063707ff8244so5748138otd.12
+        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 09:20:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=cloudflare.com; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=nNZ0u0nBC2KeSEEdxzbAi0SK8J2Us1DLDDPRqND6hEc=;
-        b=wiyRKMkRQYcjM+XE8VvKwvEwd5ICt1r9/rWYFwD6PoeyS6/CWGyYYqvm1hLPRa7KQo
-         CedPLMamRHO3+nPkfBlXB3yE/NlnkeHoDwvX3nbTX9AbdDhSbNYbd1jXw8xURlwSDBoM
-         cPfEiQsKYdXRWHhZ7duUb1aXWIAUigxsUdrKc=
+        bh=U3OK8Oqnf2K0vdWXT1jn4LVlcHC3Qy4QXRttGxzPtuo=;
+        b=XU3mICcICTtNu7uN8K5AA/UUF9eGokgmjP4mS51xOSo4TbR6mIgICfjf3JleWSCsnD
+         3bKxTlmLlhl3CdsgdqLQhB63ngHK/3WAjkc9apGYatsqocuIO2tLcXn8aGkf/AKiaTLs
+         sTT1sq/iMyXBWFfe2c4PBoNmB/mESTtAqL4LQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=nNZ0u0nBC2KeSEEdxzbAi0SK8J2Us1DLDDPRqND6hEc=;
-        b=hD4ZKMJFsmJbs92RdG4JJ2L4h6jdcXsn829NuoPKLRWFZfrB1P/cS4vausYeutbo4X
-         NPwXzBcaAyQ42SE5L22YiMbuOf83vkmtWVEIarn1IPrCCi2rOmstVopmIbtDq+I4V7KK
-         KUkvpE/CxIfD73CiS/iDp2O7huwHG+hdGcvFD6J+dMdua1/u5/07dXKih25yLqV8H7Pr
-         Iv1Xr0USRtphgmX18Nzi0tfpI3KwZXDOcR/O49GCbM6x84bdGXHtWB7wxWSsEl6+izcI
-         YC9EYHPqlxptoPJPpVrbT9op/6lofZyMWd+OHX2+puOM92Z/yh8tCgwdG9UhzXDPsjH4
-         CvEQ==
-X-Gm-Message-State: ACgBeo3JjAeYcbAt6mVa+B8ZcLEAePyYzXFFW8EewWwLfKGuePQ47vXd
-        Du++5+B4Ggqq0MW+p/NHdijdPQ==
-X-Google-Smtp-Source: AA6agR5z0VLGcfMA+TlVlAJ5FuhbsicrvataQG5IVwelNQavaXDKjyccdLVSkfGXOab7dIekf8LuQQ==
-X-Received: by 2002:a05:6870:7099:b0:116:ccda:ac1c with SMTP id v25-20020a056870709900b00116ccdaac1cmr7048070oae.153.1660580440363;
-        Mon, 15 Aug 2022 09:20:40 -0700 (PDT)
+        bh=U3OK8Oqnf2K0vdWXT1jn4LVlcHC3Qy4QXRttGxzPtuo=;
+        b=t+uz+vNFAwhRqYIgZkMciN7ffiPVrypXTHn9XpAtGgAGI21MfQx6ZTAdvsEt8YzJou
+         K2Lu5bUsg4EGqgjdQ0H9BCkltoHlcR3PDR2lUdb1bU6IdKoZN6+v+mJlc1aVfdatGCbp
+         0tyfwRYtXCuDeOxPP7ip+NjM9/J2AYCnkvHbtnTObAIcpsihAx/N+bAt10IHPqayaogH
+         UGYLdcTGCpk3cBzRxga6NMDU6tEAT0H9lOlVD5MG9iBwtPolY2gW0oKC4NGBuqec7a6d
+         qR4P5bNJ+cgyM7n4h+KtpTRR+4g2YMDNFJ3YCX6BKHbv2ksgt+f2DVQ+tXlwX0vj6Ttw
+         E/PA==
+X-Gm-Message-State: ACgBeo18MnSDq9sNAq4jMR+zQpm/SdNe67Hpxigk5rKtycYtuP053d2P
+        oQGEqA6az11rtXwwn7vCT8NXeg==
+X-Google-Smtp-Source: AA6agR4zqUyCOz7UeYx3gb/1BVfk3brb7qMNS9yuuT17I/dl5o+tdGlomKfd9D9Qo+BAH1l8rlRK4A==
+X-Received: by 2002:a05:6830:10c9:b0:636:d88f:1299 with SMTP id z9-20020a05683010c900b00636d88f1299mr6217405oto.134.1660580441763;
+        Mon, 15 Aug 2022 09:20:41 -0700 (PDT)
 Received: from localhost.localdomain ([184.4.90.121])
-        by smtp.gmail.com with ESMTPSA id x91-20020a9d37e4000000b00636ee04e7aesm2163371otb.67.2022.08.15.09.20.38
+        by smtp.gmail.com with ESMTPSA id x91-20020a9d37e4000000b00636ee04e7aesm2163371otb.67.2022.08.15.09.20.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 09:20:40 -0700 (PDT)
+        Mon, 15 Aug 2022 09:20:41 -0700 (PDT)
 From:   Frederick Lawler <fred@cloudflare.com>
 To:     kpsingh@kernel.org, revest@chromium.org, jackmanb@chromium.org,
         ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
@@ -58,9 +58,9 @@ Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
         kernel-team@cloudflare.com, cgzones@googlemail.com,
         karl@bigbadwolfsecurity.com, tixxdz@gmail.com,
         Frederick Lawler <fred@cloudflare.com>
-Subject: [PATCH v5 3/4] selftests/bpf: Add tests verifying bpf lsm userns_create hook
-Date:   Mon, 15 Aug 2022 11:20:27 -0500
-Message-Id: <20220815162028.926858-4-fred@cloudflare.com>
+Subject: [PATCH v5 4/4] selinux: Implement userns_create hook
+Date:   Mon, 15 Aug 2022 11:20:28 -0500
+Message-Id: <20220815162028.926858-5-fred@cloudflare.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20220815162028.926858-1-fred@cloudflare.com>
 References: <20220815162028.926858-1-fred@cloudflare.com>
@@ -70,192 +70,77 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The LSM hook userns_create was introduced to provide LSM's an
-opportunity to block or allow unprivileged user namespace creation. This
-test serves two purposes: it provides a test eBPF implementation, and
-tests the hook successfully blocks or allows user namespace creation.
+Unprivileged user namespace creation is an intended feature to enable
+sandboxing, however this feature is often used to as an initial step to
+perform a privilege escalation attack.
 
-This tests 3 cases:
+This patch implements a new user_namespace { create } access control
+permission to restrict which domains allow or deny user namespace
+creation. This is necessary for system administrators to quickly protect
+their systems while waiting for vulnerability patches to be applied.
 
-        1. Unattached bpf program does not block unpriv user namespace
-           creation.
-        2. Attached bpf program allows user namespace creation given
-           CAP_SYS_ADMIN privileges.
-        3. Attached bpf program denies user namespace creation for a
-           user without CAP_SYS_ADMIN.
+This permission can be used in the following way:
 
-Acked-by: KP Singh <kpsingh@kernel.org>
+        allow domA_t domA_t : user_namespace { create };
+
 Signed-off-by: Frederick Lawler <fred@cloudflare.com>
 
 ---
-The generic deny_namespace file name is used for future namespace
-expansion. I didn't want to limit these files to just the create_user_ns
-hook.
 Changes since v4:
 - None
 Changes since v3:
-- Explicitly set CAP_SYS_ADMIN to test namespace is created given
-  permission
-- Simplify BPF test to use sleepable hook only
-- Prefer unshare() over clone() for tests
+- None
 Changes since v2:
 - Rename create_user_ns hook to userns_create
+- Use user_namespace as an object opposed to a generic namespace object
+- s/domB_t/domA_t in commit message
 Changes since v1:
 - Introduce this patch
 ---
- .../selftests/bpf/prog_tests/deny_namespace.c | 102 ++++++++++++++++++
- .../selftests/bpf/progs/test_deny_namespace.c |  33 ++++++
- 2 files changed, 135 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/deny_namespace.c
- create mode 100644 tools/testing/selftests/bpf/progs/test_deny_namespace.c
+ security/selinux/hooks.c            | 9 +++++++++
+ security/selinux/include/classmap.h | 2 ++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/deny_namespace.c b/tools/testing/selftests/bpf/prog_tests/deny_namespace.c
-new file mode 100644
-index 000000000000..1bc6241b755b
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/deny_namespace.c
-@@ -0,0 +1,102 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#define _GNU_SOURCE
-+#include <test_progs.h>
-+#include "test_deny_namespace.skel.h"
-+#include <sched.h>
-+#include "cap_helpers.h"
-+#include <stdio.h>
-+
-+static int wait_for_pid(pid_t pid)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 79573504783b..b9f1078450b3 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4221,6 +4221,14 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	spin_unlock(&isec->lock);
+ }
+ 
++static int selinux_userns_create(const struct cred *cred)
 +{
-+	int status, ret;
++	u32 sid = current_sid();
 +
-+again:
-+	ret = waitpid(pid, &status, 0);
-+	if (ret == -1) {
-+		if (errno == EINTR)
-+			goto again;
-+
-+		return -1;
-+	}
-+
-+	if (!WIFEXITED(status))
-+		return -1;
-+
-+	return WEXITSTATUS(status);
++	return avc_has_perm(&selinux_state, sid, sid, SECCLASS_USER_NAMESPACE,
++						USER_NAMESPACE__CREATE, NULL);
 +}
 +
-+/* negative return value -> some internal error
-+ * positive return value -> userns creation failed
-+ * 0                     -> userns creation succeeded
-+ */
-+static int create_user_ns(void)
-+{
-+	pid_t pid;
-+
-+	pid = fork();
-+	if (pid < 0)
-+		return -1;
-+
-+	if (pid == 0) {
-+		if (unshare(CLONE_NEWUSER))
-+			_exit(EXIT_FAILURE);
-+		_exit(EXIT_SUCCESS);
-+	}
-+
-+	return wait_for_pid(pid);
-+}
-+
-+static void test_userns_create_bpf(void)
-+{
-+	__u32 cap_mask = 1ULL << CAP_SYS_ADMIN;
-+	__u64 old_caps = 0;
-+
-+	cap_enable_effective(cap_mask, &old_caps);
-+
-+	ASSERT_OK(create_user_ns(), "priv new user ns");
-+
-+	cap_disable_effective(cap_mask, &old_caps);
-+
-+	ASSERT_EQ(create_user_ns(), EPERM, "unpriv new user ns");
-+
-+	if (cap_mask & old_caps)
-+		cap_enable_effective(cap_mask, NULL);
-+}
-+
-+static void test_unpriv_userns_create_no_bpf(void)
-+{
-+	__u32 cap_mask = 1ULL << CAP_SYS_ADMIN;
-+	__u64 old_caps = 0;
-+
-+	cap_disable_effective(cap_mask, &old_caps);
-+
-+	ASSERT_OK(create_user_ns(), "no-bpf unpriv new user ns");
-+
-+	if (cap_mask & old_caps)
-+		cap_enable_effective(cap_mask, NULL);
-+}
-+
-+void test_deny_namespace(void)
-+{
-+	struct test_deny_namespace *skel = NULL;
-+	int err;
-+
-+	if (test__start_subtest("unpriv_userns_create_no_bpf"))
-+		test_unpriv_userns_create_no_bpf();
-+
-+	skel = test_deny_namespace__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "skel load"))
-+		goto close_prog;
-+
-+	err = test_deny_namespace__attach(skel);
-+	if (!ASSERT_OK(err, "attach"))
-+		goto close_prog;
-+
-+	if (test__start_subtest("userns_create_bpf"))
-+		test_userns_create_bpf();
-+
-+	test_deny_namespace__detach(skel);
-+
-+close_prog:
-+	test_deny_namespace__destroy(skel);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/test_deny_namespace.c b/tools/testing/selftests/bpf/progs/test_deny_namespace.c
-new file mode 100644
-index 000000000000..09ad5a4ebd1f
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/test_deny_namespace.c
-@@ -0,0 +1,33 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <linux/bpf.h>
-+#include <bpf/bpf_helpers.h>
-+#include <bpf/bpf_tracing.h>
-+#include <errno.h>
-+#include <linux/capability.h>
-+
-+struct kernel_cap_struct {
-+	__u32 cap[_LINUX_CAPABILITY_U32S_3];
-+} __attribute__((preserve_access_index));
-+
-+struct cred {
-+	struct kernel_cap_struct cap_effective;
-+} __attribute__((preserve_access_index));
-+
-+char _license[] SEC("license") = "GPL";
-+
-+SEC("lsm.s/userns_create")
-+int BPF_PROG(test_userns_create, const struct cred *cred, int ret)
-+{
-+	struct kernel_cap_struct caps = cred->cap_effective;
-+	int cap_index = CAP_TO_INDEX(CAP_SYS_ADMIN);
-+	__u32 cap_mask = CAP_TO_MASK(CAP_SYS_ADMIN);
-+
-+	if (ret)
-+		return 0;
-+
-+	ret = -EPERM;
-+	if (caps.cap[cap_index] & cap_mask)
-+		return 0;
-+
-+	return -EPERM;
-+}
+ /* Returns error only if unable to parse addresses */
+ static int selinux_parse_skb_ipv4(struct sk_buff *skb,
+ 			struct common_audit_data *ad, u8 *proto)
+@@ -7111,6 +7119,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(task_movememory, selinux_task_movememory),
+ 	LSM_HOOK_INIT(task_kill, selinux_task_kill),
+ 	LSM_HOOK_INIT(task_to_inode, selinux_task_to_inode),
++	LSM_HOOK_INIT(userns_create, selinux_userns_create),
+ 
+ 	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
+ 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index ff757ae5f253..0bff55bb9cde 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -254,6 +254,8 @@ const struct security_class_mapping secclass_map[] = {
+ 	  { COMMON_FILE_PERMS, NULL } },
+ 	{ "io_uring",
+ 	  { "override_creds", "sqpoll", NULL } },
++	{ "user_namespace",
++	  { "create", NULL } },
+ 	{ NULL }
+   };
+ 
 -- 
 2.30.2
 
