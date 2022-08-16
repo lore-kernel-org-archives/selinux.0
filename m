@@ -2,175 +2,133 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A15C3F6B0
-	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 21:51:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E14C32772
+	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 22:12:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237793AbiHPVv2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Aug 2022 17:51:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37252 "EHLO
+        id S236875AbiHPWMP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Aug 2022 18:12:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237784AbiHPVv0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 17:51:26 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907078E0CB
-        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 14:51:23 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id u14so13534512oie.2
-        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 14:51:23 -0700 (PDT)
+        with ESMTP id S236911AbiHPWMO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 18:12:14 -0400
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8A18FD56
+        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 15:12:13 -0700 (PDT)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-10ec41637b3so13220645fac.4
+        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 15:12:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=cINbdQx9vuTQNR1x1rEsEZ4jjGMUWdf19tZ6cChgAaA=;
-        b=CJvwxuwd+0rt/bo4TkCNqYjlT4SJ6Aesn0zM6uXzP6TCT+LreKW44m+4ak4S4QcpN8
-         Z3emQFWvCmqT6EmdYqBJBiTKDxs25SPIFHJWRc2lCFCaMDG285aPNFHSJURzJUXrItiL
-         Ui0T4+b4CX6rGWwwzQfjXo8/X0Ju4rYSJ9xG3J7ltDjyoURr0U0yWlyr6RXfyYXVOrj/
-         dZni714OJ/a9KGzQWNmYg0CEkelbTwf73pNCb8n0Ac9BiqIv1/rm9RuUiqu/Zp2s8EQx
-         XozhxC5/9Z05RYEinUrW7q9aA6G43Pjq/Ad7nHIMnr1jM1fRLjCBEg6+JP0Ma1IBiniW
-         viLQ==
+        bh=bknMuEzY2g2ODMFx0pPstR6QEhnsKog5Pl0iH/Ldgz4=;
+        b=sL5dB1VPJNsbf7G8+raTZ4CNHBvpk7wuUoHen4F/fRTlul2K/o6MnEL0QELNEgsXV5
+         8uwAQx9hINB2uTWQ0G+WTB+PukHYNee/MzAqYyyV44+Yri8pGj61r+lHfamUK8p8w4X7
+         QRKqDPOPL9df5lxT34qEXLNreDeG9SXoOiwcQAPOeFr88+qXNgL64ohaZHIVEk+mgB5R
+         wnGXnCFP58BNzbyVX8OjR1IGJbgoEjD+wT7pAjEFqxbJu1di5xE14EIVzTnYMG1XM9Y9
+         6uf1djrUsKmdWrPsGSGSoKlADOPuJiThHSoMfwFLvak3qmxWc7ku1U1IrL0Q701vNeVo
+         jU+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=cINbdQx9vuTQNR1x1rEsEZ4jjGMUWdf19tZ6cChgAaA=;
-        b=Fz+g+UCrUSyN35ZVNBnMj0dQI19OXbmt58K8i/uMgg7KR9nXAepkXDyegPrNNQVQn1
-         YKKMsYU4TS0eWYL63dX84mpj6dwsHIENO6tXkTAjB/v7Y0erK8sd8xHdFVoagK7hrndC
-         +K/dKlgDrbzRm+brUaj8Lt61/w0i4foD6eD+uaKMJi959nbhzheNVNIXpCZKTBR7lQTV
-         zgOUXSr2LnyyditXWQRH5DW3lECBPWNhcVl/GOSPLKh4MXGiWRKivThenXkyvAd01Xp8
-         dkZKSonrcZT79A3iwLRBAR02t+Nty1fkH/sMMOjYMCG4037XMbIAHMBQFUeMHusERf8k
-         Gf3Q==
-X-Gm-Message-State: ACgBeo0lxb7ESz2EnrlktDxR80vpxJrN87GN72J+2UsMWPZx5879Kz0p
-        KPAokOT81aBh6QwFZA3JGxuMP9oZYLOMICRm7vjc
-X-Google-Smtp-Source: AA6agR4ffEEKYkbE47q7/sRZQjQuSsIQ8phb3aTW9UCETN6ndapbDy186fFAcL9M3UIMnxT1iC01UQw6kwBHZYMTE0o=
-X-Received: by 2002:aca:b7d5:0:b0:343:c478:91c6 with SMTP id
- h204-20020acab7d5000000b00343c47891c6mr257896oif.136.1660686682803; Tue, 16
- Aug 2022 14:51:22 -0700 (PDT)
+        bh=bknMuEzY2g2ODMFx0pPstR6QEhnsKog5Pl0iH/Ldgz4=;
+        b=6e/dYQKaLzgFE/g2nbpaWK564LtMc1WQOMwnJfMae+66/Ns4cBpaOn6O5QcDXrGEbA
+         +LzP8jqAAFiX87VZz7Hl6WDHKqCw3t1/gbGtEDiByKLVMMvWuKt3S7f2FGQEk94OTpkj
+         jjlBg9v46EaO6UaY04Qx8f8hFVQ56TdR95Peg0Z4zTgDhILsZ0vHocvjqHGImrHMWgQq
+         wfEBN7cV6e8/ET9cNxQilK/FMC6Bs40kdf5YUDUf15BXc88YUItSsZvy4gxNWQ42c+WV
+         XZxk/89RsE39gHXpgVtqL74UczCgpaFeYm0rOlKEKjqUXBn+Xi81EQyOpzFO7/z6Sz78
+         rESA==
+X-Gm-Message-State: ACgBeo1B5Gt5iqJjQG5ibfh4nmtwi1h9fl+OZvBtKRhyx38tkYC1QVVe
+        +aFjQeWvzkPf3gEPh8/msag6T6U4+56q7tOynpu+
+X-Google-Smtp-Source: AA6agR4Kj8XNYB9B3lGnewDxsdQnXfT+Fb5iBt539vCMF1wUyb8ZJN1qBsC0HMD5LPLcd7Vjw7gmG8QhiI7dUCI9BGQ=
+X-Received: by 2002:a05:6870:a78d:b0:11c:437b:ec70 with SMTP id
+ x13-20020a056870a78d00b0011c437bec70mr320272oao.136.1660687932528; Tue, 16
+ Aug 2022 15:12:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220815162028.926858-1-fred@cloudflare.com>
-In-Reply-To: <20220815162028.926858-1-fred@cloudflare.com>
+References: <20220708093451.472870-1-omosnace@redhat.com>
+In-Reply-To: <20220708093451.472870-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 16 Aug 2022 17:51:12 -0400
-Message-ID: <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-To:     Frederick Lawler <fred@cloudflare.com>
-Cc:     kpsingh@kernel.org, revest@chromium.org, jackmanb@chromium.org,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        kafai@fb.com, songliubraving@fb.com, yhs@fb.com,
-        john.fastabend@gmail.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
-        ebiederm@xmission.com, bpf@vger.kernel.org,
+Date:   Tue, 16 Aug 2022 18:12:01 -0400
+Message-ID: <CAHC9VhSFUJ6J4_wt1SKAoLourNGVkxu0Tbd9NPDbYqjjrs-qoQ@mail.gmail.com>
+Subject: Re: [RFC PATCH RESEND] userfaultfd: open userfaultfds with O_RDONLY
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Lokesh Gidra <lokeshgidra@google.com>, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-team@cloudflare.com,
-        cgzones@googlemail.com, karl@bigbadwolfsecurity.com,
-        tixxdz@gmail.com
+        linux-kernel@vger.kernel.org,
+        "Robert O'Callahan" <roc@ocallahan.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 15, 2022 at 12:20 PM Frederick Lawler <fred@cloudflare.com> wrote:
+On Fri, Jul 8, 2022 at 5:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> While user namespaces do not make the kernel more vulnerable, they are however
-> used to initiate exploits. Some users do not want to block namespace creation
-> for the entirety of the system, which some distributions provide. Instead, we
-> needed a way to have some applications be blocked, and others allowed. This is
-> not possible with those tools. Managing hierarchies also did not fit our case
-> because we're determining which tasks are allowed based on their attributes.
+> Since userfaultfd doesn't implement a write operation, it is more
+> appropriate to open it read-only.
 >
-> While exploring a solution, we first leveraged the LSM cred_prepare hook
-> because that is the closest hook to prevent a call to create_user_ns().
+> When userfaultfds are opened read-write like it is now, and such fd is
+> passed from one process to another, SELinux will check both read and
+> write permissions for the target process, even though it can't actually
+> do any write operation on the fd later.
 >
-> The calls look something like this:
+> Inspired by the following bug report, which has hit the SELinux scenario
+> described above:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1974559
 >
->     cred = prepare_creds()
->         security_prepare_creds()
->             call_int_hook(cred_prepare, ...
->     if (cred)
->         create_user_ns(cred)
+> Reported-by: Robert O'Callahan <roc@ocallahan.org>
+> Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
 >
-> We noticed that error codes were not propagated from this hook and
-> introduced a patch [1] to propagate those errors.
+> Resending as the last submission was ignored for over a year...
 >
-> The discussion notes that security_prepare_creds() is not appropriate for
-> MAC policies, and instead the hook is meant for LSM authors to prepare
-> credentials for mutation. [2]
+> https://lore.kernel.org/lkml/20210624152515.1844133-1-omosnace@redhat.com/T/
 >
-> Additionally, cred_prepare hook is not without problems. Handling the clone3
-> case is a bit more tricky due to the user space pointer passed to it. This
-> makes checking the syscall subject to a possible TOCTTOU attack.
+> I marked this as RFC, because I'm not sure if this has any unwanted side
+> effects. I only ran this patch through selinux-testsuite, which has a
+> simple userfaultfd subtest, and a reproducer from the Bugzilla report.
 >
-> Ultimately, we concluded that a better course of action is to introduce
-> a new security hook for LSM authors. [3]
+> Please tell me whether this makes sense and/or if it passes any
+> userfaultfd tests you guys might have.
 >
-> This patch set first introduces a new security_create_user_ns() function
-> and userns_create LSM hook, then marks the hook as sleepable in BPF. The
-> following patches after include a BPF test and a patch for an SELinux
-> implementation.
->
-> We want to encourage use of user namespaces, and also cater the needs
-> of users/administrators to observe and/or control access. There is no
-> expectation of an impact on user space applications because access control
-> is opt-in, and users wishing to observe within a LSM context
->
->
-> Links:
-> 1. https://lore.kernel.org/all/20220608150942.776446-1-fred@cloudflare.com/
-> 2. https://lore.kernel.org/all/87y1xzyhub.fsf@email.froward.int.ebiederm.org/
-> 3. https://lore.kernel.org/all/9fe9cd9f-1ded-a179-8ded-5fde8960a586@cloudflare.com/
->
-> Past discussions:
-> V4: https://lore.kernel.org/all/20220801180146.1157914-1-fred@cloudflare.com/
-> V3: https://lore.kernel.org/all/20220721172808.585539-1-fred@cloudflare.com/
-> V2: https://lore.kernel.org/all/20220707223228.1940249-1-fred@cloudflare.com/
-> V1: https://lore.kernel.org/all/20220621233939.993579-1-fred@cloudflare.com/
->
-> Changes since v4:
-> - Update commit description
-> - Update cover letter
-> Changes since v3:
-> - Explicitly set CAP_SYS_ADMIN to test namespace is created given
->   permission
-> - Simplify BPF test to use sleepable hook only
-> - Prefer unshare() over clone() for tests
-> Changes since v2:
-> - Rename create_user_ns hook to userns_create
-> - Use user_namespace as an object opposed to a generic namespace object
-> - s/domB_t/domA_t in commit message
-> Changes since v1:
-> - Add selftests/bpf: Add tests verifying bpf lsm create_user_ns hook patch
-> - Add selinux: Implement create_user_ns hook patch
-> - Change function signature of security_create_user_ns() to only take
->   struct cred
-> - Move security_create_user_ns() call after id mapping check in
->   create_user_ns()
-> - Update documentation to reflect changes
->
-> Frederick Lawler (4):
->   security, lsm: Introduce security_create_user_ns()
->   bpf-lsm: Make bpf_lsm_userns_create() sleepable
->   selftests/bpf: Add tests verifying bpf lsm userns_create hook
->   selinux: Implement userns_create hook
->
->  include/linux/lsm_hook_defs.h                 |   1 +
->  include/linux/lsm_hooks.h                     |   4 +
->  include/linux/security.h                      |   6 ++
->  kernel/bpf/bpf_lsm.c                          |   1 +
->  kernel/user_namespace.c                       |   5 +
->  security/security.c                           |   5 +
->  security/selinux/hooks.c                      |   9 ++
->  security/selinux/include/classmap.h           |   2 +
->  .../selftests/bpf/prog_tests/deny_namespace.c | 102 ++++++++++++++++++
->  .../selftests/bpf/progs/test_deny_namespace.c |  33 ++++++
->  10 files changed, 168 insertions(+)
->  create mode 100644 tools/testing/selftests/bpf/prog_tests/deny_namespace.c
->  create mode 100644 tools/testing/selftests/bpf/progs/test_deny_namespace.c
+>  fs/userfaultfd.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-I just merged this into the lsm/next tree, thanks for seeing this
-through Frederick, and thank you to everyone who took the time to
-review the patches and add their tags.
+VFS folks, any objection to this patch?  It seems reasonable to me and
+I'd really prefer this to go in via the vfs tree, but I'm not above
+merging this via the lsm/next tree to get someone in vfs land to pay
+attention to this ...
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git next
+> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+> index e943370107d0..8ccf00be63e1 100644
+> --- a/fs/userfaultfd.c
+> +++ b/fs/userfaultfd.c
+> @@ -989,7 +989,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
+>         int fd;
+>
+>         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
+> -                       O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
+> +                       O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
+>         if (fd < 0)
+>                 return fd;
+>
+> @@ -2090,7 +2090,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+>         mmgrab(ctx->mm);
+>
+>         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
+> -                       O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
+> +                       O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
+>         if (fd < 0) {
+>                 mmdrop(ctx->mm);
+>                 kmem_cache_free(userfaultfd_ctx_cachep, ctx);
+> --
+> 2.36.1
 
 -- 
 paul-moore.com
