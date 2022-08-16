@@ -2,88 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E309C2BB41
-	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 06:50:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC9E0C2BB41
+	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 07:08:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230177AbiHPGuP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Aug 2022 02:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55880 "EHLO
+        id S231589AbiHPHI6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Aug 2022 03:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230138AbiHPGtu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 02:49:50 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D602AE14
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 18:58:26 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id cb8so7227197qtb.0
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 18:58:26 -0700 (PDT)
+        with ESMTP id S231609AbiHPHIm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 03:08:42 -0400
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8786D2CD568
+        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 20:31:37 -0700 (PDT)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-10edfa2d57dso10397984fac.0
+        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 20:31:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:user-agent:message-id:date
-         :to:from:subject:from:to:cc;
-        bh=t/JmZmaBgMo1VbFS+IDv9IqKCnrbySZ35BOsym3YnPU=;
-        b=GCGy9L6jiFOah1mv6mHSa6YvQlN0DpPSYc/KCrS7p/MGONo58nEkqlftUtndE0rOUq
-         rP7giPuSYz3g1mBHdTq5LbBtkte6m7rNcoGYJ8VH65i9Dw6syA3ym5M9K2+pel+Uutvx
-         QghiL4lVEIVPIUD0+fdVqLQqP9lIN/0sGEZhNzCeC01DqhEaw098QkEbBtsBp4GtrH33
-         b4mqI6/RAT7/Qf20q+FcX48FaGIK9i6HVtgkRQxM3+/9uzEVFBFUWNDe+1L7A1l3Xff7
-         KMfJw/EmihiMOMOON6sdFGueqSISdLvbSIdda1gsLpgpNdv2FvZeNjhvY0BO2Sn9Ls8I
-         //Aw==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=T1b0NK+n1SqAz2Svwoix8DVYHLKcE2/eAUmUN2sYhs8=;
+        b=vUwJll22o/C6MxDNt8fjQ1/42rG6oE6BtfRBXjFohwe7bsgmGH4h22o7gL4K8tBET0
+         E4gojFhzA7Vamc3I9VdJ70zbyar3/85iSLXm2FurulLmw3752dwdPH4oXtGZfgGv0OUb
+         mHTNJui7pp0iMZn1ydkAmzR06KpJf6Nu4pRG7RztcKaFjSic9DL3HMHiNUJgE4P9yHKp
+         yxJJve6AyL9XV0O7WFkTaUQT3hR+w75DVrTCXAixs8OWGEjfYCs1Mcr1iJggZHwsDpKt
+         /evEs19zB4C/0NBUYJhmsducvMdPm4EnhFJoc06tufsnS0ltaWcVr12feLzjw++516cw
+         ULWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:user-agent:message-id:date
-         :to:from:subject:x-gm-message-state:from:to:cc;
-        bh=t/JmZmaBgMo1VbFS+IDv9IqKCnrbySZ35BOsym3YnPU=;
-        b=vw0tX3Q5yGi6UZmwLMsKUJdCcanO78SEPZcVKq04+XHrCyLIzGmEwwut6f4As7O+LT
-         MsMbMrA5El5x3B/NMi86qCAP2ynRc7CgWyRC2P7JXWypGZGzTjj1WgzndyEd3YYcRsxi
-         aTQ2WHJR2goiAXI5cFiPThIrqWMglwpUOo30I4SID4T9Dh24yCuwqlUsEXFhwVCDZMfD
-         Nc8vo0NzUsPOi1sRgwZfcpvmjC0ysnSEeK0RfnIh4HDvACUdXRJOYiWkSTGEQzRGcAHm
-         dezDI2E/I5Lmi9O4vMLcXLvk5c1sAeeifyD5LPZ5a4xNNp0T69KyloqUUDN+nUVfUMqQ
-         wgTw==
-X-Gm-Message-State: ACgBeo00AGD2cyyY8Z93mtUMGnkzdY+M+S6b9Seog9CFD24f5SpOQSWX
-        j9EF5UismPUIISStMFF7Jm0jMREgibzK
-X-Google-Smtp-Source: AA6agR5/TDFFsX+FiQB/Cp6BpBlHwqUurfXOnmeHGK5LndI29fS6qsWZs2NmsLIXRx/1zkwD7kVyug==
-X-Received: by 2002:a05:622a:3cc:b0:343:7396:4824 with SMTP id k12-20020a05622a03cc00b0034373964824mr15014789qtx.680.1660615105557;
-        Mon, 15 Aug 2022 18:58:25 -0700 (PDT)
-Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
-        by smtp.gmail.com with ESMTPSA id h10-20020a05620a400a00b006bb4494ebd9sm3555363qko.62.2022.08.15.18.58.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Aug 2022 18:58:25 -0700 (PDT)
-Subject: [selinux-testsuite PATCH] tests/binder: remove stray flag files with
- 'make clean'
-From:   Paul Moore <paul@paul-moore.com>
-To:     selinux@vger.kernel.org
-Date:   Mon, 15 Aug 2022 21:58:24 -0400
-Message-ID: <166061510477.614432.940552725841920786.stgit@olly>
-User-Agent: StGit/1.5
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=T1b0NK+n1SqAz2Svwoix8DVYHLKcE2/eAUmUN2sYhs8=;
+        b=nqWYu1VM4fk4OyzR1H0rhuEV7WUbBM6kQLSSPkUshnBkJymoAB2vDRXnuhgFPvV3vf
+         XDzbR6AuWLqiaB5C6i+7Fs+Co1hTHA8FkUUDK8sjUJt7jcXld5QziktnO4V2i2ek0Srq
+         A7T6MQVqknSIsJVp+ViKz5jByxQrxmR9jpmqcn2KqCiGbZZYSSHfgguJgkXGvaIE7eMn
+         93oAzBct3Qk8IVUmxRleTNH8yHimCG05SxWgEqbEGbyfI3tG9gbQvVlUy+kqU9/mAn+L
+         c4QxL59s3DtOkX9NfZX9/ds9ShDNGycUBtF1m5rx1UGttVH1k+z9jAG32+YwFjLeEav9
+         I6fw==
+X-Gm-Message-State: ACgBeo2KStxu2Jj9K9Ll/zEVX4EPE90byImKsPkog7oXlitNvMYJ6QHP
+        eeVuW52o3YlO55RojlRoKkFLxymAIqtBXK6w61FWtnWdWw==
+X-Google-Smtp-Source: AA6agR4eS5O5tkLI0UhK+nbjJTM7n80mHavLeRJHYsxYyjXrANJnyfLuZc7iLg8Kf3Kvjp5mZvd2BbdDE14ORVaJUOU=
+X-Received: by 2002:a05:6870:9588:b0:101:c003:bfe6 with SMTP id
+ k8-20020a056870958800b00101c003bfe6mr12483799oao.41.1660620696477; Mon, 15
+ Aug 2022 20:31:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20220808144900.125242-1-omosnace@redhat.com>
+In-Reply-To: <20220808144900.125242-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 15 Aug 2022 23:31:25 -0400
+Message-ID: <CAHC9VhTkRAVFhfD5zhgQ75ztfv1-mPoe1s+rwW9Rk289gWa+oQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: add a new warn_on_audited debug flag to selinuxfs
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Failed or incomplete test runs can leave temporary test files in
-the binder test directory, remove them with 'make clean'.
+On Mon, Aug 8, 2022 at 10:49 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> When debugging SELinux denials, it is often helpful to know which part
+> of kernel code triggered the denial. Thus, this patch adds a new
+> /sys/fs/selinux/warn_on_audited flag that, when set to 1, will cause any
+> audited AVC event to log a WARNING to the kernel console, which
+> naturally comes with a kernel stack trace.
+>
+> While the same can be achieved via the "avc:selinux_audited" kernel
+> tracepoint and the perf tool, that approach has several practical
+> disadvantages:
+> 1. It requires perf to be installed on the machine.
+> 2. It requires kernel debug symbols to be available when decoding the
+>    stack trace.
+> 3. It requires a perf process to be running in the background.
+> 4. The stack traces can only be obtained at the end, after the perf
+>    process is terminated, not live during the capture. (Though this may
+>    be solved by writing a custom tool on top of libtraceevent.)
+>
+> Thus, providing a simple native knob for this in selinuxfs is still
+> valuable.
+>
+> The warn_on_audited flag is always set to 0 on boot and is expected to
+> be set to 1 only temporarily by system administrator in order to debug
+> SELinux denials. It is not intended to be used on production systems.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  security/selinux/avc.c              |  6 +++
+>  security/selinux/ima.c              | 11 +++++-
+>  security/selinux/include/security.h | 11 ++++++
+>  security/selinux/selinuxfs.c        | 61 +++++++++++++++++++++++++++++
+>  4 files changed, 88 insertions(+), 1 deletion(-)
 
-  mkfifo: cannot create fifo \
-    'binder/manager_flag': File exists
-  mkfifo: cannot create fifo \
-    'binder/service_provider_flag': File exists
+I'm sorry, but I'm not going to merge this.  At least not now.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- tests/binder/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+In general I don't like using WARN/WARN_ON/etc. for this; I believe
+their use should be limited for rather serious kernel issues and not
+as a developer's debugging tool.  I also don't like duplicating the
+tracepoint functionality.  I understand there are hurdles to using
+perf on a system, but I would much rather see work go into fixing that
+than duplicating its functionality
 
-diff --git a/tests/binder/Makefile b/tests/binder/Makefile
-index e78ad16..b89d4db 100644
---- a/tests/binder/Makefile
-+++ b/tests/binder/Makefile
-@@ -18,6 +18,6 @@ endif
- all: $(TARGETS)
- 
- clean:
--	rm -f $(TARGETS)
-+	rm -f $(TARGETS) manager_flag service_provider_flag
- 
- $(TARGETS): $(DEPS)
-
+-- 
+paul-moore.com
