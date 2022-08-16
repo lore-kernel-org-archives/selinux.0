@@ -2,104 +2,220 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC9E0C2BB41
-	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 07:08:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48DD3C3F6B0
+	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 09:39:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231589AbiHPHI6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Aug 2022 03:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
+        id S233443AbiHPJjI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Aug 2022 05:39:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231609AbiHPHIm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 03:08:42 -0400
-Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8786D2CD568
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 20:31:37 -0700 (PDT)
-Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-10edfa2d57dso10397984fac.0
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 20:31:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=T1b0NK+n1SqAz2Svwoix8DVYHLKcE2/eAUmUN2sYhs8=;
-        b=vUwJll22o/C6MxDNt8fjQ1/42rG6oE6BtfRBXjFohwe7bsgmGH4h22o7gL4K8tBET0
-         E4gojFhzA7Vamc3I9VdJ70zbyar3/85iSLXm2FurulLmw3752dwdPH4oXtGZfgGv0OUb
-         mHTNJui7pp0iMZn1ydkAmzR06KpJf6Nu4pRG7RztcKaFjSic9DL3HMHiNUJgE4P9yHKp
-         yxJJve6AyL9XV0O7WFkTaUQT3hR+w75DVrTCXAixs8OWGEjfYCs1Mcr1iJggZHwsDpKt
-         /evEs19zB4C/0NBUYJhmsducvMdPm4EnhFJoc06tufsnS0ltaWcVr12feLzjw++516cw
-         ULWA==
+        with ESMTP id S233693AbiHPJi3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 05:38:29 -0400
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B0D11945A
+        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 01:00:27 -0700 (PDT)
+Received: by mail-io1-f69.google.com with SMTP id f4-20020a5d8784000000b00684f917b026so5519137ion.12
+        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 01:00:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=T1b0NK+n1SqAz2Svwoix8DVYHLKcE2/eAUmUN2sYhs8=;
-        b=nqWYu1VM4fk4OyzR1H0rhuEV7WUbBM6kQLSSPkUshnBkJymoAB2vDRXnuhgFPvV3vf
-         XDzbR6AuWLqiaB5C6i+7Fs+Co1hTHA8FkUUDK8sjUJt7jcXld5QziktnO4V2i2ek0Srq
-         A7T6MQVqknSIsJVp+ViKz5jByxQrxmR9jpmqcn2KqCiGbZZYSSHfgguJgkXGvaIE7eMn
-         93oAzBct3Qk8IVUmxRleTNH8yHimCG05SxWgEqbEGbyfI3tG9gbQvVlUy+kqU9/mAn+L
-         c4QxL59s3DtOkX9NfZX9/ds9ShDNGycUBtF1m5rx1UGttVH1k+z9jAG32+YwFjLeEav9
-         I6fw==
-X-Gm-Message-State: ACgBeo2KStxu2Jj9K9Ll/zEVX4EPE90byImKsPkog7oXlitNvMYJ6QHP
-        eeVuW52o3YlO55RojlRoKkFLxymAIqtBXK6w61FWtnWdWw==
-X-Google-Smtp-Source: AA6agR4eS5O5tkLI0UhK+nbjJTM7n80mHavLeRJHYsxYyjXrANJnyfLuZc7iLg8Kf3Kvjp5mZvd2BbdDE14ORVaJUOU=
-X-Received: by 2002:a05:6870:9588:b0:101:c003:bfe6 with SMTP id
- k8-20020a056870958800b00101c003bfe6mr12483799oao.41.1660620696477; Mon, 15
- Aug 2022 20:31:36 -0700 (PDT)
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc;
+        bh=/u2jeEEoiyJZpO0ZrnI7yKagwWTGYr7cBjjav6KTDEQ=;
+        b=cRMBkMwFKuWh1GEtJebgpdi9v0oCL72+bOgkv5b7kiJOJsXe16TqQ3u1gKh67xj9qK
+         3SoidXkT/KShAmxbojW1IMvNMpgpaRtIqpUBY+Kg6UcCnarstl3mi8Y8ZrzV2fuRHtAe
+         9O4dYtooCgt+eqxSl5eyaFKVT+AjmanexOT6E5d0dyw24ukC4fMYOqyqsNVm/KYPSKtZ
+         YhgRiXQ6XmzVDmGpY6e5fB97fEJKTFv1fzzTC3aBIP7AefoOOKuSWOi0p1cSu5DqvFZt
+         bNArrEWRgI6LmsHbR3ra/hSDUaLVl1NxRCIMOD1VM3FtL6khGEbw0fTiJyGGusY6Es8K
+         qNNw==
+X-Gm-Message-State: ACgBeo3xS8qa4SVvqgJlp/xUa21ipCBYCqNr2aEz72YdKYAKQhr5/vUk
+        neOfoZRmOk8fXIL1vjy94dkucksAIRcrs7gAVJjUcssz+los
+X-Google-Smtp-Source: AA6agR758k4dVTcV3GFPZiuhqFH7+ge5uru4PHLGXVTxvhhWRcfxjVGblr3p5btRyPYAJjX7pupVHyDUWWNXSwQqR1eJN/p0CFh8
 MIME-Version: 1.0
-References: <20220808144900.125242-1-omosnace@redhat.com>
-In-Reply-To: <20220808144900.125242-1-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 15 Aug 2022 23:31:25 -0400
-Message-ID: <CAHC9VhTkRAVFhfD5zhgQ75ztfv1-mPoe1s+rwW9Rk289gWa+oQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: add a new warn_on_audited debug flag to selinuxfs
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org
+X-Received: by 2002:a92:ca4e:0:b0:2df:1aae:47c4 with SMTP id
+ q14-20020a92ca4e000000b002df1aae47c4mr9068356ilo.57.1660636826976; Tue, 16
+ Aug 2022 01:00:26 -0700 (PDT)
+Date:   Tue, 16 Aug 2022 01:00:26 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000002c46ec05e6572415@google.com>
+Subject: [syzbot] KASAN: use-after-free Read in sock_has_perm
+From:   syzbot <syzbot+2f2c6bea25b08dc06f86@syzkaller.appspotmail.com>
+To:     anton@enomsg.org, bpf@vger.kernel.org, ccross@android.com,
+        eparis@parisplace.org, keescook@chromium.org,
+        linux-kernel@vger.kernel.org, paul@paul-moore.com,
+        selinux@vger.kernel.org, stephen.smalley.work@gmail.com,
+        syzkaller-bugs@googlegroups.com, tony.luck@intel.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 8, 2022 at 10:49 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> When debugging SELinux denials, it is often helpful to know which part
-> of kernel code triggered the denial. Thus, this patch adds a new
-> /sys/fs/selinux/warn_on_audited flag that, when set to 1, will cause any
-> audited AVC event to log a WARNING to the kernel console, which
-> naturally comes with a kernel stack trace.
->
-> While the same can be achieved via the "avc:selinux_audited" kernel
-> tracepoint and the perf tool, that approach has several practical
-> disadvantages:
-> 1. It requires perf to be installed on the machine.
-> 2. It requires kernel debug symbols to be available when decoding the
->    stack trace.
-> 3. It requires a perf process to be running in the background.
-> 4. The stack traces can only be obtained at the end, after the perf
->    process is terminated, not live during the capture. (Though this may
->    be solved by writing a custom tool on top of libtraceevent.)
->
-> Thus, providing a simple native knob for this in selinuxfs is still
-> valuable.
->
-> The warn_on_audited flag is always set to 0 on boot and is expected to
-> be set to 1 only temporarily by system administrator in order to debug
-> SELinux denials. It is not intended to be used on production systems.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/avc.c              |  6 +++
->  security/selinux/ima.c              | 11 +++++-
->  security/selinux/include/security.h | 11 ++++++
->  security/selinux/selinuxfs.c        | 61 +++++++++++++++++++++++++++++
->  4 files changed, 88 insertions(+), 1 deletion(-)
+Hello,
 
-I'm sorry, but I'm not going to merge this.  At least not now.
+syzbot found the following issue on:
 
-In general I don't like using WARN/WARN_ON/etc. for this; I believe
-their use should be limited for rather serious kernel issues and not
-as a developer's debugging tool.  I also don't like duplicating the
-tracepoint functionality.  I understand there are hurdles to using
-perf on a system, but I would much rather see work go into fixing that
-than duplicating its functionality
+HEAD commit:    200e340f2196 Merge tag 'pull-work.dcache' of git://git.ker..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=16021dfd080000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=f2886ebe3c7b3459
+dashboard link: https://syzkaller.appspot.com/bug?extid=2f2c6bea25b08dc06f86
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
 
--- 
-paul-moore.com
+Unfortunately, I don't have any reproducer for this issue yet.
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+2f2c6bea25b08dc06f86@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: use-after-free in sock_has_perm+0x258/0x280 security/selinux/hooks.c:4532
+Read of size 8 at addr ffff88807630e480 by task syz-executor.0/8123
+
+CPU: 1 PID: 8123 Comm: syz-executor.0 Not tainted 5.19.0-syzkaller-02972-g200e340f2196 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_address_description.constprop.0.cold+0xeb/0x467 mm/kasan/report.c:313
+ print_report mm/kasan/report.c:429 [inline]
+ kasan_report.cold+0xf4/0x1c6 mm/kasan/report.c:491
+ sock_has_perm+0x258/0x280 security/selinux/hooks.c:4532
+ selinux_socket_setsockopt+0x3e/0x80 security/selinux/hooks.c:4913
+ security_socket_setsockopt+0x50/0xb0 security/security.c:2249
+ __sys_setsockopt+0x107/0x6a0 net/socket.c:2233
+ __do_sys_setsockopt net/socket.c:2266 [inline]
+ __se_sys_setsockopt net/socket.c:2263 [inline]
+ __x64_sys_setsockopt+0xba/0x150 net/socket.c:2263
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f96c7289279
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f96c842f168 EFLAGS: 00000246 ORIG_RAX: 0000000000000036
+RAX: ffffffffffffffda RBX: 00007f96c739c050 RCX: 00007f96c7289279
+RDX: 0000000000000007 RSI: 0000000000000103 RDI: 0000000000000004
+RBP: 00007f96c72e3189 R08: 0000000000000004 R09: 0000000000000000
+R10: 0000000020000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffe7030593f R14: 00007f96c842f300 R15: 0000000000022000
+ </TASK>
+
+Allocated by task 8113:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:45 [inline]
+ set_alloc_info mm/kasan/common.c:437 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:516 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:475 [inline]
+ __kasan_kmalloc+0xa6/0xd0 mm/kasan/common.c:525
+ kasan_kmalloc include/linux/kasan.h:234 [inline]
+ __do_kmalloc mm/slab.c:3696 [inline]
+ __kmalloc+0x209/0x4e0 mm/slab.c:3705
+ kmalloc include/linux/slab.h:605 [inline]
+ sk_prot_alloc+0x110/0x290 net/core/sock.c:1975
+ sk_alloc+0x36/0x770 net/core/sock.c:2028
+ nr_create+0xb2/0x5f0 net/netrom/af_netrom.c:433
+ __sock_create+0x355/0x790 net/socket.c:1515
+ sock_create net/socket.c:1566 [inline]
+ __sys_socket_create net/socket.c:1603 [inline]
+ __sys_socket_create net/socket.c:1588 [inline]
+ __sys_socket+0x12f/0x240 net/socket.c:1636
+ __do_sys_socket net/socket.c:1649 [inline]
+ __se_sys_socket net/socket.c:1647 [inline]
+ __x64_sys_socket+0x6f/0xb0 net/socket.c:1647
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Freed by task 15:
+ kasan_save_stack+0x1e/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x21/0x30 mm/kasan/common.c:45
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:370
+ ____kasan_slab_free mm/kasan/common.c:367 [inline]
+ ____kasan_slab_free+0x13d/0x180 mm/kasan/common.c:329
+ kasan_slab_free include/linux/kasan.h:200 [inline]
+ __cache_free mm/slab.c:3426 [inline]
+ kfree+0x173/0x390 mm/slab.c:3796
+ sk_prot_free net/core/sock.c:2011 [inline]
+ __sk_destruct+0x5e5/0x710 net/core/sock.c:2097
+ sk_destruct net/core/sock.c:2112 [inline]
+ __sk_free+0x1a4/0x4a0 net/core/sock.c:2123
+ sk_free+0x78/0xa0 net/core/sock.c:2134
+ sock_put include/net/sock.h:1927 [inline]
+ nr_heartbeat_expiry+0x2de/0x460 net/netrom/nr_timer.c:148
+ call_timer_fn+0x1a5/0x6b0 kernel/time/timer.c:1474
+ expire_timers kernel/time/timer.c:1519 [inline]
+ __run_timers.part.0+0x679/0xa80 kernel/time/timer.c:1790
+ __run_timers kernel/time/timer.c:1768 [inline]
+ run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1803
+ __do_softirq+0x29b/0x9c2 kernel/softirq.c:571
+
+The buggy address belongs to the object at ffff88807630e000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 1152 bytes inside of
+ 2048-byte region [ffff88807630e000, ffff88807630e800)
+
+The buggy address belongs to the physical page:
+page:ffffea0001d8c380 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x7630e
+flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000000200 ffffea00004a5648 ffffea0001e43248 ffff888011840800
+raw: 0000000000000000 ffff88807630e000 0000000100000001 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 0, migratetype Unmovable, gfp_mask 0x3c20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_COMP|__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_THISNODE), pid 7307, tgid 7301 (syz-executor.3), ts 520580080833, free_ts 520081225704
+ prep_new_page mm/page_alloc.c:2457 [inline]
+ get_page_from_freelist+0x1298/0x3b80 mm/page_alloc.c:4203
+ __alloc_pages+0x1c7/0x510 mm/page_alloc.c:5431
+ __alloc_pages_node include/linux/gfp.h:587 [inline]
+ kmem_getpages mm/slab.c:1363 [inline]
+ cache_grow_begin+0x75/0x350 mm/slab.c:2569
+ cache_alloc_refill+0x27f/0x380 mm/slab.c:2942
+ ____cache_alloc mm/slab.c:3024 [inline]
+ ____cache_alloc mm/slab.c:3007 [inline]
+ slab_alloc_node mm/slab.c:3227 [inline]
+ kmem_cache_alloc_node_trace+0x51d/0x5b0 mm/slab.c:3611
+ __do_kmalloc_node mm/slab.c:3633 [inline]
+ __kmalloc_node_track_caller+0x38/0x60 mm/slab.c:3648
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0xde/0x340 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1434 [inline]
+ nlmsg_new include/net/netlink.h:953 [inline]
+ audit_buffer_alloc kernel/audit.c:1782 [inline]
+ audit_log_start.part.0+0x27f/0x740 kernel/audit.c:1900
+ audit_log_start+0x5f/0x90 kernel/audit.c:1856
+ integrity_audit_message+0xf6/0x470 security/integrity/integrity_audit.c:47
+ integrity_audit_msg+0x3d/0x50 security/integrity/integrity_audit.c:32
+ ima_collect_measurement+0x3b7/0x710 security/integrity/ima/ima_api.c:317
+ process_measurement+0xd0d/0x1880 security/integrity/ima/ima_main.c:337
+ ima_file_check+0xac/0x100 security/integrity/ima/ima_main.c:517
+ do_open fs/namei.c:3501 [inline]
+ path_openat+0x1611/0x28f0 fs/namei.c:3632
+ do_filp_open+0x1b6/0x400 fs/namei.c:3659
+page last free stack trace:
+ reset_page_owner include/linux/page_owner.h:24 [inline]
+ free_pages_prepare mm/page_alloc.c:1371 [inline]
+ free_pcp_prepare+0x549/0xd20 mm/page_alloc.c:1421
+ free_unref_page_prepare mm/page_alloc.c:3344 [inline]
+ free_unref_page+0x19/0x6a0 mm/page_alloc.c:3439
+ __vunmap+0x85d/0xd30 mm/vmalloc.c:2665
+ free_work+0x58/0x70 mm/vmalloc.c:97
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+Memory state around the buggy address:
+ ffff88807630e380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88807630e400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>ffff88807630e480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                   ^
+ ffff88807630e500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88807630e580: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
