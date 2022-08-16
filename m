@@ -2,83 +2,186 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E3B7C3F6B0
-	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 05:01:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E91CC32772
+	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 06:39:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231504AbiHPFBt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Aug 2022 01:01:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41268 "EHLO
+        id S230111AbiHPGjb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Aug 2022 02:39:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234602AbiHPFBO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 01:01:14 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17724E87D
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 13:56:27 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id w197so9845566oie.5
-        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 13:56:27 -0700 (PDT)
+        with ESMTP id S229666AbiHPGjS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 02:39:18 -0400
+Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7632729F1B4
+        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 20:25:56 -0700 (PDT)
+Received: by mail-oo1-xc29.google.com with SMTP id z23-20020a4ad1b7000000b0044931ffdcafso1628724oor.4
+        for <selinux@vger.kernel.org>; Mon, 15 Aug 2022 20:25:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=bZvFfLdmisv8ZmBmyGTlD8WQkr7MyMlLkvc8x5GfkIg=;
-        b=cM0YcKCbdYEioSBk54JmMjcaPYvF2uw30kA6AhPPiq/t9gJwk3inIEf3EFt20xGqKP
-         ZlsGuwNqALFaG1mysWBRis7rB6vjKJLaIvFlNP20SFtbh2eHMbNuQ8lC2PVdedR+Eh8S
-         N9fPPWmhEVnuJsTEcXR669UglB8Lgq6s43BsNNF0hiYjykwyn7Zot0zy81Xn4yNExjjc
-         Zz1ogRJ5ga3sZSlghGke9LAh/I44z7bQPfb0uTzsYWRSMyJ/wmyXCM5ONHeayAb8j153
-         0+Mv7PPSFVcULYkFZwFOgcODr22u00SgUHIYOibPPi+TNiCSYjrrYS1SPJOYidNPav6C
-         h0uQ==
+        bh=zaeaXOVhK8m3M+XNtVCsn3FcDPtm1Tez2CwtXwPcxOY=;
+        b=ARpEypITrGuMgsrdF/wN/8bNfpLSXuim/YQsP6UIexuLvx9eah8yn7l0kXMXTyjwRE
+         8qEhtjeKt2qs0E1Bh8Eo4E50vhNsHzDuxXjsy8Vj9b9wOEz7F0cKQq91DTLmhFa8ZmzR
+         ZSRerEin4ZzObLPGAcdjLG4Oct5E0rKGX6n6LyKNvFmuGYb+0/8nwNP9weHRw7JRtPG5
+         gDR5e0wMYm2WtchMcwKiu6iURzB2Z2tlaVfJsciS3HYKxa4MxLUHIx30a6b/OAROicQN
+         6sijuR8Y27JwEPCvlIQ3zLMZyP7xl11JHJDUrGgbcAyEL0jSsQP3GnvvVETSqzGeMEgX
+         tVgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=bZvFfLdmisv8ZmBmyGTlD8WQkr7MyMlLkvc8x5GfkIg=;
-        b=pSCXYhHnFLRAKBkiCaQEs6cZCy5u6OmT9n8d4r10XQ3WMgLbN/gNUYzD/N192vzkxa
-         4T1QTNHCJicPjtBRQqiVtT1P/v+WfvWenAJKnhnL1XRb3Wy/RkHZ1BJ4ga3htqTE8ly+
-         AdkAkiBvlGNVFp5W7gaaaA48upsy6466bCOiIuRf1ABBrPwVElDh/vSgMEfhOEEB/ceN
-         YWohy7NMuwXPtHRAOkImHwbdHlSWMPWV1IX+Mg/Uwq6DAwxTvo5AdEfvQtcn+2N5d4q6
-         E3C4Juf589P7EfMDpmgQFndLnfudQxa/YBjt76Y3uVlQSbx/xIkQ+Ka5337YKh3mpkSB
-         7pDQ==
-X-Gm-Message-State: ACgBeo0CzH4gSs+z2BdLf0zo9/5Oc52OY7v9P5am+H2r68FsGkMrUrYH
-        Scc7luBl22iu7B4mCtFu40OT5zUxo5ImD9Rj4HrV5PBBhg==
-X-Google-Smtp-Source: AA6agR6Q0qVJWpxSDRMTWwDizXjT5Myaa+MmdxMHBEyIOyRAgQgYt4StAdp3SjTVZwOQCfxxa7WwHSrnuGsmXBO6D24=
-X-Received: by 2002:a05:6808:3a9:b0:343:4b14:ccce with SMTP id
- n9-20020a05680803a900b003434b14cccemr9304558oie.41.1660596987219; Mon, 15 Aug
- 2022 13:56:27 -0700 (PDT)
+        bh=zaeaXOVhK8m3M+XNtVCsn3FcDPtm1Tez2CwtXwPcxOY=;
+        b=I/cI0WFzm0FIeNyaYOPu/oZP8wKZlE+/xPjVVcx3vdADZORFB5WF9QaHDHsvx06AqV
+         I2zjPdK2fCLpqiK5YG3I/TvuNiCfxp8jJ9GZXiWyIiLJgpvj4H13uhU+hNRPWCidb1D9
+         anwg3YDkacSDSbbII8CtC6aiYjDR2DzOfKFhal1mWIuyvGDUsGGjKBNw+zhSGcdIxgzT
+         l4yRY10aaPXi8HVy5Z9QH6ROIGsfjNiCPsQr23j+0q4LAtB+x40qAdFQFNJmJ3LJJmH1
+         cFmXCg2s52FOY7W2jKhI5ZRptZR2uSB8QDd3YpXn4JULcp7GqzMHOZkdu0btZS5PPzAy
+         Tl2w==
+X-Gm-Message-State: ACgBeo21lJFkf7TSIXXXuiDw9XHil4VbDbrkF1DHNPvewiWZHgjg/sGN
+        vcN17/gqctcqk9Og8rap3lBRmi5NQhb5uDTUffCq
+X-Google-Smtp-Source: AA6agR5jcjvLLnXLLTG9WPjI04CMRso162GWkwQVn+kAtpYa5HfLpsgdVT8wApsA1aQLcKFgfc03rLsSBvXINeCUPls=
+X-Received: by 2002:a4a:1103:0:b0:435:4c6c:6f92 with SMTP id
+ 3-20020a4a1103000000b004354c6c6f92mr5750472ooc.26.1660620355452; Mon, 15 Aug
+ 2022 20:25:55 -0700 (PDT)
 MIME-Version: 1.0
-References: <166008317384.447519.7250489605112175227.stgit@olly>
- <CAFqZXNshzY2L1yUMyCxTa2njgScUg5gwzmq-UP4SSnFnph-XuA@mail.gmail.com> <CAHC9VhRpTR_zdj+cdeGGKoe1vZKBy4FK4JP6iyurXR0NOr2tXw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRpTR_zdj+cdeGGKoe1vZKBy4FK4JP6iyurXR0NOr2tXw@mail.gmail.com>
+References: <165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk>
+ <CAFqZXNv+ahpN3Hdv54ixa4u-LKaqTtCyjtkpzKGbv7x4dzwc0Q@mail.gmail.com>
+In-Reply-To: <CAFqZXNv+ahpN3Hdv54ixa4u-LKaqTtCyjtkpzKGbv7x4dzwc0Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 15 Aug 2022 16:56:16 -0400
-Message-ID: <CAHC9VhSTg1BZNF86SjH0uzyuwp5_wpaB_BKvyWML4k+7aTt0YA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: SCTP fixes, including ASCONF
+Date:   Mon, 15 Aug 2022 23:25:44 -0400
+Message-ID: <CAHC9VhTpqvFbjKG5FMKGRBRHavOUrsCSFgayh+BNgSrry8bWLg@mail.gmail.com>
+Subject: Re: [PATCH v3] nfs: Fix automount superblock LSM init problem,
+ preventing sb sharing
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        dwysocha@redhat.com,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 11, 2022 at 11:04 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Aug 11, 2022 at 6:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > On Wed, Aug 10, 2022 at 12:14 AM Paul Moore <paul@paul-moore.com> wrote:
-
-...
-
-> > I believe you forgot to modify also
-> > selinux_netlbl_sctp_assoc_request() in a similar fashion as the other
-> > functions below?
+On Thu, Aug 11, 2022 at 8:28 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Fri, Aug 5, 2022 at 3:36 PM David Howells <dhowells@redhat.com> wrote:
+> > When NFS superblocks are created by automounting, their LSM parameters
+> > aren't set in the fs_context struct prior to sget_fc() being called,
+> > leading to failure to match existing superblocks.
+> >
+> > Fix this by adding a new LSM hook to load fc->security for submount
+> > creation when alloc_fs_context() is creating the fs_context for it.
+> >
+> > However, this uncovers a further bug: nfs_get_root() initialises the
+> > superblock security manually by calling security_sb_set_mnt_opts() or
+> > security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
+> > security_sb_set_mnt_opts(), which can lead to SELinux, at least,
+> > complaining.
+> >
+> > Fix that by adding a flag to the fs_context that suppresses the
+> > security_sb_set_mnt_opts() call in vfs_get_tree().  This can be set by NFS
+> > when it sets the LSM context on the new superblock.
+> >
+> > The first bug leads to messages like the following appearing in dmesg:
+> >
+> >         NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,100000,100000,2ee,3a98,1d4c,3a98,1)
+> >
+> > Changes
+> > =======
+> > ver #2)
+> >  - Made LSM parameter extraction dependent on fc->purpose ==
+> >    FS_CONTEXT_FOR_SUBMOUNT.  Shouldn't happen on FOR_RECONFIGURE.
+> >
+> > ver #2)
+> >  - Added Smack support
+> >  - Made LSM parameter extraction dependent on reference != NULL.
+> >
+> > Signed-off-by: David Howells <dhowells@redhat.com>
+> > Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount() to it.")
+> > Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
+> > cc: Trond Myklebust <trond.myklebust@hammerspace.com>
+> > cc: Anna Schumaker <anna@kernel.org>
+> > cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> > cc: Scott Mayhew <smayhew@redhat.com>
+> > cc: Jeff Layton <jlayton@kernel.org>
+> > cc: Paul Moore <paul@paul-moore.com>
+> > cc: Casey Schaufler <casey@schaufler-ca.com>
+> > cc: linux-nfs@vger.kernel.org
+> > cc: selinux@vger.kernel.org
+> > cc: linux-security-module@vger.kernel.org
+> > cc: linux-fsdevel@vger.kernel.org
+> > ---
+> >
+> >  fs/fs_context.c               |    4 +++
+> >  fs/nfs/getroot.c              |    1 +
+> >  fs/super.c                    |   10 ++++---
+> >  include/linux/fs_context.h    |    1 +
+> >  include/linux/lsm_hook_defs.h |    1 +
+> >  include/linux/lsm_hooks.h     |    6 +++-
+> >  include/linux/security.h      |    6 ++++
+> >  security/security.c           |    5 +++
+> >  security/selinux/hooks.c      |   29 +++++++++++++++++++
+> >  security/smack/smack_lsm.c    |   61 +++++++++++++++++++++++++++++++++++++++++
+> >  10 files changed, 119 insertions(+), 5 deletions(-)
 >
-> Good point.  I suspect selinux_netlbl_sctp_assoc_request() will be
-> greatly simplified too, that will be nice.
+> <snip>
+>
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 1bbd53321d13..ddeaff4f3bb1 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -2768,6 +2768,34 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
+> >                                    FILESYSTEM__UNMOUNT, NULL);
+> >  }
+> >
+> > +static int selinux_fs_context_init(struct fs_context *fc,
+> > +                                  struct dentry *reference)
+> > +{
+> > +       const struct superblock_security_struct *sbsec;
+> > +       const struct inode_security_struct *root_isec;
+> > +       struct selinux_mnt_opts *opts;
+> > +
+> > +       if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
+> > +               opts = kzalloc(sizeof(*opts), GFP_KERNEL);
+> > +               if (!opts)
+> > +                       return -ENOMEM;
+> > +
+> > +               root_isec = backing_inode_security(reference->d_sb->s_root);
+> > +               sbsec = selinux_superblock(reference->d_sb);
+> > +               if (sbsec->flags & FSCONTEXT_MNT)
+> > +                       opts->fscontext_sid     = sbsec->sid;
+> > +               if (sbsec->flags & CONTEXT_MNT)
+> > +                       opts->context_sid       = sbsec->mntpoint_sid;
+> > +               if (sbsec->flags & ROOTCONTEXT_MNT)
+> > +                       opts->rootcontext_sid   = root_isec->sid;
+>
+> I wonder if this part is correct... The rootcontext=... mount option
+> relates to the root inode of the mount where it is specified - i.e. in
+> case of NFS only to the toplevel inode of the initial mount. Setting
+> the same context on the root inode of submounts, which AFAIK are
+> supposed to be transparent to the user, doesn't seem correct to me -
+> i.e. it should just be left unset for the automatically created
+> submounts.
 
-I'm beginning to think the SELinux/SCTP code is cursed :/
+Like Ondrej, I'm not going to say I'm very comfortable with some of
+the VFS corner cases, but this is an interesting case ... as far as I
+can tell, the submount has a superblock and is treated like a normal
+filesystem mount with the one exception that it is mounted
+automatically so that users might not be aware it is a separate mount.
 
-That change brought up some other issues (more of the
-multiple-associations-on-a-single-socket variety) which I need to
-think about some more, so I'm putting this on the back-burner for a
-little bit while I sort out the io_uring and other things which are
-more straightforward and need to get into linux-next ASAP.
+I guess my question is this: for inodes inside the superblock, does
+their superblock pointer point to the submount's superblock, or the
+parent filesystem's superblock?
 
 -- 
 paul-moore.com
