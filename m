@@ -2,30 +2,58 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99C01C32772
-	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 15:08:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3194AC25B08
+	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 16:01:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236896AbiHQPIl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Aug 2022 11:08:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
+        id S237457AbiHQQBz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Aug 2022 12:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240632AbiHQPId (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 11:08:33 -0400
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B203E9C8CE;
-        Wed, 17 Aug 2022 08:08:31 -0700 (PDT)
-Received: from in02.mta.xmission.com ([166.70.13.52]:37894)
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1oOKei-006IBh-F4; Wed, 17 Aug 2022 09:08:28 -0600
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:57490 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1oOKeg-004bdV-9U; Wed, 17 Aug 2022 09:08:28 -0600
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+        with ESMTP id S237549AbiHQQBy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 12:01:54 -0400
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264209DFB6
+        for <selinux@vger.kernel.org>; Wed, 17 Aug 2022 09:01:52 -0700 (PDT)
+Received: by mail-ot1-x335.google.com with SMTP id bk13-20020a056830368d00b0063723999f31so9644690otb.8
+        for <selinux@vger.kernel.org>; Wed, 17 Aug 2022 09:01:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=QjyUDvJ7iwmc0ra7oOeyYvg1tNnn3D1w9sE1ADUUeFk=;
+        b=lsO3jJGAgKnlwg/EP5AW1QClcxpSPMzwfKK7ZrUVBas+QB1c4o/nIkJ+AtoVIsGNPo
+         /fxrgQX7Pudy3dL3OOnSrOSbKY0mSZs0xmGbkOhueAgqMf3dJKqFN22NM2YeRCFiGQWw
+         M0jpuI0ixf5xWd4DZtwDW5uiM6JQbdvyjw2AOwwGR9TXseNHTFlda4QkSXjShKW6wrne
+         Cb7XJ8nljWuGbx/7WMnM+eabP7WgNDuHh0h/vRbrPUDyCu9hxXAglP+bdMeOMqaODLuq
+         aFVmeTq3ET1DLeFdSLaaipA3MtYPBNSDM49uzLnn85Jz0RDE73xHlHXHFGb0zKQIPKau
+         2Dsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=QjyUDvJ7iwmc0ra7oOeyYvg1tNnn3D1w9sE1ADUUeFk=;
+        b=eq9kuyUQPGZ3awEk0YkL+5NENBXKVN352jf48KxOPjxRPgRJ1bzanPU5lk+EQWs0LB
+         rJnHoqUM0C2p49YVS/KBBWi2wAGvRrPs15beD/+yX5DpUk52+oTQZhaRosRaa9TKj6Ne
+         PhQZlSyf+k37QMnYJj1MTDgh8FriCgj3u6XdmbIks2TMMHHJ/bSzS/SLmTGAN3TXQ5IN
+         gyDCkbOypH2BRtaR1QLUsEQqDDMLexG0qPXSeaUruy9ekwFOoVhBYRjG/pozBrq+V0GM
+         53RZjnWJObcf+kR7kK3+RfTX+cbtco3p7T16XkPiZ00j7vheSu+hwdZYZ0l3t/1U6uzE
+         70xg==
+X-Gm-Message-State: ACgBeo20CuHmKdFxh195bSK/0EqvQPxBi84ZTEW7F0JC/xFv3Kgt99Zi
+        r1JXIfIZcNWlskmKwRtg1K/bbEGQAQGjM3iDSw0w
+X-Google-Smtp-Source: AA6agR6k8S5KHHDdNHN0nb6d+yqydtBrtcybaSqfpgfRVzpYW/c5se+RRaLyh9Xa8S++SmB0U64Bn2EXUWEKmWFNo9I=
+X-Received: by 2002:a05:6830:449e:b0:638:c72b:68ff with SMTP id
+ r30-20020a056830449e00b00638c72b68ffmr3536226otv.26.1660752110415; Wed, 17
+ Aug 2022 09:01:50 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220815162028.926858-1-fred@cloudflare.com> <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
+ <8735dux60p.fsf@email.froward.int.ebiederm.org>
+In-Reply-To: <8735dux60p.fsf@email.froward.int.ebiederm.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 17 Aug 2022 12:01:39 -0400
+Message-ID: <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
+Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
+To:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
         revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
         daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
@@ -37,92 +65,73 @@ Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
         selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
         kernel-team@cloudflare.com, cgzones@googlemail.com,
-        karl@bigbadwolfsecurity.com, tixxdz@gmail.com,
-        Paul Moore <paul@paul-moore.com>
-References: <20220815162028.926858-1-fred@cloudflare.com>
-        <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
-Date:   Wed, 17 Aug 2022 10:07:50 -0500
-In-Reply-To: <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
-        (Paul Moore's message of "Tue, 16 Aug 2022 17:51:12 -0400")
-Message-ID: <8735dux60p.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1oOKeg-004bdV-9U;;;mid=<8735dux60p.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
-X-XM-AID: U2FsdGVkX1+M/EzBB2yHTS3inlqfrtzf1DGaD1mEXx4=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+        karl@bigbadwolfsecurity.com, tixxdz@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Wed, Aug 17, 2022 at 11:08 AM Eric W. Biederman
+<ebiederm@xmission.com> wrote:
+> > I just merged this into the lsm/next tree, thanks for seeing this
+> > through Frederick, and thank you to everyone who took the time to
+> > review the patches and add their tags.
+> >
+> >   git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git next
 >
-> I just merged this into the lsm/next tree, thanks for seeing this
-> through Frederick, and thank you to everyone who took the time to
-> review the patches and add their tags.
+> Paul, Frederick
 >
->   git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git next
+> I repeat my NACK, in part because I am being ignored and in part
+> because the hook does not make technical sense.
+>
+> Linus I want you to know that this has been put in the lsm tree against
+> my explicit and clear objections.
 
-Paul, Frederick
+Eric, we are disagreeing with you, not ignoring you; that's an
+important distinction.  This is the fifth iteration of the patchset,
+or the sixth (?) if you could Frederick's earlier attempts using the
+credential hooks, and with each revision multiple people have tried to
+work with you to find a mutually agreeable solution to the use cases
+presented by Frederick and others.  In the end of the v4 discussion it
+was my opinion that you kept moving the goalposts in an effort to
+prevent any additional hooks/controls/etc. to the user namespace code
+which is why I made the decision to merge the code into the lsm/next
+branch against your wishes.  Multiple people have come out in support
+of this functionality, and you remain the only one opposed to the
+change; normally a maintainer's objection would be enough to block the
+change, but it is my opinion that Eric is acting in bad faith.
 
-I repeat my NACK, in part because I am being ignored and in part
-because the hook does not make technical sense.
+At the end of the v4 patchset I suggested merging this into lsm/next
+so it could get a full -rc cycle in linux-next, assuming no issues
+were uncovered during testing I was planning to send it to Linus
+during the next merge window with commentary on the contentiousness of
+the patchset, including Eric's NACK.  I'm personally very disappointed
+that it has come to this, but I'm at a loss of how to work with you
+(Eric) to find a solution; this is the only path forward that I can
+see at this point.  Others have expressed their agreement with this
+approach, both on-list and privately.
 
+If anyone other than Eric or myself has a different view of the
+situation, *please* add your comments now.  I believe I've done a fair
+job of summarizing things, but everyone has a bias and I'm definitely
+no exception.
 
-Linus I want you to know that this has been put in the lsm tree against
-my explicit and clear objections.
+Finally, I'm going to refrain from rehashing the same arguments over
+again in this revision of the patchset, instead I'll just provide
+links to the previous drafts in case anyone wants to spend an hour or
+two:
 
-My request to talk about the actual problems that are being address has
-been completely ignored.
+Revision v1
+https://lore.kernel.org/linux-security-module/20220621233939.993579-1-fred@cloudflare.com/
 
-I have been a bit slow in dealing with this conversation because I am
-very much sick and not on top of my game, but that is no excuse to steam
-roll over me, instead of addressing my concerns.
+Revision v2
+https://lore.kernel.org/linux-security-module/20220707223228.1940249-1-fred@cloudflare.com/
 
+Revision v3
+https://lore.kernel.org/linux-security-module/20220721172808.585539-1-fred@cloudflare.com/
 
-This is an irresponsible way of adding an access control to user
-namespace creation.  This is a linux-api and manpages level kind of
-change, as this is a semantic change visible to userspace.  Instead that
-concern has been brushed off as different return code to userspace.
+Revision v4
+https://lore.kernel.org/linux-security-module/20220801180146.1157914-1-fred@cloudflare.com/
 
-For observably this is a terrible LSM interface because there is no
-pair with user namespace destruction, nor is their any ability for the
-LSM to allocate any state to track the user namespace.  As there is no
-patch actually calling audit or anything else observably does not appear
-to be a driving factor of this new interface.
-
-
-
-
-The common scenarios I am aware of for using the user namespace are:
-- Creating a container.
-- Using the user namespace to sandbox your application like chrome does.
-- Running an exploit.
-
-Returning an error code in the first 2 scenarios will create a userspace
-regression as either userspace will run less securely or it won't work
-at all.
-
-Returning an error code in the third scenario when someone is trying to
-exploit your machine is equally foolish as you are giving the exploit
-the chance to continue running.  The application should be killed
-instead.
-
-
-Further adding a random failure mode to user namespace creation if it is
-used at all will just encourage userspace to use a setuid application to
-perform the namespace creation instead.  Creating a less secure system
-overall.
-
-If the concern is to reduce the attack surface everything this
-proposed hook can do is already possible with the security_capable
-security hook.
-
-So Paul, Frederick please drop this.  I can't see what this new hook is
-good for except creating regressions in existing userspace code.  I am
-not willing to support such a hook in code that I maintain.
-
-Eric
+--
+paul-moore.com
