@@ -2,59 +2,30 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15BEAC32772
-	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 21:09:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43EC3C32773
+	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 21:24:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242219AbiHQVJR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Aug 2022 17:09:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39978 "EHLO
+        id S241786AbiHQVYn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Aug 2022 17:24:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242313AbiHQVJQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 17:09:16 -0400
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA4331EF6
-        for <selinux@vger.kernel.org>; Wed, 17 Aug 2022 14:09:14 -0700 (PDT)
-Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-10cf9f5b500so16545885fac.2
-        for <selinux@vger.kernel.org>; Wed, 17 Aug 2022 14:09:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=3nAF7A4zag+lbZIR/JeYceDw3xmVGJHxEljejc4+EMk=;
-        b=drRJBjO8ZtYFWGv/xY6rGxrJuTubV5RfziGsueXADRqxRSQZsg8Dcv7T6sgwov1s1o
-         1cugYMMRd9VAhocoLUz+CFVkc+pIiqYIShCZewfgGMwc27fEMcjrr5tkVochcYJsr2K7
-         Qf4YzeaH+UsGXUNG07W+7MayVhDPPoAtkLY1RJPexfHPes+hA1COp3Qu+PUiivC7z3g9
-         FmozmoPv+QeTerF12DpUIbJfigr83yCgiygRITJISaSSQMkmvVaNi87LBM1O+/3HCh+T
-         mrLIGsrXUBqW4+AvRNyY435qZuTangAOUK/Jd69gqGcD9APbQFG+UhAiY9ZXBiucW8cR
-         H3/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=3nAF7A4zag+lbZIR/JeYceDw3xmVGJHxEljejc4+EMk=;
-        b=151Ez7W9mGD/ObXVAZ2eRcbRzrXQFaFOwoY4YalqZWeiPG9BJb9Lwq2+wvfv5domHA
-         RQXkWFVnph5pEmFGKxUtAIh5QVj/GCRrBoedygjifsKy86nYgUy/w02md3vtCuUOjMDb
-         LDWD83xBzQH5b6qDfb4KkAH/IE2FfHuDhqndP7cQ4le1YDNbNUHp+bawPp0pk6TJsK9D
-         23ecdG6SQ/DSVkQ+Hoy1aawyCbmLuXmJ95BMPZosX83x93Hp44MmuJUqW03qokP3Jbd0
-         0tCuH4TpYCT8GnVerJX1XIX0xOaNF6H5fd5iLz6kWuNshqMTWISZoVeGN3ydnhBpAwdc
-         hm+w==
-X-Gm-Message-State: ACgBeo27s4lD7XoAE5d6mqX6rDcqEqgUriqdQVSA/O1iZT6gjjEfrtR7
-        VTWCXd8BEz+9kj/7A+xjbs8CPN2rHgel8pZeo+BT
-X-Google-Smtp-Source: AA6agR6UtJcD0LCRVD5ZxpCbZU30Dth24rP1kcXpw+C/3aIhO30r/ueUbSJqc2APx0isNDq4wdyzZLK541ijjU5Fhd4=
-X-Received: by 2002:a05:6870:a78d:b0:11c:437b:ec70 with SMTP id
- x13-20020a056870a78d00b0011c437bec70mr2771915oao.136.1660770553733; Wed, 17
- Aug 2022 14:09:13 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220815162028.926858-1-fred@cloudflare.com> <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
- <8735dux60p.fsf@email.froward.int.ebiederm.org> <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
- <871qte8wy3.fsf@email.froward.int.ebiederm.org> <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
- <8735du7fnp.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <8735du7fnp.fsf@email.froward.int.ebiederm.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 17 Aug 2022 17:09:07 -0400
-Message-ID: <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
+        with ESMTP id S233026AbiHQVYl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 17:24:41 -0400
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A59E5AC4E;
+        Wed, 17 Aug 2022 14:24:39 -0700 (PDT)
+Received: from in02.mta.xmission.com ([166.70.13.52]:40598)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oOQWj-00Efck-85; Wed, 17 Aug 2022 15:24:37 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:32940 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oOQWi-006mnP-7Y; Wed, 17 Aug 2022 15:24:36 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
         revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
@@ -68,46 +39,81 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
         kernel-team@cloudflare.com, cgzones@googlemail.com,
         karl@bigbadwolfsecurity.com, tixxdz@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+References: <20220815162028.926858-1-fred@cloudflare.com>
+        <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
+        <8735dux60p.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
+        <871qte8wy3.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
+        <8735du7fnp.fsf@email.froward.int.ebiederm.org>
+        <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
+Date:   Wed, 17 Aug 2022 16:24:28 -0500
+In-Reply-To: <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
+        (Paul Moore's message of "Wed, 17 Aug 2022 17:09:07 -0400")
+Message-ID: <87tu6a4l83.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-XM-SPF: eid=1oOQWi-006mnP-7Y;;;mid=<87tu6a4l83.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX1/L7Q+eLO/zhN6zCRTrP7mmcvX3T2bbYZI=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 17, 2022 at 4:56 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Paul Moore <paul@paul-moore.com> writes:
-> > On Wed, Aug 17, 2022 at 3:58 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> >> Paul Moore <paul@paul-moore.com> writes:
-> >>
-> >> > At the end of the v4 patchset I suggested merging this into lsm/next
-> >> > so it could get a full -rc cycle in linux-next, assuming no issues
-> >> > were uncovered during testing
-> >>
-> >> What in the world can be uncovered in linux-next for code that has no in
-> >> tree users.
-> >
-> > The patchset provides both BPF LSM and SELinux implementations of the
-> > hooks along with a BPF LSM test under tools/testing/selftests/bpf/.
-> > If no one beats me to it, I plan to work on adding a test to the
-> > selinux-testsuite as soon as I'm done dealing with other urgent
-> > LSM/SELinux issues (io_uring CMD passthrough, SCTP problems, etc.); I
-> > run these tests multiple times a week (multiple times a day sometimes)
-> > against the -rcX kernels with the lsm/next, selinux/next, and
-> > audit/next branches applied on top.  I know others do similar things.
+Paul Moore <paul@paul-moore.com> writes:
+
+> On Wed, Aug 17, 2022 at 4:56 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> Paul Moore <paul@paul-moore.com> writes:
+>> > On Wed, Aug 17, 2022 at 3:58 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>> >> Paul Moore <paul@paul-moore.com> writes:
+>> >>
+>> >> > At the end of the v4 patchset I suggested merging this into lsm/next
+>> >> > so it could get a full -rc cycle in linux-next, assuming no issues
+>> >> > were uncovered during testing
+>> >>
+>> >> What in the world can be uncovered in linux-next for code that has no in
+>> >> tree users.
+>> >
+>> > The patchset provides both BPF LSM and SELinux implementations of the
+>> > hooks along with a BPF LSM test under tools/testing/selftests/bpf/.
+>> > If no one beats me to it, I plan to work on adding a test to the
+>> > selinux-testsuite as soon as I'm done dealing with other urgent
+>> > LSM/SELinux issues (io_uring CMD passthrough, SCTP problems, etc.); I
+>> > run these tests multiple times a week (multiple times a day sometimes)
+>> > against the -rcX kernels with the lsm/next, selinux/next, and
+>> > audit/next branches applied on top.  I know others do similar things.
+>>
+>> A layer of hooks that leaves all of the logic to userspace is not an
+>> in-tree user for purposes of understanding the logic of the code.
 >
-> A layer of hooks that leaves all of the logic to userspace is not an
-> in-tree user for purposes of understanding the logic of the code.
+> The BPF LSM selftests which are part of this patchset live in-tree.
+> The SELinux hook implementation is completely in-tree with the
+> subject/verb/object relationship clearly described by the code itself.
+> After all, the selinux_userns_create() function consists of only two
+> lines, one of which is an assignment.  Yes, it is true that the
+> SELinux policy lives outside the kernel, but that is because there is
+> no singular SELinux policy for everyone.  From a practical
+> perspective, the SELinux policy is really just a configuration file
+> used to setup the kernel at runtime; it is not significantly different
+> than an iptables script, /etc/sysctl.conf, or any of the other myriad
+> of configuration files used to configure the kernel during boot.
 
-The BPF LSM selftests which are part of this patchset live in-tree.
-The SELinux hook implementation is completely in-tree with the
-subject/verb/object relationship clearly described by the code itself.
-After all, the selinux_userns_create() function consists of only two
-lines, one of which is an assignment.  Yes, it is true that the
-SELinux policy lives outside the kernel, but that is because there is
-no singular SELinux policy for everyone.  From a practical
-perspective, the SELinux policy is really just a configuration file
-used to setup the kernel at runtime; it is not significantly different
-than an iptables script, /etc/sysctl.conf, or any of the other myriad
-of configuration files used to configure the kernel during boot.
+I object to adding the new system configuration knob.
 
--- 
-paul-moore.com
+Especially when I don't see people explaining why such a knob is a good
+idea.  What is userspace going to do with this new feature that makes it
+worth maintaining in the kernel?
+
+That is always the conversation we have when adding new features, and
+that is exactly the conversation that has not happened here.
+
+Adding a layer of indirection should not exempt a new feature from
+needing to justify itself.
+
+Eric
+
