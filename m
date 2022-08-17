@@ -2,30 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43EC3C32773
-	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 21:24:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 927B6C25B08
+	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 21:51:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241786AbiHQVYn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Aug 2022 17:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
+        id S242222AbiHQVvN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Aug 2022 17:51:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233026AbiHQVYl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 17:24:41 -0400
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A59E5AC4E;
-        Wed, 17 Aug 2022 14:24:39 -0700 (PDT)
-Received: from in02.mta.xmission.com ([166.70.13.52]:40598)
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1oOQWj-00Efck-85; Wed, 17 Aug 2022 15:24:37 -0600
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:32940 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1oOQWi-006mnP-7Y; Wed, 17 Aug 2022 15:24:36 -0600
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Paul Moore <paul@paul-moore.com>
+        with ESMTP id S238984AbiHQVvM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 17:51:12 -0400
+Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com [IPv6:2001:4860:4864:20::2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247CD30F6B
+        for <selinux@vger.kernel.org>; Wed, 17 Aug 2022 14:51:11 -0700 (PDT)
+Received: by mail-oa1-x2a.google.com with SMTP id 586e51a60fabf-10ec41637b3so16657552fac.4
+        for <selinux@vger.kernel.org>; Wed, 17 Aug 2022 14:51:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=/CTcFk+7lIOz0f66/sW+yd0rIladiacxraDVQHveddU=;
+        b=Z37nNyL7fO7ofqzBqhsC8MAbzHXk1QozG1ARlNgf2r4n9sGA4oerk97YgCUalxM2mT
+         fhO9INMD4HzzQ1aPLW8N0XehhCLxHPUPhhB2ZRsd51SQdMmoonliVtb6BNO3XaXqioUP
+         yEQ/n8yVyhV7BjCADUL3h32ZxYj9GekLs3//TVqThFKgw9sZdbJf86XYIr1DAlZ8bmwG
+         xzmKfuAuIDGZVS8TsOPgiMbuIvDri9visdfG8qtZqt2pulyENYyUXIOotM2uhDYmrwUt
+         GN+YjefZ6mInoiQ6Eclx15Ltm0cQmwqruPbM5Tyh00SFGnU2OPWk4LHlvYLnPX/vMlx7
+         IPbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=/CTcFk+7lIOz0f66/sW+yd0rIladiacxraDVQHveddU=;
+        b=WcPbsc3oFyY181YueXU0Ut3JIV2lUod7TZzptb+KNr97gd8/lxXNnyZ9v7iTb66XBL
+         2h0rakOn/45saWrd3GiJCy8QEOtFQIANas7GmisWyiVPVebudYrs/s7XNVL8UdENM/R/
+         4ndXh8rsLny38sS1HZqklTwXGcE/Lklvx0S6xPjbaEJLVmST8cG7nG4buAIzzB06lE+z
+         zV/N3bW7uy1FWtK11WNpvm00r93+6FIztEB85DzeZx12+fWEF4kVjVMv0WLozhPvaeWU
+         cKCnchpc068ytWvxrKCfl7qMIUyN4HWjoNTYcnKS4IPPy7u9UpRmU3PACOmEJ7poqAMV
+         IJew==
+X-Gm-Message-State: ACgBeo0J2EQPoasCc94/rsm5sm0/zOoUnLV4FEpYj8g1E1Ng8kfbQU+t
+        bkNC5KkcW67tQ8nAU10nJbFBed7h/2vEaI4mpZTZ
+X-Google-Smtp-Source: AA6agR50Tcanb0vgcmzi8OeuXVsdfxGnJyO8cUD9VxdPHwqqDOjJ8rNBXuNdMQ+4DIsaFAJLlr1YMLOTZC7fMkQtyMY=
+X-Received: by 2002:a05:6870:9588:b0:101:c003:bfe6 with SMTP id
+ k8-20020a056870958800b00101c003bfe6mr2769479oao.41.1660773070428; Wed, 17 Aug
+ 2022 14:51:10 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220815162028.926858-1-fred@cloudflare.com> <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
+ <8735dux60p.fsf@email.froward.int.ebiederm.org> <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
+ <871qte8wy3.fsf@email.froward.int.ebiederm.org> <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
+ <8735du7fnp.fsf@email.froward.int.ebiederm.org> <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
+ <87tu6a4l83.fsf@email.froward.int.ebiederm.org>
+In-Reply-To: <87tu6a4l83.fsf@email.froward.int.ebiederm.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 17 Aug 2022 17:50:59 -0400
+Message-ID: <CAHC9VhQnPAsmjmKo-e84XDJ1wmaOFkTKPjjztsOa9Yrq+AeAQA@mail.gmail.com>
+Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
         revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
@@ -39,81 +69,62 @@ Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
         kernel-team@cloudflare.com, cgzones@googlemail.com,
         karl@bigbadwolfsecurity.com, tixxdz@gmail.com
-References: <20220815162028.926858-1-fred@cloudflare.com>
-        <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
-        <8735dux60p.fsf@email.froward.int.ebiederm.org>
-        <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
-        <871qte8wy3.fsf@email.froward.int.ebiederm.org>
-        <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
-        <8735du7fnp.fsf@email.froward.int.ebiederm.org>
-        <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
-Date:   Wed, 17 Aug 2022 16:24:28 -0500
-In-Reply-To: <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
-        (Paul Moore's message of "Wed, 17 Aug 2022 17:09:07 -0400")
-Message-ID: <87tu6a4l83.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1oOQWi-006mnP-7Y;;;mid=<87tu6a4l83.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
-X-XM-AID: U2FsdGVkX1/L7Q+eLO/zhN6zCRTrP7mmcvX3T2bbYZI=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Paul Moore <paul@paul-moore.com> writes:
-
-> On Wed, Aug 17, 2022 at 4:56 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
->> Paul Moore <paul@paul-moore.com> writes:
->> > On Wed, Aug 17, 2022 at 3:58 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
->> >> Paul Moore <paul@paul-moore.com> writes:
->> >>
->> >> > At the end of the v4 patchset I suggested merging this into lsm/next
->> >> > so it could get a full -rc cycle in linux-next, assuming no issues
->> >> > were uncovered during testing
->> >>
->> >> What in the world can be uncovered in linux-next for code that has no in
->> >> tree users.
->> >
->> > The patchset provides both BPF LSM and SELinux implementations of the
->> > hooks along with a BPF LSM test under tools/testing/selftests/bpf/.
->> > If no one beats me to it, I plan to work on adding a test to the
->> > selinux-testsuite as soon as I'm done dealing with other urgent
->> > LSM/SELinux issues (io_uring CMD passthrough, SCTP problems, etc.); I
->> > run these tests multiple times a week (multiple times a day sometimes)
->> > against the -rcX kernels with the lsm/next, selinux/next, and
->> > audit/next branches applied on top.  I know others do similar things.
->>
->> A layer of hooks that leaves all of the logic to userspace is not an
->> in-tree user for purposes of understanding the logic of the code.
+On Wed, Aug 17, 2022 at 5:24 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+> I object to adding the new system configuration knob.
 >
-> The BPF LSM selftests which are part of this patchset live in-tree.
-> The SELinux hook implementation is completely in-tree with the
-> subject/verb/object relationship clearly described by the code itself.
-> After all, the selinux_userns_create() function consists of only two
-> lines, one of which is an assignment.  Yes, it is true that the
-> SELinux policy lives outside the kernel, but that is because there is
-> no singular SELinux policy for everyone.  From a practical
-> perspective, the SELinux policy is really just a configuration file
-> used to setup the kernel at runtime; it is not significantly different
-> than an iptables script, /etc/sysctl.conf, or any of the other myriad
-> of configuration files used to configure the kernel during boot.
+> Especially when I don't see people explaining why such a knob is a good
+> idea.  What is userspace going to do with this new feature that makes it
+> worth maintaining in the kernel?
 
-I object to adding the new system configuration knob.
+From https://lore.kernel.org/all/CAEiveUdPhEPAk7Y0ZXjPsD=Vb5hn453CHzS9aG-tkyRa8bf_eg@mail.gmail.com/
 
-Especially when I don't see people explaining why such a knob is a good
-idea.  What is userspace going to do with this new feature that makes it
-worth maintaining in the kernel?
+ "We have valid use cases not specifically related to the
+  attack surface, but go into the middle from bpf observability
+  to enforcement. As we want to track namespace creation, changes,
+  nesting and per task creds context depending on the nature of
+  the workload."
+ -Djalal Harouni
 
-That is always the conversation we have when adding new features, and
-that is exactly the conversation that has not happened here.
+From https://lore.kernel.org/linux-security-module/CALrw=nGT0kcHh4wyBwUF-Q8+v8DgnyEJM55vfmABwfU67EQn=g@mail.gmail.com/
 
-Adding a layer of indirection should not exempt a new feature from
-needing to justify itself.
+ "[W]e do want to embrace user namespaces in our code and some of
+  our workloads already depend on it. Hence we didn't agree to
+  Debian's approach of just having a global sysctl. But there is
+  "our code" and there is "third party" code, which might not even
+  be open source due to various reasons. And while the path exists
+  for that code to do something bad - we want to block it."
+ -Ignat Korchagin
 
-Eric
+From https://lore.kernel.org/linux-security-module/CAHC9VhSKmqn5wxF3BZ67Z+-CV7sZzdnO+JODq48rZJ4WAe8ULA@mail.gmail.com/
 
+ "I've heard you talk about bugs being the only reason why people
+  would want to ever block user namespaces, but I think we've all
+  seen use cases now where it goes beyond that.  However, even if
+  it didn't, the need to build high confidence/assurance systems
+  where big chunks of functionality can be disabled based on a
+  security policy is a very real use case, and this patchset would
+  help enable that."
+ -Paul Moore (with apologies for self-quoting)
+
+From https://lore.kernel.org/linux-security-module/CAHC9VhRSCXCM51xpOT95G_WVi=UQ44gNV=uvvG23p8wn16uYSA@mail.gmail.com/
+
+ "One of the selling points of the BPF LSM is that it allows for
+  various different ways of reporting and logging beyond audit.
+  However, even if it was limited to just audit I believe that
+  provides some useful justification as auditing fork()/clone()
+  isn't quite the same and could be difficult to do at scale in
+  some configurations."
+ -Paul Moore (my apologies again)
+
+From https://lore.kernel.org/linux-security-module/20220722082159.jgvw7jgds3qwfyqk@wittgenstein/
+
+ "Nice and straightforward."
+ -Christian Brauner
+
+-- 
+paul-moore.com
