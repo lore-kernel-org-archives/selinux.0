@@ -2,126 +2,127 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E49D2C3F6B0
-	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 07:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99C01C32772
+	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 15:08:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbiHQHUg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Aug 2022 03:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46738 "EHLO
+        id S236896AbiHQPIl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Aug 2022 11:08:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230523AbiHQHUg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 03:20:36 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCCE6E2E1;
-        Wed, 17 Aug 2022 00:20:34 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4M6zqY1RbMzcg0W;
-        Wed, 17 Aug 2022 15:17:29 +0800 (CST)
-Received: from [10.67.110.173] (10.67.110.173) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Wed, 17 Aug 2022 15:20:32 +0800
-Message-ID: <283a9142-f9e5-24b9-808c-f980343acaa7@huawei.com>
-Date:   Wed, 17 Aug 2022 15:20:32 +0800
+        with ESMTP id S240632AbiHQPId (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 11:08:33 -0400
+Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B203E9C8CE;
+        Wed, 17 Aug 2022 08:08:31 -0700 (PDT)
+Received: from in02.mta.xmission.com ([166.70.13.52]:37894)
+        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oOKei-006IBh-F4; Wed, 17 Aug 2022 09:08:28 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:57490 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oOKeg-004bdV-9U; Wed, 17 Aug 2022 09:08:28 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
+        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
+        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
+        jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        shuah@kernel.org, brauner@kernel.org, casey@schaufler-ca.com,
+        bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        kernel-team@cloudflare.com, cgzones@googlemail.com,
+        karl@bigbadwolfsecurity.com, tixxdz@gmail.com,
+        Paul Moore <paul@paul-moore.com>
+References: <20220815162028.926858-1-fred@cloudflare.com>
+        <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
+Date:   Wed, 17 Aug 2022 10:07:50 -0500
+In-Reply-To: <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
+        (Paul Moore's message of "Tue, 16 Aug 2022 17:51:12 -0400")
+Message-ID: <8735dux60p.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: Race conditioned discovered between ima_match_rules and
- ima_update_lsm_update_rules
-Content-Language: en-US
-From:   "Guozihua (Scott)" <guozihua@huawei.com>
-To:     Paul Moore <paul@paul-moore.com>, Mimi Zohar <zohar@linux.ibm.com>
-CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        <selinux@vger.kernel.org>,
-        "xiujianfeng@huawei.com" <xiujianfeng@huawei.com>,
-        luhuaxin <luhuaxin1@huawei.com>
-References: <ffbb5ff1-cec7-3dad-7330-31fdfb67fecc@huawei.com>
- <cc760579-36f4-fe32-3526-bb647efd438c@huawei.com>
- <CAHC9VhRCt9UKih_VzawKr9dL5oZ7fgOoiU5edLp3hGZ2LkhAYw@mail.gmail.com>
- <649f9797ae80907aa72a8c0418a71df9eacdd1f5.camel@linux.ibm.com>
- <CAHC9VhTO2YDF8paeYfPDj2aAdiNGCDxziHTY2Sa_5C=yup+P_w@mail.gmail.com>
- <c9e269ce-74aa-f2f0-f21d-0d023db23739@huawei.com>
-In-Reply-To: <c9e269ce-74aa-f2f0-f21d-0d023db23739@huawei.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.110.173]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain
+X-XM-SPF: eid=1oOKeg-004bdV-9U;;;mid=<8735dux60p.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX1+M/EzBB2yHTS3inlqfrtzf1DGaD1mEXx4=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2022/8/17 15:17, Guozihua (Scott) wrote:
-> On 2022/8/16 6:23, Paul Moore wrote:
->> On Sun, Aug 14, 2022 at 2:30 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
->>>
->>> Hi Scott, Paul,
->>>
->>> On Tue, 2022-08-09 at 12:24 -0400, Paul Moore wrote:
->>>> On Sun, Aug 7, 2022 at 11:19 PM Guozihua (Scott) 
->>>> <guozihua@huawei.com> wrote:
->>>>>
->>>>> On 2022/8/8 11:02, Guozihua (Scott) wrote:
->>>>>> Hi Community,
->>>>>>
->>>>>> Recently we discovered a race condition while updating SELinux policy
->>>>>> with IMA lsm rule enabled. Which would lead to extra files being 
->>>>>> measured.
->>>>>>
->>>>>> While SELinux policy is updated, the IDs for object types and such 
->>>>>> would
->>>>>> be changed, and ima_lsm_update_rules would be called.
->>>>>>
->>>>>> There are no lock applied in ima_lsm_update_rules. If user accesses a
->>>>>> file during this time, ima_match_rules will be matching rules 
->>>>>> based on
->>>>>> old SELinux au_seqno resulting in selinux_audit_rule_match returning
->>>>>> -ESTALE.
->>>>>>
->>>>>> However, in ima_match_rules, this error number is not handled, 
->>>>>> causing
->>>>>> IMA to think the LSM rule is also a match, leading to measuring extra
->>>>>> files.
->>>>
->>>> ...
->>>>
->>>>>> Is this the intended behavior? Or is it a good idea to add a lock for
->>>>>> LSM rules during update?
->>>>
->>>> I'm not the IMA expert here, but a lot of effort has been into the
->>>> SELinux code to enable lockless/RCU SELinux policy access and I
->>>> *really* don't want to have to backtrack on that.
->>>
->>> IMA initially updated it's reference to the SELinux label ids lazily.
->>> More recently IMA refreshes the LSM label ids based on
->>> register_blocking_lsm_notifier().  As a result of commit 9ad6e9cb39c6
->>> ("selinux: fix race between old and new sidtab"), -ESTALE is now being
->>> returned.
->>
->> To be clear, are you seeing this only started happening after commit
->> 9ad6e9cb39c6?  If that is the case, I would suggest a retry loop
->> around ima_filter_rule_match() when -ESTALE is returned.  I believe
->> that should resolve the problem, if not please let us know.
->>
-> 
-> Hi Mimi and Paul
-> 
-> It seems that selinux_audit_rule_match has been returning -ESTALE for a 
-> very long time. It dates back to 376bd9cb357ec.
-> 
-> IMA used to have a retry mechanism, but it was removed by b16942455193 
-> ("ima: use the lsm policy update notifier"). Maybe we should consider 
-> bring it back or just add a lock in ima_lsm_update_rules().
-> 
-> FYI, once ima received the notification, it starts updating all it's lsm 
-> rules one-by-one. During this time, calling ima_match_rules on any rule 
-> that is not yet updated would return -ESTALE.
-> 
+>
+> I just merged this into the lsm/next tree, thanks for seeing this
+> through Frederick, and thank you to everyone who took the time to
+> review the patches and add their tags.
+>
+>   git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git next
 
-I mean a retry might still be needed in ima_match_rules(), but not the 
-ima_lsm_update_rules().
+Paul, Frederick
 
--- 
-Best
-GUO Zihua
+I repeat my NACK, in part because I am being ignored and in part
+because the hook does not make technical sense.
+
+
+Linus I want you to know that this has been put in the lsm tree against
+my explicit and clear objections.
+
+My request to talk about the actual problems that are being address has
+been completely ignored.
+
+I have been a bit slow in dealing with this conversation because I am
+very much sick and not on top of my game, but that is no excuse to steam
+roll over me, instead of addressing my concerns.
+
+
+This is an irresponsible way of adding an access control to user
+namespace creation.  This is a linux-api and manpages level kind of
+change, as this is a semantic change visible to userspace.  Instead that
+concern has been brushed off as different return code to userspace.
+
+For observably this is a terrible LSM interface because there is no
+pair with user namespace destruction, nor is their any ability for the
+LSM to allocate any state to track the user namespace.  As there is no
+patch actually calling audit or anything else observably does not appear
+to be a driving factor of this new interface.
+
+
+
+
+The common scenarios I am aware of for using the user namespace are:
+- Creating a container.
+- Using the user namespace to sandbox your application like chrome does.
+- Running an exploit.
+
+Returning an error code in the first 2 scenarios will create a userspace
+regression as either userspace will run less securely or it won't work
+at all.
+
+Returning an error code in the third scenario when someone is trying to
+exploit your machine is equally foolish as you are giving the exploit
+the chance to continue running.  The application should be killed
+instead.
+
+
+Further adding a random failure mode to user namespace creation if it is
+used at all will just encourage userspace to use a setuid application to
+perform the namespace creation instead.  Creating a less secure system
+overall.
+
+If the concern is to reduce the attack surface everything this
+proposed hook can do is already possible with the security_capable
+security hook.
+
+So Paul, Frederick please drop this.  I can't see what this new hook is
+good for except creating regressions in existing userspace code.  I am
+not willing to support such a hook in code that I maintain.
+
+Eric
