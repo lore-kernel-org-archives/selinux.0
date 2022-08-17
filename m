@@ -2,133 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53E14C32772
-	for <selinux@archiver.kernel.org>; Tue, 16 Aug 2022 22:12:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 824FCC25B08
+	for <selinux@archiver.kernel.org>; Wed, 17 Aug 2022 07:17:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236875AbiHPWMP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Aug 2022 18:12:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56104 "EHLO
+        id S238700AbiHQHRZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Aug 2022 03:17:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236911AbiHPWMO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 Aug 2022 18:12:14 -0400
-Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8A18FD56
-        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 15:12:13 -0700 (PDT)
-Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-10ec41637b3so13220645fac.4
-        for <selinux@vger.kernel.org>; Tue, 16 Aug 2022 15:12:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=bknMuEzY2g2ODMFx0pPstR6QEhnsKog5Pl0iH/Ldgz4=;
-        b=sL5dB1VPJNsbf7G8+raTZ4CNHBvpk7wuUoHen4F/fRTlul2K/o6MnEL0QELNEgsXV5
-         8uwAQx9hINB2uTWQ0G+WTB+PukHYNee/MzAqYyyV44+Yri8pGj61r+lHfamUK8p8w4X7
-         QRKqDPOPL9df5lxT34qEXLNreDeG9SXoOiwcQAPOeFr88+qXNgL64ohaZHIVEk+mgB5R
-         wnGXnCFP58BNzbyVX8OjR1IGJbgoEjD+wT7pAjEFqxbJu1di5xE14EIVzTnYMG1XM9Y9
-         6uf1djrUsKmdWrPsGSGSoKlADOPuJiThHSoMfwFLvak3qmxWc7ku1U1IrL0Q701vNeVo
-         jU+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=bknMuEzY2g2ODMFx0pPstR6QEhnsKog5Pl0iH/Ldgz4=;
-        b=6e/dYQKaLzgFE/g2nbpaWK564LtMc1WQOMwnJfMae+66/Ns4cBpaOn6O5QcDXrGEbA
-         +LzP8jqAAFiX87VZz7Hl6WDHKqCw3t1/gbGtEDiByKLVMMvWuKt3S7f2FGQEk94OTpkj
-         jjlBg9v46EaO6UaY04Qx8f8hFVQ56TdR95Peg0Z4zTgDhILsZ0vHocvjqHGImrHMWgQq
-         wfEBN7cV6e8/ET9cNxQilK/FMC6Bs40kdf5YUDUf15BXc88YUItSsZvy4gxNWQ42c+WV
-         XZxk/89RsE39gHXpgVtqL74UczCgpaFeYm0rOlKEKjqUXBn+Xi81EQyOpzFO7/z6Sz78
-         rESA==
-X-Gm-Message-State: ACgBeo1B5Gt5iqJjQG5ibfh4nmtwi1h9fl+OZvBtKRhyx38tkYC1QVVe
-        +aFjQeWvzkPf3gEPh8/msag6T6U4+56q7tOynpu+
-X-Google-Smtp-Source: AA6agR4Kj8XNYB9B3lGnewDxsdQnXfT+Fb5iBt539vCMF1wUyb8ZJN1qBsC0HMD5LPLcd7Vjw7gmG8QhiI7dUCI9BGQ=
-X-Received: by 2002:a05:6870:a78d:b0:11c:437b:ec70 with SMTP id
- x13-20020a056870a78d00b0011c437bec70mr320272oao.136.1660687932528; Tue, 16
- Aug 2022 15:12:12 -0700 (PDT)
+        with ESMTP id S238666AbiHQHRY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 03:17:24 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C9C86B8D6;
+        Wed, 17 Aug 2022 00:17:23 -0700 (PDT)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4M6zlX2CP5zkWWh;
+        Wed, 17 Aug 2022 15:14:00 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Wed, 17 Aug 2022 15:17:21 +0800
+Message-ID: <c9e269ce-74aa-f2f0-f21d-0d023db23739@huawei.com>
+Date:   Wed, 17 Aug 2022 15:17:21 +0800
 MIME-Version: 1.0
-References: <20220708093451.472870-1-omosnace@redhat.com>
-In-Reply-To: <20220708093451.472870-1-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 16 Aug 2022 18:12:01 -0400
-Message-ID: <CAHC9VhSFUJ6J4_wt1SKAoLourNGVkxu0Tbd9NPDbYqjjrs-qoQ@mail.gmail.com>
-Subject: Re: [RFC PATCH RESEND] userfaultfd: open userfaultfds with O_RDONLY
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Lokesh Gidra <lokeshgidra@google.com>, linux-mm@kvack.org,
-        linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        "Robert O'Callahan" <roc@ocallahan.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: Race conditioned discovered between ima_match_rules and
+ ima_update_lsm_update_rules
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>, Mimi Zohar <zohar@linux.ibm.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        <selinux@vger.kernel.org>,
+        "xiujianfeng@huawei.com" <xiujianfeng@huawei.com>,
+        luhuaxin <luhuaxin1@huawei.com>
+References: <ffbb5ff1-cec7-3dad-7330-31fdfb67fecc@huawei.com>
+ <cc760579-36f4-fe32-3526-bb647efd438c@huawei.com>
+ <CAHC9VhRCt9UKih_VzawKr9dL5oZ7fgOoiU5edLp3hGZ2LkhAYw@mail.gmail.com>
+ <649f9797ae80907aa72a8c0418a71df9eacdd1f5.camel@linux.ibm.com>
+ <CAHC9VhTO2YDF8paeYfPDj2aAdiNGCDxziHTY2Sa_5C=yup+P_w@mail.gmail.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <CAHC9VhTO2YDF8paeYfPDj2aAdiNGCDxziHTY2Sa_5C=yup+P_w@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 8, 2022 at 5:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Since userfaultfd doesn't implement a write operation, it is more
-> appropriate to open it read-only.
->
-> When userfaultfds are opened read-write like it is now, and such fd is
-> passed from one process to another, SELinux will check both read and
-> write permissions for the target process, even though it can't actually
-> do any write operation on the fd later.
->
-> Inspired by the following bug report, which has hit the SELinux scenario
-> described above:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1974559
->
-> Reported-by: Robert O'Callahan <roc@ocallahan.org>
-> Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> Resending as the last submission was ignored for over a year...
->
-> https://lore.kernel.org/lkml/20210624152515.1844133-1-omosnace@redhat.com/T/
->
-> I marked this as RFC, because I'm not sure if this has any unwanted side
-> effects. I only ran this patch through selinux-testsuite, which has a
-> simple userfaultfd subtest, and a reproducer from the Bugzilla report.
->
-> Please tell me whether this makes sense and/or if it passes any
-> userfaultfd tests you guys might have.
->
->  fs/userfaultfd.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 2022/8/16 6:23, Paul Moore wrote:
+> On Sun, Aug 14, 2022 at 2:30 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
+>>
+>> Hi Scott, Paul,
+>>
+>> On Tue, 2022-08-09 at 12:24 -0400, Paul Moore wrote:
+>>> On Sun, Aug 7, 2022 at 11:19 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
+>>>>
+>>>> On 2022/8/8 11:02, Guozihua (Scott) wrote:
+>>>>> Hi Community,
+>>>>>
+>>>>> Recently we discovered a race condition while updating SELinux policy
+>>>>> with IMA lsm rule enabled. Which would lead to extra files being measured.
+>>>>>
+>>>>> While SELinux policy is updated, the IDs for object types and such would
+>>>>> be changed, and ima_lsm_update_rules would be called.
+>>>>>
+>>>>> There are no lock applied in ima_lsm_update_rules. If user accesses a
+>>>>> file during this time, ima_match_rules will be matching rules based on
+>>>>> old SELinux au_seqno resulting in selinux_audit_rule_match returning
+>>>>> -ESTALE.
+>>>>>
+>>>>> However, in ima_match_rules, this error number is not handled, causing
+>>>>> IMA to think the LSM rule is also a match, leading to measuring extra
+>>>>> files.
+>>>
+>>> ...
+>>>
+>>>>> Is this the intended behavior? Or is it a good idea to add a lock for
+>>>>> LSM rules during update?
+>>>
+>>> I'm not the IMA expert here, but a lot of effort has been into the
+>>> SELinux code to enable lockless/RCU SELinux policy access and I
+>>> *really* don't want to have to backtrack on that.
+>>
+>> IMA initially updated it's reference to the SELinux label ids lazily.
+>> More recently IMA refreshes the LSM label ids based on
+>> register_blocking_lsm_notifier().  As a result of commit 9ad6e9cb39c6
+>> ("selinux: fix race between old and new sidtab"), -ESTALE is now being
+>> returned.
+> 
+> To be clear, are you seeing this only started happening after commit
+> 9ad6e9cb39c6?  If that is the case, I would suggest a retry loop
+> around ima_filter_rule_match() when -ESTALE is returned.  I believe
+> that should resolve the problem, if not please let us know.
+> 
 
-VFS folks, any objection to this patch?  It seems reasonable to me and
-I'd really prefer this to go in via the vfs tree, but I'm not above
-merging this via the lsm/next tree to get someone in vfs land to pay
-attention to this ...
+Hi Mimi and Paul
 
-> diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index e943370107d0..8ccf00be63e1 100644
-> --- a/fs/userfaultfd.c
-> +++ b/fs/userfaultfd.c
-> @@ -989,7 +989,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
->         int fd;
->
->         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
-> -                       O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
-> +                       O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
->         if (fd < 0)
->                 return fd;
->
-> @@ -2090,7 +2090,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
->         mmgrab(ctx->mm);
->
->         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
-> -                       O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
-> +                       O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
->         if (fd < 0) {
->                 mmdrop(ctx->mm);
->                 kmem_cache_free(userfaultfd_ctx_cachep, ctx);
-> --
-> 2.36.1
+It seems that selinux_audit_rule_match has been returning -ESTALE for a 
+very long time. It dates back to 376bd9cb357ec.
+
+IMA used to have a retry mechanism, but it was removed by b16942455193 
+("ima: use the lsm policy update notifier"). Maybe we should consider 
+bring it back or just add a lock in ima_lsm_update_rules().
+
+FYI, once ima received the notification, it starts updating all it's lsm 
+rules one-by-one. During this time, calling ima_match_rules on any rule 
+that is not yet updated would return -ESTALE.
 
 -- 
-paul-moore.com
+Best
+GUO Zihua
