@@ -2,149 +2,83 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10CA4C25B08
-	for <selinux@archiver.kernel.org>; Thu, 18 Aug 2022 01:12:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37D04C3F6B0
+	for <selinux@archiver.kernel.org>; Thu, 18 Aug 2022 13:15:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239979AbiHRBMZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Aug 2022 21:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50664 "EHLO
+        id S244975AbiHRNPF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Aug 2022 09:15:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239618AbiHRBMY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Aug 2022 21:12:24 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E216891D05;
-        Wed, 17 Aug 2022 18:12:22 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4M7RdD52RQzXdYd;
-        Thu, 18 Aug 2022 09:10:08 +0800 (CST)
-Received: from [10.67.110.173] (10.67.110.173) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Thu, 18 Aug 2022 09:12:21 +0800
-Message-ID: <1b880f58-3983-aab6-8f14-61951b67a605@huawei.com>
-Date:   Thu, 18 Aug 2022 09:12:20 +0800
+        with ESMTP id S244790AbiHRNO6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Aug 2022 09:14:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 696A72BD7
+        for <selinux@vger.kernel.org>; Thu, 18 Aug 2022 06:14:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1660828495;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=c6QQzktQOsLF5gvz1m1JMJhC3Jcc7lkjkkVix5pQvuU=;
+        b=iC/+tL0z+UURwzbNpOz4GNVOjV8ecZbG8F/RMAD7KkmZx1H7YYSD7wqw4eDErKVMhV2YPG
+        hxLb015HhfH6NtRy8kEZleYd1nD+/GTJ0yGDP5r91opqB8HFl9Uc6y3wpY7BsC2lVZJEsT
+        gDGkwybLwe4NDoFfO9UOHj1xzXdkDmA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-211-4KzSz-gKPE24pj2vCPoWYw-1; Thu, 18 Aug 2022 09:14:47 -0400
+X-MC-Unique: 4KzSz-gKPE24pj2vCPoWYw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4E58D1019C91;
+        Thu, 18 Aug 2022 13:14:46 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.72])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8524D9457F;
+        Thu, 18 Aug 2022 13:14:38 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <CAHC9VhTpqvFbjKG5FMKGRBRHavOUrsCSFgayh+BNgSrry8bWLg@mail.gmail.com>
+References: <CAHC9VhTpqvFbjKG5FMKGRBRHavOUrsCSFgayh+BNgSrry8bWLg@mail.gmail.com> <165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk> <CAFqZXNv+ahpN3Hdv54ixa4u-LKaqTtCyjtkpzKGbv7x4dzwc0Q@mail.gmail.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     dhowells@redhat.com, Ondrej Mosnacek <omosnace@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        linux-nfs <linux-nfs@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        dwysocha@redhat.com,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] nfs: Fix automount superblock LSM init problem, preventing sb sharing
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: Race conditioned discovered between ima_match_rules and
- ima_update_lsm_update_rules
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>, Mimi Zohar <zohar@linux.ibm.com>
-CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        <selinux@vger.kernel.org>,
-        "xiujianfeng@huawei.com" <xiujianfeng@huawei.com>,
-        luhuaxin <luhuaxin1@huawei.com>
-References: <ffbb5ff1-cec7-3dad-7330-31fdfb67fecc@huawei.com>
- <cc760579-36f4-fe32-3526-bb647efd438c@huawei.com>
- <CAHC9VhRCt9UKih_VzawKr9dL5oZ7fgOoiU5edLp3hGZ2LkhAYw@mail.gmail.com>
- <649f9797ae80907aa72a8c0418a71df9eacdd1f5.camel@linux.ibm.com>
- <CAHC9VhTO2YDF8paeYfPDj2aAdiNGCDxziHTY2Sa_5C=yup+P_w@mail.gmail.com>
- <c9e269ce-74aa-f2f0-f21d-0d023db23739@huawei.com>
- <283a9142-f9e5-24b9-808c-f980343acaa7@huawei.com>
- <1309f1ee6fafe75f9f25b2d936171c0c0d2a5fd1.camel@linux.ibm.com>
- <CAHC9VhTS4Py4YsAP8mNZpb+zaomKM_aB1WP=zm2LuqvZV5THGw@mail.gmail.com>
-From:   "Guozihua (Scott)" <guozihua@huawei.com>
-In-Reply-To: <CAHC9VhTS4Py4YsAP8mNZpb+zaomKM_aB1WP=zm2LuqvZV5THGw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.173]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <2026284.1660828477.1@warthog.procyon.org.uk>
+Date:   Thu, 18 Aug 2022 14:14:37 +0100
+Message-ID: <2026286.1660828477@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2022/8/18 4:49, Paul Moore wrote:
-> On Wed, Aug 17, 2022 at 3:26 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
->> On Wed, 2022-08-17 at 15:20 +0800, Guozihua (Scott) wrote:
->>> On 2022/8/17 15:17, Guozihua (Scott) wrote:
->>>> On 2022/8/16 6:23, Paul Moore wrote:
->>>>> On Sun, Aug 14, 2022 at 2:30 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
->>>>>>
->>>>>> Hi Scott, Paul,
->>>>>>
->>>>>> On Tue, 2022-08-09 at 12:24 -0400, Paul Moore wrote:
->>>>>>> On Sun, Aug 7, 2022 at 11:19 PM Guozihua (Scott)
->>>>>>> <guozihua@huawei.com> wrote:
->>>>>>>>
->>>>>>>> On 2022/8/8 11:02, Guozihua (Scott) wrote:
->>>>>>>>> Hi Community,
->>>>>>>>>
->>>>>>>>> Recently we discovered a race condition while updating SELinux policy
->>>>>>>>> with IMA lsm rule enabled. Which would lead to extra files being
->>>>>>>>> measured.
->>>>>>>>>
->>>>>>>>> While SELinux policy is updated, the IDs for object types and such
->>>>>>>>> would
->>>>>>>>> be changed, and ima_lsm_update_rules would be called.
->>>>>>>>>
->>>>>>>>> There are no lock applied in ima_lsm_update_rules. If user accesses a
->>>>>>>>> file during this time, ima_match_rules will be matching rules
->>>>>>>>> based on
->>>>>>>>> old SELinux au_seqno resulting in selinux_audit_rule_match returning
->>>>>>>>> -ESTALE.
->>>>>>>>>
->>>>>>>>> However, in ima_match_rules, this error number is not handled,
->>>>>>>>> causing
->>>>>>>>> IMA to think the LSM rule is also a match, leading to measuring extra
->>>>>>>>> files.
->>>>>>>
->>>>>>> ...
->>>>>>>
->>>>>>>>> Is this the intended behavior? Or is it a good idea to add a lock for
->>>>>>>>> LSM rules during update?
->>>>>>>
->>>>>>> I'm not the IMA expert here, but a lot of effort has been into the
->>>>>>> SELinux code to enable lockless/RCU SELinux policy access and I
->>>>>>> *really* don't want to have to backtrack on that.
->>>>>>
->>>>>> IMA initially updated it's reference to the SELinux label ids lazily.
->>>>>> More recently IMA refreshes the LSM label ids based on
->>>>>> register_blocking_lsm_notifier().  As a result of commit 9ad6e9cb39c6
->>>>>> ("selinux: fix race between old and new sidtab"), -ESTALE is now being
->>>>>> returned.
->>>>>
->>>>> To be clear, are you seeing this only started happening after commit
->>>>> 9ad6e9cb39c6?  If that is the case, I would suggest a retry loop
->>>>> around ima_filter_rule_match() when -ESTALE is returned.  I believe
->>>>> that should resolve the problem, if not please let us know.
->>>>
->>>> Hi Mimi and Paul
->>>>
->>>> It seems that selinux_audit_rule_match has been returning -ESTALE for a
->>>> very long time. It dates back to 376bd9cb357ec.
->>>>
->>>> IMA used to have a retry mechanism, but it was removed by b16942455193
->>>> ("ima: use the lsm policy update notifier"). Maybe we should consider
->>>> bring it back or just add a lock in ima_lsm_update_rules().
->>>>
->>>> FYI, once ima received the notification, it starts updating all it's lsm
->>>> rules one-by-one. During this time, calling ima_match_rules on any rule
->>>> that is not yet updated would return -ESTALE.
->>>
->>> I mean a retry might still be needed in ima_match_rules(), but not the
->>> ima_lsm_update_rules().
->>
->> Ok.  So eventually the LSM label ids are properly updated.  Did adding
->> a retry loop around ima_filter_rule_match(), as Paul suggested, resolve
->> the problem?
-> 
-> A good long-term solution to this would likely be to add a small
-> wrapper function for SELinux's security_audit_rule_match() hook (e.g.
-> loop on selinux_audit_rule_match() when ESTALE is returned) so that
-> callers wouldn't need to worry about this, but I first want to make
-> sure that is the problem.  If that *is* the problem, I can draft up a
-> SELinux patch pretty quick.
-> 
+Paul Moore <paul@paul-moore.com> wrote:
 
-A retry loop around ima_filter_rule_match() should resolve the problem, 
-I'll come up with a patch soon. I can try to construct a reproducer for 
-it at the mean time.
+> I guess my question is this: for inodes inside the superblock, does
+> their superblock pointer point to the submount's superblock, or the
+> parent filesystem's superblock?
 
-I think it's fine for selinux_audit_rule_match() to return -ESTALE and 
-let the caller handle it.
+They have to point to the submount superblock.  Too many things would break, I
+think, if inode->i_sb pointed to the wrong place.  As far as the VFS is
+concerned, apart from the way it is mounted, it's a perfectly normal
+superblock.
 
--- 
-Best
-GUO Zihua
+David
+
