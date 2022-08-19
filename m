@@ -2,143 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E083C28B2B
-	for <selinux@archiver.kernel.org>; Fri, 19 Aug 2022 18:51:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0293C3F6B0
+	for <selinux@archiver.kernel.org>; Fri, 19 Aug 2022 20:28:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350427AbiHSSvL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 19 Aug 2022 14:51:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49040 "EHLO
+        id S1351369AbiHSU2L (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 Aug 2022 16:28:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350259AbiHSSvK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 19 Aug 2022 14:51:10 -0400
-Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A31EC4E0
-        for <selinux@vger.kernel.org>; Fri, 19 Aug 2022 11:51:09 -0700 (PDT)
-Received: by mail-oi1-x22f.google.com with SMTP id u14so5709647oie.2
-        for <selinux@vger.kernel.org>; Fri, 19 Aug 2022 11:51:09 -0700 (PDT)
+        with ESMTP id S1351462AbiHSU2I (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 Aug 2022 16:28:08 -0400
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFD410E793;
+        Fri, 19 Aug 2022 13:28:02 -0700 (PDT)
+Received: by mail-ua1-x935.google.com with SMTP id h19so2204496uan.9;
+        Fri, 19 Aug 2022 13:28:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=7wUgB1dRjU6/+eFjwFHTANQu+ic7Dy7EWy3+cTOIz0Y=;
-        b=YA8lduBFsw7+V7kZTDB3G6gYa9HAlS3UjQdrISezZ02nmKmRjX8o+zRPyTx/PHiYBZ
-         rX95UYX6pa787HSJFyX48N66z5sdS4xAuGadWGodDH9DtcoCZURHsEo/l//aN07ydqa8
-         g+1wDe62RvoZ6Gwv+nSIfZquiGYctEGwl6VfR8d8ZKZSKy+qIQhOqh/QAXHuYHm9xtZA
-         hwJEbVmrnbJhzna0LzhuX2bApaTmhDg6PmYQYpweixbKasPqO4mO64qdsXreZTA7ZHyL
-         yvMBdpBTpssQ3iVv4QJGcm22hssFCi5sh3/N5rOi7ZtgEGsLC2RbPFdKo4HPCQDfa0D4
-         LA6w==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc;
+        bh=OYthYYNdZQvrpatlOm3lNYVTS6uAKNPx96c7Q90Mz3s=;
+        b=hq3zLC3QBeifttKK3V6vCbMEkU8j6p1Z5SjX9GufXXA60CpcuyEALJ7vWrDpFTTPtb
+         +HFPq1l8z9lFAFMrw+tl8qwiAGQVsf+eGbr2QjNgfhPAo/EtpksMB3/16Imfs+4TTxSx
+         l24ekTa+3H4V6mfQCuSkbSQsYUe+i7Q7JKumt7XeuoOZrou8BcPFOPkA+g/3qYs0nKQc
+         c5XJLdNv/9uA7TGR3lAyVAYIy7PMSNrkNKcsZyQIg1S+sRUirUjLQqM7oZlWhYnxyf1x
+         lYgYwZN20kn+lUsm/L1q9DDUxSjtXMD84kq7mmUhn4FaJm0kh/rrNP43Mm6BpTwqCf6y
+         A1wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=7wUgB1dRjU6/+eFjwFHTANQu+ic7Dy7EWy3+cTOIz0Y=;
-        b=I2M7NSpliq1UZMsynFLT+OVslap1XPLkOrFeZRryPL5QgQMF4ocj2nGoWBivyLW36e
-         dnEcKFr51A1RS+D5iwYchx1sLyXk+sivuwSdSfnnStOXMKZHMzzM8H3x2vTrj5/4gW/T
-         ezV8KEhqyR99t5JtylkKXk4Et5L0EuGybgg6sWCV/AFgliww+skk3CYxFVQLYxWo/yaq
-         pD/pg8GPjHSDaAw/tREZ7lFkeVlQVHuFoQ3VTGMGcsEWKjDSupk+RwmUAOB4Ez/OE/Zj
-         h7YKMGb7s76+aK5HPOiJQZ3LgSRv9CW/7P4FPPsrascAnW803oKVPV3fz4eL5ERo7tmN
-         d8jw==
-X-Gm-Message-State: ACgBeo2fMOi8cdU+74zwBeI7GecGTlv4vdZMt+osYo/aUd+M5JPqMejv
-        d5BL6qlpqx9ktPEoMZ3C9qoigf9yZZ0xnFL91Y6D
-X-Google-Smtp-Source: AA6agR6AxsfZpdcBXlrKQIpyKWJZdaiNH1nuBz29aeBvGBp77p+jqo+BBEdP58dCAql7NNzw8Zch6kTiW0lJ65Yi4B8=
-X-Received: by 2002:aca:b7d5:0:b0:343:c478:91c6 with SMTP id
- h204-20020acab7d5000000b00343c47891c6mr4062449oif.136.1660935068420; Fri, 19
- Aug 2022 11:51:08 -0700 (PDT)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
+        bh=OYthYYNdZQvrpatlOm3lNYVTS6uAKNPx96c7Q90Mz3s=;
+        b=U7hbgUq2dVIeOyuXKUF2gZ3xlr6oaeTSJCo/f8mGHWPhBNFuGhYeAwlBtASYdPEK2Z
+         9uc1CEiay+AiE1B4wIe+K2jibaeCkvDfHAdSypD9DIF3TV8aB+ptnI50AhofDm35Yf1e
+         zsrNfKmOVyfbHi6q1lvJCmySxastvIW2ldVZyjkE0oe7g+Q++c566EnjJprRy8mgNBS1
+         /fZvW/xv/j/ciHHLrP9MSbrNDnbf9m+wlV4cGu0IrL2NSMXjqNBWQB1Fqoq0B2/mCO7H
+         l0itT+CeCT6nVa5sOaRlkT/il/dekiGlkEBcvEhwnmwM/OBBGsRJUxxFeRZcupu1XNm9
+         vE7w==
+X-Gm-Message-State: ACgBeo0USofOgc3JtoZ6kdyw5neucN9Ogy33H0s+WfB+TAEMar0jhzDF
+        H/yoLg0eWmJdGiqHT1vs5J6EhCvn1usE4hcgYJA=
+X-Google-Smtp-Source: AA6agR76KQhgeaAZ++agDFZdUHr+Pui39KP1+A5o5aqlblLsaaVkQYVFKjPrRMaPphxedL00hKcBALuWLDkjiBYeks0=
+X-Received: by 2002:ab0:6dc5:0:b0:39b:fa5e:77f6 with SMTP id
+ r5-20020ab06dc5000000b0039bfa5e77f6mr2860032uaf.114.1660940880665; Fri, 19
+ Aug 2022 13:28:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220708093451.472870-1-omosnace@redhat.com> <CAHC9VhSFUJ6J4_wt1SKAoLourNGVkxu0Tbd9NPDbYqjjrs-qoQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSFUJ6J4_wt1SKAoLourNGVkxu0Tbd9NPDbYqjjrs-qoQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 19 Aug 2022 14:50:57 -0400
-Message-ID: <CAHC9VhRtLEg-xR5q33bVNOBi=54uJuix2QCZuCiKX2Qm6CaLzw@mail.gmail.com>
-Subject: Re: [RFC PATCH RESEND] userfaultfd: open userfaultfds with O_RDONLY
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
+References: <20220607153139.35588-1-cgzones@googlemail.com>
+ <20220608112728.b4xrdppxqmyqmtwf@wittgenstein> <CAOQ4uxipD6khNUYuZT80WUa0KOMdyyP0ia55uhmeRCLj4NBicg@mail.gmail.com>
+ <20220608124808.uylo5lntzfgxxmns@wittgenstein> <CAOQ4uxjP7kC95ou56wabVhQcc2vkNcD-8usYhLhbLOoJZ-jkOw@mail.gmail.com>
+ <20220618031805.nmgiuapuqeblm3ba@senku> <CAOQ4uxg6QLJ26pX8emXmUvq6jDDEH_Qq=Z4RPUK-jGLsZpHzfg@mail.gmail.com>
+ <20220620060741.3clikqadotq2p5ja@senku> <CAOQ4uxhq8HVoM=6O_H-uowv65m6tLAPUj2a_r3-CWpiX-48MoQ@mail.gmail.com>
+ <20220622025715.upflevvao3ttaekj@senku> <CAJ2a_DfkMvh7EdOA6k+omxhi18-oVbSXSGzXnpU1tXPD55B2qw@mail.gmail.com>
+In-Reply-To: <CAJ2a_DfkMvh7EdOA6k+omxhi18-oVbSXSGzXnpU1tXPD55B2qw@mail.gmail.com>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Fri, 19 Aug 2022 23:27:49 +0300
+Message-ID: <CAOQ4uxhiyVixjDnDsMusfAPqP4DkbA0TfmOKGLa_L6T6s1JJjQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] f*xattr: allow O_PATH descriptors
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     Aleksa Sarai <cyphar@cyphar.com>,
+        Christian Brauner <brauner@kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Linux API <linux-api@vger.kernel.org>,
+        linux-man <linux-man@vger.kernel.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Lokesh Gidra <lokeshgidra@google.com>, linux-mm@kvack.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        "Robert O'Callahan" <roc@ocallahan.org>
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 16, 2022 at 6:12 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Fri, Jul 8, 2022 at 5:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Since userfaultfd doesn't implement a write operation, it is more
-> > appropriate to open it read-only.
-> >
-> > When userfaultfds are opened read-write like it is now, and such fd is
-> > passed from one process to another, SELinux will check both read and
-> > write permissions for the target process, even though it can't actually
-> > do any write operation on the fd later.
-> >
-> > Inspired by the following bug report, which has hit the SELinux scenario
-> > described above:
-> > https://bugzilla.redhat.com/show_bug.cgi?id=1974559
-> >
-> > Reported-by: Robert O'Callahan <roc@ocallahan.org>
-> > Fixes: 86039bd3b4e6 ("userfaultfd: add new syscall to provide memory externalization")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >
-> > Resending as the last submission was ignored for over a year...
-> >
-> > https://lore.kernel.org/lkml/20210624152515.1844133-1-omosnace@redhat.com/T/
-> >
-> > I marked this as RFC, because I'm not sure if this has any unwanted side
-> > effects. I only ran this patch through selinux-testsuite, which has a
-> > simple userfaultfd subtest, and a reproducer from the Bugzilla report.
-> >
-> > Please tell me whether this makes sense and/or if it passes any
-> > userfaultfd tests you guys might have.
-> >
-> >  fs/userfaultfd.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
+On Fri, Aug 19, 2022 at 9:05 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> VFS folks, any objection to this patch?  It seems reasonable to me and
-> I'd really prefer this to go in via the vfs tree, but I'm not above
-> merging this via the lsm/next tree to get someone in vfs land to pay
-> attention to this ...
-
-Okay, final warning, if I don't see any objections to this when I make
-my patch sweep next week I'm going to go ahead and merge this via the
-LSM tree.
-
-> > diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> > index e943370107d0..8ccf00be63e1 100644
-> > --- a/fs/userfaultfd.c
-> > +++ b/fs/userfaultfd.c
-> > @@ -989,7 +989,7 @@ static int resolve_userfault_fork(struct userfaultfd_ctx *new,
-> >         int fd;
+> On Wed, 22 Jun 2022 at 04:57, Aleksa Sarai <cyphar@cyphar.com> wrote:
 > >
-> >         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, new,
-> > -                       O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
-> > +                       O_RDONLY | (new->flags & UFFD_SHARED_FCNTL_FLAGS), inode);
-> >         if (fd < 0)
-> >                 return fd;
+> > On 2022-06-20, Amir Goldstein <amir73il@gmail.com> wrote:
+> > > To be a reasonable reaction to the currently broken API is
+> > > to either accept the patch as is or request that setxattrat()
+> > > will be added to provide the new functionality.
 > >
-> > @@ -2090,7 +2090,7 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
-> >         mmgrab(ctx->mm);
+> > Since the current functionality cannot be retroactively disabled as it
+> > is being used already through /proc/self/fd/$n, adding
+> > *xattrat(AT_EMPTY_PATH) doesn't really change what is currently possibl=
+e
+> > by userspace.
 > >
-> >         fd = anon_inode_getfd_secure("[userfaultfd]", &userfaultfd_fops, ctx,
-> > -                       O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
-> > +                       O_RDONLY | (flags & UFFD_SHARED_FCNTL_FLAGS), NULL);
-> >         if (fd < 0) {
-> >                 mmdrop(ctx->mm);
-> >                 kmem_cache_free(userfaultfd_ctx_cachep, ctx);
-> > --
-> > 2.36.1
+> > I would say we should add *xattrat(2) and then we can add an upgrade
+> > mask blocking it (and other operations) later.
+> >
 >
-> --
-> paul-moore.com
+> It seems setxattrat() is the preferred way to continue.
+> fsetxattr() would have one advantage though (w.r.t. SELinux):
+>
+> The steps to label a file are:
+>   1. get the type of the file (via stat(2) family)
+>   2. lookup the desired label from the label database via selabel_lookup(=
+3)
+>   3. assign the retrieved label to the file
+>
+> The label is sensitive to the file type, e.g.
+>
+>     $ matchpathcon -m file /etc/shadow
+>     /etc/shadow     system_u:object_r:shadow_t:s0
+>     $ matchpathcon -m lnk_file /etc/shadow
+>     /etc/shadow     system_u:object_r:etc_t:s0
+>
+> Using the *at() family the file type could change between step 1. and 3.,
+> which operating on an O_PATH file descriptor would prevent.
 
+I don't understand the problem.
 
+If you have an O_PATH fd, the object it represents does not change.
+If you use fstatat(fd, ..., AT_EMPTY_PATH) (or fstat) and
+setxattrat(fd, ..., AT_EMPTY_PATH), it prevents the race.
 
--- 
-paul-moore.com
+Thanks,
+Amir.
