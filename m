@@ -2,107 +2,111 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 512ABC32792
-	for <selinux@archiver.kernel.org>; Mon, 22 Aug 2022 21:21:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45518C32792
+	for <selinux@archiver.kernel.org>; Mon, 22 Aug 2022 22:36:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238081AbiHVVVa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Aug 2022 17:21:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47380 "EHLO
+        id S238482AbiHVWg4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Aug 2022 18:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238063AbiHVVVW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 22 Aug 2022 17:21:22 -0400
-Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89CC52094
-        for <selinux@vger.kernel.org>; Mon, 22 Aug 2022 14:21:21 -0700 (PDT)
-Received: by mail-qt1-x834.google.com with SMTP id cr9so8950391qtb.13
-        for <selinux@vger.kernel.org>; Mon, 22 Aug 2022 14:21:21 -0700 (PDT)
+        with ESMTP id S238460AbiHVWg4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 22 Aug 2022 18:36:56 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1B351436
+        for <selinux@vger.kernel.org>; Mon, 22 Aug 2022 15:36:55 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id m2so11225794pls.4
+        for <selinux@vger.kernel.org>; Mon, 22 Aug 2022 15:36:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:user-agent:references
-         :in-reply-to:message-id:date:cc:to:from:subject:from:to:cc;
-        bh=RF5VEJInS+M/9ME7+1NBi/v+S++RwTNIyd06M5yvDic=;
-        b=Bzko282c/NA8xtUH43S/BmgiKEOqxZlc/yiGTmIUFKwBF2/CI4U3o3yimKgsdK3OL5
-         KepJIP4NU6oFEfrl/HPiHklwqzipd4WdkyqYesfiEprf4U27s8pq5IMpqY4mEn6Yn7Cm
-         eVR7m4BZAZfjGcXIgcay/d3zTFyimGyaEaEfTCMADRb+QplAXF4turAC1XrIvwT+lYFs
-         QT1oGKmV0VbjHUXcKJk086tY+P+t9Cz0N6AQrh6G6dYxpuMnXFE+vh1OG646SjZ84Zdq
-         3lasui8tN5mOiB78AfFiBPDGRmuZuXGiPDajcUJ0wRsckWUBaLEl2UcobDNNLFJE3h5z
-         68Eg==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc;
+        bh=U6f4POvMEJ4MqEhH1l1XcrUcGrKeoTJNzsuGYlXM760=;
+        b=V6bX+bfzYav2Uts4onaAr6hETwzzqGBdFgC+CbMkVmSGShCE+1MozbKUQdwywWeq8p
+         mmxXgoCC2SDNnIl85H2ASWchBI0HK9kFPgjX6TsV6ZYDPCRF4dfewHC3cNpchqo6qSKh
+         Pf1Ex/cEkoH6RWrc2HK3ImQNEq6zyiDjNZZz0fvt1TqswkPyMg6CPc+9YFHXUJZmgVbJ
+         RhyucVOCRSfhpS5880w+lyCqeWQpV3CHBomAZAfAIoIXKPhWjPMS9MWpIJTaBI41X9GJ
+         hTbn9T3Von21ZmlwPRfWWXxPF2Azl0k+ohsCvUSoHihOTFQSvzy0e4D8yvhjnKqxGIl0
+         HfoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:user-agent:references
-         :in-reply-to:message-id:date:cc:to:from:subject:x-gm-message-state
-         :from:to:cc;
-        bh=RF5VEJInS+M/9ME7+1NBi/v+S++RwTNIyd06M5yvDic=;
-        b=Mhl92Z3sM1QqefYykeAHc4c0zVhKxP/mUw7Vp0+IcQR9Zfnz1v5AjvJu0OG7bOVRZi
-         R3JBg5ZL1aGcoXdnXzf6PL2O8puALMDikhRLDhBfNOx5IEYVSEol3dz+shO4h/Q5/mp8
-         40iIHxulyupzmF3PYD+RGr80AnbM4ycNrwcSRvcHphlcG+KjTvNq7nLa9u0TQWXhbEeC
-         3SJxTBKhrh/MYMt605VgxQXvWUpdwHJbgtbJsTZnf6Kn+fN4ZIuwlWICKUlLLreCz8kK
-         qq2WhEtvVxOozvN6AZFXkBybyKRf8sWn43jHrdT3Lu32i1lBlw3NBnJrJzbI5kuNBNIC
-         40vQ==
-X-Gm-Message-State: ACgBeo3ra/siI3zU5OgW+oIh7DMwgI0A2MEz7OfVlv5uVd42/Bj2K6u5
-        +xItFQWhlmk+OWj3ElOw6qANLdjxPnyD
-X-Google-Smtp-Source: AA6agR7wCUyNXyYxqoTS06r/xS+GyibVxNaJIowJibrZFTJwbR9zhIgL23Ot9xjTsFbhKMW/+DTKKA==
-X-Received: by 2002:ac8:7f47:0:b0:344:8d2b:14a9 with SMTP id g7-20020ac87f47000000b003448d2b14a9mr16667027qtk.442.1661203280736;
-        Mon, 22 Aug 2022 14:21:20 -0700 (PDT)
-Received: from localhost (pool-96-237-52-46.bstnma.fios.verizon.net. [96.237.52.46])
-        by smtp.gmail.com with ESMTPSA id w18-20020ac87e92000000b0033a5048464fsm10188122qtj.11.2022.08.22.14.21.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Aug 2022 14:21:20 -0700 (PDT)
-Subject: [PATCH 3/3] /dev/null: add IORING_OP_URING_CMD support
-From:   Paul Moore <paul@paul-moore.com>
-To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=U6f4POvMEJ4MqEhH1l1XcrUcGrKeoTJNzsuGYlXM760=;
+        b=fMWFGHU2zNr5VDfiHj269xb1tomBJjmMNCE7ZBYCAbTIAcJYQSA3VWMk49URKdwWac
+         Td9rjRhb6qVL4AlpxCoArCVWGCqRKzD44IxwqOYkPRkKH9VGVOBDnUjrb39jmws63opX
+         tXAIDJENOnfAagZunbeJdmtjbgp6hZfx57WX87OXx7Q8K5nlNMmR+lbnQl6f5IAK/QvG
+         67Hbyb3geyPc1yvaD8IKOCn7acVEYTE51ExPqLah+5SFbUA24Zdg/QV8T2M1Yl5hSCld
+         X92w/U0NUQQIv9/DtRip7Vfn/rbhm1VFzIyErLg24csi47LlUVXu4fILbEaulh5YjN5X
+         cA6A==
+X-Gm-Message-State: ACgBeo3ZyGjUuOPBuSmlrc6bYsW4Q1+nDrbSWVf1JEsnIOkinyejQEU0
+        U+xVfsddya6eJ1YO5+6XsRiMKw==
+X-Google-Smtp-Source: AA6agR5s33Ofmuy+6pq0uTHdQn/LzA2KiAjG+YfzMF8gLlREerg64KcrAHz9vT7LuMa0zdE7XDsEvQ==
+X-Received: by 2002:a17:902:d2c8:b0:172:f0a1:4d4d with SMTP id n8-20020a170902d2c800b00172f0a14d4dmr5276182plc.142.1661207814395;
+        Mon, 22 Aug 2022 15:36:54 -0700 (PDT)
+Received: from [192.168.1.136] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id x18-20020a170902ec9200b0016f1aa00abbsm5574545plg.195.2022.08.22.15.36.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Aug 2022 15:36:53 -0700 (PDT)
+Message-ID: <1e4dde67-4ac2-06b0-b927-ce4601ed9b30@kernel.dk>
+Date:   Mon, 22 Aug 2022 16:36:52 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [PATCH 3/3] /dev/null: add IORING_OP_URING_CMD support
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         io-uring@vger.kernel.org
 Cc:     Arnd Bergmann <arnd@arndb.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Luis Chamberlain <mcgrof@kernel.org>
-Date:   Mon, 22 Aug 2022 17:21:19 -0400
-Message-ID: <166120327984.369593.8371751426301540450.stgit@olly>
-In-Reply-To: <166120321387.369593.7400426327771894334.stgit@olly>
 References: <166120321387.369593.7400426327771894334.stgit@olly>
-User-Agent: StGit/1.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+ <166120327984.369593.8371751426301540450.stgit@olly>
+Content-Language: en-US
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <166120327984.369593.8371751426301540450.stgit@olly>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch adds support for the io_uring command pass through, aka
-IORING_OP_URING_CMD, to the /dev/null driver.  As with all of the
-/dev/null functionality, the implementation is just a simple sink
-where commands go to die, but it should be useful for developers who
-need a simple IORING_OP_URING_CMD test device that doesn't require
-any special hardware.
+On 8/22/22 3:21 PM, Paul Moore wrote:
+> This patch adds support for the io_uring command pass through, aka
+> IORING_OP_URING_CMD, to the /dev/null driver.  As with all of the
+> /dev/null functionality, the implementation is just a simple sink
+> where commands go to die, but it should be useful for developers who
+> need a simple IORING_OP_URING_CMD test device that doesn't require
+> any special hardware.
+> 
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  drivers/char/mem.c |    6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/char/mem.c b/drivers/char/mem.c
+> index 84ca98ed1dad..32a932a065a6 100644
+> --- a/drivers/char/mem.c
+> +++ b/drivers/char/mem.c
+> @@ -480,6 +480,11 @@ static ssize_t splice_write_null(struct pipe_inode_info *pipe, struct file *out,
+>  	return splice_from_pipe(pipe, out, ppos, len, flags, pipe_to_null);
+>  }
+>  
+> +static int uring_cmd_null(struct io_uring_cmd *ioucmd, unsigned int issue_flags)
+> +{
+> +	return 0;
+> +}
 
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- drivers/char/mem.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+This would be better as:
 
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index 84ca98ed1dad..32a932a065a6 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -480,6 +480,11 @@ static ssize_t splice_write_null(struct pipe_inode_info *pipe, struct file *out,
- 	return splice_from_pipe(pipe, out, ppos, len, flags, pipe_to_null);
- }
- 
-+static int uring_cmd_null(struct io_uring_cmd *ioucmd, unsigned int issue_flags)
-+{
-+	return 0;
-+}
-+
- static ssize_t read_iter_zero(struct kiocb *iocb, struct iov_iter *iter)
- {
- 	size_t written = 0;
-@@ -663,6 +668,7 @@ static const struct file_operations null_fops = {
- 	.read_iter	= read_iter_null,
- 	.write_iter	= write_iter_null,
- 	.splice_write	= splice_write_null,
-+	.uring_cmd	= uring_cmd_null,
- };
- 
- static const struct file_operations __maybe_unused port_fops = {
+	return IOU_OK;
 
+using the proper return values for the uring_cmd hook. With that:
+
+Acked-by: Jens Axboe <axboe@kernel.dk>
+
+-- 
+Jens Axboe
