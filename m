@@ -2,123 +2,97 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A145DC32772
-	for <selinux@archiver.kernel.org>; Tue, 23 Aug 2022 17:49:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D752AC32772
+	for <selinux@archiver.kernel.org>; Tue, 23 Aug 2022 18:28:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229923AbiHWRtX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Aug 2022 13:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41112 "EHLO
+        id S231977AbiHWS2Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Aug 2022 14:28:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233139AbiHWRst (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Aug 2022 13:48:49 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 314CAB07DB
-        for <selinux@vger.kernel.org>; Tue, 23 Aug 2022 08:45:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661269557;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=iZ1s6mifbHXJr3TVfkFCvYRYYbAM8uBMUbkpX2wdhH8=;
-        b=NFp4qB7aHynF25i3lmxTXVm2YXAuftszvR4FnUltfCl1SA0/gsNSxnQeH+85U98ohrBdQ7
-        nEyInfU8xYfHLUoQip5fb+4BjRU7E8VqJ6YRu8aWpHAe4OAdVlmo8j3lUpRAFy1ZW0QtWq
-        hycR6jRW9BjnNjomT4mq6hueKzH/D0k=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-177-UgpSKy83O9OP5-ezfdyQRg-1; Tue, 23 Aug 2022 11:45:56 -0400
-X-MC-Unique: UgpSKy83O9OP5-ezfdyQRg-1
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-3359a55dcb6so248462917b3.21
-        for <selinux@vger.kernel.org>; Tue, 23 Aug 2022 08:45:55 -0700 (PDT)
+        with ESMTP id S231823AbiHWS1g (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Aug 2022 14:27:36 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A1590C4E
+        for <selinux@vger.kernel.org>; Tue, 23 Aug 2022 09:48:41 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id w197so16710638oie.5
+        for <selinux@vger.kernel.org>; Tue, 23 Aug 2022 09:48:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=SaVACCZwH8xQotDN92IFUrhdTD0EHmA54lklXB94n+E=;
+        b=1Ok/wOesKzu5P/GWM9TLt92fPx47XR2jb6Bs1/YwT6s+aE3yjQT8rK6fg3W4gaMZHY
+         mQo3ryfYq8vuTjmZQdmtbQFq/ztnDvKE2xVNpd1/ySE9vpgsf1lnEY4KGhMlMSPhRJOJ
+         bsyrvWXn/fvwz/FlSXYczk5JGhN5CyCqvnNKzhX1UajRcoKEjeA6nBMngjWuNoZtqMwf
+         pdHj0fbraSiaUe603p8b0m6b6TcOb+Jb+YN7pCuBwaR1frNMrBQDlHEQFhyGqw1QnLNu
+         VybTy0xxYsUD4eZ5h7uJMlN0EtP7nJ51xAsCHwyt9gQRPFURU9QW0Wm/l8SaS1N1LmZa
+         KBcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=iZ1s6mifbHXJr3TVfkFCvYRYYbAM8uBMUbkpX2wdhH8=;
-        b=At/JPAEuyVpBOhA4OWnyIKEKxceRBZd25k0YyvHHjegwy3k7avCkccyonQvT9PP4rh
-         J3KN887cKpK2wjlHwZnpWirenklJQ47OlUGfLM8OCiXu2/0MvdmeHfOqX8/VMnoAk4tL
-         bxb8VUlVk964OyR6fi8weojbUs09rg8OB9NJmUxnlSEX5u0TifdYYIuKosaAy2TG9hdB
-         f52mCQWqzH3X9wKLNxCKbvQoTGd4DOwayujOWitBm4ONGNmms0qqjxdx6lUBKTMVaGJj
-         GQm39lgwBtHn8NT78SNoOO3Nv18kV3UyfaeVQgVrx3YyCcaXw+vf6nZy/bMV5E1xED+k
-         O+cA==
-X-Gm-Message-State: ACgBeo0RFWn6ejf/ocfE18bKPRgHuwV8yD6/8MQvHIAfye8VxlcJ0ek+
-        55zRcu7iUg13tISC0LcayxJYu0LJc79yx8Uo49TRZcuj+SHcH3U0pguKnTpsc+FZUmVG7NcRvUf
-        KtRUi01wJ0NWWc3Fff+qB8ucf1rCkM5Bzgg==
-X-Received: by 2002:a0d:c745:0:b0:324:8800:f63d with SMTP id j66-20020a0dc745000000b003248800f63dmr26300196ywd.106.1661269555182;
-        Tue, 23 Aug 2022 08:45:55 -0700 (PDT)
-X-Google-Smtp-Source: AA6agR5QD4+g0/53IfGp2vOGu2G7aO4FtUVz8aTDSOVrxEupjcI+pjMFy7ke84gZSTFa4ItbRdu+wKBkQSMic6eFIm4=
-X-Received: by 2002:a0d:c745:0:b0:324:8800:f63d with SMTP id
- j66-20020a0dc745000000b003248800f63dmr26300179ywd.106.1661269554881; Tue, 23
- Aug 2022 08:45:54 -0700 (PDT)
+        bh=SaVACCZwH8xQotDN92IFUrhdTD0EHmA54lklXB94n+E=;
+        b=Fa5LC8PQoHLvLG1j8G3/s8KPErB3I939bWukYtUa2A60WJIV13CvwLsuTU1rooqcEC
+         1Z0Vg9GaczELpd5noKUXPb5O3lyZB49sAXhm9Tdnh3cDbbANan8b0U6KdXzyrCUuZfUx
+         QswA5fBYnJgJAL8ypnJ8UPGAKC21ip0ySzZKFjM6oFqe9TW8hhfVbwzFUzgKD/iW8GcU
+         USEaUXtocmUWsTIwsXVFp3x6OukUOSui+T+9IjKfunruz24rPxCKiMUExONOte2GZBqU
+         QkMyy8hh98G7iw4KpBgniDrEhn1LwANTv5+GWTQhoRfoDzJrp0G3UtD0uEgTRbrM70NW
+         zHcA==
+X-Gm-Message-State: ACgBeo2m0WQoWaBxiWiju8w1Ky6ZE3Vh5NpZmPUFe4PfzRnTyV6cwRcX
+        zXcXizl3y+mszxyDIhePmcd+6MVCAH+A7GIEaXwG
+X-Google-Smtp-Source: AA6agR5r+WBH3Du54udJhIAVwDMynlMf9eKtVs3NIk9gYWmdmJqIMsAFjS7fy70yrHHRQNjEDLIJRAmJIyXSoSfZ5wA=
+X-Received: by 2002:aca:b7d5:0:b0:343:c478:91c6 with SMTP id
+ h204-20020acab7d5000000b00343c47891c6mr1691234oif.136.1661273321128; Tue, 23
+ Aug 2022 09:48:41 -0700 (PDT)
 MIME-Version: 1.0
-References: <166008319941.447963.8509896484646848800.stgit@olly>
-In-Reply-To: <166008319941.447963.8509896484646848800.stgit@olly>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 23 Aug 2022 17:45:43 +0200
-Message-ID: <CAFqZXNsdUtSXEsuPcGShw3deuZW8mWF8GFGX9gJ8d9Wtfd5vXQ@mail.gmail.com>
-Subject: Re: [PATCH] tests/sctp: allow both ENOSPC and EINPROGRESS for CIPSO
- tag space errors
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <166120321387.369593.7400426327771894334.stgit@olly>
+ <166120326788.369593.18304806499678048620.stgit@olly> <YwR5fDR0Whp0W3sG@kroah.com>
+In-Reply-To: <YwR5fDR0Whp0W3sG@kroah.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 23 Aug 2022 12:48:30 -0400
+Message-ID: <CAHC9VhSkmJCXbKBOLDJjnap1+pYYnSVt2CzO3iQXmV7TZ+17SA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] lsm,io_uring: add LSM hooks for the new uring_cmd
+ file op
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        io-uring@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Luis Chamberlain <mcgrof@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 10, 2022 at 12:14 AM Paul Moore <paul@paul-moore.com> wrote:
-> If the NetLabel subsystem in the kernel is configured to apply CIPSO
-> packet labels directly to the packets instead of the sockets, the
-> kernel will return EINPROGRESS on a failed connect(2) instead of
-> ENOSPC.  This is due to differences in how the CIPSO labels are
-> applied to network traffic in the two cases and how the error
-> conditions are able to be propagated back to userspace.
+On Tue, Aug 23, 2022 at 2:53 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> On Mon, Aug 22, 2022 at 05:21:07PM -0400, Paul Moore wrote:
+> > From: Luis Chamberlain <mcgrof@kernel.org>
+> >
+> > io-uring cmd support was added through ee692a21e9bf ("fs,io_uring:
+> > add infrastructure for uring-cmd"), this extended the struct
+> > file_operations to allow a new command which each subsystem can use
+> > to enable command passthrough. Add an LSM specific for the command
+> > passthrough which enables LSMs to inspect the command details.
+> >
+> > This was discussed long ago without no clear pointer for something
+> > conclusive, so this enables LSMs to at least reject this new file
+> > operation.
+> >
+> > [0] https://lkml.kernel.org/r/8adf55db-7bab-f59d-d612-ed906b948d19@schaufler-ca.com
+> >
+> > Fixes: ee692a21e9bf ("fs,io_uring: add infrastructure for uring-cmd")
 >
-> This patch allows both error codes to the relevant SCTP test cases.
->
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  tests/sctp/test |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/tests/sctp/test b/tests/sctp/test
-> index 69dcbef..5626ab8 100755
-> --- a/tests/sctp/test
-> +++ b/tests/sctp/test
-> @@ -508,7 +508,7 @@ $pid = server_start( "-t test_sctp_server_t -l s0:c20.c300",
->  # TAG 1 allows categories 0 to 239 to be sent
->  $result = system
->  "runcon -t test_sctp_client_t -l s0:c20.c300 -- $basedir/sctp_client $v seq 127.0.0.1 1035 2>&1";
-> -ok( $result >> 8 eq 7 );
-> +ok( ( $result >> 8 eq 7 ) || ( $result >> 8 eq 6 ) );
->
->  if ($test_clpeeloff) {
->
-> @@ -675,7 +675,7 @@ $pid = server_start( "-t test_sctp_server_t -l s0:c20.c335",
->  # TAG 2 allows a maximum of 15 categories in exchange
->  $result = system
->  "runcon -t test_sctp_client_t -l s0:c200.c216 -- $basedir/sctp_client $v seq 127.0.0.1 1035 2>&1";
-> -ok( $result >> 8 eq 7 );
-> +ok( ( $result >> 8 eq 7 ) || ( $result >> 8 eq 6 ) );
->
->  if ($test_clpeeloff) {
->
-> @@ -842,7 +842,7 @@ $pid = server_start( "-t test_sctp_server_t -l s0:c20.c50",
->  # TAG 2 allows a maximum of 7 ranges in exchange
->  $result = system
->  "runcon -t test_sctp_client_t -l s0:c20,c22,c24,c30.c33,c38,c42.c45,c48,c50 -- $basedir/sctp_client $v seq 127.0.0.1 1035 2>&1";
-> -ok( $result >> 8 eq 7 );
-> +ok( ( $result >> 8 eq 7 ) || ( $result >> 8 eq 6 ) );
->
->  if ($test_clpeeloff) {
+> You are not "fixing" anything, you are adding new functionality.
+> Careful with using "Fixes:" for something like this, you will trigger
+> the bug-detection scripts and have to fend off stable bot emails for a
+> long time for stuff that should not be backported to stable trees.
 
-This patch makes sense regardless of the pending kernel fixes, so I
-applied it now:
-https://github.com/SELinuxProject/selinux-testsuite/commit/c04b5bb4bdcf894a6de6afa0e7e24911dee8dcbf
+This patch, as well as the SELinux and (soon to come) Smack hook
+implementations, fix a LSM access control regression that occured when
+the IORING_OP_URING_CMD functionality was merged in v5.19.  You may
+disagree about this being a regression Greg, but there are at least
+three people with their name on this patch that believe it is
+important: Luis (patch author), Jens (io_uring maintainer), and myself
+(LSM, SELinux maintainer).
 
-Thanks!
-
--- 
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+--
+paul-moore.com
