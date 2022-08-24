@@ -2,87 +2,77 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E56EC32772
-	for <selinux@archiver.kernel.org>; Tue, 23 Aug 2022 20:10:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7870DC3F6B0
+	for <selinux@archiver.kernel.org>; Wed, 24 Aug 2022 06:11:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiHWUKm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Aug 2022 16:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49682 "EHLO
+        id S234875AbiHXGLD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 24 Aug 2022 02:11:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229875AbiHWUKO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Aug 2022 16:10:14 -0400
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 262CC7C336
-        for <selinux@vger.kernel.org>; Tue, 23 Aug 2022 12:29:34 -0700 (PDT)
-Received: by mail-oi1-x236.google.com with SMTP id o204so9697595oia.12
-        for <selinux@vger.kernel.org>; Tue, 23 Aug 2022 12:29:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=5TZjaWzFLrGXu+eeovPu9lOyvajfWISzWjvFXLvunNw=;
-        b=VeF6TtVgO7WVIlBeQUGJEjPbkW8gKFQHareiFBrUAvd+B1oBlsbxwX4tOi1eC76Hmw
-         /flQwny+KF2mIR6Bh+sR7wGcqteLNjhMlAmR9GgHErwRFm+ccEbyr1P5p6xN1NVQ5iZ7
-         wLqsLAt2HZQJloOR6wVNwbev4xX7AAz8EPtEWR1PGD3NGNWbv21Pbp9mCRLLQnRM0jUH
-         WElsZkNJ8PtDEUCj2mpKRMUZWLuyAhREdbYvZmDm1AP1z+jSwomWDfFEe5/Lzg8pyzxu
-         3sm1PEHKaR8h6GXV6Se5Iy2buykfE4Y3YDj4SoSDJvHzUfKdyOUFN1AWGYLGjN32ZaSx
-         cZ3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=5TZjaWzFLrGXu+eeovPu9lOyvajfWISzWjvFXLvunNw=;
-        b=QJq5Kco7BSlFFaY2XWxEMk/IW9SLCPCcC0o2lthxviPOwZibmPUWX1tfGPUHFEP6sb
-         TxhTvF0cp2OEcy1p2a+vOxPT6gAj7ZmHXK0l6WLi7X2pyyONvv+ypdr8tvA3CLDqGHgC
-         sbfdS/HkWqy2AuILTfCft+vuNaXfa7uOOIPmtFHE7KSVUtloK5bDmjOJvyhytWH9HNAq
-         zDIbiCsGNBfwOqOEa0jlryfeg3eiuoXNm0yluOhM4nHfmWC90rMsENifOWPS+RD9IrWc
-         hgLdaay7kLuN8EsHv1A+TppiZfwT9UyBm3hSxQMvHUsZ1p3tvDymVE55Y7C9QyXsPN6s
-         n38g==
-X-Gm-Message-State: ACgBeo3mnMfVR6tNHv/wQCw45oGFxaEck+B1bVKxV4y2zDWUgy+Je07t
-        Veo8Lm4lH6MA9SWqu0j1OiOxkLp3GFvVhRB6VyM5wu4vog==
-X-Google-Smtp-Source: AA6agR6w3gQVancqIvrRF20KCsE9Xp8HwTNdo1/itUoK7iEZdEU6VgJfBaeOnqH9C0QDcI3FBofxxO51ugCLHODEvng=
-X-Received: by 2002:aca:b7d5:0:b0:343:c478:91c6 with SMTP id
- h204-20020acab7d5000000b00343c47891c6mr1959840oif.136.1661282973294; Tue, 23
- Aug 2022 12:29:33 -0700 (PDT)
+        with ESMTP id S234878AbiHXGKz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 24 Aug 2022 02:10:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCACB186C6;
+        Tue, 23 Aug 2022 23:10:53 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EB136113E;
+        Wed, 24 Aug 2022 06:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDF9C433C1;
+        Wed, 24 Aug 2022 06:10:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1661321452;
+        bh=8S6Si2CVUJ4bQuqVJVuhcS4NYT/mUhhFJIemYGM+Tj8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SUU/Qui5+M+d1pUl90i10WbuQR+64BKtYzBovldhlc/9v9b3LW3t+IQz7nAocdEAg
+         MTe3FnXrIqS+8nu7ls3FRJPB1ICFNPiyNfQzNg6lFFKLA98K9iq1KUmd6SVA0tGzZN
+         W5HLy6u7SL7IN4UByqNW/8qYc7Fao7keDlu0ckq0=
+Date:   Wed, 24 Aug 2022 08:10:49 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        io-uring@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: Re: [PATCH 3/3] /dev/null: add IORING_OP_URING_CMD support
+Message-ID: <YwXA6f6SmAxyMxzX@kroah.com>
+References: <166120321387.369593.7400426327771894334.stgit@olly>
+ <166120327984.369593.8371751426301540450.stgit@olly>
+ <YwR5HBazPxWjcYci@kroah.com>
+ <CAHC9VhQOSr_CnLmy0pwgUETPh565951DdejQtgkfNk7=tj+BNA@mail.gmail.com>
 MIME-Version: 1.0
-References: <166008319941.447963.8509896484646848800.stgit@olly> <CAFqZXNsdUtSXEsuPcGShw3deuZW8mWF8GFGX9gJ8d9Wtfd5vXQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsdUtSXEsuPcGShw3deuZW8mWF8GFGX9gJ8d9Wtfd5vXQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 23 Aug 2022 15:29:22 -0400
-Message-ID: <CAHC9VhTTpMpPDP+Qe84Kx8C8Uke7dn3WoUpT7ET555544eo06g@mail.gmail.com>
-Subject: Re: [PATCH] tests/sctp: allow both ENOSPC and EINPROGRESS for CIPSO
- tag space errors
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhQOSr_CnLmy0pwgUETPh565951DdejQtgkfNk7=tj+BNA@mail.gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 23, 2022 at 11:45 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Wed, Aug 10, 2022 at 12:14 AM Paul Moore <paul@paul-moore.com> wrote:
-> > If the NetLabel subsystem in the kernel is configured to apply CIPSO
-> > packet labels directly to the packets instead of the sockets, the
-> > kernel will return EINPROGRESS on a failed connect(2) instead of
-> > ENOSPC.  This is due to differences in how the CIPSO labels are
-> > applied to network traffic in the two cases and how the error
-> > conditions are able to be propagated back to userspace.
+On Tue, Aug 23, 2022 at 01:02:08PM -0400, Paul Moore wrote:
+> On Tue, Aug 23, 2022 at 2:52 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> > On Mon, Aug 22, 2022 at 05:21:19PM -0400, Paul Moore wrote:
+> > > This patch adds support for the io_uring command pass through, aka
+> > > IORING_OP_URING_CMD, to the /dev/null driver.  As with all of the
+> > > /dev/null functionality, the implementation is just a simple sink
+> > > where commands go to die, but it should be useful for developers who
+> > > need a simple IORING_OP_URING_CMD test device that doesn't require
+> > > any special hardware.
 > >
-> > This patch allows both error codes to the relevant SCTP test cases.
+> > Also, shouldn't you document this somewhere?
 > >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  tests/sctp/test |    6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
+> > At least in the code itself saying "this is here so that /dev/null works
+> > as a io_uring sink" or something like that?  Otherwise it just looks
+> > like it does nothing at all.
+> 
+> What about read_null() and write_null()?  I can definitely add a
+> comment (there is no /dev/null documentation in the kernel source tree
+> that I can see), but there is clearly precedence for /dev/null having
+> "do nothing" file_operations functions.
 
-...
+Yes, they should "do nothing".  write_null() does report that it
+consumed everything, why doesn't this function have to also do that?
 
-> This patch makes sense regardless of the pending kernel fixes, so I
-> applied it now:
-> https://github.com/SELinuxProject/selinux-testsuite/commit/c04b5bb4bdcf894a6de6afa0e7e24911dee8dcbf
+thanks,
 
-Agreed, thanks Ondrej.
-
--- 
-paul-moore.com
+greg k-h
