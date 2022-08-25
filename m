@@ -2,127 +2,107 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AA64ECAA24
-	for <selinux@archiver.kernel.org>; Thu, 25 Aug 2022 19:19:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D583ECAA27
+	for <selinux@archiver.kernel.org>; Thu, 25 Aug 2022 19:55:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243622AbiHYTTY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Aug 2022 15:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
+        id S231640AbiHYTzT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Aug 2022 15:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243594AbiHYTTX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Aug 2022 15:19:23 -0400
-Received: from mail-oa1-x2d.google.com (mail-oa1-x2d.google.com [IPv6:2001:4860:4864:20::2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C3EBC13B
-        for <selinux@vger.kernel.org>; Thu, 25 Aug 2022 12:19:21 -0700 (PDT)
-Received: by mail-oa1-x2d.google.com with SMTP id 586e51a60fabf-11c59785966so26144225fac.11
-        for <selinux@vger.kernel.org>; Thu, 25 Aug 2022 12:19:21 -0700 (PDT)
+        with ESMTP id S232114AbiHYTzS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 Aug 2022 15:55:18 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5FE402FE
+        for <selinux@vger.kernel.org>; Thu, 25 Aug 2022 12:55:16 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id b44so7207941edf.9
+        for <selinux@vger.kernel.org>; Thu, 25 Aug 2022 12:55:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=e8Gq1eg55USHCL83Reobt5ibzPL8cvMuV1NX5De9ZYY=;
-        b=O7VCw6m6DYZ9SRwwETgBSqa1zuOS859jqBgpBIVSG63HOg7KKdU/QyOTg3x2mMKLlZ
-         /sk+enC4j9MprDEgOepuTKPmBoZ+sG3JQUyandbIfwWBmTyew+NcfQNlQxrCLf562JLt
-         CBDBuBCbwtrJNQe3ltgbUG8+lxI+qESJLbZ0QjttHTgIelL4DCFUrpjqekdSpJmnnmqw
-         5+qWUz8Dkm4iat2Vs0aOfyU5R/QMPzUhEaDtsp239vjwfrvwNLroQmHWmjQKOUL6AgDf
-         0aK+BsUrax9MV0QeahftRbTrPT7WR2Q4AhsrTUIGzz3L/CutBwNsczdrnoWMGQfm8Wko
-         Shzw==
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :from:to:cc;
+        bh=lDoY8S6d3ZFIw9ERKbh2u8r2NJcTApcA4HyCS267O+E=;
+        b=OBQh9KhLld8wI5pHAtnOr69LIoUqF3WYrmWtxfreg4BqUsetLXtOf7CkjuJ3IDhgae
+         ASzEcT4X6ejNMQddcgH76ec/ZHRuIgcXCRNfBWL+zQUbM7BpHq/ZtX4M12H+ES4Nxfh+
+         pZg4dzV7PRTUsr3gBFtt+mtI1EeFwT+XBWHGLwaZj/6byczaTi1u0xaMwBNY5zqi5dTN
+         zvaM8mUZP+Qdh/tsISOSZfux6jjWxVmigns3ewLFfn1QWPlH1Gfx54EgGCNbdCOXGfF8
+         EhVFLpJdBnAEjPhWvZwp/8On6yA5qudMCkd9zbK2fMI9JL3SGIzmHKS4rmuYNw+TADjV
+         C2Lg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=e8Gq1eg55USHCL83Reobt5ibzPL8cvMuV1NX5De9ZYY=;
-        b=nhlTvzbBOSFjYmBS+HmFFHzPKXrGXq2+TvdAewymehb0Fpmk8u2uel6yKTG8Wr3ca9
-         15g9xw3JHjU/eRQ/KziU44SkT3MJupyNYwqTJGDh18iT4xnPlLrIK8ns6mdlJ+oJJ7qP
-         ed5nhMqFlQr6MJ8OQqC0MGXoXrBTcSFZl2+BONbExeKjIwVtkG2qwNSzqfzDMY+liX0k
-         2aLgW30s44vfx2hgdCQe8qbNTdjrQn6xxrskmFBSg+YJ0HTPE769/9a48kVHNG6UkEVK
-         iECrkpxpdCBGqeF6DA3MH7eO/RIprhbsVlJcOyJ9GqcePn0Ucfa0hNOjzwc+BM5fHBiv
-         sckg==
-X-Gm-Message-State: ACgBeo2ty+kRRHn//j3j6v1KlMvXD4N4E1lIhyRoxiWVaDMUuUJ7f95f
-        LgECcDKznIqLlWlNIFnAGq2xKM9xDQZzXyMQJdpk
-X-Google-Smtp-Source: AA6agR6ZnOvsjUOSNSEGS0LaKYyBUDvqU+sEg8pLS8j9NOxMj3Auk1GEnVJgv+Dn6EqNkIafEGAYyEbTIhKpOvto32I=
-X-Received: by 2002:a05:6870:a78d:b0:11c:437b:ec70 with SMTP id
- x13-20020a056870a78d00b0011c437bec70mr257186oao.136.1661455160511; Thu, 25
- Aug 2022 12:19:20 -0700 (PDT)
+        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
+         :x-gm-message-state:from:to:cc;
+        bh=lDoY8S6d3ZFIw9ERKbh2u8r2NJcTApcA4HyCS267O+E=;
+        b=gp+NcgtiO6S+MQkIgEg36lgMSYFLDxKmTz5oH4q5HoIUnLxoYTZS4Z+fa4hTEriOz5
+         IQOhbrPttJUUOSExvzFTlYu+fhhAS5q5YedO7u0iNv59fBJybS1Vlvq7o0vQS6HFVtdg
+         yuBKNNQgFU6lJilJcMxq3xcRKGgElcSlEAA/gHE4cBLgsSHXkvRe2O1r3yOnE0UztL83
+         zUa8Ak5VLDO5SjnIr3qLE1AO5Xf0gxW7lJKsRwK3rP1gyTL/n7WPpp+c9i6svDhgzYSy
+         qgXS3MRzKOslw42Wodx9mTdW7gmWMdxwhxOEaM+EOplEDOUNiJDzGF1sgF/5MFGcZS9N
+         yPYA==
+X-Gm-Message-State: ACgBeo2D9hp9/toYBU3MHGZgH0+S3BwSTaoqyDM5zAd8K85bK71QL5BL
+        WWb1y7zhTRYabmtrGILq5GBvxSAzdulnR5EEFXvJoVom
+X-Google-Smtp-Source: AA6agR4mW9jhJWIG0Gtf6ReWVB7sFkOME/JIaKf2Bt+66DXDAB+tQG56bcFFYiiMhJCcTp0LpU5i3eSUFs/RdVtkXII=
+X-Received: by 2002:a05:6402:4446:b0:43b:e1f4:8525 with SMTP id
+ o6-20020a056402444600b0043be1f48525mr4385707edb.236.1661457314796; Thu, 25
+ Aug 2022 12:55:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
- <8735dux60p.fsf@email.froward.int.ebiederm.org> <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
- <871qte8wy3.fsf@email.froward.int.ebiederm.org> <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
- <8735du7fnp.fsf@email.froward.int.ebiederm.org> <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
- <87tu6a4l83.fsf@email.froward.int.ebiederm.org> <20220818140521.GA1000@mail.hallyn.com>
- <CAHC9VhRqBxtV04ARQFPWpMf1aFZo0HP_HiJ+8VpXAT-zXF6UXw@mail.gmail.com>
- <20220819144537.GA16552@mail.hallyn.com> <CAHC9VhSZ0aaa3k3704j8_9DJvSNRy-0jfXpy1ncs2Jmo8H0a7g@mail.gmail.com>
- <875yigp4tp.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <875yigp4tp.fsf@email.froward.int.ebiederm.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 25 Aug 2022 15:19:09 -0400
-Message-ID: <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
-        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        jmorris@namei.org, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, shuah@kernel.org, brauner@kernel.org,
-        casey@schaufler-ca.com, bpf@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, kernel-team@cloudflare.com,
-        cgzones@googlemail.com, karl@bigbadwolfsecurity.com,
-        tixxdz@gmail.com
+References: <CAFPpqQHS_v7gqXsdCpE3LXA4JzL=-K0U7Q9jiGY5EqT6XCoQbg@mail.gmail.com>
+ <Ywc+pjOFkAEswVuQ@gardel-login> <CAFPpqQEva6Z339ZXKxF2=ueug7YFrsFD0Tk6W88cZQxx0sg7OQ@mail.gmail.com>
+ <CAFPpqQFCjUksVa6YN0uV1-77OB0ZQyrQnDDqjA7LKoyOjZU8tg@mail.gmail.com>
+In-Reply-To: <CAFPpqQFCjUksVa6YN0uV1-77OB0ZQyrQnDDqjA7LKoyOjZU8tg@mail.gmail.com>
+From:   Ted Toth <txtoth@gmail.com>
+Date:   Thu, 25 Aug 2022 14:55:03 -0500
+Message-ID: <CAFPpqQHrDzhx30z=K6cu=iWVu0ykf=J4eetpJRRxazjwp4Gusw@mail.gmail.com>
+Subject: Re: [systemd-devel] socket activation selinux context on create
+To:     SELinux <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 25, 2022 at 2:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Paul Moore <paul@paul-moore.com> writes:
-> > On Fri, Aug 19, 2022 at 10:45 AM Serge E. Hallyn <serge@hallyn.com> wrote:
-> >>  I am hoping we can come up with
-> >> "something better" to address people's needs, make everyone happy, and
-> >> bring forth world peace.  Which would stack just fine with what's here
-> >> for defense in depth.
-> >>
-> >> You may well not be interested in further work, and that's fine.  I need
-> >> to set aside a few days to think on this.
-> >
-> > I'm happy to continue the discussion as long as it's constructive; I
-> > think we all are.  My gut feeling is that Frederick's approach falls
-> > closest to the sweet spot of "workable without being overly offensive"
-> > (*cough*), but if you've got an additional approach in mind, or an
-> > alternative approach that solves the same use case problems, I think
-> > we'd all love to hear about it.
+I tried setting the context of the port with semanage and starting the
+service but netstat shows the type as init_t and not the type I set.
+The system I tried this on is in permissive.
+
+On Thu, Aug 25, 2022 at 8:30 AM Ted Toth <txtoth@gmail.com> wrote:
 >
-> I would love to actually hear the problems people are trying to solve so
-> that we can have a sensible conversation about the trade offs.
-
-Here are several taken from the previous threads, it's surely not a
-complete list, but it should give you a good idea:
-
-https://lore.kernel.org/linux-security-module/CAHC9VhQnPAsmjmKo-e84XDJ1wmaOFkTKPjjztsOa9Yrq+AeAQA@mail.gmail.com/
-
-> As best I can tell without more information people want to use
-> the creation of a user namespace as a signal that the code is
-> attempting an exploit.
-
-Some use cases are like that, there are several other use cases that
-go beyond this; see all of our previous discussions on this
-topic/patchset.  As has been mentioned before, there are use cases
-that require improved observability, access control, or both.
-
-> As such let me propose instead of returning an error code which will let
-> the exploit continue, have the security hook return a bool.  With true
-> meaning the code can continue and on false it will trigger using SIGSYS
-> to terminate the program like seccomp does.
-
-Having the kernel forcibly exit the process isn't something that most
-LSMs would likely want.  I suppose we could modify the hook/caller so
-that *if* an LSM wanted to return SIGSYS the system would kill the
-process, but I would want that to be something in addition to
-returning an error code like LSMs normally do (e.g. EACCES).
-
--- 
-paul-moore.com
+> Maybe if I set the port type using semanage then a type transition
+> will happen automatically?
+>
+> On Thu, Aug 25, 2022 at 8:22 AM Ted Toth <txtoth@gmail.com> wrote:
+> >
+> > I asked on the systemd-devel list about enabling systemd to set the
+> > context of a socket and got the answer I've included below. I don't
+> > know how a transition rule can be written to transition tcp sockets to
+> > multiple different target contexts, is this possible and if so how?
+> >
+> > ---------- Forwarded message ---------
+> > From: Lennart Poettering <lennart@poettering.net>
+> > Date: Thu, Aug 25, 2022 at 4:19 AM
+> > Subject: Re: [systemd-devel] socket activation selinux context on create
+> > To: Ted Toth <txtoth@gmail.com>
+> > Cc: <systemd-devel@lists.freedesktop.org>
+> >
+> >
+> > On Mi, 24.08.22 11:50, Ted Toth (txtoth@gmail.com) wrote:
+> >
+> > > I don't see a way to set the context of the socket that systemd
+> > > listens on. If there is a way to do this please tell me otherwise I'd
+> > > like to see an option (SELinuxCreateContext?) added to be able to set
+> > > the context (setsockcreatecon) to be used by systemd when creating the
+> > > socket. Currently as an extra layer of security I add code called in
+> > > the socket activation ExecStartPre process to check that the source
+> > > context (peercon) can connect to the target context (getcon). If a
+> > > sockets context was set by systemd I would have to perform this
+> > > additional check as my SELinux policy would do it for me.
+> >
+> > This was proposed before, but SELinux maintainers really want that the
+> > loaded selinux policy picks the label, and not unit files.
+> >
+> > i.e. as I understand their philosophy: how labels are assigned should
+> > be encoded in the database and in the policy but not elsewhere,
+> > i.e. in unit files. I think that philosophy does make sense.
+> >
+> > Lennart
+> >
+> > --
+> > Lennart Poettering, Berlin
