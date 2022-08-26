@@ -2,149 +2,143 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB98ECAAD6
-	for <selinux@archiver.kernel.org>; Fri, 26 Aug 2022 09:11:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 469ECECAAD4
+	for <selinux@archiver.kernel.org>; Fri, 26 Aug 2022 14:44:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238380AbiHZJLI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 Aug 2022 05:11:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58426 "EHLO
+        id S236882AbiHZOoW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Aug 2022 10:44:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245608AbiHZJLG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 Aug 2022 05:11:06 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C17CD525
-        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 02:11:04 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id q81so694639iod.9
-        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 02:11:04 -0700 (PDT)
+        with ESMTP id S245208AbiHZOoV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Aug 2022 10:44:21 -0400
+Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522621C93A
+        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 07:44:16 -0700 (PDT)
+Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-11cab7d7e0fso2300119fac.6
+        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 07:44:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=9WfR61mwlG7xEw+rTgThfNinRNgyKs7+mef9MefL6PA=;
-        b=EhvIqLiC9BX9tHc9a+BQqpydsPIjtHyKBmBx0sofnPbgUlRgpWlCGxWIpp5JbnuFup
-         2kZoVj99EcwjkfBHBUZg2oipu8wdizJwB4NoGLsfzUAFh/Tk2zvveA8DFExtjEyQ8Dc/
-         /pVtcCgigmLtsj7Cwo14GVv+Ocdqf7No5PvDs=
+        bh=oXHluCSgHrKtvZXb+avGYXJyh1UM8z/BWx1HdXaH5Dg=;
+        b=51GM2paNvKPfzPYWBZAERXNBxSVxjONRtgA9TK4OWHq0Mi95TxbLatgEax2RhBNMUC
+         hyRyfBZbuCWQJYAP92IU1zJc0F8cMh6TsACYXbjxeIwEDjdVYPYvDKFLQcAZhSmJmcU6
+         jO9q/N1qR87S5+clx4d03kqSQ8kH4Qv25EE0DaA97mtv36Kx9fRhG2htA+vEJB9tU/PL
+         B+xCKgzKi3aSmj1I5ZIX02Ne4iC8E3j2P19WtCZDPBdLqKeYgKxJ84e705oUkzRIGThr
+         G7O5XzIy9VC2a5T9QRZ+GH1KZkQCZnjf+7mZDEjkn5jGOt1jpeTu2zDu6gaKFDpimnwf
+         nuUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=9WfR61mwlG7xEw+rTgThfNinRNgyKs7+mef9MefL6PA=;
-        b=ecurijBtbh4vlwCvdkHWyoLZ5SAplX5ms0HkSMAGwoDsuoE+f+GIH9NhAg+J4jHdsI
-         hfuw4iBylVIotym25VpgoNoh2cZ55YmcmS3rWU0F8DYpdhoI6ZplKIFiIq5TY31WTt2Q
-         JuSajmlXnsorSsMP2WTviEpO3l/0NXmK/W25H6OYSHSnsUCRjSmunPz/SWx1cYmnXHkz
-         V48K/ofb1FLRFvRrtr6wsQfM1cSsKU6zp0QJ5JnG+8/RoAMsKW0G3fkRc0WdF436/RiM
-         zKSh4sjZHc1mF/f1ULRVHzEoBVGm5lEyGfjBAD5QjHwyBoVBrbWV2Wny+xCAQVzLfU4G
-         20QQ==
-X-Gm-Message-State: ACgBeo2gImYGmUu1CxFnNVcxoe0zpztvWVcZfMGKSaQIBd+8CaQ09CuX
-        HHDiHC8pnnM7VSJIjPZB0JexLM6g5mMfANHyDpQmTw==
-X-Google-Smtp-Source: AA6agR6HH6H4gQKe9WI6NZj2d6w2XPDgEj2DZxqfhfzNbm4v9sn+/Pw662xyRmYU8yITLrnZeY2UhvE0P3+pTftDpXg=
-X-Received: by 2002:a05:6638:1244:b0:34a:1104:afa with SMTP id
- o4-20020a056638124400b0034a11040afamr3321877jas.244.1661505063405; Fri, 26
- Aug 2022 02:11:03 -0700 (PDT)
+        bh=oXHluCSgHrKtvZXb+avGYXJyh1UM8z/BWx1HdXaH5Dg=;
+        b=61QVdcbB3gRhPAQWn3oZ8OwnOgHSkC6kR8sc6QcE67HPlCnIhCzvKX/IIMYKhueR1+
+         TewPUGsdJk5cymzqCmhvRJa5sX89NhIGLp9HxBZUKc9PZ9ifAwDScc38k7RfiZ3ZsdkD
+         my9Es9//aXh8ryo7B4dqB/SvXNVPJDg48ZKgmIXjEXVp6AzeVl2msmHsZwNH2E55qik6
+         oOSWynpTMA985UK6ttUXFjUgIQAwaHRU7xjwGj9gGJU5ttW28TH1lcBE7ZVGGnQdKBbQ
+         aQ3h0OAqjXoCIfFLxNUDciZqZ4P4m5rg1KvNfGqb0hTZ2keTKFj1twuo5OYbccElrw4H
+         fMXA==
+X-Gm-Message-State: ACgBeo3EizGlYPPcDs2ValYqqcnSMTt1ViF9HLjOe65oxIIdx84yeodu
+        SpMBNrhnj7sdm8UVUDeW3NoRoRN8eU863+fmVl0tKOETrQ==
+X-Google-Smtp-Source: AA6agR5wh879P8FFNDXZKMSEOe9+q64rJJLPsdXC8OV4e38vYPRaLb6ERoBVkEZg5K9F5lKVBMUi281wB/idwTVKDLY=
+X-Received: by 2002:a05:6870:7092:b0:11d:83fe:9193 with SMTP id
+ v18-20020a056870709200b0011d83fe9193mr2047873oae.41.1661525054896; Fri, 26
+ Aug 2022 07:44:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
- <8735dux60p.fsf@email.froward.int.ebiederm.org> <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
- <871qte8wy3.fsf@email.froward.int.ebiederm.org> <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
- <8735du7fnp.fsf@email.froward.int.ebiederm.org> <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
- <87tu6a4l83.fsf@email.froward.int.ebiederm.org> <20220818140521.GA1000@mail.hallyn.com>
- <CAHC9VhRqBxtV04ARQFPWpMf1aFZo0HP_HiJ+8VpXAT-zXF6UXw@mail.gmail.com>
- <20220819144537.GA16552@mail.hallyn.com> <CAHC9VhSZ0aaa3k3704j8_9DJvSNRy-0jfXpy1ncs2Jmo8H0a7g@mail.gmail.com>
- <875yigp4tp.fsf@email.froward.int.ebiederm.org> <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
-In-Reply-To: <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
-From:   Ignat Korchagin <ignat@cloudflare.com>
-Date:   Fri, 26 Aug 2022 10:10:51 +0100
-Message-ID: <CALrw=nHRFC-Ws2j-MJAs50oznfRC5fG3a3opmYRkxQCtK61EEg@mail.gmail.com>
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederick Lawler <fred@cloudflare.com>, kpsingh@kernel.org,
-        revest@chromium.org, jackmanb@chromium.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
-        songliubraving@fb.com, yhs@fb.com, john.fastabend@gmail.com,
-        jmorris@namei.org, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, shuah@kernel.org,
-        Christian Brauner <brauner@kernel.org>, casey@schaufler-ca.com,
-        bpf@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        kernel-team <kernel-team@cloudflare.com>, cgzones@googlemail.com,
-        karl@bigbadwolfsecurity.com, tixxdz@gmail.com
+References: <166061510477.614432.940552725841920786.stgit@olly>
+ <CAFqZXNsHyi_ga68=jFXh=qb4SQR9HOwCUNgHcascMn_ycOTtWw@mail.gmail.com>
+ <CAHC9VhTbNSS_SkgyWAjXq+soOa_LUfFZR5eV0auG4K-cLFRTTw@mail.gmail.com> <CAFqZXNs4f026E+2Ncsn72C=WYob=GyX_6C8xzr2ix+=0X3gcDA@mail.gmail.com>
+In-Reply-To: <CAFqZXNs4f026E+2Ncsn72C=WYob=GyX_6C8xzr2ix+=0X3gcDA@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 26 Aug 2022 10:44:04 -0400
+Message-ID: <CAHC9VhSe8fjKqm1hXmFfB6x8dFYaHfJ4_2=-p=s1DohxEaRSxw@mail.gmail.com>
+Subject: Re: [selinux-testsuite PATCH] tests/binder: remove stray flag files
+ with 'make clean'
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 25, 2022 at 8:19 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Thu, Aug 25, 2022 at 2:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> > Paul Moore <paul@paul-moore.com> writes:
-> > > On Fri, Aug 19, 2022 at 10:45 AM Serge E. Hallyn <serge@hallyn.com> wrote:
-> > >>  I am hoping we can come up with
-> > >> "something better" to address people's needs, make everyone happy, and
-> > >> bring forth world peace.  Which would stack just fine with what's here
-> > >> for defense in depth.
-> > >>
-> > >> You may well not be interested in further work, and that's fine.  I need
-> > >> to set aside a few days to think on this.
+On Fri, Aug 26, 2022 at 3:34 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Thu, Aug 25, 2022 at 8:54 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Thu, Aug 25, 2022 at 9:25 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > On Tue, Aug 16, 2022 at 8:50 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > >
+> > > > Failed or incomplete test runs can leave temporary test files in
+> > > > the binder test directory, remove them with 'make clean'.
+> > > >
+> > > >   mkfifo: cannot create fifo \
+> > > >     'binder/manager_flag': File exists
+> > > >   mkfifo: cannot create fifo \
+> > > >     'binder/service_provider_flag': File exists
+> > > >
+> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > > > ---
+> > > >  tests/binder/Makefile |    2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/tests/binder/Makefile b/tests/binder/Makefile
+> > > > index e78ad16..b89d4db 100644
+> > > > --- a/tests/binder/Makefile
+> > > > +++ b/tests/binder/Makefile
+> > > > @@ -18,6 +18,6 @@ endif
+> > > >  all: $(TARGETS)
+> > > >
+> > > >  clean:
+> > > > -       rm -f $(TARGETS)
+> > > > +       rm -f $(TARGETS) manager_flag service_provider_flag
+> > > >
+> > > >  $(TARGETS): $(DEPS)
 > > >
-> > > I'm happy to continue the discussion as long as it's constructive; I
-> > > think we all are.  My gut feeling is that Frederick's approach falls
-> > > closest to the sweet spot of "workable without being overly offensive"
-> > > (*cough*), but if you've got an additional approach in mind, or an
-> > > alternative approach that solves the same use case problems, I think
-> > > we'd all love to hear about it.
+> > > Thanks, though it would be good to do the same cleanup also in other
+> > > tests.
 > >
-> > I would love to actually hear the problems people are trying to solve so
-> > that we can have a sensible conversation about the trade offs.
+> > I agree, but I didn't/don't have the time to do that for the other
+> > tests, I saw this one and I fixed it :)
+> >
+> > > I extended your patch to almost all other dirs in [1] - is it
+> > > OK if I apply that version?
+> >
+> > No, but not because I think those changes are wrong, it's because I
+> > don't agree with the approach.  Let me try to explain ...
+> >
+> > It is my personal opinion that with few exceptions, a maintainer
+> > should not alter a patch significantly beyond the normal fuzz that can
+> > sometimes happen when there are merge conflicts.  Of course there are
+> > trivial changes sometimes, e.g. a missing semicolon, whitespace
+> > issues, etc. which are okay to fixup (with a note in the commit!), but
+> > changes of more than a couple of lines, or changes that impact the
+> > logic of the patch, are not something a maintainer should be doing as
+> > a normal practice.  I am not a lawyer, so please don't take this as a
+> > valid interpretation of the laws involved, but I can see legal reasons
+> > for this: if the maintainer changes the patch in a significant way, I
+> > imagine that could potentially muddy the idea of authorship, would the
+> > maintainer now also be considered an author of that patch?  How could
+> > one clearly distinguish between the original author's code and the
+> > mainatiner's changes?  Sure, there is the mailing list, but what if
+> > the mailing list is not available and all you have is the git log?
+> > However, the biggest issue that I see is that of community building.
+> > Having a back-and-forth with a patch contributor can help both welcome
+> > them to the community and teach them what is expected from a patch
+> > submission point of view.  It might be easier and quicker for you just
+> > to edit the existing patch, but it's better for the community to take
+> > the time and ask the original submitter if they could make the change.
+> >
+> > Does that make sense?
 >
-> Here are several taken from the previous threads, it's surely not a
-> complete list, but it should give you a good idea:
+> Yes, I agree. Looking back at what I did with the patch and
+> communication I can see I went the completely wrong way about it and I
+> apologize.
 >
-> https://lore.kernel.org/linux-security-module/CAHC9VhQnPAsmjmKo-e84XDJ1wmaOFkTKPjjztsOa9Yrq+AeAQA@mail.gmail.com/
->
-> > As best I can tell without more information people want to use
-> > the creation of a user namespace as a signal that the code is
-> > attempting an exploit.
->
-> Some use cases are like that, there are several other use cases that
-> go beyond this; see all of our previous discussions on this
-> topic/patchset.  As has been mentioned before, there are use cases
-> that require improved observability, access control, or both.
->
-> > As such let me propose instead of returning an error code which will let
-> > the exploit continue, have the security hook return a bool.  With true
-> > meaning the code can continue and on false it will trigger using SIGSYS
-> > to terminate the program like seccomp does.
->
-> Having the kernel forcibly exit the process isn't something that most
-> LSMs would likely want.  I suppose we could modify the hook/caller so
-> that *if* an LSM wanted to return SIGSYS the system would kill the
-> process, but I would want that to be something in addition to
-> returning an error code like LSMs normally do (e.g. EACCES).
+> Actually there is really no good reason for me not to simply add the
+> extra changes as a separate patch/commit... I guess I just
+> instinctively tried to keep the one logical change in one patch and
+> didn't think it through properly... I'll scratch that embarrassing
+> commit and just post the extra changes as another patch.
 
-I would also add here that seccomp allows more flexibility than just
-delivering SIGSYS to a violating application. We can program seccomp
-bpf to:
-  * deliver a signal
-  * return a CUSTOM error code (and BTW somehow this does not trigger
-any requirements to change userapi or document in manpages: in my toy
-example in [1] I'm delivering ENETDOWN from a uname(2) system call,
-which is not documented in the man pages, but totally valid from a
-seccomp usage perspective)
-  * do-nothing, but log the action
+No worries, thanks for doing the other fixes.
 
-So I would say the seccomp reference supports the current approach
-more than the alternative approach of delivering SIGSYS as technically
-an LSM implementation of the hook (at least in-kernel one) can chose
-to deliver a signal to a task via kernel-api, but BPF-LSM (and others)
-can deliver custom error codes and log the actions as well.
-
-Ignat
-
-> --
-> paul-moore.com
-
-[1]: https://blog.cloudflare.com/sandboxing-in-linux-with-zero-lines-of-code/
+-- 
+paul-moore.com
