@@ -2,151 +2,110 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC1D9ECAAD5
-	for <selinux@archiver.kernel.org>; Fri, 26 Aug 2022 15:27:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BD83ECAAD6
+	for <selinux@archiver.kernel.org>; Fri, 26 Aug 2022 16:27:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344537AbiHZP12 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 Aug 2022 11:27:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
+        id S229464AbiHZQ1z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Aug 2022 12:27:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344552AbiHZP04 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 Aug 2022 11:26:56 -0400
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 917B5EA9;
-        Fri, 26 Aug 2022 08:24:46 -0700 (PDT)
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id 214401047; Fri, 26 Aug 2022 10:24:45 -0500 (CDT)
-Date:   Fri, 26 Aug 2022 10:24:45 -0500
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Song Liu <songliubraving@fb.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederick Lawler <fred@cloudflare.com>,
-        KP Singh <kpsingh@kernel.org>,
-        "revest@chromium.org" <revest@chromium.org>,
-        "jackmanb@chromium.org" <jackmanb@chromium.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>, Martin Lau <kafai@fb.com>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
-        "eparis@parisplace.org" <eparis@parisplace.org>,
-        Shuah Khan <shuah@kernel.org>,
-        "brauner@kernel.org" <brauner@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        bpf <bpf@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        "kernel-team@cloudflare.com" <kernel-team@cloudflare.com>,
-        "cgzones@googlemail.com" <cgzones@googlemail.com>,
-        "karl@bigbadwolfsecurity.com" <karl@bigbadwolfsecurity.com>,
-        "tixxdz@gmail.com" <tixxdz@gmail.com>
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-Message-ID: <20220826152445.GB12466@mail.hallyn.com>
-References: <8735du7fnp.fsf@email.froward.int.ebiederm.org>
- <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
- <87tu6a4l83.fsf@email.froward.int.ebiederm.org>
- <20220818140521.GA1000@mail.hallyn.com>
- <CAHC9VhRqBxtV04ARQFPWpMf1aFZo0HP_HiJ+8VpXAT-zXF6UXw@mail.gmail.com>
- <20220819144537.GA16552@mail.hallyn.com>
- <CAHC9VhSZ0aaa3k3704j8_9DJvSNRy-0jfXpy1ncs2Jmo8H0a7g@mail.gmail.com>
- <875yigp4tp.fsf@email.froward.int.ebiederm.org>
- <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
- <0D14C118-E644-4D7B-84C0-CA7752DC0605@fb.com>
+        with ESMTP id S237904AbiHZQ1y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Aug 2022 12:27:54 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E701CDF675
+        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 09:27:52 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id t11-20020a05683014cb00b0063734a2a786so1320742otq.11
+        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 09:27:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=47LwKtGNYlWQtvjArJ9MTlK2TLiKWMwqH2B+EdD3Yxg=;
+        b=tK4EUedtQOYlUbQ9rz8qZEWcPQfNuVKnEVcWSbjTZd+bSTZpYK6/V0nBX8U4y2Xx7D
+         tJ32A90gQvwji8I7cCfc7OOv/J1+FyQT5i9YPR02szHEivROhzf3e+2Sr0zI5GvqE39T
+         39kEPb6qX4NQ9XoXraVX8oEdfm8wATVbKxkDvrUsUDFUuJOElVoBDPLYceAphjjQVaqm
+         ahP+xIeyJapQkG1p+2OIfslb3zt7mIyC004jePjvQU/VMe/drS6Nc6nWSJfNpGRKPTTX
+         M+43a4AaciJ0YJAiYY66porxUXUTy1VFYubb2DO9ORNLpABv01tOiQlOOd5O70YqU7Eu
+         qjJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=47LwKtGNYlWQtvjArJ9MTlK2TLiKWMwqH2B+EdD3Yxg=;
+        b=6ox4CC6mPB1FuSmJ0Q07O6GYc0Q3n+NfPrZBIJqc5Rz4VyHjXYu1jvVLOUcC9BtjLg
+         JIqgrGRahU3ARlL7sblBGq7BfJcBiKxu/iobSBU9R9Vw9Fa09rmw/8XMF6GSRBBgZsVj
+         qwqsNSx6biodCnksUFNBRWtW6/DpdqZY4wogk00ZuhQ0hIJUtTwy7plmmFUwRG7q78NG
+         n34Jgqp6TS22nxdJxCyDTNfQ7WzLe3eoarwcGzribsblpx5vNkzzjNOy35Q64aUFd/Bm
+         mB4sCSTiNOFDHtBqsqXks8oVoi7P+4ybCelXryTr7DaScu+z/d103mXwjDJhqIEfQsNQ
+         UDCA==
+X-Gm-Message-State: ACgBeo1Qf2pKpF0+AFHRb8+67NqnSstf7z9lqvKo5/k/DHefb/UeGdnw
+        PHE/NIgs95I9R14dsfkzRD4PY5JcDL5VreKY+Vgl
+X-Google-Smtp-Source: AA6agR56wZjfLf4m3YYmXcc8h3RgFUmmJx5HKVS0cMVPJ5sAurta2N4ICkrCM6pnK6862M1r3F1DuF3Y72PkxTaVwFc=
+X-Received: by 2002:a9d:2de3:0:b0:638:e210:c9da with SMTP id
+ g90-20020a9d2de3000000b00638e210c9damr1643453otb.69.1661531272188; Fri, 26
+ Aug 2022 09:27:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0D14C118-E644-4D7B-84C0-CA7752DC0605@fb.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <166120321387.369593.7400426327771894334.stgit@olly>
+In-Reply-To: <166120321387.369593.7400426327771894334.stgit@olly>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 26 Aug 2022 12:27:41 -0400
+Message-ID: <CAHC9VhRJXxx9LwQyapdW=cDioCcjdHpx4EEuiNC2SJVTz9Z7DA@mail.gmail.com>
+Subject: Re: [PATCH 0/3] LSM hooks for IORING_OP_URING_CMD
+To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        io-uring@vger.kernel.org
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 25, 2022 at 09:58:46PM +0000, Song Liu wrote:
-> 
-> 
-> > On Aug 25, 2022, at 12:19 PM, Paul Moore <paul@paul-moore.com> wrote:
-> > 
-> > On Thu, Aug 25, 2022 at 2:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> >> Paul Moore <paul@paul-moore.com> writes:
-> >>> On Fri, Aug 19, 2022 at 10:45 AM Serge E. Hallyn <serge@hallyn.com> wrote:
-> >>>> I am hoping we can come up with
-> >>>> "something better" to address people's needs, make everyone happy, and
-> >>>> bring forth world peace.  Which would stack just fine with what's here
-> >>>> for defense in depth.
-> >>>> 
-> >>>> You may well not be interested in further work, and that's fine.  I need
-> >>>> to set aside a few days to think on this.
-> >>> 
-> >>> I'm happy to continue the discussion as long as it's constructive; I
-> >>> think we all are.  My gut feeling is that Frederick's approach falls
-> >>> closest to the sweet spot of "workable without being overly offensive"
-> >>> (*cough*), but if you've got an additional approach in mind, or an
-> >>> alternative approach that solves the same use case problems, I think
-> >>> we'd all love to hear about it.
-> >> 
-> >> I would love to actually hear the problems people are trying to solve so
-> >> that we can have a sensible conversation about the trade offs.
-> > 
-> > Here are several taken from the previous threads, it's surely not a
-> > complete list, but it should give you a good idea:
-> > 
-> > https://lore.kernel.org/linux-security-module/CAHC9VhQnPAsmjmKo-e84XDJ1wmaOFkTKPjjztsOa9Yrq+AeAQA@mail.gmail.com/
-> > 
-> >> As best I can tell without more information people want to use
-> >> the creation of a user namespace as a signal that the code is
-> >> attempting an exploit.
-> > 
-> > Some use cases are like that, there are several other use cases that
-> > go beyond this; see all of our previous discussions on this
-> > topic/patchset.  As has been mentioned before, there are use cases
-> > that require improved observability, access control, or both.
-> > 
-> >> As such let me propose instead of returning an error code which will let
-> >> the exploit continue, have the security hook return a bool.  With true
-> >> meaning the code can continue and on false it will trigger using SIGSYS
-> >> to terminate the program like seccomp does.
-> > 
-> > Having the kernel forcibly exit the process isn't something that most
-> > LSMs would likely want.  I suppose we could modify the hook/caller so
-> > that *if* an LSM wanted to return SIGSYS the system would kill the
-> > process, but I would want that to be something in addition to
-> > returning an error code like LSMs normally do (e.g. EACCES).
-> 
-> I am new to user_namespace and security work, so please pardon me if
-> anything below is very wrong. 
-> 
-> IIUC, user_namespace is a tool that enables trusted userspace code to 
-> control the behavior of untrusted (or less trusted) userspace code. 
+On Mon, Aug 22, 2022 at 5:21 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> This patchset includes three patches: one to add a new LSM hook for
+> the IORING_OP_URING_CMD operation, one to add the SELinux
+> implementation for the new hook, and one to enable
+> IORING_OP_URING_CMD for /dev/null.  The last patch, the /dev/null
+> support, is obviously not critical but it makes testing so much
+> easier and I believe is in keeping with the general motivation behind
+> /dev/null.
+>
+> Luis' patch has already been vetted by Jens and the io_uring folks,
+> so the only new bits are the SELinux implementation and the trivial
+> /dev/null implementation of IORING_OP_URING_CMD.  Assuming no one
+> has any objections over the next few days, I'll plan on sending this
+> up to Linus during the v6.0-rcX cycle.
+>
+> I believe Casey is also currently working on Smack support for the
+> IORING_OP_URING_CMD hook, and as soon as he is ready I can add it
+> to this patchset (or Casey can send it up himself).
+>
+> -Paul
+>
+> ---
+>
+> Luis Chamberlain (1):
+>       lsm,io_uring: add LSM hooks for the new uring_cmd file op
+>
+> Paul Moore (2):
+>       selinux: implement the security_uring_cmd() LSM hook
+>       /dev/null: add IORING_OP_URING_CMD support
+>
+>
+>  drivers/char/mem.c                  |  6 ++++++
+>  include/linux/lsm_hook_defs.h       |  1 +
+>  include/linux/lsm_hooks.h           |  3 +++
+>  include/linux/security.h            |  5 +++++
+>  io_uring/uring_cmd.c                |  5 +++++
+>  security/security.c                 |  4 ++++
+>  security/selinux/hooks.c            | 24 ++++++++++++++++++++++++
+>  security/selinux/include/classmap.h |  2 +-
+>  8 files changed, 49 insertions(+), 1 deletion(-)
 
-No.  user namespaces are not a way for more trusted code to control the
-behavior of less trusted code.
+FYI, I just merged this into lsm/stable-6.0 and once the automated
+testing completes and we sort out the Smack patch I'll send this up to
+Linus.
 
-> Failing create_user_ns() doesn't make the system more reliable. 
-> Specifically, we call create_user_ns() via two paths: fork/clone and 
-> unshare. For both paths, we need the userspace to use user_namespace, 
-> and to honor failed create_user_ns(). 
-> 
-> On the other hand, I would echo that killing the process is not 
-> practical in some use cases. Specifically, allowing the application to 
-> run in a less secure environment for a short period of time might be 
-> much better than killing it and taking down the whole service. Of 
-> course, there are other cases that security is more important, and 
-> taking down the whole service is the better choice. 
-> 
-> I guess the ultimate solution is a way to enforce using user_namespace
-> in the kernel (if it ever makes sense...). But I don't know how that
-> gonna work. Before we have such solution, maybe we only need an 
-> void hook for observability (or just a tracepoint, coming from BPF
-> background). 
-> 
-> Thanks,
-> Song
+-- 
+paul-moore.com
