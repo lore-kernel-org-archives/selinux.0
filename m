@@ -2,143 +2,172 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 469ECECAAD4
-	for <selinux@archiver.kernel.org>; Fri, 26 Aug 2022 14:44:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 940F8ECAAA3
+	for <selinux@archiver.kernel.org>; Fri, 26 Aug 2022 15:02:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236882AbiHZOoW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 Aug 2022 10:44:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54230 "EHLO
+        id S231210AbiHZPCV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Aug 2022 11:02:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245208AbiHZOoV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 Aug 2022 10:44:21 -0400
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522621C93A
-        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 07:44:16 -0700 (PDT)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-11cab7d7e0fso2300119fac.6
-        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 07:44:15 -0700 (PDT)
+        with ESMTP id S233141AbiHZPCR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Aug 2022 11:02:17 -0400
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C56DD9D42
+        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 08:02:15 -0700 (PDT)
+Received: by mail-ot1-x32e.google.com with SMTP id q39-20020a056830442700b0063889adc0ddso1186768otv.1
+        for <selinux@vger.kernel.org>; Fri, 26 Aug 2022 08:02:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=oXHluCSgHrKtvZXb+avGYXJyh1UM8z/BWx1HdXaH5Dg=;
-        b=51GM2paNvKPfzPYWBZAERXNBxSVxjONRtgA9TK4OWHq0Mi95TxbLatgEax2RhBNMUC
-         hyRyfBZbuCWQJYAP92IU1zJc0F8cMh6TsACYXbjxeIwEDjdVYPYvDKFLQcAZhSmJmcU6
-         jO9q/N1qR87S5+clx4d03kqSQ8kH4Qv25EE0DaA97mtv36Kx9fRhG2htA+vEJB9tU/PL
-         B+xCKgzKi3aSmj1I5ZIX02Ne4iC8E3j2P19WtCZDPBdLqKeYgKxJ84e705oUkzRIGThr
-         G7O5XzIy9VC2a5T9QRZ+GH1KZkQCZnjf+7mZDEjkn5jGOt1jpeTu2zDu6gaKFDpimnwf
-         nuUw==
+        bh=tRhd/2/uHL0VX0F4GeRi6SnOKLBFJo3Q7T6F3F0TR3s=;
+        b=orhQFJnsjMOMEl1XYB+lStIgrX4ra7SL0ABeZSgcWzIJcW65G6IzHoIBENxN8sseM4
+         CoAsY/870bHVS0FlrCS9ipyA4VCGdNf5nQmNvDdLVx/azkoX2x2btuKOCv48mV3Y+ylC
+         hjOEY0WAesEQlmTkAi55NKTX05lKq3t4syAEoUszo9ZiAbZqfxhsJM1fiF+/x+BAX6xJ
+         OhogR1k6QWDtXqvaxG0/7agNJPwoah7vt6vcOG6dsUJJ8o8LNiRCMkdEVCa8OF1yY7jg
+         gaR+VqCefuGhBiOdD9DAtM6o+3mqXrjCWTrlKKX3Ss8zz4QhR0+UGbOcoaRVxTModdNe
+         kJBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=oXHluCSgHrKtvZXb+avGYXJyh1UM8z/BWx1HdXaH5Dg=;
-        b=61QVdcbB3gRhPAQWn3oZ8OwnOgHSkC6kR8sc6QcE67HPlCnIhCzvKX/IIMYKhueR1+
-         TewPUGsdJk5cymzqCmhvRJa5sX89NhIGLp9HxBZUKc9PZ9ifAwDScc38k7RfiZ3ZsdkD
-         my9Es9//aXh8ryo7B4dqB/SvXNVPJDg48ZKgmIXjEXVp6AzeVl2msmHsZwNH2E55qik6
-         oOSWynpTMA985UK6ttUXFjUgIQAwaHRU7xjwGj9gGJU5ttW28TH1lcBE7ZVGGnQdKBbQ
-         aQ3h0OAqjXoCIfFLxNUDciZqZ4P4m5rg1KvNfGqb0hTZ2keTKFj1twuo5OYbccElrw4H
-         fMXA==
-X-Gm-Message-State: ACgBeo3EizGlYPPcDs2ValYqqcnSMTt1ViF9HLjOe65oxIIdx84yeodu
-        SpMBNrhnj7sdm8UVUDeW3NoRoRN8eU863+fmVl0tKOETrQ==
-X-Google-Smtp-Source: AA6agR5wh879P8FFNDXZKMSEOe9+q64rJJLPsdXC8OV4e38vYPRaLb6ERoBVkEZg5K9F5lKVBMUi281wB/idwTVKDLY=
-X-Received: by 2002:a05:6870:7092:b0:11d:83fe:9193 with SMTP id
- v18-20020a056870709200b0011d83fe9193mr2047873oae.41.1661525054896; Fri, 26
- Aug 2022 07:44:14 -0700 (PDT)
+        bh=tRhd/2/uHL0VX0F4GeRi6SnOKLBFJo3Q7T6F3F0TR3s=;
+        b=l3qAnuBizTJH9VNpj92TD2yKpTp20p7OBOEOPDaF2UnbkwsZ/QJjCKkDxfjKKBLuAB
+         i1dt2vNoPMIyf1WUjNovJ1c12+gipDR8bP8I9KsnRmV51UF1ca/lEwVT1th+XIhSO7+B
+         2N7E84huRAcosKdYq4od9q8w2dQOae+jU9+EpgWpgewHmzXNbmfAmcYI+SddlkMCqdr6
+         W8ot0hKkqqJymJy4y+yDejx/9Ow0J97wK4ayXyOdU4DZ2YuHXxqujpTV/nWrBv7xzz3d
+         oA1a9S8oF4EIO/AWUqiBHgkB/VMooOesjauyftusbC6QD2KmG/faqYzyvm5yMRIOGn6B
+         kCiQ==
+X-Gm-Message-State: ACgBeo0FY2+ixrbPElLunIOIEvzEYjK4rr2Oy3gHOS24BgEadFQSHu0i
+        C/X2xnEq7/o+IBCLNaOh1oWDAxBmQlmyNHRNvJbG
+X-Google-Smtp-Source: AA6agR56pOHGSBiz/+WZK6L4lhfNAe2FeRxCZVmxSMGb8hKzyXQdARkr25+BXbcIUJSAKIdw0+UELoCxFiaeDXQtsyg=
+X-Received: by 2002:a9d:2de3:0:b0:638:e210:c9da with SMTP id
+ g90-20020a9d2de3000000b00638e210c9damr1506204otb.69.1661526134578; Fri, 26
+ Aug 2022 08:02:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <166061510477.614432.940552725841920786.stgit@olly>
- <CAFqZXNsHyi_ga68=jFXh=qb4SQR9HOwCUNgHcascMn_ycOTtWw@mail.gmail.com>
- <CAHC9VhTbNSS_SkgyWAjXq+soOa_LUfFZR5eV0auG4K-cLFRTTw@mail.gmail.com> <CAFqZXNs4f026E+2Ncsn72C=WYob=GyX_6C8xzr2ix+=0X3gcDA@mail.gmail.com>
-In-Reply-To: <CAFqZXNs4f026E+2Ncsn72C=WYob=GyX_6C8xzr2ix+=0X3gcDA@mail.gmail.com>
+References: <CAHC9VhTuxxRfJg=Ax5z87Jz6tq1oVRcppB444dHM2gP-FZrkTQ@mail.gmail.com>
+ <8735dux60p.fsf@email.froward.int.ebiederm.org> <CAHC9VhSHJNLS-KJ-Rz1R12PQbqACSksLYLbymF78d5hMkSGc-g@mail.gmail.com>
+ <871qte8wy3.fsf@email.froward.int.ebiederm.org> <CAHC9VhSU_sqMQwdoh0nAFdURqs_cVFbva8=otjcZUo8s+xyC9A@mail.gmail.com>
+ <8735du7fnp.fsf@email.froward.int.ebiederm.org> <CAHC9VhQuRNxzgVeNhDy=p5+RHz5+bTH6zFdU=UvvEhyH1e962A@mail.gmail.com>
+ <87tu6a4l83.fsf@email.froward.int.ebiederm.org> <20220818140521.GA1000@mail.hallyn.com>
+ <CAHC9VhRqBxtV04ARQFPWpMf1aFZo0HP_HiJ+8VpXAT-zXF6UXw@mail.gmail.com>
+ <20220819144537.GA16552@mail.hallyn.com> <CAHC9VhSZ0aaa3k3704j8_9DJvSNRy-0jfXpy1ncs2Jmo8H0a7g@mail.gmail.com>
+ <875yigp4tp.fsf@email.froward.int.ebiederm.org> <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
+ <0D14C118-E644-4D7B-84C0-CA7752DC0605@fb.com> <CAHC9VhS4ROEY6uBwJPaTKX_bLiDRCyFJ9_+_08gFP0VWF_s-bQ@mail.gmail.com>
+ <ABA58A31-E4BE-445A-B98C-F462D2ED7679@fb.com>
+In-Reply-To: <ABA58A31-E4BE-445A-B98C-F462D2ED7679@fb.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 26 Aug 2022 10:44:04 -0400
-Message-ID: <CAHC9VhSe8fjKqm1hXmFfB6x8dFYaHfJ4_2=-p=s1DohxEaRSxw@mail.gmail.com>
-Subject: Re: [selinux-testsuite PATCH] tests/binder: remove stray flag files
- with 'make clean'
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 26 Aug 2022 11:02:03 -0400
+Message-ID: <CAHC9VhRU-b8LC3722tBHAzd6atrgiSAaGm16sRf_M7hywWFOOA@mail.gmail.com>
+Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
+To:     Song Liu <songliubraving@fb.com>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Frederick Lawler <fred@cloudflare.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "revest@chromium.org" <revest@chromium.org>,
+        "jackmanb@chromium.org" <jackmanb@chromium.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, Martin Lau <kafai@fb.com>,
+        Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
+        "eparis@parisplace.org" <eparis@parisplace.org>,
+        Shuah Khan <shuah@kernel.org>,
+        "brauner@kernel.org" <brauner@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        bpf <bpf@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Networking <netdev@vger.kernel.org>,
+        "kernel-team@cloudflare.com" <kernel-team@cloudflare.com>,
+        "cgzones@googlemail.com" <cgzones@googlemail.com>,
+        "karl@bigbadwolfsecurity.com" <karl@bigbadwolfsecurity.com>,
+        "tixxdz@gmail.com" <tixxdz@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 26, 2022 at 3:34 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Thu, Aug 25, 2022 at 8:54 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Thu, Aug 25, 2022 at 9:25 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > On Tue, Aug 16, 2022 at 8:50 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > >
-> > > > Failed or incomplete test runs can leave temporary test files in
-> > > > the binder test directory, remove them with 'make clean'.
-> > > >
-> > > >   mkfifo: cannot create fifo \
-> > > >     'binder/manager_flag': File exists
-> > > >   mkfifo: cannot create fifo \
-> > > >     'binder/service_provider_flag': File exists
-> > > >
-> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > > ---
-> > > >  tests/binder/Makefile |    2 +-
-> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/tests/binder/Makefile b/tests/binder/Makefile
-> > > > index e78ad16..b89d4db 100644
-> > > > --- a/tests/binder/Makefile
-> > > > +++ b/tests/binder/Makefile
-> > > > @@ -18,6 +18,6 @@ endif
-> > > >  all: $(TARGETS)
-> > > >
-> > > >  clean:
-> > > > -       rm -f $(TARGETS)
-> > > > +       rm -f $(TARGETS) manager_flag service_provider_flag
-> > > >
-> > > >  $(TARGETS): $(DEPS)
-> > >
-> > > Thanks, though it would be good to do the same cleanup also in other
-> > > tests.
-> >
-> > I agree, but I didn't/don't have the time to do that for the other
-> > tests, I saw this one and I fixed it :)
-> >
-> > > I extended your patch to almost all other dirs in [1] - is it
-> > > OK if I apply that version?
-> >
-> > No, but not because I think those changes are wrong, it's because I
-> > don't agree with the approach.  Let me try to explain ...
-> >
-> > It is my personal opinion that with few exceptions, a maintainer
-> > should not alter a patch significantly beyond the normal fuzz that can
-> > sometimes happen when there are merge conflicts.  Of course there are
-> > trivial changes sometimes, e.g. a missing semicolon, whitespace
-> > issues, etc. which are okay to fixup (with a note in the commit!), but
-> > changes of more than a couple of lines, or changes that impact the
-> > logic of the patch, are not something a maintainer should be doing as
-> > a normal practice.  I am not a lawyer, so please don't take this as a
-> > valid interpretation of the laws involved, but I can see legal reasons
-> > for this: if the maintainer changes the patch in a significant way, I
-> > imagine that could potentially muddy the idea of authorship, would the
-> > maintainer now also be considered an author of that patch?  How could
-> > one clearly distinguish between the original author's code and the
-> > mainatiner's changes?  Sure, there is the mailing list, but what if
-> > the mailing list is not available and all you have is the git log?
-> > However, the biggest issue that I see is that of community building.
-> > Having a back-and-forth with a patch contributor can help both welcome
-> > them to the community and teach them what is expected from a patch
-> > submission point of view.  It might be easier and quicker for you just
-> > to edit the existing patch, but it's better for the community to take
-> > the time and ask the original submitter if they could make the change.
-> >
-> > Does that make sense?
->
-> Yes, I agree. Looking back at what I did with the patch and
-> communication I can see I went the completely wrong way about it and I
-> apologize.
->
-> Actually there is really no good reason for me not to simply add the
-> extra changes as a separate patch/commit... I guess I just
-> instinctively tried to keep the one logical change in one patch and
-> didn't think it through properly... I'll scratch that embarrassing
-> commit and just post the extra changes as another patch.
+On Thu, Aug 25, 2022 at 6:42 PM Song Liu <songliubraving@fb.com> wrote:
+> > On Aug 25, 2022, at 3:10 PM, Paul Moore <paul@paul-moore.com> wrote:
+> > On Thu, Aug 25, 2022 at 5:58 PM Song Liu <songliubraving@fb.com> wrote:
 
-No worries, thanks for doing the other fixes.
+...
+
+> >> I am new to user_namespace and security work, so please pardon me if
+> >> anything below is very wrong.
+> >>
+> >> IIUC, user_namespace is a tool that enables trusted userspace code to
+> >> control the behavior of untrusted (or less trusted) userspace code.
+> >> Failing create_user_ns() doesn't make the system more reliable.
+> >> Specifically, we call create_user_ns() via two paths: fork/clone and
+> >> unshare. For both paths, we need the userspace to use user_namespace,
+> >> and to honor failed create_user_ns().
+> >>
+> >> On the other hand, I would echo that killing the process is not
+> >> practical in some use cases. Specifically, allowing the application to
+> >> run in a less secure environment for a short period of time might be
+> >> much better than killing it and taking down the whole service. Of
+> >> course, there are other cases that security is more important, and
+> >> taking down the whole service is the better choice.
+> >>
+> >> I guess the ultimate solution is a way to enforce using user_namespace
+> >> in the kernel (if it ever makes sense...).
+> >
+> > The LSM framework, and the BPF and SELinux LSM implementations in this
+> > patchset, provide a mechanism to do just that: kernel enforced access
+> > controls using flexible security policies which can be tailored by the
+> > distro, solution provider, or end user to meet the specific needs of
+> > their use case.
+>
+> In this case, I wouldn't call the kernel is enforcing access control.
+> (I might be wrong). There are 3 components here: kernel, LSM, and
+> trusted userspace (whoever calls unshare).
+
+The LSM layer, and the LSMs themselves are part of the kernel; look at
+the changes in this patchset to see the LSM, BPF LSM, and SELinux
+kernel changes.  Explaining how the different LSMs work is quite a bit
+beyond the scope of this discussion, but there is plenty of
+information available online that should be able to serve as an
+introduction, not to mention the kernel source itself.  However, in
+very broad terms you can think of the individual LSMs as somewhat
+analogous to filesystem drivers, e.g. ext4, and the LSM itself as the
+VFS layer.
+
+> AFAICT, kernel simply passes
+> the decision made by LSM (BPF or SELinux) to the trusted userspace. It
+> is up to the trusted userspace to honor the return value of unshare().
+
+With a LSM enabled and enforcing a security policy on user namespace
+creation, which appears to be the case of most concern, the kernel
+would make a decision on the namespace creation based on various
+factors (e.g. for SELinux this would be the calling process' security
+domain and the domain's permission set as determined by the configured
+security policy) and if the operation was rejected an error code would
+be returned to userspace and the operation rejected.  It is the exact
+same thing as what would happen if the calling process is chrooted or
+doesn't have a proper UID/GID mapping.  Don't forget that the
+create_user_ns() function already enforces a security policy and
+returns errors to userspace; this patchset doesn't add anything new in
+that regard, it just allows for a richer and more flexible security
+policy to be built on top of the existing constraints.
+
+> If the userspace simply ignores unshare failures, or does not call
+> unshare(CLONE_NEWUSER), kernel and LSM cannot do much about it, right?
+
+The process is still subject to any security policies that are active
+and being enforced by the kernel.  A malicious or misconfigured
+application can still be constrained by the kernel using both the
+kernel's legacy Discretionary Access Controls (DAC) as well as the
+more comprehensive Mandatory Access Controls (MAC) provided by many of
+the LSMs.
 
 -- 
 paul-moore.com
