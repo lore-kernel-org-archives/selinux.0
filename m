@@ -2,202 +2,94 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C3F5C0502E
-	for <selinux@archiver.kernel.org>; Mon, 29 Aug 2022 15:33:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16359ECAAD5
+	for <selinux@archiver.kernel.org>; Mon, 29 Aug 2022 18:49:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbiH2PdX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Aug 2022 11:33:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
+        id S229681AbiH2Stu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Aug 2022 14:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229566AbiH2PdT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Aug 2022 11:33:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B8987E001;
-        Mon, 29 Aug 2022 08:33:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D287B810E2;
-        Mon, 29 Aug 2022 15:33:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48D37C433D7;
-        Mon, 29 Aug 2022 15:33:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661787194;
-        bh=jzNzgbkp8S7F5ShJoRQg4sI4IZkepolVYyaXxRiHuaU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ByRHXZZIPHw1GAtaglSfS40oiwbi3+y+Qo+KygaRYVKAAWamjVRSzpM0+P7rovGiV
-         W2dKwScf6KwNN7nKXRugLMCFD5/wZL8+FZHCOiM4wyFgkUlrxTr9XSWexM9LZ9nnTj
-         35ff9NAvlOEdAT6GycEsYNY9RV4kdgFVbkP9Ll6z1gPX1koy3JruNQFOWIU8LB8eo7
-         2FFQx9wTBfh2wWb4S/d8koZZyazHDPw2TRG36g+2Ckd5XNdf8mf0upqDTETfjFSWmc
-         2JUat1koBEYEk4LmBaJKAlI6K7KKDyGl92OI3/lwI8g4ZPPkwd9Y4zsnK3oDjTJF2u
-         gEhyxb0iFW/Bw==
-Date:   Mon, 29 Aug 2022 17:33:04 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     "Serge E. Hallyn" <serge@hallyn.com>
-Cc:     Song Liu <songliubraving@fb.com>, Paul Moore <paul@paul-moore.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederick Lawler <fred@cloudflare.com>,
-        KP Singh <kpsingh@kernel.org>,
-        "revest@chromium.org" <revest@chromium.org>,
-        "jackmanb@chromium.org" <jackmanb@chromium.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>, Martin Lau <kafai@fb.com>,
-        Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
-        "eparis@parisplace.org" <eparis@parisplace.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        bpf <bpf@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        "kernel-team@cloudflare.com" <kernel-team@cloudflare.com>,
-        "cgzones@googlemail.com" <cgzones@googlemail.com>,
-        "karl@bigbadwolfsecurity.com" <karl@bigbadwolfsecurity.com>,
-        "tixxdz@gmail.com" <tixxdz@gmail.com>
-Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
-Message-ID: <20220829153304.nvhakybpkj7erpuc@wittgenstein>
-References: <20220818140521.GA1000@mail.hallyn.com>
- <CAHC9VhRqBxtV04ARQFPWpMf1aFZo0HP_HiJ+8VpXAT-zXF6UXw@mail.gmail.com>
- <20220819144537.GA16552@mail.hallyn.com>
- <CAHC9VhSZ0aaa3k3704j8_9DJvSNRy-0jfXpy1ncs2Jmo8H0a7g@mail.gmail.com>
- <875yigp4tp.fsf@email.froward.int.ebiederm.org>
- <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
- <0D14C118-E644-4D7B-84C0-CA7752DC0605@fb.com>
- <20220826152445.GB12466@mail.hallyn.com>
- <25C89E75-A900-42C7-A8E4-2800AA2E3387@fb.com>
- <20220826210039.GA15952@mail.hallyn.com>
+        with ESMTP id S229552AbiH2Stt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Aug 2022 14:49:49 -0400
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4479790
+        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 11:49:44 -0700 (PDT)
+Received: by mail-il1-x12c.google.com with SMTP id a9so2142650ilh.1
+        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 11:49:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=InRd9ee9hgVTcmXd0UaIUSty5I313n+TLUulVEfdVDU=;
+        b=VHzVlzJZhNQHv9u6/hirZllRm9gB3qaeoj1OfebdfufpJZ5hK+sP89fLO2xjQi6E+9
+         w63wfaH2LNg+puEAeW417bkzCF2lYMp2Yc9jJ4gFVoZJw6rhZAG/JBK6czp4vgMwAFAP
+         orkMjtO22ib8YEb+YSUY8rVrWkiE+mmdqxmCxLs6UUFmG4JaA8JNaUb06GvXrQxYLTzA
+         8NScFwkxrfDzPP1I9dJvkilXVhmcnz9f7Hz9mm7EFafvTFPhvQ/ocvQ/M9/QwiFMPBK+
+         XUqtzajS00fvimEu+U9Y9nWBP4++JF7ii7+G7Psm5Mk8lcouJ71tGj4nH0M2AikEESq0
+         eBXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=InRd9ee9hgVTcmXd0UaIUSty5I313n+TLUulVEfdVDU=;
+        b=aGpbKATEpPYQKW2KCrwchsVuPJSgA1q0GYEvonTJxOGxRXL5+j6UcTc+t14aYH9ATM
+         SXMcDD4Io477fmVi595lV2WzjIcdbqfHQeAKIbv8LhT1t3OHqQ/zWbAHyADLPtA4sFKR
+         Ikb/JppwSxTmb9PtjI6ktrOkUy7B56Mw+Ne+kzUFelWVJlJXESwyw36JkkwAMO/Nrxjn
+         /MNIPyg5ho7wZQqqCtLEr9wAame9A+UuAHCvMT7IyA4MunOZK7H/CGUNdMvn9HeNkO+F
+         ocJF2W0HCGhlV2OocnNtRgbbFP6RWzmUbFC0iTPWYprWgz7MhVD/hGABdc1L96y8ELwS
+         S1kg==
+X-Gm-Message-State: ACgBeo06mgv+Zn2kzpM6ex3mlL+49FHber9aijLakJKQZgYcLSPU3Coe
+        ZrL0CiNFo2rnR77RWwSscFJeXnI+lWAlhuldUFVjzVno0J4=
+X-Google-Smtp-Source: AA6agR5H6USqVeVKLH4dDemHm2fQuVog07MQyNrxAri77I/cSjiigbtK+ryAUGSxNPRCUu5Ev76Ue/lCq0Twv8tW+QI=
+X-Received: by 2002:a92:130f:0:b0:2e4:22c9:7721 with SMTP id
+ 15-20020a92130f000000b002e422c97721mr11139954ilt.34.1661798983624; Mon, 29
+ Aug 2022 11:49:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220826210039.GA15952@mail.hallyn.com>
+References: <20220825132718.jnuxg7oqkmm3dx2l@jmarcin-t14s-01>
+In-Reply-To: <20220825132718.jnuxg7oqkmm3dx2l@jmarcin-t14s-01>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 29 Aug 2022 14:49:32 -0400
+Message-ID: <CAP+JOzR+47kdg9G7mO59XvWYk6JkbLd6W2geW6O-W7q3dH5VCw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: fix missing double quotes in typetransition CIL rule
+To:     Juraj Marcin <juraj@jurajmarcin.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 26, 2022 at 04:00:39PM -0500, Serge Hallyn wrote:
-> On Fri, Aug 26, 2022 at 05:00:51PM +0000, Song Liu wrote:
-> > 
-> > 
-> > > On Aug 26, 2022, at 8:24 AM, Serge E. Hallyn <serge@hallyn.com> wrote:
-> > > 
-> > > On Thu, Aug 25, 2022 at 09:58:46PM +0000, Song Liu wrote:
-> > >> 
-> > >> 
-> > >>> On Aug 25, 2022, at 12:19 PM, Paul Moore <paul@paul-moore.com> wrote:
-> > >>> 
-> > >>> On Thu, Aug 25, 2022 at 2:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> > >>>> Paul Moore <paul@paul-moore.com> writes:
-> > >>>>> On Fri, Aug 19, 2022 at 10:45 AM Serge E. Hallyn <serge@hallyn.com> wrote:
-> > >>>>>> I am hoping we can come up with
-> > >>>>>> "something better" to address people's needs, make everyone happy, and
-> > >>>>>> bring forth world peace.  Which would stack just fine with what's here
-> > >>>>>> for defense in depth.
-> > >>>>>> 
-> > >>>>>> You may well not be interested in further work, and that's fine.  I need
-> > >>>>>> to set aside a few days to think on this.
-> > >>>>> 
-> > >>>>> I'm happy to continue the discussion as long as it's constructive; I
-> > >>>>> think we all are.  My gut feeling is that Frederick's approach falls
-> > >>>>> closest to the sweet spot of "workable without being overly offensive"
-> > >>>>> (*cough*), but if you've got an additional approach in mind, or an
-> > >>>>> alternative approach that solves the same use case problems, I think
-> > >>>>> we'd all love to hear about it.
-> > >>>> 
-> > >>>> I would love to actually hear the problems people are trying to solve so
-> > >>>> that we can have a sensible conversation about the trade offs.
-> > >>> 
-> > >>> Here are several taken from the previous threads, it's surely not a
-> > >>> complete list, but it should give you a good idea:
-> > >>> 
-> > >>> https://lore.kernel.org/linux-security-module/CAHC9VhQnPAsmjmKo-e84XDJ1wmaOFkTKPjjztsOa9Yrq+AeAQA@mail.gmail.com/
-> > >>> 
-> > >>>> As best I can tell without more information people want to use
-> > >>>> the creation of a user namespace as a signal that the code is
-> > >>>> attempting an exploit.
-> > >>> 
-> > >>> Some use cases are like that, there are several other use cases that
-> > >>> go beyond this; see all of our previous discussions on this
-> > >>> topic/patchset.  As has been mentioned before, there are use cases
-> > >>> that require improved observability, access control, or both.
-> > >>> 
-> > >>>> As such let me propose instead of returning an error code which will let
-> > >>>> the exploit continue, have the security hook return a bool.  With true
-> > >>>> meaning the code can continue and on false it will trigger using SIGSYS
-> > >>>> to terminate the program like seccomp does.
-> > >>> 
-> > >>> Having the kernel forcibly exit the process isn't something that most
-> > >>> LSMs would likely want.  I suppose we could modify the hook/caller so
-> > >>> that *if* an LSM wanted to return SIGSYS the system would kill the
-> > >>> process, but I would want that to be something in addition to
-> > >>> returning an error code like LSMs normally do (e.g. EACCES).
-> > >> 
-> > >> I am new to user_namespace and security work, so please pardon me if
-> > >> anything below is very wrong. 
-> > >> 
-> > >> IIUC, user_namespace is a tool that enables trusted userspace code to 
-> > >> control the behavior of untrusted (or less trusted) userspace code. 
-> > > 
-> > > No.  user namespaces are not a way for more trusted code to control the
-> > > behavior of less trusted code.
-> > 
-> > Hmm.. In this case, I think I really need to learn more. 
-> > 
-> > Thanks for pointing out my misunderstanding.
-> 
-> (I thought maybe Eric would chime in with a better explanation, but I'll
-> fill it in for now :)
-> 
-> One of the main goals of user namespaces is to allow unprivileged users
-> to do things like chroot and mount, which are very useful development
-> tools, without needing admin privileges.  So it's almost the opposite
-> of what you said: rather than to enable trusted userspace code to control
-> the behavior of less trusted code, it's to allow less privileged code to
-> do things which do not affect other users, without having to assume *more*
-> privilege.
-> 
-> To be precise, the goals were:
-> 
-> 1. uid mapping - allow two users to both "use uid 500" without conflicting
-> 2. provide (unprivileged) users privilege over their own resources
-> 3. absolutely no extra privilege over other resources
-> 4. be able to nest
-> 
-> While (3) was technically achieved, the problem we have is that
-> (2) provides unprivileged users the ability to exercise kernel code
-> which they previously could not.
+On Thu, Aug 25, 2022 at 9:45 AM Juraj Marcin <juraj@jurajmarcin.com> wrote:
+>
+> CIL Reference Guide defines typetransition rule with double quotes
+> around object name, but those are not present in the format string.
+>
+> This patch fixes this issue, so the CIL output produced by
+> sepol_kernel_policydb_to_cil() is in the correct format.
+>
+> Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
 
-The consequence of the refusal to give users any way to control whether
-or not user namespaces are available to unprivileged users is that a
-non-significant number of distros still carry the same patch for about
-10 years now that adds an unprivileged_userns_clone sysctl to restrict
-them to privileged users. That includes current Debian and Archlinux btw.
+Despite what the CIL Reference Guide says, the quotes are not
+required, but it is best practice to use them.
 
-The LSM hook is a simple way to allow administrators to control this and
-will allow user namespaces to be enabled in scenarios where they
-would otherwise not be accepted precisely because they are available to
-unprivileged users.
+ Acked-by: James Carter <jwcart2@gmail.com>
 
-I fully understand the motivation and usefulness in unprivileged
-scenarios but it's an unfounded fear that giving users the ability to
-control user namespace creation via an LSM hook will cause proliferation
-of setuid binaries (Ignoring for a moment that any fully unprivileged
-container with useful idmappings has to rely on the new{g,u}idmap setuid
-binaries to setup useful mappings anyway.) or decrease system safety let
-alone cause regressions (Which I don't think is an applicable term here
-at all.). Distros that have unprivileged user namespaces turned on by
-default are extremely unlikely to switch to an LSM profile that turns
-them off and distros that already turn them off will continue to turn
-them off whether or not that LSM hook is available.
-
-It's much more likely that workloads that want to minimize their attack
-surface while still getting the benefits of user namespaces for e.g.
-service isolation will feel comfortable enabling them for the first time
-since they can control them via an LSM profile.
+> ---
+>  libsepol/src/kernel_to_cil.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 5a1336a3..ad4121d5 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -1894,7 +1894,7 @@ static int map_filename_trans_to_str(hashtab_key_t key, void *data, void *arg)
+>                 ebitmap_for_each_positive_bit(&datum->stypes, node, bit) {
+>                         src = pdb->p_type_val_to_name[bit];
+>                         rc = strs_create_and_add(strs,
+> -                                                "(typetransition %s %s %s %s %s)",
+> +                                                "(typetransition %s %s %s \"%s\" %s)",
+>                                                  5, src, tgt, class, filename, new);
+>                         if (rc)
+>                                 return rc;
+> --
+> 2.37.1
+>
