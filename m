@@ -2,117 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D383ECAAD4
-	for <selinux@archiver.kernel.org>; Mon, 29 Aug 2022 21:02:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 387B3ECAAD2
+	for <selinux@archiver.kernel.org>; Mon, 29 Aug 2022 21:22:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229524AbiH2VCp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Aug 2022 17:02:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
+        id S229457AbiH2VWE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Aug 2022 17:22:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229708AbiH2VCn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Aug 2022 17:02:43 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5369F8A6DD
-        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 14:02:41 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id p5so9718924lfc.6
-        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 14:02:41 -0700 (PDT)
+        with ESMTP id S229449AbiH2VWD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Aug 2022 17:22:03 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5125C22B1F
+        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 14:22:02 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id q7so12905246lfu.5
+        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 14:22:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc;
-        bh=Y0O6W1EIFYUAhWdC9TPBVXlgaxDiB7GTNtP+edapuQo=;
-        b=z1OikuueYS/w0Ms/g7l8XX6nantHAtBYuktlpYNed16wdBkvtNYhV/2T37j9OnvEGV
-         62aCxWPpRQ0M9/SHtnEOWLqp5cbpAMwuzazHYhP492gVBhJe6a10j2aO8dC88chrH4qL
-         2c6itrZ3HONN0732sHty7A8HNTLifQEHne3XXeFn1sP+mPq4HPC4W6rPeQyWpeu1D7fT
-         R470oPcWzvXdrerftAyvbtERdONXBDRAU7RgNu+FhLKoCgtkuBb4LVEOFeWSQi5IuS4O
-         ZojnVDCCxdj6VuamYqz65Cz+gnzt+Q249o+EohlopMTY79KHsxxlILesdw8wSrXyl5Cc
-         WI0Q==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=FfEexeR0fdxug5T5tXNLR+Y90NZlQ+7ERJmRuGbGmjc=;
+        b=uEeql5O+++hTpdR2+zwJed7Tjaq0Y2iBQvFoAonPBmwdOGrqWMYG5ci/fGkpVXT6G9
+         2iK9CuSe8oI+mEH0fRHiuIEA5NgCxbodT2H6PMqQotmtxXef9nKZaCm5OXlO+68TmhIS
+         Gzf9BZ4Cf+gL6bh8CDh4konLpFQrluZlS9v5pQSJIW4GWdrOGZUjWHVSHk4O3c9EKRVz
+         kWLuVqjEZrF4FlYhoXiFpq5SXoDaFTjwgOLjcbDy/SdVMrbgzIOeRMmKNhSi8oXkxWi3
+         xt5jeX+O6F1vNv0W40uFtI0h5EO9wtNt/zce3S7HoXnbvJKqcNQVp2xlNhfHnWFK7zLp
+         iscw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc;
-        bh=Y0O6W1EIFYUAhWdC9TPBVXlgaxDiB7GTNtP+edapuQo=;
-        b=iS7bgN1bBRvYD15kJ3uMFkAZt9S3EAFvuv4GO8iROkcH20QlfORXwNtgvDQojTTT7x
-         FOZcZdKjBAJN4d3zAUHJRHau1Y5xFYVLeC/M9LUtQJ2l5OjCuGDsRGfkm45Ke56uKA3P
-         FzASg5Eo7FTqWcuo1w0P04cGROdOqgIck7F7ghQf9r1mekEz9f/ztMeWWnRQs/Lboxbi
-         JUzKK9/JXOwFIXutpv3n4W/rZEt67dOWulVFHqzcvsCGLpYMJAkz9uy0Btuh1dntj/qM
-         F4BobhIHorJPgKFxI6oFNU/ETbfa8VRr7sqPdKksr5YxpE43z/quVZGURcjRE/jY/whP
-         M0qA==
-X-Gm-Message-State: ACgBeo2A02l6GAeBJKA32LEdjDFZKCJVqJPk7GNhnqRAp6yGb6KBlJNS
-        ickdNLgn4fkgt6hrvlD+ylHq5wKX2WFYaIp62HFy
-X-Google-Smtp-Source: AA6agR4AO1xvVTU52DvWOJGOcBJoURJDMNN0z6GXu4M3uNgUvRBfyu8JFpUs7A2QRuiTLLbJaIKbdwTImgBctS9F57g=
-X-Received: by 2002:a05:6512:b1c:b0:492:8835:1e4c with SMTP id
- w28-20020a0565120b1c00b0049288351e4cmr6444944lfu.442.1661806959576; Mon, 29
- Aug 2022 14:02:39 -0700 (PDT)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=FfEexeR0fdxug5T5tXNLR+Y90NZlQ+7ERJmRuGbGmjc=;
+        b=ZZclcfBa/8Ri5mnt43rsxYckWq/pdtjmcNapsoIbSxvpsjEHq4FTraQzQKKNWEz+Ky
+         7dFShgx4skbR41DKivpiYGqOUhPVvNynIA42phdNHw82Cupiab0o4Q+rsnmHoqCXJKfZ
+         BOj6lhQE2wtu36b50x2E9WkJ2FOa9LeqxmXlO1ySwivCzrFVoP5x/Ky2iXTLc43kiRw/
+         0/jS0Pebz830oAqsT0snPWs3nDvt8iLIP3bHAhbzAwe69iknPJv3xA/zMwg8baGRFfAS
+         b9LS6Aj4QudgJSTT+OBXlGxsYVvMQ/KiLIEa8zDAnxmW/e6FiiH8VEnMApqlN2l6W7V8
+         BAcg==
+X-Gm-Message-State: ACgBeo1ApPIUIygZhWRIC4H3mfHdXdVHXDF9QB+X77K96IGWem4abwgS
+        fq/y44Tr+KYP5LZKGJ1QaW/rkBALZwfH78+xCOKR25ISnw==
+X-Google-Smtp-Source: AA6agR5+8d7DNgbFAXrYCirnMKddPBgizWqwVmHeJnU/103KZiEtdfAwqYpxPWCJemu5sHV/U9eATpZ5eOwqnf8KGHs=
+X-Received: by 2002:a05:6512:1687:b0:492:db5e:7768 with SMTP id
+ bu7-20020a056512168700b00492db5e7768mr7130530lfb.118.1661808120616; Mon, 29
+ Aug 2022 14:22:00 -0700 (PDT)
 MIME-Version: 1.0
+References: <CAFPpqQHS_v7gqXsdCpE3LXA4JzL=-K0U7Q9jiGY5EqT6XCoQbg@mail.gmail.com>
+ <Ywc+pjOFkAEswVuQ@gardel-login> <CAFPpqQEva6Z339ZXKxF2=ueug7YFrsFD0Tk6W88cZQxx0sg7OQ@mail.gmail.com>
+In-Reply-To: <CAFPpqQEva6Z339ZXKxF2=ueug7YFrsFD0Tk6W88cZQxx0sg7OQ@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 29 Aug 2022 17:02:28 -0400
-Message-ID: <CAHC9VhQu7vuXMqpTzdZp2+M4pBZXDdWs7FtWdEt_3abW-ArUDA@mail.gmail.com>
-Subject: [GIT PULL] LSM fixes for v6.0 (#1)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-security-module@vger.kernel.org, io-uring@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Mon, 29 Aug 2022 17:21:49 -0400
+Message-ID: <CAHC9VhST2zg4w51KnxnsXp0CSULXtp9iRiXaJ18is2dtV55cdQ@mail.gmail.com>
+Subject: Re: [systemd-devel] socket activation selinux context on create
+To:     Ted Toth <txtoth@gmail.com>
+Cc:     SELinux <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Linus,
+On Thu, Aug 25, 2022 at 9:22 AM Ted Toth <txtoth@gmail.com> wrote:
+> I asked on the systemd-devel list about enabling systemd to set the
+> context of a socket and got the answer I've included below. I don't
+> know how a transition rule can be written to transition tcp sockets to
+> multiple different target contexts, is this possible and if so how?
 
-Four patches to add SELinux and Smack controls to the io_uring
-IORING_OP_URING_CMD.  Three of these patches are necessary as without
-them the IORING_OP_URING_CMD remains outside the purview of the LSMs
-(Luis' LSM patch, Casey's Smack patch, and my SELinux patch).  These
-patches have been discussed at length with the io_uring folks, and
-Jens has given his thumbs-up on the relevant patches (see the commit
-descriptions).  There is one patch that is not strictly necessary, but
-it makes testing much easier and is very trivial: the /dev/null
-IORING_OP_URING_CMD patch.  If you have a problem accepting the
-/dev/null patch in a rcX release, let me know and I'll remove it.
+Ignoring setsockcreatecon(3) as that really isn't an option here,
+sockets created via socket(2) do check to see if there is a type
+transition defined in the policy.  In the case of a TCP socket the
+type transition would look something like this:
 
-As of earlier today the tag merged cleanly with your tree, so there
-should be no surprises.  Please merge for v6.0.
+  type_transition <domain> <domain>:tcp_socket <new_socket_type>
 
--Paul
+... so you can see there is not much one can select on other than the
+socket's object class.  The reason is that the socket(2) call itself
+is rather spartan, with not even any clue as to if this is a client or
+server socket in the case of TCP.
 
---
-The following changes since commit 568035b01cfb107af8d2e4bd2fb9aea22cf5b868:
+Taking a step back, what are you trying to do?  Perhaps there is
+another approach that would get you where you want to go.
 
- Linux 6.0-rc1 (2022-08-14 15:50:18 -0700)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git
-   tags/lsm-pr-20220829
-
-for you to fetch changes up to dd9373402280cf4715fdc8fd5070f7d039e43511:
-
- Smack: Provide read control for io_uring_cmd
-   (2022-08-26 14:56:35 -0400)
-
-----------------------------------------------------------------
-lsm/stable-6.0 PR 20220829
-
-----------------------------------------------------------------
-Casey Schaufler (1):
-     Smack: Provide read control for io_uring_cmd
-
-Luis Chamberlain (1):
-     lsm,io_uring: add LSM hooks for the new uring_cmd file op
-
-Paul Moore (2):
-     selinux: implement the security_uring_cmd() LSM hook
-     /dev/null: add IORING_OP_URING_CMD support
-
-drivers/char/mem.c                  |  6 ++++++
-include/linux/lsm_hook_defs.h       |  1 +
-include/linux/lsm_hooks.h           |  3 +++
-include/linux/security.h            |  5 +++++
-io_uring/uring_cmd.c                |  5 +++++
-security/security.c                 |  4 ++++
-security/selinux/hooks.c            | 24 ++++++++++++++++++++++
-security/selinux/include/classmap.h |  2 +-
-security/smack/smack_lsm.c          | 32 ++++++++++++++++++++++++++++++
-9 files changed, 81 insertions(+), 1 deletion(-)
+> ---------- Forwarded message ---------
+> From: Lennart Poettering <lennart@poettering.net>
+> Date: Thu, Aug 25, 2022 at 4:19 AM
+> Subject: Re: [systemd-devel] socket activation selinux context on create
+> To: Ted Toth <txtoth@gmail.com>
+> Cc: <systemd-devel@lists.freedesktop.org>
+>
+>
+> On Mi, 24.08.22 11:50, Ted Toth (txtoth@gmail.com) wrote:
+>
+> > I don't see a way to set the context of the socket that systemd
+> > listens on. If there is a way to do this please tell me otherwise I'd
+> > like to see an option (SELinuxCreateContext?) added to be able to set
+> > the context (setsockcreatecon) to be used by systemd when creating the
+> > socket. Currently as an extra layer of security I add code called in
+> > the socket activation ExecStartPre process to check that the source
+> > context (peercon) can connect to the target context (getcon). If a
+> > sockets context was set by systemd I would have to perform this
+> > additional check as my SELinux policy would do it for me.
+>
+> This was proposed before, but SELinux maintainers really want that the
+> loaded selinux policy picks the label, and not unit files.
+>
+> i.e. as I understand their philosophy: how labels are assigned should
+> be encoded in the database and in the policy but not elsewhere,
+> i.e. in unit files. I think that philosophy does make sense.
+>
+> Lennart
 
 -- 
 paul-moore.com
