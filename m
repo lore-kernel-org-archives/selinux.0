@@ -2,102 +2,107 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A72F1ECAAD1
-	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 15:01:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B06DECAAA1
+	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 15:05:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbiH3PBG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Aug 2022 11:01:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40208 "EHLO
+        id S229469AbiH3PFU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Aug 2022 11:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbiH3PBF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 11:01:05 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDA6AA3EF;
-        Tue, 30 Aug 2022 08:01:04 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id q63so10905397pga.9;
-        Tue, 30 Aug 2022 08:01:04 -0700 (PDT)
+        with ESMTP id S230141AbiH3PFT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 11:05:19 -0400
+Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 233184621F;
+        Tue, 30 Aug 2022 08:05:18 -0700 (PDT)
+Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-11f34610d4aso6545393fac.9;
+        Tue, 30 Aug 2022 08:05:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc;
-        bh=f9e3VM+myeBrA9VERSeK8dF/6d15WanDkkJ9Z+qhWxo=;
-        b=Ce/ACRzrYvuTrrXwtDRWHUTtR2jjGTTWzwVQMgKKGXfUqm8XwOOnfqGO4kReIQj4EA
-         YxJiRG6zHihUuGjGTKNJukfWCNB4hpetA5g4m957bxL8zdl+3TAZgWXtxdMHpIOVkk4d
-         qkacsB9GuROoCuGo25QDaK7aBS6HHbNsTCa1OEUU55V8+6I3jLeCr5mcHO1G148bq+k7
-         FuoY5U1qJ4qLtxHZbA4gX4J18QwOM932gYugiOlDQF4K0iUIqmquiocFefqlCTLKNuFW
-         3ixkhwfqFeUmWHbggmd5gBVlmxWPbWA147NlwlENsE4l39egd+ST2ACtHfzsN5SDN7lC
-         9Kdg==
+        d=googlemail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc;
+        bh=ZtKXHdMShbIKHwQgS2O9uskJxpg+Cgx0QazsEIKwx7I=;
+        b=K2THW0Pj6e4x8WQgJg8oafyHimnmBvfY8hYx4TFkKA2dKt0RW6NsNAyi8tQqRZpotR
+         4uT3QadBGIyiTNy8Yt3pXPdkV/OBEnmFZfrVOBc9H0GGvDixQJTegWAEOXaLb5kanF7m
+         xGUVY5sUfjZg1qfzsbRNI30S3hXHOcTLunuImFgSyq50qXR4ry5WSkMv15ERO3pCxULW
+         GLKyPentD62B+1z7EwgQYgtA3Hux54rR7mpDsXlapdRCSNmytPMZujOTDK1ad/UckE8s
+         XoQWc5jbGjDZX3dWR1YvjHnHSdwluH1O0CJhQWJjAVttcxVmBlK81oXc0gmOntT5pRb4
+         eIoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=f9e3VM+myeBrA9VERSeK8dF/6d15WanDkkJ9Z+qhWxo=;
-        b=8KW11CS9oIKwYcx/P5Hd2EHHhYfW1f+JveQ7mA5OjfxPe3ORTknRtUwpkkqvg5LWOl
-         dfVeE7kjGWgB6jD40D3+gO+JXWAI1vo19YXGHEUyQRAAzEale1VCuFBsw8qm+Qp5tfqR
-         bgGnh2uvxQqfAmw5sJJJPfQl7CiXsPpIxSuXZTdmQV/CM84glQ4tn0lnXgLJY/OzDhNY
-         E0b73dMg2D0LNBFU6Zpr3TB+LtFljcMQnvtfkuXgL+O/8I/ksDB1DTu+4/wKDPmuJfGP
-         FIWH7MVCs9ZaoL5yKxlRtKS7OMeVK2xfkWKGL9AUjSD86bvWKqmNJZaT2PbcMI9cjKDQ
-         +qAQ==
-X-Gm-Message-State: ACgBeo2qLioytK/merwq/5+vaWYdy1Cp7zAOgFkHSnoQtfIl7Mq4yvwF
-        BAZo/FvS0m7WBbtDsxtgh+PgEWkXN0Q=
-X-Google-Smtp-Source: AA6agR7ehrSDW0aq4+tSEiikLUvX+ymaQgCBf1Ht/gduHvIttTNLSEPoKEezKnCAXxg4FMZZv288yA==
-X-Received: by 2002:a65:6d0b:0:b0:42a:19dc:e76e with SMTP id bf11-20020a656d0b000000b0042a19dce76emr18085356pgb.6.1661871663722;
-        Tue, 30 Aug 2022 08:01:03 -0700 (PDT)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id u15-20020a170902714f00b0017532e01e3fsm1088393plm.276.2022.08.30.08.01.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Aug 2022 08:01:03 -0700 (PDT)
-From:   cgel.zte@gmail.com
-X-Google-Original-From: cui.jinpeng2@zte.com.cn
-To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jinpeng Cui <cui.jinpeng2@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH linux-next] selinux: remove redundant variables rc
-Date:   Tue, 30 Aug 2022 15:00:58 +0000
-Message-Id: <20220830150058.300327-1-cui.jinpeng2@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
+        bh=ZtKXHdMShbIKHwQgS2O9uskJxpg+Cgx0QazsEIKwx7I=;
+        b=tBzxxl2A2cCHUm5GsaLp8847M1130I4qq/7q+jqdTb+GLCmDOMgz8SPrsKxa692dWB
+         XbML0fnGmw/eldzwXaF9aQWLug8Erp8s7a+NIFw+3avs5sxeJwFprKEU3dwMMcdEvD5c
+         6FCe84UCb4SXiy0nE51zQdsbBWYVsS8ZL81e7vlPMfnVTkkD+fnD+6oSxArwuSpILWhQ
+         WvstGAiLyf2Cf00LboG69jf0eunryYTapQS7HqjLbFcMBrSqc6Y8h6gFW8GnIm1WP20g
+         iQztsJbSAiuHwHutzTTwoA2/UqREYdNmUXXnwVENgaWrRnOT0liGuh1ge5XFcymYVT00
+         /h2w==
+X-Gm-Message-State: ACgBeo1xdFTaOCMYjLTW/6F0r+hGTyBHeq8/C3KAdodDh3XK6NA3YRih
+        lbmmMl48t6nyAN3WrEJXMfnjFG/pZBmiCp56RYOsnCs9fIM=
+X-Google-Smtp-Source: AA6agR7EuAmTMD57H2d7kPlzhVgp4d1ybgsX+rjWmazrWWx0rOMocoXaSg6g+PEKmS6XGMfczx1ddmLuIvZaVvsRKOk=
+X-Received: by 2002:a05:6871:6a1:b0:11c:7c79:6bfb with SMTP id
+ l33-20020a05687106a100b0011c7c796bfbmr1659490oao.205.1661871917390; Tue, 30
+ Aug 2022 08:05:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220502160030.131168-8-cgzones@googlemail.com>
+ <20220615152623.311223-1-cgzones@googlemail.com> <20220615152623.311223-8-cgzones@googlemail.com>
+ <20220626223441.GA30137@mail.hallyn.com>
+In-Reply-To: <20220626223441.GA30137@mail.hallyn.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 30 Aug 2022 17:05:06 +0200
+Message-ID: <CAJ2a_DepL9pLqu48bsSAZzYjb6TPx6vR-U0puMzD3XjPK64yJg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/8] capability: add any wrapper to test for multiple
+ caps with exactly one audit message
+To:     "Serge E. Hallyn" <serge@hallyn.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
+On Mon, 27 Jun 2022 at 00:34, Serge E. Hallyn <serge@hallyn.com> wrote:
+>
+> On Wed, Jun 15, 2022 at 05:26:23PM +0200, Christian G=C3=B6ttsche wrote:
+> > Add the interfaces `capable_any()` and `ns_capable_any()` as an
+> > alternative to multiple `capable()`/`ns_capable()` calls, like
+> > `capable_any(CAP_SYS_NICE, CAP_SYS_ADMIN)` instead of
+> > `capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
+> >
+> > `capable_any()`/`ns_capable_any()` will in particular generate exactly
+> > one audit message, either for the left most capability in effect or, if
+> > the task has none, the first one.
+> >
+> > This is especially helpful with regard to SELinux, where each audit
+> > message about a not allowed capability will create an AVC denial.
+> > Using this function with the least invasive capability as left most
+> > argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables policy writer=
+s
+> > to only allow the least invasive one and SELinux domains pass this chec=
+k
+> > with only capability:sys_nice or capability:sys_admin allowed without
+> > any AVC denial message.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Reviewed-by: Serge Hallyn <serge@hallyn.com>
+>
 
-Rturn value directly from sel_make_perm_files() instead of
-getting value from redundant variable rc.
+Kindly ping.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
----
- security/selinux/selinuxfs.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+So far patch 3 was reviewed [1] and patch 4 was reviewed [2,3] and
+partially acked [4].
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8fcdd494af27..66610eb3d317 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1917,7 +1917,6 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
- 	struct selinux_fs_info *fsi = sb->s_fs_info;
- 	struct dentry *dentry = NULL;
- 	struct inode *inode = NULL;
--	int rc;
- 
- 	dentry = d_alloc_name(dir, "index");
- 	if (!dentry)
-@@ -1937,9 +1936,7 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
- 	if (IS_ERR(dentry))
- 		return PTR_ERR(dentry);
- 
--	rc = sel_make_perm_files(newpolicy, classname, index, dentry);
--
--	return rc;
-+	return sel_make_perm_files(newpolicy, classname, index, dentry);
- }
- 
- static int sel_make_classes(struct selinux_policy *newpolicy,
--- 
-2.25.1
+Currently this series trivially rebases on top of 6.0-rc1.
+Should I send a rebased v4 or what is the best way to move forward?
 
+[1]: https://lore.kernel.org/all/7fd6f544-0bd2-62fe-bddd-869364f351e8@acm.o=
+rg/
+[2]: https://lore.kernel.org/all/Yqn+sCXTHeTH5v+R@pendragon.ideasonboard.co=
+m/
+[3]: https://lore.kernel.org/all/09374557-8c8d-1925-340c-784f29630ec5@kerne=
+l.org/
+[4]: https://lore.kernel.org/all/73a603a2-5e5e-1b45-8e19-ab0795027336@xs4al=
+l.nl/
