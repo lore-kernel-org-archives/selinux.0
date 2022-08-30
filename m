@@ -2,60 +2,61 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F81FECAAD1
-	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 15:45:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF6ABECAAD1
+	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 15:53:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229437AbiH3PpN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Aug 2022 11:45:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53042 "EHLO
+        id S229959AbiH3PxE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Aug 2022 11:53:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230254AbiH3PpK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 11:45:10 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EE8B13F12;
-        Tue, 30 Aug 2022 08:45:09 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id y64so2948353ede.2;
-        Tue, 30 Aug 2022 08:45:08 -0700 (PDT)
+        with ESMTP id S229476AbiH3PxC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 11:53:02 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795E96DFB6;
+        Tue, 30 Aug 2022 08:53:01 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id u9so23084513ejy.5;
+        Tue, 30 Aug 2022 08:53:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc;
-        bh=r07HdbcTRJqdbh3cWaW41NcbNQKCl2B9quXv/+dnoSo=;
-        b=cq2gGQzxbdjFfdxrGHyCVd028uwEJ82nJR07xJap1ia3+EneTuNU+Lj0PdF8+xEQTr
-         ZTPTtf6z+LelclvmA/SQS1J1kZUHPrXsVM7tdNhwjyPHlELGUt1CpvM3dajYn4K3HYn9
-         +S44Mq9Io6ohOdGwUWlgvm978ERHp2dYGBBxRHrSW98wTalKY5vegO8vM3g6GlYBpByi
-         7HN/VOUnVPiFhpTs/+LIWMnfb2jJ7q8463MHSOyohd/KtzRpXDBxJEGZPBBU90+op+I4
-         RSwWaJE9w6o9N3pELzmaQnu0lFHv+jq9hBWM+8pGuzcAYORzY00JgbY+mf1fgjlrPA7K
-         Qluw==
+        bh=nrfIRQX5q1nidyZ0oGiETnLL4SM/AYUZOLgvVu+qVak=;
+        b=bFPCtMapHr9hdk7w3Av7NWI33E66yMc3+YhL2t4yUVSAjG9GnEofu/G0gN+mSEp/el
+         mUVG/EgQcZK5fT0VhI6UUUqxFxdOrCayTMfdevs7BZex7Mz3HjuNvwkq1IyZtAG9duVE
+         J4zNWRvqiyrFBsqu7aDHpFuLUADgpt6+OUFaBEF38Zm2YnUWUvYh1BjTn6/xlYP6auol
+         o18XswejGu3CzscKiHpZvmdOUd80BgT+dz367ZCXrPGWnqzjMcfZNW3JAa/d8unX+VGE
+         oB+nmf7Vbpi9PTK24h51s2v8PkRgq9rdUlVASAXATj/lXy5EQJkLsJrpvDCXD5pWELhQ
+         rkJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc;
-        bh=r07HdbcTRJqdbh3cWaW41NcbNQKCl2B9quXv/+dnoSo=;
-        b=hIPNhjFB7AxUMNGh9O+fOG24hphQBlwIGe0xDO4VvxklGJZ3Hm3aXCYs+5yO9C3D07
-         88GYq6HTw3BTRjactW0yNhQMaSiqje5TigwroIlJtzGokRM4qLIrumwCNtQ96T3z+KKv
-         Sw9fB7saFW/m+u1bwkstQigpLK2edrL97GPolCgn+Njxrg1K7vIpooJtDcw4owZeM7ZN
-         MnsapoOuqDgDr2VVvqEXB5UZm1Gd9jrclS38S/VenANyFBMnf0MUw1DWsd2WIpYktdpV
-         TCGo61O0cdCzbD1T8wp66ydk6f0YsEAkTuQBFmeU9H3wN8q1krN8o5iPohpBLdcC3bNF
-         ZbiA==
-X-Gm-Message-State: ACgBeo3y5zKxXKQV2s1Ren/j+Xp5LGwYP5IdVW8ubQoheqYXzHz/zfCR
-        2jGN92qKrVsF7UFwLKZGJLJRM1NR66Boeg==
-X-Google-Smtp-Source: AA6agR56Gjo9mhuycsBkRuqidJ5EVMXp71xtRrK7IKdrPu3E40IqyKuW9bDoiWk/rRBRCbL1bUrObw==
-X-Received: by 2002:a05:6402:40cb:b0:448:627d:90d6 with SMTP id z11-20020a05640240cb00b00448627d90d6mr9440525edb.233.1661874307410;
-        Tue, 30 Aug 2022 08:45:07 -0700 (PDT)
+        bh=nrfIRQX5q1nidyZ0oGiETnLL4SM/AYUZOLgvVu+qVak=;
+        b=Uys+HzqBj9r3dhyVy8jq27jJw1k2kRUQ3vOYaqJ0rQUVdNnDvVq4SFH/Jde41C3hLq
+         82d1iDkLLpcDcFtMl60z0IGOcJ/W4M/UYmIXaWAQKxxS61w8P7yzVo7kv3DluFcMCRVU
+         /EAOC3Vr6L5Hc10IBdbZeOb909ZGWxb5dBXFSV6gGQfTzE7JD4lkmIlJvZQbo6nNd6mN
+         5L6I1kxveSBYZuMed8khfdoBVmJNB9kYoaAhDxeUZpCuvBwvLfHQJExS6X/lD1udByc+
+         /PbK/DekcuRj6YMmBtJkFn3rgMmJxdWpIt2wgLjp8mBFc6hS6Ok+BrkTl1xoTojYiO3H
+         BUjA==
+X-Gm-Message-State: ACgBeo3j7fMXjlzQX4Gop736H0EfMHSvWMs0DWFiSi3hVBLte5PO1Zko
+        w9Zlgwr9TrTZwmEgS50htbRAGgiyKO4q7Q==
+X-Google-Smtp-Source: AA6agR4Jto1AmLJIjDaOGO1a3YtP2fe5xc4smjcEyCQd9d9xj/QPNY5HA5knIU+0tktGvQZRuoAjLw==
+X-Received: by 2002:a17:907:2816:b0:741:9246:17d2 with SMTP id eb22-20020a170907281600b00741924617d2mr6871761ejc.158.1661874779931;
+        Tue, 30 Aug 2022 08:52:59 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-116-163-172.95.116.pool.telefonica.de. [95.116.163.172])
-        by smtp.gmail.com with ESMTPSA id fe15-20020a1709072a4f00b0073da4b623e8sm5853962ejc.152.2022.08.30.08.45.06
+        by smtp.gmail.com with ESMTPSA id dk1-20020a0564021d8100b0043bea0a48d0sm7497931edb.22.2022.08.30.08.52.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Aug 2022 08:45:06 -0700 (PDT)
+        Tue, 30 Aug 2022 08:52:59 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: use int arrays for boolean values
-Date:   Tue, 30 Aug 2022 17:45:00 +0200
-Message-Id: <20220830154500.18165-1-cgzones@googlemail.com>
+Subject: [PATCH] selinux: declare read-only parameters const
+Date:   Tue, 30 Aug 2022 17:52:49 +0200
+Message-Id: <20220830155253.19364-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,78 +65,242 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Do not cast pointers of signed integers to pointers of unsigned integers
-and vice versa.
-
-It should currently not be an issue since they hold SELinux boolean
-values which should only contain either 0's or 1's, which should have
-the same representation.
-
-Reported by sparse:
-
-    security/selinux/selinuxfs.c:1485:30: warning: incorrect type in assignment (different signedness)
-    security/selinux/selinuxfs.c:1485:30:    expected unsigned int *
-    security/selinux/selinuxfs.c:1485:30:    got int *[addressable] values
-    security/selinux/selinuxfs.c:1402:48: warning: incorrect type in argument 3 (different signedness)
-    security/selinux/selinuxfs.c:1402:48:    expected int *values
-    security/selinux/selinuxfs.c:1402:48:    got unsigned int *bool_pending_values
+Declare ebitmap, mls_level and mls_context parameters const where they
+are only read from.  This allows callers to supply pointers to const
+as arguments and increases readability.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-Previous patch proposal: https://patchwork.kernel.org/project/selinux/patch/20220502135907.31035-1-cgzones@googlemail.com/
----
- security/selinux/selinuxfs.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+This patch is similar to userspace commits ("libsepol: mark read-only
+parameters of ebitmap interfaces const") [1] and ("libsepol: mark
+immutable mls and context parameter const") [2].
+Pointers to const are for example used in the (for now userspace only)
+policy validation code.
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8fcdd494af27..f0b1aafd67aa 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -71,7 +71,7 @@ struct selinux_fs_info {
- 	struct dentry *bool_dir;
- 	unsigned int bool_num;
- 	char **bool_pending_names;
--	unsigned int *bool_pending_values;
-+	int *bool_pending_values;
- 	struct dentry *class_dir;
- 	unsigned long last_class_ino;
- 	bool policy_opened;
-@@ -356,7 +356,7 @@ static const struct file_operations sel_policyvers_ops = {
- /* declaration for sel_write_load */
- static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
- 			  unsigned int *bool_num, char ***bool_pending_names,
--			  unsigned int **bool_pending_values);
-+			  int **bool_pending_values);
- static int sel_make_classes(struct selinux_policy *newpolicy,
- 			    struct dentry *class_dir,
- 			    unsigned long *last_class_ino);
-@@ -527,7 +527,7 @@ static const struct file_operations sel_policy_ops = {
+[1]: https://github.com/SELinuxProject/selinux/commit/390ec54d278a14d9c29b80cc4fc5cb9ba504ed13
+[2]: https://github.com/SELinuxProject/selinux/commit/6359946633507db1d98b24638cf22eb5afdcd272
+---
+ security/selinux/ss/context.h   | 17 +++++++++--------
+ security/selinux/ss/ebitmap.c   | 21 +++++++++++----------
+ security/selinux/ss/ebitmap.h   | 18 +++++++++---------
+ security/selinux/ss/mls_types.h |  4 ++--
+ 4 files changed, 31 insertions(+), 29 deletions(-)
+
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 62990aa1ec9e..eda32c3d4c0a 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -38,7 +38,7 @@ static inline void mls_context_init(struct context *c)
+ 	memset(&c->range, 0, sizeof(c->range));
+ }
+ 
+-static inline int mls_context_cpy(struct context *dst, struct context *src)
++static inline int mls_context_cpy(struct context *dst, const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -58,7 +58,7 @@ static inline int mls_context_cpy(struct context *dst, struct context *src)
+ /*
+  * Sets both levels in the MLS range of 'dst' to the low level of 'src'.
+  */
+-static inline int mls_context_cpy_low(struct context *dst, struct context *src)
++static inline int mls_context_cpy_low(struct context *dst, const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -78,7 +78,7 @@ static inline int mls_context_cpy_low(struct context *dst, struct context *src)
+ /*
+  * Sets both levels in the MLS range of 'dst' to the high level of 'src'.
+  */
+-static inline int mls_context_cpy_high(struct context *dst, struct context *src)
++static inline int mls_context_cpy_high(struct context *dst, const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -97,9 +97,10 @@ static inline int mls_context_cpy_high(struct context *dst, struct context *src)
+ 
+ 
+ static inline int mls_context_glblub(struct context *dst,
+-				     struct context *c1, struct context *c2)
++				     const struct context *c1, const struct context *c2)
+ {
+-	struct mls_range *dr = &dst->range, *r1 = &c1->range, *r2 = &c2->range;
++	struct mls_range *dr = &dst->range;
++	const struct mls_range *r1 = &c1->range, *r2 = &c2->range;
+ 	int rc = 0;
+ 
+ 	if (r1->level[1].sens < r2->level[0].sens ||
+@@ -127,7 +128,7 @@ static inline int mls_context_glblub(struct context *dst,
+ 	return rc;
+ }
+ 
+-static inline int mls_context_cmp(struct context *c1, struct context *c2)
++static inline int mls_context_cmp(const struct context *c1, const struct context *c2)
+ {
+ 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+ 		ebitmap_cmp(&c1->range.level[0].cat, &c2->range.level[0].cat) &&
+@@ -147,7 +148,7 @@ static inline void context_init(struct context *c)
+ 	memset(c, 0, sizeof(*c));
+ }
+ 
+-static inline int context_cpy(struct context *dst, struct context *src)
++static inline int context_cpy(struct context *dst, const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -180,7 +181,7 @@ static inline void context_destroy(struct context *c)
+ 	mls_context_destroy(c);
+ }
+ 
+-static inline int context_cmp(struct context *c1, struct context *c2)
++static inline int context_cmp(const struct context *c1, const struct context *c2)
+ {
+ 	if (c1->len && c2->len)
+ 		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index abde349c8321..d31b87be9a1e 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -28,9 +28,9 @@
+ 
+ static struct kmem_cache *ebitmap_node_cachep __ro_after_init;
+ 
+-int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
++int ebitmap_cmp(const struct ebitmap *e1, const struct ebitmap *e2)
+ {
+-	struct ebitmap_node *n1, *n2;
++	const struct ebitmap_node *n1, *n2;
+ 
+ 	if (e1->highbit != e2->highbit)
+ 		return 0;
+@@ -50,9 +50,10 @@ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
+ 	return 1;
+ }
+ 
+-int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
++int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src)
+ {
+-	struct ebitmap_node *n, *new, *prev;
++	struct ebitmap_node *new, *prev;
++	const struct ebitmap_node *n;
+ 
+ 	ebitmap_init(dst);
+ 	n = src->node;
+@@ -78,7 +79,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
+ 	return 0;
+ }
+ 
+-int ebitmap_and(struct ebitmap *dst, struct ebitmap *e1, struct ebitmap *e2)
++int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebitmap *e2)
+ {
+ 	struct ebitmap_node *n;
+ 	int bit, rc;
+@@ -217,9 +218,9 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
+  * if last_e2bit is non-zero, the highest set bit in e2 cannot exceed
+  * last_e2bit.
+  */
+-int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2, u32 last_e2bit)
++int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2, u32 last_e2bit)
+ {
+-	struct ebitmap_node *n1, *n2;
++	const struct ebitmap_node *n1, *n2;
+ 	int i;
+ 
+ 	if (e1->highbit < e2->highbit)
+@@ -258,9 +259,9 @@ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2, u32 last_e2bit)
+ 	return 1;
+ }
+ 
+-int ebitmap_get_bit(struct ebitmap *e, unsigned long bit)
++int ebitmap_get_bit(const struct ebitmap *e, unsigned long bit)
+ {
+-	struct ebitmap_node *n;
++	const struct ebitmap_node *n;
+ 
+ 	if (e->highbit < bit)
+ 		return 0;
+@@ -467,7 +468,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 	goto out;
+ }
+ 
+-int ebitmap_write(struct ebitmap *e, void *fp)
++int ebitmap_write(const struct ebitmap *e, void *fp)
+ {
+ 	struct ebitmap_node *n;
+ 	u32 count;
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index 58eb822f11ee..e5b57dc3fc53 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -44,7 +44,7 @@ struct ebitmap {
+ 
+ #define ebitmap_length(e) ((e)->highbit)
+ 
+-static inline unsigned int ebitmap_start_positive(struct ebitmap *e,
++static inline unsigned int ebitmap_start_positive(const struct ebitmap *e,
+ 						  struct ebitmap_node **n)
+ {
+ 	unsigned int ofs;
+@@ -62,7 +62,7 @@ static inline void ebitmap_init(struct ebitmap *e)
+ 	memset(e, 0, sizeof(*e));
+ }
+ 
+-static inline unsigned int ebitmap_next_positive(struct ebitmap *e,
++static inline unsigned int ebitmap_next_positive(const struct ebitmap *e,
+ 						 struct ebitmap_node **n,
+ 						 unsigned int bit)
+ {
+@@ -85,7 +85,7 @@ static inline unsigned int ebitmap_next_positive(struct ebitmap *e,
+ #define EBITMAP_NODE_OFFSET(node, bit)	\
+ 	(((bit) - (node)->startbit) % EBITMAP_UNIT_SIZE)
+ 
+-static inline int ebitmap_node_get_bit(struct ebitmap_node *n,
++static inline int ebitmap_node_get_bit(const struct ebitmap_node *n,
+ 				       unsigned int bit)
+ {
+ 	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
+@@ -122,15 +122,15 @@ static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
+ 	     (bit) < ebitmap_length(e);			\
+ 	     (bit) = ebitmap_next_positive(e, &(n), bit))	\
+ 
+-int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
+-int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
+-int ebitmap_and(struct ebitmap *dst, struct ebitmap *e1, struct ebitmap *e2);
+-int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2, u32 last_e2bit);
+-int ebitmap_get_bit(struct ebitmap *e, unsigned long bit);
++int ebitmap_cmp(const struct ebitmap *e1, const struct ebitmap *e2);
++int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src);
++int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebitmap *e2);
++int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2, u32 last_e2bit);
++int ebitmap_get_bit(const struct ebitmap *e, unsigned long bit);
+ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value);
+ void ebitmap_destroy(struct ebitmap *e);
+ int ebitmap_read(struct ebitmap *e, void *fp);
+-int ebitmap_write(struct ebitmap *e, void *fp);
++int ebitmap_write(const struct ebitmap *e, void *fp);
+ u32 ebitmap_hash(const struct ebitmap *e, u32 hash);
+ 
+ #ifdef CONFIG_NETLABEL
+diff --git a/security/selinux/ss/mls_types.h b/security/selinux/ss/mls_types.h
+index 068e0d7809db..7d48d5e52233 100644
+--- a/security/selinux/ss/mls_types.h
++++ b/security/selinux/ss/mls_types.h
+@@ -27,13 +27,13 @@ struct mls_range {
+ 	struct mls_level level[2]; /* low == level[0], high == level[1] */
  };
  
- static void sel_remove_old_bool_data(unsigned int bool_num, char **bool_names,
--				unsigned int *bool_values)
-+				int *bool_values)
+-static inline int mls_level_eq(struct mls_level *l1, struct mls_level *l2)
++static inline int mls_level_eq(const struct mls_level *l1, const struct mls_level *l2)
  {
- 	u32 i;
+ 	return ((l1->sens == l2->sens) &&
+ 		ebitmap_cmp(&l1->cat, &l2->cat));
+ }
  
-@@ -545,7 +545,7 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
- 	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir, *old_dentry;
- 	unsigned int tmp_bool_num, old_bool_num;
- 	char **tmp_bool_names, **old_bool_names;
--	unsigned int *tmp_bool_values, *old_bool_values;
-+	int *tmp_bool_values, *old_bool_values;
- 	unsigned long tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
- 
- 	tmp_parent = sel_make_disconnected_dir(fsi->sb, &tmp_ino);
-@@ -1423,7 +1423,7 @@ static void sel_remove_entries(struct dentry *de)
- 
- static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
- 			  unsigned int *bool_num, char ***bool_pending_names,
--			  unsigned int **bool_pending_values)
-+			  int **bool_pending_values)
+-static inline int mls_level_dom(struct mls_level *l1, struct mls_level *l2)
++static inline int mls_level_dom(const struct mls_level *l1, const struct mls_level *l2)
  {
- 	int ret;
- 	ssize_t len;
+ 	return ((l1->sens >= l2->sens) &&
+ 		ebitmap_contains(&l1->cat, &l2->cat, 0));
 -- 
 2.37.2
 
