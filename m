@@ -2,112 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 387B3ECAAD2
-	for <selinux@archiver.kernel.org>; Mon, 29 Aug 2022 21:22:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53F85ECAAD4
+	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 08:41:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbiH2VWE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Aug 2022 17:22:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56948 "EHLO
+        id S230334AbiH3Ile (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Aug 2022 04:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiH2VWD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Aug 2022 17:22:03 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5125C22B1F
-        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 14:22:02 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id q7so12905246lfu.5
-        for <selinux@vger.kernel.org>; Mon, 29 Aug 2022 14:22:02 -0700 (PDT)
+        with ESMTP id S230034AbiH3Ild (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 04:41:33 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4B2A59A7;
+        Tue, 30 Aug 2022 01:41:32 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id o4so10453515pjp.4;
+        Tue, 30 Aug 2022 01:41:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=FfEexeR0fdxug5T5tXNLR+Y90NZlQ+7ERJmRuGbGmjc=;
-        b=uEeql5O+++hTpdR2+zwJed7Tjaq0Y2iBQvFoAonPBmwdOGrqWMYG5ci/fGkpVXT6G9
-         2iK9CuSe8oI+mEH0fRHiuIEA5NgCxbodT2H6PMqQotmtxXef9nKZaCm5OXlO+68TmhIS
-         Gzf9BZ4Cf+gL6bh8CDh4konLpFQrluZlS9v5pQSJIW4GWdrOGZUjWHVSHk4O3c9EKRVz
-         kWLuVqjEZrF4FlYhoXiFpq5SXoDaFTjwgOLjcbDy/SdVMrbgzIOeRMmKNhSi8oXkxWi3
-         xt5jeX+O6F1vNv0W40uFtI0h5EO9wtNt/zce3S7HoXnbvJKqcNQVp2xlNhfHnWFK7zLp
-         iscw==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=ArSRMVql55TxcTsneNf3jqqeKKniG2So9vFeYTehnhY=;
+        b=IkNNJfjCG6omPuj3mMH+AHyCIheopsFNXkE2XR9JvrTgQb4qfW/UDXOeWY41+fxvKa
+         4baZL8h4GAY/MK6wgoZajNJyzz23Ae/65RIWal535mVXGmRPVyfF3DEk4K4SLjQA6rsZ
+         vDlWTZ2/EyZhUxZhyju/pg23mJDD524wOAo6fM/f4ii880KtOVVee8Rqno9HG2WhE80H
+         m1ZiCiaGh7qS493A+8BoS+XNxKa4q2HPO1uIy3QQDsdH6qN+p/WnKoKH+PyOHhzkSNPC
+         zCGE3GXbkK9rZtEYMnDjiwNI3osSwxNQK+J/kDe0k8/awYo2crrvgwS9sHzr61hwHswH
+         OSQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=FfEexeR0fdxug5T5tXNLR+Y90NZlQ+7ERJmRuGbGmjc=;
-        b=ZZclcfBa/8Ri5mnt43rsxYckWq/pdtjmcNapsoIbSxvpsjEHq4FTraQzQKKNWEz+Ky
-         7dFShgx4skbR41DKivpiYGqOUhPVvNynIA42phdNHw82Cupiab0o4Q+rsnmHoqCXJKfZ
-         BOj6lhQE2wtu36b50x2E9WkJ2FOa9LeqxmXlO1ySwivCzrFVoP5x/Ky2iXTLc43kiRw/
-         0/jS0Pebz830oAqsT0snPWs3nDvt8iLIP3bHAhbzAwe69iknPJv3xA/zMwg8baGRFfAS
-         b9LS6Aj4QudgJSTT+OBXlGxsYVvMQ/KiLIEa8zDAnxmW/e6FiiH8VEnMApqlN2l6W7V8
-         BAcg==
-X-Gm-Message-State: ACgBeo1ApPIUIygZhWRIC4H3mfHdXdVHXDF9QB+X77K96IGWem4abwgS
-        fq/y44Tr+KYP5LZKGJ1QaW/rkBALZwfH78+xCOKR25ISnw==
-X-Google-Smtp-Source: AA6agR5+8d7DNgbFAXrYCirnMKddPBgizWqwVmHeJnU/103KZiEtdfAwqYpxPWCJemu5sHV/U9eATpZ5eOwqnf8KGHs=
-X-Received: by 2002:a05:6512:1687:b0:492:db5e:7768 with SMTP id
- bu7-20020a056512168700b00492db5e7768mr7130530lfb.118.1661808120616; Mon, 29
- Aug 2022 14:22:00 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=ArSRMVql55TxcTsneNf3jqqeKKniG2So9vFeYTehnhY=;
+        b=zqImqH/p8Ig1oiT/3dVmxT8YHBRwsZXky5F69p0O9cAEJ4Tf6HWTvojpAesONJ2L00
+         4d569bjp47AWJOLYXW/4JlpOrhtOUuaBcUlYW2DmIZThkWbPoyZ7moDuLGcNf1ilCCcJ
+         8JhM60TYFcoqHc5ffMsflIaglMbb8MNjCcGPqqZHa+9KeLbFpJqXEL2YSqKBKJhTPl7P
+         7gfRiAk6c3St4bp8Pd7y2hNqxiIk4+2p0nTeCZ5IoSIV3SkcuoudOfXHqjS3IPgO9NFb
+         lb53fGOnBPgWV777XwdxCI9I0yAs55TMsFfNHq/JCV6mLA263o+NNtTydETqOekp8nE5
+         qjsg==
+X-Gm-Message-State: ACgBeo1KHZTFWvnehhZzULxKt5d/jYUr8BoWrSV9jJXdA1iMETr4bhFi
+        1/DNQmW3oeTufuj7PoJc0hY=
+X-Google-Smtp-Source: AA6agR4qocb33j0uoyG1y36/vj7yV8YFZZqn2x6E2Z37n2xcys7zJO8oC64PWHxJQg0g1aBu9mjSyw==
+X-Received: by 2002:a17:90a:ce12:b0:1fb:b6d5:8c4e with SMTP id f18-20020a17090ace1200b001fbb6d58c4emr23063263pju.244.1661848891931;
+        Tue, 30 Aug 2022 01:41:31 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id d8-20020a170903230800b0016c50179b1esm2371745plh.152.2022.08.30.01.41.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Aug 2022 01:41:31 -0700 (PDT)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: ye.xingchen@zte.com.cn
+To:     paul@paul-moore.com
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ye xingchen <ye.xingchen@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] selinux: Remove the unneeded result variable
+Date:   Tue, 30 Aug 2022 08:41:24 +0000
+Message-Id: <20220830084124.284688-1-ye.xingchen@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <CAFPpqQHS_v7gqXsdCpE3LXA4JzL=-K0U7Q9jiGY5EqT6XCoQbg@mail.gmail.com>
- <Ywc+pjOFkAEswVuQ@gardel-login> <CAFPpqQEva6Z339ZXKxF2=ueug7YFrsFD0Tk6W88cZQxx0sg7OQ@mail.gmail.com>
-In-Reply-To: <CAFPpqQEva6Z339ZXKxF2=ueug7YFrsFD0Tk6W88cZQxx0sg7OQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 29 Aug 2022 17:21:49 -0400
-Message-ID: <CAHC9VhST2zg4w51KnxnsXp0CSULXtp9iRiXaJ18is2dtV55cdQ@mail.gmail.com>
-Subject: Re: [systemd-devel] socket activation selinux context on create
-To:     Ted Toth <txtoth@gmail.com>
-Cc:     SELinux <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 25, 2022 at 9:22 AM Ted Toth <txtoth@gmail.com> wrote:
-> I asked on the systemd-devel list about enabling systemd to set the
-> context of a socket and got the answer I've included below. I don't
-> know how a transition rule can be written to transition tcp sockets to
-> multiple different target contexts, is this possible and if so how?
+From: ye xingchen <ye.xingchen@zte.com.cn>
 
-Ignoring setsockcreatecon(3) as that really isn't an option here,
-sockets created via socket(2) do check to see if there is a type
-transition defined in the policy.  In the case of a TCP socket the
-type transition would look something like this:
+Return the value sel_make_perm_files() directly instead of storing it
+in another redundant variable.
 
-  type_transition <domain> <domain>:tcp_socket <new_socket_type>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+---
+ security/selinux/selinuxfs.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-... so you can see there is not much one can select on other than the
-socket's object class.  The reason is that the socket(2) call itself
-is rather spartan, with not even any clue as to if this is a client or
-server socket in the case of TCP.
-
-Taking a step back, what are you trying to do?  Perhaps there is
-another approach that would get you where you want to go.
-
-> ---------- Forwarded message ---------
-> From: Lennart Poettering <lennart@poettering.net>
-> Date: Thu, Aug 25, 2022 at 4:19 AM
-> Subject: Re: [systemd-devel] socket activation selinux context on create
-> To: Ted Toth <txtoth@gmail.com>
-> Cc: <systemd-devel@lists.freedesktop.org>
->
->
-> On Mi, 24.08.22 11:50, Ted Toth (txtoth@gmail.com) wrote:
->
-> > I don't see a way to set the context of the socket that systemd
-> > listens on. If there is a way to do this please tell me otherwise I'd
-> > like to see an option (SELinuxCreateContext?) added to be able to set
-> > the context (setsockcreatecon) to be used by systemd when creating the
-> > socket. Currently as an extra layer of security I add code called in
-> > the socket activation ExecStartPre process to check that the source
-> > context (peercon) can connect to the target context (getcon). If a
-> > sockets context was set by systemd I would have to perform this
-> > additional check as my SELinux policy would do it for me.
->
-> This was proposed before, but SELinux maintainers really want that the
-> loaded selinux policy picks the label, and not unit files.
->
-> i.e. as I understand their philosophy: how labels are assigned should
-> be encoded in the database and in the policy but not elsewhere,
-> i.e. in unit files. I think that philosophy does make sense.
->
-> Lennart
-
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 8fcdd494af27..66610eb3d317 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1917,7 +1917,6 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
+ 	struct selinux_fs_info *fsi = sb->s_fs_info;
+ 	struct dentry *dentry = NULL;
+ 	struct inode *inode = NULL;
+-	int rc;
+ 
+ 	dentry = d_alloc_name(dir, "index");
+ 	if (!dentry)
+@@ -1937,9 +1936,7 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
+ 	if (IS_ERR(dentry))
+ 		return PTR_ERR(dentry);
+ 
+-	rc = sel_make_perm_files(newpolicy, classname, index, dentry);
+-
+-	return rc;
++	return sel_make_perm_files(newpolicy, classname, index, dentry);
+ }
+ 
+ static int sel_make_classes(struct selinux_policy *newpolicy,
 -- 
-paul-moore.com
+2.25.1
