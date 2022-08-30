@@ -2,101 +2,81 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53F85ECAAD4
-	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 08:41:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32E8DECAAA1
+	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 08:49:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230334AbiH3Ile (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Aug 2022 04:41:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49842 "EHLO
+        id S231591AbiH3ItO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Aug 2022 04:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230034AbiH3Ild (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 04:41:33 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4B2A59A7;
-        Tue, 30 Aug 2022 01:41:32 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id o4so10453515pjp.4;
-        Tue, 30 Aug 2022 01:41:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc;
-        bh=ArSRMVql55TxcTsneNf3jqqeKKniG2So9vFeYTehnhY=;
-        b=IkNNJfjCG6omPuj3mMH+AHyCIheopsFNXkE2XR9JvrTgQb4qfW/UDXOeWY41+fxvKa
-         4baZL8h4GAY/MK6wgoZajNJyzz23Ae/65RIWal535mVXGmRPVyfF3DEk4K4SLjQA6rsZ
-         vDlWTZ2/EyZhUxZhyju/pg23mJDD524wOAo6fM/f4ii880KtOVVee8Rqno9HG2WhE80H
-         m1ZiCiaGh7qS493A+8BoS+XNxKa4q2HPO1uIy3QQDsdH6qN+p/WnKoKH+PyOHhzkSNPC
-         zCGE3GXbkK9rZtEYMnDjiwNI3osSwxNQK+J/kDe0k8/awYo2crrvgwS9sHzr61hwHswH
-         OSQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=ArSRMVql55TxcTsneNf3jqqeKKniG2So9vFeYTehnhY=;
-        b=zqImqH/p8Ig1oiT/3dVmxT8YHBRwsZXky5F69p0O9cAEJ4Tf6HWTvojpAesONJ2L00
-         4d569bjp47AWJOLYXW/4JlpOrhtOUuaBcUlYW2DmIZThkWbPoyZ7moDuLGcNf1ilCCcJ
-         8JhM60TYFcoqHc5ffMsflIaglMbb8MNjCcGPqqZHa+9KeLbFpJqXEL2YSqKBKJhTPl7P
-         7gfRiAk6c3St4bp8Pd7y2hNqxiIk4+2p0nTeCZ5IoSIV3SkcuoudOfXHqjS3IPgO9NFb
-         lb53fGOnBPgWV777XwdxCI9I0yAs55TMsFfNHq/JCV6mLA263o+NNtTydETqOekp8nE5
-         qjsg==
-X-Gm-Message-State: ACgBeo1KHZTFWvnehhZzULxKt5d/jYUr8BoWrSV9jJXdA1iMETr4bhFi
-        1/DNQmW3oeTufuj7PoJc0hY=
-X-Google-Smtp-Source: AA6agR4qocb33j0uoyG1y36/vj7yV8YFZZqn2x6E2Z37n2xcys7zJO8oC64PWHxJQg0g1aBu9mjSyw==
-X-Received: by 2002:a17:90a:ce12:b0:1fb:b6d5:8c4e with SMTP id f18-20020a17090ace1200b001fbb6d58c4emr23063263pju.244.1661848891931;
-        Tue, 30 Aug 2022 01:41:31 -0700 (PDT)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id d8-20020a170903230800b0016c50179b1esm2371745plh.152.2022.08.30.01.41.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Aug 2022 01:41:31 -0700 (PDT)
-From:   cgel.zte@gmail.com
-X-Google-Original-From: ye.xingchen@zte.com.cn
-To:     paul@paul-moore.com
-Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        ye xingchen <ye.xingchen@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH linux-next] selinux: Remove the unneeded result variable
-Date:   Tue, 30 Aug 2022 08:41:24 +0000
-Message-Id: <20220830084124.284688-1-ye.xingchen@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S229549AbiH3ItN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 04:49:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 614D317042
+        for <selinux@vger.kernel.org>; Tue, 30 Aug 2022 01:49:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661849351;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=rO4FZd8DM43FaK8mkRxXV5H/hvjL5yUM5ZIt/9HgsK0=;
+        b=LN2TCqZXjxzLeEH0xabSp08IHcFUnsuixjYfnsUSeMaetq7OkOzYALMDibwZ2TUagUr1I1
+        wtPFffGmkVjkGEnGsRAejbUIhYWRX1EjJkTrp7tZRh7CVfAEV1QxlQih6qZ7y3+5WDxlGP
+        QwWw7zkejONzzJltyMYjeLHJANmnoa0=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-455-VRXojYk8POGrzp5byeD5Jg-1; Tue, 30 Aug 2022 04:49:08 -0400
+X-MC-Unique: VRXojYk8POGrzp5byeD5Jg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C0F06380390A;
+        Tue, 30 Aug 2022 08:49:07 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.72])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D748FC15BB3;
+        Tue, 30 Aug 2022 08:49:05 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <c648aa7c-a49c-a7e2-6a05-d1dfe44b8fdb@schaufler-ca.com>
+References: <c648aa7c-a49c-a7e2-6a05-d1dfe44b8fdb@schaufler-ca.com> <166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk> <20220826082439.wdestxwkeccsyqtp@wittgenstein>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     dhowells@redhat.com, Christian Brauner <brauner@kernel.org>,
+        viro@zeniv.linux.org.uk, Jeff Layton <jlayton@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Paul Moore <paul@paul-moore.com>, linux-nfs@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, dwysocha@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] vfs, security: Fix automount superblock LSM init problem, preventing NFS sb sharing
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <1903708.1661849345.1@warthog.procyon.org.uk>
+Date:   Tue, 30 Aug 2022 09:49:05 +0100
+Message-ID: <1903709.1661849345@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.8
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: ye xingchen <ye.xingchen@zte.com.cn>
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-Return the value sel_make_perm_files() directly instead of storing it
-in another redundant variable.
+> The authors of this version of the mount code failed to look
+> especially closely at how Smack maintains label names. Once a
+> label name is used in the kernel it is kept on a list forever.
+> All the copies of smk_known here and in the rest of the mount
+> infrastructure are unnecessary and wasteful. The entire set of
+> Smack hooks that deal with mounting need to be reworked to remove
+> that waste. It's on my list of Smack cleanups, but I'd be happy
+> if someone else wanted a go at it.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
----
- security/selinux/selinuxfs.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+I don't have time to overhaul Smack right now.  Should I drop the Smack part
+of the patch?
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8fcdd494af27..66610eb3d317 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1917,7 +1917,6 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
- 	struct selinux_fs_info *fsi = sb->s_fs_info;
- 	struct dentry *dentry = NULL;
- 	struct inode *inode = NULL;
--	int rc;
- 
- 	dentry = d_alloc_name(dir, "index");
- 	if (!dentry)
-@@ -1937,9 +1936,7 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
- 	if (IS_ERR(dentry))
- 		return PTR_ERR(dentry);
- 
--	rc = sel_make_perm_files(newpolicy, classname, index, dentry);
--
--	return rc;
-+	return sel_make_perm_files(newpolicy, classname, index, dentry);
- }
- 
- static int sel_make_classes(struct selinux_policy *newpolicy,
--- 
-2.25.1
+David
+
