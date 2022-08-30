@@ -2,79 +2,121 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDD00ECAAD5
-	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 20:28:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2F10ECAAA1
+	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 20:45:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231190AbiH3U21 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Aug 2022 16:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59136 "EHLO
+        id S229472AbiH3Upu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Aug 2022 16:45:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229797AbiH3U20 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 16:28:26 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7C227CC6
-        for <selinux@vger.kernel.org>; Tue, 30 Aug 2022 13:28:25 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-11f34610d4aso8751021fac.9
-        for <selinux@vger.kernel.org>; Tue, 30 Aug 2022 13:28:25 -0700 (PDT)
+        with ESMTP id S229685AbiH3Upt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 16:45:49 -0400
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28775300C
+        for <selinux@vger.kernel.org>; Tue, 30 Aug 2022 13:45:48 -0700 (PDT)
+Received: by mail-il1-x136.google.com with SMTP id d15so6845375ilf.0
+        for <selinux@vger.kernel.org>; Tue, 30 Aug 2022 13:45:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc;
-        bh=pkoq/o9P8wU4zBUF6l/1Q8f9r4lCtzL1bt9bVqYTgbg=;
-        b=vQ5OEjPyI48ASRgu7ssOii2xYWJ4xnPBiTNLBGGE608Z7A05x4M4cgABuJO0i9jN2c
-         QATOeDvd8dss1mFC90RZMGre1/oN7HHYgFE95dL3a0OHfZ/Ihc//ZZYIFsxJQMK6pugb
-         B+7pKt6yNeV1mFBvUg65k5/+nNf8pKWYIza0LDe2VoMgle5vh7b4MA+AjiD1+VcMJMHE
-         su18WVASI8CWQEP7UMc830pIxfnlPHStDyF6kT9vyNw8ZfoyjFBZRR/OfYEtVMQAg91T
-         tL8bJ2pLDUr5TE1aSyfy9x9QVZvCSXbduMX79y3Ql8kIDwreogHJIBaue2odW4VAIdRm
-         u3fw==
+        bh=lHTIJ24y+TUiykXtBPhQHQ3834MffSumqakMUKmFPZs=;
+        b=kKB2l6IDxUO/uaXrexQbwxSp5n3dZlBnE2+snKsIIp8ntFLcTKLTdkKeLYRwyYzp46
+         f5yMfJD9OfE629Jm3uvqZfYVtUBSXIzuzKyTZB6JpC/22MwkmqyUCGtvLlR0VLDGdsGn
+         OAtEytq5iYd8uqzC1yI5ZiyjeP6c49uLyCwYXGBO09MPnXG+pTQj81/036FgNmxuBHWS
+         DniXGqFSm6yH6K0AZY2XpImWWe8nLUD4Bj9B7gutxJxfnMOMgigZQhQ0zpuo2HAP/5ll
+         DPg2VyMJb1OXEz7Ny9uCHeInd44VVebZwKglJTSUwYNFSuEa54jUw/d4k/ib8MncxrDi
+         g8lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc;
-        bh=pkoq/o9P8wU4zBUF6l/1Q8f9r4lCtzL1bt9bVqYTgbg=;
-        b=Tj+Aiucf9x4nQAnq0HhEWsumoR+4jQ2FBjZHBMgXNOkAQFW6a09siFimSnH4tmT5XE
-         5vaRch/iUBOVTl/FCi81HtP3aC1Zlcaahe2GAFAPu1CgNTXTG4flbUd5kcTwJrb+q1N7
-         L+nxidG18BPbxssvOnJku5Vp+4OGWvrTqzDoQe1sUdz+heQ/2llyaqhFd8QRI6tyaw58
-         78QOTaPSM/eOFNmL7OiPhXBNaMMQRpiLl3knI/AgOLqMh49+/t20nehMNyaWYbtc7O2o
-         EhL0s6wL+F7V3YaK/OOVBGZN1lUr4N6Qf3KDD3yCOKyPgdvnyMvFitaWVl4Gu8oYuaQ3
-         OPTw==
-X-Gm-Message-State: ACgBeo3i4WBXYKL3a03FxezD22KS9VmIP/tJcGQ24oBM6AQuaTpyewlk
-        30UIoL6AQER1KC3CQtJVUNl/Rum7FZy0tq0pXtsB
-X-Google-Smtp-Source: AA6agR6o/lP5VVKIId0/k9uoG0ZQyJf1wTjojPiCx7MFLhqOZh+C+0wZydEzou1Rty6gZpdKl+qDXkaPZla6f5n/pMc=
-X-Received: by 2002:a05:6870:a78d:b0:11c:437b:ec70 with SMTP id
- x13-20020a056870a78d00b0011c437bec70mr11345537oao.136.1661891304676; Tue, 30
- Aug 2022 13:28:24 -0700 (PDT)
+        bh=lHTIJ24y+TUiykXtBPhQHQ3834MffSumqakMUKmFPZs=;
+        b=49/GiayUvj0DdgS5lDvbt1e6ieWyrXwJP/14+hTz49Kh/1dPhTuZEDVXY4CalWW7YO
+         jwIcUfUOijvO1W334eF0Cb5m9U0TUyW4azR2h1TnNMGQlOEEdgKE8cbJaLg/35LoSQUr
+         fk0/0taJcSWsOiOROUBfktJKaMSF2RCGSQNwmXOVLQJlylGNe9Mx5/AH8gA/qIk+2N8Y
+         DDIqZx6ETuBSEj8gTNqS6J2vISnHnCIm495swzx6ENGNMrVDMGJRjeHsj2yX8sjTRQNi
+         YMKILWM+xq3Wy6XSyJqxMKHyp65nYLxfSNiAStR0/xO4pOr8u+sbVpUlM+IJoSM0movx
+         ZVhw==
+X-Gm-Message-State: ACgBeo1wsKGXTcSPI4VggDn2AKSuaE/QwCxkMuBWBWKcKmpX/tftL3NL
+        ZO85sf8JDPz1Rodl0CrBwOEttNmDRuflKmpQQ0u+LxpkYTs=
+X-Google-Smtp-Source: AA6agR6N5UGw7fQeo/n/vx6Znt9Jsc8K9ios662EeSTTAPOkFVNfDSNBKQTjCcjF5aMd4uTmB2KhfOJLO2Et+w8s8ZY=
+X-Received: by 2002:a92:130f:0:b0:2e4:22c9:7721 with SMTP id
+ 15-20020a92130f000000b002e422c97721mr13628458ilt.34.1661892348115; Tue, 30
+ Aug 2022 13:45:48 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220830150058.300327-1-cui.jinpeng2@zte.com.cn>
-In-Reply-To: <20220830150058.300327-1-cui.jinpeng2@zte.com.cn>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 30 Aug 2022 16:28:14 -0400
-Message-ID: <CAHC9VhT79eWvT4Nyd7BPZcfQPwQcWH+T4NaW7ARqA3BNHUOx2A@mail.gmail.com>
-Subject: Re: [PATCH linux-next] selinux: remove redundant variables rc
-To:     cgel.zte@gmail.com
-Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jinpeng Cui <cui.jinpeng2@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
+References: <4ad30dd7-ec19-e88a-848e-98de8af7a16b@gmail.com>
+In-Reply-To: <4ad30dd7-ec19-e88a-848e-98de8af7a16b@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 30 Aug 2022 16:45:37 -0400
+Message-ID: <CAP+JOzS82HOzmEKbeofQGgWhf4mk76ywJ-2ogqYBJ4T_k29w_w@mail.gmail.com>
+Subject: Re: [PATCH 1/3] secilc/docs: selinuxuser actually takes a string not identifier
+To:     bauen1 <j2468h@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 30, 2022 at 11:01 AM <cgel.zte@gmail.com> wrote:
+On Sun, Aug 28, 2022 at 8:18 AM bauen1 <j2468h@googlemail.com> wrote:
 >
-> From: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
+> Update parameter table and add note to example.
+> This can very easily lead to confusion, because secilc does not reject
+> e.g. (selinuxuser "admin_1" admin low_low).
 >
-> Rturn value directly from sel_make_perm_files() instead of
-> getting value from redundant variable rc.
->
-> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> Signed-off-by: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
+> Signed-off-by: Jonathan Hettwer (bauen1) <j2468h@gmail.com>
 > ---
->  security/selinux/selinuxfs.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+>   secilc/docs/cil_user_statements.md | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/secilc/docs/cil_user_statements.md b/secilc/docs/cil_user_statements.md
+> index d5674f12..45a52140 100644
+> --- a/secilc/docs/cil_user_statements.md
+> +++ b/secilc/docs/cil_user_statements.md
+> @@ -429,7 +429,7 @@ Associates a GNU/Linux user to a previously declared [`user`](cil_user_statement
+>   </tr>
+>   <tr class="odd">
+>   <td align="left"><p><code>user_id</code></p></td>
+> -<td align="left"><p>A previously declared SELinux <code>user</code> identifier.</p></td>
+> +<td align="left"><p>A <b>string</b> referencing a previously declared SELinux <code>user</code> identifier.</p></td>
+>   </tr>
+>   <tr class="even">
+>   <td align="left"><p><code>userrange_id</code></p></td>
+> @@ -445,7 +445,8 @@ This example will associate `unconfined.admin` user with a GNU / Linux user "`ad
+>   ```secil
+>       (block unconfined
+>           (user admin)
+> -        (selinuxuser admin_1 admin low_low)
+> +        ; XXX: Because the user_id is a string, the fully qualified identifier needs to be used here:
+> +        (selinuxuser "admin_1" "unconfined.admin" low_low)
 
-Please don't send multiple patches to fix the exact same issue.
+I don't see this behavior.
 
--- 
-paul-moore.com
+The following:
+(block b2
+  (user user2_u)
+  (userrole user2_u ROLE)
+  (userlevel user2_u (SENS))
+  (userrange user2_u ((SENS) (SENS (CAT))))
+  (userprefix user2_u user2)
+  (selinuxuser name2 user2_u ((SENS) (SENS (CAT))))
+)
+Gives me:
+name2:b2.user2_u:SENS-SENS:CAT
+
+It works with quotes as well, but it doesn't require them.
+
+The following:
+(block b3
+  (user user3_u)
+  (userrole user3_u ROLE)
+  (userlevel user3_u (SENS))
+  (userrange user3_u ((SENS) (SENS (CAT))))
+  (userprefix user3_u user3)
+  (selinuxuser "name3" "user3_u" ((SENS) (SENS (CAT))))
+)
+Gives me:
+name3:b3.user3_u:SENS-SENS:CAT
+
+Thanks,
+Jim
