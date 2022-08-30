@@ -2,104 +2,102 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B830ECAAA1
-	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 13:50:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A72F1ECAAD1
+	for <selinux@archiver.kernel.org>; Tue, 30 Aug 2022 15:01:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbiH3Nu0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Aug 2022 09:50:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38134 "EHLO
+        id S229881AbiH3PBG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Aug 2022 11:01:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231317AbiH3NuF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 09:50:05 -0400
-Received: from sonic304-27.consmr.mail.ne1.yahoo.com (sonic304-27.consmr.mail.ne1.yahoo.com [66.163.191.153])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BEA67E80A
-        for <selinux@vger.kernel.org>; Tue, 30 Aug 2022 06:48:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1661867280; bh=B5MGNwLw1R/K6iXbs2us17O4OX0icSuWFBTlB2a4F2M=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=O/uGPvRsEknq7kDFYpG4ZLOyXMCDSY7qYm+nYPE3v3Upx02++3uBgBlxQWiVHjFVRrz9Hffg15HIkUrBVzZLFMVR5o35Zws2Q3QQx96PDwPCKWnrggZyB2NtJEPIs1PkcFEiMiS7n98rcJrBolJ6296nrs1+Tm03aVxtTUHT27gjNfZk91VJGmURJp8vXFKxGwq1T816wJjhw4VEIG8TM+4B8Okdp6tArkTygvHbsL9Q2rK7lUIDYUpJ9NLktdQeOOdJNqkdbGxC+drUjQo4FKfp1UH/Z1V6sflOfg12yCW+kA8kHYx8U4vmd1wckLkesYiCpkoBuD2JMXNoRlLOjw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1661867280; bh=T2ZoFCGq3etlFB6RfXACydBhjBS2Jt+rn+43SIxk0ZO=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=BhCfnFQWlJf6PUaSAAZ4s1eno1TYL7AjnbIhyHaPcHMpCsDJvoQT6e2e7/k+JB21kQdF3/Rm2zdOAcUXaDcPao9KG21sJWLm/2nJw0jemLNLwgg29eQW05IgGb7b7vLoK8AQLqKO4Bx0AhWsPLPtIBw2dy9Bor8/TdW3h2Eiom68L0CHig5URKOiBEzqK+tUJU76dMeypLwko7rnuEwZMUJiJjqSSwFsxxAxIv0ZgrPwMW2HO9cmTB953H+z79BDBD6POwIntBbkLm9JVp8Dp82l1FCaLICj88IzQQef1M7iF6EETxceEHbtV3iuIuK9JpiZjSO6fC6eBIZkCJo75Q==
-X-YMail-OSG: 7J2QYA0VM1nJ7OTEJ1KfWJ3fpjEAB6rZCW0PyoNiqg_7rtbOHDvEFsoG_KVljvQ
- FYgYoHDON.kTIyfxIrgRl9uMQ4INDiNV0hXGY_F_bQKm3fr2k5P03UztI6O4jNhDmo8d2.bvPxk7
- .WL_DV4zu_WyDb3k3fpwdvozzsH9NlPKANuREtgTP8UbriRoqL.uKYUFUGWG.W5RJa.T62URv6.u
- f2mKXcgZSP4MVaf4jgedwJ8.x48krFQLl2UQGPjqFq.ESzTi1aURtHXbkaTOboRXpI92iWW9ados
- yYw9h5M0S7hIiqbX43G8nGCS.QR35FuVsQlt4eWo5s0iMIG6HNzL8UuXZqPqNe4fdGqqn1zPvw_H
- SiA_b_dZUFHox1VXyhiR2xsqQ7YyIZ1ZMl.LkEyOZ5AxdyOuqRyby9NIBlRvH8dVZrbAuahTSWv0
- LtMgD8HGSPEhfO9zqVAGYpPji8jKqs1oj_Ri0WoHFWVsj52UNDZDdTM.oqZXUZd_g32Jk732ifVa
- rAdyrCUEQwXwKIZinTmQ6YBTYh7QJF9Ox3i08qaqaxeyvgNtYcQx2sLtEFKp8jUFgLN5zATprEiQ
- _FuFk6tWZK8qfnLPflr8ZAPSD3Xgr.KrdkRI_DrDuWWV6I6xZeqNybpSJVBZIO2yPSMXm9M5mkoF
- 5pYFjjqrnyQWX22k_HF7tXS_9RVIdzooJIikDFgOW67Aji.ya2KkFhc1Nun0vVMwcK4F_P40Yvpq
- ddDlRPaOQkoPla6IxcHtqqFQ5GblrkAqtJTqXJd7kNnRwK2EviJzsE37hUPVh3dsM1oE1IGG7gMz
- 09UoKwnjzz3zBAS.IGXpbhKqX6C75F95c1NskxWrf6Qm0N4JfYPLI4726ejPkSyUMrA3YsXhJDTi
- IYrJI_bgf8RZGUykuWMUCxjE9KPQ0Q0HrQYeqmHAYMTwycNWV8F8j2PRuL1Ox8yND0e0IM3VOZrn
- OLtjxRUcdFPVBcX4aLrQrpEr4vPGZ6tZTsAYADukMvx7RGkiRdCZ7iEosyzmDJS9vRfevXmBPn5r
- KsUza5OONtWNGA8Jt5DNtOZzthaaf4T3j6pN_cPT1v0XzOctZd5zyW2fjSHaY2IsUH0fxxdrrc1y
- bkVh2dG_x5bViiYzZR.LBl7ort5kuTUEX5WjiNnCeid9QlqLVoNU6H87sYMRjqdGnbMO0vNWSBJI
- qTIzNYFm9PgaPL_dUt9GBVK37foiTju5Rh1buDNhC.0Ufz0En2ByK4vWpmDg0STVupiGM5M6UYij
- BhXSHunir13cP3kDj0.lJpslwLdVX9VXDobvKD3RE0f9bBRechFp8kgQFV6yq7FKV32NDho9Ygtd
- kM8mVoitvMZF0xajvIA.h65w5L2yzs9Yd0_9Fm49kyjLqVO0xbdG7oAVONBBn9dlMSD5ApG0bDVZ
- OlBSDMXZLymVuKGfWif.TzRxbJnod8VbdVtUZwoOFeipGohgTIbg_gvFG.H4o5eDkYarxRHs6K2M
- gjguGdjyuLe4XtUUpE5oGiXb9pOvkV9O_M_1GuYf56Na3SiHk5WSQi2PeSlP6p83MxhoKrEjbT4v
- ddVtMF2AFBj8202KENjy2PhnTAZbawEYEsDNU8oldCGXluk8rTxCYD6SJMF92JLfZUI4TTik4K.J
- qM_jy5dvOg4YWL4S8ETsbkSoTyXzG4stNB5K4VEMC183Ez5tj70e6ktJAimwpjQ9Rg0Lchdjs6k0
- CBrZbm6oG7ttakJ7PnKVEeITfgdc3dBnTHlFYpj2vlcZ9U4lgVUipTl5oUNORfE3y.nIUSbb91z7
- U.LW0iRi.pFn4VlkJKz2LEEKe_YXypfvxUPMLPLRkkKD8HHxK9JyVSEwrhXstVl4VJj.HCQ8poi3
- acAttq82E4f2JXdBIbw2q.ntHRPGxnA0cXUwHTfxRUbdY6H85pR4HFxmZHXWFJf0Ng95shR6Jb8M
- okT6O68sQOa60EZDtPyjGvi21YBrBk6BZ3Z140mGElMW3sHhRRNoxy1wPoiKbSr97Hma2lR3P092
- X3v330zAoVLtH6H0qLMfOJbeH4TktlpLHWM7SeeH1Elgi72ThjR4yyGsoR_DgCKtqcbqFgCvkyYP
- dYy9010OcbI_nNlFj.pUYOTxJBfN5Ffd7IXjak91udh90DAbQRsHpeNY_TN5V5uRNbtQ7I1am7yV
- sEU6mX1Y8zl9_h7C5_lNnfrykgvdCw8O.gZryzERbdOw.HbJ6bAoJy3sLnyh8LfHWglLzYY1gCJk
- t.sKjz4_4vrunpcC0A_peaTm5X25y97ZNOkQ-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Tue, 30 Aug 2022 13:48:00 +0000
-Received: by hermes--production-bf1-7586675c46-klczj (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 9d7aea0643af7036c6f2938b0344572d;
-          Tue, 30 Aug 2022 13:47:56 +0000 (UTC)
-Message-ID: <89548338-f716-c110-0f85-3ef880bbd723@schaufler-ca.com>
-Date:   Tue, 30 Aug 2022 06:47:52 -0700
+        with ESMTP id S229556AbiH3PBF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Aug 2022 11:01:05 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDA6AA3EF;
+        Tue, 30 Aug 2022 08:01:04 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id q63so10905397pga.9;
+        Tue, 30 Aug 2022 08:01:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=f9e3VM+myeBrA9VERSeK8dF/6d15WanDkkJ9Z+qhWxo=;
+        b=Ce/ACRzrYvuTrrXwtDRWHUTtR2jjGTTWzwVQMgKKGXfUqm8XwOOnfqGO4kReIQj4EA
+         YxJiRG6zHihUuGjGTKNJukfWCNB4hpetA5g4m957bxL8zdl+3TAZgWXtxdMHpIOVkk4d
+         qkacsB9GuROoCuGo25QDaK7aBS6HHbNsTCa1OEUU55V8+6I3jLeCr5mcHO1G148bq+k7
+         FuoY5U1qJ4qLtxHZbA4gX4J18QwOM932gYugiOlDQF4K0iUIqmquiocFefqlCTLKNuFW
+         3ixkhwfqFeUmWHbggmd5gBVlmxWPbWA147NlwlENsE4l39egd+ST2ACtHfzsN5SDN7lC
+         9Kdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=f9e3VM+myeBrA9VERSeK8dF/6d15WanDkkJ9Z+qhWxo=;
+        b=8KW11CS9oIKwYcx/P5Hd2EHHhYfW1f+JveQ7mA5OjfxPe3ORTknRtUwpkkqvg5LWOl
+         dfVeE7kjGWgB6jD40D3+gO+JXWAI1vo19YXGHEUyQRAAzEale1VCuFBsw8qm+Qp5tfqR
+         bgGnh2uvxQqfAmw5sJJJPfQl7CiXsPpIxSuXZTdmQV/CM84glQ4tn0lnXgLJY/OzDhNY
+         E0b73dMg2D0LNBFU6Zpr3TB+LtFljcMQnvtfkuXgL+O/8I/ksDB1DTu+4/wKDPmuJfGP
+         FIWH7MVCs9ZaoL5yKxlRtKS7OMeVK2xfkWKGL9AUjSD86bvWKqmNJZaT2PbcMI9cjKDQ
+         +qAQ==
+X-Gm-Message-State: ACgBeo2qLioytK/merwq/5+vaWYdy1Cp7zAOgFkHSnoQtfIl7Mq4yvwF
+        BAZo/FvS0m7WBbtDsxtgh+PgEWkXN0Q=
+X-Google-Smtp-Source: AA6agR7ehrSDW0aq4+tSEiikLUvX+ymaQgCBf1Ht/gduHvIttTNLSEPoKEezKnCAXxg4FMZZv288yA==
+X-Received: by 2002:a65:6d0b:0:b0:42a:19dc:e76e with SMTP id bf11-20020a656d0b000000b0042a19dce76emr18085356pgb.6.1661871663722;
+        Tue, 30 Aug 2022 08:01:03 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id u15-20020a170902714f00b0017532e01e3fsm1088393plm.276.2022.08.30.08.01.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Aug 2022 08:01:03 -0700 (PDT)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: cui.jinpeng2@zte.com.cn
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jinpeng Cui <cui.jinpeng2@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] selinux: remove redundant variables rc
+Date:   Tue, 30 Aug 2022 15:00:58 +0000
+Message-Id: <20220830150058.300327-1-cui.jinpeng2@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH v4] vfs, security: Fix automount superblock LSM init
- problem, preventing NFS sb sharing
-Content-Language: en-US
-To:     David Howells <dhowells@redhat.com>
-Cc:     Christian Brauner <brauner@kernel.org>, viro@zeniv.linux.org.uk,
-        Jeff Layton <jlayton@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Paul Moore <paul@paul-moore.com>, linux-nfs@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, dwysocha@redhat.com,
-        linux-kernel@vger.kernel.org, casey@schaufler-ca.com
-References: <c648aa7c-a49c-a7e2-6a05-d1dfe44b8fdb@schaufler-ca.com>
- <166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk>
- <20220826082439.wdestxwkeccsyqtp@wittgenstein>
- <1903709.1661849345@warthog.procyon.org.uk>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <1903709.1661849345@warthog.procyon.org.uk>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20595 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/30/2022 1:49 AM, David Howells wrote:
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
->
->> The authors of this version of the mount code failed to look
->> especially closely at how Smack maintains label names. Once a
->> label name is used in the kernel it is kept on a list forever.
->> All the copies of smk_known here and in the rest of the mount
->> infrastructure are unnecessary and wasteful. The entire set of
->> Smack hooks that deal with mounting need to be reworked to remove
->> that waste. It's on my list of Smack cleanups, but I'd be happy
->> if someone else wanted a go at it.
-> I don't have time to overhaul Smack right now.  Should I drop the Smack part
-> of the patch?
+From: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
 
-No. I appreciate that you're including Smack as part of the effort.
-I would much rather have the code working as you have it than have
-to go in later and do it all from scratch. With luck I should be able
-to get someone with a considerably lower level of expertise to work
-on it.
+Rturn value directly from sel_make_perm_files() instead of
+getting value from redundant variable rc.
 
-> David
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
+---
+ security/selinux/selinuxfs.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 8fcdd494af27..66610eb3d317 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1917,7 +1917,6 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
+ 	struct selinux_fs_info *fsi = sb->s_fs_info;
+ 	struct dentry *dentry = NULL;
+ 	struct inode *inode = NULL;
+-	int rc;
+ 
+ 	dentry = d_alloc_name(dir, "index");
+ 	if (!dentry)
+@@ -1937,9 +1936,7 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
+ 	if (IS_ERR(dentry))
+ 		return PTR_ERR(dentry);
+ 
+-	rc = sel_make_perm_files(newpolicy, classname, index, dentry);
+-
+-	return rc;
++	return sel_make_perm_files(newpolicy, classname, index, dentry);
+ }
+ 
+ static int sel_make_classes(struct selinux_policy *newpolicy,
+-- 
+2.25.1
+
