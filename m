@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA122ECAAD1
-	for <selinux@archiver.kernel.org>; Wed, 31 Aug 2022 14:57:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7771ECAAD4
+	for <selinux@archiver.kernel.org>; Wed, 31 Aug 2022 15:34:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230216AbiHaO5Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 Aug 2022 10:57:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53582 "EHLO
+        id S231672AbiHaPeo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 Aug 2022 11:34:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230474AbiHaO5G (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 Aug 2022 10:57:06 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E03D7424
-        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 07:56:44 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id p16so25789227ejb.9
-        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 07:56:44 -0700 (PDT)
+        with ESMTP id S231393AbiHaPen (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 Aug 2022 11:34:43 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C48DC32CD
+        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 08:34:42 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id se27so21426245ejb.8
+        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 08:34:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:from:to:cc:subject:date;
-        bh=+f5Ju/UvArHmZ3VBOJzL+Gqf85fyo/0s2e3mIUXhnnU=;
-        b=ExQSzIkiKPmP3EEEo2Uj1mXr6dy2QSa11PQ7TQvSxdQ5OUh3vXt9pRlIHZB4ZDh3XO
-         JIOFxB6QEVqdCQlKMrhujnXMs9/7FnlAMN2Vrk9XKKWiL/oWFJ0Xk+DH+7WnIqE86v5g
-         yRZWG0xxT3ul/N0lAbiStNrG3v0DtCzIoAMxWIkZj4KkGF3Sph2oh63SoAnHUAysQDAe
-         b9yM6mhK39etajc7/KdzJuygVa+s2llDgx0zAz2jPLmuYFszn3DgNpKvioUQiilEcYzj
-         AcGUDQLyhsU9PbqVFuGkgG8qX1fo4LogYDqK4BFhej190l34l30fSxRnCoxpGEzrbywU
-         1BLw==
+        bh=uNY3sqsDg2hL+X55XlDnLBTral/6QIHvsssX2WOBMeY=;
+        b=FNSwU/skaIZIgDexoC578v0Dia46l9XSXvdacJNhgM+f8t2rsD/c4X7MkrGvw45sLa
+         0GPzj/I3mMceBwLz59nJPnl3WGmOtV4QR2TyQeK4cgVX8XMt19yJVoHtan+k4A4smxYD
+         8YLNfD2mBJ+ltRWb6AOA7mbkrN1843PfegX0f/oeRwTSvPdskXPmCuHiA6rtc5136gWf
+         DgNnLGVbqp1v01I/y5nGHpRw/DB6dhVMqNHHohPMr73QFE25YSdjZMH3zup9mbQ69QHW
+         u0XCp9ufHszzjiVaYSzJpn9C3vV+9kfgke2G4kbqHmkaRPQB7cyaKLIG+Z9RNlCDo66V
+         Hm9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:x-gm-message-state:from:to:cc:subject:date;
-        bh=+f5Ju/UvArHmZ3VBOJzL+Gqf85fyo/0s2e3mIUXhnnU=;
-        b=atSq3vaOzu0xQNU1DfJPokQlGosypl7oeRoAM6Bk07aTdCvOt/naQBS0OVVTAjxdal
-         pEnhiios2B0SBls0EBjjeSjToHoQL+nwK8xKpXEJMZQfZTJLqH41DAiYtqXuaf4gwN/V
-         OvWBP05SAFvmcCU8dECtWSl21BoUFZWFiZDtzvYQvMm3UaFbiMg8a/VuY0Dx6qd3aIle
-         L+48nSA5Z3UP3dosZkjnCUxH+ifp71PS5xuDy5Q1Qeka8l6RR+gmjmtbqdfd5ksTdg1L
-         wJDbJb12jj3c99Q2ys35p5R9wWQViLU2BeOUbY3UbkN7LxvcCKhUwnp3FEwV3Rc+e+bb
-         l5UQ==
-X-Gm-Message-State: ACgBeo1f1jxel4X8DrzZq6MtJu6hSpyFwyMqGSHqyYVNNpQLDnSpW6Dp
-        3qNvNRHAxYdKe87gpbfAD//Ynik5bNqcLw==
-X-Google-Smtp-Source: AA6agR7ztZImkKplXqlPMjdiE6vZt7Uw7+0hL49oqMUTEUnn836k6z6mUCLma8OJfTIhAG6vUsShQg==
-X-Received: by 2002:a17:907:2d8a:b0:730:6880:c396 with SMTP id gt10-20020a1709072d8a00b007306880c396mr20011153ejc.192.1661957802337;
-        Wed, 31 Aug 2022 07:56:42 -0700 (PDT)
+        bh=uNY3sqsDg2hL+X55XlDnLBTral/6QIHvsssX2WOBMeY=;
+        b=HRPldadqMzUTnjz+A91juofKnJiTb0Wc8EDc88ZFqi9MPFg2cKfR+jdUok2wOwOJ/9
+         N73RyuyPmzFz64ZM/Fb77p3EWQQ9BQBrNXXMow3bJ89or08Qq1NQzN4E4XTQE3OZBbo9
+         1PkVyLtzMffJOWaa0SwUr/L+1x+dW2XRlcvC+z5MAHtCHtDTyPuKgdVQ0OSJASRnfuuG
+         BfVRmT5C1gGuHklTYrM5P627BrI3ylso+vsliFYn3d6w8yNOX7HEUT+HHs25Et6nukky
+         mYRG/+DTVKX2zT7lyyprYDBcQlZJVujGTXq/rF/irwf/TW8UEbll8CfdtBInYFcWFtSW
+         BQBw==
+X-Gm-Message-State: ACgBeo0OYdb5LpP2W7fTL9EscnBaWyf6DzYUvxU5i7xs3rdBCdottnV5
+        3A/Bc+IiuILwZ4eJZswc2rsttzity3tFeg==
+X-Google-Smtp-Source: AA6agR5GYIJ/k/Hzha/9gHLRLI0ttuTGorqzAjWnSRWzjwqDhUyxyWqhTob+W2XJcrhrFDtCNTTS3w==
+X-Received: by 2002:a17:906:58c9:b0:730:bc01:fd5f with SMTP id e9-20020a17090658c900b00730bc01fd5fmr20211491ejs.504.1661960080941;
+        Wed, 31 Aug 2022 08:34:40 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-000-086-221.77.0.pool.telefonica.de. [77.0.86.221])
-        by smtp.gmail.com with ESMTPSA id ky12-20020a170907778c00b0073d5a8a2bfcsm7319356ejc.221.2022.08.31.07.56.41
+        by smtp.gmail.com with ESMTPSA id b9-20020aa7d489000000b0043d7b19abd0sm9265771edr.39.2022.08.31.08.34.40
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 07:56:41 -0700 (PDT)
+        Wed, 31 Aug 2022 08:34:40 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] tests/secretmem: add test
-Date:   Wed, 31 Aug 2022 16:56:11 +0200
-Message-Id: <20220831145611.707958-1-cgzones@googlemail.com>
+Subject: [PATCH v2] tests/secretmem: add test
+Date:   Wed, 31 Aug 2022 17:34:32 +0200
+Message-Id: <20220831153432.710929-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,6 +65,10 @@ Add test for memfd_secret(2) anonymous inodes check added in 6.0 via
 2bfe15c52612 ("mm: create security context for memfd_secret inodes").
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+   - print mmap failures to stdout, since they are expected when
+     mapping with PROT_EXEC
 ---
  .github/workflows/checks.yml |  4 ++
  Vagrantfile                  | 10 +++--
@@ -221,7 +225,7 @@ index 0000000..c27d5f0
 +	rm -f $(TARGETS)
 diff --git a/tests/secretmem/secretmem.c b/tests/secretmem/secretmem.c
 new file mode 100644
-index 0000000..93553a7
+index 0000000..0d541ee
 --- /dev/null
 +++ b/tests/secretmem/secretmem.c
 @@ -0,0 +1,83 @@
@@ -283,7 +287,7 @@ index 0000000..93553a7
 +
 +	mem = mmap(NULL, page_size, flags, MAP_SHARED, fd, 0);
 +	if (mem == MAP_FAILED || !mem) {
-+		fprintf(stderr, "unable to mmap secret memory:  %s\n", strerror(errno));
++		printf("unable to mmap secret memory:  %s\n", strerror(errno));
 +		close(fd);
 +		return EXIT_FAILURE;
 +	}
