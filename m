@@ -2,102 +2,172 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EEC0ECAAD4
-	for <selinux@archiver.kernel.org>; Wed, 31 Aug 2022 16:53:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 451C4ECAAD1
+	for <selinux@archiver.kernel.org>; Wed, 31 Aug 2022 17:03:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbiHaQxL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 Aug 2022 12:53:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
+        id S231226AbiHaRDG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 Aug 2022 13:03:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231522AbiHaQxJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 Aug 2022 12:53:09 -0400
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF984DB7DA
-        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 09:53:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1661964785; bh=ZCdWOAPS92e0L8p/nSC2kBeHBP1h4DoQBYzuNRI5u+U=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=C2Ta+o3Il5MP8bKvZbxOh+n9Q/l7S6LpGCk4RtspiXnWJOF/E03lTkYaNq78kUc654j8ZKzAPot3kx0l0o+nhs4oF0xVtIJ73AP9ZCB1Ou8bAYbijDzevQ3IKB2JVnXgA+SdBe5UCkncuwiRI3qoxW3m40RkV+xRuN9QhsVNySqXK5xo9/BNqCthWDO9JPcSrDFdvIkryAmdZRoEDu5kqwiMq6Mqt2XjnNwIkUA+QBJoFN5d6OM8bve5/QaO7UIXzYIP5yQg9zE6wt9mb+5lVQFdi4pNYyTlJiZg2EysSegjn0a142PDOtQrHnt4+qDH4JUQOWBl3+6d9WU/Kh37UA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1661964785; bh=8OplMxJbJkJZ9r7vM63IiotdRomZJCnDpbR8aoQxPjV=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=OselDFnnrcq47Vosf6n7SYy4PRFgzyCKVKQzwVo4fh/IvFnIOTlIuFI7LQb9Mtj1didxJlZssJ1udE8Kn/rFiJ4ZtnK6o2c4XLP09Y4yZrrkFjDUgOD7T1yQcuCDOf21UX6EvxuX5mZYC05y4xy4dhmfiJHXGlxEjNxKZu9cza1G4lHsYG1zydHYhsYuYQVuDZrzEdvo1WNHFXC90xM6ns3eSojAP/p3QTe/q7PuvYiIj9cBPC3f6F04NHzl1WB9NVXy8C6AXAcxoIU04mxJNcYdsehvrgh2+4Vpvd6QfpaJxUJcvBG+bQLYqUuZMtgfLPSh27Q2TCgEy1gnvaFUXg==
-X-YMail-OSG: 0RdEtYYVM1niEJJkXuqbzhxiFHwZuTcNFUqPOLFl2StBWLTKjYVHGBvQH5pOq_p
- oIg_pWVyilnlRqg5AUexGcZiwpNexJpoMS_tSso7KWebqnPBIN96mQKtBAIEy2ZCJuuN1IMrEcvg
- DWUc6EvkqRtY7WSooEnVfYnHQ6KhjaprU73SobbkYlzIToIRnldzcGNZRLOiSTUFFFSV6dINoBtH
- n.8_vPQNRglo_nvAi2scl_CgfnoSnE.KL1GxD0zNcH_2YKvQtkYMqP7k0me5qCeUqdJrnRF7_Bk0
- OEKjUS3WGUjilgOUFuHBS5uHGI9R1SgrxZOC1dZV4KcIW_rK.eSv0lgQMpgsfDg1tYM3I2RapQ6v
- cnA87UQWsl.lHCcc3d9tjuEvYRY28x7bbquAps0l15rojufio8nEI0XvLFCCSTQ1S81KXPBdMAwd
- rMCmChIUaNXJR5vcNdzXCO.QKKI4sET42AUvaOWicAqF1Az_XdzHUwVoAjJdT4QqCr3DDm59hUDc
- lmxWUKx45.d_JwjJq5y_m9PHpuAOzRjKfeV3VnrbE1JkKkfIrdVa0qKevDyKT7RIJ6tYXRuX6Oua
- yS_Mc0XcDUCNP07JmCxnntk3f2vAknWQRrhwmM5Vrvy.2Ms9I._afIZFdJoWMRO2EkUXDEpBUZnz
- HK0iJhIiJApFS9z0WcT.jFWwJqeqUNFT6S1IVrt2Xmq2waa9EvN4GCgUORQ1C5DQz9k1totxs8Gz
- YX.jEKFKv8HPxLKs5v10J3he_oszldXHwRRj8RmqZwSa_2KIoPGBBcvMjHYzGWc26Fn1gZu4jFlL
- 2Xg8Xn27PKCVYvifdaplV0T5GRXtLEdOmwd7MZsGeRKU9AbZ7Brki8a6Pgu8Bk6Z.PT9En1u9mZ6
- hzVT8zjjLVEh0htyosyYy.fh7g7vFasff6AyS4KycTrXGm9dmJRXuxvbzJdtqohbM0LFzhKJR7ue
- wY1bwY_PP4Im1zEuHcTGqBq6Vil.O289U01fqhzazTKT0TquvkM13r0X1.ekrxqdFTjHztMYcrsp
- vtjuhedblUf2xGrbKPOfj.Xzd3aEtFM8iXzYXzAtx2CThawlkU0fxK11ARAwC5Jj9DCyd5ggpJeG
- d07fKORhaRipG1I1Dhs25dc4JktSiJ5Uub86cf00Z5w4iIP7JAZqHDyJw2EKRCcAwUrVJI9mW.B8
- U0lDrjkNw1rboLGqudaMd7A22QD3j39ZZT_xFxitGQu05cEMOMdjK3UZ8IuBk.F_gFcQmFvynKAj
- xp3_8TZC67F8MEciunQi2hBp7T5s6Yaunh2iCKJjN1DrJbp4xddIK8UGDEfy5wH.e1Skd1IVGWEp
- Gqm7t4bmHKUjBDMBxj5tegDYqaUSAOuCESM9njYIyqhuE9IWW92dI8n7e..beQKMRV1_JYW4mSo2
- 64APWNT_eKsQsDcuZEPxrP_4mCd1_jnyUc7.1VXg6q5qV4jzQZnMQDlJ9lGLcjPD1TlR4eW9ntwB
- HJzE9BBKZ.lFxiKMQX5ye3VZ8HJQhGfhogV5zqGYkazBb77yeXQf2HDsll3P9nkhxOyZpZ6Z7oDX
- TqjW0GxdMaSFfAt1oz.oipn1wnk8xJ.NYl6D5EtcnnwohAYMDxYIQreNxeG1R8fkBEW32fC3dla0
- CW6WQ2UPNimUgQYK2OQLe9AJjd4iYIk.zn8K0PREZ.PvGxSISQs.059vfG3UbTj3oJKfD5baDUqY
- 13XhhZyBxESIDTXZfIXpKt7LC3oppuNnhvnd502v1YzSuh062OuA3NSsQCbWWTBNh34eUHKJb4fU
- NhHoWEo4FjRnk3YFC3eopsWCIAkJieaFuF.8m_ecsiBSMwQZYCn8mpgaXVBxFcyu41s17sRpWKP8
- xYPPC9ADuNZE9jo..36bd59PV_eFCmTzQbZq_5qNcIG.QCgQ6p3odgB3RRzvrL53Q8uuPjHd1jMY
- fesXh8ISBx9kK.zNp.dB8BpjYdKnuRlya9qwkvX.unJSRqC1R9Lp9yP6hkDZkFp9mna4R4Z0T0sm
- X9GtbG7JIteNAQ7zmDi7pOr0jlnhiTRq70lU5xHavJrjRx_S2XXpZsxXrxRnUvEvP2G.kGKZJ4ST
- xfWKec8HEUcTq1sY01Sd3BdevtMgSmnfl8wv6Lls2GoSt32LYHaVUPbEYAlbByCPSfndYNhG.iCb
- XCTFZTipebGqvsDC_OvINSi9w3t4ot2epPzUWjuzUal7B4FVy3ZmtNQKOCCRaV_T8n3BMBfMD2ox
- dc23fg2GtKd3yu1SyUYzq_HtBOd4YsacQfQ--
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Wed, 31 Aug 2022 16:53:05 +0000
-Received: by hermes--production-bf1-7586675c46-lmmdh (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 9f8c2b6d5afb29179a6b494874f2add6;
-          Wed, 31 Aug 2022 16:53:01 +0000 (UTC)
-Message-ID: <766a755d-bd43-22eb-7a90-970a807ea803@schaufler-ca.com>
-Date:   Wed, 31 Aug 2022 09:52:58 -0700
+        with ESMTP id S232088AbiHaRCb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 Aug 2022 13:02:31 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01E33DBE6
+        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 10:02:25 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id r4so19193954edi.8
+        for <selinux@vger.kernel.org>; Wed, 31 Aug 2022 10:02:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc;
+        bh=RU2j5g2s628OmU5PrM6O3dROxNbKg+UjEqkY3DRjNlY=;
+        b=qMJG1wJNwnDvnS3jyIi92K9WSKoafDhIV2f05hrrfcTQeeOW6aw3gnmP28u6AviLPQ
+         fwsXjSFh6hjdX5tVgha390+j2ZprNAfmreg9jZHgv2p5KU/kQKnoiMx5CRR7m8/la4gd
+         ZFt2lNRqIwfN4uqwqusTxw7tv1laqTj8hsDv53jtywj9RPK7lT6VCcCqeNA8S++mxNyE
+         8/p1zNhrOxOUOx03EKzjA8D3gz6e9LU9XHHZOvO6Lrqi1zFN7sQK0tfJbqX3RwhjOKam
+         bqdWpVLfwfbe+krFt0Iyci+dfl0GzX0u3OmpLlNEPwq6hauL9X/xCoe3AzI+knmD8KTt
+         ce3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc;
+        bh=RU2j5g2s628OmU5PrM6O3dROxNbKg+UjEqkY3DRjNlY=;
+        b=naA9Y2j6cEfc+TxWhwidIMVC3AYrpvuxxKWO3VwTGy0cw6cNoFfecyA2/96scd2pWR
+         DVesK9OLPgWXaVp4QOycqY8gtu4QCZ4fkm189cP6QVl1qWKzgp7uWfkLKEosZilSFYTg
+         hMTCV+Vmw0gbak9wgASMuxIGdv1MD6kdTxC6KXGLiqCxRV44n+PKV2CtnpMzZU5hWfnh
+         TFtKYzp5+2pFzKTljrh86jL+nRnzjyrMBSjweBVFi/e5l4k91sl/eIBOlvMb3bbTuvb4
+         nnPBZdBJYRgY8GYYDbf4QMvcZivGuEGsHiuLe1Q91Fxa4u7u2uwmgxUIvo+7taTp4X/J
+         Yv9Q==
+X-Gm-Message-State: ACgBeo2CHJli3CygWtXSrndWSemf5MCYRZw+11WEowsIr31komJWW/g0
+        4Js6MbvlV2GSDuf6rKzr25ln5cavSoQI0lDHn1A=
+X-Google-Smtp-Source: AA6agR6/Gwvk1fHLtpwtuztAb2oqltorsnYS0QWGEVgDKyIAfY+t/haOlbzPW6L2vGKjul7rhA71ICL4ztCJKsd1N8A=
+X-Received: by 2002:aa7:d58b:0:b0:448:e63d:ee5e with SMTP id
+ r11-20020aa7d58b000000b00448e63dee5emr5666669edq.236.1661965344300; Wed, 31
+ Aug 2022 10:02:24 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH v4] vfs, security: Fix automount superblock LSM init
- problem, preventing NFS sb sharing
-Content-Language: en-US
-To:     David Howells <dhowells@redhat.com>
-Cc:     Christian Brauner <brauner@kernel.org>, viro@zeniv.linux.org.uk,
-        Jeff Layton <jlayton@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Paul Moore <paul@paul-moore.com>, linux-nfs@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, dwysocha@redhat.com,
-        linux-kernel@vger.kernel.org, casey@schaufler-ca.com
-References: <89548338-f716-c110-0f85-3ef880bbd723@schaufler-ca.com>
- <c648aa7c-a49c-a7e2-6a05-d1dfe44b8fdb@schaufler-ca.com>
- <166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk>
- <20220826082439.wdestxwkeccsyqtp@wittgenstein>
- <1903709.1661849345@warthog.procyon.org.uk>
- <1535495.1661953720@warthog.procyon.org.uk>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <1535495.1661953720@warthog.procyon.org.uk>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20595 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <CAFPpqQHS_v7gqXsdCpE3LXA4JzL=-K0U7Q9jiGY5EqT6XCoQbg@mail.gmail.com>
+ <Ywc+pjOFkAEswVuQ@gardel-login> <CAFPpqQEva6Z339ZXKxF2=ueug7YFrsFD0Tk6W88cZQxx0sg7OQ@mail.gmail.com>
+ <CAHC9VhST2zg4w51KnxnsXp0CSULXtp9iRiXaJ18is2dtV55cdQ@mail.gmail.com>
+ <CAFPpqQECY2dFLy4qOcF83i_wE9VDJefrkhwYwuURyzStv32KDQ@mail.gmail.com>
+ <CAHC9VhQeyEW3aHAuLUKJSkXgEkVZis0xZAAP9J5sATAr24xG7Q@mail.gmail.com> <CAJ2a_DdgQUhCVWVDwOrT2GK3zJgBA-d58MN3cZk06Qiyrm13cw@mail.gmail.com>
+In-Reply-To: <CAJ2a_DdgQUhCVWVDwOrT2GK3zJgBA-d58MN3cZk06Qiyrm13cw@mail.gmail.com>
+From:   Ted Toth <txtoth@gmail.com>
+Date:   Wed, 31 Aug 2022 12:02:13 -0500
+Message-ID: <CAFPpqQHZUV0QLSiv145p6ntt1u6zCY7pNXDpyT-ny_dpo+vnhg@mail.gmail.com>
+Subject: Re: [systemd-devel] socket activation selinux context on create
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     Paul Moore <paul@paul-moore.com>, SELinux <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/31/2022 6:48 AM, David Howells wrote:
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Wed, Aug 31, 2022 at 9:55 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
->> No. I appreciate that you're including Smack as part of the effort.
->> I would much rather have the code working as you have it than have
->> to go in later and do it all from scratch. With luck I should be able
->> to get someone with a considerably lower level of expertise to work
->> on it.
-> Can I put you down as a Reviewed-by, then?
+> On Wed, 31 Aug 2022 at 02:47, Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > On Tue, Aug 30, 2022 at 6:04 PM Ted Toth <txtoth@gmail.com> wrote:
+> > > On Mon, Aug 29, 2022 at 4:22 PM Paul Moore <paul@paul-moore.com> wrot=
+e:
+> > > >
+> > > > On Thu, Aug 25, 2022 at 9:22 AM Ted Toth <txtoth@gmail.com> wrote:
+> > > > > I asked on the systemd-devel list about enabling systemd to set t=
+he
+> > > > > context of a socket and got the answer I've included below. I don=
+'t
+> > > > > know how a transition rule can be written to transition tcp socke=
+ts to
+> > > > > multiple different target contexts, is this possible and if so ho=
+w?
+>
+> What do you mean by "multiple different target contexts"?
 
-I haven't had a chance to test the changes. I wouldn't want to go
-so far as Reviewed-by without that. I don't think I'll be able to
-do the required setup for the test this week.
+Basically what I meant was that you cannot do the following since the
+source and target type are the same and there is no way to specify the
+socket other than if it were a UDS (a socket file):
+type_transition init_t init_t:tcp_socket app1_socket_t;
+type_transition init_t init_t:tcp_socket app2_socket_t;
+
+
+> How should they be different and how should systemd know?
+>
+> Socket unit configurations are normally paired with service unit
+> configurations (e.g. dovecot.socket <-> dovecot.service).
+> To handle incoming traffic the service unit configuration should
+> contain an ExecStart=3D directive, to start a program to handle the
+> data.
+> By default systemd tries at socket creation to predict the context of
+> the started program (via security_compute_create_raw(3) in
+> src/shared/selinux-util.c:mac_selinux_get_create_label_from_exe()),
+> see src/core/socket.c:socket_determine_selinux_label().
+>
+> For example if the service unit contains ExecStart=3D/usr/bin/myapp and
+> /usr/bin/myapp has the context myapp_exec_t and the policy contains
+> `type_transition init_t myapp_exec_t:process myapp_t` systemd should
+> assign the context myapp_t to the socket specified in the socket unit
+> configuration.
+
+I'll look at the code you reference but my experience is that the
+socket systemd is listening on is labeled init_t despite, as in your
+example above, the executable being labeled properly and transitioning
+to the type that I've specified, in the type_transition rule in the
+apps policy module, when it is run by systemd.
 
 >
-> David
->
+> > > >
+> > > > Ignoring setsockcreatecon(3) as that really isn't an option here,
+> > >
+> > > If we determine that policy can't be written to accomplish the
+> > > transition then maybe systemd will reconsider not wanting to set the
+> > > socket context using a .socket file option.
+> >
+> > I think the challenge is going to be having enough information when
+> > the socket is created to do any useful type transition.  I'm open to
+> > suggestions, but I'm skeptical there is anything we can do beyond the
+> > current approach.
+> >
+> > > > sockets created via socket(2) do check to see if there is a type
+> > > > transition defined in the policy.  In the case of a TCP socket the
+> > > > type transition would look something like this:
+> > > >
+> > > >   type_transition <domain> <domain>:tcp_socket <new_socket_type>
+> > > >
+> > > > ... so you can see there is not much one can select on other than t=
+he
+> > > > socket's object class.  The reason is that the socket(2) call itsel=
+f
+> > > > is rather spartan, with not even any clue as to if this is a client=
+ or
+> > > > server socket in the case of TCP.
+> > >
+> > > Having written many policy modules, some of which use the
+> > > type_transition statement for tcp_socket objects, I do not see how it
+> > > can be used to transition sockets created by systemd. And under this
+> > > circumstance I see that the selinux socket create hook would not be
+> > > able query the policy database for the port context since the port is
+> > > not known until the bind occurs but what about having the bind hook
+> > > set the socket context if it finds a sid for the port?
+> >
+> > The problem with waiting until the connect()/bind() is that you are
+> > effectively doing a relabel operation, which is a big no-no (but you
+> > already know that).  *Maybe* you could justify it in the special case
+> > of stream sockets, as I'm pretty sure there is no way to do anything
+> > useful with them as a data sink/source until they are either connected
+> > to a remote peer or bound to a local port, however, we would all need
+> > to think on that for a bit (it is still a relabel, and thus nasty) and
+> > probably spend some time staring at the code to make sure there is no
+> > way to do something sneaky with an unconnected or unbound stream
+> > socket.
+> >
+> > > > Taking a step back, what are you trying to do?  Perhaps there is
+> > > > another approach that would get you where you want to go.
+> > >
+> > > I want to create socket activation services using systemd and to have
+> > > the type of the socket being listened on be one that I've defined so
+> > > that I can write policy to control which source types can connect to
+> > > it.
+> >
+> > --
+> > paul-moore.com
