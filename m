@@ -2,55 +2,55 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57438ECAAD2
-	for <selinux@archiver.kernel.org>; Thu,  1 Sep 2022 19:59:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DE9DECAAD3
+	for <selinux@archiver.kernel.org>; Thu,  1 Sep 2022 19:59:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234825AbiIAT7P (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Sep 2022 15:59:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48402 "EHLO
+        id S232619AbiIAT7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Sep 2022 15:59:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234833AbiIAT66 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Sep 2022 15:58:58 -0400
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A911A9CCD6
-        for <selinux@vger.kernel.org>; Thu,  1 Sep 2022 12:58:39 -0700 (PDT)
-Received: by mail-io1-xd35.google.com with SMTP id d68so15523431iof.11
-        for <selinux@vger.kernel.org>; Thu, 01 Sep 2022 12:58:39 -0700 (PDT)
+        with ESMTP id S234747AbiIAT7N (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Sep 2022 15:59:13 -0400
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F68A91D0F
+        for <selinux@vger.kernel.org>; Thu,  1 Sep 2022 12:59:02 -0700 (PDT)
+Received: by mail-il1-x12a.google.com with SMTP id r7so25994ile.11
+        for <selinux@vger.kernel.org>; Thu, 01 Sep 2022 12:59:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=L1aNNmoPoXU1NQiM0KwIWzdVLbFvoBFMFAWT4vY2/90=;
-        b=R4gocWOB/8cr+W3DAOjyAkANLeQRDdpxAyUDe+ljKuRuW/f6ZGQFlRMqGkty9rYgl7
-         VqTauVDUweqOVzQrTntjgeVFmJqO+g8sUBDh047UCq1J8DDrg0UbOtl61bKq6ubqz5lU
-         YIGpWY01X4OMS8JeOHsH+uIYafA9MsS6q8L+zeSj+x5MZm2Vd0U6rXpuyEfxqXhf7ATP
-         A5NADyhamZGr29v4C/WNu9GSjvPaEpGyfvuOFJvUGvutD28ib3MJtRqs8C+y1cOwb4jD
-         gNqxfAPl5p0hpgwDGSRiWPUHQzfy1y5B0IZ4/B9KffByRIqH2T6DlUYtSDjmqBcjbu1H
-         UBmg==
+        bh=j0QS5OdP35l7sy/20J60rTBqmW3LOyEZ9jFCDWoWfoI=;
+        b=S4uq/NZyTTLCbTLJTNgQLDFjbs8OEbMmuU/8EI05niiTEmWkGAZLZEpSiwbshwPZGS
+         IAn05pvEWTu5eaN1S/v4paO/bTiJBGBaOo6ItHJtkj93FyXZR9gqpYGLNMH9mK5jyDCM
+         QH76wAAO6CIQaj+fhG+HB7TLjnlEsqmG0tbOs48UQDuPFcvd8mSQmKp1qJ9ncYv2xHSL
+         jb6e5gxhC+54fKNBGeFyq4m8Coi1RKH7+HDKSyG7iyVSPoK31k2PYDXIvVlDpHBawA/K
+         Bc7TTM8qYpvQNdeJhkKP/LuAmxUDfClGEGtNFglS6Xj1RlFF80ICw9VmqSZaSG9SDxdU
+         QfTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=L1aNNmoPoXU1NQiM0KwIWzdVLbFvoBFMFAWT4vY2/90=;
-        b=Wmtk8K1PjEahGOq43uPnOrGn0RzM8RziNSqQXDmQIeVpVGW02IWhiPA/wkh84JgZtK
-         kqKohvu1w9nayrOJSC85WfyAZFQ8Yx+6VkX9HDGLQm/WjVRQwptKphPG8Bzonoup0wgp
-         4zwS4ahBDLyU99RGORB2oa8Nf0J3hHEaDpPermw7oycWwFOnID7I3135feAhR3FCDGKk
-         cJUw2scMmtynJebetOinWLiDxY+4CWyut8HRS2oTGb+ivAYmjUh7nqy/SQmcYWvyBTjq
-         uA2DQVT6pYVfrCHHPiZhww8QHfh1M8Y33p1E+9fYOXbmcx70H+G1dTqJLctK24Sq7Ere
-         zXMA==
-X-Gm-Message-State: ACgBeo0Zz7DhUtoNoF0wnTyA/DYWWRvmmKNgfXoNU55ukKOPYoPqs1sQ
-        Filq9jn4ywQJ+YUu7lAXOBerMAS+QziUiUa6hekuDAKh
-X-Google-Smtp-Source: AA6agR5dMVzbjDWwqJ2n1hmmtLbQxxsYUPME5Vl4gDQU8dBm8eiAot+/jncWsaLwzpSC/KlU/BqF9ZwafwUtvmp4kdM=
-X-Received: by 2002:a6b:510d:0:b0:689:5a18:1150 with SMTP id
- f13-20020a6b510d000000b006895a181150mr15126682iob.73.1662062317746; Thu, 01
- Sep 2022 12:58:37 -0700 (PDT)
+        bh=j0QS5OdP35l7sy/20J60rTBqmW3LOyEZ9jFCDWoWfoI=;
+        b=FLU8o/0cZnQB3eVIK/+VP8waoNRNYmKx0UkZ7utETgdNKHJgvGiE6ohzMrb3+IxK27
+         KDyic+uNeYE1eMdonnrQ2RZW2yBGPyy480MP1B2Q+IHl/SqXOVgNZRo8mF+C2PeL80uc
+         f++WcdpT3gAevGA+9BaieAQTAYrPoNcO+oc2icDuxkPYcP/4v4RGh8viwFM/emFRVwlo
+         ZijledvwktXJYWKHyiaUOctAmAz0vCD+gppmEEhyge1KRIxxdOzXAb598kxTFgG+SRc+
+         UQdIfHKR0EHTuwJZnYJe4iRihIAqvCp1NrapO6QEThZ/PSVFn+Z2fg+hVho9BnN1em9x
+         4AQg==
+X-Gm-Message-State: ACgBeo28a3GoeEqt7TTFoYQCHQyxaExenyZdTJK5PtVt7MTmt1OMq1kz
+        R80yHYysN/iS6LvdRxGrQ4JphsM0ExRFcvV+xhEj66Fb
+X-Google-Smtp-Source: AA6agR4WYleeCjj618xdgjNU9WjnOWm8UbWj/SiIc9MW0N/t20V3fOjULaXmCF4ePoFSlQHoUpJDmmMkc00m0ih9Gmo=
+X-Received: by 2002:a05:6e02:194a:b0:2eb:7105:dd65 with SMTP id
+ x10-20020a056e02194a00b002eb7105dd65mr5915655ilu.20.1662062341946; Thu, 01
+ Sep 2022 12:59:01 -0700 (PDT)
 MIME-Version: 1.0
-References: <50b132b2-3adb-042b-647d-962baf228701@gmail.com> <CAP+JOzQDnCYLMop4XjAZViFbcuv-=fXhxN9z4dGS3VDwtn34wA@mail.gmail.com>
-In-Reply-To: <CAP+JOzQDnCYLMop4XjAZViFbcuv-=fXhxN9z4dGS3VDwtn34wA@mail.gmail.com>
+References: <89653753-717f-3ef9-9538-c90ad2aa62b1@gmail.com> <CAP+JOzT-kWKqTOGrYso7eWYh_4KBoUn61r_cPUGR8OvefxTVHw@mail.gmail.com>
+In-Reply-To: <CAP+JOzT-kWKqTOGrYso7eWYh_4KBoUn61r_cPUGR8OvefxTVHw@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 1 Sep 2022 15:58:26 -0400
-Message-ID: <CAP+JOzTStPBLbDG=Dj-WV29_9ZkiXnv5=rHdLZA9ATxuZd5SgQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] secilc/docs: fix syntax highlighting
+Date:   Thu, 1 Sep 2022 15:58:51 -0400
+Message-ID: <CAP+JOzSKUQaGXihRm+LJttCzdrHgu5N6MBZ8cekB9ocrtoL=eg@mail.gmail.com>
+Subject: Re: [PATCH 3/3] secilc/docs: disable pandoc default css for html docs
 To:     bauen1 <j2468h@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -58,14 +58,23 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 31, 2022 at 7:54 AM James Carter <jwcart2@gmail.com> wrote:
+On Wed, Aug 31, 2022 at 7:55 AM James Carter <jwcart2@gmail.com> wrote:
 >
 > On Sun, Aug 28, 2022 at 8:16 AM bauen1 <j2468h@googlemail.com> wrote:
 > >
-> > It appears that a recent version of pandoc (or the library it uses)
-> > changed where the lists are found in the XML or became more strict.
+> > Some time ago pandoc started shipping a default css file for html, while
+> > that is nice, it limits the max-width of the body element to 36em. We
+> > have a lot of tables, code examples, etc... in the manual that are too
+> > big for that, requiring constant scrolling.
 > >
-> > Move the lists to the right location in the document.
+> > See https://github.com/jgm/pandoc/blob/master/data/templates/styles.html
+> > for the default used.
+> >
+> > While some styling, perhaps even dark/light mode support in the CSS
+> > would be nice, I didn't manage to find a simple way to achieve this, so
+> > for now just disable the CSS.
+> >
+> > Expand the arguments for pandoc in the Makefile for better readability.
 > >
 > > Signed-off-by: Jonathan Hettwer (bauen1) <j2468h@gmail.com>
 >
@@ -77,368 +86,41 @@ Thanks,
 Jim
 
 > > ---
-> >   secilc/docs/secil.xml | 344 +++++++++++++++++++++---------------------
-> >   1 file changed, 172 insertions(+), 172 deletions(-)
+> >   secilc/docs/Makefile | 18 ++++++++++++++++--
+> >   1 file changed, 16 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/secilc/docs/secil.xml b/secilc/docs/secil.xml
-> > index b015490d..38d7b030 100644
-> > --- a/secilc/docs/secil.xml
-> > +++ b/secilc/docs/secil.xml
-> > @@ -2,182 +2,182 @@
-> >   <!-- https://docs.kde.org/trunk5/en/applications/katepart/highlight.html#katehighlight-xml-format -->
-> >   <!DOCTYPE language SYSTEM "language.dtd">
-> >   <language name="secil" section="Sources" extensions="*.cil" version="1" kateversion="2.4">
-> > -    <!--
-> > -        The keywords where extracted from libsepol/cil/src/cil.c sorted into the
-> > -        right lists and sorted alphabetically
-> > -    -->
-> > -    <list name="keywords_blockstart">
-> > -        <item>allow</item>
-> > -        <item>allowx</item>
-> > -        <item>auditallow</item>
-> > -        <item>auditallowx</item>
-> > -        <item>block</item>
-> > -        <item>blockabstract</item>
-> > -        <item>boolean</item>
-> > -        <item>booleanif</item>
-> > -        <item>category</item>
-> > -        <item>categoryalias</item>
-> > -        <item>categoryaliasactual</item>
-> > -        <item>categoryorder</item>
-> > -        <item>categoryset</item>
-> > -        <item>class</item>
-> > -        <item>classcommon</item>
-> > -        <item>classmap</item>
-> > -        <item>classmapping</item>
-> > -        <item>classorder</item>
-> > -        <item>classpermission</item>
-> > -        <item>classpermissionset</item>
-> > -        <item>common</item>
-> > -        <item>constrain</item>
-> > -        <item>context</item>
-> > -        <item>defaultrange</item>
-> > -        <item>defaultrole</item>
-> > -        <item>defaulttype</item>
-> > -        <item>defaultuser</item>
-> > -        <item>devicetreecon</item>
-> > -        <item>dontaudit</item>
-> > -        <item>dontauditx</item>
-> > -        <item>expandtypeattribute</item>
-> > -        <item>false</item>
-> > -        <item>filecon</item>
-> > -        <item>fsuse</item>
-> > -        <item>genfscon</item>
-> > -        <item>handleunknown</item>
-> > -        <item>ibendportcon</item>
-> > -        <item>ibpkeycon</item>
-> > -        <item>ioctl</item>
-> > -        <item>iomemcon</item>
-> > -        <item>ioportcon</item>
-> > -        <item>ipaddr</item>
-> > -        <item>level</item>
-> > -        <item>levelrange</item>
-> > -        <item>mls</item>
-> > -        <item>mlsconstrain</item>
-> > -        <item>mlsvalidatetrans</item>
-> > -        <item>netifcon</item>
-> > -        <item>neverallow</item>
-> > -        <item>neverallowx</item>
-> > -        <item>nodecon</item>
-> > -        <item>optional</item>
-> > -        <item>pcidevicecon</item>
-> > -        <item>perm</item>
-> > -        <item>permissionx</item>
-> > -        <item>pirqcon</item>
-> > -        <item>policycap</item>
-> > -        <item>portcon</item>
-> > -        <item>rangetransition</item>
-> > -        <item>role</item>
-> > -        <item>roleallow</item>
-> > -        <item>roleattribute</item>
-> > -        <item>roleattributeset</item>
-> > -        <item>rolebounds</item>
-> > -        <item>roletransition</item>
-> > -        <item>roletype</item>
-> > -        <item>selinuxuser</item>
-> > -        <item>selinuxuserdefault</item>
-> > -        <item>sensitivity</item>
-> > -        <item>sensitivityalias</item>
-> > -        <item>sensitivityaliasactual</item>
-> > -        <item>sensitivitycategory</item>
-> > -        <item>sensitivityorder</item>
-> > -        <item>sid</item>
-> > -        <item>sidcontext</item>
-> > -        <item>sidorder</item>
-> > -        <item>true</item>
-> > -        <item>tunable</item>
-> > -        <item>tunableif</item>
-> > -        <item>type</item>
-> > -        <item>typealias</item>
-> > -        <item>typealiasactual</item>
-> > -        <item>typeattribute</item>
-> > -        <item>typeattributeset</item>
-> > -        <item>typebounds</item>
-> > -        <item>typechange</item>
-> > -        <item>typemember</item>
-> > -        <item>typepermissive</item>
-> > -        <item>typetransition</item>
-> > -        <item>unordered</item>
-> > -        <item>user</item>
-> > -        <item>userattribute</item>
-> > -        <item>userattributeset</item>
-> > -        <item>userbounds</item>
-> > -        <item>userlevel</item>
-> > -        <item>userprefix</item>
-> > -        <item>userrange</item>
-> > -        <item>userrole</item>
-> > -        <item>validatetrans</item>
-> > -    </list>
-> > +    <highlighting>
-> > +        <!--
-> > +            The keywords where extracted from libsepol/cil/src/cil.c sorted into the
-> > +            right lists and sorted alphabetically
-> > +        -->
-> > +        <list name="keywords_blockstart">
-> > +            <item>allow</item>
-> > +            <item>allowx</item>
-> > +            <item>auditallow</item>
-> > +            <item>auditallowx</item>
-> > +            <item>block</item>
-> > +            <item>blockabstract</item>
-> > +            <item>boolean</item>
-> > +            <item>booleanif</item>
-> > +            <item>category</item>
-> > +            <item>categoryalias</item>
-> > +            <item>categoryaliasactual</item>
-> > +            <item>categoryorder</item>
-> > +            <item>categoryset</item>
-> > +            <item>class</item>
-> > +            <item>classcommon</item>
-> > +            <item>classmap</item>
-> > +            <item>classmapping</item>
-> > +            <item>classorder</item>
-> > +            <item>classpermission</item>
-> > +            <item>classpermissionset</item>
-> > +            <item>common</item>
-> > +            <item>constrain</item>
-> > +            <item>context</item>
-> > +            <item>defaultrange</item>
-> > +            <item>defaultrole</item>
-> > +            <item>defaulttype</item>
-> > +            <item>defaultuser</item>
-> > +            <item>devicetreecon</item>
-> > +            <item>dontaudit</item>
-> > +            <item>dontauditx</item>
-> > +            <item>expandtypeattribute</item>
-> > +            <item>false</item>
-> > +            <item>filecon</item>
-> > +            <item>fsuse</item>
-> > +            <item>genfscon</item>
-> > +            <item>handleunknown</item>
-> > +            <item>ibendportcon</item>
-> > +            <item>ibpkeycon</item>
-> > +            <item>ioctl</item>
-> > +            <item>iomemcon</item>
-> > +            <item>ioportcon</item>
-> > +            <item>ipaddr</item>
-> > +            <item>level</item>
-> > +            <item>levelrange</item>
-> > +            <item>mls</item>
-> > +            <item>mlsconstrain</item>
-> > +            <item>mlsvalidatetrans</item>
-> > +            <item>netifcon</item>
-> > +            <item>neverallow</item>
-> > +            <item>neverallowx</item>
-> > +            <item>nodecon</item>
-> > +            <item>optional</item>
-> > +            <item>pcidevicecon</item>
-> > +            <item>perm</item>
-> > +            <item>permissionx</item>
-> > +            <item>pirqcon</item>
-> > +            <item>policycap</item>
-> > +            <item>portcon</item>
-> > +            <item>rangetransition</item>
-> > +            <item>role</item>
-> > +            <item>roleallow</item>
-> > +            <item>roleattribute</item>
-> > +            <item>roleattributeset</item>
-> > +            <item>rolebounds</item>
-> > +            <item>roletransition</item>
-> > +            <item>roletype</item>
-> > +            <item>selinuxuser</item>
-> > +            <item>selinuxuserdefault</item>
-> > +            <item>sensitivity</item>
-> > +            <item>sensitivityalias</item>
-> > +            <item>sensitivityaliasactual</item>
-> > +            <item>sensitivitycategory</item>
-> > +            <item>sensitivityorder</item>
-> > +            <item>sid</item>
-> > +            <item>sidcontext</item>
-> > +            <item>sidorder</item>
-> > +            <item>true</item>
-> > +            <item>tunable</item>
-> > +            <item>tunableif</item>
-> > +            <item>type</item>
-> > +            <item>typealias</item>
-> > +            <item>typealiasactual</item>
-> > +            <item>typeattribute</item>
-> > +            <item>typeattributeset</item>
-> > +            <item>typebounds</item>
-> > +            <item>typechange</item>
-> > +            <item>typemember</item>
-> > +            <item>typepermissive</item>
-> > +            <item>typetransition</item>
-> > +            <item>unordered</item>
-> > +            <item>user</item>
-> > +            <item>userattribute</item>
-> > +            <item>userattributeset</item>
-> > +            <item>userbounds</item>
-> > +            <item>userlevel</item>
-> > +            <item>userprefix</item>
-> > +            <item>userrange</item>
-> > +            <item>userrole</item>
-> > +            <item>validatetrans</item>
-> > +        </list>
+> > diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
+> > index a03ebeed..7e2ba40e 100644
+> > --- a/secilc/docs/Makefile
+> > +++ b/secilc/docs/Makefile
+> > @@ -58,11 +58,25 @@ $(TMPDIR)/policy.cil: $(TESTDIR)/policy.cil
 > >
-> > -    <list name="function">
-> > -        <item>blockinherit</item>
-> > -        <item>call</item>
-> > -        <item>in</item>
-> > -        <item>macro</item>
-> > -    </list>
-> > +        <list name="function">
-> > +            <item>blockinherit</item>
-> > +            <item>call</item>
-> > +            <item>in</item>
-> > +            <item>macro</item>
-> > +        </list>
+> >   html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil secil.xml
+> >         mkdir -p $(HTMLDIR)
+> > -       $(PANDOC) --highlight-style=$(PANDOC_HIGHLIGHT_STYLE) --syntax-definition=secil.xml --standalone --metadata title="CIL Reference Guide" -t html $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil  -o $(HTMLDIR)/$(HTML_OUT)
+> > +       $(PANDOC) \
+> > +               --highlight-style=$(PANDOC_HIGHLIGHT_STYLE) \
+> > +               --syntax-definition=secil.xml \
+> > +               --standalone \
+> > +               --metadata title="CIL Reference Guide" \
+> > +               --metadata document-css=false \
+> > +               -t html \
+> > +               $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil \
+> > +               -o $(HTMLDIR)/$(HTML_OUT)
 > >
-> > -    <list name="operators">
-> > -        <item>and</item>
-> > -        <item>dom</item>
-> > -        <item>domby</item>
-> > -        <item>eq</item>
-> > -        <item>incomp</item>
-> > -        <item>neq</item>
-> > -        <item>not</item>
-> > -        <item>or</item>
-> > -        <item>range</item>
-> > -        <item>xor</item>
-> > -    </list>
-> > +        <list name="operators">
-> > +            <item>and</item>
-> > +            <item>dom</item>
-> > +            <item>domby</item>
-> > +            <item>eq</item>
-> > +            <item>incomp</item>
-> > +            <item>neq</item>
-> > +            <item>not</item>
-> > +            <item>or</item>
-> > +            <item>range</item>
-> > +            <item>xor</item>
-> > +        </list>
+> >   pdf: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil secil.xml
+> >         mkdir -p $(PDFDIR)
+> > -       $(PANDOC) --highlight-style=$(PANDOC_HIGHLIGHT_STYLE) --syntax-definition=secil.xml --standalone --toc $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil -o $(PDFDIR)/$(PDF_OUT)
+> > +       $(PANDOC) \
+> > +               --highlight-style=$(PANDOC_HIGHLIGHT_STYLE) \
+> > +               --syntax-definition=secil.xml \
+> > +               --standalone \
+> > +               --toc \
+> > +               $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil \
+> > +               -o $(PDFDIR)/$(PDF_OUT)
 > >
-> > -    <!-- list of "magic" functions or values -->
-> > -    <list name="builtins">
-> > -        <item>*</item>
-> > -        <item>all</item>
-> > -        <item>dccp</item>
-> > -        <item>false</item>
-> > -        <item>h1</item>
-> > -        <item>h2</item>
-> > -        <item>l1</item>
-> > -        <item>l2</item>
-> > -        <item>object_r</item>
-> > -        <item>r1</item>
-> > -        <item>r2</item>
-> > -        <item>r3</item>
-> > -        <item>sctp</item>
-> > -        <item>self</item>
-> > -        <item>t1</item>
-> > -        <item>t2</item>
-> > -        <item>t3</item>
-> > -        <item>tcp</item>
-> > -        <item>true</item>
-> > -        <item>u1</item>
-> > -        <item>u2</item>
-> > -        <item>u3</item>
-> > -        <item>udp</item>
-> > +        <!-- list of "magic" functions or values -->
-> > +        <list name="builtins">
-> > +            <item>*</item>
-> > +            <item>all</item>
-> > +            <item>dccp</item>
-> > +            <item>false</item>
-> > +            <item>h1</item>
-> > +            <item>h2</item>
-> > +            <item>l1</item>
-> > +            <item>l2</item>
-> > +            <item>object_r</item>
-> > +            <item>r1</item>
-> > +            <item>r2</item>
-> > +            <item>r3</item>
-> > +            <item>sctp</item>
-> > +            <item>self</item>
-> > +            <item>t1</item>
-> > +            <item>t2</item>
-> > +            <item>t3</item>
-> > +            <item>tcp</item>
-> > +            <item>true</item>
-> > +            <item>u1</item>
-> > +            <item>u2</item>
-> > +            <item>u3</item>
-> > +            <item>udp</item>
-> >
-> > -        <!--
-> > -            Excluded because they lead to a lot of false-positives
-> > -        <item>allow</item>
-> > -        <item>any</item>
-> > -        <item>char</item>
-> > -        <item>deny</item>
-> > -        <item>dir</item>
-> > -        <item>file</item>
-> > -        <item>glblub</item>
-> > -        <item>high</item>
-> > -        <item>low-high</item>
-> > -        <item>low</item>
-> > -        <item>pipe</item>
-> > -        <item>reject</item>
-> > -        <item>socket</item>
-> > -        <item>source</item>
-> > -        <item>symlink</item>
-> > -        <item>target</item>
-> > -        <item>task</item>
-> > -        <item>trans</item>
-> > -        <item>xattr</item>
-> > -        -->
-> > -    </list>
-> > -    <highlighting>
-> > +            <!--
-> > +                Excluded because they lead to a lot of false-positives
-> > +            <item>allow</item>
-> > +            <item>any</item>
-> > +            <item>char</item>
-> > +            <item>deny</item>
-> > +            <item>dir</item>
-> > +            <item>file</item>
-> > +            <item>glblub</item>
-> > +            <item>high</item>
-> > +            <item>low-high</item>
-> > +            <item>low</item>
-> > +            <item>pipe</item>
-> > +            <item>reject</item>
-> > +            <item>socket</item>
-> > +            <item>source</item>
-> > +            <item>symlink</item>
-> > +            <item>target</item>
-> > +            <item>task</item>
-> > +            <item>trans</item>
-> > +            <item>xattr</item>
-> > +            -->
-> > +        </list>
-> >           <contexts>
-> >               <context name="Normal" attribute="Normal" lineEndContext="#stay">
-> >                   <DetectChar attribute="Brackets" context="BlockStart" char="("/>
+> >   clean:
+> >         rm -rf $(HTMLDIR)
 > > --
 > > 2.36.1
 > >
