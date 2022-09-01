@@ -2,72 +2,108 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A74ECAAD4
-	for <selinux@archiver.kernel.org>; Wed, 31 Aug 2022 22:18:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25F5EECAAD1
+	for <selinux@archiver.kernel.org>; Thu,  1 Sep 2022 05:04:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230107AbiHaWR7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 Aug 2022 18:17:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45468 "EHLO
+        id S231359AbiIAFEf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Sep 2022 01:04:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbiHaWR6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 Aug 2022 18:17:58 -0400
+        with ESMTP id S229746AbiIAFEe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Sep 2022 01:04:34 -0400
 Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F191E9926;
-        Wed, 31 Aug 2022 15:17:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77C881157F5;
+        Wed, 31 Aug 2022 22:04:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:
-        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description;
-        bh=pYm+OJZ/TWf4BrwMl+a6D7AiKW4DyIXMD3Q3PmPJ9t0=; b=Pzy2DmyRzwYok40yKeubZLuOfD
-        iofNAjQR0rCmGUAnHyRPg1DUeZqX4rtrKajdqp7KCChT9q1TZhE4IXOIWLCAAolof17cZO42giknP
-        34awWlH9moDh09zBeOrYdHBQ3zVdWIywqsVKBNZmxn6ZLM9YX9K+hsinQEn5LVeaFSZDJBJViCzau
-        95mEf6y7V7bOdOtq7115ef9JW+1iS6GjFNGcoGBiX2vTqEW868ZqIpCx0cKYVJXfAULIij5EG1wcu
-        DEi7vJF52FMB2enDyiSWfqUsMO8w4ZXF7p/Y5f3Se1evmsSAMAqk5CdMIN1bP2AKQQYix9A1ycFoM
-        hBS0K+pA==;
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=9MgdM/4E/TOLmi5ouDu792LxVmllOqtYXJ7y3pATFgQ=; b=pSZCdMPw4gdcTYtt1r9bP+HAlK
+        gU+1IgMTmybd7HuQhOOMEkC6JigND3VXY7zlyLDvXJiSMswIBSVrQGt9s9NROjx8QZ18YBGuVNUv8
+        kdfGLL2VqDpbs77GqAQNt7PSgOP9rD2VAH610+zip0lIuDWyGW0WwOQETLLEaCaw529fi3UKzjQs5
+        s7/sJZoF5/ns40rXGoptnnJMNQ+8/A/9oGgnzn6dtYiI3rdntD6yqwUyebhsjcXKwRU3GNw7UGe0y
+        3Ti/O5aDOvsVO9na6UmeQnRUMSTrlibkrj+p1hRpypHQonh4ix9Bc8plfJl5W1Qrv0/sw8sOXzfFq
+        tf+YRkkA==;
 Received: from viro by zeniv.linux.org.uk with local (Exim 4.95 #2 (Red Hat Linux))
-        id 1oTW1y-00Akq9-PO;
-        Wed, 31 Aug 2022 22:17:54 +0000
-Date:   Wed, 31 Aug 2022 23:17:54 +0100
+        id 1oTcNI-00Ar6I-Sm;
+        Thu, 01 Sep 2022 05:04:21 +0000
+Date:   Thu, 1 Sep 2022 06:04:20 +0100
 From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [RFC PATCH 1/2] fs/xattr: add *at family syscalls
-Message-ID: <Yw/eEufm/QpKg5Pq@ZenIV>
-References: <20220830152858.14866-1-cgzones@googlemail.com>
- <20220830152858.14866-2-cgzones@googlemail.com>
+To:     David Howells <dhowells@redhat.com>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        linux-nfs@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, dwysocha@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] vfs, security: Fix automount superblock LSM init
+ problem, preventing NFS sb sharing
+Message-ID: <YxA9VJuQpQSgGnhB@ZenIV>
+References: <166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220830152858.14866-2-cgzones@googlemail.com>
+In-Reply-To: <166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk>
 Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-[linux-arch Cc'd for ABI-related stuff]
+On Wed, Aug 24, 2022 at 11:09:50AM +0100, David Howells wrote:
 
-On Tue, Aug 30, 2022 at 05:28:39PM +0200, Christian Göttsche wrote:
-> Add the four syscalls setxattrat(), getxattrat(), listxattrat() and
-> removexattrat() to enable extended attribute operations via file
-> descriptors.  This can be used from userspace to avoid race conditions,
-> especially on security related extended attributes, like SELinux labels
-> ("security.selinux") via setfiles(8).
-> 
-> Use the do_{name}at() pattern from fs/open.c.
-> Use a single flag parameter for extended attribute flags (currently
-> XATTR_CREATE and XATTR_REPLACE) and *at() flags to not exceed six
-> syscall arguments in setxattrat().
+What's the reason for difference between selinux and smack instances of
+context_init?  The former allocates only on submount, the latter -
+unconditionally...
 
-	I've no problems with the patchset aside of the flags part;
-however, note that XATTR_CREATE and XATTR_REPLACE are actually exposed
-to the network - the values are passed to nfsd by clients.
-See nfsd4_decode_setxattr() and
-        BUILD_BUG_ON(XATTR_CREATE != SETXATTR4_CREATE);
-	BUILD_BUG_ON(XATTR_REPLACE != SETXATTR4_REPLACE);
-in encode_setxattr() on the client side.
+> +static int selinux_fs_context_init(struct fs_context *fc,
+> +				   struct dentry *reference)
+> +{
+> +	const struct superblock_security_struct *sbsec;
+> +	const struct inode_security_struct *root_isec;
+> +	struct selinux_mnt_opts *opts;
+> +
+> +	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
+> +		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
+> +		if (!opts)
+> +			return -ENOMEM;
+> +
+> +		root_isec = backing_inode_security(reference->d_sb->s_root);
+> +		sbsec = selinux_superblock(reference->d_sb);
+> +		if (sbsec->flags & FSCONTEXT_MNT)
+> +			opts->fscontext_sid	= sbsec->sid;
+> +		if (sbsec->flags & CONTEXT_MNT)
+> +			opts->context_sid	= sbsec->mntpoint_sid;
+> +		if (sbsec->flags & DEFCONTEXT_MNT)
+> +			opts->defcontext_sid	= sbsec->def_sid;
+> +		fc->security = opts;
+> +	}
+> +
+> +	return 0;
+> +}
 
-	Makes me really nervous about constraints like that.  Sure,
-AT_... flags you are using are in the second octet and these are in
-the lowest one, but...
+> +/**
+> + * smack_fs_context_init - Initialise security data for a filesystem context
+> + * @fc: The filesystem context.
+> + * @reference: Reference dentry (automount/reconfigure) or NULL
+> + *
+> + * Returns 0 on success or -ENOMEM on error.
+> + */
+> +static int smack_fs_context_init(struct fs_context *fc,
+> +				 struct dentry *reference)
+> +{
+> +	struct superblock_smack *sbsp;
+> +	struct smack_mnt_opts *ctx;
+> +	struct inode_smack *isp;
+> +
+> +	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+> +	if (!ctx)
+> +		return -ENOMEM;
+> +	fc->security = ctx;
+> +
+> +	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
+> +		sbsp = smack_superblock(reference->d_sb);
+> +		isp = smack_inode(reference->d_sb->s_root->d_inode);
