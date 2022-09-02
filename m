@@ -2,227 +2,101 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 427EBECAAD2
-	for <selinux@archiver.kernel.org>; Fri,  2 Sep 2022 01:35:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28765C6FA81
+	for <selinux@archiver.kernel.org>; Fri,  2 Sep 2022 08:43:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234653AbiIBBfV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Sep 2022 21:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56430 "EHLO
+        id S235889AbiIBInJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Sep 2022 04:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231936AbiIBBfU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Sep 2022 21:35:20 -0400
-Received: from mail-oa1-x32.google.com (mail-oa1-x32.google.com [IPv6:2001:4860:4864:20::32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0AC47961B
-        for <selinux@vger.kernel.org>; Thu,  1 Sep 2022 18:35:17 -0700 (PDT)
-Received: by mail-oa1-x32.google.com with SMTP id 586e51a60fabf-11ee4649dfcso1587409fac.1
-        for <selinux@vger.kernel.org>; Thu, 01 Sep 2022 18:35:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date;
-        bh=jaxWGJ05CBTEiLoS2e5Z8hP+DMaic01fqmwKk8izU3g=;
-        b=h5I+k6VaPc5GzBADRDdOvKSE2BN/u0CZzDMYc2h1MvhVbI4di49XeiqMecNvb8QZRK
-         Dv8pmy8NJRG4WP5/K4V9zqWH9YgGoxf0eDP8H/qYp86Z+kMYrMTLFHEmDFg9yG4bIWII
-         773RnoY2lFhZht/gTaivJNiZHFrSA+F3eJcH7Ehf4YHAketIrlqIHxJN4aDspWtO/EJT
-         LtEvD1UfXPRh4XjMwuwHzSjnz7O9PBs6k9PVPTIcGp4I3rWFuUn8jjgqaB6CPuqwudMT
-         BVQf/WVzIe2mPk+19DZbVyCWbPUFzGshifztGbye9GDxIlnelNJmD2Isvctzca83lFJy
-         0sVQ==
+        with ESMTP id S235915AbiIBInB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Sep 2022 04:43:01 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871E9AF0E8
+        for <selinux@vger.kernel.org>; Fri,  2 Sep 2022 01:42:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1662108174;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=DgPczeZ6OvINEzZZnv/1WXPTqSrM4TMnwAvRUQsluhI=;
+        b=EQtrSMBvqZFaD8Ck3GT/a8D47sXl2HeGLoi8bMMnK1RqEOg7LHQQfmPue8yUYru4hsBkvH
+        sryygAVIsCAcMLE7YoMYuG3TmBthLPzzC9OEskodI105xgQZDxL15Hm2Yg4prwM5BaT/Qi
+        ZfUk6yOsTfSlS4Pg+73ufZBuBiBlnKM=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-292-n8r9e5EiNhmHsxenhRMR_g-1; Fri, 02 Sep 2022 04:42:50 -0400
+X-MC-Unique: n8r9e5EiNhmHsxenhRMR_g-1
+Received: by mail-ej1-f71.google.com with SMTP id sh44-20020a1709076eac00b00741a01e2aafso728943ejc.22
+        for <selinux@vger.kernel.org>; Fri, 02 Sep 2022 01:42:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=jaxWGJ05CBTEiLoS2e5Z8hP+DMaic01fqmwKk8izU3g=;
-        b=BaxTuPLafoFUoZC4D6tdOiZZ+EpL9q/gL8JsNeuspshbtH6NjvzcKdzxvDGlOjt0Zm
-         N/JDgZhv66/4ZS9YtwfYeyPhepsMdNbic2Spq2/tDAf0c+3QNSIxzNQLICLahx+jz5MH
-         0yYFA4HlxI4oBnyZbM/u4Qtp4wr1y4eOFQqcoJAXihs/d3eeRj38OgBoyB3ospZFQUhv
-         9ls+ePxJHk6QpeVahYFb7M3TKzlGZLNQGunvRq6YOhRtebgE/jdhLCg5lR8ZsLtcIDOn
-         62KfKOJBzOZPDlAt3V207e+s5v3OkVjOdR2SZtPhLCxpMrgfW0mbE7yZGDI1oBaXSTeL
-         PkcQ==
-X-Gm-Message-State: ACgBeo0QV9x4R0lZq7kJmJNQzmfPA1sfteudcMHemkgKt9q5MVXX+hg1
-        4e6Y4RlP8PwngHf3MCGDuT1gCY1jHCdz0si+Pg+B
-X-Google-Smtp-Source: AA6agR7xp8nLVThqF8nuicqqq1i6x82AyEKWYamSX7ZhZ6EZ3Owp1CnkutuH/9dz6/ZDbyylNnlwaN7TkDxevTyZjGI=
-X-Received: by 2002:a05:6808:bd1:b0:345:da59:d3ae with SMTP id
- o17-20020a0568080bd100b00345da59d3aemr956860oik.136.1662082516553; Thu, 01
- Sep 2022 18:35:16 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=DgPczeZ6OvINEzZZnv/1WXPTqSrM4TMnwAvRUQsluhI=;
+        b=HbECDGl7mO2zhpx8YRADpWoCpOfMUH+SHDu14Nka6eYyzxsN27iKJG9ee/K8tRiX0y
+         I9L3/lB1GIXWCNnNnmvBRjp8KZNdWzQk54O9bJ+KdpcUPL331vHhFFmU1Q7AjcrtaWz1
+         QiD41AoA0BjK2jm4yoqd0+sMPC13LGV2v0hXAJ9Tfrl+07q/o9OpemgRTpyv/cDPDFFY
+         Cj4LI2FfVCqWq/bTX4g/kKTY3vebDcyQlK3E1vr0X89MslTkMYxC84NpIOalMVwvB+5S
+         ewioR4m4arTI7MpV6y/QKdBWBMb/kg4NYrkdGVC9aCUYIPp5Zxgp3mbUgr3qk1n7SG3r
+         r3vQ==
+X-Gm-Message-State: ACgBeo1qDFfX4VUuTLwyF+y+jz2Lp2QKQyaPV/XSVVorqAIP6twl9wfG
+        C1Rf7xBQ3Sk/mknaZvtik7V0Ih2R2tawGS87y/yczt4B0YEFF0eNdL6tbGBkx4A14XoC7R6G6Xb
+        5uG6MZSsQ/9+axyjdSSeO0PsBG7xp5atyTbTGDz9wkMRATZF013XrvL3m3R0WHdX3Z7HIlw==
+X-Received: by 2002:a17:907:3e85:b0:73d:60cc:5d06 with SMTP id hs5-20020a1709073e8500b0073d60cc5d06mr27084315ejc.722.1662108169186;
+        Fri, 02 Sep 2022 01:42:49 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR4araYRlPJ47vSIg+XjPRJ3ERTHpLOSBNS9wT58/7OGpRUurwalEiyqDDou2fMdxtvETkFLcA==
+X-Received: by 2002:a17:907:3e85:b0:73d:60cc:5d06 with SMTP id hs5-20020a1709073e8500b0073d60cc5d06mr27084300ejc.722.1662108168963;
+        Fri, 02 Sep 2022 01:42:48 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id b13-20020a17090630cd00b007308812ce89sm864787ejb.168.2022.09.02.01.42.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Sep 2022 01:42:48 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Dennis Li <denli@redhat.com>
+Subject: [PATCH testsuite] tests/Makefile: add missing condition for userfaultfd test
+Date:   Fri,  2 Sep 2022 10:42:47 +0200
+Message-Id: <20220902084247.1042660-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-References: <20220502160030.131168-8-cgzones@googlemail.com>
- <20220615152623.311223-1-cgzones@googlemail.com> <20220615152623.311223-8-cgzones@googlemail.com>
- <CAHC9VhS8ASN+BB7adi=uoAj=LeNhiD4LEidbMc=_bcD3UTqabg@mail.gmail.com>
-In-Reply-To: <CAHC9VhS8ASN+BB7adi=uoAj=LeNhiD4LEidbMc=_bcD3UTqabg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 1 Sep 2022 21:35:05 -0400
-Message-ID: <CAHC9VhTRALdnO2JteNzt2j+4FK6DkKWMZ3q-dVPYVJ9_fvPBfw@mail.gmail.com>
-Subject: Re: [PATCH v3 1/8] capability: add any wrapper to test for multiple
- caps with exactly one audit message
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Serge Hallyn <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 1, 2022 at 8:56 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Wed, Jun 15, 2022 at 11:27 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Add the interfaces `capable_any()` and `ns_capable_any()` as an
-> > alternative to multiple `capable()`/`ns_capable()` calls, like
-> > `capable_any(CAP_SYS_NICE, CAP_SYS_ADMIN)` instead of
-> > `capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
-> >
-> > `capable_any()`/`ns_capable_any()` will in particular generate exactly
-> > one audit message, either for the left most capability in effect or, if
-> > the task has none, the first one.
-> >
-> > This is especially helpful with regard to SELinux, where each audit
-> > message about a not allowed capability will create an AVC denial.
-> > Using this function with the least invasive capability as left most
-> > argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables policy writer=
-s
-> > to only allow the least invasive one and SELinux domains pass this chec=
-k
-> > with only capability:sys_nice or capability:sys_admin allowed without
-> > any AVC denial message.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > ---
-> > v3:
-> >    - rename to capable_any()
-> >    - fix typo in function documentation
-> >    - add ns_capable_any()
-> > v2:
-> >    avoid varargs and fix to two capabilities; capable_or3() can be adde=
-d
-> >    later if needed
-> > ---
-> >  include/linux/capability.h | 10 +++++++
-> >  kernel/capability.c        | 53 ++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 63 insertions(+)
->
-> ...
->
-> > diff --git a/kernel/capability.c b/kernel/capability.c
-> > index 765194f5d678..ab9b889c3f4d 100644
-> > --- a/kernel/capability.c
-> > +++ b/kernel/capability.c
-> > @@ -435,6 +435,59 @@ bool ns_capable_setid(struct user_namespace *ns, i=
-nt cap)
-> >  }
-> >  EXPORT_SYMBOL(ns_capable_setid);
-> >
-> > +/**
-> > + * ns_capable_any - Determine if the current task has one of two super=
-ior capabilities in effect
-> > + * @ns:  The usernamespace we want the capability in
-> > + * @cap1: The capabilities to be tested for first
-> > + * @cap2: The capabilities to be tested for secondly
-> > + *
-> > + * Return true if the current task has at least one of the two given s=
-uperior
-> > + * capabilities currently available for use, false if not.
-> > + *
-> > + * In contrast to or'ing capable() this call will create exactly one a=
-udit
-> > + * message, either for @cap1, if it is granted or both are not permitt=
-ed,
-> > + * or @cap2, if it is granted while the other one is not.
-> > + *
-> > + * The capabilities should be ordered from least to most invasive, i.e=
-. CAP_SYS_ADMIN last.
-> > + *
-> > + * This sets PF_SUPERPRIV on the task if the capability is available o=
-n the
-> > + * assumption that it's about to be used.
-> > + */
-> > +bool ns_capable_any(struct user_namespace *ns, int cap1, int cap2)
-> > +{
-> > +       if (ns_capable_noaudit(ns, cap1))
-> > +               return ns_capable(ns, cap1);
-> > +
-> > +       if (ns_capable_noaudit(ns, cap2))
-> > +               return ns_capable(ns, cap2);
-> > +
-> > +       return ns_capable(ns, cap1);
->
-> I'm slightly concerned that some people are going to be upset about
-> making an additional call into the capabilities code with this
-> function.  I think we need to be a bit more clever here to take out
-> some of the extra work.
->
-> I wonder if we create a new capability function, call it
-> ns_capable_audittrue(...) or something like that, that only generates
-> an audit record if the current task has the requested capability ...
+The commit referenced below disables the test_userfaultfd.te policy when
+the anon_inode class is not defined in the system policy, but doesn't
+disable the test itself in this situation. Thus, on distros that don't
+define the class the test might be run and fail.
 
-To be clear, when I mean by generating an audit record when true is
-that the LSMs implementing the security_capable() hook would only call
-their audit related code when the capability requirement was met, in
-many cases that will *not* likely generate an audit record, but you
-get the basic idea I hope.  For SELinux this would likely mean
-modifying cred_has_capability() something like this ...
+Fix this by adding the same condition to tests/Makefile.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 03bca97c8b29..c1b7f0582d16 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1581,6 +1581,7 @@ static int cred_has_capability(const struct cred *cre=
-d,
-       u16 sclass;
-       u32 sid =3D cred_sid(cred);
-       u32 av =3D CAP_TO_MASK(cap);
-+       bool audit;
-       int rc;
+Fixes: 2b6ea9d2bc96 ("policy: remove CIL workarounds for missing anon_inode class")
+Reported-by: Dennis (Zhuoheng) Li <denli@redhat.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-       ad.type =3D LSM_AUDIT_DATA_CAP;
-@@ -1601,7 +1602,10 @@ static int cred_has_capability(const struct cred *cr=
-ed,
+diff --git a/tests/Makefile b/tests/Makefile
+index 8abd438..f473111 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -134,10 +134,12 @@ endif
+ endif
+ 
+ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && echo true),true)
++ifeq ($(shell grep -q anon_inode $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifeq ($(shell test -e $(INCLUDEDIR)/linux/userfaultfd.h && echo true),true)
+ SUBDIRS += userfaultfd
+ endif
+ endif
++endif
+ 
+ ifeq ($(shell grep -q vsock_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifeq ($(shell grep -qs VMADDR_CID_LOCAL $(INCLUDEDIR)/linux/vm_sockets.h && echo true),true)
+-- 
+2.37.2
 
-       rc =3D avc_has_perm_noaudit(&selinux_state,
-                                 sid, sid, sclass, av, 0, &avd);
--       if (!(opts & CAP_OPT_NOAUDIT)) {
-+       audit =3D !(opts & CAP_OPT_NOAUDIT);
-+       if (opts & CAP_OPT_AUDITTRUE)
-+               audit =3D !rc;
-+       if (audit) {
-               int rc2 =3D avc_audit(&selinux_state,
-                                   sid, sid, sclass, av, &avd, rc, &ad);
-               if (rc2)
-
-[There is likely a cleaner patch than the above, this was just mean as
-a demonstration]
-
-> ... if
-> the current task does not have the requested capability no audit
-> record is generated.  With this new function I think we could rewrite
-> ns_capable_any(...) like this:
->
->   bool ns_capable_any(ns, cap1, cap2)
->   {
->     if (ns_capable_audittrue(ns, cap1))
->       return true;
->     if (ns_capable_audittrue(ns, cap2))
->       return true;
->     return ns_capable(ns, cap1);
->   }
->
-> ... we would still have an extra capability check in the failure case,
-> but that's an error case anyway and not likely to draw much concern.
->
-> Of course this would require some additional work, meaning a new
-> CAP_OPT_XXX flag (CAP_OPT_AUDITTRUE?), and updates to the individual
-> LSMs.  However, the good news here is that it appears only SELinux and
-> AppArmor would need modification (the others don't care about
-> capabilities or audit) and in each case the modification to support
-> the new CAP_OPT_AUDITTRUE flag look pretty simple.
->
-> Thoughts?
->
-> > +}
-> > +EXPORT_SYMBOL(ns_capable_any);
-
---=20
-paul-moore.com
