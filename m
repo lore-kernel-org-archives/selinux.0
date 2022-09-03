@@ -2,143 +2,201 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1500DC38145
-	for <selinux@archiver.kernel.org>; Fri,  2 Sep 2022 23:57:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0CB7C6FA86
+	for <selinux@archiver.kernel.org>; Sat,  3 Sep 2022 03:58:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiIBX5c (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Sep 2022 19:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44844 "EHLO
+        id S231718AbiICD6g (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Sep 2022 23:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiIBX5b (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Sep 2022 19:57:31 -0400
-Received: from sonic302-28.consmr.mail.ne1.yahoo.com (sonic302-28.consmr.mail.ne1.yahoo.com [66.163.186.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38408DDA9A
-        for <selinux@vger.kernel.org>; Fri,  2 Sep 2022 16:57:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1662163049; bh=DHdoJVj06/18+5iHf/brrxOgHnjQxsi2kDDipOsvsmY=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=mxkQq/V3rFjqWgBamrOniPnLpXNUPROsfIgmhHuANFxfA4tgzNqBASudcOPYa3FT7M7B8iCOg7+2G9UVmPZiv+nIexw6a+EK/4Iy2hNTyRNnXtP77PcfPAlUAUgx+Q/8cowiRCbzLCqGZOXQNakt2J+H1qX+Qe/AaX6VDWyspDwIKP9I2Up2nteo/8fc8zZ4hX8iJA3dBI5NBkyqDJFAQVq9INrlpey1Ewx6GOFyVG7PHP4M0HRnh7o+b8ilKG3f7R2gtnjUDSdKAMD36PQpQ0mWSPcKuFwHLdombyMPH7yw2eEWEjPGHQgqZUJy2vco5aFSsZ1h/8tddpXyXk8ZHQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1662163049; bh=lzZ+BwleiJlTzulqcRaP0oz2+kLqOG1WXKPQ9D2HrAG=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=asblWkJnerzdk+aFEOGfsio6btf2aDnkM2akV53BmQdmFxGMuL+chBZ73OwM+Kagz65XhxTtNMUGWRVl+xSTRj71SWf37086wvRIEvAA2PwzHI+0N0Hz4WWW0ELie34Zym/4ZdomGWR5+YCsDevyPpvP75edLorWYLgK+Z/jQcPR3y56NjnwtErcqsuqMHC6skHgJLG2H+ZjCZ0Z1YK4p5x37y5JbPXGTN15oGFhNsxmd3XN8sCisbAdwTf7k7MFH3JHql1M4HAOQqtzXZ72UL/4hXgzkhYAtALEttEkaI6lSDvx3Q+rFiLxGnRhfD+5lSWP8p4tO7RLnnObyDoDXg==
-X-YMail-OSG: kIXA54YVM1lc1eZC9V8dkYgZANt6p66v6tjUXB.iX6FC95EVxbnaJPHItvXCzmn
- 1t8oWw_FXj5BoOjXie8SIZHO.Xal2ppKsMtZnt4KVoHNX6eXbXZR93jRNbRORarGcOpL8ZLWFzy8
- W8IgM3xAWnvhcjwEMbQOvtczXgG3nOellzboFHhWvuEPIQJNr36hgHRAl9YpPdWzSwZHi1qhuphz
- aFrxqmdPOGiNvQa59NjxDFvYl63f5QtR18ddj.kPZ1jmEFgxzfa1Bs95SzT0j2_wAklP.MSiSqW3
- kX9cZd.KNBQQz0rlPxf0bYF0tuAp8T1ALxu_aeWxalIbCTVIDu81KBGsrcXrmbmn2iYbGhCNpwiL
- 7sKY2UgyWwR4hHK4nlCPaGSa2PDTRdK0FNVZAl8hUlaI7RFbC_GL3VKZ0TfOUfCEA9GT5.PbQc4o
- .VP1q6iGcKh2ofhoMRWJJWcB4Dv3Lfqfm_odFYJmuA9xPAe8gaD9qw6y.qEA6X.qf49gxBrZ9l3k
- X8lwgoDg7dj1rvGNLmObVZtvb2ShyOtCT5v_6V.z_pwasdMRC9o.0mRa7dFNEr5KCOAOkCQTYvW3
- NFpSaA9wYXlyEp30nU9wVS8ibVincKPMIitpuiPKwnYyp.G.NoI2ylVS9G7Ju3Ud6dMgsqpH2eWH
- OINo0xmpPyBpcKiehihdnWDHl3QWwl6TGZJK5O.tdV1fx9VC8ZeXjBvcG0t68FUcwMC6i9Zc3gvO
- D2gORgiCjL7piOizZOue8ryBMvOvz3.QJJzxujJ9PfZoxmajyDmbjJgbcg5Ta7dVCpKy.Q2lxTIA
- 2hTFaIGDJqzNr9Yfk7vlB8v.UU9Y31Hviwfh8b1pxiuEQAV7wBPeZTjNWTLVHlYN45fFp974ryY6
- qVqE_4jplbYPvqC9Ecsz64OJtCr_kFzGRO6Grn.XkmGaTq1dSfCW9O6V64VMN15Gv0szg9bC7NYt
- rnPba6uEr37HUtksq1liprAUskukBA2yX.6555nR20fYe3PkAThRabdR3jmxQ9vIC13ZH0UiDyf.
- 7W2tm4NoIp0XPys5jSoPA8FB5C8HfzuSBGrqj07nHn26t2CqnEB8X8CZDQyVU6.UIZsfY_Pzh_XW
- 5OXpiijMS12UkdRppFuKLed9zVHt_R8fW89FpXRO4hXZmAPtcL6JjqWn51QoNcFb4f0LILKLFJYf
- 18289OUh_lscb4E3fehlceO_2o9gbEjpsW2JCt34vrBFNhOSIFA8tJ3MW_wWKnR.aRtel4X8gtxv
- YAN6j4wfRELBYVTN9.KVERj5txhPQcMSRf2FULiC83eY4AkiErDG.3HsDK7HcDQANFbDGAD.7Uza
- lIypB4Wt.st9oLjzAP.Yq6g1_9twCzNoiKdpUs.i2GFtW6ewbhyGo3V71CpIEmJTnEBlOvJx8cO2
- l1efHko64MrjTxH8fp2Pf8QyV7Il0MpgtWganGtZASTv9H8ONkzqIrNRA83YA.xJDrgQBloNFjK8
- AkhmRGZE8pRnV6vomLg_ndOrQc0yek1kihT8sP8FsJXYHhgA.oBgp2gSErOm40dwYRMCthvGWCrC
- i6ia2abxdD8MhiGLDC7ilZqLJE3roZNfKPsLQeahlwI_m6rUs7dnRv9SVcZxQ6_ZvWg75SMBJOow
- wKrv92Q_j.X7Zvj29J.ykOjglr4u608HFE3eJ6.6u4G8y5cfq2AH9y1KmTqdjHp0IYbsxORnGeTA
- lGBgZH7qEQkGK7A8Fff6KFxtHmBvwFazo3uTPGz8LUe_BWt.QaMUtbvWJvQyYoqlw.l2u8W9jF8v
- QeZ3EfvQwgk.qbGitrAVcfoCFRhEIYOLtpAWGGB_0hWLaA.mI76aSB8tR2EeSvfJJSYxhW06grET
- jHXVY1Zis2NhZOhKY0vjdBKXrCsiNnHlzZO_Ceg209q1wUX3LH.3oSANqZ.gBqBTFnRY2cbncwri
- iuJ8reXN1Tr5BmMhzB.9tql1AflHP.IMzCZ6jb0_mkylntR8WxFNyIK_hcfuDvg9BbWb7.hNysF5
- M05meZyupOrw7naA4ojHDtXHzg_hqUVAWDzHkP2J16UNG54BFZOZdzlDPvhHyLpJha8KcNnBS.8w
- Wkm69izP6V6diXnkWnFlr5oVqtYwJwlOwthQnpRDN9wi6miWsEaWrBtULqrGOHxVFK4nykcBuEI8
- ykxDAp3cxTqeIdxpq9e0UV5J7jAg5DtTfQIvNRsZTaJEIkDqKOLmJIid85nc8O.SzR_kmTGWd6S7
- 2J0zg6SUre3CKZ9iwErhHoazvJChznZp6WiGtjsUmrv4BhKKCzIrAxYiZYSN8N2LV1wXeATT1atc
- 5Qbwc7yZyR.143mk-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Fri, 2 Sep 2022 23:57:29 +0000
-Received: by hermes--production-ne1-544744cc75-fkh7w (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 0f5f3b3380822affbe3f1471f6cae7b8;
-          Fri, 02 Sep 2022 23:57:26 +0000 (UTC)
-Message-ID: <e4683932-a76d-b55a-713f-d0611f882667@schaufler-ca.com>
-Date:   Fri, 2 Sep 2022 16:57:24 -0700
+        with ESMTP id S231379AbiICD6e (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Sep 2022 23:58:34 -0400
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 416923ECDF;
+        Fri,  2 Sep 2022 20:58:31 -0700 (PDT)
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+        id E6017D39; Fri,  2 Sep 2022 22:58:28 -0500 (CDT)
+Date:   Fri, 2 Sep 2022 22:58:28 -0500
+From:   "Serge E. Hallyn" <serge@hallyn.com>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     "Serge E. Hallyn" <serge@hallyn.com>,
+        Song Liu <songliubraving@fb.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Frederick Lawler <fred@cloudflare.com>,
+        KP Singh <kpsingh@kernel.org>,
+        "revest@chromium.org" <revest@chromium.org>,
+        "jackmanb@chromium.org" <jackmanb@chromium.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>, Martin Lau <kafai@fb.com>,
+        Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>,
+        "eparis@parisplace.org" <eparis@parisplace.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        bpf <bpf@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Networking <netdev@vger.kernel.org>,
+        "kernel-team@cloudflare.com" <kernel-team@cloudflare.com>,
+        "cgzones@googlemail.com" <cgzones@googlemail.com>,
+        "karl@bigbadwolfsecurity.com" <karl@bigbadwolfsecurity.com>,
+        "tixxdz@gmail.com" <tixxdz@gmail.com>
+Subject: Re: [PATCH v5 0/4] Introduce security_create_user_ns()
+Message-ID: <20220903035828.GA23652@mail.hallyn.com>
+References: <CAHC9VhRqBxtV04ARQFPWpMf1aFZo0HP_HiJ+8VpXAT-zXF6UXw@mail.gmail.com>
+ <20220819144537.GA16552@mail.hallyn.com>
+ <CAHC9VhSZ0aaa3k3704j8_9DJvSNRy-0jfXpy1ncs2Jmo8H0a7g@mail.gmail.com>
+ <875yigp4tp.fsf@email.froward.int.ebiederm.org>
+ <CAHC9VhTN09ZabnQnsmbSjKgb8spx7_hkh4Z+mq5ArQmfPcVqAg@mail.gmail.com>
+ <0D14C118-E644-4D7B-84C0-CA7752DC0605@fb.com>
+ <20220826152445.GB12466@mail.hallyn.com>
+ <25C89E75-A900-42C7-A8E4-2800AA2E3387@fb.com>
+ <20220826210039.GA15952@mail.hallyn.com>
+ <20220829153304.nvhakybpkj7erpuc@wittgenstein>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: LSM stacking in next for 6.1?
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     LSM List <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
-        John Johansen <john.johansen@canonical.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
-        SElinux list <selinux@vger.kernel.org>, casey@schaufler-ca.com
-References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com>
- <CAHC9VhSF8hWg=7tbFiCrizNF61vpwJcU3793LcStiu-anW4i1g@mail.gmail.com>
- <CAHC9VhTDGwO789t59EyOV0SwnwGrdyBhRiuJpoY7cB4MSe02BQ@mail.gmail.com>
- <e2b6ae44-1037-666f-5012-6abd4d46c0b7@schaufler-ca.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <e2b6ae44-1037-666f-5012-6abd4d46c0b7@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20595 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220829153304.nvhakybpkj7erpuc@wittgenstein>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/2/2022 4:14 PM, Casey Schaufler wrote:
-> On 9/2/2022 2:30 PM, Paul Moore wrote:
-> ...
->> I think it's time to think about a proper set of LSM syscalls.
-> At the very least we need a liblsm that preforms a number of useful
-> functions
+On Mon, Aug 29, 2022 at 05:33:04PM +0200, Christian Brauner wrote:
+> On Fri, Aug 26, 2022 at 04:00:39PM -0500, Serge Hallyn wrote:
+> > On Fri, Aug 26, 2022 at 05:00:51PM +0000, Song Liu wrote:
+> > > 
+> > > 
+> > > > On Aug 26, 2022, at 8:24 AM, Serge E. Hallyn <serge@hallyn.com> wrote:
+> > > > 
+> > > > On Thu, Aug 25, 2022 at 09:58:46PM +0000, Song Liu wrote:
+> > > >> 
+> > > >> 
+> > > >>> On Aug 25, 2022, at 12:19 PM, Paul Moore <paul@paul-moore.com> wrote:
+> > > >>> 
+> > > >>> On Thu, Aug 25, 2022 at 2:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+> > > >>>> Paul Moore <paul@paul-moore.com> writes:
+> > > >>>>> On Fri, Aug 19, 2022 at 10:45 AM Serge E. Hallyn <serge@hallyn.com> wrote:
+> > > >>>>>> I am hoping we can come up with
+> > > >>>>>> "something better" to address people's needs, make everyone happy, and
+> > > >>>>>> bring forth world peace.  Which would stack just fine with what's here
+> > > >>>>>> for defense in depth.
+> > > >>>>>> 
+> > > >>>>>> You may well not be interested in further work, and that's fine.  I need
+> > > >>>>>> to set aside a few days to think on this.
+> > > >>>>> 
+> > > >>>>> I'm happy to continue the discussion as long as it's constructive; I
+> > > >>>>> think we all are.  My gut feeling is that Frederick's approach falls
+> > > >>>>> closest to the sweet spot of "workable without being overly offensive"
+> > > >>>>> (*cough*), but if you've got an additional approach in mind, or an
+> > > >>>>> alternative approach that solves the same use case problems, I think
+> > > >>>>> we'd all love to hear about it.
+> > > >>>> 
+> > > >>>> I would love to actually hear the problems people are trying to solve so
+> > > >>>> that we can have a sensible conversation about the trade offs.
+> > > >>> 
+> > > >>> Here are several taken from the previous threads, it's surely not a
+> > > >>> complete list, but it should give you a good idea:
+> > > >>> 
+> > > >>> https://lore.kernel.org/linux-security-module/CAHC9VhQnPAsmjmKo-e84XDJ1wmaOFkTKPjjztsOa9Yrq+AeAQA@mail.gmail.com/
+> > > >>> 
+> > > >>>> As best I can tell without more information people want to use
+> > > >>>> the creation of a user namespace as a signal that the code is
+> > > >>>> attempting an exploit.
+> > > >>> 
+> > > >>> Some use cases are like that, there are several other use cases that
+> > > >>> go beyond this; see all of our previous discussions on this
+> > > >>> topic/patchset.  As has been mentioned before, there are use cases
+> > > >>> that require improved observability, access control, or both.
+> > > >>> 
+> > > >>>> As such let me propose instead of returning an error code which will let
+> > > >>>> the exploit continue, have the security hook return a bool.  With true
+> > > >>>> meaning the code can continue and on false it will trigger using SIGSYS
+> > > >>>> to terminate the program like seccomp does.
+> > > >>> 
+> > > >>> Having the kernel forcibly exit the process isn't something that most
+> > > >>> LSMs would likely want.  I suppose we could modify the hook/caller so
+> > > >>> that *if* an LSM wanted to return SIGSYS the system would kill the
+> > > >>> process, but I would want that to be something in addition to
+> > > >>> returning an error code like LSMs normally do (e.g. EACCES).
+> > > >> 
+> > > >> I am new to user_namespace and security work, so please pardon me if
+> > > >> anything below is very wrong. 
+> > > >> 
+> > > >> IIUC, user_namespace is a tool that enables trusted userspace code to 
+> > > >> control the behavior of untrusted (or less trusted) userspace code. 
+> > > > 
+> > > > No.  user namespaces are not a way for more trusted code to control the
+> > > > behavior of less trusted code.
+> > > 
+> > > Hmm.. In this case, I think I really need to learn more. 
+> > > 
+> > > Thanks for pointing out my misunderstanding.
+> > 
+> > (I thought maybe Eric would chime in with a better explanation, but I'll
+> > fill it in for now :)
+> > 
+> > One of the main goals of user namespaces is to allow unprivileged users
+> > to do things like chroot and mount, which are very useful development
+> > tools, without needing admin privileges.  So it's almost the opposite
+> > of what you said: rather than to enable trusted userspace code to control
+> > the behavior of less trusted code, it's to allow less privileged code to
+> > do things which do not affect other users, without having to assume *more*
+> > privilege.
+> > 
+> > To be precise, the goals were:
+> > 
+> > 1. uid mapping - allow two users to both "use uid 500" without conflicting
+> > 2. provide (unprivileged) users privilege over their own resources
+> > 3. absolutely no extra privilege over other resources
+> > 4. be able to nest
+> > 
+> > While (3) was technically achieved, the problem we have is that
+> > (2) provides unprivileged users the ability to exercise kernel code
+> > which they previously could not.
+> 
+> The consequence of the refusal to give users any way to control whether
+> or not user namespaces are available to unprivileged users is that a
+> non-significant number of distros still carry the same patch for about
+> 10 years now that adds an unprivileged_userns_clone sysctl to restrict
+> them to privileged users. That includes current Debian and Archlinux btw.
 
-Which would include at least these. I used a different prefix so as
-to avoid confusion with Paul's proposal. As these aren't syscalls they
-may allocate memory. All can be done today.
+Hi Christian,
 
-struct lsm_context {
-	char *lsm;	/* security module name */
-	char *context;	/* value for this security module */
-};
+I'm wondering about your placement of this argument in the thread, and whether
+you interpreted what I said above as an argument against this patchset, or
+whether you're just expanding on what I said.
 
-struct lsm_contexts {
-	int count;
-	struct lsm_context contexts[];	/* I think this is ok these days */
-}
+> The LSM hook is a simple way to allow administrators to control this and
 
-/*
- * lsm_self_contexts - get the security context of this process
- *
- * Returns an allocated lsm_contexts structure, or NULL on error.
- */
-struct lsm_contexts *lsm_self_contexts(void)
+(I think the "control" here is suboptimal, but I've not seen - nor
+conceived of - anything better as of yet)
 
-/*
- * lsm_pid_contexts - get the security context of a process
- * @pid: process id of interest
- *
- * Returns an allocated lsm_contexts structure, or NULL on error.
- */
-strcut lsm_contexts *lsm_pid_contexts(int pid)
-
-/*
- * lsm_get_path_contexts - get the security context of a file
- * @path: path of interest
- *
- * Returns an allocated lsm_contexts structure, or NULL on error.
- */
-struct lsm_contexts *lsm_get_path_contexts(char *path)
-
-/*
- * lsm_set_path_contexts - set the security context of a file
- * @path: path of interest
- * @ctx: the context
- *
- * Note: needs to have deterministic behavior if 1st entry can be set
- * but 2nd can't.
- *
- * Returns 0 on success, a security module specific error on failure.
- */
-int lsm_set_path_contexts(char *path, struct *lsm_contexts)
-
-/*
- * lsm_free_contexts - free a lsm_contexts structure.
- */
-void lsm_free_contexts(struct *lsm_contexts)
-
-Also needs interfaces for SO_PEERSEC and SYSVIPC.
-
+> will allow user namespaces to be enabled in scenarios where they
+> would otherwise not be accepted precisely because they are available to
+> unprivileged users.
+> 
+> I fully understand the motivation and usefulness in unprivileged
+> scenarios but it's an unfounded fear that giving users the ability to
+> control user namespace creation via an LSM hook will cause proliferation
+> of setuid binaries (Ignoring for a moment that any fully unprivileged
+> container with useful idmappings has to rely on the new{g,u}idmap setuid
+> binaries to setup useful mappings anyway.) or decrease system safety let
+> alone cause regressions (Which I don't think is an applicable term here
+> at all.). Distros that have unprivileged user namespaces turned on by
+> default are extremely unlikely to switch to an LSM profile that turns
+> them off and distros that already turn them off will continue to turn
+> them off whether or not that LSM hook is available.
+> 
+> It's much more likely that workloads that want to minimize their attack
+> surface while still getting the benefits of user namespaces for e.g.
+> service isolation will feel comfortable enabling them for the first time
+> since they can control them via an LSM profile.
