@@ -2,154 +2,241 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66FE4ECAAA1
-	for <selinux@archiver.kernel.org>; Tue,  6 Sep 2022 21:25:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67406ECAAA1
+	for <selinux@archiver.kernel.org>; Tue,  6 Sep 2022 23:24:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229724AbiIFVZ5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Sep 2022 17:25:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
+        id S229628AbiIFXYo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Sep 2022 19:24:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbiIFVZ4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Sep 2022 17:25:56 -0400
-Received: from sonic306-28.consmr.mail.ne1.yahoo.com (sonic306-28.consmr.mail.ne1.yahoo.com [66.163.189.90])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B5D9D8E9
-        for <selinux@vger.kernel.org>; Tue,  6 Sep 2022 14:25:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1662499554; bh=qbYWQDebdKRJlSHglYHzK/lYxuJTssieTquIXMiJqDs=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=IpuK3K2aMK7ACIZsydS+8c1OLn/Cq3fQrwIyqz7mOWVB0+rgkEiq6reXFxZ59RYiX8Das3tH6QoCVbtGQMNVv+1s4J8YT44xWMMh64l3RH/+aTCAv+CTyyJ7S0oG1NaH6d1RoBi2AY1Qk4ajXzcJRYoFCYtbCTv3He5k5tFErwSWNIr9nwJ9KcK38ZxVMDJ+clytd/BgmWwGg7oXYV3ChVVlixwo15ji4zO+DpFIcBxT9Gs54B2qs+iXzR9byA6i33ELzZCfODCeXEhfPa5unU5Bf75khxC29hQo73TZlp6Mt+nNwiU3CAfLWDuUptwe8pN0P6ZIOAbDS6ajRkdp3Q==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1662499554; bh=SWg/MpF2G3YeG2aX8u62mCrMfojj/zhDE72YyCvBBQ1=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=My1Rph3yd03h7dsGSEEzfY2DWxTL0vGZeu5ytBG+dMVHnkFZQTdrg8fLCTCjVW6SuX1ROJq/5jfZ4dGauvEi82CsqMwIeGMICSLWHQH8PiM0XGIEyBuA7gEOVvYT5QjON//LRbp2PDj6hHC6/7IxlIuiuQzT9jIrvUJW0oziKy7QTaAiaX1KFVfEarl2I7MCSWGTsHs4jH8J6PVd6SM/QECvsR25zuSKxr1uOf8P/WVNoAo6OiByQDNhMMzkPgnkUxVKVq58t9G5uBEQi+f8eExtRzb4ilTArOX87TdWZ3vrDEeTbP0Puedx8SUcDKZRI3DRDnNUjXCTZ7ayligBIg==
-X-YMail-OSG: 5CZOJfAVM1k2WnEbX0x_0psYp7QfGw9zMxUAJ0a_qC18eCPYRiUAtDLetHhM0f2
- WgbR6o0EfiKLy1_pJuZNxdSPtOERXT6sKv96M4qF18K1lsvaHM42CiwS6NPbmMLL2BpbM038v2eA
- 1rpqioHAHkrU6cAv0k4eHz4MzahDZ8g41Qh6hrAKZNdbvJiVmtJWvdbN1D7Enu4GAoYgNtXDyyFG
- tlSeRr9yyid8xmYVMiu1rhXYG.NpS4XYQHaF1kZVhZMeTssQsYJRnYBEkASxEBIDPuaU6udyeEjp
- W7LiwKPPuA2_UPNiD619eZQYsDYcDFSd4mnTGzNOwQm4n4rC0kOHpUvo0CYjglH5bbqBdzrDwR4v
- PriH.EKGjp5duPfx0ZFSvSc7Hg4ubE9nX25asHtPZbQWCnB.lyNsZ5pUuHdnkYVZQyxWD4TROnom
- O4h7iLk3FbXXOK2qkkeHaV6HABoNh7vkp_Gypw9n_Lkq15JjX25ObOTerOpAllrw9jghskU9NCZ0
- G2JVImiZaLxcnq97MCxG9.3hFvuhioQMn1009UcGvgruHeMzv4c8QrrBU6Pv99bZZBa7sEPbNv_7
- A0attKJfzygfCsPbRMnWiNe42VzNHmJoVxjldS2tFoV5Qj0qJyNCDjvdn2pFouKmDy2_sHgmQper
- 97xpFaXodDP6OrrSx.T8vQ3bS46H3stFN4odEKLD5vPN5zPiMYx7cuAhMutIniOsqfhHZ1GBxqoy
- lVibE05WRkjRZGWjrWZHfZJdpXy6b2UZuMsMvRm4CwQe9kc1oHI1KFzl6z5CYetKql2cs5ObvwJ3
- gaPc0.nDBt7FjLSiK5R0uVkcN7tzA.lriLrFVGwxIiaUZvd3CuHKFY_MlHtG5cs_j3fscc8ZEElB
- JTfx.uHwTFvHvnj.og_Z6hjRlQRKHGgGiF6iePlVOzjOeoKHAxev3hTa6U3FurJxz99XlcTkSmG6
- g75goKZ6i59hsM5szDmiT7JMRSU8tF7ECDDDcXXN1pX8PCkuxVenI0_vY_Wds0r71cmJwsBgQbA2
- qCXUcnbQaAhJLLHQh.hqBf.pkbTLxlBBA8aocDTIQVygtZzUVk8qaJnKCp1q9o.izDx_pYH34vF.
- _xpp7sMNhUPS8XBVlOFK6JQmrRoiiVNcwQXvr8CmoE28Q9rq0T2z_5JDM7RWpxe9DRGFZBCtgRU4
- 96jsXWgQzsQbcvhJJgSr2burEhxjfL.Owz7zxx9sRiavBvnCBHb3.4XdNrHSyrAGHZgrI0MUIgxl
- lkGsMKHa_dHvnBtp0fOV690msIaJrrtRyN3cd979R8YYZ08Kegq0e.XHyHrCiBNqrj7G9VVj2rSC
- TqJZtURc59RtfKWXjtYSry_lPvSx8ohMB7bcFLU.P7rsLsGDJO4kjut1TvV6EvF_EnxRNlkyrzNC
- CRE3hks.xfDhG743VOOq9OTtYGZ6A62rvTDVD3FePfV.dnkADONYUeGiulFKEbJJ3FHCxq8nLgX5
- vHhqCYqsw3oaiN2ij_4FtEsbipYXAdUZKN_riWTKfESSFkF0x_4PBQJJXjjyrVJtnDN2T8xfZMqy
- HaGbTMowVql0owD4E7.509gi2_.hFqRaYWskZg9GgHi3an5OWCtchCiWvsaGv4xa0NFn_Zn3D1TI
- tVMgeCIu3kDWqj_WnadaBQidbnpBs5whWcuYTIRDgWw339evS12XUo5ECl_I71R3dJiGpcVuQh_8
- 0lZRqIh4hj2aNYjUeZ1O0bzIwyX2BX8YVFhoY8Q6V0ltfnKp4zbWuicb8nmyAyMzsArHvQ7NEsSk
- farc0ZcepiOYdfrjJNNdVqSbQgnWfrrEoVEzdv7AHmzcR0RQzS6MWclmSoJkzrIaw9U1ylpiwt0x
- bw0aMKDaYdkjPQY.wElsAipWdUtN4tXchO0UkmtP7YHWFhgad7aH9_MvriQpv6FLkjSHxrx.65Tm
- g66Uxs6Z1C5ZBN9Tz4a7xxsHLDTq7d9UwjymNu1d4.jnSExY_EpPYblJBA2A8S7iu5f_Kml67Cy4
- td.iDeqx7wQ5qIDkJjp7NfKXoYvcBK09Duoy8hxR_I5GcYh7VgaWN.wtyLe6vQUhVL_0o3Xwwx_w
- yxa30Nkt0_kanMC2hcbjqJ_Zo.4ARPOdebSSfwhbwW.iPpvg7iSs_CoqultgHzVexewg.KXZ4m3n
- gh8yBoK0TTIeKuN5ia.ZSgAS9kw8VMQiSJtCsKjTyAwkYk3DK5mO2ZfkffTo_Sfk14q2CnQgSog8
- xA1jeyAOSXabPtTmcsn0l_jCYe2fpaOiSyxeJkhJglEq3SZAXN_H_I.t2JmSOJ96ZEMIsLGsnxjE
- cBOT09URERJtG
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Tue, 6 Sep 2022 21:25:54 +0000
-Received: by hermes--production-ne1-544744cc75-mbjj6 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID e23b1e41a6d30c0e8282d8192ffa35bc;
-          Tue, 06 Sep 2022 21:25:49 +0000 (UTC)
-Message-ID: <c43c2289-71ad-2afa-fa5d-04e1276cfc47@schaufler-ca.com>
-Date:   Tue, 6 Sep 2022 14:25:47 -0700
+        with ESMTP id S229502AbiIFXYn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Sep 2022 19:24:43 -0400
+Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A5A1275E2
+        for <selinux@vger.kernel.org>; Tue,  6 Sep 2022 16:24:41 -0700 (PDT)
+Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-1274ec87ad5so17109196fac.0
+        for <selinux@vger.kernel.org>; Tue, 06 Sep 2022 16:24:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=8p5Fc7pSPsq8R7ajGeiRD8IAdGWenMvG+ZD15uyzypg=;
+        b=wwFvtxNJhnVAe+cQwcxDzhkJy2AuUDs2MTdMMWlD9b+Abpjg0uBAFcoqYj4sEBjvJW
+         lKSsE9oP6FTUWH8d6uEtlSFNahfELKWlx5HnaFIQbMzwlWyF20l7TMYz0m6Mk0UB3esP
+         iK/dLvOfKf1ZGTbwMJLrNDG7haHMyrY19fG8rgGd+KmwPdDlR/S5x4POyUlZTqunJDwv
+         7UZA5SZC+R8cTEurjqE91qlnrABbZcgJrRt0P34yp3Y2bi5NfUXD+3zRv9gobotb88bj
+         zdcgm1muzUydRpL2SRDk392X/Pn9JJ+50KdOTcLJpzzqCuiUjlEGU/E4ssIWZi/THAU0
+         FzKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=8p5Fc7pSPsq8R7ajGeiRD8IAdGWenMvG+ZD15uyzypg=;
+        b=2dYfdRYZ/lC8GVt9ec5yPuCWvWBJzsIvNyIr9UoUbE1uA7l+8nJxJiAVeglzArpm1i
+         NNHavziZMmmRAiY0cl6sPhiDDmVJCxcN3k8fkP5smGuwLbHnzi8+CHHN0ytigTTQXXKE
+         ruaR5NS/8/7zmH2UUKPODY2ekCgcGBYNfTod6r84WUbnXWOMe1PSVtAyqKuzUVW/WyIJ
+         ptNwjY9GnCFfIUQtVz2iaLVkVfcS64pxHzQPVh73db94Qd5Q/rTDsE536Py9oYJyw3L+
+         ppP6ciOAqytRPLL0CvF//YNgBR53DN/gM+NzAQElsnp3WhGWViZpzGtW76LrShLqwaX4
+         nYcw==
+X-Gm-Message-State: ACgBeo3rHhyPEsuSDvus8e/Nm+8jy7tXuRRguwM55eaBvNHMrM7+MyZB
+        98xiG5AtGhD4F+mRKRY6lbxnVQz4U8XlBUNeZ09T
+X-Google-Smtp-Source: AA6agR52aC/5HXfNMlhwJCdL9Ugf4bcjqkApWZYbGOgS38I2buZES0T0oxSDJNdqn9f3iYwAezOd4NkH/jgKA8cYbLQ=
+X-Received: by 2002:a05:6870:f2a1:b0:122:3d83:b14d with SMTP id
+ u33-20020a056870f2a100b001223d83b14dmr376342oap.136.1662506680469; Tue, 06
+ Sep 2022 16:24:40 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [v5.19.y PATCH 3/3] Smack: Provide read control for io_uring_cmd
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Luis Chamberlain <mcgrof@kernel.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-References: <166249766105.409408.12118839467847524983.stgit@olly>
- <166249823441.409408.621539815259290208.stgit@olly>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <166249823441.409408.621539815259290208.stgit@olly>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20612 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
+ <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com> <CAHC9VhSF8hWg=7tbFiCrizNF61vpwJcU3793LcStiu-anW4i1g@mail.gmail.com>
+ <CAHC9VhTDGwO789t59EyOV0SwnwGrdyBhRiuJpoY7cB4MSe02BQ@mail.gmail.com> <e2b6ae44-1037-666f-5012-6abd4d46c0b7@schaufler-ca.com>
+In-Reply-To: <e2b6ae44-1037-666f-5012-6abd4d46c0b7@schaufler-ca.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 6 Sep 2022 19:24:29 -0400
+Message-ID: <CAHC9VhQ+UcJw4G=VHNE8wMa+EBG-UcoZ7ox0vNqLHoSKAd9XZQ@mail.gmail.com>
+Subject: Re: LSM stacking in next for 6.1?
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     LSM List <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
+        John Johansen <john.johansen@canonical.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/6/2022 2:03 PM, Paul Moore wrote:
-> Backport the following upstream commit into Linux v5.19.y:
+On Fri, Sep 2, 2022 at 7:14 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 9/2/2022 2:30 PM, Paul Moore wrote:
+> > On Tue, Aug 2, 2022 at 8:56 PM Paul Moore <paul@paul-moore.com> wrote:
+> >> On Tue, Aug 2, 2022 at 8:01 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >>> I would like very much to get v38 or v39 of the LSM stacking for Apparmor
+> >>> patch set in the LSM next branch for 6.1. The audit changes have polished
+> >>> up nicely and I believe that all comments on the integrity code have been
+> >>> addressed. The interface_lsm mechanism has been beaten to a frothy peak.
+> >>> There are serious binder changes, but I think they address issues beyond
+> >>> the needs of stacking. Changes outside these areas are pretty well limited
+> >>> to LSM interface improvements.
+> >>
+> >> The LSM stacking patches are near the very top of my list to review
+> >> once the merge window clears, the io_uring fixes are in (bug fix), and
+> >> SCTP is somewhat sane again (bug fix).  I'm hopeful that the io_uring
+> >> and SCTP stuff can be finished up in the next week or two.
+> >>
+> >> Since I'm the designated first stuckee now for the stacking stuff I
+> >> want to go back through everything with fresh eyes, which probably
+> >> isn't a bad idea since it has been a while since I looked at the full
+> >> patchset from bottom to top.  I can tell you that I've never been
+> >> really excited about the /proc changes, and believe it or not I've
+> >> been thinking about those a fair amount since James asked me to start
+> >> maintaining the LSM.  I don't want to get into any detail until I've
+> >> had a chance to look over everything again, but just a heads-up that
+> >> I'm not too excited about those bits.
+> >
+> > As I mentioned above, I don't really like the stuff that one has to do
+> > to support LSM stacking on the existing /proc interfaces, the
+> > "label1\0label2\labelN\0" hack is probably the best (only?) option we
+> > have for retrofitting multiple LSMs into those interfaces and I think
+> > we can all agree it's not a great API.  Considering that applications
+> > that wish to become simultaneous multi-LSM aware are going to need
+> > modification anyway, let's take a step back and see if we can do this
+> > with a more sensible API.
 >
->     commit dd9373402280cf4715fdc8fd5070f7d039e43511
->     Author: Casey Schaufler <casey@schaufler-ca.com>
->     Date:   Tue Aug 23 16:46:18 2022 -0700
->
->     Smack: Provide read control for io_uring_cmd
->
->     Limit io_uring "cmd" options to files for which the caller has
->     Smack read access. There may be cases where the cmd option may
->     be closer to a write access than a read, but there is no way
->     to make that determination.
->
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> This is a compound problem. Some applications, including systemd and dbus,
+> will require modification to completely support multiple concurrent LSMs
+> in the long term. This will certainly be the case should someone be wild
+> and crazy enough to use Smack and SELinux together. Even with the (Smack or
+> SELinux) and AppArmor case the ps(1) command should be educated about the
+> possibility of multiple "current" values. However, in a container world,
+> where an Android container can run on an Ubuntu system, the presence of
+> AppArmor on the base system is completely uninteresting to the SELinux
+> aware applications in the container. This is a real use case.
 
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+If you are running AppArmor on the host system and SELinux in a
+container you are likely going to have some *very* bizarre behavior as
+the SELinux policy you load in the container will apply to the entire
+system, including processes which started *before* the SELinux policy
+was loaded.  While I understand the point you are trying to make, I
+don't believe the example you chose is going to work without a lot of
+other changes.
 
-> ---
->  security/smack/smack_lsm.c |   32 ++++++++++++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
+Regardless of the above example, I want to be clear that I'm not
+suggesting changes to the /proc interfaces.  Existing LSM aware
+applications that use procfs for information would continue to work as
+expected, it would just be the simul-multi-LSM aware applications that
+would need to transition to the new syscall API to get all of the LSM
+labels.
+
+> > I think it's time to think about a proper set of LSM syscalls.
 >
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 6207762dbdb1..b30e20f64471 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -42,6 +42,7 @@
->  #include <linux/fs_context.h>
->  #include <linux/fs_parser.h>
->  #include <linux/watch_queue.h>
-> +#include <linux/io_uring.h>
->  #include "smack.h"
->  
->  #define TRANS_TRUE	"TRUE"
-> @@ -4739,6 +4740,36 @@ static int smack_uring_sqpoll(void)
->  	return -EPERM;
->  }
->  
-> +/**
-> + * smack_uring_cmd - check on file operations for io_uring
-> + * @ioucmd: the command in question
-> + *
-> + * Make a best guess about whether a io_uring "command" should
-> + * be allowed. Use the same logic used for determining if the
-> + * file could be opened for read in the absence of better criteria.
-> + */
-> +static int smack_uring_cmd(struct io_uring_cmd *ioucmd)
-> +{
-> +	struct file *file = ioucmd->file;
-> +	struct smk_audit_info ad;
-> +	struct task_smack *tsp;
-> +	struct inode *inode;
-> +	int rc;
-> +
-> +	if (!file)
-> +		return -EINVAL;
-> +
-> +	tsp = smack_cred(file->f_cred);
-> +	inode = file_inode(file);
-> +
-> +	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_PATH);
-> +	smk_ad_setfield_u_fs_path(&ad, file->f_path);
-> +	rc = smk_tskacc(tsp, smk_of_inode(inode), MAY_READ, &ad);
-> +	rc = smk_bu_credfile(file->f_cred, file, MAY_READ, rc);
-> +
-> +	return rc;
-> +}
-> +
->  #endif /* CONFIG_IO_URING */
->  
->  struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
-> @@ -4896,6 +4927,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
->  #ifdef CONFIG_IO_URING
->  	LSM_HOOK_INIT(uring_override_creds, smack_uring_override_creds),
->  	LSM_HOOK_INIT(uring_sqpoll, smack_uring_sqpoll),
-> +	LSM_HOOK_INIT(uring_cmd, smack_uring_cmd),
->  #endif
->  };
->  
+> At the very least we need a liblsm that preforms a number of useful
+> functions, like identifying what security modules are available,
+> validating "contexts", fetching "contexts" from files and processes
+> and that sort of thing. Whether it is built on syscalls or /proc and
+> getxattr() is a matter of debate and taste.
+
+Why is it a forgone conclusion that a library would be necessary for
+basic operations?  If the kernel/userspace API is sane to begin with
+we could probably either significantly reduce or eliminate the need
+for additional libraries.  I really want us to attempt to come up with
+a decent kernel/userspace API to begin with as opposed to using the
+excuse of a userspace library to hide API sins that never should have
+been committed.
+
+The LSM stacking work presents us with a unique opportunity to
+modify/update/whatever the LSM kernel/userspace API, I don't want to
+see us squander this chance on a hack.
+
+> > While I realize syscalls are not the only kernel/userspace API option,
+> > but given the popularity of namespaces I believe a syscall based
+> > kernel/userspace LSM API has a number of advantages over the other
+> > options, e.g. procfs/sysfs, netlink, etc.
 >
+> You can't script syscalls.
+
+True.  However I don't see that as a blocker, trivial helper
+applications can be written for those who wish to incorporate the new
+syscall-based API into their scripts.  We would not be the first (or
+the last) in this regard.
+
+> A syscall interface is fine if you can also
+> update the entire system service application base for your distribution.
+> I don't see that as an option.
+
+Once again, I'm not talking about removing the existing procfs
+interface; existing applications would continue to work.  Only
+applications which wanted to be simul-multi-LSM aware would need to be
+modified, and those applications would need to be modified regardless
+of if the procfs or syscall-based API was used.
+
+> > Further, I think we can add the new syscall API separately from the
+> > LSM stacking changes as they do have standalone value.
+>
+> I agree, but unless the new system calls take stacking into account
+> from their inception they're just going to be another interface that
+> makes stacking harder to accomplish.
+
+They obviously would Casey, not only is that the context of the
+discussion but my dummy example clearly had support for multiple LSMs.
+
+> >   This would
+> > help reduce the size and complexity of the stacking patchset, which I
+> > believe would be a very good thing.
+>
+> The /proc interfaces interface_lsm and context are really pretty simple.
+
+They are now, they are also a bit of a mess with legacy constraints
+and they only get more complicated and messy with the LSM stacking
+patches.  It is my opinion that a syscall-based API is cleaner and
+easier for applications to use.
+
+> The addition of multiple subject labels to audit would be the same regardless
+> of /proc or syscall interfaces.
+
+Yes, that's why I didn't bring up audit as it doesn't weigh on this
+decision.  If you really want to include audit for some reason, I'll
+simply remind you that I pushed back hard on overloading the existing
+subj/obj fields with a multiplexed label format, asking for individual
+subj/obj fields for each LSM.
+
+> We'd still need multiple LSM data in most
+> security blobs. The conversion of LSM hook interfaces from secids to lsmblobs
+> would still be required. As would the conversion from string+len pairs to
+> lsmcontext structures.
+
+I'm not talking about kernel internal data structures Casey, I'm
+talking about the kernel/userspace API.
+
+> > Introducing the syscall API
+> > sooner would also allow any applications wanting to make use of the
+> > crazy new stacked-LSM world a head start as they could be modified
+> > while the kernel patches were making their way through the
+> > review/update/merge/release process.
+>
+> A liblsm based on the /proc interfaces would address that as well.
+
+Perhaps a liblsm library would be useful for other reasons beyond this
+discussion, but I don't want to use a userspace library as an excuse
+to support an awful kernel/userspace API.
+
+> > Thoughts?
+>
+> I wish you'd suggested this three years ago, when I could have done
+> something with it. If stacking has to go on a two year redesign because
+> of this it is dead.
+
+I've never liked the combined label interfaces, see the mention of
+audit in this email above.  I'm sure if you wanted to dig through all
+of the mail archives I'm sure I've probably mentioned my dislike of
+the combined label interface in procfs too; if not on the mailing list
+then surely in-person at some point.  However, regardless of all that,
+the key difference is that prior to a few months ago I didn't have to
+worry about it quite as much as I do now.  Now I'm responsible for
+standing up for the code that goes into the LSM tree and that means
+both defending it as "good" and maintaining it long term; prior to a
+few months ago that was, politely, "not my problem" :)
+
+I can't currently in good conscience defend the kernel/userspace
+combined label interfaces as "good", especially when we have a very
+rare opportunity to do better.
+
+-- 
+paul-moore.com
