@@ -2,159 +2,118 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2CA2C38145
-	for <selinux@archiver.kernel.org>; Thu,  8 Sep 2022 21:29:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D74F7C38145
+	for <selinux@archiver.kernel.org>; Thu,  8 Sep 2022 21:55:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230113AbiIHV3B (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Sep 2022 17:29:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59334 "EHLO
+        id S229586AbiIHVzD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Sep 2022 17:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230110AbiIHV3B (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Sep 2022 17:29:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB74B12BF8F;
-        Thu,  8 Sep 2022 14:28:59 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76227B8227A;
-        Thu,  8 Sep 2022 21:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951ABC433D7;
-        Thu,  8 Sep 2022 21:28:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662672537;
-        bh=8BG00Ui0XCYKmIGrfXTiU+9vJX4lfArhOhJGZy81nAw=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=ne6b6Bi+ax2OxGCTCqWVLYvwea/UgfMwu9qEYjWK3rATdAKmP+JemQ3Ozp+gNzKL9
-         50uV+j/rsb9v3q6vCUqQqU4gEBfftEPkNiyNQXX95pRRu/VKMPe/MFc0nrkUE6yU4b
-         4yXLX2M7o6z02icKsTbtt+Jh0VSl/kegXKQTNa3mBIqzny/fmNOc4yrnTYB8PpmYA6
-         CjDEfKPFGIM97ylUaKsFUjCv5R0snL7VKKdY3UJGYVRhSmB2S3ygzne6RZsBrfhR10
-         +4TKezFw0OGyzgF35+uiZnm4N2HH1lhZ33HK1b3A8YkM4L/9fCGRdRrNbemm+y0Ryc
-         JwLQUjUcHPunw==
-Message-ID: <ecdcccf000dc5a38a08ccabbe72b5bab6b53a62f.camel@kernel.org>
-Subject: Re: Does NFS support Linux Capabilities
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Chuck Lever III <chuck.lever@oracle.com>
-Cc:     battery dude <jyf007@gmail.com>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Date:   Thu, 08 Sep 2022 17:28:55 -0400
-In-Reply-To: <9DD9783E-0360-4EC0-B14A-A50B5176859D@oracle.com>
-References: <CAMBbDaF2Ni0gMRKNeFTQwgAOPPYy7RLXYwDJyZ1edq=tfATFzw@mail.gmail.com>
-         <1D8F1768-D42A-4775-9B0E-B507D5F9E51E@oracle.com>
-         <2b75d8b1b259f5d8db19edba4b8bbd8111be54f4.camel@kernel.org>
-         <9DD9783E-0360-4EC0-B14A-A50B5176859D@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
+        with ESMTP id S229476AbiIHVzC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Sep 2022 17:55:02 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68B945988
+        for <selinux@vger.kernel.org>; Thu,  8 Sep 2022 14:55:00 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id z8so26401835edb.6
+        for <selinux@vger.kernel.org>; Thu, 08 Sep 2022 14:55:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=gI4IfYMJNuKYpleQD26KZGeJ3SsALiVd5iEEEXdrgCM=;
+        b=VSZcOQFf1vq9VKJKEnjRUjXGoqOVA1wRw8JL2FklR3KGIi+eXZjw0xMq4qws00Cb74
+         OY4EqUlwd1UXos7aqZs9aG51fRi0bVrGAUsTm6whItXOhp+V+HTFfj4wVfEtVyD4aKA3
+         owRoCv6nEdqcJfhtZmk6s4fBi8yufZxpMwGbUCOcKTRqzbIb8auwV0PNZhY032JBgEry
+         sSr/Ekmm8FwjtYiNN2NdOz4FEmfnsFbmTQNsziShlgOT7O0qkwZwyk1kwzJPZ+ncOQHB
+         GUCExtDtUsy86xHP1pSrkSVJ7GRqMdbi8Q26Osp9p9TlIgl/lXQbhrSTk4tFmTmIhfvx
+         loCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=gI4IfYMJNuKYpleQD26KZGeJ3SsALiVd5iEEEXdrgCM=;
+        b=fDDw6OFMB7L5yX1nWujvwa+L4mcy7fsVKWNpPx1kgjxnueGoTDMcWY9u2Nu8Sr9qK/
+         xrxB1S0Q9VpFpZR+yUKfn0RoWX2MB28YBtotYPfH+BF9tzKiyxSvoqLGH6erYXDhlvld
+         6gyso6+roVQL0fuH2ROmy11qbTqnjmspTg0AwLZWpIP20KDUICySHMt4fkRDFwAK0IAJ
+         ktPfZs8l4abJ786zctfKKB0wpt0PZh669dr+EUFLTU3cmuNkSBaPbfLIekaByeNCQGUY
+         roSIQHWZeAa8YmrktuOAmt6sJ2fFGgysYhbUhtc7bzGskL8Xht8Z756pJn5bCssPNbP9
+         SmGg==
+X-Gm-Message-State: ACgBeo0toJ+OcFZ2wDNeEK3cFxy29eYEcD7rrBSRq/PKDLsZO+b6VfX0
+        kSoC16Qa/TrnLbDaF1rPlltKW38Mt3aJ9ODU2Gaf3G2/
+X-Google-Smtp-Source: AA6agR70UIIimNRcFh+gvKyRyGDBuKHRoTdnFcN+VMgBaABL2LTqH6jD77w9Ed9LWPfjZURNpGdNI2zIlesNcJOm7uI=
+X-Received: by 2002:a05:6402:b85:b0:44e:dad7:3e24 with SMTP id
+ cf5-20020a0564020b8500b0044edad73e24mr9194362edb.264.1662674099196; Thu, 08
+ Sep 2022 14:54:59 -0700 (PDT)
 MIME-Version: 1.0
+References: <CAFPpqQE4isJqSmSOozWdKRN1rmt7_6sG_9VsroD-zjfQzWYqEQ@mail.gmail.com>
+ <87a67ac398.fsf@defensec.nl> <CAHC9VhTioQVN28CZmcwdcTeZ_WOA77ovXMk0xqdzF+HXeZMCpQ@mail.gmail.com>
+ <CAFPpqQGmo8zt4h3aLy7j8rkzZA4cKM8D2DbkVStBre9b17dvdg@mail.gmail.com>
+ <CAFPpqQEoAcmpQALgD9S5ZYnd2KVSPOtsBaC67t3VLv9uS3KRbw@mail.gmail.com> <CAFqZXNus2pSv4=oxm-Mj+vz0D2TDNqiG6tf_--CSo5OcExK74Q@mail.gmail.com>
+In-Reply-To: <CAFqZXNus2pSv4=oxm-Mj+vz0D2TDNqiG6tf_--CSo5OcExK74Q@mail.gmail.com>
+From:   Ted Toth <txtoth@gmail.com>
+Date:   Thu, 8 Sep 2022 16:54:48 -0500
+Message-ID: <CAFPpqQGNtG9yj5i4mRUvTXx5AveC1a8NoE36T61jrLXD1=2duQ@mail.gmail.com>
+Subject: Re: context of socket passed between processes
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Dominick Grift <dominick.grift@defensec.nl>,
+        SELinux <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2022-09-08 at 21:17 +0000, Chuck Lever III wrote:
->=20
-> > On Sep 8, 2022, at 5:03 PM, Jeff Layton <jlayton@kernel.org> wrote:
-> >=20
-> > On Thu, 2022-09-08 at 20:24 +0000, Chuck Lever III wrote:
-> > > [ This question comes up on occasion, so I've added a few interested
-> > >  parties to the Cc: list ]
-> > >=20
-> > > > On Sep 8, 2022, at 8:27 AM, battery dude <jyf007@gmail.com> wrote:
-> > > >=20
-> > > > According to https://access.redhat.com/solutions/2117321 this artic=
-le,
-> > > > I want to ask, how to make NFS support the penetration of Linux
-> > > > Capabilities
-> > >=20
-> > > That link is access-limited, so I was able to view only the top
-> > > few paragraphs of it. Not very open, Red Hat.
-> > >=20
-> > > TL;DR: I looked into this while trying to figure out how to enable
-> > > IMA on NFS files. It's difficult for many reasons.
-> > >=20
-> > >=20
-> > > A few of these reasons include:
-> > >=20
-> > > The NFS protocol is a standard, and is implemented on a wide variety
-> > > of OS platforms. Each OS implements its own flavor of capabilities.
-> > > There's no way to translate amongst the variations to ensure
-> > > interoperation. On Linux, capabilities(7) says:
-> > >=20
-> > > > No standards govern capabilities, but the Linux capability implemen=
-tation is based on the withdrawn POSIX.1e draft standard; see =E2=9F=A8http=
-s://archive.org/details/posix_1003.1e-990310=E2=9F=A9.
-> > >=20
-> > > I'm not sure how closely other implementations come to implementing
-> > > POSIX.1e, but there are enough differences that interoperability
-> > > could be a nightmare. Anything Linux has done differently than
-> > > POSIX.1e would be encumbered by GPL, making it nearly impossible to
-> > > standardize those differences. (Let alone the possible problems
-> > > trying to cite a withdrawn POSIX standard in an Internet RFC!)
-> > >=20
-> > > The NFSv4 WG could invent our own capabilities scheme, just as was
-> > > done with NFSv4 ACLs. I'm not sure everyone would agree that effort
-> > > was 100% successful.
-> > >=20
-> > >=20
-> > > Currently, an NFS server bases its access control choices on the
-> > > RPC user that makes each request. We'd have to figure out a way to
-> > > enable NFS clients and servers to communicate more than just user
-> > > identity to enable access control via capabilities.
-> > >=20
-> > > When sending an NFS request, a client would have to provide a set
-> > > of capabilities to the server so the server can make appropriate
-> > > access control choices for that request.
-> > >=20
-> > > The server would have to report the updated capset when a client
-> > > accesses and executes a file with capabilities, and the server
-> > > would have to trust that its clients all respect those capsets
-> > > correctly.
-> > >=20
-> > >=20
-> > > Because capabilities are security-related, setting and retrieving
-> > > capabilities should be done only over networks that ensure
-> > > integrity of communication. So, protection via RPC-with-TLS or
-> > > RPCSEC GSS with an integrity service ought to be a requirement
-> > > both for setting and updating capabilities and for transmitting
-> > > any protected file content. We have implementations, but there
-> > > is always an option of not deploying this kind of protection
-> > > when NFS is actually in use, making capabilities just a bit of
-> > > security theater in those cases.
-> > >=20
-> > >=20
-> > > Given these enormous challenges, who would be willing to pay for
-> > > standardization and implementation? I'm not saying it can't or
-> > > shouldn't be done, just that it would be a mighty heavy lift.
-> > > But maybe other folks on the Cc: list have ideas that could
-> > > make this easier than I believe it to be.
-> > >=20
-> > >=20
-> >=20
-> > I'm not disputing anything you wrote above, and I clearly haven't
-> > thought through the security implications, but I wonder if we could
-> > piggyback this info onto security label support somehow? That already
-> > requires a (semi-opaque) per-inode attribute, which is mostly what's
-> > required for file capabilities.
->=20
-> That was the starting idea for accessing IMA metadata on NFS until
-> we discovered that NFSv4 security labels are intended to enable only
-> a single label per file. Capabilities are often present with SELinux
-> labels.
->=20
-> It would work for a proof of concept, though.
->=20
+On Thu, Sep 8, 2022 at 9:28 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Thu, Sep 8, 2022 at 4:15 PM Ted Toth <txtoth@gmail.com> wrote:
+> >
+> > On Thu, Sep 8, 2022 at 8:43 AM Ted Toth <txtoth@gmail.com> wrote:
+> > >
+> > > On Wed, Sep 7, 2022 at 5:48 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > >
+> > > > On Wed, Sep 7, 2022 at 4:56 PM Dominick Grift
+> > > > <dominick.grift@defensec.nl> wrote:
+> > > > > Ted Toth <txtoth@gmail.com> writes:
+> > > > > > systemd uses a helper process (sd-listen) to create sockets and pass
+> > > > > > their fds back to its parent. I've patched systemd to call semanage to
+> > > > > > get the context for the port if it exists and create a context using
+> > > > > > the returned type when calling setsockcreatecon. Everything looks
+> > > > > > right i.e. the port type is retrieved, the context is created and
+> > > > > > setsockcreatecon is called without errors. However 'netstat -Z' shows
+> > > > > > the listening sockets type as init_t and not the type in the
+> > > > > > setsockcreatecon call, is this the expected behavior? Can anyone help
+> > > > > > me understand why this is happening?
+> > > > >
+> > > > > It is probably the context of the process listening on the port and not
+> > > > > the context of the socket that binds to the port
+> > > >
+> > > > That's a good point, I would have thought it would have looked at the
+> > > > socket itself but perhaps it is the calling process' label.  Actually,
+> > > > it might be the fd's label associated with the socket; that would
+> > > > explain it.  Someone would need to look at the netstat sources to
+> > > > confirm.
+> > >
+> > > Is there an API to query the context of a socket fd?
+> >
+> > I wrote a client which connects and calls getpeercon and indeed the
+> > context is what was set via setsockcreatecon so that's reassuring.
+> > Unfortunately it seems that netstat, ss and lsof don't have a way to
+> > query the context of the listening socket :( I'd like to see a
+> > getsockcon function (taking an fd as its argument) added to libselinux
+> > if it can be written.
+>
+> There is a way to see a socket's context, though it's a bit obscure:
+>
+> ls -ZL /proc/<PID>/fd/<FD>
 
-Yeah, that why I was saying "piggyback".
+Yes I did that too but it does not show the context set in the
+setsockcreatecon call, only the client getpeercon returned the context
+set on create.
 
-You'd need a combined SELinux+capabilities label (potentially with other
-stuff in it as well). When you got one from the server, you'd have to
-extract each piece and put in the right places in the inode.
 
-But, like I said...I haven't thought through the implications here at
-all (and am not looking for a project at the moment). ;)
---=20
-Jeff Layton <jlayton@kernel.org>
+>
+> --
+> Ondrej Mosnacek
+> Senior Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+>
