@@ -2,117 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F607C38145
-	for <selinux@archiver.kernel.org>; Thu,  8 Sep 2022 14:48:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF431C38145
+	for <selinux@archiver.kernel.org>; Thu,  8 Sep 2022 15:19:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232759AbiIHOsx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Sep 2022 10:48:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53912 "EHLO
+        id S230140AbiIHPTe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Sep 2022 11:19:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232691AbiIHOsj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Sep 2022 10:48:39 -0400
-X-Greylist: delayed 64320 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 08 Sep 2022 07:48:38 PDT
-Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CB9575FE0
-        for <selinux@vger.kernel.org>; Thu,  8 Sep 2022 07:48:38 -0700 (PDT)
-Received: from brutus (brutus.lan [IPv6:2a10:3781:2099::438])
-        by markus.defensec.nl (Postfix) with ESMTPSA id 10D65FC148E;
-        Thu,  8 Sep 2022 16:48:36 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-        s=default; t=1662648516;
-        bh=jVSsNqEk6Trgd1ihKtbBAHGYhzm0hWDTYJF1qWRo7hc=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=LV72hG8rGESmng9HxKPAR3Dle7uF62id6Z5LoOc+oY52vEZvOS1nWbMjpMVicV05v
-         p+/Jz+dfmOZhAUe9n8uvQKZzQ+cZ9FPozpi8s/xlxb0s5Kg5nOEFHGsPUbgCS/Hinq
-         Lm5b0gsNRHTSUJmHg/QrBbPUDZH8whcHMV2WJECw=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Ted Toth <txtoth@gmail.com>, SELinux <selinux@vger.kernel.org>
-Subject: Re: context of socket passed between processes
-In-Reply-To: <CAHC9VhSOfWRKLAJzbHkBnWffHFzZS2Gi1VD=-Ocgp9PEx0kUew@mail.gmail.com>
-        (Paul Moore's message of "Thu, 8 Sep 2022 10:41:59 -0400")
-References: <CAFPpqQE4isJqSmSOozWdKRN1rmt7_6sG_9VsroD-zjfQzWYqEQ@mail.gmail.com>
-        <CAHC9VhRWwwxB=8De88_MdMS2ncEgP9dqX6hH1ao_zrJeRE_ndA@mail.gmail.com>
-        <CAFPpqQFJYz79tFEanv1F2busJJzMw+DSe6Ba0qhoAkiTH9OSZg@mail.gmail.com>
-        <CAHC9VhSOfWRKLAJzbHkBnWffHFzZS2Gi1VD=-Ocgp9PEx0kUew@mail.gmail.com>
-Date:   Thu, 08 Sep 2022 16:48:35 +0200
-Message-ID: <871qslc470.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/29.0.50 (gnu/linux)
+        with ESMTP id S231574AbiIHPTc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Sep 2022 11:19:32 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DAF755AD
+        for <selinux@vger.kernel.org>; Thu,  8 Sep 2022 08:19:29 -0700 (PDT)
+Received: from fsav119.sakura.ne.jp (fsav119.sakura.ne.jp [27.133.134.246])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 288FIxPP039482;
+        Fri, 9 Sep 2022 00:18:59 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav119.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp);
+ Fri, 09 Sep 2022 00:18:59 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 288FIwG7039479
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Fri, 9 Sep 2022 00:18:58 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <8ac2731c-a1db-df7b-3690-dac2b371e431@I-love.SAKURA.ne.jp>
+Date:   Fri, 9 Sep 2022 00:18:52 +0900
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: LSM stacking in next for 6.1?
+Content-Language: en-US
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        paul Moore <paul@paul-moore.com>,
+        LSM List <linux-security-module@vger.kernel.org>
+Cc:     James Morris <jmorris@namei.org>, linux-audit@redhat.com,
+        John Johansen <john.johansen@canonical.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
+        SElinux list <selinux@vger.kernel.org>
+References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
+ <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Paul Moore <paul@paul-moore.com> writes:
+On 2022/08/03 9:01, Casey Schaufler wrote:
+> I would like very much to get v38 or v39 of the LSM stacking for Apparmor
+> patch set in the LSM next branch for 6.1. The audit changes have polished
+> up nicely and I believe that all comments on the integrity code have been
+> addressed. The interface_lsm mechanism has been beaten to a frothy peak.
+> There are serious binder changes, but I think they address issues beyond
+> the needs of stacking. Changes outside these areas are pretty well limited
+> to LSM interface improvements.
+> 
 
-> On Thu, Sep 8, 2022 at 9:41 AM Ted Toth <txtoth@gmail.com> wrote:
->> On Wed, Sep 7, 2022 at 5:46 PM Paul Moore <paul@paul-moore.com> wrote:
->> > On Wed, Sep 7, 2022 at 4:19 PM Ted Toth <txtoth@gmail.com> wrote:
->> > >
->> > > systemd uses a helper process (sd-listen) to create sockets and pass
->> > > their fds back to its parent. I've patched systemd to call semanage to
->> > > get the context for the port if it exists and create a context using
->> > > the returned type when calling setsockcreatecon.
->> >
->> > This obviously depends on how you structure and write your policy, but
->> > I don't think you want to use a port type directly as a socket type.
->> > I think we talked about this a little in the other thread, but for
->> > bound/listening sockets maybe you could do a transition for new child
->> > sockets based on the listening socket and port types.
->>
->> To be clear you are suggesting to call setsockcreatecon with the port
->> type but also have a transition rule to transition the port type to a
->> socket type?
->
-> Two things:
->
-> * I'm not sure you want to reuse a port type as a socket type, that
-> seems wrong to me.
->
-> * The socket type transition I was talking about would be new as there
-> is not currently a type transition when the kernel creates a new
-> socket for incoming connections.
->
->> > > Everything looks
->> > > right i.e. the port type is retrieved, the context is created and
->> > > setsockcreatecon is called without errors. However 'netstat -Z' shows
->> > > the listening sockets type as init_t and not the type in the
->> > > setsockcreatecon call, is this the expected behavior? Can anyone help
->> > > me understand why this is happening?
->> >
->> > You're calling setsockcreatecon() before you create the listening
->> > socket, right?  I wouldn't expect this to work properly if you create
->> > the listening socket and then call setsockcreatecon() hoping to have
->> > the new label applied to the new child sockets.
->>
->> It's not my code  ;) the systemd sd-listen process code does the
->> setsockccreatecon, bind and then listen.
->
-> Well, regardless of who wrote the code, setsockcreatecon() is not
-> going to have any effect on a socket's label if it is called *after*
-> the socket is created.  Additionally, setsockcreatecon() has no effect
-> on child sockets created by incoming connections on a listening
-> socket; if you want to affect the label of those child sockets today
-> you would need to change the label of the listening parent socket.
->
->> Regarding how to get the port context, what would you suggest?
->> Currently I'm calling semanage functions but have considered using the
->> sepol instead.
->
-> I'll leave that to the folks who better understand the SELinux
-> libraries, my only comment would be that I'm not sure reusing the port
-> label is a good idea here.
+After ((SELinux xor Smack) and AppArmor) is made possible in next for 6.1, what
+comes next? Are you planning to make (SELinux and Smack and AppArmor) possible?
 
-I do not know what a good alternative is either. libsepol and libselinux
-are guaranteed to be available. libsemanage is not:
+My concern is, when loadable LSM modules becomes legal, for I'm refraining from
+again proposing CaitSith until LSM stacking completes.
 
-root@OpenWrt:~# opkg list-installed | grep libse
-libselinux - 3.3-2
-libsepol - 3.3-1
-root@OpenWrt:~#
+Linus Torvalds said
 
--- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
+  You security people are insane. I'm tired of this "only my version is correct" crap.
+
+at https://lkml.kernel.org/r/alpine.LFD.0.999.0710010803280.3579@woody.linux-foundation.org .
+
+Many modules
+
+    SimpleFlow （ 2016/04/21 https://lwn.net/Articles/684825/ ）
+    HardChroot （ 2016/07/29 https://lwn.net/Articles/695984/ ）
+    Checmate （ 2016/08/04 https://lwn.net/Articles/696344/ ）
+    LandLock （ 2016/08/25 https://lwn.net/Articles/698226/ ）
+    PTAGS （ 2016/09/29 https://lwn.net/Articles/702639/ ）
+    CaitSith （ 2016/10/21 https://lwn.net/Articles/704262/ ）
+    SafeName （ 2016/05/03 https://lwn.net/Articles/686021/ ）
+    WhiteEgret （ 2017/05/30 https://lwn.net/Articles/724192/ ）
+    shebang （ 2017/06/09 https://lwn.net/Articles/725285/ ）
+    S.A.R.A. （ 2017/06/13 https://lwn.net/Articles/725230/ ）
+
+are proposed 5 or 6 years ago, but mostly became silent...
+
+I still need byte-code analysis for finding the hook and code for making the hook
+writable in AKARI/CaitSith due to lack of EXPORT_SYMBOL_GPL(security_add_hooks).
+I wonder when I can stop questions like https://osdn.net/projects/tomoyo/lists/archive/users-en/2022-September/000740.html
+caused by https://patchwork.kernel.org/project/linux-security-module/patch/alpine.LRH.2.20.1702131631490.8914@namei.org/ .
+
+Last 10 years, my involvement with Linux kernel is "fixing bugs" rather than
+"developing security mechanisms". Changes what I found in the past 10 years are:
+
+  As far as I'm aware, more than 99% of systems still disable SELinux. People use RHEL,
+  but the reason to choose RHEL is not because RHEL supports SELinux. The only thing
+  changed is that the way to disable SELinux changed from SELINUX=disabled in
+  /etc/selinux/config to selinux=0 on kernel command line options.
+
+  Instead, Ubuntu users are increasing, but the reason people choose Ubuntu is not because
+  Ubuntu supports AppArmor. Maybe because easy to use container environment. Maybe because
+  available as Windows Subsystem for Linux.
+
+  However, in many cases, it seems that whether the OS is Windows or Linux no longer
+  matters. Programs are written using frameworks/languages which developers hardly care
+  about Windows API or Linux syscall. LSM significantly focuses on syscalls, but the
+  trend might no longer be trying to solve in the LSM layer...
+
+Also, Linux servers started using AntiVirus software. Enterprise AntiVirus software uses
+loadable kernel module that rewrites system call table rather than using LSM interface.
+It seems that people prefer out-of-the-box security over fine grained access control rule
+based security. In other words, it seems that allowlist based LSM modules are too
+difficult for normal users. Maybe it is better for normal users to develop and use
+single-function LSMs than try to utilize ((SELinux xor Smack) and AppArmor)... But
+still loadable LSM modules are not legally available...
+
