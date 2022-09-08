@@ -2,216 +2,189 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53CE3C38145
-	for <selinux@archiver.kernel.org>; Thu,  8 Sep 2022 18:53:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 485C7C38145
+	for <selinux@archiver.kernel.org>; Thu,  8 Sep 2022 19:32:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232500AbiIHSxb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Sep 2022 14:53:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39374 "EHLO
+        id S232260AbiIHTcr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Sep 2022 15:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232493AbiIHSxV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Sep 2022 14:53:21 -0400
-Received: from mail-oa1-x29.google.com (mail-oa1-x29.google.com [IPv6:2001:4860:4864:20::29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D96E103033
-        for <selinux@vger.kernel.org>; Thu,  8 Sep 2022 11:53:09 -0700 (PDT)
-Received: by mail-oa1-x29.google.com with SMTP id 586e51a60fabf-1278624b7c4so28620255fac.5
-        for <selinux@vger.kernel.org>; Thu, 08 Sep 2022 11:53:09 -0700 (PDT)
+        with ESMTP id S232152AbiIHTcp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Sep 2022 15:32:45 -0400
+Received: from mail-oo1-xc2f.google.com (mail-oo1-xc2f.google.com [IPv6:2607:f8b0:4864:20::c2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9A8C22AF
+        for <selinux@vger.kernel.org>; Thu,  8 Sep 2022 12:32:44 -0700 (PDT)
+Received: by mail-oo1-xc2f.google.com with SMTP id u3-20020a4ab5c3000000b0044b125e5d9eso3112986ooo.12
+        for <selinux@vger.kernel.org>; Thu, 08 Sep 2022 12:32:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date;
-        bh=UGWr8neW2kZVvnYmU4foAjz85tjsLBPCReYEfGouu3o=;
-        b=Zfv+f/tcECQO+in83mDqvC9nt1YoHnY0higsjVcA0ETwcM2064UVteVhVebC0O/ynC
-         H3x3uVjbW1YaOM1yMxxB1/01wi1+sVxpOaZVu1IPS5HuR9u9oKhfnDdraZ8Av5kFf7IG
-         HxyV9QUpSUBqZv+xbiZFPXQGNVpPkZAqypiwfIC/qJZWeMJqsCForwDwvMq2p6NZQtyd
-         y+Ezn19Xw0mGBoOLQLS1m/rr6wrW3jq1PmNL5eZQcw3fov3xgPofLPUu+mL20azCOyfb
-         cACwbPAu2Ob43WEQNzzbitP82ByBBiAw6f8WdLgrq5rd80R53dsJBrnAP8FPHJth1ga6
-         EIHw==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=oz+xWV2Ha3/Bioj8A/jew3c5IOrm/IjPXTsz/FZ84pw=;
+        b=Z5tFiwrF4iPkfUHabtdsjes2kgG60WmvA0YDoccY7M+P4OhqXtUDNu7pA/SNhCMOIi
+         5VlhQH8YSOT6CnnUbu8OhmlrhKAdr826mykiPO9bvoSDkgp/we9I4jgfmTtNVZbh8SjI
+         +OTKj3+vTKm1RupkLrRFvqcQV34yR+6DDB60h7pNQF7jV0ZnjMPBRAddV5HVWCyfJmcG
+         6XUorjVb2LdSxNWJiX+cshm8bzmjmacaBkAA1fniyjQg3ebpyWh7vnPapIkCRpXoUmT7
+         rk3HoVlJ2NiZ+mLUhFhN/rBhfFXc3w9cTdYUMJuYFQrO9ZjHXXAOXgSjisyads33DfSg
+         MbUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=UGWr8neW2kZVvnYmU4foAjz85tjsLBPCReYEfGouu3o=;
-        b=LSbn5nb30cb4AL/Ud2Kt3QJbVGotVinU1WcJ9mTOnrM4IAYW6uG8/4Cxw42z3297F4
-         7NPNAD+W/UZLT5zyQptQ19BJ92rtYZSJjjXS8rjWsOSGRB+jz+5aW1JRIKHNrps/J+EU
-         J7QCbKHCgj7OgvOBtF81/Z06fgwJGQouU60wakRPRPoJC1KznmjuPOlqhHDxjcnogDZr
-         oXKXCZTJovYQbknR56EiybaEkJE1rqEhUcgAbdNTp6PeEXrqOAY6DUhLnrR7/3dP8t3P
-         VduP3sbxwNp4Zz6cCHkBByF9iTGhOL7+2/AZBpXzyHISGwWsOuERi58N/dwFuxXDjoVR
-         F4MQ==
-X-Gm-Message-State: ACgBeo3pGCKQD40Zpuhf6dY9kZfgpbE6t+c7QGkuEDSXyksZGsYqnds0
-        gfYqDrF2X4AxNETR6fEfSnjEXyCeNDQ3G8itGIPS
-X-Google-Smtp-Source: AA6agR5JkrTnbm7jIqCq8klhdUoP5ILTdl0E8T8trQmm7e7YtT+UULusyktIYzKRB4qUzLGXLiTnkVg+uShHcpjjyvs=
-X-Received: by 2002:a05:6870:5808:b0:128:afd5:491f with SMTP id
- r8-20020a056870580800b00128afd5491fmr2846197oap.136.1662663188353; Thu, 08
- Sep 2022 11:53:08 -0700 (PDT)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=oz+xWV2Ha3/Bioj8A/jew3c5IOrm/IjPXTsz/FZ84pw=;
+        b=wfw4GesfPRqfennIVIKJRjK+DbY6+fJEDR4GcL49ZNphKCSp4MkOrzBn7w+GpyD0y3
+         N9J6hDgoRQ52lU4dNOZ5CcyNH4T6inwkOYHshhdrOf2iSypFCEbLyrxqiCPxH9sfVexq
+         keqzQ7hpviWqYzw1gpWeGdPXXTLbZ6V0xGIQggsWhyHBNy3oG+qx1v391U9qOXlV5b0v
+         0nzuvnW7pPP4eIVTZdlZCSXeBhWyW73eei1SWZ/2na6ktjCCN44LE3zpHitdC8dsMaVt
+         57h2eWiQogHcwO0K76P7APuSClvJxlRiIFDKGVZhLy7gNHoxlQVxshIJSsQIpEQffaLA
+         KQeg==
+X-Gm-Message-State: ACgBeo3GeFJ0RTfBzFxh9zw5kBPZzHxldwaQJ2pyRLwFMNSpy7iv9pb1
+        /aOzBKNfMRUfl4Vxgu0QxHjMi9SV3lq9fjF7xcTD
+X-Google-Smtp-Source: AA6agR6BC6nRGcz3GZmGJYopvwo4LF7o/rx+rccli/unq08GAsfiSc0uTJJvM+7cQkyNPbS0wnm6D7384DRpoMEHaKI=
+X-Received: by 2002:a05:6820:508:b0:44a:abd8:6d59 with SMTP id
+ m8-20020a056820050800b0044aabd86d59mr3624743ooj.11.1662665563850; Thu, 08 Sep
+ 2022 12:32:43 -0700 (PDT)
 MIME-Version: 1.0
 References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com> <8ac2731c-a1db-df7b-3690-dac2b371e431@I-love.SAKURA.ne.jp>
-In-Reply-To: <8ac2731c-a1db-df7b-3690-dac2b371e431@I-love.SAKURA.ne.jp>
+ <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com> <CAHC9VhSF8hWg=7tbFiCrizNF61vpwJcU3793LcStiu-anW4i1g@mail.gmail.com>
+ <CAHC9VhTDGwO789t59EyOV0SwnwGrdyBhRiuJpoY7cB4MSe02BQ@mail.gmail.com>
+ <e2b6ae44-1037-666f-5012-6abd4d46c0b7@schaufler-ca.com> <CAHC9VhQ+UcJw4G=VHNE8wMa+EBG-UcoZ7ox0vNqLHoSKAd9XZQ@mail.gmail.com>
+ <269014c6-5ce6-3322-5208-004cb1b40792@canonical.com> <CAHC9VhRrOgDMO9fo632tSL7vCMAy1_x3smaAok-nWdMAUFB8xQ@mail.gmail.com>
+ <1958a0d3-c4fb-0661-b516-93f8955cdb95@schaufler-ca.com> <CAHC9VhQPvcunvBDvSnrUChwmGLen0Rcy8KEk_uOjNF1kr4_m9w@mail.gmail.com>
+ <6552af17-e511-a7d8-f462-cafcf41a33bb@schaufler-ca.com> <CAHC9VhQMeyxQJSAUuigu=CCr44WtpJg=LEh1xng_bPfCCjqq6Q@mail.gmail.com>
+ <5ef4a1ae-e92c-ca77-7089-2efe1d4c4e6d@schaufler-ca.com>
+In-Reply-To: <5ef4a1ae-e92c-ca77-7089-2efe1d4c4e6d@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 8 Sep 2022 14:52:57 -0400
-Message-ID: <CAHC9VhQGnEcoYeGpwbbXbMrG1dOvJ=2ohd4zPYoqBJK9p1mSjQ@mail.gmail.com>
+Date:   Thu, 8 Sep 2022 15:32:32 -0400
+Message-ID: <CAHC9VhQRpeOMkeEfy=VRPnpuYMUDYgLp56OjQZPYwoXmfHYREQ@mail.gmail.com>
 Subject: Re: LSM stacking in next for 6.1?
-To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     John Johansen <john.johansen@canonical.com>,
         LSM List <linux-security-module@vger.kernel.org>,
         James Morris <jmorris@namei.org>, linux-audit@redhat.com,
-        John Johansen <john.johansen@canonical.com>,
         Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 8, 2022 at 11:19 AM Tetsuo Handa
-<penguin-kernel@i-love.sakura.ne.jp> wrote:
-> On 2022/08/03 9:01, Casey Schaufler wrote:
-> > I would like very much to get v38 or v39 of the LSM stacking for Apparm=
-or
-> > patch set in the LSM next branch for 6.1. The audit changes have polish=
-ed
-> > up nicely and I believe that all comments on the integrity code have be=
-en
-> > addressed. The interface_lsm mechanism has been beaten to a frothy peak=
-.
-> > There are serious binder changes, but I think they address issues beyon=
-d
-> > the needs of stacking. Changes outside these areas are pretty well limi=
-ted
-> > to LSM interface improvements.
+On Thu, Sep 8, 2022 at 2:05 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 9/7/2022 8:57 PM, Paul Moore wrote:
+> > On Wed, Sep 7, 2022 at 7:53 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >> On 9/7/2022 4:27 PM, Paul Moore wrote:
 
-> Many modules
+...
+
+> >>>   The ease-of-use quality is a bit subjective, but it does need
+> >>> another interface to use properly and it requires string parsing which
+> >>> history has shown to be an issue time and time again (although it is
+> >>> relatively simple here).
+> >> There was a lot of discussion regarding that. My proposed
+> >> apparmor="unconfined",smack="User" format was panned for those same reasons.
+> >> The nil byte format has been used elsewhere and suggested for that reason.
+> > Based on what I recall from those discussions, it was my impression
+> > the nil byte label delimiter was suggested simply because no one was
+> > entertaining the idea of using something other than the existing
+> > procfs interface.  It is my opinion that we've taken that interface
+> > about as far as it can go, and while it needs to stay intact for
+> > compatibility reasons, the LSM stacking functionality should move to a
+> > different API that is better suited for it.
 >
->     SimpleFlow =EF=BC=88 2016/04/21 https://lwn.net/Articles/684825/ =EF=
-=BC=89
->     HardChroot =EF=BC=88 2016/07/29 https://lwn.net/Articles/695984/ =EF=
-=BC=89
->     Checmate =EF=BC=88 2016/08/04 https://lwn.net/Articles/696344/ =EF=BC=
-=89
->     LandLock =EF=BC=88 2016/08/25 https://lwn.net/Articles/698226/ =EF=BC=
-=89
->     PTAGS =EF=BC=88 2016/09/29 https://lwn.net/Articles/702639/ =EF=BC=89
->     CaitSith =EF=BC=88 2016/10/21 https://lwn.net/Articles/704262/ =EF=BC=
-=89
->     SafeName =EF=BC=88 2016/05/03 https://lwn.net/Articles/686021/ =EF=BC=
-=89
->     WhiteEgret =EF=BC=88 2017/05/30 https://lwn.net/Articles/724192/ =EF=
-=BC=89
->     shebang =EF=BC=88 2017/06/09 https://lwn.net/Articles/725285/ =EF=BC=
-=89
->     S.A.R.A. =EF=BC=88 2017/06/13 https://lwn.net/Articles/725230/ =EF=BC=
-=89
+> It's going to raise its ugly head again with SO_PEERCONTEXT for the
+> SELinux+Smack case. But we can cross that bridge when we come to it.
+
+There are also problems with IP_PASSSEC/SCM_SECURITY that we've never
+fully resolved (and have gotten a bit lucky over the years); it very
+well could be time to add support for IP_SECURITY as the multi-LSM
+replacement for SCM_SECURITY.  We could leverage the same LSM context
+structures as in the other multi-LSM interfaces.  Existing
+applications could continue to use SCM_SECURITY; in fact I believe we
+could have both SCM_SECURITY and IP_SECURITY in the same message for
+maximum compatibility.
+
+https://github.com/SELinuxProject/selinux-kernel/issues/24
+
+For SO_PEERSEC, we should probably just introduce SO_PEERSEC2 or
+similar, using the same multi-LSM context structures as the other
+interfaces.
+
+> > In case it helps spur your imagination, here is a revised strawman:
+> >
+> > /**
+> >  * struct lsm_ctx - LSM context
+> >  * @id: the LSM id number, see LSM_ID_XXX
 >
-> are proposed 5 or 6 years ago, but mostly became silent...
+> A LSM ID hard coded in a kernel header makes it harder to develop new
+> security modules.
 
-At least one of those, Landlock, has been merged upstream and is now
-available in modern released Linux Kernels.  As far as the other LSMs
-are concerned, I don't recall there ever being significant interest
-among other developers or users to warrant their inclusion upstream.
-If the authors believe that has changed, or is simply not true, they
-are always welcome to post their patches again for discussion, review,
-and potential upstreaming.  However, I will caution that it is
-becoming increasingly difficult for people to find time to review
-potential new LSMs so it may a while to attract sufficient comments
-and feedback.
+There is so much precedence for defining a token scalar value to
+represent a "thing" that I don't know where to begin.  Look at IANA,
+there are entire organizations that exist to map "things" to numbers.
 
-> I still need byte-code analysis for finding the hook and code for making =
-the hook
-> writable in AKARI/CaitSith due to lack of EXPORT_SYMBOL_GPL(security_add_=
-hooks).
-> I wonder when I can stop questions like https://osdn.net/projects/tomoyo/=
-lists/archive/users-en/2022-September/000740.html
-> caused by https://patchwork.kernel.org/project/linux-security-module/patc=
-h/alpine.LRH.2.20.1702131631490.8914@namei.org/ .
+If you're objecting to assigning LSMs fixed integer numbers you've got
+to give me some very explicit reasons (complete with examples) as to
+why that would be a mistake.
 
-As has been discussed before, this isn't so much an issue with the
-__ro_after_init change, it's really more of an issue of running
-out-of-tree kernel code on pre-built distribution kernels, with
-"pre-built" being the most important part.  It is my understanding
-that if the user/developer built their own patched kernel this would
-not likely be an issue as the out-of-tree LSM could be patched into
-the kernel source.  The problem comes when the user/developer wants to
-dynamically load their out-of-tree LSM into a pre-built distribution
-kernel, presumably to preserve a level of distribution support.
-Unfortunately, to the best of my knowledge, none of the major
-enterprise Linux distributions will provide support for arbitrary
-third-party kernel modules (it may work, but if something fails the
-user is on their own to triage and resolve).
+> The security module can't be self contained. I say
+> that, but I acknowledge that I've done the same kind of thing with the
+> definition of the struct lsmblob. That isn't part of an external API
+> however.
 
-Beyond the support issue, there are likely to be other problems as
-well since the kernel interfaces, including the LSM hooks themselves,
-are not guaranteed to be stable across kernel releases.
+I'm not following you here.  See my comment above about better examples.
 
-> Last 10 years, my involvement with Linux kernel is "fixing bugs" rather t=
-han
-> "developing security mechanisms". Changes what I found in the past 10 yea=
-rs are:
+> It may also interfere with Tetsuo's long standing request that
+> we don't do things that prevent the possibility of loadable security
+> modules at some point in the future.
+
+I already replied to Tetsuo's email, and while this particular point
+about LSM ID numbers wasn't directly addressed, my response there
+seems to apply equally well here: it's not so much about loadable
+LSMs, it's about out-of-tree LSMs.  These are two very different
+things, with different solutions.
+
+> On the other hand, there's no great way to include two variable length
+> strings in a structure like this. So unless we adopt something as ugly
+> as the nil byte scheme this is supposed to replace I expect we're stuck
+> with an LSM ID.
+
+I don't like making general comments, but when in doubt, consider me
+not-a-fan of string-based identifiers in APIs.  Give me token scalar
+values instead.
+
+> >  * @flags: LSM specific flags, zero if unused
 >
->   As far as I'm aware, more than 99% of systems still disable SELinux.
+> For an API shouldn't this be a specific size? u32? I'm not really
+> up to date on the guidance regarding which it should be.
 
-I would challenge you to support that claim with data.  Granted, we
-are coming from very different LSM backgrounds, but I find that number
-very suspect.  It has been several years since I last looked, but I
-believe the latest published Android numbers would give some support
-to the idea that more than 1% of SELinux based systems are running in
-enforcing (or permissive) mode.  Significantly more.
+Enh, sure, whatever.  You'll remember my initial comment about not
+being a syscall stylist; if the discussion has moved to seriously
+discussing the syscall prototypes we should likely start a new thread
+and bring in the syscall folks ... I vaguely remember there was a
+mailing list for syscalls and API changes ...
 
->   People use RHEL,
->   but the reason to choose RHEL is not because RHEL supports SELinux.
+> I will head in this direction. A couple questions:
+>
+> Would we want lsm_prev_ctx() as well as lsm_current_ctx(),
 
-Once again, if you are going to make strong claims such as this,
-please provide data.  I know of several RHEL users that are only able
-to run SELinux based systems as it is the only LSM which meets their
-security requirements.
+I'm not sure I'm following your thinking, what would lsm_prev_ctx() do?
 
->   Instead, Ubuntu users are increasing, but the reason people choose Ubun=
-tu is not because
->   Ubuntu supports AppArmor. Maybe because easy to use container environme=
-nt. Maybe because
->   available as Windows Subsystem for Linux.
+> or should we use the lsm_ctx->flags to identify the provided
+> context? If we did that we should have an lsm_ctx() system call
+> that returns the current, prev, and whatever other security
+> module specific attributes might be associated with the process,
+> each identified in the flags field. While the "current" context
+> is usually what we're after, there may be cases where the other
+> attributes are desired.
 
-I suspect IBM/RH's decision to change CentOS' relationship to RHEL
-also resulted in a number of users moving to Ubuntu, and that has
-nothing to do with the LSMs.
+I don't understand what you mean by "prev"{ious} attributes.  I'm
+thinking of lsm_current_ctx() as a multi-LSM replacement for
+/proc/self/attr/current.  If, for example, we wanted something for
+/proc/self/attr/exec I imagine we would create lsm_current_exec(), or
+something similarly named, with a similar prototype.
 
->   However, in many cases, it seems that whether the OS is Windows or Linu=
-x no longer
->   matters. Programs are written using frameworks/languages which develope=
-rs hardly care
->   about Windows API or Linux syscall. LSM significantly focuses on syscal=
-ls, but the
->   trend might no longer be trying to solve in the LSM layer...
+Or perhaps we try to stick a bit closer to the procfs naming and go
+with lsm_self_cur(...) and lsm_self_exec(...).  All things to discuss.
 
-Every LSM is different, that is partly why it is so interesting as a
-security framework.  Look at Yama, look at AppArmor, look at Smack,
-look at the BPF LSM ... there is no one security model, and claiming
-that the LSM focuses on syscalls is misleading.  If you had to pick
-only one concept that the LSM focuses on, I believe it would be
-providing visibility and access controls for security relevant
-interactions between entities on the system.  Processes opening files,
-processes executing other processes, processes talking to each other
-both across the network and on the local system.  Some of these things
-involve syscalls, but as most of us know, making meaningful access
-control decisions often involves much more than just the syscall.
-
-> Also, Linux servers started using AntiVirus software. Enterprise AntiViru=
-s software uses
-> loadable kernel module that rewrites system call table rather than using =
-LSM interface.
-> It seems that people prefer out-of-the-box security over fine grained acc=
-ess control rule
-> based security.
-
-I would caution against confusing the security policy driven access
-controls provided by many in-tree LSMs with out-of-tree antivirus
-software.  They have different goals, different use cases, and
-different user groups (markets).
-
-I think that is about the nicest thing I can think to say about those
-antivirus products ;)
-
---
+-- 
 paul-moore.com
