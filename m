@@ -2,143 +2,193 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30979ECAAD3
-	for <selinux@archiver.kernel.org>; Fri,  9 Sep 2022 09:26:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40EA9ECAAA1
+	for <selinux@archiver.kernel.org>; Fri,  9 Sep 2022 11:33:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229982AbiIIJ0J (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Sep 2022 05:26:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46236 "EHLO
+        id S230466AbiIILdD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Sep 2022 07:33:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbiIIJZc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Sep 2022 05:25:32 -0400
-Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC2F136CC1;
-        Fri,  9 Sep 2022 02:24:03 -0700 (PDT)
-Received: from letrec.thunk.org (guestnat-104-133-160-102.corp.google.com [104.133.160.102] (may be forged))
+        with ESMTP id S229631AbiIILdC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Sep 2022 07:33:02 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285B513B550
+        for <selinux@vger.kernel.org>; Fri,  9 Sep 2022 04:32:59 -0700 (PDT)
+Received: from fsav414.sakura.ne.jp (fsav414.sakura.ne.jp [133.242.250.113])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 289BWvna016068;
+        Fri, 9 Sep 2022 20:32:57 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav414.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav414.sakura.ne.jp);
+ Fri, 09 Sep 2022 20:32:57 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav414.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
         (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 2899Nkfv031889
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 9 Sep 2022 05:23:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
-        t=1662715429; bh=3Karl2D5yBt1fAJz2O8TVJIdIGYpnRMjqsVd1Gq0PRE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=JTX0pwGqDy9opQsOYLpuITJObx23uKVjCGPOG9LQsmm9pRlhTKXDWekZqp670V/9y
-         Y2ErFfWWEPzBH7+pIpxY5Qbz8y1LQsa2VAWsillsnJqQRsWOLqffbLBzzkD5/LfOCn
-         FoTnixc38CkJ5mHkLYoDiH+Vg/TOs9xLUymEQW7dBz6IxFC2ylu90nXHQ2e/+61a2T
-         QSrezewJjBNRm9lHiSCBn08XMKhrUbdWby7YtqGIEjbtD/D7nvuM4wBoOStWi28f9b
-         ooqZVeJ9GKnPuKCADQ88sz7lgr8iOLpksS9aNNVzDN37RvTW56kePgPkVD+kUISWU+
-         E5gmGPdjshhNQ==
-Received: by letrec.thunk.org (Postfix, from userid 15806)
-        id 4BC818C2B47; Fri,  9 Sep 2022 05:23:46 -0400 (EDT)
-Date:   Fri, 9 Sep 2022 05:23:46 -0400
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Chuck Lever III <chuck.lever@oracle.com>
-Cc:     battery dude <jyf007@gmail.com>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Subject: Re: Does NFS support Linux Capabilities
-Message-ID: <YxsGIoFlKkpQdSDY@mit.edu>
-References: <CAMBbDaF2Ni0gMRKNeFTQwgAOPPYy7RLXYwDJyZ1edq=tfATFzw@mail.gmail.com>
- <1D8F1768-D42A-4775-9B0E-B507D5F9E51E@oracle.com>
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 289BWv38016063
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Fri, 9 Sep 2022 20:32:57 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <854c05ad-888e-b882-bb97-65f4ca289bc6@I-love.SAKURA.ne.jp>
+Date:   Fri, 9 Sep 2022 20:32:56 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1D8F1768-D42A-4775-9B0E-B507D5F9E51E@oracle.com>
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.1
+Subject: Re: LSM stacking in next for 6.1?
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
+        John Johansen <john.johansen@canonical.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
+        SElinux list <selinux@vger.kernel.org>
+References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
+ <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com>
+ <8ac2731c-a1db-df7b-3690-dac2b371e431@I-love.SAKURA.ne.jp>
+ <CAHC9VhQGnEcoYeGpwbbXbMrG1dOvJ=2ohd4zPYoqBJK9p1mSjQ@mail.gmail.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <CAHC9VhQGnEcoYeGpwbbXbMrG1dOvJ=2ohd4zPYoqBJK9p1mSjQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 08, 2022 at 08:24:02PM +0000, Chuck Lever III wrote:
-> I'm not sure how closely other implementations come to implementing
-> POSIX.1e, but there are enough differences that interoperability
-> could be a nightmare. Anything Linux has done differently than
-> POSIX.1e would be encumbered by GPL, making it nearly impossible to
-> standardize those differences. (Let alone the possible problems
-> trying to cite a withdrawn POSIX standard in an Internet RFC!)
+On 2022/09/09 3:52, Paul Moore wrote:
+> At least one of those, Landlock, has been merged upstream and is now
+> available in modern released Linux Kernels.  As far as the other LSMs
+> are concerned, I don't recall there ever being significant interest
+> among other developers or users to warrant their inclusion upstream.
+> If the authors believe that has changed, or is simply not true, they
+> are always welcome to post their patches again for discussion, review,
+> and potential upstreaming.  However, I will caution that it is
+> becoming increasingly difficult for people to find time to review
+> potential new LSMs so it may a while to attract sufficient comments
+> and feedback.
 
-I'm not a lawyer and I don't play one on TV; I haven't even stayed at
-a Holiday Inn recently.  :-)
+Inclusion into upstream is far from the goal.
 
-However... please note that at least in the US, copyright does not
-extend to *interfaces*.  This is why we can replicate interfaces such
-as openat(2), which first appeared in Solaris, not to mention things
-like the read(2) system call and the options to fsck, which first
-appared in Unix systems encumbered by the AT&T Copyright license.
+> As has been discussed before, this isn't so much an issue with the
+> __ro_after_init change, it's really more of an issue of running
+> out-of-tree kernel code on pre-built distribution kernels, with
+> "pre-built" being the most important part.  It is my understanding
+> that if the user/developer built their own patched kernel this would
+> not likely be an issue as the out-of-tree LSM could be patched into
+> the kernel source.
 
-(And some of these licenses even had AT&T's claim that Unix "methods
-and concepts" were trade secrets, although MIT had always refused to
-sign any such license agreements, since they didn't want to encumber
-the brains of their undergraduates.  So I've looked at BSD source code
-as an MIT undergraduate without any kind of "Methods and Concepts"
-taint, although trying to claim that the Unix methods and concepts are
-a "trade secret" are kind of laughable at this point.  :-)
+There always is LSM module which is not enabled in pre-built distribution kernels.
+https://bugzilla.redhat.com/show_bug.cgi?id=542986
 
-> The NFSv4 WG could invent our own capabilities scheme, just as was
-> done with NFSv4 ACLs. I'm not sure everyone would agree that effort
-> was 100% successful.
+Even if source code is already available in distribution kernels, as long as
+distribution refuses to include into pre-built distribution kernels, it is no
+different from the out-of-tree LSM.
 
-Indeed, what the NFSv4 working group could do is to take a survey of
-what capabilities are in use, and more importantly, how they are
-defined, and create a superset of all of those capabilities and
-publish it as an RFC.  The tricky bit might be there were multiple
-versions of the Posix.1e that were published, and different Legacy
-Unices shipped implementations conforming to different drafts of
-Posix.1e as part of the ill-fated "C2 by '92" initiative.
+The user/developer has to rebuild the whole distribution kernels is an unacceptable
+barrier.
 
-(The US government was trying to get all Unix systems to have the
-minimal Orange Book certification so the US Military could use them in
-classified systems, and they hadn't figured out that US procurements
-for the computer industry had transitioned from being the body of the
-dog to being the tail.  For more details, see Steve Lipner's "The
-Birth and Death of the Orange Book" published in the IEEE Annals of
-the History of Computing, 2015.)
+>                     The problem comes when the user/developer wants to
+> dynamically load their out-of-tree LSM into a pre-built distribution
+> kernel, presumably to preserve a level of distribution support.
 
-In any case, what this means is the exact details of what some
-particular capability might control could differ from system to
-system.  OTOH, I'm not sure how much that matters, since capability
-masks are applied to binaries, and it's unlikely that it would matter
-that a particular capabiity on an executable meant for Solaris 2.4SE
-with C2 certification might be confusing to AIX 4.3.2 (released in
-1999; so much for C2 by '92) that supported Orange Book C2, since AIX
-can't run Solaris binaries.  :-)
+Not only for preserving the level of distribution support. But also for
+allowing immediate updates whenever distribution kernels are updated, and
+allowing out of kernel modules (e.g. from AntiVirus, hardware vendors) to be
+loaded into pre-built distribution kernels (instead of user/developer rebuilt
+distribution kernels).
 
-> Given these enormous challenges, who would be willing to pay for
-> standardization and implementation? I'm not saying it can't or
-> shouldn't be done, just that it would be a mighty heavy lift.
-> But maybe other folks on the Cc: list have ideas that could
-> make this easier than I believe it to be.
+> Unfortunately, to the best of my knowledge, none of the major
+> enterprise Linux distributions will provide support for arbitrary
+> third-party kernel modules (it may work, but if something fails the
+> user is on their own to triage and resolve).
 
-... and this is why the C2 by '92 initiative was doomed to failure,
-and why Posix.1e never completed the standardization process.  :-)
+I know it, especially Red Hat is strict regarding that. Red Hat does not provide
+support for rebuilt kernels even with zero changes (e.g. same kernel source code,
+same kernel configuration).
 
-Honestly, capabilities are super coarse-grained, and I'm not sure they
-are all that useful if we were create blank slate requirements for a
-modern high-security system.  So I'm not convinced the costs are
-sufficient to balance the benefits.
+Some hardware vendors provide support for their device drivers when used with
+RHEL kernel but does not provide support when used with CentOS kernel (not
+CentOS Stream), despite there is effectively no difference. Being able to
+continue using pre-built distribution kernels is a fatal requirement for users.
 
-If I was going to start from scratch, and if I only cared about Linux
-systems that supported ext4 and/or f2fs, I'd design something where
-executables would use fsverity, and then combine it with an eBPF MAC
-policy[1] that would key off of some policy identifier embedded in the
-PKCS7 signature block located in the executable's fsverity metadata.
-(The fsverity signature would be applied by a secure build service, to
-guarantee exact correspondence between the binary and a specific
-version checked into source control, to protect against the insider
-threat of an engineer sneaking some kind of un-peer-reviewed back door
-into the binary.)  The policy identifier might be used to provide some
-kind of MAC enforcement, perhaps using seccomp to enforce what system
-calls and ioctls said executable would be allowed to execute, or some
-other kind of MAC policy.
+> 
+> Beyond the support issue, there are likely to be other problems as
+> well since the kernel interfaces, including the LSM hooks themselves,
+> are not guaranteed to be stable across kernel releases.
 
-[1] https://lwn.net/Articles/809645/
+That's not a big problem. Loadable LSM modules will be updated as the kernel
+interfaces change.
 
-Speaking totally hypothetically, of course.  A bunch of what I've
-described above isn't upstream, or even implemented yet.  (Although if
-someone's interest is piqued in implementing some of this, please
-contact me off-line.)
+But the combination of "the kernel interfaces does not legally allow loadable LSM modules"
+and "distributors do not enable LSMs already available in upstream kernels" and "it is
+becoming increasingly difficult for people to find time to review potential new LSMs" and
+"it is difficult for users/developers to continue rebuilding distributor kernels only for
+enabling LSMs" indicates there is no space for LSMs which are not enabled in pre-built
+distribution kernels to survive; it is tantamount to a death sentence.
+Legally allowing loadable LSM modules is an answer to current situation.
 
-    		     	   	 		- Ted
+
+
+> 
+>> Last 10 years, my involvement with Linux kernel is "fixing bugs" rather than
+>> "developing security mechanisms". Changes what I found in the past 10 years are:
+>>
+>>   As far as I'm aware, more than 99% of systems still disable SELinux.
+> 
+> I would challenge you to support that claim with data.
+
+Unfortunately, that's an impossible request for me. I worked at a support center
+for three years, and I found (from e.g. sosreport) that no system enabled SELinux.
+Since I already left the support center, I'm no longer in a position who can
+collect statistic data.
+
+>                                                         Granted, we
+> are coming from very different LSM backgrounds, but I find that number
+> very suspect.  It has been several years since I last looked, but I
+> believe the latest published Android numbers would give some support
+> to the idea that more than 1% of SELinux based systems are running in
+> enforcing (or permissive) mode.  Significantly more.
+
+In know-how manuals developed by the support center, disabling SELinux is the
+first action after installation, and people using the support center follow it.
+(I personally feel that using SELinux with targeted policy is possible. But
+they hate troubles caused by unwanted functionality. And they can't afford
+keeping SELinux enabled because nobody can adjust policy for their servers.
+If troubles caused by SELinux happen, even I won't be able to provide support
+because I'm not in a position to understand and manage the details/usage of
+their servers.)
+
+You might wonder how they are protecting their servers without SELinux.
+It is a mystery.
+
+But I if recall the days at the support center, I seldom saw servers which
+directly face the Internet. Maybe they are using security appliance for servers
+facing the Internet, and using RHEL for servers in already secured environment.
+
+Then, the need to enable SELinux remains still low sounds realistic.
+For example, telnet and ftp are used even nowadays in some systems.
+https://bugzilla.redhat.com/show_bug.cgi?id=1853102
+https://bugzilla.redhat.com/show_bug.cgi?id=1914536
+
+But again, I'm not in a position for collecting statistic data.
+
+> 
+>>   People use RHEL,
+>>   but the reason to choose RHEL is not because RHEL supports SELinux.
+> 
+> Once again, if you are going to make strong claims such as this,
+> please provide data.  I know of several RHEL users that are only able
+> to run SELinux based systems as it is the only LSM which meets their
+> security requirements.
+
+Sure, there are systems where SELinux is the only choice.
+But surely there are systems where SELinux is not the only choice.
+
+> I would caution against confusing the security policy driven access
+> controls provided by many in-tree LSMs with out-of-tree antivirus
+> software.  They have different goals, different use cases, and
+> different user groups (markets).
+
+But due to the above-mentioned death sentence, we currently can't allow
+users/developers to use different LSMs which have different goals,
+different use cases, and different user groups (markets). Very bad...
+
