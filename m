@@ -2,72 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F28EC6FA83
-	for <selinux@archiver.kernel.org>; Sun, 11 Sep 2022 11:36:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11D52C6FA83
+	for <selinux@archiver.kernel.org>; Sun, 11 Sep 2022 14:59:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230301AbiIKLgA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 11 Sep 2022 07:36:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54584 "EHLO
+        id S229522AbiIKO7j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 11 Sep 2022 10:59:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbiIKLgA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 11 Sep 2022 07:36:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1587D36DD9;
-        Sun, 11 Sep 2022 04:35:58 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99390B80B31;
-        Sun, 11 Sep 2022 11:35:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEC6CC4314B;
-        Sun, 11 Sep 2022 11:35:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1662896155;
-        bh=/k/uW9QqLq6w7OC6TvZAMLBzYew0y2Xj9AqzjJq2sFA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Mru9sQC6gW3Fl06q7NyXDusmjvEpoqJfnNv+lxKEdLuE/e/XY8MA/OYgsnzwEQWFc
-         VYPRPyOjuIq0itY/7LJioZ0kCWxdH5jn8KOSbSOUTBdioNLXmPMWgUEm+TZJzvkvHE
-         byFUCSVUxWJ6qPfyJ1tDnDQIOfDvvXuSHq7+ljlo=
-Date:   Sun, 11 Sep 2022 13:36:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [v5.19.y PATCH 0/3] Backport the io_uring/LSM CMD passthrough
- controls
-Message-ID: <Yx3IMBh7gBcDPyx2@kroah.com>
-References: <166249766105.409408.12118839467847524983.stgit@olly>
+        with ESMTP id S229540AbiIKO7g (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 11 Sep 2022 10:59:36 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39BE02DC2;
+        Sun, 11 Sep 2022 07:59:35 -0700 (PDT)
+Received: from letrec.thunk.org ([185.122.133.20])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 28BExOjt020167
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Sun, 11 Sep 2022 10:59:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1662908368; bh=hJPv6652ahb8MzC7fon360LOpHJzm2WnHUULBpAhCsc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To;
+        b=ThyXbfr1ATcEaJinbd0Uqg13ruenlZfVebuM/ldJZzA44E2aHRatcfrYgqFfu4vSv
+         px5j5djDgx4wf6WevzLHpeqPret3cjWwhQmYwfvDKbF760CuzvQyFVKf51TR3TlAVr
+         GzKvpQlgSF+xGl7b9m/QyK+oc9nXsmMPYrp6RraTRWNhBSOfhx54YOLGLNEskwdv3H
+         ZlL5KLgdO/YnZtHdDxVRpyaHTh/F7XUN9fGrqsQD0ZjvaJ9/MD9FMvrBET76IYq+sG
+         10UpHnWdXMRtoDP6yC93KXs3qItAHtc6N4FSu0UrMs7pV1V8cGKWeeThfJOg0JTDb0
+         NLnpmE9QuQSXQ==
+Received: by letrec.thunk.org (Postfix, from userid 15806)
+        id 64D338C0D1A; Sun, 11 Sep 2022 06:00:41 -0400 (EDT)
+Date:   Sun, 11 Sep 2022 06:00:41 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Chuck Lever III <chuck.lever@oracle.com>,
+        battery dude <jyf007@gmail.com>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: Re: Does NFS support Linux Capabilities
+Message-ID: <Yx2xyW5n0ECZX9bJ@mit.edu>
+References: <CAMBbDaF2Ni0gMRKNeFTQwgAOPPYy7RLXYwDJyZ1edq=tfATFzw@mail.gmail.com>
+ <1D8F1768-D42A-4775-9B0E-B507D5F9E51E@oracle.com>
+ <YxsGIoFlKkpQdSDY@mit.edu>
+ <8865e109-3ec6-f848-8014-9fe58e3876f4@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <166249766105.409408.12118839467847524983.stgit@olly>
+In-Reply-To: <8865e109-3ec6-f848-8014-9fe58e3876f4@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 06, 2022 at 05:03:36PM -0400, Paul Moore wrote:
-> The stable patch merging tools failed to automatically merge the
-> io_uring/LSM CMD passthrough controls into the stable v5.19.y branch,
-> so I'm doing the backport manually and submitting them directly to
-> stable for the next v5.19.y release.  The backport is necessary due
-> to the reorg/decomposition of the io_uring code in io_uring/ during
-> the v5.19->v6.0 merge window.  Other than the differences in the
-> filenames under io_uring, the code changes are pretty much the same.
+On Fri, Sep 09, 2022 at 08:59:41AM -0700, Casey Schaufler wrote:
 > 
-> I've done some basic sanity testing this afternoon with these
-> patches and everything looks good to me.
-> 
-> If you would prefer to pull these directly from a git tree instead
-> of email, they are available via the LSM tree on the stable-5.19
-> branch, using the lsm-pr-20220906 tag.
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git
->         lsm-pr-20220906
-> 
+> Data General's UNIX system supported in excess of 330 capabilities.
+> Linux is currently using 40. Linux has deviated substantially from
+> the Withdrawn Draft, especially in the handling of effective capabilities.
+> I believe that you could support POSIX capabilities or Linux capabilities,
+> but an attempt to support both is impractical.
 
-Now queued up, thanks.  Note, you dropped the original signed-off-by of
-the original commits, which I had to add back by hand :(
+Yeah, good point, I had forgotten about how we (Linux) ended up
+diverging from POSIX 1.e when we changed how effective capabilities
+were calculated.
 
-greg k-h
+> Supporting any given UNIX implementation is possible, but once you
+> get past the POSIX defined capabilities into the vendor specific
+> ones interoperability ain't gonna happen.
+
+And from an NFS perspective, if we had (for example) a Trusted Solaris
+trying to emulate Linux binaries over NFS with capabilities masks, I
+suspect trying to map Linux's Capabilities onto Trusted Solaris's
+implementation of POSIX 1.e would be the least of Oracle's technical
+challenges.  :-)
+
+> > .. and this is why the C2 by '92 initiative was doomed to failure,
+> > and why Posix.1e never completed the standardization process.  :-)
+> 
+> The POSIX.1e effort wasn't completed because vendors lost interest
+> in the standards process and because they lost interest in the
+> evaluated security process.
+
+It was my sense was that the reason why they lost interested in the
+evaluated security process was simply that the business case didn't
+make any sense.  That is, the $$$ they might get from US Government
+sales was probability not worth the opportunity cost of the engineers
+tasked to work on Trusted {AIX,DG,HPUX,Solaris}.  Heck, I'm not sure
+the revenue would balance out the _costs_, let alone the opportunity
+costs...
+
+> Granularity was always a bone of contention in the working group.
+> What's sad is that granularity wasn't the driving force behind capabilities.
+> The important point was to separate privilege from UID 0. In the end
+> I think we'd have been better off with one capability, CAP_PRIVILEGED,
+> defined in the specification and a note saying that beyond that you were
+> on your own.
+
+Well, hey, we almost have that already, sort of --- CAP_SYS_ADMIN ==
+"root", for almost all intents and purposes.  :-)
+
+						- Ted
