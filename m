@@ -2,142 +2,212 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 322FAECAAD5
-	for <selinux@archiver.kernel.org>; Mon, 12 Sep 2022 13:11:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 724AAC6FA83
+	for <selinux@archiver.kernel.org>; Mon, 12 Sep 2022 13:41:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbiILNLz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Sep 2022 09:11:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54676 "EHLO
+        id S229681AbiILNln (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Sep 2022 09:41:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229536AbiILNLy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Sep 2022 09:11:54 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F162B262
-        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 06:11:51 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id r18so20064483eja.11
-        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 06:11:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=zsPlagLRvTUrQ3kP+Dv7jgC7TFeZX76BBNIPViifedY=;
-        b=FoMGHTIx2J3H40hx0NaTAxQsBbnpLBxirzAuX7xwstAf/unl2aXOzuQMby05k7R/YF
-         IbQMrflbNWgghAha02sDnTtXuPUl3gTXH7JgFz/QaMPEiG2/kh2UR5qM+3VqHubMbPvZ
-         VamIUW7dY+v2mVxF3Sm7CqqC5HHzLRAyxfs4+yDf1c29lpMCebX5ebPFMwu0H3pkDgc6
-         X5SViduB/8hG1ipUhxKssueciV4nCQ2ZthDn7fpB2Pf2JsCvi/RqNcij3+OAqUZnIxSv
-         agVyUGW89k7r/1hSAsyYt+sI1skvwNFNhM1CyZYa9th1km+jlY4z3JaP8qoYEe1JGS8h
-         MuJQ==
+        with ESMTP id S229473AbiILNlm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Sep 2022 09:41:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C6A3055B
+        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 06:41:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1662990099;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=CzZXBUeeVggMg01PsaFQ/n8nUSxEcwu883eJSMWzsEw=;
+        b=D47uExlA8cmvLCkOX+QdqeeKoV0QZAMe6YkBfB6dEUZufB/GTe7+hOQI6mojDH2+ToYZoN
+        0V8ZSfFARl8YO9czLaSPA0rafFZAHPjgia86DTYlQ1WbD154nANYUMqHEn6YprLY2TCGQ4
+        Ua2W3ZZmUxsL/lyBZEcOaIbXb/UDTB8=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-379-KU6PDnN_MvqhV2_heGJtbA-1; Mon, 12 Sep 2022 09:41:38 -0400
+X-MC-Unique: KU6PDnN_MvqhV2_heGJtbA-1
+Received: by mail-pg1-f197.google.com with SMTP id m188-20020a633fc5000000b00434dccacd4aso4018351pga.10
+        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 06:41:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=zsPlagLRvTUrQ3kP+Dv7jgC7TFeZX76BBNIPViifedY=;
-        b=Jge0LjQHVaB4gsb6Sc1W8fLj78mbffwRZ8G1n9sWwqBC6eJu13IrCfhp/y/Z8OmZ2m
-         Tka4cTPkoCDpEASPPAZTJ/4IRmknDTkWxP1zyvOQCPLzhz3SYC34sziji/Es48fEJOS0
-         Dfu8iAQ/OVvPlU7M8/5n14ZvdPUBfrvlCKaH3hYNyDi/5Py17O35oYg11ilStJ/iaEAM
-         h7hhJGrv9eDbYpvDtF7yPCy4MZHmigRO5bnwBpmeYJ0blElOnWUMZgr48g3hEpr7rYob
-         SkQz3ax0ZfIuVIv4AOq2JGq5Xpr9ymiHqgZ5bqz2YMRHbM4EBgIKSyPA+UVRfpshIFvt
-         CsGA==
-X-Gm-Message-State: ACgBeo1/UktBM48e3IEmEA25vyV40tzEp0JvjDC+1XB0+RxJQlZV3P8i
-        GhEYVOQSJ0buTz8JIsXSj1nNI0ifmwqduwsEQ6rcCawBUp0=
-X-Google-Smtp-Source: AA6agR5RLY9rFibCrUCXlzRLVbjK9ycHg5qW5SE4ndXu0tBVhOxbMfQrG2Yo8Mwcotz+Ixb5asCI8QRwQAlQiKHdkB0=
-X-Received: by 2002:a17:906:cc56:b0:779:ed37:b59e with SMTP id
- mm22-20020a170906cc5600b00779ed37b59emr10536392ejb.536.1662988309559; Mon, 12
- Sep 2022 06:11:49 -0700 (PDT)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=CzZXBUeeVggMg01PsaFQ/n8nUSxEcwu883eJSMWzsEw=;
+        b=W2G7xR/PL+t7GQFKQwpWOAT/S2of6yoakAOedtO4iNExxcq8/A/nik/BMo7r6JCjc/
+         EFB1NX9XLxYGel+zp2AKiDWBc7ceKu1qGhWK+eLTqw5dt61Ej5pee+Xp4sPSFQMRRrj4
+         kSRPiEhQHEX+AlCVSwEY5kk4ka8ZJL+PDIOHHYxK1gD4Hi1KPf566K84qTn0fuAAGzwx
+         1nc2JfG7eWEGasKM+3t8FYHTl7vGWvxwXRQ5kB2wiwcGd9iOItcCk3sTqAugJxSDdQuD
+         QdIx+gxYI/Qb9DY8xenGDFFn0kn0i8zBOMyEZvkJEa5WD6sHng4wlxfYvhcwcR4qPTn0
+         hzNw==
+X-Gm-Message-State: ACgBeo18n1ruk9WY3hsVR+5FisKXVyMDZYcvfjju1hTh4d5RUiJoluG/
+        O6IgO+MbyHF1jhNzIDzeBYcPDFoEXtRoNEPyQuM+d6mFx+FY6q8zWW5HqzDkqyzwNnyUF+t1yWd
+        /HvQ9D+0L7dvO0jatQuydkF34Vg0uM2cZag==
+X-Received: by 2002:a17:90b:2545:b0:1fd:92d6:62da with SMTP id nw5-20020a17090b254500b001fd92d662damr24304554pjb.239.1662990097660;
+        Mon, 12 Sep 2022 06:41:37 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR5HPD1ThJOTSdpYycgnKlhjXYVJWO1FKtI9kqmOLtNq1GJLpmPFzkHPI0O6xOMrBDTgr57YzNHS81LEOLR5ySQ=
+X-Received: by 2002:a17:90b:2545:b0:1fd:92d6:62da with SMTP id
+ nw5-20020a17090b254500b001fd92d662damr24304531pjb.239.1662990097365; Mon, 12
+ Sep 2022 06:41:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFPpqQE4isJqSmSOozWdKRN1rmt7_6sG_9VsroD-zjfQzWYqEQ@mail.gmail.com>
- <CAHC9VhRWwwxB=8De88_MdMS2ncEgP9dqX6hH1ao_zrJeRE_ndA@mail.gmail.com>
- <CAFPpqQFJYz79tFEanv1F2busJJzMw+DSe6Ba0qhoAkiTH9OSZg@mail.gmail.com> <CAHC9VhSOfWRKLAJzbHkBnWffHFzZS2Gi1VD=-Ocgp9PEx0kUew@mail.gmail.com>
-In-Reply-To: <CAHC9VhSOfWRKLAJzbHkBnWffHFzZS2Gi1VD=-Ocgp9PEx0kUew@mail.gmail.com>
-From:   Ted Toth <txtoth@gmail.com>
-Date:   Mon, 12 Sep 2022 08:11:38 -0500
-Message-ID: <CAFPpqQHdxB+JK3hxpGUX=KP=Dk50XSRHh7hju3BrSvZ1BjeLiQ@mail.gmail.com>
-Subject: Re: context of socket passed between processes
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SELinux <selinux@vger.kernel.org>
+References: <20220831153432.710929-1-cgzones@googlemail.com>
+In-Reply-To: <20220831153432.710929-1-cgzones@googlemail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 12 Sep 2022 15:41:26 +0200
+Message-ID: <CAFqZXNtPs=SWnjjbySWf+Yi88R3p0ebLBjB9-2DGsirrU+iEpg@mail.gmail.com>
+Subject: Re: [PATCH v2] tests/secretmem: add test
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 8, 2022 at 9:42 AM Paul Moore <paul@paul-moore.com> wrote:
+On Wed, Aug 31, 2022 at 5:34 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> Add test for memfd_secret(2) anonymous inodes check added in 6.0 via
+> 2bfe15c52612 ("mm: create security context for memfd_secret inodes").
 >
-> On Thu, Sep 8, 2022 at 9:41 AM Ted Toth <txtoth@gmail.com> wrote:
-> > On Wed, Sep 7, 2022 at 5:46 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Wed, Sep 7, 2022 at 4:19 PM Ted Toth <txtoth@gmail.com> wrote:
-> > > >
-> > > > systemd uses a helper process (sd-listen) to create sockets and pass
-> > > > their fds back to its parent. I've patched systemd to call semanage to
-> > > > get the context for the port if it exists and create a context using
-> > > > the returned type when calling setsockcreatecon.
-> > >
-> > > This obviously depends on how you structure and write your policy, but
-> > > I don't think you want to use a port type directly as a socket type.
-> > > I think we talked about this a little in the other thread, but for
-> > > bound/listening sockets maybe you could do a transition for new child
-> > > sockets based on the listening socket and port types.
-> >
-> > To be clear you are suggesting to call setsockcreatecon with the port
-> > type but also have a transition rule to transition the port type to a
-> > socket type?
->
-> Two things:
->
-> * I'm not sure you want to reuse a port type as a socket type, that
-> seems wrong to me.
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+> v2:
+>    - print mmap failures to stdout, since they are expected when
+>      mapping with PROT_EXEC
+> ---
+>  .github/workflows/checks.yml |  4 ++
+>  Vagrantfile                  | 10 +++--
+>  policy/Makefile              |  4 ++
+>  policy/test_secretmem.te     | 33 ++++++++++++++
+>  tests/Makefile               |  5 +++
+>  tests/secretmem/.gitignore   |  1 +
+>  tests/secretmem/Makefile     |  5 +++
+>  tests/secretmem/secretmem.c  | 83 ++++++++++++++++++++++++++++++++++++
+>  tests/secretmem/test         | 39 +++++++++++++++++
+>  9 files changed, 180 insertions(+), 4 deletions(-)
+>  create mode 100644 policy/test_secretmem.te
+>  create mode 100644 tests/secretmem/.gitignore
+>  create mode 100644 tests/secretmem/Makefile
+>  create mode 100644 tests/secretmem/secretmem.c
+>  create mode 100755 tests/secretmem/test
 
-I was thinking I'd create an app type, port type, socket
-type and a type transition:
-type a_t;
-type a_port_t;
-type a_sock_t
-type_transition init_t a_port_t:tcp_socket a_socket_t;
+This looks good to me, with some minor comments below.
 
-I'd use semanage or cil to set the port type.
-semanage port -a -p tcp -t a_port_t XXXX
-or:
-portcon ...
+> diff --git a/tests/secretmem/secretmem.c b/tests/secretmem/secretmem.c
+> new file mode 100644
+> index 0000000..0d541ee
+> --- /dev/null
+> +++ b/tests/secretmem/secretmem.c
+> @@ -0,0 +1,83 @@
+> +#include <errno.h>
+> +#include <stdbool.h>
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +#include <unistd.h>
+> +
+> +#include <sys/mman.h>
+> +#include <sys/syscall.h>
+> +
+> +#ifndef __NR_memfd_secret
+> +# define __NR_memfd_secret 447
+> +#endif
+> +
+> +#define TEXT "Hello World!\nHello World!\nHello World!\nHello World!\nHe=
+llo World!\nHello World!\n"
+> +
+> +static int _memfd_secret(unsigned long flags)
+> +{
+> +       return syscall(__NR_memfd_secret, flags);
+> +}
+> +
+> +int main(int argc, const char *argv[])
+> +{
+> +       long page_size;
+> +       int fd, flags;
+> +       char *mem;
+> +       bool check =3D (argc =3D=3D 2 && strcmp(argv[1], "check") =3D=3D =
+0);
+> +       bool wx =3D (argc =3D=3D 2 && strcmp(argv[1], "wx") =3D=3D 0);
+> +
+> +       page_size =3D sysconf(_SC_PAGESIZE);
+> +       if (page_size <=3D 0) {
+> +               fprintf(stderr, "failed to get pagesize, got %ld:  %s\n",=
+ page_size,
+> +                       strerror(errno));
+> +               return EXIT_FAILURE;
+> +       }
+> +
+> +       fd =3D _memfd_secret(0);
+> +       if (fd < 0) {
+> +               printf("memfd_secret() failed:  %s\n", strerror(errno));
+> +               if (check && errno !=3D ENOSYS)
+> +                       return EXIT_SUCCESS;
+> +
+> +               return EXIT_FAILURE;
+> +       }
+> +
+> +       if (check)
+> +               return EXIT_SUCCESS;
+> +
+> +       if (ftruncate(fd, page_size) < 0) {
+> +               fprintf(stderr, "ftruncate failed:  %s\n", strerror(errno=
+));
+> +       }
+> +
+> +       flags =3D PROT_READ | PROT_WRITE;
+> +       if (wx)
+> +               flags |=3D PROT_EXEC;
+> +
+> +       mem =3D mmap(NULL, page_size, flags, MAP_SHARED, fd, 0);
+> +       if (mem =3D=3D MAP_FAILED || !mem) {
+> +               printf("unable to mmap secret memory:  %s\n", strerror(er=
+rno));
+> +               close(fd);
+> +               return EXIT_FAILURE;
+> +       }
+> +
+> +       close(fd);
+> +
+> +       memcpy(mem, TEXT, sizeof TEXT);
 
-Then when systemd is creating the socket for the activated service it
-would lookup the port type in policy and call security_compute_create
-passing in systemds context, the port context and tcp_socket class
-which would return an a_socket_t context to be used in the
-setsockcreatecon call.
+Please use parentheses with sizeof. When the argument is a type name
+they are mandatory so it's better to use them always for consistency.
+See also:
+https://lore.kernel.org/lkml/CA+55aFwey-q4716pYYSi=3D3R_ucw84zFspDXMXmzvzc7=
+2XSc9Lg@mail.gmail.com/
+https://lore.kernel.org/lkml/CA+55aFwcJgAFiow1sSo7mkF9n0MpTw80gjAszazyBrRcm=
+bph-g@mail.gmail.com/
 
->
-> * The socket type transition I was talking about would be new as there
-> is not currently a type transition when the kernel creates a new
-> socket for incoming connections.
->
-> > > > Everything looks
-> > > > right i.e. the port type is retrieved, the context is created and
-> > > > setsockcreatecon is called without errors. However 'netstat -Z' shows
-> > > > the listening sockets type as init_t and not the type in the
-> > > > setsockcreatecon call, is this the expected behavior? Can anyone help
-> > > > me understand why this is happening?
-> > >
-> > > You're calling setsockcreatecon() before you create the listening
-> > > socket, right?  I wouldn't expect this to work properly if you create
-> > > the listening socket and then call setsockcreatecon() hoping to have
-> > > the new label applied to the new child sockets.
-> >
-> > It's not my code  ;) the systemd sd-listen process code does the
-> > setsockccreatecon, bind and then listen.
->
-> Well, regardless of who wrote the code, setsockcreatecon() is not
-> going to have any effect on a socket's label if it is called *after*
-> the socket is created.  Additionally, setsockcreatecon() has no effect
-> on child sockets created by incoming connections on a listening
-> socket; if you want to affect the label of those child sockets today
-> you would need to change the label of the listening parent socket.
->
-> > Regarding how to get the port context, what would you suggest?
-> > Currently I'm calling semanage functions but have considered using the
-> > sepol instead.
->
-> I'll leave that to the folks who better understand the SELinux
-> libraries, my only comment would be that I'm not sure reusing the port
-> label is a good idea here.
->
-> --
-> paul-moore.com
+> +
+> +       if (memcmp(mem, TEXT, sizeof TEXT) !=3D 0) {
+> +               fprintf(stderr, "data not synced (1)\n");
+> +               munmap(mem, page_size);
+> +               return EXIT_FAILURE;
+> +       }
+> +
+> +       if (strlen(mem) + 1 !=3D sizeof TEXT) {
+> +               fprintf(stderr, "data not synced (2)\n");
+> +               munmap(mem, page_size);
+> +               return EXIT_FAILURE;
+> +       }
+
+What is the point of this second check? The previous check already
+asserts that the contents are char-to-char equal to TEXT (including
+the terminating null character), which implies string length
+equivalence as well.
+
+> +
+> +       munmap(mem, page_size);
+> +
+> +       return EXIT_SUCCESS;
+> +}
+
+--
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
