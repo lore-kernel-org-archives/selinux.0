@@ -2,73 +2,150 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90AB0ECAAD5
-	for <selinux@archiver.kernel.org>; Mon, 12 Sep 2022 07:40:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D351DECAAD5
+	for <selinux@archiver.kernel.org>; Mon, 12 Sep 2022 09:24:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbiILHk4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Sep 2022 03:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36648 "EHLO
+        id S229696AbiILJYj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Sep 2022 05:24:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbiILHkr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Sep 2022 03:40:47 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579721409D
-        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 00:40:46 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id BE7761FA77
-        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 07:40:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1662968444; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type;
-        bh=SD/6JEseukZjf7wlpfiY3XZ9cyChFr6K/Y1Y1pmFPZc=;
-        b=d/8CzEsoQSvoNdE6tt7hJZ77OlMtaumBPgluaZndeFESh7YktPEo8oEdzw5D++hQdyq5IF
-        vSrtGx1V5fTOigYFiYk/KtTAsQSHpB/acFx8lJug/YYPwQRB9y88ICKm67tUCUidMomAcR
-        EmBRRf5MfBXr60n2cLyB94x1gUralOM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1662968444;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-         mime-version:mime-version:content-type:content-type;
-        bh=SD/6JEseukZjf7wlpfiY3XZ9cyChFr6K/Y1Y1pmFPZc=;
-        b=IM6DUqU+b1NzSTSzCXuEJLvJJXaQyLBEhYAdqRu8zuflv0RObTToIOEcUC7zlUsJ1c78wF
-        8DChAiTN23ty88Cg==
-Received: from suse.com (unknown [10.163.25.22])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id AD8E82C141
-        for <selinux@vger.kernel.org>; Mon, 12 Sep 2022 07:40:44 +0000 (UTC)
-Date:   Mon, 12 Sep 2022 09:40:43 +0200
-From:   Johannes Segitz <jsegitz@suse.de>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] python/chcat: Don't fail on missing translation files
-Message-ID: <20220912074043.GB5803@suse.com>
+        with ESMTP id S229688AbiILJYh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Sep 2022 05:24:37 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 001406159;
+        Mon, 12 Sep 2022 02:24:35 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id d64-20020a17090a6f4600b00202ce056566so2296310pjk.4;
+        Mon, 12 Sep 2022 02:24:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=A+Syqg4y1JE8bIO5x/LU8yXwkMx7DMhEF6V8BixASDk=;
+        b=i3jYkx3jASZnk7nQzWlUfg3hG5o5zcavYIAbbpiOGm0filEkseTQmzjV5rub+XCMwk
+         W355ocRljQy4Que7e2ixQmf01KSfbnPJdOIr6Mw3GYhKVpAmIH6oNc20n6wOq8reN1x7
+         V3Rf/QtIlh8ajmgSwZIdm4mFL3dS5VyIyx9SBYqGU38UEKDu1dci1bA/TtWOFhkFic4m
+         7trBiqNfFh+KrcRh5gBKf3xU+J4RZQrMbbGmiaavLQHMpfAvHu6HeXwSjcYC6R7plXCT
+         /tqUaQFjpVn98LeNwv7q0MV4JwmGCLNq+V9+bhCxK7+qA/2kFCDxX1nhHxB9mJ3/M97b
+         t4vA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=A+Syqg4y1JE8bIO5x/LU8yXwkMx7DMhEF6V8BixASDk=;
+        b=zGBhOMRdxidGWA39sJvdR5U3UoXf8leiO5WMEhHlL+T+O65eGI2SY9JRtPWOLHpj3Y
+         neDpUQJz/d4SQMozhYIyq5C/avVKWQpKbu726vW4XKWr+VkBfb5vdhoiy82MghYq3AeL
+         3EoZNc61K69Xspo5AEQVkH5bKkNsK9ASjumAOESkRkn7FtVmnd395cf2vnoOpYJ86FUI
+         hiG7xHcMkvJYzVOHZXXgq4syGmURHDN7RkOIOp2UuZLj8X6LwZMCtSGDuDaPfA+O1tq3
+         SWoRMQzi9Dscr888mTECsG79M+3IeXBcmUTrNovJ2WVMQAjv13BcIY9+4XJzMc4u4iV1
+         331Q==
+X-Gm-Message-State: ACgBeo2cCJchcQ+1rSLFZ5BAlXLiX3VMsClavcunc6DL+MSVkng/M4kW
+        QtfpbCF88GUM/c1c1A9Dh04=
+X-Google-Smtp-Source: AA6agR4oaU+WBpYICmUHkFCM/PO1PEe4j28gFaz3bM+cs+H79Ws+xUcg+YIvrolIkiP+agnqJx6YKw==
+X-Received: by 2002:a17:90a:6d62:b0:200:579f:e4ea with SMTP id z89-20020a17090a6d6200b00200579fe4eamr23220150pjj.244.1662974675500;
+        Mon, 12 Sep 2022 02:24:35 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id i5-20020a17090a4b8500b0020080e8c8besm4645681pjh.40.2022.09.12.02.24.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Sep 2022 02:24:34 -0700 (PDT)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: xu.panda@zte.com.cn
+To:     paul@paul-moore.com
+Cc:     stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        keescook@chromium.org, anton@enomsg.org, ccross@android.com,
+        tony.luck@intel.com, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+        Xu Panda <xu.panda@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] selinux/hooks: remove the unneeded result variable
+Date:   Mon, 12 Sep 2022 09:17:19 +0000
+Message-Id: <20220912091718.18053-1-xu.panda@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Exception handling was not in line with other files, causing chcat to
-fail if translation files were not available
+From: Xu Panda <xu.panda@zte.com.cn>
 
-Signed-off-by: Johannes Segitz <jsegitz@suse.de>
+Return the value avc_has_perm() directly instead of storing it in
+another redundant variable.
+
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Xu Panda <xu.panda@zte.com.cn>
 ---
- python/chcat/chcat | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c | 24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
 
-diff --git a/python/chcat/chcat b/python/chcat/chcat
-index e779fcc6..1b93e99b 100755
---- a/python/chcat/chcat
-+++ b/python/chcat/chcat
-@@ -40,7 +40,7 @@ try:
-                     localedir="/usr/share/locale",
-                     **kwargs)
-     _ = t.gettext
--except ImportError:
-+except:
-     try:
-         import builtins
-         builtins.__dict__['_'] = str
---
-2.35.3
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2a1168b33218..f553c370397e 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5995,7 +5995,6 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
+ 	struct ipc_security_struct *isec;
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+-	int rc;
+ 
+ 	isec = selinux_ipc(msq);
+ 	ipc_init_security(isec, SECCLASS_MSGQ);
+@@ -6003,10 +6002,9 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->key;
+ 
+-	rc = avc_has_perm(&selinux_state,
+-			  sid, isec->sid, SECCLASS_MSGQ,
+-			  MSGQ__CREATE, &ad);
+-	return rc;
++	return avc_has_perm(&selinux_state,
++			    sid, isec->sid, SECCLASS_MSGQ,
++			    MSGQ__CREATE, &ad);
+ }
+ 
+ static int selinux_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
+@@ -6134,7 +6132,6 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
+ 	struct ipc_security_struct *isec;
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+-	int rc;
+ 
+ 	isec = selinux_ipc(shp);
+ 	ipc_init_security(isec, SECCLASS_SHM);
+@@ -6142,10 +6139,9 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = shp->key;
+ 
+-	rc = avc_has_perm(&selinux_state,
+-			  sid, isec->sid, SECCLASS_SHM,
+-			  SHM__CREATE, &ad);
+-	return rc;
++	return avc_has_perm(&selinux_state,
++			    sid, isec->sid, SECCLASS_SHM,
++			    SHM__CREATE, &ad);
+ }
+ 
+ static int selinux_shm_associate(struct kern_ipc_perm *shp, int shmflg)
+@@ -6219,7 +6215,6 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
+ 	struct ipc_security_struct *isec;
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+-	int rc;
+ 
+ 	isec = selinux_ipc(sma);
+ 	ipc_init_security(isec, SECCLASS_SEM);
+@@ -6227,10 +6222,9 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = sma->key;
+ 
+-	rc = avc_has_perm(&selinux_state,
+-			  sid, isec->sid, SECCLASS_SEM,
+-			  SEM__CREATE, &ad);
+-	return rc;
++	return avc_has_perm(&selinux_state,
++			    sid, isec->sid, SECCLASS_SEM,
++			    SEM__CREATE, &ad);
+ }
+ 
+ static int selinux_sem_associate(struct kern_ipc_perm *sma, int semflg)
+-- 
+2.15.2
+
