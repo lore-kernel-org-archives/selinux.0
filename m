@@ -2,78 +2,118 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 404C7ECAAA1
-	for <selinux@archiver.kernel.org>; Thu, 15 Sep 2022 14:27:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89908ECAAA1
+	for <selinux@archiver.kernel.org>; Thu, 15 Sep 2022 14:27:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbiIOO1P (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Sep 2022 10:27:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41362 "EHLO
+        id S229521AbiIOO1V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Sep 2022 10:27:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiIOO1N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Sep 2022 10:27:13 -0400
+        with ESMTP id S229484AbiIOO1U (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Sep 2022 10:27:20 -0400
 Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE904DF33
-        for <selinux@vger.kernel.org>; Thu, 15 Sep 2022 07:27:11 -0700 (PDT)
-Received: from fsav113.sakura.ne.jp (fsav113.sakura.ne.jp [27.133.134.240])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 28FER9iX044275;
-        Thu, 15 Sep 2022 23:27:09 +0900 (JST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360E8EAE
+        for <selinux@vger.kernel.org>; Thu, 15 Sep 2022 07:27:19 -0700 (PDT)
+Received: from fsav118.sakura.ne.jp (fsav118.sakura.ne.jp [27.133.134.245])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 28FERHHq044314;
+        Thu, 15 Sep 2022 23:27:17 +0900 (JST)
         (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
 Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav113.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav113.sakura.ne.jp);
- Thu, 15 Sep 2022 23:27:09 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav113.sakura.ne.jp)
+ by fsav118.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp);
+ Thu, 15 Sep 2022 23:27:17 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp)
 Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
         (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 28FER9kB044270
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 28FERHfd044311
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Thu, 15 Sep 2022 23:27:09 +0900 (JST)
+        Thu, 15 Sep 2022 23:27:17 +0900 (JST)
         (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <b6ccb6a2-b6b0-b6ad-9f19-8ff3180d04ba@I-love.SAKURA.ne.jp>
-Date:   Thu, 15 Sep 2022 23:27:08 +0900
+Message-ID: <c2a3279d-451d-23df-0911-e545d21492e6@I-love.SAKURA.ne.jp>
+Date:   Thu, 15 Sep 2022 23:27:16 +0900
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.2.2
 Subject: Re: LSM stacking in next for 6.1?
 Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     John Johansen <john.johansen@canonical.com>,
         LSM List <linux-security-module@vger.kernel.org>,
         James Morris <jmorris@namei.org>, linux-audit@redhat.com,
-        John Johansen <john.johansen@canonical.com>,
         Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
         SElinux list <selinux@vger.kernel.org>
 References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <791e13b5-bebd-12fc-53de-e9a86df23836@schaufler-ca.com>
- <8ac2731c-a1db-df7b-3690-dac2b371e431@I-love.SAKURA.ne.jp>
- <CAHC9VhQGnEcoYeGpwbbXbMrG1dOvJ=2ohd4zPYoqBJK9p1mSjQ@mail.gmail.com>
- <854c05ad-888e-b882-bb97-65f4ca289bc6@I-love.SAKURA.ne.jp>
- <CAHC9VhSDL+wuPGNB3axkksqVTjnxU8pS8Axz7skPk3zjBbRJXw@mail.gmail.com>
+ <269014c6-5ce6-3322-5208-004cb1b40792@canonical.com>
+ <CAHC9VhRrOgDMO9fo632tSL7vCMAy1_x3smaAok-nWdMAUFB8xQ@mail.gmail.com>
+ <1958a0d3-c4fb-0661-b516-93f8955cdb95@schaufler-ca.com>
+ <CAHC9VhQPvcunvBDvSnrUChwmGLen0Rcy8KEk_uOjNF1kr4_m9w@mail.gmail.com>
+ <6552af17-e511-a7d8-f462-cafcf41a33bb@schaufler-ca.com>
+ <CAHC9VhQMeyxQJSAUuigu=CCr44WtpJg=LEh1xng_bPfCCjqq6Q@mail.gmail.com>
+ <5ef4a1ae-e92c-ca77-7089-2efe1d4c4e6d@schaufler-ca.com>
+ <CAHC9VhQRpeOMkeEfy=VRPnpuYMUDYgLp56OjQZPYwoXmfHYREQ@mail.gmail.com>
+ <c679cea7-bb90-7a62-2e17-888826857d55@schaufler-ca.com>
+ <e9ce6253-c8a3-19c3-1b71-f3a2e04539bc@I-love.SAKURA.ne.jp>
+ <cc14bbde-529e-376c-7d27-8512ec677db3@schaufler-ca.com>
+ <ff43e254-0f41-3f4f-f04d-63b76bed2ccf@I-love.SAKURA.ne.jp>
+ <1a9f9182-9188-2f64-4a17-ead2fed70348@schaufler-ca.com>
+ <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
+ <7f9ffd77-a329-ab13-857b-f8e34b2bfc77@schaufler-ca.com>
 From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-In-Reply-To: <CAHC9VhSDL+wuPGNB3axkksqVTjnxU8pS8Axz7skPk3zjBbRJXw@mail.gmail.com>
+In-Reply-To: <7f9ffd77-a329-ab13-857b-f8e34b2bfc77@schaufler-ca.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2022/09/14 22:56, Paul Moore wrote:
-> On Fri, Sep 9, 2022 at 7:33 AM Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp> wrote:
->> Inclusion into upstream is far from the goal.
+On 2022/09/15 0:50, Casey Schaufler wrote:
+> On 9/14/2022 6:57 AM, Tetsuo Handa wrote:
+>> Please distinguish the difference between "enable" and "support" at
+>> https://bugzilla.redhat.com/show_bug.cgi?id=542986#c7 . (By the way,
+>> I hate the word "support", for nobody can share agreed definition.)
+>>
+>> "enable" is something like "available", "allow to exist".
+>>
+>> "support" is something like "guaranteed", "provide efforts for fixing bugs".
+>>
+>> However, in the Red Hat's world, "enable" == "support". The kernel config options
+>> enabled by Red Hat is supported by Red Hat, and the kernel config options Red Hat
+>> cannot support cannot be enabled by Red Hat.
 > 
-> For better or worse, there is a long history of the upstream Linux
-> Kernel focusing only on in-tree kernel code, I see no reason why we
-> should change that now for LSMs.
+> The "enable" == "support" model in consistent with the expectations of
+> paying customers. 
 
-Because we can't afford accepting/maintaining whatever LSMs that are proposed.
+Regarding CONFIG_MODULES=y,
+"Vendor-A enables module-A" == "Vendor-A provides support for module-A" and
+"Vendor-B enables module-B" == "Vendor-B provides support for module-B".
 
-Do you think that we are going to accept/maintain whatever LSMs that are proposed
-if we get to the point to "The commitment I made to Paul some years ago now was
-that the stacking would eventually include making all combinations possible" ?
-I don't think so.
+Regarding CONFIG_SECURITY=y (namely in the RH world),
+"Distributor-A enables LSM-A" == "Distributor-A provides support for LSM-A".
+However, "Distributor-A does not enable LSM-B" == "Some vendor is impossible to
+provide support for LSM-B".
 
-Although the upstream Linux Kernel focuses only on in-tree kernel code,
-CONFIG_MODULES=y is not limited for in-tree kernel code. It is used by e.g.
-device vendors to deliver their out-of-tree driver code. Then, I see no reason
-why we can't do the same for LSMs. We simply don't need to "provide efforts for
-fixing bugs in whatever LSMs"; we simply should "allow whatever LSMs to exist".
+"Distributor-A does not enable module-B" == "Distributor-A is not responsible for
+providing support for module-B" and "Vendor-B enables LSM-B" == "Vendor-B provides
+support for LSM-B" are what I expect.
+
+Current LSM interface does not allow LSM-B to exist in Distributor-A's systems.
+The "enable" == "support" model should be allowed for LSM interface as well.
+What a strange asymmetry rule!
+
+
+
+>> On the contrary, in the vanilla kernel's world, the in-tree version of TOMOYO
+>> cannot be built as a loadable module LSM. And it is impossible to built TOMOYO
+>> as a loadable module LSM (so that TOMOYO can be used without the "support" by
+>> Red Hat). As a result, users cannot try LSMs (either in-tree or out-of-tree)
+>> other than SELinux.
+> 
+> That is correct. Redhat has chosen to support only SELinux. If you want
+> TOMOYO to be enabled in a distribution you need to sell the value to a
+> distributor (really, really hard) Or (not recommended) become one yourself.
+
+What I'm asking is "allow non-SELinux to exist in RH systems".
+I'm not asking RH to "provide efforts for fixing non-SELinux".
+Being able to build in-tree version of TOMOYO via "make M=security/tomoyo"
+releases RH from the "enable" == "support" spell.
 
