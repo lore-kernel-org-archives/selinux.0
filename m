@@ -2,77 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACE3C6FA82
-	for <selinux@archiver.kernel.org>; Tue, 20 Sep 2022 17:13:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D48C9C54EE9
+	for <selinux@archiver.kernel.org>; Tue, 20 Sep 2022 18:10:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229472AbiITRNG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 20 Sep 2022 13:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
+        id S229871AbiITSK2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Sep 2022 14:10:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229741AbiITRNF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 20 Sep 2022 13:13:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C373336C
-        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 10:13:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2B47B8210B
-        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 17:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E162C433C1;
-        Tue, 20 Sep 2022 17:13:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1663693981;
-        bh=xpfkHumHgTs06I21vn1B2FC2Q9JJ5ulBZZcPnL7mcOQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tj1eDBnVvAimqQ3370q6TDI1ov87Mf3oFUm7By5hHCoKoG1lnRP8KnUnmDWMoggV1
-         t1bI3fzPUQcN6FBuxtQfulCG/Q4eXX0RPixidbJ62epAKHK581Qx9T9GCK8q30AFfE
-         QTX+cbajsg6l5w0B8bzYWrfJodpL6xeMrdn6R6p8=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     selinux@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Paul Moore <paul@paul-moore.com>,
+        with ESMTP id S231307AbiITSKM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Sep 2022 14:10:12 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32EF769F50
+        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 11:10:04 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id m81so4800741oia.1
+        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 11:10:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=jN7cGOh4LCw1mape8CHhzbZSj8x2pw/6VAFaqjgk00E=;
+        b=rrPbo3AN2E6uQzITxEuNRM9JfTnUG70AX+2Weu7XRh4XdnjC3vW/fMv0b11R/qtVsd
+         WvVBaI7WjxFHYnm+qoqlRH27biyZa1LyDHxWRDaeFsbGqIo+kXe8h6nG04+slOhqIIzp
+         4kx9XovnjmgBU136fkX8OZJpzMkEr7N6KpysUhmTcydxvJY2k2ZYh12SSf8qtuJ2en8X
+         GX+VgRtOr6ryojXUO/cm9IEMN5WhuSZuF4EF1OKmfIFjzEUXhbchF3jwyKQ1F0SQqOt6
+         m+P6fBKabRdZ+sqhERLfddnztyTimnT1//uJvfTx66lrK6PaPO34EzZZYgFUOE3ZdMpN
+         UQUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=jN7cGOh4LCw1mape8CHhzbZSj8x2pw/6VAFaqjgk00E=;
+        b=QqXSscqs41Kg2vFj62tT3G8eo9H0uY9syD9ZoSL1REY/wnVlFqfcNSOrtzvtnEIf3y
+         rC+0N9teMfNMCPIfqefTVo8Grc6fh+hiUR4bQTnrXE3oWRgtmskYhYrbk4cehSLYvKo4
+         UcBvxcXhd3zWGMMZoj3uBUfw/Kzn1pDR6fak1kQyu3gr6q/DAAzNBDst/aAbMzLO9mhL
+         YYJh7oO2WyYjL1YBGFpjPtFoSvM4iVeJJkZZZPFbsCjfSB9J2o2bmbp44C42ZAAEVgcR
+         UiPwMIxAGu5wEzprpr0FK9j1lAQ+QgsPkMn9rlsjQApbWv9PqKuAcelMwnamJwpzhvrz
+         upRw==
+X-Gm-Message-State: ACrzQf3diPQbsHatQgcLdMLdC026aD8/S0nrVCytCPQ+vdV7YiidOddF
+        lq0mdmjvKn9tGXYDujj0N6LHTtWE4YkmAOS9U+GaDj8VyQ==
+X-Google-Smtp-Source: AMsMyM4xipMgOrZoZvSuLUYTULSDHIArRuJEHSZk94f5l3Ts7I4O8M+VIz7WdMgNEp3ojh2JXj2h6EPRSLoQq4yFbdo=
+X-Received: by 2002:aca:1c13:0:b0:350:ce21:a022 with SMTP id
+ c19-20020aca1c13000000b00350ce21a022mr2233278oic.172.1663697403806; Tue, 20
+ Sep 2022 11:10:03 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220920171252.3135882-1-gregkh@linuxfoundation.org>
+In-Reply-To: <20220920171252.3135882-1-gregkh@linuxfoundation.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 20 Sep 2022 14:09:52 -0400
+Message-ID: <CAHC9VhRxyWdor-Z9AGKWH6e2_0fx5oSWPH-tuS5QeP7=Pk1MKg@mail.gmail.com>
+Subject: Re: [PATCH] scripts/selinux: use "grep -E" instead of "egrep"
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     selinux@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>
-Subject: [PATCH] scripts/selinux: use "grep -E" instead of "egrep"
-Date:   Tue, 20 Sep 2022 19:12:52 +0200
-Message-Id: <20220920171252.3135882-1-gregkh@linuxfoundation.org>
-X-Mailer: git-send-email 2.37.3
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1095; i=gregkh@linuxfoundation.org; h=from:subject; bh=xpfkHumHgTs06I21vn1B2FC2Q9JJ5ulBZZcPnL7mcOQ=; b=owGbwMvMwCRo6H6F97bub03G02pJDMmaX6a06L877RqR7as1SaTw8Le/cjdr+HiuP/4aIuA2d2uX iVxsRywLgyATg6yYIsuXbTxH91ccUvQytD0NM4eVCWQIAxenAEykwJFhwbGpdctCXcwYfkh+v8jddj D93RXdGoYFSwvYll5iZ9f7/9Go9qqs/Mq+q9O7AA==
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The latest version of grep claims that egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this up by moving the vdso Makefile to use "grep -E" instead.
+On Tue, Sep 20, 2022 at 1:13 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> The latest version of grep claims that egrep is now obsolete so the build
+> now contains warnings that look like:
+>         egrep: warning: egrep is obsolescent; using grep -E
+> fix this up by moving the vdso Makefile to use "grep -E" instead.
+>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: selinux@vger.kernel.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  scripts/selinux/install_policy.sh | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>
-Cc: selinux@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- scripts/selinux/install_policy.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks, merged into selinux/next.
 
-diff --git a/scripts/selinux/install_policy.sh b/scripts/selinux/install_policy.sh
-index 2dccf141241d..20af56ce245c 100755
---- a/scripts/selinux/install_policy.sh
-+++ b/scripts/selinux/install_policy.sh
-@@ -78,7 +78,7 @@ cd /etc/selinux/dummy/contexts/files
- $SF -F file_contexts /
- 
- mounts=`cat /proc/$$/mounts | \
--	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
-+	grep -E "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
- 	awk '{ print $2 '}`
- $SF -F file_contexts $mounts
- 
 -- 
-2.37.3
-
+paul-moore.com
