@@ -2,82 +2,85 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D48C9C54EE9
-	for <selinux@archiver.kernel.org>; Tue, 20 Sep 2022 18:10:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94240C6FA82
+	for <selinux@archiver.kernel.org>; Tue, 20 Sep 2022 18:16:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229871AbiITSK2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 20 Sep 2022 14:10:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42910 "EHLO
+        id S230063AbiITSQ4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Sep 2022 14:16:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231307AbiITSKM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 20 Sep 2022 14:10:12 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32EF769F50
-        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 11:10:04 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id m81so4800741oia.1
-        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 11:10:04 -0700 (PDT)
+        with ESMTP id S229631AbiITSQ4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Sep 2022 14:16:56 -0400
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6500C4F1B8
+        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 11:16:55 -0700 (PDT)
+Received: by mail-qk1-x72a.google.com with SMTP id y2so2225426qkl.11
+        for <selinux@vger.kernel.org>; Tue, 20 Sep 2022 11:16:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=jN7cGOh4LCw1mape8CHhzbZSj8x2pw/6VAFaqjgk00E=;
-        b=rrPbo3AN2E6uQzITxEuNRM9JfTnUG70AX+2Weu7XRh4XdnjC3vW/fMv0b11R/qtVsd
-         WvVBaI7WjxFHYnm+qoqlRH27biyZa1LyDHxWRDaeFsbGqIo+kXe8h6nG04+slOhqIIzp
-         4kx9XovnjmgBU136fkX8OZJpzMkEr7N6KpysUhmTcydxvJY2k2ZYh12SSf8qtuJ2en8X
-         GX+VgRtOr6ryojXUO/cm9IEMN5WhuSZuF4EF1OKmfIFjzEUXhbchF3jwyKQ1F0SQqOt6
-         m+P6fBKabRdZ+sqhERLfddnztyTimnT1//uJvfTx66lrK6PaPO34EzZZYgFUOE3ZdMpN
-         UQUQ==
+        h=content-transfer-encoding:mime-version:user-agent:message-id:date
+         :to:from:subject:from:to:cc:subject:date;
+        bh=ca+PsKDj5QSFv0313Jh1HvXE57OZL8LIYij4boViOz0=;
+        b=KOe4ywkEKLiOQ5oAYOtwOJDojrsQRERH22NJY/kdeAJjTs+4k3u2muvzjApTNy9EeM
+         2bRh2Ah/yvuPfF05CPeea4s/62/7jTfAq+3uMhKLDu5Z/U4P6S7Xl03u/yNI7M+zlbMa
+         aH4GvMCMov2h6TcsPhZP3GSbvDFa297U2EKNrQelnaXVFzlpbjP0VR6rFTZcWVQVCsNU
+         etohZeE/bcTpED5gzFJoTOVvUyH33htidZ+24b1fbPZd6TYdrYIlysirxoCgzVDL6Laj
+         D1SFA0CBJEnf0OqTp/kUiqq9j2ABvDomEEFAjLIuOYell/ihXNDzI15zcReMscmZHlIx
+         t5sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=jN7cGOh4LCw1mape8CHhzbZSj8x2pw/6VAFaqjgk00E=;
-        b=QqXSscqs41Kg2vFj62tT3G8eo9H0uY9syD9ZoSL1REY/wnVlFqfcNSOrtzvtnEIf3y
-         rC+0N9teMfNMCPIfqefTVo8Grc6fh+hiUR4bQTnrXE3oWRgtmskYhYrbk4cehSLYvKo4
-         UcBvxcXhd3zWGMMZoj3uBUfw/Kzn1pDR6fak1kQyu3gr6q/DAAzNBDst/aAbMzLO9mhL
-         YYJh7oO2WyYjL1YBGFpjPtFoSvM4iVeJJkZZZPFbsCjfSB9J2o2bmbp44C42ZAAEVgcR
-         UiPwMIxAGu5wEzprpr0FK9j1lAQ+QgsPkMn9rlsjQApbWv9PqKuAcelMwnamJwpzhvrz
-         upRw==
-X-Gm-Message-State: ACrzQf3diPQbsHatQgcLdMLdC026aD8/S0nrVCytCPQ+vdV7YiidOddF
-        lq0mdmjvKn9tGXYDujj0N6LHTtWE4YkmAOS9U+GaDj8VyQ==
-X-Google-Smtp-Source: AMsMyM4xipMgOrZoZvSuLUYTULSDHIArRuJEHSZk94f5l3Ts7I4O8M+VIz7WdMgNEp3ojh2JXj2h6EPRSLoQq4yFbdo=
-X-Received: by 2002:aca:1c13:0:b0:350:ce21:a022 with SMTP id
- c19-20020aca1c13000000b00350ce21a022mr2233278oic.172.1663697403806; Tue, 20
- Sep 2022 11:10:03 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220920171252.3135882-1-gregkh@linuxfoundation.org>
-In-Reply-To: <20220920171252.3135882-1-gregkh@linuxfoundation.org>
+        h=content-transfer-encoding:mime-version:user-agent:message-id:date
+         :to:from:subject:x-gm-message-state:from:to:cc:subject:date;
+        bh=ca+PsKDj5QSFv0313Jh1HvXE57OZL8LIYij4boViOz0=;
+        b=FjHd9IrZpkNjgqnZtXuuGhrd29uiePixtjYh1xckeOtrqirfKmqGTAurVUYavyrPuu
+         uFKfTfRxMU/x1zewYhbzEMz7xVw4XvoZty2vBlx5OLIFpGvvJf/1giJqth0bk8s5Zw4D
+         J6nlnylq8dMWox7t4vbgzY93UFc7lXeDiWvQGZ9o6MhIaI9AZ4/3ebI/wQeWdkumXKO/
+         HtyS8A5v6kbZGUAGxdqk1szAWiJ2BB8nl6MLI8fiuhlHxP6EMZY+mmfkOvpwajXwTQkw
+         9XGlNZFDxNHr/7BDpt3hHhHZ7JuqA2nRqfoskTBNG1+TgUfWwf1InxnSi5vvQj1gWcEV
+         hXaw==
+X-Gm-Message-State: ACrzQf29e5hHYu8YUfoAmUonPKWdcX21fKZhxas/+FPFvDQK+l4bMuzK
+        C6QkNuMaxXdRAEGsO4EJC9da4Lel/6S3
+X-Google-Smtp-Source: AMsMyM6mYPkiV/BuCrpRHIqzXoSMLbnmxTEyPnlIuECaN7hroFCzk1i9zH4Rneyv8LFzW7qwvM/tGQ==
+X-Received: by 2002:a05:620a:1a04:b0:6ce:abb7:d6e8 with SMTP id bk4-20020a05620a1a0400b006ceabb7d6e8mr17245684qkb.296.1663697814335;
+        Tue, 20 Sep 2022 11:16:54 -0700 (PDT)
+Received: from localhost (pool-108-26-161-203.bstnma.fios.verizon.net. [108.26.161.203])
+        by smtp.gmail.com with ESMTPSA id r1-20020ae9d601000000b006cbbc3daaacsm249516qkk.113.2022.09.20.11.16.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Sep 2022 11:16:54 -0700 (PDT)
+Subject: [PATCH] selinux: remove runtime disable message in the
+ install_policy.sh script
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 20 Sep 2022 14:09:52 -0400
-Message-ID: <CAHC9VhRxyWdor-Z9AGKWH6e2_0fx5oSWPH-tuS5QeP7=Pk1MKg@mail.gmail.com>
-Subject: Re: [PATCH] scripts/selinux: use "grep -E" instead of "egrep"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org
+Date:   Tue, 20 Sep 2022 14:16:53 -0400
+Message-ID: <166369781344.135827.4622868911878878010.stgit@olly>
+User-Agent: StGit/1.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 20, 2022 at 1:13 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> The latest version of grep claims that egrep is now obsolete so the build
-> now contains warnings that look like:
->         egrep: warning: egrep is obsolescent; using grep -E
-> fix this up by moving the vdso Makefile to use "grep -E" instead.
->
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: selinux@vger.kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  scripts/selinux/install_policy.sh | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+We are in the process of deprecating the runtime disable mechanism,
+let's not reference it in the scripts.
 
-Thanks, merged into selinux/next.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ scripts/selinux/install_policy.sh |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
--- 
-paul-moore.com
+diff --git a/scripts/selinux/install_policy.sh b/scripts/selinux/install_policy.sh
+index 20af56ce245c5..24086793b0d8d 100755
+--- a/scripts/selinux/install_policy.sh
++++ b/scripts/selinux/install_policy.sh
+@@ -31,8 +31,7 @@ fi
+ if selinuxenabled; then
+     echo "SELinux is already enabled"
+     echo "This prevents safely relabeling all files."
+-    echo "Boot with selinux=0 on the kernel command-line or"
+-    echo "SELINUX=disabled in /etc/selinux/config."
++    echo "Boot with selinux=0 on the kernel command-line."
+     exit 1
+ fi
+ 
+
