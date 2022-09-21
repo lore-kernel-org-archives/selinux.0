@@ -2,97 +2,89 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22AFAECAAD8
-	for <selinux@archiver.kernel.org>; Wed, 21 Sep 2022 19:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F7D5C6FA82
+	for <selinux@archiver.kernel.org>; Wed, 21 Sep 2022 19:11:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229972AbiIUTKk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Sep 2022 15:10:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51898 "EHLO
+        id S229687AbiIUTL3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Sep 2022 15:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229658AbiIUTKh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Sep 2022 15:10:37 -0400
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCEB67475
-        for <selinux@vger.kernel.org>; Wed, 21 Sep 2022 12:10:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1663787435; bh=w9KIWMFQdeDJ4ZbLTO8Vog4yWxnLP/2QRgO66wTkMG0=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=mTRnZnXsmA5oYVM5hP+5Ce055EV4EngSi63Jc7rzzhn0swuH/gAxnWZcs5nX19+IwDhtfYrOcp1wlyIKZGQ5wSCPoJE3YXypWAGqC4QE0KUHalVj79WqEyWxMIokqefYbvpq5/SLcM81ZhS/WI7lwpEOgEiskC2vWyZOgH0M/5xenB4UBVWMTQbEUV+e4i4O+1+nfKJCD0cHoegnE/QlXas01qoQj64niZmmYlj1+N+mmpypbHC4SWGFpmEG4HpcdWoNDIi9mWloqeGBo90yQD46n9JupcvaPkQlIAqjwFXlhzJ6DthXOQoQbb+IOazzv5cock7yI3tVRRzxqmCKTQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1663787435; bh=EmFS1eH/mqnwNEsSf/l3Bjnyuzwi0hd3fUbtvEQYtEw=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=F3TMxgcythaAqeBbpKkFq2vmNIQzJjogeJBfpRSgAGa2Ww6DeKyJLX1Ca67/uxRi9N/Tw7uvcjaA9DukHYbvvcbnbK5dcK5hIWzPnQ60pLv9aUSAOpFqL0KlJKEaBZv3RO8kLt+Oh0+G6gVzWvJjmiLDgxTehc+MBspZ0kx2/wic+FQC4DMIov+ZTCcmzIwngn7LEPlcCjIaPQNQXNqXKbZjJyYh20dJ4LkSbU/MSm13PQAgmqjYz9X+Cdg8U2cLOTMGgz/0XeUMx3ivBc7clLHZfL1jvjLuatt4ftR9uSrlHJzWCdCjEMYh3ISh5kirJCBzbN/cDNh6GmhcZIc6NA==
-X-YMail-OSG: fxoPkiMVM1mvr8Bb7x.M2q3zehzJtVpMDyz_QuO5MYBzTocj2XSX4Y7kqVhHfnG
- aLCSP8n07ehxVA9aq8OU.nRN7KQkH5UL3TMilb.xAl1Nq0vrD0NDhPD852.lh6Pbncko9TRz00Be
- Z65T2VK5dLdLi5P2HQHzdqFEVwkXiPoAwuVd1CLIiUf9xxn7oJ1Uz5.Y1XK_fm.JOnomVPSNuKXV
- mnyTpWgBf3d7.zh2ZysYIcI0UE48w.OrU1Yga16JjsH8JefbDpepsddQ_PKzUrlZj8rvRbRtlDCl
- L53F2dZArbgMmHAhtiwL3yBA8.yaRNQ2FE7ye9vPMKYsjryLHRFfDTKdRve8fz8nZOciUm5FhJAz
- HxMKhezOFKdfowuFjijDdkzdsCcvBJ_e7kJET2KPlAqdGCxkBa1_bxvtB5Ry1cyponPhtfRa6onb
- bl6mQUeZSeWhdgI8ZpOmWybyEmD_VUUeyEnMdkmA6O2pYzECipE9pPsOsDQV.9.gPtMNkFsjNv.y
- LBQQ.7lNxbrsrLptoHGaXnY2mw4VgcQ3kzbPt5jCQ39o9a8KdXGG3qH_UBSufjhhk9pD7Em6c5Pn
- IUPPBRtGk8PERVyniGvGDjc8cfSHEJXe7DK2aeUiRjEKEH7cslnostH6zPPZsMxqMkMAqO0MWIeJ
- 3xthqMexh.usG9KwtbbcFf3AoCqdeLQ8JK8N27kav7PgU9vmZ0mpr_w7AdBi5AFQWL0IBU3XrCNF
- ovdWo.sKJldkxNu5zd1bzL3fZR54luLOtXQiEEu6i.iqXiMD0E31vwndBK7RZ4FM5AgbvhTpibkG
- U4fmdo8YFeM6rYoIdUgHj4tJNp3PfU0hFGFnfFosVy0EGLgh6TQRv1M3AGlL.DEIAFLS_0B8dBw4
- ysAvpW24tzLx1GHLgwNt_ASXNtBB3UyQqjLkRwmawOPajB0JRBpuyzA9WTTiKbh_8UIVdhqPBtDg
- Adxfan6fFXdBSXVTbKKP3U0JPI7I9EXfc9u3PPKwCq6mMdsLflDGB49sN2VxqFDZwcNEfryAwNYj
- L.5M1gpIb21yiV8qeislQsE0Rcy4XLp1JPXNQfVT7ea8uj2mf_gRN7nR6wna42qChkYTvgU1GO.d
- vmcsQPF1hhDBMl0KUVZB7GkCxY2eo2ExWJnr0g_M8YQvS3g2yDnoZrl5DGI54TZzY4C_hG2nae4F
- hONuZLOEgUHZ2GP1gY9Gbkz_IKWt3m4vgP72G579DJtHBK8TdGwus4CY9s05TDn7ZIwo61aHsV3S
- w6HeSn.kiozy.Yz4gaOPaZtj3o5LmdWK_wCri3FwreAYe0epMEa4S5W0eSucZ6.lu8y6gdwr5H73
- rxoo7IpvQ2pxP__csN0COuyQwtwRWKi6AQmn08ylNsSjZEBA36tXdkrpFyR_PEpAYHHQrjtoOm.s
- q6rW.jmmkM6Z.nUp.Hu7cg5hVCV0lBUtL86TFUeQvUF5MGnS6NO5HjyulwLYwQi1m82jrMMqfszb
- ZUty4Ln9tGnEedDd0nX9JM61C7kcGsWPH9dmvVUtm9caf2VPtkvKn_U_6hRGOYxfANDCcoOYUdvY
- DhnH3RFJkAGWFURIrwSEnUskGSUKjGpg94D4IwaxTeODOpJ_rLusCvDCPbkXXV3ObV8LuNxQpICi
- uqm2pSb4zz87uwb1XI57gsIHUZFUq0gA0s57SPGLjbEoheeEWKEb9ImbKaiQD4yCNQ9pZgMtO9bq
- 9ufCMj7IY1ihF456PscnPQKwNNYNhFyjcOQNx50VK_OeavKML_ddVxafioLuXbrkR_EjOkpNZxXf
- iJ7PPJ4DQhgnTpvsyMmjNn9eJ6WX1XcAm9Knswv8L2wSYr1tB88eKgwol9Ii5SnCOaUMdDNu9u8n
- PGQTJ5Y5ZQ_xdJX_uixgnQFilr1hmROTtU6Yxgl8EGmLUkwH62UW0c6.D5DaYCm0FjQChGasRdT2
- ligPLEGMAiGTqtUvmdGbQaXuNDWxhzJBWRtingoNkIVNOrJphPDaJi.9C81_zutgniZEiFordz9T
- oz5xbBw8TsB94hAEPyHr_CrjGI2pf0s8maiky4bRGaqBz.ITaqoFatD40TEhjSgl77z8gpE02wOL
- jZzKSNN73ERr8z3R.UNF3sr.L_XOpNGC2Ynisq3TlkLvbwOwfr4Q3fbzRXl7eZfCcrDoLj8sMpI9
- hARr_QtoPfYa3NEMGazSym927OvJP7xEIhKI898XaIA6fjJM1fKBFahm39Zt_CCOOOiw_cocsO87
- 0H5e9ADtdp0vPA2Ct6_yPKXNJgj8uCdt2D9_a5KAc
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Wed, 21 Sep 2022 19:10:35 +0000
-Received: by hermes--production-bf1-64b498bbdd-pvbhs (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID c542988d0e83e1f92413f98b3eb38b34;
-          Wed, 21 Sep 2022 19:10:29 +0000 (UTC)
-Message-ID: <6c7f00d2-12aa-af65-1f3a-0087a1744633@schaufler-ca.com>
-Date:   Wed, 21 Sep 2022 12:10:26 -0700
+        with ESMTP id S229658AbiIUTL2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Sep 2022 15:11:28 -0400
+Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 635E45FAD3
+        for <selinux@vger.kernel.org>; Wed, 21 Sep 2022 12:11:27 -0700 (PDT)
+Received: by mail-oo1-xc2c.google.com with SMTP id r136-20020a4a378e000000b004755953bc6cso1039878oor.13
+        for <selinux@vger.kernel.org>; Wed, 21 Sep 2022 12:11:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=C6JfGK1tBYgjb4fy17yxr7GLC0kh0NNF0V5iaM+9QGU=;
+        b=Ni2c+BqoOXeS3nLSTxnjeIjcIa2qayOkxe0nWKz2o3hNaJ4/dDAy2e/ekHyVdlTRHo
+         NJAFT+GSxHgfe60MX7+4dv9rnEFGT/GNpPGh+CZKzvOYgmBu0bThCPZcL4MhjpjAVmHd
+         ex/YcmN4jAsk2KLJl6WLOJbMOg/5V+IXwM6YJ6uOnn6fxpOFhDWJBH9CFQ/32jQgNn6N
+         7r4T4AemZdTWg0tRbjDEIgeSD08peVGMn6HfqXqhdyZ9OAm7O6sOwoHAVm/A525Hckxk
+         VW0Vc/m1CCiED0f23i/Dd2lfqxIZEvWVKvqQCJK+1I2snDJmDLqtxYD8mtzv4dxq3SO1
+         crPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=C6JfGK1tBYgjb4fy17yxr7GLC0kh0NNF0V5iaM+9QGU=;
+        b=cX4BKBf6Jq/7n0bl9SRkAB91jwpApaMHGyFU/3vMkiGhm8sOpdSkSkIXyteBPe1Je7
+         R/w89ky2scJyLFMEGpRUym+kstKKBFWB6bijCSJsKqaTP35Dh3TEwL/902YEUreFEePI
+         HfzOpps9+aaPzrVcdKbTXupgCP412RWWHLdPuzbRer1xRzsxG29A28QubbN7tG2bEs2n
+         hsGq2EZUAs7Kbd5Rmpl1r4Om7KTL3uB+YZgxb5BWUtbfZj0IXzV3D6uftzOnaQw88bgm
+         fXoPO0qiO8ZKH/VWMSOyPmxPK5n3VzTHvuUS9WPxNqKjNrv2INelmZO+2NHAbsMEgl5v
+         WEiA==
+X-Gm-Message-State: ACrzQf15S2hUxQPFQLlY0pd9o8hvodSLsKA8LJBiEv4GQt2B+GWOto5l
+        zTm2B34L0K1j1cN2gDSXWcqKjd8gZUfLt5JJtYlI
+X-Google-Smtp-Source: AMsMyM61l9THiW+6SygkYyTbi79WLho61206Yyq1f6KpS4f7ypFiMkAPdxN9c6wB5+ow1AG+GzLerVDYl7fO/TDqlqc=
+X-Received: by 2002:a4a:ae85:0:b0:44b:4ac7:9e10 with SMTP id
+ u5-20020a4aae85000000b0044b4ac79e10mr11108383oon.24.1663787486605; Wed, 21
+ Sep 2022 12:11:26 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.13.0
-Subject: Re: [PATCH 0/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
-Content-Language: en-US
-To:     jeffxu@chromium.org, selinux@vger.kernel.org
-Cc:     linux-security-module@vger.kernel.org, jorgelo@chromium.org,
-        groeck@chromium.org
-References: <20220921185426.1663357-1-jeffxu@chromium.org>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20220921185426.1663357-1-jeffxu@chromium.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20663 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20220921185426.1663357-1-jeffxu@chromium.org> <20220921185426.1663357-2-jeffxu@chromium.org>
+In-Reply-To: <20220921185426.1663357-2-jeffxu@chromium.org>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 21 Sep 2022 15:11:15 -0400
+Message-ID: <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
+To:     jeffxu@chromium.org
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        jorgelo@chromium.org, groeck@chromium.org,
+        Luis Hector Chavez <lhchavez@google.com>,
+        Luis Hector Chavez <lhchavez@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/21/2022 11:54 AM, jeffxu@chromium.org wrote:
+On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
+>
 > From: Jeff Xu <jeffxu@chromium.org>
 >
-> This patch was originally developed by Luis Hector Chavez
-> <lhchavez@chromium.org>
+> When SECURITY_SELINUX_DEVELOP=y and the system is running in permissive
+> mode, it is useful to disable logging from permissive domain, so audit
+> log does not get spamed.
 >
-> For systems that use SECURITY_SELINUX_DEVELOP=y and allow permissive
-> domains. The audit log from permissive domains can be excessive in
-> practice, and this patch is useful to avoid the log spam.
-
-Doesn't this defeat the purpose of permissive mode? If you aren't
-logging the events that would have failed how can you learn what
-policy you should have? 
-
->
-> Luis Hector Chavez (1):
->   Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
->
+> Signed-off-by: Jeff Xu <jeffxu@chromium.org>
+> Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
+> Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
+> Tested-by: Jeff Xu<jeffxu@chromium.org>
+> ---
 >  security/selinux/Kconfig | 10 ++++++++++
 >  security/selinux/avc.c   |  9 +++++++++
 >  2 files changed, 19 insertions(+)
->
-> --
-> 2.37.3.968.ga6b4b080e4-goog
->
+
+I'm sorry, but I can't accept this into the upstream kernel.
+Permissive mode, both per-domain and system-wide, is not intended to
+be a long term solution.  Permissive mode should really only be used
+as a development tool or emergency "hotfix" with the proper solution
+being either an adjustment of the existing policy (SELinux policy
+booleans, labeling changes, etc.) or the development of a new policy
+module which better fits your use case.
+
+-- 
+paul-moore.com
