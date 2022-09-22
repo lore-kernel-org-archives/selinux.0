@@ -2,89 +2,116 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F7D5C6FA82
-	for <selinux@archiver.kernel.org>; Wed, 21 Sep 2022 19:11:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 893F9C6FA94
+	for <selinux@archiver.kernel.org>; Thu, 22 Sep 2022 15:18:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbiIUTL3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Sep 2022 15:11:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52526 "EHLO
+        id S231906AbiIVPSv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 22 Sep 2022 11:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229658AbiIUTL2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Sep 2022 15:11:28 -0400
-Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 635E45FAD3
-        for <selinux@vger.kernel.org>; Wed, 21 Sep 2022 12:11:27 -0700 (PDT)
-Received: by mail-oo1-xc2c.google.com with SMTP id r136-20020a4a378e000000b004755953bc6cso1039878oor.13
-        for <selinux@vger.kernel.org>; Wed, 21 Sep 2022 12:11:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=C6JfGK1tBYgjb4fy17yxr7GLC0kh0NNF0V5iaM+9QGU=;
-        b=Ni2c+BqoOXeS3nLSTxnjeIjcIa2qayOkxe0nWKz2o3hNaJ4/dDAy2e/ekHyVdlTRHo
-         NJAFT+GSxHgfe60MX7+4dv9rnEFGT/GNpPGh+CZKzvOYgmBu0bThCPZcL4MhjpjAVmHd
-         ex/YcmN4jAsk2KLJl6WLOJbMOg/5V+IXwM6YJ6uOnn6fxpOFhDWJBH9CFQ/32jQgNn6N
-         7r4T4AemZdTWg0tRbjDEIgeSD08peVGMn6HfqXqhdyZ9OAm7O6sOwoHAVm/A525Hckxk
-         VW0Vc/m1CCiED0f23i/Dd2lfqxIZEvWVKvqQCJK+1I2snDJmDLqtxYD8mtzv4dxq3SO1
-         crPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=C6JfGK1tBYgjb4fy17yxr7GLC0kh0NNF0V5iaM+9QGU=;
-        b=cX4BKBf6Jq/7n0bl9SRkAB91jwpApaMHGyFU/3vMkiGhm8sOpdSkSkIXyteBPe1Je7
-         R/w89ky2scJyLFMEGpRUym+kstKKBFWB6bijCSJsKqaTP35Dh3TEwL/902YEUreFEePI
-         HfzOpps9+aaPzrVcdKbTXupgCP412RWWHLdPuzbRer1xRzsxG29A28QubbN7tG2bEs2n
-         hsGq2EZUAs7Kbd5Rmpl1r4Om7KTL3uB+YZgxb5BWUtbfZj0IXzV3D6uftzOnaQw88bgm
-         fXoPO0qiO8ZKH/VWMSOyPmxPK5n3VzTHvuUS9WPxNqKjNrv2INelmZO+2NHAbsMEgl5v
-         WEiA==
-X-Gm-Message-State: ACrzQf15S2hUxQPFQLlY0pd9o8hvodSLsKA8LJBiEv4GQt2B+GWOto5l
-        zTm2B34L0K1j1cN2gDSXWcqKjd8gZUfLt5JJtYlI
-X-Google-Smtp-Source: AMsMyM61l9THiW+6SygkYyTbi79WLho61206Yyq1f6KpS4f7ypFiMkAPdxN9c6wB5+ow1AG+GzLerVDYl7fO/TDqlqc=
-X-Received: by 2002:a4a:ae85:0:b0:44b:4ac7:9e10 with SMTP id
- u5-20020a4aae85000000b0044b4ac79e10mr11108383oon.24.1663787486605; Wed, 21
- Sep 2022 12:11:26 -0700 (PDT)
+        with ESMTP id S231879AbiIVPSj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 22 Sep 2022 11:18:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6416CF0887;
+        Thu, 22 Sep 2022 08:18:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16F8CB8383E;
+        Thu, 22 Sep 2022 15:18:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B562FC43141;
+        Thu, 22 Sep 2022 15:18:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663859890;
+        bh=khd9yJ9DVSHAbKI1RnSSMhQz9ZvYIsRT5tFSI3pyVgQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=t4WiSmLJs8jmGiRs/bzrpEmaKuMczu/hGlxaNzlppiuT/Qlflz6IVfC0npDC8AlH8
+         jz/nvGSPjveqXPbT2sGtUgvaCCt7epcXVn295MpTmRpnjkgnvLMJgU34T6vXHDfXBg
+         99e6ccOh0vJliCLrdyxJaIs5eu66RYJA9m49otxuJW67Hp8ErEZFoVO84Bp95lZSWA
+         ebpXrtQR9/oXn68czRGi52aLHtywcOPXU4uhIK8jJyCXMF1bZq7kSl2ueAbiK26RuX
+         UN+gtuAAQffRkTj47G9ZwC4Uu+QPJB0ZYHoFNM3BL6RVqfG5HebeGmNj77VPpllOdC
+         qHSpI0DFaggAA==
+From:   Christian Brauner <brauner@kernel.org>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Seth Forshee <sforshee@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-integrity@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Subject: [PATCH 10/29] selinux: implement set acl hook
+Date:   Thu, 22 Sep 2022 17:17:08 +0200
+Message-Id: <20220922151728.1557914-11-brauner@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220922151728.1557914-1-brauner@kernel.org>
+References: <20220922151728.1557914-1-brauner@kernel.org>
 MIME-Version: 1.0
-References: <20220921185426.1663357-1-jeffxu@chromium.org> <20220921185426.1663357-2-jeffxu@chromium.org>
-In-Reply-To: <20220921185426.1663357-2-jeffxu@chromium.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 21 Sep 2022 15:11:15 -0400
-Message-ID: <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
-Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
-To:     jeffxu@chromium.org
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        jorgelo@chromium.org, groeck@chromium.org,
-        Luis Hector Chavez <lhchavez@google.com>,
-        Luis Hector Chavez <lhchavez@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2967; i=brauner@kernel.org; h=from:subject; bh=khd9yJ9DVSHAbKI1RnSSMhQz9ZvYIsRT5tFSI3pyVgQ=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMSTr1FT4Lfn0pZZ14x+uVeaP61mkfb9+YU9b+e/oL97yOxMs bLz2dJSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEyEbQkjwxSlrph/n/+8+fVpbkfG9K pQzd57XHuknp5T3FMwbZO2UCkjwxP5ueKTubYt11xenZv4XMdy+cJjbpdfS4XoOIQHeGcL8AEA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
->
-> From: Jeff Xu <jeffxu@chromium.org>
->
-> When SECURITY_SELINUX_DEVELOP=y and the system is running in permissive
-> mode, it is useful to disable logging from permissive domain, so audit
-> log does not get spamed.
->
-> Signed-off-by: Jeff Xu <jeffxu@chromium.org>
-> Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
-> Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
-> Tested-by: Jeff Xu<jeffxu@chromium.org>
-> ---
->  security/selinux/Kconfig | 10 ++++++++++
->  security/selinux/avc.c   |  9 +++++++++
->  2 files changed, 19 insertions(+)
+The current way of setting and getting posix acls through the generic
+xattr interface is error prone and type unsafe. The vfs needs to
+interpret and fixup posix acls before storing or reporting it to
+userspace. Various hacks exist to make this work. The code is hard to
+understand and difficult to maintain in it's current form. Instead of
+making this work by hacking posix acls through xattr handlers we are
+building a dedicated posix acl api around the get and set inode
+operations. This removes a lot of hackiness and makes the codepaths
+easier to maintain. A lot of background can be found in [1].
 
-I'm sorry, but I can't accept this into the upstream kernel.
-Permissive mode, both per-domain and system-wide, is not intended to
-be a long term solution.  Permissive mode should really only be used
-as a development tool or emergency "hotfix" with the proper solution
-being either an adjustment of the existing policy (SELinux policy
-booleans, labeling changes, etc.) or the development of a new policy
-module which better fits your use case.
+So far posix acls were passed as a void blob to the security and
+integrity modules. Some of them like evm then proceed to interpret the
+void pointer and convert it into the kernel internal struct posix acl
+representation to perform their integrity checking magic. This is
+obviously pretty problematic as that requires knowledge that only the
+vfs is guaranteed to have and has lead to various bugs. Add a proper
+security hook for setting posix acls and pass down the posix acls in
+their appropriate vfs format instead of hacking it through a void
+pointer stored in the uapi format.
 
+I spent considerate time in the security module infrastructure and
+audited all codepaths. SELinux has no restrictions based on the posix
+acl values passed through it. The capability hook doesn't need to be
+called either because it only has restrictions on security.* xattrs. So
+this all becomes a very simple hook for SELinux.
+
+Link: https://lore.kernel.org/all/20220801145520.1532837-1-brauner@kernel.org [1]
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+---
+ security/selinux/hooks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 79573504783b..bbc0ce3bde35 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3239,6 +3239,13 @@ static int selinux_inode_setxattr(struct user_namespace *mnt_userns,
+ 			    &ad);
+ }
+ 
++static int selinux_inode_set_acl(struct user_namespace *mnt_userns,
++				 struct dentry *dentry, const char *acl_name,
++				 struct posix_acl *kacl)
++{
++	return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
++}
++
+ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 					const void *value, size_t size,
+ 					int flags)
+@@ -7063,6 +7070,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(inode_getxattr, selinux_inode_getxattr),
+ 	LSM_HOOK_INIT(inode_listxattr, selinux_inode_listxattr),
+ 	LSM_HOOK_INIT(inode_removexattr, selinux_inode_removexattr),
++	LSM_HOOK_INIT(inode_set_acl, selinux_inode_set_acl),
+ 	LSM_HOOK_INIT(inode_getsecurity, selinux_inode_getsecurity),
+ 	LSM_HOOK_INIT(inode_setsecurity, selinux_inode_setsecurity),
+ 	LSM_HOOK_INIT(inode_listsecurity, selinux_inode_listsecurity),
 -- 
-paul-moore.com
+2.34.1
+
