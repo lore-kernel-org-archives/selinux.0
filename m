@@ -2,112 +2,103 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98DD3C6FA82
-	for <selinux@archiver.kernel.org>; Fri, 23 Sep 2022 17:35:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A180C07E9D
+	for <selinux@archiver.kernel.org>; Fri, 23 Sep 2022 17:43:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231965AbiIWRfW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Sep 2022 13:35:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
+        id S232300AbiIWRn3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Sep 2022 13:43:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230495AbiIWRfV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Sep 2022 13:35:21 -0400
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8C8CDCFF
-        for <selinux@vger.kernel.org>; Fri, 23 Sep 2022 10:35:20 -0700 (PDT)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-130af056397so1237552fac.2
-        for <selinux@vger.kernel.org>; Fri, 23 Sep 2022 10:35:20 -0700 (PDT)
+        with ESMTP id S232287AbiIWRn2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Sep 2022 13:43:28 -0400
+Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914013F1DE
+        for <selinux@vger.kernel.org>; Fri, 23 Sep 2022 10:43:27 -0700 (PDT)
+Received: by mail-il1-x132.google.com with SMTP id g6so521563ild.6
+        for <selinux@vger.kernel.org>; Fri, 23 Sep 2022 10:43:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=chromium.org; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=0AevkT37/WKGCdruw5s43CVba51BXF1Pz6fyi3ihIHI=;
-        b=oiSss/iMctFrMaY1tzmj3lWm6se7e3A8tKVZegNbJZ73/VCdICqga8Rpu3n28djpYs
-         ML4Bkw8yL28Mup66Q4wvqV+OM9EkY6OrIIGqvnASd0Hm1pNcKQWXcjHa9UF3WzSlCF1U
-         MS5mA8F6tSMBEeELLHC7mG2/73EsJRYV3zzCJkdW6pNKeXD76TOwsKr7aorqIdGgFuHq
-         t6w2Ypl56kOWrl5NnVO6evSpfYtPyH01bOSZtcXF+e/ZOipvKc9ufXIyXM/WJYHDQHKK
-         AddeYHLZC8LOjCFFITnxzukUmN3xJZmBQRDfIL7ndtuWgcwy2Zh7pVc+2h2SUoLHwU1l
-         Q4jA==
+        bh=5stcw+uIDRgVc9Plsx5V6s+xhKAjxvD0uENxMGoP9E0=;
+        b=T1TIIFo9pU0lPZIysJm9cMD7hhyFIxifFigWXMwXnO5SFfqoN+419qACXZrEqg65KM
+         6WtQP1BoBCoGvCxOa89DgMbVpJE5x0TaBy2Q4BzMoVWClyS3RLexaMOw2WiAnxMmOQFg
+         9cyyL1/k5F65eT4TJkloqWmCxaEqMjbhS/P9Y=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=0AevkT37/WKGCdruw5s43CVba51BXF1Pz6fyi3ihIHI=;
-        b=6OHyj05Wq6Gz0akWCzCAREt9PmruMTbdFTNdEr9ZXCNnpJNhE+haaxlAHsiNSjA2pc
-         Y0WyX9filFYuEw9Zz6txVhFG3obM2RpSpO+ww4P+dDZVHYqO2ZejurqjtqqNheFCLVG+
-         LRSM5TT9YBoa5l8v2tbvlhregAXxFypts1/nmBMUNKlWVSUNUKzeUKqlTgQ31Taj2+rG
-         IMEgy85GkIs02+IxIY6f1HCTXQBA1Gvefc825OjclWVRNSqTxgY/qUCcrsGvjFvfJQAW
-         lq0lflYoO3O7ozV5OBykoAIR6Mkuzp4ceha4rilcN40dZ7mGiDZCfSyD7AcFzFZVvqL1
-         flxQ==
-X-Gm-Message-State: ACrzQf1mv+AmEjvbIxz3lwkmJx8ssGZE4Qt01WTXfNSudvndNX6B/v7a
-        drm1Gm+36LJf5KTWbPaSmELKIbmjEfcAytHP8wJ/
-X-Google-Smtp-Source: AMsMyM7v80CDou94dOksLbioCL+Ac/R5MPMRH6V7MWbGz2mfDrtvQ6XoZxgz0G4THyESrajI65dzxGhgSEqun8bKnEE=
-X-Received: by 2002:a05:6870:15c9:b0:101:e18b:d12d with SMTP id
- k9-20020a05687015c900b00101e18bd12dmr12089334oad.51.1663954519817; Fri, 23
- Sep 2022 10:35:19 -0700 (PDT)
+        bh=5stcw+uIDRgVc9Plsx5V6s+xhKAjxvD0uENxMGoP9E0=;
+        b=pqpctlGAykVQNk6NYWfzx0N6+WgEPq2B8tEsixvq3l7NnV+Bycr2RkyhNuRumLBmhq
+         oOt+PgC3Fdlsm64ZutbXroY514GsCHZ9cn9ribanU+dP9Vvzmfa1xtelpSn/Tc9olKuM
+         0Ntg+URYODacz5PcpMfIFSMg4gJPTPoSkLYUV+1emdZASU/TT+5CJ1hTCzPvsdj01cAx
+         DDoUQQvQyBHLUdrsxYHtjef4UunslAAFEkHKxhxS4AwT9x8J71kyf26PP+LwJbSbBq2L
+         zCG9gQ4SOXvXxhbcmV8FzKxS9Wc8sZ6WxS/QRGycgc1zKJ4Vf63papeF4zTo7wdh9b+o
+         L8NA==
+X-Gm-Message-State: ACrzQf2mxx3I4qwDJezyP1kQqWspwewSNzohV3j6GMgOCD3AnOBs7VA6
+        4HSv2CIAy9Qcfih10VABap+5BoZJx9uioswZCWKRzBdyPo08Vg==
+X-Google-Smtp-Source: AMsMyM5X33chRaSWqveDMcHCUsJ6bvqlkq21+nd+sESAcr70AlIxSMWdFo/7WtKNEeVeE4cVodLv+ZsxySliE94bU20=
+X-Received: by 2002:a05:6e02:158a:b0:2d3:f1c0:6b68 with SMTP id
+ m10-20020a056e02158a00b002d3f1c06b68mr4801930ilu.38.1663955006966; Fri, 23
+ Sep 2022 10:43:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220922151728.1557914-1-brauner@kernel.org> <20220922151728.1557914-11-brauner@kernel.org>
- <CAHC9VhS7gEbngqYPMya52EMS5iZYQ_7pPgQiEfRqwPCgzhDbwA@mail.gmail.com>
- <20220923064707.GD16489@lst.de> <20220923075752.nmloqf2aj5yhoe34@wittgenstein>
- <CAHC9VhS3NWfMk3uHxZSZMtDay4FqOYzTf9mKCy1=Rb22r-2P4A@mail.gmail.com> <20220923143540.howryhuygxi2hsj3@wittgenstein>
-In-Reply-To: <20220923143540.howryhuygxi2hsj3@wittgenstein>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 23 Sep 2022 13:35:08 -0400
-Message-ID: <CAHC9VhRZf+OAzc96=c2s3NqkizNh2tZbLF8OFPHbFFuFXEZ8sA@mail.gmail.com>
-Subject: Re: [PATCH 10/29] selinux: implement set acl hook
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-        Seth Forshee <sforshee@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-integrity@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+References: <20220921185426.1663357-1-jeffxu@chromium.org> <20220921185426.1663357-2-jeffxu@chromium.org>
+ <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
+In-Reply-To: <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
+From:   Jeff Xu <jeffxu@chromium.org>
+Date:   Fri, 23 Sep 2022 10:43:16 -0700
+Message-ID: <CABi2SkXRxomrYn-xUf3B+XswmQjXZUJXmYJECmr_nBfrZWwqkA@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        jorgelo@chromium.org, groeck@chromium.org,
+        Luis Hector Chavez <lhchavez@google.com>,
+        Luis Hector Chavez <lhchavez@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 23, 2022 at 10:35 AM Christian Brauner <brauner@kernel.org> wrote:
-> On Fri, Sep 23, 2022 at 10:26:35AM -0400, Paul Moore wrote:
-> > On Fri, Sep 23, 2022 at 3:57 AM Christian Brauner <brauner@kernel.org> wrote:
-> > > On Fri, Sep 23, 2022 at 08:47:07AM +0200, Christoph Hellwig wrote:
-> > > > On Thu, Sep 22, 2022 at 01:16:57PM -0400, Paul Moore wrote:
-> > > > > properly review the changes, but one thing immediately jumped out at
-> > > > > me when looking at this: why is the LSM hook
-> > > > > "security_inode_set_acl()" when we are passing a dentry instead of an
-> > > > > inode?  We don't have a lot of them, but there are
-> > > > > `security_dentry_*()` LSM hooks in the existing kernel code.
-> > > >
-> > > > I'm no LSM expert, but isn't the inode vs dentry for if it is
-> > > > related to an inode operation or dentry operation, not about that
-> > > > the first argument is?
-> > >
-> > > Indeed. For example ...
-> >
-> > If the goal is for this LSM hook to operate on an inode and not a
-> > dentry, let's pass it an inode instead.  This should help prevent
+On Wed, Sep 21, 2022 at 12:11 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> I would be ok with that but EVM requires a dentry being passed and as
-> evm is called from security_inode_set_acl() exactly like it is from
-> security_inode_setxattr() and similar the hook has to take a dentry.
+> On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
+> >
+> > From: Jeff Xu <jeffxu@chromium.org>
+> >
+> > When SECURITY_SELINUX_DEVELOP=y and the system is running in permissive
+> > mode, it is useful to disable logging from permissive domain, so audit
+> > log does not get spamed.
+> >
+> > Signed-off-by: Jeff Xu <jeffxu@chromium.org>
+> > Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
+> > Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
+> > Tested-by: Jeff Xu<jeffxu@chromium.org>
+> > ---
+> >  security/selinux/Kconfig | 10 ++++++++++
+> >  security/selinux/avc.c   |  9 +++++++++
+> >  2 files changed, 19 insertions(+)
+>
+> I'm sorry, but I can't accept this into the upstream kernel.
+> Permissive mode, both per-domain and system-wide, is not intended to
+> be a long term solution.  Permissive mode should really only be used
+> as a development tool or emergency "hotfix" with the proper solution
+> being either an adjustment of the existing policy (SELinux policy
+> booleans, labeling changes, etc.) or the development of a new policy
+> module which better fits your use case.
+>
 
-If a dentry is truly needed by EVM (a quick look indicates that it may
-just be for the VFS getxattr API, but I haven't traced the full code
-path), then I'm having a hard time reconciling that this isn't a
-dentry operation.  Yes, I get that the ACLs belong to the inode and
-not the dentry, but then why do we need the dentry?  It seems like the
-interfaces are broken slightly, or at least a little odd ... <shrug>
+Thanks for the response.
+For a system that wants to control a few daemons, is there a
+recommended pattern from selinux ?
+I read this blog about unconfined domain (unconfined_t), maybe this is one way ?
+https://wiki.gentoo.org/wiki/SELinux/Tutorials/What_is_this_unconfined_thingie_and_tell_me_about_attributes
 
-> And I want to minimize - ideally get rid of at some point - separate
-> calls to security_*() and evm_*() or ima_() in the vfs. So the evm hook
-> should please stay in there.
+I have two questions on unconfined domain:
+1> Is unconfined_t domain supported in SECURITY_SELINUX_DEVELOP=n mode ?
+2> will unconfined_t domain log also as permissive domain ?
 
-For the record, I want to get rid of the IMA and EVM specific hooks in
-the kernel.  They were a necessity back when there could only be one
-LSM active at a given time, but with that no longer the case I see
-little reason why IMA/EVM/etc. remain separate; it makes the code
-worse and complicates a lot of things both at the LSM layer as well as
-the rest of the kernel.  I've mentioned this to a few people,
-including Mimi, and it came up during at talk at LPC this year.
+Thanks
+Jeff
 
--- 
-paul-moore.com
+> --
+> paul-moore.com
