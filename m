@@ -2,189 +2,135 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD5CFC32771
-	for <selinux@archiver.kernel.org>; Mon, 26 Sep 2022 18:14:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8515C6FA82
+	for <selinux@archiver.kernel.org>; Mon, 26 Sep 2022 18:48:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbiIZSO1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 26 Sep 2022 14:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50874 "EHLO
+        id S230033AbiIZSs5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 26 Sep 2022 14:48:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231522AbiIZSNs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 26 Sep 2022 14:13:48 -0400
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7C2413F1C
-        for <selinux@vger.kernel.org>; Mon, 26 Sep 2022 11:03:20 -0700 (PDT)
-Received: by mail-io1-xd32.google.com with SMTP id e205so5913200iof.1
-        for <selinux@vger.kernel.org>; Mon, 26 Sep 2022 11:03:20 -0700 (PDT)
+        with ESMTP id S230108AbiIZSsy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 26 Sep 2022 14:48:54 -0400
+Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADA67883E3
+        for <selinux@vger.kernel.org>; Mon, 26 Sep 2022 11:48:52 -0700 (PDT)
+Received: by mail-oi1-x231.google.com with SMTP id v130so9385589oie.2
+        for <selinux@vger.kernel.org>; Mon, 26 Sep 2022 11:48:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=Mzbyizo3Nwtc8a3WAxtxS6k0hBx8va3OMev51GvHHpg=;
-        b=ZQgK0edH4AVL5PgPv4C44UeBjddDT3gctcEWYER1PysSVDiOvUk21nSeHSLJyqVla3
-         AWTGB+dsQ/gM7ZbhYW2c3pTOqC+7VGnadW5jchbc1mdqfFuQsiFWfvvxqdbKEsfWBQfJ
-         TH5MF7q9HCcLO1rk09L2yzOoUY2sksvcroNrc=
+        bh=diSLexVku7NIpkpDyMmHjZ9yydShayfTBoCbTnyuXUM=;
+        b=k6Sr4B2HRalEteZEFi0pNViRzzYpDHksAyega8gizfu12lYPvE2WDzYixar2fNZyvh
+         EeUqs8FLdXVGyR/YKvK8WwU9lYR0aN+voejsgDOH3EWXyLDZ/+ewTa/nnHpzb7wx4jfI
+         a/SmEiOzCV3J27C8T+ShSXDCBUx8UJs143paDyfk1zCaqeRdzWLbRrl7uNm053LyW8I7
+         0zWwwBbBpVd24cfruBNMMifrbkM/wKcUNfV0oqswrNZwF5kLjgTU5FO1qcoVtGdfwkmc
+         5AIKajukRV3ln20EG7VZySV7bvFkipmuE4gBG7/vbMJwialras2jakPQgohHxDScfQdx
+         +xhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=Mzbyizo3Nwtc8a3WAxtxS6k0hBx8va3OMev51GvHHpg=;
-        b=SnAmsr30rWmbVEYkdaEclEkLpoG2euy0E3O6NMxrtwIF4h0bZK5lnHnM+1Jv6PcXSu
-         hOXY/D6hyx4JKqgCByZCSZG9h7hZbIDNx7G5UZupqmKiz86Y6nTru0CkBRBa4lANBFSR
-         crP7PQPAptAfiY0tNfBTtVe5T9Kvyz6DDKSwQ5FW9gM1V4CbHPgDtoS1R5UCMnoIdCQP
-         0l9ug744uui9w9XcIwVEiVgdZ/aQ8fGf0EdU7ZbPByOQWjt+SP82ayMCnHm0Cw/tefyP
-         2Kp/izcZDwatE3ZMuC8tRUsGweJb4RePIuIfueCltX8QE1rCy+ZPUbuJMGtuZ+mlEqIK
-         /6Ng==
-X-Gm-Message-State: ACrzQf12OnGQLyrSDsboIdEetYWG1DD2BbC1RFSnFyqaFBT4dEQc5K6K
-        EnNcGS5bQULZZrc2QAZxNMPU1m+VXRUB3CBjHAwXs6x992Mtlw==
-X-Google-Smtp-Source: AMsMyM75w4EGQuoeMByhsQXEOTOlioGW8fh+xsDx5Oc4kkXTJdqgREqv2KmcTvJPCf5vVOde0o/S2J/JggnpSjgxvI0=
-X-Received: by 2002:a6b:e714:0:b0:6a1:35af:82dc with SMTP id
- b20-20020a6be714000000b006a135af82dcmr9588636ioh.205.1664215400281; Mon, 26
- Sep 2022 11:03:20 -0700 (PDT)
+        bh=diSLexVku7NIpkpDyMmHjZ9yydShayfTBoCbTnyuXUM=;
+        b=zd/g0SL4drl89UuFslMyuibpLJIiUlQsTtRUND+y1DRxvkW4fnnj6eiXM2i0jZ8xkH
+         Abup9o2tL1rbYVMPWk6v7rIlRtj1n0ed8IMOp49ZOlB8hXb7ECZ7OCxqhpbZyXnbDj4e
+         mBSaFNuZDTVbS/K5X6NebuNqR6poYe8yJHxhStO8AlT3BXm4CfvXQLyQxZaxmFZgyAau
+         1t67rOVHW3ipd7anWkSo+hp21GQriVKusma4KbLuF1FSDeFRz8wxCvrdYD5gtRsHxPzA
+         LErvk3IvIF5H9OeIBs+qQcguNO8/huenNo0clOumgHiiN1c8Ksmj3OYS9pqwpCyX9nXc
+         quMA==
+X-Gm-Message-State: ACrzQf2EJVuv97zhsvua+aKQ+hYHO9VTIbmQGh7GDZvEELm605INGCzW
+        QdddfEF8jyPZ8D+0Uv4f8kjFL9giyiWZBL2/urk3rm8NSsdm
+X-Google-Smtp-Source: AMsMyM6M5GJLyJ/NXWh7Ux5KhWW46gpUyre3gGEHrNjBBbLSSQJZzpm8KL8Dmt84aK0Zal5N6S2alsyCY0taWfyvlvg=
+X-Received: by 2002:aca:1c13:0:b0:350:ce21:a022 with SMTP id
+ c19-20020aca1c13000000b00350ce21a022mr76641oic.172.1664218131786; Mon, 26 Sep
+ 2022 11:48:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220921185426.1663357-1-jeffxu@chromium.org> <20220921185426.1663357-2-jeffxu@chromium.org>
- <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
- <CABi2SkXRxomrYn-xUf3B+XswmQjXZUJXmYJECmr_nBfrZWwqkA@mail.gmail.com>
- <CAHC9VhRuUZxdsVQftqWa0zEuNAxk8ur0-TZp5KecJ537hRONRQ@mail.gmail.com> <875yhe6ial.fsf@defensec.nl>
-In-Reply-To: <875yhe6ial.fsf@defensec.nl>
-From:   Jeff Xu <jeffxu@chromium.org>
-Date:   Mon, 26 Sep 2022 11:03:09 -0700
-Message-ID: <CABi2SkW4P+s-+5X7UGYYp1tUtT350_7UfQx_KYqHAyYe31ORWw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, jorgelo@chromium.org,
-        groeck@chromium.org, Luis Hector Chavez <lhchavez@google.com>,
-        Luis Hector Chavez <lhchavez@chromium.org>
+References: <20220922151728.1557914-1-brauner@kernel.org> <20220922151728.1557914-11-brauner@kernel.org>
+ <CAHC9VhS7gEbngqYPMya52EMS5iZYQ_7pPgQiEfRqwPCgzhDbwA@mail.gmail.com>
+ <20220923064707.GD16489@lst.de> <20220923075752.nmloqf2aj5yhoe34@wittgenstein>
+ <CAHC9VhS3NWfMk3uHxZSZMtDay4FqOYzTf9mKCy1=Rb22r-2P4A@mail.gmail.com>
+ <20220923143540.howryhuygxi2hsj3@wittgenstein> <CAHC9VhRZf+OAzc96=c2s3NqkizNh2tZbLF8OFPHbFFuFXEZ8sA@mail.gmail.com>
+ <20220926090513.hn3ylkakb5wf2rrx@wittgenstein>
+In-Reply-To: <20220926090513.hn3ylkakb5wf2rrx@wittgenstein>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 26 Sep 2022 14:48:40 -0400
+Message-ID: <CAHC9VhR6+aDG3j-xepxaK5RqphnisVGxUndcKUMuMLgbtoPW2Q@mail.gmail.com>
+Subject: Re: [PATCH 10/29] selinux: implement set acl hook
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
+        Seth Forshee <sforshee@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-integrity@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 23, 2022 at 11:45 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
->
-> Paul Moore <paul@paul-moore.com> writes:
->
-> > On Fri, Sep 23, 2022 at 1:43 PM Jeff Xu <jeffxu@chromium.org> wrote:
-> >> On Wed, Sep 21, 2022 at 12:11 PM Paul Moore <paul@paul-moore.com> wrote:
-> >> > On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
-> >> > >
-> >> > > From: Jeff Xu <jeffxu@chromium.org>
-> >> > >
-> >> > > When SECURITY_SELINUX_DEVELOP=y and the system is running in permissive
-> >> > > mode, it is useful to disable logging from permissive domain, so audit
-> >> > > log does not get spamed.
-> >> > >
-> >> > > Signed-off-by: Jeff Xu <jeffxu@chromium.org>
-> >> > > Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
-> >> > > Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
-> >> > > Tested-by: Jeff Xu<jeffxu@chromium.org>
-> >> > > ---
-> >> > >  security/selinux/Kconfig | 10 ++++++++++
-> >> > >  security/selinux/avc.c   |  9 +++++++++
-> >> > >  2 files changed, 19 insertions(+)
-> >> >
-> >> > I'm sorry, but I can't accept this into the upstream kernel.
-> >> > Permissive mode, both per-domain and system-wide, is not intended to
-> >> > be a long term solution.  Permissive mode should really only be used
-> >> > as a development tool or emergency "hotfix" with the proper solution
-> >> > being either an adjustment of the existing policy (SELinux policy
-> >> > booleans, labeling changes, etc.) or the development of a new policy
-> >> > module which better fits your use case.
-> >>
-> >> Thanks for the response.
-> >> For a system that wants to control a few daemons, is there a
-> >> recommended pattern from selinux ?
->
-> That is effectively a "targeted" policy model. You target a selection of
-> entities and everything else is "unconfined" (ie not targeteed).
->
-> An "unconfined" domain is just a process type that has many allow rules
-> associated with it making it effectively similar to an "permissive"
-> domain. The difference is that since "unconfined" domains have full
-> access there should not be any AVC denials (nothing is blocked by
-> SELinux because the policy does not target the entity)
->
-> The stock policy enforced in Red Hat based distributions is a "targeted"
-> policy model for example. The unconfined_t domain is one of various
-> "unconfined" domains (other examples are unconfined_service_t but
-> effectively any type could be made unconfined by simply allowing all accesses.
->
+On Mon, Sep 26, 2022 at 5:05 AM Christian Brauner <brauner@kernel.org> wrote:
+> On Fri, Sep 23, 2022 at 01:35:08PM -0400, Paul Moore wrote:
+> > On Fri, Sep 23, 2022 at 10:35 AM Christian Brauner <brauner@kernel.org> wrote:
+> > > On Fri, Sep 23, 2022 at 10:26:35AM -0400, Paul Moore wrote:
+> > > > On Fri, Sep 23, 2022 at 3:57 AM Christian Brauner <brauner@kernel.org> wrote:
+> > > > > On Fri, Sep 23, 2022 at 08:47:07AM +0200, Christoph Hellwig wrote:
+> > > > > > On Thu, Sep 22, 2022 at 01:16:57PM -0400, Paul Moore wrote:
+> > > > > > > properly review the changes, but one thing immediately jumped out at
+> > > > > > > me when looking at this: why is the LSM hook
+> > > > > > > "security_inode_set_acl()" when we are passing a dentry instead of an
+> > > > > > > inode?  We don't have a lot of them, but there are
+> > > > > > > `security_dentry_*()` LSM hooks in the existing kernel code.
+> > > > > >
+> > > > > > I'm no LSM expert, but isn't the inode vs dentry for if it is
+> > > > > > related to an inode operation or dentry operation, not about that
+> > > > > > the first argument is?
+> > > > >
+> > > > > Indeed. For example ...
+> > > >
+> > > > If the goal is for this LSM hook to operate on an inode and not a
+> > > > dentry, let's pass it an inode instead.  This should help prevent
+> > >
+> > > I would be ok with that but EVM requires a dentry being passed and as
+> > > evm is called from security_inode_set_acl() exactly like it is from
+> > > security_inode_setxattr() and similar the hook has to take a dentry.
 > >
-> > Guidance on how to write a SELinux policy for an application is a bit
-> > beyond what I have time for in this email, but others on this mailing
-> > list might be able to help.  There has definitely been a lot written
-> > on the subject, both available online and offline.  My suggestion
-> > would be to start "small" with a single SELinux domain for the
-> > application and a single type for any configuration, data, or log
-> > files it might need; get this initial domain working properly and then
-> > you can add increasing levels of access control granularity until
-> > you've met your security requirements.  If you've never done this
-> > before, go slow, the start might be challenging as you get used to the
-> > tools, but you can do it :)
-> >
-> >> I read this blog about unconfined domain (unconfined_t), maybe this is one way ?
-> >> https://wiki.gentoo.org/wiki/SELinux/Tutorials/What_is_this_unconfined_thingie_and_tell_me_about_attributes
-> >
-> > It is important to remember that an unconfined domain is, as the name
-> > would imply, effectively unconfined by SELinux.  Perhaps this is what
-> > you want, but generally speaking if you are running SELinux it is
-> > because you have a need or desire for additional access controls
-> > beyond the legacy Linux discretionary access controls.
-> >
-> >> I have two questions on unconfined domain:
-> >> 1> Is unconfined_t domain supported in SECURITY_SELINUX_DEVELOP=n mode ?
-> >
-> > Yes.  The SECURITY_SELINUX_DEVELOP kernel build configuration only
-> > enables the admin to boot the kernel initially in permissive mode
-> > and/or determine the SELinux mode using the "enforcing=X" kernel
-> > command line option and a sysfs/securityfs tunable under
-> > /sys/fs/selinux/enforce.  The unconfined_t domain is defined purely in
-> > the SELinux policy and not the kernel; you could write a SELinux
-> > policy without it you wanted, or you could grant unconfined_t-like
-> > permissions to multiple different domains in your policy.  It's been a
-> > while since I played with it, but I believe the SELinux reference
-> > policy (refpol) provides a macro interface to define an arbitrary
-> > domain with unconfined_t-like permissions.
-> >
-> >> 2> will unconfined_t domain log also as permissive domain ?
-> >
-> > The intent of the unconfined_t domain is that there would be no access
-> > denials due to SELinux and thus no AVC audit records related to the
-> > unconfined_t domain.  It is not permissive in the sense of the SELinux
-> > "mode" (enforcing/permissive/disabled), but it is permissive in the
-> > sense that it is given a large number of permissions.
+> > If a dentry is truly needed by EVM (a quick look indicates that it may
+> > just be for the VFS getxattr API, but I haven't traced the full code
+> > path), then I'm having a hard time reconciling that this isn't a
+> > dentry operation.  Yes, I get that the ACLs belong to the inode and
+> > not the dentry, but then why do we need the dentry?  It seems like the
+> > interfaces are broken slightly, or at least a little odd ... <shrug>
 >
-> --
-> gpg --locate-keys dominick.grift@defensec.nl
-> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> Dominick Grift
+> There's multiple reasons for the generic xattr api to take a dentry. For
+> example, there are quite a few filesystems that require dentry access
+> during (specific or all) xattr operations. So ideally, we'd just want to
+> pass the dentry I'd say ...
 
-Thanks for details about the unconfined_t domain, this is one option.
+Independent of the naming issue discussed above, I want to make it
+clear that in general I believe that the dentry is more useful to the
+LSMs if for no other reason that it is pretty trivial to go from a
+dentry to an inode, whereas the opposite is not true.  Of course there
+are cases where the dentry is not always available, or the
+connectivity between the dentry and the inode is not yet present.  In
+those cases we would obviously need to pass the inode, or both the
+inode and the dentry, which gets me to my next point and my motivation
+behind bringing all this up once we started down the rathole ...
 
-IMHO: between permissive domain + audit log and unconfined_t, there might
-be room for letting each permissive domain decide its own audit logging
-strategy. The reasons are:
+My main concern is making sure that the LSM hooks are declared in such
+a way that they are fairly resistant to misuse; not that I expect any
+malice, but I do believe accidental misuse of the hooks is legitimate
+concern.  With respect to the various VFS related hooks, one of the
+things that has always caught my attention in this respect has been
+hooks which pass both a dentry and a inode for the same file.  Of
+course there are cases where this will always be necessary, but I hate
+to see bad interfaces continued forward simply because "that's the way
+we've always done it".
 
-1> For a system that have many daemons, a lot of those are not actively
-worked by devs, relying on tests is not sufficient to discover all possible
-legitimate accesses  at runtime, dev won't be comfortable to enable enforced
-mode without some bake time in production, this is where permissive + audit log
-helps.
+In this particular patch the hook prototype is reasonably well defined
+as far as I'm concerned, with no worries of both a dentry and an
+inode, so that's good.  I still don't really like the name disconnect
+between the function name and the parameter list (inode vs dentry),
+but que sera sera; my appetite for argument here is rapidly waning.
 
-2> The set back of "permissive + audit log" is that one daemon might generate
-too much log in production, set to unconfined_t is one option, but
-then dev revert
-the progress made so far with permissive mode.
-
-3> For a system that is on continuous delivery pipeline, during the phase of
-development of selinux policy, daemon owner might need permissive + audit log
-in testing, but permissive - audit log in production. This is where
-the per-domain
-audit log can help, it would be even nicer if this can be controlled
-at runtime,
-similar to sysctl.
-
-Best regards,
-Jeff
+-- 
+paul-moore.com
