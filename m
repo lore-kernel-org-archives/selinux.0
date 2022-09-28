@@ -2,47 +2,47 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCFC5C43217
-	for <selinux@archiver.kernel.org>; Fri, 30 Sep 2022 04:40:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17990C41535
+	for <selinux@archiver.kernel.org>; Fri, 30 Sep 2022 04:40:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230260AbiI3EkJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Sep 2022 00:40:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54542 "EHLO
+        id S230272AbiI3EkL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Sep 2022 00:40:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230227AbiI3EkC (ORCPT
+        with ESMTP id S230230AbiI3EkC (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 30 Sep 2022 00:40:02 -0400
-Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9867DBC34;
-        Thu, 29 Sep 2022 21:39:42 -0700 (PDT)
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0959326F1;
+        Thu, 29 Sep 2022 21:39:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664512782; x=1696048782;
+  t=1664512790; x=1696048790;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=e8XEIWi+uCcouUV5/OxwTQJcZ/o2ygDMA7M/m+8uJ4o=;
-  b=I6S33Ju2Exz5h4+YxsZ4H0rJf0BKsGveLrfdq8V3K7UFC1JqA1Godf9g
-   iTqA5NEPHRIVPR8pEiUOhZ0YcRZ/79bV1CGip2fIR2I85pF4KUmdD0RoZ
-   aTJm4XLovVvUF1Fb83QWT+QCYtpx8tCkzLwL0fXH3iqkkNW8w9rRfDPOD
-   WcffE3EToYHvbkL59ygXmxz/H8TYjwMtu70kKb1g0FQawyGikiUpxQWjP
-   DTgR8G9H9yp+CiufReYcFzvCi3zZnnFs4hju1btR6USlFhMzOAFX1w54m
-   JQ3ueAX/qlUSjXNfE+0vgvdhuG33wPWDXBSz6MeKrisKmoM1VJ+EQjCQ1
+  bh=k1GeuvaIJzUElRlBGIE2BpK9n+WC2CdtS6/3z3ymkOg=;
+  b=l1yPZGiMpLchG6wYkN8aw2vg9NG9W1ip3be58HM4+93T2E3Q7H/cTqqZ
+   0YBJ7betQARyooI0WeoINV4+aBlmpqP7IX3uY60sl3vPXcdtHaVlHdTqz
+   7dcPTcGL5Dpp5VHzXsBVa5/TqN6qVxRxH5pZ0DFmSY60CYmuoCrNzBzyi
+   nr05XtZBOb2mx+wUTD7sPGYFlWhHf4OhZaC9dvfUAmXwpnx9STQMbSOUR
+   Fw4dWc1L1xexusFydaqoBBvCGXje5asd7KRG2ZKhjaY7wREEwZgFOUPFD
+   RvTxG+mk0JhZEwNQoHG7N9RshmoS7TfVr4C0H63ME/DTXoWYem/DNbm3D
    Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10485"; a="282464523"
+X-IronPort-AV: E=McAfee;i="6500,9779,10485"; a="366150822"
 X-IronPort-AV: E=Sophos;i="5.93,357,1654585200"; 
-   d="scan'208";a="282464523"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2022 21:39:41 -0700
+   d="scan'208";a="366150822"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2022 21:39:50 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10485"; a="617869722"
+X-IronPort-AV: E=McAfee;i="6500,9779,10485"; a="573733290"
 X-IronPort-AV: E=Sophos;i="5.93,357,1654585200"; 
-   d="scan'208";a="617869722"
+   d="scan'208";a="573733290"
 Received: from lkp-server01.sh.intel.com (HELO 14cc182da2d0) ([10.239.97.150])
-  by orsmga007.jf.intel.com with ESMTP; 29 Sep 2022 21:39:37 -0700
+  by orsmga003.jf.intel.com with ESMTP; 29 Sep 2022 21:39:46 -0700
 Received: from kbuild by 14cc182da2d0 with local (Exim 4.96)
         (envelope-from <lkp@intel.com>)
-        id 1oe7oH-0000AP-0m;
-        Fri, 30 Sep 2022 04:39:37 +0000
-Date:   Wed, 28 Sep 2022 22:27:07 +0800
+        id 1oe7oK-0000DT-2e;
+        Fri, 30 Sep 2022 04:39:40 +0000
+Date:   Wed, 28 Sep 2022 19:04:35 +0800
 From:   kernel test robot <lkp@intel.com>
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, paul@paul-moore.com,
@@ -52,19 +52,20 @@ Cc:     kbuild-all@lists.01.org, casey@schaufler-ca.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v38 39/39] LSM: Create lsm_module_list system call
-Message-ID: <202209282224.2m6tzD7q-lkp@intel.com>
-References: <20220927203155.15060-1-casey@schaufler-ca.com>
+Subject: Re: [PATCH v38 06/39] LSM: lsm_self_attr syscall for LSM self
+ attributes
+Message-ID: <202209281841.cHp9AlmL-lkp@intel.com>
+References: <20220927195421.14713-7-casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="ScobGVAYqyddcu0s"
+Content-Type: multipart/mixed; boundary="y+E2Z4FfuhusJqGO"
 Content-Disposition: inline
-In-Reply-To: <20220927203155.15060-1-casey@schaufler-ca.com>
+In-Reply-To: <20220927195421.14713-7-casey@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
---ScobGVAYqyddcu0s
+--y+E2Z4FfuhusJqGO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -86,10 +87,10 @@ compiler: s390-linux-gcc (GCC) 12.1.0
 reproduce (this is a W=1 build):
         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
         chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/6f957bc7939d85848cbe2a2a1c1007e344629ae0
+        # https://github.com/intel-lab-lkp/linux/commit/e614eb870ca4cc351e1847e79041960feb9604dc
         git remote add linux-review https://github.com/intel-lab-lkp/linux
         git fetch --no-tags linux-review Casey-Schaufler/LSM-Identify-modules-by-more-than-name/20220928-045406
-        git checkout 6f957bc7939d85848cbe2a2a1c1007e344629ae0
+        git checkout e614eb870ca4cc351e1847e79041960feb9604dc
         # save the config file
         mkdir build_dir && cp config build_dir/.config
         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=s390 SHELL=/bin/bash
@@ -99,11 +100,10 @@ If you fix the issue, kindly add following tag where applicable
 
 All warnings (new ones prefixed by >>):
 
-   security/lsm_syscalls.c:51: warning: expecting prototype for lsm_self_attr(). Prototype was for sys_lsm_self_attr() instead
->> security/lsm_syscalls.c:175: warning: expecting prototype for lsm_module_list(). Prototype was for sys_lsm_module_list() instead
+>> security/lsm_syscalls.c:51: warning: expecting prototype for lsm_self_attr(). Prototype was for sys_lsm_self_attr() instead
 
 
-vim +175 security/lsm_syscalls.c
+vim +51 security/lsm_syscalls.c
 
     33	
     34	/**
@@ -124,136 +124,12 @@ vim +175 security/lsm_syscalls.c
     49		       size_t __user *, size,
     50		       int, flags)
   > 51	{
-    52		struct lsm_ctx *final = NULL;
-    53		struct lsm_ctx *interum;
-    54		struct lsm_ctx *ip;
-    55		void *curr;
-    56		char **interum_ctx;
-    57		char *cp;
-    58		size_t total_size = 0;
-    59		int count = 0;
-    60		int attr;
-    61		int len;
-    62		int rc = 0;
-    63		int i;
-    64	
-    65		interum = kzalloc(ARRAY_SIZE(lsm_attr_names) * lsm_id *
-    66				  sizeof(*interum), GFP_KERNEL);
-    67		if (interum == NULL)
-    68			return -ENOMEM;
-    69		ip = interum;
-    70	
-    71		interum_ctx = kzalloc(ARRAY_SIZE(lsm_attr_names) * lsm_id *
-    72				      sizeof(*interum_ctx), GFP_KERNEL);
-    73		if (interum_ctx == NULL) {
-    74			kfree(interum);
-    75			return -ENOMEM;
-    76		}
-    77	
-    78		for (attr = 0; attr < ARRAY_SIZE(lsm_attr_names); attr++) {
-    79			for (i = 0; i < lsm_id; i++) {
-    80				if ((lsm_idlist[i]->features &
-    81				     lsm_attr_names[attr].feature) == 0)
-    82					continue;
-    83	
-    84				len = security_getprocattr(current, lsm_idlist[i]->id,
-    85							   lsm_attr_names[attr].name,
-    86							   &cp);
-    87				if (len <= 0)
-    88					continue;
-    89	
-    90				ip->id = lsm_idlist[i]->id;
-    91				ip->flags = lsm_attr_names[attr].feature;
-    92				/* space for terminating \0 is allocated below */
-    93				ip->ctx_len = len + 1;
-    94				interum_ctx[count] = cp;
-    95				/*
-    96				 * Security modules have been inconsistent about
-    97				 * including the \0 terminator in the size. The
-    98				 * context len has been adjusted to ensure there
-    99				 * is one.
-   100				 * At least one security module adds a \n at the
-   101				 * end of a context to make it look nicer. Change
-   102				 * that to a \0 so that user space doesn't have to
-   103				 * work around it. Because of this meddling it is
-   104				 * safe to assume that lsm_ctx.name is terminated
-   105				 * and that strlen(lsm_ctx.name) < lsm.ctx_len.
-   106				 */
-   107				total_size += sizeof(*interum) + ip->ctx_len;
-   108				cp = strnchr(cp, len, '\n');
-   109				if (cp != NULL)
-   110					*cp = '\0';
-   111				ip++;
-   112				count++;
-   113			}
-   114		}
-   115	
-   116		if (count == 0)
-   117			goto free_out;
-   118	
-   119		final = kzalloc(total_size, GFP_KERNEL);
-   120		if (final == NULL) {
-   121			rc = -ENOMEM;
-   122			goto free_out;
-   123		}
-   124	
-   125		curr = final;
-   126		ip = interum;
-   127		for (i = 0; i < count; i++) {
-   128			memcpy(curr, ip, sizeof(*interum));
-   129			curr += sizeof(*interum);
-   130			memcpy(curr, interum_ctx[i], ip->ctx_len);
-   131			curr += ip->ctx_len;
-   132			ip++;
-   133		}
-   134	
-   135		if (get_user(len, size)) {
-   136			rc = -EFAULT;
-   137			goto free_out;
-   138		}
-   139		if (total_size > len) {
-   140			rc = -ERANGE;
-   141			goto free_out;
-   142		}
-   143		if (copy_to_user(ctx, final, total_size) != 0 ||
-   144		    put_user(total_size, size) != 0)
-   145			rc = -EFAULT;
-   146		else
-   147			rc = count;
-   148	
-   149	free_out:
-   150		for (i = 0; i < count; i++)
-   151			kfree(interum_ctx[i]);
-   152		kfree(interum_ctx);
-   153		kfree(interum);
-   154		kfree(final);
-   155		return rc;
-   156	}
-   157	
-   158	/**
-   159	 * lsm_module_list - Return a list of the active security modules
-   160	 * @ids: the LSM module ids
-   161	 * @size: size of @ids, updated on return
-   162	 * @flags: reserved for future use, must be zero
-   163	 *
-   164	 * Returns a list of the active LSM ids. On success this function
-   165	 * returns the number of @ids array elements. This value may be zero
-   166	 * if there are no LSMs active. If @size is insufficient to contain
-   167	 * the return data -E2BIG is returned and @size is set to the minimum
-   168	 * required size. In all other cases a negative value indicating the
-   169	 * error is returned.
-   170	 */
-   171	SYSCALL_DEFINE3(lsm_module_list,
-   172		       unsigned int __user *, ids,
-   173		       size_t __user *, size,
-   174		       int, flags)
- > 175	{
 
 -- 
 0-DAY CI Kernel Test Service
 https://01.org/lkp
 
---ScobGVAYqyddcu0s
+--y+E2Z4FfuhusJqGO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename=config
 
@@ -3858,4 +3734,4 @@ CONFIG_TEST_LIVEPATCH=m
 # end of Kernel Testing and Coverage
 # end of Kernel hacking
 
---ScobGVAYqyddcu0s--
+--y+E2Z4FfuhusJqGO--
