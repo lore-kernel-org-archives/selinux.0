@@ -2,98 +2,76 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C76D2C433FE
-	for <selinux@archiver.kernel.org>; Mon,  3 Oct 2022 13:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02249C433FE
+	for <selinux@archiver.kernel.org>; Mon,  3 Oct 2022 14:59:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbiJCNrv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Oct 2022 09:47:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40814 "EHLO
+        id S229562AbiJCO7m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Oct 2022 10:59:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbiJCNru (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Oct 2022 09:47:50 -0400
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B012B246
-        for <selinux@vger.kernel.org>; Mon,  3 Oct 2022 06:47:48 -0700 (PDT)
-Received: by mail-oi1-x22e.google.com with SMTP id j188so11387181oih.0
-        for <selinux@vger.kernel.org>; Mon, 03 Oct 2022 06:47:48 -0700 (PDT)
+        with ESMTP id S229896AbiJCO7j (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Oct 2022 10:59:39 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6DDFD9A
+        for <selinux@vger.kernel.org>; Mon,  3 Oct 2022 07:59:36 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id 78so9865948pgb.13
+        for <selinux@vger.kernel.org>; Mon, 03 Oct 2022 07:59:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=R3YcVIrTb4inuvbuYhq9vi6T8Pa33mbPskPhHqjkGBA=;
-        b=gsCsBlTZFbLeMeB48ObHiks5wCZILZfvh9ixi7HprQmeNPFSIgDfcHXxYSP//Qka0U
-         zc9y1Xrojyf78hbt3soqCgGnQ5CwJO1MWLz+7SHboUXueGMr3sttE64g+7cniVIzOOjn
-         aGYNKTGBF2KNAOVIgPWEgBBvz2sh4o3AELZLFeKsJAQV71vhHpPzf0X7W02gDT1c8qpQ
-         dYQeYvTG6BcBDPAsSioSdhdbv3xJgCxNVcSf7Ski+r2pILi9zbf2PfaBXwV9WwovygbZ
-         Wp26qB3eywZ2NCcd84cteuMRFN+2PMFBS6ESDqmiQJfIy1ItJq27uo2f747yAMv5oy9d
-         LloA==
+        bh=taj6P/J9KmMw5jgIMRVK9x94QodYmUzqMcaCrk13lM8=;
+        b=p+kGL9O6ugo8RMiGZll/6yVBbbLXILD1zRAyYxVdcuKxSFW9R/lMPifbZWadIIUDf9
+         9EzRpbzZsPtB32WIoa2bBefKUz87z+iV2bEqxGH4ElgtjCc8/XIHha6ikgrlBCQcHf1s
+         sy+pH5JGCJcGO3Fs/Pt6ondIlMAx9TU+qk/g8eUyg9lgy8QMQge0dwhQZ6QwiaAAmzfA
+         0n8bUAwsFMZo0/BDQOmDBEVSYAxwsNw62sTQXoV1f+4YL6DdszgU72PgZ/bjlc/uyiT/
+         9QR+L+B2NHxgPHyIfuMdcQACOzbexht8uqL1slWVcY8Z9Lwv3QE5FjTKmZaDJMVaArGK
+         R01w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=R3YcVIrTb4inuvbuYhq9vi6T8Pa33mbPskPhHqjkGBA=;
-        b=v4m4janNzdKDSHDUH4UGGAOANCyAIVuo44Y4WeHRSeVt3zhgjJogNMDgixujggjMPj
-         fRzYOKHNrJMU1KWoWUPcdyOzdrm+s51IHmFdurwOivHPt5qsTOnbc8G4KhMgW5gnCQVt
-         yBIHR59wX/8AP252Uo5uEBQ5S75WB2IM7h4sC2n/6QkW389qx84DiZuvoR5zWk6yoVN2
-         MrXGEAKTrJtN9onLtP0qFY4UOGWc1YDrNCRx/7idZfBmgPg5Y1jutjqPuoEDbpJUFobO
-         4buoPrtgKK6otUieKdICEIlZ5TLAdM0Zspe2u31NsRj1LGEEAYez4fbDi3DVw+3/3mWT
-         eesA==
-X-Gm-Message-State: ACrzQf3AKEqM1SlLxB+iBKtcJm7fCb+swW46pHN6tav1w5fBD9EZcIok
-        7VZ0KDHQQtPtVRPhCl+Sx/0HoHKzK7q9fF2KEWKHBDIlPQ==
-X-Google-Smtp-Source: AMsMyM7A9Ms68OOLUo8JLb+Y/FMXw9BiiaRKMn6vCF+zVRXfg89ld622Fvz6EG0u2V5YHCzgNlQsLrBEkByH9MteCh4=
-X-Received: by 2002:aca:1c13:0:b0:350:ce21:a022 with SMTP id
- c19-20020aca1c13000000b00350ce21a022mr4245776oic.172.1664804867764; Mon, 03
- Oct 2022 06:47:47 -0700 (PDT)
+        bh=taj6P/J9KmMw5jgIMRVK9x94QodYmUzqMcaCrk13lM8=;
+        b=HjUK2i8N1+b/QnqBq1pu/uK18/wo+gbnof/JMSS9+5RgZ7VVYS04/dGMVoDuDHH8XJ
+         MRG/vr743SxOS+PAb66tktOfLs1RHbdQrgFhuEarUlT/SzKzwFE8jz1oiw8ssA0EAKkd
+         vCOd0agn2R+wo8lTnEpPrJanKisv5mafim/lYNvVb3mOSHNspU0j+/on8Q6+JRzzzZNF
+         dlCFjXrnsUU9Tew6CczkcAsAfwrCDbY8AIsPBjIpngnxkfphj2CrmWv9upb3GTRgkEaS
+         GoEz4Dz9s/jq75ZBQNWXK/WIn1WSSt49e7l2d88/Yo0Qnrt5xWg7Qb78p6SB8MXobF9R
+         hxpQ==
+X-Gm-Message-State: ACrzQf2p07Ca7s8joeKGc8dZbAB4awlgBPhTtw9XSWNTOubTBPUgz7OC
+        5NrG4MZFX419w8K2zJzBSCCmDsRh3x0RfWDb9r1RvKtf5fA=
+X-Google-Smtp-Source: AMsMyM65WsrBNH7+Y8HbvJqBVfWCNmZ/V9nKGLnbgR83LrIPebBIv1l4HBuzcx66CDuAK5mPQP7FZN44hUOrqkK0LAU=
+X-Received: by 2002:a63:191d:0:b0:434:4bb3:e016 with SMTP id
+ z29-20020a63191d000000b004344bb3e016mr19356832pgl.133.1664809176370; Mon, 03
+ Oct 2022 07:59:36 -0700 (PDT)
 MIME-Version: 1.0
-References: <166463207266.6015.2704084637353753709.stgit@olly> <bf2cf936-1832-bb8d-33fd-b8ff1759e352@linux.microsoft.com>
-In-Reply-To: <bf2cf936-1832-bb8d-33fd-b8ff1759e352@linux.microsoft.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 3 Oct 2022 09:47:36 -0400
-Message-ID: <CAHC9VhRTOZsG8r1jdE2yPndc1KStMGri=pZ1WfjfYjECaZW4kw@mail.gmail.com>
-Subject: Re: [PATCH =v2] docs: update the README.md with a basic SELinux description
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
+References: <CAHC9VhRNJjzGSbQgcTeP=GcUyAHTn__KDz-r02zSs-xcQFO-gg@mail.gmail.com>
+In-Reply-To: <CAHC9VhRNJjzGSbQgcTeP=GcUyAHTn__KDz-r02zSs-xcQFO-gg@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 3 Oct 2022 10:59:25 -0400
+Message-ID: <CAP+JOzS-tit_5wLgYGBGBgWSzLvx8zDsb8mts76GsP673x9Xvw@mail.gmail.com>
+Subject: Re: [PATCH] docs: provide a top level LICENSE file
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 3, 2022 at 9:36 AM Daniel Burgener
-<dburgener@linux.microsoft.com> wrote:
-> On 10/1/2022 9:47 AM, Paul Moore wrote:
-> > This is to help meet the OpenSSF Best Practices requirements.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >   README.md |   19 ++++++++++++-------
-> >   1 file changed, 12 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/README.md b/README.md
-> > index 74b0a0c3..e820ac30 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -7,13 +7,18 @@ SELinux Userspace
-> >   [![OSS-Fuzz Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/selinux.svg)](https://oss-fuzz-build-logs.storage.googleapis.com/index.html#selinux)
-> >   [![CIFuzz Status](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml)
-> >
-> > -Please submit all bug reports and patches to <selinux@vger.kernel.org>.
-> > -
-> > -Subscribe by sending "subscribe selinux" in the body of an email
-> > -to <majordomo@vger.kernel.org>.
-> > -
-> > -Archive of this mailing list is available on https://lore.kernel.org/selinux/.
-> > -
-> > +SELinux is a flexible Mandatory Access Control (MAC) system built into the
-> > +Linux Kernel.  SELinux provides administrators with a comprehensive access
-> > +control mechanism that enables greater access granularity over the existing
-> > +Linux Discretionary Access Controls (DAC) and is present in many major Linux
-> > +distributions.  This repository contains the sources for the SELinux utilities
-> > +and system libraries which allow for the configuration and management of a
-> > +SELinux-based system.
+On Fri, Sep 30, 2022 at 11:05 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> Probably should be *an* SELinux-based system.
+> Okay, so this email isn't really a patch, but it does point to one :)
+>
+> * https://github.com/SELinuxProject/selinux/pull/370
+>
+> While the PR referenced above is quite large, too large for email in
+> fact, it is that size because of the number of renamed files
+> (COPYING->LICENSE).  The only new addition, a top level LICENSE file,
+> is quite small.
+>
+> Please review and merge into the SELinux userspace repo.
+>
+> --
+> paul-moore.com
 
-Just posted a v3, thanks.
-
--- 
-paul-moore.com
+Acked-by: James Carter <jwcart2@gmail.com>
