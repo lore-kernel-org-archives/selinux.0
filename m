@@ -2,67 +2,76 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32064C433F5
-	for <selinux@archiver.kernel.org>; Wed,  5 Oct 2022 14:39:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D71AC433FE
+	for <selinux@archiver.kernel.org>; Wed,  5 Oct 2022 14:39:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229581AbiJEOj0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Oct 2022 10:39:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48584 "EHLO
+        id S229716AbiJEOjs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Oct 2022 10:39:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229716AbiJEOjZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Oct 2022 10:39:25 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC2F46855
-        for <selinux@vger.kernel.org>; Wed,  5 Oct 2022 07:39:22 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id bu5-20020a17090aee4500b00202e9ca2182so3337363pjb.0
-        for <selinux@vger.kernel.org>; Wed, 05 Oct 2022 07:39:22 -0700 (PDT)
+        with ESMTP id S230030AbiJEOjp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Oct 2022 10:39:45 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B8C49FC6
+        for <selinux@vger.kernel.org>; Wed,  5 Oct 2022 07:39:44 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id c7so15408539pgt.11
+        for <selinux@vger.kernel.org>; Wed, 05 Oct 2022 07:39:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=SkwLEV2ENCQ3CELbKI01Xq0SxqrW4m5z0dbOYX9PQtU=;
-        b=d8wUGEhQQszp+Ewc0pIOUjOBz9MSCA6o6kEpHDQsa9ovR4WoGSq13776SUB77eZzMu
-         QjquKLyUvUhS7xHIameQK5L33MDLyDKYjfF8t28gp0QjBrfQ0LkzluBuC9Tadwf0nhAy
-         CNAoKXhZ03EP9xWYNMI882ijIJKY2aHOMfvZnUbmeKkCVuz7qBOnsVpAULo/+pmBF1f6
-         6pufoCdwPblIsYa0sRfNc47N2+hce1NsQVt3fDTdKzXfLIF1yRJYYQ1CaJDP7cpX2zT3
-         HXyEYSvRcwmeMY/h8/lr7E+W8AieycDPaLGsE0A4eeid19Qbhcg3OvGuI0fQNORP4o2l
-         kjKQ==
+        bh=8zJkv1yprIrG58DGKOPVPSaWBAjvB72GkZbtocpVHMM=;
+        b=Lb9Hx6WXCYmfesnti0KLcDBUXPi8B6iIRvInYDi4p07FWL2o6D5mNdPb2JZF/z666V
+         CvxqUkIVI3yLPxXyk1GOZg7QMcFDy1IsDWFcmsqDKc2xjfW1nlWgT+kXZfEAe+VgJ54M
+         JrkpHwQSW+51Q7W3LbXwm5UjobPSMTvpOaHBUBLf4YtlJTQMTKfrUbz65IHSAJDkCSAt
+         9VH2uDRMsKUg0sTMkiIoTSX4ojUYYWDb1sjQgSgQ3V5cUNqtmQjXBE+x4+Zeq3WPcLZ5
+         KDS2ujlD463hlDm7Drc7PizZK37nwPeqz845OpAgT1L75n5DaDm76HUgBwUzbjCb6wba
+         cNww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=SkwLEV2ENCQ3CELbKI01Xq0SxqrW4m5z0dbOYX9PQtU=;
-        b=46TMwRoH98FakYQaTxGoQUt+kV5BLl/12KYcSARF5xjFFOQOtGuROQEncTf/1bMjyH
-         rFJHLgA03AksJpocM+RpwaLcVupiTz8l3H2RZrgmXapZkjQrWFSfZ/sZI5u0myAmORCI
-         U7gJGk5A/n/bOlZpjLhCl1vqzfh9dGEzH2tMwCA3TeijT0gDHZeyy8UUkWAEwNFGDrtP
-         bD1lPId+aBuK+RwywGf8kp47MtpdNI3RN8QKbRT0wmMyeT67hk4LkP2R0ggUpHU6ssIS
-         C1Msrw5bIvWb2ghun9ccEEig+Ff5onk7ghf4TxgGBTnTNeOOkv23+uHSprscvFLuiixd
-         /F8Q==
-X-Gm-Message-State: ACrzQf2qP397IOKk1Ah3sbbMm8bbXyS2KFGZuBAQpe0ZxBNQQPFRwxt/
-        /VBG5wiE3QUygWPYwvuXJSf83z6WrbSxO5XLmgVzGlYP
-X-Google-Smtp-Source: AMsMyM4dtjHkqx5Oe+iUgTZ/aUYD7g5Z8js9xSoMZ2Px877T+xg1oi9GZwTF49gUWwWfR0aaUsIseIj9WwRwxxKcscU=
-X-Received: by 2002:a17:90b:3b8e:b0:209:1e71:147e with SMTP id
- pc14-20020a17090b3b8e00b002091e71147emr95168pjb.92.1664980762223; Wed, 05 Oct
- 2022 07:39:22 -0700 (PDT)
+        bh=8zJkv1yprIrG58DGKOPVPSaWBAjvB72GkZbtocpVHMM=;
+        b=UrT1KM62WLWi2GezxycHAoKQi7JgDqW5fsKZ688qQKF3kdJy0I9pJfiziPHemHCCrE
+         O5c2CVMeEhEh0SSvQ9CDoqROFMclYPNP2senOCP0KHkN7WgGRFpSzSNIzQG8oZFI/+zu
+         jlLBBZd0A2VJpZwFbLPAeCIewdLLkj107n7xvzkJdmRHVV3gZkiT+bwYeDgzAv2ZEZBq
+         kovubFnp4gU1Zh1w5ecFGTuBkzwAMew+eYvuJQQMACyrR2VsWvlKv3pd4rC5kq17w486
+         pc0oo2Q+BeGo6b6aRwj5JIWYSlQ7ixeKPri+/G7gdsnpsbJ9kCVcuuvkuGxznkUuvF13
+         zNlQ==
+X-Gm-Message-State: ACrzQf3tGlOv/3X2p64YzJ0a33gZmwcGPDu5DZQHAqSg23ePrAABxs09
+        32/qD7/BKSZwB/kZr2+wm3nYLRAo/xv6ikrXCiUYVyee
+X-Google-Smtp-Source: AMsMyM7I88DGHtki9YwlktkM4PtlgNbBCG9NZAcFOag+fGkGnipkJafnFgitnC3Uf/d20LuC+UN6oQeuqx/0lNn6Ctg=
+X-Received: by 2002:a05:6a00:1a07:b0:541:6060:705d with SMTP id
+ g7-20020a056a001a0700b005416060705dmr33625380pfv.61.1664980784314; Wed, 05
+ Oct 2022 07:39:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <166387874213.1884920.6973035378183003234.stgit@olly> <CAP+JOzSaVG4asajffr2XbGND7sPRv1uQk=szegVPNV+GMfhboQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzSaVG4asajffr2XbGND7sPRv1uQk=szegVPNV+GMfhboQ@mail.gmail.com>
+References: <20220922180255.2923-1-masheets@linux.microsoft.com>
+ <c614d089-31e2-573a-17d0-91eca5e9b218@linux.microsoft.com>
+ <1486279f-a1e9-0f03-203c-4a1ee52264d5@linux.microsoft.com> <CAP+JOzTZ-pdooG1xXPiuaGX+4LnHvCCQGEXESk5xAdMadRToLg@mail.gmail.com>
+In-Reply-To: <CAP+JOzTZ-pdooG1xXPiuaGX+4LnHvCCQGEXESk5xAdMadRToLg@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 5 Oct 2022 10:39:11 -0400
-Message-ID: <CAP+JOzSeFMvgdF_V5JbRrUX5t6aSR0pUQGzvApH0HsSNm1-joA@mail.gmail.com>
-Subject: Re: [PATCH] docs: add Paul Moore's GPG fingerprint
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
+Date:   Wed, 5 Oct 2022 10:39:33 -0400
+Message-ID: <CAP+JOzSsyieb257=DuejPe-C1tCBRaYqAta7QZUnyw--V=4Pvw@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: Allow user to set SYSCONFDIR
+To:     Daniel Burgener <dburgener@linux.microsoft.com>
+Cc:     Matt Sheets <masheets@linux.microsoft.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 27, 2022 at 3:45 PM James Carter <jwcart2@gmail.com> wrote:
+On Wed, Sep 28, 2022 at 11:48 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Thu, Sep 22, 2022 at 4:45 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Thu, Sep 22, 2022 at 2:16 PM Daniel Burgener
+> <dburgener@linux.microsoft.com> wrote:
 > >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > On 9/22/2022 2:04 PM, Daniel Burgener wrote:
+> > > On 9/22/2022 2:02 PM, Matt Sheets wrote:
+> > >> This change will allow a user to set the location of their
+> > >> sysconfdir, defaulted to /etc, if they are installing into
+> > >> nonstandard locations.
+> > >>
+> > >> Signed-off-by: Matt Sheets <masheets@linux.microsoft.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
@@ -71,20 +80,44 @@ Merged.
 Thanks,
 Jim
 
-> > ---
-> >  SECURITY.md |    1 +
-> >  1 file changed, 1 insertion(+)
+> > >> ---
+> > >>   libsemanage/src/Makefile | 3 ++-
+> > >>   1 file changed, 2 insertions(+), 1 deletion(-)
+> > >>
+> > >> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> > >> index 71c2a1d2..01df0181 100644
+> > >> --- a/libsemanage/src/Makefile
+> > >> +++ b/libsemanage/src/Makefile
+> > >> @@ -11,6 +11,7 @@ PKG_CONFIG ?= pkg-config
+> > >>   PREFIX ?= /usr
+> > >>   LIBDIR ?= $(PREFIX)/lib
+> > >>   INCLUDEDIR ?= $(PREFIX)/include
+> > >> +SYSCONFDIR ?= /etc
+> > >>   PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+> > >>   PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+> > >>   PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig
+> > >> import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+> > >> @@ -19,7 +20,7 @@ RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" +
+> > >> RbConfig::CONFIG["rubyarchhdrdir"] +
+> > >>   RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
+> > >> RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] +
+> > >> " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+> > >>   RUBYINSTALL ?= $(shell $(RUBY) -e 'puts
+> > >> RbConfig::CONFIG["vendorarchdir"]')
+> > >> -DEFAULT_SEMANAGE_CONF_LOCATION=/etc/selinux/semanage.conf
+> > >> +DEFAULT_SEMANAGE_CONF_LOCATION=$(SYSCONFDIR)/selinux/semanage.conf
+> > >>   ifeq ($(DEBUG),1)
+> > >>       export CFLAGS ?= -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall
+> > >> -Wshadow -Werror
+> > >
+> > > That looks good thanks.  Sorry, one last request.  This is a generic
+> > > yocto issue, right?  Are you able to provide publicly visible links to
+> > > the upstream yocto project in the git commit message to justify why
+> > > using a nonstandard /etc is a normal/reasonable thing to do?
 > >
-> > diff --git a/SECURITY.md b/SECURITY.md
-> > index 37630585..c817eac9 100644
-> > --- a/SECURITY.md
-> > +++ b/SECURITY.md
-> > @@ -30,6 +30,7 @@ the issue as quickly as possible and shorten the disclosure window.
-> >  * Joshua Brindle, brindle@gmail.com
-> >  * James Carter, jwcart2@gmail.com
-> >  * Paul Moore, paul@paul-moore.com
-> > +  *  (GPG fingerprint) 7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA 7C8A
-> >  * Jason Zaman, perfinion@gentoo.org
-> >  * Steve Lawrence, slawrence@tresys.com
-> >  * William Roberts, bill.c.roberts@gmail.com
+> > Oops, I'd been discussing this with Matt, and didn't realize this one
+> > hit the public list :)  Just trying to improve the rationale/justification.
 > >
+> > Regarding the actual change:
+> >
+> > Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
