@@ -2,93 +2,83 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E3E5C4332F
-	for <selinux@archiver.kernel.org>; Wed,  5 Oct 2022 14:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F623C433F5
+	for <selinux@archiver.kernel.org>; Wed,  5 Oct 2022 14:40:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230030AbiJEOkY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Oct 2022 10:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52388 "EHLO
+        id S229653AbiJEOko (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Oct 2022 10:40:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229957AbiJEOkX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Oct 2022 10:40:23 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1989025E91
-        for <selinux@vger.kernel.org>; Wed,  5 Oct 2022 07:40:23 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id fw14so8679219pjb.3
-        for <selinux@vger.kernel.org>; Wed, 05 Oct 2022 07:40:23 -0700 (PDT)
+        with ESMTP id S229379AbiJEOkn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Oct 2022 10:40:43 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF8E53340D
+        for <selinux@vger.kernel.org>; Wed,  5 Oct 2022 07:40:42 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id a26so6992390pfg.7
+        for <selinux@vger.kernel.org>; Wed, 05 Oct 2022 07:40:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=3WXhaM8LObiEPo2iRJYvCnQJzX7KFqlG4m2H9GPBkHo=;
-        b=l0qzAbxioleAb50rMnDUWnnL5l9eNMu50ywi1UXdYEpZnU0lLNOCl5XN9YLvXDgrG3
-         J4GYf5eFVhQhorkm1p0kMMe8LuF+vOr15/BmbUv4dlVvL/ln2MUIp21v0Fdw07Y0nntU
-         xPw1brKqiS7rT/kcEwL6hIHSwsUq7fWXGWdwXGYxMI94OwtkfUI8Jwe9P7p91njYtDxc
-         ZGBFjBEGGz925alpdwISdCThCRnzLhFuMMruaueVNFVnKNyLYR11ci6VehVVDygpLhH5
-         d4KXpKd1RtZY7vFhsZR+eihTrpX8R4pWFr+ifnUyJaNK75MAITRlF4lqA99S2DCYEiZ4
-         6pIw==
+        bh=0TZmZYrv6LvK1dp/PfTVsbza8AUs4FXru4tXA1Ul+LI=;
+        b=DUyzgAu0+5e2kwmYrpaPW237M2GuC40dNBAkU5kj/S4idIzIlkGYmQ0TthiOnFJmED
+         BnDrWDONlsUD0fB0L+sdH817Kx7bAktE9gU0P/iYJIy7MiESD5YtjLtes80OS+GulVsp
+         KAe935MKO5eJkB2glpwX5fh9RinvUlpyK+nSzauM46Pdoz6aqj/F3CMvs2uAiJgIuube
+         5aZlVAoOJMoMawz4vm70rzPW27UhDd3zFWWMLQ01BlW+tYl5c0PN6TyivDLvlq9p+vfF
+         hhWwjgFjPpSL2Xj94HLODdBR+Z175oTBe8oyNyzNRYSovCzBzj9YmFOy09rxzWEiI850
+         DvYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=3WXhaM8LObiEPo2iRJYvCnQJzX7KFqlG4m2H9GPBkHo=;
-        b=Y26QaXNcdZ+i3b9xPE+PjacSilV7obLZjkqZwOBWFx2CiYXkt27iT3sFs1LfSi9yHp
-         Q9SEPxc5Uju2vNBuQQiBzl2GQh61/ZeB6mG4Z/YzaqAo89aUBX2X7/QoC19MU2eZYgox
-         DZ6O2X/e9xPofn8U5RX/QYeJPXmQQkS5HDLGaL3OhqJiIVuG/lZ+SH0zf1RTrxJuqdNk
-         f8lVTjUHJr/v4mWAaC665+T4skX9XlpOvFq+AqmDjDI35kgwaU3vJ+yWABNLhh8RxF+G
-         am4Nkr7DwaFCCxPq467Gge/h9lRptraWKMiJf7BdJy4T7Vq7GfYpbEU8vgfUeDOnfuOr
-         0gIw==
-X-Gm-Message-State: ACrzQf0fQMaxNKVAixSePdbPM9ObpxZpjKzNkgr19yeKmgEkMlWgfWV4
-        8u1Vy/emX6L3Z0DRwCJqjpZkciN41lNRyvU5KiORTolO
-X-Google-Smtp-Source: AMsMyM4ocWJbmyi8hWT6JrMVwkmR9dk+WxlMwOoBxyfZLloGfRZlfXlCu0wx64QZv47xy4BUCzjmOnsQBVPQoT802mg=
-X-Received: by 2002:a17:90b:1e07:b0:202:bb50:1963 with SMTP id
- pg7-20020a17090b1e0700b00202bb501963mr5471204pjb.82.1664980822629; Wed, 05
- Oct 2022 07:40:22 -0700 (PDT)
+        bh=0TZmZYrv6LvK1dp/PfTVsbza8AUs4FXru4tXA1Ul+LI=;
+        b=i2diZcAFyBlHU5yAKaqkju1c6CuRVrzrL5tWKYPVvKtjGbSS53LFqxTT/wBALJypKw
+         xgRADTjMkt9f1/gC7BAIKnvc9Dfvgb4Yy8Plxae7qH0xCHcdJ4yaRnsDyvLqgB/2cHTP
+         WfnrhjYF9x0EzZEXthfPtvv5IQgwajRK5lFrp0nFdjtOhN2UatK8ZF5ztlLesmyiPa9w
+         Tou2b9Rvxi/hnwoprnUPZWEab4xnuxQgBaY19I5o1n2xTYkauHyV/1JLmlc7RDg2HxWv
+         Jb+diMKYST8wyu5YvWiT12AlkLQUUyL+srxJVphyQlVtdmk8iako1+Sizg/2SeTzmtCA
+         9Hbg==
+X-Gm-Message-State: ACrzQf2x0zvW1TECFKK/i945unVDbCbFw8SwwN9LenKOI/IusUX+LdMr
+        t1mB55SXdx7kQRb7EqJ74wsN3zfXH3ka5X4pMcTHtZni
+X-Google-Smtp-Source: AMsMyM6vPWQsQg3Ox6Slfy4gBLo8Klr24L+COyndkZWAbRNcsLBVegCHiZ8/enmHbJFfHMMQRkYPSPtU5p6ZPGPjoCY=
+X-Received: by 2002:aa7:86cf:0:b0:561:4b7b:4745 with SMTP id
+ h15-20020aa786cf000000b005614b7b4745mr151175pfo.29.1664980842292; Wed, 05 Oct
+ 2022 07:40:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220919134914.145651-1-dominick.grift@defensec.nl> <CAP+JOzSGRSA1k8x_0jHtrq9O2wKFPF2vYXtxfXBwj6jZCO0Q5w@mail.gmail.com>
-In-Reply-To: <CAP+JOzSGRSA1k8x_0jHtrq9O2wKFPF2vYXtxfXBwj6jZCO0Q5w@mail.gmail.com>
+References: <CAHC9VhRNJjzGSbQgcTeP=GcUyAHTn__KDz-r02zSs-xcQFO-gg@mail.gmail.com>
+ <CAP+JOzS-tit_5wLgYGBGBgWSzLvx8zDsb8mts76GsP673x9Xvw@mail.gmail.com>
+In-Reply-To: <CAP+JOzS-tit_5wLgYGBGBgWSzLvx8zDsb8mts76GsP673x9Xvw@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 5 Oct 2022 10:40:11 -0400
-Message-ID: <CAP+JOzS5DBPcb4Xnom5vvjNXd_0+vmN_DW8jTa7FGUaPf9AWfg@mail.gmail.com>
-Subject: Re: [PATCH] secilc/doc: classmap is also allowed in permissionx
-To:     Dominick Grift <dominick.grift@defensec.nl>
+Date:   Wed, 5 Oct 2022 10:40:31 -0400
+Message-ID: <CAP+JOzTHCKfzfznjyq370_BSYmmQ-dh0=sxd94C7pSdPVCh6-g@mail.gmail.com>
+Subject: Re: [PATCH] docs: provide a top level LICENSE file
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 29, 2022 at 3:29 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, Oct 3, 2022 at 10:59 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Mon, Sep 19, 2022 at 9:56 AM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
+> On Fri, Sep 30, 2022 at 11:05 PM Paul Moore <paul@paul-moore.com> wrote:
 > >
-> > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> > Okay, so this email isn't really a patch, but it does point to one :)
+> >
+> > * https://github.com/SELinuxProject/selinux/pull/370
+> >
+> > While the PR referenced above is quite large, too large for email in
+> > fact, it is that size because of the number of renamed files
+> > (COPYING->LICENSE).  The only new addition, a top level LICENSE file,
+> > is quite small.
+> >
+> > Please review and merge into the SELinux userspace repo.
+> >
+> > --
+> > paul-moore.com
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
->
 
 Merged.
 Thanks,
 Jim
-
-> > ---
-> >  secilc/docs/cil_class_and_permission_statements.md | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/secilc/docs/cil_class_and_permission_statements.md b/secilc/docs/cil_class_and_permission_statements.md
-> > index 368e3a4d..c494f144 100644
-> > --- a/secilc/docs/cil_class_and_permission_statements.md
-> > +++ b/secilc/docs/cil_class_and_permission_statements.md
-> > @@ -536,7 +536,7 @@ Defines a named extended permission, which can be used in the [`allowx`](cil_acc
-> >  </tr>
-> >  <tr class="odd">
-> >  <td align="left"><p><code>class_id</code></p></td>
-> > -<td align="left"><p>A single previously declared <code>class</code> identifier.</p></td>
-> > +<td align="left"><p>A single previously declared <code>class</code> or <code>classmap</code> identifier.</p></td>
-> >  </tr>
-> >  <tr class="even">
-> >  <td align="left"><p><code>permission</code></p></td>
-> > --
-> > 2.37.2
-> >
