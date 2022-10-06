@@ -2,58 +2,53 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2923C4332F
-	for <selinux@archiver.kernel.org>; Thu,  6 Oct 2022 08:27:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE3C1C433F5
+	for <selinux@archiver.kernel.org>; Thu,  6 Oct 2022 08:27:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbiJFI1v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S230225AbiJFI1v (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Thu, 6 Oct 2022 04:27:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229766AbiJFI1q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Oct 2022 04:27:46 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287F81028
+        with ESMTP id S230024AbiJFI1r (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Oct 2022 04:27:47 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0C1E5FBA
         for <selinux@vger.kernel.org>; Thu,  6 Oct 2022 01:27:41 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id f193so1326651pgc.0
+Received: by mail-pg1-x536.google.com with SMTP id c7so1230219pgt.11
         for <selinux@vger.kernel.org>; Thu, 06 Oct 2022 01:27:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=YtNry7EbJtDtEtddA9DqqPAajzIvH2ExTf+f1d2BLeE=;
-        b=m3LijaQHN2fYQ2T7ERgZYDL+BgBTB6ceIx6mWj4l3PzhhegxpcZYfw0oJpq7U5aVp+
-         ymLFLr4VKrZL1nDWxTEYN9WbYGJanBHvMdoknEBk1NqeBZm0YRTLCq1FzOsG/eN/Ivvc
-         Zs1S1r5o12z/ZfBZ2oahpULeypLty4UAhN1eI=
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+        bh=JXTirUT/Csg4APgKb6IoBxbOkY1M1FiylJ4snUxz0UA=;
+        b=MV1Xq/Ck5nDq5FkA2A/UwIV8B30dvCVwZwYBMaY5KkmjN8HzeobdGijbvEPdreTL0I
+         hVhs0leFZmmgwsEcyYJ5LKRD3rksRH/MX05zPgzCuhL2mf5faZobGVDXhr0NK0y3ncts
+         WDg5Irmwiclv1+TuKbuqMlK939w/T3VPQBGLU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=YtNry7EbJtDtEtddA9DqqPAajzIvH2ExTf+f1d2BLeE=;
-        b=nVd/6+tosx0cZGxXh9014pEq1PQ6EYUGwSMlg5jPSPbcfirHMCfrwRbtNWR87TAgks
-         ZIEGcfzb8ktCVQiiT+hEPZFRm6T8ITLcp0dNquNLQeld6hcNM9C9I17pVTV1XkpJBUCA
-         +w+jGYKbQLggY62N8ikkjij6qGrXl0z24Uan/7Z+lpLHQRPgh9wpW0ZLIJACkzOTa128
-         km0/oLEHhex0QEMIqP1zhIdTATVcD2axNEN36A2+tiPcgOBaIw9VcjyvmsVb9CjCHgKX
-         WShp4tj6cgl8hFrWV51EhZBQqw8btriW6idNm8FGqUtVG5fLzuaIYP/K71NQ+Jwa/yhw
-         +QVw==
-X-Gm-Message-State: ACrzQf12bk8hqeKgtNYP3CLJVsSv4e77QHjuXa6Uzbk2agHNO6jTFxwi
-        SqQ/PXFhBBye6vxGB0hzFmKf/w==
-X-Google-Smtp-Source: AMsMyM4q9XFSyeeW5dDI6ls3ylAYRaVXWsGFe+w0sCZM05fMKSjTImuW/1lBuGiaytgnMKa0rdlF2w==
-X-Received: by 2002:a63:6581:0:b0:434:9482:c243 with SMTP id z123-20020a636581000000b004349482c243mr3499412pgb.448.1665044860443;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=JXTirUT/Csg4APgKb6IoBxbOkY1M1FiylJ4snUxz0UA=;
+        b=g5QspsQRwnT6eONgCEIZYlf3ZhxM0VTUx+EJVmOcFneu9BTfSUu0DqwQyO0JuWcnvQ
+         2c/UQL7mWj6tgjNk4BgQ0gUFzO9RcLvTynbpp9ysMRdsSs8lojfl1HFaAx76j5AfPpp4
+         DyrrD2PoxcSvCwQlmD9VnWWQnPmXE3XJ3MCRviC52qWIwT3vWxH8VmNLWpixV9Yp9Pn1
+         oV3ovUeM13WPQ5c8tyAtj17B/IIIxO3lagpz9EcNEPYBtNWeURZA5PcnCipD4HQJEFLT
+         uiYCLWrNKiknE29I2VWxIdUyZJxz0Nv1LCO+3w5dPd/p+eqds8OGSXNFKVgbc+KoNUNH
+         8ynQ==
+X-Gm-Message-State: ACrzQf1LYoY1CeIoUSVxX6jeIMuLS19+AQatzUYVligph/IMgxeYpvI8
+        OjhLulCndSY4oGyBmX2fNAfP6Q==
+X-Google-Smtp-Source: AMsMyM6W5XwnXecNI4zSPGpyeZlol/ZTonmHl763803Md18AZocxPoiswNswpf1uUPT4OHuojpgkmA==
+X-Received: by 2002:a63:d54a:0:b0:454:395a:73d6 with SMTP id v10-20020a63d54a000000b00454395a73d6mr3545058pgi.531.1665044860838;
         Thu, 06 Oct 2022 01:27:40 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j4-20020a170902da8400b0017eb2d62bbesm6014743plx.99.2022.10.06.01.27.39
+        by smtp.gmail.com with ESMTPSA id v9-20020a17090a4ec900b00200b2894648sm2344795pjl.52.2022.10.06.01.27.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 06 Oct 2022 01:27:39 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
 To:     Eric Biederman <ebiederm@xmission.com>
 Cc:     Kees Cook <keescook@chromium.org>,
-        Jorge Merlino <jorge.merlino@canonical.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         John Johansen <john.johansen@canonical.com>,
         Paul Moore <paul@paul-moore.com>,
         James Morris <jmorris@namei.org>,
@@ -66,76 +61,153 @@ Cc:     Kees Cook <keescook@chromium.org>,
         "David S. Miller" <davem@davemloft.net>,
         Todd Kjos <tkjos@google.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Jorge Merlino <jorge.merlino@canonical.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Prashanth Prahlad <pprahlad@redhat.com>,
         Micah Morton <mortonm@chromium.org>,
         Fenghua Yu <fenghua.yu@intel.com>,
         Andrei Vagin <avagin@gmail.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: [PATCH 0/2] fs/exec: Explicitly unshare fs_struct on exec
-Date:   Thu,  6 Oct 2022 01:27:33 -0700
-Message-Id: <20221006082735.1321612-1-keescook@chromium.org>
+        linux-hardening@vger.kernel.org
+Subject: [PATCH 2/2] exec: Remove LSM_UNSAFE_SHARE
+Date:   Thu,  6 Oct 2022 01:27:35 -0700
+Message-Id: <20221006082735.1321612-3-keescook@chromium.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221006082735.1321612-1-keescook@chromium.org>
+References: <20221006082735.1321612-1-keescook@chromium.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1735; h=from:subject; bh=8JXgAWBrUCWySpKU2akeepLoIo1ngoevmTcyBBHjAt0=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBjPpF3qES4cYgipY9Yg66d58hnI1s34HzpasPEsrcs AdJZe+KJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYz6RdwAKCRCJcvTf3G3AJvuPD/ sEFuqb2jJFVbuCOokYGoNQsjw0c9Jmc0XwKWYipIHX1SMMd2WkotpH8FIpOwZ4FyBWjaC7R1DvZeLq wpDvCMawMGqka4y/+7g515eraCONHoJNn0oj2fukbMyqECfinzpw5/d4oLtWkFvyiE4HCoYP/6kmKK 0R8NWKCoSDvGWq7Usrp1Ra1BUXvG1UZHbw7j4g9ItLOqgALdmExlSixoeozIYoogVyhKH0WKOVKYth 6CRkWQcZ/xYBwGsWX7qmIQbUWoTiCbt1fTDMB4IZf5Cn6zrxQL7XNaEUK5j1dcf9ZKTqux5G32e7Of 81YIltR3K2wnhH4qLNhRec5guNWZ3ILs2c6YZDh2TFkb9rGX4cajkAKcAV/vMrP3Kjr9vZKHBdRtPd rsnr6zOL9FYSWR+4i8yhrgvEsVDvenhdlfscGxtpeM7wExsxxiICpUQTRZxDvkLJhahLlKMWnxHm1y N2eVoeyvRe9j7JMCjfOqfKyKLHBZfoqFWmfSVi88JV/Gr797J1kRDlGaszfz7SxKiINHJQK1POiTOc Eic3WPt1/rLSOcANGevkuLKRQkzZ0waIkzKR/ddRrxXv/kszRk/EvoQpjPnt81zaCBe+7jXDXKm4N3 wH+iXTk/Lc17bTuykzisNHzRgsTueD8b0Epfk0nQ+rUUKSa20mimgCQla6rA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3927; h=from:subject; bh=ekDs8TYo6gmnVS2X5P/NZPdmVTJQlJO9uXeDqf2iTeY=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBjPpF336GBqTJk2qjgX5GvQ3feqQTP3mEtrz77nvir edCOPRuJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYz6RdwAKCRCJcvTf3G3AJpwJEA CMrwF69qIO3OxGZxaGmmHUH3737CPlmPn0pDmdy3Hdb4vdmhacgZe56ZODfZEIOyku5HRei4EgW9Un lzYhSJLyWOrRjwPEVTKM0BlRqY1HItnaiqVWowS5JKvfxL2L9IQpY0QYtxCwvnJ2W0k8AQ+p6+Ki4o F/g2Je0/gx6G4S7AF/T2dVFNrC1I2c87k6eL23rFSo0OQU9LR7LjdrpSZJ30+nBivjJGu5sgi4eHwn pQXXIhLFBaII7ltA8d62vwj7rKBAAeQoRzpY95pA1nciM5YG4B9P8aJHsgdBADxRZbVXQlepYcvdRf VlawFag7VNsY3EDHQsFYuVxU3jfNQ9aWYiQm3IId5UVkzpseGi1cp/VAH10ttHQtajYjO5MIM/tKh4 7ms3y2FKhLnnEdyE3WSdd8mSgawrXjpmeuEpDI2vMZ6BlhuIx3kFGvg0wwXPKmuhKRF/KTQ+Xm7Q1B whkflq3t78dZ8X+TqDC5voTQ0W1A8o3EMLBJCNfs19t51e9ZWpL+GFM2xZlZeUGxY+arOWBjkl68yH hBgpFgFl3+Ti42WCPYzFfu3pVGyV/VYFC3VWIh0k2UTi9ncMlCncCVMVt+w+NSHYYLQzTADe44E3kX fF3/UQMXjAf4VO+FWmoBpvB2CbVa1VW942hoVo6zyef2e+sodtvRAZwUdA1w==
 X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+With fs_struct explicitly unshared during exec, it is no longer possible
+to have unexpected shared state, and LSM_UNSAFE_SHARE can be entirely
+removed.
 
-These changes seek to address an issue reported[1] by Jorge Merlino where
-high-thread-count processes would sometimes fail to setuid during a
-setuid execve().
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: John Johansen <john.johansen@canonical.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: Richard Haines <richard_c_haines@btinternet.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Xin Long <lucien.xin@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: apparmor@lists.ubuntu.com
+Cc: linux-security-module@vger.kernel.org
+Cc: selinux@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ fs/exec.c                  | 17 +----------------
+ include/linux/security.h   |  5 ++---
+ security/apparmor/domain.c |  5 -----
+ security/selinux/hooks.c   | 10 ----------
+ 4 files changed, 3 insertions(+), 34 deletions(-)
 
-It looks to me like the solution is to explicitly do an unshare_fs(),
-which should almost always be a no-op. Current testing seems to indicate
-that only the swapper->init exec triggers this condition (and I'm unclear
-on whether that's expected or undesirable). This has only received very
-light testing so far, but I wanted to share it so other folks could look
-it over.
-
-Jorge, can you test with these patches? Your PoC triggered immediately
-for me on an unpatched kernel, and did not trigger on a patched one.
-
-I added this patch on top of the series to see if the code ever fired:
-
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 53b7248f7a4b..3c197d9d8daa 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -3113,6 +3113,7 @@ int unshare_fs(void)
- 	if (error || !new_fs)
- 		return error;
+diff --git a/fs/exec.c b/fs/exec.c
+index 7d5f63f03c58..3cd058711098 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1563,8 +1563,7 @@ EXPORT_SYMBOL(bprm_change_interp);
+  */
+ static void check_unsafe_exec(struct linux_binprm *bprm)
+ {
+-	struct task_struct *p = current, *t;
+-	unsigned n_fs;
++	struct task_struct *p = current;
  
-+	pr_notice("UNSHARE of \"%s\" [%d]\n", current->comm, current->pid);
- 	unshare_fs_finalize(&new_fs);
+ 	if (p->ptrace)
+ 		bprm->unsafe |= LSM_UNSAFE_PTRACE;
+@@ -1575,20 +1574,6 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
+ 	 */
+ 	if (task_no_new_privs(current))
+ 		bprm->unsafe |= LSM_UNSAFE_NO_NEW_PRIVS;
+-
+-	t = p;
+-	n_fs = 1;
+-	spin_lock(&p->fs->lock);
+-	rcu_read_lock();
+-	while_each_thread(p, t) {
+-		if (t->fs == p->fs)
+-			n_fs++;
+-	}
+-	rcu_read_unlock();
+-
+-	if (p->fs->users > n_fs)
+-		bprm->unsafe |= LSM_UNSAFE_SHARE;
+-	spin_unlock(&p->fs->lock);
+ }
  
- 	if (new_fs)
-
-Thanks!
-
--Kees
-
-[1] https://lore.kernel.org/lkml/20220910211215.140270-1-jorge.merlino@canonical.com/
-
-Kees Cook (2):
-  fs/exec: Explicitly unshare fs_struct on exec
-  exec: Remove LSM_UNSAFE_SHARE
-
- fs/exec.c                  | 26 ++++------------
- fs/fs_struct.c             |  1 -
- include/linux/fdtable.h    |  1 +
- include/linux/fs_struct.h  |  1 -
- include/linux/security.h   |  5 ++-
- kernel/fork.c              | 62 ++++++++++++++++++++++++++------------
- security/apparmor/domain.c |  5 ---
- security/selinux/hooks.c   | 10 ------
- 8 files changed, 51 insertions(+), 60 deletions(-)
-
+ static void bprm_fill_uid(struct linux_binprm *bprm, struct file *file)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 1bc362cb413f..db508a8c3cc7 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -215,9 +215,8 @@ struct sched_param;
+ struct request_sock;
+ 
+ /* bprm->unsafe reasons */
+-#define LSM_UNSAFE_SHARE	1
+-#define LSM_UNSAFE_PTRACE	2
+-#define LSM_UNSAFE_NO_NEW_PRIVS	4
++#define LSM_UNSAFE_PTRACE	BIT(0)
++#define LSM_UNSAFE_NO_NEW_PRIVS	BIT(1)
+ 
+ #ifdef CONFIG_MMU
+ extern int mmap_min_addr_handler(struct ctl_table *table, int write,
+diff --git a/security/apparmor/domain.c b/security/apparmor/domain.c
+index 91689d34d281..1b2c0bb4d9ae 100644
+--- a/security/apparmor/domain.c
++++ b/security/apparmor/domain.c
+@@ -924,11 +924,6 @@ int apparmor_bprm_creds_for_exec(struct linux_binprm *bprm)
+ 		goto audit;
+ 	}
+ 
+-	if (bprm->unsafe & LSM_UNSAFE_SHARE) {
+-		/* FIXME: currently don't mediate shared state */
+-		;
+-	}
+-
+ 	if (bprm->unsafe & (LSM_UNSAFE_PTRACE)) {
+ 		/* TODO: test needs to be profile of label to new */
+ 		error = may_change_ptraced_domain(new, &info);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 79573504783b..3ec80cc8ad1c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2349,16 +2349,6 @@ static int selinux_bprm_creds_for_exec(struct linux_binprm *bprm)
+ 		if (rc)
+ 			return rc;
+ 
+-		/* Check for shared state */
+-		if (bprm->unsafe & LSM_UNSAFE_SHARE) {
+-			rc = avc_has_perm(&selinux_state,
+-					  old_tsec->sid, new_tsec->sid,
+-					  SECCLASS_PROCESS, PROCESS__SHARE,
+-					  NULL);
+-			if (rc)
+-				return -EPERM;
+-		}
+-
+ 		/* Make sure that anyone attempting to ptrace over a task that
+ 		 * changes its SID has the appropriate permit */
+ 		if (bprm->unsafe & LSM_UNSAFE_PTRACE) {
 -- 
 2.34.1
 
