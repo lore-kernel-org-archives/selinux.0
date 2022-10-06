@@ -2,82 +2,140 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C69F3C433FE
-	for <selinux@archiver.kernel.org>; Wed,  5 Oct 2022 20:45:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2923C4332F
+	for <selinux@archiver.kernel.org>; Thu,  6 Oct 2022 08:27:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbiJEUpA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Oct 2022 16:45:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33424 "EHLO
+        id S230213AbiJFI1v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Oct 2022 04:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230131AbiJEUo7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Oct 2022 16:44:59 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888F32D76F
-        for <selinux@vger.kernel.org>; Wed,  5 Oct 2022 13:44:57 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-131dda37dddso87318fac.0
-        for <selinux@vger.kernel.org>; Wed, 05 Oct 2022 13:44:57 -0700 (PDT)
+        with ESMTP id S229766AbiJFI1q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Oct 2022 04:27:46 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287F81028
+        for <selinux@vger.kernel.org>; Thu,  6 Oct 2022 01:27:41 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id f193so1326651pgc.0
+        for <selinux@vger.kernel.org>; Thu, 06 Oct 2022 01:27:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date;
-        bh=HxKDra6grJcWD9CqHYMkRMp+vE+Qyi1aeN+LauRdjq4=;
-        b=u+3ecqY1nx8e0ZshkkP0b2uySRbILkUIxFh5s8rISRBxLuj+MR/2ZUi8TOHp5CF/Tr
-         WPR4yfgljwIagRkXG/TsSYmI0tpFdS/hmQ5YMPdpFd3uuF/XG9J05L5Noy3meoMir+L3
-         uG76c/pzEEv9RHioeJu4MpzaFUKCX1ZOAHBlXVO+Tld09SRP/dczI+R7dPni7/MjQMuA
-         qaDOF1yTATVwCXHaxCt1o3W2y8Go/aAPcYRvIdp4IXubdf66GBxsYbiMgQeuklJVpCJJ
-         ereRKliPGfQX3ack9O5tbzUb4nRdq3o+pRpzhhqY5A0V7RWzWPaqQrjgPv/aHOVcCceP
-         hkzg==
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=YtNry7EbJtDtEtddA9DqqPAajzIvH2ExTf+f1d2BLeE=;
+        b=m3LijaQHN2fYQ2T7ERgZYDL+BgBTB6ceIx6mWj4l3PzhhegxpcZYfw0oJpq7U5aVp+
+         ymLFLr4VKrZL1nDWxTEYN9WbYGJanBHvMdoknEBk1NqeBZm0YRTLCq1FzOsG/eN/Ivvc
+         Zs1S1r5o12z/ZfBZ2oahpULeypLty4UAhN1eI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date;
-        bh=HxKDra6grJcWD9CqHYMkRMp+vE+Qyi1aeN+LauRdjq4=;
-        b=gpppp6KjxRyTI0/HGR/cYE8Zd0aAye0uUKkO3z+XYWI3UuvImRZT33WCKEB7eRL36l
-         sYWguDXQVuKvtVdL9bgxBT86AD+An6R4vSxV2LysWCcB9kGxLJ9qQ63ZgCtVuJ6YzclA
-         HzYSENJ7tEZKmf4mz1laZEM/NhC2JfS/ENaCiDAz6ZQ/uwvh9LMh14Xr5FLK6oJtcnYd
-         tXOXcIPs7OCEI/2ZLIDH5lfvxNch5Ipo58+Hq64P6BVh82XeLQqr8x7+PszplRecfjqI
-         67VUxw8vYKHq36fQYIgkFp0i1dx5yC1ptdoUrN+YAOhrHhNAgZftudMjJlKWUlK31ih2
-         zjbQ==
-X-Gm-Message-State: ACrzQf1VqK0icMw/b+qCSk7jNkdd/GyZDtJQIT4nMmyLsnPE0F8o34MS
-        SB4ae5uGqdLQzr6eIhLbh2+6UWaaRgBRXU35BsNX
-X-Google-Smtp-Source: AMsMyM7oCOUKqnFgeWu0J+edPTN5UWcgccxor+gfSCZhi7qgSbllRBCRaxT4WOKCYdwJzSmzf1A0EjK3mntCtiWcFB0=
-X-Received: by 2002:a05:6870:a916:b0:131:9361:116a with SMTP id
- eq22-20020a056870a91600b001319361116amr812898oab.172.1665002696779; Wed, 05
- Oct 2022 13:44:56 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=YtNry7EbJtDtEtddA9DqqPAajzIvH2ExTf+f1d2BLeE=;
+        b=nVd/6+tosx0cZGxXh9014pEq1PQ6EYUGwSMlg5jPSPbcfirHMCfrwRbtNWR87TAgks
+         ZIEGcfzb8ktCVQiiT+hEPZFRm6T8ITLcp0dNquNLQeld6hcNM9C9I17pVTV1XkpJBUCA
+         +w+jGYKbQLggY62N8ikkjij6qGrXl0z24Uan/7Z+lpLHQRPgh9wpW0ZLIJACkzOTa128
+         km0/oLEHhex0QEMIqP1zhIdTATVcD2axNEN36A2+tiPcgOBaIw9VcjyvmsVb9CjCHgKX
+         WShp4tj6cgl8hFrWV51EhZBQqw8btriW6idNm8FGqUtVG5fLzuaIYP/K71NQ+Jwa/yhw
+         +QVw==
+X-Gm-Message-State: ACrzQf12bk8hqeKgtNYP3CLJVsSv4e77QHjuXa6Uzbk2agHNO6jTFxwi
+        SqQ/PXFhBBye6vxGB0hzFmKf/w==
+X-Google-Smtp-Source: AMsMyM4q9XFSyeeW5dDI6ls3ylAYRaVXWsGFe+w0sCZM05fMKSjTImuW/1lBuGiaytgnMKa0rdlF2w==
+X-Received: by 2002:a63:6581:0:b0:434:9482:c243 with SMTP id z123-20020a636581000000b004349482c243mr3499412pgb.448.1665044860443;
+        Thu, 06 Oct 2022 01:27:40 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id j4-20020a170902da8400b0017eb2d62bbesm6014743plx.99.2022.10.06.01.27.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Oct 2022 01:27:39 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Eric Biederman <ebiederm@xmission.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Jorge Merlino <jorge.merlino@canonical.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Todd Kjos <tkjos@google.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Prashanth Prahlad <pprahlad@redhat.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Andrei Vagin <avagin@gmail.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: [PATCH 0/2] fs/exec: Explicitly unshare fs_struct on exec
+Date:   Thu,  6 Oct 2022 01:27:33 -0700
+Message-Id: <20221006082735.1321612-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 5 Oct 2022 16:44:46 -0400
-Message-ID: <CAHC9VhTGE1cf_WtDn4aDUY=E-m--4iZXWiNTwPZrP9AVoq17cw@mail.gmail.com>
-Subject: SO_PEERSEC protections in sk_getsockopt()?
-To:     Martin KaFai Lau <martin.lau@kernel.org>
-Cc:     Alexei Starovoitov <ast@kernel.org>, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1735; h=from:subject; bh=8JXgAWBrUCWySpKU2akeepLoIo1ngoevmTcyBBHjAt0=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBjPpF3qES4cYgipY9Yg66d58hnI1s34HzpasPEsrcs AdJZe+KJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYz6RdwAKCRCJcvTf3G3AJvuPD/ sEFuqb2jJFVbuCOokYGoNQsjw0c9Jmc0XwKWYipIHX1SMMd2WkotpH8FIpOwZ4FyBWjaC7R1DvZeLq wpDvCMawMGqka4y/+7g515eraCONHoJNn0oj2fukbMyqECfinzpw5/d4oLtWkFvyiE4HCoYP/6kmKK 0R8NWKCoSDvGWq7Usrp1Ra1BUXvG1UZHbw7j4g9ItLOqgALdmExlSixoeozIYoogVyhKH0WKOVKYth 6CRkWQcZ/xYBwGsWX7qmIQbUWoTiCbt1fTDMB4IZf5Cn6zrxQL7XNaEUK5j1dcf9ZKTqux5G32e7Of 81YIltR3K2wnhH4qLNhRec5guNWZ3ILs2c6YZDh2TFkb9rGX4cajkAKcAV/vMrP3Kjr9vZKHBdRtPd rsnr6zOL9FYSWR+4i8yhrgvEsVDvenhdlfscGxtpeM7wExsxxiICpUQTRZxDvkLJhahLlKMWnxHm1y N2eVoeyvRe9j7JMCjfOqfKyKLHBZfoqFWmfSVi88JV/Gr797J1kRDlGaszfz7SxKiINHJQK1POiTOc Eic3WPt1/rLSOcANGevkuLKRQkzZ0waIkzKR/ddRrxXv/kszRk/EvoQpjPnt81zaCBe+7jXDXKm4N3 wH+iXTk/Lc17bTuykzisNHzRgsTueD8b0Epfk0nQ+rUUKSa20mimgCQla6rA==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Martin,
+Hi,
 
-In commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-sockptr_t argument") I see you wrapped the getsockopt value/len
-pointers with sockptr_t and in the SO_PEERSEC case you pass the
-sockptr_t:user field to avoid having to update the LSM hook and
-implementations.  I think that's fine, especially as you note that
-eBPF does not support fetching the SO_PEERSEC information, but I think
-it would be good to harden this case to prevent someone from calling
-sk_getsockopt(SO_PEERSEC) with kernel pointers.  What do you think of
-something like this?
+These changes seek to address an issue reported[1] by Jorge Merlino where
+high-thread-count processes would sometimes fail to setuid during a
+setuid execve().
 
-  static int sk_getsockopt(...)
-  {
-    /* ... */
-    case SO_PEERSEC:
-      if (optval.is_kernel || optlen.is_kernel)
-        return -EINVAL;
-      return security_socket_getpeersec_stream(...);
-    /* ... */
-  }
+It looks to me like the solution is to explicitly do an unshare_fs(),
+which should almost always be a no-op. Current testing seems to indicate
+that only the swapper->init exec triggers this condition (and I'm unclear
+on whether that's expected or undesirable). This has only received very
+light testing so far, but I wanted to share it so other folks could look
+it over.
+
+Jorge, can you test with these patches? Your PoC triggered immediately
+for me on an unpatched kernel, and did not trigger on a patched one.
+
+I added this patch on top of the series to see if the code ever fired:
+
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 53b7248f7a4b..3c197d9d8daa 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -3113,6 +3113,7 @@ int unshare_fs(void)
+ 	if (error || !new_fs)
+ 		return error;
+ 
++	pr_notice("UNSHARE of \"%s\" [%d]\n", current->comm, current->pid);
+ 	unshare_fs_finalize(&new_fs);
+ 
+ 	if (new_fs)
+
+Thanks!
+
+-Kees
+
+[1] https://lore.kernel.org/lkml/20220910211215.140270-1-jorge.merlino@canonical.com/
+
+Kees Cook (2):
+  fs/exec: Explicitly unshare fs_struct on exec
+  exec: Remove LSM_UNSAFE_SHARE
+
+ fs/exec.c                  | 26 ++++------------
+ fs/fs_struct.c             |  1 -
+ include/linux/fdtable.h    |  1 +
+ include/linux/fs_struct.h  |  1 -
+ include/linux/security.h   |  5 ++-
+ kernel/fork.c              | 62 ++++++++++++++++++++++++++------------
+ security/apparmor/domain.c |  5 ---
+ security/selinux/hooks.c   | 10 ------
+ 8 files changed, 51 insertions(+), 60 deletions(-)
 
 -- 
-paul-moore.com
+2.34.1
+
