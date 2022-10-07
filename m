@@ -2,104 +2,126 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F23EC4332F
-	for <selinux@archiver.kernel.org>; Fri,  7 Oct 2022 08:54:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 902D0C433F5
+	for <selinux@archiver.kernel.org>; Fri,  7 Oct 2022 11:58:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229883AbiJGIyY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Oct 2022 04:54:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56386 "EHLO
+        id S229726AbiJGL6R convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Fri, 7 Oct 2022 07:58:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229808AbiJGIyM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Oct 2022 04:54:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB25E1162C8
-        for <selinux@vger.kernel.org>; Fri,  7 Oct 2022 01:54:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665132850;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=56AI6wzQuRL/bITHxI7XEdJFNlbdvBKgvwplo9YYYo8=;
-        b=FY0aZBui2PA0FoAr7tpOj5Gp1coplUFZYGHRuSX/3uYC/Q/IBwrreh2lO7S3JtrPs6f0kn
-        yAzgcsAZ0WhG6BRUeEANbO3taUusHHJsbnkQ+aKjoFnySAx5tK0LcPwqEmWvASfLA9u50u
-        WVL9W4Z9E8wNWUKCIEt3dXLZqpNCY1g=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-645-Xv6YU7cwNyOTjaDtmj_4qg-1; Fri, 07 Oct 2022 04:54:07 -0400
-X-MC-Unique: Xv6YU7cwNyOTjaDtmj_4qg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 149A7185A7A3;
-        Fri,  7 Oct 2022 08:54:07 +0000 (UTC)
-Received: from localhost (unknown [10.40.194.79])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BB18D40C947B;
-        Fri,  7 Oct 2022 08:54:06 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Mike Palmiotto <mike.palmiotto@crunchydata.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: unnecessary log output in selinux_status_updated
-Date:   Fri, 07 Oct 2022 10:54:05 +0200
-Message-ID: <87ilkwxbde.fsf@redhat.com>
+        with ESMTP id S229679AbiJGL6Q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Oct 2022 07:58:16 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C86D57E3
+        for <selinux@vger.kernel.org>; Fri,  7 Oct 2022 04:58:12 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-25-ABR5MNZQOUi4UB5yYMDNEA-1; Fri, 07 Oct 2022 12:58:08 +0100
+X-MC-Unique: ABR5MNZQOUi4UB5yYMDNEA-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Fri, 7 Oct
+ 2022 12:58:06 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.040; Fri, 7 Oct 2022 12:58:06 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Theodore Ts'o' <tytso@mit.edu>, Kees Cook <keescook@chromium.org>
+CC:     Jorge Merlino <jorge.merlino@canonical.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Jann Horn <jannh@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Todd Kjos <tkjos@google.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Prashanth Prahlad <pprahlad@redhat.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
+Subject: RE: [PATCH] Fix race condition when exec'ing setuid files
+Thread-Topic: [PATCH] Fix race condition when exec'ing setuid files
+Thread-Index: AQHY2e33//tmcksZekaHt2mlO/Dtmq4C0tkw
+Date:   Fri, 7 Oct 2022 11:58:06 +0000
+Message-ID: <f01aae2a5936450f889fa5a7d350d363@AcuMS.aculab.com>
+References: <202209131456.76A13BC5E4@keescook>
+ <202210061301.207A20C8E5@keescook> <Yz+Dln7AAMU+Oj9X@mit.edu>
+In-Reply-To: <Yz+Dln7AAMU+Oj9X@mit.edu>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+From: Theodore Ts'o
+> Sent: 07 October 2022 02:41
+> 
+> On Thu, Oct 06, 2022 at 01:20:35PM -0700, Kees Cook wrote:
+> >
+> > So the question, then, is "why are they trying to exec while actively
+> > spawning new threads?" That appears to be the core problem here, and as
+> > far as I can tell, the kernel has behaved this way for a very long time.
+> > I don't think the kernel should fix this, either, because it leads to a
+> > very weird state for userspace, where the thread spawner may suddenly
+> > die due to the exec happening in another thread. This really looks like
+> > something userspace needs to handle correctly (i.e. don't try to exec
+> > while actively spawning threads).
+> 
+> One of the classic failure modes is when a threaded program calls a
+> library, and that library might try to do a fork/exec (or call
+> system(3) to run some command.  e.g., such as running "lvm create ..."
+> or to spawn some kind of helper daemon.
+> 
+> There are a number of stack overflow questions about this, and there
+> are some solutions to _some_ of the problems, such as using
+> pthread_atfork(), and knowing that you are about to call fork/exec,
+> and use some out of band mechanism to to make sure no threads get
+> spawned until the fork/exec is completed --- but if you don't know
+> that a library is going to do a fork/exec, well, life is tough.
 
+Or that a library thread is about to create a new thread.
 
-Commit 05bdc03130d74 ("libselinux: use kernel status page by default") changed
-selinux_status_updated() so that it calls avc_process_policyload() and
-avc_process_setenforce() and both functions call avc_log() and avc_log() logs to
-stderr by default. So when a process like `rpm` checks whether there was a
-change, it gets output on stderr which previously wasn't there.
+> One technique even advocated by a stack overflow article is "avoid
+> using threads whenver possible".  :-/
 
+Doesn't fork() only create the current thread in the new process?
+So by the time exec() runs there is a nice single threaded process
+with an fd table that isn't shared.
 
-Before this change:
->>> from selinux import *
->>> selinux_status_open(0);
-0
->>> 
->>> selinux_status_updated();
-0
->>> selinux_mkload_policy(0);
-0
->>> selinux_status_updated();
-1
+For helpers there is always (a properly implemented) posix_spawn() :-)
 
-Current version:
->>> from selinux import *
-elinux_status_updated();
-selinux_mkload_policy(0);
-selinux_status_updated();
->>> selinux_status_open(0);
-0
->>> selinux_status_updated();
-0
->>> selinux_mkload_policy(0);
-0
->>> selinux_status_updated();
-uavc:  op=load_policy lsm=selinux seqno=2 res=11
+	David
 
-
-The calling process could set its callback but it seems unnecessarily
-complicated just for selinux_status_updated() which is supposed to check whether
-something has changed or not. Also processing events in this function seems to
-be unnecessary.
-
-It looks like the reason for the new code added to selinux_status_updated() is
-that there were several avc_netlink_check_nb() calls replaced by
-selinux_status_updated(). Given the problem described above, I don't think it's
-correct and I would like to change selinux_status_updated() back and use another
-mechanism that would help with the replacement.
-
-
-So what do you think about it?
-
-
-Petr
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
