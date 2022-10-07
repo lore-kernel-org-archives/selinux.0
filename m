@@ -2,126 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 902D0C433F5
-	for <selinux@archiver.kernel.org>; Fri,  7 Oct 2022 11:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D4F1C433FE
+	for <selinux@archiver.kernel.org>; Fri,  7 Oct 2022 12:46:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbiJGL6R convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Fri, 7 Oct 2022 07:58:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46556 "EHLO
+        id S229534AbiJGMqP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Oct 2022 08:46:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbiJGL6Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Oct 2022 07:58:16 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10C86D57E3
-        for <selinux@vger.kernel.org>; Fri,  7 Oct 2022 04:58:12 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-25-ABR5MNZQOUi4UB5yYMDNEA-1; Fri, 07 Oct 2022 12:58:08 +0100
-X-MC-Unique: ABR5MNZQOUi4UB5yYMDNEA-1
-Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
- (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Fri, 7 Oct
- 2022 12:58:06 +0100
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.040; Fri, 7 Oct 2022 12:58:06 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Theodore Ts'o' <tytso@mit.edu>, Kees Cook <keescook@chromium.org>
-CC:     Jorge Merlino <jorge.merlino@canonical.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Jann Horn <jannh@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Todd Kjos <tkjos@google.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Prashanth Prahlad <pprahlad@redhat.com>,
-        Micah Morton <mortonm@chromium.org>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
-Subject: RE: [PATCH] Fix race condition when exec'ing setuid files
-Thread-Topic: [PATCH] Fix race condition when exec'ing setuid files
-Thread-Index: AQHY2e33//tmcksZekaHt2mlO/Dtmq4C0tkw
-Date:   Fri, 7 Oct 2022 11:58:06 +0000
-Message-ID: <f01aae2a5936450f889fa5a7d350d363@AcuMS.aculab.com>
-References: <202209131456.76A13BC5E4@keescook>
- <202210061301.207A20C8E5@keescook> <Yz+Dln7AAMU+Oj9X@mit.edu>
-In-Reply-To: <Yz+Dln7AAMU+Oj9X@mit.edu>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S229547AbiJGMqO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Oct 2022 08:46:14 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC63D0CF9
+        for <selinux@vger.kernel.org>; Fri,  7 Oct 2022 05:46:13 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id g28so4795061pfk.8
+        for <selinux@vger.kernel.org>; Fri, 07 Oct 2022 05:46:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=2ZHQHVfhsd5erXDvQP9UhI/8ZNLoEkF3POd5QnFX5P0=;
+        b=ZvFkzjlYVmYLnOZo9FqMYf/WiK923Oq9K7BZNKfjKv48JlPjLyLoawK98/7RHOov92
+         lpiUOMg0v1zuyZVYFilurICASXOxNPefvvWaSrccWGDp1bmSgyC1aL99g1H1Ay848zEe
+         G7vqYYWrDKEDn1ncWZTaeYeSDUwtZM5b+UhD2CWWn9M76qGdRhAbgzdc2ESCUUno7+tK
+         jUoZ4xlxNOnYmD1cpXg7sfqiGJmGOUMX2yOsB0mfES4sZAhZad/AalMR/vQYYbg1mU/P
+         QuFucbIpXwtcDWJNUE9KhFd1S+BQ49ec4GqB6c4jN88nqHuAIb6s/EOTN7ZaD7UDEyed
+         Pw4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2ZHQHVfhsd5erXDvQP9UhI/8ZNLoEkF3POd5QnFX5P0=;
+        b=wEd88lCuC4EJbDfyV7w2cGy2sgUu+E9SI3Yb6PhDkgDHrEVunCoHv2N7r9hctUlsyY
+         BVg1Ym/Q2k+7fxeHKKoxMZzOBkD3e3pAGxZkqoUapZwN6FBt1gsOCiATXmUZOJ9TcLeR
+         6hseKhhCKu68WDE0k0UWM6B4NFvctT9934soXseq2ibsF9ZffrpRGHopHCIuWuKuXRSj
+         TOa3XbvO1MZBVXsQOEXNtrihkl4vwbPjW0DN3ui0jpe8YmJvv9Q3XzCFQgrYSTqM3+9M
+         0KlDC8VMC3lbIfEn0r+/aZ/ca7LgNAdWYnkUNvxe6nnHus3B3s7HaHvEG3sgj2FUX2k0
+         mlVg==
+X-Gm-Message-State: ACrzQf1OTWNjj2OteP4T4BE0dFBqkC/TPXIplTGwScpKMrBhK4QBoxN/
+        Dvxxb07nsg+4vk7tb9Pu3mzaavluLm99yfwm51ZJZM8C
+X-Google-Smtp-Source: AMsMyM6kEu6h8rQdQ0kQgzHtGOsUPHu7DH33/wFGcZ6gy3O/QDgH6viLogBreX5tLe9hsBUouOw1PfTdB15sAnkXuvA=
+X-Received: by 2002:a63:f103:0:b0:439:398f:80f8 with SMTP id
+ f3-20020a63f103000000b00439398f80f8mr4396747pgi.494.1665146772835; Fri, 07
+ Oct 2022 05:46:12 -0700 (PDT)
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+References: <87ilkwxbde.fsf@redhat.com>
+In-Reply-To: <87ilkwxbde.fsf@redhat.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 7 Oct 2022 08:46:01 -0400
+Message-ID: <CAEjxPJ6hQ3-_6_O2LxQPLD14Xzrcs6NfmqLRpe9arbEppU711g@mail.gmail.com>
+Subject: Re: unnecessary log output in selinux_status_updated
+To:     Petr Lautrbach <plautrba@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org,
+        Mike Palmiotto <mike.palmiotto@crunchydata.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Theodore Ts'o
-> Sent: 07 October 2022 02:41
-> 
-> On Thu, Oct 06, 2022 at 01:20:35PM -0700, Kees Cook wrote:
-> >
-> > So the question, then, is "why are they trying to exec while actively
-> > spawning new threads?" That appears to be the core problem here, and as
-> > far as I can tell, the kernel has behaved this way for a very long time.
-> > I don't think the kernel should fix this, either, because it leads to a
-> > very weird state for userspace, where the thread spawner may suddenly
-> > die due to the exec happening in another thread. This really looks like
-> > something userspace needs to handle correctly (i.e. don't try to exec
-> > while actively spawning threads).
-> 
-> One of the classic failure modes is when a threaded program calls a
-> library, and that library might try to do a fork/exec (or call
-> system(3) to run some command.  e.g., such as running "lvm create ..."
-> or to spawn some kind of helper daemon.
-> 
-> There are a number of stack overflow questions about this, and there
-> are some solutions to _some_ of the problems, such as using
-> pthread_atfork(), and knowing that you are about to call fork/exec,
-> and use some out of band mechanism to to make sure no threads get
-> spawned until the fork/exec is completed --- but if you don't know
-> that a library is going to do a fork/exec, well, life is tough.
+On Fri, Oct 7, 2022 at 4:54 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Hi,
+>
+>
+> Commit 05bdc03130d74 ("libselinux: use kernel status page by default") changed
+> selinux_status_updated() so that it calls avc_process_policyload() and
+> avc_process_setenforce() and both functions call avc_log() and avc_log() logs to
+> stderr by default. So when a process like `rpm` checks whether there was a
+> change, it gets output on stderr which previously wasn't there.
+>
+>
+> Before this change:
+> >>> from selinux import *
+> >>> selinux_status_open(0);
+> 0
+> >>>
+> >>> selinux_status_updated();
+> 0
+> >>> selinux_mkload_policy(0);
+> 0
+> >>> selinux_status_updated();
+> 1
+>
+> Current version:
+> >>> from selinux import *
+> elinux_status_updated();
+> selinux_mkload_policy(0);
+> selinux_status_updated();
+> >>> selinux_status_open(0);
+> 0
+> >>> selinux_status_updated();
+> 0
+> >>> selinux_mkload_policy(0);
+> 0
+> >>> selinux_status_updated();
+> uavc:  op=load_policy lsm=selinux seqno=2 res=11
+>
+>
+> The calling process could set its callback but it seems unnecessarily
+> complicated just for selinux_status_updated() which is supposed to check whether
+> something has changed or not. Also processing events in this function seems to
+> be unnecessary.
+>
+> It looks like the reason for the new code added to selinux_status_updated() is
+> that there were several avc_netlink_check_nb() calls replaced by
+> selinux_status_updated(). Given the problem described above, I don't think it's
+> correct and I would like to change selinux_status_updated() back and use another
+> mechanism that would help with the replacement.
+>
+>
+> So what do you think about it?
 
-Or that a library thread is about to create a new thread.
+The goal was to switch the AVC and all of its users (e.g.
+selinux_check_access) over to using the much more efficient SELinux
+kernel status page mechanism for setenforce and policy load
+notifications on newer kernels instead of the SELinux netlink
+mechanism (which imposed extra syscall overhead on the critical path).
 
-> One technique even advocated by a stack overflow article is "avoid
-> using threads whenver possible".  :-/
-
-Doesn't fork() only create the current thread in the new process?
-So by the time exec() runs there is a nice single threaded process
-with an fd table that isn't shared.
-
-For helpers there is always (a properly implemented) posix_spawn() :-)
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+Understand your concern but unsure as to whether we can just change
+selinux_status_updated() back now.
+Would require an audit of all users of selinux_status_updated(), both
+direct and indirect, to ensure that none of them are relying on this
+behavior. We can obviously fix the callers within libselinux but
+addressing external callers is more problematic and is arguably an ABI
+change. Would need to look at all users of the AVC,
+selinux_check_access(), etc.
+This change happened 2 years ago so I have to wonder why it is only
+coming up now?
