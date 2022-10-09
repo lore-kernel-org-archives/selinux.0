@@ -2,59 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC1A7C433F5
-	for <selinux@archiver.kernel.org>; Fri,  7 Oct 2022 21:55:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 072ADC433F5
+	for <selinux@archiver.kernel.org>; Sun,  9 Oct 2022 22:01:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbiJGVzl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Oct 2022 17:55:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42476 "EHLO
+        id S230230AbiJIWBZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 9 Oct 2022 18:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbiJGVzk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Oct 2022 17:55:40 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 203CAA5701;
-        Fri,  7 Oct 2022 14:55:35 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id ot12so14056844ejb.1;
-        Fri, 07 Oct 2022 14:55:35 -0700 (PDT)
+        with ESMTP id S230207AbiJIWBX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 9 Oct 2022 18:01:23 -0400
+Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DE81D0F8
+        for <selinux@vger.kernel.org>; Sun,  9 Oct 2022 15:01:22 -0700 (PDT)
+Received: by mail-oo1-xc29.google.com with SMTP id x6-20020a4ac586000000b0047f8cc6dbe4so6934080oop.3
+        for <selinux@vger.kernel.org>; Sun, 09 Oct 2022 15:01:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=bL6Ak5H09U4S+Zi1JkNWbIYx87jdydRMPmWHkn6vK/w=;
-        b=Y706H0GOJhZ7Gon4KbJgWnbNacILzsNQtkf8QI+f3DsqXmlpb4qTaulfNTPfcadvUR
-         Eor7xteScanx6qnVke2V3xYp89/BRgVZu9GZTO6Jx33zZYthyFdl0T0p7kXPmRd2wskL
-         E2wNYEW+R1KYFDeUHiAChgQzAw1qoMCG+jM3wjxix6Z7unW0x9iV6SnjsCyYyRPATB6L
-         /OZ3gZ4iJkRu/mgqudFWCzoHoyUZxK/k9DlpzGID5b9FqhXGpGQiGFgMz05A1IULwCTX
-         qBeY7szcCNrpRIHCYoLX7kmFyRzlscXgkwFNMJ+uthNI9Ruv5P+lQnnep0VN4mrnElYq
-         5myw==
+        bh=uCRLYNKaUNlApcpDFpNyoRTJy58BtqMBs8QGQONvN8k=;
+        b=vGC2eDM3rEem/eh/5h8SDEjqOetEl07JAHYwzB9ONsarnjg7j3usGYgj54DnxwISnN
+         zJb7uM4oIhyXpc84kXLleo7oYgPeZpggHIhpAlSud3HZ+U8x6UCb2MJeKWUn0dNtvMHX
+         QiKZgUNGZE+TTEp2USGjQEhcGrmonl4I+UQObvkjIBPrQ8GTLtkAlELA9o+0NpFbf195
+         uiZyfI6RadwMh8lW2i3BEf1VXZAopWlsLrS8w3sO11x2uEEsltqe7N6BDaT2NNxFtr8d
+         /X/CODbWkumcwphx0PQANx9dRTxEyZz62XHdzRqo5GlxUGiD4yhC+jyizLgCaPqXHe6/
+         dRRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=bL6Ak5H09U4S+Zi1JkNWbIYx87jdydRMPmWHkn6vK/w=;
-        b=yVZkBDnZnBPbl25JnY7j1DRNdfEZvGYLc49DqOBLKTBElcTIViZW3b7gGYTp9X9dGZ
-         XDC+1sKU+Bo7zaueoL/WCgQB/gTyHoE9gaxl/Zv2Q2wHJwgZk3OleT5dlAj7YdwJ1PPg
-         W/giSctAiBh4aBPKPJrMqmNW3j3dviI9nU8DTmOTb6VcCeD61+0w+Ai1llYI3qjBkneL
-         i8hEEqnpFwljs9rSQVeS0X43VnVPdThCnRfjQqzhDeokp52YIst0UbXPh0VTxSSV2ue+
-         Wy2cPh1wrkVQfC1siFizhUeKljCMzuoNPdho4keVmHjcC4GOtFpIlr8BBpVJl4ZQ6RRA
-         w0lA==
-X-Gm-Message-State: ACrzQf0DEgjSfJHlDNVfp2HlKPjt7J4QJC764BWbez6ReSP3IZGtSRBN
-        yZzKTMUy3HlvKtGmaZRYo+lBiyeqGZnMlvvGisqFQv0apaY=
-X-Google-Smtp-Source: AMsMyM7kk5o5QxWBEHe6uZTqnP+cWLvaL+QMSa7AFJXRTfkmaac9dVZZqbAxjyvrBJ8jJv5Q+3+gzc3DMYH58Su/8ic=
-X-Received: by 2002:a17:906:fe45:b0:788:15a5:7495 with SMTP id
- wz5-20020a170906fe4500b0078815a57495mr5696459ejb.633.1665179733473; Fri, 07
- Oct 2022 14:55:33 -0700 (PDT)
+        bh=uCRLYNKaUNlApcpDFpNyoRTJy58BtqMBs8QGQONvN8k=;
+        b=vZXd+tTRsZ4KTOxNvwr4vnnwR7RYmGFGasNYiA3RP3plcdpUUJvSC2qR8acBA54Yyp
+         ckOdk7lpF9xEcQpqDP3ZoG3SPBnngaobacP65BuPWQQkI7ArNAycEch48CK2ShZH7Zz5
+         l4winVSbGu4+mZZ84qlWBdf8qJh3OpOuFRzbat2OPP+hV/conJeU5yv0mCZ5csjtnoOx
+         9CvRq9Mgp3qiFmNBtB+iwid2f58AaOMvE92EuZ2899YxL/frEcu2fFk+NRvOxRsmifCw
+         14NU5GMqn4Tels43QjCJdqpMheg/EOuYtnZbaNQgs8Aj17IcJTXpqWrhMWd6Vp08ZeX0
+         CyhA==
+X-Gm-Message-State: ACrzQf3466/i8tcOu3bkWp83mfQ6Vl05ufw6tAlne8Whg/zr5Cl/IVga
+        xB6SVUEwZx879M8H+jylBPewDWpGSN24L5ceqL/K
+X-Google-Smtp-Source: AMsMyM4asPKdAkOMP82nbVM7coRwFd3bhcIe35xgsbLTxbleHkmJxrxhoowiCfpYkkfMYzO+c4pIpcQeh1JWVfTh1ws=
+X-Received: by 2002:a05:6830:6403:b0:661:9295:af6b with SMTP id
+ cj3-20020a056830640300b006619295af6bmr2613406otb.287.1665352881919; Sun, 09
+ Oct 2022 15:01:21 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAHC9VhTGE1cf_WtDn4aDUY=E-m--4iZXWiNTwPZrP9AVoq17cw@mail.gmail.com>
  <CAHC9VhT2LK_P+_LuBYDEHnkNkAX6fhNArN_N5bF1qwGed+Kyww@mail.gmail.com>
- <CAADnVQ+kRCfKn6MCvfYGhpHF0fUWBU-qJqvM=1YPfj02jM9zKw@mail.gmail.com> <CAHC9VhRcr03ZCURFi=EJyPvB3sgi44_aC5ixazC43Zs2bNJiDw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRcr03ZCURFi=EJyPvB3sgi44_aC5ixazC43Zs2bNJiDw@mail.gmail.com>
-From:   Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date:   Fri, 7 Oct 2022 14:55:21 -0700
-Message-ID: <CAADnVQJ5VgTNiEhEhOtESRrK0q3-pUSbZfAWL=tXv-s2GXqq8Q@mail.gmail.com>
+ <CAADnVQ+kRCfKn6MCvfYGhpHF0fUWBU-qJqvM=1YPfj02jM9zKw@mail.gmail.com>
+ <CAHC9VhRcr03ZCURFi=EJyPvB3sgi44_aC5ixazC43Zs2bNJiDw@mail.gmail.com> <CAADnVQJ5VgTNiEhEhOtESRrK0q3-pUSbZfAWL=tXv-s2GXqq8Q@mail.gmail.com>
+In-Reply-To: <CAADnVQJ5VgTNiEhEhOtESRrK0q3-pUSbZfAWL=tXv-s2GXqq8Q@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sun, 9 Oct 2022 18:01:10 -0400
+Message-ID: <CAHC9VhRmghJcZeUM6NS6J24tBOBxrZckwc2DqbqqqYif8hzopA@mail.gmail.com>
 Subject: Re: SO_PEERSEC protections in sk_getsockopt()?
-To:     Paul Moore <paul@paul-moore.com>
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
 Cc:     Martin KaFai Lau <martin.lau@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>,
         Network Development <netdev@vger.kernel.org>,
@@ -65,71 +66,98 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 7, 2022 at 1:06 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Fri, Oct 7, 2022 at 3:13 PM Alexei Starovoitov
-> <alexei.starovoitov@gmail.com> wrote:
-> > On Fri, Oct 7, 2022 at 10:43 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Wed, Oct 5, 2022 at 4:44 PM Paul Moore <paul@paul-moore.com> wrote:
+On Fri, Oct 7, 2022 at 5:55 PM Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
+> On Fri, Oct 7, 2022 at 1:06 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Fri, Oct 7, 2022 at 3:13 PM Alexei Starovoitov
+> > <alexei.starovoitov@gmail.com> wrote:
+> > > On Fri, Oct 7, 2022 at 10:43 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Wed, Oct 5, 2022 at 4:44 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > >
+> > > > > Hi Martin,
+> > > > >
+> > > > > In commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
+> > > > > sockptr_t argument") I see you wrapped the getsockopt value/len
+> > > > > pointers with sockptr_t and in the SO_PEERSEC case you pass the
+> > > > > sockptr_t:user field to avoid having to update the LSM hook and
+> > > > > implementations.  I think that's fine, especially as you note that
+> > > > > eBPF does not support fetching the SO_PEERSEC information, but I think
+> > > > > it would be good to harden this case to prevent someone from calling
+> > > > > sk_getsockopt(SO_PEERSEC) with kernel pointers.  What do you think of
+> > > > > something like this?
+> > > > >
+> > > > >   static int sk_getsockopt(...)
+> > > > >   {
+> > > > >     /* ... */
+> > > > >     case SO_PEERSEC:
+> > > > >       if (optval.is_kernel || optlen.is_kernel)
+> > > > >         return -EINVAL;
+> > > > >       return security_socket_getpeersec_stream(...);
+> > > > >     /* ... */
+> > > > >   }
 > > > >
-> > > > Hi Martin,
-> > > >
-> > > > In commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-> > > > sockptr_t argument") I see you wrapped the getsockopt value/len
-> > > > pointers with sockptr_t and in the SO_PEERSEC case you pass the
-> > > > sockptr_t:user field to avoid having to update the LSM hook and
-> > > > implementations.  I think that's fine, especially as you note that
-> > > > eBPF does not support fetching the SO_PEERSEC information, but I think
-> > > > it would be good to harden this case to prevent someone from calling
-> > > > sk_getsockopt(SO_PEERSEC) with kernel pointers.  What do you think of
-> > > > something like this?
-> > > >
-> > > >   static int sk_getsockopt(...)
-> > > >   {
-> > > >     /* ... */
-> > > >     case SO_PEERSEC:
-> > > >       if (optval.is_kernel || optlen.is_kernel)
-> > > >         return -EINVAL;
-> > > >       return security_socket_getpeersec_stream(...);
-> > > >     /* ... */
-> > > >   }
+> > > > Any thoughts on this Martin, Alexei?  It would be nice to see this
+> > > > fixed soon ...
 > > >
-> > > Any thoughts on this Martin, Alexei?  It would be nice to see this
-> > > fixed soon ...
+> > > 'fixed' ?
+> > > I don't see any bug.
+> > > Maybe WARN_ON_ONCE can be added as a precaution, but also dubious value.
 > >
-> > 'fixed' ?
-> > I don't see any bug.
-> > Maybe WARN_ON_ONCE can be added as a precaution, but also dubious value.
+> > Prior to the change it was impossible to call
+> > sock_getsockopt(SO_PEERSEC) with a kernel address space pointer, now
+> > with 4ff09db1b79b is it possible to call sk_getsockopt(SO_PEERSEC)
+> > with a kernel address space pointer and cause problems.
 >
-> Prior to the change it was impossible to call
-> sock_getsockopt(SO_PEERSEC) with a kernel address space pointer, now
-> with 4ff09db1b79b is it possible to call sk_getsockopt(SO_PEERSEC)
-> with a kernel address space pointer and cause problems.
+> No. It's not possible. There is no path in the kernel that
+> can do that.
 
-No. It's not possible. There is no path in the kernel that
-can do that.
+If we look at the very next sentence in my last reply you see that I
+acknowledge that there may be no callers that currently do that, but
+it seems like an easy mistake for someone to make.  I've seen kernel
+coding errors similar to this in the past, it seems like a reasonable
+thing to protect against, especially considering it is well outside of
+any performance critical path.
 
-> Perhaps there
-> are no callers in the kernel that do such a thing at the moment, but
-> it seems like an easy mistake for someone to make, and the code to
-> catch it is both trivial and out of any critical path.
+> > Perhaps there
+> > are no callers in the kernel that do such a thing at the moment, but
+> > it seems like an easy mistake for someone to make, and the code to
+> > catch it is both trivial and out of any critical path.
+>
+> Not easy at all.
+> There is only way place in the whole kernel that does:
+>                 return sk_getsockopt(sk, SOL_SOCKET, optname,
+>                                      KERNEL_SOCKPTR(optval),
+>                                      KERNEL_SOCKPTR(optlen));
+>
+> and there is an allowlist of optname-s right in front of it.
+> SO_PEERSEC is not there.
+> For security_socket_getpeersec_stream to be called with kernel
+> address the developer would need to add SO_PEERSEC to that allowlist.
+> Which will be trivially caught during the code review.
 
-Not easy at all.
-There is only way place in the whole kernel that does:
-                return sk_getsockopt(sk, SOL_SOCKET, optname,
-                                     KERNEL_SOCKPTR(optval),
-                                     KERNEL_SOCKPTR(optlen));
+A couple of things come to mind ... First, the concern isn't the
+existing caller(s), as mentioned above, but future callers.  Second,
+while the kernel code review process is good, the number of serious
+kernel bugs that have passed uncaught through the code review process
+is staggering.
 
-and there is an allowlist of optname-s right in front of it.
-SO_PEERSEC is not there.
-For security_socket_getpeersec_stream to be called with kernel
-address the developer would need to add SO_PEERSEC to that allowlist.
-Which will be trivially caught during the code review.
+> > This is one of those cases where preventing a future problem is easy,
+> > I think it would be foolish of us to ignore it.
+>
+> Disagree. It's just a typical example of defensive programming
+> which I'm strongly against.
 
-> This is one of those cases where preventing a future problem is easy,
-> I think it would be foolish of us to ignore it.
+That's a pretty bold statement, good luck with that.
 
-Disagree. It's just a typical example of defensive programming
-which I'm strongly against.
-By that argument we should be checking all pointers for NULL
-"because it's easy to do".
+> By that argument we should be checking all pointers for NULL
+> "because it's easy to do".
+
+That's not the argument being made here, but based on your previous
+statements of trusting code review to catch bugs and your opposition
+to defensive programming it seems pretty unlikely we're going to find
+common ground.
+
+I'll take care of this in the LSM tree.
+
+-- 
+paul-moore.com
