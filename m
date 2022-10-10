@@ -2,110 +2,139 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1578CC433F5
-	for <selinux@archiver.kernel.org>; Mon, 10 Oct 2022 15:56:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B56E3C433F5
+	for <selinux@archiver.kernel.org>; Mon, 10 Oct 2022 17:21:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229710AbiJJP41 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Oct 2022 11:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34274 "EHLO
+        id S229545AbiJJRVK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Oct 2022 13:21:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbiJJP40 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 Oct 2022 11:56:26 -0400
-Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91ECC6C97D
-        for <selinux@vger.kernel.org>; Mon, 10 Oct 2022 08:56:25 -0700 (PDT)
-Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-1324e7a1284so12897303fac.10
-        for <selinux@vger.kernel.org>; Mon, 10 Oct 2022 08:56:25 -0700 (PDT)
+        with ESMTP id S229677AbiJJRVE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 Oct 2022 13:21:04 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D75C26AE3
+        for <selinux@vger.kernel.org>; Mon, 10 Oct 2022 10:21:02 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id d26so19165582eje.10
+        for <selinux@vger.kernel.org>; Mon, 10 Oct 2022 10:21:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=FBlJGaToZEu6D+RvSCyaxxmx/t2AwVYuPW5gPgMk1tk=;
-        b=7tmLSoXRtJfH4Dbqoikvsfh+/gCulAYIx1NWrvmt1/bxZ67ZOUWZ5K/xrU2OfEpG1f
-         Rgl678+XBpgr/SDRuN4IqJ/YhV4Xbe+LDX6unNVPmsuTisLqfNr7/LEOnRjKWgAhKMGI
-         6R2S6gpT9InaefaMZ33djbJe3Oeg5sifZ2SNHzyNzDu4QrfRGS6GRuRjE4hQlZV04YIo
-         sVRYmrFMPmaNs7QE6I9BRei46/v+FGizKrTFY2yTY+Wf3pS+MRFLuy43CuqDfFRxyCYr
-         LJaDMo9Yerb9kPup/5YnxIs8AMcaFd6t1bQ6eiobj0LLGjE+kZDPShNKAi4F2s0bMIq0
-         atjg==
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Upwuzx0snW0MV+uTk0NJ1z84aslBk1ETaN81UiW/eUo=;
+        b=IrqKY8X1EWULyWY+DrS5cphyk2Z7dV5L4msjYp86nxfV2De1VTjdsn3vnkmySSsrx0
+         QzxkK4npF592JjhxSoTj4ikneIi9zJSdRNBHzlnXxs1t4w/o0pdn4/797hpN3Cxd6/41
+         j5+5THqNg7MQ4jfg9UPevsxDYRvrUKEwlhbFdfpS4cBv5ZiqaxWI1NhZt0cYMcHSZ8xd
+         vBmH6lEOVhtEJBCX3aSD9wPV3VONYbIgkC9jIpJJthDsqpBium+3lftzSsm32ZhIaKXf
+         yw3bjhsCrUN+VfYnQ/ImSRYF0Wi1ZaKEPd5o2fZCCZkUkH8OofeoQ/fNqYATX81zsRdT
+         V/TA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=FBlJGaToZEu6D+RvSCyaxxmx/t2AwVYuPW5gPgMk1tk=;
-        b=rHhK4UzaLGwtjYS7Oy8l3mRoh/Sf7dNqlZBd4cjHwc+30qJ8QCbciQd1AKPfJ9zTm4
-         BaX8fbd6kPAUc4VUxPEkgEOMrVfElEOou16zBWBKej1JvL/Al7OUzELW3gLIzpaJTNfo
-         1+PQHoTb7h8FVA2zLCjKxbuq2mHM+W3h4/yN2OgepY7yR4L5yrEKlYX19kaklBUU8RqS
-         N1VAIHTLbrrjdwIvdTJnss1g6wrOO5sSaKpx8HgVtkI5NCOlZVCDlt0g9rEsinS04bAA
-         hTOczlKD+7wqQ+LNpIi8qh6x1i4pKYN203P0hjj9nEU0qvLdcARn7Nx1/Xl9q1LH2GdK
-         xXZA==
-X-Gm-Message-State: ACrzQf1+s72OyzTEa4hMFNuj6jRny/yqp6qklVZ/RJLlAIBixInSar+M
-        bj4iHtcCGqixuYk2T3NkXX2Pzyim9W39xRjyTuys
-X-Google-Smtp-Source: AMsMyM7E58PKEIMT2pMlaK++ErltMfDSbBzoHG8lkSaC1jHVQXN22/TbjZ4o5ZhdmawyCSdC9gyK7IrpZVO6jOcWxRw=
-X-Received: by 2002:a05:6870:9612:b0:136:66cc:6d5a with SMTP id
- d18-20020a056870961200b0013666cc6d5amr5406856oaq.172.1665417384952; Mon, 10
- Oct 2022 08:56:24 -0700 (PDT)
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Upwuzx0snW0MV+uTk0NJ1z84aslBk1ETaN81UiW/eUo=;
+        b=kPJ8xyVnxdzivZMzzO0jjlK+YToav1nWbexjhffwBgM3Lz62REsOvGexa122CytpMt
+         oWDTA3PeXa5xtyWq8YUJSZNcy1E2AV7HdWEZPXTBJx7ZJwey+Dnr1lqxe6nn4u66dwXN
+         sAvQ9KOd6xQalxDt8T09U389xUpMHO2Tk0Avh9phV5CREXR5qaP1GCAfYfEfLu/O0Hh/
+         Fm3Q1RPQCCFdsb8JCp6aZ2/Fz5Zc9dygqqiZktQ4P8Tjjx2YZ60t1JAU7idDfWxl9JOo
+         zqjk721A2XKRM5If+1wcV9cz2x2vP5VALBdwbGsHbdD7CtFwuXqxW4Cace23MktVOgMM
+         0gbQ==
+X-Gm-Message-State: ACrzQf3yewGmz1ahuIC5x+yLfjNvH/sUFDsSiScsasAyNp48/UTqOi8d
+        Qp8j5d0fBbP/VzHKWSM8vq7KrDLZMimmFZfC9TbTqB4je0Y=
+X-Google-Smtp-Source: AMsMyM6e0dhpRwbmzF8Q5YInWAsb81wdyuPDiD9SeNoDHc2Wc2FS+2CK4W47qtwir/6PPWcrkjayjbxYB5j8F4ZvJMM=
+X-Received: by 2002:a17:907:2ce8:b0:78d:49a8:4f54 with SMTP id
+ hz8-20020a1709072ce800b0078d49a84f54mr15365696ejc.577.1665422460423; Mon, 10
+ Oct 2022 10:21:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhTGE1cf_WtDn4aDUY=E-m--4iZXWiNTwPZrP9AVoq17cw@mail.gmail.com>
- <CAHC9VhT2LK_P+_LuBYDEHnkNkAX6fhNArN_N5bF1qwGed+Kyww@mail.gmail.com>
- <CAADnVQ+kRCfKn6MCvfYGhpHF0fUWBU-qJqvM=1YPfj02jM9zKw@mail.gmail.com>
- <CAHC9VhRcr03ZCURFi=EJyPvB3sgi44_aC5ixazC43Zs2bNJiDw@mail.gmail.com>
- <CAADnVQJ5VgTNiEhEhOtESRrK0q3-pUSbZfAWL=tXv-s2GXqq8Q@mail.gmail.com>
- <df4df4eb70594d65b40865ca00ecad09@AcuMS.aculab.com> <CAHC9VhQRywim8vKGUM+=US0nq_fqZH7MShaV2tC14gw5xUrSDA@mail.gmail.com>
- <ffe2b21ce6e04b07891261641b4d1f5b@AcuMS.aculab.com>
-In-Reply-To: <ffe2b21ce6e04b07891261641b4d1f5b@AcuMS.aculab.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 10 Oct 2022 11:56:14 -0400
-Message-ID: <CAHC9VhTBdLtK_spOS9axuYfHRb=zx3TFqKY2cvfy9tRd0ep-sg@mail.gmail.com>
-Subject: Re: SO_PEERSEC protections in sk_getsockopt()?
-To:     David Laight <David.Laight@aculab.com>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+From:   Ted Toth <txtoth@gmail.com>
+Date:   Mon, 10 Oct 2022 12:20:49 -0500
+Message-ID: <CAFPpqQFxHtjJ-8FQpB71WHhHwOgREGwU4TexjO5Vty8pjM+o3A@mail.gmail.com>
+Subject: systemd socket activation selinux context pr review
+To:     SELinux <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 10, 2022 at 11:34 AM David Laight <David.Laight@aculab.com> wrote:
-> From: Paul Moore
-> > Sent: 10 October 2022 14:19
-> ....
-> > > It isn't really ideal for the buffer pointer either.
-> > > That started as a single field (assuming the caller
-> > > has verified the user/kernel status), then the is_kernel
-> > > field was added for architectures where user/kernel
-> > > addresses use the same values.
-> > > Then a horrid bug (forgotten where) forced the is_kernel
-> > > field be used everywhere.
-> > > Again a structure with two pointers would be much safer.
-> >
-> > Any chance you have plans to work on this David?
->
-> I'd only spend any significant time on it if there
-> is a reasonable chance of the patches being accepted.
->
-> My use would be an out-of-tree non-GPL module calling
-> kernel_getsockopt().
-> The main in-tree user is bpf - which seems to need an
-> ever-increasing number of socket options, but support has
-> been added one by one.
->
-> While most getsockopt() calls just return set values, SCTP
-> uses some to retrieve the result of values negotiated with
-> the peer. The number of valid data streams is needed for
-> even trivial SCTP applications.
-> However I've a workaround for a bug in 5.1 to 5.8 that
-> returned the wrong values (my tests didn't check negotiation)
-> that also obtains the values on later kernels.
-> So I'm not (yet) in a hurry!
+I'd appreciate it if some committers would review this pull request
+and add comments as it seems to have stalled.
 
-It looks like it might still be a good idea to add hardening/support
-for the LSM hook as your needs still seem a bit far off, but I
-appreciate the background - thanks!
+https://github.com/systemd/systemd/pull/24702
 
--- 
-paul-moore.com
+From 86f28a8638a59cb73800c54b26c0bd5874bc50dc Mon Sep 17 00:00:00 2001
+From: "Ted X. Toth" <txtoth@flycast.org>
+Date: Tue, 13 Sep 2022 15:27:47 -0700
+Subject: [PATCH] Use target process context to set socket context when using
+ SELinuxContextFromNet not systemds context
+
+---
+ src/core/socket.c | 46 +++++++++++++++++-----------------------------
+ 1 file changed, 17 insertions(+), 29 deletions(-)
+
+diff --git a/src/core/socket.c b/src/core/socket.c
+index f67a79705499..ad0e81607807 100644
+--- a/src/core/socket.c
++++ b/src/core/socket.c
+@@ -1409,39 +1409,27 @@ static int
+socket_determine_selinux_label(Socket *s, char **ret) {
+         assert(s);
+         assert(ret);
+
+-        if (s->selinux_context_from_net) {
+-                /* If this is requested, get the label from the
+network label */
++        Unit *service;
++        ExecCommand *c;
++        _cleanup_free_ char *path = NULL;
+
+-                r = mac_selinux_get_our_label(ret);
+-                if (r == -EOPNOTSUPP)
+-                        goto no_label;
+-
+-        } else {
+-                /* Otherwise, get it from the executable we are about
+to start. */
+-
+-                Unit *service;
+-                ExecCommand *c;
+-                _cleanup_free_ char *path = NULL;
+-
+-                r = socket_load_service_unit(s, -1, &service);
+-                if (r == -ENODATA)
+-                        goto no_label;
+-                if (r < 0)
+-                        return r;
+-
+-                c = SERVICE(service)->exec_command[SERVICE_EXEC_START];
+-                if (!c)
+-                        goto no_label;
++        r = socket_load_service_unit(s, -1, &service);
++        if (r == -ENODATA)
++                goto no_label;
++        if (r < 0)
++                return r;
+
+-                r = chase_symlinks(c->path,
+SERVICE(service)->exec_context.root_directory, CHASE_PREFIX_ROOT,
+&path, NULL);
+-                if (r < 0)
+-                        goto no_label;
++        c = SERVICE(service)->exec_command[SERVICE_EXEC_START];
++        if (!c)
++                goto no_label;
+
+-                r = mac_selinux_get_create_label_from_exe(path, ret);
+-                if (IN_SET(r, -EPERM, -EOPNOTSUPP))
+-                        goto no_label;
+-        }
++        r = chase_symlinks(c->path,
+SERVICE(service)->exec_context.root_directory, CHASE_PREFIX_ROOT,
+&path, NULL);
++        if (r < 0)
++                goto no_label;
+
++        r = mac_selinux_get_create_label_from_exe(path, ret);
++        if (IN_SET(r, -EPERM, -EOPNOTSUPP))
++                goto no_label;
+         return r;
+
+ no_label:
