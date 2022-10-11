@@ -2,137 +2,230 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D41F8C433F5
-	for <selinux@archiver.kernel.org>; Tue, 11 Oct 2022 16:07:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3896FC433F5
+	for <selinux@archiver.kernel.org>; Tue, 11 Oct 2022 16:10:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229626AbiJKQHP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Oct 2022 12:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38128 "EHLO
+        id S229691AbiJKQKk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Oct 2022 12:10:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229879AbiJKQHP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Oct 2022 12:07:15 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E0A5209D
-        for <selinux@vger.kernel.org>; Tue, 11 Oct 2022 09:07:14 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id s30so20856819eds.1
-        for <selinux@vger.kernel.org>; Tue, 11 Oct 2022 09:07:14 -0700 (PDT)
+        with ESMTP id S229831AbiJKQKj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Oct 2022 12:10:39 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B3B57BCF
+        for <selinux@vger.kernel.org>; Tue, 11 Oct 2022 09:10:36 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id u10so22379598wrq.2
+        for <selinux@vger.kernel.org>; Tue, 11 Oct 2022 09:10:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=I1VU/ApITVInT965CVP/9rzpcHKHYtr2XSiQ8Ofkh/w=;
-        b=DCVNUWFoK+Eh9U0SnEEmd1nDLwCzd3UU2EBuDBa6EaJnfSlxnmXu4hKxQqmsFYovja
-         SeOv+wPsbjUHidMWg5lAqVbHe8Mh/px3RhyatmnVQU5pzOaFacGzuacy55ZM15Y7oQR8
-         np+vIyFMYEtIq6Ly/hGCBtubqiZ8Ty1C1kQYDoWujztqtgm0F/KKpuZJ7kFCEWg40dOH
-         RtMqTdFTjSQomsrbFtN96KdExCLFUjc6KBaEZwy/zRcos5XaNG1ROGdX48tW8zHMWyOg
-         PKm9hMy1rBnpP+edtA8JzlbglZq6doUyxCRqaL46vLAJI4gtMjnCyStGTpW4QYBNJ04/
-         27ug==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PWH4D1J45OWSpMz62cQx+DyEPyqK5VmHP8n45iUklG0=;
+        b=XPG7P9CC+ksccu++Tv21qp7jjmRMMluT7j1nDSjg91V0hKNNYafvuKv2iIKHOsu2Kb
+         0ORu9KYYBsXUy74FUHe3/ZiC9K7wsiG0j2xV8vySf9m8avcyrzxyEXt2o+KhevCxgaiR
+         jcSAu6Z/C5I7aan6rwAV1T6hIBBMVsodYZ9qJmQKKplPTMESyk43adFsWwAm0I0YgVbK
+         1I2bnGfeEHLQGAj+rrYKEiOwK+zC/bFjSYQS9bYrkHgtl6apmEeaUBB4jrrrobBwjzJF
+         JVEwSsp33SHCLgxnvu+PDtw+dg43kY1BfAyRdqlw9IXr5QOFJFdwXSZ6pa4G+PK1hNLp
+         mmLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=I1VU/ApITVInT965CVP/9rzpcHKHYtr2XSiQ8Ofkh/w=;
-        b=Wxg44BXVtyi5edJgSA9bvE9It5B1+qsN+6HlADhExuNg+qOTclVEXd130vbQngrDtR
-         H+sqa9OZdIBzo2djxt8ysiBBQykaScyWytboD3AcFcWC6zkTAOo37faHVUwJ1FyBfQ0S
-         coalUqKTLQdtm8ZSOIUti9aSoY403lPd/9qt2Wynh4+1mPr97Iz9fICPubn73x6bkMW7
-         1dKnIJOSJ4SHPdiacC76pXOhkYoafhHrtmUKyxPRgxbji6t+TvKXQKRAlwUgnEzdkIZY
-         s462GSoCtrV5QfmyTps2eV3E19FImNe3wFFzHyqKEoeyhagyeUHK6CLDzQ06f+Il0vw5
-         eXvg==
-X-Gm-Message-State: ACrzQf3zdW3m2eBtOeKpuXnTJJ+ntxBVpfyNUVTUT1XkZkAgbhwOCz5B
-        JRjB1NhMvddty7JAAcZeAGc=
-X-Google-Smtp-Source: AMsMyM4Teet4XZaezMow6Of0sNRo0QBz4U25PqRHIyEYsLbPKhfbPd4+RloMHdF1+6UZDMxY7YUBqQ==
-X-Received: by 2002:aa7:db07:0:b0:458:f6e5:ab71 with SMTP id t7-20020aa7db07000000b00458f6e5ab71mr24152309eds.330.1665504432574;
-        Tue, 11 Oct 2022 09:07:12 -0700 (PDT)
-Received: from debianHome.localdomain (dynamic-077-003-152-095.77.3.pool.telefonica.de. [77.3.152.95])
-        by smtp.gmail.com with ESMTPSA id d6-20020a50f686000000b00459e3a3f3ddsm9592936edn.79.2022.10.11.09.07.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Oct 2022 09:07:12 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     debian-dpkg@lists.debian.org
-Cc:     guillem@debian.org, selinux@vger.kernel.org
-Subject: [DPKG PATCH] selinux: install log callback to filter messages
-Date:   Tue, 11 Oct 2022 18:07:00 +0200
-Message-Id: <20221011160700.82258-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.37.2
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PWH4D1J45OWSpMz62cQx+DyEPyqK5VmHP8n45iUklG0=;
+        b=z3kqf71hkfUgortUqUqmcWSaVos2nP0cHI9Ncgvdpq8N00WeRLV5QGsO2MPv/+vGph
+         /cOdveh+cGd50XGIcq3bSaEBrU1k1DtYNj47Nx9YUzixFXsJOaWVEnpFRa0+WaHzbGXD
+         BhiZljKTGaTRqb8mKcCOxdl1M11HQW4sCgQMfxLjbwGpREO1/1zqUHNHNgVmMcRJiquB
+         Aw1nAydytIAaRVfDIMeWrNGW2smo+zr560g/QvOq7qoD/0E26H3E+CtdbI5kD8p7Atmq
+         3Wz5NnzkyvkeBoWUgWDRMtXbCxn0IOnHVtlJXu6BAT095/aoiTetZCr0RbbJu/H99H8y
+         bKDA==
+X-Gm-Message-State: ACrzQf1CssMPNJ7zq48YoBNu1g5DhdldlcH/mBQtpHB2S/28XJyAY5i+
+        kayYN2UPkgYvVJQJXBKP/fDwhcKSagBAVwgexXE=
+X-Google-Smtp-Source: AMsMyM5KjS6jsNNTumiuxmbTzYZumrMbjLWKTJDZV7R3Y/EH0y3v/ESXOIIVyzgmGniZvQNNJ/gpBt5nros2yLwb9v0=
+X-Received: by 2002:a5d:584a:0:b0:231:636c:de28 with SMTP id
+ i10-20020a5d584a000000b00231636cde28mr2946417wrf.175.1665504635193; Tue, 11
+ Oct 2022 09:10:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220831153432.710929-1-cgzones@googlemail.com>
+ <CAFqZXNtPs=SWnjjbySWf+Yi88R3p0ebLBjB9-2DGsirrU+iEpg@mail.gmail.com> <CAFqZXNtKK60n0A7fbu-jvsGFvpec+L1QZqJwuZyiyL89pbZHjQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNtKK60n0A7fbu-jvsGFvpec+L1QZqJwuZyiyL89pbZHjQ@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 11 Oct 2022 18:10:24 +0200
+Message-ID: <CAJ2a_DfkCAZ9X=AeR=Rw95K4BtQnQs4OZ4SYDyq3iRBogTVLUg@mail.gmail.com>
+Subject: Re: [PATCH v2] tests/secretmem: add test
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Since libselinux 3.2, via commit 05bdc03130d7 ("libselinux: use kernel
-status page by default") [1], selinux_status_updated(3) will issue log
-messages on enforcing changes and policy loads.  dpkg is only interested
-in whether the policy changed to then reload the SELinux label database.
+On Tue, 11 Oct 2022 at 16:02, Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Mon, Sep 12, 2022 at 3:41 PM Ondrej Mosnacek <omosnace@redhat.com> wro=
+te:
+> > On Wed, Aug 31, 2022 at 5:34 PM Christian G=C3=B6ttsche
+> > <cgzones@googlemail.com> wrote:
+> > > Add test for memfd_secret(2) anonymous inodes check added in 6.0 via
+> > > 2bfe15c52612 ("mm: create security context for memfd_secret inodes").
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > ---
+> > > v2:
+> > >    - print mmap failures to stdout, since they are expected when
+> > >      mapping with PROT_EXEC
+> > > ---
+> > >  .github/workflows/checks.yml |  4 ++
+> > >  Vagrantfile                  | 10 +++--
+> > >  policy/Makefile              |  4 ++
+> > >  policy/test_secretmem.te     | 33 ++++++++++++++
+> > >  tests/Makefile               |  5 +++
+> > >  tests/secretmem/.gitignore   |  1 +
+> > >  tests/secretmem/Makefile     |  5 +++
+> > >  tests/secretmem/secretmem.c  | 83 ++++++++++++++++++++++++++++++++++=
+++
+> > >  tests/secretmem/test         | 39 +++++++++++++++++
+> > >  9 files changed, 180 insertions(+), 4 deletions(-)
+> > >  create mode 100644 policy/test_secretmem.te
+> > >  create mode 100644 tests/secretmem/.gitignore
+> > >  create mode 100644 tests/secretmem/Makefile
+> > >  create mode 100644 tests/secretmem/secretmem.c
+> > >  create mode 100755 tests/secretmem/test
+> >
+> > This looks good to me, with some minor comments below.
+> >
+> > > diff --git a/tests/secretmem/secretmem.c b/tests/secretmem/secretmem.=
+c
+> > > new file mode 100644
+> > > index 0000000..0d541ee
+> > > --- /dev/null
+> > > +++ b/tests/secretmem/secretmem.c
+> > > @@ -0,0 +1,83 @@
+> > > +#include <errno.h>
+> > > +#include <stdbool.h>
+> > > +#include <stdio.h>
+> > > +#include <stdlib.h>
+> > > +#include <string.h>
+> > > +#include <unistd.h>
+> > > +
+> > > +#include <sys/mman.h>
+> > > +#include <sys/syscall.h>
+> > > +
+> > > +#ifndef __NR_memfd_secret
+> > > +# define __NR_memfd_secret 447
+> > > +#endif
+> > > +
+> > > +#define TEXT "Hello World!\nHello World!\nHello World!\nHello World!=
+\nHello World!\nHello World!\n"
+> > > +
+> > > +static int _memfd_secret(unsigned long flags)
+> > > +{
+> > > +       return syscall(__NR_memfd_secret, flags);
+> > > +}
+> > > +
+> > > +int main(int argc, const char *argv[])
+> > > +{
+> > > +       long page_size;
+> > > +       int fd, flags;
+> > > +       char *mem;
+> > > +       bool check =3D (argc =3D=3D 2 && strcmp(argv[1], "check") =3D=
+=3D 0);
+> > > +       bool wx =3D (argc =3D=3D 2 && strcmp(argv[1], "wx") =3D=3D 0)=
+;
+> > > +
+> > > +       page_size =3D sysconf(_SC_PAGESIZE);
+> > > +       if (page_size <=3D 0) {
+> > > +               fprintf(stderr, "failed to get pagesize, got %ld:  %s=
+\n", page_size,
+> > > +                       strerror(errno));
+> > > +               return EXIT_FAILURE;
+> > > +       }
+> > > +
+> > > +       fd =3D _memfd_secret(0);
+> > > +       if (fd < 0) {
+> > > +               printf("memfd_secret() failed:  %s\n", strerror(errno=
+));
+> > > +               if (check && errno !=3D ENOSYS)
+> > > +                       return EXIT_SUCCESS;
+> > > +
+> > > +               return EXIT_FAILURE;
+> > > +       }
+> > > +
+> > > +       if (check)
+> > > +               return EXIT_SUCCESS;
+> > > +
+> > > +       if (ftruncate(fd, page_size) < 0) {
+> > > +               fprintf(stderr, "ftruncate failed:  %s\n", strerror(e=
+rrno));
+> > > +       }
+> > > +
+> > > +       flags =3D PROT_READ | PROT_WRITE;
+> > > +       if (wx)
+> > > +               flags |=3D PROT_EXEC;
+> > > +
+> > > +       mem =3D mmap(NULL, page_size, flags, MAP_SHARED, fd, 0);
+> > > +       if (mem =3D=3D MAP_FAILED || !mem) {
+> > > +               printf("unable to mmap secret memory:  %s\n", strerro=
+r(errno));
+> > > +               close(fd);
+> > > +               return EXIT_FAILURE;
+> > > +       }
+> > > +
+> > > +       close(fd);
+> > > +
+> > > +       memcpy(mem, TEXT, sizeof TEXT);
+> >
+> > Please use parentheses with sizeof. When the argument is a type name
+> > they are mandatory so it's better to use them always for consistency.
+> > See also:
+> > https://lore.kernel.org/lkml/CA+55aFwey-q4716pYYSi=3D3R_ucw84zFspDXMXmz=
+vzc72XSc9Lg@mail.gmail.com/
+> > https://lore.kernel.org/lkml/CA+55aFwcJgAFiow1sSo7mkF9n0MpTw80gjAszazyB=
+rRcmbph-g@mail.gmail.com/
+> >
+> > > +
+> > > +       if (memcmp(mem, TEXT, sizeof TEXT) !=3D 0) {
+> > > +               fprintf(stderr, "data not synced (1)\n");
+> > > +               munmap(mem, page_size);
+> > > +               return EXIT_FAILURE;
+> > > +       }
+> > > +
+> > > +       if (strlen(mem) + 1 !=3D sizeof TEXT) {
+> > > +               fprintf(stderr, "data not synced (2)\n");
+> > > +               munmap(mem, page_size);
+> > > +               return EXIT_FAILURE;
+> > > +       }
+> >
+> > What is the point of this second check? The previous check already
+> > asserts that the contents are char-to-char equal to TEXT (including
+> > the terminating null character), which implies string length
+> > equivalence as well.
+> >
+> > > +
+> > > +       munmap(mem, page_size);
+> > > +
+> > > +       return EXIT_SUCCESS;
+> > > +}
+>
+> You only pushed the updated version to the GitHub PR
+> (https://github.com/SELinuxProject/selinux-testsuite/pull/80), but
+> anyway I took that version and applied it (just removed the changelog
+> from the commit message and added my SOB):
+> https://github.com/SELinuxProject/selinux-testsuite/commit/77352e748f006c=
+343d602e4be03ae0d2cfcca831
+>
 
-Ignore non-relevant log messages and forward messages of type error,
-warning and avc (which should be treated as error if not audited
-according to selinux_set_callback(3)).
+Thanks,
+I thought I had sent the new revision, but it seems I have missed that.
 
-Example (the missing newline is a libselinux bug [2]):
 
-    Unpacking valgrind-dbg (1:3.19.0-1) ...                                                                                                │
-    uavc:  op=setenforce lsm=selinux enforcing=0 res=1Preparing to unpack .../vnstati_2.9-1_amd64.deb ...
 
-See also https://github.com/rpm-software-management/rpm/pull/2201
 
-[1]: https://github.com/SELinuxProject/selinux/commit/05bdc03130d741e53e1fb45a958d0a2c184be503
-[2]: https://lore.kernel.org/selinux/20221011112733.194079-1-plautrba@redhat.com/
----
- src/common/selinux.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
-
-diff --git a/src/common/selinux.c b/src/common/selinux.c
-index 07f87a3dd..c123fb924 100644
---- a/src/common/selinux.c
-+++ b/src/common/selinux.c
-@@ -44,6 +44,33 @@
- static struct selabel_handle *sehandle;
- #endif
- 
-+#ifdef WITH_LIBSELINUX
-+DPKG_ATTR_PRINTF(2)
-+static int log_callback(int type, const char *fmt, ...)
-+{
-+	char *msg;
-+	va_list ap;
-+
-+	switch (type) {
-+	case SELINUX_ERROR:
-+	case SELINUX_WARNING:
-+	case SELINUX_AVC:
-+		break;
-+	default:
-+		return 0;
-+	}
-+
-+	va_start(ap, fmt);
-+	m_vasprintf(&msg, fmt, ap);
-+	va_end(ap);
-+
-+	warning("libselinux:  %s", msg);
-+	free(msg);
-+
-+	return 0;
-+}
-+#endif
-+
- void
- dpkg_selabel_load(void)
- {
-@@ -65,9 +92,7 @@ dpkg_selabel_load(void)
- 		if (rc < 0)
- 			ohshit(_("cannot open security status notification channel"));
- 
--		/* XXX: We could use selinux_set_callback() to redirect the
--		 * errors from the other SELinux calls, but that does not seem
--		 * worth it right now. */
-+		selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) { .func_log = log_callback });
- 	} else if (selinux_enabled && selinux_status_updated()) {
- 		/* The SELinux policy got updated in the kernel, usually after
- 		 * upgrading the package shipping it, we need to reload. */
--- 
-2.37.2
-
+>
+> --
+> Ondrej Mosnacek
+> Senior Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+>
