@@ -2,153 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A125C433FE
-	for <selinux@archiver.kernel.org>; Tue, 11 Oct 2022 13:01:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F164C433F5
+	for <selinux@archiver.kernel.org>; Tue, 11 Oct 2022 13:19:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbiJKNBq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Oct 2022 09:01:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42356 "EHLO
+        id S230152AbiJKNTg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Oct 2022 09:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbiJKNBp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Oct 2022 09:01:45 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F02B6610C
-        for <selinux@vger.kernel.org>; Tue, 11 Oct 2022 06:01:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665493303;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=gYkbIZV8EzdpKCpV967WQefXGdnAKk84YbcL80Rkuk8=;
-        b=ZEz6R2MoXz2LZ1QxlS2HXyhJf7pafDenNqo9pgA+F4NYk8eOrhiWdGmpnSlgaBCvqdBTmA
-        +Vy6aCVEDRFmIbKsbmllR3ywjlIoxl84bVFXVROZpyv8f7dV1LJTq2co+wJPiBo66q6Vs2
-        2VZnba4p70c3FASO6ONI17iEF+AhIes=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-390-BDjl_kOuMXSOXKIoPioxeQ-1; Tue, 11 Oct 2022 09:01:41 -0400
-X-MC-Unique: BDjl_kOuMXSOXKIoPioxeQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1BFFB1012460;
-        Tue, 11 Oct 2022 13:01:40 +0000 (UTC)
-Received: from localhost (ovpn-194-111.brq.redhat.com [10.40.194.111])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BBFEC2166B26;
-        Tue, 11 Oct 2022 13:01:39 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Subject: Re: unnecessary log output in selinux_status_updated
-In-Reply-To: <CAEjxPJ7ysEaFOCsCJQU5p61y3dbkOLKjrRhytsV-HRmjCVHX6A@mail.gmail.com>
-References: <87ilkwxbde.fsf@redhat.com>
- <CAEjxPJ6hQ3-_6_O2LxQPLD14Xzrcs6NfmqLRpe9arbEppU711g@mail.gmail.com>
- <87fsfzyc31.fsf@redhat.com>
- <CAEjxPJ7ysEaFOCsCJQU5p61y3dbkOLKjrRhytsV-HRmjCVHX6A@mail.gmail.com>
-Date:   Tue, 11 Oct 2022 15:01:39 +0200
-Message-ID: <87a662y0ng.fsf@redhat.com>
+        with ESMTP id S230145AbiJKNTN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Oct 2022 09:19:13 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7AE7497ED3
+        for <selinux@vger.kernel.org>; Tue, 11 Oct 2022 06:17:19 -0700 (PDT)
+Received: from [192.168.1.10] (pool-173-66-202-112.washdc.fios.verizon.net [173.66.202.112])
+        by linux.microsoft.com (Postfix) with ESMTPSA id D7A1B20F06A6;
+        Tue, 11 Oct 2022 06:16:50 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D7A1B20F06A6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1665494211;
+        bh=zIeyvRDFvtX5rRaL7ugCoe0opmEm/N+OJnFNlZP5BeY=;
+        h=Date:Subject:To:References:From:In-Reply-To:From;
+        b=jbOr3sGsEvMMZmREekuTFS/i5Cqo3E7+POtHNo3DQGBfARzwMME/xZTBP26JbDiSe
+         Kkq+dLjTgVhpCSPFnqMQLLBIXJnSiQWsv2trQSXLeuMDiTmDKZODmS7RLcxvzYARV+
+         6taPkVUNmYP7jtftRiDDJiIn2yuXvMiTxBocyqV8=
+Message-ID: <aad3cf91-53ed-e4aa-8009-2e7e6ea5ca89@linux.microsoft.com>
+Date:   Tue, 11 Oct 2022 09:16:46 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: [PATCH] libselinux: Add missing '\n' to avc_log() messages
+To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
+References: <20221011112733.194079-1-plautrba@redhat.com>
+Content-Language: en-US
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <20221011112733.194079-1-plautrba@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+On 10/11/2022 7:27 AM, Petr Lautrbach wrote:
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-> On Fri, Oct 7, 2022 at 9:53 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
->>
->> > On Fri, Oct 7, 2022 at 4:54 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->> >>
->> >> Hi,
->> >>
->> >>
->> >> Commit 05bdc03130d74 ("libselinux: use kernel status page by default") changed
->> >> selinux_status_updated() so that it calls avc_process_policyload() and
->> >> avc_process_setenforce() and both functions call avc_log() and avc_log() logs to
->> >> stderr by default. So when a process like `rpm` checks whether there was a
->> >> change, it gets output on stderr which previously wasn't there.
->> >>
->> >>
->> >> Before this change:
->> >> >>> from selinux import *
->> >> >>> selinux_status_open(0);
->> >> 0
->> >> >>>
->> >> >>> selinux_status_updated();
->> >> 0
->> >> >>> selinux_mkload_policy(0);
->> >> 0
->> >> >>> selinux_status_updated();
->> >> 1
->> >>
->> >> Current version:
->> >> >>> from selinux import *
->> >> elinux_status_updated();
->> >> selinux_mkload_policy(0);
->> >> selinux_status_updated();
->> >> >>> selinux_status_open(0);
->> >> 0
->> >> >>> selinux_status_updated();
->> >> 0
->> >> >>> selinux_mkload_policy(0);
->> >> 0
->> >> >>> selinux_status_updated();
->> >> uavc:  op=load_policy lsm=selinux seqno=2 res=11
->> >>
->> >>
->> >> The calling process could set its callback but it seems unnecessarily
->> >> complicated just for selinux_status_updated() which is supposed to check whether
->> >> something has changed or not. Also processing events in this function seems to
->> >> be unnecessary.
->> >>
->> >> It looks like the reason for the new code added to selinux_status_updated() is
->> >> that there were several avc_netlink_check_nb() calls replaced by
->> >> selinux_status_updated(). Given the problem described above, I don't think it's
->> >> correct and I would like to change selinux_status_updated() back and use another
->> >> mechanism that would help with the replacement.
->> >>
->> >>
->> >> So what do you think about it?
->> >
->> > The goal was to switch the AVC and all of its users (e.g.
->> > selinux_check_access) over to using the much more efficient SELinux
->> > kernel status page mechanism for setenforce and policy load
->> > notifications on newer kernels instead of the SELinux netlink
->> > mechanism (which imposed extra syscall overhead on the critical path).
->> >
->> > Understand your concern but unsure as to whether we can just change
->> > selinux_status_updated() back now.
->> > Would require an audit of all users of selinux_status_updated(), both
->> > direct and indirect, to ensure that none of them are relying on this
->> > behavior. We can obviously fix the callers within libselinux but
->> > addressing external callers is more problematic and is arguably an ABI
->> > change. Would need to look at all users of the AVC,
->> > selinux_check_access(), etc.
->> > This change happened 2 years ago so I have to wonder why it is only
->> > coming up now?
->>
->> Nobody has noticed it.
->>
->>  83         avc_log(SELINUX_POLICYLOAD,
->>  84                 "%s:  op=load_policy lsm=selinux seqno=%u res=1",
->>  85                 avc_prefix, seqno);
->>
->> There's missing '\n' and so this message is sooner or later overwritten by
->> something else, see
->> https://bugzilla.redhat.com/show_bug.cgi?id=2123637 and
->> https://bugzilla.redhat.com/show_bug.cgi?id=2123719
->
-> Ok, regardless, we need to ensure that changing it won't break
-> systemd, dbus, or any other userspace object managers.
+Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
 
-rpm maintainer decided to implement a logging callback [1], and so there's
-no need to change this back.
-
-[1] https://github.com/rpm-software-management/rpm/pull/2201
-
-Petr
+> ---
+>   libselinux/src/avc.c          | 2 +-
+>   libselinux/src/avc_internal.c | 4 ++--
+>   libselinux/src/checkAccess.c  | 4 ++--
+>   3 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+> index 8d5983a2fe0c..98a3fcae41c8 100644
+> --- a/libselinux/src/avc.c
+> +++ b/libselinux/src/avc.c
+> @@ -725,7 +725,7 @@ void avc_audit(security_id_t ssid, security_id_t tsid,
+>   	if (denied)
+>   		log_append(avc_audit_buf, " permissive=%u", result ? 0 : 1);
+>   
+> -	avc_log(SELINUX_AVC, "%s", avc_audit_buf);
+> +	avc_log(SELINUX_AVC, "%s\n", avc_audit_buf);
+>   
+>   	avc_release_lock(avc_log_lock);
+>   }
+> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+> index 71a1357bc564..c550e5788527 100644
+> --- a/libselinux/src/avc_internal.c
+> +++ b/libselinux/src/avc_internal.c
+> @@ -59,7 +59,7 @@ int avc_process_setenforce(int enforcing)
+>   	int rc = 0;
+>   
+>   	avc_log(SELINUX_SETENFORCE,
+> -		"%s:  op=setenforce lsm=selinux enforcing=%d res=1",
+> +		"%s:  op=setenforce lsm=selinux enforcing=%d res=1\n",
+>   		avc_prefix, enforcing);
+>   	if (avc_setenforce)
+>   		goto out;
+> @@ -81,7 +81,7 @@ int avc_process_policyload(uint32_t seqno)
+>   	int rc = 0;
+>   
+>   	avc_log(SELINUX_POLICYLOAD,
+> -		"%s:  op=load_policy lsm=selinux seqno=%u res=1",
+> +		"%s:  op=load_policy lsm=selinux seqno=%u res=1\n",
+>   		avc_prefix, seqno);
+>   	rc = avc_ss_reset(seqno);
+>   	if (rc < 0) {
+> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+> index 022cd6b5ecab..319af267c6a7 100644
+> --- a/libselinux/src/checkAccess.c
+> +++ b/libselinux/src/checkAccess.c
+> @@ -44,7 +44,7 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
+>          sclass = string_to_security_class(class);
+>          if (sclass == 0) {
+>   	       rc = errno;
+> -	       avc_log(SELINUX_ERROR, "Unknown class %s", class);
+> +	       avc_log(SELINUX_ERROR, "Unknown class %s\n", class);
+>   	       if (security_deny_unknown() == 0)
+>   		       return 0;
+>   	       errno = rc;
+> @@ -54,7 +54,7 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
+>          av = string_to_av_perm(sclass, perm);
+>          if (av == 0) {
+>   	       rc = errno;
+> -	       avc_log(SELINUX_ERROR, "Unknown permission %s for class %s", perm, class);
+> +	       avc_log(SELINUX_ERROR, "Unknown permission %s for class %s\n", perm, class);
+>   	       if (security_deny_unknown() == 0)
+>   		       return 0;
+>   	       errno = rc;
 
