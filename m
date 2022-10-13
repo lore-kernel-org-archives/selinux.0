@@ -2,134 +2,120 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D3FEC433FE
-	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 15:26:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88CE8C4332F
+	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 15:27:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbiJMP0k (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Oct 2022 11:26:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45510 "EHLO
+        id S229694AbiJMP1G (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Oct 2022 11:27:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbiJMP0k (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 11:26:40 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FAFC25C7D
-        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:26:39 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id l1so2077278pld.13
-        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:26:39 -0700 (PDT)
+        with ESMTP id S229600AbiJMP1G (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 11:27:06 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B1B25C7D
+        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:27:04 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id cl1so2208026pjb.1
+        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:27:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Ql1YoFpQB9CTV15REXMxOl6HZMs9iGRDGysE1CWIAtE=;
-        b=ZvPWNCTewf93CgxHEpNyMzTS6+5UMw02BltJM9ygKBbLs+MI9dvgVySWvuWyzjt/CJ
-         2+u9xs7ekYd+6/5M9CJ5/ePeh9e8hv3ZoxQ6Cb5u8ENyFVF2G+69m3JhaUB73+7eU4t5
-         wXlByLcQ+LwA1QMt40rMxqsp8AJ9hyW42IzQfjPWY2cTSItgfkQimM9VDsgVDq5THJ67
-         vWaR1j2nIyNZrw7GpHyQPLcWDt4VTEY+NcQCDVhRRp7MPi7nUn8O8unhv1OSlMjG+M1e
-         S3NYLTSWJqmQVxSWE5O+XmEvmIGiZxgYsWaW64FgCTstrgV5j/7rsD8ReTq9Fa8xY+Ti
-         snMQ==
+        bh=Y0w1TWc5CCWZKeNxspLI6V6nosZv0ZPLNAdzFUjVkZw=;
+        b=nLZc+hdnrp26WGH813n4UQttOKXGgH8E8cHraZOOT7Pih+W1rxRYrhRJ/cQ/cYTxpX
+         SDYhyd1LVQGqgdnIWgzlIyAx0HfjdhNoSq4MysB34WULQVL1fcNgv7haGZMhxM4mnVu9
+         aNnNPtSDH1POdhqxSMyjgRaZ8L1eN95IybfqABMoEa9GppL88nbO54sydJezX3X8kIV0
+         wzgLe928n8GlHiNgqNQB+S/VB75gJP8OYYuKaAbORPP6kjFUOwFVb3FsRtG8/eYKNc3g
+         mhIiQwKdu9DAu29NsYRe0qfVYA5XZggWwoW9ib72JTEs+wh32F23TDINryLjehzSOJfi
+         GoFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ql1YoFpQB9CTV15REXMxOl6HZMs9iGRDGysE1CWIAtE=;
-        b=B+xa9P70MMPoMS2uamZi7jH36h47iT054RrcKCvodTxEGjOnQ4C2KmXRa/fzn40J8i
-         PkL+vUbeyJa4vge1OPZcv9B4Ab571fIoQyT9mQY9pPdJOGGxNGdJdwcriR9EVNS5bkyd
-         H2I/DILFz3JJTWAq6Sz4aIbpmPeuD2X/BfDjOth92uDj0IR3wi2Gglan+V4hJLD7xs7s
-         RED57qHrrHQAmvJ9QVWi99uRe+dZUURwaHLys3BEZyMW8Cm1GYByR28SurAmvvKhiNLf
-         tQEzSX9uRDZ/r823RujLdagNu9zcwlCPdtou0+RqsH/0HwVYMv3P1wi9HjKiFyW66w26
-         aG0Q==
-X-Gm-Message-State: ACrzQf3kSTBmXbPjr5UuKSM+8ej358kT4r+SvDhLAWtY9mRyU7zxTBIZ
-        Os7ByMahB/53KECQaoXxZU8B2EHjZqZ9JuUpfGk=
-X-Google-Smtp-Source: AMsMyM4B6qLkxMrRVFNFn8GiufWVtYTPYw/qcFIoanf22HDNOfJuMGFFwZOdrzgmxncUK7RBJTvWqtZBQSHmvzl1X7o=
+        bh=Y0w1TWc5CCWZKeNxspLI6V6nosZv0ZPLNAdzFUjVkZw=;
+        b=n41kEoE12N8t43BRihUajGI8K2mq1QQtkr3C0CjJTJkFX+BpPyXX3xaNYhjNUCpo2t
+         uOtKGuLsfbBPlbawPCnDHqYrJb75JfshWx5pLzVif4mo4NGVEZ2MNOnVzMdGtERNokJB
+         44MtgC5BbwpuF0nX+8vu5Lfij/JXDvN+Ab36LX0wI7Z/zAQH+ZkzcP5NeIlq0URybQw1
+         HjWLQm8WOZz2zF3ow3yGsEsxtd1Fp1HIwrEYaq3n4P6QpplwbsKfxiI7u2Ab4dNYIakG
+         voLwFfCPDmB3oePTHSrwDltCOiyBAbpMXWuIhClZcFxuS7ThjEP5pQ/XFLhv4eJ8y/3d
+         MeUg==
+X-Gm-Message-State: ACrzQf0hZ3fmnGGJmuoYp+LeJwgI1q4HiGPglPKB35Qgnr1AxrDgc8st
+        JrVmxhjEnf8L0rdJE8IchS5k9aumJM7AUXMTXnw=
+X-Google-Smtp-Source: AMsMyM7xW9+9VWilzYDSFv2Obs6X3yyjHLRrCyKf7GGuu9bUJiw3/aW0bV31434ZWa0uYuwHQPEt7em0lPTPfu/lhFM=
 X-Received: by 2002:a17:90b:3b82:b0:20b:516:5ff5 with SMTP id
- pc2-20020a17090b3b8200b0020b05165ff5mr377027pjb.92.1665674798958; Thu, 13 Oct
- 2022 08:26:38 -0700 (PDT)
+ pc2-20020a17090b3b8200b0020b05165ff5mr379081pjb.92.1665674824319; Thu, 13 Oct
+ 2022 08:27:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20221012142751.17979-1-cgzones@googlemail.com>
- <CAP+JOzQr_1bBDAp=jyBb37cNFQKW0CDsixiM3aAcWSWAJtvQxg@mail.gmail.com> <87czavsw6u.fsf@redhat.com>
-In-Reply-To: <87czavsw6u.fsf@redhat.com>
+References: <20220830175455.40660-1-cgzones@googlemail.com> <CAP+JOzTxAjJ0SKL-eDxn0GmY0ZJTfqa9BpdorfTvjXajK68ibQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzTxAjJ0SKL-eDxn0GmY0ZJTfqa9BpdorfTvjXajK68ibQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 13 Oct 2022 11:26:27 -0400
-Message-ID: <CAP+JOzRTC-p8OL1T6OOVDFmRkoXETEh+DbjDc6hpfMQJzcGXhw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: restore error on context rule conflicts
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Milos Malik <mmalik@redhat.com>
+Date:   Thu, 13 Oct 2022 11:26:53 -0400
+Message-ID: <CAP+JOzTJxUenDckhws8hFvnVyca=VSZNcL-j7UBDP_LGOxq29w@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: support objname in compute_create
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 9:13 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Wed, Oct 12, 2022 at 11:39 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> James Carter <jwcart2@gmail.com> writes:
->
-> > On Wed, Oct 12, 2022 at 10:28 AM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> >>
-> >> Commit bc26ddc59c8d ("libsepol/cil: Limit the amount of reporting for
-> >> context rule conflicts") reworked the processing of context rule
-> >> conflicts to limit the number of written conflicting statements to
-> >> increase readability of the printed error message.  It forgot to set t=
-he
-> >> return value, signaling a context conflict, in the case the logging
-> >> level is higher than warning (e.g. in semodule(8), which defaults to
-> >> error).
-> >>
-> >> Reported-by: Milos Malik <mmalik@redhat.com> [1]
-> >> Fixes: bc26ddc59c8d ("libsepol/cil: Limit the amount of reporting for =
-context rule conflicts")
-> >>
-> >> [1]: https://lore.kernel.org/selinux/87y1u1rkoo.fsf@redhat.com/
-> >>
-> >> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> On Tue, Aug 30, 2022 at 2:04 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > Acked-by: James Carter <jwcart2@gmail.com>
+> > Support passing an optional object name to compute_create for name
+> > based type transitions.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Tested-by: Petr Lautrbach <plautrba@redhat.com>
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
-> Thanks!
->
+
 Merged.
 Jim
 
->
-> >> ---
-> >>  libsepol/cil/src/cil_post.c | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> >> index 6e95225f..11e572e2 100644
-> >> --- a/libsepol/cil/src/cil_post.c
-> >> +++ b/libsepol/cil/src/cil_post.c
-> >> @@ -2290,6 +2290,7 @@ static int __cil_post_process_context_rules(stru=
-ct cil_sort *sort, int (*compar)
-> >>                 } else {
-> >>                         removed++;
-> >>                         if (!db->multiple_decls || concompar(&sort->ar=
-ray[i], &sort->array[j]) !=3D 0) {
-> >> +                               rc =3D SEPOL_ERR;
-> >>                                 conflicting++;
-> >>                                 if (log_level >=3D CIL_WARN) {
-> >>                                         struct cil_list_item li;
-> >> @@ -2297,7 +2298,6 @@ static int __cil_post_process_context_rules(stru=
-ct cil_sort *sort, int (*compar)
-> >>                                         li.flavor =3D flavor;
-> >>                                         if (conflicting =3D=3D 1) {
-> >>                                                 cil_log(CIL_WARN, "Fou=
-nd conflicting %s rules\n", flavor_str);
-> >> -                                               rc =3D SEPOL_ERR;
-> >>                                                 li.data =3D sort->arra=
-y[i];
-> >>                                                 rc2 =3D cil_tree_walk(=
-db->ast->root, __cil_post_report_conflict,
-> >>                                                                       =
-                  NULL, NULL, &li);
-> >> --
-> >> 2.37.2
-> >>
->
+> > ---
+> >  libselinux/utils/compute_create.c | 9 ++++++---
+> >  1 file changed, 6 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/libselinux/utils/compute_create.c b/libselinux/utils/compu=
+te_create.c
+> > index c6481f4b..5401fe96 100644
+> > --- a/libselinux/utils/compute_create.c
+> > +++ b/libselinux/utils/compute_create.c
+> > @@ -10,10 +10,11 @@ int main(int argc, char **argv)
+> >  {
+> >         char *buf;
+> >         security_class_t tclass;
+> > +       const char *objname;
+> >         int ret;
+> >
+> > -       if (argc !=3D 4) {
+> > -               fprintf(stderr, "usage:  %s scontext tcontext tclass\n"=
+,
+> > +       if (argc !=3D 4 && argc !=3D 5) {
+> > +               fprintf(stderr, "usage:  %s scontext tcontext tclass [o=
+bjname]\n",
+> >                         argv[0]);
+> >                 exit(1);
+> >         }
+> > @@ -34,7 +35,9 @@ int main(int argc, char **argv)
+> >                 exit(2);
+> >         }
+> >
+> > -       ret =3D security_compute_create(argv[1], argv[2], tclass, &buf)=
+;
+> > +       objname =3D (argc =3D=3D 5) ? argv[4] : NULL;
+> > +
+> > +       ret =3D security_compute_create_name(argv[1], argv[2], tclass, =
+objname, &buf);
+> >         if (ret < 0) {
+> >                 fprintf(stderr, "%s:  security_compute_create failed:  =
+%s\n",
+> >                         argv[0], strerror(errno));
+> > --
+> > 2.37.2
+> >
