@@ -2,138 +2,80 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAABAC4332F
-	for <selinux@archiver.kernel.org>; Wed, 12 Oct 2022 22:07:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26CF0C4332F
+	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 10:04:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbiJLWHt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Oct 2022 18:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57856 "EHLO
+        id S229607AbiJMKEn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Oct 2022 06:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230006AbiJLWH2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Oct 2022 18:07:28 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 506656381
-        for <selinux@vger.kernel.org>; Wed, 12 Oct 2022 15:05:38 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id f23so137819plr.6
-        for <selinux@vger.kernel.org>; Wed, 12 Oct 2022 15:05:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4pGHWCM3N3OUCM1ER+rKkscIwlNTBChe1kgAgXac27k=;
-        b=ZxJoRoLe4ZBw6t/WVbwcJncoE0viTUu8WwUYo7HbCWwah3umOJMh7nIangr40Amqkq
-         9W0ohHrMfNY+RUM2a81m+RD18ceXG+efXZmb0U/XCJCPPqQMUDOn4Ud9rbXn2edUNUgZ
-         crmhtoIrm7mDYAljbxaMlHUxbJWvFs5GJQKj8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4pGHWCM3N3OUCM1ER+rKkscIwlNTBChe1kgAgXac27k=;
-        b=VaabJmBHzp5YJMm0ojYHmCogHD3KJJUxi74edQW3ydLrVygVXgaNOnWvfu4XayMPCZ
-         oP9O0/VmgepzDdNZAUCCYrU15MH9WQEhWALvdysU8pTfnw5FvonnIVLalSscv6uiMHOI
-         XzWmfxvKMv61T9x6v2kZm5Se5Ljw0fC1c2fiFEZQr88TmC7jTtHIpd1zH2DZ0AI6ftdR
-         M/Oyvbf4TuUNdXK3hgtYrn/XBy0HG8kg6vcPxKwsC7MDZUNQJZruAgTvHhrdxMQaOkrG
-         HBXPusOdbdK1gTTj4AFAKYsha4G2+47tyzNnD4L9OfrjXNRFcUrlqlegIlnucpC7dTC/
-         nmKg==
-X-Gm-Message-State: ACrzQf3XhPjhHvGvZVSjU8vWj4E0NkL+5Qnc+OBf6qKEazIBKGBLFkUE
-        Dl6wP7a3TTqPf73m1hW5Xm2mYQ==
-X-Google-Smtp-Source: AMsMyM5qJXypLtEuI7LmQWOcC6PZlx4jhq65/txaKudvas3aDV4YoebnKIfrSMm8JqEgIT2QXo2a9Q==
-X-Received: by 2002:a17:90b:400c:b0:20a:bb11:a0f3 with SMTP id ie12-20020a17090b400c00b0020abb11a0f3mr7423615pjb.166.1665612251178;
-        Wed, 12 Oct 2022 15:04:11 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id w133-20020a62828b000000b0052d4b0d0c74sm360959pfd.70.2022.10.12.15.04.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Oct 2022 15:04:10 -0700 (PDT)
-Date:   Wed, 12 Oct 2022 15:04:09 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, paul@paul-moore.com,
-        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
-        jmorris@namei.org, selinux@vger.kernel.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v38 39/39] LSM: Create lsm_module_list system call
-Message-ID: <202210121459.00980C2@keescook>
-References: <20220927195421.14713-1-casey@schaufler-ca.com>
- <20220927203155.15060-1-casey@schaufler-ca.com>
+        with ESMTP id S229705AbiJMKEl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 06:04:41 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DBA82DEE;
+        Thu, 13 Oct 2022 03:04:40 -0700 (PDT)
+Received: from fsav118.sakura.ne.jp (fsav118.sakura.ne.jp [27.133.134.245])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29DA47B6033225;
+        Thu, 13 Oct 2022 19:04:07 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav118.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp);
+ Thu, 13 Oct 2022 19:04:07 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29DA47NY033222
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Thu, 13 Oct 2022 19:04:07 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <9907d724-4668-cd50-7454-1a8ca86542b0@I-love.SAKURA.ne.jp>
+Date:   Thu, 13 Oct 2022 19:04:05 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220927203155.15060-1-casey@schaufler-ca.com>
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH v38 04/39] LSM: Maintain a table of LSM attribute data
+Content-Language: en-US
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, paul@paul-moore.com,
+        linux-security-module@vger.kernel.org
+Cc:     linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
+        keescook@chromium.org, john.johansen@canonical.com,
+        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
+References: <20220927195421.14713-1-casey@schaufler-ca.com>
+ <20220927195421.14713-5-casey@schaufler-ca.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <20220927195421.14713-5-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 27, 2022 at 01:31:55PM -0700, Casey Schaufler wrote:
-> +SYSCALL_DEFINE3(lsm_module_list,
-> +	       unsigned int __user *, ids,
-> +	       size_t __user *, size,
-> +	       int, flags)
+On 2022/09/28 4:53, Casey Schaufler wrote:
+> @@ -483,6 +491,16 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>  {
+>  	int i;
+>  
+> +	/*
+> +	 * A security module may call security_add_hooks() more
+> +	 * than once. Landlock is one such case.
+> +	 */
+> +	if (lsm_id == 0 || lsm_idlist[lsm_id - 1] != lsmid)
+> +		lsm_idlist[lsm_id++] = lsmid;
+> +
+> +	if (lsm_id > LSMID_ENTRIES)
+> +		panic("%s Too many LSMs registered.\n", __func__);
 
-Please make this unsigned int.
+I'm not happy with LSMID_ENTRIES. This is a way towards forever forbidding LKM-based LSMs.
 
-> +{
-> +	unsigned int *interum;
-> +	size_t total_size = lsm_id * sizeof(*interum);
-> +	size_t usize;
-> +	int rc;
-> +	int i;
+I'm fine with using UAPI-visible constants for switching /proc/ files.
+But TOMOYO does not need such constant because TOMOYO does not use /proc/ files.
 
-Please test that flags == 0 so it can be used in the future:
-
-	if (flags)
-		return -EINVAL;
+Also, lsm_self_attr() will be limited for LSM modules which use /proc/ files, and
+therefore I think prctl() will be already there.
 
 > +
-> +	if (get_user(usize, size))
-> +		return -EFAULT;
-> +
-> +	if (usize < total_size) {
-> +		if (put_user(total_size, size) != 0)
-> +			return -EFAULT;
-> +		return -E2BIG;
-> +	}
-> +
-> +	interum = kzalloc(total_size, GFP_KERNEL);
-> +	if (interum == NULL)
-> +		return -ENOMEM;
-> +
-> +	for (i = 0; i < lsm_id; i++)
-> +		interum[i] = lsm_idlist[i]->id;
-> +
-> +	if (copy_to_user(ids, interum, total_size) != 0 ||
-> +	    put_user(total_size, size) != 0)
-> +		rc = -EFAULT;
+>  	for (i = 0; i < count; i++) {
+>  		hooks[i].lsmid = lsmid;
+>  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
 
-No need to repeat this, if it is written first.
-
-> +	else
-> +		rc = lsm_id;
-> +
-> +	kfree(interum);
-> +	return rc;
-
-No need for the alloc/free. Here's what I would imagine for the whole
-thing:
-
-	if (flags)
-		return -EINVAL;
-
-	if (get_user(usize, size))
-		return -EFAULT;
-
-	if (put_user(total_size, size) != 0)
-		return -EFAULT;
-
-	if (usize < total_size)
-		return -E2BIG;
-
-	for (i = 0; i < lsm_id; i++)
-		if (put_user(lsm_idlist[i]->id, id++))
-			return -EFAULT;
-
-	return lsm_id;
-
--- 
-Kees Cook
