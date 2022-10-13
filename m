@@ -2,80 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26CF0C4332F
-	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 10:04:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C332BC4332F
+	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 13:14:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229607AbiJMKEn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Oct 2022 06:04:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40880 "EHLO
+        id S229793AbiJMNOE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Oct 2022 09:14:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbiJMKEl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 06:04:41 -0400
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DBA82DEE;
-        Thu, 13 Oct 2022 03:04:40 -0700 (PDT)
-Received: from fsav118.sakura.ne.jp (fsav118.sakura.ne.jp [27.133.134.245])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29DA47B6033225;
-        Thu, 13 Oct 2022 19:04:07 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav118.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp);
- Thu, 13 Oct 2022 19:04:07 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp)
-Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-        (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29DA47NY033222
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Thu, 13 Oct 2022 19:04:07 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <9907d724-4668-cd50-7454-1a8ca86542b0@I-love.SAKURA.ne.jp>
-Date:   Thu, 13 Oct 2022 19:04:05 +0900
+        with ESMTP id S229927AbiJMNN7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 09:13:59 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F33215DB2B
+        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 06:13:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665666831;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=iHTEL41aHw0BwAsKqfG7uoZyHZCqi0dy8LNKaVp2Bpw=;
+        b=Dh0NM9SC0prNyZodveIgQn16YIlJAIcGwph1ImWEYT6xvClrFtlRPWqnEknfAJBHIZABUx
+        Q1SpbAO5dEnL+RAFH/EGQ/u9KFWoYisK1LhInRyKwrcfxH1zde7s2vFgt57fuN2RN9jTfi
+        Kvxfaw3qZNe1pZqIWwIlO+Kgku1oxes=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-450-HtgWW7kiOymHkQdEF7taQQ-1; Thu, 13 Oct 2022 09:13:48 -0400
+X-MC-Unique: HtgWW7kiOymHkQdEF7taQQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BA4CD380450C;
+        Thu, 13 Oct 2022 13:13:47 +0000 (UTC)
+Received: from localhost (ovpn-193-3.brq.redhat.com [10.40.193.3])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 921137AE5;
+        Thu, 13 Oct 2022 13:13:46 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>,
+        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     Milos Malik <mmalik@redhat.com>
+Subject: Re: [PATCH] libsepol/cil: restore error on context rule conflicts
+In-Reply-To: <CAP+JOzQr_1bBDAp=jyBb37cNFQKW0CDsixiM3aAcWSWAJtvQxg@mail.gmail.com>
+References: <20221012142751.17979-1-cgzones@googlemail.com>
+ <CAP+JOzQr_1bBDAp=jyBb37cNFQKW0CDsixiM3aAcWSWAJtvQxg@mail.gmail.com>
+Date:   Thu, 13 Oct 2022 15:13:45 +0200
+Message-ID: <87czavsw6u.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.3
-Subject: Re: [PATCH v38 04/39] LSM: Maintain a table of LSM attribute data
-Content-Language: en-US
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, paul@paul-moore.com,
-        linux-security-module@vger.kernel.org
-Cc:     linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
-        keescook@chromium.org, john.johansen@canonical.com,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
-References: <20220927195421.14713-1-casey@schaufler-ca.com>
- <20220927195421.14713-5-casey@schaufler-ca.com>
-From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-In-Reply-To: <20220927195421.14713-5-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2022/09/28 4:53, Casey Schaufler wrote:
-> @@ -483,6 +491,16 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
->  {
->  	int i;
->  
-> +	/*
-> +	 * A security module may call security_add_hooks() more
-> +	 * than once. Landlock is one such case.
-> +	 */
-> +	if (lsm_id == 0 || lsm_idlist[lsm_id - 1] != lsmid)
-> +		lsm_idlist[lsm_id++] = lsmid;
-> +
-> +	if (lsm_id > LSMID_ENTRIES)
-> +		panic("%s Too many LSMs registered.\n", __func__);
+James Carter <jwcart2@gmail.com> writes:
 
-I'm not happy with LSMID_ENTRIES. This is a way towards forever forbidding LKM-based LSMs.
+> On Wed, Oct 12, 2022 at 10:28 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+>>
+>> Commit bc26ddc59c8d ("libsepol/cil: Limit the amount of reporting for
+>> context rule conflicts") reworked the processing of context rule
+>> conflicts to limit the number of written conflicting statements to
+>> increase readability of the printed error message.  It forgot to set the
+>> return value, signaling a context conflict, in the case the logging
+>> level is higher than warning (e.g. in semodule(8), which defaults to
+>> error).
+>>
+>> Reported-by: Milos Malik <mmalik@redhat.com> [1]
+>> Fixes: bc26ddc59c8d ("libsepol/cil: Limit the amount of reporting for co=
+ntext rule conflicts")
+>>
+>> [1]: https://lore.kernel.org/selinux/87y1u1rkoo.fsf@redhat.com/
+>>
+>> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
 
-I'm fine with using UAPI-visible constants for switching /proc/ files.
-But TOMOYO does not need such constant because TOMOYO does not use /proc/ files.
+Tested-by: Petr Lautrbach <plautrba@redhat.com>
 
-Also, lsm_self_attr() will be limited for LSM modules which use /proc/ files, and
-therefore I think prctl() will be already there.
+Thanks!
 
-> +
->  	for (i = 0; i < count; i++) {
->  		hooks[i].lsmid = lsmid;
->  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
+
+>> ---
+>>  libsepol/cil/src/cil_post.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+>> index 6e95225f..11e572e2 100644
+>> --- a/libsepol/cil/src/cil_post.c
+>> +++ b/libsepol/cil/src/cil_post.c
+>> @@ -2290,6 +2290,7 @@ static int __cil_post_process_context_rules(struct=
+ cil_sort *sort, int (*compar)
+>>                 } else {
+>>                         removed++;
+>>                         if (!db->multiple_decls || concompar(&sort->arra=
+y[i], &sort->array[j]) !=3D 0) {
+>> +                               rc =3D SEPOL_ERR;
+>>                                 conflicting++;
+>>                                 if (log_level >=3D CIL_WARN) {
+>>                                         struct cil_list_item li;
+>> @@ -2297,7 +2298,6 @@ static int __cil_post_process_context_rules(struct=
+ cil_sort *sort, int (*compar)
+>>                                         li.flavor =3D flavor;
+>>                                         if (conflicting =3D=3D 1) {
+>>                                                 cil_log(CIL_WARN, "Found=
+ conflicting %s rules\n", flavor_str);
+>> -                                               rc =3D SEPOL_ERR;
+>>                                                 li.data =3D sort->array[=
+i];
+>>                                                 rc2 =3D cil_tree_walk(db=
+->ast->root, __cil_post_report_conflict,
+>>                                                                         =
+                NULL, NULL, &li);
+>> --
+>> 2.37.2
+>>
 
