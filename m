@@ -2,74 +2,107 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80BFDC4332F
-	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 15:53:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03685C4332F
+	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 15:54:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229821AbiJMPxj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Oct 2022 11:53:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48980 "EHLO
+        id S229552AbiJMPyO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Oct 2022 11:54:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229559AbiJMPxh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 11:53:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 055D037F8F;
-        Thu, 13 Oct 2022 08:53:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CA40B81F2C;
-        Thu, 13 Oct 2022 15:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A35DC433D6;
-        Thu, 13 Oct 2022 15:53:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665676414;
-        bh=YzdQzqYCyfET0fM/MNECfwA8EB9VdQS1H3xHN/FUVCY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=n5kZt9IxNwbFUJ7uTABKjvmucrBVtjDy3GQq6abjckutI9UxKNkCf0Xmpo1ZDw4kv
-         3ktI08DHgw1SGNL2ZTVIaQl2lcKuB7OgrafTbYNRIQvOk5tq6DsavmE5bQeYKpVaQy
-         M6WqbH3G+1GzTVxYS3p6b3s6Ryrao+txpPVMb0wE42ZwwCtYto2y6O42zJZibi2tbw
-         pOWxM1NEHUze5sJ0IzF4ud5vfJc7vwtvtxACRUSuAQ/YEFk/O0Mkf/8IlUXHqs2zlV
-         WigK1WS6pGfeYMOxrsq3WzQIAhbE58TIZHOqyJddPosgbrKrDV5h0zuP1EPRK+5yh5
-         S+cfxsnhndmGA==
-Date:   Thu, 13 Oct 2022 08:53:33 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        netdev@vger.kernel.org,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Subject: Re: [PATCH] lsm: make security_socket_getpeersec_stream() sockptr_t
- safe
-Message-ID: <20221013085333.26288e44@kernel.org>
-In-Reply-To: <166543910984.474337.2779830480340611497.stgit@olly>
-References: <166543910984.474337.2779830480340611497.stgit@olly>
+        with ESMTP id S229559AbiJMPyN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 11:54:13 -0400
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38E437F8F
+        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:54:12 -0700 (PDT)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-357208765adso21323257b3.12
+        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:54:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Fyo8O9FEhIdn/u/8CuqYRYf70y/mPW3w9VZLa8UfvfU=;
+        b=PKmkt5NrNtOgXzD+4HeTCi5ddHBkCdT7X20AraAu4ODQu1MXQk863zhIAf7FeIDi6I
+         KVLTJI2pjp6syxUFqkF/FJiW/BMPSOm7AEWyERFWPWo8PKxsCpoQxiN8U+AXcgqgXmtT
+         nBC/FQ76h3CmVzI7D7/2lJBYEvjXLPawmAch3KG4/b5Yc+dratZjHMAOR0x6AsQNeg8V
+         xMHCkde9RniK53OQhLZhd/v/z9OaTg9y+huViCbbmXO+0Rl0Lay9Ch5pkg4Lcu691fIE
+         3HelEQwq4eIQFvYLY6Lr78jB/8AePuRtdzo5tUiWI93EOWWUbsf5qrn8ZyWJQ49brYKf
+         Axsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Fyo8O9FEhIdn/u/8CuqYRYf70y/mPW3w9VZLa8UfvfU=;
+        b=2nnNOXYDEdTXMPQBck5g2x7YuNPb5JIGS3SciSYKwH+cDOUxxphVgYy4vueSer7uMv
+         N5WIk3DMNhOnnxGew5MC4Gfd4Mxo2CitEwcpj4ZN5uQawcK3R3Kj4y+eGJQY6bE3b3Uh
+         ZJzAH6lmf5aBEdchhvDLPHHg4J7yjo3+C3C420AnBYioPQ7fYT4ssKw0rUuf7O74Nhkx
+         jaa8cTB0jm0q/U/4D5TzG+AkSwcDD9UW2rhnShJVkBUhguI5ZffwAMTR9bnj/xPnG+J+
+         du6HthoeBwkik9ZcH1CffuySMbh9QfwLDwr/DRmdDYuHlk7mopcN/spfdR/ktGZ/aK5M
+         nRSw==
+X-Gm-Message-State: ACrzQf2OkRkvYhe66qO11UT9sdQdbjHmJ7duWxxRF5sv23jVyxxNviNP
+        mEfSLKSz5ygJ8K3/vOV5OOsGSIsI4PH09PjJvl/8
+X-Google-Smtp-Source: AMsMyM5vc1ZjeZGB1VMuEMxTU0986jPg4LXENa9/KXSO6sMaOXl2oD0JpE28Xo248FWrW3uv8WHpwgMcy3iE0uuPy4U=
+X-Received: by 2002:a0d:e64f:0:b0:357:815d:614 with SMTP id
+ p76-20020a0de64f000000b00357815d0614mr624412ywe.276.1665676452042; Thu, 13
+ Oct 2022 08:54:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20221013153051.2598199-1-jwcart2@gmail.com>
+In-Reply-To: <20221013153051.2598199-1-jwcart2@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 13 Oct 2022 11:54:00 -0400
+Message-ID: <CAHC9VhTyMtYV91XsUtfxudgzJdDzr8x=dfrkK_+Y2=YPowRbaw@mail.gmail.com>
+Subject: Re: [PATCH] docs: Add GPG fingerprints
+To:     James Carter <jwcart2@gmail.com>
+Cc:     selinux@vger.kernel.org, perfinion@gentoo.org, omosnace@redhat.com,
+        nicolas.iooss@m4x.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 10 Oct 2022 17:58:29 -0400 Paul Moore wrote:
-> Commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-> sockptr_t argument") made it possible to call sk_getsockopt()
-> with both user and kernel address space buffers through the use of
-> the sockptr_t type.  Unfortunately at the time of conversion the
-> security_socket_getpeersec_stream() LSM hook was written to only
-> accept userspace buffers, and in a desire to avoid having to change
-> the LSM hook the commit author simply passed the sockptr_t's
-> userspace buffer pointer.  Since the only sk_getsockopt() callers
-> at the time of conversion which used kernel sockptr_t buffers did
-> not allow SO_PEERSEC, and hence the
-> security_socket_getpeersec_stream() hook, this was acceptable but
-> also very fragile as future changes presented the possibility of
-> silently passing kernel space pointers to the LSM hook.
-> 
-> There are several ways to protect against this, including careful
-> code review of future commits, but since relying on code review to
-> catch bugs is a recipe for disaster and the upstream eBPF maintainer
-> is "strongly against defensive programming", this patch updates the
-> LSM hook, and all of the implementations to support sockptr_t and
-> safely handle both user and kernel space buffers.
+On Thu, Oct 13, 2022 at 11:31 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> For Nicolas Iooss, James Carter, Jason Zaman, and Ondrej Mosnacek
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  SECURITY.md | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/SECURITY.md b/SECURITY.md
+> index c817eac9..87e7030e 100644
+> --- a/SECURITY.md
+> +++ b/SECURITY.md
+> @@ -26,15 +26,19 @@ the issue as quickly as possible and shorten the disclosure window.
+>
+>  * Petr Lautrbach, plautrba@redhat.com
+>  * Nicolas Iooss, nicolas.iooss@m4x.org
+> +  *  (GPG fingerprint) E25E 254C 8EE4 D303 554B  F5AF EC70 1A1D A494 C5EB
 
-Code seems sane, FWIW, but the commit message sounds petty,
-which is likely why nobody is willing to ack it.
+This matches what I verified.
+
+>  * Jeffrey Vander Stoep, jeffv@google.com
+>  * Joshua Brindle, brindle@gmail.com
+>  * James Carter, jwcart2@gmail.com
+> +  *  (GPG fingerprint) 4568 1128 449B 65F8 80C6  1797 3A84 A946 B4BA 62AE
+
+Matches.
+
+>  * Paul Moore, paul@paul-moore.com
+>    *  (GPG fingerprint) 7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA 7C8A
+>  * Jason Zaman, perfinion@gentoo.org
+> +  *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EAF
+
+Matches.
+
+>  * Steve Lawrence, slawrence@tresys.com
+>  * William Roberts, bill.c.roberts@gmail.com
+>  * Ondrej Mosnacek, omosnace@redhat.com
+> +  *  (GPG fingerprint) BDAC 5EDA 6318 7BEE 99D0  4ECA CE45 D31D D1EB 364E
+
+To the best of my knowledge none of the other SELinux maintainers have
+yet to verify Ondrej's key, until that has been done I don't think we
+should include Ondrej's key in this list.
+
+-- 
+paul-moore.com
