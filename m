@@ -2,183 +2,159 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC94BC4332F
-	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 14:37:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4214C43217
+	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 15:36:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbiJNOh6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Oct 2022 10:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58020 "EHLO
+        id S230188AbiJNPgG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Oct 2022 11:36:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229587AbiJNOh4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Oct 2022 10:37:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A4D26AF1
-        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 07:37:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665758274;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=lZW/tzWd0/zuFme/oi+A+t4vJqNv23YrV9r94mLtsHY=;
-        b=PNUJTiywtkxn9GMXQtnhPUAt3e8y312xoTieQ6oQ8cHhUDsSA7jo83w52ciLjBY+hI060L
-        47ml9KLLa51B3xNcMcRC+mkHlkvoVQ1QCZdypxSZvdwYisw4ehz1wbPAImM/cHdcCcN6ST
-        uc2rPNYPl4AKzYceJkNHrEB541HANhQ=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-501-agqIMg1aMPyuhSHnZbYs8w-1; Fri, 14 Oct 2022 10:37:51 -0400
-X-MC-Unique: agqIMg1aMPyuhSHnZbYs8w-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8AFCA857D0F;
-        Fri, 14 Oct 2022 14:37:50 +0000 (UTC)
-Received: from localhost (ovpn-194-85.brq.redhat.com [10.40.194.85])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3DCD22144B2D;
-        Fri, 14 Oct 2022 14:37:50 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Daniel Burgener <dburgener@linux.microsoft.com>,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH] libselinux: Add missing '\n' to avc_log() messages
-In-Reply-To: <3e5a0cb1-73e5-6268-2c0b-4f470080073e@linux.microsoft.com>
-References: <20221011112733.194079-1-plautrba@redhat.com>
- <877d12sn5v.fsf@redhat.com>
- <3e5a0cb1-73e5-6268-2c0b-4f470080073e@linux.microsoft.com>
-Date:   Fri, 14 Oct 2022 16:37:49 +0200
-Message-ID: <87wn92qxmq.fsf@redhat.com>
+        with ESMTP id S229851AbiJNPgF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Oct 2022 11:36:05 -0400
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A61612FF96
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 08:36:03 -0700 (PDT)
+Received: by mail-il1-x12a.google.com with SMTP id q18so2680055ils.12
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 08:36:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ytj3+kIoMyv4FX1lyc9tQ8OGwlhuPVWv2RqpKd5YyDU=;
+        b=JR0xr0fIsskJTzO427SqrUgqb1DWjVVtwkmODGGjkSZJ4FMfX2ZsXK6Mm2spguP5Fi
+         nyMmB82X0MA3h2JOCrtW3gl25dxsj4jiveXGKR6Z8STGPeeVjmS2VTjycP+RBn0tVhJl
+         RTnAEkh5Qc5sIHtelNV80ZV0a1sV1g2AGrc8jU/2ZL2m19qrw9p6cxMlxHCX1YxptKvv
+         NWg2UfEw3P0qeI86qPSMdLeiUDU5LTngBxTc3KHC3yReE92Ufkh4RP9JTPdhqddOZWDg
+         6zCkai4UfclKgR3ffQ4VMj7CkN9eR7ciGLAV2JgtjXPGADfXQqzzW05FazqVHzwOwv/N
+         dRvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ytj3+kIoMyv4FX1lyc9tQ8OGwlhuPVWv2RqpKd5YyDU=;
+        b=GZwVtilJlvl4TEd8xLvWF6WeFLueaUsLyHaXUmnhROi559Jf+xC33jYE+9nVl3abeQ
+         B6xuJOmM6N0O9zogRkfr6ELbZV/tZIAc/qvjlg3jV+LQVT8oP1CvfZzFF12sEAnll4Nl
+         lE7iaX6pL3RZzCNz+lHTq8peILFbya8+cSgroVI9MT3+ciU6ft7/Al2mx2OSRTCDgiWN
+         9nsbgEPISXQ5DpYS2UO5D1L4Co/KtpsQ+ABzkGEiQF6xecScyKofVqFdkdrACTww8w9E
+         3gEDAybCxegeq1quihIzxqDos+iw3cVVkD79bzTkA0pq2KraZNsHTbD6hdQcnR+NW8FC
+         /rsg==
+X-Gm-Message-State: ACrzQf2kk02SJ8F2zZ7lu69cAczg0crhBKwywCvBy5C6BDBiAVaB+xDW
+        Sr72Fu6k4vJVsx8vi+4j3DRppCFmzY3/4KTmOxO0PA==
+X-Google-Smtp-Source: AMsMyM7SIvsGjFVFdZwPi/xpWspvv9GkH6JpuhbcRadzt8f/XtARZ9xDpqKEwls7AQ8KnXFNx+6y9OAVQ6OkLrOgJ1E=
+X-Received: by 2002:a05:6e02:1c27:b0:2fc:6aa7:edda with SMTP id
+ m7-20020a056e021c2700b002fc6aa7eddamr2701536ilh.177.1665761762432; Fri, 14
+ Oct 2022 08:36:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+References: <20221006082735.1321612-1-keescook@chromium.org>
+ <20221006082735.1321612-2-keescook@chromium.org> <20221006090506.paqjf537cox7lqrq@wittgenstein>
+ <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com> <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+In-Reply-To: <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Fri, 14 Oct 2022 17:35:26 +0200
+Message-ID: <CAG48ez3hM+-V39QpFaNfRJxVrQVBu2Dm-B-xFN2GEt9p81Vd2Q@mail.gmail.com>
+Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jorge Merlino <jorge.merlino@canonical.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Todd Kjos <tkjos@google.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Prashanth Prahlad <pprahlad@redhat.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Daniel Burgener <dburgener@linux.microsoft.com> writes:
-
-> On 10/14/2022 6:41 AM, Petr Lautrbach wrote:
->> Petr Lautrbach <plautrba@redhat.com> writes:
->> 
->>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->>> ---
->>>   libselinux/src/avc.c          | 2 +-
->>>   libselinux/src/avc_internal.c | 4 ++--
->>>   libselinux/src/checkAccess.c  | 4 ++--
->>>   3 files changed, 5 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
->>> index 8d5983a2fe0c..98a3fcae41c8 100644
->>> --- a/libselinux/src/avc.c
->>> +++ b/libselinux/src/avc.c
->>> @@ -725,7 +725,7 @@ void avc_audit(security_id_t ssid, security_id_t tsid,
->>>   	if (denied)
->>>   		log_append(avc_audit_buf, " permissive=%u", result ? 0 : 1);
->>>   
->>> -	avc_log(SELINUX_AVC, "%s", avc_audit_buf);
->>> +	avc_log(SELINUX_AVC, "%s\n", avc_audit_buf);
->> 
->> 
->> There is a conflict between this change and commit 142372522c7e ("libselinux: avoid
->> newline in avc message").
->> 
->> I'll send another version without it.
+On Fri, Oct 14, 2022 at 5:18 AM Andy Lutomirski <luto@kernel.org> wrote:
+> On Thu, Oct 6, 2022, at 7:13 AM, Jann Horn wrote:
+> > On Thu, Oct 6, 2022 at 11:05 AM Christian Brauner <brauner@kernel.org> =
+wrote:
+> >> On Thu, Oct 06, 2022 at 01:27:34AM -0700, Kees Cook wrote:
+> >> > The check_unsafe_exec() counting of n_fs would not add up under a he=
+avily
+> >> > threaded process trying to perform a suid exec, causing the suid por=
+tion
+> >> > to fail. This counting error appears to be unneeded, but to catch an=
+y
+> >> > possible conditions, explicitly unshare fs_struct on exec, if it end=
+s up
+> >>
+> >> Isn't this a potential uapi break? Afaict, before this change a call t=
+o
+> >> clone{3}(CLONE_FS) followed by an exec in the child would have the
+> >> parent and child share fs information. So if the child e.g., changes t=
+he
+> >> working directory post exec it would also affect the parent. But after
+> >> this change here this would no longer be true. So a child changing a
+> >> workding directoro would not affect the parent anymore. IOW, an exec i=
+s
+> >> accompanied by an unshare(CLONE_FS). Might still be worth trying ofc b=
+ut
+> >> it seems like a non-trivial uapi change but there might be few users
+> >> that do clone{3}(CLONE_FS) followed by an exec.
+> >
+> > I believe the following code in Chromium explicitly relies on this
+> > behavior, but I'm not sure whether this code is in active use anymore:
+> >
+> > https://source.chromium.org/chromium/chromium/src/+/main:sandbox/linux/=
+suid/sandbox.c;l=3D101?q=3DCLONE_FS&sq=3D&ss=3Dchromium
 >
-> Now that you've pointed out Christian's patch, this feels like 
-> potentially the wrong level to solve this.
+> Wait, this is absolutely nucking futs.  On a very quick inspection, the s=
+harable things like this are fs, files, sighand, and io.    files and sigha=
+nd get unshared, which makes sense.  fs supposedly checks for extra refs an=
+d prevents gaining privilege.  io is... ignored!  At least it's not immedia=
+tely obvious that io is a problem.
 >
-> As I understand it, the issue Christian was trying to solve is that 
-> audit doesn't parse as we intend if there is a newline in the middle of 
-> the message, and userspace object managers append additional material to 
-> USER_AVC messages.  Hence his removal of newline above.
->
-> The problem this patch is trying to solve is that when SELinux aware 
-> applications call logging functions in libselinux, they get printed 
-> directly to standard error, and in that case really should end in a newline.
->
-> Secondarily, this patch solves the fact that previously the messages 
-> logged by SELinux were just inconsistent with regards to final newlines.
->
-> It happens that in the current state of things, userspace object 
-> managers append to AVCs above, and rpm had issues with setenforce and 
-> policyload, so segregating newlines based on message type as this patch 
-> with the above hunk dropped would do addresses all the issues.
->
-> I feel like that's sort of a happenstance that this is the current state 
-> of the code though, and if a future change results in SELinux aware 
-> applications dumping AVCs directly to standard error for example, then 
-> there won't be a good solution in the current approach.
->
-> Would it be perhaps a cleaner solution to standardize all libselinux 
-> messages on no newline and then changing default_selinux_log() to append 
-> a newline since that's writing directly to stderr and relying on callers 
-> into libselinux to add a newline if needed?
+> But seriously, this makes no sense at all.  It should not be possible to =
+exec a program and then, without ptrace, change its cwd out from under it. =
+ Do we really need to preserve this behavior?
 
-This is exactly my thoughts and reason why I haven't sent the new patch
-yet.
+I agree that this is pretty wild.
 
-If we do this we would need to check all main consumers whether they
-depend on the new line or not.
+The single user I'm aware of is Chrome, and as far as I know, they use
+it for establishing their sandbox on systems where unprivileged user
+namespaces are disabled - see
+<https://chromium.googlesource.com/chromium/src/+/main/docs/linux/suid_sand=
+box.md>.
+They also have seccomp-based sandboxing, but IIRC there are some small
+holes that mean it's still useful for them to be able to set up
+namespaces, like how sendmsg() on a unix domain socket can specify a
+file path as the destination address.
 
-Or given the number of avc_log() with "\n" vs those without, we could
-revert Christian's patch, document that messages are always ended with
-"\n" and let consumers strip it.
+(By the way, I think maybe Chrome wouldn't need this wacky trick with
+the shared fs_struct if the "NO_NEW_PRIVS permits chroot()" thing had
+ever landed that you
+(https://lore.kernel.org/lkml/0e2f0f54e19bff53a3739ecfddb4ffa9a6dbde4d.1327=
+858005.git.luto@amacapital.net/)
+and Micka=C3=ABl Sala=C3=BCn proposed in the past... or alternatively, if t=
+here
+was a way to properly filter all the syscalls that Chrome has to
+permit for renderers.)
 
-
-Petr
-
-
-
->
-> -Daniel
->
->> 
->> 
->>>   
->>>   	avc_release_lock(avc_log_lock);
->>>   }
->>> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
->>> index 71a1357bc564..c550e5788527 100644
->>> --- a/libselinux/src/avc_internal.c
->>> +++ b/libselinux/src/avc_internal.c
->>> @@ -59,7 +59,7 @@ int avc_process_setenforce(int enforcing)
->>>   	int rc = 0;
->>>   
->>>   	avc_log(SELINUX_SETENFORCE,
->>> -		"%s:  op=setenforce lsm=selinux enforcing=%d res=1",
->>> +		"%s:  op=setenforce lsm=selinux enforcing=%d res=1\n",
->>>   		avc_prefix, enforcing);
->>>   	if (avc_setenforce)
->>>   		goto out;
->>> @@ -81,7 +81,7 @@ int avc_process_policyload(uint32_t seqno)
->>>   	int rc = 0;
->>>   
->>>   	avc_log(SELINUX_POLICYLOAD,
->>> -		"%s:  op=load_policy lsm=selinux seqno=%u res=1",
->>> +		"%s:  op=load_policy lsm=selinux seqno=%u res=1\n",
->>>   		avc_prefix, seqno);
->>>   	rc = avc_ss_reset(seqno);
->>>   	if (rc < 0) {
->>> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
->>> index 022cd6b5ecab..319af267c6a7 100644
->>> --- a/libselinux/src/checkAccess.c
->>> +++ b/libselinux/src/checkAccess.c
->>> @@ -44,7 +44,7 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
->>>          sclass = string_to_security_class(class);
->>>          if (sclass == 0) {
->>>   	       rc = errno;
->>> -	       avc_log(SELINUX_ERROR, "Unknown class %s", class);
->>> +	       avc_log(SELINUX_ERROR, "Unknown class %s\n", class);
->>>   	       if (security_deny_unknown() == 0)
->>>   		       return 0;
->>>   	       errno = rc;
->>> @@ -54,7 +54,7 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
->>>          av = string_to_av_perm(sclass, perm);
->>>          if (av == 0) {
->>>   	       rc = errno;
->>> -	       avc_log(SELINUX_ERROR, "Unknown permission %s for class %s", perm, class);
->>> +	       avc_log(SELINUX_ERROR, "Unknown permission %s for class %s\n", perm, class);
->>>   	       if (security_deny_unknown() == 0)
->>>   		       return 0;
->>>   	       errno = rc;
->>> -- 
->>> 2.37.3
-
+(But also, to be clear, I don't speak for Chrome, this is just my
+understanding of how their stuff works.)
