@@ -2,100 +2,133 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD169C4332F
-	for <selinux@archiver.kernel.org>; Thu, 13 Oct 2022 16:00:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4629BC4332F
+	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 03:19:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229552AbiJMQAD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Oct 2022 12:00:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38220 "EHLO
+        id S229471AbiJNDS6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Oct 2022 23:18:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229542AbiJMQAB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 12:00:01 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B598C275FE
-        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:59:59 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 63so2568138ybq.4
-        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 08:59:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=DjZ4bHtWh7+B3zm3ZOOTvlCPfk07gc+YS2Fa3DuClcY=;
-        b=z65tTNuu5IjqXFQz2UXXKyYyuzKvIMOhj0ajDBeRywjV44SIZazG3rDoq1PJ6O7UuD
-         J4mjj5PWrTqFXiBYQgPOHqi+cv4wTe7IBtcxPnfx4G1g2ZeZ3D0AKGGMgrqUqNArGx0g
-         MybcTG85MMeMka5bMEB67GwEItRabBEk505azrFLeUylTGA/vI64sUrqSuyohNINNiJH
-         Cf2C+8FXB6NKfKeddlf1/raNqRhdaUhhPENkPAKEG1iuMiSdKLhqGUIsxtIwWZrQk7xW
-         wreFCMi/KmSANpBWXqKvjn4bmM/QzAxpQwCG6ZdLB69NgOAoBVUteDUH9LgVRPZJWpgx
-         vNow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=DjZ4bHtWh7+B3zm3ZOOTvlCPfk07gc+YS2Fa3DuClcY=;
-        b=0KTP3AzTyQziTabW5uGbItMo2Hk2PVsX4As3/sNNbf/IGRq4hg0BrzbplIiCMEFPoT
-         CvsYbur37IX9MWh17jfDIWywUVtALBPsQSnHuLmp2MqauT7nxrq6FumnzOyGG6KZ0H28
-         EQEQ4XzA9IMf/WS1d0enjzVZ7RPi++akEQVd4uKHpMXYtfHmsLtYpJKiPo+aOQ3kcp8q
-         iyMMwg5Xk78a3X9NfWicEAcx1Cier9qPdc+EDYrd21tXA8CIML4vcVoMrjl7FUS71iBo
-         HAQVIHFDk6jChIoMl7JebRagAOYxn47yO3g74hB4wIMPVymD/GT7M9Bw/q9KSASO/Z1M
-         1slA==
-X-Gm-Message-State: ACrzQf0vcLYDLxE3npvFw2PXhctTzNVYkG1RXYVO/47hM1rIFOl/X+Gr
-        nlfoPp1ipCCiNsNyGOHUmJ9nMbhqSjUhA4qkeHfA
-X-Google-Smtp-Source: AMsMyM6ekHioKdLRU9IaF0u9DuOLyzXR1r0vs+sR5cWo2O4AWrFXg0Pd9Ibvgv+X2NgXeNca5XH/vV0NdNhzOWvkm40=
-X-Received: by 2002:a05:6902:724:b0:6c0:1784:b6c7 with SMTP id
- l4-20020a056902072400b006c01784b6c7mr625781ybt.15.1665676798894; Thu, 13 Oct
- 2022 08:59:58 -0700 (PDT)
-MIME-Version: 1.0
-References: <166543910984.474337.2779830480340611497.stgit@olly> <20221013085333.26288e44@kernel.org>
-In-Reply-To: <20221013085333.26288e44@kernel.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 13 Oct 2022 11:59:47 -0400
-Message-ID: <CAHC9VhT5A6M27PO1_NKgqaRJXkTyZv_kjfPF=VNSLZ1nx5GFrA@mail.gmail.com>
-Subject: Re: [PATCH] lsm: make security_socket_getpeersec_stream() sockptr_t safe
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        netdev@vger.kernel.org,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S229721AbiJNDSb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 23:18:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CFB8E9BD
+        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 20:18:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9FD5619CF
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 03:18:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FDAC433D6;
+        Fri, 14 Oct 2022 03:18:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1665717509;
+        bh=XdPGgMOKnebM+bZev/ZKP6wiusPUf6c3wma5ZTnpm0o=;
+        h=In-Reply-To:References:Date:From:To:Cc:Subject:From;
+        b=TCqLtjMUhY3E6hf1ob6xgOd/SwpJweBv3tU3uwDefMm4A/ahGMxIC1fYKYYfBlwsp
+         c4OzGNUkyZI/EWcYPFYJKey7rW0cEUkZE+LOkpGV19buQ6rtAwI/hLX5iw1NyHEOWp
+         FqFekRHYzRsrNlju7lbJW+OBW4KWCrNhryyrvGL4FXB9xq9XMqweABSa7E89pobMDj
+         dhbr4pgnLECh4yJxmSvj30PN6CSkv/1SL630AvtuHSSPF+716FXaWyEJPJV5YfWvUX
+         AcpoA4Go3xPK5zpt0aNt/TWRQOKwqnAINiTRleYiI5qW8pa8hRcvsqQddsl387N9qW
+         FvzX+DBznhG0Q==
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 7304527C0054;
+        Thu, 13 Oct 2022 23:18:27 -0400 (EDT)
+Received: from imap48 ([10.202.2.98])
+  by compute2.internal (MEProxy); Thu, 13 Oct 2022 23:18:27 -0400
+X-ME-Sender: <xms:AdVIYzOOj40fYDS1rOvXIoESyi161w0DmwR247bhjuKHqLFeT9OiDA>
+    <xme:AdVIY99529hlGQo-8KK9C30W0jlvvwwm75Z23pVzj3dmAFAsNJ7f6r-P3PWWqRCOA
+    Phzta6qNL1zttkMjs8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeekuddgieelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehn
+    ugihucfnuhhtohhmihhrshhkihdfuceolhhuthhosehkvghrnhgvlhdrohhrgheqnecugg
+    ftrfgrthhtvghrnhepgeejhfehkeejleffheetkefhtdduuedtieehheekgfekudeggfff
+    udejuddufeeknecuffhomhgrihhnpegthhhrohhmihhumhdrohhrghenucevlhhushhtvg
+    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrnhguhidomhgvshhmthhp
+    rghuthhhphgvrhhsohhnrghlihhthidqudduiedukeehieefvddqvdeifeduieeitdekqd
+    hluhhtoheppehkvghrnhgvlhdrohhrgheslhhinhhugidrlhhuthhordhush
+X-ME-Proxy: <xmx:AdVIYySW5Tdj3xc9QCIj2mq3H0rlkZatHo_4MuZZWFFBYFhYq8rSyA>
+    <xmx:AdVIY3uxuPeTfHWQd84oguwbXb3jq_lpHxPlgcluwo9B3Bp9AzVjRg>
+    <xmx:AdVIY7fXv-y_hn4d5Su6ASkwBxzA9fYhaSJ9rz-aLpvt3ull2hzjEQ>
+    <xmx:A9VIY5GVCHHHXumAGXj3B2GHtzhL21R2t0gobETwrTSxeyRxILj7NXJ9Hqc>
+Feedback-ID: ieff94742:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 878A331A03F7; Thu, 13 Oct 2022 23:18:25 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1047-g9e4af4ada4-fm-20221005.001-g9e4af4ad
+Mime-Version: 1.0
+Message-Id: <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+In-Reply-To: <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
+References: <20221006082735.1321612-1-keescook@chromium.org>
+ <20221006082735.1321612-2-keescook@chromium.org>
+ <20221006090506.paqjf537cox7lqrq@wittgenstein>
+ <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
+Date:   Thu, 13 Oct 2022 20:18:04 -0700
+From:   "Andy Lutomirski" <luto@kernel.org>
+To:     "Jann Horn" <jannh@google.com>,
+        "Christian Brauner" <brauner@kernel.org>
+Cc:     "Kees Cook" <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Jorge Merlino" <jorge.merlino@canonical.com>,
+        "Al Viro" <viro@zeniv.linux.org.uk>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
+        "Andrew Morton" <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org,
+        "John Johansen" <john.johansen@canonical.com>,
+        "Paul Moore" <paul@paul-moore.com>,
+        "James Morris" <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+        "Eric Paris" <eparis@parisplace.org>,
+        "Richard Haines" <richard_c_haines@btinternet.com>,
+        "Casey Schaufler" <casey@schaufler-ca.com>,
+        "Xin Long" <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Todd Kjos" <tkjos@google.com>,
+        "Ondrej Mosnacek" <omosnace@redhat.com>,
+        "Prashanth Prahlad" <pprahlad@redhat.com>,
+        "Micah Morton" <mortonm@chromium.org>,
+        "Fenghua Yu" <fenghua.yu@intel.com>,
+        "Andrei Vagin" <avagin@gmail.com>,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 11:53 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> On Mon, 10 Oct 2022 17:58:29 -0400 Paul Moore wrote:
-> > Commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-> > sockptr_t argument") made it possible to call sk_getsockopt()
-> > with both user and kernel address space buffers through the use of
-> > the sockptr_t type.  Unfortunately at the time of conversion the
-> > security_socket_getpeersec_stream() LSM hook was written to only
-> > accept userspace buffers, and in a desire to avoid having to change
-> > the LSM hook the commit author simply passed the sockptr_t's
-> > userspace buffer pointer.  Since the only sk_getsockopt() callers
-> > at the time of conversion which used kernel sockptr_t buffers did
-> > not allow SO_PEERSEC, and hence the
-> > security_socket_getpeersec_stream() hook, this was acceptable but
-> > also very fragile as future changes presented the possibility of
-> > silently passing kernel space pointers to the LSM hook.
-> >
-> > There are several ways to protect against this, including careful
-> > code review of future commits, but since relying on code review to
-> > catch bugs is a recipe for disaster and the upstream eBPF maintainer
-> > is "strongly against defensive programming", this patch updates the
-> > LSM hook, and all of the implementations to support sockptr_t and
-> > safely handle both user and kernel space buffers.
+
+
+On Thu, Oct 6, 2022, at 7:13 AM, Jann Horn wrote:
+> On Thu, Oct 6, 2022 at 11:05 AM Christian Brauner <brauner@kernel.org> wrote:
+>> On Thu, Oct 06, 2022 at 01:27:34AM -0700, Kees Cook wrote:
+>> > The check_unsafe_exec() counting of n_fs would not add up under a heavily
+>> > threaded process trying to perform a suid exec, causing the suid portion
+>> > to fail. This counting error appears to be unneeded, but to catch any
+>> > possible conditions, explicitly unshare fs_struct on exec, if it ends up
+>>
+>> Isn't this a potential uapi break? Afaict, before this change a call to
+>> clone{3}(CLONE_FS) followed by an exec in the child would have the
+>> parent and child share fs information. So if the child e.g., changes the
+>> working directory post exec it would also affect the parent. But after
+>> this change here this would no longer be true. So a child changing a
+>> workding directoro would not affect the parent anymore. IOW, an exec is
+>> accompanied by an unshare(CLONE_FS). Might still be worth trying ofc but
+>> it seems like a non-trivial uapi change but there might be few users
+>> that do clone{3}(CLONE_FS) followed by an exec.
 >
-> Code seems sane, FWIW, but the commit message sounds petty,
-> which is likely why nobody is willing to ack it.
+> I believe the following code in Chromium explicitly relies on this
+> behavior, but I'm not sure whether this code is in active use anymore:
+>
+> https://source.chromium.org/chromium/chromium/src/+/main:sandbox/linux/suid/sandbox.c;l=101?q=CLONE_FS&sq=&ss=chromium
 
-Heh, feel free to look at Alexei's comments to my original email; the
-commit description seems spot on to me.
+Wait, this is absolutely nucking futs.  On a very quick inspection, the sharable things like this are fs, files, sighand, and io.    files and sighand get unshared, which makes sense.  fs supposedly checks for extra refs and prevents gaining privilege.  io is... ignored!  At least it's not immediately obvious that io is a problem.
 
-FWIW, once Casey and John give a thumbs up on their respective code
-areas I do plan to pull this into the lsm/next tree with, or without,
-any ACKs from the netdev/bpf folks.  It would be nice if I could get
-an ACK from you guys, but since netdev/bpf feels comfortable merging
-small security/ code without ACKs from the LSM folks, I see no problem
-merging small netdev/bpf code with ACKs from the netdev/bpf folks.
+But seriously, this makes no sense at all.  It should not be possible to exec a program and then, without ptrace, change its cwd out from under it.  Do we really need to preserve this behavior?
 
--- 
-paul-moore.com
+--Andy
