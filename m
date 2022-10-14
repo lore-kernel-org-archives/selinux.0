@@ -2,100 +2,128 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08C84C4332F
-	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 03:54:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB919C4332F
+	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 10:41:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbiJNDyZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Oct 2022 23:54:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37630 "EHLO
+        id S229635AbiJNKlJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Oct 2022 06:41:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229666AbiJNDyV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Oct 2022 23:54:21 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D153D96217
-        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 20:54:16 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id 204so3756002pfx.10
-        for <selinux@vger.kernel.org>; Thu, 13 Oct 2022 20:54:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BQMeWu4NUS5XHxpYjKe5lPkeUdCMvZeCueelrFJNv7g=;
-        b=hVsj8yBrgKuKkK7M8xkb+HyKOAR1jqjYGdTOSBbuFw1xtWaGZRldfWed4W2s4PX8vj
-         gMHC+/MyceBR4MHXpZkl8R1pYEcZzKSZwB0eAGg1tk/SYjiAH2KDJtEmiRns8TV0xEj3
-         Z26bm3qSWSWPK1j2fJ6oI+/9oCd9hoET+A3WM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BQMeWu4NUS5XHxpYjKe5lPkeUdCMvZeCueelrFJNv7g=;
-        b=6PkBNT52lvaEoPxqZnz7GSHLma8KlSPLTbT1e2/O3RfDPL06jqTPpvKpAQKD2EEqst
-         8S40TbwPZdVs1s4ZN/MAFROF3ET28Lw+81f2C18dy8sA28R94Zy8/yO2IFiw6Whxe6s5
-         L/tuIUxqDy24zsEFsCnC5N86+iZbfwmPUH1LTN5MJMOnduYzuEVGhbCE3+ppShhfIRrI
-         xlXxhChTasoaptwTXugrkuwH+wbk1eTprgtMIOLWOGyb8VMLy1t4N0hUHUh7YtWpaSd1
-         lAkVtcmszCJW3ms54rdaemM9DCKGnpxvMppp/GO5h+dHiQ83R1gQp51EjH8gohbKjCxV
-         Z+hA==
-X-Gm-Message-State: ACrzQf3DMSzQc+5AHD9Ib0QSYq8TyLqpqU+uA9vN4ZWa+3mwD7F4SNNN
-        CvUaOqXTAxqwVCn0qNwLu0Vxtg==
-X-Google-Smtp-Source: AMsMyM7vCfA8wFrsyDJjLw6KB1kvioIeLEFXGEDdVpYcSJdvjz4XjS2+1dICHf/21nwZwt5L/DrvHw==
-X-Received: by 2002:a63:591c:0:b0:464:bb3b:d1ad with SMTP id n28-20020a63591c000000b00464bb3bd1admr2830780pgb.146.1665719656162;
-        Thu, 13 Oct 2022 20:54:16 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id h4-20020a17090a710400b0020ae09e9724sm474301pjk.53.2022.10.13.20.54.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Oct 2022 20:54:15 -0700 (PDT)
-Date:   Thu, 13 Oct 2022 20:54:14 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Jann Horn <jannh@google.com>,
-        Christian Brauner <brauner@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jorge Merlino <jorge.merlino@canonical.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Todd Kjos <tkjos@google.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Prashanth Prahlad <pprahlad@redhat.com>,
-        Micah Morton <mortonm@chromium.org>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
-Message-ID: <202210132052.32AE372@keescook>
-References: <20221006082735.1321612-1-keescook@chromium.org>
- <20221006082735.1321612-2-keescook@chromium.org>
- <20221006090506.paqjf537cox7lqrq@wittgenstein>
- <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
- <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+        with ESMTP id S229504AbiJNKlI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Oct 2022 06:41:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C35F61C69E3
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 03:41:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1665744065;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=8I0dFc/bPwtED2+VqxSN4EIMJXmu+Fr0l+Q/2kq0Vxc=;
+        b=BHnNRdL+GDpArZ9FeO7Urdj2yuoWnVwvjVBuWe/ov3DzYxGbfuGgzqJQgFEI3/trlqq5Uu
+        C4tjTDAnbvuR1vV+QQPNYPdUI9LpTIy6VyL69wB1dIy4+xWwVpAmi1Kgcgdf1JesSTHE/7
+        xIhGoFdaYgYQjyRgahFMl66NZfh9Al4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-637-Lwm_yTyFOhi3Azfv8oVl4Q-1; Fri, 14 Oct 2022 06:41:02 -0400
+X-MC-Unique: Lwm_yTyFOhi3Azfv8oVl4Q-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B94A0862FF0
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 10:41:01 +0000 (UTC)
+Received: from localhost (ovpn-194-85.brq.redhat.com [10.40.194.85])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 70E4F21449A0
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 10:41:01 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: Re: [PATCH] libselinux: Add missing '\n' to avc_log() messages
+In-Reply-To: <20221011112733.194079-1-plautrba@redhat.com>
+References: <20221011112733.194079-1-plautrba@redhat.com>
+Date:   Fri, 14 Oct 2022 12:41:00 +0200
+Message-ID: <877d12sn5v.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 13, 2022 at 08:18:04PM -0700, Andy Lutomirski wrote:
-> But seriously, this makes no sense at all.  It should not be possible to exec a program and then, without ptrace, change its cwd out from under it.  Do we really need to preserve this behavior?
+Petr Lautrbach <plautrba@redhat.com> writes:
 
-Yup, already abandoned:
-https://lore.kernel.org/lkml/202210061301.207A20C8E5@keescook/
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> ---
+>  libselinux/src/avc.c          | 2 +-
+>  libselinux/src/avc_internal.c | 4 ++--
+>  libselinux/src/checkAccess.c  | 4 ++--
+>  3 files changed, 5 insertions(+), 5 deletions(-)
+>
+> diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+> index 8d5983a2fe0c..98a3fcae41c8 100644
+> --- a/libselinux/src/avc.c
+> +++ b/libselinux/src/avc.c
+> @@ -725,7 +725,7 @@ void avc_audit(security_id_t ssid, security_id_t tsid,
+>  	if (denied)
+>  		log_append(avc_audit_buf, " permissive=%u", result ? 0 : 1);
+>  
+> -	avc_log(SELINUX_AVC, "%s", avc_audit_buf);
+> +	avc_log(SELINUX_AVC, "%s\n", avc_audit_buf);
 
--- 
-Kees Cook
+
+There is a conflict between this change and commit 142372522c7e ("libselinux: avoid
+newline in avc message").
+
+I'll send another version without it.
+
+
+>  
+>  	avc_release_lock(avc_log_lock);
+>  }
+> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+> index 71a1357bc564..c550e5788527 100644
+> --- a/libselinux/src/avc_internal.c
+> +++ b/libselinux/src/avc_internal.c
+> @@ -59,7 +59,7 @@ int avc_process_setenforce(int enforcing)
+>  	int rc = 0;
+>  
+>  	avc_log(SELINUX_SETENFORCE,
+> -		"%s:  op=setenforce lsm=selinux enforcing=%d res=1",
+> +		"%s:  op=setenforce lsm=selinux enforcing=%d res=1\n",
+>  		avc_prefix, enforcing);
+>  	if (avc_setenforce)
+>  		goto out;
+> @@ -81,7 +81,7 @@ int avc_process_policyload(uint32_t seqno)
+>  	int rc = 0;
+>  
+>  	avc_log(SELINUX_POLICYLOAD,
+> -		"%s:  op=load_policy lsm=selinux seqno=%u res=1",
+> +		"%s:  op=load_policy lsm=selinux seqno=%u res=1\n",
+>  		avc_prefix, seqno);
+>  	rc = avc_ss_reset(seqno);
+>  	if (rc < 0) {
+> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+> index 022cd6b5ecab..319af267c6a7 100644
+> --- a/libselinux/src/checkAccess.c
+> +++ b/libselinux/src/checkAccess.c
+> @@ -44,7 +44,7 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
+>         sclass = string_to_security_class(class);
+>         if (sclass == 0) {
+>  	       rc = errno;
+> -	       avc_log(SELINUX_ERROR, "Unknown class %s", class);
+> +	       avc_log(SELINUX_ERROR, "Unknown class %s\n", class);
+>  	       if (security_deny_unknown() == 0)
+>  		       return 0;
+>  	       errno = rc;
+> @@ -54,7 +54,7 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
+>         av = string_to_av_perm(sclass, perm);
+>         if (av == 0) {
+>  	       rc = errno;
+> -	       avc_log(SELINUX_ERROR, "Unknown permission %s for class %s", perm, class);
+> +	       avc_log(SELINUX_ERROR, "Unknown permission %s for class %s\n", perm, class);
+>  	       if (security_deny_unknown() == 0)
+>  		       return 0;
+>  	       errno = rc;
+> -- 
+> 2.37.3
+
