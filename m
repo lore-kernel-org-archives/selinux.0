@@ -2,141 +2,102 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AB25C433FE
-	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 16:25:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 741D8C43217
+	for <selinux@archiver.kernel.org>; Fri, 14 Oct 2022 22:03:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230171AbiJNQZ3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Oct 2022 12:25:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
+        id S229548AbiJNWD1 convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Oct 2022 18:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbiJNQZ1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Oct 2022 12:25:27 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B01257575
-        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 09:25:25 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id 203so6178202ybc.10
-        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 09:25:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=NcdIdCoD13PsVdF7VemIWCKC21xbZgC+dlVWP2DevsU=;
-        b=0XzxQYtHFbIrXn8AS8vsoqDTkWCOBrHLEQFRujV8atSDmeImDUO47FOUArU55vzqNA
-         moMrG/7iYJbwyioQ7slGp1rAYns2UOfNyN8xtPsP9ZvQkF8+sFK+bH1W2Cnuzy4l6tny
-         n0XJmGsvSBeHB50i30Vo7KKjsyS3ZnsvUqBZQUH5Ta/m5YjDbLiwlJuW37qfRIdd6asi
-         JVBMNr5PUIuRElKOVHzDZb9UPTRMclwFFDpSI1E0th8GiBX9BNpXbbj3r+KE9v3xhG65
-         3Bs5ADQcT2I8MrYHafd6NHU4zxo8MNAjyGNRvzc/Jhsr1yY9J9eThlJ0mg8ypzRFcZ9X
-         HaWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NcdIdCoD13PsVdF7VemIWCKC21xbZgC+dlVWP2DevsU=;
-        b=pETH4f8Zp7wTwHMCfeCkeygxMyXJ8gfOjB5cC7Vxn7Hv2K7+imYPqnD+m12bnQOkWt
-         xCNH0Sd8ejxZlKSw7G4Ow43/Ezy+BrwY448o17z+XxE00LaFHOABg5HdNM5+0OQXwjn5
-         vIa2WMxTFePkF0Z/lX21mHVtPXtrv1SjCMYMAqANo0sKr4zynTM33nmHGoneNXC1yqUp
-         bAZtVRAxQ8rgcWu0Bm8HGncwAKKA4pxv+eQ9WcUed4KLDy9K3wP8xe8TdGiQzowqIb9C
-         8QFZo0G0RkpzC+CE3DEc6AwUSWwI22n+CmVtuwLmABi9KZOCm1u8/WV1CAbhwGBKXzlA
-         IXjw==
-X-Gm-Message-State: ACrzQf2k9gcOou3Fe82d6deI3c/6cr3Cx9vzGTYkR0dVcygG+sRKXeoN
-        5Tn+5eYiQBIjcmkPy6UMwNvC8/q4ukMK18l+I+XV2Rk0jA==
-X-Google-Smtp-Source: AMsMyM6ady9Wb/I8bWW9rB+anqAQUZjNjnrqoCisyeI5hegnDjV4ximcDWV1xI5TfdzL4x9FJGsT6gLoO0Pu/Uib5Fo=
-X-Received: by 2002:a25:9a88:0:b0:6b9:c29a:2f4b with SMTP id
- s8-20020a259a88000000b006b9c29a2f4bmr5348869ybo.236.1665764724292; Fri, 14
- Oct 2022 09:25:24 -0700 (PDT)
+        with ESMTP id S229491AbiJNWDZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Oct 2022 18:03:25 -0400
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4328E17651D
+        for <selinux@vger.kernel.org>; Fri, 14 Oct 2022 15:03:23 -0700 (PDT)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-317-JETZyr0OPF-X3dTWyLgaXA-1; Fri, 14 Oct 2022 23:03:20 +0100
+X-MC-Unique: JETZyr0OPF-X3dTWyLgaXA-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.38; Fri, 14 Oct
+ 2022 23:03:18 +0100
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.040; Fri, 14 Oct 2022 23:03:18 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Andy Lutomirski' <luto@kernel.org>, Jann Horn <jannh@google.com>,
+        Christian Brauner <brauner@kernel.org>
+CC:     Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jorge Merlino <jorge.merlino@canonical.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "John Johansen" <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Todd Kjos <tkjos@google.com>,
+        "Ondrej Mosnacek" <omosnace@redhat.com>,
+        Prashanth Prahlad <pprahlad@redhat.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
+Subject: RE: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
+Thread-Topic: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
+Thread-Index: AQHY33u3rva59bT1H02MahRCUmFfoq4Ocehg
+Date:   Fri, 14 Oct 2022 22:03:18 +0000
+Message-ID: <d2a6ccdd8a734d36ae88866a4c16019b@AcuMS.aculab.com>
+References: <20221006082735.1321612-1-keescook@chromium.org>
+ <20221006082735.1321612-2-keescook@chromium.org>
+ <20221006090506.paqjf537cox7lqrq@wittgenstein>
+ <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
+ <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+In-Reply-To: <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-References: <166543910984.474337.2779830480340611497.stgit@olly>
- <20221013085333.26288e44@kernel.org> <CAHC9VhT5A6M27PO1_NKgqaRJXkTyZv_kjfPF=VNSLZ1nx5GFrA@mail.gmail.com>
- <CAADnVQ+1RZWuvjCEAro0OW9+1w12U2R6v3+kTR5T7pWvPC7gLg@mail.gmail.com>
-In-Reply-To: <CAADnVQ+1RZWuvjCEAro0OW9+1w12U2R6v3+kTR5T7pWvPC7gLg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 14 Oct 2022 12:25:12 -0400
-Message-ID: <CAHC9VhRModyV8B9o7_DqkanWf79GzPGMtirw=xCt2wexp5RJ6w@mail.gmail.com>
-Subject: Re: [PATCH] lsm: make security_socket_getpeersec_stream() sockptr_t safe
-To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org,
-        Network Development <netdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 14, 2022 at 11:51 AM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
-> On Thu, Oct 13, 2022 at 8:59 AM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > On Thu, Oct 13, 2022 at 11:53 AM Jakub Kicinski <kuba@kernel.org> wrote:
-> > > On Mon, 10 Oct 2022 17:58:29 -0400 Paul Moore wrote:
-> > > > Commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-> > > > sockptr_t argument") made it possible to call sk_getsockopt()
-> > > > with both user and kernel address space buffers through the use of
-> > > > the sockptr_t type.  Unfortunately at the time of conversion the
-> > > > security_socket_getpeersec_stream() LSM hook was written to only
-> > > > accept userspace buffers, and in a desire to avoid having to change
-> > > > the LSM hook the commit author simply passed the sockptr_t's
-> > > > userspace buffer pointer.  Since the only sk_getsockopt() callers
-> > > > at the time of conversion which used kernel sockptr_t buffers did
-> > > > not allow SO_PEERSEC, and hence the
-> > > > security_socket_getpeersec_stream() hook, this was acceptable but
-> > > > also very fragile as future changes presented the possibility of
-> > > > silently passing kernel space pointers to the LSM hook.
-> > > >
-> > > > There are several ways to protect against this, including careful
-> > > > code review of future commits, but since relying on code review to
-> > > > catch bugs is a recipe for disaster and the upstream eBPF maintainer
-> > > > is "strongly against defensive programming", this patch updates the
-> > > > LSM hook, and all of the implementations to support sockptr_t and
-> > > > safely handle both user and kernel space buffers.
-> > >
-> > > Code seems sane, FWIW, but the commit message sounds petty,
-> > > which is likely why nobody is willing to ack it.
-> >
-> > Heh, feel free to look at Alexei's comments to my original email; the
-> > commit description seems spot on to me.
->
-> Paul,
->
-> The commit message:
-> "
-> also very fragile as future changes presented the possibility of
-> silently passing kernel space pointers to the LSM hook.
-> "
-> shows that you do not understand how copy_from_user works.
->
-> Martin's change didn't introduce any fragility.
-> Do you realize that user space can pass any 64-bit value
-> as 'user pointer' via syscall, right?
-> And that value may just as well be a valid kernel address.
-> copy_from_user always had a check to prevent reading kernel
-> memory. It will simply return an error when it sees
-> kernel address.
->
-> Your patch itself is not wrong per-se, but it's doing
-> not what you think it's doing.
-> Right now the patch is useless, but
-> if switch statement in sol_socket_sockopt() would be relaxed
-> the bpf progs would be able to pass kernel pointers
-> to security_socket_getpeersec which makes little sense at this point.
-> So the code you're adding will be a dead code without a test
-> for the foreseeable future.
-> Because of that I can only add my Nack.
+From: Andy Lutomirski
+> Sent: 14 October 2022 04:18
+...
+> But seriously, this makes no sense at all.  It should not be possible to exec a program and then,
+> without ptrace, change its cwd out from under it.  Do we really need to preserve this behavior?
 
-Oh don't worry, I've already registered your NACK because the patch
-has a three line diff in net/core/sock.c and it's going in via the LSM
-tree.  I'll CC you on the pull request and mention your NACK to Linus,
-you can feel free to make whatever argument you believe justifies your
-objection at that point in time.
+it maybe ok if the exec'ed program also 'bought-in' to the
+fact that its cwd and open files might get changed.
+But imagine someone doing it to a login shell!
 
-However, just so I'm clear on your new objection, you are basically
-saying that copy_to_sockptr() shouldn't exist?  If you honestly
-believe that, and you aren't just picking on this patch because of a
-grudge, I would encourage you to submit a patch removing
-copy_to_sockptr() and friends from the kernel and let's see what
-happens; please CC me on the patch(es) as I think the discussion for
-that would be very interesting :)
+	David
 
--- 
-paul-moore.com
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
