@@ -2,175 +2,151 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCA4DC4332F
-	for <selinux@archiver.kernel.org>; Tue, 18 Oct 2022 11:19:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98545C4321E
+	for <selinux@archiver.kernel.org>; Tue, 18 Oct 2022 11:58:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbiJRLTm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Oct 2022 07:19:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49558 "EHLO
+        id S230134AbiJRL6c (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Oct 2022 07:58:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230058AbiJRLTk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Oct 2022 07:19:40 -0400
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30621A226
-        for <selinux@vger.kernel.org>; Tue, 18 Oct 2022 04:19:37 -0700 (PDT)
-Received: by mail-il1-x12f.google.com with SMTP id o13so7259239ilc.7
-        for <selinux@vger.kernel.org>; Tue, 18 Oct 2022 04:19:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fAhbWS2r+kZh1CW1h6OenJ9QjBTytqKLyQ/pXA2P2K0=;
-        b=EIk/Kpc4vGn1CCgUwxqJ0g9qrIF8uy+2DQFZx6/0JpAeX9DYMTx5JXVkPBYtgQPrZD
-         w5ckB2FyJECCFZ7TR5oVdLKM3JLtg8LbrnuzoEXxcJQrlWrBJhDOqqunlGUkyYiYusmg
-         4pZkzmwM+9f/7V2lVghKTwiM+YaQh3cp9ZZvUSDOsWutc4janERggmG80EYtDBsmm5FR
-         3Qexg8CkIUzBKrmcgVunCJJTsDfpAftOZMfOV1FpySB9PQZpPxpWdrR2KhN6f8f5sev9
-         BOvCNSY0IU2n3X0trRvB4A9oGJsk1h0bFLOBqjFDLcPxyl2bl058Kyw+oCFBFADmeDKL
-         3t1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fAhbWS2r+kZh1CW1h6OenJ9QjBTytqKLyQ/pXA2P2K0=;
-        b=AriDNesdA8TB3Y4iNZpHNTBSta5TQuIJnEjiV9Qnqe6FJ9Gm+443pXjekr4PMgJCVx
-         cL/wMoLrvsmgOnVQaLmznEqdFADjyNYENCXiZwYDw765TFz5u0SeoEfwSBHv4/tpMuyp
-         AziBT/xeMXO1LoGO+8gSvxbVjLVE7f/Fb24SdLwZTSlwjwaJ0eHSVC6Zj05NltE+UQyK
-         anKzSZ0wvUKMv6rd6UHlrM9e6c/Rcpzv+9j4oNWgTNP0W5diP2NdtHlPGHXH8xLAroOR
-         rkjdA8RKbMVlfj8k3djF1SeYwiSkTDEAOrMfWqa/GBIGzsmzsZ0xnuVT1bgogDEFCUs0
-         W3yw==
-X-Gm-Message-State: ACrzQf2nZPUPIn35ef15VQ3GtxTpRPaQE0eh77n1i1Gs4RbEsJrEmhmP
-        XeQgppWol+dHkDjdMfnRIkl6h0oFfrCVomUADqmIvg==
-X-Google-Smtp-Source: AMsMyM5JK/czEGcdqbcmVXAa+iPQxFN5IfdfeKyvqXfD69WzM51dWHMxMw0qfiz3oZW7DVcBpgcr/vJENhoNl1bXbqk=
-X-Received: by 2002:a05:6e02:930:b0:2f9:9d1b:2525 with SMTP id
- o16-20020a056e02093000b002f99d1b2525mr1392129ilt.173.1666091977094; Tue, 18
- Oct 2022 04:19:37 -0700 (PDT)
-MIME-Version: 1.0
-References: <20221006082735.1321612-1-keescook@chromium.org>
- <20221006082735.1321612-2-keescook@chromium.org> <20221006090506.paqjf537cox7lqrq@wittgenstein>
- <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
- <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com> <CAG48ez3hM+-V39QpFaNfRJxVrQVBu2Dm-B-xFN2GEt9p81Vd2Q@mail.gmail.com>
- <202210172359.EDF8021407@keescook>
-In-Reply-To: <202210172359.EDF8021407@keescook>
-From:   Jann Horn <jannh@google.com>
-Date:   Tue, 18 Oct 2022 13:19:00 +0200
-Message-ID: <CAG48ez1xqguRrWT+KrjkyUHGZPVFDbMM3f__71VE-L38kQri9A@mail.gmail.com>
-Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jorge Merlino <jorge.merlino@canonical.com>,
+        with ESMTP id S230314AbiJRL5v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Oct 2022 07:57:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8F7BCB82;
+        Tue, 18 Oct 2022 04:57:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C7286153E;
+        Tue, 18 Oct 2022 11:57:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22EC7C433C1;
+        Tue, 18 Oct 2022 11:57:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666094265;
+        bh=fSjrzMyq+bpcifIr5JOm4lI4KXzBA9L1pFlvXfjZSmQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=UznQOqEcD8kIVpaiUl17ewp+RBLMClDNxkC1kDImHCLkRUi+WmovI4wiFSznjngmH
+         QE+sMtU5A3+5A1bYMgFCu0ghXCyi3nPEWjKiXlRBnomR9VeKkZvt/8mFZL9Fsp7kdT
+         sKYTGTQ/LCD3JeTf6yJAqT0zMoMhDz3HqqdB5z3uYU0P1vsYEFhk2yPkQhJ8YBXS03
+         3GHtngY7sH1AFl3S1ytDGNUMksfmYoQwzWzhbtfF6x3aWDhKkY9K3IM+1L8DpVHn1n
+         2NE2XPH3XDjk+2y6kGo77Itf8VNzUlqbOLbiqhho16B+Xk6TWuq0mShv1mdU/xS31T
+         mvydEJToXo3Ew==
+From:   Christian Brauner <brauner@kernel.org>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Seth Forshee <sforshee@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
         Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-fsdevel@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-integrity@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Todd Kjos <tkjos@google.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Prashanth Prahlad <pprahlad@redhat.com>,
-        Micah Morton <mortonm@chromium.org>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH v5 10/30] selinux: implement get, set and remove acl hook
+Date:   Tue, 18 Oct 2022 13:56:40 +0200
+Message-Id: <20221018115700.166010-11-brauner@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20221018115700.166010-1-brauner@kernel.org>
+References: <20221018115700.166010-1-brauner@kernel.org>
+MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3927; i=brauner@kernel.org; h=from:subject; bh=fSjrzMyq+bpcifIr5JOm4lI4KXzBA9L1pFlvXfjZSmQ=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMST7TVHjeGGv+JeDc+5BP8ufs5at+eR5q/p14MGDf/y0Yjn2 X8jW6yhlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZjIq+cM/7QYgpnOHhBpm3XFy3bf11 Lmtan3HWcfnvBo3jLRstT90bsY/tlebO5uN166/HvUqRlGMcmLE+tWbku/uPX6J1cHAe7rQlwA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 18, 2022 at 9:09 AM Kees Cook <keescook@chromium.org> wrote:
-> On Fri, Oct 14, 2022 at 05:35:26PM +0200, Jann Horn wrote:
-> > On Fri, Oct 14, 2022 at 5:18 AM Andy Lutomirski <luto@kernel.org> wrote=
-:
-> > > On Thu, Oct 6, 2022, at 7:13 AM, Jann Horn wrote:
-> > > > On Thu, Oct 6, 2022 at 11:05 AM Christian Brauner <brauner@kernel.o=
-rg> wrote:
-> > > >> On Thu, Oct 06, 2022 at 01:27:34AM -0700, Kees Cook wrote:
-> > > >> > The check_unsafe_exec() counting of n_fs would not add up under =
-a heavily
-> > > >> > threaded process trying to perform a suid exec, causing the suid=
- portion
-> > > >> > to fail. This counting error appears to be unneeded, but to catc=
-h any
-> > > >> > possible conditions, explicitly unshare fs_struct on exec, if it=
- ends up
-> > > >>
-> > > >> Isn't this a potential uapi break? Afaict, before this change a ca=
-ll to
-> > > >> clone{3}(CLONE_FS) followed by an exec in the child would have the
-> > > >> parent and child share fs information. So if the child e.g., chang=
-es the
-> > > >> working directory post exec it would also affect the parent. But a=
-fter
-> > > >> this change here this would no longer be true. So a child changing=
- a
-> > > >> workding directoro would not affect the parent anymore. IOW, an ex=
-ec is
-> > > >> accompanied by an unshare(CLONE_FS). Might still be worth trying o=
-fc but
-> > > >> it seems like a non-trivial uapi change but there might be few use=
-rs
-> > > >> that do clone{3}(CLONE_FS) followed by an exec.
-> > > >
-> > > > I believe the following code in Chromium explicitly relies on this
-> > > > behavior, but I'm not sure whether this code is in active use anymo=
-re:
-> > > >
-> > > > https://source.chromium.org/chromium/chromium/src/+/main:sandbox/li=
-nux/suid/sandbox.c;l=3D101?q=3DCLONE_FS&sq=3D&ss=3Dchromium
-> > >
-> > > Wait, this is absolutely nucking futs.  On a very quick inspection, t=
-he sharable things like this are fs, files, sighand, and io.    files and s=
-ighand get unshared, which makes sense.  fs supposedly checks for extra ref=
-s and prevents gaining privilege.  io is... ignored!  At least it's not imm=
-ediately obvious that io is a problem.
-> > >
-> > > But seriously, this makes no sense at all.  It should not be possible=
- to exec a program and then, without ptrace, change its cwd out from under =
-it.  Do we really need to preserve this behavior?
-> >
-> > I agree that this is pretty wild.
-> >
-> > The single user I'm aware of is Chrome, and as far as I know, they use
-> > it for establishing their sandbox on systems where unprivileged user
-> > namespaces are disabled - see
-> > <https://chromium.googlesource.com/chromium/src/+/main/docs/linux/suid_=
-sandbox.md>.
-> > They also have seccomp-based sandboxing, but IIRC there are some small
-> > holes that mean it's still useful for them to be able to set up
-> > namespaces, like how sendmsg() on a unix domain socket can specify a
-> > file path as the destination address.
-> >
-> > (By the way, I think maybe Chrome wouldn't need this wacky trick with
-> > the shared fs_struct if the "NO_NEW_PRIVS permits chroot()" thing had
-> > ever landed that you
-> > (https://lore.kernel.org/lkml/0e2f0f54e19bff53a3739ecfddb4ffa9a6dbde4d.=
-1327858005.git.luto@amacapital.net/)
-> > and Micka=C3=ABl Sala=C3=BCn proposed in the past... or alternatively, =
-if there
-> > was a way to properly filter all the syscalls that Chrome has to
-> > permit for renderers.)
-> >
-> > (But also, to be clear, I don't speak for Chrome, this is just my
-> > understanding of how their stuff works.)
->
-> Chrome seems to just want a totally empty filesystem view, yes?
-> Let's land the nnp+chroot change. :P Only 10 years late! Then we can
-> have Chrome use this and we can unshare fs on exec...
+The current way of setting and getting posix acls through the generic
+xattr interface is error prone and type unsafe. The vfs needs to
+interpret and fixup posix acls before storing or reporting it to
+userspace. Various hacks exist to make this work. The code is hard to
+understand and difficult to maintain in it's current form. Instead of
+making this work by hacking posix acls through xattr handlers we are
+building a dedicated posix acl api around the get and set inode
+operations. This removes a lot of hackiness and makes the codepaths
+easier to maintain. A lot of background can be found in [1].
 
-Someone should check with Chrome first though to make sure what I said
-accurately represents what they think...
+So far posix acls were passed as a void blob to the security and
+integrity modules. Some of them like evm then proceed to interpret the
+void pointer and convert it into the kernel internal struct posix acl
+representation to perform their integrity checking magic. This is
+obviously pretty problematic as that requires knowledge that only the
+vfs is guaranteed to have and has lead to various bugs. Add a proper
+security hook for setting posix acls and pass down the posix acls in
+their appropriate vfs format instead of hacking it through a void
+pointer stored in the uapi format.
+
+I spent considerate time in the security module infrastructure and
+audited all codepaths. SELinux has no restrictions based on the posix
+acl values passed through it. The capability hook doesn't need to be
+called either because it only has restrictions on security.* xattrs. So
+these are all fairly simply hooks for SELinux.
+
+Link: https://lore.kernel.org/all/20220801145520.1532837-1-brauner@kernel.org [1]
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+---
+
+Notes:
+    /* v2 */
+    unchanged
+    
+    /* v3 */
+    Paul Moore <paul@paul-moore.com>:
+    - Add get, and remove acl hook
+    
+    /* v4 */
+    unchanged
+    
+    /* v5 */
+    Acked-by: Paul Moore <paul@paul-moore.com>
+    
+    Paul Moore <paul@paul-moore.com>:
+    - Use current_cred() directly in dentry_has_perm() call in
+      selinux_inode_get_acl().
+
+ security/selinux/hooks.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f553c370397e..7c5c8d17695c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3240,6 +3240,25 @@ static int selinux_inode_setxattr(struct user_namespace *mnt_userns,
+ 			    &ad);
+ }
+ 
++static int selinux_inode_set_acl(struct user_namespace *mnt_userns,
++				 struct dentry *dentry, const char *acl_name,
++				 struct posix_acl *kacl)
++{
++	return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
++}
++
++static int selinux_inode_get_acl(struct user_namespace *mnt_userns,
++				 struct dentry *dentry, const char *acl_name)
++{
++	return dentry_has_perm(current_cred(), dentry, FILE__GETATTR);
++}
++
++static int selinux_inode_remove_acl(struct user_namespace *mnt_userns,
++				    struct dentry *dentry, const char *acl_name)
++{
++	return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
++}
++
+ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 					const void *value, size_t size,
+ 					int flags)
+@@ -7088,6 +7107,9 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(inode_getxattr, selinux_inode_getxattr),
+ 	LSM_HOOK_INIT(inode_listxattr, selinux_inode_listxattr),
+ 	LSM_HOOK_INIT(inode_removexattr, selinux_inode_removexattr),
++	LSM_HOOK_INIT(inode_set_acl, selinux_inode_set_acl),
++	LSM_HOOK_INIT(inode_get_acl, selinux_inode_get_acl),
++	LSM_HOOK_INIT(inode_remove_acl, selinux_inode_remove_acl),
+ 	LSM_HOOK_INIT(inode_getsecurity, selinux_inode_getsecurity),
+ 	LSM_HOOK_INIT(inode_setsecurity, selinux_inode_setsecurity),
+ 	LSM_HOOK_INIT(inode_listsecurity, selinux_inode_listsecurity),
+-- 
+2.34.1
+
