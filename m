@@ -2,151 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98545C4321E
-	for <selinux@archiver.kernel.org>; Tue, 18 Oct 2022 11:58:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F0D5C433FE
+	for <selinux@archiver.kernel.org>; Tue, 18 Oct 2022 12:01:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230134AbiJRL6c (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Oct 2022 07:58:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
+        id S229901AbiJRMBe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Oct 2022 08:01:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230314AbiJRL5v (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Oct 2022 07:57:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8F7BCB82;
-        Tue, 18 Oct 2022 04:57:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C7286153E;
-        Tue, 18 Oct 2022 11:57:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22EC7C433C1;
-        Tue, 18 Oct 2022 11:57:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666094265;
-        bh=fSjrzMyq+bpcifIr5JOm4lI4KXzBA9L1pFlvXfjZSmQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UznQOqEcD8kIVpaiUl17ewp+RBLMClDNxkC1kDImHCLkRUi+WmovI4wiFSznjngmH
-         QE+sMtU5A3+5A1bYMgFCu0ghXCyi3nPEWjKiXlRBnomR9VeKkZvt/8mFZL9Fsp7kdT
-         sKYTGTQ/LCD3JeTf6yJAqT0zMoMhDz3HqqdB5z3uYU0P1vsYEFhk2yPkQhJ8YBXS03
-         3GHtngY7sH1AFl3S1ytDGNUMksfmYoQwzWzhbtfF6x3aWDhKkY9K3IM+1L8DpVHn1n
-         2NE2XPH3XDjk+2y6kGo77Itf8VNzUlqbOLbiqhho16B+Xk6TWuq0mShv1mdU/xS31T
-         mvydEJToXo3Ew==
-From:   Christian Brauner <brauner@kernel.org>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Seth Forshee <sforshee@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-integrity@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        with ESMTP id S230390AbiJRL7x (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Oct 2022 07:59:53 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596701C406;
+        Tue, 18 Oct 2022 04:59:33 -0700 (PDT)
+Received: from dggpemm500020.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4MsC8D6g8qz9t8y;
+        Tue, 18 Oct 2022 19:59:24 +0800 (CST)
+Received: from dggpemm500016.china.huawei.com (7.185.36.25) by
+ dggpemm500020.china.huawei.com (7.185.36.49) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 18 Oct 2022 19:59:31 +0800
+Received: from huawei.com (10.67.174.33) by dggpemm500016.china.huawei.com
+ (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Tue, 18 Oct
+ 2022 19:59:30 +0800
+From:   "GONG, Ruiqi" <gongruiqi1@huawei.com>
+To:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH v5 10/30] selinux: implement get, set and remove acl hook
-Date:   Tue, 18 Oct 2022 13:56:40 +0200
-Message-Id: <20221018115700.166010-11-brauner@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221018115700.166010-1-brauner@kernel.org>
-References: <20221018115700.166010-1-brauner@kernel.org>
+        Eric Paris <eparis@parisplace.org>
+CC:     Ondrej Mosnacek <omosnace@redhat.com>, <selinux@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        "Xiu Jianfeng" <xiujianfeng@huawei.com>, <gongruiqi1@huawei.com>
+Subject: [PATCH] selinux: use GFP_ATOMIC in convert_context()
+Date:   Tue, 18 Oct 2022 20:01:11 +0800
+Message-ID: <20221018120111.1474581-1-gongruiqi1@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3927; i=brauner@kernel.org; h=from:subject; bh=fSjrzMyq+bpcifIr5JOm4lI4KXzBA9L1pFlvXfjZSmQ=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMST7TVHjeGGv+JeDc+5BP8ufs5at+eR5q/p14MGDf/y0Yjn2 X8jW6yhlYRDjYpAVU2RxaDcJl1vOU7HZKFMDZg4rE8gQBi5OAZjIq+cM/7QYgpnOHhBpm3XFy3bf11 Lmtan3HWcfnvBo3jLRstT90bsY/tlebO5uN166/HvUqRlGMcmLE+tWbku/uPX6J1cHAe7rQlwA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.174.33]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemm500016.china.huawei.com (7.185.36.25)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The current way of setting and getting posix acls through the generic
-xattr interface is error prone and type unsafe. The vfs needs to
-interpret and fixup posix acls before storing or reporting it to
-userspace. Various hacks exist to make this work. The code is hard to
-understand and difficult to maintain in it's current form. Instead of
-making this work by hacking posix acls through xattr handlers we are
-building a dedicated posix acl api around the get and set inode
-operations. This removes a lot of hackiness and makes the codepaths
-easier to maintain. A lot of background can be found in [1].
+The following BUG_ON was triggered on a hardware environment:
 
-So far posix acls were passed as a void blob to the security and
-integrity modules. Some of them like evm then proceed to interpret the
-void pointer and convert it into the kernel internal struct posix acl
-representation to perform their integrity checking magic. This is
-obviously pretty problematic as that requires knowledge that only the
-vfs is guaranteed to have and has lead to various bugs. Add a proper
-security hook for setting posix acls and pass down the posix acls in
-their appropriate vfs format instead of hacking it through a void
-pointer stored in the uapi format.
+  SELinux: Converting 162 SID table entries...
+  BUG: sleeping function called from invalid context at __might_sleep_rtos+0x60/0x74 0x0
+  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 5943, name: tar
+  CPU: 7 PID: 5943 Comm: tar Tainted: P O 5.10.0 #1
+  Call trace:
+   dump_backtrace+0x0/0x1c8
+   show_stack+0x18/0x28
+   dump_stack+0xe8/0x15c
+   ___might_sleep_rtos+0x168/0x17c
+   __might_sleep_rtos+0x60/0x74
+   __kmalloc_track_caller+0xa0/0x7dc
+   kstrdup+0x54/0xac
+   convert_context+0x48/0x2e4
+   sidtab_context_to_sid+0x1c4/0x36c
+   security_context_to_sid_core+0x168/0x238
+   security_context_to_sid_default+0x14/0x24
+   inode_doinit_use_xattr+0x164/0x1e4
+   inode_doinit_with_dentry+0x1c0/0x488
+   selinux_d_instantiate+0x20/0x34
+   security_d_instantiate+0x70/0xbc
+   d_splice_alias+0x4c/0x3c0
+   ext4_lookup+0x1d8/0x200 [ext4]
+   __lookup_slow+0x12c/0x1e4
+   walk_component+0x100/0x200
+   path_lookupat+0x88/0x118
+   filename_lookup+0x98/0x130
+   user_path_at_empty+0x48/0x60
+   vfs_statx+0x84/0x140
+   vfs_fstatat+0x20/0x30
+   __se_sys_newfstatat+0x30/0x74
+   __arm64_sys_newfstatat+0x1c/0x2c
+   el0_svc_common.constprop.0+0x100/0x184
+   do_el0_svc+0x1c/0x2c
+   el0_svc+0x20/0x34
+   el0_sync_handler+0x80/0x17c
+   el0_sync+0x13c/0x140
+  SELinux: Context system_u:object_r:pssp_rsyslog_log_t:s0:c0 is not valid (left unmapped).
 
-I spent considerate time in the security module infrastructure and
-audited all codepaths. SELinux has no restrictions based on the posix
-acl values passed through it. The capability hook doesn't need to be
-called either because it only has restrictions on security.* xattrs. So
-these are all fairly simply hooks for SELinux.
+It was found that convert_context() (hooked by convert->func) might
+sleep in a critial section of spin_lock_irqsave in
+sidtab_context_to_sid(). Fix this problem by changing the memory
+allocation in convert_context() from GFP_KERNEL to GFP_ATOMIC.
 
-Link: https://lore.kernel.org/all/20220801145520.1532837-1-brauner@kernel.org [1]
-Acked-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reported-by: Tan Ninghao <tanninghao1@huawei.com>
+Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
+Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
 ---
+ security/selinux/ss/services.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Notes:
-    /* v2 */
-    unchanged
-    
-    /* v3 */
-    Paul Moore <paul@paul-moore.com>:
-    - Add get, and remove acl hook
-    
-    /* v4 */
-    unchanged
-    
-    /* v5 */
-    Acked-by: Paul Moore <paul@paul-moore.com>
-    
-    Paul Moore <paul@paul-moore.com>:
-    - Use current_cred() directly in dentry_has_perm() call in
-      selinux_inode_get_acl().
-
- security/selinux/hooks.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f553c370397e..7c5c8d17695c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3240,6 +3240,25 @@ static int selinux_inode_setxattr(struct user_namespace *mnt_userns,
- 			    &ad);
- }
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index fe5fcf571c56..523876bb7df3 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2036,7 +2036,7 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
+ 	args = p;
  
-+static int selinux_inode_set_acl(struct user_namespace *mnt_userns,
-+				 struct dentry *dentry, const char *acl_name,
-+				 struct posix_acl *kacl)
-+{
-+	return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
-+}
-+
-+static int selinux_inode_get_acl(struct user_namespace *mnt_userns,
-+				 struct dentry *dentry, const char *acl_name)
-+{
-+	return dentry_has_perm(current_cred(), dentry, FILE__GETATTR);
-+}
-+
-+static int selinux_inode_remove_acl(struct user_namespace *mnt_userns,
-+				    struct dentry *dentry, const char *acl_name)
-+{
-+	return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
-+}
-+
- static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
- 					const void *value, size_t size,
- 					int flags)
-@@ -7088,6 +7107,9 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(inode_getxattr, selinux_inode_getxattr),
- 	LSM_HOOK_INIT(inode_listxattr, selinux_inode_listxattr),
- 	LSM_HOOK_INIT(inode_removexattr, selinux_inode_removexattr),
-+	LSM_HOOK_INIT(inode_set_acl, selinux_inode_set_acl),
-+	LSM_HOOK_INIT(inode_get_acl, selinux_inode_get_acl),
-+	LSM_HOOK_INIT(inode_remove_acl, selinux_inode_remove_acl),
- 	LSM_HOOK_INIT(inode_getsecurity, selinux_inode_getsecurity),
- 	LSM_HOOK_INIT(inode_setsecurity, selinux_inode_setsecurity),
- 	LSM_HOOK_INIT(inode_listsecurity, selinux_inode_listsecurity),
+ 	if (oldc->str) {
+-		s = kstrdup(oldc->str, GFP_KERNEL);
++		s = kstrdup(oldc->str, GFP_ATOMIC);
+ 		if (!s)
+ 			return -ENOMEM;
+ 
 -- 
-2.34.1
+2.25.1
 
