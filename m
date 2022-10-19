@@ -2,174 +2,83 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E728C433FE
-	for <selinux@archiver.kernel.org>; Wed, 19 Oct 2022 02:56:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B831C43217
+	for <selinux@archiver.kernel.org>; Wed, 19 Oct 2022 10:48:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbiJSC4K (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Oct 2022 22:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36624 "EHLO
+        id S234262AbiJSKs0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Oct 2022 06:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbiJSC4J (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Oct 2022 22:56:09 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F446E5EF5;
-        Tue, 18 Oct 2022 19:56:08 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Msb2m05xLzHv4d;
-        Wed, 19 Oct 2022 10:56:00 +0800 (CST)
-Received: from dggpemm500016.china.huawei.com (7.185.36.25) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Wed, 19 Oct 2022 10:55:45 +0800
-Received: from huawei.com (10.67.174.33) by dggpemm500016.china.huawei.com
- (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Wed, 19 Oct
- 2022 10:55:45 +0800
-From:   "GONG, Ruiqi" <gongruiqi1@huawei.com>
-To:     Paul Moore <paul@paul-moore.com>,
+        with ESMTP id S233482AbiJSKrA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Oct 2022 06:47:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B3FA15B119;
+        Wed, 19 Oct 2022 03:21:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1038DB82319;
+        Wed, 19 Oct 2022 08:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 694F9C43145;
+        Wed, 19 Oct 2022 08:47:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1666169227;
+        bh=QOgwnGXtJ5WnEebGLcaB/JmKLZooNWI4me6Yyig3MGY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VDJGp1yCB7sK4rYe4cy80fPUXTGGI1aLRPhbIx4mJ1KpEGrHMrNTmFuUVIqTNeJdT
+         ZekDH3sC8zDcCt+GnHzsC7eRF2s6mGlU73w6Qd2n8mdOF781Q/pPueeYhiqyXncnCS
+         ++8Wv4aQ/0HAkNgYN9IKx343cBi/B4AObG0sL+MM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-CC:     Ondrej Mosnacek <omosnace@redhat.com>, <selinux@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        "Xiu Jianfeng" <xiujianfeng@huawei.com>, <gongruiqi1@huawei.com>
-Subject: [PATCH v2] selinux: use GFP_ATOMIC in convert_context()
-Date:   Wed, 19 Oct 2022 10:57:10 +0800
-Message-ID: <20221019025710.2482945-1-gongruiqi1@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Subject: [PATCH 6.0 202/862] selinux: use "grep -E" instead of "egrep"
+Date:   Wed, 19 Oct 2022 10:24:49 +0200
+Message-Id: <20221019083258.934931280@linuxfoundation.org>
+X-Mailer: git-send-email 2.38.0
+In-Reply-To: <20221019083249.951566199@linuxfoundation.org>
+References: <20221019083249.951566199@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.174.33]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500016.china.huawei.com (7.185.36.25)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The following warning was triggered on a hardware environment:
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  SELinux: Converting 162 SID table entries...
-  BUG: sleeping function called from invalid context at __might_sleep+0x60/0x74 0x0
-  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 5943, name: tar
-  CPU: 7 PID: 5943 Comm: tar Tainted: P O 5.10.0 #1
-  Call trace:
-   dump_backtrace+0x0/0x1c8
-   show_stack+0x18/0x28
-   dump_stack+0xe8/0x15c
-   ___might_sleep+0x168/0x17c
-   __might_sleep+0x60/0x74
-   __kmalloc_track_caller+0xa0/0x7dc
-   kstrdup+0x54/0xac
-   convert_context+0x48/0x2e4
-   sidtab_context_to_sid+0x1c4/0x36c
-   security_context_to_sid_core+0x168/0x238
-   security_context_to_sid_default+0x14/0x24
-   inode_doinit_use_xattr+0x164/0x1e4
-   inode_doinit_with_dentry+0x1c0/0x488
-   selinux_d_instantiate+0x20/0x34
-   security_d_instantiate+0x70/0xbc
-   d_splice_alias+0x4c/0x3c0
-   ext4_lookup+0x1d8/0x200 [ext4]
-   __lookup_slow+0x12c/0x1e4
-   walk_component+0x100/0x200
-   path_lookupat+0x88/0x118
-   filename_lookup+0x98/0x130
-   user_path_at_empty+0x48/0x60
-   vfs_statx+0x84/0x140
-   vfs_fstatat+0x20/0x30
-   __se_sys_newfstatat+0x30/0x74
-   __arm64_sys_newfstatat+0x1c/0x2c
-   el0_svc_common.constprop.0+0x100/0x184
-   do_el0_svc+0x1c/0x2c
-   el0_svc+0x20/0x34
-   el0_sync_handler+0x80/0x17c
-   el0_sync+0x13c/0x140
-  SELinux: Context system_u:object_r:pssp_rsyslog_log_t:s0:c0 is not valid (left unmapped).
+commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
 
-It was found that within a critical section of spin_lock_irqsave in
-sidtab_context_to_sid(), convert_context() (hooked by
-sidtab_convert_params.func) might cause the process to sleep via
-allocating memory with GFP_KERNEL, which is problematic.
+The latest version of grep claims that egrep is now obsolete so the build
+now contains warnings that look like:
+	egrep: warning: egrep is obsolescent; using grep -E
+fix this by using "grep -E" instead.
 
-As Ondrej pointed out [1], convert_context()/sidtab_convert_params.func
-has another caller sidtab_convert_tree(), which is okay with GFP_KERNEL.
-Therefore, fix this problem by adding a gfp_t argument for
-convert_context()/sidtab_convert_params.func and pass GFP_KERNEL/_ATOMIC
-properly in individual callers.
-
-Link: https://lore.kernel.org/all/20221018120111.1474581-1-gongruiqi1@huawei.com/ [1]
-Reported-by: Tan Ninghao <tanninghao1@huawei.com>
-Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
-Signed-off-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: selinux@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[PM: tweak to remove vdso reference, cleanup subj line]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ scripts/selinux/install_policy.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-v2: change as Ondrej suggests & redraft commit message
+--- a/scripts/selinux/install_policy.sh
++++ b/scripts/selinux/install_policy.sh
+@@ -78,7 +78,7 @@ cd /etc/selinux/dummy/contexts/files
+ $SF -F file_contexts /
+ 
+ mounts=`cat /proc/$$/mounts | \
+-	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
++	grep -E "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
+ 	awk '{ print $2 '}`
+ $SF -F file_contexts $mounts
+ 
 
- security/selinux/ss/services.c | 5 +++--
- security/selinux/ss/sidtab.c   | 4 ++--
- security/selinux/ss/sidtab.h   | 2 +-
- 3 files changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index fe5fcf571c56..64a6a37dc36d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2022,7 +2022,8 @@ static inline int convert_context_handle_invalid_context(
-  * in `newc'.  Verify that the context is valid
-  * under the new policy.
-  */
--static int convert_context(struct context *oldc, struct context *newc, void *p)
-+static int convert_context(struct context *oldc, struct context *newc, void *p,
-+			   gfp_t gfp_flags)
- {
- 	struct convert_context_args *args;
- 	struct ocontext *oc;
-@@ -2036,7 +2037,7 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
- 	args = p;
- 
- 	if (oldc->str) {
--		s = kstrdup(oldc->str, GFP_KERNEL);
-+		s = kstrdup(oldc->str, gfp_flags);
- 		if (!s)
- 			return -ENOMEM;
- 
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index a54b8652bfb5..db5cce385bf8 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -325,7 +325,7 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
- 		}
- 
- 		rc = convert->func(context, &dst_convert->context,
--				   convert->args);
-+				   convert->args, GFP_ATOMIC);
- 		if (rc) {
- 			context_destroy(&dst->context);
- 			goto out_unlock;
-@@ -404,7 +404,7 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
- 		while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
- 			rc = convert->func(&esrc->ptr_leaf->entries[i].context,
- 					   &edst->ptr_leaf->entries[i].context,
--					   convert->args);
-+					   convert->args, GFP_KERNEL);
- 			if (rc)
- 				return rc;
- 			(*pos)++;
-diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-index 4eff0e49dcb2..9fce0d553fe2 100644
---- a/security/selinux/ss/sidtab.h
-+++ b/security/selinux/ss/sidtab.h
-@@ -65,7 +65,7 @@ struct sidtab_isid_entry {
- };
- 
- struct sidtab_convert_params {
--	int (*func)(struct context *oldc, struct context *newc, void *args);
-+	int (*func)(struct context *oldc, struct context *newc, void *args, gfp_t gfp_flags);
- 	void *args;
- 	struct sidtab *target;
- };
--- 
-2.25.1
 
