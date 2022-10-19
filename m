@@ -2,66 +2,60 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C37E9C4332F
-	for <selinux@archiver.kernel.org>; Wed, 19 Oct 2022 13:23:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4989FC433FE
+	for <selinux@archiver.kernel.org>; Wed, 19 Oct 2022 14:36:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231577AbiJSNXA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Oct 2022 09:23:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
+        id S231905AbiJSOgr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Oct 2022 10:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231752AbiJSNWb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Oct 2022 09:22:31 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06E181633A7
-        for <selinux@vger.kernel.org>; Wed, 19 Oct 2022 06:08:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1666184829;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=LA6Cza3pSGpXKVU6F+S8U8JWg8ZovqHMMGY0EaLCBBg=;
-        b=OUjxL3k9lC4AbKVv9OmTt9h1KLxe/VXFQoDD3mkMoRVKV+G3q+uoKV0D06l28qoBLtvIj/
-        QJ7FaOYKsu9qI9Vx4jeMTUwBSdwyGQkNdVWSVjI8UZdLHTs3rFXuE0EoZREL8qtTFBcb8H
-        3/uSyJT7G9w0q4eL5PHb7ji5MTADYEE=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-228-zZfr8ZGGMK2ZBruWK-RJdw-1; Wed, 19 Oct 2022 04:42:22 -0400
-X-MC-Unique: zZfr8ZGGMK2ZBruWK-RJdw-1
-Received: by mail-pl1-f199.google.com with SMTP id d18-20020a170902ced200b00180680b8ed1so11253514plg.1
-        for <selinux@vger.kernel.org>; Wed, 19 Oct 2022 01:42:22 -0700 (PDT)
+        with ESMTP id S229833AbiJSOg0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Oct 2022 10:36:26 -0400
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 061C71DB262
+        for <selinux@vger.kernel.org>; Wed, 19 Oct 2022 07:20:38 -0700 (PDT)
+Received: by mail-yb1-xb35.google.com with SMTP id 203so20979256ybc.10
+        for <selinux@vger.kernel.org>; Wed, 19 Oct 2022 07:20:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=5BfLX5KRl3Okg348FT7/RFBCfyy3DklPfVwwqyxjUnM=;
+        b=RNQDrr8g1rq18i5lSZkSTRzYdRLnEJJsPqhCSziVSNc0KU+8GDtyoDsgYFzQu3mUya
+         bIgFLxIlPRZt+jyDTn4h279FKymGwbBU4ByQ3gREPQCDWwPItrL2c0CUGwhZdq0zYTzr
+         eb98j+wsXRaiXc3+Mk52Zcx9BCLoW/DkxBVr/gNqINUDGZ/iFepY2QkGoAmff4nEUlin
+         HvP9KRAdHJjMquKDNXKcdMrDh/EzEDLxSgVRNhBhfuX1OCZ5siiO+S/6HXhm6hC4BDCQ
+         c02OGVReXVVQY1J0YbhIoxfOKGiS8mvtBgJt9XjJx71kc8te3b5iu3gyDF9MqGpbhkYC
+         te7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=LA6Cza3pSGpXKVU6F+S8U8JWg8ZovqHMMGY0EaLCBBg=;
-        b=yVi1PEZjRXgQ/i5V76xoHTUeql7CGVTLFEge5cMKj5vlqRCiAuj/PLRbw8J1vTYWBA
-         Ab1OrStnRJBj9uB2VBmvbgeBZXk1uzoBPLTMxwwAl4FIzjUc8lnH40oFgDoAfzdcWcZ7
-         7RbaXEutFm5Bpe7BX63lvDQraGAyZTkvv//9/jYgvC27cPafedZz4OoceK/gtrZ/3Gb7
-         lnFKeO7x58r4od88AHvdVGkjByrDfHa5BPLhhl9p8rcliSYOkyi4pQqynQXXwydqFNcy
-         AqGIfNs+8f+XEN+Tx8VX+I3r9M6rXLorjqZsnS+dEHRUH4YbDZPxkD9yAU5QbrFvekl/
-         YNsw==
-X-Gm-Message-State: ACrzQf2Haf6RYWYUudwFAz2w7KlH3DW34MSpj44LHK17UQ6o6PeeD0UY
-        8uyiRZXI0tzvDExgiMozJGEsk4AG4LK+uHAVCc5N32pRB8Hh/Z26bJDnWYhtYkPp3XCXAW8cLzJ
-        a6dl8/tU+DipRBcnE6LjYjmEHtoQlwwULww==
-X-Received: by 2002:a17:90b:4b41:b0:20a:fe8f:5a3 with SMTP id mi1-20020a17090b4b4100b0020afe8f05a3mr43848756pjb.120.1666168941129;
-        Wed, 19 Oct 2022 01:42:21 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6FuVvfJ4E95k0X9Xk8r9zpE8dH9chRXdFCbAhrjjTZD6cYyig2V8giEmVJuPpTRlj8KdTBtxBPT1gpaqW0jcs=
-X-Received: by 2002:a17:90b:4b41:b0:20a:fe8f:5a3 with SMTP id
- mi1-20020a17090b4b4100b0020afe8f05a3mr43848724pjb.120.1666168940805; Wed, 19
- Oct 2022 01:42:20 -0700 (PDT)
+        bh=5BfLX5KRl3Okg348FT7/RFBCfyy3DklPfVwwqyxjUnM=;
+        b=TvkKymCbYJvpR5nLKvBCQhTid19eCGTs2xl1HntEbYUsDq0Mi88NwxNtAMmNSNqoPs
+         0HCj3z9v0YIKYDjTWd/I/BRvLQSAAOGJHYg3WsV9Dq2pORQwDON3dYHyha8hS3jdmZjX
+         PHKN2qNzNq51qCMmWe7l6rfMdNHLjy1Pnyaeiz38K5E+PhsG0jdjUN86U4o2dWdPhH5z
+         0rnmm4Gb2doCW8VqijLc4KDpOFaNbKvXuXqx5u32ZqhS5Ngyqv/rvXSBgA/fJZaSU+rS
+         f+KI3bwWE4RYcUpjUHY9vqQVr/1e5rMplKi47CYVwfi08CL46EjXkDhMS4uC/z5ndVw2
+         U3gg==
+X-Gm-Message-State: ACrzQf0li22iDP6lAQHYKCbdkI0VqKrK0Sx5rqeGfPm75LCxoNgRG3RU
+        3Q7da67CieL9HNXGaU/sKD2TKAql1y6LSYc6v63SNmurtQ==
+X-Google-Smtp-Source: AMsMyM4ymv6dFaiJMYVe2rXIjGqTIMrLYaCpng71BEymljx162jO+w+qkW4F27gM1MPCghftnNAQ/gjbyWKV3+FH6sQ=
+X-Received: by 2002:a0d:e64f:0:b0:357:815d:614 with SMTP id
+ p76-20020a0de64f000000b00357815d0614mr6939149ywe.276.1666188471096; Wed, 19
+ Oct 2022 07:07:51 -0700 (PDT)
 MIME-Version: 1.0
 References: <20221019025710.2482945-1-gongruiqi1@huawei.com>
 In-Reply-To: <20221019025710.2482945-1-gongruiqi1@huawei.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 19 Oct 2022 10:42:07 +0200
-Message-ID: <CAFqZXNuyiYEizcPrjCVE=e6bdH9fA0ffAn6VtJswP9JLboGUTw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 19 Oct 2022 10:07:40 -0400
+Message-ID: <CAHC9VhQOXBZid_3-Zm48uysTC+ueSFmJy=g=JMYFEfgdtuwB1A@mail.gmail.com>
 Subject: Re: [PATCH v2] selinux: use GFP_ATOMIC in convert_context()
 To:     "GONG, Ruiqi" <gongruiqi1@huawei.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, Xiu Jianfeng <xiujianfeng@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
@@ -69,7 +63,7 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 19, 2022 at 4:56 AM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
+On Tue, Oct 18, 2022 at 10:56 PM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
 >
 > The following warning was triggered on a hardware environment:
 >
@@ -129,15 +123,19 @@ On Wed, Oct 19, 2022 at 4:56 AM GONG, Ruiqi <gongruiqi1@huawei.com> wrote:
 > ---
 >
 > v2: change as Ondrej suggests & redraft commit message
+>
+>  security/selinux/ss/services.c | 5 +++--
+>  security/selinux/ss/sidtab.c   | 4 ++--
+>  security/selinux/ss/sidtab.h   | 2 +-
+>  3 files changed, 6 insertions(+), 5 deletions(-)
 
-This looks good, thanks!
+Merged into selinux/stable-6.1, thank you.  Normally I would send this
+to Linus in a day or two, but due to some personal logistical
+challenges I may be a bit delayed in sending this up.  I would ask for
+your patience and that everyone take this opportunity to do some
+additional testing :)
 
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-
->  [...]
+Thanks everyone.
 
 -- 
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+paul-moore.com
