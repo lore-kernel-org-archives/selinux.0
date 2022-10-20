@@ -2,99 +2,92 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96D60C433FE
-	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 15:21:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ADD8C433FE
+	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 15:44:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbiJTPVH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Oct 2022 11:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
+        id S230045AbiJTPo6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Oct 2022 11:44:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229756AbiJTPU4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 11:20:56 -0400
+        with ESMTP id S229960AbiJTPo5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 11:44:57 -0400
 Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CEC0537D3
-        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:20:45 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id n130so3066502yba.10
-        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:20:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E9FB58B44
+        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:44:54 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id i127so16037ybc.11
+        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:44:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=oYUwx9AXAxDG20sYfr7hKVXI1VbVXzou7obOOp8onp8=;
-        b=WiGPTWCGYwX8f8SzDcsA9Kdlw67nvMpM8MpRjR3rU/ZkY7hcm0usk+B/ltYnnlVlxc
-         ZvdC29ayU64TWGzkCRI4Yp7s/+yvd/UX44ugg0u9wCOc4nmetKPQI4PSHK2r7Atndg5o
-         iM4GbnDcr035neabM2A+NVxzd28/vESR4x7dhA6gtaFvfdU3f1/ZT7bXIj77mJMJSweg
-         +ysNJoAQB6wTMyp9lDnV8xDQ+mL+rcPBf0mGhZd8/6wrYH2gkXhqjPtinJup3EscuDcL
-         PWsqg4g66tKDwB8RyQOKN5svEnqZXpVZdGodC51851SgEaH1EGetaKIH1WOJqVRRATIl
-         xSRg==
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=vuJ1OX3Cxr4MI7P448IfdHAHrYdLDVJPbpwIxu/boEU=;
+        b=xMxRHb6kucYGsW9hgAzpoA9Lp+fP7/3igVJMrDYXimIwAFBIhogm6Ny0iqNRwWAd6M
+         QCRLVyks3/AwZIbTclS1429iwxEVUnzp7Ve/+6cep979/rEg8jj7z4FrLSCNPwvZzBX5
+         eYXfZv3ZYsHno6Rcwm9krsK06MTBhCt/tO62c/ZEbDyQCCJG1JgYELb5fvPl5ku03T2U
+         qX51NYl7WbDfvxqxuLPCRh1G/eI4QWC9LaloVz8Efve0N5Y5TAFYTBe3lS+Bf4/oJcX1
+         ae634PdCsN/+fDy7ZLl1PPCnK2wfmPKYp8PKPXjFYocmVwBRzJy6tML39FHZs5qMT4Ry
+         jlDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oYUwx9AXAxDG20sYfr7hKVXI1VbVXzou7obOOp8onp8=;
-        b=1gG9g4aYG9P4g69wYlyIO7djnBzvYHHO1PIkmuz8uNjVdFVSmCmKuDgHOIFCULb8J5
-         DgzjxUUtU1iKUQmRCfywHGVc7KXPikpsGgGdeXxXK97wkUfSLiQ3mSIEdBC2onnoeFtM
-         UmgCwqT1wDthCotpLA1iEQf9YmJqzut3a/nbmp8Vx2Bvq76kPhsC6wblv6/IG0y9ytcG
-         rQZHrg1gmukNzpLxbxQVnypWfn8gUC5I4XDRgjA5tUgjhy2ezw4G+7pTt4armGbqOxZi
-         DU2Tt2FtK2ZepzL69iD1TEClPzQFOeLrV6uPrYOqrup3ezmsLFMyI2hhvl36MonG/Acm
-         VVxQ==
-X-Gm-Message-State: ACrzQf0kcy0HhIOVvWpEb5kaP4NWDlKjPiNL1yCYQPDH8X2iNeCuZoXJ
-        mP/UnsS7tucQNCQVTyIuyE6lsHkIP1BGE14ESkVJ
-X-Google-Smtp-Source: AMsMyM6xfDCwoV3AvDAeKK8J5VQLV5nF9Bo12pK9302x4ErUVdKzZZrQKaUpkLrNOT9SgahFOhsdXqdSfitZjK+OmTI=
-X-Received: by 2002:a25:9a88:0:b0:6b9:c29a:2f4b with SMTP id
- s8-20020a259a88000000b006b9c29a2f4bmr12094852ybo.236.1666279242056; Thu, 20
- Oct 2022 08:20:42 -0700 (PDT)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vuJ1OX3Cxr4MI7P448IfdHAHrYdLDVJPbpwIxu/boEU=;
+        b=aAvlKZoi+2oEKmNoq8QDL60MUjKOqVuwsLzB2jA9ed9Ws8IXvOs1Lq1CJcOlUHgh4w
+         vluMJX5xyAhMTbtHTrDc4n6Gh1lDc41gRm7oU5iXYcelDQZulVMDgemTojvec6KJD2j0
+         y5FiJgd+6ssySCcPHdFO4BEBrkdBCCCI+h7aSrbi3BmmL6MTA/At8lD3eMyqtAS2WEsx
+         LMOHROX6NKOJZdtsjO+rO6PTyJOGvlW3HkdKvgFYmrKPLztHgRLbhUl4q7NCR/7+cT/c
+         m6OKTy//GOyQpB0lXjmdxZ2chnwUIaHUE7teEtIJDcqFBzcDlk3577k3Q8M601/V66A5
+         lCOw==
+X-Gm-Message-State: ACrzQf3c/hxUbvEgm2LJnDNiyIaYYO/aB7I4zl6ODgO6lFVBiefoqD+0
+        hMt0fR22WlO4waO+wfuq7i/8v9Z7SJGg7pMZX9YX
+X-Google-Smtp-Source: AMsMyM5/43dxXX5gedL3EoAC+ilNlRScxaa0bWqmfjUQl7AhYvjk8ffyfXpADkAas0i8D4N5gYdy7izZJXYwLEv6TwQ=
+X-Received: by 2002:a05:6902:724:b0:6c0:1784:b6c7 with SMTP id
+ l4-20020a056902072400b006c01784b6c7mr11983384ybt.15.1666280693355; Thu, 20
+ Oct 2022 08:44:53 -0700 (PDT)
 MIME-Version: 1.0
+References: <20220927195421.14713-1-casey@schaufler-ca.com> <20220927195421.14713-7-casey@schaufler-ca.com>
+In-Reply-To: <20220927195421.14713-7-casey@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 20 Oct 2022 11:20:07 -0400
-Message-ID: <CAHC9VhSXRDUw0CGLqinogP6g5rHWz4rg3N4Dr-VV8RshWt56Jw@mail.gmail.com>
-Subject: [GIT PULL] SELinux fixes for v6.1 (#1)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+Date:   Thu, 20 Oct 2022 11:44:41 -0400
+Message-ID: <CAHC9VhQbr1zgyvzM9zB97+rzO-Rcy6CUt_3-54ED-SEanVWyRQ@mail.gmail.com>
+Subject: Re: [PATCH v38 06/39] LSM: lsm_self_attr syscall for LSM self attributes
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
+        linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
         linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+On Tue, Sep 27, 2022 at 3:57 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+> Create a system call lsm_self_attr() to provide the security
+> module maintained attributes of the current process. Historically
+> these attributes have been exposed to user space via entries in
+> procfs under /proc/self/attr.
 
-A small SELinux fix for v6.1 to fix a GFP_KERNEL allocation while a
-spinlock is held.  The patch, while still fairly small, is a bit
-larger than one might expect from a simple s/GFP_KERNEL/GFP_ATOMIC/
-conversion because we added support for the function to be called with
-different gfp flags depending on the context, preserving GFP_KERNEL
-for those cases that can safely sleep.
+Hi Casey,
 
-Please merge for v6.1-rcX.
--Paul
+I had hoped to get to review these patches earlier this week, I know
+you are very anxious to see something happen here, but unfortunately
+that didn't work out and I'm now in a position of limited network
+access and time for a bit.  I will do my best to at least comment on
+the new syscall related additions, but thankfully you've already
+started to get some good comments from others so I'm hopeful that will
+help you keep moving forward.
 
---
-The following changes since commit 9abf2313adc1ca1b6180c508c25f22f9395cc780:
+One comment I did want to make, and it's important: please separate
+the LSM syscall patches from the LSM stacking patches.  While the
+stacking patches will obviously be dependent on the syscall patches,
+the syscall patches should not be dependent on stacking.  However, the
+LSM syscall patches must be designed from the start to support
+multiple, simultaneous LSMs.
 
- Linux 6.1-rc1 (2022-10-16 15:36:24 -0700)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20221020
-
-for you to fetch changes up to abe3c631447dcd1ba7af972fe6f054bee6f136fa:
-
- selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
-   (2022-10-19 09:55:53 -0400)
-
-----------------------------------------------------------------
-selinux/stable-6.1 PR 20221020
-
-----------------------------------------------------------------
-GONG, Ruiqi (1):
-     selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
-
-security/selinux/ss/services.c | 5 +++--
-security/selinux/ss/sidtab.c   | 4 ++--
-security/selinux/ss/sidtab.h   | 2 +-
-3 files changed, 6 insertions(+), 5 deletions(-)
+Thanks.
 
 -- 
 paul-moore.com
