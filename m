@@ -2,254 +2,136 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9AAEC433FE
-	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 22:48:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2A10C433FE
+	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 23:42:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230107AbiJTWsC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Oct 2022 18:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53506 "EHLO
+        id S229498AbiJTXmN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Oct 2022 19:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230056AbiJTWr6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 18:47:58 -0400
-Received: from sonic308-15.consmr.mail.ne1.yahoo.com (sonic308-15.consmr.mail.ne1.yahoo.com [66.163.187.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A50822D5B2
-        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 15:47:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666306075; bh=SONCEp9ccP0cXsvFMACK+mFZ7GFLiyc46gxkPdyMAnM=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=LNz2hTYvWAAvjqMjPQgSU3fMTUEP1OB+bLAzsnsVpArIFkmPe4cwzE5WGmtLGXa+wIDqWJzA7tTr5lVd26nzXHj98Lx8jMIw4VLq5Z0UeHgltfF7hBbnCRsACd/L+DW80DY0/eXspen1o+3FqQCbNoRAaKcMZvUBFhFRd8s5RznZNjb0xhzKa4sISj+HXsX6ZIEWRolHM7Ykj2n4mpKlJExV27DLUMMaTXepXF92H5R1LdVmiEObUzSXgdEVt3h8kJnFC+EY00F1gBBL94+k9VmePu5IIzfhKDta10QoLHsr55k1IHK06OHMpNIjfk2GLNMzx7LWSDq68p4RqUrx9g==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666306075; bh=/jiBOyYCSR6aF3dZgjXZdCgaovTwVodnwNyQtAWJJdP=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=YjNgjN0gQcKKdIM7+/Qvjx5SJBJBHWuBIE66qUx8tAAZGkuO7UPV8Bu3E7TpSqBCz3c1AgCiBIOW4xzcQmWyebWPdFctX+YjtaFkP7iyIMucF+BrgYTxP/Q97vINiFyRLv0PomYdr/VoOUXSC0UACYBzvsTvriHyfZnU2T6Sp/BxQEL/ovKS8agDmcLqn2ruYP2pRM0CXWOIEEZmj4mTG/McEHYT8MMmSAnW8QqDvfg0BmElAG/9qihvjBkxaW0czcb/mG5UHlPyS0qxJObcmCw8pvI/DujZ0RJwBnGW3glm1aHjb5OVU9VBLRzY0N4ke/fx76O4zNHlGcI+HBQXlQ==
-X-YMail-OSG: BW8ESToVM1me.Tx7dB63psyoKZpTVJBWTA1DoBvYHlZpXwxHdEMzoKQ0I1khkN.
- d15lfFUecwWRiMllh93WWarVQnyA6rqZqXGiI1epyDcpi07zYtbwMkqR7y2MfT5iGIsQ3lAeBsvs
- qmCMIQqNRlyj..EKxUpSaqthYSxmdz2jpSSQRl3Lon7izS2sjAfswavoGesuHY_MXtIMtXXmCkIg
- HfazHwBF7jWSXmSVv40f2Rc.nJwoAYx6A6YiSoAgSgzvL8QAqXaMazvBDzGjZQ9xTv.pIvVshGV2
- TIkFrkRQZTGOwLFOs9eYYPWjfqeGNVTyTgDt1y2B8W6dHA6kQyEJuAIt.O0XTXGHjDD62IyTayxa
- Nx7G5IOv5yZWrgBXpPjJEQMc2cI3KGxFDMJAawyWEddUQ_HmRft_51D3.6KRSPXP.zkZgAtdxCff
- SOhDddlOQ0GyXPjoQPk2cDsMJQQ2qToIlYJxGpUdVXU59r_sbP_uvEZ8.2VM5PL_3U3strZ9BAdv
- og5QNUFUfKtbI.LAvxfITCHlWTkGFkwxU8xexeuVZ0lAcgO3UpAO8ocqYhubrBtVAAf4B50RXMeY
- Yv2mttdH.k43Z8D5.5BOzBJzd.dDCMONOOL1Myy6LoojwYfqwX0bGHt5FyZN_0mag5STzkDauB7V
- He2FBRBYgEh4wj5DkQwmYLZmnDCwCUxMuBfFH8SfDFeyBz_l.IoUXYw0Bd9zUQZyLcpXyyfBzH2f
- QeXWMWriacN8q2xTBbwOoh40asUg1NZmErxIK3C_aVL7.578C0IDkAf_yASE3iwaw67cmgHzwDv.
- n4ejf66wpktl6ZH8G9WdpL70i61mOSh4sAUwGRYRJGzBDHgbvCnEUFuKO7YrPOw6Evfje6wnuAFI
- eVTVw69LMHzdvz8BviYDC9.mRe8SBZM__f6yLdBZ0fdnKYshnbCT.Wv9rFc_sjigPK0K63BcjmhR
- YKCMemTYKJRSZORmbt3mG_pOj1V0r3C6z5FQ5Y4kq9fvyXri9EMoJg64mUOEhv8Io_27oBZNNMRR
- V0DCKAK6s_b6oODlrbYwj4WkXv.j9kIvdso1cLvtf_bHTykN5L9Korw._l80NU6Kr88oC_J4QKJf
- 5u.UvOt5Ul5_TGJFK7kooNuzCLp62601X8UOZlfvyYUQGQBhzseaYIAPlhcwiFuGjCYDRk9kJKle
- sS8Z7.1XmCOby0kDt5Ud7eXIX928T9R4FH8BxiMMaOJ7CyKlG9V4zlJ70.PS1.BAScM4PV_BCg1P
- mzwD8xQAME4FpSB_rczPEdqp.mftDyR1d26OzGyGwPYJ8_iFOjiGqQWeS1To6arsHw3vTROOF_Nk
- KD_e7y77GN2GBq2MUydY9p8RIVaO_95tNZUr1m1HskpZIXg_bDT0LfqL5_3TXXVgUsyMAVkQnncD
- 2_XqHEf9HiiqHzbbtEr13flYz1ipuu_KGvGCTtioNSJ9g2ccS5zWeAcnujzj4mtRuHj5ZmhSb5bh
- oeCWdDSXrzjflVin9VYE4OaIMPJ983aWeac8bpVoe9FE2BoBq7eojU9Z1_7ARwHruxUXYG7BRpep
- EAaWS81ryGVD5IkxNpVoZYvo9fmYF9F2FZACpIZ58LQjINcBWOj_1j0ASGX3uemdU9k.ZjRLb1C6
- p01QZ0UPCH.dMsG1xwzOSdwUkqf69zUMGbQsQhLLQCvdOcCGacczC5cjDHRT4TwwuJzSrw2ljNVY
- ZBZWWZqNJh2LFOAcxwZRN_epqsrp8HQ5svKLhezZ7A0RI0pj4KaeTCXCy95fI2Q8XKl3tGFvb1yN
- xQJLAU9kZnk8OBAHwpbe41G3x3Ezp2lPeNjW8VtsAMw1ljZ.C4yHW5enhc9V2nDuHCvD0lyu2MH1
- d2uqrVkro_I6a2AuEaOIkSGJagR86aCoLm0zfUvugBX4itUfYhooD5zXq8xEK2frTJFO8v3WXbD9
- Y9E9RH..izKdHJ7gh4kflwvEOPUFnf1fi0Hb49mQVHXLptJuQiFPS5nhXqaObXahELSALTcGYW29
- WpyX84J5525E6AaiXfy3.jJG8szp1jXNGBYDDLojL1SKA6T.R2DJxQwXh7t4ZzGMJBKQXx_o2Wzz
- QDH0joBHUPa_O6lAhp3eUyQ3J9EMbh8FU80iwdF9.qmQmgkIcsKiezYQfFhBvZgzEIMTvLkb0GYH
- SaVyEDIv4NhyzWakjx0tBvSUKixBypIxTtVkzGA6xo3rbsPLp2y5bwEH6Kw7_yBTztJZYqF2JWAi
- pSOBrnWT1ZmKHOgE80u8f3WeucNHwKz6iVTT_gWWjjiJ.on90ozdmmMHj_Lir3oflI1.2sivCHzM
- GAzAYa1gf_3z5pDX5dRoSnnRv4El9BWk-
+        with ESMTP id S229456AbiJTXmM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 19:42:12 -0400
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com (sonic306-28.consmr.mail.ne1.yahoo.com [66.163.189.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B05C16D89B
+        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 16:42:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666309330; bh=Ct7M+eQn+1sXkf2JlGtv/zGo5O7AhhVZoEOq681KO4I=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=XJmUiW6rhdzJKiAexE8m1tQxbk48VjkEUm5BKgiMF0LDJwCzYhGksG6Ph/Vdwdauh8YnUKWkeft8gmdi5LpJWTI54eoIh/fmsKzfiegtPKwRBhVqM33qGslEPkmnSpqYSUgyiEVCMQYNp9P88PnCibZ18JKag5brlfvESSROreN39oQCLd97gbpie8GtPrETi96vkN7QOdpKAjld6s6eRGs8NGV0px5a3LPYuewGPfUnOG0SZDK2CZW7f8g7+yFbovIEp5u7xNzepLRblAIGded2lUOp2sKKzOGOpmfjy0G23Lgv3ki8blkg8P0VgMd20EqH61ubYZL4hQMucCCGlg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666309330; bh=R/3JbMN9lfHknive0qn6sbuvnm/GqGh1VGmM3zN3yJx=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=USX4h9tBzG978n0IM+oZbuWrsq0Fq0YGj2pRgqivqvsD7jTODfUq5EOK5lLVEb2RHuClTEeArF/1kydv1BreD2lJkBlvgW9bmZs2rZmHyWq4IgEzFSZrxFHu1bM5HimkxYRkhuRlJjzDrp4oyebm+Y6LSE5oNyPnD66zmMDXhZC31kWZDLH2BM9GIsXCv5jVllfUw6tU1B8yf1ER4vxia2y21tFTpGcfY6rJzrKpLsHKA+gWYFF4/ZVkZnqIhW7SPcjYp4IovL9GmT5PacArUy+4dhbGjrY1jD7Kil1NA0O77nSr81QIq9Syhw4My//+WW3XqtQg0ohCDjYCHQ0xnQ==
+X-YMail-OSG: IEVbw1YVM1lqZ_LzZ4UpMqXtNV8WoDJX7Eo0kYY34UcqisNoIH7LsWa_7kS6vnJ
+ 1v7CZXjW_noROX74Oc.w.avDj6ZVVh08Iuh6cOLfHW5uONl_vHl18kyz5LOQHwUx5AXyMVs2SxrN
+ zurVxX73AvlCx2kQ5o_xhebjWspBMU.wvJFCprW_eU4Rp4Omyxz3jkknsQWBbWk1WR9HhMs9yDHL
+ FaL_u5a69D36cm0URE663LbZeE4reCck0MJTbr8DY_.6RdwBL2FPOQregk_eFC3uMPkO2kDtWnxb
+ C.81bYAwMnLRjzeVFgSPkHd9DjWApq1d1t2BC6xeZfjHk_4J74vPh_6jrgVNjXRp5j8ArHbMgFVq
+ tYDsWjz6Uw_nUBkVT7I7Jal.5PJiw9qHrBxzueMz8yjahT2PnBw3pp1nP.Aw23DvSOH1wtZElZCD
+ e7Mpyx0x4rSt_HIqep15dXJTl3vdECaW5psSxy0lRtkovIPsjDldkctv7EV7XrPcvvD4.A48ylEE
+ 6.S8w.8r0bP1UNd8Y77SbTh2Jr2Yk8o3_o51RjI5VA9JY2ktBxDO.C5KqSvAUKu2o1HXpwZeMmj0
+ sJm4o0B3bxjTnqRjP5uRU_mfFeKgyir1Hw2cBm.SRmS0BpmteZt6oNoZ1l7OGwQ3JjR3RjKp5S3G
+ .RBMhFRaZMV6xxJ6ssn16OdBKrNU.cffDPX4Wb6PkiX37T4xoDYL9dtXe877u6P857x.7vIpXAN8
+ FJNR5hhSJzzD_8NxuFk125tSYkBSHqRT7sbJQMguklqorvlkXLV1V7D.o6YPnFWnX7EF4vR2h6qL
+ 2vb52qWjpADv3sQO2Il0Q8nwItyMQLQCe0wdull889uPzGw27VPanmxtPP9ZlTKYGQfmHSUGwlDU
+ .1YnnYMmYT2BC5QWXKzwfzZPMyfgIPzl3JWFpH903PhHJlB1BQOfKyA90vynkdgFzaRfLUQuGb3p
+ Eb8_5ddCHwpm_ZHestGVeFCUvBcInvS5ZaHLPFzv5zY9drjwXJLDMyeQYfV8TULpXyWHPsAO3Rmw
+ M3iLX37ttXbZpHkp0ekEWJm3ItuljeZcBVqrsqaMVL9lWNlq4v.n2BHjMNd.6PeVSf_MsTe9Hhse
+ GAQdGrlvp.qzgFYy0MoGIe4mJ8PkaPTeJuM.GxWREVgg7v_SiEGheBbIdzfvW1EBaUE9CqpCfD5Z
+ WUZBF3gBWfyE6tfC1VssSya2ffniydcojldekWjESaXTJAFfqcU1eZ0zj0A86auSTNw4VkWp.Kjn
+ fcdQM08uvckp3JSZAiB04ihWoh1ifZdMgoAc4BwOGbAH9uAn8iIpUPrQRYF6.O.4aImRB563Gv0S
+ 1nZT2iS9G7yWTnd0jkihlybpE5iX2o1is8plx5JXAuJy1fVTa1NeEn6gcpPnH.gDR6M1TYK90w9s
+ ehEZFcyTUP.Atuk79MhnzPN36R640i4_vyIwUVCbOxb9YOTNEpjtfjN2pLtDNmOp0IyVmELllOtJ
+ RQRaTdTO70dWiNPePFjHtyOAl0GqWqdE_TnlUk37R26bSJbPz7cbQhCh46g0.sBxDXgtLU6ULICd
+ 1gkha6UYzrABVvSQ1WDbMfDh9jqBXXMqPQxVqZIXJB29Z.aIjLx3A7HOijwc6IVVC9vmL8nOATLL
+ .KKA2YdOnricxCn2sZVddy5npYD4D5.CGhu1IasCD5UOty3Sw5ZnOgZGVzOUwWOSPiUmVmPIY08s
+ m63wfOx0vYpRWThNLdkMPjsZKOcIcKEyGLCY8UfwQBTOEpbqaOh_tQ9dCfNLZLiPgtlBZsMaUwo5
+ ts7I.1Hu1PuhyRC8.Qx2YVQ6XgzLHAW_qMUfWo3vAtVx2MGn.ZGuZxDlp3NtHuXamddBZ52Bn7vy
+ lSDexgoTbeQs27cXCH..iPyQ_ohzm3toYVsHhTJrSquyaVOizVZMfVSKBV5dR780gl0oyuJ9PBTt
+ xdSYIcYDk.Zb5izX66yviyp_qEA8bhoCvZveS1VOE4bkDKR2gspCmqwaT1sgzsZNYp9m3FG4oo4Q
+ wHzXBp93nwsTm.db.XaM3j.aGo7cUdd9t.2qznPibUJ_TAuOpBXoFt1u6O1.2ig6xuOPZy8MR6wO
+ .izm4OucPFTgvQs0QiQ5VabmxsmG04gSbMcEFmYaG0LSB7TFLVdYFJcrd1wshEeMjzA8emfEVznO
+ su9wL_1AQecPOq0wURE3Wl_NybfEzYF3fDucgH65KxtvPAamO2CMzRx..TX6iRYqSzRDTbtj2MkF
+ ctQsiLxj468ZglNhHSt6YULzV0P7XVS5L78bSwLGAV78d97ZiyZp3K5XHaQeK02l.EXJDcXaKb8o
+ NAkBdmGver.07NSEWahbM0rFT.Ce..w--
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Thu, 20 Oct 2022 22:47:55 +0000
-Received: by hermes--production-gq1-754cb59848-glwn5 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID d561348802d5aa77c822511d6c534fc2;
-          Thu, 20 Oct 2022 22:47:52 +0000 (UTC)
-Message-ID: <4aa57cc6-84d6-31d1-67d1-02703cc4ec8b@schaufler-ca.com>
-Date:   Thu, 20 Oct 2022 15:47:50 -0700
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Thu, 20 Oct 2022 23:42:10 +0000
+Received: by hermes--production-gq1-754cb59848-nlbwv (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 96be409d95bde475d58f7a617539a8b3;
+          Thu, 20 Oct 2022 23:42:06 +0000 (UTC)
+Message-ID: <f6b8ac05-6900-f57d-0daf-02d5ae53bc47@schaufler-ca.com>
+Date:   Thu, 20 Oct 2022 16:42:04 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.3
-Subject: Re: [PATCH v38 02/39] LSM: Add an LSM identifier for external use
+Subject: Re: [PATCH v38 04/39] LSM: Maintain a table of LSM attribute data
 Content-Language: en-US
-To:     =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>,
+To:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         casey.schaufler@intel.com, paul@paul-moore.com,
         linux-security-module@vger.kernel.org
 Cc:     linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
         keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
-        linux-kernel@vger.kernel.org, casey@schaufler-ca.com
+        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+        casey@schaufler-ca.com
 References: <20220927195421.14713-1-casey@schaufler-ca.com>
- <20220927195421.14713-3-casey@schaufler-ca.com>
- <00f438de-3591-1d3e-905b-1df267da8833@digikod.net>
+ <20220927195421.14713-5-casey@schaufler-ca.com>
+ <9907d724-4668-cd50-7454-1a8ca86542b0@I-love.SAKURA.ne.jp>
 From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <00f438de-3591-1d3e-905b-1df267da8833@digikod.net>
+In-Reply-To: <9907d724-4668-cd50-7454-1a8ca86542b0@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-Mailer: WebService/1.1.20754 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/12/2022 2:14 PM, Mickaël Salaün wrote:
->
-> On 27/09/2022 21:53, Casey Schaufler wrote:
->> Add an integer member "id" to the struct lsm_id. This value is
->> a unique identifier associated with each security module. The
->> values are defined in a new UAPI header file. Each existing LSM
->> has been updated to include it's LSMID in the lsm_id.
->>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> ---
->>   include/linux/lsm_hooks.h    |  1 +
->>   include/uapi/linux/lsm.h     | 32 ++++++++++++++++++++++++++++++++
->>   security/apparmor/lsm.c      |  2 ++
->>   security/bpf/hooks.c         |  2 ++
->>   security/commoncap.c         |  2 ++
->>   security/landlock/setup.c    |  2 ++
->>   security/loadpin/loadpin.c   |  2 ++
->>   security/lockdown/lockdown.c |  4 +++-
->>   security/safesetid/lsm.c     |  2 ++
->>   security/selinux/hooks.c     |  2 ++
->>   security/smack/smack_lsm.c   |  2 ++
->>   security/tomoyo/tomoyo.c     |  2 ++
->>   security/yama/yama_lsm.c     |  2 ++
->>   13 files changed, 56 insertions(+), 1 deletion(-)
->>   create mode 100644 include/uapi/linux/lsm.h
->>
->> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
->> index 23054881eb08..407f57aaa6ef 100644
->> --- a/include/linux/lsm_hooks.h
->> +++ b/include/linux/lsm_hooks.h
->> @@ -1603,6 +1603,7 @@ struct security_hook_heads {
->>    */
->>   struct lsm_id {
->>       const char    *lsm;        /* Name of the LSM */
->> +    int        id;        /* LSM ID */
->>   };
->>     /*
->> diff --git a/include/uapi/linux/lsm.h b/include/uapi/linux/lsm.h
->> new file mode 100644
->> index 000000000000..5647c3e220c0
->> --- /dev/null
->> +++ b/include/uapi/linux/lsm.h
->> @@ -0,0 +1,32 @@
->> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
->> +/*
->> + * Linus Security Modules (LSM) - User space API
->> + *
->> + * Copyright (C) 2022 Casey Schaufler <casey@schaufler-ca.com>
->> + * Copyright (C) Intel Corporation
->> + */
+On 10/13/2022 3:04 AM, Tetsuo Handa wrote:
+> On 2022/09/28 4:53, Casey Schaufler wrote:
+>> @@ -483,6 +491,16 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>>  {
+>>  	int i;
+>>  
+>> +	/*
+>> +	 * A security module may call security_add_hooks() more
+>> +	 * than once. Landlock is one such case.
+>> +	 */
+>> +	if (lsm_id == 0 || lsm_idlist[lsm_id - 1] != lsmid)
+>> +		lsm_idlist[lsm_id++] = lsmid;
 >> +
->> +#ifndef _UAPI_LINUX_LSM_H
->> +#define _UAPI_LINUX_LSM_H
->> +
->> +/*
->> + * ID values to identify security modules.
->> + * A system may use more than one security module.
->> + *
->> + * LSM_ID_XXX values 32 and below are reserved for future use
->
-> What do you have in mind? Why not "reserve" higher bits instead and
-> start with SELinux at 1?
+>> +	if (lsm_id > LSMID_ENTRIES)
+>> +		panic("%s Too many LSMs registered.\n", __func__);
+> I'm not happy with LSMID_ENTRIES. This is a way towards forever forbidding LKM-based LSMs.
 
-I don't know what (if anything) Paul had in mind when he suggested the reserved values.
-It's not like there's a shortage of numbers, and as it's part of the ABI and can't
-change I'll err on the side of caution.
+I don't see any way given the locking issues that we're ever going to
+mix built in security modules and loaded security modules on the same
+hook lists. The SELinux module deletion code is sufficiently scary that
+it is being removed. That does not mean that I think loadable modules
+are impossible, I think it means that their management is going to have
+to be separate, the same way the BPF programs are handled. The only way
+that I see a unified hook list is for all the LSMs to be implemented as
+loadable modules, and I can't see that happening in my lifetime.
 
->
->
->> + */
->> +#define LSM_ID_INVALID        -1
->> +#define LSM_ID_SELINUX        33
->> +#define LSM_ID_SMACK        34
->> +#define LSM_ID_TOMOYO        35
->> +#define LSM_ID_IMA        36
->> +#define LSM_ID_APPARMOR        37
->> +#define LSM_ID_YAMA        38
->> +#define LSM_ID_LOADPIN        39
->> +#define LSM_ID_SAFESETID    40
->> +#define LSM_ID_LOCKDOWN        41
->> +#define LSM_ID_BPF        42
->> +#define LSM_ID_LANDLOCK        43
->> +#define LSM_ID_CAPABILITY    44
->
-> Out of curiosity, why this order?
+I can see an LSM like BPF, as I mentioned before, that manages loaded
+modules. Over the years I've seen several designs that might work. I'm
+encouraged (and not a little bit frightened) by the success of the BPF
+work.
 
-Order of inclusion upstream. Except for capability. In the next version
-I plan to fix the order by putting LSM_ID_CAPABILITY first at 32 and
-changing the comment. If we wanted something less mundane we could hex
-encode the first 4 letters of the name, but except for hacker style debugging
-that doesn't gain anything.
+Converting the array[LSMID_ENTRIES] implementation to a hlist like the
+hooks have used would not be that big a project and I don't see that
+making such a change would be a show-stopper for implementing loadable
+modules. I think that a lot of other issues would be more significant.
 
+I will, on the other hand, listen to compelling arguments. It is not the
+intention of this code to lock out loadable modules. If I thought it would
+I would not have proposed it.
+
+> I'm fine with using UAPI-visible constants for switching /proc/ files.
+> But TOMOYO does not need such constant because TOMOYO does not use /proc/ files.
 >
+> Also, lsm_self_attr() will be limited for LSM modules which use /proc/ files, and
+> therefore I think prctl() will be already there.
+
+While the proposed set of attributes map to those in /proc/.../attr there is
+no reason to assume they will be limited to those. I can see providing several
+of the Smack attributes currently manipulated in smackfs, such as relabel-self.
+If we are providing SELinux specific values like keycreate there's no reason
+we can't provide Smack or TOMOYO specific values as well.
+
 >
 >> +
->> +#endif /* _UAPI_LINUX_LSM_H */
->> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
->> index b71f7d4159d7..fb6c7edd5393 100644
->> --- a/security/apparmor/lsm.c
->> +++ b/security/apparmor/lsm.c
->> @@ -24,6 +24,7 @@
->>   #include <linux/zlib.h>
->>   #include <net/sock.h>
->>   #include <uapi/linux/mount.h>
->> +#include <uapi/linux/lsm.h>
->>     #include "include/apparmor.h"
->>   #include "include/apparmorfs.h"
->> @@ -1204,6 +1205,7 @@ struct lsm_blob_sizes apparmor_blob_sizes
->> __lsm_ro_after_init = {
->>     static struct lsm_id apparmor_lsmid __lsm_ro_after_init = {
->>       .lsm      = "apparmor",
->> +    .id       = LSM_ID_APPARMOR,
->>   };
->>     static struct security_hook_list apparmor_hooks[]
->> __lsm_ro_after_init = {
->> diff --git a/security/bpf/hooks.c b/security/bpf/hooks.c
->> index e50de3abfde2..c462fc41dd57 100644
->> --- a/security/bpf/hooks.c
->> +++ b/security/bpf/hooks.c
->> @@ -5,6 +5,7 @@
->>    */
->>   #include <linux/lsm_hooks.h>
->>   #include <linux/bpf_lsm.h>
->> +#include <uapi/linux/lsm.h>
->>     static struct security_hook_list bpf_lsm_hooks[]
->> __lsm_ro_after_init = {
->>       #define LSM_HOOK(RET, DEFAULT, NAME, ...) \
->> @@ -21,6 +22,7 @@ static struct security_hook_list bpf_lsm_hooks[]
->> __lsm_ro_after_init = {
->>    */
->>   struct lsm_id bpf_lsmid __lsm_ro_after_init = {
->>       .lsm      = "bpf",
->> +    .id       = LSM_ID_BPF,
->>   };
->>     static int __init bpf_lsm_init(void)
->> diff --git a/security/commoncap.c b/security/commoncap.c
->> index dab1b5f5e6aa..4e9b140159d8 100644
->> --- a/security/commoncap.c
->> +++ b/security/commoncap.c
->> @@ -25,6 +25,7 @@
->>   #include <linux/binfmts.h>
->>   #include <linux/personality.h>
->>   #include <linux/mnt_idmapping.h>
->> +#include <uapi/linux/lsm.h>
->>     /*
->>    * If a non-root user executes a setuid-root binary in
->> @@ -1448,6 +1449,7 @@ int cap_mmap_file(struct file *file, unsigned
->> long reqprot,
->>     static struct lsm_id capability_lsmid __lsm_ro_after_init = {
->>       .lsm      = "capability",
->> +    .id       = LSM_ID_CAPABILITY,
->>   };
->>     static struct security_hook_list capability_hooks[]
->> __lsm_ro_after_init = {
->> diff --git a/security/landlock/setup.c b/security/landlock/setup.c
->> index fc7b69c5839e..1242c61c9de4 100644
->> --- a/security/landlock/setup.c
->> +++ b/security/landlock/setup.c
->> @@ -8,6 +8,7 @@
->>     #include <linux/init.h>
->>   #include <linux/lsm_hooks.h>
->> +#include <uapi/linux/lsm.h>
->>     #include "common.h"
->>   #include "cred.h"
->> @@ -25,6 +26,7 @@ struct lsm_blob_sizes landlock_blob_sizes
->> __lsm_ro_after_init = {
->>     struct lsm_id landlock_lsmid __lsm_ro_after_init = {
->>       .lsm      = LANDLOCK_NAME,
->> +    .id       = LSM_ID_LANDLOCK,
->
-> Please only use one space after ".id"
-
-Yeah, I got that from the comments on 01/39. I will make that change
-throughout the set.
-
+>>  	for (i = 0; i < count; i++) {
+>>  		hooks[i].lsmid = lsmid;
+>>  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
