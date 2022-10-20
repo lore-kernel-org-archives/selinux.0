@@ -2,110 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B77E7C4332F
-	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 15:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96D60C433FE
+	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 15:21:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230089AbiJTPKU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Oct 2022 11:10:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40208 "EHLO
+        id S230315AbiJTPVH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Oct 2022 11:21:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229973AbiJTPKT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 11:10:19 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0528DBE60
-        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:10:16 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id t186so24963256yba.12
-        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:10:16 -0700 (PDT)
+        with ESMTP id S229756AbiJTPU4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 11:20:56 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CEC0537D3
+        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:20:45 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id n130so3066502yba.10
+        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 08:20:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=pxP+rdM/oYjqVi5iFPWwICgX+HbH0I69qg9sDr0K1LE=;
-        b=KR6cpyzAxPl+7U3Py5QWHOEQQDLxxgZdiJldjiB0XC93zlWcM9n6YQOVPYPnw9oZ1Z
-         GPPhCqBd+xNwTj3Ts+b8KiI8NuiklKCJcQXp4p0jocUfNLQ4dhAFNaFs940aUmZ3pt/T
-         b3mEq4KGTdfqGAaA1Xa/BFKWKCA8siEtzt5CYoWkcPTEVtwffZr8qUJcRlRuXLlKqbul
-         zd9H9aQg5UdGWrjZkBnnzw83O00AlZltUKaXbZBHJ6uLJlhprofGUMJfyR4UElLsDOcV
-         I77+Nv5agtB+VHeOADIxrjy/vlBjcqbIvpGI2HXL1AOIB8l4//roECtSDFosB9T/I8L8
-         JOKQ==
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=oYUwx9AXAxDG20sYfr7hKVXI1VbVXzou7obOOp8onp8=;
+        b=WiGPTWCGYwX8f8SzDcsA9Kdlw67nvMpM8MpRjR3rU/ZkY7hcm0usk+B/ltYnnlVlxc
+         ZvdC29ayU64TWGzkCRI4Yp7s/+yvd/UX44ugg0u9wCOc4nmetKPQI4PSHK2r7Atndg5o
+         iM4GbnDcr035neabM2A+NVxzd28/vESR4x7dhA6gtaFvfdU3f1/ZT7bXIj77mJMJSweg
+         +ysNJoAQB6wTMyp9lDnV8xDQ+mL+rcPBf0mGhZd8/6wrYH2gkXhqjPtinJup3EscuDcL
+         PWsqg4g66tKDwB8RyQOKN5svEnqZXpVZdGodC51851SgEaH1EGetaKIH1WOJqVRRATIl
+         xSRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pxP+rdM/oYjqVi5iFPWwICgX+HbH0I69qg9sDr0K1LE=;
-        b=gjwwl8Mj/qW+rDH7vHAXGGqCwvKKmrN+tZ1PAhm2+cWtaOgGONvjanC82tGEBmTy+4
-         AYRQ50pfiDMe2AFewSSp71BKTkkNFxkXIJfDSvZkzVt2L3jWVrwweg++iG9/ow3ByPb5
-         JZMl5ZxZRep7OxoTtR65cTuxxy1Uk5gZ4Mnte0YS8VrRcQEob2RSi3t9SYf63PeF94ef
-         vprnsKG09HLX1uu4baHnZUoBurIK3jc1ZvC9SzAKVrWkI1O3tp7Z9gwz0NSh3d5dIKV1
-         pAMSF99ha5IM484CMaKtYLdCR1+m4aVf37y18APwOFH6XoEMbpvqVOJQtfXzo7f55jDq
-         lZuQ==
-X-Gm-Message-State: ACrzQf3dHpLtp/cKdoreFsgCldFTn9HzRHVtfLF1u6zYbzVvqYhqDBz4
-        Bu+dka4bN/NKrBt8NSWDu6MhwZhAeF8ea1pQ8sDF
-X-Google-Smtp-Source: AMsMyM5Rs4oDq+vd5+gdAF1kNXM80oLU8Nh4dNPrK2chva8EHptH9aoAz5t5/3W+hZ2lZSpSV9E5RhiJ/YAMRGa1Bfk=
-X-Received: by 2002:a05:6902:724:b0:6c0:1784:b6c7 with SMTP id
- l4-20020a056902072400b006c01784b6c7mr11826786ybt.15.1666278615883; Thu, 20
- Oct 2022 08:10:15 -0700 (PDT)
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=oYUwx9AXAxDG20sYfr7hKVXI1VbVXzou7obOOp8onp8=;
+        b=1gG9g4aYG9P4g69wYlyIO7djnBzvYHHO1PIkmuz8uNjVdFVSmCmKuDgHOIFCULb8J5
+         DgzjxUUtU1iKUQmRCfywHGVc7KXPikpsGgGdeXxXK97wkUfSLiQ3mSIEdBC2onnoeFtM
+         UmgCwqT1wDthCotpLA1iEQf9YmJqzut3a/nbmp8Vx2Bvq76kPhsC6wblv6/IG0y9ytcG
+         rQZHrg1gmukNzpLxbxQVnypWfn8gUC5I4XDRgjA5tUgjhy2ezw4G+7pTt4armGbqOxZi
+         DU2Tt2FtK2ZepzL69iD1TEClPzQFOeLrV6uPrYOqrup3ezmsLFMyI2hhvl36MonG/Acm
+         VVxQ==
+X-Gm-Message-State: ACrzQf0kcy0HhIOVvWpEb5kaP4NWDlKjPiNL1yCYQPDH8X2iNeCuZoXJ
+        mP/UnsS7tucQNCQVTyIuyE6lsHkIP1BGE14ESkVJ
+X-Google-Smtp-Source: AMsMyM6xfDCwoV3AvDAeKK8J5VQLV5nF9Bo12pK9302x4ErUVdKzZZrQKaUpkLrNOT9SgahFOhsdXqdSfitZjK+OmTI=
+X-Received: by 2002:a25:9a88:0:b0:6b9:c29a:2f4b with SMTP id
+ s8-20020a259a88000000b006b9c29a2f4bmr12094852ybo.236.1666279242056; Thu, 20
+ Oct 2022 08:20:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <166543910984.474337.2779830480340611497.stgit@olly> <68decac7-f8f7-1569-be84-8419a0e78417@schaufler-ca.com>
-In-Reply-To: <68decac7-f8f7-1569-be84-8419a0e78417@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 20 Oct 2022 11:10:03 -0400
-Message-ID: <CAHC9VhQr_deuGRCien23zso+gi0VHUHK8ayYK6sBxmK3DyBOjg@mail.gmail.com>
-Subject: Re: [PATCH] lsm: make security_socket_getpeersec_stream() sockptr_t safe
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        netdev@vger.kernel.org,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date:   Thu, 20 Oct 2022 11:20:07 -0400
+Message-ID: <CAHC9VhSXRDUw0CGLqinogP6g5rHWz4rg3N4Dr-VV8RshWt56Jw@mail.gmail.com>
+Subject: [GIT PULL] SELinux fixes for v6.1 (#1)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 20, 2022 at 9:16 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 10/10/2022 2:58 PM, Paul Moore wrote:
-> > Commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-> > sockptr_t argument") made it possible to call sk_getsockopt()
-> > with both user and kernel address space buffers through the use of
-> > the sockptr_t type.  Unfortunately at the time of conversion the
-> > security_socket_getpeersec_stream() LSM hook was written to only
-> > accept userspace buffers, and in a desire to avoid having to change
-> > the LSM hook the commit author simply passed the sockptr_t's
-> > userspace buffer pointer.  Since the only sk_getsockopt() callers
-> > at the time of conversion which used kernel sockptr_t buffers did
-> > not allow SO_PEERSEC, and hence the
-> > security_socket_getpeersec_stream() hook, this was acceptable but
-> > also very fragile as future changes presented the possibility of
-> > silently passing kernel space pointers to the LSM hook.
-> >
-> > There are several ways to protect against this, including careful
-> > code review of future commits, but since relying on code review to
-> > catch bugs is a recipe for disaster and the upstream eBPF maintainer
-> > is "strongly against defensive programming", this patch updates the
-> > LSM hook, and all of the implementations to support sockptr_t and
-> > safely handle both user and kernel space buffers.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
->
-> Smack part looks ok, I haven't had the opportunity to test it.
-> Will do so as I crunch through the backlog.
->
-> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Hi Linus,
 
-Thanks Casey.
+A small SELinux fix for v6.1 to fix a GFP_KERNEL allocation while a
+spinlock is held.  The patch, while still fairly small, is a bit
+larger than one might expect from a simple s/GFP_KERNEL/GFP_ATOMIC/
+conversion because we added support for the function to be called with
+different gfp flags depending on the context, preserving GFP_KERNEL
+for those cases that can safely sleep.
 
-John, how do the AppArmor parts look?
+Please merge for v6.1-rcX.
+-Paul
 
-> > ---
-> >  include/linux/lsm_hook_defs.h |    2 +-
-> >  include/linux/lsm_hooks.h     |    4 ++--
-> >  include/linux/security.h      |   11 +++++++----
-> >  net/core/sock.c               |    3 ++-
-> >  security/apparmor/lsm.c       |   29 +++++++++++++----------------
-> >  security/security.c           |    6 +++---
-> >  security/selinux/hooks.c      |   13 ++++++-------
-> >  security/smack/smack_lsm.c    |   19 ++++++++++---------
-> >  8 files changed, 44 insertions(+), 43 deletions(-)
+--
+The following changes since commit 9abf2313adc1ca1b6180c508c25f22f9395cc780:
+
+ Linux 6.1-rc1 (2022-10-16 15:36:24 -0700)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20221020
+
+for you to fetch changes up to abe3c631447dcd1ba7af972fe6f054bee6f136fa:
+
+ selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
+   (2022-10-19 09:55:53 -0400)
+
+----------------------------------------------------------------
+selinux/stable-6.1 PR 20221020
+
+----------------------------------------------------------------
+GONG, Ruiqi (1):
+     selinux: enable use of both GFP_KERNEL and GFP_ATOMIC in convert_context()
+
+security/selinux/ss/services.c | 5 +++--
+security/selinux/ss/sidtab.c   | 4 ++--
+security/selinux/ss/sidtab.h   | 2 +-
+3 files changed, 6 insertions(+), 5 deletions(-)
 
 -- 
 paul-moore.com
