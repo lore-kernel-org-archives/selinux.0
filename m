@@ -2,117 +2,251 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BC38C4332F
-	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 16:13:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 529D9C4332F
+	for <selinux@archiver.kernel.org>; Thu, 20 Oct 2022 20:28:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbiJTQNk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Oct 2022 12:13:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57868 "EHLO
+        id S229785AbiJTU2T (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Oct 2022 16:28:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbiJTQNj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 12:13:39 -0400
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23E8C1BC157
-        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 09:13:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666282417; bh=ajaWYsokvzfFnXQP5pL1h4wSWcb995Jmi4L6ZZXfF5I=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=tlQ94PBDbVZ464NzFGhGI1Fr4e05sX7cg5BeKWxv3V293MQFShdvR+p9+s3JHy7Rgt7NK+JIR6RtAWY0LaHHdPxU+rMwJZs5QVYOIPtZ/9+uMB29RgVfr6+bj/MXDIN+DfgIW70dnjvpfm0gLIDdjd+VQllEO5GKlt+pLKA6ivCUwgjB3mqOIo/+Ohgm5GjpxlsuvwACpfNvvd4ADVPwLzANPoS7KpQlmQbI31qQWsHcz9IfQvN/WcTaRFXm/uOMc843AoELy+G27/3U9dsWUY2obkYFCOGAe7TnK7sCKQgt+xgMDv8qjTs9Yl5NcwrpjE0KFBkb0Aw+cPGMBffFsg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666282417; bh=rzVfJB5FqIz9yH3i3C4FFN/u38IJFEyk1iv3frnLvou=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=dJjjg2GF0utfe9m3fW4K7szGpT048GZGcr0oGelxlo9hhO9foqk8VCbzqI28kKEZWmbeJlMvt/5JqUIF9QP/sz4iMCxzvh9YYGVx4AmtF5och/XwGYc1WLi2W0iHNdPkdypwwmIjISouWexWOm13pk84dX8ZpD2uiPGMwpoA72SO2XMdL15FZKgMC52sfbBT4JlnBvj36FyELGi/KI/50DV7HyMC6IeaVoH+1l1YMC1mGO/L456ATPgX/A80jp67maYP3mKH05LTrklGX+8BoLVH1fBwHIMfTQI9hOM7DdSxDRQG+SBRxlW8+gTjRTXbbt7iAI8kjg6haOPoKZd0Ww==
-X-YMail-OSG: 9M6vgrsVM1nOwPUtjF8DEhcOv8zHugxZwc4TQIZMJt.oo_bcVpQFI6z6XT13KpS
- QbAhFYNbGO9Uu3Gl1x8VnyWoFpmtjsYloRDa2mERcmgRo30MKIQvSBcVBrtyjfOv4uolRYRg4p64
- UY.bkVagQFn898x87V7xK06uTIDZQgk_axhZH38ogLpkcukgZt6DBRXfiiO9wa2pnEkjh1iic5yq
- n6_LL9kgkdCwYKUpPHL7eW1VnbXwaLob6gZ5NVIdvRVKsJ_8XpDLnQqIXdR2.uS6OLVXeWB5lPtL
- G1975Q4xdcRtVz1.XqnLrSjebFof1KBOxbvJb8ElXhfDV.v76mfYjKhynHRFOkOt83qfttG6WIbc
- PsrcYIUxTsrV2eRDu7GC3_woeF6zCyJXHvnXVE5XduPXE9q.qZ1CDvjwtspc6ZuxtKgTaSmDH3On
- 5YJBv1l3mX.l2hLqTUyblvJt3mShR9A2i0hBP2fuuD_4u_zN.9qa_F30CUgc7qpwnQzez4Wv_rEx
- 1pPq.qejNSICXsh0RgpvsV1Eqt6q_yTqYYYfpDP41YwDm2nv1FkHimHm88HgYZlkmtP0jaIZ0YmB
- DfdELE2XQUfU3LFrroEjbxZBMGF7yHCW6ke_iX.7k2tnc81GsKeJpfAjWVpij8s3qHKaYynDsKeC
- AoDSc8USDIFbGwdQXj8LCKU44vNXVs.PPrQPz6YYGxbQPtBYX42zhXJMC1PVCyZkhAOdS30_t8Wy
- _ouTxrCC9pxihVgKJr8d45z55NNftMUynZxhGyonwJNsZiLvaqTNy2d1mZq4MflIhLHLmBsRbUq0
- KQifyiPF.5PZz.Fw5juHhHJx.AArY56BEpvvUItEii0OIyxrsFFUfR6IDsaBVsjG4KQtO7XC.ckw
- BaPaV6ZCVHPxbLUMjpjUkeXuBbS6UDtwSgeiy2Xj_GLw6Qu33dfTeoisL_JKdJdHIakzeHUZy32L
- 5X6Haf6oKyMOp.TZxuh7khcybvTRM0zuljocn22x7CXEO2DP1uVd3jdFqkRVOCvewY6VlYejCmcK
- btSWv4t.8bZjykNQLSaPX5Z1RZUinll1YHJ6xJC8M60qOjh.Nrvs9r3kZlXo7irP3RlHxlu9NS2.
- 6DUTYyQYXeCY5Xxenk6nlV4ISBIjpjcmZENpjEM8DsyjuDTrUE225S35PNw6QK4z.MsTwM.5g6hd
- 9IbiGEjbkyXoKrP4gIXCq2b2BBTPjp6_aqA7fv1ZQ2a.jwZ8yukb6_Dy_.J1K951XogT4TWKbvvW
- IGDw73Tkf8iLSxnsAqNVlFjl4eNrelJ8pcHnYU7VlYdiunbh0zAU4VP0lxuHaVoHvL_0UCjKEReS
- m2lPMzIOyrZAyed1XdHHPFUHKQII91rnnOXI7hlM8bMlwtZkb3WYBF6_BEisLKeFdmkiXGKwR5Ap
- LYlG2kydIyrkZqka7MwEJNxUvvwh8_cAaGvmYGSajiYKe3JwAoQ2skm7j1F51mjFVUHZJH1CX2RU
- KKmaU.HoMdAsfdXxPdgjyiEcLXGXiO33dMVBnTqJzEekKDptkeiuiq87xeOn6ZqQaBVn6tOCwYwt
- FkLhkDq_rUtdgNRJd14SfP7xifm3YRd59Qu.gS0YgVj1A8ljLQHg.cUeHPYc_AC.t9qLsnxLfmz4
- hq3R2U0BsNq2acgLrx9VUVc.71H2zt7kfJNdWSo7YDms1V5kCFAf5NTPjenN0nrjeQk3q2kWUV3k
- s6mzBdd6MpcHpYbdLksjcOjKdbm36zlW1ub8p9Dv2gmXvfwBtK.aQduqzq39sU9AEqMJhepuzEYQ
- 3DQ8VCvhtF0M1AZpsU7ffDs1Zqmv1s2dKVSVsCoquYynHScoFjSK1PQR6Ueakzig.aAd2Iug8WCg
- okU0qAkMrL2bNR3QSMqnExCc8YQ7Idgw2Mz4ececyyUm8h5wsg45RayDFzAn_jwJEJe3wLifvzjw
- .jbVlpWCh1PCPC0XBK.KbROjpHtGD2JXEWt52e5mUM7FJ6hTyObOGJi_LZtR5bmuld0JPdbrxRBN
- G7HDbBhIXnzxDMyCHTvFHES4K7L1MCHJrBa8Qa.PVrSG2QGiEAs0QzpdBDKNDTiB9G3aF7DRkZ1b
- mXUa6QbGoN31L4k2YmjReIuGlJb8VWBf3LvciwiwP7Da5yi_Ytxp0RVfXdx60egJQUaxAIOsWPpv
- d8CINNhwBFF7hGIDShpw07HG5hKTft5mIIVzmBYV5jgdLa..KVCl7XpNgs.gloEg4pDDDqXmrC2G
- up1VOQb6pxUP2UUcOuoq74MQ5s__6p44mbs5KJhmFaSdjyy.RZ7tkLfIPB7vtiuWDlpJqxqvC9ET
- aat9MJWSclr45e026
+        with ESMTP id S229707AbiJTU2S (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Oct 2022 16:28:18 -0400
+Received: from sonic304-28.consmr.mail.ne1.yahoo.com (sonic304-28.consmr.mail.ne1.yahoo.com [66.163.191.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E0E1A8536
+        for <selinux@vger.kernel.org>; Thu, 20 Oct 2022 13:28:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666297695; bh=+tyY5sZrXLwAhCdaSbNTlOcUin0w9IxudybQ+MEuOE0=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=bAh/2ZfQ/JzxQvQFfDCohw6muAxgDXSoXrMs9nsImFUoYQQDXOeQR0dGs524ce9H3B5hwO9tQWmwoZGqg7+M/Be7rH7CHWon5QsVkSYyNzHeYw+MBG78I8QkeLIm9Pt+CvHOHdZHPl8DtOH9x2fFOgVD1PS/cmtciGPspVdzMzhztMri9XORDmEYzgQ05+UI0vQb0OmvfWCYDGlMQY0VFy6XJRxl+1hhQD+rUKOjT+gp6xu9rNlbkNDJIZUp6Gv4Czx5n9HPJKq5gXa7D3bCtP/LDjdfTo52qzo0dZ7vQRSFmEt2IIY6LgX3lc4ggICI5Ustwach9m9PUx+4yX9a0g==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666297695; bh=ZxaXy+bDElOXIXiZeJk5uYN44O5wk4r33IPu+efq0Sz=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=tsrI8bTL5iaFMIQEYVcJSPFSWO2aik2EklegxNHdEtatpHGbrMlk/VcX3O9Qg7eyCrDqn4Iqa7xkqaNUdfNW7T86gQx1zkcj0s4EWZvUYS/1pV1yjGkyDpl3/qE01Pu/+0/fZOF9a/HL/udtzGEJ8oJU9CbNIIMLHCMkeIQavWM9/r17PL5121ZtreDyDzhIa1GeUpcqRGEiLx9qoEsXqFOWUOLpKxrZx9EE22/ZgPHUaKxLK67FF8itUvIrRUUij/9gbwba7CFN0rRmE4lCOK3G1y4LcLi91TMNJxOvwDQH+VAlnwVgS+R4YtICbweR+grHgvYE+MYEWBX5UT63pg==
+X-YMail-OSG: eM73XZgVM1l2c9nCXchAix.KRYTdqgGU4T4z1DJI0cmRTlXZTZ0SHBkevR6cPlI
+ RCCbB.3QhxQH7eafm.nUzAqG8s1N36twLYSSmGxtRMEP2QzDOUegBcY2g1JEi9dxxy7.heeyGmaq
+ iuxap53pt.2rLEFmYF5ad8fI2exV_aoVAbLNAUHnem7VJn.BdjB8BMSdDEQUrEWDZR5faaPnqwlI
+ jEPt8Xc8Q8E9JOo_UPrjdzLX6vJK5HIwgWjo_iSU5M4AJI018TwLNJDJnVC1r.kqm7X1r74DJcwU
+ BT776hJGk.IwHWOEDJLbl0wOifwUpD1TD.FbuJjD1QK6L6u0iThaRfUkLr9V2oUyqrEWWicnRPkR
+ Q_o92EE4YoTDN0kIVt5wynBDy0QxYlk516CBpOmtknOpq5qkwwYzhgMAAuB6iT19Jh6a8tSLOVb4
+ HY_sAq1YbulQQ.oT9llfsoN01KT3cUJig_d5mWI4PtvXCVgmodvqYsMbnYK1wLh1g323d3hs2s.P
+ L.7C_lj_ZBNUcInrQJsdrgCf.NvpIEhysjlWQO9uQmx_1BTj6K9LNOWzoKm4COies9virLpiv35F
+ wttGnWE2e7vziL_LYky.mDB2APHwKYWAfJYg.xdyJzS4.6nYK9hJvCKjYPPjVcUWUrTpZKxxn7Nq
+ feCT33REuAzLgTuh00XSOGIqDMHrcX72Ye09yrY0kN5pESgdOr_Y3N1gDIMe0jXx2srJhe6_IRNJ
+ OEph3GijC23DMuZpn0xHMIZ5rO6Van806TBUJ.OVXCxdYa3zj9Nhtu0r0teAKTOpCvN7uaGzSo_5
+ imelI_1LnOY0x10db._xqhHmZJ11NhuAEfXY5jSzWBHq_DlbSU5vGG9CfaJ2MMNyytVijXotbEzF
+ 4.2DgdhvSmgLy1jMHUFPaLBx_gejs44nu0ILnLDiUYO.XOl_jEz_FC5xFcLbZEgU4w1heKKaoA6.
+ WQ9LOwxpAP6qsdbcREEp9mOFMQALRtDll8FKU9l6fK_lAQAVR9C_2rZhnOb6K6j3zInfJrqo8ip9
+ M36U0wee0_gPFI3OBuM9v0OQtmDLL.LN6nyl.Ju88BmgqMy_USoksW.CvqHKRb_Lbd86VvHCIgf.
+ JyghAt3K6CF5KoeYn2JXdUkk.HIIDm9pFQ9ZY6XWDtu5dhY032NajS57CeFjXNSlBWBZmR5cvk3B
+ XkpfFu4EpgdWFMElZflwpcj2l8a7imZLTNWHOEEpGWZdXE_bAhZkrbpDqpvSxh.H7EtJ7G8Lrtyq
+ 9kJjZVS11ovvS5Hg3Am8PKY7ztEJzBK4j0F3tGIrGtBXzHriAIPykA0aJV.lLPGiwvvuDZBttsd5
+ hY6EBn9zD1W2vrEg81vAv3SGRqBqfCUx3IWe0acpftVBz4nhUoVTUplBBk8jVDJdUog4Js_ZFUJH
+ B0nv3tFIDJ7wLiSQx9cFyhNPtppxmu4QinZGUNWZHflj9fM2R3AN7Ugw5sqO3AgDfDTr1fIxTNgn
+ DGci03IfQJr0BEJIVc4QlOw2Ohim7knZ1ZIsD16_nns7uc8EDArgCmsln64QLUBywKTI4Ku4vNdj
+ yhSkFfdYgXSLe8nz0XOOeLRmtxju9GvkPmMKXsvqlzg0wlwINw0hoGzeQ1hoW0Bih9yvMLRyWMty
+ 6YTWvPTJGNpgQaZDSMHik598XLYF0EF06afxIORHnPL1_CZghGVp.yirmzMzzcUWV7odlGU4ngMC
+ 9y_LjL0H8uz7lIMHwP_ZKy.czMl9n3YQpGoOYrbFrQBFpRVoA7qehFpXAA8v73SFR4VNJa3ctHrY
+ p2XzGKCccXdwbevXb8xC0OWX5HsG2xlAAvsAYBTzY1l6sihk4nA4A1Q7xTtd6WdUlNCpf3U0qEwz
+ xSdpkucFMw7zn_Z7UiDNFTIzit6zN6sLdrc1m0XOLsX.SU2jLG3rtaFfzEZ5nmWTOrivA5KJE6Su
+ LJENWNqWJICfy7bTDURYldYqcErYOVNRZv4hxobyKvMe72rSAbDfy3hi5KnhQVy_jdeUq7d2Ni7Y
+ nWMt9cx6FWXufUsFV9yjrOSqY2MQiH4qPGQlzb8pY0dXvzNpwgjE5.5ndafAyW2_SCaGplU7ecvd
+ 81SLeBKPa6xUAcexn.bLrnKariljAI.dHO.g9BnF9v.bAfe_ECayt25.hbYfGyxZ53yiOpilmwR8
+ 9CpsuBZt7be2fl1LCLR7aS8HuXS1EHUORfXWVsJf7pSVYJcr.jnrBShqP3xCF3Q5ilq8ZqeVgVlt
+ FKob6s.ITPKyN1V99a_dzRBwzladkSSN.GqCBxLh0MPOZsE8h.xw-
 X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Thu, 20 Oct 2022 16:13:37 +0000
-Received: by hermes--production-gq1-754cb59848-zdkt4 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 1f2e01732a1ec2c64f92c880c6263bd8;
-          Thu, 20 Oct 2022 16:13:34 +0000 (UTC)
-Message-ID: <332a5987-8f4e-e26c-cfa5-5121cfa71ba9@schaufler-ca.com>
-Date:   Thu, 20 Oct 2022 09:13:33 -0700
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Thu, 20 Oct 2022 20:28:15 +0000
+Received: by hermes--production-gq1-754cb59848-xxkcq (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID cbca692a7390198ae42fc445457227f9;
+          Thu, 20 Oct 2022 20:28:09 +0000 (UTC)
+Message-ID: <ebbfa551-c4fd-cc9f-c66f-682ba3a7ba14@schaufler-ca.com>
+Date:   Thu, 20 Oct 2022 13:28:07 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.3.3
-Subject: Re: [PATCH v38 06/39] LSM: lsm_self_attr syscall for LSM self
- attributes
+Subject: Re: [PATCH v38 39/39] LSM: Create lsm_module_list system call
 Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
-        linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
+To:     =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>,
+        casey.schaufler@intel.com, paul@paul-moore.com,
+        linux-security-module@vger.kernel.org
+Cc:     linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
-        linux-kernel@vger.kernel.org, casey@schaufler-ca.com
+        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, casey@schaufler-ca.com
 References: <20220927195421.14713-1-casey@schaufler-ca.com>
- <20220927195421.14713-7-casey@schaufler-ca.com>
- <CAHC9VhQbr1zgyvzM9zB97+rzO-Rcy6CUt_3-54ED-SEanVWyRQ@mail.gmail.com>
+ <20220927203155.15060-1-casey@schaufler-ca.com>
+ <13ab134b-e7a9-fe3f-a05a-7cece1d52403@digikod.net>
 From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhQbr1zgyvzM9zB97+rzO-Rcy6CUt_3-54ED-SEanVWyRQ@mail.gmail.com>
+In-Reply-To: <13ab134b-e7a9-fe3f-a05a-7cece1d52403@digikod.net>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-Mailer: WebService/1.1.20754 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/20/2022 8:44 AM, Paul Moore wrote:
-> On Tue, Sep 27, 2022 at 3:57 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> Create a system call lsm_self_attr() to provide the security
->> module maintained attributes of the current process. Historically
->> these attributes have been exposed to user space via entries in
->> procfs under /proc/self/attr.
-> Hi Casey,
+On 10/12/2022 2:19 PM, Mickaël Salaün wrote:
 >
-> I had hoped to get to review these patches earlier this week, I know
-> you are very anxious to see something happen here, but unfortunately
-> that didn't work out and I'm now in a position of limited network
-> access and time for a bit.  I will do my best to at least comment on
-> the new syscall related additions, but thankfully you've already
-> started to get some good comments from others so I'm hopeful that will
-> help you keep moving forward.
+> On 27/09/2022 22:31, Casey Schaufler wrote:
+>> Create a system call to report the list of Linux Security Modules
+>> that are active on the system. The list is provided as an array
+>> of LSM ID numbers.
+>
+> With lsm_self_attr(), this would look like a dir/file structure.
 
-Thanks. I just got back to work myself. Hopefully the comments will prove
-useful. I'm just getting to them.
+I'm not sure I understand what you mean by this. I think you're suggesting
+that lsm_module_list() shows the list of possibilities and lsm_self_attr()
+shows the data. That's roughly correct. Note that many security modules
+will never provide any data in lsm_self_attr(), and that others will
+only provide it when it has been explicitly set. 
 
-> One comment I did want to make, and it's important: please separate
-> the LSM syscall patches from the LSM stacking patches.  While the
-> stacking patches will obviously be dependent on the syscall patches,
-> the syscall patches should not be dependent on stacking.  However, the
-> LSM syscall patches must be designed from the start to support
-> multiple, simultaneous LSMs.
+>
+> Would it be useful for user space to list all the currently used LSMs
+> instead of only retrieving information about a known (list of) LSM?
 
-OK. I will refactor into two patch sets. The first will be the syscalls
-for getting the LSM attributes and the second will be the stacking changes.
-The prctl() I proposed to set the "display" LSM will be in the second, as
-it makes no sense to have without anything to change. I have not to date
-included the SO_PEERCONTEXT that would be required for complete stacking.
-Would you like to see that included in the syscall patches?
+I believe so. User space tends to lag behind kernel features. ps(1) can report
+the "current" value for any LSM without knowing which module supplied the value
+today by using the /proc/self/attr/current interface. id(1) could do the same
+were it not unnecessarily coded to be SELinux specific. lsm_module_list(2), like
+the existing /sys/kernel/security/lsm interface, allows an application to know
+if it should address the modules it knows about. It also provides the LSM order,
+which could be significant to systemd, dbus, auditd or other sophisticated system
+services.
 
 
-> Thanks.
+> What is the use case for this syscall?
 
-Thank you.
+1. Identify if a specific LSM is in the list.
+	Used by ps(1) to format the -Z output correctly
+	Used by systemd(1) to determine which service start options to support
+	Used by dbus to identify what policy to enforce at runtime
+2. Identify the order of LSMs in the list.
+	Will AppArmor data show up in /proc/self/attr/current, or will Smack data?
 
+>
+>
+>>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>> ---
+>>   arch/x86/entry/syscalls/syscall_64.tbl |  1 +
+>>   include/linux/syscalls.h               |  1 +
+>>   include/uapi/asm-generic/unistd.h      |  5 ++-
+>>   kernel/sys_ni.c                        |  1 +
+>>   security/lsm_syscalls.c                | 50 ++++++++++++++++++++++++++
+>>   5 files changed, 57 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/x86/entry/syscalls/syscall_64.tbl
+>> b/arch/x86/entry/syscalls/syscall_64.tbl
+>> index 56d5c5202fd0..40b35e7069a7 100644
+>> --- a/arch/x86/entry/syscalls/syscall_64.tbl
+>> +++ b/arch/x86/entry/syscalls/syscall_64.tbl
+>> @@ -373,6 +373,7 @@
+>>   449    common    futex_waitv        sys_futex_waitv
+>>   450    common    set_mempolicy_home_node   
+>> sys_set_mempolicy_home_node
+>>   451    common    lsm_self_attr        sys_lsm_self_attr
+>> +452    common    lsm_module_list        sys_lsm_module_list
+>
+> As for the other syscall, this should also be in the same dedicated
+> "wire syscalls" patch.
+>
+>
+>>     #
+>>   # Due to a historical design error, certain syscalls are numbered
+>> differently
+>> diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+>> index 7f87ef8be546..e2e2a9e93e8c 100644
+>> --- a/include/linux/syscalls.h
+>> +++ b/include/linux/syscalls.h
+>> @@ -1057,6 +1057,7 @@ asmlinkage long
+>> sys_set_mempolicy_home_node(unsigned long start, unsigned long l
+>>                           unsigned long home_node,
+>>                           unsigned long flags);
+>>   asmlinkage long sys_lsm_self_attr(struct lsm_ctx *ctx, size_t
+>> *size, int flags);
+>> +asmlinkage long sys_lsm_module_list(unsigned int *ids, size_t *size,
+>> int flags);
+>>     /*
+>>    * Architecture-specific system calls
+>> diff --git a/include/uapi/asm-generic/unistd.h
+>> b/include/uapi/asm-generic/unistd.h
+>> index aa66718e1b48..090617a9a53a 100644
+>> --- a/include/uapi/asm-generic/unistd.h
+>> +++ b/include/uapi/asm-generic/unistd.h
+>> @@ -889,8 +889,11 @@ __SYSCALL(__NR_set_mempolicy_home_node,
+>> sys_set_mempolicy_home_node)
+>>   #define __NR_lsm_self_attr 451
+>>   __SYSCALL(__NR_lsm_self_attr, sys_lsm_self_attr)
+>>   +#define __NR_lsm_module_list 452
+>> +__SYSCALL(__NR_lsm_module_list, sys_lsm_module_list)
+>> +
+>>   #undef __NR_syscalls
+>> -#define __NR_syscalls 452
+>> +#define __NR_syscalls 453
+>
+> Same here.
+>
+>
+>>     /*
+>>    * 32 bit systems traditionally used different
+>> diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+>> index 0fdb0341251d..bde9e74a3473 100644
+>> --- a/kernel/sys_ni.c
+>> +++ b/kernel/sys_ni.c
+>> @@ -264,6 +264,7 @@ COND_SYSCALL(mremap);
+>>     /* security/lsm_syscalls.c */
+>>   COND_SYSCALL(lsm_self_attr);
+>> +COND_SYSCALL(lsm_module_list);
+>>     /* security/keys/keyctl.c */
+>>   COND_SYSCALL(add_key);
+>> diff --git a/security/lsm_syscalls.c b/security/lsm_syscalls.c
+>> index da0fab7065e2..41d9ef945ede 100644
+>> --- a/security/lsm_syscalls.c
+>> +++ b/security/lsm_syscalls.c
+>> @@ -154,3 +154,53 @@ SYSCALL_DEFINE3(lsm_self_attr,
+>>       kfree(final);
+>>       return rc;
+>>   }
+>> +
+>> +/**
+>> + * lsm_module_list - Return a list of the active security modules
+>> + * @ids: the LSM module ids
+>> + * @size: size of @ids, updated on return
+>> + * @flags: reserved for future use, must be zero
+>> + *
+>> + * Returns a list of the active LSM ids. On success this function
+>> + * returns the number of @ids array elements. This value may be zero
+>> + * if there are no LSMs active. If @size is insufficient to contain
+>> + * the return data -E2BIG is returned and @size is set to the minimum
+>> + * required size. In all other cases a negative value indicating the
+>> + * error is returned.
+>> + */
+>> +SYSCALL_DEFINE3(lsm_module_list,
+>> +           unsigned int __user *, ids,
+>> +           size_t __user *, size,
+>> +           int, flags)
+>> +{
+>> +    unsigned int *interum;
+>> +    size_t total_size = lsm_id * sizeof(*interum);
+>> +    size_t usize;
+>> +    int rc;
+>> +    int i;
+>> +
+>> +    if (get_user(usize, size))
+>> +        return -EFAULT;
+>> +
+>> +    if (usize < total_size) {
+>> +        if (put_user(total_size, size) != 0)
+>> +            return -EFAULT;
+>> +        return -E2BIG;
+>> +    }
+>> +
+>> +    interum = kzalloc(total_size, GFP_KERNEL);
+>> +    if (interum == NULL)
+>> +        return -ENOMEM;
+>> +
+>> +    for (i = 0; i < lsm_id; i++)
+>> +        interum[i] = lsm_idlist[i]->id;
+>> +
+>> +    if (copy_to_user(ids, interum, total_size) != 0 ||
+>> +        put_user(total_size, size) != 0)
+>> +        rc = -EFAULT;
+>> +    else
+>> +        rc = lsm_id;
+>> +
+>> +    kfree(interum);
+>> +    return rc;
+>> +}
