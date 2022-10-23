@@ -2,83 +2,132 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10ED6C3A59D
-	for <selinux@archiver.kernel.org>; Sat, 22 Oct 2022 07:45:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1080AECAAA1
+	for <selinux@archiver.kernel.org>; Sun, 23 Oct 2022 07:27:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230483AbiJVHpO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 22 Oct 2022 03:45:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47744 "EHLO
+        id S230132AbiJWH1u (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 23 Oct 2022 03:27:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231534AbiJVHoa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 22 Oct 2022 03:44:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599F8253BD0;
-        Sat, 22 Oct 2022 00:43:04 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EA85B82DB2;
-        Sat, 22 Oct 2022 07:41:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF17FC433D6;
-        Sat, 22 Oct 2022 07:41:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666424517;
-        bh=QOgwnGXtJ5WnEebGLcaB/JmKLZooNWI4me6Yyig3MGY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTB7Coq+cCptmTFDhM/lC0tCQ1sogRKv5VKiUe8H2zt7Q/hsDOitOFFb0HEJ0Tfqh
-         Bn/9LauPGNhBFxRmysHUaHlSJA9QNSWcMeggK6wxs23foRq0O0nBk5F2SYpG1DEzn9
-         sbmZKtKevVLcorh6EjagJJqYP3GCqv1530x5htC0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
-Subject: [PATCH 5.19 176/717] selinux: use "grep -E" instead of "egrep"
-Date:   Sat, 22 Oct 2022 09:20:55 +0200
-Message-Id: <20221022072446.704393717@linuxfoundation.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221022072415.034382448@linuxfoundation.org>
-References: <20221022072415.034382448@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S230124AbiJWH1q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 23 Oct 2022 03:27:46 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0787260503;
+        Sun, 23 Oct 2022 00:27:39 -0700 (PDT)
+Received: from fsav118.sakura.ne.jp (fsav118.sakura.ne.jp [27.133.134.245])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29N7RFOQ082330;
+        Sun, 23 Oct 2022 16:27:15 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav118.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp);
+ Sun, 23 Oct 2022 16:27:15 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29N7RE9v082325
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Sun, 23 Oct 2022 16:27:14 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <a130dc1f-a187-2957-25c1-974fb9c2569f@I-love.SAKURA.ne.jp>
+Date:   Sun, 23 Oct 2022 16:27:13 +0900
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.3
+Subject: Re: [PATCH v38 04/39] LSM: Maintain a table of LSM attribute data
+Content-Language: en-US
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, paul@paul-moore.com,
+        linux-security-module@vger.kernel.org
+Cc:     linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
+        keescook@chromium.org, john.johansen@canonical.com,
+        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org
+References: <20220927195421.14713-1-casey@schaufler-ca.com>
+ <20220927195421.14713-5-casey@schaufler-ca.com>
+ <9907d724-4668-cd50-7454-1a8ca86542b0@I-love.SAKURA.ne.jp>
+ <f6b8ac05-6900-f57d-0daf-02d5ae53bc47@schaufler-ca.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <f6b8ac05-6900-f57d-0daf-02d5ae53bc47@schaufler-ca.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On 2022/10/21 8:42, Casey Schaufler wrote:
+> On 10/13/2022 3:04 AM, Tetsuo Handa wrote:
+>> On 2022/09/28 4:53, Casey Schaufler wrote:
+>>> @@ -483,6 +491,16 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>>>  {
+>>>  	int i;
+>>>  
+>>> +	/*
+>>> +	 * A security module may call security_add_hooks() more
+>>> +	 * than once. Landlock is one such case.
+>>> +	 */
+>>> +	if (lsm_id == 0 || lsm_idlist[lsm_id - 1] != lsmid)
+>>> +		lsm_idlist[lsm_id++] = lsmid;
+>>> +
+>>> +	if (lsm_id > LSMID_ENTRIES)
+>>> +		panic("%s Too many LSMs registered.\n", __func__);
+>> I'm not happy with LSMID_ENTRIES. This is a way towards forever forbidding LKM-based LSMs.
+> 
+> I don't see any way given the locking issues that we're ever going to
+> mix built in security modules and loaded security modules on the same
+> hook lists. The SELinux module deletion code is sufficiently scary that
+> it is being removed. That does not mean that I think loadable modules
+> are impossible, I think it means that their management is going to have
+> to be separate, the same way the BPF programs are handled. The only way
+> that I see a unified hook list is for all the LSMs to be implemented as
+> loadable modules, and I can't see that happening in my lifetime.
 
-commit c969bb8dbaf2f3628927eae73e7c579a74cf1b6e upstream.
+I'm not expecting for unloadable LSM modules.
+I'm expecting for loadable LSM modules.
 
-The latest version of grep claims that egrep is now obsolete so the build
-now contains warnings that look like:
-	egrep: warning: egrep is obsolescent; using grep -E
-fix this by using "grep -E" instead.
+I'm not expecting to make all LSM modules to be implemented as loadable
+LSM modules, for some want to associate "security label" to everything
+(including processes which might start before the global init process starts)
+but others do not need to associate "security label" to everything.
 
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>
-Cc: selinux@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[PM: tweak to remove vdso reference, cleanup subj line]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- scripts/selinux/install_policy.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> I can see an LSM like BPF, as I mentioned before, that manages loaded
+> modules. Over the years I've seen several designs that might work. I'm
+> encouraged (and not a little bit frightened) by the success of the BPF
+> work.
 
---- a/scripts/selinux/install_policy.sh
-+++ b/scripts/selinux/install_policy.sh
-@@ -78,7 +78,7 @@ cd /etc/selinux/dummy/contexts/files
- $SF -F file_contexts /
- 
- mounts=`cat /proc/$$/mounts | \
--	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
-+	grep -E "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
- 	awk '{ print $2 '}`
- $SF -F file_contexts $mounts
- 
+There can be LSM modules whose lifetime of hooks match the lifetime of
+a process which registered hooks for that process. In that case, being
+automatically unregistered upon process termination would be preferable.
 
+But there are LSM modules whose lifetime of hooks is irrelevant to a process
+which registered a hook for that process. In that case, we need a method for
+allowing registered hooks to remain even after that process terminated.
+
+Please don't think loadable LSM modules as something that require special
+handling. TOMOYO is an LSM module whose lifetime of hooks is irrelevant to
+a process which registered a hook for that process, but does not need to
+associate "security label" to everything. It has to be trivial to convert
+TOMOYO as a loadable LSM module.
+
+> 
+> Converting the array[LSMID_ENTRIES] implementation to a hlist like the
+> hooks have used would not be that big a project and I don't see that
+> making such a change would be a show-stopper for implementing loadable
+> modules. I think that a lot of other issues would be more significant.
+
+Defining constants for each LSM module (i.e. "LSM: Add an LSM identifier
+for external use") is the show-stopper for implementing loadable modules.
+We won't be able to accept whatever LSM modules to upstream, and we won't
+be able to enable whatever LSM modules in distributor kernels.
+
+LSM modules which cannot define a constant due to either "not accepted
+to upstream" or "not enabled by distributor kernels" will be forbidden.
+I expect that we assign a constant upon module registration (instead of
+API visible constants) if we require all LSM modules to have a constant.
+
+> 
+> I will, on the other hand, listen to compelling arguments. It is not the
+> intention of this code to lock out loadable modules. If I thought it would
+> I would not have proposed it.
+
+This code is exactly for locking out loadable modules.
 
