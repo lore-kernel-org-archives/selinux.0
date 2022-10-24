@@ -2,44 +2,44 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F0D6FA3742
-	for <selinux@archiver.kernel.org>; Mon, 24 Oct 2022 12:47:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0E10FA3742
+	for <selinux@archiver.kernel.org>; Mon, 24 Oct 2022 13:05:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232136AbiJXMrx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Oct 2022 08:47:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
+        id S235023AbiJXNE6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Oct 2022 09:04:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234453AbiJXMox (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Oct 2022 08:44:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588F426E9;
-        Mon, 24 Oct 2022 05:09:26 -0700 (PDT)
+        with ESMTP id S235339AbiJXNEa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Oct 2022 09:04:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C3D481D6;
+        Mon, 24 Oct 2022 05:20:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CED84612BC;
-        Mon, 24 Oct 2022 12:07:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCB3C433C1;
-        Mon, 24 Oct 2022 12:07:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB57761290;
+        Mon, 24 Oct 2022 12:19:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC018C433C1;
+        Mon, 24 Oct 2022 12:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1666613274;
+        s=korg; t=1666613990;
         bh=QOgwnGXtJ5WnEebGLcaB/JmKLZooNWI4me6Yyig3MGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+fkqKfqeBTuIiYaO419A0VL/7ptoBjCeEN3b/zaZAMaPZmkk1yca6C7ixzqLsUXX
-         L0Dtd8BqKCkjBqkjMoF0MQMniyv+8infDquMkezVaCSMInY+vXgg1y86lFqSOsIYSm
-         bq3llWmkc13DukUpBwAEPDk3HHtxZZPDXGmWlIRc=
+        b=cXdP8FySH0xqUD52fcZa7P8pupP5CY/cL7bpccX5dcURa8AXDhJSit+vHmbCCVXdn
+         6f4dtfkftC37LPvA6mzkFzGK0fabBCzQ2sjQybG+fec70/xiaGFqIgEwBQO2UN3wkb
+         wavF1WOiviRSjwM9Yc3viuIBo7lnYSQGmKUq1fqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
-Subject: [PATCH 5.4 057/255] selinux: use "grep -E" instead of "egrep"
-Date:   Mon, 24 Oct 2022 13:29:27 +0200
-Message-Id: <20221024113004.394129391@linuxfoundation.org>
+Subject: [PATCH 5.10 091/390] selinux: use "grep -E" instead of "egrep"
+Date:   Mon, 24 Oct 2022 13:28:08 +0200
+Message-Id: <20221024113026.506157090@linuxfoundation.org>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221024113002.471093005@linuxfoundation.org>
-References: <20221024113002.471093005@linuxfoundation.org>
+In-Reply-To: <20221024113022.510008560@linuxfoundation.org>
+References: <20221024113022.510008560@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
