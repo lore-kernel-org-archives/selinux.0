@@ -2,99 +2,72 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB79AC38A2D
-	for <selinux@archiver.kernel.org>; Mon, 24 Oct 2022 09:14:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A79BC38A2D
+	for <selinux@archiver.kernel.org>; Mon, 24 Oct 2022 09:18:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229816AbiJXJOv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Oct 2022 05:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50428 "EHLO
+        id S230163AbiJXJSk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Oct 2022 05:18:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbiJXJOq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Oct 2022 05:14:46 -0400
-Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F4210FCD
-        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 02:14:27 -0700 (PDT)
-Received: by mail-pf1-x44a.google.com with SMTP id i19-20020aa787d3000000b0056bd68d713cso750524pfo.17
-        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 02:14:27 -0700 (PDT)
+        with ESMTP id S230283AbiJXJSH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Oct 2022 05:18:07 -0400
+Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748DE5E665
+        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 02:17:32 -0700 (PDT)
+Received: by mail-il1-x129.google.com with SMTP id s9so916095ilu.1
+        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 02:17:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=VnMmmenO3Z6xhx6n/n6yKT565qZLwfdm6Yu2HAVrDZ8=;
-        b=IcX/WrI/UvCe09o4Shj8UkVVXYEqrQEaGoYkQjokptM7wYr1nXgZfaLHvYz0/6g4OX
-         i1IpYjh5daWCC9khF6UqWwpdr0m3oDTcD8aFL3W5Fk0zQZRFRQ3lVFnouzWuE/oWq08l
-         ykr7C2CzO5KCgt/tGmb1saxOPpDWgQ7XjRsy5JynbiYxUePhryl7sIz9tts9TDrq+4nk
-         1cACXMAY4fjufPAR1R4Lb6/FqH9vdTt2zuOXMmMPcMMookyxbwDvMb6sKWEFSz+J8GJZ
-         gXYD7NLAPho4iGAkgOY9I7uwhvDUymjXEsi6mukuxPh/+BaIZLT8XtutQRm2C38FClyH
-         tIvA==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=t68NQ+3hHAUlwTa6RIPlbYc/x4lJOcqa8kQt3qKhwQw=;
+        b=Aib2y7QXTzVV281FblLHg+ARcwFyAbNraAiytxMTraRRWJ5RRh3kAfTtx6ytGxi1BW
+         NZCrT11J6s9vxhU9L3GdfAflCpdsDu/sx7RF/9UMXnSQabQY+ddx8wbgERTakvhEUgg+
+         PVfTrXzFKURzs7Q3sKZpUIOT/UhpOOQy7W74dAnGILiS+d7e+4FuTL1qZvqi1ltokwB1
+         gRUYjoJGK5dFzDWVH8tXPNjk10+RcTOvE7WNUXX9OnbXSuoTvKU1b1REUb3wL+bKVOtu
+         NQAJPAuGvO+6UzcE+wGkN2GLpGtQH4gMa0CbwWq0wXbG4jc5PxsRsEn5fRdVqkQ7kS7H
+         uJfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VnMmmenO3Z6xhx6n/n6yKT565qZLwfdm6Yu2HAVrDZ8=;
-        b=61FtbDzgcl6Ttowy/zREbMi5CGg0xv9GLmZP4PCx3OjbGFhDuy3i7SESGZaSTsJgHp
-         6Fiv+STebtZDlvBHL4KDyckDox5elnaYrsO72fv6DnwrZnrZy1gu9lnPKTdVw+/S7FB5
-         RShBsKwIrM9LDjo9jW8v1gJv30OoJx9K9tBNNwsXrGWhEalG3A7GFkD2DS5kPr/QnaVv
-         gEzFHdJ/BUfQ84oB0sdcICz9K/H7MZP+VFlIqveaN81m0kjCKKVChFM1XgZ9k2nKeU+d
-         HiKUowlEHfez/u/NHdUTAP4KKeI4qJanggq5z4Ed6QEHk3y9P7s883qQgONnXoDv5jVx
-         7hfw==
-X-Gm-Message-State: ACrzQf1YipOzk+TDnVey8l0rNzSyAYQgRFV8IT6aHAcQLOD+XCDihmxn
-        M+l20/sv8ZWTXlQzTcI1g3347NEXzO9vE10VEk9nfofx9dix0xi4k8p7ckG96tRhy8TuWD+Iyzj
-        FjjqKV76ELXZXqAbG1vjQRDqLV8YunkIXCpTCIWt1Mholy+wMLFawDyJpsw/Q
-X-Google-Smtp-Source: AMsMyM4xT/AHchtdwVAn233384mOTaVDO0gc3Eqar055je1iPqhP9OGNp4RBPULFOZ1ZX1h9qbtPXhc2mg==
-X-Received: from tweek-sin.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:2bfd])
- (user=tweek job=sendgmr) by 2002:a17:902:b942:b0:178:be25:203f with SMTP id
- h2-20020a170902b94200b00178be25203fmr33054139pls.101.1666602853650; Mon, 24
- Oct 2022 02:14:13 -0700 (PDT)
-Date:   Mon, 24 Oct 2022 20:13:54 +1100
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
-Message-ID: <20221024091354.2253669-1-tweek@google.com>
-Subject: [PATCH] libselinux: ignore invalid class name lookup
-From:   "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=t68NQ+3hHAUlwTa6RIPlbYc/x4lJOcqa8kQt3qKhwQw=;
+        b=0rDpphm5KxIY/SMspORyZqHkHi0QP91z24HEmcjNWtMx96YnOIhDe9Z2bzvusF3W/D
+         kV6AYiIZdM/q26wCTEenbfiBOWBlSljzf4z06NxBfMz8XjZdsLGDncTanBPkrmtBWXPv
+         6hyeILi/OaNMB2i+AeyDz9G1pGxXwEuyk2+HiHuy1nhTy4tERjKEbYje47wR9nbZqHxg
+         +6Tgj3Ncv27mdkXjys7XMd5J2rmespb6/paz8LtRksYBh4bdqsosEf21qnJ+Ka6iaI7U
+         Pqz8qsF5Ry2Yw4PMzeEQCHuNfTWZTeGFKmCODMTJ/Lj6Y0pLVoUnpw5JzPOtsOwk2L5P
+         AaIg==
+X-Gm-Message-State: ACrzQf3hsP0J37v05msDT1Dg2DtwZCfh5+RvwIEvk7PVyW7u2UctbBhg
+        Pslt0dKRbbBScLdxuKKnz6wARXPj/bGQ/DZlOChrkUKQJJE=
+X-Google-Smtp-Source: AMsMyM7hzp+WQgpzqItoHbkuLdFmDDr6cDfWYIhAexuAtVNejhzw42tOHPq34m++Hy8PpMRBVak8aZdVnzkrewBqX70=
+X-Received: by 2002:a05:6e02:1546:b0:2fd:1a72:8825 with SMTP id
+ j6-20020a056e02154600b002fd1a728825mr21119321ilu.83.1666603050945; Mon, 24
+ Oct 2022 02:17:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <20221024091354.2253669-1-tweek@google.com>
+In-Reply-To: <20221024091354.2253669-1-tweek@google.com>
+From:   =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date:   Mon, 24 Oct 2022 20:17:15 +1100
+Message-ID: <CA+zpnLeRpRVsqaQnYDed1yZQvLuqym2TYj2_XgHxvmX8Meg9Yw@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: ignore invalid class name lookup
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>, Paul Moore <paul@paul-moore.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+        Jeffrey Vander Stoep <jeffv@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-selinux_check_access relies on string_to_security_class to resolve the
-class index from its char* argument. There is no input validation done
-on the string provided. It is possible to supply an argument containing
-trailing backslashes (i.e., "sock_file//////") so that the paths built
-in discover_class get truncated. The processing will then reference the
-same permission file multiple time (e.g., perms/watch_reads will be
-truncated to perms/watch). This will leak the memory allocated when
-strdup'ing the permission name. The discover_class_cache will end up in
-an invalid state (but not corrupted).
+An alternative to this patch is to implement stricter input validation
+on the class name. I could not find any explicit restriction on the
+characters of a class. Empirically, it seems that [A-Za-z0-9_] would
+be sufficient to cover the refpolicy and Android classes. A regex
+matching would have a performance impact here, this is why the strchr
+solution was sent. Let me know if you=E2=80=99d prefer to explore the regex
+alternative.
 
-Ensure that the class provided does not contain any path separator.
-
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
----
- libselinux/src/stringrep.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-index 2fe69f43..592410e5 100644
---- a/libselinux/src/stringrep.c
-+++ b/libselinux/src/stringrep.c
-@@ -63,6 +63,9 @@ static struct discover_class_node * discover_class(const =
-char *s)
- 		return NULL;
- 	}
-=20
-+	if (strchr(s, '/') !=3D NULL)
-+		return NULL;
-+
- 	/* allocate a node */
- 	node =3D malloc(sizeof(struct discover_class_node));
- 	if (node =3D=3D NULL)
---=20
-2.38.0.135.g90850a2211-goog
-
+Thanks
