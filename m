@@ -2,114 +2,99 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64925C3A59D
-	for <selinux@archiver.kernel.org>; Sun, 23 Oct 2022 17:20:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB79AC38A2D
+	for <selinux@archiver.kernel.org>; Mon, 24 Oct 2022 09:14:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbiJWRUi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 23 Oct 2022 13:20:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51988 "EHLO
+        id S229816AbiJXJOv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Oct 2022 05:14:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230031AbiJWRUg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 23 Oct 2022 13:20:36 -0400
-Received: from sonic304-27.consmr.mail.ne1.yahoo.com (sonic304-27.consmr.mail.ne1.yahoo.com [66.163.191.153])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44427541AD
-        for <selinux@vger.kernel.org>; Sun, 23 Oct 2022 10:20:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666545633; bh=vuXOXFcelBEIncDKX1DYKg9y4Q1ZIH/5CLgUUH0vh9s=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=pxC+icWwZhP6itzMOJPjsuv2U1KFbbUuU0vOsRtixQFl3JrBVaPc9AuqSBq6ao7U2rTOCpkPB2iWJLjLAdDTDQx6l3m3HTpvl/pJJ+z9yKtpNCEBjFnojcqwoGN95i646BQc+Ib0a65a8E53kPRQD8CD1NBTAEoSrtvKRh1K+6rNy8em0+ByIqA232kbFKmC5fw2Tf7scof8isyRByn6dUNtp2lvmnl4dPqV8rZx9YuF5BAFRu+Hno/Ms4PnU1Av//m3kHGLrIjYW3uuXYp/g/E/u3ajVhuyC39IaZYb29qgCf7r3e3iO4QH11os17mZ52imxihGlLseh6lgCpFzmg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666545633; bh=XfR9fBSvtmdmN4SsEMmqaigwB+UJyci1c32PTStZ8uG=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=MVve5IbNTIfzprNULYkfhBgLqTexv3ZE5xgUnRgtxX0rowky5qlwN9hc3uj6S2C/UULbrsfXc5qIBA2Lz3d9WI0OPwmtEpqWMsqFTsVOC1UZaOT9VJGFccWdMBi+OMGk5pnYB05r/MFSwSggXN2QqwCRAIlRWBVgxycl79sh5pB2AwbxfQKtkLWFnp3QqEZtQPq5MdwfanGM7X6zLqII8BC7Hd37KfSnzntUtDWdd43BXivk1RqnLudqylUE6ufW4locwen6okkMlSC7uwsxcU7AamnYTFIVKqcHGQILjJKUbxexo72mMytUFjPVLCkQZMIpTiBpLzDv0EMSe8lw2A==
-X-YMail-OSG: fhSSWf4VM1mVpiouRtBKNmFf0UtfHQO0tCsULB51RPVeEB7pTQBBSBCAHNio3Vb
- yXqiebQIR4g8itBwgZjjw.58K1gTDsKOijXy0PIkSU6SjDQfppShUtHy_5yFQE.TY9DsDTtRwhkW
- 2Nd3TTMUX8CDn.CHCKaV_TWc1pY1RyuxwkCKXhjyTIFOkpB24gE7EonJLQGjULcGct7iR5.FANB7
- NGU4_zAmYp1pVAFt9adeHRVqwTmqZRx1W0HQB_DLod0xi3VSxA8cle1zGKVqX_0buJpoee49doyh
- BhNsiphMFj.r.mntp_bc.2d.St90tuKe4tP8utyh_T0JjK6SjLS6QsI1QK1BGu_yb_5OUZxknga3
- t8J_ad9ozPgGDvPSHI9XhJ_o8JRNeOwU3WeHr9jYdLSaEe3Lpd6nhyy4btbs6tFmBXLkOzQAaXf2
- 4xKXfnwCYegWs0HHK46urYizWB4I2tJE6e2M_1ifGPZiqULuikPffLT.yDdeNpSxz.KeQD55qR9S
- fzafz13okSThR9nk_d9XKVh5POF9nbpT_FFwEdr7sELZCKgFNV1h4WjyIXXn2GzpJGubHLqCjEBc
- ZUYir7NUYlJxalX8y3pveTqfGXotJBoSyAw2CrunDlMX4VPdu5b_3J5FPH06.hyVR5eoFNN0IPhu
- EjZGxvJkcQIV3shssO2J2HDl8dD1MbnFBLEx9yhNaTUAmo9CDPC_wr80cD4MnfJZpur_GzGiK2Im
- q6nTWNIvUl42cYElH5pJmZ8xkLjkzWgyoHDTFE5cc62ZptlNEyiW_EGue46l25oKXaSjKbfgHjsa
- MXsCWk5RVgs2RchCkPbKM7H9HtCeANR2xnXOJm0SGP0SNb3hlaLXVBvwg_kwXHVK78wrJCMNc9bK
- oI_fwjNXgwPcuUgYZarX3Vxmpd7VkPWEltT1I95LX7iq.csH5E9bheA_Qrdb6XP3k63upNc5hn_.
- IvOncug1yQVSWkwKy16Uo25WFVn1dW6OE_fcRWnKkV3_SGx7rR_oHf.zVVf4REkb1F2dm8ZsZEHt
- EsnjbGWoAxGQ2naKoksLOt22ZSNy4jm_2CXkVgkxAWKQy6LzzkCWitIna7JI8NlCmS0VZwTyvTLn
- tcJTjA_lQ1tIJa0.NrMlPB.3gRG_A2kfE02G21nfM8oP1qRWIzxs46mKwtZTbP3r.Igbby5WMTZW
- yGakmx9ePLjQw3aNvBSbpDUIlHCSjLKVdbeufJKNp7t2GktSjwWCyzjHW2PBTaCHlA9OOWJRKPRf
- RUNuXQ8CuJ_KY.v1yFT00t.GoNir.1jSJ08ch9oUXpRXNpRsoOEwWBNeEtlGhTBMnIobsd95dYZU
- lDddVeSiGqJf5i7IPBG_AHyBRdvq.GsWD7YysyVdXc5Su3h7G6kPvXz8E.Xhnyc.5bT7SVrukrsb
- cApNly46jyOvWjt.._YJsVktct3EtpkErBPN5oco8IFn2SQDrEVACQXc_PfGgQhxiQbpfPFT2oXf
- kGbP1Dko8zpY0nKZeX_6uM9MfoNZ7crmoddiySbze05l1PVYi0DEpHntqwqGz0oGwGkvI.MWFMp1
- ilc.PgCNwMkIoA6fLIWT5C7xmIawNruA3tuO4t_75KXbCFNpGMygiCZfLlYpE2FZ_MemJQiL.je4
- yJ3WwESVFaMybrYWl2mtWHNz_ciQU9folX2D48h9LrbT.eoP9GZBaK1oo4zPLOS2zzsGrvN6mpI.
- zVnp5B.WAxM8el7EibvJ918TFn1yfp9mXgdwxrEkkLcLppxU7VmImTSM6DypvqEavvOE0D1kGIqs
- rcODjMOug958Xj27XtxT61TUGzPSR8acM8AiBHcvIpfxS4wOMQLSrSsN30NGRKVWCVYGZc_3F6sS
- OJvmnxDLpUQ846k89NAtlrSXZbS0iT8DfS5H9p0e1pFZg7r3fjYZ2DVtZLZvnq7zVSzV8LA9q3Ec
- 194ylFXWEgBUCe55gGvxcSVTPceVaf_oduc1doVnqnxywiR6LoKbtJ5Qk_CrcCezTztimvyDTP43
- qVsSffphJ3GRoZG3PD0Of6BVAsKq_GuL73V9vyHxEEeTKfifJwbHMe3Go1d7C3g2ePUnbztO43Zn
- H8ocaHsjhOkQujIcj4fvgTJ9eXL_IYzOrwLfwlcgjJPeyeEIPQio41woWQdPE0ed6iomfkpNQXg0
- sAPvI8ohs159nlbryFmRG9yWGphARJ2COiOSkEtK3PoARZSO8ZzaS2O0F5ICg8DWMkhoFt53L3yk
- 2u.u8ATRNpIUuCdYe1tfTr9.REtkY4MXU4Ge53Il.jyyzJc74eju0XH1cb3earK.FsNlj9E1OuhK
- OZIUSFWvUTRmXZ8N29x5PwGOjPQ--
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Sun, 23 Oct 2022 17:20:33 +0000
-Received: by hermes--production-gq1-754cb59848-jk2dx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 4212e99988c4a8add2e675927158d4c3;
-          Sun, 23 Oct 2022 17:20:31 +0000 (UTC)
-Message-ID: <1a92299f-2f0d-02d1-75ee-72de80e1a091@schaufler-ca.com>
-Date:   Sun, 23 Oct 2022 10:20:29 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: [PATCH v38 04/39] LSM: Maintain a table of LSM attribute data
-Content-Language: en-US
-To:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        casey.schaufler@intel.com, paul@paul-moore.com,
-        linux-security-module@vger.kernel.org
-Cc:     linux-audit@redhat.com, jmorris@namei.org, selinux@vger.kernel.org,
-        keescook@chromium.org, john.johansen@canonical.com,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        casey@schaufler-ca.com
-References: <20220927195421.14713-1-casey@schaufler-ca.com>
- <20220927195421.14713-5-casey@schaufler-ca.com>
- <9907d724-4668-cd50-7454-1a8ca86542b0@I-love.SAKURA.ne.jp>
- <f6b8ac05-6900-f57d-0daf-02d5ae53bc47@schaufler-ca.com>
- <a130dc1f-a187-2957-25c1-974fb9c2569f@I-love.SAKURA.ne.jp>
- <280c313e-c826-3b9c-a074-2ead3cf4107f@I-love.SAKURA.ne.jp>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <280c313e-c826-3b9c-a074-2ead3cf4107f@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20754 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+        with ESMTP id S230322AbiJXJOq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Oct 2022 05:14:46 -0400
+Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F4210FCD
+        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 02:14:27 -0700 (PDT)
+Received: by mail-pf1-x44a.google.com with SMTP id i19-20020aa787d3000000b0056bd68d713cso750524pfo.17
+        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 02:14:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=VnMmmenO3Z6xhx6n/n6yKT565qZLwfdm6Yu2HAVrDZ8=;
+        b=IcX/WrI/UvCe09o4Shj8UkVVXYEqrQEaGoYkQjokptM7wYr1nXgZfaLHvYz0/6g4OX
+         i1IpYjh5daWCC9khF6UqWwpdr0m3oDTcD8aFL3W5Fk0zQZRFRQ3lVFnouzWuE/oWq08l
+         ykr7C2CzO5KCgt/tGmb1saxOPpDWgQ7XjRsy5JynbiYxUePhryl7sIz9tts9TDrq+4nk
+         1cACXMAY4fjufPAR1R4Lb6/FqH9vdTt2zuOXMmMPcMMookyxbwDvMb6sKWEFSz+J8GJZ
+         gXYD7NLAPho4iGAkgOY9I7uwhvDUymjXEsi6mukuxPh/+BaIZLT8XtutQRm2C38FClyH
+         tIvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VnMmmenO3Z6xhx6n/n6yKT565qZLwfdm6Yu2HAVrDZ8=;
+        b=61FtbDzgcl6Ttowy/zREbMi5CGg0xv9GLmZP4PCx3OjbGFhDuy3i7SESGZaSTsJgHp
+         6Fiv+STebtZDlvBHL4KDyckDox5elnaYrsO72fv6DnwrZnrZy1gu9lnPKTdVw+/S7FB5
+         RShBsKwIrM9LDjo9jW8v1gJv30OoJx9K9tBNNwsXrGWhEalG3A7GFkD2DS5kPr/QnaVv
+         gEzFHdJ/BUfQ84oB0sdcICz9K/H7MZP+VFlIqveaN81m0kjCKKVChFM1XgZ9k2nKeU+d
+         HiKUowlEHfez/u/NHdUTAP4KKeI4qJanggq5z4Ed6QEHk3y9P7s883qQgONnXoDv5jVx
+         7hfw==
+X-Gm-Message-State: ACrzQf1YipOzk+TDnVey8l0rNzSyAYQgRFV8IT6aHAcQLOD+XCDihmxn
+        M+l20/sv8ZWTXlQzTcI1g3347NEXzO9vE10VEk9nfofx9dix0xi4k8p7ckG96tRhy8TuWD+Iyzj
+        FjjqKV76ELXZXqAbG1vjQRDqLV8YunkIXCpTCIWt1Mholy+wMLFawDyJpsw/Q
+X-Google-Smtp-Source: AMsMyM4xT/AHchtdwVAn233384mOTaVDO0gc3Eqar055je1iPqhP9OGNp4RBPULFOZ1ZX1h9qbtPXhc2mg==
+X-Received: from tweek-sin.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:2bfd])
+ (user=tweek job=sendgmr) by 2002:a17:902:b942:b0:178:be25:203f with SMTP id
+ h2-20020a170902b94200b00178be25203fmr33054139pls.101.1666602853650; Mon, 24
+ Oct 2022 02:14:13 -0700 (PDT)
+Date:   Mon, 24 Oct 2022 20:13:54 +1100
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
+Message-ID: <20221024091354.2253669-1-tweek@google.com>
+Subject: [PATCH] libselinux: ignore invalid class name lookup
+From:   "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>, Paul Moore <paul@paul-moore.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/23/2022 3:10 AM, Tetsuo Handa wrote:
-> On 2022/10/23 16:27, Tetsuo Handa wrote:
->> On 2022/10/21 8:42, Casey Schaufler wrote:
->>> I will, on the other hand, listen to compelling arguments. It is not the
->>> intention of this code to lock out loadable modules. If I thought it would
->>> I would not have proposed it.
->> This code is exactly for locking out loadable modules.
->>
-> Imagine a situation where two individuals independently develop their own
-> web applications using the same identifier, and then their web applications
-> started working together with other web applications using that identifier.
-> When they published their web applications for public and wider use, a problem
-> that both web applications are already using the same identifier arises.
-> It is too late to reassign the identifier.
->
-> The same trouble can happen with loadable LSM modules. Unless the upstream kernel
-> behaves as if a DNS registerer that assigns a unique domainname for whatever web
-> sites (regardless of whether a web site is for public or not), defining a permanent
-> constant for LSM module is a way towards locking out loadable LSM modules. And it
-> is well possible that a loadable LSM module wants to run on older kernels which
-> do not have LSM id defined yet.
->
-> This "define LSM id as userspace visible constant" is more dangerous than just
-> reserving some space for future use. You are trying to control all IP addresses
-> for the sake of only in-tree LSM modules. No, no, no, please don't do that...
+selinux_check_access relies on string_to_security_class to resolve the
+class index from its char* argument. There is no input validation done
+on the string provided. It is possible to supply an argument containing
+trailing backslashes (i.e., "sock_file//////") so that the paths built
+in discover_class get truncated. The processing will then reference the
+same permission file multiple time (e.g., perms/watch_reads will be
+truncated to perms/watch). This will leak the memory allocated when
+strdup'ing the permission name. The discover_class_cache will end up in
+an invalid state (but not corrupted).
 
-It's really no more dangerous than using the LSM name. What if two developers
-implement modules and both name it "belllapadula"? User space won't be able to
-tell the difference if they base behavior on the module name. That's one thing
-that a loadable module mechanism is going to need to address that a built-in
-mechanism doesn't. 
+Ensure that the class provided does not contain any path separator.
+
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ libselinux/src/stringrep.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+index 2fe69f43..592410e5 100644
+--- a/libselinux/src/stringrep.c
++++ b/libselinux/src/stringrep.c
+@@ -63,6 +63,9 @@ static struct discover_class_node * discover_class(const =
+char *s)
+ 		return NULL;
+ 	}
+=20
++	if (strchr(s, '/') !=3D NULL)
++		return NULL;
++
+ 	/* allocate a node */
+ 	node =3D malloc(sizeof(struct discover_class_node));
+ 	if (node =3D=3D NULL)
+--=20
+2.38.0.135.g90850a2211-goog
 
