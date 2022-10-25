@@ -2,43 +2,40 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36639C38A2D
-	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 10:28:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBDCCC04A95
+	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 11:20:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232304AbiJYK2N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Oct 2022 06:28:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S231847AbiJYLUh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Oct 2022 07:20:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232324AbiJYK1w (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 06:27:52 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE66615F93B;
-        Tue, 25 Oct 2022 03:26:20 -0700 (PDT)
-Received: from [192.168.43.182] (unknown [62.168.35.125])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 22B144230C;
-        Tue, 25 Oct 2022 10:26:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1666693578;
-        bh=3sCInTdft8yjEPkkTthN7v6dHtEH+P9/EcMebV5xMWg=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=SVsVFVCNwLBRTddXJB8eUl+fvgGyTynFDFRZPX46OC9fuKy5q5VwB7AZnfv55JtzS
-         oDNNdwFRUVKskPRGQ8MSfkmAq6xG7dXmCkt3UgeBqvv4Tr3cyEcCHa0PU2DQupSuru
-         Bfcm9zV24AhbB8mjlPWoVdbhBkJkKx7bJfEbMpzaQ9EatP+TMi+0AgiN1GS5hW1FyN
-         YOsQ1yFnNvqVvL/OnzBPDpxitNdUwz/z2uTkYxcX6C+g3zEPotgqKpO8GwRjuElxwj
-         yvG/izP/CW9tLmS4GtFmCXONnvx02Ha5IEjPQu0a90Qvfn/SWuF/gwE8V32v5lzKpG
-         DwxYpQ0u4Tx6w==
-Message-ID: <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
-Date:   Tue, 25 Oct 2022 03:26:17 -0700
+        with ESMTP id S232033AbiJYLUc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 07:20:32 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B52123446
+        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 04:20:30 -0700 (PDT)
+Received: from fsav411.sakura.ne.jp (fsav411.sakura.ne.jp [133.242.250.110])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29PBKRqb050298;
+        Tue, 25 Oct 2022 20:20:28 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav411.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav411.sakura.ne.jp);
+ Tue, 25 Oct 2022 20:20:27 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav411.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29PBKR8D050295
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Tue, 25 Oct 2022 20:20:27 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <0fcc5444-a957-f107-25a1-3540588eab5a@I-love.SAKURA.ne.jp>
+Date:   Tue, 25 Oct 2022 20:20:23 +0900
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
 Subject: Re: LSM stacking in next for 6.1?
 Content-Language: en-US
-To:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+To:     John Johansen <john.johansen@canonical.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Paul Moore <paul@paul-moore.com>
 Cc:     LSM List <linux-security-module@vger.kernel.org>,
@@ -46,7 +43,6 @@ Cc:     LSM List <linux-security-module@vger.kernel.org>,
         Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
         SElinux list <selinux@vger.kernel.org>
 References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <269014c6-5ce6-3322-5208-004cb1b40792@canonical.com>
  <CAHC9VhRrOgDMO9fo632tSL7vCMAy1_x3smaAok-nWdMAUFB8xQ@mail.gmail.com>
  <1958a0d3-c4fb-0661-b516-93f8955cdb95@schaufler-ca.com>
  <CAHC9VhQPvcunvBDvSnrUChwmGLen0Rcy8KEk_uOjNF1kr4_m9w@mail.gmail.com>
@@ -61,73 +57,35 @@ References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
  <1a9f9182-9188-2f64-4a17-ead2fed70348@schaufler-ca.com>
  <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
  <5995f18c-5623-9d97-0aa6-5f13a2a8e895@I-love.SAKURA.ne.jp>
-From:   John Johansen <john.johansen@canonical.com>
-Organization: Canonical
-In-Reply-To: <5995f18c-5623-9d97-0aa6-5f13a2a8e895@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/25/22 02:48, Tetsuo Handa wrote:
-> On 2022/10/25 1:37, Casey Schaufler wrote:
->>>   What I'm insisting is that "warrant the freedom to load
->>> loadable LSM modules without recompiling the whole kernel".
->>
->> Since security modules are optional and the LSM infrastructure
->> itself is optional you can't ensure that any given kernel would
->> support a loadable security module.
-> 
-> Like I propose adding EXPORT_SYMBOL_GPL(security_hook_heads),
-> I'm not taking about distributors who choose CONFIG_SECURITY=n.
-> 
->>> Adding EXPORT_SYMBOL_GPL(security_hook_heads) is the only way that can "allow
->>> LSM modules which distributors cannot support to be legally loaded".
->>
->> I believe that I've identified an alternative. It isn't easy or cheap.
-> 
-> No. You are just handwaving/postponing the problem using something unknown
-> that is not yet shown as a workable code. Anything that can be disabled via
-> kernel config option cannot be an alternative.
-> 
-Uhmmm, loadable LSM modules if they ever happen will have a kernel config.
-If not distros will carry a patch just like they have for unprivileged
-user namespaces. Trying to force distros to allow out of tree code just
-isn't going to work.
+On 2022/10/25 19:26, John Johansen wrote:
+> no, Casey is not. He is trying to find a path forward to get LSM
+> stacking upstream sooner than later. He has made proposals that
+> admittedly you have not liked, but he has at least tried to propose
+> ideas that could work within the insane set of constraints.
 
->    Quoting from https://lkml.kernel.org/r/2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp
->    > Like Paul Moore said
->    >
->    >   However, I will caution that it is becoming increasingly difficult for people
->    >   to find time to review potential new LSMs so it may a while to attract sufficient
->    >   comments and feedback.
->    >
->    > , being unable to legally use loadable LSMs deprives of chances to develop/try
->    > new LSMs, and makes LSM interface more and more unattractive. The consequence
->    > would be "The LSM interface is dead. We will give up implementing as LSMs."
-> 
-> The biggest problem is that quite few developers show interest in loadable LSM modules.
-> How many developers responded to this topic? Once the ability to allow loadable LSM
-> modules is technically lost, nobody shall be able to revive it. You will be happy with
-> ignoring poor people.
-> 
-> You are already and completely trapped into "only in-tree and supported by distributors
-> is correct" crap.
-> 
+I'm OK with getting LSM stacking upstream. But changes made based on
+only built-in modules are bad. If LSM id cannot be assigned to loadable
+LSM modules at runtime because not all loadable LSM modules will be
+in-tree in order to get an LSM id assigned, loadable LSM modules won't
+be able to utilize e.g. lsm_module_list system call (or whatever
+changes made while trying to unshare resources/interfaces currently
+shared among SELinux/Smack/AppArmor).
 
-no, Casey is not. He is trying to find a path forward to get LSM
-stacking upstream sooner than later. He has made proposals that
-admittedly you have not liked, but he has at least tried to propose
-ideas that could work within the insane set of constraints.
-
->> Of course the upstream kernel isn't going to have LSM IDs for out-of-tree
->> security modules. That's one of many reasons loadable modules are going to
->> have to be treated differently from built-in modules, if they're allowed
->> at all.
-> 
-> Then, I have to hate your idea of having fixed sized array.
-> 
-> Nacked-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> 
+It will be a complete reinvention of Linux security framework which is
+merely borrowing hooks provided by LSM. That is no different from
+duplicating existing LSM hooks and managing via completely different
+set of interfaces (e.g. /proc/$pid/attr2/$lsmname/$filename ,
+/sys/kernel/security2/$lsmname/$filename ). Such implementation is
+no longer loadable LSM. It is LSM version 2. And I don't think that
+such implementation will be accepted unless you agree to kill current
+LSM (say, LSM version 1).
 
