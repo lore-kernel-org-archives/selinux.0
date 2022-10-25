@@ -2,90 +2,293 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBDCCC04A95
-	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 11:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DC1DFA3740
+	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 11:24:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231847AbiJYLUh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Oct 2022 07:20:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
+        id S232103AbiJYLYc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Oct 2022 07:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232033AbiJYLUc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 07:20:32 -0400
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B52123446
-        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 04:20:30 -0700 (PDT)
-Received: from fsav411.sakura.ne.jp (fsav411.sakura.ne.jp [133.242.250.110])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29PBKRqb050298;
-        Tue, 25 Oct 2022 20:20:28 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav411.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav411.sakura.ne.jp);
- Tue, 25 Oct 2022 20:20:27 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav411.sakura.ne.jp)
-Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-        (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29PBKR8D050295
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Tue, 25 Oct 2022 20:20:27 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <0fcc5444-a957-f107-25a1-3540588eab5a@I-love.SAKURA.ne.jp>
-Date:   Tue, 25 Oct 2022 20:20:23 +0900
+        with ESMTP id S232052AbiJYLYb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 07:24:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3FC24948
+        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 04:24:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1666697068;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=f7EIviJxfeV5Wz2eCRQ/jlfa3sqau6UaiJfVokLU0Uc=;
+        b=hIwd4+EunsMVmmtunJ0YeD1c1rcTN0oaoAwaJzfxAVC+oqdsR8VJsXCoKuF58SDByhmRtS
+        VPP6YPzfUkZS3lTpyRnrS7PgxahtxlCqSEot/dAogH4JFtfGZQDZq3x+LtntZrSKv2ivOo
+        EOMOq/GpZ37vU6YvV9zB33x3Z1V/fH0=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-447-w8Bee9PaP0SyE7SG8a6yGg-1; Tue, 25 Oct 2022 07:24:27 -0400
+X-MC-Unique: w8Bee9PaP0SyE7SG8a6yGg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0AF7D3815D20
+        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 11:24:27 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-192-215.brq.redhat.com [10.40.192.215])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 69B60492B0A;
+        Tue, 25 Oct 2022 11:24:26 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH] libselinux: Drop '\n' from avc_log() messages
+Date:   Tue, 25 Oct 2022 13:24:16 +0200
+Message-Id: <20221025112416.652021-1-plautrba@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.0
-Subject: Re: LSM stacking in next for 6.1?
-Content-Language: en-US
-To:     John Johansen <john.johansen@canonical.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     LSM List <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
-        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
-        SElinux list <selinux@vger.kernel.org>
-References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <CAHC9VhRrOgDMO9fo632tSL7vCMAy1_x3smaAok-nWdMAUFB8xQ@mail.gmail.com>
- <1958a0d3-c4fb-0661-b516-93f8955cdb95@schaufler-ca.com>
- <CAHC9VhQPvcunvBDvSnrUChwmGLen0Rcy8KEk_uOjNF1kr4_m9w@mail.gmail.com>
- <6552af17-e511-a7d8-f462-cafcf41a33bb@schaufler-ca.com>
- <CAHC9VhQMeyxQJSAUuigu=CCr44WtpJg=LEh1xng_bPfCCjqq6Q@mail.gmail.com>
- <5ef4a1ae-e92c-ca77-7089-2efe1d4c4e6d@schaufler-ca.com>
- <CAHC9VhQRpeOMkeEfy=VRPnpuYMUDYgLp56OjQZPYwoXmfHYREQ@mail.gmail.com>
- <c679cea7-bb90-7a62-2e17-888826857d55@schaufler-ca.com>
- <e9ce6253-c8a3-19c3-1b71-f3a2e04539bc@I-love.SAKURA.ne.jp>
- <cc14bbde-529e-376c-7d27-8512ec677db3@schaufler-ca.com>
- <ff43e254-0f41-3f4f-f04d-63b76bed2ccf@I-love.SAKURA.ne.jp>
- <1a9f9182-9188-2f64-4a17-ead2fed70348@schaufler-ca.com>
- <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
- <5995f18c-5623-9d97-0aa6-5f13a2a8e895@I-love.SAKURA.ne.jp>
- <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
-From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-In-Reply-To: <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2022/10/25 19:26, John Johansen wrote:
-> no, Casey is not. He is trying to find a path forward to get LSM
-> stacking upstream sooner than later. He has made proposals that
-> admittedly you have not liked, but he has at least tried to propose
-> ideas that could work within the insane set of constraints.
+The main set_selinux_callback() consumers, such as systemd, dbus-broker,
+and shadow-utils, expect messages to end without a newline. The default
+log handler in libselinux has been updated to add a newline to messages
+printed to stderr.
 
-I'm OK with getting LSM stacking upstream. But changes made based on
-only built-in modules are bad. If LSM id cannot be assigned to loadable
-LSM modules at runtime because not all loadable LSM modules will be
-in-tree in order to get an LSM id assigned, loadable LSM modules won't
-be able to utilize e.g. lsm_module_list system call (or whatever
-changes made while trying to unshare resources/interfaces currently
-shared among SELinux/Smack/AppArmor).
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libselinux/man/man3/selinux_set_callback.3 |  3 +++
+ libselinux/src/avc.c                       | 16 ++++++-------
+ libselinux/src/avc_internal.c              | 26 +++++++++++-----------
+ libselinux/src/callbacks.c                 |  6 +++++
+ 4 files changed, 30 insertions(+), 21 deletions(-)
 
-It will be a complete reinvention of Linux security framework which is
-merely borrowing hooks provided by LSM. That is no different from
-duplicating existing LSM hooks and managing via completely different
-set of interfaces (e.g. /proc/$pid/attr2/$lsmname/$filename ,
-/sys/kernel/security2/$lsmname/$filename ). Such implementation is
-no longer loadable LSM. It is LSM version 2. And I don't think that
-such implementation will be accepted unless you agree to kill current
-LSM (say, LSM version 1).
+diff --git a/libselinux/man/man3/selinux_set_callback.3 b/libselinux/man/man3/selinux_set_callback.3
+index 75f49b06d836..124754a1854b 100644
+--- a/libselinux/man/man3/selinux_set_callback.3
++++ b/libselinux/man/man3/selinux_set_callback.3
+@@ -122,6 +122,9 @@ None.
+ .SH "ERRORS"
+ None.
+ .
++.SH "NOTES"
++Log messages don't end with a newline.
++.
+ .SH "AUTHOR"
+ Eamon Walsh <ewalsh@tycho.nsa.gov>
+ .
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index 8d5983a2fe0c..e4f7f64fa913 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -175,7 +175,7 @@ static int avc_init_internal(const char *prefix,
+ 	rc = sidtab_init(&avc_sidtab);
+ 	if (rc) {
+ 		avc_log(SELINUX_ERROR,
+-			"%s:  unable to initialize SID table\n",
++			"%s:  unable to initialize SID table",
+ 			avc_prefix);
+ 		goto out;
+ 	}
+@@ -183,7 +183,7 @@ static int avc_init_internal(const char *prefix,
+ 	avc_audit_buf = (char *)avc_malloc(AVC_AUDIT_BUFSIZE);
+ 	if (!avc_audit_buf) {
+ 		avc_log(SELINUX_ERROR,
+-			"%s:  unable to allocate audit buffer\n",
++			"%s:  unable to allocate audit buffer",
+ 			avc_prefix);
+ 		rc = -1;
+ 		goto out;
+@@ -193,7 +193,7 @@ static int avc_init_internal(const char *prefix,
+ 		new = avc_malloc(sizeof(*new));
+ 		if (!new) {
+ 			avc_log(SELINUX_WARNING,
+-				"%s:  warning: only got %d av entries\n",
++				"%s:  warning: only got %d av entries",
+ 				avc_prefix, i);
+ 			break;
+ 		}
+@@ -206,7 +206,7 @@ static int avc_init_internal(const char *prefix,
+ 		rc = security_getenforce();
+ 		if (rc < 0) {
+ 			avc_log(SELINUX_ERROR,
+-				"%s:  could not determine enforcing mode: %m\n",
++				"%s:  could not determine enforcing mode: %m",
+ 				avc_prefix);
+ 			goto out;
+ 		}
+@@ -216,7 +216,7 @@ static int avc_init_internal(const char *prefix,
+ 	rc = selinux_status_open(0);
+ 	if (rc < 0) {
+ 		avc_log(SELINUX_ERROR,
+-			"%s: could not open selinux status page: %d (%m)\n",
++			"%s: could not open selinux status page: %d (%m)",
+ 			avc_prefix, errno);
+ 		goto out;
+ 	}
+@@ -292,7 +292,7 @@ void avc_av_stats(void)
+ 	avc_release_lock(avc_lock);
+ 
+ 	avc_log(SELINUX_INFO, "%s:  %u AV entries and %d/%d buckets used, "
+-		"longest chain length %d\n", avc_prefix,
++		"longest chain length %d", avc_prefix,
+ 		avc_cache.active_nodes,
+ 		slots_used, AVC_CACHE_SLOTS, max_chain_len);
+ }
+@@ -473,7 +473,7 @@ static int avc_insert(security_id_t ssid, security_id_t tsid,
+ 
+ 	if (ae->avd.seqno < avc_cache.latest_notif) {
+ 		avc_log(SELINUX_WARNING,
+-			"%s:  seqno %u < latest_notif %u\n", avc_prefix,
++			"%s:  seqno %u < latest_notif %u", avc_prefix,
+ 			ae->avd.seqno, avc_cache.latest_notif);
+ 		errno = EAGAIN;
+ 		rc = -1;
+@@ -613,7 +613,7 @@ static int avc_ratelimit(void)
+ 		avc_release_lock(ratelimit_lock);
+ 		if (lost) {
+ 			avc_log(SELINUX_WARNING,
+-				"%s:  %d messages suppressed.\n", avc_prefix,
++				"%s:  %d messages suppressed.", avc_prefix,
+ 				lost);
+ 		}
+ 		rc = 1;
+diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+index 71a1357bc564..a5d24b16d063 100644
+--- a/libselinux/src/avc_internal.c
++++ b/libselinux/src/avc_internal.c
+@@ -66,7 +66,7 @@ int avc_process_setenforce(int enforcing)
+ 	avc_enforcing = enforcing;
+ 	if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
+ 		avc_log(SELINUX_ERROR,
+-			"%s:  cache reset returned %d (errno %d)\n",
++			"%s:  cache reset returned %d (errno %d)",
+ 			avc_prefix, rc, errno);
+ 		return rc;
+ 	}
+@@ -86,7 +86,7 @@ int avc_process_policyload(uint32_t seqno)
+ 	rc = avc_ss_reset(seqno);
+ 	if (rc < 0) {
+ 		avc_log(SELINUX_ERROR,
+-			"%s:  cache reset returned %d (errno %d)\n",
++			"%s:  cache reset returned %d (errno %d)",
+ 			avc_prefix, rc, errno);
+ 		return rc;
+ 	}
+@@ -157,7 +157,7 @@ static int avc_netlink_receive(void *buf, unsigned buflen, int blocking)
+ 		return -1;
+ 	}
+ 	else if (rc < 1) {
+-		avc_log(SELINUX_ERROR, "%s:  netlink poll: error %d\n",
++		avc_log(SELINUX_ERROR, "%s:  netlink poll: error %d",
+ 			avc_prefix, errno);
+ 		return rc;
+ 	}
+@@ -169,21 +169,21 @@ static int avc_netlink_receive(void *buf, unsigned buflen, int blocking)
+ 
+ 	if (nladdrlen != sizeof nladdr) {
+ 		avc_log(SELINUX_WARNING,
+-			"%s:  warning: netlink address truncated, len %u?\n",
++			"%s:  warning: netlink address truncated, len %u?",
+ 			avc_prefix, nladdrlen);
+ 		return -1;
+ 	}
+ 
+ 	if (nladdr.nl_pid) {
+ 		avc_log(SELINUX_WARNING,
+-			"%s:  warning: received spoofed netlink packet from: %u\n",
++			"%s:  warning: received spoofed netlink packet from: %u",
+ 			avc_prefix, nladdr.nl_pid);
+ 		return -1;
+ 	}
+ 
+ 	if (rc == 0) {
+ 		avc_log(SELINUX_WARNING,
+-			"%s:  warning: received EOF on netlink socket\n",
++			"%s:  warning: received EOF on netlink socket",
+ 			avc_prefix);
+ 		errno = EBADFD;
+ 		return -1;
+@@ -191,7 +191,7 @@ static int avc_netlink_receive(void *buf, unsigned buflen, int blocking)
+ 
+ 	if (nlh->nlmsg_flags & MSG_TRUNC || nlh->nlmsg_len > (unsigned)rc) {
+ 		avc_log(SELINUX_WARNING,
+-			"%s:  warning: incomplete netlink message\n",
++			"%s:  warning: incomplete netlink message",
+ 			avc_prefix);
+ 		return -1;
+ 	}
+@@ -214,7 +214,7 @@ static int avc_netlink_process(void *buf)
+ 
+ 		errno = -err->error;
+ 		avc_log(SELINUX_ERROR,
+-			"%s:  netlink error: %d\n", avc_prefix, errno);
++			"%s:  netlink error: %d", avc_prefix, errno);
+ 		return -1;
+ 	}
+ 
+@@ -236,7 +236,7 @@ static int avc_netlink_process(void *buf)
+ 
+ 	default:
+ 		avc_log(SELINUX_WARNING,
+-			"%s:  warning: unknown netlink message %d\n",
++			"%s:  warning: unknown netlink message %d",
+ 			avc_prefix, nlh->nlmsg_type);
+ 	}
+ 	return 0;
+@@ -257,7 +257,7 @@ int avc_netlink_check_nb(void)
+ 				continue;
+ 			else {
+ 				avc_log(SELINUX_ERROR,
+-					"%s:  netlink recvfrom: error %d\n",
++					"%s:  netlink recvfrom: error %d",
+ 					avc_prefix, errno);
+ 				return rc;
+ 			}
+@@ -282,7 +282,7 @@ void avc_netlink_loop(void)
+ 				continue;
+ 			else {
+ 				avc_log(SELINUX_ERROR,
+-					"%s:  netlink recvfrom: error %d\n",
++					"%s:  netlink recvfrom: error %d",
+ 					avc_prefix, errno);
+ 				break;
+ 			}
+@@ -297,7 +297,7 @@ void avc_netlink_loop(void)
+ 	fd = -1;
+ 	avc_netlink_trouble = 1;
+ 	avc_log(SELINUX_ERROR,
+-		"%s:  netlink thread: errors encountered, terminating\n",
++		"%s:  netlink thread: errors encountered, terminating",
+ 		avc_prefix);
+ }
+ 
+@@ -308,7 +308,7 @@ int avc_netlink_acquire_fd(void)
+ 		rc = avc_netlink_open(0);
+ 		if (rc < 0) {
+ 			avc_log(SELINUX_ERROR,
+-				"%s: could not open netlink socket: %d (%m)\n",
++				"%s: could not open netlink socket: %d (%m)",
+ 				avc_prefix, errno);
+ 			return rc;
+ 		}
+diff --git a/libselinux/src/callbacks.c b/libselinux/src/callbacks.c
+index 469c4055f4d7..6850df5fdfe0 100644
+--- a/libselinux/src/callbacks.c
++++ b/libselinux/src/callbacks.c
+@@ -21,6 +21,12 @@ default_selinux_log(int type __attribute__((unused)), const char *fmt, ...)
+ 	va_start(ap, fmt);
+ 	rc = vfprintf(stderr, fmt, ap);
+ 	va_end(ap);
++	if (rc > 0) {
++		if (fputc('\n', stderr) != EOF)
++			rc++;
++		else
++			rc = EOF;
++	}
+ 	return rc;
+ }
+ 
+-- 
+2.37.3
 
