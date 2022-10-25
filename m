@@ -2,145 +2,111 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFA56FA373E
-	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 20:49:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D64D3C38A2D
+	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 22:12:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230025AbiJYUto (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Oct 2022 16:49:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53772 "EHLO
+        id S230453AbiJYWMy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Oct 2022 18:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229898AbiJYUtn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 16:49:43 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B874AE9E
-        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 13:49:41 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id w189so11661535pfw.4
-        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 13:49:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+Hu3xiyTeKZUsIEjo52u95oK3OiOS82aorz2YVpU2bs=;
-        b=YxdA3qt+dMc/WEdyRluAIwimUY20WqH4vpcGgF6Yv9pT0PGbFN5p7OAv91m14bULne
-         V/moyMk3CifWvc9hZJ8xV64Mi6fQ5UHy54lEb6bLVI5fj7vatrpwdA/GLkvJVfqzmYDo
-         SQbJZst44E/gbvAO/UDwvvYQj38t8NYwIVzORvP8U8RtfpG/sCedZHzo+pYuXmj5+zJZ
-         oApRkOlsVckYX49/rlxyuuGQiJb9t+JfbvOQ8nVZyJikRLe8XM/jiNhucMZhpqEZshs4
-         evhkIHo6GfsAYA1w1dqThQKTQAY41k/gTwk0erYr9fQ+3ozQGh4D43sB+JJUWjPaxpYK
-         yPew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+Hu3xiyTeKZUsIEjo52u95oK3OiOS82aorz2YVpU2bs=;
-        b=GjKY9sCUyerUBINCsp0ZBzfkUNiKOq5XKPkEHvrRlGqPckL8Zm7SRI+JaIJBFiNMdU
-         QBPw8PxxXxPRyhbRnz6l4Vyo/bLPiVHPkjAgspg7dsMiLdls2HGWfDwB/p0LcKF2/EDq
-         bTJH4gl028aci0EZEvwlvdonlXSfW/db6iN4kgTnIlEBUH9SaRcdzKnEn0VuNC5fn2yr
-         5dk+bc6QNJvpRL5srzG8qXj6NLiw/9+ezXAYJEdKg7rcm6+hM1ki/pXKr47xkXfVI0af
-         8hjbxHTOpBAR/WFqLkrn7nE34u6HpjVubJK0w2XcuDlleJtpEwhgV8T+Mjdf2LO7R45n
-         8v+w==
-X-Gm-Message-State: ACrzQf0y3LE/tGyOUF5uL1cBpVWIyS2aDEPOE0P6/QD7RdfS5tGuX7XF
-        HEayKI9puYR6UQ9ND7rH57fJl5VLwtbPWAkk2/8=
-X-Google-Smtp-Source: AMsMyM73dmxYSx7VPS3k4T08Uc5Vd5VnLIrjddeV6olX7gXNypzXsqj3ChJ/PLRXUExyKgMufZMuPnHyjfj4LwYwIl0=
-X-Received: by 2002:aa7:8b46:0:b0:56c:349f:191e with SMTP id
- i6-20020aa78b46000000b0056c349f191emr3166242pfd.29.1666730980521; Tue, 25 Oct
- 2022 13:49:40 -0700 (PDT)
+        with ESMTP id S230415AbiJYWMx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 18:12:53 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C4E1EECC
+        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 15:12:51 -0700 (PDT)
+Received: from fsav118.sakura.ne.jp (fsav118.sakura.ne.jp [27.133.134.245])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29PMCoQV066785;
+        Wed, 26 Oct 2022 07:12:50 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav118.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp);
+ Wed, 26 Oct 2022 07:12:50 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav118.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29PMCoqK066782
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Wed, 26 Oct 2022 07:12:50 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <98ab33d6-6c91-9c0a-8647-22f6bdede885@I-love.SAKURA.ne.jp>
+Date:   Wed, 26 Oct 2022 07:12:47 +0900
 MIME-Version: 1.0
-References: <20220801015721.393211-1-chris.lindee+git@gmail.com>
-In-Reply-To: <20220801015721.393211-1-chris.lindee+git@gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 25 Oct 2022 16:49:29 -0400
-Message-ID: <CAP+JOzTfD-DcLYQhDhmEEORd4vMZ31eiMYM-dV5W2FoD5Jz5+g@mail.gmail.com>
-Subject: Re: Adjust sepolgen grammar to support allowxperm, et. al.
-To:     chris.lindee@gmail.com
-Cc:     selinux@vger.kernel.org,
-        Chris Lindee <chris.lindee+github@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: LSM stacking in next for 6.1?
+Content-Language: en-US
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     LSM List <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
+        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
+        SElinux list <selinux@vger.kernel.org>
+References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
+ <CAHC9VhQPvcunvBDvSnrUChwmGLen0Rcy8KEk_uOjNF1kr4_m9w@mail.gmail.com>
+ <6552af17-e511-a7d8-f462-cafcf41a33bb@schaufler-ca.com>
+ <CAHC9VhQMeyxQJSAUuigu=CCr44WtpJg=LEh1xng_bPfCCjqq6Q@mail.gmail.com>
+ <5ef4a1ae-e92c-ca77-7089-2efe1d4c4e6d@schaufler-ca.com>
+ <CAHC9VhQRpeOMkeEfy=VRPnpuYMUDYgLp56OjQZPYwoXmfHYREQ@mail.gmail.com>
+ <c679cea7-bb90-7a62-2e17-888826857d55@schaufler-ca.com>
+ <e9ce6253-c8a3-19c3-1b71-f3a2e04539bc@I-love.SAKURA.ne.jp>
+ <cc14bbde-529e-376c-7d27-8512ec677db3@schaufler-ca.com>
+ <ff43e254-0f41-3f4f-f04d-63b76bed2ccf@I-love.SAKURA.ne.jp>
+ <1a9f9182-9188-2f64-4a17-ead2fed70348@schaufler-ca.com>
+ <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
+ <5995f18c-5623-9d97-0aa6-5f13a2a8e895@I-love.SAKURA.ne.jp>
+ <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
+ <0fcc5444-a957-f107-25a1-3540588eab5a@I-love.SAKURA.ne.jp>
+ <11564f69-3bba-abf7-eb46-06813ff4a404@schaufler-ca.com>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <11564f69-3bba-abf7-eb46-06813ff4a404@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jul 31, 2022 at 10:07 PM <chris.lindee@gmail.com> wrote:
->
-> Provide basic support for allowxperm, auditallowxperm, dontauditxperm and=
- neverallowxperm.  While I would prefer additional changes to help avoid th=
-e presence of magic numbers (e.g. a new macro, much like interface, but for=
- recursively defining named xperm numbers), this patch set is sufficient fo=
-r my and - hopefully - the majority of the community's needs.
->
-> In particular, this change will keep /usr/bin/sepolgen-ifgen from spewing=
- errors on the following policy every time selinux-policy-targeted gets upd=
-ated: https://github.com/openzfs/zfs/pull/13271/files#diff-70b325e496b997b3=
-c4a5a9f0aacee16343b82e07a8ed8220304ccb5f6504a582
->
-> Signed-off-by: Chris Lindee <chris.lindee+github@gmail.com>
+On 2022/10/25 23:12, Casey Schaufler wrote:
+> On 10/25/2022 4:20 AM, Tetsuo Handa wrote:
+>> On 2022/10/25 19:26, John Johansen wrote:
+>>> no, Casey is not. He is trying to find a path forward to get LSM
+>>> stacking upstream sooner than later. He has made proposals that
+>>> admittedly you have not liked, but he has at least tried to propose
+>>> ideas that could work within the insane set of constraints.
+>> I'm OK with getting LSM stacking upstream. But changes made based on
+>> only built-in modules are bad. If LSM id cannot be assigned to loadable
+>> LSM modules at runtime because not all loadable LSM modules will be
+>> in-tree in order to get an LSM id assigned, loadable LSM modules won't
+>> be able to utilize e.g. lsm_module_list system call (or whatever
+>> changes made while trying to unshare resources/interfaces currently
+>> shared among SELinux/Smack/AppArmor).
+>>
+>> It will be a complete reinvention of Linux security framework which is
+>> merely borrowing hooks provided by LSM. That is no different from
+>> duplicating existing LSM hooks and managing via completely different
+>> set of interfaces (e.g. /proc/$pid/attr2/$lsmname/$filename ,
+>> /sys/kernel/security2/$lsmname/$filename ). Such implementation is
+>> no longer loadable LSM. It is LSM version 2. And I don't think that
+>> such implementation will be accepted unless you agree to kill current
+>> LSM (say, LSM version 1).
+> 
+> The counter argument to this statement is that BPF has been accepted
+> upstream. eBPF programs are different from built-in security modules.
+> There is no reason that a well implemented LSM that accepts loadable
+> modules *that are different* from built-in modules couldn't be created.
+> I seriously doubt that it would get upstream for all the reasons
+> usually cited. But there is nothing about the implementation I've proposed
+> that would prevent it.
+> 
 
-I have been looking at these two patches. Either there is a problem in
-them or there is a problem elsewhere. I can't tell.
+As an easy example, please show me an eBPF program that allows restricting where
+to chroot to and allows configuring where to chroot to using /sys/kernel/security/
+interface.
 
-What I did to test them was to modify
-python/sepolgen/tests/test_refparser.py and add an interface to the
-interface_example string.
+An loadable LSM consists of hooks (for filtering access requests) and interface
+(for configuring rules whether to filter access requests).
 
-This is what I added:
+Your LSM id approach makes it impossible to use interface (due to lack of LSM id
+for loadable LSM modules) by loadable LSM modules. LSM id must not be limited to
+built-in LSM modules.
 
-define(`XPERM1',`0x9901')
-interface(`test_extended_permissions',`
-    gen_require(`
-        type device_t;
-    ')
-        allow $1 device_t:chr_file {ioctl};
-        allowxperm $1 device_t:chr_file ioctl 0x9910;
-        dontauditxperm $1 device_t:chr_file ioctl 0x9911;
-        auditallowxperm $1 device_t:chr_file ioctl 0x9912;
-        neverallowxperm $1 device_t:chr_file ioctl 0x9913;
-        allowxperm $1 device_t:chr_file ioctl { 0x9914 };
-        allowxperm $1 device_t:chr_file ioctl { 0x9915 0x9916 };
-        allowxperm $1 device_t:chr_file ioctl { 0x9917-0x9919 };
-        allowxperm $1 device_t:chr_file ioctl XPERM1;
-')
-
-I then uncommented the "refpolicy.print_tree(h)" line in test_refparser.py.
-
-If I comment out the definition of XPERM1 and every xperm rule except
-the first four (the first allowxperm, dontauditxperm, auditallowxperm,
-and neverallowxperm) then the tree will printed out (although the
-rules are printed in reverse order). There is one weirdness in that
-the operation is printed out as "['ioctl']", but that is not due to
-anything in your patches.
-
-If any xperm rule with curly brackets is used or the definition of
-XPERM1, then the test_extended_permissions() interface is not printed
-out. It appears that parsing is abandoned as soon as one of those
-rules is encountered without an error being given. I literally typed
-random characters on the line after the definition of XPERM1 and no
-error was given.
-
-I don't see any obvious error in what you have done and it is very
-possible that the problem is elsewhere. The xperm stuff that is in
-sepolgen is strange. In access.py, xperms are stored in the
-AccessVector class as a dictionary with the operation being used as
-the key. In refpolicy.py, xperms have their own class, AVExtRule, with
-the operation being one field and the xperms being another field that
-is an XpermSet.
-
-At this point, your patches might remove the parsing errors, but that
-will only give a false sense that the xperms are actually being
-handled, when they are not.
-
-I am not sure where to go from here. I don't know the python code very well=
-.
-
-Thanks,
-Jim
-
-
-> ---
->  python/sepolgen/src/sepolgen/refparser.py | 96 +++++++++++++++++++++++++=
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
->  python/sepolgen/src/sepolgen/refpolicy.py | 18 ++++++++++++++++++
->  2 files changed, 113 insertions(+), 1 deletion(-)
->
->
