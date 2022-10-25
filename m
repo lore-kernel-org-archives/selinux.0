@@ -2,153 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2202FC67871
-	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 01:19:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 535D1FA3743
+	for <selinux@archiver.kernel.org>; Tue, 25 Oct 2022 09:48:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231502AbiJYBTA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Oct 2022 21:19:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38252 "EHLO
+        id S231361AbiJYJsO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Oct 2022 05:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231506AbiJYBSi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Oct 2022 21:18:38 -0400
-Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFC7EE12
-        for <selinux@vger.kernel.org>; Mon, 24 Oct 2022 17:40:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666658407; bh=1SQ3hcYQAAv2ik4bpnU9BGeaB846lGX2UcwpSbpx0LI=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=gLLbxoiPBZYpF5Ss13hqdZaIeFRyuD7soqn1iDcsHQt9cpGRKY2nMOTNexXV6xyGuol+mojNVP5tZnfm8UVUNZEk9GdlLxMoYY5N9Do0FwJHJrYUHSlsMnb6GCnYD33bK7RDg7VmK6BFDTCPsrdyg5rHEDnvfec44kZRrroXtOhASNK8QoFZPi0mvYQSmq3EzNYMDX5AM3H4fvlBujXiH5MdzRx9dhtsSFZ35e3fnugn8HUZ+7AoWvWwErLthWdMDEHQ6+WS3/EqIklECIYIQWSYqzxX4NHZO5ZfqfgRKE8Q5dRywLrh4fXmBgssh+FQ0nSPXrRT405VA1zY99G/WQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1666658407; bh=JrU+BnWiZ28uB+unR6ZRW48D5mOckorUyzO5tO11ttA=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Zn45U0FzfedqRmPsmDHUAYsbZgGW8FcN1uhQoQFZ8f3wD8kK7ap2xbNGKd0+PXFxl8UVGQ8Wtu4LCm0p6WRtqkjYojPD7xqVi5lgqjm+kYCsA5k5RLLPPhBhKBNATFm87TvosScxafna7OncYKEnVVPtrsxn7WCi7FFLRe0MQv+1+c7XSASUoqNkR7ut04TdX/NPE7C3EAmtqv/hLmGytU70xQ44dCbCNUte0N4vsrD3yN0WrNeehEfY59QJouqVX7SxUdtioJExFdK7Or8YL8kOuxQAcdohbdTYbWmMU5LUcultL0oeWuLP7RzbHSjXnd8vUb+TQ9c5Rk5OAZoaFQ==
-X-YMail-OSG: Kjjy7r4VM1maFf0iCEa_zYJ6SU8lmQB2ezcC8XHTAu_WFK8ttSwXYa9EHv4Qgtl
- XySWlaXfog6NzkBNv2N4SP3Zl1bKz9Qfjae4FD8aOwCBlseoc1XI7mKrkU6hXeiyqvrlA5MAfA9M
- .knDKVONEqASJq63aFvENgk2OzxUoO9rjwbcP7dct3EYjkEu4_adSiAUWTPBEksqcjEujDp9IkKR
- FJFMUFtICuXCotwL1n3h35f0suV4A.Dnbms_P1pU6rpMRDf7cBDZCLnW4MkarXX306lIjpCxni1l
- d4tTMMAYiYV1bNm5v5e.qCMW4V_SMsOfFhxdPmu.sFukxmGWnAdEGLQBeMdo4f6WzoSrcUzgzCuR
- lRdxyvDFdq4fvLAGVHcQfbJ05FQS5x4Ry8tUbzOGKVUC7jTPvXHfBVTrVPblM4RQCG7X12r.PqWH
- BE.AzFNrIm2X40MgudKSFLRfGEiHAjS8UnpqhlqHY1yenmuZxCMjQNByD97t7guIAWxzypUJ5Cl1
- Ry2jpLSBDIApELhSsZBSLBS74jxSTyAafT5L_sbDRzWp0VHkVxWVinX8oEucUxCmzR2d5K8FYQlV
- fMnrZzB1qdAGBFKlNtXe0nsqhVwOAKqA_ZdPMlR7wvQgrVrxJX4APJrIlDyZOgVDAoE2g.loySaW
- fgKyRKmZXa8PqIcO76acICVziTMSycJ5txugNJAe3957o3GvxJTK3FMU_2fi5sCZCOmENhhdqxKV
- dEKW9pPvoidIOa1Apm24P6Zp6YQJC4rZRGCWz3hnskJ2TMxtunYDjzc5btN8wwdIEEXOo2fe75UR
- .puGW2LkFYBQkSLRHFwOtespLRoirUWdOa4cUoYadfGyWl83kBnZFsdhTxo1waWnwqrvfxFlVag0
- RR.bHuakzWtz8kTqJmbQ8QwL7TcV2fSSNW8LSNgd.jhCQuaatm.O4hNyIX4kZkbdHZECsMggjanz
- 0EctXJAbGTgzWDjLq3NvY1dzOmCo_4Gm66CP_mGP8UzDlwkLtsX14PnjvLBV11NHg257Rw5vn5wp
- GXa4BMhnIxwsYZVfP1_4.gR8Sg39U4piUj0I.5IhpVT2E7HP4_qGFWAoX3k43t1Irbh.Bm3lm1Sa
- Eqcox9dkiLCWeE4vNM6AKwEIDLf8juJBUN4iLrIIZQr.6PSz09r0UxDfzi9wH5HdQnDFxihudOu3
- fVsiqqx9dBa2Al1ddjMu7bLtI4PuSrTw0zshYmYNnMf_BIRtD6DfSP5ybSKQk_X4MozzZeTEkhFa
- igRkhjUR0LbRNc1DhOj.0L42EpveW0QtRttgIIKd9fEP19A7R7CnrYr0fRAAkaFegi7zSUjhiHEa
- R4BM8GEbA8y8GWmaKUIDi7DTTkYYm4y.8HHbDtVBdQpKjAefCsMQEY1xJ_nY8l39nMUQQGjSXfCH
- jjeZm2byrDsbuHiTCKOO4dHna81h38za0syC.QnJWMf1SFG.JLKgdDh4F8QTTAbzf601UUxdueak
- AVa0w8mGZbQRZyPBk.NYSmNPNmusBI8emu.g9Gr03k7oMFef8engvQPCDdvXo7X.3OhTBspWhQDF
- p2xfCxpSHmQ4Nj4F0Lvq6loHVHZ72zEXX3_dAIdkneuePACBLpU.uN1kEEEawEpq0VWbMpdzf1xI
- LobAaGC7DdWzg0kzJEJc2gNhsQOLfqZCxd_uQQxoFPDLjNnlL1l4E4Q.3nsyd6_TqysZhfrFrMcV
- w9VRV2STsOeY9UBek7xUTVjGja7zV0u0KX.z9.4W1pjo8Cbd7l48XhSeZy_IXjSTDNsWHV8VexH_
- N7854WlUgQUpP57eorBwGhyGa_0YlY0T_nfIjxikF6XZf9yns.WcX18PJudw4TY1OuhTe.6dXZk9
- WPjsBlC3K_M9Wc1Vgd0FGrV._13JDyKasDQVXubY_CIAhriHkpboAgeZcGhmOxe7ttFSmCqYuPXc
- YQkyd8GERmBV7lJ7CqZV0zSonymyZWcggnWO0nzt3s09ibxQ50rLRedbV7kgy37kPg4LBG61aG0q
- QDQtPoIdfAHJ5UprWRMf9nOuoQj04OXXAqtrkqIsEd5kHP0X59KkilOc4Z9D4VQqmA07P_R4wBw3
- h7WByNXjVaQWW9.RPrdhjro3YrPck77y0PqpuJsv2oYdY09At2UEQtd6lqur.d4gS156oUXdLj71
- LPkBks7p0jrd5mQ7vZxf0FKmQgOk5JcPg4bNqmpW3r98E78t5svIrXZG78epwSqmcsDSXYsCEXkb
- gF27v3bpYKyO7lSYU_B_nTazev9FByV.1
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 25 Oct 2022 00:40:07 +0000
-Received: by hermes--production-gq1-754cb59848-rl7fd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID c725735263443336e82dbdb6410c70fe;
-          Tue, 25 Oct 2022 00:40:01 +0000 (UTC)
-Message-ID: <e52efeda-9adf-4128-1906-3c83f217b99c@schaufler-ca.com>
-Date:   Mon, 24 Oct 2022 17:39:59 -0700
+        with ESMTP id S231559AbiJYJsJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Oct 2022 05:48:09 -0400
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3473E087
+        for <selinux@vger.kernel.org>; Tue, 25 Oct 2022 02:48:06 -0700 (PDT)
+Received: from fsav119.sakura.ne.jp (fsav119.sakura.ne.jp [27.133.134.246])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 29P9m5WX029474;
+        Tue, 25 Oct 2022 18:48:05 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav119.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp);
+ Tue, 25 Oct 2022 18:48:05 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav119.sakura.ne.jp)
+Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 29P9m4Ij029469
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+        Tue, 25 Oct 2022 18:48:05 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <5995f18c-5623-9d97-0aa6-5f13a2a8e895@I-love.SAKURA.ne.jp>
+Date:   Tue, 25 Oct 2022 18:48:01 +0900
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.4.0
-Subject: Re: [PATCH v38 39/39] LSM: Create lsm_module_list system call
+Subject: Re: LSM stacking in next for 6.1?
 Content-Language: en-US
-To:     Kees Cook <keescook@chromium.org>
-Cc:     casey.schaufler@intel.com, paul@paul-moore.com,
-        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
-        jmorris@namei.org, selinux@vger.kernel.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        casey@schaufler-ca.com
-References: <20220927195421.14713-1-casey@schaufler-ca.com>
- <20220927203155.15060-1-casey@schaufler-ca.com>
- <202210121459.00980C2@keescook>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <202210121459.00980C2@keescook>
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     John Johansen <john.johansen@canonical.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
+        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
+        SElinux list <selinux@vger.kernel.org>
+References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
+ <CAHC9VhQ+UcJw4G=VHNE8wMa+EBG-UcoZ7ox0vNqLHoSKAd9XZQ@mail.gmail.com>
+ <269014c6-5ce6-3322-5208-004cb1b40792@canonical.com>
+ <CAHC9VhRrOgDMO9fo632tSL7vCMAy1_x3smaAok-nWdMAUFB8xQ@mail.gmail.com>
+ <1958a0d3-c4fb-0661-b516-93f8955cdb95@schaufler-ca.com>
+ <CAHC9VhQPvcunvBDvSnrUChwmGLen0Rcy8KEk_uOjNF1kr4_m9w@mail.gmail.com>
+ <6552af17-e511-a7d8-f462-cafcf41a33bb@schaufler-ca.com>
+ <CAHC9VhQMeyxQJSAUuigu=CCr44WtpJg=LEh1xng_bPfCCjqq6Q@mail.gmail.com>
+ <5ef4a1ae-e92c-ca77-7089-2efe1d4c4e6d@schaufler-ca.com>
+ <CAHC9VhQRpeOMkeEfy=VRPnpuYMUDYgLp56OjQZPYwoXmfHYREQ@mail.gmail.com>
+ <c679cea7-bb90-7a62-2e17-888826857d55@schaufler-ca.com>
+ <e9ce6253-c8a3-19c3-1b71-f3a2e04539bc@I-love.SAKURA.ne.jp>
+ <cc14bbde-529e-376c-7d27-8512ec677db3@schaufler-ca.com>
+ <ff43e254-0f41-3f4f-f04d-63b76bed2ccf@I-love.SAKURA.ne.jp>
+ <1a9f9182-9188-2f64-4a17-ead2fed70348@schaufler-ca.com>
+ <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
+In-Reply-To: <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20754 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/12/2022 3:04 PM, Kees Cook wrote:
-> On Tue, Sep 27, 2022 at 01:31:55PM -0700, Casey Schaufler wrote:
->> +SYSCALL_DEFINE3(lsm_module_list,
->> +	       unsigned int __user *, ids,
->> +	       size_t __user *, size,
->> +	       int, flags)
-> Please make this unsigned int.
+On 2022/10/25 1:37, Casey Schaufler wrote:
+>>  What I'm insisting is that "warrant the freedom to load
+>> loadable LSM modules without recompiling the whole kernel".
+> 
+> Since security modules are optional and the LSM infrastructure
+> itself is optional you can't ensure that any given kernel would
+> support a loadable security module.
 
-Sure.
+Like I propose adding EXPORT_SYMBOL_GPL(security_hook_heads),
+I'm not taking about distributors who choose CONFIG_SECURITY=n.
 
+>> Adding EXPORT_SYMBOL_GPL(security_hook_heads) is the only way that can "allow
+>> LSM modules which distributors cannot support to be legally loaded".
+> 
+> I believe that I've identified an alternative. It isn't easy or cheap.
 
->> +{
->> +	unsigned int *interum;
->> +	size_t total_size = lsm_id * sizeof(*interum);
->> +	size_t usize;
->> +	int rc;
->> +	int i;
-> Please test that flags == 0 so it can be used in the future:
->
-> 	if (flags)
-> 		return -EINVAL;
+No. You are just handwaving/postponing the problem using something unknown
+that is not yet shown as a workable code. Anything that can be disabled via
+kernel config option cannot be an alternative.
 
-Yup.
+  Quoting from https://lkml.kernel.org/r/2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp
+  > Like Paul Moore said
+  > 
+  >   However, I will caution that it is becoming increasingly difficult for people
+  >   to find time to review potential new LSMs so it may a while to attract sufficient
+  >   comments and feedback.
+  > 
+  > , being unable to legally use loadable LSMs deprives of chances to develop/try
+  > new LSMs, and makes LSM interface more and more unattractive. The consequence
+  > would be "The LSM interface is dead. We will give up implementing as LSMs."
 
->> +
->> +	if (get_user(usize, size))
->> +		return -EFAULT;
->> +
->> +	if (usize < total_size) {
->> +		if (put_user(total_size, size) != 0)
->> +			return -EFAULT;
->> +		return -E2BIG;
->> +	}
->> +
->> +	interum = kzalloc(total_size, GFP_KERNEL);
->> +	if (interum == NULL)
->> +		return -ENOMEM;
->> +
->> +	for (i = 0; i < lsm_id; i++)
->> +		interum[i] = lsm_idlist[i]->id;
->> +
->> +	if (copy_to_user(ids, interum, total_size) != 0 ||
->> +	    put_user(total_size, size) != 0)
->> +		rc = -EFAULT;
-> No need to repeat this, if it is written first.
->
->> +	else
->> +		rc = lsm_id;
->> +
->> +	kfree(interum);
->> +	return rc;
-> No need for the alloc/free. Here's what I would imagine for the whole
-> thing:
+The biggest problem is that quite few developers show interest in loadable LSM modules.
+How many developers responded to this topic? Once the ability to allow loadable LSM
+modules is technically lost, nobody shall be able to revive it. You will be happy with
+ignoring poor people.
 
-A better approach. Thank you.
+You are already and completely trapped into "only in-tree and supported by distributors
+is correct" crap.
 
->
-> 	if (flags)
-> 		return -EINVAL;
->
-> 	if (get_user(usize, size))
-> 		return -EFAULT;
->
-> 	if (put_user(total_size, size) != 0)
-> 		return -EFAULT;
->
-> 	if (usize < total_size)
-> 		return -E2BIG;
->
-> 	for (i = 0; i < lsm_id; i++)
-> 		if (put_user(lsm_idlist[i]->id, id++))
-> 			return -EFAULT;
->
-> 	return lsm_id;
->
+> Of course the upstream kernel isn't going to have LSM IDs for out-of-tree
+> security modules. That's one of many reasons loadable modules are going to
+> have to be treated differently from built-in modules, if they're allowed
+> at all.
+
+Then, I have to hate your idea of having fixed sized array.
+
+Nacked-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+
