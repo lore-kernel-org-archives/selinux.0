@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B834ECAAA1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A865EC38A02
 	for <selinux@archiver.kernel.org>; Fri, 28 Oct 2022 20:39:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229692AbiJ1UjG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Oct 2022 16:39:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56868 "EHLO
+        id S229668AbiJ1UjH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Oct 2022 16:39:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229670AbiJ1UjF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Oct 2022 16:39:05 -0400
-Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D9823643C
-        for <selinux@vger.kernel.org>; Fri, 28 Oct 2022 13:39:04 -0700 (PDT)
-Received: by mail-qk1-x735.google.com with SMTP id 8so4239138qka.1
-        for <selinux@vger.kernel.org>; Fri, 28 Oct 2022 13:39:04 -0700 (PDT)
+        with ESMTP id S229613AbiJ1UjG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Oct 2022 16:39:06 -0400
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9767E236423
+        for <selinux@vger.kernel.org>; Fri, 28 Oct 2022 13:39:05 -0700 (PDT)
+Received: by mail-qt1-x835.google.com with SMTP id f22so4230665qto.3
+        for <selinux@vger.kernel.org>; Fri, 28 Oct 2022 13:39:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2RLk2jhO9ygRPUDTuBWAIeIidKHAkFbxo5zSuB1sBQQ=;
-        b=nhepSbi2Ip0HXr57cxtozzSOfwpWUfGabkXzptUtSMB8hXlvtKaNg2YnDQl4PIiVIT
-         CWPX+b7vDyz+sUV03D1DpQe3c3VOFDM9PLFJmCQeQRxglRa7DaXudZoF8cEZL7y8CFSY
-         tzJ/fmsAhrxOS5zXmV6iytO0RSud6vok+rMmMINfYwoa3ERkQ6yhFIZtoy14l+GPzLbb
-         gFfM9y7Wbb+dhsIz7poQlfgCGurrD0eo2bTLaBmaD5+klO619LhMdw/xFGF2JpKoa3mo
-         tdT7WPWHJY4PAKo/ND2xggPsXMSLU2wKHNz2Y98xhmZZy5ObzLTy1tl/nQOcgTLG6DCu
-         C1WQ==
+        bh=EqoV5l825hG0eWPYvxn+bwKlJaBDNcwDIvXDP9USAMs=;
+        b=nFLOgBEiTS1VolBEmLR6ShTAXZ53ZsBSc3R2RxHDNoNNzgp5X7Ba0l1gbaaRqFSSXq
+         g9I0lSdI1nmqI9UINbWZFGnHnFbbXnHNRVCnGm2XW5iOG/SD9s4nZEWG68/0oSIURzfh
+         lMhZqMJxFAMIPrgbGOyDW0vklp3mz8YIWZ9/rAGyZGzx0u/HEzz0Rwqd9jX8vDr7uKOJ
+         QsM15TTVNfWGef/knKh59Mo6XkdX5cC/hgBOPnVf+Xuyp2EzTtBMIQpIuSEzyGqr7XYl
+         0BghsW7479C1B3Suf58XN/dmukqscmxTSjvf0KJve/M2oi0mfCI7h4/bMq4X2V2xxqeq
+         NX5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2RLk2jhO9ygRPUDTuBWAIeIidKHAkFbxo5zSuB1sBQQ=;
-        b=f6vJg+mSRVvVg2I7V43j4TLa4/1zApcm5z+d90JVGlKal9k/0X6TiJcW3gta5qSzOR
-         Rc1EJex39rBWqJ55GFO25SJe0RdkkwniVNymbiVyAZ86Lt78Al672Z0Rjkpa/62JlCp9
-         JW/oJj6jwvN4LYkHHZZA3vCpn/CgJ6BBInSlkEoYTi6v4kA7VXsbNMC7DUCpxvHKuL85
-         sEftGJUAuaoOaOBNmfJiCA0o4C/lcId8al21F5n+iLwlzux08vQbDPYLNqLggkX8Fp4o
-         rXmLvwqIhb9/+KXVSo0k2BPxz4ciE9U6pis8VEY9lOaeYDhu5Iep/fnqWmc3Kpbuxf5w
-         XRvQ==
-X-Gm-Message-State: ACrzQf0NC5ljdpTvirAhWtbIMReXbvjrFJU8M1LvWc5g8B5rqp9lwwX8
-        14Gw48mQ2vB+XZ6kc8mT+bYFXZYR4fU=
-X-Google-Smtp-Source: AMsMyM6+xUmuIcUDCpt+PVg5jp92SJ7Rj6iZOQxQk+umFlMWXo+DWfhvyiB9EXogeI8qYPAJPf+EgA==
-X-Received: by 2002:a05:620a:8c9:b0:6fa:120f:9776 with SMTP id z9-20020a05620a08c900b006fa120f9776mr910359qkz.235.1666989543480;
-        Fri, 28 Oct 2022 13:39:03 -0700 (PDT)
+        bh=EqoV5l825hG0eWPYvxn+bwKlJaBDNcwDIvXDP9USAMs=;
+        b=E18ywjnR3wYaRnr0GajDMm7Tv6tgNdnURjwSYYakOjk6kNrbAQb6aEXgZN0khmRIjO
+         YpjU57pcOUrRYnFIhsYULAzfU7yRa2MoDjgIi3Mv7NiQtrhYJgODkLZw4xVE6pmCYCJ2
+         B8oQWdiGcrK6y0jfTV57hRphjie9u+ZqVZpVjy1aZu4rDFUvhAkRYsakIS2MzaoCLm/F
+         uFJ7xw5Aj99MY3sp9l+yLK7J91srptvXRCMg71tyvCHmPYATHy4/G03tt8oAJNnY68mb
+         mq58+UPb4lcp5Wexx4zipST4Mm2LtM123SuA9eRxO4O1UTzzFMCZU3IimOpwnxiPsvoe
+         gOig==
+X-Gm-Message-State: ACrzQf1JcGYwKmVyxkeW6ENmHUajLSA6GXWYsn76mwpG4adOlzKUnq9O
+        A+gDHm7Q31QyAHwwMYvd6dwPetPOCwc=
+X-Google-Smtp-Source: AMsMyM7Ae6YqCC8z9L+MSXUXEixgdD13U002RtX55JoBIftwNrtEGHgW/Bcfo+o/X+owuqTBNgHZcA==
+X-Received: by 2002:ac8:5b05:0:b0:399:9b82:77b4 with SMTP id m5-20020ac85b05000000b003999b8277b4mr1143216qtw.681.1666989544457;
+        Fri, 28 Oct 2022 13:39:04 -0700 (PDT)
 Received: from electric.. (c-73-200-155-132.hsd1.md.comcast.net. [73.200.155.132])
-        by smtp.gmail.com with ESMTPSA id v17-20020a05620a0f1100b006ecfb2c86d3sm3606642qkl.130.2022.10.28.13.39.02
+        by smtp.gmail.com with ESMTPSA id v17-20020a05620a0f1100b006ecfb2c86d3sm3606642qkl.130.2022.10.28.13.39.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Oct 2022 13:39:02 -0700 (PDT)
+        Fri, 28 Oct 2022 13:39:03 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 4/5] scripts: Remove dependency on the Python module distutils
-Date:   Fri, 28 Oct 2022 16:38:51 -0400
-Message-Id: <20221028203852.526472-5-jwcart2@gmail.com>
+Subject: [PATCH 5/5] README.md: Remove mention of python3-distutils dependency
+Date:   Fri, 28 Oct 2022 16:38:52 -0400
+Message-Id: <20221028203852.526472-6-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20221028203852.526472-1-jwcart2@gmail.com>
 References: <20221028203852.526472-1-jwcart2@gmail.com>
@@ -64,41 +64,26 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The distutils package is deprecated and scheduled to be removed in
-Python 3.12. Use the sysconfig module instead.
+With the removal of any dependence on the python disutils module,
+Debian no longer depends on the python3-disutils package.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- scripts/env_use_destdir | 2 +-
- scripts/run-scan-build  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ README.md | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/scripts/env_use_destdir b/scripts/env_use_destdir
-index 8274013e..89d989a2 100755
---- a/scripts/env_use_destdir
-+++ b/scripts/env_use_destdir
-@@ -43,7 +43,7 @@ if [ -n "${SBINDIR:-}" ] ; then
-     PATH="$DESTDIR$SBINDIR:$PATH"
- fi
+diff --git a/README.md b/README.md
+index 74b0a0c3..f91cb7d9 100644
+--- a/README.md
++++ b/README.md
+@@ -81,7 +81,6 @@ apt-get install --no-install-recommends --no-install-suggests \
+     libpcre2-dev \
+     pkgconf \
+     python3 \
+-    python3-distutils \
+     systemd \
+     xmlto
  
--NEW_PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(plat_specific=1, prefix='/usr'))"):$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
-+NEW_PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'platbase': '/usr', 'base': '/usr'}))"):$DESTDIR$(${PYTHON:-python3} -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '/usr', 'base': '/usr'}))")"
- if [ -n "${PYTHONPATH:-}" ] ; then
-     # Prefix the PYTHONPATH with the new directories
-     export PYTHONPATH="$NEW_PYTHONPATH:$PYTHONPATH"
-diff --git a/scripts/run-scan-build b/scripts/run-scan-build
-index 77e02ca9..931ffd2a 100755
---- a/scripts/run-scan-build
-+++ b/scripts/run-scan-build
-@@ -21,7 +21,7 @@ fi
- # Make sure to use the newly-installed libraries when running tests
- export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
- export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
--export PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
-+export PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '/usr', 'base': '/usr'}))")"
- export RUBYLIB="$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
- 
- if [ -f /etc/debian_version ] && [ -z "${IS_CIRCLE_CI:-}" ] ; then
 -- 
 2.37.3
 
