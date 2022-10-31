@@ -2,132 +2,328 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59F8DECAAA1
-	for <selinux@archiver.kernel.org>; Sun, 30 Oct 2022 20:56:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9E50C38A02
+	for <selinux@archiver.kernel.org>; Mon, 31 Oct 2022 10:00:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229610AbiJ3U4M (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 30 Oct 2022 16:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37730 "EHLO
+        id S229835AbiJaKAD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Oct 2022 06:00:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiJ3U4L (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 30 Oct 2022 16:56:11 -0400
-Received: from sonic310-30.consmr.mail.ne1.yahoo.com (sonic310-30.consmr.mail.ne1.yahoo.com [66.163.186.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548289597
-        for <selinux@vger.kernel.org>; Sun, 30 Oct 2022 13:56:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1667163369; bh=5EepOTvbGLznXvcUi4JbuAbU8WP/U+1AIthGRHHgDqk=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=HXw23h6uSGjKQLBYCEi+GV0Un+kfHEZkvMUWz4FopHU9jSIBQqDrngnKQPbLonNJbbr/i5KaDuSATp9LtQLAupXGshZ2rZoszYtQB7fmmVtYL92LT81Isto3aryd3xc8lINkEtBigF5B7E65JAARsakr6V8olc+X8MnsoIL2EuNq/boRv3xUWPby2V1xxRSUn9zp4LDVZ9H7ibVRE92cxiFJLpD3NkgUXWfFJdrbdFvaK5lLV3WmvOhf8Qkm9aXOoCHJ7J5o87/x9TasxWmDu99xAQnGNKXhzZs7lXir8MD7oAKCAgjtXzWfzzon6GVbIYBsz+LFlgbq7h5bYluarg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1667163369; bh=eqWKZoDmutbctnW19PgCPQhXS9ht8eJxebvDRUBN7bK=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=lJso/iLXwrVDgxJ7SdWAKTFHhfPIoC20M6ZjEvNApkEoWcm9BNUlCMcWooudR/ttK/Yc+k88D+2dhfYzA4CG9Q59tbYnPtFJ1M0Gq61p66NWIpuN2f7OJzYlhcZcGkOtUBlM5RVUBA0/Qi0RP4jWPnKKEH8rwenQtIJfGrMtxkxe93x1yVp3ELcZMJ6sWUwSN19D2nDnUkBkpNu4+todL6cNT6wms0SuBekNhn2q4O1RnFVEhvjo7XDBDHl7ZCrXpmxog+9cxlalUC6D5d1V7+x6rmJMV1f7xGWlD2ZBFyGKA1LOyyT3SqfReQjan7dm5Trq0MKg2VL1i3JXp6q8eg==
-X-YMail-OSG: obSJPGUVM1nKUTdfhSVA6T9KrqS2IfeYqVHdcBgLI4V6ax_NQgmElGOsNGxmLPJ
- HuY0e3QEZAZSk9V_l_93.3xZPZFurRO4fd7epAWfUIjgo5.2wLzDtH6PkctGxNXvyc5j48nGySof
- Y2zmkBFGNCQ5hvahym6EXRsuJA8cCCVEt9zpAfQ.OYTjX5OGTFZWB2hjlTFuK2PoL70q2v_NI4UQ
- eGVa9iKMRcx4oTEPHYM.fG19pzxdbZ7p_fAYDW72HtgRJzlpZBg26lchyHdpDYpelL6eBH1zDv4x
- Dl1mXFZ1.r0gr2bcvH8Ug_kAJqfGcPj0zcxIWfJGVYyd_hJQccS8x6ukwk8wLHHW0GH5XT9djOUL
- c0OCP9bF39nuK4wYHXarKYunVfogf3HsxIchwLqSBzPhrqULnWHwD5imOwrhNGRpsFcjHc.DH9YF
- jYZ.7cGNrnbY0wYJ.6DmC3wtpLLRefF7trCiCAcejGseq3AvUbwkSA_dWnXfr.4p8seHAz2nWMgl
- Zmv_KGFibKSn75xSnbEMrfPU29gIKatjeIBLVPH0NAwfMusyS2P2fS6H3Mi8jG2T1acEyaXzYjoC
- .Nlj4sACNDqpdIaXRuus4YeEkiy.6317TKSM6vai7nGvLQdcguOXYENxQPyIWvDri5sgegVRVIpT
- OG8z.sDv0XPaYcQQLj4S_zRkH6GyCigOTxn4VXBZTEoINRUmsl0elp8qOoFYFPtjqXPHMR..7AzT
- vJ3yYGdnlsdRIkwmYpZmj4qfiPmmXGhHtZYVnw6dDTT.Msh0Re9p0V.wnq4eKaScWjlsKfSS8YVA
- w42TaRN2yopiCv0uWepDrpiQAjqrra.sjRrfIqXQwPXP1zkc8KwoCd6H_ngPEWKNnK3X3SIeCoWu
- zpnfcg92qe7yZLvS6od0nLlGuDegXkY4zSlpS9dV.ey2puLrSlQHYKOAcrFHXjiF6d6TgnAMJAGZ
- 4hrcyRcYkL0K7NiRMuzoLZQBOa6F9SyPlLqI8lgSK.mj0ooryL6KtIDAbJObRujhnt6LK0fd40Fs
- KAUpFGublh8b_yDLw5aGFunbuwoHmRg3NqUJFqJ0jrOnygLRMKWx6zxXZw9Tep4TAIP5CY48cYxU
- BXz6_Yom3aCeHiOplb3bHFe49gW7M8odLOxmT6XSVAUpmRxMcxkyXhxIh_dzXOGXWOS3.PqVQmoR
- fysCWF1GU00wGO4qlpLBfeX8cOEmgz9s5WnHR_nq80R3wP6czukjF6NhCytI_aQwsZbGmTwOCWDg
- BWceRTw959ZEFABjMg5_KbcOcoabHv6uWrjPePErFpUXuI2vHdAb81aceDgPdpPD8JMFMGDNFeMn
- 6HhkmgSQdLjMWcbRSyeLn7DtctbFJPGjR7WPHFofqvgp1Dq_LwPZQIfZKWrnYUHs7.lrensb8brw
- 5735_18vxd3tPVJHclztHYQ8SEGL454Klt1qsGepnD0DJUbhnOQp8_r_5SO0qIrvtZsLtTWuxAuB
- WTfUJarTXaApaXDU3NQCiWBshkSIfsxpCylBynnOehkz8tcE_MGgUBcY1KPX1giOPDUAMC2V.1bs
- MEp5ba0eRD_3n4dj29BuuihuhMDFScVaiibUvywJgsr.KVmJPSX46EF.v1Dpe4umYrW8gPp6n2tk
- SdlphnZTRoQ4F3hHEmbwWbFc0uKvK0Aw0Vdx4A1enQWZ4IwNRqzQylRqr45YqK4vihMlBut0zbUN
- oua8Vvdwj.3leYqXWiGlxROYQFlUTgB5DKEoMszlv2G0nCMsmMZLWVTaIAAYJpQF6x40omYxhzaR
- fLIQmIV0vDCWffZ77tyFG6L5lpkg.dl.tNN5VgZv0RRBxIiW0H6zMXBFGNGrR1Scq8tYM7xbmoFw
- 4LzSGTl.GPIoJGyDf8VGkAv8m7m0UuXjBo6jE1nBSFxsoOEhgzKsBQz.epQY6PkShMV3_0d0syxQ
- f5hphTeyGkUtxVM7SM_4pb.B3EqAn7saxwN6_acSGgqnAcQzC2.Fc7nxzoL4_oRMT9iqPKISn9uu
- bMyQm587D.V8Epx_dDN7qYc3uWP7A54wBNmb112L7mXcHWt_OyS2oAkho0spvtvpNSx4LK4aoxS0
- bG7FFkBBnJ29PSKRwT4zN_I4ijgHiNLgPqPi_OtdIMea0vsw_G8JIs3vGSt0B_iigSur0oxlFEAW
- jsOPeGw362_fDduAHWciG_y4I3AqVrgr0zTQYZOHB_stOK3SwUgZqTkBOMHJeHQoFO5s6IKo371s
- tvX8_yU1TMTfSC.zc_PNsA1w2mT798ts5oUt0D4LCktFQhu2an50R12JRnUZPAd2igGR34pJPWu1
- 41NrvfZNa7GU-
-X-Sonic-MF: <casey@schaufler-ca.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Sun, 30 Oct 2022 20:56:09 +0000
-Received: by hermes--production-bf1-64dccd5d47-k9w9h (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID dfb5cb9de7f4a7b6d2752ff60d0ac423;
-          Sun, 30 Oct 2022 20:56:05 +0000 (UTC)
-Message-ID: <90a125bc-310d-e938-df2c-1338b9301075@schaufler-ca.com>
-Date:   Sun, 30 Oct 2022 13:56:03 -0700
+        with ESMTP id S229730AbiJaKAC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Oct 2022 06:00:02 -0400
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 825BFDF19;
+        Mon, 31 Oct 2022 03:00:00 -0700 (PDT)
+Received: from [172.20.1.180] (unknown [62.168.35.11])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 98486422D7;
+        Mon, 31 Oct 2022 09:59:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1667210398;
+        bh=CZHj9jWmuvSwo8mCeeyvEAgRaH6FUy/uY25ctFeg0eI=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=V+SIAj9+j/hB09GOQObT84pQMDdXXq2vqykiHjB/VjwN9f15jgAnMaMBNabPn5n1j
+         unlT0r2zQwvqhU3XeAsndi5rUcPk9du2ozRkKkEKBFQSzZsOIrgnOdkv9aBoOEO8E6
+         NhIVZVTjIRFEFqksgx/Oy92TcjUcPk28rr8u9kC5jqzlryUU4z2+HRX1e35nlSliCt
+         Nd5Vil5NpnKKBmPb1qRPlBz0t1XSOMxPml9Y6acLFE9cAkMDsDIKqTRer6tIMwVvku
+         r0AWcYUrrZSZrWnsYZcf3bsE1OSzOmmUibx6TPbxJMQqKKk7ZwLDqM4mhcVsjCywUX
+         pgZ8eOgyUc8Dg==
+Message-ID: <c8ce1c62-84ac-f39e-6c4e-5108b55c3515@canonical.com>
+Date:   Mon, 31 Oct 2022 02:59:58 -0700
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Subject: Re: LSM stacking in next for 6.1?
-To:     Kees Cook <kees@kernel.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     LSM List <linux-security-module@vger.kernel.org>,
-        James Morris <jmorris@namei.org>, linux-audit@redhat.com,
-        Mimi Zohar <zohar@linux.ibm.com>, keescook@chromium.org,
-        SElinux list <selinux@vger.kernel.org>, casey@schaufler-ca.com
-References: <791e13b5-bebd-12fc-53de-e9a86df23836.ref@schaufler-ca.com>
- <cc14bbde-529e-376c-7d27-8512ec677db3@schaufler-ca.com>
- <ff43e254-0f41-3f4f-f04d-63b76bed2ccf@I-love.SAKURA.ne.jp>
- <1a9f9182-9188-2f64-4a17-ead2fed70348@schaufler-ca.com>
- <2225aec6-f0f3-d38e-ee3c-6139a7c25a37@I-love.SAKURA.ne.jp>
- <5995f18c-5623-9d97-0aa6-5f13a2a8e895@I-love.SAKURA.ne.jp>
- <77ec837a-ff64-e6f0-fe14-a54c1646ea0b@canonical.com>
- <0fcc5444-a957-f107-25a1-3540588eab5a@I-love.SAKURA.ne.jp>
- <11564f69-3bba-abf7-eb46-06813ff4a404@schaufler-ca.com>
- <98ab33d6-6c91-9c0a-8647-22f6bdede885@I-love.SAKURA.ne.jp>
- <aa201ed7-9ca1-9507-08cc-156f280ee5f4@schaufler-ca.com>
- <3266c2c2-cd7e-bc0f-0fc4-478a63d6ee77@I-love.SAKURA.ne.jp>
- <f7548061-e82d-9a39-ed15-0d32551b4099@canonical.com>
- <53b07579-82f5-404e-5c2c-de7314fff327@I-love.SAKURA.ne.jp>
- <aa5424f3-05a6-530b-bf5f-19e5421f8f3f@canonical.com>
- <2c48a481-391f-85c7-be4f-13bbc1553aac@I-love.SAKURA.ne.jp>
- <AB202AC7-9C8D-4109-B4EA-87A7BC1BADF8@kernel.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.2
+Subject: Re: [PATCH] lsm: make security_socket_getpeersec_stream() sockptr_t
+ safe
 Content-Language: en-US
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <AB202AC7-9C8D-4109-B4EA-87A7BC1BADF8@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     netdev@vger.kernel.org,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>
+References: <166543910984.474337.2779830480340611497.stgit@olly>
+From:   John Johansen <john.johansen@canonical.com>
+Organization: Canonical
+In-Reply-To: <166543910984.474337.2779830480340611497.stgit@olly>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.20783 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/30/2022 9:37 AM, Kees Cook wrote:
-> On October 30, 2022 7:02:52 AM PDT, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp> wrote:
->> Casey's patchset is trying to provide LSM ID Repository for userspace programs.
->> But an LSM ID value cannot be assigned to that LSM unless that module is
->> available in the upstream kernel. This means that, developers are not allowed
->> to develop a new LSM module even with the intention to become available in the
->> upstream kernel, for there always is a risk of LSM ID collision which the LSM ID
->> Repository should have avoided from the beginning. Also, this means that, unlike
->> PCI devices, users are not allowed to use out-of-tree LSM modules which have to
->> remain out-of-tree due to proposed-but-not-accepted by the upstream kernel.
->> This is a serious bug; is LSM a proprietary/closed code where modification is
->> impossible due to an End-User License Agreement?
-> You are way off in the weeds with false equivalencies.
->
->> You have only three choices:
->>
->>  (1) allow assigning LSM ID integer value to all LSM modules (regardless of
->>      whether that module was merged into upstream kernel)
-> We are not hardware manufacturers.
->
->>  (2) use module name string value as LSM ID
-> This results is greater code complexity. If you see a way to do this, send a patch. Instead of unhelpfully saying "no, do it differently", show a solution.
->
->>  (3) dynamically assign LSM ID integer value when an LSM module is registered
-> Again, send a patch.
->
->> There never is fourth choice:
->>
->>  (4) assigning LSM ID integer value to only LSM modules which were merged
->>      into upstream kernel
->>
->> The fourth choice is complete lockout of out of tree projects.
-> This is just not a real outcome. How is this any different from syscalls, capability bits, prctl values, ELF flags, etc?
->
-Loadability and the LSM ID are completely separate issues. Show me a patch
-that implements loading modules and I will show you how to change it to
-accommodate the LSM ID. That is, if it isn't obvious at that point.
+On 10/10/22 14:58, Paul Moore wrote:
+> Commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
+> sockptr_t argument") made it possible to call sk_getsockopt()
+> with both user and kernel address space buffers through the use of
+> the sockptr_t type.  Unfortunately at the time of conversion the
+> security_socket_getpeersec_stream() LSM hook was written to only
+> accept userspace buffers, and in a desire to avoid having to change
+> the LSM hook the commit author simply passed the sockptr_t's
+> userspace buffer pointer.  Since the only sk_getsockopt() callers
+> at the time of conversion which used kernel sockptr_t buffers did
+> not allow SO_PEERSEC, and hence the
+> security_socket_getpeersec_stream() hook, this was acceptable but
+> also very fragile as future changes presented the possibility of
+> silently passing kernel space pointers to the LSM hook.
+> 
+> There are several ways to protect against this, including careful
+> code review of future commits, but since relying on code review to
+> catch bugs is a recipe for disaster and the upstream eBPF maintainer
+> is "strongly against defensive programming", this patch updates the
+> LSM hook, and all of the implementations to support sockptr_t and
+> safely handle both user and kernel space buffers.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+
+looks good to me
+
+Acked-by: John Johansen <john.johansen@canonical.com>
+
+> ---
+>   include/linux/lsm_hook_defs.h |    2 +-
+>   include/linux/lsm_hooks.h     |    4 ++--
+>   include/linux/security.h      |   11 +++++++----
+>   net/core/sock.c               |    3 ++-
+>   security/apparmor/lsm.c       |   29 +++++++++++++----------------
+>   security/security.c           |    6 +++---
+>   security/selinux/hooks.c      |   13 ++++++-------
+>   security/smack/smack_lsm.c    |   19 ++++++++++---------
+>   8 files changed, 44 insertions(+), 43 deletions(-)
+> 
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index ec119da1d89b4..6abde829b6e5e 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -302,7 +302,7 @@ LSM_HOOK(int, 0, socket_setsockopt, struct socket *sock, int level, int optname)
+>   LSM_HOOK(int, 0, socket_shutdown, struct socket *sock, int how)
+>   LSM_HOOK(int, 0, socket_sock_rcv_skb, struct sock *sk, struct sk_buff *skb)
+>   LSM_HOOK(int, 0, socket_getpeersec_stream, struct socket *sock,
+> -	 char __user *optval, int __user *optlen, unsigned len)
+> +	 sockptr_t optval, sockptr_t optlen, unsigned int len)
+>   LSM_HOOK(int, 0, socket_getpeersec_dgram, struct socket *sock,
+>   	 struct sk_buff *skb, u32 *secid)
+>   LSM_HOOK(int, 0, sk_alloc_security, struct sock *sk, int family, gfp_t priority)
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 4ec80b96c22e7..883f0f252f062 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -962,8 +962,8 @@
+>    *	SO_GETPEERSEC.  For tcp sockets this can be meaningful if the
+>    *	socket is associated with an ipsec SA.
+>    *	@sock is the local socket.
+> - *	@optval userspace memory where the security state is to be copied.
+> - *	@optlen userspace int where the module should copy the actual length
+> + *	@optval memory where the security state is to be copied.
+> + *	@optlen memory where the module should copy the actual length
+>    *	of the security state.
+>    *	@len as input is the maximum length to copy to userspace provided
+>    *	by the caller.
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index ca1b7109c0dbb..0e419c595cee5 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -31,6 +31,7 @@
+>   #include <linux/err.h>
+>   #include <linux/string.h>
+>   #include <linux/mm.h>
+> +#include <linux/sockptr.h>
+>   
+>   struct linux_binprm;
+>   struct cred;
+> @@ -1411,8 +1412,8 @@ int security_socket_getsockopt(struct socket *sock, int level, int optname);
+>   int security_socket_setsockopt(struct socket *sock, int level, int optname);
+>   int security_socket_shutdown(struct socket *sock, int how);
+>   int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
+> -int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+> -				      int __user *optlen, unsigned len);
+> +int security_socket_getpeersec_stream(struct socket *sock, sockptr_t optval,
+> +				      sockptr_t optlen, unsigned int len);
+>   int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
+>   int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
+>   void security_sk_free(struct sock *sk);
+> @@ -1548,8 +1549,10 @@ static inline int security_sock_rcv_skb(struct sock *sk,
+>   	return 0;
+>   }
+>   
+> -static inline int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+> -						    int __user *optlen, unsigned len)
+> +static inline int security_socket_getpeersec_stream(struct socket *sock,
+> +						    sockptr_t optval,
+> +						    sockptr_t optlen,
+> +						    unsigned int len)
+>   {
+>   	return -ENOPROTOOPT;
+>   }
+> diff --git a/net/core/sock.c b/net/core/sock.c
+> index eeb6cbac6f499..70064415349d6 100644
+> --- a/net/core/sock.c
+> +++ b/net/core/sock.c
+> @@ -1793,7 +1793,8 @@ int sk_getsockopt(struct sock *sk, int level, int optname,
+>   		break;
+>   
+>   	case SO_PEERSEC:
+> -		return security_socket_getpeersec_stream(sock, optval.user, optlen.user, len);
+> +		return security_socket_getpeersec_stream(sock,
+> +							 optval, optlen, len);
+>   
+>   	case SO_MARK:
+>   		v.val = sk->sk_mark;
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index f56070270c69d..89e84ef54e8eb 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -1103,11 +1103,10 @@ static struct aa_label *sk_peer_label(struct sock *sk)
+>    * Note: for tcp only valid if using ipsec or cipso on lan
+>    */
+>   static int apparmor_socket_getpeersec_stream(struct socket *sock,
+> -					     char __user *optval,
+> -					     int __user *optlen,
+> +					     sockptr_t optval, sockptr_t optlen,
+>   					     unsigned int len)
+>   {
+> -	char *name;
+> +	char *name = NULL;
+>   	int slen, error = 0;
+>   	struct aa_label *label;
+>   	struct aa_label *peer;
+> @@ -1124,23 +1123,21 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
+>   	/* don't include terminating \0 in slen, it breaks some apps */
+>   	if (slen < 0) {
+>   		error = -ENOMEM;
+> -	} else {
+> -		if (slen > len) {
+> -			error = -ERANGE;
+> -		} else if (copy_to_user(optval, name, slen)) {
+> -			error = -EFAULT;
+> -			goto out;
+> -		}
+> -		if (put_user(slen, optlen))
+> -			error = -EFAULT;
+> -out:
+> -		kfree(name);
+> -
+> +		goto done;
+> +	}
+> +	if (slen > len) {
+> +		error = -ERANGE;
+> +		goto done_len;
+>   	}
+>   
+> +	if (copy_to_sockptr(optval, name, slen))
+> +		error = -EFAULT;
+> +done_len:
+> +	if (copy_to_sockptr(optlen, &slen, sizeof(slen)))
+> +		error = -EFAULT;
+>   done:
+>   	end_current_label_crit_section(label);
+> -
+> +	kfree(name);
+>   	return error;
+>   }
+>   
+> diff --git a/security/security.c b/security/security.c
+> index 79d82cb6e4696..f27c885ee98db 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2267,11 +2267,11 @@ int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+>   }
+>   EXPORT_SYMBOL(security_sock_rcv_skb);
+>   
+> -int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+> -				      int __user *optlen, unsigned len)
+> +int security_socket_getpeersec_stream(struct socket *sock, sockptr_t optval,
+> +				      sockptr_t optlen, unsigned int len)
+>   {
+>   	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
+> -				optval, optlen, len);
+> +			     optval, optlen, len);
+>   }
+>   
+>   int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index f553c370397ee..0bdddeba90a6c 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5119,11 +5119,12 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+>   	return err;
+>   }
+>   
+> -static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+> -					    int __user *optlen, unsigned len)
+> +static int selinux_socket_getpeersec_stream(struct socket *sock,
+> +					    sockptr_t optval, sockptr_t optlen,
+> +					    unsigned int len)
+>   {
+>   	int err = 0;
+> -	char *scontext;
+> +	char *scontext = NULL;
+>   	u32 scontext_len;
+>   	struct sk_security_struct *sksec = sock->sk->sk_security;
+>   	u32 peer_sid = SECSID_NULL;
+> @@ -5139,17 +5140,15 @@ static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *op
+>   				      &scontext_len);
+>   	if (err)
+>   		return err;
+> -
+>   	if (scontext_len > len) {
+>   		err = -ERANGE;
+>   		goto out_len;
+>   	}
+>   
+> -	if (copy_to_user(optval, scontext, scontext_len))
+> +	if (copy_to_sockptr(optval, scontext, scontext_len))
+>   		err = -EFAULT;
+> -
+>   out_len:
+> -	if (put_user(scontext_len, optlen))
+> +	if (copy_to_sockptr(optlen, &scontext_len, sizeof(scontext_len)))
+>   		err = -EFAULT;
+>   	kfree(scontext);
+>   	return err;
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index b6306d71c9088..2bd7fadf7fb4c 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -4006,12 +4006,12 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+>    * returns zero on success, an error code otherwise
+>    */
+>   static int smack_socket_getpeersec_stream(struct socket *sock,
+> -					  char __user *optval,
+> -					  int __user *optlen, unsigned len)
+> +					  sockptr_t optval, sockptr_t optlen,
+> +					  unsigned int len)
+>   {
+>   	struct socket_smack *ssp;
+>   	char *rcp = "";
+> -	int slen = 1;
+> +	u32 slen = 1;
+>   	int rc = 0;
+>   
+>   	ssp = sock->sk->sk_security;
+> @@ -4019,15 +4019,16 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
+>   		rcp = ssp->smk_packet->smk_known;
+>   		slen = strlen(rcp) + 1;
+>   	}
+> -
+> -	if (slen > len)
+> +	if (slen > len) {
+>   		rc = -ERANGE;
+> -	else if (copy_to_user(optval, rcp, slen) != 0)
+> -		rc = -EFAULT;
+> +		goto out_len;
+> +	}
+>   
+> -	if (put_user(slen, optlen) != 0)
+> +	if (copy_to_sockptr(optval, rcp, slen))
+> +		rc = -EFAULT;
+> +out_len:
+> +	if (copy_to_sockptr(optlen, &slen, sizeof(slen)))
+>   		rc = -EFAULT;
+> -
+>   	return rc;
+>   }
+>   
+> 
 
