@@ -2,152 +2,80 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 374BBC433FE
-	for <selinux@archiver.kernel.org>; Tue,  1 Nov 2022 12:08:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD5B1C433FE
+	for <selinux@archiver.kernel.org>; Tue,  1 Nov 2022 14:26:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbiKAMIl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Nov 2022 08:08:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56238 "EHLO
+        id S229919AbiKAO0r (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Nov 2022 10:26:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230320AbiKAMIh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Nov 2022 08:08:37 -0400
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1E46311
-        for <selinux@vger.kernel.org>; Tue,  1 Nov 2022 05:08:35 -0700 (PDT)
-Received: by mail-il1-x12f.google.com with SMTP id s9so7663782ilu.1
-        for <selinux@vger.kernel.org>; Tue, 01 Nov 2022 05:08:35 -0700 (PDT)
+        with ESMTP id S230256AbiKAO0o (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Nov 2022 10:26:44 -0400
+Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B77541BEB2
+        for <selinux@vger.kernel.org>; Tue,  1 Nov 2022 07:26:40 -0700 (PDT)
+Received: by mail-qt1-x833.google.com with SMTP id c15so2405296qtw.8
+        for <selinux@vger.kernel.org>; Tue, 01 Nov 2022 07:26:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=AF8nKIXl8zd9hfxLbHpHtiMK8og6zkZi/1pGrwACnFM=;
-        b=qXfdOypHxRKTrdQ243OS5i7K5VQaN+6VWej9VqFOqOkCWf55ztWIPWmrFn3eBC3tsJ
-         La5NaqVZO3M+gQxmVBoiIPU42VCD9or2QshPtB0Sv2diKUDa4Pn3kz3yhtCnx2hOwdz3
-         U4ypzMP7I30P4GFJTJZThYZRAdNvbjSaGhsGC2NuuXn6yxfrYPAjdulKy8zzcgqPHAc4
-         JtlFusOkG7FKVr06SyY2DSVVDLTpaIZ6nncFW0qfuofzzgVbYBLCIntyIKS8TR2yZYzs
-         MerDGYY0raQWEsQjg0Tq01qhnL0WhMVnuny8FGFUp8E+Ua0nTzkGiJ0oHhgb65gUpk9L
-         8pZA==
+        d=ieee.org; s=google;
+        h=content-transfer-encoding:content-language:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WGeelK6e3RrGwUWA43330Pjlvt+ORjm/i7zBISsILRM=;
+        b=VKgBXlskpBcN4s8cvcZ7lxqDws1SbONGjwMvkzwnmQjPoZuNjXMhdQmsiqtYPBBFPh
+         QV27Tj7TWtue7rmxz380MIzZq7gBTKnNRZwAuNh9MtGEDjISep7NqZYUYsvCFbeecLTJ
+         Q+ck6qm5VNkhM7K9Gfrp9uS5GTJ3HKH/rSGUU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=AF8nKIXl8zd9hfxLbHpHtiMK8og6zkZi/1pGrwACnFM=;
-        b=8Lp2jQVaDmECuMpjVticEfNwpP3nHQQTaGW3DYusxU/959ptkIykR7cLbwU9jd8g+7
-         BH9lMavJTH+azZC0vKeBa3ZKc9O+KnpWdnNjZAjNIHlr9D+WBhsBfB6VvjisC9g95Ca+
-         zB/eZRVW7/TPDw9kpib/8FMAvm7qTjNLCyCHibtO50g4eVyIPjMpOysWIryx+Wiaw/5R
-         bn8Xdvn50kQbIlKpqgeBmTwKZPd2n8DFVCbFcnq/I/jrGdMzPKjuzReXTD/JiET/xoDP
-         RcEvz5qCkfNMX7LZC6AufTor+lvtftBPu5kPTYaGvjaxab8zI5yjf8b3Idr8p3hRwEVx
-         IiUw==
-X-Gm-Message-State: ACrzQf2ptO8g4YpRDiaByyGECva7ogPyvhoYH6Z+gvWwu2x4cZ+30uy8
-        I9ZsCP565XZlXOZLHAYQKdWdJVvrRfaYQbk/0IKL2qYs
-X-Google-Smtp-Source: AMsMyM4DBJYYrmD52fy2HV6ikuS+SDAT69VsVe5VExTxNlgkxPEFm8tg2Uvl1y2mmkG7PsGfyP54BWEwG/hpWktwwjY=
-X-Received: by 2002:a92:ce0e:0:b0:300:9dad:3104 with SMTP id
- b14-20020a92ce0e000000b003009dad3104mr9263763ilo.174.1667304515268; Tue, 01
- Nov 2022 05:08:35 -0700 (PDT)
+        h=content-transfer-encoding:content-language:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=WGeelK6e3RrGwUWA43330Pjlvt+ORjm/i7zBISsILRM=;
+        b=3pDkwvLnngNY9dFhLmwIH0071bwI6IWQB1vyebif3Cp4R8vzeH3J5bboSWjZYdWcos
+         /KtFbKluPczrp9nBXDTnTV8uJd2CWKWwLvD8D8rVW8q+Xu2xuzl4N2IuiOrtFdKnbYK3
+         i1E4aFAYrpjNPQhqxCYsYxe0TeeAUEtqSIcK+zCYbz3VUtOaM4oomDBkF3GMOQrIRoi3
+         JZGzh3InieS4TtN3Gq5KAFg1LS4R5RpHev8LwQ4lSOS1sq0PasRMdh8giL4tpE7FuHbz
+         dwlD2VGjZVs+kgWMofjIIdPzbk5Gs6/NUaD/NYlLtRUoD18N8aUNlaejxsVid/EIkmF9
+         stJg==
+X-Gm-Message-State: ACrzQf13mAo2WNXu3jwzCm+esdVPIC0IzLTUP2SGcBfuP67n8z68CqrQ
+        CuWongFyOgf7BAXVBjEEq9pSMA==
+X-Google-Smtp-Source: AMsMyM5INz1wmTnpMwzjcuPQX9hJsguUqKI3TT6ql2L4RJOZnTOL02p7t2zHBkOhzkdYglpc8U1w+g==
+X-Received: by 2002:ac8:4e17:0:b0:3a5:318a:2625 with SMTP id c23-20020ac84e17000000b003a5318a2625mr4997366qtw.268.1667312799757;
+        Tue, 01 Nov 2022 07:26:39 -0700 (PDT)
+Received: from [192.168.1.242] ([68.33.139.110])
+        by smtp.gmail.com with ESMTPSA id x10-20020ac84d4a000000b0039ccbf75f92sm5179459qtv.11.2022.11.01.07.26.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 01 Nov 2022 07:26:39 -0700 (PDT)
+Message-ID: <1ab28567-eefd-26e7-09fb-3ea3153a2ed3@ieee.org>
+Date:   Tue, 1 Nov 2022 10:20:47 -0400
 MIME-Version: 1.0
-References: <20221028203852.526472-1-jwcart2@gmail.com> <20221028203852.526472-4-jwcart2@gmail.com>
- <87v8nzrqwp.fsf@redhat.com>
-In-Reply-To: <87v8nzrqwp.fsf@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 1 Nov 2022 08:08:24 -0400
-Message-ID: <CAP+JOzRWEMnqFSyEfqb76q9HysyURv8FCJv7wKd4u9WWBH7M-w@mail.gmail.com>
-Subject: Re: [PATCH 3/5] python: Remove dependency on the Python module distutils
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+From:   Chris PeBenito <pebenito@ieee.org>
+Subject: ANN: Reference Policy 2.20221101
+To:     refpolicy <selinux-refpolicy@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 1, 2022 at 5:00 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> James Carter <jwcart2@gmail.com> writes:
->
-> > The distutils package is deprecated and scheduled to be removed in
-> > Python 3.12. Use the setuptools and sysconfig modules instead.
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >  python/semanage/Makefile              | 2 +-
-> >  python/sepolgen/src/sepolgen/Makefile | 2 +-
-> >  python/sepolicy/sepolicy/gui.py       | 2 +-
-> >  python/sepolicy/setup.py              | 2 +-
-> >  4 files changed, 4 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/python/semanage/Makefile b/python/semanage/Makefile
-> > index 024e9640..b1f1bd3a 100644
-> > --- a/python/semanage/Makefile
-> > +++ b/python/semanage/Makefile
-> > @@ -5,7 +5,7 @@ LINGUAS ?= ru
-> >  PREFIX ?= /usr
-> >  SBINDIR ?= $(PREFIX)/sbin
-> >  MANDIR = $(PREFIX)/share/man
-> > -PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
-> > +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
->
-> $ python3 -c "from distutils.sysconfig import *; print(get_python_lib(prefix='/usr'))"
-> /usr/lib/python3.10/site-packages
->
-> vs
->
-> $ python3 -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'platbase': '/usr', 'base': '/usr'}))"
-> /usr/lib64/python3.10/site-packages
->
-> Given that python/ is not platform specific this should use 'purelib' -
-> https://docs.python.org/3/library/sysconfig.html#installation-paths
->
-> $ python3 -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '/usr', 'base': '/usr'}))"
-> /usr/lib/python3.10/site-packages
->
->
+https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20221101
 
-Thanks. That was one of the things I was not sure about. I will change that.
-Jim
+Notable changes:
 
->
->
-> >  PACKAGEDIR ?= $(PYTHONLIBDIR)
-> >  BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
-> >
-> > diff --git a/python/sepolgen/src/sepolgen/Makefile b/python/sepolgen/src/sepolgen/Makefile
-> > index cac8def7..9578af23 100644
-> > --- a/python/sepolgen/src/sepolgen/Makefile
-> > +++ b/python/sepolgen/src/sepolgen/Makefile
-> > @@ -1,6 +1,6 @@
-> >  PREFIX ?= /usr
-> >  PYTHON ?= python3
-> > -PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
-> > +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
-> >  PACKAGEDIR ?= /$(PYTHONLIBDIR)/sepolgen
-> >
-> >  all:
-> > diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-> > index 5bdbfeba..63f2371f 100644
-> > --- a/python/sepolicy/sepolicy/gui.py
-> > +++ b/python/sepolicy/sepolicy/gui.py
-> > @@ -77,7 +77,7 @@ def cmp(a, b):
-> >          return 1
-> >      return (a > b) - (a < b)
-> >
-> > -import distutils.sysconfig
-> > +import sysconfig
-> >  ADVANCED_LABEL = (_("Advanced >>"), _("Advanced <<"))
-> >  ADVANCED_SEARCH_LABEL = (_("Advanced Search >>"), _("Advanced Search <<"))
-> >  OUTBOUND_PAGE = 0
-> > diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
-> > index b0f9650d..c8220664 100644
-> > --- a/python/sepolicy/setup.py
-> > +++ b/python/sepolicy/setup.py
-> > @@ -2,7 +2,7 @@
-> >
-> >  # Author: Thomas Liu <tliu@redhat.com>
-> >  # Author: Dan Walsh <dwalsh@redhat.com>
-> > -from distutils.core import setup
-> > +from setuptools import setup
-> >
-> >  setup(
-> >      name="sepolicy",
-> > --
-> > 2.37.3
->
+* Clean up MCS constraints and add missing checks for IPC and sockers.
+* Many minor fixes across the policy.
+
+New modules:
+
+* cloud-init
+* fapolicyd
+* opensm
+* sympa
+* zfs
+
+-- 
+Chris PeBenito
