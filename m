@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6B77C433FE
-	for <selinux@archiver.kernel.org>; Wed,  2 Nov 2022 14:01:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10CE8C433FE
+	for <selinux@archiver.kernel.org>; Wed,  2 Nov 2022 14:01:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229485AbiKBOBe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Nov 2022 10:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
+        id S231299AbiKBOBm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Nov 2022 10:01:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229531AbiKBOBA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Nov 2022 10:01:00 -0400
-Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA406FAC1
-        for <selinux@vger.kernel.org>; Wed,  2 Nov 2022 07:00:46 -0700 (PDT)
-Received: by mail-qt1-x82f.google.com with SMTP id cg5so2578025qtb.12
-        for <selinux@vger.kernel.org>; Wed, 02 Nov 2022 07:00:46 -0700 (PDT)
+        with ESMTP id S231315AbiKBOBK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Nov 2022 10:01:10 -0400
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830C9FD21
+        for <selinux@vger.kernel.org>; Wed,  2 Nov 2022 07:00:47 -0700 (PDT)
+Received: by mail-qt1-x832.google.com with SMTP id h21so6332553qtu.2
+        for <selinux@vger.kernel.org>; Wed, 02 Nov 2022 07:00:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=s45UYosyp2pmL626PE9So0JOZBWS1orQGfOv5LNw67c=;
-        b=IxnRr6Vs7C5OnbYQ/d+61UvENf/hSvl4uX9+PCVYvsdagCilAL/zRe7qxs1BC38Dtv
-         Ph88sS6JRZWKASTTzCVG7hfar3obmrRv8ixjfU78F/fB5fEkfutfG2n/hRgOUn4wvOtJ
-         CrJyw52dSvPDAvd2XBj82UhzuYo+FN9LamsAT29F98Qag2pcux75H3FQkR5G+xSzbQzR
-         3aLe/m/yGQe9PrCj4Nl1rUaXwAKIHoe9Jyw0QBhBTUMuJ6uuyZP7/fmifhndlkvGlFKR
-         FF5HcTE/4fI22DsLrNcTHciCGpcBx4XW12pM5mWaoe5TsxAns6cX9P8K5OtmZaH0Mwk5
-         n2uA==
+        bh=qGtzrxIutUYob6LwzVdL1wyAuWgx7uTaMGUCm6wkCiU=;
+        b=AqrEYBOcS6CU429Lb0M5cqOYb5TvZ+AuhKtn0d3QFquJvALKiedTKUlbYUw7OWnHCg
+         bwz3aRrULnQazBe1IJNQnqKPCzH+1QJfDSOJh1QMFJWaDPTriWNWv1RrEXHy5Rrzq4Jq
+         kyHI8l/DyFQ/+oKi0TBgDaw5yCCY8oJdsCV7+pR/OhmJQQ5W8Oymwv2WgY2z2OvZ0+Qo
+         Kvr/RpOpWLdn0O1/VPh9aYzcHtQx3QCKFJQWDoiYesFCXodOUw72Cg6ejXDgI4JptdYR
+         3IxeujucyuHEDVFUvftK9NJUf4rTXGwFh/lz6gSOlLj/PdKx33Ls8Nm+mueJZF8hphHT
+         rwhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=s45UYosyp2pmL626PE9So0JOZBWS1orQGfOv5LNw67c=;
-        b=aOJJv7gnwcgr7y7u86KpVp1em4qUsZS5xreOe5Kq0cLJYhSQGlO8YGVpeiwVydyF6X
-         oDUuYJ2jVKDiEohQX0VnFSmOpeNpZ11YzsbSMfeDwE8SAJn+f5E++yeXArtLFK/d6j/v
-         TZDU/2LB8ycxX6lpNohLH8xLTXFZPmF4EPfH+1WUnE6kLDf/7CZULbarP9D8Qwjh1c5r
-         7habiOy7GyILg8OWyoG3wyZkzGOH9OyE2t4DQfNt9I+fJkwdDQRnhXCVBfyQcy9jdko3
-         nKadNkuhNdtiGtEn+oc82yt3D+7DStfz2s/gnRUgz+V8HVp/TRptlfwOUSx8FBNfKnbv
-         zerg==
-X-Gm-Message-State: ACrzQf3O51fC8Y8y7eMLkGOk935/0ekCCRegJK7H815eDeTsOqOrO87X
-        0hjkwsh4jumc2XZMH3e/AkGh4VQr+Ns=
-X-Google-Smtp-Source: AMsMyM6MBVWI4Qc5KxfhwH0c0otLZRKoaQJkoLcQnEm5pT7zsHjJNZtMkUE8IkotBOQSmXLL0eoIRg==
-X-Received: by 2002:a05:622a:2590:b0:3a5:456d:6740 with SMTP id cj16-20020a05622a259000b003a5456d6740mr2473087qtb.560.1667397645562;
-        Wed, 02 Nov 2022 07:00:45 -0700 (PDT)
+        bh=qGtzrxIutUYob6LwzVdL1wyAuWgx7uTaMGUCm6wkCiU=;
+        b=7/9MWjqTDOoXNdq8CWYHfkB2MhPueOXPKW0NE1CH30hAIfZexy62zNG9nERu4RQmjU
+         oGODQIiJTxsNzRZdB7JdO/hQQ7hsAFfoLOffHlCMaLj8bvPRZ1eqipW6rioSBiUBn2dS
+         Ku6BBOZN6yRM7R/rk392obSoan0qUt00urIS+dNRY26VZxLUwWCiJX084zvaKIugY+da
+         BhLXMz0oyEfEAn/YyZx4jqroBrQFq+kdkySCnw0iUNSbojRs3wUw0cKNs/V4DKJa5s1d
+         wTJpERYaGY2lL9OFAFMKagTDvQDAl4wjCWSLt7NRl4pKjiwFQj8EIb/TtJp9KAOzs2fF
+         LpkA==
+X-Gm-Message-State: ACrzQf2gHyaYBaK4MGrNg7Q6xXyBjXpbq5r+drKzZ66RLYP/HFIKPnHu
+        aJm9BK23Z4MYSFS1yB66MtfAMNQAMCc=
+X-Google-Smtp-Source: AMsMyM4ZP3VGMEyKJeczVy4AwEi6N/3fmkwYVRBTF1YM7vONQQIx3SnE2z8Za3BM1RbiiPGZ/PKi1w==
+X-Received: by 2002:ac8:58c2:0:b0:398:f5c4:9bed with SMTP id u2-20020ac858c2000000b00398f5c49bedmr19489607qta.367.1667397646557;
+        Wed, 02 Nov 2022 07:00:46 -0700 (PDT)
 Received: from electric.. (c-73-200-155-132.hsd1.md.comcast.net. [73.200.155.132])
-        by smtp.gmail.com with ESMTPSA id q6-20020a37f706000000b006ce0733caebsm8449846qkj.14.2022.11.02.07.00.44
+        by smtp.gmail.com with ESMTPSA id q6-20020a37f706000000b006ce0733caebsm8449846qkj.14.2022.11.02.07.00.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Nov 2022 07:00:44 -0700 (PDT)
+        Wed, 02 Nov 2022 07:00:45 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     plautrba@redhat.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 3/5 v2] python: Remove dependency on the Python module distutils
-Date:   Wed,  2 Nov 2022 10:00:37 -0400
-Message-Id: <20221102140039.914518-4-jwcart2@gmail.com>
+Subject: [PATCH 4/5 v2] scripts: Remove dependency on the Python module distutils
+Date:   Wed,  2 Nov 2022 10:00:38 -0400
+Message-Id: <20221102140039.914518-5-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221102140039.914518-1-jwcart2@gmail.com>
 References: <20221102140039.914518-1-jwcart2@gmail.com>
@@ -65,71 +65,40 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 The distutils package is deprecated and scheduled to be removed in
-Python 3.12. Use the setuptools and sysconfig modules instead.
+Python 3.12. Use the sysconfig module instead.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
-v2: Use sysconfig.get_path('purelib'... since original used
-    get_python_lib(prefix=... instead of
-    get_python_lib(plat_specific=1, prefix=...
+ scripts/env_use_destdir | 2 +-
+ scripts/run-scan-build  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
- python/semanage/Makefile              | 2 +-
- python/sepolgen/src/sepolgen/Makefile | 2 +-
- python/sepolicy/sepolicy/gui.py       | 2 +-
- python/sepolicy/setup.py              | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/python/semanage/Makefile b/python/semanage/Makefile
-index 024e9640..b53ee33d 100644
---- a/python/semanage/Makefile
-+++ b/python/semanage/Makefile
-@@ -5,7 +5,7 @@ LINGUAS ?= ru
- PREFIX ?= /usr
- SBINDIR ?= $(PREFIX)/sbin
- MANDIR = $(PREFIX)/share/man
--PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
-+PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
- PACKAGEDIR ?= $(PYTHONLIBDIR)
- BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
+diff --git a/scripts/env_use_destdir b/scripts/env_use_destdir
+index 8274013e..89d989a2 100755
+--- a/scripts/env_use_destdir
++++ b/scripts/env_use_destdir
+@@ -43,7 +43,7 @@ if [ -n "${SBINDIR:-}" ] ; then
+     PATH="$DESTDIR$SBINDIR:$PATH"
+ fi
  
-diff --git a/python/sepolgen/src/sepolgen/Makefile b/python/sepolgen/src/sepolgen/Makefile
-index cac8def7..a1039227 100644
---- a/python/sepolgen/src/sepolgen/Makefile
-+++ b/python/sepolgen/src/sepolgen/Makefile
-@@ -1,6 +1,6 @@
- PREFIX ?= /usr
- PYTHON ?= python3
--PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
-+PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
- PACKAGEDIR ?= /$(PYTHONLIBDIR)/sepolgen
+-NEW_PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(plat_specific=1, prefix='/usr'))"):$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
++NEW_PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "import sysconfig; print(sysconfig.get_path('platlib', vars={'platbase': '/usr', 'base': '/usr'}))"):$DESTDIR$(${PYTHON:-python3} -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '/usr', 'base': '/usr'}))")"
+ if [ -n "${PYTHONPATH:-}" ] ; then
+     # Prefix the PYTHONPATH with the new directories
+     export PYTHONPATH="$NEW_PYTHONPATH:$PYTHONPATH"
+diff --git a/scripts/run-scan-build b/scripts/run-scan-build
+index 77e02ca9..931ffd2a 100755
+--- a/scripts/run-scan-build
++++ b/scripts/run-scan-build
+@@ -21,7 +21,7 @@ fi
+ # Make sure to use the newly-installed libraries when running tests
+ export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
+ export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
+-export PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
++export PYTHONPATH="$DESTDIR$(${PYTHON:-python3} -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '/usr', 'base': '/usr'}))")"
+ export RUBYLIB="$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
  
- all:
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index 5bdbfeba..63f2371f 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -77,7 +77,7 @@ def cmp(a, b):
-         return 1
-     return (a > b) - (a < b)
- 
--import distutils.sysconfig
-+import sysconfig
- ADVANCED_LABEL = (_("Advanced >>"), _("Advanced <<"))
- ADVANCED_SEARCH_LABEL = (_("Advanced Search >>"), _("Advanced Search <<"))
- OUTBOUND_PAGE = 0
-diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
-index b0f9650d..c8220664 100644
---- a/python/sepolicy/setup.py
-+++ b/python/sepolicy/setup.py
-@@ -2,7 +2,7 @@
- 
- # Author: Thomas Liu <tliu@redhat.com>
- # Author: Dan Walsh <dwalsh@redhat.com>
--from distutils.core import setup
-+from setuptools import setup
- 
- setup(
-     name="sepolicy",
+ if [ -f /etc/debian_version ] && [ -z "${IS_CIRCLE_CI:-}" ] ; then
 -- 
 2.38.1
 
