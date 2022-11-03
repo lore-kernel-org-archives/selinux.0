@@ -2,219 +2,149 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CE86C43217
-	for <selinux@archiver.kernel.org>; Thu,  3 Nov 2022 10:53:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A1D5C4332F
+	for <selinux@archiver.kernel.org>; Thu,  3 Nov 2022 11:41:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbiKCKxJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Nov 2022 06:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57368 "EHLO
+        id S229523AbiKCLle (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Nov 2022 07:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbiKCKxF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Nov 2022 06:53:05 -0400
+        with ESMTP id S229461AbiKCLld (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Nov 2022 07:41:33 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76BDF10FD5
-        for <selinux@vger.kernel.org>; Thu,  3 Nov 2022 03:52:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEF31263F
+        for <selinux@vger.kernel.org>; Thu,  3 Nov 2022 04:40:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667472730;
+        s=mimecast20190719; t=1667475635;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=kIYRkx7Y9W9jKAKjm+1jgkpGJFLvVwfrjVD1dASHnIM=;
-        b=E4EWZz70wbLCSkEcNhgP2x2zmehYqAALcC4yJvPcSLPzcgKGcezNq1U4GtueXH+ZHAy3oU
-        ZphdQWt1BQTyvyPELd4jklGjf4Pukq+tmP8iLEs9gG6zFnNavyjmFPf8HfjhgqdDO8Wk7p
-        FxXrewoq6CvEVYYTq13pIe1tFLLqgbg=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-633-jeamEzPhMLCZTwVlHjjgyg-1; Thu, 03 Nov 2022 06:52:09 -0400
-X-MC-Unique: jeamEzPhMLCZTwVlHjjgyg-1
-Received: by mail-pj1-f72.google.com with SMTP id mh8-20020a17090b4ac800b0021348e084a0so3378959pjb.8
-        for <selinux@vger.kernel.org>; Thu, 03 Nov 2022 03:52:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kIYRkx7Y9W9jKAKjm+1jgkpGJFLvVwfrjVD1dASHnIM=;
-        b=HeXTSWdZGu8FTHIGIabLr2Y3szUcUXDp06zlVPabOYABg4lE4UK7fLn/No0R7MsMQe
-         8PoOwo7bmjkn48YSE4iacqzPLMn7Z8P4RFula/eqb4ac3aO/QAYJi/Qafa4NcB9/RSnN
-         D5kS2NHXWOUzCfqLLOC4rd7ZGHcQarUHmvIXE/GCFuS9jF/mDJsu5D9gWiSO0zY1BMOr
-         Fi8z04LZ6smi0ZaSOMK+1j0w0Fe1lScc5ek12/gl0I9NQDw/1odukkMNUYnRWTtPIeVD
-         YiU4z8zlOTvdd6h/uBq86zbJxMRL++4wv4swHekIET9mhZohkuJ2c+bvwvDb2gTe/hBn
-         yQow==
-X-Gm-Message-State: ACrzQf3AfXaTghi5QFCdaYzFFeoFarQ0z/EpfPZgM1soZinPTqGviiEL
-        zcprMyGMCAB0oYbXuqhSSzlWeCo+JPLWpXNAXCfuNo9Tgvm0MNdV8LS2/GnSzuvp6ZLExJ8MeTt
-        gstIxBQ3kjTI/aFEkguJUhlx1YaQx3iOolA==
-X-Received: by 2002:a17:902:ab45:b0:186:7b95:f767 with SMTP id ij5-20020a170902ab4500b001867b95f767mr30293345plb.107.1667472728482;
-        Thu, 03 Nov 2022 03:52:08 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM7s7znX4hyAsgjTBM4wVFx4O9ZyTZG5tNktnMvuG2E5V91rnNMU833toUePw5i7OC9qbOH0dlZoLSD+/0g/U08=
-X-Received: by 2002:a17:902:ab45:b0:186:7b95:f767 with SMTP id
- ij5-20020a170902ab4500b001867b95f767mr30293310plb.107.1667472728194; Thu, 03
- Nov 2022 03:52:08 -0700 (PDT)
+        bh=/6/r2FFJgyHWQXcXIlS+Q3aJC7F8CILtFhkppIW1K5M=;
+        b=brezc2uD/nudA8pPzb6QpmW1+JZofHXkuP863FPyZc98JjIRTZgnWnxPqNB+LdHPlDhWkz
+        n2bHPKgJp2s2EOVf++cMR6Fr3PEBKlLbtRmsoFRv/dYIZoe7ZJXPggI8ROJMLrevT1gbaZ
+        30HDjZls25hEQ3aqk35bCVevBMjMhXs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-645-tROdur5POpW3OJYCeD-Q2A-1; Thu, 03 Nov 2022 07:40:34 -0400
+X-MC-Unique: tROdur5POpW3OJYCeD-Q2A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4917985A59D;
+        Thu,  3 Nov 2022 11:40:34 +0000 (UTC)
+Received: from localhost (ovpn-194-20.brq.redhat.com [10.40.194.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F2D9640C6EC3;
+        Thu,  3 Nov 2022 11:40:33 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH 3/5 v2] python: Remove dependency on the Python module
+ distutils
+In-Reply-To: <20221102140039.914518-4-jwcart2@gmail.com>
+References: <20221102140039.914518-1-jwcart2@gmail.com>
+ <20221102140039.914518-4-jwcart2@gmail.com>
+Date:   Thu, 03 Nov 2022 12:40:33 +0100
+Message-ID: <877d0ce05q.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20220901152632.970018-1-omosnace@redhat.com> <20220905090811.ocnnc53y2bow7m3i@wittgenstein>
- <CAFqZXNu_jf0D8LQLc15+ZrFne5F5F5PFNbkT-EkfqXvNdSKKsQ@mail.gmail.com>
- <20220905153036.zzcovknz7ntgcn5f@wittgenstein> <20221102182451.aoos5udhf6rbb6us@wittgenstein>
- <CAFqZXNuG0gjRjSMpaMJQqmmwtqr5Yx1r6Eg0YpJ4DQ6u9CWqRA@mail.gmail.com> <20221103091227.mm2nzjj35dzv4dex@wittgenstein>
-In-Reply-To: <20221103091227.mm2nzjj35dzv4dex@wittgenstein>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 3 Nov 2022 11:51:56 +0100
-Message-ID: <CAFqZXNuC7c0Ukx_okYZ7rsKycQY5P1zpMPmmq_T5Qyzbg-x7yQ@mail.gmail.com>
-Subject: Re: [PATCH 0/2] fs: fix capable() call in simple_xattr_list()
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Vasily Averin <vvs@openvz.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>, rcu@vger.kernel.org,
-        Martin Pitt <mpitt@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 3, 2022 at 10:12 AM Christian Brauner <brauner@kernel.org> wrote:
-> On Thu, Nov 03, 2022 at 10:04:25AM +0100, Ondrej Mosnacek wrote:
-> > On Wed, Nov 2, 2022 at 7:25 PM Christian Brauner <brauner@kernel.org> wrote:
-> > > On Mon, Sep 05, 2022 at 05:30:36PM +0200, Christian Brauner wrote:
-> > > > On Mon, Sep 05, 2022 at 12:15:01PM +0200, Ondrej Mosnacek wrote:
-> > > > > On Mon, Sep 5, 2022 at 11:08 AM Christian Brauner <brauner@kernel.org> wrote:
-> > > > > > On Thu, Sep 01, 2022 at 05:26:30PM +0200, Ondrej Mosnacek wrote:
-> > > > > > > The goal of these patches is to avoid calling capable() unconditionally
-> > > > > > > in simple_xattr_list(), which causes issues under SELinux (see
-> > > > > > > explanation in the second patch).
-> > > > > > >
-> > > > > > > The first patch tries to make this change safer by converting
-> > > > > > > simple_xattrs to use the RCU mechanism, so that capable() is not called
-> > > > > > > while the xattrs->lock is held. I didn't find evidence that this is an
-> > > > > > > issue in the current code, but it can't hurt to make that change
-> > > > > > > either way (and it was quite straightforward).
-> > > > > >
-> > > > > > Hey Ondrey,
-> > > > > >
-> > > > > > There's another patchset I'd like to see first which switches from a
-> > > > > > linked list to an rbtree to get rid of performance issues in this code
-> > > > > > that can be used to dos tmpfs in containers:
-> > > > > >
-> > > > > > https://lore.kernel.org/lkml/d73bd478-e373-f759-2acb-2777f6bba06f@openvz.org
-> > > > > >
-> > > > > > I don't think Vasily has time to continue with this so I'll just pick it
-> > > > > > up hopefully this or the week after LPC.
-> > > > >
-> > > > > Hm... does rbtree support lockless traversal? Because if not, that
-> > > >
-> > > > The rfc that Vasily sent didn't allow for that at least.
-> > > >
-> > > > > would make it impossible to fix the issue without calling capable()
-> > > > > inside the critical section (or doing something complicated), AFAICT.
-> > > > > Would rhashtable be a workable alternative to rbtree for this use
-> > > > > case? Skimming <linux/rhashtable.h> it seems to support both lockless
-> > > > > lookup and traversal using RCU. And according to its manpage,
-> > > > > *listxattr(2) doesn't guarantee that the returned names are sorted.
-> > > >
-> > > > I've never used the rhashtable infrastructure in any meaningful way. All
-> > > > I can say from looking at current users that it looks like it could work
-> > > > well for us here:
-> > > >
-> > > > struct simple_xattr {
-> > > >       struct rhlist_head rhlist_head;
-> > > >       char *name;
-> > > >       size_t size;
-> > > >       char value[];
-> > > > };
-> > > >
-> > > > static const struct rhashtable_params simple_xattr_rhashtable = {
-> > > >       .head_offset = offsetof(struct simple_xattr, rhlist_head),
-> > > >       .key_offset = offsetof(struct simple_xattr, name),
-> > > >
-> > > > or sm like this.
-> > >
-> > > I have a patch in rough shape that converts struct simple_xattr to use
-> > > an rhashtable:
-> > >
-> > > https://gitlab.com/brauner/linux/-/commits/fs.xattr.simple.rework/
-> > >
-> > > Light testing, not a lot useful comments and no meaningful commit
-> > > message as of yet but I'll get to that.
-> >
-> > Looks mostly good at first glance. I left comments for some minor
-> > stuff I noticed.
-> >
-> > > Even though your issue is orthogonal to the performance issues I'm
-> > > trying to fix I went back to your patch, Ondrej to apply it on top.
-> > > But I think it has one problem.
-> > >
-> > > Afaict, by moving the capable() call from the top of the function into
-> > > the actual traversal portion an unprivileged user can potentially learn
-> > > whether a file has trusted.* xattrs set. At least if dmesg isn't
-> > > restricted on the kernel. That may very well be the reason why the
-> > > capable() call is on top.
-> >
-> > Technically it would be possible, for example with SELinux if the
-> > audit daemon is dead. Not a likely situation, but I agree it's better
-> > to be safe.
-> >
-> > > (Because the straightforward fix for this would be to just call
-> > > capable() a single time if at least one trusted xattr is encountered and
-> > > store the result. That's pretty easy to do by making turning the trusted
-> > > variable into an int, setting it to -1, and only if it's -1 and a
-> > > trusted xattr has been found call capable() and store the result.)
-> >
-> > That would also run into the conundrum of holding a lock while
-> > (potentially) calling into the LSM subsystem. And would it even fix
-> > the information leak? Unless I'm missing something it would only
-> > prevent a leak of the trusted xattr count, but not the presence of any
-> > trusted xattr.
->
-> No it wouldn't. I just meant this to illustrate that with your patch we
-> could've made it so that capable() would've only been called once.
->
-> >
-> > > One option to fix all of that is to switch simple_xattr_list() to use
-> > >
-> > >         ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN)
-> > >
-> > > which doesn't generate an audit event.
-> > >
-> > > I think this is even the correct thing to do as listing xattrs isn't a
-> > > targeted operation. IOW, if the the user had used getxattr() to request
-> > > a trusted.* xattr then logging a denial makes sense as the user
-> > > explicitly wanted to retrieve a trusted.* xattr. But if the user just
-> > > requested to list all xattrs then silently skipping trusted without
-> > > logging an explicit denial xattrs makes sense.
-> > >
-> > > Does that sound acceptable?
-> >
-> > Yes, I can't see any reason why that wouldn't be the best solution.
-> > Why haven't I thought of that? :)
-> >
-> > I guess you will want to submit a patch for it along with your
-> > rhashtable patch to avoid a conflict? Or would you like me to submit
-> > it separately?
->
-> I think you can send a patch for this separately as we don't need to
-> massage the data structure for this.
+James Carter <jwcart2@gmail.com> writes:
 
-Ok, will do.
-
-> I think we can reasonably give this a
+> The distutils package is deprecated and scheduled to be removed in
+> Python 3.12. Use the setuptools and sysconfig modules instead.
 >
-> Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs") # no backport
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+> v2: Use sysconfig.get_path('purelib'... since original used
+>     get_python_lib(prefix=... instead of
+>     get_python_lib(plat_specific=1, prefix=...
 >
-> But note the "# no backport" as imho it isn't worth backporting this to
-> older kernels unless that's really desirable.
+>  python/semanage/Makefile              | 2 +-
+>  python/sepolgen/src/sepolgen/Makefile | 2 +-
+>  python/sepolicy/sepolicy/gui.py       | 2 +-
+>  python/sepolicy/setup.py              | 2 +-
+>  4 files changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/python/semanage/Makefile b/python/semanage/Makefile
+> index 024e9640..b53ee33d 100644
+> --- a/python/semanage/Makefile
+> +++ b/python/semanage/Makefile
+> @@ -5,7 +5,7 @@ LINGUAS ?= ru
+>  PREFIX ?= /usr
+>  SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR = $(PREFIX)/share/man
+> -PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
+> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
+>  PACKAGEDIR ?= $(PYTHONLIBDIR)
+>  BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
+>  
+> diff --git a/python/sepolgen/src/sepolgen/Makefile b/python/sepolgen/src/sepolgen/Makefile
+> index cac8def7..a1039227 100644
+> --- a/python/sepolgen/src/sepolgen/Makefile
+> +++ b/python/sepolgen/src/sepolgen/Makefile
+> @@ -1,6 +1,6 @@
+>  PREFIX ?= /usr
+>  PYTHON ?= python3
+> -PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
+> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
+>  PACKAGEDIR ?= /$(PYTHONLIBDIR)/sepolgen
+>  
+>  all:
+> diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+> index 5bdbfeba..63f2371f 100644
+> --- a/python/sepolicy/sepolicy/gui.py
+> +++ b/python/sepolicy/sepolicy/gui.py
+> @@ -77,7 +77,7 @@ def cmp(a, b):
+>          return 1
+>      return (a > b) - (a < b)
+>  
+> -import distutils.sysconfig
+> +import sysconfig
 
-Actually, it would be valuable to have it backported to linux-stable
-at least, since we have users encountering this on Fedora:
-https://bugzilla.redhat.com/show_bug.cgi?id=2122888
+CI
+https://github.com/bachradsusi/SELinuxProject-selinux/actions/runs/3384927657/jobs/5622477533
+reports:
 
-In the end it's up to the backporter to assess each commit, but at
-least I wouldn't want to outright discourage the backport in the
-commit message.
+  Analyzing 118 Python scripts
+  ./python/sepolicy/build/lib/sepolicy/gui.py:133:26: F821 undefined name 'distutils'
+  ./python/sepolicy/sepolicy/gui.py:133:26: F821 undefined name 'distutils'
+  Error: Process completed with exit code 1.
 
--- 
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+
+The following patch makes the CI happy:
+
+--- a/python/sepolicy/sepolicy/gui.py
++++ b/python/sepolicy/sepolicy/gui.py
+@@ -130,7 +130,7 @@ class SELinuxGui():
+         self.application = app
+         self.filter_txt = ""
+         builder = Gtk.Builder()  # BUILDER OBJ
+-        self.code_path = distutils.sysconfig.get_python_lib(plat_specific=False) + "/sepolicy/"
++        self.code_path = sysconfig.get_python_lib(plat_specific=False) + "/sepolicy/"
+
+
+
+
+>  ADVANCED_LABEL = (_("Advanced >>"), _("Advanced <<"))
+>  ADVANCED_SEARCH_LABEL = (_("Advanced Search >>"), _("Advanced Search <<"))
+>  OUTBOUND_PAGE = 0
+> diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
+> index b0f9650d..c8220664 100644
+> --- a/python/sepolicy/setup.py
+> +++ b/python/sepolicy/setup.py
+> @@ -2,7 +2,7 @@
+>  
+>  # Author: Thomas Liu <tliu@redhat.com>
+>  # Author: Dan Walsh <dwalsh@redhat.com>
+> -from distutils.core import setup
+> +from setuptools import setup
+>  
+>  setup(
+>      name="sepolicy",
+> -- 
+> 2.38.1
 
