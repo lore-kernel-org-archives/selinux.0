@@ -2,48 +2,78 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A65DC433FE
-	for <selinux@archiver.kernel.org>; Thu,  3 Nov 2022 01:59:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0243AC433FE
+	for <selinux@archiver.kernel.org>; Thu,  3 Nov 2022 09:05:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230372AbiKCB7n (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Nov 2022 21:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49412 "EHLO
+        id S229461AbiKCJFr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Nov 2022 05:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230193AbiKCB7m (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Nov 2022 21:59:42 -0400
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6795D5F69;
-        Wed,  2 Nov 2022 18:59:40 -0700 (PDT)
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id A30B8AB3; Wed,  2 Nov 2022 20:59:38 -0500 (CDT)
-Date:   Wed, 2 Nov 2022 20:59:38 -0500
-From:   "Serge E. Hallyn" <serge@hallyn.com>
+        with ESMTP id S229450AbiKCJFo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Nov 2022 05:05:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD6BD122
+        for <selinux@vger.kernel.org>; Thu,  3 Nov 2022 02:04:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667466280;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zDq35n6R89I+Aaea6Q0FlPepC7iWCing+SCmG3mC5oY=;
+        b=C1psXn2wcicu8H93/tF3pHM2y6LILYcvpcGtwDQvbgRwymzZVENhz8ZN7arRrBKwWwcjIU
+        n9Hkh/boBCfMtiodItbWbMiWWgfQFRQDj7mdxWIS+aEg100wD3l1RDya5VqnY8VCsGBDqY
+        UzGQCd6sU0dIh1cs+RSLv7axIwwCx0s=
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
+ [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-180-bBcJyb1iNR6wdT7_aqYwxA-1; Thu, 03 Nov 2022 05:04:38 -0400
+X-MC-Unique: bBcJyb1iNR6wdT7_aqYwxA-1
+Received: by mail-pl1-f200.google.com with SMTP id n1-20020a170902f60100b00179c0a5c51fso1004945plg.7
+        for <selinux@vger.kernel.org>; Thu, 03 Nov 2022 02:04:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zDq35n6R89I+Aaea6Q0FlPepC7iWCing+SCmG3mC5oY=;
+        b=BirMWdyyzq+5N18BLLgfVC2iE0fnk2Pa3ESu6MQndixB1EI+j7XricQa9Hsii/hClL
+         vGWxG5IfuHVcCRpA0CVbvKWuwBihrHpGDNIQVavA8chRoTWUm+0iHtz7ZZecNNC7BdNO
+         mKyRIRb6dwo6e7QoxRaKL0YumAERTWL/Z+2ufqOWKvKG13UtlYnsaYrqyx2IlNEizwMk
+         xKLo/x3CtCOZLeQJaJDogygzVf7dUyKMJc9mEwGAy9eOASZxbj5bv4lh0kJ9UZXqNH+t
+         w1DmfvqcEv/TKWOliH82/K6QI5dJbiVKKWh/nnRCNrkCwj0Wh0RTJ/sXJQBjNqObPVB2
+         bnDg==
+X-Gm-Message-State: ACrzQf1AidlQvAHkTnbjFwOhaJn6+m/XnARF34OuHLeHG9fenpmgZIJu
+        VOb6OKB8G5xL6qNGJSQB/+dNtiEmwZ8z6WxEj9Et1M/NIephwmG2fCs59IsLTgumOh/o+eST/YR
+        XePnuxVPmN3Zq0oqljOJh0hXz8MSCULUpqg==
+X-Received: by 2002:a62:b40a:0:b0:56c:6c63:fdb2 with SMTP id h10-20020a62b40a000000b0056c6c63fdb2mr29340406pfn.4.1667466277840;
+        Thu, 03 Nov 2022 02:04:37 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6XOQlonLupUwOI85H/ppJIQcX6sIKgcNNVh7P108FI/WJe10CsX84EYvQDqK4PHK5gJzbCdiQD9UiFCntuRmw=
+X-Received: by 2002:a62:b40a:0:b0:56c:6c63:fdb2 with SMTP id
+ h10-20020a62b40a000000b0056c6c63fdb2mr29340382pfn.4.1667466277487; Thu, 03
+ Nov 2022 02:04:37 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220901152632.970018-1-omosnace@redhat.com> <20220905090811.ocnnc53y2bow7m3i@wittgenstein>
+ <CAFqZXNu_jf0D8LQLc15+ZrFne5F5F5PFNbkT-EkfqXvNdSKKsQ@mail.gmail.com>
+ <20220905153036.zzcovknz7ntgcn5f@wittgenstein> <20221102182451.aoos5udhf6rbb6us@wittgenstein>
+In-Reply-To: <20221102182451.aoos5udhf6rbb6us@wittgenstein>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 3 Nov 2022 10:04:25 +0100
+Message-ID: <CAFqZXNuG0gjRjSMpaMJQqmmwtqr5Yx1r6Eg0YpJ4DQ6u9CWqRA@mail.gmail.com>
+Subject: Re: [PATCH 0/2] fs: fix capable() call in simple_xattr_list()
 To:     Christian Brauner <brauner@kernel.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Vasily Averin <vvs@openvz.org>,
+Cc:     Vasily Averin <vvs@openvz.org>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
         Linux FS Devel <linux-fsdevel@vger.kernel.org>,
         Linux Security Module list 
         <linux-security-module@vger.kernel.org>,
         SElinux list <selinux@vger.kernel.org>, rcu@vger.kernel.org,
         Martin Pitt <mpitt@redhat.com>
-Subject: Re: [PATCH 0/2] fs: fix capable() call in simple_xattr_list()
-Message-ID: <20221103015938.GA27053@mail.hallyn.com>
-References: <20220901152632.970018-1-omosnace@redhat.com>
- <20220905090811.ocnnc53y2bow7m3i@wittgenstein>
- <CAFqZXNu_jf0D8LQLc15+ZrFne5F5F5PFNbkT-EkfqXvNdSKKsQ@mail.gmail.com>
- <20220905153036.zzcovknz7ntgcn5f@wittgenstein>
- <20221102182451.aoos5udhf6rbb6us@wittgenstein>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221102182451.aoos5udhf6rbb6us@wittgenstein>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 02, 2022 at 07:24:51PM +0100, Christian Brauner wrote:
+On Wed, Nov 2, 2022 at 7:25 PM Christian Brauner <brauner@kernel.org> wrote:
 > On Mon, Sep 05, 2022 at 05:30:36PM +0200, Christian Brauner wrote:
 > > On Mon, Sep 05, 2022 at 12:15:01PM +0200, Ondrej Mosnacek wrote:
 > > > On Mon, Sep 5, 2022 at 11:08 AM Christian Brauner <brauner@kernel.org> wrote:
@@ -68,71 +98,97 @@ On Wed, Nov 02, 2022 at 07:24:51PM +0100, Christian Brauner wrote:
 > > > >
 > > > > I don't think Vasily has time to continue with this so I'll just pick it
 > > > > up hopefully this or the week after LPC.
-> > > 
+> > >
 > > > Hm... does rbtree support lockless traversal? Because if not, that
-> > 
+> >
 > > The rfc that Vasily sent didn't allow for that at least.
-> > 
+> >
 > > > would make it impossible to fix the issue without calling capable()
 > > > inside the critical section (or doing something complicated), AFAICT.
 > > > Would rhashtable be a workable alternative to rbtree for this use
 > > > case? Skimming <linux/rhashtable.h> it seems to support both lockless
 > > > lookup and traversal using RCU. And according to its manpage,
 > > > *listxattr(2) doesn't guarantee that the returned names are sorted.
-> > 
+> >
 > > I've never used the rhashtable infrastructure in any meaningful way. All
 > > I can say from looking at current users that it looks like it could work
 > > well for us here:
-> > 
+> >
 > > struct simple_xattr {
-> > 	struct rhlist_head rhlist_head;
-> > 	char *name;
-> > 	size_t size;
-> > 	char value[];
+> >       struct rhlist_head rhlist_head;
+> >       char *name;
+> >       size_t size;
+> >       char value[];
 > > };
-> > 
+> >
 > > static const struct rhashtable_params simple_xattr_rhashtable = {
-> > 	.head_offset = offsetof(struct simple_xattr, rhlist_head),
-> > 	.key_offset = offsetof(struct simple_xattr, name),
-> > 
+> >       .head_offset = offsetof(struct simple_xattr, rhlist_head),
+> >       .key_offset = offsetof(struct simple_xattr, name),
+> >
 > > or sm like this.
-> 
+>
 > I have a patch in rough shape that converts struct simple_xattr to use
 > an rhashtable:
-> 
+>
 > https://gitlab.com/brauner/linux/-/commits/fs.xattr.simple.rework/
-> 
+>
 > Light testing, not a lot useful comments and no meaningful commit
 > message as of yet but I'll get to that.
-> 
+
+Looks mostly good at first glance. I left comments for some minor
+stuff I noticed.
+
 > Even though your issue is orthogonal to the performance issues I'm
 > trying to fix I went back to your patch, Ondrej to apply it on top.
 > But I think it has one problem.
-> 
+>
 > Afaict, by moving the capable() call from the top of the function into
 > the actual traversal portion an unprivileged user can potentially learn
 > whether a file has trusted.* xattrs set. At least if dmesg isn't
 > restricted on the kernel. That may very well be the reason why the
 > capable() call is on top.
+
+Technically it would be possible, for example with SELinux if the
+audit daemon is dead. Not a likely situation, but I agree it's better
+to be safe.
+
 > (Because the straightforward fix for this would be to just call
 > capable() a single time if at least one trusted xattr is encountered and
 > store the result. That's pretty easy to do by making turning the trusted
 > variable into an int, setting it to -1, and only if it's -1 and a
 > trusted xattr has been found call capable() and store the result.)
-> 
+
+That would also run into the conundrum of holding a lock while
+(potentially) calling into the LSM subsystem. And would it even fix
+the information leak? Unless I'm missing something it would only
+prevent a leak of the trusted xattr count, but not the presence of any
+trusted xattr.
+
 > One option to fix all of that is to switch simple_xattr_list() to use
-> 
+>
 >         ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN)
-> 
+>
 > which doesn't generate an audit event.
-> 
+>
 > I think this is even the correct thing to do as listing xattrs isn't a
 > targeted operation. IOW, if the the user had used getxattr() to request
 > a trusted.* xattr then logging a denial makes sense as the user
 > explicitly wanted to retrieve a trusted.* xattr. But if the user just
 > requested to list all xattrs then silently skipping trusted without
 > logging an explicit denial xattrs makes sense.
-> 
+>
 > Does that sound acceptable?
 
-Agreed, auditing that seems like unwanted noise.
+Yes, I can't see any reason why that wouldn't be the best solution.
+Why haven't I thought of that? :)
+
+I guess you will want to submit a patch for it along with your
+rhashtable patch to avoid a conflict? Or would you like me to submit
+it separately?
+
+
+--
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
