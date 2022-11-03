@@ -2,149 +2,117 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A1D5C4332F
-	for <selinux@archiver.kernel.org>; Thu,  3 Nov 2022 11:41:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4960EC4332F
+	for <selinux@archiver.kernel.org>; Thu,  3 Nov 2022 15:13:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229523AbiKCLle (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Nov 2022 07:41:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53108 "EHLO
+        id S231320AbiKCPNf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Nov 2022 11:13:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbiKCLld (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Nov 2022 07:41:33 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEF31263F
-        for <selinux@vger.kernel.org>; Thu,  3 Nov 2022 04:40:36 -0700 (PDT)
+        with ESMTP id S231909AbiKCPNb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Nov 2022 11:13:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7761E1ADB3
+        for <selinux@vger.kernel.org>; Thu,  3 Nov 2022 08:12:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667475635;
+        s=mimecast20190719; t=1667488329;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=/6/r2FFJgyHWQXcXIlS+Q3aJC7F8CILtFhkppIW1K5M=;
-        b=brezc2uD/nudA8pPzb6QpmW1+JZofHXkuP863FPyZc98JjIRTZgnWnxPqNB+LdHPlDhWkz
-        n2bHPKgJp2s2EOVf++cMR6Fr3PEBKlLbtRmsoFRv/dYIZoe7ZJXPggI8ROJMLrevT1gbaZ
-        30HDjZls25hEQ3aqk35bCVevBMjMhXs=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-645-tROdur5POpW3OJYCeD-Q2A-1; Thu, 03 Nov 2022 07:40:34 -0400
-X-MC-Unique: tROdur5POpW3OJYCeD-Q2A-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4917985A59D;
-        Thu,  3 Nov 2022 11:40:34 +0000 (UTC)
-Received: from localhost (ovpn-194-20.brq.redhat.com [10.40.194.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F2D9640C6EC3;
-        Thu,  3 Nov 2022 11:40:33 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH 3/5 v2] python: Remove dependency on the Python module
- distutils
-In-Reply-To: <20221102140039.914518-4-jwcart2@gmail.com>
-References: <20221102140039.914518-1-jwcart2@gmail.com>
- <20221102140039.914518-4-jwcart2@gmail.com>
-Date:   Thu, 03 Nov 2022 12:40:33 +0100
-Message-ID: <877d0ce05q.fsf@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=LWgxR1F68mKVnmdpW8+jJqPrx2L99twB8sOEHi9u21s=;
+        b=KqHPDHs2Ab3SdL/GTizlW/OdhpjWhEbvGCv1FDX1mYrd1GE4vYx5O4oqrjCXhSRP1l6iND
+        iEu1YyqCXbGEQRQwnE0hyjSxFt3m3jR2EAg7dKDXHU0cGcE1zd+x1pZmuc2ziR6PVDBN5/
+        +dWLz2I5tkFfrMUZZON7hi5CDoJSoJY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-650-eMlJu19KMWy80GliMXp-_g-1; Thu, 03 Nov 2022 11:12:08 -0400
+X-MC-Unique: eMlJu19KMWy80GliMXp-_g-1
+Received: by mail-wr1-f72.google.com with SMTP id d10-20020adfa34a000000b00236616a168bso595337wrb.18
+        for <selinux@vger.kernel.org>; Thu, 03 Nov 2022 08:12:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LWgxR1F68mKVnmdpW8+jJqPrx2L99twB8sOEHi9u21s=;
+        b=UZeb/v33D1Evbtht+0XEDXDcZBP9tdHz+7x8arMBmB7aMjGGYPQQUgbPBaWF3lNCKs
+         7ek/eRgS7m2aQZcMzQMUIP1x1CUrbLZNKF3GbM3ASCu0/IUdSedjV1LKYw0sSj6VsMc3
+         O7Ta3YwEoJ4wJKWDhVdzvWZmSeFJgnl4UuWKomDz0fdk54hVwO8AKWA7TbmaZj0TEpsh
+         hw1iKOY2MeJHqqh3tz0XY7ICqT6/8Fdz/hijXsAX/SBRE/gM3uTX8G81sdum1DcWxscL
+         85j9Aq7aoIxurfMWU9PQTXcOZWSx7FoBimYsm/KWXuDaWp+l8mH1Odp/mTfWait8fgiI
+         KuJw==
+X-Gm-Message-State: ACrzQf0U/OdJMnSOq7iacDPipAYq8b31FdHCySx9cuPI6ntUFpDuDHm0
+        DJrfPkjp68agdu5EYQZItiPVX55NK/A9NhYgJu9cvBiHakl5d9ZNA3ItuXTUqcndO8zAIbRsDxB
+        VSZQBbdIb+T2DkjFlmw==
+X-Received: by 2002:a05:600c:3655:b0:3cf:7082:dc18 with SMTP id y21-20020a05600c365500b003cf7082dc18mr15530765wmq.36.1667488327464;
+        Thu, 03 Nov 2022 08:12:07 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM5ux4jknt5HP+aYQrcIxkNpUyABfRNH3oJZnAwXDcMOJ+KB7r/Wfbv+pV7I7knZb9J+AiUzmQ==
+X-Received: by 2002:a05:600c:3655:b0:3cf:7082:dc18 with SMTP id y21-20020a05600c365500b003cf7082dc18mr15530746wmq.36.1667488327247;
+        Thu, 03 Nov 2022 08:12:07 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id v4-20020a5d6784000000b00235da296623sm1104080wru.31.2022.11.03.08.12.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Nov 2022 08:12:06 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>
+Cc:     linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Martin Pitt <mpitt@redhat.com>,
+        Christian Brauner <brauner@kernel.org>
+Subject: [PATCH v2] fs: don't audit the capability check in simple_xattr_list()
+Date:   Thu,  3 Nov 2022 16:12:05 +0100
+Message-Id: <20221103151205.702826-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
+The check being unconditional may lead to unwanted denials reported by
+LSMs when a process has the capability granted by DAC, but denied by an
+LSM. In the case of SELinux such denials are a problem, since they can't
+be effectively filtered out via the policy and when not silenced, they
+produce noise that may hide a true problem or an attack.
 
-> The distutils package is deprecated and scheduled to be removed in
-> Python 3.12. Use the setuptools and sysconfig modules instead.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
-> v2: Use sysconfig.get_path('purelib'... since original used
->     get_python_lib(prefix=... instead of
->     get_python_lib(plat_specific=1, prefix=...
->
->  python/semanage/Makefile              | 2 +-
->  python/sepolgen/src/sepolgen/Makefile | 2 +-
->  python/sepolicy/sepolicy/gui.py       | 2 +-
->  python/sepolicy/setup.py              | 2 +-
->  4 files changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/python/semanage/Makefile b/python/semanage/Makefile
-> index 024e9640..b53ee33d 100644
-> --- a/python/semanage/Makefile
-> +++ b/python/semanage/Makefile
-> @@ -5,7 +5,7 @@ LINGUAS ?= ru
->  PREFIX ?= /usr
->  SBINDIR ?= $(PREFIX)/sbin
->  MANDIR = $(PREFIX)/share/man
-> -PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
-> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
->  PACKAGEDIR ?= $(PYTHONLIBDIR)
->  BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
->  
-> diff --git a/python/sepolgen/src/sepolgen/Makefile b/python/sepolgen/src/sepolgen/Makefile
-> index cac8def7..a1039227 100644
-> --- a/python/sepolgen/src/sepolgen/Makefile
-> +++ b/python/sepolgen/src/sepolgen/Makefile
-> @@ -1,6 +1,6 @@
->  PREFIX ?= /usr
->  PYTHON ?= python3
-> -PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
-> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "import sysconfig; print(sysconfig.get_path('purelib', vars={'platbase': '$(PREFIX)', 'base': '$(PREFIX)'}))")
->  PACKAGEDIR ?= /$(PYTHONLIBDIR)/sepolgen
->  
->  all:
-> diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-> index 5bdbfeba..63f2371f 100644
-> --- a/python/sepolicy/sepolicy/gui.py
-> +++ b/python/sepolicy/sepolicy/gui.py
-> @@ -77,7 +77,7 @@ def cmp(a, b):
->          return 1
->      return (a > b) - (a < b)
->  
-> -import distutils.sysconfig
-> +import sysconfig
+Checking for the capability only if any trusted xattr is actually
+present wouldn't really address the issue, since calling listxattr(2) on
+such node on its own doesn't indicate an explicit attempt to see the
+trusted xattrs. Additionally, it could potentially leak the presence of
+trusted xattrs to an unprivileged user if they can check for the denials
+(e.g. through dmesg).
 
-CI
-https://github.com/bachradsusi/SELinuxProject-selinux/actions/runs/3384927657/jobs/5622477533
-reports:
+Therefore, it's best (and simplest) to keep the check unconditional and
+instead use ns_capable_noaudit() that will silence any associated LSM
+denials.
 
-  Analyzing 118 Python scripts
-  ./python/sepolicy/build/lib/sepolicy/gui.py:133:26: F821 undefined name 'distutils'
-  ./python/sepolicy/sepolicy/gui.py:133:26: F821 undefined name 'distutils'
-  Error: Process completed with exit code 1.
+Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs")
+Reported-by: Martin Pitt <mpitt@redhat.com>
+Suggested-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
 
+v1 -> v2: switch to simpler and better solution as suggested by Christian
 
-The following patch makes the CI happy:
+v1: https://lore.kernel.org/selinux/CAFqZXNuC7c0Ukx_okYZ7rsKycQY5P1zpMPmmq_T5Qyzbg-x7yQ@mail.gmail.com/T/
 
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -130,7 +130,7 @@ class SELinuxGui():
-         self.application = app
-         self.filter_txt = ""
-         builder = Gtk.Builder()  # BUILDER OBJ
--        self.code_path = distutils.sysconfig.get_python_lib(plat_specific=False) + "/sepolicy/"
-+        self.code_path = sysconfig.get_python_lib(plat_specific=False) + "/sepolicy/"
+ fs/xattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-
-
->  ADVANCED_LABEL = (_("Advanced >>"), _("Advanced <<"))
->  ADVANCED_SEARCH_LABEL = (_("Advanced Search >>"), _("Advanced Search <<"))
->  OUTBOUND_PAGE = 0
-> diff --git a/python/sepolicy/setup.py b/python/sepolicy/setup.py
-> index b0f9650d..c8220664 100644
-> --- a/python/sepolicy/setup.py
-> +++ b/python/sepolicy/setup.py
-> @@ -2,7 +2,7 @@
->  
->  # Author: Thomas Liu <tliu@redhat.com>
->  # Author: Dan Walsh <dwalsh@redhat.com>
-> -from distutils.core import setup
-> +from setuptools import setup
->  
->  setup(
->      name="sepolicy",
-> -- 
-> 2.38.1
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 61107b6bbed2..427b8cea1f96 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -1140,7 +1140,7 @@ static int xattr_list_one(char **buffer, ssize_t *remaining_size,
+ ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
+ 			  char *buffer, size_t size)
+ {
+-	bool trusted = capable(CAP_SYS_ADMIN);
++	bool trusted = ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
+ 	struct simple_xattr *xattr;
+ 	ssize_t remaining_size = size;
+ 	int err = 0;
+-- 
+2.38.1
 
