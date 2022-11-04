@@ -2,139 +2,114 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AED76C4332F
-	for <selinux@archiver.kernel.org>; Fri,  4 Nov 2022 20:05:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F1D4C4332F
+	for <selinux@archiver.kernel.org>; Fri,  4 Nov 2022 21:03:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbiKDUFE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Nov 2022 16:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48372 "EHLO
+        id S229704AbiKDVDg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 4 Nov 2022 17:03:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229866AbiKDUEt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Nov 2022 16:04:49 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B403D50F20
-        for <selinux@vger.kernel.org>; Fri,  4 Nov 2022 13:03:49 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id c25so7872750ljr.8
-        for <selinux@vger.kernel.org>; Fri, 04 Nov 2022 13:03:49 -0700 (PDT)
+        with ESMTP id S229681AbiKDVDf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 4 Nov 2022 17:03:35 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F48D11A1B
+        for <selinux@vger.kernel.org>; Fri,  4 Nov 2022 14:03:34 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id d20so8039831ljc.12
+        for <selinux@vger.kernel.org>; Fri, 04 Nov 2022 14:03:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=iyGjnR8KcB8f1Mm9S1H1g2NgRRwPVU00hWqJJPwaEY4=;
-        b=LfvWBMeDUBRotehylMrya/eMIhtIFnIQSToB5jbcGiTaGw3CZUMcphSyNuk4q57D/V
-         YHMpWQYLbDKusR+YwVepE0bQ8gY4OsJn37E5KKxvFu1ybJDVWHzL2gxyk/LFPhhwT2qq
-         JPzS7xA8NdJ7ATYP0nekhNUCOyht2h7KeCSY3wWuXnD17ST2R6lhny9leeJVjGqWYDdo
-         AsZxHKTepOyhxxA5O9sPJnHtc1Fd2IpYt04Hx0xrvkKHMV1wlEfzfh0gror5bTSXvr2M
-         qn3Z9nWCHcryEEvq6kWRzyBZlltdk/J7ozh0PQAuXoekJwPYIGB8xYBS1EA835aCPhHY
-         Q/1g==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JmIip966oKzxaUYxc1+X7fdIX3Vjoo/xOF9csggoJIc=;
+        b=hf554R8ZwN3MwKybW6QFloUsdXfJJASgoksNgH4XgsLS1qsjhtiy2MEdJCUM6YE/kb
+         lRPzwgETMEkwMQKvGbA7b/J+kgZO0c7VmuBbaRyPOIrXrinqrrn2Jcb0HoCp0z/YBTDU
+         lLaqITJYRbgVN+ThxLzPq0RFyNrNW9H/fP+W91DENqbM7Wkg9e5VUtvY/7uVuavo2K4m
+         fhd9jVNx5Xx9XCihxz9nt+Juy0hzDLHQri4Do9yt1FrWAXodg2QApWAAdZGNt4M5qPom
+         mADUi4RYqvWwcQElavZcIU0EzoDjXNB6LcTZ/5hNwtlH1TY/xp9rOzNy3I5gJMFtRDiz
+         kPAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=iyGjnR8KcB8f1Mm9S1H1g2NgRRwPVU00hWqJJPwaEY4=;
-        b=YVGQwe2txSG8eiZdTDftkHZso+7sBmnYuRRWxl9CFTMXL8ezBy/HThukiqnwbV3zak
-         9YfW+vIkPLQOEKy78jYU849aBOqBm/8xZvfdFVm7RShNZ715Nk6YXmpefRZ8bFzojTXJ
-         LhpSzv4V1O0En1fpWV57cAp4qfPgQRYVKFzLEqxBCjI0PPPkVKKmSni7v/+JsudMSRmB
-         cNk8KRg5Vh75utLPUGirlbuqa7fNRsNok9Hbn+D6TWZ2W4jZLjHHJ80NxUG+ZcDlNQoC
-         XcmuuFrdhT9WghPKSrUQLPTbgTsSa/gLjKEoIv0nYnkjm+DfZUvKsrACSaNCcEjAbg8Z
-         edVQ==
-X-Gm-Message-State: ACrzQf1J3kjJVeroG5grAr/8N9YnI9kiUGlswUoWHmgc21JKb6shb8r9
-        wW9/Ly5gz6VEgymYIa0sGhyY7a+GU/SIgU67DPx3EKYxfEI=
-X-Google-Smtp-Source: AMsMyM7QB7ETLFSeqjGhxRl3t5UmtH7jm0HTJW2Y1cXZoPB/DJN3I3y8bITkQQ4ulV+h8CqLW0cYC4Bd+FwoIL5JOmQ=
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JmIip966oKzxaUYxc1+X7fdIX3Vjoo/xOF9csggoJIc=;
+        b=32Ru9YvkZG5zRPyeNBDMGpGeUlLiFye/l5b4aBffnUqk0uIpXzoOCuDQeM4wruZ0S5
+         N4rWnjLPOMIaI7ZCk16ZcJ1nHFmqif99BBu19Ag/ED1dGEn+dEN29RAEVBPQUzPhp68R
+         mkELFJN3Fwdtwz7A4JHAbft4LDgpE+di3BzQH1kFefCh1cgspvKjhqa7srZUdACHLm3o
+         cJbvUWFts0ZngNJ+RTIN0ikCE/5/YRKCIyPF7C0ESbR3xbDPy1YB4/lemUwk0i299Ec1
+         JnvkOAwe3kdL/zExQD9AEJqO+69/jKiwa5HNkEDZo9BKpsHLJ6i+4yHfTmFSRCVGJlCk
+         NiEQ==
+X-Gm-Message-State: ACrzQf3S1uIjID3+mqS4xpkgExA/C1SZ8wqdnUzhXpIettUyWQ3rjjUl
+        e4LsdMMb8lOJ+yNBo4tRghBjHzOkC3XJdaV9fsM4BIPCW3A=
+X-Google-Smtp-Source: AMsMyM5FOo4acRoWyMSU9/+7JLN1wagdOQgepngofkEv8bvwGQW4VFH6X+KeHGqPX3+b+wHWAwHuhfWmMp3vysUYo9w=
 X-Received: by 2002:a05:651c:1038:b0:277:5452:60f6 with SMTP id
- w24-20020a05651c103800b00277545260f6mr10347370ljm.21.1667592206559; Fri, 04
- Nov 2022 13:03:26 -0700 (PDT)
+ w24-20020a05651c103800b00277545260f6mr10403910ljm.21.1667595812295; Fri, 04
+ Nov 2022 14:03:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <20221018203659.2329808-1-vmojzis@redhat.com>
-In-Reply-To: <20221018203659.2329808-1-vmojzis@redhat.com>
+References: <20221024091354.2253669-1-tweek@google.com>
+In-Reply-To: <20221024091354.2253669-1-tweek@google.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 4 Nov 2022 16:03:15 -0400
-Message-ID: <CAP+JOzQBwgOwctaqT6ZQxTLXb5MF=FOhkagjbprqwvc4nEcbYQ@mail.gmail.com>
-Subject: Re: [PATCH] python: Harden tools against "rogue" modules
-To:     Vit Mojzis <vmojzis@redhat.com>
-Cc:     selinux@vger.kernel.org
+Date:   Fri, 4 Nov 2022 17:03:20 -0400
+Message-ID: <CAP+JOzS-H8qL3PU_N0-4ZViXNd1RQdBYM4qprdhxZ2sMu818-g@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: ignore invalid class name lookup
+To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 18, 2022 at 4:40 PM Vit Mojzis <vmojzis@redhat.com> wrote:
+On Mon, Oct 24, 2022 at 5:14 AM Thi=C3=A9baud Weksteen <tweek@google.com> w=
+rote:
 >
-> Python scripts present in "/usr/sbin" override regular modules.
-> Make sure /usr/sbin is not present in PYTHONPATH.
->
-> Fixes:
->   #cat > /usr/sbin/audit.py <<EOF
->   import sys
->   print("BAD GUY!", file=sys.stderr)
->   sys.exit(1)
->   EOF
->   #semanage boolean -l
->   BAD GUY!
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> selinux_check_access relies on string_to_security_class to resolve the
+> class index from its char* argument. There is no input validation done
+> on the string provided. It is possible to supply an argument containing
+> trailing backslashes (i.e., "sock_file//////") so that the paths built
 
-Acked-by: James Carter <jwcart2@gmail.com>
+I am having trouble reproducing this. Using backslashes causes an
+error when looking up the "%s/class/%s/index" path.
+Using forward slashes just works. Valgrind does not report any memory
+leaks in either case and I don't see the same permission file being
+referenced multiple times.
 
+I don't think that we need the regex solution.
+
+Thanks,
+Jim
+
+
+> in discover_class get truncated. The processing will then reference the
+> same permission file multiple time (e.g., perms/watch_reads will be
+> truncated to perms/watch). This will leak the memory allocated when
+> strdup'ing the permission name. The discover_class_cache will end up in
+> an invalid state (but not corrupted).
+>
+> Ensure that the class provided does not contain any path separator.
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > ---
->  python/audit2allow/audit2allow    | 2 +-
->  python/audit2allow/sepolgen-ifgen | 2 +-
->  python/chcat/chcat                | 2 +-
->  python/semanage/semanage          | 2 +-
->  python/sepolicy/sepolicy.py       | 2 +-
->  5 files changed, 5 insertions(+), 5 deletions(-)
+>  libselinux/src/stringrep.c | 3 +++
+>  1 file changed, 3 insertions(+)
 >
-> diff --git a/python/audit2allow/audit2allow b/python/audit2allow/audit2allow
-> index 09b06f66..eafeea88 100644
-> --- a/python/audit2allow/audit2allow
-> +++ b/python/audit2allow/audit2allow
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python3 -Es
-> +#!/usr/bin/python3 -EsI
->  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
->  # Authors: Dan Walsh <dwalsh@redhat.com>
->  #
-> diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
-> index b7a04c71..f2cc0c32 100644
-> --- a/python/audit2allow/sepolgen-ifgen
-> +++ b/python/audit2allow/sepolgen-ifgen
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python3 -Es
-> +#!/usr/bin/python3 -EsI
->  #
->  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
->  #
-> diff --git a/python/chcat/chcat b/python/chcat/chcat
-> index 952cb818..68718ec5 100755
-> --- a/python/chcat/chcat
-> +++ b/python/chcat/chcat
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python3 -Es
-> +#!/usr/bin/python3 -EsI
->  # Copyright (C) 2005 Red Hat
->  # see file 'COPYING' for use and warranty information
->  #
-> diff --git a/python/semanage/semanage b/python/semanage/semanage
-> index 10ab3fa6..b21d1484 100644
-> --- a/python/semanage/semanage
-> +++ b/python/semanage/semanage
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python3 -Es
-> +#!/usr/bin/python3 -EsI
->  # Copyright (C) 2012-2013 Red Hat
->  # AUTHOR: Miroslav Grepl <mgrepl@redhat.com>
->  # AUTHOR: David Quigley <selinux@davequigley.com>
-> diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
-> index c7a70e09..733d4048 100755
-> --- a/python/sepolicy/sepolicy.py
-> +++ b/python/sepolicy/sepolicy.py
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python3 -Es
-> +#!/usr/bin/python3 -EsI
->  # Copyright (C) 2012 Red Hat
->  # AUTHOR: Dan Walsh <dwalsh@redhat.com>
->  # see file 'COPYING' for use and warranty information
+> diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+> index 2fe69f43..592410e5 100644
+> --- a/libselinux/src/stringrep.c
+> +++ b/libselinux/src/stringrep.c
+> @@ -63,6 +63,9 @@ static struct discover_class_node * discover_class(cons=
+t char *s)
+>                 return NULL;
+>         }
+>
+> +       if (strchr(s, '/') !=3D NULL)
+> +               return NULL;
+> +
+>         /* allocate a node */
+>         node =3D malloc(sizeof(struct discover_class_node));
+>         if (node =3D=3D NULL)
 > --
-> 2.37.3
+> 2.38.0.135.g90850a2211-goog
 >
