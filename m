@@ -2,96 +2,104 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30608C433FE
-	for <selinux@archiver.kernel.org>; Sat,  5 Nov 2022 03:32:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5946BC43217
+	for <selinux@archiver.kernel.org>; Sat,  5 Nov 2022 04:39:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbiKEDcV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Nov 2022 23:32:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34490 "EHLO
+        id S229489AbiKEEjL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 5 Nov 2022 00:39:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229739AbiKEDcV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Nov 2022 23:32:21 -0400
-Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96043F05C
-        for <selinux@vger.kernel.org>; Fri,  4 Nov 2022 20:32:17 -0700 (PDT)
-Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-1322d768ba7so7506430fac.5
-        for <selinux@vger.kernel.org>; Fri, 04 Nov 2022 20:32:17 -0700 (PDT)
+        with ESMTP id S229457AbiKEEjL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 5 Nov 2022 00:39:11 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F13F1317E8
+        for <selinux@vger.kernel.org>; Fri,  4 Nov 2022 21:39:09 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-13c569e5ff5so7592215fac.6
+        for <selinux@vger.kernel.org>; Fri, 04 Nov 2022 21:39:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=d4+BKZsVBq8bd37OinE8qYinDnCTidi21Q348dbcKy4=;
-        b=KJf7VFwcT+YVVBNAPenxOJu/4YS/diN/7i9W/htsQ/5tp1JZP3DozwpEAf8H3vKkji
-         X+4MpscL3xOWpcvrnW84WYjaxxH4M1dlVxGqFNTDB7/8j0psbwj3ED++gWDrVt0kb/vI
-         0/vXovGK8MTifQ9ZNiVd8X3v8hAUMfcG3U2FIpiaStJ/mE8jY7akxk4VP7YlX2dBHkkr
-         3GH7lVz0SGjhCZF0D3xHRcQ91/dv/46JcqJceZfscVYsw6ttR97xpDyeXmOyNmdI6jA9
-         1E0C3IDedFc8hB5ZvCbf9vptfLD2WU8ByXqP3CWwV/IiJN+KuQRxF2mXN+/y+YJWy82S
-         fKcQ==
+        bh=QVhCjTiXsm0XAmH+YRM1X339ickLF/GL0sKIvePwac0=;
+        b=FCSnsB+Ncbn05GHt62BXuzIBr4rsH97IiQeiye272VEDnNBybqlEYM6y/waq3nV71X
+         KaiiJRqUZTcnkEtCXHhVXzAmNgTVDOFb0BYeit0BPiJhk79dMcjE/vceD3btbG/nkPML
+         Sm3DZk4p55e3hOTDWHNnf21GfDhgAx0bVHpoV0VyYDI1lXMoPQT8hyTC9bHRPciw8JpY
+         eZ3sDpBvLCFakfNbS83WC96gEQjxzBIVJj5pWpvD6FPndHyIGhQPp6LOCChKqMqdnq/j
+         QMd8VSRtjkvDQKWcnjd0BXbzYUlGxA6LG1Sxr6sSwrBkaa0Rl3aJHijXxEDFqV3gIa+K
+         d1Kw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=d4+BKZsVBq8bd37OinE8qYinDnCTidi21Q348dbcKy4=;
-        b=AV/HuTizfXUtOkkWAsJAqQKUOoSEQ6F+GN75KO46dFXZAIoSeDSeyiTdr8yURWzC1P
-         BvowmInNfXDMweWYU0+yehIswX4s9tL16BQnqzAN+Gr7hs8vdeM+r8vhjuqynyWideeO
-         WBZHmyXpeTulCj+VzLqoQFVIIPzipfhgrHUb0iBW5JLGkBY6Ib/H8NO4bx1xd/0D7m/e
-         A4Mk/aZCBD02Cm6HrsbiYeoh1EKuhmje5QSQ4VwE0njdYOXtXPxX+eO+48tZGAFkA7qs
-         UY6MXDiqll7Rpo/3nFnLAlYcS7IUdisozvXDoMcBn5o8wzGlAMDuXlFE2M6OJN5X/Jzf
-         Dqqw==
-X-Gm-Message-State: ACrzQf2sciHfCFc7EqkIuRCLfAD0jszxtddNpnolvsJabraSECsqVvfw
-        WzNtgmy2OJ1qGSAA+eczSuIaCbu0U8zjjtcRZZ7S0B6rzx+z
-X-Google-Smtp-Source: AMsMyM4lIjXVS0Uqtg79Zx/856WEPiWU5BfMOAtTf7/NpVC/VL/OBl4Sj6nXaf7IwvrV4SYRLGK5mwnutHnyZ0ovh/M=
+        bh=QVhCjTiXsm0XAmH+YRM1X339ickLF/GL0sKIvePwac0=;
+        b=tL5m1VjeyrQcIoiKngqge2yzsRYgmqBa07CppHQOHieiCsUeXErsJytjqgfq7v/xrE
+         F5IliyhTvaCHUahqQQPy+KwE/1SLGFDQ77YTeL9kf4NrddeeN5FLh698/xbxHA+Ww+f3
+         YQA6HjoUyUs2b4fEalxQY2B//hMx7xVscNthiEGixPGKIZvPsZF7fg2WqLym4BVrX6ng
+         tkiF3kPkdev9JzOqvloxZTByfmEs3+SAL4ms3tQPgcdvP1N/7auQVsc2yztPOO4uWzWP
+         8tTzslU0qvDIIZ+Qw58GmB7ydAL98DJ+HSDkYxc0tH/ii0/R0R1/j5wjylbJo41XPxKr
+         YIpw==
+X-Gm-Message-State: ACrzQf3o6F5HCJBC9K08Wm73nAuj0P+w9Db+YoQcz8jHzd4z4gIOBqvY
+        pqMbkIucVu+toccsyUS8z+v+L65kqB79jE7epFcQZUdeQeIR
+X-Google-Smtp-Source: AMsMyM4w7eiFkYBhePubE/PyYhcqGdnaotz0NDTczdH13Aq1WqMXxNy3Sb/YZHqSax4NIV/jSYcVfTpPs875XiKcH8E=
 X-Received: by 2002:a05:6870:f299:b0:13b:ad21:934d with SMTP id
- u25-20020a056870f29900b0013bad21934dmr23417023oap.172.1667619137195; Fri, 04
- Nov 2022 20:32:17 -0700 (PDT)
+ u25-20020a056870f29900b0013bad21934dmr23511755oap.172.1667623149267; Fri, 04
+ Nov 2022 21:39:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <166543910984.474337.2779830480340611497.stgit@olly> <c8ce1c62-84ac-f39e-6c4e-5108b55c3515@canonical.com>
-In-Reply-To: <c8ce1c62-84ac-f39e-6c4e-5108b55c3515@canonical.com>
+References: <20221103151205.702826-1-omosnace@redhat.com>
+In-Reply-To: <20221103151205.702826-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 4 Nov 2022 23:32:05 -0400
-Message-ID: <CAHC9VhSfc4sta0t9B-N1fV9CYO2tQUo8-cA3np-tz2AeXUSi1g@mail.gmail.com>
-Subject: Re: [PATCH] lsm: make security_socket_getpeersec_stream() sockptr_t safe
-To:     John Johansen <john.johansen@canonical.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        netdev@vger.kernel.org,
-        Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date:   Sat, 5 Nov 2022 00:38:57 -0400
+Message-ID: <CAHC9VhS460B4Jpk8kqmhTBZv_dMuysNb9yH=6hB4-+Oc35UkAQ@mail.gmail.com>
+Subject: Re: [PATCH v2] fs: don't audit the capability check in simple_xattr_list()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Martin Pitt <mpitt@redhat.com>,
+        Christian Brauner <brauner@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 31, 2022 at 5:59 AM John Johansen
-<john.johansen@canonical.com> wrote:
-> On 10/10/22 14:58, Paul Moore wrote:
-> > Commit 4ff09db1b79b ("bpf: net: Change sk_getsockopt() to take the
-> > sockptr_t argument") made it possible to call sk_getsockopt()
-> > with both user and kernel address space buffers through the use of
-> > the sockptr_t type.  Unfortunately at the time of conversion the
-> > security_socket_getpeersec_stream() LSM hook was written to only
-> > accept userspace buffers, and in a desire to avoid having to change
-> > the LSM hook the commit author simply passed the sockptr_t's
-> > userspace buffer pointer.  Since the only sk_getsockopt() callers
-> > at the time of conversion which used kernel sockptr_t buffers did
-> > not allow SO_PEERSEC, and hence the
-> > security_socket_getpeersec_stream() hook, this was acceptable but
-> > also very fragile as future changes presented the possibility of
-> > silently passing kernel space pointers to the LSM hook.
-> >
-> > There are several ways to protect against this, including careful
-> > code review of future commits, but since relying on code review to
-> > catch bugs is a recipe for disaster and the upstream eBPF maintainer
-> > is "strongly against defensive programming", this patch updates the
-> > LSM hook, and all of the implementations to support sockptr_t and
-> > safely handle both user and kernel space buffers.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Thu, Nov 3, 2022 at 11:13 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> looks good to me
+> The check being unconditional may lead to unwanted denials reported by
+> LSMs when a process has the capability granted by DAC, but denied by an
+> LSM. In the case of SELinux such denials are a problem, since they can't
+> be effectively filtered out via the policy and when not silenced, they
+> produce noise that may hide a true problem or an attack.
+>
+> Checking for the capability only if any trusted xattr is actually
+> present wouldn't really address the issue, since calling listxattr(2) on
+> such node on its own doesn't indicate an explicit attempt to see the
+> trusted xattrs. Additionally, it could potentially leak the presence of
+> trusted xattrs to an unprivileged user if they can check for the denials
+> (e.g. through dmesg).
+>
+> Therefore, it's best (and simplest) to keep the check unconditional and
+> instead use ns_capable_noaudit() that will silence any associated LSM
+> denials.
+>
+> Fixes: 38f38657444d ("xattr: extract simple_xattr code from tmpfs")
+> Reported-by: Martin Pitt <mpitt@redhat.com>
+> Suggested-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>
+> v1 -> v2: switch to simpler and better solution as suggested by Christian
+>
+> v1: https://lore.kernel.org/selinux/CAFqZXNuC7c0Ukx_okYZ7rsKycQY5P1zpMPmmq_T5Qyzbg-x7yQ@mail.gmail.com/T/
+>
+>  fs/xattr.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks.  I just merged this into lsm/next.
+VFS folks, this should really go through a vfs tree, but if nobody
+wants to pick it up *and* there are no objections to the change, I can
+take this via the LSM tree.
 
-> Acked-by: John Johansen <john.johansen@canonical.com>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
 
 -- 
 paul-moore.com
