@@ -2,97 +2,125 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 671B2C43219
-	for <selinux@archiver.kernel.org>; Mon,  7 Nov 2022 20:58:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12EA1C43219
+	for <selinux@archiver.kernel.org>; Mon,  7 Nov 2022 20:58:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233099AbiKGU6M (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Nov 2022 15:58:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45668 "EHLO
+        id S233105AbiKGU6W (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Nov 2022 15:58:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232848AbiKGU6L (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Nov 2022 15:58:11 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEDC2BB04
-        for <selinux@vger.kernel.org>; Mon,  7 Nov 2022 12:58:10 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id o2-20020a5b0502000000b006cade5e7c07so12346865ybp.10
-        for <selinux@vger.kernel.org>; Mon, 07 Nov 2022 12:58:10 -0800 (PST)
+        with ESMTP id S233079AbiKGU6T (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Nov 2022 15:58:19 -0500
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9884F2C66B
+        for <selinux@vger.kernel.org>; Mon,  7 Nov 2022 12:58:18 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-36b1a68bfa6so119382727b3.22
+        for <selinux@vger.kernel.org>; Mon, 07 Nov 2022 12:58:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=IAoAra9R2Xqdytgvb5FHE5lvqaFSAU/5jMDpLKBjdb4=;
-        b=NB8+Ew0AYfjmdPJdO0XSLwfeZ+OYwIKA9BIG0WqV9UrxO3UPzg8TrtAk7vX7Fpgouh
-         Rr0mu5WbmN5eVwxYMl0tb6d8HqaeDN5jziODCiHZrIr9GkLq1ikFlFRNaSGPbJrtaSha
-         97hu4cLAScRvpdzS9lRQ3nMVtwtkOwhNnGz+F5c9kScSKtHJ8UkXaOIOjWXW+/NXl3os
-         Vkk/TDoxm/DmVPBMqFDueVrFsDxqB87yhGLX9L4d/gGZsbHNcLoNaVM6Rzh0c5lZQEFK
-         O1owrltdz5foiqAOjZEUYB8vm97E2wbZMy0EzGX4LIDDSF/FtmUJB7dspANhyP0/E8Aw
-         7vOA==
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3foneq/Me5MTssYGRHO4cGLKeUJVeV+052anuIJ7S1g=;
+        b=BrFmlNhvbOfCgXUKcVpdmu+NeI+MZF8/aiOApx8jPEdBDiyEV3Svvh1o/TCdDBZaKO
+         1igwTKOeqGVj7P7hdEp7nKWYI5ppHUVzVJyTdW5P7ZCModH92BK9BO2rEUSSsXavDkWH
+         pQHtiH/zjEzWTB6z+RTIWqzXySFbyTQ2c1p8q/mW/oVKlJcP9iwKOSeI9L2vKx4Cc6gt
+         ruMiDy0Jphz1RFajd/fyO2Z98Y5cY1pf7JumDbhSvATPuFGxPJ8aLWBqjsfh41MBWC+Q
+         7sQswNHVn80xUfnEpl3eSW7hRFuo3ch0878Z5IgbP82LpVJzJXgImFD51qoR9+ejNUCk
+         Vqeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IAoAra9R2Xqdytgvb5FHE5lvqaFSAU/5jMDpLKBjdb4=;
-        b=gDQUks52WQdcZMIa9uJZaRIgDy541LR2tq61NpesKazrOLkKnMTirayneFeMmoNumW
-         lX9Vu6QEymtgb7qP9Nhqp8/Rg3LuXZph3ZNGjaE8DvM392qW0WdLEillpJEYdWaapI6f
-         mK7Fly87K3rHOPpivY4Y6Lm491sZNxZQbl/O9qCAtHrQ7/b3DCP4VSreDFqBnZQjnPIR
-         zref+hhS0Q0kKU9eGovWSDAXlK6Ah7P+Ur4EzPVz6d01s5dvpDyf7kx0dRfKYN1qnEYw
-         Kl6Z1PidTfyglRW6LSN+aSCAgqlHKazyRLp0UoJnsSkeGZzKVvpR+vv9OfHvyTtNbMY+
-         GiDw==
-X-Gm-Message-State: ACrzQf3oqie9erIuJDMBf/vg1a6wROfwWnWKWFtl9ieT9qPfu+/WwEPF
-        PhUaIwKHueQP6xmnsKw6zMTIuvlAVQ==
-X-Google-Smtp-Source: AMsMyM7xHXCGj+7pqy5ZViDJCt7bvm3vyqjC4LS848X+8b6/op7HR4kC3hHLFiKF1yGjPQJpZbwBHpjO4A==
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=3foneq/Me5MTssYGRHO4cGLKeUJVeV+052anuIJ7S1g=;
+        b=AzJ4cGPtPJVs/WzYoA1vzwaCqD7AeM7WhsNt9As6RTUtkW7EMaL4Nn8D5rXCllEw/8
+         4tUQTWoiBHhWDaHSMwhY4axO+vj/goxdeZcRKeIRJNcQjpSouAwNeR/+S4CNhpwKGl8x
+         w0Co2SwyLfK7NackQjBOe9rMxnM9Ter7dfBZXdfPy+WFYRmdL75lgL/FqxTrba3JXq3c
+         LxSiYr2+tqzaLDgD3GD6VCyocAxqxMWHK+eFKhBocZ/3tfNIXUHCjtMQkbkyKMzawYGn
+         SO2Pq6KGYXbCZVy5tIWwEQgU89BQplIvi6fyNDd7FqjSm0Ar/jWycHc+a6tGTjPC/N31
+         0aqw==
+X-Gm-Message-State: ACrzQf2GHeV5j3AaxdpJzUzn6LAgf6XXPVjQOhr4vyshZr+cn1HRF/Gs
+        8qooaNmZf9ykSevkirZJsco2+49YDg==
+X-Google-Smtp-Source: AMsMyM79Sr2FjutrrhIUyLR+MG6TrL/mZtICyJMPRV3JOwtMH/oKViBoSdzJYvHnTeZTwNMsCoWM/oBh3A==
 X-Received: from cukie91.nyc.corp.google.com ([2620:0:1003:314:8113:36e9:8e90:5fb8])
- (user=cukie job=sendgmr) by 2002:a0d:c481:0:b0:35b:cbe2:d66a with SMTP id
- g123-20020a0dc481000000b0035bcbe2d66amr833796ywd.125.1667854689567; Mon, 07
- Nov 2022 12:58:09 -0800 (PST)
-Date:   Mon,  7 Nov 2022 15:57:51 -0500
+ (user=cukie job=sendgmr) by 2002:a25:7102:0:b0:6be:a3ae:e43b with SMTP id
+ m2-20020a257102000000b006bea3aee43bmr797309ybc.302.1667854697844; Mon, 07 Nov
+ 2022 12:58:17 -0800 (PST)
+Date:   Mon,  7 Nov 2022 15:57:53 -0500
+In-Reply-To: <20221107205754.2635439-1-cukie@google.com>
 Mime-Version: 1.0
+References: <20221107205754.2635439-1-cukie@google.com>
 X-Mailer: git-send-email 2.38.1.431.g37b22c650d-goog
-Message-ID: <20221107205754.2635439-1-cukie@google.com>
-Subject: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
+Message-ID: <20221107205754.2635439-3-cukie@google.com>
+Subject: [PATCH v1 2/2] selinux: add support for the io_uring setup permission
 From:   Gil Cukierman <cukie@google.com>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+To:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>
 Cc:     Gil Cukierman <cukie@google.com>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patchset provides the changes required for controlling access to
-the io_uring_setup system call by LSMs. It does this by adding a new
-hook to io_uring. It also provides the SELinux implementation for a new
-permission, io_uring { setup }, using the new hook.
+This patch implements a new io_uring permission that controls
+access to the io_uring_setup system call. The new permission,
+io_uring { setup }, is added to the existing io_uring class.
+This is important as it allows users to restrict their attack
+surface by limiting which subjects are allowed retrieve fds
+from the kernel that are necessary for the use of all other
+io_uring functionality.
 
-This is important because existing io_uring hooks only support limiting
-the sharing of credentials and access to the sensitive uring_cmd file
-op. Users of LSMs may also want the ability to tightly control which
-callers can retrieve an io_uring capable fd from the kernel, which is
-needed for all subsequent io_uring operations.
-
-This was tested by running the liburing test suite on a kernel
-containing these patches.
-
-Gil Cukierman (2):
-  lsm,io_uring: add LSM hook for io_uring_setup
-  selinux: add support for the io_uring setup permission
-
- include/linux/lsm_hook_defs.h       |  1 +
- include/linux/lsm_hooks.h           |  3 +++
- include/linux/security.h            |  5 +++++
- io_uring/io_uring.c                 |  5 +++++
- security/security.c                 |  4 ++++
+Signed-off-by: Gil Cukierman <cukie@google.com>
+---
  security/selinux/hooks.c            | 13 +++++++++++++
  security/selinux/include/classmap.h |  2 +-
- 7 files changed, 32 insertions(+), 1 deletion(-)
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f553c370397e..d2becf833a07 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7012,6 +7012,18 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
+ 	return avc_has_perm(&selinux_state, current_sid(), isec->sid,
+ 			    SECCLASS_IO_URING, IO_URING__CMD, &ad);
+ }
++/**
++ * selinux_uring_setup - check to see if io_uring setup is allowed
++ *
++ * Check to see if the current task is allowed to execute io_uring_setup.
++ */
++static int selinux_uring_setup(void)
++{
++	int sid = current_sid();
++
++	return avc_has_perm(&selinux_state, sid, sid, SECCLASS_IO_URING,
++			    IO_URING__SETUP, NULL);
++}
+ #endif /* CONFIG_IO_URING */
+ 
+ /*
+@@ -7258,6 +7270,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(uring_override_creds, selinux_uring_override_creds),
+ 	LSM_HOOK_INIT(uring_sqpoll, selinux_uring_sqpoll),
+ 	LSM_HOOK_INIT(uring_cmd, selinux_uring_cmd),
++	LSM_HOOK_INIT(uring_setup, selinux_uring_setup),
+ #endif
+ 
+ 	/*
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index a3c380775d41..48da4e7f7d62 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -253,7 +253,7 @@ const struct security_class_mapping secclass_map[] = {
+ 	{ "anon_inode",
+ 	  { COMMON_FILE_PERMS, NULL } },
+ 	{ "io_uring",
+-	  { "override_creds", "sqpoll", "cmd", NULL } },
++	  { "override_creds", "sqpoll", "cmd", "setup", NULL } },
+ 	{ "user_namespace",
+ 	  { "create", NULL } },
+ 	{ NULL }
 -- 
 2.38.0.135.g90850a2211-goog
 
