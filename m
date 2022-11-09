@@ -2,56 +2,56 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8DC4C4332F
-	for <selinux@archiver.kernel.org>; Wed,  9 Nov 2022 13:47:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AD2BC4332F
+	for <selinux@archiver.kernel.org>; Wed,  9 Nov 2022 13:47:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230220AbiKINrA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Nov 2022 08:47:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35222 "EHLO
+        id S230200AbiKINrj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Nov 2022 08:47:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230094AbiKINq7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Nov 2022 08:46:59 -0500
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E8D15FD7
-        for <selinux@vger.kernel.org>; Wed,  9 Nov 2022 05:46:57 -0800 (PST)
-Received: by mail-lf1-x135.google.com with SMTP id a29so7117890lfj.9
-        for <selinux@vger.kernel.org>; Wed, 09 Nov 2022 05:46:57 -0800 (PST)
+        with ESMTP id S230234AbiKINrh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Nov 2022 08:47:37 -0500
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD70F275E2
+        for <selinux@vger.kernel.org>; Wed,  9 Nov 2022 05:47:33 -0800 (PST)
+Received: by mail-lj1-x233.google.com with SMTP id x21so25825514ljg.10
+        for <selinux@vger.kernel.org>; Wed, 09 Nov 2022 05:47:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=OBZ1ooQTIuW+RK5hxVDTs7SoW5a0Kp7BjwuIKxAcYFY=;
-        b=lo5SDDjl3y9MpEVVquQb3jX/o57RyDnI88gm0xAnDEGLueP5ydHgAH91e022ntWRQ/
-         q3zBGN+3wYT5K8+9aWYK9aWWFszMDYbvav9hG273uHHR4WMEBpZWHIG/jsRC2H5wR6T9
-         x9h9nXVYLkHy0ToEUx663DpPRA5zlJg8BnkQLdNxyUNWki7ZVSfxyu0iTkkVQPUziTAZ
-         3TB29V/W29mcjbLUHFYYTYXOOAt73ralQ9neNNLjwFkKDMQdULqvhgqPux1jyj1sTpQF
-         ObG1vzIkclbaMKy7/cURYerZV7uA/aV9D7ydPRbB8+pEGoHm897aODPgJM5Q4K6Azewa
-         qtbQ==
+        bh=8M0Om0QXbI7Z/ufZ0cfzvYE9bMe+ImuwU2gVBFROWOE=;
+        b=ie6FdhkhG9f9JREUNByKpZiap5dzx38xOQLM7nLHoHU4wR2bANJ5tifGrslP45tQHI
+         USpXUmsRg+hbyK9w1RGGkHr50Q2+B5UFX2BATFqMz1DK3AZAujcjYcRx554Uexcb91iY
+         710wgwDuRCiXOcQGIS3f96NaECl1GXisiTGMe+L9OAXFPKhpxeiVESVgsELokTih06jZ
+         cao/ojN1H9ies3mVNSwY/IeRglxCXP9mYfzws4Fogv24gi0GAwzQ9MJQyU0IC0jJxT0h
+         zYVYdqIAZibvrNFydlw7BnFtA9VJxAbhckKPFYcaU1PKGlCK/rfbjez/4rxg57Ga5f6k
+         yARA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=OBZ1ooQTIuW+RK5hxVDTs7SoW5a0Kp7BjwuIKxAcYFY=;
-        b=XJFi6IWBGsz/oXVplg91exfH8SZa7LuD6F02NIBqlwlDP0Q9++3kEb9sCO72JJ3PNM
-         ixg82vRSC9bQxc6oXCfkBy+JXl5r3C3xAndS1VBofJMgvDJl74I2mm8NJxT3xAHx/pA6
-         ofTunaHiSEGaNi3ZnebvctFZLyu8AuGz4WyaBb4nD6nn8RFTvp7kjaYZrB/CKVAuzGNG
-         DqpMwLzv2tPi5GnvRBuBIgVgnLvfw7m4QrF3OmMnG2s+6Z8T8K33GyO9y2PRSqo1yGu7
-         A+oE5pjS3nz/y/vtt56b2LXXWTn++qwjwTSHv6X0afflW2eZ3ukoRBM/Cc+rVDFnL1O6
-         jVHg==
-X-Gm-Message-State: ACrzQf2prtDz6usansYK6oM7zslXlfXNGZq0nndDoUE5GGN0d/4qh7Ci
-        Wk3YFtWY6u3WIBDxC4lN5uueZsFvY+LtLsKVnzA=
-X-Google-Smtp-Source: AMsMyM4dUOxdu44tBm4o3F6r0KhJVRTZJB0waafvDOyNqndVek3mQBhY6+XFfnIqb4KcxoMjTwgimoQ741TvMWeitZ0=
-X-Received: by 2002:ac2:5bcd:0:b0:4b0:d503:9afb with SMTP id
- u13-20020ac25bcd000000b004b0d5039afbmr16056707lfn.13.1668001615869; Wed, 09
- Nov 2022 05:46:55 -0800 (PST)
+        bh=8M0Om0QXbI7Z/ufZ0cfzvYE9bMe+ImuwU2gVBFROWOE=;
+        b=J+LfnparlphRBhM7RTxpFmthzmrJRqHVHbIAz3YjBlca8f2i7tE+onxC4rUFmJfxwN
+         MlTHAvmeSVLN9O81hqamhekXDY3HDXWwyAQYHtjSEPmKCJ/mgmUFHMPkLBSTlBC5q9OL
+         NzvdAARR0gMrGrmiMjsxoNvcAtBtJBIX+xxrwo1wDtNbmjx6ZX0Afm18SQty6u2L/e73
+         P9+0w0VQdc0dUdWL3K3VSubPNxnUlbuK4Uyn+9ZZ+gk9UvE2aG9x2BXR7zvA2vOBkG/I
+         Zq6mEol3euBadM9Bvof6psUyE1lrOKGyaR/+JXwnt5NnHgier3Tj9bTr/VX0RwmNxiAX
+         Bq5Q==
+X-Gm-Message-State: ACrzQf2U7beFZSuKcPFGqOT36cIpbPs6pJM/yp1MViIQlCbO3D7n6/fO
+        PQ83hvMiFfDa17fa13/OVqKi9tXofQR9NU7JSyA=
+X-Google-Smtp-Source: AMsMyM6T1oUnEUiVjL+Rjps589ZtQIZgemGz6EqewgyoUeynzVodOD+Flw+2dllconyJXxVMEVLK+aMa+l+Kt5rU940=
+X-Received: by 2002:a2e:4e02:0:b0:277:5c7e:b120 with SMTP id
+ c2-20020a2e4e02000000b002775c7eb120mr15507929ljb.102.1668001652004; Wed, 09
+ Nov 2022 05:47:32 -0800 (PST)
 MIME-Version: 1.0
-References: <20221013132312.294095-1-plautrba@redhat.com> <CAP+JOzR9MTP09ZNmPPhjA2+p-MYLSDOq35VVXY+D8oRBnYJQ7w@mail.gmail.com>
-In-Reply-To: <CAP+JOzR9MTP09ZNmPPhjA2+p-MYLSDOq35VVXY+D8oRBnYJQ7w@mail.gmail.com>
+References: <20221104143616.1089636-1-jwcart2@gmail.com> <87r0yfchbx.fsf@redhat.com>
+In-Reply-To: <87r0yfchbx.fsf@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 9 Nov 2022 08:46:43 -0500
-Message-ID: <CAP+JOzSavoLPO9ibMeVU+Q9QvgwWAnEr=UM+x-enS6x-oSapNg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] sandbox: Do not try to remove tmpdir twice if uid == 0
+Date:   Wed, 9 Nov 2022 08:47:20 -0500
+Message-ID: <CAP+JOzTG1SSKpwS3Ss8052q52RfbA6Pxv_xf9=39Y1_m14JHvQ@mail.gmail.com>
+Subject: Re: [PATCH 0/5 v3] Remove dependency on the Python module distutils
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -59,44 +59,53 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 4, 2022 at 2:38 PM James Carter <jwcart2@gmail.com> wrote:
+On Mon, Nov 7, 2022 at 3:14 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
-> On Thu, Oct 13, 2022 at 9:24 AM Petr Lautrbach <plautrba@redhat.com> wrote:
-> >
-> > If the user is root, tmpdir is already wiped out.
-> >
-> > Fixes:
-> >     # sandbox -T /root/tmp -- id
-> >     uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:sandbox_t:s0:c696,c756
-> >     Failed to remove directory /tmp/.sandbox-root-KIlB59: No such file or directory
-> >
-> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> James Carter <jwcart2@gmail.com> writes:
 >
-> For these two patches:
-> Acked-by: James Carter <jwcart2@gmail.com>
+> > The distutils package is deprecated and scheduled to be removed in
+> > Python 3.12.
+> >
+> > When building the SELinux userspace we currently get warnings like the following:
+> > <string>:1: DeprecationWarning: The distutils.sysconfig module is deprecated, use sysconfig instead
+> > <string>:1: DeprecationWarning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives
+> >
+> > I am not a Python expert, but everything seems to work with these patches.
+> > I would appreciate other people testing this and any Python experts to let
+> > me know if this is the right way of replacing distutils.
+> >
+> > v3: Removed a second usage of distutils in python/sepolicy/sepolicy/gui.py
+> >
+> > v2: Use sysconfig.get_path('purelib'... when original used
+> >     get_python_lib(prefix=... and use sysconfig.get_path('platlib'...
+> >     when original used get_python_lib(plat_specific=1, prefix=...
+> >
+> > James Carter (5):
+> >   libselinux: Remove dependency on the Python module distutils
+> >   libsemanage: Remove dependency on the Python module distutils
+> >   python: Remove dependency on the Python module distutils
+> >   scripts: Remove dependency on the Python module distutils
+> >   README.md: Remove mention of python3-distutils dependency
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
 >
 
-These two patches have been merged.
-Thanks,
+This series has been merged.
 Jim
 
-> > ---
-> >  sandbox/seunshare.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> >  README.md                             | 1 -
+> >  libselinux/src/Makefile               | 2 +-
+> >  libselinux/src/setup.py               | 2 +-
+> >  libsemanage/src/Makefile              | 2 +-
+> >  python/semanage/Makefile              | 2 +-
+> >  python/sepolgen/src/sepolgen/Makefile | 2 +-
+> >  python/sepolicy/sepolicy/gui.py       | 4 ++--
+> >  python/sepolicy/setup.py              | 2 +-
+> >  scripts/env_use_destdir               | 2 +-
+> >  scripts/run-scan-build                | 2 +-
+> >  10 files changed, 10 insertions(+), 11 deletions(-)
 > >
-> > diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> > index 8917a0f9bd42..dd1d7ddbdc89 100644
-> > --- a/sandbox/seunshare.c
-> > +++ b/sandbox/seunshare.c
-> > @@ -414,7 +414,7 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
-> >                 rc++;
-> >         }
-> >
-> > -       if (rmdir(tmpdir) == -1)
-> > +       if (pwd->pw_uid != 0 && rmdir(tmpdir) == -1)
-> >                 fprintf(stderr, _("Failed to remove directory %s: %s\n"), tmpdir, strerror(errno));
-> >         if ((uid_t)setfsuid(pwd->pw_uid) != 0) {
-> >                 fprintf(stderr, _("unable to switch back to user after clearing tmp dir\n"));
 > > --
-> > 2.37.3
-> >
+> > 2.38.1
+>
