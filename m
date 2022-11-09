@@ -2,110 +2,147 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AD2BC4332F
-	for <selinux@archiver.kernel.org>; Wed,  9 Nov 2022 13:47:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E0D9C43217
+	for <selinux@archiver.kernel.org>; Wed,  9 Nov 2022 13:48:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbiKINrj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Nov 2022 08:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35722 "EHLO
+        id S229503AbiKINsB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Nov 2022 08:48:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230234AbiKINrh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Nov 2022 08:47:37 -0500
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD70F275E2
-        for <selinux@vger.kernel.org>; Wed,  9 Nov 2022 05:47:33 -0800 (PST)
-Received: by mail-lj1-x233.google.com with SMTP id x21so25825514ljg.10
-        for <selinux@vger.kernel.org>; Wed, 09 Nov 2022 05:47:33 -0800 (PST)
+        with ESMTP id S229530AbiKINsA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Nov 2022 08:48:00 -0500
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F0FD15820
+        for <selinux@vger.kernel.org>; Wed,  9 Nov 2022 05:47:58 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id g7so25696742lfv.5
+        for <selinux@vger.kernel.org>; Wed, 09 Nov 2022 05:47:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=8M0Om0QXbI7Z/ufZ0cfzvYE9bMe+ImuwU2gVBFROWOE=;
-        b=ie6FdhkhG9f9JREUNByKpZiap5dzx38xOQLM7nLHoHU4wR2bANJ5tifGrslP45tQHI
-         USpXUmsRg+hbyK9w1RGGkHr50Q2+B5UFX2BATFqMz1DK3AZAujcjYcRx554Uexcb91iY
-         710wgwDuRCiXOcQGIS3f96NaECl1GXisiTGMe+L9OAXFPKhpxeiVESVgsELokTih06jZ
-         cao/ojN1H9ies3mVNSwY/IeRglxCXP9mYfzws4Fogv24gi0GAwzQ9MJQyU0IC0jJxT0h
-         zYVYdqIAZibvrNFydlw7BnFtA9VJxAbhckKPFYcaU1PKGlCK/rfbjez/4rxg57Ga5f6k
-         yARA==
+        bh=T4EUH6TLKPA80EyhwCR4Onr5V433+qrA6jqeU5r1xdQ=;
+        b=UE7QpKKjVHOIot8Or8X9W3bmkJh5aPndnhHdaf/uEDt+Ehdx7Ru5s/IEqoKRL6zSiP
+         nORg6az2Rc8Ao6vau7SnuQkFHjdhatXmEQ4Q6mylz/JuXuIFJL2gvJzOC30f+qu5mp4e
+         +djjjvQMzwMPgcjUiLECdIKRfLW5z+rjg7CQP17CgbilVctN93HhOvI+pcauZCLHbKkm
+         BB56D3GPMJ/VimHQQ35a6YV7WlwcqMKspOkaJ0vLoFTuQqB+Avn1H/4dGKttrnGA4Ast
+         TlCLOIEvOFCQ2aaUILdaZdR9cZGqn+DA90RUBrl5e3EPBN016hdxjlRVl2T0HTywV2yc
+         VUDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=8M0Om0QXbI7Z/ufZ0cfzvYE9bMe+ImuwU2gVBFROWOE=;
-        b=J+LfnparlphRBhM7RTxpFmthzmrJRqHVHbIAz3YjBlca8f2i7tE+onxC4rUFmJfxwN
-         MlTHAvmeSVLN9O81hqamhekXDY3HDXWwyAQYHtjSEPmKCJ/mgmUFHMPkLBSTlBC5q9OL
-         NzvdAARR0gMrGrmiMjsxoNvcAtBtJBIX+xxrwo1wDtNbmjx6ZX0Afm18SQty6u2L/e73
-         P9+0w0VQdc0dUdWL3K3VSubPNxnUlbuK4Uyn+9ZZ+gk9UvE2aG9x2BXR7zvA2vOBkG/I
-         Zq6mEol3euBadM9Bvof6psUyE1lrOKGyaR/+JXwnt5NnHgier3Tj9bTr/VX0RwmNxiAX
-         Bq5Q==
-X-Gm-Message-State: ACrzQf2U7beFZSuKcPFGqOT36cIpbPs6pJM/yp1MViIQlCbO3D7n6/fO
-        PQ83hvMiFfDa17fa13/OVqKi9tXofQR9NU7JSyA=
-X-Google-Smtp-Source: AMsMyM6T1oUnEUiVjL+Rjps589ZtQIZgemGz6EqewgyoUeynzVodOD+Flw+2dllconyJXxVMEVLK+aMa+l+Kt5rU940=
-X-Received: by 2002:a2e:4e02:0:b0:277:5c7e:b120 with SMTP id
- c2-20020a2e4e02000000b002775c7eb120mr15507929ljb.102.1668001652004; Wed, 09
- Nov 2022 05:47:32 -0800 (PST)
+        bh=T4EUH6TLKPA80EyhwCR4Onr5V433+qrA6jqeU5r1xdQ=;
+        b=OOzy06z25YTv6GJaDXIbTQvmGfnDghJvG1ZIOYK7eDHWnfz4bWU0s7boJiEmk8AB/T
+         SHDzSHiO0VLRBNX47GbVd/xH2dDmImiTy06q5e3TtHWF2rhnn1cH+bnEcM5GoT6HFsc4
+         tl6KvxPfnX7wlLbG3oonXq9nLxF0ooKsvmCHkTjk/7baGO53glMbI32Wlnx5ZUi1tMMI
+         rUJOtd7qwaEaBj5LdQ7MSDTe1uC/5R5tMXTdaiVVkyTbNNM9kF9dbd7WnXPdxji5Zikq
+         OwTK9WkYhfcL2EUnCCGB/dFC8wO86YV1kYKidk/QPK9QPQhBQZtumFuDPhmc2vr/gKf+
+         89rQ==
+X-Gm-Message-State: ACrzQf093TGUulPHQruUaiCl+eYPp+lt5aG+U6fwMSk5F2nf0WQ0+bRU
+        YZQLtbGLuG4r4UFvJhV82e0u1DE9LZNsB3iJXXM=
+X-Google-Smtp-Source: AMsMyM63UCFzGrhLydGxLGeQ8zMAFdPygcabSgq74J5qp2TI6vrrcoglmlt/g5NoVNy5wTD+98WgPVYlKh5EhDsFw40=
+X-Received: by 2002:a19:7704:0:b0:4a4:5d9d:2f66 with SMTP id
+ s4-20020a197704000000b004a45d9d2f66mr23108132lfc.515.1668001676816; Wed, 09
+ Nov 2022 05:47:56 -0800 (PST)
 MIME-Version: 1.0
-References: <20221104143616.1089636-1-jwcart2@gmail.com> <87r0yfchbx.fsf@redhat.com>
-In-Reply-To: <87r0yfchbx.fsf@redhat.com>
+References: <20221018203659.2329808-1-vmojzis@redhat.com> <CAP+JOzQBwgOwctaqT6ZQxTLXb5MF=FOhkagjbprqwvc4nEcbYQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzQBwgOwctaqT6ZQxTLXb5MF=FOhkagjbprqwvc4nEcbYQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 9 Nov 2022 08:47:20 -0500
-Message-ID: <CAP+JOzTG1SSKpwS3Ss8052q52RfbA6Pxv_xf9=39Y1_m14JHvQ@mail.gmail.com>
-Subject: Re: [PATCH 0/5 v3] Remove dependency on the Python module distutils
-To:     Petr Lautrbach <plautrba@redhat.com>
+Date:   Wed, 9 Nov 2022 08:47:45 -0500
+Message-ID: <CAP+JOzTvFBrOqsVNLLdH5z-pyvmpMv82GLoY-UAfJw-h8B9Ybw@mail.gmail.com>
+Subject: Re: [PATCH] python: Harden tools against "rogue" modules
+To:     Vit Mojzis <vmojzis@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 7, 2022 at 3:14 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Fri, Nov 4, 2022 at 4:03 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> James Carter <jwcart2@gmail.com> writes:
+> On Tue, Oct 18, 2022 at 4:40 PM Vit Mojzis <vmojzis@redhat.com> wrote:
+> >
+> > Python scripts present in "/usr/sbin" override regular modules.
+> > Make sure /usr/sbin is not present in PYTHONPATH.
+> >
+> > Fixes:
+> >   #cat > /usr/sbin/audit.py <<EOF
+> >   import sys
+> >   print("BAD GUY!", file=sys.stderr)
+> >   sys.exit(1)
+> >   EOF
+> >   #semanage boolean -l
+> >   BAD GUY!
+> >
+> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 >
-> > The distutils package is deprecated and scheduled to be removed in
-> > Python 3.12.
-> >
-> > When building the SELinux userspace we currently get warnings like the following:
-> > <string>:1: DeprecationWarning: The distutils.sysconfig module is deprecated, use sysconfig instead
-> > <string>:1: DeprecationWarning: The distutils package is deprecated and slated for removal in Python 3.12. Use setuptools or check PEP 632 for potential alternatives
-> >
-> > I am not a Python expert, but everything seems to work with these patches.
-> > I would appreciate other people testing this and any Python experts to let
-> > me know if this is the right way of replacing distutils.
-> >
-> > v3: Removed a second usage of distutils in python/sepolicy/sepolicy/gui.py
-> >
-> > v2: Use sysconfig.get_path('purelib'... when original used
-> >     get_python_lib(prefix=... and use sysconfig.get_path('platlib'...
-> >     when original used get_python_lib(plat_specific=1, prefix=...
-> >
-> > James Carter (5):
-> >   libselinux: Remove dependency on the Python module distutils
-> >   libsemanage: Remove dependency on the Python module distutils
-> >   python: Remove dependency on the Python module distutils
-> >   scripts: Remove dependency on the Python module distutils
-> >   README.md: Remove mention of python3-distutils dependency
->
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-This series has been merged.
+Merged.
+Thanks,
 Jim
 
->
-> >  README.md                             | 1 -
-> >  libselinux/src/Makefile               | 2 +-
-> >  libselinux/src/setup.py               | 2 +-
-> >  libsemanage/src/Makefile              | 2 +-
-> >  python/semanage/Makefile              | 2 +-
-> >  python/sepolgen/src/sepolgen/Makefile | 2 +-
-> >  python/sepolicy/sepolicy/gui.py       | 4 ++--
-> >  python/sepolicy/setup.py              | 2 +-
-> >  scripts/env_use_destdir               | 2 +-
-> >  scripts/run-scan-build                | 2 +-
-> >  10 files changed, 10 insertions(+), 11 deletions(-)
+
+> > ---
+> >  python/audit2allow/audit2allow    | 2 +-
+> >  python/audit2allow/sepolgen-ifgen | 2 +-
+> >  python/chcat/chcat                | 2 +-
+> >  python/semanage/semanage          | 2 +-
+> >  python/sepolicy/sepolicy.py       | 2 +-
+> >  5 files changed, 5 insertions(+), 5 deletions(-)
 > >
+> > diff --git a/python/audit2allow/audit2allow b/python/audit2allow/audit2allow
+> > index 09b06f66..eafeea88 100644
+> > --- a/python/audit2allow/audit2allow
+> > +++ b/python/audit2allow/audit2allow
+> > @@ -1,4 +1,4 @@
+> > -#!/usr/bin/python3 -Es
+> > +#!/usr/bin/python3 -EsI
+> >  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> >  # Authors: Dan Walsh <dwalsh@redhat.com>
+> >  #
+> > diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
+> > index b7a04c71..f2cc0c32 100644
+> > --- a/python/audit2allow/sepolgen-ifgen
+> > +++ b/python/audit2allow/sepolgen-ifgen
+> > @@ -1,4 +1,4 @@
+> > -#!/usr/bin/python3 -Es
+> > +#!/usr/bin/python3 -EsI
+> >  #
+> >  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> >  #
+> > diff --git a/python/chcat/chcat b/python/chcat/chcat
+> > index 952cb818..68718ec5 100755
+> > --- a/python/chcat/chcat
+> > +++ b/python/chcat/chcat
+> > @@ -1,4 +1,4 @@
+> > -#!/usr/bin/python3 -Es
+> > +#!/usr/bin/python3 -EsI
+> >  # Copyright (C) 2005 Red Hat
+> >  # see file 'COPYING' for use and warranty information
+> >  #
+> > diff --git a/python/semanage/semanage b/python/semanage/semanage
+> > index 10ab3fa6..b21d1484 100644
+> > --- a/python/semanage/semanage
+> > +++ b/python/semanage/semanage
+> > @@ -1,4 +1,4 @@
+> > -#!/usr/bin/python3 -Es
+> > +#!/usr/bin/python3 -EsI
+> >  # Copyright (C) 2012-2013 Red Hat
+> >  # AUTHOR: Miroslav Grepl <mgrepl@redhat.com>
+> >  # AUTHOR: David Quigley <selinux@davequigley.com>
+> > diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> > index c7a70e09..733d4048 100755
+> > --- a/python/sepolicy/sepolicy.py
+> > +++ b/python/sepolicy/sepolicy.py
+> > @@ -1,4 +1,4 @@
+> > -#!/usr/bin/python3 -Es
+> > +#!/usr/bin/python3 -EsI
+> >  # Copyright (C) 2012 Red Hat
+> >  # AUTHOR: Dan Walsh <dwalsh@redhat.com>
+> >  # see file 'COPYING' for use and warranty information
 > > --
-> > 2.38.1
->
+> > 2.37.3
+> >
