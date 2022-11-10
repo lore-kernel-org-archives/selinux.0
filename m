@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AD58C4332F
-	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 13:56:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A654C4332F
+	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 14:17:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbiKJN4E (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Nov 2022 08:56:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38430 "EHLO
+        id S229562AbiKJORd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Nov 2022 09:17:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229656AbiKJN4D (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 08:56:03 -0500
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007BF289
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 05:56:01 -0800 (PST)
-Received: by mail-lj1-x234.google.com with SMTP id b9so1211294ljr.5
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 05:56:01 -0800 (PST)
+        with ESMTP id S229651AbiKJORc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 09:17:32 -0500
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0895ADE81
+        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 06:17:31 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id be13so3516135lfb.4
+        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 06:17:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xLXk0Io5NUJ2Gc4rnaqA/cHXagRRpCL972pFfVphS4c=;
-        b=djA51zG+EmiDRjbElsLyA1LF1guphyZsRyWyn5/o0s9NqRfkM+IeMFyb6n9M6eFU+f
-         Ec3nHMXOxrvYZT4Dfqqfqhw8RSK4U0hR9L7H5M9RkAcMwgoPVHjJyBonAXNK10r6fgjH
-         gI3cdJZ1pm51wcdAnXTERaS0gKX6QMcIxh4NR8ZsgJIt/X9DtULMczlkaYS8MDWc8Kxw
-         ouc7WLOxAgRBdVS6UWNWo/HH9iAhF5tIJWdQ+w/T/iRWTzfrWglHyuRkyb6Cgv1WgKLM
-         Tktv06iNkJQh19kofMz/M3f3eFzvtDIQqIfe/WhxvdEc/C6odWH4hvGJO09251ms18dO
-         /C4g==
+        bh=WRDCqhowd8fE6pWQ/6ga7WqK+cH/0qQm6GV9s7snxgg=;
+        b=D1ktan2OxnpEWEZEiDW7wFyhZT9l7VgOKHFFG56FH3E+/SADhF1+/1Dupv0sT8xANh
+         RmZHYuHWPg344AA2uZR9mVgGJGVVzdEZl2GTiS1m1kwANe29wxJOM7F+JeW9vLoxPasT
+         V+bsaluVzCl3+l++80dnDbZhS9Cx/dnoSkQRt2O3mUarbplpVtdr0tKyxFo+lChdN/We
+         QsYD82U8d/aunZCC5d+iO/ol+YmCD+z/Ioxywc3872X8pEGjuXNpKqKWHGMdC8A9VI0G
+         xRVtdh8NZa1MpGCy7LVh3LYgaDVi11o2e9rtmLaK4Flc25N7QAJ0u3n3LgU60MzMUs4E
+         TATw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xLXk0Io5NUJ2Gc4rnaqA/cHXagRRpCL972pFfVphS4c=;
-        b=jr6pZO/MZaW622g0lLoa+0X/f9UjP++a1a5Ojtdf3WgQ6j3sqk1WyEEMirnES+TXWC
-         Ft1vYOZcaggMXRC4YxtheAJR8Rlt/DYIwcG2Yp334MMsKyJspXG1B4vew22AhZbPsgOD
-         /LHdZsWuDQ+Yvn2i4sKbX/QwKWLBZB21LGdCKCajCeLK9c1Umfgck9XyASccshCAh8ik
-         vdvRf5PfDIzgzrvCdOr9/CC7wkc/L0CX6q5SoCYmaTpsvZjWOmjJuTzPXLjSZzHZl0mm
-         vTkPmFCq7K2XuDI0G7tru54FbUAyQaJoAb2H7MRVDpVx94rUkWfKQc1snvLeeueaO/km
-         FMkA==
-X-Gm-Message-State: ACrzQf1BVnDtabCooCRIxVv0l5c9aanO5c+krT4n2MqdkUeMz+aMlGcw
-        KyI4j6WaZjNEX23DkQIPXy7keRgk6oID4mIeng5I4qLQe8U=
-X-Google-Smtp-Source: AMsMyM5cbeVEKd9vzE6NSaZXsFukybhN2+Ym3l8m6GxeDBFUW85X1ycTpx1acAfXytF27aFelR0ixSFM/eclaIKXvbI=
-X-Received: by 2002:a05:651c:11cc:b0:277:d75:f1de with SMTP id
- z12-20020a05651c11cc00b002770d75f1demr9380026ljo.272.1668088560192; Thu, 10
- Nov 2022 05:56:00 -0800 (PST)
+        bh=WRDCqhowd8fE6pWQ/6ga7WqK+cH/0qQm6GV9s7snxgg=;
+        b=W/rcUZYIfngI75YOQVi/tKr5msnA7Cx8Su+b3HQ9zhNGmv1XMTlyjD53noDh6J+3lz
+         S7Xlyh/XVPVs32JeibUiUCCwq1ESbovO7uRZvgPpo7SRsrriwQ7tJAOOKB7zDwpNFyK8
+         5ZOL3bnugjgB8yVby5HrY0TaYoQ+fH0aR2IPGQ1MjEabvw773qvxRyRMPwhFj5UJhJ6J
+         +Qrih9eBWt1FJs9OxdFrpnjX7li8uIuPzvfSFNGUyjTNmZBI2feWwa0PHshtUl669dRB
+         QQ3ee0WJBCnqL2/HMd1kCC0PJxUp/ksjeFhCFqcGZCVYj7Len4DgcEkYjPdCcTUbByh8
+         5LIg==
+X-Gm-Message-State: ACrzQf2QgPXWaUvemcWmYw/FFI8c/C6lr+bTaE1Pc5gzyjPOe09+ivhQ
+        2LqzDG59QqynGNXrNMIhaqNU8RMWe1nI+mgcdsUDRjzgkS0=
+X-Google-Smtp-Source: AMsMyM40E5aNBAgYn2qr4z2PgR5zXLRh1rAtR8PzUPIz2LkwKUVPRzSffCrz79OGoLd1wXxxk/gAPAn6Yw4gUTANedk=
+X-Received: by 2002:ac2:5bcd:0:b0:4b0:d503:9afb with SMTP id
+ u13-20020ac25bcd000000b004b0d5039afbmr17139230lfn.13.1668089847903; Thu, 10
+ Nov 2022 06:17:27 -0800 (PST)
 MIME-Version: 1.0
-References: <20221109200939.62525-1-cgzones@googlemail.com>
-In-Reply-To: <20221109200939.62525-1-cgzones@googlemail.com>
+References: <20221109201701.64203-1-cgzones@googlemail.com>
+In-Reply-To: <20221109201701.64203-1-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 10 Nov 2022 08:55:48 -0500
-Message-ID: <CAP+JOzTBu1J+8yxXae0FB1-udOA8L1C5yHM2BfKfLpuRTW-GzA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: simplify string copying
+Date:   Thu, 10 Nov 2022 09:17:16 -0500
+Message-ID: <CAP+JOzR=H2YujfURqnOADxZ1jv1U+A0pzd78p6H0Df-TtY9=sA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: drop set but not used internal variable
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,162 +61,72 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 9, 2022 at 3:11 PM Christian G=C3=B6ttsche
+On Wed, Nov 9, 2022 at 3:24 PM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Use strdup(3)/strndup(3) instead of allocating memory and then manually
-> copying the content.
+> The internal variable avc_netlink_trouble is only assigned but never
+> read from.
+> Unused since the initial commit 13cd4c896068 ("initial import from svn
+> trunk revision 2950").
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-For these three patches:
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libselinux/src/context.c                     | 11 +++++------
->  libselinux/src/get_default_type.c            |  3 +--
->  libselinux/src/matchpathcon.c                |  9 +++------
->  libselinux/utils/selabel_lookup_best_match.c | 10 ++++------
->  4 files changed, 13 insertions(+), 20 deletions(-)
+>  libselinux/src/avc_internal.c | 2 --
+>  libselinux/src/avc_internal.h | 3 ---
+>  libselinux/src/sestatus.c     | 1 -
+>  3 files changed, 6 deletions(-)
 >
-> diff --git a/libselinux/src/context.c b/libselinux/src/context.c
-> index 9dddbc5a..8830bf42 100644
-> --- a/libselinux/src/context.c
-> +++ b/libselinux/src/context.c
-> @@ -149,19 +149,18 @@ static int set_comp(context_private_t * n, int idx,=
- const char *str)
->         char *t =3D NULL;
->         const char *p;
->         if (str) {
-> -               t =3D (char *)malloc(strlen(str) + 1);
-> -               if (!t) {
-> -                       return -1;
-> -               }
->                 for (p =3D str; *p; p++) {
->                         if (*p =3D=3D '\t' || *p =3D=3D '\n' || *p =3D=3D=
- '\r' ||
->                             ((*p =3D=3D ':' || *p =3D=3D ' ') && idx !=3D=
- COMP_RANGE)) {
-> -                               free(t);
->                                 errno =3D EINVAL;
->                                 return -1;
->                         }
->                 }
-> -               strcpy(t, str);
-> +
-> +               t =3D strdup(str);
-> +               if (!t) {
-> +                       return -1;
-> +               }
->         }
->         conditional_free(&n->component[idx]);
->         n->component[idx] =3D t;
-> diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_defau=
-lt_type.c
-> index dd7b5d79..766ea4b7 100644
-> --- a/libselinux/src/get_default_type.c
-> +++ b/libselinux/src/get_default_type.c
-> @@ -62,10 +62,9 @@ static int find_default_type(FILE * fp, const char *ro=
-le, char **type)
->                 return -1;
->         }
->
-> -       t =3D malloc(strlen(buf) - len);
-> +       t =3D strndup(ptr, strlen(buf) - len - 1);
->         if (!t)
->                 return -1;
-> -       strcpy(t, ptr);
->         *type =3D t;
->         return 0;
->  }
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
+> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.=
 c
-> index ea78a23e..bf2da083 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -215,10 +215,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
-, const char *file)
->                         if (ret < 0 || sb.st_ino !=3D ino) {
->                                 fl->specind =3D specind;
->                                 free(fl->file);
-> -                               fl->file =3D malloc(strlen(file) + 1);
-> +                               fl->file =3D strdup(file);
->                                 if (!fl->file)
->                                         goto oom;
-> -                               strcpy(fl->file, file);
->                                 return fl->specind;
+> index 71a1357b..ffc663e5 100644
+> --- a/libselinux/src/avc_internal.c
+> +++ b/libselinux/src/avc_internal.c
+> @@ -51,7 +51,6 @@ char avc_prefix[AVC_PREFIX_SIZE] =3D "uavc";
+>  int avc_running =3D 0;
+>  int avc_enforcing =3D 1;
+>  int avc_setenforce =3D 0;
+> -int avc_netlink_trouble =3D 0;
 >
->                         }
-> @@ -232,10 +231,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
-, const char *file)
->                              __FUNCTION__, file, fl->file,
->                              con_array[fl->specind]);
->                         free(fl->file);
-> -                       fl->file =3D malloc(strlen(file) + 1);
-> +                       fl->file =3D strdup(file);
->                         if (!fl->file)
->                                 goto oom;
-> -                       strcpy(fl->file, file);
->                         return fl->specind;
+>  /* process setenforce events for netlink and sestatus */
+>  int avc_process_setenforce(int enforcing)
+> @@ -295,7 +294,6 @@ void avc_netlink_loop(void)
+>
+>         close(fd);
+>         fd =3D -1;
+> -       avc_netlink_trouble =3D 1;
+>         avc_log(SELINUX_ERROR,
+>                 "%s:  netlink thread: errors encountered, terminating\n",
+>                 avc_prefix);
+> diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.=
+h
+> index a9a4aa0b..54f0ce28 100644
+> --- a/libselinux/src/avc_internal.h
+> +++ b/libselinux/src/avc_internal.h
+> @@ -180,7 +180,4 @@ int avc_ss_set_auditdeny(security_id_t ssid, security=
+_id_t tsid,
+>                          security_class_t tclass, access_vector_t perms,
+>                          uint32_t seqno, uint32_t enable) ;
+>
+> -/* netlink kernel message code */
+> -extern int avc_netlink_trouble ;
+> -
+>  #endif                         /* _SELINUX_AVC_INTERNAL_H_ */
+> diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+> index 89c1f621..fbe64301 100644
+> --- a/libselinux/src/sestatus.c
+> +++ b/libselinux/src/sestatus.c
+> @@ -343,7 +343,6 @@ error:
+>                 if (avc_using_threads)
+>                 {
+>                         fallback_netlink_thread =3D avc_create_thread(&av=
+c_netlink_loop);
+> -                       avc_netlink_trouble =3D 0;
 >                 }
 >
-> @@ -248,10 +246,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
-, const char *file)
->                 goto oom;
->         fl->ino =3D ino;
->         fl->specind =3D specind;
-> -       fl->file =3D malloc(strlen(file) + 1);
-> +       fl->file =3D strdup(file);
->         if (!fl->file)
->                 goto oom_freefl;
-> -       strcpy(fl->file, file);
->         fl->next =3D prevfl->next;
->         prevfl->next =3D fl;
->         return fl->specind;
-> diff --git a/libselinux/utils/selabel_lookup_best_match.c b/libselinux/ut=
-ils/selabel_lookup_best_match.c
-> index a4af0679..e816c04b 100644
-> --- a/libselinux/utils/selabel_lookup_best_match.c
-> +++ b/libselinux/utils/selabel_lookup_best_match.c
-> @@ -30,7 +30,7 @@ static __attribute__ ((__noreturn__)) void usage(const =
-char *progname)
->         exit(1);
->  }
->
-> -static mode_t string_to_mode(char *s)
-> +static mode_t string_to_mode(const char *s)
->  {
->         switch (s[0]) {
->         case 'b':
-> @@ -53,7 +53,7 @@ static mode_t string_to_mode(char *s)
->
->  int main(int argc, char **argv)
->  {
-> -       int raw =3D 0, mode =3D 0, rc, opt, i, num_links, string_len;
-> +       int raw =3D 0, mode =3D 0, rc, opt, i, num_links;
->         char *validate =3D NULL, *path =3D NULL, *context =3D NULL, *file=
- =3D NULL;
->         char **links =3D NULL;
->
-> @@ -101,13 +101,11 @@ int main(int argc, char **argv)
->                 }
->
->                 for (i =3D optind, num_links =3D 0; i < argc; i++, num_li=
-nks++) {
-> -                       string_len =3D strlen(argv[i]) + 1;
-> -                       links[num_links] =3D malloc(string_len);
-> +                       links[num_links] =3D strdup(argv[i]);
->                         if (!links[num_links]) {
-> -                               fprintf(stderr, "ERROR: malloc failed.\n"=
-);
-> +                               fprintf(stderr, "ERROR: strdup failed.\n"=
-);
->                                 exit(1);
->                         }
-> -                       strcpy(links[num_links], argv[i]);
->                 }
->         }
->
+>                 fallback_sequence =3D 0;
 > --
 > 2.38.1
 >
