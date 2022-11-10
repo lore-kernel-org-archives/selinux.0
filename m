@@ -2,131 +2,154 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A654C4332F
-	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 14:17:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25941C4332F
+	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 17:54:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbiKJORd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Nov 2022 09:17:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
+        id S231442AbiKJRyS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Nov 2022 12:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229651AbiKJORc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 09:17:32 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0895ADE81
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 06:17:31 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id be13so3516135lfb.4
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 06:17:30 -0800 (PST)
+        with ESMTP id S231394AbiKJRyQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 12:54:16 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E01D49B6E
+        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 09:54:15 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id b2so6938220eja.6
+        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 09:54:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WRDCqhowd8fE6pWQ/6ga7WqK+cH/0qQm6GV9s7snxgg=;
-        b=D1ktan2OxnpEWEZEiDW7wFyhZT9l7VgOKHFFG56FH3E+/SADhF1+/1Dupv0sT8xANh
-         RmZHYuHWPg344AA2uZR9mVgGJGVVzdEZl2GTiS1m1kwANe29wxJOM7F+JeW9vLoxPasT
-         V+bsaluVzCl3+l++80dnDbZhS9Cx/dnoSkQRt2O3mUarbplpVtdr0tKyxFo+lChdN/We
-         QsYD82U8d/aunZCC5d+iO/ol+YmCD+z/Ioxywc3872X8pEGjuXNpKqKWHGMdC8A9VI0G
-         xRVtdh8NZa1MpGCy7LVh3LYgaDVi11o2e9rtmLaK4Flc25N7QAJ0u3n3LgU60MzMUs4E
-         TATw==
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=kfHz50Kg7kyBZpgLz1L+duIpLshaF3vQXrti1dXGZLQ=;
+        b=himkAUve95kura1F4xyrjgF2Ao9L01DaBYcsivT7aKJ5J4AF6ajPklOMnZ88snF8S/
+         Sm6FEemOqLF/MrgUC5yLIaXtMop2DLyIxPzRPUoUFaA5aKTYxAFSqWUMJk850gnqShNb
+         wE7XZ4ZD0YABNLuFjY+X3KglYL7nJG8JNkkvLu3QJtRk3djhDQghiY7LCQX3IS7glCq2
+         M3Z3rUTcmamKd9fp2ozIcuSHynhl1Xgi/GnqGciIWHpaSJNBKuTCOn3Ej65qPgsyN7ok
+         8FB28sjmPUx11WchT1uogNEcf84eSNHyyoLzumQXLDUlwM/q3BMdB2xufOMmSmbksCWm
+         YjnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WRDCqhowd8fE6pWQ/6ga7WqK+cH/0qQm6GV9s7snxgg=;
-        b=W/rcUZYIfngI75YOQVi/tKr5msnA7Cx8Su+b3HQ9zhNGmv1XMTlyjD53noDh6J+3lz
-         S7Xlyh/XVPVs32JeibUiUCCwq1ESbovO7uRZvgPpo7SRsrriwQ7tJAOOKB7zDwpNFyK8
-         5ZOL3bnugjgB8yVby5HrY0TaYoQ+fH0aR2IPGQ1MjEabvw773qvxRyRMPwhFj5UJhJ6J
-         +Qrih9eBWt1FJs9OxdFrpnjX7li8uIuPzvfSFNGUyjTNmZBI2feWwa0PHshtUl669dRB
-         QQ3ee0WJBCnqL2/HMd1kCC0PJxUp/ksjeFhCFqcGZCVYj7Len4DgcEkYjPdCcTUbByh8
-         5LIg==
-X-Gm-Message-State: ACrzQf2QgPXWaUvemcWmYw/FFI8c/C6lr+bTaE1Pc5gzyjPOe09+ivhQ
-        2LqzDG59QqynGNXrNMIhaqNU8RMWe1nI+mgcdsUDRjzgkS0=
-X-Google-Smtp-Source: AMsMyM40E5aNBAgYn2qr4z2PgR5zXLRh1rAtR8PzUPIz2LkwKUVPRzSffCrz79OGoLd1wXxxk/gAPAn6Yw4gUTANedk=
-X-Received: by 2002:ac2:5bcd:0:b0:4b0:d503:9afb with SMTP id
- u13-20020ac25bcd000000b004b0d5039afbmr17139230lfn.13.1668089847903; Thu, 10
- Nov 2022 06:17:27 -0800 (PST)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kfHz50Kg7kyBZpgLz1L+duIpLshaF3vQXrti1dXGZLQ=;
+        b=nyJ12Y2EuF8+hQYslyMOjXjablRpL8v5u+0UZFBy0TDwXxuG4CffuN5XXiqZyGa2Ey
+         ddQ297QgPL4Fn32yX7FuKhcZPNfNe+sC/qswOCeNWNIPoHIR9tQmpfi7gUpa41j3icsS
+         cMvUgfV/SWBy0J76VW9/LOmfl89fFZSRpC/ou3t+FIbfxFpVXE6KeBUoDNPR59OYHJ1R
+         6YDiplk723cxmK2kan3cFyX6czU5XXEl6PZzFRueMGG2vwuuxmkGakrQUFQ+Tx0002S2
+         7cgkcsL8rKvunAIhphREA3ZX+ucWHm1ztvRyrDevdd8iLCbOq0s4j5xKuv86YaLo36VN
+         34/A==
+X-Gm-Message-State: ACrzQf00XU9HAp6Xf3LGLKcBgB3Y6rK0lcIzw1Qgd0QcPQuC7vYXs89p
+        CtWS2cwRDGtr4UvHu7Xp4LyMMEovFUy5mO0fSMh7WQ==
+X-Google-Smtp-Source: AMsMyM6vrGhmh/p4SKFqy2anpSAGg2zavB8DiqImU+Pk6mNYMjVBxK6TvhzwwuErIW2caX7ljkBnR/t2VrPytOoRZ6I=
+X-Received: by 2002:a17:906:b34b:b0:7ad:e8dd:837c with SMTP id
+ cd11-20020a170906b34b00b007ade8dd837cmr3571084ejb.264.1668102853085; Thu, 10
+ Nov 2022 09:54:13 -0800 (PST)
 MIME-Version: 1.0
-References: <20221109201701.64203-1-cgzones@googlemail.com>
-In-Reply-To: <20221109201701.64203-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 10 Nov 2022 09:17:16 -0500
-Message-ID: <CAP+JOzR=H2YujfURqnOADxZ1jv1U+A0pzd78p6H0Df-TtY9=sA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: drop set but not used internal variable
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+References: <20221107205754.2635439-1-cukie@google.com> <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
+In-Reply-To: <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
+From:   Jeffrey Vander Stoep <jeffv@google.com>
+Date:   Thu, 10 Nov 2022 18:54:00 +0100
+Message-ID: <CABXk95ChjusTneWJgj5a58CZceZv0Ay-P-FwBcH2o4rO0g2Ggw@mail.gmail.com>
+Subject: Re: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Gil Cukierman <cukie@google.com>, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, kernel-team@android.com,
+        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 9, 2022 at 3:24 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The internal variable avc_netlink_trouble is only assigned but never
-> read from.
-> Unused since the initial commit 13cd4c896068 ("initial import from svn
-> trunk revision 2950").
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Hi Paul,
 
-Acked-by: James Carter <jwcart2@gmail.com>
+There are a few reasons why we want this particular hook.
 
-> ---
->  libselinux/src/avc_internal.c | 2 --
->  libselinux/src/avc_internal.h | 3 ---
->  libselinux/src/sestatus.c     | 1 -
->  3 files changed, 6 deletions(-)
+1.  It aligns well with how other resources are managed by selinux
+where access to the resource is the first control point (e.g. "create"
+for files, sockets, or bpf_maps, "prog_load" for bpf programs, and
+"open" for perf_event) and then additional functionality or
+capabilities require additional permissions.
+2. It aligns well with how resources are managed on Android. We often
+do not grant direct access to resources (like memory buffers). For
+example, a single domain on Android manages the loading of all bpf
+programs and the creation of all bpf maps. Other domains can be
+granted access to these only once they're created. We can enforce base
+properties with MAC, while allowing the system to manage and grant
+access to resources at run-time via DAC (e.g. using Android's
+permission model). This allows us to do better management and
+accounting of resources.
+3. Attack surface management. One of the primary uses of selinux on
+Android is to assess and limit attack surface (e.g.
+https://twitter.com/jeffvanderstoep/status/1422771606309335043) . As
+io_uring vulnerabilities have made their way through our vulnerability
+management system, it's become apparent that it's complicated to
+assess the impact. Is a use-after-free reachable? Creating
+proof-of-concept exploits takes a lot of time, and often functionality
+can be reached by multiple paths. How many of the known io_uring
+vulnerabilities would be gated by the existing checks? How many future
+ones will be gated by the existing checks? I don't know the answer to
+either of these questions and it's not obvious. I believe some of them
+currently are exploitable without any selinux permissions. But in any
+case, this hook makes that initial assessment simple and effective.
+
+On Mon, Nov 7, 2022 at 10:17 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.=
-c
-> index 71a1357b..ffc663e5 100644
-> --- a/libselinux/src/avc_internal.c
-> +++ b/libselinux/src/avc_internal.c
-> @@ -51,7 +51,6 @@ char avc_prefix[AVC_PREFIX_SIZE] =3D "uavc";
->  int avc_running =3D 0;
->  int avc_enforcing =3D 1;
->  int avc_setenforce =3D 0;
-> -int avc_netlink_trouble =3D 0;
+> On Mon, Nov 7, 2022 at 3:58 PM Gil Cukierman <cukie@google.com> wrote:
+> >
+> > This patchset provides the changes required for controlling access to
+> > the io_uring_setup system call by LSMs. It does this by adding a new
+> > hook to io_uring. It also provides the SELinux implementation for a new
+> > permission, io_uring { setup }, using the new hook.
+> >
+> > This is important because existing io_uring hooks only support limiting
+> > the sharing of credentials and access to the sensitive uring_cmd file
+> > op. Users of LSMs may also want the ability to tightly control which
+> > callers can retrieve an io_uring capable fd from the kernel, which is
+> > needed for all subsequent io_uring operations.
 >
->  /* process setenforce events for netlink and sestatus */
->  int avc_process_setenforce(int enforcing)
-> @@ -295,7 +294,6 @@ void avc_netlink_loop(void)
+> It isn't immediately obvious to me why simply obtaining a io_uring fd
+> from io_uring_setup() would present a problem, as the security
+> relevant operations that are possible with that io_uring fd *should*
+> still be controlled by other LSM hooks.  Can you help me understand
+> what security issue you are trying to resolve with this control?
+
+
+I think there are a few reasons why we want this particular hook.
+
+1.  It aligns well with how other resources are managed by selinux
+where access to the resource is the first control point (e.g. "create"
+for files, sockets, or bpf_maps, "prog_load" for bpf programs, and
+"open" for perf_event) and then additional functionality or
+capabilities require additional permissions.
+2. It aligns well with how resources are managed on Android. We often
+do not grant direct access to resources (like memory buffers). For
+example, a single domain on Android manages the loading of all bpf
+programs and the creation of all bpf maps. Other domains can be
+granted access to these only once they're created. We can enforce base
+properties with MAC, while allowing the system to manage and grant
+access to resources at run-time via DAC (e.g. using Android's
+permission model). This allows us to do better management and
+accounting of resources.
+3. Attack surface management. One of the primary uses of selinux on
+Android is to assess and limit attack surface (e.g.
+https://twitter.com/jeffvanderstoep/status/1422771606309335043) . As
+io_uring vulnerabilities have made their way through our vulnerability
+management system, it's become apparent that it's complicated to
+assess the impact. Is a use-after-free reachable? Creating
+proof-of-concept exploits takes a lot of time, and often functionality
+can be reached by multiple paths. How many of the known io_uring
+vulnerabilities would be gated by the existing checks? How many future
+ones will be gated by the existing checks? I don't know the answer to
+either of these questions and it's not obvious. This hook makes that
+initial assessment simple and effective.
 >
->         close(fd);
->         fd =3D -1;
-> -       avc_netlink_trouble =3D 1;
->         avc_log(SELINUX_ERROR,
->                 "%s:  netlink thread: errors encountered, terminating\n",
->                 avc_prefix);
-> diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.=
-h
-> index a9a4aa0b..54f0ce28 100644
-> --- a/libselinux/src/avc_internal.h
-> +++ b/libselinux/src/avc_internal.h
-> @@ -180,7 +180,4 @@ int avc_ss_set_auditdeny(security_id_t ssid, security=
-_id_t tsid,
->                          security_class_t tclass, access_vector_t perms,
->                          uint32_t seqno, uint32_t enable) ;
+
 >
-> -/* netlink kernel message code */
-> -extern int avc_netlink_trouble ;
-> -
->  #endif                         /* _SELINUX_AVC_INTERNAL_H_ */
-> diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
-> index 89c1f621..fbe64301 100644
-> --- a/libselinux/src/sestatus.c
-> +++ b/libselinux/src/sestatus.c
-> @@ -343,7 +343,6 @@ error:
->                 if (avc_using_threads)
->                 {
->                         fallback_netlink_thread =3D avc_create_thread(&av=
-c_netlink_loop);
-> -                       avc_netlink_trouble =3D 0;
->                 }
->
->                 fallback_sequence =3D 0;
 > --
-> 2.38.1
->
+> paul-moore.com
