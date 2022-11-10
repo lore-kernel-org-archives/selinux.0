@@ -2,191 +2,195 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B781C4332F
-	for <selinux@archiver.kernel.org>; Wed,  9 Nov 2022 21:38:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D309BC43217
+	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 10:04:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229980AbiKIViQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Nov 2022 16:38:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45190 "EHLO
+        id S229776AbiKJKEa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Nov 2022 05:04:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229975AbiKIViO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Nov 2022 16:38:14 -0500
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C381AFC4
-        for <selinux@vger.kernel.org>; Wed,  9 Nov 2022 13:38:13 -0800 (PST)
-Received: by mail-lf1-x131.google.com with SMTP id j4so28126065lfk.0
-        for <selinux@vger.kernel.org>; Wed, 09 Nov 2022 13:38:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fRjeI86hvARzFgm6WUB1hmAFQGGqRLcGJ9pTnjGhARQ=;
-        b=TLl4Y/VZOgR8gRa6Wrxox3T4yzOtPywXKLXNy1XhjxtONV7LpObWrOJ7Md/lV5VzjG
-         gA028a3eGlKsqXQLK0HRMPCQ1xLxwkR/4q8IPB5AyVqAbTO4qYmsiyxXABk64RpMgotf
-         fOBz/KNWN0EMQDGGKr8pN0ExcX15TfNbldHmZTBnSQvkdbqMFbtSeUX4kOWOWkmU1JAR
-         0RsnssAEzBLIknQEiuS1gySYE7GfmXNer0Cd53dWY54SCtEUy6ZCH55gq6iGUTeX8Wi6
-         rdNpxfmDFSuZN4Wb3XF5nOQ7kral00JXK+fcfJcFMM7wt3sW65TVGz3DGnH//jn1/bnC
-         n19Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fRjeI86hvARzFgm6WUB1hmAFQGGqRLcGJ9pTnjGhARQ=;
-        b=KcGDia9TxWD3JvmhiVr371RgalTr6qwSDDk/63sc8Ud0w0IAE0PrziCKAnNFV/J65X
-         qWjoILO1T6bL7rbknQ+U9gZXf8C5Tc0ftts9hKhA1zhzcxbEBYU2qIvL+GFZz069ulTU
-         YIh32wKxpCyMt/9flXC7c2l2ppZY6xUfzMikOVTuuBHIX/4+CqxMLSmE5cCF33IqAAi5
-         VuAnaqbm8H84XyCkMWNWmy3wpJqw4bt4ZNwZgb4ACCiSaIEQNjdyMjvXbfjEn9C0zbrp
-         pLlamxQcuKpw5MhzeQEcB2I/GsUKkXBgXNRooJTAFySZmdiWgMwCsOqS4CnxfKuLljfk
-         YtOA==
-X-Gm-Message-State: ACrzQf1x1KjGD3AUzieAdOtgFjB68/9FzJE81bPtMd94gCU91MJleje0
-        OeKEZ8WFQ1WUIzXZK7fp4TxjsnLETtm0r+j389x+v3NnukQ=
-X-Google-Smtp-Source: AMsMyM6ophuE5r8MisuBjb4I64aew/jbP0Wl4qHb8CEGOAXEhBUzsVxNp3FUOCe1foi0aA8J2xULRn2qTFLE2Iah7GI=
-X-Received: by 2002:a05:6512:14a:b0:499:4f:2582 with SMTP id
- m10-20020a056512014a00b00499004f2582mr937041lfo.515.1668029892020; Wed, 09
- Nov 2022 13:38:12 -0800 (PST)
+        with ESMTP id S229770AbiKJKEa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 05:04:30 -0500
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86986B226;
+        Thu, 10 Nov 2022 02:04:27 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4N7H12298jz9v7Nl;
+        Thu, 10 Nov 2022 17:41:58 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwCHc3CNyGxjO3hSAA--.1123S6;
+        Thu, 10 Nov 2022 10:47:32 +0100 (CET)
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Subject: [PATCH v4 4/5] evm: Align evm_inode_init_security() definition with LSM infrastructure
+Date:   Thu, 10 Nov 2022 10:46:38 +0100
+Message-Id: <20221110094639.3086409-5-roberto.sassu@huaweicloud.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
 MIME-Version: 1.0
-References: <20221109195640.60484-1-cgzones@googlemail.com> <20221109195640.60484-2-cgzones@googlemail.com>
-In-Reply-To: <20221109195640.60484-2-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 9 Nov 2022 16:38:00 -0500
-Message-ID: <CAP+JOzS7GvJHGSX=qMux2aONmmfc1DbWqcW4DDhUtRFhYum_+w@mail.gmail.com>
-Subject: Re: [PATCH 2/3] libselinux: bail out on path truncations
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: LxC2BwCHc3CNyGxjO3hSAA--.1123S6
+X-Coremail-Antispam: 1UD129KBjvJXoWxtFW7tw1DGF1UtrWxKF4xXrb_yoW7GFyxpF
+        W3K3WUCr1rJFyUWry0yF4xu3WSgFWrGr4UK393G34jyF1Dtr1xtFyFyr15ury5XrW8GFnY
+        qw42vr1rWwn0y3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
+        Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
+        rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
+        AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAF
+        wI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7
+        xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Y
+        z7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2
+        Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
+        6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0x
+        vE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4j6r4UJwCI42IY
+        6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aV
+        CY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU13l1DUUUUU==
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAMBF1jj4VHCgAAsw
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 9, 2022 at 3:07 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Bail out if computed paths based on user input are being truncated, to
-> avoid wrong files to be opened.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/src/booleans.c            |  4 ++--
->  libselinux/src/get_initial_context.c |  8 ++++++--
->  libselinux/src/stringrep.c           | 15 ++++++++++++---
->  3 files changed, 20 insertions(+), 7 deletions(-)
->
-> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> index ef1f64a0..66c946f9 100644
-> --- a/libselinux/src/booleans.c
-> +++ b/libselinux/src/booleans.c
-> @@ -164,7 +164,7 @@ static int bool_open(const char *name, int flag) {
->                 return -1;
->
->         ret =3D snprintf(fname, len, "%s%s%s", selinux_mnt, SELINUX_BOOL_=
-DIR, name);
-> -       if (ret < 0)
-> +       if (ret < 0 || (size_t)ret >=3D len)
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-The above causes the following error:
+Change the evm_inode_init_security() definition to align with the LSM
+infrastructure, in preparation for moving IMA and EVM to that
+infrastructure.
 
-booleans.c:167:36: error: comparison of integer expressions of
-different signedness: =E2=80=98long unsigned int=E2=80=99 and =E2=80=98int=
-=E2=80=99
-[-Werror=3Dsign-compare]
+This requires passing only the xattr array allocated by
+security_inode_init_security(), instead of the first LSM xattr and the
+place where the EVM xattr should be filled.
 
->                 goto out;
->         assert(ret < len);
->
-> @@ -184,7 +184,7 @@ static int bool_open(const char *name, int flag) {
->         fname =3D ptr;
->
->         ret =3D snprintf(fname, len, "%s%s%s", selinux_mnt, SELINUX_BOOL_=
-DIR, alt_name);
-> -       if (ret < 0)
-> +       if (ret < 0 || (size_t)ret >=3D len)
+It also requires positioning after the last filled xattr (by checking the
+xattr name), since the beginning of the xattr array is given.
 
-Same here:
+If EVM is moved to the LSM infrastructure, it will use the xattr
+reservation mechanism too, i.e. it positions itself in the xattr array with
+the offset given by the LSM infrastructure.
 
-booleans.c:192:36: error: comparison of integer expressions of
-different signedness: =E2=80=98long unsigned int=E2=80=99 and =E2=80=98int=
-=E2=80=99
-[-Werror=3Dsign-compare]
+Finally, make evm_inode_init_security() return value compatible with the
+inode_init_security hook conventions, i.e. return -EOPNOTSUPP if it is not
+setting an xattr.
 
-Thanks,
-Jim
+EVM is a bit tricky, because xattrs is both an input and an output. If it
+was just output, EVM should have returned zero if xattrs is NULL. But,
+since xattrs is also input, EVM is unable to do its calculations, so return
+-EOPNOTSUPP and handle this error in security_inode_init_security().
 
+Don't change the return value in the inline function
+evm_inode_init_security() in include/linux/evm.h, as the function will be
+removed if EVM is moved to the LSM infrastructure.
 
->                 goto out;
->         assert(ret < len);
->
-> diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_in=
-itial_context.c
-> index 97ae3dcf..87c8adfa 100644
-> --- a/libselinux/src/get_initial_context.c
-> +++ b/libselinux/src/get_initial_context.c
-> @@ -23,8 +23,12 @@ int security_get_initial_context_raw(const char * name=
-, char ** con)
->                 return -1;
->         }
->
-> -       snprintf(path, sizeof path, "%s%s%s",
-> -                selinux_mnt, SELINUX_INITCON_DIR, name);
-> +       ret =3D snprintf(path, sizeof path, "%s%s%s", selinux_mnt, SELINU=
-X_INITCON_DIR, name);
-> +       if (ret < 0 || (size_t)ret >=3D sizeof path) {
-> +               errno =3D EOVERFLOW;
-> +               return -1;
-> +       }
-> +
->         fd =3D open(path, O_RDONLY | O_CLOEXEC);
->         if (fd < 0)
->                 return -1;
-> diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-> index 592410e5..d2237d1c 100644
-> --- a/libselinux/src/stringrep.c
-> +++ b/libselinux/src/stringrep.c
-> @@ -82,7 +82,10 @@ static struct discover_class_node * discover_class(con=
-st char *s)
->                 goto err2;
->
->         /* load up class index */
-> -       snprintf(path, sizeof path, "%s/class/%s/index", selinux_mnt,s);
-> +       ret =3D snprintf(path, sizeof path, "%s/class/%s/index", selinux_=
-mnt,s);
-> +       if (ret < 0 || (size_t)ret >=3D sizeof path)
-> +               goto err3;
-> +
->         fd =3D open(path, O_RDONLY | O_CLOEXEC);
->         if (fd < 0)
->                 goto err3;
-> @@ -97,7 +100,10 @@ static struct discover_class_node * discover_class(co=
-nst char *s)
->                 goto err3;
->
->         /* load up permission indices */
-> -       snprintf(path, sizeof path, "%s/class/%s/perms",selinux_mnt,s);
-> +       ret =3D snprintf(path, sizeof path, "%s/class/%s/perms",selinux_m=
-nt,s);
-> +       if (ret < 0 || (size_t)ret >=3D sizeof path)
-> +               goto err3;
-> +
->         dir =3D opendir(path);
->         if (dir =3D=3D NULL)
->                 goto err3;
-> @@ -107,7 +113,10 @@ static struct discover_class_node * discover_class(c=
-onst char *s)
->                 unsigned int value;
->                 struct stat m;
->
-> -               snprintf(path, sizeof path, "%s/class/%s/perms/%s", selin=
-ux_mnt,s,dentry->d_name);
-> +               ret =3D snprintf(path, sizeof path, "%s/class/%s/perms/%s=
-", selinux_mnt,s,dentry->d_name);
-> +               if (ret < 0 || (size_t)ret >=3D sizeof path)
-> +                       goto err4;
-> +
->                 fd =3D open(path, O_RDONLY | O_CLOEXEC);
->                 if (fd < 0)
->                         goto err4;
-> --
-> 2.38.1
->
+Last note, this patch does not fix a possible crash if the xattr array is
+empty (due to calling evm_protected_xattr() with a NULL argument). It will
+be fixed with 'evm: Support multiple LSMs providing an xattr', as it will
+first ensure that the xattr name is not NULL before calling
+evm_protected_xattr().
+
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ include/linux/evm.h               | 12 ++++++------
+ security/integrity/evm/evm_main.c | 20 +++++++++++++-------
+ security/security.c               |  5 ++---
+ 3 files changed, 21 insertions(+), 16 deletions(-)
+
+diff --git a/include/linux/evm.h b/include/linux/evm.h
+index aa63e0b3c0a2..3bb2ae9fe098 100644
+--- a/include/linux/evm.h
++++ b/include/linux/evm.h
+@@ -35,9 +35,9 @@ extern int evm_inode_removexattr(struct user_namespace *mnt_userns,
+ 				 struct dentry *dentry, const char *xattr_name);
+ extern void evm_inode_post_removexattr(struct dentry *dentry,
+ 				       const char *xattr_name);
+-extern int evm_inode_init_security(struct inode *inode,
+-				   const struct xattr *xattr_array,
+-				   struct xattr *evm);
++extern int evm_inode_init_security(struct inode *inode, struct inode *dir,
++				   const struct qstr *qstr,
++				   struct xattr *xattrs);
+ extern bool evm_revalidate_status(const char *xattr_name);
+ extern int evm_protected_xattr_if_enabled(const char *req_xattr_name);
+ extern int evm_read_protected_xattrs(struct dentry *dentry, u8 *buffer,
+@@ -108,9 +108,9 @@ static inline void evm_inode_post_removexattr(struct dentry *dentry,
+ 	return;
+ }
+ 
+-static inline int evm_inode_init_security(struct inode *inode,
+-					  const struct xattr *xattr_array,
+-					  struct xattr *evm)
++static inline int evm_inode_init_security(struct inode *inode, struct inode *dir,
++					  const struct qstr *qstr,
++					  struct xattr *xattrs)
+ {
+ 	return 0;
+ }
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index 23d484e05e6f..0a312cafb7de 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -845,23 +845,29 @@ void evm_inode_post_setattr(struct dentry *dentry, int ia_valid)
+ /*
+  * evm_inode_init_security - initializes security.evm HMAC value
+  */
+-int evm_inode_init_security(struct inode *inode,
+-				 const struct xattr *lsm_xattr,
+-				 struct xattr *evm_xattr)
++int evm_inode_init_security(struct inode *inode, struct inode *dir,
++			    const struct qstr *qstr,
++			    struct xattr *xattrs)
+ {
+ 	struct evm_xattr *xattr_data;
++	struct xattr *xattr, *evm_xattr;
+ 	int rc;
+ 
+-	if (!(evm_initialized & EVM_INIT_HMAC) ||
+-	    !evm_protected_xattr(lsm_xattr->name))
+-		return 0;
++	if (!(evm_initialized & EVM_INIT_HMAC) || !xattrs ||
++	    !evm_protected_xattr(xattrs->name))
++		return -EOPNOTSUPP;
++
++	for (xattr = xattrs; xattr->value != NULL; xattr++)
++		;
++
++	evm_xattr = xattr;
+ 
+ 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
+ 	if (!xattr_data)
+ 		return -ENOMEM;
+ 
+ 	xattr_data->data.type = EVM_XATTR_HMAC;
+-	rc = evm_init_hmac(inode, lsm_xattr, xattr_data->digest);
++	rc = evm_init_hmac(inode, xattrs, xattr_data->digest);
+ 	if (rc < 0)
+ 		goto out;
+ 
+diff --git a/security/security.c b/security/security.c
+index b62f192de6da..999102101a75 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1170,9 +1170,8 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
+ 		}
+ 	}
+ 
+-	ret = evm_inode_init_security(inode, new_xattrs,
+-				      new_xattrs + cur_xattrs);
+-	if (ret)
++	ret = evm_inode_init_security(inode, dir, qstr, new_xattrs);
++	if (ret && ret != -EOPNOTSUPP)
+ 		goto out;
+ 	ret = initxattrs(inode, new_xattrs, fs_data);
+ out:
+-- 
+2.25.1
+
