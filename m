@@ -2,389 +2,221 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DA2EC4332F
-	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 11:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AD58C4332F
+	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 13:56:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229746AbiKJLKm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Nov 2022 06:10:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56948 "EHLO
+        id S230236AbiKJN4E (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Nov 2022 08:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230008AbiKJLKd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 06:10:33 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9466DCEF
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 03:09:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668078574;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=q7RNedrWWLhoki48bdi2gS5fmZT+gALOlsdW5zQy19Y=;
-        b=dZZOcJlMqUbyN/2+tkmHmasQUUbG8EvkHBtVBwVZ/mbWCfdq4k0zzioapkLbbTuy0n+Exz
-        CeGudI92ZyiNn5y7n4YytiELfNm1xix/lNb9k/U1kKCLQ16ko2/sG84kM6EE40JKDTG01g
-        2m830I3jWELXnQIfTyseq5rU6LYzICE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-182-Bjy3PZHCPDunZDBx8ZzJdw-1; Thu, 10 Nov 2022 06:09:31 -0500
-X-MC-Unique: Bjy3PZHCPDunZDBx8ZzJdw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9B089101A52A;
-        Thu, 10 Nov 2022 11:09:30 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.24])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9ECED2166B29;
-        Thu, 10 Nov 2022 11:09:28 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-Subject: [PATCH v5] vfs, security: Fix automount superblock LSM init problem,
- preventing NFS sb sharing
-From:   David Howells <dhowells@redhat.com>
-To:     viro@zeniv.linux.org.uk
-Cc:     Jeff Layton <jlayton@kernel.org>, Jeff Layton <jlayton@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Paul Moore <paul@paul-moore.com>, linux-nfs@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, dhowells@redhat.com,
-        linux-kernel@vger.kernel.org
-Date:   Thu, 10 Nov 2022 11:09:27 +0000
-Message-ID: <166807856758.2972602.14175912201162072721.stgit@warthog.procyon.org.uk>
-User-Agent: StGit/1.5
+        with ESMTP id S229656AbiKJN4D (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 08:56:03 -0500
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007BF289
+        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 05:56:01 -0800 (PST)
+Received: by mail-lj1-x234.google.com with SMTP id b9so1211294ljr.5
+        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 05:56:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xLXk0Io5NUJ2Gc4rnaqA/cHXagRRpCL972pFfVphS4c=;
+        b=djA51zG+EmiDRjbElsLyA1LF1guphyZsRyWyn5/o0s9NqRfkM+IeMFyb6n9M6eFU+f
+         Ec3nHMXOxrvYZT4Dfqqfqhw8RSK4U0hR9L7H5M9RkAcMwgoPVHjJyBonAXNK10r6fgjH
+         gI3cdJZ1pm51wcdAnXTERaS0gKX6QMcIxh4NR8ZsgJIt/X9DtULMczlkaYS8MDWc8Kxw
+         ouc7WLOxAgRBdVS6UWNWo/HH9iAhF5tIJWdQ+w/T/iRWTzfrWglHyuRkyb6Cgv1WgKLM
+         Tktv06iNkJQh19kofMz/M3f3eFzvtDIQqIfe/WhxvdEc/C6odWH4hvGJO09251ms18dO
+         /C4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xLXk0Io5NUJ2Gc4rnaqA/cHXagRRpCL972pFfVphS4c=;
+        b=jr6pZO/MZaW622g0lLoa+0X/f9UjP++a1a5Ojtdf3WgQ6j3sqk1WyEEMirnES+TXWC
+         Ft1vYOZcaggMXRC4YxtheAJR8Rlt/DYIwcG2Yp334MMsKyJspXG1B4vew22AhZbPsgOD
+         /LHdZsWuDQ+Yvn2i4sKbX/QwKWLBZB21LGdCKCajCeLK9c1Umfgck9XyASccshCAh8ik
+         vdvRf5PfDIzgzrvCdOr9/CC7wkc/L0CX6q5SoCYmaTpsvZjWOmjJuTzPXLjSZzHZl0mm
+         vTkPmFCq7K2XuDI0G7tru54FbUAyQaJoAb2H7MRVDpVx94rUkWfKQc1snvLeeueaO/km
+         FMkA==
+X-Gm-Message-State: ACrzQf1BVnDtabCooCRIxVv0l5c9aanO5c+krT4n2MqdkUeMz+aMlGcw
+        KyI4j6WaZjNEX23DkQIPXy7keRgk6oID4mIeng5I4qLQe8U=
+X-Google-Smtp-Source: AMsMyM5cbeVEKd9vzE6NSaZXsFukybhN2+Ym3l8m6GxeDBFUW85X1ycTpx1acAfXytF27aFelR0ixSFM/eclaIKXvbI=
+X-Received: by 2002:a05:651c:11cc:b0:277:d75:f1de with SMTP id
+ z12-20020a05651c11cc00b002770d75f1demr9380026ljo.272.1668088560192; Thu, 10
+ Nov 2022 05:56:00 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+References: <20221109200939.62525-1-cgzones@googlemail.com>
+In-Reply-To: <20221109200939.62525-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 10 Nov 2022 08:55:48 -0500
+Message-ID: <CAP+JOzTBu1J+8yxXae0FB1-udOA8L1C5yHM2BfKfLpuRTW-GzA@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libselinux: simplify string copying
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When NFS superblocks are created by automounting, their LSM parameters
-aren't set in the fs_context struct prior to sget_fc() being called,
-leading to failure to match existing superblocks.
+On Wed, Nov 9, 2022 at 3:11 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Use strdup(3)/strndup(3) instead of allocating memory and then manually
+> copying the content.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Fix this by adding a new LSM hook to load fc->security for submount
-creation when alloc_fs_context() is creating the fs_context for it.
+For these three patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-However, this uncovers a further bug: nfs_get_root() initialises the
-superblock security manually by calling security_sb_set_mnt_opts() or
-security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
-security_sb_set_mnt_opts(), which can lead to SELinux, at least,
-complaining.
-
-Fix that by adding a flag to the fs_context that suppresses the
-security_sb_set_mnt_opts() call in vfs_get_tree().  This can be set by NFS
-when it sets the LSM context on the new superblock.
-
-The first bug leads to messages like the following appearing in dmesg:
-
-	NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,100000,100000,2ee,3a98,1d4c,3a98,1)
-
-Changes
-=======
-ver #5)
- - Removed unused variable.
- - Only allocate smack_mnt_opts if we're dealing with a submount.
-
-ver #4)
- - When doing a FOR_SUBMOUNT mount, don't set the root label in SELinux or
-   Smack.
-
-ver #3)
- - Made LSM parameter extraction dependent on fc->purpose ==
-   FS_CONTEXT_FOR_SUBMOUNT.  Shouldn't happen on FOR_RECONFIGURE.
-
-ver #2)
- - Added Smack support
- - Made LSM parameter extraction dependent on reference != NULL.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
-Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount() to it.")
-Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
-Tested-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-cc: Anna Schumaker <anna@kernel.org>
-cc: Alexander Viro <viro@zeniv.linux.org.uk>
-cc: Scott Mayhew <smayhew@redhat.com>
-cc: Jeff Layton <jlayton@kernel.org>
-cc: Paul Moore <paul@paul-moore.com>
-cc: linux-nfs@vger.kernel.org
-cc: selinux@vger.kernel.org
-cc: linux-security-module@vger.kernel.org
-cc: linux-fsdevel@vger.kernel.org
-Link: https://lore.kernel.org/r/165962680944.3334508.6610023900349142034.stgit@warthog.procyon.org.uk/ # v1
-Link: https://lore.kernel.org/r/165962729225.3357250.14350728846471527137.stgit@warthog.procyon.org.uk/ # v2
-Link: https://lore.kernel.org/r/165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk/ # v3
-Link: https://lore.kernel.org/r/166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk/ # v4
-Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.uk/ # v5
----
-
- fs/fs_context.c               |    4 +++
- fs/nfs/getroot.c              |    1 +
- fs/super.c                    |   10 +++++---
- include/linux/fs_context.h    |    1 +
- include/linux/lsm_hook_defs.h |    1 +
- include/linux/lsm_hooks.h     |    6 ++++-
- include/linux/security.h      |    6 +++++
- security/security.c           |    5 ++++
- security/selinux/hooks.c      |   25 +++++++++++++++++++
- security/smack/smack_lsm.c    |   54 +++++++++++++++++++++++++++++++++++++++++
- 10 files changed, 108 insertions(+), 5 deletions(-)
-
-diff --git a/fs/fs_context.c b/fs/fs_context.c
-index 24ce12f0db32..22248b8a88a8 100644
---- a/fs/fs_context.c
-+++ b/fs/fs_context.c
-@@ -282,6 +282,10 @@ static struct fs_context *alloc_fs_context(struct file_system_type *fs_type,
- 		break;
- 	}
- 
-+	ret = security_fs_context_init(fc, reference);
-+	if (ret < 0)
-+		goto err_fc;
-+
- 	/* TODO: Make all filesystems support this unconditionally */
- 	init_fs_context = fc->fs_type->init_fs_context;
- 	if (!init_fs_context)
-diff --git a/fs/nfs/getroot.c b/fs/nfs/getroot.c
-index 11ff2b2e060f..651bffb0067e 100644
---- a/fs/nfs/getroot.c
-+++ b/fs/nfs/getroot.c
-@@ -144,6 +144,7 @@ int nfs_get_root(struct super_block *s, struct fs_context *fc)
- 	}
- 	if (error)
- 		goto error_splat_root;
-+	fc->lsm_set = true;
- 	if (server->caps & NFS_CAP_SECURITY_LABEL &&
- 		!(kflags_out & SECURITY_LSM_NATIVE_LABELS))
- 		server->caps &= ~NFS_CAP_SECURITY_LABEL;
-diff --git a/fs/super.c b/fs/super.c
-index 8d39e4f11cfa..f200ae0549ca 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -1553,10 +1553,12 @@ int vfs_get_tree(struct fs_context *fc)
- 	smp_wmb();
- 	sb->s_flags |= SB_BORN;
- 
--	error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
--	if (unlikely(error)) {
--		fc_drop_locked(fc);
--		return error;
-+	if (!(fc->lsm_set)) {
-+		error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
-+		if (unlikely(error)) {
-+			fc_drop_locked(fc);
-+			return error;
-+		}
- 	}
- 
- 	/*
-diff --git a/include/linux/fs_context.h b/include/linux/fs_context.h
-index 13fa6f3df8e4..3876dd96bb20 100644
---- a/include/linux/fs_context.h
-+++ b/include/linux/fs_context.h
-@@ -110,6 +110,7 @@ struct fs_context {
- 	bool			need_free:1;	/* Need to call ops->free() */
- 	bool			global:1;	/* Goes into &init_user_ns */
- 	bool			oldapi:1;	/* Coming from mount(2) */
-+	bool			lsm_set:1;	/* security_sb_set/clone_mnt_opts() already done */
- };
- 
- struct fs_context_operations {
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index ec119da1d89b..256b6b0c0e6e 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -54,6 +54,7 @@ LSM_HOOK(int, 0, bprm_creds_from_file, struct linux_binprm *bprm, struct file *f
- LSM_HOOK(int, 0, bprm_check_security, struct linux_binprm *bprm)
- LSM_HOOK(void, LSM_RET_VOID, bprm_committing_creds, struct linux_binprm *bprm)
- LSM_HOOK(void, LSM_RET_VOID, bprm_committed_creds, struct linux_binprm *bprm)
-+LSM_HOOK(int, 0, fs_context_init, struct fs_context *fc, struct dentry *reference)
- LSM_HOOK(int, 0, fs_context_dup, struct fs_context *fc,
- 	 struct fs_context *src_sc)
- LSM_HOOK(int, -ENOPARAM, fs_context_parse_param, struct fs_context *fc,
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 4ec80b96c22e..a4885eb620e7 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -87,8 +87,12 @@
-  * Security hooks for mount using fs_context.
-  *	[See also Documentation/filesystems/mount_api.rst]
-  *
-+ * @fs_context_init:
-+ *	Initialise fc->security.  This is initialised to NULL by the caller.
-+ *	@fc indicates the new filesystem context.
-+ *	@dentry indicates a reference for submount/remount
-  * @fs_context_dup:
-- *	Allocate and attach a security structure to sc->security.  This pointer
-+ *	Allocate and attach a security structure to fc->security.  This pointer
-  *	is initialised to NULL by the caller.
-  *	@fc indicates the new filesystem context.
-  *	@src_fc indicates the original filesystem context.
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ca1b7109c0db..6c626ae3bb33 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -293,6 +293,7 @@ int security_bprm_creds_from_file(struct linux_binprm *bprm, struct file *file);
- int security_bprm_check(struct linux_binprm *bprm);
- void security_bprm_committing_creds(struct linux_binprm *bprm);
- void security_bprm_committed_creds(struct linux_binprm *bprm);
-+int security_fs_context_init(struct fs_context *fc, struct dentry *reference);
- int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc);
- int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *param);
- int security_sb_alloc(struct super_block *sb);
-@@ -625,6 +626,11 @@ static inline void security_bprm_committed_creds(struct linux_binprm *bprm)
- {
- }
- 
-+static inline int security_fs_context_init(struct fs_context *fc,
-+					   struct dentry *reference)
-+{
-+	return 0;
-+}
- static inline int security_fs_context_dup(struct fs_context *fc,
- 					  struct fs_context *src_fc)
- {
-diff --git a/security/security.c b/security/security.c
-index 79d82cb6e469..0732d873740a 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -882,6 +882,11 @@ void security_bprm_committed_creds(struct linux_binprm *bprm)
- 	call_void_hook(bprm_committed_creds, bprm);
- }
- 
-+int security_fs_context_init(struct fs_context *fc, struct dentry *reference)
-+{
-+	return call_int_hook(fs_context_init, 0, fc, reference);
-+}
-+
- int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc)
- {
- 	return call_int_hook(fs_context_dup, 0, fc, src_fc);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f553c370397e..426acfc87a0a 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2766,6 +2766,30 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
- 				   FILESYSTEM__UNMOUNT, NULL);
- }
- 
-+static int selinux_fs_context_init(struct fs_context *fc,
-+				   struct dentry *reference)
-+{
-+	const struct superblock_security_struct *sbsec;
-+	struct selinux_mnt_opts *opts;
-+
-+	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
-+		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-+		if (!opts)
-+			return -ENOMEM;
-+
-+		sbsec = selinux_superblock(reference->d_sb);
-+		if (sbsec->flags & FSCONTEXT_MNT)
-+			opts->fscontext_sid	= sbsec->sid;
-+		if (sbsec->flags & CONTEXT_MNT)
-+			opts->context_sid	= sbsec->mntpoint_sid;
-+		if (sbsec->flags & DEFCONTEXT_MNT)
-+			opts->defcontext_sid	= sbsec->def_sid;
-+		fc->security = opts;
-+	}
-+
-+	return 0;
-+}
-+
- static int selinux_fs_context_dup(struct fs_context *fc,
- 				  struct fs_context *src_fc)
- {
-@@ -7263,6 +7287,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	/*
- 	 * PUT "CLONING" (ACCESSING + ALLOCATING) HOOKS HERE
- 	 */
-+	LSM_HOOK_INIT(fs_context_init, selinux_fs_context_init),
- 	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
- 	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
- 	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index b6306d71c908..bef2e10320d4 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -611,6 +611,59 @@ static int smack_add_opt(int token, const char *s, void **mnt_opts)
- 	return -EINVAL;
- }
- 
-+/**
-+ * smack_fs_context_init - Initialise security data for a filesystem context
-+ * @fc: The filesystem context.
-+ * @reference: Reference dentry (automount/reconfigure) or NULL
-+ *
-+ * Returns 0 on success or -ENOMEM on error.
-+ */
-+static int smack_fs_context_init(struct fs_context *fc,
-+				 struct dentry *reference)
-+{
-+	struct superblock_smack *sbsp;
-+	struct smack_mnt_opts *ctx;
-+	struct inode_smack *isp;
-+
-+	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
-+		ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
-+		if (!ctx)
-+			return -ENOMEM;
-+		fc->security = ctx;
-+
-+		sbsp = smack_superblock(reference->d_sb);
-+		isp = smack_inode(reference->d_sb->s_root->d_inode);
-+
-+		if (sbsp->smk_default) {
-+			ctx->fsdefault = kstrdup(sbsp->smk_default->smk_known, GFP_KERNEL);
-+			if (!ctx->fsdefault)
-+				return -ENOMEM;
-+		}
-+
-+		if (sbsp->smk_floor) {
-+			ctx->fsfloor = kstrdup(sbsp->smk_floor->smk_known, GFP_KERNEL);
-+			if (!ctx->fsfloor)
-+				return -ENOMEM;
-+		}
-+
-+		if (sbsp->smk_hat) {
-+			ctx->fshat = kstrdup(sbsp->smk_hat->smk_known, GFP_KERNEL);
-+			if (!ctx->fshat)
-+				return -ENOMEM;
-+		}
-+
-+		if (isp->smk_flags & SMK_INODE_TRANSMUTE) {
-+			if (sbsp->smk_root) {
-+				ctx->fstransmute = kstrdup(sbsp->smk_root->smk_known, GFP_KERNEL);
-+				if (!ctx->fstransmute)
-+					return -ENOMEM;
-+			}
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * smack_fs_context_dup - Duplicate the security data on fs_context duplication
-  * @fc: The new filesystem context.
-@@ -4792,6 +4845,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ptrace_traceme, smack_ptrace_traceme),
- 	LSM_HOOK_INIT(syslog, smack_syslog),
- 
-+	LSM_HOOK_INIT(fs_context_init, smack_fs_context_init),
- 	LSM_HOOK_INIT(fs_context_dup, smack_fs_context_dup),
- 	LSM_HOOK_INIT(fs_context_parse_param, smack_fs_context_parse_param),
- 
-
-
+> ---
+>  libselinux/src/context.c                     | 11 +++++------
+>  libselinux/src/get_default_type.c            |  3 +--
+>  libselinux/src/matchpathcon.c                |  9 +++------
+>  libselinux/utils/selabel_lookup_best_match.c | 10 ++++------
+>  4 files changed, 13 insertions(+), 20 deletions(-)
+>
+> diff --git a/libselinux/src/context.c b/libselinux/src/context.c
+> index 9dddbc5a..8830bf42 100644
+> --- a/libselinux/src/context.c
+> +++ b/libselinux/src/context.c
+> @@ -149,19 +149,18 @@ static int set_comp(context_private_t * n, int idx,=
+ const char *str)
+>         char *t =3D NULL;
+>         const char *p;
+>         if (str) {
+> -               t =3D (char *)malloc(strlen(str) + 1);
+> -               if (!t) {
+> -                       return -1;
+> -               }
+>                 for (p =3D str; *p; p++) {
+>                         if (*p =3D=3D '\t' || *p =3D=3D '\n' || *p =3D=3D=
+ '\r' ||
+>                             ((*p =3D=3D ':' || *p =3D=3D ' ') && idx !=3D=
+ COMP_RANGE)) {
+> -                               free(t);
+>                                 errno =3D EINVAL;
+>                                 return -1;
+>                         }
+>                 }
+> -               strcpy(t, str);
+> +
+> +               t =3D strdup(str);
+> +               if (!t) {
+> +                       return -1;
+> +               }
+>         }
+>         conditional_free(&n->component[idx]);
+>         n->component[idx] =3D t;
+> diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_defau=
+lt_type.c
+> index dd7b5d79..766ea4b7 100644
+> --- a/libselinux/src/get_default_type.c
+> +++ b/libselinux/src/get_default_type.c
+> @@ -62,10 +62,9 @@ static int find_default_type(FILE * fp, const char *ro=
+le, char **type)
+>                 return -1;
+>         }
+>
+> -       t =3D malloc(strlen(buf) - len);
+> +       t =3D strndup(ptr, strlen(buf) - len - 1);
+>         if (!t)
+>                 return -1;
+> -       strcpy(t, ptr);
+>         *type =3D t;
+>         return 0;
+>  }
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
+c
+> index ea78a23e..bf2da083 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -215,10 +215,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
+, const char *file)
+>                         if (ret < 0 || sb.st_ino !=3D ino) {
+>                                 fl->specind =3D specind;
+>                                 free(fl->file);
+> -                               fl->file =3D malloc(strlen(file) + 1);
+> +                               fl->file =3D strdup(file);
+>                                 if (!fl->file)
+>                                         goto oom;
+> -                               strcpy(fl->file, file);
+>                                 return fl->specind;
+>
+>                         }
+> @@ -232,10 +231,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
+, const char *file)
+>                              __FUNCTION__, file, fl->file,
+>                              con_array[fl->specind]);
+>                         free(fl->file);
+> -                       fl->file =3D malloc(strlen(file) + 1);
+> +                       fl->file =3D strdup(file);
+>                         if (!fl->file)
+>                                 goto oom;
+> -                       strcpy(fl->file, file);
+>                         return fl->specind;
+>                 }
+>
+> @@ -248,10 +246,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
+, const char *file)
+>                 goto oom;
+>         fl->ino =3D ino;
+>         fl->specind =3D specind;
+> -       fl->file =3D malloc(strlen(file) + 1);
+> +       fl->file =3D strdup(file);
+>         if (!fl->file)
+>                 goto oom_freefl;
+> -       strcpy(fl->file, file);
+>         fl->next =3D prevfl->next;
+>         prevfl->next =3D fl;
+>         return fl->specind;
+> diff --git a/libselinux/utils/selabel_lookup_best_match.c b/libselinux/ut=
+ils/selabel_lookup_best_match.c
+> index a4af0679..e816c04b 100644
+> --- a/libselinux/utils/selabel_lookup_best_match.c
+> +++ b/libselinux/utils/selabel_lookup_best_match.c
+> @@ -30,7 +30,7 @@ static __attribute__ ((__noreturn__)) void usage(const =
+char *progname)
+>         exit(1);
+>  }
+>
+> -static mode_t string_to_mode(char *s)
+> +static mode_t string_to_mode(const char *s)
+>  {
+>         switch (s[0]) {
+>         case 'b':
+> @@ -53,7 +53,7 @@ static mode_t string_to_mode(char *s)
+>
+>  int main(int argc, char **argv)
+>  {
+> -       int raw =3D 0, mode =3D 0, rc, opt, i, num_links, string_len;
+> +       int raw =3D 0, mode =3D 0, rc, opt, i, num_links;
+>         char *validate =3D NULL, *path =3D NULL, *context =3D NULL, *file=
+ =3D NULL;
+>         char **links =3D NULL;
+>
+> @@ -101,13 +101,11 @@ int main(int argc, char **argv)
+>                 }
+>
+>                 for (i =3D optind, num_links =3D 0; i < argc; i++, num_li=
+nks++) {
+> -                       string_len =3D strlen(argv[i]) + 1;
+> -                       links[num_links] =3D malloc(string_len);
+> +                       links[num_links] =3D strdup(argv[i]);
+>                         if (!links[num_links]) {
+> -                               fprintf(stderr, "ERROR: malloc failed.\n"=
+);
+> +                               fprintf(stderr, "ERROR: strdup failed.\n"=
+);
+>                                 exit(1);
+>                         }
+> -                       strcpy(links[num_links], argv[i]);
+>                 }
+>         }
+>
+> --
+> 2.38.1
+>
