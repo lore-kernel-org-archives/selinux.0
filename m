@@ -2,136 +2,204 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46C60C43217
-	for <selinux@archiver.kernel.org>; Thu, 10 Nov 2022 21:28:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E219C4332F
+	for <selinux@archiver.kernel.org>; Fri, 11 Nov 2022 17:41:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231675AbiKJV2U (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Nov 2022 16:28:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
+        id S234153AbiKKRlS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Nov 2022 12:41:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231649AbiKJV2T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Nov 2022 16:28:19 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A0EA3
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 13:28:18 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id c1so5515273lfi.7
-        for <selinux@vger.kernel.org>; Thu, 10 Nov 2022 13:28:18 -0800 (PST)
+        with ESMTP id S233963AbiKKRlJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Nov 2022 12:41:09 -0500
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E141F64A0E
+        for <selinux@vger.kernel.org>; Fri, 11 Nov 2022 09:41:07 -0800 (PST)
+Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-13bd2aea61bso6183490fac.0
+        for <selinux@vger.kernel.org>; Fri, 11 Nov 2022 09:41:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HuAkZGQxHyUCvzkUe80P/yXs3F194tpfCjAMJfaLv94=;
-        b=GX/IMXwvfdiNw39PmgA8YDDZx67zwXUf7xG78wBWjc9jT3JKAVFd6wWhMMkN/LwSF+
-         dvnwjnjhqPxSr6UxCa8Z2mdROVUSqcjPOGi4/EAzTyyTFAJkhQGBSccMdCibMVLJtD14
-         fep1WGryXMSGDKOsH2yhUTEtLNyVfI06eoLCXseSXmJwjbD71pGYPOR//yqoQySr273U
-         Zz80lmQlPabh+uy7zMpPwisVMMPdLsMzD+QR65UixKDYo0NwekmD22TQpRcQCQIGrYtp
-         YZdsngW5WbNr11CG1/jV1EOe7gJV8Whqqd8ulrrQX4GnP6Gzwz8s/6nckE8wLN/fW+/m
-         nL+g==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=4FMbovKeaf0ACEXQ0YanGO9/PhL7FDv4zcGvp9Jqeb8=;
+        b=VC2441h1K58QJkK+WGDca1W1zE89fQLTCiI2j9YZF8c7kZutY8qZa37OsZfchHaWPS
+         rhMk5/lHhhn0VVnapdeeJdbRT73kCMs+fjJf2MKXFrEUUsifRb5msz4ssklMNJBwC7eh
+         Chg1S4lbsZ4dVFWnrIXNGPFFAx0LNq8OQ9MXm+IBeMhVnfnt6VtiEwgM8nb0msLSnp58
+         pb2LkeEZ2gFqjfjK6C7Sx0bex21qNoK1D05X39ls8QGfZpothPC5BYnsb9IAdN1Lxyps
+         Lisi72JrvKVaXERa9xDqo4MVML53UfqJmtjTDFPiT07Yk9rhBBSBf+xxCAGylshMQU5N
+         DFuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HuAkZGQxHyUCvzkUe80P/yXs3F194tpfCjAMJfaLv94=;
-        b=5hJm2D7nO53i9HCDaWzBbNran/UgCFS/dbdxgkUhIsnMPZW7xUtbeYxAxh2UIpXF7x
-         H/UPOUfYLwd5vRPtIPJ/s6whW1dlZ8bEccRIZ0Xi9iyw3i0tckzu1SYstmxjPNUTrNKf
-         b9ObW1BQsEnpoYpdBxh1RnNtaNCF8X27ia1hSpPyIODsXAESqqlsjZFtdXMuWsJtF0Oo
-         bTIe+M55vZpFcFV7m986nZdfTzcWpthcRJl+lLzDkB2hF3ON+0EGnJFR82yE8iJZYNEn
-         Iy0r4Sb6kpKFwRKEoMb0C2KIw4mQGVhKXLQy2Nk6vOJ1VrnMulQRXQXYRSyYJrbcyMyV
-         2fTQ==
-X-Gm-Message-State: ACrzQf1rtP8fMhQb9Q5U29sNrwU/QzLcLO2mTpTF09tqa5HqG+/9EFr8
-        n+xykfnbpDDrUYwYGz4sqt5t2Hco7R2THKaac/4Ij2XfQuA=
-X-Google-Smtp-Source: AMsMyM7aoiSbuOJiNNd0CvPyBH05+W5RcUeHFXjEiYNLX3R3iRnxzKd5Vi+w6EWqh3+OGTud3BAHUwdlO3SDJG82NGU=
-X-Received: by 2002:a19:8c57:0:b0:4ae:2436:818c with SMTP id
- i23-20020a198c57000000b004ae2436818cmr1793608lfj.346.1668115696481; Thu, 10
- Nov 2022 13:28:16 -0800 (PST)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4FMbovKeaf0ACEXQ0YanGO9/PhL7FDv4zcGvp9Jqeb8=;
+        b=KwXhe01L8gJZrR1MacBLUhYT2TumPXBfAeoA0PgTBPj8BUmPZNHjhUHXev9DsFZXdJ
+         FjZunOlRqVrBFQicCwMhJ8tf2PQZlkFAqs3AbJSj0YbITdTPVulFl/atstj9PdD+V0Ax
+         /OV2L0VjopmvBwwIbMSNenEC98YzP7NwOwXHbXzG5PvcoMIF+VfIjf0W9vzuTl/Mt+SS
+         b89iuXwp0HrmjqXE828FDGZD5WIsfEOcOETiit04ETXk+VndYPu7ANQ9TYs9Az3jZ7fL
+         fOmrzLDtAWpnqnjXnO8IA2ulBT6bcx4kC0gtSofcBkiI/+n7SEpiRaUp841tfw+pDidP
+         o51A==
+X-Gm-Message-State: ANoB5plQ1/7nUmvV0DwQJefzVUZBKQmOwfNR+4JfUSa7IdIWX+EEhzmv
+        jrc6ETDXlIAKJMOryBu5RNJU90sZGjLKAR3dre7q
+X-Google-Smtp-Source: AA0mqf655iw4JsNFSaXUguP05uOdtX8Svtt265PQFwzqFM6wcQ7IAUleTmgJzrbkAjGYudkUtWM48pVP5eznaOTF3uA=
+X-Received: by 2002:a05:6870:4304:b0:13b:d015:f1b5 with SMTP id
+ w4-20020a056870430400b0013bd015f1b5mr1591387oah.51.1668188467074; Fri, 11 Nov
+ 2022 09:41:07 -0800 (PST)
 MIME-Version: 1.0
-References: <20221109195640.60484-1-cgzones@googlemail.com> <20221109195640.60484-3-cgzones@googlemail.com>
-In-Reply-To: <20221109195640.60484-3-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 10 Nov 2022 16:28:04 -0500
-Message-ID: <CAP+JOzT7PXi4z4+zcSzfAbhJJaYoDYiBGDFkyM9z5SjA+omXLA@mail.gmail.com>
-Subject: Re: [PATCH 3/3] libselinux: filter arguments with path separators
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+References: <166807856758.2972602.14175912201162072721.stgit@warthog.procyon.org.uk>
+In-Reply-To: <166807856758.2972602.14175912201162072721.stgit@warthog.procyon.org.uk>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 11 Nov 2022 12:40:56 -0500
+Message-ID: <CAHC9VhTJh2tFbvOMzpGw7VSnHHb=boNhL5c7a1Ed+iHNFwWwqg@mail.gmail.com>
+Subject: Re: [PATCH v5] vfs, security: Fix automount superblock LSM init
+ problem, preventing NFS sb sharing
+To:     David Howells <dhowells@redhat.com>
+Cc:     viro@zeniv.linux.org.uk, Jeff Layton <jlayton@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Scott Mayhew <smayhew@redhat.com>, linux-nfs@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 9, 2022 at 3:07 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Thu, Nov 10, 2022 at 6:09 AM David Howells <dhowells@redhat.com> wrote:
 >
-> Boolean names, taken by security_get_boolean_pending(3),
-> security_get_boolean_active(3) and security_set_boolean(3), as well as
-> user names, taken by security_get_initial_context(3), are used in path
-> constructions.  Ensure they do not contain path separators to avoid
-> unwanted path traversal.
+> When NFS superblocks are created by automounting, their LSM parameters
+> aren't set in the fs_context struct prior to sget_fc() being called,
+> leading to failure to match existing superblocks.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Fix this by adding a new LSM hook to load fc->security for submount
+> creation when alloc_fs_context() is creating the fs_context for it.
+>
+> However, this uncovers a further bug: nfs_get_root() initialises the
+> superblock security manually by calling security_sb_set_mnt_opts() or
+> security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
+> security_sb_set_mnt_opts(), which can lead to SELinux, at least,
+> complaining.
+>
+> Fix that by adding a flag to the fs_context that suppresses the
+> security_sb_set_mnt_opts() call in vfs_get_tree().  This can be set by NFS
+> when it sets the LSM context on the new superblock.
+>
+> The first bug leads to messages like the following appearing in dmesg:
+>
+>         NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,100000,100000,2ee,3a98,1d4c,3a98,1)
+>
+> Changes
+> =======
+> ver #5)
+>  - Removed unused variable.
+>  - Only allocate smack_mnt_opts if we're dealing with a submount.
+>
+> ver #4)
+>  - When doing a FOR_SUBMOUNT mount, don't set the root label in SELinux or
+>    Smack.
+>
+> ver #3)
+>  - Made LSM parameter extraction dependent on fc->purpose ==
+>    FS_CONTEXT_FOR_SUBMOUNT.  Shouldn't happen on FOR_RECONFIGURE.
+>
+> ver #2)
+>  - Added Smack support
+>  - Made LSM parameter extraction dependent on reference != NULL.
+>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount() to it.")
+> Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
+> Tested-by: Jeff Layton <jlayton@kernel.org>
+> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+> cc: Trond Myklebust <trond.myklebust@hammerspace.com>
+> cc: Anna Schumaker <anna@kernel.org>
+> cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> cc: Scott Mayhew <smayhew@redhat.com>
+> cc: Jeff Layton <jlayton@kernel.org>
+> cc: Paul Moore <paul@paul-moore.com>
+> cc: linux-nfs@vger.kernel.org
+> cc: selinux@vger.kernel.org
+> cc: linux-security-module@vger.kernel.org
+> cc: linux-fsdevel@vger.kernel.org
+> Link: https://lore.kernel.org/r/165962680944.3334508.6610023900349142034.stgit@warthog.procyon.org.uk/ # v1
+> Link: https://lore.kernel.org/r/165962729225.3357250.14350728846471527137.stgit@warthog.procyon.org.uk/ # v2
+> Link: https://lore.kernel.org/r/165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk/ # v3
+> Link: https://lore.kernel.org/r/166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk/ # v4
+> Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.uk/ # v5
 > ---
->  libselinux/src/booleans.c            | 7 ++++++-
->  libselinux/src/get_initial_context.c | 5 +++++
->  2 files changed, 11 insertions(+), 1 deletion(-)
 >
-> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> index 66c946f9..64248191 100644
-> --- a/libselinux/src/booleans.c
-> +++ b/libselinux/src/booleans.c
-> @@ -152,7 +152,7 @@ static int bool_open(const char *name, int flag) {
->         int ret;
->         char *ptr;
+>  fs/fs_context.c               |    4 +++
+>  fs/nfs/getroot.c              |    1 +
+>  fs/super.c                    |   10 +++++---
+>  include/linux/fs_context.h    |    1 +
+>  include/linux/lsm_hook_defs.h |    1 +
+>  include/linux/lsm_hooks.h     |    6 ++++-
+>  include/linux/security.h      |    6 +++++
+>  security/security.c           |    5 ++++
+>  security/selinux/hooks.c      |   25 +++++++++++++++++++
+>  security/smack/smack_lsm.c    |   54 +++++++++++++++++++++++++++++++++++++++++
+>  10 files changed, 108 insertions(+), 5 deletions(-)
 >
-> -       if (!name) {
-> +       if (!name || strchr(name, '/')) {
->                 errno =3D EINVAL;
->                 return -1;
->         }
-> @@ -176,6 +176,11 @@ static int bool_open(const char *name, int flag) {
->         if (!alt_name)
->                 goto out;
->
-> +       if (strchr(alt_name, '/')) {
-> +               errno =3D EINVAL;
-> +               goto out;
-> +       }
-> +
-
-I don't think that this check is needed. You have already checked name
-by this point and it is reading booleans.subs_dist which is in the
-/etc/selinux directory.
-Besides, if it was going to be checked, it should be in the
-selinux_boolean_sub() function.
-
-Thanks,
-Jim
-
-
->         /* note the 'sizeof' gets us enough room for the '\0' */
->         len =3D strlen(alt_name) + strlen(selinux_mnt) + sizeof(SELINUX_B=
-OOL_DIR);
->         ptr =3D realloc(fname, len);
-> diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_in=
-itial_context.c
-> index 87c8adfa..0f25ba3f 100644
-> --- a/libselinux/src/get_initial_context.c
-> +++ b/libselinux/src/get_initial_context.c
-> @@ -23,6 +23,11 @@ int security_get_initial_context_raw(const char * name=
-, char ** con)
->                 return -1;
+> diff --git a/fs/fs_context.c b/fs/fs_context.c
+> index 24ce12f0db32..22248b8a88a8 100644
+> --- a/fs/fs_context.c
+> +++ b/fs/fs_context.c
+> @@ -282,6 +282,10 @@ static struct fs_context *alloc_fs_context(struct file_system_type *fs_type,
+>                 break;
 >         }
 >
-> +       if (strchr(name, '/')) {
-> +               errno =3D EINVAL;
-> +               return -1;
-> +       }
+> +       ret = security_fs_context_init(fc, reference);
+> +       if (ret < 0)
+> +               goto err_fc;
 > +
->         ret =3D snprintf(path, sizeof path, "%s%s%s", selinux_mnt, SELINU=
-X_INITCON_DIR, name);
->         if (ret < 0 || (size_t)ret >=3D sizeof path) {
->                 errno =3D EOVERFLOW;
-> --
-> 2.38.1
+>         /* TODO: Make all filesystems support this unconditionally */
+>         init_fs_context = fc->fs_type->init_fs_context;
+>         if (!init_fs_context)
+> diff --git a/fs/nfs/getroot.c b/fs/nfs/getroot.c
+> index 11ff2b2e060f..651bffb0067e 100644
+> --- a/fs/nfs/getroot.c
+> +++ b/fs/nfs/getroot.c
+> @@ -144,6 +144,7 @@ int nfs_get_root(struct super_block *s, struct fs_context *fc)
+>         }
+>         if (error)
+>                 goto error_splat_root;
+> +       fc->lsm_set = true;
+>         if (server->caps & NFS_CAP_SECURITY_LABEL &&
+>                 !(kflags_out & SECURITY_LSM_NATIVE_LABELS))
+>                 server->caps &= ~NFS_CAP_SECURITY_LABEL;
+> diff --git a/fs/super.c b/fs/super.c
+> index 8d39e4f11cfa..f200ae0549ca 100644
+> --- a/fs/super.c
+> +++ b/fs/super.c
+> @@ -1553,10 +1553,12 @@ int vfs_get_tree(struct fs_context *fc)
+>         smp_wmb();
+>         sb->s_flags |= SB_BORN;
 >
+> -       error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+> -       if (unlikely(error)) {
+> -               fc_drop_locked(fc);
+> -               return error;
+> +       if (!(fc->lsm_set)) {
+> +               error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+> +               if (unlikely(error)) {
+> +                       fc_drop_locked(fc);
+> +                       return error;
+> +               }
+>         }
+
+Thinking about all the different things that an LSM could do, would it
+ever be possible that a LSM would want the security_sb_set_mnt_opts()
+call to happen here?  I'm wondering if we are better off leaving it up
+to the LSM by passing the fs_context in the security_sb_set_mnt_opts()
+hook; those that want to effectively skip this call due to a submount
+setup already done in security_fs_context_init() can check the
+fs_context::purpose value in the security_sb_set_mnt_opts() hook.
+
+Thoughts?
+
+-- 
+paul-moore.com
