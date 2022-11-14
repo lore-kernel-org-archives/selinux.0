@@ -2,130 +2,124 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90BAFC4332F
-	for <selinux@archiver.kernel.org>; Mon, 14 Nov 2022 18:10:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B093C4332F
+	for <selinux@archiver.kernel.org>; Mon, 14 Nov 2022 19:32:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238075AbiKNSK1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Nov 2022 13:10:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39610 "EHLO
+        id S236119AbiKNTcU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Nov 2022 14:32:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238163AbiKNSKE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Nov 2022 13:10:04 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D332B61A
-        for <selinux@vger.kernel.org>; Mon, 14 Nov 2022 10:10:00 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id r61-20020a17090a43c300b00212f4e9cccdso14566499pjg.5
-        for <selinux@vger.kernel.org>; Mon, 14 Nov 2022 10:10:00 -0800 (PST)
+        with ESMTP id S235800AbiKNTcT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Nov 2022 14:32:19 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 311A6B7C8
+        for <selinux@vger.kernel.org>; Mon, 14 Nov 2022 11:32:18 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id x2so18827183edd.2
+        for <selinux@vger.kernel.org>; Mon, 14 Nov 2022 11:32:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=8+yZhAhr7NAUT9GmiB1IKSJ9jNEMF8zBynfUT8bHs+o=;
-        b=6+sjHhvznvTcyKSrY+5KA+08PFuG7RhKbw1tbRBc0icUFEejCsXOXqq6qMTXoD8eP5
-         MiMTjs7k2oUhdFOOTZHpG/VqELPNts7hbAIuY7CdHwkEsiGnghy0wAXgq8w9P1drNxV7
-         +dLxA7hTHUqpKTnhvEWX+tGzszFIihwC9nJhpOmSNjEgRqclH0fFHyt898Y/Ky/n9d06
-         fpcFvHB6ciAAciYQlECvKrKr/7t15yyFwBKgy/9kFoMqtuxNgTdN7izpeyKfMFDn2spi
-         81uLJNSer3vDtEMJmkItc29iTA9DiqkVVDMBnCcEh+dPg85FxFXiNJiRW6K63UGJeAZh
-         WKww==
+        d=googlemail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=y9yaoPVKguoNZHv+hHuGKMFhO69aQQ/VSNBqrhD6M7c=;
+        b=DNl76Xj1pCHu5wAxCyQE7IW8c4mm3WOeizY2//jYvmFbS6qATXix6p7iRW7aTgEMaA
+         ini1OZKUv5CuLc5cs8QO9SrsIElCkt4WjB/n0fvw+s3xiBh4Yx23wol95aA8qvEyx1ko
+         IypY/+HqR2rTkD6ukFFiCqUqSV1lCXrYJGxsQlpldYoL3NKqtNmyJ8zEobUQWJtmjQn8
+         rgcbo2BlDj9VHXVa7kW091NznhABBaDUcf8f0AFzIAhqwZX7VLAwIWUi6VQB1ktJ4z1A
+         ULukQhZg9PStJslWQ4exuR8K1x8Qj2HdlxLkeKrhqDTxVzlg9HgvFhfj5NMJiD77e7Kh
+         cuZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8+yZhAhr7NAUT9GmiB1IKSJ9jNEMF8zBynfUT8bHs+o=;
-        b=iWKzQZtS7y7aWlIR57hUvTBRHnMR6+AeqrR5ze4lxRJTFw2ZvX+Y/7PwJWxMqtkJE+
-         Ao8Vu07YwKNg8pT/VJfqSWjNHOlGDSo6XoMNbwxARGKDr8erJT3BcymLgB+mydUn9dtN
-         02PfcUF0OEM+EG+QX3wG+fHlyTXLbrYbr/DnZ9EckgbiV6oNLFyq5LqaqVwp6h0Uj5dm
-         COL/Zd9NWfLTxCcOQ7pdT62jPlhBApKOotLSSBwjbzRUGqz5YmG3744I5dHVd9nkNl5C
-         IRxUVeQyb8SVSKXohef2QE8P0CDoj4IbXSFFcttvaloqQj07+eM83y6esE7hHSIAuMS6
-         BexQ==
-X-Gm-Message-State: ANoB5pna3FLV/JlqlY+TWrgI/sxSBU8Ed2amdvKBmt9g/ZDkCLhkUEj8
-        X12diIMRXezynbdVtvJBTxY4Dm4d9foXQq/IGITR
-X-Google-Smtp-Source: AA0mqf7NbJaOooC6NtTT1GTTCEn+rquNSNpp1Tz9skdx9H8RN2w18W3PdKfzzaDh4o9CiRYOG//yNB9WUnxdOx1/2Pc=
-X-Received: by 2002:a17:90a:6a85:b0:20d:4173:faf9 with SMTP id
- u5-20020a17090a6a8500b0020d4173faf9mr14670365pjj.147.1668449400273; Mon, 14
- Nov 2022 10:10:00 -0800 (PST)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=y9yaoPVKguoNZHv+hHuGKMFhO69aQQ/VSNBqrhD6M7c=;
+        b=eXBUphLQHdAjz/nni/m/x4nYGQFytQ7jB2xq3FL/R8CTgVL2cFjOZz3I/q87KVTm+H
+         sAQ5iHOguI3+/2yVtFaDQCMjEbT/DBs7O68qM4ppaDHz1ljbAJqIC1k1EhQ404wbKutK
+         4KsCCl1tjkwjaS3XB20LRsAfHR0SrnbBZDLRGCb7XXOH15Bj8uU0Mmyv8pok8DUEKJSM
+         3ViID43/vkLtSEc0ALlezlufqwcekfl+SVQDVp71p+u3xtAe3VXtwJT3MPsjAmOMIUy2
+         d/AptTyAvOx7XYVwZAjSTNb0pJi6k0QK7Z7fHt05YV9VgXrMFVLlawVFK5EPPGNOMxkM
+         BBXA==
+X-Gm-Message-State: ANoB5plpsT+l/spKUAtThgxfPHzDAEtEkitKv2dHrDxCJfFoYywq7jTm
+        I1WT7KsNBUNc2Ycgy5DRfyvvaRp3AlI=
+X-Google-Smtp-Source: AA0mqf4QusTo5thC3R0g69ukMbv8R6qwyFO884rL+BBbeo10YL0LnMZ9vZAQHjphUAAXSR8nHt06DA==
+X-Received: by 2002:a05:6402:515c:b0:461:b1b9:bed0 with SMTP id n28-20020a056402515c00b00461b1b9bed0mr12415256edd.122.1668454336726;
+        Mon, 14 Nov 2022 11:32:16 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-003-090-138.77.3.pool.telefonica.de. [77.3.90.138])
+        by smtp.gmail.com with ESMTPSA id ft31-20020a170907801f00b0078d9cd0d2d6sm4666356ejc.11.2022.11.14.11.32.15
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Nov 2022 11:32:16 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v3 3/3] libselinux: filter arguments with path separators
+Date:   Mon, 14 Nov 2022 20:32:08 +0100
+Message-Id: <20221114193208.9413-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221109195640.60484-3-cgzones@googlemail.com>
+References: <20221109195640.60484-3-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20221114111844.3461403-1-konstantin.meskhidze@huawei.com> <CAHC9VhQZ0i1GF2a9P9v05awKCb_j2X0Tv_xVfhQm4NnMJFs5Lw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQZ0i1GF2a9P9v05awKCb_j2X0Tv_xVfhQm4NnMJFs5Lw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 14 Nov 2022 13:09:49 -0500
-Message-ID: <CAHC9VhSrbZeP2Lmd-dVXyUqM2=b7z-HMWh1ZPQ30eWchwrQJvA@mail.gmail.com>
-Subject: Re: [PATCH] [RFC] SELINUX: Remove obsolete deferred inode security
- init list.
-To:     Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
-Cc:     linux-security-module@vger.kernel.org,
-        jamorris@linux.microsoft.com, selinux@vger.kernel.org,
-        stephen.smalley.work@gmail.com, artem.kuzin@huawei.com,
-        hw.likun@huawei.com, alexander.kozhevnikov@huawei-partners.com,
-        xiujianfeng@huawei.com, yusongping@huawei.com, hukeping@huawei.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 14, 2022 at 12:45 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Mon, Nov 14, 2022 at 6:19 AM Konstantin Meskhidze
-> <konstantin.meskhidze@huawei.com> wrote:
-> > From: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
-> >
-> > This patch is a proposed code optimization for SELinux:
-> >
-> > 1) Each inode has SELinux security structure attached
-> >    to it, this one need to be initialized at some point.
-> > 2) This initialization is done by the function
-> >    inode_doinit_with_dentry ( ).
-> > 3) In the kernel releases started from some point in the past
-> >    this function (2) is always called normally from function
-> >    __inode_security_revalidate ( ).
-> > 4) Which in turn is always called  from inode_security ( ), which
-> >    is a base point for any selinux calls and always called on
-> >    any access to any inode except a few special cases when
-> >    _inode_security_novalidate ( ) is used.
-> > 5) Inode security structure initialization can be done only after
-> >    SELinux is fully initialized and policy is loaded.
-> > 6) So, for this purpose there was a special defeferred inode security
-> >    initialization list protected by a spinlock implemented, which was
-> >    populated instead of isec initialization in function
-> >    inode_doinit_with_dentry ( ), if it was called before SELinux full
-> >    initialization, and processed at the time when SELinux policy load
-> >    occurred by calling again inode_doinit_with_dentry ( ) on each inode
-> >    in this list.
-> > 7) This list was a part of a default initialization logic before (3) was
-> >    implemented, but now, taking into account new mechanism implemented
-> >    with current approach of inode security revalidation on each access
-> >    (4)-(3)-(2), it looks obsolete and not needed anymore.
-> > 8) So deferred initialization, this list and code associated with it can
-> >    be safely removed now, as anyway, if inode isec was not initialized
-> >    before it will be processed on any next inode access.
-> > 9) There are two possible positive consequences from this removal:
-> >      a. More clean and simple code, less memory consumption;
-> >      b. This deferred initialization in some cases (for example SELinux
-> >         was switched on manually after system was up quite a long time)
-> >         could take some significant time to process, i.e. system looks
-> >         hung for some notable time. And now this is avoided.
-> >
-> > Signed-off-by: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
-> > Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
-> > ---
-> >  security/selinux/hooks.c          | 70 ++++---------------------------
-> >  security/selinux/include/objsec.h |  3 --
-> >  2 files changed, 7 insertions(+), 66 deletions(-)
->
-> Hi Konstantin, Alexander,
->
-> A few comments below, but can you share what testing you've done with
-> this?  Specifically what you've done to ensure that inodes allocated
-> before the policy is loaded are properly initialized/validated after
-> the policy is loaded?
+Boolean names, taken by security_get_boolean_pending(3),
+security_get_boolean_active(3) and security_set_boolean(3), as well as
+user names, taken by security_get_initial_context(3), are used in path
+constructions.  Ensure they do not contain path separators to avoid
+unwanted path traversal.
 
-To be more specific, I'm curious about the cases where
-__inode_security_revalidate() is called without the ability to sleep;
-in those cases it is not possible to call inode_doinit_with_dentry()
-to revalidate the inode's label.  With the current solution that is
-not so much of an issue as sb_finish_set_opts() can block, but in your
-proposed solution I worry this may be an issue.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v3:
+  - move check for translated boolean name into selinux_boolean_sub()
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/booleans.c            | 5 +++--
+ libselinux/src/get_initial_context.c | 5 +++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
---
-paul-moore.com
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index dbcccd70..e34b39ff 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -131,7 +131,8 @@ char *selinux_boolean_sub(const char *name)
+ 			ptr++;
+ 		*ptr = '\0';
+ 
+-		sub = strdup(dst);
++		if (!strchr(dst, '/'))
++			sub = strdup(dst);
+ 
+ 		break;
+ 	}
+@@ -151,7 +152,7 @@ static int bool_open(const char *name, int flag) {
+ 	int ret;
+ 	char *ptr;
+ 
+-	if (!name) {
++	if (!name || strchr(name, '/')) {
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_initial_context.c
+index 87c8adfa..0f25ba3f 100644
+--- a/libselinux/src/get_initial_context.c
++++ b/libselinux/src/get_initial_context.c
+@@ -23,6 +23,11 @@ int security_get_initial_context_raw(const char * name, char ** con)
+ 		return -1;
+ 	}
+ 
++	if (strchr(name, '/')) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	ret = snprintf(path, sizeof path, "%s%s%s", selinux_mnt, SELINUX_INITCON_DIR, name);
+ 	if (ret < 0 || (size_t)ret >= sizeof path) {
+ 		errno = EOVERFLOW;
+-- 
+2.38.1
+
