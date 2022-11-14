@@ -2,248 +2,249 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B106AC4332F
-	for <selinux@archiver.kernel.org>; Mon, 14 Nov 2022 11:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA382C4332F
+	for <selinux@archiver.kernel.org>; Mon, 14 Nov 2022 14:32:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236173AbiKNLXc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Nov 2022 06:23:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48342 "EHLO
+        id S236523AbiKNOcC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Nov 2022 09:32:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236251AbiKNLXL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Nov 2022 06:23:11 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB9E25E81;
-        Mon, 14 Nov 2022 03:19:14 -0800 (PST)
-Received: from fraeml705-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4N9mt66LDwz67wXw;
-        Mon, 14 Nov 2022 19:14:38 +0800 (CST)
-Received: from lhrpeml500004.china.huawei.com (7.191.163.9) by
- fraeml705-chm.china.huawei.com (10.206.15.54) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2375.31; Mon, 14 Nov 2022 12:19:11 +0100
-Received: from mscphis00759.huawei.com (10.123.66.134) by
- lhrpeml500004.china.huawei.com (7.191.163.9) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Mon, 14 Nov 2022 11:19:10 +0000
-From:   Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
-To:     <linux-security-module@vger.kernel.org>
-CC:     <paul@paul-moore.com>, <jamorris@linux.microsoft.com>,
-        <selinux@vger.kernel.org>, <stephen.smalley.work@gmail.com>,
-        <artem.kuzin@huawei.com>, <hw.likun@huawei.com>,
-        <alexander.kozhevnikov@huawei-partners.com>,
-        <xiujianfeng@huawei.com>, <yusongping@huawei.com>,
-        <hukeping@huawei.com>, <konstantin.meskhidze@huawei.com>
-Subject: [PATCH] [RFC] SELINUX: Remove obsolete deferred inode security init list.
-Date:   Mon, 14 Nov 2022 19:18:44 +0800
-Message-ID: <20221114111844.3461403-1-konstantin.meskhidze@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S236695AbiKNObu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Nov 2022 09:31:50 -0500
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3AC29369;
+        Mon, 14 Nov 2022 06:31:49 -0800 (PST)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20221114143148euoutp022e1d72158b421ec29cb993275bb61e50~nefuKvsWt1523315233euoutp02c;
+        Mon, 14 Nov 2022 14:31:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20221114143148euoutp022e1d72158b421ec29cb993275bb61e50~nefuKvsWt1523315233euoutp02c
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1668436308;
+        bh=dQNwfBdIpqaepn/RDINMXYASngIiK5me72nEGTHG5UY=;
+        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+        b=YsMxlYkIA4Kw86rr8e90jC0rKprf6oQqf3N2ORtAOi8XkzrNfPZInuCPWRkDfoNYa
+         E9SKp2KHmLHQPNn4HzV8qYo+3wlqVJkIqpBcjFadVdrBs6nxtsSJnG37uxecnoem3W
+         3bWgJ2LBK2AjxxfhabWaGfuK2wMYFwIOoWDoGhFQ=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20221114143147eucas1p122ae102cdc6d073ab5498e9745195930~neft7Xi9p2102821028eucas1p1B;
+        Mon, 14 Nov 2022 14:31:47 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges1new.samsung.com (EUCPMTA) with SMTP id 7F.54.09561.35152736; Mon, 14
+        Nov 2022 14:31:47 +0000 (GMT)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20221114143147eucas1p1902d9b4afc377fdda25910a5d083e3dc~neftYp_GB1176311763eucas1p1Y;
+        Mon, 14 Nov 2022 14:31:47 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20221114143147eusmtrp20aac6134b5cc3d3136fcf567899c2e12~neftXwote2551925519eusmtrp2r;
+        Mon, 14 Nov 2022 14:31:47 +0000 (GMT)
+X-AuditID: cbfec7f2-0b3ff70000002559-04-63725153c12d
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms2.samsung.com (EUCPMTA) with SMTP id 47.AC.09026.35152736; Mon, 14
+        Nov 2022 14:31:47 +0000 (GMT)
+Received: from CAMSVWEXC01.scsc.local (unknown [106.1.227.71]) by
+        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20221114143147eusmtip15cf4f3c97add76f0639c4b23fc1db327~neftH2Kxk1514615146eusmtip1d;
+        Mon, 14 Nov 2022 14:31:47 +0000 (GMT)
+Received: from localhost (106.110.32.133) by CAMSVWEXC01.scsc.local
+        (2002:6a01:e347::6a01:e347) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+        Mon, 14 Nov 2022 14:31:46 +0000
+Date:   Mon, 14 Nov 2022 15:31:45 +0100
+From:   Joel Granados <j.granados@samsung.com>
+To:     Paul Moore <paul@paul-moore.com>
+CC:     Jeffrey Vander Stoep <jeffv@google.com>,
+        Gil Cukierman <cukie@google.com>, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, <kernel-team@android.com>,
+        <linux-kernel@vger.kernel.org>, <io-uring@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
+Message-ID: <20221114143145.ha22rdxphhpgd53u@localhost>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.123.66.134]
-X-ClientProxiedBy: mscpeml100002.china.huawei.com (7.188.26.75) To
- lhrpeml500004.china.huawei.com (7.191.163.9)
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="2ctr4pslrx4mhrsa"
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhRTWGuiMpJJiFrUpgsm7nQaNA-n1CYRMPS-24OLvzdA2A@mail.gmail.com>
+X-Originating-IP: [106.110.32.133]
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+        CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347)
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrNKsWRmVeSWpSXmKPExsWy7djP87rBgUXJBstnGFrMWbWN0WL13X42
+        i3+rYyw6H55ltnjXeo7FYk7rLnaLdesXM1ns2C5icXnXHDaLDz2P2CxuT5rOYnH++DF2i/MX
+        zrFbPD8/mdGBz2Pb7m2sHjtn3WX3WLCp1OPa7kiPy2dLPXq+J3uc/RrlsXbvC0aPz5vkAjij
+        uGxSUnMyy1KL9O0SuDJWXt7CWnBQv+LE9ZtMDYzN6l2MnBwSAiYSB3bMY+li5OIQEljBKLHk
+        ylFmkISQwBdGiYWtJRCJz4wSJ1/+YIfpmHrgBhtEYjmjxK7T15jgqhY/ugCV2cIo8ebgdkaQ
+        FhYBVYlph46zgthsAjoS59/cAdshIqAisfjpekaQBmaB28wS35Y3MYEkhAXcJNr7P7OB2LwC
+        5hKrP69ih7AFJU7OfMICYjMLVEhM2zwJyOYAsqUllv/jAAlzCgRKvDt/lQniVCWJr296WSHs
+        Wom1x86wg+ySEHjEKTHx82WoIheJntlboH4Tlnh1HMaWkfi/cz5UTbbEzim7mCHsAolZJ6ey
+        geyVELCW6DuTA2E6Sny/Yg9h8knceCsIcSSfxKRt05khwrwSHW1CEDPUJHY0bWWcwKg8C8lb
+        s5C8NQvhLYiwjsSC3Z/YMIS1JZYtfM0MYdtKrFv3nmUBI/sqRvHU0uLc9NRiw7zUcr3ixNzi
+        0rx0veT83E2MwDR5+t/xTzsY5776qHeIkYmD8RCjClDzow2rLzBKseTl56UqifDOk8lPFuJN
+        SaysSi3Kjy8qzUktPsQozcGiJM7LNkMrWUggPbEkNTs1tSC1CCbLxMEp1cDEJsRzQPIGf2S4
+        2pXVbXcqzrIGlgSluskzepxZedyuoDwo9dFOp7onrMcLPqYd7RfieWO6bEVI4c/M3NM/1K2X
+        dZt53/ufXXk1Qszl43qT9UsenWjeFhTpy9Y9W3RO9sI/y0z03O9Wl/6ZyN25T7D9ZuO6LfrK
+        IsyrSrM2LSk2dvHdqZJlOnlGU3C8aB37382Lf+VcdZi/smfTysJ3MzMevX7WdFwr3GWi6UyR
+        RTcXFj5+dWL1nMUs5wwTQ34YcD/JiHddMWWVWlKVe6XIvKvJYv86XgleyE2Wq5Pz/nSq58NP
+        RY5//xV3mbYf+pAQeK+bSXfhpGtv99RMbxWed2V/2I/vE05duv/m2tk7sUsKlFiKMxINtZiL
+        ihMBwRB+Eg4EAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprDKsWRmVeSWpSXmKPExsVy+t/xu7rBgUXJBlfW8lnMWbWN0WL13X42
+        i3+rYyw6H55ltnjXeo7FYk7rLnaLdesXM1ns2C5icXnXHDaLDz2P2CxuT5rOYnH++DF2i/MX
+        zrFbPD8/mdGBz2Pb7m2sHjtn3WX3WLCp1OPa7kiPy2dLPXq+J3uc/RrlsXbvC0aPz5vkAjij
+        9GyK8ktLUhUy8otLbJWiDS2M9AwtLfSMTCz1DI3NY62MTJX07WxSUnMyy1KL9O0S9DLW/X/F
+        XLBfv2LurWtMDYyN6l2MnBwSAiYSUw/cYOti5OIQEljKKLF8yX9miISMxKcrH9khbGGJP9e6
+        oIo+MkqcPPaBCcLZwijx+8cCJpAqFgFViWmHjrOC2GwCOhLn39wBmyQioCKx+Ol6RpAGZoGb
+        zBLv2yaCNQgLuEm0939mA7F5BcwlVn9exQ4xtYdJovfmHKiEoMTJmU9YQGxmgTKJ5um9QHEO
+        IFtaYvk/DpAwp0CgxLvzV5kgTlWS+PqmlxXCrpV4dX834wRG4VlIJs1CMmkWwiSIsJbEjX8v
+        mTCEtSWWLXzNDGHbSqxb955lASP7KkaR1NLi3PTcYiO94sTc4tK8dL3k/NxNjMCkse3Yzy07
+        GFe++qh3iJGJg/EQowpQ56MNqy8wSrHk5eelKonwzpPJTxbiTUmsrEotyo8vKs1JLT7EaAoM
+        xonMUqLJ+cB0llcSb2hmYGpoYmZpYGppZqwkzutZ0JEoJJCeWJKanZpakFoE08fEwSnVwNS1
+        9eWuyZVv7UpE1t1wZZPl2xPhn/o94OqLqnfRhwvvd4ZOefZ8YfqX2cU3+ku9atbePVQVf/Qr
+        1+wWnf62X8tdJr86m/v7zYWt5Vv+Rtpyhwe/2aVerOpwgyWSS7M1ntXkxasJF+34ef4/v6e8
+        PHa5+XX1l8r3o4TFNmZLK1jMcdukYJH503mjsEWUf+quyXJLUmUKfabcNVv8cIXSZZM9tw8x
+        rlpddr9ztoX1FpmL+o+lS6KWXpV9uuqL5cbX0VcKttRL9yf4SbVcit2rvU/lvabCk1lTF21a
+        O/X/+eIlyo18HQcYp6v8eTBT/eUDN5fSMz+72xd1JbimXdgYv/TV6czl8TfP8E76ytOya2mt
+        EktxRqKhFnNRcSIAmD8uKK8DAAA=
+X-CMS-MailID: 20221114143147eucas1p1902d9b4afc377fdda25910a5d083e3dc
+X-Msg-Generator: CA
+X-RootMTR: 20221114143147eucas1p1902d9b4afc377fdda25910a5d083e3dc
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20221114143147eucas1p1902d9b4afc377fdda25910a5d083e3dc
+References: <20221107205754.2635439-1-cukie@google.com>
+        <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
+        <CABXk95ChjusTneWJgj5a58CZceZv0Ay-P-FwBcH2o4rO0g2Ggw@mail.gmail.com>
+        <CAHC9VhRTWGuiMpJJiFrUpgsm7nQaNA-n1CYRMPS-24OLvzdA2A@mail.gmail.com>
+        <CGME20221114143147eucas1p1902d9b4afc377fdda25910a5d083e3dc@eucas1p1.samsung.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
+--2ctr4pslrx4mhrsa
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch is a proposed code optimization for SELinux:
+On Thu, Nov 10, 2022 at 04:04:46PM -0500, Paul Moore wrote:
+> On Thu, Nov 10, 2022 at 12:54 PM Jeffrey Vander Stoep <jeffv@google.com> =
+wrote:
+> > On Mon, Nov 7, 2022 at 10:17 PM Paul Moore <paul@paul-moore.com> wrote:
+> > >
+> > > On Mon, Nov 7, 2022 at 3:58 PM Gil Cukierman <cukie@google.com> wrote:
+> > > >
+> > > > This patchset provides the changes required for controlling access =
+to
+> > > > the io_uring_setup system call by LSMs. It does this by adding a new
+> > > > hook to io_uring. It also provides the SELinux implementation for a=
+ new
+> > > > permission, io_uring { setup }, using the new hook.
+> > > >
+> > > > This is important because existing io_uring hooks only support limi=
+ting
+> > > > the sharing of credentials and access to the sensitive uring_cmd fi=
+le
+> > > > op. Users of LSMs may also want the ability to tightly control which
+> > > > callers can retrieve an io_uring capable fd from the kernel, which =
+is
+> > > > needed for all subsequent io_uring operations.
+> > >
+> > > It isn't immediately obvious to me why simply obtaining a io_uring fd
+> > > from io_uring_setup() would present a problem, as the security
+> > > relevant operations that are possible with that io_uring fd *should*
+> > > still be controlled by other LSM hooks.  Can you help me understand
+> > > what security issue you are trying to resolve with this control?
+> >
+> > I think there are a few reasons why we want this particular hook.
+> >
+> > 1.  It aligns well with how other resources are managed by selinux
+> > where access to the resource is the first control point (e.g. "create"
+> > for files, sockets, or bpf_maps, "prog_load" for bpf programs, and
+> > "open" for perf_event) and then additional functionality or
+> > capabilities require additional permissions.
+>=20
+> [NOTE: there were two reply sections in your email, and while similar,
+> they were not identical; I've trimmed the other for the sake of
+> clarity]
+>=20
+> The resources you mention are all objects which contain some type of
+> information (either user data, configuration, or program
+> instructions), with the resulting fd being a handle to those objects.
+> In the case of io_uring the fd is a handle to the io_uring
+> interface/rings, which by itself does not contain any information
+> which is not already controlled by other permissions.
+>=20
+> I/O operations which transfer data between the io_uring buffers and
+> other system objects, e.g. IORING_OP_READV, are still subject to the
+> same file access controls as those done by the application using
+> syscalls.  Even the IORING_OP_OPENAT command goes through the standard
+> VFS code path which means it will trigger the same access control
+> checks as an open*() done by the application normally.
+>=20
+> The 'interesting' scenarios are those where the io_uring operation
+> servicing credentials, aka personalities, differ from the task
+> controlling the io_uring.  However in those cases we have the new
+> io_uring controls to gate these delegated operations.  Passing an
+> io_uring fd is subject to the fd/use permission like any other fd.
+>=20
+> Although perhaps the most relevant to your request is the fact that
+> the io_uring inode is created using the new(ish) secure anon inode
+> interface which ensures that the creating task has permission to
+> create an io_uring.  This io_uring inode label also comes into play
+> when a task attempts to mmap() the io_uring rings, a critical part of
+> the io_uring API.
+>=20
+> If I'm missing something you believe to be important, please share the de=
+tails.
+>=20
+> > 2. It aligns well with how resources are managed on Android. We often
+> > do not grant direct access to resources (like memory buffers).
+>=20
+> Accessing the io_uring buffers requires a task to mmap() the io_uring
+> fd which is controlled by the normal SELinux mmap() access controls.
+>=20
+> > 3. Attack surface management. One of the primary uses of selinux on
+> > Android is to assess and limit attack surface (e.g.
+> > https://twitter.com/jeffvanderstoep/status/1422771606309335043) . As
+> > io_uring vulnerabilities have made their way through our vulnerability
+> > management system, it's become apparent that it's complicated to
+> > assess the impact. Is a use-after-free reachable? Creating
+> > proof-of-concept exploits takes a lot of time, and often functionality
+> > can be reached by multiple paths. How many of the known io_uring
+> > vulnerabilities would be gated by the existing checks? How many future
+> > ones will be gated by the existing checks? I don't know the answer to
+> > either of these questions and it's not obvious. This hook makes that
+> > initial assessment simple and effective.
+>=20
+> It should be possible to deny access to io_uring via the anonymous
+> inode labels, the mmap() controls, and the fd/use permission.  If you
+> find a way to do meaningful work with an io_uring fd that can't be
+> controlled via an existing permission check please let me know.
 
-1) Each inode has SELinux security structure attached
-   to it, this one need to be initialized at some point.
-2) This initialization is done by the function
-   inode_doinit_with_dentry ( ).
-3) In the kernel releases started from some point in the past
-   this function (2) is always called normally from function
-   __inode_security_revalidate ( ).
-4) Which in turn is always called  from inode_security ( ), which
-   is a base point for any selinux calls and always called on
-   any access to any inode except a few special cases when
-   _inode_security_novalidate ( ) is used.
-5) Inode security structure initialization can be done only after
-   SELinux is fully initialized and policy is loaded.
-6) So, for this purpose there was a special defeferred inode security
-   initialization list protected by a spinlock implemented, which was
-   populated instead of isec initialization in function
-   inode_doinit_with_dentry ( ), if it was called before SELinux full
-   initialization, and processed at the time when SELinux policy load
-   occurred by calling again inode_doinit_with_dentry ( ) on each inode
-   in this list.
-7) This list was a part of a default initialization logic before (3) was
-   implemented, but now, taking into account new mechanism implemented
-   with current approach of inode security revalidation on each access
-   (4)-(3)-(2), it looks obsolete and not needed anymore.
-8) So deferred initialization, this list and code associated with it can
-   be safely removed now, as anyway, if inode isec was not initialized
-   before it will be processed on any next inode access.
-9) There are two possible positive consequences from this removal:
-     a. More clean and simple code, less memory consumption;
-     b. This deferred initialization in some cases (for example SELinux
-        was switched on manually after system was up quite a long time)
-        could take some significant time to process, i.e. system looks
-        hung for some notable time. And now this is avoided.
+Also interested in a more specific case. Sending reply so I get added to
+the group response.
+>=20
+> --
+> paul-moore.com
 
-Signed-off-by: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
-Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
----
- security/selinux/hooks.c          | 70 ++++---------------------------
- security/selinux/include/objsec.h |  3 --
- 2 files changed, 7 insertions(+), 66 deletions(-)
+--2ctr4pslrx4mhrsa
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f553c370397e..c93b5621d735 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -316,27 +316,7 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
- 
- static void inode_free_security(struct inode *inode)
- {
--	struct inode_security_struct *isec = selinux_inode(inode);
--	struct superblock_security_struct *sbsec;
--
--	if (!isec)
--		return;
--	sbsec = selinux_superblock(inode->i_sb);
--	/*
--	 * As not all inode security structures are in a list, we check for
--	 * empty list outside of the lock to make sure that we won't waste
--	 * time taking a lock doing nothing.
--	 *
--	 * The list_del_init() function can be safely called more than once.
--	 * It should not be possible for this function to be called with
--	 * concurrent list_add(), but for better safety against future changes
--	 * in the code, we use list_empty_careful() here.
--	 */
--	if (!list_empty_careful(&isec->list)) {
--		spin_lock(&sbsec->isec_lock);
--		list_del_init(&isec->list);
--		spin_unlock(&sbsec->isec_lock);
--	}
-+/* NOTHING TO DO AFTER DEFERRED LIST REMOVAL */
- }
- 
- struct selinux_mnt_opts {
-@@ -551,27 +531,6 @@ static int sb_finish_set_opts(struct super_block *sb)
- 	/* Initialize the root inode. */
- 	rc = inode_doinit_with_dentry(root_inode, root);
- 
--	/* Initialize any other inodes associated with the superblock, e.g.
--	   inodes created prior to initial policy load or inodes created
--	   during get_sb by a pseudo filesystem that directly
--	   populates itself. */
--	spin_lock(&sbsec->isec_lock);
--	while (!list_empty(&sbsec->isec_head)) {
--		struct inode_security_struct *isec =
--				list_first_entry(&sbsec->isec_head,
--					   struct inode_security_struct, list);
--		struct inode *inode = isec->inode;
--		list_del_init(&isec->list);
--		spin_unlock(&sbsec->isec_lock);
--		inode = igrab(inode);
--		if (inode) {
--			if (!IS_PRIVATE(inode))
--				inode_doinit_with_dentry(inode, NULL);
--			iput(inode);
--		}
--		spin_lock(&sbsec->isec_lock);
--	}
--	spin_unlock(&sbsec->isec_lock);
- 	return rc;
- }
- 
-@@ -1378,6 +1337,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		return 0;
- 
-+	sbsec = selinux_superblock(inode->i_sb);
-+	if (!(sbsec->flags & SE_SBINITIALIZED))
-+		return 0;
-+
- 	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		goto out_unlock;
-@@ -1385,18 +1348,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 	if (isec->sclass == SECCLASS_FILE)
- 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 
--	sbsec = selinux_superblock(inode->i_sb);
--	if (!(sbsec->flags & SE_SBINITIALIZED)) {
--		/* Defer initialization until selinux_complete_init,
--		   after the initial policy is loaded and the security
--		   server is ready to handle calls. */
--		spin_lock(&sbsec->isec_lock);
--		if (list_empty(&isec->list))
--			list_add(&isec->list, &sbsec->isec_head);
--		spin_unlock(&sbsec->isec_lock);
--		goto out_unlock;
--	}
--
- 	sclass = isec->sclass;
- 	task_sid = isec->task_sid;
- 	sid = isec->sid;
-@@ -1430,9 +1381,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 		if (!dentry) {
- 			/*
- 			 * this is can be hit on boot when a file is accessed
--			 * before the policy is loaded.  When we load policy we
--			 * may find inodes that have no dentry on the
--			 * sbsec->isec_head list.  No reason to complain as these
-+			 * before the policy is loaded. No reason to complain as these
- 			 * will get fixed up the next time we go through
- 			 * inode_doinit with a dentry, before these inodes could
- 			 * be used again by userspace.
-@@ -1486,9 +1435,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			}
- 			/*
- 			 * This can be hit on boot when a file is accessed
--			 * before the policy is loaded.  When we load policy we
--			 * may find inodes that have no dentry on the
--			 * sbsec->isec_head list.  No reason to complain as
-+			 * before the policy is loaded. No reason to complain as
- 			 * these will get fixed up the next time we go through
- 			 * inode_doinit() with a dentry, before these inodes
- 			 * could be used again by userspace.
-@@ -2543,8 +2490,6 @@ static int selinux_sb_alloc_security(struct super_block *sb)
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
- 
- 	mutex_init(&sbsec->lock);
--	INIT_LIST_HEAD(&sbsec->isec_head);
--	spin_lock_init(&sbsec->isec_lock);
- 	sbsec->sid = SECINITSID_UNLABELED;
- 	sbsec->def_sid = SECINITSID_FILE;
- 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
-@@ -2808,7 +2753,6 @@ static int selinux_inode_alloc_security(struct inode *inode)
- 	u32 sid = current_sid();
- 
- 	spin_lock_init(&isec->lock);
--	INIT_LIST_HEAD(&isec->list);
- 	isec->inode = inode;
- 	isec->sid = SECINITSID_UNLABELED;
- 	isec->sclass = SECCLASS_FILE;
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 2953132408bf..58f752af38cf 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -45,7 +45,6 @@ enum label_initialized {
- 
- struct inode_security_struct {
- 	struct inode *inode;	/* back pointer to inode object */
--	struct list_head list;	/* list of inode_security_struct */
- 	u32 task_sid;		/* SID of creating task */
- 	u32 sid;		/* SID of this object */
- 	u16 sclass;		/* security class of this object */
-@@ -67,8 +66,6 @@ struct superblock_security_struct {
- 	unsigned short behavior;	/* labeling behavior */
- 	unsigned short flags;		/* which mount options were specified */
- 	struct mutex lock;
--	struct list_head isec_head;
--	spinlock_t isec_lock;
- };
- 
- struct msg_security_struct {
--- 
-2.31.1
+-----BEGIN PGP SIGNATURE-----
 
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmNyUUoACgkQupfNUreW
+QU+inAv/do7MKKHTSeQFTr+qTo1NYVoXryjw9rfz3xinweQV5XNVCvmzY1OO7Gkk
+pnDb+FOXdVjDrp97L5lQfHM7jRsJY2Ia8x1KYW+zhn79rxH9BQxWs646Q6g7ORJz
+6C9NlOMyoBIgssRaPqLMRe8E9ewIzfhgLpjn4yI23kl7uDkyVStGLTZtCarWTMi2
+ffFN8DFmZm3hm42LUKElGqSlrDxR5eWDGBQYBknkFHwsHKj5C/cL1ch020decZwB
+JSponYgw4OIAslxF+nWhTtIFBk40m+ji4QuxZv16bVxy1ei4yQayZYHelnT/Swvv
+j4BR2S0ifeBp5HEprMRpPBKMxRe045J0IcHsDlg6d5Sz1039yLGcNySQnQwOND+t
+dsVYv3f//2NIJF3eThgBi+KPAQS33USVk9qZujIFdcESRYfIoL0uA8el8TOop2gM
+DaFkBKQqNrq3s01NUfuTrOoK7wrvalgngev67gVv0TAEQQebaWZovjgR/NHl16nI
+ywSdStI+
+=aESw
+-----END PGP SIGNATURE-----
+
+--2ctr4pslrx4mhrsa--
