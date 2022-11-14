@@ -2,211 +2,248 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74255C433FE
-	for <selinux@archiver.kernel.org>; Fri, 11 Nov 2022 17:43:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B106AC4332F
+	for <selinux@archiver.kernel.org>; Mon, 14 Nov 2022 11:23:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230043AbiKKRnl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Nov 2022 12:43:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42304 "EHLO
+        id S236173AbiKNLXc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Nov 2022 06:23:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232825AbiKKRni (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Nov 2022 12:43:38 -0500
-Received: from mail-oa1-x2e.google.com (mail-oa1-x2e.google.com [IPv6:2001:4860:4864:20::2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F053B2BFC
-        for <selinux@vger.kernel.org>; Fri, 11 Nov 2022 09:43:36 -0800 (PST)
-Received: by mail-oa1-x2e.google.com with SMTP id 586e51a60fabf-13d9a3bb27aso6096375fac.11
-        for <selinux@vger.kernel.org>; Fri, 11 Nov 2022 09:43:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=maqLOf7YpMFEzynaRDsHxbX3MuJ4bRYzP6aDRTy1ABg=;
-        b=IYIhJKsZSVoD/GLDOrZMeaMiBIfAvMJw/A7ugWdKzVyQDZ41dYRVizXFELCwN1kcsR
-         6euyqu/nZDWhNYYZNXDhwQjeWTWxU0BZNayZ5hgzz0MGAqsWWZ8P9HO7c93CTBVEYn+K
-         Dl4JgJcQswYbgb5RtgAqlsFns9c5zs/My3/LqBnVn0uV1k1ln/MPIWwsI4Z5VofbMtDv
-         +DSfngg3rAnowI+ttvaHGe+oPgPkpOWx+r++j+IkWmFl6UHjvFiI8aYBX5v06nCSIshA
-         VKHSo8AFoBHSFKEZiJmky//E1SdfcoGp6dVzIn9Odmk3XgnE/nusEu7n4eFAEMLWQZdO
-         5b/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=maqLOf7YpMFEzynaRDsHxbX3MuJ4bRYzP6aDRTy1ABg=;
-        b=ac78IaRRlHQErv9nWeIvIO+01PjXOfOclsa82q6ojC4/+KLe4AfjaQ8MX3+CsU6nvy
-         HlKQLXbVjhN/UU4jqnbvD4JPWE5oLEvq4gNl+Rlytigl+t2nrdyAsGiYITc4Sysavk+r
-         HaB3Ka8R/yBDSYa2ZK41yEUxuS+I/pv9Xqu04wWAfAO0xvdryx7sdYmhWBaZCHBZ8ffo
-         HBg5L4dUwnhGuBjNGC0nx6RT6+9JlzeMdSlvghnL0vFfAbY3MuNpI+mQTReZu2PG1I23
-         cvPenikbQf0cTeT40mj3bOJeds3f4cdsg2wa/f0J/gwqhQC6mhLcfgSHfJhqYYBmFz99
-         LJeQ==
-X-Gm-Message-State: ANoB5pkIit1RsQ2OF48KOUbznYpFfjEsWCzXHca1Xa/VzGYIPxZ45fzr
-        Fzzhd5GxS8CneOnNC8B0NP4HzJRcvVKgGj2AR/H8
-X-Google-Smtp-Source: AA0mqf5EWcLBYgk2h8vefAXExBzKCxOMg+hmScmmQZLxWBThNR1qc98TWGhzZP+A1fM5ucA3GYKXfLrQgdx1L+p0bxE=
-X-Received: by 2002:a05:6870:4304:b0:13b:d015:f1b5 with SMTP id
- w4-20020a056870430400b0013bd015f1b5mr1596997oah.51.1668188615875; Fri, 11 Nov
- 2022 09:43:35 -0800 (PST)
+        with ESMTP id S236251AbiKNLXL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Nov 2022 06:23:11 -0500
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB9E25E81;
+        Mon, 14 Nov 2022 03:19:14 -0800 (PST)
+Received: from fraeml705-chm.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4N9mt66LDwz67wXw;
+        Mon, 14 Nov 2022 19:14:38 +0800 (CST)
+Received: from lhrpeml500004.china.huawei.com (7.191.163.9) by
+ fraeml705-chm.china.huawei.com (10.206.15.54) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2375.31; Mon, 14 Nov 2022 12:19:11 +0100
+Received: from mscphis00759.huawei.com (10.123.66.134) by
+ lhrpeml500004.china.huawei.com (7.191.163.9) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Mon, 14 Nov 2022 11:19:10 +0000
+From:   Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+To:     <linux-security-module@vger.kernel.org>
+CC:     <paul@paul-moore.com>, <jamorris@linux.microsoft.com>,
+        <selinux@vger.kernel.org>, <stephen.smalley.work@gmail.com>,
+        <artem.kuzin@huawei.com>, <hw.likun@huawei.com>,
+        <alexander.kozhevnikov@huawei-partners.com>,
+        <xiujianfeng@huawei.com>, <yusongping@huawei.com>,
+        <hukeping@huawei.com>, <konstantin.meskhidze@huawei.com>
+Subject: [PATCH] [RFC] SELINUX: Remove obsolete deferred inode security init list.
+Date:   Mon, 14 Nov 2022 19:18:44 +0800
+Message-ID: <20221114111844.3461403-1-konstantin.meskhidze@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <166807856758.2972602.14175912201162072721.stgit@warthog.procyon.org.uk>
- <CAHC9VhTJh2tFbvOMzpGw7VSnHHb=boNhL5c7a1Ed+iHNFwWwqg@mail.gmail.com>
-In-Reply-To: <CAHC9VhTJh2tFbvOMzpGw7VSnHHb=boNhL5c7a1Ed+iHNFwWwqg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 11 Nov 2022 12:43:25 -0500
-Message-ID: <CAHC9VhQE08HOKKbfU6sh2u0i5Ab=Ah9_0H+EU72wuMSLELi+ww@mail.gmail.com>
-Subject: Re: [PATCH v5] vfs, security: Fix automount superblock LSM init
- problem, preventing NFS sb sharing
-To:     David Howells <dhowells@redhat.com>
-Cc:     viro@zeniv.linux.org.uk, Jeff Layton <jlayton@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>, linux-nfs@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.123.66.134]
+X-ClientProxiedBy: mscpeml100002.china.huawei.com (7.188.26.75) To
+ lhrpeml500004.china.huawei.com (7.191.163.9)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 11, 2022 at 12:40 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Nov 10, 2022 at 6:09 AM David Howells <dhowells@redhat.com> wrote:
-> >
-> > When NFS superblocks are created by automounting, their LSM parameters
-> > aren't set in the fs_context struct prior to sget_fc() being called,
-> > leading to failure to match existing superblocks.
-> >
-> > Fix this by adding a new LSM hook to load fc->security for submount
-> > creation when alloc_fs_context() is creating the fs_context for it.
-> >
-> > However, this uncovers a further bug: nfs_get_root() initialises the
-> > superblock security manually by calling security_sb_set_mnt_opts() or
-> > security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
-> > security_sb_set_mnt_opts(), which can lead to SELinux, at least,
-> > complaining.
-> >
-> > Fix that by adding a flag to the fs_context that suppresses the
-> > security_sb_set_mnt_opts() call in vfs_get_tree().  This can be set by NFS
-> > when it sets the LSM context on the new superblock.
-> >
-> > The first bug leads to messages like the following appearing in dmesg:
-> >
-> >         NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,100000,100000,2ee,3a98,1d4c,3a98,1)
-> >
-> > Changes
-> > =======
-> > ver #5)
-> >  - Removed unused variable.
-> >  - Only allocate smack_mnt_opts if we're dealing with a submount.
-> >
-> > ver #4)
-> >  - When doing a FOR_SUBMOUNT mount, don't set the root label in SELinux or
-> >    Smack.
-> >
-> > ver #3)
-> >  - Made LSM parameter extraction dependent on fc->purpose ==
-> >    FS_CONTEXT_FOR_SUBMOUNT.  Shouldn't happen on FOR_RECONFIGURE.
-> >
-> > ver #2)
-> >  - Added Smack support
-> >  - Made LSM parameter extraction dependent on reference != NULL.
-> >
-> > Signed-off-by: David Howells <dhowells@redhat.com>
-> > Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount() to it.")
-> > Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
-> > Tested-by: Jeff Layton <jlayton@kernel.org>
-> > Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-> > Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-> > cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-> > cc: Anna Schumaker <anna@kernel.org>
-> > cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> > cc: Scott Mayhew <smayhew@redhat.com>
-> > cc: Jeff Layton <jlayton@kernel.org>
-> > cc: Paul Moore <paul@paul-moore.com>
-> > cc: linux-nfs@vger.kernel.org
-> > cc: selinux@vger.kernel.org
-> > cc: linux-security-module@vger.kernel.org
-> > cc: linux-fsdevel@vger.kernel.org
-> > Link: https://lore.kernel.org/r/165962680944.3334508.6610023900349142034.stgit@warthog.procyon.org.uk/ # v1
-> > Link: https://lore.kernel.org/r/165962729225.3357250.14350728846471527137.stgit@warthog.procyon.org.uk/ # v2
-> > Link: https://lore.kernel.org/r/165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk/ # v3
-> > Link: https://lore.kernel.org/r/166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk/ # v4
-> > Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.uk/ # v5
-> > ---
-> >
-> >  fs/fs_context.c               |    4 +++
-> >  fs/nfs/getroot.c              |    1 +
-> >  fs/super.c                    |   10 +++++---
-> >  include/linux/fs_context.h    |    1 +
-> >  include/linux/lsm_hook_defs.h |    1 +
-> >  include/linux/lsm_hooks.h     |    6 ++++-
-> >  include/linux/security.h      |    6 +++++
-> >  security/security.c           |    5 ++++
-> >  security/selinux/hooks.c      |   25 +++++++++++++++++++
-> >  security/smack/smack_lsm.c    |   54 +++++++++++++++++++++++++++++++++++++++++
-> >  10 files changed, 108 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/fs/fs_context.c b/fs/fs_context.c
-> > index 24ce12f0db32..22248b8a88a8 100644
-> > --- a/fs/fs_context.c
-> > +++ b/fs/fs_context.c
-> > @@ -282,6 +282,10 @@ static struct fs_context *alloc_fs_context(struct file_system_type *fs_type,
-> >                 break;
-> >         }
-> >
-> > +       ret = security_fs_context_init(fc, reference);
-> > +       if (ret < 0)
-> > +               goto err_fc;
-> > +
-> >         /* TODO: Make all filesystems support this unconditionally */
-> >         init_fs_context = fc->fs_type->init_fs_context;
-> >         if (!init_fs_context)
-> > diff --git a/fs/nfs/getroot.c b/fs/nfs/getroot.c
-> > index 11ff2b2e060f..651bffb0067e 100644
-> > --- a/fs/nfs/getroot.c
-> > +++ b/fs/nfs/getroot.c
-> > @@ -144,6 +144,7 @@ int nfs_get_root(struct super_block *s, struct fs_context *fc)
-> >         }
-> >         if (error)
-> >                 goto error_splat_root;
-> > +       fc->lsm_set = true;
-> >         if (server->caps & NFS_CAP_SECURITY_LABEL &&
-> >                 !(kflags_out & SECURITY_LSM_NATIVE_LABELS))
-> >                 server->caps &= ~NFS_CAP_SECURITY_LABEL;
-> > diff --git a/fs/super.c b/fs/super.c
-> > index 8d39e4f11cfa..f200ae0549ca 100644
-> > --- a/fs/super.c
-> > +++ b/fs/super.c
-> > @@ -1553,10 +1553,12 @@ int vfs_get_tree(struct fs_context *fc)
-> >         smp_wmb();
-> >         sb->s_flags |= SB_BORN;
-> >
-> > -       error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
-> > -       if (unlikely(error)) {
-> > -               fc_drop_locked(fc);
-> > -               return error;
-> > +       if (!(fc->lsm_set)) {
-> > +               error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
-> > +               if (unlikely(error)) {
-> > +                       fc_drop_locked(fc);
-> > +                       return error;
-> > +               }
-> >         }
->
-> Thinking about all the different things that an LSM could do, would it
-> ever be possible that a LSM would want the security_sb_set_mnt_opts()
-> call to happen here?  I'm wondering if we are better off leaving it up
-> to the LSM by passing the fs_context in the security_sb_set_mnt_opts()
-> hook; those that want to effectively skip this call due to a submount
-> setup already done in security_fs_context_init() can check the
-> fs_context::purpose value in the security_sb_set_mnt_opts() hook.
+From: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
 
-Actually, we could probably also create a LSM specific flag in
-fs_context::security to indicate that the setup has already been done.
-That's probably a little safer than relying on fs_context::purpose in
-the security_sb_set_mnt_opts() hook.
+This patch is a proposed code optimization for SELinux:
 
-> Thoughts?
+1) Each inode has SELinux security structure attached
+   to it, this one need to be initialized at some point.
+2) This initialization is done by the function
+   inode_doinit_with_dentry ( ).
+3) In the kernel releases started from some point in the past
+   this function (2) is always called normally from function
+   __inode_security_revalidate ( ).
+4) Which in turn is always called  from inode_security ( ), which
+   is a base point for any selinux calls and always called on
+   any access to any inode except a few special cases when
+   _inode_security_novalidate ( ) is used.
+5) Inode security structure initialization can be done only after
+   SELinux is fully initialized and policy is loaded.
+6) So, for this purpose there was a special defeferred inode security
+   initialization list protected by a spinlock implemented, which was
+   populated instead of isec initialization in function
+   inode_doinit_with_dentry ( ), if it was called before SELinux full
+   initialization, and processed at the time when SELinux policy load
+   occurred by calling again inode_doinit_with_dentry ( ) on each inode
+   in this list.
+7) This list was a part of a default initialization logic before (3) was
+   implemented, but now, taking into account new mechanism implemented
+   with current approach of inode security revalidation on each access
+   (4)-(3)-(2), it looks obsolete and not needed anymore.
+8) So deferred initialization, this list and code associated with it can
+   be safely removed now, as anyway, if inode isec was not initialized
+   before it will be processed on any next inode access.
+9) There are two possible positive consequences from this removal:
+     a. More clean and simple code, less memory consumption;
+     b. This deferred initialization in some cases (for example SELinux
+        was switched on manually after system was up quite a long time)
+        could take some significant time to process, i.e. system looks
+        hung for some notable time. And now this is avoided.
 
+Signed-off-by: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
+Signed-off-by: Konstantin Meskhidze <konstantin.meskhidze@huawei.com>
+---
+ security/selinux/hooks.c          | 70 ++++---------------------------
+ security/selinux/include/objsec.h |  3 --
+ 2 files changed, 7 insertions(+), 66 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f553c370397e..c93b5621d735 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -316,27 +316,7 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
+ 
+ static void inode_free_security(struct inode *inode)
+ {
+-	struct inode_security_struct *isec = selinux_inode(inode);
+-	struct superblock_security_struct *sbsec;
+-
+-	if (!isec)
+-		return;
+-	sbsec = selinux_superblock(inode->i_sb);
+-	/*
+-	 * As not all inode security structures are in a list, we check for
+-	 * empty list outside of the lock to make sure that we won't waste
+-	 * time taking a lock doing nothing.
+-	 *
+-	 * The list_del_init() function can be safely called more than once.
+-	 * It should not be possible for this function to be called with
+-	 * concurrent list_add(), but for better safety against future changes
+-	 * in the code, we use list_empty_careful() here.
+-	 */
+-	if (!list_empty_careful(&isec->list)) {
+-		spin_lock(&sbsec->isec_lock);
+-		list_del_init(&isec->list);
+-		spin_unlock(&sbsec->isec_lock);
+-	}
++/* NOTHING TO DO AFTER DEFERRED LIST REMOVAL */
+ }
+ 
+ struct selinux_mnt_opts {
+@@ -551,27 +531,6 @@ static int sb_finish_set_opts(struct super_block *sb)
+ 	/* Initialize the root inode. */
+ 	rc = inode_doinit_with_dentry(root_inode, root);
+ 
+-	/* Initialize any other inodes associated with the superblock, e.g.
+-	   inodes created prior to initial policy load or inodes created
+-	   during get_sb by a pseudo filesystem that directly
+-	   populates itself. */
+-	spin_lock(&sbsec->isec_lock);
+-	while (!list_empty(&sbsec->isec_head)) {
+-		struct inode_security_struct *isec =
+-				list_first_entry(&sbsec->isec_head,
+-					   struct inode_security_struct, list);
+-		struct inode *inode = isec->inode;
+-		list_del_init(&isec->list);
+-		spin_unlock(&sbsec->isec_lock);
+-		inode = igrab(inode);
+-		if (inode) {
+-			if (!IS_PRIVATE(inode))
+-				inode_doinit_with_dentry(inode, NULL);
+-			iput(inode);
+-		}
+-		spin_lock(&sbsec->isec_lock);
+-	}
+-	spin_unlock(&sbsec->isec_lock);
+ 	return rc;
+ }
+ 
+@@ -1378,6 +1337,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	if (isec->initialized == LABEL_INITIALIZED)
+ 		return 0;
+ 
++	sbsec = selinux_superblock(inode->i_sb);
++	if (!(sbsec->flags & SE_SBINITIALIZED))
++		return 0;
++
+ 	spin_lock(&isec->lock);
+ 	if (isec->initialized == LABEL_INITIALIZED)
+ 		goto out_unlock;
+@@ -1385,18 +1348,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	if (isec->sclass == SECCLASS_FILE)
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 
+-	sbsec = selinux_superblock(inode->i_sb);
+-	if (!(sbsec->flags & SE_SBINITIALIZED)) {
+-		/* Defer initialization until selinux_complete_init,
+-		   after the initial policy is loaded and the security
+-		   server is ready to handle calls. */
+-		spin_lock(&sbsec->isec_lock);
+-		if (list_empty(&isec->list))
+-			list_add(&isec->list, &sbsec->isec_head);
+-		spin_unlock(&sbsec->isec_lock);
+-		goto out_unlock;
+-	}
+-
+ 	sclass = isec->sclass;
+ 	task_sid = isec->task_sid;
+ 	sid = isec->sid;
+@@ -1430,9 +1381,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		if (!dentry) {
+ 			/*
+ 			 * this is can be hit on boot when a file is accessed
+-			 * before the policy is loaded.  When we load policy we
+-			 * may find inodes that have no dentry on the
+-			 * sbsec->isec_head list.  No reason to complain as these
++			 * before the policy is loaded. No reason to complain as these
+ 			 * will get fixed up the next time we go through
+ 			 * inode_doinit with a dentry, before these inodes could
+ 			 * be used again by userspace.
+@@ -1486,9 +1435,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			}
+ 			/*
+ 			 * This can be hit on boot when a file is accessed
+-			 * before the policy is loaded.  When we load policy we
+-			 * may find inodes that have no dentry on the
+-			 * sbsec->isec_head list.  No reason to complain as
++			 * before the policy is loaded. No reason to complain as
+ 			 * these will get fixed up the next time we go through
+ 			 * inode_doinit() with a dentry, before these inodes
+ 			 * could be used again by userspace.
+@@ -2543,8 +2490,6 @@ static int selinux_sb_alloc_security(struct super_block *sb)
+ 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 
+ 	mutex_init(&sbsec->lock);
+-	INIT_LIST_HEAD(&sbsec->isec_head);
+-	spin_lock_init(&sbsec->isec_lock);
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
+ 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+@@ -2808,7 +2753,6 @@ static int selinux_inode_alloc_security(struct inode *inode)
+ 	u32 sid = current_sid();
+ 
+ 	spin_lock_init(&isec->lock);
+-	INIT_LIST_HEAD(&isec->list);
+ 	isec->inode = inode;
+ 	isec->sid = SECINITSID_UNLABELED;
+ 	isec->sclass = SECCLASS_FILE;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 2953132408bf..58f752af38cf 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -45,7 +45,6 @@ enum label_initialized {
+ 
+ struct inode_security_struct {
+ 	struct inode *inode;	/* back pointer to inode object */
+-	struct list_head list;	/* list of inode_security_struct */
+ 	u32 task_sid;		/* SID of creating task */
+ 	u32 sid;		/* SID of this object */
+ 	u16 sclass;		/* security class of this object */
+@@ -67,8 +66,6 @@ struct superblock_security_struct {
+ 	unsigned short behavior;	/* labeling behavior */
+ 	unsigned short flags;		/* which mount options were specified */
+ 	struct mutex lock;
+-	struct list_head isec_head;
+-	spinlock_t isec_lock;
+ };
+ 
+ struct msg_security_struct {
 -- 
-paul-moore.com
+2.31.1
+
