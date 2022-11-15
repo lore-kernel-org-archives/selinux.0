@@ -2,169 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C817CC433FE
-	for <selinux@archiver.kernel.org>; Tue, 15 Nov 2022 05:39:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47401C433FE
+	for <selinux@archiver.kernel.org>; Tue, 15 Nov 2022 14:28:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230199AbiKOFjn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Nov 2022 00:39:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36994 "EHLO
+        id S230466AbiKOO2X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Nov 2022 09:28:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229664AbiKOFjm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Nov 2022 00:39:42 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B54361B79E
-        for <selinux@vger.kernel.org>; Mon, 14 Nov 2022 21:39:40 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id k2so33496207ejr.2
-        for <selinux@vger.kernel.org>; Mon, 14 Nov 2022 21:39:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=9K3V25osQLREMG6ZUk7AC0ZkFnZLHBbL3WZnP0tsfH4=;
-        b=lP1c+QctBSuAkoA0Voq5SO1rZHAodr96QmUnxvNWlD5+dWN0+a+G2GJSKPjIWX/FP2
-         yEf+NE2GSx/2I5MZekALkcGZ8fWAnnGpaxXL47vF1dPwqA/e4AVM2x9VT96NMomw6PIM
-         NFiXrtCZPAgVWLg3AbpT7mEzwkJKD1dRuwghDCmDown3PemV71JAfKEJAK18qY+R1drY
-         yTGHzc6xOjYGTZJL1+eK79Pf9py2dwz8vvc49geY7D98Q+v/bHXRmmcO7rWyP1SxOSp3
-         wLBijaAXnhZPHyAAk0yHwAwelCZATdN4NJbqmolDb7AvnOEHfNz/ut64iBqOyb6ykDlT
-         f76g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9K3V25osQLREMG6ZUk7AC0ZkFnZLHBbL3WZnP0tsfH4=;
-        b=V1TI+9PfYyP58m4W5QXSivX6SA/OGMKahMF0vO+xB2bvCmh2FgVrE2gn5SXYU5tnrt
-         OfdteA7ETMKZ9S4xLPuhlKu6qbKdTtPI14jy6DIwuKkmDwmfcUVH0kFakMwSJJMYWlea
-         gKp5RXy6fYBhtUWs+KEejBUsI1hUgwft/IYwx72LqjJpPwmDCSIEVnXMEY/LU/ZHLYfZ
-         RtTmdVGVEfuEZwFQj8e43Jpviqe8bqG0qUJTfQxFWoGptBSxKB2Bb850GiDZXxAen62g
-         1p7bnKX4XGkpQDCRsTRpZMc+r3w5ro84Ualmflq/CE/DLFZeAjxJfDIQ2HbfqRv/QR90
-         g27Q==
-X-Gm-Message-State: ANoB5pnl2jKTOUhfLZZ7gOK1y4hc8CQHhSMG8RLld0q3WwGuHgm6X6LY
-        ANMvq7yx/glM0A8Do+RliK6xdSKleeJaD5OC854AFA==
-X-Google-Smtp-Source: AA0mqf493ZLOHNguaLcfeGRl3oJcG1IBsHoRBk8cyDf4TKkHQT186EwcYZmwKDfunLnNwgS4fJ8HQ1Oe3Tv40FbbsyU=
-X-Received: by 2002:a17:906:71b:b0:7ad:9892:91e8 with SMTP id
- y27-20020a170906071b00b007ad989291e8mr12896729ejb.620.1668490779010; Mon, 14
- Nov 2022 21:39:39 -0800 (PST)
+        with ESMTP id S232544AbiKOO2L (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Nov 2022 09:28:11 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFCF2CE26
+        for <selinux@vger.kernel.org>; Tue, 15 Nov 2022 06:28:01 -0800 (PST)
+Received: from dggpeml500026.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4NBT6M38w0zRpKk
+        for <selinux@vger.kernel.org>; Tue, 15 Nov 2022 22:27:39 +0800 (CST)
+Received: from dggpeml500008.china.huawei.com (7.185.36.147) by
+ dggpeml500026.china.huawei.com (7.185.36.106) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.31; Tue, 15 Nov 2022 22:27:57 +0800
+Received: from huawei.com (10.175.104.170) by dggpeml500008.china.huawei.com
+ (7.185.36.147) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Tue, 15 Nov
+ 2022 22:27:57 +0800
+From:   Jie Lu <lujie54@huawei.com>
+To:     <selinux@vger.kernel.org>
+Subject: [PATCH] libselinux: fix memory leaks on the audit2why module init
+Date:   Tue, 15 Nov 2022 19:55:36 +0800
+Message-ID: <20221115115536.2647075-1-lujie54@huawei.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <20221107205754.2635439-1-cukie@google.com> <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
- <CABXk95ChjusTneWJgj5a58CZceZv0Ay-P-FwBcH2o4rO0g2Ggw@mail.gmail.com>
- <CGME20221114143147eucas1p1902d9b4afc377fdda25910a5d083e3dc@eucas1p1.samsung.com>
- <CAHC9VhRTWGuiMpJJiFrUpgsm7nQaNA-n1CYRMPS-24OLvzdA2A@mail.gmail.com> <20221114143145.ha22rdxphhpgd53u@localhost>
-In-Reply-To: <20221114143145.ha22rdxphhpgd53u@localhost>
-From:   Jeffrey Vander Stoep <jeffv@google.com>
-Date:   Tue, 15 Nov 2022 06:39:26 +0100
-Message-ID: <CABXk95BxnZWPEg397cAW0uXi2NxZpODVYPByyQOxP2LO08Gjug@mail.gmail.com>
-Subject: Re: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
-To:     Joel Granados <j.granados@samsung.com>
-Cc:     Paul Moore <paul@paul-moore.com>, Gil Cukierman <cukie@google.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.104.170]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500008.china.huawei.com (7.185.36.147)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Super helpful, thanks Paul! We'll look into this and get back to you
-if it doesn't fit our needs.
+Signed-off-by: Jie Lu <lujie54@huawei.com>
+---
+ libselinux/src/audit2why.c | 32 +++++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-On Mon, Nov 14, 2022 at 3:31 PM Joel Granados <j.granados@samsung.com> wrote:
->
-> On Thu, Nov 10, 2022 at 04:04:46PM -0500, Paul Moore wrote:
-> > On Thu, Nov 10, 2022 at 12:54 PM Jeffrey Vander Stoep <jeffv@google.com> wrote:
-> > > On Mon, Nov 7, 2022 at 10:17 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > >
-> > > > On Mon, Nov 7, 2022 at 3:58 PM Gil Cukierman <cukie@google.com> wrote:
-> > > > >
-> > > > > This patchset provides the changes required for controlling access to
-> > > > > the io_uring_setup system call by LSMs. It does this by adding a new
-> > > > > hook to io_uring. It also provides the SELinux implementation for a new
-> > > > > permission, io_uring { setup }, using the new hook.
-> > > > >
-> > > > > This is important because existing io_uring hooks only support limiting
-> > > > > the sharing of credentials and access to the sensitive uring_cmd file
-> > > > > op. Users of LSMs may also want the ability to tightly control which
-> > > > > callers can retrieve an io_uring capable fd from the kernel, which is
-> > > > > needed for all subsequent io_uring operations.
-> > > >
-> > > > It isn't immediately obvious to me why simply obtaining a io_uring fd
-> > > > from io_uring_setup() would present a problem, as the security
-> > > > relevant operations that are possible with that io_uring fd *should*
-> > > > still be controlled by other LSM hooks.  Can you help me understand
-> > > > what security issue you are trying to resolve with this control?
-> > >
-> > > I think there are a few reasons why we want this particular hook.
-> > >
-> > > 1.  It aligns well with how other resources are managed by selinux
-> > > where access to the resource is the first control point (e.g. "create"
-> > > for files, sockets, or bpf_maps, "prog_load" for bpf programs, and
-> > > "open" for perf_event) and then additional functionality or
-> > > capabilities require additional permissions.
-> >
-> > [NOTE: there were two reply sections in your email, and while similar,
-> > they were not identical; I've trimmed the other for the sake of
-> > clarity]
-> >
-> > The resources you mention are all objects which contain some type of
-> > information (either user data, configuration, or program
-> > instructions), with the resulting fd being a handle to those objects.
-> > In the case of io_uring the fd is a handle to the io_uring
-> > interface/rings, which by itself does not contain any information
-> > which is not already controlled by other permissions.
-> >
-> > I/O operations which transfer data between the io_uring buffers and
-> > other system objects, e.g. IORING_OP_READV, are still subject to the
-> > same file access controls as those done by the application using
-> > syscalls.  Even the IORING_OP_OPENAT command goes through the standard
-> > VFS code path which means it will trigger the same access control
-> > checks as an open*() done by the application normally.
-> >
-> > The 'interesting' scenarios are those where the io_uring operation
-> > servicing credentials, aka personalities, differ from the task
-> > controlling the io_uring.  However in those cases we have the new
-> > io_uring controls to gate these delegated operations.  Passing an
-> > io_uring fd is subject to the fd/use permission like any other fd.
-> >
-> > Although perhaps the most relevant to your request is the fact that
-> > the io_uring inode is created using the new(ish) secure anon inode
-> > interface which ensures that the creating task has permission to
-> > create an io_uring.  This io_uring inode label also comes into play
-> > when a task attempts to mmap() the io_uring rings, a critical part of
-> > the io_uring API.
-> >
-> > If I'm missing something you believe to be important, please share the details.
-> >
-> > > 2. It aligns well with how resources are managed on Android. We often
-> > > do not grant direct access to resources (like memory buffers).
-> >
-> > Accessing the io_uring buffers requires a task to mmap() the io_uring
-> > fd which is controlled by the normal SELinux mmap() access controls.
-> >
-> > > 3. Attack surface management. One of the primary uses of selinux on
-> > > Android is to assess and limit attack surface (e.g.
-> > > https://twitter.com/jeffvanderstoep/status/1422771606309335043) . As
-> > > io_uring vulnerabilities have made their way through our vulnerability
-> > > management system, it's become apparent that it's complicated to
-> > > assess the impact. Is a use-after-free reachable? Creating
-> > > proof-of-concept exploits takes a lot of time, and often functionality
-> > > can be reached by multiple paths. How many of the known io_uring
-> > > vulnerabilities would be gated by the existing checks? How many future
-> > > ones will be gated by the existing checks? I don't know the answer to
-> > > either of these questions and it's not obvious. This hook makes that
-> > > initial assessment simple and effective.
-> >
-> > It should be possible to deny access to io_uring via the anonymous
-> > inode labels, the mmap() controls, and the fd/use permission.  If you
-> > find a way to do meaningful work with an io_uring fd that can't be
-> > controlled via an existing permission check please let me know.
->
-> Also interested in a more specific case. Sending reply so I get added to
-> the group response.
-> >
-> > --
-> > paul-moore.com
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 44a9a341..ba1a66eb 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -191,7 +191,7 @@ static PyObject *finish(PyObject *self __attribute__((unused)), PyObject *args)
+ 
+ static int __policy_init(const char *init_path)
+ {
+-	FILE *fp;
++	FILE *fp = NULL;
+ 	const char *curpolicy;
+ 	char errormsg[PATH_MAX+1024+20];
+ 	struct sepol_policy_file *pf = NULL;
+@@ -235,18 +235,17 @@ static int __policy_init(const char *init_path)
+ 		snprintf(errormsg, sizeof(errormsg), 
+ 			 "policydb_init failed: %m\n");
+ 		PyErr_SetString( PyExc_RuntimeError, errormsg);
+-		fclose(fp);
+-		return 1;
++		goto err;
+ 	}
+ 	sepol_policy_file_set_fp(pf, fp);	
+ 	if (sepol_policydb_read(avc->policydb, pf)) {
+ 		snprintf(errormsg, sizeof(errormsg), 
+ 			 "invalid binary policy %s\n", curpolicy);
+ 		PyErr_SetString( PyExc_ValueError, errormsg);
+-		fclose(fp);
+-		return 1;
++		goto err;
+ 	}
+ 	fclose(fp);
++	fp = NULL;
+ 	sepol_set_policydb(&avc->policydb->p);
+ 	avc->handle = sepol_handle_create();
+ 	/* Turn off messages */
+@@ -256,13 +255,13 @@ static int __policy_init(const char *init_path)
+ 			      avc->policydb, &cnt);
+ 	if (rc < 0) {
+ 		PyErr_SetString( PyExc_RuntimeError, "unable to get bool count\n");
+-		return 1;
++		goto err;
+ 	}
+ 
+ 	boollist = calloc(cnt, sizeof(*boollist));
+ 	if (!boollist) {
+ 		PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
+-		return 1;
++		goto err;
+ 	}
+ 
+ 	sepol_bool_iterate(avc->handle, avc->policydb,
+@@ -273,11 +272,26 @@ static int __policy_init(const char *init_path)
+ 	rc = sepol_sidtab_init(&sidtab);
+ 	if (rc < 0) {
+ 		PyErr_SetString( PyExc_RuntimeError, "unable to init sidtab\n");
+-		free(boollist);
+-		return 1;
++		goto err;
+ 	}
+ 	sepol_set_sidtab(&sidtab);
+ 	return 0;
++
++err:
++	if (boollist)
++		free(boollist);
++	if (avc){
++		if (avc->handle)
++			sepol_handle_destroy(avc->handle);
++		if (avc->policydb)
++			sepol_policydb_free(avc->policydb);
++		free(avc);
++	}
++	if (pf)
++		sepol_policy_file_free(pf);
++	if (fp)
++		fclose(fp);
++	return 1;
+ }
+ 
+ static PyObject *init(PyObject *self __attribute__((unused)), PyObject *args) {
+-- 
+2.27.0
+
