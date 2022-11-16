@@ -2,153 +2,122 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C39CC4332F
-	for <selinux@archiver.kernel.org>; Wed, 16 Nov 2022 20:33:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3B67C433FE
+	for <selinux@archiver.kernel.org>; Wed, 16 Nov 2022 21:06:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbiKPUdS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 16 Nov 2022 15:33:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51686 "EHLO
+        id S239128AbiKPVGA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 16 Nov 2022 16:06:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231221AbiKPUdR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 16 Nov 2022 15:33:17 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66BD459FDB
-        for <selinux@vger.kernel.org>; Wed, 16 Nov 2022 12:33:16 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id bp15so31364744lfb.13
-        for <selinux@vger.kernel.org>; Wed, 16 Nov 2022 12:33:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ft68Qn+m5TB3QqKmlLcx5AfI/xcPrdvVA6dBrT5EQrQ=;
-        b=EWk9SvZSt/1kUQLyr2bfhHsPvE+ZS1ms4HvwL8R/u/64gbEnlbX8CDL7K4PxoqAq7J
-         qVDkLcnozC+Ck9P5t812QLRARSjVQ6tzjDZj9bFeSXkeb7YoTRX2xTyqMY8OyCDq73ZV
-         liKUZjltatD9Qa8mWmW/G0BP/h9mOsWIt7d7cvKSU0s7gkanCStWM5MJgbXC498+nmTO
-         3wdMGEf7C3811vd+LK5gk9tkYQCVU37TiC9DFLJj7eoqjS+NRyvFLluqjPv+SB+RoyRR
-         LOl6OYSdwBMLD9vppTk4wM3DWNP0nOPhVpnPXrhSX0+lT+1zADb/4TrZYCx05vOKzq80
-         U+bA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Ft68Qn+m5TB3QqKmlLcx5AfI/xcPrdvVA6dBrT5EQrQ=;
-        b=EHnP6SRWfvNCPFXoma3vn8WnvVp2NzhR2DpNMM26vNcr3Wmz6bYLHXqmnPq/VCr2Is
-         glSOWfnnPM28fomRnrYWmyYYBYccB/HMfpLDktZ6yoHcdJlj4qI1HzqvChHksS7NAEGH
-         XYUw2uAivDKuLrAzdnjYCpt2ClIX6MmM334zOUFvAZrF9qvZgk9cY2W4rlXN6ScxgjsQ
-         vpQdjUIJ0xSvk2YcOpw92n5kMMWNy81wqkDnAYs0GxpxOYN/n0Ed4Sv2XIJAjhsif2ZS
-         TJOdeAw+H6817KWfX7PaRWl6StEsDrFH35E+VfLxpRRTjUCdun93SJkEF0Bl5DQdcict
-         qNIg==
-X-Gm-Message-State: ANoB5pndWJdfu0lDaZBezOiJNP4nRAWEK6G0ANZHS6sESb7UayMBWETu
-        k7RPPWyzc8kubDOLlIUfUy87uHaD+utlE0SW+iWwYTSiMn4=
-X-Google-Smtp-Source: AA0mqf4nDTOvZcpRaoQdXs7BR/bnt02ssqk6McXFoticu7hEsHwN2rkmR8qFw2CgbkE0G+xafpqPWJHJUi2GXoXF7MY=
-X-Received: by 2002:a19:f004:0:b0:4b4:b5d8:880d with SMTP id
- p4-20020a19f004000000b004b4b5d8880dmr158116lfc.121.1668630794663; Wed, 16 Nov
- 2022 12:33:14 -0800 (PST)
-MIME-Version: 1.0
-References: <20221115115536.2647075-1-lujie54@huawei.com>
-In-Reply-To: <20221115115536.2647075-1-lujie54@huawei.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 16 Nov 2022 15:33:03 -0500
-Message-ID: <CAP+JOzTD17kTpi-Uj=7FExieuJXMEKvdrUunu_fJw=i_BLyqbw@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: fix memory leaks on the audit2why module init
-To:     Jie Lu <lujie54@huawei.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S239142AbiKPVFb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Nov 2022 16:05:31 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3139B45A02;
+        Wed, 16 Nov 2022 13:04:35 -0800 (PST)
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AGKLQi0037116;
+        Wed, 16 Nov 2022 21:03:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Hm6PNSbhq9LhjwmrseFl2/g4hvgBcTxn6rmb+SYDL5c=;
+ b=bNf/hxDYWOMp2O92YGnU7xVy3OwLgzGKpoVrHxy71bXWxTVCuL3T4OjnGMiRmoNWY5jc
+ 4neXymNU7N3SWSRlsGuvGqlLNTBzshBiwOpW/ti3Yeao0Y5IqkCjTqkJXa41qNSOpBs0
+ rFMtoeJgl7zqed+Ygvs9Z+93uf39ebgpUeCkvgGVQQg35HV7qvK2yRg8JHyOrk2joV2c
+ iPliU5nmIm9OCIWNTJpJOAu/vR436Y4qwsCFhDhGcoPRXohNoRqje2nfof3tHjpvWPPD
+ BTFQK24dmOHGygvTHBtfoETW2mlXR3yu9EBiJKpZR7UygS4xSvq9nGhybFtp0XqV6elX WA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw6u08xt3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 21:03:51 +0000
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AGKT2Xv025076;
+        Wed, 16 Nov 2022 21:03:50 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kw6u08xsn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 21:03:50 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AGKpQCr014409;
+        Wed, 16 Nov 2022 21:03:49 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma02dal.us.ibm.com with ESMTP id 3kt34a43pj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Nov 2022 21:03:49 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com ([9.208.128.114])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AGL3mdB7143996
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Nov 2022 21:03:48 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 327935805E;
+        Wed, 16 Nov 2022 21:03:48 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 182395805D;
+        Wed, 16 Nov 2022 21:03:46 +0000 (GMT)
+Received: from sig-9-77-134-48.ibm.com (unknown [9.77.134.48])
+        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 16 Nov 2022 21:03:45 +0000 (GMT)
+Message-ID: <e46fb092970bd12a8461a513f1cf8b63e4f54714.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 1/5] reiserfs: Add missing calls to
+ reiserfs_security_free()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date:   Wed, 16 Nov 2022 16:03:45 -0500
+In-Reply-To: <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+         <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4WI5dW9j1NtENgHLvVqyis6bif4IMoub
+X-Proofpoint-ORIG-GUID: oHtKRpgB1VOFGdykFp3diWuPuAl-uBcg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-16_03,2022-11-16_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxscore=0
+ bulkscore=0 malwarescore=0 spamscore=0 priorityscore=1501 mlxlogscore=316
+ suspectscore=0 clxscore=1011 impostorscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211160144
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 15, 2022 at 9:31 AM Jie Lu <lujie54@huawei.com> wrote:
->
-> Signed-off-by: Jie Lu <lujie54@huawei.com>
+On Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
+> during inode creation") defined reiserfs_security_free() to free the name
+> and value of a security xattr allocated by the active LSM through
+> security_old_inode_init_security(). However, this function is not called
+> in the reiserfs code.
+> 
+> Thus, add a call to reiserfs_security_free() whenever
+> reiserfs_security_init() is called, and initialize value to NULL, to avoid
+> to call kfree() on an uninitialized pointer.
+> 
+> Finally, remove the kfree() for the xattr name, as it is not allocated
+> anymore.
+> 
+> Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+> Cc: stable@vger.kernel.org
+> Cc: Jeff Mahoney <jeffm@suse.com>
+> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-> ---
->  libselinux/src/audit2why.c | 32 +++++++++++++++++++++++---------
->  1 file changed, 23 insertions(+), 9 deletions(-)
->
-> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-> index 44a9a341..ba1a66eb 100644
-> --- a/libselinux/src/audit2why.c
-> +++ b/libselinux/src/audit2why.c
-> @@ -191,7 +191,7 @@ static PyObject *finish(PyObject *self __attribute__((unused)), PyObject *args)
->
->  static int __policy_init(const char *init_path)
->  {
-> -       FILE *fp;
-> +       FILE *fp = NULL;
->         const char *curpolicy;
->         char errormsg[PATH_MAX+1024+20];
->         struct sepol_policy_file *pf = NULL;
-> @@ -235,18 +235,17 @@ static int __policy_init(const char *init_path)
->                 snprintf(errormsg, sizeof(errormsg),
->                          "policydb_init failed: %m\n");
->                 PyErr_SetString( PyExc_RuntimeError, errormsg);
-> -               fclose(fp);
-> -               return 1;
-> +               goto err;
->         }
->         sepol_policy_file_set_fp(pf, fp);
->         if (sepol_policydb_read(avc->policydb, pf)) {
->                 snprintf(errormsg, sizeof(errormsg),
->                          "invalid binary policy %s\n", curpolicy);
->                 PyErr_SetString( PyExc_ValueError, errormsg);
-> -               fclose(fp);
-> -               return 1;
-> +               goto err;
->         }
->         fclose(fp);
-> +       fp = NULL;
->         sepol_set_policydb(&avc->policydb->p);
->         avc->handle = sepol_handle_create();
->         /* Turn off messages */
-> @@ -256,13 +255,13 @@ static int __policy_init(const char *init_path)
->                               avc->policydb, &cnt);
->         if (rc < 0) {
->                 PyErr_SetString( PyExc_RuntimeError, "unable to get bool count\n");
-> -               return 1;
-> +               goto err;
->         }
->
->         boollist = calloc(cnt, sizeof(*boollist));
->         if (!boollist) {
->                 PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
-> -               return 1;
-> +               goto err;
->         }
->
->         sepol_bool_iterate(avc->handle, avc->policydb,
-> @@ -273,11 +272,26 @@ static int __policy_init(const char *init_path)
->         rc = sepol_sidtab_init(&sidtab);
->         if (rc < 0) {
->                 PyErr_SetString( PyExc_RuntimeError, "unable to init sidtab\n");
-> -               free(boollist);
-> -               return 1;
-> +               goto err;
->         }
->         sepol_set_sidtab(&sidtab);
->         return 0;
-> +
-> +err:
-> +       if (boollist)
-> +               free(boollist);
-> +       if (avc){
-> +               if (avc->handle)
-> +                       sepol_handle_destroy(avc->handle);
-> +               if (avc->policydb)
-> +                       sepol_policydb_free(avc->policydb);
-> +               free(avc);
-> +       }
-> +       if (pf)
-> +               sepol_policy_file_free(pf);
-> +       if (fp)
-> +               fclose(fp);
-> +       return 1;
->  }
->
->  static PyObject *init(PyObject *self __attribute__((unused)), PyObject *args) {
-> --
-> 2.27.0
->
