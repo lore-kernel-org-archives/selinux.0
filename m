@@ -2,151 +2,133 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30C89C43217
-	for <selinux@archiver.kernel.org>; Thu, 17 Nov 2022 17:21:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6B93C43217
+	for <selinux@archiver.kernel.org>; Thu, 17 Nov 2022 17:25:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239605AbiKQRVD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Nov 2022 12:21:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
+        id S235052AbiKQRZb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Nov 2022 12:25:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239986AbiKQRUv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Nov 2022 12:20:51 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA30711A29;
-        Thu, 17 Nov 2022 09:20:49 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHGQnGV028348;
-        Thu, 17 Nov 2022 17:20:31 GMT
+        with ESMTP id S235029AbiKQRZa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Nov 2022 12:25:30 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA68645A0B;
+        Thu, 17 Nov 2022 09:25:29 -0800 (PST)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHHAHPS021262;
+        Thu, 17 Nov 2022 17:24:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
  from : to : cc : date : in-reply-to : references : content-type :
  mime-version : content-transfer-encoding; s=pp1;
- bh=dbeCS5z5uwKHYW5W10xxyjg+JMgfatHOlOh4tIm49WA=;
- b=nuq6G+NbfYF0MbTQzOrgSUHYbq2YoW5bDz7ZvAkiRb8UsWPWsjgN6NCuIdXaTlLHKVT1
- 0ISNvLEfRF4ef5aCtGoonsg3cOLbxZzZWjtYwzKOoSCf8jBQsxWWzzQSWtyj0Jxx+zet
- IxdrsOYI/xHAXKbIkYGmgv5YNymw0+jaMOeKZp0GW/H1ND225nP2rXyV+xueVWJxVBJD
- orxUCUVqMjdRTQWaTo0OunCO3mgHhTgdFUJx2dsn/3zNTqzSbsA+MGPktHTEzzVHgO65
- Rn/Wo4YGE5KmWCFdL5YH04jntguc2VnM4jWY2/aUgFMhcjk7aV3z6JNkNrp94SSk+7Yf mg== 
+ bh=suLEoiSZqoI/ONg4Oq+RZpcdAxea8urstYGtfJ4HZ18=;
+ b=sZC5GSEN4COtNf8WRFGteiIKAAbYmLFmU/O50i0E5uVz7bdfrTUiXlfYORZ5SKje5hRe
+ w7Ne9WMPSMYFTD38KBTdmOjV26iKT4BDX2Fwkki9OXR516iOXVP2F41K35gT5wQ8+qyr
+ 2rFhq23WOyJjtHDBYbGCX2ssINIcGpntkMYRPUAvF4Ry/evIGIPtevxxeEqaoCrcn4n7
+ 2JgiQoLbs87ZmJnjDWHuWvnF3CtjHWSzPllIXmKTsPSeMPDndQnSPlDQ8kAhVwK5s0+U
+ RF3+N7ccplGx4iVS7IBtkR0JO+qR2XfVY4Fr8/2j5SuVLOsnnReCOhOabUF5oiYbor+U fQ== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwrg1hgcb-1
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwrx48j0g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 17:20:30 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHH87B4006773;
-        Thu, 17 Nov 2022 17:20:30 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwrg1hgak-5
+        Thu, 17 Nov 2022 17:24:59 +0000
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHHC45k027831;
+        Thu, 17 Nov 2022 17:24:58 GMT
+Received: from ppma01wdc.us.ibm.com (fd.55.37a9.ip4.static.sl-reverse.com [169.55.85.253])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwrx48j05-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 17:20:30 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHH6iQX014297;
-        Thu, 17 Nov 2022 17:07:33 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma04wdc.us.ibm.com with ESMTP id 3kt34a2ext-1
+        Thu, 17 Nov 2022 17:24:58 +0000
+Received: from pps.filterd (ppma01wdc.us.ibm.com [127.0.0.1])
+        by ppma01wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHH4t7u000476;
+        Thu, 17 Nov 2022 17:24:57 GMT
+Received: from b03cxnp08027.gho.boulder.ibm.com (b03cxnp08027.gho.boulder.ibm.com [9.17.130.19])
+        by ppma01wdc.us.ibm.com with ESMTP id 3kt349tkdf-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 17:07:33 +0000
+        Thu, 17 Nov 2022 17:24:57 +0000
 Received: from smtpav06.dal12v.mail.ibm.com ([9.208.128.130])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHH7Wxj36110994
+        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHHOrga45548010
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 17:07:32 GMT
+        Thu, 17 Nov 2022 17:24:53 GMT
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 62B2F5805F;
-        Thu, 17 Nov 2022 17:07:32 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 02AAC58059;
+        Thu, 17 Nov 2022 17:24:56 +0000 (GMT)
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 772ED58043;
-        Thu, 17 Nov 2022 17:07:31 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id CD4C958043;
+        Thu, 17 Nov 2022 17:24:54 +0000 (GMT)
 Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.98.240])
         by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Nov 2022 17:07:31 +0000 (GMT)
-Message-ID: <5ff23992ab249af4fd5ef967691f8986c5898583.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 4/5] evm: Align evm_inode_init_security() definition
- with LSM infrastructure
+        Thu, 17 Nov 2022 17:24:54 +0000 (GMT)
+Message-ID: <6b4d47765a4ddcfdf07158f3ad0737fa3aa5823e.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 3/5] security: Allow all LSMs to provide xattrs for
+ inode_init_security hook
 From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Roberto Sassu <roberto.sassu@huaweicloud.com>,
         dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
         serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com
+        eparis@parisplace.org
 Cc:     linux-integrity@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
         keescook@chromium.org, nicolas.bouchinet@clip-os.org,
         Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Thu, 17 Nov 2022 12:07:31 -0500
-In-Reply-To: <20221110094639.3086409-5-roberto.sassu@huaweicloud.com>
+Date:   Thu, 17 Nov 2022 12:24:54 -0500
+In-Reply-To: <026075fa-0b58-9041-0727-b75e19499356@schaufler-ca.com>
 References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
-         <20221110094639.3086409-5-roberto.sassu@huaweicloud.com>
+         <20221110094639.3086409-4-roberto.sassu@huaweicloud.com>
+         <4c1349f670dc3c23214a5a5036e43ddaa0a7bc89.camel@linux.ibm.com>
+         <026075fa-0b58-9041-0727-b75e19499356@schaufler-ca.com>
 Content-Type: text/plain; charset="ISO-8859-15"
 X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
 Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NZ4_4JP8gCG5bZz7bAQ2pjlJe6FkKkTH
-X-Proofpoint-GUID: 0AySCN0lgOw5godZ8faQqgVdZdI-z84F
+X-Proofpoint-ORIG-GUID: fpSioghH0RFkWuopp8jYOt8pezhX03tV
+X-Proofpoint-GUID: arArzTbFTFnuHFxLo4w1t1eyMUOnEW6v
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
  definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- phishscore=0 spamscore=0 bulkscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 suspectscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ lowpriorityscore=0 priorityscore=1501 spamscore=0 mlxscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 mlxlogscore=946 adultscore=0 impostorscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2210170000 definitions=main-2211170126
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
+On Thu, 2022-11-17 at 09:18 -0800, Casey Schaufler wrote:
+> On 11/17/2022 8:05 AM, Mimi Zohar wrote:
+> > hOn Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
+> >> From: Roberto Sassu <roberto.sassu@huawei.com>
+> >>
+> >> Currently, security_inode_init_security() supports only one LSM providing
+> >> an xattr and EVM calculating the HMAC on that xattr, plus other inode
+> >> metadata.
+> >>
+> >> Allow all LSMs to provide one or multiple xattrs, by extending the security
+> >> blob reservation mechanism. Introduce the new lbs_xattr field of the
+> >> lsm_blob_sizes structure, so that each LSM can specify how many xattrs it
+> >> needs, and the LSM infrastructure knows how many xattr slots it should
+> >> allocate.
+> > Perhaps supporting per LSM multiple xattrs is a nice idea, but EVM
+> > doesn't currently support it.  The LSM xattrs are hard coded in
+> > evm_config_default_xattrnames[],  based on whether the LSM is
+> > configured.  Additional security xattrs may be included in the
+> > security.evm calculation, by extending the list via
+> > security/integrity/evm/evm_xattrs.
 > 
-> Change the evm_inode_init_security() definition to align with the LSM
-> infrastructure, in preparation for moving IMA and EVM to that
-> infrastructure.
+> Smack uses multiple xattrs. All file system objects have a SMACK64
+> attribute, which is used for access control. A program file may have
+> a SMACK64EXEC attribute, which is the label the program will run with.
+> A library may have a SMACK64MMAP attribute to restrict loading. A
+> directory may have a SMACK64TRANSMUTE attribute, which modifies the
+> new object creation behavior.
 > 
-> This requires passing only the xattr array allocated by
-> security_inode_init_security(), instead of the first LSM xattr and the
-> place where the EVM xattr should be filled.
-> 
-> It also requires positioning after the last filled xattr (by checking the
-> xattr name), since the beginning of the xattr array is given.
+> The point being that it may be more than a "nice idea" to support
+> multiple xattrs. It's not a hypothetical situation.
 
-Perhaps combine this sentence to the previous paragraph and start the
-sentence with
-"In lieu of passing the EVM xattr, ..." 
-
-> If EVM is moved to the LSM infrastructure, it will use the xattr
-> reservation mechanism too, i.e. it positions itself in the xattr array with
-> the offset given by the LSM infrastructure.
-
-The LSM infrastructure will need to support EVM as the last LSM.  Is
-there a reason for including this comment in this patch description.
-
-> Finally, make evm_inode_init_security() return value compatible with the
-> inode_init_security hook conventions, i.e. return -EOPNOTSUPP if it is not
-> setting an xattr.
-
-> EVM is a bit tricky, because xattrs is both an input and an output. If it
-> was just output, EVM should have returned zero if xattrs is NULL. But,
-> since xattrs is also input, EVM is unable to do its calculations, so return
-> -EOPNOTSUPP and handle this error in security_inode_init_security().
-> 
-> Don't change the return value in the inline function
-> evm_inode_init_security() in include/linux/evm.h, as the function will be
-> removed if EVM is moved to the LSM infrastructure.
-> 
-> Last note, this patch does not fix a possible crash if the xattr array is
-> empty (due to calling evm_protected_xattr() with a NULL argument). It will
-> be fixed with 'evm: Support multiple LSMs providing an xattr', as it will
-> first ensure that the xattr name is not NULL before calling
-> evm_protected_xattr().
-
-From my reading of the code, although there might be multiple LSM
-xattrs, this patch only includes the first LSM xattr in the security
-EVM calculation.  So it only checks the first xattr's name.  Support
-for including multiple LSM xattrs in the EVM hmac calculation is added
-in the subsequent patch.
-
-thanks,
+And each of these addiitonal Smack xattrs are already defined in 
+evm_config_default_xattrnames[].
 
 Mimi
-
-> 
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 
