@@ -2,140 +2,193 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F58BC43219
-	for <selinux@archiver.kernel.org>; Thu, 17 Nov 2022 18:08:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F24A1C4332F
+	for <selinux@archiver.kernel.org>; Thu, 17 Nov 2022 18:36:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239454AbiKQSIE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Nov 2022 13:08:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47136 "EHLO
+        id S234931AbiKQSgU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Nov 2022 13:36:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239785AbiKQSID (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Nov 2022 13:08:03 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD90C6D48C;
-        Thu, 17 Nov 2022 10:08:02 -0800 (PST)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AHGQna1028348;
-        Thu, 17 Nov 2022 18:07:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=DJWVbLBThfA4r5Xc8cljs2uNQs/ONt++ArGyQv7sJFw=;
- b=hgJNePoo0ERFfc7qezYZNPQsZGdxi/W430q6D8xfUhpQyKmRN00HwsfVOY3jq06eTysT
- Vyu3wXV8i7MdI1ba1BkH4o7BhEG59/HCB/jUhT03rCacX7Hm+xQlmz0oYFLA5O9CHUjs
- Muw3JYbdeKkgD8mjZ62Eb9/IXXsX69XBCVD2I+ZSFtfiIQ/VFg+EgRC9kTBic5jWBIfH
- wF2xrldJuoV056nfe4FAs49nU8+VI4vC5NYCNPOiygmf5ISq+MpxwH9rJJIS0TrLAhUM
- a+jwmFXrS7Lx4RTjoTRFyyCx1bdyp7ZcVsD4Ctj8Let14D6NdMSkbfXMh8QK+a5hqEmt 1w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwrg1jk0k-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 18:07:42 +0000
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AHHgIk8020406;
-        Thu, 17 Nov 2022 18:07:42 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kwrg1jk00-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 18:07:42 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AHI4s3I016666;
-        Thu, 17 Nov 2022 18:07:40 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma03wdc.us.ibm.com with ESMTP id 3kt34ajnqr-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Nov 2022 18:07:40 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com ([9.208.128.116])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AHI7drE2687488
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Nov 2022 18:07:40 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id B8C9858056;
-        Thu, 17 Nov 2022 18:07:39 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3A20A58045;
-        Thu, 17 Nov 2022 18:07:38 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.98.240])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Nov 2022 18:07:38 +0000 (GMT)
-Message-ID: <5ef79a7ab559f46313f767d90b50662e003d62be.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 3/5] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Thu, 17 Nov 2022 13:07:37 -0500
-In-Reply-To: <66df8ebe-1ed2-c839-8a5f-cc0a26bad6c3@schaufler-ca.com>
-References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
-         <20221110094639.3086409-4-roberto.sassu@huaweicloud.com>
-         <4c1349f670dc3c23214a5a5036e43ddaa0a7bc89.camel@linux.ibm.com>
-         <026075fa-0b58-9041-0727-b75e19499356@schaufler-ca.com>
-         <6b4d47765a4ddcfdf07158f3ad0737fa3aa5823e.camel@linux.ibm.com>
-         <66df8ebe-1ed2-c839-8a5f-cc0a26bad6c3@schaufler-ca.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: LuQseI_Vizjm-5HuCgvISdTcmcc66MfQ
-X-Proofpoint-GUID: TkHqQek4ect9eW5Fm4q3OEbG9UVsM1BT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-17_06,2022-11-17_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
- phishscore=0 spamscore=0 bulkscore=0 clxscore=1015 adultscore=0
- priorityscore=1501 impostorscore=0 lowpriorityscore=0 suspectscore=0
- mlxlogscore=935 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211170131
+        with ESMTP id S234569AbiKQSgT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Nov 2022 13:36:19 -0500
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F28F53
+        for <selinux@vger.kernel.org>; Thu, 17 Nov 2022 10:36:18 -0800 (PST)
+Received: by mail-lf1-x12f.google.com with SMTP id b3so4253102lfv.2
+        for <selinux@vger.kernel.org>; Thu, 17 Nov 2022 10:36:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=nYZho7annDKmej/9sH87pMuoVwCtrnLLDmeOrVUdLJs=;
+        b=Zp5oswy2Bu4yIB70jjY8ZMA2LGQye/qmwPds9OrjgUcYzhe2A+147/DTwrHzPRpZOm
+         UQ1ZM7Gnj/XuNYkc6BLjwM4XZ5xFGbwAh01FXrdVFL+gwe9kb0Q4j+sBa2TP+eRnJkIL
+         nQYDNs7C54ULleT4pCmWYUMqP6G+4Y7sWavKkqQbx62UbKnoUPU7sZswjiRzqNnn3SUJ
+         ehipvYHL2kkF12gtmAp0VtfI+T0AuStgS74l6WPiFhz4fZXkxvm6LOz+rBtwJ50bWn8u
+         UfclojHE54lS/esXzcNZ+NZzPXnqAZqnH3TWKCJuHeAO0kEgbSj5/R125PdbPQbXAwF8
+         myjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=nYZho7annDKmej/9sH87pMuoVwCtrnLLDmeOrVUdLJs=;
+        b=pJ64VrTrOCKI7Q34QOZVcn+TcpDoSs4CAaUb6w1w0CQ326qswp3mqlwf4083pJh4M7
+         val+riMSH9aZ7GQEjnJiIOqu5E9A6/myFLpMWPcxb1DK96Gk13ysOGUFYMTTEv/dft97
+         pv7DAcsVdT3w/hEFl/6QVPngtqQUIPqJmiTGDl5ARAaQO1xx2orUVsuSe9ipowRAQyTK
+         K/jInQbyEELfoPzRb/X/s/01OWqiWchPwRe71D6hHjPXc8Z/jvLEZvR94VPWNi2AInSB
+         jqhkAID83XY+PoszGk4ftPcxIOk3n7a7p1QBwILbJGFoOaFbwUpGkMQQ/KyUaIELAEHQ
+         NT8g==
+X-Gm-Message-State: ANoB5pmIdmwKdn73N8RmJ/XyIAq2Xw1LwH+xs8unByxddr3dVhKmTOIF
+        bteXN06OO5anQNBLuxPgVhu3vZpzfvEyT0EfgWM=
+X-Google-Smtp-Source: AA0mqf5zh8UtMU+PIebHfiRqILb1ZGpO8m7hMpx39HqNBg+0OyGmWrRLl/P4SSnelenFguVoDiDkFhsE/sw8UBgOPZo=
+X-Received: by 2002:ac2:5de5:0:b0:499:4f:2582 with SMTP id z5-20020ac25de5000000b00499004f2582mr1494578lfq.515.1668710176732;
+ Thu, 17 Nov 2022 10:36:16 -0800 (PST)
+MIME-Version: 1.0
+References: <20221115194552.338640-1-plautrba@redhat.com> <CAP+JOzSM8QkAKiKVk+dUFagFu-zJ2GCzcjnY0mYqX3Hh=p7AUA@mail.gmail.com>
+ <87mt8p21rf.fsf@redhat.com>
+In-Reply-To: <87mt8p21rf.fsf@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 17 Nov 2022 13:36:05 -0500
+Message-ID: <CAP+JOzRPcDVuYwnXu6=3ruLk0L=_QrhOg-mG0n=QGLE01YkAfA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] python/sepolicy: Fix sepolicy manpage -w ...
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2022-11-17 at 09:40 -0800, Casey Schaufler wrote:
-> On 11/17/2022 9:24 AM, Mimi Zohar wrote:
-> > On Thu, 2022-11-17 at 09:18 -0800, Casey Schaufler wrote:
-> >> On 11/17/2022 8:05 AM, Mimi Zohar wrote:
-> >>> hOn Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
-> >>>> From: Roberto Sassu <roberto.sassu@huawei.com>
-> >>>>
-> >>>> Currently, security_inode_init_security() supports only one LSM providing
-> >>>> an xattr and EVM calculating the HMAC on that xattr, plus other inode
-> >>>> metadata.
-> >>>>
-> >>>> Allow all LSMs to provide one or multiple xattrs, by extending the security
-> >>>> blob reservation mechanism. Introduce the new lbs_xattr field of the
-> >>>> lsm_blob_sizes structure, so that each LSM can specify how many xattrs it
-> >>>> needs, and the LSM infrastructure knows how many xattr slots it should
-> >>>> allocate.
-> >>> Perhaps supporting per LSM multiple xattrs is a nice idea, but EVM
-> >>> doesn't currently support it.  The LSM xattrs are hard coded in
-> >>> evm_config_default_xattrnames[],  based on whether the LSM is
-> >>> configured.  Additional security xattrs may be included in the
-> >>> security.evm calculation, by extending the list via
-> >>> security/integrity/evm/evm_xattrs.
-> >> Smack uses multiple xattrs. All file system objects have a SMACK64
-> >> attribute, which is used for access control. A program file may have
-> >> a SMACK64EXEC attribute, which is the label the program will run with.
-> >> A library may have a SMACK64MMAP attribute to restrict loading. A
-> >> directory may have a SMACK64TRANSMUTE attribute, which modifies the
-> >> new object creation behavior.
+On Thu, Nov 17, 2022 at 7:39 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> James Carter <jwcart2@gmail.com> writes:
+>
+> > On Tue, Nov 15, 2022 at 2:58 PM Petr Lautrbach <plautrba@redhat.com> wrote:
 > >>
-> >> The point being that it may be more than a "nice idea" to support
-> >> multiple xattrs. It's not a hypothetical situation.
-> > And each of these addiitonal Smack xattrs are already defined in 
-> > evm_config_default_xattrnames[].
-> 
-> Then I'm confused by the statement that "EVM doesn't currently support it".
+> >> From: Petr Lautrbach <lautrbach@redhat.com>
+> >>
+> >> Commit 7494bb1298b3 ("sepolicy: generate man pages in parallel")
+> >> improved sepolicy performance but broke `sepolicy manpage -w ...` as it
+> >> didn't collect data about domains and roles from ManPage() and so
+> >> HTMLManPages() generated only empty page. This is fixed now, domains
+> >> and roles are being collected and used for HTML pages.
+> >>
+> >> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> >
+> > I ran `sepolicy manpage -w -d unconfined_t` and received the following error:
+> > """
+> > Traceback (most recent call last):
+> >   File "/usr/lib64/python3.10/multiprocessing/pool.py", line 125, in worker
+> >     result = (True, func(*args, **kwds))
+> >   File "/home/jim/local/usr/bin/./sepolicy", line 335, in manpage_work
+> >     return (m.manpage_domains, m.manpage_roles)
+> > AttributeError: 'ManPage' object has no attribute 'manpage_domains'
+> > """
+> >
+>
+> I think you nee to remove "-Es" command line options from /home/jim/local/usr/bin/./sepolicy
+>
+>     sed -i '1s/ -Es//' /home/jim/local/usr/bin/./sepolicy
+>
 
-My mistake.  As you pointed out, Smack is defining multiple security
-xattrs.
+That worked.
+Thanks,
+Jim
 
-Mimi
-
+>
+> > I don't get the error from the master branch, but I do confirm the bug
+> > you reported above.
+> >
+> > Thanks,
+> > Jim
+> >
+> >> ---
+> >>  python/sepolicy/sepolicy.py         | 13 +++++++++++--
+> >>  python/sepolicy/sepolicy/manpage.py | 12 +++++-------
+> >>  2 files changed, 16 insertions(+), 9 deletions(-)
+> >>
+> >> diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> >> index 733d40484709..2ca02ee9a0cf 100755
+> >> --- a/python/sepolicy/sepolicy.py
+> >> +++ b/python/sepolicy/sepolicy.py
+> >> @@ -332,9 +332,10 @@ def manpage_work(domain, path, root, source_files, web):
+> >>      from sepolicy.manpage import ManPage
+> >>      m = ManPage(domain, path, root, source_files, web)
+> >>      print(m.get_man_page_path())
+> >> +    return (m.manpage_domains, m.manpage_roles)
+> >>
+> >>  def manpage(args):
+> >> -    from sepolicy.manpage import HTMLManPages, manpage_domains, manpage_roles, gen_domains
+> >> +    from sepolicy.manpage import HTMLManPages, gen_domains
+> >>
+> >>      path = args.path
+> >>      if not args.policy and args.root != "/":
+> >> @@ -347,9 +348,17 @@ def manpage(args):
+> >>      else:
+> >>          test_domains = args.domain
+> >>
+> >> +    manpage_domains = set()
+> >> +    manpage_roles = set()
+> >>      p = Pool()
+> >> +    async_results = []
+> >>      for domain in test_domains:
+> >> -        p.apply_async(manpage_work, [domain, path, args.root, args.source_files, args.web])
+> >> +        async_results.append(p.apply_async(manpage_work, [domain, path, args.root, args.source_files, args.web]))
+> >> +    results = map(lambda x: x.get(), async_results)
+> >> +    for result in results:
+> >> +        manpage_domains.update(set(result[0]))
+> >> +        manpage_roles.update(set(result[1]))
+> >> +
+> >>      p.close()
+> >>      p.join()
+> >>
+> >> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
+> >> index 3e61e333193f..de72cb6cda5f 100755
+> >> --- a/python/sepolicy/sepolicy/manpage.py
+> >> +++ b/python/sepolicy/sepolicy/manpage.py
+> >> @@ -21,7 +21,7 @@
+> >>  #                                        02111-1307  USA
+> >>  #
+> >>  #
+> >> -__all__ = ['ManPage', 'HTMLManPages', 'manpage_domains', 'manpage_roles', 'gen_domains']
+> >> +__all__ = ['ManPage', 'HTMLManPages', 'gen_domains']
+> >>
+> >>  import string
+> >>  import selinux
+> >> @@ -147,10 +147,6 @@ def _gen_types():
+> >>  def prettyprint(f, trim):
+> >>      return " ".join(f[:-len(trim)].split("_"))
+> >>
+> >> -# for HTML man pages
+> >> -manpage_domains = []
+> >> -manpage_roles = []
+> >> -
+> >>  fedora_releases = ["Fedora17", "Fedora18"]
+> >>  rhel_releases = ["RHEL6", "RHEL7"]
+> >>
+> >> @@ -408,6 +404,8 @@ class ManPage:
+> >>      """
+> >>      modules_dict = None
+> >>      enabled_str = ["Disabled", "Enabled"]
+> >> +    manpage_domains = []
+> >> +    manpage_roles = []
+> >>
+> >>      def __init__(self, domainname, path="/tmp", root="/", source_files=False, html=False):
+> >>          self.html = html
+> >> @@ -453,10 +451,10 @@ class ManPage:
+> >>          if self.domainname + "_r" in self.all_roles:
+> >>              self.__gen_user_man_page()
+> >>              if self.html:
+> >> -                manpage_roles.append(self.man_page_path)
+> >> +                self.manpage_roles.append(self.man_page_path)
+> >>          else:
+> >>              if self.html:
+> >> -                manpage_domains.append(self.man_page_path)
+> >> +                self.manpage_domains.append(self.man_page_path)
+> >>              self.__gen_man_page()
+> >>          self.fd.close()
+> >>
+> >> --
+> >> 2.38.1
+> >>
+>
