@@ -2,125 +2,135 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22BE6C433FE
-	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 08:36:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6E5AC43217
+	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 09:05:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241514AbiKRIgi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Nov 2022 03:36:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52454 "EHLO
+        id S241641AbiKRJFS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Nov 2022 04:05:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241580AbiKRIf4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 03:35:56 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AF888EB7D
-        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 00:34:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668760464;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kFM/ybxvU+L2qPdMDNj9ek0dWiHWkBLap0OD1XuX6pE=;
-        b=YtbNQsM2/nHestP4OqKX2ld8V70tELeCHZ6EndhuxCSmNH9OIHgpC8TLz7THysYmdj0fEF
-        KPSgMSpnx9sw3u31+85qZJ4m+Ve6pEWsUUrK+LROLj8c0RkHz4D+uYePznADToM4YhEQBs
-        k+HhdX3AtsYywousF6MAx6EfJjogLc8=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-625-K5TlC9ssM-eMYz6MpDwCQw-1; Fri, 18 Nov 2022 03:34:22 -0500
-X-MC-Unique: K5TlC9ssM-eMYz6MpDwCQw-1
-Received: by mail-pg1-f199.google.com with SMTP id s16-20020a632c10000000b0047084b16f23so2764051pgs.7
-        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 00:34:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kFM/ybxvU+L2qPdMDNj9ek0dWiHWkBLap0OD1XuX6pE=;
-        b=RVMinqkJhsPORzpr12MkZDE8sNWkuWjanwlQhlOgBCmwaufA+GD+N7bgnJ7PQCBdlm
-         9tUouZFjj9Lan4xpcEM8V/ZSSXiNe/eXJYNq1bEdNY7bMG6GKzUEPImZvFdOqkh5CSVm
-         wvHwep5sx+pvj1uy8WH0JiDHan6sMM7ThXQn3ab5NHlm7QetQtkCn1Y3nXEK0HYGpgeE
-         VsVh6kE9A1yeADfwjEL/PlFh1SE3YAYxexuLzYugtpAYZTks2Lz9cLuRvJpdccdBiY11
-         0yRxbpaRiMIHcnwDeyRvxNlboPtoDzU14dECIsD2KX03gCVcpl/Jj+kj/o5WQAga9FzN
-         jAcw==
-X-Gm-Message-State: ANoB5plIR2ix+NEBZvkb21OoT1bTKbLT3/14ewrbRc7MdlUoen8TKb0z
-        o3selDAWr2dpG+sjhWIgR8HKFyJ38qbBYhx+5MFIxIAhJ+gHC4O9DmFT18t8p52tENquB2w5rrt
-        qVPkSWfZBcF8mkU214nXVcSJ62gHnKMRu2g==
-X-Received: by 2002:aa7:8608:0:b0:52f:db84:81cf with SMTP id p8-20020aa78608000000b0052fdb8481cfmr6938509pfn.26.1668760461559;
-        Fri, 18 Nov 2022 00:34:21 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf5brOWlLtVWB3Jdi7A3ZNvjPCqAc+puLJKVJC9E84/HO74oADeU+UoZRTWiIBhx8sKjMLQ6p5KdCCwlchDO0us=
-X-Received: by 2002:aa7:8608:0:b0:52f:db84:81cf with SMTP id
- p8-20020aa78608000000b0052fdb8481cfmr6938486pfn.26.1668760461239; Fri, 18 Nov
- 2022 00:34:21 -0800 (PST)
+        with ESMTP id S231534AbiKRJFS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 04:05:18 -0500
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0A671143;
+        Fri, 18 Nov 2022 01:05:15 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4ND9gq5qwgz9v7Z1;
+        Fri, 18 Nov 2022 16:59:03 +0800 (CST)
+Received: from [10.206.134.65] (unknown [10.206.134.65])
+        by APP1 (Coremail) with SMTP id LxC2BwBHMW6oSndjv7Z0AA--.22042S2;
+        Fri, 18 Nov 2022 10:04:51 +0100 (CET)
+Message-ID: <5758e5c4-9c8b-4492-3ecd-ba6607fc2899@huaweicloud.com>
+Date:   Fri, 18 Nov 2022 10:04:37 +0100
 MIME-Version: 1.0
-References: <20221115194552.338640-1-plautrba@redhat.com>
-In-Reply-To: <20221115194552.338640-1-plautrba@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 18 Nov 2022 09:34:08 +0100
-Message-ID: <CAFqZXNtb3n5Fiy777KBTFnjgSGkKvvJt=JhNnteO_915esyHdQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] python/sepolicy: Fix sepolicy manpage -w ...
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org, Petr Lautrbach <lautrbach@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.2.0
+Subject: Re: [PATCH v4 2/5] security: Rewrite
+ security_old_inode_init_security()
+Content-Language: en-US
+To:     Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        ocfs2-devel@oss.oracle.com
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+ <20221110094639.3086409-3-roberto.sassu@huaweicloud.com>
+ <3dc4f389ead98972cb7d09ef285a0065decb0ad0.camel@linux.ibm.com>
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+In-Reply-To: <3dc4f389ead98972cb7d09ef285a0065decb0ad0.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwBHMW6oSndjv7Z0AA--.22042S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxCry7Xw15Zr18Zw4fWF17Jrb_yoW5Jw48pF
+        W2kF1DKrs8JF97CrZ7trnrWF4xKayrGrZrXws3Ary7ZFn8CFn7tr40yry3Ca43GrW8J34F
+        qw43Z343Zrn8Z3JanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUvIb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
+        07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
+        02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_
+        WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
+        CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE
+        14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf
+        9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAABF1jj4GVFAACs1
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 15, 2022 at 8:49 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> From: Petr Lautrbach <lautrbach@redhat.com>
->
-> Commit 7494bb1298b3 ("sepolicy: generate man pages in parallel")
-> improved sepolicy performance but broke `sepolicy manpage -w ...` as it
-> didn't collect data about domains and roles from ManPage() and so
-> HTMLManPages() generated only empty page. This is fixed now, domains
-> and roles are being collected and used for HTML pages.
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
-> ---
->  python/sepolicy/sepolicy.py         | 13 +++++++++++--
->  python/sepolicy/sepolicy/manpage.py | 12 +++++-------
->  2 files changed, 16 insertions(+), 9 deletions(-)
->
-> diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
-> index 733d40484709..2ca02ee9a0cf 100755
-> --- a/python/sepolicy/sepolicy.py
-> +++ b/python/sepolicy/sepolicy.py
-[...]
-> @@ -347,9 +348,17 @@ def manpage(args):
->      else:
->          test_domains = args.domain
->
-> +    manpage_domains = set()
-> +    manpage_roles = set()
->      p = Pool()
-> +    async_results = []
->      for domain in test_domains:
-> -        p.apply_async(manpage_work, [domain, path, args.root, args.source_files, args.web])
-> +        async_results.append(p.apply_async(manpage_work, [domain, path, args.root, args.source_files, args.web]))
+On 11/17/2022 2:03 PM, Mimi Zohar wrote:
+> Hi Roberto,
+> 
+> On Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
+>> From: Roberto Sassu <roberto.sassu@huawei.com>
+>>
+>> Rewrite security_old_inode_init_security() to call
+>> security_inode_init_security() before making changes to support multiple
+>> LSMs providing xattrs. Do it so that the required changes are done only in
+>> one place.
+> 
+> Only security_inode_init_security() has support for EVM.   Making
+> security_old_inode_init_security() a wrapper for
+> security_inode_init_security() could result in security.evm extended
+> attributes being created that previously weren't created.
 
-> +    results = map(lambda x: x.get(), async_results)
-> +    for result in results:
-> +        manpage_domains.update(set(result[0]))
-> +        manpage_roles.update(set(result[1]))
+Hi Mimi
 
-The above four lines can be written a bit more nicely as follows:
+yes, I thought about this problem. In fact, it should not matter too 
+much. Since security_old_inode_init_security() supports setting only one 
+xattr: if there is an LSM xattr, that one will be set, and the EVM one 
+will be discarded; if there is no LSM xattr, EVM would not add one.
 
-for result in async_results:
-    domains, roles = result.get()
-    manpage_domains.update(domains)
-    manpage_roles.update(roles)
+> In fact ocfs2 defines ocfs2_init_security_get() as a wrapper for both
+> the old and new inode_init_security calls based on the caller's
+> preference.   Only mknod and symlink seem to use the old function.
+> Wondering why do they differentiate between callers?  (Cc'ing the ocfs2
+> mailing list as they're affected by this change.)
+> 
+> "[PATCH v4 1/5] reiserfs: Add missing calls to
+> reiserfs_security_free()"  fixed a memory leak.  I couldn't tell if
+> there was a similar memory leak in ocfs2, the only other user of
+> security_old_inode_init_security().
 
-Note that set.update() accepts any iterable, it doesn't need to be a set.
+Will look into it.
 
-> +
->      p.close()
->      p.join()
->
-[...]
+> As ocfs2 already defines initxattrs, that leaves only reiserfs missing
+> initxattrs().  A better, cleaner solution would be to define one.
 
+Yes, great idea!
 
---
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Thanks
+
+Roberto
+
+> thanks,
+> 
+> Mimi
+> 
+>>
+>> Define the security_initxattrs() callback and pass it to
+>> security_inode_init_security() as argument, to obtain the first xattr
+>> provided by LSMs.
+>>
+>> This behavior is a bit different from the current one. Before this patch
+>> calling call_int_hook() could cause multiple LSMs to provide an xattr,
+>> since call_int_hook() does not stop when an LSM returns zero. The caller of
+>> security_old_inode_init_security() receives the last xattr set. The pointer
+>> of the xattr value of previous LSMs is lost, causing memory leaks.
+>>
+>> However, in practice, this scenario does not happen as the only in-tree
+>> LSMs providing an xattr at inode creation time are SELinux and Smack, which
+>> are mutually exclusive.
+>>
+>> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>b
 
