@@ -2,119 +2,188 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73683C433FE
-	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 15:33:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 412D5C4332F
+	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 17:01:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242255AbiKRPds (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Nov 2022 10:33:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
+        id S240155AbiKRRBd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Nov 2022 12:01:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234124AbiKRPdr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 10:33:47 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5C79F5A8;
-        Fri, 18 Nov 2022 07:33:46 -0800 (PST)
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AIE7GJS004869;
-        Fri, 18 Nov 2022 15:33:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=Kj2rDsQz5u6SIg9xdinTFiY5WiCWEqvstO8o92a7tcE=;
- b=V5TKgId/DmXyxpdMVLbxaVVu9rfVpCrtKTxeWfpZ8guSjCmeNuwJhYWnk4Fl04x4XkMO
- TRfTQeyo/RUxwP19wi/g2OOvrEskklkdhZKSW6DaQPUZnNt2tUGSWG15v6A5YdIuuj/v
- 5Oi4FVvobE3EgjyhGheJ9QDCzhP9nq++wHPclLCeVnq9sE9xvD3o+ItEtq1WDj9irgr4
- ZvCkm3S9KVOmeXlNpyFW73lrgCITGonv9zBxzxjY+tkaEuIwNYdlnCzmqqRs6PAxa8uA
- Aumv7raOAaXi+UdoGbnR0zYINQJtO9M3HQFkuWOCKXzQvRhnUij8/oN7HEC6KwqfNSb4 iA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx7sv05ka-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Nov 2022 15:33:25 +0000
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AIFNTmd004429;
-        Fri, 18 Nov 2022 15:33:25 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx7sv05js-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Nov 2022 15:33:25 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AIFTvKW005500;
-        Fri, 18 Nov 2022 15:33:23 GMT
-Received: from b01cxnp22034.gho.pok.ibm.com (b01cxnp22034.gho.pok.ibm.com [9.57.198.24])
-        by ppma02dal.us.ibm.com with ESMTP id 3kt34ajae0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 18 Nov 2022 15:33:23 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com ([9.208.128.112])
-        by b01cxnp22034.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AIFXMPw20906586
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Nov 2022 15:33:23 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 342FA5806A;
-        Fri, 18 Nov 2022 15:33:22 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4EDF85805C;
-        Fri, 18 Nov 2022 15:33:20 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.49.134])
-        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 18 Nov 2022 15:33:20 +0000 (GMT)
-Message-ID: <f20e7ff3c6c3aa445faa01d12800a9675a77f102.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 3/5] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Fri, 18 Nov 2022 10:33:19 -0500
-In-Reply-To: <2e493258-b267-b8ad-0812-53f4e9c849ae@huaweicloud.com>
-References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
-         <20221110094639.3086409-4-roberto.sassu@huaweicloud.com>
-         <4c1349f670dc3c23214a5a5036e43ddaa0a7bc89.camel@linux.ibm.com>
-         <026075fa-0b58-9041-0727-b75e19499356@schaufler-ca.com>
-         <2e493258-b267-b8ad-0812-53f4e9c849ae@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: fmVb6IzBeCRCZHKlOYPZxUTS0IK-ggVE
-X-Proofpoint-GUID: nbT0swbd0VVqMNRdr9wOygUn7Qqg-Kis
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-18_04,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 impostorscore=0 clxscore=1015
- spamscore=0 mlxscore=0 bulkscore=0 mlxlogscore=588 phishscore=0
- malwarescore=0 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2210170000 definitions=main-2211180090
+        with ESMTP id S229451AbiKRRBb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 12:01:31 -0500
+Received: from mail-vs1-xe30.google.com (mail-vs1-xe30.google.com [IPv6:2607:f8b0:4864:20::e30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F049E87564
+        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 09:01:30 -0800 (PST)
+Received: by mail-vs1-xe30.google.com with SMTP id i2so5332732vsc.1
+        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 09:01:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KK2uXyQP6R2U6eI5LG6bQUG3/YcbzP15DsEB+QCqgYQ=;
+        b=SCfnPAEMgzXTblJF8z87BXmMOmWEHcExVF25oPgNiibkBd3/etXfLVLdi8pGXH4ZVL
+         lgTn9sqtaLd6q2KSkaxd7gbGRVCtzAtc5TP8WFLKUx8gpISUHI2KMl9uBjrmRJFJ8nLY
+         xn8RyH1Y0JANWXQqhr6q1XtxQ6kMfiFcxNCD/S6vpYhJ86v0HecCXHXNh/FlVgvyE0vr
+         Nw54/VrceYPuaetevQ0k1MHjUta658AXRi2QV8DM67XMBOhTb2/zjKEY/xEIdbB4ue2K
+         bWoQDl/QSl/M1PqZ3sh6mNhoeC5fGxm9anXedlDmkCuYabWDzC25QObqDJIcFmxpzYlL
+         9qLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KK2uXyQP6R2U6eI5LG6bQUG3/YcbzP15DsEB+QCqgYQ=;
+        b=63dQjBEZCl6LacCrRWX0zC/gQ6W1JUfPDA6sfFkbZugPNtovbqBNI2vMYv1DA9s7fR
+         6sA3qgPONo5/aJqZ2CnDPsj3DRgpTKH914DwLV9RFJjJidcxZ4Y+wZVAYg+HnwcjV0Yy
+         a82N8LYl/e+uASd9C0d5quRZojiqO2vDzcv79Oik+0jbJ4HgJVTJPeZUsfRY3ECdw033
+         VqCRkgq6OK2X7kw8MvLI0an3ESQUX45ZVqA9AcyYbD4anoSFShTpu7FpsrUL2jez37tP
+         EdiMPC3rhr7VRp5mg8ZnQULBUW2+TbMTaNP8MN9f3vzySK6XTNhH8msvjXr8XWv+2iAm
+         u0pw==
+X-Gm-Message-State: ANoB5pnuPfHOEITT436rAIk9nGCjif35LHtZQPTWLGDJr8k/tgW+Xz3J
+        6IK42AG7Nu1F+WwMHwg27Fk5KpUTfGlfTN6tX+ElZI7yoNs=
+X-Google-Smtp-Source: AA0mqf4lH9FjMhiWbP77bMAP9C2mOh7pmfkEqZIJA+RElPZNqKXNxFp11rncwFJiO6x1hpmKddj7DWvI1xx//dPtzNc=
+X-Received: by 2002:a67:e309:0:b0:3af:600e:84e6 with SMTP id
+ j9-20020a67e309000000b003af600e84e6mr4835078vsf.71.1668790889797; Fri, 18 Nov
+ 2022 09:01:29 -0800 (PST)
+MIME-Version: 1.0
+References: <20221107092504.1088612-1-plautrba@redhat.com> <87leonc95h.fsf@redhat.com>
+ <87edu01sys.fsf@redhat.com>
+In-Reply-To: <87edu01sys.fsf@redhat.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Fri, 18 Nov 2022 18:01:18 +0100
+Message-ID: <CAJ2a_DdkFhd_goN_DmJ0_EUZjd3SFMfYa75VXtzA0fnav6E5GA@mail.gmail.com>
+Subject: Re: [PATCH v2] fixfiles: Unmount temporary bind mounts on SIGINT
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2022-11-18 at 10:32 +0100, Roberto Sassu wrote:
-> > Smack uses multiple xattrs. All file system objects have a SMACK64
-> > attribute, which is used for access control. A program file may have
-> > a SMACK64EXEC attribute, which is the label the program will run with.
-> > A library may have a SMACK64MMAP attribute to restrict loading. A
-> > directory may have a SMACK64TRANSMUTE attribute, which modifies the
-> > new object creation behavior.
-> > 
-> > The point being that it may be more than a "nice idea" to support
-> > multiple xattrs. It's not a hypothetical situation.
-> 
-> Ok, that means that I have to change the number of xattrs reserved by 
-> Smack in patch 3.
+On Fri, 18 Nov 2022 at 11:03, Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Petr Lautrbach <plautrba@redhat.com> writes:
+>
+> > Petr Lautrbach <plautrba@redhat.com> writes:
+> >
+> >> `fixfiles -M relabel` temporary bind mounts file systems before
+> >> relabeling, but it left the / directory mounted in /tmp/tmp.XXXX when =
+a
+> >> user hit CTRL-C. It means that if the user run `fixfiles -M relabel`
+> >> again and answered Y to clean out /tmp directory, it would remove all
+> >> data from mounted fs.
+> >>
+> >> This patch changes the location where `fixfiles` mounts fs to /run, us=
+es
+> >> private mount namespace via unshare and adds a handler for exit signal=
+s
+> >> which tries to umount fs mounted by `fixfiles`.
+> >>
+> >> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2125355
+> >>
+> >> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> >> ---
+> >
+> > Actually, it's v5:
+> >
+> > v2:
+> >
+> > - set trap on EXIT instead of SIGINT
+> >
+> > v3:
+> >
+> > - use /run instead of /tmp for mountpoints
+> >
+> > v4:
+> >
+> > - use mount namespace as suggested by Christian G=C3=B6ttsche <cgzones@=
+googlemail.com>
+> >
+> > v5
+> >
+> > - fixed issues reported by Christian G=C3=B6ttsche <cgzones@googlemail.=
+com>
+> >
+>
+> Any objections?
 
-Based on evm_config_default_xattrnames[], there are 4.  There's the
-original SMACK and these 3 additional ones.
+Works fine for me.
+Tested-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Mimi
-
-
-
+>
+>
+> >>
+> >>
+> >>  policycoreutils/scripts/fixfiles | 36 +++++++++++++++++++++++++------=
+-
+> >>  1 file changed, 28 insertions(+), 8 deletions(-)
+> >>
+> >> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/script=
+s/fixfiles
+> >> index c72ca0eb9d61..166af6f360a2 100755
+> >> --- a/policycoreutils/scripts/fixfiles
+> >> +++ b/policycoreutils/scripts/fixfiles
+> >> @@ -207,6 +207,25 @@ rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1"=
+ | grep '^0 ' | cut -f2- -d ' '
+> >>  [ ${PIPESTATUS[0]} !=3D 0 ] && echo "$1 not found" >/dev/stderr
+> >>  }
+> >>
+> >> +# unmount tmp bind mount before exit
+> >> +umount_TMP_MOUNT() {
+> >> +    if [ -n "$TMP_MOUNT" ]; then
+> >> +         umount "${TMP_MOUNT}${m}" || exit 130
+> >> +         rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+> >> +    fi
+> >> +    exit 130
+> >> +}
+> >> +
+> >> +fix_labels_on_mountpoint() {
+> >> +    test -z ${TMP_MOUNT+x} && echo "Unable to find temporary director=
+y!" && exit 1
+> >> +    mkdir -p "${TMP_MOUNT}${m}" || exit 1
+> >> +    mount --bind "${m}" "${TMP_MOUNT}${m}" || exit 1
+> >> +    ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* =
+-q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
+> >> +    umount "${TMP_MOUNT}${m}" || exit 1
+> >> +    rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+> >> +}
+> >> +export -f fix_labels_on_mountpoint
+> >> +
+> >>  #
+> >>  # restore
+> >>  # if called with -n will only check file context
+> >> @@ -252,14 +271,15 @@ case "$RESTORE_MODE" in
+> >>              # we bind mount so we can fix the labels of files that ha=
+ve already been
+> >>              # mounted over
+> >>              for m in `echo $FILESYSTEMSRW`; do
+> >> -                TMP_MOUNT=3D"$(mktemp -d)"
+> >> -                test -z ${TMP_MOUNT+x} && echo "Unable to find tempor=
+ary directory!" && exit 1
+> >> -
+> >> -                mkdir -p "${TMP_MOUNT}${m}" || exit 1
+> >> -                mount --bind "${m}" "${TMP_MOUNT}${m}" || exit 1
+> >> -                ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${=
+THREADS} $* -q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
+> >> -                umount "${TMP_MOUNT}${m}" || exit 1
+> >> -                rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+> >> +                TMP_MOUNT=3D"$(mktemp -p /run -d fixfiles.XXXXXXXXXX)=
+"
+> >> +                export SETFILES VERBOSE EXCLUDEDIRS FORCEFLAG THREADS=
+ FC TMP_MOUNT m
+> >> +                if type unshare &> /dev/null; then
+> >> +                    unshare -m bash -c "fix_labels_on_mountpoint $*" =
+|| exit $?
+> >> +                else
+> >> +                    trap umount_TMP_MOUNT EXIT
+> >> +                    fix_labels_on_mountpoint $*
+> >> +                    trap EXIT
+> >> +                fi
+> >>              done;
+> >>          fi
+> >>      else
+> >> --
+> >> 2.37.3
+>
