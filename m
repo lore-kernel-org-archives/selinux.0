@@ -2,184 +2,184 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADB33C433FE
-	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 12:55:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AF72C433FE
+	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 14:46:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235088AbiKRMzH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Nov 2022 07:55:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
+        id S241541AbiKROqT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Nov 2022 09:46:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241377AbiKRMzH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 07:55:07 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777D0A465
-        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 04:54:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1668776049;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=I0m3PF1v5jV84lDDi+cWSBwB3S3MWClqNZ+vE0oHj8g=;
-        b=W/udgBh9Lv/EZ+dkko0S9xzj/Jsg6MRFBEtt2qfxou5jfICBLRxJxqLUwRZ4N3akblmQds
-        mptAHyeKyV/kFPB/HX3QPvpJSt5l/ffV4CqVP08j4lMCr6QEV+SvDZSRQzOZylOwWS2GMJ
-        yuZlkPgf1VcNbktzmZvZ1z7UDCdq2T0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-664-Fb8ZexIkOIuJjENyy1B1rg-1; Fri, 18 Nov 2022 07:54:08 -0500
-X-MC-Unique: Fb8ZexIkOIuJjENyy1B1rg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CFC9988B7A8
-        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 12:54:07 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-194-48.brq.redhat.com [10.40.194.48])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 493EC40C6EC3;
-        Fri, 18 Nov 2022 12:54:03 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH v3 3/3] python/sepolicy: Simplify generation of man pages
-Date:   Fri, 18 Nov 2022 13:51:55 +0100
-Message-Id: <20221118125153.453700-3-lautrbach@redhat.com>
-In-Reply-To: <20221118125153.453700-1-lautrbach@redhat.com>
-References: <20221118125153.453700-1-lautrbach@redhat.com>
-MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+        with ESMTP id S235308AbiKROqS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 09:46:18 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 861ED6E562;
+        Fri, 18 Nov 2022 06:46:17 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AIE7gPZ029824;
+        Fri, 18 Nov 2022 14:45:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=iMM5oivNJa+sP0gkSNtngKGpdo00X2aXogAjZxh19+U=;
+ b=bvB6y0dF6KFsiOnyNiUBEJM8GBBenptDNHBxJPdpU2d3DIJf1N82uu62/cVI5BLsR11T
+ GU7LK1ftR5UQJ+t5+cyGYTIOQr9Ad1zmLWcq5oS/9U4RjmEIR1/dST1Wsapbu8Dzfw29
+ 712KKkc5i9VYgK5SUs1aMRc/fCTqOvFX3i3gilwvLRrrvofa4WEqVjmH00y0J4B2YC1r
+ Hn62YZ2N1BNdEgThNd+791VuyPBv5YzbvsqbL6Y/B5XN8lffBLwYv3wGDMxyIf4lt8tM
+ wJjIcF4q3XXk6FGFE7QiFAiyKpvC+5I8LYTiq6GtF/p+Cw7kiX0VFFQMzhtgn78hTM0C UA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx66k9ep0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Nov 2022 14:45:52 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2AIE7gQ5029880;
+        Fri, 18 Nov 2022 14:45:51 GMT
+Received: from ppma01dal.us.ibm.com (83.d6.3fa9.ip4.static.sl-reverse.com [169.63.214.131])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3kx66k9ens-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Nov 2022 14:45:51 +0000
+Received: from pps.filterd (ppma01dal.us.ibm.com [127.0.0.1])
+        by ppma01dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2AIEahCS004964;
+        Fri, 18 Nov 2022 14:45:50 GMT
+Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
+        by ppma01dal.us.ibm.com with ESMTP id 3kt34aa3qu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Nov 2022 14:45:50 +0000
+Received: from smtpav01.wdc07v.mail.ibm.com ([9.208.128.113])
+        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2AIEjmd61704650
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Nov 2022 14:45:49 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A27D758055;
+        Fri, 18 Nov 2022 14:45:48 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 01DF558065;
+        Fri, 18 Nov 2022 14:45:47 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.49.134])
+        by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Nov 2022 14:45:46 +0000 (GMT)
+Message-ID: <fb34ffdd09b7eb43ec5e97d7d8a356648218a8d8.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 4/5] evm: Align evm_inode_init_security() definition
+ with LSM infrastructure
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Fri, 18 Nov 2022 09:45:46 -0500
+In-Reply-To: <6e4da6d6-5a0c-98ba-9841-07a316f8631e@huaweicloud.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+         <20221110094639.3086409-5-roberto.sassu@huaweicloud.com>
+         <5ff23992ab249af4fd5ef967691f8986c5898583.camel@linux.ibm.com>
+         <6e4da6d6-5a0c-98ba-9841-07a316f8631e@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 1lM1jZzTwTTNJButJK2BAPRRe9mc7qes
+X-Proofpoint-GUID: 22y0DEhljQGj62y1grS4i_jkRWODsb1q
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-18_02,2022-11-18_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
+ mlxlogscore=999 mlxscore=0 clxscore=1015 spamscore=0 bulkscore=0
+ malwarescore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211180084
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-And do not hardcode Fedora and RHEL versions.
+On Fri, 2022-11-18 at 10:30 +0100, Roberto Sassu wrote:
+> On 11/17/2022 6:07 PM, Mimi Zohar wrote:
+> > On Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
+> >> From: Roberto Sassu <roberto.sassu@huawei.com>
+> >>
+> >> Change the evm_inode_init_security() definition to align with the LSM
+> >> infrastructure, in preparation for moving IMA and EVM to that
+> >> infrastructure.
+> >>
+> >> This requires passing only the xattr array allocated by
+> >> security_inode_init_security(), instead of the first LSM xattr and the
+> >> place where the EVM xattr should be filled.
+> >>
+> >> It also requires positioning after the last filled xattr (by checking the
+> >> xattr name), since the beginning of the xattr array is given.
+> > 
+> > Perhaps combine this sentence to the previous paragraph and start the
+> > sentence with
+> > "In lieu of passing the EVM xattr, ..."
+> 
+> Ok.
+> 
+> >> If EVM is moved to the LSM infrastructure, it will use the xattr
+> >> reservation mechanism too, i.e. it positions itself in the xattr array with
+> >> the offset given by the LSM infrastructure.
+> > 
+> > The LSM infrastructure will need to support EVM as the last LSM.  Is
+> > there a reason for including this comment in this patch description.
+> 
+> The idea is to first make EVM work like other LSMs, and then add 
+> limitations that are EVM-specific.
+> 
+> As a regular LSM, EVM could be placed anywhere in the list of LSMs. This 
+> would mean that whenever EVM is called, it will process xattrs that are 
+> set by previous LSMs, not the subsequent ones.
+> 
+> What we would need to do EVM-specific is that EVM is the last in the 
+> list of LSMs, to ensure that all xattrs are protected.
+> 
+> >> Finally, make evm_inode_init_security() return value compatible with the
+> >> inode_init_security hook conventions, i.e. return -EOPNOTSUPP if it is not
+> >> setting an xattr.
+> > 
+> >> EVM is a bit tricky, because xattrs is both an input and an output. If it
+> >> was just output, EVM should have returned zero if xattrs is NULL. But,
+> >> since xattrs is also input, EVM is unable to do its calculations, so return
+> >> -EOPNOTSUPP and handle this error in security_inode_init_security().
+> >>
+> >> Don't change the return value in the inline function
+> >> evm_inode_init_security() in include/linux/evm.h, as the function will be
+> >> removed if EVM is moved to the LSM infrastructure.
+> >>
+> >> Last note, this patch does not fix a possible crash if the xattr array is
+> >> empty (due to calling evm_protected_xattr() with a NULL argument). It will
+> >> be fixed with 'evm: Support multiple LSMs providing an xattr', as it will
+> >> first ensure that the xattr name is not NULL before calling
+> >> evm_protected_xattr().
+> > 
+> >  From my reading of the code, although there might be multiple LSM
+> > xattrs, this patch only includes the first LSM xattr in the security
+> > EVM calculation.  So it only checks the first xattr's name.  Support
+> > for including multiple LSM xattrs in the EVM hmac calculation is added
+> > in the subsequent patch.
+> 
+> I tried to include in this patch just the function definition change and 
+> keep the existing behavior.
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
+That's fine.
+> 
+> The problem is trying to access xattr->name at the beginning of 
+> evm_inode_init_security().
+> 
+> That would disappear in patch 5, where there is a loop checking 
+> xattr->value first. Patch 3 disallows combination of NULL name - !NULL 
+> value and !NULL name - NULL value. Not sure if the latter is correct 
+> (empty xattr?). Will check what callers do.
 
-- v3: SELinux man Pages without " online"
+My comments here and above were for improving the patch description:
+- Just say what this patch is doing, not what subsequent changes will
+do in the future.  We'll come to that when the time comes.
 
- python/sepolicy/sepolicy/manpage.py | 71 ++++-------------------------
- 1 file changed, 8 insertions(+), 63 deletions(-)
+- Say something only the lines that this patch includes only one LSM
+security xattr in the EVM calculation, like previously.
 
-diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
-index de72cb6cda5f..edeb3b77e759 100755
---- a/python/sepolicy/sepolicy/manpage.py
-+++ b/python/sepolicy/sepolicy/manpage.py
-@@ -147,9 +147,6 @@ def _gen_types():
- def prettyprint(f, trim):
-     return " ".join(f[:-len(trim)].split("_"))
- 
--fedora_releases = ["Fedora17", "Fedora18"]
--rhel_releases = ["RHEL6", "RHEL7"]
--
- 
- def get_alphabet_manpages(manpage_list):
-     alphabet_manpages = dict.fromkeys(string.ascii_letters, [])
-@@ -180,7 +177,7 @@ def convert_manpage_to_html(html_manpage, manpage):
- class HTMLManPages:
- 
-     """
--            Generate a HHTML Manpages on an given SELinux domains
-+            Generate a HTML Manpages on an given SELinux domains
-     """
- 
-     def __init__(self, manpage_roles, manpage_domains, path, os_version):
-@@ -188,18 +185,12 @@ class HTMLManPages:
-         self.manpage_domains = get_alphabet_manpages(manpage_domains)
-         self.os_version = os_version
-         self.old_path = path + "/"
--        self.new_path = self.old_path + self.os_version + "/"
--
--        if self.os_version in fedora_releases or self.os_version in rhel_releases:
--            self.__gen_html_manpages()
--        else:
--            print("SELinux HTML man pages can not be generated for this %s" % os_version)
--            exit(1)
-+        self.new_path = self.old_path
-+        self.__gen_html_manpages()
- 
-     def __gen_html_manpages(self):
-         self._write_html_manpage()
-         self._gen_index()
--        self._gen_body()
-         self._gen_css()
- 
-     def _write_html_manpage(self):
-@@ -217,67 +208,21 @@ class HTMLManPages:
-                     convert_manpage_to_html((self.new_path + r.rsplit("_selinux", 1)[0] + ".html"), self.old_path + r)
- 
-     def _gen_index(self):
--        index = self.old_path + "index.html"
--        fd = open(index, 'w')
--        fd.write("""
--<html>
--<head>
--    <link rel=stylesheet type="text/css" href="style.css" title="style">
--    <title>SELinux man pages online</title>
--</head>
--<body>
--<h1>SELinux man pages</h1>
--<br></br>
--Fedora or Red Hat Enterprise Linux Man Pages.</h2>
--<br></br>
--<hr>
--<h3>Fedora</h3>
--<table><tr>
--<td valign="middle">
--</td>
--</tr></table>
--<pre>
--""")
--        for f in fedora_releases:
--            fd.write("""
--<a href=%s/%s.html>%s</a> - SELinux man pages for %s """ % (f, f, f, f))
--
--        fd.write("""
--</pre>
--<hr>
--<h3>RHEL</h3>
--<table><tr>
--<td valign="middle">
--</td>
--</tr></table>
--<pre>
--""")
--        for r in rhel_releases:
--            fd.write("""
--<a href=%s/%s.html>%s</a> - SELinux man pages for %s """ % (r, r, r, r))
--
--        fd.write("""
--</pre>
--	""")
--        fd.close()
--        print("%s has been created" % index)
--
--    def _gen_body(self):
--        html = self.new_path + self.os_version + ".html"
-+        html = self.new_path + "index.html"
-         fd = open(html, 'w')
-         fd.write("""
- <html>
- <head>
--	<link rel=stylesheet type="text/css" href="../style.css" title="style">
--	<title>Linux man-pages online for Fedora18</title>
-+	<link rel=stylesheet type="text/css" href="style.css" title="style">
-+	<title>SELinux man pages</title>
- </head>
- <body>
--<h1>SELinux man pages for Fedora18</h1>
-+<h1>SELinux man pages for %s</h1>
- <hr>
- <table><tr>
- <td valign="middle">
- <h3>SELinux roles</h3>
--""")
-+""" % self.os_version)
-         for letter in self.manpage_roles:
-             if len(self.manpage_roles[letter]):
-                 fd.write("""
--- 
-2.38.1
+thanks,
+
+Mimi
 
