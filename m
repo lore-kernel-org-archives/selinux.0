@@ -2,107 +2,168 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB82C4332F
-	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 09:32:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77220C433FE
+	for <selinux@archiver.kernel.org>; Fri, 18 Nov 2022 10:03:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241247AbiKRJcy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Nov 2022 04:32:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45840 "EHLO
+        id S241306AbiKRKDE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Nov 2022 05:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233863AbiKRJcw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 04:32:52 -0500
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FF5617A9D;
-        Fri, 18 Nov 2022 01:32:51 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.227])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4NDBHg1NzNz9v7Nl;
-        Fri, 18 Nov 2022 17:26:39 +0800 (CST)
-Received: from [10.206.134.65] (unknown [10.206.134.65])
-        by APP2 (Coremail) with SMTP id GxC2BwCHu_chUXdj9_NzAA--.22300S2;
-        Fri, 18 Nov 2022 10:32:27 +0100 (CET)
-Message-ID: <2e493258-b267-b8ad-0812-53f4e9c849ae@huaweicloud.com>
-Date:   Fri, 18 Nov 2022 10:32:15 +0100
+        with ESMTP id S234664AbiKRKDD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Nov 2022 05:03:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7B554C27E
+        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 02:02:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1668765726;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=d27Wd07UL1xgazgC6/XC+sjZnlNtWArqOEu0HeUIGO0=;
+        b=M+u1zt+MGh55ssV/NAMq0MrgTYI7qu03ohGJqgL+Jo1P2reabT+qapXdhWx6/t7XguzgB1
+        c3ArNMaCA/FZ2tGIQJZ01axZCJX7DVawzu+E5mv/hl3mx6s0vshiUY2oOA4rdXvsPEihqA
+        CZb9p62EKta264EUPEAKWu4n/wnlZVw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-298-0D3nuEEwOFm4gb71MPGE7A-1; Fri, 18 Nov 2022 05:02:04 -0500
+X-MC-Unique: 0D3nuEEwOFm4gb71MPGE7A-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 26EB6800B23
+        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 10:02:04 +0000 (UTC)
+Received: from localhost (ovpn-194-48.brq.redhat.com [10.40.194.48])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C82952166B29
+        for <selinux@vger.kernel.org>; Fri, 18 Nov 2022 10:02:03 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: Re: [PATCH v2] fixfiles: Unmount temporary bind mounts on SIGINT
+In-Reply-To: <87leonc95h.fsf@redhat.com>
+References: <20221107092504.1088612-1-plautrba@redhat.com>
+ <87leonc95h.fsf@redhat.com>
+Date:   Fri, 18 Nov 2022 11:02:03 +0100
+Message-ID: <87edu01sys.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH v4 3/5] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-Content-Language: en-US
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
- <20221110094639.3086409-4-roberto.sassu@huaweicloud.com>
- <4c1349f670dc3c23214a5a5036e43ddaa0a7bc89.camel@linux.ibm.com>
- <026075fa-0b58-9041-0727-b75e19499356@schaufler-ca.com>
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-In-Reply-To: <026075fa-0b58-9041-0727-b75e19499356@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: GxC2BwCHu_chUXdj9_NzAA--.22300S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7tFyUJF45CrWDXF1rJF48Crg_yoW8Ww45pF
-        Wrta4UCrsYqF1UCFZxta18Wa43KrZ5GF4UJas5JryUAF4DXF1SqryFkF15ua48KrZ3J34q
-        qrWqg343Z3s8Aa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUvFb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
-        07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
-        02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_
-        WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
-        CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6Fyj6rWUJwCI42IY6I8E87Iv67AK
-        xVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvj
-        xUo0eHDUUUU
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAABF1jj4GV8QAAsS
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/17/2022 6:18 PM, Casey Schaufler wrote:
-> On 11/17/2022 8:05 AM, Mimi Zohar wrote:
->> hOn Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
->>> From: Roberto Sassu <roberto.sassu@huawei.com>
->>>
->>> Currently, security_inode_init_security() supports only one LSM providing
->>> an xattr and EVM calculating the HMAC on that xattr, plus other inode
->>> metadata.
->>>
->>> Allow all LSMs to provide one or multiple xattrs, by extending the security
->>> blob reservation mechanism. Introduce the new lbs_xattr field of the
->>> lsm_blob_sizes structure, so that each LSM can specify how many xattrs it
->>> needs, and the LSM infrastructure knows how many xattr slots it should
->>> allocate.
->> Perhaps supporting per LSM multiple xattrs is a nice idea, but EVM
->> doesn't currently support it.  The LSM xattrs are hard coded in
->> evm_config_default_xattrnames[],  based on whether the LSM is
->> configured.  Additional security xattrs may be included in the
->> security.evm calculation, by extending the list via
->> security/integrity/evm/evm_xattrs.
-> 
-> Smack uses multiple xattrs. All file system objects have a SMACK64
-> attribute, which is used for access control. A program file may have
-> a SMACK64EXEC attribute, which is the label the program will run with.
-> A library may have a SMACK64MMAP attribute to restrict loading. A
-> directory may have a SMACK64TRANSMUTE attribute, which modifies the
-> new object creation behavior.
-> 
-> The point being that it may be more than a "nice idea" to support
-> multiple xattrs. It's not a hypothetical situation.
+Petr Lautrbach <plautrba@redhat.com> writes:
 
-Ok, that means that I have to change the number of xattrs reserved by 
-Smack in patch 3.
+> Petr Lautrbach <plautrba@redhat.com> writes:
+>
+>> `fixfiles -M relabel` temporary bind mounts file systems before
+>> relabeling, but it left the / directory mounted in /tmp/tmp.XXXX when a
+>> user hit CTRL-C. It means that if the user run `fixfiles -M relabel`
+>> again and answered Y to clean out /tmp directory, it would remove all
+>> data from mounted fs.
+>>
+>> This patch changes the location where `fixfiles` mounts fs to /run, uses
+>> private mount namespace via unshare and adds a handler for exit signals
+>> which tries to umount fs mounted by `fixfiles`.
+>>
+>> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2125355
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>
+> Actually, it's v5:
+>
+> v2:
+>
+> - set trap on EXIT instead of SIGINT
+>
+> v3:
+>
+> - use /run instead of /tmp for mountpoints
+>
+> v4:
+>
+> - use mount namespace as suggested by Christian G=C3=B6ttsche <cgzones@go=
+oglemail.com>
+>
+> v5
+>
+> - fixed issues reported by Christian G=C3=B6ttsche <cgzones@googlemail.co=
+m>
+>
 
-Thanks
+Any objections?
 
-Roberto
+
+>>
+>>
+>>  policycoreutils/scripts/fixfiles | 36 +++++++++++++++++++++++++-------
+>>  1 file changed, 28 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/=
+fixfiles
+>> index c72ca0eb9d61..166af6f360a2 100755
+>> --- a/policycoreutils/scripts/fixfiles
+>> +++ b/policycoreutils/scripts/fixfiles
+>> @@ -207,6 +207,25 @@ rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" |=
+ grep '^0 ' | cut -f2- -d ' '
+>>  [ ${PIPESTATUS[0]} !=3D 0 ] && echo "$1 not found" >/dev/stderr
+>>  }
+>>=20=20
+>> +# unmount tmp bind mount before exit
+>> +umount_TMP_MOUNT() {
+>> +	if [ -n "$TMP_MOUNT" ]; then
+>> +	     umount "${TMP_MOUNT}${m}" || exit 130
+>> +	     rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+>> +	fi
+>> +	exit 130
+>> +}
+>> +
+>> +fix_labels_on_mountpoint() {
+>> +	test -z ${TMP_MOUNT+x} && echo "Unable to find temporary directory!" &=
+& exit 1
+>> +	mkdir -p "${TMP_MOUNT}${m}" || exit 1
+>> +	mount --bind "${m}" "${TMP_MOUNT}${m}" || exit 1
+>> +	${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -q ${=
+FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
+>> +	umount "${TMP_MOUNT}${m}" || exit 1
+>> +	rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+>> +}
+>> +export -f fix_labels_on_mountpoint
+>> +
+>>  #
+>>  # restore
+>>  # if called with -n will only check file context
+>> @@ -252,14 +271,15 @@ case "$RESTORE_MODE" in
+>>  	        # we bind mount so we can fix the labels of files that have al=
+ready been
+>>  	        # mounted over
+>>  	        for m in `echo $FILESYSTEMSRW`; do
+>> -	            TMP_MOUNT=3D"$(mktemp -d)"
+>> -	            test -z ${TMP_MOUNT+x} && echo "Unable to find temporary d=
+irectory!" && exit 1
+>> -
+>> -	            mkdir -p "${TMP_MOUNT}${m}" || exit 1
+>> -	            mount --bind "${m}" "${TMP_MOUNT}${m}" || exit 1
+>> -	            ${SETFILES} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREA=
+DS} $* -q ${FC} -r "${TMP_MOUNT}" "${TMP_MOUNT}${m}"
+>> -	            umount "${TMP_MOUNT}${m}" || exit 1
+>> -	            rm -rf "${TMP_MOUNT}" || echo "Error cleaning up."
+>> +	            TMP_MOUNT=3D"$(mktemp -p /run -d fixfiles.XXXXXXXXXX)"
+>> +	            export SETFILES VERBOSE EXCLUDEDIRS FORCEFLAG THREADS FC T=
+MP_MOUNT m
+>> +	            if type unshare &> /dev/null; then
+>> +	                unshare -m bash -c "fix_labels_on_mountpoint $*" || ex=
+it $?
+>> +	            else
+>> +	                trap umount_TMP_MOUNT EXIT
+>> +	                fix_labels_on_mountpoint $*
+>> +	                trap EXIT
+>> +	            fi
+>>  	        done;
+>>  	    fi
+>>  	else
+>> --=20
+>> 2.37.3
 
