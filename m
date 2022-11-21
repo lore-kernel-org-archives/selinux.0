@@ -2,131 +2,166 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3C12C4332F
-	for <selinux@archiver.kernel.org>; Mon, 21 Nov 2022 21:39:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 276D8C43219
+	for <selinux@archiver.kernel.org>; Mon, 21 Nov 2022 23:42:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231608AbiKUVjd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Nov 2022 16:39:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
+        id S232023AbiKUXmp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Nov 2022 18:42:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231526AbiKUVjc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Nov 2022 16:39:32 -0500
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0A158021
-        for <selinux@vger.kernel.org>; Mon, 21 Nov 2022 13:39:30 -0800 (PST)
-Received: by mail-ej1-x632.google.com with SMTP id vv4so22259069ejc.2
-        for <selinux@vger.kernel.org>; Mon, 21 Nov 2022 13:39:30 -0800 (PST)
+        with ESMTP id S232025AbiKUXmP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Nov 2022 18:42:15 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C96DDFA4
+        for <selinux@vger.kernel.org>; Mon, 21 Nov 2022 15:41:32 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id 140so12762991pfz.6
+        for <selinux@vger.kernel.org>; Mon, 21 Nov 2022 15:41:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=am1XeaA94YMjClUg3XRB83I2lUl77x9ilqSCIvtM32U=;
-        b=aqdXxAW0n0FSfoe4fFnYdNGI+4VX8Gr4PE5cJi0v1BkJFwkXTE1U15JllIUnNnVtEN
-         KyrjlqyyibjXFlxR3EllHluvWOrHwCH+I52RcBVTXzNDhgKCyixny2V8fTJywEJrr0Qz
-         ZDmdRBR5BcBhCekA74QZ6S/V6Kak/br83mIt1jJ7skTmtDtEeCHTBCHxIwzbjzEpw8TU
-         x2DIpm0ywrYxH79ORArijtmA3xbPj0pKERrHvWsiW1CP+nJNJ207KIjvkecAWH+at0gg
-         F6r4Sc+THDHYxlxGz4IB4HoKavH77afPt80YaliGORpOChWrsh44awfSq60L/xBqydO6
-         Z/SA==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=zZc5xOP0xJFdkWXLW4Eh/g4pOZDZTjhdnyoqBFnt7HE=;
+        b=jNx+HyVlbe/WRUrPdLAtxuIfOIMsgVI4ZaDCOO44XHmIolfTb+INLlJKz8tdLq+nqS
+         J3IbGMH3IFSwq4Dfs85xCc21Gz7CgRkDgfNjLpcRUm8YIKFId9K0951jzYNemy+bY0vU
+         mfTMwsOnG1epdDm84gswuKxBCblcJcAf0GlElKhqMJExgupt3aFgNAur5R2ocPLXScin
+         mcNPmdUUpm2ikx4BJjBRMAfD1LOiJz7utyg5AmNvJnnXDpBcrfp40W23Nq5rR4IlofYo
+         AfUEPweAnBMqsGrsakOiWUSPQ+ZL1mUlmsG+WX0OXoi8VI30SMj10JY2V8Fm4SAlmI/1
+         uvDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=am1XeaA94YMjClUg3XRB83I2lUl77x9ilqSCIvtM32U=;
-        b=8BAmOJVMVO6BxHvsmMI1RReXdASlXdFeBXYYKojFYzeHQB1swnqz5slUoJxOzCX+Ah
-         qy5hs5h2fg8Qu5M5SAzMk1R5hs8FVGPYJUIHYYTegZY4Jgg8ixJDElkVXtBsrs39T4tN
-         gSXWrA/s8bCN632MKRxEZjCqmQJW2g66QyOqDINLbDtp1v22KeqZ1bXXJwiBeypw7bMi
-         It7k2x3WiNm6eIqu6qPquvtu7i8oRnFcV+3xTKStpn8y07W0uefzg1wKUJDo8J8xOduo
-         /1wmpj5OZ4PBbYMtngnS16+SGqQKnJJmHv9prlryEOeH+QObw10eZn94649qCPtjqbvg
-         MAhg==
-X-Gm-Message-State: ANoB5pk2otnnuFm8JTZez1iakbz1jGV6OYhAFY3dVMU7mGoXX/f2L1+i
-        LXiataHjsvV+OoPgZRwMPTcA91KP2AExjFqVnNkBI9FhrsA=
-X-Google-Smtp-Source: AA0mqf7aq+pNFqGLEnzVEjQ/B6Q40s25EITgT3YS+xaHzVawJ35WHe4FWLxm+l/GRSCKYqlvfDTDXJ6Jr6x7qZ/qJIA=
-X-Received: by 2002:a17:906:90c9:b0:7b2:b783:f26b with SMTP id
- v9-20020a17090690c900b007b2b783f26bmr13461780ejw.406.1669066769046; Mon, 21
- Nov 2022 13:39:29 -0800 (PST)
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zZc5xOP0xJFdkWXLW4Eh/g4pOZDZTjhdnyoqBFnt7HE=;
+        b=SNaoJ3pWwv6bh0aa1G5cXobOFb1yZEKYI9iEblmvRsjJqhTp0UN7AyhaFoC8n3sbEP
+         yT2auePzd+r+7JUPYVDXcCxV5IBAAD4Z3WtYNgVgg8Nz6WlWSLQqx/H2Opyy9zcgfq+p
+         DZUQWLAWmbQA8q/Zlr95R+Zntf/znZRhHvNBPo2vKFmVsllMcuyMNYHgvzJVzrhufD9u
+         ecZBGLdXl1SAlfrD8Yb6PPDOC0IYgzS/fXiN9Oh+8cNcMUS729qyzpsJH5fl48q3ISdC
+         DvO2CaC/r8AX0HpNSxIjOPlIDU+41K/LYjxaTx12fZ33pYdhscccNKVwlwk9dtg1nZtB
+         KCsA==
+X-Gm-Message-State: ANoB5pmqkfxhxWMody9VjzFxRulZCaWO3kSoh9b0UMSVRsW6vETh+Rw0
+        DT/ZerLzlRlu5Cu2Ak6sY/xoN4+WXdoeNUbZoThW
+X-Google-Smtp-Source: AA0mqf5sBQNs28sOBqrnhm1swUcszLklYtHexIa7tffAXM23323DKBFj1U6ylewxwYn+kM0hFFlZjc7knH3ByZlnilU=
+X-Received: by 2002:a63:1f63:0:b0:460:ec46:3645 with SMTP id
+ q35-20020a631f63000000b00460ec463645mr20336089pgm.92.1669074088835; Mon, 21
+ Nov 2022 15:41:28 -0800 (PST)
 MIME-Version: 1.0
-References: <20221109195640.60484-3-cgzones@googlemail.com> <20221114193208.9413-1-cgzones@googlemail.com>
-In-Reply-To: <20221114193208.9413-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 21 Nov 2022 16:39:17 -0500
-Message-ID: <CAP+JOzRRSqJ9HKWHY3f+ieP4dutb6OKS8FzbVhs8ejTU3i7RAQ@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] libselinux: filter arguments with path separators
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com> <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20221110094639.3086409-2-roberto.sassu@huaweicloud.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 21 Nov 2022 18:41:17 -0500
+Message-ID: <CAHC9VhQ9WftDrF1R--ZYJXOv-YbVU-Pr1Ob_deDwEWm8OcQ-TA@mail.gmail.com>
+Subject: Re: [PATCH v4 1/5] reiserfs: Add missing calls to reiserfs_security_free()
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 14, 2022 at 2:36 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Thu, Nov 10, 2022 at 4:47 AM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
 >
-> Boolean names, taken by security_get_boolean_pending(3),
-> security_get_boolean_active(3) and security_set_boolean(3), as well as
-> user names, taken by security_get_initial_context(3), are used in path
-> constructions.  Ensure they do not contain path separators to avoid
-> unwanted path traversal.
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-For this series of patches (v1 for patch 1, v2 for patch 2, and this
-v3 for patch 3):
-Acked-by: James Carter <jwcart2@gmail.com>
-
+> Commit 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes
+> during inode creation") defined reiserfs_security_free() to free the name
+> and value of a security xattr allocated by the active LSM through
+> security_old_inode_init_security(). However, this function is not called
+> in the reiserfs code.
+>
+> Thus, add a call to reiserfs_security_free() whenever
+> reiserfs_security_init() is called, and initialize value to NULL, to avoid
+> to call kfree() on an uninitialized pointer.
+>
+> Finally, remove the kfree() for the xattr name, as it is not allocated
+> anymore.
+>
+> Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+> Cc: stable@vger.kernel.org
+> Cc: Jeff Mahoney <jeffm@suse.com>
+> Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+> Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 > ---
-> v3:
->   - move check for translated boolean name into selinux_boolean_sub()
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/src/booleans.c            | 5 +++--
->  libselinux/src/get_initial_context.c | 5 +++++
->  2 files changed, 8 insertions(+), 2 deletions(-)
+>  fs/reiserfs/namei.c          | 4 ++++
+>  fs/reiserfs/xattr_security.c | 2 +-
+>  2 files changed, 5 insertions(+), 1 deletion(-)
+
+If I'm understanding this patch correctly, this is a standalone
+bugfix, right?  Any reason this shouldn't be merged now, independent
+of the rest of patches in this patchset?
+
+> diff --git a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+> index 3d7a35d6a18b..b916859992ec 100644
+> --- a/fs/reiserfs/namei.c
+> +++ b/fs/reiserfs/namei.c
+> @@ -696,6 +696,7 @@ static int reiserfs_create(struct user_namespace *mnt_userns, struct inode *dir,
 >
-> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> index dbcccd70..e34b39ff 100644
-> --- a/libselinux/src/booleans.c
-> +++ b/libselinux/src/booleans.c
-> @@ -131,7 +131,8 @@ char *selinux_boolean_sub(const char *name)
->                         ptr++;
->                 *ptr =3D '\0';
+>  out_failed:
+>         reiserfs_write_unlock(dir->i_sb);
+> +       reiserfs_security_free(&security);
+>         return retval;
+>  }
 >
-> -               sub =3D strdup(dst);
-> +               if (!strchr(dst, '/'))
-> +                       sub =3D strdup(dst);
+> @@ -779,6 +780,7 @@ static int reiserfs_mknod(struct user_namespace *mnt_userns, struct inode *dir,
 >
->                 break;
->         }
-> @@ -151,7 +152,7 @@ static int bool_open(const char *name, int flag) {
->         int ret;
->         char *ptr;
+>  out_failed:
+>         reiserfs_write_unlock(dir->i_sb);
+> +       reiserfs_security_free(&security);
+>         return retval;
+>  }
 >
-> -       if (!name) {
-> +       if (!name || strchr(name, '/')) {
->                 errno =3D EINVAL;
->                 return -1;
->         }
-> diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_in=
-itial_context.c
-> index 87c8adfa..0f25ba3f 100644
-> --- a/libselinux/src/get_initial_context.c
-> +++ b/libselinux/src/get_initial_context.c
-> @@ -23,6 +23,11 @@ int security_get_initial_context_raw(const char * name=
-, char ** con)
->                 return -1;
->         }
+> @@ -878,6 +880,7 @@ static int reiserfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+>         retval = journal_end(&th);
+>  out_failed:
+>         reiserfs_write_unlock(dir->i_sb);
+> +       reiserfs_security_free(&security);
+>         return retval;
+>  }
 >
-> +       if (strchr(name, '/')) {
-> +               errno =3D EINVAL;
-> +               return -1;
-> +       }
-> +
->         ret =3D snprintf(path, sizeof path, "%s%s%s", selinux_mnt, SELINU=
-X_INITCON_DIR, name);
->         if (ret < 0 || (size_t)ret >=3D sizeof path) {
->                 errno =3D EOVERFLOW;
+> @@ -1194,6 +1197,7 @@ static int reiserfs_symlink(struct user_namespace *mnt_userns,
+>         retval = journal_end(&th);
+>  out_failed:
+>         reiserfs_write_unlock(parent_dir->i_sb);
+> +       reiserfs_security_free(&security);
+>         return retval;
+>  }
+>
+> diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
+> index 8965c8e5e172..857a65b05726 100644
+> --- a/fs/reiserfs/xattr_security.c
+> +++ b/fs/reiserfs/xattr_security.c
+> @@ -50,6 +50,7 @@ int reiserfs_security_init(struct inode *dir, struct inode *inode,
+>         int error;
+>
+>         sec->name = NULL;
+> +       sec->value = NULL;
+>
+>         /* Don't add selinux attributes on xattrs - they'll never get used */
+>         if (IS_PRIVATE(dir))
+> @@ -95,7 +96,6 @@ int reiserfs_security_write(struct reiserfs_transaction_handle *th,
+>
+>  void reiserfs_security_free(struct reiserfs_security_handle *sec)
+>  {
+> -       kfree(sec->name);
+>         kfree(sec->value);
+>         sec->name = NULL;
+>         sec->value = NULL;
 > --
-> 2.38.1
+> 2.25.1
 >
+
+
+-- 
+paul-moore.com
