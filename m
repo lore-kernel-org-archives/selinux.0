@@ -2,151 +2,131 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A0AAC43217
-	for <selinux@archiver.kernel.org>; Mon, 21 Nov 2022 20:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3C12C4332F
+	for <selinux@archiver.kernel.org>; Mon, 21 Nov 2022 21:39:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbiKUU6a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Nov 2022 15:58:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58008 "EHLO
+        id S231608AbiKUVjd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Nov 2022 16:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbiKUU62 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Nov 2022 15:58:28 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58B4CEBAD;
-        Mon, 21 Nov 2022 12:58:27 -0800 (PST)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ALK3lao029070;
-        Mon, 21 Nov 2022 20:58:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=yYc1UjR/X0mjO1Si4MpoQ9ZWzXiCM44IGVCFBM9HksM=;
- b=fHjSzlbvKCNmzvyWRhEFoCgf2kFmVcWJXPbWqTecv0fMIK82bWxcZ9T60FGJ4Kge14LT
- uNry1lRdag0s7wKlV2WF8JJ5HfaS6Tu7xpFOUUp9cip3XNY8DxOw9oURAPFQrXK5lSo/
- AubsE6A5VF9XJHCbKC8vcmx3Ij0aAaqbNYx58HGVpy8NcLGrNeq3s3m5rFp7ldkSO1In
- 0kg4FW+6KBVcM0nfU2wi56MUsGg7jb/sDSBadvye/M5FUEgQM67EK7RJ7jjOMyh8vdP9
- iq58VqneeuRBHSqO6BAdBZwMAM3FEqTV41b7nF3zBAEzSLk4ukHsjyBRoONYc49L0yv5 3A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0cfxxfr1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 20:58:09 +0000
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ALKqsWC022894;
-        Mon, 21 Nov 2022 20:58:08 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0cfxxfqd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 20:58:08 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ALKp4Pi014694;
-        Mon, 21 Nov 2022 20:58:07 GMT
-Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
-        by ppma03wdc.us.ibm.com with ESMTP id 3kxps9fsdk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Nov 2022 20:58:07 +0000
-Received: from smtpav03.dal12v.mail.ibm.com ([9.208.128.129])
-        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ALKw5FL34210120
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Nov 2022 20:58:05 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8C7D958060;
-        Mon, 21 Nov 2022 20:58:06 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 96CF55803F;
-        Mon, 21 Nov 2022 20:58:05 +0000 (GMT)
-Received: from sig-9-65-226-3.ibm.com (unknown [9.65.226.3])
-        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Mon, 21 Nov 2022 20:58:05 +0000 (GMT)
-Message-ID: <5e88d4bfae90d642fcf84a0c0937a9e4359ef4b2.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 3/5] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Mon, 21 Nov 2022 15:58:05 -0500
-In-Reply-To: <ad7bfa59a3a89ccad52574e2f9fb8965dbaa1620.camel@huaweicloud.com>
-References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
-         <20221110094639.3086409-4-roberto.sassu@huaweicloud.com>
-         <4c1349f670dc3c23214a5a5036e43ddaa0a7bc89.camel@linux.ibm.com>
-         <fe16a03a-102e-b3e1-cc3f-5bad3c28fad7@huaweicloud.com>
-         <3ffb9bb4ab203b5e0459c3892ded4ae0cd80458b.camel@linux.ibm.com>
-         <fb3f423a-a56e-b6ed-d1e7-476605d607f8@schaufler-ca.com>
-         <ad7bfa59a3a89ccad52574e2f9fb8965dbaa1620.camel@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cw1OJWh_QF1SxB1kA5f_Qwm275_N0FeP
-X-Proofpoint-ORIG-GUID: o0KtNVBV0hgf2nWi3TrF-p_qik3UvULx
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-21_16,2022-11-18_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxscore=0
- clxscore=1015 malwarescore=0 impostorscore=0 suspectscore=0
- mlxlogscore=999 phishscore=0 adultscore=0 bulkscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211210155
+        with ESMTP id S231526AbiKUVjc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Nov 2022 16:39:32 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E0A158021
+        for <selinux@vger.kernel.org>; Mon, 21 Nov 2022 13:39:30 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id vv4so22259069ejc.2
+        for <selinux@vger.kernel.org>; Mon, 21 Nov 2022 13:39:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=am1XeaA94YMjClUg3XRB83I2lUl77x9ilqSCIvtM32U=;
+        b=aqdXxAW0n0FSfoe4fFnYdNGI+4VX8Gr4PE5cJi0v1BkJFwkXTE1U15JllIUnNnVtEN
+         KyrjlqyyibjXFlxR3EllHluvWOrHwCH+I52RcBVTXzNDhgKCyixny2V8fTJywEJrr0Qz
+         ZDmdRBR5BcBhCekA74QZ6S/V6Kak/br83mIt1jJ7skTmtDtEeCHTBCHxIwzbjzEpw8TU
+         x2DIpm0ywrYxH79ORArijtmA3xbPj0pKERrHvWsiW1CP+nJNJ207KIjvkecAWH+at0gg
+         F6r4Sc+THDHYxlxGz4IB4HoKavH77afPt80YaliGORpOChWrsh44awfSq60L/xBqydO6
+         Z/SA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=am1XeaA94YMjClUg3XRB83I2lUl77x9ilqSCIvtM32U=;
+        b=8BAmOJVMVO6BxHvsmMI1RReXdASlXdFeBXYYKojFYzeHQB1swnqz5slUoJxOzCX+Ah
+         qy5hs5h2fg8Qu5M5SAzMk1R5hs8FVGPYJUIHYYTegZY4Jgg8ixJDElkVXtBsrs39T4tN
+         gSXWrA/s8bCN632MKRxEZjCqmQJW2g66QyOqDINLbDtp1v22KeqZ1bXXJwiBeypw7bMi
+         It7k2x3WiNm6eIqu6qPquvtu7i8oRnFcV+3xTKStpn8y07W0uefzg1wKUJDo8J8xOduo
+         /1wmpj5OZ4PBbYMtngnS16+SGqQKnJJmHv9prlryEOeH+QObw10eZn94649qCPtjqbvg
+         MAhg==
+X-Gm-Message-State: ANoB5pk2otnnuFm8JTZez1iakbz1jGV6OYhAFY3dVMU7mGoXX/f2L1+i
+        LXiataHjsvV+OoPgZRwMPTcA91KP2AExjFqVnNkBI9FhrsA=
+X-Google-Smtp-Source: AA0mqf7aq+pNFqGLEnzVEjQ/B6Q40s25EITgT3YS+xaHzVawJ35WHe4FWLxm+l/GRSCKYqlvfDTDXJ6Jr6x7qZ/qJIA=
+X-Received: by 2002:a17:906:90c9:b0:7b2:b783:f26b with SMTP id
+ v9-20020a17090690c900b007b2b783f26bmr13461780ejw.406.1669066769046; Mon, 21
+ Nov 2022 13:39:29 -0800 (PST)
+MIME-Version: 1.0
+References: <20221109195640.60484-3-cgzones@googlemail.com> <20221114193208.9413-1-cgzones@googlemail.com>
+In-Reply-To: <20221114193208.9413-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 21 Nov 2022 16:39:17 -0500
+Message-ID: <CAP+JOzRRSqJ9HKWHY3f+ieP4dutb6OKS8FzbVhs8ejTU3i7RAQ@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] libselinux: filter arguments with path separators
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2022-11-21 at 14:29 +0100, Roberto Sassu wrote:
-> On Fri, 2022-11-18 at 09:31 -0800, Casey Schaufler wrote:
-> > On 11/18/2022 7:10 AM, Mimi Zohar wrote:
-> > > On Fri, 2022-11-18 at 10:14 +0100, Roberto Sassu wrote:
-> > > > > > +static int security_check_compact_xattrs(struct xattr *xattrs,
-> > > > > > +                                     int num_xattrs, int *checked_xattrs)
-> > > > > Perhaps the variable naming is off, making it difficult to read.   So
-> > > > > although this is a static function, which normally doesn't require a
-> > > > > comment, it's definitely needs one.
-> > > > Ok, will improve it.
-> > > > 
-> > > > > > +{
-> > > > > > +    int i;
-> > > > > > +
-> > > > > > +    for (i = *checked_xattrs; i < num_xattrs; i++) {
-> > > > > If the number of "checked" xattrs was kept up to date, removing the
-> > > > > empty xattr gaps wouldn't require a loop.  Is the purpose of this loop
-> > > > > to support multiple per LSM xattrs?
-> > > > An LSM might reserve one or more xattrs, but not set it/them (for 
-> > > > example because it is not initialized). In this case, removing the gaps 
-> > > > is needed for all subsequent LSMs.
-> > > Including this sort of info in the function description or as a comment
-> > > in the code would definitely simplify review.
-> > > 
-> > > security_check_compact_xattrs() is called in the loop after getting
-> > > each LSM's xattr(s).  Only the current LSMs xattrs need to be
-> > > compressed, yet the loop goes to the maximum number of xattrs each
-> > > time. Just wondering if there is a way of improving it.
-> > 
-> > At security module registration each module could identify how
-> > many xattrs it uses. That number could be used to limit the range
-> > of the loop. I have to do similar things for the forthcoming LSM
-> > syscalls and module stacking beyond that.
-> 
-> Yes, blob_sizes.lbs_xattr contains the total number of xattrs requested
-> by LSMs. To stop the loop earlier, at the offset of the next LSM, we
-> would need to search the LSM's lsm_info, using the LSM name in
-> the security_hook_list structure. Although it is not optimal, not doing
-> it makes the code simpler. I could do that, if preferred.
+On Mon, Nov 14, 2022 at 2:36 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Boolean names, taken by security_get_boolean_pending(3),
+> security_get_boolean_active(3) and security_set_boolean(3), as well as
+> user names, taken by security_get_initial_context(3), are used in path
+> constructions.  Ensure they do not contain path separators to avoid
+> unwanted path traversal.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Either way is fine, as long as the code is readable.  At minimum add a
-comment.
+For this series of patches (v1 for patch 1, v2 for patch 2, and this
+v3 for patch 3):
+Acked-by: James Carter <jwcart2@gmail.com>
 
--- 
-thanks,
-
-Mimi
-
-
-
-
+> ---
+> v3:
+>   - move check for translated boolean name into selinux_boolean_sub()
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/src/booleans.c            | 5 +++--
+>  libselinux/src/get_initial_context.c | 5 +++++
+>  2 files changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+> index dbcccd70..e34b39ff 100644
+> --- a/libselinux/src/booleans.c
+> +++ b/libselinux/src/booleans.c
+> @@ -131,7 +131,8 @@ char *selinux_boolean_sub(const char *name)
+>                         ptr++;
+>                 *ptr =3D '\0';
+>
+> -               sub =3D strdup(dst);
+> +               if (!strchr(dst, '/'))
+> +                       sub =3D strdup(dst);
+>
+>                 break;
+>         }
+> @@ -151,7 +152,7 @@ static int bool_open(const char *name, int flag) {
+>         int ret;
+>         char *ptr;
+>
+> -       if (!name) {
+> +       if (!name || strchr(name, '/')) {
+>                 errno =3D EINVAL;
+>                 return -1;
+>         }
+> diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_in=
+itial_context.c
+> index 87c8adfa..0f25ba3f 100644
+> --- a/libselinux/src/get_initial_context.c
+> +++ b/libselinux/src/get_initial_context.c
+> @@ -23,6 +23,11 @@ int security_get_initial_context_raw(const char * name=
+, char ** con)
+>                 return -1;
+>         }
+>
+> +       if (strchr(name, '/')) {
+> +               errno =3D EINVAL;
+> +               return -1;
+> +       }
+> +
+>         ret =3D snprintf(path, sizeof path, "%s%s%s", selinux_mnt, SELINU=
+X_INITCON_DIR, name);
+>         if (ret < 0 || (size_t)ret >=3D sizeof path) {
+>                 errno =3D EOVERFLOW;
+> --
+> 2.38.1
+>
