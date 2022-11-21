@@ -2,64 +2,148 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 730C4C4332F
-	for <selinux@archiver.kernel.org>; Sat, 19 Nov 2022 08:49:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C317C43219
+	for <selinux@archiver.kernel.org>; Mon, 21 Nov 2022 09:46:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231740AbiKSItR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 19 Nov 2022 03:49:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
+        id S229965AbiKUJqI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Nov 2022 04:46:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbiKSItQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 19 Nov 2022 03:49:16 -0500
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90CB65867;
-        Sat, 19 Nov 2022 00:49:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=0TKN0dlGfGdFwo0dwprmBXt8F8zozs1lggU4kgtJGsE=; b=ADa12tjmGzsxLncfyrWy0a5a0r
-        w084JLxMODd12t/5V2nbkiin9AdRZWntJk/SJq6zqMOZKJLDSMuLUtKgR4lLPiciZa74Sktkmcy0j
-        Z7LP45wtH15ucIwu5tLJKgXVVycrcyI5/AG7QlNJ00LuhFb5IBhJq4ip74Dp0+dXXGpnAwlaSvLup
-        7VtfQF/z2da/GGs8ZC18zUxEMJQsia7RDerMAvB95iO70RzBIELFwpEZP3ZsUvH9WAxxiYwynB2v6
-        kUiF2UNsxiG6jV0ncs1IhE956RvrKELtml7GT6o/NEBLhlMbefvYJW2gx336rs32nwT5XT1J5JlzG
-        TOhpyLZQ==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1owJWO-0051Q8-21;
-        Sat, 19 Nov 2022 08:48:20 +0000
-Date:   Sat, 19 Nov 2022 08:48:20 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     David Howells <dhowells@redhat.com>
-Cc:     Jeff Layton <jlayton@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Paul Moore <paul@paul-moore.com>, linux-nfs@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5] vfs, security: Fix automount superblock LSM init
- problem, preventing NFS sb sharing
-Message-ID: <Y3iYVFT40L0+/MzO@ZenIV>
-References: <166807856758.2972602.14175912201162072721.stgit@warthog.procyon.org.uk>
+        with ESMTP id S230008AbiKUJqF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Nov 2022 04:46:05 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9492E13E08;
+        Mon, 21 Nov 2022 01:46:03 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4NG2Ql5CVtz9xGKf;
+        Mon, 21 Nov 2022 17:39:11 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwCHcW65SHtjOoSBAA--.28097S2;
+        Mon, 21 Nov 2022 10:45:39 +0100 (CET)
+Message-ID: <aa5fa8c5f231115c58012352124df57d16a01e41.camel@huaweicloud.com>
+Subject: Re: [PATCH v4 2/5] security: Rewrite
+ security_old_inode_init_security()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        ocfs2-devel@oss.oracle.com
+Date:   Mon, 21 Nov 2022 10:45:19 +0100
+In-Reply-To: <3dc4f389ead98972cb7d09ef285a0065decb0ad0.camel@linux.ibm.com>
+References: <20221110094639.3086409-1-roberto.sassu@huaweicloud.com>
+         <20221110094639.3086409-3-roberto.sassu@huaweicloud.com>
+         <3dc4f389ead98972cb7d09ef285a0065decb0ad0.camel@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <166807856758.2972602.14175912201162072721.stgit@warthog.procyon.org.uk>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwCHcW65SHtjOoSBAA--.28097S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxCry7Xw1UCFyUJr1ruFWDCFg_yoW5Kr1Dpr
+        W3KF1UKrn8JF97CrWxJFnxWF4I93yfGFZrXrs5AryDAF1DCF1xtr10yry5u343JrWkJ34F
+        qw4xZ3sxZrn8Z3JanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgADBF1jj4GngwACsT
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 10, 2022 at 11:09:27AM +0000, David Howells wrote:
-> When NFS superblocks are created by automounting, their LSM parameters
-> aren't set in the fs_context struct prior to sget_fc() being called,
-> leading to failure to match existing superblocks.
+On Thu, 2022-11-17 at 08:03 -0500, Mimi Zohar wrote:
+> Hi Roberto,
 > 
-> Fix this by adding a new LSM hook to load fc->security for submount
-> creation when alloc_fs_context() is creating the fs_context for it.
+> On Thu, 2022-11-10 at 10:46 +0100, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Rewrite security_old_inode_init_security() to call
+> > security_inode_init_security() before making changes to support multiple
+> > LSMs providing xattrs. Do it so that the required changes are done only in
+> > one place.
+> 
+> Only security_inode_init_security() has support for EVM.   Making
+> security_old_inode_init_security() a wrapper for
+> security_inode_init_security() could result in security.evm extended
+> attributes being created that previously weren't created.
+> 
+> In fact ocfs2 defines ocfs2_init_security_get() as a wrapper for both
+> the old and new inode_init_security calls based on the caller's
+> preference.   Only mknod and symlink seem to use the old function. 
+> Wondering why do they differentiate between callers?  (Cc'ing the ocfs2
+> mailing list as they're affected by this change.)
+> 
+> "[PATCH v4 1/5] reiserfs: Add missing calls to
+> reiserfs_security_free()"  fixed a memory leak.  I couldn't tell if
+> there was a similar memory leak in ocfs2, the only other user of
+> security_old_inode_init_security().
 
-FWIW, it feels like security_sb_mnt_opts_compat() would be a saner place
-for that.  It would need to get struct dentry *reference passed to it,
-but that should be it...
+From what I see, there is no memory leak there.
+
+> As ocfs2 already defines initxattrs, that leaves only reiserfs missing
+> initxattrs().  A better, cleaner solution would be to define one.
+
+If I understood why security_old_inode_init_security() is called
+instead of security_inode_init_security(), the reason seems that the
+filesystem code uses the length of the obtained xattr to make some
+calculations (e.g. reserve space). The xattr is written at a later
+time.
+
+Since for reiserfs there is a plan to deprecate it, it probably
+wouldn't be worth to support the creation of multiple xattrs. I would
+define a callback to take the first xattr and make a copy, so that
+calling security_inode_init_security() + reiserfs_initxattrs() is
+equivalent to calling security_old_inode_init_security().
+
+But then, this is what anyway I was doing with the
+security_initxattrs() callback, for all callers of security_old_inode_i
+nit_security().
+
+Also, security_old_inode_init_security() is exported to kernel modules.
+Maybe, it is used somewhere. So, unless we plan to remove it
+completely, it should be probably be fixed to avoid multiple LSMs
+successfully setting an xattr, and losing the memory of all except the
+last (which this patch fixes by calling security_inode_init_security())
+.
+
+If there is still the preference, I will implement the reiserfs
+callback and make a fix for security_old_inode_init_security().
+
+Thanks
+
+Roberto
+
+> thanks,
+> 
+> Mimi
+> 
+> > Define the security_initxattrs() callback and pass it to
+> > security_inode_init_security() as argument, to obtain the first xattr
+> > provided by LSMs.
+> > 
+> > This behavior is a bit different from the current one. Before this patch
+> > calling call_int_hook() could cause multiple LSMs to provide an xattr,
+> > since call_int_hook() does not stop when an LSM returns zero. The caller of
+> > security_old_inode_init_security() receives the last xattr set. The pointer
+> > of the xattr value of previous LSMs is lost, causing memory leaks.
+> > 
+> > However, in practice, this scenario does not happen as the only in-tree
+> > LSMs providing an xattr at inode creation time are SELinux and Smack, which
+> > are mutually exclusive.
+> > 
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>b
+
