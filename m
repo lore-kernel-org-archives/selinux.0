@@ -2,165 +2,262 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 817D3C4332F
-	for <selinux@archiver.kernel.org>; Wed, 23 Nov 2022 17:22:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0961FC3A59F
+	for <selinux@archiver.kernel.org>; Wed, 23 Nov 2022 17:47:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236038AbiKWRWH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Nov 2022 12:22:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42544 "EHLO
+        id S238324AbiKWRrR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Nov 2022 12:47:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236405AbiKWRVw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Nov 2022 12:21:52 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B8873B8E
-        for <selinux@vger.kernel.org>; Wed, 23 Nov 2022 09:21:50 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id a1-20020a17090abe0100b00218a7df7789so2677571pjs.5
-        for <selinux@vger.kernel.org>; Wed, 23 Nov 2022 09:21:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=5CDIhkLpaEhOrndeRMcT6oBAEna9EiAVCKKFkhQssZk=;
-        b=lFrgzW6CO+Kzpc8MumJWmvNtmRK37WjPd2QsRbdhPjxEO9DT37CPHKYB19L+uevXiM
-         AS+ErFE9Vlgg74WsWDLkOEy4AgQDmjJdd23ygVUWifopc0T+bwb5R8Q4a8hAcsqBsPQw
-         39Us67f6MudsZdhjNR7l1URXeNafYHDAMqlu5DNGCXF80JCYwCvExB27+q0tdwFcFd7j
-         ub5BK8qsKC4dUMc+nYq5q8y1MrLqgQMuwUsgQXDp3IQevXkAUL+nGxBbyXY1exkZp0CA
-         zFDit79T6cinGmsllJLdO0Dq/Ez/pI5Ln2/cXbaaHwTjkV2Kc8gsRvE7OZj0P2B31tNm
-         47Hw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5CDIhkLpaEhOrndeRMcT6oBAEna9EiAVCKKFkhQssZk=;
-        b=DJjERAD2lcqQRGh22nOzgoXUhq63xWMA8Es+Wy/DWgzPyvebyD/BriC7T2WxQPAeK5
-         kg33YNHVOYE/AIO25vtkFwlAASv+mJmPamkg0coAnmQVsG9cp4x53iitzg2RiZbXvkCk
-         qmQLrjnCBA1BEjh0eylcKy6IG6k2zv/YMfvEnfCDR5LVg9HNwcV/TkdidSU7aQDCQGO7
-         FrmTVBP1aLqNNk3GmZtJxUCSBD5XzCw1JHw6dE2ZvC/oOWY3Klq3jQGl4raNFBWdXF1U
-         FhCrS0w1/ka77eN2X9BMjc7pCMtkQM0yrd8vHTQm6Gz3IffJ/qJlbP9sp8qgL+cx5GVu
-         hu4A==
-X-Gm-Message-State: ANoB5pk92wJO6bDKWvTKjr2Oa8uYIdCywdsGqHXQ5vUve0OKFDP1nBYV
-        KHkSXGwCK59qrQZXYqGFTANn74RBQPPaF+blIkS3PgfX0g==
-X-Google-Smtp-Source: AA0mqf6B97DxKk0ieg2CMK047rVZbvRie6TxJaBP0+UKB3gQKTzKrc5TtFXtF8vJgo3cj3wck1cmKleAAnX9Y7LW2sY=
-X-Received: by 2002:a17:902:9892:b0:186:c3b2:56d1 with SMTP id
- s18-20020a170902989200b00186c3b256d1mr10718671plp.15.1669224110195; Wed, 23
- Nov 2022 09:21:50 -0800 (PST)
-MIME-Version: 1.0
-References: <90976d10374046f198e6777609554b23@quicinc.com> <0fad7bb5f511433ca59140a813e2d200@quicinc.com>
- <CAHC9VhRdj7irdtsFktGHT4rvUJhiHrs0g+K2mpyKtmZjLE8K1w@mail.gmail.com> <10b9088cc8d442008e4972ad0c828329@quicinc.com>
-In-Reply-To: <10b9088cc8d442008e4972ad0c828329@quicinc.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 23 Nov 2022 12:21:39 -0500
-Message-ID: <CAHC9VhT-GnmsQTeR7tZUO0W1bz4jM8vYffPW15wv3Hs6+s6RPQ@mail.gmail.com>
-Subject: Re: Kernel Panic while accessing avtab_search_node
-To:     "Jaihind Yadav (QUIC)" <quic_jaihindy@quicinc.com>
-Cc:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S239184AbiKWRrQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Nov 2022 12:47:16 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842748DA40;
+        Wed, 23 Nov 2022 09:47:15 -0800 (PST)
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ANHH9kE001552;
+        Wed, 23 Nov 2022 17:46:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=VOvq9Sif0jOsBGBmaU8mrfW2vyYy0h6JoSd/AjbT9Ks=;
+ b=Kk+tU5NXDLYJ0DJR0jE+smWMyPHYav7Cq4zcJ1t2TeMgRij6GDXjVb5pP+IfHi9peMfU
+ 1025N6XWkyMOoi1EQuKNUbR0TpPV+M6nah8zC0taJ6qJjBvWZGPlpfwOb31rSYjlzuQn
+ LMmmdPz7xRtLCy3AHWEOEQiDoxeqE+H9XuYtWuqPfb6npwNXbhNLOucRadqo5JiAASTW
+ fZ9txdOic9kZmjoG713yjmUibP7lVnPQMyRrpxmQGYkabsxmqWBB4f+yWQ3Yxy7knwif
+ 3QcJnzr1pU5oxvLdgqPMobtuBgXArn8QlxKFPjS2ixuES+sDF0Rv1z/be6iupJ+uzBwo qQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0ytbebwx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 17:46:47 +0000
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ANFsKoT002146;
+        Wed, 23 Nov 2022 17:46:46 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3m0ytbebwe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 17:46:46 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ANHZcZH020151;
+        Wed, 23 Nov 2022 17:46:45 GMT
+Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
+        by ppma03dal.us.ibm.com with ESMTP id 3kxpsakata-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 23 Nov 2022 17:46:45 +0000
+Received: from smtpav06.dal12v.mail.ibm.com ([9.208.128.130])
+        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ANHkiAo64750018
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 23 Nov 2022 17:46:44 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B32E25805E;
+        Wed, 23 Nov 2022 17:46:43 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 19EFF58055;
+        Wed, 23 Nov 2022 17:46:42 +0000 (GMT)
+Received: from sig-9-77-136-225.ibm.com (unknown [9.77.136.225])
+        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 23 Nov 2022 17:46:42 +0000 (GMT)
+Message-ID: <052d91687e813110cc1e1d762ea086cc8085114a.camel@linux.ibm.com>
+Subject: Re: [PATCH v5 2/6] ocfs2: Switch to security_inode_init_security()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
+        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, Casey Schaufler <casey@schaufler-ca.com>
+Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Wed, 23 Nov 2022 12:46:41 -0500
+In-Reply-To: <20221123095202.599252-3-roberto.sassu@huaweicloud.com>
+References: <20221123095202.599252-1-roberto.sassu@huaweicloud.com>
+         <20221123095202.599252-3-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: LowqJc8EUSLn8wXkT86SS7MXD5C61WyH
+X-Proofpoint-GUID: 3a74IJhshYsPx_7snIfh2sln3Rs7dXCP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-23_10,2022-11-23_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ impostorscore=0 mlxscore=0 lowpriorityscore=0 mlxlogscore=999 adultscore=0
+ clxscore=1015 malwarescore=0 spamscore=0 priorityscore=1501 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211230129
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 7:52 AM Jaihind Yadav (QUIC)
-<quic_jaihindy@quicinc.com> wrote:
-> Hi Paul Moore Sir,
->
-> Thanks  for quick response .
-> Please find the additional information below.
-> We are using 5.15 kernel in Android T.
-> We have not applied any additional  patch to the kernel .
->
-> I am replying on the same thread again because in that email I attached call stack frame with locals  images to explain the issue better after loading the dump in t32,
-> but It converted the images in base32 due to plain text format and made it unreadable . Sorry for inconvenience caused.
->
-> Please let me know if more information is needed .
+On Wed, 2022-11-23 at 10:51 +0100, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> In preparation for removing security_old_inode_init_security(), switch to
+> security_inode_init_security().
+> 
+> Extend the existing ocfs2_initxattrs() to take the
+> ocfs2_security_xattr_info structure from fs_info, and populate the
+> name/value/len triple with the first xattr provided by LSMs. Supporting
+> multiple xattrs is not currently supported, as it requires non-trivial
+> changes that can be done at a later time.
 
-Hi Jaihind,
+ocfs2 already defines ocfs2_init_security_get() as a wrapper around
+calling either security_old_inode_init_security() or
+security_inode_init_security().  Based on "si" one or the other hook is
+called.  ocfs2_initxattrs is already defined.
 
-Thanks for the additional information.  Unfortunately Android has been
-known to carry a large number of kernel patches in their kernels so I
-would suggest contacting the Android team for additional help on
-resolving this issue.  If you can reproduce this problem with a plain
-upstream kernel we may be able to help, but I don't recall seeing
-anything similar in any of our upstream kernel use/testing.
+        struct ocfs2_security_xattr_info si = {
+                .name = NULL,
+                .enable = 1,
+        };
 
-Good luck,
--Paul
+The main difference between calling security_old_inode_init_security or
+security_inode_init_security() is whether or not security.evm is
+calculated and written.
 
-> -----Original Message-----
-> From: Paul Moore <paul@paul-moore.com>
-> Sent: Tuesday, November 22, 2022 11:53 PM
-> To: Jaihind Yadav (QUIC) <quic_jaihindy@quicinc.com>
-> Cc: selinux@vger.kernel.org
-> Subject: Re: Kernel Panic while accessing avtab_search_node
->
-> On Tue, Nov 22, 2022 at 6:22 AM Jaihind Yadav (QUIC) <quic_jaihindy@quicinc.com> wrote:
-> > Hi Selinux team,
-> >
-> > We are getting kernel panic due to invalid memory access from avtab_search_node @231.
-> >
-> > 165.187593][T21313] Unable to handle kernel access to user memory
-> > outside uaccess routines at virtual address 0000000081000000 [
-> > 165.265699][T22438] pc : avtab_search_node+0xe4/0x138 [
-> > 165.265710][T22438] lr : context_struct_compute_av+0x260/0x908
-> > [  165.265715][T22438] sp : ffffffc0330a3920 [  165.265717][T22438]
-> > x29: ffffffc0330a3a20 x28: ffffff804097ea40 x27: 0000000000000360 [
-> > 165.265725][T22438] x26: ffffff803acab190 x25: ffffff803acab138 x24:
-> > ffffffc0330a3b60 [  165.265732][T22438] x23: ffffff804097ea40 x22:
-> > ffffffc0330a3b48 x21: 0000000000000361 [  165.265739][T22438] x20:
-> > 0000000000000360 x19: ffffff80409d3608 x18: ffffffc02ba1d070 [
-> > 165.265746][T22438] x17: 000000008f58b13b x16: 000000005bbbfbe1 x15:
-> > 00000000e6546b64 [  165.265753][T22438] x14: 000000001b873593 x13:
-> > 0000000058a5459e x12: 0000000000000061 [  165.265760][T22438] x11:
-> > 0000000000000707 x10: 0000000000000361 x9 : 0000000000000361 [
-> > 165.265767][T22438] x8 : 0000000000000002 x7 : 0000000000000000 x6 :
-> > ffffffc0330a39ac [  165.265773][T22438] x5 : ffffffc0330a3b60 x4 : ffffffc0330a3b48 x3 : ffffffc0330a3b60 [  165.265780][T22438] x2 : ffffffc0330a3b48 x1 : ffffffc0330a3960 x0 : 0000000081000000 [  165.265787][T22438] Call trace:
-> > [  165.265789][T22438]  avtab_search_node+0xe4/0x138 [
-> > 165.265793][T22438]  security_compute_av+0x18c/0x3f4 [
-> > 165.265798][T22438]  avc_compute_av+0x84/0xe4 [  165.265804][T22438]
-> > avc_has_perm+0x188/0x1f4 [  165.265808][T22438]
-> > selinux_task_alloc+0x48/0x58 [  165.265812][T22438]
-> > security_task_alloc+0x84/0x150 [  165.265816][T22438]
-> > copy_process+0x51c/0xe98 [  165.265823][T22438]
-> > kernel_clone+0xb8/0x684 [  165.265827][T22438]
-> > __arm64_sys_clone+0x5c/0x8c [  165.265831][T22438]
-> > invoke_syscall+0x60/0x150 [  165.265836][T22438]
-> > el0_svc_common+0x98/0x114 [  165.265840][T22438]  do_el0_svc+0x28/0xa0
-> > [  165.265843][T22438]  el0_svc+0x28/0x90 [  165.265848][T22438]
-> > el0t_64_sync_handler+0x88/0xec [  165.265852][T22438]
-> > el0t_64_sync+0x1b4/0x1b8 [  165.265858][T22438] Code: f86bd980
-> > b4000260 79400c2b 1200396b (7940000c) [  165.265862][T22438] ---[ end
-> > trace 78d0a75f861b1c77 ]---
-> >
-> > Kernel panic is coming while accessing cur @231 line from below code snippet.
-> >
-> > 218 struct avtab_node *avtab_search_node(struct avtab *h,
-> > 219                                                             const struct avtab_key *key)
-> > 220 {
-> > 221        int hvalue;
-> > 222        struct avtab_node *cur;
-> > 223        u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
-> > 224
-> > 225        if (!h || !h->nslot)
-> > 226                        return NULL;
-> > 227
-> > 228        hvalue = avtab_hash(key, h->mask);
-> > 229        for (cur = h->htable[hvalue]; cur;
-> > 230             cur = cur->next) {
-> > 231                        if (key->source_type == cur->key.source_type &&
-> > 232                            key->target_type == cur->key.target_type &&
-> > 233                            key->target_class == cur->key.target_class &&
-> > 234                            (specified & cur->key.specified))
-> > 235                                        return cur;
-> >
-> > In the above code null check are properly handled So I am suspecting the hashtable is getting modified by other thread/process when it is accessing the code.
-> >
-> > Can you please provide your expert opinion what could be the issue here and how to fix this issue .
->
-> Hi Jaihind,
->
-> We need some additional information to help understand the problem.
-> What Linux distribution are you using?  What kernel are you using (version number), and do you have any patches applied to that kernel?
-> What SELinux policy are you using?
+Perhaps it is time to remove the call to
+security_old_inode_init_security() in ocfs2_init_security_get().  We
+need to hear back from the ocfs2 community.  Mark?  Joel?
 
--- 
-paul-moore.com
+As noted previously this change affects mknod and symlinks.
+
+Mimi
+
+> 
+> As fs_info was not used before, ocfs2_initxattrs() can now handle the case
+> of replicating the behavior of security_old_inode_init_security(), i.e.
+> just obtaining the xattr, in addition to setting all xattrs provided by
+> LSMs.
+> 
+> Finally, modify the handling of the return value from
+> ocfs2_init_security_get(). As security_inode_init_security() does not
+> return -EOPNOTSUPP, remove this case and directly handle the error if the
+> return value is not zero.
+> 
+> However, the previous case of receiving -EOPNOTSUPP should be still
+> taken into account, as security_inode_init_security() could return zero
+> without setting xattrs and ocfs2 would consider it as if the xattr was set.
+> 
+> Instead, if security_inode_init_security() returned zero, look at the xattr
+> if it was set, and behave accordingly, i.e. set si->enable to zero to
+> notify to the functions following ocfs2_init_security_get() that the xattr
+> is not available (same as if security_old_inode_init_security() returned
+> -EOPNOTSUPP).
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>  fs/ocfs2/namei.c | 18 ++++++------------
+>  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
+>  2 files changed, 32 insertions(+), 16 deletions(-)
+> 
+> diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
+> index 05f32989bad6..55fba81cd2d1 100644
+> --- a/fs/ocfs2/namei.c
+> +++ b/fs/ocfs2/namei.c
+> @@ -242,6 +242,7 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
+>  	int want_meta = 0;
+>  	int xattr_credits = 0;
+>  	struct ocfs2_security_xattr_info si = {
+> +		.name = NULL,
+>  		.enable = 1,
+>  	};
+>  	int did_quota_inode = 0;
+> @@ -315,12 +316,8 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
+>  	/* get security xattr */
+>  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
+>  	if (status) {
+> -		if (status == -EOPNOTSUPP)
+> -			si.enable = 0;
+> -		else {
+> -			mlog_errno(status);
+> -			goto leave;
+> -		}
+> +		mlog_errno(status);
+> +		goto leave;
+>  	}
+>  
+>  	/* calculate meta data/clusters for setting security and acl xattr */
+> @@ -1805,6 +1802,7 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
+>  	int want_clusters = 0;
+>  	int xattr_credits = 0;
+>  	struct ocfs2_security_xattr_info si = {
+> +		.name = NULL,
+>  		.enable = 1,
+>  	};
+>  	int did_quota = 0, did_quota_inode = 0;
+> @@ -1875,12 +1873,8 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
+>  	/* get security xattr */
+>  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
+>  	if (status) {
+> -		if (status == -EOPNOTSUPP)
+> -			si.enable = 0;
+> -		else {
+> -			mlog_errno(status);
+> -			goto bail;
+> -		}
+> +		mlog_errno(status);
+> +		goto bail;
+>  	}
+>  
+>  	/* calculate meta data/clusters for setting security xattr */
+> diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+> index 95d0611c5fc7..55699c573541 100644
+> --- a/fs/ocfs2/xattr.c
+> +++ b/fs/ocfs2/xattr.c
+> @@ -7259,9 +7259,21 @@ static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
+>  static int ocfs2_initxattrs(struct inode *inode, const struct xattr *xattr_array,
+>  		     void *fs_info)
+>  {
+> +	struct ocfs2_security_xattr_info *si = fs_info;
+>  	const struct xattr *xattr;
+>  	int err = 0;
+>  
+> +	if (si) {
+> +		si->value = kmemdup(xattr_array->value, xattr_array->value_len,
+> +				    GFP_KERNEL);
+> +		if (!si->value)
+> +			return -ENOMEM;
+> +
+> +		si->name = xattr_array->name;
+> +		si->value_len = xattr_array->value_len;
+> +		return 0;
+> +	}
+> +
+>  	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
+>  		err = ocfs2_xattr_set(inode, OCFS2_XATTR_INDEX_SECURITY,
+>  				      xattr->name, xattr->value,
+> @@ -7277,13 +7289,23 @@ int ocfs2_init_security_get(struct inode *inode,
+>  			    const struct qstr *qstr,
+>  			    struct ocfs2_security_xattr_info *si)
+>  {
+> +	int ret;
+> +
+>  	/* check whether ocfs2 support feature xattr */
+>  	if (!ocfs2_supports_xattr(OCFS2_SB(dir->i_sb)))
+>  		return -EOPNOTSUPP;
+> -	if (si)
+> -		return security_old_inode_init_security(inode, dir, qstr,
+> -							&si->name, &si->value,
+> -							&si->value_len);
+> +	if (si) {
+> +		ret = security_inode_init_security(inode, dir, qstr,
+> +						   &ocfs2_initxattrs, si);
+> +		/*
+> +		 * security_inode_init_security() does not return -EOPNOTSUPP,
+> +		 * we have to check the xattr ourselves.
+> +		 */
+> +		if (!ret && !si->name)
+> +			si->enable = 0;
+> +
+> +		return ret;
+> +	}
+>  
+>  	return security_inode_init_security(inode, dir, qstr,
+>  					    &ocfs2_initxattrs, NULL);
+
+
