@@ -2,169 +2,135 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6E28C433FE
-	for <selinux@archiver.kernel.org>; Thu, 24 Nov 2022 16:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4926C4332F
+	for <selinux@archiver.kernel.org>; Fri, 25 Nov 2022 15:50:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbiKXQdR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Nov 2022 11:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33430 "EHLO
+        id S229641AbiKYPuC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Nov 2022 10:50:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbiKXQdN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Nov 2022 11:33:13 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D40B16FB29
-        for <selinux@vger.kernel.org>; Thu, 24 Nov 2022 08:32:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669307535;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cxzsuraTLvoJ/8JNrAHlQzWOzvCPjiZlNMZ9V/cmzic=;
-        b=ZrN2ZFGFVBdVAkJa28/ODcxwuVCVQEtB9CKdn7LhJdrccFyD/SFArHxLyTG87ImZ49IWhU
-        iX6Mc1+TVz+4Lr+LiNqDE40cTE8UChJ8Zu/Lu8Becyo5nnxRU+uJA+i/CFZzMagT16hdMF
-        l0nSEX7C5HKQfCGslYKky+srxfAvsVw=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-546-rgcSmXcNMVaWiPHUKcpJFw-1; Thu, 24 Nov 2022 11:32:12 -0500
-X-MC-Unique: rgcSmXcNMVaWiPHUKcpJFw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8EB4129AB3F1
-        for <selinux@vger.kernel.org>; Thu, 24 Nov 2022 16:32:12 +0000 (UTC)
-Received: from ovpn-194-85.brq.redhat.com (ovpn-194-85.brq.redhat.com [10.40.194.85])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2A8194C819
-        for <selinux@vger.kernel.org>; Thu, 24 Nov 2022 16:32:12 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
+        with ESMTP id S229664AbiKYPuB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Nov 2022 10:50:01 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F08BA22B1C
+        for <selinux@vger.kernel.org>; Fri, 25 Nov 2022 07:49:59 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id vv4so11246734ejc.2
+        for <selinux@vger.kernel.org>; Fri, 25 Nov 2022 07:49:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=E+YlTI+KPOrx4zypcMevF7/1WNGEqOxjaEeTqS390cM=;
+        b=PF+eIklDddsENAIvuy0f0gKurznEmGh99w8hOWC8zTBPZRRXsaxYL+NMva0vMZZvhd
+         sz08KyfScvDTPUUrq2hz22ClplEYyd5srsXiyfwy27jEXRWRemPySGYlTi7SHptOTDTd
+         +dPfX7JpYW6SBtH//rboHtnMmvohKmRsEtEeQhhg4FWc67p7+mxfDJ+hyqHEE6aJ14S9
+         8ynWOB4S7ovi9eFybWcR3ILSsohH+WMMfBJAikNvMSEUwmaMogG1tcDd3+Gb2O+iswEt
+         o7Itn30AsOOnUt1doy8c7F7dY0PTIZ7T8t+aaG7/xkUYK1yihO4XIpYGSEeLeLgNhq/h
+         jYaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=E+YlTI+KPOrx4zypcMevF7/1WNGEqOxjaEeTqS390cM=;
+        b=uZ/bGueGAMPIgtM8eU+eDBVB6gYG2zfRRL5rNVLDydZSbS3+DywzHf3O81H5JROetT
+         mMsIAkmXQQomT+9vnmINocVoNPflMkfK62k2e1n4ryYaKzRn9PwhYcTd5YQcC8bsCi3F
+         /6fjHEDZjhHgoHuqNH1elozcU70TtWgoOA0uLpWnMTU1NeRLmqM1f8+mrBeYp/VfLHR3
+         vw/3+XaNQ4dkIA13/CC24QanHNVOk3zdp7f9gMCzvJmKQbcX+Bv/yOaSPdWXq+TQA89m
+         w/m2R/ScBqnoBtSZA/fgAaoH8YlXmZwzRiIqPVg9iTtLmi0rnCIKBI0RHxvU18tZaEtF
+         4W1g==
+X-Gm-Message-State: ANoB5pnrQwzG/9AFr7WZ+P4Ev7oXltpqT867GHeX4S7ottIopQxGflbs
+        UVMMMQP8z5T9BHPX5mp0VBL1NyvUWcM=
+X-Google-Smtp-Source: AA0mqf7hg6K46C0vv8imRsiVYLwzaV4gEWkdHkJrrGLOfDkDcb0dAeYs2Ij+koyKucaVIK5D/mwygA==
+X-Received: by 2002:a17:906:43c7:b0:7bb:c1e6:c4ac with SMTP id j7-20020a17090643c700b007bbc1e6c4acmr2427537ejn.757.1669391398434;
+        Fri, 25 Nov 2022 07:49:58 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-003-154-194.77.3.pool.telefonica.de. [77.3.154.194])
+        by smtp.gmail.com with ESMTPSA id b14-20020a17090630ce00b0078df26efb7dsm1677136ejb.107.2022.11.25.07.49.57
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Nov 2022 07:49:57 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 2/2] libsemanage: Use more conscious language
-Date:   Thu, 24 Nov 2022 17:31:53 +0100
-Message-Id: <20221124163153.500945-2-vmojzis@redhat.com>
-In-Reply-To: <20221124163153.500945-1-vmojzis@redhat.com>
-References: <20221124163153.500945-1-vmojzis@redhat.com>
+Subject: [RFC PATCH v4 0/6] not-self neverallow support
+Date:   Fri, 25 Nov 2022 16:49:46 +0100
+Message-Id: <20221125154952.20910-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-https://inclusivenaming.org/word-lists/tier-1/
+Add support for using negated or complemented self in the target type of
+neverallow rules.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/semanage_store.c | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+Some Refpolicy examples:
 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 14a0957a..27c5d349 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -2400,7 +2400,7 @@ static semanage_file_context_node_t
- 
- /* Sorts file contexts from least specific to most specific.
-  * A bucket linked list is passed in.  Upon completion,
-- * there is only one bucket (pointed to by master) that 
-+ * there is only one bucket (pointed to by "main") that
-  * contains a linked list of all the file contexts in sorted order.
-  * Explanation of the algorithm:
-  *  This is a stable implementation of an iterative merge sort.
-@@ -2411,15 +2411,15 @@ static semanage_file_context_node_t
-  *  Buckets are merged until there is only one bucket left, 
-  *   containing the list of file contexts, sorted.
-  */
--static void semanage_fc_merge_sort(semanage_file_context_bucket_t * master)
-+static void semanage_fc_merge_sort(semanage_file_context_bucket_t * main)
- {
- 	semanage_file_context_bucket_t *current;
- 	semanage_file_context_bucket_t *temp;
- 
--	/* Loop until master is the only bucket left.
--	 * When we stop master contains the sorted list. */
--	while (master->next) {
--		current = master;
-+	/* Loop until "main" is the only bucket left.
-+	 * When we stop "main" contains the sorted list. */
-+	while (main->next) {
-+		current = main;
- 
- 		/* Merge buckets two-by-two. 
- 		 * If there is an odd number of buckets, the last 
-@@ -2547,7 +2547,7 @@ int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 	semanage_file_context_node_t *temp;
- 	semanage_file_context_node_t *head;
- 	semanage_file_context_node_t *current;
--	semanage_file_context_bucket_t *master;
-+	semanage_file_context_bucket_t *main;
- 	semanage_file_context_bucket_t *bcurrent;
- 
- 	i = 0;
-@@ -2746,9 +2746,9 @@ int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 
- 	/* Create the bucket linked list from the node linked list. */
- 	current = head->next;
--	bcurrent = master = (semanage_file_context_bucket_t *)
-+	bcurrent = main = (semanage_file_context_bucket_t *)
- 	    calloc(1, sizeof(semanage_file_context_bucket_t));
--	if (!master) {
-+	if (!main) {
- 		ERR(sh, "Failure allocating memory.");
- 		semanage_fc_node_list_destroy(head);
- 		return -1;
-@@ -2772,7 +2772,7 @@ int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 			    calloc(1, sizeof(semanage_file_context_bucket_t));
- 			if (!(bcurrent->next)) {
- 				ERR(sh, "Failure allocating memory.");
--				semanage_fc_bucket_list_destroy(master);
-+				semanage_fc_bucket_list_destroy(main);
- 				return -1;
- 			}
- 
-@@ -2781,14 +2781,14 @@ int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 	}
- 
- 	/* Sort the bucket list. */
--	semanage_fc_merge_sort(master);
-+	semanage_fc_merge_sort(main);
- 
- 	/* First, calculate how much space we'll need for 
- 	 * the newly sorted block of data.  (We don't just
- 	 * use buf_len for this because we have extracted
- 	 * comments and whitespace.) */
- 	i = 0;
--	current = master->data;
-+	current = main->data;
- 	while (current) {
- 		i += current->path_len + 1;	/* +1 for a tab */
- 		if (current->file_type) {
-@@ -2803,14 +2803,14 @@ int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 	*sorted_buf = calloc(i, sizeof(char));
- 	if (!*sorted_buf) {
- 		ERR(sh, "Failure allocating memory.");
--		semanage_fc_bucket_list_destroy(master);
-+		semanage_fc_bucket_list_destroy(main);
- 		return -1;
- 	}
- 	*sorted_buf_len = i;
- 
- 	/* Output the sorted semanage_file_context linked list to the char buffer. */
- 	sorted_buf_pos = *sorted_buf;
--	current = master->data;
-+	current = main->data;
- 	while (current) {
- 		/* Output the path. */
- 		i = current->path_len + 1;	/* +1 for tab */
-@@ -2834,7 +2834,7 @@ int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 	}
- 
- 	/* Clean up. */
--	semanage_fc_bucket_list_destroy(master);
-+	semanage_fc_bucket_list_destroy(main);
- 
- 	/* Sanity check. */
- 	sorted_buf_pos++;
+    neverallow * ~self:{ capability cap_userns capability2 cap2_userns } *;
+    neverallow domain { domain -self -dockerc_t }:dir create;
+    # no violations
+
+    neverallow domain { domain -dockerc_t }:file ~{ append read_file_perms write };
+
+    libsepol.report_failure: neverallow on line 584 of policy/modules/kernel/kernel.te (or line 31357 of policy.conf) violated by allow sysadm_t httpd_bugzilla_script_t:file { create setattr relabelfrom relabelto unlink link rename };
+    libsepol.report_failure: neverallow on line 584 of policy/modules/kernel/kernel.te (or line 31357 of policy.conf) violated by allow spc_t spc_t:file { create };
+    libsepol.report_failure: neverallow on line 584 of policy/modules/kernel/kernel.te (or line 31357 of policy.conf) violated by allow container_t container_t:file { create };
+    libsepol.report_failure: neverallow on line 584 of policy/modules/kernel/kernel.te (or line 31357 of policy.conf) violated by allow chromium_t chromium_t:file { create };
+    libsepol.report_failure: neverallow on line 584 of policy/modules/kernel/kernel.te (or line 31357 of policy.conf) violated by allow spc_user_t spc_user_t:file { create };
+    libsepol.report_failure: neverallow on line 582 of policy/modules/kernel/kernel.te (or line 31355 of policy.conf) violated by allow sysadm_t httpd_bugzilla_script_t:dir { create };
+
+    neverallow domain { domain -self -dockerc_t }:file ~{ append read_file_perms write };
+
+    libsepol.report_failure: neverallow on line 583 of policy/modules/kernel/kernel.te (or line 31356 of policy.conf) violated by allow sysadm_t httpd_bugzilla_script_t:file { create setattr relabelfrom relabelto unlink link rename };
+    libsepol.report_failure: neverallow on line 582 of policy/modules/kernel/kernel.te (or line 31355 of policy.conf) violated by allow sysadm_t httpd_bugzilla_script_t:dir { create };
+
+Using negated self in a complement, `~{ domain -self }`, is not supported.
+
+Initial CIL support in the form of
+
+    (allow TYPE1 notself (CLASS (PERM)))
+    (allow TYPE1 minusself (CLASS (PERM)))
+
+is included from a patchset by James Carter.
+
+More complex targets are not yet supported in CIL and generating a CIL
+policy file from modular policies including such rules will fail with an
+appropriate message.
+
+
+RFC v3: https://lore.kernel.org/selinux/20211204103516.17375-2-cgzones@googlemail.com/
+Improved rebase and initial CIL work by James Carter: https://lore.kernel.org/selinux/20220111220823.596065-1-jwcart2@gmail.com/
+
+Christian Göttsche (5):
+  libsepol: Add not self support for neverallow rules
+  checkpolicy: add not-self neverallow support
+  libsepol/tests: add tests for not self neverallow rules
+  libsepol/tests: add tests for minus self neverallow rules
+  libsepol: update CIL generation for trivial not-self rules
+
+James Carter (1):
+  libsepol/cil: Add notself and minusself support to CIL
+
+ checkpolicy/policy_define.c                   |  46 ++-
+ checkpolicy/test/dismod.c                     |   6 +-
+ libsepol/cil/src/cil.c                        |  12 +
+ libsepol/cil/src/cil_binary.c                 |  91 ++++-
+ libsepol/cil/src/cil_build_ast.c              |  10 +-
+ libsepol/cil/src/cil_find.c                   | 206 ++++++++--
+ libsepol/cil/src/cil_internal.h               |   4 +
+ libsepol/cil/src/cil_resolve_ast.c            |   4 +
+ libsepol/cil/src/cil_verify.c                 |   3 +-
+ libsepol/include/sepol/policydb/policydb.h    |   3 +-
+ libsepol/src/assertion.c                      | 144 +++++--
+ libsepol/src/module_to_cil.c                  |  30 +-
+ libsepol/src/policydb_validate.c              |   9 +
+ .../test-neverallow/policy_minus_self.conf    | 369 +++++++++++++++++
+ .../test-neverallow/policy_not_self.conf      | 370 ++++++++++++++++++
+ libsepol/tests/test-neverallow.c              | 149 +++++++
+ 16 files changed, 1388 insertions(+), 68 deletions(-)
+ create mode 100644 libsepol/tests/policies/test-neverallow/policy_minus_self.conf
+ create mode 100644 libsepol/tests/policies/test-neverallow/policy_not_self.conf
+
 -- 
-2.37.3
+2.38.1
 
