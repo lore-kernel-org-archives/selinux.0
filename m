@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB758C4332F
-	for <selinux@archiver.kernel.org>; Fri, 25 Nov 2022 15:50:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88372C46467
+	for <selinux@archiver.kernel.org>; Fri, 25 Nov 2022 15:50:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229623AbiKYPuF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Nov 2022 10:50:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37328 "EHLO
+        id S229661AbiKYPuG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Nov 2022 10:50:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbiKYPuD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Nov 2022 10:50:03 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 805F847333
-        for <selinux@vger.kernel.org>; Fri, 25 Nov 2022 07:50:01 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id e27so11153391ejc.12
-        for <selinux@vger.kernel.org>; Fri, 25 Nov 2022 07:50:01 -0800 (PST)
+        with ESMTP id S229495AbiKYPuF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Nov 2022 10:50:05 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB06B23EB5
+        for <selinux@vger.kernel.org>; Fri, 25 Nov 2022 07:50:02 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id n20so11310380ejh.0
+        for <selinux@vger.kernel.org>; Fri, 25 Nov 2022 07:50:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bsjh+UqfF7FkOUnRv1VDPr5SdC//cnCnu7Oafn+3Cc4=;
-        b=abzVr6HF/agbvAlhSHYtlAdZJxhkSGsy1f3B60wxyIychq+dGOtUYG+JzLWf0KaPjW
-         i/2xbPJNMZd8G2UJTSGdt0Y1RfzC73B/KvdEmXPRNpQGmOVKmhxYjpa4N/2NfCDfL7cs
-         TU3ST09w3wZlJg2vtTbDCKSDADSkuXW1JYtE+F3rZtVBva7V5KcXmWxKBgitxusiBKhY
-         lsuaPiDdW+K16yYFbvboXVGzMI0NXmPHvdS0G0DlXqf3O6SZ6Y9bQOX4tpybL6nVmxQD
-         5u9lndzQkFu52ZtzL76RxAjv63Sui79VTwqbQtGhfjqJySahCPwa1BLFhI1SAB5bcS1L
-         9RXg==
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=RnPUJMNIcrWkulTFMMgeaCYIfBt32ujP8syf8kXojc8=;
+        b=Bly1yZH8vabvZ+n/l5jcH3E3vQ0YayQlesfBlh3KUCYT4nDqFnslL28hQ5pLMvH8aA
+         4cgyskrOriDN8GoO02yio0e64oNIbBKIIDObaMe8QvRig8fibxprp2H08tG9EF3O1rHR
+         UuUbuYrE6gzj9iv6SXtVyt950h1Pr04oaMLG04R8TN5eX6IC93hcy9O/H2gvd+8823sD
+         Xplk13otG8M7jl+y0MYPPYwZuR5+lisMnMUUhH3NopBB9nxDIQ9B0PLdvZKg5gFn+3An
+         KoFVQdONm/P1z2wDWLFIkQz/84rBnFp6/2qZI7Av9e7oJDeo+VxIuJMIjxIsIkfRe1y1
+         TkqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=bsjh+UqfF7FkOUnRv1VDPr5SdC//cnCnu7Oafn+3Cc4=;
-        b=GE0pKdzRLheNqr1/zakrNNkTaqmMRhxugv+PkBHFvVuBPr7190OmCmPUtHUBAMtMKE
-         67PjAGDbsX9WJ1tb6Gj9ndZS9b2pWgjP/isf2oVyIztL0DMPrSy7TR/BIFIg8chIT6TS
-         s9q206wYzcJE1feAfhYSvtFjoIswkr3ADnwT/vYiGUMJ3m5GzxuirAehG2UX20YPjNES
-         Tf9Z4nZ+C/nU2rEmNaMKUs/2NBQDhu9KP3PnsOaUYBL8rdcTWYtG/qUFyRLhZGAXjpAD
-         eHZY9jTWAiI1UkjVZl5Z428RKsINbv3UF/fy8JSs5CkXOtU/uI0zXfyFp1dxY8edUnzC
-         NRGQ==
-X-Gm-Message-State: ANoB5pnFBpF9uPR4MnqTbaC2MTyPhrEaizCGWJT3/WVZwS0HjvlZceKB
-        0i2ieTQAo7NaAFWAnxZDRVk65aGGnjM=
-X-Google-Smtp-Source: AA0mqf4cF5dYJ5Xl17faTBIDbx/D1ZRrHS/caU0pZ7OEu7kxYoUFq+4RdAOwiEuVQd0FuvcMq4TtoQ==
-X-Received: by 2002:a17:906:2817:b0:7ba:da1f:a727 with SMTP id r23-20020a170906281700b007bada1fa727mr8526863ejc.276.1669391399796;
-        Fri, 25 Nov 2022 07:49:59 -0800 (PST)
+        bh=RnPUJMNIcrWkulTFMMgeaCYIfBt32ujP8syf8kXojc8=;
+        b=j113Up0xR3mX720sSDxIY3PhiNWXkm9C2xj6HrA68fWGzM2UW8qKXrsjcMyZxQ+hRE
+         ST14DEooRQYfaPEVr13so5G7jqw3mnJPxHHy/VX1UmdLWa1n+5kVVHQOOrKb6nxJMC/4
+         Wgo+12Zaq6gGx1iLqYWuHIMZ4iLkLIgswht2HG4g6LyXddjmwc45ZnViVFkqGGKqr+/P
+         uUSc9zh5nq0mlFMr0Sio0ebDX4tYehmzI8dTp3c61y00nmV0g+W1Ya/S/zyFA+WbaYYg
+         qKh9+Bq33RdJSkHjRK/aBknNgPbE+vzhDnh36GG9U2l+DViVuMY/Bw6L+Tz95haw+SjM
+         +GAQ==
+X-Gm-Message-State: ANoB5pk3i68Sd52aRhdt0fTWlTs+fiuAMw1TMfs+QI+dHWoNl16vkmLW
+        IAdf/2E4BiMZYfKN2j2dGxva13xiH9w=
+X-Google-Smtp-Source: AA0mqf5GinregL6GbLJo4anFFr8Lz83To28URRFYOSQUjaMzE3FR/6PPX75ElQ7WRU844T4Sh2k/VA==
+X-Received: by 2002:a17:906:c1d0:b0:7b4:64d3:e6f4 with SMTP id bw16-20020a170906c1d000b007b464d3e6f4mr18186218ejb.594.1669391401055;
+        Fri, 25 Nov 2022 07:50:01 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-077-003-154-194.77.3.pool.telefonica.de. [77.3.154.194])
-        by smtp.gmail.com with ESMTPSA id b14-20020a17090630ce00b0078df26efb7dsm1677136ejb.107.2022.11.25.07.49.59
+        by smtp.gmail.com with ESMTPSA id b14-20020a17090630ce00b0078df26efb7dsm1677136ejb.107.2022.11.25.07.50.00
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Nov 2022 07:49:59 -0800 (PST)
+        Fri, 25 Nov 2022 07:50:00 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: [RFC PATCH v4 2/6] libsepol/cil: Add notself and minusself support to CIL
-Date:   Fri, 25 Nov 2022 16:49:48 +0100
-Message-Id: <20221125154952.20910-3-cgzones@googlemail.com>
+Subject: [RFC PATCH v4 4/6] libsepol/tests: add tests for not self neverallow rules
+Date:   Fri, 25 Nov 2022 16:49:50 +0100
+Message-Id: <20221125154952.20910-5-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221125154952.20910-1-cgzones@googlemail.com>
 References: <20221125154952.20910-1-cgzones@googlemail.com>
@@ -65,547 +65,481 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: James Carter <jwcart2@gmail.com>
-
-Like "self", both of these reserved words can be used as a target
-in an access vector rule. "notself" means all types other than
-the source type. "minuself" is meant to be used with an attribute
-and its use results in the rule being expanded with each type of
-the attribute being used as the source type with each of the other
-types being used as the target type. Using "minusself" with just
-a type will result in no rule.
-
-Example 1
-  (allow TYPE1 notself (CLASS (PERM)))
-
-This rule is expanded to a number of rules with TYPE1 as the source
-and every type except for TYPE1 as the target.
-
-Example 2
-  (allow ATTR1 notself (CLASS (PERM)))
-
-Like Example 1, this rule will be expanded to each type in ATTR1
-being the source with every type except for the type used as the
-source being the target.
-
-Example 3
-  (allow TYPE1 minusself (CLASS (PERM)))
-
-This expands to no rule.
-
-Example 4
-  (allow ATTR1 minusself (CLASS (PERM)))
-
-Like Example 2, but the target types will be limited to the types
-in the attribute ATTR1 instead of all types. So if ATTR1 has the
-type t1, t2, and t3, then this rule expands to the following rules.
-  (allow t1 t2 (CLASS (PERM)))
-  (allow t1 t3 (CLASS (PERM)))
-  (allow t2 t1 (CLASS (PERM)))
-  (allow t2 t3 (CLASS (PERM)))
-  (allow t3 t1 (CLASS (PERM)))
-  (allow t3 t2 (CLASS (PERM)))
-
-Original patch from James Carter <jwcart2@gmail.com>
-
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/cil/src/cil.c             |  12 ++
- libsepol/cil/src/cil_binary.c      |  91 ++++++++++++-
- libsepol/cil/src/cil_build_ast.c   |  10 +-
- libsepol/cil/src/cil_find.c        | 206 +++++++++++++++++++++++++----
- libsepol/cil/src/cil_internal.h    |   4 +
- libsepol/cil/src/cil_resolve_ast.c |   4 +
- libsepol/cil/src/cil_verify.c      |   3 +-
- 7 files changed, 300 insertions(+), 30 deletions(-)
+ .../test-neverallow/policy_not_self.conf      | 370 ++++++++++++++++++
+ libsepol/tests/test-neverallow.c              |  75 ++++
+ 2 files changed, 445 insertions(+)
+ create mode 100644 libsepol/tests/policies/test-neverallow/policy_not_self.conf
 
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 38edcf8e..d807a2c4 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -84,6 +84,8 @@ char *CIL_KEY_CONS_INCOMP;
- char *CIL_KEY_CONDTRUE;
- char *CIL_KEY_CONDFALSE;
- char *CIL_KEY_SELF;
-+char *CIL_KEY_NOTSELF;
-+char *CIL_KEY_MINUSSELF;
- char *CIL_KEY_OBJECT_R;
- char *CIL_KEY_STAR;
- char *CIL_KEY_TCP;
-@@ -253,6 +255,8 @@ static void cil_init_keys(void)
- 	CIL_KEY_CONDTRUE = cil_strpool_add("true");
- 	CIL_KEY_CONDFALSE = cil_strpool_add("false");
- 	CIL_KEY_SELF = cil_strpool_add("self");
-+	CIL_KEY_NOTSELF = cil_strpool_add("notself");
-+	CIL_KEY_MINUSSELF = cil_strpool_add("minusself");
- 	CIL_KEY_OBJECT_R = cil_strpool_add("object_r");
- 	CIL_KEY_STAR = cil_strpool_add("*");
- 	CIL_KEY_UDP = cil_strpool_add("udp");
-@@ -430,6 +434,12 @@ void cil_db_init(struct cil_db **db)
- 	cil_type_init(&(*db)->selftype);
- 	(*db)->selftype->datum.name = CIL_KEY_SELF;
- 	(*db)->selftype->datum.fqn = CIL_KEY_SELF;
-+	cil_type_init(&(*db)->notselftype);
-+	(*db)->notselftype->datum.name = CIL_KEY_NOTSELF;
-+	(*db)->notselftype->datum.fqn = CIL_KEY_NOTSELF;
-+	cil_type_init(&(*db)->minusselftype);
-+	(*db)->minusselftype->datum.name = CIL_KEY_MINUSSELF;
-+	(*db)->minusselftype->datum.fqn = CIL_KEY_MINUSSELF;
- 	(*db)->num_types_and_attrs = 0;
- 	(*db)->num_classes = 0;
- 	(*db)->num_types = 0;
-@@ -483,6 +493,8 @@ void cil_db_destroy(struct cil_db **db)
- 	cil_list_destroy(&(*db)->names, CIL_TRUE);
- 
- 	cil_destroy_type((*db)->selftype);
-+	cil_destroy_type((*db)->notselftype);
-+	cil_destroy_type((*db)->minusselftype);
- 
- 	cil_strpool_destroy();
- 	free((*db)->val_to_type);
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 40615db2..29b00336 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -1519,6 +1519,46 @@ static int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struc
- 			}
- 		}
- 		ebitmap_destroy(&src_bitmap);
-+	} else if (tgt->fqn == CIL_KEY_NOTSELF) {
-+		rc = __cil_expand_type(src, &src_bitmap);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
+diff --git a/libsepol/tests/policies/test-neverallow/policy_not_self.conf b/libsepol/tests/policies/test-neverallow/policy_not_self.conf
+new file mode 100644
+index 00000000..da2cc69b
+--- /dev/null
++++ b/libsepol/tests/policies/test-neverallow/policy_not_self.conf
+@@ -0,0 +1,370 @@
++class process
++class blk_file
++class chr_file
++class dir
++class fifo_file
++class file
++class lnk_file
++class sock_file
 +
-+		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
-+			src = DATUM(db->val_to_type[s]);
-+			for (t = 0; t < (unsigned int)db->num_types; t++) {
-+				if (s != t) {
-+					tgt = DATUM(db->val_to_type[t]);
-+					rc = __cil_avrule_expand(pdb, kind, src, tgt, classperms, cond_node, cond_flavor);
-+					if (rc != SEPOL_OK) {
-+						ebitmap_destroy(&src_bitmap);
-+						goto exit;
-+					}
-+				}
-+			}
-+		}
-+		ebitmap_destroy(&src_bitmap);
-+	} else if (tgt->fqn == CIL_KEY_MINUSSELF) {
-+		rc = __cil_expand_type(src, &src_bitmap);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
++class class5
++class class6
++class class7
++class class17
 +
-+		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
-+			src = DATUM(db->val_to_type[s]);
-+			ebitmap_for_each_positive_bit(&src_bitmap, tnode, t) {
-+				if (s != t) {
-+					tgt = DATUM(db->val_to_type[t]);
-+					rc = __cil_avrule_expand(pdb, kind, src, tgt, classperms, cond_node, cond_flavor);
-+					if (rc != SEPOL_OK) {
-+						ebitmap_destroy(&src_bitmap);
-+						goto exit;
-+					}
-+				}
-+			}
-+		}
-+		ebitmap_destroy(&src_bitmap);
- 	} else {
- 		int expand_src = __cil_should_expand_attribute(db, src);
- 		int expand_tgt = __cil_should_expand_attribute(db, tgt);
-@@ -1875,10 +1915,51 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
- 			src = DATUM(db->val_to_type[s]);
- 			rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, src, cil_avrulex->perms.x.permx, args);
- 			if (rc != SEPOL_OK) {
-+				ebitmap_destroy(&src_bitmap);
- 				goto exit;
- 			}
- 		}
- 		ebitmap_destroy(&src_bitmap);
-+	} else if (tgt->fqn == CIL_KEY_NOTSELF) {
-+		rc = __cil_expand_type(src, &src_bitmap);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
++sid kernel
++sid security
++sid unlabeled
++sid file
++sid port
++sid netif
++sid netmsg
++sid node
++sid devnull
 +
-+		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
-+			src = DATUM(db->val_to_type[s]);
-+			for (t = 0; t < (unsigned int)db->num_types; t++) {
-+				if (s != t) {
-+					tgt = DATUM(db->val_to_type[t]);
-+					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
-+					if (rc != SEPOL_OK) {
-+						ebitmap_destroy(&src_bitmap);
-+						goto exit;
-+					}
-+				}
-+			}
-+		}
-+		ebitmap_destroy(&src_bitmap);
-+	} else if (tgt->fqn == CIL_KEY_MINUSSELF) {
-+		rc = __cil_expand_type(src, &src_bitmap);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
++class process { dyntransition transition }
++class file { ioctl read write }
 +
-+		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
-+			src = DATUM(db->val_to_type[s]);
-+			ebitmap_for_each_positive_bit(&src_bitmap, tnode, t) {
-+				if (s != t) {
-+					tgt = DATUM(db->val_to_type[t]);
-+					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
-+					if (rc != SEPOL_OK) {
-+						ebitmap_destroy(&src_bitmap);
-+						goto exit;
-+					}
-+				}
-+			}
-+		}
-+		ebitmap_destroy(&src_bitmap);
- 	} else {
- 		int expand_src = __cil_should_expand_attribute(db, src);
- 		int expand_tgt = __cil_should_expand_attribute(db, tgt);
-@@ -4813,8 +4894,16 @@ static int cil_check_neverallow(const struct cil_db *db, policydb_t *pdb, struct
- 
- 	if (tgt->fqn == CIL_KEY_SELF) {
- 		rule->flags = RULE_SELF;
-+	} else if (tgt->fqn == CIL_KEY_NOTSELF) {
-+		rule->flags = RULE_NOTSELF;
-+	} else if (tgt->fqn == CIL_KEY_MINUSSELF) {
-+		rule->flags = RULE_NOTSELF;
-+		rc = __cil_add_sepol_type(pdb, db, cil_rule->src, &rule->ttypes.types);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
- 	} else {
--		rc = __cil_add_sepol_type(pdb, db, cil_rule->tgt, &rule->ttypes.types);
-+		rc = __cil_add_sepol_type(pdb, db, tgt, &rule->ttypes.types);
- 		if (rc != SEPOL_OK) {
- 			goto exit;
- 		}
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 4177c9f6..ca9f80c7 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -3126,9 +3126,13 @@ int cil_gen_aliasactual(struct cil_db *db, struct cil_tree_node *parse_current,
- 		goto exit;
- 	}
- 
--	if ((flavor == CIL_TYPEALIAS && parse_current->next->data == CIL_KEY_SELF) || parse_current->next->next->data == CIL_KEY_SELF) {
--		cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_KEY_SELF);
--		rc = SEPOL_ERR;
-+	rc = cil_verify_name(db, parse_current->next->data, flavor);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
++class class5 { perm }
++class class6 { perm }
++class class7 { perm }
++class class17 { ioctl }
 +
-+	rc = cil_verify_name(db, parse_current->next->next->data, flavor);
-+	if (rc != SEPOL_OK) {
- 		goto exit;
- 	}
- 
-diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
-index 8b755277..1518d33d 100644
---- a/libsepol/cil/src/cil_find.c
-+++ b/libsepol/cil/src/cil_find.c
-@@ -115,12 +115,13 @@ static int cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, str
- 
- /* s1 is the src type that is matched with a self
-  * s2, and t2 are the source and type of the other rule
-+ * Assumes there is a match between s1 and s2
-  */
- static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
- {
- 	int rc;
--	struct cil_tree_node *n1 = NODE(s1);
--	if (n1->flavor != CIL_TYPEATTRIBUTE) {
++ifdef(`enable_mls',`
++sensitivity s0;
++dominance { s0 }
++category c0; category c1; category c2; category c3;
++category c4; category c5; category c6; category c7;
++category c8; category c9; category c10; category c11;
++category c12; category c13; category c14; category c15;
++category c16; category c17; category c18; category c19;
++category c20; category c21; category c22; category c23;
 +
-+	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
- 		rc = cil_type_match_any(s1, t2);
- 	} else {
- 		struct cil_typeattribute *a = (struct cil_typeattribute *)s1;
-@@ -129,20 +130,149 @@ static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_dat
- 		rc = cil_type_matches(&map, s2, t2);
- 		if (rc < 0) {
- 			ebitmap_destroy(&map);
--			goto exit;
-+			return rc;
- 		}
--		if (map.node == NULL) {
--			rc = CIL_FALSE;
--			goto exit;
-+		if (!ebitmap_startnode(&map)) {
-+			ebitmap_destroy(&map);
-+			return CIL_FALSE;
- 		}
- 		rc = ebitmap_match_any(&map, a->types);
- 		ebitmap_destroy(&map);
- 	}
- 
--exit:
- 	return rc;
++level s0:c0.c23;
++
++mlsconstrain file { write } ( h1 dom h2 );
++')
++
++
++########################################
++#
++# Test start
++#
++########################################
++
++
++## Test 1 (single type)
++
++type test1_t;
++allow      test1_t test1_t : file read;
++neverallow test1_t ~self   : file read;  # nofail
++
++
++## Test 2 (single type)
++
++type test2_t;
++allow      test2_t self  : file read;
++neverallow test2_t ~self : file read;  # nofail
++
++
++## Test 3 (single type)
++
++type test3_1_t;
++type test3_2_t;
++allow      test3_1_t test3_2_t : file read;
++neverallow test3_1_t ~self     : file read;
++
++
++## Test 4 (two types I)
++
++type test4_1_t;
++type test4_2_t;
++allow      { test4_1_t test4_2_t } { test4_1_t test4_2_t } : file read;
++neverallow test4_1_t               ~self                   : file read;
++
++
++## Test 5 (two types II)
++
++type test5_1_t;
++type test5_2_t;
++allow      { test5_1_t test5_2_t } { test5_1_t test5_2_t } : class5 perm;
++neverallow *                       ~self                   : class5 perm;
++
++
++## Test 6 (two types III)
++
++type test6_1_t;
++type test6_2_t;
++allow      { test6_1_t test6_2_t } { test6_1_t test6_2_t } : class6 perm;
++neverallow *                       ~{ self test6_1_t }     : class6 perm;
++
++
++## Test 7 (two types IV)
++
++type test7_1_t;
++type test7_2_t;
++allow      { test7_1_t test7_2_t } { test7_1_t test7_2_t }       : class7 perm;
++neverallow *                       ~{ self test7_1_t test7_2_t } : class7 perm; # nofail
++
++
++## Test 8 (attribute violates type I)
++
++attribute test8_a;
++type test8_1_t, test8_a;
++type test8_2_t, test8_a;
++allow      test8_a   test8_a : file read;
++neverallow test8_1_t ~self   : file *;
++
++
++## Test 9 (attribute violates type II)
++
++attribute test9_a;
++type test9_1_t, test9_a;
++type test9_2_t, test9_a;
++allow      test9_1_t test9_a : file read;
++neverallow test9_1_t ~self   : file *;
++
++
++## Test 10 (attribute violates type III)
++
++attribute test10_1_a;
++attribute test10_2_a;
++type test10_1_t, test10_1_a, test10_1_a;
++type test10_2_t, test10_1_a, test10_1_a;
++allow      test10_1_a test10_1_a : file read;
++neverallow test10_1_t ~self      : file *;
++
++
++## Test 11 (attribute violates attribute I)
++
++attribute test11_1_a;
++attribute test11_2_a;
++type test11_1_t, test11_1_a, test11_2_a;
++type test11_2_t, test11_1_a, test11_2_a;
++allow      test11_1_t self       : file read;
++allow      test11_2_t test11_2_t : file read;
++neverallow test11_1_a ~self      : file *;  # nofail
++
++
++## Test 12 (attribute violates attribute II)
++
++attribute test12_a;
++type test12_1_t, test12_a;
++type test12_2_t, test12_a;
++allow      test12_1_t test12_2_t : file read;
++neverallow test12_a   ~self      : file *;
++
++
++## Test 13 (attribute violates attribute III)
++
++attribute test13_a;
++type test13_1_t, test13_a;
++type test13_2_t, test13_a;
++allow      test13_1_t test13_a : file read;
++neverallow test13_a   ~self    : file *;
++
++
++## Test 14 (attribute violates attribute IV)
++
++attribute test14_a;
++type test14_1_t, test14_a;
++type test14_2_t, test14_a;
++allow      test14_a test14_a : file read;
++neverallow test14_a ~self    : file *;
++
++
++## Test 15 (attribute violates attribute V)
++
++attribute test13_1_a;
++attribute test13_2_a;
++type test13_t, test13_1_a, test13_2_a;
++allow      test13_1_a test13_2_a : file read;
++neverallow test13_a   ~self      : file *;
++
++
++## Test 16 (types violate attribute)
++
++attribute test16_a;
++type test16_1_t, test16_a;
++type test16_2_t, test16_a;
++allow      { test16_1_t test16_2_t } { test16_1_t test16_2_t } : file read;
++neverallow test16_a                  ~self                     : file ~write;
++
++
++## Test 17 (extended permissions I)
++
++type test17_1_t;
++type test17_2_t;
++allow           { test17_1_t test17_2_t } { test17_1_t test17_2_t } : class17 ioctl;
++neverallowxperm ~test17_2_t               ~self                     : class17 ioctl 0x1111;
++
++
++## Test 18 (extended permissions II)
++
++type test18_1_t;
++type test18_2_t;
++allow           { test18_1_t test18_2_t } { test18_1_t test18_2_t } : file ioctl;
++allowxperm      { test18_1_t test18_2_t } { test18_1_t test18_2_t } : file ioctl 0x1111;
++neverallowxperm test18_1_t                ~self                     : file ioctl 0x2222;  # nofail
++
++
++## Test 19 (extended permissions III)
++
++type test19_1_t;
++type test19_2_t;
++allow           { test19_1_t test19_2_t } { test19_1_t test19_2_t } : file ioctl;
++allowxperm      { test19_1_t test19_2_t } { test19_1_t test19_2_t } : file ioctl { 0x0100 - 0x0102 };
++neverallowxperm test19_2_t                ~self                     : file ioctl { 0x0101 - 0x0104 };
++
++
++## Test 20 (extended permissions IV)
++
++type test20_1_t;
++type test20_2_t;
++allow           { test20_1_t test20_2_t } { test20_1_t test20_2_t } : file ioctl;
++allowxperm      test20_1_t                test20_1_t                : file ioctl 0x0101;
++allowxperm      test20_1_t                test20_2_t                : file ioctl 0x0102;
++allowxperm      test20_2_t                test20_1_t                : file ioctl 0x0103;
++allowxperm      test20_2_t                test20_2_t                : file ioctl 0x0104;
++neverallowxperm { test20_1_t test20_2_t } ~self                     : file ioctl { 0x0000 - 0x9000 };
++
++
++## Test 21 (extended permissions V)
++
++attribute test21_a;
++type test21_1_t, test21_a;
++type test21_2_t, test21_a;
++allow           test21_a   test21_a : file ioctl;
++allowxperm      test21_a   test21_a : file ioctl 0x9501;
++neverallowxperm test21_1_t ~self    : file ioctl 0x9511;  # nofail
++
++
++## Test 22 (extended permissions VI)
++
++type test22_t;
++allow           test22_t self  : file ioctl;
++allowxperm      test22_t self  : file ioctl 0x9501;
++allowxperm      test22_t self  : file ioctl 0x9511;
++neverallowxperm test22_t ~self : file ioctl 0x9511;  # nofail
++
++
++## Test 23 (extended permissions VII)
++
++attribute test23_a;
++type test23_1_t, test23_a;
++type test23_2_t, test23_a;
++allow           test23_a   test23_a   : file ioctl;
++allowxperm      test23_a   test23_a   : file ioctl 0x9501;
++allowxperm      test23_1_t test23_2_t : file ioctl 0x9511;
++neverallowxperm test23_1_t ~self      : file ioctl 0x9511;
++
++
++## Test 24 (extended permissions VII)
++
++attribute test24_a;
++type test24_1_t, test24_a;
++type test24_2_t, test24_a;
++allow           test24_a   test24_a : file ioctl;
++allowxperm      test24_a   test24_a : file ioctl 0x9501;
++allowxperm      test24_1_t test24_a : file ioctl 0x9511;
++neverallowxperm test24_1_t ~self    : file ioctl 0x9511;
++
++
++## Test 25 (extended permissions IX)
++
++attribute test25_a;
++type test25_1_t, test25_a;
++type test25_2_t, test25_a;
++allow           test25_a   test25_a : file ioctl;
++allowxperm      test25_a   test25_a : file ioctl 0x9501;
++allowxperm      test25_a   test25_a : file ioctl 0x9511;
++neverallowxperm test25_1_t ~self    : file ioctl 0x9511;
++
++
++## Test 26 (extended permissions X)
++
++attribute test26_1_a;
++attribute test26_2_a;
++type test26_1_t, test26_1_a, test26_2_a;
++type test26_2_t, test26_1_a, test26_2_a;
++allow           { test26_1_a test26_2_a } { test26_1_a test26_2_a } : file ioctl;
++allowxperm      { test26_1_a test26_2_a } { test26_1_a test26_2_a } : file ioctl 0x9501;
++allowxperm      test26_1_a                test26_2_a                : file ioctl 0x9511;
++neverallowxperm test26_1_t                ~self                     : file ioctl 0x9511;
++
++
++## Test 27 (extended permissions attribute violation I)
++
++attribute test27_a;
++type test27_1_t, test27_a;
++type test27_2_t, test27_a;
++allow           test27_a   test27_a   : file ioctl;
++allowxperm      test27_a   test27_a   : file ioctl 0x9501;
++allowxperm      test27_1_t self       : file ioctl 0x9521;
++allowxperm      test27_2_t test27_2_t : file ioctl 0x9521;
++neverallowxperm test27_a   ~self      : file ioctl 0x9521;  # nofail
++
++
++## Test 28 (extended permissions attribute violation II)
++
++attribute test28_a;
++type test28_1_t, test28_a;
++type test28_2_t, test28_a;
++allow           test28_a   test28_a   : file ioctl;
++allowxperm      test28_1_t test28_2_t : file ioctl 0x9521;
++neverallowxperm test28_a   ~self      : file ioctl 0x9521;
++
++
++## Test 29 (extended permissions attribute violation III)
++
++attribute test29_a;
++type test29_1_t, test29_a;
++type test29_2_t, test29_a;
++allow           test29_a   test29_a : file ioctl;
++allowxperm      test29_1_t test29_a : file ioctl 0x9521;
++neverallowxperm test29_a   ~self    : file ioctl 0x9521;
++
++
++## Test 30 (extended permissions attribute violation IV)
++
++attribute test30_a;
++type test30_1_t, test30_a;
++type test30_2_t, test30_a;
++allow           test30_a test30_a : file ioctl;
++allowxperm      test30_a test30_a : file ioctl 0x9521;
++neverallowxperm test30_a ~self    : file ioctl 0x9521;
++
++
++## Test 31 (extended permissions attribute violation V)
++
++attribute test31_1_a;
++attribute test31_2_a;
++type test31_1_t, test31_1_a, test31_2_a;
++type test31_2_t, test31_1_a, test31_2_a;
++allow           test31_1_a test31_1_a : file ioctl;
++allowxperm      test31_1_a test31_2_a : file ioctl 0x9521;
++neverallowxperm test31_1_a ~self      : file ioctl 0x9521;
++
++
++########################################
++#
++# Test End
++#
++########################################
++
++
++type sys_isid;
++role sys_role;
++role sys_role types sys_isid;
++gen_user(sys_user,, sys_role, s0, s0 - s0:c0.c23)
++sid kernel gen_context(sys_user:sys_role:sys_isid, s0)
++sid security gen_context(sys_user:sys_role:sys_isid, s0)
++sid unlabeled gen_context(sys_user:sys_role:sys_isid, s0)
++sid file gen_context(sys_user:sys_role:sys_isid, s0)
++sid port gen_context(sys_user:sys_role:sys_isid, s0)
++sid netif gen_context(sys_user:sys_role:sys_isid, s0)
++sid netmsg gen_context(sys_user:sys_role:sys_isid, s0)
++sid node gen_context(sys_user:sys_role:sys_isid, s0)
++sid devnull gen_context(sys_user:sys_role:sys_isid, s0)
++fs_use_trans devpts gen_context(sys_user:sys_role:sys_isid, s0);
++fs_use_trans devtmpfs gen_context(sys_user:sys_role:sys_isid, s0);
+diff --git a/libsepol/tests/test-neverallow.c b/libsepol/tests/test-neverallow.c
+index d973a0e3..c6518ebb 100644
+--- a/libsepol/tests/test-neverallow.c
++++ b/libsepol/tests/test-neverallow.c
+@@ -154,6 +154,76 @@ static void test_neverallow_basic(void)
+ 	policydb_destroy(&base_expanded);
  }
  
-+/* s1 is the src type that is matched with a notself
-+ * s2 and t2 are the source and type of the other rule
-+ * Assumes there is a match between s1 and s2
-+ */
-+static int cil_notself_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
++static void test_neverallow_not_self(void)
 +{
-+	int rc;
-+	ebitmap_node_t *snode, *tnode;
-+	unsigned int s,t;
++	policydb_t basemod, base_expanded;
++	sepol_handle_t *handle;
++	static const char *const expected_messages[] = {
++		"34 neverallow failures occurred",
++		"neverallow on line 78 of policies/test-neverallow/policy_not_self.conf.std (or line 78 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test3_1_t test3_2_t:file { read };",
++		"neverallow on line 86 of policies/test-neverallow/policy_not_self.conf.std (or line 86 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test4_1_t test4_2_t:file { read };",
++		"neverallow on line 94 of policies/test-neverallow/policy_not_self.conf.std (or line 94 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test5_1_t test5_2_t:class5 { perm };",
++		"neverallow on line 94 of policies/test-neverallow/policy_not_self.conf.std (or line 94 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test5_2_t test5_1_t:class5 { perm };",
++		"neverallow on line 102 of policies/test-neverallow/policy_not_self.conf.std (or line 102 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test6_1_t test6_2_t:class6 { perm };",
++		"neverallow on line 119 of policies/test-neverallow/policy_not_self.conf.std (or line 119 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test8_1_t test8_2_t:file { read };",
++		"neverallow on line 128 of policies/test-neverallow/policy_not_self.conf.std (or line 128 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test9_1_t test9_2_t:file { read };",
++		"neverallow on line 138 of policies/test-neverallow/policy_not_self.conf.std (or line 138 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test10_1_t test10_2_t:file { read };",
++		"neverallow on line 158 of policies/test-neverallow/policy_not_self.conf.std (or line 158 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test12_1_t test12_2_t:file { read };",
++		"neverallow on line 167 of policies/test-neverallow/policy_not_self.conf.std (or line 167 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test13_1_t test13_2_t:file { read };",
++		"neverallow on line 176 of policies/test-neverallow/policy_not_self.conf.std (or line 176 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test14_1_t test14_2_t:file { read };",
++		"neverallow on line 176 of policies/test-neverallow/policy_not_self.conf.std (or line 176 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test14_2_t test14_1_t:file { read };",
++		"neverallow on line 185 of policies/test-neverallow/policy_not_self.conf.std (or line 185 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test13_1_t test13_2_t:file { read };",
++		"neverallow on line 194 of policies/test-neverallow/policy_not_self.conf.std (or line 194 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test16_1_t test16_2_t:file { read };",
++		"neverallow on line 194 of policies/test-neverallow/policy_not_self.conf.std (or line 194 of policies/test-neverallow/policy_not_self.conf.std) violated by allow test16_2_t test16_1_t:file { read };",
++		"neverallowxperm on line 202 of policies/test-neverallow/policy_not_self.conf.std (or line 202 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallow test17_1_t test17_2_t:class17 { ioctl };",
++		"neverallowxperm on line 220 of policies/test-neverallow/policy_not_self.conf.std (or line 220 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test19_2_t test19_1_t:file ioctl { 0x101-0x102 };",
++		"neverallowxperm on line 232 of policies/test-neverallow/policy_not_self.conf.std (or line 232 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test20_1_t test20_2_t:file ioctl { 0x102 };",
++		"neverallowxperm on line 232 of policies/test-neverallow/policy_not_self.conf.std (or line 232 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test20_2_t test20_1_t:file ioctl { 0x103 };",
++		"neverallowxperm on line 262 of policies/test-neverallow/policy_not_self.conf.std (or line 262 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test23_1_t test23_2_t:file ioctl { 0x9511 };",
++		"neverallowxperm on line 273 of policies/test-neverallow/policy_not_self.conf.std (or line 273 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test24_1_t test24_a:file ioctl { 0x9511 };",
++		"neverallowxperm on line 284 of policies/test-neverallow/policy_not_self.conf.std (or line 284 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test25_a test25_a:file ioctl { 0x9511 };",
++		"neverallowxperm on line 296 of policies/test-neverallow/policy_not_self.conf.std (or line 296 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test26_1_a test26_2_a:file ioctl { 0x9511 };",
++		"neverallowxperm on line 296 of policies/test-neverallow/policy_not_self.conf.std (or line 296 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test26_1_a test26_2_a:file ioctl { 0x9511 };",
++		"neverallowxperm on line 296 of policies/test-neverallow/policy_not_self.conf.std (or line 296 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test26_1_a test26_2_a:file ioctl { 0x9511 };",
++		"neverallowxperm on line 296 of policies/test-neverallow/policy_not_self.conf.std (or line 296 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test26_1_a test26_2_a:file ioctl { 0x9511 };",
++		"neverallowxperm on line 318 of policies/test-neverallow/policy_not_self.conf.std (or line 318 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test28_1_t test28_2_t:file ioctl { 0x9521 };",
++		"neverallowxperm on line 318 of policies/test-neverallow/policy_not_self.conf.std (or line 318 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallow test28_2_t test28_1_t:file { ioctl };",
++		"neverallowxperm on line 328 of policies/test-neverallow/policy_not_self.conf.std (or line 328 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test29_1_t test29_a:file ioctl { 0x9521 };",
++		"neverallowxperm on line 328 of policies/test-neverallow/policy_not_self.conf.std (or line 328 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallow test29_2_t test29_1_t:file { ioctl };",
++		"neverallowxperm on line 338 of policies/test-neverallow/policy_not_self.conf.std (or line 338 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test30_a test30_a:file ioctl { 0x9521 };",
++		"neverallowxperm on line 338 of policies/test-neverallow/policy_not_self.conf.std (or line 338 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test30_a test30_a:file ioctl { 0x9521 };",
++		"neverallowxperm on line 349 of policies/test-neverallow/policy_not_self.conf.std (or line 349 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test31_1_a test31_2_a:file ioctl { 0x9521 };",
++		"neverallowxperm on line 349 of policies/test-neverallow/policy_not_self.conf.std (or line 349 of policies/test-neverallow/policy_not_self.conf.std) violated by\nallowxperm test31_1_a test31_2_a:file ioctl { 0x9521 };",
++	};
 +
-+	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
-+		struct cil_type *ts1 = (struct cil_type *)s1;
-+		if (FLAVOR(t2) != CIL_TYPEATTRIBUTE) {
-+			struct cil_type *tt2 = (struct cil_type *)t2;
-+			if (ts1->value != tt2->value) {
-+				return CIL_TRUE;
-+			}
-+		} else {
-+			struct cil_typeattribute *at2 = (struct cil_typeattribute *)t2;
-+			ebitmap_for_each_positive_bit(at2->types, tnode, t) {
-+				if (t != (unsigned int)ts1->value) {
-+					return CIL_TRUE;
-+				}
-+			}
-+		}
-+	} else {
-+		ebitmap_t smap;
-+		ebitmap_init(&smap);
-+		rc = cil_type_matches(&smap, s1, s2);
-+		if (rc < 0) {
-+			ebitmap_destroy(&smap);
-+			return rc;
-+		}
-+		if (!ebitmap_startnode(&smap)) {
-+			ebitmap_destroy(&smap);
-+			return CIL_FALSE;
-+		}
-+		if (FLAVOR(t2) != CIL_TYPEATTRIBUTE) {
-+			struct cil_type *tt2 = (struct cil_type *)t2;
-+			ebitmap_for_each_positive_bit(&smap, snode, s) {
-+				if (s != (unsigned int)tt2->value) {
-+					ebitmap_destroy(&smap);
-+					return CIL_TRUE;
-+				}
-+			}
-+		} else {
-+			struct cil_typeattribute *at2 = (struct cil_typeattribute *)t2;
-+			ebitmap_for_each_positive_bit(&smap, snode, s) {
-+				ebitmap_for_each_positive_bit(at2->types, tnode, t) {
-+					if (s != t) {
-+						ebitmap_destroy(&smap);
-+						return CIL_TRUE;
-+					}
-+				}
-+			}
-+		}
-+		ebitmap_destroy(&smap);
-+	}
++	if (policydb_init(&base_expanded))
++		CU_FAIL_FATAL("Failed to initialize policy");
 +
-+	return CIL_FALSE;
++	if (test_load_policy(&basemod, POLICY_BASE, mls, "test-neverallow", "policy_not_self.conf"))
++		CU_FAIL_FATAL("Failed to load policy");
++
++	if (link_modules(NULL, &basemod, NULL, 0, 0))
++		CU_FAIL_FATAL("Failed to link base module");
++
++	if (expand_module(NULL, &basemod, &base_expanded, 0, 0))
++		CU_FAIL_FATAL("Failed to expand policy");
++
++	if ((handle = sepol_handle_create()) == NULL)
++		CU_FAIL_FATAL("Failed to initialize handle");
++
++	sepol_msg_set_callback(handle, msg_handler, NULL);
++
++	if (check_assertions(handle, &base_expanded, base_expanded.global->branch_list->avrules) != -1)
++		CU_FAIL("Assertions did not trigger");
++
++	messages_check(ARRAY_SIZE(expected_messages), expected_messages);
++
++	sepol_handle_destroy(handle);
++	messages_clean();
++	policydb_destroy(&basemod);
++	policydb_destroy(&base_expanded);
 +}
 +
-+/* s1 is the src type that is matched with a minusself
-+ * s2, and t2 are the source and type of the other rule
-+ * Assumes there is a match between s1 and s2
-+ */
-+static int cil_minusself_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
-+{
-+	int rc;
-+
-+	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
-+		return CIL_FALSE;
-+	} else {
-+		ebitmap_t smap, tmap;
-+		ebitmap_node_t *snode, *tnode;
-+		unsigned int s,t;
-+
-+		ebitmap_init(&smap);
-+		rc = cil_type_matches(&smap, s1, s2);
-+		if (rc < 0) {
-+			ebitmap_destroy(&smap);
-+			return rc;
-+		}
-+
-+		ebitmap_init(&tmap);
-+		rc = cil_type_matches(&tmap, s1, t2);
-+		if (rc < 0) {
-+			ebitmap_destroy(&smap);
-+			ebitmap_destroy(&tmap);
-+			return rc;
-+		}
-+
-+		if (!ebitmap_startnode(&smap) || !ebitmap_startnode(&tmap)) {
-+			ebitmap_destroy(&smap);
-+			ebitmap_destroy(&tmap);
-+			return CIL_FALSE;
-+		}
-+
-+		ebitmap_for_each_positive_bit(&smap, snode, s) {
-+			ebitmap_for_each_positive_bit(&tmap, tnode, t) {
-+				if (s != t) {
-+					ebitmap_destroy(&smap);
-+					ebitmap_destroy(&tmap);
-+					return CIL_TRUE;
-+				}
-+			}
-+		}
-+
-+		ebitmap_destroy(&smap);
-+		ebitmap_destroy(&tmap);
-+	}
-+
-+	return CIL_FALSE;
-+}
-+
-+/* s2 is the src type that is matched with a minusself
-+ * Assumes there is a match between s1 and s2
-+ * s1 is not needed, since it is known that there is a match
-+ */
-+static int cil_notself_minusself_match_any(struct cil_symtab_datum *s2)
-+{
-+	if (FLAVOR(s2) == CIL_TYPEATTRIBUTE) {
-+		struct cil_typeattribute *as2 = (struct cil_typeattribute *)s2;
-+		if (ebitmap_cardinality(as2->types) > 1) {
-+			return CIL_TRUE;
-+		}
-+	}
-+	return CIL_FALSE;
-+}
-+
- static int cil_classperms_match_any(struct cil_classperms *cp1, struct cil_classperms *cp2)
+ int neverallow_add_tests(CU_pSuite suite)
  {
- 	struct cil_class *c1 = cp1->class;
-@@ -308,30 +438,56 @@ static int cil_find_matching_avrule(struct cil_tree_node *node, struct cil_avrul
- 
- 	if (!cil_type_match_any(s1, s2)) goto exit;
- 
--	if (t1->fqn != CIL_KEY_SELF && t2->fqn != CIL_KEY_SELF) {
--		if (!cil_type_match_any(t1, t2)) goto exit;
--	} else {
--		if (t1->fqn == CIL_KEY_SELF && t2->fqn == CIL_KEY_SELF) {
-+	if (t1->fqn == CIL_KEY_SELF) {
-+		if (t2->fqn == CIL_KEY_SELF) {
- 			/* The earlier check whether s1 and s2 matches is all that is needed */
--		} else if (t1->fqn == CIL_KEY_SELF) {
-+			rc = CIL_TRUE;
-+		} else if (t2->fqn == CIL_KEY_NOTSELF || t2->fqn == CIL_KEY_MINUSSELF) {
-+			rc = CIL_FALSE;
-+		} else {
- 			rc = cil_self_match_any(s1, s2, t2);
--			if (rc < 0) {
--				goto exit;
--			} else if (rc == CIL_FALSE) {
--				rc = SEPOL_OK;
--				goto exit;
--			}
--		} else if (t2->fqn == CIL_KEY_SELF) {
-+		}
-+	} else if (t1->fqn == CIL_KEY_NOTSELF) {
-+		if (t2->fqn == CIL_KEY_SELF) {
-+			rc = CIL_FALSE;
-+		} else if (t2->fqn == CIL_KEY_NOTSELF) {
-+			/* The earlier check whether s1 and s2 matches is all that is needed */
-+			rc = CIL_TRUE;
-+		} else if (t2->fqn == CIL_KEY_MINUSSELF) {
-+			rc = cil_notself_minusself_match_any(s2);
-+		} else {
-+			rc = cil_notself_match_any(s1, s2, t2);
-+		}
-+	} else if (t1->fqn == CIL_KEY_MINUSSELF) {
-+		if (t2->fqn == CIL_KEY_SELF) {
-+			rc = CIL_FALSE;
-+		} else if (t2->fqn == CIL_KEY_NOTSELF) {
-+			rc = cil_notself_minusself_match_any(s1);
-+		} else if (t2->fqn == CIL_KEY_MINUSSELF) {
-+			/* The earlier check whether s1 and s2 matches is all that is needed */
-+			rc = CIL_TRUE;
-+		} else {
-+			rc = cil_minusself_match_any(s1, s2, t2);
-+		}
-+	} else {
-+		if (t2->fqn == CIL_KEY_SELF) {
- 			rc = cil_self_match_any(s2, s1, t1);
--			if (rc < 0) {
--				goto exit;
--			} else if (rc == CIL_FALSE) {
--				rc = SEPOL_OK;
--				goto exit;
--			}
-+		} else if (t2->fqn == CIL_KEY_NOTSELF) {
-+			rc = cil_notself_match_any(s2, s1, t1);
-+		} else if (t2->fqn == CIL_KEY_MINUSSELF) {
-+			rc = cil_minusself_match_any(s2, s1, t1);
-+		} else {
-+			rc = cil_type_match_any(t1, t2);
- 		}
+ 	/*
+@@ -168,5 +238,10 @@ int neverallow_add_tests(CU_pSuite suite)
+ 		return CU_get_error();
  	}
  
-+	if (rc < 0) {
-+		goto exit;
-+	} else if (rc == CIL_FALSE) {
-+		rc = SEPOL_OK;
-+		goto exit;
++	if (NULL == CU_add_test(suite, "neverallow_not_self", test_neverallow_not_self)) {
++		CU_cleanup_registry();
++		return CU_get_error();
 +	}
 +
- 	if (!target->is_extended) {
- 		if (cil_classperms_list_match_any(avrule->perms.classperms, target->perms.classperms)) {
- 			cil_list_append(matching, CIL_NODE, node);
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index a7604762..d293b9ba 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -101,6 +101,8 @@ extern char *CIL_KEY_CONS_INCOMP;
- extern char *CIL_KEY_CONDTRUE;
- extern char *CIL_KEY_CONDFALSE;
- extern char *CIL_KEY_SELF;
-+extern char *CIL_KEY_NOTSELF;
-+extern char *CIL_KEY_MINUSSELF;
- extern char *CIL_KEY_OBJECT_R;
- extern char *CIL_KEY_STAR;
- extern char *CIL_KEY_TCP;
-@@ -289,6 +291,8 @@ struct cil_db {
- 	struct cil_tree *parse;
- 	struct cil_tree *ast;
- 	struct cil_type *selftype;
-+	struct cil_type *notselftype;
-+	struct cil_type *minusselftype;
- 	struct cil_list *sidorder;
- 	struct cil_list *classorder;
- 	struct cil_list *catorder;
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index f5e22c97..9065fe09 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -333,6 +333,10 @@ int cil_resolve_avrule(struct cil_tree_node *current, void *extra_args)
- 		
- 	if (rule->tgt_str == CIL_KEY_SELF) {
- 		rule->tgt = db->selftype;
-+	} else if (rule->tgt_str == CIL_KEY_NOTSELF) {
-+		rule->tgt = db->notselftype;
-+	} else if (rule->tgt_str == CIL_KEY_MINUSSELF) {
-+		rule->tgt = db->minusselftype;
- 	} else {
- 		rc = cil_resolve_name(current, rule->tgt_str, CIL_SYM_TYPES, args, &tgt_datum);
- 		if (rc != SEPOL_OK) {
-diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-index 4640dc59..1706fbf2 100644
---- a/libsepol/cil/src/cil_verify.c
-+++ b/libsepol/cil/src/cil_verify.c
-@@ -68,7 +68,8 @@ static int __cil_is_reserved_name(const char *name, enum cil_flavor flavor)
- 	case CIL_TYPE:
- 	case CIL_TYPEATTRIBUTE:
- 	case CIL_TYPEALIAS:
--		if ((name == CIL_KEY_ALL) || (name == CIL_KEY_SELF))
-+		if ((name == CIL_KEY_ALL) || (name == CIL_KEY_SELF) || (name == CIL_KEY_NOTSELF)
-+			|| (name == CIL_KEY_MINUSSELF))
- 			return CIL_TRUE;
- 		break;
- 	case CIL_CAT:
+ 	return 0;
+ }
 -- 
 2.38.1
 
