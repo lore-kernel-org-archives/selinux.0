@@ -2,155 +2,207 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD1DBC43217
-	for <selinux@archiver.kernel.org>; Mon, 28 Nov 2022 15:08:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C1EDC4708A
+	for <selinux@archiver.kernel.org>; Mon, 28 Nov 2022 18:31:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230301AbiK1PIY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Nov 2022 10:08:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53406 "EHLO
+        id S232923AbiK1Sbl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Nov 2022 13:31:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231672AbiK1PIH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Nov 2022 10:08:07 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDAD205FB
-        for <selinux@vger.kernel.org>; Mon, 28 Nov 2022 07:08:04 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id vv4so26595824ejc.2
-        for <selinux@vger.kernel.org>; Mon, 28 Nov 2022 07:08:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=C4znagd7meVacHDxzH+5455+BBsPs30hQamcCSKxvK8=;
-        b=pDQymxuEJJPnBJaeWtcbent+G4MViSvf+PY/P7mfMX2Ju9ySMLVY4ZGhxCQW+nJ2GD
-         5kn/0MW37/LB+ow6GHy+yF5k4u+GYfSmAclMmdTeyFK5t39/WpNWpgyOQQASg+JCVyjy
-         EfM88E8uJgfmn9aJIm/MNizbuAbmiGuR71yFis6hYZhJwdkqJvXQOTuCBSc5IVka9WLe
-         YwXLS+H/DB0TlkslNGzOsgrjoei2UamHtxasLKlrUEk/qgLd0RIpxWqf9E7ZlJwW1z/l
-         X2vZcZRSQSUHvrGXV0HBKYQWoFYO15gHy6nyIpycMzicre6+ePCPfXfxQUOZ+Q4ASGsO
-         D3cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=C4znagd7meVacHDxzH+5455+BBsPs30hQamcCSKxvK8=;
-        b=U/nIaF1P34ZBkn3f55sRL5Tx1RD9wArGDbfWMn+0wAV27RJfIb+o1US4A8bzG2PG32
-         pHpZP3JKHoSYzldNVuv6B1J1uul3QErJlojVD2nq3YBCSBme8fxcy6ZzPYuBPAIUQPuy
-         kt/SGsbVKDui8+892+ATDXMOzXdD+/Xvh6jY5Bzz3vRMEq9sbzUwqAdzPoqBrDI6zBFD
-         k6DTtDnzCQBEeOiuOFPnozZ24CvexXW9ZKSoOKkvN3RhPcimmHIKs1iBELamXr3/RZhQ
-         NyTwcuCw+x4vjJJ/uaK3V7utWmaR+GFvAy9Hh6qMr8eYymgjW2EW2GTGKcQ/BRqHh39Z
-         RloQ==
-X-Gm-Message-State: ANoB5pnR2aUkqNde0xmbVMwni7sjHEDOgz4Fvw/zOYEf2MgEvxrLlzVA
-        hD0iis1CaIpk7qzXu3x+m18PzyIQ5RWRE1leccjA5kR1VJo=
-X-Google-Smtp-Source: AA0mqf43sWUQs000j9UaG0CMaYfnoetIyMj1DgQ36bvki5zEgwjIIQT6ssAiBQan9qFlHlLTeW/TbPn1dG/7TCw3O5w=
-X-Received: by 2002:a17:906:1e8a:b0:7b2:b992:694d with SMTP id
- e10-20020a1709061e8a00b007b2b992694dmr38760616ejj.651.1669648083291; Mon, 28
- Nov 2022 07:08:03 -0800 (PST)
+        with ESMTP id S232583AbiK1SbW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Nov 2022 13:31:22 -0500
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B536A1094;
+        Mon, 28 Nov 2022 10:27:05 -0800 (PST)
+Received: from in01.mta.xmission.com ([166.70.13.51]:35544)
+        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oziGY-00778D-Ki; Mon, 28 Nov 2022 10:50:02 -0700
+Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:58100 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1oziGW-006oqs-Bm; Mon, 28 Nov 2022 10:50:02 -0700
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     'Andy Lutomirski' <luto@kernel.org>, Jann Horn <jannh@google.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jorge Merlino <jorge.merlino@canonical.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "John Johansen" <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Todd Kjos <tkjos@google.com>,
+        "Ondrej Mosnacek" <omosnace@redhat.com>,
+        Prashanth Prahlad <pprahlad@redhat.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
+References: <20221006082735.1321612-1-keescook@chromium.org>
+        <20221006082735.1321612-2-keescook@chromium.org>
+        <20221006090506.paqjf537cox7lqrq@wittgenstein>
+        <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
+        <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
+        <d2a6ccdd8a734d36ae88866a4c16019b@AcuMS.aculab.com>
+Date:   Mon, 28 Nov 2022 11:49:07 -0600
+In-Reply-To: <d2a6ccdd8a734d36ae88866a4c16019b@AcuMS.aculab.com> (David
+        Laight's message of "Fri, 14 Oct 2022 22:03:18 +0000")
+Message-ID: <87sfi3rmuk.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20221122161106.55037-1-lautrbach@redhat.com> <CAP+JOzRit39R5OKLFvHt0CdOixEHrBvybq3UWa6VicwMHG5NQA@mail.gmail.com>
-In-Reply-To: <CAP+JOzRit39R5OKLFvHt0CdOixEHrBvybq3UWa6VicwMHG5NQA@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 28 Nov 2022 10:07:52 -0500
-Message-ID: <CAP+JOzTzBC2mW=9mH=T2SYNpk8cXD0-MMcJjKpUeeUs9nAy=ww@mail.gmail.com>
-Subject: Re: [RFC PATCH] Use `pip install` instead of `setup.py install`
-To:     Petr Lautrbach <lautrbach@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-XM-SPF: eid=1oziGW-006oqs-Bm;;;mid=<87sfi3rmuk.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.110.29.46;;;frm=ebiederm@xmission.com;;;spf=pass
+X-XM-AID: U2FsdGVkX18hSeGIl+yv8nxANHdnXAlOdUtCNX9Vl/s=
+X-SA-Exim-Connect-IP: 68.110.29.46
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 23, 2022 at 11:04 AM James Carter <jwcart2@gmail.com> wrote:
+David Laight <David.Laight@ACULAB.COM> writes:
+
+> From: Andy Lutomirski
+>> Sent: 14 October 2022 04:18
+> ...
+>> But seriously, this makes no sense at all.  It should not be possible to exec a program and then,
+>> without ptrace, change its cwd out from under it.  Do we really need to preserve this behavior?
 >
-> On Tue, Nov 22, 2022 at 11:15 AM Petr Lautrbach <lautrbach@redhat.com> wrote:
-> >
-> > Fixes:
-> >     /usr/lib/python3.11/site-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
-> >
-> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
->
-> > ---
-> >  README.md                | 4 +++-
-> >  libselinux/src/Makefile  | 2 +-
-> >  python/sepolicy/Makefile | 2 +-
-> >  3 files changed, 5 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/README.md b/README.md
-> > index 529b7e46c871..e11b0028f4ba 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -62,6 +62,7 @@ dnf install \
-> >  # For Python and Ruby bindings
-> >  dnf install \
-> >      python3-devel \
-> > +    python3-pip \
+> it maybe ok if the exec'ed program also 'bought-in' to the
+> fact that its cwd and open files might get changed.
+> But imagine someone doing it to a login shell!
 
-So I noticed that I get the following message when building:
-  Processing /home/jim/work/selinux/python/sepolicy
-    Preparing metadata (setup.py): started
-    Preparing metadata (setup.py): finished with status 'done'
-  Using legacy 'setup.py install' for sepolicy, since package 'wheel'
-is not installed.
 
-Installing python3-wheel gives the following instead:
-  Building wheels for collected packages: sepolicy
-    Building wheel for sepolicy (setup.py): started
-    Building wheel for sepolicy (setup.py): finished with status 'done'
+I am slowly catching up on my email and I saw this conversation.
 
-It is not a strict dependency, but maybe we should add python3-wheel.
-Unless, of course, there is some reason we don't want to be creating
-these python wheels.
+When I initially saw this thread I was confused and thought this
+might run into an issue with fs/locks.c.  I was close but wrong.
+fs/locks.c uses current->files as a sort of process identifier
+and so is very sensitive to when it is unshared.  Making
+unsharing current->files unconditionally a bug.  Not relevant to
+this conversation.
 
-Thanks,
-Jim
 
-> >      ruby-devel \
-> >      swig
-> >  ```
-> > @@ -92,6 +93,7 @@ apt-get install --no-install-recommends --no-install-suggests \
-> >  # For Python and Ruby bindings
-> >  apt-get install --no-install-recommends --no-install-suggests \
-> >      python3-dev \
-> > +    python3-pip \
-> >      ruby-dev \
-> >      swig
-> >  ```
-> > @@ -102,7 +104,7 @@ To build and install everything under a private directory, run:
-> >
-> >      make DESTDIR=~/obj install install-rubywrap install-pywrap
-> >
-> > -On Debian `PYTHON_SETUP_ARGS=--install-layout=deb` needs to be set when installing the python wrappers in order to create the correct python directory structure.
-> > +On Debian `PYTHON_SETUP_ARGS='--install-option "--install-layout=deb"'` needs to be set when installing the python wrappers in order to create the correct python directory structure.
-> >
-> >  To run tests with the built libraries and programs, several paths (relative to `$DESTDIR`) need to be added to variables `$LD_LIBRARY_PATH`, `$PATH` and `$PYTHONPATH`.
-> >  This can be done using [./scripts/env_use_destdir](./scripts/env_use_destdir):
-> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> > index dc2848322e4d..0f6396ababa4 100644
-> > --- a/libselinux/src/Makefile
-> > +++ b/libselinux/src/Makefile
-> > @@ -187,7 +187,7 @@ install: all
-> >         ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
-> >
-> >  install-pywrap: pywrap
-> > -       $(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS)
-> > +       $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS) .
-> >         install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
-> >         ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
-> >
-> > diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-> > index d983e409e5e6..57a2e55edbbf 100644
-> > --- a/python/sepolicy/Makefile
-> > +++ b/python/sepolicy/Makefile
-> > @@ -27,7 +27,7 @@ test:
-> >         @$(PYTHON) test_sepolicy.py -v
-> >
-> >  install:
-> > -       $(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS)
-> > +       $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS) .
-> >         [ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
-> >         install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
-> >         (cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
-> > --
-> > 2.38.1
-> >
+There are several clone options that were only relevant for the old
+LinuxThreads implementation including CLONE_FS and CLONE_SIGHAND.
+The LinuxThreads implementation has not been needed since
+the introduction of CLONE_THREAD in linux-2.6.0 in 17 Dec 2003.
+Almost 20 years ago.
+
+I suggest we introduce CONFIG_CLONE_FS and CONFIG_SIGHAND to allow
+disabling support of these clone options.  No known user space will
+care.  The are both getting in the way of kernel maintenance so there
+is a reason to start pushing them out.
+
+Further simply not worrying about UNSHARE_FS during exec fixes the
+race so it essentially a bug fix by code removal.
+
+I believe something like the patch below should get the job done.
+
+diff --git a/fs/exec.c b/fs/exec.c
+index a0b1f0337a62..7ff13c77ad04 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1186,7 +1186,8 @@ static int unshare_sighand(struct task_struct *me)
+ {
+ 	struct sighand_struct *oldsighand = me->sighand;
+ 
+-	if (refcount_read(&oldsighand->count) != 1) {
++	if (IS_ENABLED(CONFIG_CLONE_SIGHAND) &&
++	    refcount_read(&oldsighand->count) != 1) {
+ 		struct sighand_struct *newsighand;
+ 		/*
+ 		 * This ->sighand is shared with the CLONE_SIGHAND
+@@ -1568,6 +1569,9 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
+ 	if (task_no_new_privs(current))
+ 		bprm->unsafe |= LSM_UNSAFE_NO_NEW_PRIVS;
+ 
++	if (!IS_ENABLED(CONFIG_CLONE_FS))
++		return;
++
+ 	t = p;
+ 	n_fs = 1;
+ 	spin_lock(&p->fs->lock);
+diff --git a/init/Kconfig b/init/Kconfig
+index 94125d3b6893..8660a6bcc1cf 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1764,6 +1764,23 @@ config KALLSYMS_BASE_RELATIVE
+ 	  time constants, and no relocation pass is required at runtime to fix
+ 	  up the entries based on the runtime load address of the kernel.
+ 
++config CLONE_FS
++	bool
++	default y
++	help
++	  Support CLONE_FS being passed to clone.  The only known user
++	  is the old LinuxThreads package so it should be safe to disable
++	  this option.
++
++config CLONE_SIGHAND
++	bool
++	default y
++	help
++	  Support CLONE_SIGHAND being passed to clone.  The only known user
++	  is the old LinuxThreads package so it should be safe to disable
++	  this option.
++
++
+ # end of the "standard kernel features (expert users)" menu
+ 
+ # syscall, maps, verifier
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 08969f5aa38d..da9017b51da4 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2023,6 +2023,16 @@ static __latent_entropy struct task_struct *copy_process(
+ 	if ((clone_flags & CLONE_SIGHAND) && !(clone_flags & CLONE_VM))
+ 		return ERR_PTR(-EINVAL);
+ 
++	/* Don't allow CLONE_FS if not enabled */
++	if (!IS_ENABLED(CONFIG_CLONE_FS) &&
++	    ((clone_flags & (CLONE_THREAD | CLONE_FS)) == CLONE_FS))
++		return ERR_PTR(-EINVAL);
++
++	/* Don't allow CLONE_SIGHAND if not enabled */
++	if (!IS_ENABLED(CONFIG_CLONE_SIGHAND) &&
++	    ((clone_flags & (CLONE_THREAD | CLONE_SIGHAND)) == CLONE_SIGHAND))
++		return ERR_PTR(-EINVAL);
++
+ 	/*
+ 	 * Siblings of global init remain as zombies on exit since they are
+ 	 * not reaped by their parent (swapper). To solve this and to avoid
+@@ -3101,6 +3111,9 @@ static int unshare_fs(unsigned long unshare_flags, struct fs_struct **new_fsp)
+ 	if (fs->users == 1)
+ 		return 0;
+ 
++	if (!IS_ENABLED(CONFIG_CLONE_FS))
++		return -EINVAL;
++
+ 	*new_fsp = copy_fs_struct(fs);
+ 	if (!*new_fsp)
+ 		return -ENOMEM;
+
+Eric
