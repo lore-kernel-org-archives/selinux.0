@@ -2,207 +2,199 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C1EDC4708A
-	for <selinux@archiver.kernel.org>; Mon, 28 Nov 2022 18:31:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C3A9C4321E
+	for <selinux@archiver.kernel.org>; Tue, 29 Nov 2022 11:23:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232923AbiK1Sbl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Nov 2022 13:31:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41024 "EHLO
+        id S229676AbiK2LXo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 29 Nov 2022 06:23:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232583AbiK1SbW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 28 Nov 2022 13:31:22 -0500
-Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B536A1094;
-        Mon, 28 Nov 2022 10:27:05 -0800 (PST)
-Received: from in01.mta.xmission.com ([166.70.13.51]:35544)
-        by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1oziGY-00778D-Ki; Mon, 28 Nov 2022 10:50:02 -0700
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:58100 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1oziGW-006oqs-Bm; Mon, 28 Nov 2022 10:50:02 -0700
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Andy Lutomirski' <luto@kernel.org>, Jann Horn <jannh@google.com>,
-        Christian Brauner <brauner@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jorge Merlino <jorge.merlino@canonical.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Sebastian Andrzej Siewior" <bigeasy@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "John Johansen" <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Todd Kjos <tkjos@google.com>,
-        "Ondrej Mosnacek" <omosnace@redhat.com>,
-        Prashanth Prahlad <pprahlad@redhat.com>,
-        Micah Morton <mortonm@chromium.org>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-hardening@vger.kernel.org" <linux-hardening@vger.kernel.org>
-References: <20221006082735.1321612-1-keescook@chromium.org>
-        <20221006082735.1321612-2-keescook@chromium.org>
-        <20221006090506.paqjf537cox7lqrq@wittgenstein>
-        <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
-        <2032f766-1704-486b-8f24-a670c0b3cb32@app.fastmail.com>
-        <d2a6ccdd8a734d36ae88866a4c16019b@AcuMS.aculab.com>
-Date:   Mon, 28 Nov 2022 11:49:07 -0600
-In-Reply-To: <d2a6ccdd8a734d36ae88866a4c16019b@AcuMS.aculab.com> (David
-        Laight's message of "Fri, 14 Oct 2022 22:03:18 +0000")
-Message-ID: <87sfi3rmuk.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1oziGW-006oqs-Bm;;;mid=<87sfi3rmuk.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.110.29.46;;;frm=ebiederm@xmission.com;;;spf=pass
-X-XM-AID: U2FsdGVkX18hSeGIl+yv8nxANHdnXAlOdUtCNX9Vl/s=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+        with ESMTP id S229616AbiK2LXo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 29 Nov 2022 06:23:44 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FD3B4BB;
+        Tue, 29 Nov 2022 03:23:43 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2AT9sSRj007122;
+        Tue, 29 Nov 2022 11:23:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=/smMidFxcLEK4Y856DjTwLSzF8Q3YTSpTIA5p2GvUGU=;
+ b=eRi59DIx2C4Ca4cE0OnoZVdlifqtjwY/MWyqfRlVN84SfXsstwm2/oYjWLk6E2/9rVxI
+ FP/N7i6JJpYFLNu2orGqZ/YR/9CJsQJg/OyJqh3WfQxCal8ifCZ3D95scAy0lAeWjwTI
+ 4bhO9BjLF0jUzoren5m/XzUzZUyjyBTL6BUkNA8vIkbB3EvJ0MaC5u+URFNIg6Kz5RiT
+ +fk7gy/HKc9FAdI5uLzl15jCo4NJcjzmjP2AuCQhxEn8jsMS+lCUo/mKeG7qyNiioAuf
+ XIIqHHo5vKeHejKR6nS8fNTGHajPCa2cLbOker9afRlgGqI2kd0wzM+cB5gjP0OJBD/0 YA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5djwnt6n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 11:23:08 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ATATLta012268;
+        Tue, 29 Nov 2022 11:23:08 GMT
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5djwnt67-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 11:23:07 +0000
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ATBLSfQ030091;
+        Tue, 29 Nov 2022 11:23:06 GMT
+Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
+        by ppma03wdc.us.ibm.com with ESMTP id 3m3ae9c5uu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Nov 2022 11:23:06 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com ([9.208.128.115])
+        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ATBN5tU11993706
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 29 Nov 2022 11:23:05 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1F0175803F;
+        Tue, 29 Nov 2022 11:23:05 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 384785804E;
+        Tue, 29 Nov 2022 11:23:03 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.96.78])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Tue, 29 Nov 2022 11:23:03 +0000 (GMT)
+Message-ID: <9859294adb0a9b9587ea7fb70a836a312aaf3c69.camel@linux.ibm.com>
+Subject: Re: [PATCH v6 4/6] security: Allow all LSMs to provide xattrs for
+ inode_init_security hook
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
+        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Tue, 29 Nov 2022 06:23:02 -0500
+In-Reply-To: <bb63eba9a9f24558f4a1acd9bf012b59b5c6e98e.camel@huaweicloud.com>
+References: <20221123154712.752074-1-roberto.sassu@huaweicloud.com>
+         <20221123154712.752074-5-roberto.sassu@huaweicloud.com>
+         <13350b79f708cb089e2ff2ee5cead52bafb10982.camel@linux.ibm.com>
+         <bb63eba9a9f24558f4a1acd9bf012b59b5c6e98e.camel@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: YWJ0UkKGLkx-v1vHUCLv3jRvVEbAFJIi
+X-Proofpoint-GUID: 1QSg_Kxvz3AePdR0NFcitQgRW4PGc6pb
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-11-29_07,2022-11-28_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 adultscore=0
+ mlxscore=0 bulkscore=0 priorityscore=1501 mlxlogscore=999 spamscore=0
+ clxscore=1015 lowpriorityscore=0 phishscore=0 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2211290067
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-David Laight <David.Laight@ACULAB.COM> writes:
+On Thu, 2022-11-24 at 09:17 +0100, Roberto Sassu wrote:
+> On Wed, 2022-11-23 at 20:14 -0500, Mimi Zohar wrote:
+> > Hi Roberto,
+> > 
+> > On Wed, 2022-11-23 at 16:47 +0100, Roberto Sassu wrote:
+> > >  int security_inode_init_security(struct inode *inode, struct inode *dir,
+> > >                                  const struct qstr *qstr,
+> > >                                  const initxattrs initxattrs, void *fs_data)
+> > >  {
+> > > -       struct xattr new_xattrs[MAX_LSM_EVM_XATTR + 1];
+> > > -       struct xattr *lsm_xattr, *evm_xattr, *xattr;
+> > > -       int ret;
+> > > +       struct security_hook_list *P;
+> > > +       struct xattr *new_xattrs;
+> > > +       struct xattr *xattr;
+> > > +       int ret = -EOPNOTSUPP, num_filled_xattrs = 0;
+> > >  
+> > >         if (unlikely(IS_PRIVATE(inode)))
+> > >                 return 0;
+> > >  
+> > > +       if (!blob_sizes.lbs_xattr)
+> > > +               return 0;
+> > > +
+> > >         if (!initxattrs)
+> > >                 return call_int_hook(inode_init_security, -EOPNOTSUPP, inode,
+> > > -                                    dir, qstr, NULL, NULL, NULL);
+> > > -       memset(new_xattrs, 0, sizeof(new_xattrs));
+> > > -       lsm_xattr = new_xattrs;
+> > > -       ret = call_int_hook(inode_init_security, -EOPNOTSUPP, inode, dir, qstr,
+> > > -                                               &lsm_xattr->name,
+> > > -                                               &lsm_xattr->value,
+> > > -                                               &lsm_xattr->value_len);
+> > > -       if (ret)
+> > > +                                   dir, qstr, NULL);
+> > > +       /* Allocate +1 for EVM and +1 as terminator. */
+> > > +       new_xattrs = kcalloc(blob_sizes.lbs_xattr + 2, sizeof(*new_xattrs),
+> > > +                            GFP_NOFS);
+> > > +       if (!new_xattrs)
+> > > +               return -ENOMEM;
+> > > +
+> > > +       hlist_for_each_entry(P, &security_hook_heads.inode_init_security,
+> > > +                            list) {
+> > > +               ret = P->hook.inode_init_security(inode, dir, qstr, new_xattrs);
+> > > +               if (ret && ret != -EOPNOTSUPP)
+> > > +                       goto out;
+> > > +               if (ret == -EOPNOTSUPP)
+> > > +                       continue;
+> > 
+> > In this context, -EOPNOTSUPP originally signified that the filesystem
+> > does not support writing xattrs.  Writing any xattr would fail. 
+> > Returning -ENODATA for no LSM xattr(s) data would seem to be more
+> > appropriate than -EOPNOTSUPP.
+> 
+> Hi Mimi
+> 
+> I thought about adding new return values. Currently only -EOPNOTSUPP
+> and -ENOMEM are expected as errors.
+> 
+> However, changing the conventions would mean revisiting the LSMs code
+> and ensuring that they follow the new conventions.
+> 
+> I would be more in favor of not touching it.
 
-> From: Andy Lutomirski
->> Sent: 14 October 2022 04:18
-> ...
->> But seriously, this makes no sense at all.  It should not be possible to exec a program and then,
->> without ptrace, change its cwd out from under it.  Do we really need to preserve this behavior?
->
-> it maybe ok if the exec'ed program also 'bought-in' to the
-> fact that its cwd and open files might get changed.
-> But imagine someone doing it to a login shell!
+Casey, Paul, any comment?
+
+> > 
+> > > +               /*
+> > > +                * As the number of xattrs reserved by LSMs is not directly
+> > > +                * available, directly use the total number blob_sizes.lbs_xattr
+> > > +                * to keep the code simple, while being not the most efficient
+> > > +                * way.
+> > > +                */
+> > > +               ret = security_check_compact_filled_xattrs(new_xattrs,
+> > > +                                                          blob_sizes.lbs_xattr,
+> > > +                                                          &num_filled_xattrs);
+> > > +               if (ret < 0) {
+> > > +                       ret = -ENOMEM;
+> > > +                       goto out;
+> > > +               }
+> > > +       }
+> > > +
+> > > +       if (!num_filled_xattrs)
+> > >                 goto out;
+> > >  
+> > > -       evm_xattr = lsm_xattr + 1;
+> > > -       ret = evm_inode_init_security(inode, lsm_xattr, evm_xattr);
+> > > +       ret = evm_inode_init_security(inode, new_xattrs,
+> > > +                                     new_xattrs + num_filled_xattrs);
+> > >         if (ret)
+> > >                 goto out;
+> > >         ret = initxattrs(inode, new_xattrs, fs_data);
+> > >  out:
+> > >         for (xattr = new_xattrs; xattr->value != NULL; xattr++)
+> > >                 kfree(xattr->value);
+> > > +       kfree(new_xattrs);
+> > >         return (ret == -EOPNOTSUPP) ? 0 : ret;
+> > >  }
+> > b
+> 
 
 
-I am slowly catching up on my email and I saw this conversation.
-
-When I initially saw this thread I was confused and thought this
-might run into an issue with fs/locks.c.  I was close but wrong.
-fs/locks.c uses current->files as a sort of process identifier
-and so is very sensitive to when it is unshared.  Making
-unsharing current->files unconditionally a bug.  Not relevant to
-this conversation.
-
-
-There are several clone options that were only relevant for the old
-LinuxThreads implementation including CLONE_FS and CLONE_SIGHAND.
-The LinuxThreads implementation has not been needed since
-the introduction of CLONE_THREAD in linux-2.6.0 in 17 Dec 2003.
-Almost 20 years ago.
-
-I suggest we introduce CONFIG_CLONE_FS and CONFIG_SIGHAND to allow
-disabling support of these clone options.  No known user space will
-care.  The are both getting in the way of kernel maintenance so there
-is a reason to start pushing them out.
-
-Further simply not worrying about UNSHARE_FS during exec fixes the
-race so it essentially a bug fix by code removal.
-
-I believe something like the patch below should get the job done.
-
-diff --git a/fs/exec.c b/fs/exec.c
-index a0b1f0337a62..7ff13c77ad04 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1186,7 +1186,8 @@ static int unshare_sighand(struct task_struct *me)
- {
- 	struct sighand_struct *oldsighand = me->sighand;
- 
--	if (refcount_read(&oldsighand->count) != 1) {
-+	if (IS_ENABLED(CONFIG_CLONE_SIGHAND) &&
-+	    refcount_read(&oldsighand->count) != 1) {
- 		struct sighand_struct *newsighand;
- 		/*
- 		 * This ->sighand is shared with the CLONE_SIGHAND
-@@ -1568,6 +1569,9 @@ static void check_unsafe_exec(struct linux_binprm *bprm)
- 	if (task_no_new_privs(current))
- 		bprm->unsafe |= LSM_UNSAFE_NO_NEW_PRIVS;
- 
-+	if (!IS_ENABLED(CONFIG_CLONE_FS))
-+		return;
-+
- 	t = p;
- 	n_fs = 1;
- 	spin_lock(&p->fs->lock);
-diff --git a/init/Kconfig b/init/Kconfig
-index 94125d3b6893..8660a6bcc1cf 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -1764,6 +1764,23 @@ config KALLSYMS_BASE_RELATIVE
- 	  time constants, and no relocation pass is required at runtime to fix
- 	  up the entries based on the runtime load address of the kernel.
- 
-+config CLONE_FS
-+	bool
-+	default y
-+	help
-+	  Support CLONE_FS being passed to clone.  The only known user
-+	  is the old LinuxThreads package so it should be safe to disable
-+	  this option.
-+
-+config CLONE_SIGHAND
-+	bool
-+	default y
-+	help
-+	  Support CLONE_SIGHAND being passed to clone.  The only known user
-+	  is the old LinuxThreads package so it should be safe to disable
-+	  this option.
-+
-+
- # end of the "standard kernel features (expert users)" menu
- 
- # syscall, maps, verifier
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 08969f5aa38d..da9017b51da4 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2023,6 +2023,16 @@ static __latent_entropy struct task_struct *copy_process(
- 	if ((clone_flags & CLONE_SIGHAND) && !(clone_flags & CLONE_VM))
- 		return ERR_PTR(-EINVAL);
- 
-+	/* Don't allow CLONE_FS if not enabled */
-+	if (!IS_ENABLED(CONFIG_CLONE_FS) &&
-+	    ((clone_flags & (CLONE_THREAD | CLONE_FS)) == CLONE_FS))
-+		return ERR_PTR(-EINVAL);
-+
-+	/* Don't allow CLONE_SIGHAND if not enabled */
-+	if (!IS_ENABLED(CONFIG_CLONE_SIGHAND) &&
-+	    ((clone_flags & (CLONE_THREAD | CLONE_SIGHAND)) == CLONE_SIGHAND))
-+		return ERR_PTR(-EINVAL);
-+
- 	/*
- 	 * Siblings of global init remain as zombies on exit since they are
- 	 * not reaped by their parent (swapper). To solve this and to avoid
-@@ -3101,6 +3111,9 @@ static int unshare_fs(unsigned long unshare_flags, struct fs_struct **new_fsp)
- 	if (fs->users == 1)
- 		return 0;
- 
-+	if (!IS_ENABLED(CONFIG_CLONE_FS))
-+		return -EINVAL;
-+
- 	*new_fsp = copy_fs_struct(fs);
- 	if (!*new_fsp)
- 		return -ENOMEM;
-
-Eric
