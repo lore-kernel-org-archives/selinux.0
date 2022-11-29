@@ -2,307 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE03EC4321E
-	for <selinux@archiver.kernel.org>; Tue, 29 Nov 2022 13:16:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D156C4321E
+	for <selinux@archiver.kernel.org>; Tue, 29 Nov 2022 13:17:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234167AbiK2NQW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Nov 2022 08:16:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
+        id S233293AbiK2NRz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 29 Nov 2022 08:17:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233756AbiK2NPl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Nov 2022 08:15:41 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39E2E62077;
-        Tue, 29 Nov 2022 05:15:35 -0800 (PST)
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2ATCu9no004117;
-        Tue, 29 Nov 2022 13:14:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=y/kKapuMNDnSVXnnqDIkkqYme+g/37hqRusGVTeU+po=;
- b=FsyPM2c/w0ag8TufqpFvr7Qwa9h+oC8pufbt5LYRrEknaHXlSVnEyhXAC1C5PoU7WrZO
- PCO3tCJ+5pK/cZ1h6QI99DOyNXTuKQLPaSrKaSaQpPfgIoVQplUcm12A8HYDR5K0X5ru
- 49uWnW3vWzc+MK3R3xIUGj8aX5FC/UxG3WGOFrNj/Sidrakbs1vfiweazquSZUsEwN5y
- OlK6Yq7YNyWPW94Xu6E6aG6heLpTQl9FLoNrPzHdvpA2XgwQBkfCfa2dNxkmk2jq7Bqs
- xIiEjGd30NxPu+8lOrBqjmGOgcAb2z2WcspX/LkfjGyXYszwE8oS1pi7al7FKwtVupCB vA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5ebuf42g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Nov 2022 13:14:54 +0000
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2ATCMCvT029911;
-        Tue, 29 Nov 2022 13:14:54 GMT
-Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3m5ebuf41f-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Nov 2022 13:14:54 +0000
-Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
-        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 2ATD5FeV007569;
-        Tue, 29 Nov 2022 13:14:52 GMT
-Received: from b03cxnp07027.gho.boulder.ibm.com (b03cxnp07027.gho.boulder.ibm.com [9.17.130.14])
-        by ppma04wdc.us.ibm.com with ESMTP id 3m3ae9mngh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Nov 2022 13:14:52 +0000
-Received: from smtpav06.dal12v.mail.ibm.com ([9.208.128.130])
-        by b03cxnp07027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2ATDEpL417957484
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Nov 2022 13:14:51 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 564CF5805F;
-        Tue, 29 Nov 2022 13:14:51 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25D5758055;
-        Tue, 29 Nov 2022 13:14:50 +0000 (GMT)
-Received: from sig-9-77-136-107.ibm.com (unknown [9.77.136.107])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 29 Nov 2022 13:14:50 +0000 (GMT)
-Message-ID: <8ca5be2f5ac0f5690a9025e5eec9fc93e8613842.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 2/6] ocfs2: Switch to security_inode_init_security()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
-        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, Casey Schaufler <casey@schaufler-ca.com>
-Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Tue, 29 Nov 2022 08:14:49 -0500
-In-Reply-To: <44de9254c7abf1c836142cf3262450de1912bbc0.camel@huaweicloud.com>
-References: <20221123095202.599252-1-roberto.sassu@huaweicloud.com>
-         <20221123095202.599252-3-roberto.sassu@huaweicloud.com>
-         <052d91687e813110cc1e1d762ea086cc8085114a.camel@linux.ibm.com>
-         <44de9254c7abf1c836142cf3262450de1912bbc0.camel@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
+        with ESMTP id S233016AbiK2NRc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 29 Nov 2022 08:17:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06489627FC
+        for <selinux@vger.kernel.org>; Tue, 29 Nov 2022 05:16:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669727777;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=8n5pn8uNfp51DWASeSr0A2oEBhBK826MwPnG3BYrt/o=;
+        b=TxP8Z3KsBkxaIS+j24zYzg7aC2WcP5T88yaLJtoVQNfUFxqpOqDw9MZzLdpvvQ1rDw+6vH
+        ZaA9C/Ve3Lww9/zhAdZ1e7BYd4gnLvI4lT5qTAZifff0t2Zf/nzl7nbZ5aEQUFnMGI9hPT
+        UEwODiXJS4nnNfNpe31oCo0Zz1gEGlI=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-447-9N6x05EwOUGRwYfOJAOWyw-1; Tue, 29 Nov 2022 08:16:08 -0500
+X-MC-Unique: 9N6x05EwOUGRwYfOJAOWyw-1
+Received: by mail-ej1-f71.google.com with SMTP id sb2-20020a1709076d8200b007bdea97e799so3876942ejc.22
+        for <selinux@vger.kernel.org>; Tue, 29 Nov 2022 05:16:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:subject:from:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=8n5pn8uNfp51DWASeSr0A2oEBhBK826MwPnG3BYrt/o=;
+        b=LRJlY0cr7qN5JF/EKLiAtuhLGY3/Mh8cHaAUCxJcO2hVBzvUXpesPHQMrGgWz2St10
+         fwFTZnCjLctHuquff5uSmcZjUt7HPp9oURYPU0CR8luGZKG/Kx1exyV+RICv4hdX/M1Q
+         FnshRf25t2VH1TzSgRYo63l7nvdKXPixGTEqyje4PPgJBU9+VlsNFNJpM/jflD4c6dpF
+         eScDsXulwi+BUuOXBWEfiyyMiB0Naqev6xDG8XzrQQdeIhDHUPKWXNKyItfbvUljo14m
+         DDqYQkj63+1EqeNuuJWTwGSsYr5FFBQklGvTKAnwDOBTBGYqNt73a/AM1NDbq63gwhZ8
+         4Mcg==
+X-Gm-Message-State: ANoB5pmeZdQKigb2BUySqd/3x2vIqouzADywbrWzgMUX/FXMo3qm1gxz
+        WTljBzJ42WwKYlQx/JQpFI5U9LAjFTS6Y8JC4ugBXomFOXtLN0Lw5wx3TZPTzVQZ26AvDcOB1+Q
+        gC/n3wYrOVPlxnZyA4Ls/1GKth4utuNzpgRJfdUdiWJViugl3Hl6LinpbsWpSLIQefRY4
+X-Received: by 2002:a05:6402:5003:b0:462:a25f:f0f2 with SMTP id p3-20020a056402500300b00462a25ff0f2mr51600868eda.156.1669727766849;
+        Tue, 29 Nov 2022 05:16:06 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf4btGrx5A0e/QEWqkeSwXJhZ02knAOFfVbEfJ0AzX/6CHhBaYXqkOSMGmxh1FKhR7rggXZ5gQ==
+X-Received: by 2002:a05:6402:5003:b0:462:a25f:f0f2 with SMTP id p3-20020a056402500300b00462a25ff0f2mr51600846eda.156.1669727766474;
+        Tue, 29 Nov 2022 05:16:06 -0800 (PST)
+Received: from [192.168.0.116] ([86.49.156.126])
+        by smtp.gmail.com with ESMTPSA id ky17-20020a170907779100b007c09644afd9sm75232ejc.108.2022.11.29.05.16.05
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 29 Nov 2022 05:16:06 -0800 (PST)
+Message-ID: <30fc3ef7-1b62-0a18-fa13-140f888ca0a5@redhat.com>
+Date:   Tue, 29 Nov 2022 14:16:05 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     selinux@vger.kernel.org
+From:   Vit Mojzis <vmojzis@redhat.com>
+Subject: semanage export does not distinguish between --modify and --add
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QGbtXPbEFoG0899_hHmsbOkIQfTtrwsP
-X-Proofpoint-ORIG-GUID: rangmDOPJv7jxK-nMBZGxuD7vDRvxvY6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.895,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-11-29_08,2022-11-29_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- mlxlogscore=999 lowpriorityscore=0 spamscore=0 clxscore=1015 mlxscore=0
- impostorscore=0 adultscore=0 bulkscore=0 suspectscore=0 phishscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2211290076
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2022-11-24 at 09:11 +0100, Roberto Sassu wrote:
-> On Wed, 2022-11-23 at 12:46 -0500, Mimi Zohar wrote:
-> > On Wed, 2022-11-23 at 10:51 +0100, Roberto Sassu wrote:
-> > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > 
-> > > In preparation for removing security_old_inode_init_security(), switch to
-> > > security_inode_init_security().
-> > > 
-> > > Extend the existing ocfs2_initxattrs() to take the
-> > > ocfs2_security_xattr_info structure from fs_info, and populate the
-> > > name/value/len triple with the first xattr provided by LSMs. Supporting
-> > > multiple xattrs is not currently supported, as it requires non-trivial
-> > > changes that can be done at a later time.
-> > 
-> > ocfs2 already defines ocfs2_init_security_get() as a wrapper around
-> > calling either security_old_inode_init_security() or
-> > security_inode_init_security().  Based on "si" one or the other hook is
-> > called.  ocfs2_initxattrs is already defined.
-> > 
-> >         struct ocfs2_security_xattr_info si = {
-> >                 .name = NULL,
-> >                 .enable = 1,
-> >         };
-> > 
-> > The main difference between calling security_old_inode_init_security or
-> > security_inode_init_security() is whether or not security.evm is
-> > calculated and written.
-> 
-> Uhm, it seems unfortunately more complicated.
-> 
-> Calling security_old_inode_init_security() allows filesystems to get
-> the xattr, do some calculations (e.g. for reservation) and then write
-> the xattr.
-> 
-> The initxattrs() callback to be passed to
-> security_inode_init_security() is meant to let filesystems provide a
-> filesystem-specific way of writing the xattrs, just after LSMs provided
-> them. This seems incompatible with the old behavior, as a filesystem
-> might need to do the calculations in the middle before writing the
-> xattrs.
-> 
-> The initxattrs() callback, when security_old_inode_init_security() was
-> used, is just a way of emulating the old behavior, i.e. returning the
-> xattr to the caller.
-> 
-> It should be possible, I guess, to handle more xattrs but if the code
-> was designed to handle one, it would be better if the filesystem
-> maintainers add support for it.
+Hi,
+semanage export always uses -a (--add) even in cases where -m (--modify) 
+is needed (when modifying record specified in policy).
+Reproducible for "semange login" and "semanage fcontext" (and maybe others).
 
-Hi Mark, Joel, Joseph,
+Steps to Reproduce:
+# semanage login -m -s unconfined_u -r s0-s0:c0.c1023 __default__
+# semanage export -f /tmp/exp
+# semanage login -D
+# semanage import -f /tmp/exp
+ValueError: Login mapping for __default__ is already defined
+# semanage login -lC
+<empty>
+# cat /tmp/exp
+...
+login -a -s unconfined_u -r 's0-s0:c0.c1023' __default__
+^^^ should be "login -m" instead
 
-Commit 9d8f13ba3f48 ("security: new security_inode_init_security API
-adds function callback") introduced security_old_inode_init_security()
-to support reiserfs and ocfs2 a long time ago.  It was suppose to be a
-temporary fix until they moved to the new
-security_inode_init_security() hook.  ocsf2 partially migrated to
-security_inode_init_security(), but not completely.
+Alternative reproducer:
 
-security_old_inode_init_security() is finally going away.  Instead of
-migrating the remaining old usage to the new
-security_inode_init_security() properly, this patch simulates the
-existing usage.
+# semanage fcontext -m -t boot_t "/xen(/.*)?"
+# semanage export -f /tmp/exp
+# semanage fcontext -D
+# semanage import -f /tmp/exp
+ValueError: File context for /xen(/.*)? already defined
+# semanage fcontext -lC
+<empty>
+# cat /tmp/exp
+...
+fcontext -a -f a -t boot_t -r 's0' '/xen(/.*)?'
+^^^ should be "fcontext -m" instead
 
-Can we get some Reviewed-by, Tested-by tags or comments?
+Expected results:
+The login/fcontext mapping is removed and re-add by semanage import 
+(semanage login -D, semanage login -m -s unconfined_u -r s0-s0:c0.c1023 
+__default__).
 
-thanks,
+Is there a straightforward way of figuring out if the login mapping was 
+introduced by "semanage -m" while exporting customizations?
 
-Mimi
-
-> 
-> > Perhaps it is time to remove the call to
-> > security_old_inode_init_security() in ocfs2_init_security_get().  We
-> > need to hear back from the ocfs2 community.  Mark?  Joel?
-> > 
-> > As noted previously this change affects mknod and symlinks.
-> > 
-> > 
-> > > As fs_info was not used before, ocfs2_initxattrs() can now handle the case
-> > > of replicating the behavior of security_old_inode_init_security(), i.e.
-> > > just obtaining the xattr, in addition to setting all xattrs provided by
-> > > LSMs.
-> > > 
-> > > Finally, modify the handling of the return value from
-> > > ocfs2_init_security_get(). As security_inode_init_security() does not
-> > > return -EOPNOTSUPP, remove this case and directly handle the error if the
-> > > return value is not zero.
-> > > 
-> > > However, the previous case of receiving -EOPNOTSUPP should be still
-> > > taken into account, as security_inode_init_security() could return zero
-> > > without setting xattrs and ocfs2 would consider it as if the xattr was set.
-> > > 
-> > > Instead, if security_inode_init_security() returned zero, look at the xattr
-> > > if it was set, and behave accordingly, i.e. set si->enable to zero to
-> > > notify to the functions following ocfs2_init_security_get() that the xattr
-> > > is not available (same as if security_old_inode_init_security() returned
-> > > -EOPNOTSUPP).
-> > > 
-> > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > ---
-> > >  fs/ocfs2/namei.c | 18 ++++++------------
-> > >  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
-> > >  2 files changed, 32 insertions(+), 16 deletions(-)
-> > > 
-> > > diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
-> > > index 05f32989bad6..55fba81cd2d1 100644
-> > > --- a/fs/ocfs2/namei.c
-> > > +++ b/fs/ocfs2/namei.c
-> > > @@ -242,6 +242,7 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
-> > >  	int want_meta = 0;
-> > >  	int xattr_credits = 0;
-> > >  	struct ocfs2_security_xattr_info si = {
-> > > +		.name = NULL,
-> > >  		.enable = 1,
-> > >  	};
-> > >  	int did_quota_inode = 0;
-> > > @@ -315,12 +316,8 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
-> > >  	/* get security xattr */
-> > >  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
-> > >  	if (status) {
-> > > -		if (status == -EOPNOTSUPP)
-> > > -			si.enable = 0;
-> > > -		else {
-> > > -			mlog_errno(status);
-> > > -			goto leave;
-> > > -		}
-> > > +		mlog_errno(status);
-> > > +		goto leave;
-> > >  	}
-> > >  
-> > >  	/* calculate meta data/clusters for setting security and acl xattr */
-> > > @@ -1805,6 +1802,7 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
-> > >  	int want_clusters = 0;
-> > >  	int xattr_credits = 0;
-> > >  	struct ocfs2_security_xattr_info si = {
-> > > +		.name = NULL,
-> > >  		.enable = 1,
-> > >  	};
-> > >  	int did_quota = 0, did_quota_inode = 0;
-> > > @@ -1875,12 +1873,8 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
-> > >  	/* get security xattr */
-> > >  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
-> > >  	if (status) {
-> > > -		if (status == -EOPNOTSUPP)
-> > > -			si.enable = 0;
-> > > -		else {
-> > > -			mlog_errno(status);
-> > > -			goto bail;
-> > > -		}
-> > > +		mlog_errno(status);
-> > > +		goto bail;
-> > >  	}
-> > >  
-> > >  	/* calculate meta data/clusters for setting security xattr */
-> > > diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-> > > index 95d0611c5fc7..55699c573541 100644
-> > > --- a/fs/ocfs2/xattr.c
-> > > +++ b/fs/ocfs2/xattr.c
-> > > @@ -7259,9 +7259,21 @@ static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
-> > >  static int ocfs2_initxattrs(struct inode *inode, const struct xattr *xattr_array,
-> > >  		     void *fs_info)
-> > >  {
-> > > +	struct ocfs2_security_xattr_info *si = fs_info;
-> > >  	const struct xattr *xattr;
-> > >  	int err = 0;
-> > >  
-> > > +	if (si) {
-> > > +		si->value = kmemdup(xattr_array->value, xattr_array->value_len,
-> > > +				    GFP_KERNEL);
-> > > +		if (!si->value)
-> > > +			return -ENOMEM;
-> > > +
-> > > +		si->name = xattr_array->name;
-> > > +		si->value_len = xattr_array->value_len;
-> > > +		return 0;
-> > > +	}
-> > > +
-> > >  	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
-> > >  		err = ocfs2_xattr_set(inode, OCFS2_XATTR_INDEX_SECURITY,
-> > >  				      xattr->name, xattr->value,
-> > > @@ -7277,13 +7289,23 @@ int ocfs2_init_security_get(struct inode *inode,
-> > >  			    const struct qstr *qstr,
-> > >  			    struct ocfs2_security_xattr_info *si)
-> > >  {
-> > > +	int ret;
-> > > +
-> > >  	/* check whether ocfs2 support feature xattr */
-> > >  	if (!ocfs2_supports_xattr(OCFS2_SB(dir->i_sb)))
-> > >  		return -EOPNOTSUPP;
-> > > -	if (si)
-> > > -		return security_old_inode_init_security(inode, dir, qstr,
-> > > -							&si->name, &si->value,
-> > > -							&si->value_len);
-> > > +	if (si) {
-> > > +		ret = security_inode_init_security(inode, dir, qstr,
-> > > +						   &ocfs2_initxattrs, si);
-> > > +		/*
-> > > +		 * security_inode_init_security() does not return -EOPNOTSUPP,
-> > > +		 * we have to check the xattr ourselves.
-> > > +		 */
-> > > +		if (!ret && !si->name)
-> > > +			si->enable = 0;
-> > > +
-> > > +		return ret;
-> > > +	}
-> > >  
-> > >  	return security_inode_init_security(inode, dir, qstr,
-> > >  					    &ocfs2_initxattrs, NULL);
-> 
-
+Alternatively I was thinking about modifying "semanage login --add" to 
+modify existing mapping if it exists, instead of exiting with an error. 
+But that is a change in behavior and may hide user mistakes.
 
