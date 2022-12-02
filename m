@@ -2,74 +2,192 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AB02C4321E
-	for <selinux@archiver.kernel.org>; Fri,  2 Dec 2022 12:39:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B780BC4332F
+	for <selinux@archiver.kernel.org>; Fri,  2 Dec 2022 20:17:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbiLBMjN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Dec 2022 07:39:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
+        id S234110AbiLBURB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Dec 2022 15:17:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232873AbiLBMjM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Dec 2022 07:39:12 -0500
-X-Greylist: delayed 928 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 02 Dec 2022 04:39:11 PST
-Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:237:300::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26F9D1006D;
-        Fri,  2 Dec 2022 04:39:11 -0800 (PST)
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-        (envelope-from <fw@strlen.de>)
-        id 1p154m-00011a-5T; Fri, 02 Dec 2022 13:23:32 +0100
-Date:   Fri, 2 Dec 2022 13:23:32 +0100
-From:   Florian Westphal <fw@strlen.de>
+        with ESMTP id S234926AbiLBUQ1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Dec 2022 15:16:27 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140AFF4671
+        for <selinux@vger.kernel.org>; Fri,  2 Dec 2022 12:16:25 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id t11-20020a17090a024b00b0021932afece4so9292682pje.5
+        for <selinux@vger.kernel.org>; Fri, 02 Dec 2022 12:16:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=cPJD0sgtEYoPAaGZw8YAHzHcUatreyrgUWldBEzj/Y4=;
+        b=a13XHiJg8zjQXrzXRtOsM7afHxgmDa9rPv1jh4x/40F8rgUeu2zzhY8BkOZp/X/aLs
+         YWGsn119XQYu7RPalEl6Shhin603eVtqCaN20IXHAfVXT5KEcmyhMoTSmUox1ApbOzb2
+         p0aOAxomUf+lTdxSOn7a9Y0Jeoux/5uND4ghKFRTxzlkKspovFQ36n0DSvetD+7k6Bf8
+         vqU6MQfi/7jzI9513dUwMUosyeMuSmtnToiSDcGJpxbHHr4QIETxuCQKp0Ec+g2Mw1L1
+         tVbih/GsRN37Bd7eO2Z+INyypdr9OU535d11QA1kZkhJrDkplU6yhzTxv1C+IexyFh05
+         2ubQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=cPJD0sgtEYoPAaGZw8YAHzHcUatreyrgUWldBEzj/Y4=;
+        b=CWTlJ6Yr2hkvsxjo4VSMNEIqxNT1u+LoV/gWWFU3Sp+Afv8O0OthLo7w+UutifuHoI
+         DnSzLxYXKs+k86GlKUtmw0CD0aeikwB+Ri9MwZSpMitEqMRJYLfytV9zeXlJEz8sg/NL
+         iuTOQpa8FxRe4Jh34Hj3splNokfU/dXYqhIqercKyL8+LzNcbq43SwAXqFgGXPgynY2X
+         rtQrVyvjddfgPUEcN21kbWiod2/2Re8eofMKajxqjklQjpZ5H0QG3OOxXlOp9zr61W1x
+         56dWU7idlBjij8D73Z6pV2Kzgkhs4v7qDmGyuRwyux3Mtf0crEv7SbtvIFw8vLFu8ejN
+         EwSQ==
+X-Gm-Message-State: ANoB5pm+QVRT+8/CN8R5CankUJ1+pSTZVz1LODftUIia4aLhEoO45OxS
+        qKglUYY6l+XbEBMwAp05DJ4tZ/CmfQWSMTHfrjUm
+X-Google-Smtp-Source: AA0mqf6bJ56BRnGwCC7Uw5nPs72fy+2T61J/mGH0Oe2db1nEfwJuCiBMjm9O+zfbH6nkSNlkkRImvfRozfMnBelVUWo=
+X-Received: by 2002:a17:903:28f:b0:189:8a36:1b70 with SMTP id
+ j15-20020a170903028f00b001898a361b70mr28304689plr.12.1670012185016; Fri, 02
+ Dec 2022 12:16:25 -0800 (PST)
+MIME-Version: 1.0
+References: <CAFqZXNs2LF-OoQBUiiSEyranJUXkPLcCfBkMkwFeM6qEwMKCTw@mail.gmail.com>
+ <108a1c80eed41516f85ebb264d0f46f95e86f754.camel@redhat.com>
+ <CAHC9VhSSKN5kh9Kqgj=aCeA92bX1mJm1v4_PnRgua86OHUwE3w@mail.gmail.com> <48dd1e9b21597c46e4767290e5892c01850a45ff.camel@redhat.com>
+In-Reply-To: <48dd1e9b21597c46e4767290e5892c01850a45ff.camel@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 2 Dec 2022 15:16:13 -0500
+Message-ID: <CAHC9VhT0rRhr7Ty_p3Ld5O+Ltf8a8XSXcyik7tFpDRMrTfsF+A@mail.gmail.com>
+Subject: Re: Broken SELinux/LSM labeling with MPTCP and accept(2)
 To:     Paolo Abeni <pabeni@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         SElinux list <selinux@vger.kernel.org>,
         Linux Security Module list 
         <linux-security-module@vger.kernel.org>, mptcp@lists.linux.dev,
         network dev <netdev@vger.kernel.org>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: Re: Broken SELinux/LSM labeling with MPTCP and accept(2)
-Message-ID: <20221202122332.GC7057@breakpoint.cc>
-References: <CAFqZXNs2LF-OoQBUiiSEyranJUXkPLcCfBkMkwFeM6qEwMKCTw@mail.gmail.com>
- <108a1c80eed41516f85ebb264d0f46f95e86f754.camel@redhat.com>
- <CAHC9VhSSKN5kh9Kqgj=aCeA92bX1mJm1v4_PnRgua86OHUwE3w@mail.gmail.com>
- <48dd1e9b21597c46e4767290e5892c01850a45ff.camel@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <48dd1e9b21597c46e4767290e5892c01850a45ff.camel@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Paolo Abeni <pabeni@redhat.com> wrote:
+On Fri, Dec 2, 2022 at 7:07 AM Paolo Abeni <pabeni@redhat.com> wrote:
+> On Thu, 2022-12-01 at 21:06 -0500, Paul Moore wrote:
+
+...
+
+> > However, I think this simplest solution might be what I mentioned
+> > above as #2a, simply labeling the subflow socket properly from the
+> > beginning.  In the case of SELinux I think we could do that by simply
+> > clearing the @kern flag in the case of IPPROTO_MPTCP; completely
+> > untested (and likely whitespace mangled) hack shown below:
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index f553c370397e..de6aa80b2319 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -4562,6 +4562,7 @@ static int selinux_socket_create(int family, int type,
+> >        u16 secclass;
+> >        int rc;
+> >
+> > +       kern = (protocol == IPPROTO_MPTCP ? 0 : kern);
+> >        if (kern)
+> >                return 0;
+> >
+> > @@ -4584,6 +4585,7 @@ static int selinux_socket_post_create(struct
+> > socket *sock, int family,
+> >        u32 sid = SECINITSID_KERNEL;
+> >        int err = 0;
+> >
+> > +       kern = (protocol == IPPROTO_MPTCP ? 0 : kern);
+> >        if (!kern) {
+> >                err = socket_sockcreate_sid(tsec, sclass, &sid);
+> >                if (err)
+> >
+> > ... of course the downside is that this is not a general cross-LSM
+> > solution, but those are very hard, if not impossible, to create as the
+> > individual LSMs can vary tremendously.  There is also the downside of
+> > having to have a protocol specific hack in the LSM socket creation
+> > hooks, which is a bit of a bummer, but then again we already have to
+> > do so much worse elsewhere in the LSM networking hooks that this is
+> > far from the worst thing we've had to do.
+>
+> There is a problem with the above: the relevant/affected socket is an
+> MPTCP subflow, which is actually a TCP socket (protocol ==
+> IPPROTO_TCP). Yep, MPTCP is quite a mes... complex.
+>
+> I think we can't follow this later path.
+
+Bummer.  I was afraid I was missing something, that was too easy of a "fix" ;)
+
+As I continue to look at the MPTCP code, I'm also now growing a little
+concerned that we may have another issue regarding the number of
+subflows attached to a sock; more on this below.
+
+> Side note: I'm confused by the selinux_sock_graft() implementation:
+>
+> https://elixir.bootlin.com/linux/v6.1-rc7/source/security/selinux/hooks.c#L5243
+>
+> it looks like the 'sid' is copied from the 'child' socket into the
+> 'parent', while the sclass from the 'parent' into the 'child'. Am I
+> misreading it? is that intended? I would have expeted both 'sid' and
+> 'sclass' being copied from the parent into the child. Other LSM's
+> sock_graft() initilize the child and leave alone the parent.
+
+MPTCP isn't the only thing that is ... complex ;)
+
+Believe it or not, selinux_sock_graft() is correct.  The reasoning is
+that the new connection sock has been labeled based on the incoming
+connection, which can be influenced by a variety of sources including
+the security attributes of the remote endpoint; however, the
+associated child socket is always labeled based on the security
+context of the task calling accept(2).  Transfering the sock's label
+(sid) to the child socket during the accept(2) operation ensures that
+the newly created socket is labeled based on the inbound connection
+labeling rules, and not simply the security context of the calling
+process.
+
+Transferring the object class (sclass) from the socket/inode to the
+newly grafted sock just ensures that the sock's object class is set
+correctly.
+
+> ---
 > diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
 > index 99f5e51d5ca4..b8095b8df71d 100644
 > --- a/net/mptcp/protocol.c
 > +++ b/net/mptcp/protocol.c
 > @@ -3085,7 +3085,10 @@ struct sock *mptcp_sk_clone(const struct sock *sk,
->  	/* will be fully established after successful MPC subflow creation */
->  	inet_sk_state_store(nsk, TCP_SYN_RECV);
->  
-> -	security_inet_csk_clone(nsk, req);
-> +	/* let's the new socket inherit the security label from the msk
-> +	 * listener, as the TCP reqest socket carries a kernel context
-> +	 */
-> +	security_sock_graft(nsk, sk->sk_socket);
->  	bh_unlock_sock(nsk);
+>         /* will be fully established after successful MPC subflow creation */
+>         inet_sk_state_store(nsk, TCP_SYN_RECV);
+>
+> -       security_inet_csk_clone(nsk, req);
+> +       /* let's the new socket inherit the security label from the msk
+> +        * listener, as the TCP reqest socket carries a kernel context
+> +        */
+> +       security_sock_graft(nsk, sk->sk_socket);
+>         bh_unlock_sock(nsk);
 
-FWIW this makes Ondrejs test case work:
+As a quick aside, I'm working under the assumption that a MPTCP
+request_sock goes through the same sort of logic/processing as TCP, if
+that is wrong we likely have additional issues.
 
-before:
-mptcp successfully enabled on unit /usr/lib/systemd/system/nginx.service
-% Total    % Received % Xferd  Average Speed   Time    Time     Time % Current
-Dload  Upload   Total   Spent    Left Speed
-0     0    0     0    0     0 0      0 --:--:-- --:--:-- --:--:-- 0
-curl: (52) Empty reply from server
+I think one potential problem with the code above is that if the
+subflow socket, @sk above, has multiple inbound connections (is that
+legal with MPTCP?) it is going to be relabeled multiple times which is
+not good (label's shouldn't change once set, unless there is an
+explicit relabel event).  I think we need to focus on ensuring that
+the subflow socket is labeled properly at creation time, and that has
+me looking more at mptcp_subflow_create_socket() ...
 
-With above change:
-mptcp successfully enabled on unit /usr/lib/systemd/system/nginx.service
-% Total    % Received % Xferd  Average Speed   Time    Time     Time % Current
-Dload  Upload   Total   Spent    Left Speed 100     5  100     5    0     0 1770      0 --:--:-- --:--:-- --:--:--  5000
+What if we added a new LSM call in mptcp_subflow_create_socket(), just
+after the sock_create_kern() call?  Inside
+mptcp_subflow_create_socket() we have a pointer to the top level MPTCP
+sock that we should serve as the source of the subflow's label, so for
+SELinux it's just a matter of copying the label information and doing
+basically the same setup we do in selinux_socket_post_create().  The
+only wrinkle that I can see is that this new LSM/SELinux hook would be
+called *after* security_socket_post_create() so we would need to add a
+special comment about that and write the code accordingly.  That said,
+it *shouldn't* be an issue for the SELinux code right now, but if this
+approach looks reasonable to you we should probably double check that
+(the NetLabel/CIPSO and NetLabel/CALIPSO code would be my main concern
+here).
+
+-- 
+paul-moore.com
