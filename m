@@ -2,75 +2,108 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CF49C4708C
-	for <selinux@archiver.kernel.org>; Mon,  5 Dec 2022 11:32:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7146C4321E
+	for <selinux@archiver.kernel.org>; Mon,  5 Dec 2022 12:09:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230192AbiLELcT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 5 Dec 2022 06:32:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47458 "EHLO
+        id S231640AbiLEMJl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 5 Dec 2022 07:09:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230154AbiLELcS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 5 Dec 2022 06:32:18 -0500
-Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7148A10569;
-        Mon,  5 Dec 2022 03:32:17 -0800 (PST)
-Received: from mse-fl2.zte.com.cn (unknown [10.5.228.133])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mxhk.zte.com.cn (FangMail) with ESMTPS id 4NQhGm1R5fz8R03x;
-        Mon,  5 Dec 2022 19:32:16 +0800 (CST)
-Received: from xaxapp01.zte.com.cn ([10.88.40.50])
-        by mse-fl2.zte.com.cn with SMTP id 2B5BW6mo072861;
-        Mon, 5 Dec 2022 19:32:06 +0800 (+08)
-        (envelope-from ye.xingchen@zte.com.cn)
-Received: from mapi (xaxapp01[null])
-        by mapi (Zmail) with MAPI id mid31;
-        Mon, 5 Dec 2022 19:32:08 +0800 (CST)
-Date:   Mon, 5 Dec 2022 19:32:08 +0800 (CST)
-X-Zmail-TransId: 2af9638dd6b8438dfdb8
-X-Mailer: Zmail v1.0
-Message-ID: <202212051932088061889@zte.com.cn>
-Mime-Version: 1.0
-From:   <ye.xingchen@zte.com.cn>
-To:     <paul@paul-moore.com>
-Cc:     <stephen.smalley.work@gmail.com>, <eparis@parisplace.org>,
-        <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: =?UTF-8?B?W1BBVENIIHNlY3VyaXR5LW5leHRdIHNlbGludXg6IHVzZSBzeXNmc19lbWl0KCkgdG8gaW5zdGVhZCBvZiBzY25wcmludGYoKQ==?=
-Content-Type: text/plain;
-        charset="UTF-8"
-X-MAIL: mse-fl2.zte.com.cn 2B5BW6mo072861
-X-Fangmail-Gw-Spam-Type: 0
-X-FangMail-Miltered: at cgslv5.04-192.168.250.137.novalocal with ID 638DD6C0.000 by FangMail milter!
-X-FangMail-Envelope: 1670239936/4NQhGm1R5fz8R03x/638DD6C0.000/10.5.228.133/[10.5.228.133]/mse-fl2.zte.com.cn/<ye.xingchen@zte.com.cn>
-X-Fangmail-Anti-Spam-Filtered: true
-X-Fangmail-MID-QID: 638DD6C0.000/4NQhGm1R5fz8R03x
+        with ESMTP id S230306AbiLEMJk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 5 Dec 2022 07:09:40 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81501B9E
+        for <selinux@vger.kernel.org>; Mon,  5 Dec 2022 04:09:39 -0800 (PST)
+Received: from dggpeml500008.china.huawei.com (unknown [172.30.72.56])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4NQj4z1Tjkz15N7p
+        for <selinux@vger.kernel.org>; Mon,  5 Dec 2022 20:08:51 +0800 (CST)
+Received: from huawei.com (10.175.124.27) by dggpeml500008.china.huawei.com
+ (7.185.36.147) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Mon, 5 Dec
+ 2022 20:09:37 +0800
+From:   Jie Lu <lujie54@huawei.com>
+To:     <selinux@vger.kernel.org>
+Subject: [PATCH 1/3] libselinux: fix potential NULL reference and memory leak in audit2why
+Date:   Mon, 5 Dec 2022 17:36:42 +0800
+Message-ID: <20221205093644.703107-1-lujie54@huawei.com>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.124.27]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpeml500008.china.huawei.com (7.185.36.147)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: ye xingchen <ye.xingchen@zte.com.cn>
+In audit2why.c add return check for memory allocation. And free every element
+in the boollist when function fails.
 
-Follow the advice of the Documentation/filesystems/sysfs.rst and show()
-should only use sysfs_emit() or sysfs_emit_at() when formatting the
-value to be returned to user space.
-
-Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+Signed-off-by: Jie Lu <lujie54@huawei.com>
 ---
- security/selinux/avc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libselinux/src/audit2why.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 9a43af0ebd7d..517fe3454aec 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -174,7 +174,7 @@ int avc_get_hash_stats(struct selinux_avc *avc, char *page)
-
- 	rcu_read_unlock();
-
--	return scnprintf(page, PAGE_SIZE, "entries: %d\nbuckets used: %d/%d\n"
-+	return sysfs_emit(page, "entries: %d\nbuckets used: %d/%d\n"
- 			 "longest chain: %d\n",
- 			 atomic_read(&avc->avc_cache.active_nodes),
- 			 slots_used, AVC_CACHE_SLOTS, max_chain_len);
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index ba1a66eb..742b4ff5 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -55,7 +55,16 @@ static int load_booleans(const sepol_bool_t * boolean,
+ 			 void *arg __attribute__ ((__unused__)))
+ {
+ 	boollist[boolcnt] = malloc(sizeof(struct boolean_t));
++	if (!boollist[boolcnt]) {
++		PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
++		return -1;
++	}
+ 	boollist[boolcnt]->name = strdup(sepol_bool_get_name(boolean));
++	if (!boollist[boolcnt]->name) {
++		PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
++		free(boollist[boolcnt]);
++		return -1;
++	}
+ 	boollist[boolcnt]->active = sepol_bool_get_value(boolean);
+ 	boolcnt++;
+ 	return 0;
+@@ -149,6 +158,11 @@ static int check_booleans(struct boolean_t **bools)
+ 
+ 	if (fcnt > 0) {
+ 		*bools = calloc(sizeof(struct boolean_t), fcnt + 1);
++		if (!*bools) {
++			PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
++			free(foundlist);
++			return 0;
++		}
+ 		struct boolean_t *b = *bools;
+ 		for (i = 0; i < fcnt; i++) {
+ 			int ctr = foundlist[i];
+@@ -278,14 +292,22 @@ static int __policy_init(const char *init_path)
+ 	return 0;
+ 
+ err:
+-	if (boollist)
+-		free(boollist);
++	if (boollist) {
++		for (i = 0; i < boolcnt; i++) {
++                        free(boollist[i]->name);
++                        free(boollist[i]);
++                }
++                free(boollist);
++                boollist = NULL;
++                boolcnt = 0;
++	}
+ 	if (avc){
+ 		if (avc->handle)
+ 			sepol_handle_destroy(avc->handle);
+ 		if (avc->policydb)
+ 			sepol_policydb_free(avc->policydb);
+ 		free(avc);
++		avc = NULL;
+ 	}
+ 	if (pf)
+ 		sepol_policy_file_free(pf);
 -- 
-2.25.1
+2.27.0
+
