@@ -2,70 +2,72 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE396C4708C
-	for <selinux@archiver.kernel.org>; Tue,  6 Dec 2022 17:42:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26E1AC352A1
+	for <selinux@archiver.kernel.org>; Tue,  6 Dec 2022 17:46:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234995AbiLFRmr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Dec 2022 12:42:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
+        id S229503AbiLFRqd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Dec 2022 12:46:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232572AbiLFRmp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Dec 2022 12:42:45 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8779BF63
-        for <selinux@vger.kernel.org>; Tue,  6 Dec 2022 09:42:43 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id o12so15119739pjo.4
-        for <selinux@vger.kernel.org>; Tue, 06 Dec 2022 09:42:43 -0800 (PST)
+        with ESMTP id S229477AbiLFRqb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Dec 2022 12:46:31 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1266737210
+        for <selinux@vger.kernel.org>; Tue,  6 Dec 2022 09:46:29 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id s7so14650098plk.5
+        for <selinux@vger.kernel.org>; Tue, 06 Dec 2022 09:46:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20210112.gappssmtp.com; s=20210112;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=LyzVekhNwXrBzVIiy7bWi/8qP0xjRI2c86GG2ZN9wMo=;
-        b=VlvjJ4dQ0xlNZPdHgyi2Cya/vFuKK/+AIEJR//JrqdnDjGeHwQXIBGVOolm9Yrj2pO
-         OdsjmZ+UHdJoNKz1po/1UhJwFV+OV3lAJYj34aIDy5U57daYjmQIA0+13Pi2JvVuFft1
-         E/ya5KV8/2lYoE1smOlPd95jPTd8Jlt8n4kt62uEZqUzDc4j69LKKj1wkCV4gTk++Eej
-         /MDzkOCwrYzaoGPSbenjU9s/V68H/Wo6rlLyyxC2AbmdlH7FHtTeKMD2GfH5VpkBW864
-         JJDdgQ4Vg3mPz4wYb0doaLkKiXjKVdm/eh6orhIgrllA5iaqoCVPFs98Ohhua1kpqV4W
-         WjKg==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=e6ZSPNQrHxO/4/iW+ali5P+CzqQ0KRqbdxPCedhh2m8=;
+        b=ZoNyfNyedDp0DNrLD8d2C3bLznA4KIhApciiecbFZ+d8Ncc3uJipJOxfcbKBzw+od/
+         AD6yJ9c4VGVLLU7UtVnnBg0oWAd+cEFRCHYAiFtddLWnhnCid21P0HiM+d4X1zc5mm3X
+         nQOHhPyuBLY8j6EQj2x3DvSYgyQkXtazlIyCz6esX6mhAuekuhMdcZhWR8DGTAGx4BYD
+         ERwDHmQ4xisJgK52Ne96lg3k2cBlnjE72JvuNhW49x7yQ8oGDWPFiSKxf1CLeiD5z/7M
+         lzod/RMqJYiAwB9VT5IHcC6zKh0Ccgk5nlifKdJay7JYnWw68hyKAGmAUY4i8w2pCIGF
+         Ycdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LyzVekhNwXrBzVIiy7bWi/8qP0xjRI2c86GG2ZN9wMo=;
-        b=RCK4ay8Gy1wo5D1gvgs6I4XsRdreg77mJm9IVmYexxJa0taqTxRzspRxwpb+Gy2UAP
-         JQHSzXa3xpJV3nw0uKmV5XdNdHWxJIkdNyuEwMNSy3tzFbj4roGXhNHb4pyotQkEwNSE
-         CWzuVPmQ2PyJqkWYUhjhwUfPd3b971GFN80Quuad5imNpuG5J4OrU5csKs4N0PK97PsU
-         DQZtzB+ErXwPOvhEGlowKLP2qEbbuSQU/wyVVwQbBIFq5zTDLTsGKrCA1SdiMWoVJbmf
-         RrKGrTMq/qipkp2oeGfkpOqTlBmmCE0N3VNqLY4ceNlbCqp89hKxuqLMWCp1no4QdP+o
-         HlRw==
-X-Gm-Message-State: ANoB5pmReNdbJHkQeL8W3CdgsgW8rcbpqKmcF+hCdRVK36UNam+a6AL3
-        xogAVXODi3OkFgD7Y3dBh+fBPePQWK7r6NTXssU=
-X-Google-Smtp-Source: AA0mqf56MUG4vYZ7P68JPAfUeYVKqXrIzUWEI/tgR/tx9CHjnFfCfP69n16O5dqd6zu/Z/87qU9BtA==
-X-Received: by 2002:a17:902:cecd:b0:189:c72b:986f with SMTP id d13-20020a170902cecd00b00189c72b986fmr16785650plg.98.1670348562819;
-        Tue, 06 Dec 2022 09:42:42 -0800 (PST)
-Received: from localhost (99-123-3-233.lightspeed.sntcca.sbcglobal.net. [99.123.3.233])
-        by smtp.gmail.com with ESMTPSA id gw24-20020a17090b0a5800b00212e5fe09d7sm11160460pjb.10.2022.12.06.09.42.42
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Dec 2022 09:42:42 -0800 (PST)
-Date:   Tue, 6 Dec 2022 09:42:41 -0800
-From:   Jason Zaman <jason@perfinion.com>
-To:     selinux@vger.kernel.org
-Subject: Intent to release SELinux userspace 3.5-rc1
-Message-ID: <Y49/EaE6aHZ5Pse9@anduin.perfinion.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=e6ZSPNQrHxO/4/iW+ali5P+CzqQ0KRqbdxPCedhh2m8=;
+        b=dVNXX/eOV3Aezvspj2E6dcY+ruapembOYIhQpPwEBteTRV2BEz8jp/ctaMWKB7hkrN
+         xoJIZaJzRDQycCR2IJigPnbVzPs1FXoKCH93w4x6aD8EuIVlRIFMjWXUl0Y342pXrBO0
+         v8/VL1DWK4h3WnA0c9Fqcd0UfLMud2b81AYt8EWSvmG5jZLOs/dWI6SnAuD8bG49C1vj
+         W8WqkOwrlKLvynAzIhGdQX2u/rBe0HzKNA3Zsps1ATMkNQJpBQsr9EXQLYFhJ085LHLY
+         N68OmKArStJwOcdpTI/2LL7LmZSGB5zoR7mZjg7rGsXIzQI39r2tPVrH1QfnC2GA8JFJ
+         5jtQ==
+X-Gm-Message-State: ANoB5plOSFfr3QJe0d6ifBi0ajqTsv8j0uHs6sGLp282YBL7XsTByfE0
+        gmGZ+JNjEwGM4j1rNTXxVCHJAra/jeB+urFAJf3i+Ypm40EL
+X-Google-Smtp-Source: AA0mqf5+ZrepAahlzXrqyhBE4OFv9iwcmKTYpRxHuFakrXK54TWB+Eo4Z174SHCQ6PeOcQTHT+vYG3Z+arr410wGa44=
+X-Received: by 2002:a17:903:28f:b0:189:8a36:1b70 with SMTP id
+ j15-20020a170903028f00b001898a361b70mr45688126plr.12.1670348789137; Tue, 06
+ Dec 2022 09:46:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <Y49/EaE6aHZ5Pse9@anduin.perfinion.com>
+In-Reply-To: <Y49/EaE6aHZ5Pse9@anduin.perfinion.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 6 Dec 2022 12:46:18 -0500
+Message-ID: <CAHC9VhRvgbH+FyeyWLxY-PisDM0f-1X7cASLzoUzi-_Nqvh+5g@mail.gmail.com>
+Subject: Re: Intent to release SELinux userspace 3.5-rc1
+To:     Jason Zaman <jason@perfinion.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi All,
+On Tue, Dec 6, 2022 at 12:42 PM Jason Zaman <jason@perfinion.com> wrote:
+> Hi All,
+>
+> It has been about 6 months since the last SELinux userspace release so
+> we're starting the release process for 3.5.
+> I will tag the 3.5-rc1 release on 21st Dec 2022, then rc2 will be in the
+> second week of Jan 2023. Then most likely weekly after that as needed.
 
-It has been about 6 months since the last SELinux userspace release so
-we're starting the release process for 3.5.
-I will tag the 3.5-rc1 release on 21st Dec 2022, then rc2 will be in the
-second week of Jan 2023. Then most likely weekly after that as needed.
+Thanks Jason.
 
-With Kind Regards,
-Jason
+-- 
+paul-moore.com
