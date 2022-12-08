@@ -2,129 +2,115 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AABEC4167B
-	for <selinux@archiver.kernel.org>; Thu,  8 Dec 2022 22:46:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 505ADC4332F
+	for <selinux@archiver.kernel.org>; Thu,  8 Dec 2022 23:42:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbiLHWqQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Dec 2022 17:46:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39202 "EHLO
+        id S230333AbiLHXmp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Dec 2022 18:42:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230242AbiLHWqK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Dec 2022 17:46:10 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E48A7A1B8
-        for <selinux@vger.kernel.org>; Thu,  8 Dec 2022 14:46:01 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id 124so2449925pfy.0
-        for <selinux@vger.kernel.org>; Thu, 08 Dec 2022 14:46:01 -0800 (PST)
+        with ESMTP id S231136AbiLHXmQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Dec 2022 18:42:16 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BD013F1E
+        for <selinux@vger.kernel.org>; Thu,  8 Dec 2022 15:40:37 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id 4so3138788pli.0
+        for <selinux@vger.kernel.org>; Thu, 08 Dec 2022 15:40:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=GXy3yVe6q44PfcggGGGUoLM0qgF3oqADIjhfyUy/5w8=;
-        b=m0U0ZyFNHfG7+MToeaYyNjB7X1PggzXeEpqu2rb1ZJ7cTBviwA7gIG9Tyg572P8M1b
-         aKoxD95GRuURnVVDMmNXtach1deUW3CYeOF5HiN+hYwwM+xShJ0zYF+iP0iEFmn/cHM2
-         lEauTXA0ZpM1jcwn45Hth/b30ZBTjfcRMzgHJkIvt3Pl08Id5JbUY7+Vupwn4p0vOjJE
-         1E6B+2w13xlykPVmmMf+fKKASvtjbBEG8Tui51K4xAhWtHIyua0fwLbOPhtad3sc6YB0
-         wnq14MofX2PUUUiAPae/85s/LGMAQZtc8xd1yTvA1WF4lH5xFjw8y2ZZoxfgpGRWjQOd
-         6QNw==
+        bh=pwL0f6qdQdYVM5VRohID8qZNEBwlNrmly3cwVpA605c=;
+        b=dZI29FsRJaw06KcpQAlFs7VjYatn0ViSZvhlZMhfokznqH74PuWp0F1WIIxrzP6TgX
+         DdV6sCGZHomutZITSPNcHtGckfm9Qa60fKMaGl4QV+BG8yHg34+PjrQQLpdEMWmXxY2k
+         hUAmqd57dgZh9oBqlvHjf0ahRgNDF/AKtmtJYmZheIjxrkHz00ZEKkQejPdd+WJnVrnb
+         g+XygtpIRd+uy99JNMPyJsgGk1u38qTTrEW4/isnv1TOePhGtA6z+2/TxtPTd2b9cMY7
+         GpYfAXVCeQOEK7QkplLMgj+0yUzPaLy/Spx+WbLkcD0GSlLQEFqNZJORB0SfKWsdWJAt
+         1YjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=GXy3yVe6q44PfcggGGGUoLM0qgF3oqADIjhfyUy/5w8=;
-        b=NOGm3YFJPVzAaJjjcqFDEwDsc5of5y7PBTzSXaq0pxb3XN9fz2V2EWve73ghERdoYe
-         /2nsjYqOjXjJWgzEkIDnLAL1ayTmRPhJQLiD4ExRspmLdz0O1vj+RrDMQNPHLOOiiyPo
-         vd9NOyFWrt4wwlSkkx6yyWtDkj5w1z+91ciypF0dVFjwzbVn3PPwkrAxkcV2/ax/0wAm
-         Y6PJGjdDM0awKs8H4GHInAihiXxN+9WIE+GEFFB5/wDu36l0p1Vgu+RGtWVLcb7w6Nr2
-         3bG1Gy+1mzjYQ8QOTDZu684mt+s62skJmkNuh3e0Z6MSlMga1hB3Ra+m17Pv8X91FdEi
-         3ELw==
-X-Gm-Message-State: ANoB5pnnwi7VwPk6WR4WBp4d3gISK2KT9nlJjtHpCpb+UkKqzLO2rfPP
-        vv3Xc6ZoBZ128hLT/eQ98g9rU0KfzKptIeF9u2TK
-X-Google-Smtp-Source: AA0mqf6bVEu+zdRUSkuWOcp4cIkScjpUe3duREc67t/ScI57nnNA5ajNFIWKMsygOUVvxfoMtTAQsEEbtmvq9CmQ8oU=
-X-Received: by 2002:a63:e74a:0:b0:478:42f:5a3d with SMTP id
- j10-20020a63e74a000000b00478042f5a3dmr48968019pgk.3.1670539560762; Thu, 08
- Dec 2022 14:46:00 -0800 (PST)
+        bh=pwL0f6qdQdYVM5VRohID8qZNEBwlNrmly3cwVpA605c=;
+        b=ve79mSl/zAv66oPLYrX5C4cnlJ4DurGQOqoyGppkJ06QP1Epof/e1oc1Ttl+C6McPD
+         YAUTjsKb6Z9/Wb920vAiWvrWLRxN+4qH2iPhxjK5MPiiS8Us25BnMEX+LtX5NrVaU7Wa
+         Pzy9Eww6P7pYfJqfR2wseKVZgqBhrNQNxDovGq15nRuSEbUYyH7Fm4RcPC1pCC+vUfeu
+         G5bVGHfgQ7ElTWZPdwM/jSw2zfIfv1EPxCGWoWvlum6IY+5IX8Vr3FBvT+w/j8WQv/RA
+         +pTcme4VItuLb5IrlBKbx2qDvlQ66GyN3OcWy7bKi+odKNh5qq6c3kizPZs1R0Swr04u
+         HObA==
+X-Gm-Message-State: ANoB5pmKsivpZ5M2KuQtcHYHek0RybsEoyLwYreqU4bAUyFHNvTlEGk0
+        WY4qA4VK9wgiMEErmI/AVSMoMy5/vLGGizCMvbZdUyeaZFi8TJQ=
+X-Google-Smtp-Source: AA0mqf6AxdSDIbXaGdkL6pZX3JaUGhpGSDR2YMil10FMvtSnJ1+1x9RGHydJuNTiBOcCXCio/Nh1AJ95Ire5LmPOYxA=
+X-Received: by 2002:a17:902:a70b:b0:189:b0a3:cf4f with SMTP id
+ w11-20020a170902a70b00b00189b0a3cf4fmr36150965plq.56.1670542837326; Thu, 08
+ Dec 2022 15:40:37 -0800 (PST)
 MIME-Version: 1.0
-References: <CAFqZXNs2LF-OoQBUiiSEyranJUXkPLcCfBkMkwFeM6qEwMKCTw@mail.gmail.com>
- <108a1c80eed41516f85ebb264d0f46f95e86f754.camel@redhat.com>
- <CAHC9VhSSKN5kh9Kqgj=aCeA92bX1mJm1v4_PnRgua86OHUwE3w@mail.gmail.com>
- <48dd1e9b21597c46e4767290e5892c01850a45ff.camel@redhat.com>
- <CAHC9VhT0rRhr7Ty_p3Ld5O+Ltf8a8XSXcyik7tFpDRMrTfsF+A@mail.gmail.com>
- <50e7ea22119c3afcb4be5a4b6ad9747465693d10.camel@redhat.com> <CAFqZXNtOku4vr5RrQU4vcvCVz5iK79CimeUVHu0S=QoN-QVEjg@mail.gmail.com>
-In-Reply-To: <CAFqZXNtOku4vr5RrQU4vcvCVz5iK79CimeUVHu0S=QoN-QVEjg@mail.gmail.com>
+References: <ffee337de5d6e447185b87ade65cc27f0b3576db.1670434580.git.pabeni@redhat.com>
+ <a3c81322-36b5-a289-c07b-15d2be75b02d@linux.intel.com>
+In-Reply-To: <a3c81322-36b5-a289-c07b-15d2be75b02d@linux.intel.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 8 Dec 2022 17:45:49 -0500
-Message-ID: <CAHC9VhSQnhH3UL4gqzu+YiA1Q3YyLLCv88gLJOvw-0+uw5Lvkw@mail.gmail.com>
-Subject: Re: Broken SELinux/LSM labeling with MPTCP and accept(2)
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paolo Abeni <pabeni@redhat.com>,
+Date:   Thu, 8 Dec 2022 18:40:26 -0500
+Message-ID: <CAHC9VhQzJAhNtpMnU7STEfq6QpaJo-xiie8HoHH2w3io3aXBHw@mail.gmail.com>
+Subject: Re: [PATCH mptcp-net] mptcp: fix LSM labeling for passive msk
+To:     Mat Martineau <mathew.j.martineau@linux.intel.com>
+Cc:     Paolo Abeni <pabeni@redhat.com>, mptcp@lists.linux.dev,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         SElinux list <selinux@vger.kernel.org>,
         Linux Security Module list 
-        <linux-security-module@vger.kernel.org>, mptcp@lists.linux.dev,
-        network dev <netdev@vger.kernel.org>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>
+        <linux-security-module@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 6, 2022 at 9:43 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Mon, Dec 5, 2022 at 9:58 PM Paolo Abeni <pabeni@redhat.com> wrote:
+On Wed, Dec 7, 2022 at 9:19 PM Mat Martineau
+<mathew.j.martineau@linux.intel.com> wrote:
+> On Wed, 7 Dec 2022, Paolo Abeni wrote:
+>
+> > MPTCP sockets created via accept() inherit their LSM label
+> > from the initial request socket, which in turn get it from the
+> > listener socket's first subflow. The latter is a kernel socket,
+> > and get the relevant labeling at creation time.
 > >
-> > On Fri, 2022-12-02 at 15:16 -0500, Paul Moore wrote:
-> [...]
-> > > What if we added a new LSM call in mptcp_subflow_create_socket(), just
-> > > after the sock_create_kern() call?
+> > Due to all the above even the accepted MPTCP socket get a kernel
+> > label, causing unexpected behaviour and failure on later LSM tests.
 > >
-> > That should work, I think. I would like to propose a (last) attempt
-> > that will not need an additional selinux hook - to try to minimize the
-> > required changes and avoid unnecessary addional work for current and
-> > future LSM mainteniance and creation.
+> > Address the issue factoring out a socket creation helper that does
+> > not include the post-creation LSM checks. Use such helper to create
+> > mptcp subflow as in-kernel sockets and doing explicitly LSM validation:
+> > vs the current user for the first subflow, as a kernel socket otherwise.
 > >
-> > I tested the following patch and passes the reproducer (and mptcp self-
-> > tests). Basically it introduces and uses a sock_create_nosec variant,
-> > to allow mptcp_subflow_create_socket() calling
-> > security_socket_post_create() with the corrct arguments. WDYT?
+> > Fixes: 0c14846032f2 ("mptcp: fix security context on server socket")
+> > Reported-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+>
+> The MPTCP content looks good to me:
+>
+> Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+>
+> I didn't see issues with the socket.c changes but I'd like to get some
+> security community feedback before upstreaming - Paul or other security
+> reviewers, what do you think?
 
-I'm still working my way through the recent patch posted by Paolo
-(sorry, I lost some time due to build failures and other discussions),
-but I wanted to comment on a few things in Ondrej's email ...
+Sorry, I was distracted by other things the past few days ...
 
-> This seems like a step in the right direction, but I wonder if we
-> shouldn't solve the current overloading of the "kern" flag more
-> explicitly - i.e. split it into two flags: one to indicate that the
-> socket will only be used internally by the kernel ("internal") and
-> another one to indicate if it should be labeled according to the
-> current task or as a kernel-created socket ("kern"?).
+One thing that jumps out is the potential for misuse of
+__sock_create_nosec(); I can see people accidentally using this
+function by accident in other areas of the stack and causing a new set
+of problems.
 
-The problem here is that labeling behavior isn't always going to be
-the same across LSMs, or rather I don't want to force a specific
-labeling behavior at the LSM layer.  We pass the @kern flag to
-indicate a kernel socket that is not visible to userspace, but we
-leave it up to the individual LSMs to handle that as they see fit
-(including if they should label sockets based on @current, an
-associated socket, or something else).
+We discussed this in the other thread, but there is an issue with
+subflows being labeled based on the mptcp_subflow_create_socket()
+caller and not the main MPTCP socket.
 
-> Another concern I have about this approach is whether it is possible
-> (in some more advanced scenario) for mptcp_subflow_create_socket() to
-> be called in the context of a different task than the one
-> creating/handling the main socket. Because then a potential socket
-> accepted from the new subflow socket would end up with an unexpected
-> (and probably semantically wrong) label. Glancing over the call tree,
-> it seems it can be called via some netlink commands - presumably
-> intended to be used by mptcpd?
-
-Yes, this is something we need to be careful about, if we want to
-treat all of these subflows just as we would treat the main socket,
-the subflows need to be labeled the same as the main socket,
-regardless of the process which creates them.
-
-As a FYI to the non-SELinux folks, a socket's label can be important
-even when it is not visible to userspace as the label is used both to
-set the on-the-wire label (CIPSO, CALIPSO, labeled IPsec) and in the
-per-packet access controls (see security_sock_rcv_skb()).
+I know there is a desire to get a small (in size) patch to fix this,
+but I think creating a new LSM hook may be the only way to solve this
+in a sane manner.  My original thought was a new LSM hook call inside
+mptcp_subflow_create_socket() right after the sock_create_kern() call.
+The only gotcha is that it would occur after
+security_socket_post_create(), but that should be easy enough to
+handle inside the LSMs.
 
 -- 
 paul-moore.com
