@@ -2,158 +2,129 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98C63C4332F
-	for <selinux@archiver.kernel.org>; Thu,  8 Dec 2022 19:46:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AABEC4167B
+	for <selinux@archiver.kernel.org>; Thu,  8 Dec 2022 22:46:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbiLHTqJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Dec 2022 14:46:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35870 "EHLO
+        id S230100AbiLHWqQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Dec 2022 17:46:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbiLHTqI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Dec 2022 14:46:08 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14851AA0A
-        for <selinux@vger.kernel.org>; Thu,  8 Dec 2022 11:44:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670528654;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=eqbnxCtPt0wDWA9dSEUJ/RCmYWoEgKeHaUcvHoNYDEI=;
-        b=T8tnBSAZdaeAMbYlXWtaI6v3i4YTyOBg6+vgqKpydnK3txjQHXMfpTdCSj5sg/9V14qJ3Z
-        WuK9HMxTXnnuWR0ZjCH3aVjSlW6soZdiScQ57NhNKISiHxGWBVC3UZ/YbKW5nZYGBwO1Ym
-        vfugJpBXjcW/xHS/mKJgQ0i6SkE+kl8=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-403-QKFxf8sUNAS8S4lLn4ZdRg-1; Thu, 08 Dec 2022 14:43:42 -0500
-X-MC-Unique: QKFxf8sUNAS8S4lLn4ZdRg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 654F829AB413
-        for <selinux@vger.kernel.org>; Thu,  8 Dec 2022 19:43:42 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-192-196.brq.redhat.com [10.40.192.196])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C0CD6492CA2;
-        Thu,  8 Dec 2022 19:43:41 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH 1/2] sepolicy: Switch main selection menu to GtkPopover
-Date:   Thu,  8 Dec 2022 20:43:34 +0100
-Message-Id: <20221208194335.479739-1-lautrbach@redhat.com>
+        with ESMTP id S230242AbiLHWqK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Dec 2022 17:46:10 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E48A7A1B8
+        for <selinux@vger.kernel.org>; Thu,  8 Dec 2022 14:46:01 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id 124so2449925pfy.0
+        for <selinux@vger.kernel.org>; Thu, 08 Dec 2022 14:46:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=GXy3yVe6q44PfcggGGGUoLM0qgF3oqADIjhfyUy/5w8=;
+        b=m0U0ZyFNHfG7+MToeaYyNjB7X1PggzXeEpqu2rb1ZJ7cTBviwA7gIG9Tyg572P8M1b
+         aKoxD95GRuURnVVDMmNXtach1deUW3CYeOF5HiN+hYwwM+xShJ0zYF+iP0iEFmn/cHM2
+         lEauTXA0ZpM1jcwn45Hth/b30ZBTjfcRMzgHJkIvt3Pl08Id5JbUY7+Vupwn4p0vOjJE
+         1E6B+2w13xlykPVmmMf+fKKASvtjbBEG8Tui51K4xAhWtHIyua0fwLbOPhtad3sc6YB0
+         wnq14MofX2PUUUiAPae/85s/LGMAQZtc8xd1yTvA1WF4lH5xFjw8y2ZZoxfgpGRWjQOd
+         6QNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GXy3yVe6q44PfcggGGGUoLM0qgF3oqADIjhfyUy/5w8=;
+        b=NOGm3YFJPVzAaJjjcqFDEwDsc5of5y7PBTzSXaq0pxb3XN9fz2V2EWve73ghERdoYe
+         /2nsjYqOjXjJWgzEkIDnLAL1ayTmRPhJQLiD4ExRspmLdz0O1vj+RrDMQNPHLOOiiyPo
+         vd9NOyFWrt4wwlSkkx6yyWtDkj5w1z+91ciypF0dVFjwzbVn3PPwkrAxkcV2/ax/0wAm
+         Y6PJGjdDM0awKs8H4GHInAihiXxN+9WIE+GEFFB5/wDu36l0p1Vgu+RGtWVLcb7w6Nr2
+         3bG1Gy+1mzjYQ8QOTDZu684mt+s62skJmkNuh3e0Z6MSlMga1hB3Ra+m17Pv8X91FdEi
+         3ELw==
+X-Gm-Message-State: ANoB5pnnwi7VwPk6WR4WBp4d3gISK2KT9nlJjtHpCpb+UkKqzLO2rfPP
+        vv3Xc6ZoBZ128hLT/eQ98g9rU0KfzKptIeF9u2TK
+X-Google-Smtp-Source: AA0mqf6bVEu+zdRUSkuWOcp4cIkScjpUe3duREc67t/ScI57nnNA5ajNFIWKMsygOUVvxfoMtTAQsEEbtmvq9CmQ8oU=
+X-Received: by 2002:a63:e74a:0:b0:478:42f:5a3d with SMTP id
+ j10-20020a63e74a000000b00478042f5a3dmr48968019pgk.3.1670539560762; Thu, 08
+ Dec 2022 14:46:00 -0800 (PST)
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+References: <CAFqZXNs2LF-OoQBUiiSEyranJUXkPLcCfBkMkwFeM6qEwMKCTw@mail.gmail.com>
+ <108a1c80eed41516f85ebb264d0f46f95e86f754.camel@redhat.com>
+ <CAHC9VhSSKN5kh9Kqgj=aCeA92bX1mJm1v4_PnRgua86OHUwE3w@mail.gmail.com>
+ <48dd1e9b21597c46e4767290e5892c01850a45ff.camel@redhat.com>
+ <CAHC9VhT0rRhr7Ty_p3Ld5O+Ltf8a8XSXcyik7tFpDRMrTfsF+A@mail.gmail.com>
+ <50e7ea22119c3afcb4be5a4b6ad9747465693d10.camel@redhat.com> <CAFqZXNtOku4vr5RrQU4vcvCVz5iK79CimeUVHu0S=QoN-QVEjg@mail.gmail.com>
+In-Reply-To: <CAFqZXNtOku4vr5RrQU4vcvCVz5iK79CimeUVHu0S=QoN-QVEjg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 8 Dec 2022 17:45:49 -0500
+Message-ID: <CAHC9VhSQnhH3UL4gqzu+YiA1Q3YyLLCv88gLJOvw-0+uw5Lvkw@mail.gmail.com>
+Subject: Re: Broken SELinux/LSM labeling with MPTCP and accept(2)
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paolo Abeni <pabeni@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>, mptcp@lists.linux.dev,
+        network dev <netdev@vger.kernel.org>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Fixes: https://github.com/SELinuxProject/selinux/issues/206
+On Tue, Dec 6, 2022 at 9:43 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Mon, Dec 5, 2022 at 9:58 PM Paolo Abeni <pabeni@redhat.com> wrote:
+> >
+> > On Fri, 2022-12-02 at 15:16 -0500, Paul Moore wrote:
+> [...]
+> > > What if we added a new LSM call in mptcp_subflow_create_socket(), just
+> > > after the sock_create_kern() call?
+> >
+> > That should work, I think. I would like to propose a (last) attempt
+> > that will not need an additional selinux hook - to try to minimize the
+> > required changes and avoid unnecessary addional work for current and
+> > future LSM mainteniance and creation.
+> >
+> > I tested the following patch and passes the reproducer (and mptcp self-
+> > tests). Basically it introduces and uses a sock_create_nosec variant,
+> > to allow mptcp_subflow_create_socket() calling
+> > security_socket_post_create() with the corrct arguments. WDYT?
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
- python/sepolicy/sepolicy/gui.py         | 20 ++++----------------
- python/sepolicy/sepolicy/sepolicy.glade |  9 +--------
- 2 files changed, 5 insertions(+), 24 deletions(-)
+I'm still working my way through the recent patch posted by Paolo
+(sorry, I lost some time due to build failures and other discussions),
+but I wanted to comment on a few things in Ondrej's email ...
 
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index c8f33f522a2d..53f3c6148b58 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -135,9 +135,8 @@ class SELinuxGui():
-         builder.add_from_file(glade_file)
-         self.outer_notebook = builder.get_object("outer_notebook")
-         self.window = builder.get_object("SELinux_window")
--        self.main_selection_window = builder.get_object("Main_selection_menu")
-+        self.main_selection_popover = builder.get_object("Main_selection_menu")
-         self.main_advanced_label = builder.get_object("main_advanced_label")
--        self.popup = 0
-         self.applications_selection_button = builder.get_object("applications_selection_button")
-         self.revert_button = builder.get_object("Revert_button")
-         self.busy_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-@@ -531,7 +530,6 @@ class SELinuxGui():
-         dic = {
-             "on_combo_button_clicked": self.open_combo_menu,
-             "on_disable_ptrace_toggled": self.on_disable_ptrace,
--            "on_SELinux_window_configure_event": self.hide_combo_menu,
-             "on_entrycompletion_obj_match_selected": self.set_application_label,
-             "on_filter_changed": self.get_filter_data,
-             "on_save_changes_file_equiv_clicked": self.update_to_file_equiv,
-@@ -808,18 +806,8 @@ class SELinuxGui():
-         return self.help_show_page()
- 
-     def open_combo_menu(self, *args):
--        if self.popup == 0:
--            self.popup = 1
--            location = self.window.get_position()
--            self.main_selection_window.move(location[0] + 2, location[1] + 65)
--            self.main_selection_window.show()
--        else:
--            self.main_selection_window.hide()
--            self.popup = 0
--
--    def hide_combo_menu(self, *args):
--        self.main_selection_window.hide()
--        self.popup = 0
-+        self.main_selection_popover.set_relative_to(self.applications_selection_button)
-+        self.main_selection_popover.popup()
- 
-     def set_application_label(self, *args):
-         self.set_application_label = True
-@@ -2335,7 +2323,7 @@ class SELinuxGui():
-             self.active_button = self.network_radio_button
- 
-     def clearbuttons(self, clear=True):
--        self.main_selection_window.hide()
-+        self.main_selection_popover.hide()
-         self.boolean_radio_button.set_visible(False)
-         self.files_radio_button.set_visible(False)
-         self.network_radio_button.set_visible(False)
-diff --git a/python/sepolicy/sepolicy/sepolicy.glade b/python/sepolicy/sepolicy/sepolicy.glade
-index 0724d6c8caa4..30e7b03f21c2 100644
---- a/python/sepolicy/sepolicy/sepolicy.glade
-+++ b/python/sepolicy/sepolicy/sepolicy.glade
-@@ -10,11 +10,8 @@
-       <column type="gchararray"/>
-     </columns>
-   </object>
--  <object class="GtkWindow" id="Main_selection_menu">
-+  <object class="GtkPopover" id="Main_selection_menu">
-     <property name="can_focus">False</property>
--    <property name="default_width">265</property>
--    <property name="default_height">100</property>
--    <property name="decorated">False</property>
-     <child>
-       <object class="GtkBox" id="vbox2">
-         <property name="visible">True</property>
-@@ -53,7 +50,6 @@
-                 <property name="primary_icon_stock">gtk-find</property>
-                 <property name="primary_icon_activatable">False</property>
-                 <property name="secondary_icon_activatable">False</property>
--                <signal name="activate" handler="on_SELinux_window_configure_event" swapped="no"/>
-                 <signal name="changed" handler="on_completion_entry_changed" swapped="no"/>
-               </object>
-               <packing>
-@@ -306,7 +302,6 @@
-     </columns>
-   </object>
-   <object class="GtkEntryCompletion" id="entrycompletion_obj">
--    <signal name="match-selected" handler="on_SELinux_window_configure_event" swapped="no"/>
-     <signal name="match-selected" handler="on_completion_entry_changed" swapped="no"/>
-     <signal name="match-selected" handler="on_entrycompletion_obj_match_selected" swapped="no"/>
-   </object>
-@@ -1707,9 +1702,7 @@
-     <property name="window_position">center-always</property>
-     <property name="default_width">650</property>
-     <property name="default_height">420</property>
--    <signal name="configure-event" handler="on_SELinux_window_configure_event" swapped="no"/>
-     <signal name="delete-event" handler="on_confirmation_close" swapped="no"/>
--    <signal name="focus-in-event" handler="on_SELinux_window_configure_event" swapped="no"/>
-     <child>
-       <object class="GtkBox" id="vbox1">
-         <property name="visible">True</property>
+> This seems like a step in the right direction, but I wonder if we
+> shouldn't solve the current overloading of the "kern" flag more
+> explicitly - i.e. split it into two flags: one to indicate that the
+> socket will only be used internally by the kernel ("internal") and
+> another one to indicate if it should be labeled according to the
+> current task or as a kernel-created socket ("kern"?).
+
+The problem here is that labeling behavior isn't always going to be
+the same across LSMs, or rather I don't want to force a specific
+labeling behavior at the LSM layer.  We pass the @kern flag to
+indicate a kernel socket that is not visible to userspace, but we
+leave it up to the individual LSMs to handle that as they see fit
+(including if they should label sockets based on @current, an
+associated socket, or something else).
+
+> Another concern I have about this approach is whether it is possible
+> (in some more advanced scenario) for mptcp_subflow_create_socket() to
+> be called in the context of a different task than the one
+> creating/handling the main socket. Because then a potential socket
+> accepted from the new subflow socket would end up with an unexpected
+> (and probably semantically wrong) label. Glancing over the call tree,
+> it seems it can be called via some netlink commands - presumably
+> intended to be used by mptcpd?
+
+Yes, this is something we need to be careful about, if we want to
+treat all of these subflows just as we would treat the main socket,
+the subflows need to be labeled the same as the main socket,
+regardless of the process which creates them.
+
+As a FYI to the non-SELinux folks, a socket's label can be important
+even when it is not visible to userspace as the label is used both to
+set the on-the-wire label (CIPSO, CALIPSO, labeled IPsec) and in the
+per-packet access controls (see security_sock_rcv_skb()).
+
 -- 
-2.38.1
-
+paul-moore.com
