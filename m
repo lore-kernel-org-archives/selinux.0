@@ -2,128 +2,119 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78721C10F1B
-	for <selinux@archiver.kernel.org>; Fri,  9 Dec 2022 10:27:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33393C4332F
+	for <selinux@archiver.kernel.org>; Fri,  9 Dec 2022 13:03:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229738AbiLIK1q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Dec 2022 05:27:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47646 "EHLO
+        id S229793AbiLINDS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Dec 2022 08:03:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229660AbiLIK12 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Dec 2022 05:27:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17B9D6B996;
-        Fri,  9 Dec 2022 02:27:27 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4A97621F8;
-        Fri,  9 Dec 2022 10:27:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B36DAC433EF;
-        Fri,  9 Dec 2022 10:27:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1670581646;
-        bh=Vg/jY9jXOQpKUYcFCDt33qBBzBN62AJVK6EstpsyWhA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GQGrmX1vI7TVUCo7Jt2fONuyjVf4WbekcRa5FZpsSLfT7l6b90PU5P5C1/SmawZcm
-         Yto4TJA/eFeDAtJ+x4Kbn8zRMR61esofMf9eP2Qr7iv9c1wpU1aUbDyRZsQ1dx51O+
-         9DaUKFKy+Vbx5vU2QOEWt0dGCYzhWbvlIfIK2NMY=
-Date:   Fri, 9 Dec 2022 11:27:23 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Guozihua (Scott)" <guozihua@huawei.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@gmail.com,
-        Paul Moore <paul@paul-moore.com>, sds@tycho.nsa.gov,
-        eparis@parisplace.org, sashal@kernel.org, selinux@vger.kernel.org,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-Message-ID: <Y5MNi85uzgXIMxX2@kroah.com>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
- <Y5Lf8SRgyrqDJwiH@kroah.com>
- <93d137dc-e0d3-3741-7e01-dca1ba9c0903@huawei.com>
- <Y5L10fjvxmU3klRu@kroah.com>
- <58219c48-840d-b4f3-b195-82b2a1465b37@huawei.com>
- <Y5L5RZlOOd9RMeWw@kroah.com>
- <d69f9bd3-de1f-aa32-7c6b-30d909f724d0@huawei.com>
- <Y5L+Tpym6XRrZSLB@kroah.com>
- <8e409a81-dc00-f022-08fe-c1c26e9cf5e8@huawei.com>
- <415d44a2-33a1-c100-1ffc-ad6f1409afd8@huawei.com>
+        with ESMTP id S229580AbiLINDR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Dec 2022 08:03:17 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CBC1112E
+        for <selinux@vger.kernel.org>; Fri,  9 Dec 2022 05:02:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1670590945;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=PXOAdvHFp/YZ/RZY5pc7+zWoktF/ZIAxADumjYRId1Y=;
+        b=DFmPvwm5FYGBGGi3YOPIFlgnc36e5ZbuWSiit8Of3EBs5IiTw/ShDT7PJCy+DluWgScOXW
+        R1EAOoOOyBIa3AEiFZjgcx3T/hRijBfAXb8PwN3UvkB44gu3ji0D6iiWTcS7SyXxy/KS+h
+        5fnOicSjdykUFIGTYrvHWAryxe3H6D8=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-373-Tsj7TN4-OACe9OrKjTIXkA-1; Fri, 09 Dec 2022 08:02:24 -0500
+X-MC-Unique: Tsj7TN4-OACe9OrKjTIXkA-1
+Received: by mail-lf1-f70.google.com with SMTP id be20-20020a056512251400b004aa9aadf60cso1625500lfb.20
+        for <selinux@vger.kernel.org>; Fri, 09 Dec 2022 05:02:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=PXOAdvHFp/YZ/RZY5pc7+zWoktF/ZIAxADumjYRId1Y=;
+        b=V5QqAIY9agjWfVWK1viW1Poy4TCO67Csq0zB50+piBoSjArlh6KnC+Xl8H+iqLPQ+J
+         rkqrgb0N06ARK+eCuRqrxUXTxTQ/B2iOiK/HCHYJsLPImBNNhIaY7XUTsK16D11DnWmK
+         iguHjsTG48+4eiuaXhuBmYf32v/S35ErlG8svXGhFXNuaaXcBhQE6blcDfUVIbFHwARC
+         0BSdmqo9mCDQahkR4P7UW2V9iCPE6zVdDwY882dSG84VgJjihGgDsbDHeb515rjuT3jG
+         DmIlLU4szzyzvzp+ln5tuBfqI91bxTfCwwX8jeMaMxX1fbkcCxZWqtm6highCe8d1LyC
+         h53w==
+X-Gm-Message-State: ANoB5pmcpWwH/iauTumdv6dUi7BIlEQn7Z4Bsl41XECIMAuxIsz4xNYY
+        lV2HCDnsFinSMwReIFqV4woNUWWxbomgFPmAllpfRG2bc1nSGgdW4Cbx8PI12qUFk8YXjczygk4
+        jaeD95cRis2yNwwJ0gxk1yLoRgVSInLB/7X+QbaRXPTDfpNg7KocsYeHPw3vemLB/ih7auw==
+X-Received: by 2002:a05:651c:1148:b0:277:8f65:a3ae with SMTP id h8-20020a05651c114800b002778f65a3aemr1409030ljo.27.1670590942215;
+        Fri, 09 Dec 2022 05:02:22 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf6ST8nHdBur94dF0mNs8MAs0+Nf/1mLZR7dPahUlyG//CRopBEOvBsIoWfIj6edFwgSQkO7sw==
+X-Received: by 2002:a05:651c:1148:b0:277:8f65:a3ae with SMTP id h8-20020a05651c114800b002778f65a3aemr1409020ljo.27.1670590941856;
+        Fri, 09 Dec 2022 05:02:21 -0800 (PST)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id vj23-20020a170907131700b007aed2057eacsm525383ejb.221.2022.12.09.05.02.21
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Dec 2022 05:02:21 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite] policy: allow user_namespace::create where appropriate
+Date:   Fri,  9 Dec 2022 14:02:20 +0100
+Message-Id: <20221209130220.451845-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <415d44a2-33a1-c100-1ffc-ad6f1409afd8@huawei.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 09, 2022 at 05:38:00PM +0800, Guozihua (Scott) wrote:
-> On 2022/12/9 17:32, Guozihua (Scott) wrote:
-> > On 2022/12/9 17:22, Greg KH wrote:
-> >> On Fri, Dec 09, 2022 at 05:11:40PM +0800, Guozihua (Scott) wrote:
-> >>> On 2022/12/9 17:00, Greg KH wrote:
-> >>>> On Fri, Dec 09, 2022 at 04:59:17PM +0800, Guozihua (Scott) wrote:
-> >>>>> On 2022/12/9 16:46, Greg KH wrote:
-> >>>>>> On Fri, Dec 09, 2022 at 03:53:25PM +0800, Guozihua (Scott) wrote:
-> >>>>>>> On 2022/12/9 15:12, Greg KH wrote:
-> >>>>>>>> On Fri, Dec 09, 2022 at 03:00:35PM +0800, Guozihua (Scott) wrote:
-> >>>>>>>>> Hi community.
-> >>>>>>>>>
-> >>>>>>>>> Previously our team reported a race condition in IMA relates to LSM based
-> >>>>>>>>> rules which would case IMA to match files that should be filtered out under
-> >>>>>>>>> normal condition. The issue was originally analyzed and fixed on mainstream.
-> >>>>>>>>> The patch and the discussion could be found here:
-> >>>>>>>>> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
-> >>>>>>>>>
-> >>>>>>>>> After that, we did a regression test on 4.19 LTS and the same issue arises.
-> >>>>>>>>> Further analysis reveled that the issue is from a completely different
-> >>>>>>>>> cause.
-> >>>>>>>>
-> >>>>>>>> What commit in the tree fixed this in newer kernels?  Why can't we just
-> >>>>>>>> backport that one to 4.19.y as well?
-> >>>>>>>>
-> >>>>>>>> thanks,
-> >>>>>>>>
-> >>>>>>>> greg k-h
-> >>>>>>>
-> >>>>>>> Hi Greg,
-> >>>>>>>
-> >>>>>>> The fix for mainline is now on linux-next, commit 	d57378d3aa4d ("ima:
-> >>>>>>> Simplify ima_lsm_copy_rule") and 	c7423dbdbc9ece ("ima: Handle -ESTALE
-> >>>>>>> returned by ima_filter_rule_match()"). However, these patches cannot be
-> >>>>>>> picked directly into 4.19.y due to code difference.
-> >>>>>>
-> >>>>>> Ok, so it's much more than just 4.19 that's an issue here.  And are
-> >>>>>> those commits tagged for stable inclusion?
-> >>>>>
-> >>>>> Not actually, not on the commit itself.
-> >>>>
-> >>>> That's not good.  When they hit Linus's tree, please submit backports to
-> >>>> the stable mailing list so that they can be picked up.
-> >>> Thing is these commits cannot be simply backported to 4.19.y. Preceding
-> >>> patches are missing. How do we do backporting in this situation? Do we
-> >>> first backport the preceding patches? Or maybe we develop another
-> >>> solution for 4.19.y?
-> >>
-> >> First they need to go to newer kernel trees, and then worry about 4.19.
-> >> We never want anyone to upgrade to a newer kernel and have a regression.
-> >>
-> >> Also, we can't do anything until they hit Linus's tree, as per the
-> >> stable kernel rules.
-> > Alright. We'll wait for these patches to be in Linus' tree. But should
-> > we stick to a backport from mainstream or we form a different solution
-> > for LTS?
+The cap_userns test's helper program needs this new permission for its
+operation - detect the support of it and conditionally add the necessary
+rule.
 
-We always want to have a normal backport of what is in Linus's tree if
-at all possible.  Whenever we diverge from that, we almost always get it
-wrong and have to fix it up again later.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ policy/Makefile           | 4 ++++
+ policy/test_cap_userns.te | 1 +
+ policy/test_global.te     | 4 ++++
+ 3 files changed, 9 insertions(+)
 
-> BTW, I have a look into it and if we are backporting mainstream's
-> solution, we would also needs to backport b16942455193 ("ima: use the
-> lsm policy update notifier")
+diff --git a/policy/Makefile b/policy/Makefile
+index 403802b..f18e15d 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -166,6 +166,10 @@ ifeq ($(shell grep -q anon_inode $(POLDEV)/include/support/all_perms.spt && echo
+ TARGETS += test_secretmem.te
+ endif
+ 
++ifeq ($(shell grep -q user_namespace $(POLDEV)/include/support/all_perms.spt && echo true),true)
++export M4PARAM += -Duser_namespace_defined
++endif
++
+ all: build
+ 
+ expand_check:
+diff --git a/policy/test_cap_userns.te b/policy/test_cap_userns.te
+index 3e68feb..6f44487 100644
+--- a/policy/test_cap_userns.te
++++ b/policy/test_cap_userns.te
+@@ -19,5 +19,6 @@ testsuite_domain_type(test_no_cap_userns_t)
+ typeattribute test_no_cap_userns_t capusernsdomain;
+ 
+ # Rules common to both domains.
++allow_userns_create(capusernsdomain)
+ # linux >= v5.12 needs setfcap to map UID 0
+ allow capusernsdomain self:capability setfcap;
+diff --git a/policy/test_global.te b/policy/test_global.te
+index 1b20cbc..e95102a 100644
+--- a/policy/test_global.te
++++ b/policy/test_global.te
+@@ -171,3 +171,7 @@ ifdef(`lockdown_defined', `allow $1 self:lockdown integrity;')
+ define(`allow_lockdown_confidentiality',
+ ifdef(`lockdown_defined', `allow $1 self:lockdown confidentiality;')
+ )
++
++define(`allow_userns_create',
++ifdef(`user_namespace_defined', `allow $1 self:user_namespace create;')
++)
+-- 
+2.38.1
 
-That's fine, please just send a patch series to the stable list when
-needed.
-
-thanks,
-
-greg k-h
