@@ -2,84 +2,105 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AE23C4332F
-	for <selinux@archiver.kernel.org>; Mon, 12 Dec 2022 17:45:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 377F6C00145
+	for <selinux@archiver.kernel.org>; Mon, 12 Dec 2022 23:28:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbiLLRpC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Dec 2022 12:45:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48420 "EHLO
+        id S233927AbiLLX22 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Dec 2022 18:28:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232629AbiLLRoz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Dec 2022 12:44:55 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6C1FD01
-        for <selinux@vger.kernel.org>; Mon, 12 Dec 2022 09:43:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670867034;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=jtcJLqzHbvkSDIwV6TCyk7RsBDT+4p3FI2Z5XpojnwA=;
-        b=Nft0CJNaP4BVuwB8FKLrPM/vEptZG3mNW1ZN0KcTCzGhSzC29ET71WXx7IZw5ADkBtT1qw
-        Wkth4RsexRjSCiusTVHwQbfo9Tux3VYJpGAVxZSr2IJf7jilM0MpgCFMeu+Z+adB6vXPKT
-        Lu48WOitklPsLBSald5beLsHmfOyX2w=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-211-hqZSLU2fMTudpQwkn_ZgOg-1; Mon, 12 Dec 2022 12:43:52 -0500
-X-MC-Unique: hqZSLU2fMTudpQwkn_ZgOg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 63EF63C02183
-        for <selinux@vger.kernel.org>; Mon, 12 Dec 2022 17:43:52 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-193-138.brq.redhat.com [10.40.193.138])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BD60AC15BA0;
-        Mon, 12 Dec 2022 17:43:51 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] sepolicy: Call os.makedirs() with exist_ok=True
-Date:   Mon, 12 Dec 2022 18:43:49 +0100
-Message-Id: <20221212174349.714152-1-lautrbach@redhat.com>
+        with ESMTP id S232611AbiLLX21 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Dec 2022 18:28:27 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05558F01C
+        for <selinux@vger.kernel.org>; Mon, 12 Dec 2022 15:28:26 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id n3so1014166pfq.10
+        for <selinux@vger.kernel.org>; Mon, 12 Dec 2022 15:28:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=lDMpBs92GDwHHSGPWXE6ZbOfetatETM5r1yUsqZWmYU=;
+        b=Kvh5zgo3uISQqMXTbxWjd9MNjk/vmARRZbcPyDRDL8hBhYNcHhlu/Wr8If4AkfsZn/
+         ST2t+vgBR0VI2aRmpHcrJgkR2GjPXw9jQvJhsOM3bwvoj+Mf0AqE5esf+lc9C05eXbtQ
+         F2c6OzCdLLnuy23a9X1IyYPulLgFSnABWGO/H8CDmU0t4T/6WhPpcvJR6ftQ3Ahc85OD
+         osL/9UjGT71f6wO3/8VKBTLBIS4T0Rk0YUfVkksKAZ10G3G4zfMegjDuHcKMSbQIfIVP
+         gefmOzT+y2l2rrfBiBncwpkVRnKXbgstDp5dbQvWSoD4HqVpVTW7PYdQmBu1qCaHtMgu
+         g1dg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lDMpBs92GDwHHSGPWXE6ZbOfetatETM5r1yUsqZWmYU=;
+        b=SNhpa6DFVpNXKtXyMVbJy/hC9bVywMnwBE9x8O1wZbs1VcXdQXmqWYbVgsxKAKsYzD
+         td+WTH0mVJq5gH496CUo9xn0QB7WSDGQ5JfMsp9ymE4W9KCVHQaYsZLAUn1DptOkZYbI
+         pFEO/qcGnxS31P3cEWEQInBCA0gScm5hR70+fduQaghj2yMhoo1Xn9raInkUUZxbRojT
+         L4W4adb4PQcit6mPt/lC2vLCVxePOJwisFziPgk5i1KLIJQj6eTWpX/lqhlN1LE5Myql
+         kST4YU5WJ19PTF7bDpoMf+cmfyCU78hsqgIs0+YpmiveBP1kxpMKNffbIuulWUkTRAyz
+         J9UQ==
+X-Gm-Message-State: ANoB5pm5olSnO6VmfY3HvMwPgJI006pfYZE3y9os+qUJa58SlFStlOX6
+        i0OQCO3ZMX7gy1LUMM1DktlZoUToUkJWEOU0Rd5v
+X-Google-Smtp-Source: AA0mqf5nuk73f8SqlgS3qMu08yIFcWROfsVVv20WHkeTOTsnQKfKNmb9vRIE1UvLlCwc2nUXH5de7YLfmnytra2JeBI=
+X-Received: by 2002:a62:e402:0:b0:577:62a8:f7a1 with SMTP id
+ r2-20020a62e402000000b0057762a8f7a1mr8981577pfh.2.1670887705431; Mon, 12 Dec
+ 2022 15:28:25 -0800 (PST)
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+References: <ffee337de5d6e447185b87ade65cc27f0b3576db.1670434580.git.pabeni@redhat.com>
+ <a3c81322-36b5-a289-c07b-15d2be75b02d@linux.intel.com> <CAHC9VhQzJAhNtpMnU7STEfq6QpaJo-xiie8HoHH2w3io3aXBHw@mail.gmail.com>
+ <75d48710be78d59e990cbb3930133a4f42c95a30.camel@redhat.com>
+In-Reply-To: <75d48710be78d59e990cbb3930133a4f42c95a30.camel@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 12 Dec 2022 18:28:14 -0500
+Message-ID: <CAHC9VhTNh-YwiyTds=P1e3rixEDqbRTFj22bpya=+qJqfcaMfg@mail.gmail.com>
+Subject: Re: [PATCH mptcp-net] mptcp: fix LSM labeling for passive msk
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        mptcp@lists.linux.dev, Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Since commit 7494bb1298b3 ("sepolicy: generate man pages in parallel")
-man pages are generated in parallel and there's a race between
-os.path.exists() and os.makedirs().
+On Mon, Dec 12, 2022 at 10:36 AM Paolo Abeni <pabeni@redhat.com> wrote:
+> If the preferrede solution is via a new LSM hook I have no objections
+> at all. I'm sorry to put another hook mainteinance on you.
 
-The check os.path.exists() is not necessary when os.makedirs() is called
-with exist_ok=True.
+Don't worry about it, sure there is a bit more code, but I think it's
+a better approach than all of the alternatives we've attempted.  I'd
+rather have "better" than a hack ;)
 
-Fixes:
-/usr/bin/sepolicy manpage -a -p /__w/usr/share/man/man8/ -w -r /__w/
-FileExistsError: [Errno 17] File exists: '/__w/usr/share/man/man8/'
+> How do you propose to preceed? After quickly digging into the relevant
+> LSM code, the only module I think I could handle in a reasonable
+> timeframe is selinux. Hopefully the new hook implementation should be
+> quite straight-forward for the relevant SME.
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
- python/sepolicy/sepolicy/manpage.py | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+That's sounds reasonable to me.  Our policy in LSM land is that you
+should provide at least one LSM implementation when adding a new hook
+(the BPF LSM doesn't count due to it's rather unique approach), so if
+you can provide a SELinux implementation that should meet that
+requirement.  I'm also not sure that any of the other LSMs currently
+claim support for MPTCP.
 
-diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
-index edeb3b77e759..1bff8f9acb49 100755
---- a/python/sepolicy/sepolicy/manpage.py
-+++ b/python/sepolicy/sepolicy/manpage.py
-@@ -376,8 +376,7 @@ class ManPage:
- 
-         self.fcdict = sepolicy.get_fcdict(self.fcpath)
- 
--        if not os.path.exists(path):
--            os.makedirs(path)
-+        os.makedirs(path, exist_ok=True)
- 
-         self.path = path
- 
+> I guess the patch[es] should target the LSM tree, as the change in the
+> mptcp code should be a one-liner. On the flip side, that would likely
+> lead to some merge conflict, as the mptcp protocol impl. is quite a
+> moving target.
+
+The LSM has also seen a lot of renewed activity lately.  However, I
+think the deciding factor is where the bulk of the code will live, and
+with the vast majority of the code expected under security/, I think
+it makes sense to merge this via the LSM tree.  My general policy for
+the LSM tree is to either base your patches of Linus' tree or the
+lsm/next branch and I'll handle whatever merge conflicts arise at the
+time of merging.
+
+For reference, the current LSM tree can be found here:
+
+* https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git
+
 -- 
-2.38.1
-
+paul-moore.com
