@@ -2,102 +2,140 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FEFCC4332F
-	for <selinux@archiver.kernel.org>; Fri,  9 Dec 2022 21:06:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A4B1C001B2
+	for <selinux@archiver.kernel.org>; Mon, 12 Dec 2022 02:39:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbiLIVGO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Dec 2022 16:06:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
+        id S230031AbiLLCj3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 11 Dec 2022 21:39:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229658AbiLIVGN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Dec 2022 16:06:13 -0500
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2B5B07B1
-        for <selinux@vger.kernel.org>; Fri,  9 Dec 2022 13:06:12 -0800 (PST)
-Received: by mail-pg1-x536.google.com with SMTP id 62so4330473pgb.13
-        for <selinux@vger.kernel.org>; Fri, 09 Dec 2022 13:06:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=swlXbvUgIyCpVtfuw5akFewwVTfd7I7Js2pYf2XP82w=;
-        b=TaiHuCeZAV1yQQlAJSulkw9JtGnuWlgOsNlnVxYlOPkd0TzlBzHTGSi2lZ4fgCeKFZ
-         Ausv62PjanNcqNtCrd/i6ZfyH796UnYOgf/m6TiOAx5RJtP0uFbrWu6zzf41tx94j06a
-         u9pkVHUD/V3Wf73BeEHsFd9LeOHHQ+U5XgsFP0I76W58lcFFs2DKySW0Z7D9oSR31/7m
-         O2RVoCDmYR+J4eaHcKAgalL8XGd/oxA2u0+kxVW741y+Vnpx+VMq/GEogIiQdWUkVb3r
-         Q5JdMYsWOiZWjCeTJa+WNQIX18SmKc4yPkrta45kgLWaBMdFzzqRJa2nMx8QYFDWuF6Y
-         HbJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=swlXbvUgIyCpVtfuw5akFewwVTfd7I7Js2pYf2XP82w=;
-        b=D0se1RQYACtY4Dyozs5gJRbbpXpXjQ73U1uEU77eeyYkPTdhJfLACQbcWeIcKBbc46
-         knWJ5wCfK306tODIAMRV49TyUwzbVYhzyWvrdYyPEWZkz/sUUzA7Ig1yOxGEHhjmHDPE
-         J1DpI4mUyIPUcznntR4A2XWAbAZtNyaQvjObyu2UmI7lhrPO8J0K4V9ZuTE2GZkV1iNt
-         Su48KVNG3IBHa+9toWKqmumhyZR458G3PRDRIRzo3edscgHwi94YgjBV+s1FtY/Ea+PC
-         O4m9MW4ZOcG6MeI08uNcD0KpT3SParrmANwVf35N5Pac9gXwLHzALMSXxzblmG2UipBU
-         cncQ==
-X-Gm-Message-State: ANoB5pkyTAUiz/+LD5QzkOgmuKehpSFrFxLzRxjkyizE1PQnugq4x2L2
-        bT6QadwK4g+6pcZWK27i9lxjjWrtTWb7CNIAHMI9
-X-Google-Smtp-Source: AA0mqf5UWEv2FphOoofYNiFjCOBLSmWLY2xIp+weIrCQVhgvg4KV4FG8JEHmcR0rn7ZdcCbz3LrXj/ZTlsVPzBiCzv0=
-X-Received: by 2002:a63:64c5:0:b0:479:2109:506 with SMTP id
- y188-20020a6364c5000000b0047921090506mr145405pgb.92.1670619972378; Fri, 09
- Dec 2022 13:06:12 -0800 (PST)
+        with ESMTP id S230364AbiLLCj2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 11 Dec 2022 21:39:28 -0500
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28DCEBC97;
+        Sun, 11 Dec 2022 18:39:27 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4NVm2Y4bt3zJpHK;
+        Mon, 12 Dec 2022 10:35:49 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Mon, 12 Dec 2022 10:39:25 +0800
+Message-ID: <300eab0e-271f-7dac-615c-e8594e1cd4a4@huawei.com>
+Date:   Mon, 12 Dec 2022 10:39:25 +0800
 MIME-Version: 1.0
-References: <20221114111844.3461403-1-konstantin.meskhidze@huawei.com>
- <CAHC9VhQZ0i1GF2a9P9v05awKCb_j2X0Tv_xVfhQm4NnMJFs5Lw@mail.gmail.com>
- <CAHC9VhSrbZeP2Lmd-dVXyUqM2=b7z-HMWh1ZPQ30eWchwrQJvA@mail.gmail.com>
- <ef77d0d1-5003-9147-6ba7-ef08a5109ce0@huawei-partners.com> <ed961349-0996-1e71-a624-cf55d893b2e2@huawei-partners.com>
-In-Reply-To: <ed961349-0996-1e71-a624-cf55d893b2e2@huawei-partners.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 9 Dec 2022 16:06:01 -0500
-Message-ID: <CAHC9VhSogM2_WrOWTEJAeWz3Pw39fU5L3ioR8425Kxq-W7LiNw@mail.gmail.com>
-Subject: Re: [PATCH] [RFC] SELINUX: Remove obsolete deferred inode security
- init list.
-To:     alexander.kozhevnikov@huawei-partners.com
-Cc:     Konstantin Meskhidze <konstantin.meskhidze@huawei.com>,
-        linux-security-module@vger.kernel.org,
-        jamorris@linux.microsoft.com, selinux@vger.kernel.org,
-        stephen.smalley.work@gmail.com, artem.kuzin@huawei.com,
-        hw.likun@huawei.com, xiujianfeng@huawei.com, yusongping@huawei.com,
-        hukeping@huawei.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@gmail.com>,
+        Paul Moore <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
+        <eparis@parisplace.org>, <sashal@kernel.org>,
+        <selinux@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+ <Y5Lf8SRgyrqDJwiH@kroah.com>
+ <93d137dc-e0d3-3741-7e01-dca1ba9c0903@huawei.com>
+ <Y5L10fjvxmU3klRu@kroah.com>
+ <58219c48-840d-b4f3-b195-82b2a1465b37@huawei.com>
+ <Y5L5RZlOOd9RMeWw@kroah.com>
+ <d69f9bd3-de1f-aa32-7c6b-30d909f724d0@huawei.com>
+ <Y5L+Tpym6XRrZSLB@kroah.com>
+ <8e409a81-dc00-f022-08fe-c1c26e9cf5e8@huawei.com>
+ <415d44a2-33a1-c100-1ffc-ad6f1409afd8@huawei.com>
+ <Y5MNi85uzgXIMxX2@kroah.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <Y5MNi85uzgXIMxX2@kroah.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Dec 8, 2022 at 7:29 AM Alexander Kozhevnikov
-<alexander.kozhevnikov@huawei-partners.com> wrote:
->      Hi, Paul,
->
-> Finally, I hope that I've got answers on all questions which were found
-> open on previous attempt:
-> 1) RCU accesses. There was a bug in printout code (isec pointers were
-> messed up with inode pointers), unfortunately. Now the picture is clear.
-> All inodes which were accessed on RCU-walk mode got another access in
-> Ref-walk mode right after and got successfully initialized. This is
-> exactly as VFS manual suggested.
-> 2) Inodes which are left without initialization are coupled with
-> directories which are mount points for some other filesystems and
-> according to VFS path lookup logic this dentries are substituted by
-> root dentries from underlying filesystems by handling mount points
-> during link_path_walk(). So this inodes do not have a chance to be
-> accessed until this mount points exist. As those generally are special
-> filesystems like /sys/fs/cgroup (very good example) there is almost no
-> chance for unmount of them.
-> The chain of events is quite simple: upper directory created, inode
-> added to deferred list, another filesystem mounted to this directory,
-> inode is not accessible anymore.
-> So, hope that this time I have quite good explanation of the story.
+On 2022/12/9 18:27, Greg KH wrote:
+> On Fri, Dec 09, 2022 at 05:38:00PM +0800, Guozihua (Scott) wrote:
+>> On 2022/12/9 17:32, Guozihua (Scott) wrote:
+>>> On 2022/12/9 17:22, Greg KH wrote:
+>>>> On Fri, Dec 09, 2022 at 05:11:40PM +0800, Guozihua (Scott) wrote:
+>>>>> On 2022/12/9 17:00, Greg KH wrote:
+>>>>>> On Fri, Dec 09, 2022 at 04:59:17PM +0800, Guozihua (Scott) wrote:
+>>>>>>> On 2022/12/9 16:46, Greg KH wrote:
+>>>>>>>> On Fri, Dec 09, 2022 at 03:53:25PM +0800, Guozihua (Scott) wrote:
+>>>>>>>>> On 2022/12/9 15:12, Greg KH wrote:
+>>>>>>>>>> On Fri, Dec 09, 2022 at 03:00:35PM +0800, Guozihua (Scott) wrote:
+>>>>>>>>>>> Hi community.
+>>>>>>>>>>>
+>>>>>>>>>>> Previously our team reported a race condition in IMA relates to LSM based
+>>>>>>>>>>> rules which would case IMA to match files that should be filtered out under
+>>>>>>>>>>> normal condition. The issue was originally analyzed and fixed on mainstream.
+>>>>>>>>>>> The patch and the discussion could be found here:
+>>>>>>>>>>> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
+>>>>>>>>>>>
+>>>>>>>>>>> After that, we did a regression test on 4.19 LTS and the same issue arises.
+>>>>>>>>>>> Further analysis reveled that the issue is from a completely different
+>>>>>>>>>>> cause.
+>>>>>>>>>>
+>>>>>>>>>> What commit in the tree fixed this in newer kernels?  Why can't we just
+>>>>>>>>>> backport that one to 4.19.y as well?
+>>>>>>>>>>
+>>>>>>>>>> thanks,
+>>>>>>>>>>
+>>>>>>>>>> greg k-h
+>>>>>>>>>
+>>>>>>>>> Hi Greg,
+>>>>>>>>>
+>>>>>>>>> The fix for mainline is now on linux-next, commit 	d57378d3aa4d ("ima:
+>>>>>>>>> Simplify ima_lsm_copy_rule") and 	c7423dbdbc9ece ("ima: Handle -ESTALE
+>>>>>>>>> returned by ima_filter_rule_match()"). However, these patches cannot be
+>>>>>>>>> picked directly into 4.19.y due to code difference.
+>>>>>>>>
+>>>>>>>> Ok, so it's much more than just 4.19 that's an issue here.  And are
+>>>>>>>> those commits tagged for stable inclusion?
+>>>>>>>
+>>>>>>> Not actually, not on the commit itself.
+>>>>>>
+>>>>>> That's not good.  When they hit Linus's tree, please submit backports to
+>>>>>> the stable mailing list so that they can be picked up.
+>>>>> Thing is these commits cannot be simply backported to 4.19.y. Preceding
+>>>>> patches are missing. How do we do backporting in this situation? Do we
+>>>>> first backport the preceding patches? Or maybe we develop another
+>>>>> solution for 4.19.y?
+>>>>
+>>>> First they need to go to newer kernel trees, and then worry about 4.19.
+>>>> We never want anyone to upgrade to a newer kernel and have a regression.
+>>>>
+>>>> Also, we can't do anything until they hit Linus's tree, as per the
+>>>> stable kernel rules.
+>>> Alright. We'll wait for these patches to be in Linus' tree. But should
+>>> we stick to a backport from mainstream or we form a different solution
+>>> for LTS?
+> 
+> We always want to have a normal backport of what is in Linus's tree if
+> at all possible.  Whenever we diverge from that, we almost always get it
+> wrong and have to fix it up again later.
+> 
+>> BTW, I have a look into it and if we are backporting mainstream's
+>> solution, we would also needs to backport b16942455193 ("ima: use the
+>> lsm policy update notifier")
+> 
+> That's fine, please just send a patch series to the stable list when
+> needed.
+> 
+> thanks,
+> 
+> greg k-h
 
-Thanks for the update Alexander.  It sounds like the VFS RCU fallback
-is working properly, which should address my worry about revalidating
-inodes while in a critical section.
+Thanks Greg.
 
-I would suggest updating your patchset based on the previous feedback
-and reposting.
+Any thought from Mimi?
 
 -- 
-paul-moore.com
+Best
+GUO Zihua
+
