@@ -2,68 +2,87 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2256C4332F
-	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 18:13:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E3E0C10F1B
+	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 19:25:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236536AbiLMSNi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Dec 2022 13:13:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47272 "EHLO
+        id S236556AbiLMTZo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Dec 2022 14:25:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236256AbiLMSNg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 13:13:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62FBDF04;
-        Tue, 13 Dec 2022 10:13:35 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 434C261638;
-        Tue, 13 Dec 2022 18:13:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A6A10C433EF;
-        Tue, 13 Dec 2022 18:13:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670955214;
-        bh=m1ksPm9cm8rw6iNUF/v2I55H7JacOD8i4PV09IoeNxc=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=dQbZzJMfoeGdcNEJGJzU90q9UDW7R8dpYc0gY81vc0rWUVeN95L41NWYLl2/dgtwX
-         nBLNoiETUxzpoSLTopWYjeMJIf0uUHw5fkWeSnwKGdp/kmlGt+OMT3nYPNAglyRP3C
-         hyUOR+yIQQtlkiL85gug8u8P/IGdGItHL8wOxu+8DTz0i26U1uAO9BVCUTE45mu+Ic
-         qahzhgQMK6Qv7IpC3c7G8dZB+0nSk3otEz/Df9gTed3MSTusmnKJaWR79ZtKZkSMhd
-         go7g7F9aapndRDL5y00M+6uEY0NjPvrf7CWfiXTSEVYIj7N/sP4zsJZXrpN88+E33E
-         SMPBqOuFsmdXw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 9434EC00445;
-        Tue, 13 Dec 2022 18:13:34 +0000 (UTC)
-Subject: Re: [GIT PULL] SELinux patches for v6.2
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <CAHC9VhSmJHDRroUJifUuDNF+KvVPVtW17CuMzb_RrUKBBkTabA@mail.gmail.com>
+        with ESMTP id S236064AbiLMTZn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 14:25:43 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC36324F0D
+        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 11:25:42 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id q71so510710pgq.8
+        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 11:25:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=9kbOYAAjnKyXvg23pjUMzGuz9DSgOAIhX9TM1FNy+0Q=;
+        b=YQ8ZSNFzPrq2HNtcykvnHhbINRe8kgBNKOS/PDvQ0iunDkAHLiPBwJ6kju5zXBtI9q
+         0zeXx6hqc6oO0/pLFG/8TRpUHW/c2kLm7aIVq2JGPzUmim6kLRmMnezJ2G7i+M1dIOFM
+         EcrT222rB5pje2tUP9DxsQuohumAy5kfzjRt2w23C+ZPASM6arGfIYdP/xP4YeEKxRkW
+         gGV74nhJJDmG5vV8WC7ICjn72Bl+l+KbujJsmQAy49Aq6a5rL2F8MNQJ3+F8+Ke/EkWL
+         EaD7boOE6no4Xbf0RLHkdBjd3kFJuRt4UOLQ481H+ltMmqf52GHyE4Kuy+zhN1elABPY
+         omqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9kbOYAAjnKyXvg23pjUMzGuz9DSgOAIhX9TM1FNy+0Q=;
+        b=W7NK52d9tqE5igfoqCif5TJQrk7zmYRZTs+ZQcZsWqw/GtbtpPflJsTVxup+kCnmlW
+         Z9Xar2HaF4E1kOhqnSfBmU7ZYIQ1SFE3xUq/ZVkx5aRatAMmSBdGKytapSJeboNNIc3W
+         sZ2eQEiBgKwwZLzTaPYM5Gxp+OFnEc8yzedcwwRtnU+1o8bYIRa83+lkwh7vrc+pTfCF
+         KGnQ/XbYBNJsnpeLBp+FfQDlW1hkDN7/wGNwu3wZYZRmMaKkzmF/c1GhtztRI12c6GdU
+         zjvPuyY1APgd6CkBlExhCu22YTNMFZwzP8/jyV3jj8tosFzUEtnqtLrXCJIHapPPHpvK
+         wIFg==
+X-Gm-Message-State: ANoB5pnrZJGE2cRyhd+HXgAUlpjdFKHUZwFLN69VfsGtd7p3l/g8dVUk
+        5kTmcpQydJpBtYxOagwJXolDG4jTXZ8IEvtgFv20
+X-Google-Smtp-Source: AA0mqf57kSqmNwGBjDyzVN0hyalSVuFVRwFQQjhF9S/cz0ORzHKxAexfG5G7j/186DQnoY80k93z3j9qhUTRlV3Jv/I=
+X-Received: by 2002:a63:4424:0:b0:477:96e2:9065 with SMTP id
+ r36-20020a634424000000b0047796e29065mr70173881pga.533.1670959542176; Tue, 13
+ Dec 2022 11:25:42 -0800 (PST)
+MIME-Version: 1.0
 References: <CAHC9VhSmJHDRroUJifUuDNF+KvVPVtW17CuMzb_RrUKBBkTabA@mail.gmail.com>
-X-PR-Tracked-List-Id: <selinux.vger.kernel.org>
-X-PR-Tracked-Message-Id: <CAHC9VhSmJHDRroUJifUuDNF+KvVPVtW17CuMzb_RrUKBBkTabA@mail.gmail.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20221212
-X-PR-Tracked-Commit-Id: 048be156491ff1aeb0fe5ff0862644d38cd39015
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 57888f7b952d3f2696f82a701f1b3d9de7e346d3
-Message-Id: <167095521459.23919.6377615402983045765.pr-tracker-bot@kernel.org>
-Date:   Tue, 13 Dec 2022 18:13:34 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+ <CAHk-=whH53GKhcT0+cKGwCVOHXD0_Gh82w2SVojjgoN7XZ-71g@mail.gmail.com>
+In-Reply-To: <CAHk-=whH53GKhcT0+cKGwCVOHXD0_Gh82w2SVojjgoN7XZ-71g@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 13 Dec 2022 14:25:31 -0500
+Message-ID: <CAHC9VhThEUiyVL2E5sAiQhiKhqV8nJbRE7TGOAq0QOJ2qzGjPw@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux patches for v6.2
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Mon, 12 Dec 2022 22:05:32 -0500:
+On Tue, Dec 13, 2022 at 12:44 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Mon, Dec 12, 2022 at 7:05 PM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> >   Unfortunately, this pull request does
+> > conflict with fixes that were merged during the v6.1-rcX cycle so you
+> > will either need to do some manual fixup or you can pull the tag below
+> > which has the necessary fixes and has been sanity tested today.
+>
+> I did the merge manually, but compared to your version. They were
+> identical except that you hadn't added the documentation entry for the
+> gfp_flags parameter.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20221212
+Ah, thanks for catching that.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/57888f7b952d3f2696f82a701f1b3d9de7e346d3
+> That said, I'm not super-happy with that merge ... It feels to me like
+> that thing shouldn't be an allocation at all, but that selinux should
+> use ref-counted strings instead (and just increase the refcount).
 
-Thank you!
+It is something worth looking into for the future.  I'm in the middle
+of reworking the audit code, and one of the changes is heavy use of
+string refcounts to reduce the copies needed.
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+paul-moore.com
