@@ -2,207 +2,112 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34E37C4167B
-	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 15:30:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE32AC10F1B
+	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 17:44:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236176AbiLMPad (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Dec 2022 10:30:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60398 "EHLO
+        id S236311AbiLMRoz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Dec 2022 12:44:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235463AbiLMPad (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 10:30:33 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F8911829;
-        Tue, 13 Dec 2022 07:30:31 -0800 (PST)
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDF9XNa028390;
-        Tue, 13 Dec 2022 15:30:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=nVPaX5QJ+Zz8gxqvh/aOCvC4eDf3fQpQJTn1yo4HVEs=;
- b=r/2rSbfzdTApeNx0iEplqCK53ZzWs0PqKa2J/MiKyjrMZMBvnVfugsgyDBLzF+6SkQHf
- G+wiZZatvtuQ1MqzI2jOnbgrSos1O7iJzgYPWI0vIkJ8pu7YcOX4jeu6MiZ2YGqjARWk
- 6bALfaZfDW20HCOGNyLOUggKSn3021ariWRfAsfZpovWx8X9dGiEzOa4fcWpKKMCykK4
- mo4tj5EW+HI5kH4wjqaOzTs1DtNuKbaCV4izVWzSlz8YIVkp4ic+3qH39sT3+es0XkUT
- R7hOYS+AHP1Yt+kQsSZwj5OTOg4EmsPLQbXUJb019ZhRzGr7+XEYG6sfrWTXV+7cg2eA 7w== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mesmxckab-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:30:13 +0000
-Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BDFCHb0006064;
-        Tue, 13 Dec 2022 15:30:12 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mesmxck9d-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:30:12 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.17.1.19/8.16.1.2) with ESMTP id 2BDEj9Lx019468;
-        Tue, 13 Dec 2022 15:30:11 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([9.208.130.100])
-        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3mchr6s71e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Dec 2022 15:30:11 +0000
-Received: from smtpav01.dal12v.mail.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BDFUATI48365978
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Dec 2022 15:30:10 GMT
-Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E3D3458061;
-        Tue, 13 Dec 2022 15:30:09 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 4D95A58058;
-        Tue, 13 Dec 2022 15:30:09 +0000 (GMT)
-Received: from sig-9-65-192-247.ibm.com (unknown [9.65.192.247])
-        by smtpav01.dal12v.mail.com (Postfix) with ESMTP;
-        Tue, 13 Dec 2022 15:30:09 +0000 (GMT)
-Message-ID: <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     "Guozihua (Scott)" <guozihua@huawei.com>,
-        dmitry.kasatkin@gmail.com, Paul Moore <paul@paul-moore.com>,
-        sds@tycho.nsa.gov, eparis@parisplace.org,
-        Greg KH <gregkh@linuxfoundation.org>, sashal@kernel.org
-Cc:     selinux@vger.kernel.org,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        stable@vger.kernel.org
-Date:   Tue, 13 Dec 2022 10:30:08 -0500
-In-Reply-To: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: zOxeuoPUB74ZbgwDoR4_FV4X8X9oesGG
-X-Proofpoint-ORIG-GUID: k67Y2O8uFLeNPHT5Y8ttIusX1iE9c5-p
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S236323AbiLMRon (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 12:44:43 -0500
+Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98684220C7
+        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 09:44:38 -0800 (PST)
+Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-3e78d07ab4fso202937777b3.9
+        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 09:44:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=wOv+J0r/3B6i4POUYOzSGaAf/iSJPPOP/x/UlxsbTvQ=;
+        b=WZ1mKRQBVKmDwustjDGt5j+lf+imbCmjpXPsg1BBATOLjJOwG70Wy78s8BR04q3Gdq
+         6x0b8plbylv5t6lB95U7p/M74lW+sMEBPSmdvx4l+L+ANQFN/U8Uyh0ytjcXcuSBjnPC
+         jFj5+j3oUZw+Z1DQEPds2syc7iY/qe6YjRUlk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wOv+J0r/3B6i4POUYOzSGaAf/iSJPPOP/x/UlxsbTvQ=;
+        b=E/yELCIrBay90Cf/0CbEGexKA0QoHwq3EYIgqYksVenZz4wPnurVW63TMP6Mdn/nHs
+         blTi0x28FFZlWjab6/Hf7gJDMAVWfQINu0W8yPiIsmjWwpkP1Z6JHvJTSa1U1yHHPxO2
+         HHZxtihU+ufzWGQkejeOAUz5V8qyUg5HncXOJZZdCle+8ZKj0IWs92xGlYlbmeriH4RJ
+         yevDh8XpNpNB7hRIH+SKzOSxgaa4COaFsfvqZMdqKs0kE7DCgm/fgPNHY6rRKOyNG2AB
+         Mk4yG4WwtnRK3LjGvWZCNdStl++FcOwPVptX300HLAnBPWeshzbUI+oembXHV3YEcyO5
+         +hxg==
+X-Gm-Message-State: ANoB5pnC1uLlLC1o8zq0rKRUqvtdqbnnhaffv2f3MocYSkhShiXaj0Om
+        e5usAc9cxgDoAhTtm9Yk4TfVTZ+9BWwKjD1/
+X-Google-Smtp-Source: AA0mqf7jKuq6xRoXlT5SRQxBik6ovbT5DIETyLamOv46c8EHw11LlbCj8z6I7DzC9HIaz4fBUmPm3A==
+X-Received: by 2002:a05:690c:ed2:b0:3bb:ce5f:dd00 with SMTP id cs18-20020a05690c0ed200b003bbce5fdd00mr14676207ywb.19.1670953477235;
+        Tue, 13 Dec 2022 09:44:37 -0800 (PST)
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com. [209.85.222.181])
+        by smtp.gmail.com with ESMTPSA id h18-20020a05620a401200b006ea7f9d8644sm8483156qko.96.2022.12.13.09.44.36
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Dec 2022 09:44:36 -0800 (PST)
+Received: by mail-qk1-f181.google.com with SMTP id e1so223247qka.6
+        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 09:44:36 -0800 (PST)
+X-Received: by 2002:ae9:ef48:0:b0:6fe:d4a6:dcef with SMTP id
+ d69-20020ae9ef48000000b006fed4a6dcefmr10744372qkg.594.1670953476176; Tue, 13
+ Dec 2022 09:44:36 -0800 (PST)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2022-12-13_03,2022-12-13_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- malwarescore=0 bulkscore=0 clxscore=1011 mlxscore=0 lowpriorityscore=0
- mlxlogscore=999 priorityscore=1501 phishscore=0 suspectscore=0 spamscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2210170000 definitions=main-2212130133
+References: <CAHC9VhSmJHDRroUJifUuDNF+KvVPVtW17CuMzb_RrUKBBkTabA@mail.gmail.com>
+In-Reply-To: <CAHC9VhSmJHDRroUJifUuDNF+KvVPVtW17CuMzb_RrUKBBkTabA@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 13 Dec 2022 09:44:20 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whH53GKhcT0+cKGwCVOHXD0_Gh82w2SVojjgoN7XZ-71g@mail.gmail.com>
+Message-ID: <CAHk-=whH53GKhcT0+cKGwCVOHXD0_Gh82w2SVojjgoN7XZ-71g@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux patches for v6.2
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2022-12-09 at 15:00 +0800, Guozihua (Scott) wrote:
-> Hi community.
-> 
-> Previously our team reported a race condition in IMA relates to LSM 
-> based rules which would case IMA to match files that should be filtered 
-> out under normal condition. The issue was originally analyzed and fixed 
-> on mainstream. The patch and the discussion could be found here: 
-> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
-> 
-> After that, we did a regression test on 4.19 LTS and the same issue 
-> arises. Further analysis reveled that the issue is from a completely 
-> different cause.
-> 
-> The cause is that selinux_audit_rule_init() would set the rule (which is 
-> a second level pointer) to NULL immediately after called. The relevant 
-> codes are as shown:
-> 
-> security/selinux/ss/services.c:
-> > int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
-> > {
-> >         struct selinux_state *state = &selinux_state;
-> >         struct policydb *policydb = &state->ss->policydb;
-> >         struct selinux_audit_rule *tmprule;
-> >         struct role_datum *roledatum;
-> >         struct type_datum *typedatum;
-> >         struct user_datum *userdatum;
-> >         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
-> >         int rc = 0;
-> > 
-> >         *rule = NULL;
-> *rule is set to NULL here, which means the rule on IMA side is also NULL.
-> > 
-> >         if (!state->initialized)
-> >                 return -EOPNOTSUPP;
-> ...
-> > out:
-> >         read_unlock(&state->ss->policy_rwlock);
-> > 
-> >         if (rc) {
-> >                 selinux_audit_rule_free(tmprule);
-> >                 tmprule = NULL;
-> >         }
-> > 
-> >         *rule = tmprule;
-> rule is updated at the end of the function.
-> > 
-> >         return rc;
-> > }
-> 
-> security/integrity/ima/ima_policy.c:
-> > static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
-> >                             const struct cred *cred, u32 secid,
-> >                             enum ima_hooks func, int mask)
-> > {...
-> > for (i = 0; i < MAX_LSM_RULES; i++) {
-> >                 int rc = 0;
-> >                 u32 osid;
-> >                 int retried = 0;
-> > 
-> >                 if (!rule->lsm[i].rule)
-> >                         continue;
-> Setting rule to NULL would lead to LSM based rule matching being skipped.
-> > retry:
-> >                 switch (i) {
-> 
-> To solve this issue, there are multiple approaches we might take and I 
-> would like some input from the community.
-> 
-> The first proposed solution would be to change 
-> selinux_audit_rule_init(). Remove the set to NULL bit and update the 
-> rule pointer with cmpxchg.
-> 
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index a9f2bc8443bd..aa74b04ccaf7 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -3297,10 +3297,9 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
-> >         struct type_datum *typedatum;
-> >         struct user_datum *userdatum;
-> >         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
-> > +       struct selinux_audit_rule *orig = rule;
-> >         int rc = 0;
-> >  
-> > -       *rule = NULL;
-> > -
-> >         if (!state->initialized)
-> >                 return -EOPNOTSUPP;
-> >  
-> > @@ -3382,7 +3381,8 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
-> >                 tmprule = NULL;
-> >         }
-> >  
-> > -       *rule = tmprule;
-> > +       if (cmpxchg(rule, orig, tmprule) != orig)
-> > +               selinux_audit_rule_free(tmprule);
-> >  
-> >         return rc;
-> >  }
-> 
-> This solution would be an easy fix, but might influence other modules 
-> calling selinux_audit_rule_init() directly or indirectly (on 4.19 LTS, 
-> only auditfilter and IMA it seems). And it might be worth returning an 
-> error code such as -EAGAIN.
-> 
-> Or, we can access rules via RCU, similar to what we do on 5.10. This 
-> could means more code change and testing.
+On Mon, Dec 12, 2022 at 7:05 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+>   Unfortunately, this pull request does
+> conflict with fixes that were merged during the v6.1-rcX cycle so you
+> will either need to do some manual fixup or you can pull the tag below
+> which has the necessary fixes and has been sanity tested today.
 
-In the 4.19 kernel, IMA is doing a lazy LSM based policy rule update as
-needed.  IMA waits for selinux_audit_rule_init() to complete and
-shouldn't see NULL, unless there is an SELinux failure.  Before
-"fixing" the problem, what exactly is the problem?
+I did the merge manually, but compared to your version. They were
+identical except that you hadn't added the documentation entry for the
+gfp_flags parameter.
 
-thanks,
+That said, I'm not super-happy with that merge - it was the trivial
+straightforward one, but when I looked at the code it struck me that
+the only thing that actually seems to *use* that gfp_flags argument is
+that
 
-Mimi
+        if (oldc->str) {
+                s = kstrdup(oldc->str, gfp_flags);
+                if (!s)
+                        return -ENOMEM;
 
+sequence. And it strikes me that this is not the only place where
+selinux ends up doing that whole
+
+                str = kstrdup(ctx->str, GFP_xyz);
+
+dance.
+
+It feels to me like that thing shouldn't be an allocation at all, but
+that selinux should use ref-counted strings instead (and just increase
+the refcount). It's in other places like context_cpy(), but having it
+be a refcounted string would also potentially help with
+"context_cmp()" in that the string compare could be a "is it the same
+ref-counted pointer" and maybe hit that case most of the time before
+it even needs to do an actual strcmp.
+
+Hmm?
+
+Anyway, that was just my reaction to resolving that conflict, and
+obviously *not* for this merge window. I'm just saying that if you
+agree, maybe that could be a future improvement, making the whole
+allocation - and the whole need for that gfp_flag - go away?
+
+               Linus
