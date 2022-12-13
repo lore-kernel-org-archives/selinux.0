@@ -2,282 +2,207 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A69CC4332F
-	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 08:06:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34E37C4167B
+	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 15:30:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234638AbiLMIGz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Dec 2022 03:06:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35868 "EHLO
+        id S236176AbiLMPad (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Dec 2022 10:30:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234636AbiLMIGm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 03:06:42 -0500
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24866B1D2;
-        Tue, 13 Dec 2022 00:06:40 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.227])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4NWW9t1sshz9v7cH;
-        Tue, 13 Dec 2022 15:59:46 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwBnog1oMphjjUcMAA--.22467S2;
-        Tue, 13 Dec 2022 09:06:11 +0100 (CET)
-Message-ID: <bf05aa8c3161a799fae84a4acfc46dc54499b271.camel@huaweicloud.com>
-Subject: Re: [PATCH v5 2/6] ocfs2: Switch to security_inode_init_security()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, mark@fasheh.com,
-        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, Casey Schaufler <casey@schaufler-ca.com>
-Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Tue, 13 Dec 2022 09:05:55 +0100
-In-Reply-To: <8ca5be2f5ac0f5690a9025e5eec9fc93e8613842.camel@linux.ibm.com>
-References: <20221123095202.599252-1-roberto.sassu@huaweicloud.com>
-         <20221123095202.599252-3-roberto.sassu@huaweicloud.com>
-         <052d91687e813110cc1e1d762ea086cc8085114a.camel@linux.ibm.com>
-         <44de9254c7abf1c836142cf3262450de1912bbc0.camel@huaweicloud.com>
-         <8ca5be2f5ac0f5690a9025e5eec9fc93e8613842.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
-MIME-Version: 1.0
+        with ESMTP id S235463AbiLMPad (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 10:30:33 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F8911829;
+        Tue, 13 Dec 2022 07:30:31 -0800 (PST)
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BDF9XNa028390;
+        Tue, 13 Dec 2022 15:30:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=nVPaX5QJ+Zz8gxqvh/aOCvC4eDf3fQpQJTn1yo4HVEs=;
+ b=r/2rSbfzdTApeNx0iEplqCK53ZzWs0PqKa2J/MiKyjrMZMBvnVfugsgyDBLzF+6SkQHf
+ G+wiZZatvtuQ1MqzI2jOnbgrSos1O7iJzgYPWI0vIkJ8pu7YcOX4jeu6MiZ2YGqjARWk
+ 6bALfaZfDW20HCOGNyLOUggKSn3021ariWRfAsfZpovWx8X9dGiEzOa4fcWpKKMCykK4
+ mo4tj5EW+HI5kH4wjqaOzTs1DtNuKbaCV4izVWzSlz8YIVkp4ic+3qH39sT3+es0XkUT
+ R7hOYS+AHP1Yt+kQsSZwj5OTOg4EmsPLQbXUJb019ZhRzGr7+XEYG6sfrWTXV+7cg2eA 7w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mesmxckab-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 15:30:13 +0000
+Received: from m0098416.ppops.net (m0098416.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BDFCHb0006064;
+        Tue, 13 Dec 2022 15:30:12 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3mesmxck9d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 15:30:12 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.17.1.19/8.16.1.2) with ESMTP id 2BDEj9Lx019468;
+        Tue, 13 Dec 2022 15:30:11 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([9.208.130.100])
+        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3mchr6s71e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 13 Dec 2022 15:30:11 +0000
+Received: from smtpav01.dal12v.mail.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+        by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BDFUATI48365978
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 13 Dec 2022 15:30:10 GMT
+Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E3D3458061;
+        Tue, 13 Dec 2022 15:30:09 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4D95A58058;
+        Tue, 13 Dec 2022 15:30:09 +0000 (GMT)
+Received: from sig-9-65-192-247.ibm.com (unknown [9.65.192.247])
+        by smtpav01.dal12v.mail.com (Postfix) with ESMTP;
+        Tue, 13 Dec 2022 15:30:09 +0000 (GMT)
+Message-ID: <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     "Guozihua (Scott)" <guozihua@huawei.com>,
+        dmitry.kasatkin@gmail.com, Paul Moore <paul@paul-moore.com>,
+        sds@tycho.nsa.gov, eparis@parisplace.org,
+        Greg KH <gregkh@linuxfoundation.org>, sashal@kernel.org
+Cc:     selinux@vger.kernel.org,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        stable@vger.kernel.org
+Date:   Tue, 13 Dec 2022 10:30:08 -0500
+In-Reply-To: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: zOxeuoPUB74ZbgwDoR4_FV4X8X9oesGG
+X-Proofpoint-ORIG-GUID: k67Y2O8uFLeNPHT5Y8ttIusX1iE9c5-p
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwBnog1oMphjjUcMAA--.22467S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3Ww4xZF1UAr1rurWrtw1UWrg_yoW3ur48pF
-        W8KF1jkr4rJFyUWrWSqanI9an29rWrGrZrXrs3G347ZF1qkrn7tr10yr15ua4rJrW8JF10
-        qw4UArsxuwn8A37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAFBF1jj4KTJgAAsF
-X-CFilter-Loop: Reflected
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-13_03,2022-12-13_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 bulkscore=0 clxscore=1011 mlxscore=0 lowpriorityscore=0
+ mlxlogscore=999 priorityscore=1501 phishscore=0 suspectscore=0 spamscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2210170000 definitions=main-2212130133
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2022-11-29 at 08:14 -0500, Mimi Zohar wrote:
-> On Thu, 2022-11-24 at 09:11 +0100, Roberto Sassu wrote:
-> > On Wed, 2022-11-23 at 12:46 -0500, Mimi Zohar wrote:
-> > > On Wed, 2022-11-23 at 10:51 +0100, Roberto Sassu wrote:
-> > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > 
-> > > > In preparation for removing security_old_inode_init_security(), switch to
-> > > > security_inode_init_security().
-> > > > 
-> > > > Extend the existing ocfs2_initxattrs() to take the
-> > > > ocfs2_security_xattr_info structure from fs_info, and populate the
-> > > > name/value/len triple with the first xattr provided by LSMs. Supporting
-> > > > multiple xattrs is not currently supported, as it requires non-trivial
-> > > > changes that can be done at a later time.
-> > > 
-> > > ocfs2 already defines ocfs2_init_security_get() as a wrapper around
-> > > calling either security_old_inode_init_security() or
-> > > security_inode_init_security().  Based on "si" one or the other hook is
-> > > called.  ocfs2_initxattrs is already defined.
-> > > 
-> > >         struct ocfs2_security_xattr_info si = {
-> > >                 .name = NULL,
-> > >                 .enable = 1,
-> > >         };
-> > > 
-> > > The main difference between calling security_old_inode_init_security or
-> > > security_inode_init_security() is whether or not security.evm is
-> > > calculated and written.
-> > 
-> > Uhm, it seems unfortunately more complicated.
-> > 
-> > Calling security_old_inode_init_security() allows filesystems to get
-> > the xattr, do some calculations (e.g. for reservation) and then write
-> > the xattr.
-> > 
-> > The initxattrs() callback to be passed to
-> > security_inode_init_security() is meant to let filesystems provide a
-> > filesystem-specific way of writing the xattrs, just after LSMs provided
-> > them. This seems incompatible with the old behavior, as a filesystem
-> > might need to do the calculations in the middle before writing the
-> > xattrs.
-> > 
-> > The initxattrs() callback, when security_old_inode_init_security() was
-> > used, is just a way of emulating the old behavior, i.e. returning the
-> > xattr to the caller.
-> > 
-> > It should be possible, I guess, to handle more xattrs but if the code
-> > was designed to handle one, it would be better if the filesystem
-> > maintainers add support for it.
+On Fri, 2022-12-09 at 15:00 +0800, Guozihua (Scott) wrote:
+> Hi community.
 > 
-> Hi Mark, Joel, Joseph,
+> Previously our team reported a race condition in IMA relates to LSM 
+> based rules which would case IMA to match files that should be filtered 
+> out under normal condition. The issue was originally analyzed and fixed 
+> on mainstream. The patch and the discussion could be found here: 
+> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
 > 
-> Commit 9d8f13ba3f48 ("security: new security_inode_init_security API
-> adds function callback") introduced security_old_inode_init_security()
-> to support reiserfs and ocfs2 a long time ago.  It was suppose to be a
-> temporary fix until they moved to the new
-> security_inode_init_security() hook.  ocsf2 partially migrated to
-> security_inode_init_security(), but not completely.
+> After that, we did a regression test on 4.19 LTS and the same issue 
+> arises. Further analysis reveled that the issue is from a completely 
+> different cause.
 > 
-> security_old_inode_init_security() is finally going away.  Instead of
-> migrating the remaining old usage to the new
-> security_inode_init_security() properly, this patch simulates the
-> existing usage.
+> The cause is that selinux_audit_rule_init() would set the rule (which is 
+> a second level pointer) to NULL immediately after called. The relevant 
+> codes are as shown:
 > 
-> Can we get some Reviewed-by, Tested-by tags or comments?
+> security/selinux/ss/services.c:
+> > int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+> > {
+> >         struct selinux_state *state = &selinux_state;
+> >         struct policydb *policydb = &state->ss->policydb;
+> >         struct selinux_audit_rule *tmprule;
+> >         struct role_datum *roledatum;
+> >         struct type_datum *typedatum;
+> >         struct user_datum *userdatum;
+> >         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+> >         int rc = 0;
+> > 
+> >         *rule = NULL;
+> *rule is set to NULL here, which means the rule on IMA side is also NULL.
+> > 
+> >         if (!state->initialized)
+> >                 return -EOPNOTSUPP;
+> ...
+> > out:
+> >         read_unlock(&state->ss->policy_rwlock);
+> > 
+> >         if (rc) {
+> >                 selinux_audit_rule_free(tmprule);
+> >                 tmprule = NULL;
+> >         }
+> > 
+> >         *rule = tmprule;
+> rule is updated at the end of the function.
+> > 
+> >         return rc;
+> > }
+> 
+> security/integrity/ima/ima_policy.c:
+> > static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+> >                             const struct cred *cred, u32 secid,
+> >                             enum ima_hooks func, int mask)
+> > {...
+> > for (i = 0; i < MAX_LSM_RULES; i++) {
+> >                 int rc = 0;
+> >                 u32 osid;
+> >                 int retried = 0;
+> > 
+> >                 if (!rule->lsm[i].rule)
+> >                         continue;
+> Setting rule to NULL would lead to LSM based rule matching being skipped.
+> > retry:
+> >                 switch (i) {
+> 
+> To solve this issue, there are multiple approaches we might take and I 
+> would like some input from the community.
+> 
+> The first proposed solution would be to change 
+> selinux_audit_rule_init(). Remove the set to NULL bit and update the 
+> rule pointer with cmpxchg.
+> 
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index a9f2bc8443bd..aa74b04ccaf7 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -3297,10 +3297,9 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+> >         struct type_datum *typedatum;
+> >         struct user_datum *userdatum;
+> >         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+> > +       struct selinux_audit_rule *orig = rule;
+> >         int rc = 0;
+> >  
+> > -       *rule = NULL;
+> > -
+> >         if (!state->initialized)
+> >                 return -EOPNOTSUPP;
+> >  
+> > @@ -3382,7 +3381,8 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+> >                 tmprule = NULL;
+> >         }
+> >  
+> > -       *rule = tmprule;
+> > +       if (cmpxchg(rule, orig, tmprule) != orig)
+> > +               selinux_audit_rule_free(tmprule);
+> >  
+> >         return rc;
+> >  }
+> 
+> This solution would be an easy fix, but might influence other modules 
+> calling selinux_audit_rule_init() directly or indirectly (on 4.19 LTS, 
+> only auditfilter and IMA it seems). And it might be worth returning an 
+> error code such as -EAGAIN.
+> 
+> Or, we can access rules via RCU, similar to what we do on 5.10. This 
+> could means more code change and testing.
 
-Ping.
+In the 4.19 kernel, IMA is doing a lazy LSM based policy rule update as
+needed.  IMA waits for selinux_audit_rule_init() to complete and
+shouldn't see NULL, unless there is an SELinux failure.  Before
+"fixing" the problem, what exactly is the problem?
 
-Thanks
+thanks,
 
-Roberto
-
-> thanks,
-> 
-> Mimi
-> 
-> > > Perhaps it is time to remove the call to
-> > > security_old_inode_init_security() in ocfs2_init_security_get().  We
-> > > need to hear back from the ocfs2 community.  Mark?  Joel?
-> > > 
-> > > As noted previously this change affects mknod and symlinks.
-> > > 
-> > > 
-> > > > As fs_info was not used before, ocfs2_initxattrs() can now handle the case
-> > > > of replicating the behavior of security_old_inode_init_security(), i.e.
-> > > > just obtaining the xattr, in addition to setting all xattrs provided by
-> > > > LSMs.
-> > > > 
-> > > > Finally, modify the handling of the return value from
-> > > > ocfs2_init_security_get(). As security_inode_init_security() does not
-> > > > return -EOPNOTSUPP, remove this case and directly handle the error if the
-> > > > return value is not zero.
-> > > > 
-> > > > However, the previous case of receiving -EOPNOTSUPP should be still
-> > > > taken into account, as security_inode_init_security() could return zero
-> > > > without setting xattrs and ocfs2 would consider it as if the xattr was set.
-> > > > 
-> > > > Instead, if security_inode_init_security() returned zero, look at the xattr
-> > > > if it was set, and behave accordingly, i.e. set si->enable to zero to
-> > > > notify to the functions following ocfs2_init_security_get() that the xattr
-> > > > is not available (same as if security_old_inode_init_security() returned
-> > > > -EOPNOTSUPP).
-> > > > 
-> > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > ---
-> > > >  fs/ocfs2/namei.c | 18 ++++++------------
-> > > >  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
-> > > >  2 files changed, 32 insertions(+), 16 deletions(-)
-> > > > 
-> > > > diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
-> > > > index 05f32989bad6..55fba81cd2d1 100644
-> > > > --- a/fs/ocfs2/namei.c
-> > > > +++ b/fs/ocfs2/namei.c
-> > > > @@ -242,6 +242,7 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
-> > > >  	int want_meta = 0;
-> > > >  	int xattr_credits = 0;
-> > > >  	struct ocfs2_security_xattr_info si = {
-> > > > +		.name = NULL,
-> > > >  		.enable = 1,
-> > > >  	};
-> > > >  	int did_quota_inode = 0;
-> > > > @@ -315,12 +316,8 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
-> > > >  	/* get security xattr */
-> > > >  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
-> > > >  	if (status) {
-> > > > -		if (status == -EOPNOTSUPP)
-> > > > -			si.enable = 0;
-> > > > -		else {
-> > > > -			mlog_errno(status);
-> > > > -			goto leave;
-> > > > -		}
-> > > > +		mlog_errno(status);
-> > > > +		goto leave;
-> > > >  	}
-> > > >  
-> > > >  	/* calculate meta data/clusters for setting security and acl xattr */
-> > > > @@ -1805,6 +1802,7 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
-> > > >  	int want_clusters = 0;
-> > > >  	int xattr_credits = 0;
-> > > >  	struct ocfs2_security_xattr_info si = {
-> > > > +		.name = NULL,
-> > > >  		.enable = 1,
-> > > >  	};
-> > > >  	int did_quota = 0, did_quota_inode = 0;
-> > > > @@ -1875,12 +1873,8 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
-> > > >  	/* get security xattr */
-> > > >  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
-> > > >  	if (status) {
-> > > > -		if (status == -EOPNOTSUPP)
-> > > > -			si.enable = 0;
-> > > > -		else {
-> > > > -			mlog_errno(status);
-> > > > -			goto bail;
-> > > > -		}
-> > > > +		mlog_errno(status);
-> > > > +		goto bail;
-> > > >  	}
-> > > >  
-> > > >  	/* calculate meta data/clusters for setting security xattr */
-> > > > diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-> > > > index 95d0611c5fc7..55699c573541 100644
-> > > > --- a/fs/ocfs2/xattr.c
-> > > > +++ b/fs/ocfs2/xattr.c
-> > > > @@ -7259,9 +7259,21 @@ static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
-> > > >  static int ocfs2_initxattrs(struct inode *inode, const struct xattr *xattr_array,
-> > > >  		     void *fs_info)
-> > > >  {
-> > > > +	struct ocfs2_security_xattr_info *si = fs_info;
-> > > >  	const struct xattr *xattr;
-> > > >  	int err = 0;
-> > > >  
-> > > > +	if (si) {
-> > > > +		si->value = kmemdup(xattr_array->value, xattr_array->value_len,
-> > > > +				    GFP_KERNEL);
-> > > > +		if (!si->value)
-> > > > +			return -ENOMEM;
-> > > > +
-> > > > +		si->name = xattr_array->name;
-> > > > +		si->value_len = xattr_array->value_len;
-> > > > +		return 0;
-> > > > +	}
-> > > > +
-> > > >  	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
-> > > >  		err = ocfs2_xattr_set(inode, OCFS2_XATTR_INDEX_SECURITY,
-> > > >  				      xattr->name, xattr->value,
-> > > > @@ -7277,13 +7289,23 @@ int ocfs2_init_security_get(struct inode *inode,
-> > > >  			    const struct qstr *qstr,
-> > > >  			    struct ocfs2_security_xattr_info *si)
-> > > >  {
-> > > > +	int ret;
-> > > > +
-> > > >  	/* check whether ocfs2 support feature xattr */
-> > > >  	if (!ocfs2_supports_xattr(OCFS2_SB(dir->i_sb)))
-> > > >  		return -EOPNOTSUPP;
-> > > > -	if (si)
-> > > > -		return security_old_inode_init_security(inode, dir, qstr,
-> > > > -							&si->name, &si->value,
-> > > > -							&si->value_len);
-> > > > +	if (si) {
-> > > > +		ret = security_inode_init_security(inode, dir, qstr,
-> > > > +						   &ocfs2_initxattrs, si);
-> > > > +		/*
-> > > > +		 * security_inode_init_security() does not return -EOPNOTSUPP,
-> > > > +		 * we have to check the xattr ourselves.
-> > > > +		 */
-> > > > +		if (!ret && !si->name)
-> > > > +			si->enable = 0;
-> > > > +
-> > > > +		return ret;
-> > > > +	}
-> > > >  
-> > > >  	return security_inode_init_security(inode, dir, qstr,
-> > > >  					    &ocfs2_initxattrs, NULL);
+Mimi
 
