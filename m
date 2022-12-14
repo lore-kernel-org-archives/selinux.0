@@ -2,87 +2,184 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E3E0C10F1B
-	for <selinux@archiver.kernel.org>; Tue, 13 Dec 2022 19:25:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 316C9C4332F
+	for <selinux@archiver.kernel.org>; Wed, 14 Dec 2022 01:33:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236556AbiLMTZo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 13 Dec 2022 14:25:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37908 "EHLO
+        id S236492AbiLNBdH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 13 Dec 2022 20:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236064AbiLMTZn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 14:25:43 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC36324F0D
-        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 11:25:42 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id q71so510710pgq.8
-        for <selinux@vger.kernel.org>; Tue, 13 Dec 2022 11:25:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=9kbOYAAjnKyXvg23pjUMzGuz9DSgOAIhX9TM1FNy+0Q=;
-        b=YQ8ZSNFzPrq2HNtcykvnHhbINRe8kgBNKOS/PDvQ0iunDkAHLiPBwJ6kju5zXBtI9q
-         0zeXx6hqc6oO0/pLFG/8TRpUHW/c2kLm7aIVq2JGPzUmim6kLRmMnezJ2G7i+M1dIOFM
-         EcrT222rB5pje2tUP9DxsQuohumAy5kfzjRt2w23C+ZPASM6arGfIYdP/xP4YeEKxRkW
-         gGV74nhJJDmG5vV8WC7ICjn72Bl+l+KbujJsmQAy49Aq6a5rL2F8MNQJ3+F8+Ke/EkWL
-         EaD7boOE6no4Xbf0RLHkdBjd3kFJuRt4UOLQ481H+ltMmqf52GHyE4Kuy+zhN1elABPY
-         omqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9kbOYAAjnKyXvg23pjUMzGuz9DSgOAIhX9TM1FNy+0Q=;
-        b=W7NK52d9tqE5igfoqCif5TJQrk7zmYRZTs+ZQcZsWqw/GtbtpPflJsTVxup+kCnmlW
-         Z9Xar2HaF4E1kOhqnSfBmU7ZYIQ1SFE3xUq/ZVkx5aRatAMmSBdGKytapSJeboNNIc3W
-         sZ2eQEiBgKwwZLzTaPYM5Gxp+OFnEc8yzedcwwRtnU+1o8bYIRa83+lkwh7vrc+pTfCF
-         KGnQ/XbYBNJsnpeLBp+FfQDlW1hkDN7/wGNwu3wZYZRmMaKkzmF/c1GhtztRI12c6GdU
-         zjvPuyY1APgd6CkBlExhCu22YTNMFZwzP8/jyV3jj8tosFzUEtnqtLrXCJIHapPPHpvK
-         wIFg==
-X-Gm-Message-State: ANoB5pnrZJGE2cRyhd+HXgAUlpjdFKHUZwFLN69VfsGtd7p3l/g8dVUk
-        5kTmcpQydJpBtYxOagwJXolDG4jTXZ8IEvtgFv20
-X-Google-Smtp-Source: AA0mqf57kSqmNwGBjDyzVN0hyalSVuFVRwFQQjhF9S/cz0ORzHKxAexfG5G7j/186DQnoY80k93z3j9qhUTRlV3Jv/I=
-X-Received: by 2002:a63:4424:0:b0:477:96e2:9065 with SMTP id
- r36-20020a634424000000b0047796e29065mr70173881pga.533.1670959542176; Tue, 13
- Dec 2022 11:25:42 -0800 (PST)
+        with ESMTP id S229967AbiLNBdG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 13 Dec 2022 20:33:06 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB982AE7;
+        Tue, 13 Dec 2022 17:33:03 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4NWyX444HPz16LYj;
+        Wed, 14 Dec 2022 09:32:04 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Wed, 14 Dec 2022 09:33:02 +0800
+Message-ID: <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+Date:   Wed, 14 Dec 2022 09:33:01 +0800
 MIME-Version: 1.0
-References: <CAHC9VhSmJHDRroUJifUuDNF+KvVPVtW17CuMzb_RrUKBBkTabA@mail.gmail.com>
- <CAHk-=whH53GKhcT0+cKGwCVOHXD0_Gh82w2SVojjgoN7XZ-71g@mail.gmail.com>
-In-Reply-To: <CAHk-=whH53GKhcT0+cKGwCVOHXD0_Gh82w2SVojjgoN7XZ-71g@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 13 Dec 2022 14:25:31 -0500
-Message-ID: <CAHC9VhThEUiyVL2E5sAiQhiKhqV8nJbRE7TGOAq0QOJ2qzGjPw@mail.gmail.com>
-Subject: Re: [GIT PULL] SELinux patches for v6.2
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+Content-Language: en-US
+To:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@gmail.com>,
+        Paul Moore <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
+        <eparis@parisplace.org>, Greg KH <gregkh@linuxfoundation.org>,
+        <sashal@kernel.org>
+CC:     <selinux@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+ <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 13, 2022 at 12:44 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
-> On Mon, Dec 12, 2022 at 7:05 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> >   Unfortunately, this pull request does
-> > conflict with fixes that were merged during the v6.1-rcX cycle so you
-> > will either need to do some manual fixup or you can pull the tag below
-> > which has the necessary fixes and has been sanity tested today.
->
-> I did the merge manually, but compared to your version. They were
-> identical except that you hadn't added the documentation entry for the
-> gfp_flags parameter.
+On 2022/12/13 23:30, Mimi Zohar wrote:
+> On Fri, 2022-12-09 at 15:00 +0800, Guozihua (Scott) wrote:
+>> Hi community.
+>>
+>> Previously our team reported a race condition in IMA relates to LSM 
+>> based rules which would case IMA to match files that should be filtered 
+>> out under normal condition. The issue was originally analyzed and fixed 
+>> on mainstream. The patch and the discussion could be found here: 
+>> https://lore.kernel.org/all/20220921125804.59490-1-guozihua@huawei.com/
+>>
+>> After that, we did a regression test on 4.19 LTS and the same issue 
+>> arises. Further analysis reveled that the issue is from a completely 
+>> different cause.
+>>
+>> The cause is that selinux_audit_rule_init() would set the rule (which is 
+>> a second level pointer) to NULL immediately after called. The relevant 
+>> codes are as shown:
+>>
+>> security/selinux/ss/services.c:
+>>> int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>>> {
+>>>         struct selinux_state *state = &selinux_state;
+>>>         struct policydb *policydb = &state->ss->policydb;
+>>>         struct selinux_audit_rule *tmprule;
+>>>         struct role_datum *roledatum;
+>>>         struct type_datum *typedatum;
+>>>         struct user_datum *userdatum;
+>>>         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+>>>         int rc = 0;
+>>>
+>>>         *rule = NULL;
+>> *rule is set to NULL here, which means the rule on IMA side is also NULL.
+>>>
+>>>         if (!state->initialized)
+>>>                 return -EOPNOTSUPP;
+>> ...
+>>> out:
+>>>         read_unlock(&state->ss->policy_rwlock);
+>>>
+>>>         if (rc) {
+>>>                 selinux_audit_rule_free(tmprule);
+>>>                 tmprule = NULL;
+>>>         }
+>>>
+>>>         *rule = tmprule;
+>> rule is updated at the end of the function.
+>>>
+>>>         return rc;
+>>> }
+>>
+>> security/integrity/ima/ima_policy.c:
+>>> static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>>>                             const struct cred *cred, u32 secid,
+>>>                             enum ima_hooks func, int mask)
+>>> {...
+>>> for (i = 0; i < MAX_LSM_RULES; i++) {
+>>>                 int rc = 0;
+>>>                 u32 osid;
+>>>                 int retried = 0;
+>>>
+>>>                 if (!rule->lsm[i].rule)
+>>>                         continue;
+>> Setting rule to NULL would lead to LSM based rule matching being skipped.
+>>> retry:
+>>>                 switch (i) {
+>>
+>> To solve this issue, there are multiple approaches we might take and I 
+>> would like some input from the community.
+>>
+>> The first proposed solution would be to change 
+>> selinux_audit_rule_init(). Remove the set to NULL bit and update the 
+>> rule pointer with cmpxchg.
+>>
+>>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+>>> index a9f2bc8443bd..aa74b04ccaf7 100644
+>>> --- a/security/selinux/ss/services.c
+>>> +++ b/security/selinux/ss/services.c
+>>> @@ -3297,10 +3297,9 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>>>         struct type_datum *typedatum;
+>>>         struct user_datum *userdatum;
+>>>         struct selinux_audit_rule **rule = (struct selinux_audit_rule **)vrule;
+>>> +       struct selinux_audit_rule *orig = rule;
+>>>         int rc = 0;
+>>>  
+>>> -       *rule = NULL;
+>>> -
+>>>         if (!state->initialized)
+>>>                 return -EOPNOTSUPP;
+>>>  
+>>> @@ -3382,7 +3381,8 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>>>                 tmprule = NULL;
+>>>         }
+>>>  
+>>> -       *rule = tmprule;
+>>> +       if (cmpxchg(rule, orig, tmprule) != orig)
+>>> +               selinux_audit_rule_free(tmprule);
+>>>  
+>>>         return rc;
+>>>  }
+>>
+>> This solution would be an easy fix, but might influence other modules 
+>> calling selinux_audit_rule_init() directly or indirectly (on 4.19 LTS, 
+>> only auditfilter and IMA it seems). And it might be worth returning an 
+>> error code such as -EAGAIN.
+>>
+>> Or, we can access rules via RCU, similar to what we do on 5.10. This 
+>> could means more code change and testing.
+> 
+> In the 4.19 kernel, IMA is doing a lazy LSM based policy rule update as
+> needed.  IMA waits for selinux_audit_rule_init() to complete and
+> shouldn't see NULL, unless there is an SELinux failure.  Before
+> "fixing" the problem, what exactly is the problem?
 
-Ah, thanks for catching that.
+IMA runs on multiple cores. On 4.19 kernel, IMA do a lazy update on ALL
+LSM based rules in one go without using RCU, which would still allow
+other cores to access the rule being updated. And that's the issue.
 
-> That said, I'm not super-happy with that merge ... It feels to me like
-> that thing shouldn't be an allocation at all, but that selinux should
-> use ref-counted strings instead (and just increase the refcount).
+An example scenario would be:
+	CPU1			|	CPU2
+opened a file and starts	|
+updating LSM based rules.	|
+				| opened a file and starts
+				| matching rules.
+				|
+set a LSM based rule to NULL.	| access the same LSM based rule and
+ 				| see that it's NULL.
 
-It is something worth looking into for the future.  I'm in the middle
-of reworking the audit code, and one of the changes is heavy use of
-string refcounts to reduce the copies needed.
+In this situation, CPU 2 would recognize this rule as not LSM based and
+ignore the LSM part of the rule while matching.
 
 -- 
-paul-moore.com
+Best
+GUO Zihua
+
