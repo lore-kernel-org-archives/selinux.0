@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69BCBC4332F
-	for <selinux@archiver.kernel.org>; Thu, 15 Dec 2022 00:39:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 986EBC4332F
+	for <selinux@archiver.kernel.org>; Thu, 15 Dec 2022 02:09:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229841AbiLOAi6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Dec 2022 19:38:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50526 "EHLO
+        id S229462AbiLOCJn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Dec 2022 21:09:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbiLOAim (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Dec 2022 19:38:42 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAE9046673;
-        Wed, 14 Dec 2022 16:38:35 -0800 (PST)
+        with ESMTP id S229496AbiLOCJl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Dec 2022 21:09:41 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B327758BE5;
+        Wed, 14 Dec 2022 18:09:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1671064715; x=1702600715;
+  t=1671070177; x=1702606177;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=BdntPqNYBBfDiCid+kJAUXw6gadtBUdhoZXqlR+LcUY=;
-  b=J1nyo/xkzwRpOlOyA2aSqCv5Dbu1WRLGkmFt7ZcYE+UJYIeqTF+pKN/e
-   Xs7El/ZFC5rbylCdiLkWpH9iikmNd/Ygm/W0BQCFDPtML5IAPFLpGs5P/
-   h45DY0jPgiIbmJD4Vc6KqT5+QR4R+M/lb4eJ9QN/V2P8E3OgKT/p5PmNk
-   epkDq501ahsNeuHi1ORWzJawhRDcLTmCt2gPg5PXozdabYeMSTnnplOGJ
-   ArxKdqpXlrA8giyuJ8WqrfHP1HgjGRGUgRgJZ2Y5HMAEVWHzfqWNSOmmr
-   HxbCE1pb15kdWhYhEbQS5zCBFUG2wGCjljJ68j91DfvxzqnXO3zz8V3xd
+  bh=mJSn6T60Jf5rvvqu1jGSta9KpBH+Nkrkn1vhDPgAYtk=;
+  b=T4e1aGB7hVd1BEcjgId/GGhxcPbfjVu7Hpna+L9+sQaEUBKKx0mmq0RO
+   FQ/ZaABvsgl7Ci675cj0/7klauHJ1kGALHE+zUt04GC0HjhqD8wO2qaIc
+   lDCsNVkYwS5ZdPY7AsjxiPAMlSwxfizxkxAwHycYJzgVPtkZUS8ONqnl6
+   Zb1QvnLV5ZmWPMNK5NXCBJXNuczVMztcaeRmaVldzUyj4NMWBKL00ynW+
+   bkJK+tcODoHrtwCy7ug1MrSJEljEm4Lc+OZnInl3UV8pRnpuO9Y7VS//k
+   mjkO31HXpIeYix/8dU2FflMdlAWzz13xEZTCrfkX9jYQEqOteVvhIS6At
    Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10561"; a="316187148"
-X-IronPort-AV: E=Sophos;i="5.96,245,1665471600"; 
-   d="scan'208";a="316187148"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2022 16:38:35 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10561"; a="318611627"
+X-IronPort-AV: E=Sophos;i="5.96,246,1665471600"; 
+   d="scan'208";a="318611627"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Dec 2022 18:09:37 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10561"; a="651340817"
-X-IronPort-AV: E=Sophos;i="5.96,245,1665471600"; 
-   d="scan'208";a="651340817"
+X-IronPort-AV: E=McAfee;i="6500,9779,10561"; a="649224928"
+X-IronPort-AV: E=Sophos;i="5.96,246,1665471600"; 
+   d="scan'208";a="649224928"
 Received: from lkp-server01.sh.intel.com (HELO b5d47979f3ad) ([10.239.97.150])
-  by fmsmga007.fm.intel.com with ESMTP; 14 Dec 2022 16:38:32 -0800
+  by orsmga002.jf.intel.com with ESMTP; 14 Dec 2022 18:09:34 -0800
 Received: from kbuild by b5d47979f3ad with local (Exim 4.96)
         (envelope-from <lkp@intel.com>)
-        id 1p5cGe-0005vA-0y;
-        Thu, 15 Dec 2022 00:38:32 +0000
-Date:   Thu, 15 Dec 2022 08:38:11 +0800
+        id 1p5dgj-0005xa-2y;
+        Thu, 15 Dec 2022 02:09:33 +0000
+Date:   Thu, 15 Dec 2022 10:09:09 +0800
 From:   kernel test robot <lkp@intel.com>
 To:     Paolo Abeni <pabeni@redhat.com>,
         linux-security-module@vger.kernel.org
 Cc:     oe-kbuild-all@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
         selinux@vger.kernel.org, mptcp@lists.linux.dev
 Subject: Re: [PATCH 1/2] security, lsm: Introduce security_mptcp_add_subflow()
-Message-ID: <202212150855.BmTEwI1E-lkp@intel.com>
+Message-ID: <202212150918.2iwkUC2l-lkp@intel.com>
 References: <8a1157bafa09bbcfc42fb3617fb8512b364cd51c.1671054577.git.pabeni@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="LAxYZrg8BqCjC1af"
+Content-Type: multipart/mixed; boundary="6bEgEwk3zaqbnON5"
 Content-Disposition: inline
 In-Reply-To: <8a1157bafa09bbcfc42fb3617fb8512b364cd51c.1671054577.git.pabeni@redhat.com>
 Precedence: bulk
@@ -60,7 +60,7 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
---LAxYZrg8BqCjC1af
+--6bEgEwk3zaqbnON5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -78,226 +78,169 @@ https://git-scm.com/docs/git-format-patch#_base_tree_information]
 url:    https://github.com/intel-lab-lkp/linux/commits/Paolo-Abeni/lsm-introduce-and-use-security_mptcp_add_subflow/20221215-060410
 patch link:    https://lore.kernel.org/r/8a1157bafa09bbcfc42fb3617fb8512b364cd51c.1671054577.git.pabeni%40redhat.com
 patch subject: [PATCH 1/2] security, lsm: Introduce security_mptcp_add_subflow()
-config: um-x86_64_defconfig
-compiler: gcc-11 (Debian 11.3.0-8) 11.3.0
+config: arc-defconfig
+compiler: arc-elf-gcc (GCC) 12.1.0
 reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
         # https://github.com/intel-lab-lkp/linux/commit/2ea8d6290cdc3578eac223edf852b283ca486e6b
         git remote add linux-review https://github.com/intel-lab-lkp/linux
         git fetch --no-tags linux-review Paolo-Abeni/lsm-introduce-and-use-security_mptcp_add_subflow/20221215-060410
         git checkout 2ea8d6290cdc3578eac223edf852b283ca486e6b
         # save the config file
         mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=um SUBARCH=x86_64 SHELL=/bin/bash
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=arc SHELL=/bin/bash
 
 If you fix the issue, kindly add following tag where applicable
 | Reported-by: kernel test robot <lkp@intel.com>
 
-All error/warnings (new ones prefixed by >>):
+All errors (new ones prefixed by >>):
 
-   In file included from include/net/scm.h:8,
-                    from include/linux/netlink.h:9,
-                    from include/uapi/linux/neighbour.h:6,
-                    from include/linux/netdevice.h:46,
-                    from include/linux/if_vlan.h:10,
-                    from include/linux/filter.h:20,
-                    from net/unix/af_unix.c:92:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
---
-   In file included from include/linux/perf_event.h:62,
-                    from include/linux/trace_events.h:10,
-                    from include/trace/syscall.h:7,
-                    from include/linux/syscalls.h:88,
-                    from init/main.c:21:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   init/main.c:775:20: warning: no previous prototype for 'arch_post_acpi_subsys_init' [-Wmissing-prototypes]
-     775 | void __init __weak arch_post_acpi_subsys_init(void) { }
-         |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   init/main.c:787:20: warning: no previous prototype for 'mem_encrypt_init' [-Wmissing-prototypes]
-     787 | void __init __weak mem_encrypt_init(void) { }
-         |                    ^~~~~~~~~~~~~~~~
-   init/main.c:789:20: warning: no previous prototype for 'poking_init' [-Wmissing-prototypes]
-     789 | void __init __weak poking_init(void) { }
-         |                    ^~~~~~~~~~~
---
-   In file included from include/net/scm.h:8,
-                    from include/linux/netlink.h:9,
-                    from include/uapi/linux/neighbour.h:6,
-                    from include/linux/netdevice.h:46,
-                    from include/uapi/linux/if_arp.h:27,
-                    from include/linux/if_arp.h:23,
-                    from arch/um/drivers/slirp_kern.c:6:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/um/drivers/slirp_kern.c:18:6: warning: no previous prototype for 'slirp_init' [-Wmissing-prototypes]
-      18 | void slirp_init(struct net_device *dev, void *data)
-         |      ^~~~~~~~~~
---
-   In file included from include/linux/perf_event.h:62,
-                    from include/linux/trace_events.h:10,
-                    from include/trace/syscall.h:7,
-                    from include/linux/syscalls.h:88,
-                    from arch/x86/um/syscalls_64.c:10:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/x86/um/syscalls_64.c:84:6: warning: no previous prototype for 'arch_switch_to' [-Wmissing-prototypes]
-      84 | void arch_switch_to(struct task_struct *to)
-         |      ^~~~~~~~~~~~~~
---
-   In file included from include/net/scm.h:8,
-                    from include/linux/netlink.h:9,
-                    from include/uapi/linux/neighbour.h:6,
-                    from include/linux/netdevice.h:46,
-                    from include/linux/if_vlan.h:10,
-                    from include/linux/filter.h:20,
-                    from kernel/kallsyms.c:25:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   kernel/kallsyms.c:663:12: warning: no previous prototype for 'arch_get_kallsym' [-Wmissing-prototypes]
-     663 | int __weak arch_get_kallsym(unsigned int symnum, unsigned long *value,
-         |            ^~~~~~~~~~~~~~~~
---
-   In file included from kernel/fork.c:51:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   kernel/fork.c:162:13: warning: no previous prototype for 'arch_release_task_struct' [-Wmissing-prototypes]
-     162 | void __weak arch_release_task_struct(struct task_struct *tsk)
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~
-   kernel/fork.c:862:20: warning: no previous prototype for 'arch_task_cache_init' [-Wmissing-prototypes]
-     862 | void __init __weak arch_task_cache_init(void) { }
-         |                    ^~~~~~~~~~~~~~~~~~~~
-   kernel/fork.c:957:12: warning: no previous prototype for 'arch_dup_task_struct' [-Wmissing-prototypes]
-     957 | int __weak arch_dup_task_struct(struct task_struct *dst,
-         |            ^~~~~~~~~~~~~~~~~~~~
---
-   In file included from include/linux/perf_event.h:62,
-                    from include/linux/trace_events.h:10,
-                    from include/trace/syscall.h:7,
-                    from include/linux/syscalls.h:88,
-                    from kernel/exit.c:42:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   kernel/exit.c:1899:13: warning: no previous prototype for 'abort' [-Wmissing-prototypes]
-    1899 | __weak void abort(void)
-         |             ^~~~~
---
-   In file included from include/linux/fs_context.h:14,
-                    from include/linux/pseudo_fs.h:4,
-                    from fs/pipe.c:17:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/pipe.c:757:15: warning: no previous prototype for 'account_pipe_buffers' [-Wmissing-prototypes]
-     757 | unsigned long account_pipe_buffers(struct user_struct *user,
-         |               ^~~~~~~~~~~~~~~~~~~~
-   fs/pipe.c:763:6: warning: no previous prototype for 'too_many_pipe_buffers_soft' [-Wmissing-prototypes]
-     763 | bool too_many_pipe_buffers_soft(unsigned long user_bufs)
-         |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/pipe.c:770:6: warning: no previous prototype for 'too_many_pipe_buffers_hard' [-Wmissing-prototypes]
-     770 | bool too_many_pipe_buffers_hard(unsigned long user_bufs)
-         |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/pipe.c:777:6: warning: no previous prototype for 'pipe_is_unprivileged_user' [-Wmissing-prototypes]
-     777 | bool pipe_is_unprivileged_user(void)
-         |      ^~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/pipe.c:1253:5: warning: no previous prototype for 'pipe_resize_ring' [-Wmissing-prototypes]
-    1253 | int pipe_resize_ring(struct pipe_inode_info *pipe, unsigned int nr_slots)
-         |     ^~~~~~~~~~~~~~~~
---
-   In file included from include/linux/perf_event.h:62,
-                    from include/linux/trace_events.h:10,
-                    from include/trace/syscall.h:7,
-                    from include/linux/syscalls.h:88,
-                    from fs/d_path.c:2:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   fs/d_path.c:317:7: warning: no previous prototype for 'simple_dname' [-Wmissing-prototypes]
-     317 | char *simple_dname(struct dentry *dentry, char *buffer, int buflen)
-         |       ^~~~~~~~~~~~
---
-   In file included from include/net/scm.h:8,
-                    from include/linux/netlink.h:9,
-                    from include/uapi/linux/neighbour.h:6,
-                    from include/linux/netdevice.h:46,
-                    from arch/um/os-Linux/drivers/ethertap_kern.c:10:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/um/os-Linux/drivers/ethertap_kern.c:66:5: warning: no previous prototype for 'ethertap_setup' [-Wmissing-prototypes]
-      66 | int ethertap_setup(char *str, char **mac_out, void *data)
-         |     ^~~~~~~~~~~~~~
---
-   In file included from include/net/scm.h:8,
-                    from include/linux/netlink.h:9,
-                    from include/uapi/linux/neighbour.h:6,
-                    from include/linux/netdevice.h:46,
-                    from arch/um/os-Linux/drivers/tuntap_kern.c:6:
->> include/linux/security.h:1711:5: warning: no previous prototype for 'security_mptcp_add_subflow' [-Wmissing-prototypes]
-    1711 | int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   arch/um/os-Linux/drivers/tuntap_kern.c:56:5: warning: no previous prototype for 'tuntap_setup' [-Wmissing-prototypes]
-      56 | int tuntap_setup(char *str, char **mac_out, void *data)
-         |     ^~~~~~~~~~~~
-..
-
-
-vim +1714 include/linux/security.h
-
-  1710	
-> 1711	int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-  1712	{
-  1713		return 0;
-> 1714	}
-  1715	#endif	/* CONFIG_SECURITY_NETWORK */
-  1716	
+   arc-elf-ld: init/do_mounts.o: in function `security_mptcp_add_subflow':
+>> do_mounts.c:(.text+0x38c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: init/do_mounts_initrd.o: in function `security_mptcp_add_subflow':
+   do_mounts_initrd.c:(.text+0x0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: init/initramfs.o: in function `security_mptcp_add_subflow':
+   initramfs.c:(.text+0x44): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/kernel/ptrace.o: in function `security_mptcp_add_subflow':
+   ptrace.c:(.text+0x1400): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/kernel/process.o: in function `security_mptcp_add_subflow':
+   process.c:(.text+0x1e0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/kernel/signal.o: in function `security_mptcp_add_subflow':
+   signal.c:(.text+0x4dc): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/kernel/sys.o: in function `security_mptcp_add_subflow':
+   sys.c:(.text+0x0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/kernel/perf_event.o: in function `security_mptcp_add_subflow':
+   perf_event.c:(.text+0xba0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/mm/fault.o: in function `security_mptcp_add_subflow':
+   fault.c:(.text+0x28): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: arch/arc/mm/cache.o: in function `security_mptcp_add_subflow':
+   cache.c:(.text+0x1cc): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/fork.o: in function `security_mptcp_add_subflow':
+   fork.c:(.text+0xef4): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/exec_domain.o: in function `security_mptcp_add_subflow':
+   exec_domain.c:(.text+0x14): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/cpu.o: in function `security_mptcp_add_subflow':
+   cpu.c:(.text+0x17a8): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/exit.o: in function `security_mptcp_add_subflow':
+   exit.c:(.text+0x940): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/softirq.o: in function `security_mptcp_add_subflow':
+   softirq.c:(.text+0x82c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/resource.o: in function `security_mptcp_add_subflow':
+   resource.c:(.text+0xcb4): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/sysctl.o: in function `security_mptcp_add_subflow':
+   sysctl.c:(.text+0x14c4): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/capability.o: in function `security_mptcp_add_subflow':
+   capability.c:(.text+0x7fc): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/ptrace.o: in function `security_mptcp_add_subflow':
+   ptrace.c:(.text+0x634): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/signal.o: in function `security_mptcp_add_subflow':
+   signal.c:(.text+0x11a0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/sys.o: in function `security_mptcp_add_subflow':
+   sys.c:(.text+0x1088): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/umh.o: in function `security_mptcp_add_subflow':
+   umh.c:(.text+0x690): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/workqueue.o: in function `security_mptcp_add_subflow':
+   workqueue.c:(.text+0x3d90): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/pid.o: in function `security_mptcp_add_subflow':
+   pid.c:(.text+0x390): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/extable.o: in function `security_mptcp_add_subflow':
+   extable.c:(.text+0x0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/params.o: in function `security_mptcp_add_subflow':
+   params.c:(.text+0x91c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/nsproxy.o: in function `security_mptcp_add_subflow':
+   nsproxy.c:(.text+0x1c4): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/cred.o: in function `security_mptcp_add_subflow':
+   cred.c:(.text+0x734): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/reboot.o: in function `security_mptcp_add_subflow':
+   reboot.c:(.text+0x72c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/kmod.o: in function `security_mptcp_add_subflow':
+   kmod.c:(.text+0x3c0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/groups.o: in function `security_mptcp_add_subflow':
+   groups.c:(.text+0x1a8): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/sched/core.o: in function `security_mptcp_add_subflow':
+   core.c:(.text+0x2fac): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/sched/fair.o: in function `security_mptcp_add_subflow':
+   fair.c:(.text+0x40a8): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/sched/build_policy.o: in function `security_mptcp_add_subflow':
+   build_policy.c:(.text+0x43c0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/sched/build_utility.o: in function `security_mptcp_add_subflow':
+   build_utility.c:(.text+0x2790): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/locking/mutex.o: in function `security_mptcp_add_subflow':
+   mutex.c:(.text+0x570): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/power/qos.o: in function `security_mptcp_add_subflow':
+   qos.c:(.text+0xe8): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/printk/printk.o: in function `security_mptcp_add_subflow':
+   printk.c:(.text+0x25f0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/rcu/update.o: in function `security_mptcp_add_subflow':
+   update.c:(.text+0x373c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/rcu/tree.o: in function `security_mptcp_add_subflow':
+   tree.c:(.text+0x7164): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/module/main.o: in function `security_mptcp_add_subflow':
+   main.c:(.text+0x11d8): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/time.o: in function `security_mptcp_add_subflow':
+   time.c:(.text+0x81c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/timer.o: in function `security_mptcp_add_subflow':
+   timer.c:(.text+0x24c0): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/hrtimer.o: in function `security_mptcp_add_subflow':
+   hrtimer.c:(.text+0x129c): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/alarmtimer.o: in function `security_mptcp_add_subflow':
+   alarmtimer.c:(.text+0xb38): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/posix-timers.o: in function `security_mptcp_add_subflow':
+   posix-timers.c:(.text+0xfa8): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/posix-clock.o: in function `security_mptcp_add_subflow':
+   posix-clock.c:(.text+0x494): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/itimer.o: in function `security_mptcp_add_subflow':
+   itimer.c:(.text+0x634): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/time/tick-common.o: in function `security_mptcp_add_subflow':
+   tick-common.c:(.text+0x130): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/futex/syscalls.o: in function `security_mptcp_add_subflow':
+   syscalls.c:(.text+0x74): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
+   arc-elf-ld: kernel/kallsyms.o: in function `security_mptcp_add_subflow':
+   kallsyms.c:(.text+0x500): multiple definition of `security_mptcp_add_subflow'; init/main.o:main.c:(.text+0x5dc): first defined here
 
 -- 
 0-DAY CI Kernel Test Service
 https://01.org/lkp
 
---LAxYZrg8BqCjC1af
+--6bEgEwk3zaqbnON5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: attachment; filename=config
 
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/um 6.1.0 Kernel Configuration
+# Linux/arc 6.1.0 Kernel Configuration
 #
-CONFIG_CC_VERSION_TEXT="gcc-11 (Debian 11.3.0-8) 11.3.0"
+CONFIG_CC_VERSION_TEXT="arc-elf-gcc (GCC) 12.1.0"
 CONFIG_CC_IS_GCC=y
-CONFIG_GCC_VERSION=110300
+CONFIG_GCC_VERSION=120100
 CONFIG_CLANG_VERSION=0
 CONFIG_AS_IS_GNU=y
-CONFIG_AS_VERSION=23900
+CONFIG_AS_VERSION=23800
 CONFIG_LD_IS_BFD=y
-CONFIG_LD_VERSION=23900
+CONFIG_LD_VERSION=23800
 CONFIG_LLD_VERSION=0
-CONFIG_CC_CAN_LINK=y
-CONFIG_CC_CAN_LINK_STATIC=y
 CONFIG_CC_HAS_ASM_GOTO_OUTPUT=y
 CONFIG_CC_HAS_ASM_GOTO_TIED_OUTPUT=y
 CONFIG_CC_HAS_ASM_INLINE=y
 CONFIG_CC_HAS_NO_PROFILE_FN_ATTR=y
 CONFIG_PAHOLE_VERSION=123
 CONFIG_IRQ_WORK=y
+CONFIG_BUILDTIME_TABLE_SORT=y
 
 #
 # General setup
 #
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_INIT_ENV_ARG_LIMIT=128
+CONFIG_INIT_ENV_ARG_LIMIT=32
+# CONFIG_COMPILE_TEST is not set
 # CONFIG_WERROR is not set
 CONFIG_LOCALVERSION=""
 CONFIG_LOCALVERSION_AUTO=y
 CONFIG_BUILD_SALT=""
+CONFIG_HAVE_KERNEL_GZIP=y
+CONFIG_HAVE_KERNEL_LZMA=y
+CONFIG_KERNEL_GZIP=y
+# CONFIG_KERNEL_LZMA is not set
 CONFIG_DEFAULT_INIT=""
 CONFIG_DEFAULT_HOSTNAME="(none)"
 CONFIG_SYSVIPC=y
@@ -305,18 +248,21 @@ CONFIG_SYSVIPC_SYSCTL=y
 CONFIG_POSIX_MQUEUE=y
 CONFIG_POSIX_MQUEUE_SYSCTL=y
 # CONFIG_WATCH_QUEUE is not set
-CONFIG_CROSS_MEMORY_ATTACH=y
+# CONFIG_CROSS_MEMORY_ATTACH is not set
 # CONFIG_USELIB is not set
 # CONFIG_AUDIT is not set
-CONFIG_HAVE_ARCH_AUDITSYSCALL=y
 
 #
 # IRQ subsystem
 #
 CONFIG_GENERIC_IRQ_SHOW=y
+CONFIG_GENERIC_PENDING_IRQ=y
+CONFIG_IRQ_DOMAIN=y
 # end of IRQ subsystem
 
 CONFIG_GENERIC_CLOCKEVENTS=y
+CONFIG_CONTEXT_TRACKING=y
+CONFIG_CONTEXT_TRACKING_IDLE=y
 
 #
 # Timers subsystem
@@ -325,7 +271,7 @@ CONFIG_TICK_ONESHOT=y
 CONFIG_NO_HZ_COMMON=y
 # CONFIG_HZ_PERIODIC is not set
 CONFIG_NO_HZ_IDLE=y
-CONFIG_NO_HZ=y
+# CONFIG_NO_HZ is not set
 CONFIG_HIGH_RES_TIMERS=y
 # end of Timers subsystem
 
@@ -337,78 +283,82 @@ CONFIG_BPF=y
 # CONFIG_BPF_SYSCALL is not set
 # end of BPF subsystem
 
-CONFIG_PREEMPT_NONE_BUILD=y
-CONFIG_PREEMPT_NONE=y
+CONFIG_PREEMPT_BUILD=y
+# CONFIG_PREEMPT_NONE is not set
+# CONFIG_PREEMPT_VOLUNTARY is not set
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_COUNT=y
+CONFIG_PREEMPTION=y
 
 #
 # CPU/Task time and stats accounting
 #
 CONFIG_TICK_CPU_ACCOUNTING=y
-CONFIG_BSD_PROCESS_ACCT=y
-# CONFIG_BSD_PROCESS_ACCT_V3 is not set
+# CONFIG_BSD_PROCESS_ACCT is not set
 # CONFIG_TASKSTATS is not set
 # CONFIG_PSI is not set
 # end of CPU/Task time and stats accounting
 
+CONFIG_CPU_ISOLATION=y
+
 #
 # RCU Subsystem
 #
-CONFIG_TINY_RCU=y
+CONFIG_TREE_RCU=y
+CONFIG_PREEMPT_RCU=y
 # CONFIG_RCU_EXPERT is not set
 CONFIG_SRCU=y
-CONFIG_TINY_SRCU=y
+CONFIG_TREE_SRCU=y
+CONFIG_TASKS_RCU_GENERIC=y
+CONFIG_TASKS_RCU=y
+CONFIG_RCU_STALL_COMMON=y
+CONFIG_RCU_NEED_SEGCBLIST=y
 # end of RCU Subsystem
 
 CONFIG_IKCONFIG=y
 CONFIG_IKCONFIG_PROC=y
 # CONFIG_IKHEADERS is not set
-CONFIG_LOG_BUF_SHIFT=14
+CONFIG_LOG_BUF_SHIFT=17
+CONFIG_LOG_CPU_MAX_BUF_SHIFT=12
 CONFIG_PRINTK_SAFE_LOG_BUF_SHIFT=13
+CONFIG_GENERIC_SCHED_CLOCK=y
 
 #
 # Scheduler features
 #
 # end of Scheduler features
 
-CONFIG_CC_HAS_INT128=y
 CONFIG_CC_IMPLICIT_FALLTHROUGH="-Wimplicit-fallthrough=5"
 CONFIG_GCC12_NO_ARRAY_BOUNDS=y
-CONFIG_CGROUPS=y
-# CONFIG_CGROUP_FAVOR_DYNMODS is not set
-# CONFIG_MEMCG is not set
-CONFIG_BLK_CGROUP=y
-CONFIG_CGROUP_SCHED=y
-CONFIG_FAIR_GROUP_SCHED=y
-# CONFIG_CFS_BANDWIDTH is not set
-# CONFIG_RT_GROUP_SCHED is not set
-# CONFIG_CGROUP_PIDS is not set
-# CONFIG_CGROUP_RDMA is not set
-CONFIG_CGROUP_FREEZER=y
-CONFIG_CGROUP_DEVICE=y
-CONFIG_CGROUP_CPUACCT=y
-# CONFIG_CGROUP_MISC is not set
-# CONFIG_CGROUP_DEBUG is not set
+CONFIG_CC_NO_ARRAY_BOUNDS=y
+# CONFIG_CGROUPS is not set
 CONFIG_NAMESPACES=y
-CONFIG_UTS_NS=y
+# CONFIG_UTS_NS is not set
 CONFIG_IPC_NS=y
 # CONFIG_USER_NS is not set
 # CONFIG_PID_NS is not set
 CONFIG_NET_NS=y
 # CONFIG_CHECKPOINT_RESTORE is not set
 # CONFIG_SCHED_AUTOGROUP is not set
-CONFIG_SYSFS_DEPRECATED=y
-# CONFIG_SYSFS_DEPRECATED_V2 is not set
+# CONFIG_SYSFS_DEPRECATED is not set
 # CONFIG_RELAY is not set
-# CONFIG_BLK_DEV_INITRD is not set
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_RD_GZIP=y
+CONFIG_RD_BZIP2=y
+CONFIG_RD_LZMA=y
+CONFIG_RD_XZ=y
+CONFIG_RD_LZO=y
+CONFIG_RD_LZ4=y
+CONFIG_RD_ZSTD=y
 # CONFIG_BOOT_CONFIG is not set
 CONFIG_INITRAMFS_PRESERVE_MTIME=y
-# CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE is not set
-CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y
+# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
 CONFIG_SYSCTL=y
-CONFIG_HAVE_UID16=y
-# CONFIG_EXPERT is not set
-CONFIG_UID16=y
+CONFIG_EXPERT=y
 CONFIG_MULTIUSER=y
+# CONFIG_SGETMASK_SYSCALL is not set
 CONFIG_SYSFS_SYSCALL=y
 CONFIG_FHANDLE=y
 CONFIG_POSIX_TIMERS=y
@@ -431,159 +381,137 @@ CONFIG_KALLSYMS=y
 # CONFIG_KALLSYMS_SELFTEST is not set
 # CONFIG_KALLSYMS_ALL is not set
 CONFIG_KALLSYMS_BASE_RELATIVE=y
-# CONFIG_EMBEDDED is not set
+# CONFIG_KCMP is not set
+CONFIG_EMBEDDED=y
+CONFIG_HAVE_PERF_EVENTS=y
+# CONFIG_PC104 is not set
 
 #
 # Kernel Performance Events And Counters
 #
+CONFIG_PERF_EVENTS=y
+# CONFIG_DEBUG_PERF_USE_VMALLOC is not set
 # end of Kernel Performance Events And Counters
 
 # CONFIG_PROFILING is not set
+CONFIG_TRACEPOINTS=y
 # end of General setup
 
-#
-# UML-specific options
-#
-CONFIG_UML=y
-CONFIG_MMU=y
-CONFIG_NO_IOMEM=y
-CONFIG_NO_IOPORT_MAP=y
+CONFIG_ARC=y
 CONFIG_LOCKDEP_SUPPORT=y
-CONFIG_STACKTRACE_SUPPORT=y
+CONFIG_SCHED_OMIT_FRAME_POINTER=y
+CONFIG_GENERIC_CSUM=y
+CONFIG_ARCH_FLATMEM_ENABLE=y
+CONFIG_MMU=y
+CONFIG_NO_IOPORT_MAP=y
 CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_HZ=100
-CONFIG_NR_CPUS=1
-CONFIG_ARCH_HAS_CACHE_LINE_SIZE=y
-
-#
-# Host processor type and features
-#
-# CONFIG_MK8 is not set
-# CONFIG_MPSC is not set
-# CONFIG_MCORE2 is not set
-# CONFIG_MATOM is not set
-CONFIG_GENERIC_CPU=y
-CONFIG_X86_INTERNODE_CACHE_SHIFT=6
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_CMPXCHG64=y
-CONFIG_X86_CMOV=y
-CONFIG_X86_MINIMUM_CPU_FAMILY=64
-CONFIG_IA32_FEAT_CTL=y
-CONFIG_CPU_SUP_INTEL=y
-CONFIG_CPU_SUP_AMD=y
-CONFIG_CPU_SUP_HYGON=y
-CONFIG_CPU_SUP_CENTAUR=y
-CONFIG_CPU_SUP_ZHAOXIN=y
-# end of Host processor type and features
-
-CONFIG_UML_X86=y
-CONFIG_64BIT=y
-CONFIG_X86_64=y
-CONFIG_3_LEVEL_PGTABLES=y
 CONFIG_GENERIC_HWEIGHT=y
-# CONFIG_STATIC_LINK is not set
-CONFIG_LD_SCRIPT_DYN=y
-CONFIG_LD_SCRIPT_DYN_RPATH=y
-CONFIG_HOSTFS=y
-CONFIG_MCONSOLE=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_KERNEL_STACK_ORDER=2
-# CONFIG_MMAPPER is not set
-CONFIG_PGTABLE_LEVELS=3
-# CONFIG_UML_TIME_TRAVEL_SUPPORT is not set
-# end of UML-specific options
+CONFIG_STACKTRACE_SUPPORT=y
 
 #
-# UML Character Devices
+# ARC Architecture Configuration
 #
-CONFIG_STDERR_CONSOLE=y
-CONFIG_SSL=y
-CONFIG_NULL_CHAN=y
-CONFIG_PORT_CHAN=y
-CONFIG_PTY_CHAN=y
-CONFIG_TTY_CHAN=y
-CONFIG_XTERM_CHAN=y
-CONFIG_XTERM_CHAN_DEFAULT_EMULATOR="xterm"
-CONFIG_CON_ZERO_CHAN="fd:0,fd:1"
-CONFIG_CON_CHAN="pts"
-CONFIG_SSL_CHAN="pts"
-CONFIG_UML_SOUND=m
-CONFIG_SOUND=m
-CONFIG_SOUND_OSS_CORE=y
-CONFIG_HOSTAUDIO=m
-# end of UML Character Devices
 
 #
-# UML Network Devices
+# ARC Platform/SoC/Board
 #
-CONFIG_UML_NET=y
-CONFIG_UML_NET_ETHERTAP=y
-CONFIG_UML_NET_TUNTAP=y
-CONFIG_UML_NET_SLIP=y
-CONFIG_UML_NET_DAEMON=y
-CONFIG_UML_NET_DAEMON_DEFAULT_SOCK="/tmp/uml.ctl"
-# CONFIG_UML_NET_VECTOR is not set
-# CONFIG_UML_NET_VDE is not set
-CONFIG_UML_NET_MCAST=y
-# CONFIG_UML_NET_PCAP is not set
-CONFIG_UML_NET_SLIRP=y
-# end of UML Network Devices
+# CONFIG_ARC_PLAT_TB10X is not set
+# CONFIG_ARC_PLAT_AXS10X is not set
+# CONFIG_ARC_SOC_HSDK is not set
+# end of ARC Platform/SoC/Board
 
-# CONFIG_VIRTIO_UML is not set
-CONFIG_ARCH_SUSPEND_POSSIBLE=y
-CONFIG_SUSPEND=y
-CONFIG_SUSPEND_FREEZER=y
-CONFIG_PM_SLEEP=y
-# CONFIG_PM_AUTOSLEEP is not set
-# CONFIG_PM_USERSPACE_AUTOSLEEP is not set
-# CONFIG_PM_WAKELOCKS is not set
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-# CONFIG_WQ_POWER_EFFICIENT_DEFAULT is not set
+# CONFIG_ISA_ARCOMPACT is not set
+CONFIG_ISA_ARCV2=y
+
+#
+# ARC CPU Configuration
+#
+CONFIG_ARC_CPU_HS=y
+CONFIG_ARC_TUNE_MCPU=""
+# CONFIG_CPU_BIG_ENDIAN is not set
+CONFIG_SMP=y
+CONFIG_NR_CPUS=4
+# CONFIG_ARC_SMP_HALT_ON_RESET is not set
+CONFIG_ARC_MCIP=y
+CONFIG_ARC_CACHE=y
+CONFIG_ARC_CACHE_LINE_SHIFT=6
+CONFIG_ARC_HAS_ICACHE=y
+CONFIG_ARC_HAS_DCACHE=y
+CONFIG_ARC_CACHE_PAGES=y
+# CONFIG_ARC_HAS_ICCM is not set
+# CONFIG_ARC_HAS_DCCM is not set
+CONFIG_ARC_MMU_V4=y
+CONFIG_ARC_PAGE_SIZE_8K=y
+# CONFIG_ARC_PAGE_SIZE_16K is not set
+# CONFIG_ARC_PAGE_SIZE_4K is not set
+CONFIG_PGTABLE_LEVELS=2
+# CONFIG_ARC_FPU_SAVE_RESTORE is not set
+CONFIG_ARC_HAS_LLSC=y
+CONFIG_ARC_HAS_SWAPE=y
+CONFIG_ARC_USE_UNALIGNED_MEM_ACCESS=y
+CONFIG_ARC_HAS_LL64=y
+CONFIG_ARC_HAS_DIV_REM=y
+CONFIG_ARC_HAS_ACCL_REGS=y
+CONFIG_ARC_DSP_NONE=y
+# CONFIG_ARC_DSP_KERNEL is not set
+# CONFIG_ARC_DSP_USERSPACE is not set
+# CONFIG_ARC_DSP_AGU_USERSPACE is not set
+# CONFIG_ARC_IRQ_NO_AUTOSAVE is not set
+# CONFIG_ARC_LPB_DISABLE is not set
+# end of ARC CPU Configuration
+
+CONFIG_LINUX_LINK_BASE=0x80000000
+CONFIG_LINUX_RAM_BASE=0x80000000
+# CONFIG_HIGHMEM is not set
+# CONFIG_ARC_HAS_PAE40 is not set
+CONFIG_ARC_KVADDR_SIZE=256
+CONFIG_ARC_CURR_IN_REG=y
+CONFIG_HZ=100
+# CONFIG_ARC_METAWARE_HLINK is not set
+CONFIG_ARC_DBG=y
+CONFIG_ARC_DW2_UNWIND=y
+CONFIG_ARC_BUILTIN_DTB_NAME="haps_hs_idu"
+# end of ARC Architecture Configuration
+
+CONFIG_ARCH_FORCE_MAX_ORDER=11
+# CONFIG_PM is not set
 
 #
 # General architecture-dependent options
 #
-CONFIG_CRASH_CORE=y
-CONFIG_HAVE_64BIT_ALIGNED_ACCESS=y
+CONFIG_KPROBES=y
+# CONFIG_JUMP_LABEL is not set
+CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS=y
+CONFIG_KRETPROBES=y
+CONFIG_HAVE_IOREMAP_PROT=y
+CONFIG_HAVE_KPROBES=y
+CONFIG_HAVE_KRETPROBES=y
 CONFIG_TRACE_IRQFLAGS_SUPPORT=y
-CONFIG_ARCH_HAS_FORTIFY_SOURCE=y
-CONFIG_HAVE_ASM_MODVERSIONS=y
-CONFIG_HAVE_ARCH_SECCOMP=y
-CONFIG_HAVE_ARCH_SECCOMP_FILTER=y
-CONFIG_SECCOMP=y
-CONFIG_SECCOMP_FILTER=y
-# CONFIG_SECCOMP_CACHE_DEBUG is not set
+CONFIG_HAVE_ARCH_TRACEHOOK=y
+CONFIG_GENERIC_SMP_IDLE_THREAD=y
+CONFIG_ARCH_32BIT_OFF_T=y
+CONFIG_HAVE_REGS_AND_STACK_ACCESS_API=y
+CONFIG_HAVE_ARCH_JUMP_LABEL=y
 CONFIG_LTO_NONE=y
-CONFIG_HAVE_VIRT_CPU_ACCOUNTING_GEN=y
+CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE=y
+CONFIG_HAVE_MOD_ARCH_SPECIFIC=y
 CONFIG_MODULES_USE_ELF_RELA=y
 CONFIG_PAGE_SIZE_LESS_THAN_64KB=y
 CONFIG_PAGE_SIZE_LESS_THAN_256KB=y
-# CONFIG_COMPAT_32BIT_TIME is not set
-CONFIG_ARCH_NO_PREEMPT=y
-CONFIG_ARCH_EPHEMERAL_INODES=y
-CONFIG_HAVE_ARCH_VMAP_STACK=y
-CONFIG_VMAP_STACK=y
+CONFIG_CLONE_BACKWARDS=y
+CONFIG_COMPAT_32BIT_TIME=y
 
 #
 # GCOV-based kernel profiling
 #
-CONFIG_ARCH_HAS_GCOV_PROFILE_ALL=y
 # end of GCOV-based kernel profiling
-
-CONFIG_HAVE_GCC_PLUGINS=y
-CONFIG_GCC_PLUGINS=y
-# CONFIG_GCC_PLUGIN_LATENT_ENTROPY is not set
 # end of General architecture-dependent options
 
 CONFIG_RT_MUTEXES=y
 CONFIG_BASE_SMALL=0
 CONFIG_MODULES=y
 # CONFIG_MODULE_FORCE_LOAD is not set
-CONFIG_MODULE_UNLOAD=y
-# CONFIG_MODULE_FORCE_UNLOAD is not set
-# CONFIG_MODULE_UNLOAD_TAINT_TRACKING is not set
+# CONFIG_MODULE_UNLOAD is not set
 # CONFIG_MODVERSIONS is not set
 # CONFIG_MODULE_SRCVERSION_ALL is not set
 # CONFIG_MODULE_SIG is not set
@@ -593,17 +521,14 @@ CONFIG_MODULE_COMPRESS_NONE=y
 # CONFIG_MODULE_COMPRESS_ZSTD is not set
 # CONFIG_MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS is not set
 CONFIG_MODPROBE_PATH="/sbin/modprobe"
+# CONFIG_TRIM_UNUSED_KSYMS is not set
+CONFIG_MODULES_TREE_LOOKUP=y
 CONFIG_BLOCK=y
 CONFIG_BLOCK_LEGACY_AUTOLOAD=y
-CONFIG_BLK_ICQ=y
 # CONFIG_BLK_DEV_BSGLIB is not set
 # CONFIG_BLK_DEV_INTEGRITY is not set
 # CONFIG_BLK_DEV_ZONED is not set
-# CONFIG_BLK_DEV_THROTTLING is not set
 # CONFIG_BLK_WBT is not set
-# CONFIG_BLK_CGROUP_IOLATENCY is not set
-# CONFIG_BLK_CGROUP_IOCOST is not set
-# CONFIG_BLK_CGROUP_IOPRIO is not set
 # CONFIG_BLK_SED_OPAL is not set
 # CONFIG_BLK_INLINE_ENCRYPTION is not set
 
@@ -615,23 +540,19 @@ CONFIG_MSDOS_PARTITION=y
 CONFIG_EFI_PARTITION=y
 # end of Partition Types
 
-CONFIG_BLK_PM=y
-
 #
 # IO Schedulers
 #
 CONFIG_MQ_IOSCHED_DEADLINE=y
 CONFIG_MQ_IOSCHED_KYBER=y
-CONFIG_IOSCHED_BFQ=m
-# CONFIG_BFQ_GROUP_IOSCHED is not set
+# CONFIG_IOSCHED_BFQ is not set
 # end of IO Schedulers
 
-CONFIG_INLINE_SPIN_UNLOCK_IRQ=y
-CONFIG_INLINE_READ_UNLOCK=y
-CONFIG_INLINE_READ_UNLOCK_IRQ=y
-CONFIG_INLINE_WRITE_UNLOCK=y
-CONFIG_INLINE_WRITE_UNLOCK_IRQ=y
-CONFIG_FREEZER=y
+CONFIG_UNINLINE_SPIN_UNLOCK=y
+CONFIG_ARCH_SUPPORTS_ATOMIC_RMW=y
+CONFIG_MUTEX_SPIN_ON_OWNER=y
+CONFIG_RWSEM_SPIN_ON_OWNER=y
+CONFIG_LOCK_SPIN_ON_OWNER=y
 
 #
 # Executable file formats
@@ -640,44 +561,45 @@ CONFIG_BINFMT_ELF=y
 CONFIG_ELFCORE=y
 CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS=y
 CONFIG_BINFMT_SCRIPT=y
-CONFIG_BINFMT_MISC=m
+# CONFIG_BINFMT_MISC is not set
 CONFIG_COREDUMP=y
 # end of Executable file formats
 
 #
 # Memory Management options
 #
-CONFIG_SWAP=y
-# CONFIG_ZSWAP is not set
+# CONFIG_SWAP is not set
 
 #
 # SLAB allocator options
 #
 CONFIG_SLAB=y
 # CONFIG_SLUB is not set
+# CONFIG_SLOB_DEPRECATED is not set
 CONFIG_SLAB_MERGE_DEFAULT=y
 # CONFIG_SLAB_FREELIST_RANDOM is not set
 # CONFIG_SLAB_FREELIST_HARDENED is not set
 # end of SLAB allocator options
 
 # CONFIG_SHUFFLE_PAGE_ALLOCATOR is not set
-CONFIG_COMPAT_BRK=y
+# CONFIG_COMPAT_BRK is not set
 CONFIG_FLATMEM=y
 CONFIG_SPLIT_PTLOCK_CPUS=4
 # CONFIG_COMPACTION is not set
 # CONFIG_PAGE_REPORTING is not set
-CONFIG_PHYS_ADDR_T_64BIT=y
 # CONFIG_KSM is not set
 CONFIG_DEFAULT_MMAP_MIN_ADDR=4096
-CONFIG_NEED_PER_CPU_KM=y
+# CONFIG_TRANSPARENT_HUGEPAGE is not set
 # CONFIG_CMA is not set
 # CONFIG_IDLE_PAGE_TRACKING is not set
-CONFIG_VM_EVENT_COUNTERS=y
+CONFIG_ARCH_HAS_CACHE_LINE_SIZE=y
+# CONFIG_VM_EVENT_COUNTERS is not set
 # CONFIG_PERCPU_STATS is not set
 
 #
 # GUP_TEST needs to have DEBUG_FS enabled
 #
+CONFIG_ARCH_HAS_PTE_SPECIAL=y
 # CONFIG_ANON_VMA_NAME is not set
 # CONFIG_USERFAULTFD is not set
 # CONFIG_LRU_GEN is not set
@@ -690,19 +612,26 @@ CONFIG_VM_EVENT_COUNTERS=y
 # end of Memory Management options
 
 CONFIG_NET=y
+CONFIG_SKB_EXTENSIONS=y
 
 #
 # Networking options
 #
 CONFIG_PACKET=y
-# CONFIG_PACKET_DIAG is not set
+CONFIG_PACKET_DIAG=y
 CONFIG_UNIX=y
 CONFIG_UNIX_SCM=y
 CONFIG_AF_UNIX_OOB=y
-# CONFIG_UNIX_DIAG is not set
+CONFIG_UNIX_DIAG=y
 # CONFIG_TLS is not set
+CONFIG_XFRM=y
+CONFIG_XFRM_ALGO=y
 # CONFIG_XFRM_USER is not set
-# CONFIG_NET_KEY is not set
+# CONFIG_XFRM_SUB_POLICY is not set
+# CONFIG_XFRM_MIGRATE is not set
+# CONFIG_XFRM_STATISTICS is not set
+CONFIG_NET_KEY=y
+# CONFIG_NET_KEY_MIGRATE is not set
 CONFIG_INET=y
 # CONFIG_IP_MULTICAST is not set
 # CONFIG_IP_ADVANCED_ROUTER is not set
@@ -728,7 +657,6 @@ CONFIG_DEFAULT_TCP_CONG="cubic"
 # CONFIG_IPV6 is not set
 # CONFIG_MPTCP is not set
 # CONFIG_NETWORK_SECMARK is not set
-CONFIG_NET_PTP_CLASSIFY=y
 # CONFIG_NETWORK_PHY_TIMESTAMPING is not set
 # CONFIG_NETFILTER is not set
 # CONFIG_BPFILTER is not set
@@ -760,15 +688,20 @@ CONFIG_NET_PTP_CLASSIFY=y
 # CONFIG_NET_L3_MASTER_DEV is not set
 # CONFIG_QRTR is not set
 # CONFIG_NET_NCSI is not set
-# CONFIG_CGROUP_NET_PRIO is not set
-# CONFIG_CGROUP_NET_CLASSID is not set
+CONFIG_PCPU_DEV_REFCNT=y
+CONFIG_RPS=y
+CONFIG_RFS_ACCEL=y
+CONFIG_SOCK_RX_QUEUE_MAPPING=y
+CONFIG_XPS=y
 CONFIG_NET_RX_BUSY_POLL=y
 CONFIG_BQL=y
+CONFIG_NET_FLOW_LIMIT=y
 
 #
 # Network testing
 #
 # CONFIG_NET_PKTGEN is not set
+# CONFIG_NET_DROP_MONITOR is not set
 # end of Network testing
 # end of Networking options
 
@@ -778,13 +711,7 @@ CONFIG_BQL=y
 # CONFIG_AF_RXRPC is not set
 # CONFIG_AF_KCM is not set
 # CONFIG_MCTP is not set
-CONFIG_WIRELESS=y
-# CONFIG_CFG80211 is not set
-
-#
-# CFG80211 needs to be enabled for MAC80211
-#
-CONFIG_MAC80211_STA_HASH_MAX_SIZE=0
+# CONFIG_WIRELESS is not set
 # CONFIG_RFKILL is not set
 # CONFIG_NET_9P is not set
 # CONFIG_CAIF is not set
@@ -793,22 +720,24 @@ CONFIG_MAC80211_STA_HASH_MAX_SIZE=0
 # CONFIG_PSAMPLE is not set
 # CONFIG_NET_IFE is not set
 # CONFIG_LWTUNNEL is not set
+CONFIG_GRO_CELLS=y
 # CONFIG_FAILOVER is not set
 CONFIG_ETHTOOL_NETLINK=y
 
 #
 # Device Drivers
 #
+# CONFIG_PCCARD is not set
 
 #
 # Generic Driver Options
 #
 # CONFIG_UEVENT_HELPER is not set
 CONFIG_DEVTMPFS=y
-CONFIG_DEVTMPFS_MOUNT=y
+# CONFIG_DEVTMPFS_MOUNT is not set
 # CONFIG_DEVTMPFS_SAFE is not set
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
+# CONFIG_STANDALONE is not set
+# CONFIG_PREVENT_FIRMWARE_BUILD is not set
 
 #
 # Firmware loader
@@ -817,7 +746,6 @@ CONFIG_FW_LOADER=y
 CONFIG_EXTRA_FIRMWARE=""
 # CONFIG_FW_LOADER_USER_HELPER is not set
 # CONFIG_FW_LOADER_COMPRESS is not set
-CONFIG_FW_CACHE=y
 # CONFIG_FW_UPLOAD is not set
 # end of Firmware loader
 
@@ -826,7 +754,6 @@ CONFIG_ALLOW_DEV_COREDUMP=y
 # CONFIG_DEBUG_DEVRES is not set
 # CONFIG_DEBUG_TEST_DRIVER_REMOVE is not set
 # CONFIG_TEST_ASYNC_DRIVER_PROBE is not set
-CONFIG_GENERIC_CPU_DEVICES=y
 # end of Generic Driver Options
 
 #
@@ -847,6 +774,7 @@ CONFIG_GENERIC_CPU_DEVICES=y
 #
 # end of ARM System Control and Management Interface Protocol
 
+# CONFIG_FIRMWARE_MEMMAP is not set
 # CONFIG_GOOGLE_FIRMWARE is not set
 
 #
@@ -857,24 +785,23 @@ CONFIG_GENERIC_CPU_DEVICES=y
 
 # CONFIG_GNSS is not set
 # CONFIG_MTD is not set
-# CONFIG_OF is not set
-CONFIG_BLK_DEV=y
-# CONFIG_BLK_DEV_NULL_BLK is not set
-CONFIG_BLK_DEV_UBD=y
-# CONFIG_BLK_DEV_UBD_SYNC is not set
-CONFIG_BLK_DEV_COW_COMMON=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_LOOP_MIN_COUNT=8
-# CONFIG_BLK_DEV_DRBD is not set
-CONFIG_BLK_DEV_NBD=m
-# CONFIG_BLK_DEV_RAM is not set
-# CONFIG_ATA_OVER_ETH is not set
-# CONFIG_BLK_DEV_RBD is not set
-# CONFIG_BLK_DEV_UBLK is not set
+CONFIG_DTC=y
+CONFIG_OF=y
+# CONFIG_OF_UNITTEST is not set
+CONFIG_OF_FLATTREE=y
+CONFIG_OF_EARLY_FLATTREE=y
+CONFIG_OF_KOBJ=y
+CONFIG_OF_ADDRESS=y
+CONFIG_OF_IRQ=y
+CONFIG_OF_RESERVED_MEM=y
+# CONFIG_OF_OVERLAY is not set
+# CONFIG_PARPORT is not set
+# CONFIG_BLK_DEV is not set
 
 #
 # NVME Support
 #
+# CONFIG_NVME_FC is not set
 # CONFIG_NVME_TCP is not set
 # end of NVME Support
 
@@ -883,6 +810,10 @@ CONFIG_BLK_DEV_NBD=m
 #
 # CONFIG_DUMMY_IRQ is not set
 # CONFIG_ENCLOSURE_SERVICES is not set
+# CONFIG_SRAM is not set
+# CONFIG_XILINX_SDFEC is not set
+# CONFIG_OPEN_DICE is not set
+# CONFIG_VCPU_STALL_DETECTOR is not set
 # CONFIG_C2PORT is not set
 
 #
@@ -911,12 +842,13 @@ CONFIG_SCSI_MOD=y
 # CONFIG_SCSI is not set
 # end of SCSI device support
 
+# CONFIG_ATA is not set
 # CONFIG_MD is not set
 # CONFIG_TARGET_CORE is not set
 CONFIG_NETDEVICES=y
 CONFIG_NET_CORE=y
 # CONFIG_BONDING is not set
-CONFIG_DUMMY=m
+# CONFIG_DUMMY is not set
 # CONFIG_WIREGUARD is not set
 # CONFIG_EQUALIZER is not set
 # CONFIG_NET_TEAM is not set
@@ -928,49 +860,11 @@ CONFIG_DUMMY=m
 # CONFIG_GTP is not set
 # CONFIG_MACSEC is not set
 # CONFIG_NETCONSOLE is not set
-CONFIG_TUN=m
+# CONFIG_TUN is not set
 # CONFIG_TUN_VNET_CROSS_LE is not set
 # CONFIG_VETH is not set
 # CONFIG_NLMON is not set
-CONFIG_ETHERNET=y
-CONFIG_NET_VENDOR_ALACRITECH=y
-CONFIG_NET_VENDOR_AMAZON=y
-CONFIG_NET_VENDOR_AQUANTIA=y
-CONFIG_NET_VENDOR_ARC=y
-CONFIG_NET_VENDOR_ASIX=y
-CONFIG_NET_VENDOR_CAVIUM=y
-CONFIG_NET_VENDOR_CORTINA=y
-CONFIG_NET_VENDOR_DAVICOM=y
-CONFIG_NET_VENDOR_ENGLEDER=y
-CONFIG_NET_VENDOR_EZCHIP=y
-CONFIG_NET_VENDOR_FUNGIBLE=y
-CONFIG_NET_VENDOR_GOOGLE=y
-CONFIG_NET_VENDOR_HUAWEI=y
-CONFIG_NET_VENDOR_I825XX=y
-CONFIG_NET_VENDOR_INTEL=y
-CONFIG_NET_VENDOR_WANGXUN=y
-CONFIG_NET_VENDOR_LITEX=y
-CONFIG_NET_VENDOR_MARVELL=y
-CONFIG_NET_VENDOR_MICROCHIP=y
-# CONFIG_VCAP is not set
-CONFIG_NET_VENDOR_MICROSEMI=y
-CONFIG_NET_VENDOR_MICROSOFT=y
-CONFIG_NET_VENDOR_NI=y
-CONFIG_NET_VENDOR_NATSEMI=y
-CONFIG_NET_VENDOR_NETRONOME=y
-CONFIG_NET_VENDOR_8390=y
-CONFIG_NET_VENDOR_PENSANDO=y
-CONFIG_NET_VENDOR_QUALCOMM=y
-# CONFIG_RMNET is not set
-CONFIG_NET_VENDOR_RENESAS=y
-CONFIG_NET_VENDOR_ROCKER=y
-CONFIG_NET_VENDOR_SAMSUNG=y
-CONFIG_NET_VENDOR_SOLARFLARE=y
-CONFIG_NET_VENDOR_SOCIONEXT=y
-CONFIG_NET_VENDOR_SYNOPSYS=y
-CONFIG_NET_VENDOR_VERTEXCOM=y
-CONFIG_NET_VENDOR_VIA=y
-CONFIG_NET_VENDOR_XILINX=y
+# CONFIG_ETHERNET is not set
 # CONFIG_PHYLIB is not set
 # CONFIG_PSE_CONTROLLER is not set
 # CONFIG_MDIO_DEVICE is not set
@@ -980,46 +874,13 @@ CONFIG_NET_VENDOR_XILINX=y
 #
 # end of PCS device drivers
 
-CONFIG_PPP=m
-# CONFIG_PPP_BSDCOMP is not set
-# CONFIG_PPP_DEFLATE is not set
-# CONFIG_PPP_FILTER is not set
-# CONFIG_PPP_MPPE is not set
-# CONFIG_PPP_MULTILINK is not set
-# CONFIG_PPPOE is not set
-# CONFIG_PPP_ASYNC is not set
-# CONFIG_PPP_SYNC_TTY is not set
-CONFIG_SLIP=m
-CONFIG_SLHC=m
-# CONFIG_SLIP_COMPRESSED is not set
-# CONFIG_SLIP_SMART is not set
-# CONFIG_SLIP_MODE_SLIP6 is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
 
 #
 # Host-side USB support is needed for USB Network Adapter support
 #
-CONFIG_WLAN=y
-CONFIG_WLAN_VENDOR_ADMTEK=y
-CONFIG_WLAN_VENDOR_ATH=y
-# CONFIG_ATH_DEBUG is not set
-CONFIG_WLAN_VENDOR_ATMEL=y
-CONFIG_WLAN_VENDOR_BROADCOM=y
-CONFIG_WLAN_VENDOR_CISCO=y
-CONFIG_WLAN_VENDOR_INTEL=y
-CONFIG_WLAN_VENDOR_INTERSIL=y
-# CONFIG_HOSTAP is not set
-CONFIG_WLAN_VENDOR_MARVELL=y
-CONFIG_WLAN_VENDOR_MEDIATEK=y
-CONFIG_WLAN_VENDOR_MICROCHIP=y
-CONFIG_WLAN_VENDOR_PURELIFI=y
-CONFIG_WLAN_VENDOR_RALINK=y
-CONFIG_WLAN_VENDOR_REALTEK=y
-CONFIG_WLAN_VENDOR_RSI=y
-CONFIG_WLAN_VENDOR_SILABS=y
-CONFIG_WLAN_VENDOR_ST=y
-CONFIG_WLAN_VENDOR_TI=y
-CONFIG_WLAN_VENDOR_ZYDAS=y
-CONFIG_WLAN_VENDOR_QUANTENNA=y
+# CONFIG_WLAN is not set
 # CONFIG_WAN is not set
 
 #
@@ -1029,48 +890,30 @@ CONFIG_WLAN_VENDOR_QUANTENNA=y
 # end of Wireless WAN
 
 # CONFIG_NET_FAILOVER is not set
+# CONFIG_ISDN is not set
 
 #
 # Input device support
 #
 CONFIG_INPUT=y
-CONFIG_INPUT_FF_MEMLESS=y
+# CONFIG_INPUT_FF_MEMLESS is not set
 # CONFIG_INPUT_SPARSEKMAP is not set
 # CONFIG_INPUT_MATRIXKMAP is not set
-CONFIG_INPUT_VIVALDIFMAP=y
 
 #
 # Userland interfaces
 #
 # CONFIG_INPUT_MOUSEDEV is not set
 # CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_EVDEV is not set
+CONFIG_INPUT_EVDEV=y
 # CONFIG_INPUT_EVBUG is not set
 
 #
 # Input Device Drivers
 #
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-# CONFIG_KEYBOARD_STOWAWAY is not set
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_PS2_ALPS=y
-CONFIG_MOUSE_PS2_BYD=y
-CONFIG_MOUSE_PS2_LOGIPS2PP=y
-CONFIG_MOUSE_PS2_SYNAPTICS=y
-CONFIG_MOUSE_PS2_CYPRESS=y
-CONFIG_MOUSE_PS2_TRACKPOINT=y
-# CONFIG_MOUSE_PS2_ELANTECH is not set
-# CONFIG_MOUSE_PS2_SENTELIC is not set
-# CONFIG_MOUSE_PS2_TOUCHKIT is not set
-CONFIG_MOUSE_PS2_FOCALTECH=y
-# CONFIG_MOUSE_SERIAL is not set
-# CONFIG_MOUSE_VSXXXAA is not set
+# CONFIG_INPUT_KEYBOARD is not set
+# CONFIG_INPUT_MOUSE is not set
+# CONFIG_INPUT_JOYSTICK is not set
 # CONFIG_INPUT_TABLET is not set
 # CONFIG_INPUT_TOUCHSCREEN is not set
 # CONFIG_INPUT_MISC is not set
@@ -1079,12 +922,8 @@ CONFIG_MOUSE_PS2_FOCALTECH=y
 #
 # Hardware I/O ports
 #
-CONFIG_SERIO=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-# CONFIG_SERIO_RAW is not set
-# CONFIG_SERIO_PS2MULT is not set
-# CONFIG_USERIO is not set
+# CONFIG_SERIO is not set
+# CONFIG_GAMEPORT is not set
 # end of Hardware I/O ports
 # end of Input device support
 
@@ -1092,17 +931,61 @@ CONFIG_SERIO_LIBPS2=y
 # Character devices
 #
 CONFIG_TTY=y
+CONFIG_VT=y
+CONFIG_CONSOLE_TRANSLATIONS=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_VT_HW_CONSOLE_BINDING is not set
 CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=32
+# CONFIG_LEGACY_PTYS is not set
 CONFIG_LDISC_AUTOLOAD=y
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_EARLYCON=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_DEPRECATED_OPTIONS=y
+CONFIG_SERIAL_8250_16550A_VARIANTS=y
+# CONFIG_SERIAL_8250_FINTEK is not set
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=1
+CONFIG_SERIAL_8250_RUNTIME_UARTS=1
+# CONFIG_SERIAL_8250_EXTENDED is not set
+CONFIG_SERIAL_8250_DWLIB=y
+CONFIG_SERIAL_8250_DW=y
+# CONFIG_SERIAL_8250_RT288X is not set
+CONFIG_SERIAL_OF_PLATFORM=y
+
+#
+# Non-8250 serial port support
+#
+# CONFIG_SERIAL_UARTLITE is not set
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+# CONFIG_SERIAL_SIFIVE is not set
+# CONFIG_SERIAL_SCCNXP is not set
+# CONFIG_SERIAL_ALTERA_JTAGUART is not set
+# CONFIG_SERIAL_ALTERA_UART is not set
+# CONFIG_SERIAL_XILINX_PS_UART is not set
+# CONFIG_SERIAL_ARC is not set
+# CONFIG_SERIAL_FSL_LPUART is not set
+# CONFIG_SERIAL_FSL_LINFLEXUART is not set
+# CONFIG_SERIAL_CONEXANT_DIGICOLOR is not set
+# CONFIG_SERIAL_SPRD is not set
+# end of Serial drivers
+
+# CONFIG_SERIAL_NONSTANDARD is not set
 # CONFIG_N_GSM is not set
 # CONFIG_NULL_TTY is not set
 # CONFIG_SERIAL_DEV_BUS is not set
+# CONFIG_TTY_PRINTK is not set
 # CONFIG_VIRTIO_CONSOLE is not set
-CONFIG_HW_RANDOM=y
-CONFIG_UML_RANDOM=y
+# CONFIG_IPMI_HANDLER is not set
+# CONFIG_HW_RANDOM is not set
 CONFIG_DEVMEM=y
+# CONFIG_TCG_TPM is not set
+# CONFIG_XILLYBUS is not set
 # end of Character devices
 
 #
@@ -1112,26 +995,15 @@ CONFIG_DEVMEM=y
 # end of I2C support
 
 # CONFIG_I3C is not set
+# CONFIG_SPI is not set
 # CONFIG_SPMI is not set
 # CONFIG_HSI is not set
-CONFIG_PPS=y
-# CONFIG_PPS_DEBUG is not set
-
-#
-# PPS clients support
-#
-# CONFIG_PPS_CLIENT_KTIMER is not set
-# CONFIG_PPS_CLIENT_LDISC is not set
-# CONFIG_PPS_CLIENT_GPIO is not set
-
-#
-# PPS generators support
-#
+# CONFIG_PPS is not set
 
 #
 # PTP clock support
 #
-CONFIG_PTP_1588_CLOCK=y
+# CONFIG_PTP_1588_CLOCK is not set
 CONFIG_PTP_1588_CLOCK_OPTIONAL=y
 
 #
@@ -1141,10 +1013,33 @@ CONFIG_PTP_1588_CLOCK_OPTIONAL=y
 
 # CONFIG_PINCTRL is not set
 # CONFIG_GPIOLIB is not set
+# CONFIG_W1 is not set
 # CONFIG_POWER_RESET is not set
 # CONFIG_POWER_SUPPLY is not set
+# CONFIG_HWMON is not set
 # CONFIG_THERMAL is not set
 # CONFIG_WATCHDOG is not set
+CONFIG_SSB_POSSIBLE=y
+# CONFIG_SSB is not set
+CONFIG_BCMA_POSSIBLE=y
+# CONFIG_BCMA is not set
+
+#
+# Multifunction device drivers
+#
+# CONFIG_MFD_ATMEL_FLEXCOM is not set
+# CONFIG_MFD_ATMEL_HLCDC is not set
+# CONFIG_MFD_MADERA is not set
+# CONFIG_MFD_HI6421_PMIC is not set
+# CONFIG_HTC_PASIC3 is not set
+# CONFIG_MFD_KEMPLD is not set
+# CONFIG_MFD_MT6397 is not set
+# CONFIG_MFD_SM501 is not set
+# CONFIG_MFD_SYSCON is not set
+# CONFIG_MFD_TI_AM335X_TSCADC is not set
+# CONFIG_MFD_TQMX86 is not set
+# end of Multifunction device drivers
+
 # CONFIG_REGULATOR is not set
 # CONFIG_RC_CORE is not set
 
@@ -1154,97 +1049,58 @@ CONFIG_PTP_1588_CLOCK_OPTIONAL=y
 # CONFIG_MEDIA_CEC_SUPPORT is not set
 # end of CEC support
 
+# CONFIG_MEDIA_SUPPORT is not set
+
 #
 # Graphics support
 #
+# CONFIG_DRM is not set
+# CONFIG_DRM_DEBUG_MODESET_LOCK is not set
+
+#
+# ARM devices
+#
+# end of ARM devices
+
+#
+# Frame buffer Devices
+#
+# CONFIG_FB is not set
+# end of Frame buffer Devices
+
+#
+# Backlight & LCD device support
+#
+# CONFIG_LCD_CLASS_DEVICE is not set
+# CONFIG_BACKLIGHT_CLASS_DEVICE is not set
+# end of Backlight & LCD device support
+
+#
+# Console display driver support
+#
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_DUMMY_CONSOLE_COLUMNS=80
+CONFIG_DUMMY_CONSOLE_ROWS=25
+# end of Console display driver support
 # end of Graphics support
 
-CONFIG_SOUND_OSS_CORE_PRECLAIM=y
+# CONFIG_SOUND is not set
 
 #
 # HID support
 #
-CONFIG_HID=y
-# CONFIG_HID_BATTERY_STRENGTH is not set
-# CONFIG_HIDRAW is not set
-# CONFIG_UHID is not set
-CONFIG_HID_GENERIC=y
-
-#
-# Special HID drivers
-#
-CONFIG_HID_A4TECH=y
-# CONFIG_HID_ACRUX is not set
-# CONFIG_HID_AUREAL is not set
-CONFIG_HID_BELKIN=y
-CONFIG_HID_CHERRY=y
-# CONFIG_HID_COUGAR is not set
-# CONFIG_HID_MACALLY is not set
-# CONFIG_HID_CMEDIA is not set
-CONFIG_HID_CYPRESS=y
-# CONFIG_HID_DRAGONRISE is not set
-# CONFIG_HID_EMS_FF is not set
-# CONFIG_HID_ELECOM is not set
-CONFIG_HID_EZKEY=y
-# CONFIG_HID_GEMBIRD is not set
-# CONFIG_HID_GFRM is not set
-# CONFIG_HID_GLORIOUS is not set
-# CONFIG_HID_VIVALDI is not set
-# CONFIG_HID_KEYTOUCH is not set
-# CONFIG_HID_KYE is not set
-# CONFIG_HID_WALTOP is not set
-# CONFIG_HID_VIEWSONIC is not set
-# CONFIG_HID_VRC2 is not set
-# CONFIG_HID_XIAOMI is not set
-# CONFIG_HID_GYRATION is not set
-# CONFIG_HID_ICADE is not set
-CONFIG_HID_ITE=y
-# CONFIG_HID_JABRA is not set
-# CONFIG_HID_TWINHAN is not set
-CONFIG_HID_KENSINGTON=y
-# CONFIG_HID_LCPOWER is not set
-# CONFIG_HID_LENOVO is not set
-# CONFIG_HID_MAGICMOUSE is not set
-# CONFIG_HID_MALTRON is not set
-# CONFIG_HID_MAYFLASH is not set
-CONFIG_HID_REDRAGON=y
-CONFIG_HID_MICROSOFT=y
-CONFIG_HID_MONTEREY=y
-# CONFIG_HID_MULTITOUCH is not set
-# CONFIG_HID_NTI is not set
-# CONFIG_HID_ORTEK is not set
-# CONFIG_HID_PANTHERLORD is not set
-# CONFIG_HID_PETALYNX is not set
-# CONFIG_HID_PICOLCD is not set
-# CONFIG_HID_PLANTRONICS is not set
-# CONFIG_HID_PXRC is not set
-# CONFIG_HID_RAZER is not set
-# CONFIG_HID_PRIMAX is not set
-# CONFIG_HID_SAITEK is not set
-# CONFIG_HID_SEMITEK is not set
-# CONFIG_HID_SPEEDLINK is not set
-# CONFIG_HID_STEAM is not set
-# CONFIG_HID_STEELSERIES is not set
-# CONFIG_HID_SUNPLUS is not set
-# CONFIG_HID_RMI is not set
-# CONFIG_HID_GREENASIA is not set
-# CONFIG_HID_SMARTJOYPLUS is not set
-# CONFIG_HID_TIVO is not set
-# CONFIG_HID_TOPSEED is not set
-# CONFIG_HID_TOPRE is not set
-# CONFIG_HID_UDRAW_PS3 is not set
-# CONFIG_HID_XINMO is not set
-# CONFIG_HID_ZEROPLUS is not set
-# CONFIG_HID_ZYDACRON is not set
-# CONFIG_HID_ALPS is not set
-# end of Special HID drivers
+# CONFIG_HID is not set
 # end of HID support
 
 CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+# CONFIG_USB_SUPPORT is not set
+# CONFIG_MMC is not set
 # CONFIG_MEMSTICK is not set
 # CONFIG_NEW_LEDS is not set
 # CONFIG_ACCESSIBILITY is not set
+# CONFIG_INFINIBAND is not set
 # CONFIG_RTC_CLASS is not set
+# CONFIG_DMADEVICES is not set
 
 #
 # DMABUF options
@@ -1258,6 +1114,7 @@ CONFIG_USB_OHCI_LITTLE_ENDIAN=y
 # CONFIG_VFIO is not set
 # CONFIG_VIRT_DRIVERS is not set
 CONFIG_VIRTIO_MENU=y
+# CONFIG_VIRTIO_MMIO is not set
 # CONFIG_VDPA is not set
 CONFIG_VHOST_MENU=y
 # CONFIG_VHOST_NET is not set
@@ -1271,33 +1128,42 @@ CONFIG_VHOST_MENU=y
 # CONFIG_GREYBUS is not set
 # CONFIG_COMEDI is not set
 # CONFIG_STAGING is not set
-# CONFIG_COMMON_CLK is not set
+# CONFIG_GOLDFISH is not set
+CONFIG_HAVE_CLK=y
+CONFIG_HAVE_CLK_PREPARE=y
+CONFIG_COMMON_CLK=y
+# CONFIG_COMMON_CLK_AXI_CLKGEN is not set
+# CONFIG_COMMON_CLK_FIXED_MMIO is not set
+# CONFIG_XILINX_VCU is not set
+# CONFIG_COMMON_CLK_XLNX_CLKWZRD is not set
 # CONFIG_HWSPINLOCK is not set
 
 #
 # Clock Source drivers
 #
+CONFIG_TIMER_OF=y
+CONFIG_TIMER_PROBE=y
+CONFIG_ARC_TIMERS=y
+CONFIG_ARC_TIMERS_64BIT=y
+# CONFIG_MICROCHIP_PIT64B is not set
 # end of Clock Source drivers
 
 # CONFIG_MAILBOX is not set
-CONFIG_IOMMU_SUPPORT=y
-
-#
-# Generic IOMMU Pagetable Support
-#
-# end of Generic IOMMU Pagetable Support
-
-# CONFIG_IOMMUFD is not set
+# CONFIG_IOMMU_SUPPORT is not set
 
 #
 # Remoteproc drivers
 #
+# CONFIG_REMOTEPROC is not set
 # end of Remoteproc drivers
 
 #
 # Rpmsg drivers
 #
+# CONFIG_RPMSG_VIRTIO is not set
 # end of Rpmsg drivers
+
+# CONFIG_SOUNDWIRE is not set
 
 #
 # SOC (System On Chip) specific Drivers
@@ -1331,6 +1197,7 @@ CONFIG_IOMMU_SUPPORT=y
 #
 # Enable LiteX SoC Builder specific drivers
 #
+# CONFIG_LITEX_SOC_CONTROLLER is not set
 # end of Enable LiteX SoC Builder specific drivers
 
 #
@@ -1355,8 +1222,12 @@ CONFIG_IOMMU_SUPPORT=y
 #
 # IRQ chip support
 #
+CONFIG_IRQCHIP=y
+# CONFIG_AL_FIC is not set
+# CONFIG_XILINX_INTC is not set
 # end of IRQ chip support
 
+# CONFIG_IPACK_BUS is not set
 # CONFIG_RESET_CONTROLLER is not set
 
 #
@@ -1368,10 +1239,25 @@ CONFIG_IOMMU_SUPPORT=y
 #
 # PHY drivers for Broadcom platforms
 #
+# CONFIG_BCM_KONA_USB2_PHY is not set
 # end of PHY drivers for Broadcom platforms
+
+# CONFIG_PHY_CADENCE_TORRENT is not set
+# CONFIG_PHY_CADENCE_DPHY is not set
+# CONFIG_PHY_CADENCE_DPHY_RX is not set
+# CONFIG_PHY_CADENCE_SALVO is not set
+# CONFIG_PHY_PXA_28NM_HSIC is not set
+# CONFIG_PHY_PXA_28NM_USB2 is not set
 # end of PHY Subsystem
 
 # CONFIG_POWERCAP is not set
+# CONFIG_MCB is not set
+
+#
+# Performance monitor support
+#
+# end of Performance monitor support
+
 # CONFIG_RAS is not set
 
 #
@@ -1387,10 +1273,11 @@ CONFIG_IOMMU_SUPPORT=y
 # HW tracing support
 #
 # CONFIG_STM is not set
+# CONFIG_INTEL_TH is not set
 # end of HW tracing support
 
 # CONFIG_FPGA is not set
-# CONFIG_TEE is not set
+# CONFIG_FSI is not set
 # CONFIG_SIOX is not set
 # CONFIG_SLIMBUS is not set
 # CONFIG_INTERCONNECT is not set
@@ -1402,23 +1289,16 @@ CONFIG_IOMMU_SUPPORT=y
 #
 # File systems
 #
-CONFIG_DCACHE_WORD_ACCESS=y
 # CONFIG_VALIDATE_FS_PARSER is not set
 CONFIG_FS_IOMAP=y
-# CONFIG_EXT2_FS is not set
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+# CONFIG_EXT2_FS_POSIX_ACL is not set
+# CONFIG_EXT2_FS_SECURITY is not set
 # CONFIG_EXT3_FS is not set
-CONFIG_EXT4_FS=y
-CONFIG_EXT4_USE_FOR_EXT2=y
-# CONFIG_EXT4_FS_POSIX_ACL is not set
-# CONFIG_EXT4_FS_SECURITY is not set
-# CONFIG_EXT4_DEBUG is not set
-CONFIG_JBD2=y
-# CONFIG_JBD2_DEBUG is not set
+# CONFIG_EXT4_FS is not set
 CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_REISERFS_FS_XATTR is not set
+# CONFIG_REISERFS_FS is not set
 # CONFIG_JFS_FS is not set
 # CONFIG_XFS_FS is not set
 # CONFIG_GFS2_FS is not set
@@ -1434,15 +1314,9 @@ CONFIG_FSNOTIFY=y
 CONFIG_DNOTIFY=y
 CONFIG_INOTIFY_USER=y
 # CONFIG_FANOTIFY is not set
-CONFIG_QUOTA=y
-# CONFIG_QUOTA_NETLINK_INTERFACE is not set
-CONFIG_PRINT_QUOTA_WARNING=y
-# CONFIG_QUOTA_DEBUG is not set
-# CONFIG_QFMT_V1 is not set
-# CONFIG_QFMT_V2 is not set
-CONFIG_QUOTACTL=y
-CONFIG_AUTOFS4_FS=m
-CONFIG_AUTOFS_FS=m
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS4_FS is not set
+# CONFIG_AUTOFS_FS is not set
 # CONFIG_FUSE_FS is not set
 # CONFIG_OVERLAY_FS is not set
 
@@ -1455,9 +1329,7 @@ CONFIG_AUTOFS_FS=m
 #
 # CD-ROM/DVD Filesystems
 #
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-# CONFIG_ZISOFS is not set
+# CONFIG_ISO9660_FS is not set
 # CONFIG_UDF_FS is not set
 # end of CD-ROM/DVD Filesystems
 
@@ -1475,7 +1347,7 @@ CONFIG_JOLIET=y
 # Pseudo filesystems
 #
 CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
+# CONFIG_PROC_KCORE is not set
 CONFIG_PROC_SYSCTL=y
 CONFIG_PROC_PAGE_MONITOR=y
 # CONFIG_PROC_CHILDREN is not set
@@ -1484,92 +1356,31 @@ CONFIG_SYSFS=y
 CONFIG_TMPFS=y
 # CONFIG_TMPFS_POSIX_ACL is not set
 # CONFIG_TMPFS_XATTR is not set
-# CONFIG_TMPFS_INODE64 is not set
 CONFIG_MEMFD_CREATE=y
 # CONFIG_CONFIGFS_FS is not set
 # end of Pseudo filesystems
 
-CONFIG_MISC_FILESYSTEMS=y
-# CONFIG_ORANGEFS_FS is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_SQUASHFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_OMFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX6FS_FS is not set
-# CONFIG_ROMFS_FS is not set
-# CONFIG_PSTORE is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_EROFS_FS is not set
+# CONFIG_MISC_FILESYSTEMS is not set
 CONFIG_NETWORK_FILESYSTEMS=y
-# CONFIG_NFS_FS is not set
+CONFIG_NFS_FS=y
+CONFIG_NFS_V2=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V3_ACL is not set
+# CONFIG_NFS_V4 is not set
+CONFIG_NFS_DISABLE_UDP_SUPPORT=y
 # CONFIG_NFSD is not set
+CONFIG_GRACE_PERIOD=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+# CONFIG_SUNRPC_DEBUG is not set
 # CONFIG_CEPH_FS is not set
 # CONFIG_CIFS is not set
 # CONFIG_SMB_SERVER is not set
 # CONFIG_CODA_FS is not set
 # CONFIG_AFS_FS is not set
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-# CONFIG_NLS_CODEPAGE_437 is not set
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ASCII is not set
-# CONFIG_NLS_ISO8859_1 is not set
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_MAC_ROMAN is not set
-# CONFIG_NLS_MAC_CELTIC is not set
-# CONFIG_NLS_MAC_CENTEURO is not set
-# CONFIG_NLS_MAC_CROATIAN is not set
-# CONFIG_NLS_MAC_CYRILLIC is not set
-# CONFIG_NLS_MAC_GAELIC is not set
-# CONFIG_NLS_MAC_GREEK is not set
-# CONFIG_NLS_MAC_ICELAND is not set
-# CONFIG_NLS_MAC_INUIT is not set
-# CONFIG_NLS_MAC_ROMANIAN is not set
-# CONFIG_NLS_MAC_TURKISH is not set
-# CONFIG_NLS_UTF8 is not set
+# CONFIG_NLS is not set
 # CONFIG_UNICODE is not set
 CONFIG_IO_WQ=y
 # end of File systems
@@ -1583,7 +1394,6 @@ CONFIG_IO_WQ=y
 # CONFIG_SECURITYFS is not set
 CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
 # CONFIG_HARDENED_USERCOPY is not set
-# CONFIG_FORTIFY_SOURCE is not set
 # CONFIG_STATIC_USERMODEHELPER is not set
 CONFIG_DEFAULT_SECURITY_DAC=y
 CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,bpf"
@@ -1595,10 +1405,12 @@ CONFIG_LSM="landlock,lockdown,yama,loadpin,safesetid,integrity,bpf"
 #
 # Memory initialization
 #
-CONFIG_INIT_STACK_NONE=y
-# CONFIG_GCC_PLUGIN_STRUCTLEAK_USER is not set
-# CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF is not set
-# CONFIG_GCC_PLUGIN_STRUCTLEAK_BYREF_ALL is not set
+CONFIG_CC_HAS_AUTO_VAR_INIT_PATTERN=y
+CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO_BARE=y
+CONFIG_CC_HAS_AUTO_VAR_INIT_ZERO=y
+# CONFIG_INIT_STACK_NONE is not set
+# CONFIG_INIT_STACK_ALL_PATTERN is not set
+CONFIG_INIT_STACK_ALL_ZERO=y
 # CONFIG_INIT_ON_ALLOC_DEFAULT_ON is not set
 # CONFIG_INIT_ON_FREE_DEFAULT_ON is not set
 CONFIG_CC_HAS_ZERO_CALL_USED_REGS=y
@@ -1606,8 +1418,6 @@ CONFIG_CC_HAS_ZERO_CALL_USED_REGS=y
 # end of Memory initialization
 
 CONFIG_RANDSTRUCT_NONE=y
-# CONFIG_RANDSTRUCT_FULL is not set
-# CONFIG_RANDSTRUCT_PERFORMANCE is not set
 # end of Kernel hardening options
 # end of Security options
 
@@ -1618,12 +1428,16 @@ CONFIG_CRYPTO=y
 #
 CONFIG_CRYPTO_ALGAPI=y
 CONFIG_CRYPTO_ALGAPI2=y
+CONFIG_CRYPTO_SKCIPHER=y
+CONFIG_CRYPTO_SKCIPHER2=y
 CONFIG_CRYPTO_HASH=y
 CONFIG_CRYPTO_HASH2=y
+CONFIG_CRYPTO_RNG2=y
 # CONFIG_CRYPTO_MANAGER is not set
 # CONFIG_CRYPTO_USER is not set
 CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
 # CONFIG_CRYPTO_NULL is not set
+# CONFIG_CRYPTO_PCRYPT is not set
 # CONFIG_CRYPTO_CRYPTD is not set
 # CONFIG_CRYPTO_AUTHENC is not set
 # CONFIG_CRYPTO_TEST is not set
@@ -1715,7 +1529,7 @@ CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
 #
 # CRCs (cyclic redundancy checks)
 #
-CONFIG_CRYPTO_CRC32C=y
+# CONFIG_CRYPTO_CRC32C is not set
 # CONFIG_CRYPTO_CRC32 is not set
 # CONFIG_CRYPTO_CRCT10DIF is not set
 # end of CRCs (cyclic redundancy checks)
@@ -1749,22 +1563,29 @@ CONFIG_CRYPTO_CRC32C=y
 # end of Userspace interface
 
 CONFIG_CRYPTO_HW=y
+# CONFIG_CRYPTO_DEV_SAFEXCEL is not set
+# CONFIG_CRYPTO_DEV_CCREE is not set
+# CONFIG_CRYPTO_DEV_AMLOGIC_GXL is not set
 
 #
 # Certificates for signature checking
 #
 # end of Certificates for signature checking
 
+CONFIG_BINARY_PRINTF=y
+
 #
 # Library routines
 #
 # CONFIG_PACKING is not set
 CONFIG_BITREVERSE=y
-CONFIG_ARCH_HAS_STRNCPY_FROM_USER=y
-CONFIG_ARCH_HAS_STRNLEN_USER=y
+CONFIG_GENERIC_STRNCPY_FROM_USER=y
+CONFIG_GENERIC_STRNLEN_USER=y
 CONFIG_GENERIC_NET_UTILS=y
 # CONFIG_CORDIC is not set
 # CONFIG_PRIME_NUMBERS is not set
+CONFIG_RATIONAL=y
+CONFIG_GENERIC_PCI_IOMAP=y
 
 #
 # Crypto library routines
@@ -1773,14 +1594,14 @@ CONFIG_CRYPTO_LIB_UTILS=y
 CONFIG_CRYPTO_LIB_BLAKE2S_GENERIC=y
 # CONFIG_CRYPTO_LIB_CHACHA is not set
 # CONFIG_CRYPTO_LIB_CURVE25519 is not set
-CONFIG_CRYPTO_LIB_POLY1305_RSIZE=11
+CONFIG_CRYPTO_LIB_POLY1305_RSIZE=1
 # CONFIG_CRYPTO_LIB_POLY1305 is not set
 # CONFIG_CRYPTO_LIB_CHACHA20POLY1305 is not set
 CONFIG_CRYPTO_LIB_SHA1=y
 # end of Crypto library routines
 
 # CONFIG_CRC_CCITT is not set
-CONFIG_CRC16=y
+# CONFIG_CRC16 is not set
 # CONFIG_CRC_T10DIF is not set
 # CONFIG_CRC64_ROCKSOFT is not set
 # CONFIG_CRC_ITU_T is not set
@@ -1795,14 +1616,51 @@ CONFIG_CRC32_SLICEBY8=y
 # CONFIG_CRC7 is not set
 # CONFIG_LIBCRC32C is not set
 # CONFIG_CRC8 is not set
+CONFIG_XXHASH=y
 # CONFIG_RANDOM32_SELFTEST is not set
-# CONFIG_XZ_DEC is not set
-CONFIG_NO_DMA=y
-CONFIG_ARCH_DMA_ADDR_T_64BIT=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_LZO_DECOMPRESS=y
+CONFIG_LZ4_DECOMPRESS=y
+CONFIG_ZSTD_COMMON=y
+CONFIG_ZSTD_DECOMPRESS=y
+CONFIG_XZ_DEC=y
+CONFIG_XZ_DEC_X86=y
+CONFIG_XZ_DEC_POWERPC=y
+CONFIG_XZ_DEC_IA64=y
+CONFIG_XZ_DEC_ARM=y
+CONFIG_XZ_DEC_ARMTHUMB=y
+CONFIG_XZ_DEC_SPARC=y
+# CONFIG_XZ_DEC_MICROLZMA is not set
+CONFIG_XZ_DEC_BCJ=y
+# CONFIG_XZ_DEC_TEST is not set
+CONFIG_DECOMPRESS_GZIP=y
+CONFIG_DECOMPRESS_BZIP2=y
+CONFIG_DECOMPRESS_LZMA=y
+CONFIG_DECOMPRESS_XZ=y
+CONFIG_DECOMPRESS_LZO=y
+CONFIG_DECOMPRESS_LZ4=y
+CONFIG_DECOMPRESS_ZSTD=y
+CONFIG_GENERIC_ALLOCATOR=y
+CONFIG_HAS_IOMEM=y
+CONFIG_HAS_DMA=y
+CONFIG_NEED_DMA_MAP_STATE=y
+CONFIG_DMA_DECLARE_COHERENT=y
+CONFIG_ARCH_HAS_SETUP_DMA_OPS=y
+CONFIG_ARCH_HAS_SYNC_DMA_FOR_DEVICE=y
+CONFIG_ARCH_HAS_SYNC_DMA_FOR_CPU=y
+CONFIG_ARCH_HAS_DMA_PREP_COHERENT=y
+CONFIG_DMA_NONCOHERENT_MMAP=y
+CONFIG_DMA_COHERENT_POOL=y
+CONFIG_DMA_DIRECT_REMAP=y
 # CONFIG_DMA_API_DEBUG is not set
+# CONFIG_FORCE_NR_CPUS is not set
+CONFIG_CPU_RMAP=y
 CONFIG_DQL=y
+CONFIG_GLOB=y
+# CONFIG_GLOB_SELFTEST is not set
 CONFIG_NLATTR=y
 # CONFIG_IRQ_POLL is not set
+CONFIG_LIBFDT=y
 CONFIG_SBITMAP=y
 # end of Library routines
 
@@ -1823,7 +1681,6 @@ CONFIG_MESSAGE_LOGLEVEL_DEFAULT=4
 # CONFIG_DYNAMIC_DEBUG is not set
 # CONFIG_DYNAMIC_DEBUG_CORE is not set
 CONFIG_SYMBOLIC_ERRNAME=y
-CONFIG_DEBUG_BUGVERBOSE=y
 # end of printk and dmesg options
 
 CONFIG_DEBUG_KERNEL=y
@@ -1832,33 +1689,29 @@ CONFIG_DEBUG_MISC=y
 #
 # Compile-time checks and compiler options
 #
-CONFIG_DEBUG_INFO=y
 CONFIG_AS_HAS_NON_CONST_LEB128=y
-# CONFIG_DEBUG_INFO_NONE is not set
-CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
+CONFIG_DEBUG_INFO_NONE=y
+# CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT is not set
 # CONFIG_DEBUG_INFO_DWARF4 is not set
 # CONFIG_DEBUG_INFO_DWARF5 is not set
-# CONFIG_DEBUG_INFO_REDUCED is not set
-# CONFIG_DEBUG_INFO_COMPRESSED is not set
-# CONFIG_DEBUG_INFO_SPLIT is not set
-CONFIG_PAHOLE_HAS_SPLIT_BTF=y
-# CONFIG_GDB_SCRIPTS is not set
-CONFIG_FRAME_WARN=2048
+CONFIG_FRAME_WARN=1024
 # CONFIG_STRIP_ASM_SYMS is not set
 # CONFIG_READABLE_ASM is not set
+# CONFIG_HEADERS_INSTALL is not set
 CONFIG_DEBUG_SECTION_MISMATCH=y
 CONFIG_SECTION_MISMATCH_WARN_ONLY=y
-CONFIG_FRAME_POINTER=y
+# CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B is not set
+# CONFIG_VMLINUX_MAP is not set
 # CONFIG_DEBUG_FORCE_WEAK_PER_CPU is not set
 # end of Compile-time checks and compiler options
 
 #
 # Generic Kernel Debugging Instruments
 #
-CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE=0x1
-CONFIG_MAGIC_SYSRQ_SERIAL=y
-CONFIG_MAGIC_SYSRQ_SERIAL_SEQUENCE=""
+# CONFIG_MAGIC_SYSRQ is not set
 # CONFIG_DEBUG_FS is not set
+CONFIG_HAVE_ARCH_KGDB=y
+# CONFIG_KGDB is not set
 # CONFIG_UBSAN is not set
 CONFIG_HAVE_KCSAN_COMPILER=y
 # end of Generic Kernel Debugging Instruments
@@ -1879,18 +1732,20 @@ CONFIG_HAVE_KCSAN_COMPILER=y
 # CONFIG_DEBUG_SLAB is not set
 # CONFIG_PAGE_OWNER is not set
 # CONFIG_PAGE_POISONING is not set
+# CONFIG_DEBUG_PAGE_REF is not set
 # CONFIG_DEBUG_OBJECTS is not set
 CONFIG_HAVE_DEBUG_KMEMLEAK=y
 # CONFIG_DEBUG_KMEMLEAK is not set
 # CONFIG_DEBUG_STACK_USAGE is not set
 # CONFIG_SCHED_STACK_END_CHECK is not set
+CONFIG_ARCH_HAS_DEBUG_VM_PGTABLE=y
 # CONFIG_DEBUG_VM is not set
-CONFIG_DEBUG_MEMORY_INIT=y
-CONFIG_HAVE_ARCH_KASAN=y
-CONFIG_HAVE_ARCH_KASAN_VMALLOC=y
-CONFIG_CC_HAS_KASAN_GENERIC=y
+# CONFIG_DEBUG_VM_PGTABLE is not set
+# CONFIG_DEBUG_MEMORY_INIT is not set
+# CONFIG_DEBUG_PER_CPU_MAPS is not set
+CONFIG_HAVE_DEBUG_STACKOVERFLOW=y
+# CONFIG_DEBUG_STACKOVERFLOW is not set
 CONFIG_CC_HAS_WORKING_NOSANITIZE_ADDRESS=y
-# CONFIG_KASAN is not set
 # end of Memory Debugging
 
 # CONFIG_DEBUG_SHIRQ is not set
@@ -1901,8 +1756,12 @@ CONFIG_CC_HAS_WORKING_NOSANITIZE_ADDRESS=y
 # CONFIG_PANIC_ON_OOPS is not set
 CONFIG_PANIC_ON_OOPS_VALUE=0
 CONFIG_PANIC_TIMEOUT=0
-# CONFIG_SOFTLOCKUP_DETECTOR is not set
-# CONFIG_DETECT_HUNG_TASK is not set
+CONFIG_LOCKUP_DETECTOR=y
+CONFIG_SOFTLOCKUP_DETECTOR=y
+# CONFIG_BOOTPARAM_SOFTLOCKUP_PANIC is not set
+CONFIG_DETECT_HUNG_TASK=y
+CONFIG_DEFAULT_HUNG_TASK_TIMEOUT=120
+# CONFIG_BOOTPARAM_HUNG_TASK_PANIC is not set
 # CONFIG_WQ_WATCHDOG is not set
 # CONFIG_TEST_LOCKUP is not set
 # end of Debug Oops, Lockups and Hangs
@@ -1915,6 +1774,7 @@ CONFIG_SCHED_DEBUG=y
 # end of Scheduler Debugging
 
 # CONFIG_DEBUG_TIMEKEEPING is not set
+# CONFIG_DEBUG_PREEMPT is not set
 
 #
 # Lock Debugging (spinlocks, mutexes, etc...)
@@ -1928,18 +1788,17 @@ CONFIG_LOCK_DEBUGGING_SUPPORT=y
 # CONFIG_DEBUG_WW_MUTEX_SLOWPATH is not set
 # CONFIG_DEBUG_RWSEMS is not set
 # CONFIG_DEBUG_LOCK_ALLOC is not set
+# CONFIG_DEBUG_ATOMIC_SLEEP is not set
 # CONFIG_DEBUG_LOCKING_API_SELFTESTS is not set
 # CONFIG_LOCK_TORTURE_TEST is not set
 # CONFIG_WW_MUTEX_SELFTEST is not set
 # CONFIG_SCF_TORTURE_TEST is not set
-# CONFIG_CSD_LOCK_WAIT_DEBUG is not set
 # end of Lock Debugging (spinlocks, mutexes, etc...)
 
 # CONFIG_DEBUG_IRQFLAGS is not set
 CONFIG_STACKTRACE=y
 # CONFIG_WARN_ALL_UNSEEDED_RANDOM is not set
 # CONFIG_DEBUG_KOBJECT is not set
-CONFIG_HAVE_DEBUG_BUGVERBOSE=y
 
 #
 # Debug kernel data structures
@@ -1960,36 +1819,57 @@ CONFIG_HAVE_DEBUG_BUGVERBOSE=y
 # CONFIG_RCU_SCALE_TEST is not set
 # CONFIG_RCU_TORTURE_TEST is not set
 # CONFIG_RCU_REF_SCALE_TEST is not set
-# CONFIG_RCU_TRACE is not set
+CONFIG_RCU_CPU_STALL_TIMEOUT=21
+CONFIG_RCU_EXP_CPU_STALL_TIMEOUT=0
+CONFIG_RCU_TRACE=y
 # CONFIG_RCU_EQS_DEBUG is not set
 # end of RCU Debugging
 
 # CONFIG_DEBUG_WQ_FORCE_RR_CPU is not set
 # CONFIG_LATENCYTOP is not set
+CONFIG_NOP_TRACER=y
+CONFIG_HAVE_SYSCALL_TRACEPOINTS=y
+CONFIG_TRACE_CLOCK=y
+CONFIG_RING_BUFFER=y
+CONFIG_EVENT_TRACING=y
+CONFIG_CONTEXT_SWITCH_TRACER=y
+CONFIG_TRACING=y
 CONFIG_TRACING_SUPPORT=y
 CONFIG_FTRACE=y
+# CONFIG_BOOTTIME_TRACING is not set
 # CONFIG_IRQSOFF_TRACER is not set
+# CONFIG_PREEMPT_TRACER is not set
 # CONFIG_SCHED_TRACER is not set
 # CONFIG_HWLAT_TRACER is not set
 # CONFIG_OSNOISE_TRACER is not set
 # CONFIG_TIMERLAT_TRACER is not set
 # CONFIG_ENABLE_DEFAULT_TRACERS is not set
+# CONFIG_FTRACE_SYSCALLS is not set
 # CONFIG_TRACER_SNAPSHOT is not set
 CONFIG_BRANCH_PROFILE_NONE=y
 # CONFIG_PROFILE_ANNOTATED_BRANCHES is not set
 # CONFIG_PROFILE_ALL_BRANCHES is not set
 # CONFIG_BLK_DEV_IO_TRACE is not set
+CONFIG_KPROBE_EVENTS=y
+CONFIG_DYNAMIC_EVENTS=y
+CONFIG_PROBE_EVENTS=y
 # CONFIG_SYNTH_EVENTS is not set
+# CONFIG_TRACE_EVENT_INJECT is not set
 # CONFIG_TRACEPOINT_BENCHMARK is not set
+# CONFIG_RING_BUFFER_BENCHMARK is not set
+# CONFIG_TRACE_EVAL_MAP_FILE is not set
+# CONFIG_RING_BUFFER_STARTUP_TEST is not set
+# CONFIG_RING_BUFFER_VALIDATE_TIME_DELTAS is not set
 # CONFIG_PREEMPTIRQ_DELAY_TEST is not set
+# CONFIG_KPROBE_EVENT_GEN_TEST is not set
+# CONFIG_RV is not set
 # CONFIG_SAMPLES is not set
 
 #
-# um Debugging
+# arc Debugging
 #
-# CONFIG_GPROF is not set
-CONFIG_EARLY_PRINTK=y
-# end of um Debugging
+# CONFIG_16KSTACKS is not set
+# end of arc Debugging
 
 #
 # Kernel Testing and Coverage
@@ -1997,9 +1877,7 @@ CONFIG_EARLY_PRINTK=y
 # CONFIG_KUNIT is not set
 # CONFIG_NOTIFIER_ERROR_INJECTION is not set
 # CONFIG_FAULT_INJECTION is not set
-CONFIG_ARCH_HAS_KCOV=y
 CONFIG_CC_HAS_SANCOV_TRACE_PC=y
-# CONFIG_KCOV is not set
 CONFIG_RUNTIME_TESTING_MENU=y
 # CONFIG_TEST_MIN_HEAP is not set
 # CONFIG_TEST_DIV64 is not set
@@ -2045,4 +1923,4 @@ CONFIG_RUNTIME_TESTING_MENU=y
 # end of Rust hacking
 # end of Kernel hacking
 
---LAxYZrg8BqCjC1af--
+--6bEgEwk3zaqbnON5--
