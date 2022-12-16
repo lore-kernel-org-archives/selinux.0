@@ -2,99 +2,95 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD00C4332F
-	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 14:16:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D123C4332F
+	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 15:25:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230476AbiLPOQR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Dec 2022 09:16:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48244 "EHLO
+        id S229475AbiLPPZV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Dec 2022 10:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229680AbiLPOQP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 09:16:15 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DC0554F8
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 06:16:11 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id ud5so6495654ejc.4
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 06:16:11 -0800 (PST)
+        with ESMTP id S231401AbiLPPZM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 10:25:12 -0500
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0FC62EA4
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 07:25:08 -0800 (PST)
+Received: by mail-yb1-xb2c.google.com with SMTP id y135so2683181yby.12
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 07:25:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=b0fmEnseGIFEICNCA6q30GS5vtYvoKHfclhX2cOQ+b4=;
-        b=Xuh0qSZ3JMjn/IU4OFRUGh15iq7ARLk9Och8enwYDbE5NunEUx7u5atS4XD2WJdgZH
-         RROL0ZXw1xF/qCN+sQcUMLw4veMSGp6nQW5A2cXmLHZ1eQmRY2gK3Ygu3hyThpsE3aOn
-         pPaMxC4JwmI/tHlV0/idN/SANWl+ElweJE0wmiiNxuZeP/rGncZ6lzUn2lJc5q7XMuhF
-         /ZNV6QrgBRuVhz4afuO6mnrSCgLp1wrTPAyk09B5kR6Y7C3325Q50diyu7TjIVKxCOTO
-         kJJVichcDS9pphlaCIzoI/PrOrOijbvEJo+JeXrjD5CLyRX+JBj4K4n+bNY7zYQJ1I8e
-         7TCg==
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DSmNudrHyffMzMgcfu9qmkgp5+tuikp6064PMmmHEYg=;
+        b=EUsUOwRMx2I1z2R6zzRdn96pA5eppesTy/TRg1ElVJ3jz2wjh3N5UKprM4d8ZTEyY9
+         2F49mwanVI1By5gAtz8QYiHGGixivllM0LlpbWBtxxkxltbNxHNT3xMfH4H+EffXP977
+         xsSPDiyTPd+v1/51K0YHRa+jDCaKmRDg4yC/rdVAYvsUwwf6NR/zQsGPJ4ASeqGEodKv
+         1l67YOJe730NT8ztA46vNPLXk5bpGh/vER9sr+cCR93P7sKACl7cCMngUVMHNa9EdoVU
+         hrcICT0ltPcXQ3gMFxAobrTF4ZbZChN+Z7HjyjNtW8XtiHyTrbFfg80GwFGPe5xsuSRo
+         mhUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=b0fmEnseGIFEICNCA6q30GS5vtYvoKHfclhX2cOQ+b4=;
-        b=WrLJSk19sz08+Z8WCnsrp4VsOShlOsJW0UUSNSr0xNvM9aOSo6iCdB8MnwGBVXr9dm
-         EhLTp/m9K6j6DCmD3xFLZyxTtnukoKFHes/qTGBedB+UuScPXgB/c1d0VIK0m7fsmlfx
-         /FZXlRvIT0uS0bO7O5qPbp4nsOomDBvfxJcCjivi9mRAnqgU1wCIFka8uMhwlGYkuFI3
-         Sve4mU4e3lR85g786dsS948K4neXVxRLAX5B5YpM/N/5Nnxe4D6LyUu8BoXjFE/f353I
-         7VVL9Ap3k1mvfHqlf9rqG9C6AAXFM1pfaBEhiMzgM6pyGoHbZCyVMc/6au7huvz9k5UJ
-         Io9Q==
-X-Gm-Message-State: ANoB5pk9QM6Mpo70YOoAk6bn1+KehWOKxiCcfO2PDWMg0zEw1vxAgRQT
-        A0h7WSrTyppQ6FLGOUKYfqQwtHduFKGoWEnlgd8SuwtOjMQ=
-X-Google-Smtp-Source: AA0mqf54F6Yg5JZQl85LjxuC1TKh2ueV0a91nmob1DObu9rprsFF2HP6588mVOhAK7RbAWE9x3r/EQEPRYaVJWh7Ujs=
-X-Received: by 2002:a17:906:3a15:b0:7c1:b65:ad79 with SMTP id
- z21-20020a1709063a1500b007c10b65ad79mr10905616eje.402.1671200169954; Fri, 16
- Dec 2022 06:16:09 -0800 (PST)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DSmNudrHyffMzMgcfu9qmkgp5+tuikp6064PMmmHEYg=;
+        b=cNyofzMNBJlXt1IEO1ZZjVxdFpi3c4UXa5t3hyAj9afIvaarztLKdEct/LYFtqSriy
+         ot7Frn15zFnw4bd5q/vtuNKDzO+QhctGxVVINYPCpEcGEEO4O8V5WGtF9tKAFTHclOYL
+         YEKm0gMYO8qtWs0c2O1dU9IpDVTs8vsYLo4cInilm0zAJGZxHO5HUot+hCieqpiWxcIx
+         9zftoI76MgXHvuzsCGwZoOL3z07fmNdILG4bkMQIBQo/uaNqMZZk6yLz2ulCHRhiuyEa
+         2VUZS9eE/yk5EeKgupZCjy+/XddPp7IaMQbJwoYmmG3uJPXem0E8j8phzaIGaI+U75MB
+         uccA==
+X-Gm-Message-State: ANoB5pm3qho9Ghf65YviaT6Vy6AaTGkU6YH3dKJidxElZ/yE4mcVshp6
+        /Qrh5aIc9t98vBHbapnikqNOgtgi3V3ZH3H/ynozmg==
+X-Google-Smtp-Source: AA0mqf602YYPXabG9IC11VoZUdrowcXC6vXkIbNP+V/VNDHABsH9Ui1qBrv0DMcT7RtCUCEgXBL7Cd3zDu9Tq28bLC4=
+X-Received: by 2002:a25:d197:0:b0:703:4bfd:3986 with SMTP id
+ i145-20020a25d197000000b007034bfd3986mr14573427ybg.407.1671204307562; Fri, 16
+ Dec 2022 07:25:07 -0800 (PST)
 MIME-Version: 1.0
-References: <20221129120020.1915666-1-lujie54@huawei.com>
-In-Reply-To: <20221129120020.1915666-1-lujie54@huawei.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 16 Dec 2022 09:15:58 -0500
-Message-ID: <CAP+JOzSa5KU90uwNt3d16WKQudo_zDDbruHaVzUa1d67-gtcVw@mail.gmail.com>
-Subject: Re: [PATCH] libselinux:add check for malloc
-To:     Jie Lu <lujie54@huawei.com>
-Cc:     selinux@vger.kernel.org
+References: <114ee67a-3349-454e-9387-40f1f29cb822@me.com> <CANn89iJ42uTD+vDqzi_oPj2rPY=kxMSgtdrRd3G-xHozyi9apQ@mail.gmail.com>
+In-Reply-To: <CANn89iJ42uTD+vDqzi_oPj2rPY=kxMSgtdrRd3G-xHozyi9apQ@mail.gmail.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Fri, 16 Dec 2022 16:24:56 +0100
+Message-ID: <CANn89i+fjP_N5_oUTZr2BECbBhV7x8HZNMs_C=JAFE5Sf1beVw@mail.gmail.com>
+Subject: Re: memory leak in inet_create
+To:     =?UTF-8?B?7J207LC97ZeM?= <darklight2357@icloud.com>
+Cc:     "security@kernel.org" <security@kernel.org>,
+        selinux@vger.kernel.org, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 29, 2022 at 9:45 AM Jie Lu <lujie54@huawei.com> wrote:
+On Fri, Dec 16, 2022 at 9:55 AM Eric Dumazet <edumazet@google.com> wrote:
 >
-> Add return check for regex_data_create() to avoid NULL reference of regex_data
+> On Fri, Dec 16, 2022 at 9:46 AM =EC=9D=B4=EC=B0=BD=ED=97=8C <darklight235=
+7@icloud.com> wrote:
+> >
+> > Hello, I am =E2=80=9CChangheon Lee" concerned with kernel security.
+> >
+> >
+> > A "memory leak in inet_create" was reported in Syzkaller targeting Linu=
+x kernel Version 6.1 on December 15, 2022 at 18:36 (KST).
+> >
+> >
+> > I received an email saying that an inappropriate HTML form was inserted=
+ into the email and there was a problem with readability, so we are sending=
+ it again.
+> >
+> >
+> > The environment in which the bug was detected is as follows.
 >
-> (gdb) bt
->  #0  0x00007fbde5caec14 in pthread_mutex_init () from /usr/lib64/libc.so.6
->  #1  0x00007fbde5e3a489 in regex_data_create () at regex.c:260
->  #2  0x00007fbde5e3a4af in regex_prepare_data (regex=regex@entry=0x7fbde4613770, pattern_string=pattern_string@entry=0x563c6799a820 "^/home$", errordata=errordata@entry=0x7ffeb83fa950) at regex.c:76
->  #3  0x00007fbde5e32fe6 in compile_regex (errbuf=0x0, spec=0x7fbde4613748) at label_file.h:407
->  #4  lookup_all (key=0x563c679974e5 "/var/log/kadmind.log", type=<optimized out>, partial=partial@entry=false, match_count=match_count@entry=0x0, rec=<optimized out>, rec=<optimized out>)
->      at label_file.c:949
->  #5  0x00007fbde5e33350 in lookup (rec=<optimized out>, key=<optimized out>, type=<optimized out>) at label_file.c:1092
->  #6  0x00007fbde5e31878 in selabel_lookup_common (rec=0x563c67998cc0, translating=1, key=<optimized out>, type=<optimized out>) at label.c:167
->
-> Signed-off-by: Jie Lu <lujie54@huawei.com>
+> I will take a look, thanks.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+I suspect bug was added in
 
-> ---
->  libselinux/src/regex.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index 73987d9f..149a7973 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -257,6 +257,9 @@ struct regex_data *regex_data_create(void)
->  {
->         struct regex_data *regex_data =
->                 (struct regex_data *)calloc(1, sizeof(struct regex_data));
-> +       if (!regex_data)
-> +               return NULL;
-> +
->         __pthread_mutex_init(&regex_data->match_mutex, NULL);
->         return regex_data;
->  }
-> --
-> 2.27.0
->
+commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8
+Author: Jakub Kicinski <kuba@kernel.org>
+Date:   Fri Oct 15 06:37:39 2021 -0700
+
+    net: stream: don't purge sk_error_queue in sk_stream_kill_queues()
+
+I am working on a fix (after making sure the cited commit is indeed
+the bug origin)
