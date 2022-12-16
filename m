@@ -2,106 +2,105 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DEFAC4332F
-	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 22:02:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD32DC4332F
+	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 22:02:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229537AbiLPWCN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Dec 2022 17:02:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42782 "EHLO
+        id S229925AbiLPWCS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Dec 2022 17:02:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229962AbiLPWB3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 17:01:29 -0500
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E5D28E1E
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 14:01:28 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id v8so5511816edi.3
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 14:01:28 -0800 (PST)
+        with ESMTP id S229907AbiLPWCR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 17:02:17 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A082B216
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 14:02:16 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id kw15so9199462ejc.10
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 14:02:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=zU3NzxC6ZXi1zBl4MXHBEYiSgdCZ6KTZyE10zbuYBaQ=;
-        b=W8iMECDQqY8DhR4dEBKgLeY23cRv30Yn6noSYAKJQD83ryW+Ww1NfQTHagmM/KqE89
-         vf76kGDko6ra7Rh7EkXgi3KGd3cEPAxScXrBaROlFcpY1anJR+xsDKqCz7rvHGzpnrDB
-         PnidAQkFSy7uOAaP+EWFsy4kA4q0CievKE0rSD0EZ6WUufTqm4O9u5Cc7ybpmi11i++Q
-         VnXKSWnhBgz9DgmFtIzd3Poaj/XWZEkbFyD0dFin6CRgitF4FNRFtJqlFjQw93Xt5RsC
-         8Vkb2NJgWLbd882FvT6yoH8U1gK8Hk394atRlwk30Q+uUbpkGcTnfwAKsx3n2shCt5kI
-         OPxw==
+        bh=8leB9I7hBz65pppNf1flr9edX0R53jdFrpe6y02PHWc=;
+        b=Sl35ilJ5ztjJyaP9CMwXx9V8XQEqyKZw+NNkmwXP/0fcO+C1bI0VUeS9coQgSvnXxL
+         JUXlX6ZiNeEd8nDOK8hpDt+4y1Zh1UCAOUNC0yVTtSHWMvHwx1/fCkoX10yi8Pm2iUMx
+         1H3RVkUd7luFeEzXDC0NvuC9s78BSRazzXXqyRa/RScd6jHj4cIB9XsxqrEcN1lc/rJK
+         bAkRvXzqDg4LTkxEmAvcighjDfWIoDtnCPELv3kl/4p8/azoR6zmk2RdgJjPHX0IrPpo
+         jqSOB8kXTgC19ETJJJCSIG+1rVLOCziHvJJpX+AXISTQKv6BMLoh5w7zVP6Rk8sgR4Pw
+         WVrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=zU3NzxC6ZXi1zBl4MXHBEYiSgdCZ6KTZyE10zbuYBaQ=;
-        b=byCJ2U9/dGsaFhEjh9G0MrLg4sYYrBHbR962DSk+t+Ic+NYOwlia3y8JHJMKr4C3aN
-         ynDJSUJRcsN5pRM2ksu1kV9/9JhTI1COA7Ixqjy2kz5IRQfiXw661GnlOT4WUFc5Btk6
-         JACBhGWJMfMnbBX9Ptd3na4p/XrMq8/ErQrjtQapByh99g0Z2KfcRrdlbeUQL2QR3eS6
-         LhdCFMChG+zYLMnmxumEVqfX2bahMpnaEWghcaishUNS9wfmsoiAr3vSodu7gIC7b1C7
-         h5JEpnTcSKUhdNlSbqSh04TwZZinUJ3CvZYP4wlwx/R16gqelcTfgYawBcO/0SYnPh3j
-         wpcA==
-X-Gm-Message-State: ANoB5pn3eORgEEDUCT/erAPxrF/H1CjEo/OqYCFI2YFkD5YEHatNyya5
-        Lbl/vP3o1yI3j0BSJxPJCyTcPJEZ9QtPSvcmlR98seWs
-X-Google-Smtp-Source: AA0mqf7cW/u9KOniPAKAhkx/X9Vmd9faZmFu/txYE0UsJ7kZbyUg+3KvLkevsG/YxSokTpx+j86GSMRiVpnkvK+HtWA=
-X-Received: by 2002:a05:6402:4499:b0:46c:43fd:d1ab with SMTP id
- er25-20020a056402449900b0046c43fdd1abmr12938408edb.197.1671228086701; Fri, 16
- Dec 2022 14:01:26 -0800 (PST)
+        bh=8leB9I7hBz65pppNf1flr9edX0R53jdFrpe6y02PHWc=;
+        b=hCKsOOuDS/fCRhTLa8asQ9qKGlgODiFgCnNZJ/EoYZPxR5JQDQ+4sLPPcJe8WMJo2D
+         a8pEgCoQyOhaJ/cpOkvEIqtQ59EsBr2EynT3RXESeZ3DWOljH7QfMmFMbk+dmNOsDYaj
+         dfIRSxw6Ceg2rhXyfgogg8iLeWgNh5xjQfBajRefjcmNHg/WLs9JVdH8mBNdWXAYIx4x
+         vf9Visql5UFTv8jyc+/N6TceQotX3d7gbFZROG25eM9Y21KXLf/WOgaSusmh83ad6kzC
+         EGarsBq8tOt1V5X2NxLag8eUTY06bZyfLNccwW0WX0apINyguJsir41P8GKbL81ZwKdN
+         BLEw==
+X-Gm-Message-State: ANoB5plddqCeFUtM4jURZre8ZBBwBZnZYHNuwRUAQF8ngsaGGWg6NLpl
+        oyPTA5SfP+Ytdbk7+ttKO+/+o6iulBj2NJ2Le6UbLVZ3
+X-Google-Smtp-Source: AA0mqf6ygiCHa7FxzzWrntQXpro3s0V4w/X+lUOyo5ZxSagiTj4i2JC8jB8H1X94eqb2B/ZuHNJdPYzkBTGvHmUmTSY=
+X-Received: by 2002:a17:906:1e8a:b0:7b2:b992:694d with SMTP id
+ e10-20020a1709061e8a00b007b2b992694dmr75562631ejj.651.1671228135273; Fri, 16
+ Dec 2022 14:02:15 -0800 (PST)
 MIME-Version: 1.0
-References: <20221129120020.1915666-1-lujie54@huawei.com> <CAP+JOzSa5KU90uwNt3d16WKQudo_zDDbruHaVzUa1d67-gtcVw@mail.gmail.com>
-In-Reply-To: <CAP+JOzSa5KU90uwNt3d16WKQudo_zDDbruHaVzUa1d67-gtcVw@mail.gmail.com>
+References: <20221212174349.714152-1-lautrbach@redhat.com> <CAP+JOzRd2wei9QLPZU1Kzc9qJzb1NU1EwJ6FQt_iOUfKv2h2sA@mail.gmail.com>
+In-Reply-To: <CAP+JOzRd2wei9QLPZU1Kzc9qJzb1NU1EwJ6FQt_iOUfKv2h2sA@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 16 Dec 2022 17:01:15 -0500
-Message-ID: <CAP+JOzTmd6Vqct2HVzKJ8N4DJXw8sg_0Fs6HWst56Ur=vLuvdQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux:add check for malloc
-To:     Jie Lu <lujie54@huawei.com>
+Date:   Fri, 16 Dec 2022 17:02:04 -0500
+Message-ID: <CAP+JOzQwqjjeT3QcYzccp4NNXH6AYEF1QSbX03XhYB0G9LzHkQ@mail.gmail.com>
+Subject: Re: [PATCH] sepolicy: Call os.makedirs() with exist_ok=True
+To:     Petr Lautrbach <lautrbach@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 16, 2022 at 9:15 AM James Carter <jwcart2@gmail.com> wrote:
+On Fri, Dec 16, 2022 at 4:24 PM James Carter <jwcart2@gmail.com> wrote:
 >
-> On Tue, Nov 29, 2022 at 9:45 AM Jie Lu <lujie54@huawei.com> wrote:
+> On Mon, Dec 12, 2022 at 12:49 PM Petr Lautrbach <lautrbach@redhat.com> wrote:
 > >
-> > Add return check for regex_data_create() to avoid NULL reference of regex_data
+> > Since commit 7494bb1298b3 ("sepolicy: generate man pages in parallel")
+> > man pages are generated in parallel and there's a race between
+> > os.path.exists() and os.makedirs().
 > >
-> > (gdb) bt
-> >  #0  0x00007fbde5caec14 in pthread_mutex_init () from /usr/lib64/libc.so.6
-> >  #1  0x00007fbde5e3a489 in regex_data_create () at regex.c:260
-> >  #2  0x00007fbde5e3a4af in regex_prepare_data (regex=regex@entry=0x7fbde4613770, pattern_string=pattern_string@entry=0x563c6799a820 "^/home$", errordata=errordata@entry=0x7ffeb83fa950) at regex.c:76
-> >  #3  0x00007fbde5e32fe6 in compile_regex (errbuf=0x0, spec=0x7fbde4613748) at label_file.h:407
-> >  #4  lookup_all (key=0x563c679974e5 "/var/log/kadmind.log", type=<optimized out>, partial=partial@entry=false, match_count=match_count@entry=0x0, rec=<optimized out>, rec=<optimized out>)
-> >      at label_file.c:949
-> >  #5  0x00007fbde5e33350 in lookup (rec=<optimized out>, key=<optimized out>, type=<optimized out>) at label_file.c:1092
-> >  #6  0x00007fbde5e31878 in selabel_lookup_common (rec=0x563c67998cc0, translating=1, key=<optimized out>, type=<optimized out>) at label.c:167
+> > The check os.path.exists() is not necessary when os.makedirs() is called
+> > with exist_ok=True.
 > >
-> > Signed-off-by: Jie Lu <lujie54@huawei.com>
+> > Fixes:
+> > /usr/bin/sepolicy manpage -a -p /__w/usr/share/man/man8/ -w -r /__w/
+> > FileExistsError: [Errno 17] File exists: '/__w/usr/share/man/man8/'
+> >
+> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
->
 
 Merged.
 Thanks,
 Jim
 
+>
 > > ---
-> >  libselinux/src/regex.c | 3 +++
-> >  1 file changed, 3 insertions(+)
+> >  python/sepolicy/sepolicy/manpage.py | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
 > >
-> > diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> > index 73987d9f..149a7973 100644
-> > --- a/libselinux/src/regex.c
-> > +++ b/libselinux/src/regex.c
-> > @@ -257,6 +257,9 @@ struct regex_data *regex_data_create(void)
-> >  {
-> >         struct regex_data *regex_data =
-> >                 (struct regex_data *)calloc(1, sizeof(struct regex_data));
-> > +       if (!regex_data)
-> > +               return NULL;
-> > +
-> >         __pthread_mutex_init(&regex_data->match_mutex, NULL);
-> >         return regex_data;
-> >  }
+> > diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
+> > index edeb3b77e759..1bff8f9acb49 100755
+> > --- a/python/sepolicy/sepolicy/manpage.py
+> > +++ b/python/sepolicy/sepolicy/manpage.py
+> > @@ -376,8 +376,7 @@ class ManPage:
+> >
+> >          self.fcdict = sepolicy.get_fcdict(self.fcpath)
+> >
+> > -        if not os.path.exists(path):
+> > -            os.makedirs(path)
+> > +        os.makedirs(path, exist_ok=True)
+> >
+> >          self.path = path
+> >
 > > --
-> > 2.27.0
+> > 2.38.1
 > >
