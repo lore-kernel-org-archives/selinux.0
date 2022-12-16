@@ -2,57 +2,56 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5C4EC001B2
-	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 16:07:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F7DEC4332F
+	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 16:08:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbiLPQHF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Dec 2022 11:07:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42348 "EHLO
+        id S230221AbiLPQIN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Dec 2022 11:08:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231996AbiLPQGX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 11:06:23 -0500
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151D5FCB
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 08:03:56 -0800 (PST)
-Received: by mail-ej1-x630.google.com with SMTP id qk9so7245524ejc.3
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 08:03:56 -0800 (PST)
+        with ESMTP id S231969AbiLPQHf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 11:07:35 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF652B614
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 08:06:47 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id d14so4207697edj.11
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 08:06:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=25/1XV4MK0Oct8Abk3cZ1akMkM4mFc+IsyETtrodzd8=;
-        b=lL7bRwjsKV7+j7eWyM5WNZny76YEUQYuYOxGBTneLOxgJn7SB5Hn8cp6lbXf3r2gDI
-         wKnR50EzMfp3upyJb1pdAa0825zZX/8c4mf3hAUtkr4XRto48J3MkiJrGtqphmHk8RKb
-         qZbtGNYCsgYjZ/YyziFBd+2CEA6oq4rNrMASvZdNRZXtCfY93nq1DaRBcbZgjmLKoeGS
-         wa6eNxiVsHNQMPvMLRoi1lLdjx6pVKFO/2avjKEtPKILUzJymdKlTwWRKq03695uYLyy
-         sfhz+yHJQCodjzaEjqMPEsyO0hVKBZ6dCN0qACUiVVxSWPRQ9xVbEfgMCPset0jx5FTE
-         +NTQ==
+        bh=ZePJUe/A99WW7I57WmKdDUyLSPAYeq1zGmjVbRBuZfo=;
+        b=ZJNXS396fiJKFqqjeoWP6cI8W1fNOH1NjLU6D3xxBz9nJ7t5QKHqcUXvRc3TGP94hT
+         pgEKBryC+hrp6/cdzzn8k+7Rx/CXD2H0NLD98NqNUfwsL/9d5uQjx4AxDY4Maee6ixgI
+         MuZZ1QfDoUPzRMZfdeO/UUFqxamjsOY21HCiWv5kVrndL8PGtnIbXfB0CqH65BjOukUU
+         NB2mTZceOr1R6qcwKz4mBGHZzo8O17nJ1aHKO5+/R68+GzcRPunPPCDUTHovZ88Jrz0Y
+         OBg9FM0Qb/hMccyZXSuYvoW6jD0FOA/+nNkdnXKjVZWb5K9zx6nAKAMSRrOHo/Wbjyd8
+         wZQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=25/1XV4MK0Oct8Abk3cZ1akMkM4mFc+IsyETtrodzd8=;
-        b=N2LMZuYPmzgIuq0sk6ZeNDEz1aHNqSvHkut0ly9uvpsBctOtjpeJYw4jqsp0LfO3ih
-         dkL+GBvCbtsAizGRddPUhZmE8Wp/WMK43n0XqbLSWeDXlichTv8jt5bmqWGn7EME3rVw
-         efXeS1GxYXagItZjYMZjduBiMQMLRQla/6tYvWHmmnw26mv/pyX6Qk/apsH0kQQseC+3
-         VMaldOx1RpetwfA9JKLB8Afx/nEFmQck8qzIIRZDH8zWczxSSKsmi3sVuua3fUw3UkG8
-         RPEgjMjVN7y2dyiCoW5+VzPnrC3V0peK9fGfTbtYqn1JGQOHS7gXXFvqxMGpYojcyomE
-         acxg==
-X-Gm-Message-State: ANoB5pmKmyyDQ9zJZnUbZDmeA66knrdeb8+cdmXieMzvIv0fbjTuUTna
-        J9VDO3QnRbNSCSzn2gPs4Q/fYSxoY7qC0hhZbFnWap3y
-X-Google-Smtp-Source: AA0mqf7rRWvSnRBMSXa74+bWWeI4z3KIpa8m2ro+NhHcTdJFWRTfoJFpMhLFXp8SmCkRPpwaqE+UWIvPIDExl9ow2eo=
-X-Received: by 2002:a17:907:6d8c:b0:7c1:675d:2620 with SMTP id
- sb12-20020a1709076d8c00b007c1675d2620mr2945430ejc.100.1671206634554; Fri, 16
- Dec 2022 08:03:54 -0800 (PST)
+        bh=ZePJUe/A99WW7I57WmKdDUyLSPAYeq1zGmjVbRBuZfo=;
+        b=veGU8vzZqoGZLp5W9nOuMXSOS76LgzzAbMWmIYi5IBYIJ/cehCJHaNnROO6ziCxuGO
+         ZvXdbg63YHaEmmV9YwLmHMGVfwW/zdWNpi4PGJbbphr8sCWhggiq615cNUUvJhjmUJUl
+         4vPFZQczoFzQC7XjJUuoHdFQ7bep+5c/YdXwL5xYSUb9Trtb4YhAQgJZ3Xcfsbmv/ZLT
+         4hCoMp5VE4fHC3fWZzKrnX3YjsTAD9jZFdxFtvDPFN0/tDthUH8N0yvGnpRnOzDS5rYe
+         V/Nd4pARKleU7D0pMPEhCWd+aH7nL3tOqytcj+0b19LIAQVTcWfar57n4nYaFadA5yd2
+         ZyOg==
+X-Gm-Message-State: ANoB5pnsJvMvdb4NPleoHKDYwZnwaEPTwl7j7my2o7myDQxuZQhV05u3
+        ikbPl3BQ8ZjzUZ3gi+YOmD1HxM52+u42OsjMKuQ=
+X-Google-Smtp-Source: AA0mqf7yx58T8EFmIOG+PB3IiSPbzizdO6necu4SI7l1PQOtvG8aGvyMQ6CjlieZFW8NBE5Mhhf2X1JvARjTDYdMDjU=
+X-Received: by 2002:a50:fe8d:0:b0:461:9183:834b with SMTP id
+ d13-20020a50fe8d000000b004619183834bmr72138105edt.196.1671206806017; Fri, 16
+ Dec 2022 08:06:46 -0800 (PST)
 MIME-Version: 1.0
-References: <20221205093644.703107-1-lujie54@huawei.com>
-In-Reply-To: <20221205093644.703107-1-lujie54@huawei.com>
+References: <20221205093644.703107-1-lujie54@huawei.com> <20221205093644.703107-2-lujie54@huawei.com>
+In-Reply-To: <20221205093644.703107-2-lujie54@huawei.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 16 Dec 2022 11:03:43 -0500
-Message-ID: <CAP+JOzSPuRUj9mHQnoFJyCUqcUB+KX6GKJ+rA-9PYhdbUHQgQA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: fix potential NULL reference and memory
- leak in audit2why
+Date:   Fri, 16 Dec 2022 11:06:34 -0500
+Message-ID: <CAP+JOzQMYso72aaH3whcTDv7-E-4hBTi9oK-_SKyJtBfxQkukA@mail.gmail.com>
+Subject: Re: [PATCH 2/3] libsepol: fix potential memory leak in common_copy_callback
 To:     Jie Lu <lujie54@huawei.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -62,79 +61,34 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Mon, Dec 5, 2022 at 7:13 AM Jie Lu <lujie54@huawei.com> wrote:
 >
-> In audit2why.c add return check for memory allocation. And free every element
-> in the boollist when function fails.
+> In common_copy_callback(), destroy new_common->permissions when the function fails.
 >
 > Signed-off-by: Jie Lu <lujie54@huawei.com>
 > ---
->  libselinux/src/audit2why.c | 26 ++++++++++++++++++++++++--
->  1 file changed, 24 insertions(+), 2 deletions(-)
+>  libsepol/src/expand.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-> index ba1a66eb..742b4ff5 100644
-> --- a/libselinux/src/audit2why.c
-> +++ b/libselinux/src/audit2why.c
-> @@ -55,7 +55,16 @@ static int load_booleans(const sepol_bool_t * boolean,
->                          void *arg __attribute__ ((__unused__)))
->  {
->         boollist[boolcnt] = malloc(sizeof(struct boolean_t));
-> +       if (!boollist[boolcnt]) {
-> +               PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
-> +               return -1;
-> +       }
->         boollist[boolcnt]->name = strdup(sepol_bool_get_name(boolean));
-> +       if (!boollist[boolcnt]->name) {
-> +               PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
-> +               free(boollist[boolcnt]);
-> +               return -1;
-> +       }
->         boollist[boolcnt]->active = sepol_bool_get_value(boolean);
->         boolcnt++;
->         return 0;
-> @@ -149,6 +158,11 @@ static int check_booleans(struct boolean_t **bools)
->
->         if (fcnt > 0) {
->                 *bools = calloc(sizeof(struct boolean_t), fcnt + 1);
-> +               if (!*bools) {
-> +                       PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
-> +                       free(foundlist);
-> +                       return 0;
-> +               }
->                 struct boolean_t *b = *bools;
->                 for (i = 0; i < fcnt; i++) {
->                         int ctr = foundlist[i];
-> @@ -278,14 +292,22 @@ static int __policy_init(const char *init_path)
->         return 0;
->
->  err:
-> -       if (boollist)
-> -               free(boollist);
-> +       if (boollist) {
-> +               for (i = 0; i < boolcnt; i++) {
-> +                        free(boollist[i]->name);
-> +                        free(boollist[i]);
-> +                }
-> +                free(boollist);
-> +                boollist = NULL;
-> +                boolcnt = 0;
-> +       }
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 8d19850e..b44cfd4f 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -297,6 +297,7 @@ static int common_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+>                            (hashtab_datum_t) new_common);
+>         if (ret) {
+>                 ERR(state->handle, "hashtab overflow");
+> +               symtab_destroy(&new_common->permissions);
+>                 free(new_common);
+>                 free(new_id);
+>                 return -1;
 
-i is not declared and it is indented with spaces rather than tabs.
+The call to hashtab_map() below this also needs similar cleanup if
+there is an error. In fact, this whole function really needs common
+cleanup code with a goto that code upon an error.
 
 Thanks,
 Jim
 
 
->         if (avc){
->                 if (avc->handle)
->                         sepol_handle_destroy(avc->handle);
->                 if (avc->policydb)
->                         sepol_policydb_free(avc->policydb);
->                 free(avc);
-> +               avc = NULL;
->         }
->         if (pf)
->                 sepol_policy_file_free(pf);
 > --
 > 2.27.0
 >
