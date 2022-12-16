@@ -2,82 +2,82 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5AB5C4332F
-	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 08:55:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 040F3C4167B
+	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 14:13:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbiLPIzW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Dec 2022 03:55:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48208 "EHLO
+        id S230466AbiLPOND (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Dec 2022 09:13:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229583AbiLPIzV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 03:55:21 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 424CC33C3E
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 00:55:20 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id d131so1659730ybh.4
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 00:55:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ujoQFar7e8EhK0hleQffBo5l61YVPxEqblhXpSzXf6Y=;
-        b=NAWKq+9V5QtN6jw6NV1MuXe07NOXYTLbH09XnzHceW7V8PhBrwdPizeTGGm+55OiFF
-         C5rQrG3MKRsTcQ7dkPK3tJFeQa4SeLa5fY6Q5KfKkgNBM5+ihRNQfhxJxNw9RauSYKp7
-         gFfxlegGPYy5Q4xqjncoZjbmR3DAKkhVn4JDNOV506hALDoDfTk2WdVEfKwXvSLkX6b+
-         9267w8SlHJhnvxuCkMnXTg5IzFyjVUYwW7GkE+mqxzKlxCk0UC+Xtiqop01OuYlvOTsk
-         87iX8SXnckR5Az57NhDBTR/IbJF5Nv2rZQi6qbM2iDah5BZVG/8Ji8Jl0KyVA6DE2BC6
-         kskg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ujoQFar7e8EhK0hleQffBo5l61YVPxEqblhXpSzXf6Y=;
-        b=dvmIySpb4jObUiH/n4TZE3MMyY4k10BAtXpvaixIwxxs7P12oSmCnXcJf566emWmVO
-         +Tp9CnJSSDDt1eKSdEejsBe8j/JGIz9WhJT6n3/8hsICa7I2wul2WCMdsJ7IXtnlA4bO
-         j7Uoj8i3gBCo8DWEhsYl6EzatfflcPCx8NWL78j7oCRhwGhwk9LrKt5VogUTrUI5ti3s
-         VIBfwimfd+wJEK6XwckEvORdCGZg+0fnicKiqZMhNmnFQZqO6hIlwZBUvPaAN/9KLMKw
-         OOAqtm5nUSq9z5Py7dcBnTQhFo93hRDt+94x2YfnL75AN7jOHGAhnzOUDWIKuJ+B7FJg
-         vsfA==
-X-Gm-Message-State: ANoB5pliwR8/LFC92NSfpWrWpsr4hdgYw5PjzWws/Akxfx2FJC8EzA46
-        19DLmcGkDiKqeCGM6W00a+Sy6yWuPVtkUDTmGiEbzQ==
-X-Google-Smtp-Source: AA0mqf7Q7doVn2zPgd2X12L9TM1mY9hzN+l5nm63pay9BTYYVFMpD6QEOmjlos/r8q1FAdRiZqaHJN2Pe0kvY3rFd+U=
-X-Received: by 2002:a25:d655:0:b0:6fc:1c96:c9fe with SMTP id
- n82-20020a25d655000000b006fc1c96c9femr34984291ybg.36.1671180919171; Fri, 16
- Dec 2022 00:55:19 -0800 (PST)
+        with ESMTP id S230522AbiLPOM7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 09:12:59 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40FB92BB06
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 06:12:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671199937;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=bm5zkNNvaWFIoEff9MlHmY4ezvY8eMgtT/aACI19x8I=;
+        b=cgpUPUV3GnRcuntLFswIRB1QdSzFgf0GS8WQ3y9CVxpgy9tp56N6UUFD96HGcuGs/OG14G
+        hUNf58iqIXThJ9LCLLeWmGADK1pQ7Dgkruc2MFOsSnX1+MN1Wrk0yiCnAVX8+YSs102eg3
+        EN6K/4k75sWzqwsCcKZhl/1vj76Njo0=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-488-lKppGk-ANCq-AsykcJup-Q-1; Fri, 16 Dec 2022 09:12:15 -0500
+X-MC-Unique: lKppGk-ANCq-AsykcJup-Q-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9A608281DE75;
+        Fri, 16 Dec 2022 14:12:15 +0000 (UTC)
+Received: from localhost (ovpn-192-144.brq.redhat.com [10.40.192.144])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 51BFD492C14;
+        Fri, 16 Dec 2022 14:12:15 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     kkz <izhaoshuang@163.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH] sepolicy: fix a spelling mistake
+In-Reply-To: <20221216041602.19344-1-izhaoshuang@163.com>
+References: <20221216041602.19344-1-izhaoshuang@163.com>
+Date:   Fri, 16 Dec 2022 15:12:14 +0100
+Message-ID: <871qozbfpd.fsf@redhat.com>
 MIME-Version: 1.0
-References: <114ee67a-3349-454e-9387-40f1f29cb822@me.com>
-In-Reply-To: <114ee67a-3349-454e-9387-40f1f29cb822@me.com>
-From:   Eric Dumazet <edumazet@google.com>
-Date:   Fri, 16 Dec 2022 09:55:07 +0100
-Message-ID: <CANn89iJ42uTD+vDqzi_oPj2rPY=kxMSgtdrRd3G-xHozyi9apQ@mail.gmail.com>
-Subject: Re: memory leak in inet_create
-To:     =?UTF-8?B?7J207LC97ZeM?= <darklight2357@icloud.com>
-Cc:     "security@kernel.org" <security@kernel.org>,
-        selinux@vger.kernel.org, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 16, 2022 at 9:46 AM =EC=9D=B4=EC=B0=BD=ED=97=8C <darklight2357@=
-icloud.com> wrote:
->
-> Hello, I am =E2=80=9CChangheon Lee" concerned with kernel security.
->
->
-> A "memory leak in inet_create" was reported in Syzkaller targeting Linux =
-kernel Version 6.1 on December 15, 2022 at 18:36 (KST).
->
->
-> I received an email saying that an inappropriate HTML form was inserted i=
-nto the email and there was a problem with readability, so we are sending i=
-t again.
->
->
-> The environment in which the bug was detected is as follows.
+kkz <izhaoshuang@163.com> writes:
 
-I will take a look, thanks.
+> From: kkz <zhaoshuang@uniontech.com>
+>
+> Signed-off-by: kkz <zhaoshuang@uniontech.com>
+
+Signed-off-by: needs to contain your real name - no pseudonyms or
+anonymous contributions. Without this it doesn't serve its purpose, see
+
+https://www.kernel.org/doc/html/latest/process/submitting-patches.html#developer-s-certificate-of-origin-1-1
+
+> ---
+>  python/sepolicy/sepolicy/templates/script.py | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/python/sepolicy/sepolicy/templates/script.py b/python/sepolicy/sepolicy/templates/script.py
+> index c79738b8..564a6b38 100644
+> --- a/python/sepolicy/sepolicy/templates/script.py
+> +++ b/python/sepolicy/sepolicy/templates/script.py
+> @@ -75,7 +75,7 @@ rpmbuild --define "_sourcedir ${pwd}" --define "_specdir ${pwd}" --define "_buil
+>  """
+>  
+>  manpage="""\
+> -# Generate a man page off the installed module
+> +# Generate a man page of the installed module
+>  sepolicy manpage -p . -d DOMAINTYPE_t
+>  """
+>  
+> -- 
+> 2.20.1
+
