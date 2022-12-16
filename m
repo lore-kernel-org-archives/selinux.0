@@ -2,97 +2,86 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B176BC3DA7B
-	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 16:08:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23ADCC4332F
+	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 17:25:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230167AbiLPQIl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Dec 2022 11:08:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42880 "EHLO
+        id S230510AbiLPRZ0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Dec 2022 12:25:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231656AbiLPQII (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 11:08:08 -0500
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FCA143861
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 08:07:24 -0800 (PST)
-Received: by mail-ej1-x62a.google.com with SMTP id t17so7297136eju.1
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 08:07:24 -0800 (PST)
+        with ESMTP id S231574AbiLPRZZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 12:25:25 -0500
+Received: from mail-vk1-xa2b.google.com (mail-vk1-xa2b.google.com [IPv6:2607:f8b0:4864:20::a2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AC8E70BB7
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 09:25:23 -0800 (PST)
+Received: by mail-vk1-xa2b.google.com with SMTP id 6so1467069vkz.0
+        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 09:25:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=XkOZtBf5ZB5/J4bVrettMnh5NROcUyWv9vxh4zak8hw=;
-        b=ofLtkZl5ToEcyUwDFTrcR2PXawEb7hXLV9I44DoRptWZqzG/PLZNUJlaFkIwgY0C/2
-         UI7T5m03S3q9Vhn4uifo+vj32wHY/Ap41PeQPadwmPfKs44He10ZLX38qg6gl9IkoHra
-         USyPhh8T1SATwbkYe2Cm+GA7PBlGWEu/c/sZyo8rCfrXFcNBVK/T4pxUIGMC4HeosbSd
-         lDFg4atMpx62ReLZr0arCJN3aowHpuZ1MPFvgKd2xvK6z3yc+iyLpWFMlJC0xRXcBkVb
-         +V9tSQZM8tMdaiaDTeV4a1tV70+n4QSfuisAHDDRQVQCMV+OAmebjrwhXFhA4jYbZQbO
-         H04Q==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=LNNcWxORnjJcSePomoysyacrLmNVHgNvTRAVoGZJPuM=;
+        b=po8vEdiWzYqkWbl7kacZpfy893v3gRAoV9pcEJGUVP/wnv9frxNuyvrN8Jeqk99j9w
+         4oFDOiH8Cevg9AkKouMq5m+gDpXRSTbwRpX+i+37Y2pIARZJ0waeF0oOu4hlqZLPMf81
+         ncKIFEVzK7ZF2pnbExDrfxOih7kudKGP0qtPew4Pmc4H3VPpmRjziel2Dj3tEzU4fhvm
+         3jikSsoex9reFFAepyXQSRPdbwym2xayd1thGbtGI5TflsDvyJrhRg1RKOx7RwXKaGrg
+         kScMhFGgbWkRjTTyM9RYLfQlJ0mDd/iIBradbAoVCr+LbRoPMqvCcSPUhP7bl8Tz4nmY
+         uqCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XkOZtBf5ZB5/J4bVrettMnh5NROcUyWv9vxh4zak8hw=;
-        b=PJRB1C/cuKAGaTKRb5do/eaFgHGWd0jftOsmbEALPaU5OM4qwfu5gOktj4g5fra2UL
-         N+Em+TFlE6CTVtWzZ9eWPjJvrahOCetNSsMFZegNGrCO5YtDXDyQu/Fd6GPNXpWGBpFe
-         iA6kh3yjf6FtgosRQxw29/o956ge5OtdT/jAGcvA9C3I52wL0fmvyp9LX3ItrARaDO1e
-         ShgSZtCPgAQ28+HcZOo9S+ERFN1MbdFN2cHl3pvgbrlAVVu+0Zyw6uEOynYFCWRxMDU9
-         YoFl6i9LiACsktUnk1XZRqAifO51q1xGstMBWqHQcYJS5q2pKeXnSrD0XORbAQqcmZ2H
-         q+AQ==
-X-Gm-Message-State: ANoB5pk4lNk6BCgisQKSb1EI1ttgWtvTM8fHqT51pcE3uCT/CqQBB6Zg
-        h4YX/3uURpYTix5s+sR00iIR52glqRugs1Nid3LilXl0yZI=
-X-Google-Smtp-Source: AA0mqf4/GVNNe/oc2g8dKz5NI/itfqLvqwwboQJSQD4cB9jIHfu/O4s5kuapXbwHOBUfOfs02e6D+9ukYtkEotFhKgA=
-X-Received: by 2002:a17:906:3a15:b0:7c1:b65:ad79 with SMTP id
- z21-20020a1709063a1500b007c10b65ad79mr10936856eje.402.1671206842714; Fri, 16
- Dec 2022 08:07:22 -0800 (PST)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LNNcWxORnjJcSePomoysyacrLmNVHgNvTRAVoGZJPuM=;
+        b=FSv6NmwQp1awUB974tN+BEkGE6nOBysasL/11p4GGEbcUp+OI60oGBB66JBurEJySf
+         U5EkR8+hioYKuHWxY9M22X4fk9uhPOpfCJMwmY+rzOg54YSNuKiDCRvMsLkuzRR8qYFN
+         Mx1IfJVTMhrExnP7oPXWiOTKbA+H8wb0vhl3kOMXyD7Mp6lyZtzIK318dEOZ5g/YgtGe
+         5tsPKC2Ec63m5u5/5IxbDuicwHBNxB7G4OykLdUjja5442eiu1fHnkTDnRPkfwT7TR94
+         eOno6+dE6SCvCDZeR913SrM+D0P6jU4rw1YjSFdQYp+00+N9xsS+rQ1St9MEM9wI5ajT
+         cQ6g==
+X-Gm-Message-State: ANoB5plHPjrUU5Hmvi7TsMvGYIIfly5rgUqRk7F9ILrwcbL5urccxqO8
+        c009ZvCgSDThzyGk+2mPZWJokzk3ZE9Rac4=
+X-Google-Smtp-Source: AA0mqf7lp0hIOJIssA9VAMc+SuMvepmUwBU+jKSd7ZbSZd5Q2uJQih4PH3qpjyfqhpFo0N9Hv+nFlA==
+X-Received: by 2002:a05:6122:2229:b0:3b6:74a9:4da0 with SMTP id bb41-20020a056122222900b003b674a94da0mr27513600vkb.0.1671211522061;
+        Fri, 16 Dec 2022 09:25:22 -0800 (PST)
+Received: from localhost (pool-108-26-161-203.bstnma.fios.verizon.net. [108.26.161.203])
+        by smtp.gmail.com with ESMTPSA id s10-20020a05620a29ca00b006f9e103260dsm1868607qkp.91.2022.12.16.09.25.21
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Dec 2022 09:25:21 -0800 (PST)
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] notebook: fix broken sepgsql.googlecode.com URL
+Date:   Fri, 16 Dec 2022 12:25:20 -0500
+Message-Id: <20221216172520.146814-1-paul@paul-moore.com>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-References: <20221205093644.703107-1-lujie54@huawei.com> <20221205093644.703107-3-lujie54@huawei.com>
-In-Reply-To: <20221205093644.703107-3-lujie54@huawei.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 16 Dec 2022 11:07:11 -0500
-Message-ID: <CAP+JOzSEFRrejgab331mG8dFgv2YwR=WYjC7Qv42XMkoOnDw9g@mail.gmail.com>
-Subject: Re: [PATCH 3/3] policycoreutils: fix potential NULL reference in load_checks
-To:     Jie Lu <lujie54@huawei.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 5, 2022 at 7:13 AM Jie Lu <lujie54@huawei.com> wrote:
->
-> In load_checks(), add return check for malloc() to avoid NULL reference.
->
-> Signed-off-by: Jie Lu <lujie54@huawei.com>
+As reported on GH issue #16, the googlecode.com link is no longer
+valid, replace it with a working copy.  Thanks to "b4r" for finding
+a good URL.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ src/apache_support.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  policycoreutils/sestatus/sestatus.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sestatus/sestatus.c
-> index 7dcc9944..6c95828e 100644
-> --- a/policycoreutils/sestatus/sestatus.c
-> +++ b/policycoreutils/sestatus/sestatus.c
-> @@ -140,6 +140,8 @@ static void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
->                                         pc[*npc] =
->                                             (char *)malloc((buf_len) *
->                                                            sizeof(char));
-> +                                       if (!pc[*npc])
-> +                                               break;
->                                         memcpy(pc[*npc], bufp, buf_len);
->                                         (*npc)++;
->                                         bufp = NULL;
-> @@ -150,6 +152,8 @@ static void load_checks(char *pc[], int *npc, char *fc[], int *nfc)
->                                         fc[*nfc] =
->                                             (char *)malloc((buf_len) *
->                                                            sizeof(char));
-> +                                       if (!fc[*nfc])
-> +                                               break;
->                                         memcpy(fc[*nfc], bufp, buf_len);
->                                         (*nfc)++;
->                                         bufp = NULL;
-> --
-> 2.27.0
->
+diff --git a/src/apache_support.md b/src/apache_support.md
+index 48c8293..f53a512 100644
+--- a/src/apache_support.md
++++ b/src/apache_support.md
+@@ -41,7 +41,7 @@ stack has the following support:
+ and Python do have support for libselinux functions in packages: PHP - with
+ the *php-pecl-selinux* package, Python - with the *libselinux-python* package.
+ 
+-The "[A secure web application platform powered by SELinux](http://sepgsql.googlecode.com/files/LCA20090120-lapp-selinux.pdf)"
++The "[A secure web application platform powered by SELinux](https://raw.githubusercontent.com/kaigai/slides/master/20090120_LCA2009_LAPP_SELINUX.pdf)"
+ document gives a good overview of the LAPP architecture.
+ 
+ ## *mod_selinux* Overview
+-- 
+2.39.0
+
