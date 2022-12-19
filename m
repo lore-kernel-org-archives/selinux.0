@@ -2,104 +2,143 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF0E4C4332F
-	for <selinux@archiver.kernel.org>; Mon, 19 Dec 2022 08:53:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55ECEC3DA7D
+	for <selinux@archiver.kernel.org>; Mon, 19 Dec 2022 13:12:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231150AbiLSIx6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 19 Dec 2022 03:53:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34224 "EHLO
+        id S231310AbiLSNMP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 19 Dec 2022 08:12:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231130AbiLSIx5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 19 Dec 2022 03:53:57 -0500
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7BEC1FA
-        for <selinux@vger.kernel.org>; Mon, 19 Dec 2022 00:53:55 -0800 (PST)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-3d0465d32deso103254037b3.20
-        for <selinux@vger.kernel.org>; Mon, 19 Dec 2022 00:53:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=/ox30e9hM+wQN6R718LHcO/VeywQzoZpiXJDzalGLqY=;
-        b=V1JviPwZT0fVD2uuo2HrcKcZEFd09wpjHI5SjZ7e9y2zY3Dz/uYa7AnBKlyltQg7fK
-         GI0ex6FPHi1WINhy0I0nIzw+P8zoYt80rAvP+hx4zpEpHnKR+kZ4sLerzd/QaQGrrPwq
-         dGEwPypYxeXXImV0q/+GuBKdl/hY3JhexKwArvczpEOrKiwFe4vztPS1pA3oUN8vTjQd
-         VHbgc5iJu7QVgax4v2/KbgRGStOtTBYQSdkGxSZO4m63/BGe9wDobZNhV54i5ngcLTnH
-         K6H6EdFJcPC85XFsoDCk/DN1TykHYcET4GypZZeVmQuskRVnAtZrvXqaw2JVxuCDtcHP
-         AgYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=/ox30e9hM+wQN6R718LHcO/VeywQzoZpiXJDzalGLqY=;
-        b=Sta9612uWdhoxfdZsw1yDeGdBjT+lFdSuzv9t4eBqx6pZLAC5E9A1b8qLlLAMo/BFv
-         0AigDmJGbURuD6wMakL6R45x7EX6XiEYLkIIVaIIY7XY3aFMFwWUpneRMgKDHm0QkEdE
-         +oV4FAl6ugde9MPj2/DEseM502MVy9fN42YYo0wQrG/s/hUrGQJd/KFIfr82ooRHZu+v
-         YnTsCpupqYtkYIkcPMemq+hN78CeZFP2hZ1N1SeWWPS2fo6UQDweC9igTVDOEKfkyfzZ
-         IHh63uWspPKTq+ZrpFtc1kPHXtWD/FyIokyiXpaxHulcJiKh+fR2Zze/DF3C2SXszxBj
-         nHHw==
-X-Gm-Message-State: AFqh2koL7t1hnh5hzZR6Az6ca4TZYjq729HCFSLDVLbq1msCcYhVAOr5
-        2EmfNUs1eL6cKg/x2HxG9H0wusfldHS2VfyWhQwHVHZ4/VpyJ6yy63eau2AZ2unj9uYEx9+NuPx
-        jjhYTlofMBnbzWY+6nm4JGWmibCLIiEEjt6lL5uoMdjSY1o9Au9g5RZrPtkvL0Qw=
-X-Google-Smtp-Source: AMrXdXtVXQtnd1280FBzpDrNp7vumSePHaCqluwNtbw5PLBtMxddGRrT7XFfKoHp3CNL9UL66gPSSc9iL+Y=
-X-Received: from inseob.seo.corp.google.com ([2401:fa00:d:11:4ce9:723d:fe99:a915])
- (user=inseob job=sendgmr) by 2002:a25:33c5:0:b0:734:c137:5a91 with SMTP id
- z188-20020a2533c5000000b00734c1375a91mr2119103ybz.487.1671440035169; Mon, 19
- Dec 2022 00:53:55 -0800 (PST)
-Date:   Mon, 19 Dec 2022 17:53:36 +0900
+        with ESMTP id S231344AbiLSNMO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 19 Dec 2022 08:12:14 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F36FAE6;
+        Mon, 19 Dec 2022 05:12:12 -0800 (PST)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJCtms5012747;
+        Mon, 19 Dec 2022 13:11:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=7SOk3YQS9lGF+iOcoXSrRXy0VxCFllYVUtTeYrhBRa4=;
+ b=Mw80rg3XtzkNIKSPvjeoAktUoofyrw3eEO1clBdKVy812AVaudYoubfEsO8oAtr0XOpF
+ 6RyoKoGWLcGLgtgHB2S6tCB+Z0Wnn0TMfmnz9DK/RZAZ7iBKghrhc/98gHYCeQNckoNx
+ uoVx0Rj7gAuVOcWYHxsEJA2FpbU9fQIgFZD2JRZkmwYSvuqaE2CzgrypDdDcklVJ+Gro
+ 9PyvrOhDVpJq02/KBjRSFwa4xzb9IUvrhqyHicAqaURktYNmXsevIa/ItUVQNrS3U0YU
+ h7e8IogRImIP1SdhfXzTEH7WbPmINUpcBDnqb61qnP+hE/keOKAOAaQ6tAuWVWsqCJL2 lg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjrd0gcuy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 13:11:52 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 2BJCtmn7012754;
+        Mon, 19 Dec 2022 13:11:52 GMT
+Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mjrd0gcu3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 13:11:52 +0000
+Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
+        by ppma03dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 2BJCtBGB027516;
+        Mon, 19 Dec 2022 13:11:51 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
+        by ppma03dal.us.ibm.com (PPS) with ESMTPS id 3mh6yugva5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 19 Dec 2022 13:11:51 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 2BJDBnwU35914172
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 19 Dec 2022 13:11:49 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6206758063;
+        Mon, 19 Dec 2022 13:11:49 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id B233458056;
+        Mon, 19 Dec 2022 13:11:48 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.175.166])
+        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Mon, 19 Dec 2022 13:11:48 +0000 (GMT)
+Message-ID: <6348a26f165c27c562db48eb39b04417cbe1380c.camel@linux.ibm.com>
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     "Guozihua (Scott)" <guozihua@huawei.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     dmitry.kasatkin@gmail.com, sds@tycho.nsa.gov,
+        eparis@parisplace.org, Greg KH <gregkh@linuxfoundation.org>,
+        sashal@kernel.org, selinux@vger.kernel.org,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        stable@vger.kernel.org
+Date:   Mon, 19 Dec 2022 08:11:48 -0500
+In-Reply-To: <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+         <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+         <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+         <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
+         <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
+         <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
+         <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
+         <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
+         <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
+         <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
+         <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
+         <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
 Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
-Message-ID: <20221219085336.391225-1-inseob@google.com>
-Subject: [PATCH] libselinux: Workaround for heap overhead of pcre
-From:   Inseob Kim <inseob@google.com>
-To:     selinux@vger.kernel.org
-Cc:     Inseob Kim <inseob@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Amv06k9OtLUp96ONYuzQNEdbPO-IKNK3
+X-Proofpoint-ORIG-GUID: JDSlwQ3HQPtBFR7CoLs4wZH2Qe5GKoWd
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2022-12-19_01,2022-12-15_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ spamscore=0 mlxscore=0 mlxlogscore=999 clxscore=1015 phishscore=0
+ malwarescore=0 suspectscore=0 impostorscore=0 lowpriorityscore=0
+ adultscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2212190115
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-pcre's behavior is changed so that pcre2_match always allocates heap for
-match_data, rather than stack, regardless of size. The heap isn't freed
-until explicitly calling pcre2_match_data_free. This new behavior may
-result in heap overhead, which may increase the peak memory usage about
-a few megabytes. It's because regex_match is first called for regex_data
-objects, and then regex_data objects are freed at once.
+On Mon, 2022-12-19 at 15:10 +0800, Guozihua (Scott) wrote:
+> On 2022/12/16 11:04, Paul Moore wrote:
+> > On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
+> >> On 2022/12/16 5:04, Paul Moore wrote:
+> > 
+> > ...
+> > 
+> >>> How bad is the backport really?  Perhaps it is worth doing it to see
+> >>> what it looks like?
+> >>>
+> >> It might not be that bad, I'll try to post a version next Monday.
+> > 
+> > Thanks for giving it a shot.
+> > 
+> When I am trying a partial backport of b16942455193 ("ima: use the lsm
+> policy update notifier"), I took a closer look into it and if we rip off
+> the RCU and the notifier part, there would be a potential UAF issue when
+> multiple processes are calling ima_lsm_update_rule() and
+> ima_match_rules() at the same time. ima_lsm_update_rule() would free the
+> old rule if the new rule is successfully copied and initialized, leading
+> to ima_match_rules() accessing a freed rule.
+> 
+> To reserve the mainline solution, we would have to either introduce RCU
+> for rule access, which would work better with notifier mechanism or the
+> same rule would be updated multiple times, or we would have to introduce
+> a lock for LSM based rule update.
 
-To workaround it, free and reallocate match_data whenever we call
-regex_match. It's fine because libselinux currently doesn't use
-match_data, but use only the return value.
+Even with the RCU changes, the rules will be updated multiple times. 
+With your "ima: Handle -ESTALE returned by ima_filter_rule_match()"
+patch, upstream makes a single local copy of the rule to avoid updating
+it multiple times.  Without the notifier, it's updating all the rules.
 
-Signed-off-by: Inseob Kim <inseob@google.com>
----
- libselinux/src/regex.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Perhaps an atomic variable to detect if the rules are already being
+updated would suffice.  If the atomic variable is set, make a single
+local copy of the rule.
 
-diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-index 149a7973..2df282f1 100644
---- a/libselinux/src/regex.c
-+++ b/libselinux/src/regex.c
-@@ -213,10 +213,20 @@ void regex_data_free(struct regex_data *regex)
- int regex_match(struct regex_data *regex, char const *subject, int partial)
- {
- 	int rc;
-+	pcre2_match_data *new_match_data;
- 	__pthread_mutex_lock(&regex->match_mutex);
-+	new_match_data = pcre2_match_data_create_from_pattern(
-+	    regex->regex, NULL);
- 	rc = pcre2_match(
- 	    regex->regex, (PCRE2_SPTR)subject, PCRE2_ZERO_TERMINATED, 0,
- 	    partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data, NULL);
-+	// pcre2_match allocates heap and it won't be freed until
-+	// pcre2_match_data_free, resulting in heap overhead.
-+	// Reallocate match_data to prevent such overhead, whenever possible.
-+	if (new_match_data) {
-+		pcre2_match_data_free(regex->match_data);
-+		regex->match_data = new_match_data;
-+	}
- 	__pthread_mutex_unlock(&regex->match_mutex);
- 	if (rc > 0)
- 		return REGEX_MATCH;
 -- 
-2.39.0.314.g84b9a713c41-goog
+thanks,
+
+Mimi
+
 
