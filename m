@@ -2,144 +2,89 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D309C4332F
-	for <selinux@archiver.kernel.org>; Fri, 16 Dec 2022 22:13:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6883C4332F
+	for <selinux@archiver.kernel.org>; Mon, 19 Dec 2022 07:11:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229650AbiLPWNB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Dec 2022 17:13:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47722 "EHLO
+        id S231234AbiLSHLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 19 Dec 2022 02:11:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229884AbiLPWM6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Dec 2022 17:12:58 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A70027CF5
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 14:12:49 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id a16so5493989edb.9
-        for <selinux@vger.kernel.org>; Fri, 16 Dec 2022 14:12:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=JpgvCx4i8zTFKySjwG0E+29NRAeHamIpelEtp6TsBys=;
-        b=EsYpqgQwGyLJhd5xaE2mJBhEPyPk5ClsbgYvQs+aRuUav/Qb9nA/lwn+/2OcF2PZ6B
-         azpXz02NgnUiTW0oqepiPlxTAf94/H5E0EupIQtw8W5hdODFkBaxd795jwnq/TezIDFp
-         Ki7xny7poLbE64wEkHQQYn+Dk4/R+RJsx1qKodcNp2IuelMguJdKM4zPKkc742IScIYg
-         7DE5vVafC+WN8PpZZwbfUR1HAPgE792HzcrZZSODiQupWRkU+LccOs6bIQiivfkhLPqX
-         eelpb/jHph7HSAqk2XQocplm9Q6EN0eG9AGeIsTB+dFobjO6i+HQ37qpuWY9pbBT+/g+
-         Rs0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JpgvCx4i8zTFKySjwG0E+29NRAeHamIpelEtp6TsBys=;
-        b=YRnedSPw58SIhGvDs3bUxd8lIR//zKjHNSuH+vuHPx0uFG3mHQG9Vi90t2eOmlNq7o
-         M6wFDReeRZrxYtnF3auv4JMo9RRnLCjDlGurx0f193A2NyKoMmQkuXMLSSueBbw3tNze
-         clBNU8VF44/hRo6kZ72f8oc8ADfsaN+yuzp5YKJ04bOnGs8x96FU4TTwDOlg2PAXUGze
-         djAR8K8MWt3dLvsj0XZDN153YwWo8nsFHoOH4dQ11WNzsgv7kNUAlUxAYzIpx9BV1AEK
-         g2ijPqhHmCdSx6gSTq03MFi4wbHTCVhEfPqe5weTfQUM6eAxM1s313HrIAe240VKrSxg
-         /6YQ==
-X-Gm-Message-State: ANoB5plcI5SeCpjU32ImUyJGEaBk9t00EaX0ikv9nNdh8P+WAFAtfZuT
-        jREOmynXtm6O8M5Ip4l75XvzIT84rk2pOz9/1fgVhhBXg6Q=
-X-Google-Smtp-Source: AA0mqf5h5Vul0/5Hev1pO/Cfnbi1Xsk3M/+R1RbW0EEyBblcpo5EnFK2xfMDfb67G7TlDTpmjgiIxMG98a5dbR/WXfM=
-X-Received: by 2002:a50:fe8d:0:b0:461:9183:834b with SMTP id
- d13-20020a50fe8d000000b004619183834bmr72257515edt.196.1671228767568; Fri, 16
- Dec 2022 14:12:47 -0800 (PST)
+        with ESMTP id S229473AbiLSHK7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 19 Dec 2022 02:10:59 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3B5114E;
+        Sun, 18 Dec 2022 23:10:58 -0800 (PST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Nb9nd1WbMzJqWl;
+        Mon, 19 Dec 2022 15:09:57 +0800 (CST)
+Received: from [10.67.110.173] (10.67.110.173) by
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.34; Mon, 19 Dec 2022 15:10:55 +0800
+Message-ID: <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
+Date:   Mon, 19 Dec 2022 15:10:55 +0800
 MIME-Version: 1.0
-References: <20221129163250.475549-1-lautrbach@redhat.com>
-In-Reply-To: <20221129163250.475549-1-lautrbach@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 16 Dec 2022 17:12:36 -0500
-Message-ID: <CAP+JOzS5tx4G5y=hOAk8BSOyW-S06-vWoT00zhb2BNTsZtjn-g@mail.gmail.com>
-Subject: Re: [PATCH v2] Use `pip install` instead of `setup.py install`
-To:     Petr Lautrbach <lautrbach@redhat.com>
-Cc:     selinux@vger.kernel.org
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.2
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>
+CC:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@gmail.com>,
+        <sds@tycho.nsa.gov>, <eparis@parisplace.org>,
+        Greg KH <gregkh@linuxfoundation.org>, <sashal@kernel.org>,
+        <selinux@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+ <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+ <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+ <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
+ <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
+ <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
+ <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
+ <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
+ <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
+ <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
+ <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
+From:   "Guozihua (Scott)" <guozihua@huawei.com>
+In-Reply-To: <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.110.173]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500024.china.huawei.com (7.185.36.203)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 29, 2022 at 11:40 AM Petr Lautrbach <lautrbach@redhat.com> wrote:
->
-> Fixes:
->     /usr/lib/python3.11/site-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+On 2022/12/16 11:04, Paul Moore wrote:
+> On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
+>> On 2022/12/16 5:04, Paul Moore wrote:
+> 
+> ...
+> 
+>>> How bad is the backport really?  Perhaps it is worth doing it to see
+>>> what it looks like?
+>>>
+>> It might not be that bad, I'll try to post a version next Monday.
+> 
+> Thanks for giving it a shot.
+> 
+When I am trying a partial backport of b16942455193 ("ima: use the lsm
+policy update notifier"), I took a closer look into it and if we rip off
+the RCU and the notifier part, there would be a potential UAF issue when
+multiple processes are calling ima_lsm_update_rule() and
+ima_match_rules() at the same time. ima_lsm_update_rule() would free the
+old rule if the new rule is successfully copied and initialized, leading
+to ima_match_rules() accessing a freed rule.
 
-I made a mess of this. I merged the earlier patch by mistake, that has
-been reverted and this version merged.
+To reserve the mainline solution, we would have to either introduce RCU
+for rule access, which would work better with notifier mechanism or the
+same rule would be updated multiple times, or we would have to introduce
+a lock for LSM based rule update.
 
-Acked-by: James Carter <jwcart2@gmail.com>
-and merged.
+-- 
+Best
+GUO Zihua
 
-Thanks,
-Jim
-
-> ---
->  README.md                | 8 +++++++-
->  libselinux/src/Makefile  | 2 +-
->  python/sepolicy/Makefile | 2 +-
->  3 files changed, 9 insertions(+), 3 deletions(-)
->
-> diff --git a/README.md b/README.md
-> index 529b7e46c871..c272ce89fec5 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -62,6 +62,9 @@ dnf install \
->  # For Python and Ruby bindings
->  dnf install \
->      python3-devel \
-> +    python3-pip \
-> +    python3-setuptools \
-> +    python3-wheel \
->      ruby-devel \
->      swig
->  ```
-> @@ -92,6 +95,9 @@ apt-get install --no-install-recommends --no-install-suggests \
->  # For Python and Ruby bindings
->  apt-get install --no-install-recommends --no-install-suggests \
->      python3-dev \
-> +    python3-pip \
-> +    python3-setuptools \
-> +    python3-wheel \
->      ruby-dev \
->      swig
->  ```
-> @@ -102,7 +108,7 @@ To build and install everything under a private directory, run:
->
->      make DESTDIR=~/obj install install-rubywrap install-pywrap
->
-> -On Debian `PYTHON_SETUP_ARGS=--install-layout=deb` needs to be set when installing the python wrappers in order to create the correct python directory structure.
-> +On Debian `PYTHON_SETUP_ARGS='--install-option "--install-layout=deb"'` needs to be set when installing the python wrappers in order to create the correct python directory structure.
->
->  To run tests with the built libraries and programs, several paths (relative to `$DESTDIR`) need to be added to variables `$LD_LIBRARY_PATH`, `$PATH` and `$PYTHONPATH`.
->  This can be done using [./scripts/env_use_destdir](./scripts/env_use_destdir):
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index dc2848322e4d..0f6396ababa4 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -187,7 +187,7 @@ install: all
->         ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
->
->  install-pywrap: pywrap
-> -       $(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS)
-> +       $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS) .
->         install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
->         ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
->
-> diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-> index d983e409e5e6..57a2e55edbbf 100644
-> --- a/python/sepolicy/Makefile
-> +++ b/python/sepolicy/Makefile
-> @@ -27,7 +27,7 @@ test:
->         @$(PYTHON) test_sepolicy.py -v
->
->  install:
-> -       $(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS)
-> +       $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTHON_SETUP_ARGS) .
->         [ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
->         install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
->         (cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
-> --
-> 2.38.1
->
