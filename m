@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 585CBC4332F
-	for <selinux@archiver.kernel.org>; Mon, 19 Dec 2022 17:55:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87658C4332F
+	for <selinux@archiver.kernel.org>; Mon, 19 Dec 2022 18:01:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231520AbiLSRzr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 19 Dec 2022 12:55:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60378 "EHLO
+        id S231923AbiLSSBR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 19 Dec 2022 13:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231702AbiLSRzp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 19 Dec 2022 12:55:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D251275A
-        for <selinux@vger.kernel.org>; Mon, 19 Dec 2022 09:55:00 -0800 (PST)
+        with ESMTP id S231831AbiLSSBQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 19 Dec 2022 13:01:16 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A2012AA3
+        for <selinux@vger.kernel.org>; Mon, 19 Dec 2022 10:00:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1671472500;
+        s=mimecast20190719; t=1671472832;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
         bh=s8EQJBe1ACqmTPnCsFrmQTUM9ZhpffhytSBj2Oj+XKs=;
-        b=V9MP4LwarrmyxwOq+4kjHcQbatjmSbvoU6cS4rkRK1ECHqJ29gmEryUffHAAvJY2o7uiPF
-        wtCgh+wI141i1AHAfyRsCmetC0NpEdkbx63xvLAEnyb0QO3N1LO7roaoQ4b4JQE2yARbsR
-        eWxT1YDlNbhRqll/AIpysm5EBfKZ9MQ=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        b=Kjuzgg7C15/Dzix8cbU3FVOzmXgx1FAPodgs2oGfS8uIejtktdH1mKA47YHLN+LlBsOfTl
+        IMRslRTjeuNLvmCCmAaodM7aV5XWhlaMXGe5INZwJKV8l/u0Id/rBlPZT+7gXIIQzP/39V
+        xQZt7a1u+dUJ5UR7YpEZhGL3g2zYdJ4=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-142-xCpc2UfdOPaMi8BSBhQr_g-1; Mon, 19 Dec 2022 12:54:56 -0500
-X-MC-Unique: xCpc2UfdOPaMi8BSBhQr_g-1
-Received: by mail-ed1-f70.google.com with SMTP id q10-20020a056402518a00b00472a255eef7so7078324edd.15
-        for <selinux@vger.kernel.org>; Mon, 19 Dec 2022 09:54:56 -0800 (PST)
+ us-mta-427-E21r97ccOlW3f7jUAIOCgg-1; Mon, 19 Dec 2022 13:00:30 -0500
+X-MC-Unique: E21r97ccOlW3f7jUAIOCgg-1
+Received: by mail-ej1-f71.google.com with SMTP id ga21-20020a1709070c1500b007c171be7cd7so6708185ejc.20
+        for <selinux@vger.kernel.org>; Mon, 19 Dec 2022 10:00:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
         bh=s8EQJBe1ACqmTPnCsFrmQTUM9ZhpffhytSBj2Oj+XKs=;
-        b=fc1TVSHoidYd0v9k2kEEUlWzVw6koSWQBBdioWZuqrT56JMo3Lyk9TYPhxdSQslqcz
-         kMDtWyNDUNaBHzMbChVzfxzARnC/EZQy3nrSQsgBejyv7xFS11No/ttzr7j84gARasrE
-         psiTmUkse0zWd0RIdSOsa02a1N4S8eKDbO7tGtgqLGxgkP1w7WEBsYcm1Dp0koWxiQn6
-         cC3WiOBN6cA5NFwf+upbgqdF+VqhKJ+6RGb0HGTpR585rR0yXkQdVD5+T5cN0o8KKAcU
-         0Z30YqHPy7qOcumxoSt8MSy9oWUz1/APJPi7XVbcvYuBDrWKd2xRPMJyumk5yNijLN+F
-         ybqQ==
-X-Gm-Message-State: ANoB5pmLovUVO8ADyciB8xO7oIJy28pcJxZAOFkkVRUAEKHuaqugawVE
-        m2FlV8KwsSHqYbog+KugWaAzsXLqKmdpCzAMZjAozadLdcAX9R1SP3UvKuasomg7ilJXndATukR
-        iOQ8zk3DIaIDQrFhP6w==
-X-Received: by 2002:a17:906:698f:b0:7ad:d250:b903 with SMTP id i15-20020a170906698f00b007add250b903mr48341352ejr.56.1671472494474;
-        Mon, 19 Dec 2022 09:54:54 -0800 (PST)
-X-Google-Smtp-Source: AA0mqf6YLtenQUjr2R0cuTQaiwIA9ywz+DM8e52twvcfKvsLPFUnaFvMUzZOwGwHSPNzGMgA0eMYNg==
-X-Received: by 2002:a17:906:698f:b0:7ad:d250:b903 with SMTP id i15-20020a170906698f00b007add250b903mr48341337ejr.56.1671472494319;
-        Mon, 19 Dec 2022 09:54:54 -0800 (PST)
+        b=zNJAmc7JrdgrvRW1ru3DV58kNObMmAeYAGFqk3DXNUpTbT+DlMlGO8WPZoBNn/Jf0x
+         0ezasJIkxNb5EaJYL2xAFGxanFo7k5NjQOyfwD8cLOZySuVkaSdFrHkY/g12aeWkdz66
+         1ybVTpKgNHjQc8RnLszjN9dMtjcSAPl3HxFV+suC7WuiA+n7rbLN3ni8Ffz/WHS0c1lL
+         CEhJQkJsXBd3sdUm/EF3k9LOrSm+XxLRsKQEzktrnmCyHvI7f/IuRJ3dnZEtNKHIqeBp
+         VGBiTNprg0vytK3mM15IhMX/W9zIOAvPwGe/pE3JZxQoxi4QHM8y4o4BM6ywKoXlU/A/
+         HJvw==
+X-Gm-Message-State: ANoB5pn7ReniHCGp+EGSMa2sLNOCKtirlE6nG6b7yCW7V2B8mPYK4S5V
+        O0dF2X8fVX0Cc6SD1JBajJeCU4IYB6Wn2E/MM0Zzelf+ZEA7PptJOcrXbL6dNd99dG+BvJnjmx3
+        fHsZ2sKSzTj8frZ6Q5A==
+X-Received: by 2002:a05:6402:298d:b0:461:f201:2d98 with SMTP id eq13-20020a056402298d00b00461f2012d98mr35963078edb.3.1671472828486;
+        Mon, 19 Dec 2022 10:00:28 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf7KkflOA+3xNI2cHDSL2Wzqd0L+IZLZJ5X6VVkcBD2gXVdodOoGPOMw9OuQAoXWPxwDNfJD2g==
+X-Received: by 2002:a05:6402:298d:b0:461:f201:2d98 with SMTP id eq13-20020a056402298d00b00461f2012d98mr35963062edb.3.1671472828306;
+        Mon, 19 Dec 2022 10:00:28 -0800 (PST)
 Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
-        by smtp.gmail.com with ESMTPSA id g4-20020a1709063b0400b007bdc2de90e6sm4604210ejf.42.2022.12.19.09.54.53
+        by smtp.gmail.com with ESMTPSA id b10-20020a056402278a00b0046bb7503d9asm4617691ede.24.2022.12.19.10.00.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Dec 2022 09:54:53 -0800 (PST)
+        Mon, 19 Dec 2022 10:00:27 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     Paul Moore <paul@paul-moore.com>
 Cc:     selinux@vger.kernel.org, linux-audit@redhat.com,
@@ -63,12 +63,12 @@ Cc:     selinux@vger.kernel.org, linux-audit@redhat.com,
         Peter Enderborg <peter.enderborg@sony.com>,
         Michal Sekletar <msekleta@redhat.com>,
         Zdenek Pytela <zpytela@redhat.com>
-Subject: [PATCH 1/2] audit: introduce a struct to represent an audit timestamp
-Date:   Mon, 19 Dec 2022 18:54:48 +0100
-Message-Id: <20221219175449.1657640-2-omosnace@redhat.com>
+Subject: [PATCH RESEND 1/2] audit: introduce a struct to represent an audit timestamp
+Date:   Mon, 19 Dec 2022 19:00:23 +0100
+Message-Id: <20221219180024.1659268-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221219175449.1657640-1-omosnace@redhat.com>
-References: <20221219175449.1657640-1-omosnace@redhat.com>
+In-Reply-To: <20221219180024.1659268-1-omosnace@redhat.com>
+References: <20221219180024.1659268-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
