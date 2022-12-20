@@ -2,187 +2,144 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B29AC4332F
-	for <selinux@archiver.kernel.org>; Tue, 20 Dec 2022 15:03:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0644DC4332F
+	for <selinux@archiver.kernel.org>; Tue, 20 Dec 2022 15:42:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233657AbiLTPDC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 20 Dec 2022 10:03:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52586 "EHLO
+        id S233632AbiLTPmF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Dec 2022 10:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234220AbiLTPCy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 20 Dec 2022 10:02:54 -0500
-Received: from mail-vk1-xa34.google.com (mail-vk1-xa34.google.com [IPv6:2607:f8b0:4864:20::a34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293B4301
-        for <selinux@vger.kernel.org>; Tue, 20 Dec 2022 07:02:53 -0800 (PST)
-Received: by mail-vk1-xa34.google.com with SMTP id i5so1998319vkg.6
-        for <selinux@vger.kernel.org>; Tue, 20 Dec 2022 07:02:53 -0800 (PST)
+        with ESMTP id S233741AbiLTPlw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Dec 2022 10:41:52 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 898B018B37
+        for <selinux@vger.kernel.org>; Tue, 20 Dec 2022 07:41:42 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id jo4so21205611ejb.7
+        for <selinux@vger.kernel.org>; Tue, 20 Dec 2022 07:41:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oWJHW0WunIz9rQ+EZwK/jtbE4CsBUxWxNF39nZt4DV0=;
-        b=I3c6m0C9X+nxQXG1Eiel54bZMsz0e5fD1BnuQn8tmGFGV7UZSzHzi6MQMhOLIvoL4s
-         AGhjV86ThUBZZ5UuJRy0Vn3gsN4YswiQKp4LfLxrX1KydHKYT09rQaA2TJp8kB9o/ccl
-         qdGJ10J287ssfplluFCbfIsDqTqtuR+4T28qm/veiwpojZrsJiGXFZq/4DtCjD9pmHNU
-         hT5b6c5G9wB7EXsRuhZ8Wikdbs51tJJfSo7VEkbdwWvF7jo+pKseXzoq2vpQkC8GOUrl
-         20jGoWXwTtShadfR5a136R02EZUtvEsLF7Z+YNh5vqYgHI2pdTDaHapNvd9gUc+/sf80
-         yLiQ==
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=NPgUuxwg8Egj4RTaVdGwysZX/vzJs/Q2lLf0sxIKtNQ=;
+        b=oWwn6zuFIDANiW5SWbp4kmf+SivShXAKXYXN/c1pDLovdGxgDcI3Muu+4FBCOvPrB5
+         VIejOvvFYGGXWgXY/0Ma1ahsBnv+1P6ggPOaO2jiKdElJCCTH/TluoJyAVH8JwIoLuzV
+         GgMxYbevM5JWC54+3NbVs+PArxSUyrLESsuOr5rrCg1GJH7SFbnTO7bjk+H9XvM+/wS9
+         K18ZN7uX6taqA/8PXa7wTTJSxGVcxYnCyXYvJNsxVnmFCbZThE+4kdSxJL8A+JsDb+g9
+         rJ37E7YaCx3ur5qvzScXteQu3kgswFWZEmrFJ2eGFABTFoFtzcSodE35c+zmeBREfvLm
+         FM3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=oWJHW0WunIz9rQ+EZwK/jtbE4CsBUxWxNF39nZt4DV0=;
-        b=ZLu4+eBEsPeYS1xyseBTybYuPuEPzxTzwshhf67RJ3MfQSrB7ebDFO9vnRsvBfmWE5
-         Dq5z+mGpIgkubXAa0dMMd3R25vdm9gmTIEXUCv96WcNe3T69xa8nqNv+yvvmUb2PZ+/U
-         2pyl0YwR5nOHQEVpWT68V5stAIp7ix6SBwJLnoK3dS83F11gGR/4fuRlSeNw6wTy4fGR
-         rENHYjCQ/ugZ+YrjOtbm0r/ZyH+kBqfzNj1m3ajsSZvJeS4y3Qw0DCm90paBM/ym5erK
-         /1HkmDgK8G2oZ9uASKAlZSvXA6XH3J7CUD6UCBQMiiAjUuOBiU2Vnc700VfQ4NG03/YG
-         XBqA==
-X-Gm-Message-State: AFqh2kqhI3Im37SNt3OgChbbysXpBcaoU+nYdzCK3d3XQ8ahv13AIZl1
-        RnkGOHEZ2/5W86LN+ZwWkRVPtePvNHPHttIbjGo=
-X-Google-Smtp-Source: AMrXdXsuKaeNipMxyCsPPinX6W+tCmG3CNDFzOBPgrX+dgdFyZb1MFeP1GLvAvZ3j31FhMZMQIzbOmQ2B7TgCtETpYE=
-X-Received: by 2002:a1f:a882:0:b0:3d1:fbb0:9e97 with SMTP id
- r124-20020a1fa882000000b003d1fbb09e97mr967878vke.41.1671548572143; Tue, 20
- Dec 2022 07:02:52 -0800 (PST)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NPgUuxwg8Egj4RTaVdGwysZX/vzJs/Q2lLf0sxIKtNQ=;
+        b=euNhqs+eVUKR4IXH1bB/IL9KxrvHiYRfRMWI6V/SgZoiv0sXOzPQjAJHXJhov7W5hV
+         1qMsBZXju7IDZDmavYtfGYJfhH6NsTu2a20XNpvcJnhEU2ndRttK1903n8pLyfYk5Kfc
+         qoXijTqZDAog/Sh+d7MNqRP/oz+LRyVyPWI+Y55dAHyjvrJiq2ksDgPyXt0hV7y+0CAp
+         3KAHLW9AVCcGtmNGEo/dNpEuDdmtrWjs4q950Rk+NVbCgmx2VjrwUNaJ2SNW2WE311wh
+         V0VcEZD2ju2c3qbuOxdchaD/wY0yDO5ZMXgGwnmWwP06kBounJVBxNAJYJk1thAN9emv
+         Ahog==
+X-Gm-Message-State: ANoB5pnR5RQmCs6WqZqMcm0UTjWZNgV2wtWS+NJRrNpngt3Q0gFrXREK
+        y64aZRcTuooFg4q0Lxi/2ZhewPWXNb+mDQ==
+X-Google-Smtp-Source: AA0mqf6HhM5Mhc8AIxpipni6bIzDjCWx/8mt6f20EJagOGEqPB7fWeNCJbGVqXz6s4hjsEznjudy0A==
+X-Received: by 2002:a17:906:4995:b0:7c1:808e:7660 with SMTP id p21-20020a170906499500b007c1808e7660mr29869351eju.43.1671550901415;
+        Tue, 20 Dec 2022 07:41:41 -0800 (PST)
+Received: from debianHome.localdomain (dynamic-077-008-176-092.77.8.pool.telefonica.de. [77.8.176.92])
+        by smtp.gmail.com with ESMTPSA id e22-20020a17090681d600b007c0d0dad9c6sm5861653ejx.108.2022.12.20.07.41.40
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Dec 2022 07:41:41 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol: reject attributes in type av rules for kernel policies
+Date:   Tue, 20 Dec 2022 16:41:34 +0100
+Message-Id: <20221220154134.25652-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-References: <20221219085336.391225-1-inseob@google.com>
-In-Reply-To: <20221219085336.391225-1-inseob@google.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 20 Dec 2022 16:02:40 +0100
-Message-ID: <CAJ2a_Det=myaFheMGMcAXK4cbs3cV5toyNW459coDRZiCGWcbA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Workaround for heap overhead of pcre
-To:     Inseob Kim <inseob@google.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 19 Dec 2022 at 09:53, Inseob Kim <inseob@google.com> wrote:
->
-> pcre's behavior is changed so that pcre2_match always allocates heap for
-> match_data, rather than stack, regardless of size. The heap isn't freed
-> until explicitly calling pcre2_match_data_free. This new behavior may
-> result in heap overhead, which may increase the peak memory usage about
-> a few megabytes. It's because regex_match is first called for regex_data
-> objects, and then regex_data objects are freed at once.
+The kernel does not support type attributes as source or target in type
+av rules (type_transition, type_member, type_change)[1].  Such rules
+should have been expanded[2].
 
-This approach trades peak memory usage for temporary allocations,
-which effects runtime performance.  On modern systems memory is most
-of the time not a scarce resource.
+[1]: https://github.com/SELinuxProject/selinux-kernel/blob/abe3c631447dcd1ba7af972fe6f054bee6f136fa/security/selinux/ss/services.c#L1843
+[2]: https://github.com/SELinuxProject/selinux/blob/0a8c177dacdc1df96ea11bb8aa75e16c4fa82285/libsepol/src/expand.c#L1981
 
-Some examples:
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/policydb_validate.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-# selabel_lookup -b file -k /etc/shadow -t file [heaptrack]
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 521ea4ff..469c14f4 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -770,12 +770,20 @@ bad:
+  * Functions to validate a kernel policydb
+  */
+ 
+-static int validate_avtab_key(const avtab_key_t *key, int conditional, validate_t flavors[])
++static int validate_avtab_key(const avtab_key_t *key, int conditional, const policydb_t *p, validate_t flavors[])
+ {
+-	if (validate_value(key->source_type, &flavors[SYM_TYPES]))
+-		goto bad;
+-	if (validate_value(key->target_type, &flavors[SYM_TYPES]))
+-		goto bad;
++	if (p->policy_type == POLICY_KERN && key->specified & AVTAB_TYPE) {
++		if (validate_simpletype(key->source_type, p, flavors))
++			goto bad;
++		if (validate_simpletype(key->target_type, p, flavors))
++			goto bad;
++	} else {
++		if (validate_value(key->source_type, &flavors[SYM_TYPES]))
++			goto bad;
++		if (validate_value(key->target_type, &flavors[SYM_TYPES]))
++			goto bad;
++	}
++
+ 	if (validate_value(key->target_class, &flavors[SYM_CLASSES]))
+ 		goto bad;
+ 	switch (0xFFF & key->specified) {
+@@ -821,7 +829,7 @@ static int validate_avtab_key_and_datum(avtab_key_t *k, avtab_datum_t *d, void *
+ {
+ 	map_arg_t *margs = args;
+ 
+-	if (validate_avtab_key(k, 0, margs->flavors))
++	if (validate_avtab_key(k, 0, margs->policy, margs->flavors))
+ 		return -1;
+ 
+ 	if ((k->specified & AVTAB_TYPE) && validate_simpletype(d->data, margs->policy, margs->flavors))
+@@ -845,13 +853,13 @@ static int validate_avtab(sepol_handle_t *handle, const avtab_t *avtab, const po
+ 	return 0;
+ }
+ 
+-static int validate_cond_av_list(sepol_handle_t *handle, const cond_av_list_t *cond_av, validate_t flavors[])
++static int validate_cond_av_list(sepol_handle_t *handle, const cond_av_list_t *cond_av, const policydb_t *p, validate_t flavors[])
+ {
+ 	const struct avtab_node *avtab_ptr;
+ 
+ 	for (; cond_av; cond_av = cond_av->next) {
+ 		for (avtab_ptr = cond_av->node; avtab_ptr; avtab_ptr = avtab_ptr->next) {
+-			if (validate_avtab_key(&avtab_ptr->key, 1, flavors)) {
++			if (validate_avtab_key(&avtab_ptr->key, 1, p, flavors)) {
+ 				ERR(handle, "Invalid cond av list");
+ 				return -1;
+ 			}
+@@ -996,9 +1004,9 @@ static int validate_cond_list(sepol_handle_t *handle, const cond_list_t *cond, c
+ 	for (; cond; cond = cond->next) {
+ 		if (validate_cond_expr(handle, cond->expr, &flavors[SYM_BOOLS]))
+ 			goto bad;
+-		if (validate_cond_av_list(handle, cond->true_list, flavors))
++		if (validate_cond_av_list(handle, cond->true_list, p, flavors))
+ 			goto bad;
+-		if (validate_cond_av_list(handle, cond->false_list, flavors))
++		if (validate_cond_av_list(handle, cond->false_list, p, flavors))
+ 			goto bad;
+ 		if (validate_avrules(handle, cond->avtrue_list, 1, p, flavors))
+ 			goto bad;
+-- 
+2.39.0
 
-## current
-
-total runtime: 0.07s.
-calls to allocation functions: 28420 (406000/s)
-temporary memory allocations: 16 (228/s)
-peak heap memory consumption: 10.09M
-peak RSS (including heaptrack overhead): 21.27M
-total memory leaked: 1.02K
-
-## proposed
-
-total runtime: 0.06s.
-calls to allocation functions: 23430 (366093/s)
-temporary memory allocations: 675 (10546/s)
-peak heap memory consumption: 9.48M
-peak RSS (including heaptrack overhead): 18.59M
-total memory leaked: 1.02K
-
-# restorecon -vRn /etc [heaptrack]
-
-## current
-
-total runtime: 0.14s.
-calls to allocation functions: 33873 (236874/s)
-temporary memory allocations: 1877 (13125/s)
-peak heap memory consumption: 10.09M
-peak RSS (including heaptrack overhead): 21.58M
-total memory leaked: 1.90K
-
-## proposed
-
-total runtime: 0.27s.
-calls to allocation functions: 378762 (1423917/s)
-temporary memory allocations: 351487 (1321379/s)
-peak heap memory consumption: 9.48M
-peak RSS (including heaptrack overhead): 20.99M
-total memory leaked: 1.90K
-
-
-# restorecon -vRn /usr [hyperfine]
-
-## current
-
-restorecon -vRn /usr
-Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
-  Time (mean =C2=B1 =CF=83):     24.419 s =C2=B1  0.661 s    [User: 23.480 =
-s, System: 0.922 s]
-  Range (min =E2=80=A6 max):   23.399 s =E2=80=A6 25.495 s    10 runs
-
-## proposed
-
-restorecon -vRn /usr
-Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
-  Time (mean =C2=B1 =CF=83):     28.628 s =C2=B1  0.968 s    [User: 27.688 =
-s, System: 0.927 s]
-  Range (min =E2=80=A6 max):   27.674 s =E2=80=A6 30.798 s    10 runs
-
-
-So I would argue the performance impact for applications (like
-setfiles, restorecon) or daemon (like systemd, udev) is more critical
-than the 500K per application.
-
-> To workaround it, free and reallocate match_data whenever we call
-> regex_match. It's fine because libselinux currently doesn't use
-> match_data, but use only the return value.
->
-> Signed-off-by: Inseob Kim <inseob@google.com>
-> ---
->  libselinux/src/regex.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
->
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index 149a7973..2df282f1 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -213,10 +213,20 @@ void regex_data_free(struct regex_data *regex)
->  int regex_match(struct regex_data *regex, char const *subject, int parti=
-al)
->  {
->         int rc;
-> +       pcre2_match_data *new_match_data;
->         __pthread_mutex_lock(&regex->match_mutex);
-> +       new_match_data =3D pcre2_match_data_create_from_pattern(
-> +           regex->regex, NULL);
-
-Should be checked for failure (cause pcre2_match() expects a non-NULL
-match_data, which would be passed the second time).
-
-Also with this change the member match_data of the struct regex_data
-becomes obsolete and should be removed.
-
->         rc =3D pcre2_match(
->             regex->regex, (PCRE2_SPTR)subject, PCRE2_ZERO_TERMINATED, 0,
->             partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data, NULL);
-> +       // pcre2_match allocates heap and it won't be freed until
-> +       // pcre2_match_data_free, resulting in heap overhead.
-> +       // Reallocate match_data to prevent such overhead, whenever possi=
-ble.
-> +       if (new_match_data) {
-> +               pcre2_match_data_free(regex->match_data);
-> +               regex->match_data =3D new_match_data;
-> +       }
->         __pthread_mutex_unlock(&regex->match_mutex);
->         if (rc > 0)
->                 return REGEX_MATCH;
-> --
-> 2.39.0.314.g84b9a713c41-goog
->
