@@ -2,322 +2,282 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8400AC4167B
-	for <selinux@archiver.kernel.org>; Wed, 21 Dec 2022 10:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71FD3C4332F
+	for <selinux@archiver.kernel.org>; Wed, 21 Dec 2022 14:19:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbiLUKvd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Dec 2022 05:51:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60718 "EHLO
+        id S229679AbiLUOTR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Dec 2022 09:19:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230238AbiLUKvc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Dec 2022 05:51:32 -0500
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9749C1902F;
-        Wed, 21 Dec 2022 02:51:30 -0800 (PST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4NcVWC63DzzqTDr;
-        Wed, 21 Dec 2022 18:47:03 +0800 (CST)
-Received: from [10.67.110.173] (10.67.110.173) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Wed, 21 Dec 2022 18:51:28 +0800
-Message-ID: <578081a5-9ddd-b9bd-002d-f4f14bee79a3@huawei.com>
-Date:   Wed, 21 Dec 2022 18:51:28 +0800
+        with ESMTP id S229472AbiLUOTP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Dec 2022 09:19:15 -0500
+Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A837F1836D
+        for <selinux@vger.kernel.org>; Wed, 21 Dec 2022 06:19:14 -0800 (PST)
+Received: by mail-vs1-xe2b.google.com with SMTP id 128so14807968vsz.12
+        for <selinux@vger.kernel.org>; Wed, 21 Dec 2022 06:19:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cmg0VYTQpLIEvtvgmzTWXCUqEsBD6TbYW7tLDrsYBlM=;
+        b=KnD4EHUAg3xmmE41+tS6F+VGjpINS2RSTmmHgsxUisJAmVfVlN+KMNiTT5CrZm6PIt
+         npqrFXTiNK7KmHmiQhm7GhViLW6nIoMPVe5g5bDnHNQRxn9Z3Nr8Dexz5J4EuTKlsTWE
+         SdXSMfRj2aUBC78PtKn7VFxrzqa1bxNlK04+WvJn2Xaux+1C9XB9HQsCfZKEDnzMisQe
+         oc8cwT/QZP3d//wPE+AQXKoOQoDSHe/8tWrQx30uQ6ODFI2X3876XYmXT8PXbHNOcAIB
+         fVZBkDw+RgPhkX/LnSWTNHRN6tiMl4ftw5WeB7BelYnbq3X7li+SwcmYOHqr/ynEw6tl
+         b+qA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cmg0VYTQpLIEvtvgmzTWXCUqEsBD6TbYW7tLDrsYBlM=;
+        b=LSWysiiLgdBl812p53IvjSqudGmsoCy52pUBppTN9O3BfZpVctFfrCzGIwVswJPPvA
+         5VbeUqQz7GuU4GjE1Q/4EVmlFi88hYc3AnghWfUY1FcHJoOVRcb3p8Hd+BfnazXijA5A
+         vUTsy+qaZF33N4kxhCk5vvOq935sz14IsEyu0ATwYaxCY+dhrWztrzCo9wjeZKtyaMcZ
+         eIAKE1fma2wTILEz2nK9iIPO9tO/qOJiYoOc6xuvIq02U01Xi97zPp6ZvlEYMgVHQ3lR
+         Y9dTthfJyKixs8hyJLnWkXqRM5BB2jOlnnkaWGb6JxVBPYTQTnhTFojYqwmZLfkl6Jki
+         FRHA==
+X-Gm-Message-State: AFqh2kojOazu9S0yuPgte2HprxDBPpRw0vkZ+Z0cBl6Kt0uiJyEl/CE1
+        I9N+6Mc2R3UoNMO6g+uZWgMVhdJri6UGTgxG6OsMVqdm+RaiYA==
+X-Google-Smtp-Source: AMrXdXuy2OLZu5MwnYWj5Vdziju0ht21L9GjELirLyIoYi0mktGJ5UgiouhRx/v/wYx0mscC2SDpxCc1+CrFWjOEJoQ=
+X-Received: by 2002:a67:b912:0:b0:3b1:29d1:3485 with SMTP id
+ q18-20020a67b912000000b003b129d13485mr263865vsn.20.1671632353499; Wed, 21 Dec
+ 2022 06:19:13 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.2
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-Content-Language: en-US
-From:   "Guozihua (Scott)" <guozihua@huawei.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, Paul Moore <paul@paul-moore.com>
-CC:     <dmitry.kasatkin@gmail.com>, <sds@tycho.nsa.gov>,
-        <eparis@parisplace.org>, Greg KH <gregkh@linuxfoundation.org>,
-        <sashal@kernel.org>, <selinux@vger.kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        <stable@vger.kernel.org>, luhuaxin <luhuaxin1@huawei.com>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
- <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
- <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
- <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
- <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
- <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
- <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
- <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
- <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
- <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
- <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
- <381efcb7-604f-7f89-e950-efc142350417@huawei.com>
- <6348a26f165c27c562db48eb39b04417cbe1380c.camel@linux.ibm.com>
- <944ea86a-2e6b-ce95-a6cb-fcf6b30ad78b@huawei.com>
-In-Reply-To: <944ea86a-2e6b-ce95-a6cb-fcf6b30ad78b@huawei.com>
+References: <20221219085336.391225-1-inseob@google.com> <CAJ2a_Det=myaFheMGMcAXK4cbs3cV5toyNW459coDRZiCGWcbA@mail.gmail.com>
+ <CA+QFDK=b4gR+Hz3XqQxaP8gPPixq1ppSOyNYpNaDw4Y8O0k+Xw@mail.gmail.com>
+In-Reply-To: <CA+QFDK=b4gR+Hz3XqQxaP8gPPixq1ppSOyNYpNaDw4Y8O0k+Xw@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Wed, 21 Dec 2022 15:19:02 +0100
+Message-ID: <CAJ2a_Dd5Cf0Bkbn-NPwkaqCX+BZcLvLfOv5v9UUrXY+cM+KMVg@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: Workaround for heap overhead of pcre
+To:     Inseob Kim <inseob@google.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.173]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2022/12/20 9:11, Guozihua (Scott) wrote:
-> On 2022/12/19 21:11, Mimi Zohar wrote:
->> On Mon, 2022-12-19 at 15:10 +0800, Guozihua (Scott) wrote:
->>> On 2022/12/16 11:04, Paul Moore wrote:
->>>> On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
->>>>> On 2022/12/16 5:04, Paul Moore wrote:
->>>>
->>>> ...
->>>>
->>>>>> How bad is the backport really?  Perhaps it is worth doing it to see
->>>>>> what it looks like?
->>>>>>
->>>>> It might not be that bad, I'll try to post a version next Monday.
->>>>
->>>> Thanks for giving it a shot.
->>>>
->>> When I am trying a partial backport of b16942455193 ("ima: use the lsm
->>> policy update notifier"), I took a closer look into it and if we rip off
->>> the RCU and the notifier part, there would be a potential UAF issue when
->>> multiple processes are calling ima_lsm_update_rule() and
->>> ima_match_rules() at the same time. ima_lsm_update_rule() would free the
->>> old rule if the new rule is successfully copied and initialized, leading
->>> to ima_match_rules() accessing a freed rule.
->>>
->>> To reserve the mainline solution, we would have to either introduce RCU
->>> for rule access, which would work better with notifier mechanism or the
->>> same rule would be updated multiple times, or we would have to introduce
->>> a lock for LSM based rule update.
->>
->> Even with the RCU changes, the rules will be updated multiple times. 
->> With your "ima: Handle -ESTALE returned by ima_filter_rule_match()"
->> patch, upstream makes a single local copy of the rule to avoid updating
->> it multiple times.  Without the notifier, it's updating all the rules.
-> That's true. However, in the mainline solution, we are only making a
-> local copy of the rule. In 4.19, because of the lazy update mechanism,
-> we are replacing the rule on the rule list multiple times and is trying
-> to free the original rule.
->>
->> Perhaps an atomic variable to detect if the rules are already being
->> updated would suffice.  If the atomic variable is set, make a single
->> local copy of the rule.
-> That should do it. I'll send a patch set soon.
-> 
-Including Huaxin Lu in the loop. Sorry for forgotten about it for quite
-some time.
+On Wed, 21 Dec 2022 at 03:53, Inseob Kim <inseob@google.com> wrote:
+>
+> On Wed, Dec 21, 2022 at 12:02 AM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > On Mon, 19 Dec 2022 at 09:53, Inseob Kim <inseob@google.com> wrote:
+> > >
+> > > pcre's behavior is changed so that pcre2_match always allocates heap =
+for
+> > > match_data, rather than stack, regardless of size. The heap isn't fre=
+ed
+> > > until explicitly calling pcre2_match_data_free. This new behavior may
+> > > result in heap overhead, which may increase the peak memory usage abo=
+ut
+> > > a few megabytes. It's because regex_match is first called for regex_d=
+ata
+> > > objects, and then regex_data objects are freed at once.
+> >
+> > This approach trades peak memory usage for temporary allocations,
+> > which effects runtime performance.  On modern systems memory is most
+> > of the time not a scarce resource.
+> >
+> > Some examples:
+> >
+> > # selabel_lookup -b file -k /etc/shadow -t file [heaptrack]
+> >
+> > ## current
+> >
+> > total runtime: 0.07s.
+> > calls to allocation functions: 28420 (406000/s)
+> > temporary memory allocations: 16 (228/s)
+> > peak heap memory consumption: 10.09M
+> > peak RSS (including heaptrack overhead): 21.27M
+> > total memory leaked: 1.02K
+> >
+> > ## proposed
+> >
+> > total runtime: 0.06s.
+> > calls to allocation functions: 23430 (366093/s)
+> > temporary memory allocations: 675 (10546/s)
+> > peak heap memory consumption: 9.48M
+> > peak RSS (including heaptrack overhead): 18.59M
+> > total memory leaked: 1.02K
+> >
+> > # restorecon -vRn /etc [heaptrack]
+> >
+> > ## current
+> >
+> > total runtime: 0.14s.
+> > calls to allocation functions: 33873 (236874/s)
+> > temporary memory allocations: 1877 (13125/s)
+> > peak heap memory consumption: 10.09M
+> > peak RSS (including heaptrack overhead): 21.58M
+> > total memory leaked: 1.90K
+> >
+> > ## proposed
+> >
+> > total runtime: 0.27s.
+> > calls to allocation functions: 378762 (1423917/s)
+> > temporary memory allocations: 351487 (1321379/s)
+> > peak heap memory consumption: 9.48M
+> > peak RSS (including heaptrack overhead): 20.99M
+> > total memory leaked: 1.90K
+> >
+> >
+> > # restorecon -vRn /usr [hyperfine]
+> >
+> > ## current
+> >
+> > restorecon -vRn /usr
+> > Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
+> >   Time (mean =C2=B1 =CF=83):     24.419 s =C2=B1  0.661 s    [User: 23.=
+480 s, System: 0.922 s]
+> >   Range (min =E2=80=A6 max):   23.399 s =E2=80=A6 25.495 s    10 runs
+> >
+> > ## proposed
+> >
+> > restorecon -vRn /usr
+> > Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
+> >   Time (mean =C2=B1 =CF=83):     28.628 s =C2=B1  0.968 s    [User: 27.=
+688 s, System: 0.927 s]
+> >   Range (min =E2=80=A6 max):   27.674 s =E2=80=A6 30.798 s    10 runs
+> >
+> >
+> > So I would argue the performance impact for applications (like
+> > setfiles, restorecon) or daemon (like systemd, udev) is more critical
+> > than the 500K per application.
+>
+> I observed about 3~4MB increase on Android device. Which pcre2 version
+> are you using? Does it include
+> https://github.com/PCRE2Project/pcre2/commit/d90fb238#diff-15ec3f4ed916f5=
+2c810daf305702985dda6d8d45e7ce22e2f309c95bd6ef32b7R74
+> ?
 
-I tried the backported solution, it seems that it's causing RCU stall.
-It seems on 4.19.y IMA is already accessing rules through RCU. Still
-debugging it.
+Those measurements were done against pcre2 version 10.40.
+Indeed with version 10.42 the peak memory usage of the current
+implementation has grown and is reduced by this patch:
 
-The backported patches are as below
 
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index 0819b7600649..20349ef6383b 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -353,6 +353,8 @@ static void ima_lsm_update_rules(void)
->         }
->  }
->  
-> +static bool rule_updating = false;
-> +
->  /**
->   * ima_match_rules - determine whether an inode matches the measure rule.
->   * @rule: a pointer to a rule
-> @@ -369,6 +371,9 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->                             enum ima_hooks func, int mask)
->  {
->         int i;
-> +       bool result = false;
-> +       struct ima_rule_entry *lsm_rule = rule;
-> +       bool rule_reinitialized = false;
->  
->         if ((rule->flags & IMA_FUNC) &&
->             (rule->func != func && func != POST_SETATTR))
-> @@ -408,7 +413,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->                 u32 osid;
->                 int retried = 0;
->  
-> -               if (!rule->lsm[i].rule)
-> +               if (!lsm_rule->lsm[i].rule)
->                         continue;
->  retry:
->                 switch (i) {
-> @@ -417,31 +422,49 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->                 case LSM_OBJ_TYPE:
->                         security_inode_getsecid(inode, &osid);
->                         rc = security_filter_rule_match(osid,
-> -                                                       rule->lsm[i].type,
-> +                                                       lsm_rule->lsm[i].type,
->                                                         Audit_equal,
-> -                                                       rule->lsm[i].rule,
-> +                                                       lsm_rule->lsm[i].rule,
->                                                         NULL);
->                         break;
->                 case LSM_SUBJ_USER:
->                 case LSM_SUBJ_ROLE:
->                 case LSM_SUBJ_TYPE:
->                         rc = security_filter_rule_match(secid,
-> -                                                       rule->lsm[i].type,
-> +                                                       lsm_rule->lsm[i].type,
->                                                         Audit_equal,
-> -                                                       rule->lsm[i].rule,
-> +                                                       lsm_rule->lsm[i].rule,
->                                                         NULL);
->                 default:
->                         break;
->                 }>                 if ((rc < 0) && (!retried)) {
->                         retried = 1;
-> -                       ima_lsm_update_rules();
-> -                       goto retry;
-> +                       if (READ_ONCE(rule_updating)) {
-> +                               lsm_rule = ima_lsm_copy_rule(rule);
-> +                               if (lsm_rule) {
-> +                                       rule_reinitialized = true;
-> +                                       goto retry;
-> +                               }
-> +                       } else {
-> +                               WRITE_ONCE(rule_updating, true);
-> +                               ima_lsm_update_rules();
-> +                               WRITE_ONCE(rule_updating, false);
-> +                               goto retry;
-> +                       }
-> +               }
-> +               if (!rc) {
-> +                       result = false;
-> +                       goto out;
->                 }
-> -               if (!rc)
-> -                       return false;
->         }
-> -       return true;
-> +       result = true;
-> +
-> +out:
-> +       if (rule_reinitialized) {
-> +               ima_lsm_free_rule(lsm_rule);
-> +       }
-> +       return result;
->  }
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index b2dadff3626b..0819b7600649 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -256,27 +256,99 @@ static void ima_free_rule(struct ima_rule_entry *entry)
->         kfree(entry);
->  }
->  
-> +static void ima_lsm_free_rule(struct ima_rule_entry *entry)
-> +{
-> +       int i;
-> +
-> +       for (i = 0; i < MAX_LSM_RULES; i++) {
-> +               kfree(entry->lsm[i].rule);
-> +               kfree(entry->lsm[i].args_p);
-> +       }
-> +       kfree(entry);
-> +}
-> +
-> +static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
-> +{
-> +       struct ima_rule_entry *nentry;
-> +       int i, result;
-> +
-> +       nentry = kmalloc(sizeof(*nentry), GFP_KERNEL);
-> +       if (!nentry)
-> +               return NULL;
-> +
-> +       /*
-> +       * Immutable elements are copied over as pointers and data; only
-> +       * lsm rules can change
-> +       */
-> +       memcpy(nentry, entry, sizeof(*nentry));
-> +       memset(nentry->lsm, 0, FIELD_SIZEOF(struct ima_rule_entry, lsm));
-> +
-> +       for (i = 0; i < MAX_LSM_RULES; i++) {
-> +               if (!entry->lsm[i].rule)
-> +                       continue;
-> +
-> +               nentry->lsm[i].type = entry->lsm[i].type;
-> +               nentry->lsm[i].args_p = kstrdup(entry->lsm[i].args_p,
-> +                                              GFP_KERNEL);
-> +               if (!nentry->lsm[i].args_p)
-> +                       goto out_err;
-> +
-> +               result = security_filter_rule_init(nentry->lsm[i].type,
-> +                                                 Audit_equal,
-> +                                                 nentry->lsm[i].args_p,
-> +                                                 &nentry->lsm[i].rule);
-> +               if (result == -EINVAL)
-> +                       pr_warn("ima: rule for LSM \'%d\' is undefined\n",
-> +                               entry->lsm[i].type);
-> +       }
-> +       return nentry;
-> +
-> +out_err:
-> +       ima_lsm_free_rule(nentry);
-> +       return NULL;
-> +}
-> +
-> +static int ima_lsm_update_rule(struct ima_rule_entry *entry)
-> +{
-> +       struct ima_rule_entry *nentry;> +
-> +       nentry = ima_lsm_copy_rule(entry);
-> +       if (!nentry)
-> +               return -ENOMEM;
-> +
-> +       list_replace_rcu(&entry->list, &nentry->list);
-> +       synchronize_rcu();
-> +       ima_lsm_free_rule(entry);
-> +
-> +       return 0;
-> +}
-> +
->  /*
->   * The LSM policy can be reloaded, leaving the IMA LSM based rules referring
->   * to the old, stale LSM policy.  Update the IMA LSM based rules to reflect
-> - * the reloaded LSM policy.  We assume the rules still exist; and BUG_ON() if
-> - * they don't.
-> + * the reloaded LSM policy.
->   */
->  static void ima_lsm_update_rules(void)
->  {
-> -       struct ima_rule_entry *entry;
-> -       int result;
-> -       int i;
-> +       struct ima_rule_entry *entry, *e;
-> +       int i, result, needs_update;
->  
-> -       list_for_each_entry(entry, &ima_policy_rules, list) {
-> +       list_for_each_entry_safe(entry, e, &ima_policy_rules, list) {
-> +               needs_update = 0;
->                 for (i = 0; i < MAX_LSM_RULES; i++) {
-> -                       if (!entry->lsm[i].rule)
-> -                               continue;> -                       result =
-security_filter_rule_init(entry->lsm[i].type,
-> -                                                          Audit_equal,
-> -                                                          entry->lsm[i].args_p,
-> -                                                          &entry->lsm[i].rule);
-> -                       BUG_ON(!entry->lsm[i].rule);
-> +                       if (entry->lsm[i].rule) {
-> +                               needs_update = 1;
-> +                               break;
-> +                       }
-> +               }
-> +               if (!needs_update)
-> +                       continue;
-> +
-> +               result = ima_lsm_update_rule(entry);
-> +               if (result) {
-> +                       pr_err("ima: lsm rule update error %d\n",
-> +                               result);
-> +                       return;
->                 }
->         }
->  }
+# selabel_lookup -b file -k /etc/shadow -t file [heaptrack]
 
--- 
-Best
-GUO Zihua
+## current
 
+total runtime: 0.07s.
+calls to allocation functions: 29080 (421449/s)
+temporary memory allocations: 15 (217/s)
+peak heap memory consumption: 22.72M
+peak RSS (including heaptrack overhead): 18.68M
+total memory leaked: 1.02K
+
+## proposed
+
+total runtime: 0.06s.
+calls to allocation functions: 24090 (376406/s)
+temporary memory allocations: 675 (10546/s)
+peak heap memory consumption: 9.48M
+peak RSS (including heaptrack overhead): 22.15M
+total memory leaked: 1.02K
+
+
+# restorecon -vRn /etc [heaptrack]
+
+## current
+
+total runtime: 0.13s.
+calls to allocation functions: 34720 (259104/s)
+temporary memory allocations: 1872 (13970/s)
+peak heap memory consumption: 26.66M
+peak RSS (including heaptrack overhead): 25.59M
+total memory leaked: 1.90K
+
+## proposed
+
+total runtime: 0.43s.
+calls to allocation functions: 729301 (1692113/s)
+temporary memory allocations: 351486 (815512/s)
+peak heap memory consumption: 9.48M
+peak RSS (including heaptrack overhead): 20.98M
+total memory leaked: 1.90K
+
+
+# restorecon -vRn /usr [hyperfine]
+
+## current
+
+Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
+  Time (mean =C2=B1 =CF=83):     31.053 s =C2=B1  1.491 s    [User: 29.926 =
+s, System: 1.105 s]
+  Range (min =E2=80=A6 max):   28.817 s =E2=80=A6 33.679 s    10 runs
+
+## proposed
+
+Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
+  Time (mean =C2=B1 =CF=83):     37.829 s =C2=B1  0.416 s    [User: 36.935 =
+s, System: 0.875 s]
+  Range (min =E2=80=A6 max):   37.205 s =E2=80=A6 38.764 s    10 runs
+
+
+>
+> And if this is difficult to apply, how about adding a new flag e.g.
+> AGGRESSIVE_FREE_AFTER_REGEX_MATCH ?
+>
+> >
+> > > To workaround it, free and reallocate match_data whenever we call
+> > > regex_match. It's fine because libselinux currently doesn't use
+> > > match_data, but use only the return value.
+> > >
+> > > Signed-off-by: Inseob Kim <inseob@google.com>
+> > > ---
+> > >  libselinux/src/regex.c | 10 ++++++++++
+> > >  1 file changed, 10 insertions(+)
+> > >
+> > > diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+> > > index 149a7973..2df282f1 100644
+> > > --- a/libselinux/src/regex.c
+> > > +++ b/libselinux/src/regex.c
+> > > @@ -213,10 +213,20 @@ void regex_data_free(struct regex_data *regex)
+> > >  int regex_match(struct regex_data *regex, char const *subject, int p=
+artial)
+> > >  {
+> > >         int rc;
+> > > +       pcre2_match_data *new_match_data;
+> > >         __pthread_mutex_lock(&regex->match_mutex);
+> > > +       new_match_data =3D pcre2_match_data_create_from_pattern(
+> > > +           regex->regex, NULL);
+> >
+> > Should be checked for failure (cause pcre2_match() expects a non-NULL
+> > match_data, which would be passed the second time).
+> >
+> > Also with this change the member match_data of the struct regex_data
+> > becomes obsolete and should be removed.
+>
+> Thanks, this makes sense.
+>
+> >
+> > >         rc =3D pcre2_match(
+> > >             regex->regex, (PCRE2_SPTR)subject, PCRE2_ZERO_TERMINATED,=
+ 0,
+> > >             partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data, NULL=
+);
+> > > +       // pcre2_match allocates heap and it won't be freed until
+> > > +       // pcre2_match_data_free, resulting in heap overhead.
+> > > +       // Reallocate match_data to prevent such overhead, whenever p=
+ossible.
+> > > +       if (new_match_data) {
+> > > +               pcre2_match_data_free(regex->match_data);
+> > > +               regex->match_data =3D new_match_data;
+> > > +       }
+> > >         __pthread_mutex_unlock(&regex->match_mutex);
+> > >         if (rc > 0)
+> > >                 return REGEX_MATCH;
+> > > --
+> > > 2.39.0.314.g84b9a713c41-goog
+> > >
+>
+>
+>
+> --
+> Inseob Kim | Software Engineer | inseob@google.com
