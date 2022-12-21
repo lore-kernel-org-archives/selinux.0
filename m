@@ -2,282 +2,167 @@ Return-Path: <selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71FD3C4332F
-	for <selinux@archiver.kernel.org>; Wed, 21 Dec 2022 14:19:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76757C4332F
+	for <selinux@archiver.kernel.org>; Wed, 21 Dec 2022 19:24:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbiLUOTR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Dec 2022 09:19:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57476 "EHLO
+        id S234585AbiLUTYx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 21 Dec 2022 14:24:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbiLUOTP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Dec 2022 09:19:15 -0500
-Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A837F1836D
-        for <selinux@vger.kernel.org>; Wed, 21 Dec 2022 06:19:14 -0800 (PST)
-Received: by mail-vs1-xe2b.google.com with SMTP id 128so14807968vsz.12
-        for <selinux@vger.kernel.org>; Wed, 21 Dec 2022 06:19:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cmg0VYTQpLIEvtvgmzTWXCUqEsBD6TbYW7tLDrsYBlM=;
-        b=KnD4EHUAg3xmmE41+tS6F+VGjpINS2RSTmmHgsxUisJAmVfVlN+KMNiTT5CrZm6PIt
-         npqrFXTiNK7KmHmiQhm7GhViLW6nIoMPVe5g5bDnHNQRxn9Z3Nr8Dexz5J4EuTKlsTWE
-         SdXSMfRj2aUBC78PtKn7VFxrzqa1bxNlK04+WvJn2Xaux+1C9XB9HQsCfZKEDnzMisQe
-         oc8cwT/QZP3d//wPE+AQXKoOQoDSHe/8tWrQx30uQ6ODFI2X3876XYmXT8PXbHNOcAIB
-         fVZBkDw+RgPhkX/LnSWTNHRN6tiMl4ftw5WeB7BelYnbq3X7li+SwcmYOHqr/ynEw6tl
-         b+qA==
+        with ESMTP id S234412AbiLUTYw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 21 Dec 2022 14:24:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF81264AD
+        for <selinux@vger.kernel.org>; Wed, 21 Dec 2022 11:24:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1671650644;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=n4C3I/Aflv3a3nMUzlPmw+f0O/d9xiUukrVA5sTOzdo=;
+        b=e3EtNgEfAWUy7NV+nxuYlEFd/eGXFuEMYZ7+vR4VqTPynVw+b6DgINTMESogR75q5OCA0Q
+        MsUSbO/nnslvoPeaHcMeeijc4WFP+E4zVfR513iDrEbuTe6D7yHL5Uf8ithcroGseRXTp+
+        3PQclKGCaAPnM/miZ5DsjAE0/FjA2zk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-617-Fkzspnp0OpKGOZERQebWXg-1; Wed, 21 Dec 2022 14:24:03 -0500
+X-MC-Unique: Fkzspnp0OpKGOZERQebWXg-1
+Received: by mail-wm1-f71.google.com with SMTP id f20-20020a7bc8d4000000b003d1cda5bd6fso862544wml.9
+        for <selinux@vger.kernel.org>; Wed, 21 Dec 2022 11:24:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cmg0VYTQpLIEvtvgmzTWXCUqEsBD6TbYW7tLDrsYBlM=;
-        b=LSWysiiLgdBl812p53IvjSqudGmsoCy52pUBppTN9O3BfZpVctFfrCzGIwVswJPPvA
-         5VbeUqQz7GuU4GjE1Q/4EVmlFi88hYc3AnghWfUY1FcHJoOVRcb3p8Hd+BfnazXijA5A
-         vUTsy+qaZF33N4kxhCk5vvOq935sz14IsEyu0ATwYaxCY+dhrWztrzCo9wjeZKtyaMcZ
-         eIAKE1fma2wTILEz2nK9iIPO9tO/qOJiYoOc6xuvIq02U01Xi97zPp6ZvlEYMgVHQ3lR
-         Y9dTthfJyKixs8hyJLnWkXqRM5BB2jOlnnkaWGb6JxVBPYTQTnhTFojYqwmZLfkl6Jki
-         FRHA==
-X-Gm-Message-State: AFqh2kojOazu9S0yuPgte2HprxDBPpRw0vkZ+Z0cBl6Kt0uiJyEl/CE1
-        I9N+6Mc2R3UoNMO6g+uZWgMVhdJri6UGTgxG6OsMVqdm+RaiYA==
-X-Google-Smtp-Source: AMrXdXuy2OLZu5MwnYWj5Vdziju0ht21L9GjELirLyIoYi0mktGJ5UgiouhRx/v/wYx0mscC2SDpxCc1+CrFWjOEJoQ=
-X-Received: by 2002:a67:b912:0:b0:3b1:29d1:3485 with SMTP id
- q18-20020a67b912000000b003b129d13485mr263865vsn.20.1671632353499; Wed, 21 Dec
- 2022 06:19:13 -0800 (PST)
-MIME-Version: 1.0
-References: <20221219085336.391225-1-inseob@google.com> <CAJ2a_Det=myaFheMGMcAXK4cbs3cV5toyNW459coDRZiCGWcbA@mail.gmail.com>
- <CA+QFDK=b4gR+Hz3XqQxaP8gPPixq1ppSOyNYpNaDw4Y8O0k+Xw@mail.gmail.com>
-In-Reply-To: <CA+QFDK=b4gR+Hz3XqQxaP8gPPixq1ppSOyNYpNaDw4Y8O0k+Xw@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Wed, 21 Dec 2022 15:19:02 +0100
-Message-ID: <CAJ2a_Dd5Cf0Bkbn-NPwkaqCX+BZcLvLfOv5v9UUrXY+cM+KMVg@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Workaround for heap overhead of pcre
-To:     Inseob Kim <inseob@google.com>
-Cc:     selinux@vger.kernel.org
+        h=content-transfer-encoding:mime-version:user-agent:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=n4C3I/Aflv3a3nMUzlPmw+f0O/d9xiUukrVA5sTOzdo=;
+        b=E9zJBEToiTb4Frjb86JyIoIdzkH+8IFWyHJ2V8M/FjX9NkQzGMt72M+sxrwrtN5BKn
+         GRtuT4fy+m7kzJO8YlojOqu9FOvEnnHYMDydQeKqbc67Os83FZ5Pl9h8x2j+r71TWdOS
+         HmoFUL9dPsbTv5k4i2vB2j+1Bcn3a7IAy5RmPzgbQr70V6zgJ/k8ytdCCgeBsXzbPLtx
+         9IbN9OFOCG9r2VMtGDydXOw9HbYUkQS8ywr+PR+KvFNDXXlq1jZS/1Cv1WcMq5NKel4O
+         M1E+0lGQo7OucyQcSAgRJgUVj8eeesLckPdPiCGemC8/JtvnTFaEtPo9EHtC3svCE9zP
+         vRPw==
+X-Gm-Message-State: AFqh2koR+Hx9qju079zbcRTdWZS1OPkC8ZRwzPjG2yOZe7qImvvcTcL8
+        fTYLSeIyhVVxdDjrkd7oCZRIKlGsQAZnLb2yZGK/yfUearIIuXfiYuv5XLN++589wLVvjt22SFG
+        hig+X/XC4FEZN6pNZig==
+X-Received: by 2002:a05:600c:601d:b0:3d6:4ba9:c111 with SMTP id az29-20020a05600c601d00b003d64ba9c111mr2561748wmb.40.1671650640556;
+        Wed, 21 Dec 2022 11:24:00 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXvxoGwwyTymheQbysuArpiDBLiZi1NQiT6NkCs/M8vdLElzezhLtyH/z6oPBoaDj4DtPpHoQA==
+X-Received: by 2002:a05:600c:601d:b0:3d6:4ba9:c111 with SMTP id az29-20020a05600c601d00b003d64ba9c111mr2561741wmb.40.1671650640324;
+        Wed, 21 Dec 2022 11:24:00 -0800 (PST)
+Received: from gerbillo.redhat.com (146-241-101-173.dyn.eolo.it. [146.241.101.173])
+        by smtp.gmail.com with ESMTPSA id p12-20020a05600c468c00b003cf57329221sm675610wmo.14.2022.12.21.11.23.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Dec 2022 11:23:59 -0800 (PST)
+Message-ID: <944c4ab043713f75ad3bb512fc146e48de7b3e25.camel@redhat.com>
+Subject: Re: [PATCH v2 2/2] selinux: Implement mptcp_add_subflow hook
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        mptcp@lists.linux.dev
+Date:   Wed, 21 Dec 2022 20:23:58 +0100
+In-Reply-To: <CAHC9VhRYr9=qKUeF0EuY46koCnkeZ5d-=umV5TxbiUZ7qNXJ6w@mail.gmail.com>
+References: <cover.1671469167.git.pabeni@redhat.com>
+         <3074022fdca04676443a9c74f57328eb729f150e.1671469167.git.pabeni@redhat.com>
+         <CAHC9VhRYr9=qKUeF0EuY46koCnkeZ5d-=umV5TxbiUZ7qNXJ6w@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 21 Dec 2022 at 03:53, Inseob Kim <inseob@google.com> wrote:
->
-> On Wed, Dec 21, 2022 at 12:02 AM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > On Mon, 19 Dec 2022 at 09:53, Inseob Kim <inseob@google.com> wrote:
-> > >
-> > > pcre's behavior is changed so that pcre2_match always allocates heap =
-for
-> > > match_data, rather than stack, regardless of size. The heap isn't fre=
-ed
-> > > until explicitly calling pcre2_match_data_free. This new behavior may
-> > > result in heap overhead, which may increase the peak memory usage abo=
-ut
-> > > a few megabytes. It's because regex_match is first called for regex_d=
-ata
-> > > objects, and then regex_data objects are freed at once.
-> >
-> > This approach trades peak memory usage for temporary allocations,
-> > which effects runtime performance.  On modern systems memory is most
-> > of the time not a scarce resource.
-> >
-> > Some examples:
-> >
-> > # selabel_lookup -b file -k /etc/shadow -t file [heaptrack]
-> >
-> > ## current
-> >
-> > total runtime: 0.07s.
-> > calls to allocation functions: 28420 (406000/s)
-> > temporary memory allocations: 16 (228/s)
-> > peak heap memory consumption: 10.09M
-> > peak RSS (including heaptrack overhead): 21.27M
-> > total memory leaked: 1.02K
-> >
-> > ## proposed
-> >
-> > total runtime: 0.06s.
-> > calls to allocation functions: 23430 (366093/s)
-> > temporary memory allocations: 675 (10546/s)
-> > peak heap memory consumption: 9.48M
-> > peak RSS (including heaptrack overhead): 18.59M
-> > total memory leaked: 1.02K
-> >
-> > # restorecon -vRn /etc [heaptrack]
-> >
-> > ## current
-> >
-> > total runtime: 0.14s.
-> > calls to allocation functions: 33873 (236874/s)
-> > temporary memory allocations: 1877 (13125/s)
-> > peak heap memory consumption: 10.09M
-> > peak RSS (including heaptrack overhead): 21.58M
-> > total memory leaked: 1.90K
-> >
-> > ## proposed
-> >
-> > total runtime: 0.27s.
-> > calls to allocation functions: 378762 (1423917/s)
-> > temporary memory allocations: 351487 (1321379/s)
-> > peak heap memory consumption: 9.48M
-> > peak RSS (including heaptrack overhead): 20.99M
-> > total memory leaked: 1.90K
-> >
-> >
-> > # restorecon -vRn /usr [hyperfine]
-> >
-> > ## current
-> >
-> > restorecon -vRn /usr
-> > Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
-> >   Time (mean =C2=B1 =CF=83):     24.419 s =C2=B1  0.661 s    [User: 23.=
-480 s, System: 0.922 s]
-> >   Range (min =E2=80=A6 max):   23.399 s =E2=80=A6 25.495 s    10 runs
-> >
-> > ## proposed
-> >
-> > restorecon -vRn /usr
-> > Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
-> >   Time (mean =C2=B1 =CF=83):     28.628 s =C2=B1  0.968 s    [User: 27.=
-688 s, System: 0.927 s]
-> >   Range (min =E2=80=A6 max):   27.674 s =E2=80=A6 30.798 s    10 runs
-> >
-> >
-> > So I would argue the performance impact for applications (like
-> > setfiles, restorecon) or daemon (like systemd, udev) is more critical
-> > than the 500K per application.
->
-> I observed about 3~4MB increase on Android device. Which pcre2 version
-> are you using? Does it include
-> https://github.com/PCRE2Project/pcre2/commit/d90fb238#diff-15ec3f4ed916f5=
-2c810daf305702985dda6d8d45e7ce22e2f309c95bd6ef32b7R74
-> ?
+On Tue, 2022-12-20 at 17:07 -0500, Paul Moore wrote:
+> On Mon, Dec 19, 2022 at 12:34 PM Paolo Abeni <pabeni@redhat.com> wrote:
+> > 
+> > Newly added subflows should inherit the associated label
+> > from the current process context, regarless of the sk_kern_sock
+> > flag value.
+> > 
+> > This patch implements the above resetting the subflow sid, deleting
+> > the existing subflow label, if any, and then re-creating a new one.
+> > 
+> > The new helper reuses the selinux_netlbl_sk_security_free() function,
+> > and it can end-up being called multiple times with the same argument;
+> > we additionally need to make it idempotent.
+> > 
+> > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+> > ---
+> > v1 -> v2:
+> >  - fix build issue with !CONFIG_NETLABEL
+> > ---
+> >  security/selinux/hooks.c    | 27 +++++++++++++++++++++++++++
+> >  security/selinux/netlabel.c |  4 +++-
+> >  2 files changed, 30 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 3c5be76a9199..f785600b666a 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -5476,6 +5476,32 @@ static void selinux_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk
+> >         selinux_netlbl_sctp_sk_clone(sk, newsk);
+> >  }
+> > 
+> > +static int selinux_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
+> > +{
+> > +       const struct task_security_struct *tsec = selinux_cred(current_cred());
+> > +       struct sk_security_struct *ssksec = ssk->sk_security;
+> > +       u16 sclass;
+> > +       u32 sid;
+> > +       int err;
+> > +
+> > +       /* create the sid using the current cred, regardless of the ssk kern
+> > +        * flag
+> > +        */
+> > +       sclass = socket_type_to_security_class(ssk->sk_family, ssk->sk_type,
+> > +                                              ssk->sk_protocol);
+> > +       err = socket_sockcreate_sid(tsec, sclass, &sid);
+> > +       if (err)
+> > +               return err;
+> > +
+> > +       ssksec->sid = sid;
+> > +
+> > +       /* replace the existing subflow label deleting the existing one
+> > +        * and re-recrating a new label using the current context
+> > +        */
+> > +       selinux_netlbl_sk_security_free(ssksec);
+> > +       return selinux_netlbl_socket_post_create(ssk, ssk->sk_family);
+> > +}
+> 
+> I thought the idea was to ensure that new subflows of an existing
+> MPTCP connection would be created with the same label as the main
+> MPTCP connection socket?  The code above labels the new subflow based
+> on the current process, not the main MPTCP connection; it matches the
+> commit description, but not what we had previously discussed - or I am
+> horribly mis-remembering something? :)
 
-Those measurements were done against pcre2 version 10.40.
-Indeed with version 10.42 the peak memory usage of the current
-implementation has grown and is reduced by this patch:
+You are right, I picked a wrong turn.
 
+I just tested the other option and there is another problem :(
 
-# selabel_lookup -b file -k /etc/shadow -t file [heaptrack]
+The first subflow creations happens inside af_inet->create, via the sk-
+>sk_prot->init() hook. The security_socket_post_create() call on the
+owning MPTCP sockets happens after that point. So we copy data from a
+not yet initialized security context (and the test fail badly).
 
-## current
+There are a few options to cope with that:
+- [ugly hack] call  security_socket_post_create() on the mptcp code
+before creating the subflow. I experimented this just to double the
+problem and a possible solution.
 
-total runtime: 0.07s.
-calls to allocation functions: 29080 (421449/s)
-temporary memory allocations: 15 (217/s)
-peak heap memory consumption: 22.72M
-peak RSS (including heaptrack overhead): 18.68M
-total memory leaked: 1.02K
+- refactor the mptcp code to create the first subflow on later
+syscalls, as needed. This will require quite a bit of refactoring in
+the MPTCP protocol as we will need also to update the
+shutdown/disconnect accordingly (currently we keep the first subflow
+around, instead we will need to close it).
 
-## proposed
+- use the code proposed in these patches as-is ;) 
 
-total runtime: 0.06s.
-calls to allocation functions: 24090 (376406/s)
-temporary memory allocations: 675 (10546/s)
-peak heap memory consumption: 9.48M
-peak RSS (including heaptrack overhead): 22.15M
-total memory leaked: 1.02K
+WDYT?
 
+Thanks,
 
-# restorecon -vRn /etc [heaptrack]
+Paolo
 
-## current
-
-total runtime: 0.13s.
-calls to allocation functions: 34720 (259104/s)
-temporary memory allocations: 1872 (13970/s)
-peak heap memory consumption: 26.66M
-peak RSS (including heaptrack overhead): 25.59M
-total memory leaked: 1.90K
-
-## proposed
-
-total runtime: 0.43s.
-calls to allocation functions: 729301 (1692113/s)
-temporary memory allocations: 351486 (815512/s)
-peak heap memory consumption: 9.48M
-peak RSS (including heaptrack overhead): 20.98M
-total memory leaked: 1.90K
-
-
-# restorecon -vRn /usr [hyperfine]
-
-## current
-
-Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
-  Time (mean =C2=B1 =CF=83):     31.053 s =C2=B1  1.491 s    [User: 29.926 =
-s, System: 1.105 s]
-  Range (min =E2=80=A6 max):   28.817 s =E2=80=A6 33.679 s    10 runs
-
-## proposed
-
-Benchmark 1: ~/destdir/sbin/restorecon -vRn /usr
-  Time (mean =C2=B1 =CF=83):     37.829 s =C2=B1  0.416 s    [User: 36.935 =
-s, System: 0.875 s]
-  Range (min =E2=80=A6 max):   37.205 s =E2=80=A6 38.764 s    10 runs
-
-
->
-> And if this is difficult to apply, how about adding a new flag e.g.
-> AGGRESSIVE_FREE_AFTER_REGEX_MATCH ?
->
-> >
-> > > To workaround it, free and reallocate match_data whenever we call
-> > > regex_match. It's fine because libselinux currently doesn't use
-> > > match_data, but use only the return value.
-> > >
-> > > Signed-off-by: Inseob Kim <inseob@google.com>
-> > > ---
-> > >  libselinux/src/regex.c | 10 ++++++++++
-> > >  1 file changed, 10 insertions(+)
-> > >
-> > > diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> > > index 149a7973..2df282f1 100644
-> > > --- a/libselinux/src/regex.c
-> > > +++ b/libselinux/src/regex.c
-> > > @@ -213,10 +213,20 @@ void regex_data_free(struct regex_data *regex)
-> > >  int regex_match(struct regex_data *regex, char const *subject, int p=
-artial)
-> > >  {
-> > >         int rc;
-> > > +       pcre2_match_data *new_match_data;
-> > >         __pthread_mutex_lock(&regex->match_mutex);
-> > > +       new_match_data =3D pcre2_match_data_create_from_pattern(
-> > > +           regex->regex, NULL);
-> >
-> > Should be checked for failure (cause pcre2_match() expects a non-NULL
-> > match_data, which would be passed the second time).
-> >
-> > Also with this change the member match_data of the struct regex_data
-> > becomes obsolete and should be removed.
->
-> Thanks, this makes sense.
->
-> >
-> > >         rc =3D pcre2_match(
-> > >             regex->regex, (PCRE2_SPTR)subject, PCRE2_ZERO_TERMINATED,=
- 0,
-> > >             partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data, NULL=
-);
-> > > +       // pcre2_match allocates heap and it won't be freed until
-> > > +       // pcre2_match_data_free, resulting in heap overhead.
-> > > +       // Reallocate match_data to prevent such overhead, whenever p=
-ossible.
-> > > +       if (new_match_data) {
-> > > +               pcre2_match_data_free(regex->match_data);
-> > > +               regex->match_data =3D new_match_data;
-> > > +       }
-> > >         __pthread_mutex_unlock(&regex->match_mutex);
-> > >         if (rc > 0)
-> > >                 return REGEX_MATCH;
-> > > --
-> > > 2.39.0.314.g84b9a713c41-goog
-> > >
->
->
->
-> --
-> Inseob Kim | Software Engineer | inseob@google.com
