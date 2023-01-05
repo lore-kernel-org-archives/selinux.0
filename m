@@ -2,62 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2769C54EBD
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB717C3DA7D
 	for <selinux@archiver.kernel.org>; Thu,  5 Jan 2023 17:22:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234381AbjAERVk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Jan 2023 12:21:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
+        id S232222AbjAERVj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Jan 2023 12:21:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234222AbjAERVD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Jan 2023 12:21:03 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10F5564CC
-        for <selinux@vger.kernel.org>; Thu,  5 Jan 2023 09:13:48 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id qk9so91364812ejc.3
-        for <selinux@vger.kernel.org>; Thu, 05 Jan 2023 09:13:48 -0800 (PST)
+        with ESMTP id S232004AbjAERVB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Jan 2023 12:21:01 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFE51C10A
+        for <selinux@vger.kernel.org>; Thu,  5 Jan 2023 09:13:29 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id s5so53648446edc.12
+        for <selinux@vger.kernel.org>; Thu, 05 Jan 2023 09:13:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Agz5gCn9j4yyqOjfETzpJ3M/PpGVgpQ3czZumZXo7dM=;
-        b=m0tHO8IkiZOEobR7C5DfiPZ/OZx43GxQL5jXKD1f7EEzg0DaOSTBTfQWDP2PbmED5E
-         tXcc/0pnXdN07pyZXPR/N7x3VQOmuuES5pP5DEc/1JFgRjeWbtVTpBQcq9aD+QJdOXlX
-         O50TEPzgZRk9SEIkLhXToYhmOC7xAwfrwVzMgAenIJxYbKPRDlqAh9+JxBNrEtiewhqX
-         vgIHfKRLTEps2Bygdis8HrXuaXCNs+4g8B/So3yHIfsUc4IftSHrQRNPMdCFZdYGe1Ok
-         MbTX0GA9iHa/1O4+3BIn9l/p179Npl7ymmtYuOMMuam7HxAG/61tj96v0Iyuz6Xy/oFP
-         qAlQ==
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=CFSU0dwceXPwtZ7nnxUcA1DAK203LEbXmRtXo3jywc4=;
+        b=ELzMeybOhWGJVSQxlYXwb6Msp6mgLA1YUtk2KZDnYp0xR4Qn5i+E9rLW5KmorLt49X
+         s+UdTfRITjMe3asWEh6Eh4SSkWMaV03coUWRezeUlajoGNObF0iCaBrea4Hz2QuF1kPE
+         dJ7aj/QKj9UPCRYxxOQoYZ2oK/F8LsVkvXsIHBjb2OiAYscOm84Vd2t5ZlY62FLwvLV0
+         X+YmoKWF4IRhIpSO+R/WXcBS8LMhRMaF2i818dJ7GN9Lr1vLrfx1kW99nJipL4y0DT6O
+         RAyBZBfvNR/PU/iZxSaCmhK0F10dKg7dOkkEEMvD1uKGKHtndXCri/RfVpo1ylec4lai
+         ImYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Agz5gCn9j4yyqOjfETzpJ3M/PpGVgpQ3czZumZXo7dM=;
-        b=cnHQtqbxi5O0ga92VdTHxMPYPaQ8Mc7p02RWRBS29SkmTjyKnF79Joj5XfD77/enKM
-         hbxumK223A/JU1R+bJ1OfwVkeD4pIw7oBu2hwJmU7Y562U9JIIhKadYHNmtkfbk25119
-         ahGvVUbJ0GQUKbkfFKiQH9wH5vCvWjwqqhLvpB5T3jNnTX8tlNiOyuQ3zK4rk2CzfdQt
-         7u3Gk/VcWZd3Kv73Gvn7zJFFpOW6hbZTb8k4VQf4Hl7AKHeOUAYvWU46GoQ7oKFBNuhG
-         3eB9gTsQxXglSF38qdlOfUEQNTxZInWAOT05RRVpNue0ueT3iEXJ1FDCnzxG07n+l/lr
-         vafg==
-X-Gm-Message-State: AFqh2kokHg/JmqmRvz7pnv/1d6NCRMUxRQgenml62WmnOfiV3e/VbMyk
-        48hWItTJwLWhXBPWc43BxYmF6/teHpOvGg==
-X-Google-Smtp-Source: AMrXdXsZYSmLdYFHELe6b7NLnOhFR0Pp7ISoL+eFZr9wNLGOO4bmUDOS/fRoMXkf753rp/NTV/PWtw==
-X-Received: by 2002:a17:906:85d9:b0:842:1627:77b4 with SMTP id i25-20020a17090685d900b00842162777b4mr45543227ejy.3.1672938827488;
-        Thu, 05 Jan 2023 09:13:47 -0800 (PST)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CFSU0dwceXPwtZ7nnxUcA1DAK203LEbXmRtXo3jywc4=;
+        b=1ORP13SNFOawxV8SFQBStA9h6Jvwc7VX06dSdC1A0ZDv9u/+KQC16/PlShpazCGTf3
+         4QTNgmHJj4XnGb8sKWa/flB60hz/PV8PrwIDi4PXxb/QBTMmb7HQ3AC2NYzjjCW5VKXh
+         kvZUX+Xei1sTluEx4DuS1ZQ0pUy5jMIY2fJvU8Kkt/uUmdHsNN/PPWUowvlUCBXTWEzL
+         75hyr4iN4rCbdNjwveDAWd+FOy8+CpNv+Sa/5MNAogkyezDk2cH5CvFb4KoCzyHlnHSV
+         KyCnpDOpXs01wP7CxWVO3HT+N2chU5OfyUjLF08PNSN97uuYgD7muqLrD0Q8k7k9rdoj
+         na4A==
+X-Gm-Message-State: AFqh2koxhYTfw+nHWJmFJ40rPa77BVWUWxGDn+J5bOC72Qf8E+cvXCA0
+        8RsuVZWQ3DnqC99APPjdN93JkEEiuefr9w==
+X-Google-Smtp-Source: AMrXdXtQ7/MpKK+6wNDiyootFqwQ9pvNyIsHoC+FPOJUboSWKK9pEgNVeIsHhJ1Da9lO17bDrxp75w==
+X-Received: by 2002:a05:6402:550a:b0:47f:bc9b:46ec with SMTP id fi10-20020a056402550a00b0047fbc9b46ecmr38252988edb.7.1672938807583;
+        Thu, 05 Jan 2023 09:13:27 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-077-010-153-041.77.10.pool.telefonica.de. [77.10.153.41])
-        by smtp.gmail.com with ESMTPSA id v1-20020a170906292100b0073c10031dc9sm16585182ejd.80.2023.01.05.09.13.46
+        by smtp.gmail.com with ESMTPSA id g32-20020a056402322000b0048c85c5ad30sm6270886eda.83.2023.01.05.09.13.26
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Jan 2023 09:13:47 -0800 (PST)
+        Thu, 05 Jan 2023 09:13:26 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 2/2] checkpolicy: add simple round-trip test
-Date:   Thu,  5 Jan 2023 18:13:40 +0100
-Message-Id: <20230105171340.18444-2-cgzones@googlemail.com>
+Subject: [PATCH] Correct misc typos
+Date:   Thu,  5 Jan 2023 18:13:20 +0100
+Message-Id: <20230105171320.18349-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230105171340.18444-1-cgzones@googlemail.com>
-References: <20230105171340.18444-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -65,271 +61,280 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add simple round-trip tests on a minimal standard and MLS policy.
+Found by codespell(1) and typos[1].
+
+[1]: https://github.com/crate-ci/typos
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/.gitignore              |  2 +
- checkpolicy/Makefile                |  6 +-
- checkpolicy/tests/polmin.conf       | 81 +++++++++++++++++++++++++++
- checkpolicy/tests/polmin.mls.conf   | 85 +++++++++++++++++++++++++++++
- checkpolicy/tests/test_roundtrip.sh | 33 +++++++++++
- 5 files changed, 206 insertions(+), 1 deletion(-)
- create mode 100644 checkpolicy/tests/polmin.conf
- create mode 100644 checkpolicy/tests/polmin.mls.conf
- create mode 100755 checkpolicy/tests/test_roundtrip.sh
+ libselinux/src/label_db.c                             | 2 +-
+ libselinux/src/regex.c                                | 2 +-
+ libselinux/src/sha1.c                                 | 2 +-
+ libsepol/cil/src/cil_post.c                           | 2 +-
+ libsepol/cil/src/cil_resolve_ast.c                    | 2 +-
+ libsepol/src/module_to_cil.c                          | 2 +-
+ libsepol/tests/policies/test-deps/base-metreq.conf    | 2 +-
+ libsepol/tests/policies/test-deps/base-notmetreq.conf | 2 +-
+ libsepol/tests/policies/test-deps/small-base.conf     | 2 +-
+ libsepol/tests/policies/test-expander/alias-base.conf | 2 +-
+ libsepol/tests/policies/test-expander/role-base.conf  | 2 +-
+ libsepol/tests/policies/test-expander/small-base.conf | 2 +-
+ libsepol/tests/policies/test-expander/user-base.conf  | 2 +-
+ libsepol/tests/policies/test-hooks/cmp_policy.conf    | 2 +-
+ libsepol/tests/policies/test-hooks/small-base.conf    | 2 +-
+ libsepol/tests/policies/test-linker/small-base.conf   | 2 +-
+ policycoreutils/newrole/newrole.c                     | 2 +-
+ python/semanage/semanage                              | 2 +-
+ python/sepolicy/sepolicy/manpage.py                   | 2 +-
+ 19 files changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/checkpolicy/.gitignore b/checkpolicy/.gitignore
-index a7bd076d..01a694d4 100644
---- a/checkpolicy/.gitignore
-+++ b/checkpolicy/.gitignore
-@@ -3,3 +3,5 @@ checkpolicy
- lex.yy.c
- y.tab.c
- y.tab.h
-+tests/testpol.bin
-+tests/testpol.conf
-diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-index f9e1fc7c..86c4a197 100644
---- a/checkpolicy/Makefile
-+++ b/checkpolicy/Makefile
-@@ -50,6 +50,10 @@ y.tab.c: policy_parse.y
- lex.yy.c: policy_scan.l y.tab.c
- 	$(LEX) policy_scan.l
+diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+index bd73201c..3f803037 100644
+--- a/libselinux/src/label_db.c
++++ b/libselinux/src/label_db.c
+@@ -31,7 +31,7 @@
+  * For example:
+  * ----------------------------------------
+  * #
+- * # It is an example specfile for database obejcts
++ * # It is an example specfile for database objects
+  * #
+  * db_database  template1           system_u:object_r:sepgsql_db_t:s0
+  *
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index 149a7973..ae7ad690 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -167,7 +167,7 @@ int regex_writef(struct regex_data *regex, FILE *fp, int do_write_precompregex)
+ 	PCRE2_UCHAR *bytes = NULL;
  
-+.PHONY: test
-+test: checkpolicy
-+	./tests/test_roundtrip.sh
-+
- install: all
- 	-mkdir -p $(DESTDIR)$(BINDIR)
- 	-mkdir -p $(DESTDIR)$(MANDIR)/man8
-@@ -68,7 +72,7 @@ relabel: install
- 	/sbin/restorecon $(DESTDIR)$(BINDIR)/checkmodule
+ 	if (do_write_precompregex) {
+-		/* encode the patter for serialization */
++		/* encode the pattern for serialization */
+ 		rc = pcre2_serialize_encode((const pcre2_code **)&regex->regex,
+ 					    1, &bytes, &serialized_size, NULL);
+ 		if (rc != 1) {
+diff --git a/libselinux/src/sha1.c b/libselinux/src/sha1.c
+index a8484677..9d51e04a 100644
+--- a/libselinux/src/sha1.c
++++ b/libselinux/src/sha1.c
+@@ -11,7 +11,7 @@
+ //  Modified to:
+ //    - stop symbols being exported for libselinux shared library - October 2015
+ //								       Richard Haines <richard_c_haines@btinternet.com>
+-//    - Not cast the workspace from a byte array to a CHAR64LONG16 due to alignment isses.
++//    - Not cast the workspace from a byte array to a CHAR64LONG16 due to alignment issues.
+ //      Fixes:
+ //        sha1.c:73:33: error: cast from 'uint8_t *' (aka 'unsigned char *') to 'CHAR64LONG16 *' increases required alignment from 1 to 4 [-Werror,-Wcast-align]
+ //             CHAR64LONG16*       block = (CHAR64LONG16*) workspace;
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index 11e572e2..a7c66ead 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -1193,7 +1193,7 @@ static int __cil_cat_expr_range_to_bitmap_helper(struct cil_list_item *i1, struc
+ 	struct cil_cat *c2 = (struct cil_cat *)d2;
  
- clean:
--	-rm -f $(TARGETS) $(CHECKPOLOBJS) $(CHECKMODOBJS) y.tab.c y.tab.h lex.yy.c
-+	-rm -f $(TARGETS) $(CHECKPOLOBJS) $(CHECKMODOBJS) y.tab.c y.tab.h lex.yy.c tests/testpol.conf tests/testpol.bin
- 	$(MAKE) -C test clean
+ 	if (n1->flavor == CIL_CATSET || n2->flavor == CIL_CATSET) {
+-		cil_log(CIL_ERR, "Category sets cannont be used in a category range\n");
++		cil_log(CIL_ERR, "Category sets cannot be used in a category range\n");
+ 		goto exit;
+ 	}
  
- indent:
-diff --git a/checkpolicy/tests/polmin.conf b/checkpolicy/tests/polmin.conf
-new file mode 100644
-index 00000000..7a652de8
---- /dev/null
-+++ b/checkpolicy/tests/polmin.conf
-@@ -0,0 +1,81 @@
-+# handle_unknown deny
-+class process
-+class blk_file
-+class chr_file
-+class dir
-+class fifo_file
-+class file
-+class lnk_file
-+class sock_file
-+sid kernel
-+sid security
-+sid unlabeled
-+sid fs
-+sid file
-+sid file_labels
-+sid init
-+sid any_socket
-+sid port
-+sid netif
-+sid netmsg
-+sid node
-+sid igmp_packet
-+sid icmp_socket
-+sid tcp_socket
-+sid sysctl_modprobe
-+sid sysctl
-+sid sysctl_fs
-+sid sysctl_kernel
-+sid sysctl_net
-+sid sysctl_net_unix
-+sid sysctl_vm
-+sid sysctl_dev
-+sid kmod
-+sid policy
-+sid scmp_packet
-+sid devnull
-+class process { dyntransition transition }
-+default_role { blk_file } source;
-+default_role { chr_file } source;
-+default_role { dir } source;
-+default_role { fifo_file } source;
-+default_role { file } source;
-+default_role { lnk_file } source;
-+default_role { sock_file } source;
-+type sys_isid;
-+typealias sys_isid alias dpkg_script_t;
-+typealias sys_isid alias rpm_script_t;
-+allow sys_isid self:process { dyntransition transition };
-+role sys_role;
-+role sys_role types { sys_isid };
-+user sys_user roles sys_role;
-+constrain process { transition } u1 == u2;
-+sid kernel sys_user:sys_role:sys_isid
-+sid security sys_user:sys_role:sys_isid
-+sid unlabeled sys_user:sys_role:sys_isid
-+sid fs sys_user:sys_role:sys_isid
-+sid file sys_user:sys_role:sys_isid
-+sid file_labels sys_user:sys_role:sys_isid
-+sid init sys_user:sys_role:sys_isid
-+sid any_socket sys_user:sys_role:sys_isid
-+sid port sys_user:sys_role:sys_isid
-+sid netif sys_user:sys_role:sys_isid
-+sid netmsg sys_user:sys_role:sys_isid
-+sid node sys_user:sys_role:sys_isid
-+sid igmp_packet sys_user:sys_role:sys_isid
-+sid icmp_socket sys_user:sys_role:sys_isid
-+sid tcp_socket sys_user:sys_role:sys_isid
-+sid sysctl_modprobe sys_user:sys_role:sys_isid
-+sid sysctl sys_user:sys_role:sys_isid
-+sid sysctl_fs sys_user:sys_role:sys_isid
-+sid sysctl_kernel sys_user:sys_role:sys_isid
-+sid sysctl_net sys_user:sys_role:sys_isid
-+sid sysctl_net_unix sys_user:sys_role:sys_isid
-+sid sysctl_vm sys_user:sys_role:sys_isid
-+sid sysctl_dev sys_user:sys_role:sys_isid
-+sid kmod sys_user:sys_role:sys_isid
-+sid policy sys_user:sys_role:sys_isid
-+sid scmp_packet sys_user:sys_role:sys_isid
-+sid devnull sys_user:sys_role:sys_isid
-+fs_use_trans devpts sys_user:sys_role:sys_isid;
-+fs_use_trans devtmpfs sys_user:sys_role:sys_isid;
-diff --git a/checkpolicy/tests/polmin.mls.conf b/checkpolicy/tests/polmin.mls.conf
-new file mode 100644
-index 00000000..b045a60f
---- /dev/null
-+++ b/checkpolicy/tests/polmin.mls.conf
-@@ -0,0 +1,85 @@
-+# handle_unknown deny
-+class process
-+class blk_file
-+class chr_file
-+class dir
-+class fifo_file
-+class file
-+class lnk_file
-+class sock_file
-+sid kernel
-+sid security
-+sid unlabeled
-+sid fs
-+sid file
-+sid file_labels
-+sid init
-+sid any_socket
-+sid port
-+sid netif
-+sid netmsg
-+sid node
-+sid igmp_packet
-+sid icmp_socket
-+sid tcp_socket
-+sid sysctl_modprobe
-+sid sysctl
-+sid sysctl_fs
-+sid sysctl_kernel
-+sid sysctl_net
-+sid sysctl_net_unix
-+sid sysctl_vm
-+sid sysctl_dev
-+sid kmod
-+sid policy
-+sid scmp_packet
-+sid devnull
-+class process { dyntransition transition }
-+default_role { blk_file } source;
-+default_role { chr_file } source;
-+default_role { dir } source;
-+default_role { fifo_file } source;
-+default_role { file } source;
-+default_role { lnk_file } source;
-+default_role { sock_file } source;
-+sensitivity s0;
-+dominance { s0 }
-+category c0;
-+level s0:c0;
-+mlsconstrain process { transition } l1 == l2;
-+type sys_isid;
-+typealias sys_isid alias dpkg_script_t;
-+typealias sys_isid alias rpm_script_t;
-+allow sys_isid self:process { dyntransition transition };
-+role sys_role;
-+role sys_role types { sys_isid };
-+user sys_user roles sys_role level s0 range s0 - s0:c0;
-+sid kernel sys_user:sys_role:sys_isid:s0 - s0
-+sid security sys_user:sys_role:sys_isid:s0 - s0
-+sid unlabeled sys_user:sys_role:sys_isid:s0 - s0
-+sid fs sys_user:sys_role:sys_isid:s0 - s0
-+sid file sys_user:sys_role:sys_isid:s0 - s0
-+sid file_labels sys_user:sys_role:sys_isid:s0 - s0
-+sid init sys_user:sys_role:sys_isid:s0 - s0
-+sid any_socket sys_user:sys_role:sys_isid:s0 - s0
-+sid port sys_user:sys_role:sys_isid:s0 - s0
-+sid netif sys_user:sys_role:sys_isid:s0 - s0
-+sid netmsg sys_user:sys_role:sys_isid:s0 - s0
-+sid node sys_user:sys_role:sys_isid:s0 - s0
-+sid igmp_packet sys_user:sys_role:sys_isid:s0 - s0
-+sid icmp_socket sys_user:sys_role:sys_isid:s0 - s0
-+sid tcp_socket sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_modprobe sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_fs sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_kernel sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_net sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_net_unix sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_vm sys_user:sys_role:sys_isid:s0 - s0
-+sid sysctl_dev sys_user:sys_role:sys_isid:s0 - s0
-+sid kmod sys_user:sys_role:sys_isid:s0 - s0
-+sid policy sys_user:sys_role:sys_isid:s0 - s0
-+sid scmp_packet sys_user:sys_role:sys_isid:s0 - s0
-+sid devnull sys_user:sys_role:sys_isid:s0 - s0
-+fs_use_trans devpts sys_user:sys_role:sys_isid:s0 - s0;
-+fs_use_trans devtmpfs sys_user:sys_role:sys_isid:s0 - s0;
-diff --git a/checkpolicy/tests/test_roundtrip.sh b/checkpolicy/tests/test_roundtrip.sh
-new file mode 100755
-index 00000000..15b1b3bc
---- /dev/null
-+++ b/checkpolicy/tests/test_roundtrip.sh
-@@ -0,0 +1,33 @@
-+#!/bin/sh
-+
-+set -eu
-+
-+BASEDIR=$(dirname "$0")
-+CHECKPOLICY="${BASEDIR}/../checkpolicy"
-+
-+check_policy() {
-+	POLICY=$1
-+	MLS=$2
-+
-+	if [ "$MLS" = 'mls' ]; then
-+		OPT='-M'
-+	else
-+		OPT=
-+	fi
-+
-+	echo "==== Testing ${1}"
-+
-+	${CHECKPOLICY} ${OPT} -E "${BASEDIR}/${POLICY}" -o "${BASEDIR}/testpol.bin"
-+	${CHECKPOLICY} ${OPT} -E -b -F "${BASEDIR}/testpol.bin" -o "${BASEDIR}/testpol.conf"
-+	diff -u "${BASEDIR}/${POLICY}" "${BASEDIR}/testpol.conf"
-+
-+	${CHECKPOLICY} ${OPT} -S -O -E "${BASEDIR}/${POLICY}" -o "${BASEDIR}/testpol.bin"
-+	${CHECKPOLICY} ${OPT} -S -O -E -b -F "${BASEDIR}/testpol.bin" -o "${BASEDIR}/testpol.conf"
-+	diff -u "${BASEDIR}/${POLICY}" "${BASEDIR}/testpol.conf"
-+
-+	echo "==== ${1} success"
-+}
-+
-+
-+check_policy polmin.conf std
-+check_policy polmin.mls.conf mls
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index f5e22c97..d2bfdc81 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -778,7 +778,7 @@ int cil_resolve_classcommon(struct cil_tree_node *current, void *extra_args)
+ 	class = (struct cil_class *)class_datum;
+ 	common = (struct cil_class *)common_datum;
+ 	if (class->common != NULL) {
+-		cil_log(CIL_ERR, "class cannot be associeated with more than one common\n");
++		cil_log(CIL_ERR, "class cannot be associated with more than one common\n");
+ 		rc = SEPOL_ERR;
+ 		goto exit;
+ 	}
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index b900290a..2b24d33e 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -2330,7 +2330,7 @@ static int user_to_cil(int indent, struct policydb *pdb, struct avrule_block *bl
+ 	}
+ 
+ 	if (block->flags & AVRULE_OPTIONAL) {
+-		// sensitivites in user statements in optionals do not have the
++		// sensitivities in user statements in optionals do not have the
+ 		// standard -1 offset
+ 		sens_offset = 0;
+ 	}
+diff --git a/libsepol/tests/policies/test-deps/base-metreq.conf b/libsepol/tests/policies/test-deps/base-metreq.conf
+index b7528dde..d8e1f40b 100644
+--- a/libsepol/tests/policies/test-deps/base-metreq.conf
++++ b/libsepol/tests/policies/test-deps/base-metreq.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-deps/base-notmetreq.conf b/libsepol/tests/policies/test-deps/base-notmetreq.conf
+index eee36dca..ecd92f6f 100644
+--- a/libsepol/tests/policies/test-deps/base-notmetreq.conf
++++ b/libsepol/tests/policies/test-deps/base-notmetreq.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class msg
+ class msgq
+ class shm
+diff --git a/libsepol/tests/policies/test-deps/small-base.conf b/libsepol/tests/policies/test-deps/small-base.conf
+index 98f49c23..848d1741 100644
+--- a/libsepol/tests/policies/test-deps/small-base.conf
++++ b/libsepol/tests/policies/test-deps/small-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-expander/alias-base.conf b/libsepol/tests/policies/test-expander/alias-base.conf
+index b950039d..34955924 100644
+--- a/libsepol/tests/policies/test-expander/alias-base.conf
++++ b/libsepol/tests/policies/test-expander/alias-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-expander/role-base.conf b/libsepol/tests/policies/test-expander/role-base.conf
+index 8e88b4be..a387c8c0 100644
+--- a/libsepol/tests/policies/test-expander/role-base.conf
++++ b/libsepol/tests/policies/test-expander/role-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-expander/small-base.conf b/libsepol/tests/policies/test-expander/small-base.conf
+index 055ea054..ac180f35 100644
+--- a/libsepol/tests/policies/test-expander/small-base.conf
++++ b/libsepol/tests/policies/test-expander/small-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-expander/user-base.conf b/libsepol/tests/policies/test-expander/user-base.conf
+index b31ee8cd..789a59a2 100644
+--- a/libsepol/tests/policies/test-expander/user-base.conf
++++ b/libsepol/tests/policies/test-expander/user-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-hooks/cmp_policy.conf b/libsepol/tests/policies/test-hooks/cmp_policy.conf
+index 9082b333..3c510bc4 100644
+--- a/libsepol/tests/policies/test-hooks/cmp_policy.conf
++++ b/libsepol/tests/policies/test-hooks/cmp_policy.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-hooks/small-base.conf b/libsepol/tests/policies/test-hooks/small-base.conf
+index 9082b333..3c510bc4 100644
+--- a/libsepol/tests/policies/test-hooks/small-base.conf
++++ b/libsepol/tests/policies/test-hooks/small-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/libsepol/tests/policies/test-linker/small-base.conf b/libsepol/tests/policies/test-linker/small-base.conf
+index 890ebbeb..15ced459 100644
+--- a/libsepol/tests/policies/test-linker/small-base.conf
++++ b/libsepol/tests/policies/test-linker/small-base.conf
+@@ -33,7 +33,7 @@ class key_socket
+ class unix_stream_socket
+ class unix_dgram_socket
+ 
+-# sysv-ipc-related clases
++# sysv-ipc-related classes
+ class sem
+ class msg
+ class msgq
+diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
+index c2afa37e..d9efa68a 100644
+--- a/policycoreutils/newrole/newrole.c
++++ b/policycoreutils/newrole/newrole.c
+@@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
+ 	/*
+ 	 * Step 5:  Execute a new shell with the new context in `new_context'. 
+ 	 *
+-	 * Establish context, namesapce and any options for the new shell
++	 * Establish context, namespace and any options for the new shell
+ 	 */
+ 	if (optind < 1)
+ 		optind = 1;
+diff --git a/python/semanage/semanage b/python/semanage/semanage
+index b21d1484..e0bd98a9 100644
+--- a/python/semanage/semanage
++++ b/python/semanage/semanage
+@@ -130,7 +130,7 @@ class SetImportFile(argparse.Action):
+                 sys.exit(1)
+         setattr(namespace, self.dest, values)
+ 
+-# define dictionary for seobject OBEJCTS
++# define dictionary for seobject OBJECTS
+ object_dict = {
+     'login': seobject.loginRecords,
+     'user': seobject.seluserRecords,
+diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
+index 1bff8f9a..a488dcbf 100755
+--- a/python/sepolicy/sepolicy/manpage.py
++++ b/python/sepolicy/sepolicy/manpage.py
+@@ -739,7 +739,7 @@ SELinux %(domainname)s policy is very flexible allowing users to setup their %(d
+ .B STANDARD FILE CONTEXT
+ 
+ SELinux defines the file context types for the %(domainname)s, if you wanted to
+-store files with these types in a diffent paths, you need to execute the semanage command to specify alternate labeling and then use restorecon to put the labels on disk.
++store files with these types in a different paths, you need to execute the semanage command to specify alternate labeling and then use restorecon to put the labels on disk.
+ 
+ .B semanage fcontext -a -t %(type)s '/srv/%(domainname)s/content(/.*)?'
+ .br
 -- 
 2.39.0
 
