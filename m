@@ -2,113 +2,122 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF03C54EBF
-	for <selinux@archiver.kernel.org>; Thu,  5 Jan 2023 17:22:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 302E6C54E76
+	for <selinux@archiver.kernel.org>; Fri,  6 Jan 2023 01:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234503AbjAERVl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Jan 2023 12:21:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38150 "EHLO
+        id S234263AbjAFBGb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Jan 2023 20:06:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234806AbjAERVD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Jan 2023 12:21:03 -0500
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456771EADC
-        for <selinux@vger.kernel.org>; Thu,  5 Jan 2023 09:13:48 -0800 (PST)
-Received: by mail-ej1-x62f.google.com with SMTP id jo4so91576125ejb.7
-        for <selinux@vger.kernel.org>; Thu, 05 Jan 2023 09:13:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=5Tp+O4FotLLNEYzR5qFIBQhm82P+di5aQZ3JKRiOrSs=;
-        b=XtmMrNI6eSUrmJSMKrZ8mpBq3W5mpJuP3XZtf+z/4JaMhjLs7GgoEFLL21lyw+S1LT
-         sdlxvepOww8XlQ4cQiviY9UAltZj/foi0584TEgktuQp4S4HskFzWMTFjM1aLXJhTivN
-         Frtp2vPWeoxUSg24Q4O5jLqv7Qw8yUWyJkrux5rIVhHiGLPLt6+ZVyZF+dIG+3osOgsS
-         Pc2z7lIqDq3ntO3ykMYgonWA6dU9eG1gm+CkZLXVWJnfvmjDom41hzIxHJ8I1vyjiJsk
-         rz0vL+LGuy5ye5p4bpHGURS9JhSqQAGMjWV5Qx9WzP7Jk6jytq9dIMkEUvhOFINeTVss
-         dptw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5Tp+O4FotLLNEYzR5qFIBQhm82P+di5aQZ3JKRiOrSs=;
-        b=UXK/o/Vb4QMdeC0MgVdUXkRWrPV0HkoXiRrDlB9Lw86hb1KrFED8Qv4KdQy65JnNF4
-         nJm2tInAvcDjN7uLfOvUryh4/k3W99ENgvxwd0zi9ObELtKXQquaoQSirBTd5TGKqdPV
-         pDqQqYJNQqaaPA6jX6QBHBjeS1idcNtFbkoVH1whcPw+2KnmopuPvvNf1XeeQKKZOPQk
-         s8j07+Fi0rjZf0GHTisH8W9BUyjolSHptUxX2IlQS5W2CWIaM0D5ISUTAgjO6j2pyF8J
-         mgMDo0g8V+7EWMaBYnOdxrCHHopjNWopG0lvEWmR76xANtHD7CvU2E8jG2/stqI6Qh+I
-         MD3g==
-X-Gm-Message-State: AFqh2kpa3n4qnuuxHlzWETU/7h1HJ2fqIavY/y/E51n7WAZAT165Lx46
-        FWcRQiejcaO1HhzIooleoguY7W5o8rblkA==
-X-Google-Smtp-Source: AMrXdXvxNmcaeTXzKsvVD8p/qfffos7RdrJUK3WHEM3J0qhOMyWqfqzoH/kIVjfue4sf0s7H1JH1qQ==
-X-Received: by 2002:a17:907:8c86:b0:7c1:1adc:46fd with SMTP id td6-20020a1709078c8600b007c11adc46fdmr48508770ejc.34.1672938826884;
-        Thu, 05 Jan 2023 09:13:46 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-010-153-041.77.10.pool.telefonica.de. [77.10.153.41])
-        by smtp.gmail.com with ESMTPSA id v1-20020a170906292100b0073c10031dc9sm16585182ejd.80.2023.01.05.09.13.46
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Jan 2023 09:13:46 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 1/2] libsepol: do not write empty class definitions
-Date:   Thu,  5 Jan 2023 18:13:39 +0100
-Message-Id: <20230105171340.18444-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.39.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S235861AbjAFBGI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Jan 2023 20:06:08 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A856E404;
+        Thu,  5 Jan 2023 17:06:07 -0800 (PST)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30615LES025582;
+        Fri, 6 Jan 2023 01:05:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=h3R+ncZtwTwM04Y652MAPleCpx6WeYs0XK5yDgNWu4k=;
+ b=NrTYQumvjvkZ60eixvR7THlaP76SXXmUybLYhC4yjONEqY+mwkIge/Rl37mV8CEJLOI9
+ ns33uJhI9dKhOP/xT3A+g7Mg+mTpmX986U2SZICqcNQWA5iHOlqTk4FCsnc+jB8bSLcX
+ 8yB6niUIGqH9JnD7G/8n0XJ8Og4kUOY1zw40aBYYozH8hDu4DMX2MYfvdwqfAIPlBmL+
+ OCKoFRuI3mH5kBSw0rFX3UVyO2z8w1HbMc7IUPXakxTX6vTnj2FH0Sqp3gYQ7BY6HYg0
+ WL3753cV6qXrXvhG9fwk++66bNPrg+gNqBqBa6xaEfYidipBNVk1SKpIg7t4DEJe40VT dA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mx9p0g0e5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Jan 2023 01:05:51 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30615Ypn025982;
+        Fri, 6 Jan 2023 01:05:51 GMT
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mx9p0g0dx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Jan 2023 01:05:51 +0000
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 305MYJ63019814;
+        Fri, 6 Jan 2023 01:05:50 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
+        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3mtcq80wue-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 06 Jan 2023 01:05:50 +0000
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30615mmb59834644
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 6 Jan 2023 01:05:49 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C90A35805E;
+        Fri,  6 Jan 2023 01:05:48 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C333B58058;
+        Fri,  6 Jan 2023 01:05:47 +0000 (GMT)
+Received: from sig-9-65-221-162.ibm.com (unknown [9.65.221.162])
+        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  6 Jan 2023 01:05:47 +0000 (GMT)
+Message-ID: <1b89bdf8c57b3381d15d60a1d20a86277355ed0b.camel@linux.ibm.com>
+Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        "Guozihua (Scott)" <guozihua@huawei.com>
+Cc:     dmitry.kasatkin@gmail.com, sds@tycho.nsa.gov,
+        eparis@parisplace.org, Greg KH <gregkh@linuxfoundation.org>,
+        sashal@kernel.org, selinux@vger.kernel.org,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        stable@vger.kernel.org
+Date:   Thu, 05 Jan 2023 20:05:47 -0500
+In-Reply-To: <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
+References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
+         <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
+         <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
+         <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
+         <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
+         <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
+         <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
+         <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
+         <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
+         <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
+         <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rAZ72JXT0Q7Ew0yU5iDhbEv3-PtwyesX
+X-Proofpoint-ORIG-GUID: vr6mObpDFcGOA2fgGeNzPR9fBGy9MDIM
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
+ definitions=2023-01-05_14,2023-01-05_02,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
+ impostorscore=0 phishscore=0 bulkscore=0 malwarescore=0 mlxscore=0
+ adultscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301060006
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Do not write class definitions for classes without any permission and
-any inherited common class.  The classes are already declared in
-write_class_decl_rules_to_conf().  Skipping those empty definitions,
-which are equal to the corresponding class declarations, will enable to
-parse the generated policy conf file with checkpolicy, as checkpolicy
-does not accept class declarations after initial sid declarations.
+On Thu, 2022-12-15 at 22:04 -0500, Paul Moore wrote:
+> On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
+> > On 2022/12/16 5:04, Paul Moore wrote:
+> 
+> ...
+> 
+> > > How bad is the backport really?  Perhaps it is worth doing it to see
+> > > what it looks like?
+> > >
+> > It might not be that bad, I'll try to post a version next Monday.
+> 
+> Thanks for giving it a shot.
 
-This will enable simple round-trip tests with checkpolicy.
+FYI, in the end backporting the atomic to blocking LSM notifier change
+was the best solution.  Other than one minor correction, v6 of the
+"ima: Fix IMA mishandling of LSM based rule during" looks good.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/kernel_to_conf.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
-
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 63dffd9b..73b72b5d 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -591,16 +591,21 @@ static int write_class_and_common_rules_to_conf(FILE *out, struct policydb *pdb)
- 		class = pdb->class_val_to_struct[i];
- 		if (!class) continue;
- 		name = pdb->p_class_val_to_name[i];
--		sepol_printf(out, "class %s", name);
--		if (class->comkey) {
--			sepol_printf(out, " inherits %s", class->comkey);
--		}
- 		perms = class_or_common_perms_to_str(&class->permissions);
--		if (perms) {
--			sepol_printf(out, " { %s }", perms);
--			free(perms);
-+		/* Do not write empty classes, their declaration was alreedy
-+		 * printed in write_class_decl_rules_to_conf() */
-+		if (perms || class->comkey) {
-+			sepol_printf(out, "class %s", name);
-+			if (class->comkey) {
-+				sepol_printf(out, " inherits %s", class->comkey);
-+			}
-+
-+			if (perms) {
-+				sepol_printf(out, " { %s }", perms);
-+				free(perms);
-+			}
-+			sepol_printf(out, "\n");
- 		}
--		sepol_printf(out, "\n");
- 	}
- 
- exit:
 -- 
-2.39.0
+thanks,
+
+Mimi
 
