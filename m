@@ -2,122 +2,121 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 302E6C54E76
-	for <selinux@archiver.kernel.org>; Fri,  6 Jan 2023 01:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD2BAC54EBD
+	for <selinux@archiver.kernel.org>; Fri,  6 Jan 2023 20:30:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbjAFBGb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Jan 2023 20:06:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60626 "EHLO
+        id S230308AbjAFUa6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Jan 2023 15:30:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235861AbjAFBGI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Jan 2023 20:06:08 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0A856E404;
-        Thu,  5 Jan 2023 17:06:07 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30615LES025582;
-        Fri, 6 Jan 2023 01:05:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=h3R+ncZtwTwM04Y652MAPleCpx6WeYs0XK5yDgNWu4k=;
- b=NrTYQumvjvkZ60eixvR7THlaP76SXXmUybLYhC4yjONEqY+mwkIge/Rl37mV8CEJLOI9
- ns33uJhI9dKhOP/xT3A+g7Mg+mTpmX986U2SZICqcNQWA5iHOlqTk4FCsnc+jB8bSLcX
- 8yB6niUIGqH9JnD7G/8n0XJ8Og4kUOY1zw40aBYYozH8hDu4DMX2MYfvdwqfAIPlBmL+
- OCKoFRuI3mH5kBSw0rFX3UVyO2z8w1HbMc7IUPXakxTX6vTnj2FH0Sqp3gYQ7BY6HYg0
- WL3753cV6qXrXvhG9fwk++66bNPrg+gNqBqBa6xaEfYidipBNVk1SKpIg7t4DEJe40VT dA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mx9p0g0e5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Jan 2023 01:05:51 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 30615Ypn025982;
-        Fri, 6 Jan 2023 01:05:51 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3mx9p0g0dx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Jan 2023 01:05:51 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 305MYJ63019814;
-        Fri, 6 Jan 2023 01:05:50 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([9.208.129.113])
-        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3mtcq80wue-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 06 Jan 2023 01:05:50 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-        by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 30615mmb59834644
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 6 Jan 2023 01:05:49 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C90A35805E;
-        Fri,  6 Jan 2023 01:05:48 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C333B58058;
-        Fri,  6 Jan 2023 01:05:47 +0000 (GMT)
-Received: from sig-9-65-221-162.ibm.com (unknown [9.65.221.162])
-        by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Fri,  6 Jan 2023 01:05:47 +0000 (GMT)
-Message-ID: <1b89bdf8c57b3381d15d60a1d20a86277355ed0b.camel@linux.ibm.com>
-Subject: Re: [RFC] IMA LSM based rule race condition issue on 4.19 LTS
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        "Guozihua (Scott)" <guozihua@huawei.com>
-Cc:     dmitry.kasatkin@gmail.com, sds@tycho.nsa.gov,
-        eparis@parisplace.org, Greg KH <gregkh@linuxfoundation.org>,
-        sashal@kernel.org, selinux@vger.kernel.org,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        stable@vger.kernel.org
-Date:   Thu, 05 Jan 2023 20:05:47 -0500
-In-Reply-To: <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
-References: <389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com>
-         <efd4ce83299a10b02b1c04cc94934b8d51969e1c.camel@linux.ibm.com>
-         <6a5bc829-b788-5742-cbfc-dba348065dbe@huawei.com>
-         <566721e9e8d639c82d841edef4d11d30a4d29694.camel@linux.ibm.com>
-         <fffb29b7-a1ac-33fb-6aca-989e5567f565@huawei.com>
-         <40cf70a96d2adbff1c0646d3372f131413989854.camel@linux.ibm.com>
-         <a63d5d4b-d7a9-fdcb-2b90-b5e2a974ca4c@huawei.com>
-         <757bc525f7d3fe6db5f3ee1f86de2f4d02d8286b.camel@linux.ibm.com>
-         <CAHC9VhR2mfaVjXz3sBzbkBamt8nE-9aV+jSOs9jH1ESnKvDrvw@mail.gmail.com>
-         <fc11076f-1760-edf3-c0e4-8f58d5e0335c@huawei.com>
-         <CAHC9VhT0SRWMi2gQKaBPOj1owqUh-24O9L2DyOZ8JDgEr+ZQiQ@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: rAZ72JXT0Q7Ew0yU5iDhbEv3-PtwyesX
-X-Proofpoint-ORIG-GUID: vr6mObpDFcGOA2fgGeNzPR9fBGy9MDIM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.923,Hydra:6.0.545,FMLib:17.11.122.1
- definitions=2023-01-05_14,2023-01-05_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- impostorscore=0 phishscore=0 bulkscore=0 malwarescore=0 mlxscore=0
- adultscore=0 suspectscore=0 lowpriorityscore=0 priorityscore=1501
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301060006
+        with ESMTP id S229552AbjAFUa5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Jan 2023 15:30:57 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067393C729
+        for <selinux@vger.kernel.org>; Fri,  6 Jan 2023 12:30:56 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id c6so2852321pls.4
+        for <selinux@vger.kernel.org>; Fri, 06 Jan 2023 12:30:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=IExa2o8Boa9pjE5Orm4ScbWwYDm4momCaLQlE8pNxzg=;
+        b=fmQL/ZDCbRSR6Yf3pC3jbj4vR1v7x3506n44zHHZyqq56aULBpt0dqEDdzn4JJz4AN
+         7u83tfulXb3XFYt+dPS8T9LG73DJNZmRNG6BaJgLHOfLa1JVY2EKpqP1Yr4w9XRTJcT4
+         siWuiwXCCG3GlIjeP5nCQ4S6oB+Q74h0KxRzD042YfnOk/IZjY9whcpEZa1vLp0N3IhP
+         pUp00BsnDLtF6i8ltUgB+DLmF6Bdk8CU8374zTSHPOl5DITi0HiBx78cJ315stbXnR6c
+         opteBNScRTe6nFF3sIj7FTKn7uUQ10uGU6ISzCEbyZLN3Us2zF7jT6MDmP0XLIn2vrod
+         qZfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IExa2o8Boa9pjE5Orm4ScbWwYDm4momCaLQlE8pNxzg=;
+        b=4S+EWl7qQsowAE4mPs5vP6j3f+y/i1YBcd5ZcIwJ0gEnM0mcETldgRXGDtSRnecyP3
+         bAAvBlZ6mITsVlGxvVvSJ4tovDmtCb93g0UD9JS/QLF1usKvih5x8KKvo8u3gi2x9Nq/
+         gQ1mStezRM8acda3i7SL8gh6OAP1v+E2EiQih5R3RRo7veQlaJ8i/0Y9n972H/xZYXqK
+         274kTaxWjaUDTbpzq9Na4zlR5smYrrZltA29RuV2BM1Fa2+6wj9QKX4Yqd8wuGJLxq2G
+         liycn4u/+qARHwmOTPcQCoiNRN/yMfwU6HkeP+TrV3x/J1FAutipbow8rjn3ANvZtjgG
+         0CAQ==
+X-Gm-Message-State: AFqh2krjMoW3InpBTsNk+nSY0es0Z0hYrYOFhRd4Kll6dd9OkxkR1tWc
+        FBEnHZBNDkYR0OyBiJp7QQNNlVNQhnrUmOhGCbqQ
+X-Google-Smtp-Source: AMrXdXsqcUbWqkh7g8y2KuCTUSGRtxuwfWoG9onPrk0zc3IKjZWGbyEU34N95hNt2F3AGw0AN97qk7oLhiRy26DMos0=
+X-Received: by 2002:a17:902:cec8:b0:192:6675:8636 with SMTP id
+ d8-20020a170902cec800b0019266758636mr2899362plg.15.1673037055482; Fri, 06 Jan
+ 2023 12:30:55 -0800 (PST)
+MIME-Version: 1.0
+References: <20221213033948.73512-1-alexander.kozhevnikov@huawei-partners.com> <20221213033948.73512-2-alexander.kozhevnikov@huawei-partners.com>
+In-Reply-To: <20221213033948.73512-2-alexander.kozhevnikov@huawei-partners.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 6 Jan 2023 15:30:43 -0500
+Message-ID: <CAHC9VhRHK19tn4wepQsSk2sJKqeoO3Wv7niMePjzk0BFkpra=A@mail.gmail.com>
+Subject: Re: [PATCH 1/1] [RFC] SELINUX: Remove obsolete deferred inode
+ security init list.
+To:     Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
+Cc:     linux-security-module@vger.kernel.org,
+        jamorris@linux.microsoft.com, selinux@vger.kernel.org,
+        stephen.smalley.work@gmail.com, artem.kuzin@huawei.com,
+        hw.likun@huawei.com, xiujianfeng@huawei.com, yusongping@huawei.com,
+        hukeping@huawei.com, konstantin.meskhidze@huawei.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2022-12-15 at 22:04 -0500, Paul Moore wrote:
-> On Thu, Dec 15, 2022 at 9:36 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
-> > On 2022/12/16 5:04, Paul Moore wrote:
-> 
-> ...
-> 
-> > > How bad is the backport really?  Perhaps it is worth doing it to see
-> > > what it looks like?
-> > >
-> > It might not be that bad, I'll try to post a version next Monday.
-> 
-> Thanks for giving it a shot.
+On Mon, Dec 12, 2022 at 10:40 PM Alexander Kozhevnikov
+<alexander.kozhevnikov@huawei-partners.com> wrote:
+>
+> This patch is a proposed code optimization for SELinux:
+>
+> 1) Each inode has SELinux security structure attached
+>    to it, this one need to be initialized at some point.
+> 2) This initialization is done by the function
+>    inode_doinit_with_dentry ( ).
+> 3) In the kernel releases started from some point in the past
+>    this function (2) is always called normally from function
+>    __inode_security_revalidate ( ).
+> 4) Which in turn is always called  from inode_security ( ), which
+>    is a base point for any selinux calls and always called on
+>    any access to any inode except a few special cases when
+>    _inode_security_novalidate ( ) is used.
+> 5) Inode security structure initialization can be done only after
+>    SELinux is fully initialized and policy is loaded.
+> 6) So, for this purpose there was a special defeferred inode security
+>    initialization list protected by a spinlock implemented, which was
+>    populated instead of isec initialization in function
+>    inode_doinit_with_dentry ( ), if it was called before SELinux full
+>    initialization, and processed at the time when SELinux policy load
+>    occurred by calling again inode_doinit_with_dentry ( ) on each inode
+>    in this list.
+> 7) This list was a part of a default initialization logic before (3) was
+>    implemented, but now, taking into account new mechanism implemented
+>    with current approach of inode security revalidation on each access
+>    (4)-(3)-(2), it looks obsolete and not needed anymore.
+> 8) So deferred initialization, this list and code associated with it can
+>    be safely removed now, as anyway, if inode isec was not initialized
+>    before it will be processed on any next inode access.
+> 9) Another case for calling inode_doinit_with_dentry( ) is when a new
+>    dentry is created. This is done by call from d_instantiate( ). When
+>    the deferred initialization list is removed it would be useful to
+>    also check for SELinux initialization status here before calling
+>    inode_doinit_with_dentry( ) like it is done in
+>    __inode_security_revalidate( ).
+> 10) There are two possible positive consequences from this removal:
+>      a. More clean and simple code, less memory consumption;
+>      b. This deferred initialization in some cases (for example SELinux
+>         was switched on manually after system was up quite a long time)
+>         could take some significant time to process, i.e. system looks
+>         hung for some notable time. And now this is avoided.
+>
+> Signed-off-by: Alexander Kozhevnikov <alexander.kozhevnikov@huawei-partners.com>
+> ---
+>  security/selinux/hooks.c          | 91 ++++---------------------------
+>  security/selinux/include/objsec.h |  3 -
+>  2 files changed, 11 insertions(+), 83 deletions(-)
 
-FYI, in the end backporting the atomic to blocking LSM notifier change
-was the best solution.  Other than one minor correction, v6 of the
-"ima: Fix IMA mishandling of LSM based rule during" looks good.
+Merged into selinux/next with some minor style and grammar fixes,
+thanks Alexander!
 
 -- 
-thanks,
-
-Mimi
-
+paul-moore.com
