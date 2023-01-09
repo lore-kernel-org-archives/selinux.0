@@ -2,218 +2,159 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32590C5479D
-	for <selinux@archiver.kernel.org>; Mon,  9 Jan 2023 17:11:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFADDC5479D
+	for <selinux@archiver.kernel.org>; Mon,  9 Jan 2023 21:20:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233713AbjAIRLP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Jan 2023 12:11:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
+        id S237619AbjAIVUE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Jan 2023 16:20:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237512AbjAIRKk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 12:10:40 -0500
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D14F4FD6F
-        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 09:09:25 -0800 (PST)
-Received: by mail-ej1-x634.google.com with SMTP id fy8so21725969ejc.13
-        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 09:09:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=sD7mrY9Cg/mtzmNIALeRYulY+OKEJ52wK5K/ChqI52o=;
-        b=g7UklN7bsXDCOBizxkqFk9ItFM8zYzJ+v5XN4/2Dc9EMg9DNVsR4stsPyZlKjvz4rY
-         pFQl5Ms/9wIE8YMHPHHPGjYjzbbg+IhUxgvwEqQ9TraXxtNjWWB5Jzo+g+1y828mbJb0
-         u3Ly8i8fpnzXPRoVnsstA1fvuEsYpUatwOwEOpa5U+3EFcK0R+9MWZd+D3bwPnKfzZCx
-         mrgur0FJu8zf8qJKUd9zjuMPJFjeEK0CpfyPNkQDnyVk753x22CYhwFJIHWiTlK+8F9U
-         cHKTajiyz57n6sG9M+ehf1dLV3jFmodeurwaKhEM27j/8lamLLsA6J08KNoXcAVC9Z4k
-         yl4Q==
+        with ESMTP id S237667AbjAIVT0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 16:19:26 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C414D47
+        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 13:18:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673299119;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=tN/qdHlqeSIhmjrzgJz8ttzucfU8QVSdboeIPwna4uE=;
+        b=JWB3Mo3ILGM6ROZJ2TTABgeaAt4uZcpSOh4mJO0mv/SJfdm85QRiFZlVKmF1wd4wRpqeCJ
+        hzhdqMvRsRGi0LKGaqadhx07EIg+8uz15b5fAjKddEiyIoKbg1C+RLOlRbHzNkxJwELRCj
+        F84jOmTB2ibW39YZdpAUWgM8quKaUq4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-584-J0kDNyMuNA6UKYx1y4vlbw-1; Mon, 09 Jan 2023 16:18:38 -0500
+X-MC-Unique: J0kDNyMuNA6UKYx1y4vlbw-1
+Received: by mail-wm1-f70.google.com with SMTP id m7-20020a05600c4f4700b003d971a5e770so5323189wmq.3
+        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 13:18:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=sD7mrY9Cg/mtzmNIALeRYulY+OKEJ52wK5K/ChqI52o=;
-        b=Ufp7mdbGkJt37TZoUzF7FRqkhVo9eBqmfL8kcHMB2OyjOZR6lL6qShEryYO9hNJPMD
-         mFwIjoOI0+l7mUDNNR8XERfTHgMapa0bAFETJJgXWES7j/C1nVm+MqG5em/QMtcrph+0
-         Y5sAfwD0dQ7+MkX/CVuQVjn7WWpmABxDQfelct27zti7iNU0BnKqlggazFCTEgPCGecz
-         IEwzMaqpomidTAP/KgmSp91YeQlDehT6x3BOW4hRZjsr1CVLXgFYQviie92P6CcJIylS
-         QHOyo42ixvfnwVy1YvnfqJg47x6da535HNM5jhlJ5EbsYH3yB4A9OOPrXy4XkFSCon4r
-         gPVQ==
-X-Gm-Message-State: AFqh2krOHGfQd3SIB9hS0FTzeHJM2WHggRzm0JAPwmvCkbB9Jj/B2dzO
-        2oYb1pU5B+NnB8/po3GHoNAxogbdtsI=
-X-Google-Smtp-Source: AMrXdXt5y787mcmK+IqsuuEEYvE1qX/IZnnrtZ/4job+CRrHEqgJnCVnqoNVJTV87s9/hhVUtw9fUA==
-X-Received: by 2002:a17:906:a1c5:b0:7c1:2529:b25e with SMTP id bx5-20020a170906a1c500b007c12529b25emr54753622ejb.43.1673284163522;
-        Mon, 09 Jan 2023 09:09:23 -0800 (PST)
-Received: from dlaptop.localdomain (dynamic-077-008-132-214.77.8.pool.telefonica.de. [77.8.132.214])
-        by smtp.gmail.com with ESMTPSA id z20-20020a1709067e5400b00809e33ba33dsm3971471ejr.19.2023.01.09.09.09.22
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=tN/qdHlqeSIhmjrzgJz8ttzucfU8QVSdboeIPwna4uE=;
+        b=385vYTTn2eXKab81NBU/2TyIc6OrAFoX4DdwUbL1cUewqZtxHYvVrIKvGdaXCKqp+N
+         wxFx6rOLFwvFUoLenUWLdcafPrBRr76nMWaRrNvcWQ/WNlqtE1menbQVlGSisr9H8egF
+         5/8PfegjiRp2sXRkcLO4YJBHt6GakFSRivXaBMyH+W+ns4zY/iZy6vuqAl1Qk0mSpO8I
+         uByAggtuqBOUL1O/qnQgLI+vpvtBSNxonUFv0pHvzCPQswCYGW8i9MU/MpYKbi/LtdLf
+         HH3yEvL64KOd9fwTZayaspcxggzAU3Jzq9y9OSsg0/8jkxUXYQ1eGDOp2iuQyAQhOyJm
+         KYHQ==
+X-Gm-Message-State: AFqh2kox5mFxv6xsZ9TqgHmGUBH6hhNhLHRFED8/L+J25oLC3qjnrqiF
+        1qb/jmuXyylxpWoAzxnoLrqEvonRWB7qVlx7GBLBa65nZvq1Gd/rmWDefD7hWgRXbO4YjnpXhKQ
+        R+jSZy5Hq/gSxivOBn4frMO4IYyxi23V9v8LxSS7qUArBkNs0UTb/bTKOnhPgzm5GKt0CEQ==
+X-Received: by 2002:a05:600c:3485:b0:3d0:761b:f86 with SMTP id a5-20020a05600c348500b003d0761b0f86mr47116359wmq.28.1673299116546;
+        Mon, 09 Jan 2023 13:18:36 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXt080mQyw7vhmq+R1wyai1I4wP7oHjQFy2Y5kFfuDJNho8nSTi3ZDAmQOGC+B6IrthSgGsjQQ==
+X-Received: by 2002:a05:600c:3485:b0:3d0:761b:f86 with SMTP id a5-20020a05600c348500b003d0761b0f86mr47116351wmq.28.1673299116129;
+        Mon, 09 Jan 2023 13:18:36 -0800 (PST)
+Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
+        by smtp.gmail.com with ESMTPSA id u16-20020a05600c00d000b003cf4eac8e80sm15127179wmm.23.2023.01.09.13.18.35
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 09:09:23 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+        Mon, 09 Jan 2023 13:18:35 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH] libselinux: add getpidprevcon
-Date:   Mon,  9 Jan 2023 18:09:12 +0100
-Message-Id: <20230109170912.57887-1-cgzones@googlemail.com>
+Subject: [PATCH testsuite] tests/keys: remove extraneous zero byte from the DH prime
+Date:   Mon,  9 Jan 2023 22:18:34 +0100
+Message-Id: <20230109211834.1950163-1-omosnace@redhat.com>
 X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add the public interfaces getpidprevcon(3) and getpidprevcon_raw(3), and
-the utility getpidprevcon to gather the previous context before the last
-exec of a given process.
+The extra zero byte at the beginning is unnecessary and not expected by
+the kernel. While the generic DH implementation is able to deal with it,
+at least one hardware driver implementation (intel_qat) rejects it.
+Since the kernel's test vectors do not include one with zero bytes at
+the beginning, assume that it's invalid and remove it from our prime
+byte array.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+While there also regroup the byte values by 8 instead of 10, so that it
+is easy to verify that the size of the array is a multiple of 8 as
+expected.
+
+Verified on a machine with the Intel QAT accelerator, where the test was
+failing before.
+
+Fixes: 85832b99b430 ("tests/keys: use a longer prime in DH params")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- libselinux/include/selinux/selinux.h    |  5 ++++
- libselinux/man/man3/getcon.3            |  9 +++++++
- libselinux/man/man3/getpidprevcon.3     |  1 +
- libselinux/man/man3/getpidprevcon_raw.3 |  1 +
- libselinux/src/procattr.c               | 18 ++++++++++++++
- libselinux/utils/.gitignore             |  1 +
- libselinux/utils/getpidprevcon.c        | 33 +++++++++++++++++++++++++
- 7 files changed, 68 insertions(+)
- create mode 100644 libselinux/man/man3/getpidprevcon.3
- create mode 100644 libselinux/man/man3/getpidprevcon_raw.3
- create mode 100644 libselinux/utils/getpidprevcon.c
+ tests/keys/keys_common.h | 58 ++++++++++++++++++++++------------------
+ 1 file changed, 32 insertions(+), 26 deletions(-)
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 47af9953..a0948853 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -54,6 +54,11 @@ extern int getpidcon_raw(pid_t pid, char ** con);
- extern int getprevcon(char ** con);
- extern int getprevcon_raw(char ** con);
+diff --git a/tests/keys/keys_common.h b/tests/keys/keys_common.h
+index 64385bf..c9a8ec6 100644
+--- a/tests/keys/keys_common.h
++++ b/tests/keys/keys_common.h
+@@ -13,32 +13,38 @@
  
-+/* Get previous context (prior to last exec) of process identified by pid, and
-+   set *con to refer to it.  Caller must free via freecon. */
-+extern int getpidprevcon(pid_t pid, char ** con);
-+extern int getpidprevcon_raw(pid_t pid, char ** con);
-+
- /* Get exec context, and set *con to refer to it.
-    Sets *con to NULL if no exec context has been set, i.e. using default.
-    If non-NULL, caller must free via freecon. */
-diff --git a/libselinux/man/man3/getcon.3 b/libselinux/man/man3/getcon.3
-index e7e394f3..38da958b 100644
---- a/libselinux/man/man3/getcon.3
-+++ b/libselinux/man/man3/getcon.3
-@@ -23,6 +23,10 @@ setcon \- set current security context of a process
- .sp
- .BI "int getpidcon_raw(pid_t " pid ", char **" context );
- .sp
-+.BI "int getpidprevcon(pid_t " pid ", char **" context );
-+.sp
-+.BI "int getpidprevcon_raw(pid_t " pid ", char **" context );
-+.sp
- .BI "int getpeercon(int " fd ", char **" context );
- .sp
- .BI "int getpeercon_raw(int " fd ", char **" context );
-@@ -50,6 +54,11 @@ same as getcon but gets the context before the last exec.
- returns the process context for the specified PID, which must be free'd with
- .BR freecon ().
- 
-+.TP
-+.BR getpidprevcon ()
-+returns the process context before the last exec for the specified PID, which must be free'd with
-+.BR freecon ().
-+
- .TP
- .BR getpeercon ()
- retrieves the context of the peer socket, which must be free'd with
-diff --git a/libselinux/man/man3/getpidprevcon.3 b/libselinux/man/man3/getpidprevcon.3
-new file mode 100644
-index 00000000..1210b5a0
---- /dev/null
-+++ b/libselinux/man/man3/getpidprevcon.3
-@@ -0,0 +1 @@
-+.so man3/getcon.3
-diff --git a/libselinux/man/man3/getpidprevcon_raw.3 b/libselinux/man/man3/getpidprevcon_raw.3
-new file mode 100644
-index 00000000..1210b5a0
---- /dev/null
-+++ b/libselinux/man/man3/getpidprevcon_raw.3
-@@ -0,0 +1 @@
-+.so man3/getcon.3
-diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-index 6f4cfb82..b7a93a2b 100644
---- a/libselinux/src/procattr.c
-+++ b/libselinux/src/procattr.c
-@@ -300,3 +300,21 @@ int getpidcon(pid_t pid, char **c)
- 	}
- 	return getprocattrcon(c, pid, "current", NULL);
- }
-+
-+int getpidprevcon_raw(pid_t pid, char **c)
-+{
-+        if (pid <= 0) {
-+                errno = EINVAL;
-+                return -1;
-+        }
-+        return getprocattrcon_raw(c, pid, "prev", NULL);
-+}
-+
-+int getpidprevcon(pid_t pid, char **c)
-+{
-+        if (pid <= 0) {
-+                errno = EINVAL;
-+                return -1;
-+        }
-+        return getprocattrcon(c, pid, "prev", NULL);
-+}
-diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-index 3ef34374..b19b94a8 100644
---- a/libselinux/utils/.gitignore
-+++ b/libselinux/utils/.gitignore
-@@ -9,6 +9,7 @@ getdefaultcon
- getenforce
- getfilecon
- getpidcon
-+getpidprevcon
- getsebool
- getseuser
- matchpathcon
-diff --git a/libselinux/utils/getpidprevcon.c b/libselinux/utils/getpidprevcon.c
-new file mode 100644
-index 00000000..662ad500
---- /dev/null
-+++ b/libselinux/utils/getpidprevcon.c
-@@ -0,0 +1,33 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv)
-+{
-+	pid_t pid;
-+	char *buf;
-+	int rc;
-+
-+	if (argc != 2) {
-+		fprintf(stderr, "usage:  %s pid\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	if (sscanf(argv[1], "%d", &pid) != 1) {
-+		fprintf(stderr, "%s:  invalid pid %s\n", argv[0], argv[1]);
-+		exit(2);
-+	}
-+
-+	rc = getpidprevcon(pid, &buf);
-+	if (rc < 0) {
-+		fprintf(stderr, "%s:  getpidprevcon() failed:  %s\n", argv[0], strerror(errno));
-+		exit(3);
-+	}
-+
-+	printf("%s\n", buf);
-+	freecon(buf);
-+	exit(EXIT_SUCCESS);
-+}
+ /* dummy values - prime generated by `openssl dhparam -text -2 2048` */
+ static const unsigned char payload_prime[] = {
+-	0x00, 0xad, 0xf4, 0x89, 0x34, 0x97, 0xf0, 0x98, 0x83, 0xb3,
+-	0x99, 0x38, 0xb7, 0x35, 0xed, 0xf6, 0x81, 0xe8, 0xdd, 0x0f,
+-	0x37, 0x50, 0x81, 0xbf, 0x06, 0x82, 0xe6, 0x0f, 0x39, 0x90,
+-	0xd2, 0x8e, 0xc6, 0x69, 0xa4, 0x84, 0x79, 0xc9, 0x6a, 0x16,
+-	0x1d, 0x6c, 0x5c, 0xf7, 0x5e, 0x74, 0x51, 0xef, 0x94, 0x33,
+-	0x7c, 0x4a, 0x37, 0x26, 0x76, 0x20, 0x96, 0xf5, 0x54, 0xb7,
+-	0x22, 0x09, 0xe4, 0xec, 0x35, 0x4c, 0x58, 0xf2, 0xf7, 0x27,
+-	0x98, 0xb0, 0xc5, 0x66, 0x59, 0x00, 0x5a, 0xa5, 0x24, 0x2b,
+-	0x5a, 0x27, 0x9e, 0xce, 0x28, 0x3d, 0x03, 0x97, 0x42, 0x8f,
+-	0xd7, 0xc1, 0xcd, 0x93, 0x5c, 0xf0, 0x53, 0x66, 0xbf, 0x72,
+-	0x29, 0xcd, 0xc3, 0xc9, 0x64, 0x85, 0xd4, 0xf6, 0x86, 0x5d,
+-	0xb1, 0x99, 0xf6, 0x8c, 0xd7, 0xdf, 0xd0, 0x49, 0x7a, 0xd3,
+-	0x5e, 0x17, 0xeb, 0xdf, 0xf3, 0xdf, 0xaa, 0x76, 0x2b, 0xa4,
+-	0x43, 0xc8, 0xc6, 0xfd, 0xab, 0xf9, 0xf7, 0xb3, 0x21, 0x73,
+-	0x06, 0xe7, 0x1f, 0x51, 0x1a, 0x51, 0x57, 0x15, 0xbe, 0x52,
+-	0x26, 0xc9, 0x87, 0x24, 0x15, 0x4b, 0xf2, 0x39, 0x51, 0x92,
+-	0xb9, 0xbe, 0xcf, 0xd3, 0xc6, 0xca, 0xdc, 0xbb, 0x5b, 0x1f,
+-	0x60, 0x89, 0x96, 0x08, 0xf5, 0xe6, 0xa4, 0xb7, 0xf7, 0x72,
+-	0x5d, 0xe2, 0x95, 0x04, 0x1c, 0x4a, 0xd6, 0x85, 0x18, 0x3b,
+-	0xaf, 0x1a, 0x6a, 0xf3, 0x5a, 0xc1, 0x29, 0x47, 0x71, 0xe5,
+-	0x39, 0x4d, 0x35, 0x31, 0xc6, 0xe9, 0x81, 0xc4, 0x90, 0xd1,
+-	0x40, 0xf5, 0x08, 0x80, 0x6c, 0x91, 0x05, 0xcc, 0x24, 0x8d,
+-	0x80, 0xc1, 0x7d, 0x27, 0xa2, 0xfd, 0x51, 0xfd, 0xc6, 0xd7,
+-	0x11, 0x9d, 0x62, 0x89, 0xc3, 0x57, 0x71, 0xbf, 0x1a, 0x75,
+-	0xaa, 0x6d, 0x37, 0x3f, 0xb1, 0x53, 0xf6, 0xa4, 0xa6, 0x6d,
+-	0xd5, 0xbb, 0xc2, 0x9d, 0xb9, 0x31, 0xbf
++	0xad, 0xf4, 0x89, 0x34, 0x97, 0xf0, 0x98, 0x83,
++	0xb3, 0x99, 0x38, 0xb7, 0x35, 0xed, 0xf6, 0x81,
++	0xe8, 0xdd, 0x0f, 0x37, 0x50, 0x81, 0xbf, 0x06,
++	0x82, 0xe6, 0x0f, 0x39, 0x90, 0xd2, 0x8e, 0xc6,
++	0x69, 0xa4, 0x84, 0x79, 0xc9, 0x6a, 0x16, 0x1d,
++	0x6c, 0x5c, 0xf7, 0x5e, 0x74, 0x51, 0xef, 0x94,
++	0x33, 0x7c, 0x4a, 0x37, 0x26, 0x76, 0x20, 0x96,
++	0xf5, 0x54, 0xb7, 0x22, 0x09, 0xe4, 0xec, 0x35,
++	0x4c, 0x58, 0xf2, 0xf7, 0x27, 0x98, 0xb0, 0xc5,
++	0x66, 0x59, 0x00, 0x5a, 0xa5, 0x24, 0x2b, 0x5a,
++	0x27, 0x9e, 0xce, 0x28, 0x3d, 0x03, 0x97, 0x42,
++	0x8f, 0xd7, 0xc1, 0xcd, 0x93, 0x5c, 0xf0, 0x53,
++	0x66, 0xbf, 0x72, 0x29, 0xcd, 0xc3, 0xc9, 0x64,
++	0x85, 0xd4, 0xf6, 0x86, 0x5d, 0xb1, 0x99, 0xf6,
++	0x8c, 0xd7, 0xdf, 0xd0, 0x49, 0x7a, 0xd3, 0x5e,
++	0x17, 0xeb, 0xdf, 0xf3, 0xdf, 0xaa, 0x76, 0x2b,
++	0xa4, 0x43, 0xc8, 0xc6, 0xfd, 0xab, 0xf9, 0xf7,
++	0xb3, 0x21, 0x73, 0x06, 0xe7, 0x1f, 0x51, 0x1a,
++	0x51, 0x57, 0x15, 0xbe, 0x52, 0x26, 0xc9, 0x87,
++	0x24, 0x15, 0x4b, 0xf2, 0x39, 0x51, 0x92, 0xb9,
++	0xbe, 0xcf, 0xd3, 0xc6, 0xca, 0xdc, 0xbb, 0x5b,
++	0x1f, 0x60, 0x89, 0x96, 0x08, 0xf5, 0xe6, 0xa4,
++	0xb7, 0xf7, 0x72, 0x5d, 0xe2, 0x95, 0x04, 0x1c,
++	0x4a, 0xd6, 0x85, 0x18, 0x3b, 0xaf, 0x1a, 0x6a,
++	0xf3, 0x5a, 0xc1, 0x29, 0x47, 0x71, 0xe5, 0x39,
++	0x4d, 0x35, 0x31, 0xc6, 0xe9, 0x81, 0xc4, 0x90,
++	0xd1, 0x40, 0xf5, 0x08, 0x80, 0x6c, 0x91, 0x05,
++	0xcc, 0x24, 0x8d, 0x80, 0xc1, 0x7d, 0x27, 0xa2,
++	0xfd, 0x51, 0xfd, 0xc6, 0xd7, 0x11, 0x9d, 0x62,
++	0x89, 0xc3, 0x57, 0x71, 0xbf, 0x1a, 0x75, 0xaa,
++	0x6d, 0x37, 0x3f, 0xb1, 0x53, 0xf6, 0xa4, 0xa6,
++	0x6d, 0xd5, 0xbb, 0xc2, 0x9d, 0xb9, 0x31, 0xbf,
+ };
+ static const unsigned char payload_base[] = { 0x02 };
+ static const unsigned char payload_private[] = { 42 };
 -- 
 2.39.0
 
