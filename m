@@ -2,159 +2,139 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFADDC5479D
-	for <selinux@archiver.kernel.org>; Mon,  9 Jan 2023 21:20:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4544C5479D
+	for <selinux@archiver.kernel.org>; Mon,  9 Jan 2023 21:40:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237619AbjAIVUE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Jan 2023 16:20:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56022 "EHLO
+        id S237413AbjAIVkE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Jan 2023 16:40:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237667AbjAIVT0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 16:19:26 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C414D47
-        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 13:18:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673299119;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=tN/qdHlqeSIhmjrzgJz8ttzucfU8QVSdboeIPwna4uE=;
-        b=JWB3Mo3ILGM6ROZJ2TTABgeaAt4uZcpSOh4mJO0mv/SJfdm85QRiFZlVKmF1wd4wRpqeCJ
-        hzhdqMvRsRGi0LKGaqadhx07EIg+8uz15b5fAjKddEiyIoKbg1C+RLOlRbHzNkxJwELRCj
-        F84jOmTB2ibW39YZdpAUWgM8quKaUq4=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-584-J0kDNyMuNA6UKYx1y4vlbw-1; Mon, 09 Jan 2023 16:18:38 -0500
-X-MC-Unique: J0kDNyMuNA6UKYx1y4vlbw-1
-Received: by mail-wm1-f70.google.com with SMTP id m7-20020a05600c4f4700b003d971a5e770so5323189wmq.3
-        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 13:18:37 -0800 (PST)
+        with ESMTP id S238081AbjAIVje (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 16:39:34 -0500
+Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E9F35904
+        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 13:38:20 -0800 (PST)
+Received: by mail-pl1-x649.google.com with SMTP id l15-20020a170903244f00b001927c3a0055so7010739pls.6
+        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 13:38:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=g7XZ6zbY4DVhx/1OXdLF/gOX5xZT7N2TM5K+hmXQB+Q=;
+        b=lp6mFgIFtl15wfLpEIICylaN7ba0rLKWyBcSmwWXHBIHGw2PfI8uc5JoYpz78iGrzt
+         q7BwcvepUR121HS9evBvJZvukxIVfLEQnv4pKm0uyiAQHZ2lPiVMGwyZcSxUFbhaL90/
+         ucKWwiEICRsvndQmUOtOCqlM9msyGSEUsXD5lwlIQfLeTtimxNUVh0grkxXS2J8ZCHmG
+         Om+IZIdCATJX9OXIuWLzOFPLT1CV83yldN+eGwxCxvUZBerXOoxKxtFA5g5ttfCJSVS7
+         8JY1ciKixBdA0fOe8xhy0huWzEPzI2dQz1uyE93OBKFPfOC0Iwt7BiU0pYO43R8uQXJv
+         jjig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tN/qdHlqeSIhmjrzgJz8ttzucfU8QVSdboeIPwna4uE=;
-        b=385vYTTn2eXKab81NBU/2TyIc6OrAFoX4DdwUbL1cUewqZtxHYvVrIKvGdaXCKqp+N
-         wxFx6rOLFwvFUoLenUWLdcafPrBRr76nMWaRrNvcWQ/WNlqtE1menbQVlGSisr9H8egF
-         5/8PfegjiRp2sXRkcLO4YJBHt6GakFSRivXaBMyH+W+ns4zY/iZy6vuqAl1Qk0mSpO8I
-         uByAggtuqBOUL1O/qnQgLI+vpvtBSNxonUFv0pHvzCPQswCYGW8i9MU/MpYKbi/LtdLf
-         HH3yEvL64KOd9fwTZayaspcxggzAU3Jzq9y9OSsg0/8jkxUXYQ1eGDOp2iuQyAQhOyJm
-         KYHQ==
-X-Gm-Message-State: AFqh2kox5mFxv6xsZ9TqgHmGUBH6hhNhLHRFED8/L+J25oLC3qjnrqiF
-        1qb/jmuXyylxpWoAzxnoLrqEvonRWB7qVlx7GBLBa65nZvq1Gd/rmWDefD7hWgRXbO4YjnpXhKQ
-        R+jSZy5Hq/gSxivOBn4frMO4IYyxi23V9v8LxSS7qUArBkNs0UTb/bTKOnhPgzm5GKt0CEQ==
-X-Received: by 2002:a05:600c:3485:b0:3d0:761b:f86 with SMTP id a5-20020a05600c348500b003d0761b0f86mr47116359wmq.28.1673299116546;
-        Mon, 09 Jan 2023 13:18:36 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXt080mQyw7vhmq+R1wyai1I4wP7oHjQFy2Y5kFfuDJNho8nSTi3ZDAmQOGC+B6IrthSgGsjQQ==
-X-Received: by 2002:a05:600c:3485:b0:3d0:761b:f86 with SMTP id a5-20020a05600c348500b003d0761b0f86mr47116351wmq.28.1673299116129;
-        Mon, 09 Jan 2023 13:18:36 -0800 (PST)
-Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
-        by smtp.gmail.com with ESMTPSA id u16-20020a05600c00d000b003cf4eac8e80sm15127179wmm.23.2023.01.09.13.18.35
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 13:18:35 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] tests/keys: remove extraneous zero byte from the DH prime
-Date:   Mon,  9 Jan 2023 22:18:34 +0100
-Message-Id: <20230109211834.1950163-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.39.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=g7XZ6zbY4DVhx/1OXdLF/gOX5xZT7N2TM5K+hmXQB+Q=;
+        b=l9pDVNcp+rqTmB+wZc2+/7yKTjUMbCKau8WlHKmSEeOvwpCRa3vSrF2ggmH5+jUHJa
+         bJfCMb3AfmpeoosARF5oBng24wqOzKdOgfctRjQyr5FN4y+XcdkekgauCyHSxJW8t/oc
+         XUODGNw3xaFUc6HWHdVWnv7Ki4+ChIzq1HeNmgDf6KSCg1FxuiNqhNLZgqs+K9Dtvb94
+         7C7j03dxAqtbFJOOjqslVbZCGHMA41UGtyD1oGHhKM5MQ/oualaR/5iLtStc4td0Q7T0
+         OG1GKMJic+E4JKpYuaDeQIBb8rQUc2s9UKk34pMBu8VyXL6UUpQv0YWYS0tmS1r+JLqA
+         S1cg==
+X-Gm-Message-State: AFqh2kq04sKDPIyRgi+nNktmAo5383q/uI70NmxzhnXR79FiEnaOJjkm
+        sxJocbSi9dvVZ2kZx8a5x3OPDvnoOL07/i8=
+X-Google-Smtp-Source: AMrXdXtQbTYSpTLTOjbwoiA82zlu8FrSWZKcx71vLDnaBfZa7QUA/oE7cdXqxYT9vkecD3g3+ea7/6F21U6cq64=
+X-Received: from tj.c.googlers.com ([fda3:e722:ac3:cc00:20:ed76:c0a8:53a])
+ (user=tjmercier job=sendgmr) by 2002:a05:6a00:1384:b0:56b:9ce2:891f with SMTP
+ id t4-20020a056a00138400b0056b9ce2891fmr3675608pfg.43.1673300299885; Mon, 09
+ Jan 2023 13:38:19 -0800 (PST)
+Date:   Mon,  9 Jan 2023 21:38:03 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
+Message-ID: <20230109213809.418135-1-tjmercier@google.com>
+Subject: [PATCH 0/4] Track exported dma-buffers with memcg
+From:   "T.J. Mercier" <tjmercier@google.com>
+To:     tjmercier@google.com, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        "=?UTF-8?q?Christian=20K=C3=B6nig?=" <christian.koenig@amd.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Shakeel Butt <shakeelb@google.com>,
+        Muchun Song <muchun.song@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
+        cgroups@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        linux-mm@kvack.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The extra zero byte at the beginning is unnecessary and not expected by
-the kernel. While the generic DH implementation is able to deal with it,
-at least one hardware driver implementation (intel_qat) rejects it.
-Since the kernel's test vectors do not include one with zero bytes at
-the beginning, assume that it's invalid and remove it from our prime
-byte array.
+Based on discussions at LPC, this series adds a memory.stat counter for
+exported dmabufs. This counter allows us to continue tracking
+system-wide total exported buffer sizes which there is no longer any
+way to get without DMABUF_SYSFS_STATS, and adds a new capability to
+track per-cgroup exported buffer sizes. The total (root counter) is
+helpful for accounting in-kernel dmabuf use (by comparing with the sum
+of child nodes or with the sum of sizes of mapped buffers or FD
+references in procfs) in addition to helping identify driver memory
+leaks when in-kernel use continually increases over time. With
+per-application cgroups, the per-cgroup counter allows us to quickly
+see how much dma-buf memory an application has caused to be allocated.
+This avoids the need to read through all of procfs which can be a
+lengthy process, and causes the charge to "stick" to the allocating
+process/cgroup as long as the buffer is alive, regardless of how the
+buffer is shared (unless the charge is transferred).
 
-While there also regroup the byte values by 8 instead of 10, so that it
-is easy to verify that the size of the array is a multiple of 8 as
-expected.
+The first patch adds the counter to memcg. The next two patches allow
+the charge for a buffer to be transferred across cgroups which is
+necessary because of the way most dmabufs are allocated from a central
+process on Android. The fourth patch adds a SELinux hook to binder in
+order to control who is allowed to transfer buffer charges.
 
-Verified on a machine with the Intel QAT accelerator, where the test was
-failing before.
+[1] https://lore.kernel.org/all/20220617085702.4298-1-christian.koenig@amd.com/
 
-Fixes: 85832b99b430 ("tests/keys: use a longer prime in DH params")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- tests/keys/keys_common.h | 58 ++++++++++++++++++++++------------------
- 1 file changed, 32 insertions(+), 26 deletions(-)
+Hridya Valsaraju (1):
+  binder: Add flags to relinquish ownership of fds
 
-diff --git a/tests/keys/keys_common.h b/tests/keys/keys_common.h
-index 64385bf..c9a8ec6 100644
---- a/tests/keys/keys_common.h
-+++ b/tests/keys/keys_common.h
-@@ -13,32 +13,38 @@
- 
- /* dummy values - prime generated by `openssl dhparam -text -2 2048` */
- static const unsigned char payload_prime[] = {
--	0x00, 0xad, 0xf4, 0x89, 0x34, 0x97, 0xf0, 0x98, 0x83, 0xb3,
--	0x99, 0x38, 0xb7, 0x35, 0xed, 0xf6, 0x81, 0xe8, 0xdd, 0x0f,
--	0x37, 0x50, 0x81, 0xbf, 0x06, 0x82, 0xe6, 0x0f, 0x39, 0x90,
--	0xd2, 0x8e, 0xc6, 0x69, 0xa4, 0x84, 0x79, 0xc9, 0x6a, 0x16,
--	0x1d, 0x6c, 0x5c, 0xf7, 0x5e, 0x74, 0x51, 0xef, 0x94, 0x33,
--	0x7c, 0x4a, 0x37, 0x26, 0x76, 0x20, 0x96, 0xf5, 0x54, 0xb7,
--	0x22, 0x09, 0xe4, 0xec, 0x35, 0x4c, 0x58, 0xf2, 0xf7, 0x27,
--	0x98, 0xb0, 0xc5, 0x66, 0x59, 0x00, 0x5a, 0xa5, 0x24, 0x2b,
--	0x5a, 0x27, 0x9e, 0xce, 0x28, 0x3d, 0x03, 0x97, 0x42, 0x8f,
--	0xd7, 0xc1, 0xcd, 0x93, 0x5c, 0xf0, 0x53, 0x66, 0xbf, 0x72,
--	0x29, 0xcd, 0xc3, 0xc9, 0x64, 0x85, 0xd4, 0xf6, 0x86, 0x5d,
--	0xb1, 0x99, 0xf6, 0x8c, 0xd7, 0xdf, 0xd0, 0x49, 0x7a, 0xd3,
--	0x5e, 0x17, 0xeb, 0xdf, 0xf3, 0xdf, 0xaa, 0x76, 0x2b, 0xa4,
--	0x43, 0xc8, 0xc6, 0xfd, 0xab, 0xf9, 0xf7, 0xb3, 0x21, 0x73,
--	0x06, 0xe7, 0x1f, 0x51, 0x1a, 0x51, 0x57, 0x15, 0xbe, 0x52,
--	0x26, 0xc9, 0x87, 0x24, 0x15, 0x4b, 0xf2, 0x39, 0x51, 0x92,
--	0xb9, 0xbe, 0xcf, 0xd3, 0xc6, 0xca, 0xdc, 0xbb, 0x5b, 0x1f,
--	0x60, 0x89, 0x96, 0x08, 0xf5, 0xe6, 0xa4, 0xb7, 0xf7, 0x72,
--	0x5d, 0xe2, 0x95, 0x04, 0x1c, 0x4a, 0xd6, 0x85, 0x18, 0x3b,
--	0xaf, 0x1a, 0x6a, 0xf3, 0x5a, 0xc1, 0x29, 0x47, 0x71, 0xe5,
--	0x39, 0x4d, 0x35, 0x31, 0xc6, 0xe9, 0x81, 0xc4, 0x90, 0xd1,
--	0x40, 0xf5, 0x08, 0x80, 0x6c, 0x91, 0x05, 0xcc, 0x24, 0x8d,
--	0x80, 0xc1, 0x7d, 0x27, 0xa2, 0xfd, 0x51, 0xfd, 0xc6, 0xd7,
--	0x11, 0x9d, 0x62, 0x89, 0xc3, 0x57, 0x71, 0xbf, 0x1a, 0x75,
--	0xaa, 0x6d, 0x37, 0x3f, 0xb1, 0x53, 0xf6, 0xa4, 0xa6, 0x6d,
--	0xd5, 0xbb, 0xc2, 0x9d, 0xb9, 0x31, 0xbf
-+	0xad, 0xf4, 0x89, 0x34, 0x97, 0xf0, 0x98, 0x83,
-+	0xb3, 0x99, 0x38, 0xb7, 0x35, 0xed, 0xf6, 0x81,
-+	0xe8, 0xdd, 0x0f, 0x37, 0x50, 0x81, 0xbf, 0x06,
-+	0x82, 0xe6, 0x0f, 0x39, 0x90, 0xd2, 0x8e, 0xc6,
-+	0x69, 0xa4, 0x84, 0x79, 0xc9, 0x6a, 0x16, 0x1d,
-+	0x6c, 0x5c, 0xf7, 0x5e, 0x74, 0x51, 0xef, 0x94,
-+	0x33, 0x7c, 0x4a, 0x37, 0x26, 0x76, 0x20, 0x96,
-+	0xf5, 0x54, 0xb7, 0x22, 0x09, 0xe4, 0xec, 0x35,
-+	0x4c, 0x58, 0xf2, 0xf7, 0x27, 0x98, 0xb0, 0xc5,
-+	0x66, 0x59, 0x00, 0x5a, 0xa5, 0x24, 0x2b, 0x5a,
-+	0x27, 0x9e, 0xce, 0x28, 0x3d, 0x03, 0x97, 0x42,
-+	0x8f, 0xd7, 0xc1, 0xcd, 0x93, 0x5c, 0xf0, 0x53,
-+	0x66, 0xbf, 0x72, 0x29, 0xcd, 0xc3, 0xc9, 0x64,
-+	0x85, 0xd4, 0xf6, 0x86, 0x5d, 0xb1, 0x99, 0xf6,
-+	0x8c, 0xd7, 0xdf, 0xd0, 0x49, 0x7a, 0xd3, 0x5e,
-+	0x17, 0xeb, 0xdf, 0xf3, 0xdf, 0xaa, 0x76, 0x2b,
-+	0xa4, 0x43, 0xc8, 0xc6, 0xfd, 0xab, 0xf9, 0xf7,
-+	0xb3, 0x21, 0x73, 0x06, 0xe7, 0x1f, 0x51, 0x1a,
-+	0x51, 0x57, 0x15, 0xbe, 0x52, 0x26, 0xc9, 0x87,
-+	0x24, 0x15, 0x4b, 0xf2, 0x39, 0x51, 0x92, 0xb9,
-+	0xbe, 0xcf, 0xd3, 0xc6, 0xca, 0xdc, 0xbb, 0x5b,
-+	0x1f, 0x60, 0x89, 0x96, 0x08, 0xf5, 0xe6, 0xa4,
-+	0xb7, 0xf7, 0x72, 0x5d, 0xe2, 0x95, 0x04, 0x1c,
-+	0x4a, 0xd6, 0x85, 0x18, 0x3b, 0xaf, 0x1a, 0x6a,
-+	0xf3, 0x5a, 0xc1, 0x29, 0x47, 0x71, 0xe5, 0x39,
-+	0x4d, 0x35, 0x31, 0xc6, 0xe9, 0x81, 0xc4, 0x90,
-+	0xd1, 0x40, 0xf5, 0x08, 0x80, 0x6c, 0x91, 0x05,
-+	0xcc, 0x24, 0x8d, 0x80, 0xc1, 0x7d, 0x27, 0xa2,
-+	0xfd, 0x51, 0xfd, 0xc6, 0xd7, 0x11, 0x9d, 0x62,
-+	0x89, 0xc3, 0x57, 0x71, 0xbf, 0x1a, 0x75, 0xaa,
-+	0x6d, 0x37, 0x3f, 0xb1, 0x53, 0xf6, 0xa4, 0xa6,
-+	0x6d, 0xd5, 0xbb, 0xc2, 0x9d, 0xb9, 0x31, 0xbf,
- };
- static const unsigned char payload_base[] = { 0x02 };
- static const unsigned char payload_private[] = { 42 };
+T.J. Mercier (3):
+  memcg: Track exported dma-buffers
+  dmabuf: Add cgroup charge transfer function
+  security: binder: Add transfer_charge SElinux hook
+
+ Documentation/admin-guide/cgroup-v2.rst |  5 +++
+ drivers/android/binder.c                | 36 +++++++++++++++--
+ drivers/dma-buf/dma-buf.c               | 54 +++++++++++++++++++++++--
+ include/linux/dma-buf.h                 |  5 +++
+ include/linux/lsm_hook_defs.h           |  2 +
+ include/linux/lsm_hooks.h               |  6 +++
+ include/linux/memcontrol.h              |  7 ++++
+ include/linux/security.h                |  2 +
+ include/uapi/linux/android/binder.h     | 23 +++++++++--
+ mm/memcontrol.c                         |  4 ++
+ security/security.c                     |  6 +++
+ security/selinux/hooks.c                |  9 +++++
+ security/selinux/include/classmap.h     |  2 +-
+ 13 files changed, 149 insertions(+), 12 deletions(-)
+
+
+base-commit: b7bfaa761d760e72a969d116517eaa12e404c262
 -- 
-2.39.0
+2.39.0.314.g84b9a713c41-goog
 
