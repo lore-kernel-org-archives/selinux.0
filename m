@@ -2,248 +2,384 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9DB8C678D6
-	for <selinux@archiver.kernel.org>; Mon,  9 Jan 2023 10:42:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94220C5479D
+	for <selinux@archiver.kernel.org>; Mon,  9 Jan 2023 15:53:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236931AbjAIKl4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Jan 2023 05:41:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52026 "EHLO
+        id S229979AbjAIPxX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Jan 2023 10:53:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237110AbjAIKls (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 05:41:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822A02DE7
-        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 02:31:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673260269;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wsZDVFFI4B9JFOMYA2LQvus/4YHNnW5fVh15L9NVkzE=;
-        b=faAvsqQpQ9GXjxDvU+l22w0zTC4bL6q5sI4l2LDwdHqIsnEJ7FFfv+MbdHwAqTnRC8kKCt
-        28HRBUUZhO7oDwFmwsGbL6ckEf+7NXecrskcxAyTiKmDIJqoGvXGDJWxYaB/5JUBwF9McJ
-        lRwzFUGomLoTrVtdl2DGvS0sc+KeF+g=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-589-lcfE_SRaOpG6d-ZoNeXopg-1; Mon, 09 Jan 2023 05:31:08 -0500
-X-MC-Unique: lcfE_SRaOpG6d-ZoNeXopg-1
-Received: by mail-qv1-f71.google.com with SMTP id lc30-20020a0562142c1e00b0052f5d835229so4928050qvb.5
-        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 02:31:08 -0800 (PST)
+        with ESMTP id S235091AbjAIPxS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 10:53:18 -0500
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5BE81AD
+        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 07:53:16 -0800 (PST)
+Received: by mail-ej1-x62f.google.com with SMTP id jo4so21217584ejb.7
+        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 07:53:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Jx2pSgGPtRZdEJPnygnGNAiL79AAoMsZ0EB+YzyXy5c=;
+        b=Jwic12tNn3fVLrIupWk/Wsa7mNx7/yfGOYLIHXIEhDxKUinjWKEAqHezkF9rvwtsmX
+         9WiHtekBrxCwYaYIoThiPYAYZ+TzurpQpsZBHBeV27w+eagAoDP5pj+7F5hpkvzlTBBL
+         fbBJ8Pq6oEBNGw/etDEq2sTTw3Ea/2XDvx3RRPkrZw8aRM4qhW7ta/iVs2RNKHwdrpiY
+         C+bIE4HLLEtx1P4u65zzOfFsmx/nDXxnJ4FRB48ctHox96CED1SP6fQQv+AozuiGyWlE
+         OleImEcz64aXKWHXMLxiiwYKa+dHMD3XgAMR/TS9nqg2iztY/0n9y2TF7CkSLZqwcsj8
+         3dOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:user-agent:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=wsZDVFFI4B9JFOMYA2LQvus/4YHNnW5fVh15L9NVkzE=;
-        b=pctK58uHuWasibLY+/NEqx6Tj05hPaL0MMXqzfV4E8zOTeSbh40F7u2+8qSAlOIAur
-         vERWUMwxKhFS9BLC3ylJ/To9Y1R4m6PEtN+m40hr+7BM2fd+zXHqgzZFozBJ9keJKJvD
-         xKFv7BPf84jIE8JC0hEvkmFZvnek2pc+Z6i9U5dS3RwjFgQX0nqDQGAhK0+N70e0vK50
-         alPRa6KIzvYgyju/w2Gsyl4wU5skTasy5l0ShKzDB92Xt0RTXqnM+7of8Zv/WLYx/r9q
-         rWTd6kFb+DXDoZWjmbaOnJvnxsjPSJk0g2jjpg+X6RvN1GUi5J92SDB6yG1yCCzZ6bz/
-         eZqA==
-X-Gm-Message-State: AFqh2ko1gSvKwFC4y6sC/AGXW76JTOBqXtfq6Wl2+VrthZZdH4m/CzXX
-        uQIPbYD/ja7Bhzqb3VBYP6YRcKBpRpJkZC3nFnGldUQMt4Ldvp7dQnVkt+lz4NOrbfyooYj00Ei
-        SfwufcgKpRyN2lw5a2A==
-X-Received: by 2002:a0c:e805:0:b0:531:91cc:3ce5 with SMTP id y5-20020a0ce805000000b0053191cc3ce5mr61446040qvn.39.1673260267913;
-        Mon, 09 Jan 2023 02:31:07 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXvE2Hq9Ndujw+JebXu00a2dNrJm2kvrPaFC6wcKDMUavqkScAAIzCCqzvyJ2AYfMBVhw7ii6Q==
-X-Received: by 2002:a0c:e805:0:b0:531:91cc:3ce5 with SMTP id y5-20020a0ce805000000b0053191cc3ce5mr61446019qvn.39.1673260267463;
-        Mon, 09 Jan 2023 02:31:07 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-116-99.dyn.eolo.it. [146.241.116.99])
-        by smtp.gmail.com with ESMTPSA id s19-20020a05620a29d300b006ff8a122a1asm5183158qkp.78.2023.01.09.02.31.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Jan 2023 02:31:06 -0800 (PST)
-Message-ID: <b318b611df77a449b162197868e0af14b2d81b68.camel@redhat.com>
-Subject: Re: [PATCH v2 2/2] selinux: Implement mptcp_add_subflow hook
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        mptcp@lists.linux.dev
-Date:   Mon, 09 Jan 2023 11:31:04 +0100
-In-Reply-To: <CAHC9VhSBYMyjciZbX38OY_5NU-d6fszPj3xX4F3FhQYLCAWe2Q@mail.gmail.com>
-References: <cover.1671469167.git.pabeni@redhat.com>
-         <3074022fdca04676443a9c74f57328eb729f150e.1671469167.git.pabeni@redhat.com>
-         <CAHC9VhRYr9=qKUeF0EuY46koCnkeZ5d-=umV5TxbiUZ7qNXJ6w@mail.gmail.com>
-         <944c4ab043713f75ad3bb512fc146e48de7b3e25.camel@redhat.com>
-         <CAHC9VhTZ-boJeMs3ir-6=rCxyfY3ROjZ4qeXyuoo5DRPBw6gew@mail.gmail.com>
-         <fd3ca85bbaceea0ef629c35a0a63129cb6090811.camel@redhat.com>
-         <CAHC9VhSBYMyjciZbX38OY_5NU-d6fszPj3xX4F3FhQYLCAWe2Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Jx2pSgGPtRZdEJPnygnGNAiL79AAoMsZ0EB+YzyXy5c=;
+        b=1ZqOkN6PibwR+q//VUdqlrXf78mGZ3v9LIXvJYmbf0O8sqYTEuCvaUCExr5XY/wWTQ
+         MeQsn/Q/XBSbGvuRbDSSz2mh52OE+C7OzKPP5i/74WzMf6NTP2wfRruY1Owdb8oF+/Qu
+         cCvnnTw4lSY/MPJAYqtzRoTksqADvVbASq6wa89neYzpU/uxOeT9P7iHJKCWg0841ztj
+         T+TwwRc3B0/ZvBlwzTFc7zXw5E6l7UBVPctuAMgsHo/XNfa8jtKLnp3N/pWFwxxmmA4x
+         jsThWZOJja8Krvs3Uj78JfLjd6LpZhOLml1FW10K3MvJQDx5586bLhAX6regqIqgycfc
+         FRLQ==
+X-Gm-Message-State: AFqh2kpKd9Udf2rttM/jOaeBSTa0IzHqZhs6xE8kblUsq8k+okJoZTwP
+        FbmqUSOLXUVniqpKcEtDK+LGaCEyVRaSnK9uYixBfJY34Kk=
+X-Google-Smtp-Source: AMrXdXtZYY8l4URIYHHWjjEqpwDwP1hZ7BLKyt4e5jWgnth5mKNbE3Q+tmCHRZ+JD92LsF166FtpxClxB2N1B1hiEno=
+X-Received: by 2002:a17:907:8024:b0:84d:df2:81f5 with SMTP id
+ ft36-20020a170907802400b0084d0df281f5mr1089293ejc.406.1673279595226; Mon, 09
+ Jan 2023 07:53:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <20230105171320.18349-1-cgzones@googlemail.com>
+In-Reply-To: <20230105171320.18349-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 9 Jan 2023 10:53:04 -0500
+Message-ID: <CAP+JOzQRqWJg19nnvYd-TW21nfbAOdxAZDbiw-8N3JFE6F9Mnw@mail.gmail.com>
+Subject: Re: [PATCH] Correct misc typos
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+On Thu, Jan 5, 2023 at 12:26 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Found by codespell(1) and typos[1].
+>
+> [1]: https://github.com/crate-ci/typos
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-I'm sorry for the long delay:  I was on PTO with limited internet
-access.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-On Fri, 2022-12-23 at 12:11 -0500, Paul Moore wrote:
-> On Thu, Dec 22, 2022 at 10:57 AM Paolo Abeni <pabeni@redhat.com> wrote:
-> > 
-> > On Wed, 2022-12-21 at 20:21 -0500, Paul Moore wrote:
-> > > On Wed, Dec 21, 2022 at 2:24 PM Paolo Abeni <pabeni@redhat.com> wrote:
-> > > > I just tested the other option and there is another problem :(
-> > > 
-> > > It's never easy, is it? ;)
-> > > 
-> > > > The first subflow creations happens inside af_inet->create, via the sk-
-> > > > > sk_prot->init() hook. The security_socket_post_create() call on the
-> > > > owning MPTCP sockets happens after that point. So we copy data from a
-> > > > not yet initialized security context (and the test fail badly).
-> > > 
-> > > Hmmm.  Let's come back to this later on down this email.
-> > > 
-> > > > There are a few options to cope with that:
-> > > > - [ugly hack] call  security_socket_post_create() on the mptcp code
-> > > > before creating the subflow. I experimented this just to double the
-> > > > problem and a possible solution.
-> > > 
-> > > I'm guessing "[ugly hack]" is probably a bit of an understatement.
-> > > Let's see if we can do better before we explore this option too much
-> > > further.
-> > 
-> > Yup, I compiled the list in "brainstom-mode", trying to include
-> > whatever would be possible even if clearly not suitable.
-> > 
-> > [...]
-> > 
-> > > > WDYT?
-> > > 
-> > > Let's go back to the the inet_create() case for a little bit.  I'm
-> > > thinking we might be able to do something by leveraging the
-> > > sk_alloc()->sk_prot_alloc()->security_sk_alloc() code path.  As
-> > > inet_create() is going to be called from task context here, it seems
-> > > like we could do the sock's sid/sclass determination here, cached in
-> > > separate fields in the sk_security_struct if necessary, and use those
-> > > in a new MPTCP subflow hook.  We could also update
-> > > selinux_socket_post_create() to take advantage of this as well.  We
-> > > could also possibly pass the proto struct into security_sk_alloc() if
-> > > we needed to identify IPPROTO_MPTCP there as well.
-> > > 
-> > > I'll admit to not chasing down all the details, but I suspect this may
-> > > be the cleanest option - thoughts?
-> > 
-> > Thanks, I did not consider such possibility!
-> > 
-> > I think we should be careful to avoid increasing sk_security_struct
-> > size. Currently it is 16 bytes, nicely matching a kmalloc slab, any
-> > increase will move it on kmalloc-32 bytes slab possibly causing
-> > performance and memory regressions).
-> 
-> FWIW, it is likely that this will end up growing in the future to
-> support stacking LSMs.  It's unfortunate, messy, and generally ugly,
-> but inevitable.
-> 
-> See the selinux_inode() function as a similar example using
-> inode/inode_security_struct.
-> 
-> > More importantly, I think there is a problem with the
-> > sk_clone_lock() -> sk_prot_alloc() -> security_sk_alloc()
-> > code path.
-> > 
-> > sk_clone_lock() happens in BH context, if security_transition_sid()
-> > needs process context that would be a problem - quickly skimming the
-> > code it does not look so, I need to double check.
-> 
-> The problem is that in both selinux_socket_create() and
-> selinux_socket_post_create() the credentials from @current are needed
-> to determine the sock/sk_security_stuct label.  In
-> selinux_socket_create() @current's credentials are also used to
-> determine if the socket can be created.
-> 
-> It's looking like doing labeling determinations in the
-> security_sk_alloc() struct is not going to work.  While
-> sk_clone_lock() will end up calling into
-> security_sk_clone()/selinux_sk_clone_security() via sock_copy(), if I
-> understand you correctly that won't help as the main MPTCP socket is
-> not yet setup (e.g. selinux_socket_post_create() has not yet been run
-> on the main socket).
-> 
-> > Perhaps the cleanest option could be the one involving the mptcp
-> > refactoring, moving subflow creation at a later stage. It could have
-> > some minor side benefit for MPTCP, too - solving:
-> > 
-> > https://github.com/multipath-tcp/mptcp_net-next/issues/290
-> > 
-> > but I'm not fond of that option because it will require quite a bit of
-> > time: we need first to have the mptcp refactor in place and then cook
-> > the lsm patches. I guess such process will require at least 2 release
-> > cycles, due to the needed mptcp(netdev)/lsm trees synchronization.
-> 
-> I generally take the long term view when it comes to Linux Kernel
-> development; given the nature of the kernel, and all the constraints
-> that come with it, I would much rather pursue solutions that we
-> believe have the longest staying power.
-> 
-> I'm also happy to work on, and/or review, LSM patches in conjunction
-> with a MPTCP refactor.  If the only reason to split the work over two
-> kernel releases is to soften the blow during the merge window, I think
-> we can work that out in a single release ... at least I say that now
-> :)
-
-I thought about doing the MPTCP and selinux patches sequentially to
-both avoid the possibly untrivial conflicts resultion issues and to
-ensure that the mptcp patches are in place when the selinux ones are
-applied, as there is a fuctional dependency. 
-
-> Basically when it comes down to it, I want to make sure that any fix
-> we come up with *works*.  In my mind that means doing the LSM fix in
-> conjunction with the rework; I would hate to see all of the rework
-> happen only to find out later that it still didn't solve the LSM
-> problem.
-> 
-> Does that make sense?
-
-Indeed it makes sense to me.
-
-I think we can address that concern in a quite consolidated way. We
-usually include in the MPTCP tree a (very limited) number of patches
-that will not be submitted to the netdev because belong to other trees
-and/or are handled/owned by others devel. 
-
-We use the above e.g. to fix build and/or functional issues in our
-self-tests caused by other subsystems without the need to wait for the
-proper fix to land into vanilla. When such event happen, we simply drop
-the local copy of the fixup patch.
-
-We could use a similar schema in this scenario. We can include the the
-LSM patches to the mptcp in our tree while the rework is in progress to
-ensure that overall the effort really addresses the LSM issue.
-
-We can rebase the LSM patches as needed to address conflicts as
-needed/if/when they pops up.
-
-Once that the mptcp patches will land into the LSM tree, we will submit
-formally the LSM ones to you. During the process I'll check and ensure
-that the LSM issue is really/still fixed. Would that work for you?
-
-> > If that would prove to be the most reasonable option, could we consider
-> > to transiently merge first something alike:
-> > 
-> > https://lore.kernel.org/mptcp/CAHC9VhSQnhH3UL4gqzu+YiA1Q3YyLLCv88gLJOvw-0+uw5Lvkw@mail.gmail.com/T/#m06c612f84f6b6fe759e670573b2c8092df71607b
-> > 
-> > to have a workable short-term solution, and later revert it when the
-> > final solution would be in place?
-> 
-> I would need to go back through that to make sure that it makes sense,
-> and ensure that the hook is idempotent for SELinux, AppArmor, and
-> Smack (current hook implementations), *aaaand* if we promise that this
-> is just a *temporary* hack I think I would be okay with that.
-
-I would appreciate that addtional extra mile a lot, as it will allow a
-(temporary!) fix to be delivered quite earlier than what the above
-process will provide. 
-
-Of course the deal is that I'll take ownership of pursuing the complete
-fix till resolution.
-
-Many thanks!
-
-Paolo
-
+> ---
+>  libselinux/src/label_db.c                             | 2 +-
+>  libselinux/src/regex.c                                | 2 +-
+>  libselinux/src/sha1.c                                 | 2 +-
+>  libsepol/cil/src/cil_post.c                           | 2 +-
+>  libsepol/cil/src/cil_resolve_ast.c                    | 2 +-
+>  libsepol/src/module_to_cil.c                          | 2 +-
+>  libsepol/tests/policies/test-deps/base-metreq.conf    | 2 +-
+>  libsepol/tests/policies/test-deps/base-notmetreq.conf | 2 +-
+>  libsepol/tests/policies/test-deps/small-base.conf     | 2 +-
+>  libsepol/tests/policies/test-expander/alias-base.conf | 2 +-
+>  libsepol/tests/policies/test-expander/role-base.conf  | 2 +-
+>  libsepol/tests/policies/test-expander/small-base.conf | 2 +-
+>  libsepol/tests/policies/test-expander/user-base.conf  | 2 +-
+>  libsepol/tests/policies/test-hooks/cmp_policy.conf    | 2 +-
+>  libsepol/tests/policies/test-hooks/small-base.conf    | 2 +-
+>  libsepol/tests/policies/test-linker/small-base.conf   | 2 +-
+>  policycoreutils/newrole/newrole.c                     | 2 +-
+>  python/semanage/semanage                              | 2 +-
+>  python/sepolicy/sepolicy/manpage.py                   | 2 +-
+>  19 files changed, 19 insertions(+), 19 deletions(-)
+>
+> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+> index bd73201c..3f803037 100644
+> --- a/libselinux/src/label_db.c
+> +++ b/libselinux/src/label_db.c
+> @@ -31,7 +31,7 @@
+>   * For example:
+>   * ----------------------------------------
+>   * #
+> - * # It is an example specfile for database obejcts
+> + * # It is an example specfile for database objects
+>   * #
+>   * db_database  template1           system_u:object_r:sepgsql_db_t:s0
+>   *
+> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+> index 149a7973..ae7ad690 100644
+> --- a/libselinux/src/regex.c
+> +++ b/libselinux/src/regex.c
+> @@ -167,7 +167,7 @@ int regex_writef(struct regex_data *regex, FILE *fp, =
+int do_write_precompregex)
+>         PCRE2_UCHAR *bytes =3D NULL;
+>
+>         if (do_write_precompregex) {
+> -               /* encode the patter for serialization */
+> +               /* encode the pattern for serialization */
+>                 rc =3D pcre2_serialize_encode((const pcre2_code **)&regex=
+->regex,
+>                                             1, &bytes, &serialized_size, =
+NULL);
+>                 if (rc !=3D 1) {
+> diff --git a/libselinux/src/sha1.c b/libselinux/src/sha1.c
+> index a8484677..9d51e04a 100644
+> --- a/libselinux/src/sha1.c
+> +++ b/libselinux/src/sha1.c
+> @@ -11,7 +11,7 @@
+>  //  Modified to:
+>  //    - stop symbols being exported for libselinux shared library - Octo=
+ber 2015
+>  //                                                                    Ri=
+chard Haines <richard_c_haines@btinternet.com>
+> -//    - Not cast the workspace from a byte array to a CHAR64LONG16 due t=
+o alignment isses.
+> +//    - Not cast the workspace from a byte array to a CHAR64LONG16 due t=
+o alignment issues.
+>  //      Fixes:
+>  //        sha1.c:73:33: error: cast from 'uint8_t *' (aka 'unsigned char=
+ *') to 'CHAR64LONG16 *' increases required alignment from 1 to 4 [-Werror,=
+-Wcast-align]
+>  //             CHAR64LONG16*       block =3D (CHAR64LONG16*) workspace;
+> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+> index 11e572e2..a7c66ead 100644
+> --- a/libsepol/cil/src/cil_post.c
+> +++ b/libsepol/cil/src/cil_post.c
+> @@ -1193,7 +1193,7 @@ static int __cil_cat_expr_range_to_bitmap_helper(st=
+ruct cil_list_item *i1, struc
+>         struct cil_cat *c2 =3D (struct cil_cat *)d2;
+>
+>         if (n1->flavor =3D=3D CIL_CATSET || n2->flavor =3D=3D CIL_CATSET)=
+ {
+> -               cil_log(CIL_ERR, "Category sets cannont be used in a cate=
+gory range\n");
+> +               cil_log(CIL_ERR, "Category sets cannot be used in a categ=
+ory range\n");
+>                 goto exit;
+>         }
+>
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_re=
+solve_ast.c
+> index f5e22c97..d2bfdc81 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -778,7 +778,7 @@ int cil_resolve_classcommon(struct cil_tree_node *cur=
+rent, void *extra_args)
+>         class =3D (struct cil_class *)class_datum;
+>         common =3D (struct cil_class *)common_datum;
+>         if (class->common !=3D NULL) {
+> -               cil_log(CIL_ERR, "class cannot be associeated with more t=
+han one common\n");
+> +               cil_log(CIL_ERR, "class cannot be associated with more th=
+an one common\n");
+>                 rc =3D SEPOL_ERR;
+>                 goto exit;
+>         }
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index b900290a..2b24d33e 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -2330,7 +2330,7 @@ static int user_to_cil(int indent, struct policydb =
+*pdb, struct avrule_block *bl
+>         }
+>
+>         if (block->flags & AVRULE_OPTIONAL) {
+> -               // sensitivites in user statements in optionals do not ha=
+ve the
+> +               // sensitivities in user statements in optionals do not h=
+ave the
+>                 // standard -1 offset
+>                 sens_offset =3D 0;
+>         }
+> diff --git a/libsepol/tests/policies/test-deps/base-metreq.conf b/libsepo=
+l/tests/policies/test-deps/base-metreq.conf
+> index b7528dde..d8e1f40b 100644
+> --- a/libsepol/tests/policies/test-deps/base-metreq.conf
+> +++ b/libsepol/tests/policies/test-deps/base-metreq.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-deps/base-notmetreq.conf b/libs=
+epol/tests/policies/test-deps/base-notmetreq.conf
+> index eee36dca..ecd92f6f 100644
+> --- a/libsepol/tests/policies/test-deps/base-notmetreq.conf
+> +++ b/libsepol/tests/policies/test-deps/base-notmetreq.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class msg
+>  class msgq
+>  class shm
+> diff --git a/libsepol/tests/policies/test-deps/small-base.conf b/libsepol=
+/tests/policies/test-deps/small-base.conf
+> index 98f49c23..848d1741 100644
+> --- a/libsepol/tests/policies/test-deps/small-base.conf
+> +++ b/libsepol/tests/policies/test-deps/small-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-expander/alias-base.conf b/libs=
+epol/tests/policies/test-expander/alias-base.conf
+> index b950039d..34955924 100644
+> --- a/libsepol/tests/policies/test-expander/alias-base.conf
+> +++ b/libsepol/tests/policies/test-expander/alias-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-expander/role-base.conf b/libse=
+pol/tests/policies/test-expander/role-base.conf
+> index 8e88b4be..a387c8c0 100644
+> --- a/libsepol/tests/policies/test-expander/role-base.conf
+> +++ b/libsepol/tests/policies/test-expander/role-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-expander/small-base.conf b/libs=
+epol/tests/policies/test-expander/small-base.conf
+> index 055ea054..ac180f35 100644
+> --- a/libsepol/tests/policies/test-expander/small-base.conf
+> +++ b/libsepol/tests/policies/test-expander/small-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-expander/user-base.conf b/libse=
+pol/tests/policies/test-expander/user-base.conf
+> index b31ee8cd..789a59a2 100644
+> --- a/libsepol/tests/policies/test-expander/user-base.conf
+> +++ b/libsepol/tests/policies/test-expander/user-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-hooks/cmp_policy.conf b/libsepo=
+l/tests/policies/test-hooks/cmp_policy.conf
+> index 9082b333..3c510bc4 100644
+> --- a/libsepol/tests/policies/test-hooks/cmp_policy.conf
+> +++ b/libsepol/tests/policies/test-hooks/cmp_policy.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-hooks/small-base.conf b/libsepo=
+l/tests/policies/test-hooks/small-base.conf
+> index 9082b333..3c510bc4 100644
+> --- a/libsepol/tests/policies/test-hooks/small-base.conf
+> +++ b/libsepol/tests/policies/test-hooks/small-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/libsepol/tests/policies/test-linker/small-base.conf b/libsep=
+ol/tests/policies/test-linker/small-base.conf
+> index 890ebbeb..15ced459 100644
+> --- a/libsepol/tests/policies/test-linker/small-base.conf
+> +++ b/libsepol/tests/policies/test-linker/small-base.conf
+> @@ -33,7 +33,7 @@ class key_socket
+>  class unix_stream_socket
+>  class unix_dgram_socket
+>
+> -# sysv-ipc-related clases
+> +# sysv-ipc-related classes
+>  class sem
+>  class msg
+>  class msgq
+> diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/=
+newrole.c
+> index c2afa37e..d9efa68a 100644
+> --- a/policycoreutils/newrole/newrole.c
+> +++ b/policycoreutils/newrole/newrole.c
+> @@ -1289,7 +1289,7 @@ int main(int argc, char *argv[])
+>         /*
+>          * Step 5:  Execute a new shell with the new context in `new_cont=
+ext'.
+>          *
+> -        * Establish context, namesapce and any options for the new shell
+> +        * Establish context, namespace and any options for the new shell
+>          */
+>         if (optind < 1)
+>                 optind =3D 1;
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index b21d1484..e0bd98a9 100644
+> --- a/python/semanage/semanage
+> +++ b/python/semanage/semanage
+> @@ -130,7 +130,7 @@ class SetImportFile(argparse.Action):
+>                  sys.exit(1)
+>          setattr(namespace, self.dest, values)
+>
+> -# define dictionary for seobject OBEJCTS
+> +# define dictionary for seobject OBJECTS
+>  object_dict =3D {
+>      'login': seobject.loginRecords,
+>      'user': seobject.seluserRecords,
+> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepoli=
+cy/manpage.py
+> index 1bff8f9a..a488dcbf 100755
+> --- a/python/sepolicy/sepolicy/manpage.py
+> +++ b/python/sepolicy/sepolicy/manpage.py
+> @@ -739,7 +739,7 @@ SELinux %(domainname)s policy is very flexible allowi=
+ng users to setup their %(d
+>  .B STANDARD FILE CONTEXT
+>
+>  SELinux defines the file context types for the %(domainname)s, if you wa=
+nted to
+> -store files with these types in a diffent paths, you need to execute the=
+ semanage command to specify alternate labeling and then use restorecon to =
+put the labels on disk.
+> +store files with these types in a different paths, you need to execute t=
+he semanage command to specify alternate labeling and then use restorecon t=
+o put the labels on disk.
+>
+>  .B semanage fcontext -a -t %(type)s '/srv/%(domainname)s/content(/.*)?'
+>  .br
+> --
+> 2.39.0
+>
