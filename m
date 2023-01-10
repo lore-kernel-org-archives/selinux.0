@@ -2,61 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82CC9C54EBD
-	for <selinux@archiver.kernel.org>; Tue, 10 Jan 2023 00:18:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D836EC5479D
+	for <selinux@archiver.kernel.org>; Tue, 10 Jan 2023 00:32:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235313AbjAJAS3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Jan 2023 19:18:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55990 "EHLO
+        id S237597AbjAJAcH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Jan 2023 19:32:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235761AbjAJAS0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 19:18:26 -0500
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCDA239F86
-        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 16:18:24 -0800 (PST)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-4d13cb4bbffso14778217b3.3
-        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 16:18:24 -0800 (PST)
+        with ESMTP id S238124AbjAJAbC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 19:31:02 -0500
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1D91109
+        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 16:30:58 -0800 (PST)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-4c131bede4bso135298827b3.5
+        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 16:30:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=sgQCt0va7Fj5/9fGcldqaAxXWYK8cBxGZmP9xyPfdn4=;
-        b=CjxZ1mdpIhqu8VGPVCMoqsbsDlIhqCjEmsPqq5qkb1qszkge1Jm7eoOuPAcP/ZV3bk
-         wPP+sf8id+ynxeTBPKOWQaibXFQF9VkirxIevCIzpGAQ21ueiyMyljdoDpqBwv6iADhp
-         JWDpspg8gxuUz/g8o8f3Q/TpOZXD4wUkStfMnP3bNMTdaoT8E8PrN4XpF0W1y5T9lIyj
-         m9H9otSUCpmNvNlNujrmOWTRlgks+Pwp+EXc1GX8tr1KUVIqmZXacuPH98ZfnNVZNFn8
-         /a3FCftCVuu8stwkCKaAOtd2Rf8qgv7JUkOT3SOOPfRdmX4H3QpcqFd3fI60DVZdrWVr
-         exyg==
+        bh=n0APB/zykDxbiH2tuTIX9EMGYkGcv+YfvyuAJpMFuhY=;
+        b=WVc0BDUp9SVjJ6q3wUC++WI7N/Tni/g/aXwHGXr1MeeP1qPk+en2yOArUr266ynZlE
+         mUxsVueCV5uMPXe6uFIOwA+TS/oyDRyjo5ZnsAT1iyfnHo24A3u2q9vW5T4cjdkER9Zt
+         jGxqEbCN4ejClYW8kPalGpueAsZNsSV0UzGqgSh2TkcP2Ty2IF1dAZ0W92oRCMq1lYag
+         X5a/nCVa7ADbfMhkqWMdrq5ws9wES8sTC7spB9bA2oGMMCBMG6qGivxlYkglqjo1G6Hv
+         CJLIVbFNkJTj+P4NM4JqfjV68njgS8HNAHab1qES/we2jiazHOZfjSJUjmRYWWGQUBgN
+         Ikcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=sgQCt0va7Fj5/9fGcldqaAxXWYK8cBxGZmP9xyPfdn4=;
-        b=LkwhBOJKF6tG3NOZ+MdgfLmifd5iuCPZlnp2Q8T4pA7fj8m7X5/p7BSb3LQk52oaOo
-         +/AIJAMxQ+BirnkhUgM72ixB2fYFGW1sCTg7sRrIfQSLgixNbWCs2XO6C1SrlqJQQABC
-         ivXVxPyTdeDBqGs1Ld3/JQ8Wa2ZJGItm8ulExb19w2w/8ogPE2+bc1AixWiOuZ6jbqYE
-         quBXtzonuyVyCk2Be8tqSaVu2g12yQLag0bH9inj52MViDsFOn/c3e6sjEkqNm7TDogX
-         hyj8KsxUSBE6WJYgApWRCDsk+eLim+39BQLKrYMAg3o/u3851M54xfQKVY8UfBL81/e4
-         LSbg==
-X-Gm-Message-State: AFqh2kqGTcuHfE09KVOljWkbUcqXd8llzYSRJBdcQKU+WkPDdfBhIP+W
-        JmI4laj/oF9ZDbfkujwOmQiylEearLlkAMR80UTe7Q==
-X-Google-Smtp-Source: AMrXdXvykUOk6Aq29zKPFweeZ5QLOqVr0VtGabuLWKsdUabDXPvAWtUyFW1w97fkSV+2AQTk/rtQ4CJ6GNWf2U6U44A=
-X-Received: by 2002:a81:7386:0:b0:391:c415:f872 with SMTP id
- o128-20020a817386000000b00391c415f872mr1094430ywc.318.1673309903890; Mon, 09
- Jan 2023 16:18:23 -0800 (PST)
+        bh=n0APB/zykDxbiH2tuTIX9EMGYkGcv+YfvyuAJpMFuhY=;
+        b=GpyU6woXzy2kLqsFgcClu9piKzhLMLcpN4RBAOCaWdH8+ZQqljxLGsst2YKo3cZfJx
+         PrYP2ekqN14UPG4pz5sBNAT275f5d9utxHiUpiFlHDT/xGbZzEgVyDCq2jax8ejag0Mw
+         1e9BGum/eRWuolUwOySdQIjbKYWzftKzJDaEoFiwfBVOETd5Ye/Kr17mtA8LkEu6k8fU
+         Xk/CpaNjh10FjoMatY8Wzc0iy7oHdmnOuJPgta244EQRALCMXq1Nnlwb9ti4cCdipuaj
+         WX2WajcYAtA25TU8zjV5bvZE/tw+tOPXr6MUQ8TV0jBg3t5/IST67sGo3XsBIDDG8hmi
+         gaNQ==
+X-Gm-Message-State: AFqh2kop/JDG+527G6los0MQm9QixfZZTdvG3fkZCSc3jhXluIzfdfHc
+        /QKYrymXg6/3jFkRiiflw4G2bjYY+zS7dgePXJg5DA==
+X-Google-Smtp-Source: AMrXdXuBtmwbNkgEKUV7QelHV3Tp3qZbn19ES4i7h3TahXzAvTmx8xk8GcbqOd7qMvBI1otZnZmBQGsCP+NBLfv3GfE=
+X-Received: by 2002:a05:690c:688:b0:4ab:cd28:a5e2 with SMTP id
+ bp8-20020a05690c068800b004abcd28a5e2mr3509792ywb.234.1673310657407; Mon, 09
+ Jan 2023 16:30:57 -0800 (PST)
 MIME-Version: 1.0
-References: <20230109213809.418135-1-tjmercier@google.com>
-In-Reply-To: <20230109213809.418135-1-tjmercier@google.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Mon, 9 Jan 2023 16:18:12 -0800
-Message-ID: <CALvZod4ru7F38tAO-gM9ZFKaEhS0w3KqFbPwhwcTvgJs4xMUow@mail.gmail.com>
-Subject: Re: [PATCH 0/4] Track exported dma-buffers with memcg
-To:     "T.J. Mercier" <tjmercier@google.com>
-Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+References: <20230109213809.418135-1-tjmercier@google.com> <20230109213809.418135-5-tjmercier@google.com>
+ <7e1610e7-c131-e162-be47-8983be7d9aec@schaufler-ca.com>
+In-Reply-To: <7e1610e7-c131-e162-be47-8983be7d9aec@schaufler-ca.com>
+From:   "T.J. Mercier" <tjmercier@google.com>
+Date:   Mon, 9 Jan 2023 16:30:46 -0800
+Message-ID: <CABdmKX3BhNxdgF2dAuwPCPASe1raYYx6UUWRv0L5p3FxoU5MUw@mail.gmail.com>
+Subject: Re: [PATCH 4/4] security: binder: Add transfer_charge SElinux hook
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
         Todd Kjos <tkjos@android.com>,
         Martijn Coenen <maco@android.com>,
@@ -64,81 +62,178 @@ Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
         Christian Brauner <brauner@kernel.org>,
         Carlos Llamas <cmllamas@google.com>,
         Suren Baghdasaryan <surenb@google.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Muchun Song <muchun.song@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Paul Moore <paul@paul-moore.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, daniel.vetter@ffwll.ch,
-        android-mm@google.com, jstultz@google.com, cgroups@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+        Eric Paris <eparis@parisplace.org>, hannes@cmpxchg.org,
+        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Jeffrey Vander Stoep <jeffv@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi T.J.,
-
-On Mon, Jan 9, 2023 at 1:38 PM T.J. Mercier <tjmercier@google.com> wrote:
+On Mon, Jan 9, 2023 at 2:28 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
 >
-> Based on discussions at LPC, this series adds a memory.stat counter for
-> exported dmabufs. This counter allows us to continue tracking
-> system-wide total exported buffer sizes which there is no longer any
-> way to get without DMABUF_SYSFS_STATS, and adds a new capability to
-> track per-cgroup exported buffer sizes. The total (root counter) is
-> helpful for accounting in-kernel dmabuf use (by comparing with the sum
-> of child nodes or with the sum of sizes of mapped buffers or FD
-> references in procfs) in addition to helping identify driver memory
-> leaks when in-kernel use continually increases over time. With
-> per-application cgroups, the per-cgroup counter allows us to quickly
-> see how much dma-buf memory an application has caused to be allocated.
-> This avoids the need to read through all of procfs which can be a
-> lengthy process, and causes the charge to "stick" to the allocating
-> process/cgroup as long as the buffer is alive, regardless of how the
-> buffer is shared (unless the charge is transferred).
+> On 1/9/2023 1:38 PM, T.J. Mercier wrote:
+> > Any process can cause a memory charge transfer to occur to any other
+> > process when transmitting a file descriptor through binder. This should
+> > only be possible for central allocator processes,
 >
-> The first patch adds the counter to memcg. The next two patches allow
-> the charge for a buffer to be transferred across cgroups which is
-> necessary because of the way most dmabufs are allocated from a central
-> process on Android. The fourth patch adds a SELinux hook to binder in
-> order to control who is allowed to transfer buffer charges.
+> How is a "central allocator process" identified?
+
+Any process with the transfer_charge permission. On Android this is
+the graphics allocator HAL which would have this added to its policy.
+
+> If I have a LSM that
+> is not SELinux (e.g. AppArmor, Smack) or no LSM at all, how can/should this
+> be enforced?
+
+Sorry, why would you be expecting enforcement with no LSM? Are you
+suggesting that this check should be different than the ones that
+already exist for Binder here?
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/linux/lsm_hook_defs.h#n29
+
+> Why isn't binder enforcing this restriction itself?
+
+Binder has no direct knowledge of which process has been designated as
+an allocator / charge transferrer. That is defined externally by
+whoever configures the system.
+
+> >  so a new SELinux
+> > permission is added to restrict which processes are allowed to initiate
+> > these charge transfers.
 >
-> [1] https://lore.kernel.org/all/20220617085702.4298-1-christian.koenig@amd.com/
+> Which is all perfectly reasonable if you have SELinux.
 >
-
-I am a bit confused by the term "charge" used in this patch series.
-From the patches, it seems like only a memcg stat is added and nothing
-is charged to the memcg.
-
-This leads me to the question: Why add this stat in memcg if the
-underlying memory is not charged to the memcg and if we don't really
-want to limit the usage?
-
-I see two ways forward:
-
-1. Instead of memcg, use bpf-rstat [1] infra to implement the
-per-cgroup stat for dmabuf. (You may need an additional hook for the
-stat transfer).
-
-2. Charge the actual memory to the memcg. Since the size of dmabuf is
-immutable across its lifetime, you will not need to do accounting at
-page level and instead use something similar to the network memory
-accounting interface/mechanism (or even more simple). However you
-would need to handle the reclaim, OOM and charge context and failure
-cases. However if you are not looking to limit the usage of dmabuf
-then this option is an overkill.
-
-Please let me know if I misunderstood something.
-
-[1] https://lore.kernel.org/all/20220824233117.1312810-1-haoluo@google.com/
-
-thanks,
-Shakeel
+> >
+> > Signed-off-by: T.J. Mercier <tjmercier@google.com>
+> > ---
+> >  drivers/android/binder.c            | 5 +++++
+> >  include/linux/lsm_hook_defs.h       | 2 ++
+> >  include/linux/lsm_hooks.h           | 6 ++++++
+> >  include/linux/security.h            | 2 ++
+> >  security/security.c                 | 6 ++++++
+> >  security/selinux/hooks.c            | 9 +++++++++
+> >  security/selinux/include/classmap.h | 2 +-
+> >  7 files changed, 31 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> > index 9830848c8d25..9063db04826d 100644
+> > --- a/drivers/android/binder.c
+> > +++ b/drivers/android/binder.c
+> > @@ -2279,6 +2279,11 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset, __u32 flags,
+> >       if (IS_ENABLED(CONFIG_MEMCG) && (flags & BINDER_FD_FLAG_XFER_CHARGE)) {
+> >               struct dma_buf *dmabuf;
+> >
+> > +             if (security_binder_transfer_charge(proc->cred, target_proc->cred)) {
+> > +                     ret = -EPERM;
+> > +                     goto err_security;
+> > +             }
+> > +
+> >               if (unlikely(!is_dma_buf_file(file))) {
+> >                       binder_user_error(
+> >                               "%d:%d got transaction with XFER_CHARGE for non-dmabuf fd, %d\n",
+> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> > index ed6cb2ac55fa..8db2a958557e 100644
+> > --- a/include/linux/lsm_hook_defs.h
+> > +++ b/include/linux/lsm_hook_defs.h
+> > @@ -33,6 +33,8 @@ LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
+> >        const struct cred *to)
+> >  LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
+> >        const struct cred *to, struct file *file)
+> > +LSM_HOOK(int, 0, binder_transfer_charge, const struct cred *from,
+> > +      const struct cred *to)
+> >  LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
+> >        unsigned int mode)
+> >  LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
+> > diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> > index 0a5ba81f7367..39c40c7bf519 100644
+> > --- a/include/linux/lsm_hooks.h
+> > +++ b/include/linux/lsm_hooks.h
+> > @@ -1385,6 +1385,12 @@
+> >   *   @file contains the struct file being transferred.
+> >   *   @to contains the struct cred for the receiving process.
+> >   *   Return 0 if permission is granted.
+> > + * @binder_transfer_charge:
+> > + *   Check whether @from is allowed to transfer the memory charge for a
+> > + *   buffer out of its cgroup to @to.
+> > + *   @from contains the struct cred for the sending process.
+> > + *   @to contains the struct cred for the receiving process.
+> > + *   Return 0 if permission is granted.
+> >   *
+> >   * @ptrace_access_check:
+> >   *   Check permission before allowing the current process to trace the
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 5b67f208f7de..3b7472308430 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -270,6 +270,8 @@ int security_binder_transfer_binder(const struct cred *from,
+> >                                   const struct cred *to);
+> >  int security_binder_transfer_file(const struct cred *from,
+> >                                 const struct cred *to, struct file *file);
+> > +int security_binder_transfer_charge(const struct cred *from,
+> > +                                 const struct cred *to);
+> >  int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
+> >  int security_ptrace_traceme(struct task_struct *parent);
+> >  int security_capget(struct task_struct *target,
+> > diff --git a/security/security.c b/security/security.c
+> > index d1571900a8c7..97e1e74d1ff2 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -801,6 +801,12 @@ int security_binder_transfer_file(const struct cred *from,
+> >       return call_int_hook(binder_transfer_file, 0, from, to, file);
+> >  }
+> >
+> > +int security_binder_transfer_charge(const struct cred *from,
+> > +                                 const struct cred *to)
+> > +{
+> > +     return call_int_hook(binder_transfer_charge, 0, from, to);
+> > +}
+> > +
+> >  int security_ptrace_access_check(struct task_struct *child, unsigned int mode)
+> >  {
+> >       return call_int_hook(ptrace_access_check, 0, child, mode);
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 3c5be76a9199..823ef14924bd 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -2066,6 +2066,14 @@ static int selinux_binder_transfer_file(const struct cred *from,
+> >                           &ad);
+> >  }
+> >
+> > +static int selinux_binder_transfer_charge(const struct cred *from, const struct cred *to)
+> > +{
+> > +     return avc_has_perm(&selinux_state,
+> > +                         cred_sid(from), cred_sid(to),
+> > +                         SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
+> > +                         NULL);
+> > +}
+> > +
+> >  static int selinux_ptrace_access_check(struct task_struct *child,
+> >                                      unsigned int mode)
+> >  {
+> > @@ -7052,6 +7060,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+> >       LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+> >       LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
+> >       LSM_HOOK_INIT(binder_transfer_file, selinux_binder_transfer_file),
+> > +     LSM_HOOK_INIT(binder_transfer_charge, selinux_binder_transfer_charge),
+> >
+> >       LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
+> >       LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
+> > diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> > index a3c380775d41..2eef180d10d7 100644
+> > --- a/security/selinux/include/classmap.h
+> > +++ b/security/selinux/include/classmap.h
+> > @@ -172,7 +172,7 @@ const struct security_class_mapping secclass_map[] = {
+> >       { "tun_socket",
+> >         { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+> >       { "binder", { "impersonate", "call", "set_context_mgr", "transfer",
+> > -                   NULL } },
+> > +                   "transfer_charge", NULL } },
+> >       { "cap_userns",
+> >         { COMMON_CAP_PERMS, NULL } },
+> >       { "cap2_userns",
