@@ -2,228 +2,163 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2054C61DB3
-	for <selinux@archiver.kernel.org>; Tue, 10 Jan 2023 09:04:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B435C46467
+	for <selinux@archiver.kernel.org>; Tue, 10 Jan 2023 10:39:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232097AbjAJJE3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 10 Jan 2023 04:04:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
+        id S238165AbjAJKix (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 10 Jan 2023 05:38:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238393AbjAJI7T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 10 Jan 2023 03:59:19 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0199B5274D;
-        Tue, 10 Jan 2023 00:56:56 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4Nrkxx5WFmz9v7gM;
-        Tue, 10 Jan 2023 16:49:09 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP2 (Coremail) with SMTP id GxC2BwAH3GIwKL1jw9uDAA--.1874S2;
-        Tue, 10 Jan 2023 09:56:27 +0100 (CET)
-Message-ID: <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
-Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com
-Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Tue, 10 Jan 2023 09:55:50 +0100
-In-Reply-To: <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
-References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
-         <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S237948AbjAJKiW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 10 Jan 2023 05:38:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB8803D1D8
+        for <selinux@vger.kernel.org>; Tue, 10 Jan 2023 02:37:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673347054;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=zlUM4HXj601fvsqp4XfwIIVLjbtIkHpgKa9oqpMK52w=;
+        b=ZtnHSgA/QJzqgkkdGri4dfOj9sbJWjG9X5ZP/bw4Kijn84dyC5bVSX0ePTIYTAsL4RA+UH
+        cTDfyyohTziKn8Ase+/77SlfUuef15hDOllcJMClxUhPIXkpZBtzs0+qtGfSxByP2AfgUD
+        3NyJZVzM071tAwMSo0cHdrH3pTVqSps=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-468-ZBQarrUnPY-kMXAd_gTv0A-1; Tue, 10 Jan 2023 05:37:33 -0500
+X-MC-Unique: ZBQarrUnPY-kMXAd_gTv0A-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2E6F885CBE1
+        for <selinux@vger.kernel.org>; Tue, 10 Jan 2023 10:37:33 +0000 (UTC)
+Received: from ovpn-193-80.brq.redhat.com (ovpn-193-80.brq.redhat.com [10.40.193.80])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BEA0E492C14
+        for <selinux@vger.kernel.org>; Tue, 10 Jan 2023 10:37:32 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v2] python/sepolicy: add missing booleans to man pages
+Date:   Tue, 10 Jan 2023 11:37:26 +0100
+Message-Id: <20230110103726.865532-1-vmojzis@redhat.com>
+In-Reply-To: <20230109170626.815271-1-vmojzis@redhat.com>
+References: <20230109170626.815271-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: GxC2BwAH3GIwKL1jw9uDAA--.1874S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxKr1UGFWUKw43CFyruw18Grg_yoW7Zw4fpa
-        yftFnxKr1rJFyUuryftw45ua1I9rWrGrZrGrs3K34UZF1DGr1ftryrAr15ua45XrWDJa97
-        tr4Yyrsxuan8J37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgANBF1jj4Nm3gAAsB
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
-> 
-> In preparation for removing security_old_inode_init_security(), switch to
-> security_inode_init_security().
-> 
-> Extend the existing ocfs2_initxattrs() to take the
-> ocfs2_security_xattr_info structure from fs_info, and populate the
-> name/value/len triple with the first xattr provided by LSMs.
+get_bools should return a list of booleans that can affect given type,
+but it did not handle non trivial conditional statements properly
+(returning the whole conditional statement instead of a list of booleans
+in the statement).
 
-Hi Mark, Joel, Joseph
+e.g. for
+allow httpd_t spamc_t:process transition; [ httpd_can_check_spam && httpd_can_sendmail ]:True
+get_bools used to return [("httpd_can_check_spam && httpd_can_sendmail", False)] instead of
+[("httpd_can_check_spam", False), ("httpd_can_sendmail", False)]
 
-some time ago I sent this patch set to switch to the newer
-function security_inode_init_security(). Almost all the other parts of
-this patch set have been reviewed, and the patch set itself should be
-ready to be merged.
+- rename "boolean" in sepolicy rule dictionary to "booleans" to suggest
+  it can contain multiple values and make sure it is populated correctly
+- add "conditional" key to the rule dictionary to accommodate
+  get_conditionals, which requires the whole conditional statement
+- extend get_bools search to dontaudit rules so that it covers booleans
+  like httpd_dontaudit_search_dirs
 
-I kindly ask if you could have a look at this patch and give your
-Reviewed-by, so that Paul could take the patch set.
+Note: get_bools uses security_get_boolean_active to get the boolean
+      value, but the value is later used to represent the default.
+      Not ideal, but I'm not aware of a way to get the actual defaults.
 
-Thanks a lot!
+Fixes:
+        "sepolicy manpage" generates man pages that are missing booleans
+        which are included in non trivial conditional expressions
+        e.g. httpd_selinux(8) does not include httpd_can_check_spam,
+        httpd_tmp_exec, httpd_unified, or httpd_use_gpg
 
-Roberto
+        This fix, however, also adds some not strictly related booleans
+        to some man pages. e.g. use_nfs_home_dirs and
+        use_samba_home_dirs are added to httpd_selinux(8)
 
-> As fs_info was not used before, ocfs2_initxattrs() can now handle the case
-> of replicating the behavior of security_old_inode_init_security(), i.e.
-> just obtaining the xattr, in addition to setting all xattrs provided by
-> LSMs.
-> 
-> Supporting multiple xattrs is not currently supported where
-> security_old_inode_init_security() was called (mknod, symlink), as it
-> requires non-trivial changes that can be done at a later time. Like for
-> reiserfs, even if EVM is invoked, it will not provide an xattr (if it is
-> not the first to set it, its xattr will be discarded; if it is the first,
-> it does not have xattrs to calculate the HMAC on).
-> 
-> Finally, modify the handling of the return value from
-> ocfs2_init_security_get(). As security_inode_init_security() does not
-> return -EOPNOTSUPP, remove this case and directly handle the error if the
-> return value is not zero.
-> 
-> However, the previous case of receiving -EOPNOTSUPP should be still
-> taken into account, as security_inode_init_security() could return zero
-> without setting xattrs and ocfs2 would consider it as if the xattr was set.
-> 
-> Instead, if security_inode_init_security() returned zero, look at the xattr
-> if it was set, and behave accordingly, i.e. set si->enable to zero to
-> notify to the functions following ocfs2_init_security_get() that the xattr
-> is not available (same as if security_old_inode_init_security() returned
-> -EOPNOTSUPP).
-> 
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  fs/ocfs2/namei.c | 18 ++++++------------
->  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
->  2 files changed, 32 insertions(+), 16 deletions(-)
-> 
-> diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
-> index 05f32989bad6..55fba81cd2d1 100644
-> --- a/fs/ocfs2/namei.c
-> +++ b/fs/ocfs2/namei.c
-> @@ -242,6 +242,7 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
->  	int want_meta = 0;
->  	int xattr_credits = 0;
->  	struct ocfs2_security_xattr_info si = {
-> +		.name = NULL,
->  		.enable = 1,
->  	};
->  	int did_quota_inode = 0;
-> @@ -315,12 +316,8 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
->  	/* get security xattr */
->  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
->  	if (status) {
-> -		if (status == -EOPNOTSUPP)
-> -			si.enable = 0;
-> -		else {
-> -			mlog_errno(status);
-> -			goto leave;
-> -		}
-> +		mlog_errno(status);
-> +		goto leave;
->  	}
->  
->  	/* calculate meta data/clusters for setting security and acl xattr */
-> @@ -1805,6 +1802,7 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
->  	int want_clusters = 0;
->  	int xattr_credits = 0;
->  	struct ocfs2_security_xattr_info si = {
-> +		.name = NULL,
->  		.enable = 1,
->  	};
->  	int did_quota = 0, did_quota_inode = 0;
-> @@ -1875,12 +1873,8 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
->  	/* get security xattr */
->  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
->  	if (status) {
-> -		if (status == -EOPNOTSUPP)
-> -			si.enable = 0;
-> -		else {
-> -			mlog_errno(status);
-> -			goto bail;
-> -		}
-> +		mlog_errno(status);
-> +		goto bail;
->  	}
->  
->  	/* calculate meta data/clusters for setting security xattr */
-> diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-> index 95d0611c5fc7..55699c573541 100644
-> --- a/fs/ocfs2/xattr.c
-> +++ b/fs/ocfs2/xattr.c
-> @@ -7259,9 +7259,21 @@ static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
->  static int ocfs2_initxattrs(struct inode *inode, const struct xattr *xattr_array,
->  		     void *fs_info)
->  {
-> +	struct ocfs2_security_xattr_info *si = fs_info;
->  	const struct xattr *xattr;
->  	int err = 0;
->  
-> +	if (si) {
-> +		si->value = kmemdup(xattr_array->value, xattr_array->value_len,
-> +				    GFP_KERNEL);
-> +		if (!si->value)
-> +			return -ENOMEM;
-> +
-> +		si->name = xattr_array->name;
-> +		si->value_len = xattr_array->value_len;
-> +		return 0;
-> +	}
-> +
->  	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
->  		err = ocfs2_xattr_set(inode, OCFS2_XATTR_INDEX_SECURITY,
->  				      xattr->name, xattr->value,
-> @@ -7277,13 +7289,23 @@ int ocfs2_init_security_get(struct inode *inode,
->  			    const struct qstr *qstr,
->  			    struct ocfs2_security_xattr_info *si)
->  {
-> +	int ret;
-> +
->  	/* check whether ocfs2 support feature xattr */
->  	if (!ocfs2_supports_xattr(OCFS2_SB(dir->i_sb)))
->  		return -EOPNOTSUPP;
-> -	if (si)
-> -		return security_old_inode_init_security(inode, dir, qstr,
-> -							&si->name, &si->value,
-> -							&si->value_len);
-> +	if (si) {
-> +		ret = security_inode_init_security(inode, dir, qstr,
-> +						   &ocfs2_initxattrs, si);
-> +		/*
-> +		 * security_inode_init_security() does not return -EOPNOTSUPP,
-> +		 * we have to check the xattr ourselves.
-> +		 */
-> +		if (!ret && !si->name)
-> +			si->enable = 0;
-> +
-> +		return ret;
-> +	}
->  
->  	return security_inode_init_security(inode, dir, qstr,
->  					    &ocfs2_initxattrs, NULL);
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+
+Add "dontaudit" rules to get_bools search (otherwise same as the
+previous patch).
+
+
+ python/sepolicy/sepolicy/__init__.py | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+index 68907a4f..8611a51b 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -335,7 +335,12 @@ def _setools_rule_to_dict(rule):
+         pass
+ 
+     try:
+-        d['boolean'] = [(str(rule.conditional), enabled)]
++        d['booleans'] = [(str(b), b.state) for b in rule.conditional.booleans]
++    except AttributeError:
++        pass
++
++    try:
++        d['conditional'] = str(rule.conditional)
+     except AttributeError:
+         pass
+ 
+@@ -440,12 +445,12 @@ def get_conditionals(src, dest, tclass, perm):
+                 x['source'] in src_list and
+                 x['target'] in dest_list and
+                 set(perm).issubset(x[PERMS]) and
+-                'boolean' in x,
++                'conditional' in x,
+                 get_all_allow_rules()))
+ 
+     try:
+         for i in allows:
+-            tdict.update({'source': i['source'], 'boolean': i['boolean']})
++            tdict.update({'source': i['source'], 'conditional': (i['conditional'], i['enabled'])})
+             if tdict not in tlist:
+                 tlist.append(tdict)
+                 tdict = {}
+@@ -459,10 +464,10 @@ def get_conditionals_format_text(cond):
+ 
+     enabled = False
+     for x in cond:
+-        if x['boolean'][0][1]:
++        if x['conditional'][1]:
+             enabled = True
+             break
+-    return _("-- Allowed %s [ %s ]") % (enabled, " || ".join(set(map(lambda x: "%s=%d" % (x['boolean'][0][0], x['boolean'][0][1]), cond))))
++    return _("-- Allowed %s [ %s ]") % (enabled, " || ".join(set(map(lambda x: "%s=%d" % (x['conditional'][0], x['conditional'][1]), cond))))
+ 
+ 
+ def get_types_from_attribute(attribute):
+@@ -716,9 +721,9 @@ def get_boolean_rules(setype, boolean):
+     boollist = []
+     permlist = search([ALLOW], {'source': setype})
+     for p in permlist:
+-        if "boolean" in p:
++        if "booleans" in p:
+             try:
+-                for b in p["boolean"]:
++                for b in p["booleans"]:
+                     if boolean in b:
+                         boollist.append(p)
+             except:
+@@ -1141,7 +1146,7 @@ def get_bools(setype):
+     bools = []
+     domainbools = []
+     domainname, short_name = gen_short_name(setype)
+-    for i in map(lambda x: x['boolean'], filter(lambda x: 'boolean' in x and x['source'] == setype, get_all_allow_rules())):
++    for i in map(lambda x: x['booleans'], filter(lambda x: 'booleans' in x and x['source'] == setype, search([ALLOW, DONTAUDIT]))):
+         for b in i:
+             if not isinstance(b, tuple):
+                 continue
+-- 
+2.37.3
 
