@@ -2,238 +2,228 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D836EC5479D
-	for <selinux@archiver.kernel.org>; Tue, 10 Jan 2023 00:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2054C61DB3
+	for <selinux@archiver.kernel.org>; Tue, 10 Jan 2023 09:04:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237597AbjAJAcH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Jan 2023 19:32:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60566 "EHLO
+        id S232097AbjAJJE3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 10 Jan 2023 04:04:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238124AbjAJAbC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Jan 2023 19:31:02 -0500
-Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A1D91109
-        for <selinux@vger.kernel.org>; Mon,  9 Jan 2023 16:30:58 -0800 (PST)
-Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-4c131bede4bso135298827b3.5
-        for <selinux@vger.kernel.org>; Mon, 09 Jan 2023 16:30:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=n0APB/zykDxbiH2tuTIX9EMGYkGcv+YfvyuAJpMFuhY=;
-        b=WVc0BDUp9SVjJ6q3wUC++WI7N/Tni/g/aXwHGXr1MeeP1qPk+en2yOArUr266ynZlE
-         mUxsVueCV5uMPXe6uFIOwA+TS/oyDRyjo5ZnsAT1iyfnHo24A3u2q9vW5T4cjdkER9Zt
-         jGxqEbCN4ejClYW8kPalGpueAsZNsSV0UzGqgSh2TkcP2Ty2IF1dAZ0W92oRCMq1lYag
-         X5a/nCVa7ADbfMhkqWMdrq5ws9wES8sTC7spB9bA2oGMMCBMG6qGivxlYkglqjo1G6Hv
-         CJLIVbFNkJTj+P4NM4JqfjV68njgS8HNAHab1qES/we2jiazHOZfjSJUjmRYWWGQUBgN
-         Ikcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=n0APB/zykDxbiH2tuTIX9EMGYkGcv+YfvyuAJpMFuhY=;
-        b=GpyU6woXzy2kLqsFgcClu9piKzhLMLcpN4RBAOCaWdH8+ZQqljxLGsst2YKo3cZfJx
-         PrYP2ekqN14UPG4pz5sBNAT275f5d9utxHiUpiFlHDT/xGbZzEgVyDCq2jax8ejag0Mw
-         1e9BGum/eRWuolUwOySdQIjbKYWzftKzJDaEoFiwfBVOETd5Ye/Kr17mtA8LkEu6k8fU
-         Xk/CpaNjh10FjoMatY8Wzc0iy7oHdmnOuJPgta244EQRALCMXq1Nnlwb9ti4cCdipuaj
-         WX2WajcYAtA25TU8zjV5bvZE/tw+tOPXr6MUQ8TV0jBg3t5/IST67sGo3XsBIDDG8hmi
-         gaNQ==
-X-Gm-Message-State: AFqh2kop/JDG+527G6los0MQm9QixfZZTdvG3fkZCSc3jhXluIzfdfHc
-        /QKYrymXg6/3jFkRiiflw4G2bjYY+zS7dgePXJg5DA==
-X-Google-Smtp-Source: AMrXdXuBtmwbNkgEKUV7QelHV3Tp3qZbn19ES4i7h3TahXzAvTmx8xk8GcbqOd7qMvBI1otZnZmBQGsCP+NBLfv3GfE=
-X-Received: by 2002:a05:690c:688:b0:4ab:cd28:a5e2 with SMTP id
- bp8-20020a05690c068800b004abcd28a5e2mr3509792ywb.234.1673310657407; Mon, 09
- Jan 2023 16:30:57 -0800 (PST)
-MIME-Version: 1.0
-References: <20230109213809.418135-1-tjmercier@google.com> <20230109213809.418135-5-tjmercier@google.com>
- <7e1610e7-c131-e162-be47-8983be7d9aec@schaufler-ca.com>
-In-Reply-To: <7e1610e7-c131-e162-be47-8983be7d9aec@schaufler-ca.com>
-From:   "T.J. Mercier" <tjmercier@google.com>
-Date:   Mon, 9 Jan 2023 16:30:46 -0800
-Message-ID: <CABdmKX3BhNxdgF2dAuwPCPASe1raYYx6UUWRv0L5p3FxoU5MUw@mail.gmail.com>
-Subject: Re: [PATCH 4/4] security: binder: Add transfer_charge SElinux hook
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, hannes@cmpxchg.org,
-        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
-        linux-kernel@vger.kernel.org,
+        with ESMTP id S238393AbjAJI7T (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 10 Jan 2023 03:59:19 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0199B5274D;
+        Tue, 10 Jan 2023 00:56:56 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4Nrkxx5WFmz9v7gM;
+        Tue, 10 Jan 2023 16:49:09 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwAH3GIwKL1jw9uDAA--.1874S2;
+        Tue, 10 Jan 2023 09:56:27 +0100 (CET)
+Message-ID: <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
+Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Jeffrey Vander Stoep <jeffv@google.com>
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Tue, 10 Jan 2023 09:55:50 +0100
+In-Reply-To: <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
+References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
+         <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: GxC2BwAH3GIwKL1jw9uDAA--.1874S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxKr1UGFWUKw43CFyruw18Grg_yoW7Zw4fpa
+        yftFnxKr1rJFyUuryftw45ua1I9rWrGrZrGrs3K34UZF1DGr1ftryrAr15ua45XrWDJa97
+        tr4Yyrsxuan8J37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgANBF1jj4Nm3gAAsB
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 9, 2023 at 2:28 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> On 1/9/2023 1:38 PM, T.J. Mercier wrote:
-> > Any process can cause a memory charge transfer to occur to any other
-> > process when transmitting a file descriptor through binder. This should
-> > only be possible for central allocator processes,
->
-> How is a "central allocator process" identified?
+On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> In preparation for removing security_old_inode_init_security(), switch to
+> security_inode_init_security().
+> 
+> Extend the existing ocfs2_initxattrs() to take the
+> ocfs2_security_xattr_info structure from fs_info, and populate the
+> name/value/len triple with the first xattr provided by LSMs.
 
-Any process with the transfer_charge permission. On Android this is
-the graphics allocator HAL which would have this added to its policy.
+Hi Mark, Joel, Joseph
 
-> If I have a LSM that
-> is not SELinux (e.g. AppArmor, Smack) or no LSM at all, how can/should this
-> be enforced?
+some time ago I sent this patch set to switch to the newer
+function security_inode_init_security(). Almost all the other parts of
+this patch set have been reviewed, and the patch set itself should be
+ready to be merged.
 
-Sorry, why would you be expecting enforcement with no LSM? Are you
-suggesting that this check should be different than the ones that
-already exist for Binder here?
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/linux/lsm_hook_defs.h#n29
+I kindly ask if you could have a look at this patch and give your
+Reviewed-by, so that Paul could take the patch set.
 
-> Why isn't binder enforcing this restriction itself?
+Thanks a lot!
 
-Binder has no direct knowledge of which process has been designated as
-an allocator / charge transferrer. That is defined externally by
-whoever configures the system.
+Roberto
 
-> >  so a new SELinux
-> > permission is added to restrict which processes are allowed to initiate
-> > these charge transfers.
->
-> Which is all perfectly reasonable if you have SELinux.
->
-> >
-> > Signed-off-by: T.J. Mercier <tjmercier@google.com>
-> > ---
-> >  drivers/android/binder.c            | 5 +++++
-> >  include/linux/lsm_hook_defs.h       | 2 ++
-> >  include/linux/lsm_hooks.h           | 6 ++++++
-> >  include/linux/security.h            | 2 ++
-> >  security/security.c                 | 6 ++++++
-> >  security/selinux/hooks.c            | 9 +++++++++
-> >  security/selinux/include/classmap.h | 2 +-
-> >  7 files changed, 31 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> > index 9830848c8d25..9063db04826d 100644
-> > --- a/drivers/android/binder.c
-> > +++ b/drivers/android/binder.c
-> > @@ -2279,6 +2279,11 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset, __u32 flags,
-> >       if (IS_ENABLED(CONFIG_MEMCG) && (flags & BINDER_FD_FLAG_XFER_CHARGE)) {
-> >               struct dma_buf *dmabuf;
-> >
-> > +             if (security_binder_transfer_charge(proc->cred, target_proc->cred)) {
-> > +                     ret = -EPERM;
-> > +                     goto err_security;
-> > +             }
-> > +
-> >               if (unlikely(!is_dma_buf_file(file))) {
-> >                       binder_user_error(
-> >                               "%d:%d got transaction with XFER_CHARGE for non-dmabuf fd, %d\n",
-> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> > index ed6cb2ac55fa..8db2a958557e 100644
-> > --- a/include/linux/lsm_hook_defs.h
-> > +++ b/include/linux/lsm_hook_defs.h
-> > @@ -33,6 +33,8 @@ LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
-> >        const struct cred *to)
-> >  LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
-> >        const struct cred *to, struct file *file)
-> > +LSM_HOOK(int, 0, binder_transfer_charge, const struct cred *from,
-> > +      const struct cred *to)
-> >  LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
-> >        unsigned int mode)
-> >  LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
-> > diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> > index 0a5ba81f7367..39c40c7bf519 100644
-> > --- a/include/linux/lsm_hooks.h
-> > +++ b/include/linux/lsm_hooks.h
-> > @@ -1385,6 +1385,12 @@
-> >   *   @file contains the struct file being transferred.
-> >   *   @to contains the struct cred for the receiving process.
-> >   *   Return 0 if permission is granted.
-> > + * @binder_transfer_charge:
-> > + *   Check whether @from is allowed to transfer the memory charge for a
-> > + *   buffer out of its cgroup to @to.
-> > + *   @from contains the struct cred for the sending process.
-> > + *   @to contains the struct cred for the receiving process.
-> > + *   Return 0 if permission is granted.
-> >   *
-> >   * @ptrace_access_check:
-> >   *   Check permission before allowing the current process to trace the
-> > diff --git a/include/linux/security.h b/include/linux/security.h
-> > index 5b67f208f7de..3b7472308430 100644
-> > --- a/include/linux/security.h
-> > +++ b/include/linux/security.h
-> > @@ -270,6 +270,8 @@ int security_binder_transfer_binder(const struct cred *from,
-> >                                   const struct cred *to);
-> >  int security_binder_transfer_file(const struct cred *from,
-> >                                 const struct cred *to, struct file *file);
-> > +int security_binder_transfer_charge(const struct cred *from,
-> > +                                 const struct cred *to);
-> >  int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
-> >  int security_ptrace_traceme(struct task_struct *parent);
-> >  int security_capget(struct task_struct *target,
-> > diff --git a/security/security.c b/security/security.c
-> > index d1571900a8c7..97e1e74d1ff2 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -801,6 +801,12 @@ int security_binder_transfer_file(const struct cred *from,
-> >       return call_int_hook(binder_transfer_file, 0, from, to, file);
-> >  }
-> >
-> > +int security_binder_transfer_charge(const struct cred *from,
-> > +                                 const struct cred *to)
-> > +{
-> > +     return call_int_hook(binder_transfer_charge, 0, from, to);
-> > +}
-> > +
-> >  int security_ptrace_access_check(struct task_struct *child, unsigned int mode)
-> >  {
-> >       return call_int_hook(ptrace_access_check, 0, child, mode);
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 3c5be76a9199..823ef14924bd 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -2066,6 +2066,14 @@ static int selinux_binder_transfer_file(const struct cred *from,
-> >                           &ad);
-> >  }
-> >
-> > +static int selinux_binder_transfer_charge(const struct cred *from, const struct cred *to)
-> > +{
-> > +     return avc_has_perm(&selinux_state,
-> > +                         cred_sid(from), cred_sid(to),
-> > +                         SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
-> > +                         NULL);
-> > +}
-> > +
-> >  static int selinux_ptrace_access_check(struct task_struct *child,
-> >                                      unsigned int mode)
-> >  {
-> > @@ -7052,6 +7060,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
-> >       LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
-> >       LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
-> >       LSM_HOOK_INIT(binder_transfer_file, selinux_binder_transfer_file),
-> > +     LSM_HOOK_INIT(binder_transfer_charge, selinux_binder_transfer_charge),
-> >
-> >       LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
-> >       LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
-> > diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> > index a3c380775d41..2eef180d10d7 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -172,7 +172,7 @@ const struct security_class_mapping secclass_map[] = {
-> >       { "tun_socket",
-> >         { COMMON_SOCK_PERMS, "attach_queue", NULL } },
-> >       { "binder", { "impersonate", "call", "set_context_mgr", "transfer",
-> > -                   NULL } },
-> > +                   "transfer_charge", NULL } },
-> >       { "cap_userns",
-> >         { COMMON_CAP_PERMS, NULL } },
-> >       { "cap2_userns",
+> As fs_info was not used before, ocfs2_initxattrs() can now handle the case
+> of replicating the behavior of security_old_inode_init_security(), i.e.
+> just obtaining the xattr, in addition to setting all xattrs provided by
+> LSMs.
+> 
+> Supporting multiple xattrs is not currently supported where
+> security_old_inode_init_security() was called (mknod, symlink), as it
+> requires non-trivial changes that can be done at a later time. Like for
+> reiserfs, even if EVM is invoked, it will not provide an xattr (if it is
+> not the first to set it, its xattr will be discarded; if it is the first,
+> it does not have xattrs to calculate the HMAC on).
+> 
+> Finally, modify the handling of the return value from
+> ocfs2_init_security_get(). As security_inode_init_security() does not
+> return -EOPNOTSUPP, remove this case and directly handle the error if the
+> return value is not zero.
+> 
+> However, the previous case of receiving -EOPNOTSUPP should be still
+> taken into account, as security_inode_init_security() could return zero
+> without setting xattrs and ocfs2 would consider it as if the xattr was set.
+> 
+> Instead, if security_inode_init_security() returned zero, look at the xattr
+> if it was set, and behave accordingly, i.e. set si->enable to zero to
+> notify to the functions following ocfs2_init_security_get() that the xattr
+> is not available (same as if security_old_inode_init_security() returned
+> -EOPNOTSUPP).
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  fs/ocfs2/namei.c | 18 ++++++------------
+>  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
+>  2 files changed, 32 insertions(+), 16 deletions(-)
+> 
+> diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
+> index 05f32989bad6..55fba81cd2d1 100644
+> --- a/fs/ocfs2/namei.c
+> +++ b/fs/ocfs2/namei.c
+> @@ -242,6 +242,7 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
+>  	int want_meta = 0;
+>  	int xattr_credits = 0;
+>  	struct ocfs2_security_xattr_info si = {
+> +		.name = NULL,
+>  		.enable = 1,
+>  	};
+>  	int did_quota_inode = 0;
+> @@ -315,12 +316,8 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
+>  	/* get security xattr */
+>  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
+>  	if (status) {
+> -		if (status == -EOPNOTSUPP)
+> -			si.enable = 0;
+> -		else {
+> -			mlog_errno(status);
+> -			goto leave;
+> -		}
+> +		mlog_errno(status);
+> +		goto leave;
+>  	}
+>  
+>  	/* calculate meta data/clusters for setting security and acl xattr */
+> @@ -1805,6 +1802,7 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
+>  	int want_clusters = 0;
+>  	int xattr_credits = 0;
+>  	struct ocfs2_security_xattr_info si = {
+> +		.name = NULL,
+>  		.enable = 1,
+>  	};
+>  	int did_quota = 0, did_quota_inode = 0;
+> @@ -1875,12 +1873,8 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
+>  	/* get security xattr */
+>  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
+>  	if (status) {
+> -		if (status == -EOPNOTSUPP)
+> -			si.enable = 0;
+> -		else {
+> -			mlog_errno(status);
+> -			goto bail;
+> -		}
+> +		mlog_errno(status);
+> +		goto bail;
+>  	}
+>  
+>  	/* calculate meta data/clusters for setting security xattr */
+> diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+> index 95d0611c5fc7..55699c573541 100644
+> --- a/fs/ocfs2/xattr.c
+> +++ b/fs/ocfs2/xattr.c
+> @@ -7259,9 +7259,21 @@ static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
+>  static int ocfs2_initxattrs(struct inode *inode, const struct xattr *xattr_array,
+>  		     void *fs_info)
+>  {
+> +	struct ocfs2_security_xattr_info *si = fs_info;
+>  	const struct xattr *xattr;
+>  	int err = 0;
+>  
+> +	if (si) {
+> +		si->value = kmemdup(xattr_array->value, xattr_array->value_len,
+> +				    GFP_KERNEL);
+> +		if (!si->value)
+> +			return -ENOMEM;
+> +
+> +		si->name = xattr_array->name;
+> +		si->value_len = xattr_array->value_len;
+> +		return 0;
+> +	}
+> +
+>  	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
+>  		err = ocfs2_xattr_set(inode, OCFS2_XATTR_INDEX_SECURITY,
+>  				      xattr->name, xattr->value,
+> @@ -7277,13 +7289,23 @@ int ocfs2_init_security_get(struct inode *inode,
+>  			    const struct qstr *qstr,
+>  			    struct ocfs2_security_xattr_info *si)
+>  {
+> +	int ret;
+> +
+>  	/* check whether ocfs2 support feature xattr */
+>  	if (!ocfs2_supports_xattr(OCFS2_SB(dir->i_sb)))
+>  		return -EOPNOTSUPP;
+> -	if (si)
+> -		return security_old_inode_init_security(inode, dir, qstr,
+> -							&si->name, &si->value,
+> -							&si->value_len);
+> +	if (si) {
+> +		ret = security_inode_init_security(inode, dir, qstr,
+> +						   &ocfs2_initxattrs, si);
+> +		/*
+> +		 * security_inode_init_security() does not return -EOPNOTSUPP,
+> +		 * we have to check the xattr ourselves.
+> +		 */
+> +		if (!ret && !si->name)
+> +			si->enable = 0;
+> +
+> +		return ret;
+> +	}
+>  
+>  	return security_inode_init_security(inode, dir, qstr,
+>  					    &ocfs2_initxattrs, NULL);
+
