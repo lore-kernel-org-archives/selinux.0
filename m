@@ -2,197 +2,185 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FE0BC5479D
-	for <selinux@archiver.kernel.org>; Wed, 11 Jan 2023 22:56:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E3C2C5479D
+	for <selinux@archiver.kernel.org>; Wed, 11 Jan 2023 23:00:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235089AbjAKW46 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Jan 2023 17:56:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50426 "EHLO
+        id S235851AbjAKXAj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Jan 2023 18:00:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234200AbjAKW45 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Jan 2023 17:56:57 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AC26300
-        for <selinux@vger.kernel.org>; Wed, 11 Jan 2023 14:56:50 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id s5so24512217edc.12
-        for <selinux@vger.kernel.org>; Wed, 11 Jan 2023 14:56:50 -0800 (PST)
+        with ESMTP id S235835AbjAKXAY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Jan 2023 18:00:24 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8B866585
+        for <selinux@vger.kernel.org>; Wed, 11 Jan 2023 15:00:19 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id d3so18351088plr.10
+        for <selinux@vger.kernel.org>; Wed, 11 Jan 2023 15:00:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fYVYmrm8qRKhdfjNxir61IMwTDz9ljMKT2wwPAIP+WQ=;
-        b=Xhqr3JG2Kex0yJQiWOcc0PM+7tyhQNxjCcJ7T8wz62d+5YQPT9Rtd4nC10zyoXLoMT
-         4/vmihyklfSrZDCiyctpeidBCrvuTcUZqgtWDQJyCNaXgm6+tkBSAvDANuhYpWOmJyom
-         dC+q84M7rFuFBjEUHK9o1KYkMoO2Zcisjc0WI=
+        d=paul-moore.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ebfhkl4yBdhs2NPEuQ8sKu6oy3fhHQBZ7zNUPdmzi5U=;
+        b=WWwN1Rz/mVHLJtVVeu33a2EjLkp3CQdgLmekjiRzSh/R37LSqXUbEnHE8KCzTuC47U
+         yCvIq6wviRwJJeEXsenXvC6mmIOOZyDqGIN84RWl2iI0SsCRyRHYvr3gmacfU6dFy0B+
+         xnoAkNuSwvTbAqi/a+n7CtpYDGIFrZTmLAmkBJppZpTiJL/5FNtLyNideGNg9xK2eGM+
+         sg3nIzshBzzDAS4YSU5qD1vsfacW1zFvY2xVAUtJWiQwwVGeK1h5w7mP2bMOGUsoecZC
+         SalaqGfE6TTc7OIjoD+IPyVkdfoSWM+6zvMzWk+PayTUHTCQAwRz9ET+IxlbZ+xarJPw
+         0VrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references
-         :mail-followup-to:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fYVYmrm8qRKhdfjNxir61IMwTDz9ljMKT2wwPAIP+WQ=;
-        b=sRvb4XvFHtApf+T1t76PSqASPKocZOexejcARkOguVn5ERJezy8BAR1QjjrSIw/DOc
-         j0qUAFmvzxQXMLfNnCSyk56vv1GcQfP39pfCIbLaVIEGtXNU1DCx7ncFLwYJqEUV9yFx
-         +rUXyZ2IcHw0u4/OCuctDw5f2Z50xcc7DYmXnRQoM0rcXSRnpN8U5LA0+5Bxnv5w8Ali
-         NmzgjLNePmLIsJ0+RHJbwfzzxPxJnLtn2BH+KEdeIphtQBHWrYj4H9spWpIW6IATUVBF
-         oXAbRIJPB8GrSjxQTsXO5RIP8gYouu1z8bPiNmxUcU7CRsdiGbfC46fKfCkhoLMKbXx4
-         t2Iw==
-X-Gm-Message-State: AFqh2kqFSczS+FScAFlskgATgMYf8PeUIZxdS1pRHZ6tDyfpjNtVAPCg
-        G+IO2YRYCCduNM8SMNB0dGKRAQ==
-X-Google-Smtp-Source: AMrXdXvtJyhkyJcdGojea7328ZHYfQqEgGWt5WiLp900ZLPEIaZSTCU8Uhtlcr1KkDcOMzby5I7CqA==
-X-Received: by 2002:a05:6402:48c:b0:483:d49f:e26c with SMTP id k12-20020a056402048c00b00483d49fe26cmr54924068edv.15.1673477808940;
-        Wed, 11 Jan 2023 14:56:48 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id a3-20020aa7cf03000000b0049019b48373sm6549362edy.85.2023.01.11.14.56.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jan 2023 14:56:48 -0800 (PST)
-Date:   Wed, 11 Jan 2023 23:56:45 +0100
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Shakeel Butt <shakeelb@google.com>
-Cc:     "T.J. Mercier" <tjmercier@google.com>, Tejun Heo <tj@kernel.org>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ebfhkl4yBdhs2NPEuQ8sKu6oy3fhHQBZ7zNUPdmzi5U=;
+        b=1BzbeX9mI5e7Fh74OruOStmckLbJa3tKfiOwb7y14vVEhqBNyhPEq1qv9TQOXYKTgz
+         hcoyrJEQzemk+BeBOryU8JOui/c1mws5XqXAs7/UtDuaxW/Dd0fSGKHSD3QXFGnybc+3
+         taLALxlZOR1rX/9W+gLpjNZuFZokJpxvygt08gQmBbt7wuVhx9FsLFLlR64URtRcPjWF
+         uzPQuGMWCm5VC8YNMAeAFIe7+Sy8CJOdAY8cI2YeUP7uIZEHQWYFvVLC/sVYWHbVRWMw
+         c9F9I0RBJ3QgRP66+sJVj5YzH5vTqsdnx0Pqtvfh1VegimkK5gXjQgFCIjPgAn8YLTZX
+         aFoQ==
+X-Gm-Message-State: AFqh2krhnwq0WPZDhVZ+fswsTx0yJl12H5oo43UassQvvmSavokGKlE7
+        hw64XHwW6S3R600sAHvvPV2CWXBSME1S+1UgNkRI
+X-Google-Smtp-Source: AMrXdXt4it48Wez5pJu3mLq3VnTOiPl8RyWCMdckWz6o4zovM0aSVTVfPc695JHwFqyMFC6ileh4Ualvz69IQ6IuXh8=
+X-Received: by 2002:a17:902:968a:b0:192:7a00:c790 with SMTP id
+ n10-20020a170902968a00b001927a00c790mr4788788plp.12.1673478018644; Wed, 11
+ Jan 2023 15:00:18 -0800 (PST)
+MIME-Version: 1.0
+References: <20230109213809.418135-1-tjmercier@google.com> <20230109213809.418135-5-tjmercier@google.com>
+In-Reply-To: <20230109213809.418135-5-tjmercier@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 11 Jan 2023 18:00:07 -0500
+Message-ID: <CAHC9VhT+5oE4DZzxqCGFDoHjkP+5GcKU1R2BBW29uUu8BcgiAg@mail.gmail.com>
+Subject: Re: [PATCH 4/4] security: binder: Add transfer_charge SElinux hook
+To:     "T.J. Mercier" <tjmercier@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
         Todd Kjos <tkjos@android.com>,
         Martijn Coenen <maco@android.com>,
         Joel Fernandes <joel@joelfernandes.org>,
         Christian Brauner <brauner@kernel.org>,
         Carlos Llamas <cmllamas@google.com>,
         Suren Baghdasaryan <surenb@google.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Muchun Song <muchun.song@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Paul Moore <paul@paul-moore.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, daniel.vetter@ffwll.ch,
-        android-mm@google.com, jstultz@google.com, cgroups@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org,
+        Eric Paris <eparis@parisplace.org>, hannes@cmpxchg.org,
+        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
+        linux-kernel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 0/4] Track exported dma-buffers with memcg
-Message-ID: <Y78+rfzXPq5XGs9O@phenom.ffwll.local>
-Mail-Followup-To: Shakeel Butt <shakeelb@google.com>,
-        "T.J. Mercier" <tjmercier@google.com>, Tejun Heo <tj@kernel.org>,
-        Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>, Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Muchun Song <muchun.song@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, android-mm@google.com,
-        jstultz@google.com, cgroups@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-References: <20230109213809.418135-1-tjmercier@google.com>
- <CALvZod4ru7F38tAO-gM9ZFKaEhS0w3KqFbPwhwcTvgJs4xMUow@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALvZod4ru7F38tAO-gM9ZFKaEhS0w3KqFbPwhwcTvgJs4xMUow@mail.gmail.com>
-X-Operating-System: Linux phenom 5.19.0-2-amd64 
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 09, 2023 at 04:18:12PM -0800, Shakeel Butt wrote:
-> Hi T.J.,
-> 
-> On Mon, Jan 9, 2023 at 1:38 PM T.J. Mercier <tjmercier@google.com> wrote:
-> >
-> > Based on discussions at LPC, this series adds a memory.stat counter for
-> > exported dmabufs. This counter allows us to continue tracking
-> > system-wide total exported buffer sizes which there is no longer any
-> > way to get without DMABUF_SYSFS_STATS, and adds a new capability to
-> > track per-cgroup exported buffer sizes. The total (root counter) is
-> > helpful for accounting in-kernel dmabuf use (by comparing with the sum
-> > of child nodes or with the sum of sizes of mapped buffers or FD
-> > references in procfs) in addition to helping identify driver memory
-> > leaks when in-kernel use continually increases over time. With
-> > per-application cgroups, the per-cgroup counter allows us to quickly
-> > see how much dma-buf memory an application has caused to be allocated.
-> > This avoids the need to read through all of procfs which can be a
-> > lengthy process, and causes the charge to "stick" to the allocating
-> > process/cgroup as long as the buffer is alive, regardless of how the
-> > buffer is shared (unless the charge is transferred).
-> >
-> > The first patch adds the counter to memcg. The next two patches allow
-> > the charge for a buffer to be transferred across cgroups which is
-> > necessary because of the way most dmabufs are allocated from a central
-> > process on Android. The fourth patch adds a SELinux hook to binder in
-> > order to control who is allowed to transfer buffer charges.
-> >
-> > [1] https://lore.kernel.org/all/20220617085702.4298-1-christian.koenig@amd.com/
-> >
-> 
-> I am a bit confused by the term "charge" used in this patch series.
-> From the patches, it seems like only a memcg stat is added and nothing
-> is charged to the memcg.
-> 
-> This leads me to the question: Why add this stat in memcg if the
-> underlying memory is not charged to the memcg and if we don't really
-> want to limit the usage?
-> 
-> I see two ways forward:
-> 
-> 1. Instead of memcg, use bpf-rstat [1] infra to implement the
-> per-cgroup stat for dmabuf. (You may need an additional hook for the
-> stat transfer).
-> 
-> 2. Charge the actual memory to the memcg. Since the size of dmabuf is
-> immutable across its lifetime, you will not need to do accounting at
-> page level and instead use something similar to the network memory
-> accounting interface/mechanism (or even more simple). However you
-> would need to handle the reclaim, OOM and charge context and failure
-> cases. However if you are not looking to limit the usage of dmabuf
-> then this option is an overkill.
+On Mon, Jan 9, 2023 at 4:38 PM T.J. Mercier <tjmercier@google.com> wrote:
+>
+> Any process can cause a memory charge transfer to occur to any other
+> process when transmitting a file descriptor through binder. This should
+> only be possible for central allocator processes, so a new SELinux
+> permission is added to restrict which processes are allowed to initiate
+> these charge transfers.
+>
+> Signed-off-by: T.J. Mercier <tjmercier@google.com>
+> ---
+>  drivers/android/binder.c            | 5 +++++
+>  include/linux/lsm_hook_defs.h       | 2 ++
+>  include/linux/lsm_hooks.h           | 6 ++++++
+>  include/linux/security.h            | 2 ++
+>  security/security.c                 | 6 ++++++
+>  security/selinux/hooks.c            | 9 +++++++++
+>  security/selinux/include/classmap.h | 2 +-
+>  7 files changed, 31 insertions(+), 1 deletion(-)
 
-I think eventually, at least for other "account gpu stuff in cgroups" use
-case we do want to actually charge the memory.
+Hi T.J.,
 
-The problem is a bit that with gpu allocations reclaim is essentially "we
-pass the error to userspace and they get to sort the mess out". There are
-some exceptions (some gpu drivers to have shrinkers) would we need to make
-sure these shrinkers are tied into the cgroup stuff before we could enable
-charging for them?
+A few things come to mind when looking at this patchset, but let me
+start with the big one first: you only sent 0/4 and 4/4 to the LSM and
+SELinux lists, so that's all I'm seeing in my inbox to review, and
+it's hard to make sense of what you want to do with just these
+snippets.  This makes me cranky, and less inclined to spend the time
+to give this a proper review, because there are plenty of other things
+which need attention and don't require me having to hunt down missing
+pieces.  Yes, I'm aware of b4/lei, and while they are great tools, my
+workflow was pretty well established before they came into existence
+and I still do things the good ol' fashioned way with mailing lists,
+etc.
 
-Also note that at least from the gpu driver side this is all a huge
-endeavour, so if we can split up the steps as much as possible (and get
-something interim useable that doesn't break stuff ofc), that is
-practically need to make headway here. TJ has been trying out various
-approaches for quite some time now already :-/
--Daniel
+Make the patch reviewer's life easy whenever you can, it will rarely
+(ever?) backfire, I promise.
 
-> Please let me know if I misunderstood something.
-> 
-> [1] https://lore.kernel.org/all/20220824233117.1312810-1-haoluo@google.com/
-> 
-> thanks,
-> Shakeel
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 9830848c8d25..9063db04826d 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -2279,6 +2279,11 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset, __u32 flags,
+>         if (IS_ENABLED(CONFIG_MEMCG) && (flags & BINDER_FD_FLAG_XFER_CHARGE)) {
+>                 struct dma_buf *dmabuf;
+>
+> +               if (security_binder_transfer_charge(proc->cred, target_proc->cred)) {
+> +                       ret = -EPERM;
+> +                       goto err_security;
+> +               }
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+This is where I believe I'm missing the proper context, as this
+version of binder_translate_fd() differs from what I see in Linus'
+tree.  However, the version in Linus' tree does have a LSM hook,
+security_binder_transfer_file(), which is passed both the credentials
+you are using above and based solely on the level of indentation shown
+in the chunk of code above, it seems like the existing hook might be
+suitable?
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3c5be76a9199..823ef14924bd 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2066,6 +2066,14 @@ static int selinux_binder_transfer_file(const struct cred *from,
+>                             &ad);
+>  }
+>
+> +static int selinux_binder_transfer_charge(const struct cred *from, const struct cred *to)
+> +{
+> +       return avc_has_perm(&selinux_state,
+> +                           cred_sid(from), cred_sid(to),
+> +                           SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
+> +                           NULL);
+> +}
+
+Generally speaking SELinux doesn't really worry about resource
+accounting controls so this seems a bit out of place, but perhaps the
+larger question is do you see this being sufficiently distinct from
+the existing binder:transfer permission?  In other words, would you
+ever want to grant a domain the ability to transfer a file *without*
+also granting it the ability to transfer the memory charge?  You need
+to help me explain why we need an additional permission for this,
+because I don't currently see the need.
+
+>  static int selinux_ptrace_access_check(struct task_struct *child,
+>                                        unsigned int mode)
+>  {
+> @@ -7052,6 +7060,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>         LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+>         LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
+>         LSM_HOOK_INIT(binder_transfer_file, selinux_binder_transfer_file),
+> +       LSM_HOOK_INIT(binder_transfer_charge, selinux_binder_transfer_charge),
+>
+>         LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
+>         LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index a3c380775d41..2eef180d10d7 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -172,7 +172,7 @@ const struct security_class_mapping secclass_map[] = {
+>         { "tun_socket",
+>           { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+>         { "binder", { "impersonate", "call", "set_context_mgr", "transfer",
+> -                     NULL } },
+> +                     "transfer_charge", NULL } },
+>         { "cap_userns",
+>           { COMMON_CAP_PERMS, NULL } },
+>         { "cap2_userns",
+> --
+> 2.39.0.314.g84b9a713c41-goog
+
+--
+paul-moore.com
