@@ -2,172 +2,174 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B88EDC678D5
-	for <selinux@archiver.kernel.org>; Thu, 12 Jan 2023 08:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29B67C54EBC
+	for <selinux@archiver.kernel.org>; Thu, 12 Jan 2023 09:26:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239693AbjALISC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Jan 2023 03:18:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52632 "EHLO
+        id S240057AbjALJ0Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Jan 2023 04:26:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236438AbjALIRy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Jan 2023 03:17:54 -0500
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2076.outbound.protection.outlook.com [40.107.94.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D44C1EC63;
-        Thu, 12 Jan 2023 00:17:35 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OHV1vpGkZa9GYnVJhkgpwvt5TD70KPg07ZB4C0gt3ncuU+Qps67J5RhuWsnhq9PQNdjyaR20e9beTGD9vz0J2n6HVZ0UehFxP/GC0EEDO8QPL7giiVKeuIpbJ/yNwGtbOZ76APTAHGCH6XZc8zL7xB4T24L1zeio8kYEtf+89scHFiSltP4LXYqZb2EdY9tr/AiMTfYYhvDfGqJPNuqkiJo6Lws2K2fWyZhM9d3MlHF1wUjxeyAUVrHCzJ2q13hxWiSlirssLZGQkrXSpPecnu8hjD/zIGa3ZkItZ4XKD1th21heJe+A9TMZVzWuVJTjvVPLvWVFIVJnwo7Do/L2MA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UhpZ6TmtUE/4qtDH4tuv1gmdSIFfJVCkGumJ+omqkEQ=;
- b=DbFVEDDvWP4eAprTpiFazKdKCm/7DbAYB0JAMGIicXZ/pSz5QbBZM9NwhyTT83HWLPIAWAhcpxxl3jqCovTVL4MqTaSUekzKIOYO09EsasH2QTfccI8Zxfs4cNLL6OzZUAzuWUOaXLCxocseFA0qbTMXeVwPE0ACs4NUrn43GtIK9STRuFaf8lwB5WRr29bIMTfq93edC/Zj44z1DvJVLN7Wn3efWSt3d7B26L8WeqpH0XSDMdfzhiCLzPFzW9HspjQS1leiun3HjUROPU3mSOfmKe7xRK1F1MaX+FyrpCycNKqxvjkvGvOVv4EqhduuHeGzYGhljwY+jGIKIu0mkg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UhpZ6TmtUE/4qtDH4tuv1gmdSIFfJVCkGumJ+omqkEQ=;
- b=rbV7JbG+YtA0jU1tnlzDCnp6b4kM8kHW6DMywXCC5+xAgbJdC03e0d2lfVKX1ULBpEc67EbskjTu31VKSUmZ2H2HEj5p4KS4pDEsyPG9AJV9Gl2KjRfOLuEEswv3B1L8wzl10SU/B2WmE8tbRIpUQ3t0ABfLjJld3pJnGouvMSE=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
- by CH2PR12MB4296.namprd12.prod.outlook.com (2603:10b6:610:af::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.19; Thu, 12 Jan
- 2023 08:17:33 +0000
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::80d8:934f:caa7:67b0]) by BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::80d8:934f:caa7:67b0%3]) with mapi id 15.20.5986.018; Thu, 12 Jan 2023
- 08:17:32 +0000
-Message-ID: <2df3c97f-9e54-e743-a29f-f20f5461c851@amd.com>
-Date:   Thu, 12 Jan 2023 09:17:21 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 0/4] Track exported dma-buffers with memcg
-Content-Language: en-US
-To:     Shakeel Butt <shakeelb@google.com>,
-        "T.J. Mercier" <tjmercier@google.com>
-Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?Q?Arve_Hj=c3=b8nnev=c3=a5g?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Muchun Song <muchun.song@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, android-mm@google.com,
-        jstultz@google.com, cgroups@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        daniel.vetter@ffwll.ch
-References: <20230109213809.418135-1-tjmercier@google.com>
- <CALvZod4ru7F38tAO-gM9ZFKaEhS0w3KqFbPwhwcTvgJs4xMUow@mail.gmail.com>
- <Y78+rfzXPq5XGs9O@phenom.ffwll.local>
- <CABdmKX0TAv=iRz0s+F6dVVX=xsK00BeUPkRM4bnsfemDAY9U4w@mail.gmail.com>
- <20230112081337.fxgnhdk44mxu26et@google.com>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-In-Reply-To: <20230112081337.fxgnhdk44mxu26et@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR3P281CA0007.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:1d::6) To BN8PR12MB3587.namprd12.prod.outlook.com
- (2603:10b6:408:43::13)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3587:EE_|CH2PR12MB4296:EE_
-X-MS-Office365-Filtering-Correlation-Id: ef4d5930-d6f8-4c08-992b-08daf4757411
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: xm7yPWzQLZGzmC6sVqwvO7+qAxlA61VClD/CI+xqIwjQi6bSObX4dWU16JV/WRntLVb7GkZYtNuYpsTzdX+bkE6MRplB5z84veWuXZK8+Rsi+GIRZgwKM8zrps/mcJbol6gTYRBRnPZdd9TEoieDrjbCy2FMNKhz5iboRwhZGZDgecZ0UPVpgJcOyeUZ7vvfaJLbwjYyx67xOW0V0Z82iyFP3XU0GnU2M+bIGWGnUBB73MzNo92CjncSYuCBFW3DZMPfkdfvnju8PuV5XkK+DFWNVOlK+ArX5SIXrvMqoyRrxjkAPVvAi7kRWLi/n8eoBjMkrVbh/3LMyLwb38CG+2i0VLx3/TtlyQ9GY/6oO1QJbsoisnSRzPwG2ySb75RECsA2I4zT2n1j3xmHU1C0CTU0HXTlUsZk5CVFFJSjXPibKFhlln8m8wPtFV84VxM7MB7vdQuPbQKYgxNz2VWwiE5Aa1srnzeaWYX5ezWsn7cmnIAmaFaB1AnD8ZYs80M3+60cH8rxH2R/k1d0zM3U8fOlDAgCKIJsZU8UFxXOL0ZNhjxy7wbdORD0nlEus1XShpsS8Afb/MKgbr8zTtZ8+h8seVfiqYGS6tCCry6BnIip22Q3/M3+/bglw3lRk/t8JT43UhclaWmoRgvKf+5PGvf+I2bWbbbC2QPZB/i5saoAQlrwXBDj7B9i0xe9/sdRLNh9snaDOZr36bsCQRawbmSE/0Icmvy+BV2oI6ZLRKQ=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR12MB3587.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(366004)(396003)(376002)(346002)(39860400002)(451199015)(8936002)(5660300002)(7416002)(7406005)(41300700001)(38100700002)(36756003)(2906002)(31696002)(86362001)(6486002)(478600001)(31686004)(26005)(186003)(6512007)(6506007)(8676002)(4326008)(66476007)(66946007)(66556008)(316002)(110136005)(2616005)(54906003)(6666004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?OUo0VHB5ZnpTZUtxV2dndEROdVNuYUtvckkwVzRVckpvNUpHR2lQaStUd051?=
- =?utf-8?B?RzFEK0wyUFQvbGR2bFJHWGVRL3ZhUlAxbDREbWJzWUp3RHhrSC9WL0hsdG1W?=
- =?utf-8?B?N0dzODFlN3VoS2w2RnBIVnJmRFlSV2g3UGNVMVRJNkFIUzcwcHpCQzdxMENR?=
- =?utf-8?B?U0xNOFMrTnNqWm1GbVlxNVA2dm1DQjY1Qm8wQkNSOGdGUHhJUG5hbFd5OWdX?=
- =?utf-8?B?S2xVZCtBYXNiVFFlUEFXV0dzZVZrd0wzbktiNUhrRFlqZ3JvZ2V5VXB5L3dV?=
- =?utf-8?B?Sk1oVGpYTU5aeG0wMEhIMEpwU3ptZHZvY0ZiZGZpS3hvUUxtWFBTdEJ4WjFI?=
- =?utf-8?B?eGV2c1FFdTdRNzM5aFl2clFuM1FuREw5cHNuU0dYUTVENVE0MU5RNHVGRmhS?=
- =?utf-8?B?MzN4bXIwQ2t0RUxxS2EzbFVxSDZpVFhvbjB2Y3lqWmgzRUFSZ0tpeUwyZ2I4?=
- =?utf-8?B?QzJkOG14YmVCeWszdktJOGNLcUI0bVVqRVR3YWswRVpPT3BadjhQaStLRUM5?=
- =?utf-8?B?YWhQQ2J2VG11UnVZa1VsYStkalg1NjUrUmxVTUdYa0hQSFBKNTJJUkhZQ1VM?=
- =?utf-8?B?OUZCVlpwcHpsZ0J0TjB0UHpMVitvNE1nRXJpOGNxOGNRRjlCdkxqNVFQcERm?=
- =?utf-8?B?MkR6NGZEbU9tUkRucWRCY2dGYXdueDhnZjVkZm5ZRUpRNU82SUZOODYzUkli?=
- =?utf-8?B?SmlkZmlPYkFiQjY0SWRKN05kN3JOb21ISGtSejR5SHBuT3JLWEgxK3plc2lv?=
- =?utf-8?B?MnI1L3oveUNMWXFYUUlZTkJteDVnTGZuOVdxOHl5RE1NZFRuTHpuTGhUTzcw?=
- =?utf-8?B?L3ZadndFVXNiTDFNZXRoakl3WUpMalM2SlF6SHhHa1VaQytwVFpnNmF1MFFB?=
- =?utf-8?B?cnhnaSs4cENpclVIbGNqQmVyaDN6SHFYTjhVOEgzMjZTUkJ1RHZ6K0lKRUVK?=
- =?utf-8?B?aGgxMGxQNGhhWGJrQmdUK2NZSDdvdWdjRUpkV2RvaWFhY0NzK2U4am44T0xr?=
- =?utf-8?B?VHVDTkhDRU5NU2ZVeHh6U2Z3S2xCT3lCaGljN3l0dEJKR0xWYXJDSVJRY3NF?=
- =?utf-8?B?ZURiUnZ3L0ZJNWx6NDNRdVFOMmE5QTc5cXpiLzMrRXQrNVRsVmYzMS9hY3pG?=
- =?utf-8?B?WTFuWGN1eDB1TDVvRFRuY2ZJWnpYSkxDZWh3R3piZXJGNjJqVVR0U0FndG81?=
- =?utf-8?B?L1BtWjJtWUdObVdLTVVwTjkzNjU0TUYrMU9JL1gxNG9RVS92MEtzTEZsWk5n?=
- =?utf-8?B?djA2TjFORjNVMlpFU0IrbnFNeklrZFVCNzN1K2ZNZXplbUIvWFBVbnYwWUpU?=
- =?utf-8?B?V3pnbExsRE1LcXQ3V0NQenErTThrTldISkpTVlBmNklldWtHTklYbjhiZTJZ?=
- =?utf-8?B?ZlliYXpIcXFPWWx3OERHZUpHT0NaeDZiZHVMV1d5eWwzMHZreHdSclQrSkwz?=
- =?utf-8?B?dmNuaFFkWFJzRjdMYkZ0aEVndUhNRnlXeDBxUkk1cHRhazhBWkhEMmJtZ1RJ?=
- =?utf-8?B?SUM0ckNCcGRmdGFENkNCOWlOT2cxaVFTSkNSWW1WMUJQb0VTbEFFbDNqNmxZ?=
- =?utf-8?B?UVAxc0lFV1VqZ1ZoVGNmcVB6ZUp4RitkTkRPMW82V3pHYVE5MkdJZC9UcFFR?=
- =?utf-8?B?aUE3V2dGampheFM2d2VTRlhrNVpFOVRMVEZvcGFpT2l4MEwvWkFnaGZPakVE?=
- =?utf-8?B?Q1VzYUNaN3pLRHJZamRsMHdTUituOVYyRzZzSVVGRmlsaVpTUTJHU1YxaXlX?=
- =?utf-8?B?aU1FcHFOUWFsY0Nwd0tLdGx1cG1nWloxZmJsdzNNV3hIQVdCM0tPM2tjYnhF?=
- =?utf-8?B?RHhvQVlWNWlTcEhSdWpqZHYwZEIxS3RpMG1sZjFwOWFMT0ZiTjVYZDFic2JK?=
- =?utf-8?B?NnFXcmJzdnJlT2RpS0xCdkNnWkUyVno0aXFmbTZZNU9DQVl2THVsaWIwNENR?=
- =?utf-8?B?V2VmYXJ3eWN4MUM0NXBkUm5JRXEwU0JUdEYrU3gxZ1o5citWSXFMNWpwc2xt?=
- =?utf-8?B?dm1VaTI1REtPVEdtVDAxbzFaNk1rRGNIZ2h5TUszSDZYQjVpaFZDcVZtajV2?=
- =?utf-8?B?dmxrWFlyOFFReHBNRjlmYndOLzNiOGsxOHN4bnF1dUNpd2gyVlpwOHBGVlkx?=
- =?utf-8?Q?9/rapmkssopwpK/aUC2zLkLXd?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ef4d5930-d6f8-4c08-992b-08daf4757411
-X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2023 08:17:32.4820
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: TFdVJy4fXovAhBnUlO1FQi7je/3ZE5Db5Yfu6Y+1FibZcqyAbtkIHcA2Dcsr+XDS
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4296
+        with ESMTP id S239840AbjALJZy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Jan 2023 04:25:54 -0500
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35F0A5C1C0
+        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 01:14:40 -0800 (PST)
+Received: by mail-pl1-x64a.google.com with SMTP id f8-20020a170902ce8800b00190c6518e21so12314747plg.1
+        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 01:14:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=YZzCgv8P7E9YDE821tMqqCdUUmpwmqwOFJY8Q2QDzNc=;
+        b=s1SMl2OGqt1fVMpXXDkiIVMkVv2ew9QH4UqPIahqAsMYkfCGpdo6Q3CgaFrWQp3Kky
+         t1MwL82BbmQ/PpeWGL8KAIU5//645PrrU0PnfGeeIyIqDoUIg1StcvYVQz8tSSyISJcw
+         HQQrE+79q/+LulfVBcrJE8Kie3M0UJuuJsmk3q4+X6Ugk5g6s363D421vbp7+b0KubRs
+         ElDp/3Dby2t23mTwpzSYZdQHaGLQkE3cd1IoXBWQkbjFHKfx4sti3ED9qFh9UrZCV4Y1
+         Evkdb9JW4cbPRdBeXRDxUB5dTfv8N7KruEHLjZzZk74108xdCUTdsWKcQNHVhF7FhX5B
+         dbHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YZzCgv8P7E9YDE821tMqqCdUUmpwmqwOFJY8Q2QDzNc=;
+        b=F8tZAWU1mjYyzVopxBqE+67u3KHevV1bHlbl7Dfx6byDZ63HwSTP7Fi0FRr9nUHmfg
+         73+QE7QL2RtS/C8hthhs/qO927m74A4/4pY88ttzTbMPdE0yvUr80/TBWgWRA+31owPg
+         Ib0QIrGWAY/XjkQ2VQg5kx78g17E7A+1DpbL83H/sMWwWu/p1v/eSrZBV5Tm/XWtkMHd
+         LkCFG2E6dHmwDjrMRf8BXWbFyi0LGLSJuTU7qUtp5SiDVU/f+NJGJv5ir8mHWXPNWAQF
+         56SKXyx9G3hxIDhAEDyHMCEKhwtVg6ecVETNdaT3SH3jAEAS84g3gmD6kBMUTbpofmDM
+         Smzg==
+X-Gm-Message-State: AFqh2krN6nM53n7i+wrz2HCMykNrmaRS6edCYDZQ1T1pZEraZhKM0V6w
+        k8TULFuL0II18HDpXyR+ZDQr+RKROsSgpmc+n8Gh+T+AkOOzauhtde/rHlJI2N+ssSzY8pi6l9x
+        VusxloxkLcyNmVsl9464hXZLVi+znGFEnfpx5rwaGt/v7zt8HpMivk6c+3KzvuKs=
+X-Google-Smtp-Source: AMrXdXue3w1q1tUou/l4D4Y6+C9A9t2J9FVERRwm1GbHdgEXvwTvjdGB1qcajahtP4Q5RV3jfrGjtIy3KhY=
+X-Received: from inseob.seo.corp.google.com ([2401:fa00:d:11:a59a:d3b4:f3d3:283d])
+ (user=inseob job=sendgmr) by 2002:a17:90a:206:b0:226:9980:67f3 with SMTP id
+ c6-20020a17090a020600b00226998067f3mr99801pjc.1.1673514879128; Thu, 12 Jan
+ 2023 01:14:39 -0800 (PST)
+Date:   Thu, 12 Jan 2023 18:14:09 +0900
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.0.314.g84b9a713c41-goog
+Message-ID: <20230112091408.2880781-1-inseob@google.com>
+Subject: [PATCH v2 RESEND] libselinux: Workaround for heap overhead of pcre
+From:   Inseob Kim <inseob@google.com>
+To:     selinux@vger.kernel.org
+Cc:     Inseob Kim <inseob@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Am 12.01.23 um 09:13 schrieb Shakeel Butt:
-> On Wed, Jan 11, 2023 at 04:49:36PM -0800, T.J. Mercier wrote:
-> [...]
->>> The problem is a bit that with gpu allocations reclaim is essentially "we
->>> pass the error to userspace and they get to sort the mess out". There are
->>> some exceptions (some gpu drivers to have shrinkers) would we need to make
->>> sure these shrinkers are tied into the cgroup stuff before we could enable
->>> charging for them?
->>>
->> I'm also not sure that we can depend on the dmabuf being backed at
->> export time 100% of the time? (They are for dmabuf heaps.) If not,
->> that'd make calling the existing memcg folio based functions a bit
->> difficult.
->>
-> Where does the actual memory get allocated? I see the first patch is
-> updating the stat in dma_buf_export() and dma_buf_release(). Does the
-> memory get allocated and freed in those code paths?
+pcre's behavior is changed so that pcre2_match always allocates heap for
+match_data, rather than stack, regardless of size. The heap isn't freed
+until explicitly calling pcre2_match_data_free. This new behavior may
+result in heap overhead, which may increase the peak memory usage about
+a few megabytes. It's because regex_match is first called for regex_data
+objects, and then regex_data objects are freed at once.
 
-Nope, dma_buf_export() just makes the memory available to others.
+To workaround it, free match_data as soon as we call regex_match. It's
+fine because libselinux currently doesn't use match_data, but use only
+the return value.
 
-The driver which calls dma_buf_export() is the one allocating the memory.
+Signed-off-by: Inseob Kim <inseob@google.com>
 
-Regards,
-Christian.
+---
+v2:
+  - add AGGRESSIVE_FREE_AFTER_REGEX_MATCH macro
+  - remove match_data from struct regex_data
+---
+ libselinux/src/regex.c | 32 +++++++++++++++++++++++++++++++-
+ 1 file changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index 149a7973..4b4b9f08 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -60,11 +60,13 @@ char const *regex_arch_string(void)
+ 
+ struct regex_data {
+ 	pcre2_code *regex; /* compiled regular expression */
++#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+ 	/*
+ 	 * match data block required for the compiled
+ 	 * pattern in pcre2
+ 	 */
+ 	pcre2_match_data *match_data;
++#endif
+ 	pthread_mutex_t match_mutex;
+ };
+ 
+@@ -84,11 +86,13 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+ 		goto err;
+ 	}
+ 
++#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+ 	(*regex)->match_data =
+ 	    pcre2_match_data_create_from_pattern((*regex)->regex, NULL);
+ 	if (!(*regex)->match_data) {
+ 		goto err;
+ 	}
++#endif
+ 	return 0;
+ 
+ err:
+@@ -138,10 +142,12 @@ int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data **regex,
+ 		if (rc != 1)
+ 			goto err;
+ 
++#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+ 		(*regex)->match_data =
+ 		    pcre2_match_data_create_from_pattern((*regex)->regex, NULL);
+ 		if (!(*regex)->match_data)
+ 			goto err;
++#endif
+ 
+ 		*regex_compiled = true;
+ 	}
+@@ -203,8 +209,12 @@ void regex_data_free(struct regex_data *regex)
+ 	if (regex) {
+ 		if (regex->regex)
+ 			pcre2_code_free(regex->regex);
++
++#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+ 		if (regex->match_data)
+ 			pcre2_match_data_free(regex->match_data);
++#endif
++
+ 		__pthread_mutex_destroy(&regex->match_mutex);
+ 		free(regex);
+ 	}
+@@ -213,10 +223,30 @@ void regex_data_free(struct regex_data *regex)
+ int regex_match(struct regex_data *regex, char const *subject, int partial)
+ {
+ 	int rc;
++	pcre2_match_data *match_data;
+ 	__pthread_mutex_lock(&regex->match_mutex);
++
++#ifdef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
++	match_data = pcre2_match_data_create_from_pattern(
++	    regex->regex, NULL);
++	if (match_data == NULL) {
++		__pthread_mutex_unlock(&regex->match_mutex);
++		return REGEX_ERROR;
++	}
++#else
++	match_data = regex->match_data;
++#endif
++
+ 	rc = pcre2_match(
+ 	    regex->regex, (PCRE2_SPTR)subject, PCRE2_ZERO_TERMINATED, 0,
+-	    partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data, NULL);
++	    partial ? PCRE2_PARTIAL_SOFT : 0, match_data, NULL);
++
++#ifdef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
++	// pcre2_match allocates heap and it won't be freed until
++	// pcre2_match_data_free, resulting in heap overhead.
++	pcre2_match_data_free(match_data);
++#endif
++
+ 	__pthread_mutex_unlock(&regex->match_mutex);
+ 	if (rc > 0)
+ 		return REGEX_MATCH;
+-- 
+2.39.0.314.g84b9a713c41-goog
+
