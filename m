@@ -2,63 +2,117 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51F38C54EBD
-	for <selinux@archiver.kernel.org>; Thu, 12 Jan 2023 09:38:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E169BC677F1
+	for <selinux@archiver.kernel.org>; Thu, 12 Jan 2023 10:29:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239766AbjALJh7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Jan 2023 04:37:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
+        id S231240AbjALK3M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Jan 2023 05:29:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239943AbjALJhY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Jan 2023 04:37:24 -0500
-X-Greylist: delayed 321 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Jan 2023 01:30:15 PST
-Received: from mail.celldrum.pl (mail.celldrum.pl [192.71.213.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1BF145649
-        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 01:30:13 -0800 (PST)
-Received: by mail.celldrum.pl (Postfix, from userid 1001)
-        id 4772A41A27; Thu, 12 Jan 2023 10:24:29 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=celldrum.pl; s=mail;
-        t=1673515489; bh=L9MaVcgJQNU45xvlWi+RdqvfUk7sPEb4wFjeNQOGJzM=;
-        h=Date:From:To:Subject:From;
-        b=w/+E2wqWZ5SQ2y19E6xHDDKCpzVu8ymU82xaX1WOH3xNxBv6U9OoyZtePpGS+kp2E
-         drSfmy6zbdrEzgWV0z7AWbP8lvl/Xl3ZtF1iHG2jcX4W4rQUlsDMfpcG9eHnjvFhrE
-         FBrC9a5SZOhJsadtulBprUClzEiWUdPgnLXFIk5UBLNNhACPgtJ52o6SG2SVq3IdJO
-         V84bUb04LSHnysvzzeLXNA7KsBoSNMk+H/yD1+/TPzEw9Bh2RdDk3nIY43fex1OFRx
-         OzClF5zAHb0Zh2zMMY7M1ArJCIeZrdF873elsh9vSgl7uvh0Z5OIUqAY9rkorkr1px
-         r9vjtWkRstu1w==
-Received: by mail.celldrum.pl for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 09:24:02 GMT
-Message-ID: <20230112085905-0.1.5k.6jhl.0.y6lax6esjn@celldrum.pl>
-Date:   Thu, 12 Jan 2023 09:24:02 GMT
-From:   =?UTF-8?Q? "Pawe=C5=82_Kamieniecki" ?= 
-        <pawel.kamieniecki@celldrum.pl>
-To:     <selinux@vger.kernel.org>
-Subject: Prezentacja
-X-Mailer: mail.celldrum.pl
+        with ESMTP id S237514AbjALK2C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Jan 2023 05:28:02 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FFEF2D;
+        Thu, 12 Jan 2023 02:25:42 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 900FC3FB4E;
+        Thu, 12 Jan 2023 10:25:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1673519138; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=RFRkZ+Fj3t8T5BZaiHz5NCYqROwzY9AM/nVOyatEKtk=;
+        b=kXlRU9udXbFgZotDjntGowEBuvchX+T2tPOQt4l2B/QItP41pyuGf09UekzD58fu0LIxRc
+        w76yu+pkH0Ua7YBS6uJ2rwWDxCoFeyaVSAeCGGeNdqLbR3tAQh+xq9uDiO7GTSj2Wj7bNn
+        HineNr8vyQXh2nAR99gNAKtfqxMYBuI=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6650E13585;
+        Thu, 12 Jan 2023 10:25:38 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 9ozhGCLgv2PZJgAAMHmgww
+        (envelope-from <mhocko@suse.com>); Thu, 12 Jan 2023 10:25:38 +0000
+Date:   Thu, 12 Jan 2023 11:25:37 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Shakeel Butt <shakeelb@google.com>
+Cc:     "T.J. Mercier" <tjmercier@google.com>, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Muchun Song <muchun.song@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, android-mm@google.com,
+        jstultz@google.com, cgroups@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH 0/4] Track exported dma-buffers with memcg
+Message-ID: <Y7/gIRv9aJfPK7/f@dhcp22.suse.cz>
+References: <20230109213809.418135-1-tjmercier@google.com>
+ <CALvZod4ru7F38tAO-gM9ZFKaEhS0w3KqFbPwhwcTvgJs4xMUow@mail.gmail.com>
+ <Y78+rfzXPq5XGs9O@phenom.ffwll.local>
+ <20230112075631.wc6fd54ci55drhkp@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230112075631.wc6fd54ci55drhkp@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dzie=C5=84 dobry!
+On Thu 12-01-23 07:56:31, Shakeel Butt wrote:
+> On Wed, Jan 11, 2023 at 11:56:45PM +0100, Daniel Vetter wrote:
+> > 
+> [...]
+> > I think eventually, at least for other "account gpu stuff in cgroups" use
+> > case we do want to actually charge the memory.
+> > 
+> > The problem is a bit that with gpu allocations reclaim is essentially "we
+> > pass the error to userspace and they get to sort the mess out". There are
+> > some exceptions (some gpu drivers to have shrinkers) would we need to make
+> > sure these shrinkers are tied into the cgroup stuff before we could enable
+> > charging for them?
+> > 
+> 
+> No, there is no requirement to have shrinkers or making such memory
+> reclaimable before charging it. Though existing shrinkers and the
+> possible future shrinkers would need to be converted into memcg aware
+> shrinkers.
+> 
+> Though there will be a need to update user expectations that if they 
+> use memcgs with hard limits, they may start seeing memcg OOMs after the
+> charging of dmabuf.
 
-Czy m=C3=B3g=C5=82bym przedstawi=C4=87 rozwi=C4=85zanie, kt=C3=B3re umo=C5=
-=BCliwia monitoring ka=C5=BCdego auta w czasie rzeczywistym w tym jego po=
-zycj=C4=99, zu=C5=BCycie paliwa i przebieg?
+Agreed. This wouldn't be the first in kernel memory charged memory that
+is not directly reclaimable. With a dedicated counter an excessive
+dmabuf usage would be visible in the oom report because we do print
+memcg stats.
 
-Dodatkowo nasze narz=C4=99dzie minimalizuje koszty utrzymania samochod=C3=
-=B3w, skraca czas przejazd=C3=B3w, a tak=C5=BCe tworzenie planu tras czy =
-dostaw.
-
-Z naszej wiedzy i do=C5=9Bwiadczenia korzysta ju=C5=BC ponad 49 tys. Klie=
-nt=C3=B3w. Monitorujemy 809 000 pojazd=C3=B3w na ca=C5=82ym =C5=9Bwiecie,=
- co jest nasz=C4=85 najlepsz=C4=85 wizyt=C3=B3wk=C4=85.
-
-Bardzo prosz=C4=99 o e-maila zwrotnego, je=C5=9Bli mogliby=C5=9Bmy wsp=C3=
-=B3lnie om=C3=B3wi=C4=87 potencja=C5=82 wykorzystania takiego rozwi=C4=85=
-zania w Pa=C5=84stwa firmie.
-
-
-Pozdrawiam
-Pawe=C5=82 Kamieniecki
+It is definitely preferable to have a shrinker mechanism but if that is
+to be done in a follow up step then this is acceptable. But leaving out
+charging from early on sounds like a bad choice to me.
+-- 
+Michal Hocko
+SUSE Labs
