@@ -2,105 +2,208 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2BA6C54EBE
-	for <selinux@archiver.kernel.org>; Thu, 12 Jan 2023 18:02:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95C8AC678D8
+	for <selinux@archiver.kernel.org>; Thu, 12 Jan 2023 21:02:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240057AbjALSCE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Jan 2023 13:02:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
+        id S240488AbjALVCL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Jan 2023 16:02:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238056AbjALSBP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Jan 2023 13:01:15 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B0E13D01
-        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 09:22:08 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id s13-20020a17090a6e4d00b0022900843652so2741422pjm.1
-        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 09:22:08 -0800 (PST)
+        with ESMTP id S240324AbjALVAH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Jan 2023 16:00:07 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDC65766A
+        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 12:45:11 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id e10so13592136pgc.9
+        for <selinux@vger.kernel.org>; Thu, 12 Jan 2023 12:45:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore.com; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=0xDr4QknDNxPi2cT8FrUuwNvsQNO379ZboIpi4mwvIk=;
-        b=Fiy522RNvvYxq4nWHpNZeEHiH1/P9P8SLmCZIIqj2T5uix0e9SLinDtq8qjCWr3RvO
-         M++tjLHwR63OcuftzaEi1ChHQB/nAHWAlphG1r3019blrCX5ANTv/XcoJVZFBBzi6aUe
-         MvLJxuqoSKKFHXXwDx19ZDLhPn5pfMZSOuEkIskLBENuvcoYcn3D/7ZnF+V0JdJj2ozl
-         w3ZMpd9CGXnSWHPtu6A4IicaLCensH+4iBwQSp85GIynWT/+gTgkDRA2xQ+ry9YEolgp
-         /TFO++DWjtppIUWlzcQtHMiWEruGd66Jn+076IgtMtnBQOtWeZNPvs9hxtIGRLFYmktV
-         Etnw==
+        bh=YCu5Y/GTVOBPVVyupzvBVkyh0EoOaLJvwwF2Oks4mXY=;
+        b=S0BCMwT5P7ybDn6r2T8wPtB6PkHGixbFQlQ3OynLx5lY5TiaRq/UFmSGjmKwPFs4Yf
+         m5Ktnwuj8h2mNQ9ZjWZp4mq2WC6XMEb6+37eeIgBuC1SmjVx3z8M3XlYcRNEpMM2Ywfw
+         iFyeKEaqAOMWqxgCqRIhDLeYomw+uEAXn8Yx9VI0+U7HOvubDPEveUH8SPim/VVDr7Rj
+         LXhOb1ggvw7KICNNrAQQWM62NakUKDGS8rddDvXMBoTeUicXOol79nijSs3H9FRSioTe
+         nGpDH6Kn0Zeq8jqBVZOUJp5JIbezJjKAuftIPIVy7P9m6A4jgi/ONOQhRtkNY97YLuu1
+         s08A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=0xDr4QknDNxPi2cT8FrUuwNvsQNO379ZboIpi4mwvIk=;
-        b=qzWlck0BdWcDpv0onKWSw/W9P9AGtigxdq4Kxjluj0Ggj1SXywacR+f/17FGG0nv+f
-         yd08aHmCmc4fj7jW3sLYEeRhu0j5JIREydRUcgHl0IvOvqiS1KH7SHhtRVDoi0EbY4b6
-         oGPKX/pSBa7Vp0grq/Mt8uG99vCg/QF2wDXUumA2x6Mb6ZCjGw1cgOg5jmM1MExsBj0s
-         e7nSSqBwrMUnTDkzP9ox6MKTH6BEk9pRgQZsONo4S0A5YjkcJtZvJVzj6ANwSgyW9O3/
-         NFkwvJVLpQG4hJ0XmdZ1K9rhXtdvjIKog5V3WDF9R44/+jMhd8+BE4R4kI9wlteA0Fj5
-         bbow==
-X-Gm-Message-State: AFqh2kp3oLi+B8CYTbDtf7BOVk9TCc4zzRgi0L5cDduBDn7+YAle3sNG
-        NIUrs2GeEHxfm1DRfBuuUSmwmZFDu8x5260hRzqP
-X-Google-Smtp-Source: AMrXdXu2M2VDaYhrvTSfy4I4j0IQ3Wj0M50ON3uTCXgABm7WK5YXNWc5b+Li6BFUEvojgI035C9WkWYZx2mqYyqriPo=
-X-Received: by 2002:a17:902:cec8:b0:192:6675:8636 with SMTP id
- d8-20020a170902cec800b0019266758636mr4530544plg.15.1673544128229; Thu, 12 Jan
- 2023 09:22:08 -0800 (PST)
+        bh=YCu5Y/GTVOBPVVyupzvBVkyh0EoOaLJvwwF2Oks4mXY=;
+        b=GfPhuEeNDfxGML4vdoW+QnHFN0/S5An7kIAMSKHADw7YNM9Hpc1POFTcTDW3E3pqlW
+         243EyfYp8vcjMEO752lWzp7k8ttizmoRjZBHU0qKvC13J2E9yw8jmdjip2gacCQXRluR
+         8OFZFevFM709/yJtpuu1h8YQak7qUtGoM72505uuCo7Da5LPHHArwaqikfOq93Xc217+
+         YXeJYI+B4DGAm2+FOtqi1L1UkUbCOVQ6RVKLAJQ08ft+X5s8uxMsQP3hoQFO0ENXPFfU
+         ZmiIHPXHV+yGuOrpI4a4hcsRrOK3ZCllDORFru2JPVNvU8zgnKJkqO9ktODpaKYjsmo0
+         ThMQ==
+X-Gm-Message-State: AFqh2kraN/e0NXThH52hNowpwnjiAw258HAJsJaYMgMyC9LCNeuNcpZP
+        MuhEc0Q2566N6ayBWXjztxreuMfhFDS9q5ocfoNp
+X-Google-Smtp-Source: AMrXdXuOzdAbU1/e2acq3AG1MSJhhVFNYjuhfHGLnIMfpKkJb521hoN60CFQ2GnVyyZhe/ITfIg7ExX781ObRXb1CY8=
+X-Received: by 2002:a63:e20b:0:b0:479:2109:506 with SMTP id
+ q11-20020a63e20b000000b0047921090506mr4401043pgh.92.1673556311330; Thu, 12
+ Jan 2023 12:45:11 -0800 (PST)
 MIME-Version: 1.0
-References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
- <20221201104125.919483-3-roberto.sassu@huaweicloud.com> <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
-In-Reply-To: <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
+References: <20230109213809.418135-1-tjmercier@google.com> <20230109213809.418135-5-tjmercier@google.com>
+ <CAHC9VhT+5oE4DZzxqCGFDoHjkP+5GcKU1R2BBW29uUu8BcgiAg@mail.gmail.com> <CABdmKX2FPf+Ox47g8nMeYw1OBNUOZrnKD5qVBtaVY01FbQq4ig@mail.gmail.com>
+In-Reply-To: <CABdmKX2FPf+Ox47g8nMeYw1OBNUOZrnKD5qVBtaVY01FbQq4ig@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 12 Jan 2023 12:21:57 -0500
-Message-ID: <CAHC9VhRu_pdEur4XDkwMETAQEd-8=13k+qvpMEgW=hiYMCKw2A@mail.gmail.com>
-Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
-Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com,
-        ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Thu, 12 Jan 2023 15:45:00 -0500
+Message-ID: <CAHC9VhTK701norsBFz8XsDS+2m6=UR9TE-XSX1WjSt3-pd3g-A@mail.gmail.com>
+Subject: Re: [PATCH 4/4] security: binder: Add transfer_charge SElinux hook
+To:     "T.J. Mercier" <tjmercier@google.com>
+Cc:     Jeffrey Vander Stoep <jeffv@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, hannes@cmpxchg.org,
+        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 3:56 AM Roberto Sassu
-<roberto.sassu@huaweicloud.com> wrote:
-> On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
+On Wed, Jan 11, 2023 at 7:21 PM T.J. Mercier <tjmercier@google.com> wrote:
+>
+> On Wed, Jan 11, 2023 at 3:00 PM Paul Moore <paul@paul-moore.com> wrote:
 > >
-> > In preparation for removing security_old_inode_init_security(), switch to
-> > security_inode_init_security().
+> > On Mon, Jan 9, 2023 at 4:38 PM T.J. Mercier <tjmercier@google.com> wrote:
+> > >
+> > > Any process can cause a memory charge transfer to occur to any other
+> > > process when transmitting a file descriptor through binder. This should
+> > > only be possible for central allocator processes, so a new SELinux
+> > > permission is added to restrict which processes are allowed to initiate
+> > > these charge transfers.
+> > >
+> > > Signed-off-by: T.J. Mercier <tjmercier@google.com>
+> > > ---
+> > >  drivers/android/binder.c            | 5 +++++
+> > >  include/linux/lsm_hook_defs.h       | 2 ++
+> > >  include/linux/lsm_hooks.h           | 6 ++++++
+> > >  include/linux/security.h            | 2 ++
+> > >  security/security.c                 | 6 ++++++
+> > >  security/selinux/hooks.c            | 9 +++++++++
+> > >  security/selinux/include/classmap.h | 2 +-
+> > >  7 files changed, 31 insertions(+), 1 deletion(-)
 > >
-> > Extend the existing ocfs2_initxattrs() to take the
-> > ocfs2_security_xattr_info structure from fs_info, and populate the
-> > name/value/len triple with the first xattr provided by LSMs.
+> > Hi T.J.,
+> >
+> > A few things come to mind when looking at this patchset, but let me
+> > start with the big one first: you only sent 0/4 and 4/4 to the LSM and
+> > SELinux lists, so that's all I'm seeing in my inbox to review, and
+> > it's hard to make sense of what you want to do with just these
+> > snippets.  This makes me cranky, and less inclined to spend the time
+> > to give this a proper review, because there are plenty of other things
+> > which need attention and don't require me having to hunt down missing
+> > pieces.  Yes, I'm aware of b4/lei, and while they are great tools, my
+> > workflow was pretty well established before they came into existence
+> > and I still do things the good ol' fashioned way with mailing lists,
+> > etc.
+> >
+> > Make the patch reviewer's life easy whenever you can, it will rarely
+> > (ever?) backfire, I promise.
 >
-> Hi Mark, Joel, Joseph
+> Hi Paul, sorry about that. I have git send-email calling
+> get_maintainer.pl to automatically figure out the recipients, and I
+> think that's why it only sent particular patches to a subset of lists.
+> Looks like the list of recipients for each patch should be a union of
+> all patches. Thank you for taking a look anyway! Here's a lore link:
+> https://lore.kernel.org/lkml/20230109213809.418135-1-tjmercier@google.com/
 >
-> some time ago I sent this patch set to switch to the newer
-> function security_inode_init_security(). Almost all the other parts of
-> this patch set have been reviewed, and the patch set itself should be
-> ready to be merged.
+> > > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> > > index 9830848c8d25..9063db04826d 100644
+> > > --- a/drivers/android/binder.c
+> > > +++ b/drivers/android/binder.c
+> > > @@ -2279,6 +2279,11 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset, __u32 flags,
+> > >         if (IS_ENABLED(CONFIG_MEMCG) && (flags & BINDER_FD_FLAG_XFER_CHARGE)) {
+> > >                 struct dma_buf *dmabuf;
+> > >
+> > > +               if (security_binder_transfer_charge(proc->cred, target_proc->cred)) {
+> > > +                       ret = -EPERM;
+> > > +                       goto err_security;
+> > > +               }
+> >
+> > This is where I believe I'm missing the proper context, as this
+> > version of binder_translate_fd() differs from what I see in Linus'
+> > tree.  However, the version in Linus' tree does have a LSM hook,
+> > security_binder_transfer_file(), which is passed both the credentials
+> > you are using above and based solely on the level of indentation shown
+> > in the chunk of code above, it seems like the existing hook might be
+> > suitable?
 >
-> I kindly ask if you could have a look at this patch and give your
-> Reviewed-by, so that Paul could take the patch set.
+> Yes, patch 3 plumbs through flags to this function:
+> https://lore.kernel.org/lkml/20230109213809.418135-4-tjmercier@google.com/
+>
+> I don't think the existing hook is suitable, which I've tried to explain below.
 
-I've been pushing to clean up some of the LSM interfaces to try and
-simplify things and remove as many special cases as possible,
-Roberto's work in this patchset is part of that.  I would really
-appreciate it if the vfs/ocfs2 folks could give patch 2/6 a quick look
-to make sure you are okay with the changes.
+In this particular case the issue of what permission checks are done
+for a given LSM, SELinux in this case, appears to be independent of if
+we need a new, different, or second LSM hook.  Unless I missed
+something the only real difference with this new hook is that is sits
+behind a conditional checking if memory control groups are enabled and
+if a transfer charge was specified; it seems like passing the @flags
+parameter into the existing LSM hook would allow you to use the
+existing hook (it is called before the new hook, right?)?
 
-I realize that the various end-of-year holidays tend to slow things
-down a bit, but this patchset has been on the lists for over a month
-now; if I don't hear anything in the next week or two I'll assume you
-folks are okay with these patches ...
+> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > index 3c5be76a9199..823ef14924bd 100644
+> > > --- a/security/selinux/hooks.c
+> > > +++ b/security/selinux/hooks.c
+> > > @@ -2066,6 +2066,14 @@ static int selinux_binder_transfer_file(const struct cred *from,
+> > >                             &ad);
+> > >  }
+> > >
+> > > +static int selinux_binder_transfer_charge(const struct cred *from, const struct cred *to)
+> > > +{
+> > > +       return avc_has_perm(&selinux_state,
+> > > +                           cred_sid(from), cred_sid(to),
+> > > +                           SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
+> > > +                           NULL);
+> > > +}
+> >
+> > Generally speaking SELinux doesn't really worry about resource
+> > accounting controls so this seems a bit out of place, but perhaps the
+> > larger question is do you see this being sufficiently distinct from
+> > the existing binder:transfer permission?  In other words, would you
+> > ever want to grant a domain the ability to transfer a file *without*
+> > also granting it the ability to transfer the memory charge?  You need
+> > to help me explain why we need an additional permission for this,
+> > because I don't currently see the need.
+> >
+> Yes, and that's actually more often the case than not. A file here
+> means a file descriptor that points at any type of resource: file on
+> disk, memfd, dmabuf, etc. Currently there exists policy that restricts
+> which processes are allowed to interact with FDs over binder using the
+> security_binder_transfer_file hook you reference. [1] However this new
+> transfer_charge permission is meant to restrict the ability of a FD
+> sender to transfer the memory charge associated with that FD (if one
+> exists) to a recipient (who may or may not want to accept the memory
+> charge). So the memory charge is independent of (potentially one-time,
+> read-only) access to the FD.
+
+Without a more comprehensive set of LSM/SELinux access controls around
+resource management (which would need discussion beyond just this
+thread/patch) I'm not sure we want to start patching in one-off
+controls like this.
+
+I haven't looked, but are there any traditional/DAC access controls
+around transfering memory changes from one task to another?  It seems
+like there *should* be, and if so, it seems like that would be the
+right approach at the moment ... if you're not already doing that in
+the other patches in the patchset.
 
 -- 
 paul-moore.com
