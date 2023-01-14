@@ -2,114 +2,121 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5401CC54EBD
-	for <selinux@archiver.kernel.org>; Fri, 13 Jan 2023 10:38:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A14FC46467
+	for <selinux@archiver.kernel.org>; Sat, 14 Jan 2023 15:39:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240122AbjAMKi3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 Jan 2023 05:38:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38082 "EHLO
+        id S229969AbjANPjN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 14 Jan 2023 10:39:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241306AbjAMKhs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 Jan 2023 05:37:48 -0500
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0B01AA0B;
-        Fri, 13 Jan 2023 02:35:58 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4Ntd0p03Kqz9xGZ1;
-        Fri, 13 Jan 2023 18:28:10 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwC3PAjkM8Fj60SSAA--.55533S2;
-        Fri, 13 Jan 2023 11:35:28 +0100 (CET)
-Message-ID: <7e8af24bc175b425777c1e689c26562dc743bfd5.camel@huaweicloud.com>
-Subject: Re: [PATCH v7 0/6] evm: Do HMAC of multiple per LSM xattrs for new
- inodes
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com,
-        ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Fri, 13 Jan 2023 11:35:13 +0100
-In-Reply-To: <CAHC9VhS0SnEb46-FBpn2JpC2dJ7OnkeJ2EtLBvVvkOLdfFmcbg@mail.gmail.com>
-References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
-         <CAHC9VhS0SnEb46-FBpn2JpC2dJ7OnkeJ2EtLBvVvkOLdfFmcbg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S229932AbjANPjM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 14 Jan 2023 10:39:12 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D2C665A5
+        for <selinux@vger.kernel.org>; Sat, 14 Jan 2023 07:39:11 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id q9so16846947pgq.5
+        for <selinux@vger.kernel.org>; Sat, 14 Jan 2023 07:39:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=ksDCogpM44p1MYL9LvFyCbpk9oMtoefLtPsNaDS+1Uw=;
+        b=IThA4Qp/47WBuI8os4H/m5l293jq3yndtbTSIqr6XNO4cHloGhTf4aQC+MrbVp/iCg
+         uQUFidWlLHRRd+h6RcmveluRwt5NZoo2An/ZrpKUusSIBQtWwpEke2+cvnxAvRBHtHLn
+         RgYxP8kmNXGdxXI3I/NGNv1AVMLLxyQB+nIQVYY65yK5WtqyLqwXo/aIyA2PTaUbJf3x
+         7gB93AeEoKRWKe6ebRVReiDQucBx/ON1ULR2srNsmWevrdVVSgPuAe1wvJR5eBHrGpwe
+         f0wYNYh56HFn2p+lw/2LgcxemNgqos5uyxPZZJwz8Y6x5DkpKBMS/7pS536sxtq8Yj34
+         5wrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ksDCogpM44p1MYL9LvFyCbpk9oMtoefLtPsNaDS+1Uw=;
+        b=pyXzXSL+AUxQAlkcJ2IdTqF3fFdrBkB1ncx/nV4JC1Hsh4j6mQh7hSWESN/6rK0MBg
+         Uqimj3iIusd38MxT9PL8sf7s4DGIV/BnnQMoEQslTZl/mOoNsg+Ws4axGUmszSq9Ny/t
+         ROyTX4r0hn1vCssoNTuxWJ4ljmq/2tXsYmgbLxVmw4uEO7B1ne46OR07ajxVAbxPxUyo
+         WUDzg//wK5szyL58lktbx8k93NkX3v6NFwg+Qcfd3eS8hWf8JYKZyiCH6OhwO+buzkjF
+         dqYIv1OihL7/5l5x1B08hcc2jmZPTVBtxLT3vnaQCQrX+CKjtosC8bxwVS8cjAFTbnX6
+         ciLQ==
+X-Gm-Message-State: AFqh2kp/uk1tVR8/1vWFGp2m62O5nwYO0/vQKLU02YTlj+Cct22S9+Ds
+        ySJMhD+z4FYVfkR/IxQ58ZiYjLqLFuf9TC0lyAVc
+X-Google-Smtp-Source: AMrXdXv4BoDUHdpVNEYbOge+hC2COffpE8YpFO3Rq+AKRcoghZ8QDj5/8j6P++J0htEwejt6n9QXCwzM9ZhEw+/GTlc=
+X-Received: by 2002:a63:ea10:0:b0:4c7:ac8f:9e9c with SMTP id
+ c16-20020a63ea10000000b004c7ac8f9e9cmr99166pgi.92.1673710750546; Sat, 14 Jan
+ 2023 07:39:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwC3PAjkM8Fj60SSAA--.55533S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7CFW8WF18ZFW5ury8Ar1UWrg_yoW8CFWUpa
-        9xt3Wagr4kWFyUKr43A3yjk3yUGr4fGF13X34fK34jyrnxuFn2gF1xGayrua4DJrn3u3sY
-        vFW3W3sru3Z5u3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAQBF1jj4eOnQAAsw
-X-CFilter-Loop: Reflected
+References: <cover.1673666803.git.lucien.xin@gmail.com> <d19e0bd55ea5477d94567c00735b78d8da6a38cb.1673666803.git.lucien.xin@gmail.com>
+In-Reply-To: <d19e0bd55ea5477d94567c00735b78d8da6a38cb.1673666803.git.lucien.xin@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sat, 14 Jan 2023 10:38:59 -0500
+Message-ID: <CAHC9VhRXd+RkHSRLUt=0HFm42xPKGsSdSkxA6EHwipDukZH_mA@mail.gmail.com>
+Subject: Re: [PATCH net-next 06/10] cipso_ipv4: use iph_set_totlen in skbuff_setattr
+To:     Xin Long <lucien.xin@gmail.com>
+Cc:     network dev <netdev@vger.kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Pravin B Shelar <pshelar@ovn.org>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Aaron Conole <aconole@redhat.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        Nikolay Aleksandrov <razor@blackwall.org>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-01-12 at 12:15 -0500, Paul Moore wrote:
-> On Thu, Dec 1, 2022 at 5:42 AM Roberto Sassu
-> <roberto.sassu@huaweicloud.com> wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > One of the major goals of LSM stacking is to run multiple LSMs side by side
-> > without interfering with each other. The ultimate decision will depend on
-> > individual LSM decision.
-> > 
-> > Several changes need to be made to the LSM infrastructure to be able to
-> > support that. This patch set tackles one of them: gives to each LSM the
-> > ability to specify one or multiple xattrs to be set at inode creation
-> > time and, at the same time, gives to EVM the ability to access all those
-> > xattrs and calculate the HMAC on them.
-> 
-> ...
-> 
-> > The patch set has been tested with both the SElinux and Smack test suites.
-> > Below, there is the summary of the test results:
-> > 
-> > SELinux Test Suite result (without patches):
-> > Files=73, Tests=1346, 225 wallclock secs ( 0.43 usr  0.23 sys +  6.11 cusr 58.70 csys = 65.47 CPU)
-> > Result: FAIL
-> > Failed 4/73 test programs. 13/1346 subtests failed.
-> > 
-> > SELinux Test Suite result (with patches):
-> > Files=73, Tests=1346, 225 wallclock secs ( 0.44 usr  0.22 sys +  6.15 cusr 59.94 csys = 66.75 CPU)
-> > Result: FAIL
-> > Failed 4/73 test programs. 13/1346 subtests failed.
-> 
-> Can you provide some more information on which of the
-> selinux-testsuite tests failed?  That shouldn't be happening and I'm a
-> little concerned that these test failures, even if unrelated to your
-> work here, could be masking failures which are related.
+On Fri, Jan 13, 2023 at 10:31 PM Xin Long <lucien.xin@gmail.com> wrote:
+>
+> It may process IPv4 TCP GSO packets in cipso_v4_skbuff_setattr(), so
+> the iph->tot_len update should use iph_set_totlen().
+>
+> Note that for these non GSO packets, the new iph tot_len with extra
+> iph option len added may become greater than 65535, the old process
+> will cast it and set iph->tot_len to it, which is a bug. In theory,
+> iph options shouldn't be added for these big packets in here, a fix
+> may be needed here in the future. For now this patch is only to set
+> iph->tot_len to 0 when it happens.
 
-Uhm, my virtual machine has been used for many tests and was not clean.
-This time, I installed a fresh Fedora 37 and compiled the kernel with
-the same configuration as the shipped kernel.
+I'm not entirely clear on the paragraph above, but we do need to be
+able to set/modify the IP options in cipso_v4_skbuff_setattr() in
+order to support CIPSO labeling.  I'm open to better and/or
+alternative solutions compared to what we are doing now, but I can't
+support a change that is a bug waiting to bite us.  My apologies if
+I'm interpreting your comments incorrectly and that isn't the case
+here.
 
-Everything works now:
+> Signed-off-by: Xin Long <lucien.xin@gmail.com>
+> ---
+>  net/ipv4/cipso_ipv4.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+> index 6cd3b6c559f0..79ae7204e8ed 100644
+> --- a/net/ipv4/cipso_ipv4.c
+> +++ b/net/ipv4/cipso_ipv4.c
+> @@ -2222,7 +2222,7 @@ int cipso_v4_skbuff_setattr(struct sk_buff *skb,
+>                 memset((char *)(iph + 1) + buf_len, 0, opt_len - buf_len);
+>         if (len_delta != 0) {
+>                 iph->ihl = 5 + (opt_len >> 2);
+> -               iph->tot_len = htons(skb->len);
+> +               iph_set_totlen(iph, skb->len);
+>         }
+>         ip_send_check(iph);
+>
+> --
+> 2.31.1
 
-All tests successful.
-Files=74, Tests=1363, 210 wallclock secs ( 0.42 usr  0.11 sys +  6.66
-cusr 22.33 csys = 29.52 CPU)
-Result: PASS
-
-Roberto
-
+--
+paul-moore.com
