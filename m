@@ -2,183 +2,186 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 776A5C3DA78
-	for <selinux@archiver.kernel.org>; Sun, 15 Jan 2023 22:13:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAA87C46467
+	for <selinux@archiver.kernel.org>; Sun, 15 Jan 2023 22:17:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230354AbjAOWNP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 15 Jan 2023 17:13:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50456 "EHLO
+        id S231506AbjAOWRu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 15 Jan 2023 17:17:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231179AbjAOWNN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 15 Jan 2023 17:13:13 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A893D1B54F
-        for <selinux@vger.kernel.org>; Sun, 15 Jan 2023 14:13:11 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id u1-20020a17090a450100b0022936a63a21so5655669pjg.4
-        for <selinux@vger.kernel.org>; Sun, 15 Jan 2023 14:13:11 -0800 (PST)
+        with ESMTP id S231229AbjAOWRt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 15 Jan 2023 17:17:49 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5EA76BB
+        for <selinux@vger.kernel.org>; Sun, 15 Jan 2023 14:17:48 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id s13-20020a17090a6e4d00b0022900843652so10593536pjm.1
+        for <selinux@vger.kernel.org>; Sun, 15 Jan 2023 14:17:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=perfinion-com.20210112.gappssmtp.com; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=b9UK7rBr2lK8LDXuFtR1AHyd23hRt13ktbWGEhApewQ=;
-        b=yz8O4JBcJRCHScHQvDY0iKb86Kg0qm11MJt+z6wRI5xLChInf+vty2IzEbJzzA0Xxg
-         eH9QpgqHHqZYwSevUKrF8wtI/js1DhIq2b9AJzm/awXbJpslu9WJn8Ba12SY10Ag3V/l
-         62Htxpc87U2ytP5McOjLhSK/YsVTkpuzSUOAQKOsQbqIgCZmaAdjfd3XT3AafIWHm/pb
-         Fib8IGgyZ8PJMDTdsJ3QeakG1Ij0O51hnGCFisKDbIzFQjEKEuZHjUN8dyRAt0UBGFmN
-         UzwPBe/Pr4LLVcVeo+YVjvFjpXCmguC/ml3JZciv72XX2+AYrEuwTvfnoejAqXMIRSqb
-         5SfA==
+        bh=54G/B/bxRW6yaKXptv7WebflHitGnTC3Y4+Fo46SAZg=;
+        b=cF1p2nPcdWQF8VS9XarQca1xlZAjqhI4BFUL2A6RmEZNIVEqxNUUcSlqYu5HV1ll7K
+         rfmIbrxwoj1K+n0JHsuMaIDjwldYfxzS2TrHa14OwV0IFEgxF5NYvcDVzxP3U+ShbyiS
+         B1hM45qLZHDif280BbD0bQ/p8OBA/7GFiI7nLRkpIPQXKGLC1fcHuMlHLcAECK7jKIm/
+         1pb9XyhC5N2etsHS+GtNReM7HF04ZuPaG8D5VoMDEIaCh6pJMIJn80VESecBNjN8llDi
+         4VV1rap/BA1+UchQkQPNv+OBR2aDlJZWD4joEnmL1Z95zBC9XMfiv/r6fnM3qNRDCLyY
+         3t7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=b9UK7rBr2lK8LDXuFtR1AHyd23hRt13ktbWGEhApewQ=;
-        b=Axo0j2677KHIMj3So9iRjKP7k04aHT/FTY2Lg+6YMqyrQDCIfK/aMUE/ABdQ1WQZWA
-         Q7a6YoxADZjYxb8U+jBc5SKyFwu6V/58OiCqRDeV5phugCUxU3Oge+e5/SRb4VT8N6vN
-         /p1dSMVT/mp24L5fCrQpof+Bwl9Oen3zrAER5glFe1Uhzf88VvQG4bHjKadt/jF0HUm9
-         D+OSHIkY5xEmfR8munVnVpQOlumodpboULLXsfUC48E7UwOnGje75THpJKVhdtS7tubj
-         yUiJl1WUwhw+sNhKpGZ+SkDL+9jjDjD3JWLSFXg0FNe4CVIKcxdJT2HS9Hs3Qw8MqRdb
-         ecDQ==
-X-Gm-Message-State: AFqh2kp2Yqupuz6nGzm5KZOKzjwQ5XL9071mHlETH/24v90IoEnTJ/r5
-        ngWW1FwOzJYPwH/q4ZzBWBDM+bZmYQTVBUKHixo=
-X-Google-Smtp-Source: AMrXdXtFQHZIefQanClBDXnDb6KN/z8VYpUuiyVODG9HxXywkiBZtkUyMTzQCcFhNkxySuZ7TyjbAw==
-X-Received: by 2002:a05:6a20:be03:b0:b8:5813:e700 with SMTP id ge3-20020a056a20be0300b000b85813e700mr5128612pzb.3.1673820791073;
-        Sun, 15 Jan 2023 14:13:11 -0800 (PST)
+        bh=54G/B/bxRW6yaKXptv7WebflHitGnTC3Y4+Fo46SAZg=;
+        b=QkK/5pjx2dbO8OOUUBwbv7nDzCwhfse0JNvLTlwsoK/AI+zvr/4NPyGxCcDUqISaJn
+         X8C7aD197D0dgYKwSDo2Bn/fXy6bIG8q7/7g+vLrdEUUxrOrpTsd1S4HUjo1MMa94ebT
+         YzD5cKuXUx0IYxf5NAHeNauaesYxCj7WOXregNG/SWfsEtzoC3JOJGK1xInT6UuwHfCY
+         i1QyLlrwMmIQJ6+qRzDzcoQbW+l0XPUFLUzoClk7kY0GWTkkHCllOPBiEzcV1wcWx+2D
+         IY2P2Ky4z0TekcS/FhcvUadPpfb6G0mq7Tung31MBp/s1jRfIpMnwMKtKoqzkWO2B3ZQ
+         i7ig==
+X-Gm-Message-State: AFqh2krcj5vTYO02mAcSmIzZgd8zsgM3LWNLxoJOBun13FEI6oO5+jDn
+        7ct2Xeflv0Xfs0tFeHrV5PMZpQ==
+X-Google-Smtp-Source: AMrXdXsYqMKYjy11Cj+1BlRSY1kfbq+7dcQDu4D5P23407czCFPp5zFZ29n1QS3bJrIS//Xi0SJBbA==
+X-Received: by 2002:a17:902:740a:b0:194:59c2:a155 with SMTP id g10-20020a170902740a00b0019459c2a155mr14860996pll.16.1673821068038;
+        Sun, 15 Jan 2023 14:17:48 -0800 (PST)
 Received: from localhost (99-123-3-233.lightspeed.sntcca.sbcglobal.net. [99.123.3.233])
-        by smtp.gmail.com with ESMTPSA id y127-20020a623285000000b0058abddad316sm10145770pfy.209.2023.01.15.14.13.09
+        by smtp.gmail.com with ESMTPSA id e18-20020a170902ef5200b00187033cac81sm17868955plx.145.2023.01.15.14.17.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Jan 2023 14:13:10 -0800 (PST)
-Date:   Sun, 15 Jan 2023 14:13:09 -0800
+        Sun, 15 Jan 2023 14:17:47 -0800 (PST)
+Date:   Sun, 15 Jan 2023 14:17:46 -0800
 From:   Jason Zaman <jason@perfinion.com>
-To:     Vit Mojzis <vmojzis@redhat.com>
+To:     Inseob Kim <inseob@google.com>
 Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH v2] python/sepolicy: add missing booleans to man pages
-Message-ID: <Y8R6dd0tGdUFokkm@anduin.perfinion.com>
-References: <20230109170626.815271-1-vmojzis@redhat.com>
- <20230110103726.865532-1-vmojzis@redhat.com>
+Subject: Re: [PATCH v2 RESEND] libselinux: Workaround for heap overhead of
+ pcre
+Message-ID: <Y8R7iq430fl44eMB@anduin.perfinion.com>
+References: <20230112091408.2880781-1-inseob@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230110103726.865532-1-vmojzis@redhat.com>
+In-Reply-To: <20230112091408.2880781-1-inseob@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 10, 2023 at 11:37:26AM +0100, Vit Mojzis wrote:
-> get_bools should return a list of booleans that can affect given type,
-> but it did not handle non trivial conditional statements properly
-> (returning the whole conditional statement instead of a list of booleans
-> in the statement).
+On Thu, Jan 12, 2023 at 06:14:09PM +0900, Inseob Kim wrote:
+> pcre's behavior is changed so that pcre2_match always allocates heap for
+> match_data, rather than stack, regardless of size. The heap isn't freed
+> until explicitly calling pcre2_match_data_free. This new behavior may
+> result in heap overhead, which may increase the peak memory usage about
+> a few megabytes. It's because regex_match is first called for regex_data
+> objects, and then regex_data objects are freed at once.
 > 
-> e.g. for
-> allow httpd_t spamc_t:process transition; [ httpd_can_check_spam && httpd_can_sendmail ]:True
-> get_bools used to return [("httpd_can_check_spam && httpd_can_sendmail", False)] instead of
-> [("httpd_can_check_spam", False), ("httpd_can_sendmail", False)]
+> To workaround it, free match_data as soon as we call regex_match. It's
+> fine because libselinux currently doesn't use match_data, but use only
+> the return value.
 > 
-> - rename "boolean" in sepolicy rule dictionary to "booleans" to suggest
->   it can contain multiple values and make sure it is populated correctly
-> - add "conditional" key to the rule dictionary to accommodate
->   get_conditionals, which requires the whole conditional statement
-> - extend get_bools search to dontaudit rules so that it covers booleans
->   like httpd_dontaudit_search_dirs
-> 
-> Note: get_bools uses security_get_boolean_active to get the boolean
->       value, but the value is later used to represent the default.
->       Not ideal, but I'm not aware of a way to get the actual defaults.
-> 
-> Fixes:
->         "sepolicy manpage" generates man pages that are missing booleans
->         which are included in non trivial conditional expressions
->         e.g. httpd_selinux(8) does not include httpd_can_check_spam,
->         httpd_tmp_exec, httpd_unified, or httpd_use_gpg
-> 
->         This fix, however, also adds some not strictly related booleans
->         to some man pages. e.g. use_nfs_home_dirs and
->         use_samba_home_dirs are added to httpd_selinux(8)
-> 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Signed-off-by: Inseob Kim <inseob@google.com>
 
 Acked-by: Jason Zaman <jason@perfinion.com>
 
-Merged, thanks!
--- Jason
+Merged,
+Thanks!
 
+> 
 > ---
+> v2:
+>   - add AGGRESSIVE_FREE_AFTER_REGEX_MATCH macro
+>   - remove match_data from struct regex_data
+> ---
+>  libselinux/src/regex.c | 32 +++++++++++++++++++++++++++++++-
+>  1 file changed, 31 insertions(+), 1 deletion(-)
 > 
-> Add "dontaudit" rules to get_bools search (otherwise same as the
-> previous patch).
-> 
-> 
->  python/sepolicy/sepolicy/__init__.py | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
-> 
-> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-> index 68907a4f..8611a51b 100644
-> --- a/python/sepolicy/sepolicy/__init__.py
-> +++ b/python/sepolicy/sepolicy/__init__.py
-> @@ -335,7 +335,12 @@ def _setools_rule_to_dict(rule):
->          pass
+> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+> index 149a7973..4b4b9f08 100644
+> --- a/libselinux/src/regex.c
+> +++ b/libselinux/src/regex.c
+> @@ -60,11 +60,13 @@ char const *regex_arch_string(void)
 >  
->      try:
-> -        d['boolean'] = [(str(rule.conditional), enabled)]
-> +        d['booleans'] = [(str(b), b.state) for b in rule.conditional.booleans]
-> +    except AttributeError:
-> +        pass
+>  struct regex_data {
+>  	pcre2_code *regex; /* compiled regular expression */
+> +#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+>  	/*
+>  	 * match data block required for the compiled
+>  	 * pattern in pcre2
+>  	 */
+>  	pcre2_match_data *match_data;
+> +#endif
+>  	pthread_mutex_t match_mutex;
+>  };
+>  
+> @@ -84,11 +86,13 @@ int regex_prepare_data(struct regex_data **regex, char const *pattern_string,
+>  		goto err;
+>  	}
+>  
+> +#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+>  	(*regex)->match_data =
+>  	    pcre2_match_data_create_from_pattern((*regex)->regex, NULL);
+>  	if (!(*regex)->match_data) {
+>  		goto err;
+>  	}
+> +#endif
+>  	return 0;
+>  
+>  err:
+> @@ -138,10 +142,12 @@ int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data **regex,
+>  		if (rc != 1)
+>  			goto err;
+>  
+> +#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+>  		(*regex)->match_data =
+>  		    pcre2_match_data_create_from_pattern((*regex)->regex, NULL);
+>  		if (!(*regex)->match_data)
+>  			goto err;
+> +#endif
+>  
+>  		*regex_compiled = true;
+>  	}
+> @@ -203,8 +209,12 @@ void regex_data_free(struct regex_data *regex)
+>  	if (regex) {
+>  		if (regex->regex)
+>  			pcre2_code_free(regex->regex);
 > +
-> +    try:
-> +        d['conditional'] = str(rule.conditional)
->      except AttributeError:
->          pass
->  
-> @@ -440,12 +445,12 @@ def get_conditionals(src, dest, tclass, perm):
->                  x['source'] in src_list and
->                  x['target'] in dest_list and
->                  set(perm).issubset(x[PERMS]) and
-> -                'boolean' in x,
-> +                'conditional' in x,
->                  get_all_allow_rules()))
->  
->      try:
->          for i in allows:
-> -            tdict.update({'source': i['source'], 'boolean': i['boolean']})
-> +            tdict.update({'source': i['source'], 'conditional': (i['conditional'], i['enabled'])})
->              if tdict not in tlist:
->                  tlist.append(tdict)
->                  tdict = {}
-> @@ -459,10 +464,10 @@ def get_conditionals_format_text(cond):
->  
->      enabled = False
->      for x in cond:
-> -        if x['boolean'][0][1]:
-> +        if x['conditional'][1]:
->              enabled = True
->              break
-> -    return _("-- Allowed %s [ %s ]") % (enabled, " || ".join(set(map(lambda x: "%s=%d" % (x['boolean'][0][0], x['boolean'][0][1]), cond))))
-> +    return _("-- Allowed %s [ %s ]") % (enabled, " || ".join(set(map(lambda x: "%s=%d" % (x['conditional'][0], x['conditional'][1]), cond))))
->  
->  
->  def get_types_from_attribute(attribute):
-> @@ -716,9 +721,9 @@ def get_boolean_rules(setype, boolean):
->      boollist = []
->      permlist = search([ALLOW], {'source': setype})
->      for p in permlist:
-> -        if "boolean" in p:
-> +        if "booleans" in p:
->              try:
-> -                for b in p["boolean"]:
-> +                for b in p["booleans"]:
->                      if boolean in b:
->                          boollist.append(p)
->              except:
-> @@ -1141,7 +1146,7 @@ def get_bools(setype):
->      bools = []
->      domainbools = []
->      domainname, short_name = gen_short_name(setype)
-> -    for i in map(lambda x: x['boolean'], filter(lambda x: 'boolean' in x and x['source'] == setype, get_all_allow_rules())):
-> +    for i in map(lambda x: x['booleans'], filter(lambda x: 'booleans' in x and x['source'] == setype, search([ALLOW, DONTAUDIT]))):
->          for b in i:
->              if not isinstance(b, tuple):
->                  continue
+> +#ifndef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+>  		if (regex->match_data)
+>  			pcre2_match_data_free(regex->match_data);
+> +#endif
+> +
+>  		__pthread_mutex_destroy(&regex->match_mutex);
+>  		free(regex);
+>  	}
+> @@ -213,10 +223,30 @@ void regex_data_free(struct regex_data *regex)
+>  int regex_match(struct regex_data *regex, char const *subject, int partial)
+>  {
+>  	int rc;
+> +	pcre2_match_data *match_data;
+>  	__pthread_mutex_lock(&regex->match_mutex);
+> +
+> +#ifdef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+> +	match_data = pcre2_match_data_create_from_pattern(
+> +	    regex->regex, NULL);
+> +	if (match_data == NULL) {
+> +		__pthread_mutex_unlock(&regex->match_mutex);
+> +		return REGEX_ERROR;
+> +	}
+> +#else
+> +	match_data = regex->match_data;
+> +#endif
+> +
+>  	rc = pcre2_match(
+>  	    regex->regex, (PCRE2_SPTR)subject, PCRE2_ZERO_TERMINATED, 0,
+> -	    partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data, NULL);
+> +	    partial ? PCRE2_PARTIAL_SOFT : 0, match_data, NULL);
+> +
+> +#ifdef AGGRESSIVE_FREE_AFTER_REGEX_MATCH
+> +	// pcre2_match allocates heap and it won't be freed until
+> +	// pcre2_match_data_free, resulting in heap overhead.
+> +	pcre2_match_data_free(match_data);
+> +#endif
+> +
+>  	__pthread_mutex_unlock(&regex->match_mutex);
+>  	if (rc > 0)
+>  		return REGEX_MATCH;
 > -- 
-> 2.37.3
+> 2.39.0.314.g84b9a713c41-goog
 > 
