@@ -2,115 +2,135 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB99FC3DA78
-	for <selinux@archiver.kernel.org>; Tue, 17 Jan 2023 04:54:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BC07C678D7
+	for <selinux@archiver.kernel.org>; Tue, 17 Jan 2023 10:01:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235329AbjAQEyf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Jan 2023 23:54:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34664 "EHLO
+        id S236150AbjAQKB3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 17 Jan 2023 05:01:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235230AbjAQEyd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Jan 2023 23:54:33 -0500
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E83C2366B;
-        Mon, 16 Jan 2023 20:54:32 -0800 (PST)
-Received: by mail-io1-xd30.google.com with SMTP id p66so14459754iof.1;
-        Mon, 16 Jan 2023 20:54:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=gkSg/q1Z7ZmYwbTdwhXsusGtpsp5n/kWlb9K8M32Z80=;
-        b=NS6CNkn2N7Ruposkuk5FIQMhZOkRZhrKW2xAoM8cgV8P0+W2Bf42fs7WTrSTV7cyT8
-         +SScqCDlIdGQgdxihqfkFE15c9CXyTiIXh6pyP6EXMPWph9d4wFDrlrHNjM2FdUwWpCv
-         3A6E1M/Q6Q96Q9VdM9ViWwVWvsIZnS/TIxuQxfi8zJX7kexDS5uXPoeEehGWKa5wOHrR
-         3zaKuFOm4wsac6fgXQVFailYK4rrlidxOvQGOMYjw5qtF2juwrIoS2RRqNH5SuoLbCKf
-         D3oh6KYUND4c9OUmEIfmmq5r8RLovgACpfKPex4xExPaBGUDKVYLB2sOuJb1OXWQXhU/
-         YDMQ==
+        with ESMTP id S236333AbjAQKB0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 17 Jan 2023 05:01:26 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEEB32BF15
+        for <selinux@vger.kernel.org>; Tue, 17 Jan 2023 02:00:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673949640;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kuFWwb8U43DhKlNxSoNqKZx+RqXEasU5aLdyl+U/jdg=;
+        b=DC3FHKb/06epm+r5XIIsVvefP4GKHFfchF7iEJ3wsN0UabfgF3PyW+7eKWXulVG7FQ+AtW
+        bcvPoT1RrZID2PkqB3YjggCQV3d8zvlomEaBtcGY+En7Wi36F9EtubRKb5kA8P9IN78rmt
+        spSAA6Hp7Aa0Nr07oOVjEbfuvVueTbQ=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-384-sGdj2pWgPAu95qEvWiAeOg-1; Tue, 17 Jan 2023 05:00:38 -0500
+X-MC-Unique: sGdj2pWgPAu95qEvWiAeOg-1
+Received: by mail-pg1-f198.google.com with SMTP id 201-20020a6300d2000000b004ccf545f44fso2644019pga.12
+        for <selinux@vger.kernel.org>; Tue, 17 Jan 2023 02:00:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gkSg/q1Z7ZmYwbTdwhXsusGtpsp5n/kWlb9K8M32Z80=;
-        b=c+0BPRYVX3FZHcebA7D3KsmBkv7Ole7wTRQAawqHS4FDPZqjRKnEcqhWTT+9BoOWwl
-         UkNmN/KLOCi5WMmU1hLYC8XATVQdu/MxoFO9jpggi+CeTF83Lbn10/0AAM/OLBUz7wJE
-         4snPYKTA08HIqOZVzwdKw89fid7rxa0U+ocG6oikWC4m0LaEUaE65x3C58H9fKBl8NK0
-         xgl0yj49QAtHKKDEPptw5dFcZGvBV7c7wh+3dgONTMh2LIf70ZYGMU8lgQD+eBeM3EfS
-         Wzw0nNh64t8vgjZF62ulbBH7OrWlsZuM69pFkULOlAEGTLRibNnJcj+7Tx02sIriGw3y
-         WsMg==
-X-Gm-Message-State: AFqh2kpdKQm0gS6+eLYVDg6p+8NTtfL08PBisLs4rfhlpjYcFYVMsN3/
-        UMgbB6edhn8s6x5qEzh+V+cxPDltNPE=
-X-Google-Smtp-Source: AMrXdXvbEAZH4poFtVLAzFxzQGp/vXVTL6ajaZJjCsF3vaz+d2zHS2GcmDPWaiWnWdImey5dMyK1bQ==
-X-Received: by 2002:a5e:df05:0:b0:6f3:dec1:5474 with SMTP id f5-20020a5edf05000000b006f3dec15474mr1230720ioq.5.1673931272068;
-        Mon, 16 Jan 2023 20:54:32 -0800 (PST)
-Received: from ?IPV6:2601:282:800:7ed0:3dc4:7b4f:e5b1:e4d8? ([2601:282:800:7ed0:3dc4:7b4f:e5b1:e4d8])
-        by smtp.googlemail.com with ESMTPSA id h7-20020a05660208c700b00704a77b7b28sm2604728ioz.54.2023.01.16.20.54.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 16 Jan 2023 20:54:31 -0800 (PST)
-Message-ID: <becf01ac-e9cb-d2f9-5805-d1839c3f9656@gmail.com>
-Date:   Mon, 16 Jan 2023 21:54:29 -0700
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kuFWwb8U43DhKlNxSoNqKZx+RqXEasU5aLdyl+U/jdg=;
+        b=mJv1Ml7lKJecrB66kZISIIvjvxtX5f8YrgZL0I1Bl9VnGf8yvwC+aOtL8xAARH0sHZ
+         nnoyHBqMmzw8OCbKfzB/5hvbmlyFratsohK1fOE6ptVJZ2a03fqEuuKuJobrv4wnsXOg
+         d+GY/34RzWHiSQ8XJp7mmZSsz78+c3Ciab2XghqGw91yv+zotagz/K+Hfj//BWkMmuOK
+         SSHWvbFmU2zG2p9F+j+3SkpR967OkGRLc0sgwihZXRs53NmUSo75GuLsVCU0I7jQ3sLQ
+         hfW707Fs63MRJKd0yNEgwFFy9n/XkEhzUP1ARdrtD8I48NuldcFhtvaQbUe/26Xa+OQz
+         CZzg==
+X-Gm-Message-State: AFqh2krnBPZGjbnHK2PbiuXR9BD3djApcNauFCsmn5n58qslDtrhmpto
+        j39NwaenOX7IIeim2B9Gri6saScEz2W/1ZKgaD7VjzGSByAg4GLb/6p48PJ9xxwtLOta5hn43Go
+        RaehAMsSWhSj/OqnAj2h+YpbXfyKeHn4y7Q==
+X-Received: by 2002:a63:c102:0:b0:46f:81cc:5ecb with SMTP id w2-20020a63c102000000b0046f81cc5ecbmr142216pgf.459.1673949637613;
+        Tue, 17 Jan 2023 02:00:37 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXt51VZB0R8774K1D09Ebe4u+jd8Vy/7HTBBK3m8JHTYqlpjAZ/H19lFAtbOsV993KMGlqXEtRbsKbiz/cETacI=
+X-Received: by 2002:a63:c102:0:b0:46f:81cc:5ecb with SMTP id
+ w2-20020a63c102000000b0046f81cc5ecbmr142214pgf.459.1673949637255; Tue, 17 Jan
+ 2023 02:00:37 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH net-next 06/10] cipso_ipv4: use iph_set_totlen in
- skbuff_setattr
-Content-Language: en-US
-To:     Xin Long <lucien.xin@gmail.com>, Paul Moore <paul@paul-moore.com>
-Cc:     network dev <netdev@vger.kernel.org>, davem@davemloft.net,
-        kuba@kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        Pravin B Shelar <pshelar@ovn.org>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Ilya Maximets <i.maximets@ovn.org>,
-        Aaron Conole <aconole@redhat.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Mahesh Bandewar <maheshb@google.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-References: <cover.1673666803.git.lucien.xin@gmail.com>
- <d19e0bd55ea5477d94567c00735b78d8da6a38cb.1673666803.git.lucien.xin@gmail.com>
- <CAHC9VhRXd+RkHSRLUt=0HFm42xPKGsSdSkxA6EHwipDukZH_mA@mail.gmail.com>
- <CADvbK_e_V_scDpHiGw+Qqmarw8huYYES2j8Z36KYkgT2opED3w@mail.gmail.com>
- <CAHC9VhQeaOeX-5SENhpScKN9kF1rAKoZX23KOUqQ5=uz6v92iA@mail.gmail.com>
- <CADvbK_cR5paEunENmWd62XfXtMSf+MHhhc-S1z_gLWp_dUx=8w@mail.gmail.com>
- <CAHC9VhSk8pYtOJHCZ1uNvv1SJiazWkJVd1BCfyiLCXPMPKe_Pg@mail.gmail.com>
- <CADvbK_ds4ixHgPGA4iKb1kkFc=SF8SXPM-ZL-kb-ZA0B-70Xqg@mail.gmail.com>
-From:   David Ahern <dsahern@gmail.com>
-In-Reply-To: <CADvbK_ds4ixHgPGA4iKb1kkFc=SF8SXPM-ZL-kb-ZA0B-70Xqg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20230116214626.28955-1-cgzones@googlemail.com>
+In-Reply-To: <20230116214626.28955-1-cgzones@googlemail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 17 Jan 2023 11:00:26 +0100
+Message-ID: <CAFqZXNu-Wg=JAsAFHFW9J3DBV-7BYL2960SJnEpaP3VzOJn+Bg@mail.gmail.com>
+Subject: Re: [TESTSUITE PATCH] policy: drop usage of files_list_pids()
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/16/23 12:33 PM, Xin Long wrote:
->> We really should have a solution that allows CIPSO for both normal and
->> BIG TCP, if we don't we force distros and admins to choose between the
->> two and that isn't good.  We should do better.  If skb->len > 64k in
->> the case of BIG TCP, how is the packet eventually divided/fragmented
->> in such a way that the total length field in the IPv4 header doesn't
->> overflow?  Or is that simply handled at the driver/device layer and we
->> simply set skb->len to whatever the size is, regardless of the 16-bit
-> Yes, for BIG TCP, 16-bit length is set to 0, and it just uses skb->len
-> as the IP packet length.
-> 
->> length limit?  If that is the case, does the driver/device layer
->> handle copying the IPv4 options and setting the header/total-length
->> fields in each packet?  Or is it something else completely?
-> Yes, I think the driver/device layer will handle copying the IPv4 options
-> and setting the header/total-length, and that's how it works.
+On Mon, Jan 16, 2023 at 10:48 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> files_list_pids() has been superseded and marked deprecated in the
+> Reference Policy since Jun 2020[1].  In the latest release it has been
+> completely removed[2].
+>
+> Grant the necessary permissions via raw rules to support recent
+> Refpolicy versions as well as old ones without the replacement
+> interface files_list_runtime().
 
-IPv4 options, like TCP options, should be part of the header that gets
-replicate across GSO sliced packets by the hardware. ie., both should be
-transparent to well designed hardware (and for h/w that made poor
-choices standard 64kB GSO is the limit for its users).
+It seems the permissions aren't actually needed, at least on current
+Fedoras. Simply removing the call passes the CI:
+https://github.com/WOnder93/selinux-testsuite/commit/d0883a56d2583800a1fa79=
+490097e73b842cec17
+
+Do you have an environment with refpolicy where you can test it? It
+would be better to just remove the interface call if it's not needed.
+
+>
+> [1]: https://github.com/SELinuxProject/refpolicy/commit/be04bb3e7e63671ed=
+8a3c501a2ee76e11c3b92bb
+> [2]: https://github.com/SELinuxProject/refpolicy/commit/3ca0cd59d7a9b531d=
+d3620a02940396343fe2ed5
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  policy/test_global.te | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/policy/test_global.te b/policy/test_global.te
+> index e95102a..4bf30f8 100644
+> --- a/policy/test_global.te
+> +++ b/policy/test_global.te
+> @@ -121,7 +121,6 @@ allow testsuite_domain proc_t:file { getattr read ope=
+n };
+>  files_list_var(testsuite_domain)
+>  files_list_home(testsuite_domain)
+>  dev_read_rand(testsuite_domain)
+> -files_list_pids(testsuite_domain)
+>  require {
+>         type root_t;
+>         type etc_t;
+> @@ -136,8 +135,12 @@ require {
+>         type init_t;
+>         type initrc_t;
+>         type console_device_t;
+> +       type var_t;
+> +       type var_run_t;
+>  }
+> -allow testsuite_domain { root_t etc_t bin_t sbin_t lib_t usr_t devpts_t =
+}:dir list_dir_perms;
+> +allow testsuite_domain { root_t etc_t bin_t sbin_t lib_t usr_t devpts_t =
+var_run_t }:dir list_dir_perms;
+> +allow testsuite_domain var_t:dir search_dir_perms;
+> +allow testsuite_domain { var_t var_run_t }:lnk_file read_lnk_file_perms;
+>  allow testsuite_domain lib_t:file read_file_perms;
+>  allow testsuite_domain lib_t:lnk_file read;
+>  allow testsuite_domain etc_t:file read_file_perms;
+> --
+> 2.39.0
+>
+
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
