@@ -2,67 +2,65 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 716F6C00A5A
-	for <selinux@archiver.kernel.org>; Tue, 17 Jan 2023 23:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA08DC00A5A
+	for <selinux@archiver.kernel.org>; Wed, 18 Jan 2023 02:47:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230037AbjAQXmA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 17 Jan 2023 18:42:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36520 "EHLO
+        id S229453AbjARCrU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 17 Jan 2023 21:47:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230019AbjAQXl2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 17 Jan 2023 18:41:28 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDF86189C
-        for <selinux@vger.kernel.org>; Tue, 17 Jan 2023 14:47:01 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id c6so35073768pls.4
-        for <selinux@vger.kernel.org>; Tue, 17 Jan 2023 14:47:01 -0800 (PST)
+        with ESMTP id S229446AbjARCrT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 17 Jan 2023 21:47:19 -0500
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 063E54FC23;
+        Tue, 17 Jan 2023 18:47:19 -0800 (PST)
+Received: by mail-il1-x12a.google.com with SMTP id d10so16418479ilc.12;
+        Tue, 17 Jan 2023 18:47:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=pDfrRPcarawgDNq5Pj7xF15dtohFR+yiPCxt6dTRL68=;
-        b=Deb1FxgItCBI4GjYe5RjGQdjfd8FnAIRm9uM/YiAVhDlAcvrFv/n2PMQaAiNGBy5OB
-         Jx1d+tsVQcw+zM8EDqluGx3/wuGO/xGfeRco8EObXVtqyyOqTRfMvMB/JxbE/pUSoLYg
-         2FLxkl42G9GYd8q1T+06Qsq3mI3bSGi0TFLv2bEbbQvVZ2LDc+WYxcNRPWeMys/hPqPl
-         C70NN53tk3UObL+N3J8pdWsc7I3GvYJ4MJ8ak8gP7wd6dS7STeZQnZk8kdtAeZG2qLrn
-         uyy8+qjQn0CCgEFB8WoGXzmHBa0RI1/6icF+5PG6hv6ZFAXGoeMizAvNjNDIun/5VvcB
-         mPtg==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=m1oh72pr5Je6LjMuI02aOI0LbZGIHuBgAU9KYLW46Nw=;
+        b=bXcCY8JtgtuPmI/CjQLiYnMu6hvGsdzsQIJKP68c6upgWfNvqSg59LAs5FEquglHoO
+         PziJBLLqH8N5RaLuz30l16KlYluTF7RtrhznQAh8ku3rhJIj9hUFodaRsJva+4FFzqMN
+         jPqGjGdgeAT6pFZ+C6T1YileP1EK8tfPEkPhPbKqPmtWpybTDhIoqfbMksT3p6WqVzDz
+         kpjYywiB0Qz4htxaSMECqgG3Vt+gGgO/tNRcAeCBttAzWXfRv5RtgPTXyU4qTwSzfNTk
+         Rp9S54ccJ3si5MMMPwiZe1hxKIVLSC1fkpPZja3jPPL62SCE+IYJvJCUqY00igSE8TpN
+         iQ7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pDfrRPcarawgDNq5Pj7xF15dtohFR+yiPCxt6dTRL68=;
-        b=lidvnqVd2gYXiXo4TMMVC+gUXQ89N5k0NajsMZG16i7znsjeq6S2gMsI94G8PXmLlR
-         Zb5nak7Msz/QQ+tV+76zZ1w6g+vQAWwG5dd67R2NtDdEEB4ZVaP+aSi2CZcYOkiVBH8Y
-         9WEmV+tcEYmI3vxiyMFe7Ythf0ZDWb/y5Uq6coFi0l96vwzFK6sGaSP7K1AvzhSgquoT
-         cD5KlbSnUjyI9abG8ksqgSwYm+x/BO7v7jDpDaOC6mOGs/2nG+pze0498ZkXJspeuMxB
-         ev/VYo1a+yfEKlelTF4dhFW89cdQ4UA4u/h3ZY+/dHtGmd0Knxn2ZPfVlQSx2YlSmUR0
-         ehyw==
-X-Gm-Message-State: AFqh2krkMz/MWPb5QeYAYudVypcpgEWSGwtYahsMLUl66EXYJApxlE0L
-        tnTYzGQvwVG43cCT8QHWwhxXSqy88kIDcUjCLNON
-X-Google-Smtp-Source: AMrXdXt65y12KQW+gMg8Z4l+eTgQTkdup2EVQxIwB/GpxnMV30e0Qw6m3i9vf5fhpJEfF95dMz4YaojDCKwRd2PDhTY=
-X-Received: by 2002:a17:90a:d683:b0:229:5912:1043 with SMTP id
- x3-20020a17090ad68300b0022959121043mr544439pju.69.1673995621155; Tue, 17 Jan
- 2023 14:47:01 -0800 (PST)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=m1oh72pr5Je6LjMuI02aOI0LbZGIHuBgAU9KYLW46Nw=;
+        b=nR0WEe8PxuHZ6GYvlpBy4jrLBzy3R570Ad2yzcFIhCQLTLENkdSq09dSG26QND439t
+         GXFxICcoGCNWfjw3cHddWHxre247AVyz4UGACuU8W/ooH6tAamYW2O0Ih4mpEyCnfAIP
+         RhRmj0MwNZ8gPSHDcLcgkVraJIMdpBP5qjER/nvcf6/I67rIdNAyDNozA8/jxl5uxoPU
+         04jF0yHjRU8ii2YPGQyA+dU/LSKfDbpUhBIEuFqDL3XxAJO8yX0pkx4/SdhhRXFhPZjh
+         wYqoysQeJ28v5TX/RjE7MVK38pN4GWf8H3k2Fs/aDj3F1a9O9+fPlutwPVwnp/G6b0av
+         04Mw==
+X-Gm-Message-State: AFqh2kogqgHSY5iSQU/ZIJbYoDtZPWNT7r3mqpTwh37AeRxpHAEK8blY
+        fHoshzl6T/F+COzc+Mrml7Y=
+X-Google-Smtp-Source: AMrXdXucQ8f9FPR67c3mvitX7U1DEv5oVJw7/PdEtI05I8Lx1vZw17rtbCPCIs7NUIjNdrG4cfclUg==
+X-Received: by 2002:a92:cc52:0:b0:30c:1b36:73af with SMTP id t18-20020a92cc52000000b0030c1b3673afmr4432802ilq.25.1674010038384;
+        Tue, 17 Jan 2023 18:47:18 -0800 (PST)
+Received: from ?IPV6:2601:282:800:7ed0:3dc4:7b4f:e5b1:e4d8? ([2601:282:800:7ed0:3dc4:7b4f:e5b1:e4d8])
+        by smtp.googlemail.com with ESMTPSA id s8-20020a056e0210c800b0030eebef5d1dsm3511747ilj.12.2023.01.17.18.47.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Jan 2023 18:47:17 -0800 (PST)
+Message-ID: <54d89f4a-c7ca-2226-64dd-adc81ebbc314@gmail.com>
+Date:   Tue, 17 Jan 2023 19:47:15 -0700
 MIME-Version: 1.0
-References: <cover.1673666803.git.lucien.xin@gmail.com> <d19e0bd55ea5477d94567c00735b78d8da6a38cb.1673666803.git.lucien.xin@gmail.com>
- <CAHC9VhRXd+RkHSRLUt=0HFm42xPKGsSdSkxA6EHwipDukZH_mA@mail.gmail.com>
- <CADvbK_e_V_scDpHiGw+Qqmarw8huYYES2j8Z36KYkgT2opED3w@mail.gmail.com>
- <CAHC9VhQeaOeX-5SENhpScKN9kF1rAKoZX23KOUqQ5=uz6v92iA@mail.gmail.com>
- <CADvbK_cR5paEunENmWd62XfXtMSf+MHhhc-S1z_gLWp_dUx=8w@mail.gmail.com>
- <CAHC9VhSk8pYtOJHCZ1uNvv1SJiazWkJVd1BCfyiLCXPMPKe_Pg@mail.gmail.com>
- <CADvbK_ds4ixHgPGA4iKb1kkFc=SF8SXPM-ZL-kb-ZA0B-70Xqg@mail.gmail.com> <CAHC9VhR4_ae=QzrUUM=1MZTWJ9MQom0fEAME3b+z+uBrA8PpcQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhR4_ae=QzrUUM=1MZTWJ9MQom0fEAME3b+z+uBrA8PpcQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 17 Jan 2023 17:46:49 -0500
-Message-ID: <CAHC9VhSRgQuyPgio7d9ZNbs53oCvpq3KQJ9gG5rKX67Wn+P6kw@mail.gmail.com>
-Subject: Re: [PATCH net-next 06/10] cipso_ipv4: use iph_set_totlen in skbuff_setattr
-To:     Xin Long <lucien.xin@gmail.com>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: Re: [PATCH net-next 06/10] cipso_ipv4: use iph_set_totlen in
+ skbuff_setattr
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>, Xin Long <lucien.xin@gmail.com>
 Cc:     network dev <netdev@vger.kernel.org>, davem@davemloft.net,
         kuba@kernel.org, Eric Dumazet <edumazet@google.com>,
         Paolo Abeni <pabeni@redhat.com>,
-        David Ahern <dsahern@gmail.com>,
         Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
         Pravin B Shelar <pshelar@ovn.org>,
         Jamal Hadi Salim <jhs@mojatatu.com>,
@@ -78,124 +76,64 @@ Cc:     network dev <netdev@vger.kernel.org>, davem@davemloft.net,
         Mahesh Bandewar <maheshb@google.com>,
         Guillaume Nault <gnault@redhat.com>,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+References: <cover.1673666803.git.lucien.xin@gmail.com>
+ <d19e0bd55ea5477d94567c00735b78d8da6a38cb.1673666803.git.lucien.xin@gmail.com>
+ <CAHC9VhRXd+RkHSRLUt=0HFm42xPKGsSdSkxA6EHwipDukZH_mA@mail.gmail.com>
+ <CADvbK_e_V_scDpHiGw+Qqmarw8huYYES2j8Z36KYkgT2opED3w@mail.gmail.com>
+ <CAHC9VhQeaOeX-5SENhpScKN9kF1rAKoZX23KOUqQ5=uz6v92iA@mail.gmail.com>
+ <CADvbK_cR5paEunENmWd62XfXtMSf+MHhhc-S1z_gLWp_dUx=8w@mail.gmail.com>
+ <CAHC9VhSk8pYtOJHCZ1uNvv1SJiazWkJVd1BCfyiLCXPMPKe_Pg@mail.gmail.com>
+ <CADvbK_ds4ixHgPGA4iKb1kkFc=SF8SXPM-ZL-kb-ZA0B-70Xqg@mail.gmail.com>
+ <CAHC9VhR4_ae=QzrUUM=1MZTWJ9MQom0fEAME3b+z+uBrA8PpcQ@mail.gmail.com>
+ <CAHC9VhSRgQuyPgio7d9ZNbs53oCvpq3KQJ9gG5rKX67Wn+P6kw@mail.gmail.com>
+From:   David Ahern <dsahern@gmail.com>
+In-Reply-To: <CAHC9VhSRgQuyPgio7d9ZNbs53oCvpq3KQJ9gG5rKX67Wn+P6kw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 17, 2023 at 2:51 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Jan 16, 2023 at 2:35 PM Xin Long <lucien.xin@gmail.com> wrote:
-> > On Mon, Jan 16, 2023 at 1:13 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Mon, Jan 16, 2023 at 12:37 PM Xin Long <lucien.xin@gmail.com> wrote:
-> > > > On Mon, Jan 16, 2023 at 11:46 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > > On Sat, Jan 14, 2023 at 12:54 PM Xin Long <lucien.xin@gmail.com> wrote:
-> > > > > > On Sat, Jan 14, 2023 at 10:39 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > > > > On Fri, Jan 13, 2023 at 10:31 PM Xin Long <lucien.xin@gmail.com> wrote:
->
-> ...
->
-> > > > > We can't skip the CIPSO labeling as that would be the network packet
-> > > > > equivalent of not assigning a owner/group/mode to a file on the
-> > > > > filesystem, which is a Very Bad Thing :)
-> > > > >
-> > > > > I spent a little bit of time this morning looking at the problem and I
-> > > > > think the right approach is two-fold: first introduce a simple check
-> > > > > in cipso_v4_skbuff_setattr() which returns -E2BIG if the packet length
-> > > > > grows beyond 65535.  It's rather crude, but it's a tiny patch and
-> > > > > should at least ensure that the upper layers (NetLabel and SELinux)
-> > > > > don't send the packet with a bogus length field; it will result in
-> > > > > packet drops, but honestly that seems preferable to a mangled packet
-> > > > > which will likely be dropped at some point in the network anyway.
-> > > > >
-> > > > > diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-> > > > > index 6cd3b6c559f0..f19c9beda745 100644
-> > > > > --- a/net/ipv4/cipso_ipv4.c
-> > > > > +++ b/net/ipv4/cipso_ipv4.c
-> > > > > @@ -2183,8 +2183,10 @@ int cipso_v4_skbuff_setattr(struct sk_buff *skb,
-> > > > >         * that the security label is applied to the packet - we do the same
-> > > > >         * thing when using the socket options and it hasn't caused a problem,
-> > > > >         * if we need to we can always revisit this choice later */
-> > > > > -
-> > > > >        len_delta = opt_len - opt->optlen;
-> > > > > +       if ((skb->len + len_delta) > 65535)
-> > > > > +               return -E2BIG;
-> > > > > +
-> > > >
-> > > > Right, looks crude. :-)
-> > >
-> > > Yes, but what else can we do?  There is fragmentation, but that is
-> > > rather ugly and we would still need a solution for when the don't
-> > > fragment bit is set.  I'm open to suggestions.
-> >
-> > looking at ovs_dp_upcall(), for GSO/GRO packets it goes to
-> > queue_gso_packets() where it calls __skb_gso_segment()
-> > to segment it into small segs/skbs, then process these segs instead.
-> >
-> > I'm thinking you can try to do the same in cipso_v4_skbuff_setattr(),
-> > and I don't think 64K non-GSO packets exist in the user environment,
-> > so taking care of GSO packets should be enough.
->
-> Thanks, I'll take a look.
+On 1/17/23 3:46 PM, Paul Moore wrote:
+>>
+>> In the BIG TCP case, when is the IPv4 header zero'd out?  Currently
+>> cipso_v4_skbuff_setattr() is called in the NF_INET_LOCAL_OUT and
+>> NF_INET_FORWARD chains, is there an easy way to distinguish between a
+>> traditional segmentation offload mechanism, e.g. GSO, and BIG TCP?  If
+>> BIG TCP allows for arbitrarily large packets we can just grow the
+>> skb->len value as needed and leave the total length field in the IPv4
+>> header untouched/zero, but we would need to be able to distinguish
+>> between a segmentation offload and BIG TCP.
+> 
+> Keeping the above questions as they still apply, rather I could still
+> use some help understanding what a BIG TCP packet would look like
+> during LOCAL_OUT and FORWARD.
 
-Unfortunately I don't think the ovs_dp_upcall() approach will work as
-that is an endpoint in the kernel which sends the GSO'd packet up to
-userspace in segements.  In the case of cipso_v4_skbuff_setattr() we
-are setting an IPv4 option on a packet in either the NF_INET_LOCAL_OUT
-or NF_INET_FORWARD output path.  I believe we can resolve the
-LOCAL_OUT case with the padding approach I mentioned previously, but
-the FORWARD path remains a challenge; I simply don't see a way to
-handle growing the packet beyond 64k in the forward path.  I'm also
-realizing that we should be sending a ICMP_FRAG_NEEDED in the forward
-case when we have to drop the packet due to size issues, as the normal
-MTU/size check happens prior to the NF_INET_FORWARD hooks (and hence
-cipso_v4_skbuff_setattr()).
+skb->len > 64kb. you don't typically look at the IP / IPv6 header and
+its total length field and I thought the first patch in the series added
+a handler for doing that.
 
-> > > It seems like there is still ongoing discussion about even enabling
-> > > BIG TCP for IPv4, however for this discussion let's assume that BIG
-> > > TCP is merged for IPv4.
-> > >
-> > > We really should have a solution that allows CIPSO for both normal and
-> > > BIG TCP, if we don't we force distros and admins to choose between the
-> > > two and that isn't good.  We should do better.  If skb->len > 64k in
-> > > the case of BIG TCP, how is the packet eventually divided/fragmented
-> > > in such a way that the total length field in the IPv4 header doesn't
-> > > overflow?  Or is that simply handled at the driver/device layer and we
-> > > simply set skb->len to whatever the size is, regardless of the 16-bit
-> >
-> > Yes, for BIG TCP, 16-bit length is set to 0, and it just uses skb->len
-> > as the IP packet length.
->
-> In the BIG TCP case, when is the IPv4 header zero'd out?  Currently
-> cipso_v4_skbuff_setattr() is called in the NF_INET_LOCAL_OUT and
-> NF_INET_FORWARD chains, is there an easy way to distinguish between a
-> traditional segmentation offload mechanism, e.g. GSO, and BIG TCP?  If
-> BIG TCP allows for arbitrarily large packets we can just grow the
-> skb->len value as needed and leave the total length field in the IPv4
-> header untouched/zero, but we would need to be able to distinguish
-> between a segmentation offload and BIG TCP.
+> 
+>>>> In the GRO case, is it safe to grow the packet such that skb->len is
+>>>> greater than 64k?  I presume that the device/driver is going to split
+>>>> the packet anyway and populate the IPv4 total length fields in the
+>>>> header anyway, right?  If we can't grow the packet beyond 64k, is
+>>>> there some way to signal to the driver/device at runtime that the
+>>>> largest packet we can process is 64k minus 40 bytes (for the IPv4
+>>>> options)?
+>>>
+>>> at runtime, not as far as I know.
+>>> It's a field of the network device that can be modified by:
+>>> # ip link set dev eth0 gro_max_size $MAX_SIZE gso_max_size $MAX_SIZE
+>>
+>> I need to look at the OVS case above, but one possibility would be to
+>> have the kernel adjust the GSO size down by 40 bytes when
+>> CONFIG_NETLABEL is enabled, but that isn't a great option, and not
+>> something I consider a first (or second) choice.
+> 
+> Looking more at the GSO related code, this isn't likely to work.
+> 
 
-Keeping the above questions as they still apply, rather I could still
-use some help understanding what a BIG TCP packet would look like
-during LOCAL_OUT and FORWARD.
+icsk_ext_hdr_len is adjusted by cipso for its options. Does that not
+cover what is needed?
 
-> > > In the GRO case, is it safe to grow the packet such that skb->len is
-> > > greater than 64k?  I presume that the device/driver is going to split
-> > > the packet anyway and populate the IPv4 total length fields in the
-> > > header anyway, right?  If we can't grow the packet beyond 64k, is
-> > > there some way to signal to the driver/device at runtime that the
-> > > largest packet we can process is 64k minus 40 bytes (for the IPv4
-> > > options)?
-> >
-> > at runtime, not as far as I know.
-> > It's a field of the network device that can be modified by:
-> > # ip link set dev eth0 gro_max_size $MAX_SIZE gso_max_size $MAX_SIZE
->
-> I need to look at the OVS case above, but one possibility would be to
-> have the kernel adjust the GSO size down by 40 bytes when
-> CONFIG_NETLABEL is enabled, but that isn't a great option, and not
-> something I consider a first (or second) choice.
-
-Looking more at the GSO related code, this isn't likely to work.
-
--- 
-paul-moore.com
