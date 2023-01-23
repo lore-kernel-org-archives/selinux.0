@@ -2,80 +2,202 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E427C05027
-	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 20:48:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9FB5C05027
+	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 20:52:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230040AbjAWUsB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Jan 2023 15:48:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48630 "EHLO
+        id S231787AbjAWUw5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Jan 2023 15:52:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbjAWUsB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 15:48:01 -0500
+        with ESMTP id S231664AbjAWUw4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 15:52:56 -0500
 Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E886C32523
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:47:59 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id bk15so33758403ejb.9
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:47:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264AF83FA
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:52:55 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id qx13so33759180ejb.13
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:52:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=cloudflare.com; s=google;
         h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
          :user-agent:references:from:to:cc:subject:date:message-id:reply-to;
-        bh=gojuXeiAJOSy3/DtsptehDxMc4WEvKVnWFIlQO9sDIA=;
-        b=Jvbd6YHgdYjzrPnXJDJm3mCYYF6D8ySZTo1N5G11v0eAHGRy6SVBosoQhj7JwFUh3g
-         eicY/zujM1+GNufw8Sp1aNH/USui06SS7unFDTqbTgcy74Ciuf++VuaQ4V0PZcvDkSyv
-         opy9bz0s/F5eHRVmLe2wCI6zgjKPx4ZqHUPfA=
+        bh=B2jTAb1oXTdAbsv/PhUQDA2t9OjmC3jlZ/Up7f/pWKU=;
+        b=jW0s0g1XxO9KGNdD27NZOr1vjxGztnyb5NhxReZlz9dD7/M2h9FIK48bR9CozFDiM6
+         K+sgZQ25C5KZKfKjhujaErIzOJb2X3v5S5LSh6AJfLraCTqTj+/a98USghcJe3oNcqJi
+         a22GpVNLvhMRESCtMZw8MWemWWHyAkDA1mEeA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
          :user-agent:references:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gojuXeiAJOSy3/DtsptehDxMc4WEvKVnWFIlQO9sDIA=;
-        b=GsCCYzvDbEvgM7n2MT4u/JUuBh79Mxg3VC2bhNceelOnlMZyxyJ45yf061D1UD6C/K
-         uoUDGNGhtZzOa/xNFssTCXv7wgQU0scjfnPpgIlWGKI59VWJAHvrO/Eid8ZfnxUTapWR
-         iGc4oevjjXKIvM3TtUEbkqiSsRoaZga+K7tm+bW+rlP8Up4tNShs1odPBW+MZGT5wAn3
-         HrjAMGA8ErggzyJA7L7yNbdVaLXYxWwz1lX7BkHUzoStVTLWN7wfx2IE15knHC/6nGdD
-         PoipDdup2cCcGMYjjIpy0cq8bBFVGfd2hXQN4r/BSzrUeRlkuVjGGrlsgZzJ6bcU/VaV
-         crMA==
-X-Gm-Message-State: AFqh2kq46DzPn6DHTAJBAtwdBKbtbpjaX6EcPaxwtB18MnjzyZWf4DcB
-        BkaqxB2WGykEHkVOOMyFPmCUeQ==
-X-Google-Smtp-Source: AMrXdXuUhT6YpTwL5XRzeyScmly38+amMVg3l0LQR1ZRnS4Rn2MqWkt7NgyMKqyMaHt3bl7Xtm3gtg==
-X-Received: by 2002:a17:906:7f0c:b0:877:77f5:a8e2 with SMTP id d12-20020a1709067f0c00b0087777f5a8e2mr16424827ejr.63.1674506878499;
-        Mon, 23 Jan 2023 12:47:58 -0800 (PST)
+        bh=B2jTAb1oXTdAbsv/PhUQDA2t9OjmC3jlZ/Up7f/pWKU=;
+        b=bqHyvbjvuGpyND4V1f5xwye4A5Fhoire+3ojaJe7dQMIJUfZ4Vyb6d8ZoN9jJYtE3l
+         UPz7qnTWo0eVGCexJGg6754joivXPTqw9LwMf5MZUN0qgHa3PoNOaVsZGdumEunzhcB0
+         cl/RIUJ6bBy+OieWiV4qhA4hg+CY0aAvJNjowPuBf3rW4yT7Ya3wJK9fnnZKyKizyAFd
+         ZNP3Hu7ubb70PRaIvPzoNXzdu/zFUYbkgt53kw2bWQPIJnd2fBeidB8KHBQf45uGVVpk
+         Sd0BwmO2vPpQ1/FF9N5YnPgwfoNAOFBltXEPj3a+rg1IjGTqVU85PvIVYp7fHjT8W0RL
+         b+Ug==
+X-Gm-Message-State: AFqh2kpuJjZCjFcvmmso7ujvVslxuHoUzaCzorEm43RGymXIthor3gVp
+        rjnfe9zlcIN5fT/UagOQo4xSxw==
+X-Google-Smtp-Source: AMrXdXtOL2cJ4qtQ+2T5p1tUsKu06PtI+IV4rmGD+Pr640npJ8at3e1sR9sZgTKDqoGlg3SX7iTagw==
+X-Received: by 2002:a17:906:71a:b0:7c1:6344:84a with SMTP id y26-20020a170906071a00b007c16344084amr27992626ejb.5.1674507173564;
+        Mon, 23 Jan 2023 12:52:53 -0800 (PST)
 Received: from cloudflare.com (79.191.179.97.ipv4.supernova.orange.pl. [79.191.179.97])
-        by smtp.gmail.com with ESMTPSA id e11-20020a056402148b00b0048ebe118a46sm171996edv.77.2023.01.23.12.47.57
+        by smtp.gmail.com with ESMTPSA id l3-20020a17090615c300b008566b807d8asm18519099ejd.73.2023.01.23.12.52.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jan 2023 12:47:58 -0800 (PST)
-References: <20221221-sockopt-port-range-v4-1-d7d2f2561238@cloudflare.com>
- <20230123175526.59356-1-kuniyu@amazon.com>
+        Mon, 23 Jan 2023 12:52:53 -0800 (PST)
+References: <20221221-sockopt-port-range-v4-0-d7d2f2561238@cloudflare.com>
+ <20221221-sockopt-port-range-v4-1-d7d2f2561238@cloudflare.com>
+ <Y87IRq1ITGcWIh3F@unreal>
 User-agent: mu4e 1.6.10; emacs 28.2
 From:   Jakub Sitnicki <jakub@cloudflare.com>
-To:     Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc:     davem@davemloft.net, edumazet@google.com, eparis@parisplace.org,
-        kernel-team@cloudflare.com, kuba@kernel.org, marek@cloudflare.com,
-        ncardwell@google.com, netdev@vger.kernel.org, pabeni@redhat.com,
-        paul@paul-moore.com, selinux@vger.kernel.org,
-        stephen.smalley.work@gmail.com
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Neal Cardwell <ncardwell@google.com>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, kernel-team@cloudflare.com,
+        Marek Majkowski <marek@cloudflare.com>
 Subject: Re: [PATCH net-next v4 1/2] inet: Add IP_LOCAL_PORT_RANGE socket
  option
-Date:   Mon, 23 Jan 2023 21:46:45 +0100
-In-reply-to: <20230123175526.59356-1-kuniyu@amazon.com>
-Message-ID: <87zga9vuyr.fsf@cloudflare.com>
+Date:   Mon, 23 Jan 2023 21:48:06 +0100
+In-reply-to: <Y87IRq1ITGcWIh3F@unreal>
+Message-ID: <87sfg1vuqj.fsf@cloudflare.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 23, 2023 at 09:55 AM -08, Kuniyuki Iwashima wrote:
-
-[...]
-
+On Mon, Jan 23, 2023 at 07:47 PM +02, Leon Romanovsky wrote:
+> On Mon, Jan 23, 2023 at 03:44:39PM +0100, Jakub Sitnicki wrote:
+>> Users who want to share a single public IP address for outgoing connections
+>> between several hosts traditionally reach for SNAT. However, SNAT requires
+>> state keeping on the node(s) performing the NAT.
+>> 
+>> A stateless alternative exists, where a single IP address used for egress
+>> can be shared between several hosts by partitioning the available ephemeral
+>> port range. In such a setup:
+>> 
+>> 1. Each host gets assigned a disjoint range of ephemeral ports.
+>> 2. Applications open connections from the host-assigned port range.
+>> 3. Return traffic gets routed to the host based on both, the destination IP
+>>    and the destination port.
+>> 
+>> An application which wants to open an outgoing connection (connect) from a
+>> given port range today can choose between two solutions:
+>> 
+>> 1. Manually pick the source port by bind()'ing to it before connect()'ing
+>>    the socket.
+>> 
+>>    This approach has a couple of downsides:
+>> 
+>>    a) Search for a free port has to be implemented in the user-space. If
+>>       the chosen 4-tuple happens to be busy, the application needs to retry
+>>       from a different local port number.
+>> 
+>>       Detecting if 4-tuple is busy can be either easy (TCP) or hard
+>>       (UDP). In TCP case, the application simply has to check if connect()
+>>       returned an error (EADDRNOTAVAIL). That is assuming that the local
+>>       port sharing was enabled (REUSEADDR) by all the sockets.
+>> 
+>>         # Assume desired local port range is 60_000-60_511
+>>         s = socket(AF_INET, SOCK_STREAM)
+>>         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+>>         s.bind(("192.0.2.1", 60_000))
+>>         s.connect(("1.1.1.1", 53))
+>>         # Fails only if 192.0.2.1:60000 -> 1.1.1.1:53 is busy
+>>         # Application must retry with another local port
+>> 
+>>       In case of UDP, the network stack allows binding more than one socket
+>>       to the same 4-tuple, when local port sharing is enabled
+>>       (REUSEADDR). Hence detecting the conflict is much harder and involves
+>>       querying sock_diag and toggling the REUSEADDR flag [1].
+>> 
+>>    b) For TCP, bind()-ing to a port within the ephemeral port range means
+>>       that no connecting sockets, that is those which leave it to the
+>>       network stack to find a free local port at connect() time, can use
+>>       the this port.
+>> 
+>>       IOW, the bind hash bucket tb->fastreuse will be 0 or 1, and the port
+>>       will be skipped during the free port search at connect() time.
+>> 
+>> 2. Isolate the app in a dedicated netns and use the use the per-netns
+>>    ip_local_port_range sysctl to adjust the ephemeral port range bounds.
+>> 
+>>    The per-netns setting affects all sockets, so this approach can be used
+>>    only if:
+>> 
+>>    - there is just one egress IP address, or
+>>    - the desired egress port range is the same for all egress IP addresses
+>>      used by the application.
+>> 
+>>    For TCP, this approach avoids the downsides of (1). Free port search and
+>>    4-tuple conflict detection is done by the network stack:
+>> 
+>>      system("sysctl -w net.ipv4.ip_local_port_range='60000 60511'")
+>> 
+>>      s = socket(AF_INET, SOCK_STREAM)
+>>      s.setsockopt(SOL_IP, IP_BIND_ADDRESS_NO_PORT, 1)
+>>      s.bind(("192.0.2.1", 0))
+>>      s.connect(("1.1.1.1", 53))
+>>      # Fails if all 4-tuples 192.0.2.1:60000-60511 -> 1.1.1.1:53 are busy
+>> 
+>>   For UDP this approach has limited applicability. Setting the
+>>   IP_BIND_ADDRESS_NO_PORT socket option does not result in local source
+>>   port being shared with other connected UDP sockets.
+>> 
+>>   Hence relying on the network stack to find a free source port, limits the
+>>   number of outgoing UDP flows from a single IP address down to the number
+>>   of available ephemeral ports.
+>> 
+>> To put it another way, partitioning the ephemeral port range between hosts
+>> using the existing Linux networking API is cumbersome.
+>> 
+>> To address this use case, add a new socket option at the SOL_IP level,
+>> named IP_LOCAL_PORT_RANGE. The new option can be used to clamp down the
+>> ephemeral port range for each socket individually.
+>> 
+>> The option can be used only to narrow down the per-netns local port
+>> range. If the per-socket range lies outside of the per-netns range, the
+>> latter takes precedence.
+>> 
+>> UAPI-wise, the low and high range bounds are passed to the kernel as a pair
+>> of u16 values in host byte order packed into a u32. This avoids pointer
+>> passing.
+>> 
+>>   PORT_LO = 40_000
+>>   PORT_HI = 40_511
+>> 
+>>   s = socket(AF_INET, SOCK_STREAM)
+>>   v = struct.pack("I", PORT_HI << 16 | PORT_LO)
+>>   s.setsockopt(SOL_IP, IP_LOCAL_PORT_RANGE, v)
+>>   s.bind(("127.0.0.1", 0))
+>>   s.getsockname()
+>>   # Local address between ("127.0.0.1", 40_000) and ("127.0.0.1", 40_511),
+>>   # if there is a free port. EADDRINUSE otherwise.
+>> 
+>> [1] https://github.com/cloudflare/cloudflare-blog/blob/232b432c1d57/2022-02-connectx/connectx.py#L116
+>> 
+>> v3 -> v4:
+>>  * Clarify that u16 values are in host byte order (Neal)
+>> 
+>> v2 -> v3:
+>>  * Make SCTP bind()/bind_add() respect IP_LOCAL_PORT_RANGE option (Eric)
+>> 
+>> v1 -> v2:
+>>  * Fix the corner case when the per-socket range doesn't overlap with the
+>>    per-netns range. Fallback correctly to the per-netns range. (Kuniyuki)
 >
-> Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
->
-> In case you might forgot this comment, but the patch looks good to me.
-> https://lore.kernel.org/netdev/20230111005923.47037-1-kuniyu@amazon.com/
+> Please put changelog after "---" trailer, so it will be stripped while
+> applying patch.
 
-Sorry, it has slipped my mind. I'll apply it in v5.
+I've put the changelog above the "---" on purpose. AFAIK, it is (was?)
+preferred by netdev maintainers to keep the changelog in the
+description.
 
-Thank you for reviewing.
+Do you know if this convention is now a thing of the past? I might have
+missed something.
