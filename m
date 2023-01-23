@@ -2,232 +2,80 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB116C05027
-	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 19:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E427C05027
+	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 20:48:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232033AbjAWTTE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Jan 2023 14:19:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
+        id S230040AbjAWUsB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Jan 2023 15:48:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbjAWTSa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 14:18:30 -0500
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B9F035252
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 11:18:17 -0800 (PST)
-Received: by mail-pg1-x549.google.com with SMTP id y37-20020a634b25000000b004b1d90ea947so5857506pga.15
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 11:18:17 -0800 (PST)
+        with ESMTP id S229514AbjAWUsB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 15:48:01 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E886C32523
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:47:59 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id bk15so33758403ejb.9
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:47:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=z2WhRnZzQgS7vry+Z+wffN8GNT/+GwBkd2a3cKemc3A=;
-        b=qIoHkzSJgScPAOmXRPybmkkxLYzr2DadvdaoU+21L1WVU3YW/Hmjf98YSxQck6Cojl
-         hSJIB90Oc/J5PhcPthu37nMpMkmKvUecOx+8XcN0o61N3c9FSHsypWEcnKqeCpO8oZn5
-         5t2GLdXEZE6+Kn1L/RgqPV6+knFah8Sty5ttQeslTrfM6XTfbVGpIJuSS4JTguGrEf+K
-         02GyI8CR+Za0guqiCqlg7dAfcw68H5UFF1O5CbDXUC7fdVcQj+I00pYkk/UsWsyDil4n
-         wMUZxRBLOsVMt7lEWJwwaO1NERbypePie8xI/PldXEjxtDPpICffELsttwq1JrA5YUun
-         L0Tw==
+        d=cloudflare.com; s=google;
+        h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
+         :user-agent:references:from:to:cc:subject:date:message-id:reply-to;
+        bh=gojuXeiAJOSy3/DtsptehDxMc4WEvKVnWFIlQO9sDIA=;
+        b=Jvbd6YHgdYjzrPnXJDJm3mCYYF6D8ySZTo1N5G11v0eAHGRy6SVBosoQhj7JwFUh3g
+         eicY/zujM1+GNufw8Sp1aNH/USui06SS7unFDTqbTgcy74Ciuf++VuaQ4V0PZcvDkSyv
+         opy9bz0s/F5eHRVmLe2wCI6zgjKPx4ZqHUPfA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=z2WhRnZzQgS7vry+Z+wffN8GNT/+GwBkd2a3cKemc3A=;
-        b=q5LrNaHVjGxXTNf1okzH0w2MX/xoS/Q4zyT2utYAgsI4y92vvsZTn7yEiHdxMSgMEc
-         7yy9A+Q3IlHcS3qjukPV0xd3bg9TRo65+r11uPeJArznOEalRXLh1pRcjupSedyhkkqU
-         4ZcuDFJYWSQPWDfIR/JNphvCY81ls5XGG1M7Fbw+xVq9FLl8QCyJP2GO49+HGddIy3tB
-         qcBPzM0jGrVRNPnx2bA2hWtkl3FN/bYFCY82apWOor+Vmj2Kko1FsOr4n9l2UygSpFtm
-         xUHhzu3+Sm3yXXpoxSQgS/2A2ma9K4bbUXv80oZWZyqaG+tvI/85ej9C/UWzQsBBnurn
-         9oCQ==
-X-Gm-Message-State: AFqh2komhOCdswlOE73v8E+QXZUY6Ge6g9HKAaT04xHi+XK2aNWXYiJR
-        qnC4LRHMdEE/pqYLKFskyCmPmE3BTD9K4JM=
-X-Google-Smtp-Source: AMrXdXsNa09AO4Arg6ZBRXKwo+WF/qUZjQHNXFX5rA6KWe8BFUhOpIiYlW4PW5subPRyzOFWH3Ah7qsET8UrWsU=
-X-Received: from tj.c.googlers.com ([fda3:e722:ac3:cc00:20:ed76:c0a8:53a])
- (user=tjmercier job=sendgmr) by 2002:aa7:8a0b:0:b0:58d:bffa:db35 with SMTP id
- m11-20020aa78a0b000000b0058dbffadb35mr2968935pfa.34.1674501496540; Mon, 23
- Jan 2023 11:18:16 -0800 (PST)
-Date:   Mon, 23 Jan 2023 19:17:26 +0000
-In-Reply-To: <20230123191728.2928839-1-tjmercier@google.com>
-Mime-Version: 1.0
-References: <20230123191728.2928839-1-tjmercier@google.com>
-X-Mailer: git-send-email 2.39.0.246.g2a6d74b583-goog
-Message-ID: <20230123191728.2928839-5-tjmercier@google.com>
-Subject: [PATCH v2 4/4] security: binder: Add binder object flags to selinux_binder_transfer_file
-From:   "T.J. Mercier" <tjmercier@google.com>
-To:     tjmercier@google.com,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     hannes@cmpxchg.org, daniel.vetter@ffwll.ch, android-mm@google.com,
-        jstultz@google.com, jeffv@google.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        cgroups@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
+         :user-agent:references:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gojuXeiAJOSy3/DtsptehDxMc4WEvKVnWFIlQO9sDIA=;
+        b=GsCCYzvDbEvgM7n2MT4u/JUuBh79Mxg3VC2bhNceelOnlMZyxyJ45yf061D1UD6C/K
+         uoUDGNGhtZzOa/xNFssTCXv7wgQU0scjfnPpgIlWGKI59VWJAHvrO/Eid8ZfnxUTapWR
+         iGc4oevjjXKIvM3TtUEbkqiSsRoaZga+K7tm+bW+rlP8Up4tNShs1odPBW+MZGT5wAn3
+         HrjAMGA8ErggzyJA7L7yNbdVaLXYxWwz1lX7BkHUzoStVTLWN7wfx2IE15knHC/6nGdD
+         PoipDdup2cCcGMYjjIpy0cq8bBFVGfd2hXQN4r/BSzrUeRlkuVjGGrlsgZzJ6bcU/VaV
+         crMA==
+X-Gm-Message-State: AFqh2kq46DzPn6DHTAJBAtwdBKbtbpjaX6EcPaxwtB18MnjzyZWf4DcB
+        BkaqxB2WGykEHkVOOMyFPmCUeQ==
+X-Google-Smtp-Source: AMrXdXuUhT6YpTwL5XRzeyScmly38+amMVg3l0LQR1ZRnS4Rn2MqWkt7NgyMKqyMaHt3bl7Xtm3gtg==
+X-Received: by 2002:a17:906:7f0c:b0:877:77f5:a8e2 with SMTP id d12-20020a1709067f0c00b0087777f5a8e2mr16424827ejr.63.1674506878499;
+        Mon, 23 Jan 2023 12:47:58 -0800 (PST)
+Received: from cloudflare.com (79.191.179.97.ipv4.supernova.orange.pl. [79.191.179.97])
+        by smtp.gmail.com with ESMTPSA id e11-20020a056402148b00b0048ebe118a46sm171996edv.77.2023.01.23.12.47.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Jan 2023 12:47:58 -0800 (PST)
+References: <20221221-sockopt-port-range-v4-1-d7d2f2561238@cloudflare.com>
+ <20230123175526.59356-1-kuniyu@amazon.com>
+User-agent: mu4e 1.6.10; emacs 28.2
+From:   Jakub Sitnicki <jakub@cloudflare.com>
+To:     Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc:     davem@davemloft.net, edumazet@google.com, eparis@parisplace.org,
+        kernel-team@cloudflare.com, kuba@kernel.org, marek@cloudflare.com,
+        ncardwell@google.com, netdev@vger.kernel.org, pabeni@redhat.com,
+        paul@paul-moore.com, selinux@vger.kernel.org,
+        stephen.smalley.work@gmail.com
+Subject: Re: [PATCH net-next v4 1/2] inet: Add IP_LOCAL_PORT_RANGE socket
+ option
+Date:   Mon, 23 Jan 2023 21:46:45 +0100
+In-reply-to: <20230123175526.59356-1-kuniyu@amazon.com>
+Message-ID: <87zga9vuyr.fsf@cloudflare.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Any process can cause a memory charge transfer to occur to any other
-process when transmitting a file descriptor through binder. This should
-only be possible for central allocator processes, so the binder object
-flags are added to the security_binder_transfer_file hook so that LSMs
-can enforce restrictions on charge transfers.
+On Mon, Jan 23, 2023 at 09:55 AM -08, Kuniyuki Iwashima wrote:
 
-Signed-off-by: T.J. Mercier <tjmercier@google.com>
----
- drivers/android/binder.c            |  2 +-
- include/linux/lsm_hook_defs.h       |  2 +-
- include/linux/lsm_hooks.h           |  5 ++++-
- include/linux/security.h            |  6 ++++--
- security/security.c                 |  4 ++--
- security/selinux/hooks.c            | 13 ++++++++++++-
- security/selinux/include/classmap.h |  2 +-
- 7 files changed, 25 insertions(+), 9 deletions(-)
+[...]
 
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 5e707974793f..7b1bb23b6b79 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2270,7 +2270,7 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset, __u32 flags,
- 		ret = -EBADF;
- 		goto err_fget;
- 	}
--	ret = security_binder_transfer_file(proc->cred, target_proc->cred, file);
-+	ret = security_binder_transfer_file(proc->cred, target_proc->cred, file, flags);
- 	if (ret < 0) {
- 		ret = -EPERM;
- 		goto err_security;
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index ed6cb2ac55fa..84ee61089f7b 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -32,7 +32,7 @@ LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
- LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
- 	 const struct cred *to)
- LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
--	 const struct cred *to, struct file *file)
-+	 const struct cred *to, struct file *file, u32 binder_object_flags)
- LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
- 	 unsigned int mode)
- LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 0a5ba81f7367..d57977336ae8 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1381,9 +1381,12 @@
-  *	Return 0 if permission is granted.
-  * @binder_transfer_file:
-  *	Check whether @from is allowed to transfer @file to @to.
-+ *	If @binder_object_flags indicates a memory charge transfer for @file, then
-+ *	permission for the charge transfer can be checked as well.
-  *	@from contains the struct cred for the sending process.
-- *	@file contains the struct file being transferred.
-  *	@to contains the struct cred for the receiving process.
-+ *	@file contains the struct file being transferred.
-+ *	@binder_object_flags contains the flags associated with the binder object.
-  *	Return 0 if permission is granted.
-  *
-  * @ptrace_access_check:
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 5b67f208f7de..c4b80fc8d104 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -269,7 +269,8 @@ int security_binder_transaction(const struct cred *from,
- int security_binder_transfer_binder(const struct cred *from,
- 				    const struct cred *to);
- int security_binder_transfer_file(const struct cred *from,
--				  const struct cred *to, struct file *file);
-+				  const struct cred *to, struct file *file,
-+				  u32 binder_object_flags);
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
- int security_ptrace_traceme(struct task_struct *parent);
- int security_capget(struct task_struct *target,
-@@ -542,7 +543,8 @@ static inline int security_binder_transfer_binder(const struct cred *from,
- 
- static inline int security_binder_transfer_file(const struct cred *from,
- 						const struct cred *to,
--						struct file *file)
-+						struct file *file,
-+						u32 binder_object_flags)
- {
- 	return 0;
- }
-diff --git a/security/security.c b/security/security.c
-index d1571900a8c7..12ccaca744c0 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -796,9 +796,9 @@ int security_binder_transfer_binder(const struct cred *from,
- }
- 
- int security_binder_transfer_file(const struct cred *from,
--				  const struct cred *to, struct file *file)
-+				  const struct cred *to, struct file *file, u32 binder_object_flags)
- {
--	return call_int_hook(binder_transfer_file, 0, from, to, file);
-+	return call_int_hook(binder_transfer_file, 0, from, to, file, binder_object_flags);
- }
- 
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode)
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3c5be76a9199..d4cfca3c9a3b 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -88,6 +88,7 @@
- #include <linux/bpf.h>
- #include <linux/kernfs.h>
- #include <linux/stringhash.h>	/* for hashlen_string() */
-+#include <uapi/linux/android/binder.h>
- #include <uapi/linux/mount.h>
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
-@@ -2029,7 +2030,8 @@ static int selinux_binder_transfer_binder(const struct cred *from,
- 
- static int selinux_binder_transfer_file(const struct cred *from,
- 					const struct cred *to,
--					struct file *file)
-+					struct file *file,
-+					u32 binder_object_flags)
- {
- 	u32 sid = cred_sid(to);
- 	struct file_security_struct *fsec = selinux_file(file);
-@@ -2038,6 +2040,15 @@ static int selinux_binder_transfer_file(const struct cred *from,
- 	struct common_audit_data ad;
- 	int rc;
- 
-+	if (binder_object_flags & BINDER_FD_FLAG_XFER_CHARGE) {
-+		rc = avc_has_perm(&selinux_state,
-+			    cred_sid(from), sid,
-+			    SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
-+			    NULL);
-+		if (rc)
-+			return rc;
-+	}
-+
- 	ad.type = LSM_AUDIT_DATA_PATH;
- 	ad.u.path = file->f_path;
- 
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index a3c380775d41..2eef180d10d7 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -172,7 +172,7 @@ const struct security_class_mapping secclass_map[] = {
- 	{ "tun_socket",
- 	  { COMMON_SOCK_PERMS, "attach_queue", NULL } },
- 	{ "binder", { "impersonate", "call", "set_context_mgr", "transfer",
--		      NULL } },
-+		      "transfer_charge", NULL } },
- 	{ "cap_userns",
- 	  { COMMON_CAP_PERMS, NULL } },
- 	{ "cap2_userns",
--- 
-2.39.0.246.g2a6d74b583-goog
+>
+> Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+>
+> In case you might forgot this comment, but the patch looks good to me.
+> https://lore.kernel.org/netdev/20230111005923.47037-1-kuniyu@amazon.com/
 
+Sorry, it has slipped my mind. I'll apply it in v5.
+
+Thank you for reviewing.
