@@ -2,86 +2,160 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE641C05027
-	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 17:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1E1C38142
+	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 19:17:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233030AbjAWR7W (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Jan 2023 12:59:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37544 "EHLO
+        id S229436AbjAWTR4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Jan 2023 14:17:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232991AbjAWR7V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 12:59:21 -0500
-Received: from smtp-fw-80006.amazon.com (smtp-fw-80006.amazon.com [99.78.197.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA81323D88;
-        Mon, 23 Jan 2023 09:59:20 -0800 (PST)
+        with ESMTP id S232000AbjAWTRy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 14:17:54 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DB85BA9
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 11:17:50 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id k15-20020a5b0a0f000000b007eba3f8e3baso13943625ybq.4
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 11:17:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1674496761; x=1706032761;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=aRUhNZ1PtjPVr9/xhqe2b6LeA819tujJz2Eu6VPZCHE=;
-  b=ZKx1NkvdD9m+Gxb3F4HsJA4JtrXKjxTxFl0DUOCb5lTcFMRAEN06y6ba
-   7nyXaVBTU07WyhJCoTFSxbOQjgNF4yis3zNOmRUGJRZ3ympiKHJdQJFoE
-   n5KjsQZbumarL9X8A2vG1E22Jcyr7Y3rwuNw7uX2oxEPlASrdTpfwqzjp
-   o=;
-X-IronPort-AV: E=Sophos;i="5.97,240,1669075200"; 
-   d="scan'208";a="174101634"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-m6i4x-3e1fab07.us-east-1.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-80006.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2023 17:59:11 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1e-m6i4x-3e1fab07.us-east-1.amazon.com (Postfix) with ESMTPS id 8015086770;
-        Mon, 23 Jan 2023 17:59:06 +0000 (UTC)
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.45; Mon, 23 Jan 2023 17:59:04 +0000
-Received: from 88665a182662.ant.amazon.com.com (10.43.160.120) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.7;
- Mon, 23 Jan 2023 17:59:01 +0000
-From:   Kuniyuki Iwashima <kuniyu@amazon.com>
-To:     <jakub@cloudflare.com>
-CC:     <davem@davemloft.net>, <edumazet@google.com>,
-        <eparis@parisplace.org>, <kernel-team@cloudflare.com>,
-        <kuba@kernel.org>, <kuniyu@amazon.com>, <marek@cloudflare.com>,
-        <ncardwell@google.com>, <netdev@vger.kernel.org>,
-        <pabeni@redhat.com>, <paul@paul-moore.com>,
-        <selinux@vger.kernel.org>, <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH net-next v4 2/2] selftests/net: Cover the IP_LOCAL_PORT_RANGE socket option
-Date:   Mon, 23 Jan 2023 09:58:52 -0800
-Message-ID: <20230123175852.59621-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20221221-sockopt-port-range-v4-2-d7d2f2561238@cloudflare.com>
-References: <20221221-sockopt-port-range-v4-2-d7d2f2561238@cloudflare.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.160.120]
-X-ClientProxiedBy: EX13D43UWA003.ant.amazon.com (10.43.160.9) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=N+YvoWM7hVZLP7f3mNekEgTLNrfGSz/VUTj8ZELQtN0=;
+        b=btfBgj1oagL/EjdEgeCa/LpL00/84F14njHYxfZbVx8eK5EnmK1Ttj9sO31U4EmSM8
+         1MznIrLgPijCnSyvvb8XtI6YXLZ78NHWa/H/mNm31bw5LcdVJksSSGGO2dzPHlgU3buz
+         /p9eEQbQt8x8MWRR7X+Ry+0Y58RX018tAsy1ZXD0QRf9P7CPtLAoftSzjvCACGDXGEgM
+         o15+ngRvubcFDwfKC4626oWwr6aoB3/30CZULYiYPJpCKGXHpUDBYU1vHVotztxTUlup
+         U435Wlbrn0vhCQELYo1hK06QeiCc3qfIoJ83+mV0bqqYDPZ4ySJ6H5OvU4sUwT2bCQY8
+         tDxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=N+YvoWM7hVZLP7f3mNekEgTLNrfGSz/VUTj8ZELQtN0=;
+        b=KhX85Eu+4HafF39bcB94YsLw+7olbWJD7C+tSu3yu4zkRNsJvoIb6JTbNEI7blylUB
+         ZmGOJRKE72HX5nKaojBZo4/ThZ6aNC+AEdWqUTM1kUdCQv4AiHocO/Tq6+Oj/e5ojG/z
+         elklihrpH8dsyeL6gP8KtFJlOGxpxCdduWipziyKzifVHpzJdqXSxfEuoksDb5oPB+CV
+         V+nDqKCouDiz9t192hwqH0f9DnKjJcR+T3nRlyXwQrtEebceRRJbVyXxziX6jVtTE842
+         KPD92KKURv+/Bw+FHnfm2nlptAnnJ17FbVl+X2Ptn5fVVo9EtnybwDEqiZuQYuZjYe7U
+         Hqbg==
+X-Gm-Message-State: AFqh2kotssQ9VN+dPeilxv0iXM9hxgBDKXEbq+fP+O+R4OKhEZXXIOgZ
+        twnylIZLg+OqkrB0qlTsGXtPAvwl1a6L3Rg=
+X-Google-Smtp-Source: AMrXdXtnP/Gl6EBzYGNvoAMXHOPKf8g2vx7ry4RLQdGRDJzjzoV9sc3vvEsAv/i0LJexRseYywCPKePifcMKipA=
+X-Received: from tj.c.googlers.com ([fda3:e722:ac3:cc00:20:ed76:c0a8:53a])
+ (user=tjmercier job=sendgmr) by 2002:a25:bdca:0:b0:7ca:14e:be6d with SMTP id
+ g10-20020a25bdca000000b007ca014ebe6dmr3007629ybk.415.1674501470074; Mon, 23
+ Jan 2023 11:17:50 -0800 (PST)
+Date:   Mon, 23 Jan 2023 19:17:22 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.0.246.g2a6d74b583-goog
+Message-ID: <20230123191728.2928839-1-tjmercier@google.com>
+Subject: [PATCH v2 0/4] Track exported dma-buffers with memcg
+From:   "T.J. Mercier" <tjmercier@google.com>
+To:     tjmercier@google.com, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "=?UTF-8?q?Arve=20Hj=C3=B8nnev=C3=A5g?=" <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        "=?UTF-8?q?Christian=20K=C3=B6nig?=" <christian.koenig@amd.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Shakeel Butt <shakeelb@google.com>,
+        Muchun Song <muchun.song@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
+        jeffv@google.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, cgroups@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From:   Jakub Sitnicki <jakub@cloudflare.com>
-Date:   Mon, 23 Jan 2023 15:44:40 +0100
-> Exercise IP_LOCAL_PORT_RANGE socket option in various scenarios:
-> 
-> 1. pass invalid values to setsockopt
-> 2. pass a range outside of the per-netns port range
-> 3. configure a single-port range
-> 4. exhaust a configured multi-port range
-> 5. check interaction with late-bind (IP_BIND_ADDRESS_NO_PORT)
-> 6. set then get the per-socket port range
-> 
-> v2 -> v3:
->  * Switch from CPP-based templates to FIXTURE_VARIANT. (Kuniyuki)
->  * Cover SOCK_STREAM/IPPROTO_SCTP where possible.
-> 
-> v1 -> v2:
->  * selftests: Instead of iterating over socket families (ip4, ip6) and types
->    (tcp, udp), generate tests for each combo from a template. This keeps the
->    code indentation level down and makes tests more granular.
-> 
-> Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Based on discussions at LPC, this series adds a memory.stat counter for
+exported dmabufs. This counter allows us to continue tracking
+system-wide total exported buffer sizes which there is no longer any
+way to get without DMABUF_SYSFS_STATS, and adds a new capability to
+track per-cgroup exported buffer sizes. The total (root counter) is
+helpful for accounting in-kernel dmabuf use (by comparing with the sum
+of child nodes or with the sum of sizes of mapped buffers or FD
+references in procfs) in addition to helping identify driver memory
+leaks when in-kernel use continually increases over time. With
+per-application cgroups, the per-cgroup counter allows us to quickly
+see how much dma-buf memory an application has caused to be allocated.
+This avoids the need to read through all of procfs which can be a
+lengthy process, and causes the charge to "stick" to the allocating
+process/cgroup as long as the buffer is alive, regardless of how the
+buffer is shared (unless the charge is transferred).
 
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+The first patch adds the counter to memcg. The next two patches allow
+the charge for a buffer to be transferred across cgroups which is
+necessary because of the way most dmabufs are allocated from a central
+process on Android. The fourth patch adds the binder object flags to
+the existing selinux_binder_transfer_file LSM hook and a SELinux
+permission for charge transfers.
+
+[1] https://lore.kernel.org/all/20220617085702.4298-1-christian.koenig@amd.com/
+
+v2:
+Actually charge memcg vs just mutate the stat counter per Shakeel Butt
+and Michal Hocko. Shakeel pointed me at the skmem functions which
+turned out to be very similar to how I was thinking the dmabuf tracking
+should work. So I've added a pair of dmabuf functions that do
+essentially the same thing, except conditionally implemented behind
+CONFIG_MEMCG alongside the other charge/uncharge functions.
+
+Drop security_binder_transfer_charge per Casey Schaufler and Paul Moore
+
+Drop BINDER_FDA_FLAG_XFER_CHARGE (and fix commit message) per Carlos
+Llamas
+
+Don't expose is_dma_buf_file for use by binder per Hillf Danton
+
+Call dma_buf_stats_teardown in dma_buf_export error handling
+
+Rebase onto v6.2-rc5
+
+Hridya Valsaraju (1):
+  binder: Add flags to relinquish ownership of fds
+
+T.J. Mercier (3):
+  memcg: Track exported dma-buffers
+  dmabuf: Add cgroup charge transfer function
+  security: binder: Add binder object flags to
+    selinux_binder_transfer_file
+
+ Documentation/admin-guide/cgroup-v2.rst |  5 ++
+ drivers/android/binder.c                | 27 ++++++++--
+ drivers/dma-buf/dma-buf.c               | 69 +++++++++++++++++++++++++
+ include/linux/dma-buf.h                 |  4 ++
+ include/linux/lsm_hook_defs.h           |  2 +-
+ include/linux/lsm_hooks.h               |  5 +-
+ include/linux/memcontrol.h              | 43 +++++++++++++++
+ include/linux/security.h                |  6 ++-
+ include/uapi/linux/android/binder.h     | 19 +++++--
+ mm/memcontrol.c                         | 19 +++++++
+ security/security.c                     |  4 +-
+ security/selinux/hooks.c                | 13 ++++-
+ security/selinux/include/classmap.h     |  2 +-
+ 13 files changed, 201 insertions(+), 17 deletions(-)
+
+
+base-commit: 2241ab53cbb5cdb08a6b2d4688feb13971058f65
+-- 
+2.39.0.246.g2a6d74b583-goog
+
