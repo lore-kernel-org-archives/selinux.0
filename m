@@ -2,202 +2,157 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9FB5C05027
-	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 20:52:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 06E3CC05027
+	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 21:36:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231787AbjAWUw5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Jan 2023 15:52:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50478 "EHLO
+        id S232375AbjAWVgr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Jan 2023 16:36:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231664AbjAWUw4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 15:52:56 -0500
-Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 264AF83FA
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:52:55 -0800 (PST)
-Received: by mail-ej1-x635.google.com with SMTP id qx13so33759180ejb.13
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 12:52:55 -0800 (PST)
+        with ESMTP id S231640AbjAWVgq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 16:36:46 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91FC330285
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 13:36:44 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id lp10so9507118pjb.4
+        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 13:36:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
-         :user-agent:references:from:to:cc:subject:date:message-id:reply-to;
-        bh=B2jTAb1oXTdAbsv/PhUQDA2t9OjmC3jlZ/Up7f/pWKU=;
-        b=jW0s0g1XxO9KGNdD27NZOr1vjxGztnyb5NhxReZlz9dD7/M2h9FIK48bR9CozFDiM6
-         K+sgZQ25C5KZKfKjhujaErIzOJb2X3v5S5LSh6AJfLraCTqTj+/a98USghcJe3oNcqJi
-         a22GpVNLvhMRESCtMZw8MWemWWHyAkDA1mEeA=
+        d=paul-moore.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=yGXvyQjwLmOy53oIzm1ZLaTMK3/o09Vv8V+chgSLdeY=;
+        b=CcWptSLeFIccOdIwrrQruiIQVbfQw+qTyjT3yv+7o4oiOdtJnaGwyxjNF8KqV8JCPb
+         EtEuwCUakT7bXDWuTHstKBBxFfx/NFD6nI++Zxx33wEt2LsDHWWFbVo+nWs5aJpvgbDt
+         bcNjHlr2/smIeZ2DgR6hyv29jjDSqQQI+8Qj+9AAlhetLTyxbKX75Vw/uzLti5pjdjDD
+         1gqqU5UtNkfvmUk9ZygMGK8+1jwTN9eFYCq597DzigUSvomN5c9XhKqAjmlcR+BL0bRb
+         fkuAUTdTl6ZIMoENwrU3bfv6UbzvTXWAqgAlNJDWfnVuL4Hhf5bRgdVGoARAYxrNCCDe
+         ljRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
-         :user-agent:references:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B2jTAb1oXTdAbsv/PhUQDA2t9OjmC3jlZ/Up7f/pWKU=;
-        b=bqHyvbjvuGpyND4V1f5xwye4A5Fhoire+3ojaJe7dQMIJUfZ4Vyb6d8ZoN9jJYtE3l
-         UPz7qnTWo0eVGCexJGg6754joivXPTqw9LwMf5MZUN0qgHa3PoNOaVsZGdumEunzhcB0
-         cl/RIUJ6bBy+OieWiV4qhA4hg+CY0aAvJNjowPuBf3rW4yT7Ya3wJK9fnnZKyKizyAFd
-         ZNP3Hu7ubb70PRaIvPzoNXzdu/zFUYbkgt53kw2bWQPIJnd2fBeidB8KHBQf45uGVVpk
-         Sd0BwmO2vPpQ1/FF9N5YnPgwfoNAOFBltXEPj3a+rg1IjGTqVU85PvIVYp7fHjT8W0RL
-         b+Ug==
-X-Gm-Message-State: AFqh2kpuJjZCjFcvmmso7ujvVslxuHoUzaCzorEm43RGymXIthor3gVp
-        rjnfe9zlcIN5fT/UagOQo4xSxw==
-X-Google-Smtp-Source: AMrXdXtOL2cJ4qtQ+2T5p1tUsKu06PtI+IV4rmGD+Pr640npJ8at3e1sR9sZgTKDqoGlg3SX7iTagw==
-X-Received: by 2002:a17:906:71a:b0:7c1:6344:84a with SMTP id y26-20020a170906071a00b007c16344084amr27992626ejb.5.1674507173564;
-        Mon, 23 Jan 2023 12:52:53 -0800 (PST)
-Received: from cloudflare.com (79.191.179.97.ipv4.supernova.orange.pl. [79.191.179.97])
-        by smtp.gmail.com with ESMTPSA id l3-20020a17090615c300b008566b807d8asm18519099ejd.73.2023.01.23.12.52.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jan 2023 12:52:53 -0800 (PST)
-References: <20221221-sockopt-port-range-v4-0-d7d2f2561238@cloudflare.com>
- <20221221-sockopt-port-range-v4-1-d7d2f2561238@cloudflare.com>
- <Y87IRq1ITGcWIh3F@unreal>
-User-agent: mu4e 1.6.10; emacs 28.2
-From:   Jakub Sitnicki <jakub@cloudflare.com>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Neal Cardwell <ncardwell@google.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, kernel-team@cloudflare.com,
-        Marek Majkowski <marek@cloudflare.com>
-Subject: Re: [PATCH net-next v4 1/2] inet: Add IP_LOCAL_PORT_RANGE socket
- option
-Date:   Mon, 23 Jan 2023 21:48:06 +0100
-In-reply-to: <Y87IRq1ITGcWIh3F@unreal>
-Message-ID: <87sfg1vuqj.fsf@cloudflare.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yGXvyQjwLmOy53oIzm1ZLaTMK3/o09Vv8V+chgSLdeY=;
+        b=fRhXq7ZLHVeYqgOmJD5UdKv8vaqARErqXPjDpnKFCcp8aP8uGjf1d3nOVfo3MFWG8k
+         8W6b9ZSGzw2a21o8bD/9/qlQzolKXkIjIFunw3R2PenkyK9SfxLi52+dCZcSCxR4A86E
+         ybkAran0+6aLC547WiR5iH735EvpJSelCdwsgbF2IPl3cVqfon5ck9BoC8nUoTwH8UkJ
+         o+yRkcfwdnvMLRBgqR9KLcK8piooxGKsyzNLQoU9lz5wPzR3s4nW/74x/eou3LmmOGKC
+         +JXBDo50d1QqhTaFxq/xR/ZFlrGVeIUUhO+CiD9EvcrtvMjri5qfis+wxoJ1/JsXDkAo
+         9PqA==
+X-Gm-Message-State: AFqh2kqnrfQ5F4d6PBzeITggmLj9Z2Bc0p0VOVC0StRwdbfVA1HecSsH
+        RS9cDwQ0JNg2yIuA4f70Q0k7OoK3aB/MMW4azm8K
+X-Google-Smtp-Source: AMrXdXsTqILQIvoKLSzn2vsOwuLpTkEPmSgexyL8bv143mvjcjNDhObnaFgjhL7UQHe0gGX5etBgH6e4mhBUZDn4fO0=
+X-Received: by 2002:a17:90a:c784:b0:227:202b:8eaa with SMTP id
+ gn4-20020a17090ac78400b00227202b8eaamr2957806pjb.147.1674509804015; Mon, 23
+ Jan 2023 13:36:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <20230123191728.2928839-1-tjmercier@google.com> <20230123191728.2928839-5-tjmercier@google.com>
+In-Reply-To: <20230123191728.2928839-5-tjmercier@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 23 Jan 2023 16:36:32 -0500
+Message-ID: <CAHC9VhQtbTWXXy8mNxNDdukaAp6YB4CX5Xa6dvSZ_r4DhM2EXg@mail.gmail.com>
+Subject: Re: [PATCH v2 4/4] security: binder: Add binder object flags to selinux_binder_transfer_file
+To:     "T.J. Mercier" <tjmercier@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, hannes@cmpxchg.org,
+        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
+        jeffv@google.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, cgroups@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 23, 2023 at 07:47 PM +02, Leon Romanovsky wrote:
-> On Mon, Jan 23, 2023 at 03:44:39PM +0100, Jakub Sitnicki wrote:
->> Users who want to share a single public IP address for outgoing connections
->> between several hosts traditionally reach for SNAT. However, SNAT requires
->> state keeping on the node(s) performing the NAT.
->> 
->> A stateless alternative exists, where a single IP address used for egress
->> can be shared between several hosts by partitioning the available ephemeral
->> port range. In such a setup:
->> 
->> 1. Each host gets assigned a disjoint range of ephemeral ports.
->> 2. Applications open connections from the host-assigned port range.
->> 3. Return traffic gets routed to the host based on both, the destination IP
->>    and the destination port.
->> 
->> An application which wants to open an outgoing connection (connect) from a
->> given port range today can choose between two solutions:
->> 
->> 1. Manually pick the source port by bind()'ing to it before connect()'ing
->>    the socket.
->> 
->>    This approach has a couple of downsides:
->> 
->>    a) Search for a free port has to be implemented in the user-space. If
->>       the chosen 4-tuple happens to be busy, the application needs to retry
->>       from a different local port number.
->> 
->>       Detecting if 4-tuple is busy can be either easy (TCP) or hard
->>       (UDP). In TCP case, the application simply has to check if connect()
->>       returned an error (EADDRNOTAVAIL). That is assuming that the local
->>       port sharing was enabled (REUSEADDR) by all the sockets.
->> 
->>         # Assume desired local port range is 60_000-60_511
->>         s = socket(AF_INET, SOCK_STREAM)
->>         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
->>         s.bind(("192.0.2.1", 60_000))
->>         s.connect(("1.1.1.1", 53))
->>         # Fails only if 192.0.2.1:60000 -> 1.1.1.1:53 is busy
->>         # Application must retry with another local port
->> 
->>       In case of UDP, the network stack allows binding more than one socket
->>       to the same 4-tuple, when local port sharing is enabled
->>       (REUSEADDR). Hence detecting the conflict is much harder and involves
->>       querying sock_diag and toggling the REUSEADDR flag [1].
->> 
->>    b) For TCP, bind()-ing to a port within the ephemeral port range means
->>       that no connecting sockets, that is those which leave it to the
->>       network stack to find a free local port at connect() time, can use
->>       the this port.
->> 
->>       IOW, the bind hash bucket tb->fastreuse will be 0 or 1, and the port
->>       will be skipped during the free port search at connect() time.
->> 
->> 2. Isolate the app in a dedicated netns and use the use the per-netns
->>    ip_local_port_range sysctl to adjust the ephemeral port range bounds.
->> 
->>    The per-netns setting affects all sockets, so this approach can be used
->>    only if:
->> 
->>    - there is just one egress IP address, or
->>    - the desired egress port range is the same for all egress IP addresses
->>      used by the application.
->> 
->>    For TCP, this approach avoids the downsides of (1). Free port search and
->>    4-tuple conflict detection is done by the network stack:
->> 
->>      system("sysctl -w net.ipv4.ip_local_port_range='60000 60511'")
->> 
->>      s = socket(AF_INET, SOCK_STREAM)
->>      s.setsockopt(SOL_IP, IP_BIND_ADDRESS_NO_PORT, 1)
->>      s.bind(("192.0.2.1", 0))
->>      s.connect(("1.1.1.1", 53))
->>      # Fails if all 4-tuples 192.0.2.1:60000-60511 -> 1.1.1.1:53 are busy
->> 
->>   For UDP this approach has limited applicability. Setting the
->>   IP_BIND_ADDRESS_NO_PORT socket option does not result in local source
->>   port being shared with other connected UDP sockets.
->> 
->>   Hence relying on the network stack to find a free source port, limits the
->>   number of outgoing UDP flows from a single IP address down to the number
->>   of available ephemeral ports.
->> 
->> To put it another way, partitioning the ephemeral port range between hosts
->> using the existing Linux networking API is cumbersome.
->> 
->> To address this use case, add a new socket option at the SOL_IP level,
->> named IP_LOCAL_PORT_RANGE. The new option can be used to clamp down the
->> ephemeral port range for each socket individually.
->> 
->> The option can be used only to narrow down the per-netns local port
->> range. If the per-socket range lies outside of the per-netns range, the
->> latter takes precedence.
->> 
->> UAPI-wise, the low and high range bounds are passed to the kernel as a pair
->> of u16 values in host byte order packed into a u32. This avoids pointer
->> passing.
->> 
->>   PORT_LO = 40_000
->>   PORT_HI = 40_511
->> 
->>   s = socket(AF_INET, SOCK_STREAM)
->>   v = struct.pack("I", PORT_HI << 16 | PORT_LO)
->>   s.setsockopt(SOL_IP, IP_LOCAL_PORT_RANGE, v)
->>   s.bind(("127.0.0.1", 0))
->>   s.getsockname()
->>   # Local address between ("127.0.0.1", 40_000) and ("127.0.0.1", 40_511),
->>   # if there is a free port. EADDRINUSE otherwise.
->> 
->> [1] https://github.com/cloudflare/cloudflare-blog/blob/232b432c1d57/2022-02-connectx/connectx.py#L116
->> 
->> v3 -> v4:
->>  * Clarify that u16 values are in host byte order (Neal)
->> 
->> v2 -> v3:
->>  * Make SCTP bind()/bind_add() respect IP_LOCAL_PORT_RANGE option (Eric)
->> 
->> v1 -> v2:
->>  * Fix the corner case when the per-socket range doesn't overlap with the
->>    per-netns range. Fallback correctly to the per-netns range. (Kuniyuki)
+On Mon, Jan 23, 2023 at 2:18 PM T.J. Mercier <tjmercier@google.com> wrote:
 >
-> Please put changelog after "---" trailer, so it will be stripped while
-> applying patch.
+> Any process can cause a memory charge transfer to occur to any other
+> process when transmitting a file descriptor through binder. This should
+> only be possible for central allocator processes, so the binder object
+> flags are added to the security_binder_transfer_file hook so that LSMs
+> can enforce restrictions on charge transfers.
+>
+> Signed-off-by: T.J. Mercier <tjmercier@google.com>
+> ---
+>  drivers/android/binder.c            |  2 +-
+>  include/linux/lsm_hook_defs.h       |  2 +-
+>  include/linux/lsm_hooks.h           |  5 ++++-
+>  include/linux/security.h            |  6 ++++--
+>  security/security.c                 |  4 ++--
+>  security/selinux/hooks.c            | 13 ++++++++++++-
+>  security/selinux/include/classmap.h |  2 +-
+>  7 files changed, 25 insertions(+), 9 deletions(-)
 
-I've put the changelog above the "---" on purpose. AFAIK, it is (was?)
-preferred by netdev maintainers to keep the changelog in the
-description.
+...
 
-Do you know if this convention is now a thing of the past? I might have
-missed something.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3c5be76a9199..d4cfca3c9a3b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -88,6 +88,7 @@
+>  #include <linux/bpf.h>
+>  #include <linux/kernfs.h>
+>  #include <linux/stringhash.h>  /* for hashlen_string() */
+> +#include <uapi/linux/android/binder.h>
+>  #include <uapi/linux/mount.h>
+>  #include <linux/fsnotify.h>
+>  #include <linux/fanotify.h>
+> @@ -2029,7 +2030,8 @@ static int selinux_binder_transfer_binder(const struct cred *from,
+>
+>  static int selinux_binder_transfer_file(const struct cred *from,
+>                                         const struct cred *to,
+> -                                       struct file *file)
+> +                                       struct file *file,
+> +                                       u32 binder_object_flags)
+>  {
+>         u32 sid = cred_sid(to);
+>         struct file_security_struct *fsec = selinux_file(file);
+> @@ -2038,6 +2040,15 @@ static int selinux_binder_transfer_file(const struct cred *from,
+>         struct common_audit_data ad;
+>         int rc;
+>
+> +       if (binder_object_flags & BINDER_FD_FLAG_XFER_CHARGE) {
+> +               rc = avc_has_perm(&selinux_state,
+> +                           cred_sid(from), sid,
+> +                           SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
+> +                           NULL);
+> +               if (rc)
+> +                       return rc;
+> +       }
+> +
+>         ad.type = LSM_AUDIT_DATA_PATH;
+>         ad.u.path = file->f_path;
+>
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index a3c380775d41..2eef180d10d7 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -172,7 +172,7 @@ const struct security_class_mapping secclass_map[] = {
+>         { "tun_socket",
+>           { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+>         { "binder", { "impersonate", "call", "set_context_mgr", "transfer",
+> -                     NULL } },
+> +                     "transfer_charge", NULL } },
+>         { "cap_userns",
+>           { COMMON_CAP_PERMS, NULL } },
+>         { "cap2_userns",
+
+My first take on reading these changes above is that you've completely
+ignored my previous comments about SELinux access controls around
+resource management.  You've leveraged the existing LSM/SELinux hook
+as we discussed previously, that's good, but can you explain what
+changes you've made to address my concerns about one-off resource
+management controls?
+
+-- 
+paul-moore.com
