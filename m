@@ -2,134 +2,106 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB00C25B4E
-	for <selinux@archiver.kernel.org>; Tue, 24 Jan 2023 18:56:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCC86C25B4E
+	for <selinux@archiver.kernel.org>; Tue, 24 Jan 2023 19:40:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234387AbjAXS42 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Jan 2023 13:56:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S233062AbjAXTkW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Jan 2023 14:40:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234345AbjAXS40 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Jan 2023 13:56:26 -0500
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 283EE3E63E
-        for <selinux@vger.kernel.org>; Tue, 24 Jan 2023 10:55:59 -0800 (PST)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-4b718cab0e4so231655797b3.9
-        for <selinux@vger.kernel.org>; Tue, 24 Jan 2023 10:55:59 -0800 (PST)
+        with ESMTP id S235126AbjAXTkI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Jan 2023 14:40:08 -0500
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3674093E0
+        for <selinux@vger.kernel.org>; Tue, 24 Jan 2023 11:39:21 -0800 (PST)
+Received: by mail-pg1-x532.google.com with SMTP id g68so11981232pgc.11
+        for <selinux@vger.kernel.org>; Tue, 24 Jan 2023 11:39:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=5iP8zaH4qhJm7u23Me24MfP0ksC5myih/koifVjd6bQ=;
-        b=L97ftDdvRyPqQWji9bbudEKZD0LDLmKOVOT0VCiZU2LCV4qkff4lF/IdPTXrUURWIL
-         ff9SdNebMBFiJK7tO0W11Q1G3UAXgTPUqwqhK5wAl6n35fMRrabPmvj7OKd4VEXabKNe
-         fPfG1+wRSo+CGN8gb1ygCJ4/kEeW/hVXaBUNrg4mvfNQT/BKe7VDh8MR1pAOAXvVpeRH
-         iSMTwWB8dLyPnn97HzVO9MptWE6TkOpSAkEtIzxtQqNOTsOqkk7JQsVXrGtclwnaZu3B
-         HwIb13tYMPFn1tPWBxylMI8CnFv9i3PBeFrmGSlZCW+l6NJP5u3gl1vi0n9snU8rYOV/
-         xPKA==
+        d=paul-moore.com; s=google;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=f6OPaQLzgGTTjs3xmj3EjeSUakEUdKxMuCPF6eXnllA=;
+        b=G093g5CMO1J93xoHm31xcfvyq0oYfEi645v6xyFdaBsdEdIsuNzmqnyniL3e4rIR68
+         xZ9SpQS/nP2Fsrq806K63+rXdYp2XhCIxjVhAJA9lH6atOfsCJGEQEjnyBu1N6lSAjKH
+         vJMatuAgrVqNEVPPMFioSNACAd715D7qqycwO0Y6RcrkjFQD/j2Woq3VWYtvzfOuymPk
+         gFVnAvnP+4tsD8440/oixa63GSy+mVWzy2EGUimclEuxraL/mucxWrvje9RCQIfs5w7G
+         rZudkIvLQBDsfJMOPmh84L5vjO/rdCteNrEwIviWXvuJyOM6e2IFGHkTCpCyRtbt0U/7
+         ESEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5iP8zaH4qhJm7u23Me24MfP0ksC5myih/koifVjd6bQ=;
-        b=V1am9Q8kChArduFQJ06TQVG7igJP+r+DKgqAV/dpIhpsP03RzHhbbSA+q1eNfuMswl
-         /bHJ/bLO5t+cBPvnlfKJ2naw97xL1gwEYvCq8+e+f5HuW02l8uu9HZOqevUPdlwPDLAF
-         KYogRTkzIsZXtHswKiS0mmd/WlgwAg0LCZkVS65nqkpgZgyKDeaRv9qbcToWXxqAzwh/
-         RM26pR8M7uiV1HcTdMSKm35eWSVJXBVUE/f01hTj+h9BPhACiJxPcH0EH3YqAddseyww
-         7VG2td2dkd/juwkH8/ME5Kf1RogXT4iiEdVfZxaJhjSv4hx2Fyqa8HffwFrsXTGA4gzL
-         UDuA==
-X-Gm-Message-State: AFqh2kpZY8jyg0Efs7YhGv5YTfuLH6Vua3/aEHQXQ3zTPPl345V8eMRK
-        2a+qHGhSHlOfEtodSWWMzaKG+dTUhbikAlYlSoTJnw==
-X-Google-Smtp-Source: AMrXdXvYfqSwoaAvj+x6Y8rOABSC1o3UELoBjL8mxdEcOy8itZdY1Gyy4qtRJtS0OI19YGFM9lWbjo9sqQUT8b8rESs=
-X-Received: by 2002:a81:ee03:0:b0:4ec:8f55:59f7 with SMTP id
- l3-20020a81ee03000000b004ec8f5559f7mr3333976ywm.317.1674586532265; Tue, 24
- Jan 2023 10:55:32 -0800 (PST)
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=f6OPaQLzgGTTjs3xmj3EjeSUakEUdKxMuCPF6eXnllA=;
+        b=ao8bAQP1tzx3YiT5JBkBPrxznpz4t/v3+0zzp6MwgPHcgD7rXE6YD/eLOkz9weWv6l
+         tg6M9mo17hTlE9pmJuQbp8qWo+M2IHSCzhkDLLBrnSV3bpgY4EGNBOcaBAgH9yQbwf6e
+         wzoGj3U/DYqRIlCY5vcAU6aqDMu2nyfqrM5LbkrLvF36H0CeLkQqEQNwpdZ+CLaAryVs
+         GsVISgPDWyXt3sesl5UTiWr/s4EpYWir63OqM+9e/6b2OHFxhZlju78eApnPvC9xbgoO
+         5a4rpX/VPaDuQ7Klo/J/gXer0x8I8oe7ytCYuK22130+Cn7l3PGZ1r2zGzQoH83Dn+Lk
+         vT4g==
+X-Gm-Message-State: AFqh2koKOrY2qIA95acvSGoVVkdioqM+SA6TalvKK3nwsHfkPXLxXB/g
+        qtjKdMFw2/FGMwuq5gyn4JcB/BBCDo+TUTntZt9UtKOstTO0JMw=
+X-Google-Smtp-Source: AMrXdXtdY2lth0GX8JmaP3euNTUE9vfDdN9cLQ1cFHMko4/ic4tVaqR8PNdwL1e8jWnIVD8dhCLcE1CB48G3sOVyplQ=
+X-Received: by 2002:a05:6a00:f07:b0:577:62a8:f7a1 with SMTP id
+ cr7-20020a056a000f0700b0057762a8f7a1mr3100614pfb.2.1674589160303; Tue, 24 Jan
+ 2023 11:39:20 -0800 (PST)
 MIME-Version: 1.0
-References: <20230123191728.2928839-1-tjmercier@google.com>
- <20230123191728.2928839-2-tjmercier@google.com> <Y8/ybgp2FW+e3bjc@dhcp22.suse.cz>
-In-Reply-To: <Y8/ybgp2FW+e3bjc@dhcp22.suse.cz>
-From:   "T.J. Mercier" <tjmercier@google.com>
-Date:   Tue, 24 Jan 2023 10:55:21 -0800
-Message-ID: <CABdmKX1c_8LdJJboENnZhwGjrszDWOOVt-Do93-sJW46mZMD6A@mail.gmail.com>
-Subject: Re: [PATCH v2 1/4] memcg: Track exported dma-buffers
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Shakeel Butt <shakeelb@google.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
-        jeffv@google.com, cmllamas@google.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        cgroups@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-        linux-mm@kvack.org
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 24 Jan 2023 14:39:09 -0500
+Message-ID: <CAHC9VhS1tSbP8s4QzVPB42O6_3wGX47=9HXBSyqwnHrW47965w@mail.gmail.com>
+Subject: selinux-testsuite broken pipe noise
+To:     selinux@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 24, 2023 at 7:00 AM Michal Hocko <mhocko@suse.com> wrote:
->
-> On Mon 23-01-23 19:17:23, T.J. Mercier wrote:
-> > When a buffer is exported to userspace, use memcg to attribute the
-> > buffer to the allocating cgroup until all buffer references are
-> > released.
->
-> Is there any reason why this memory cannot be charged during the
-> allocation (__GFP_ACCOUNT used)?
+When running the selinux-testsuite manually today I noticed the
+following noise in the filesystem tests:
 
-My main motivation was to keep code changes away from exporters and
-implement the accounting in one common spot for all of them. This is a
-bit of a carryover from a previous approach [1] where there was some
-objection to pushing off this work onto exporters and forcing them to
-adapt, but __GFP_ACCOUNT does seem like a smaller burden than before
-at least initially. However in order to support charge transfer
-between cgroups with __GFP_ACCOUNT we'd need to be able to get at the
-pages backing dmabuf objects, and the exporters are the ones with that
-access. Meaning I think we'd have to add some additional dma_buf_ops
-to achieve that, which was the objection from [1].
+% make test
+...
+chmod +x */test
+chcon -R -t test_file_t .
+Running as user root with context unconfined_u:unconfined_r:unconfined_t
 
-[1] https://lore.kernel.org/lkml/5cc27a05-8131-ce9b-dea1-5c75e994216d@amd.com/
+domain_trans/test ........... ok
+entrypoint/test ............. ok
+...
+perf_event/test ............. ok
+filesystem/ext4/test ........ 1/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 14/76 yes: standard output: Broken pipe
+filesystem/ext4/test ........ 20/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 22/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 24/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 30/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 34/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 40/76 yes: standard output: Broken pipe
+filesystem/ext4/test ........ 43/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 49/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 55/76 yes: standard output: Broken pipe
+yes: standard output: Broken pipe
+filesystem/ext4/test ........ 64/76 yes: standard output: Broken pipe
+filesystem/ext4/test ........ ok
 
->
-> Also you do charge and account the memory but underlying pages do not
-> know about their memcg (this is normally done with commit_charge for
-> user mapped pages). This would become a problem if the memory is
-> migrated for example.
+The test system was an updated Rawhide system with the following details:
 
-Hmm, what problem do you see in this situation? If the backing pages
-are to be migrated that requires the cooperation of the exporter,
-which currently has no influence on how the cgroup charging is done
-and that seems fine. (Unless you mean migrating the charge across
-cgroups? In which case that's the next patch.)
+% uname -r
+6.2.0-0.rc5.20230123git2475bf02.38.1.secnext.fc38.x86_64
+% rpm -q selinux-policy
+selinux-policy-38.5-1.fc38.noarch
 
-> This also means that you have to maintain memcg
-> reference outside of the memcg proper which is not really nice either.
-> This mimicks tcp kmem limit implementation which I really have to say I
-> am not a great fan of and this pattern shouldn't be coppied.
->
-Ah, what can I say. This way looked simple to me. I think otherwise
-we're back to making all exporters do more stuff for the accounting.
+... and my selinux-testsuite build should be current:
 
-> Also you are not really saying anything about the oom behavior. With
-> this implementation the kernel will try to reclaim the memory and even
-> trigger the memcg oom killer if the request size is <= 8 pages. Is this
-> a desirable behavior?
+% git log --oneline | head -n 1
+2cc067f ci: limit VM reboot time to 5 minutes
 
-It will try to reclaim some memory, but not the dmabuf pages right?
-Not *yet* anyway. This behavior sounds expected to me. I would only
-expect it to be surprising for cgroups making heavy use of dmabufs
-(that weren't accounted before) *and* with hard limits already very
-close to actual usage. I remember Johannes mentioning that what counts
-under memcg use is already a bit of a moving target.
-
-> --
-> Michal Hocko
-> SUSE Labs
+-- 
+paul-moore.com
