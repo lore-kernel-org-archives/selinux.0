@@ -2,157 +2,81 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06E3CC05027
-	for <selinux@archiver.kernel.org>; Mon, 23 Jan 2023 21:36:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF5FCC05027
+	for <selinux@archiver.kernel.org>; Tue, 24 Jan 2023 03:35:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232375AbjAWVgr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Jan 2023 16:36:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
+        id S232062AbjAXDfd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Jan 2023 22:35:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231640AbjAWVgq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 16:36:46 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91FC330285
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 13:36:44 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id lp10so9507118pjb.4
-        for <selinux@vger.kernel.org>; Mon, 23 Jan 2023 13:36:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=yGXvyQjwLmOy53oIzm1ZLaTMK3/o09Vv8V+chgSLdeY=;
-        b=CcWptSLeFIccOdIwrrQruiIQVbfQw+qTyjT3yv+7o4oiOdtJnaGwyxjNF8KqV8JCPb
-         EtEuwCUakT7bXDWuTHstKBBxFfx/NFD6nI++Zxx33wEt2LsDHWWFbVo+nWs5aJpvgbDt
-         bcNjHlr2/smIeZ2DgR6hyv29jjDSqQQI+8Qj+9AAlhetLTyxbKX75Vw/uzLti5pjdjDD
-         1gqqU5UtNkfvmUk9ZygMGK8+1jwTN9eFYCq597DzigUSvomN5c9XhKqAjmlcR+BL0bRb
-         fkuAUTdTl6ZIMoENwrU3bfv6UbzvTXWAqgAlNJDWfnVuL4Hhf5bRgdVGoARAYxrNCCDe
-         ljRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yGXvyQjwLmOy53oIzm1ZLaTMK3/o09Vv8V+chgSLdeY=;
-        b=fRhXq7ZLHVeYqgOmJD5UdKv8vaqARErqXPjDpnKFCcp8aP8uGjf1d3nOVfo3MFWG8k
-         8W6b9ZSGzw2a21o8bD/9/qlQzolKXkIjIFunw3R2PenkyK9SfxLi52+dCZcSCxR4A86E
-         ybkAran0+6aLC547WiR5iH735EvpJSelCdwsgbF2IPl3cVqfon5ck9BoC8nUoTwH8UkJ
-         o+yRkcfwdnvMLRBgqR9KLcK8piooxGKsyzNLQoU9lz5wPzR3s4nW/74x/eou3LmmOGKC
-         +JXBDo50d1QqhTaFxq/xR/ZFlrGVeIUUhO+CiD9EvcrtvMjri5qfis+wxoJ1/JsXDkAo
-         9PqA==
-X-Gm-Message-State: AFqh2kqnrfQ5F4d6PBzeITggmLj9Z2Bc0p0VOVC0StRwdbfVA1HecSsH
-        RS9cDwQ0JNg2yIuA4f70Q0k7OoK3aB/MMW4azm8K
-X-Google-Smtp-Source: AMrXdXsTqILQIvoKLSzn2vsOwuLpTkEPmSgexyL8bv143mvjcjNDhObnaFgjhL7UQHe0gGX5etBgH6e4mhBUZDn4fO0=
-X-Received: by 2002:a17:90a:c784:b0:227:202b:8eaa with SMTP id
- gn4-20020a17090ac78400b00227202b8eaamr2957806pjb.147.1674509804015; Mon, 23
- Jan 2023 13:36:44 -0800 (PST)
-MIME-Version: 1.0
-References: <20230123191728.2928839-1-tjmercier@google.com> <20230123191728.2928839-5-tjmercier@google.com>
-In-Reply-To: <20230123191728.2928839-5-tjmercier@google.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 23 Jan 2023 16:36:32 -0500
-Message-ID: <CAHC9VhQtbTWXXy8mNxNDdukaAp6YB4CX5Xa6dvSZ_r4DhM2EXg@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] security: binder: Add binder object flags to selinux_binder_transfer_file
-To:     "T.J. Mercier" <tjmercier@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
-        Todd Kjos <tkjos@android.com>,
-        Martijn Coenen <maco@android.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Carlos Llamas <cmllamas@google.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+        with ESMTP id S229502AbjAXDfc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Jan 2023 22:35:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3B62C65A;
+        Mon, 23 Jan 2023 19:35:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53837B80FF1;
+        Tue, 24 Jan 2023 03:35:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B1D1C433D2;
+        Tue, 24 Jan 2023 03:35:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674531328;
+        bh=6v776oDmiY1T8tt5r/hH/NeXosDTIpZCnrup9qoj41k=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=nrw6mqmdFGdpFjdBeYzRG0t8kI4jH95Zip/8oP/6NOSJZr5Em+19LZCIa9G0jNSrS
+         5ZAbAhGE7iOtCs3zcpx1FPRDER/x9wZMBbqbr5fOtSm++BMiXJUd16tXy1x7nvFfTp
+         mw5sp5vAXADvqQl6j9Jxt4XDlkcSHvnA831e8ANIioqNMHl0nZueX38Dnt87i6eGl0
+         MXUkFvUTiBfWjdjfLhuBCgW0JfC5CBFb47W5rS8BNxOZlZjk748pWAY6wVwDOVdtoX
+         DvLfN37Gi1pZvipGL/9ohp41mE2c1AsomX8FhDDvHXBrF63EPxYip1WMN+2O/bs/mP
+         W9ezC/YbB0Fvg==
+Date:   Mon, 23 Jan 2023 19:35:26 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Jakub Sitnicki <jakub@cloudflare.com>
+Cc:     Leon Romanovsky <leon@kernel.org>, netdev@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Neal Cardwell <ncardwell@google.com>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, hannes@cmpxchg.org,
-        daniel.vetter@ffwll.ch, android-mm@google.com, jstultz@google.com,
-        jeffv@google.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, cgroups@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Eric Paris <eparis@parisplace.org>, kernel-team@cloudflare.com,
+        Marek Majkowski <marek@cloudflare.com>
+Subject: Re: [PATCH net-next v4 1/2] inet: Add IP_LOCAL_PORT_RANGE socket
+ option
+Message-ID: <20230123193526.065a9879@kernel.org>
+In-Reply-To: <87sfg1vuqj.fsf@cloudflare.com>
+References: <20221221-sockopt-port-range-v4-0-d7d2f2561238@cloudflare.com>
+        <20221221-sockopt-port-range-v4-1-d7d2f2561238@cloudflare.com>
+        <Y87IRq1ITGcWIh3F@unreal>
+        <87sfg1vuqj.fsf@cloudflare.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 23, 2023 at 2:18 PM T.J. Mercier <tjmercier@google.com> wrote:
->
-> Any process can cause a memory charge transfer to occur to any other
-> process when transmitting a file descriptor through binder. This should
-> only be possible for central allocator processes, so the binder object
-> flags are added to the security_binder_transfer_file hook so that LSMs
-> can enforce restrictions on charge transfers.
->
-> Signed-off-by: T.J. Mercier <tjmercier@google.com>
-> ---
->  drivers/android/binder.c            |  2 +-
->  include/linux/lsm_hook_defs.h       |  2 +-
->  include/linux/lsm_hooks.h           |  5 ++++-
->  include/linux/security.h            |  6 ++++--
->  security/security.c                 |  4 ++--
->  security/selinux/hooks.c            | 13 ++++++++++++-
->  security/selinux/include/classmap.h |  2 +-
->  7 files changed, 25 insertions(+), 9 deletions(-)
+On Mon, 23 Jan 2023 21:48:06 +0100 Jakub Sitnicki wrote:
+> >> v1 -> v2:
+> >>  * Fix the corner case when the per-socket range doesn't overlap with the
+> >>    per-netns range. Fallback correctly to the per-netns range. (Kuniyuki)  
+> >
+> > Please put changelog after "---" trailer, so it will be stripped while
+> > applying patch.  
+> 
+> I've put the changelog above the "---" on purpose. AFAIK, it is (was?)
+> preferred by netdev maintainers to keep the changelog in the
+> description.
+> 
+> Do you know if this convention is now a thing of the past? I might have
+> missed something.
 
-...
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3c5be76a9199..d4cfca3c9a3b 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -88,6 +88,7 @@
->  #include <linux/bpf.h>
->  #include <linux/kernfs.h>
->  #include <linux/stringhash.h>  /* for hashlen_string() */
-> +#include <uapi/linux/android/binder.h>
->  #include <uapi/linux/mount.h>
->  #include <linux/fsnotify.h>
->  #include <linux/fanotify.h>
-> @@ -2029,7 +2030,8 @@ static int selinux_binder_transfer_binder(const struct cred *from,
->
->  static int selinux_binder_transfer_file(const struct cred *from,
->                                         const struct cred *to,
-> -                                       struct file *file)
-> +                                       struct file *file,
-> +                                       u32 binder_object_flags)
->  {
->         u32 sid = cred_sid(to);
->         struct file_security_struct *fsec = selinux_file(file);
-> @@ -2038,6 +2040,15 @@ static int selinux_binder_transfer_file(const struct cred *from,
->         struct common_audit_data ad;
->         int rc;
->
-> +       if (binder_object_flags & BINDER_FD_FLAG_XFER_CHARGE) {
-> +               rc = avc_has_perm(&selinux_state,
-> +                           cred_sid(from), sid,
-> +                           SECCLASS_BINDER, BINDER__TRANSFER_CHARGE,
-> +                           NULL);
-> +               if (rc)
-> +                       return rc;
-> +       }
-> +
->         ad.type = LSM_AUDIT_DATA_PATH;
->         ad.u.path = file->f_path;
->
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index a3c380775d41..2eef180d10d7 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -172,7 +172,7 @@ const struct security_class_mapping secclass_map[] = {
->         { "tun_socket",
->           { COMMON_SOCK_PERMS, "attach_queue", NULL } },
->         { "binder", { "impersonate", "call", "set_context_mgr", "transfer",
-> -                     NULL } },
-> +                     "transfer_charge", NULL } },
->         { "cap_userns",
->           { COMMON_CAP_PERMS, NULL } },
->         { "cap2_userns",
-
-My first take on reading these changes above is that you've completely
-ignored my previous comments about SELinux access controls around
-resource management.  You've leveraged the existing LSM/SELinux hook
-as we discussed previously, that's good, but can you explain what
-changes you've made to address my concerns about one-off resource
-management controls?
-
--- 
-paul-moore.com
+It used to be, the jury is still out on which way is better.
+When Paolo/I apply the patch we add a lore link, so the changelog 
+can be found easily even if it's cut off from git history.
+OTOH DaveM/Linus are not fans of slapping the lore links on every 
+single patch, so DaveM may still prefer the changelog above ---.
+Sorry, that's not very helpful, you're both right in a way.
