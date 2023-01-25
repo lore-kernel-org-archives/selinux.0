@@ -2,174 +2,133 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24390C27C76
-	for <selinux@archiver.kernel.org>; Wed, 25 Jan 2023 17:31:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1483C61DA3
+	for <selinux@archiver.kernel.org>; Wed, 25 Jan 2023 18:39:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235911AbjAYRbZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Jan 2023 12:31:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
+        id S236092AbjAYSi6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Jan 2023 13:38:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235926AbjAYRbU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Jan 2023 12:31:20 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E543A870;
-        Wed, 25 Jan 2023 09:31:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674667873; x=1706203873;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=b/qAzqJTvFy4xiZPmOAm7JkVbr9jZZbEQu9s5cua2Is=;
-  b=AWcklGPuXD/+9cf1Hhwl+Js//5W4kdegH/s0Gsfid2lOqlLRlb+x3I2W
-   +pbkW5XILBBx4R1+PNuSE8oRW4FgaWulShnBLOkKWlS+uhbh0zDiFg18b
-   B0HjcV5HkJ4l49rkjRSObzCRk/cdHpbAxDpFpDh9wOMFKiS95tbPYl1Kq
-   Ot2LLUNYqUoPmFYD48gejB0bRZ7kz1QxWT4du2BC+j37+/OrVu5C1QCzU
-   vGmNQIWiZblHr58LJMtiiQZtjmG4bpn6uWsBsR9DRE/KcVtOiJMs/A0FN
-   nj/2SCV6VpRy4QFDaAIqFZ5mJzJilrDWScKgr3pC/WGhkgPoafYyLKp3x
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10601"; a="310194555"
-X-IronPort-AV: E=Sophos;i="5.97,246,1669104000"; 
-   d="scan'208";a="310194555"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2023 09:30:52 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10601"; a="805079453"
-X-IronPort-AV: E=Sophos;i="5.97,246,1669104000"; 
-   d="scan'208";a="805079453"
-Received: from dodonnel-mobl.ger.corp.intel.com (HELO [10.213.233.83]) ([10.213.233.83])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2023 09:30:45 -0800
-Message-ID: <347560bc-d06a-92b7-8003-133d2b8af2df@linux.intel.com>
-Date:   Wed, 25 Jan 2023 17:30:43 +0000
+        with ESMTP id S230257AbjAYSix (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Jan 2023 13:38:53 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C885A366A8;
+        Wed, 25 Jan 2023 10:38:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=WhE3p5nMlMDjaV/irGLArTSJUCL3MW0izpTScdbc1OU=; b=mx74wVm8uyXRMzRkznkmPv14f3
+        DM5mkZY0d2Y454KV/p1DBO6bVWUBYmLnjNwq5de4oOCp4K1tzlZ+pYhblaAnUsgNim9Cg22n4lXC7
+        YVziRodKlXV3h1dcA4wCil3iZ6I2W+LteukgjO5nFw9bnJFOnLJvx0ni4Ju6wCzLw38ztU2xqwXDF
+        Hz7a4pCnrIPatIpdvDFmrtxTdMVr7eH9j59LSpJj79ys6zGb7fhMV69syzXZoxm/q67WE7IxkNx+x
+        YR6wIJfVUlSwCzFkthS2vqR79CZmfDxbuiYrAaQdlm8CD16FJpwzTtCFj0zPf7AtdmoIV8Mlhhb7E
+        KwDK04uQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pKkaL-0066XZ-MG; Wed, 25 Jan 2023 18:33:25 +0000
+Date:   Wed, 25 Jan 2023 18:33:25 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     akpm@linux-foundation.org, michel@lespinasse.org,
+        jglisse@google.com, mhocko@suse.com, vbabka@suse.cz,
+        hannes@cmpxchg.org, mgorman@techsingularity.net, dave@stgolabs.net,
+        liam.howlett@oracle.com, peterz@infradead.org,
+        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
+        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
+        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
+        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
+        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
+        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
+        jannh@google.com, shakeelb@google.com, tatashin@google.com,
+        edumazet@google.com, gthelen@google.com, gurua@google.com,
+        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
+        leewalsh@google.com, posk@google.com, will@kernel.org,
+        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
+        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        qianweili@huawei.com, wangzhou1@hisilicon.com,
+        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
+        airlied@gmail.com, daniel@ffwll.ch,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, l.stach@pengutronix.de,
+        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
+        matthias.bgg@gmail.com, robdclark@gmail.com,
+        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
+        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
+        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
+        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
+        jejb@linux.ibm.com, martin.petersen@oracle.com,
+        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
+        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
+        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
+        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+        adilger.kernel@dilger.ca, miklos@szeredi.hu,
+        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
+        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
+        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
+        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
+        loongarch@lists.linux.dev, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
+        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
+        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org,
+        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        devel@lists.orangefs.org, kexec@lists.infradead.org,
+        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
+        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
+        kernel-team@android.com
+Subject: Re: [PATCH v2 1/6] mm: introduce vma->vm_flags modifier functions
+Message-ID: <Y9F19QEDX5d/44EV@casper.infradead.org>
+References: <20230125083851.27759-1-surenb@google.com>
+ <20230125083851.27759-2-surenb@google.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH v2 1/4] memcg: Track exported dma-buffers
-Content-Language: en-US
-To:     Michal Hocko <mhocko@suse.com>, Shakeel Butt <shakeelb@google.com>
-Cc:     linux-doc@vger.kernel.org, daniel.vetter@ffwll.ch,
-        Roman Gushchin <roman.gushchin@linux.dev>, cmllamas@google.com,
-        dri-devel@lists.freedesktop.org, linux-mm@kvack.org,
-        jstultz@google.com, Zefan Li <lizefan.x@bytedance.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>, android-mm@google.com,
-        Jonathan Corbet <corbet@lwn.net>, jeffv@google.com,
-        linux-media@vger.kernel.org, selinux@vger.kernel.org,
-        linaro-mm-sig@lists.linaro.org, cgroups@vger.kernel.org,
-        "T.J. Mercier" <tjmercier@google.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-References: <20230123191728.2928839-1-tjmercier@google.com>
- <20230123191728.2928839-2-tjmercier@google.com>
- <Y8/ybgp2FW+e3bjc@dhcp22.suse.cz>
- <20230124194628.d44rtcfsv23fndxw@google.com>
- <Y9EX+usSpAjZ/8LS@dhcp22.suse.cz>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <Y9EX+usSpAjZ/8LS@dhcp22.suse.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230125083851.27759-2-surenb@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Wed, Jan 25, 2023 at 12:38:46AM -0800, Suren Baghdasaryan wrote:
+> +/* Use when VMA is not part of the VMA tree and needs no locking */
+> +static inline void init_vm_flags(struct vm_area_struct *vma,
+> +				 unsigned long flags)
+> +{
+> +	vma->vm_flags = flags;
 
-Hi,
+vm_flags are supposed to have type vm_flags_t.  That's not been
+fully realised yet, but perhaps we could avoid making it worse?
 
-On 25/01/2023 11:52, Michal Hocko wrote:
-> On Tue 24-01-23 19:46:28, Shakeel Butt wrote:
->> On Tue, Jan 24, 2023 at 03:59:58PM +0100, Michal Hocko wrote:
->>> On Mon 23-01-23 19:17:23, T.J. Mercier wrote:
->>>> When a buffer is exported to userspace, use memcg to attribute the
->>>> buffer to the allocating cgroup until all buffer references are
->>>> released.
->>>
->>> Is there any reason why this memory cannot be charged during the
->>> allocation (__GFP_ACCOUNT used)?
->>> Also you do charge and account the memory but underlying pages do not
->>> know about their memcg (this is normally done with commit_charge for
->>> user mapped pages). This would become a problem if the memory is
->>> migrated for example.
->>
->> I don't think this is movable memory.
->>
->>> This also means that you have to maintain memcg
->>> reference outside of the memcg proper which is not really nice either.
->>> This mimicks tcp kmem limit implementation which I really have to say I
->>> am not a great fan of and this pattern shouldn't be coppied.
->>>
->>
->> I think we should keep the discussion on technical merits instead of
->> personal perference. To me using skmem like interface is totally fine
->> but the pros/cons need to be very explicit and the clear reasons to
->> select that option should be included.
-> 
-> I do agree with that. I didn't want sound to be personal wrt tcp kmem
-> accounting but the overall code maintenance cost is higher because
-> of how tcp take on accounting differs from anything else in the memcg
-> proper. I would prefer to not grow another example like that.
-> 
->> To me there are two options:
->>
->> 1. Using skmem like interface as this patch series:
->>
->> The main pros of this option is that it is very simple. Let me list down
->> the cons of this approach:
->>
->> a. There is time window between the actual memory allocation/free and
->> the charge and uncharge and [un]charge happen when the whole memory is
->> allocated or freed. I think for the charge path that might not be a big
->> issue but on the uncharge, this can cause issues. The application and
->> the potential shrinkers have freed some of this dmabuf memory but until
->> the whole dmabuf is freed, the memcg uncharge will not happen. This can
->> consequences on reclaim and oom behavior of the application.
->>
->> b. Due to the usage model i.e. a central daemon allocating the dmabuf
->> memory upfront, there is a requirement to have a memcg charge transfer
->> functionality to transfer the charge from the central daemon to the
->> client applications. This does introduce complexity and avenues of weird
->> reclaim and oom behavior.
->>
->>
->> 2. Allocate and charge the memory on page fault by actual user
->>
->> In this approach, the memory is not allocated upfront by the central
->> daemon but rather on the page fault by the client application and the
->> memcg charge happen at the same time.
->>
->> The only cons I can think of is this approach is more involved and may
->> need some clever tricks to track the page on the free patch i.e. we to
->> decrement the dmabuf memcg stat on free path. Maybe a page flag.
->>
->> The pros of this approach is there is no need have a charge transfer
->> functionality and the charge/uncharge being closely tied to the actual
->> memory allocation and free.
->>
->> Personally I would prefer the second approach but I don't want to just
->> block this work if the dmabuf folks are ok with the cons mentioned of
->> the first approach.
-> 
-> I am not familiar with dmabuf internals to judge complexity on their end
-> but I fully agree that charge-when-used is much more easier to reason
-> about and it should have less subtle surprises.
+>  	pgprot_t vm_page_prot;
+> -	unsigned long vm_flags;		/* Flags, see mm.h. */
+> +
+> +	/*
+> +	 * Flags, see mm.h.
+> +	 * WARNING! Do not modify directly.
+> +	 * Use {init|reset|set|clear|mod}_vm_flags() functions instead.
+> +	 */
+> +	unsigned long vm_flags;
 
-Disclaimer that I don't seem to see patches 3&4 on dri-devel so maybe I 
-am missing something, but in principle yes, I agree that the 2nd option 
-(charge the user, not exporter) should be preferred. Thing being that at 
-export time there may not be any backing store allocated, plus if the 
-series is restricting the charge transfer to just Android clients then 
-it seems it has the potential to miss many other use cases. At least 
-needs to outline a description on how the feature will be useful outside 
-Android.
-
-Also stepping back for a moment - is a new memory category really 
-needed, versus perhaps attempting to charge the actual backing store 
-memory to the correct client? (There might have been many past 
-discussions on this so it's okay to point me towards something in the 
-archives.)
-
-Regards,
-
-Tvrtko
+Including changing this line to vm_flags_t
