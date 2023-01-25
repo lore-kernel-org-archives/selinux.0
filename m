@@ -2,159 +2,275 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2EC8C54EAA
-	for <selinux@archiver.kernel.org>; Wed, 25 Jan 2023 17:23:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01DA6C54EAA
+	for <selinux@archiver.kernel.org>; Wed, 25 Jan 2023 17:30:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236231AbjAYRX1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Jan 2023 12:23:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48624 "EHLO
+        id S235590AbjAYRaX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Jan 2023 12:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236240AbjAYRXL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Jan 2023 12:23:11 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831AB6A4A
-        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 09:22:46 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id u72so3233344ybi.7
-        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 09:22:46 -0800 (PST)
+        with ESMTP id S235756AbjAYRaW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Jan 2023 12:30:22 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DDA2006B
+        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 09:30:21 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id rm7-20020a17090b3ec700b0022c05558d22so2760122pjb.5
+        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 09:30:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=IqJXv+IInDU1mKTOWecSjx46uIp9RhIiEah7PjvPLrg=;
-        b=QlZyecSvRJAlH7daZiVbTmdMCDJawwIkjqybbPcYd50INvCOOFwycJjGFsDCENBvPF
-         JeBM9yeOQDknmaZC6LT0p7wlzLAJo3QYgAn7K1xQNCTJjPrh6oinOxgRNGwGedAqUfeH
-         4EF6oknHwKU0N6BIZOc0CJi1hrgM4W0zxm3gicvvOuEGF7JC9HCNICDdMPEAz6Lz/B5y
-         FN2dpyuojKkpe3r7ipsFxRIyHaJ4nJmkiiUGkQy6aOsuBhBZ3WzwUsGkq0uXDlGTKFEH
-         iRh4N/trPN148wcbBUC1DmqB3ErHQLF9n9pkmMXooLK6oXyXf0aS41iIJv2buhnN7zSu
-         X8Bw==
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GNrpSGYW58rvTaJKj27qHghPZpAgrrJIjbPY2vbeDzE=;
+        b=YWYhrGVnjGGYC0AqJnM4Ara6mbxJvloUKq5caraYEznY0jFcxfg2nIN67kf+5KO+i2
+         CnOB/B0fak92d931/QZENL8+hsr+wAVg/idPc5YykQMtU8tL1wnudbK/PbxLlKBFGlfx
+         Gq2APxSQKIrnsHA23GYjRX5yWk8KEvFGL8H1SbMN3+bwQYxGIjgEzSHuB/jOMSUzl3xw
+         +a6i4PcW1eDWFskpzHM8AdB1Lncq1huWyhe7Q/PV/B/OVgHAMvaIAVhAmyyJCSDVwr98
+         9FCx8s0fOPbqk2iMJq/I7FOSY9/J79Dq8RW1b/2seGH6zFL9/Eh02FENs6dyrbte39l5
+         xqLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=IqJXv+IInDU1mKTOWecSjx46uIp9RhIiEah7PjvPLrg=;
-        b=2DVkr5LF9pbCrNqX9f2trHFp6g5gyohxTzbM6MJYmlCCwpidX50zbhDfiW9RvW06f4
-         xes4MDXdVwdKRNeZKyXcKzZg7NGDfLHxbvO4ckNJYHxk+oJTfjnNGxTf3OV5jt67XWSG
-         dAjjnq4TYmHfqBAtYmbSnaCzcp1Eu3g+aXlkzoWKb+387z6Sxruu396HnGdHRZRrOU9F
-         NcpFWFU19dS7YjoNfkgizKAekx28Y+jJTKXL2BCOlrIJogTD2V9Srea0rjefWyTgKr6S
-         5wuORkEQfqy8bdE30SLrqBnRjZ29Djaiy/8FHIu0SUuPFHzmGrHmnxEFNKP1hgVZDO/X
-         UJLQ==
-X-Gm-Message-State: AFqh2kqoClWAjOgCX+iYoypCIIb7Dh0RZs3dvj8DW76PRtPQLrTbvJWD
-        +Tf9FiO+vaPIxemXFlFtUp4qs3TJxsOEloiiUI6UurBbDm8FET6P/vk=
-X-Google-Smtp-Source: AMrXdXv634nY3BrnZ3PlTUGlyUi8i7L3YenO2gMgxW5qJ4tF6Xha6yZp+2FFeWeU8OQrXrCFeHpomo5nr++haHZW7UI=
-X-Received: by 2002:a25:a408:0:b0:800:28d4:6936 with SMTP id
- f8-20020a25a408000000b0080028d46936mr2303639ybi.431.1674667354997; Wed, 25
- Jan 2023 09:22:34 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GNrpSGYW58rvTaJKj27qHghPZpAgrrJIjbPY2vbeDzE=;
+        b=BzwfDHNJPeJN5JZmTo1dD+agr3slvQsWkj9GVrCgDYihZSW+dnec0nlhZdlcs6uUbK
+         4JunySWUC+2zMjqTXJLeTgHGrjbohKcN7w1D/ZGXSl3XQd/QrhgZXj9IchSz/UxskI5Q
+         uP+iMIdLVn3Jl0LDJLL4q6Xj3gHsEALProOb67zmg6DJEYD8rQ0H2zSFd8AFA+2cs9T8
+         ObKujJgSoTgyyHAtu61ogZkMYopttaMf+bf9YaAKBlbA/WHbA3YHmXKjBp3QQnspe+YJ
+         tyqJsKLiwqKS0vHpjHNp8Y9/5QI9TZ3bWEdn+iLgbkwYbfj1hEGXNRJaMRFjqrYbnkXO
+         At0A==
+X-Gm-Message-State: AFqh2kp10VSfE5ACz0cSvdciDuppLleEZtmq52Ax+rbXSbKz4D9U8RUR
+        hJLFyNZJ/NKzHxbD5Vgha4lmtw==
+X-Google-Smtp-Source: AMrXdXtTygviNqIOED7X1bodRpq4TfVLZhuY0hB66pHQx5t7hbZtNT5yQlsR49yYDCVULwYA5rBDzA==
+X-Received: by 2002:a17:902:e812:b0:194:d7ed:9a6b with SMTP id u18-20020a170902e81200b00194d7ed9a6bmr30920056plg.30.1674667820522;
+        Wed, 25 Jan 2023 09:30:20 -0800 (PST)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id y7-20020a170902d64700b001929568afe9sm3876503plh.306.2023.01.25.09.30.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Jan 2023 09:30:19 -0800 (PST)
+Date:   Wed, 25 Jan 2023 17:30:15 +0000
+From:   Carlos Llamas <cmllamas@google.com>
+To:     "T.J. Mercier" <tjmercier@google.com>
+Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Suren Baghdasaryan <surenb@google.com>, daniel.vetter@ffwll.ch,
+        android-mm@google.com, jstultz@google.com, jeffv@google.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        cgroups@vger.kernel.org, Hridya Valsaraju <hridya@google.com>,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 3/4] binder: Add flags to relinquish ownership of fds
+Message-ID: <Y9FnJ/U41XN3h8gT@google.com>
+References: <20230123191728.2928839-1-tjmercier@google.com>
+ <20230123191728.2928839-4-tjmercier@google.com>
 MIME-Version: 1.0
-References: <20230125083851.27759-1-surenb@google.com> <20230125083851.27759-5-surenb@google.com>
- <Y9D4rWEsajV/WfNx@dhcp22.suse.cz> <CAJuCfpGd2eG0RSMte9OVgsRVWPo+Sj7+t8EOo8o_iKzZoh1MXA@mail.gmail.com>
- <Y9Fh9joU3vTCwYbX@dhcp22.suse.cz>
-In-Reply-To: <Y9Fh9joU3vTCwYbX@dhcp22.suse.cz>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Wed, 25 Jan 2023 09:22:23 -0800
-Message-ID: <CAJuCfpEJ1U2UHBNhLx4gggN3PLZKP5RejiZL_U5ZLxU_wdviVg@mail.gmail.com>
-Subject: Re: [PATCH v2 4/6] mm: replace vma->vm_flags indirect modification in ksm_madvise
-To:     Michal Hocko <mhocko@suse.com>
-Cc:     akpm@linux-foundation.org, michel@lespinasse.org,
-        jglisse@google.com, vbabka@suse.cz, hannes@cmpxchg.org,
-        mgorman@techsingularity.net, dave@stgolabs.net,
-        willy@infradead.org, liam.howlett@oracle.com, peterz@infradead.org,
-        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
-        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
-        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
-        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
-        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
-        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
-        jannh@google.com, shakeelb@google.com, tatashin@google.com,
-        edumazet@google.com, gthelen@google.com, gurua@google.com,
-        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
-        leewalsh@google.com, posk@google.com, will@kernel.org,
-        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
-        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        qianweili@huawei.com, wangzhou1@hisilicon.com,
-        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
-        airlied@gmail.com, daniel@ffwll.ch,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, l.stach@pengutronix.de,
-        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
-        matthias.bgg@gmail.com, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
-        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
-        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
-        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
-        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com,
-        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
-        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
-        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
-        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
-        adilger.kernel@dilger.ca, miklos@szeredi.hu,
-        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
-        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
-        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
-        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
-        loongarch@lists.linux.dev, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
-        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
-        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
-        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org,
-        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        devel@lists.orangefs.org, kexec@lists.infradead.org,
-        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
-        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
-        kernel-team@android.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230123191728.2928839-4-tjmercier@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 25, 2023 at 9:08 AM Michal Hocko <mhocko@suse.com> wrote:
->
-> On Wed 25-01-23 08:57:48, Suren Baghdasaryan wrote:
-> > On Wed, Jan 25, 2023 at 1:38 AM 'Michal Hocko' via kernel-team
-> > <kernel-team@android.com> wrote:
-> > >
-> > > On Wed 25-01-23 00:38:49, Suren Baghdasaryan wrote:
-> > > > Replace indirect modifications to vma->vm_flags with calls to modifier
-> > > > functions to be able to track flag changes and to keep vma locking
-> > > > correctness. Add a BUG_ON check in ksm_madvise() to catch indirect
-> > > > vm_flags modification attempts.
-> > >
-> > > Those BUG_ONs scream to much IMHO. KSM is an MM internal code so I
-> > > gueess we should be willing to trust it.
-> >
-> > Yes, but I really want to prevent an indirect misuse since it was not
-> > easy to find these. If you feel strongly about it I will remove them
-> > or if you have a better suggestion I'm all for it.
->
-> You can avoid that by making flags inaccesible directly, right?
+On Mon, Jan 23, 2023 at 07:17:25PM +0000, T.J. Mercier wrote:
+> From: Hridya Valsaraju <hridya@google.com>
+> 
+> This patch introduces flag BINDER_FD_FLAG_XFER_CHARGE that a process
+> sending an individual fd or fd array to another process over binder IPC
+> can set to relinquish ownership of the fd(s) being sent for memory
+> accounting purposes. If the flag is found to be set during the fd or fd
+> array translation and the fd is for a DMA-BUF, the buffer is uncharged
+> from the sender's cgroup and charged to the receiving process's cgroup
+> instead.
+> 
+> It is up to the sending process to ensure that it closes the fds
+> regardless of whether the transfer failed or succeeded.
+> 
+> Most graphics shared memory allocations in Android are done by the
+> graphics allocator HAL process. On requests from clients, the HAL
+> process allocates memory and sends the fds to the clients over binder
+> IPC. The graphics allocator HAL will not retain any references to the
+> buffers. When the HAL sets BINDER_FD_FLAG_XFER_CHARGE, binder will
+> transfer the charge for the buffer from the allocator process cgroup to
+> the client process cgroup.
+> 
+> The pad [1] and pad_flags [2] fields of binder_fd_object and
+> binder_fda_array_object come from alignment with flat_binder_object and
+> have never been exposed for use from userspace. This new flags use
+> follows the pattern set by binder_buffer_object.
+> 
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/include/uapi/linux/android/binder.h?id=feba3900cabb8e7c87368faa28e7a6936809ba22
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/include/uapi/linux/android/binder.h?id=5cdcf4c6a638591ec0e98c57404a19e7f9997567
+> 
+> Signed-off-by: Hridya Valsaraju <hridya@google.com>
+> Signed-off-by: T.J. Mercier <tjmercier@google.com>
+> ---
+>  Documentation/admin-guide/cgroup-v2.rst |  3 ++-
+>  drivers/android/binder.c                | 25 +++++++++++++++++++++----
+>  include/uapi/linux/android/binder.h     | 19 +++++++++++++++----
+>  3 files changed, 38 insertions(+), 9 deletions(-)
+> 
+> diff --git a/Documentation/admin-guide/cgroup-v2.rst b/Documentation/admin-guide/cgroup-v2.rst
+> index 538ae22bc514..d225295932c0 100644
+> --- a/Documentation/admin-guide/cgroup-v2.rst
+> +++ b/Documentation/admin-guide/cgroup-v2.rst
+> @@ -1457,7 +1457,8 @@ PAGE_SIZE multiple when read back.
+>  
+>  	  dmabuf (npn)
+>  		Amount of memory used for exported DMA buffers allocated by the cgroup.
+> -		Stays with the allocating cgroup regardless of how the buffer is shared.
+> +		Stays with the allocating cgroup regardless of how the buffer is shared
+> +		unless explicitly transferred.
+>  
+>  	  workingset_refault_anon
+>  		Number of refaults of previously evicted anonymous pages.
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 880224ec6abb..5e707974793f 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -42,6 +42,7 @@
+>  
+>  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+>  
+> +#include <linux/dma-buf.h>
+>  #include <linux/fdtable.h>
+>  #include <linux/file.h>
+>  #include <linux/freezer.h>
+> @@ -2237,7 +2238,7 @@ static int binder_translate_handle(struct flat_binder_object *fp,
+>  	return ret;
+>  }
+>  
+> -static int binder_translate_fd(u32 fd, binder_size_t fd_offset,
+> +static int binder_translate_fd(u32 fd, binder_size_t fd_offset, __u32 flags,
+>  			       struct binder_transaction *t,
+>  			       struct binder_thread *thread,
+>  			       struct binder_transaction *in_reply_to)
+> @@ -2275,6 +2276,20 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset,
+>  		goto err_security;
+>  	}
+>  
+> +	if (IS_ENABLED(CONFIG_MEMCG) && (flags & BINDER_FD_FLAG_XFER_CHARGE)) {
 
-Ah, you mean Peter's suggestion of using __private? I guess that would
-cover it. I'll drop these BUG_ONs in the next version. Thanks!
+Do we need to test for MEMCG here? it seems this has been offloaded to
+dma_buf_transfer_charge()?
 
->
-> --
-> Michal Hocko
-> SUSE Labs
+> +		ret = dma_buf_transfer_charge(file, target_proc->tsk);
+> +		if (unlikely(ret == -EBADF)) {
+> +			binder_user_error(
+> +				"%d:%d got transaction with XFER_CHARGE for non-DMA-BUF fd, %d\n",
+> +				proc->pid, thread->pid, fd);
+> +			goto err_dmabuf;
+> +		} else if (ret) {
+> +			pr_warn("%d:%d Unable to transfer DMA-BUF fd charge to %d\n",
+> +				proc->pid, thread->pid, target_proc->pid);
+> +			goto err_xfer;
+> +		}
+> +	}
+> +
+>  	/*
+>  	 * Add fixup record for this transaction. The allocation
+>  	 * of the fd in the target needs to be done from a
+> @@ -2294,6 +2309,8 @@ static int binder_translate_fd(u32 fd, binder_size_t fd_offset,
+>  	return ret;
+>  
+>  err_alloc:
+> +err_xfer:
+> +err_dmabuf:
+>  err_security:
+>  	fput(file);
+>  err_fget:
+> @@ -2604,7 +2621,7 @@ static int binder_translate_fd_array(struct list_head *pf_head,
+>  
+>  		ret = copy_from_user(&fd, sender_ufda_base + sender_uoffset, sizeof(fd));
+>  		if (!ret)
+> -			ret = binder_translate_fd(fd, offset, t, thread,
+> +			ret = binder_translate_fd(fd, offset, fda->flags, t, thread,
+>  						  in_reply_to);
+>  		if (ret)
+>  			return ret > 0 ? -EINVAL : ret;
+> @@ -3383,8 +3400,8 @@ static void binder_transaction(struct binder_proc *proc,
+>  			struct binder_fd_object *fp = to_binder_fd_object(hdr);
+>  			binder_size_t fd_offset = object_offset +
+>  				(uintptr_t)&fp->fd - (uintptr_t)fp;
+> -			int ret = binder_translate_fd(fp->fd, fd_offset, t,
+> -						      thread, in_reply_to);
+> +			int ret = binder_translate_fd(fp->fd, fd_offset, fp->flags,
+> +						      t, thread, in_reply_to);
+>  
+>  			fp->pad_binder = 0;
+>  			if (ret < 0 ||
+> diff --git a/include/uapi/linux/android/binder.h b/include/uapi/linux/android/binder.h
+> index e72e4de8f452..4b20dd1dccb1 100644
+> --- a/include/uapi/linux/android/binder.h
+> +++ b/include/uapi/linux/android/binder.h
+> @@ -91,14 +91,14 @@ struct flat_binder_object {
+>  /**
+>   * struct binder_fd_object - describes a filedescriptor to be fixed up.
+>   * @hdr:	common header structure
+> - * @pad_flags:	padding to remain compatible with old userspace code
+> + * @flags:	One or more BINDER_FD_FLAG_* flags
+>   * @pad_binder:	padding to remain compatible with old userspace code
+>   * @fd:		file descriptor
+>   * @cookie:	opaque data, used by user-space
+>   */
+>  struct binder_fd_object {
+>  	struct binder_object_header	hdr;
+> -	__u32				pad_flags;
+> +	__u32				flags;
+>  	union {
+>  		binder_uintptr_t	pad_binder;
+>  		__u32			fd;
+> @@ -107,6 +107,17 @@ struct binder_fd_object {
+>  	binder_uintptr_t		cookie;
+>  };
+>  
+> +enum {
+> +	/**
+> +	 * @BINDER_FD_FLAG_XFER_CHARGE
+> +	 *
+> +	 * When set, the sender of a binder_fd_object wishes to relinquish ownership of the fd for
+> +	 * memory accounting purposes. If the fd is for a DMA-BUF, the buffer is uncharged from the
+> +	 * sender's cgroup and charged to the receiving process's cgroup instead.
+> +	 */
+> +	BINDER_FD_FLAG_XFER_CHARGE = 0x01,
+> +};
+> +
+>  /* struct binder_buffer_object - object describing a userspace buffer
+>   * @hdr:		common header structure
+>   * @flags:		one or more BINDER_BUFFER_* flags
+> @@ -141,7 +152,7 @@ enum {
+>  
+>  /* struct binder_fd_array_object - object describing an array of fds in a buffer
+>   * @hdr:		common header structure
+> - * @pad:		padding to ensure correct alignment
+> + * @flags:		One or more BINDER_FD_FLAG_* flags
+>   * @num_fds:		number of file descriptors in the buffer
+>   * @parent:		index in offset array to buffer holding the fd array
+>   * @parent_offset:	start offset of fd array in the buffer
+> @@ -162,7 +173,7 @@ enum {
+>   */
+>  struct binder_fd_array_object {
+>  	struct binder_object_header	hdr;
+> -	__u32				pad;
+> +	__u32				flags;
+>  	binder_size_t			num_fds;
+>  	binder_size_t			parent;
+>  	binder_size_t			parent_offset;
+> -- 
+> 2.39.0.246.g2a6d74b583-goog
+> 
+
+Other than the previous question this looks good to me. Also, the error
+from the test robot seems to indicate a missing stub for
+dma_buf_transfer_charg() when !CONFIG_DMA_SHARED_BUFFER. However, this
+is likely to be fixed outside of this patch. Feel free to add this tag
+to the following round:
+
+Acked-by: Carlos Llamas <cmllamas@google.com>
+
+Thanks,
