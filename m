@@ -2,133 +2,160 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59A68C27C76
-	for <selinux@archiver.kernel.org>; Wed, 25 Jan 2023 15:35:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E6F6C61D97
+	for <selinux@archiver.kernel.org>; Wed, 25 Jan 2023 16:50:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235350AbjAYPfA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Jan 2023 10:35:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57556 "EHLO
+        id S236037AbjAYQus (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Jan 2023 11:50:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235306AbjAYPeu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Jan 2023 10:34:50 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15144367E2
-        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 07:34:46 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id n2so311962pfo.3
-        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 07:34:46 -0800 (PST)
+        with ESMTP id S235745AbjAYQuQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Jan 2023 11:50:16 -0500
+Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD35376B3
+        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 08:50:14 -0800 (PST)
+Received: by mail-ot1-x32c.google.com with SMTP id u13-20020a056830118d00b00686def09868so4128662otq.7
+        for <selinux@vger.kernel.org>; Wed, 25 Jan 2023 08:50:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=google.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=6hoV59cG+dZxPH2t8Rd/qNEp0CEA3/5G+e0nmm80vnI=;
-        b=oPsKpgYDhmFMbYwzPpjHMK4gg/aiQwG6rkEMbtwAej8T9AwTQxfI83RKFK4xMSQJMc
-         WUST1cNNdIlj6EU+mAMrzPXI54N+Y5RD5YXI7SNC/tqsWRX2jYGnFI8swiPbZ83z27pF
-         sD2xGYN1aDsF5FwUnaseB6kc01JOE1CEUD4Rpzk79vXIZug7lGKn3eislO7plq/WnKcL
-         GZmvMaboo2sFVQ+KCydpH5F62ulrA8O/3c86iq2TRpO88VcNSiK40ga0aEigE/AvmBf/
-         gZeRq0KpRRozss0DBkvlb9zO0u5A+Fi9e0dAxpuWLNRpwC2LAi1AkMWViG74EmK4Xfm7
-         o6HQ==
+        bh=9oBkpwDuDP6Raat/HRHsNpx8MqzIjjZSJojQEumXoyE=;
+        b=telMSbMEB1I/JdT8E+AOlYPkvLPDxj1UCnywL1f/zz+GxB6zyzUgN+Q3Q48l8AYc8X
+         qS5rmRFlzboD9JIVNM4srPZju+Dc0OvfYTnyPjpp4sHdEutwmKfLXtqzcN+4YmFBRVgu
+         A3oTpxaFO/E/7LaM1iu3pe6Iv0CmRV+MC10+sbVUAqr2eeBPD17IhS27buTMH3bCJoMu
+         fEQq5XzvwDAqtF1fp8r2H4g3vh98tijISo+CkjBRkXWvZWGfdkjpWZzF8VgIKtCc5sLs
+         +bZFNae0CmrxcmnBVuga8Dg0CQRlWnW+6m8p+riuFjzQ8BSrHATHKU3+MoO2RS3dWuby
+         cPfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=6hoV59cG+dZxPH2t8Rd/qNEp0CEA3/5G+e0nmm80vnI=;
-        b=lv1WqDJzeXBBxLUjGiQXeJZCcB+FFZS2PYF+GeJXYPx+N/oPlz3LwYgdkX6gTwZbQ3
-         0ShwzdYd7zaXCWuLdOA65GJJvBLXK660+jQX35sQZRsQfa4N8WdsSMspaFyBVxwoWSDs
-         AKVFDKdZgpyDFPb6vvLkOguf6AUws5yll0oX/mVq+Wz9rue9KVsWMSMk+9fKtX7T4LSs
-         13J6PMMv8MuQEBUjjWuTOs9zc99pahcLrwL3lNygy1HY1C36EN9p67bCdx0gL7S0j2df
-         PuUFft3C46r+JoJ8xrX9j7qr1YYwmgPB03ofmm77c9mrT8Va+ybOZNUN65kLhvWmQ4jt
-         D/Aw==
-X-Gm-Message-State: AFqh2krvtAXsDQZzeNBqrzjHB3kF8wjHIYjarJZDD9WYScvGbeIwy/t8
-        GD7FN/6PsuxZL6h078E3bBoEE7dEZfQuRqBb2KChPDKk
-X-Google-Smtp-Source: AMrXdXuF/P9MRoM/aaWXR3RWRPRT3j1KP4MdLVQSAWMlVWo5KEeklMeQCZPxst0GaT/F23ii6hVTkIzg4dsOQSamP84=
-X-Received: by 2002:a62:ae10:0:b0:580:9b0b:4fde with SMTP id
- q16-20020a62ae10000000b005809b0b4fdemr3984093pff.49.1674660885506; Wed, 25
- Jan 2023 07:34:45 -0800 (PST)
+        bh=9oBkpwDuDP6Raat/HRHsNpx8MqzIjjZSJojQEumXoyE=;
+        b=eeu/JZx/GmbAGYhKeTk04ebtoQvafVoP6qkZvgM/kbyIWWSkgMTC/EvKOsutIojiYL
+         GEwYb1Z62LNq4rI5ciCH97xYpkGeqN7YAFQBjx9jKEYfT1ec57U7SLwz8pyaH2YkLUyW
+         gxcd4pQgRCJTjKnUaN0NTcJ/M2gFx2RGeeVYZ0kyFZfdr0ZJnOUVKrdJXf7do5g+44Qs
+         +AhTDB2nez83u03U2eVJcz+fun7NQbalrQ5iH2AbiIY4k+ts96AWsOIMQ6revmvOpzEi
+         q8pVHaAzt2OF5tgfYiNhIvWMyO7T0sy1CgFp1b+0ma9wL4cXtgREoKG3Xib4Mj84Zeyo
+         /r0g==
+X-Gm-Message-State: AO0yUKUtVXB3NYI0U0hPdn6BZ05zoIRd92lS6Y2TNBWaC6hkwMerd5Y8
+        SF8bN6mUyzHoeme8OQI46PXgio8r70tNmHSRGaOIBPkl6vyLswvzB74=
+X-Google-Smtp-Source: AMrXdXsah5c2WKVW38d6ZSr7pPop+n/mEJC53KDRGLQOXrHcU20AK6F0ktCN8HrtzVAtxjIN7wyafP19A/nGyLOtNU8=
+X-Received: by 2002:a81:1d2:0:b0:433:f1c0:3f1c with SMTP id
+ 201-20020a8101d2000000b00433f1c03f1cmr4401576ywb.438.1674665403087; Wed, 25
+ Jan 2023 08:50:03 -0800 (PST)
 MIME-Version: 1.0
-References: <CAHC9VhS1tSbP8s4QzVPB42O6_3wGX47=9HXBSyqwnHrW47965w@mail.gmail.com>
- <CAFqZXNvAsNBjACaoaH48wDEgKV-aKM1G9dwuozfhYvYmwCNcyQ@mail.gmail.com>
- <CAEjxPJ5VV3nXSW+AtiXkbUbJJUhsz0hFQz++aqP=LK1PicQq4Q@mail.gmail.com> <CAFqZXNtgOq8Bk_w7hBp0KrSb5FSzOnLebHTVCXNRH4WMnh_LgA@mail.gmail.com>
-In-Reply-To: <CAFqZXNtgOq8Bk_w7hBp0KrSb5FSzOnLebHTVCXNRH4WMnh_LgA@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 25 Jan 2023 10:34:34 -0500
-Message-ID: <CAEjxPJ5ixsuqJWikfYgUw4m0PKkWww_f=f+vkwbkmGnCiPbQrA@mail.gmail.com>
-Subject: Re: selinux-testsuite broken pipe noise
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>
+References: <20230125083851.27759-1-surenb@google.com> <20230125083851.27759-2-surenb@google.com>
+ <Y9Dx0cPXF2yoLwww@hirez.programming.kicks-ass.net>
+In-Reply-To: <Y9Dx0cPXF2yoLwww@hirez.programming.kicks-ass.net>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Wed, 25 Jan 2023 08:49:50 -0800
+Message-ID: <CAJuCfpEcVCZaCGzc-Wim25eaV5e6YG1YJAAdKwZ6JHViB0z8aw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] mm: introduce vma->vm_flags modifier functions
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     akpm@linux-foundation.org, michel@lespinasse.org,
+        jglisse@google.com, mhocko@suse.com, vbabka@suse.cz,
+        hannes@cmpxchg.org, mgorman@techsingularity.net, dave@stgolabs.net,
+        willy@infradead.org, liam.howlett@oracle.com,
+        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
+        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
+        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
+        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
+        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
+        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
+        jannh@google.com, shakeelb@google.com, tatashin@google.com,
+        edumazet@google.com, gthelen@google.com, gurua@google.com,
+        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
+        leewalsh@google.com, posk@google.com, will@kernel.org,
+        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
+        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        qianweili@huawei.com, wangzhou1@hisilicon.com,
+        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
+        airlied@gmail.com, daniel@ffwll.ch,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, l.stach@pengutronix.de,
+        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
+        matthias.bgg@gmail.com, robdclark@gmail.com,
+        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
+        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
+        ray.huang@amd.com, kraxel@redhat.com, sre@kernel.org,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        tfiga@chromium.org, m.szyprowski@samsung.com, mchehab@kernel.org,
+        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
+        jejb@linux.ibm.com, martin.petersen@oracle.com,
+        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
+        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
+        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
+        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
+        adilger.kernel@dilger.ca, miklos@szeredi.hu,
+        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
+        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
+        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
+        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
+        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
+        loongarch@lists.linux.dev, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
+        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
+        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        freedreno@lists.freedesktop.org,
+        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        xen-devel@lists.xenproject.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
+        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        devel@lists.orangefs.org, kexec@lists.infradead.org,
+        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
+        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
+        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
+        kernel-team@android.com
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 25, 2023 at 8:36 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Wed, Jan 25, 2023 at 1:10 AM Peter Zijlstra <peterz@infradead.org> wrote:
 >
-> On Wed, Jan 25, 2023 at 12:50 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Jan 25, 2023, 4:29 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >>
-> >> On Tue, Jan 24, 2023 at 8:39 PM Paul Moore <paul@paul-moore.com> wrote:
-> >> > When running the selinux-testsuite manually today I noticed the
-> >> > following noise in the filesystem tests:
-> >> >
-> >> > % make test
-> >> > ...
-> >> > chmod +x */test
-> >> > chcon -R -t test_file_t .
-> >> > Running as user root with context unconfined_u:unconfined_r:unconfined_t
-> >> >
-> >> > domain_trans/test ........... ok
-> >> > entrypoint/test ............. ok
-> >> > ...
-> >> > perf_event/test ............. ok
-> >> > filesystem/ext4/test ........ 1/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 14/76 yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 20/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 22/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 24/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 30/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 34/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 40/76 yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 43/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 49/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 55/76 yes: standard output: Broken pipe
-> >> > yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ 64/76 yes: standard output: Broken pipe
-> >> > filesystem/ext4/test ........ ok
-> >> >
-> >> > The test system was an updated Rawhide system with the following details:
-> >> >
-> >> > % uname -r
-> >> > 6.2.0-0.rc5.20230123git2475bf02.38.1.secnext.fc38.x86_64
-> >> > % rpm -q selinux-policy
-> >> > selinux-policy-38.5-1.fc38.noarch
-> >> >
-> >> > ... and my selinux-testsuite build should be current:
-> >> >
-> >> > % git log --oneline | head -n 1
-> >> > 2cc067f ci: limit VM reboot time to 5 minutes
-> >>
-> >> Yep, some change in Rawhide seems to have triggered this... The most
-> >> straightforward solution seems to be to just silence the errors. As it
-> >> is a trivial change, I have pushed it to the master branch:
-> >>
-> >> https://github.com/SELinuxProject/selinux-testsuite/commit/909f3aea627300a7e5ad2bc724d12c3560d34515
-> >
-> >
-> > Are there any new denials audited, possibly requiring semodule -DB to make visible? Wondering if we are denying access to the inherited pipe fd and closing it? Denial would be on fd use or fifo file read/write.
+> On Wed, Jan 25, 2023 at 12:38:46AM -0800, Suren Baghdasaryan wrote:
 >
-> I did check now and there were no such denials. Most likely this has
-> nothing to do with SELinux and it's just mkfs closing stdin before it
-> exits or something like that.
+> > diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+> > index 2d6d790d9bed..6c7c70bf50dd 100644
+> > --- a/include/linux/mm_types.h
+> > +++ b/include/linux/mm_types.h
+> > @@ -491,7 +491,13 @@ struct vm_area_struct {
+> >        * See vmf_insert_mixed_prot() for discussion.
+> >        */
+> >       pgprot_t vm_page_prot;
+> > -     unsigned long vm_flags;         /* Flags, see mm.h. */
+> > +
+> > +     /*
+> > +      * Flags, see mm.h.
+> > +      * WARNING! Do not modify directly.
+> > +      * Use {init|reset|set|clear|mod}_vm_flags() functions instead.
+> > +      */
+> > +     unsigned long vm_flags;
+>
+> We have __private and ACCESS_PRIVATE() to help with enforcing this.
 
-Got it, thank you for checking!
+Thanks for pointing this out, Peter! I guess for that I'll need to
+convert all read accesses and provide get_vm_flags() too? That will
+cause some additional churt (a quick search shows 801 hits over 248
+files) but maybe it's worth it? I think Michal suggested that too in
+another patch. Should I do that while we are at it?
+
+>
