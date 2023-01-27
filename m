@@ -2,181 +2,184 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07A4BC61DA7
-	for <selinux@archiver.kernel.org>; Thu, 26 Jan 2023 17:07:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23944C38142
+	for <selinux@archiver.kernel.org>; Fri, 27 Jan 2023 13:46:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232002AbjAZRHr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Jan 2023 12:07:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45278 "EHLO
+        id S232004AbjA0NqV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Jan 2023 08:46:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjAZRHp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Jan 2023 12:07:45 -0500
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A60F10E0;
-        Thu, 26 Jan 2023 09:07:43 -0800 (PST)
-Received: from mercury (dyndsl-037-138-191-219.ewe-ip-backbone.de [37.138.191.219])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S229680AbjA0NqT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Jan 2023 08:46:19 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80522410AF
+        for <selinux@vger.kernel.org>; Fri, 27 Jan 2023 05:45:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674827131;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=xBcRkS+QRLl29w6FhbhaXaZlz+9HD+3cq0RhaskgEIE=;
+        b=IEamp50XzVv5WLkcWAX+JtsUT7yG0mVDipqUeBLLjQYuQtb1OtgGpJml9Y6Cbm2MOrxcEy
+        gMx1kUIH/xDaSfpQcxVHYf8pMFzhvv5a6ODwRScnTIIUbyQbNloEBaMEWhgEhlB70CVg4O
+        bwq73dH1NSCzjIR/z/fdCuS7NtxoiOk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-55-iNHltJUnNVO4skbCFKgUFw-1; Fri, 27 Jan 2023 08:45:30 -0500
+X-MC-Unique: iNHltJUnNVO4skbCFKgUFw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: sre)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id 7EF3D6602E7C;
-        Thu, 26 Jan 2023 17:07:41 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1674752861;
-        bh=TJwB9xWefUtenAJhobcnuA3/dr44yh/1qZH05naV3dA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HIAeawkSMl4wLK9atphFO2PYIuQtn0mXWrQTGJkp27Vvwen4RmNJXIKy0KOcMN2qu
-         MGji/BoqRh//5quIKkg+7Jg9a4rlT6zYnOxKnHRve8IRt32uZ0O2J9C6ByA7KSG9ni
-         ooI+f+xDzdj/4Xv/XqAW1ZMOqMbxlnaE69Ns4AaVsCb09DHvVD+xjXrJ7HkcJ65ZDs
-         0FKkR9qOOchTbFQKw+Lbe8GJsd/K96q/WWSPWtyPUY4G0yRJ/G34tsJUBI/vL5q95x
-         a6dIJ/I/0Glk/75yhzfiBv6PLPN/HUTuWOcS4vpdAGRdicde5HTb77Vj3shLRE2rZN
-         snAuQFm3yL5CQ==
-Received: by mercury (Postfix, from userid 1000)
-        id 8DAD710609C7; Thu, 26 Jan 2023 18:07:39 +0100 (CET)
-Date:   Thu, 26 Jan 2023 18:07:39 +0100
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     akpm@linux-foundation.org, michel@lespinasse.org,
-        jglisse@google.com, mhocko@suse.com, vbabka@suse.cz,
-        hannes@cmpxchg.org, mgorman@techsingularity.net, dave@stgolabs.net,
-        willy@infradead.org, liam.howlett@oracle.com, peterz@infradead.org,
-        ldufour@linux.ibm.com, paulmck@kernel.org, luto@kernel.org,
-        songliubraving@fb.com, peterx@redhat.com, david@redhat.com,
-        dhowells@redhat.com, hughd@google.com, bigeasy@linutronix.de,
-        kent.overstreet@linux.dev, punit.agrawal@bytedance.com,
-        lstoakes@gmail.com, peterjung1337@gmail.com, rientjes@google.com,
-        axelrasmussen@google.com, joelaf@google.com, minchan@google.com,
-        jannh@google.com, shakeelb@google.com, tatashin@google.com,
-        edumazet@google.com, gthelen@google.com, gurua@google.com,
-        arjunroy@google.com, soheil@google.com, hughlynch@google.com,
-        leewalsh@google.com, posk@google.com, will@kernel.org,
-        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
-        chenhuacai@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        qianweili@huawei.com, wangzhou1@hisilicon.com,
-        herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org,
-        airlied@gmail.com, daniel@ffwll.ch,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, l.stach@pengutronix.de,
-        krzysztof.kozlowski@linaro.org, patrik.r.jakobsson@gmail.com,
-        matthias.bgg@gmail.com, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, dmitry.baryshkov@linaro.org,
-        tomba@kernel.org, hjc@rock-chips.com, heiko@sntech.de,
-        ray.huang@amd.com, kraxel@redhat.com, mcoquelin.stm32@gmail.com,
-        alexandre.torgue@foss.st.com, tfiga@chromium.org,
-        m.szyprowski@samsung.com, mchehab@kernel.org,
-        dimitri.sivanich@hpe.com, zhangfei.gao@linaro.org,
-        jejb@linux.ibm.com, martin.petersen@oracle.com,
-        dgilbert@interlog.com, hdegoede@redhat.com, mst@redhat.com,
-        jasowang@redhat.com, alex.williamson@redhat.com, deller@gmx.de,
-        jayalk@intworks.biz, viro@zeniv.linux.org.uk, nico@fluxnic.net,
-        xiang@kernel.org, chao@kernel.org, tytso@mit.edu,
-        adilger.kernel@dilger.ca, miklos@szeredi.hu,
-        mike.kravetz@oracle.com, muchun.song@linux.dev, bhe@redhat.com,
-        andrii@kernel.org, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        kuba@kernel.org, pabeni@redhat.com, perex@perex.cz, tiwai@suse.com,
-        haojian.zhuang@gmail.com, robert.jarzmik@free.fr,
-        linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, linux-graphics-maintainer@vmware.com,
-        linux-ia64@vger.kernel.org, linux-arch@vger.kernel.org,
-        loongarch@lists.linux.dev, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-sgx@vger.kernel.org,
-        linux-um@lists.infradead.org, linux-acpi@vger.kernel.org,
-        linux-crypto@vger.kernel.org, nvdimm@lists.linux.dev,
-        dmaengine@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
-        linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        linux-mediatek@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        freedreno@lists.freedesktop.org,
-        linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        xen-devel@lists.xenproject.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-rdma@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-accelerators@lists.ozlabs.org, sparclinux@vger.kernel.org,
-        linux-scsi@vger.kernel.org, linux-staging@lists.linux.dev,
-        target-devel@vger.kernel.org, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
-        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
-        devel@lists.orangefs.org, kexec@lists.infradead.org,
-        linux-xfs@vger.kernel.org, bpf@vger.kernel.org,
-        linux-perf-users@vger.kernel.org, kasan-dev@googlegroups.com,
-        selinux@vger.kernel.org, alsa-devel@alsa-project.org,
-        kernel-team@android.com
-Subject: Re: [PATCH v2 3/6] mm: replace vma->vm_flags direct modifications
- with modifier calls
-Message-ID: <20230126170739.mlka2jivn3mfstyf@mercury.elektranox.org>
-References: <20230125083851.27759-1-surenb@google.com>
- <20230125083851.27759-4-surenb@google.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C64A0887401
+        for <selinux@vger.kernel.org>; Fri, 27 Jan 2023 13:45:29 +0000 (UTC)
+Received: from P1.redhat.com (ovpn-192-82.brq.redhat.com [10.40.192.82])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 241DB40C141B;
+        Fri, 27 Jan 2023 13:45:28 +0000 (UTC)
+From:   Petr Lautrbach <lautrbach@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH] Update translations
+Date:   Fri, 27 Jan 2023 14:44:01 +0100
+Message-Id: <20230127134401.1065787-1-lautrbach@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qcyccrleajamxo75"
-Content-Disposition: inline
-In-Reply-To: <20230125083851.27759-4-surenb@google.com>
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Source: https://translate.fedoraproject.org/projects/selinux/
 
---qcyccrleajamxo75
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
 
-Hi,
+The patch is too big for the mailing list - it's available at https://github.com/bachradsusi/SELinuxProject-selinux/commit/6ff74136e9ac5aa0f7406db6ae040a89c0e3d93d
+or https://github.com/bachradsusi/SELinuxProject-selinux/commit/6ff74136e9ac5aa0f7406db6ae040a89c0e3d93d.patch
 
-On Wed, Jan 25, 2023 at 12:38:48AM -0800, Suren Baghdasaryan wrote:
-> Replace direct modifications to vma->vm_flags with calls to modifier
-> functions to be able to track flag changes and to keep vma locking
-> correctness.
->=20
-> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-> ---
-> [...]
->  drivers/hsi/clients/cmt_speech.c                   |  2 +-
->  120 files changed, 188 insertions(+), 199 deletions(-)
-> [...]
-> diff --git a/drivers/hsi/clients/cmt_speech.c b/drivers/hsi/clients/cmt_s=
-peech.c
-> index 8069f795c864..952a31e742a1 100644
-> --- a/drivers/hsi/clients/cmt_speech.c
-> +++ b/drivers/hsi/clients/cmt_speech.c
-> @@ -1264,7 +1264,7 @@ static int cs_char_mmap(struct file *file, struct v=
-m_area_struct *vma)
->  	if (vma_pages(vma) !=3D 1)
->  		return -EINVAL;
-> =20
-> -	vma->vm_flags |=3D VM_IO | VM_DONTDUMP | VM_DONTEXPAND;
-> +	set_vm_flags(vma, VM_IO | VM_DONTDUMP | VM_DONTEXPAND);
->  	vma->vm_ops =3D &cs_char_vm_ops;
->  	vma->vm_private_data =3D file->private_data;
-> =20
 
-Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+ gui/po/de.po             |   10 +-
+ gui/po/ja.po             |    8 +-
+ gui/po/ka.po             |   16 +-
+ gui/po/tr.po             |   10 +-
+ policycoreutils/po/ar.po |   15 +-
+ policycoreutils/po/de.po |   15 +-
+ policycoreutils/po/fr.po |   10 +-
+ policycoreutils/po/ko.po |    8 +-
+ policycoreutils/po/sv.po |   15 +-
+ policycoreutils/po/tr.po |   10 +-
+ python/po/af.po          |  943 ++++++++++++++++----------------
+ python/po/am.po          |  943 ++++++++++++++++----------------
+ python/po/ar.po          |  947 ++++++++++++++++----------------
+ python/po/as.po          |  947 ++++++++++++++++----------------
+ python/po/ast.po         |  943 ++++++++++++++++----------------
+ python/po/bal.po         |  943 ++++++++++++++++----------------
+ python/po/be.po          |  943 ++++++++++++++++----------------
+ python/po/bg.po          |  947 ++++++++++++++++----------------
+ python/po/bn.po          |  943 ++++++++++++++++----------------
+ python/po/bn_IN.po       |  947 ++++++++++++++++----------------
+ python/po/br.po          |  943 ++++++++++++++++----------------
+ python/po/brx.po         |  943 ++++++++++++++++----------------
+ python/po/bs.po          |  947 ++++++++++++++++----------------
+ python/po/ca.po          |  947 ++++++++++++++++----------------
+ python/po/cs.po          |  947 ++++++++++++++++----------------
+ python/po/cy.po          |  943 ++++++++++++++++----------------
+ python/po/da.po          |  947 ++++++++++++++++----------------
+ python/po/de.po          |  964 ++++++++++++++++-----------------
+ python/po/de_CH.po       |  943 ++++++++++++++++----------------
+ python/po/el.po          |  943 ++++++++++++++++----------------
+ python/po/en_GB.po       |  947 ++++++++++++++++----------------
+ python/po/eo.po          |  943 ++++++++++++++++----------------
+ python/po/es.po          |  947 ++++++++++++++++----------------
+ python/po/et.po          |  943 ++++++++++++++++----------------
+ python/po/eu.po          |  943 ++++++++++++++++----------------
+ python/po/fa.po          |  943 ++++++++++++++++----------------
+ python/po/fi.po          |  951 ++++++++++++++++----------------
+ python/po/fil.po         |  943 ++++++++++++++++----------------
+ python/po/fr.po          |  953 +++++++++++++++++----------------
+ python/po/fur.po         |  943 ++++++++++++++++----------------
+ python/po/ga.po          |  943 ++++++++++++++++----------------
+ python/po/gl.po          |  943 ++++++++++++++++----------------
+ python/po/gu.po          |  947 ++++++++++++++++----------------
+ python/po/he.po          |  943 ++++++++++++++++----------------
+ python/po/hi.po          |  947 ++++++++++++++++----------------
+ python/po/hr.po          |  947 ++++++++++++++++----------------
+ python/po/hu.po          |  947 ++++++++++++++++----------------
+ python/po/ia.po          |  943 ++++++++++++++++----------------
+ python/po/id.po          |  943 ++++++++++++++++----------------
+ python/po/ilo.po         |  943 ++++++++++++++++----------------
+ python/po/is.po          |  943 ++++++++++++++++----------------
+ python/po/it.po          |  947 ++++++++++++++++----------------
+ python/po/ja.po          |  953 +++++++++++++++++----------------
+ python/po/ka.po          | 1101 +++++++++++++++++++-------------------
+ python/po/kk.po          |  943 ++++++++++++++++----------------
+ python/po/km.po          |  943 ++++++++++++++++----------------
+ python/po/kn.po          |  947 ++++++++++++++++----------------
+ python/po/ko.po          |  951 ++++++++++++++++----------------
+ python/po/ky.po          |  943 ++++++++++++++++----------------
+ python/po/lt.po          |  943 ++++++++++++++++----------------
+ python/po/lv.po          |  943 ++++++++++++++++----------------
+ python/po/mai.po         |  947 ++++++++++++++++----------------
+ python/po/mk.po          |  947 ++++++++++++++++----------------
+ python/po/ml.po          |  947 ++++++++++++++++----------------
+ python/po/mn.po          |  943 ++++++++++++++++----------------
+ python/po/mr.po          |  947 ++++++++++++++++----------------
+ python/po/ms.po          |  947 ++++++++++++++++----------------
+ python/po/my.po          |  943 ++++++++++++++++----------------
+ python/po/nb.po          |  943 ++++++++++++++++----------------
+ python/po/nds.po         |  943 ++++++++++++++++----------------
+ python/po/ne.po          |  943 ++++++++++++++++----------------
+ python/po/nl.po          |  947 ++++++++++++++++----------------
+ python/po/nn.po          |  943 ++++++++++++++++----------------
+ python/po/nso.po         |  943 ++++++++++++++++----------------
+ python/po/or.po          |  947 ++++++++++++++++----------------
+ python/po/pa.po          |  947 ++++++++++++++++----------------
+ python/po/pl.po          |  951 ++++++++++++++++----------------
+ python/po/pt.po          |  947 ++++++++++++++++----------------
+ python/po/pt_BR.po       |  947 ++++++++++++++++----------------
+ python/po/python.pot     |  943 ++++++++++++++++----------------
+ python/po/ro.po          |  943 ++++++++++++++++----------------
+ python/po/ru.po          |  947 ++++++++++++++++----------------
+ python/po/si.po          |  943 ++++++++++++++++----------------
+ python/po/sk.po          |  947 ++++++++++++++++----------------
+ python/po/sl.po          |  943 ++++++++++++++++----------------
+ python/po/sq.po          |  943 ++++++++++++++++----------------
+ python/po/sr.po          |  947 ++++++++++++++++----------------
+ python/po/sr@latin.po    |  947 ++++++++++++++++----------------
+ python/po/sv.po          |  955 +++++++++++++++++----------------
+ python/po/ta.po          |  947 ++++++++++++++++----------------
+ python/po/te.po          |  947 ++++++++++++++++----------------
+ python/po/tg.po          |  943 ++++++++++++++++----------------
+ python/po/th.po          |  943 ++++++++++++++++----------------
+ python/po/tr.po          |  943 ++++++++++++++++----------------
+ python/po/uk.po          |  955 +++++++++++++++++----------------
+ python/po/ur.po          |  943 ++++++++++++++++----------------
+ python/po/vi.po          |  943 ++++++++++++++++----------------
+ python/po/zh_CN.po       |  957 +++++++++++++++++----------------
+ python/po/zh_HK.po       |  943 ++++++++++++++++----------------
+ python/po/zh_TW.po       |  947 ++++++++++++++++----------------
+ python/po/zu.po          |  943 ++++++++++++++++----------------
+ sandbox/po/cs.po         |   51 +-
+ sandbox/po/da.po         |   53 +-
+ sandbox/po/de.po         |   53 +-
+ sandbox/po/es.po         |   53 +-
+ sandbox/po/fi.po         |   57 +-
+ sandbox/po/fr.po         |   59 +-
+ sandbox/po/hu.po         |   53 +-
+ sandbox/po/ja.po         |   57 +-
+ sandbox/po/ka.po         |   83 +--
+ sandbox/po/ko.po         |   57 +-
+ sandbox/po/nl.po         |   53 +-
+ sandbox/po/pl.po         |   57 +-
+ sandbox/po/pt_BR.po      |   53 +-
+ sandbox/po/ru.po         |   53 +-
+ sandbox/po/sandbox.pot   |   51 +-
+ sandbox/po/si.po         |   51 +-
+ sandbox/po/sv.po         |   53 +-
+ sandbox/po/tr.po         |   53 +-
+ sandbox/po/uk.po         |   61 ++-
+ sandbox/po/zh_CN.po      |   57 +-
+ sandbox/po/zh_TW.po      |   53 +-
+ 122 files changed, 44044 insertions(+), 43450 deletions(-)
 
--- Sebastian
-
---qcyccrleajamxo75
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmPSs1EACgkQ2O7X88g7
-+pquLBAAkw9lw9lxNRCI6jvqLy98JsUBgSQigNB6Eh8JVWsySHMm1OszFCcvTpoc
-vinC/VPMOa6JwEw5e9naXRF2UJahO+Cx+e5MYIKos3QyIUPfi0YM7Cv96h6+c4l/
-NdcxLS8+9ElitTuA47UVgPSeZwzdZ1kU5VUV1X2fx+6aGA+dBfWVBgWDqU6AB0Sa
-ehU4betso5Ypl26YEmLPHmY+8Xx2jXNwwBEgsHgO2/YjRn9YPDeMAqb4lWs99h0d
-nUV1VqwTClRrExtNDvidHryknmyCIBpYt38gn0i9+uIf9mFoBmUDN+/zAdRguGBT
-r1CQAwvRvHmEyGJ4dp1nijyt/PWxDBlCWytlmzXrK/rkeH8sQCRdCr9L83/d5DM0
-iU98ehmbH9kx8rD4y0L91xmsnegNYNKSfAvz3EP4KYFOHjTw2SOCYoazPu3z62bN
-d3HL+08LeZpm1XwVPydZqBd5UpBK8NaQYCJ3BjsLUefsSJE+SWzsnoYFnbUrL1X9
-1XfU6LGtVvjCPUsjk7oqh5PjtRGQsdtUhSZJLwNzTeh4I0nSzL1pj8vRFZ7UTcV4
-RmFYsjBbKhja2fC13eM4tKzfx53harnHVNuUPw2aoLKshpkQaOTUqWBnRXtbJZkb
-dSRKObxfPlHVI+awnfN6owpXF86Owew2+XJcXILOPxaBk8PI/Ns=
-=/0TB
------END PGP SIGNATURE-----
-
---qcyccrleajamxo75--
