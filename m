@@ -2,184 +2,210 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23944C38142
-	for <selinux@archiver.kernel.org>; Fri, 27 Jan 2023 13:46:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92D0CC38142
+	for <selinux@archiver.kernel.org>; Sat, 28 Jan 2023 21:15:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbjA0NqV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Jan 2023 08:46:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56842 "EHLO
+        id S230156AbjA1VP1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 28 Jan 2023 16:15:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229680AbjA0NqT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Jan 2023 08:46:19 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80522410AF
-        for <selinux@vger.kernel.org>; Fri, 27 Jan 2023 05:45:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1674827131;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=xBcRkS+QRLl29w6FhbhaXaZlz+9HD+3cq0RhaskgEIE=;
-        b=IEamp50XzVv5WLkcWAX+JtsUT7yG0mVDipqUeBLLjQYuQtb1OtgGpJml9Y6Cbm2MOrxcEy
-        gMx1kUIH/xDaSfpQcxVHYf8pMFzhvv5a6ODwRScnTIIUbyQbNloEBaMEWhgEhlB70CVg4O
-        bwq73dH1NSCzjIR/z/fdCuS7NtxoiOk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-55-iNHltJUnNVO4skbCFKgUFw-1; Fri, 27 Jan 2023 08:45:30 -0500
-X-MC-Unique: iNHltJUnNVO4skbCFKgUFw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C64A0887401
-        for <selinux@vger.kernel.org>; Fri, 27 Jan 2023 13:45:29 +0000 (UTC)
-Received: from P1.redhat.com (ovpn-192-82.brq.redhat.com [10.40.192.82])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 241DB40C141B;
-        Fri, 27 Jan 2023 13:45:28 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] Update translations
-Date:   Fri, 27 Jan 2023 14:44:01 +0100
-Message-Id: <20230127134401.1065787-1-lautrbach@redhat.com>
+        with ESMTP id S229637AbjA1VP0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 28 Jan 2023 16:15:26 -0500
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA10233F7
+        for <selinux@vger.kernel.org>; Sat, 28 Jan 2023 13:15:24 -0800 (PST)
+Received: by mail-ej1-x62d.google.com with SMTP id gs13so11572442ejc.0
+        for <selinux@vger.kernel.org>; Sat, 28 Jan 2023 13:15:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=im+cvRet0di/e1ukAdd1yEZltk52uhFLUNg/ctD2bac=;
+        b=G/twm1yFtVoormon9d5G92UdnmSIycMWnq0JDUSIqhUaItvbQEL+4Xq+6rSI3zuJkq
+         noLKBNTLem4wHeRg3jSp6HmIos7t5KdO7Jt/aYVubIeawPAPMJzOQrNGOXGK/Kzba91e
+         iB2SERuxayGraDedTqyqdxqsnE60ix+RUrbIk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=im+cvRet0di/e1ukAdd1yEZltk52uhFLUNg/ctD2bac=;
+        b=gXsUD2LnxNCFN85nW+HJm5GnuFaZthP/3MNaoIScFSG+yJxUbxJEqAdf6okLZ1WGRP
+         bRon0a4UhaeY8JDeYNw06P5wke0lpn20ybRVFYW7MMoM75LTBZfBqOw1wZR/YGdBoJ47
+         FWXnrbdtTvwmF4l9Z4Cw1O7g5upiUp+2hCHrKCw+ly8g8Knh+mUsbGIGQ5Sl9k0eWuzy
+         tFkhA85OErip3Ihjx2L9NAheNk7l+5b9H6P2HcP2Irv95H267f/uUIQrxfCVX3RQdqLR
+         VCanseQaxodCdHWTxEDV6MNHNSMWUF1Xlz6NtNc69b2pYMpA1mQIMBcNg1OhqPMcxan0
+         SqGw==
+X-Gm-Message-State: AO0yUKWk2EUA3l0qFC71a/qBc1r12kK0se6dzgF10Nw+bBE0YMX8sa9b
+        9chk9umcZ22VH4PDQNP6y2EUIp7FVTttitjKiA8=
+X-Google-Smtp-Source: AK7set/+C1ufxhS9ceTnTplAAWDbUcZu2g6KX7fMb+qMAJCXv8mAbIc1LlOoe7C3wMwRjTh9shXhww==
+X-Received: by 2002:a17:906:66c2:b0:7c1:2e19:ba3f with SMTP id k2-20020a17090666c200b007c12e19ba3fmr3048480ejp.57.1674940522286;
+        Sat, 28 Jan 2023 13:15:22 -0800 (PST)
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com. [209.85.218.44])
+        by smtp.gmail.com with ESMTPSA id c23-20020a170906155700b00869f2ca6a87sm4351760ejd.135.2023.01.28.13.15.21
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 28 Jan 2023 13:15:21 -0800 (PST)
+Received: by mail-ej1-f44.google.com with SMTP id m2so21820433ejb.8
+        for <selinux@vger.kernel.org>; Sat, 28 Jan 2023 13:15:21 -0800 (PST)
+X-Received: by 2002:a17:906:a3c9:b0:879:4f94:41ea with SMTP id
+ ca9-20020a170906a3c900b008794f9441eamr2138734ejb.79.1674940521352; Sat, 28
+ Jan 2023 13:15:21 -0800 (PST)
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sat, 28 Jan 2023 13:15:04 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whR4KSGqfEodXMwOMdQBt+V2HHMyz6+CobiydnZE+Vq9Q@mail.gmail.com>
+Message-ID: <CAHk-=whR4KSGqfEodXMwOMdQBt+V2HHMyz6+CobiydnZE+Vq9Q@mail.gmail.com>
+Subject: Looking at profile data once again - avc lookup
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="000000000000cbd86205f3597a86"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Source: https://translate.fedoraproject.org/projects/selinux/
+--000000000000cbd86205f3597a86
+Content-Type: text/plain; charset="UTF-8"
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
+So I happened to do my occasional "let's see what a profile for an
+empty kernel build is", which usually highlights some silly thing we
+do in pathname lookup (because most of the cost is just 'make' doing
+various string handling in user space, and doing variations of
+'lstat()' to look at file timestamps).
 
-The patch is too big for the mailing list - it's available at https://github.com/bachradsusi/SELinuxProject-selinux/commit/6ff74136e9ac5aa0f7406db6ae040a89c0e3d93d
-or https://github.com/bachradsusi/SELinuxProject-selinux/commit/6ff74136e9ac5aa0f7406db6ae040a89c0e3d93d.patch
+And, as always, avc_has_perm() and avc_has_perm_noaudit() are pretty
+high up there, together with selinux_inode_permission(). It just gets
+called a *lot*.
 
+Now, avc_has_perm_noaudit() should be inlined, but it turns out that
+it isn't because of some bad behavior of the unlikely path. That part
+looks fairly easy to massage away. I'm attaching a largely untested
+patch that makes the generated code look a bit better, in case anybody
+wants to look at it.
 
- gui/po/de.po             |   10 +-
- gui/po/ja.po             |    8 +-
- gui/po/ka.po             |   16 +-
- gui/po/tr.po             |   10 +-
- policycoreutils/po/ar.po |   15 +-
- policycoreutils/po/de.po |   15 +-
- policycoreutils/po/fr.po |   10 +-
- policycoreutils/po/ko.po |    8 +-
- policycoreutils/po/sv.po |   15 +-
- policycoreutils/po/tr.po |   10 +-
- python/po/af.po          |  943 ++++++++++++++++----------------
- python/po/am.po          |  943 ++++++++++++++++----------------
- python/po/ar.po          |  947 ++++++++++++++++----------------
- python/po/as.po          |  947 ++++++++++++++++----------------
- python/po/ast.po         |  943 ++++++++++++++++----------------
- python/po/bal.po         |  943 ++++++++++++++++----------------
- python/po/be.po          |  943 ++++++++++++++++----------------
- python/po/bg.po          |  947 ++++++++++++++++----------------
- python/po/bn.po          |  943 ++++++++++++++++----------------
- python/po/bn_IN.po       |  947 ++++++++++++++++----------------
- python/po/br.po          |  943 ++++++++++++++++----------------
- python/po/brx.po         |  943 ++++++++++++++++----------------
- python/po/bs.po          |  947 ++++++++++++++++----------------
- python/po/ca.po          |  947 ++++++++++++++++----------------
- python/po/cs.po          |  947 ++++++++++++++++----------------
- python/po/cy.po          |  943 ++++++++++++++++----------------
- python/po/da.po          |  947 ++++++++++++++++----------------
- python/po/de.po          |  964 ++++++++++++++++-----------------
- python/po/de_CH.po       |  943 ++++++++++++++++----------------
- python/po/el.po          |  943 ++++++++++++++++----------------
- python/po/en_GB.po       |  947 ++++++++++++++++----------------
- python/po/eo.po          |  943 ++++++++++++++++----------------
- python/po/es.po          |  947 ++++++++++++++++----------------
- python/po/et.po          |  943 ++++++++++++++++----------------
- python/po/eu.po          |  943 ++++++++++++++++----------------
- python/po/fa.po          |  943 ++++++++++++++++----------------
- python/po/fi.po          |  951 ++++++++++++++++----------------
- python/po/fil.po         |  943 ++++++++++++++++----------------
- python/po/fr.po          |  953 +++++++++++++++++----------------
- python/po/fur.po         |  943 ++++++++++++++++----------------
- python/po/ga.po          |  943 ++++++++++++++++----------------
- python/po/gl.po          |  943 ++++++++++++++++----------------
- python/po/gu.po          |  947 ++++++++++++++++----------------
- python/po/he.po          |  943 ++++++++++++++++----------------
- python/po/hi.po          |  947 ++++++++++++++++----------------
- python/po/hr.po          |  947 ++++++++++++++++----------------
- python/po/hu.po          |  947 ++++++++++++++++----------------
- python/po/ia.po          |  943 ++++++++++++++++----------------
- python/po/id.po          |  943 ++++++++++++++++----------------
- python/po/ilo.po         |  943 ++++++++++++++++----------------
- python/po/is.po          |  943 ++++++++++++++++----------------
- python/po/it.po          |  947 ++++++++++++++++----------------
- python/po/ja.po          |  953 +++++++++++++++++----------------
- python/po/ka.po          | 1101 +++++++++++++++++++-------------------
- python/po/kk.po          |  943 ++++++++++++++++----------------
- python/po/km.po          |  943 ++++++++++++++++----------------
- python/po/kn.po          |  947 ++++++++++++++++----------------
- python/po/ko.po          |  951 ++++++++++++++++----------------
- python/po/ky.po          |  943 ++++++++++++++++----------------
- python/po/lt.po          |  943 ++++++++++++++++----------------
- python/po/lv.po          |  943 ++++++++++++++++----------------
- python/po/mai.po         |  947 ++++++++++++++++----------------
- python/po/mk.po          |  947 ++++++++++++++++----------------
- python/po/ml.po          |  947 ++++++++++++++++----------------
- python/po/mn.po          |  943 ++++++++++++++++----------------
- python/po/mr.po          |  947 ++++++++++++++++----------------
- python/po/ms.po          |  947 ++++++++++++++++----------------
- python/po/my.po          |  943 ++++++++++++++++----------------
- python/po/nb.po          |  943 ++++++++++++++++----------------
- python/po/nds.po         |  943 ++++++++++++++++----------------
- python/po/ne.po          |  943 ++++++++++++++++----------------
- python/po/nl.po          |  947 ++++++++++++++++----------------
- python/po/nn.po          |  943 ++++++++++++++++----------------
- python/po/nso.po         |  943 ++++++++++++++++----------------
- python/po/or.po          |  947 ++++++++++++++++----------------
- python/po/pa.po          |  947 ++++++++++++++++----------------
- python/po/pl.po          |  951 ++++++++++++++++----------------
- python/po/pt.po          |  947 ++++++++++++++++----------------
- python/po/pt_BR.po       |  947 ++++++++++++++++----------------
- python/po/python.pot     |  943 ++++++++++++++++----------------
- python/po/ro.po          |  943 ++++++++++++++++----------------
- python/po/ru.po          |  947 ++++++++++++++++----------------
- python/po/si.po          |  943 ++++++++++++++++----------------
- python/po/sk.po          |  947 ++++++++++++++++----------------
- python/po/sl.po          |  943 ++++++++++++++++----------------
- python/po/sq.po          |  943 ++++++++++++++++----------------
- python/po/sr.po          |  947 ++++++++++++++++----------------
- python/po/sr@latin.po    |  947 ++++++++++++++++----------------
- python/po/sv.po          |  955 +++++++++++++++++----------------
- python/po/ta.po          |  947 ++++++++++++++++----------------
- python/po/te.po          |  947 ++++++++++++++++----------------
- python/po/tg.po          |  943 ++++++++++++++++----------------
- python/po/th.po          |  943 ++++++++++++++++----------------
- python/po/tr.po          |  943 ++++++++++++++++----------------
- python/po/uk.po          |  955 +++++++++++++++++----------------
- python/po/ur.po          |  943 ++++++++++++++++----------------
- python/po/vi.po          |  943 ++++++++++++++++----------------
- python/po/zh_CN.po       |  957 +++++++++++++++++----------------
- python/po/zh_HK.po       |  943 ++++++++++++++++----------------
- python/po/zh_TW.po       |  947 ++++++++++++++++----------------
- python/po/zu.po          |  943 ++++++++++++++++----------------
- sandbox/po/cs.po         |   51 +-
- sandbox/po/da.po         |   53 +-
- sandbox/po/de.po         |   53 +-
- sandbox/po/es.po         |   53 +-
- sandbox/po/fi.po         |   57 +-
- sandbox/po/fr.po         |   59 +-
- sandbox/po/hu.po         |   53 +-
- sandbox/po/ja.po         |   57 +-
- sandbox/po/ka.po         |   83 +--
- sandbox/po/ko.po         |   57 +-
- sandbox/po/nl.po         |   53 +-
- sandbox/po/pl.po         |   57 +-
- sandbox/po/pt_BR.po      |   53 +-
- sandbox/po/ru.po         |   53 +-
- sandbox/po/sandbox.pot   |   51 +-
- sandbox/po/si.po         |   51 +-
- sandbox/po/sv.po         |   53 +-
- sandbox/po/tr.po         |   53 +-
- sandbox/po/uk.po         |   61 ++-
- sandbox/po/zh_CN.po      |   57 +-
- sandbox/po/zh_TW.po      |   53 +-
- 122 files changed, 44044 insertions(+), 43450 deletions(-)
+But the real reason for this email is to query about 'selinux_state'.
 
+We pass that around as a pointer quite a bit, to the point where
+several function calls have to use stack space for arguments just
+because they have more than six arguments. And from what I can tell,
+it is *always* just a pointer to 'selinux_state', and never anything
+else.
+
+Some cases are obvious:
+
+    git grep -w avc_has_perm |
+        grep -v 'avc_has_perm(&selinux_state,'
+
+ie every _single_ callers of 'avc_has_perm()' just passes in a pointer
+to that single selinux_state thing.
+
+Some cases are a bit less obvious, like security_get_user_sids(),
+which has sel_write_user() do
+
+        struct selinux_state *state = fsi->state;
+        ..
+                rc = security_sid_to_context(state, sids[i], &newcon, &len);
+
+and then in turn it passes that to avc_has_perm_noaudit(), so it looks
+like we might actually have multiple states.
+
+The emphasis here being on "looks like", because it turns out that the
+only thing that assigns 'fsi->state' is selinux_fs_info_create(),
+which does
+
+        fsi->state = &selinux_state;
+
+oh, look, it's that same &selinux_state again!
+
+In general, I really think there is just one single
+
+        struct selinux_state selinux_state;
+
+declared in security/selinux/hooks.c, and everybody just pointlessly
+passes in a pointer to that single thing.
+
+This was all done five years ago by commit aa8e712cee93 ("selinux:
+wrap global selinux state") and I don't see the point. It never seems
+to have gone anywhere, there's no other state that I can find, and all
+it does is add overhead and complexity.
+
+So I'd like to undo that, and go back to the good old days when we
+didn't waste time and effort on passing a pointer that always has the
+same value as an argument.
+
+Comments? Is there some case I've missed?
+
+               Linus
+
+--000000000000cbd86205f3597a86
+Content-Type: text/x-patch; charset="US-ASCII"; 
+	name="0001-selinux-uninline-unlikely-parts-of-avc_has_perm_noau.patch"
+Content-Disposition: attachment; 
+	filename="0001-selinux-uninline-unlikely-parts-of-avc_has_perm_noau.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_ldggb7em0>
+X-Attachment-Id: f_ldggb7em0
+
+RnJvbSA1MGQzMmVjYjA2NmE4MjAxNDZmNWRjNDQxMTg1YzBlMDNjMTFiM2U1IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBMaW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRh
+dGlvbi5vcmc+CkRhdGU6IFNhdCwgMjggSmFuIDIwMjMgMTI6NTM6MjYgLTA4MDAKU3ViamVjdDog
+W1BBVENIXSBzZWxpbnV4OiB1bmlubGluZSB1bmxpa2VseSBwYXJ0cyBvZiBhdmNfaGFzX3Blcm1f
+bm9hdWRpdCgpCgphdmNfaGFzX3Blcm1fbm9hdWRpdCgpaXMgb25lIG9mIHRob3NlIGhvdCBmdW5j
+dGlvbnMgdGhhdCBlbmQgdXAgYmVpbmcKdXNlZCBieSBhbG1vc3QgYWxsIGZpbGVzeXN0ZW0gb3Bl
+cmF0aW9ucyAodGhyb3VnaCAiYXZjX2hhc19wZXJtKCkiKSBhbmQKaXQncyBpbnRlbmRlZCB0byBi
+ZSBjaGVhcCBlbm91Z2ggdG8gaW5saW5lLgoKSG93ZXZlciwgaXQgdHVybnMgb3V0IHRoYXQgdGhl
+IHVubGlrZWx5IHBhcnRzIG9mIGl0ICh3aGVyZSBpdCBkb2Vzbid0CmZpbmQgYW4gZXhpc3Rpbmcg
+YXZjIG5vZGUpIG5lZWQgYSBmYWlyIGFtb3VudCBvZiBzdGFjayBzcGFjZSBmb3IgdGhlCmF1dG9t
+YXRpYyByZXBsYWNlbWVudCBub2RlLCBzbyBpZiBpdCB3ZXJlIHRvIGJlIGlubGluZWQgKGF0IGxl
+YXN0IGNsYW5nCmRvZXMgbm90KSBpdCB3b3VsZCBqdXN0IHVzZSBzdGFjayBzcGFjZSB1bm5lY2Vz
+c2FyaWx5LgoKU28gc3BsaXQgdGhlIHVubGlrZWx5IHBhcnQgb3V0IG9mIGl0LCBhbmQgbWFyayB0
+aGF0IHBhcnQgbm9pbmxpbmUuICBUaGF0CmltcHJvdmVzIHRoZSBhY3R1YWwgbGlrZWx5IHBhcnQu
+CgpTaWduZWQtb2ZmLWJ5OiBMaW51cyBUb3J2YWxkcyA8dG9ydmFsZHNAbGludXgtZm91bmRhdGlv
+bi5vcmc+Ci0tLQogc2VjdXJpdHkvc2VsaW51eC9hdmMuYyB8IDUyICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKy0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDQxIGluc2VydGlvbnMo
+KyksIDExIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL3NlY3VyaXR5L3NlbGludXgvYXZjLmMg
+Yi9zZWN1cml0eS9zZWxpbnV4L2F2Yy5jCmluZGV4IDlhNDNhZjBlYmQ3ZC4uODVlNWFmN2Y4NTZl
+IDEwMDY0NAotLS0gYS9zZWN1cml0eS9zZWxpbnV4L2F2Yy5jCisrKyBiL3NlY3VyaXR5L3NlbGlu
+dXgvYXZjLmMKQEAgLTExMTIsNiArMTExMiwzOCBAQCBpbnQgYXZjX2hhc19leHRlbmRlZF9wZXJt
+cyhzdHJ1Y3Qgc2VsaW51eF9zdGF0ZSAqc3RhdGUsCiAJcmV0dXJuIHJjOwogfQogCisvKgorICog
+VGhpcyBpcyB0aGUgIndlIGhhdmUgbm8gbm9kZSIgcGFydCBvZiBhdmNfaGFzX3Blcm1fbm9hdWRp
+dCgpLAorICogd2hpY2ggaXMgdW5saWtlbHkgYW5kIG5lZWRzIGV4dHJhIHN0YWNrIHNwYWNlIGZv
+ciB0aGUgbmV3CisgKiBub2RlIHRoYXQgd2UgZ2VuZXJhdGUuIFNvIGRvbid0IGlubGluZSBpdC4K
+KyAqCisgKiBOT1RFISBDYWxsZWQgd2l0aCBSQ1UgbG9jayBoZWxkIGZvciByZWFkaW5nLCBhbmQg
+bmVlZHMgdG8KKyAqIGRyb3AgaXQuIEFuZCBzaW5jZSB0aGUgUkNVIGxvY2sgd2FzIGZvciB0aGUg
+bm9kZSBsaWZldGltZQorICogKHdoaWNoIHdlIGRvbid0IGhhdmUpLCB3ZSBjb3VsZCBqdXN0IGRy
+b3AgaXQgZWFybHkuIEV4Y2VwdAorICogYXZjX2NvbXB1dGVfYXYoKSBrbm93cyBpdCdzIGNhbGxl
+ZCB1bmRlciB0aGUgcmN1IGxvY2ssIGFuZAorICogZHJvcHMgYW5kIHJlLXRha2VzIGl0LiBXaGF0
+IGEgY3JvY2suCisgKgorICogU28gd2UgZHJvcCBpdCBhZnRlciBjYWxsaW5nIGF2Y19jb21wdXRl
+X2F2KCkgKGFuZCAqaW5zaWRlKgorICogYXZjX2NvbXB1dGVfYXYoKSkuCisgKi8KK3N0YXRpYyBu
+b2lubGluZSBpbnQgYXZjX3Blcm1fbm9ub2RlKHN0cnVjdCBzZWxpbnV4X3N0YXRlICpzdGF0ZSwK
+KwkJCQl1MzIgc3NpZCwgdTMyIHRzaWQsCisJCQkJdTE2IHRjbGFzcywgdTMyIHJlcXVlc3RlZCwK
+KwkJCQl1bnNpZ25lZCBpbnQgZmxhZ3MsCisJCQkJc3RydWN0IGF2X2RlY2lzaW9uICphdmQpCit7
+CisJCXUzMiBkZW5pZWQ7CisJCXN0cnVjdCBhdmNfeHBlcm1zX25vZGUgeHBfbm9kZTsKKworCQlh
+dmNfY29tcHV0ZV9hdihzdGF0ZSwgc3NpZCwgdHNpZCwgdGNsYXNzLCBhdmQsICZ4cF9ub2RlKTsK
+KwkJcmN1X3JlYWRfdW5sb2NrKCk7CisJCWRlbmllZCA9IHJlcXVlc3RlZCAmIH4oYXZkLT5hbGxv
+d2VkKTsKKwkJaWYgKHVubGlrZWx5KGRlbmllZCkpCisJCQlyZXR1cm4gYXZjX2RlbmllZChzdGF0
+ZSwgc3NpZCwgdHNpZCwgdGNsYXNzLCByZXF1ZXN0ZWQsIDAsIDAsCisJCQkJCWZsYWdzLCBhdmQp
+OworCQlyZXR1cm4gMDsKK30KKwogLyoqCiAgKiBhdmNfaGFzX3Blcm1fbm9hdWRpdCAtIENoZWNr
+IHBlcm1pc3Npb25zIGJ1dCBwZXJmb3JtIG5vIGF1ZGl0aW5nLgogICogQHN0YXRlOiBTRUxpbnV4
+IHN0YXRlCkBAIC0xMTM5LDEwICsxMTcxLDggQEAgaW5saW5lIGludCBhdmNfaGFzX3Blcm1fbm9h
+dWRpdChzdHJ1Y3Qgc2VsaW51eF9zdGF0ZSAqc3RhdGUsCiAJCQkJdW5zaWduZWQgaW50IGZsYWdz
+LAogCQkJCXN0cnVjdCBhdl9kZWNpc2lvbiAqYXZkKQogewotCXN0cnVjdCBhdmNfbm9kZSAqbm9k
+ZTsKLQlzdHJ1Y3QgYXZjX3hwZXJtc19ub2RlIHhwX25vZGU7Ci0JaW50IHJjID0gMDsKIAl1MzIg
+ZGVuaWVkOworCXN0cnVjdCBhdmNfbm9kZSAqbm9kZTsKIAogCWlmIChXQVJOX09OKCFyZXF1ZXN0
+ZWQpKQogCQlyZXR1cm4gLUVBQ0NFUzsKQEAgLTExNTEsMTcgKzExODEsMTcgQEAgaW5saW5lIGlu
+dCBhdmNfaGFzX3Blcm1fbm9hdWRpdChzdHJ1Y3Qgc2VsaW51eF9zdGF0ZSAqc3RhdGUsCiAKIAlu
+b2RlID0gYXZjX2xvb2t1cChzdGF0ZS0+YXZjLCBzc2lkLCB0c2lkLCB0Y2xhc3MpOwogCWlmICh1
+bmxpa2VseSghbm9kZSkpCi0JCWF2Y19jb21wdXRlX2F2KHN0YXRlLCBzc2lkLCB0c2lkLCB0Y2xh
+c3MsIGF2ZCwgJnhwX25vZGUpOwotCWVsc2UKLQkJbWVtY3B5KGF2ZCwgJm5vZGUtPmFlLmF2ZCwg
+c2l6ZW9mKCphdmQpKTsKKwkJcmV0dXJuIGF2Y19wZXJtX25vbm9kZShzdGF0ZSwgc3NpZCwgdHNp
+ZCwgdGNsYXNzLCByZXF1ZXN0ZWQsIGZsYWdzLCBhdmQpOworCisJZGVuaWVkID0gcmVxdWVzdGVk
+ICYgfm5vZGUtPmFlLmF2ZC5hbGxvd2VkOworCW1lbWNweShhdmQsICZub2RlLT5hZS5hdmQsIHNp
+emVvZigqYXZkKSk7CisJcmN1X3JlYWRfdW5sb2NrKCk7CiAKLQlkZW5pZWQgPSByZXF1ZXN0ZWQg
+JiB+KGF2ZC0+YWxsb3dlZCk7CiAJaWYgKHVubGlrZWx5KGRlbmllZCkpCi0JCXJjID0gYXZjX2Rl
+bmllZChzdGF0ZSwgc3NpZCwgdHNpZCwgdGNsYXNzLCByZXF1ZXN0ZWQsIDAsIDAsCi0JCQkJZmxh
+Z3MsIGF2ZCk7CisJCXJldHVybiBhdmNfZGVuaWVkKHN0YXRlLCBzc2lkLCB0c2lkLCB0Y2xhc3Ms
+IHJlcXVlc3RlZCwgMCwgMCwKKwkJCQkJZmxhZ3MsIGF2ZCk7CiAKLQlyY3VfcmVhZF91bmxvY2so
+KTsKLQlyZXR1cm4gcmM7CisJcmV0dXJuIDA7CiB9CiAKIC8qKgotLSAKMi4zOS4wLnJjMi40Lmcx
+NDM1OTMxZTQzCgo=
+--000000000000cbd86205f3597a86--
