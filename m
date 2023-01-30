@@ -2,80 +2,123 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41E11C54EAA
-	for <selinux@archiver.kernel.org>; Mon, 30 Jan 2023 17:47:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DAE7C54EED
+	for <selinux@archiver.kernel.org>; Mon, 30 Jan 2023 17:59:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235730AbjA3RrB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Jan 2023 12:47:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60378 "EHLO
+        id S235278AbjA3R73 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Jan 2023 12:59:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236653AbjA3RrB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Jan 2023 12:47:01 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDED03B64F
-        for <selinux@vger.kernel.org>; Mon, 30 Jan 2023 09:46:58 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id d10so8152557pgm.13
-        for <selinux@vger.kernel.org>; Mon, 30 Jan 2023 09:46:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rc9yMjuBL6bCfJegjSMFj2dAWgcmknuIWAglX+a4xFc=;
-        b=Cx14tgaB1RYOjixoeKLmjs0jibQfEpPcsG1FsZhjKbt5/xu2CXwlzjU1NqDNldvgA2
-         88ymL7fZG5z0cOpm4IG1EBdet9zrlWgrLyjvTJx8cRn7F2GCATzzSvasSoHlNfpFJTP1
-         z6VZ2Tx41+o26U7tdNzXFFkCbB/Odp3WeqkrbjSarOMFZr5iFaWYINp/dqs9lWSOmNUt
-         DqhtH280MBXEGFwc+40tCvYta72yx7dZ8uL3a2l7sQsmSeZbHVyF3xpFoBi4NOddHDCZ
-         Lx/vsr637aMvPUptCbwCNAg/QjB/cH3IxWmUdODKeeJqkZAgTGk8ctKwNimauUBmtsVF
-         Aulw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Rc9yMjuBL6bCfJegjSMFj2dAWgcmknuIWAglX+a4xFc=;
-        b=lU+vvS9YNRoD4iLEOF5sptUADOc/TlpPalkRbm7OaXFM6FZx/lXUBXWVps8fHkre2j
-         I7UyfhT5JCb/6QOKmcSfCJxpLzfUmVz6jxHX8OERHPNtGGXM+ymRI5YnmfE56lDtuOvt
-         s0GeHA8BbZkTTi+dWnj7535pqlLr9uo9j2xlKWdsAxCpJP/aV0EzmkbWjvYqGv9yefsN
-         vyaE7JMhpVPwrzsZnDs827/gVJeXs2TUA5gC3zswpZbW4yxX5uxj7pjSeBjxc/9uL34O
-         L7hq+H1cGi1BP/pcIdeOBe4Alr0I+mG6kzZW4vEEknOtv3x+I/sAoVmIBv5My+Wi7YYA
-         dQQw==
-X-Gm-Message-State: AO0yUKVeJ5VUnVHxyWcSO2tCDWp95p60Lwk/pI9j1T7jam+6cT4V1pBv
-        P8SopOzWCsOwZvotm0lNcWDyUpxk5ufSBke/jkepBL8xkPk/
-X-Google-Smtp-Source: AK7set9j0bjS1qh1rvOMlP7TL8n7zxbMQVJpWF1OJtzumRSuDAA2uWkdvhTmPakplq+6422jz/GNxBgbVC0CKvNBbhQ=
-X-Received: by 2002:a62:8e0a:0:b0:592:a8af:4ffc with SMTP id
- k10-20020a628e0a000000b00592a8af4ffcmr1887180pfe.52.1675100818166; Mon, 30
- Jan 2023 09:46:58 -0800 (PST)
+        with ESMTP id S236653AbjA3R73 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Jan 2023 12:59:29 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABC6E3BDB3
+        for <selinux@vger.kernel.org>; Mon, 30 Jan 2023 09:58:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675101523;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4G90vxPG8Le5qQQE5iqdyeXT4crCi6BsIIL/HGUud+I=;
+        b=Owq60yKyyttLzsConcfUMHCIkUuJbqBqI7RByi2VIjTc6egFJwFqgIHLK3keSVPZ8ljYhf
+        gTZR3i4GvaNYlW5XCe5pKtNylIBXpRaNIJ+Av61+F9dSWj0MzXhpSjgX8e8Ww+3oYYzBzZ
+        VCyEZmXbLl1RhCBdjwGAVi/LHVNkW6A=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-17-iShaL-YZPj-nLz0FH_REhg-1; Mon, 30 Jan 2023 12:58:34 -0500
+X-MC-Unique: iShaL-YZPj-nLz0FH_REhg-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 84C2F185A78B
+        for <selinux@vger.kernel.org>; Mon, 30 Jan 2023 17:58:34 +0000 (UTC)
+Received: from ovpn-193-234.brq.redhat.com (ovpn-193-234.brq.redhat.com [10.40.193.234])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E6A9492B06
+        for <selinux@vger.kernel.org>; Mon, 30 Jan 2023 17:58:33 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v2] python/sepolicy: Cache conditional rule queries
+Date:   Mon, 30 Jan 2023 18:58:28 +0100
+Message-Id: <20230130175828.2487173-1-vmojzis@redhat.com>
+In-Reply-To: <20230124202607.1953135-1-vmojzis@redhat.com>
+References: <20230124202607.1953135-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-References: <CAHk-=whR4KSGqfEodXMwOMdQBt+V2HHMyz6+CobiydnZE+Vq9Q@mail.gmail.com>
- <CAHC9VhR1jRM2K0757sNYS8VvSUxRWOKUJ1unbsZm9LOEM3Up6Q@mail.gmail.com>
- <CAHk-=whLndwMFSF_OAWdqxXYXUev_H9YqEkXQ1_PKoPO8u=G2g@mail.gmail.com> <CAHC9VhRWz2N6ezZckSwtZvM3J75prdq7ckaoQgAO+ECz527qCw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRWz2N6ezZckSwtZvM3J75prdq7ckaoQgAO+ECz527qCw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 30 Jan 2023 12:46:46 -0500
-Message-ID: <CAHC9VhRgR2BV3v_1o3JGdBT80UxiMSGUcrLVG8Tj3JiKynZYNw@mail.gmail.com>
-Subject: Re: Looking at profile data once again - avc lookup
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 30, 2023 at 12:14 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Sun, Jan 29, 2023 at 2:37 PM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> > On Sat, Jan 28, 2023 at 2:33 PM Paul Moore <paul@paul-moore.com> wrote:
-> > Honestly, considering that the selinux code is literally more
-> > expensive than THE REAL WORKLOAD it is checking, I really want people
-> > to take a second look.
->
-> WE WILL
+Commit 7506771e4b630fe0ab853f96574e039055cb72eb
+"add missing booleans to man pages" dramatically slowed down
+"sepolicy manpage -a" by removing caching of setools rule query.
+Re-add said caching and update the query to only return conditional
+rules.
 
-I should add, do you have any particular test script you use?  If not,
-that's fine, I just cobble something together, but I figured if you
-had something already it would save me having to remember the details
-on the perf tools.
+Before commit 7506771e:
+ #time sepolicy manpage -a
+ real	1m43.153s
+ # time sepolicy manpage -d httpd_t
+ real	0m4.493s
 
+After commit 7506771e:
+ #time sepolicy manpage -a
+ real   1h56m43.153s
+ # time sepolicy manpage -d httpd_t
+ real	0m8.352s
+
+After this commit:
+ #time sepolicy manpage -a
+ real	1m41.074s
+ # time sepolicy manpage -d httpd_t
+ real	0m7.358s
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+* Remove "sepolicy." before TERuleQuery (left over from testing on older
+  version of userspace).
+
+ python/sepolicy/sepolicy/__init__.py | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+index e2d5c11a..c177cdfc 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -125,6 +125,7 @@ all_attributes = None
+ booleans = None
+ booleans_dict = None
+ all_allow_rules = None
++all_bool_rules = None
+ all_transitions = None
+ 
+ 
+@@ -1136,6 +1137,14 @@ def get_all_allow_rules():
+         all_allow_rules = search([ALLOW])
+     return all_allow_rules
+ 
++def get_all_bool_rules():
++    global all_bool_rules
++    if not all_bool_rules:
++        q = TERuleQuery(_pol, boolean=".*", boolean_regex=True,
++                                ruletype=[ALLOW, DONTAUDIT])
++        all_bool_rules = [_setools_rule_to_dict(x) for x in q.results()]
++    return all_bool_rules
++
+ def get_all_transitions():
+     global all_transitions
+     if not all_transitions:
+@@ -1146,7 +1155,7 @@ def get_bools(setype):
+     bools = []
+     domainbools = []
+     domainname, short_name = gen_short_name(setype)
+-    for i in map(lambda x: x['booleans'], filter(lambda x: 'booleans' in x and x['source'] == setype, search([ALLOW, DONTAUDIT]))):
++    for i in map(lambda x: x['booleans'], filter(lambda x: 'booleans' in x and x['source'] == setype, get_all_bool_rules())):
+         for b in i:
+             if not isinstance(b, tuple):
+                 continue
 -- 
-paul-moore.com
+2.37.3
+
