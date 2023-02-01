@@ -2,247 +2,276 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E8F6C636D3
-	for <selinux@archiver.kernel.org>; Wed,  1 Feb 2023 13:15:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F366AC6379F
+	for <selinux@archiver.kernel.org>; Wed,  1 Feb 2023 14:23:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231665AbjBANP1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Feb 2023 08:15:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43558 "EHLO
+        id S230508AbjBAOXm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Feb 2023 09:23:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230456AbjBANP0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Feb 2023 08:15:26 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E476A6F
-        for <selinux@vger.kernel.org>; Wed,  1 Feb 2023 05:15:24 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id z11so17658779ede.1
-        for <selinux@vger.kernel.org>; Wed, 01 Feb 2023 05:15:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Olq0ySMp+yu7kNR0R7YXKakCfPJSnXgyl7zoWpK1APM=;
-        b=akozT2tyFuPc2m0MzVIJzEpAzMNUe4lQ18mKoMp0qALqdXEq+6uolHsDOygUmdjU7+
-         yeduOphO0LjcTd9JrtW0GjGVTDRz11/QXlUrLsIW9VPTHGOXIPnNvnbvs/WDFXjGMuiL
-         XEl7V7rDk9AbYdlTdiTm4J5zm+NVFvc/HjC9T9qd9UmP9DYjAlXcVSU2tCCX2rvNuC3n
-         HnHAmV+v8QLzdaeKeH6JkMDONmD1OAe23Ro9CqcnW+RdaV+rf76oUbzdBvi8x8fYK2Yx
-         brOmPCkhczM8xbVhHdLEXy1weIuYdzj/jnzd1uqvvx0SYT+3ftbiL3YP7exdqWbCQd2A
-         ygVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Olq0ySMp+yu7kNR0R7YXKakCfPJSnXgyl7zoWpK1APM=;
-        b=B8MJMAVJkaqc4/e2mHwiLhkn8uYu3Bzxi5kjYnN9o99MZz89HtB/MRr3LdPiC1sGtm
-         JtEHHQqqGLoHvUxWg+q2SZNfyLKEX91RNYSHV5DgHpP1qwd0XsFdXJWdRZN7zsv5NYZ3
-         cFBT/7EF7MsXCJkfGYUo2B9Ow1d9NhFI3UgQKSwzMosX3nLI0v2NpS5tMHguHRN7TzGU
-         pJvnrVTprcfmDrND5I2Oy0NdLEHrtvqluQSuT+T9RgtTBRRqfBBOws+XkEPXGCmEQyAD
-         A6j0U5ZUFoMbk1/fIASkdsOM5iAi/92Ztk52pQlJAdfcDgtZ845y0G9ASOhWBrcC6KKV
-         8PaQ==
-X-Gm-Message-State: AO0yUKUOMwxQxRz/uGt/I5ixSjCR64TiBDzh9xALAnrnJvcV4QfK+wTV
-        4zskG8u+8lAPYPg/TUAb7fg8OP2cqW5Ytg==
-X-Google-Smtp-Source: AK7set+Pp0T+nPt6Nr0T01BARhDeSo5I0UC0vTvvCEenC2i0MXGZteB05bdCdLVTaj4BH189glQHyg==
-X-Received: by 2002:a05:6402:e9b:b0:46c:a763:5889 with SMTP id h27-20020a0564020e9b00b0046ca7635889mr1945999eda.25.1675257323191;
-        Wed, 01 Feb 2023 05:15:23 -0800 (PST)
-Received: from debianHome.localdomain (dynamic-077-008-178-099.77.8.pool.telefonica.de. [77.8.178.99])
-        by smtp.gmail.com with ESMTPSA id j15-20020aa7c40f000000b0049f88f00f70sm8431978edq.7.2023.02.01.05.15.22
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Feb 2023 05:15:22 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2 1/2] libselinux: add getpidprevcon
-Date:   Wed,  1 Feb 2023 14:15:15 +0100
-Message-Id: <20230201131516.19967-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230109170912.57887-1-cgzones@googlemail.com>
-References: <20230109170912.57887-1-cgzones@googlemail.com>
+        with ESMTP id S229719AbjBAOXk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Feb 2023 09:23:40 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D373C302BF;
+        Wed,  1 Feb 2023 06:23:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675261416; x=1706797416;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=8sZMEHk8pe9rMkHcroXBwwvy+4dmtJw9gS0wdi+sTdY=;
+  b=RLLZsbW/GgkBIwf3Ln4dL4ye1U9hgIlzhgA/Rq0K7jRBp5hSLnFct8mz
+   wpYjdZfqCAHrVQB362nGnLZqvZz52PvEAswA8LdeOKQiB6UBg5skA4xc3
+   bnM2T+oBW+FDn6H0pDxux7CqQ/hIZUXOMvQlFxe2Z356bzFutuh+ZX9Xn
+   NMdFdf3dJKvXSCGczB55YXjNfLj/Vk3h8gfA8n/GMzdf6CtLoe1ypG4km
+   KKFlCX2AT6OPBqqdw5sis2OQA9t0zCLsXj7Y7LnWlwNb7kn7aiuseteGa
+   hPacMiBExfD0FSTDwJTy6dt1F1Fjlogr25eQ0XBVsb/LzqgH8adKgZOQu
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10608"; a="308493810"
+X-IronPort-AV: E=Sophos;i="5.97,263,1669104000"; 
+   d="scan'208";a="308493810"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2023 06:23:36 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10608"; a="807578398"
+X-IronPort-AV: E=Sophos;i="5.97,263,1669104000"; 
+   d="scan'208";a="807578398"
+Received: from jazminsx-mobl1.ger.corp.intel.com (HELO [10.213.218.124]) ([10.213.218.124])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2023 06:23:30 -0800
+Message-ID: <15adf130-61f7-2423-2a48-883e611e3304@linux.intel.com>
+Date:   Wed, 1 Feb 2023 14:23:28 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH v2 1/4] memcg: Track exported dma-buffers
+Content-Language: en-US
+To:     "T.J. Mercier" <tjmercier@google.com>
+Cc:     Michal Hocko <mhocko@suse.com>, Shakeel Butt <shakeelb@google.com>,
+        linux-doc@vger.kernel.org, daniel.vetter@ffwll.ch,
+        Roman Gushchin <roman.gushchin@linux.dev>, cmllamas@google.com,
+        dri-devel@lists.freedesktop.org, linux-mm@kvack.org,
+        jstultz@google.com, Zefan Li <lizefan.x@bytedance.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>, android-mm@google.com,
+        Jonathan Corbet <corbet@lwn.net>, jeffv@google.com,
+        linux-media@vger.kernel.org, selinux@vger.kernel.org,
+        linaro-mm-sig@lists.linaro.org, cgroups@vger.kernel.org,
+        Muchun Song <muchun.song@linux.dev>,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+References: <20230123191728.2928839-1-tjmercier@google.com>
+ <20230123191728.2928839-2-tjmercier@google.com>
+ <Y8/ybgp2FW+e3bjc@dhcp22.suse.cz>
+ <20230124194628.d44rtcfsv23fndxw@google.com>
+ <Y9EX+usSpAjZ/8LS@dhcp22.suse.cz>
+ <347560bc-d06a-92b7-8003-133d2b8af2df@linux.intel.com>
+ <CABdmKX09S3bYzX+xBkhfkFULk2BtzS11RhzrvWv94j+cHSezPA@mail.gmail.com>
+ <ad6bd448-91bd-d47e-5b54-8755fe0e0340@linux.intel.com>
+ <CABdmKX3VSdF3jmktpw9VH4k+J+ZtQCLCPdNN6uye4XnZGPhG5g@mail.gmail.com>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+In-Reply-To: <CABdmKX3VSdF3jmktpw9VH4k+J+ZtQCLCPdNN6uye4XnZGPhG5g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add the public interfaces getpidprevcon(3) and getpidprevcon_raw(3), and
-the utility getpidprevcon to gather the previous context before the last
-exec of a given process.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2:
-   added new interfaces to libselinux.map
----
- libselinux/include/selinux/selinux.h    |  5 ++++
- libselinux/man/man3/getcon.3            | 10 ++++++++
- libselinux/man/man3/getpidprevcon.3     |  1 +
- libselinux/man/man3/getpidprevcon_raw.3 |  1 +
- libselinux/src/libselinux.map           |  6 +++++
- libselinux/src/procattr.c               | 18 ++++++++++++++
- libselinux/utils/.gitignore             |  1 +
- libselinux/utils/getpidprevcon.c        | 33 +++++++++++++++++++++++++
- 8 files changed, 75 insertions(+)
- create mode 100644 libselinux/man/man3/getpidprevcon.3
- create mode 100644 libselinux/man/man3/getpidprevcon_raw.3
- create mode 100644 libselinux/utils/getpidprevcon.c
+On 01/02/2023 01:49, T.J. Mercier wrote:
+> On Tue, Jan 31, 2023 at 6:01 AM Tvrtko Ursulin
+> <tvrtko.ursulin@linux.intel.com> wrote:
+>>
+>>
+>> On 25/01/2023 20:04, T.J. Mercier wrote:
+>>> On Wed, Jan 25, 2023 at 9:31 AM Tvrtko Ursulin
+>>> <tvrtko.ursulin@linux.intel.com> wrote:
+>>>>
+>>>>
+>>>> Hi,
+>>>>
+>>>> On 25/01/2023 11:52, Michal Hocko wrote:
+>>>>> On Tue 24-01-23 19:46:28, Shakeel Butt wrote:
+>>>>>> On Tue, Jan 24, 2023 at 03:59:58PM +0100, Michal Hocko wrote:
+>>>>>>> On Mon 23-01-23 19:17:23, T.J. Mercier wrote:
+>>>>>>>> When a buffer is exported to userspace, use memcg to attribute the
+>>>>>>>> buffer to the allocating cgroup until all buffer references are
+>>>>>>>> released.
+>>>>>>>
+>>>>>>> Is there any reason why this memory cannot be charged during the
+>>>>>>> allocation (__GFP_ACCOUNT used)?
+>>>>>>> Also you do charge and account the memory but underlying pages do not
+>>>>>>> know about their memcg (this is normally done with commit_charge for
+>>>>>>> user mapped pages). This would become a problem if the memory is
+>>>>>>> migrated for example.
+>>>>>>
+>>>>>> I don't think this is movable memory.
+>>>>>>
+>>>>>>> This also means that you have to maintain memcg
+>>>>>>> reference outside of the memcg proper which is not really nice either.
+>>>>>>> This mimicks tcp kmem limit implementation which I really have to say I
+>>>>>>> am not a great fan of and this pattern shouldn't be coppied.
+>>>>>>>
+>>>>>>
+>>>>>> I think we should keep the discussion on technical merits instead of
+>>>>>> personal perference. To me using skmem like interface is totally fine
+>>>>>> but the pros/cons need to be very explicit and the clear reasons to
+>>>>>> select that option should be included.
+>>>>>
+>>>>> I do agree with that. I didn't want sound to be personal wrt tcp kmem
+>>>>> accounting but the overall code maintenance cost is higher because
+>>>>> of how tcp take on accounting differs from anything else in the memcg
+>>>>> proper. I would prefer to not grow another example like that.
+>>>>>
+>>>>>> To me there are two options:
+>>>>>>
+>>>>>> 1. Using skmem like interface as this patch series:
+>>>>>>
+>>>>>> The main pros of this option is that it is very simple. Let me list down
+>>>>>> the cons of this approach:
+>>>>>>
+>>>>>> a. There is time window between the actual memory allocation/free and
+>>>>>> the charge and uncharge and [un]charge happen when the whole memory is
+>>>>>> allocated or freed. I think for the charge path that might not be a big
+>>>>>> issue but on the uncharge, this can cause issues. The application and
+>>>>>> the potential shrinkers have freed some of this dmabuf memory but until
+>>>>>> the whole dmabuf is freed, the memcg uncharge will not happen. This can
+>>>>>> consequences on reclaim and oom behavior of the application.
+>>>>>>
+>>>>>> b. Due to the usage model i.e. a central daemon allocating the dmabuf
+>>>>>> memory upfront, there is a requirement to have a memcg charge transfer
+>>>>>> functionality to transfer the charge from the central daemon to the
+>>>>>> client applications. This does introduce complexity and avenues of weird
+>>>>>> reclaim and oom behavior.
+>>>>>>
+>>>>>>
+>>>>>> 2. Allocate and charge the memory on page fault by actual user
+>>>>>>
+>>>>>> In this approach, the memory is not allocated upfront by the central
+>>>>>> daemon but rather on the page fault by the client application and the
+>>>>>> memcg charge happen at the same time.
+>>>>>>
+>>>>>> The only cons I can think of is this approach is more involved and may
+>>>>>> need some clever tricks to track the page on the free patch i.e. we to
+>>>>>> decrement the dmabuf memcg stat on free path. Maybe a page flag.
+>>>>>>
+>>>>>> The pros of this approach is there is no need have a charge transfer
+>>>>>> functionality and the charge/uncharge being closely tied to the actual
+>>>>>> memory allocation and free.
+>>>>>>
+>>>>>> Personally I would prefer the second approach but I don't want to just
+>>>>>> block this work if the dmabuf folks are ok with the cons mentioned of
+>>>>>> the first approach.
+>>>>>
+>>>>> I am not familiar with dmabuf internals to judge complexity on their end
+>>>>> but I fully agree that charge-when-used is much more easier to reason
+>>>>> about and it should have less subtle surprises.
+>>>>
+>>>> Disclaimer that I don't seem to see patches 3&4 on dri-devel so maybe I
+>>>> am missing something, but in principle yes, I agree that the 2nd option
+>>>> (charge the user, not exporter) should be preferred. Thing being that at
+>>>> export time there may not be any backing store allocated, plus if the
+>>>> series is restricting the charge transfer to just Android clients then
+>>>> it seems it has the potential to miss many other use cases. At least
+>>>> needs to outline a description on how the feature will be useful outside
+>>>> Android.
+>>>>
+>>> There is no restriction like that. It's available to anybody who wants
+>>> to call dma_buf_charge_transfer if they actually have a need for that,
+>>> which I don't really expect to be common since most users/owners of
+>>> the buffers will be the ones causing the export in the first place.
+>>> It's just not like that on Android with the extra allocator process in
+>>> the middle most of the time.
+>>
+>> Yeah I used the wrong term "restrict", apologies. What I meant was, if
+>> the idea was to allow spotting memory leaks, with the charge transfer
+>> being optional and in the series only wired up for Android Binder, then
+>> it obviously only fully works for that one case. So a step back..
+>>
+> Oh, spotting kernel memory leaks is a side-benefit of accounting
+> kernel-only buffers in the root cgroup. The primary goal is to
+> attribute buffers to applications that originated them (via
+> per-application cgroups) simply for accounting purposes. Buffers are
+> using memory on the system, and we want to know who created them and
+> how much memory is used. That information is/will no longer available
+> with the recent deprecation of the dmabuf sysfs statistics.
+> 
+>> .. For instance, it is not feasible to transfer the charge when dmabuf
+>> is attached, or imported? That would attribute the usage to the
+>> user/importer so give better visibility on who is actually causing the
+>> memory leak.
+>>
+> Instead of accounting at export, we could account at attach. That just
+> turns out not to be very useful when the majority of our
+> heap-allocated buffers don't have attachments at any particular point
+> in time. :\ But again it's less about leaks and more about knowing
+> which buffers exist in the first place.
+> 
+>> Further more, if above is feasible, then could it also be implemented in
+>> the common layer so it would automatically cover all drivers?
+>>
+> Which common layer code specifically? The dmabuf interface appears to
+> be the most central/common place to me.
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 47af9953..a0948853 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -54,6 +54,11 @@ extern int getpidcon_raw(pid_t pid, char ** con);
- extern int getprevcon(char ** con);
- extern int getprevcon_raw(char ** con);
- 
-+/* Get previous context (prior to last exec) of process identified by pid, and
-+   set *con to refer to it.  Caller must free via freecon. */
-+extern int getpidprevcon(pid_t pid, char ** con);
-+extern int getpidprevcon_raw(pid_t pid, char ** con);
-+
- /* Get exec context, and set *con to refer to it.
-    Sets *con to NULL if no exec context has been set, i.e. using default.
-    If non-NULL, caller must free via freecon. */
-diff --git a/libselinux/man/man3/getcon.3 b/libselinux/man/man3/getcon.3
-index e7e394f3..1b4fe4b7 100644
---- a/libselinux/man/man3/getcon.3
-+++ b/libselinux/man/man3/getcon.3
-@@ -23,6 +23,10 @@ setcon \- set current security context of a process
- .sp
- .BI "int getpidcon_raw(pid_t " pid ", char **" context );
- .sp
-+.BI "int getpidprevcon(pid_t " pid ", char **" context );
-+.sp
-+.BI "int getpidprevcon_raw(pid_t " pid ", char **" context );
-+.sp
- .BI "int getpeercon(int " fd ", char **" context );
- .sp
- .BI "int getpeercon_raw(int " fd ", char **" context );
-@@ -50,6 +54,11 @@ same as getcon but gets the context before the last exec.
- returns the process context for the specified PID, which must be free'd with
- .BR freecon ().
- 
-+.TP
-+.BR getpidprevcon ()
-+returns the process context before the last exec for the specified PID, which must be free'd with
-+.BR freecon ().
-+
- .TP
- .BR getpeercon ()
- retrieves the context of the peer socket, which must be free'd with
-@@ -125,6 +134,7 @@ will fail if it is not allowed by policy.
- .BR getcon_raw (),
- .BR getprevcon_raw (),
- .BR getpidcon_raw (),
-+.BR getpidprevcon_raw (),
- .BR getpeercon_raw ()
- and
- .BR setcon_raw ()
-diff --git a/libselinux/man/man3/getpidprevcon.3 b/libselinux/man/man3/getpidprevcon.3
-new file mode 100644
-index 00000000..1210b5a0
---- /dev/null
-+++ b/libselinux/man/man3/getpidprevcon.3
-@@ -0,0 +1 @@
-+.so man3/getcon.3
-diff --git a/libselinux/man/man3/getpidprevcon_raw.3 b/libselinux/man/man3/getpidprevcon_raw.3
-new file mode 100644
-index 00000000..1210b5a0
---- /dev/null
-+++ b/libselinux/man/man3/getpidprevcon_raw.3
-@@ -0,0 +1 @@
-+.so man3/getcon.3
-diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-index 6e04eb61..5e00f45b 100644
---- a/libselinux/src/libselinux.map
-+++ b/libselinux/src/libselinux.map
-@@ -246,3 +246,9 @@ LIBSELINUX_3.4 {
-     selinux_restorecon_get_skipped_errors;
-     selinux_restorecon_parallel;
- } LIBSELINUX_1.0;
-+
-+LIBSELINUX_3.5 {
-+  global:
-+    getpidprevcon;
-+    getpidprevcon_raw;
-+} LIBSELINUX_3.4;
-diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-index 6f4cfb82..b7a93a2b 100644
---- a/libselinux/src/procattr.c
-+++ b/libselinux/src/procattr.c
-@@ -300,3 +300,21 @@ int getpidcon(pid_t pid, char **c)
- 	}
- 	return getprocattrcon(c, pid, "current", NULL);
- }
-+
-+int getpidprevcon_raw(pid_t pid, char **c)
-+{
-+        if (pid <= 0) {
-+                errno = EINVAL;
-+                return -1;
-+        }
-+        return getprocattrcon_raw(c, pid, "prev", NULL);
-+}
-+
-+int getpidprevcon(pid_t pid, char **c)
-+{
-+        if (pid <= 0) {
-+                errno = EINVAL;
-+                return -1;
-+        }
-+        return getprocattrcon(c, pid, "prev", NULL);
-+}
-diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-index 3ef34374..b19b94a8 100644
---- a/libselinux/utils/.gitignore
-+++ b/libselinux/utils/.gitignore
-@@ -9,6 +9,7 @@ getdefaultcon
- getenforce
- getfilecon
- getpidcon
-+getpidprevcon
- getsebool
- getseuser
- matchpathcon
-diff --git a/libselinux/utils/getpidprevcon.c b/libselinux/utils/getpidprevcon.c
-new file mode 100644
-index 00000000..662ad500
---- /dev/null
-+++ b/libselinux/utils/getpidprevcon.c
-@@ -0,0 +1,33 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <selinux/selinux.h>
-+
-+int main(int argc, char **argv)
-+{
-+	pid_t pid;
-+	char *buf;
-+	int rc;
-+
-+	if (argc != 2) {
-+		fprintf(stderr, "usage:  %s pid\n", argv[0]);
-+		exit(1);
-+	}
-+
-+	if (sscanf(argv[1], "%d", &pid) != 1) {
-+		fprintf(stderr, "%s:  invalid pid %s\n", argv[0], argv[1]);
-+		exit(2);
-+	}
-+
-+	rc = getpidprevcon(pid, &buf);
-+	if (rc < 0) {
-+		fprintf(stderr, "%s:  getpidprevcon() failed:  %s\n", argv[0], strerror(errno));
-+		exit(3);
-+	}
-+
-+	printf("%s\n", buf);
-+	freecon(buf);
-+	exit(EXIT_SUCCESS);
-+}
--- 
-2.39.1
+Yes, I meant dma_buf_attach / detach. More below.
+>>>> Also stepping back for a moment - is a new memory category really
+>>>> needed, versus perhaps attempting to charge the actual backing store
+>>>> memory to the correct client? (There might have been many past
+>>>> discussions on this so it's okay to point me towards something in the
+>>>> archives.)
+>>>>
+>>> Well the dmabuf counter for the stat file is really just a subcategory
+>>> of memory that is charged. Its existence is not related to getting the
+>>> charge attributed to the right process/cgroup. We do want to know how
+>>> much of the memory attributed to a process is for dmabufs, which is
+>>> the main point of this series.
+>>
+>> Then I am probably missing something because the statement how proposal
+>> is not intended to charge to the right process, but wants to know how
+>> much dmabuf "size" is attributed to a process, confuses me due a seeming
+>> contradiction. And the fact it would not be externally observable how
+>> much of the stats is accurate and how much is not (without knowing the
+>> implementation detail of which drivers implement charge transfer and
+>> when). Maybe I completely misunderstood the use case.
+>>
+> Hmm, did I clear this up above or no? The current proposal is for the
+> process causing the export of a buffer to be charged for it,
+> regardless of whatever happens afterwards. (Unless that process is
+> like gralloc on Android, in which case the charge is transferred from
+> gralloc to whoever called gralloc to allocate the buffer on their
+> behalf.)
 
+Main problem for me is that charging at export time has no relation to memory used. But I am not familiar with the memcg counters to know if any other counter sets that same precedent. If all other are about real memory use then IMO this does not fit that well. I mean specifically this:
+
++	  dmabuf (npn)
++		Amount of memory used for exported DMA buffers allocated by the cgroup.
++		Stays with the allocating cgroup regardless of how the buffer is shared.
++
+
+I think that "Amount of memory used for exported..." is not correct. As implemented it is more akin the virtual address space size in the cpu space - it can have no relation to the actual usage since backing store is not allocated until the attachment is made.
+
+Then also this:
+
+@@ -446,6 +447,8 @@ struct dma_buf {
+  		struct dma_buf *dmabuf;
+  	} *sysfs_entry;
+  #endif
++	/* The cgroup to which this buffer is currently attributed */
++	struct mem_cgroup *memcg;
+  };
+
+Does not conceptually fit in my mind. Dmabufs are not associated with one cgroup at a time.
+
+So if you would place tracking into dma_buf_attach/detach you would be able to charge to correct cgroup regardless of a driver and since by contract at this stage there is backing store, the reflected memory usage counter would be truthful.
+
+But then you state a problem, that majority of the time there are no attachments in your setup, and you also say the proposal is not so much about leaks but more about knowing what is exported.
+
+In this case you could additionally track that via dma_buf_getfile / dma_buf_file_release as a separate category like dmabuf-exported? But again, I personally don't know if such "may not really be using memory" counters fit in memcg.
+
+(Hm you'd probably still need dmabuf->export_memcg to store who was the original caller of dma_buf_getfile, in case last reference is dropped from a different process/context. Even dmabuf->attach_memcg for attach/detach to work correctly for the same reason.)
+
+Regards,
+
+Tvrtko
