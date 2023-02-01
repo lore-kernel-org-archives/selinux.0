@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F116CC05027
-	for <selinux@archiver.kernel.org>; Wed,  1 Feb 2023 10:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 238ECC636D4
+	for <selinux@archiver.kernel.org>; Wed,  1 Feb 2023 10:55:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230347AbjBAKzT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Feb 2023 05:55:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57524 "EHLO
+        id S231664AbjBAKzU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Feb 2023 05:55:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231664AbjBAKzS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Feb 2023 05:55:18 -0500
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92CC2448A
-        for <selinux@vger.kernel.org>; Wed,  1 Feb 2023 02:55:17 -0800 (PST)
-Received: by mail-ej1-x634.google.com with SMTP id dr8so28615563ejc.12
-        for <selinux@vger.kernel.org>; Wed, 01 Feb 2023 02:55:17 -0800 (PST)
+        with ESMTP id S231799AbjBAKzT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Feb 2023 05:55:19 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA4459E5B
+        for <selinux@vger.kernel.org>; Wed,  1 Feb 2023 02:55:18 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id mc11so27700143ejb.10
+        for <selinux@vger.kernel.org>; Wed, 01 Feb 2023 02:55:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=qZxRf1xg5j7Cb/uM5pprTyQjYyeoKqqzWl4KhDHfP4g=;
-        b=SBp3yxwveSOuyxqjyKR5RP2XKgUdOShtynaDFwK+P7NqnptvcAV5Irt3y9E3G9dCjW
-         1797kSzWZn4BkdXxDEaJHcGwD6CME8lBgnyiqrLVKCaGZcnuJzulF/XVL37edq5H5dkR
-         8LcGcLWL2AFGIgMPgVKXtE7oanrz+JI5pry6zUffWt+IE+StPlf7QHsVo24au978uHTD
-         fAulDc9EsJXFarrDvT/A01izSpPSjMse76UOgNq/KrqwJwiJS10a/Fvm5Fs0dDDMnli2
-         nCuZJfO8vwQAhnYmsOEmM3ChXGngO3BLjr3Agwkv321Hdrg3vSrnEl6YVaj4rKn8znKS
-         pNeg==
+        bh=vaz46VNTuztP+8XGRf+9Uy7aUzyx7wS8C+XeMQlua/k=;
+        b=f8WLN1qf9FeDUUM05gGud5hKLW8otA0dPsJhoqfvk9rF7CgwqyRDEK9NTOo2GbOCIh
+         HuZzHet5j7KzdU53ouOw7VZK+iPdq22au0g5b0vVLBjaHIWQyedyeDK6tq7aEfoaQcxz
+         vLys0xYw4APmMeEnN2REjnhGKip41n5Bw69S541thsUbXEX6kXaAIo/xP9e5ickesECD
+         r8a5lIJ5NCbxkuZ8YSIn9q1ajsNKCjmpn5kNPleHF7GTwDu/nKB4wmNLK4r6uUWTaopy
+         BUk17fNEeueps52Fn27H3e62Ou3lQgK1b6lUIQL6whi2P3l2pkt6hj/pXmj7hmCOSjzp
+         nSZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qZxRf1xg5j7Cb/uM5pprTyQjYyeoKqqzWl4KhDHfP4g=;
-        b=jaMVSdq322rtofZ1jAJ5SI84d3AxH/OM9sjJq7JfdoBTDlYvfekNmvrqKI4nucD1VY
-         Eg5/lVwkNaP+dGyTikngomz0IInEj6on1JOK38VRbF6UiHILbpYoQueehTVDDdnQc07n
-         K50Pxds22FLUC+yAuIn4P7poIqWkIYjsVNPF4KXk+1OGZqV3HweyVwfyV5j47orxl4P2
-         MdpFMS40MfjEczjQsipSwbjV/4x/W3qignYoi4HeW3dml3De14fVp4NxJLvh/KdvkuhH
-         WBMor7lg/HJRsBRww83o3T+bnpVTY5CqHYRSmowcPnwsoaeUHS7cZPC+4OwBZ5HJnqED
-         9+vQ==
-X-Gm-Message-State: AO0yUKUNcZRTjmCYwaBH71d4ljORNyeDDZzqvCQbJCzsu0OuhKRwViTl
-        5hZF9oKKrt+btlSpgkvwqeV7pDj1pqwuSA==
-X-Google-Smtp-Source: AK7set8GwxaLB+pDjEUs6zXqTHqTFlA2TPp2Oq1bCDrPUF3Wn3jWigJn22GixgiCcvjGa5Yhl4AQtw==
-X-Received: by 2002:a17:907:7757:b0:86f:e30c:72c1 with SMTP id kx23-20020a170907775700b0086fe30c72c1mr1907641ejc.8.1675248916053;
+        bh=vaz46VNTuztP+8XGRf+9Uy7aUzyx7wS8C+XeMQlua/k=;
+        b=ef4eKi1Ve5gLIAnVyCi5AFX52ORx6a+5Lrqn9leOWCfpw1ZsWF3OySy0y3vwC64uZH
+         wuM+o8Vv32faLScQH7QpEpzxdBSnYivh03pmz29dKBhZJD15md7R7reWNhvYPPGbCu0Y
+         BXvVI0lkYB2Dda0dyDRNH9zvJcjBwrLDB4W8s8H9UXT/4JXj5JH9hz5DzL80xNXv+7mt
+         MRpdClnpxl32qpwn+0JW8B4nvBb25RQ0NXCb3tJMxUgTtqkhFUr3SoOu9pzb8CF5J+pZ
+         b0U13OFMsG7DePg/XRPLSk8yclN6rv/M/yKOom9IAOCFUpw4FWn/tzrjq9gJ4Ex1vTrd
+         v1cg==
+X-Gm-Message-State: AO0yUKU1aVs5pBGIWwCuslK1V9iXepuIzPIQd8wQ6gX0CXlhGRbO38Sr
+        DXCYioh+PJvJbZrci1eQrcrs8OYpqCIXtA==
+X-Google-Smtp-Source: AK7set9m1FMf4N6qHB/rFyeM8YWEOPZg3YfQF9Mr6rfzE7L7THyCcNIPAbHuXPTg30ZLeAUwaRMCgA==
+X-Received: by 2002:a17:906:9b89:b0:88a:73b7:6d2b with SMTP id dd9-20020a1709069b8900b0088a73b76d2bmr2149590ejc.62.1675248916664;
         Wed, 01 Feb 2023 02:55:16 -0800 (PST)
 Received: from debianHome.localdomain (dynamic-077-008-178-099.77.8.pool.telefonica.de. [77.8.178.99])
-        by smtp.gmail.com with ESMTPSA id o25-20020a1709061b1900b0084d4e9a13cbsm9927632ejg.221.2023.02.01.02.55.15
+        by smtp.gmail.com with ESMTPSA id o25-20020a1709061b1900b0084d4e9a13cbsm9927632ejg.221.2023.02.01.02.55.16
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Feb 2023 02:55:15 -0800 (PST)
+        Wed, 01 Feb 2023 02:55:16 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 2/3] libselinux: restore: misc tweaks
-Date:   Wed,  1 Feb 2023 11:55:09 +0100
-Message-Id: <20230201105510.14125-2-cgzones@googlemail.com>
+Subject: [PATCH 3/3] libselinux: restore: use fixed sized integer for hash index
+Date:   Wed,  1 Feb 2023 11:55:10 +0100
+Message-Id: <20230201105510.14125-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230201105510.14125-1-cgzones@googlemail.com>
 References: <20230201105510.14125-1-cgzones@googlemail.com>
@@ -65,78 +65,57 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add const qualifier to read-only state struct.
-
-Minimize scope of function local variables, to reduce complexity.
-
-Pass only the file type related file flags to selabel_lookup(3).
+The hash mask is set to 2^16 - 1, which does not fit into a signed 16
+bit integer.  Use uint32_t to be on the safe side.  Also use size_t for
+counting in debug function.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/selinux_restorecon.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ libselinux/src/selinux_restorecon.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 6b5f6921..40a759f0 100644
+index 40a759f0..7ef2d45d 100644
 --- a/libselinux/src/selinux_restorecon.c
 +++ b/libselinux/src/selinux_restorecon.c
-@@ -432,7 +432,7 @@ static pthread_mutex_t fl_mutex = PTHREAD_MUTEX_INITIALIZER;
-  * that matched.
-  */
- static int filespec_add(ino_t ino, const char *con, const char *file,
--			struct rest_flags *flags)
-+			const struct rest_flags *flags)
+@@ -435,7 +435,8 @@ static int filespec_add(ino_t ino, const char *con, const char *file,
+ 			const struct rest_flags *flags)
  {
  	file_spec_t *prevfl, *fl;
- 	int h, ret;
-@@ -624,15 +624,13 @@ out:
- }
+-	int h, ret;
++	uint32_t h;
++	int ret;
+ 	struct stat64 sb;
  
- static int restorecon_sb(const char *pathname, const struct stat *sb,
--			    struct rest_flags *flags, bool first)
-+			    const struct rest_flags *flags, bool first)
+ 	__pthread_mutex_lock(&fl_mutex);
+@@ -524,7 +525,8 @@ unlock_1:
+ static void filespec_eval(void)
  {
- 	char *newcon = NULL;
- 	char *curcon = NULL;
- 	char *newtypecon = NULL;
- 	int rc;
--	bool updated = false;
- 	const char *lookup_path = pathname;
--	float pc;
+ 	file_spec_t *fl;
+-	int h, used, nel, len, longest;
++	uint32_t h;
++	size_t used, nel, len, longest;
  
- 	if (rootpath) {
- 		if (strncmp(rootpath, lookup_path, rootpathlen) != 0) {
-@@ -647,10 +645,10 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 	if (rootpath != NULL && lookup_path[0] == '\0')
- 		/* this is actually the root dir of the alt root. */
- 		rc = selabel_lookup_raw(fc_sehandle, &newcon, "/",
--						    sb->st_mode);
-+						    sb->st_mode & S_IFMT);
- 	else
- 		rc = selabel_lookup_raw(fc_sehandle, &newcon, lookup_path,
--						    sb->st_mode);
-+						    sb->st_mode & S_IFMT);
- 
- 	if (rc < 0) {
- 		if (errno == ENOENT) {
-@@ -670,7 +668,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 		fc_count++;
- 		if (fc_count % STAR_COUNT == 0) {
- 			if (flags->mass_relabel && efile_count > 0) {
--				pc = (fc_count < efile_count) ? (100.0 *
-+				float pc = (fc_count < efile_count) ? (100.0 *
- 					     fc_count / efile_count) : 100;
- 				fprintf(stdout, "\r%-.1f%%", (double)pc);
- 			} else {
-@@ -710,6 +708,8 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 	if (!fl_head)
+ 		return;
+@@ -544,7 +546,7 @@ static void filespec_eval(void)
  	}
  
- 	if (curcon == NULL || strcmp(curcon, newcon) != 0) {
-+		bool updated = false;
-+
- 		if (!flags->set_specctx && curcon &&
- 				    (is_context_customizable(curcon) > 0)) {
- 			if (flags->verbose) {
+ 	selinux_log(SELINUX_INFO,
+-		     "filespec hash table stats: %d elements, %d/%d buckets used, longest chain length %d\n",
++		     "filespec hash table stats: %zu elements, %zu/%zu buckets used, longest chain length %zu\n",
+ 		     nel, used, HASH_BUCKETS, longest);
+ }
+ #else
+@@ -559,7 +561,7 @@ static void filespec_eval(void)
+ static void filespec_destroy(void)
+ {
+ 	file_spec_t *fl, *tmp;
+-	int h;
++	uint32_t h;
+ 
+ 	if (!fl_head)
+ 		return;
 -- 
 2.39.1
 
