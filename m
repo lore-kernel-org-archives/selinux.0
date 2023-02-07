@@ -2,93 +2,89 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3C66C63797
-	for <selinux@archiver.kernel.org>; Mon,  6 Feb 2023 15:08:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 059BBC636CC
+	for <selinux@archiver.kernel.org>; Tue,  7 Feb 2023 11:00:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbjBFPIf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Feb 2023 10:08:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48464 "EHLO
+        id S231893AbjBGLA2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Feb 2023 06:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229737AbjBFPId (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Feb 2023 10:08:33 -0500
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C987CC37
-        for <selinux@vger.kernel.org>; Mon,  6 Feb 2023 07:08:22 -0800 (PST)
-Received: by mail-qt1-x841.google.com with SMTP id c2so13072941qtw.5
-        for <selinux@vger.kernel.org>; Mon, 06 Feb 2023 07:08:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=content-transfer-encoding:to:content-language:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F7tqVFEp8KFWKd2c7CBd2KpnmW9qK2rwkTtRrZhSks0=;
-        b=BU1otqkdQkkRh1V5JZ0WDmkhsTkC9wyCGG5THThWxwowzGctRFX2sLYp5kfpMd9dKL
-         unExLQqVHGcGcEpN9r1KOJweDptGE7OGTQtXbDMjfMwBa4bva5Qoobc6UN+6BOZVMJYW
-         tez7zsA/4Yg13K0icA2ae/HHybt9Vl585jBhU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:content-language:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=F7tqVFEp8KFWKd2c7CBd2KpnmW9qK2rwkTtRrZhSks0=;
-        b=1mwaZZymg7PZAX8ab44G2DwR/4o/eN6wq92Im9ThFHhHBA7uPfZEZMqa15UHTsLRU7
-         ahIMo27BYm+IgT144x4hGU/v9lSWS2QBlUhcmQQv2Es0N5ys1YL23I3MwrPTGtNIElad
-         4Vs80MxN8gX59YoRlhakI1BoK09Vp2Cgmbvc/bA/rKqJukd9Q3PYvskRQGibyIck1JeO
-         cKl2VX3+nAnqxv/UFsnttnhzI3yzTgUQjXvq3ne2bOJRoRem3kXmyqIFuym7Li9ExKII
-         +6T84xWqsKqBx5T4vfnlI90GXt2y3DRIbwK0UDEpQV7xvohunJiFl0dr1Vk+XEmWYq6i
-         iLbQ==
-X-Gm-Message-State: AO0yUKW+Uco54Yi6fgCxQTZq3ezdD4lP+BeLQiAbzr/23Sc0eVMHlBGf
-        bV9htHSCLdpYllL8iYl/beAChuEhik39ZdB092HbIDa2eZI57QK6snQWP1DgbgcLx8oSMjqDmGj
-        6APyE5l31Igw7x2u+ZR7fSMCc8YD0L21idf2KgcklmGsdiESpWyOSNp1PZ+IBrIKXq/Swz4wAIy
-        cpUfMG
-X-Google-Smtp-Source: AK7set8BwSfkNnnTrh+ut/k9LYZhoz5k+1aIdymAglV2Usb7LuQkF5U0mcEtI0rUvySYYffHYTAOyw==
-X-Received: by 2002:ac8:5ac2:0:b0:3b8:4e37:50ea with SMTP id d2-20020ac85ac2000000b003b84e3750eamr38070878qtd.58.1675696100285;
-        Mon, 06 Feb 2023 07:08:20 -0800 (PST)
-Received: from ?IPV6:2601:145:c200:a0a:3c0c:9831:4006:489c? ([2601:145:c200:a0a:3c0c:9831:4006:489c])
-        by smtp.gmail.com with ESMTPSA id j6-20020ac84c86000000b003b642c7c772sm7312159qtv.71.2023.02.06.07.08.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Feb 2023 07:08:19 -0800 (PST)
-Message-ID: <988e8169-e701-80c8-2b95-5fb2cc03e015@ieee.org>
-Date:   Mon, 6 Feb 2023 10:08:18 -0500
+        with ESMTP id S229779AbjBGLAW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Feb 2023 06:00:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF6A2A981
+        for <selinux@vger.kernel.org>; Tue,  7 Feb 2023 02:59:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675767575;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jlFel+2YkedLl19NSkU1kI2oNwXDQCiygTymE2IkQPU=;
+        b=U7/Tu+422daRt06/bgQPHDNaLsjXjQiHNzFWkH2RCmBnIqkRd3acv8lMjsNxKChIX2/o4c
+        2Rvzw04NP5PHaTDTGtwcSAtsRODBaThuCdT5O4J4dVqzTkEpgAC+rubFsXIoN/0nfZjvD1
+        HR23G1L0pGJKca+2nEM4cFgwaYx7Dww=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-358-X-wXBTjoPvOAw7jCJ9tFVA-1; Tue, 07 Feb 2023 05:59:30 -0500
+X-MC-Unique: X-wXBTjoPvOAw7jCJ9tFVA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3ABF8181E3EE;
+        Tue,  7 Feb 2023 10:59:30 +0000 (UTC)
+Received: from localhost (ovpn-194-64.brq.redhat.com [10.40.194.64])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E743818EC5;
+        Tue,  7 Feb 2023 10:59:29 +0000 (UTC)
+From:   Petr Lautrbach <lautrbach@redhat.com>
+To:     Chris PeBenito <pebenito@ieee.org>,
+        SElinux mailing list <selinux@vger.kernel.org>
+Subject: Re: ANN: SETools 4.4.1
+In-Reply-To: <988e8169-e701-80c8-2b95-5fb2cc03e015@ieee.org>
+References: <988e8169-e701-80c8-2b95-5fb2cc03e015@ieee.org>
+Date:   Tue, 07 Feb 2023 11:59:29 +0100
+Message-ID: <878rh9eo6m.fsf@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-From:   Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: SETools 4.4.1
-Content-Language: en-US
-To:     SElinux mailing list <selinux@vger.kernel.org>,
-        SELinux Reference Policy mailing list 
-        <selinux-refpolicy@vger.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-An new release of SETools is available:
+Chris PeBenito <pebenito@ieee.org> writes:
 
-https://github.com/SELinuxProject/setools/releases/tag/4.4.1
+> An new release of SETools is available:
+>
+> https://github.com/SELinuxProject/setools/releases/tag/4.4.1
+>
+> Changes:
+>
+> * Replace deprecated NetworkX function use in information flow and 
+> domain transition analysis. This function was removed in NetworkX 3.0.
+>
+> * Fix bug in apol copy and cut functions when copying from a tree view.
+>
+> * Fix bug with extended permission set construction when a range 
+> includes 0x0.
+>
+> * Add sesearch -Sp option for permission subset match.
+>
+> * Fix error in man page description for sesearch -ep option.
+>
+> * Improve output stability in constraint, common, class, role, and user
+> queries.
+>
+> * Updated permission map.
+>
+> * Fix bug in sechecker parsing of multiline values.
+>
+> * Other code cleanups not visible to users.
 
-Changes:
+It looks like https://github.com/SELinuxProject/setools/pull/68 didn't
+get into the release. Is it expected? If yes, would it be possible to
+backport it to 4.4 branch for the next 4.4.x release please?
 
-* Replace deprecated NetworkX function use in information flow and 
-domain transition analysis. This function was removed in NetworkX 3.0.
+Thanks,
 
-* Fix bug in apol copy and cut functions when copying from a tree view.
-
-* Fix bug with extended permission set construction when a range 
-includes 0x0.
-
-* Add sesearch -Sp option for permission subset match.
-
-* Fix error in man page description for sesearch -ep option.
-
-* Improve output stability in constraint, common, class, role, and user
-queries.
-
-* Updated permission map.
-
-* Fix bug in sechecker parsing of multiline values.
-
-* Other code cleanups not visible to users.
+Petr
 
