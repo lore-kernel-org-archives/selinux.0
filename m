@@ -2,109 +2,88 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA86DC636CC
-	for <selinux@archiver.kernel.org>; Wed,  8 Feb 2023 14:34:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 709CEC05027
+	for <selinux@archiver.kernel.org>; Wed,  8 Feb 2023 19:54:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231510AbjBHOd7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Feb 2023 09:33:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
+        id S231623AbjBHTx7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Feb 2023 14:53:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231405AbjBHOd6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Feb 2023 09:33:58 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1BE901A;
-        Wed,  8 Feb 2023 06:33:56 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4PBj2p2jCBz9v7gn;
-        Wed,  8 Feb 2023 22:25:38 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwC3PQmssuNjUbIEAQ--.46196S2;
-        Wed, 08 Feb 2023 15:33:27 +0100 (CET)
-Message-ID: <dc973294e5ad2d05705954b433bb550b04a86325.camel@huaweicloud.com>
-Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com,
-        ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Wed, 08 Feb 2023 15:33:12 +0100
-In-Reply-To: <CAHC9VhRu_pdEur4XDkwMETAQEd-8=13k+qvpMEgW=hiYMCKw2A@mail.gmail.com>
-References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
-         <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
-         <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
-         <CAHC9VhRu_pdEur4XDkwMETAQEd-8=13k+qvpMEgW=hiYMCKw2A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S231966AbjBHTx5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Feb 2023 14:53:57 -0500
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id DEE4B4DBF7
+        for <selinux@vger.kernel.org>; Wed,  8 Feb 2023 11:53:55 -0800 (PST)
+Received: from [192.168.254.22] (unknown [68.33.139.110])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 000EB20C8AD4;
+        Wed,  8 Feb 2023 11:53:54 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 000EB20C8AD4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1675886035;
+        bh=JZSZEeJ+EEn/2/6H+xDEfPpQQ3tD7DjUwMyXJfUUj2E=;
+        h=Date:Subject:To:References:From:In-Reply-To:From;
+        b=fxfhpxeGLurWF4M9VZDSO7/AsGz5WFvFTJC/j9NHfL1r9xfmVdoQSG8p6Mm52NhQq
+         MZvDasP0yVvPaMSGXAT96BfOCiLeZt5RjB7HHQKHTcH6ABz9C4hmj1VGYiXBsfNsOS
+         rmoB+nK/6QJrE6A5oG9GeT7ayo2kmdNCTBzWQCdU=
+Message-ID: <9bfbdc29-1094-c321-276a-afc586c5fb61@linux.microsoft.com>
+Date:   Wed, 8 Feb 2023 14:53:53 -0500
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: ANN: SETools 4.4.1
+To:     Petr Lautrbach <lautrbach@redhat.com>,
+        Chris PeBenito <pebenito@ieee.org>,
+        SElinux mailing list <selinux@vger.kernel.org>
+References: <988e8169-e701-80c8-2b95-5fb2cc03e015@ieee.org>
+ <878rh9eo6m.fsf@redhat.com>
+Content-Language: en-US
+From:   Chris PeBenito <chpebeni@linux.microsoft.com>
+In-Reply-To: <878rh9eo6m.fsf@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwC3PQmssuNjUbIEAQ--.46196S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Ww4fJF43Kr4fAr43Jr4fKrg_yoW8Wr45pF
-        W3t3WakFsxJF18Kr1fKwsxWayIk3yxGws8Xws8GryUZwn8WFy3Kr4xtr409343WrZ7CFWS
-        vw4fJFZ3X3WDA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQACBF1jj4i4pgAAsg
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-01-12 at 12:21 -0500, Paul Moore wrote:
-> On Tue, Jan 10, 2023 at 3:56 AM Roberto Sassu
-> <roberto.sassu@huaweicloud.com> wrote:
-> > On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
-> > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > 
-> > > In preparation for removing security_old_inode_init_security(), switch to
-> > > security_inode_init_security().
-> > > 
-> > > Extend the existing ocfs2_initxattrs() to take the
-> > > ocfs2_security_xattr_info structure from fs_info, and populate the
-> > > name/value/len triple with the first xattr provided by LSMs.
-> > 
-> > Hi Mark, Joel, Joseph
-> > 
-> > some time ago I sent this patch set to switch to the newer
-> > function security_inode_init_security(). Almost all the other parts of
-> > this patch set have been reviewed, and the patch set itself should be
-> > ready to be merged.
-> > 
-> > I kindly ask if you could have a look at this patch and give your
-> > Reviewed-by, so that Paul could take the patch set.
+On 2/7/2023 05:59, Petr Lautrbach wrote:
+> Chris PeBenito <pebenito@ieee.org> writes:
 > 
-> I've been pushing to clean up some of the LSM interfaces to try and
-> simplify things and remove as many special cases as possible,
-> Roberto's work in this patchset is part of that.  I would really
-> appreciate it if the vfs/ocfs2 folks could give patch 2/6 a quick look
-> to make sure you are okay with the changes.
+>> An new release of SETools is available:
+>>
+>> https://github.com/SELinuxProject/setools/releases/tag/4.4.1
+>>
+>> Changes:
+>>
+>> * Replace deprecated NetworkX function use in information flow and
+>> domain transition analysis. This function was removed in NetworkX 3.0.
+>>
+>> * Fix bug in apol copy and cut functions when copying from a tree view.
+>>
+>> * Fix bug with extended permission set construction when a range
+>> includes 0x0.
+>>
+>> * Add sesearch -Sp option for permission subset match.
+>>
+>> * Fix error in man page description for sesearch -ep option.
+>>
+>> * Improve output stability in constraint, common, class, role, and user
+>> queries.
+>>
+>> * Updated permission map.
+>>
+>> * Fix bug in sechecker parsing of multiline values.
+>>
+>> * Other code cleanups not visible to users.
 > 
-> I realize that the various end-of-year holidays tend to slow things
-> down a bit, but this patchset has been on the lists for over a month
-> now; if I don't hear anything in the next week or two I'll assume you
-> folks are okay with these patches ...
+> It looks like https://github.com/SELinuxProject/setools/pull/68 didn't
+> get into the release. Is it expected? If yes, would it be possible to
+> backport it to 4.4 branch for the next 4.4.x release please?
 
-Hi Paul
+This was an oversight.  I started a new staging PR for 4.4.2 fixes:
 
-is this patch set going to land in 6.3?
+https://github.com/SELinuxProject/setools/pull/86
 
-Thanks
 
-Roberto
+-- 
+Chris PeBenito
 
