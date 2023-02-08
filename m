@@ -2,89 +2,109 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 059BBC636CC
-	for <selinux@archiver.kernel.org>; Tue,  7 Feb 2023 11:00:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA86DC636CC
+	for <selinux@archiver.kernel.org>; Wed,  8 Feb 2023 14:34:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231893AbjBGLA2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Feb 2023 06:00:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59100 "EHLO
+        id S231510AbjBHOd7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Feb 2023 09:33:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229779AbjBGLAW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Feb 2023 06:00:22 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF6A2A981
-        for <selinux@vger.kernel.org>; Tue,  7 Feb 2023 02:59:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675767575;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jlFel+2YkedLl19NSkU1kI2oNwXDQCiygTymE2IkQPU=;
-        b=U7/Tu+422daRt06/bgQPHDNaLsjXjQiHNzFWkH2RCmBnIqkRd3acv8lMjsNxKChIX2/o4c
-        2Rvzw04NP5PHaTDTGtwcSAtsRODBaThuCdT5O4J4dVqzTkEpgAC+rubFsXIoN/0nfZjvD1
-        HR23G1L0pGJKca+2nEM4cFgwaYx7Dww=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-358-X-wXBTjoPvOAw7jCJ9tFVA-1; Tue, 07 Feb 2023 05:59:30 -0500
-X-MC-Unique: X-wXBTjoPvOAw7jCJ9tFVA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3ABF8181E3EE;
-        Tue,  7 Feb 2023 10:59:30 +0000 (UTC)
-Received: from localhost (ovpn-194-64.brq.redhat.com [10.40.194.64])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E743818EC5;
-        Tue,  7 Feb 2023 10:59:29 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     Chris PeBenito <pebenito@ieee.org>,
-        SElinux mailing list <selinux@vger.kernel.org>
-Subject: Re: ANN: SETools 4.4.1
-In-Reply-To: <988e8169-e701-80c8-2b95-5fb2cc03e015@ieee.org>
-References: <988e8169-e701-80c8-2b95-5fb2cc03e015@ieee.org>
-Date:   Tue, 07 Feb 2023 11:59:29 +0100
-Message-ID: <878rh9eo6m.fsf@redhat.com>
+        with ESMTP id S231405AbjBHOd6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Feb 2023 09:33:58 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1BE901A;
+        Wed,  8 Feb 2023 06:33:56 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4PBj2p2jCBz9v7gn;
+        Wed,  8 Feb 2023 22:25:38 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwC3PQmssuNjUbIEAQ--.46196S2;
+        Wed, 08 Feb 2023 15:33:27 +0100 (CET)
+Message-ID: <dc973294e5ad2d05705954b433bb550b04a86325.camel@huaweicloud.com>
+Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Wed, 08 Feb 2023 15:33:12 +0100
+In-Reply-To: <CAHC9VhRu_pdEur4XDkwMETAQEd-8=13k+qvpMEgW=hiYMCKw2A@mail.gmail.com>
+References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
+         <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
+         <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
+         <CAHC9VhRu_pdEur4XDkwMETAQEd-8=13k+qvpMEgW=hiYMCKw2A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwC3PQmssuNjUbIEAQ--.46196S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ww4fJF43Kr4fAr43Jr4fKrg_yoW8Wr45pF
+        W3t3WakFsxJF18Kr1fKwsxWayIk3yxGws8Xws8GryUZwn8WFy3Kr4xtr409343WrZ7CFWS
+        vw4fJFZ3X3WDA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQACBF1jj4i4pgAAsg
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Chris PeBenito <pebenito@ieee.org> writes:
+On Thu, 2023-01-12 at 12:21 -0500, Paul Moore wrote:
+> On Tue, Jan 10, 2023 at 3:56 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
+> > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > 
+> > > In preparation for removing security_old_inode_init_security(), switch to
+> > > security_inode_init_security().
+> > > 
+> > > Extend the existing ocfs2_initxattrs() to take the
+> > > ocfs2_security_xattr_info structure from fs_info, and populate the
+> > > name/value/len triple with the first xattr provided by LSMs.
+> > 
+> > Hi Mark, Joel, Joseph
+> > 
+> > some time ago I sent this patch set to switch to the newer
+> > function security_inode_init_security(). Almost all the other parts of
+> > this patch set have been reviewed, and the patch set itself should be
+> > ready to be merged.
+> > 
+> > I kindly ask if you could have a look at this patch and give your
+> > Reviewed-by, so that Paul could take the patch set.
+> 
+> I've been pushing to clean up some of the LSM interfaces to try and
+> simplify things and remove as many special cases as possible,
+> Roberto's work in this patchset is part of that.  I would really
+> appreciate it if the vfs/ocfs2 folks could give patch 2/6 a quick look
+> to make sure you are okay with the changes.
+> 
+> I realize that the various end-of-year holidays tend to slow things
+> down a bit, but this patchset has been on the lists for over a month
+> now; if I don't hear anything in the next week or two I'll assume you
+> folks are okay with these patches ...
 
-> An new release of SETools is available:
->
-> https://github.com/SELinuxProject/setools/releases/tag/4.4.1
->
-> Changes:
->
-> * Replace deprecated NetworkX function use in information flow and 
-> domain transition analysis. This function was removed in NetworkX 3.0.
->
-> * Fix bug in apol copy and cut functions when copying from a tree view.
->
-> * Fix bug with extended permission set construction when a range 
-> includes 0x0.
->
-> * Add sesearch -Sp option for permission subset match.
->
-> * Fix error in man page description for sesearch -ep option.
->
-> * Improve output stability in constraint, common, class, role, and user
-> queries.
->
-> * Updated permission map.
->
-> * Fix bug in sechecker parsing of multiline values.
->
-> * Other code cleanups not visible to users.
+Hi Paul
 
-It looks like https://github.com/SELinuxProject/setools/pull/68 didn't
-get into the release. Is it expected? If yes, would it be possible to
-backport it to 4.4 branch for the next 4.4.x release please?
+is this patch set going to land in 6.3?
 
-Thanks,
+Thanks
 
-Petr
+Roberto
 
