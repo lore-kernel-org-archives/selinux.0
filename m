@@ -2,161 +2,123 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68359C636D6
-	for <selinux@archiver.kernel.org>; Thu,  9 Feb 2023 14:39:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CEB7C61DA4
+	for <selinux@archiver.kernel.org>; Thu,  9 Feb 2023 21:06:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjBIOjq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Feb 2023 09:39:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34818 "EHLO
+        id S230191AbjBIVGF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Feb 2023 16:06:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230040AbjBIOjq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Feb 2023 09:39:46 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A0B611EB
-        for <selinux@vger.kernel.org>; Thu,  9 Feb 2023 06:39:17 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id l14so2293715eds.4
-        for <selinux@vger.kernel.org>; Thu, 09 Feb 2023 06:39:17 -0800 (PST)
+        with ESMTP id S229935AbjBIVGE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Feb 2023 16:06:04 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7550E6ADC2
+        for <selinux@vger.kernel.org>; Thu,  9 Feb 2023 13:06:00 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id ay1so2198611pfb.7
+        for <selinux@vger.kernel.org>; Thu, 09 Feb 2023 13:06:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=paul-moore.com; s=google; t=1675976759;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=fUY0oSbpQvxD+hi1S+FFd36uAUoz1+GKrtDsauDo6DU=;
-        b=YOAYM+5ykkR8M+TXBtOhXC3HCcTWvroYd4cDN7krC8WUy9fLlTZ0eVL+9IE4Hrbz62
-         VuXlZsvWgLwPeOajox7FaBJE7vcqtEhctnA69B7Qyf2JX/xw40Ip3CqBh/Drk5G8nnQW
-         vH+uNJLMn3bsRNwvexDa8zqgBZ59gB6WLboedSKiULKLv9pLwfyTIzlCAkyMTKo0z3pE
-         E8+pJ8IIm1VB7uhoTSnsLMLwQv+NFjb/p20v1KINENR9ZRLwIZV4ueKG+b64STQXqfVL
-         CFpHpI9yS2Lm+JBM4ckwTfvYXXbNyvi00y6RM63YEFAdFGyAhF/V75ui54+r8bCuUa6I
-         eKUA==
+        bh=CAVkyD8Nx/y2ynXnSDseAghmgwxLpM4z5TAXS1lVdl4=;
+        b=fsToE02Ydbw9AM0LhMk4fOKIsHvVkm870EKJvtvUsHlgdxofGdKjWtExVXrQcwqyOD
+         SaJHwxPVUhVv+Zb8PdG9Cl7AkSweZegmZgJovsF60EdVp7XWUSfeDyRdOdh1BqrRM5N2
+         Vi4N/kTKjg/T3MKWf9zptDhGtRkG3SMgQxag1fqnQPXX8xl2CMLbs3PoA2hsrFrGc/Ny
+         03aku/22aS9evBeXGC+9QqOFU0n1VQzmcMeerqis2tI7xZt9hTTp8vbKnPNrpR0nwUEH
+         m1og74/72VCF/OpMF8luJl9jkO5kXYh1wuIMTBwX+PKBuUN4pLSyfeTfeph7UYAu0/ty
+         tIqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
+        d=1e100.net; s=20210112; t=1675976759;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=fUY0oSbpQvxD+hi1S+FFd36uAUoz1+GKrtDsauDo6DU=;
-        b=SMKr1hEdIFuKtuw/yrgvZugpq+Me9VzZKaIsuYfvy3TaX5VW6mKqsUW+E7KFMLW8rw
-         isMkhnDw0pZUa/sztX+zikzcVewhRuioJNoavd2G+JSiSMiLWAh+hra/R2Krhe9BAp2x
-         AOyQoMKoMQBJJxQ4LtwAWk7FPulND2qPhnYKDJih9dNtwaUCwopt9a+wFtPu8roZyECl
-         wuskxhaC3wih26L2iMa56OZdgXvdmGb+fVYgyYMiaOr/T8uUttGW+Idfpp6g8Y2vIred
-         p0p67kjOp1MMFlj6wR+wj605fECDpojQvZJCgdCF4pYwD54F2Yocm8W/anr975nmWzIA
-         ALqA==
-X-Gm-Message-State: AO0yUKWKUG0i4WqesJ6KYhC6gsYQj+20l+llO6q0W4Jv0gjwjyJG6cXF
-        ETHOpInk5BsD1hELIHZ0g3dES8YU9wo1AjKNEvH4uwf/
-X-Google-Smtp-Source: AK7set9N5CadjcwwPZoQtOtlxCdtbiobnYX1tQOOn6B+KsNQU69t0kHBe2rFJbrzf2pZTIV5TfCx6DTR1C0lP40iNtY=
-X-Received: by 2002:a05:6402:2420:b0:4ab:1f1b:95a1 with SMTP id
- t32-20020a056402242000b004ab1f1b95a1mr444553eda.0.1675953555709; Thu, 09 Feb
- 2023 06:39:15 -0800 (PST)
+        bh=CAVkyD8Nx/y2ynXnSDseAghmgwxLpM4z5TAXS1lVdl4=;
+        b=k0JE5VopFn1Qtlhow6vWhDTJ1JWio2j//nfy+9b0HbxvstnU7hLA2qidQxgSRoDs7w
+         P3+pry4Ta2J5ri8b5RfeGhN9KNwrKe4KXCWQ4VIHI7igsqD69ciPCuWd4j/2DouuEiGy
+         KbyXbJHjlMYcwc5HFMCrbISnGpG8q8t3q/ttp8J+RbXaGkhQLE1h3e+uzbOaZEGvlMem
+         T/dxplESBoXEuUicPxArzuzNFn22HuWfVX+x4JprmQ7RhLsGf1T5se+d1YM5Q087F5UD
+         /6FXS/UZnxBuXsTVLLVquViuSHAF951I8yBTZZhwYHUeexlYxOgJ28YaOF0+4RWtV28T
+         jdxQ==
+X-Gm-Message-State: AO0yUKWiC6ym2VDN4irIUuTwmwE9BOKkBym7HlM/06O5tNq+kPC0SG8A
+        77OEjnngA1Ove6tHYwG2rppo9qWuTuyYfvjblLEx
+X-Google-Smtp-Source: AK7set/gyzwIbVdcBNq34ovXolGAJFru/qdEdGqxzqLnB8dNXT0qLl/7mTz9ti+D2+MdSQqLp43XM5PhpV37m725smk=
+X-Received: by 2002:a62:5f02:0:b0:5a8:5247:2589 with SMTP id
+ t2-20020a625f02000000b005a852472589mr832403pfb.7.1675976759040; Thu, 09 Feb
+ 2023 13:05:59 -0800 (PST)
 MIME-Version: 1.0
-References: <20221215213429.998948-1-jwcart2@gmail.com> <20221215213429.998948-10-jwcart2@gmail.com>
- <98d7a37e-dcfb-ca7d-24d1-57f2a3abbadd@linux.microsoft.com>
-In-Reply-To: <98d7a37e-dcfb-ca7d-24d1-57f2a3abbadd@linux.microsoft.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 9 Feb 2023 09:39:04 -0500
-Message-ID: <CAP+JOzS4a0T=bQ2oy97+LDmwiMacf_1FLFQn2a0ozG2WYhMV7g@mail.gmail.com>
-Subject: Re: [RFC PATCH 9/9] secilc/docs: Add deny rule to CIL documentation
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
-Cc:     selinux@vger.kernel.org
+References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
+ <20221201104125.919483-3-roberto.sassu@huaweicloud.com> <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
+ <CAHC9VhRu_pdEur4XDkwMETAQEd-8=13k+qvpMEgW=hiYMCKw2A@mail.gmail.com> <dc973294e5ad2d05705954b433bb550b04a86325.camel@huaweicloud.com>
+In-Reply-To: <dc973294e5ad2d05705954b433bb550b04a86325.camel@huaweicloud.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 9 Feb 2023 16:05:47 -0500
+Message-ID: <CAHC9VhQoGNWDOvLU8U3dEvdCa8-23O0JpaeVbUOAa2udEpcVqw@mail.gmail.com>
+Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 3, 2023 at 5:55 PM Daniel Burgener
-<dburgener@linux.microsoft.com> wrote:
->
-> On 12/15/2022 4:34 PM, James Carter wrote:
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >   secilc/docs/cil_access_vector_rules.md | 68 ++++++++++++++++++++++++++
-> >   1 file changed, 68 insertions(+)
+On Wed, Feb 8, 2023 at 9:33 AM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
+> On Thu, 2023-01-12 at 12:21 -0500, Paul Moore wrote:
+> > On Tue, Jan 10, 2023 at 3:56 AM Roberto Sassu
+> > <roberto.sassu@huaweicloud.com> wrote:
+> > > On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
+> > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > >
+> > > > In preparation for removing security_old_inode_init_security(), switch to
+> > > > security_inode_init_security().
+> > > >
+> > > > Extend the existing ocfs2_initxattrs() to take the
+> > > > ocfs2_security_xattr_info structure from fs_info, and populate the
+> > > > name/value/len triple with the first xattr provided by LSMs.
+> > >
+> > > Hi Mark, Joel, Joseph
+> > >
+> > > some time ago I sent this patch set to switch to the newer
+> > > function security_inode_init_security(). Almost all the other parts of
+> > > this patch set have been reviewed, and the patch set itself should be
+> > > ready to be merged.
+> > >
+> > > I kindly ask if you could have a look at this patch and give your
+> > > Reviewed-by, so that Paul could take the patch set.
 > >
-> > diff --git a/secilc/docs/cil_access_vector_rules.md b/secilc/docs/cil_access_vector_rules.md
-> > index f0ba4a90..35825283 100644
-> > --- a/secilc/docs/cil_access_vector_rules.md
-> > +++ b/secilc/docs/cil_access_vector_rules.md
-> > @@ -247,6 +247,74 @@ This example will not compile as `type_3` is not allowed to be a source type for
-> >           (allow type_3 self (property_service (set)))
-> >       )
-> >   ```
-> > +deny
-> > +----------
-> > +
-> > +Remove the access rights defined from any matching allow rules. These rules are processed before [`neverallow`](cil_access_vector_rules.md#neverallow) checking.
-> > +
-> > +**Rule definition:**
-> > +
-> > +```secil
-> > +    (deny source_id target_id|self classpermissionset_id ...)
-> > +```
-> > +
-> > +**Where:**
-> > +
-> > +<table>
-> > +<colgroup>
-> > +<col width="27%" />
-> > +<col width="72%" />
-> > +</colgroup>
-> > +<tbody>
-> > +<tr class="odd">
-> > +<td align="left"><p><code>deny</code></p></td>
-> > +<td align="left"><p>The <code>deny</code> keyword.</p></td>
-> > +</tr>
-> > +<tr class="even">
-> > +<td align="left"><p><code>source_id</code></p></td>
-> > +<td align="left"><p>A single previously defined source <code>type</code>, <code>typealias</code> or <code>typeattribute</code> identifier.</p></td>
-> > +</tr>
-> > +<tr class="odd">
-> > +<td align="left"><p><code>target_id</code></p></td>
-> > +<td align="left"><p>A single previously defined target <code>type</code>, <code>typealias</code> or <code>typeattribute</code> identifier.</p>
-> > +<p>The <code>self</code> keyword may be used instead to signify that source and target are the same.</p></td>
-> > +</tr>
-> > +<tr class="even">
-> > +<td align="left"><p><code>classpermissionset_id</code></p></td>
-> > +<td align="left"><p>A single named or anonymous <code>classpermissionset</code> or a single set of <code>classmap</code>/<code>classmapping</code> identifiers.</p></td>
-> > +</tr>
-> > +</tbody>
-> > +</table>
-> > +
-> > +**Example:**
-> > +
-> > +```secil
-> > +    (class class1 (perm1 perm2))
-> > +
-> > +     (type type_1)
-> > +    (type type_2)
-> > +     (allow type_1 type_2 (class1 (perm1))) ; Allow_1
-> > +     (deny type_1 type_2 (class1 (perm1)))  ; Deny_1
-> > +     ; Allow_1 will be complete removed by Deny_1.
-> > +
-> > +    (type type_3)
-> > +     (type type_4)
-> > +     (allow type_3 type_4 (class1 (perm1 perm2))) ; Allow_2
-> > +     (deny type_3 type_4 (class1 (perm1)))        ; Deny_2
-> > +     ; Allow_2 will be removed and replaced with the following when Deny_2 is evaluated
-> > +    ; (allow type_3 type_4 (class1 (perm2)))
-> > +
-> > +     (type type_5)
-> > +     (type type_6)
-> > +     (typeattribute attr_1)
-> > +     (typeattributeset attr_1 (type_5 type_6))
-> > +     (allow attr_1 attr_1 (class1 (perm1))) ; Allow_3
-> > +     (deny type_5 type_6 (class1 (perm1)))  ; Deny_3
-> > +     ; Allow_3 will be removed and replaced with the following when Deny_3 is evaluated
-> > +     ; (allow type_6 attr_1 (class1 (perm1)))
-> > +     ; (allow attr_1 type_5 (class1 (perm1)))
-> > +    )
-> > +```
->
-> Looks like theres some intermixing of spaces and tabs messing up
-> formatting on the example.
->
-> -Daniel
-
-That final ")" isn't needed as well.
-Thanks,
-Jim
-
-
+> > I've been pushing to clean up some of the LSM interfaces to try and
+> > simplify things and remove as many special cases as possible,
+> > Roberto's work in this patchset is part of that.  I would really
+> > appreciate it if the vfs/ocfs2 folks could give patch 2/6 a quick look
+> > to make sure you are okay with the changes.
 > >
-> >   allowx
-> >   ------
+> > I realize that the various end-of-year holidays tend to slow things
+> > down a bit, but this patchset has been on the lists for over a month
+> > now; if I don't hear anything in the next week or two I'll assume you
+> > folks are okay with these patches ...
 >
+> Hi Paul
+>
+> is this patch set going to land in 6.3?
+
+Hi Roberto,
+
+I had really hoped the vfs/ocfs2 folks would have commented on this by
+now, but it's been over two months now with no comments that I can see
+so I think we have to do it ourselves via the LSM tree.  It's
+obviously too late for the upcoming merge window, so no v6.3, but I
+think we can merge it *after* the upcoming merge window closes,
+assuming we get ACKs from Mimi on the EVM bits (I still need to review
+it too, but I'm not expecting anything too bad).
+
+-- 
+paul-moore.com
