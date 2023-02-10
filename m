@@ -2,421 +2,333 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D42CAC636CD
-	for <selinux@archiver.kernel.org>; Fri, 10 Feb 2023 13:58:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2002C05027
+	for <selinux@archiver.kernel.org>; Fri, 10 Feb 2023 14:09:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231842AbjBJN6e (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Feb 2023 08:58:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42578 "EHLO
+        id S232434AbjBJOJb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Feb 2023 09:09:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231833AbjBJN6d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Feb 2023 08:58:33 -0500
-Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1395A9F3
-        for <selinux@vger.kernel.org>; Fri, 10 Feb 2023 05:58:31 -0800 (PST)
-Received: by mail-vs1-xe29.google.com with SMTP id h19so5689643vsv.13
-        for <selinux@vger.kernel.org>; Fri, 10 Feb 2023 05:58:31 -0800 (PST)
+        with ESMTP id S232431AbjBJOJ3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Feb 2023 09:09:29 -0500
+Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A0D7072D
+        for <selinux@vger.kernel.org>; Fri, 10 Feb 2023 06:09:27 -0800 (PST)
+Received: by mail-vs1-xe32.google.com with SMTP id l8so5722928vsm.11
+        for <selinux@vger.kernel.org>; Fri, 10 Feb 2023 06:09:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20210112; t=1676037510;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=zW+8BHmaN/Vb8sH+sOgfZTZEK3I6bMiDR+Vox4fJWTQ=;
-        b=Vfb1NmYMGIIdCkY3jS43ScXl6zRMq/U6+ixRQW39vaFRmuyPEixpv8fere81dhHaRz
-         1PuW/zVAglHdNM3epzcNZOrMn7MnyjreC8vFQTEGd/eeFrAlUdkMwsqZWEg0NvMO5UIr
-         ZHx8/3W1/ZiP3pjYHnNTdcBkeu8M5PNEe6sksS2+SVtb9HQ1QuxmQziYudrss8n6vYpP
-         K6JGnjsb2+YyBkyN/RN+SKv6q67RmP0g+K7k5q84WYe304dUMdHY7BlUnqBDmVpBw5xZ
-         PMsWZbVD4VDX+URlRYODmWreb0S2mCEuRKqnyg5B9iKBE/rTKN94pPd+QKVA/xUzh8en
-         aCmg==
+        d=googlemail.com; s=20210112; t=1676038167;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=geu/HGsoD2aNHYruaqukW5d2os+BVLuvBpDmjQYDINA=;
+        b=YT9BLtjdJZZqEEb+AsVbvQnGzdfo5vPaup7jx8YWUAD7palTrFWHmItSiNYiyCRWbW
+         5Ml2M8V/U4//NFfLQYkZWs20lPc41XtKKo66nkvyhjNbhNh2nDC+tDb4dyxZL05youHr
+         dvNNnUv29oscaxUpRhluGvVl4voL+C5akkDd6qvKqqPan/0n0vP6hFLzqkrCuhloKPKr
+         jhQsB83qyyom0y87NxC941X/ar1MbAZuV9/srzh8kDL26QR149CwBhZr1Oo3DlIwFxRl
+         4dLJ/9N4zxd25ZTk4ZOUiWS/rkQjMvxyS67DlyRvt+xVz0pDkJ8q0g5t9s09Fjso8zs1
+         H5pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1676037510;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=zW+8BHmaN/Vb8sH+sOgfZTZEK3I6bMiDR+Vox4fJWTQ=;
-        b=NB7ONvN39f59RiA0eVAXSblFXkRM0V7u+58aW9h0D6U3bVra1wdEAGIR5VheN3z7iG
-         RxqMjDe4mp1uUuV+gwilZeJ1XE4+ciTyHWnMFdrnfOrQJ96lBQujwAaZAxXDrv9eewrW
-         6958Mxtu6PnZzzVZarqgZo3e69VbDGG4v9o46euAYTN0YYxSCOAdAism8XcviNjFrrY1
-         dHqNiDDO+8UA/J/IqoYqoK2qQw2vT+E2Ed713Zog45ZMexSn4ddQKIRpdby/YPhQTG/S
-         j10vUNgQKNR6jzbFrWK6pNjAiy8KwXSuRg6yiBJwm5oxUQdvRyEvNHcU5TuzZGft6g3+
-         0MOw==
-X-Gm-Message-State: AO0yUKWp/rMNmYpFIid0CrpQ4AyhhALxGoE2HLCfzG5+KnNrDZ8B3MwV
-        fj/Q4JMlkCEqMmxfPEWOvYJwiZSGWwLz7nLeuyE=
-X-Google-Smtp-Source: AK7set8J23TgdUFLW/p4TJ7JTtu6KyXRaYB0WhnFM/fAT4HMGT31toZf9CeA78tSV+DTn27gJ0cEPa2LWEQbMQQF56U=
+        d=1e100.net; s=20210112; t=1676038167;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=geu/HGsoD2aNHYruaqukW5d2os+BVLuvBpDmjQYDINA=;
+        b=q2nvoMe/1gVpqUsZ56t9c0jzBdLtret8l4T1XEYJffsos4YgO1adTTtdo+2iSULfkI
+         9HOJ/OTHrmQ3CyM8u2B0UtcFBY017q/UymwY8OD51DpScbKd7Zp20R9PHAB9rcVtxaEx
+         4fGthT/EQUyMmeKxvw3xHx5aUGI9KiTDEWS0dKR4hX62Pks18li22jqZNpIrYTCMuaRn
+         IqQYvzB6U7rju9641gwlzCuaXuU/o8519Brkq+Ke8nBZ03pZ6eRIrYpZ6mq6dR6mpQbP
+         vxk2/sf0GuYLKBkcQJgDC1spZCmlcExzpGouRFJ9R91y3ST+ejUrbWsyAL9TKa/OAot4
+         2G2A==
+X-Gm-Message-State: AO0yUKVnCZALIefOShzP/ndi8ygJmVaXis8iF7YeDW2mc3RAlxyxXqpg
+        GrFu5nz3dcWjX3GyO0Qv9fmcgTanO6ctXzxSv+Dblh2a/phSj5zuNsA=
+X-Google-Smtp-Source: AK7set9R2NkQ9bTdt+1o0+WGR3th3cV+JZio9QOBBUe41o1mZa6L5soe/Be+qgxq8UudivrJinXtCSeCB9hUioc+rvw=
 X-Received: by 2002:a67:a402:0:b0:3d3:e956:1303 with SMTP id
- n2-20020a67a402000000b003d3e9561303mr3489870vse.71.1676037510575; Fri, 10 Feb
- 2023 05:58:30 -0800 (PST)
+ n2-20020a67a402000000b003d3e9561303mr3497116vse.71.1676038166678; Fri, 10 Feb
+ 2023 06:09:26 -0800 (PST)
 MIME-Version: 1.0
-References: <20230209114253.120485-1-wanghuizhao1@huawei.com> <20230209114253.120485-2-wanghuizhao1@huawei.com>
-In-Reply-To: <20230209114253.120485-2-wanghuizhao1@huawei.com>
+References: <20230209114253.120485-1-wanghuizhao1@huawei.com> <20230209114253.120485-3-wanghuizhao1@huawei.com>
+In-Reply-To: <20230209114253.120485-3-wanghuizhao1@huawei.com>
 From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Fri, 10 Feb 2023 14:58:19 +0100
-Message-ID: <CAJ2a_DfUSaDZR050Dszs32Q0njFtaL3eTkJSqPVuv2_aj_b7UQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libselinux: migrating hashtab from policycoreutils
+Date:   Fri, 10 Feb 2023 15:09:15 +0100
+Message-ID: <CAJ2a_DckQ8whu-yRO227Ef7U-gfD98t674tsoBcTiL94oJakMQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libselinux: performance optimization for duplicate detection
 To:     wanghuizhao <wanghuizhao1@huawei.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On Thu, 9 Feb 2023 at 12:54, wanghuizhao <wanghuizhao1@huawei.com> wrote:
 >
-> To use hashtab in libselinux, migrate the existing hashtab template
-> from policycoreutils/newrole to libselinux.
+> When semodule -i some.pp to install a module package, duplicate items are
+> detected for the module. The detection function is nodups_specs in
+> libselinux/src/label_file.c. The algorithm complexity of implementing
+> this function is O(N^2). In scenarios where N is very large, the efficien=
+cy
+> is very low.
+>
+> To solve this problem, I propose to use the hash table to detect duplicat=
+es.
+> The algorithm complexity of new implementing is O(N). The execution effic=
+iency
+> will be greatly improved.
+>
+> Comparison between the execution time of the nodups_specs function.
+>
+> Old double-layer loop implementation O(N^2):
+>
+> semodule -i myapp1.pp
+> nodups_specs data->nspec: 5002
+> nodups_specs start: 11785.242s
+> nodups_specs end:   11785.588s
+> nodups_specs consumes:  0.346s
+>
+> semodule -i myapp2.pp
+> nodups_specs data->nspec: 10002
+> nodups_specs start: 11804.280s
+> nodups_specs end:   11806.546s
+> nodups_specs consumes:  2.266s
+>
+> semodule -i myapp3.pp
+> nodups_specs data->nspec: 20002
+> nodups_specs start: 11819.106s
+> nodups_specs end:   11830.892s
+> nodups_specs consumes: 11.786s
+>
+> New hash table implementation O(N):
+>
+> semodule -i myapp1.pp
+> nodups_specs data->nspec: 5002
+> nodups_specs start: 11785.588s
+> nodups_specs end:   11785.590s
+> nodups_specs consumes:  0.002s
+>
+> semodule -i myapp2.pp
+> nodups_specs data->nspec: 10002
+> nodups_specs start: 11806.546s
+> nodups_specs end:   11806.552s
+> nodups_specs consumes:  0.006s
+>
+> semodule -i myapp3.pp
+> nodups_specs data->nspec: 20002
+> nodups_specs start: 11830.892s
+> nodups_specs end:   11830.905s
+> nodups_specs consumes:  0.013s
 >
 > Signed-off-by: wanghuizhao <wanghuizhao1@huawei.com>
 > ---
->  libselinux/src/hashtab.c | 208 +++++++++++++++++++++++++++++++++++++++++++++++
->  libselinux/src/hashtab.h | 115 ++++++++++++++++++++++++++
->  2 files changed, 323 insertions(+)
->  create mode 100644 libselinux/src/hashtab.c
->  create mode 100644 libselinux/src/hashtab.h
+>  libselinux/src/label_file.c | 112 ++++++++++++++++++++++++++++++++++----=
+------
+>  libselinux/src/label_file.h |   5 ++
+>  2 files changed, 93 insertions(+), 24 deletions(-)
 >
-> diff --git a/libselinux/src/hashtab.c b/libselinux/src/hashtab.c
-> new file mode 100644
-> index 00000000..26d4f4c7
-> --- /dev/null
-> +++ b/libselinux/src/hashtab.c
-> @@ -0,0 +1,208 @@
-> +
-> +/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
-> +
-> +/* FLASK */
-> +
-> +/*
-> + * Implementation of the hash table type.
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 74ae9b9f..e4a85043 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -19,6 +19,7 @@
+>  #include <sys/types.h>
+>  #include <sys/stat.h>
+>
+> +#include "hashtab.h"
+>  #include "callbacks.h"
+>  #include "label_internal.h"
+>  #include "label_file.h"
+> @@ -57,40 +58,103 @@ static int find_stem_from_file(struct saved_data *da=
+ta, const char *key)
+>  }
+>
+>  /*
+> + * hash calculation and key comparison of hash table
 > + */
 > +
-> +#include <stdlib.h>
-> +#include <string.h>
-> +#include "hashtab.h"
-> +
-> +hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
-> +                                                    const_hashtab_key_t key),
-> +                        int (*keycmp) (hashtab_t h,
-> +                                       const_hashtab_key_t key1,
-> +                                       const_hashtab_key_t key2),
-> +                        unsigned int size)
+> +static unsigned int symhash(hashtab_t h, const_hashtab_key_t key)
 > +{
+> +       const struct chkdups_key *k =3D (const struct chkdups_key *)key;
+> +       const char *p =3D NULL;
+> +       size_t size;
+> +       unsigned int val =3D 0;
 > +
-> +       hashtab_t p;
-> +       unsigned int i;
-> +
-> +       p = (hashtab_t) malloc(sizeof(hashtab_val_t));
-> +       if (p == NULL)
-> +               return p;
-> +
-> +       memset(p, 0, sizeof(hashtab_val_t));
-> +       p->size = size;
-> +       p->nel = 0;
-> +       p->hash_value = hash_value;
-> +       p->keycmp = keycmp;
-> +       p->htable = (hashtab_ptr_t *) malloc(sizeof(hashtab_ptr_t) * size);
-> +       if (p->htable == NULL) {
-> +               free(p);
-> +               return NULL;
-> +       }
-> +       for (i = 0; i < size; i++)
-> +               p->htable[i] = (hashtab_ptr_t) NULL;
-> +
-> +       return p;
+> +       size =3D strlen(k->regex);
+> +       for (p =3D k->regex; ((size_t) (p - k->regex)) < size; p++)
+> +               val =3D
+> +                       (val << 4 | (val >> (8 * sizeof(unsigned int) - 4=
+)) +
+> +                       k->mode) ^ (*p);
+
+label_file.c: In function =E2=80=98symhash=E2=80=99:
+label_file.c:74:77: error: suggest parentheses around arithmetic in
+operand of =E2=80=98|=E2=80=99 [-Werror=3Dparentheses]
+   74 |                         (val << 4 | (val >> (8 *
+sizeof(unsigned int) - 4)) +
+      |
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+   75 |                         k->mode) ^ (*p);
+      |                         ~~~~~~~
+
+> +       return val % h->size;
 > +}
 > +
-> +int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
+> +static int symcmp(hashtab_t h
+> +                 __attribute__ ((unused)), const_hashtab_key_t key1,
+> +                 const_hashtab_key_t key2)
 > +{
-> +       unsigned int hvalue;
-> +       hashtab_ptr_t prev, cur, newnode;
+> +       const struct chkdups_key *a =3D (const struct chkdups_key *)key1;
+> +       const struct chkdups_key *b =3D (const struct chkdups_key *)key2;
 > +
-> +       if (!h)
-> +               return HASHTAB_OVERFLOW;
-> +
-> +       hvalue = h->hash_value(h, key);
-> +       prev = NULL;
-> +       cur = h->htable[hvalue];
-> +       while (cur && h->keycmp(h, key, cur->key) > 0) {
-> +               prev = cur;
-> +               cur = cur->next;
-> +       }
-> +
-> +       if (cur && (h->keycmp(h, key, cur->key) == 0))
-> +               return HASHTAB_PRESENT;
-> +
-> +       newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
-> +       if (newnode == NULL)
-> +               return HASHTAB_OVERFLOW;
-> +       memset(newnode, 0, sizeof(struct hashtab_node));
-> +       newnode->key = key;
-> +       newnode->datum = datum;
-> +       if (prev) {
-> +               newnode->next = prev->next;
-> +               prev->next = newnode;
-> +       } else {
-> +               newnode->next = h->htable[hvalue];
-> +               h->htable[hvalue] = newnode;
-> +       }
-> +
-> +       h->nel++;
-> +       return HASHTAB_SUCCESS;
+> +       return strcmp(a->regex, b->regex) || (a->mode && b->mode && a->mo=
+de !=3D b->mode);
 > +}
 > +
-> +int hashtab_remove(hashtab_t h, hashtab_key_t key,
-> +                  void (*destroy) (hashtab_key_t k,
-> +                                   hashtab_datum_t d, void *args), void *args)
-> +{
-> +       unsigned int hvalue;
-> +       hashtab_ptr_t cur, last;
-> +
-> +       if (!h)
-> +               return HASHTAB_MISSING;
-> +
-> +       hvalue = h->hash_value(h, key);
-> +       last = NULL;
-> +       cur = h->htable[hvalue];
-> +       while (cur != NULL && h->keycmp(h, key, cur->key) > 0) {
-> +               last = cur;
-> +               cur = cur->next;
-> +       }
-> +
-> +       if (cur == NULL || (h->keycmp(h, key, cur->key) != 0))
-> +               return HASHTAB_MISSING;
-> +
-> +       if (last == NULL)
-> +               h->htable[hvalue] = cur->next;
-> +       else
-> +               last->next = cur->next;
-> +
-> +       if (destroy)
-> +               destroy(cur->key, cur->datum, args);
-> +       free(cur);
-> +       h->nel--;
-> +       return HASHTAB_SUCCESS;
-> +}
-> +
-> +hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t key)
-> +{
-> +
-> +       unsigned int hvalue;
-> +       hashtab_ptr_t cur;
-> +
-> +       if (!h)
-> +               return NULL;
-> +
-> +       hvalue = h->hash_value(h, key);
-> +       cur = h->htable[hvalue];
-> +       while (cur != NULL && h->keycmp(h, key, cur->key) > 0)
-> +               cur = cur->next;
-> +
-> +       if (cur == NULL || (h->keycmp(h, key, cur->key) != 0))
-> +               return NULL;
-> +
-> +       return cur->datum;
-> +}
-> +
-> +void hashtab_destroy(hashtab_t h)
-> +{
-> +       unsigned int i;
+> +/*
+>   * Warn about duplicate specifications.
+>   */
+>  static int nodups_specs(struct saved_data *data, const char *path)
+>  {
+> -       int rc =3D 0;
+> -       unsigned int ii, jj;
+> +       int rc =3D 0, ret =3D 0;
+> +       unsigned int ii;
+>         struct spec *curr_spec, *spec_arr =3D data->spec_arr;
+> +       struct chkdups_key *new =3D NULL;
+> +       unsigned int hashtab_len =3D (data->nspec / 10) ? data->nspec / 1=
+0 : 1;
 > +       hashtab_ptr_t cur, temp;
+>
+> +       hashtab_t hash_table =3D hashtab_create(symhash, symcmp, data->ns=
+pec);
+> +       if (hash_table =3D=3D NULL) {
+> +               rc =3D -1;
+> +               COMPAT_LOG(SELINUX_ERROR, "%s: hashtab create failed.\n",=
+ path);
+> +               return rc;
+> +       }
+>         for (ii =3D 0; ii < data->nspec; ii++) {
+> -               curr_spec =3D &spec_arr[ii];
+> -               for (jj =3D ii + 1; jj < data->nspec; jj++) {
+> -                       if ((!strcmp(spec_arr[jj].regex_str,
+> -                               curr_spec->regex_str))
+> -                           && (!spec_arr[jj].mode || !curr_spec->mode
+> -                               || spec_arr[jj].mode =3D=3D curr_spec->mo=
+de)) {
+> -                               rc =3D -1;
+> -                               errno =3D EINVAL;
+> -                               if (strcmp(spec_arr[jj].lr.ctx_raw,
+> -                                           curr_spec->lr.ctx_raw)) {
+> -                                       COMPAT_LOG
+> -                                               (SELINUX_ERROR,
+> -                                                "%s: Multiple different =
+specifications for %s  (%s and %s).\n",
+> -                                                path, curr_spec->regex_s=
+tr,
+> -                                                spec_arr[jj].lr.ctx_raw,
+> -                                                curr_spec->lr.ctx_raw);
+> -                               } else {
+> -                                       COMPAT_LOG
+> -                                               (SELINUX_ERROR,
+> -                                                "%s: Multiple same speci=
+fications for %s.\n",
+> -                                                path, curr_spec->regex_s=
+tr);
+> -                               }
+> +               new =3D (struct chkdups_key *)malloc(sizeof(struct chkdup=
+s_key));
+
+oom check missing
+
+> +               new->regex =3D spec_arr[ii].regex_str;
+> +               new->mode =3D spec_arr[ii].mode;
+> +               ret =3D hashtab_insert(hash_table, (hashtab_key_t)new, &s=
+pec_arr[ii]);
+> +               if (ret =3D=3D HASHTAB_SUCCESS)
+> +                       continue;
+> +               if (ret =3D=3D HASHTAB_PRESENT) {
+> +                       curr_spec =3D
+> +                               (struct spec *)hashtab_search(hash_table,=
+ (hashtab_key_t)new);
+> +                       rc =3D -1;
+> +                       errno =3D EINVAL;
+> +                       if (strcmp(spec_arr[ii].lr.ctx_raw, curr_spec->lr=
+.ctx_raw)) {
+> +                               COMPAT_LOG
+> +                                       (SELINUX_ERROR,
+> +                                        "%s: Multiple different specific=
+ations for %s  (%s and %s).\n",
+> +                                        path, curr_spec->regex_str,
+> +                                        spec_arr[ii].lr.ctx_raw,
+> +                                        curr_spec->lr.ctx_raw);
+> +                       } else {
+> +                               COMPAT_LOG
+> +                                       (SELINUX_ERROR,
+> +                                        "%s: Multiple same specification=
+s for %s.\n",
+> +                                        path, curr_spec->regex_str);
+>                         }
+
+`new` leaking
+
+>                 }
+> +               if (ret =3D=3D HASHTAB_OVERFLOW) {
+> +                       rc =3D -1;
+> +                       COMPAT_LOG
+> +                               (SELINUX_ERROR,
+> +                               "%s: hashtab happen memory error.\n",
+> +                               path);
+> +                       break;
+
+`new` leaking
+
+> +               }
+> +       }
 > +
-> +       if (!h)
-> +               return;
-> +
-> +       for (i = 0; i < h->size; i++) {
-> +               cur = h->htable[i];
-> +               while (cur != NULL) {
-> +                       temp = cur;
-> +                       cur = cur->next;
+> +       for (ii =3D 0; ii < hashtab_len; ii++) {
+> +               cur =3D hash_table->htable[ii];
+> +               while (cur !=3D NULL) {
+> +                       temp =3D cur;
+> +                       cur =3D cur->next;
+> +                       free(temp->key);
 > +                       free(temp);
 > +               }
-> +               h->htable[i] = NULL;
-> +       }
-> +
-> +       free(h->htable);
-> +       h->htable = NULL;
-> +
-> +       free(h);
-> +}
-> +
-> +int hashtab_map(hashtab_t h,
-> +               int (*apply) (hashtab_key_t k,
-> +                             hashtab_datum_t d, void *args), void *args)
-> +{
-> +       unsigned int i;
-> +       hashtab_ptr_t cur;
-> +       int ret;
-> +
-> +       if (!h)
-> +               return HASHTAB_SUCCESS;
-> +
-> +       for (i = 0; i < h->size; i++) {
-> +               cur = h->htable[i];
-> +               while (cur != NULL) {
-> +                       ret = apply(cur->key, cur->datum, args);
-> +                       if (ret)
-> +                               return ret;
-> +                       cur = cur->next;
-> +               }
-> +       }
-> +       return HASHTAB_SUCCESS;
-> +}
-> +
-> +void hashtab_hash_eval(hashtab_t h, char *tag)
-> +{
-> +       unsigned int i;
-> +       int chain_len, slots_used, max_chain_len;
-> +       hashtab_ptr_t cur;
-> +
-> +       slots_used = 0;
-> +       max_chain_len = 0;
-> +       for (i = 0; i < h->size; i++) {
-> +               cur = h->htable[i];
-> +               if (cur) {
-> +                       slots_used++;
-> +                       chain_len = 0;
-> +                       while (cur) {
-> +                               chain_len++;
-> +                               cur = cur->next;
-> +                       }
-> +
-> +                       if (chain_len > max_chain_len)
-> +                               max_chain_len = chain_len;
-> +               }
-> +       }
-> +
-> +       printf
-> +           ("%s:  %d entries and %d/%d buckets used, longest chain length %d\n",
-> +            tag, h->nel, slots_used, h->size, max_chain_len);
-> +}
-> diff --git a/libselinux/src/hashtab.h b/libselinux/src/hashtab.h
-> new file mode 100644
-> index 00000000..092b96a9
-> --- /dev/null
-> +++ b/libselinux/src/hashtab.h
-> @@ -0,0 +1,115 @@
-> +
-> +/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
-> +
-> +/* FLASK */
-> +
-> +/*
-> + * A hash table (hashtab) maintains associations between
-> + * key values and datum values.  The type of the key values
+> +               hash_table->htable[ii] =3D NULL;
+>         }
 
-
-libselinux/src/hashtab.h:8: trailing whitespace.
-+ * key values and datum values.  The type of the key values
-
-> + * and the type of the datum values is arbitrary.  The
-> + * functions for hash computation and key comparison are
-> + * provided by the creator of the table.
-> + */
-> +
-> +#ifndef _NEWROLE_HASHTAB_H_
-> +#define _NEWROLE_HASHTAB_H_
-
-_SELINUX_HASHTAB_H ?
-(or `#pragma once`, seems to be widely supported according to
-https://en.wikipedia.org/wiki/Pragma_once)
+The common way of destroying hash-tables is hashtab_destroy().
+Since the keys need to be free'd as well `hashtab_map(hash_table,
+key_destroy, NULL)` with a custom key_destroy function can be used.
+(To avoid iterating the hash-table twice hashtab_destroy() could be
+modified to take an optional key destroy callback.)
 
 > +
-> +#include <stdint.h>
-> +#include <errno.h>
-> +#include <stdio.h>
+> +       free(hash_table->htable);
+> +       hash_table->htable =3D NULL;
+> +       free(hash_table);
 > +
-> +typedef char *hashtab_key_t;   /* generic key type */
-> +typedef const char *const_hashtab_key_t;       /* constant generic key type */
-> +typedef void *hashtab_datum_t; /* generic datum type */
+>         return rc;
+>  }
+>
+> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> index 190bc175..ad79319e 100644
+> --- a/libselinux/src/label_file.h
+> +++ b/libselinux/src/label_file.h
+> @@ -35,6 +35,11 @@
+>  /* Required selinux_restorecon and selabel_get_digests_all_partial_match=
+es() */
+>  #define RESTORECON_PARTIAL_MATCH_DIGEST  "security.sehash"
+>
+> +struct chkdups_key {
+> +       char *regex;
+> +       unsigned int mode;
+> +};
+
+Why declare in the header and not in the source file?
+
 > +
-> +typedef struct hashtab_node *hashtab_ptr_t;
-> +
-> +typedef struct hashtab_node {
-> +       hashtab_key_t key;
-> +       hashtab_datum_t datum;
-> +       hashtab_ptr_t next;
-> +} hashtab_node_t;
-> +
-> +typedef struct hashtab_val {
-> +       hashtab_ptr_t *htable;  /* hash table */
-> +       unsigned int size;      /* number of slots in hash table */
-> +       uint32_t nel;           /* number of elements in hash table */
-> +       unsigned int (*hash_value) (struct hashtab_val * h, const_hashtab_key_t key);   /* hash function */
-> +       int (*keycmp) (struct hashtab_val * h, const_hashtab_key_t key1, const_hashtab_key_t key2);     /* key comparison function */
-> +} hashtab_val_t;
-> +
-> +typedef hashtab_val_t *hashtab_t;
-> +
-> +/* Define status codes for hash table functions */
-> +#define HASHTAB_SUCCESS     0
-> +#define HASHTAB_OVERFLOW    -ENOMEM
-> +#define HASHTAB_PRESENT     -EEXIST
-> +#define HASHTAB_MISSING     -ENOENT
-> +
-> +/*
-> +   Creates a new hash table with the specified characteristics.
-> +
-> +   Returns NULL if insufficient space is available or
-> +   the new hash table otherwise.
-> + */
-> +extern hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
-> +                                                           const_hashtab_key_t
-> +                                                           key),
-> +                               int (*keycmp) (hashtab_t h,
-> +                                              const_hashtab_key_t key1,
-> +                                              const_hashtab_key_t key2),
-> +                               unsigned int size);
-> +/*
-> +   Inserts the specified (key, datum) pair into the specified hash table.
-> +
-> +   Returns HASHTAB_OVERFLOW if insufficient space is available or
-> +   HASHTAB_PRESENT  if there is already an entry with the same key or
-> +   HASHTAB_SUCCESS otherwise.
-> + */
-> +extern int hashtab_insert(hashtab_t h, hashtab_key_t k, hashtab_datum_t d);
-> +
-> +/*
-> +   Removes the entry with the specified key from the hash table.
-> +   Applies the specified destroy function to (key,datum,args) for
-> +   the entry.
-> +
-> +   Returns HASHTAB_MISSING if no entry has the specified key or
-> +   HASHTAB_SUCCESS otherwise.
-> + */
-> +extern int hashtab_remove(hashtab_t h, hashtab_key_t k,
-> +                         void (*destroy) (hashtab_key_t k,
-> +                                          hashtab_datum_t d,
-> +                                          void *args), void *args);
-> +
-> +/*
-> +   Searches for the entry with the specified key in the hash table.
-> +
-> +   Returns NULL if no entry has the specified key or
-> +   the datum of the entry otherwise.
-> + */
-> +extern hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t k);
-> +
-> +/*
-> +   Destroys the specified hash table.
-> + */
-> +extern void hashtab_destroy(hashtab_t h);
-> +
-> +/*
-> +   Applies the specified apply function to (key,datum,args)
-> +   for each entry in the specified hash table.
-> +
-> +   The order in which the function is applied to the entries
-> +   is dependent upon the internal structure of the hash table.
-> +
-> +   If apply returns a non-zero status, then hashtab_map will cease
-> +   iterating through the hash table and will propagate the error
-> +   return to its caller.
-> + */
-> +extern int hashtab_map(hashtab_t h,
-> +                      int (*apply) (hashtab_key_t k,
-> +                                    hashtab_datum_t d,
-> +                                    void *args), void *args);
-> +
-> +extern void hashtab_hash_eval(hashtab_t h, char *tag);
-> +
-> +#endif
+>  struct selabel_sub {
+>         char *src;
+>         int slen;
 > --
 > 2.12.3
 >
