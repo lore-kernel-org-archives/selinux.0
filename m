@@ -2,265 +2,137 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 848B6C636D4
-	for <selinux@archiver.kernel.org>; Mon, 13 Feb 2023 07:43:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25216C64EC7
+	for <selinux@archiver.kernel.org>; Tue, 14 Feb 2023 21:59:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229824AbjBMHn2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Feb 2023 02:43:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39670 "EHLO
+        id S233059AbjBNV76 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Feb 2023 16:59:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbjBMHn2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Feb 2023 02:43:28 -0500
-X-Greylist: delayed 224 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 12 Feb 2023 23:43:26 PST
-Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2a10:3781:2099::123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1665DE3B3;
-        Sun, 12 Feb 2023 23:43:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-        s=default; t=1676273977;
-        bh=LuSv/ObJNfdtGO6IGR6S5btqxR4kKo4DU9AXXJIKnu0=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=R7w/M17qSsT1f9JfteUGLnCwZw/8x7IaBgzoddXDSjkNjzbg0mWC9HD1ZuhC8KXy2
-         323uKLo/1hhH2D9IYKukCYpliD/1V8XEtY47qC0+q5sUb+SR3yV3Qbbi8MPPFAmPzR
-         5w7c4xIXMkNees4IIY85Q0pvE7wEptAIVkeBR1H8=
-Received: from paulus (paulus.lan [IPv6:2a10:3781:2099::515])
-        by markus.defensec.nl (Postfix) with ESMTPSA id 236B05F74;
-        Mon, 13 Feb 2023 08:39:37 +0100 (CET)
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Jeff Xu <jeffxu@chromium.org>
-Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, jorgelo@chromium.org,
-        groeck@chromium.org, Luis Hector Chavez <lhchavez@google.com>,
-        Luis Hector Chavez <lhchavez@chromium.org>
-Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
-References: <20220921185426.1663357-1-jeffxu@chromium.org>
-        <20220921185426.1663357-2-jeffxu@chromium.org>
-        <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
-        <CABi2SkXRxomrYn-xUf3B+XswmQjXZUJXmYJECmr_nBfrZWwqkA@mail.gmail.com>
-        <CAHC9VhRuUZxdsVQftqWa0zEuNAxk8ur0-TZp5KecJ537hRONRQ@mail.gmail.com>
-        <875yhe6ial.fsf@defensec.nl>
-        <CABi2SkXU+C77PqXnH_OHs9rjsiOQAHMmkDF5H9EYkU=ZG_tNrg@mail.gmail.com>
-Date:   Mon, 13 Feb 2023 08:39:36 +0100
-In-Reply-To: <CABi2SkXU+C77PqXnH_OHs9rjsiOQAHMmkDF5H9EYkU=ZG_tNrg@mail.gmail.com>
-        (Jeff Xu's message of "Sun, 12 Feb 2023 21:44:27 -0800")
-Message-ID: <875yc6c8uf.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
+        with ESMTP id S233135AbjBNV74 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Feb 2023 16:59:56 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C986683F2
+        for <selinux@vger.kernel.org>; Tue, 14 Feb 2023 13:59:54 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id s20so11262986pfe.2
+        for <selinux@vger.kernel.org>; Tue, 14 Feb 2023 13:59:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=0q4aQX1yKf+7yz3UNvdDM4P25hDwV1GvoXUzXe+ItEw=;
+        b=CGAIBaaAxZpqJZLbPtUqSDTUhhbbPHblJ5AjW5f7AyIIhSpmrEX9amm19CCFA3oNF3
+         y6MAnkqMQKX8R77GIHKFVNoEH98+FeSaqBwzb5GvFCX4AY114aUWHWHW+60/gI8WfLwc
+         h6aID3Zey3Sv748KjSkYx10NF01CojpDC05BYgqyeCwWDccYfCwhbtJRiF6dG4Iu5gnF
+         PFne1V+8aYqsEzUGXpoMiV346J6fqvvqgxVp66gR+IpKWCMsqZ1gYh7hD7bsnEurTAVI
+         JidXRTETClXcXmbOC4YnoXCCBGM+y8g7faOHzHdYPBurynPXp5aN/ftEEiGe09CkDD19
+         1fQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0q4aQX1yKf+7yz3UNvdDM4P25hDwV1GvoXUzXe+ItEw=;
+        b=mhMeqnbawE2U7kMYkr1+wBuTTfHeAjQTBZ2XRQekuGeQKhyLu0bkIfW8ixUZDALVJA
+         N+5hF4tWd/jmRkW9yyFUtemLph3gODm/usx7VRTETPKf+t+RR2QA43qiMYVl1gdEODDm
+         MbF8S790f7lwjq4p0KKH2aFEUYZZAV9hepWH8guCv/EoNLqjdkbzXItUCNusl+6GWpEu
+         yBUr2gS1XtEHcCh85kstVBJ7IhDqmALvHGL3fxYPUtLR4E0/osR1tnCVgja+aDVoNue6
+         2hctkitdBxqLJwFXKYxbaXIjs6M9BCDkeIV9G4ZZYLsEIzxpihpce38iGmw6bDlMgNWs
+         LkmA==
+X-Gm-Message-State: AO0yUKWoEX2O81dT3SmMcwFaQyzxFgdRIngvogkkRW2zzN5iJLdEEE7Q
+        4SGH1BusC8fwFOkNywyuCPKetCoCfrS8hyGxeeNbv6LJ8i7M
+X-Google-Smtp-Source: AK7set9WOGsxKP0xm9ZOKkMAcrZZ9fJiSHkfJq5gZysYfXnEHszGHRCmTAA1yfu59SUNVD5GcCVZJz2UNLa/ZcPZtJ4=
+X-Received: by 2002:a63:bf41:0:b0:4fb:ba53:1c60 with SMTP id
+ i1-20020a63bf41000000b004fbba531c60mr548880pgo.125.1676411994030; Tue, 14 Feb
+ 2023 13:59:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+References: <CAHC9VhRT0d-XWkw8uLGOmXsaQFpA4MMP6+sL5kfONbf-Mz8UJg@mail.gmail.com>
+ <CAFqZXNuv780r04wsLyGvi+CmBFp_v=m1KCNA=ycPRwy5J0YQ9g@mail.gmail.com>
+ <CAHC9VhSpC8Fsj6e1fn=KgbjasTvD=8TDN0XV9YhN0+a4A6t8zA@mail.gmail.com> <CAHC9VhT8YNfhcP_h1iNaTPyM02C4Eo2U88yLV9-GHHtL0_P8Kg@mail.gmail.com>
+In-Reply-To: <CAHC9VhT8YNfhcP_h1iNaTPyM02C4Eo2U88yLV9-GHHtL0_P8Kg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 14 Feb 2023 16:59:42 -0500
+Message-ID: <CAHC9VhQwrjwdW27+ktcT_9q-N7AmuUK8GYgoYbPXGVAcjwA4nQ@mail.gmail.com>
+Subject: Re: selinux-testsuite failures, CONFIG_LEGACY_TIOCSTI, and recent
+ Rawhide builds
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Jeff Xu <jeffxu@chromium.org> writes:
-
-> On Fri, Sep 23, 2022 at 11:45 AM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
->>
->> Paul Moore <paul@paul-moore.com> writes:
->>
->> > On Fri, Sep 23, 2022 at 1:43 PM Jeff Xu <jeffxu@chromium.org> wrote:
->> >> On Wed, Sep 21, 2022 at 12:11 PM Paul Moore <paul@paul-moore.com> wrote:
->> >> > On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
->> >> > >
->> >> > > From: Jeff Xu <jeffxu@chromium.org>
->> >> > >
->> >> > > When SECURITY_SELINUX_DEVELOP=y and the system is running in permissive
->> >> > > mode, it is useful to disable logging from permissive domain, so audit
->> >> > > log does not get spamed.
->> >> > >
->> >> > > Signed-off-by: Jeff Xu <jeffxu@chromium.org>
->> >> > > Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
->> >> > > Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
->> >> > > Tested-by: Jeff Xu<jeffxu@chromium.org>
->> >> > > ---
->> >> > >  security/selinux/Kconfig | 10 ++++++++++
->> >> > >  security/selinux/avc.c   |  9 +++++++++
->> >> > >  2 files changed, 19 insertions(+)
->> >> >
->> >> > I'm sorry, but I can't accept this into the upstream kernel.
->> >> > Permissive mode, both per-domain and system-wide, is not intended to
->> >> > be a long term solution.  Permissive mode should really only be used
->> >> > as a development tool or emergency "hotfix" with the proper solution
->> >> > being either an adjustment of the existing policy (SELinux policy
->> >> > booleans, labeling changes, etc.) or the development of a new policy
->> >> > module which better fits your use case.
->> >>
->> >> Thanks for the response.
->> >> For a system that wants to control a few daemons, is there a
->> >> recommended pattern from selinux ?
->>
->> That is effectively a "targeted" policy model. You target a selection of
->> entities and everything else is "unconfined" (ie not targeteed).
->>
->> An "unconfined" domain is just a process type that has many allow rules
->> associated with it making it effectively similar to an "permissive"
->> domain. The difference is that since "unconfined" domains have full
->> access there should not be any AVC denials (nothing is blocked by
->> SELinux because the policy does not target the entity)
->>
-> It seems that my system doesn't have unconfined_t, so
-> I am trying to get an example.
-
-It does not necessarily have to be unconfined_t.
-
+On Fri, Feb 10, 2023 at 12:30 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Fri, Feb 10, 2023 at 11:57 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Fri, Feb 10, 2023 at 3:36 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > On Thu, Feb 9, 2023 at 11:09 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > Hi all,
+> > > >
+> > > > I just noticed a selinux-testsuite failure in the tests/file test:
+> > > >
+> > > > # Test 8 got: "512" (file/test at line 103)
+> > > > #   Expected: "0"
+> > > > #  file/test line 103 is: ok( $result, 0 );
+> > > > file/test ................... Failed 1/16 subtests
+> > > >
+> > > > Digging into this a bit more it looks like the the fnctl(TIOCSTI) call
+> > > > in test_sigiotask.c is failing due to a recent Rawhide change to
+> > > > undefine CONFIG_LEGACY_TIOCSTI, disabling TIOCSTI.  Upstream kernel
+> > > > commit 83efeeeb3d04 ("tty: Allow TIOCSTI to be disabled") has more
+> > > > information on the Kconfig option.
+> > > >
+> > > > I'm not going to argue for reenabling CONFIG_LEGACY_TIOCSTI, I think
+> > > > turning it off is a good idea, but it does mean we need to adjust the
+> > > > selinux-testsuite.
+> > >
+> > > I noticed that in our CI yesterday and had a brief look. Unfortunately
+> > > I don't (yet) fully understand the terminal device voodoo being done
+> > > in test_sigiotask.c and I don't have any idea how to make it work
+> > > without TIOCSTI. So the best fix for now seems to be to use the
+> > > dev.tty.legacy_tiocsti sysctl (see the Kconfig). However, it seems to
+> > > be broken currently:
+> > >
+> > > # sysctl dev.tty.legacy_tiocsti
+> > > # sysctl -w dev.tty.legacy_tiocsti=1
+> > > sysctl: setting key "/proc/sys/dev/tty/legacy_tiocsti": Invalid argument
+> > > #
+> >
+> > Yep, I got to that point last night and had to leave for the evening
+> > so I fired off that email figuring you might get a chance to look into
+> > it before I could.
+> >
+> > Ultimately I think we'll probably still need to find some alternative
+> > to using TIOCSTI, but I'll admit to not having spent much time at all
+> > looking into how to do that.
+> >
+> > > I will look into fixing it...
+> >
+> > Thanks for getting to the root cause and posting the fix.
+> >
+> > > > Also, as a note to the Fedora folks who will see this, maybe don't
+> > > > tweak the Kconfig knobs when the kernel is at -rc7?  Seeing kernel
+> > > > test failures late in the -rc7 stage doesn't do wonders for my sanity
+> > > > ;)
+> > >
+> > > When new configs are added upstream, AFAIK, they are set to the
+> > > default value in the Fedora configs and marked as "pending". The
+> > > Fedora kernel maintainer (Justin Forbes) then at some point goes
+> > > through all pending configs and sets them to a value he deems best.
+> > > This time it happened around -rc7; I'm not going to speculate why or
+> > > if it's the usual practice. I recommend raising this on
+> > > kernel@lists.fedoraproject.org - Justin is always open to suggestions
+> > > and he might be able to accomodate this expectation.
+> >
+> > Thanks, I'll send a note.
 >
-> Can I use a wildcard, something like below ?
-> type unconfined_t
-> allow unconfined_t *
+> FWIW, it looks like the current Rawhide build is back to enabling
+> CONFIG_LEGACY_TIOCSTI.  My testing is back to running clean with
+> kernel 6.2.0-0.rc7.20230210git38c1e0c6.54.1.secnext.fc38.
 
-I took some time to try and come up with an example that goes to the
-essence. For this i used the example tiny cil-policy from the SELinux
-notebook. You would need `secilc`, `seinfo` and, `sesearch` to try it
-out yourself:
+That proved to be short lived.
 
-curl \
-https://raw.githubusercontent.com/SELinuxProject/selinux-notebook/main/src/notebook-examples/cil-policy/cil-policy.cil \
-> cil-policy.cil
-
-secilc -vvv cil-policy.cil
-seinfo policy.33
-
-this is "tiny CIL policy" it can be used for demonstration.
-it has a single type "sys.isid":
-
-seinfo policy.33 -t
-
-and it has only one security class that has two access vector permissions
-associated with it namely: "process { dyntransition transition }"
-
-seinfo policy.33 -xc
-
-the single type "sys.isid" has "unconfined" access:
-
-sesearch policy.33 -A
-
-this is essentially the simplest example of an "unconfined" domain.
-
-lets add a new type, and new security class and some permissions. to demonstrate what
-it takes to have a unconfined domain in an environment that has more than just one
-type, one security class and two permission.
-
-I will do it in stages.
-
-echo '(type mytype) ;; a new type' >> cil-policy.cil
-echo '(class myclass ( myperm1 myperm2 )) (classorder (unordered myclass)) ;; a new class with two new permissions' >> cil-policy.cil
-
-secilc -vvv cil-policy.cil
-seinfo policy.33
-seinfo policy.33 -t
-seinfo policy.33 -xc
-sesearch policy.33 -A
-
-now type sys.isid is no longer an unconfined domain because it does not have access
-to "myclass { myperm1 myperm2 }". The new "mytype" type has no permisssions associated with it at all.
-
-to make sys.isid unconfined again we have to:
-
-1. (allow sys.isid sys.isid (myclass (myperm1 myperm2)))
-2. (allow sys.isid mytype (myclass (myperm1 myperm2)))
-3. (allow sys.isid mytype (process (dyntransition transition)))
-
-this is a bit hard to manage. we can use type attributes to group types:
-
-echo '(typeattribute mytypes) ;; a new type attribute' >> cil-policy.cil
-echo '(typeattributeset mytypes (sys.isid mytype)) ;; all our types are associates' >> cil-policy.cil
-
-secilc -vvv cil-policy.cil
-seinfo policy.33 -xamytypes
-
-now the above 3 rules can be written in a simpler way:
-
-echo '(allow sys.isid mytypes (myclass (all))) ;; access to effectively: * myclass *' >> cil-policy.cil
-echo '(allow sys.isid mytypes (process (all))) ;; access to effectively: * process *' >> cil-policy.cil
-
-secilc -vvv cil-policy.cil
-seinfo policy.33
-seinfo policy.33 -t
-seinfo policy.33 -xc
-sesearch policy.33 -A
-
-I think this is probably the simplest example of an unconfined domain.
-type attributes can be used to "organise your policy"
-if you plan your policy well then eventually making a "domain" unconfined could be as
-easy as associating it with a type attribute.
-
-sesearch policy.33 -A -t sys.isid -t mytypes -dt
-seinfo policy.33 -xa mytypes
-
-for example we could create a type attribute called "unconfined_access" and associate
-all access vectors with it:
-
-(typeattribute unconfined_access)
-(allow unconfined_access mytypes (myclass (all)))
-(allow unconfined_access mytypes (process (all)))
-
-then to make type "mytype" unconfined as well; simple associate it with unconfined_access
-
-(typeattributeset unconfined_access (mytype)))
-
->
-> An example would be appreciated.
->
-> Thanks!
-> -Jeff
->
->
->
->> The stock policy enforced in Red Hat based distributions is a "targeted"
->> policy model for example. The unconfined_t domain is one of various
->> "unconfined" domains (other examples are unconfined_service_t but
->> effectively any type could be made unconfined by simply allowing all accesses.
->>
->> >
->> > Guidance on how to write a SELinux policy for an application is a bit
->> > beyond what I have time for in this email, but others on this mailing
->> > list might be able to help.  There has definitely been a lot written
->> > on the subject, both available online and offline.  My suggestion
->> > would be to start "small" with a single SELinux domain for the
->> > application and a single type for any configuration, data, or log
->> > files it might need; get this initial domain working properly and then
->> > you can add increasing levels of access control granularity until
->> > you've met your security requirements.  If you've never done this
->> > before, go slow, the start might be challenging as you get used to the
->> > tools, but you can do it :)
->> >
->> >> I read this blog about unconfined domain (unconfined_t), maybe this is one way ?
->> >> https://wiki.gentoo.org/wiki/SELinux/Tutorials/What_is_this_unconfined_thingie_and_tell_me_about_attributes
->> >
->> > It is important to remember that an unconfined domain is, as the name
->> > would imply, effectively unconfined by SELinux.  Perhaps this is what
->> > you want, but generally speaking if you are running SELinux it is
->> > because you have a need or desire for additional access controls
->> > beyond the legacy Linux discretionary access controls.
->> >
->> >> I have two questions on unconfined domain:
->> >> 1> Is unconfined_t domain supported in SECURITY_SELINUX_DEVELOP=n mode ?
->> >
->> > Yes.  The SECURITY_SELINUX_DEVELOP kernel build configuration only
->> > enables the admin to boot the kernel initially in permissive mode
->> > and/or determine the SELinux mode using the "enforcing=X" kernel
->> > command line option and a sysfs/securityfs tunable under
->> > /sys/fs/selinux/enforce.  The unconfined_t domain is defined purely in
->> > the SELinux policy and not the kernel; you could write a SELinux
->> > policy without it you wanted, or you could grant unconfined_t-like
->> > permissions to multiple different domains in your policy.  It's been a
->> > while since I played with it, but I believe the SELinux reference
->> > policy (refpol) provides a macro interface to define an arbitrary
->> > domain with unconfined_t-like permissions.
->> >
->> >> 2> will unconfined_t domain log also as permissive domain ?
->> >
->> > The intent of the unconfined_t domain is that there would be no access
->> > denials due to SELinux and thus no AVC audit records related to the
->> > unconfined_t domain.  It is not permissive in the sense of the SELinux
->> > "mode" (enforcing/permissive/disabled), but it is permissive in the
->> > sense that it is given a large number of permissions.
->>
->> --
->> gpg --locate-keys dominick.grift@defensec.nl
->> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
->> Dominick Grift
+Ondrej, would it be possible to disable the failing test until your
+patch lands upstream and ends up in Rawhide?
 
 -- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
+paul-moore.com
