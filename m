@@ -2,255 +2,129 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 314ABC636D6
-	for <selinux@archiver.kernel.org>; Fri, 17 Feb 2023 08:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66E6AC05027
+	for <selinux@archiver.kernel.org>; Fri, 17 Feb 2023 15:22:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbjBQIpJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Feb 2023 03:45:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46310 "EHLO
+        id S229779AbjBQPWR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Feb 2023 10:22:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229718AbjBQIpH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Feb 2023 03:45:07 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0CF5FBD3
-        for <selinux@vger.kernel.org>; Fri, 17 Feb 2023 00:45:05 -0800 (PST)
-Received: from kwepemi500007.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PJ50g2R5ZzRsBr;
-        Fri, 17 Feb 2023 16:42:27 +0800 (CST)
-Received: from Linux-SUSE12SP5.huawei.com (10.67.136.158) by
- kwepemi500007.china.huawei.com (7.221.188.207) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.17; Fri, 17 Feb 2023 16:45:03 +0800
-From:   wanghuizhao <wanghuizhao1@huawei.com>
-To:     <selinux@vger.kernel.org>, <nixiaoming@huawei.com>,
-        <chenjingwen6@huawei.com>, <dongxinhua@huawei.com>
-CC:     <lautrbach@redhat.com>, <jwcart2@gmail.com>, <jason@perfinion.com>,
-        <cgzones@googlemail.com>, <wangfangpeng1@huawei.com>,
-        <weiyuchen3@huawei.com>, <wanghuizhao1@huawei.com>
-Subject: [PATCH v2 3/3] libselinux: performance optimization for duplicate detection
-Date:   Fri, 17 Feb 2023 16:44:58 +0800
-Message-ID: <20230217084458.40597-4-wanghuizhao1@huawei.com>
-X-Mailer: git-send-email 2.12.3
-In-Reply-To: <20230217084458.40597-1-wanghuizhao1@huawei.com>
-References: <20230209114253.120485-1-wanghuizhao1@huawei.com>
- <20230217084458.40597-1-wanghuizhao1@huawei.com>
+        with ESMTP id S229520AbjBQPWR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Feb 2023 10:22:17 -0500
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67AA364B1A;
+        Fri, 17 Feb 2023 07:22:16 -0800 (PST)
+Received: by mail-pj1-x1029.google.com with SMTP id s4-20020a17090a764400b002349a303ca5so1614064pjl.4;
+        Fri, 17 Feb 2023 07:22:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=1wEOMsasOhS47qE3rNjEQb/LVxoxsXh6436IuIt+VRU=;
+        b=nN0QSMXFiGuu4ePHZ6sZmwLNPqPKGbu/t+mzu9GRGknl5DrAbh/rYVsrSfwGheEIke
+         txDcui+sde+KCXjH1AGqQ/hm34cbLdQsxm86aPaQaRH2o5zVgvB9VIsFuZo2uxATVYwT
+         pH27bqHgX9lxTm7QXdWmiGeN25DigvtYQbAcguLiUB4HDUrtrneWzY/Bx0J1GU8gomQP
+         U3x6OxVeuVkyoyDBPH+2kXsZGi+xXOlItxhKpAGMn5aBjuI7eKaT64GQh/k8b3G4jMyc
+         TEdW+7naOzXnse1JFF1DQ9KhbmMD9HwvXYTvc7gTANQikNQXfmPlg9M9Sb2Ve6FQSA/K
+         EG0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1wEOMsasOhS47qE3rNjEQb/LVxoxsXh6436IuIt+VRU=;
+        b=kpB8XNU1l1ZIjIRnNs5OI5V2RqYbN/nWHcrG1VCBce3MK+uceFAvOUr1WyUYR4yYs4
+         tsvqOJuqLc8y/tJJDxKxZm43nzHwJD3T4cd3KpcxqZg+Wd2Wfls3b7w1x3pwYgreWtTe
+         J2Gj8wYTLKpapeLutngY36cvnE4r/k1X+JKxjUDUVhsJaFemo81CVIh7MBsE5oPdtiz4
+         fX/N/N3P4Fdrz64RLwfKu3DJaPhtGtNtBo5OFzBlfEa2hULiKUaFQ1Gz0FJ9YNnMkEe1
+         4ZF/jVlAoht6D2qi8OHcY1PZ2wnTByUM6x6L9I0ts3fwNmJX+lXyn7DzqTFABrcPY5p3
+         Mw7g==
+X-Gm-Message-State: AO0yUKVSFC6ogosyLLEumxvNJVmp1JjWtnORz6hhM1wxIddOeqfw53jN
+        YeyAKFOP9aYmvBNwA7y6NNE7+hqMLM5H9ZAa0e0=
+X-Google-Smtp-Source: AK7set9MUraNZP423mBCkcUyajqvPmhITkD0L/HyhJZ6SXYTPF17pP6m1TSpLHeLPoC5Pr0rg/P2L0652Mf2R+5Ajtg=
+X-Received: by 2002:a17:90b:2252:b0:233:f6f9:df37 with SMTP id
+ hk18-20020a17090b225200b00233f6f9df37mr1422859pjb.138.1676647335819; Fri, 17
+ Feb 2023 07:22:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.136.158]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemi500007.china.huawei.com (7.221.188.207)
-X-CFilter-Loop: Reflected
+References: <20220921185426.1663357-1-jeffxu@chromium.org> <20220921185426.1663357-2-jeffxu@chromium.org>
+ <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
+ <CABi2SkXRxomrYn-xUf3B+XswmQjXZUJXmYJECmr_nBfrZWwqkA@mail.gmail.com>
+ <CAHC9VhRuUZxdsVQftqWa0zEuNAxk8ur0-TZp5KecJ537hRONRQ@mail.gmail.com>
+ <875yhe6ial.fsf@defensec.nl> <CABi2SkXU+C77PqXnH_OHs9rjsiOQAHMmkDF5H9EYkU=ZG_tNrg@mail.gmail.com>
+In-Reply-To: <CABi2SkXU+C77PqXnH_OHs9rjsiOQAHMmkDF5H9EYkU=ZG_tNrg@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 17 Feb 2023 10:22:04 -0500
+Message-ID: <CAEjxPJ43nNKG4QEKK5W2_K_TGeUjyUywvsqiPipT8Pom5VNMxw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
+To:     Jeff Xu <jeffxu@chromium.org>
+Cc:     Dominick Grift <dominick.grift@defensec.nl>,
+        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, jorgelo@chromium.org,
+        groeck@chromium.org, Luis Hector Chavez <lhchavez@google.com>,
+        Luis Hector Chavez <lhchavez@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When semodule -i some.pp to install a module package, duplicate items are
-detected for the module. The detection function is nodups_specs in
-libselinux/src/label_file.c. The algorithm complexity of implementing
-this function is O(N^2). In scenarios where N is very large, the efficiency
-is very low.
+On Mon, Feb 13, 2023 at 1:02 AM Jeff Xu <jeffxu@chromium.org> wrote:
+>
+> On Fri, Sep 23, 2022 at 11:45 AM Dominick Grift
+> <dominick.grift@defensec.nl> wrote:
+> >
+> > Paul Moore <paul@paul-moore.com> writes:
+> >
+> > > On Fri, Sep 23, 2022 at 1:43 PM Jeff Xu <jeffxu@chromium.org> wrote:
+> > >> On Wed, Sep 21, 2022 at 12:11 PM Paul Moore <paul@paul-moore.com> wrote:
+> > >> > On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
+> > >> > >
+> > >> > > From: Jeff Xu <jeffxu@chromium.org>
+> > >> > >
+> > >> > > When SECURITY_SELINUX_DEVELOP=y and the system is running in permissive
+> > >> > > mode, it is useful to disable logging from permissive domain, so audit
+> > >> > > log does not get spamed.
+> > >> > >
+> > >> > > Signed-off-by: Jeff Xu <jeffxu@chromium.org>
+> > >> > > Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
+> > >> > > Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
+> > >> > > Tested-by: Jeff Xu<jeffxu@chromium.org>
+> > >> > > ---
+> > >> > >  security/selinux/Kconfig | 10 ++++++++++
+> > >> > >  security/selinux/avc.c   |  9 +++++++++
+> > >> > >  2 files changed, 19 insertions(+)
+> > >> >
+> > >> > I'm sorry, but I can't accept this into the upstream kernel.
+> > >> > Permissive mode, both per-domain and system-wide, is not intended to
+> > >> > be a long term solution.  Permissive mode should really only be used
+> > >> > as a development tool or emergency "hotfix" with the proper solution
+> > >> > being either an adjustment of the existing policy (SELinux policy
+> > >> > booleans, labeling changes, etc.) or the development of a new policy
+> > >> > module which better fits your use case.
+> > >>
+> > >> Thanks for the response.
+> > >> For a system that wants to control a few daemons, is there a
+> > >> recommended pattern from selinux ?
+> >
+> > That is effectively a "targeted" policy model. You target a selection of
+> > entities and everything else is "unconfined" (ie not targeteed).
+> >
+> > An "unconfined" domain is just a process type that has many allow rules
+> > associated with it making it effectively similar to an "permissive"
+> > domain. The difference is that since "unconfined" domains have full
+> > access there should not be any AVC denials (nothing is blocked by
+> > SELinux because the policy does not target the entity)
+> >
+> It seems that my system doesn't have unconfined_t, so
+> I am trying to get an example.
+>
+> Can I use a wildcard, something like below ?
+> type unconfined_t
+> allow unconfined_t *
+>
+> An example would be appreciated.
 
-To solve this problem, I propose to use the hash table to detect duplicates.
-The algorithm complexity of new implementing is O(N). The execution efficiency
-will be greatly improved.
-
-Comparison between the execution time of the nodups_specs function.
-
-Old double-layer loop implementation O(N^2):
-
-semodule -i myapp1.pp
-nodups_specs data->nspec: 5002
-nodups_specs start: 11785.242s
-nodups_specs end:   11785.588s
-nodups_specs consumes:  0.346s
-
-semodule -i myapp2.pp
-nodups_specs data->nspec: 10002
-nodups_specs start: 11804.280s
-nodups_specs end:   11806.546s
-nodups_specs consumes:  2.266s
-
-semodule -i myapp3.pp
-nodups_specs data->nspec: 20002
-nodups_specs start: 11819.106s
-nodups_specs end:   11830.892s
-nodups_specs consumes: 11.786s
-
-New hash table implementation O(N):
-
-semodule -i myapp1.pp
-nodups_specs data->nspec: 5002
-nodups_specs start: 11785.588s
-nodups_specs end:   11785.590s
-nodups_specs consumes:  0.002s
-
-semodule -i myapp2.pp
-nodups_specs data->nspec: 10002
-nodups_specs start: 11806.546s
-nodups_specs end:   11806.552s
-nodups_specs consumes:  0.006s
-
-semodule -i myapp3.pp
-nodups_specs data->nspec: 20002
-nodups_specs start: 11830.892s
-nodups_specs end:   11830.905s
-nodups_specs consumes:  0.013s
-
-Signed-off-by: wanghuizhao <wanghuizhao1@huawei.com>
----
- libselinux/src/label_file.c | 118 +++++++++++++++++++++++++++++++++++---------
- 1 file changed, 94 insertions(+), 24 deletions(-)
-
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 74ae9b9f..eebf9665 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -19,10 +19,17 @@
- #include <sys/types.h>
- #include <sys/stat.h>
- 
-+#include "hashtab.h"
- #include "callbacks.h"
- #include "label_internal.h"
- #include "label_file.h"
- 
-+
-+struct chkdups_key {
-+	char *regex;
-+	unsigned int mode;
-+};
-+
- /*
-  * Internals, mostly moved over from matchpathcon.c
-  */
-@@ -57,40 +64,103 @@ static int find_stem_from_file(struct saved_data *data, const char *key)
- }
- 
- /*
-+ * hash calculation and key comparison of hash table
-+ */
-+
-+static unsigned int symhash(hashtab_t h, const_hashtab_key_t key)
-+{
-+	const struct chkdups_key *k = (const struct chkdups_key *)key;
-+	const char *p = NULL;
-+	size_t size;
-+	unsigned int val = 0;
-+
-+	size = strlen(k->regex);
-+	for (p = k->regex; ((size_t) (p - k->regex)) < size; p++)
-+		val =
-+			((val << 4) | ((val >> (8 * sizeof(unsigned int) - 4)) +
-+			k->mode)) ^ (*p);
-+	return val % h->size;
-+}
-+
-+static int symcmp(hashtab_t h
-+		  __attribute__ ((unused)), const_hashtab_key_t key1,
-+		  const_hashtab_key_t key2)
-+{
-+	const struct chkdups_key *a = (const struct chkdups_key *)key1;
-+	const struct chkdups_key *b = (const struct chkdups_key *)key2;
-+
-+	return strcmp(a->regex, b->regex) || (a->mode && b->mode && a->mode != b->mode);
-+}
-+
-+static int destroy_chkdups_key(hashtab_key_t key)
-+{
-+	free(key);
-+
-+	return 0;
-+}
-+
-+/*
-  * Warn about duplicate specifications.
-  */
- static int nodups_specs(struct saved_data *data, const char *path)
- {
--	int rc = 0;
--	unsigned int ii, jj;
-+	int rc = 0, ret = 0;
-+	unsigned int ii;
- 	struct spec *curr_spec, *spec_arr = data->spec_arr;
-+	struct chkdups_key *new = NULL;
-+	unsigned int hashtab_len = (data->nspec / 10) ? data->nspec / 10 : 1;
- 
-+	hashtab_t hash_table = hashtab_create(symhash, symcmp, hashtab_len);
-+	if (!hash_table) {
-+		rc = -1;
-+		COMPAT_LOG(SELINUX_ERROR, "%s: hashtab create failed.\n", path);
-+		return rc;
-+	}
- 	for (ii = 0; ii < data->nspec; ii++) {
--		curr_spec = &spec_arr[ii];
--		for (jj = ii + 1; jj < data->nspec; jj++) {
--			if ((!strcmp(spec_arr[jj].regex_str,
--				curr_spec->regex_str))
--			    && (!spec_arr[jj].mode || !curr_spec->mode
--				|| spec_arr[jj].mode == curr_spec->mode)) {
--				rc = -1;
--				errno = EINVAL;
--				if (strcmp(spec_arr[jj].lr.ctx_raw,
--					    curr_spec->lr.ctx_raw)) {
--					COMPAT_LOG
--						(SELINUX_ERROR,
--						 "%s: Multiple different specifications for %s  (%s and %s).\n",
--						 path, curr_spec->regex_str,
--						 spec_arr[jj].lr.ctx_raw,
--						 curr_spec->lr.ctx_raw);
--				} else {
--					COMPAT_LOG
--						(SELINUX_ERROR,
--						 "%s: Multiple same specifications for %s.\n",
--						 path, curr_spec->regex_str);
--				}
-+		new = (struct chkdups_key *)malloc(sizeof(struct chkdups_key));
-+		if (!new) {
-+			rc = -1;
-+			COMPAT_LOG(SELINUX_ERROR, "%s: hashtab key create failed.\n", path);
-+			return rc;
-+		}
-+		new->regex = spec_arr[ii].regex_str;
-+		new->mode = spec_arr[ii].mode;
-+		ret = hashtab_insert(hash_table, (hashtab_key_t)new, &spec_arr[ii]);
-+		if (ret == HASHTAB_SUCCESS)
-+			continue;
-+		if (ret == HASHTAB_PRESENT) {
-+			curr_spec =
-+				(struct spec *)hashtab_search(hash_table, (hashtab_key_t)new);
-+			rc = -1;
-+			errno = EINVAL;
-+			free(new);
-+			if (strcmp(spec_arr[ii].lr.ctx_raw, curr_spec->lr.ctx_raw)) {
-+				COMPAT_LOG
-+					(SELINUX_ERROR,
-+					 "%s: Multiple different specifications for %s  (%s and %s).\n",
-+					 path, curr_spec->regex_str,
-+					 spec_arr[ii].lr.ctx_raw,
-+					 curr_spec->lr.ctx_raw);
-+			} else {
-+				COMPAT_LOG
-+					(SELINUX_ERROR,
-+					 "%s: Multiple same specifications for %s.\n",
-+					 path, curr_spec->regex_str);
- 			}
- 		}
-+		if (ret == HASHTAB_OVERFLOW) {
-+			rc = -1;
-+			free(new);
-+			COMPAT_LOG
-+				(SELINUX_ERROR,
-+				"%s: hashtab happen memory error.\n",
-+				path);
-+			break;
-+		}
- 	}
-+
-+	hashtab_destroy_key(hash_table, destroy_chkdups_key);
-+
- 	return rc;
- }
- 
--- 
-2.12.3
-
+If your policy in Android-based, then the su domain would be the
+easiest starting point. It isn't quite what you want (a permissive
+domain with dontaudit rules that suppress all denials, only included
+in userdebug or eng builds) but if you replace "dontaudit" with allow
+everywhere, it would be "unconfined".
