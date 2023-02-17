@@ -2,215 +2,174 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1670C636D6
-	for <selinux@archiver.kernel.org>; Fri, 17 Feb 2023 16:25:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAB46C05027
+	for <selinux@archiver.kernel.org>; Fri, 17 Feb 2023 19:48:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbjBQQY7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Feb 2023 11:24:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59460 "EHLO
+        id S229574AbjBQTsS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Feb 2023 14:48:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230103AbjBQQYv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Feb 2023 11:24:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 724B470978
-        for <selinux@vger.kernel.org>; Fri, 17 Feb 2023 08:23:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676650921;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=FVuEhhYScOgrQqnypKq2VFgUAU8z41nhpw8bLy+N1Yw=;
-        b=Sq1ijBG+h2InL9r41VlVfBav/nez7RuRzj4LEOg1XRUIxFgIHsojOj6WHj5go9OMQArb0s
-        AdCV3RWL/eyD0hVbcZ0nHHnaHVSpH8R5TKPoGPJpRL8XkFubmMc/F3PrFUzMsv99SUWtRH
-        oX9JHdccwYa3pGV0AAviliYqKVlQ+wc=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-561-dBDBv9RYN_GguegqEjpW2g-1; Fri, 17 Feb 2023 11:21:59 -0500
-X-MC-Unique: dBDBv9RYN_GguegqEjpW2g-1
-Received: by mail-ed1-f72.google.com with SMTP id m28-20020a50999c000000b004a245f58006so2744586edb.12
-        for <selinux@vger.kernel.org>; Fri, 17 Feb 2023 08:21:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=FVuEhhYScOgrQqnypKq2VFgUAU8z41nhpw8bLy+N1Yw=;
-        b=Jlypjew9rEfr3BVc57WqnCyNiizySXV+3a89P/u6aJDuU0wS//L0tohasLhqIvRuga
-         uQburTSdWadI4XSbKNaly1tUxK/bk2F6kaSnarJAF6gxag3H9cjkPeNYK5bx1xQfg451
-         WHGWELSNHLLSLGW+kcDvw0ID1mHnDUy1FtWxXi+ALSppL1g7FyoaIvQpwfy/S+Gc57fO
-         NNf5RX2FzSQAsnc2QdBsBkLE68uppoJl2Xpz/BEIIQQ21bXvi2ct0N9M6AZq7kqCbE5U
-         vnIOnfdH3764f/Dr8SJXGfNeYwDLhXEwjG8rAidflNP7Orn0CdKY4DVqIVC0gpHixZdN
-         c2BQ==
-X-Gm-Message-State: AO0yUKW9e0/KWfhagdDNiH7cRrodEf6R5cN3E6NtnaLYZ9aJZpt2GcAu
-        UtjVUKmWcRBluPy3bmlj03U4NeYWLUSmCkonzr6bKYUTU6TnnOZm4w1K7xhyjJZTLPnKa12J2F1
-        ILRMZ/tlPfCvmCgcVwHffde4yow==
-X-Received: by 2002:a17:907:a04f:b0:88b:23bb:e61f with SMTP id gz15-20020a170907a04f00b0088b23bbe61fmr600695ejc.25.1676650918323;
-        Fri, 17 Feb 2023 08:21:58 -0800 (PST)
-X-Google-Smtp-Source: AK7set+2V1s8Vrcaw1IdncZUIDiJtFhF0s+J+nN3KbpRNbsOqBYYFZYQf7nMroPkCGG4qrSwQIuMIA==
-X-Received: by 2002:a17:907:a04f:b0:88b:23bb:e61f with SMTP id gz15-20020a170907a04f00b0088b23bbe61fmr600677ejc.25.1676650918056;
-        Fri, 17 Feb 2023 08:21:58 -0800 (PST)
-Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
-        by smtp.gmail.com with ESMTPSA id g23-20020a170906539700b008b128106fc7sm2293812ejo.46.2023.02.17.08.21.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Feb 2023 08:21:57 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2] kernel/sys.c: fix and improve control flow in __sys_setres[ug]id()
-Date:   Fri, 17 Feb 2023 17:21:54 +0100
-Message-Id: <20230217162154.837549-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229475AbjBQTsR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Feb 2023 14:48:17 -0500
+Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A20A4AFEA;
+        Fri, 17 Feb 2023 11:48:16 -0800 (PST)
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31HHkoUF031019;
+        Fri, 17 Feb 2023 19:47:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Ovg0+EZ8YSVib5FriRwZoVL/giHj0F5GZrikLe08tak=;
+ b=cfo23bYl/GTyrJozFIEWHsUWIyF0xDJ9/LKidbByToRVxAw71iyh5dQku0myFBt14jeJ
+ urSYlBY63+u+uOdLKPnzGEr3ulk3DdHP+wcCt78nJuYRoRbEW8l8OuOWGnTlLJNC6wsX
+ LxVGjOQ0NHLudVR49Al6pyrydzTOeD/ic+9cB5r55eR14RbDjmKHqUA2ImHXCgCwKyBe
+ pbGDD+oxPnUQ3nzVn6WmF6B5JZjOYfZLhcCGvMO9jCr9u2FlPjEfzYNsDqzLDYwlKdMi
+ H4zDFnMpGiKSq7udyPXI5S+lxAux5MKU7cpP6JY05OkHYgfV0LNTICDR4Xu8YT3q2PMe lQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntd3dmeq9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Feb 2023 19:47:40 +0000
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31HJNeh6003282;
+        Fri, 17 Feb 2023 19:47:39 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3ntd3dmeq1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Feb 2023 19:47:39 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31HJFR4K019914;
+        Fri, 17 Feb 2023 19:47:38 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([9.208.129.114])
+        by ppma04wdc.us.ibm.com (PPS) with ESMTPS id 3np2n7hfb4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Feb 2023 19:47:38 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+        by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31HJlbLo27198026
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Feb 2023 19:47:37 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5EE2358052;
+        Fri, 17 Feb 2023 19:47:37 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D23005805E;
+        Fri, 17 Feb 2023 19:47:35 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.25.123])
+        by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Feb 2023 19:47:35 +0000 (GMT)
+Message-ID: <53d2f07fd19f4ab74c66d4f4f07c62d163708ecd.camel@linux.ibm.com>
+Subject: Re: [PATCH v7 1/6] reiserfs: Switch to
+ security_inode_init_security()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
+        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Fri, 17 Feb 2023 14:47:35 -0500
+In-Reply-To: <20221201104125.919483-2-roberto.sassu@huaweicloud.com>
+References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
+         <20221201104125.919483-2-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: sSO0GRNkZtuszZDBY91al3KPux1HTRRp
+X-Proofpoint-ORIG-GUID: txMnew365E5IUFHnWfBiCPtN176C9Fkf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-17_14,2023-02-17_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 impostorscore=0
+ lowpriorityscore=0 bulkscore=0 mlxscore=0 malwarescore=0 phishscore=0
+ suspectscore=0 clxscore=1011 adultscore=0 priorityscore=1501
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302170171
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Linux Security Modules (LSMs) that implement the "capable" hook will
-usually emit an access denial message to the audit log whenever they
-"block" the current task from using the given capability based on their
-security policy.
+On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> In preparation for removing security_old_inode_init_security(), switch to
+> security_inode_init_security().
+> 
+> Define the initxattrs callback reiserfs_initxattrs(), to populate the
+> name/value/len triple in the reiserfs_security_handle() with the first
+> xattr provided by LSMs. Make a copy of the xattr value, as
+> security_inode_init_security() frees it.
+> 
+> After the call to security_inode_init_security(), remove the check for
+> returning -EOPNOTSUPP, as security_inode_init_security() changes it to
+> zero.
+> 
+> Multiple xattrs are currently not supported, as the
+> reiserfs_security_handle structure is exported to user space. As a
+> consequence, even if EVM is invoked, it will not provide an xattr (if it
+> is not the first to set it, its xattr will be discarded; if it is the
+> first, it does not have xattrs to calculate the HMAC on).
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
-The occurrence of a denial is used as an indication that the given task
-has attempted an operation that requires the given access permission, so
-the callers of functions that perform LSM permission checks must take
-care to avoid calling them too early (before it is decided if the
-permission is actually needed to perform the requested operation).
+Now that commit 572302af1258 ("reiserfs: Add missing calls to
+reiserfs_security_free()") is upstreamed, please include a dependency
+comment.
 
-The __sys_setres[ug]id() functions violate this convention by first
-calling ns_capable_setid() and only then checking if the operation
-requires the capability or not. It means that any caller that has the
-capability granted by DAC (task's capability set) but not by MAC (LSMs)
-will generate a "denied" audit record, even if is doing an operation for
-which the capability is not required.
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-Fix this by reordering the checks such that ns_capable_setid() is
-checked last and -EPERM is returned immediately if it returns false.
+> ---
+>  fs/reiserfs/xattr_security.c | 23 ++++++++++++++++++-----
+>  1 file changed, 18 insertions(+), 5 deletions(-)
+> 
+> diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
+> index 857a65b05726..0ba96757681d 100644
+> --- a/fs/reiserfs/xattr_security.c
+> +++ b/fs/reiserfs/xattr_security.c
+> @@ -39,6 +39,22 @@ static bool security_list(struct dentry *dentry)
+>  	return !IS_PRIVATE(d_inode(dentry));
+>  }
+>  
+> +static int
+> +reiserfs_initxattrs(struct inode *inode, const struct xattr *xattr_array,
+> +		    void *fs_info)
+> +{
+> +	struct reiserfs_security_handle *sec = fs_info;
+> +
+> +	sec->value = kmemdup(xattr_array->value, xattr_array->value_len,
+> +			     GFP_KERNEL);
+> +	if (!sec->value)
+> +		return -ENOMEM;
+> +
+> +	sec->name = xattr_array->name;
+> +	sec->length = xattr_array->value_len;
+> +	return 0;
+> +}
+> +
+>  /* Initializes the security context for a new inode and returns the number
+>   * of blocks needed for the transaction. If successful, reiserfs_security
+>   * must be released using reiserfs_security_free when the caller is done. */
+> @@ -56,12 +72,9 @@ int reiserfs_security_init(struct inode *dir, struct inode *inode,
+>  	if (IS_PRIVATE(dir))
+>  		return 0;
+>  
+> -	error = security_old_inode_init_security(inode, dir, qstr, &sec->name,
+> -						 &sec->value, &sec->length);
+> +	error = security_inode_init_security(inode, dir, qstr,
+> +					     &reiserfs_initxattrs, sec);
+>  	if (error) {
+> -		if (error == -EOPNOTSUPP)
+> -			error = 0;
+> -
+>  		sec->name = NULL;
+>  		sec->value = NULL;
+>  		sec->length = 0;
 
-While there, also do two small optimizations:
-* move the capability check before prepare_creds() and
-* bail out early in case of a no-op.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
-
-v2: improve commit message
-
- kernel/sys.c | 69 ++++++++++++++++++++++++++++++----------------------
- 1 file changed, 40 insertions(+), 29 deletions(-)
-
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 5fd54bf0e8867..6fd88686cd06f 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -664,6 +664,7 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
- 	struct cred *new;
- 	int retval;
- 	kuid_t kruid, keuid, ksuid;
-+	bool ruid_new, euid_new, suid_new;
- 
- 	kruid = make_kuid(ns, ruid);
- 	keuid = make_kuid(ns, euid);
-@@ -678,25 +679,29 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
- 	if ((suid != (uid_t) -1) && !uid_valid(ksuid))
- 		return -EINVAL;
- 
-+	old = current_cred();
-+
-+	/* check for no-op */
-+	if ((ruid == (uid_t) -1 || uid_eq(kruid, old->uid)) &&
-+	    (euid == (uid_t) -1 || (uid_eq(keuid, old->euid) &&
-+				    uid_eq(keuid, old->fsuid))) &&
-+	    (suid == (uid_t) -1 || uid_eq(ksuid, old->suid)))
-+		return 0;
-+
-+	ruid_new = ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
-+		   !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid);
-+	euid_new = euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
-+		   !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid);
-+	suid_new = suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
-+		   !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid);
-+	if ((ruid_new || euid_new || suid_new) &&
-+	    !ns_capable_setid(old->user_ns, CAP_SETUID))
-+		return -EPERM;
-+
- 	new = prepare_creds();
- 	if (!new)
- 		return -ENOMEM;
- 
--	old = current_cred();
--
--	retval = -EPERM;
--	if (!ns_capable_setid(old->user_ns, CAP_SETUID)) {
--		if (ruid != (uid_t) -1        && !uid_eq(kruid, old->uid) &&
--		    !uid_eq(kruid, old->euid) && !uid_eq(kruid, old->suid))
--			goto error;
--		if (euid != (uid_t) -1        && !uid_eq(keuid, old->uid) &&
--		    !uid_eq(keuid, old->euid) && !uid_eq(keuid, old->suid))
--			goto error;
--		if (suid != (uid_t) -1        && !uid_eq(ksuid, old->uid) &&
--		    !uid_eq(ksuid, old->euid) && !uid_eq(ksuid, old->suid))
--			goto error;
--	}
--
- 	if (ruid != (uid_t) -1) {
- 		new->uid = kruid;
- 		if (!uid_eq(kruid, old->uid)) {
-@@ -761,6 +766,7 @@ long __sys_setresgid(gid_t rgid, gid_t egid, gid_t sgid)
- 	struct cred *new;
- 	int retval;
- 	kgid_t krgid, kegid, ksgid;
-+	bool rgid_new, egid_new, sgid_new;
- 
- 	krgid = make_kgid(ns, rgid);
- 	kegid = make_kgid(ns, egid);
-@@ -773,23 +779,28 @@ long __sys_setresgid(gid_t rgid, gid_t egid, gid_t sgid)
- 	if ((sgid != (gid_t) -1) && !gid_valid(ksgid))
- 		return -EINVAL;
- 
-+	old = current_cred();
-+
-+	/* check for no-op */
-+	if ((rgid == (gid_t) -1 || gid_eq(krgid, old->gid)) &&
-+	    (egid == (gid_t) -1 || (gid_eq(kegid, old->egid) &&
-+				    gid_eq(kegid, old->fsgid))) &&
-+	    (sgid == (gid_t) -1 || gid_eq(ksgid, old->sgid)))
-+		return 0;
-+
-+	rgid_new = rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
-+		   !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid);
-+	egid_new = egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
-+		   !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid);
-+	sgid_new = sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
-+		   !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid);
-+	if ((rgid_new || egid_new || sgid_new) &&
-+	    !ns_capable_setid(old->user_ns, CAP_SETGID))
-+		return -EPERM;
-+
- 	new = prepare_creds();
- 	if (!new)
- 		return -ENOMEM;
--	old = current_cred();
--
--	retval = -EPERM;
--	if (!ns_capable_setid(old->user_ns, CAP_SETGID)) {
--		if (rgid != (gid_t) -1        && !gid_eq(krgid, old->gid) &&
--		    !gid_eq(krgid, old->egid) && !gid_eq(krgid, old->sgid))
--			goto error;
--		if (egid != (gid_t) -1        && !gid_eq(kegid, old->gid) &&
--		    !gid_eq(kegid, old->egid) && !gid_eq(kegid, old->sgid))
--			goto error;
--		if (sgid != (gid_t) -1        && !gid_eq(ksgid, old->gid) &&
--		    !gid_eq(ksgid, old->egid) && !gid_eq(ksgid, old->sgid))
--			goto error;
--	}
- 
- 	if (rgid != (gid_t) -1)
- 		new->gid = krgid;
--- 
-2.39.2
 
