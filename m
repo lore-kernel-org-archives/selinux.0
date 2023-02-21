@@ -2,62 +2,223 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6341C636D6
-	for <selinux@archiver.kernel.org>; Mon, 20 Feb 2023 22:33:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 237C8C636D7
+	for <selinux@archiver.kernel.org>; Tue, 21 Feb 2023 06:46:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbjBTWdY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Feb 2023 17:33:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45630 "EHLO
+        id S233276AbjBUGqC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Feb 2023 01:46:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231970AbjBTWdX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Feb 2023 17:33:23 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4BD166E4
-        for <selinux@vger.kernel.org>; Mon, 20 Feb 2023 14:33:09 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id 132so1295250pgh.13
-        for <selinux@vger.kernel.org>; Mon, 20 Feb 2023 14:33:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=fLwOTv5Yy6Sac/xq6+MRSYPr4yE0GAyv3hN823qQyP4=;
-        b=eRCx2dyy/zZAmFYJ5XYXadNAuywkc4GIO4aMt972ISL1UZnpTuz4FCPBr3kuI7MmOC
-         t7Pa2Uw5+5g0oRBIdRI3oY4XTdkLA11okOfXIpHc+MGIYciy7meDpsF00/8r5vvfGtcF
-         8qOt8AAvW2LhdUgzhEcsJpuLVAZANw5zdar7se7ogn0fW+7AgpPx4t2rpSoj3sc2LQVu
-         IvAIhYcgaZYMwrIrLqtsTGJiYqjzZU3Fv9KgPZuX8myShtykWWtCJPsXOd0TNjqUfsOB
-         PtjD5VQk94W/FmspUXDH43dpTUyHFjj6CXQngEDGnVzoRt28O7ymcQICaAc8PLE+yhly
-         30rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fLwOTv5Yy6Sac/xq6+MRSYPr4yE0GAyv3hN823qQyP4=;
-        b=1vkiozgqetZoPJXAjxtJVWFFhKnACfgWKLUPc4OmJYoF/zOBParlmTr1n6Adr8WB2t
-         Sx60eBTJ62aEQnxDhgoyJ3rOmv3LBictWYBj/QmT5Q26gdrTUzurPW8VCvQeXp0/Tb9B
-         IsOHB06WpjervYOURTm8AEWZOPMx/3ago+FaUnob8TZ2EUNRoDZG8cR49km9Xax/BjPi
-         BV/RKG4pnTBnkP8TGB3+/QjhXMIdeEC1/F2STi7ujZZxIlru5dKS62ygX76A7dpqI2rB
-         l6lgNEDJtnyl26azGfRvdwlbnyG+KP2RZ3Rc/zfcRLV+ctSadT6blNg6K/L3qf+tMOcZ
-         qEJA==
-X-Gm-Message-State: AO0yUKWYasAAE3bTbX/o6vTihaMUHf6dHzT1mhF9YcIyfWoFgx4Qz61W
-        HgY3mwESMi4cyXp6z3W0PjiLlJWw6xYOiWzxchqmqo+17vlk
-X-Google-Smtp-Source: AK7set8UsJsUAG+K/p+24hv0gnSb60Hk+iFu0SLa3UQGkjaVxN9B5mGp+lfJYehV4Z6V1UP1P7p7KxYOKbIQKQTC6x0=
-X-Received: by 2002:a63:b513:0:b0:4fb:9dab:66bc with SMTP id
- y19-20020a63b513000000b004fb9dab66bcmr395825pge.1.1676932388632; Mon, 20 Feb
- 2023 14:33:08 -0800 (PST)
+        with ESMTP id S233274AbjBUGqB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Feb 2023 01:46:01 -0500
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A9724CAD;
+        Mon, 20 Feb 2023 22:45:57 -0800 (PST)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=joseph.qi@linux.alibaba.com;NM=1;PH=DS;RN=20;SR=0;TI=SMTPD_---0VcB88ba_1676961950;
+Received: from 30.221.129.126(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0VcB88ba_1676961950)
+          by smtp.aliyun-inc.com;
+          Tue, 21 Feb 2023 14:45:51 +0800
+Message-ID: <d5180ef2-70dc-0a43-3e1b-c04d9e14ab23@linux.alibaba.com>
+Date:   Tue, 21 Feb 2023 14:45:50 +0800
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 20 Feb 2023 17:32:57 -0500
-Message-ID: <CAHC9VhQQPqren_Y4ipzjwcLo8CSXz=x=ABpk6PtjX5J2_WgY=w@mail.gmail.com>
-Subject: SELinux pull request for Linux v6.3
-To:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.7.2
+Subject: Re: [PATCH v7 2/6] ocfs2: Switch to security_inode_init_security()
+Content-Language: en-US
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
+        jlbec@evilplan.org, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
+ <20221201104125.919483-3-roberto.sassu@huaweicloud.com>
+ <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
+From:   Joseph Qi <joseph.qi@linux.alibaba.com>
+In-Reply-To: <6905166125130c22c244ebf234723d1587a01ae8.camel@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Just a quick FYI that there were no patches queued in the selinux/next
-branch for Linux v6.3 so you won't see a SELinux kernel pull request
-during the current merge window (assuming there are no breakages).
+Hi,
 
--- 
-paul-moore.com
+Sorry for the late reply.
+
+I don't have much background on this thread. It seems that we have to
+check EOPNOTSUPP since ocfs2_init_security_get() may return EOPNOTSUPP
+if it doesn't support extended attribute feature for backward
+compatibility.
+
+Other looks good. So with above comments addressed, you can add:
+Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+
+On 1/10/23 4:55 PM, Roberto Sassu wrote:
+> On Thu, 2022-12-01 at 11:41 +0100, Roberto Sassu wrote:
+>> From: Roberto Sassu <roberto.sassu@huawei.com>
+>>
+>> In preparation for removing security_old_inode_init_security(), switch to
+>> security_inode_init_security().
+>>
+>> Extend the existing ocfs2_initxattrs() to take the
+>> ocfs2_security_xattr_info structure from fs_info, and populate the
+>> name/value/len triple with the first xattr provided by LSMs.
+> 
+> Hi Mark, Joel, Joseph
+> 
+> some time ago I sent this patch set to switch to the newer
+> function security_inode_init_security(). Almost all the other parts of
+> this patch set have been reviewed, and the patch set itself should be
+> ready to be merged.
+> 
+> I kindly ask if you could have a look at this patch and give your
+> Reviewed-by, so that Paul could take the patch set.
+> 
+> Thanks a lot!
+> 
+> Roberto
+> 
+>> As fs_info was not used before, ocfs2_initxattrs() can now handle the case
+>> of replicating the behavior of security_old_inode_init_security(), i.e.
+>> just obtaining the xattr, in addition to setting all xattrs provided by
+>> LSMs.
+>>
+>> Supporting multiple xattrs is not currently supported where
+>> security_old_inode_init_security() was called (mknod, symlink), as it
+>> requires non-trivial changes that can be done at a later time. Like for
+>> reiserfs, even if EVM is invoked, it will not provide an xattr (if it is
+>> not the first to set it, its xattr will be discarded; if it is the first,
+>> it does not have xattrs to calculate the HMAC on).
+>>
+>> Finally, modify the handling of the return value from
+>> ocfs2_init_security_get(). As security_inode_init_security() does not
+>> return -EOPNOTSUPP, remove this case and directly handle the error if the
+>> return value is not zero.
+>>
+>> However, the previous case of receiving -EOPNOTSUPP should be still
+>> taken into account, as security_inode_init_security() could return zero
+>> without setting xattrs and ocfs2 would consider it as if the xattr was set.
+>>
+>> Instead, if security_inode_init_security() returned zero, look at the xattr
+>> if it was set, and behave accordingly, i.e. set si->enable to zero to
+>> notify to the functions following ocfs2_init_security_get() that the xattr
+>> is not available (same as if security_old_inode_init_security() returned
+>> -EOPNOTSUPP).
+>>
+>> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+>> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+>> ---
+>>  fs/ocfs2/namei.c | 18 ++++++------------
+>>  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
+>>  2 files changed, 32 insertions(+), 16 deletions(-)
+>>
+>> diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
+>> index 05f32989bad6..55fba81cd2d1 100644
+>> --- a/fs/ocfs2/namei.c
+>> +++ b/fs/ocfs2/namei.c
+>> @@ -242,6 +242,7 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
+>>  	int want_meta = 0;
+>>  	int xattr_credits = 0;
+>>  	struct ocfs2_security_xattr_info si = {
+>> +		.name = NULL,
+>>  		.enable = 1,
+>>  	};
+>>  	int did_quota_inode = 0;
+>> @@ -315,12 +316,8 @@ static int ocfs2_mknod(struct user_namespace *mnt_userns,
+>>  	/* get security xattr */
+>>  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
+>>  	if (status) {
+>> -		if (status == -EOPNOTSUPP)
+>> -			si.enable = 0;
+>> -		else {
+>> -			mlog_errno(status);
+>> -			goto leave;
+>> -		}
+>> +		mlog_errno(status);
+>> +		goto leave;
+>>  	}
+>>  
+>>  	/* calculate meta data/clusters for setting security and acl xattr */
+>> @@ -1805,6 +1802,7 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
+>>  	int want_clusters = 0;
+>>  	int xattr_credits = 0;
+>>  	struct ocfs2_security_xattr_info si = {
+>> +		.name = NULL,
+>>  		.enable = 1,
+>>  	};
+>>  	int did_quota = 0, did_quota_inode = 0;
+>> @@ -1875,12 +1873,8 @@ static int ocfs2_symlink(struct user_namespace *mnt_userns,
+>>  	/* get security xattr */
+>>  	status = ocfs2_init_security_get(inode, dir, &dentry->d_name, &si);
+>>  	if (status) {
+>> -		if (status == -EOPNOTSUPP)
+>> -			si.enable = 0;
+>> -		else {
+>> -			mlog_errno(status);
+>> -			goto bail;
+>> -		}
+>> +		mlog_errno(status);
+>> +		goto bail;
+>>  	}
+>>  
+>>  	/* calculate meta data/clusters for setting security xattr */
+>> diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+>> index 95d0611c5fc7..55699c573541 100644
+>> --- a/fs/ocfs2/xattr.c
+>> +++ b/fs/ocfs2/xattr.c
+>> @@ -7259,9 +7259,21 @@ static int ocfs2_xattr_security_set(const struct xattr_handler *handler,
+>>  static int ocfs2_initxattrs(struct inode *inode, const struct xattr *xattr_array,
+>>  		     void *fs_info)
+>>  {
+>> +	struct ocfs2_security_xattr_info *si = fs_info;
+>>  	const struct xattr *xattr;
+>>  	int err = 0;
+>>  
+>> +	if (si) {
+>> +		si->value = kmemdup(xattr_array->value, xattr_array->value_len,
+>> +				    GFP_KERNEL);
+>> +		if (!si->value)
+>> +			return -ENOMEM;
+>> +
+>> +		si->name = xattr_array->name;
+>> +		si->value_len = xattr_array->value_len;
+>> +		return 0;
+>> +	}
+>> +
+>>  	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
+>>  		err = ocfs2_xattr_set(inode, OCFS2_XATTR_INDEX_SECURITY,
+>>  				      xattr->name, xattr->value,
+>> @@ -7277,13 +7289,23 @@ int ocfs2_init_security_get(struct inode *inode,
+>>  			    const struct qstr *qstr,
+>>  			    struct ocfs2_security_xattr_info *si)
+>>  {
+>> +	int ret;
+>> +
+>>  	/* check whether ocfs2 support feature xattr */
+>>  	if (!ocfs2_supports_xattr(OCFS2_SB(dir->i_sb)))
+>>  		return -EOPNOTSUPP;
+>> -	if (si)
+>> -		return security_old_inode_init_security(inode, dir, qstr,
+>> -							&si->name, &si->value,
+>> -							&si->value_len);
+>> +	if (si) {
+>> +		ret = security_inode_init_security(inode, dir, qstr,
+>> +						   &ocfs2_initxattrs, si);
+>> +		/*
+>> +		 * security_inode_init_security() does not return -EOPNOTSUPP,
+>> +		 * we have to check the xattr ourselves.
+>> +		 */
+>> +		if (!ret && !si->name)
+>> +			si->enable = 0;
+>> +
+>> +		return ret;
+>> +	}
+>>  
+>>  	return security_inode_init_security(inode, dir, qstr,
+>>  					    &ocfs2_initxattrs, NULL);
