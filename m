@@ -2,138 +2,138 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC7B1C64ED6
-	for <selinux@archiver.kernel.org>; Tue, 28 Feb 2023 20:13:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 659E3C64ED6
+	for <selinux@archiver.kernel.org>; Wed,  1 Mar 2023 09:42:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbjB1UNG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Feb 2023 15:13:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
+        id S229567AbjCAJmV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Mar 2023 04:42:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbjB1UNG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Feb 2023 15:13:06 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70DA15881;
-        Tue, 28 Feb 2023 12:13:03 -0800 (PST)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31SJKtB7013059;
-        Tue, 28 Feb 2023 20:12:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=qYUAQSuTtTP2ywwAOGafLdz9DPSpAk4kTZ7aDGeFU4c=;
- b=KIhlTxjAT82D0GLB7ci1OAjqV/4/oQRGDysOOXkenH34TG8kIrmIMNMuXbxu6sHDJIGD
- lzGtDIu7VmZ9AoYWHIf7H8D+c6CnyFoA6pBdLAN+5cSoR1Vk3+6cEymOa09B2I3coxTX
- vJyyvDoaweh3qHsa87EFz0NxOKQTNO+CSzxXTReO8coNEi75VwREd/mIWkrbmw6WVOiu
- vGcSnqyRw5wIZF0ijgEpIvCGbZoY0pDKFwWvO0zjIMnnEMMLDiWNLL51j9aWTbWWCqWP
- NETGk16XUVFW5I3HWQQofaXBOtMd0drAf7S3tEv4bMnuN8lSiR2EQdUkAGO71v40qQT0 9Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1qpj978h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 20:12:59 +0000
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31SK1Vri023619;
-        Tue, 28 Feb 2023 20:12:59 GMT
-Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p1qpj9782-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 20:12:58 +0000
-Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
-        by ppma05wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31SIZDEq024508;
-        Tue, 28 Feb 2023 20:12:57 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([9.208.130.100])
-        by ppma05wdc.us.ibm.com (PPS) with ESMTPS id 3nybe9jvxh-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 20:12:57 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-        by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31SKCuIA4588046
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 28 Feb 2023 20:12:56 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BA9AF58055;
-        Tue, 28 Feb 2023 20:12:56 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B1CD5805D;
-        Tue, 28 Feb 2023 20:12:56 +0000 (GMT)
-Received: from sig-9-65-248-59.ibm.com (unknown [9.65.248.59])
-        by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue, 28 Feb 2023 20:12:56 +0000 (GMT)
-Message-ID: <6ae09db579b6fa4702c8c31bb84c2d06102f67ab.camel@linux.ibm.com>
-Subject: Re: [PATCH testsuite 1/3] policy: make sure test_ibpkey_access_t
- can lock enough memory
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Chris PeBenito <pebenito@ieee.org>
-Cc:     selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Date:   Tue, 28 Feb 2023 15:12:55 -0500
-In-Reply-To: <CAHC9VhQnCchbn+kgZQ4cxUQKWCKd=H02R++qeKtqR75BpZETxQ@mail.gmail.com>
-References: <20230228141247.626736-1-omosnace@redhat.com>
-         <20230228141247.626736-2-omosnace@redhat.com>
-         <CAHC9VhQnCchbn+kgZQ4cxUQKWCKd=H02R++qeKtqR75BpZETxQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 5PWymrCdmJWIHSbO01BXpFWKWf4iixVP
-X-Proofpoint-GUID: yMMJsMh70fwGuoDOYDMw36mfvwSfRqYu
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S229557AbjCAJmV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Mar 2023 04:42:21 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79BD3A870
+        for <selinux@vger.kernel.org>; Wed,  1 Mar 2023 01:41:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1677663695;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=cAARSsCfM3S5WFX9YuHmKUOmUz+uWTN8L7rRJ1zFhts=;
+        b=gjikQJNjV/Qzcwd0uQwtXbkW6OdmeOtuXa5NjfbXZL4GQVKhK3dRsfjPV6WOqGAd1pE6qx
+        giRYGKMHjGgkRQjtGXTO4uJNohj5MRAaYpm/pv02uEgxy1+++W7TLeCeXYu0AYcwjGY+VP
+        arC0StpdIglwUEI4nVE4mcnGxcJkOvI=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-649-yeBCbSf9OjisuF6s-UMjaA-1; Wed, 01 Mar 2023 04:41:34 -0500
+X-MC-Unique: yeBCbSf9OjisuF6s-UMjaA-1
+Received: by mail-wr1-f72.google.com with SMTP id l14-20020a5d526e000000b002cd851d79b2so1211958wrc.5
+        for <selinux@vger.kernel.org>; Wed, 01 Mar 2023 01:41:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=cAARSsCfM3S5WFX9YuHmKUOmUz+uWTN8L7rRJ1zFhts=;
+        b=4w9sxWxpgRnZMF8L55/09dZwC0e8Zs1upODBpL6qdTRwuVUpUQoiG9Q5WQ/qt3dXu0
+         257+2cGZEzrqQTAWhIqQBOVbm/FqiC6tP+uQ0XyNudeUC+Yat2rhYcVxHBCyFOZ75JRC
+         IHfgazOxXKnLb9ZJ/EAHpm97M9Qj724lbW6MvRr0FWOzCroyn+Dg36i9ChkFzGbKCDuj
+         Xta5VmrKSw6401JN4M5uyJNoxU8iBztsKx5/Zpgt9zEC4kHegYbPma4fz0yz9PHEIznY
+         OOTzxX2WCrWEkVqZI/nhT7h+2LuWEnQs+mLMEHjonuCmQO5H60InJsFnuQwrIPMHnbKf
+         yvng==
+X-Gm-Message-State: AO0yUKVZ14hdzVy/PF0le70t3b+wxHdXyFwjPb//sns7bdfurz6BVsMp
+        Kg2Y3f3QjztH85yRRcnyXrwjMbtbBfCmNj3rKxUOHqfADKxziwJN7IlhfP0onMpBm7JrlwvguY4
+        7NLo4SlY7mnog/A/2d3gb8Aq4oKf/BzJSjIJULdaCObON41N/PY/DWth12cjnO8FGIbMNEafcUx
+        Q3xQ==
+X-Received: by 2002:a5d:684f:0:b0:2c7:6bf:16cc with SMTP id o15-20020a5d684f000000b002c706bf16ccmr4413549wrw.32.1677663692585;
+        Wed, 01 Mar 2023 01:41:32 -0800 (PST)
+X-Google-Smtp-Source: AK7set9CpHdqDTA0vypDxWYsjTPRFS2juhAhbLk2i7v/ixid9B0LazR8aaAunwk75AkqLvRXIDIfbw==
+X-Received: by 2002:a5d:684f:0:b0:2c7:6bf:16cc with SMTP id o15-20020a5d684f000000b002c706bf16ccmr4413535wrw.32.1677663692236;
+        Wed, 01 Mar 2023 01:41:32 -0800 (PST)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id z9-20020a05600c114900b003eb5a531232sm1125798wmz.38.2023.03.01.01.41.31
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Mar 2023 01:41:31 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/file: make the SIGIO tests work with CONFIG_LEGACY_TIOCSTI=n
+Date:   Wed,  1 Mar 2023 10:41:30 +0100
+Message-Id: <20230301094130.736231-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-02-28_17,2023-02-28_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- mlxlogscore=965 adultscore=0 impostorscore=0 mlxscore=0 malwarescore=0
- spamscore=0 priorityscore=1501 lowpriorityscore=0 clxscore=1011
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302280166
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2023-02-28 at 11:51 -0500, Paul Moore wrote:
-> On Tue, Feb 28, 2023 at 9:13 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > The ibv_create_cq() operation requires the caller to be able to lock
-> > enough memory (RLIMIT_MEMLOCK). In some environments (such as RHEL-8)
-> > the default resource limits may not be enough, requiring CAP_IPC_LOCK to
-> > go above the limit. To make sure the test works also under stricter
-> > resource limits, grant CAP_IPC_LOCK to test_ibpkey_access_t.
-> >
-> > Reported-by: Mimi Zohar <zohar@linux.ibm.com>
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  policy/test_ibpkey.te | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/policy/test_ibpkey.te b/policy/test_ibpkey.te
-> > index 863ff16..97f0c3c 100644
-> > --- a/policy/test_ibpkey.te
-> > +++ b/policy/test_ibpkey.te
-> > @@ -10,6 +10,8 @@ type test_ibpkey_access_t;
-> >  testsuite_domain_type(test_ibpkey_access_t)
-> >  typeattribute test_ibpkey_access_t ibpkeydomain;
-> >
-> > +allow test_ibpkey_access_t self:capability ipc_lock;
-> 
-> FWIW, I brought this up back in 2019 and have been carrying a local
-> selinux-testsuite patch for this ever since (it's the only way to get
-> a clean run of the IB tests).
+Adjust the test to temporarily set the dev.tty.legacy_tiocsti sysctl to
+1 if it is 0 and re-enable the SIGIO tests.
 
-Confirmed, with this change the SELinux infiniband tests are now
-working on stable linux-4.19.y.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
 
-> While it can be fixed in the
-> selinux-testsuite policy, I believe this is a more general problem and
-> should probably be fixed in refpol.
-> 
-> https://lore.kernel.org/selinux/CAHC9VhTuYi+W0RukEV4WNrP5X_AFeouaWMsdbgxSL1v04mouWw@mail.gmail.com/
-> 
-> >  dev_rw_infiniband_dev(test_ibpkey_access_t)
-> >  dev_rw_sysfs(test_ibpkey_access_t)
+The dev.tty.legacy_tiocsti sysctl fix is now in mainline as commit
+f1aa2eb5ea05 ("sysctl: fix proc_dobool() usability"), so we can use
+it to re-enable the SIGIO tests.
 
+Passes the CI with the latest kernel-secnext kernel.
+
+ tests/file/test | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/tests/file/test b/tests/file/test
+index 0d5ed0e..fa28b7c 100755
+--- a/tests/file/test
++++ b/tests/file/test
+@@ -26,6 +26,12 @@ system "rm -f $basedir/temp_file 2>&1";
+ system "rm -f $basedir/temp_file2 2>&1";
+ system "rm -f $basedir/temp_file3 2>&1";
+ 
++# The test relies on the legacy TIOCSTI ioctl
++$flip_legacy_tiocsti = `sysctl -bn dev.tty.legacy_tiocsti 2>/dev/null` eq "0";
++if ($flip_legacy_tiocsti) {
++    system "sysctl -w dev.tty.legacy_tiocsti=1";
++}
++
+ #
+ # Create the temp files
+ #
+@@ -99,10 +105,8 @@ ok( $result, 0 );
+ #
+ # Attempt to create a SIGIO as the 'good' domain.
+ #
+-# Temporarily disabled - see:
+-# https://lore.kernel.org/selinux/CAHC9VhQwrjwdW27+ktcT_9q-N7AmuUK8GYgoYbPXGVAcjwA4nQ@mail.gmail.com/T/
+-#$result = system "runcon -t test_fileop_t -- $basedir/test_sigiotask 2>&1";
+-ok(1);
++$result = system "runcon -t test_fileop_t -- $basedir/test_sigiotask 2>&1";
++ok( $result, 0 );
+ 
+ #
+ # Attempt to access the restricted file as the 'bad' domain. The first test
+@@ -153,10 +157,8 @@ ok( $result, 0 );
+ #
+ # Attempt to create a SIGIO as the 'bad' domain.
+ #
+-# Temporarily disabled - see:
+-# https://lore.kernel.org/selinux/CAHC9VhQwrjwdW27+ktcT_9q-N7AmuUK8GYgoYbPXGVAcjwA4nQ@mail.gmail.com/T/
+-#$result = system "runcon -t test_nofileop_t -- $basedir/test_sigiotask 2>&1";
+-ok(1);
++$result = system "runcon -t test_nofileop_t -- $basedir/test_sigiotask 2>&1";
++ok($result);
+ 
+ #
+ # Delete the temp files
+@@ -165,4 +167,8 @@ system "rm -f $basedir/temp_file 2>&1";
+ system "rm -f $basedir/temp_file2 2>&1";
+ system "rm -f $basedir/temp_file3 2>&1";
+ 
++if ($flip_legacy_tiocsti) {
++    system "sysctl -w dev.tty.legacy_tiocsti=0";
++}
++
+ exit;
 -- 
-thanks,
-
-Mimi
-
+2.39.2
 
