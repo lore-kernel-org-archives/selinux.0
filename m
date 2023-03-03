@@ -2,267 +2,102 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F21CEC7EE2F
-	for <selinux@archiver.kernel.org>; Fri,  3 Mar 2023 14:09:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 641EDC678D4
+	for <selinux@archiver.kernel.org>; Fri,  3 Mar 2023 14:13:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230316AbjCCOJ5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 3 Mar 2023 09:09:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53044 "EHLO
+        id S230411AbjCCONX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 3 Mar 2023 09:13:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231373AbjCCOJv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 3 Mar 2023 09:09:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F1402CC55
-        for <selinux@vger.kernel.org>; Fri,  3 Mar 2023 06:09:03 -0800 (PST)
+        with ESMTP id S230227AbjCCONW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 3 Mar 2023 09:13:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 885015F203
+        for <selinux@vger.kernel.org>; Fri,  3 Mar 2023 06:12:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677852542;
+        s=mimecast20190719; t=1677852757;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FwScJTD1hNgmOM00GgqSTpfBFJvArfgtsQpmo3/eHaI=;
-        b=G8la4WHoLU6DrPyNdnI0TxKgy2sxZwHvBvkN0CZbeTXDqonVw5du17fabToYXaan2mI7yL
-        Y+kXU+/8eaL91++iAcQlSbMe+V1EGVLdNYEO2BJX6eLzueaCjMPKmvUKyfjwKoBJrsDGBQ
-        rT3dse/wmR8qz39n8YOJM1k89HQdcV8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=QnieC38QGH2bgqc/yGf6KqNfgl6L8Jk6dsv2U7IZsU4=;
+        b=f15HldmpFvbO69RnAn+uvB0sGb5M9KbxlY/1LpaTUE9JSPfgDb51XdLSc6HLsVDALMZA7Y
+        iGB639xCT1Ma3FzkChjN99Afcq5zQ66Q3ST+/Qwr+wVhLoCWQLyCMooDXSvMa4tESMYGo5
+        qgob2VARuXo8UH0TxKdifFa3QjczHhs=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-290-06dEAPp5PlSgDGwgyrb7Ug-1; Fri, 03 Mar 2023 09:09:01 -0500
-X-MC-Unique: 06dEAPp5PlSgDGwgyrb7Ug-1
-Received: by mail-wr1-f72.google.com with SMTP id m10-20020adfe94a000000b002cdc5eac0d0so410576wrn.2
-        for <selinux@vger.kernel.org>; Fri, 03 Mar 2023 06:09:01 -0800 (PST)
+ us-mta-647-SJ9uRuwuNq6W_DXGA_oyqg-1; Fri, 03 Mar 2023 09:12:36 -0500
+X-MC-Unique: SJ9uRuwuNq6W_DXGA_oyqg-1
+Received: by mail-pg1-f197.google.com with SMTP id e127-20020a636985000000b004bbc748ca63so783943pgc.3
+        for <selinux@vger.kernel.org>; Fri, 03 Mar 2023 06:12:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677852540;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20210112; t=1677852755;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FwScJTD1hNgmOM00GgqSTpfBFJvArfgtsQpmo3/eHaI=;
-        b=bxQLDw+SpGlWbXHaXy7LHzS3nJ5GUaR7/oYrzLZppnRReqyAh/Ikj4ijylbQ5gtxjE
-         93nBTvIXWEGAZ+yWYRIVd5InyzZ+trkAGkUxwDy7EU70xqIpVFIN9uPKMmW+P8rsUPuz
-         Wsh0oiLjRJxk4VxhvknjjR/2yXrFh17sACVx8knMIcFkz1S2QtoqgJRGldnu5458pX3r
-         kw/bviFDbhbDmfw0qcECeIbfuJtmPYEf7RzuABjaP04G2DIAD5vbl65u9AObUGHG4XsY
-         kbXGaZvdVEeCiOzhc1K0S6wf1Z4IOwMyN2mm7Kh2IHgd4zfuUWn2xt+6odf7orHtfoAU
-         2Veg==
-X-Gm-Message-State: AO0yUKXH+6cDRMv+dLQMug5dSQ0StanhH1a/wM0xyq88jGOJZJ7XcrUU
-        APyQuzSUh3M/54elO6f/MvfXniAsDYp/2qbtIe5161UfPGFsikzELi3nza3aDQClG7Pp9FVUMsF
-        8C0nF1+uEl/M+dDpQLSA6VTfpf7ft+17F6bFb7ZSmaRlTKlkun92dOhsHxp7MBI88kk7K0BG8+P
-        LbYA==
-X-Received: by 2002:a05:600c:1c9c:b0:3ea:4af0:3475 with SMTP id k28-20020a05600c1c9c00b003ea4af03475mr1846908wms.1.1677852539857;
-        Fri, 03 Mar 2023 06:08:59 -0800 (PST)
-X-Google-Smtp-Source: AK7set+zOTZIT5yakKOtUEioun6kZuzaxBKoWCCHypcmKUDyW4RRnWJe/DnUf1aKGkrUTS7ISTd4LQ==
-X-Received: by 2002:a05:600c:1c9c:b0:3ea:4af0:3475 with SMTP id k28-20020a05600c1c9c00b003ea4af03475mr1846851wms.1.1677852539172;
-        Fri, 03 Mar 2023 06:08:59 -0800 (PST)
-Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
-        by smtp.gmail.com with ESMTPSA id t17-20020a05600c41d100b003dc4fd6e624sm2423650wmh.19.2023.03.03.06.08.58
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Mar 2023 06:08:58 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 3/3] tests/infiniband*: simplify test activation
-Date:   Fri,  3 Mar 2023 15:08:53 +0100
-Message-Id: <20230303140853.1276325-4-omosnace@redhat.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230303140853.1276325-1-omosnace@redhat.com>
-References: <20230303140853.1276325-1-omosnace@redhat.com>
+        bh=QnieC38QGH2bgqc/yGf6KqNfgl6L8Jk6dsv2U7IZsU4=;
+        b=shtqWfStjOs/RW6v92YjnmJ86HFVQ97M3DxyX5cgZ9O8P8GBTGlj5BpDsdzIhl3vAs
+         NVxifGOMsIdBJwcv0WBb6FWmLr/vi9fl9jbW7KkkmhT3U+iqLKH37jeg1w4NtnJTKTXe
+         7o8wteegLdMoDvZ4x0Tc55Zukg4PE5QLFVieXr84Dq7MOHoCkMJpUeodmTNeHU6zohMc
+         R6ZtHZx5N09RvvbunWAiCQFfFpqBOACcsuKZlz/diMJBzlgIiXDilWJYMEZURQDesAOc
+         +m00ltnpg0Z2u/HF8u7eHIDhSpkXAG2g1u9M9KebRgG75N02KB99atFV0b5TeuTZzw0Z
+         RgMg==
+X-Gm-Message-State: AO0yUKVr46zIaPJ1X1qUipd9Js9cngNRwgrL+NYH9MX8JoKmVnEDJPwT
+        Uml0oaviP4jGllJDD8aash+GHfPE+JX1sdJv2MSHtYbP4scmV0xNUrgO4zBaR54wMu62YMw3+be
+        fI/ukZrEaTkR1sqbC7DigcCEoKnSxlvggjqRQsye15MX9
+X-Received: by 2002:a17:902:9a03:b0:19a:afc4:2300 with SMTP id v3-20020a1709029a0300b0019aafc42300mr794069plp.6.1677852755120;
+        Fri, 03 Mar 2023 06:12:35 -0800 (PST)
+X-Google-Smtp-Source: AK7set+3BmgR+PpaTKG+41WQwQRFUC/BLQ082TSqvyfXBhNGl/cLqYGzN/g1ToCL+AfSGXJJAxLKzBtiOU7qqJwav0I=
+X-Received: by 2002:a17:902:9a03:b0:19a:afc4:2300 with SMTP id
+ v3-20020a1709029a0300b0019aafc42300mr794062plp.6.1677852754864; Fri, 03 Mar
+ 2023 06:12:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230301094130.736231-1-omosnace@redhat.com> <CAHC9VhSomYYm00wAixn1SfO3H+aSrAsUezJsgBv=jPFLgyAD4w@mail.gmail.com>
+In-Reply-To: <CAHC9VhSomYYm00wAixn1SfO3H+aSrAsUezJsgBv=jPFLgyAD4w@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 3 Mar 2023 15:12:23 +0100
+Message-ID: <CAFqZXNs3dPffga9CjroXz32BYoDzkxhH=HPwrCrJ+po8dCQVRw@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/file: make the SIGIO tests work with CONFIG_LEGACY_TIOCSTI=n
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use Test::More and skip_all to enable/disable these tests if they are
-configured instead of doing this in the Makefile via grep.
+On Wed, Mar 1, 2023 at 4:09=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
+>
+> On Wed, Mar 1, 2023 at 4:42=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
+om> wrote:
+> >
+> > Adjust the test to temporarily set the dev.tty.legacy_tiocsti sysctl to
+> > 1 if it is 0 and re-enable the SIGIO tests.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >
+> > The dev.tty.legacy_tiocsti sysctl fix is now in mainline as commit
+> > f1aa2eb5ea05 ("sysctl: fix proc_dobool() usability"), so we can use
+> > it to re-enable the SIGIO tests.
+> >
+> > Passes the CI with the latest kernel-secnext kernel.
+> >
+> >  tests/file/test | 22 ++++++++++++++--------
+> >  1 file changed, 14 insertions(+), 8 deletions(-)
+>
+> Thanks Ondrej.
+>
+> Reviewed-by: Paul Moore <paul@paul-moore.com>
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- Vagrantfile                   |  1 +
- tests/Makefile                | 11 ++-------
- tests/infiniband_endport/test | 39 ++++++++++++++++++-------------
- tests/infiniband_pkey/test    | 44 ++++++++++++++++++++---------------
- 4 files changed, 51 insertions(+), 44 deletions(-)
+Thanks, applied:
+https://github.com/SELinuxProject/selinux-testsuite/commit/5fc5dc9f5964aae3=
+a6dce57178b25ddc49d21415
 
-diff --git a/Vagrantfile b/Vagrantfile
-index 6f7675f..682b805 100644
---- a/Vagrantfile
-+++ b/Vagrantfile
-@@ -89,6 +89,7 @@ EOF
-       e2fsprogs \
-       jfsutils \
-       dosfstools \
-+      rdma-core-devel \
-       #{kernel_pkgs}
- 
-     #{extra_commands}
-diff --git a/tests/Makefile b/tests/Makefile
-index 5998a9f..74df247 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -27,7 +27,8 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	task_setnice task_setscheduler task_getscheduler task_getsid \
- 	task_getpgid task_setpgid file ioctl capable_file capable_net \
- 	capable_sys dyntrans dyntrace bounds nnp_nosuid mmap unix_socket \
--	inet_socket overlay checkreqprot mqueue mac_admin atsecure
-+	inet_socket overlay checkreqprot mqueue mac_admin atsecure \
-+	infiniband_endport infiniband_pkey
- 
- ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-@@ -82,14 +83,6 @@ endif # POL_VERS
- endif # POL_TYPE
- endif # MAX_KERNEL_POLICY
- 
--ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
--SUBDIRS += infiniband_endport
--endif
--
--ifeq ($(shell grep "^SELINUX_INFINIBAND_PKEY_TEST=" infiniband_pkey/ibpkey_test.conf | cut -d'=' -f 2),1)
--SUBDIRS += infiniband_pkey
--endif
--
- ifneq ($(shell ./kvercmp $$(uname -r) 5.2),-1)
- SUBDIRS += cgroupfs_label
- endif
-diff --git a/tests/infiniband_endport/test b/tests/infiniband_endport/test
-index f071fbc..c55ce84 100755
---- a/tests/infiniband_endport/test
-+++ b/tests/infiniband_endport/test
-@@ -1,25 +1,32 @@
- #!/usr/bin/perl
- 
--use Test;
-+use Test::More;
- 
--BEGIN { plan tests => 3 }
-+my %conf;
- 
--$basedir = $0;
--$basedir =~ s|(.*)/[^/]*|$1|;
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    $confpath = $basedir . "/ibendport_test.conf";
-+    open( $f, $confpath ) or die("Couldn't open $confpath");
-+    while ( $r = <$f> ) {
-+        if ( $r =~ /^\s*#/ || $r =~ /^\s*$/ ) { next; }
-+        chomp $r;
-+        ( $k, $v ) = split( /=/, $r );
-+        $conf{$k} = $v;
-+    }
-+    close($f);
- 
--my %conf;
--my $confpath = $basedir . "/ibendport_test.conf";
--open( $f, $confpath ) or die("Couldn't open ibtest.conf");
--while ( $r = <$f> ) {
--    if ( $r =~ /^\s*#/ || $r =~ /^\s*$/ ) { next; }
--    chomp $r;
--    ( $k, $v ) = split( /=/, $r );
--    $conf{$k} = $v;
-+    # Verify that we really want to run these tests.
-+    if ( $conf{SELINUX_INFINIBAND_ENDPORT_TEST} eq 1 ) {
-+        plan tests => 2;
-+    }
-+    else {
-+        plan skip_all => "test not configured";
-+    }
- }
- 
--# verify that we really want to run these tests
--ok( $conf{SELINUX_INFINIBAND_ENDPORT_TEST} eq 1 );
--
- @allowed_device_port =
-   split( /,/, $conf{SELINUX_INFINIBAND_ENDPORT_TEST_ALLOWED} );
- @denied_device_port =
-@@ -36,7 +43,7 @@ foreach (@allowed_device_port) {
-         last;
-     }
- }
--ok( $result, 0 );
-+ok( $result eq 0 );
- 
- foreach (@denied_device_port) {
-     @dev_port_pair = split( / /, $_ );
-diff --git a/tests/infiniband_pkey/test b/tests/infiniband_pkey/test
-index 382c259..e5d2efb 100755
---- a/tests/infiniband_pkey/test
-+++ b/tests/infiniband_pkey/test
-@@ -1,25 +1,31 @@
- #!/usr/bin/perl
- 
--use Test;
-+use Test::More;
- 
--BEGIN { plan tests => 4 }
-+my %conf;
- 
--$basedir = $0;
--$basedir =~ s|(.*)/[^/]*|$1|;
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
- 
--my %conf;
--$confpath = $basedir . "/ibpkey_test.conf";
--open( $f, $confpath ) or die("Couldn't open $confpath");
--while ( $r = <$f> ) {
--    if ( $r =~ /^\s*#/ || $r =~ /^\s*$/ ) { next; }
--    chomp $r;
--    ( $k, $v ) = split( /=/, $r );
--    $conf{$k} = $v;
--}
--close($f);
-+    $confpath = $basedir . "/ibpkey_test.conf";
-+    open( $f, $confpath ) or die("Couldn't open $confpath");
-+    while ( $r = <$f> ) {
-+        if ( $r =~ /^\s*#/ || $r =~ /^\s*$/ ) { next; }
-+        chomp $r;
-+        ( $k, $v ) = split( /=/, $r );
-+        $conf{$k} = $v;
-+    }
-+    close($f);
- 
--# Verify that we really want to run these tests.
--ok( $conf{SELINUX_INFINIBAND_PKEY_TEST} eq 1 );
-+    # Verify that we really want to run these tests.
-+    if ( $conf{SELINUX_INFINIBAND_PKEY_TEST} eq 1 ) {
-+        plan tests => 3;
-+    }
-+    else {
-+        plan skip_all => "test not configured";
-+    }
-+}
- 
- $device = $conf{SELINUX_INFINIBAND_PKEY_TEST_DEV};
- $port   = $conf{SELINUX_INFINIBAND_PKEY_TEST_PORT};
-@@ -47,7 +53,7 @@ foreach (@unlabeled_pkeys) {
-     }
- }
- if (@unlabeled_pkeys) {
--    ok( $result, 0 );
-+    ok( $result eq 0 );
- }
- else {
-     ok(1);
-@@ -69,7 +75,7 @@ foreach (@unlabeled_pkeys) {
-     }
- }
- if (@unlabeled_pkeys) {
--    ok( $result >> 8, 13 );
-+    ok( $result >> 8 eq 13 );
- }
- else {
-     ok(1);
-@@ -83,7 +89,7 @@ foreach (@labeled_pkeys) {
-     }
- }
- if (@labeled_pkeys) {
--    ok( $result >> 8, 13 );
-+    ok( $result >> 8 eq 13 );
- }
- else {
-     ok(1);
--- 
-2.39.2
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
