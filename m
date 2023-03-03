@@ -2,91 +2,102 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEA5EC678D4
-	for <selinux@archiver.kernel.org>; Fri,  3 Mar 2023 14:09:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0511C678D4
+	for <selinux@archiver.kernel.org>; Fri,  3 Mar 2023 14:09:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230244AbjCCOJh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 3 Mar 2023 09:09:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52994 "EHLO
+        id S229511AbjCCOJ4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 3 Mar 2023 09:09:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbjCCOJg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 3 Mar 2023 09:09:36 -0500
+        with ESMTP id S230393AbjCCOJn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 3 Mar 2023 09:09:43 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B0381714A
-        for <selinux@vger.kernel.org>; Fri,  3 Mar 2023 06:08:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429232A6C3
+        for <selinux@vger.kernel.org>; Fri,  3 Mar 2023 06:09:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677852538;
+        s=mimecast20190719; t=1677852539;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=QtGvsJ1cDwCnysKk0ZTjXqMejjfHzfnthZARNTdSf7w=;
-        b=aDiRw85K4Vveaft/8pQ1PJR4zHNxTvD0ECJtiTj1jHaq4+ZO6d29DxxHffKRs5snUH2sIh
-        xaaMPemYtK3F+RNvWszevVyUd0U+qIsEyKDS7FPaG5nlhO3rA/vbx7/lmnzpuHnTufr6rG
-        XMx6z0R1KsYU3IBqxZ5Ph33NTdQd570=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bD2brzI2wQnZjtN+W4B4dIdiMoLwTI1EncX6adDpc8A=;
+        b=ZnYy7pUtTHFyBIOllT3h8CJiVpun5APJUyvIfRmZocgNp9pcVZYcbq9ZN1VGuQHTXxCyCA
+        MVG+ySE3OcDI0bKzSBwGbUzQXIdb8+MTRmryPhCqYjuq6qb8Kx7q9A5g/PBuqZDk5jv/Ii
+        fHPPzhgaCe0wEo040pMQU4X5KIkNeMc=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-428-O_22ow_MPp-R-PMunZ3LVQ-1; Fri, 03 Mar 2023 09:08:57 -0500
-X-MC-Unique: O_22ow_MPp-R-PMunZ3LVQ-1
-Received: by mail-wm1-f71.google.com with SMTP id l31-20020a05600c1d1f00b003e8626cdd42so982018wms.3
-        for <selinux@vger.kernel.org>; Fri, 03 Mar 2023 06:08:56 -0800 (PST)
+ us-mta-474-El0UCg8rPNCpd2fkAXMJmg-1; Fri, 03 Mar 2023 09:08:58 -0500
+X-MC-Unique: El0UCg8rPNCpd2fkAXMJmg-1
+Received: by mail-wm1-f69.google.com with SMTP id k36-20020a05600c1ca400b003eac86e4387so2882810wms.8
+        for <selinux@vger.kernel.org>; Fri, 03 Mar 2023 06:08:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677852535;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QtGvsJ1cDwCnysKk0ZTjXqMejjfHzfnthZARNTdSf7w=;
-        b=su4eHcfi0fy1ihcrEEVunRNM7bY0vuR5T/RX3L0ayspTC+/C02n+whMoGH3wjugL1z
-         ZWHrFJdk8p+2VAyzkBI2Iy7mpzB4QlqaAnDqhxF9wxZ8Y9jdL1nAKdJSvsM5Jqv85UD/
-         9mZzgnuP4Nb0PsvHl876WzHyMEQ2mNOuPDrOcd06J5PRQMMC+b+MR4jUjFqBgWk4Hc2t
-         AodtbZxUrHeoxcqiaUSm5GdGSiRb48xQrefXigot/rQhU1ax9bOqLY34Q8pPlY1fuwxw
-         pT12mIrwa9833udrI+267tlOtx69Ct8xfGex59EVacFkJCqch6nf5QyR0HymTVIb0Hhk
-         EMUw==
-X-Gm-Message-State: AO0yUKXJhjkvQml9+3mmVny1gAK2bUA7SW3EDO2qcZ4Op+tnpejRHmdh
-        7yhpYwDxUR5aJNX72gCJbZ/u5ltGVOGVqt47w8JFXfSFIrRyDFCyajnUQYoKFeZ0YyEExYO8Xop
-        E1Wdhz8l3fMPQ30DBXWkFELEWbhjwA65nXfuRbPET8cRTgU45+VKDcbaT7expnvm/rfGtfaNPcT
-        IOnw==
-X-Received: by 2002:a05:600c:4746:b0:3eb:36fa:b791 with SMTP id w6-20020a05600c474600b003eb36fab791mr1663228wmo.31.1677852535752;
-        Fri, 03 Mar 2023 06:08:55 -0800 (PST)
-X-Google-Smtp-Source: AK7set8sR3x59YYwonxz5RLfzEh/uyN/GeqynN6/HyXxklXzPF6G25mQVIVBNBrFL1yn0XGo5RKwrg==
-X-Received: by 2002:a05:600c:4746:b0:3eb:36fa:b791 with SMTP id w6-20020a05600c474600b003eb36fab791mr1663201wmo.31.1677852535468;
-        Fri, 03 Mar 2023 06:08:55 -0800 (PST)
+        d=1e100.net; s=20210112; t=1677852537;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bD2brzI2wQnZjtN+W4B4dIdiMoLwTI1EncX6adDpc8A=;
+        b=MyXLHHeueDdExDg29L5Pk263ZoFh0fX1fngElHmvG4xFSg1vZLapNNbfmvtmJCMgjy
+         /8tM7wg9qSLg2/NNSZuC12BSvUMLKBDEPJE21RdPt1mcFMD13PPKRpolp8g9xcHsiQH3
+         qVC1trJEzlawW/CDkPe4eXPXwPZLrz1EQjOlZWy73FiiQSweZbGdiTer66edpNHXmabv
+         8WTjffFu04Re09R0gmRdXiTo0ysgxeuTbjHB1lmbTCfjKsxH1RaJnWplY7scFGGA5PlZ
+         W2XXutSQMYDbRaf8TZ8/2R/ICI6oNYkKi9S4a6LQs+ueKprkm9BhggfhStMWairhxrIK
+         i+tA==
+X-Gm-Message-State: AO0yUKUM5r3BuKZxeOEIC2oWazbTBDMVdD5y3w9zlhXpxycGyAwEV9gw
+        Qo03WTuMiAmMnepkUzurIG2Y85/DxYReg4Zdb7r3auD3HXoP0yyFFpE3cMjyR78DM1YrHLCUB5n
+        LDqmXrdPC1AzqsIFbQ+mHzTBoIiXBNusahlny5RwarLwYE5zD/dHY62vuIXvpCpO7qMMJHQKu1P
+        /jQA==
+X-Received: by 2002:a05:600c:1c13:b0:3e9:9fc5:2c6d with SMTP id j19-20020a05600c1c1300b003e99fc52c6dmr1771492wms.14.1677852536908;
+        Fri, 03 Mar 2023 06:08:56 -0800 (PST)
+X-Google-Smtp-Source: AK7set8ZhIeR81eThsW6IB77Z41R5hCuAFOC/8FkMZ4/EVxMVrLVq5CHgFtisUCRXfhkKG+2v019OQ==
+X-Received: by 2002:a05:600c:1c13:b0:3e9:9fc5:2c6d with SMTP id j19-20020a05600c1c1300b003e99fc52c6dmr1771472wms.14.1677852536636;
+        Fri, 03 Mar 2023 06:08:56 -0800 (PST)
 Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
-        by smtp.gmail.com with ESMTPSA id t17-20020a05600c41d100b003dc4fd6e624sm2423650wmh.19.2023.03.03.06.08.54
-        for <selinux@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id t17-20020a05600c41d100b003dc4fd6e624sm2423650wmh.19.2023.03.03.06.08.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Mar 2023 06:08:54 -0800 (PST)
+        Fri, 03 Mar 2023 06:08:55 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 0/3] Infiniband test fixes/improvements
-Date:   Fri,  3 Mar 2023 15:08:50 +0100
-Message-Id: <20230303140853.1276325-1-omosnace@redhat.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH testsuite 1/3] policy: make sure test_ibpkey_access_t can lock enough memory
+Date:   Fri,  3 Mar 2023 15:08:51 +0100
+Message-Id: <20230303140853.1276325-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230303140853.1276325-1-omosnace@redhat.com>
+References: <20230303140853.1276325-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add missing policy rule needed on systems with strict resource limits,
-add another missing rule to reduce AVC noise, and simplify how IB tests
-are activated.
+The ibv_create_cq() operation requires the caller to be able to lock
+enough memory (RLIMIT_MEMLOCK). In some environments (such as RHEL-8)
+the default resource limits may not be enough, requiring CAP_IPC_LOCK to
+go above the limit. To make sure the test works also under stricter
+resource limits, grant CAP_IPC_LOCK to test_ibpkey_access_t.
 
-Tested on an aarch64 machine with an IB device and RHEL-8.7 installed.
+Reported-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ policy/test_ibpkey.te | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-v2: add comments explaining the newly added policy rules
-
-Ondrej Mosnacek (3):
-  policy: make sure test_ibpkey_access_t can lock enough memory
-  policy: allow test_ibpkey_access_t to use RDMA netlink sockets
-  tests/infiniband*: simplify test activation
-
- Vagrantfile                   |  1 +
- policy/test_ibpkey.te         |  8 +++++++
- tests/Makefile                | 11 ++-------
- tests/infiniband_endport/test | 39 ++++++++++++++++++-------------
- tests/infiniband_pkey/test    | 44 ++++++++++++++++++++---------------
- 5 files changed, 59 insertions(+), 44 deletions(-)
-
+diff --git a/policy/test_ibpkey.te b/policy/test_ibpkey.te
+index 863ff16..2bfb701 100644
+--- a/policy/test_ibpkey.te
++++ b/policy/test_ibpkey.te
+@@ -10,6 +10,10 @@ type test_ibpkey_access_t;
+ testsuite_domain_type(test_ibpkey_access_t)
+ typeattribute test_ibpkey_access_t ibpkeydomain;
+ 
++# ibv_create_cq(3) locks some memory - make sure the domain can do that
++# even with strict resource limits.
++allow test_ibpkey_access_t self:capability ipc_lock;
++
+ dev_rw_infiniband_dev(test_ibpkey_access_t)
+ dev_rw_sysfs(test_ibpkey_access_t)
+ 
 -- 
 2.39.2
 
