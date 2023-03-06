@@ -2,87 +2,106 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67CCAC6FD1A
-	for <selinux@archiver.kernel.org>; Mon,  6 Mar 2023 10:33:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CC1EC678D4
+	for <selinux@archiver.kernel.org>; Mon,  6 Mar 2023 13:19:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230483AbjCFKdE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Mar 2023 05:33:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
+        id S230087AbjCFNTX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Mar 2023 08:19:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230358AbjCFKcl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Mar 2023 05:32:41 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA38A231D3;
-        Mon,  6 Mar 2023 02:32:17 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4PVZRQ5K81z9xFQ0;
-        Mon,  6 Mar 2023 18:23:30 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP2 (Coremail) with SMTP id GxC2BwAX4lgMwQVkVqJ0AQ--.17447S2;
-        Mon, 06 Mar 2023 11:31:53 +0100 (CET)
-Message-ID: <03b6f99cb62a876f7d070239d816cab7baad79cb.camel@huaweicloud.com>
-Subject: Re: [PATCH 12/28] fs: Fix description of vfs_tmpfile()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     viro@zeniv.linux.org.uk, chuck.lever@oracle.com,
-        jlayton@kernel.org, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, linux-fsdevel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stefanb@linux.ibm.com, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Mon, 06 Mar 2023 11:31:37 +0100
-In-Reply-To: <20230306102836.xmfl2qryl6sp3xuz@wittgenstein>
-References: <20230303181842.1087717-1-roberto.sassu@huaweicloud.com>
-         <20230303181842.1087717-13-roberto.sassu@huaweicloud.com>
-         <20230306102836.xmfl2qryl6sp3xuz@wittgenstein>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S229822AbjCFNTW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Mar 2023 08:19:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AC5A2A150
+        for <selinux@vger.kernel.org>; Mon,  6 Mar 2023 05:18:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678108713;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=15xsdsgPQLKBuvQw4FiDg52Mv07jzpwageA+UPEl1f8=;
+        b=T56yqy1afF4666Grs6wqOmDSl/HuWCzcQtv7HGATcQ0PIkCdbhoX2/1MfWGdsWoOhZ0niz
+        eld9yLh5VFfUwM8bcY0Fbqefs/qbR/O/U3qX46oOyHzAK8isQvAob+3rNlbSACbD2/yXOn
+        1115XaPOztBlEf+W2GKHgZs28Z3N/Pg=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-350-zEk1HONxPzGeab4scZ4hOA-1; Mon, 06 Mar 2023 08:18:32 -0500
+X-MC-Unique: zEk1HONxPzGeab4scZ4hOA-1
+Received: by mail-pj1-f71.google.com with SMTP id ls3-20020a17090b350300b0023a55f445ebso3526540pjb.6
+        for <selinux@vger.kernel.org>; Mon, 06 Mar 2023 05:18:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678108711;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=15xsdsgPQLKBuvQw4FiDg52Mv07jzpwageA+UPEl1f8=;
+        b=fxYNPb3Epy9ry5/Ci242Po+1/uGTlGnk58vsV2DrSRG3Yp806bmjslALFmV1yhBKQY
+         7SZ2yrMerChsO7u2Ud11D606xUd76zv3zjo6k0NrCnhLn66M6BeK7l7eXy2TAPMtSGye
+         H0rHQ4B0YX66mwatYEK9sWeAhehbCJcDpdomA9liAksH27DbJFZ/ILWL+zsKtak+dlkb
+         edEOqLP6W194fUry+XnAyimJ7AaceLEUmlHMTJVL7dTM4wB6OqDxOboDjYWVv0jGBZ6P
+         1j5Bdo9UQOvZlKN6fHP4ED6zAEtxiYDxa20EhMSrNY4tJLVmMWgzjoReG5ajIk7jwM7P
+         mddg==
+X-Gm-Message-State: AO0yUKVViymIUkmuuwoaEYvlZksSYQbxdlv2Emgonp2HxCeNogMYTPUL
+        wC8vFi2YBshdklnyVstUvadm3ZJXAUHscBsJlu2hssFedbuwNpphOcurbHHzktEG6+O8XR0hZfi
+        xgMOmrM3LC5BjFwkH/V6pzM8SN1K9DNsdlHBpf+8KB7Pr
+X-Received: by 2002:a63:931e:0:b0:503:2561:6fed with SMTP id b30-20020a63931e000000b0050325616fedmr3792011pge.1.1678108711044;
+        Mon, 06 Mar 2023 05:18:31 -0800 (PST)
+X-Google-Smtp-Source: AK7set+CnC4tzK1QN+YyIxG/pcjRSEK6yrvHO6Vd8xgbQT1W3K9Gt7SVF5hKZLNOnF8M45zqbcPpaeH0+rPRXJKdvsw=
+X-Received: by 2002:a63:931e:0:b0:503:2561:6fed with SMTP id
+ b30-20020a63931e000000b0050325616fedmr3792006pge.1.1678108710753; Mon, 06 Mar
+ 2023 05:18:30 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: GxC2BwAX4lgMwQVkVqJ0AQ--.17447S2
-X-Coremail-Antispam: 1UD129KBjvdXoWruw4xAr15Aw1rArWxur17Wrg_yoWxZFbE9F
-        sayry3A398JF47G34DuFW5ZFWjgryDAF13KwsIqw1agrWDG34kAF48Ca9Yvws3JF4ktFyf
-        Gr9avFyjy3W7WjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUb78YFVCjjxCrM7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20E
-        Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
-        A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x02
-        67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267
-        AKxVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
-        j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
-        kEbVWUJVW8JwACjcxG0xvEwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x0E
-        wIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E74
-        80Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0
-        I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04
-        k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY
-        1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU13rcDUUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAIBF1jj4Y8fgABs6
-X-CFilter-Loop: Reflected
+References: <20230303140853.1276325-1-omosnace@redhat.com> <CAFqZXNv_YpBLxCkY6_v0ASWmkygzPjUQh5d1ME1FJvvY_eDcSQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNv_YpBLxCkY6_v0ASWmkygzPjUQh5d1ME1FJvvY_eDcSQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 6 Mar 2023 14:18:19 +0100
+Message-ID: <CAFqZXNusEPcgt4u5RHXZVCMWA43neeNfp4CP+sEDTsy-H103qw@mail.gmail.com>
+Subject: Re: [PATCH testsuite 0/3] Infiniband test fixes/improvements
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2023-03-06 at 11:28 +0100, Christian Brauner wrote:
-> On Fri, Mar 03, 2023 at 07:18:26PM +0100, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > Update the description of vfs_tmpfile() to match the current parameters of
-> > that function.
-> > 
-> > Fixes: 9751b338656f ("vfs: move open right after ->tmpfile()")
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > ---
-> 
-> Trivially correct. But this shouldn't need to be a part of this series
-> afaict. Please send a this separately to fsdevel so we can pick it up
-> right now,
-> 
-> Acked-by: Christian Brauner <brauner@kernel.org>
+On Fri, Mar 3, 2023 at 4:12=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.com=
+> wrote:
+>
+> On Fri, Mar 3, 2023 at 3:08=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.c=
+om> wrote:
+> >
+> > Add missing policy rule needed on systems with strict resource limits,
+> > add another missing rule to reduce AVC noise, and simplify how IB tests
+> > are activated.
+> >
+> > Tested on an aarch64 machine with an IB device and RHEL-8.7 installed.
+> >
+> > v2: add comments explaining the newly added policy rules
+> >
+> > Ondrej Mosnacek (3):
+> >   policy: make sure test_ibpkey_access_t can lock enough memory
+> >   policy: allow test_ibpkey_access_t to use RDMA netlink sockets
+> >   tests/infiniband*: simplify test activation
+> >
+> >  Vagrantfile                   |  1 +
+> >  policy/test_ibpkey.te         |  8 +++++++
+> >  tests/Makefile                | 11 ++-------
+> >  tests/infiniband_endport/test | 39 ++++++++++++++++++-------------
+> >  tests/infiniband_pkey/test    | 44 ++++++++++++++++++++---------------
+> >  5 files changed, 59 insertions(+), 44 deletions(-)
+> >
+> > --
+> > 2.39.2
+> >
+>
+> Forgot to add v2 into the subject... Please imagine it's there :)
 
-Ok, thanks. I do the same for the EVM one.
+The v2 is now applied.
 
-Roberto
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
