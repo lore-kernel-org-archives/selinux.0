@@ -2,162 +2,230 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63750C6FD1E
-	for <selinux@archiver.kernel.org>; Tue,  7 Mar 2023 18:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38D2CC6FA99
+	for <selinux@archiver.kernel.org>; Tue,  7 Mar 2023 20:45:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232469AbjCGSLH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Mar 2023 13:11:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48110 "EHLO
+        id S229731AbjCGUpa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Mar 2023 15:45:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229586AbjCGSKu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Mar 2023 13:10:50 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CFE35DECD;
-        Tue,  7 Mar 2023 10:05:40 -0800 (PST)
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 327HGv5u002333;
-        Tue, 7 Mar 2023 18:05:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=hoz4RkVCJGwvQNNgSt4WLK6sHH0UVal/pigvAKVzo24=;
- b=KmYsR+wgzGHSKd2v0EhZiBj2MtYYjTed21FDk7VT0FDzn++Pa9LUhrxtOEdxY1tP0GZn
- VCO1Pk7iNQb8lGXM/S9XQPemTobWQnBQj7eT7rsay6FepXWh4Vk2WHPUWmiWf3X26ynZ
- xpKLFriFrXs4D92nYjxy3GxMkhkqhHPc0vCg4KiBUo0ZneDWg2BskimpR5tEBFVlRJNp
- wYFOMgYkiaVk7X23H12gTFeYEu5DwpqaxTHc6dbfJXw6dVhwAczgX0yMrDagPpdZdOyt
- fSDCSzMNYNS3VWM9c6Y1/VrYkJm+ZPLzWaqGz+/s2UEAxhn8pGxzUTYZf/f+1/lYJ/dc hw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p67wfmdtg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Mar 2023 18:05:03 +0000
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 327HqNgi004706;
-        Tue, 7 Mar 2023 18:05:02 GMT
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3p67wfmdsy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Mar 2023 18:05:02 +0000
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 327H9dUc015329;
-        Tue, 7 Mar 2023 18:05:01 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([9.208.129.119])
-        by ppma02dal.us.ibm.com (PPS) with ESMTPS id 3p4199sp2n-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Mar 2023 18:05:01 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 327I4xJr32309734
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Mar 2023 18:05:00 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CE1DD5805A;
-        Tue,  7 Mar 2023 18:04:59 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 600B15803F;
-        Tue,  7 Mar 2023 18:04:55 +0000 (GMT)
-Received: from [9.47.158.152] (unknown [9.47.158.152])
-        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Mar 2023 18:04:55 +0000 (GMT)
-Message-ID: <4b158d7e-a96d-58ae-cc34-0ad6abc1cea9@linux.ibm.com>
-Date:   Tue, 7 Mar 2023 13:04:54 -0500
+        with ESMTP id S229636AbjCGUp3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Mar 2023 15:45:29 -0500
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 936F43CE03
+        for <selinux@vger.kernel.org>; Tue,  7 Mar 2023 12:45:27 -0800 (PST)
+Received: by mail-qt1-x836.google.com with SMTP id d7so15872257qtr.12
+        for <selinux@vger.kernel.org>; Tue, 07 Mar 2023 12:45:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1678221926;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=gsSvtG89zfbPEha0g+XZg66pe7nqD+2wbbLAn3241Jk=;
+        b=Orev/IlFKfK5DMkoesHMvyr3U8kiJlsiNNtDfxas1ESBWyAC1LuFJ81Vr3rMdbvsNc
+         E2WiauRsc2MrEQCi4Y6BYDtGD+sEz/aL4XfdASntSZ5Da4zO4H9PqO7vKyd+FNgZ7uiy
+         22dqX6g3HMfj67d1XeTrZaLcFIH9P3luRGSqr3e5usQuhENiqX6i/3C2S9k/z0YOD9Wt
+         ckp+rITmNd4k8RE6+pm3ILvn5SRfaBoGLF+83hptG9kkOHKNl5iiU3UiucLVo8COOsEu
+         DMEqGvmQr8+uqYl+qNPo98bW1WA+QM629cKnN8+zIgC1eD5JKRBiVgquzsHnZozNK/jI
+         dUvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678221926;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gsSvtG89zfbPEha0g+XZg66pe7nqD+2wbbLAn3241Jk=;
+        b=E3ar/zl9Kf42A2nALZC322+OC+ncET1hjBjVLDzoXebf+2uHo/Z2qzVIVN2TE4GNic
+         DVYfCPXs9F+uxUesZKe7+j/UalBELnYQPmEd1jpGQSOZt6TNNOqqDhL2ycD/JBArmmZG
+         4bI/lQN7IHsMemQxcp9NKFGDUKzGkm6iVQ5/n69oy/8BCXvMInbqo7uZztF+NaXqspoK
+         37Y/ApaLlpDS1oehyyI8/E/WuTSxhutSJcF4dgBFNswca42ysEKEPzQWTslSmt+L/lQw
+         9lKxLh/GzxVnBw43hiVLot5BfUiSxt8H63WgXPS5BQXxPAc8bkv60luFJ6oPIKCk0+BY
+         ThkQ==
+X-Gm-Message-State: AO0yUKVQ7XPF/3LfZvmBBsCU7PbX1ADCbc1wXppfpqcfQGD6nFofA8sd
+        o4r6UhA/B2ZFM9LOD0eF9SzsiWonEXx4MOZwMg==
+X-Google-Smtp-Source: AK7set9vCai5QNFZXQUAQC4z4qrVMr6uVvAp5go6BTStqjR1IkAe5ZV8vBMrleMVTxVW5T4eUfJRDA==
+X-Received: by 2002:ac8:5a85:0:b0:3b6:35a2:bb04 with SMTP id c5-20020ac85a85000000b003b635a2bb04mr28897524qtc.7.1678221925940;
+        Tue, 07 Mar 2023 12:45:25 -0800 (PST)
+Received: from localhost (pool-108-26-161-203.bstnma.fios.verizon.net. [108.26.161.203])
+        by smtp.gmail.com with ESMTPSA id 6-20020ac856e6000000b003bd01b232dbsm10262593qtu.43.2023.03.07.12.45.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Mar 2023 12:45:25 -0800 (PST)
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [RFC PATCH] selinux: uninline unlikely parts of avc_has_perm_noaudit()
+Date:   Tue,  7 Mar 2023 15:45:24 -0500
+Message-Id: <20230307204524.214983-1-paul@paul-moore.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH 23/28] security: Introduce LSM_ORDER_LAST
-Content-Language: en-US
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        viro@zeniv.linux.org.uk, chuck.lever@oracle.com,
-        jlayton@kernel.org, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, brauner@kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-References: <20230303181842.1087717-1-roberto.sassu@huaweicloud.com>
- <20230303182602.1088032-1-roberto.sassu@huaweicloud.com>
-From:   Stefan Berger <stefanb@linux.ibm.com>
-In-Reply-To: <20230303182602.1088032-1-roberto.sassu@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: z2sA_jePHs3pgRRx2w8x57GTfaIXwbl5
-X-Proofpoint-ORIG-GUID: giscmAA8yJRKHabeezSzr5z2e0B3EN--
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-07_12,2023-03-07_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 phishscore=0
- clxscore=1015 malwarescore=0 bulkscore=0 mlxscore=0 suspectscore=0
- spamscore=0 priorityscore=1501 adultscore=0 lowpriorityscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303070161
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+This is based on earlier patch posted to the list by Linus, his
+commit description read:
 
+ "avc_has_perm_noaudit()is one of those hot functions that end up
+  being used by almost all filesystem operations (through
+  "avc_has_perm()") and it's intended to be cheap enough to inline.
 
-On 3/3/23 13:25, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
-> 
-> Introduce LSM_ORDER_LAST, to satisfy the requirement of LSMs willing to be
-> the last, e.g. the 'integrity' LSM, without changing the kernel command
-> line or configuration.
-> 
-> As for LSM_ORDER_FIRST, LSMs with LSM_ORDER_LAST are always enabled and put
-> at the end of the LSM list in no particular order.
-> 
+  However, it turns out that the unlikely parts of it (where it
+  doesn't find an existing avc node) need a fair amount of stack
+  space for the automatic replacement node, so if it were to be
+  inlined (at least clang does not) it would just use stack space
+  unnecessarily.
 
-I think you should describe the reason for the change for LSM_ORDER_MUTABLE as well.
+  So split the unlikely part out of it, and mark that part noinline.
+  That improves the actual likely part."
 
+The basic idea behind the patch was reasonable, but there were minor
+nits (double indenting, etc.) and the RCU read lock unlock/re-lock in
+avc_compute_av() began to look even more ugly.  This patch builds on
+Linus' first effort by cleaning things up a bit and removing the RCU
+unlock/lock dance in avc_compute_av().
 
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> ---
->   include/linux/lsm_hooks.h |  1 +
->   security/security.c       | 12 +++++++++---
->   2 files changed, 10 insertions(+), 3 deletions(-)
-> 
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 21a8ce23108..05c4b831d99 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -93,6 +93,7 @@ extern void security_add_hooks(struct security_hook_list *hooks, int count,
->   enum lsm_order {
->   	LSM_ORDER_FIRST = -1,	/* This is only for capabilities. */
->   	LSM_ORDER_MUTABLE = 0,
-> +	LSM_ORDER_LAST = 1,
->   };
->   
->   struct lsm_info {
-> diff --git a/security/security.c b/security/security.c
-> index 322090a50cd..24f52ba3218 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -284,9 +284,9 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
->   		bool found = false;
->   
->   		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
-> -			if (lsm->order == LSM_ORDER_MUTABLE &&
-> -			    strcmp(lsm->name, name) == 0) {
-> -				append_ordered_lsm(lsm, origin);
-> +			if (strcmp(lsm->name, name) == 0) {
-> +				if (lsm->order == LSM_ORDER_MUTABLE)
-> +					append_ordered_lsm(lsm, origin);
->   				found = true;
->   			}
->   		}
-> @@ -306,6 +306,12 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
->   		}
->   	}
->   
-> +	/* LSM_ORDER_LAST is always last. */
-> +	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
-> +		if (lsm->order == LSM_ORDER_LAST)
-> +			append_ordered_lsm(lsm, "   last");
-> +	}
-> +
->   	/* Disable all LSMs not in the ordered list. */
->   	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
->   		if (exists_ordered_lsm(lsm))
+Removing the RCU lock dance in avc_compute_av() is safe as there are
+currently two callers of avc_compute_av(): avc_has_perm_noaudit() and
+avc_has_extended_perms().  The first caller in avc_has_perm_noaudit()
+does not require a RCU lock as there is no avc_node to protect so the
+RCU lock can be dropped before calling avc_compute_av().  The second
+caller, avc_has_extended_perms(), is similar in that there is no
+avc_node that requires RCU protection, but the code is simplified by
+holding the RCU look around the avc_compute_av() call, and given that
+we enter a RCU critical section in security_compute_av() (called from
+av_compute_av()) the impact will likely be unnoticeable.  It is also
+worth noting that avc_has_extended_perms() is only called from the
+SELinux ioctl() access control hook at the moment.
+
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/avc.c | 85 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 57 insertions(+), 28 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 9a43af0ebd7d..5ce3ad451665 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -988,25 +988,26 @@ int avc_ss_reset(struct selinux_avc *avc, u32 seqno)
+ 	return rc;
+ }
+ 
+-/*
+- * Slow-path helper function for avc_has_perm_noaudit,
+- * when the avc_node lookup fails. We get called with
+- * the RCU read lock held, and need to return with it
+- * still held, but drop if for the security compute.
++/**
++ * avc_compute_av - Add an entry to the AVC based on the security policy
++ * @state: SELinux state pointer
++ * @ssid: subject
++ * @tsid: object/target
++ * @tclass: object class
++ * @avd: access vector decision
++ * @xp_node: AVC extended permissions node
+  *
+- * Don't inline this, since it's the slow-path and just
+- * results in a bigger stack frame.
++ * Slow-path helper function for avc_has_perm_noaudit, when the avc_node lookup
++ * fails.  Don't inline this, since it's the slow-path and just results in a
++ * bigger stack frame.
+  */
+-static noinline
+-struct avc_node *avc_compute_av(struct selinux_state *state,
+-				u32 ssid, u32 tsid,
+-				u16 tclass, struct av_decision *avd,
+-				struct avc_xperms_node *xp_node)
++static noinline struct avc_node *avc_compute_av(struct selinux_state *state,
++						u32 ssid, u32 tsid, u16 tclass,
++						struct av_decision *avd,
++						struct avc_xperms_node *xp_node)
+ {
+-	rcu_read_unlock();
+ 	INIT_LIST_HEAD(&xp_node->xpd_head);
+ 	security_compute_av(state, ssid, tsid, tclass, avd, &xp_node->xp);
+-	rcu_read_lock();
+ 	return avc_insert(state->avc, ssid, tsid, tclass, avd, xp_node);
+ }
+ 
+@@ -1112,6 +1113,36 @@ int avc_has_extended_perms(struct selinux_state *state,
+ 	return rc;
+ }
+ 
++/**
++ * avc_perm_nonode - Add an entry to the AVC
++ * @state: SELinux state pointer
++ * @ssid: subject
++ * @tsid: object/target
++ * @tclass: object class
++ * @requested: requested permissions
++ * @flags: AVC flags
++ * @avd: access vector decision
++ *
++ * This is the "we have no node" part of avc_has_perm_noaudit(), which is
++ * unlikely and needs extra stack space for the new node that we generate, so
++ * don't inline it.
++ */
++static noinline int avc_perm_nonode(struct selinux_state *state,
++				    u32 ssid, u32 tsid, u16 tclass,
++				    u32 requested, unsigned int flags,
++				    struct av_decision *avd)
++{
++	u32 denied;
++	struct avc_xperms_node xp_node;
++
++	avc_compute_av(state, ssid, tsid, tclass, avd, &xp_node);
++	denied = requested & ~(avd->allowed);
++	if (unlikely(denied))
++		return avc_denied(state, ssid, tsid, tclass, requested, 0, 0,
++				  flags, avd);
++	return 0;
++}
++
+ /**
+  * avc_has_perm_noaudit - Check permissions but perform no auditing.
+  * @state: SELinux state
+@@ -1139,29 +1170,27 @@ inline int avc_has_perm_noaudit(struct selinux_state *state,
+ 				unsigned int flags,
+ 				struct av_decision *avd)
+ {
+-	struct avc_node *node;
+-	struct avc_xperms_node xp_node;
+-	int rc = 0;
+ 	u32 denied;
++	struct avc_node *node;
+ 
+ 	if (WARN_ON(!requested))
+ 		return -EACCES;
+ 
+ 	rcu_read_lock();
+-
+ 	node = avc_lookup(state->avc, ssid, tsid, tclass);
+-	if (unlikely(!node))
+-		avc_compute_av(state, ssid, tsid, tclass, avd, &xp_node);
+-	else
+-		memcpy(avd, &node->ae.avd, sizeof(*avd));
++	if (unlikely(!node)) {
++		rcu_read_unlock();
++		return avc_perm_nonode(state, ssid, tsid, tclass, requested,
++				       flags, avd);
++	}
++	denied = requested & ~node->ae.avd.allowed;
++	memcpy(avd, &node->ae.avd, sizeof(*avd));
++	rcu_read_unlock();
+ 
+-	denied = requested & ~(avd->allowed);
+ 	if (unlikely(denied))
+-		rc = avc_denied(state, ssid, tsid, tclass, requested, 0, 0,
+-				flags, avd);
+-
+-	rcu_read_unlock();
+-	return rc;
++		return avc_denied(state, ssid, tsid, tclass, requested, 0, 0,
++				  flags, avd);
++	return 0;
+ }
+ 
+ /**
+-- 
+2.39.2
+
