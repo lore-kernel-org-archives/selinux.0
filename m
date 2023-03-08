@@ -2,133 +2,82 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C493C6FD1E
-	for <selinux@archiver.kernel.org>; Wed,  8 Mar 2023 16:24:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAFE3C64EC4
+	for <selinux@archiver.kernel.org>; Wed,  8 Mar 2023 16:51:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229975AbjCHQYP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Mar 2023 11:24:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36182 "EHLO
+        id S229537AbjCHQvl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Mar 2023 11:51:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbjCHQYN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Mar 2023 11:24:13 -0500
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30ACEC1C0C;
-        Wed,  8 Mar 2023 08:24:02 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4PWy7j4CqPz9xHM1;
-        Thu,  9 Mar 2023 00:14:41 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP2 (Coremail) with SMTP id GxC2BwBHHGN5tghkH4B+AQ--.22743S2;
-        Wed, 08 Mar 2023 17:23:35 +0100 (CET)
-Message-ID: <0a15c85e9de2235c313b10839aabf750f276552f.camel@huaweicloud.com>
-Subject: Re: [PATCH 00/28] security: Move IMA and EVM to the LSM
- infrastructure
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, viro@zeniv.linux.org.uk,
-        chuck.lever@oracle.com, jlayton@kernel.org,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, brauner@kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stefanb@linux.ibm.com, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Wed, 08 Mar 2023 17:23:18 +0100
-In-Reply-To: <59eb6d6d2ffd5522b2116000ab48b1711d57f5e5.camel@linux.ibm.com>
-References: <20230303181842.1087717-1-roberto.sassu@huaweicloud.com>
-         <59eb6d6d2ffd5522b2116000ab48b1711d57f5e5.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S229513AbjCHQvk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Mar 2023 11:51:40 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE63C80A7
+        for <selinux@vger.kernel.org>; Wed,  8 Mar 2023 08:51:38 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id qa18-20020a17090b4fd200b0023750b675f5so3015226pjb.3
+        for <selinux@vger.kernel.org>; Wed, 08 Mar 2023 08:51:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1678294298;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pNOsiUWkfrpIZHC5QMcI12S7qBw0yXwYuQeB2/UG1OE=;
+        b=BimZhBu0UCJ9mSl4EafVGnFG6lB4UltgVlJxbWehQI/U26xEXgOPk+ElhWaqDdeU4R
+         Yp+DPXR8ijkcvX84PpS2nRwQxByZGHZDB8DMlXsWhC0O2o6PBrwcd5zPAOak+f/xv4zD
+         UiFdOzkziBYTTQn0/4UVjHRg7nS/2DQMhxS1+pBO7UXU6w/2s1gGDr4vtgwo7DIBi2I7
+         HYT2NhOquj/mV3HQofS4ErNwohVHoBa4NjeGf2RR5klGiDpQKt84hSwRxUVbc8Iov+9R
+         YpWVFgwub+R4PhtCkiuNhv8V9OnggdPRFuwbK3xgBmihhBil8mrteJMTaKGRWFJospow
+         jQsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678294298;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pNOsiUWkfrpIZHC5QMcI12S7qBw0yXwYuQeB2/UG1OE=;
+        b=DXAUL3c8QBciwXRa3AoVUfd6yiE0zW0ufhz2g2M9PJp0VZPjNszaAutlD063mTKmH/
+         U0r0S+27p9E+X9DRsL6cjq7jXGlcU52mx5f7+eKL+XSWHJJOrfMZzj/EQj70Vm1n8jXL
+         R0D8tl9wrD3pcNq8kDiRias+KJjFqqYi/jiQI6cKQCFm9QR0rpF4uxXJwXbWS5TNlcYr
+         Gpnyq1L8LnMpHcu47416X7KBVgi1lVnP3gcAPRL9DOTOtrh1bqCN13iUEnd8Fa/Qme59
+         UXgeyBztkbqLAxbcDNuqRShkKvBL/gzn5z2QkaeU8vnXgFFDugrp0Biks8nkkoHGxBgh
+         wyww==
+X-Gm-Message-State: AO0yUKXQ7FR4VI9zmTuZ7jrNIx89TdEpvRd+xJn/Qs2ju0u1pnToAQD5
+        1mzg+bF0GRv+CiGbChGi8JdazwadADYft5kmFfdwOg548bOBnIg=
+X-Google-Smtp-Source: AK7set8O9Sk0ouAL4fZeNALuf83r0un/3G1XxwkJ492/erq21E6wLcjwVFdejq9zSt4aIpGPd1/lJWaq0T5tpvZrmug=
+X-Received: by 2002:a17:903:2687:b0:19a:f82f:bb25 with SMTP id
+ jf7-20020a170903268700b0019af82fbb25mr7219529plb.7.1678294298103; Wed, 08 Mar
+ 2023 08:51:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: GxC2BwBHHGN5tghkH4B+AQ--.22743S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxArW7Aw17XFWDGryDJw4fXwb_yoW5ZF15pF
-        Z8K3W5Kr4ktF109rs2v3y8uFWfCa1fJ3yUJr95K34UZa45GF1FqFWvkF15uFyDG3s0kFyF
-        qF4jq3s5Z3WDZrDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkYb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
-        7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
-        Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
-        6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
-        AIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv
-        6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7IU13rcDUUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAKBF1jj4pXogABsA
-X-CFilter-Loop: Reflected
+References: <20230307204524.214983-1-paul@paul-moore.com> <CAHk-=wi2h64sVbDRd+P5YM_C+BofhqkrvmBTyioay1ofwA9Fpw@mail.gmail.com>
+In-Reply-To: <CAHk-=wi2h64sVbDRd+P5YM_C+BofhqkrvmBTyioay1ofwA9Fpw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 8 Mar 2023 11:51:27 -0500
+Message-ID: <CAHC9VhSM-ah1VUTXQW=DVk157ANcAuiCrJEubqt5rU8ksVjwdw@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: uninline unlikely parts of avc_has_perm_noaudit()
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2023-03-08 at 10:14 -0500, Mimi Zohar wrote:
-> Hi Roberto,
-> 
-> On Fri, 2023-03-03 at 19:18 +0100, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > This patch set depends on:
-> > - https://lore.kernel.org/linux-integrity/20221201104125.919483-1-roberto.sassu@huaweicloud.com/ (there will be a v8 shortly)
-> > - https://lore.kernel.org/linux-security-module/20230217032625.678457-1-paul@paul-moore.com/
-> > 
-> > IMA and EVM are not effectively LSMs, especially due the fact that in the
-> > past they could not provide a security blob while there is another LSM
-> > active.
-> > 
-> > That changed in the recent years, the LSM stacking feature now makes it
-> > possible to stack together multiple LSMs, and allows them to provide a
-> > security blob for most kernel objects. While the LSM stacking feature has
-> > some limitations being worked out, it is already suitable to make IMA and
-> > EVM as LSMs.
-> > 
-> > In short, while this patch set is big, it does not make any functional
-> > change to IMA and EVM. IMA and EVM functions are called by the LSM
-> > infrastructure in the same places as before (except ima_post_path_mknod()),
-> > rather being hardcoded calls, and the inode metadata pointer is directly
-> > stored in the inode security blob rather than in a separate rbtree.
-> > 
-> > More specifically, patches 1-13 make IMA and EVM functions suitable to
-> > be registered to the LSM infrastructure, by aligning function parameters.
-> > 
-> > Patches 14-22 add new LSM hooks in the same places where IMA and EVM
-> > functions are called, if there is no LSM hook already.
-> > 
-> > Patch 23 adds the 'last' ordering strategy for LSMs, so that IMA and EVM
-> > functions are called in the same order as of today. Also, like with the
-> > 'first' strategy, LSMs using it are always enabled, so IMA and EVM
-> > functions will be always called (if IMA and EVM are compiled built-in).
-> > 
-> > Patches 24-27 do the bulk of the work, remove hardcoded calls to IMA and
-> > EVM functions, register those functions in the LSM infrastructure, and let
-> > the latter call them. In addition, they also reserve one slot for EVM to 
-> > supply an xattr to the inode_init_security hook.
-> > 
-> > Finally, patch 28 removes the rbtree used to bind metadata to the inodes,
-> > and instead reserve a space in the inode security blob to store the pointer
-> > to metadata. This also brings performance improvements due to retrieving
-> > metadata in constant time, as opposed to logarithmic.
-> 
-> Prior to IMA being upstreamed, it went through a number of iterations,
-> first on the security hooks, then as a separate parallel set of
-> integrity hooks, and, finally, co-located with the security hooks,
-> where they exist.  With this patch set we've come full circle.
-> 
-> With the LSM stacking support, multiple LSMs can now use the
-> 'i_security' field removing the need for the rbtree indirection for
-> accessing integrity state info.
-> 
-> Roberto, thank you for making this change.  Mostly it looks good.  
-> Reviewing the patch set will be easier once the prereq's and this patch
-> set can be properly applied.
+On Tue, Mar 7, 2023 at 4:00=E2=80=AFPM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Tue, Mar 7, 2023 at 12:45=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> >
+> > This is based on earlier patch posted to the list by Linus
+>
+> Ack, looks fine to me.
+>
+> I didn't apply it and look at code generation, but I don't see any
+> reason why it would be bad, and I agree with your RCU lock cleanup
+> being probably the better option (rather than having the comment about
+> the odd rcu lock behavior).
 
-Welcome. Yes, once Paul reviews the other patch set, we can
-progressively apply the patches.
+It seems to be passing all our tests so I've just merged it into
+selinux/next; assuming nothing strange pops up in the next several
+weeks you'll see this during the next merge window.
 
-Thanks
-
-Roberto
-
+--=20
+paul-moore.com
