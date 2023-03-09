@@ -2,58 +2,29 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D18DC6FD19
-	for <selinux@archiver.kernel.org>; Wed,  8 Mar 2023 22:16:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD7E5C7618A
+	for <selinux@archiver.kernel.org>; Thu,  9 Mar 2023 07:55:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230216AbjCHWQk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Mar 2023 17:16:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58656 "EHLO
+        id S229886AbjCIHzt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Mar 2023 02:55:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbjCHWQj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Mar 2023 17:16:39 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8CB85B01
-        for <selinux@vger.kernel.org>; Wed,  8 Mar 2023 14:16:38 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id x34so349070pjj.0
-        for <selinux@vger.kernel.org>; Wed, 08 Mar 2023 14:16:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1678313798;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tkhViH9kdWNjYXwKnPEs08Xl3095dV6IZ6LM3uHmPgg=;
-        b=bPXrjsfNIA8aCilQN80V8tZJJRnYiUaUiYYE6WDP0poZXHmgRnngHO4Lb96J8qrY8s
-         0UFv5K7lMRJloKD0tWGMmVKDB1rB7L2PYgY245lC/cGDS2TdHabWAHsD74tYHk7XWX+9
-         ctSErcrpU4ra1h7MNt4j2JB1T46qH5KSu8XZMjjoIq7fVYdLws67bRDNtSSAyq5ddIEU
-         URzRfvXhHoHE7mhDjTIo/KgBW+4k4yBsfFL5q4a+jwiG/cTxuGsLWCziz32JVyllZ+pC
-         DZbdjHIIJFo9Zy6iaSLyCS5thVAOwak49iMLSnuOr6HQ+YCMlQc6/QjcnOmMkEQALnF5
-         7qLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678313798;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tkhViH9kdWNjYXwKnPEs08Xl3095dV6IZ6LM3uHmPgg=;
-        b=7JrjOOXJqiYKYGNsjnGDED87bw4ULZrz2XL3zam8rJfEsC7YDqb3egTetzTDJkrcva
-         fZ16wzZ3xvtFyf9QbQSvVl1vNV7rZ9zVQVvroiD5VAXGgf5QIMVvP8ACJ/1ao2yl1OEC
-         tyaKf/wXG3R7IREj3XBHIn9M3cdXP8BQ1VP3czK1oT36AJ1DKwMZTJhShb/hcs4DpGUZ
-         T2feVhXEszpon37wHJKAANniP7wFG2eiydLam9tS2z+zrWP32PN9Xwd57wC7HG+LPfjk
-         DBswuXEM7U1PH/Mbvc/4NddBn4/gSKVDS8SO4L9q9zi/mF0XsYX/lJIyCYjosMl8cT3N
-         0A/A==
-X-Gm-Message-State: AO0yUKXSF2PyGPsYBJiNX5ntnnQcrTnmz+/RTs7MdPH5FeifTeQrO7Lg
-        0/f9EAAUaZUv0OLVO4n6yGUltLfS3zS90hurrc42
-X-Google-Smtp-Source: AK7set++0GvPRL/fArYHKN0SqlsLssuQ2AVagfsEuJmq+L5qFprSO0qSDic4f0ylWLwNIoHyQ3gpdgkwfLpUMJ7FI+Y=
-X-Received: by 2002:a17:903:2587:b0:19a:9f86:adab with SMTP id
- jb7-20020a170903258700b0019a9f86adabmr7646529plb.7.1678313797868; Wed, 08 Mar
- 2023 14:16:37 -0800 (PST)
-MIME-Version: 1.0
-References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
-In-Reply-To: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 8 Mar 2023 17:16:26 -0500
-Message-ID: <CAHC9VhTRT=o9Rv+EhZ4aab1FDCyTNa7XEYuhuOiSEkWh0Cdrnw@mail.gmail.com>
-Subject: Re: [PATCH v7 0/6] evm: Do HMAC of multiple per LSM xattrs for new inodes
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+        with ESMTP id S230207AbjCIHyi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Mar 2023 02:54:38 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 512311CBCD;
+        Wed,  8 Mar 2023 23:54:30 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4PXLnx0YDyz9xHvy;
+        Thu,  9 Mar 2023 15:45:41 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwB3Rl2OkAlkp2OBAQ--.23244S2;
+        Thu, 09 Mar 2023 08:54:01 +0100 (CET)
+Message-ID: <250fe1947dd3fea27d8f4aa86fdb9980954b5425.camel@huaweicloud.com>
+Subject: Re: [PATCH v7 0/6] evm: Do HMAC of multiple per LSM xattrs for new
+ inodes
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
         zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
         serge@hallyn.com, stephen.smalley.work@gmail.com,
@@ -64,35 +35,65 @@ Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
         linux-kernel@vger.kernel.org, keescook@chromium.org,
         nicolas.bouchinet@clip-os.org,
         Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Thu, 09 Mar 2023 08:53:48 +0100
+In-Reply-To: <CAHC9VhTRT=o9Rv+EhZ4aab1FDCyTNa7XEYuhuOiSEkWh0Cdrnw@mail.gmail.com>
+References: <20221201104125.919483-1-roberto.sassu@huaweicloud.com>
+         <CAHC9VhTRT=o9Rv+EhZ4aab1FDCyTNa7XEYuhuOiSEkWh0Cdrnw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: GxC2BwB3Rl2OkAlkp2OBAQ--.23244S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrZw4kGFy8uryfCFWDJw47Jwb_yoWkZFg_u3
+        WUt3s7Gws8X3WkGa13tr1agry0g3ykZF1jvryqgr13Xw18JaykAFs7CFsavw15Jay7X3sI
+        kr9rZ342y3sIgjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUb78YFVCjjxCrM7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20E
+        Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+        A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+        67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r1j6r4UM28EF7xvwVC2z280aVCY1x0267
+        AKxVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
+        j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
+        kEbVWUJVW8JwACjcxG0xvEwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x0E
+        wIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E74
+        80Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0
+        I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04
+        k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY
+        1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU13rcDUUUUU==
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQALBF1jj4pbjgACsi
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Dec 1, 2022 at 5:42=E2=80=AFAM Roberto Sassu
-<roberto.sassu@huaweicloud.com> wrote:
->
-> From: Roberto Sassu <roberto.sassu@huawei.com>
->
-> One of the major goals of LSM stacking is to run multiple LSMs side by si=
-de
-> without interfering with each other. The ultimate decision will depend on
-> individual LSM decision.
->
-> Several changes need to be made to the LSM infrastructure to be able to
-> support that. This patch set tackles one of them: gives to each LSM the
-> ability to specify one or multiple xattrs to be set at inode creation
-> time and, at the same time, gives to EVM the ability to access all those
-> xattrs and calculate the HMAC on them.
+On Wed, 2023-03-08 at 17:16 -0500, Paul Moore wrote:
+> On Thu, Dec 1, 2022 at 5:42 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > One of the major goals of LSM stacking is to run multiple LSMs side by side
+> > without interfering with each other. The ultimate decision will depend on
+> > individual LSM decision.
+> > 
+> > Several changes need to be made to the LSM infrastructure to be able to
+> > support that. This patch set tackles one of them: gives to each LSM the
+> > ability to specify one or multiple xattrs to be set at inode creation
+> > time and, at the same time, gives to EVM the ability to access all those
+> > xattrs and calculate the HMAC on them.
+> 
+> Hi Roberto,
+> 
+> The v7 draft of this patchset had some good discussion, and based on a
+> quick read of the comments it looks like everyone was eventually
+> satisfied that the v7 draft was good and no further changes were
+> necessary, is that correct or do you have an updated draft of this
+> patchset?
 
-Hi Roberto,
+Hi Paul
 
-The v7 draft of this patchset had some good discussion, and based on a
-quick read of the comments it looks like everyone was eventually
-satisfied that the v7 draft was good and no further changes were
-necessary, is that correct or do you have an updated draft of this
-patchset?
+I addressed few more concerns from Mimi and Casey. I think v8 should be
+good to send (unless you have more comments/suggestions).
 
---=20
-paul-moore.com
+Thanks
+
+Roberto
+
