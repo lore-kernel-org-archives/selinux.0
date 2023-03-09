@@ -2,146 +2,154 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B6E0C6FD19
-	for <selinux@archiver.kernel.org>; Thu,  9 Mar 2023 21:15:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F574C6FD19
+	for <selinux@archiver.kernel.org>; Thu,  9 Mar 2023 21:51:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbjCIVPO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Mar 2023 16:15:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48422 "EHLO
+        id S229447AbjCIVvV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Mar 2023 16:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230417AbjCIVPN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Mar 2023 16:15:13 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C794FEBF95
-        for <selinux@vger.kernel.org>; Thu,  9 Mar 2023 13:15:11 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id i5so3422642pla.2
-        for <selinux@vger.kernel.org>; Thu, 09 Mar 2023 13:15:11 -0800 (PST)
+        with ESMTP id S230004AbjCIVvU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Mar 2023 16:51:20 -0500
+Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE4EFAFBF
+        for <selinux@vger.kernel.org>; Thu,  9 Mar 2023 13:51:18 -0800 (PST)
+Received: by mail-qv1-xf30.google.com with SMTP id bo10so2415395qvb.12
+        for <selinux@vger.kernel.org>; Thu, 09 Mar 2023 13:51:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1678396511;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lOWR/kxY475Ov5B+hgURV/5vuz1QwLnyapJFdYiDys0=;
-        b=aTcakOtlx8m9iTdSJh1WUQG9n9suEuVUBlglYWSZ5ZILWTPXiHIfGi+38DRN9dxR22
-         soKrvdlukywUK+htfLkihR6KQr0J4ofYvSAw0pfytl0ewMe5dUivxRwk8KBboam6tOAN
-         IDVBzQhqvsDwm3Vr7kNl21BfPAO/8o9Yj0uDYWIsvcSSEhlcXM6YoSV7orr8esyLxY6G
-         /UtY72RAb5KfjRL0SxyQkCaXaiKt7tG04O9IrrLiDH4a7WWhSBb4ViJM8wEXjBy89Yyc
-         Tjop9NpWW6gpY/pdC0h22iqTq+FG35UAbdsOQbdOFWs7QbECBQ0HipMziWqgccaFT1Fe
-         4vNw==
+        d=gmail.com; s=20210112; t=1678398677;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=nKz/36ZExwg0+ibdxh/MlxGrqN8P9jXrcVpwBASe8wk=;
+        b=jHH5eJyG6sRrhu1UQNDeMqwMFpG094xpl4ve0TqEOsU/ynjOk0CpEVGOjNDEoqfuMB
+         ho7Wq2x5WiREAfsThsCNsuYkgD5Ffl0LmZDa+aWWdCw3JbUCha4k+S5upNOX1x4wyDor
+         XNzof1O3XrEUB8+yo9vlhQXD1TXAIl/3WUWuGKy98FtU/Q+bZjGLONi6xuFd22DgJv6j
+         cb7OffCDnT5jX6q2AMrja17B7rnulEwrUFlja6U8RBKMp+DZFKtw+9bzRN6Q0ee2zAxF
+         5/0zekDNpqCGE0GhM1ezeFXjZl+62Np+2Ce9aRe7pWgOwMUPi5wuyV0xuM6aF/CXpotF
+         r5ZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678396511;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lOWR/kxY475Ov5B+hgURV/5vuz1QwLnyapJFdYiDys0=;
-        b=7fncS6JZPJE/rhVP9t9KzoQt9OFmpK1xsRk8x0t2YZ5QFCBjQRWOzIABdOoRqVd8OH
-         laj0PaRPha4tnMSQx5dHxtNdaV3QySrcsI/6ltV5MD3/ZPlPL0OJOAnyocn097SEdB6l
-         z1lfh3f3kPbXUqezVz8teHyCYzI+2ug3MU5T+opOKOIrrJRyWCoDzxaIIBVElUQEJxxS
-         lXOaFfT3NB0urEMJmaguW1Iyw3U7rPA0Iah3NgPrPfaS8nyD3cKKBJ/4MANJoVTfFX9d
-         DVc6hmW6MtV8AIwl79r+Ef5v6SJqofoqOZb9Zgqtqsb48mIW1r29bGxiCUAo4+G1uMXh
-         6MSQ==
-X-Gm-Message-State: AO0yUKU+APjFXftYGvNpzTDZbdJ9voDxL6j/Iarp4RUmxzkWQessD1f9
-        QSmQtwBCYpJKmFUM01KUtaqpCTIycW2CA9pIlWRW
-X-Google-Smtp-Source: AK7set+Pf8YyM769hcA7pBXTW5zm8tuSfgT3ot0n+abuwlfq1sFP9DI6KjCncNvHv4tCXq7AlzheigxR5A69OUsiHTQ=
-X-Received: by 2002:a17:903:2587:b0:19a:9f86:adab with SMTP id
- jb7-20020a170903258700b0019a9f86adabmr8941372plb.7.1678396511134; Thu, 09 Mar
- 2023 13:15:11 -0800 (PST)
+        d=1e100.net; s=20210112; t=1678398677;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=nKz/36ZExwg0+ibdxh/MlxGrqN8P9jXrcVpwBASe8wk=;
+        b=fN84U7plL432W1wWv4BFkbLBy6uqR9nYr2ITJzFNQ85Z/vr7PAhMz9IKOc7XWC26a/
+         Zr5rEbqfIXVdmeT/UhVG+/Y1NsftbnEIobXgHQx0aCtzEfYxGwzIL/ZcaNTSCbw3ZvFF
+         vARAkkxciuQMqxJ0HFdPNBWeGCfpMP5Ue6Uh4TiXuE8pcMxvIeo7XG73+eU0TtS6CQUA
+         BuMzs/lxAUxU+vPR3rJ7ojqlUPq7mJ7tltWR88lQ7njdMepPOB3+Vq0zxVMj45x13oXB
+         HsR6IseEL/Rpto9MqOjOFFZ38tQG3p6NAkAwcBHBIGaPnXWyItnGf07f2g2Fn4bdPG1t
+         1l4w==
+X-Gm-Message-State: AO0yUKU0iSKw8+OfnjPqQTdk3iv34a5rcF/7OzP5He8MPm0FNrDWgwTZ
+        S3rMgseyeuVqtyx0SfIqMco2GAtvKhM=
+X-Google-Smtp-Source: AK7set/pJ8FNLqj0Pc3QwTOZwF3IYw4/vaTp7u7YWQjcRwc9TromfC+/T7xJQRsUcuTi/OXjmLZ+6A==
+X-Received: by 2002:a05:6214:27c7:b0:56f:d8:dbb4 with SMTP id ge7-20020a05621427c700b0056f00d8dbb4mr38558809qvb.2.1678398677506;
+        Thu, 09 Mar 2023 13:51:17 -0800 (PST)
+Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
+        by smtp.gmail.com with ESMTPSA id m17-20020ae9e011000000b007422fa6376bsm25731qkk.77.2023.03.09.13.51.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Mar 2023 13:51:16 -0800 (PST)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     dburgener@linux.microsoft.com, James Carter <jwcart2@gmail.com>
+Subject: [RFC PATCH 0/9 v2] Add CIL Deny Rule
+Date:   Thu,  9 Mar 2023 16:51:05 -0500
+Message-Id: <20230309215114.357831-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-References: <20230309191741.15063-1-stephen.smalley.work@gmail.com>
- <CAHC9VhTCScrPmzrzSVPqF0G==4+qxd=KSeBw7s3T_46rDgKoXQ@mail.gmail.com> <CAEjxPJ4R0U7TL3EAjU8_nnbmgoSaO+DN9SoB+PuC1HkOcrfAuw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4R0U7TL3EAjU8_nnbmgoSaO+DN9SoB+PuC1HkOcrfAuw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 9 Mar 2023 16:15:00 -0500
-Message-ID: <CAHC9VhQ1-SeA+XS-Y2M5OydM79qu+GA0L770_A0Zf2C6wN80kw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: stop passing selinux_state pointers and their offspring
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     selinux@vger.kernel.org, torvalds@linux-foundation.org,
-        omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 9, 2023 at 3:55=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Mar 9, 2023 at 3:48=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> >
-> > On Thu, Mar 9, 2023 at 2:18=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > Linus observed that the pervasive passing of selinux_state pointers
-> > > introduced by me in commit aa8e712cee93 ("selinux: wrap global selinu=
-x
-> > > state") adds overhead and complexity without providing any
-> > > benefit. The original idea was to pave the way for SELinux namespaces
-> > > but those have not yet been implemented and there isn't currently
-> > > a concrete plan to do so. Remove the passing of the selinux_state
-> > > pointers, reverting to direct use of the single global selinux_state,
-> > > and likewise remove passing of child pointers like the selinux_avc.
-> > > The selinux_policy pointer remains as it is needed for atomic switchi=
-ng
-> > > of policies.
-> > >
-> > > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
-> > >  security/selinux/avc.c                 | 197 ++++-----
-> > >  security/selinux/hooks.c               | 549 ++++++++++-------------=
---
-> > >  security/selinux/ibpkey.c              |   2 +-
-> > >  security/selinux/ima.c                 |  37 +-
-> > >  security/selinux/include/avc.h         |  29 +-
-> > >  security/selinux/include/avc_ss.h      |   3 +-
-> > >  security/selinux/include/conditional.h |   4 +-
-> > >  security/selinux/include/ima.h         |  10 +-
-> > >  security/selinux/include/security.h    | 171 +++-----
-> > >  security/selinux/netif.c               |   2 +-
-> > >  security/selinux/netlabel.c            |  17 +-
-> > >  security/selinux/netnode.c             |   4 +-
-> > >  security/selinux/netport.c             |   2 +-
-> > >  security/selinux/selinuxfs.c           | 208 ++++------
-> > >  security/selinux/ss/services.c         | 346 +++++++---------
-> > >  security/selinux/ss/services.h         |   1 -
-> > >  security/selinux/status.c              |  44 +-
-> > >  security/selinux/xfrm.c                |  20 +-
-> > >  18 files changed, 651 insertions(+), 995 deletions(-)
-> >
-> > It looks like this patch was a bit too big for the mailing list; I'm
-> > trimming my reply to get this discussion on the list.
-> >
-> > I strongly dislike merging patches that haven't hit the list, but I do
-> > recognize that this is a bit of an unusual case.  Have you tried
-> > breaking this up into two (three?) patches?  I imagine that should be
-> > possible, although I worry that the time required to do that would be
-> > prohibitive given the change itself.
-> >
-> > If that doesn't work, an alternative might be to file a PR against our
-> > kernel subsystem mirror on GitHub and posting a link to the PR here.
-> > I don't want to encourage this as a general way of submitting SELinux
-> > kernel patches, but I could make an exception here.
-> >
-> > https://github.com/SELinuxProject/selinux-kernel
->
-> I'm open to suggestions but didn't see an obvious way to split it in a
-> manner that keeps everything in a working state after each patch.
-> checkpatch.pl didn't complain about the size - not sure if that is a
-> change in policy.
+This is the last RFC patch. Once the notself patches are merged, I will work on
+a new set of patches that includes support for notself and other.
+ 
+This series of patches implements a deny rule in CIL. A deny rule will remove
+the stated permissions in it from the policy. CIL does this by searching for
+allow rules that match the deny rule and then writing new allow rules that
+correspond to the matched allow rule with the permissions from the deny rule
+removed. The rule uses the same syntax as an allow rule, but with "deny"
+instead of "allow".
 
-I'm not sure checkpatch.pl is the right place for that anyway as every
-list could have a different policy.
+  (deny SRC TGT (CLASS (PERMS)))
 
-FWIW, many years ago I was told to keep the diffstat under a thousand
-lines as a general rule.  While I've seen patches go over that limit
-and hit various @vger lists, I personally try to keep my patches under
-that 1k limit, and generally that isn't too hard.  This really is a
-bit of a special case I think.
+Deny rules are processed during post processing (after the AST is resolved,
+but before the binary policy is written). This means that neverallow checking
+is done after deny rules are resolved. Deny rules are complimentary to
+neverallow checking. When an allow rule is found that matches, a deny rule
+removes permissions while a neverallow rule reports an error.
 
-> Created a PR here:
-> https://github.com/SELinuxProject/selinux-kernel/pull/64
+Patch 4 is biggest and most complex since it is the one doing the processing.
 
-Thanks, I'll work from that.
+Changes for v2
+- Renamed cil_tree_remove_node() as cil_tree_node_remove() to fit the naming
+  convention in cil_tree.c
+- Have cil_tree_node_remove() call cil_tree_node_destroy() to destroy the
+  node after it has been removed as suggested by Daniel Burgener.
+- Renamed cil_classperms_match() to cil_classperms_match_any()
+- Renamed cil_classperms_list_match() cil_classperms_list_match_any()
+- Added function cil_classperms_match_all()
+- Added function cil_classperms_list_match_all()
+- Updated cil_classperms_andnot() to use the cil_classperms_match_any() and
+  cil_classperms_list_match_any() functions.
+- Added function cil_classperms_and()
+- Added function cil_classperms_map_and()
+- Added function cil_classperms_set_and()
+- Added function cil_classperms_list_and()
+- Fixed problem in error handling in cil_create_and_insert_attribute_and_set()
+  that was found by Daniel Burgener.
+- Fixed problem in error handling in cil_create_attribute_d1_and_not_d2()
+  that was found by Daniel Burgener.
+- Change cil_create_and_add_avrule() to copy the classperms list, so the
+  caller doesn't have to do it.
+- Completely changed the logic of cil_remove_permissions_from_rule() to
+  eliminate the problem of excessive overlap in the new rules that was
+  found by Daniel Burgener.
+- Changed and added deny rule tests.
+- Fixed the formating problems in the CIL documenation of the deny rule
+  that was found by Daniel Burgener.
 
---=20
-paul-moore.com
+
+James Carter (9):
+  libsepol/cil: Parse and add deny rule to AST, but do not process
+  libsepol/cil: Add cil_list_is_empty macro
+  libsepol/cil: Add cil_tree_node_remove function
+  libsepol/cil: Process deny rules
+  libsepol/cil: Add cil_write_post_ast function
+  libsepol: Export the cil_write_post_ast function
+  secilc/secil2tree: Add option to write CIL AST after post processing
+  secilc/test: Add deny rule tests
+  secilc/docs: Add deny rule to CIL documentation
+
+ libsepol/cil/include/cil/cil.h         |    1 +
+ libsepol/cil/src/cil.c                 |   68 ++
+ libsepol/cil/src/cil_build_ast.c       |   56 ++
+ libsepol/cil/src/cil_build_ast.h       |    2 +
+ libsepol/cil/src/cil_copy_ast.c        |   19 +
+ libsepol/cil/src/cil_copy_ast.h        |    1 +
+ libsepol/cil/src/cil_deny.c            | 1132 ++++++++++++++++++++++++
+ libsepol/cil/src/cil_deny.h            |   36 +
+ libsepol/cil/src/cil_flavor.h          |    1 +
+ libsepol/cil/src/cil_internal.h        |   10 +
+ libsepol/cil/src/cil_list.h            |    3 +
+ libsepol/cil/src/cil_post.c            |    7 +
+ libsepol/cil/src/cil_reset_ast.c       |    8 +
+ libsepol/cil/src/cil_resolve_ast.c     |   44 +
+ libsepol/cil/src/cil_resolve_ast.h     |    1 +
+ libsepol/cil/src/cil_tree.c            |   28 +
+ libsepol/cil/src/cil_tree.h            |    1 +
+ libsepol/cil/src/cil_verify.c          |    9 +
+ libsepol/cil/src/cil_write_ast.c       |   10 +
+ libsepol/cil/src/cil_write_ast.h       |    1 +
+ libsepol/src/libsepol.map.in           |    5 +
+ secilc/docs/cil_access_vector_rules.md |   67 ++
+ secilc/secil2tree.c                    |    8 +-
+ secilc/test/deny_rule_test.cil         |  946 ++++++++++++++++++++
+ 24 files changed, 2463 insertions(+), 1 deletion(-)
+ create mode 100644 libsepol/cil/src/cil_deny.c
+ create mode 100644 libsepol/cil/src/cil_deny.h
+ create mode 100644 secilc/test/deny_rule_test.cil
+
+-- 
+2.39.2
+
