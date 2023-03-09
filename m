@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04508C6FD1C
-	for <selinux@archiver.kernel.org>; Thu,  9 Mar 2023 21:51:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D42CC74A44
+	for <selinux@archiver.kernel.org>; Thu,  9 Mar 2023 21:51:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230367AbjCIVvg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Mar 2023 16:51:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43264 "EHLO
+        id S230298AbjCIVvi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Mar 2023 16:51:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231191AbjCIVv2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Mar 2023 16:51:28 -0500
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAEA7FEF14
-        for <selinux@vger.kernel.org>; Thu,  9 Mar 2023 13:51:22 -0800 (PST)
-Received: by mail-qt1-x833.google.com with SMTP id z6so3802462qtv.0
-        for <selinux@vger.kernel.org>; Thu, 09 Mar 2023 13:51:22 -0800 (PST)
+        with ESMTP id S231210AbjCIVv3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Mar 2023 16:51:29 -0500
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34778103397
+        for <selinux@vger.kernel.org>; Thu,  9 Mar 2023 13:51:26 -0800 (PST)
+Received: by mail-qv1-xf2e.google.com with SMTP id jo29so2475364qvb.0
+        for <selinux@vger.kernel.org>; Thu, 09 Mar 2023 13:51:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678398681;
+        d=gmail.com; s=20210112; t=1678398685;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xL5P9YbgmNZ82zcdKKtKFeBjBG0r1oC3uQlDTZOOTZU=;
-        b=qHnlPme9gwQY8+lnh5Sy14QE94rFGp1ltKHiX7+NC03VfILp+Efa1FtokflsZd1N6n
-         pc42Cgu0ZM15LkQRudn8CQ+5dyqrokB+vQpKETMcZiUulfM4Ne+6/plnGnj6geuTMYfF
-         fsOiVE6NMg00JB7NcObbmshct4sirdxdH2++iqNSnYc84aJ6OQoiSQSMqbe/xzzXAYqI
-         ZP/FzPbJO/2FvWZAasLn0ZJjTSBoHAcPyvAxZTKxqCE05iGIMv5opkqhopTLctiWPaeR
-         ceLGa7IbCAC8RfsrFLFf6opKt1d0NlN6ajw/M/5UUsYz6pggvojgus79MIQ5/2oNlovG
-         IBuQ==
+        bh=yaMLv6M9i07udDiQUH2sZxvn1a3s0tfcGjtScEovecE=;
+        b=gcJpAHjyeVrvoTfLkckpwr5ArRxZQXzfz7eoviv1u2WJcOcX+zrm7D5JbqrrFm1biE
+         J4+Tt5QVrYeZcUsH4+GqehD9GD2l2QckN/YEBraD6FD8MbELeSvKqYmdsS812euVjlOq
+         Gv4r1oJBONISnF7aAUfdGdWfMTd/fgYk2hYCT5XtFQhIQr/B8ZKumvNnBQcrZ5MQU1GV
+         yYCLNGPZbXOM8y0/sY1WiYRPlgeQLjXdG/dNB/3CPtpoqGNj66t4KMbAH8A2qn/9k/1J
+         wFtN7m/voWUGe9eO78FbCv5lcV2db33Q2G/GGBjb4crAOhS7Zm200dfojvQko+lSAVn6
+         gCVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678398681;
+        d=1e100.net; s=20210112; t=1678398685;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xL5P9YbgmNZ82zcdKKtKFeBjBG0r1oC3uQlDTZOOTZU=;
-        b=GrZlgifO96fC6d8Y41vg2eqpVOX8gKy8xJI4UbotEeQZagyxLltlkvg8+cQV+F72Vm
-         Oitipp0qLYFCE/e4uNdvZ1ZoQujVUkIeYHVmcz3dtMzt9sG2nsP0/KPe85QXRFG+5i73
-         Ywy41ATFG2Rpt64ZsqnlBIBN99TXnc97Q8fh8Nj7VyNyjhOpGiUbQZI7hOIdnb4YArdk
-         Rt/osFFt8S2yji2ytM3Dd6pXHS42K189PIXgg4ZJJHFAa44ie+DKPe9ZHkIOUTCa9Xi7
-         UDY6ssi2EEURs9vsnhagB2KkecHp88+nCyP8pMQsoR3zYEKuxfbdO3g3Ozdl3M4BzF1C
-         9ZnA==
-X-Gm-Message-State: AO0yUKUjUy0+EavQjPURd+KQ+jpoM/tVYDCBIxCwD0252A4lTkPpQP3e
-        rIkLnX0Gq5eNkekWHb3Medf79xLzOVc=
-X-Google-Smtp-Source: AK7set+nM2NDWSjclFwKOvPL+4kF4hxUossAvEJCFaQHQVUKnQEc+4os/P5cp2NrzlHVAiCwbhkq3g==
-X-Received: by 2002:a05:622a:50c:b0:3a8:fdf:8ff8 with SMTP id l12-20020a05622a050c00b003a80fdf8ff8mr41934417qtx.36.1678398681057;
-        Thu, 09 Mar 2023 13:51:21 -0800 (PST)
+        bh=yaMLv6M9i07udDiQUH2sZxvn1a3s0tfcGjtScEovecE=;
+        b=umyJu2wArgOVMKrzQM7nTELvMp6uN9ENglDszVSWNnv0GRUaVONc0Py5YYXeBtjGJk
+         EiwmlRFUHj8qbTlQLjquwdwx+hwBI+aE7uib+gEXMTHCIJeo7dl08Q0qOymefyiQSYdr
+         0GumwCFe7TOlN6W3kt5/PDSMoBo/8+/icOV+ht+VgpI8LGbjnbxXnNavmGgbNiD8J8TW
+         XrXFvnb9B4hzfraLfvxohATrVHtzyp1efvoXb1NhS96t9NgvUfTlcJJefQB7F6EMbXlo
+         c+n4nvUBTbyHojENHCUmCDQMFzYKxMEaRn/LJKwdabQEbvmnQ9BWHkoG8r+99dRnnMV7
+         +sdw==
+X-Gm-Message-State: AO0yUKWpzfR6fQA7r09eDEcZyfffjcIzr0JLRo+fTOaPZvQMQyZitd1m
+        vrqqCnv8a4l+x02+rZbN3jMYLjT7wJM=
+X-Google-Smtp-Source: AK7set8zoFa2zMifPS1VY/PnI6Y4BCBA6Gy23q0BCNuHll6FeUqVN4D/BHV6dSch8l2VLZsd1+MUag==
+X-Received: by 2002:a05:6214:1bcd:b0:56e:a3a2:1a0f with SMTP id m13-20020a0562141bcd00b0056ea3a21a0fmr46902519qvc.46.1678398684607;
+        Thu, 09 Mar 2023 13:51:24 -0800 (PST)
 Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
-        by smtp.gmail.com with ESMTPSA id m17-20020ae9e011000000b007422fa6376bsm25731qkk.77.2023.03.09.13.51.20
+        by smtp.gmail.com with ESMTPSA id m17-20020ae9e011000000b007422fa6376bsm25731qkk.77.2023.03.09.13.51.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Mar 2023 13:51:20 -0800 (PST)
+        Thu, 09 Mar 2023 13:51:24 -0800 (PST)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     dburgener@linux.microsoft.com, James Carter <jwcart2@gmail.com>
-Subject: [RFC PATCH 4/9 v2] libsepol/cil: Process deny rules
-Date:   Thu,  9 Mar 2023 16:51:09 -0500
-Message-Id: <20230309215114.357831-5-jwcart2@gmail.com>
+Subject: [RFC PATCH 8/9 v2] secilc/test: Add deny rule tests
+Date:   Thu,  9 Mar 2023 16:51:13 -0500
+Message-Id: <20230309215114.357831-9-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230309215114.357831-1-jwcart2@gmail.com>
 References: <20230309215114.357831-1-jwcart2@gmail.com>
@@ -64,1293 +64,967 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-A deny rule is like a neverallow rule, except that permissions are
-removed rather than an error reported.
-
-(allow S1 T1 P1)
-(deny  S2 T2 P2)
-
-First, write the allow rule with all of the permissions not in the deny rule
-
-P3 = P1 and not P2
-(allow S1 T1 P3)
-
-Any other rules will only involve the common permissions
-P4 = P1 and P2
-
-Next, write the allow rule for any types in S1 that are not in S2
-
-S3 = S1 and not S2
-if S3 then
-  (allow S3 T1 P4)
-
-Finally, write any allow rules needed to cover any type in T1 that are
-not in T2. Since, T1 and T2 might be "self", this requires slightly more
-complicated handling.
-
-if T1 is self and T2 is self then
-  Nothing more needs to be done
-else if T1 is self and T2 is not self then
-  S4 = S1 and S2
-  S5 = S4 and not T2
-  if S5 then
-    (allow S5 self P4)
-else if T1 is not self and T2 is self then
-  S4 = S1 and S2
-  S5 = S4 and not T1
-  S6 = S4 and T1
-  T6 = T1 and not S4
-  if S5 then
-    (allow S5 T1 P4)
-  if S6 then
-    if T6 then
-      (allow S6 T6 P4)
-    if cardinality of S6 > 1 then
-      for S in S6 do
-        T = S6 and not S
-        if T then
-          (allow S T P4)
-else if T1 is not self and T2 is not self then
-  S4 = S1 and S2
-  T3 = T1 and not T2
-  if T3 then
-    (allow S4 T3 P4)
-
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
 v2:
-Renamed cil_classperms_match() to cil_classperms_match_any()
-Renamed cil_classperms_list_match() cil_classperms_list_match_any()
-Added function cil_classperms_match_all()
-Added function cil_classperms_list_match_all()
-Updated cil_classperms_andnot() to use the cil_classperms_match_any() and
-    cil_classperms_list_match_any() functions.
-Added function cil_classperms_and()
-Added function cil_classperms_map_and()
-Added function cil_classperms_set_and()
-Added function cil_classperms_list_and()
-Fixed problem in error handling in cil_create_and_insert_attribute_and_set()
-    that was found by Daniel Burgener.
-Fixed problem in error handling in cil_create_attribute_d1_and_not_d2()
-    that was found by Daniel Burgener.
-Change cil_create_and_add_avrule() to copy the classperms list, so the
-    caller doesn't have to do it.
-Completely changed the logic of cil_remove_permissions_from_rule() to
-    eliminate the problem of excessive overlap in the new rules that was
-    found by Daniel Burgener.
+Changed and added deny rule tests.
 
- libsepol/cil/src/cil_deny.c | 1132 +++++++++++++++++++++++++++++++++++
- libsepol/cil/src/cil_deny.h |   36 ++
- libsepol/cil/src/cil_post.c |    7 +
- 3 files changed, 1175 insertions(+)
- create mode 100644 libsepol/cil/src/cil_deny.c
- create mode 100644 libsepol/cil/src/cil_deny.h
+ secilc/test/deny_rule_test.cil | 946 +++++++++++++++++++++++++++++++++
+ 1 file changed, 946 insertions(+)
+ create mode 100644 secilc/test/deny_rule_test.cil
 
-diff --git a/libsepol/cil/src/cil_deny.c b/libsepol/cil/src/cil_deny.c
+diff --git a/secilc/test/deny_rule_test.cil b/secilc/test/deny_rule_test.cil
 new file mode 100644
-index 00000000..5c010caf
+index 00000000..26fc1045
 --- /dev/null
-+++ b/libsepol/cil/src/cil_deny.c
-@@ -0,0 +1,1132 @@
-+/*
-+ * This file is public domain software, i.e. not copyrighted.
-+ *
-+ * Warranty Exclusion
-+ * ------------------
-+ * You agree that this software is a non-commercially developed program
-+ * that may contain "bugs" (as that term is used in the industry) and
-+ * that it may not function as intended. The software is licensed
-+ * "as is". NSA makes no, and hereby expressly disclaims all, warranties,
-+ * express, implied, statutory, or otherwise with respect to the software,
-+ * including noninfringement and the implied warranties of merchantability
-+ * and fitness for a particular purpose.
-+ *
-+ * Limitation of Liability
-+ *-----------------------
-+ * In no event will NSA be liable for any damages, including loss of data,
-+ * lost profits, cost of cover, or other special, incidental, consequential,
-+ * direct or indirect damages arising from the software or the use thereof,
-+ * however caused and on any theory of liability. This limitation will apply
-+ * even if NSA has been advised of the possibility of such damage. You
-+ * acknowledge that this is a reasonable allocation of risk.
-+ *
-+ * Original author: James Carter
-+ */
-+
-+#include <sepol/policydb/ebitmap.h>
-+
-+#include "cil_internal.h"
-+#include "cil_find.h"
-+#include "cil_flavor.h"
-+#include "cil_list.h"
-+#include "cil_strpool.h"
-+#include "cil_log.h"
-+#include "cil_symtab.h"
-+#include "cil_build_ast.h"
-+#include "cil_copy_ast.h"
-+#include "cil_deny.h"
-+
-+#define CIL_DENY_ATTR_PREFIX "deny_rule_attr"
-+
-+/*
-+ * A deny rule is like a neverallow rule, except that permissions are
-+ * removed rather than an error reported.
-+ *
-+ * (allow S1 T1 P1)
-+ * (deny  S2 T2 P2)
-+ *
-+ * First, write the allow rule with all of the permissions not in the deny rule
-+ *
-+ * P3 = P1 and not P2
-+ * (allow S1 T1 P3)
-+ *
-+ * Any other rules will only involve the common permissions
-+ * P4 = P1 and P2
-+ *
-+ * Next, write the allow rule for any types in S1 that are not in S2
-+ *
-+ * S3 = S1 and not S2
-+ * if S3 then
-+ *   (allow S3 T1 P4)
-+ *
-+ * Finally, write any allow rules needed to cover any type in T1 that are
-+ * not in T2. Since, T1 and T2 might be "self", this requires slightly more
-+ * complicated handling.
-+ *
-+ * if T1 is self and T2 is self then
-+ *   Nothing more needs to be done
-+ * else if T1 is self and T2 is not self then
-+ *   S4 = S1 and S2
-+ *   S5 = S4 and not T2
-+ *   if S5 then
-+ *     (allow S5 self P4)
-+ * else if T1 is not self and T2 is self then
-+ *   S4 = S1 and S2
-+ *   S5 = S4 and not T1
-+ *   S6 = S4 and T1
-+ *   T6 = T1 and not S4
-+ *   if S5 then
-+ *     (allow S5 T1 P4)
-+ *   if S6 then
-+ *     if T6 then
-+ *       (allow S6 T6 P4)
-+ *     if cardinality of S6 > 1 then
-+ *       for S in S6 do
-+ *         T = S6 and not S
-+ *         if T then
-+ *           (allow S T P4)
-+ * else if T1 is not self and T2 is not self then
-+ *   S4 = S1 and S2
-+ *   T3 = T1 and not T2
-+ *   if T3 then
-+ *     (allow S4 T3 P4)
-+ */
-+
-+static int cil_perm_match(const struct cil_perm *p1, const struct cil_list *pl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	cil_list_for_each(curr, pl2) {
-+		struct cil_perm *p = curr->data;
-+		if (p == p1) {
-+			return CIL_TRUE;
-+		}
-+	}
-+	return CIL_FALSE;
-+}
-+
-+static int cil_class_perm_match(const struct cil_class *c1, const struct cil_perm *p1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	cil_list_for_each(curr, cpl2) {
-+		if (curr->flavor == CIL_CLASSPERMS) {
-+			struct cil_classperms *cp = curr->data;
-+			if (FLAVOR(cp->class) == CIL_CLASS) {
-+				if (cp->class == c1) {
-+					if (cil_perm_match(p1, cp->perms)) {
-+						return CIL_TRUE;
-+					}
-+				}
-+			} else { /* MAP */
-+				struct cil_list_item *p;
-+				cil_list_for_each(p, cp->perms) {
-+					struct cil_perm *cmp = p->data;
-+					if (cil_class_perm_match(c1, p1, cmp->classperms)) {
-+						return CIL_TRUE;
-+					}
-+				}
-+			}
-+		} else { /* SET */
-+			struct cil_classperms_set *cp_set = curr->data;
-+			struct cil_classpermission *cp = cp_set->set;
-+			if (cil_class_perm_match(c1, p1, cp->classperms)) {
-+				return CIL_TRUE;
-+			}
-+		}
-+	}
-+	return CIL_FALSE;
-+}
-+
-+static int cil_classperms_match_any(const struct cil_classperms *cp1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	cil_list_for_each(curr, cp1->perms) {
-+		struct cil_perm *perm = curr->data;
-+		if (cil_class_perm_match(cp1->class, perm, cpl2)) {
-+			return CIL_TRUE;
-+		}
-+	}
-+	return CIL_FALSE;
-+}
-+
-+int cil_classperms_list_match_any(const struct cil_list *cpl1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	if (!cpl1 || !cpl2) {
-+		return (!cpl1 && !cpl2) ? CIL_TRUE : CIL_FALSE;
-+	}
-+
-+	cil_list_for_each(curr, cpl1) {
-+		if (curr->flavor == CIL_CLASSPERMS) {
-+			struct cil_classperms *cp = curr->data;
-+			if (FLAVOR(cp->class) == CIL_CLASS) {
-+				if (cil_classperms_match_any(cp, cpl2)) {
-+					return CIL_TRUE;
-+				}
-+			} else { /* MAP */
-+				struct cil_list_item *p;
-+				cil_list_for_each(p, cp->perms) {
-+					struct cil_perm *cmp = p->data;
-+					if (cil_classperms_list_match_any(cmp->classperms, cpl2)) {
-+						return CIL_TRUE;
-+					}
-+				}
-+			}
-+		} else { /* SET */
-+			struct cil_classperms_set *cp_set = curr->data;
-+			struct cil_classpermission *cp = cp_set->set;
-+			if (cil_classperms_list_match_any(cp->classperms, cpl2)) {
-+				return CIL_TRUE;
-+			}
-+		}
-+	}
-+	return CIL_FALSE;
-+}
-+
-+static int cil_classperms_match_all(const struct cil_classperms *cp1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	cil_list_for_each(curr, cp1->perms) {
-+		struct cil_perm *perm = curr->data;
-+		if (!cil_class_perm_match(cp1->class, perm, cpl2)) {
-+			return CIL_FALSE;
-+		}
-+	}
-+	return CIL_TRUE;
-+}
-+
-+int cil_classperms_list_match_all(const struct cil_list *cpl1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	if (!cpl1 || !cpl2) {
-+		return (!cpl1 && !cpl2) ? CIL_TRUE : CIL_FALSE;
-+	}
-+
-+	cil_list_for_each(curr, cpl1) {
-+		if (curr->flavor == CIL_CLASSPERMS) {
-+			struct cil_classperms *cp = curr->data;
-+			if (FLAVOR(cp->class) == CIL_CLASS) {
-+				if (!cil_classperms_match_all(cp, cpl2)) {
-+					return CIL_FALSE;
-+				}
-+			} else { /* MAP */
-+				struct cil_list_item *p;
-+				cil_list_for_each(p, cp->perms) {
-+					struct cil_perm *cmp = p->data;
-+					if (!cil_classperms_list_match_all(cmp->classperms, cpl2)) {
-+						return CIL_FALSE;
-+					}
-+				}
-+			}
-+		} else { /* SET */
-+			struct cil_classperms_set *cp_set = curr->data;
-+			struct cil_classpermission *cp = cp_set->set;
-+			if (!cil_classperms_list_match_all(cp->classperms, cpl2)) {
-+				return CIL_FALSE;
-+			}
-+		}
-+	}
-+	return CIL_TRUE;
-+}
-+
-+static void cil_classperms_copy(struct cil_classperms **new, const struct cil_classperms *old)
-+{
-+	cil_classperms_init(new);
-+	(*new)->class_str = old->class_str;
-+	(*new)->class = old->class;
-+	cil_copy_list(old->perm_strs, &(*new)->perm_strs);
-+	cil_copy_list(old->perms, &(*new)->perms);
-+}
-+
-+static void cil_classperms_set_copy(struct cil_classperms_set **new, const struct cil_classperms_set *old)
-+{
-+	cil_classperms_set_init(new);
-+	(*new)->set_str = old->set_str;
-+	(*new)->set = old->set;
-+}
-+
-+void cil_classperms_list_copy(struct cil_list **new, const struct cil_list *old)
-+{
-+	struct cil_list_item *curr;
-+
-+	if (!new) {
-+		return;
-+	}
-+
-+	if (!old) {
-+		*new = NULL;
-+		return;
-+	}
-+
-+	cil_list_init(new, CIL_LIST);
-+
-+	cil_list_for_each(curr, old) {
-+		if (curr->flavor == CIL_CLASSPERMS) {
-+			struct cil_classperms *new_cp;
-+			cil_classperms_copy(&new_cp, curr->data);
-+			cil_list_append(*new, CIL_CLASSPERMS, new_cp);
-+		} else { /* SET */
-+			struct cil_classperms_set *new_cps;
-+			cil_classperms_set_copy(&new_cps, curr->data);
-+			cil_list_append(*new, CIL_CLASSPERMS_SET, new_cps);
-+		}
-+	}
-+
-+	if (cil_list_is_empty(*new)) {
-+		cil_list_destroy(new, CIL_FALSE);
-+	}
-+}
-+
-+/* Append cp1 and cpl2 to result */
-+static void cil_classperms_and(struct cil_list **result, const struct cil_classperms *cp1, const struct cil_list *cpl2)
-+{
-+	struct cil_classperms *new_cp = NULL;
-+	struct cil_list_item *curr;
-+
-+	if (cil_classperms_match_all(cp1, cpl2)) {
-+		cil_classperms_copy(&new_cp, cp1);
-+		cil_list_append(*result, CIL_CLASSPERMS, new_cp);
-+		return;
-+	}
-+
-+	cil_list_for_each(curr, cp1->perms) {
-+		struct cil_perm *perm = curr->data;
-+		if (cil_class_perm_match(cp1->class, perm, cpl2)) {
-+			if (new_cp == NULL) {
-+				cil_classperms_init(&new_cp);
-+				new_cp->class_str = cp1->class_str;
-+				new_cp->class = cp1->class;
-+				cil_list_init(&new_cp->perm_strs, CIL_PERM);
-+				cil_list_init(&new_cp->perms, CIL_PERM);
-+				cil_list_append(*result, CIL_CLASSPERMS, new_cp);
-+			}
-+			cil_list_append(new_cp->perm_strs, CIL_STRING, perm->datum.fqn);
-+			cil_list_append(new_cp->perms, CIL_DATUM, perm);
-+		}
-+	}
-+}
-+
-+/* Append cp1 and cpl2 to result */
-+static void cil_classperms_map_and(struct cil_list **result, const struct cil_classperms *cp1, const struct cil_list *cpl2)
-+{
-+	struct cil_classperms *new_cp = NULL;
-+	struct cil_list_item *p;
-+
-+	cil_list_for_each(p, cp1->perms) {
-+		struct cil_perm *map_perm = p->data;
-+		if (cil_classperms_list_match_all(map_perm->classperms, cpl2)) {
-+			if (new_cp == NULL) {
-+				cil_classperms_init(&new_cp);
-+				new_cp->class_str = cp1->class_str;
-+				new_cp->class = cp1->class;
-+				cil_list_init(&new_cp->perm_strs, CIL_PERM);
-+				cil_list_init(&new_cp->perms, CIL_PERM);
-+				cil_list_append(*result, CIL_CLASSPERMS, new_cp);
-+			}
-+			cil_list_append(new_cp->perm_strs, CIL_STRING, map_perm->datum.fqn);
-+			cil_list_append(new_cp->perms, CIL_DATUM, map_perm);
-+		} else {
-+			struct cil_list *new_cpl = NULL;
-+			cil_classperms_list_and(&new_cpl, map_perm->classperms, cpl2);
-+			if (new_cpl) {
-+				struct cil_list_item *i;
-+				cil_list_for_each(i, new_cpl) {
-+					cil_list_append(*result, i->flavor, i->data);
-+				}
-+				cil_list_destroy(&new_cpl, CIL_FALSE);
-+			}
-+		}
-+	}
-+}
-+
-+/* Append cps1 and cpl2 to result */
-+static void cil_classperms_set_and(struct cil_list **result, const struct cil_classperms_set *cps1, const struct cil_list *cpl2)
-+{
-+	struct cil_classpermission *cp = cps1->set;
-+
-+	if (cil_classperms_list_match_all(cp->classperms, cpl2)) {
-+		struct cil_classperms_set *new_cps;
-+		cil_classperms_set_copy(&new_cps, cps1);
-+		cil_list_append(*result, CIL_CLASSPERMS_SET, new_cps);
-+	} else {
-+		struct cil_list *new_cpl;
-+		cil_classperms_list_and(&new_cpl, cp->classperms, cpl2);
-+		if (new_cpl) {
-+			struct cil_list_item *i;
-+			cil_list_for_each(i, new_cpl) {
-+				cil_list_append(*result, i->flavor, i->data);
-+			}
-+			cil_list_destroy(&new_cpl, CIL_FALSE);
-+		}
-+	}
-+}
-+
-+/* result = cpl1 and cpl2 */
-+void cil_classperms_list_and(struct cil_list **result, const struct cil_list *cpl1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	if (!result) {
-+		return;
-+	}
-+
-+	if (!cpl1 || !cpl2) {
-+		*result = NULL;
-+		return;
-+	}
-+
-+	if (cil_classperms_list_match_all(cpl1, cpl2)) {
-+		cil_classperms_list_copy(result, cpl1);
-+		return;
-+	}
-+
-+	cil_list_init(result, CIL_LIST);
-+
-+	cil_list_for_each(curr, cpl1) {
-+		if (curr->flavor == CIL_CLASSPERMS) {
-+			struct cil_classperms *cp = curr->data;
-+			if (FLAVOR(cp->class) == CIL_CLASS) {
-+				cil_classperms_and(result, cp, cpl2);
-+			} else { /* MAP */
-+				cil_classperms_map_and(result, cp, cpl2);
-+			}
-+		} else { /* SET */
-+			struct cil_classperms_set *cps = curr->data;
-+			cil_classperms_set_and(result, cps, cpl2);
-+		}
-+	}
-+
-+	if (cil_list_is_empty(*result)) {
-+		cil_list_destroy(result, CIL_FALSE);
-+	}
-+}
-+
-+/* Append cp1 and not cpl2 to result */
-+static void cil_classperms_andnot(struct cil_list **result, const struct cil_classperms *cp1, const struct cil_list *cpl2)
-+{
-+	struct cil_classperms *new_cp = NULL;
-+	struct cil_list_item *curr;
-+
-+	if (!cil_classperms_match_any(cp1, cpl2)) {
-+		cil_classperms_copy(&new_cp, cp1);
-+		cil_list_append(*result, CIL_CLASSPERMS, new_cp);
-+		return;
-+	}
-+
-+	cil_list_for_each(curr, cp1->perms) {
-+		struct cil_perm *perm = curr->data;
-+		if (!cil_class_perm_match(cp1->class, perm, cpl2)) {
-+			if (new_cp == NULL) {
-+				cil_classperms_init(&new_cp);
-+				new_cp->class_str = cp1->class_str;
-+				new_cp->class = cp1->class;
-+				cil_list_init(&new_cp->perm_strs, CIL_PERM);
-+				cil_list_init(&new_cp->perms, CIL_PERM);
-+				cil_list_append(*result, CIL_CLASSPERMS, new_cp);
-+			}
-+			cil_list_append(new_cp->perm_strs, CIL_STRING, perm->datum.fqn);
-+			cil_list_append(new_cp->perms, CIL_DATUM, perm);
-+		}
-+	}
-+}
-+
-+/* Append cp1 and not cpl2 to result */
-+static void cil_classperms_map_andnot(struct cil_list **result, const struct cil_classperms *cp1, const struct cil_list *cpl2)
-+{
-+	struct cil_classperms *new_cp = NULL;
-+	struct cil_list_item *p;
-+
-+	cil_list_for_each(p, cp1->perms) {
-+		struct cil_perm *map_perm = p->data;
-+		if (!cil_classperms_list_match_any(map_perm->classperms, cpl2)) {
-+			if (new_cp == NULL) {
-+				cil_classperms_init(&new_cp);
-+				new_cp->class_str = cp1->class_str;
-+				new_cp->class = cp1->class;
-+				cil_list_init(&new_cp->perm_strs, CIL_PERM);
-+				cil_list_init(&new_cp->perms, CIL_PERM);
-+				cil_list_append(*result, CIL_CLASSPERMS, new_cp);
-+			}
-+			cil_list_append(new_cp->perm_strs, CIL_STRING, map_perm->datum.fqn);
-+			cil_list_append(new_cp->perms, CIL_DATUM, map_perm);
-+		} else {
-+			struct cil_list *new_cpl = NULL;
-+			cil_classperms_list_andnot(&new_cpl, map_perm->classperms, cpl2);
-+			if (new_cpl) {
-+				struct cil_list_item *i;
-+				cil_list_for_each(i, new_cpl) {
-+					cil_list_append(*result, i->flavor, i->data);
-+				}
-+				cil_list_destroy(&new_cpl, CIL_FALSE);
-+			}
-+		}
-+	}
-+}
-+
-+/* Append cps1 and not cpl2 to result */
-+static void cil_classperms_set_andnot(struct cil_list **result, const struct cil_classperms_set *cps1, const struct cil_list *cpl2)
-+{
-+	struct cil_classpermission *cp = cps1->set;
-+
-+	if (!cil_classperms_list_match_any(cp->classperms, cpl2)) {
-+		struct cil_classperms_set *new_cps;
-+		cil_classperms_set_copy(&new_cps, cps1);
-+		cil_list_append(*result, CIL_CLASSPERMS_SET, new_cps);
-+	} else {
-+		struct cil_list *new_cpl;
-+		cil_classperms_list_andnot(&new_cpl, cp->classperms, cpl2);
-+		if (new_cpl) {
-+			struct cil_list_item *i;
-+			cil_list_for_each(i, new_cpl) {
-+				cil_list_append(*result, i->flavor, i->data);
-+			}
-+			cil_list_destroy(&new_cpl, CIL_FALSE);
-+		}
-+	}
-+}
-+
-+/* result = cpl1 and not cpl2 */
-+void cil_classperms_list_andnot(struct cil_list **result, const struct cil_list *cpl1, const struct cil_list *cpl2)
-+{
-+	struct cil_list_item *curr;
-+
-+	if (!result) {
-+		return;
-+	}
-+
-+	if (!cpl1) {
-+		*result = NULL;
-+		return;
-+	}
-+
-+	if (!cpl2 || !cil_classperms_list_match_any(cpl1, cpl2)) {
-+		cil_classperms_list_copy(result, cpl1);
-+		return;
-+	}
-+
-+	cil_list_init(result, CIL_LIST);
-+
-+	cil_list_for_each(curr, cpl1) {
-+		if (curr->flavor == CIL_CLASSPERMS) {
-+			struct cil_classperms *cp = curr->data;
-+			if (FLAVOR(cp->class) == CIL_CLASS) {
-+				cil_classperms_andnot(result, cp, cpl2);
-+			} else { /* MAP */
-+				cil_classperms_map_andnot(result, cp, cpl2);
-+			}
-+		} else { /* SET */
-+			struct cil_classperms_set *cps = curr->data;
-+			cil_classperms_set_andnot(result, cps, cpl2);
-+		}
-+	}
-+
-+	if (cil_list_is_empty(*result)) {
-+		cil_list_destroy(result, CIL_FALSE);
-+	}
-+}
-+
-+/* result = d1 and d2 */
-+static int cil_datums_and(ebitmap_t *result, const struct cil_symtab_datum *d1, const struct cil_symtab_datum *d2)
-+{
-+	int rc = SEPOL_OK;
-+	enum cil_flavor f1 = FLAVOR(d1);
-+	enum cil_flavor f2 = FLAVOR(d2);
-+
-+	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
-+		struct cil_type *t1 = (struct cil_type *)d1;
-+		struct cil_type *t2 = (struct cil_type *)d2;
-+		ebitmap_init(result);
-+		if (t1->value == t2->value) {
-+			rc = ebitmap_set_bit(result, t1->value, 1);
-+			if (rc != SEPOL_OK) {
-+				ebitmap_destroy(result);
-+				goto exit;
-+			}
-+		}
-+	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
-+		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
-+		struct cil_type *t2 = (struct cil_type *)d2;
-+		ebitmap_init(result);
-+		if (ebitmap_get_bit(a1->types, t2->value)) {
-+			rc = ebitmap_set_bit(result, t2->value, 1);
-+			if (rc != SEPOL_OK) {
-+				ebitmap_destroy(result);
-+				goto exit;
-+			}
-+		}
-+	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
-+		struct cil_type *t1 = (struct cil_type *)d1;
-+		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
-+		ebitmap_init(result);
-+		if (ebitmap_get_bit(a2->types, t1->value)) {
-+			rc = ebitmap_set_bit(result, t1->value, 1);
-+			if (rc != SEPOL_OK) {
-+				ebitmap_destroy(result);
-+				goto exit;
-+			}
-+		}
-+	} else {
-+		/* Both are attributes */
-+		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
-+		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
-+		rc = ebitmap_and(result, a1->types, a2->types);
-+		if (rc != SEPOL_OK) {
-+			ebitmap_destroy(result);
-+			goto exit;
-+		}
-+	}
-+exit:
-+	return rc;
-+}
-+
-+/* result = d1 and not d2 */
-+static int cil_datums_andnot(ebitmap_t *result, const struct cil_symtab_datum *d1, const struct cil_symtab_datum *d2)
-+{
-+	int rc = SEPOL_OK;
-+	enum cil_flavor f1 = FLAVOR(d1);
-+	enum cil_flavor f2 = FLAVOR(d2);
-+
-+	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
-+		struct cil_type *t1 = (struct cil_type *)d1;
-+		struct cil_type *t2 = (struct cil_type *)d2;
-+		ebitmap_init(result);
-+		if (t1->value != t2->value) {
-+			rc = ebitmap_set_bit(result, t1->value, 1);
-+			if (rc != SEPOL_OK) {
-+				ebitmap_destroy(result);
-+				goto exit;
-+			}
-+		}
-+	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
-+		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
-+		struct cil_type *t2 = (struct cil_type *)d2;
-+		rc = ebitmap_cpy(result, a1->types);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		rc = ebitmap_set_bit(result, t2->value, 0);
-+		if (rc != SEPOL_OK) {
-+			ebitmap_destroy(result);
-+			goto exit;
-+		}
-+	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
-+		struct cil_type *t1 = (struct cil_type *)d1;
-+		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
-+		ebitmap_init(result);
-+		if (!ebitmap_get_bit(a2->types, t1->value)) {
-+			rc = ebitmap_set_bit(result, t1->value, 1);
-+			if (rc != SEPOL_OK) {
-+				ebitmap_destroy(result);
-+				goto exit;
-+			}
-+		}
-+	} else {
-+		/* Both are attributes */
-+		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
-+		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
-+		rc = ebitmap_andnot(result, a1->types, a2->types, a1->types->highbit);
-+		if (rc != SEPOL_OK) {
-+			ebitmap_destroy(result);
-+			goto exit;
-+		}
-+	}
-+exit:
-+	return rc;
-+}
-+
-+static size_t num_digits(unsigned n)
-+{
-+	size_t num = 1;
-+	while (n >= 10) {
-+		n /= 10;
-+		num++;
-+	}
-+	return num;
-+}
-+
-+static char *cil_create_new_attribute_name(unsigned num)
-+{
-+	char *s1 = NULL;
-+	char *s2 = NULL;
-+	size_t len_num = num_digits(num);
-+	size_t len = strlen(CIL_DENY_ATTR_PREFIX) + 1 + len_num + 1;
-+	int rc;
-+
-+	if (len >= CIL_MAX_NAME_LENGTH) {
-+		cil_log(CIL_ERR, "Name length greater than max name length of %d",
-+				CIL_MAX_NAME_LENGTH);
-+		goto exit;
-+	}
-+
-+	s1 = cil_malloc(len);
-+	rc = snprintf(s1, len, "%s_%u", CIL_DENY_ATTR_PREFIX, num);
-+	if (rc < 0 || (size_t)rc >= len) {
-+		cil_log(CIL_ERR, "Error creating new attribute name");
-+		free(s1);
-+		goto exit;
-+	}
-+
-+	s2 = cil_strpool_add(s1);
-+	free(s1);
-+
-+exit:
-+	return s2;
-+}
-+
-+static struct cil_list *cil_create_and_expr_list(enum cil_flavor flavor, void *v1, void *v2)
-+{
-+	struct cil_list *expr;
-+
-+	cil_list_init(&expr, CIL_TYPE);
-+	cil_list_append(expr, CIL_OP, (void *)CIL_AND);
-+	cil_list_append(expr, flavor, v1);
-+	cil_list_append(expr, flavor, v2);
-+
-+	return expr;
-+}
-+
-+static struct cil_list *cil_create_andnot_expr_list(enum cil_flavor flavor, void *v1, void *v2)
-+{
-+	struct cil_list *expr, *sub_expr;
-+
-+	cil_list_init(&expr, CIL_TYPE);
-+	cil_list_append(expr, CIL_OP, (void *)CIL_AND);
-+	cil_list_append(expr, flavor, v1);
-+	cil_list_init(&sub_expr, CIL_TYPE);
-+	cil_list_append(sub_expr, CIL_OP, (void *)CIL_NOT);
-+	cil_list_append(sub_expr, flavor, v2);
-+	cil_list_append(expr, CIL_LIST, sub_expr);
-+
-+	return expr;
-+}
-+
-+static struct cil_tree_node *cil_create_and_insert_node(struct cil_tree_node *prev, enum cil_flavor flavor, void *data)
-+{
-+	struct cil_tree_node *new;
-+
-+	cil_tree_node_init(&new);
-+	new->parent = prev->parent;
-+	new->line = prev->line;
-+	new->hll_offset = prev->hll_offset;
-+	new->flavor = flavor;
-+	new->data = data;
-+	new->next = prev->next;
-+	prev->next = new;
-+
-+	return new;
-+}
-+
-+static int cil_create_and_insert_attribute_and_set(struct cil_db *db, struct cil_tree_node *prev, struct cil_list *str_expr, struct cil_list *datum_expr, ebitmap_t *types, struct cil_symtab_datum **d)
-+{
-+	struct cil_tree_node *attr_node = NULL;
-+	char *name;
-+	struct cil_typeattribute *attr = NULL;
-+	struct cil_tree_node *attrset_node = NULL;
-+	struct cil_typeattributeset *attrset = NULL;
-+	symtab_t *symtab = NULL;
-+	int rc = SEPOL_ERR;
-+
-+	name = cil_create_new_attribute_name(db->num_types_and_attrs);
-+	if (!name) {
-+		goto exit;
-+	}
-+
-+	cil_typeattributeset_init(&attrset);
-+	attrset->attr_str = name;
-+	attrset->str_expr = str_expr;
-+	attrset->datum_expr = datum_expr;
-+
-+	cil_typeattribute_init(&attr);
-+	cil_list_init(&attr->expr_list, CIL_TYPE);
-+	cil_list_append(attr->expr_list, CIL_LIST, datum_expr);
-+	attr->types = types;
-+	attr->used = CIL_ATTR_AVRULE;
-+	attr->keep = (ebitmap_cardinality(types) < db->attrs_expand_size) ? CIL_FALSE : CIL_TRUE;
-+
-+	attr_node = cil_create_and_insert_node(prev, CIL_TYPEATTRIBUTE, attr);
-+	attrset_node = cil_create_and_insert_node(attr_node, CIL_TYPEATTRIBUTESET, attrset);
-+
-+	rc = cil_get_symtab(prev->parent, &symtab, CIL_SYM_TYPES);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	rc = cil_symtab_insert(symtab, name, &attr->datum, attr_node);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	db->num_types_and_attrs++;
-+
-+	*d = &attr->datum;
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	if (attr_node) {
-+		cil_destroy_typeattribute(attr_node->data); // This will not destroy datum_expr
-+		free(attr_node);
-+	}
-+	if (attrset_node) {
-+		prev->next = attrset_node->next;
-+		free(attrset_node);
-+	}
-+	return rc;
-+}
-+
-+static int cil_create_attribute_d1_and_not_d2(struct cil_db *db, struct cil_tree_node *prev, struct cil_symtab_datum *d1, struct cil_symtab_datum *d2, struct cil_symtab_datum **d3)
-+{
-+	struct cil_list *str_expr;
-+	struct cil_list *datum_expr;
-+	ebitmap_t *types;
-+	int rc;
-+
-+	*d3 = NULL;
-+
-+	if (d1 == d2) {
-+		return SEPOL_OK;
-+	}
-+
-+	str_expr = cil_create_andnot_expr_list(CIL_STRING, d1->fqn, d2->fqn);
-+	datum_expr = cil_create_andnot_expr_list(CIL_DATUM, d1, d2);
-+
-+	types = cil_malloc(sizeof(*types));
-+	rc = cil_datums_andnot(types, d1, d2);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+	if (ebitmap_is_empty(types)) {
-+		rc = SEPOL_OK;
-+		goto exit;
-+	}
-+
-+	if (ebitmap_cardinality(types) == 1) {
-+		unsigned i = ebitmap_highest_set_bit(types);
-+		*d3 = DATUM(db->val_to_type[i]);
-+		ebitmap_destroy(types);
-+		rc = SEPOL_OK;
-+		goto exit;
-+	}
-+
-+	rc = cil_create_and_insert_attribute_and_set(db, prev, str_expr, datum_expr, types, d3);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	cil_list_destroy(&str_expr, CIL_FALSE);
-+	cil_list_destroy(&datum_expr, CIL_FALSE);
-+	free(types);
-+	return rc;
-+}
-+
-+static int cil_create_attribute_d1_and_d2(struct cil_db *db, struct cil_tree_node *prev, struct cil_symtab_datum *d1, struct cil_symtab_datum *d2, struct cil_symtab_datum **d3)
-+{
-+	struct cil_list *str_expr;
-+	struct cil_list *datum_expr;
-+	ebitmap_t *types;
-+	int rc;
-+
-+	if (d1 == d2) {
-+		*d3 = d1;
-+		return SEPOL_OK;
-+	}
-+
-+	*d3 = NULL;
-+
-+	str_expr = cil_create_and_expr_list(CIL_STRING, d1->fqn, d2->fqn);
-+	datum_expr = cil_create_and_expr_list(CIL_DATUM, d1, d2);
-+
-+	types = cil_malloc(sizeof(*types));
-+	rc = cil_datums_and(types, d1, d2);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+	if (ebitmap_is_empty(types)) {
-+		rc = SEPOL_OK;
-+		goto exit;
-+	}
-+
-+	if (ebitmap_cardinality(types) == 1) {
-+		unsigned i = ebitmap_highest_set_bit(types);
-+		*d3 = DATUM(db->val_to_type[i]);
-+		ebitmap_destroy(types);
-+		rc = SEPOL_OK;
-+		goto exit;
-+	}
-+
-+	rc = cil_create_and_insert_attribute_and_set(db, prev, str_expr, datum_expr, types, d3);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	cil_list_destroy(&str_expr, CIL_FALSE);
-+	cil_list_destroy(&datum_expr, CIL_FALSE);
-+	free(types);
-+	return rc;
-+}
-+
-+static struct cil_avrule *cil_create_avrule(struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_list *classperms)
-+{
-+	struct cil_avrule *new;
-+
-+	cil_avrule_init(&new);
-+	new->is_extended = CIL_FALSE;
-+	new->rule_kind = CIL_AVRULE_ALLOWED;
-+	new->src_str = src->name;
-+	new->src = src;
-+	new->tgt_str = tgt->name;
-+	new->tgt = tgt;
-+	new->perms.classperms = classperms;
-+
-+	return new;
-+}
-+
-+static struct cil_tree_node *cil_create_and_add_avrule(struct cil_tree_node *curr, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_list *classperms)
-+{
-+	struct cil_avrule *new_avrule;
-+	struct cil_list *new_cp_list;
-+
-+	cil_classperms_list_copy(&new_cp_list, classperms);
-+	new_avrule = cil_create_avrule(src, tgt, new_cp_list);
-+	return cil_create_and_insert_node(curr, CIL_AVRULE, new_avrule);
-+}
-+
-+static int cil_remove_permissions_from_rule(struct cil_db *db, struct cil_tree_node *allow_node, const struct cil_tree_node *deny_node)
-+{
-+	struct cil_avrule *allow_rule = allow_node->data;
-+	struct cil_deny_rule *deny_rule = deny_node->data;
-+	struct cil_symtab_datum *s1 = allow_rule->src;
-+	struct cil_symtab_datum *t1 = allow_rule->tgt;
-+	struct cil_list *p1 = allow_rule->perms.classperms;
-+	struct cil_symtab_datum *s2 = deny_rule->src;
-+	struct cil_symtab_datum *t2 = deny_rule->tgt;
-+	struct cil_list *p2 = deny_rule->classperms;
-+	struct cil_list *p3 = NULL;
-+	struct cil_list *p4 = NULL;
-+	struct cil_symtab_datum *s3 = NULL;
-+	struct cil_tree_node *curr = allow_node;
-+	int rc;
-+
-+	cil_classperms_list_andnot(&p3, p1, p2);
-+	if (!cil_list_is_empty(p3)) {;
-+		curr = cil_create_and_add_avrule(curr, s1, t1, p3);
-+	}
-+	cil_destroy_classperms_list(&p3);
-+	p3 = NULL;
-+
-+	cil_classperms_list_and(&p4, p1, p2);
-+	if (cil_list_is_empty(p4)) {
-+		cil_tree_log(allow_node, CIL_ERR, "Allow rule did not match deny rule: No matching class and permissions");
-+		cil_tree_log((struct cil_tree_node *)deny_node, CIL_ERR, "Deny rule");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	rc = cil_create_attribute_d1_and_not_d2(db, NODE(s1), s1, s2, &s3);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+	if (s3) {
-+		curr = cil_create_and_add_avrule(curr, s3, t1, p4);
-+	}
-+
-+	if (DATUM(t1) == DATUM(db->selftype) && DATUM(t2) == DATUM(db->selftype)) {
-+		/* Nothing more is needed */
-+	} else if (DATUM(t1) == DATUM(db->selftype) && DATUM(t2) != DATUM(db->selftype)) {
-+		struct cil_symtab_datum *s4, *s5;
-+		rc = cil_create_attribute_d1_and_d2(db, NODE(s1), s1, s2, &s4);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		rc = cil_create_attribute_d1_and_not_d2(db, NODE(s4), s4, t2, &s5);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		if (s5) {
-+			curr = cil_create_and_add_avrule(curr, s5, DATUM(db->selftype), p4);
-+		}
-+	} else if (DATUM(t1) != DATUM(db->selftype) && DATUM(t2) == DATUM(db->selftype)) {
-+		struct cil_symtab_datum *s4, *s5, *s6, *t6;
-+		rc = cil_create_attribute_d1_and_d2(db, NODE(s1), s1, s2, &s4);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		rc = cil_create_attribute_d1_and_not_d2(db, NODE(s4), s4, t1, &s5);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		rc = cil_create_attribute_d1_and_d2(db, NODE(s4), s4, t1, &s6);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		rc = cil_create_attribute_d1_and_not_d2(db, NODE(t1), t1, s4, &t6);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		if (s5) {
-+			curr = cil_create_and_add_avrule(curr, s5, t1, p4);
-+		}
-+		if (s6 && FLAVOR(s6) == CIL_TYPEATTRIBUTE) {
-+			struct cil_typeattribute *s6_attr = (struct cil_typeattribute *)s6;
-+			ebitmap_node_t *n;
-+			unsigned i;
-+
-+			if (t6) {
-+				curr = cil_create_and_add_avrule(curr, s6, t6, p4);
-+			}
-+
-+			if (ebitmap_cardinality(s6_attr->types) > 1) {
-+				struct cil_symtab_datum *s = NULL;
-+				struct cil_symtab_datum *t = NULL;
-+				ebitmap_for_each_positive_bit(s6_attr->types, n, i) {
-+					s = DATUM(db->val_to_type[i]);
-+					rc = cil_create_attribute_d1_and_not_d2(db, NODE(s6), s6, s, &t);
-+					if (rc != SEPOL_OK) {
-+						goto exit;
-+					}
-+					if (t) {
-+						curr = cil_create_and_add_avrule(curr, s, t, p4);
-+					}
-+				}
-+			}
-+		}
-+	} else {
-+		struct cil_symtab_datum *s4, *t3;
-+		rc = cil_create_attribute_d1_and_d2(db, NODE(s1), s1, s2, &s4);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		rc = cil_create_attribute_d1_and_not_d2(db, NODE(t1), t1, t2, &t3);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		if (t3) {
-+			curr = cil_create_and_add_avrule(curr, s4, t3, p4);
-+		}
-+	}
-+
-+exit:
-+	if (p4) {
-+		cil_destroy_classperms_list(&p4);
-+	}
-+	return rc;
-+}
-+
-+static int cil_find_matching_allow_rules(struct cil_list *matching, struct cil_tree_node *start, struct cil_tree_node *deny_node)
-+{
-+	struct cil_deny_rule *deny_rule = deny_node->data;
-+	struct cil_avrule target;
-+
-+	target.rule_kind = CIL_AVRULE_ALLOWED;
-+	target.is_extended = CIL_FALSE;
-+	target.src = deny_rule->src;
-+	target.tgt = deny_rule->tgt;
-+	target.perms.classperms = deny_rule->classperms;
-+
-+	return cil_find_matching_avrule_in_ast(start, CIL_AVRULE, &target, matching, CIL_FALSE);
-+}
-+
-+static int cil_process_deny_rule(struct cil_db *db, struct cil_tree_node *start, struct cil_tree_node *deny_node)
-+{
-+	struct cil_list *matching;
-+	struct cil_list_item *item;
-+	int rc;
-+
-+	cil_list_init(&matching, CIL_NODE);
-+
-+	rc = cil_find_matching_allow_rules(matching, start, deny_node);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	cil_list_for_each(item, matching) {
-+		struct cil_tree_node *allow_node = item->data;
-+		rc = cil_remove_permissions_from_rule(db, allow_node, deny_node);
-+		cil_tree_node_remove(allow_node);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+
-+	}
-+
-+exit:
-+	cil_list_destroy(&matching, CIL_FALSE);
-+	return rc;
-+}
-+
-+static int cil_process_deny_rules(struct cil_db *db, struct cil_tree_node *start, struct cil_list *deny_rules)
-+{
-+	struct cil_list_item *item;
-+	int rc;
-+
-+	cil_list_for_each(item, deny_rules) {
-+		struct cil_tree_node *deny_node = item->data;
-+		rc = cil_process_deny_rule(db, start, deny_node);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+		cil_tree_node_remove(deny_node);
-+	}
-+
-+exit:
-+	return rc;
-+}
-+
-+static int __cil_find_deny_rules(struct cil_tree_node *node,  uint32_t *finished, void *extra_args)
-+{
-+	struct cil_list *deny_rules = extra_args;
-+
-+	if (node->flavor == CIL_BLOCK) {
-+		struct cil_block *block = node->data;
-+		if (block->is_abstract == CIL_TRUE) {
-+			*finished = CIL_TREE_SKIP_HEAD;
-+		}
-+	} else if (node->flavor == CIL_MACRO) {
-+		*finished = CIL_TREE_SKIP_HEAD;
-+	} else if (node->flavor == CIL_DENY_RULE) {
-+		cil_list_append(deny_rules, CIL_DENY_RULE, node);
-+	}
-+	return SEPOL_OK;
-+}
-+
-+int cil_process_deny_rules_in_ast(struct cil_db *db)
-+{
-+	struct cil_tree_node *start;
-+	struct cil_list *deny_rules;
-+	int rc = SEPOL_ERR;
-+
-+	cil_list_init(&deny_rules, CIL_DENY_RULE);
-+
-+	if (!db) {
-+		cil_log(CIL_ERR, "No CIL db provided to process deny rules\n");
-+		goto exit;
-+	}
-+
-+	start = db->ast->root;
-+	rc = cil_tree_walk(start, __cil_find_deny_rules, NULL, NULL, deny_rules);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "An error occurred while getting deny rules\n");
-+		goto exit;
-+	}
-+
-+	rc = cil_process_deny_rules(db, start, deny_rules);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "An error occurred while processing deny rules\n");
-+		goto exit;
-+	}
-+
-+exit:
-+	cil_list_destroy(&deny_rules, CIL_FALSE);
-+	return rc;
-+}
-diff --git a/libsepol/cil/src/cil_deny.h b/libsepol/cil/src/cil_deny.h
-new file mode 100644
-index 00000000..f22e8bf1
---- /dev/null
-+++ b/libsepol/cil/src/cil_deny.h
-@@ -0,0 +1,36 @@
-+/*
-+ * This file is public domain software, i.e. not copyrighted.
-+ *
-+ * Warranty Exclusion
-+ * ------------------
-+ * You agree that this software is a non-commercially developed program
-+ * that may contain "bugs" (as that term is used in the industry) and
-+ * that it may not function as intended. The software is licensed
-+ * "as is". NSA makes no, and hereby expressly disclaims all, warranties,
-+ * express, implied, statutory, or otherwise with respect to the software,
-+ * including noninfringement and the implied warranties of merchantability
-+ * and fitness for a particular purpose.
-+ *
-+ * Limitation of Liability
-+ *-----------------------
-+ * In no event will NSA be liable for any damages, including loss of data,
-+ * lost profits, cost of cover, or other special, incidental, consequential,
-+ * direct or indirect damages arising from the software or the use thereof,
-+ * however caused and on any theory of liability. This limitation will apply
-+ * even if NSA has been advised of the possibility of such damage. You
-+ * acknowledge that this is a reasonable allocation of risk.
-+ *
-+ * Original author: James Carter
-+ */
-+
-+#ifndef CIL_DENY_H_
-+#define CIL_DENY_H_
-+
-+int cil_classperms_list_match_any(const struct cil_list *cpl1, const struct cil_list *cpl2);
-+int cil_classperms_list_match_all(const struct cil_list *cpl1, const struct cil_list *cpl2);
-+void cil_classperms_list_copy(struct cil_list **new, const struct cil_list *old);
-+void cil_classperms_list_and(struct cil_list **result, const struct cil_list *cpl1, const struct cil_list *cpl2);
-+void cil_classperms_list_andnot(struct cil_list **result, const struct cil_list *cpl1, const struct cil_list *cpl2);
-+int cil_process_deny_rules_in_ast(struct cil_db *db);
-+
-+#endif /* CIL_DENY_H_ */
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index a7c66ead..da97a392 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -47,6 +47,7 @@
- #include "cil_policy.h"
- #include "cil_verify.h"
- #include "cil_symtab.h"
-+#include "cil_deny.h"
- 
- #define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
- #define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/src/module_to_cil.c */
-@@ -2551,6 +2552,12 @@ int cil_post_process(struct cil_db *db)
- 		goto exit;
- 	}
- 
-+	rc = cil_process_deny_rules_in_ast(db);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "Failed to process deny rules\n");
-+		goto exit;
-+	}
-+
- 	rc = cil_post_verify(db);
- 	if (rc != SEPOL_OK) {
- 		cil_log(CIL_ERR, "Failed to verify cil database\n");
++++ b/secilc/test/deny_rule_test.cil
+@@ -0,0 +1,946 @@
++(class CLASS (PERM))
++(class C1 (p1a p1b p1c p1d))
++(class C2 (p2a p2b p2c p2d))
++(class C3 (p3a p3b p3c p3d))
++(class C4 (p4a p4b p4c p4d))
++(classorder (CLASS C1 C2 C3 C4))
++(sid SID)
++(sidorder (SID))
++(user USER)
++(role ROLE)
++(type TYPE)
++(category CAT)
++(categoryorder (CAT))
++(sensitivity SENS)
++(sensitivityorder (SENS))
++(sensitivitycategory SENS (CAT))
++(allow TYPE self (CLASS (PERM)))
++(roletype ROLE TYPE)
++(userrole USER ROLE)
++(userlevel USER (SENS))
++(userrange USER ((SENS)(SENS (CAT))))
++(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
++
++(classmap cm5 (mp5a mp5b))
++(classmapping cm5 mp5a
++	      (C2 (p2a p2b)))
++(classmapping cm5 mp5b
++	      (C2 (p2c p2d)))
++
++(classpermission cp6)
++(classpermissionset cp6 (C3 (p3a p3b)))
++(classpermissionset cp6 (C4 (p4a p4b)))
++
++(classpermission cp7)
++(classpermissionset cp7 (C2 (p2a p2b)))
++(classpermissionset cp7 (C2 (p2c p2d)))
++
++; Test 1
++(type t01a)
++(type t01b)
++(allow t01a t01b (C1 (p1a)))
++(deny t01a t01b (C1 (p1a)))
++(neverallow t01a t01b (C1 (p1a)))
++
++; Test 2
++(type t02a)
++(type t02b)
++(allow t02a t02b (C1 (p1a p1b)))
++(deny t02a t02b (C1 (p1a)))
++(neverallow t02a t02b (C1 (p1a)))
++; (neverallow t02a t02b (C1 (p1b))) ; This check should fail
++
++; Test 3
++(type t03a)
++(type t03b)
++(allow t03a t03b (C1 (p1a)))
++(deny t03a t03b (C1 (p1a p1b)))
++(neverallow t03a t03b (C1 (p1a p1b)))
++
++
++; Test 11
++(type t11a)
++(type t11b)
++(type t11c)
++(type t11d)
++(typeattribute a11a)
++(typeattribute a11b)
++(typeattributeset a11a (t11a t11b))
++(typeattributeset a11b (t11c t11d))
++(allow a11a a11b (C1 (p1a)))
++(deny a11a a11b (C1 (p1a)))
++(neverallow a11a a11b (C1 (p1a)))
++
++; Test 12
++(type t12a)
++(type t12b)
++(type t12c)
++(type t12d)
++(typeattribute a12a)
++(typeattribute a12b)
++(typeattributeset a12a (t12a t12b))
++(typeattributeset a12b (t12c t12d))
++(allow t12a t12c (C1 (p1a)))
++(deny a12a a12b (C1 (p1a)))
++(neverallow a12a a12b (C1 (p1a)))
++
++; Test 13
++(type t13a)
++(type t13b)
++(type t13c)
++(type t13d)
++(typeattribute a13a)
++(typeattribute a13b)
++(typeattributeset a13a (t13a t13b))
++(typeattributeset a13b (t13c t13d))
++(allow a13a a13b (C1 (p1a)))
++(deny t13a t13c (C1 (p1a)))
++(neverallow t13a t13c (C1 (p1a)))
++; (neverallow t13b t13d (C1 (p1a))) ; This check should fail
++
++; Test 21
++(type t21a)
++(type t21b)
++(allow t21a t21b (cm5 (mp5a)))
++(deny t21a t21b (cm5 (mp5a)))
++(neverallow t21a t21b (cm5 (mp5a)))
++
++; Test 22
++(type t22a)
++(type t22b)
++(allow t22a t22b (cm5 (mp5a mp5b)))
++(deny t22a t22b (cm5 (mp5a)))
++(neverallow t22a t22b (cm5 (mp5a)))
++; (neverallow t22a t22b (cm5 (mp5b))) ; This check should fail
++
++; Test 23
++(type t23a)
++(type t23b)
++(allow t23a t23b (cm5 (mp5a)))
++(deny t23a t23b (cm5 (mp5a mp5b)))
++(neverallow t23a t23b (cm5 (mp5a mp5b)))
++
++; Test 24
++(type t24a)
++(type t24b)
++(allow t24a t24b (C2 (p2a)))
++(deny t24a t24b (cm5 (mp5a)))
++(neverallow t24a t24b (cm5 (mp5a)))
++
++; Test 25
++(type t25a)
++(type t25b)
++(allow t25a t25b (cm5 (mp5a)))
++(deny t25a t25b (C2 (p2a)))
++(neverallow t25a t25b (C2 (p2a)))
++; (neverallow t25a t25b (C2 (p2b))) ; This check should fail
++
++; Test 31
++(type t31a)
++(type t31b)
++(allow t31a t31b cp6)
++(deny t31a t31b cp6)
++(neverallow t31a t31b cp6)
++
++; Test 32
++(type t32a)
++(type t32b)
++(allow t32a t32b cp6)
++(deny t32a t32b (C3 (p3a p3b)))
++(neverallow t32a t32b (C3 (p3a p3b)))
++; (neverallow t32a t32b (C4 (p4a p4b))) ; This check should fail
++
++; Test 33
++(type t33a)
++(type t33b)
++(allow t33a t33b (C3 (p3a)))
++(deny t33a t33b cp6)
++(neverallow t33a t33b cp6)
++
++; Test 34
++(type t34a)
++(type t34b)
++(allow t34a t34b cp7)
++(deny t34a t34b (cm5 (mp5a mp5b)))
++(neverallow t34a t34b (cm5 (mp5a mp5b)))
++
++; Test 35
++(type t35a)
++(type t35b)
++(allow t35a t35b (cm5 (mp5a mp5b)))
++(deny t35a t35b cp7)
++(neverallow t35a t35b cp7)
++
++; Test 36
++(type t36a)
++(type t36b)
++(allow t36a t36b cp7)
++(deny t36a t36b (cm5 (mp5a)))
++(neverallow t36a t36b (cm5 (mp5a)))
++
++; Test 37
++(type t37a)
++(type t37b)
++(allow t37a t37b (cm5 (mp5a)))
++(deny t37a t37b cp7)
++(neverallow t37a t37b cp7)
++
++; Test 41
++(type t41a)
++(allow t41a self (C1 (p1a)))
++(deny t41a self (C1 (p1a)))
++(neverallow t41a self (C1 (p1a)))
++
++; Test 42
++(type t42a)
++(allow t42a self (C1 (p1a)))
++(deny t42a t42a (C1 (p1a)))
++(neverallow t42a t42a (C1 (p1a)))
++
++; Test 43
++(type t43a)
++(allow t43a t43a (C1 (p1a)))
++(deny t43a self (C1 (p1a)))
++(neverallow t43a self (C1 (p1a)))
++
++; Test 51
++(type t51a)
++(type t51b)
++(typeattribute a51a)
++(typeattributeset a51a (t51a t51b))
++(allow a51a self (C1 (p1a)))
++(deny a51a self (C1 (p1a)))
++(neverallow a51a self (C1 (p1a)))
++
++; Test 52
++(type t52a)
++(type t52b)
++(typeattribute a52a)
++(typeattributeset a52a (t52a t52b))
++(allow t52a self (C1 (p1a)))
++(deny a52a self (C1 (p1a)))
++(neverallow a52a self (C1 (p1a)))
++
++; Test 53
++(type t53a)
++(type t53b)
++(typeattribute a53a)
++(typeattributeset a53a (t53a t53b))
++(allow a53a self (C1 (p1a)))
++(deny t53a self (C1 (p1a)))
++(neverallow t53a self (C1 (p1a)))
++; (neverallow t53b self (C1 (p1a))) ; This check should fail
++
++; Test 54
++(type t54a)
++(type t54b)
++(typeattribute a54a)
++(typeattributeset a54a (t54a t54b))
++(allow a54a self (C1 (p1a)))
++(deny a54a a54a (C1 (p1a)))
++(neverallow a54a a54a (C1 (p1a)))
++
++; Test 55
++(type t55a)
++(type t55b)
++(typeattribute a55a)
++(typeattributeset a55a (t55a t55b))
++(allow a55a a55a (C1 (p1a)))
++(deny a55a self (C1 (p1a)))
++(neverallow a55a self (C1 (p1a)))
++; (neverallow t55a t55b (C1 (p1a))) ; This check should fail
++; (neverallow t55b t55a (C1 (p1a))) ; This check should fail
++
++; Test 56
++(type t56a)
++(type t56b)
++(typeattribute a56a)
++(typeattributeset a56a (t56a t56b))
++(allow a56a self (C1 (p1a)))
++(deny t56a t56a (C1 (p1a)))
++(neverallow t56a t56a (C1 (p1a)))
++
++; Test 57
++(type t57a)
++(type t57b)
++(typeattribute a57a)
++(typeattributeset a57a (t57a t57b))
++(allow t57a t57a (C1 (p1a)))
++(deny a57a self (C1 (p1a)))
++(neverallow a57a self (C1 (p1a)))
++
++; Test 58
++(type t58a)
++(type t58b)
++(typeattribute a58a)
++(typeattributeset a58a (t58a t58b))
++(allow t58a self (C1 (p1a)))
++(deny a58a a58a (C1 (p1a)))
++(neverallow a58a a58a (C1 (p1a)))
++
++; Test 59
++(type t59a)
++(type t59b)
++(typeattribute a59a)
++(typeattributeset a59a (t59a t59b))
++(allow a59a a59a (C1 (p1a)))
++(deny t59a self (C1 (p1a)))
++(neverallow t59a self (C1 (p1a)))
++; (neverallow t59a t59b (C1 (p1a))) ; This check should fail
++; (neverallow t59b t59a (C1 (p1a))) ; This check should fail
++
++; Test 61
++(type t61a)
++(type t61b)
++(type t61c)
++(type t61d)
++(type t61e)
++(type t61f)
++(type t61g)
++(type t61h)
++(type t61i)
++(type t61j)
++(type t61k)
++(type t61l)
++(type t61m)
++(type t61n)
++(type t61o)
++(type t61p)
++(type t61q)
++(type t61r)
++(type t61s)
++(type t61t)
++(type t61u)
++(type t61v)
++(type t61w)
++(type t61x)
++(type t61y)
++(type t61z)
++(typeattribute a61a)
++(typeattribute a61b)
++(typeattribute a61c)
++(typeattribute a61d)
++(typeattributeset a61a (t61a t61b t61c t61d t61e t61f t61g t61h t61k t61l t61m t61n t61s t61t))
++(typeattributeset a61b (t61a t61b t61c t61d t61e t61f t61i t61j t61k t61l t61o t61p t61u t61v))
++(typeattributeset a61c (t61a t61b t61c t61d t61g t61h t61i t61j t61m t61n t61q t61r t61w t61x))
++(typeattributeset a61d (t61a t61b t61e t61f t61g t61h t61i t61j t61o t61p t61q t61r t61y t61z))
++(allow a61a a61b (C1 (p1a)))
++(deny a61c a61d (C1 (p1a)))
++(neverallow a61c a61d (C1 (p1a)))
++; Below should fail
++(typeattribute a61w)
++(typeattribute a61x)
++(typeattribute a61y)
++(typeattributeset a61w (t61e t61f t61k t61l t61s t61t)) ; a61a and not a61c
++(typeattributeset a61x (t61a t61b t61c t61d t61g t61h t61m t61n)) ; a61a and a61c
++(typeattributeset a61y (t61c t61d t61k t61l t61u t61v)) ; a61b and not a61d
++; (neverallow a61w a61b (C1 (p1a))) ; This check should fail
++; (neverallow a61x a61y (C1 (p1a))) ; This check should fail
++
++; Test 62
++(type t62a)
++(type t62b)
++(type t62c)
++(type t62d)
++(type t62e)
++(type t62f)
++(type t62g)
++(type t62h)
++(type t62i)
++(type t62j)
++(type t62k)
++(type t62l)
++(type t62m)
++(type t62n)
++(type t62o)
++(type t62p)
++(type t62q)
++(type t62r)
++(type t62u)
++(type t62v)
++(type t62w)
++(type t62x)
++(type t62y)
++(type t62z)
++(typeattribute a62a)
++(typeattribute a62b)
++(typeattribute a62c)
++(typeattribute a62d)
++(typeattributeset a62a (t62m))
++(typeattributeset a62b (t62a t62b t62c t62d t62e t62f t62i t62j t62k t62l t62o t62p t62u t62v))
++(typeattributeset a62c (t62a t62b t62c t62d t62g t62h t62i t62j t62m t62n t62q t62r t62w t62x))
++(typeattributeset a62d (t62a t62b t62e t62f t62g t62h t62i t62j t62o t62p t62q t62r t62y t62z))
++(allow a62a a62b (C1 (p1a)))
++(deny a62c a62d (C1 (p1a)))
++(neverallow a62c a62d (C1 (p1a)))
++; Below should fail
++(typeattribute a62x)
++(typeattribute a62y)
++(typeattributeset a62x (t62m)) ; a62a and a62c
++(typeattributeset a62y (t62c t62d t62k t62l t62u t62v)) ; a62b and not a62d
++; (neverallow a62x a62y (C1 (p1a))) ; This check should fail
++
++; Test 63
++(type t63a)
++(type t63b)
++(type t63c)
++(type t63d)
++(type t63e)
++(type t63f)
++(type t63g)
++(type t63h)
++(type t63i)
++(type t63j)
++(type t63k)
++(type t63l)
++(type t63m)
++(type t63n)
++(type t63o)
++(type t63p)
++(type t63q)
++(type t63r)
++(type t63s)
++(type t63t)
++(type t63w)
++(type t63x)
++(type t63y)
++(type t63z)
++(typeattribute a63a)
++(typeattribute a63b)
++(typeattribute a63c)
++(typeattribute a63d)
++(typeattributeset a63a (t63a t63b t63c t63d t63e t63f t63g t63h t63k t63l t63m t63n t63s t63t))
++(typeattributeset a63b (t63o))
++(typeattributeset a63c (t63a t63b t63c t63d t63g t63h t63i t63j t63m t63n t63q t63r t63w t63x))
++(typeattributeset a63d (t63a t63b t63e t63f t63g t63h t63i t63j t63o t63p t63q t63r t63y t63z))
++(allow a63a a63b (C1 (p1a)))
++(deny a63c a63d (C1 (p1a)))
++(neverallow a63c a63d (C1 (p1a)))
++; Below should fail
++(typeattribute a63w)
++(typeattributeset a63w (t63e t63f t63k t63l t63s t63t)) ; a63a and not a63c
++; (neverallow a63w a63b (C1 (p1a))) ; This check should fail
++
++; Test 64
++(type t64a)
++(type t64b)
++(type t64c)
++(type t64d)
++(type t64e)
++(type t64f)
++(type t64g)
++(type t64h)
++(type t64i)
++(type t64j)
++(type t64k)
++(type t64l)
++(type t64m)
++(type t64n)
++(type t64o)
++(type t64p)
++(type t64q)
++(type t64r)
++(type t64s)
++(type t64t)
++(type t64u)
++(type t64v)
++(type t64y)
++(type t64z)
++(typeattribute a64a)
++(typeattribute a64b)
++(typeattribute a64c)
++(typeattribute a64d)
++(typeattributeset a64a (t64a t64b t64c t64d t64e t64f t64g t64h t64k t64l t64m t64n t64s t64t))
++(typeattributeset a64b (t64a t64b t64c t64d t64e t64f t64i t64j t64k t64l t64o t64p t64u t64v))
++(typeattributeset a64c (t64m))
++(typeattributeset a64d (t64a t64b t64e t64f t64g t64h t64i t64j t64o t64p t64q t64r t64y t64z))
++(allow a64a a64b (C1 (p1a)))
++(deny a64c a64d (C1 (p1a)))
++(neverallow a64c a64d (C1 (p1a)))
++; Below should fail
++(typeattribute a64w)
++typeattribute a64x)
++(typeattribute a64y)
++(typeattributeset a64w (t64a t64b t64c t64d t64e t64f t64g t64h t64k t64l t64n t64s t64t)) ; a64a and not a64c
++(typeattributeset a64x (t64m)) ; a64a and a64c
++(typeattributeset a64y (t64c t64d t64k t64l t64u t64v)) ; a64b and not a64d
++; (neverallow a64w a64b (C1 (p1a))) ; This check should fail
++; (neverallow a64x a64y (C1 (p1a))) ; This check should fail
++
++; Test 65
++(type t65a)
++(type t65b)
++(type t65c)
++(type t65d)
++(type t65e)
++(type t65f)
++(type t65g)
++(type t65h)
++(type t65i)
++(type t65j)
++(type t65k)
++(type t65l)
++(type t65m)
++(type t65n)
++(type t65o)
++(type t65p)
++(type t65q)
++(type t65r)
++(type t65s)
++(type t65t)
++(type t65u)
++(type t65v)
++(type t65w)
++(type t65x)
++(typeattribute a65a)
++(typeattribute a65b)
++(typeattribute a65c)
++(typeattribute a65d)
++(typeattributeset a65a (t65a t65b t65c t65d t65e t65f t65g t65h t65k t65l t65m t65n t65s t65t))
++(typeattributeset a65b (t65a t65b t65c t65d t65e t65f t65i t65j t65k t65l t65o t65p t65u t65v))
++(typeattributeset a65c (t65a t65b t65c t65d t65g t65h t65i t65j t65m t65n t65q t65r t65w t65x))
++(typeattributeset a65d (t65o))
++(allow a65a a65b (C1 (p1a)))
++(deny a65c a65d (C1 (p1a)))
++(neverallow a65c a65d (C1 (p1a)))
++; Below should fail
++(typeattribute a65w)
++(typeattribute a65x)
++(typeattribute a65y)
++(typeattributeset a65w (t65e t65f t65k t65l t65s t65t)) ; a65a and not a65c
++(typeattributeset a65x (t65a t65b t65c t65d t65g t65h t65m t65n) ; a65a and a65c
++(typeattributeset a65y (t65a t65b t65c t65d t65e t65f t65i t65j t65k t65l t65p t65u t65v)) ; a65b and not a65d
++; (neverallow a65w a65b (C1 (p1a))) ; This check should fail
++; (neverallow a65x a65y (C1 (p1a))) ; This check should fail
++
++; Test 71
++(type t71a)
++(type t71b)
++(type t71c)
++(type t71d)
++(type t71e)
++(type t71f)
++(type t71g)
++(type t71h)
++(type t71i)
++(type t71j)
++(type t71k)
++(type t71l)
++(type t71m)
++(type t71n)
++(type t71o)
++(type t71p)
++(type t71q)
++(type t71r)
++(type t71s)
++(type t71t)
++(type t71w)
++(type t71x)
++(type t71y)
++(type t71z)
++(typeattribute a71a)
++(typeattribute a71c)
++(typeattribute a71d)
++(typeattributeset a71a (t71a t71b t71c t71d t71e t71f t71g t71h t71k t71l t71m t71n t71s t71t))
++(typeattributeset a71c (t71a t71b t71c t71d t71g t71h t71i t71j t71m t71n t71q t71r t71w t71x))
++(typeattributeset a71d (t71a t71b t71e t71f t71g t71h t71i t71j t71o t71p t71q t71r t71y t71z))
++(allow a71a self (C1 (p1a)))
++(deny a71c a71d (C1 (p1a)))
++(neverallow a71c a71d (C1 (p1a)))
++; Below should fail
++(typeattribute a71w)
++(typeattribute a71x)
++(typeattributeset a71w (t71e t71f t71k t71l t71s t71t)) ; a71a and not a71c
++(typeattributeset a71x (t71c t71d t71m t71n) ; (a71a and a71c) and not a71d
++; (neverallow a71w self (C1 (p1a))) ; This check should fail
++; (neverallow a71x self (C1 (p1a))) ; This check should fail
++
++; Test 72
++(type t72a)
++(type t72b)
++(type t72c)
++(type t72d)
++(type t72e)
++(type t72f)
++(type t72g)
++(type t72h)
++(type t72i)
++(type t72j)
++(type t72m)
++(type t72n)
++(type t72o)
++(type t72p)
++(type t72q)
++(type t72r)
++(type t72w)
++(type t72x)
++(type t72y)
++(type t72z)
++(typeattribute a72a)
++(typeattribute a72c)
++(typeattribute a72d)
++(typeattributeset a72a (t72g))
++(typeattributeset a72c (t72a t72b t72c t72d t72g t72h t72i t72j t72m t72n t72q t72r t72w t72x))
++(typeattributeset a72d (t72a t72b t72e t72f t72g t72h t72i t72j t72o t72p t72q t72r t72y t72z))
++(allow a72a self (C1 (p1a)))
++(deny a72c a72d (C1 (p1a)))
++(neverallow a72c a72d (C1 (p1a)))
++
++; Test 73
++(type t73a)
++(type t73b)
++(type t73c)
++(type t73d)
++(type t73e)
++(type t73f)
++(type t73g)
++(type t73h)
++(type t73i)
++(type t73j)
++(type t73k)
++(type t73l)
++(type t73m)
++(type t73n)
++(type t73o)
++(type t73p)
++(type t73q)
++(type t73r)
++(type t73s)
++(type t73t)
++(type t73y)
++(type t73z)
++(typeattribute a73a)
++(typeattribute a73c)
++(typeattribute a73d)
++(typeattributeset a73a (t73a t73b t73c t73d t73e t73f t73g t73h t73k t73l t73m t73n t73s t73t))
++(typeattributeset a73c (t73g))
++(typeattributeset a73d (t73a t73b t73e t73f t73g t73h t73i t73j t73o t73p t73q t73r t73y t73z))
++(allow a73a self (C1 (p1a)))
++(deny a73c a73d (C1 (p1a)))
++(neverallow a73c a73d (C1 (p1a)))
++; Below should fail
++(typeattribute a73w)
++(typeattributeset a73w (t73a t73b t73c t73d t73e t73f t73h t73k t73l t73m t73n t73s t73t)) ; a73a and not a73c
++; (neverallow a73w self (C1 (p1a))) ; This check should fail
++
++; Test 74
++(type t74a)
++(type t74b)
++(type t74c)
++(type t74d)
++(type t74e)
++(type t74f)
++(type t74g)
++(type t74h)
++(type t74i)
++(type t74j)
++(type t74k)
++(type t74l)
++(type t74m)
++(type t74n)
++(type t74q)
++(type t74r)
++(type t74s)
++(type t74t)
++(type t74w)
++(type t74x)
++(typeattribute a74a)
++(typeattribute a74c)
++(typeattribute a74d)
++(typeattributeset a74a (t74a t74b t74c t74d t74e t74f t74g t74h t74k t74l t74m t74n t74s t74t))
++(typeattributeset a74c (t74a t74b t74c t74d t74g t74h t74i t74j t74m t74n t74q t74r t74w t74x))
++(typeattributeset a74d (t74g))
++(allow a74a self (C1 (p1a)))
++(deny a74c a74d (C1 (p1a)))
++(neverallow a74c a74d (C1 (p1a)))
++; Below should fail
++(typeattribute a74w)
++(typeattribute a74x)
++(typeattributeset a74w (t74e t74f t74k t74l t74s t74t)) ; a74a and not a74c
++(typeattributeset a74x (t74a t74b t74c t74d t74h t74m t74n) ; (a74a and a74c) and not a74d
++; (neverallow a74w self (C1 (p1a))) ; This check should fail
++; (neverallow a74x self (C1 (p1a))) ; This check should fail
++
++; Test 81
++(type t81a)
++(type t81b)
++(type t81c)
++(type t81d)
++(type t81e)
++(type t81f)
++(type t81g)
++(type t81h)
++(type t81i)
++(type t81j)
++(type t81k)
++(type t81l)
++(type t81m)
++(type t81n)
++(type t81o)
++(type t81p)
++(type t81q)
++(type t81r)
++(type t81s)
++(type t81t)
++(type t81u)
++(type t81v)
++(type t81w)
++(type t81x)
++(typeattribute a81a)
++(typeattribute a81b)
++(typeattribute a81c)
++(typeattributeset a81a (t81a t81b t81c t81d t81e t81f t81g t81h t81k t81l t81m t81n t81s t81t))
++(typeattributeset a81b (t81a t81b t81c t81d t81e t81f t81i t81j t81k t81l t81o t81p t81u t81v))
++(typeattributeset a81c (t81a t81b t81c t81d t81g t81h t81i t81j t81m t81n t81q t81r t81w t81x))
++(allow a81a a81b (C1 (p1a)))
++(deny a81c self (C1 (p1a)))
++(neverallow a81c self (C1 (p1a)))
++; Below should fail
++(typeattribute a81w)
++(typeattribute a81x)
++(typeattribute a81y)
++(typeattribute a81z)
++(typeattribute a81ya)
++(typeattribute a81yb)
++(typeattribute a81yc)
++(typeattribute a81yd)
++(typeattributeset a81w (t63e t63f t63k t63l t63s t63t)) ; a81a and not a81c
++(typeattributeset a81x (t81a t81b t81c t81d)) ; a81a and a81c and a81b
++(typeattributeset a81y (t81g t81h t81m t81n)) ; (a81a and a81c) and not a81b
++(typeattributeset a81z (t81e t81f t81i t81j t81k t81l t81o t81p t81u t81v)) ; a81b and not (a81a and a81c)
++(typeattributeset a81ya (t81h t81m t81n))
++(typeattributeset a81yb (t81g t81m t81n))
++(typeattributeset a81yc (t81g t81h t81n))
++(typeattributeset a81yd (t81g t81h t81m))
++; (neverallow a81w a81b (C1 (p1a))) ; This check should fail
++; (neverallow a81y a81b (C1 (p1a))) ; This check should fail
++; (neverallow a81x a81z (C1 (p1a))) ; This check should fail
++; (neverallow t81g a81ya (C1 (p1a))) ; This check should fail
++; (neverallow t81h a81yb (C1 (p1a))) ; This check should fail
++; (neverallow t81m a81yc (C1 (p1a))) ; This check should fail
++; (neverallow t81n a81yd (C1 (p1a))) ; This check should fail
++
++; Test 82
++(type t82a)
++(type t82b)
++(type t82c)
++(type t82d)
++(type t82e)
++(type t82f)
++(type t82g)
++(type t82h)
++(type t82i)
++(type t82j)
++(type t82k)
++(type t82l)
++(type t82m)
++(type t82n)
++(type t82o)
++(type t82p)
++(type t82q)
++(type t82r)
++(type t82u)
++(type t82v)
++(type t82w)
++(type t82x)
++(typeattribute a82a)
++(typeattribute a82b)
++(typeattribute a82c)
++(typeattributeset a82a (t82c))
++(typeattributeset a82b (t82a t82b t82c t82d t82e t82f t82i t82j t82k t82l t82o t82p t82u t82v))
++(typeattributeset a82c (t82a t82b t82c t82d t82g t82h t82i t82j t82m t82n t82q t82r t82w t82x))
++(allow a82a a82b (C1 (p1a)))
++(deny a82c self (C1 (p1a)))
++(neverallow a82c self (C1 (p1a)))
++; Below should fail
++(typeattribute a82x)
++(typeattribute a82z)
++(typeattributeset a82x (t82c)) ; a82a and a82c and a82b
++(typeattributeset a82z (t82a t82b t82d t82e t82f t82i t82j t82k t82l t82o t82p t82u t82v)) ; a82b and not (a82a and a82c)
++; (neverallow a82x a82z (C1 (p1a))) ; This check should fail
++
++; Test 83
++(type t83a)
++(type t83b)
++(type t83c)
++(type t83d)
++(type t83e)
++(type t83f)
++(type t83g)
++(type t83h)
++(type t83i)
++(type t83j)
++(type t83k)
++(type t83l)
++(type t83m)
++(type t83n)
++(type t83q)
++(type t83r)
++(type t83s)
++(type t83t)
++(type t83w)
++(type t83x)
++(typeattribute a83a)
++(typeattribute a83b)
++(typeattribute a83c)
++(typeattributeset a83a (t83a t83b t83c t83d t83e t83f t83g t83h t83k t83l t83m t83n t83s t83t))
++(typeattributeset a83b (t83c))
++(typeattributeset a83c (t83a t83b t83c t83d t83g t83h t83i t83j t83m t83n t83q t83r t83w t83x))
++(allow a83a a83b (C1 (p1a)))
++(deny a83c self (C1 (p1a)))
++(neverallow a83c self (C1 (p1a)))
++; Below should fail
++(typeattribute a83w)
++(typeattribute a83y)
++(typeattribute a83ya)
++(typeattribute a83yb)
++(typeattribute a83yc)
++(typeattribute a83yd)
++(typeattribute a83ye)
++(typeattribute a83yf)
++(typeattribute a83yg)
++(typeattributeset a83w (t63e t63f t63k t63l t63s t63t)) ; a83a and not a83c
++(typeattributeset a83y (t83a t83b t83d t83g t83h t83m t83n)) ; (a83a and a83c) and not a83b
++(typeattributeset a83ya (t83b t83d t83g t83h t83m t83n))
++(typeattributeset a83yb (t83a t83d t83g t83h t83m t83n))
++(typeattributeset a83yc (t83a t83b t83g t83h t83m t83n))
++(typeattributeset a83yd (t83a t83b t83d t83h t83m t83n))
++(typeattributeset a83ye (t83a t83b t83d t83g t83m t83n))
++(typeattributeset a83yf (t83a t83b t83d t83g t83h t83n))
++(typeattributeset a83yg (t83a t83b t83d t83g t83h t83m))
++; (neverallow a83w a83b (C1 (p1a))) ; This check should fail
++; (neverallow a83y a83b (C1 (p1a))) ; This check should fail
++; (neverallow t83a a83ya (C1 (p1a))) ; This check should fail
++; (neverallow t83b a83yb (C1 (p1a))) ; This check should fail
++; (neverallow t83d a83yc (C1 (p1a))) ; This check should fail
++; (neverallow t83g a83yd (C1 (p1a))) ; This check should fail
++; (neverallow t83h a83ye (C1 (p1a))) ; This check should fail
++; (neverallow t83m a83yf (C1 (p1a))) ; This check should fail
++; (neverallow t83n a83yg (C1 (p1a))) ; This check should fail
++
++; Test 84
++(type t84a)
++(type t84b)
++(type t84c)
++(type t84d)
++(type t84e)
++(type t84f)
++(type t84g)
++(type t84h)
++(type t84i)
++(type t84j)
++(type t84k)
++(type t84l)
++(type t84m)
++(type t84n)
++(type t84o)
++(type t84p)
++(type t84q)
++(type t84r)
++(type t84s)
++(type t84t)
++(type t84u)
++(type t84v)
++(type t84w)
++(type t84x)
++(typeattribute a84a)
++(typeattribute a84b)
++(typeattribute a84c)
++(typeattributeset a84a (t84a t84b t84c t84d t84e t84f t84g t84h t84k t84l t84m t84n t84s t84t))
++(typeattributeset a84b (t84a t84b t84c t84d t84e t84f t84i t84j t84k t84l t84o t84p t84u t84v))
++(typeattributeset a84c (t84c))
++(allow a84a a84b (C1 (p1a)))
++(deny a84c self (C1 (p1a)))
++(neverallow a84c self (C1 (p1a)))
++; Below should fail
++(typeattribute a84w)
++(typeattribute a84x)
++(typeattribute a84z)
++(typeattributeset a84w (t84a t84b t84d t84e t84f t84g t84h t84k t84l t84m t84n t84s t84t)) ; a84a and not a84c
++(typeattributeset a84x (t84c)) ; a84a and a84c and a84b
++(typeattributeset a84z (t84a t84b t84d t84e t84f t84i t84j t84k t84l t84o t84p t84u t84v)) ; a84b and not (a84a and a84c)
++; (neverallow a84w a84b (C1 (p1a))) ; This check should fail
++; (neverallow a84x a84z (C1 (p1a))) ; This check should fail
++
++; Test 91
++(type t91a)
++(type t91b)
++(type t91c)
++(type t91d)
++(type t91e)
++(type t91f)
++(type t91g)
++(type t91h)
++(type t91i)
++(type t91j)
++(type t91k)
++(type t91l)
++(type t91m)
++(type t91n)
++(type t91q)
++(type t91r)
++(type t91s)
++(type t91t)
++(type t91w)
++(type t91x)
++(typeattribute a91a)
++(typeattribute a91c)
++(typeattributeset a91a (t91a t91b t91c t91d t91e t91f t91g t91h t91k t91l t91m t91n t91s t91t))
++(typeattributeset a91c (t91a t91b t91c t91d t91g t91h t91i t91j t91m t91n t91q t91r t91w t91x))
++(allow a91a self (C1 (p1a)))
++(deny a91c self (C1 (p1a)))
++(neverallow a91c self (C1 (p1a)))
++; Below should fail
++(typeattribute a91w)
++(typeattributeset a91w (t91e t91f t91k t91l t91s t91t)) ; a91a and not a91c
++; (neverallow a91w self (C1 (p1a))) ; This check should fail
++
++; Test 92
++(type t92a)
++(type t92b)
++(type t92c)
++(type t92d)
++(type t92g)
++(type t92h)
++(type t92i)
++(type t92j)
++(type t92m)
++(type t92n)
++(type t92q)
++(type t92r)
++(type t92w)
++(type t92x)
++(typeattribute a92a)
++(typeattribute a92c)
++(typeattributeset a92a (t92m))
++(typeattributeset a92c (t92a t92b t92c t92d t92g t92h t92i t92j t92m t92n t92q t92r t92w t92x))
++(allow a92a self (C1 (p1a)))
++(deny a92c self (C1 (p1a)))
++(neverallow a92c self (C1 (p1a)))
++
++; Test 93
++(type t93a)
++(type t93b)
++(type t93c)
++(type t93d)
++(type t93e)
++(type t93f)
++(type t93g)
++(type t93h)
++(type t93k)
++(type t93l)
++(type t93m)
++(type t93n)
++(type t93s)
++(type t93t)
++(typeattribute a93a)
++(typeattribute a93c)
++(typeattributeset a93a (t93a t93b t93c t93d t93e t93f t93g t93h t93k t93l t93m t93n t93s t93t))
++(typeattributeset a93c (t93m))
++(allow a93a self (C1 (p1a)))
++(deny a93c self (C1 (p1a)))
++(neverallow a93c self (C1 (p1a)))
++; Below should fail
++(typeattribute a93w)
++(typeattributeset a93w (t93a t93b t93c t93d t93e t93f t93g t93h t93k t93l t93n t93s t93t)) ; a93a and not a93c
++; (neverallow a93w self (C1 (p1a))) ; This check should fail
 -- 
 2.39.2
 
