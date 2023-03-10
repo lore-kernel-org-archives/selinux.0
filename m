@@ -2,155 +2,155 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6943C64EC4
-	for <selinux@archiver.kernel.org>; Fri, 10 Mar 2023 00:32:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF724C6FA99
+	for <selinux@archiver.kernel.org>; Fri, 10 Mar 2023 13:47:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229487AbjCJAcl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Mar 2023 19:32:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        id S230315AbjCJNrr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Mar 2023 08:47:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbjCJAck (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Mar 2023 19:32:40 -0500
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25ECD102852
-        for <selinux@vger.kernel.org>; Thu,  9 Mar 2023 16:32:38 -0800 (PST)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-176d1a112bfso4205688fac.5
-        for <selinux@vger.kernel.org>; Thu, 09 Mar 2023 16:32:38 -0800 (PST)
+        with ESMTP id S230246AbjCJNrq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Mar 2023 08:47:46 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64A1028E58
+        for <selinux@vger.kernel.org>; Fri, 10 Mar 2023 05:47:45 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id y15-20020a17090aa40f00b00237ad8ee3a0so5221393pjp.2
+        for <selinux@vger.kernel.org>; Fri, 10 Mar 2023 05:47:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1678408357;
+        d=gmail.com; s=20210112; t=1678456065;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WDDMqwW1GLC8UUv9JUljZTRtLeluA0sa4qkSLYsTZUk=;
-        b=jLMBdmA1DctdygM0KaJKaF4HoA/uEkWX/OIvNbcARfYCzNd86E3GFnNc+Zm0GZV/Og
-         b2Oe3PepZFx/3XNuNV/42fLDLVWatCFh5p4Tx1+LUQLoeqGHZp2uSGBg/RpqFcdEEgJe
-         axj7m0tnscF+Y1EsbK0cKOCs8k1XRkKM+QWUo=
+        bh=0+j2Vvv6yuQckaVvHFVBHmL9/engBcMfOvwzB0p82s0=;
+        b=JIB8fh13R8VSoKEN2cAbdYnvzPb0hwImqnJknqnABI59TmnWjXRmvA3tbPUK2swlNF
+         Sj/7GuZq/PWyS3aVF6CeafZQueevk4a1EEIRGVntN77h/TOeqp9OUchE0Wb5pfyEw/Vb
+         yufj+jMl1owhrBa0hXdsdujHB+NegkwU0MOqRELigPHNjXKu2VI+/0bnlOna5/w7ZjsC
+         lHy74D7n3mfR61yH6MZPnD2KLXR2dIiAZZ3GndwIRHRk5AaKpYMM4symvuWxdnanPCHJ
+         KbW0Xv5G3xikWZpNuL5YHwhh8EXwh0M2XSPW2NePubvaIfb3EHt6lXxCxBAHGzQ5onR1
+         ztbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678408357;
+        d=1e100.net; s=20210112; t=1678456065;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WDDMqwW1GLC8UUv9JUljZTRtLeluA0sa4qkSLYsTZUk=;
-        b=FCsAo16h2rvFZm00Bw6oUcHltbwrF0LFH8H0PnpmxvRZ3EDK4mgKepkA/vY/wTZhWs
-         5tJ2y7bXBLwGhsXCDI8MW0uDkwUpAXZo18ezL5bVsQSao9KSE/NisnC18tzsnkAo6dJ0
-         t5Ub2LN8qrHk2ueasEKEXX29Z2WcPLX3hyExRn1hbzYwIzKIBSyU2mr24GpCbCSwU9wS
-         64Efuqk9KGPDPqAta2476OW8kxjqWkbhCsZ0hnMTi+nNoW6Z8CdAfzcaOC1duEshiVwa
-         moj7moPxT7HGsuSE2OHp9mZViG0H2IBki8b+C/2WWklObprawZRzOMF6WMXRTqd5pUL6
-         EWHA==
-X-Gm-Message-State: AO0yUKWrO6tcToiTOkY2nYQhuFDpTiW1jIad94LfRyAhev+FlgmdQ7E2
-        BVxA1TfX4C91aUkpk0A4x+Uh7jmSq5ndLx73Lpvo5w==
-X-Google-Smtp-Source: AK7set+p4AewkRkijc5ome9qvzmpVoUPb7cFQqPzldM97wQ31oYnl6pmwhvpaQ09qjETLqHdSfbIpdUo+DXRx3lfTG4=
-X-Received: by 2002:a05:6870:5b01:b0:176:4416:eeff with SMTP id
- ds1-20020a0568705b0100b001764416eeffmr6930112oab.8.1678408357486; Thu, 09 Mar
- 2023 16:32:37 -0800 (PST)
+        bh=0+j2Vvv6yuQckaVvHFVBHmL9/engBcMfOvwzB0p82s0=;
+        b=D85+Ms87MHo6GYV54IGeMvHO9qB2MF5RCzWbC/JpajeUzqUqXQ5SPhSXhZL5tV/0Wl
+         rvYDfhGml78Dybqr41qKGGEYaTP+SzXbe399e8Tv/YQGSx/2nlIShSbDTq3yR+QXS3RU
+         4ZKn3JStohNhZ4DiwDQtovu4xvYtAZWrJP3Bl7obABJd5dlN3AIvQv6Zu/LPYrH/EyT+
+         QTr+D3k44kEbCjgUSw7sFq2OBwWdlqLtE/pLCCttpMrPn0DqDClsHkJtn6veHYLDMChO
+         r5uVtvFTR2AXIMTrsc0+MGIbu1gRFetlYui+XVC5g5R0FwJU8G2fmpHbVJjWXvWmgEQE
+         JmBQ==
+X-Gm-Message-State: AO0yUKWums9zIoPFh8X8uH8BgLpD5hQ7Bz4oUlKA4FmWZ24+N8J1vMAJ
+        W7JC9EXDYIPzP1qger6YmGyg63BY3Av1SO65Yhg=
+X-Google-Smtp-Source: AK7set//rE+w9gjhFtUZKl3Gn44CkpcrphehKy27ZYwHZMr9K4Q8R2LsIL+C3jvuwLwLTMcOxe/+YVUC2cPjhtlKhXI=
+X-Received: by 2002:a17:903:4285:b0:19a:9984:558c with SMTP id
+ ju5-20020a170903428500b0019a9984558cmr9860752plb.6.1678456064779; Fri, 10 Mar
+ 2023 05:47:44 -0800 (PST)
 MIME-Version: 1.0
-References: <20220921185426.1663357-1-jeffxu@chromium.org> <20220921185426.1663357-2-jeffxu@chromium.org>
- <CAHC9VhS-jv5cpSdq7dxFGYH=z=5grQceNMyjroeL2KHdrVUV6g@mail.gmail.com>
- <CABi2SkXRxomrYn-xUf3B+XswmQjXZUJXmYJECmr_nBfrZWwqkA@mail.gmail.com>
- <CAHC9VhRuUZxdsVQftqWa0zEuNAxk8ur0-TZp5KecJ537hRONRQ@mail.gmail.com>
- <875yhe6ial.fsf@defensec.nl> <CABi2SkXU+C77PqXnH_OHs9rjsiOQAHMmkDF5H9EYkU=ZG_tNrg@mail.gmail.com>
- <CAEjxPJ43nNKG4QEKK5W2_K_TGeUjyUywvsqiPipT8Pom5VNMxw@mail.gmail.com> <CAEjxPJ5_K7mxCbDGErQdoULA5n7pu1FP0y0cFq-NZAO6aQDiaQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5_K7mxCbDGErQdoULA5n7pu1FP0y0cFq-NZAO6aQDiaQ@mail.gmail.com>
-From:   Jeff Xu <jeffxu@chromium.org>
-Date:   Thu, 9 Mar 2023 16:32:26 -0800
-Message-ID: <CABi2SkVC04CNUXFXG6dNMvao-VVt0+NqkpfbxE4zFfjRXhw5_w@mail.gmail.com>
-Subject: Re: [PATCH 1/1] Add CONFIG_SECURITY_SELINUX_PERMISSIVE_DONTAUDIT
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, jorgelo@chromium.org,
-        groeck@chromium.org, Luis Hector Chavez <lhchavez@google.com>,
-        Luis Hector Chavez <lhchavez@chromium.org>
+References: <20230309191741.15063-1-stephen.smalley.work@gmail.com>
+ <CAHC9VhTCScrPmzrzSVPqF0G==4+qxd=KSeBw7s3T_46rDgKoXQ@mail.gmail.com>
+ <CAEjxPJ4R0U7TL3EAjU8_nnbmgoSaO+DN9SoB+PuC1HkOcrfAuw@mail.gmail.com> <CAHC9VhQ1-SeA+XS-Y2M5OydM79qu+GA0L770_A0Zf2C6wN80kw@mail.gmail.com>
+In-Reply-To: <CAHC9VhQ1-SeA+XS-Y2M5OydM79qu+GA0L770_A0Zf2C6wN80kw@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 10 Mar 2023 08:47:33 -0500
+Message-ID: <CAEjxPJ57usjUurU0Rkgzcv6evYDeyJrX-msROH6QagYRkOxsug@mail.gmail.com>
+Subject: Re: [PATCH] selinux: stop passing selinux_state pointers and their offspring
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, torvalds@linux-foundation.org,
+        omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 17, 2023 at 7:25=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Feb 17, 2023 at 10:22 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Mon, Feb 13, 2023 at 1:02 AM Jeff Xu <jeffxu@chromium.org> wrote:
-> > >
-> > > On Fri, Sep 23, 2022 at 11:45 AM Dominick Grift
-> > > <dominick.grift@defensec.nl> wrote:
-> > > >
-> > > > Paul Moore <paul@paul-moore.com> writes:
-> > > >
-> > > > > On Fri, Sep 23, 2022 at 1:43 PM Jeff Xu <jeffxu@chromium.org> wro=
+On Thu, Mar 9, 2023 at 4:15=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
 te:
-> > > > >> On Wed, Sep 21, 2022 at 12:11 PM Paul Moore <paul@paul-moore.com=
-> wrote:
-> > > > >> > On Wed, Sep 21, 2022 at 2:54 PM <jeffxu@chromium.org> wrote:
-> > > > >> > >
-> > > > >> > > From: Jeff Xu <jeffxu@chromium.org>
-> > > > >> > >
-> > > > >> > > When SECURITY_SELINUX_DEVELOP=3Dy and the system is running =
-in permissive
-> > > > >> > > mode, it is useful to disable logging from permissive domain=
-, so audit
-> > > > >> > > log does not get spamed.
-> > > > >> > >
-> > > > >> > > Signed-off-by: Jeff Xu <jeffxu@chromium.org>
-> > > > >> > > Signed-off-by: Luis Hector Chavez <lhchavez@google.com>
-> > > > >> > > Tested-by: Luis Hector Chavez <lhchavez@chromium.org>
-> > > > >> > > Tested-by: Jeff Xu<jeffxu@chromium.org>
-> > > > >> > > ---
-> > > > >> > >  security/selinux/Kconfig | 10 ++++++++++
-> > > > >> > >  security/selinux/avc.c   |  9 +++++++++
-> > > > >> > >  2 files changed, 19 insertions(+)
-> > > > >> >
-> > > > >> > I'm sorry, but I can't accept this into the upstream kernel.
-> > > > >> > Permissive mode, both per-domain and system-wide, is not inten=
-ded to
-> > > > >> > be a long term solution.  Permissive mode should really only b=
-e used
-> > > > >> > as a development tool or emergency "hotfix" with the proper so=
-lution
-> > > > >> > being either an adjustment of the existing policy (SELinux pol=
-icy
-> > > > >> > booleans, labeling changes, etc.) or the development of a new =
-policy
-> > > > >> > module which better fits your use case.
-> > > > >>
-> > > > >> Thanks for the response.
-> > > > >> For a system that wants to control a few daemons, is there a
-> > > > >> recommended pattern from selinux ?
-> > > >
-> > > > That is effectively a "targeted" policy model. You target a selecti=
-on of
-> > > > entities and everything else is "unconfined" (ie not targeteed).
-> > > >
-> > > > An "unconfined" domain is just a process type that has many allow r=
-ules
-> > > > associated with it making it effectively similar to an "permissive"
-> > > > domain. The difference is that since "unconfined" domains have full
-> > > > access there should not be any AVC denials (nothing is blocked by
-> > > > SELinux because the policy does not target the entity)
-> > > >
-> > > It seems that my system doesn't have unconfined_t, so
-> > > I am trying to get an example.
-> > >
-> > > Can I use a wildcard, something like below ?
-> > > type unconfined_t
-> > > allow unconfined_t *
-> > >
-> > > An example would be appreciated.
-> >
-> > If your policy in Android-based, then the su domain would be the
-> > easiest starting point. It isn't quite what you want (a permissive
-> > domain with dontaudit rules that suppress all denials, only included
-> > in userdebug or eng builds) but if you replace "dontaudit" with allow
-> > everywhere, it would be "unconfined".
 >
-> BTW SELinux already has a way to achieve the same end as your kernel
-> patch without any code changes; there are dontaudit rules in policy
-> that can silence denials and you just need to write them to cover all
-> classes/permissions. This is done in the Android su policy.
+> On Thu, Mar 9, 2023 at 3:55=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Thu, Mar 9, 2023 at 3:48=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
+ wrote:
+> > >
+> > > On Thu, Mar 9, 2023 at 2:18=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > Linus observed that the pervasive passing of selinux_state pointers
+> > > > introduced by me in commit aa8e712cee93 ("selinux: wrap global seli=
+nux
+> > > > state") adds overhead and complexity without providing any
+> > > > benefit. The original idea was to pave the way for SELinux namespac=
+es
+> > > > but those have not yet been implemented and there isn't currently
+> > > > a concrete plan to do so. Remove the passing of the selinux_state
+> > > > pointers, reverting to direct use of the single global selinux_stat=
+e,
+> > > > and likewise remove passing of child pointers like the selinux_avc.
+> > > > The selinux_policy pointer remains as it is needed for atomic switc=
+hing
+> > > > of policies.
+> > > >
+> > > > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > ---
+> > > >  security/selinux/avc.c                 | 197 ++++-----
+> > > >  security/selinux/hooks.c               | 549 ++++++++++-----------=
+----
+> > > >  security/selinux/ibpkey.c              |   2 +-
+> > > >  security/selinux/ima.c                 |  37 +-
+> > > >  security/selinux/include/avc.h         |  29 +-
+> > > >  security/selinux/include/avc_ss.h      |   3 +-
+> > > >  security/selinux/include/conditional.h |   4 +-
+> > > >  security/selinux/include/ima.h         |  10 +-
+> > > >  security/selinux/include/security.h    | 171 +++-----
+> > > >  security/selinux/netif.c               |   2 +-
+> > > >  security/selinux/netlabel.c            |  17 +-
+> > > >  security/selinux/netnode.c             |   4 +-
+> > > >  security/selinux/netport.c             |   2 +-
+> > > >  security/selinux/selinuxfs.c           | 208 ++++------
+> > > >  security/selinux/ss/services.c         | 346 +++++++---------
+> > > >  security/selinux/ss/services.h         |   1 -
+> > > >  security/selinux/status.c              |  44 +-
+> > > >  security/selinux/xfrm.c                |  20 +-
+> > > >  18 files changed, 651 insertions(+), 995 deletions(-)
+> > >
+> > > It looks like this patch was a bit too big for the mailing list; I'm
+> > > trimming my reply to get this discussion on the list.
+> > >
+> > > I strongly dislike merging patches that haven't hit the list, but I d=
+o
+> > > recognize that this is a bit of an unusual case.  Have you tried
+> > > breaking this up into two (three?) patches?  I imagine that should be
+> > > possible, although I worry that the time required to do that would be
+> > > prohibitive given the change itself.
+> > >
+> > > If that doesn't work, an alternative might be to file a PR against ou=
+r
+> > > kernel subsystem mirror on GitHub and posting a link to the PR here.
+> > > I don't want to encourage this as a general way of submitting SELinux
+> > > kernel patches, but I could make an exception here.
+> > >
+> > > https://github.com/SELinuxProject/selinux-kernel
+> >
+> > I'm open to suggestions but didn't see an obvious way to split it in a
+> > manner that keeps everything in a working state after each patch.
+> > checkpatch.pl didn't complain about the size - not sure if that is a
+> > change in policy.
+>
+> I'm not sure checkpatch.pl is the right place for that anyway as every
+> list could have a different policy.
+>
+> FWIW, many years ago I was told to keep the diffstat under a thousand
+> lines as a general rule.  While I've seen patches go over that limit
+> and hit various @vger lists, I personally try to keep my patches under
+> that 1k limit, and generally that isn't too hard.  This really is a
+> bit of a special case I think.
+>
+> > Created a PR here:
+> > https://github.com/SELinuxProject/selinux-kernel/pull/64
+>
+> Thanks, I'll work from that.
 
-Got it, Thanks everyone for pointing out solutions!
-
--Jeff
+For those following along on the mailing list, the kernel test robot
+reported a problem with the original patch when lockdep is enabled, so
+I generated a v2 patch and updated the PR (same link above).
