@@ -2,181 +2,394 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7485CC6FD1C
-	for <selinux@archiver.kernel.org>; Tue, 14 Mar 2023 11:08:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DB10C6FD1C
+	for <selinux@archiver.kernel.org>; Tue, 14 Mar 2023 13:07:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbjCNLID (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Mar 2023 07:08:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36600 "EHLO
+        id S231825AbjCNNHF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Mar 2023 09:07:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230375AbjCNLHx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Mar 2023 07:07:53 -0400
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B48062308
-        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 04:07:22 -0700 (PDT)
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com [209.85.128.198])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id E60BE3F22A
-        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 11:06:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1678792019;
-        bh=k14yaOEAzliIFD8KZYv4oaFat34UVWC+PGIHdaYXwZM=;
-        h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-         To:Cc:Content-Type;
-        b=SVk2Y7lxd3FSRdvMVhErmj5yvn35ybgvJ+XsJqCmwb2fdHlP7cWYogI3e7DY10RG1
-         lo+HkGzT4nawi9lTOlt+S/B+aAoE9yohxtrX3JrrqbKz7gDSgLUl92xYuxGk7Qli8c
-         LGMepjQXIz7GuME8nRnXTONFMt8WypQM5UwsVlT/8v/1jH8hhfW8jsUKfkarREerJj
-         ZucXKpCA/93uVgjmsYxdRH4wnhTIpVxsQEkim4EBYRXMnGlQhLXEjKKC0NbGu8JTC+
-         w9KXHmb+mlseP/6rNlKf+CriEFxnNh9X3ZIDbD6EPXSLhBwrnEjvpgmKhHLCJ5IzW+
-         wpanXydpM4XBg==
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-541a39df9f4so54006067b3.20
-        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 04:06:59 -0700 (PDT)
+        with ESMTP id S232114AbjCNNGn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Mar 2023 09:06:43 -0400
+Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA94A42F8
+        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 06:03:26 -0700 (PDT)
+Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-5445009c26bso77911737b3.8
+        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 06:03:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678799002;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=G1aqj0/efax3qIf209GBiV/bMKQ3vcdTS779QP6G9HU=;
+        b=M8BCo8OFrFesVddTXVl6y6uAETrcQ1QHFMWdtPQCJD6FtlsCAPi1YmHxZ90TRVXYwa
+         c9H8bEfX/yFphsV22VTKzrUHXKbye590sW7tBrhEh5aSjeWoiRYp64xw7lwlv0BuPiiq
+         q4W5CuV5iZ4HjtMelx7d8DF6tUPxMUcW9G3w4+Bhg5VDwzvTYUSDYnHK5b9vrJivAOZd
+         C/3D4+SY3jn0MWGlRfFHgeCZnx7NqvNU1HXWzjWEEs6CgrEAYLin/WaSShdqi2Hzujy6
+         d0x2TZtoreXaQwDpCmvYrEtkWC4OBHdGIe78QsxXVjyj5E+rcO9kBL88ufiE+e03cVgq
+         Xr7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678792017;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=k14yaOEAzliIFD8KZYv4oaFat34UVWC+PGIHdaYXwZM=;
-        b=vdpiub/eASVjF36iEFtHuW5Iz/aB6HD2hxypIbqHdrSl/+Y2yf2gD7VlApkta6QZzr
-         6tJCuFickqH8tuojp7rgmoydhZlAoTlaLKj1S3duITrC/aZ1lml/oaEM3Td0e105JsEG
-         iRqRQSDUnHWPZ6enSOxIbbb5neFdoRvJQldkGCRlRNu2o7HJHyjP5RpgGROlysf9u6J1
-         QLPqj3HmeXP4jPYxp2JqFc2OMGvjOyMOl2hq9ZoKsG6wcBWQmaf1RIsyCAYBpFB2Y5hs
-         HRcQN2LJ5/nJaPp58VXXrA/dosLLI4EznokvqYybBRN0XLnZDoWqjgo0oOqWUbsia58c
-         A1mg==
-X-Gm-Message-State: AO0yUKXDWC81g6G7ZalpLdnJS+8Q/jZWC2MAm6KxfufIALCIvnZnZQmy
-        jXRN3fHudtoTLSgRAfaNRUiEpmuSI/A46Tg8WjpTnPy+bEnBxztnE6dBYimNbEoWw5Uu4lbvnXD
-        41Vpz+ebExFUuPo1Wjx+jz7PRtnXZ3UM2MrU7VxhdmU1w77wqOhI=
-X-Received: by 2002:a81:ac16:0:b0:541:6d4c:9276 with SMTP id k22-20020a81ac16000000b005416d4c9276mr7227850ywh.5.1678792017404;
-        Tue, 14 Mar 2023 04:06:57 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/ap6Yf7I4ORuPAe4AejZtf7377TRSsrnRb5EGLH7hoPGHDq0W8wPRWfaB0eoy1gwaffsme4UBkIpTVUoXQts8=
-X-Received: by 2002:a81:ac16:0:b0:541:6d4c:9276 with SMTP id
- k22-20020a81ac16000000b005416d4c9276mr7227838ywh.5.1678792017213; Tue, 14 Mar
- 2023 04:06:57 -0700 (PDT)
+        d=1e100.net; s=20210112; t=1678799002;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=G1aqj0/efax3qIf209GBiV/bMKQ3vcdTS779QP6G9HU=;
+        b=0rxrGGZ8BP4tIoSXSml4kRu+stuEkL6jYcGlGDA5YHNIQmBHFO0LprY1n0/y4bR6M1
+         kDZm37VwXAEhmsQXVupZgvSGNJPeWgSirWlx5Uhclz82gr/Z4qAihpZ/OjU+/yLX9q7d
+         CWCdCrZvq2LfaKtJ/KnH5Tpyhnv9ZfyAiyj44FNg1ClsOYna9/15oFGEFQPzSea4zM/C
+         nykgSzNDDiHNhmR9To3zL6+TUMXHlxge7T4ImcYtRWx/t3koMCDj6P+BjDLTyMvlW8b5
+         iz0IDYdyD9R07+hvwdNSbuG9t1oIdmwhrLdPDN8Z/Df/WeOghdc/BR5a2RfAnptjroLj
+         pXkA==
+X-Gm-Message-State: AO0yUKXz64gBLUnRRyki3lXwdG++YNZDa960un0FBn2ycKBR7849mqyy
+        bMbD8+7oYfJtpAtMGq6TdcuPEuL/D5A=
+X-Google-Smtp-Source: AK7set99q/gU/2l3/JYYP5tz5+opEaqC0kGhlJqo3OwCx/nxoFvb6cokdZ0SZUlwK/9ZsTH7Ng0gAQ==
+X-Received: by 2002:a05:7500:33a2:b0:fb:c522:218c with SMTP id cr34-20020a05750033a200b000fbc522218cmr222084gab.8.1678799001754;
+        Tue, 14 Mar 2023 06:03:21 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id e28-20020a05620a015c00b007419f1561fesm1679568qkn.112.2023.03.14.06.03.20
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 14 Mar 2023 06:03:21 -0700 (PDT)
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     paul@paul-moore.com, omosnace@redhat.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [RFC PATCH v2] selinux: cache access vector decisions in the inode security blob
+Date:   Tue, 14 Mar 2023 08:57:35 -0400
+Message-Id: <20230314125734.19896-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-References: <20230313113211.178010-1-aleksandr.mikhalitsyn@canonical.com>
- <CAEivzxf630y_kjVLNM4m1vfQxnwyOBK+0wiCLW1T+8miPVC5Fg@mail.gmail.com> <CAHC9VhT2-QJ6yRoAvbicg5n_NUZLpJ5YjNer4TcHwiaW2hq6FQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhT2-QJ6yRoAvbicg5n_NUZLpJ5YjNer4TcHwiaW2hq6FQ@mail.gmail.com>
-From:   Aleksandr Mikhalitsyn <aleksandr.mikhalitsyn@canonical.com>
-Date:   Tue, 14 Mar 2023 12:06:46 +0100
-Message-ID: <CAEivzxcbp61xdDL6mfoMBu4t5C3auyDO_-ec7wHu0EbN=zh2WQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v2] scm: fix MSG_CTRUNC setting condition for SO_PASSSEC
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     davem@davemloft.net, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Leon Romanovsky <leon@kernel.org>, jmorris@namei.org,
-        serge@hallyn.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 13, 2023 at 9:43=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Mon, Mar 13, 2023 at 7:40=E2=80=AFAM Aleksandr Mikhalitsyn
-> <aleksandr.mikhalitsyn@canonical.com> wrote:
-> >
-> > +CC security subsystem folks
-> >
-> > On Mon, Mar 13, 2023 at 12:32=E2=80=AFPM Alexander Mikhalitsyn
-> > <aleksandr.mikhalitsyn@canonical.com> wrote:
-> > >
-> > > Currently, kernel would set MSG_CTRUNC flag if msg_control buffer
-> > > wasn't provided and SO_PASSCRED was set or if there was pending SCM_R=
-IGHTS.
-> > >
-> > > For some reason we have no corresponding check for SO_PASSSEC.
-> > >
-> > > In the recvmsg(2) doc we have:
-> > >        MSG_CTRUNC
-> > >               indicates that some control data was discarded due to l=
-ack
-> > >               of space in the buffer for ancillary data.
-> > >
-> > > So, we need to set MSG_CTRUNC flag for all types of SCM.
-> > >
-> > > This change can break applications those don't check MSG_CTRUNC flag.
->
-> Unless I'm missing something I don't think this will actually result
-> in a userspace visible change as put_cmsg() already has a number of
-> checks which set the MSG_CTRUNC flag if necessary (including if no
-> control buffer is passed, e.g. msg_control =3D=3D NULL).
+I think Linus suggested this a long long time ago but I never got around
+to trying it. Better late than never. Compute the access vector decision
+when the inode security blob is initialized and cache it in the blob.
+Update it on file opens. In selinux_inode_permission and inode_has_perm,
+use this cached decision unless invalidated.
 
-Yes you are right. I found this check suspicious while working on
-SCM_PIDFD (which is not yet submitted to LKML),
-I think it is worth fixing that check anyway just for consistency reasons.
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+This is relative to "selinux: stop passing selinux_state pointers
+and their offspring" which is not yet merged.
 
->
-> Regardless, it looks fine to me.
->
-> Acked-by: Paul Moore <paul@paul-moore.com>
+There is an obvious race here; we need some form of synchronization
+to ensure consistency of isec->task_sid, isec->avdsid, and
+isec->avd since otherwise we could end up using the wrong access
+vector decision if e.g. two tasks with different SIDs are accessing
+the same file. Doing so safely without ending up with worse
+overhead for selinux_inode_permission and inode_has_perm requires
+care; open to suggestions here.
 
-Thanks, Paul!
+ security/selinux/avc.c            | 45 +++++++++++++++---
+ security/selinux/hooks.c          | 79 ++++++++++++++++++++++++++-----
+ security/selinux/include/avc.h    |  7 +++
+ security/selinux/include/objsec.h |  2 +
+ security/selinux/ss/services.c    |  3 +-
+ 5 files changed, 118 insertions(+), 18 deletions(-)
 
-Regards,
-Alex
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index c162e51fb43c..c74bdd76b38a 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -357,6 +357,8 @@ static int avc_xperms_populate(struct avc_node *node,
+ 	struct avc_xperms_decision_node *dest_xpd;
+ 	struct avc_xperms_decision_node *src_xpd;
+ 
++	if (!src)
++		return 0;
+ 	if (src->xp.len == 0)
+ 		return 0;
+ 	dest = avc_xperms_alloc();
+@@ -988,15 +990,17 @@ static noinline struct avc_node *avc_compute_av(u32 ssid, u32 tsid, u16 tclass,
+ 						struct av_decision *avd,
+ 						struct avc_xperms_node *xp_node)
+ {
+-	INIT_LIST_HEAD(&xp_node->xpd_head);
+-	security_compute_av(ssid, tsid, tclass, avd, &xp_node->xp);
++	if (xp_node)
++		INIT_LIST_HEAD(&xp_node->xpd_head);
++	security_compute_av(ssid, tsid, tclass, avd,
++			xp_node ? &xp_node->xp : NULL);
+ 	return avc_insert(ssid, tsid, tclass, avd, xp_node);
+ }
+ 
+-static noinline int avc_denied(u32 ssid, u32 tsid,
+-			       u16 tclass, u32 requested,
+-			       u8 driver, u8 xperm, unsigned int flags,
+-			       struct av_decision *avd)
++noinline int avc_denied(u32 ssid, u32 tsid,
++			u16 tclass, u32 requested,
++			u8 driver, u8 xperm, unsigned int flags,
++			struct av_decision *avd)
+ {
+ 	if (flags & AVC_STRICT)
+ 		return -EACCES;
+@@ -1121,6 +1125,35 @@ static noinline int avc_perm_nonode(u32 ssid, u32 tsid, u16 tclass,
+ 	return 0;
+ }
+ 
++/**
++ * avc_get_avd - Get access vector decisions
++ * @ssid: source security identifier
++ * @tsid: target security identifier
++ * @tclass: target security class
++ * @avd: access vector decisions
++ *
++ * Get access vector decisions for the specified (@ssid, @tsid, @tclass)
++ * triple, fetching them from the access vector cache if present or
++ * calling the security server to compute them on a miss. Unlike
++ * avc_has_perm_noaudit(), this function does not check any
++ * requested permission; it just returns the entire decision vector.
++ */
++void avc_get_avd(u32 ssid, u32 tsid, u16 tclass, struct av_decision *avd)
++{
++	struct avc_node *node;
++
++	rcu_read_lock();
++	node = avc_lookup(ssid, tsid, tclass);
++	if (unlikely(!node)) {
++		rcu_read_unlock();
++		avc_compute_av(ssid, tsid, tclass, avd, NULL);
++		return;
++	}
++	memcpy(avd, &node->ae.avd, sizeof(*avd));
++	rcu_read_unlock();
++}
++
++
+ /**
+  * avc_has_perm_noaudit - Check permissions but perform no auditing.
+  * @ssid: source security identifier
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index db6d8b68b543..f7341f87ea99 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -793,6 +793,9 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 			goto out;
+ 
+ 		root_isec->sid = rootcontext_sid;
++		avc_get_avd(root_isec->task_sid, root_isec->sid,
++			root_isec->sclass, &root_isec->avd);
++		root_isec->avdsid = root_isec->sid;
+ 		root_isec->initialized = LABEL_INITIALIZED;
+ 	}
+ 
+@@ -1517,8 +1520,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			isec->initialized = LABEL_INVALID;
+ 			goto out_unlock;
+ 		}
+-		isec->initialized = LABEL_INITIALIZED;
+ 		isec->sid = sid;
++		avc_get_avd(task_sid, sid, sclass, &isec->avd);
++		isec->avdsid = sid;
++		isec->initialized = LABEL_INITIALIZED;
+ 	}
+ 
+ out_unlock:
+@@ -1611,7 +1616,9 @@ static int inode_has_perm(const struct cred *cred,
+ 			  struct common_audit_data *adp)
+ {
+ 	struct inode_security_struct *isec;
+-	u32 sid;
++	u32 sid, denied;
++	struct av_decision avd;
++	int rc, rc2;
+ 
+ 	validate_creds(cred);
+ 
+@@ -1621,6 +1628,21 @@ static int inode_has_perm(const struct cred *cred,
+ 	sid = cred_sid(cred);
+ 	isec = selinux_inode(inode);
+ 
++	if (sid == isec->task_sid && isec->sid == isec->avdsid &&
++		isec->avd.seqno == avc_policy_seqno()) {
++		memcpy(&avd, &isec->avd, sizeof(avd));
++		denied = perms & ~avd.allowed;
++		if (unlikely(denied))
++			rc = avc_denied(sid, isec->sid, isec->sclass,
++					perms, 0, 0, 0,	&avd);
++		else
++			rc = 0;
++		rc2 = avc_audit(sid, isec->sid, isec->sclass, perms, &avd, rc, adp);
++		if (rc2)
++			return rc2;
++		return rc;
++	}
++
+ 	return avc_has_perm(sid, isec->sid, isec->sclass, perms, adp);
+ }
+ 
+@@ -2851,6 +2873,8 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 		struct inode_security_struct *isec = selinux_inode(inode);
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 		isec->sid = newsid;
++		avc_get_avd(tsec->sid, newsid, isec->sclass, &isec->avd);
++		isec->avdsid = newsid;
+ 		isec->initialized = LABEL_INITIALIZED;
+ 	}
+ 
+@@ -2912,20 +2936,20 @@ static int selinux_inode_init_security_anon(struct inode *inode,
+ 			return rc;
+ 	}
+ 
+-	isec->initialized = LABEL_INITIALIZED;
+ 	/*
+ 	 * Now that we've initialized security, check whether we're
+ 	 * allowed to actually create this type of anonymous inode.
+ 	 */
++	rc = avc_has_perm_noaudit(tsec->sid, isec->sid, isec->sclass,
++				FILE__CREATE, 0, &isec->avd);
++
++	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	ad.type = LSM_AUDIT_DATA_ANONINODE;
+ 	ad.u.anonclass = name ? (const char *)name->name : "?";
+-
+-	return avc_has_perm(tsec->sid,
+-			    isec->sid,
+-			    isec->sclass,
+-			    FILE__CREATE,
+-			    &ad);
++	avc_audit(tsec->sid, isec->sid, isec->sclass, FILE__CREATE, &isec->avd,
++		rc, &ad);
++	return rc;
+ }
+ 
+ static int selinux_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
+@@ -3041,8 +3065,19 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 	if (IS_ERR(isec))
+ 		return PTR_ERR(isec);
+ 
+-	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0,
+-				  &avd);
++	if (sid == isec->task_sid && isec->sid == isec->avdsid &&
++		isec->avd.seqno == avc_policy_seqno()) {
++		memcpy(&avd, &isec->avd, sizeof(avd));
++		denied = perms & ~avd.allowed;
++		if (unlikely(denied))
++			rc = avc_denied(sid, isec->sid, isec->sclass,
++					perms, 0, 0, 0,	&avd);
++		else
++			rc = 0;
++	} else {
++		rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms,
++					0, &avd);
++	}
+ 	audited = avc_audit_required(perms, &avd, rc,
+ 				     from_access ? FILE__AUDIT_ACCESS : 0,
+ 				     &denied);
+@@ -3247,6 +3282,8 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
++	avc_get_avd(isec->task_sid, newsid, isec->sclass, &isec->avd);
++	isec->avdsid = newsid;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 	spin_unlock(&isec->lock);
+ }
+@@ -3406,6 +3443,8 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
++	avc_get_avd(isec->task_sid, newsid, isec->sclass, &isec->avd);
++	isec->avdsid = newsid;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 	spin_unlock(&isec->lock);
+ 	return 0;
+@@ -3874,6 +3913,18 @@ static int selinux_file_open(struct file *file)
+ 	 */
+ 	fsec->isid = isec->sid;
+ 	fsec->pseqno = avc_policy_seqno();
++
++	/*
++	 * Update inode task SID and avd to reflect opener for later
++	 * use in selinux_inode_permission and inode_has_perm.
++	 */
++	spin_lock(&isec->lock);
++	isec->task_sid = fsec->sid;
++	isec->avdsid = isec->sid;
++	avc_get_avd(isec->task_sid, isec->avdsid,
++		isec->sclass, &isec->avd);
++	spin_unlock(&isec->lock);
++
+ 	/*
+ 	 * Since the inode label or policy seqno may have changed
+ 	 * between the selinux_inode_permission check and the saving
+@@ -4162,6 +4213,8 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = sid;
++	avc_get_avd(isec->task_sid, sid, isec->sclass, &isec->avd);
++	isec->avdsid = sid;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 	spin_unlock(&isec->lock);
+ }
+@@ -4534,6 +4587,8 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 
+ 	isec->sclass = sclass;
+ 	isec->sid = sid;
++	avc_get_avd(isec->task_sid, sid, sclass, &isec->avd);
++	isec->avdsid = sid;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	if (sock->sk) {
+@@ -4827,6 +4882,8 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
+ 	newisec = inode_security_novalidate(SOCK_INODE(newsock));
+ 	newisec->sclass = sclass;
+ 	newisec->sid = sid;
++	avc_get_avd(newisec->task_sid, sid, sclass, &newisec->avd);
++	newisec->avdsid = sid;
+ 	newisec->initialized = LABEL_INITIALIZED;
+ 
+ 	return 0;
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 9301222c8e55..14fc5ed1a156 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -141,6 +141,13 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+ 			 unsigned flags,
+ 			 struct av_decision *avd);
+ 
++void avc_get_avd(u32 ssid, u32 tsid, u16 tclass, struct av_decision *avd);
++
++int avc_denied(u32 ssid, u32 tsid,
++	u16 tclass, u32 requested,
++	u8 driver, u8 xperm, unsigned int flags,
++	struct av_decision *avd);
++
+ int avc_has_perm(u32 ssid, u32 tsid,
+ 		 u16 tclass, u32 requested,
+ 		 struct common_audit_data *auditdata);
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 2953132408bf..da95a75e6c77 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -50,6 +50,8 @@ struct inode_security_struct {
+ 	u32 sid;		/* SID of this object */
+ 	u16 sclass;		/* security class of this object */
+ 	unsigned char initialized;	/* initialization flag */
++	u32 avdsid;		/* SID when avd was computed */
++	struct av_decision avd; /* access vector decisions */
+ 	spinlock_t lock;
+ };
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f14d1ffe54c5..7353c027c389 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1107,7 +1107,8 @@ void security_compute_av(u32 ssid,
+ 	rcu_read_lock();
+ 	policy = rcu_dereference(selinux_state.policy);
+ 	avd_init(policy, avd);
+-	xperms->len = 0;
++	if (xperms)
++		xperms->len = 0;
+ 	if (!selinux_initialized())
+ 		goto allow;
+ 
+-- 
+2.39.2
 
->
-> > > Cc: "David S. Miller" <davem@davemloft.net>
-> > > Cc: Eric Dumazet <edumazet@google.com>
-> > > Cc: Jakub Kicinski <kuba@kernel.org>
-> > > Cc: Paolo Abeni <pabeni@redhat.com>
-> > > Cc: Leon Romanovsky <leon@kernel.org>
-> > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > > Signed-off-by: Alexander Mikhalitsyn <aleksandr.mikhalitsyn@canonical=
-.com>
-> > >
-> > > v2:
-> > > - commit message was rewritten according to Eric's suggestion
-> > > ---
-> > >  include/net/scm.h | 13 ++++++++++++-
-> > >  1 file changed, 12 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/include/net/scm.h b/include/net/scm.h
-> > > index 1ce365f4c256..585adc1346bd 100644
-> > > --- a/include/net/scm.h
-> > > +++ b/include/net/scm.h
-> > > @@ -105,16 +105,27 @@ static inline void scm_passec(struct socket *so=
-ck, struct msghdr *msg, struct sc
-> > >                 }
-> > >         }
-> > >  }
-> > > +
-> > > +static inline bool scm_has_secdata(struct socket *sock)
-> > > +{
-> > > +       return test_bit(SOCK_PASSSEC, &sock->flags);
-> > > +}
-> > >  #else
-> > >  static inline void scm_passec(struct socket *sock, struct msghdr *ms=
-g, struct scm_cookie *scm)
-> > >  { }
-> > > +
-> > > +static inline bool scm_has_secdata(struct socket *sock)
-> > > +{
-> > > +       return false;
-> > > +}
-> > >  #endif /* CONFIG_SECURITY_NETWORK */
-> > >
-> > >  static __inline__ void scm_recv(struct socket *sock, struct msghdr *=
-msg,
-> > >                                 struct scm_cookie *scm, int flags)
-> > >  {
-> > >         if (!msg->msg_control) {
-> > > -               if (test_bit(SOCK_PASSCRED, &sock->flags) || scm->fp)
-> > > +               if (test_bit(SOCK_PASSCRED, &sock->flags) || scm->fp =
-||
-> > > +                   scm_has_secdata(sock))
-> > >                         msg->msg_flags |=3D MSG_CTRUNC;
-> > >                 scm_destroy(scm);
-> > >                 return;
-> > > --
-> > > 2.34.1
->
-> --
-> paul-moore.com
