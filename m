@@ -2,60 +2,64 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DB10C6FD1C
-	for <selinux@archiver.kernel.org>; Tue, 14 Mar 2023 13:07:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08A9DC05027
+	for <selinux@archiver.kernel.org>; Tue, 14 Mar 2023 16:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbjCNNHF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Mar 2023 09:07:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57656 "EHLO
+        id S230226AbjCNQ7t (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Mar 2023 12:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232114AbjCNNGn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Mar 2023 09:06:43 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBA94A42F8
-        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 06:03:26 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-5445009c26bso77911737b3.8
-        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 06:03:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678799002;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=G1aqj0/efax3qIf209GBiV/bMKQ3vcdTS779QP6G9HU=;
-        b=M8BCo8OFrFesVddTXVl6y6uAETrcQ1QHFMWdtPQCJD6FtlsCAPi1YmHxZ90TRVXYwa
-         c9H8bEfX/yFphsV22VTKzrUHXKbye590sW7tBrhEh5aSjeWoiRYp64xw7lwlv0BuPiiq
-         q4W5CuV5iZ4HjtMelx7d8DF6tUPxMUcW9G3w4+Bhg5VDwzvTYUSDYnHK5b9vrJivAOZd
-         C/3D4+SY3jn0MWGlRfFHgeCZnx7NqvNU1HXWzjWEEs6CgrEAYLin/WaSShdqi2Hzujy6
-         d0x2TZtoreXaQwDpCmvYrEtkWC4OBHdGIe78QsxXVjyj5E+rcO9kBL88ufiE+e03cVgq
-         Xr7A==
+        with ESMTP id S230300AbjCNQ7s (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Mar 2023 12:59:48 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9DA6B314
+        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 09:59:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1678813144;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ic14qY8AtfshmC4R1E3KPVCyYvuYFfssvGZ5fsMvA/0=;
+        b=hTqn9yr0yPvIO704N3286WeFSuwNeSp+CeFsnRmE5pXuAAa+Jn1ashAnTYii8ItIwKTkLn
+        keXb+uwIYtZxXGOokgc2jHHX+uv5uXtdapHe79w/dTVGHKlspKYAovSLz57akH1fYJE6j/
+        U1MAyaHMlcxjKBy2d5htiUjAtYe6klE=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-636-co7S0z0-PVS7Dg2ACosB-g-1; Tue, 14 Mar 2023 12:59:01 -0400
+X-MC-Unique: co7S0z0-PVS7Dg2ACosB-g-1
+Received: by mail-wr1-f71.google.com with SMTP id g14-20020a5d64ee000000b002cfe47b8ec4so1036501wri.10
+        for <selinux@vger.kernel.org>; Tue, 14 Mar 2023 09:59:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678799002;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=G1aqj0/efax3qIf209GBiV/bMKQ3vcdTS779QP6G9HU=;
-        b=0rxrGGZ8BP4tIoSXSml4kRu+stuEkL6jYcGlGDA5YHNIQmBHFO0LprY1n0/y4bR6M1
-         kDZm37VwXAEhmsQXVupZgvSGNJPeWgSirWlx5Uhclz82gr/Z4qAihpZ/OjU+/yLX9q7d
-         CWCdCrZvq2LfaKtJ/KnH5Tpyhnv9ZfyAiyj44FNg1ClsOYna9/15oFGEFQPzSea4zM/C
-         nykgSzNDDiHNhmR9To3zL6+TUMXHlxge7T4ImcYtRWx/t3koMCDj6P+BjDLTyMvlW8b5
-         iz0IDYdyD9R07+hvwdNSbuG9t1oIdmwhrLdPDN8Z/Df/WeOghdc/BR5a2RfAnptjroLj
-         pXkA==
-X-Gm-Message-State: AO0yUKXz64gBLUnRRyki3lXwdG++YNZDa960un0FBn2ycKBR7849mqyy
-        bMbD8+7oYfJtpAtMGq6TdcuPEuL/D5A=
-X-Google-Smtp-Source: AK7set99q/gU/2l3/JYYP5tz5+opEaqC0kGhlJqo3OwCx/nxoFvb6cokdZ0SZUlwK/9ZsTH7Ng0gAQ==
-X-Received: by 2002:a05:7500:33a2:b0:fb:c522:218c with SMTP id cr34-20020a05750033a200b000fbc522218cmr222084gab.8.1678799001754;
-        Tue, 14 Mar 2023 06:03:21 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id e28-20020a05620a015c00b007419f1561fesm1679568qkn.112.2023.03.14.06.03.20
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Mar 2023 06:03:21 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+        d=1e100.net; s=20210112; t=1678813140;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ic14qY8AtfshmC4R1E3KPVCyYvuYFfssvGZ5fsMvA/0=;
+        b=aB0jfhr9ljih6aEakYnfDjeJv3KDWd/JnBQN2db9FqpBsSTDjwwv6GKo7JAgXGfHS1
+         ewHmc9OG9uFIj9Hcfq+IE01flWwD3w4XPYjnA6cMtI0YzZdvY16oco5aLc6uQziUGCla
+         qcbzrLwnYYFtL6znsnszwZkrNVsjzo26sZWuQV/ERtxFfNkzYJ1Q4a7ZGhDzYjTHs0ln
+         5KKGsNIhZiwTqjDIyzPlpHUS9XDJes9cae5LsfkNCmeYUDDca5bLMkNmHS8T4QdeDRvl
+         nd4vYxaf3fZ8AGtd2oZmpFWSCcq9maYheJY4ZB7yvTcGVCLL1JySEP3Ew13+6+WUV/is
+         iekQ==
+X-Gm-Message-State: AO0yUKUiB8cfF3MeAWSE5kRKT9NOVx48zEEa3G0+iuhheEfkAFI94ceR
+        rjV9w1AO0vJB6AlSr5hZacrNYLQvZvip9e/SmnhEK5+qxTVU8f0GpGZZgKZLciQ+r4WyxJzRNjb
+        8NtsgGoIs6ahxuKMrs7UKYjkzoTFsfeai/FBW7ATmj5BozfnLeAXRm1szIrs/SIB6tGwJjmZohJ
+        oTiCBN
+X-Received: by 2002:a05:600c:470a:b0:3e1:bfc:d16e with SMTP id v10-20020a05600c470a00b003e10bfcd16emr14906582wmo.39.1678813140277;
+        Tue, 14 Mar 2023 09:59:00 -0700 (PDT)
+X-Google-Smtp-Source: AK7set86AvsliidUT3+XKHCWzp5Gps3bFdq1o7h7LP2R/o8TOn5kQeSG9Mc6EdifhNQKYV1DtMCx5Q==
+X-Received: by 2002:a05:600c:470a:b0:3e1:bfc:d16e with SMTP id v10-20020a05600c470a00b003e10bfcd16emr14906564wmo.39.1678813139925;
+        Tue, 14 Mar 2023 09:58:59 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id e17-20020a5d5951000000b002c70bfe505esm2508711wri.82.2023.03.14.09.58.59
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Mar 2023 09:58:59 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, omosnace@redhat.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [RFC PATCH v2] selinux: cache access vector decisions in the inode security blob
-Date:   Tue, 14 Mar 2023 08:57:35 -0400
-Message-Id: <20230314125734.19896-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite] tests/atsecure: avoid running bash under test domains
+Date:   Tue, 14 Mar 2023 17:58:58 +0100
+Message-Id: <20230314165858.498705-1-omosnace@redhat.com>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -63,333 +67,35 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I think Linus suggested this a long long time ago but I never got around
-to trying it. Better late than never. Compute the access vector decision
-when the inode security blob is initialized and cache it in the blob.
-Update it on file opens. In selinux_inode_permission and inode_has_perm,
-use this cached decision unless invalidated.
+The 'env' utility can be used just as well. This avoids the "bash:
+/root/.bashrc: Permission denied" error message that appears when the
+testsuite is ran with a terminal attached to the stdout/stdin and the
+corresponding AVC denials.
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
-This is relative to "selinux: stop passing selinux_state pointers
-and their offspring" which is not yet merged.
+ tests/atsecure/test | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-There is an obvious race here; we need some form of synchronization
-to ensure consistency of isec->task_sid, isec->avdsid, and
-isec->avd since otherwise we could end up using the wrong access
-vector decision if e.g. two tasks with different SIDs are accessing
-the same file. Doing so safely without ending up with worse
-overhead for selinux_inode_permission and inode_has_perm requires
-care; open to suggestions here.
-
- security/selinux/avc.c            | 45 +++++++++++++++---
- security/selinux/hooks.c          | 79 ++++++++++++++++++++++++++-----
- security/selinux/include/avc.h    |  7 +++
- security/selinux/include/objsec.h |  2 +
- security/selinux/ss/services.c    |  3 +-
- 5 files changed, 118 insertions(+), 18 deletions(-)
-
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index c162e51fb43c..c74bdd76b38a 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -357,6 +357,8 @@ static int avc_xperms_populate(struct avc_node *node,
- 	struct avc_xperms_decision_node *dest_xpd;
- 	struct avc_xperms_decision_node *src_xpd;
+diff --git a/tests/atsecure/test b/tests/atsecure/test
+index 59ba3a4..4079a1b 100755
+--- a/tests/atsecure/test
++++ b/tests/atsecure/test
+@@ -20,12 +20,12 @@ ok( $result, 0 );
  
-+	if (!src)
-+		return 0;
- 	if (src->xp.len == 0)
- 		return 0;
- 	dest = avc_xperms_alloc();
-@@ -988,15 +990,17 @@ static noinline struct avc_node *avc_compute_av(u32 ssid, u32 tsid, u16 tclass,
- 						struct av_decision *avd,
- 						struct avc_xperms_node *xp_node)
- {
--	INIT_LIST_HEAD(&xp_node->xpd_head);
--	security_compute_av(ssid, tsid, tclass, avd, &xp_node->xp);
-+	if (xp_node)
-+		INIT_LIST_HEAD(&xp_node->xpd_head);
-+	security_compute_av(ssid, tsid, tclass, avd,
-+			xp_node ? &xp_node->xp : NULL);
- 	return avc_insert(ssid, tsid, tclass, avd, xp_node);
- }
+ # Verify that LD_PRELOAD is ignored when noatsecure permission is not allowed.
+ $result = system(
+-"runcon -t test_atsecure_denied_t -- bash -c 'LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good'"
++"runcon -t test_atsecure_denied_t -- env LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good"
+ );
+ ok( $result, 0 );
  
--static noinline int avc_denied(u32 ssid, u32 tsid,
--			       u16 tclass, u32 requested,
--			       u8 driver, u8 xperm, unsigned int flags,
--			       struct av_decision *avd)
-+noinline int avc_denied(u32 ssid, u32 tsid,
-+			u16 tclass, u32 requested,
-+			u8 driver, u8 xperm, unsigned int flags,
-+			struct av_decision *avd)
- {
- 	if (flags & AVC_STRICT)
- 		return -EACCES;
-@@ -1121,6 +1125,35 @@ static noinline int avc_perm_nonode(u32 ssid, u32 tsid, u16 tclass,
- 	return 0;
- }
- 
-+/**
-+ * avc_get_avd - Get access vector decisions
-+ * @ssid: source security identifier
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @avd: access vector decisions
-+ *
-+ * Get access vector decisions for the specified (@ssid, @tsid, @tclass)
-+ * triple, fetching them from the access vector cache if present or
-+ * calling the security server to compute them on a miss. Unlike
-+ * avc_has_perm_noaudit(), this function does not check any
-+ * requested permission; it just returns the entire decision vector.
-+ */
-+void avc_get_avd(u32 ssid, u32 tsid, u16 tclass, struct av_decision *avd)
-+{
-+	struct avc_node *node;
-+
-+	rcu_read_lock();
-+	node = avc_lookup(ssid, tsid, tclass);
-+	if (unlikely(!node)) {
-+		rcu_read_unlock();
-+		avc_compute_av(ssid, tsid, tclass, avd, NULL);
-+		return;
-+	}
-+	memcpy(avd, &node->ae.avd, sizeof(*avd));
-+	rcu_read_unlock();
-+}
-+
-+
- /**
-  * avc_has_perm_noaudit - Check permissions but perform no auditing.
-  * @ssid: source security identifier
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index db6d8b68b543..f7341f87ea99 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -793,6 +793,9 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			goto out;
- 
- 		root_isec->sid = rootcontext_sid;
-+		avc_get_avd(root_isec->task_sid, root_isec->sid,
-+			root_isec->sclass, &root_isec->avd);
-+		root_isec->avdsid = root_isec->sid;
- 		root_isec->initialized = LABEL_INITIALIZED;
- 	}
- 
-@@ -1517,8 +1520,10 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			isec->initialized = LABEL_INVALID;
- 			goto out_unlock;
- 		}
--		isec->initialized = LABEL_INITIALIZED;
- 		isec->sid = sid;
-+		avc_get_avd(task_sid, sid, sclass, &isec->avd);
-+		isec->avdsid = sid;
-+		isec->initialized = LABEL_INITIALIZED;
- 	}
- 
- out_unlock:
-@@ -1611,7 +1616,9 @@ static int inode_has_perm(const struct cred *cred,
- 			  struct common_audit_data *adp)
- {
- 	struct inode_security_struct *isec;
--	u32 sid;
-+	u32 sid, denied;
-+	struct av_decision avd;
-+	int rc, rc2;
- 
- 	validate_creds(cred);
- 
-@@ -1621,6 +1628,21 @@ static int inode_has_perm(const struct cred *cred,
- 	sid = cred_sid(cred);
- 	isec = selinux_inode(inode);
- 
-+	if (sid == isec->task_sid && isec->sid == isec->avdsid &&
-+		isec->avd.seqno == avc_policy_seqno()) {
-+		memcpy(&avd, &isec->avd, sizeof(avd));
-+		denied = perms & ~avd.allowed;
-+		if (unlikely(denied))
-+			rc = avc_denied(sid, isec->sid, isec->sclass,
-+					perms, 0, 0, 0,	&avd);
-+		else
-+			rc = 0;
-+		rc2 = avc_audit(sid, isec->sid, isec->sclass, perms, &avd, rc, adp);
-+		if (rc2)
-+			return rc2;
-+		return rc;
-+	}
-+
- 	return avc_has_perm(sid, isec->sid, isec->sclass, perms, adp);
- }
- 
-@@ -2851,6 +2873,8 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 		struct inode_security_struct *isec = selinux_inode(inode);
- 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 		isec->sid = newsid;
-+		avc_get_avd(tsec->sid, newsid, isec->sclass, &isec->avd);
-+		isec->avdsid = newsid;
- 		isec->initialized = LABEL_INITIALIZED;
- 	}
- 
-@@ -2912,20 +2936,20 @@ static int selinux_inode_init_security_anon(struct inode *inode,
- 			return rc;
- 	}
- 
--	isec->initialized = LABEL_INITIALIZED;
- 	/*
- 	 * Now that we've initialized security, check whether we're
- 	 * allowed to actually create this type of anonymous inode.
- 	 */
-+	rc = avc_has_perm_noaudit(tsec->sid, isec->sid, isec->sclass,
-+				FILE__CREATE, 0, &isec->avd);
-+
-+	isec->initialized = LABEL_INITIALIZED;
- 
- 	ad.type = LSM_AUDIT_DATA_ANONINODE;
- 	ad.u.anonclass = name ? (const char *)name->name : "?";
--
--	return avc_has_perm(tsec->sid,
--			    isec->sid,
--			    isec->sclass,
--			    FILE__CREATE,
--			    &ad);
-+	avc_audit(tsec->sid, isec->sid, isec->sclass, FILE__CREATE, &isec->avd,
-+		rc, &ad);
-+	return rc;
- }
- 
- static int selinux_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
-@@ -3041,8 +3065,19 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- 	if (IS_ERR(isec))
- 		return PTR_ERR(isec);
- 
--	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0,
--				  &avd);
-+	if (sid == isec->task_sid && isec->sid == isec->avdsid &&
-+		isec->avd.seqno == avc_policy_seqno()) {
-+		memcpy(&avd, &isec->avd, sizeof(avd));
-+		denied = perms & ~avd.allowed;
-+		if (unlikely(denied))
-+			rc = avc_denied(sid, isec->sid, isec->sclass,
-+					perms, 0, 0, 0,	&avd);
-+		else
-+			rc = 0;
-+	} else {
-+		rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms,
-+					0, &avd);
-+	}
- 	audited = avc_audit_required(perms, &avd, rc,
- 				     from_access ? FILE__AUDIT_ACCESS : 0,
- 				     &denied);
-@@ -3247,6 +3282,8 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
- 	spin_lock(&isec->lock);
- 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = newsid;
-+	avc_get_avd(isec->task_sid, newsid, isec->sclass, &isec->avd);
-+	isec->avdsid = newsid;
- 	isec->initialized = LABEL_INITIALIZED;
- 	spin_unlock(&isec->lock);
- }
-@@ -3406,6 +3443,8 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
- 	spin_lock(&isec->lock);
- 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = newsid;
-+	avc_get_avd(isec->task_sid, newsid, isec->sclass, &isec->avd);
-+	isec->avdsid = newsid;
- 	isec->initialized = LABEL_INITIALIZED;
- 	spin_unlock(&isec->lock);
- 	return 0;
-@@ -3874,6 +3913,18 @@ static int selinux_file_open(struct file *file)
- 	 */
- 	fsec->isid = isec->sid;
- 	fsec->pseqno = avc_policy_seqno();
-+
-+	/*
-+	 * Update inode task SID and avd to reflect opener for later
-+	 * use in selinux_inode_permission and inode_has_perm.
-+	 */
-+	spin_lock(&isec->lock);
-+	isec->task_sid = fsec->sid;
-+	isec->avdsid = isec->sid;
-+	avc_get_avd(isec->task_sid, isec->avdsid,
-+		isec->sclass, &isec->avd);
-+	spin_unlock(&isec->lock);
-+
- 	/*
- 	 * Since the inode label or policy seqno may have changed
- 	 * between the selinux_inode_permission check and the saving
-@@ -4162,6 +4213,8 @@ static void selinux_task_to_inode(struct task_struct *p,
- 	spin_lock(&isec->lock);
- 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = sid;
-+	avc_get_avd(isec->task_sid, sid, isec->sclass, &isec->avd);
-+	isec->avdsid = sid;
- 	isec->initialized = LABEL_INITIALIZED;
- 	spin_unlock(&isec->lock);
- }
-@@ -4534,6 +4587,8 @@ static int selinux_socket_post_create(struct socket *sock, int family,
- 
- 	isec->sclass = sclass;
- 	isec->sid = sid;
-+	avc_get_avd(isec->task_sid, sid, sclass, &isec->avd);
-+	isec->avdsid = sid;
- 	isec->initialized = LABEL_INITIALIZED;
- 
- 	if (sock->sk) {
-@@ -4827,6 +4882,8 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
- 	newisec = inode_security_novalidate(SOCK_INODE(newsock));
- 	newisec->sclass = sclass;
- 	newisec->sid = sid;
-+	avc_get_avd(newisec->task_sid, sid, sclass, &newisec->avd);
-+	newisec->avdsid = sid;
- 	newisec->initialized = LABEL_INITIALIZED;
- 
- 	return 0;
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 9301222c8e55..14fc5ed1a156 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -141,6 +141,13 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
- 			 unsigned flags,
- 			 struct av_decision *avd);
- 
-+void avc_get_avd(u32 ssid, u32 tsid, u16 tclass, struct av_decision *avd);
-+
-+int avc_denied(u32 ssid, u32 tsid,
-+	u16 tclass, u32 requested,
-+	u8 driver, u8 xperm, unsigned int flags,
-+	struct av_decision *avd);
-+
- int avc_has_perm(u32 ssid, u32 tsid,
- 		 u16 tclass, u32 requested,
- 		 struct common_audit_data *auditdata);
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 2953132408bf..da95a75e6c77 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -50,6 +50,8 @@ struct inode_security_struct {
- 	u32 sid;		/* SID of this object */
- 	u16 sclass;		/* security class of this object */
- 	unsigned char initialized;	/* initialization flag */
-+	u32 avdsid;		/* SID when avd was computed */
-+	struct av_decision avd; /* access vector decisions */
- 	spinlock_t lock;
- };
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f14d1ffe54c5..7353c027c389 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1107,7 +1107,8 @@ void security_compute_av(u32 ssid,
- 	rcu_read_lock();
- 	policy = rcu_dereference(selinux_state.policy);
- 	avd_init(policy, avd);
--	xperms->len = 0;
-+	if (xperms)
-+		xperms->len = 0;
- 	if (!selinux_initialized())
- 		goto allow;
- 
+ # Verify that LD_PRELOAD is honored when noatsecure permission is allowed.
+ $result = system(
+-"runcon -t test_atsecure_allowed_t -- bash -c 'LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good'"
++"runcon -t test_atsecure_allowed_t -- env LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good"
+ );
+ ok($result);
 -- 
 2.39.2
 
