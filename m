@@ -2,111 +2,132 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CE3AC74A5B
-	for <selinux@archiver.kernel.org>; Fri, 17 Mar 2023 16:44:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B5C4C6FD1D
+	for <selinux@archiver.kernel.org>; Fri, 17 Mar 2023 19:39:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229815AbjCQQns (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Mar 2023 12:43:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41348 "EHLO
+        id S230004AbjCQTjz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Mar 2023 15:39:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbjCQQnX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Mar 2023 12:43:23 -0400
-Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AFF947827
-        for <selinux@vger.kernel.org>; Fri, 17 Mar 2023 09:42:56 -0700 (PDT)
-Received: by mail-vs1-xe32.google.com with SMTP id 187so5025451vsq.10
-        for <selinux@vger.kernel.org>; Fri, 17 Mar 2023 09:42:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1679071375;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PO+MhvRZGhwFMN2l9eu7PGLq5QYzWS+ooId9FrJZEiw=;
-        b=dv/izEVUKs6Z8xn6geDiOG0/lneOTrbkjowlJh+zMcVzvFxiwHUh37gPszIziMWLcN
-         +nxwaIgBrcFQjYdnu/xvhsaHfeK0F6Kts94oBLH3RSklC7rwkSWlc6+uOfB6AJHq7XQM
-         NZn4tpbVnzZHixbstYpZZAtAqa5vu7mr/OKQRiotU/bq0RYEf1lB82tgfpicAg4bdOB7
-         yeCjBV9SWdp991ymTW9HxtdTCyqTLL7IWHHIp2e9bDvoYeinQEwrXdOzO2bmMDTLTcOF
-         z8UXe9w2dsE4fKQ/njyzQeIaFN6oTyCP/Zpunq+g2CSlrK1yGQucgoW75TRVawqKA0qL
-         TE3A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679071375;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PO+MhvRZGhwFMN2l9eu7PGLq5QYzWS+ooId9FrJZEiw=;
-        b=OKeYPwFqIdUEWoiMQ7XEO8gD7EdNg60G6oWUH7sbSdCDB9owbDRU1JgOk2h6XmMMfd
-         xL1SzsuR5PxOuXWl2SQSYWRqkpA83t5/71+X26sHQ9BZxkmdWEq6YbJNnZ4C8Qg1X2X9
-         H6PufxhZHFp54Paak9NKMmnqVmyIF583kqLfwLNeauWHr+sAVgnc2On21Odvvs7QoMxR
-         A/U+HBhFgvtSjm3NlvUb2X0Kgm6QvXSutokaVK0w3PQpAi7CclR+k1d/GU+Fxu1rrWe6
-         qGVIlKWcmF1ZP5RB5PSZfqZfxX0MaSKzcCAl/Gip1PyMMf+p95SiPlv1CtjpNJp1J/ry
-         +6sQ==
-X-Gm-Message-State: AO0yUKU/mVn4gvynwFW6jUbjCiF36uUAb710LCQFb1TKLnX8HOfGQKTf
-        3fdalhdQ8ECxx78+8bO4zLjh1YEGmGvCmU4H0lEsVUnpz5VbCZs=
-X-Google-Smtp-Source: AK7set9Vn94kq6bU2y3WuHjWRSdS5HQDB0D4LdASpqHuxqIzJPC7v9iUJxARS7rnBJ9EedBIsKH5/U7CHbwIKl+KY+o=
-X-Received: by 2002:a67:d798:0:b0:420:10e:14e8 with SMTP id
- q24-20020a67d798000000b00420010e14e8mr95927vsj.1.1679071375031; Fri, 17 Mar
- 2023 09:42:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230316202355.349179-1-paul@paul-moore.com> <CAEjxPJ4cC+KAD1AQyJE8M3e_3-gXck5SmQeTS6ww8A_nEy=eeQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4cC+KAD1AQyJE8M3e_3-gXck5SmQeTS6ww8A_nEy=eeQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 17 Mar 2023 12:42:44 -0400
-Message-ID: <CAHC9VhRrcH1--3sTAAcxmuFerW1snSDdTiKuTxpAa7A9LN1aPA@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: remove the 'checkreqprot' functionality
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229735AbjCQTjy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Mar 2023 15:39:54 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4EF1E18E;
+        Fri, 17 Mar 2023 12:39:52 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 32HIqYt4031513;
+        Fri, 17 Mar 2023 19:39:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=1URlbCasJqipj7wwAu3MyeP8tjG8naLb0x+gto5CH0E=;
+ b=Pefo3U+lud4skk509kTTR+mhHmLTPOJvxx+Wv6DaLae1M24kbAhsa3/5WNzpvDFNkbrq
+ wiTxibGXwGRpT7XkXvj7mqYp86h6z1EWERlGT+dsZ45G+Rpc0t7enir2XbcXiwM0lrnw
+ gYIfhFhlnPdI8bkJjbLWBs8hjB9+kCRZpNqFy1aKAl606W/vQG4Trh27QqCOeGVYd53H
+ zy87NURsiYjOLinVrdr6qBIa75cXbHVtDFBjnis+eEa59OzXZo3PGXfqAYHU//LnYDFF
+ KsFQzFrvugKuh4SHXPhJqeNtBKnXHNK8xxFAxu3Pn4ojwpJV/c3MGS/2L9pKXofrcKiP HA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcwv9rxnj-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Mar 2023 19:39:11 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32HIw2HF021247;
+        Fri, 17 Mar 2023 19:39:10 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3pcwv9rxmq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Mar 2023 19:39:10 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 32HH6Ime002877;
+        Fri, 17 Mar 2023 19:39:09 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([9.208.129.117])
+        by ppma04wdc.us.ibm.com (PPS) with ESMTPS id 3pbs53a8uw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 17 Mar 2023 19:39:09 +0000
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+        by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 32HJd7nE62587342
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 17 Mar 2023 19:39:08 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C99DA58055;
+        Fri, 17 Mar 2023 19:39:07 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9C16158054;
+        Fri, 17 Mar 2023 19:39:05 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.19.65])
+        by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 17 Mar 2023 19:39:05 +0000 (GMT)
+Message-ID: <31fc7724c9689e8ec5bd6bfe026652d238d9fb84.camel@linux.ibm.com>
+Subject: Re: [PATCH v8 2/6] ocfs2: Switch to security_inode_init_security()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
+        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Fri, 17 Mar 2023 15:39:05 -0400
+In-Reply-To: <20230314081720.4158676-3-roberto.sassu@huaweicloud.com>
+References: <20230314081720.4158676-1-roberto.sassu@huaweicloud.com>
+         <20230314081720.4158676-3-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: S7g3m59HbJIce5-uMRJxwKvga7inpPsh
+X-Proofpoint-ORIG-GUID: 7R3ra_JluMXnCBHsDouDCvpfAnMIw3yP
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-17_17,2023-03-16_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ clxscore=1011 priorityscore=1501 lowpriorityscore=0 phishscore=0
+ malwarescore=0 bulkscore=0 spamscore=0 mlxlogscore=999 adultscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303170136
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 17, 2023 at 8:26=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Mar 16, 2023 at 4:34=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > We originally promised that the SELinux 'checkreqprot' functionality
-> > would be removed no sooner than June 2021, and now that it is March
-> > 2023 it seems like it is a good time to do the final removal.  The
-> > deprecation notice in the kernel provides plenty of detail on why
-> > 'checkreqprot' is not desirable, with the key point repeated below:
-> >
-> >   This was a compatibility mechanism for legacy userspace and
-> >   for the READ_IMPLIES_EXEC personality flag.  However, if set to
-> >   1, it weakens security by allowing mappings to be made executable
-> >   without authorization by policy.  The default value of checkreqprot
-> >   at boot was changed starting in Linux v4.4 to 0 (i.e. check the
-> >   actual protection), and Android and Linux distributions have been
-> >   explicitly writing a "0" to /sys/fs/selinux/checkreqprot during
-> >   initialization for some time.
-> >
-> > Along with the official deprecation notice, we have been discussing
-> > this on-list and directly with several of the larger SELinux-based
-> > distros and everyone is happy to see this feature finally removed.
-> > In an attempt to catch all of the smaller, and DIY, Linux systems
-> > we have been writing a deprecation notice URL into the kernel log,
-> > along with a growing ssleep() penalty, when admins enabled
-> > checkreqprot at runtime or via the kernel command line.  We have
-> > yet to have anyone come to us and raise an objection to the
-> > deprecation or planned removal.
-> >
-> > It is worth noting that while this patch removes the checkreqprot
-> > functionality, it leaves the user visible interfaces (kernel command
-> > line and selinuxfs file) intact, just inert.  This should help
-> > prevent breakages with existing userspace tools that correctly, but
-> > unnecessarily, disable checkreqprot at boot or runtime.  Admins
-> > that attempt to enable checkreqprot will be met with a removal
-> > message in the kernel log.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Tue, 2023-03-14 at 09:17 +0100, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> In preparation for removing security_old_inode_init_security(), switch to
+> security_inode_init_security().
+> 
+> Extend the existing ocfs2_initxattrs() to take the
+> ocfs2_security_xattr_info structure from fs_info, and populate the
+> name/value/len triple with the first xattr provided by LSMs.
+> 
+> As fs_info was not used before, ocfs2_initxattrs() can now handle the case
+> of replicating the behavior of security_old_inode_init_security(), i.e.
+> just obtaining the xattr, in addition to setting all xattrs provided by
+> LSMs.
+> 
+> Supporting multiple xattrs is not currently supported where
+> security_old_inode_init_security() was called (mknod, symlink), as it
+> requires non-trivial changes that can be done at a later time. Like for
+> reiserfs, even if EVM is invoked, it will not provide an xattr (if it is
+> not the first to set it, its xattr will be discarded; if it is the first,
+> it does not have xattrs to calculate the HMAC on).
+> 
+> Finally, since security_inode_init_security(), unlike
+> security_old_inode_init_security(), returns zero instead of -EOPNOTSUPP if
+> no xattrs were provided by LSMs or if inodes are private, additionally
+> check in ocfs2_init_security_get() if the xattr name is set.
+> 
+> If not, act as if security_old_inode_init_security() returned -EOPNOTSUPP,
+> and set si->enable to zero to notify to the functions following
+> ocfs2_init_security_get() that no xattrs are available.
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 
-Thanks Stephen.  I'm going to hold off on merging this into
-selinux/next until Monday, partially to give people some additional
-time to comment/object, and partially because I don't want to blow up
-anyone's system over the weekend ;)
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
---=20
-paul-moore.com
