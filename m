@@ -2,133 +2,117 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF1FBC6FD1F
-	for <selinux@archiver.kernel.org>; Thu, 16 Mar 2023 21:09:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1677CC6FD1D
+	for <selinux@archiver.kernel.org>; Fri, 17 Mar 2023 12:26:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229682AbjCPVJR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Mar 2023 17:09:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53858 "EHLO
+        id S229607AbjCQM0w (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Mar 2023 08:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229549AbjCPVJQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Mar 2023 17:09:16 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89785BAD0A
-        for <selinux@vger.kernel.org>; Thu, 16 Mar 2023 14:09:14 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id e65so3523635ybh.10
-        for <selinux@vger.kernel.org>; Thu, 16 Mar 2023 14:09:14 -0700 (PDT)
+        with ESMTP id S229517AbjCQM0v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Mar 2023 08:26:51 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19266584AB
+        for <selinux@vger.kernel.org>; Fri, 17 Mar 2023 05:26:49 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id p20so5091396plw.13
+        for <selinux@vger.kernel.org>; Fri, 17 Mar 2023 05:26:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1679000954;
+        d=gmail.com; s=20210112; t=1679056008;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=c2pma/whzkMOxY1sj18+VkjwelXdEW4q6aRsnR3WPPY=;
-        b=AYJlAHyjxfjo/hIUTnwAHTz+SRFKohL9AvfPzSR3Ce1Ikn7Eivngv/2++6Eo+lr7Oh
-         3BPyrYABtoiIUs0DJianvttLZCDGyYwEgsPxrZX67CAWg4GWoAZ5sKzo/2GuC0qReqBW
-         6GD+Q4OmzP3OuyXQfC3yOaMCtfk1dtBod0wWRjGVt+S7or8GNvsGhhgNzsdw7JT6XrZe
-         etxR7+21ml6qsiv6kIA+hRgBRtpgnIdq8M+zRFxzY/rHbqYPVxOzPHSsUUaeRRniCV/M
-         BtMB77xxd3PklCYbKP0EyBiRqWVQMoA4znVC0Tv1OEq+VzjD8R6W7vUD+60CZruAwvi2
-         d3og==
+        bh=kZ6OahKAJb0Xr5zLSdT1R1iY8UTNlJLYyH2CCOyq6bI=;
+        b=RweNtroycqCg8G24LvviTJldubWWGt76GfSW5srrc0M8r/OKHx3PRFWHAgCCxrMjXJ
+         9YrrjIaOpVXydgkhIgBOkAqWsZ+f4ZH0K6RwiszkCNpAgFtsx09dTIxjL5gKDMCvZxwz
+         LUJDzaj/KXOg0ODJAvbpscWtushYg1jpItUeUSJ8Oy72Zw0M8P58leAeSba1P/HyA0VT
+         EakH9pp6+LKpDljEKfHFdm3P4S42UbObqYtPS1enYcWteE1aVHzOe9WBJ27DUzb+5zkf
+         /wZL6Lp/M/w0bYbHqhPm1BMK99vBYOi3s1WqJqS0QkphTBky85eU/taQVpgl5IIwVjLY
+         NW3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679000954;
+        d=1e100.net; s=20210112; t=1679056008;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=c2pma/whzkMOxY1sj18+VkjwelXdEW4q6aRsnR3WPPY=;
-        b=bHVIoKzx/XntPtRqQKMs6uFcq5/yQ6aZxYVJVjyQ5LiX+UHFXE4gKaYXgOTbXIN3fs
-         KPJx+7kBJW8TJ2avHdnBJzT+kbdZPmbLuAfJo0l6TZd8iTICaZmolTqqDzVSlHCa2Quf
-         Rat4OKT2GoRCWYkqw8jk9qEdP5Rg+LI7z2vCe9mXe1gbyuHuUEXpyw0XW6hImat4Ak1/
-         vsxqnGGzBpvlHuUm+apXAXAyJR0enKJnkWsiBmmB12B18dmWFSZUmWhIztyplhqXd/Ie
-         q4HeOAPqZqXyGXtbq3SK/6kZVRk3bk37UkAvBd2+7GIsW+zhbhUxcS+g5rVjT4AVUl8H
-         wGEQ==
-X-Gm-Message-State: AO0yUKWm1b3j87t63o4tdSckOq/uiFmLtof6DUvk9H2pJygo9K0XymOC
-        0JZzzIvfrGOYL+LxSfLH1vjzr6ApwPOKUzhbiqx4kIfcv6ewghA=
-X-Google-Smtp-Source: AK7set9Qva5o7wMMeAKo3IHqxAqfJzhCBQH2KgkYsq92Cf3Pu0egusTJIk7Jm5JK+whMN2XgydfNFN9hzDIjJ3ACc7Q=
-X-Received: by 2002:a05:6902:18d2:b0:b56:ec25:8e72 with SMTP id
- ck18-20020a05690218d200b00b56ec258e72mr3169598ybb.3.1679000953663; Thu, 16
- Mar 2023 14:09:13 -0700 (PDT)
+        bh=kZ6OahKAJb0Xr5zLSdT1R1iY8UTNlJLYyH2CCOyq6bI=;
+        b=B8KtVimRKPv7/eo04oyTB7IxAjfeJUkGaBIzWvDWzKClYqHsrSTLkPE6xy5l0U1LUM
+         rylenlujPZOt2k1trdA+je0aATHeAHLAzi7wXlNehKeMi3y2G0R19EveyvSFk+GNqywE
+         6nS+OMrbvXnkI4ar6PQ7NIKGYKenZE4iu/PNC1/1h2Uwx9C9R7GKMBJ88hDSZ4DaPXGz
+         AqJIShbsOVJcDAK5BOBN3cdhoO7fUpm7VteAwfFA+DHKd6KNFTxbS1FGkPycfgleOhje
+         4+jsf3X540hDGzIUiTX8bnr+A7IWd7uUlrJX969zwKuDA6+35gHTX2CsvQ0lvdCj4vuF
+         W8Sw==
+X-Gm-Message-State: AO0yUKXMfpaUaXipchPUsICA3khWXJ9uIn40n35eUJgAfELNl3HzqIbD
+        HY5Wm58KnYW+A387dQO8k5amR4kTaZArdUqCA2EeghFH
+X-Google-Smtp-Source: AK7set/fowobETnjlxLREFV7GjxDvuLKl/EmGqzVlozdLjiWFrWG/EPWVZE7Tm6/yPl2caCXiEMQYGnVtMIsqV7YObo=
+X-Received: by 2002:a17:90b:1996:b0:23d:20c:2065 with SMTP id
+ mv22-20020a17090b199600b0023d020c2065mr922451pjb.1.1679056008487; Fri, 17 Mar
+ 2023 05:26:48 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230314125734.19896-1-stephen.smalley.work@gmail.com>
- <CAHC9VhQ77njhXPvEZ6-3WKVQtLtNXJw69NOGSoNktf7STgKjTQ@mail.gmail.com>
- <CAEjxPJ7ZVnGzWFfj051POA+gO2cVY_6vPgyNzPBFo=wr909xYQ@mail.gmail.com>
- <CAHk-=whuMkkCFrZQ_U8W8Z=3iDKV=jv9PUJg6D0fqMtQ=gTqRQ@mail.gmail.com> <CAEjxPJ7dn4-5_N6ibkeyo7L-AD=gyJDBXmJKG_AjtUVcJeyX4w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7dn4-5_N6ibkeyo7L-AD=gyJDBXmJKG_AjtUVcJeyX4w@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 16 Mar 2023 17:09:02 -0400
-Message-ID: <CAHC9VhSBrEPAg91EZv-0AJJOZOXONkzq-xWC3D_zdF3AL0T0qQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2] selinux: cache access vector decisions in the
- inode security blob
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, omosnace@redhat.com
+References: <20230316202355.349179-1-paul@paul-moore.com>
+In-Reply-To: <20230316202355.349179-1-paul@paul-moore.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 17 Mar 2023 08:26:37 -0400
+Message-ID: <CAEjxPJ4cC+KAD1AQyJE8M3e_3-gXck5SmQeTS6ww8A_nEy=eeQ@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: remove the 'checkreqprot' functionality
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 15, 2023 at 2:05=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Mar 15, 2023 at 1:37=E2=80=AFPM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > On Wed, Mar 15, 2023 at 5:33=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > We are already taking the isec->lock (or otherwise have exclusive
-> > > access to a newly initialized isec) in all the places where we are
-> > > updating the isec->avd and isec->avdsid. The issue is not the updates
-> > > but rather the reads in inode_has_perm() and
-> > > selinux_inode_permission().
-> >
-> > Right.
-> >
-> > And that is always going to be unordered, in the sense that you will
-> > get "one or the other" value whether you have strict locking or not.
-> >
-> > So even with a spinlock around the actual low-level selinux data reads
-> > and writes, there is only "data consistency", not any actual
-> > *ordering*. The pathname lookup itself is simply not ordered (and
-> > cannot in any sane model be ordered) wrt somebody else coming in and
-> > changing any selinux rules.
-> >
-> > So I don't think this is even worth worrying about. There is no
-> > ordering, because no ordering can possibly exist.
-> >
-> > The only thing that can matter is consistency: any *individual*
-> > security decision should either get the old rules or the new rules
-> > (never a mix of the two), but either of those is fine - and as you
-> > traverse a whole pathname and do multiple different security decisions
-> > for each path component (and for the final open), you *will* get a
-> > mixture of old and new if the rules are updated concurrently.
-> >
-> > I don't think this is a problem, and I don't even think it's fixable
-> > (sure, in theory, we could do some big sequence number lock or
-> > similar, but no way do we actually want to do that for path lookup in
-> > reality).
+On Thu, Mar 16, 2023 at 4:34=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> So my primary concern is wrt consistency of the (isec->task_sid,
-> isec->avdsid, isec->avd) triple.
+> We originally promised that the SELinux 'checkreqprot' functionality
+> would be removed no sooner than June 2021, and now that it is March
+> 2023 it seems like it is a good time to do the final removal.  The
+> deprecation notice in the kernel provides plenty of detail on why
+> 'checkreqprot' is not desirable, with the key point repeated below:
+>
+>   This was a compatibility mechanism for legacy userspace and
+>   for the READ_IMPLIES_EXEC personality flag.  However, if set to
+>   1, it weakens security by allowing mappings to be made executable
+>   without authorization by policy.  The default value of checkreqprot
+>   at boot was changed starting in Linux v4.4 to 0 (i.e. check the
+>   actual protection), and Android and Linux distributions have been
+>   explicitly writing a "0" to /sys/fs/selinux/checkreqprot during
+>   initialization for some time.
+>
+> Along with the official deprecation notice, we have been discussing
+> this on-list and directly with several of the larger SELinux-based
+> distros and everyone is happy to see this feature finally removed.
+> In an attempt to catch all of the smaller, and DIY, Linux systems
+> we have been writing a deprecation notice URL into the kernel log,
+> along with a growing ssleep() penalty, when admins enabled
+> checkreqprot at runtime or via the kernel command line.  We have
+> yet to have anyone come to us and raise an objection to the
+> deprecation or planned removal.
+>
+> It is worth noting that while this patch removes the checkreqprot
+> functionality, it leaves the user visible interfaces (kernel command
+> line and selinuxfs file) intact, just inert.  This should help
+> prevent breakages with existing userspace tools that correctly, but
+> unnecessarily, disable checkreqprot at boot or runtime.  Admins
+> that attempt to enable checkreqprot will be met with a removal
+> message in the kernel log.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-Agreed.  FWIW, I thought you were looking for a different approach for
-the writers in your original mail.  Considering the multiple cache
-fields, and the consistency requirements, I think the only realistic
-solution would be to wrap them in their own struct/pointer referenced
-by the inode_security_struct and use RCU on the read side.  Different
-readers would obviously have the potential for different views, but
-the cached values would at least be consistent for any given reader.
-The downside would be the allocations necessary when updating the
-cache, which I'm guessing would wipe out any gains from the cache ...
-but that's just a guess.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-> In particular, if we have two or more
-> tasks with different SIDs accessing the same inode, then
-> selinux_file_open() is going to update those values on each open(),
-> and inode_has_perm() and selinux_inode_permission() may see
-> inconsistent states with a mixture of the old and new SID pair and
-> access vectors that will result in permission being incorrectly
-> allowed or denied. I'm not sure how to safely prevent this in a manner
-> that doesn't impose too much overhead on inode_has_perm() and
-> selinux_inode_permission().
-
---=20
-paul-moore.com
+>
+> --
+> * v2
+> - removed the checkreqprot_set() function
+> * v1
+> - initial release
+> ---
+>  .../sysfs-selinux-checkreqprot                |  3 +++
+>  security/selinux/Kconfig                      | 23 -------------------
+>  security/selinux/hooks.c                      | 20 ++++------------
+>  security/selinux/include/security.h           | 11 ++-------
+>  security/selinux/selinuxfs.c                  | 13 ++++-------
+>  5 files changed, 14 insertions(+), 56 deletions(-)
+>  rename Documentation/ABI/{obsolete =3D> removed}/sysfs-selinux-checkreqp=
+rot (90%)
