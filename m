@@ -2,150 +2,243 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A66FC6FD1D
-	for <selinux@archiver.kernel.org>; Mon, 20 Mar 2023 16:38:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82687C7618A
+	for <selinux@archiver.kernel.org>; Mon, 20 Mar 2023 16:38:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232269AbjCTQiE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Mar 2023 12:38:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52234 "EHLO
+        id S231771AbjCTQi6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Mar 2023 12:38:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231372AbjCTQhs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Mar 2023 12:37:48 -0400
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A98224BE6
-        for <selinux@vger.kernel.org>; Mon, 20 Mar 2023 09:32:08 -0700 (PDT)
-Received: by mail-yb1-xb32.google.com with SMTP id e71so13870222ybc.0
-        for <selinux@vger.kernel.org>; Mon, 20 Mar 2023 09:32:08 -0700 (PDT)
+        with ESMTP id S232292AbjCTQie (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Mar 2023 12:38:34 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4804C166E0
+        for <selinux@vger.kernel.org>; Mon, 20 Mar 2023 09:33:05 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id s8so7179798pfk.5
+        for <selinux@vger.kernel.org>; Mon, 20 Mar 2023 09:33:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1679329927;
+        d=gmail.com; s=20210112; t=1679329983;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Xz1XKq8/tT7ntol+vJit20XqFPxFC3Q1HxkLByFkPwQ=;
-        b=OKErbYvu37p+PMn/U4QNE96K+SpMzDUaE6HBNyhB3apNQxpJmiI+3s4lyjMJ8C4gJi
-         blNdhZytr24hJWb9BdSd2gNJelp43Th23rZ3B1E/t6KUC+DY/u0tin3GKPrJGhWU9h/2
-         2ydZin6Saq+A0yqIawnhib9CKuccMWR59nvmTf2Mk1zRdR0YjDqe3XhoobR8cP4o/auV
-         D8YDQWQi/pqVIzBQSwTGhDkdKfuFBkjeb6eDK2fINeq1AQ6C+zqil1xQF9ZUsQT3KVxR
-         9Ym1uKylPoXFbQe1yZGHC//M2Bg2eOUSddeAQmbh0XSwWOVB85uOJz9x6LhHxyyko3+R
-         DSNA==
+        bh=WUINGu69eK9MYtSfLKO4kVYijeR54egNA9uh3Ans/+Q=;
+        b=GZpWR/qVnQ+JP0EokkYG0BQD3XuirLutyyoH64PDo4p3nGBP7bN6MPLc4WSsJ7PTqf
+         MNPx3sPIg7j7aQAVZHGd7i1LSfFZsdAK8SF1auGwHPvFsb3Xr7/XPZkfrD5r5zdxztky
+         op2g2r0ombd9Gr5ofZjDHmsu3Y8RqzVZNkgtMIq2t1i1cr3G4CgaiNheN7uNIItSb8Pl
+         p+UB0lo7qdbd9Wnu0UxW3UirPuwjo81ttTL8RmRVpDo24V2x9uyoIJj7aNEtpW9BVY4F
+         80WKh02fb6gwXwpYL7Rvc4gaVEcaplHLyTD/f+zFto/iSSbeSw9R9PyXIm+xbamZWMMx
+         A5ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679329927;
+        d=1e100.net; s=20210112; t=1679329983;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Xz1XKq8/tT7ntol+vJit20XqFPxFC3Q1HxkLByFkPwQ=;
-        b=29eXx73+i85D9CX+Li4m+8gULY9CqCUzVvlikfeqP/QL/NgFuwPNrD3zSUQNd7sVyQ
-         KC1Q1DcahXEsytwJf+l+fHW4CK0nnoUVwtLw0XUv1bt4yxHx6jysivnkdBs86Mw0cIV3
-         2dP7Tr2FUxeAb0PlAh8CQkwWtAETChr0Sl/2CDNItm1GGV3LEXtzUOZe9goQWrCDnA9i
-         r0YCHOrq/+3uhjiO0nPgzjvwW4PQ9xrqIbBGXV12hg18ejydfccJJOkTOlSnL6TV757u
-         m3WQXwGcqn5C0YDIuqMWDiFbRAUkYZ5TdXhbgsgsNVydpBV/SpMWC1WPdgPhFcnnq+8g
-         QWjg==
-X-Gm-Message-State: AO0yUKVJI5pfJySvg3sYWzn85pkL5vPFNVspzvWdgqTwn7vmzBOsAzae
-        nnu3qcfqgi0PjmLxx9tGk8jIYfSo4JfUT46F1EQF
-X-Google-Smtp-Source: AK7set+KMEozi+4OcWS6tsgmaEFsVgWU2+VdEU0sE3kmZY/clZmQ6Y9ceVnK1L7uCRjAZECoCNyBN2N9a3PlrMDL2AA=
-X-Received: by 2002:a5b:d05:0:b0:b68:7a4a:5258 with SMTP id
- y5-20020a5b0d05000000b00b687a4a5258mr5525835ybp.3.1679329927257; Mon, 20 Mar
- 2023 09:32:07 -0700 (PDT)
+        bh=WUINGu69eK9MYtSfLKO4kVYijeR54egNA9uh3Ans/+Q=;
+        b=BtTxf4EXcxfKAlKcjF5KTUcwgBFlNSlTrP3NX+Yy5/6dVOJzgIlsgLgVFaI9vZPOgj
+         CmI4GqoUd2Y7c8ASVj5jxfILVnq16J26824dUckAHjZYl7vH7WOb3l9inlT/cRy3AKIE
+         V6sBw4p4Hke5b/Vd/M4k6BJFt+TLMet7/xEQgw4l7C+yyqL7RrKylwioTmiCJAZ3RY+i
+         dw0+dNv5UtBar6QzttoB38qOIRFpqgkf7cDkkAm9b4Y9Q5gei0cpobfdChlMmAwboibV
+         FydQ4gNWQxtdcDlJ8GhQDgXxwsqSn1UV138u5M8piML0ybRXCEHm05Fro9eiMVWLW9/1
+         Fqow==
+X-Gm-Message-State: AO0yUKUhbLOVgdIdP3mPdzU4jus/OVtQqvBHD8hmAbpp4QHD1APVtT6c
+        yiO5iNPsv0qBwGSkoNa6oajJ9ePoygc7YHjBu+o=
+X-Google-Smtp-Source: AK7set/RzRc5voA2XKGMZEW2MHMSfhpMolaZXm9csME3PpvKg/RINkPzY5sh5sA1e/MeUlxpBn0zdAEHcvOx+D95wPk=
+X-Received: by 2002:a05:6a00:1484:b0:625:5949:6dc0 with SMTP id
+ v4-20020a056a00148400b0062559496dc0mr7724480pfu.4.1679329983594; Mon, 20 Mar
+ 2023 09:33:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230317195615.281810-1-paul@paul-moore.com> <004b613e-c139-b4dc-157b-2f61433fe1d2@digikod.net>
-In-Reply-To: <004b613e-c139-b4dc-157b-2f61433fe1d2@digikod.net>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 20 Mar 2023 12:31:56 -0400
-Message-ID: <CAHC9VhQ1kPCnx9Ha_ZX+6rq2hdLOESFrz5qF2kw05j8szFu1jQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: remove the runtime disable functionality
-To:     =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org
+References: <87mt47ga29.fsf@defensec.nl> <CAEjxPJ51N4sguZZ6EkXDuCkaQSp1=Z8NODFbLS9B1_143ktuxA@mail.gmail.com>
+ <871qljfrtz.fsf@defensec.nl> <CAFqZXNvJdb8e2b6NzC4yO7DfMc32wrRsyU160YN2Us7oZmKBeQ@mail.gmail.com>
+ <87wn3bec97.fsf@defensec.nl> <CAFqZXNvULBzqMbN5ymB6fam6=CiUzikp3iWfvFj2cK++5wOwrA@mail.gmail.com>
+ <CAEjxPJ6tYSPEVJV1usgpsT=kXBisQwAcYDkUv20br=gxQZV9eA@mail.gmail.com> <87lejre9b2.fsf@defensec.nl>
+In-Reply-To: <87lejre9b2.fsf@defensec.nl>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 20 Mar 2023 12:32:52 -0400
+Message-ID: <CAEjxPJ4gsGseRtSDBrAkLEsFzu5QUXbespYESU0+LyEFJUjo=g@mail.gmail.com>
+Subject: Re: cgroup2 labeling question
+To:     Dominick Grift <dominick.grift@defensec.nl>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 20, 2023 at 11:14=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@digi=
-kod.net> wrote:
+On Mon, Mar 20, 2023 at 11:23=E2=80=AFAM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
 >
-> This looks great, but I cannot apply it on any of these trees: Linus's,
-> the LSM's next, nor the next one.
+> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+>
+> > On Mon, Mar 20, 2023 at 10:46=E2=80=AFAM Ondrej Mosnacek <omosnace@redh=
+at.com> wrote:
+> >>
+> >> On Mon, Mar 20, 2023 at 3:19=E2=80=AFPM Dominick Grift
+> >> <dominick.grift@defensec.nl> wrote:
+> >> >
+> >> > Ondrej Mosnacek <omosnace@redhat.com> writes:
+> >> >
+> >> > > On Mon, Mar 20, 2023 at 2:59=E2=80=AFPM Dominick Grift
+> >> > > <dominick.grift@defensec.nl> wrote:
+> >> > >>
+> >> > >> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+> >> > >>
+> >> > >> > On Mon, Mar 20, 2023 at 3:25=E2=80=AFAM Dominick Grift
+> >> > >> > <dominick.grift@defensec.nl> wrote:
+> >> > >> >>
+> >> > >> >>
+> >> > >> >> Hi,
+> >> > >> >>
+> >> > >> >> I was reading this pull request [1] and looked into how I migh=
+t be able
+> >> > >> >> to implement this in policy but there seem to be some technica=
+l
+> >> > >> >> difficulties.
+> >> > >> >>
+> >> > >> >> * I already use getfscon to seperate the systemd user.slice be=
+cause the
+> >> > >> >>   system manager delegates the user.slice to the user manager.
+> >> > >> >>
+> >> > >> >>   (genfscon "cgroup2" "/user.slice" cgroupfile_context)
+> >> > >> >>
+> >> > >> >>   In the past the proved to be a racy where systemd attempts t=
+o
+> >> > >> >>   write before the object has the context associated with the =
+genfscon.
+> >> > >> >
+> >> > >> > I don't understand how this could be racy - genfscon-assigned c=
+ontexts
+> >> > >> > should be assigned when the dentry is first instantiated via
+> >> > >> > inode_donit_with_dentry and therefore the inode shouldn't be
+> >> > >> > accessible to userspace prior to this initial assignment AFAIK.
+> >> > >> > Possibly I am missing something.
+> >> > >>
+> >> > >> I recall encountering this sporadically, but I admit that it has =
+been a
+> >> > >> while since I supressed it in policy. I might try to reproduce. A=
+FAIK my
+> >> > >> policy is the only policy that actually labels some trees on cgro=
+up2 fs
+> >> > >> with private types currently.
+> >> > >>
+> >> > >> >
+> >> > >> >>   I decided to dontaudit attempts to write to the mislabeled o=
+bject and
+> >> > >> >>   it *seems* as if systemd retries until it can write it i.e. =
+when the
+> >> > >> >>   object carries the expected label and so that seems to work =
+eventually
+> >> > >> >>   but it looks fragile.
+> >> > >> >>
+> >> > >> >> * The challenge with memory pressure implementation [2] is tha=
+t these
+> >> > >> >>   "memory.pressure" files end up in random locations under
+> >> > >> >>   "/system.slice" for example:
+> >> > >> >>
+> >> > >> >>   /sys/fs/cgroup/system.slice/systemd-journald.service/memory.=
+pressure
+> >> > >> >>
+> >> > >> >>   Where in the above systemd-journald.service might be
+> >> > >> >>   templated (systemd-journald@FOO.service). Point is that the =
+path is
+> >> > >> >>   random. genfscon does not support regex and glob. I can't do=
+ for example:
+> >> > >> >>
+> >> > >> >>   (genfscon "cgroup2" "/system.slice/.*/memory.pressure"
+> >> > >> >>   cgroupfile_context)
+> >> > >> >>
+> >> > >> >>   Fortunately cgroup2fs supports relabeling but if systemd has=
+ to
+> >> > >> >>   manually relabel the cgroup files then I would imagine that =
+this is
+> >> > >> >>   racy as well, and that does not really solve the underlying =
+issue.
+> >> > >> >>
+> >> > >> >>   I am looking for ideas and suggestions
+> >> > >> >
+> >> > >> > Optimally one of two things would happen:
+> >> > >> > 1. The kernel would label the inode correctly when it is first =
+created
+> >> > >> > (e.g. by augmenting genfscon to support more general matching),=
+ or
+> >> > >> > 2. The userspace component that creates these files would label=
+ them
+> >> > >> > correctly at creation (via setfscreatecon() prior to creation).
+> >> > >>
+> >> > >> Agree but 1. would require regex/glob support for genfscon and 2.=
+ these
+> >> > >> files aren't "created" by userspace AFAIK and so setfscreatecon o=
+r
+> >> > >> automatic object type transitions are probably not an option here=
+.
+> >> > >>
+> >> > >> >
+> >> > >> > Pardon my ignorance but what creates these files initially? The=
+ kernel
+> >> > >> > in response to some event or systemd or some other userspace
+> >> > >> > component?
+> >> > >>
+> >> > >> Yes AFAIK it is the former (psuedo filesystem similar to procfs, =
+debugfs
+> >> > >> in that sense). This is also why I don't think that the PR mentio=
+ned is
+> >> > >> tested because cgroup2 fs labeling is done with genfscon and not =
+fsuse
+> >> > >> trans or fsuse xattr so even if the files would be created by
+> >> > >> userspace (which I think is not the case) the specified automatic=
+ object
+> >> > >> type transition rule wouldnt work.
+> >> > >
+> >> > > Actually, type transitions on cgroupfs should work - I added speci=
+al
+> >> > > hooks for kernfs just for that some time ago - see kernel commits
+> >> > > d0c9c153b4bd6963c8fcccbc0caa12e8fa8d971d..e19dfdc83b60f196e0653d68=
+3499f7bc5548128f.
+> >> >
+> >> > Interesting. I will try this out. Would this not require at least a
+> >> > "fsuse trans" statement in policy?
+> >>
+> >> No, it should work alongside genfscon. cgroupfs already was special
+> >> before that as it allowed relabeling despite genfscon being used.
+> >>
+> >> >
+> >> > https://github.com/SELinuxProject/refpolicy/blob/master/policy/modul=
+es/kernel/filesystem.te#L89
+> >> >
+> >> > Also I am not sure if that support would make much sense on a filesy=
+stem
+> >> > where files are created my the kernel in reaction to some event.
+> >>
+> >> It does make sense with named transitions, plus it was needed to make
+> >> even a simple parent-child inheritance work. Also, I believe some
+> >> cgroupfs files/directories (I think only directories?) can be created
+> >> by userspace, too.
+> >
+> > We should likely check that the SELinux Notebook and/or other
+> > documentation reflects this support and which filesystem types are
+> > supported, both wrt the filesystem types that support both genfscon +
+> > setxattr and those that support genfscon+setxattr+type_transition
+> > rules.
+>
+> I tried this out:
+>
+> 1. yes you can create dirs on cgroup2 fs (but not files)
+> 2. you can have a genfscon "cgroup2" alongside fsuse trans "cgroup2" but
+> if you do then any genfscon statements you might have like for example
+> genfscon "cgroup2" "/user.slice" cgroupfile_context) no longer
+> work. i.e. its pointless to have then both
+> 3. even with a fsuse trans statement I could not make type transitions
+> work for directories created on cgroup2 fs.
+>
+> Even if you could create directories on a cgroupfs with a type
+> transition, and if the files under that directory would inherited the
+> type of the parent, then that still would not be good enough to address
+> the memory.pressure file challenge because the point is to allow a
+> service to write the memory.pressure file but not other files in that
+> same directory.
 
-Likely because it's based on the SELinux next branch with the
-checkreqprot removal patch added on top as I expect to merge both of
-these patches soon.  There have also been some pretty widespread
-changes in the SELinux tree this dev cycle outside these two
-deprecation/removal patches.
-
-One could make an argument that this should go in via the LSM tree as
-it touches all of the LSMs, but those impacts are trivial, and the
-SELinux changes are more significant so I made the decision to do the
-development and merge the patch via the SELinux tree.
-
-> On 17/03/2023 20:56, Paul Moore wrote:
-> > After working with the larger SELinux-based distros for several
-> > years, we're finally at a place where we can disable the SELinux
-> > runtime disable functionality.  The existing kernel deprecation
-> > notice explains the functionality and why we want to remove it:
-> >
-> >    The selinuxfs "disable" node allows SELinux to be disabled at
-> >    runtime prior to a policy being loaded into the kernel.  If
-> >    disabled via this mechanism, SELinux will remain disabled until
-> >    the system is rebooted.
-> >
-> >    The preferred method of disabling SELinux is via the "selinux=3D0"
-> >    boot parameter, but the selinuxfs "disable" node was created to
-> >    make it easier for systems with primitive bootloaders that did not
-> >    allow for easy modification of the kernel command line.
-> >    Unfortunately, allowing for SELinux to be disabled at runtime makes
-> >    it difficult to secure the kernel's LSM hooks using the
-> >    "__ro_after_init" feature.
-> >
-> > It is that last sentence, mentioning the '__ro_after_init' hardening,
-> > which is the real motivation for this change, and if you look at the
-> > diffstat you'll see that the impact of this patch reaches across all
-> > the different LSMs, helping prevent tampering at the LSM hook level.
-> >
-> >>From a SELinux perspective, it is important to note that if you
-> > continue to disable SELinux via "/etc/selinux/config" it may appear
-> > that SELinux is disabled, but it is simply in an uninitialized state.
-> > If you load a policy with `load_policy -i`, you will see SELinux
-> > come alive just as if you had loaded the policy during early-boot.
-> >
-> > It is also worth noting that the "/sys/fs/selinux/disable" file is
-> > always writable now, regardless of the Kconfig settings, but writing
-> > to the file has no effect on the system, other than to display an
-> > error on the console if a non-zero/true value is written.
-> >
-> > Finally, in the several years where we have been working on
-> > deprecating this functionality, there has only been one instance of
-> > someone mentioning any user visible breakage.  In this particular
-> > case it was an individual's kernel test system, and the workaround
-> > documented in the deprecation notice ("selinux=3D0" on the kernel
-> > command line) resolved the issue without problem.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >   .../sysfs-selinux-disable                     |  3 +
-> >   include/linux/lsm_hooks.h                     |  7 ---
-> >   security/Kconfig                              |  5 --
-> >   security/apparmor/lsm.c                       |  6 +-
-> >   security/bpf/hooks.c                          |  4 +-
-> >   security/commoncap.c                          |  2 +-
-> >   security/landlock/cred.c                      |  2 +-
-> >   security/landlock/fs.c                        |  2 +-
-> >   security/landlock/ptrace.c                    |  2 +-
-> >   security/landlock/setup.c                     |  4 +-
-> >   security/loadpin/loadpin.c                    |  2 +-
-> >   security/lockdown/lockdown.c                  |  2 +-
-> >   security/security.c                           |  4 +-
-> >   security/selinux/Kconfig                      | 24 --------
-> >   security/selinux/hooks.c                      | 57 +-----------------=
--
-> >   security/selinux/include/security.h           | 21 -------
-> >   security/selinux/selinuxfs.c                  | 43 ++------------
-> >   security/smack/smack_lsm.c                    |  4 +-
-> >   security/tomoyo/tomoyo.c                      |  6 +-
-> >   security/yama/yama_lsm.c                      |  2 +-
-> >   20 files changed, 32 insertions(+), 170 deletions(-)
-> >   rename Documentation/ABI/{obsolete =3D> removed}/sysfs-selinux-disabl=
-e (90%)
-
---=20
-paul-moore.com
+You don't want a fs_use_trans statement in your policy for cgroup2.
+Just genfscon statements. The kernel will still check for
+type_transition rules and apply them to files at creation time without
+having a fs_use_trans, but having a fs_use_trans will override
+genfscon.
