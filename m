@@ -2,201 +2,683 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7515C74A5B
-	for <selinux@archiver.kernel.org>; Tue, 21 Mar 2023 14:42:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 600F9C74A5B
+	for <selinux@archiver.kernel.org>; Tue, 21 Mar 2023 15:55:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbjCUOmT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Mar 2023 10:42:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40964 "EHLO
+        id S231342AbjCUPzO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Mar 2023 11:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230122AbjCUOmS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Mar 2023 10:42:18 -0400
-Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2a10:3781:2099::123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D464D610
-        for <selinux@vger.kernel.org>; Tue, 21 Mar 2023 07:42:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-        s=default; t=1679409734;
-        bh=ySCTAnzNRMWSJvOHcI1FlvV/IVA6Xi5IPYd7qqVFdEY=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=GZQLCx4TxJMwzKSdeY+LzyALGZfopKZfU1TYZskxkYg3RBjST4s5B7dnXqvvMgnRe
-         OiNRpNDGYSaj21xyVKdU3uV8EfiSJocP0vsijM5Z5b64U+uY0sZml/rkGTORPjZzhg
-         XUoWLi1FlRm8Gv+xRmPnM3AcNM1JVT8OwflacDKI=
-Received: from paulus (paulus.lan [IPv6:2a10:3781:2099::515])
-        by markus.defensec.nl (Postfix) with ESMTPSA id 07D0A3CC;
-        Tue, 21 Mar 2023 15:42:13 +0100 (CET)
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
-Subject: Re: cgroup2 labeling question
-References: <87mt47ga29.fsf@defensec.nl>
-        <CAEjxPJ51N4sguZZ6EkXDuCkaQSp1=Z8NODFbLS9B1_143ktuxA@mail.gmail.com>
-        <871qljfrtz.fsf@defensec.nl>
-        <CAFqZXNvJdb8e2b6NzC4yO7DfMc32wrRsyU160YN2Us7oZmKBeQ@mail.gmail.com>
-        <87wn3bec97.fsf@defensec.nl>
-        <CAFqZXNvULBzqMbN5ymB6fam6=CiUzikp3iWfvFj2cK++5wOwrA@mail.gmail.com>
-        <CAEjxPJ6tYSPEVJV1usgpsT=kXBisQwAcYDkUv20br=gxQZV9eA@mail.gmail.com>
-        <87lejre9b2.fsf@defensec.nl>
-        <CAEjxPJ4gsGseRtSDBrAkLEsFzu5QUXbespYESU0+LyEFJUjo=g@mail.gmail.com>
-        <87h6ufe5um.fsf@defensec.nl>
-        <CAEjxPJ5JWjhLpOavUsqH-ZU_NHYOc_dKmc8YBQA5jv-XcWazhw@mail.gmail.com>
-        <CAEjxPJ7gf5seRK59Gf8ZPRSC+WL1iQWOX1bTimdBmBxuMHPkxw@mail.gmail.com>
-        <87cz53e1p5.fsf@defensec.nl>
-        <CAJ2a_DeBmv=F1ZduAYwZ1TP89g2Dw=M5q5XYXSMs6TS6REm=aQ@mail.gmail.com>
-        <CAEjxPJ5+M7x=qtZofTvVVdqF4_85QA2eUWH0f67nsZUO3TuVLA@mail.gmail.com>
-        <CAFqZXNtLFsmb3n+H=7Jcp1g_sLEFdRL75fzvjMvTU1rXvaQXMA@mail.gmail.com>
-Date:   Tue, 21 Mar 2023 15:42:13 +0100
-In-Reply-To: <CAFqZXNtLFsmb3n+H=7Jcp1g_sLEFdRL75fzvjMvTU1rXvaQXMA@mail.gmail.com>
-        (Ondrej Mosnacek's message of "Tue, 21 Mar 2023 14:40:12 +0100")
-Message-ID: <87zg86cgje.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
+        with ESMTP id S231165AbjCUPzI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Mar 2023 11:55:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E15128848
+        for <selinux@vger.kernel.org>; Tue, 21 Mar 2023 08:54:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1679414064;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=B6flKw6o7hSI07tY5N+XQ/+13wS5mHKyULm4+pnZnHo=;
+        b=Wyn3U+ZvqWEIlIhyRYfzBNzX7sI1Hpbnhj5VE5LSkjX2T5quS02RaBcKAi9XAoQr+SYIxS
+        cH40qWEvFw3Ty8HbrR/vla53NAZTLtTjQwr+qicV8Y1fRUVY4bj5sCPJPbUlTcbVGjboXK
+        b+dxEaE6ZFoNnXlHDdwAWciRUcAfQtw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-216-yNK6BYfnPC20a4Vjt-K2GA-1; Tue, 21 Mar 2023 11:54:23 -0400
+X-MC-Unique: yNK6BYfnPC20a4Vjt-K2GA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A428688B7A0;
+        Tue, 21 Mar 2023 15:54:22 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.31])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3A42E1121315;
+        Tue, 21 Mar 2023 15:54:22 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>,
+        Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: Re: [RFC PATCH v4 2/6] libsepol/cil: Add notself and minusself
+ support to CIL
+In-Reply-To: <CAP+JOzTZ22QrP1rONfz0H0twhYDSZGHY_hFt6pvn+zXfhcMT2g@mail.gmail.com>
+References: <20221125154952.20910-1-cgzones@googlemail.com>
+ <20221125154952.20910-3-cgzones@googlemail.com>
+ <CAP+JOzTZ22QrP1rONfz0H0twhYDSZGHY_hFt6pvn+zXfhcMT2g@mail.gmail.com>
+Date:   Tue, 21 Mar 2023 16:54:21 +0100
+Message-ID: <87r0ti5ccy.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Ondrej Mosnacek <omosnace@redhat.com> writes:
+James Carter <jwcart2@gmail.com> writes:
 
-> On Mon, Mar 20, 2023 at 9:23=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+> On Fri, Nov 25, 2022 at 10:50=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 >>
->> On Mon, Mar 20, 2023 at 2:22=E2=80=AFPM Christian G=C3=B6ttsche
->> <cgzones@googlemail.com> wrote:
->> >
->> > On Mon, 20 Mar 2023 at 19:14, Dominick Grift <dominick.grift@defensec.=
-nl> wrote:
->> > >
->> > > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
->> > >
->> > > > On Mon, Mar 20, 2023 at 1:28=E2=80=AFPM Stephen Smalley
->> > > > <stephen.smalley.work@gmail.com> wrote:
->> > > >> Hmm...that's interesting. I just tried in Fedora using one of the
->> > > >> type_transitions already defined in the default policy and althou=
-gh it
->> > > >> appears to use the type_transition to compute the new SID for the
->> > > >> create check, ls -Z of the file after creation showed it labeled
->> > > >> cgroup_t instead. So it doesn't appear to be working or I am doin=
-g it
->> > > >> wrong.
->> > >
->> > > I am totally confused now as well because Christian on IRC say's it
->> > > works for him but I cannot get it to work here and I tried various
->> > > combinations
->> > >
->> > > >
->> > > > Reproducer, on F34,
->> > > > $ sudo mkdir /sys/fs/cgroup/system.slice/.snapshots
->> > > > mkdir: cannot create directory
->> > > > =E2=80=98/sys/fs/cgroup/system.slice/.snapshots=E2=80=99: Permissi=
-on denied
->> > > > $ sudo ausearch -m AVC -ts recent -i
->> > > > ----
->> > > > type=3DAVC msg=3Daudit(03/20/2023 13:00:04.699:47156) : avc:  deni=
-ed  {
->> > > > associate } for  pid=3D152325 comm=3Dmkdir name=3D.snapshots
->> > > > scontext=3Dunconfined_u:object_r:snapperd_data_t:s0
->> > > > tcontext=3Dsystem_u:object_r:cgroup_t:s0 tclass=3Dfilesystem permi=
-ssive=3D0
->> > > > $ seinfo --fs_use | grep cgroup
->> > > > $ seinfo --genfscon | grep cgroup
->> > > >    genfscon cgroup /  system_u:object_r:cgroup_t:s0
->> > > >    genfscon cgroup2 /  system_u:object_r:cgroup_t:s0
->> > > > $ sesearch -T -s unconfined_t -t cgroup_t -c dir
->> > > > type_transition unconfined_t cgroup_t:dir snapperd_data_t .snapsho=
-ts
->> > > > $ sudo setenforce 0
->> > > > $ sudo mkdir /sys/fs/cgroup/system.slice/.snapshots
->> > > > $ ls -Zd /sys/fs/cgroup/system.slice/.snapshots
->> > > > system_u:object_r:cgroup_t:s0 /sys/fs/cgroup/system.slice/.snapsho=
-ts
->> > >
->> > > --
->> > > gpg --locate-keys dominick.grift@defensec.nl
->> > > Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 40=
-98
->> > > Dominick Grift
->> >
->> > Debian sid (Linux debianBullseye 6.1.0-6-amd64 #1 SMP PREEMPT_DYNAMIC
->> > Debian 6.1.15-1 (2023-03-05) x86_64 GNU/Linux):
->> >
->> > type cgroup_test_t;
->> > allow cgroup_test_t cgroup_t:filesystem associate;
->> > filetrans_pattern(sysadm_t, cgroup_t, cgroup_test_t, dir, "testdir")
->> > allow sysadm_t cgroup_test_t:dir { create_dir_perms list_dir_perms };
->> > allow sysadm_t cgroup_test_t:file getattr;
->> >
->> >
->> > $ seinfo --all | grep cgroup
->> > genfscon cgroup /  system_u:object_r:cgroup_t:s0
->> > genfscon cgroup2 /  system_u:object_r:cgroup_t:s0
->> > genfscon proc /cgroups  system_u:object_r:proc_info_t:s0
->> > cgroup_seclabel
->> > cgroup_t
->> > cgroup_test_t
->> > systemd_cgroups_agent_exec_t
->> > systemd_cgroups_agent_runtime_t
->> > systemd_cgroups_agent_t
->> >
->> >
->> > $ grep cgroup /etc/selinux/debian/contexts/files/file_contexts
->> > /cgroup/.*              <<none>>
->> > /sys/fs/cgroup/.*               <<none>>
->> > /sys/fs/cgroup/[^/]+            -l      system_u:object_r:cgroup_t:s0
->> > /cgroup         -d      system_u:object_r:cgroup_t:s0
->> > /sys/fs/cgroup          -d      system_u:object_r:cgroup_t:s0
->> > /usr/lib/systemd/systemd-cgroups-agent          --
->> > system_u:object_r:systemd_cgroups_agent_exec_t:s0
->> >
->> >
->> > $ mkdir /sys/fs/cgroup/system.slice/testdir
->> > $ ls -laZ /sys/fs/cgroup/system.slice/testdir/
->> > total 0
->> > drwxr-x---.  2 root root root:object_r:cgroup_test_t:s0 0 Mar 20 19:19
->> > .
->> > drwxr-xr-x. 19 root root system_u:object_r:cgroup_t:s0  0 Mar 20 19:19
->> > ..
->> > -r--r--r--.  1 root root root:object_r:cgroup_test_t:s0 0 Mar 20 19:19
->> > cgroup.controllers
->> > -r--r--r--.  1 root root root:object_r:cgroup_test_t:s0 0 Mar 20 19:19
->> > cgroup.events
+>> From: James Carter <jwcart2@gmail.com>
 >>
->> Hmm...I don't get the same result with 6.1.14-200.fc37.x86_64, using
->> the corresponding slightly tweaked policy module:
->> policy_module(cgrouptest, 1.0)
->> require {
->> type cgroup_t;
->> type unconfined_t;
->> }
->> type cgroup_test_t;
->> allow cgroup_test_t cgroup_t:filesystem associate;
->> filetrans_pattern(unconfined_t, cgroup_t, cgroup_test_t, dir, "testdir")
->> allow unconfined_t cgroup_test_t:dir { create_dir_perms list_dir_perms };
->> allow unconfined_t cgroup_test_t:file getattr;
+>> Like "self", both of these reserved words can be used as a target
+>> in an access vector rule. "notself" means all types other than
+>> the source type. "minuself" is meant to be used with an attribute
+>> and its use results in the rule being expanded with each type of
+>> the attribute being used as the source type with each of the other
+>> types being used as the target type. Using "minusself" with just
+>> a type will result in no rule.
 >>
->> That's on Fedora 37, not 34, sorry for the typo.
+>> Example 1
+>>   (allow TYPE1 notself (CLASS (PERM)))
+>>
+>> This rule is expanded to a number of rules with TYPE1 as the source
+>> and every type except for TYPE1 as the target.
+>>
+>> Example 2
+>>   (allow ATTR1 notself (CLASS (PERM)))
+>>
+>> Like Example 1, this rule will be expanded to each type in ATTR1
+>> being the source with every type except for the type used as the
+>> source being the target.
+>>
+>> Example 3
+>>   (allow TYPE1 minusself (CLASS (PERM)))
+>>
+>> This expands to no rule.
+>>
+>> Example 4
+>>   (allow ATTR1 minusself (CLASS (PERM)))
+>>
+>> Like Example 2, but the target types will be limited to the types
+>> in the attribute ATTR1 instead of all types. So if ATTR1 has the
+>> type t1, t2, and t3, then this rule expands to the following rules.
+>>   (allow t1 t2 (CLASS (PERM)))
+>>   (allow t1 t3 (CLASS (PERM)))
+>>   (allow t2 t1 (CLASS (PERM)))
+>>   (allow t2 t3 (CLASS (PERM)))
+>>   (allow t3 t1 (CLASS (PERM)))
+>>   (allow t3 t2 (CLASS (PERM)))
+>>
+>> Original patch from James Carter <jwcart2@gmail.com>
+>>
+>> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Ah, now I remembered that we made it such that the transitions would
-> only apply if the parent directory has a label explicitly set by
-> userspace (via setxattr). Not sure if we can improve it easily, since
-> we can't use the normal inode-based logic for cgroupfs (the xattrs are
-> stored in kernfs nodes, each of which can be exposed via multiple
-> inodes if there is more than one cgroupfs mount).
+> I am going to send an update of this patch.
+> I have come to prefer using "other" rather than "minusself"
+> And updated the patch to use ebitmap_is_empty()
+>
 
-Thanks. I can confirm that this indeed enabled transition functionality.
+Other patches were acked. Is it possible to merge them without this?=20
 
-It does not solve my memory.pressure challenge but I implementing it
-regardless in hopes that it addresses the races I encountered when
-solely relying on genfscon for user.slice
+Thanks,
 
-https://git.defensec.nl/?p=3Ddssp5.git;a=3Dcommitdiff;h=3D1920c9f751445bfd5=
-1f43a7c4e9b7fedda057d15
+Petr
 
-We should probably document this "gotcha" in the selinux-notebook
 
---=20
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
+>
+>> ---
+>>  libsepol/cil/src/cil.c             |  12 ++
+>>  libsepol/cil/src/cil_binary.c      |  91 ++++++++++++-
+>>  libsepol/cil/src/cil_build_ast.c   |  10 +-
+>>  libsepol/cil/src/cil_find.c        | 206 +++++++++++++++++++++++++----
+>>  libsepol/cil/src/cil_internal.h    |   4 +
+>>  libsepol/cil/src/cil_resolve_ast.c |   4 +
+>>  libsepol/cil/src/cil_verify.c      |   3 +-
+>>  7 files changed, 300 insertions(+), 30 deletions(-)
+>>
+>> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+>> index 38edcf8e..d807a2c4 100644
+>> --- a/libsepol/cil/src/cil.c
+>> +++ b/libsepol/cil/src/cil.c
+>> @@ -84,6 +84,8 @@ char *CIL_KEY_CONS_INCOMP;
+>>  char *CIL_KEY_CONDTRUE;
+>>  char *CIL_KEY_CONDFALSE;
+>>  char *CIL_KEY_SELF;
+>> +char *CIL_KEY_NOTSELF;
+>> +char *CIL_KEY_MINUSSELF;
+>>  char *CIL_KEY_OBJECT_R;
+>>  char *CIL_KEY_STAR;
+>>  char *CIL_KEY_TCP;
+>> @@ -253,6 +255,8 @@ static void cil_init_keys(void)
+>>         CIL_KEY_CONDTRUE =3D cil_strpool_add("true");
+>>         CIL_KEY_CONDFALSE =3D cil_strpool_add("false");
+>>         CIL_KEY_SELF =3D cil_strpool_add("self");
+>> +       CIL_KEY_NOTSELF =3D cil_strpool_add("notself");
+>> +       CIL_KEY_MINUSSELF =3D cil_strpool_add("minusself");
+>>         CIL_KEY_OBJECT_R =3D cil_strpool_add("object_r");
+>>         CIL_KEY_STAR =3D cil_strpool_add("*");
+>>         CIL_KEY_UDP =3D cil_strpool_add("udp");
+>> @@ -430,6 +434,12 @@ void cil_db_init(struct cil_db **db)
+>>         cil_type_init(&(*db)->selftype);
+>>         (*db)->selftype->datum.name =3D CIL_KEY_SELF;
+>>         (*db)->selftype->datum.fqn =3D CIL_KEY_SELF;
+>> +       cil_type_init(&(*db)->notselftype);
+>> +       (*db)->notselftype->datum.name =3D CIL_KEY_NOTSELF;
+>> +       (*db)->notselftype->datum.fqn =3D CIL_KEY_NOTSELF;
+>> +       cil_type_init(&(*db)->minusselftype);
+>> +       (*db)->minusselftype->datum.name =3D CIL_KEY_MINUSSELF;
+>> +       (*db)->minusselftype->datum.fqn =3D CIL_KEY_MINUSSELF;
+>>         (*db)->num_types_and_attrs =3D 0;
+>>         (*db)->num_classes =3D 0;
+>>         (*db)->num_types =3D 0;
+>> @@ -483,6 +493,8 @@ void cil_db_destroy(struct cil_db **db)
+>>         cil_list_destroy(&(*db)->names, CIL_TRUE);
+>>
+>>         cil_destroy_type((*db)->selftype);
+>> +       cil_destroy_type((*db)->notselftype);
+>> +       cil_destroy_type((*db)->minusselftype);
+>>
+>>         cil_strpool_destroy();
+>>         free((*db)->val_to_type);
+>> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary=
+.c
+>> index 40615db2..29b00336 100644
+>> --- a/libsepol/cil/src/cil_binary.c
+>> +++ b/libsepol/cil/src/cil_binary.c
+>> @@ -1519,6 +1519,46 @@ static int __cil_avrule_to_avtab(policydb_t *pdb,=
+ const struct cil_db *db, struc
+>>                         }
+>>                 }
+>>                 ebitmap_destroy(&src_bitmap);
+>> +       } else if (tgt->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +               rc =3D __cil_expand_type(src, &src_bitmap);
+>> +               if (rc !=3D SEPOL_OK) {
+>> +                       goto exit;
+>> +               }
+>> +
+>> +               ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
+>> +                       src =3D DATUM(db->val_to_type[s]);
+>> +                       for (t =3D 0; t < (unsigned int)db->num_types; t=
+++) {
+>> +                               if (s !=3D t) {
+>> +                                       tgt =3D DATUM(db->val_to_type[t]=
+);
+>> +                                       rc =3D __cil_avrule_expand(pdb, =
+kind, src, tgt, classperms, cond_node, cond_flavor);
+>> +                                       if (rc !=3D SEPOL_OK) {
+>> +                                               ebitmap_destroy(&src_bit=
+map);
+>> +                                               goto exit;
+>> +                                       }
+>> +                               }
+>> +                       }
+>> +               }
+>> +               ebitmap_destroy(&src_bitmap);
+>> +       } else if (tgt->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +               rc =3D __cil_expand_type(src, &src_bitmap);
+>> +               if (rc !=3D SEPOL_OK) {
+>> +                       goto exit;
+>> +               }
+>> +
+>> +               ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
+>> +                       src =3D DATUM(db->val_to_type[s]);
+>> +                       ebitmap_for_each_positive_bit(&src_bitmap, tnode=
+, t) {
+>> +                               if (s !=3D t) {
+>> +                                       tgt =3D DATUM(db->val_to_type[t]=
+);
+>> +                                       rc =3D __cil_avrule_expand(pdb, =
+kind, src, tgt, classperms, cond_node, cond_flavor);
+>> +                                       if (rc !=3D SEPOL_OK) {
+>> +                                               ebitmap_destroy(&src_bit=
+map);
+>> +                                               goto exit;
+>> +                                       }
+>> +                               }
+>> +                       }
+>> +               }
+>> +               ebitmap_destroy(&src_bitmap);
+>>         } else {
+>>                 int expand_src =3D __cil_should_expand_attribute(db, src=
+);
+>>                 int expand_tgt =3D __cil_should_expand_attribute(db, tgt=
+);
+>> @@ -1875,10 +1915,51 @@ static int cil_avrulex_to_hashtable(policydb_t *=
+pdb, const struct cil_db *db, st
+>>                         src =3D DATUM(db->val_to_type[s]);
+>>                         rc =3D __cil_avrulex_to_hashtable_helper(pdb, ki=
+nd, src, src, cil_avrulex->perms.x.permx, args);
+>>                         if (rc !=3D SEPOL_OK) {
+>> +                               ebitmap_destroy(&src_bitmap);
+>>                                 goto exit;
+>>                         }
+>>                 }
+>>                 ebitmap_destroy(&src_bitmap);
+>> +       } else if (tgt->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +               rc =3D __cil_expand_type(src, &src_bitmap);
+>> +               if (rc !=3D SEPOL_OK) {
+>> +                       goto exit;
+>> +               }
+>> +
+>> +               ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
+>> +                       src =3D DATUM(db->val_to_type[s]);
+>> +                       for (t =3D 0; t < (unsigned int)db->num_types; t=
+++) {
+>> +                               if (s !=3D t) {
+>> +                                       tgt =3D DATUM(db->val_to_type[t]=
+);
+>> +                                       rc =3D __cil_avrulex_to_hashtabl=
+e_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
+>> +                                       if (rc !=3D SEPOL_OK) {
+>> +                                               ebitmap_destroy(&src_bit=
+map);
+>> +                                               goto exit;
+>> +                                       }
+>> +                               }
+>> +                       }
+>> +               }
+>> +               ebitmap_destroy(&src_bitmap);
+>> +       } else if (tgt->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +               rc =3D __cil_expand_type(src, &src_bitmap);
+>> +               if (rc !=3D SEPOL_OK) {
+>> +                       goto exit;
+>> +               }
+>> +
+>> +               ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
+>> +                       src =3D DATUM(db->val_to_type[s]);
+>> +                       ebitmap_for_each_positive_bit(&src_bitmap, tnode=
+, t) {
+>> +                               if (s !=3D t) {
+>> +                                       tgt =3D DATUM(db->val_to_type[t]=
+);
+>> +                                       rc =3D __cil_avrulex_to_hashtabl=
+e_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
+>> +                                       if (rc !=3D SEPOL_OK) {
+>> +                                               ebitmap_destroy(&src_bit=
+map);
+>> +                                               goto exit;
+>> +                                       }
+>> +                               }
+>> +                       }
+>> +               }
+>> +               ebitmap_destroy(&src_bitmap);
+>>         } else {
+>>                 int expand_src =3D __cil_should_expand_attribute(db, src=
+);
+>>                 int expand_tgt =3D __cil_should_expand_attribute(db, tgt=
+);
+>> @@ -4813,8 +4894,16 @@ static int cil_check_neverallow(const struct cil_=
+db *db, policydb_t *pdb, struct
+>>
+>>         if (tgt->fqn =3D=3D CIL_KEY_SELF) {
+>>                 rule->flags =3D RULE_SELF;
+>> +       } else if (tgt->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +               rule->flags =3D RULE_NOTSELF;
+>> +       } else if (tgt->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +               rule->flags =3D RULE_NOTSELF;
+>> +               rc =3D __cil_add_sepol_type(pdb, db, cil_rule->src, &rul=
+e->ttypes.types);
+>> +               if (rc !=3D SEPOL_OK) {
+>> +                       goto exit;
+>> +               }
+>>         } else {
+>> -               rc =3D __cil_add_sepol_type(pdb, db, cil_rule->tgt, &rul=
+e->ttypes.types);
+>> +               rc =3D __cil_add_sepol_type(pdb, db, tgt, &rule->ttypes.=
+types);
+>>                 if (rc !=3D SEPOL_OK) {
+>>                         goto exit;
+>>                 }
+>> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bui=
+ld_ast.c
+>> index 4177c9f6..ca9f80c7 100644
+>> --- a/libsepol/cil/src/cil_build_ast.c
+>> +++ b/libsepol/cil/src/cil_build_ast.c
+>> @@ -3126,9 +3126,13 @@ int cil_gen_aliasactual(struct cil_db *db, struct=
+ cil_tree_node *parse_current,
+>>                 goto exit;
+>>         }
+>>
+>> -       if ((flavor =3D=3D CIL_TYPEALIAS && parse_current->next->data =
+=3D=3D CIL_KEY_SELF) || parse_current->next->next->data =3D=3D CIL_KEY_SELF=
+) {
+>> -               cil_log(CIL_ERR, "The keyword '%s' is reserved\n", CIL_K=
+EY_SELF);
+>> -               rc =3D SEPOL_ERR;
+>> +       rc =3D cil_verify_name(db, parse_current->next->data, flavor);
+>> +       if (rc !=3D SEPOL_OK) {
+>> +               goto exit;
+>> +       }
+>> +
+>> +       rc =3D cil_verify_name(db, parse_current->next->next->data, flav=
+or);
+>> +       if (rc !=3D SEPOL_OK) {
+>>                 goto exit;
+>>         }
+>>
+>> diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
+>> index 8b755277..1518d33d 100644
+>> --- a/libsepol/cil/src/cil_find.c
+>> +++ b/libsepol/cil/src/cil_find.c
+>> @@ -115,12 +115,13 @@ static int cil_type_matches(ebitmap_t *matches, st=
+ruct cil_symtab_datum *d1, str
+>>
+>>  /* s1 is the src type that is matched with a self
+>>   * s2, and t2 are the source and type of the other rule
+>> + * Assumes there is a match between s1 and s2
+>>   */
+>>  static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_s=
+ymtab_datum *s2, struct cil_symtab_datum *t2)
+>>  {
+>>         int rc;
+>> -       struct cil_tree_node *n1 =3D NODE(s1);
+>> -       if (n1->flavor !=3D CIL_TYPEATTRIBUTE) {
+>> +
+>> +       if (FLAVOR(s1) !=3D CIL_TYPEATTRIBUTE) {
+>>                 rc =3D cil_type_match_any(s1, t2);
+>>         } else {
+>>                 struct cil_typeattribute *a =3D (struct cil_typeattribut=
+e *)s1;
+>> @@ -129,20 +130,149 @@ static int cil_self_match_any(struct cil_symtab_d=
+atum *s1, struct cil_symtab_dat
+>>                 rc =3D cil_type_matches(&map, s2, t2);
+>>                 if (rc < 0) {
+>>                         ebitmap_destroy(&map);
+>> -                       goto exit;
+>> +                       return rc;
+>>                 }
+>> -               if (map.node =3D=3D NULL) {
+>> -                       rc =3D CIL_FALSE;
+>> -                       goto exit;
+>> +               if (!ebitmap_startnode(&map)) {
+>> +                       ebitmap_destroy(&map);
+>> +                       return CIL_FALSE;
+>>                 }
+>>                 rc =3D ebitmap_match_any(&map, a->types);
+>>                 ebitmap_destroy(&map);
+>>         }
+>>
+>> -exit:
+>>         return rc;
+>>  }
+>>
+>> +/* s1 is the src type that is matched with a notself
+>> + * s2 and t2 are the source and type of the other rule
+>> + * Assumes there is a match between s1 and s2
+>> + */
+>> +static int cil_notself_match_any(struct cil_symtab_datum *s1, struct ci=
+l_symtab_datum *s2, struct cil_symtab_datum *t2)
+>> +{
+>> +       int rc;
+>> +       ebitmap_node_t *snode, *tnode;
+>> +       unsigned int s,t;
+>> +
+>> +       if (FLAVOR(s1) !=3D CIL_TYPEATTRIBUTE) {
+>> +               struct cil_type *ts1 =3D (struct cil_type *)s1;
+>> +               if (FLAVOR(t2) !=3D CIL_TYPEATTRIBUTE) {
+>> +                       struct cil_type *tt2 =3D (struct cil_type *)t2;
+>> +                       if (ts1->value !=3D tt2->value) {
+>> +                               return CIL_TRUE;
+>> +                       }
+>> +               } else {
+>> +                       struct cil_typeattribute *at2 =3D (struct cil_ty=
+peattribute *)t2;
+>> +                       ebitmap_for_each_positive_bit(at2->types, tnode,=
+ t) {
+>> +                               if (t !=3D (unsigned int)ts1->value) {
+>> +                                       return CIL_TRUE;
+>> +                               }
+>> +                       }
+>> +               }
+>> +       } else {
+>> +               ebitmap_t smap;
+>> +               ebitmap_init(&smap);
+>> +               rc =3D cil_type_matches(&smap, s1, s2);
+>> +               if (rc < 0) {
+>> +                       ebitmap_destroy(&smap);
+>> +                       return rc;
+>> +               }
+>> +               if (!ebitmap_startnode(&smap)) {
+>> +                       ebitmap_destroy(&smap);
+>> +                       return CIL_FALSE;
+>> +               }
+>> +               if (FLAVOR(t2) !=3D CIL_TYPEATTRIBUTE) {
+>> +                       struct cil_type *tt2 =3D (struct cil_type *)t2;
+>> +                       ebitmap_for_each_positive_bit(&smap, snode, s) {
+>> +                               if (s !=3D (unsigned int)tt2->value) {
+>> +                                       ebitmap_destroy(&smap);
+>> +                                       return CIL_TRUE;
+>> +                               }
+>> +                       }
+>> +               } else {
+>> +                       struct cil_typeattribute *at2 =3D (struct cil_ty=
+peattribute *)t2;
+>> +                       ebitmap_for_each_positive_bit(&smap, snode, s) {
+>> +                               ebitmap_for_each_positive_bit(at2->types=
+, tnode, t) {
+>> +                                       if (s !=3D t) {
+>> +                                               ebitmap_destroy(&smap);
+>> +                                               return CIL_TRUE;
+>> +                                       }
+>> +                               }
+>> +                       }
+>> +               }
+>> +               ebitmap_destroy(&smap);
+>> +       }
+>> +
+>> +       return CIL_FALSE;
+>> +}
+>> +
+>> +/* s1 is the src type that is matched with a minusself
+>> + * s2, and t2 are the source and type of the other rule
+>> + * Assumes there is a match between s1 and s2
+>> + */
+>> +static int cil_minusself_match_any(struct cil_symtab_datum *s1, struct =
+cil_symtab_datum *s2, struct cil_symtab_datum *t2)
+>> +{
+>> +       int rc;
+>> +
+>> +       if (FLAVOR(s1) !=3D CIL_TYPEATTRIBUTE) {
+>> +               return CIL_FALSE;
+>> +       } else {
+>> +               ebitmap_t smap, tmap;
+>> +               ebitmap_node_t *snode, *tnode;
+>> +               unsigned int s,t;
+>> +
+>> +               ebitmap_init(&smap);
+>> +               rc =3D cil_type_matches(&smap, s1, s2);
+>> +               if (rc < 0) {
+>> +                       ebitmap_destroy(&smap);
+>> +                       return rc;
+>> +               }
+>> +
+>> +               ebitmap_init(&tmap);
+>> +               rc =3D cil_type_matches(&tmap, s1, t2);
+>> +               if (rc < 0) {
+>> +                       ebitmap_destroy(&smap);
+>> +                       ebitmap_destroy(&tmap);
+>> +                       return rc;
+>> +               }
+>> +
+>> +               if (!ebitmap_startnode(&smap) || !ebitmap_startnode(&tma=
+p)) {
+>> +                       ebitmap_destroy(&smap);
+>> +                       ebitmap_destroy(&tmap);
+>> +                       return CIL_FALSE;
+>> +               }
+>> +
+>> +               ebitmap_for_each_positive_bit(&smap, snode, s) {
+>> +                       ebitmap_for_each_positive_bit(&tmap, tnode, t) {
+>> +                               if (s !=3D t) {
+>> +                                       ebitmap_destroy(&smap);
+>> +                                       ebitmap_destroy(&tmap);
+>> +                                       return CIL_TRUE;
+>> +                               }
+>> +                       }
+>> +               }
+>> +
+>> +               ebitmap_destroy(&smap);
+>> +               ebitmap_destroy(&tmap);
+>> +       }
+>> +
+>> +       return CIL_FALSE;
+>> +}
+>> +
+>> +/* s2 is the src type that is matched with a minusself
+>> + * Assumes there is a match between s1 and s2
+>> + * s1 is not needed, since it is known that there is a match
+>> + */
+>> +static int cil_notself_minusself_match_any(struct cil_symtab_datum *s2)
+>> +{
+>> +       if (FLAVOR(s2) =3D=3D CIL_TYPEATTRIBUTE) {
+>> +               struct cil_typeattribute *as2 =3D (struct cil_typeattrib=
+ute *)s2;
+>> +               if (ebitmap_cardinality(as2->types) > 1) {
+>> +                       return CIL_TRUE;
+>> +               }
+>> +       }
+>> +       return CIL_FALSE;
+>> +}
+>> +
+>>  static int cil_classperms_match_any(struct cil_classperms *cp1, struct =
+cil_classperms *cp2)
+>>  {
+>>         struct cil_class *c1 =3D cp1->class;
+>> @@ -308,30 +438,56 @@ static int cil_find_matching_avrule(struct cil_tre=
+e_node *node, struct cil_avrul
+>>
+>>         if (!cil_type_match_any(s1, s2)) goto exit;
+>>
+>> -       if (t1->fqn !=3D CIL_KEY_SELF && t2->fqn !=3D CIL_KEY_SELF) {
+>> -               if (!cil_type_match_any(t1, t2)) goto exit;
+>> -       } else {
+>> -               if (t1->fqn =3D=3D CIL_KEY_SELF && t2->fqn =3D=3D CIL_KE=
+Y_SELF) {
+>> +       if (t1->fqn =3D=3D CIL_KEY_SELF) {
+>> +               if (t2->fqn =3D=3D CIL_KEY_SELF) {
+>>                         /* The earlier check whether s1 and s2 matches i=
+s all that is needed */
+>> -               } else if (t1->fqn =3D=3D CIL_KEY_SELF) {
+>> +                       rc =3D CIL_TRUE;
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_NOTSELF || t2->fqn =3D=
+=3D CIL_KEY_MINUSSELF) {
+>> +                       rc =3D CIL_FALSE;
+>> +               } else {
+>>                         rc =3D cil_self_match_any(s1, s2, t2);
+>> -                       if (rc < 0) {
+>> -                               goto exit;
+>> -                       } else if (rc =3D=3D CIL_FALSE) {
+>> -                               rc =3D SEPOL_OK;
+>> -                               goto exit;
+>> -                       }
+>> -               } else if (t2->fqn =3D=3D CIL_KEY_SELF) {
+>> +               }
+>> +       } else if (t1->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +               if (t2->fqn =3D=3D CIL_KEY_SELF) {
+>> +                       rc =3D CIL_FALSE;
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +                       /* The earlier check whether s1 and s2 matches i=
+s all that is needed */
+>> +                       rc =3D CIL_TRUE;
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +                       rc =3D cil_notself_minusself_match_any(s2);
+>> +               } else {
+>> +                       rc =3D cil_notself_match_any(s1, s2, t2);
+>> +               }
+>> +       } else if (t1->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +               if (t2->fqn =3D=3D CIL_KEY_SELF) {
+>> +                       rc =3D CIL_FALSE;
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +                       rc =3D cil_notself_minusself_match_any(s1);
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +                       /* The earlier check whether s1 and s2 matches i=
+s all that is needed */
+>> +                       rc =3D CIL_TRUE;
+>> +               } else {
+>> +                       rc =3D cil_minusself_match_any(s1, s2, t2);
+>> +               }
+>> +       } else {
+>> +               if (t2->fqn =3D=3D CIL_KEY_SELF) {
+>>                         rc =3D cil_self_match_any(s2, s1, t1);
+>> -                       if (rc < 0) {
+>> -                               goto exit;
+>> -                       } else if (rc =3D=3D CIL_FALSE) {
+>> -                               rc =3D SEPOL_OK;
+>> -                               goto exit;
+>> -                       }
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_NOTSELF) {
+>> +                       rc =3D cil_notself_match_any(s2, s1, t1);
+>> +               } else if (t2->fqn =3D=3D CIL_KEY_MINUSSELF) {
+>> +                       rc =3D cil_minusself_match_any(s2, s1, t1);
+>> +               } else {
+>> +                       rc =3D cil_type_match_any(t1, t2);
+>>                 }
+>>         }
+>>
+>> +       if (rc < 0) {
+>> +               goto exit;
+>> +       } else if (rc =3D=3D CIL_FALSE) {
+>> +               rc =3D SEPOL_OK;
+>> +               goto exit;
+>> +       }
+>> +
+>>         if (!target->is_extended) {
+>>                 if (cil_classperms_list_match_any(avrule->perms.classper=
+ms, target->perms.classperms)) {
+>>                         cil_list_append(matching, CIL_NODE, node);
+>> diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_inte=
+rnal.h
+>> index a7604762..d293b9ba 100644
+>> --- a/libsepol/cil/src/cil_internal.h
+>> +++ b/libsepol/cil/src/cil_internal.h
+>> @@ -101,6 +101,8 @@ extern char *CIL_KEY_CONS_INCOMP;
+>>  extern char *CIL_KEY_CONDTRUE;
+>>  extern char *CIL_KEY_CONDFALSE;
+>>  extern char *CIL_KEY_SELF;
+>> +extern char *CIL_KEY_NOTSELF;
+>> +extern char *CIL_KEY_MINUSSELF;
+>>  extern char *CIL_KEY_OBJECT_R;
+>>  extern char *CIL_KEY_STAR;
+>>  extern char *CIL_KEY_TCP;
+>> @@ -289,6 +291,8 @@ struct cil_db {
+>>         struct cil_tree *parse;
+>>         struct cil_tree *ast;
+>>         struct cil_type *selftype;
+>> +       struct cil_type *notselftype;
+>> +       struct cil_type *minusselftype;
+>>         struct cil_list *sidorder;
+>>         struct cil_list *classorder;
+>>         struct cil_list *catorder;
+>> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_r=
+esolve_ast.c
+>> index f5e22c97..9065fe09 100644
+>> --- a/libsepol/cil/src/cil_resolve_ast.c
+>> +++ b/libsepol/cil/src/cil_resolve_ast.c
+>> @@ -333,6 +333,10 @@ int cil_resolve_avrule(struct cil_tree_node *curren=
+t, void *extra_args)
+>>
+>>         if (rule->tgt_str =3D=3D CIL_KEY_SELF) {
+>>                 rule->tgt =3D db->selftype;
+>> +       } else if (rule->tgt_str =3D=3D CIL_KEY_NOTSELF) {
+>> +               rule->tgt =3D db->notselftype;
+>> +       } else if (rule->tgt_str =3D=3D CIL_KEY_MINUSSELF) {
+>> +               rule->tgt =3D db->minusselftype;
+>>         } else {
+>>                 rc =3D cil_resolve_name(current, rule->tgt_str, CIL_SYM_=
+TYPES, args, &tgt_datum);
+>>                 if (rc !=3D SEPOL_OK) {
+>> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify=
+.c
+>> index 4640dc59..1706fbf2 100644
+>> --- a/libsepol/cil/src/cil_verify.c
+>> +++ b/libsepol/cil/src/cil_verify.c
+>> @@ -68,7 +68,8 @@ static int __cil_is_reserved_name(const char *name, en=
+um cil_flavor flavor)
+>>         case CIL_TYPE:
+>>         case CIL_TYPEATTRIBUTE:
+>>         case CIL_TYPEALIAS:
+>> -               if ((name =3D=3D CIL_KEY_ALL) || (name =3D=3D CIL_KEY_SE=
+LF))
+>> +               if ((name =3D=3D CIL_KEY_ALL) || (name =3D=3D CIL_KEY_SE=
+LF) || (name =3D=3D CIL_KEY_NOTSELF)
+>> +                       || (name =3D=3D CIL_KEY_MINUSSELF))
+>>                         return CIL_TRUE;
+>>                 break;
+>>         case CIL_CAT:
+>> --
+>> 2.38.1
+>>
+
