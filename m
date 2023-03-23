@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99E29C6FD1C
-	for <selinux@archiver.kernel.org>; Thu, 23 Mar 2023 23:37:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E974C6FD1C
+	for <selinux@archiver.kernel.org>; Thu, 23 Mar 2023 23:42:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229738AbjCWXhV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 23 Mar 2023 19:37:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34760 "EHLO
+        id S230393AbjCWXmC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 23 Mar 2023 19:42:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230388AbjCWXhV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 23 Mar 2023 19:37:21 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 206E42C66C
-        for <selinux@vger.kernel.org>; Thu, 23 Mar 2023 16:37:19 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id i6so291331ybu.8
-        for <selinux@vger.kernel.org>; Thu, 23 Mar 2023 16:37:19 -0700 (PDT)
+        with ESMTP id S229990AbjCWXmB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 23 Mar 2023 19:42:01 -0400
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 847342BEE6
+        for <selinux@vger.kernel.org>; Thu, 23 Mar 2023 16:41:50 -0700 (PDT)
+Received: by mail-yb1-xb31.google.com with SMTP id cf7so310702ybb.5
+        for <selinux@vger.kernel.org>; Thu, 23 Mar 2023 16:41:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1679614638;
+        d=paul-moore.com; s=google; t=1679614909;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=H5DqnFNdwoRsvRD9gY7AVflhKHmqWJvLpG3CELYJwy4=;
-        b=MvmzhjViCPcj6Nhc+3xUZBlHLNZc4r6lPParcd8U1SVaNbw7wKC7ctiSLNtETXsbZR
-         SfRHOqCYRqd1uqAwWuo9yiMFLI0eaNDRiZlTA6cLo/WgAikQelZ1tHGFpIZZPWcjT35o
-         RAn0baZ5sYIIGCdLt+R9DAyKHRnnJXL0EwkWhxKR9y3ewPQOPLqgHbZlIjayJV65Q4zv
-         5Lw4K4PXz4x9XgSVjgC27sSASSJW5nHoZurlVklnEY9HZZJhC9oqu0bxuU17lvaxiU3a
-         kl+1LdimUZ3SdVmvRmCVK2t7FT3bIF4MTO+fvC6g4axqIpSiLufJkJgHH86Rqinq42Ye
-         nNDw==
+        bh=thV1/AZ1OuJuOWPw7pjV/QbFzpiTpQJ2MyO692gPvR0=;
+        b=NYkNtemoCv6R5EsPq8GFyteH85EBMhiY99YqBUPV0GxorXDwZ4BHHPSZ6jApnoObXy
+         jGQ/kATiHKMLZEW++ynU0B7JvOnCW6cBkdelAe/3hXU6fX57j670XX0rdqwWEYgEBugM
+         uXcC0JuwpCs8op/L0zT4SdZ8DdAjD9nJ8c0NLjQvRMVrAIgmxl8MSQsY0g9jf308b89O
+         Ny5DEfLM2K0uAK/anxZCKnpF3xg64462iQnVBf3Q5lJZlNStMNfnnwO2+brs/NhCVAH/
+         gJkJnPcj4CS9WDqN5OLuvgCi/tHgzFwLERnhG7WUmCoHefD/Y/pZw1AJClRi01+wp5BC
+         dMPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679614638;
+        d=1e100.net; s=20210112; t=1679614909;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=H5DqnFNdwoRsvRD9gY7AVflhKHmqWJvLpG3CELYJwy4=;
-        b=3YojyJYfl4H0xLGjVqwS1k514pmzxzTvM42oYh0Tb36k1a0lpP7xVZUtbxdFv4cOGp
-         ewg1JdbzEIJPakAsWXhi5m4sV3PP0GuJj7Ey+pOhhhd0eYiUr99CGyWgJ2On0byRbIXa
-         EMxodDqD/0vFQiHvTME8Vrn5LBe+t1fBolhj8Momwe0ms92MQMqxomyJVXMPO7RT4gQh
-         W0pcJMjYa33vjDL+MoFKanAEpN8RCuKBQC8X+EHj+e00RhEE87jh67AUwuouuEyd3yVA
-         W1la4n3saLhMG0dHE1yGhM219/+KBxDn/dBPX/8sh8dT0krbLdf/MXFnrcRw9k3KSGOt
-         Idyg==
-X-Gm-Message-State: AAQBX9cwSny29Rr6nAx26wCt0CY8gnJDst7jjtqHqnFFg2yIm6jJB4+q
-        f3eNDTz/JCXUYpWeTJ76L74htZPCJJQYfFcB7pFe
-X-Google-Smtp-Source: AKy350aKUo52lrEIhVqCcrwLfuJGssfxNEL6IV2NSjb63kt7Z52L3fpiOf67Jiyy9HPq6D2tt3ioTIkNycC6sWUe3fE=
-X-Received: by 2002:a05:6902:18c7:b0:b72:fff0:2f7f with SMTP id
- ck7-20020a05690218c700b00b72fff02f7fmr715296ybb.4.1679614638263; Thu, 23 Mar
- 2023 16:37:18 -0700 (PDT)
+        bh=thV1/AZ1OuJuOWPw7pjV/QbFzpiTpQJ2MyO692gPvR0=;
+        b=D9RofvX+/7GQpJAT/WRbui0U0raZ11aW8sBTcbYemg5UAyEUi87szNgWtlA2LaHtEn
+         g3aW6W/4VPRX4SvfaGHNdqJzFr+wj17+s4Q9dPK/NMvjiUWT3Z0xl0c3ndNcwcLIdd1H
+         pHULkH+JH2DgJr88DgCGGLfrLq4wyQBAyalQEoPvcJIuasOcEdBZhijzPWKP04XPAjoZ
+         mLg/jhourTwYAyWq7e2HFUZ7d5WxabNwVCjRIje4BbmnvvL6yynbrOdbnRXS+Fq6hYxd
+         BK7Ap37Xbr0kFCqFP/LElRHRD6qWC9ED08KyMgBOJP3p8e3WjtRm2e0Q7lVWpo3I35nR
+         tFZQ==
+X-Gm-Message-State: AAQBX9cBJBXGcCHXwrOJSIHO5IfxZB8LzoVEzHDRkDMKCqpAdZikdJyz
+        pFtfLk1BrFlLkT+a9uJhkfWNVYUvGnGQBZYgujPn
+X-Google-Smtp-Source: AKy350Y07LmdJ00VZHB5SCSf+bLOqKsfH0jPu8dbkgkADvJ+KRyt25TCp5x1Uyuw9HiLKhJv2/hToxbHH1V58rKDxHw=
+X-Received: by 2002:a25:db91:0:b0:b75:8ac3:d5d9 with SMTP id
+ g139-20020a25db91000000b00b758ac3d5d9mr202424ybf.3.1679614909693; Thu, 23 Mar
+ 2023 16:41:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230314081720.4158676-1-roberto.sassu@huaweicloud.com> <20230314081720.4158676-3-roberto.sassu@huaweicloud.com>
-In-Reply-To: <20230314081720.4158676-3-roberto.sassu@huaweicloud.com>
+References: <20230314081720.4158676-1-roberto.sassu@huaweicloud.com> <20230314081720.4158676-4-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20230314081720.4158676-4-roberto.sassu@huaweicloud.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 23 Mar 2023 19:37:07 -0400
-Message-ID: <CAHC9VhSPMs6k4zm0rACiZZYuB84Avg9t+AnGBH4F+iiLsNgzkg@mail.gmail.com>
-Subject: Re: [PATCH v8 2/6] ocfs2: Switch to security_inode_init_security()
+Date:   Thu, 23 Mar 2023 19:41:39 -0400
+Message-ID: <CAHC9VhS4=bH1nO6eag7zLOQrx80AAqsnCZPPJsTZ1wcQXSn0uw@mail.gmail.com>
+Subject: Re: [PATCH v8 3/6] security: Remove security_old_inode_init_security()
 To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
 Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
         zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
@@ -75,44 +75,21 @@ On Tue, Mar 14, 2023 at 4:18=E2=80=AFAM Roberto Sassu
 >
 > From: Roberto Sassu <roberto.sassu@huawei.com>
 >
-> In preparation for removing security_old_inode_init_security(), switch to
-> security_inode_init_security().
+> As the remaining two users reiserfs and ocfs2 switched to
+> security_inode_init_security(), security_old_inode_init_security() can be
+> now removed.
 >
-> Extend the existing ocfs2_initxattrs() to take the
-> ocfs2_security_xattr_info structure from fs_info, and populate the
-> name/value/len triple with the first xattr provided by LSMs.
->
-> As fs_info was not used before, ocfs2_initxattrs() can now handle the cas=
-e
-> of replicating the behavior of security_old_inode_init_security(), i.e.
-> just obtaining the xattr, in addition to setting all xattrs provided by
-> LSMs.
->
-> Supporting multiple xattrs is not currently supported where
-> security_old_inode_init_security() was called (mknod, symlink), as it
-> requires non-trivial changes that can be done at a later time. Like for
-> reiserfs, even if EVM is invoked, it will not provide an xattr (if it is
-> not the first to set it, its xattr will be discarded; if it is the first,
-> it does not have xattrs to calculate the HMAC on).
->
-> Finally, since security_inode_init_security(), unlike
-> security_old_inode_init_security(), returns zero instead of -EOPNOTSUPP i=
-f
-> no xattrs were provided by LSMs or if inodes are private, additionally
-> check in ocfs2_init_security_get() if the xattr name is set.
->
-> If not, act as if security_old_inode_init_security() returned -EOPNOTSUPP=
-,
-> and set si->enable to zero to notify to the functions following
-> ocfs2_init_security_get() that no xattrs are available.
+> Out-of-tree kernel modules should switch to security_inode_init_security(=
+)
+> too.
 >
 > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 > Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> Acked-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 > ---
->  fs/ocfs2/namei.c |  2 ++
->  fs/ocfs2/xattr.c | 30 ++++++++++++++++++++++++++----
->  2 files changed, 28 insertions(+), 4 deletions(-)
+>  include/linux/security.h | 12 ------------
+>  security/security.c      | 11 -----------
+>  2 files changed, 23 deletions(-)
 
 Merged into lsm/next, thanks.
 
