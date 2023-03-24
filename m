@@ -2,105 +2,122 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30CDFC6FD20
-	for <selinux@archiver.kernel.org>; Fri, 24 Mar 2023 14:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5499C6FD20
+	for <selinux@archiver.kernel.org>; Fri, 24 Mar 2023 20:20:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbjCXOR0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Mar 2023 10:17:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56796 "EHLO
+        id S231916AbjCXUU2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Mar 2023 16:20:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230100AbjCXOR0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Mar 2023 10:17:26 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1BA01E5EC
-        for <selinux@vger.kernel.org>; Fri, 24 Mar 2023 07:17:20 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id z83so2348981ybb.2
-        for <selinux@vger.kernel.org>; Fri, 24 Mar 2023 07:17:20 -0700 (PDT)
+        with ESMTP id S231800AbjCXUU1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Mar 2023 16:20:27 -0400
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2421ADEA
+        for <selinux@vger.kernel.org>; Fri, 24 Mar 2023 13:20:15 -0700 (PDT)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-544b959a971so53865377b3.3
+        for <selinux@vger.kernel.org>; Fri, 24 Mar 2023 13:20:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1679667440;
+        d=paul-moore.com; s=google; t=1679689214;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qyz70q0exwlxpG0yMPJfrMAVsSG+06PVBNztaJhtJqo=;
-        b=AOQvr9b4IDlun2P9WBqyFgYrZnRMnWkZbi7nKD1h77svDtysp3k2+svumSz94wRohI
-         DHZZwnayCvXPboUZHbIPyaInyWGXe1MZU80EoiXvTGptGU5x9ycbCOmJQPEv5+ToeKhI
-         M28EIQd9BR39cjtGdwuyZiW6Z7sHOCN3XEb/+rDt/zaSbv28B5BeAQweq/nnqcNzKhfQ
-         8dNPfrfNpTMGHcndWQbl5qRBpRC+A5GBdNdTaoP1dpsA4MjG2imDAtn4mnZCDF0V7zF9
-         v0rIKu1s/EOQIUsfRTFmsVupWgV2UUt+PQt8qEAWmu6B4mKm/O6meI3joa44DP3+Dbq0
-         WgiQ==
+        bh=NE3yJDI+pYJuCMQv+LbLHvHpakC5z20Q31kT7kG1Coo=;
+        b=US49Rj0ujiV1sooDfFrHrBRZjgcRszsxXf3GeR9J081S3w7ZzTM6r5FO/PKKKbC4P7
+         JqVFTPdgA8dXgaKVQId6RAB2A+fZiRtEXfRwOCBeFLdEBGoomLmHC8smJW9HgWuQFSzn
+         o7BqQPMoH8a5waHthHsy0R/00uU769JgCEN6Wd0VaQl3gm2KkB4iwXIgolQz75n4PRZk
+         Rh5A5mgeRFFnC5UumzUemh3zi7kEvN1ZIv1sDcX9/9BraIwygvvrfBYVpOOZHfxE+QQA
+         xUrXbAfn7n9jpcTDrTbKgHCcjhonPev/X8vh9qvVQxXETWrlOsQfjcivSfReJHpLAS1K
+         vs4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679667440;
+        d=1e100.net; s=20210112; t=1679689214;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qyz70q0exwlxpG0yMPJfrMAVsSG+06PVBNztaJhtJqo=;
-        b=xxqhlsfNP+ka3AwVeIKA2eh5T9i/rzH4ZzyhPO6axtK7kvxYoBp/D2HxMTOBLFWjda
-         x6dP2jj/ZZNNOyH2lGXPG9w0RS36XTHORXKJbSv0WtaWpOQTe8Fk3BYPgtyidAlhMmxi
-         qHw/4lJKT9BAhC0v7dFH67YQsTF/8u15K0XAUYn4P8Cmp6+5yTGHuN2AiFEt1ANQEH+m
-         z5GPGx1pvAq7aTdFn/MWx8HvUVfyM8be+INbuEHpJc1J+z5mTB/GMJDMoXkU72hBvR/x
-         oMzYI1GW9BOLcW8vw6UufwMOVsDG/feAx5/ua9Rk5GASNwZkefO/R/gA+sSLh6gXrlGm
-         z+8w==
-X-Gm-Message-State: AAQBX9duCjXRysuDGtTGHlSTAAuoPaCjUiE/h4toZUhuKeNxuRrBjBF+
-        aTkmQBLq+3aOIJqIvaZU491cpI041Mj9tHvXB/6T
-X-Google-Smtp-Source: AKy350amz4iSWC/J6MBpFaFbKcK0anHYtISoEVuIwiCetg7GwG+iRm9rYxlweWMrGHUcXR2/Z4SwCvWYK/Z/pHw7RwU=
-X-Received: by 2002:a05:6902:1586:b0:b76:ceb2:661b with SMTP id
- k6-20020a056902158600b00b76ceb2661bmr1495681ybu.3.1679667440030; Fri, 24 Mar
- 2023 07:17:20 -0700 (PDT)
+        bh=NE3yJDI+pYJuCMQv+LbLHvHpakC5z20Q31kT7kG1Coo=;
+        b=O+owx7WqjXHbjrEZ8kBcVpQvM8CRc0ffsKxzvBOAf2s0QwFf3ZzdWOFPtcg0jQpcyZ
+         7aIj5TYcbdHrFk43xFrsnazOq7OWNf8CSLAawKlXqoezBMJ+IVuThOhmc0LDYYnSL/Y/
+         Lq9W9hk8JlyYxw2UB+PB5qm4/PP3SVStHNginze7e6JDGLfHOXo6xrLs9FdHnHl/4+uz
+         m5cgAdFVY1cx4Ec8QcbkvtirCUkAqVLdBhxHSQjhImzwMTbjKyg37NTV8DztzdPLOY7x
+         /jfirUKGinBEUCR0qhPIiQ7K18D/NnSAbJGYrf+1nWcirgsiUUd6lqMvliRXbBbkmagH
+         B/zg==
+X-Gm-Message-State: AAQBX9f57kuNfve2D1nSpyqjVIWdlnskd06FTSD+7/qAHSw70zwIWgKH
+        8ClYPt3xtmjOY/IQDQZpxpAZpv9RJ1xslK4by6lmy7hKa89Z/2Y=
+X-Google-Smtp-Source: AKy350aNTAC0qgpuAb8ntTTl8mLGMQTnxRclhRZIGJOBRGHivChNONp2c378J/aHROxYvUeUJPLKF0Ck6VdvcPwH4cE=
+X-Received: by 2002:a81:af18:0:b0:541:7f7b:a2ff with SMTP id
+ n24-20020a81af18000000b005417f7ba2ffmr1650801ywh.8.1679689214313; Fri, 24 Mar
+ 2023 13:20:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230314081720.4158676-1-roberto.sassu@huaweicloud.com>
- <20230314081720.4158676-5-roberto.sassu@huaweicloud.com> <CAHC9VhTD3EyDiJs9+NQrgp84JcUs_sx8WONtRk2YYH4m1C8nVw@mail.gmail.com>
- <5d8d802a-7664-fdf0-52ef-5817634d870d@schaufler-ca.com>
-In-Reply-To: <5d8d802a-7664-fdf0-52ef-5817634d870d@schaufler-ca.com>
+References: <20230324092114.13907-1-lukas.bulwahn@gmail.com>
+In-Reply-To: <20230324092114.13907-1-lukas.bulwahn@gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 24 Mar 2023 10:17:09 -0400
-Message-ID: <CAHC9VhRxsY6B3dL7db4b8bfznEz6rK2qiaDug4Hc_ywvU3vB5A@mail.gmail.com>
-Subject: Re: [PATCH v8 4/6] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Roberto Sassu <roberto.sassu@huaweicloud.com>, mark@fasheh.com,
-        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, ocfs2-devel@oss.oracle.com,
-        reiserfs-devel@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Fri, 24 Mar 2023 16:20:03 -0400
+Message-ID: <CAHC9VhT70JYNmE5ROhnYzqFv3UcYcP9mGdiD4X_kdiAspStr8A@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: clean up dead code after removing runtime disable
+To:     Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 23, 2023 at 9:01=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
-> On 3/23/2023 5:09 PM, Paul Moore wrote:
-> > On Tue, Mar 14, 2023 at 4:19=E2=80=AFAM Roberto Sassu
-> > <roberto.sassu@huaweicloud.com> wrote:
-
-...
-
-> >> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> >> index c2be66c669a..75a2f85b49d 100644
-> >> --- a/include/linux/lsm_hooks.h
-> >> +++ b/include/linux/lsm_hooks.h
-> >> @@ -63,6 +63,7 @@ struct lsm_blob_sizes {
-> >>         int     lbs_ipc;
-> >>         int     lbs_msg_msg;
-> >>         int     lbs_task;
-> >> +       int     lbs_xattr; /* number of xattr slots in new_xattrs arra=
-y */
-> >
-> > No need for the comment, we don't do it for the other fields.
+On Fri, Mar 24, 2023 at 5:23=E2=80=AFAM Lukas Bulwahn <lukas.bulwahn@gmail.=
+com> wrote:
 >
-> I asked for the comment. lbs_xattr is the number of entries, which is
-> different from the other fields. The other fields contain blob sizes in
-> bytes. Inconsistent behavior should be noted.
+> Commit f22f9aaf6c3d ("selinux: remove the runtime disable functionality")
+> removes the config SECURITY_SELINUX_DISABLE. This results in some dead co=
+de
+> in lsm_hooks.h.
+>
+> Remove this dead code.
+>
+> Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+> ---
+>  include/linux/lsm_hooks.h | 23 -----------------------
+>  1 file changed, 23 deletions(-)
 
-Fair enough.  Since that's the case, let's encode something in the
-field name itself so that every user has a slight reminder that it is
-a count and not a size.  How about 'lbs_xattr_count' or similar?
+Thanks Lukas, this looks much better.  Merged into selinux/next.
+
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 2b04f94a31bd..ab2b2fafa4a4 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -117,29 +117,6 @@ extern struct lsm_info __start_early_lsm_info[], __e=
+nd_early_lsm_info[];
+>                 __used __section(".early_lsm_info.init")                \
+>                 __aligned(sizeof(unsigned long))
+>
+> -#ifdef CONFIG_SECURITY_SELINUX_DISABLE
+> -/*
+> - * Assuring the safety of deleting a security module is up to
+> - * the security module involved. This may entail ordering the
+> - * module's hook list in a particular way, refusing to disable
+> - * the module once a policy is loaded or any number of other
+> - * actions better imagined than described.
+> - *
+> - * The name of the configuration option reflects the only module
+> - * that currently uses the mechanism. Any developer who thinks
+> - * disabling their module is a good idea needs to be at least as
+> - * careful as the SELinux team.
+> - */
+> -static inline void security_delete_hooks(struct security_hook_list *hook=
+s,
+> -                                               int count)
+> -{
+> -       int i;
+> -
+> -       for (i =3D 0; i < count; i++)
+> -               hlist_del_rcu(&hooks[i].list);
+> -}
+> -#endif /* CONFIG_SECURITY_SELINUX_DISABLE */
+> -
+>  extern int lsm_inode_alloc(struct inode *inode);
+>
+>  #endif /* ! __LINUX_LSM_HOOKS_H */
+> --
+> 2.17.1
 
 --=20
 paul-moore.com
