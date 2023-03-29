@@ -2,93 +2,129 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3584C76196
-	for <selinux@archiver.kernel.org>; Tue, 28 Mar 2023 23:08:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55D8CC74A5B
+	for <selinux@archiver.kernel.org>; Wed, 29 Mar 2023 07:12:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229477AbjC1XIt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Mar 2023 19:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57736 "EHLO
+        id S229881AbjC2HMp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Mar 2023 03:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229635AbjC1XIs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Mar 2023 19:08:48 -0400
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD20212C
-        for <selinux@vger.kernel.org>; Tue, 28 Mar 2023 16:08:46 -0700 (PDT)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-54601d90118so105060847b3.12
-        for <selinux@vger.kernel.org>; Tue, 28 Mar 2023 16:08:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1680044925;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ZSQMHyUAqVGVS2BQigz/A6ja8dJSfiSf613vf2Qfabc=;
-        b=cVQt9bu7I3EGZHXeNHx3U4o57jcXzPIJjBZMjpKHD/FUnKowQFmQs2AQ4+hk0TZMLe
-         9ooVdivzmNZBQPN6C6EW8Zzx/Jh7uVO7Gb+BuedaxYeBCliIHiFPN4eAL10XC92aj7vH
-         +e9wUppKga8bQydQE3lwD6FMYb/oQoPDMBPXAOypC+IHg8WnBgQiShkQTltg/fpzFEy2
-         BGTYNjh9fqOjAGqkDlBQ8UBUiyYGELN85aHNIBkI/vOhS8mmlYPf6ympIB+hRvNaHq8T
-         QbWO1ipKw76wtjrPGos+97NgT9jJ7EW3fweMyFv3HyIGs0YvJncejNxkp0FgeymH/0Ze
-         AaSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680044925;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZSQMHyUAqVGVS2BQigz/A6ja8dJSfiSf613vf2Qfabc=;
-        b=qZztX/74B5xGdgJm76sf2Y90qbblT4fmzovmrxIfUq/rzr/Ub4E2ULkUf+xK0lScMT
-         N6Mrcw+yndcEa/309aua7A4IF0fWYOTmYe+sIFPmoP1AO5Jm0/+9DQHZKznBihDVAZuB
-         6SNNeomUuAhkNiz7N2i9vyMp7m/ccg5KUYHap1Pmgz7B7xzShnVuRbQoBCIRUtqCl3sN
-         djPCtR2by7dIkNKGFQaTMrBLdeWo6oZ0uq7g7gfPGhCfVKn3paJR0Uw7rxEFTyGVJe4C
-         HXwPt61XFAMJI9KsWhUEHXb554DjL75JcDARcCdKUJ7O6l40mD87nuGrHuPRj0rxvzjz
-         QxeA==
-X-Gm-Message-State: AAQBX9dRC6qsHOhP8OV43crx+1xx+3IolSAZerTywTSkfWlGLgh59q1X
-        OvETeFwSlfbwBkfbyE5cy5pZ05J2oY9E0oxlsNu9q72QRdlacJwkHg==
-X-Google-Smtp-Source: AKy350abK8FdRjqum0rkpK7dFO74Ka6qWR1lzCgORAvXYVmNk4vPUiF0YnEYgjzDVu8XJA0CXmwa6+vQTcGj4938tKo=
-X-Received: by 2002:a81:af18:0:b0:541:7f7b:a2ff with SMTP id
- n24-20020a81af18000000b005417f7ba2ffmr8217177ywh.8.1680044925502; Tue, 28 Mar
- 2023 16:08:45 -0700 (PDT)
-MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 28 Mar 2023 19:08:34 -0400
-Message-ID: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
-Subject: Potential regression/bug in net/mlx5 driver
-To:     Shay Drory <shayd@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Cc:     netdev@vger.kernel.org, regressions@lists.linux.dev,
-        selinux@vger.kernel.org
+        with ESMTP id S229836AbjC2HMo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Mar 2023 03:12:44 -0400
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4D4199;
+        Wed, 29 Mar 2023 00:12:43 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.227])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4Pmcw43PF3z9xHw6;
+        Wed, 29 Mar 2023 15:03:32 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwAX6F7D5CNk8fLYAQ--.17663S2;
+        Wed, 29 Mar 2023 08:12:14 +0100 (CET)
+Message-ID: <e7faa6ebe2958184aeccadad51d18877577b225b.camel@huaweicloud.com>
+Subject: Re: [PATCH v8 4/6] security: Allow all LSMs to provide xattrs for
+ inode_init_security hook
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Wed, 29 Mar 2023 09:11:59 +0200
+In-Reply-To: <CAHC9VhRNWeZtxain_Hi-EfS49Vac8_vg7KRRyV4a9Sq3XPhZsg@mail.gmail.com>
+References: <20230314081720.4158676-1-roberto.sassu@huaweicloud.com>
+         <20230314081720.4158676-5-roberto.sassu@huaweicloud.com>
+         <CAHC9VhTD3EyDiJs9+NQrgp84JcUs_sx8WONtRk2YYH4m1C8nVw@mail.gmail.com>
+         <939e6c88662ad90b963993c4cc1b702083e74a7a.camel@huaweicloud.com>
+         <ffc86b3907f7b87d3c568ae62bea3cdb3275be4e.camel@huaweicloud.com>
+         <CAHC9VhRNjvjMOF5KLM6BoGfk=QpEBs_ur_CgRdGL5R1bA-JAwg@mail.gmail.com>
+         <8b63d00d8ac3f686e51889ea4fc8d83f8ecb300d.camel@huaweicloud.com>
+         <CAHC9VhRaKtsM=CuNhDy0Kx0NGSUrVhG+MhwKnHiyJxfgUwx7nA@mail.gmail.com>
+         <1e08006f9011efa48deaf656c358ca3d438b9768.camel@huaweicloud.com>
+         <CAHC9VhRNWeZtxain_Hi-EfS49Vac8_vg7KRRyV4a9Sq3XPhZsg@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: GxC2BwAX6F7D5CNk8fLYAQ--.17663S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7AF4UAr48AFyUJFy5ArWrXwb_yoW8trW5pF
+        4Ut3Wqkr4vqr42yr92ya18G3yrK39xtr4UXwn8tr1UZ34qgryfCF1xKF43uryDGrn2k3s0
+        vrWYgry3W3ZxAaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQALBF1jj4tHZgAAsV
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello all,
+On Tue, 2023-03-28 at 16:19 -0400, Paul Moore wrote:
+> On Tue, Mar 28, 2023 at 3:47 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > On Mon, 2023-03-27 at 17:02 -0400, Paul Moore wrote:
+> > > On Mon, Mar 27, 2023 at 3:30 AM Roberto Sassu
+> > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > On Fri, 2023-03-24 at 17:39 -0400, Paul Moore wrote:
+> > > > > On Fri, Mar 24, 2023 at 9:26 AM Roberto Sassu
+> > > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > > On Fri, 2023-03-24 at 11:18 +0100, Roberto Sassu wrote:
+> > > > > > > On Thu, 2023-03-23 at 20:09 -0400, Paul Moore wrote:
+> > > > > > > > On Tue, Mar 14, 2023 at 4:19 AM Roberto Sassu
+> > > > > > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> ...
+> 
+> > > Okay, that's fair, but we could still pass the full xattrs array and a
+> > > reference to the current count which could be both read and updated by
+> > > the individual LSMs, right?
+> > 
+> > Yes, we could do.
+> > 
+> > > The issue is that the separate compaction stage is not something we
+> > > want to have to do if we can avoid it.  Maybe we're stuck with it, but
+> > > I'm not yet convinced that we can't make some minor changes to the
+> > > LSMs to avoid the compaction step.
+> > 
+> > I liked more the idea that LSMs do what they are most familiar with,
+> > get an offset in a security blob or, in this case, a starting slot in
+> > the new_xattrs array, and write there.
+> > 
+> > v3 had the lsm_find_xattr_slot() helper, to get the starting slot, but
+> > somehow I find it less intuitive.
+> > 
+> > Ok, if you prefer to avoid the compaction stage, I will rewrite this
+> > patch.
+> 
+> My concern is having to look through the xattr array after each LSM
+> has been run and in at least one case having to then do a memcpy() to
+> keep the array packed.  There are some cases where there is no way to
+> avoid all that extra work, but here I think we have the LSMs do the
+> Right Thing with respect to packing the xattr array without overly
+> burdening the individual LSMs.
+> 
+> Does that make sense?  It basically comes down to being smart about
+> our abstractions and both selectively, and carefully, breaking them
+> when there is a reasonable performance gain to be had.
 
-Starting with the v6.3-rcX kernel releases I noticed that my
-InfiniBand devices were no longer present under /sys/class/infiniband,
-causing some of my automated testing to fail.  It took me a while to
-find the time to bisect the issue, but I eventually identified the
-problematic commit:
+Yes, ok, it is a good approach.
 
-  commit fe998a3c77b9f989a30a2a01fb00d3729a6d53a4
-  Author: Shay Drory <shayd@nvidia.com>
-  Date:   Wed Jun 29 11:38:21 2022 +0300
+Thanks
 
-   net/mlx5: Enable management PF initialization
+Roberto
 
-   Enable initialization of DPU Management PF, which is a new loopback PF
-   designed for communication with BMC.
-   For now Management PF doesn't support nor require most upper layer
-   protocols so avoid them.
-
-   Signed-off-by: Shay Drory <shayd@nvidia.com>
-   Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
-   Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-   Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-
-I'm not a mlx5 driver expert so I can't really offer much in the way
-of a fix, but as a quick test I did remove the
-'mlx5_core_is_management_pf(...)' calls in mlx5/core/dev.c and
-everything seemed to work okay on my test system (or rather the tests
-ran without problem).
-
-If you need any additional information, or would like me to test a
-patch, please let me know.
-
--- 
-paul-moore.com
