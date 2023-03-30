@@ -2,222 +2,406 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCEC8C6FD18
-	for <selinux@archiver.kernel.org>; Thu, 30 Mar 2023 01:28:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31E39C6FD1D
+	for <selinux@archiver.kernel.org>; Thu, 30 Mar 2023 19:42:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbjC3B2A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Mar 2023 21:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50754 "EHLO
+        id S231608AbjC3TmK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Mar 2023 15:42:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229715AbjC3B16 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Mar 2023 21:27:58 -0400
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BAA3C10
-        for <selinux@vger.kernel.org>; Wed, 29 Mar 2023 18:27:56 -0700 (PDT)
-Received: by mail-yb1-xb32.google.com with SMTP id m16so1380636ybk.0
-        for <selinux@vger.kernel.org>; Wed, 29 Mar 2023 18:27:56 -0700 (PDT)
+        with ESMTP id S229995AbjC3TmJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Mar 2023 15:42:09 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2330CC0B
+        for <selinux@vger.kernel.org>; Thu, 30 Mar 2023 12:42:07 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id ew6so80860143edb.7
+        for <selinux@vger.kernel.org>; Thu, 30 Mar 2023 12:42:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1680139676;
+        d=gmail.com; s=20210112; t=1680205326;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jho8W7YSQzUbooC871CiN2fQ18tijCVdPUEwj85iKm0=;
-        b=KOYBZ/u48rOd+IsZVeMsFdp85CDSm1058bc2+S9Qo9B4ojfATOWHk6eI9PKYKgIUWg
-         bUViNpL5mzoXsVaxgd7Jct7Wm0sEtXluc9jXiG+NRg/UpI4oWh2kw7Su8ZTqws/zkU05
-         A1/ZUFjWOrqBHxSZLB6/Mk8IpNPtZs2+Cg0lb864DFfinixsoKQJ2cwBGAWPQyiqvtqk
-         mjOj/VmiT7quQiDIggtEgM/JV29y/cNo2QsT399OEf9v1QfTfZXUrrpc/kLj+3C7HXcM
-         W50JvBoLii7zRjk6nJ0ZUZasc9mXCE/cIZWG/RjJUmCpXa2OPa06ciDdK0tqk1IIB6ZC
-         Vv9A==
+        bh=BiF41yQhv16ibKC2t5oGOs0S4ly1104xpl7xfuSHO2s=;
+        b=mfvKKywixoSRpAyTVb2c5AjASCCmE4Gl82yJgmg3y6B88/Dcvn+C4biyoczn4f0403
+         iu8V9uxU68Av7pEP66fkascuN16E3aFPlWoer9q+egpsuf+nx3tA1SsvFgCbzfnufYqZ
+         gaxa3jno4IebxVQckNhT5QQhu8xy4W14cf6KoWCDaowx8K/wegu0dua1DVEUZJs9F1c+
+         jnrJQti/Q8OWP3bG0LJGNWAWYirv1P1Oq0ouAW2FGXffcOvPSX/FWpvMsYWSc9WClBR1
+         0YUCaOm6TXRZxmftt2Y4CHfRvd/kQ/CZjkY5tsVZ4qge3NJtJgoLcFAn2xoXaltsDDwl
+         ncMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680139676;
+        d=1e100.net; s=20210112; t=1680205326;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jho8W7YSQzUbooC871CiN2fQ18tijCVdPUEwj85iKm0=;
-        b=R5mXcvzaiS+RBKPnLjRDLVI/vAelsEYC6XUQ6PvJrigX11ifOGyMLSa5opUoDlbQgy
-         +MLM3JpLwnfa/QYjDfglqL234OgyiHd7+f0hnCQmcss2uASiKd5IZHEs3ybOVoct7XKT
-         qS6bLOUfQudqk14z4SCJzgIPbZDX9kMtHo7cXVoGaPDS/FhYi1x4vxkYFQmDkRCOmK71
-         81Ce7TQb696nbZCmWM2Vwn0pKV2kE7AHwQXPmD5d6aKrXorm5tq2e1+3uxltJrJ1LtnS
-         FQ5+lQrcbJZRQ/RgZdYSdy3ZNfISqWyIEThrkA173sIbh8NTs5jCyZ5nLweUOi9uOGdJ
-         gycQ==
-X-Gm-Message-State: AAQBX9fkOep4OKugHvKSRKb+kv9nrCytm+PltnwRITeKGBrCFHC64uya
-        HwTkbf2fjCNq4HbvdWbvAy0yuu6uHbLJtYguDK5S
-X-Google-Smtp-Source: AKy350ZzJMRdMe6pmI6/jyTpF92QZFOJ+PtQmHL9y+rsNYlOUGfoHKAq2YuT14lXf4r3U7saeU7oUkvjwm82kTcxUIs=
-X-Received: by 2002:a25:abee:0:b0:b68:7a4a:5258 with SMTP id
- v101-20020a25abee000000b00b687a4a5258mr14300450ybi.3.1680139676105; Wed, 29
- Mar 2023 18:27:56 -0700 (PDT)
+        bh=BiF41yQhv16ibKC2t5oGOs0S4ly1104xpl7xfuSHO2s=;
+        b=bUaoY5OsUGCsvaNnIPh9GTJfJUo+qkESFsvWnzftRsGE3eOV4g7IuskWzs2iCphOYm
+         2IFgBfjg2KjrroF8V15KRSyplYTHksaLSeFZzek/rbLNy+5hmaZqIrlj8c082gZfadUJ
+         Ajj/J8I3GCXv1MyXR3QnD+ZKRvxsPP/4yoXjIqnR14RtWua49VejgmFdjXPlTfPwLMHB
+         eVosZkZsJASl0Ffpu6B0U4FJxSMDewcbFMF7VFRt4ckeMPyT2ya7Nb0k5IoQayLsjLH4
+         kY47odNMl3ASbH9/iCUgjcExl2cUfcabQVs7pzBfQ+oVRjbRj7sGK2pYkAs37ojo6oBs
+         Sv+Q==
+X-Gm-Message-State: AAQBX9d1S0srP4LsRqfOnIlc8N8eWbkTsn5dIhEvoxUHoo7SFX1SYi6d
+        obW77fZ7pNVIiToSOgxWCOjoDR2wKtiUi4Z4Zkc=
+X-Google-Smtp-Source: AKy350aR26WFGyyViiuXDFn/wo3ugWYeVy/M1vwIatv6/extE21xrjf4b3I2lPE6vEnduKiWu1CvIVfHteSoqFlcrU0=
+X-Received: by 2002:a50:d4cf:0:b0:4fa:3c0b:741 with SMTP id
+ e15-20020a50d4cf000000b004fa3c0b0741mr11598170edj.4.1680205325946; Thu, 30
+ Mar 2023 12:42:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
- <ZCS5oxM/m9LuidL/@x130>
-In-Reply-To: <ZCS5oxM/m9LuidL/@x130>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 29 Mar 2023 21:27:45 -0400
-Message-ID: <CAHC9VhTvQLa=+Ykwmr_Uhgjrc6dfi24ou=NBsACkhwZN7X4EtQ@mail.gmail.com>
-Subject: Re: Potential regression/bug in net/mlx5 driver
-To:     Saeed Mahameed <saeed@kernel.org>
-Cc:     Shay Drory <shayd@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
-        netdev@vger.kernel.org, regressions@lists.linux.dev,
-        selinux@vger.kernel.org
+References: <20221125154952.20910-1-cgzones@googlemail.com>
+ <20221125154952.20910-2-cgzones@googlemail.com> <CAP+JOzSuwKTFXp9HGWYN_tcB+EbRbaSgY3JiNHjzuvoLDkA1Kg@mail.gmail.com>
+In-Reply-To: <CAP+JOzSuwKTFXp9HGWYN_tcB+EbRbaSgY3JiNHjzuvoLDkA1Kg@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 30 Mar 2023 15:41:54 -0400
+Message-ID: <CAP+JOzSFxX7Y_pP6+=x7gWDwy1GVbRzKu-irfxSC4PN6QM1VLA@mail.gmail.com>
+Subject: Re: [RFC PATCH v4 1/6] libsepol: Add not self support for neverallow rules
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 29, 2023 at 6:20=E2=80=AFPM Saeed Mahameed <saeed@kernel.org> w=
-rote:
-> On 28 Mar 19:08, Paul Moore wrote:
-> >Hello all,
-> >
-> >Starting with the v6.3-rcX kernel releases I noticed that my
-> >InfiniBand devices were no longer present under /sys/class/infiniband,
-> >causing some of my automated testing to fail.  It took me a while to
-> >find the time to bisect the issue, but I eventually identified the
-> >problematic commit:
-> >
-> >  commit fe998a3c77b9f989a30a2a01fb00d3729a6d53a4
-> >  Author: Shay Drory <shayd@nvidia.com>
-> >  Date:   Wed Jun 29 11:38:21 2022 +0300
-> >
-> >   net/mlx5: Enable management PF initialization
-> >
-> >   Enable initialization of DPU Management PF, which is a new loopback P=
-F
-> >   designed for communication with BMC.
-> >   For now Management PF doesn't support nor require most upper layer
-> >   protocols so avoid them.
-> >
-> >   Signed-off-by: Shay Drory <shayd@nvidia.com>
-> >   Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
-> >   Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-> >   Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-> >
-> >I'm not a mlx5 driver expert so I can't really offer much in the way
-> >of a fix, but as a quick test I did remove the
-> >'mlx5_core_is_management_pf(...)' calls in mlx5/core/dev.c and
-> >everything seemed to work okay on my test system (or rather the tests
-> >ran without problem).
-> >
-> >If you need any additional information, or would like me to test a
-> >patch, please let me know.
+On Wed, Mar 1, 2023 at 9:30=E2=80=AFAM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> Hi Paul,
+> On Fri, Nov 25, 2022 at 10:51=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Add not self support for neverallow rules.
+> >
+> > Example 1
+> >   allow TYPE1 TYPE1 : CLASS1 PERM1; # Rule 1
+> >   allow TYPE1 TYPE2 : CLASS1 PERM1; # Rule 2
+> >   neverallow TYPE1 ~self : CLASS1 PERM1;
+> >
+> > Rule 1 is not a violation of the neverallow. Rule 2 is.
+> >
+> > Example 2
+> >   allow TYPE1 TYPE1 : CLASS2 PERM2; # Rule 1
+> >   allow TYPE1 TYPE2 : CLASS2 PERM2; # Rule 2
+> >   allow TYPE1 TYPE3 : CLASS2 PERM2; # Rule 3
+> >   neverallow ATTR1 { ATTR2 -self } : CLASS2 PERM2;
+> >
+> > Assuming TYPE1 has attribute ATTR1 and TYPE1 and TYPE2 have
+> > attribute ATTR2, then rule 1 and 3 are not violations of the
+> > neverallow while rule 2 is. Rule 3 is not a violation because
+> > TYPE3 does not have attribute ATTR2.
+> >
+> > Adopted improvements from James Carter <jwcart2@gmail.com>
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Our team is looking into this, the current theory is that you have an old
-> FW that doesn't have the correct capabilities set.
-
-That's very possible; I installed this card many years ago and haven't
-updated the FW once.  I'm happy to update the FW (do you have a
-pointer/how-to?), but it might be good to identify a fix first as I'm
-guessing there will be others like me ...
-
-> Can you please provide the FW version and the ConnectX device you are
-> testing ?
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
-> $ devlink dev info
 
-% devlink dev info; echo $?
-0
+Merged.
+Thanks,
+Jim
 
-No output and no error code.  However, I do see the following in dmesg:
-
-[  255.251124] mlx5_core 0000:00:08.0: mlx5_fw_version_query:823:(pid
-959): fw query isn't supported by the FW
-
-... which appears to support your theory about ancient hardware.
-
-> $ lspci -s <pci_dev> -vv
-
-While there is only one physical card, there are two PCI devices (it's
-a dual port card).  I'm only copying the first device since I'm
-guessing that's really all you need:
-
-% lspci -s 00:07.0 -vv
-00:07.0 Infiniband controller: Mellanox Technologies MT27700 Family [Connec=
-tX-4]
-       Subsystem: Mellanox Technologies Device 0010
-       Physical Slot: 7
-       Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-                Stepping- SERR+ FastB2B- DisINTx+
-       Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort-
-               <TAbort- <MAbort- >SERR- <PERR- INTx-
-       Latency: 0, Cache Line Size: 64 bytes
-       Interrupt: pin A routed to IRQ 11
-       Region 0: Memory at fa000000 (64-bit, prefetchable) [size=3D32M]
-       Expansion ROM at fe900000 [disabled] [size=3D1M]
-       Capabilities: [60] Express (v2) Endpoint, MSI 00
-               DevCap: MaxPayload 512 bytes, PhantFunc 0, Latency L0s
-                       unlimited, L1 unlimited
-                       ExtTag+ AttnBtn- AttnInd- PwrInd- RBE+ FLReset+
-                       SlotPowerLimit 25W
-               DevCtl: CorrErr- NonFatalErr- FatalErr- UnsupReq-
-                       RlxdOrd- ExtTag+ PhantFunc- AuxPwr- NoSnoop+ FLReset=
--
-                       MaxPayload 256 bytes, MaxReadReq 512 bytes
-               DevSta: CorrErr- NonFatalErr- FatalErr- UnsupReq- AuxPwr-
-                       TransPend-
-               LnkCap: Port #0, Speed 8GT/s, Width x8, ASPM not supported
-                       ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp+
-               LnkCtl: ASPM Disabled; RCB 64 bytes, Disabled- CommClk+
-                       ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
-               LnkSta: Speed 8GT/s, Width x8
-                       TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
-               DevCap2: Completion Timeout: Range ABCD, TimeoutDis+ NROPrPr=
-P-
-                        LTR- 10BitTagComp+ 10BitTagReq- OBFF Not Supported,
-                        ExtFmt- EETLPPrefix- EmergencyPowerReduction
-                        Not Supported, EmergencyPowerReductionInit-
-                        FRS- TPHComp- ExtTPHComp-
-               AtomicOpsCap: 32bit- 64bit- 128bitCAS-
-               DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis- LTR-
-                        10BitTagReq- OBFF Disabled,
-               AtomicOpsCtl: ReqEn-
-               LnkSta2: Current De-emphasis Level: -6dB, EqualizationComple=
-te+
-                        EqualizationPhase1+ EqualizationPhase2+
-                        EqualizationPhase3+ LinkEqualizationRequest-
-                        Retimer- 2Retimers- CrosslinkRes: unsupported
-       Capabilities: [48] Vital Product Data
-               Product Name: CX454A - ConnectX-4 QSFP28
-               Read-only fields:
-                       [PN] Part number: MCX454A-FCAT
-                       [EC] Engineering changes: AB
-                       [SN] Serial number: MT1730X05081
-                       [V0] Vendor specific: PCIeGen3 x8
-                       [RV] Reserved: checksum good, 0 byte(s) reserved
-               End
-       Capabilities: [9c] MSI-X: Enable+ Count=3D64 Masked-
-               Vector table: BAR=3D0 offset=3D00002000
-               PBA: BAR=3D0 offset=3D00003000
-       Capabilities: [c0] Vendor Specific Information: Len=3D18 <?>
-       Capabilities: [40] Power Management version 3
-               Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D375mA
-                      PME(D0-,D1-,D2-,D3hot-,D3cold+)
-               Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
-       Kernel driver in use: mlx5_core
-       Kernel modules: mlx5_core
-
-> since boot:
-> $ dmesg
-
-% devlink dev info
-% dmesg | grep mlx5
-[    4.739691] mlx5_core 0000:00:07.0: firmware version: 12.18.1000
-[    4.740134] mlx5_core 0000:00:07.0: 63.008 Gb/s available PCIe
-bandwidth (8.0GT/s PCIe x8 link)
-[    7.048567] mlx5_core 0000:00:07.0: Port module event: module 0,
-Cable plugged
-[    7.211879] mlx5_core 0000:00:08.0: firmware version: 12.18.1000
-[    7.212309] mlx5_core 0000:00:08.0: 63.008 Gb/s available PCIe
-bandwidth (8.0GT/s PCIe x8 link)
-[    7.897218] mlx5_core 0000:00:08.0: Port module event: module 1,
-Cable plugged
-[   10.875388] mlx5_core 0000:00:07.0 ibs7: renamed from ib0
-[   10.995115] mlx5_core 0000:00:08.0 ibs8: renamed from ib0
-[  181.471663] mlx5_core 0000:00:07.0: mlx5_fw_version_query:823:(pid
-918): fw query isn't supported by the FW
-[  181.472286] mlx5_core 0000:00:08.0: mlx5_fw_version_query:823:(pid
-918): fw query isn't supported by the FW
-
---=20
-paul-moore.com
+> > ---
+> >  libsepol/include/sepol/policydb/policydb.h |   3 +-
+> >  libsepol/src/assertion.c                   | 144 +++++++++++++++++----
+> >  libsepol/src/policydb_validate.c           |   9 ++
+> >  3 files changed, 129 insertions(+), 27 deletions(-)
+> >
+> > diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/incl=
+ude/sepol/policydb/policydb.h
+> > index ef1a014a..b014b7a8 100644
+> > --- a/libsepol/include/sepol/policydb/policydb.h
+> > +++ b/libsepol/include/sepol/policydb/policydb.h
+> > @@ -285,7 +285,8 @@ typedef struct avrule {
+> >  #define AVRULE_XPERMS  (AVRULE_XPERMS_ALLOWED | AVRULE_XPERMS_AUDITALL=
+OW | \
+> >                                 AVRULE_XPERMS_DONTAUDIT | AVRULE_XPERMS=
+_NEVERALLOW)
+> >         uint32_t specified;
+> > -#define RULE_SELF 1
+> > +#define RULE_SELF       (1U << 0)
+> > +#define RULE_NOTSELF    (1U << 1)
+> >         uint32_t flags;
+> >         type_set_t stypes;
+> >         type_set_t ttypes;
+> > diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> > index 161874c3..11185253 100644
+> > --- a/libsepol/src/assertion.c
+> > +++ b/libsepol/src/assertion.c
+> > @@ -223,6 +223,7 @@ static int report_assertion_avtab_matches(avtab_key=
+_t *k, avtab_datum_t *d, void
+> >         ebitmap_node_t *snode, *tnode;
+> >         unsigned int i, j;
+> >         const int is_avrule_self =3D (avrule->flags & RULE_SELF) !=3D 0=
+;
+> > +       const int is_avrule_notself =3D (avrule->flags & RULE_NOTSELF) =
+!=3D 0;
+> >
+> >         if ((k->specified & AVTAB_ALLOWED) =3D=3D 0)
+> >                 return 0;
+> > @@ -242,19 +243,31 @@ static int report_assertion_avtab_matches(avtab_k=
+ey_t *k, avtab_datum_t *d, void
+> >         if (ebitmap_is_empty(&src_matches))
+> >                 goto exit;
+> >
+> > -       rc =3D ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->att=
+r_type_map[k->target_type -1]);
+> > -       if (rc < 0)
+> > -               goto oom;
+> > -
+> > -       if (is_avrule_self) {
+> > -               rc =3D ebitmap_and(&self_matches, &src_matches, &p->att=
+r_type_map[k->target_type - 1]);
+> > +       if (is_avrule_notself) {
+> > +               if (ebitmap_is_empty(&avrule->ttypes.types)) {
+> > +                       /* avrule tgt is of the form ~self */
+> > +                       rc =3D ebitmap_cpy(&tgt_matches, &p->attr_type_=
+map[k->target_type -1]);
+> > +               } else {
+> > +                       /* avrule tgt is of the form {ATTR -self} */
+> > +                       rc =3D ebitmap_and(&tgt_matches, &avrule->ttype=
+s.types, &p->attr_type_map[k->target_type - 1]);
+> > +               }
+> > +               if (rc)
+> > +                       goto oom;
+> > +       } else {
+> > +               rc =3D ebitmap_and(&tgt_matches, &avrule->ttypes.types,=
+ &p->attr_type_map[k->target_type -1]);
+> >                 if (rc < 0)
+> >                         goto oom;
+> >
+> > -               if (!ebitmap_is_empty(&self_matches)) {
+> > -                       rc =3D ebitmap_union(&tgt_matches, &self_matche=
+s);
+> > +               if (is_avrule_self) {
+> > +                       rc =3D ebitmap_and(&self_matches, &src_matches,=
+ &p->attr_type_map[k->target_type - 1]);
+> >                         if (rc < 0)
+> >                                 goto oom;
+> > +
+> > +                       if (!ebitmap_is_empty(&self_matches)) {
+> > +                               rc =3D ebitmap_union(&tgt_matches, &sel=
+f_matches);
+> > +                               if (rc < 0)
+> > +                                       goto oom;
+> > +                       }
+> >                 }
+> >         }
+> >
+> > @@ -272,6 +285,8 @@ static int report_assertion_avtab_matches(avtab_key=
+_t *k, avtab_datum_t *d, void
+> >                         ebitmap_for_each_positive_bit(&tgt_matches, tno=
+de, j) {
+> >                                 if (is_avrule_self && i !=3D j)
+> >                                         continue;
+> > +                               if (is_avrule_notself && i =3D=3D j)
+> > +                                       continue;
+> >                                 if (avrule->specified =3D=3D AVRULE_XPE=
+RMS_NEVERALLOW) {
+> >                                         a->errors +=3D report_assertion=
+_extended_permissions(handle,p, avrule,
+> >                                                                        =
+                 i, j, cp, perms, k, avtab);
+> > @@ -383,6 +398,7 @@ static int check_assertion_extended_permissions(avr=
+ule_t *avrule, avtab_t *avtab
+> >         unsigned int i, j;
+> >         ebitmap_node_t *snode, *tnode;
+> >         const int is_avrule_self =3D (avrule->flags & RULE_SELF) !=3D 0=
+;
+> > +       const int is_avrule_notself =3D (avrule->flags & RULE_NOTSELF) =
+!=3D 0;
+> >         int rc;
+> >
+> >         ebitmap_init(&src_matches);
+> > @@ -399,20 +415,31 @@ static int check_assertion_extended_permissions(a=
+vrule_t *avrule, avtab_t *avtab
+> >                 goto exit;
+> >         }
+> >
+> > -       rc =3D ebitmap_and(&tgt_matches, &avrule->ttypes.types,
+> > -                        &p->attr_type_map[k->target_type -1]);
+> > -       if (rc < 0)
+> > -               goto oom;
+> > -
+> > -       if (is_avrule_self) {
+> > -               rc =3D ebitmap_and(&self_matches, &src_matches, &p->att=
+r_type_map[k->target_type - 1]);
+> > +       if (is_avrule_notself) {
+> > +               if (ebitmap_is_empty(&avrule->ttypes.types)) {
+> > +                       /* avrule tgt is of the form ~self */
+> > +                       rc =3D ebitmap_cpy(&tgt_matches, &p->attr_type_=
+map[k->target_type -1]);
+> > +               } else {
+> > +                       /* avrule tgt is of the form {ATTR -self} */
+> > +                       rc =3D ebitmap_and(&tgt_matches, &avrule->ttype=
+s.types, &p->attr_type_map[k->target_type - 1]);
+> > +               }
+> > +               if (rc < 0)
+> > +                       goto oom;
+> > +       } else {
+> > +               rc =3D ebitmap_and(&tgt_matches, &avrule->ttypes.types,=
+ &p->attr_type_map[k->target_type -1]);
+> >                 if (rc < 0)
+> >                         goto oom;
+> >
+> > -               if (!ebitmap_is_empty(&self_matches)) {
+> > -                       rc =3D ebitmap_union(&tgt_matches, &self_matche=
+s);
+> > +               if (is_avrule_self) {
+> > +                       rc =3D ebitmap_and(&self_matches, &src_matches,=
+ &p->attr_type_map[k->target_type - 1]);
+> >                         if (rc < 0)
+> >                                 goto oom;
+> > +
+> > +                       if (!ebitmap_is_empty(&self_matches)) {
+> > +                               rc =3D ebitmap_union(&tgt_matches, &sel=
+f_matches);
+> > +                               if (rc < 0)
+> > +                                       goto oom;
+> > +                       }
+> >                 }
+> >         }
+> >
+> > @@ -425,6 +452,8 @@ static int check_assertion_extended_permissions(avr=
+ule_t *avrule, avtab_t *avtab
+> >                 ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
+> >                         if (is_avrule_self && i !=3D j)
+> >                                 continue;
+> > +                       if (is_avrule_notself && i =3D=3D j)
+> > +                               continue;
+> >                         if (check_assertion_extended_permissions_avtab(=
+avrule, avtab, i, j, k, p)) {
+> >                                 rc =3D 1;
+> >                                 goto exit;
+> > @@ -442,6 +471,61 @@ exit:
+> >         return rc;
+> >  }
+> >
+> > +static int check_assertion_notself_match(avtab_key_t *k, avrule_t *avr=
+ule, policydb_t *p)
+> > +{
+> > +       ebitmap_t src_matches, tgt_matches;
+> > +       unsigned int num_src_matches, num_tgt_matches;
+> > +       int rc;
+> > +
+> > +       ebitmap_init(&src_matches);
+> > +       ebitmap_init(&tgt_matches);
+> > +
+> > +       rc =3D ebitmap_and(&src_matches, &avrule->stypes.types, &p->att=
+r_type_map[k->source_type - 1]);
+> > +       if (rc < 0)
+> > +               goto oom;
+> > +
+> > +       if (ebitmap_is_empty(&avrule->ttypes.types)) {
+> > +               /* avrule tgt is of the form ~self */
+> > +               rc =3D ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->t=
+arget_type - 1]);
+> > +       } else {
+> > +               /* avrule tgt is of the form {ATTR -self} */
+> > +               rc =3D ebitmap_and(&tgt_matches, &avrule->ttypes.types,=
+ &p->attr_type_map[k->target_type - 1]);
+> > +       }
+> > +       if (rc < 0)
+> > +               goto oom;
+> > +
+> > +       num_src_matches =3D ebitmap_cardinality(&src_matches);
+> > +       num_tgt_matches =3D ebitmap_cardinality(&tgt_matches);
+> > +       if (num_src_matches =3D=3D 0 || num_tgt_matches =3D=3D 0) {
+> > +               rc =3D 0;
+> > +               goto nomatch;
+> > +       }
+> > +       if (num_src_matches =3D=3D 1 && num_tgt_matches =3D=3D 1) {
+> > +               ebitmap_t matches;
+> > +               unsigned int num_matches;
+> > +               rc =3D ebitmap_and(&matches, &src_matches, &tgt_matches=
+);
+> > +               if (rc < 0) {
+> > +                       ebitmap_destroy(&matches);
+> > +                       goto oom;
+> > +               }
+> > +               num_matches =3D ebitmap_cardinality(&matches);
+> > +               ebitmap_destroy(&matches);
+> > +               if (num_matches =3D=3D 1) {
+> > +                       /* The only non-match is of the form TYPE TYPE =
+*/
+> > +                       rc =3D 0;
+> > +                       goto nomatch;
+> > +               }
+> > +       }
+> > +
+> > +       rc =3D 1;
+> > +
+> > +oom:
+> > +nomatch:
+> > +       ebitmap_destroy(&src_matches);
+> > +       ebitmap_destroy(&tgt_matches);
+> > +       return rc;
+> > +}
+> > +
+> >  static int check_assertion_self_match(avtab_key_t *k, avrule_t *avrule=
+, policydb_t *p)
+> >  {
+> >         ebitmap_t src_matches;
+> > @@ -485,16 +569,24 @@ static int check_assertion_avtab_match(avtab_key_=
+t *k, avtab_datum_t *d, void *a
+> >         if (!ebitmap_match_any(&avrule->stypes.types, &p->attr_type_map=
+[k->source_type - 1]))
+> >                 goto nomatch;
+> >
+> > -       /* neverallow may have tgts even if it uses SELF */
+> > -       if (!ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map=
+[k->target_type -1])) {
+> > -               if (avrule->flags =3D=3D RULE_SELF) {
+> > -                       rc =3D check_assertion_self_match(k, avrule, p)=
+;
+> > -                       if (rc < 0)
+> > -                               goto oom;
+> > -                       if (rc =3D=3D 0)
+> > -                               goto nomatch;
+> > -               } else {
+> > +       if (avrule->flags & RULE_NOTSELF) {
+> > +               rc =3D check_assertion_notself_match(k, avrule, p);
+> > +               if (rc < 0)
+> > +                       goto oom;
+> > +               if (rc =3D=3D 0)
+> >                         goto nomatch;
+> > +       } else {
+> > +               /* neverallow may have tgts even if it uses SELF */
+> > +               if (!ebitmap_match_any(&avrule->ttypes.types, &p->attr_=
+type_map[k->target_type -1])) {
+> > +                       if (avrule->flags =3D=3D RULE_SELF) {
+> > +                               rc =3D check_assertion_self_match(k, av=
+rule, p);
+> > +                               if (rc < 0)
+> > +                                       goto oom;
+> > +                               if (rc =3D=3D 0)
+> > +                                       goto nomatch;
+> > +                       } else {
+> > +                               goto nomatch;
+> > +                       }
+> >                 }
+> >         }
+> >
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index 521ea4ff..3d51fb68 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -916,6 +916,15 @@ static int validate_avrules(sepol_handle_t *handle=
+, const avrule_t *avrule, int
+> >                 case 0:
+> >                 case RULE_SELF:
+> >                         break;
+> > +               case RULE_NOTSELF:
+> > +                       switch(avrule->specified) {
+> > +                       case AVRULE_NEVERALLOW:
+> > +                       case AVRULE_XPERMS_NEVERALLOW:
+> > +                               break;
+> > +                       default:
+> > +                               goto bad;
+> > +                       }
+> > +                       break;
+> >                 default:
+> >                         goto bad;
+> >                 }
+> > --
+> > 2.38.1
+> >
