@@ -2,371 +2,222 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDA80C761A6
-	for <selinux@archiver.kernel.org>; Thu, 30 Mar 2023 01:14:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCEC8C6FD18
+	for <selinux@archiver.kernel.org>; Thu, 30 Mar 2023 01:28:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229934AbjC3BOH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Mar 2023 21:14:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42606 "EHLO
+        id S229733AbjC3B2A (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Mar 2023 21:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229623AbjC3BOG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Mar 2023 21:14:06 -0400
-Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E00519B3
-        for <selinux@vger.kernel.org>; Wed, 29 Mar 2023 18:14:04 -0700 (PDT)
-Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-54606036bb3so161392757b3.6
-        for <selinux@vger.kernel.org>; Wed, 29 Mar 2023 18:14:04 -0700 (PDT)
+        with ESMTP id S229715AbjC3B16 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Mar 2023 21:27:58 -0400
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BAA3C10
+        for <selinux@vger.kernel.org>; Wed, 29 Mar 2023 18:27:56 -0700 (PDT)
+Received: by mail-yb1-xb32.google.com with SMTP id m16so1380636ybk.0
+        for <selinux@vger.kernel.org>; Wed, 29 Mar 2023 18:27:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1680138843;
+        d=paul-moore.com; s=google; t=1680139676;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0uh3VI/HwfpxNl56FT1xl9IqF6BAOl2dSM/wtTtC3bw=;
-        b=JeZYP8GHQDMbu9LrTwpy3QA9QOUq0gJbeCfe6uOonoTC81udPCflAYQesKIMRi5JIO
-         fOx5Y52BIjQOE9vcXGlf6vFyu3GFhI/6SELZveaH20/uC7U96vVbK/QzDZd3sO1Ha01R
-         3tq+/pysm4ev45l/P4rAMNxOyuOTzlxqSuWY/WDAEQ/xPs3CnJcCerhWyVN7eu1X5haH
-         x/xohxsLoa/udipQ89vD7Zn1vEnZa1QKlCoio47Ayv7BoACrTIHUN69MWdgbaZMpuZkI
-         WrFpKmdwZW4yUDqDwysXPhz9g7yqulUmyt49808lR2CRhucpxamGSD2RnNxl+CdH/Cln
-         it5Q==
+        bh=jho8W7YSQzUbooC871CiN2fQ18tijCVdPUEwj85iKm0=;
+        b=KOYBZ/u48rOd+IsZVeMsFdp85CDSm1058bc2+S9Qo9B4ojfATOWHk6eI9PKYKgIUWg
+         bUViNpL5mzoXsVaxgd7Jct7Wm0sEtXluc9jXiG+NRg/UpI4oWh2kw7Su8ZTqws/zkU05
+         A1/ZUFjWOrqBHxSZLB6/Mk8IpNPtZs2+Cg0lb864DFfinixsoKQJ2cwBGAWPQyiqvtqk
+         mjOj/VmiT7quQiDIggtEgM/JV29y/cNo2QsT399OEf9v1QfTfZXUrrpc/kLj+3C7HXcM
+         W50JvBoLii7zRjk6nJ0ZUZasc9mXCE/cIZWG/RjJUmCpXa2OPa06ciDdK0tqk1IIB6ZC
+         Vv9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680138843;
+        d=1e100.net; s=20210112; t=1680139676;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0uh3VI/HwfpxNl56FT1xl9IqF6BAOl2dSM/wtTtC3bw=;
-        b=N/CEYIaF60NIcx+DGNn+3BjFad1g2kp42AUODzTEnyLk6t1aM/Hk/rp6pTRpO8dofI
-         JTb6w2HAU5DiVFnhdlCgNXYaIbY/bPgFTI/YkXa6LUED3xWsHOhYFQncc8mBIPxGyAYV
-         ooLRRwishwna3kcs6F10qvaceSkJN2PvTN48A+gzcY693SYQQAtbkn7LeoAr/Hjxpz+4
-         vnUFApe90jnLO+rlm4RiP242GEkvBagXCOdy2k0x4/RpTqRH8d9gb0deSBlMZx2LktlD
-         9ri/RrFbeiTufI6H8zCMpMg1r9zP85+cbRrcQVo2VmoOOWLOZt0iyIgx7EsIyUa5acRi
-         Ae3g==
-X-Gm-Message-State: AAQBX9fBnRKxsnNm26TtcZg2cLqIFS+sbb3eYlCioWYp/S6Us9OCVGe2
-        Kux9DkTFSa62gV8w1bq1RT/F819MGb91jOp9ZSBx
-X-Google-Smtp-Source: AKy350Y0gWk+uePKIPIJJoNpZDeRtLoxl6/NYOTwgxDyy8zUIat6be29joBLDaG3UBQL1+iuAKia6YHoPvP7wdjta3I=
-X-Received: by 2002:a81:bd4d:0:b0:541:359c:103a with SMTP id
- n13-20020a81bd4d000000b00541359c103amr10381430ywk.8.1680138843461; Wed, 29
- Mar 2023 18:14:03 -0700 (PDT)
+        bh=jho8W7YSQzUbooC871CiN2fQ18tijCVdPUEwj85iKm0=;
+        b=R5mXcvzaiS+RBKPnLjRDLVI/vAelsEYC6XUQ6PvJrigX11ifOGyMLSa5opUoDlbQgy
+         +MLM3JpLwnfa/QYjDfglqL234OgyiHd7+f0hnCQmcss2uASiKd5IZHEs3ybOVoct7XKT
+         qS6bLOUfQudqk14z4SCJzgIPbZDX9kMtHo7cXVoGaPDS/FhYi1x4vxkYFQmDkRCOmK71
+         81Ce7TQb696nbZCmWM2Vwn0pKV2kE7AHwQXPmD5d6aKrXorm5tq2e1+3uxltJrJ1LtnS
+         FQ5+lQrcbJZRQ/RgZdYSdy3ZNfISqWyIEThrkA173sIbh8NTs5jCyZ5nLweUOi9uOGdJ
+         gycQ==
+X-Gm-Message-State: AAQBX9fkOep4OKugHvKSRKb+kv9nrCytm+PltnwRITeKGBrCFHC64uya
+        HwTkbf2fjCNq4HbvdWbvAy0yuu6uHbLJtYguDK5S
+X-Google-Smtp-Source: AKy350ZzJMRdMe6pmI6/jyTpF92QZFOJ+PtQmHL9y+rsNYlOUGfoHKAq2YuT14lXf4r3U7saeU7oUkvjwm82kTcxUIs=
+X-Received: by 2002:a25:abee:0:b0:b68:7a4a:5258 with SMTP id
+ v101-20020a25abee000000b00b687a4a5258mr14300450ybi.3.1680139676105; Wed, 29
+ Mar 2023 18:27:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230315224704.2672-1-casey@schaufler-ca.com> <20230315224704.2672-11-casey@schaufler-ca.com>
-In-Reply-To: <20230315224704.2672-11-casey@schaufler-ca.com>
+References: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
+ <ZCS5oxM/m9LuidL/@x130>
+In-Reply-To: <ZCS5oxM/m9LuidL/@x130>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 29 Mar 2023 21:13:52 -0400
-Message-ID: <CAHC9VhTyMmyB5Yr8Zp+Xg3R=J9VLp-oChxJPcAv+fL8czVzcYg@mail.gmail.com>
-Subject: Re: [PATCH v7 10/11] SELinux: Add selfattr hooks
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     linux-security-module@vger.kernel.org, jmorris@namei.org,
-        keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
-        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
-        mic@digikod.net, selinux@vger.kernel.org
+Date:   Wed, 29 Mar 2023 21:27:45 -0400
+Message-ID: <CAHC9VhTvQLa=+Ykwmr_Uhgjrc6dfi24ou=NBsACkhwZN7X4EtQ@mail.gmail.com>
+Subject: Re: Potential regression/bug in net/mlx5 driver
+To:     Saeed Mahameed <saeed@kernel.org>
+Cc:     Shay Drory <shayd@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>,
+        netdev@vger.kernel.org, regressions@lists.linux.dev,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 15, 2023 at 6:52=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
+On Wed, Mar 29, 2023 at 6:20=E2=80=AFPM Saeed Mahameed <saeed@kernel.org> w=
+rote:
+> On 28 Mar 19:08, Paul Moore wrote:
+> >Hello all,
+> >
+> >Starting with the v6.3-rcX kernel releases I noticed that my
+> >InfiniBand devices were no longer present under /sys/class/infiniband,
+> >causing some of my automated testing to fail.  It took me a while to
+> >find the time to bisect the issue, but I eventually identified the
+> >problematic commit:
+> >
+> >  commit fe998a3c77b9f989a30a2a01fb00d3729a6d53a4
+> >  Author: Shay Drory <shayd@nvidia.com>
+> >  Date:   Wed Jun 29 11:38:21 2022 +0300
+> >
+> >   net/mlx5: Enable management PF initialization
+> >
+> >   Enable initialization of DPU Management PF, which is a new loopback P=
+F
+> >   designed for communication with BMC.
+> >   For now Management PF doesn't support nor require most upper layer
+> >   protocols so avoid them.
+> >
+> >   Signed-off-by: Shay Drory <shayd@nvidia.com>
+> >   Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
+> >   Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+> >   Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+> >
+> >I'm not a mlx5 driver expert so I can't really offer much in the way
+> >of a fix, but as a quick test I did remove the
+> >'mlx5_core_is_management_pf(...)' calls in mlx5/core/dev.c and
+> >everything seemed to work okay on my test system (or rather the tests
+> >ran without problem).
+> >
+> >If you need any additional information, or would like me to test a
+> >patch, please let me know.
 >
-> Add hooks for setselfattr and getselfattr. These hooks are not very
-> different from their setprocattr and getprocattr equivalents, and
-> much of the code is shared.
+> Hi Paul,
 >
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: selinux@vger.kernel.org
-> Cc: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/hooks.c | 147 +++++++++++++++++++++++++++++++--------
->  1 file changed, 117 insertions(+), 30 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 9403aee75981..8896edf80aa9 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6348,8 +6348,7 @@ static void selinux_d_instantiate(struct dentry *de=
-ntry, struct inode *inode)
->                 inode_doinit_with_dentry(inode, dentry);
->  }
->
-> -static int selinux_getprocattr(struct task_struct *p,
-> -                              const char *name, char **value)
-> +static int do_getattr(unsigned int attr, struct task_struct *p, char **v=
-alue)
+> Our team is looking into this, the current theory is that you have an old
+> FW that doesn't have the correct capabilities set.
 
-Are you ready for more naming nitpicks? ;)
+That's very possible; I installed this card many years ago and haven't
+updated the FW once.  I'm happy to update the FW (do you have a
+pointer/how-to?), but it might be good to identify a fix first as I'm
+guessing there will be others like me ...
 
-Let's call this 'selinux_lsm_getattr()', and the matching setter
-should be 'selinux_lsm_setattr()'.
-
->  {
->         const struct task_security_struct *__tsec;
->         u32 sid;
-> @@ -6367,20 +6366,27 @@ static int selinux_getprocattr(struct task_struct=
- *p,
->                         goto bad;
->         }
+> Can you please provide the FW version and the ConnectX device you are
+> testing ?
 >
-> -       if (!strcmp(name, "current"))
-> +       switch (attr) {
-> +       case LSM_ATTR_CURRENT:
->                 sid =3D __tsec->sid;
-> -       else if (!strcmp(name, "prev"))
-> +               break;
-> +       case LSM_ATTR_PREV:
->                 sid =3D __tsec->osid;
-> -       else if (!strcmp(name, "exec"))
-> +               break;
-> +       case LSM_ATTR_EXEC:
->                 sid =3D __tsec->exec_sid;
-> -       else if (!strcmp(name, "fscreate"))
-> +               break;
-> +       case LSM_ATTR_FSCREATE:
->                 sid =3D __tsec->create_sid;
-> -       else if (!strcmp(name, "keycreate"))
-> +               break;
-> +       case LSM_ATTR_KEYCREATE:
->                 sid =3D __tsec->keycreate_sid;
-> -       else if (!strcmp(name, "sockcreate"))
-> +               break;
-> +       case LSM_ATTR_SOCKCREATE:
->                 sid =3D __tsec->sockcreate_sid;
-> -       else {
-> -               error =3D -EINVAL;
-> +               break;
-> +       default:
-> +               error =3D -EOPNOTSUPP;
+> $ devlink dev info
 
-The error should probably be -EINVAL.
+% devlink dev info; echo $?
+0
 
->                 goto bad;
->         }
->         rcu_read_unlock();
-> @@ -6398,7 +6404,7 @@ static int selinux_getprocattr(struct task_struct *=
-p,
->         return error;
->  }
->
-> -static int selinux_setprocattr(const char *name, void *value, size_t siz=
-e)
-> +static int do_setattr(u64 attr, void *value, size_t size)
->  {
->         struct task_security_struct *tsec;
->         struct cred *new;
-> @@ -6409,28 +6415,36 @@ static int selinux_setprocattr(const char *name, =
-void *value, size_t size)
->         /*
->          * Basic control over ability to set these attributes at all.
->          */
-> -       if (!strcmp(name, "exec"))
-> +       switch (attr) {
-> +       case LSM_ATTR_CURRENT:
-> +               error =3D avc_has_perm(&selinux_state,
-> +                                    mysid, mysid, SECCLASS_PROCESS,
-> +                                    PROCESS__SETCURRENT, NULL);
-> +               break;
-> +       case LSM_ATTR_EXEC:
->                 error =3D avc_has_perm(&selinux_state,
->                                      mysid, mysid, SECCLASS_PROCESS,
->                                      PROCESS__SETEXEC, NULL);
-> -       else if (!strcmp(name, "fscreate"))
-> +               break;
-> +       case LSM_ATTR_FSCREATE:
->                 error =3D avc_has_perm(&selinux_state,
->                                      mysid, mysid, SECCLASS_PROCESS,
->                                      PROCESS__SETFSCREATE, NULL);
-> -       else if (!strcmp(name, "keycreate"))
-> +               break;
-> +       case LSM_ATTR_KEYCREATE:
->                 error =3D avc_has_perm(&selinux_state,
->                                      mysid, mysid, SECCLASS_PROCESS,
->                                      PROCESS__SETKEYCREATE, NULL);
-> -       else if (!strcmp(name, "sockcreate"))
-> +               break;
-> +       case LSM_ATTR_SOCKCREATE:
->                 error =3D avc_has_perm(&selinux_state,
->                                      mysid, mysid, SECCLASS_PROCESS,
->                                      PROCESS__SETSOCKCREATE, NULL);
-> -       else if (!strcmp(name, "current"))
-> -               error =3D avc_has_perm(&selinux_state,
-> -                                    mysid, mysid, SECCLASS_PROCESS,
-> -                                    PROCESS__SETCURRENT, NULL);
-> -       else
-> -               error =3D -EINVAL;
-> +               break;
-> +       default:
-> +               error =3D -EOPNOTSUPP;
+No output and no error code.  However, I do see the following in dmesg:
 
-Same as above, should be -EINVAL.
+[  255.251124] mlx5_core 0000:00:08.0: mlx5_fw_version_query:823:(pid
+959): fw query isn't supported by the FW
 
-> +               break;
-> +       }
->         if (error)
->                 return error;
->
-> @@ -6442,13 +6456,14 @@ static int selinux_setprocattr(const char *name, =
-void *value, size_t size)
->                 }
->                 error =3D security_context_to_sid(&selinux_state, value, =
-size,
->                                                 &sid, GFP_KERNEL);
-> -               if (error =3D=3D -EINVAL && !strcmp(name, "fscreate")) {
-> +               if (error =3D=3D -EINVAL && attr =3D=3D LSM_ATTR_FSCREATE=
-) {
->                         if (!has_cap_mac_admin(true)) {
->                                 struct audit_buffer *ab;
->                                 size_t audit_size;
->
-> -                               /* We strip a nul only if it is at the en=
-d, otherwise the
-> -                                * context contains a nul and we should a=
-udit that */
-> +                               /* We strip a nul only if it is at the en=
-d,
-> +                                * otherwise the context contains a nul a=
-nd
-> +                                * we should audit that */
+... which appears to support your theory about ancient hardware.
 
-You *do* get gold stars for fixing line lengths in close proximity ;)
+> $ lspci -s <pci_dev> -vv
 
+While there is only one physical card, there are two PCI devices (it's
+a dual port card).  I'm only copying the first device since I'm
+guessing that's really all you need:
 
->                                 if (str[size - 1] =3D=3D '\0')
->                                         audit_size =3D size - 1;
->                                 else
-> @@ -6459,7 +6474,8 @@ static int selinux_setprocattr(const char *name, vo=
-id *value, size_t size)
->                                 if (!ab)
->                                         return error;
->                                 audit_log_format(ab, "op=3Dfscreate inval=
-id_context=3D");
-> -                               audit_log_n_untrustedstring(ab, value, au=
-dit_size);
-> +                               audit_log_n_untrustedstring(ab, value,
-> +                                                           audit_size);
->                                 audit_log_end(ab);
->
->                                 return error;
-> @@ -6483,11 +6499,11 @@ static int selinux_setprocattr(const char *name, =
-void *value, size_t size)
->            checks and may_create for the file creation checks. The
->            operation will then fail if the context is not permitted. */
->         tsec =3D selinux_cred(new);
-> -       if (!strcmp(name, "exec")) {
-> +       if (attr =3D=3D LSM_ATTR_EXEC) {
->                 tsec->exec_sid =3D sid;
-> -       } else if (!strcmp(name, "fscreate")) {
-> +       } else if (attr =3D=3D LSM_ATTR_FSCREATE) {
->                 tsec->create_sid =3D sid;
-> -       } else if (!strcmp(name, "keycreate")) {
-> +       } else if (attr =3D=3D LSM_ATTR_KEYCREATE) {
->                 if (sid) {
->                         error =3D avc_has_perm(&selinux_state, mysid, sid=
-,
->                                              SECCLASS_KEY, KEY__CREATE, N=
-ULL);
-> @@ -6495,9 +6511,9 @@ static int selinux_setprocattr(const char *name, vo=
-id *value, size_t size)
->                                 goto abort_change;
->                 }
->                 tsec->keycreate_sid =3D sid;
-> -       } else if (!strcmp(name, "sockcreate")) {
-> +       } else if (attr =3D=3D LSM_ATTR_SOCKCREATE) {
->                 tsec->sockcreate_sid =3D sid;
-> -       } else if (!strcmp(name, "current")) {
-> +       } else if (attr =3D=3D LSM_ATTR_CURRENT) {
->                 error =3D -EINVAL;
->                 if (sid =3D=3D 0)
->                         goto abort_change;
-> @@ -6542,6 +6558,75 @@ static int selinux_setprocattr(const char *name, v=
-oid *value, size_t size)
->         return error;
->  }
->
-> +static int selinux_getselfattr(unsigned int __user attr,
-> +                              struct lsm_ctx __user *ctx, size_t *size,
-> +                              u32 __user flags)
-> +{
-> +       char *value;
-> +       size_t total_len;
-> +       int len;
-> +       int rc =3D 0;
-> +
-> +       len =3D do_getattr(attr, current, &value);
-> +       if (len < 0)
-> +               return len;
-> +
-> +       total_len =3D len + sizeof(*ctx);
-> +
-> +       if (total_len > *size)
-> +               rc =3D -E2BIG;
-> +       else
-> +               lsm_fill_user_ctx(ctx, value, len, LSM_ID_SELINUX, 0);
-> +
-> +       *size =3D total_len;
-> +       return rc;
-> +}
-> +
-> +static int selinux_setselfattr(unsigned int __user attr,
-> +                              struct lsm_ctx __user *ctx, size_t __user =
-size,
-> +                              u32 __user flags)
-> +{
-> +       struct lsm_ctx *lctx;
-> +       void *context;
-> +       int rc;
-> +
-> +       context =3D kmalloc(size, GFP_KERNEL);
-> +       if (context =3D=3D NULL)
-> +               return -ENOMEM;
-> +
-> +       lctx =3D (struct lsm_ctx *)context;
-> +       if (copy_from_user(context, ctx, size))
-> +               rc =3D -EFAULT;
-> +       else if (lctx->ctx_len > size)
-> +               rc =3D -EINVAL;
-> +       else
-> +               rc =3D do_setattr(attr, lctx + 1, lctx->ctx_len);
-> +
-> +       kfree(context);
-> +       if (rc > 0)
-> +               return 0;
-> +       return rc;
-> +}
-> +
-> +static int selinux_getprocattr(struct task_struct *p,
-> +                              const char *name, char **value)
-> +{
-> +       unsigned int attr =3D lsm_name_to_attr(name);
-> +
-> +       if (attr)
-> +               return do_getattr(attr, p, value);
-> +       return -EINVAL;
-> +}
-> +
-> +static int selinux_setprocattr(const char *name, void *value, size_t siz=
-e)
-> +{
-> +       int attr =3D lsm_name_to_attr(name);
-> +
-> +       if (attr)
-> +               return do_setattr(attr, value, size);
-> +       return -EINVAL;
-> +}
-> +
->  static int selinux_ismaclabel(const char *name)
->  {
->         return (strcmp(name, XATTR_SELINUX_SUFFIX) =3D=3D 0);
-> @@ -7183,6 +7268,8 @@ static struct security_hook_list selinux_hooks[] __=
-lsm_ro_after_init =3D {
->
->         LSM_HOOK_INIT(d_instantiate, selinux_d_instantiate),
->
-> +       LSM_HOOK_INIT(getselfattr, selinux_getselfattr),
-> +       LSM_HOOK_INIT(setselfattr, selinux_setselfattr),
->         LSM_HOOK_INIT(getprocattr, selinux_getprocattr),
->         LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
->
-> --
-> 2.39.2
+% lspci -s 00:07.0 -vv
+00:07.0 Infiniband controller: Mellanox Technologies MT27700 Family [Connec=
+tX-4]
+       Subsystem: Mellanox Technologies Device 0010
+       Physical Slot: 7
+       Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+                Stepping- SERR+ FastB2B- DisINTx+
+       Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort-
+               <TAbort- <MAbort- >SERR- <PERR- INTx-
+       Latency: 0, Cache Line Size: 64 bytes
+       Interrupt: pin A routed to IRQ 11
+       Region 0: Memory at fa000000 (64-bit, prefetchable) [size=3D32M]
+       Expansion ROM at fe900000 [disabled] [size=3D1M]
+       Capabilities: [60] Express (v2) Endpoint, MSI 00
+               DevCap: MaxPayload 512 bytes, PhantFunc 0, Latency L0s
+                       unlimited, L1 unlimited
+                       ExtTag+ AttnBtn- AttnInd- PwrInd- RBE+ FLReset+
+                       SlotPowerLimit 25W
+               DevCtl: CorrErr- NonFatalErr- FatalErr- UnsupReq-
+                       RlxdOrd- ExtTag+ PhantFunc- AuxPwr- NoSnoop+ FLReset=
+-
+                       MaxPayload 256 bytes, MaxReadReq 512 bytes
+               DevSta: CorrErr- NonFatalErr- FatalErr- UnsupReq- AuxPwr-
+                       TransPend-
+               LnkCap: Port #0, Speed 8GT/s, Width x8, ASPM not supported
+                       ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp+
+               LnkCtl: ASPM Disabled; RCB 64 bytes, Disabled- CommClk+
+                       ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+               LnkSta: Speed 8GT/s, Width x8
+                       TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
+               DevCap2: Completion Timeout: Range ABCD, TimeoutDis+ NROPrPr=
+P-
+                        LTR- 10BitTagComp+ 10BitTagReq- OBFF Not Supported,
+                        ExtFmt- EETLPPrefix- EmergencyPowerReduction
+                        Not Supported, EmergencyPowerReductionInit-
+                        FRS- TPHComp- ExtTPHComp-
+               AtomicOpsCap: 32bit- 64bit- 128bitCAS-
+               DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis- LTR-
+                        10BitTagReq- OBFF Disabled,
+               AtomicOpsCtl: ReqEn-
+               LnkSta2: Current De-emphasis Level: -6dB, EqualizationComple=
+te+
+                        EqualizationPhase1+ EqualizationPhase2+
+                        EqualizationPhase3+ LinkEqualizationRequest-
+                        Retimer- 2Retimers- CrosslinkRes: unsupported
+       Capabilities: [48] Vital Product Data
+               Product Name: CX454A - ConnectX-4 QSFP28
+               Read-only fields:
+                       [PN] Part number: MCX454A-FCAT
+                       [EC] Engineering changes: AB
+                       [SN] Serial number: MT1730X05081
+                       [V0] Vendor specific: PCIeGen3 x8
+                       [RV] Reserved: checksum good, 0 byte(s) reserved
+               End
+       Capabilities: [9c] MSI-X: Enable+ Count=3D64 Masked-
+               Vector table: BAR=3D0 offset=3D00002000
+               PBA: BAR=3D0 offset=3D00003000
+       Capabilities: [c0] Vendor Specific Information: Len=3D18 <?>
+       Capabilities: [40] Power Management version 3
+               Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D375mA
+                      PME(D0-,D1-,D2-,D3hot-,D3cold+)
+               Status: D0 NoSoftRst+ PME-Enable- DSel=3D0 DScale=3D0 PME-
+       Kernel driver in use: mlx5_core
+       Kernel modules: mlx5_core
 
---
+> since boot:
+> $ dmesg
+
+% devlink dev info
+% dmesg | grep mlx5
+[    4.739691] mlx5_core 0000:00:07.0: firmware version: 12.18.1000
+[    4.740134] mlx5_core 0000:00:07.0: 63.008 Gb/s available PCIe
+bandwidth (8.0GT/s PCIe x8 link)
+[    7.048567] mlx5_core 0000:00:07.0: Port module event: module 0,
+Cable plugged
+[    7.211879] mlx5_core 0000:00:08.0: firmware version: 12.18.1000
+[    7.212309] mlx5_core 0000:00:08.0: 63.008 Gb/s available PCIe
+bandwidth (8.0GT/s PCIe x8 link)
+[    7.897218] mlx5_core 0000:00:08.0: Port module event: module 1,
+Cable plugged
+[   10.875388] mlx5_core 0000:00:07.0 ibs7: renamed from ib0
+[   10.995115] mlx5_core 0000:00:08.0 ibs8: renamed from ib0
+[  181.471663] mlx5_core 0000:00:07.0: mlx5_fw_version_query:823:(pid
+918): fw query isn't supported by the FW
+[  181.472286] mlx5_core 0000:00:08.0: mlx5_fw_version_query:823:(pid
+918): fw query isn't supported by the FW
+
+--=20
 paul-moore.com
