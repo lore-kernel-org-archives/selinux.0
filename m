@@ -2,257 +2,136 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C129BC77B6C
-	for <selinux@archiver.kernel.org>; Thu, 30 Mar 2023 23:33:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BDF8C77B6D
+	for <selinux@archiver.kernel.org>; Fri, 31 Mar 2023 07:03:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbjC3XdJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Mar 2023 19:33:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59318 "EHLO
+        id S230343AbjCaHDe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Mar 2023 03:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231201AbjC3XdI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Mar 2023 19:33:08 -0400
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240A89750
-        for <selinux@vger.kernel.org>; Thu, 30 Mar 2023 16:33:06 -0700 (PDT)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-545cb3c9898so309401187b3.7
-        for <selinux@vger.kernel.org>; Thu, 30 Mar 2023 16:33:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1680219185;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=94cHCZl82A9XHBdyuyycOrzigntjL6kSnbJJ+8pRS1I=;
-        b=NE11GM+BTf/CpwCQcIfcVI9o0qRstmxulk194Pff9YhZcy0tnuk7ZQvpOVMGLkupU2
-         RFsUMuoXtd15daP5ryZm8upTsP+BgSm3SdNW3GO5bmIYndnRlOtfJwfiJX5r/Nvw6UOx
-         t/c7Ip4kHZaF1gb8r3FTaKaLhF4k/pZUJF73ZlyM9JTyt4rStTshwwU/WZunumRIsA4B
-         YBv7bnMdd7tlF0/oNG5YhZ2lvfVG/AHpgeot/r5b9t2fXlyCIXtAyezvdQoLFSUxGjeF
-         PpnvYfbq77h+u4OvzfjEKg/mzVpZufuR9ygDifBygXiG0Gdzm3MQ/7D6QJanR2HNW2Eg
-         Ou+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680219185;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=94cHCZl82A9XHBdyuyycOrzigntjL6kSnbJJ+8pRS1I=;
-        b=LYvJqk5uqpckae1XK/f4u8R5aJWEQT6JmzwHs/ATtFsZZrX5wI2f/+u+2K73TQPrk6
-         c/ZAJURYcRApl4auZtMmsMF1rcqNiDzBQvwbqFldQNJtxbZ6bPwodWV7BtEkVZJ4TGAJ
-         McT6wiifNgymGt9eexM14cpDi8vI3tSamfW7CtVKr72HTbbC3Sxt/ybqEauKao1tHOjk
-         EfquvdgzBJirBr+/ugXdMO2JbSpH2IXICxgVyuWpwUMFncHSLKCW3TpK/z4tzugeeMlM
-         Nqo6xElaArkq07we4R0xNqnFNx4ljum+UoyrQ/vSDuMZO0S4jj1ptluuavTU3y2yxVs0
-         VRdg==
-X-Gm-Message-State: AAQBX9c4LpYtVUSCLtrn9tmsVzOty3bZ7WDGK9HN5lKJVR7A9gcIoeeO
-        ouBrnxJ+ohjQhGV7OkoY0wMQLpCCcPvb8qTsPjqj
-X-Google-Smtp-Source: AKy350b1RGVoSJMOnOcg7Dlzg2s61atlBq/+cwye4xYhjekc2h3Kv8aLYSQgc4ZC5+nT125pSGhat9ufNhuNmhCveTg=
-X-Received: by 2002:a81:e405:0:b0:544:d5ce:eb33 with SMTP id
- r5-20020a81e405000000b00544d5ceeb33mr11851343ywl.8.1680219185107; Thu, 30 Mar
- 2023 16:33:05 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230315224704.2672-1-casey@schaufler-ca.com> <20230315224704.2672-11-casey@schaufler-ca.com>
- <CAHC9VhTyMmyB5Yr8Zp+Xg3R=J9VLp-oChxJPcAv+fL8czVzcYg@mail.gmail.com> <61d21f68-8e84-ad85-ef20-fced8c8b916d@schaufler-ca.com>
-In-Reply-To: <61d21f68-8e84-ad85-ef20-fced8c8b916d@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 30 Mar 2023 19:32:54 -0400
-Message-ID: <CAHC9VhS+rh-pRshAQcJPGYBx98=NW17XPKSAM8d7ahPBTv3_2A@mail.gmail.com>
-Subject: Re: [PATCH v7 10/11] SELinux: Add selfattr hooks
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     linux-security-module@vger.kernel.org, jmorris@namei.org,
-        keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
-        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
-        mic@digikod.net, selinux@vger.kernel.org
+        with ESMTP id S229974AbjCaHDd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Mar 2023 03:03:33 -0400
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E962C676;
+        Fri, 31 Mar 2023 00:03:31 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4PnrcV0fHpz9xHvT;
+        Fri, 31 Mar 2023 14:54:18 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwAHQg2ghSZkCtHjAQ--.59837S2;
+        Fri, 31 Mar 2023 08:03:07 +0100 (CET)
+Message-ID: <27ee02c2f6a01bf5ffd5cb2b29148721cd27c892.camel@huaweicloud.com>
+Subject: Re: [PATCH v9 1/4] reiserfs: Add security prefix to xattr name in
+ reiserfs_security_write()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com,
+        reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Fri, 31 Mar 2023 09:02:52 +0200
+In-Reply-To: <CAHC9VhRg7twUWXLH0xTaWc2MeSFExkGr9tJztYopzD0JEM-npw@mail.gmail.com>
+References: <20230329130415.2312521-1-roberto.sassu@huaweicloud.com>
+         <20230329130415.2312521-2-roberto.sassu@huaweicloud.com>
+         <CAHC9VhRg7twUWXLH0xTaWc2MeSFExkGr9tJztYopzD0JEM-npw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: LxC2BwAHQg2ghSZkCtHjAQ--.59837S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxAF15Jw47AryUXw17Aw45trb_yoW5Wr1fpF
+        WUK3Wqkr1DtF12g34S9anxuw1SgFWfGr47WrZxKryDAanrZw1xtFW0k34S9rW8WrWkJr1I
+        qa1Iga13A3s8A3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQANBF1jj4thygADsa
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 30, 2023 at 4:55=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
-> On 3/29/2023 6:13 PM, Paul Moore wrote:
-> > On Wed, Mar 15, 2023 at 6:52=E2=80=AFPM Casey Schaufler <casey@schaufle=
-r-ca.com> wrote:
-> >> Add hooks for setselfattr and getselfattr. These hooks are not very
-> >> different from their setprocattr and getprocattr equivalents, and
-> >> much of the code is shared.
-> >>
-> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> Cc: selinux@vger.kernel.org
-> >> Cc: Paul Moore <paul@paul-moore.com>
-> >> ---
-> >>  security/selinux/hooks.c | 147 +++++++++++++++++++++++++++++++-------=
--
-> >>  1 file changed, 117 insertions(+), 30 deletions(-)
-> >>
-> >> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> >> index 9403aee75981..8896edf80aa9 100644
-> >> --- a/security/selinux/hooks.c
-> >> +++ b/security/selinux/hooks.c
-> >> @@ -6348,8 +6348,7 @@ static void selinux_d_instantiate(struct dentry =
-*dentry, struct inode *inode)
-> >>                 inode_doinit_with_dentry(inode, dentry);
-> >>  }
-> >>
-> >> -static int selinux_getprocattr(struct task_struct *p,
-> >> -                              const char *name, char **value)
-> >> +static int do_getattr(unsigned int attr, struct task_struct *p, char =
-**value)
-> > Are you ready for more naming nitpicks? ;)
->
-> I would expect nothing less. :)
->
-> > Let's call this 'selinux_lsm_getattr()', and the matching setter
-> > should be 'selinux_lsm_setattr()'.
->
-> As you wish. It's your LSM.
->
->
-> >>  {
-> >>         const struct task_security_struct *__tsec;
-> >>         u32 sid;
-> >> @@ -6367,20 +6366,27 @@ static int selinux_getprocattr(struct task_str=
-uct *p,
-> >>                         goto bad;
-> >>         }
-> >>
-> >> -       if (!strcmp(name, "current"))
-> >> +       switch (attr) {
-> >> +       case LSM_ATTR_CURRENT:
-> >>                 sid =3D __tsec->sid;
-> >> -       else if (!strcmp(name, "prev"))
-> >> +               break;
-> >> +       case LSM_ATTR_PREV:
-> >>                 sid =3D __tsec->osid;
-> >> -       else if (!strcmp(name, "exec"))
-> >> +               break;
-> >> +       case LSM_ATTR_EXEC:
-> >>                 sid =3D __tsec->exec_sid;
-> >> -       else if (!strcmp(name, "fscreate"))
-> >> +               break;
-> >> +       case LSM_ATTR_FSCREATE:
-> >>                 sid =3D __tsec->create_sid;
-> >> -       else if (!strcmp(name, "keycreate"))
-> >> +               break;
-> >> +       case LSM_ATTR_KEYCREATE:
-> >>                 sid =3D __tsec->keycreate_sid;
-> >> -       else if (!strcmp(name, "sockcreate"))
-> >> +               break;
-> >> +       case LSM_ATTR_SOCKCREATE:
-> >>                 sid =3D __tsec->sockcreate_sid;
-> >> -       else {
-> >> -               error =3D -EINVAL;
-> >> +               break;
-> >> +       default:
-> >> +               error =3D -EOPNOTSUPP;
-> > The error should probably be -EINVAL.
->
-> It's possible that we may add an attribute that SELinux doesn't
-> support, say LSM_ATTR_CRYPTO_KEY, that another LSM does. This is
-> the same behavior the other LSMs exhibit in the face of a request
-> for attributes such as LSM_ATTR_KEYCREATE that they don't support.
+On Thu, 2023-03-30 at 17:15 -0400, Paul Moore wrote:
+> On Wed, Mar 29, 2023 at 9:05 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Reiserfs sets a security xattr at inode creation time in two stages: first,
+> > it calls reiserfs_security_init() to obtain the xattr from active LSMs;
+> > then, it calls reiserfs_security_write() to actually write that xattr.
+> > 
+> > Unfortunately, it seems there is a wrong expectation that LSMs provide the
+> > full xattr name in the form 'security.<suffix>'. However, LSMs always
+> > provided just the suffix, causing reiserfs to not write the xattr at all
+> > (if the suffix is shorter than the prefix), or to write an xattr with the
+> > wrong name.
+> > 
+> > Add a temporary buffer in reiserfs_security_write(), and write to it the
+> > full xattr name, before passing it to reiserfs_xattr_set_handle().
+> > 
+> > Since the 'security.' prefix is always prepended, remove the name length
+> > check.
+> > 
+> > Cc: stable@vger.kernel.org # v2.6.x
+> > Fixes: 57fe60df6241 ("reiserfs: add atomic addition of selinux attributes during inode creation")
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  fs/reiserfs/xattr_security.c | 8 +++++---
+> >  1 file changed, 5 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/fs/reiserfs/xattr_security.c b/fs/reiserfs/xattr_security.c
+> > index 6bffdf9a4fd..b0c354ab113 100644
+> > --- a/fs/reiserfs/xattr_security.c
+> > +++ b/fs/reiserfs/xattr_security.c
+> > @@ -95,11 +95,13 @@ int reiserfs_security_write(struct reiserfs_transaction_handle *th,
+> >                             struct inode *inode,
+> >                             struct reiserfs_security_handle *sec)
+> >  {
+> > +       char xattr_name[XATTR_NAME_MAX + 1];
+> >         int error;
+> > -       if (strlen(sec->name) < sizeof(XATTR_SECURITY_PREFIX))
+> > -               return -EINVAL;
+> 
+> If one really wanted to be paranoid they could verify that
+> 'XATTR_SECURITY_PREFIX_LEN + strlen(sec->name) <= XATTR_NAME_MAX' and
+> return EINVAL, but that really shouldn't be an issue and if the
+> concatenation does result in a xattr name that is too big, the
+> snprintf() will safely truncate/managle it.
 
-Okay, I'll accept that argument, but I would ask that add some
-additional handling in selinux_getprocattr() so that it returns
--EINVAL in this case just as it does today.
+Ok, I could do it.
 
-> >>                 goto bad;
-> >>         }
-> >>         rcu_read_unlock();
-> >> @@ -6398,7 +6404,7 @@ static int selinux_getprocattr(struct task_struc=
-t *p,
-> >>         return error;
-> >>  }
-> >>
-> >> -static int selinux_setprocattr(const char *name, void *value, size_t =
-size)
-> >> +static int do_setattr(u64 attr, void *value, size_t size)
-> >>  {
-> >>         struct task_security_struct *tsec;
-> >>         struct cred *new;
-> >> @@ -6409,28 +6415,36 @@ static int selinux_setprocattr(const char *nam=
-e, void *value, size_t size)
-> >>         /*
-> >>          * Basic control over ability to set these attributes at all.
-> >>          */
-> >> -       if (!strcmp(name, "exec"))
-> >> +       switch (attr) {
-> >> +       case LSM_ATTR_CURRENT:
-> >> +               error =3D avc_has_perm(&selinux_state,
-> >> +                                    mysid, mysid, SECCLASS_PROCESS,
-> >> +                                    PROCESS__SETCURRENT, NULL);
-> >> +               break;
-> >> +       case LSM_ATTR_EXEC:
-> >>                 error =3D avc_has_perm(&selinux_state,
-> >>                                      mysid, mysid, SECCLASS_PROCESS,
-> >>                                      PROCESS__SETEXEC, NULL);
-> >> -       else if (!strcmp(name, "fscreate"))
-> >> +               break;
-> >> +       case LSM_ATTR_FSCREATE:
-> >>                 error =3D avc_has_perm(&selinux_state,
-> >>                                      mysid, mysid, SECCLASS_PROCESS,
-> >>                                      PROCESS__SETFSCREATE, NULL);
-> >> -       else if (!strcmp(name, "keycreate"))
-> >> +               break;
-> >> +       case LSM_ATTR_KEYCREATE:
-> >>                 error =3D avc_has_perm(&selinux_state,
-> >>                                      mysid, mysid, SECCLASS_PROCESS,
-> >>                                      PROCESS__SETKEYCREATE, NULL);
-> >> -       else if (!strcmp(name, "sockcreate"))
-> >> +               break;
-> >> +       case LSM_ATTR_SOCKCREATE:
-> >>                 error =3D avc_has_perm(&selinux_state,
-> >>                                      mysid, mysid, SECCLASS_PROCESS,
-> >>                                      PROCESS__SETSOCKCREATE, NULL);
-> >> -       else if (!strcmp(name, "current"))
-> >> -               error =3D avc_has_perm(&selinux_state,
-> >> -                                    mysid, mysid, SECCLASS_PROCESS,
-> >> -                                    PROCESS__SETCURRENT, NULL);
-> >> -       else
-> >> -               error =3D -EINVAL;
-> >> +               break;
-> >> +       default:
-> >> +               error =3D -EOPNOTSUPP;
-> > Same as above, should be -EINVAL.
->
-> Same as above, there may be attributes SELinux doesn't support.
+Thanks
 
-Also, same as above.
+Roberto
 
-> >> +               break;
-> >> +       }
-> >>         if (error)
-> >>                 return error;
-> >>
-> >> @@ -6442,13 +6456,14 @@ static int selinux_setprocattr(const char *nam=
-e, void *value, size_t size)
-> >>                 }
-> >>                 error =3D security_context_to_sid(&selinux_state, valu=
-e, size,
-> >>                                                 &sid, GFP_KERNEL);
-> >> -               if (error =3D=3D -EINVAL && !strcmp(name, "fscreate"))=
- {
-> >> +               if (error =3D=3D -EINVAL && attr =3D=3D LSM_ATTR_FSCRE=
-ATE) {
-> >>                         if (!has_cap_mac_admin(true)) {
-> >>                                 struct audit_buffer *ab;
-> >>                                 size_t audit_size;
-> >>
-> >> -                               /* We strip a nul only if it is at the=
- end, otherwise the
-> >> -                                * context contains a nul and we shoul=
-d audit that */
-> >> +                               /* We strip a nul only if it is at the=
- end,
-> >> +                                * otherwise the context contains a nu=
-l and
-> >> +                                * we should audit that */
-> > You *do* get gold stars for fixing line lengths in close proximity ;)
->
-> I guess I'm the Last User of the 80 character terminal.
+> Regardless, this patch is fine with me, but it would be nice if at
+> least of the reiserfs/VFS folks could provide an ACK/Reviewed-by tag,
+> although I think we can still move forward on this without one of
+> those.
+> 
+> > -       error = reiserfs_xattr_set_handle(th, inode, sec->name, sec->value,
+> > +       snprintf(xattr_name, sizeof(xattr_name), "%s%s", XATTR_SECURITY_PREFIX,
+> > +                sec->name);
+> > +
+> > +       error = reiserfs_xattr_set_handle(th, inode, xattr_name, sec->value,
+> >                                           sec->length, XATTR_CREATE);
+> >         if (error == -ENODATA || error == -EOPNOTSUPP)
+> >                 error = 0;
+> > --
+> > 2.25.1
 
-I'm still a big fan and I'm sticking to the 80 char limit for the LSM
-layer as well as the SELinux, audit, and labeled networking
-subsystems.  Longer lines either predate me or I simply didn't catch
-them during review/merge.
-
---=20
-paul-moore.com
