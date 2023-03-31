@@ -2,102 +2,99 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1DA4C76196
-	for <selinux@archiver.kernel.org>; Fri, 31 Mar 2023 13:13:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64B3EC76196
+	for <selinux@archiver.kernel.org>; Fri, 31 Mar 2023 13:22:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232750AbjCaNNY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 Mar 2023 09:13:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
+        id S231944AbjCaNW2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Mar 2023 09:22:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232734AbjCaNNX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 Mar 2023 09:13:23 -0400
-Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C5C11A45F
-        for <selinux@vger.kernel.org>; Fri, 31 Mar 2023 06:13:22 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 0586E3200077
-        for <selinux@vger.kernel.org>; Fri, 31 Mar 2023 09:13:21 -0400 (EDT)
-Received: from imap46 ([10.202.2.96])
-  by compute4.internal (MEProxy); Fri, 31 Mar 2023 09:13:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        pleasantsmoke.com; h=cc:content-type:content-type:date:date:from
-        :from:in-reply-to:message-id:mime-version:reply-to:sender
-        :subject:subject:to:to; s=fm1; t=1680268401; x=1680354801; bh=T0
-        j3xlbJWSpXFtfAwNAGwSFingcct/jzIiKj7xfAf4Y=; b=HNGLfyB9gtTGdz7JsH
-        RL0jronQErr83WrsUgjbmrccescd8WnUepgImoUvk4nfsYKbEyCYZrrp8m509XSP
-        9xYcPFIcMcMwV7MpeyT8xhywT04IfHJsm1GeVKW47B6P3XR7HAk2aB4wyjlMOJ/1
-        NAgdukehmIBAqQWzV99HXk49WsQBBCtsoDrDjv7eMh5mIAM/k2W3crT6JpZRobvQ
-        D1MoVD2nt1MTOLyZ1FSK4kvDHO257SSkJDWgA00X1X3i0JwhmecYJ23fQx+uek6X
-        +eE4IGgMbcyLdBApOtaR6RCroi0rqbJQPlHd77phM/IfAVqVQ1vXSfsteW010tbh
-        6jqg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:content-type:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1680268401; x=1680354801; bh=T0j3xlbJWSpXFtfAwNAGwSFingcct/jzIiK
-        j7xfAf4Y=; b=Q9oh0IL2cAf/hUj0+aLV8kWyXeTyWmFRG6/I5afxh+CvLS4PWTo
-        qzpN2+KwJ8ViByHDe/WzcLgkp2omT1hzIAwKSlKvYQJOpPTfb7/sE/2/JmwmGYhA
-        fvuZkvJBcavUz43Icvz09/KIOGxULWxoBtPs7IRpyS6fF70wJEkt1bpFOGfw8OVZ
-        lTAva4RlgAuMi7TbfhSXrE4k2YOPpof3aus7b43S+vV6lvgReUKoVZQsoJBHpXIO
-        20AOF7gbDYSsDp6QItKtJXA/6WEsVPxDMUE3OINIKwwMvj4bF1kdiDL8Adao3/DR
-        ctA0VduDURtIL+8jVDuuS+p3WkfW3lzJp2A==
-X-ME-Sender: <xms:cdwmZBdLZbSuM_4tebLzEpwEIjtgPuDuuqirQ5DcRRDwMAOYFJNgLw>
-    <xme:cdwmZPO-wUMtYRYXq-qYQUDPRGGnVqG-a-smFxC2rX7pZxjMnaNTV3y-M4uM9c2k5
-    enXsM5KdoBUZr_EN8Y>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeiuddgheekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefofgggkfffhffvufgtsehttdertd
-    erredtnecuhfhrohhmpedflfhonhgrthhhrghnucfuthhrrghushhsfdcuoehjohhhnhes
-    phhlvggrshgrnhhtshhmohhkvgdrtghomheqnecuggftrfgrthhtvghrnhepteehteelge
-    eikeegfeehheeuleekudehheeiiedtiefhudetleetffejleejhfdunecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepjhhohhhnsehplhgvrghsrg
-    hnthhsmhhokhgvrdgtohhm
-X-ME-Proxy: <xmx:cdwmZKj3cKSVQ8VXnSlVS37oQKRHmuUipm0JkFj0CfjOlHkUB2LOpQ>
-    <xmx:cdwmZK_OXcZPagP-jKPBL0ta5M3kn53kM2-d2UySrOkjtFj5fn763A>
-    <xmx:cdwmZNv-OUUxxBeRO8z3M5C-2AdrJxO-gs2NjvisGUVFZqQneX3RoQ>
-    <xmx:cdwmZL5hVdr8eaCgTrwXxosDpYHcrS8s0ZaaxoQEhCjvTLLAIb4SfQ>
-Feedback-ID: i5281472f:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 699EB2A20094; Fri, 31 Mar 2023 09:13:21 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-238-g746678b8b6-fm-20230329.001-g746678b8
-Mime-Version: 1.0
-Message-Id: <c58a0cc8-6453-45ca-9bfc-f041b0e7478a@app.fastmail.com>
-Date:   Fri, 31 Mar 2023 09:13:01 -0400
-From:   "Jonathan Strauss" <john@pleasantsmoke.com>
-To:     selinux@vger.kernel.org
-Subject: Possible bug in policy compilation
-Content-Type: text/plain
+        with ESMTP id S231953AbjCaNW2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Mar 2023 09:22:28 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB0961A46E
+        for <selinux@vger.kernel.org>; Fri, 31 Mar 2023 06:22:26 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id t10so89367694edd.12
+        for <selinux@vger.kernel.org>; Fri, 31 Mar 2023 06:22:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680268945;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QFsKj+Gkbgv5Eh63ZzYcKLH/Q/JfYKfBgm22VrKZeWw=;
+        b=EBIkdcxHDjJorh7lZ9NeSbxcJKEbAxlmXROpTVZCAaJfZNT0ngM8gPM/uKfUg07iVo
+         3FVuA1MEPB7HXf6RdbC7i0LkyBGS6cW/cBEeMHGRyAWQw9Ht8ki6owE2+q+HE7icwPhp
+         Q0mb8NXoHmobG7ffeEWmryVWITxc79PY6jm0n4fWqmnxIlwc3o4972LE34YuYSQbeQK4
+         TdvEIH4ZlEpB066c0+xFOfaluVgwTQPAhU5X5giNLjTgw6ob9RVMMZNJAuV4lgOUdFlV
+         UrpQ4RwkbCvM7xwlKhdnCJdO6S0Yls1ww9bkFy+72TQYvoy2qsJF3m9fhwc3nFKzyJvd
+         Yc7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680268945;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QFsKj+Gkbgv5Eh63ZzYcKLH/Q/JfYKfBgm22VrKZeWw=;
+        b=R9kAVKbe9ej/AxSDP1n5Xsqf4jXcb832UIUPmbY6aLOzheMwBnmFYgu4E94mGqNKX2
+         XmiJ4XQNlEfceLuw8xO92plb5mjFkepOicTkIJNK7OAkkcUlKUX1/BXF+IlqsB9YD3iY
+         qGCZ5zzBwsjV1TWThPu+9VnCrbdMUFs5V01DA6EDM/sXCsSRezuHjsIAU+eo00OvYFPw
+         e5aRiPFguN9tfztx2ERB9n6FWQfKfYJQwDT0MT2ZmvqfgkmU+3rmBqox0RbiLJQNhYND
+         9GhELKfjQ/MnQauKFfnAhh4uJsSghGsHgDFt/eLdjqHFL9Nf6fUTN4Vpua2VVXElqcu1
+         agnA==
+X-Gm-Message-State: AAQBX9cP6mTJZXxp83E3vbTUwbUJScin3m10V65EXEazhfofLstR671X
+        ybCgubV2NmVYDBo1aj6AUEamfATWIa4L+wmeMkk=
+X-Google-Smtp-Source: AKy350YmUSKB3S+AiCSVwHyhEMWrXQp7d5lLFx3+PkMojNAHDtdurRbHGRN852n7bIKkI8xzQMuMKG8h9OgOv+IOJgA=
+X-Received: by 2002:a50:8d12:0:b0:4af:70a5:5609 with SMTP id
+ s18-20020a508d12000000b004af70a55609mr5143075eds.1.1680268945167; Fri, 31 Mar
+ 2023 06:22:25 -0700 (PDT)
+MIME-Version: 1.0
+References: <c58a0cc8-6453-45ca-9bfc-f041b0e7478a@app.fastmail.com>
+In-Reply-To: <c58a0cc8-6453-45ca-9bfc-f041b0e7478a@app.fastmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 31 Mar 2023 09:22:13 -0400
+Message-ID: <CAP+JOzR_nL0Y12hOU2gTU6=U+J4YaZsyE6TLMQWFSUi0dJ3NCA@mail.gmail.com>
+Subject: Re: Possible bug in policy compilation
+To:     Jonathan Strauss <john@pleasantsmoke.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I'm not sure if this is the right place to post this, I was writing a
-policy for an API gateway and couldn't figure out why I wasn't getting
-a domain transition. Turns out I was missing `type init_t;` in my
-require block in the type enforcement file, but the compiler did not
-complain about the missing type.
+On Fri, Mar 31, 2023 at 9:14=E2=80=AFAM Jonathan Strauss <john@pleasantsmok=
+e.com> wrote:
+>
+> I'm not sure if this is the right place to post this, I was writing a
+> policy for an API gateway and couldn't figure out why I wasn't getting
+> a domain transition. Turns out I was missing `type init_t;` in my
+> require block in the type enforcement file, but the compiler did not
+> complain about the missing type.
+>
+> This was in stark contrast to the policy I wrote for a JVM application
+> (JVM apparently needs the world + dog to operate) using audit2allow and
+> forgetting to put the proper type requirements in the require block.
+>
+> Seems like it should have failed with the missing `type init_t;`
+>
 
-This was in stark contrast to the policy I wrote for a JVM application
-(JVM apparently needs the world + dog to operate) using audit2allow and
-forgetting to put the proper type requirements in the require block.
-
-Seems like it should have failed with the missing `type init_t;`
-
-OS: Alma 9.1
-Kernel version: 5.14.0-162.18.1.el9_1.x86_64
-
-libseccomp.x86_64, 2.5.2-2.el9
-libselinux.x86_64, 3.4-3.el9
-libselinux-utils.x86_64, 3.4-3.el9
-libsemanage.x86_64, 3.4-2.el9
-libsepol.x86_64, 3.4-1.1.el9
-selinux-policy.noarch, 34.1.43-1.el9_1.2
-selinux-policy-devel.noarch, 34.1.43-1.el9_1.2
-selinux-policy-targeted.noarch, 34.1.43-1.el9_1.2
-setools.x86_64, 4.4.0-5.el9
-setools-console.x86_64, 4.4.0-5.el9
+It is hard to say what is going on without seeing the policy you were
+trying to compile. Are you able to share it?
+Jim
 
 
-- Jonathan Strauss
+> OS: Alma 9.1
+> Kernel version: 5.14.0-162.18.1.el9_1.x86_64
+>
+> libseccomp.x86_64, 2.5.2-2.el9
+> libselinux.x86_64, 3.4-3.el9
+> libselinux-utils.x86_64, 3.4-3.el9
+> libsemanage.x86_64, 3.4-2.el9
+> libsepol.x86_64, 3.4-1.1.el9
+> selinux-policy.noarch, 34.1.43-1.el9_1.2
+> selinux-policy-devel.noarch, 34.1.43-1.el9_1.2
+> selinux-policy-targeted.noarch, 34.1.43-1.el9_1.2
+> setools.x86_64, 4.4.0-5.el9
+> setools-console.x86_64, 4.4.0-5.el9
+>
+>
+> - Jonathan Strauss
