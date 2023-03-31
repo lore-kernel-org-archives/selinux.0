@@ -2,105 +2,102 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03F89C76196
-	for <selinux@archiver.kernel.org>; Fri, 31 Mar 2023 13:10:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1DA4C76196
+	for <selinux@archiver.kernel.org>; Fri, 31 Mar 2023 13:13:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbjCaNKn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 Mar 2023 09:10:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46366 "EHLO
+        id S232750AbjCaNNY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Mar 2023 09:13:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232734AbjCaNKm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 Mar 2023 09:10:42 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D553993FD;
-        Fri, 31 Mar 2023 06:10:41 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1piEWd-0008Ow-TB; Fri, 31 Mar 2023 15:10:39 +0200
-Message-ID: <a956b2d9-9f11-ff44-4d93-f3ccffc5f9ac@leemhuis.info>
-Date:   Fri, 31 Mar 2023 15:10:24 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Subject: Re: Potential regression/bug in net/mlx5 driver
-Content-Language: en-US, de-DE
-To:     Paul Moore <paul@paul-moore.com>, Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Cc:     netdev@vger.kernel.org, regressions@lists.linux.dev,
-        selinux@vger.kernel.org
-References: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
-From:   "Linux regression tracking #adding (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1680268241;77d1c0c4;
-X-HE-SMSGID: 1piEWd-0008Ow-TB
+        with ESMTP id S232734AbjCaNNX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Mar 2023 09:13:23 -0400
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C5C11A45F
+        for <selinux@vger.kernel.org>; Fri, 31 Mar 2023 06:13:22 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 0586E3200077
+        for <selinux@vger.kernel.org>; Fri, 31 Mar 2023 09:13:21 -0400 (EDT)
+Received: from imap46 ([10.202.2.96])
+  by compute4.internal (MEProxy); Fri, 31 Mar 2023 09:13:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        pleasantsmoke.com; h=cc:content-type:content-type:date:date:from
+        :from:in-reply-to:message-id:mime-version:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1680268401; x=1680354801; bh=T0
+        j3xlbJWSpXFtfAwNAGwSFingcct/jzIiKj7xfAf4Y=; b=HNGLfyB9gtTGdz7JsH
+        RL0jronQErr83WrsUgjbmrccescd8WnUepgImoUvk4nfsYKbEyCYZrrp8m509XSP
+        9xYcPFIcMcMwV7MpeyT8xhywT04IfHJsm1GeVKW47B6P3XR7HAk2aB4wyjlMOJ/1
+        NAgdukehmIBAqQWzV99HXk49WsQBBCtsoDrDjv7eMh5mIAM/k2W3crT6JpZRobvQ
+        D1MoVD2nt1MTOLyZ1FSK4kvDHO257SSkJDWgA00X1X3i0JwhmecYJ23fQx+uek6X
+        +eE4IGgMbcyLdBApOtaR6RCroi0rqbJQPlHd77phM/IfAVqVQ1vXSfsteW010tbh
+        6jqg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+        1680268401; x=1680354801; bh=T0j3xlbJWSpXFtfAwNAGwSFingcct/jzIiK
+        j7xfAf4Y=; b=Q9oh0IL2cAf/hUj0+aLV8kWyXeTyWmFRG6/I5afxh+CvLS4PWTo
+        qzpN2+KwJ8ViByHDe/WzcLgkp2omT1hzIAwKSlKvYQJOpPTfb7/sE/2/JmwmGYhA
+        fvuZkvJBcavUz43Icvz09/KIOGxULWxoBtPs7IRpyS6fF70wJEkt1bpFOGfw8OVZ
+        lTAva4RlgAuMi7TbfhSXrE4k2YOPpof3aus7b43S+vV6lvgReUKoVZQsoJBHpXIO
+        20AOF7gbDYSsDp6QItKtJXA/6WEsVPxDMUE3OINIKwwMvj4bF1kdiDL8Adao3/DR
+        ctA0VduDURtIL+8jVDuuS+p3WkfW3lzJp2A==
+X-ME-Sender: <xms:cdwmZBdLZbSuM_4tebLzEpwEIjtgPuDuuqirQ5DcRRDwMAOYFJNgLw>
+    <xme:cdwmZPO-wUMtYRYXq-qYQUDPRGGnVqG-a-smFxC2rX7pZxjMnaNTV3y-M4uM9c2k5
+    enXsM5KdoBUZr_EN8Y>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeiuddgheekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefofgggkfffhffvufgtsehttdertd
+    erredtnecuhfhrohhmpedflfhonhgrthhhrghnucfuthhrrghushhsfdcuoehjohhhnhes
+    phhlvggrshgrnhhtshhmohhkvgdrtghomheqnecuggftrfgrthhtvghrnhepteehteelge
+    eikeegfeehheeuleekudehheeiiedtiefhudetleetffejleejhfdunecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepjhhohhhnsehplhgvrghsrg
+    hnthhsmhhokhgvrdgtohhm
+X-ME-Proxy: <xmx:cdwmZKj3cKSVQ8VXnSlVS37oQKRHmuUipm0JkFj0CfjOlHkUB2LOpQ>
+    <xmx:cdwmZK_OXcZPagP-jKPBL0ta5M3kn53kM2-d2UySrOkjtFj5fn763A>
+    <xmx:cdwmZNv-OUUxxBeRO8z3M5C-2AdrJxO-gs2NjvisGUVFZqQneX3RoQ>
+    <xmx:cdwmZL5hVdr8eaCgTrwXxosDpYHcrS8s0ZaaxoQEhCjvTLLAIb4SfQ>
+Feedback-ID: i5281472f:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 699EB2A20094; Fri, 31 Mar 2023 09:13:21 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-238-g746678b8b6-fm-20230329.001-g746678b8
+Mime-Version: 1.0
+Message-Id: <c58a0cc8-6453-45ca-9bfc-f041b0e7478a@app.fastmail.com>
+Date:   Fri, 31 Mar 2023 09:13:01 -0400
+From:   "Jonathan Strauss" <john@pleasantsmoke.com>
+To:     selinux@vger.kernel.org
+Subject: Possible bug in policy compilation
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-[TLDR: I'm adding this report to the list of tracked Linux kernel
-regressions; the text you find below is based on a few templates
-paragraphs you might have encountered already in similar form.
-See link in footer if these mails annoy you.]
+I'm not sure if this is the right place to post this, I was writing a
+policy for an API gateway and couldn't figure out why I wasn't getting
+a domain transition. Turns out I was missing `type init_t;` in my
+require block in the type enforcement file, but the compiler did not
+complain about the missing type.
 
-On 29.03.23 01:08, Paul Moore wrote:
-> 
-> Starting with the v6.3-rcX kernel releases I noticed that my
-> InfiniBand devices were no longer present under /sys/class/infiniband,
-> causing some of my automated testing to fail.  It took me a while to
-> find the time to bisect the issue, but I eventually identified the
-> problematic commit:
-> 
->   commit fe998a3c77b9f989a30a2a01fb00d3729a6d53a4
->   Author: Shay Drory <shayd@nvidia.com>
->   Date:   Wed Jun 29 11:38:21 2022 +0300
-> 
->    net/mlx5: Enable management PF initialization
-> 
->    Enable initialization of DPU Management PF, which is a new loopback PF
->    designed for communication with BMC.
->    For now Management PF doesn't support nor require most upper layer
->    protocols so avoid them.
-> 
->    Signed-off-by: Shay Drory <shayd@nvidia.com>
->    Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
->    Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
->    Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-> 
-> I'm not a mlx5 driver expert so I can't really offer much in the way
-> of a fix, but as a quick test I did remove the
-> 'mlx5_core_is_management_pf(...)' calls in mlx5/core/dev.c and
-> everything seemed to work okay on my test system (or rather the tests
-> ran without problem).
-> 
-> If you need any additional information, or would like me to test a
-> patch, please let me know.
+This was in stark contrast to the policy I wrote for a JVM application
+(JVM apparently needs the world + dog to operate) using audit2allow and
+forgetting to put the proper type requirements in the require block.
 
-Thanks for the report. To be sure the issue doesn't fall through the
-cracks unnoticed, I'm adding it to regzbot, the Linux kernel regression
-tracking bot:
+Seems like it should have failed with the missing `type init_t;`
 
-#regzbot ^introduced fe998a3c77b9f989a30a2a01fb00d3729a6d53a4
-#regzbot title net: mlx5: InfiniBand devices were no longer present
-#regzbot ignore-activity
+OS: Alma 9.1
+Kernel version: 5.14.0-162.18.1.el9_1.x86_64
 
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply and tell me -- ideally
-while also telling regzbot about it, as explained by the page listed in
-the footer of this mail.
+libseccomp.x86_64, 2.5.2-2.el9
+libselinux.x86_64, 3.4-3.el9
+libselinux-utils.x86_64, 3.4-3.el9
+libsemanage.x86_64, 3.4-2.el9
+libsepol.x86_64, 3.4-1.1.el9
+selinux-policy.noarch, 34.1.43-1.el9_1.2
+selinux-policy-devel.noarch, 34.1.43-1.el9_1.2
+selinux-policy-targeted.noarch, 34.1.43-1.el9_1.2
+setools.x86_64, 4.4.0-5.el9
+setools-console.x86_64, 4.4.0-5.el9
 
-Developers: When fixing the issue, remember to add 'Link:' tags pointing
-to the report (the parent of this mail). See page linked in footer for
-details.
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-That page also explains what to do if mails like this annoy you.
-
+- Jonathan Strauss
