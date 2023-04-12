@@ -2,71 +2,212 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 775AFC77B6E
-	for <selinux@archiver.kernel.org>; Wed, 12 Apr 2023 04:56:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3978CC77B75
+	for <selinux@archiver.kernel.org>; Wed, 12 Apr 2023 07:23:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229486AbjDLE45 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Apr 2023 00:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35750 "EHLO
+        id S229816AbjDLHXV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Apr 2023 03:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjDLE44 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Apr 2023 00:56:56 -0400
-Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8647B8
-        for <selinux@vger.kernel.org>; Tue, 11 Apr 2023 21:56:52 -0700 (PDT)
-Received: by mail-qk1-x729.google.com with SMTP id j19so3283283qkk.8
-        for <selinux@vger.kernel.org>; Tue, 11 Apr 2023 21:56:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681275412; x=1683867412;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=tSHD7yZKPOCMazemaM4x/64aPdU7j+p7WdjKG0vRG8s=;
-        b=Ubh6rO3kCA17HaggLZiqxd9PH+UYkJk9SH9LWNA6fkmnkw+0WkyO6TUQqJchpC/nqa
-         dW1EFph2fAzbuCI5ErxbO7LerBO6RU/rZCis8z6nk8R7GdxnTOS2VymaGgZeP6JMzeZK
-         iGfKZAi/2SqRZHuVT32reO3o/2KZduRLgsoEDM4UPOOWQWut+VeR4mTjdEFBQFIYOKSx
-         blvp1A77WbaydBk28niOcmYWZ7NK4NWwJNWTvY/DT954gHqlsiLncY8hJDqqXc+6FXkO
-         7wGrP9jyx5wNwu/XgR4IvpjtOOWol+9CPew+A6YrD6eHgCkZXvaVRopNXKo1ipxVQ3jr
-         NWXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1681275412; x=1683867412;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=tSHD7yZKPOCMazemaM4x/64aPdU7j+p7WdjKG0vRG8s=;
-        b=jCYlfubPpx4WcGcCkKRwmnDJursFxdJwnSjGDcCI/U1mRxhK6K3lpx2a0AgcXe+dBl
-         wtU/97PjZuAX2ial5uD+ckF/4Rs1Yb5Oc87coZuFx+hsQKRzPKj924k6ofN/5TiEsres
-         cDQb85dkGfO3f7YuKvu/rpNn5gL9RgKcZ080uxen0svy+jvPyp/gVSbaJFzbkyurjs3h
-         Q4EGRhvg8HzEXIEGj1yRHfxmdVelsFF4nO6SRSPMYltt1xo+j9KxZqFVfpfltIQA8bLT
-         S/m7pbD75z5rW2bq/i75V0/2PLe/PgZPdPzYj5RIwhAqaobrC0RVNAnKAB/ClxscjTYP
-         afsw==
-X-Gm-Message-State: AAQBX9dze2wt4hueILXAco/V7Jf7x+IbB+G0y8Pl5BqCdt0DzObzX9pn
-        J1OOKJYrsaSVy3RiCuHJpqOGAczRi1quiVep/y+u2zR9FW4=
-X-Google-Smtp-Source: AKy350ZcE9Q+I56WAkxDFQUg75dTOiqLJ+Dts3e99Hn3Ol1JrxSmltPYyzPta56X01+f5TWi7333XO0hKp//CF6WwHU=
-X-Received: by 2002:a05:620a:3184:b0:74a:27b5:52c6 with SMTP id
- bi4-20020a05620a318400b0074a27b552c6mr5664628qkb.4.1681275411796; Tue, 11 Apr
- 2023 21:56:51 -0700 (PDT)
-MIME-Version: 1.0
-From:   Etienne Champetier <champetier.etienne@gmail.com>
-Date:   Wed, 12 Apr 2023 00:56:15 -0400
-Message-ID: <CAOdf3gqCNHoFT_U8cDTy2v8oB-UKmzJn-hyai8Cn9=Zk7uuTsw@mail.gmail.com>
-Subject: portcon tcp 80 change type
-To:     selinux@vger.kernel.org
+        with ESMTP id S229507AbjDLHXU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Apr 2023 03:23:20 -0400
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBEAFA;
+        Wed, 12 Apr 2023 00:23:18 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4PxDTV0DqHz9v7Vm;
+        Wed, 12 Apr 2023 15:13:50 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwA35z1CXDZkH5EWAg--.802S2;
+        Wed, 12 Apr 2023 08:22:52 +0100 (CET)
+Message-ID: <8e7705972a0f306922d8bc4893cf940e319abb19.camel@huaweicloud.com>
+Subject: Re: [PATCH] Smack modifications for: security: Allow all LSMs to
+ provide xattrs for inode_init_security hook
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org
+Cc:     reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Wed, 12 Apr 2023 09:22:38 +0200
+In-Reply-To: <2dc6486f-ce9b-f171-14fe-48a90386e1b7@schaufler-ca.com>
+References: <c7f38789-fe47-8289-e73a-4d07fbaf791d@schaufler-ca.com>
+         <20230411172337.340518-1-roberto.sassu@huaweicloud.com>
+         <2dc6486f-ce9b-f171-14fe-48a90386e1b7@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: GxC2BwA35z1CXDZkH5EWAg--.802S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxKw48uFyfZF1fJrWkuF4kWFg_yoW7Xry3pF
+        WUK3W3KF4FyF9rGryFya1UW34a9a1fGr4UGwn3Xrsav3ZrJr1xKrykXr1YkFy7XrykZr1F
+        vr4jqr9xWFn0y37anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UZ18PUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAFBF1jj4fg6gABs+
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+On Tue, 2023-04-11 at 10:54 -0700, Casey Schaufler wrote:
+> On 4/11/2023 10:23 AM, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Very very quick modification. Not tested.
+> > 
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  security/smack/smack.h     |  2 +-
+> >  security/smack/smack_lsm.c | 42 ++++++++++++++++++++------------------
+> >  2 files changed, 23 insertions(+), 21 deletions(-)
+> > 
+> > diff --git a/security/smack/smack.h b/security/smack/smack.h
+> > index e2239be7bd6..f00c8498c60 100644
+> > --- a/security/smack/smack.h
+> > +++ b/security/smack/smack.h
+> > @@ -127,7 +127,7 @@ struct task_smack {
+> >  
+> >  #define	SMK_INODE_INSTANT	0x01	/* inode is instantiated */
+> >  #define	SMK_INODE_TRANSMUTE	0x02	/* directory is transmuting */
+> > -#define	SMK_INODE_CHANGED	0x04	/* smack was transmuted */
+> > +#define	SMK_INODE_CHANGED	0x04	/* smack was transmuted (unused) */
+> 
+> See below ...
+> 
+> >  #define	SMK_INODE_IMPURE	0x08	/* involved in an impure transaction */
+> >  
+> >  /*
+> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> > index 8392983334b..b43820bdbd0 100644
+> > --- a/security/smack/smack_lsm.c
+> > +++ b/security/smack/smack_lsm.c
+> > @@ -54,12 +54,12 @@
+> >  
+> >  /*
+> >   * Smack uses multiple xattrs.
+> > - * SMACK64 - for access control, SMACK64EXEC - label for the program,
+> > - * SMACK64MMAP - controls library loading,
+> > + * SMACK64 - for access control,
+> >   * SMACK64TRANSMUTE - label initialization,
+> > - * Not saved on files - SMACK64IPIN and SMACK64IPOUT
+> > + * Not saved on files - SMACK64IPIN and SMACK64IPOUT,
+> > + * Must be set explicitly - SMACK64EXEC and SMACK64MMAP
+> >   */
+> > -#define SMACK_INODE_INIT_XATTRS 4
+> > +#define SMACK_INODE_INIT_XATTRS 2
+> >  
+> >  #ifdef SMACK_IPV6_PORT_LABELING
+> >  static DEFINE_MUTEX(smack_ipv6_lock);
+> > @@ -957,11 +957,11 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+> >  				     const struct qstr *qstr,
+> >  				     struct xattr *xattrs, int *xattr_count)
+> >  {
+> > -	struct inode_smack *issp = smack_inode(inode);
+> >  	struct smack_known *skp = smk_of_current();
+> >  	struct smack_known *isp = smk_of_inode(inode);
+> >  	struct smack_known *dsp = smk_of_inode(dir);
+> >  	struct xattr *xattr = lsm_get_xattr_slot(xattrs, xattr_count);
+> > +	struct xattr *xattr2;
+> 
+> I'm going to channel Paul and suggest this be xattr_transmute instead of xattr2.
+> It also looks like it could move to be declared in the if clause.
+> 
+> >  	int may;
+> >  
+> >  	if (xattr) {
+> > @@ -979,7 +979,17 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+> >  		if (may > 0 && ((may & MAY_TRANSMUTE) != 0) &&
+> >  		    smk_inode_transmutable(dir)) {
+> >  			isp = dsp;
+> > -			issp->smk_flags |= SMK_INODE_CHANGED;
+> 
+> I think you need to keep this. More below.
+> 
+> > +			xattr2 = lsm_get_xattr_slot(xattrs, xattr_count);
+> > +			if (xattr2) {
+> > +				xattr2->value = kmemdup(TRANS_TRUE,
+> > +							TRANS_TRUE_SIZE,
+> > +							GFP_NOFS);
+> > +				if (xattr2->value == NULL)
+> > +					return -ENOMEM;
+> > +
+> > +				xattr2->value_len = TRANS_TRUE_SIZE;
+> > +				xattr2->name = XATTR_NAME_SMACKTRANSMUTE;
+> > +			}
+> >  		}
+> >  
+> >  		xattr->value = kstrdup(isp->smk_known, GFP_NOFS);
+> > @@ -3512,20 +3522,12 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+> >  			 * If there is a transmute attribute on the
+> >  			 * directory mark the inode.
+> >  			 */
+> > -			if (isp->smk_flags & SMK_INODE_CHANGED) {
+> > -				isp->smk_flags &= ~SMK_INODE_CHANGED;
+> > -				rc = __vfs_setxattr(&nop_mnt_idmap, dp, inode,
+> > -					XATTR_NAME_SMACKTRANSMUTE,
+> > -					TRANS_TRUE, TRANS_TRUE_SIZE,
+> > -					0);
+> > -			} else {
+> > -				rc = __vfs_getxattr(dp, inode,
+> > -					XATTR_NAME_SMACKTRANSMUTE, trattr,
+> > -					TRANS_TRUE_SIZE);
+> > -				if (rc >= 0 && strncmp(trattr, TRANS_TRUE,
+> > -						       TRANS_TRUE_SIZE) != 0)
+> > -					rc = -EINVAL;
+> > -			}
+> > +			rc = __vfs_getxattr(dp, inode,
+> > +					    XATTR_NAME_SMACKTRANSMUTE, trattr,
+> > +					    TRANS_TRUE_SIZE);
+> > +			if (rc >= 0 && strncmp(trattr, TRANS_TRUE,
+> > +					       TRANS_TRUE_SIZE) != 0)
+> > +				rc = -EINVAL;
+> 
+> Where is the SMACK64_TRANSMUTE attribute going to get set on the file?
+> It's not going to get set in smack_init_inode_security(). The inode will
 
-Is there a way to ship a cil module changing the type of port 80 ?
+Isn't that the purpose of the inode_init_security hook?
 
-ie something like
-> (portcon tcp 80 (system_u object_r websm_port_t ((s0)(s0))))
+After all LSMs provide one or multiple xattrs, xattrs are going to be
+written to the disk with the initxattr() callback of filesystems.
 
-When I try to install such module I get an error, I guess because port
-80 is already defined
-> Problems processing portcon rules
-> Failed post db handling
-> semodule:  Failed!
+There is a small mistake above (XATTR_SMACK_TRANSMUTE instead
+of XATTR_NAME_SMACKTRANSMUTE, as we are providing just the suffix).
 
-Best
-Etienne
+After fixing that, Smack tests succeed:
+
+95 Passed, 0 Failed, 100% Success rate
+
+There was a test failing in dir-transmute.sh, before I fixed the xattr
+name.
+
+Thanks
+
+Roberto
+
+> know it's transmuting, but it won't get to disk without the __vfs_setxattr()
+> here in smack_d_instantiate(). Now, it's been a long time since that code
+> was written, so I could be wrong, but I'm pretty sure about that.
+> 
+> I think that you should be fine with the changes in smack_init_inode_security(),
+> and leaving smack_d_instantiate() untouched. 
+> 
+> >  			if (rc >= 0)
+> >  				transflag = SMK_INODE_TRANSMUTE;
+> >  		}
+
