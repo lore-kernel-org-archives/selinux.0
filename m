@@ -2,134 +2,70 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72AE6C77B61
-	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 13:49:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE70AC77B6E
+	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 14:54:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbjDMNtk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Apr 2023 09:49:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51718 "EHLO
+        id S229784AbjDMOyZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Apr 2023 10:54:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbjDMNti (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 09:49:38 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D996120;
-        Thu, 13 Apr 2023 06:49:34 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pmxKN-0006cO-K0; Thu, 13 Apr 2023 15:49:31 +0200
-Message-ID: <87264550-91eb-2d41-e3f3-c3a51425d7a4@leemhuis.info>
-Date:   Thu, 13 Apr 2023 15:49:30 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.1
-Content-Language: en-US, de-DE
-To:     Leon Romanovsky <leon@kernel.org>, Paul Moore <paul@paul-moore.com>
-Cc:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        with ESMTP id S229564AbjDMOyZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 10:54:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49C4D44B9;
+        Thu, 13 Apr 2023 07:54:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D96316153B;
+        Thu, 13 Apr 2023 14:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83F6C433D2;
+        Thu, 13 Apr 2023 14:54:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681397663;
+        bh=1K6whjALxumgxRYYK0wH4JcChq+2mh8I/hWM/ZKSTx0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Jh1XJJ5iy1FUDFpLxlvGUY5LeubD6UBVT8j//2eWNW1nmnj80VGWFTgdtYnpbf3eN
+         8bEDfxOOLF4jO4cgdbeWRqD84P1fn7B7oslrTPcQce6Yt0by4HZiSATLY+dkacuOSC
+         quzUPZUv3V75PENHZavZowcbHyuOyMvzXMl1CvebNi8dOvk8RiD0p58vEfA+LZc+hq
+         4Au+tOfydhmrBM/yXv0u1fFD0KVHxwXEtsj5w+5rJ0XUh6D/wDv7CFkxoFGGuo0PGj
+         SisKtwy7VmSjYqlQrBZxeZRMadm45np91hj1rz4v2ohjVmkpQU5riKsJkOo3cqsAtg
+         4oOIBhSq4gWKQ==
+Date:   Thu, 13 Apr 2023 07:54:21 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
         Saeed Mahameed <saeed@kernel.org>,
         Shay Drory <shayd@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>, netdev@vger.kernel.org,
-        selinux@vger.kernel.org
-References: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
- <ZCS5oxM/m9LuidL/@x130>
- <CAHC9VhTvQLa=+Ykwmr_Uhgjrc6dfi24ou=NBsACkhwZN7X4EtQ@mail.gmail.com>
- <1c8a70fc-18cb-3da7-5240-b513bf1affb9@leemhuis.info>
- <CAHC9VhT+=DtJ1K1CJDY4=L_RRJSGqRDvnaOdA6j9n+bF7y+36A@mail.gmail.com>
- <20230410054605.GL182481@unreal>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+        selinux@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>
 Subject: Re: Potential regression/bug in net/mlx5 driver
+Message-ID: <20230413075421.044d7046@kernel.org>
 In-Reply-To: <20230410054605.GL182481@unreal>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1681393775;b250e971;
-X-HE-SMSGID: 1pmxKN-0006cO-K0
+References: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
+        <ZCS5oxM/m9LuidL/@x130>
+        <CAHC9VhTvQLa=+Ykwmr_Uhgjrc6dfi24ou=NBsACkhwZN7X4EtQ@mail.gmail.com>
+        <1c8a70fc-18cb-3da7-5240-b513bf1affb9@leemhuis.info>
+        <CAHC9VhT+=DtJ1K1CJDY4=L_RRJSGqRDvnaOdA6j9n+bF7y+36A@mail.gmail.com>
+        <20230410054605.GL182481@unreal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
-
-On 10.04.23 07:46, Leon Romanovsky wrote:
-> On Sun, Apr 09, 2023 at 07:50:34PM -0400, Paul Moore wrote:
->> On Sun, Apr 9, 2023 at 4:48 AM Linux regression tracking (Thorsten
->> Leemhuis) <regressions@leemhuis.info> wrote:
->>> On 30.03.23 03:27, Paul Moore wrote:
->>>> On Wed, Mar 29, 2023 at 6:20 PM Saeed Mahameed <saeed@kernel.org> wrote:
->>>>> On 28 Mar 19:08, Paul Moore wrote:
->>>>>>
->>>>>> Starting with the v6.3-rcX kernel releases I noticed that my
->>>>>> InfiniBand devices were no longer present under /sys/class/infiniband,
->>>>>> causing some of my automated testing to fail.  It took me a while to
->>>>>> find the time to bisect the issue, but I eventually identified the
->>>>>> problematic commit:
->>>>>>
->>>>>>  commit fe998a3c77b9f989a30a2a01fb00d3729a6d53a4
->>>>>>  Author: Shay Drory <shayd@nvidia.com>
->>>>>>  Date:   Wed Jun 29 11:38:21 2022 +0300
->>>>>>
->>>>>>   net/mlx5: Enable management PF initialization
->>>>>>
->>>>>>   Enable initialization of DPU Management PF, which is a new loopback PF
->>>>>>   designed for communication with BMC.
->>>>>>   For now Management PF doesn't support nor require most upper layer
->>>>>>   protocols so avoid them.
->>>>>>
->>>>>>   Signed-off-by: Shay Drory <shayd@nvidia.com>
->>>>>>   Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
->>>>>>   Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
->>>>>>   Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
->>>>>>
->>>>>> I'm not a mlx5 driver expert so I can't really offer much in the way
->>>>>> of a fix, but as a quick test I did remove the
->>>>>> 'mlx5_core_is_management_pf(...)' calls in mlx5/core/dev.c and
->>>>>> everything seemed to work okay on my test system (or rather the tests
->>>>>> ran without problem).
->>>>>>
->>>>>> If you need any additional information, or would like me to test a
->>>>>> patch, please let me know.
->>>>>
->>>>> Our team is looking into this, the current theory is that you have an old
->>>>> FW that doesn't have the correct capabilities set.
->>>>
->>>> That's very possible; I installed this card many years ago and haven't
->>>> updated the FW once.
->>>>
->>>>  I'm happy to update the FW (do you have a
->>>> pointer/how-to?), but it might be good to identify a fix first as I'm
->>>> guessing there will be others like me ...
->>>
->>> Nothing happened here for about ten days afaics (or was there progress
->>> and I just missed it?). That made me wonder: how sound is Paul's guess
->>> that there will be others that might run into this? If that's likely it
->>> afaics would be good to get this regression fixed before the release,
->>> which is just two or three weeks away.
->>>
->>> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
->>> --
->>> Everything you wanna know about Linux kernel regression tracking:
->>> https://linux-regtracking.leemhuis.info/about/#tldr
->>> If I did something stupid, please tell me, as explained on that page.
->>>
->>> #regzbot poke
->>
->> I haven't seen any updates from the mlx5 driver folks, although I may
->> not have been CC'd?
-> 
+On Mon, 10 Apr 2023 08:46:05 +0300 Leon Romanovsky wrote:
+> > I haven't seen any updates from the mlx5 driver folks, although I may
+> > not have been CC'd? =20
+>=20
 > We are extremely slow these days due to combination of holidays
 > (Easter, Passover, Ramadan, spring break e.t.c).
 
-That's how it is sometimes, no worries. But well, rc7 is only a three
-days away and 6.3 thus might be out in 10 days already. Hence allow me
-to ask: is it possible to fix this by reverting the culprit now (and
-reapplying it later in fixed form). If that's and option I'd say "go for
-it", to ensure that revert makes it into rc7 and thus is tested at least
-one week before the final (or two, if Linus decides to do a rc8).
+Let's get this fixed ASAP, please. I understand that there are
+holidays, but it's been over 2 weeks, and addressing regressions
+should be highest priority for any maintainer! :(
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
-
-#regzbot poke
+=46rom what I gather all we need here is to throw in an extra condition
+for "FW is hella old" into mlx5_core_is_management_pf(), no?
