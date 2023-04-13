@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9D81C77B73
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62484C77B77
 	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 19:34:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbjDMTez (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Apr 2023 15:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37334 "EHLO
+        id S229989AbjDMTey (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Apr 2023 15:34:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbjDMTey (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 15:34:54 -0400
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC76649FF
-        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:53 -0700 (PDT)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-54f6fc7943eso184702167b3.3
-        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:53 -0700 (PDT)
+        with ESMTP id S229598AbjDMTex (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 15:34:53 -0400
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A55959F9
+        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:52 -0700 (PDT)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-54fbee98814so54341847b3.8
+        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681414492; x=1684006492;
+        d=gmail.com; s=20221208; t=1681414491; x=1684006491;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mjjPArLljG3+riJQfS2Y0TCPWrwFZjCT7dfqqWfapEo=;
-        b=UAFf8xZ+nRWlxiv27Ev/UtzAjTojgu7hPLh7rYSLaQ3dwHrr3KwdHpsyGtLsfXZqRZ
-         rlqpxKnqNme1tzYsMrH3LO7f6y1v/WTRknnbk6sTMNe34hlmMzJgig7WGH6HYEuJ8B0u
-         l64ZLAt3xJu95wkX5Q+aiFu8w9xxTEGO952hVxXviqL+/AbxbQ3fmx7m1YK9g12VMdj3
-         KqpO0Eb8mJ7bWl1pZB+CuYvQ0ma3vrqHLSeS0tMmgNpTbyelEDMhjosfDf9pV0nTTLQI
-         7QasFuvvIPw887rD+KZ+MHbS30A78QH9Yq86lGbPsBeIxDKswjl0ht+T6HN6oNFDM8o7
-         79mQ==
+        bh=RYDTjUIqkhx42mRkYhUi7ptoBdjbJO9ujfNEp70J9m0=;
+        b=CoZFvOGWdHVfm3albhzX6MTzr41oVSrJr6kI3wflpceXmrU0iLI+1Ga5gD2wi5mnk1
+         +5vV//Tv1BzryS+7XIRijYkVbz9fGT/UdVKjjWMRfQ++s0wIcfq/prb3HR7aiRLKqCCo
+         m4WQTAcNoi4p31tgjftUxafl6cwlk7lPLIK3OnTbeTh+axzDEoAgvkGNgSBQtZp4dOzi
+         TaSQgUZi4pk/JQvqqwhQTGU91y/+irmi3TXUDcUr55c0qCDnSV/gNn9sBnWZPAc+5A7q
+         wDlsgI9axrM7WKeK7d/kMExiYMrzo1TtX8RvYR9GI5LY1ktek5FG9C8TCxEMg3vUBJbT
+         wZWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681414492; x=1684006492;
+        d=1e100.net; s=20221208; t=1681414491; x=1684006491;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mjjPArLljG3+riJQfS2Y0TCPWrwFZjCT7dfqqWfapEo=;
-        b=H2yWemMfjw+KmI9mvxxQC32HMfTLXygEzxvEiK36+nn9ejr2c/jYHiunC2ueGH1k4l
-         kJgqG2rz06vrlwvhyCyG5g65JmVv78d3DYDkoh8XgniaYriB5hdWq2UWILmBDKhSRgrW
-         8QpI6PXxR6QqJhLa7QX/nxJ70yXsasEYAJRy01jUTmQhIu6ie+vEbgXrs5aqCgbxOTj9
-         ph81CBxNvq65GH2iIfhGHN5ssCFJeeBNua550/EDHnJeF3MTikR73f4U3sQyQGOkxwg+
-         Dk8Fjh35w8ok+ADa1g33A6HHFHW92wUPohWh7KgMBd/x7z4D5CIJuMbokEiZoR9lb42i
-         HPeA==
-X-Gm-Message-State: AAQBX9f1HGqHZafZ0I33SrL2BfO5hLYyepuqnQFQewhBiVFy3w2g9/Q9
-        xDbJ7uErvsnh1ofvDCmSheZhhQrWXRc=
-X-Google-Smtp-Source: AKy350apC6PSOKKmFNr4pm+7weX4uuxpQetVhE/I0r3uVDxDipOhGQeFI3u25NZSkgFIk2NxzHll2w==
-X-Received: by 2002:a81:83c5:0:b0:54f:cf6e:4b97 with SMTP id t188-20020a8183c5000000b0054fcf6e4b97mr2661763ywf.25.1681414492568;
-        Thu, 13 Apr 2023 12:34:52 -0700 (PDT)
+        bh=RYDTjUIqkhx42mRkYhUi7ptoBdjbJO9ujfNEp70J9m0=;
+        b=EkYlMnOEly063YScJkv1tIUCz6PHkA6CebPbTJGTBl7tDeV2YD6SmXVYazW7AGlEqf
+         Wdetkj8Acn2HtdgyPr+yKbOqmUgbcvmSXHmMLsiMDs4EJZJADfO7UbmwuIlmVnNRfD/W
+         sQO6fBI7FceDscEHeMK8+BiHgz02b/QTQt8MXqAQwz1moRrLcYL8D2cFA0g7us2jigGG
+         uRcQz+JreaD2yx8aDTW39R9zLGSBF8w26LL000P66pJGG6cFTaSvkncTEOw9UbaOGInd
+         BUtmccvUPqLgtvXkwqfYMdnAvoXHTlkH7Bhbt1St69iowrp1Qfedzw07g3ZLgr1Hlx+k
+         qWvw==
+X-Gm-Message-State: AAQBX9fZ6l3t1b9SNKmflcvT7v4660ndGpL76hFiw5+VVOMt93THZeGh
+        VbCpz91RzdqAkHCXrinf8P5WXrWqQvg=
+X-Google-Smtp-Source: AKy350Y/exqmqo2ftrxY2nSi6UzbqipJUYlfxraVvLx6DlRa3bTmz5Cn4yQxVo8FsHrULSR+6q+/wg==
+X-Received: by 2002:a0d:db4a:0:b0:53c:de05:2237 with SMTP id d71-20020a0ddb4a000000b0053cde052237mr2977971ywe.38.1681414491008;
+        Thu, 13 Apr 2023 12:34:51 -0700 (PDT)
 Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
-        by smtp.gmail.com with ESMTPSA id 21-20020a811615000000b0054c0f46b24bsm691350yww.5.2023.04.13.12.34.52
+        by smtp.gmail.com with ESMTPSA id 21-20020a811615000000b0054c0f46b24bsm691350yww.5.2023.04.13.12.34.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Apr 2023 12:34:52 -0700 (PDT)
+        Thu, 13 Apr 2023 12:34:50 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     dburgener@linux.microsoft.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 5/9 v3] libsepol/cil: Add cil_write_post_ast function
-Date:   Thu, 13 Apr 2023 15:34:41 -0400
-Message-Id: <20230413193445.588395-6-jwcart2@gmail.com>
+Subject: [PATCH 3/9 v3] libsepol/cil: Add cil_tree_node_remove function
+Date:   Thu, 13 Apr 2023 15:34:39 -0400
+Message-Id: <20230413193445.588395-4-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230413193445.588395-1-jwcart2@gmail.com>
 References: <20230413193445.588395-1-jwcart2@gmail.com>
@@ -64,107 +64,79 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The function cil_write_post_ast() will write the CIL AST after
-post processing is done. Most post processing does not change the
-CIL AST, this is where deny rules are processed (because to process
-them, type attributes have to have been evaluated.)
-
-When processed, deny rules may add new rules and attributes and the
-deny rule itself will be removed from the AST, so using this new
-function will show the results of the deny rule processing.
+Add the function cil_tree_node_remove() which takes a node pointer
+as an input, finds the parent, walks the list of nodes to the node
+prior to the given node, updates that node's next pointer to remove
+the given node from the tree, and then destroys the node.
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/cil/include/cil/cil.h   |  1 +
- libsepol/cil/src/cil.c           | 50 ++++++++++++++++++++++++++++++++
- libsepol/cil/src/cil_write_ast.h |  1 +
- 3 files changed, 52 insertions(+)
+v3:
+ - Check for cl_tail pointing to the node
+ - Destroy the node before returning if cl_head points to the node
 
-diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
-index 482ca522..88e47e79 100644
---- a/libsepol/cil/include/cil/cil.h
-+++ b/libsepol/cil/include/cil/cil.h
-@@ -64,6 +64,7 @@ extern void cil_write_policy_conf(FILE *out, struct cil_db *db);
- extern int cil_write_parse_ast(FILE *out, cil_db_t *db);
- extern int cil_write_build_ast(FILE *out, cil_db_t *db);
- extern int cil_write_resolve_ast(FILE *out, cil_db_t *db);
-+extern int cil_write_post_ast(FILE *out, cil_db_t *db);
- 
- enum cil_log_level {
- 	CIL_ERR = 1,
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 4876752a..2021187d 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -687,6 +687,56 @@ exit:
- 	return rc;
+ libsepol/cil/src/cil_tree.c | 35 +++++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_tree.h |  1 +
+ 2 files changed, 36 insertions(+)
+
+diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+index 6376c208..1155e311 100644
+--- a/libsepol/cil/src/cil_tree.c
++++ b/libsepol/cil/src/cil_tree.c
+@@ -248,6 +248,41 @@ void cil_tree_node_destroy(struct cil_tree_node **node)
+ 	*node = NULL;
  }
  
-+int cil_write_post_ast(FILE *out, cil_db_t *db)
++void cil_tree_node_remove(struct cil_tree_node *node)
 +{
-+	int rc = SEPOL_ERR;
++	struct cil_tree_node *parent, *curr;
 +
-+	if (db == NULL) {
-+		goto exit;
++	if (node == NULL || node->parent == NULL) {
++		return;
 +	}
 +
-+	cil_log(CIL_INFO, "Building AST from Parse Tree\n");
-+	rc = cil_build_ast(db, db->parse->root, db->ast->root);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "Failed to build ast\n");
-+		goto exit;
++	parent = node->parent;
++
++	if (parent->cl_head == node) {
++		if (parent->cl_tail == node) {
++			parent->cl_tail = NULL;
++		}
++		parent->cl_head = node->next;
++		cil_tree_node_destroy(&node);
++		return;
 +	}
 +
-+	cil_log(CIL_INFO, "Destroying Parse Tree\n");
-+	cil_tree_destroy(&db->parse);
-+
-+	cil_log(CIL_INFO, "Resolving AST\n");
-+	rc = cil_resolve_ast(db, db->ast->root);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "Failed to resolve ast\n");
-+		goto exit;
++	curr = parent->cl_head;
++	while (curr && curr->next != node) {
++		curr = curr->next;
 +	}
 +
-+	cil_log(CIL_INFO, "Qualifying Names\n");
-+	rc = cil_fqn_qualify(db->ast->root);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "Failed to qualify names\n");
-+		goto exit;
++	if (curr == NULL) {
++		return;
 +	}
 +
-+	cil_log(CIL_INFO, "Compile post process\n");
-+	rc = cil_post_process(db);
-+	if (rc != SEPOL_OK ) {
-+		cil_log(CIL_ERR, "Post process failed\n");
-+		goto exit;
++	if (parent->cl_tail == node) {
++		parent->cl_tail = curr;
 +	}
-+
-+	cil_log(CIL_INFO, "Writing Post AST\n");
-+	rc = cil_write_ast(out, CIL_WRITE_AST_PHASE_POST, db->ast->root);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_ERR, "Failed to write post ast\n");
-+		goto exit;
-+	}
-+
-+exit:
-+	return rc;
++	curr->next = node->next;
++	cil_tree_node_destroy(&node);
 +}
 +
- int cil_build_policydb(cil_db_t *db, sepol_policydb_t **sepol_db)
- {
- 	int rc;
-diff --git a/libsepol/cil/src/cil_write_ast.h b/libsepol/cil/src/cil_write_ast.h
-index 3f4b9d95..6b3274a8 100644
---- a/libsepol/cil/src/cil_write_ast.h
-+++ b/libsepol/cil/src/cil_write_ast.h
-@@ -38,6 +38,7 @@ enum cil_write_ast_phase {
- 	CIL_WRITE_AST_PHASE_PARSE = 0,
- 	CIL_WRITE_AST_PHASE_BUILD,
- 	CIL_WRITE_AST_PHASE_RESOLVE,
-+	CIL_WRITE_AST_PHASE_POST,
- };
+ /* Perform depth-first walk of the tree
+    Parameters:
+    start_node:          root node to start walking from
+diff --git a/libsepol/cil/src/cil_tree.h b/libsepol/cil/src/cil_tree.h
+index 5a98da55..cb6a0d24 100644
+--- a/libsepol/cil/src/cil_tree.h
++++ b/libsepol/cil/src/cil_tree.h
+@@ -63,6 +63,7 @@ void cil_tree_children_destroy(struct cil_tree_node *node);
  
- void cil_write_ast_node(FILE *out, struct cil_tree_node *node);
+ void cil_tree_node_init(struct cil_tree_node **node);
+ void cil_tree_node_destroy(struct cil_tree_node **node);
++void cil_tree_node_remove(struct cil_tree_node *node);
+ 
+ //finished values
+ #define CIL_TREE_SKIP_NOTHING	0
 -- 
 2.39.2
 
