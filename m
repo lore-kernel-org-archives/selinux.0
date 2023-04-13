@@ -2,97 +2,119 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F605C77B79
-	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 15:20:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2CF8C77B61
+	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 19:34:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231604AbjDMPUP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Apr 2023 11:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41376 "EHLO
+        id S229712AbjDMTex (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Apr 2023 15:34:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231594AbjDMPUN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 11:20:13 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24B9AF37
-        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 08:20:05 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id j10so5576955ybj.1
-        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 08:20:05 -0700 (PDT)
+        with ESMTP id S229764AbjDMTeu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 15:34:50 -0400
+Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3C1212F
+        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:49 -0700 (PDT)
+Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-54f6a796bd0so187871087b3.12
+        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1681399205; x=1683991205;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KspaEPrDplSYvcKzIX5D8e6YFnwmmvrPbcdh5kQyGqQ=;
-        b=eKsilHFPmEUZDQVDrV9qu6JEEtfDZIu1cSMeGpjLy2izDH0nTEnTGwBipq3zsshyab
-         nhbOlmES78QjhhnMgQkj22ESrWyFzgzKzq1koPMtnDuhJUge3qys4hEgqbRg2Uaa1qMw
-         D8XAmsrmTCcvyrjpC1QyWniZRlpnIicqQEPNJoWqg7dkQI8LyZEQOW9YZscE1Rg46FfH
-         90OOn+GcQaMbQofV4lMHCa+6Mxyyf6vli8DxJ31t2250oaETaCK3q5KLmQriHXxUMj0F
-         T4xRJw8PnKKkP7AgMCFlDutKxO0xsAk6Moug72SglwxzeceUIPyx+sIVfsM6YRewHlGa
-         W9pQ==
+        d=gmail.com; s=20221208; t=1681414488; x=1684006488;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=A3SxtQzXJY3hzbf9mLS2PckiT0wxiXnsF6fW+cGpY6E=;
+        b=F4Rb2AH1db5qMW1i939TnldTohkY4xjwTJKK5mADqnkH2q0HH/yy6tN9+mU2rF4GrY
+         frdJ+GKcTszBBKihFtbwX91M9RVvnBRBShVHlIKuw7NoGgC4nwZQRh4cv0ezhZu0LZC6
+         FzUamNtO/ihVWeu7e/TXk1kfsm46H1vExf2fcZuqeCEU3qtIdOEMlujAymAQXkjQJaOb
+         jFs3r/gZB3iDO8YL4Uh3bVJs0J7Q+fdB2k6RYAHRnvaz+vOvLkv6tLmx/FHJdZJm0ZO7
+         4l7D2qXfK3NeQltr0ElVtYItM2cJw2U8NwHpxwcn7uZ8EEQNK3e1Ywh5Gdmy9m2XjtSU
+         6jgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681399205; x=1683991205;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=KspaEPrDplSYvcKzIX5D8e6YFnwmmvrPbcdh5kQyGqQ=;
-        b=Wj2XIWGwqZEw/AlABVO4PhI8hdFIKYY4QuVfYFCcJH+eovSilxju5EfuYWtJQFwtOj
-         31/pCBvEBf81jL8N+PhXnpDk75ZdwfeOAu1PV2V3oyp32i8cogqXvDSFNWSvfKGgi3dx
-         dYgbXAyiB82S3FR3G26RvIMqHYlesoAsRqMNPTiTtubnZWkOsxJFDCuBk7o5rWHti5W9
-         H6Qf1fzwslTwd5oOJR9RaPcXXbxC9+Ak6wweDVr9LY1Fuj/l7jegoUa174CD89GtlkwP
-         NhbqU9Y+KK+Yp1+M73bjudhN5vGS8rVL6EQ4zkBBqkG9KNOGOMl6P1DmF4A704Kg4u2l
-         JYqw==
-X-Gm-Message-State: AAQBX9dlu3R+LYhGxSpC/JZG+0AKrXpj6eE2TKII1Ok91/NIXAAyXvfE
-        +NxV8Ox02TTO0VVg9lDKYiL6lFypOMWN492yz5/j
-X-Google-Smtp-Source: AKy350bJPUvWcLZaaM0kHY/y3MXoFhJfvIHrtDKoCad0pksGkPPZzxEGyK/GfpgQZ7Mj6t5iYE1p77a5Wr3zfNz/la4=
-X-Received: by 2002:a25:d2ce:0:b0:b8b:f1ac:9c6c with SMTP id
- j197-20020a25d2ce000000b00b8bf1ac9c6cmr1687953ybg.3.1681399204370; Thu, 13
- Apr 2023 08:20:04 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1681414488; x=1684006488;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=A3SxtQzXJY3hzbf9mLS2PckiT0wxiXnsF6fW+cGpY6E=;
+        b=cDXtaRqD8Kl0y9qFju/Lo5TS38Dl5omkBHn51pVAPY2bYlk+W/9mdQgON7CMdp1j96
+         78C1buHgN2feA4Ii2vMftep6pW2cbV0GrFJiyJWlqOkqQYLaKVK2S+y3+t9nOfaXAOp7
+         F1WJ0VbR9YzQppTwd/zDSmCKDQQaMDOvrQ0YdgTVKhNAZvAEDAPHY4pkdRv5K9g1m8Rd
+         1ZWxKvAH6y5QCry+FcR+737jnn5HYOQ4WGNjVME839WqasWEdH9lEFb6HiqyztFWrpZE
+         /u+k8KSyEbpmYOu+xbFKatPWcwCF4Gna9txTmoEXisuQXZoqBtQBUYttspgHwAabzGMd
+         869Q==
+X-Gm-Message-State: AAQBX9cpgTL+hJkEO9w4PRRnd316ucIpoQ7Pj2a2a5+SrcKRm+7hr9Ja
+        iymhniFJlJl/BSi6TeXrVdPuvyjTmWA=
+X-Google-Smtp-Source: AKy350aaPHeVGqgBPRi1jH9PlgnOTpkk5mUtXd/9oxA/6LEdDJGBVE0irdYz+FTjtoMFP1kuIsyPkg==
+X-Received: by 2002:a0d:ea55:0:b0:54f:e109:7153 with SMTP id t82-20020a0dea55000000b0054fe1097153mr412848ywe.48.1681414488642;
+        Thu, 13 Apr 2023 12:34:48 -0700 (PDT)
+Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
+        by smtp.gmail.com with ESMTPSA id 21-20020a811615000000b0054c0f46b24bsm691350yww.5.2023.04.13.12.34.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Apr 2023 12:34:48 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     dburgener@linux.microsoft.com, James Carter <jwcart2@gmail.com>
+Subject: [PATCH 0/9 v3] Add CIL Deny Rule
+Date:   Thu, 13 Apr 2023 15:34:36 -0400
+Message-Id: <20230413193445.588395-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-References: <CAHC9VhQ7A4+msL38WpbOMYjAqLp0EtOjeLh4Dc6SQtD6OUvCQg@mail.gmail.com>
- <ZCS5oxM/m9LuidL/@x130> <CAHC9VhTvQLa=+Ykwmr_Uhgjrc6dfi24ou=NBsACkhwZN7X4EtQ@mail.gmail.com>
- <1c8a70fc-18cb-3da7-5240-b513bf1affb9@leemhuis.info> <CAHC9VhT+=DtJ1K1CJDY4=L_RRJSGqRDvnaOdA6j9n+bF7y+36A@mail.gmail.com>
- <20230410054605.GL182481@unreal> <20230413075421.044d7046@kernel.org>
-In-Reply-To: <20230413075421.044d7046@kernel.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 13 Apr 2023 11:19:53 -0400
-Message-ID: <CAHC9VhRKBLHfGHvFAsmcBQQEmbOxZ=M9TE4-pV70E+Y6G=uXWA@mail.gmail.com>
-Subject: Re: Potential regression/bug in net/mlx5 driver
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Leon Romanovsky <leon@kernel.org>,
-        Linux regressions mailing list <regressions@lists.linux.dev>,
-        Saeed Mahameed <saeed@kernel.org>,
-        Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>, netdev@vger.kernel.org,
-        selinux@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 13, 2023 at 10:54=E2=80=AFAM Jakub Kicinski <kuba@kernel.org> w=
-rote:
-> On Mon, 10 Apr 2023 08:46:05 +0300 Leon Romanovsky wrote:
-> > > I haven't seen any updates from the mlx5 driver folks, although I may
-> > > not have been CC'd?
-> >
-> > We are extremely slow these days due to combination of holidays
-> > (Easter, Passover, Ramadan, spring break e.t.c).
->
-> Let's get this fixed ASAP, please. I understand that there are
-> holidays, but it's been over 2 weeks, and addressing regressions
-> should be highest priority for any maintainer! :(
->
-> From what I gather all we need here is to throw in an extra condition
-> for "FW is hella old" into mlx5_core_is_management_pf(), no?
+This patch series depends on the "Add support for notself and other to
+CIL" patch series from April 12th.
 
-That's my gut feeling too, at least for a quick solution.  I'd offer
-to cobble together a fix, but my kernel expertise ends well before I
-get to the mlx5 driver :)
+These patches add a deny rule to CIL. Deny rules will be processed after
+everything except for neverallow rules. Unlike neverallow rules, they
+remove the permissions in the deny rule rather than reporting an error.
 
-I have been running for a while now with that small patch reverted on
-my test machines (so I can keep my tests running) and everything seems
-to be okay, but there may be other issues caused by the revert that
-I'm not seeing.
+See the individual patches for an explanation of what they do.
 
---=20
-paul-moore.com
+Patches 2, 5, 6, and 7 are unchanged from v2. For the other patches, see
+the patch for a list of the changes from v2.
+
+James Carter (9):
+  libsepol/cil: Parse and add deny rule to AST, but do not process
+  libsepol/cil: Add cil_list_is_empty macro
+  libsepol/cil: Add cil_tree_node_remove function
+  libsepol/cil: Process deny rules
+  libsepol/cil: Add cil_write_post_ast function
+  libsepol: Export the cil_write_post_ast function
+  secilc/secil2tree: Add option to write CIL AST after post processing
+  secilc/test: Add deny rule tests
+  secilc/docs: Add deny rule to CIL documentation
+
+ libsepol/cil/include/cil/cil.h         |    1 +
+ libsepol/cil/src/cil.c                 |   68 ++
+ libsepol/cil/src/cil_build_ast.c       |   56 +
+ libsepol/cil/src/cil_build_ast.h       |    2 +
+ libsepol/cil/src/cil_copy_ast.c        |   19 +
+ libsepol/cil/src/cil_copy_ast.h        |    1 +
+ libsepol/cil/src/cil_deny.c            | 1413 ++++++++++++++++++++++++
+ libsepol/cil/src/cil_deny.h            |   36 +
+ libsepol/cil/src/cil_flavor.h          |    1 +
+ libsepol/cil/src/cil_internal.h        |   10 +
+ libsepol/cil/src/cil_list.h            |    3 +
+ libsepol/cil/src/cil_post.c            |    7 +
+ libsepol/cil/src/cil_reset_ast.c       |    8 +
+ libsepol/cil/src/cil_resolve_ast.c     |   48 +
+ libsepol/cil/src/cil_resolve_ast.h     |    1 +
+ libsepol/cil/src/cil_tree.c            |   35 +
+ libsepol/cil/src/cil_tree.h            |    1 +
+ libsepol/cil/src/cil_verify.c          |    9 +
+ libsepol/cil/src/cil_write_ast.c       |   10 +
+ libsepol/cil/src/cil_write_ast.h       |    1 +
+ libsepol/src/libsepol.map.in           |    5 +
+ secilc/docs/cil_access_vector_rules.md |   67 ++
+ secilc/secil2tree.c                    |    8 +-
+ secilc/test/deny_rule_test1.cil        |  580 ++++++++++
+ secilc/test/deny_rule_test2.cil        |  418 +++++++
+ 25 files changed, 2807 insertions(+), 1 deletion(-)
+ create mode 100644 libsepol/cil/src/cil_deny.c
+ create mode 100644 libsepol/cil/src/cil_deny.h
+ create mode 100644 secilc/test/deny_rule_test1.cil
+ create mode 100644 secilc/test/deny_rule_test2.cil
+
+-- 
+2.39.2
+
