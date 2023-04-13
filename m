@@ -2,119 +2,90 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2CF8C77B61
-	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 19:34:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43768C77B71
+	for <selinux@archiver.kernel.org>; Thu, 13 Apr 2023 19:34:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbjDMTex (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S229681AbjDMTex (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Thu, 13 Apr 2023 15:34:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229764AbjDMTeu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 15:34:50 -0400
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3C1212F
-        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:49 -0700 (PDT)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-54f6a796bd0so187871087b3.12
-        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:49 -0700 (PDT)
+        with ESMTP id S230071AbjDMTew (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 15:34:52 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3E9212F
+        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:51 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-54c17fa9ae8so401730857b3.5
+        for <selinux@vger.kernel.org>; Thu, 13 Apr 2023 12:34:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681414488; x=1684006488;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=A3SxtQzXJY3hzbf9mLS2PckiT0wxiXnsF6fW+cGpY6E=;
-        b=F4Rb2AH1db5qMW1i939TnldTohkY4xjwTJKK5mADqnkH2q0HH/yy6tN9+mU2rF4GrY
-         frdJ+GKcTszBBKihFtbwX91M9RVvnBRBShVHlIKuw7NoGgC4nwZQRh4cv0ezhZu0LZC6
-         FzUamNtO/ihVWeu7e/TXk1kfsm46H1vExf2fcZuqeCEU3qtIdOEMlujAymAQXkjQJaOb
-         jFs3r/gZB3iDO8YL4Uh3bVJs0J7Q+fdB2k6RYAHRnvaz+vOvLkv6tLmx/FHJdZJm0ZO7
-         4l7D2qXfK3NeQltr0ElVtYItM2cJw2U8NwHpxwcn7uZ8EEQNK3e1Ywh5Gdmy9m2XjtSU
-         6jgQ==
+        d=gmail.com; s=20221208; t=1681414490; x=1684006490;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7bgDBrCaF764XDO++Hb918lQnKf1q24OKaJ+xsY1z98=;
+        b=saiUix4zHKluPudkoLvKN6Y8PEC6HY/NG3RcXaXS87ST23BmT8NES5AvKs6HszpXhl
+         /H7hIEUXDCfR836VuqAUe8/g1d4JkQRqOLuv070ck00rJu4oK46OH7z+Oz98u6r92Yzj
+         2916qcdVh/fQmUnQKxKPE3sWeWWQflkfpCrrDkv91obKjS7pIean8PJlpNBHUGvmbDZb
+         CYoDMgVm3M844PG/WlL6/amXd9/If69Psc4QukjAIk+Z2K2v/NK4h/Q0XDx58duBYNAO
+         6c7xnncSYDMHK5zpFfRxmujg0ATCxYXrxbnIvWWtKwzHcYL6oo12Q7xTgsoVkVEqTsM1
+         Kqcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681414488; x=1684006488;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=A3SxtQzXJY3hzbf9mLS2PckiT0wxiXnsF6fW+cGpY6E=;
-        b=cDXtaRqD8Kl0y9qFju/Lo5TS38Dl5omkBHn51pVAPY2bYlk+W/9mdQgON7CMdp1j96
-         78C1buHgN2feA4Ii2vMftep6pW2cbV0GrFJiyJWlqOkqQYLaKVK2S+y3+t9nOfaXAOp7
-         F1WJ0VbR9YzQppTwd/zDSmCKDQQaMDOvrQ0YdgTVKhNAZvAEDAPHY4pkdRv5K9g1m8Rd
-         1ZWxKvAH6y5QCry+FcR+737jnn5HYOQ4WGNjVME839WqasWEdH9lEFb6HiqyztFWrpZE
-         /u+k8KSyEbpmYOu+xbFKatPWcwCF4Gna9txTmoEXisuQXZoqBtQBUYttspgHwAabzGMd
-         869Q==
-X-Gm-Message-State: AAQBX9cpgTL+hJkEO9w4PRRnd316ucIpoQ7Pj2a2a5+SrcKRm+7hr9Ja
-        iymhniFJlJl/BSi6TeXrVdPuvyjTmWA=
-X-Google-Smtp-Source: AKy350aaPHeVGqgBPRi1jH9PlgnOTpkk5mUtXd/9oxA/6LEdDJGBVE0irdYz+FTjtoMFP1kuIsyPkg==
-X-Received: by 2002:a0d:ea55:0:b0:54f:e109:7153 with SMTP id t82-20020a0dea55000000b0054fe1097153mr412848ywe.48.1681414488642;
-        Thu, 13 Apr 2023 12:34:48 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1681414490; x=1684006490;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7bgDBrCaF764XDO++Hb918lQnKf1q24OKaJ+xsY1z98=;
+        b=XpO/WFlL3VKSZQLbgqvsT6qzW+7nvxjILkxmrnfF+M6VHVTbvdQjmqoThCkOgOneSA
+         zIeHuNE4Qlyv2ipPC++cdVoFTalS8YITnTG9UhPEibpmZ+yUkkvzYcf98VAMJ99CdBdn
+         eHZjKUBgEuhkKE+kgguldlCRz/ushuWHVu5p04265QtAlfpieZbqvtmMIqrJT4dAl+o9
+         w7xRSyVSfsrrsEuYfFJmrm5BjTw4ti3yKJw/l9fD/FMWzcZ9LdFegKy9PvnxysQvwCBa
+         kHRTc3+9Gmwnc5WvT3hQ1LgDMv7ROXiAJKUcSU2l839IXlIclr6r/xRSTxL40ezvgE/a
+         Cpdw==
+X-Gm-Message-State: AAQBX9e8P6UB9UB1qexZGTk6lzWMFxa80OxwANzddHmvb+2c1zjTy2zq
+        MhiE5iCcSyskAXFczK4tOnJAdZM5XjU=
+X-Google-Smtp-Source: AKy350ZK7n5L3o0sm9AOMMNCeC8FoQqtRjBMrGHzTrmRNtzvFvA8f5aQVHSKzH9mk36P0KEXCjv0Ig==
+X-Received: by 2002:a0d:dfd3:0:b0:54f:27c6:a496 with SMTP id i202-20020a0ddfd3000000b0054f27c6a496mr2719906ywe.1.1681414490187;
+        Thu, 13 Apr 2023 12:34:50 -0700 (PDT)
 Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
-        by smtp.gmail.com with ESMTPSA id 21-20020a811615000000b0054c0f46b24bsm691350yww.5.2023.04.13.12.34.47
+        by smtp.gmail.com with ESMTPSA id 21-20020a811615000000b0054c0f46b24bsm691350yww.5.2023.04.13.12.34.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Apr 2023 12:34:48 -0700 (PDT)
+        Thu, 13 Apr 2023 12:34:49 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     dburgener@linux.microsoft.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 0/9 v3] Add CIL Deny Rule
-Date:   Thu, 13 Apr 2023 15:34:36 -0400
-Message-Id: <20230413193445.588395-1-jwcart2@gmail.com>
+Subject: [PATCH 2/9 v3] libsepol/cil: Add cil_list_is_empty macro
+Date:   Thu, 13 Apr 2023 15:34:38 -0400
+Message-Id: <20230413193445.588395-3-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230413193445.588395-1-jwcart2@gmail.com>
+References: <20230413193445.588395-1-jwcart2@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch series depends on the "Add support for notself and other to
-CIL" patch series from April 12th.
+Add a macro, called cil_list_is_empty, that returns true if the
+list pointer or list head is NULL.
 
-These patches add a deny rule to CIL. Deny rules will be processed after
-everything except for neverallow rules. Unlike neverallow rules, they
-remove the permissions in the deny rule rather than reporting an error.
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_list.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-See the individual patches for an explanation of what they do.
-
-Patches 2, 5, 6, and 7 are unchanged from v2. For the other patches, see
-the patch for a list of the changes from v2.
-
-James Carter (9):
-  libsepol/cil: Parse and add deny rule to AST, but do not process
-  libsepol/cil: Add cil_list_is_empty macro
-  libsepol/cil: Add cil_tree_node_remove function
-  libsepol/cil: Process deny rules
-  libsepol/cil: Add cil_write_post_ast function
-  libsepol: Export the cil_write_post_ast function
-  secilc/secil2tree: Add option to write CIL AST after post processing
-  secilc/test: Add deny rule tests
-  secilc/docs: Add deny rule to CIL documentation
-
- libsepol/cil/include/cil/cil.h         |    1 +
- libsepol/cil/src/cil.c                 |   68 ++
- libsepol/cil/src/cil_build_ast.c       |   56 +
- libsepol/cil/src/cil_build_ast.h       |    2 +
- libsepol/cil/src/cil_copy_ast.c        |   19 +
- libsepol/cil/src/cil_copy_ast.h        |    1 +
- libsepol/cil/src/cil_deny.c            | 1413 ++++++++++++++++++++++++
- libsepol/cil/src/cil_deny.h            |   36 +
- libsepol/cil/src/cil_flavor.h          |    1 +
- libsepol/cil/src/cil_internal.h        |   10 +
- libsepol/cil/src/cil_list.h            |    3 +
- libsepol/cil/src/cil_post.c            |    7 +
- libsepol/cil/src/cil_reset_ast.c       |    8 +
- libsepol/cil/src/cil_resolve_ast.c     |   48 +
- libsepol/cil/src/cil_resolve_ast.h     |    1 +
- libsepol/cil/src/cil_tree.c            |   35 +
- libsepol/cil/src/cil_tree.h            |    1 +
- libsepol/cil/src/cil_verify.c          |    9 +
- libsepol/cil/src/cil_write_ast.c       |   10 +
- libsepol/cil/src/cil_write_ast.h       |    1 +
- libsepol/src/libsepol.map.in           |    5 +
- secilc/docs/cil_access_vector_rules.md |   67 ++
- secilc/secil2tree.c                    |    8 +-
- secilc/test/deny_rule_test1.cil        |  580 ++++++++++
- secilc/test/deny_rule_test2.cil        |  418 +++++++
- 25 files changed, 2807 insertions(+), 1 deletion(-)
- create mode 100644 libsepol/cil/src/cil_deny.c
- create mode 100644 libsepol/cil/src/cil_deny.h
- create mode 100644 secilc/test/deny_rule_test1.cil
- create mode 100644 secilc/test/deny_rule_test2.cil
-
+diff --git a/libsepol/cil/src/cil_list.h b/libsepol/cil/src/cil_list.h
+index 6b4708a0..f974fddc 100644
+--- a/libsepol/cil/src/cil_list.h
++++ b/libsepol/cil/src/cil_list.h
+@@ -44,6 +44,9 @@ struct cil_list_item {
+ 	void *data;
+ };
+ 
++#define cil_list_is_empty(list) \
++	((list) == NULL || (list)->head == NULL)
++
+ #define cil_list_for_each(item, list) \
+ 	for (item = (list)->head; item != NULL; item = item->next)
+ 
 -- 
 2.39.2
 
