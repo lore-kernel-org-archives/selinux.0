@@ -2,127 +2,114 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E826C77B6E
-	for <selinux@archiver.kernel.org>; Fri, 14 Apr 2023 03:27:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F4AEC77B6E
+	for <selinux@archiver.kernel.org>; Fri, 14 Apr 2023 13:43:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229564AbjDND07 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Apr 2023 23:26:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45212 "EHLO
+        id S229446AbjDNNnF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Apr 2023 09:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbjDND04 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Apr 2023 23:26:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4675D4C39;
-        Thu, 13 Apr 2023 20:26:34 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D210D64374;
-        Fri, 14 Apr 2023 03:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED9BC433D2;
-        Fri, 14 Apr 2023 03:26:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1681442793;
-        bh=RJDVGjjLW9wPMhTKvMcwo53pRkCDc84UcdDQ5nCZb7g=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=kcW0Yg5gftV7F1VwXH/O/XhGNYCdoOaZvAQCugKeQq9fFR1tC9wxVCNENX7Q8SSyt
-         9o+t6FwIVbPuKG1lpmdQSCIdB6z3dHd1Ykp2trZIuyd3EZdQH2H8E3BaeIEdWoWz6Y
-         o326BWbteJc+6v5tppbqPEDrZ/IK9UkJr8z6M6Ub7+FQmlx7Lb/6ZnD5ddz79HWK6p
-         KVAByTxK/nzcUQDpks5/j5xU/Jvp9VEQB2AByRjDk913CXkEkbd2yMqVTcesOZhMyZ
-         stKAA0TKtnULlhtMsZnPwojUDl9St6gB4My5tGpr2pd8fi2v2pjvyrzrzN8k17ygev
-         jKvKZZSe2jEjw==
-Date:   Thu, 13 Apr 2023 20:26:31 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Saeed Mahameed <saeedm@nvidia.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Linux regressions mailing list <regressions@lists.linux.dev>,
-        Saeed Mahameed <saeed@kernel.org>,
-        Shay Drory <shayd@nvidia.com>, netdev@vger.kernel.org,
-        selinux@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>
-Subject: Re: Potential regression/bug in net/mlx5 driver
-Message-ID: <20230413202631.7e3bd713@kernel.org>
-In-Reply-To: <ZDjCdpWcchQGNBs1@x130>
-References: <CAHC9VhTvQLa=+Ykwmr_Uhgjrc6dfi24ou=NBsACkhwZN7X4EtQ@mail.gmail.com>
-        <1c8a70fc-18cb-3da7-5240-b513bf1affb9@leemhuis.info>
-        <CAHC9VhT+=DtJ1K1CJDY4=L_RRJSGqRDvnaOdA6j9n+bF7y+36A@mail.gmail.com>
-        <20230410054605.GL182481@unreal>
-        <20230413075421.044d7046@kernel.org>
-        <CAHC9VhRKBLHfGHvFAsmcBQQEmbOxZ=M9TE4-pV70E+Y6G=uXWA@mail.gmail.com>
-        <ZDhwUYpMFvCRf1EC@x130>
-        <20230413152150.4b54d6f4@kernel.org>
-        <ZDiDbQL5ksMwaMeB@x130>
-        <20230413155139.22d3b2f4@kernel.org>
-        <ZDjCdpWcchQGNBs1@x130>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229598AbjDNNnE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Apr 2023 09:43:04 -0400
+Received: from wout4-smtp.messagingengine.com (wout4-smtp.messagingengine.com [64.147.123.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A68061BD
+        for <selinux@vger.kernel.org>; Fri, 14 Apr 2023 06:43:03 -0700 (PDT)
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id C64BB3200933;
+        Fri, 14 Apr 2023 09:43:01 -0400 (EDT)
+Received: from imap46 ([10.202.2.96])
+  by compute4.internal (MEProxy); Fri, 14 Apr 2023 09:43:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        pleasantsmoke.com; h=cc:cc:content-transfer-encoding
+        :content-type:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; t=1681479781; x=1681566181; bh=7X
+        gz7EmbbBgapXbEMQ8piQD17oAo6IfC1jKDkRvtBx8=; b=hTjU8W0u9D1tQRwLTx
+        0LXuu5EkmklybHiWs2qZaTtlwDFK8ImrTbLUVsKQur8uaALwzsQm/BQj/JBWDGPp
+        KijZUjbbr6URvqlPvrkv1q1VypN5zEmmWSNZuHuBrrkK33V6DZANov+DJQdD6wZw
+        ljAb2+jnG5+L1piwAQuh5XoES/b0JHLd7el0QFNf6bu8LGaB1jCfOQRVn5XFZRVN
+        Srm/9S2UvTm0PUQnFNtXnv0wGr2iqWbRodzZ41hXswq7a6mR/r0RyFKIQcra2js2
+        9ohLcpqmn+DKFndzU9C9OmLKn4ob1szmpU8VrCCiPsMxVOFVuSwPfEFwDP6pKTzs
+        KmkA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:content-type:date:date:feedback-id:feedback-id
+        :from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+        1681479781; x=1681566181; bh=7Xgz7EmbbBgapXbEMQ8piQD17oAo6IfC1jK
+        DkRvtBx8=; b=B12EjWgMOkw0OdtfeZLourVkkUz0Y56df4bTkO8nGhftLjAAYx0
+        Wx/FQsFrZY6DrvK2RC3quRnMBiwL7G9Rmcx7no12CDntsiuSlBZUw4PCFAjoxfMi
+        6itUQpef42fDgIvSa6hLSvT8B6nrIzorfYxkNYAU/FSHrWYP+PUhUqnAf15DyRRG
+        POAYpzLExkKymbV3nasRjCdvsEGzCCSjzP4HeUFIflZ6DDvBeZN/kqnFxJ3RiAUw
+        GPOoVcO0B1ydEi8vXPWA8W/u9yxWhzN4fYqLs/USf4R1gNdccXFtaeRBqSVxAfQw
+        y4z4Wa3ZukDzFxrHTtXz+Hm4z4Nx2kiwzzA==
+X-ME-Sender: <xms:ZVg5ZIKd641m-ymoZ6kPZ1fcBDfoLDWxHIkqZg3vw9HUtveUy7_BtA>
+    <xme:ZVg5ZIL4olTFSTg7ESd1MIRsDZO1XanKQ7W4aNTUsOQVA7Tg8U5tFvU2Ba_hEdWgT
+    bSVFJoX5nQIWmca7iY>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeltddgieejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtgfesthhqredtreerjeenucfhrhhomhepfdfl
+    ohhnrghthhgrnhcuufhtrhgruhhsshdfuceojhhohhhnsehplhgvrghsrghnthhsmhhokh
+    gvrdgtohhmqeenucggtffrrghtthgvrhhnpeektdelfeejveehgeeuudefffffieduhfek
+    leetueehudevheehkefhvddtkeefffenucffohhmrghinhepghhithhhuhgsrdgtohhmne
+    cuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepjhhohhhn
+    sehplhgvrghsrghnthhsmhhokhgvrdgtohhm
+X-ME-Proxy: <xmx:ZVg5ZIvz4D9r5UfK0qU-HH7kxV636-w9YSPcET6w8NDOY-DpiDwD9Q>
+    <xmx:ZVg5ZFYAnqCxujnYx353WJp9FVyYitefIz0nmUr1ifLn6VJ3dBb60A>
+    <xmx:ZVg5ZPYsH3eCyv_kXSwScFnuuYOnVXpr4iwUTYCbwmxopwwcn2Ttgg>
+    <xmx:ZVg5ZADXpqMmwrfWjU94btvZ4Td4FKlhufYXaRFXt0ZCrp0rIRag4Q>
+Feedback-ID: i5281472f:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 2B9332A20080; Fri, 14 Apr 2023 09:43:01 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-334-g8c072af647-fm-20230330.001-g8c072af6
+Mime-Version: 1.0
+Message-Id: <beaf2f5a-d95b-4fa9-89c5-7bc5dcbf85f2@app.fastmail.com>
+In-Reply-To: <CAJ2a_DfJUQW9Obq-8y=w6AZcK9svv4hqWrzRx3yWvSugFzaAKg@mail.gmail.com>
+References: <c58a0cc8-6453-45ca-9bfc-f041b0e7478a@app.fastmail.com>
+ <CAP+JOzR_nL0Y12hOU2gTU6=U+J4YaZsyE6TLMQWFSUi0dJ3NCA@mail.gmail.com>
+ <b0037c2a-c10c-4819-8add-14c176aed942@app.fastmail.com>
+ <CAJ2a_DfJUQW9Obq-8y=w6AZcK9svv4hqWrzRx3yWvSugFzaAKg@mail.gmail.com>
+Date:   Fri, 14 Apr 2023 09:41:56 -0400
+From:   "Jonathan Strauss" <john@pleasantsmoke.com>
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     "James Carter" <jwcart2@gmail.com>, selinux@vger.kernel.org
+Subject: Re: Possible bug in policy compilation
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 13 Apr 2023 20:03:18 -0700 Saeed Mahameed wrote:
-> On 13 Apr 15:51, Jakub Kicinski wrote:
-> >On Thu, 13 Apr 2023 15:34:21 -0700 Saeed Mahameed wrote:  
-> >> But this management connection function has the same architecture as other
-> >> "Normal" mlx5 functions, from the driver pov. The same way mlx5
-> >> doesn't care if the underlaying function is CX4/5/6 we don't care if it was
-> >> a "management function".  
-> >
-> >Yes, and that's why every single IPU implementation thinks that it's
-> >a great idea. Because it's easy to implement. But what is it for
-> >architecturally? Running what is effectively FW commands over TCP?  
-> 
-> Where did you get this idea from? maybe we got the name wrong, 
-> "management PF" is simply a minimalistic netdev PF to have eth connection
-> with the on board BMC .. 
-> 
-> I agree that the name "management PF" sounds scary, but it is not a control
-> function as you think, not at all. As the original commit message states:
-> "loopback PF designed for communication with BMC".
+Christian G=C3=B6ttsche wrote:
+> The following statements should be redundant by using init_daemon_doma=
+in():
+>   allow init_t gateway_exec_t : file { read getattr execute open } ;
+>   allow init_t gateway_t : process { transition siginh } ;
+>   type_transition init_t gateway_exec_t : process gateway_t;
+>=20
+> The fact that the domain transition is not triggering means either the
+> subject process is not labeled init_t or the entry point is not
+> labeled gateway_exec_t; search for avc messages regarding the
+> permission execute_no_trans.
+>=20
+>=20
+> [1]: https://github.com/SELinuxProject/refpolicy/blob/8e8f5e3ca3e5900c=
+ad126cb8b4fadaa8adb8caac/policy/modules/system/init.if#L343-L348
+>=20
 
-Can you draw a small diagram with the bare metal guest, IPU, and BMC?
-What's talking to what? And what packets are exchanged?
+I've spent quite a bit of time trying to recreate the situation to no av=
+ail, I think it might be conflicts with systemd and kernel security feat=
+ures as I just ran into this not starting for another service yesterday =
+with nnp and sesearch indeed contained the "allow init_t proxy_t:process=
+2 { nnp_transition nosuid_transition };"
 
-> >> But let's discuss what's wrong with it, and what are your thoughts ?
-> >> the fact that it breaks a 6 years OLD FW, doesn't make it so horrible.  
-> >
-> >Right, the breakage is a separate topic.
-> >
-> >You say 6 years old but the part is EOL, right? The part is old and
-> >stable, AFAIU the breakage stems from development work for parts which
-> >are 3 or so generations newer.
-> 
-> Officially we test only 3 GA FWs back. The fact that mlx5 is a generic CX
-> driver makes it really hard to test all the possible combinations, so we
-> need to be strict with how back we want to officially support and test old
-> generations.
+Completely uninstalling the policy and reinstalling fixed it (which is h=
+ow it was updated), I definitely missed something.
 
-Would you be able to pull the datapoints for what 3 GA FWs means 
-in case of CX4? Release number and date when it was released?
+Thank you for all the help.
 
-I understand the challenge of backward compat with a multi-gen
-driver. It's a trade off.
+- John
 
-> >The question is who's supposed to be paying the price of mlx5 being
-> >used for old and new parts? What is fair to expect from the user
-> >when the FW Paul has presumably works just fine for him?
-> >  
-> Upgrade FW when possible, it is always easier than upgrading the kernel.
-> Anyways this was a very rare FW/Arch bug, We should've exposed an
-> explicit cap for this new type of PF when we had the chance, now it's too
-> late since a proper fix will require FW and Driver upgrades and breaking
-> the current solution we have over other OSes as well.
->
-> Yes I can craft an if condition to explicitly check for chip id and FW
-> version for this corner case, which has no precedence in mlx5, but I prefer
-> to ask to upgrade FW first, and if that's an acceptable solution, I would
-> like to keep the mlx5 clean and device agnostic as much as possible.
-
-IMO you either need a fully fleshed out FW update story, with advanced
-warnings for a few releases, distributing the FW via linux-firmware or
-fwupdmgr or such.  Or deal with the corner cases in the driver :(
-
-We can get Paul to update, sure, but if he noticed so quickly the
-question remains how many people out in the wild will get affected 
-and not know what the cause is?
