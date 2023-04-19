@@ -2,171 +2,192 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74737C7EE22
-	for <selinux@archiver.kernel.org>; Wed, 19 Apr 2023 17:44:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA3A5C77B7F
+	for <selinux@archiver.kernel.org>; Wed, 19 Apr 2023 19:25:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233142AbjDSRol (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Apr 2023 13:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45322 "EHLO
+        id S230389AbjDSTZs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Apr 2023 15:25:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233143AbjDSRoi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Apr 2023 13:44:38 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BC37689
-        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 10:44:34 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id ffacd0b85a97d-2efbaad9d76so3162954f8f.0
-        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 10:44:34 -0700 (PDT)
+        with ESMTP id S229887AbjDSTZr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Apr 2023 15:25:47 -0400
+Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 387535BBA;
+        Wed, 19 Apr 2023 12:25:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares.net; s=google; t=1681926273; x=1684518273;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ROUAJ3vebc3B58gonFIlZLfyJgCy1SquuVeVRDPgo4k=;
-        b=rV1SY1HjqfZJWS95ixllED1SyOQI0mACYJ32SA6LKdtge1H/PSycfXoER6k3XdUuR/
-         K3nM9X6KUTRx04ctCucbjxNvHDcesjAfCQMxwcAW8YbNOYkp8zLOHdAnAjPWfUDHfayd
-         JGY8gduOocq1g+el6OYLsGZnf3WAAxRDecfE9i0dOjPJPEo8tbvC6eR24yuTju7IZSKD
-         3aehtu4ijyGcOwRmPHv79DHEwf1jW+AB2xHRnzOMzBsyCKb2IdWqmIvhWV03ScMtIXDm
-         pjVhOlKnEHciMSa36NihrFnbbMC/fASgJggdRQJ02QX5ZwfkfGlvq+7GPX0cEoiRTn0H
-         e6pg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681926273; x=1684518273;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ROUAJ3vebc3B58gonFIlZLfyJgCy1SquuVeVRDPgo4k=;
-        b=AUkxOQvVrN0lxVWewKFUWX+nYt9GSvKY0bU7StNwddD8QfqFQgOKlGegTWEuo8Hpae
-         qVFNt1DnKw4i8f2T+l75LYIB/+UY49qIFbvxj61UI7d3MFx/5rbqY/0mVHyAy2Kfro8g
-         0i4K0SxvLz7L4lRICXtz9mV0dxJrtUiBvhlndw0dp4/X1eBcOn14Xt2fW4PkTrWB1kkt
-         Qw47vhPUxoSfm8ys8LLKnD2qJ5+LvDgJQL4WpyX5r7gyjHv9/1L90bDkaLrfmaV9KaST
-         1SS/UdfQgvCSNpLr8yZY3VUB8+E7L67uR4XRvDHJnrEx7PydYLKumseNkAeNiJ8aPxVx
-         slHg==
-X-Gm-Message-State: AAQBX9ephH4/tBoGFgFOfp6QhqyJ46B28TbswvLiVY8E5sPaCYG4cDLA
-        WV4BHRsd1XjWNAsMxGv8tqpZvA==
-X-Google-Smtp-Source: AKy350b03Y5l3VuqIxjLj42ubMpzPeiZCCz96qX/fps7NotRYfqZdIH7jpaBCeK2CQIwst/c0gJ4Lw==
-X-Received: by 2002:a05:6000:1c8:b0:2ff:4904:c377 with SMTP id t8-20020a05600001c800b002ff4904c377mr1806523wrx.25.1681926272692;
-        Wed, 19 Apr 2023 10:44:32 -0700 (PDT)
-Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
-        by smtp.gmail.com with ESMTPSA id o18-20020a5d4092000000b002fe87e0706bsm3027879wrp.97.2023.04.19.10.44.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Apr 2023 10:44:32 -0700 (PDT)
-From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-Date:   Wed, 19 Apr 2023 19:44:05 +0200
-Subject: [PATCH LSM 2/2] selinux: Implement mptcp_add_subflow hook
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1681932340; x=1713468340;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=SsYQyINsS1Fk4lVA4C/fRqc9lh6pGxoW0r4tOSla9cU=;
+  b=XrnsG0+RtLL63yP7qQ4MRLL2cN2IvQusmgEI+sKdrqt0x5S/6v0aMuKf
+   CPS7fLS74VXiLf2TCePdYTIy/bOpSzncmDV3EmsEQdlYRRzrn62ZZV1Kb
+   PJABhafS0BHzigVlvfTDeyWTnY6+nnqtKw9i+uy3Ws6NmG4aIJL07TJs2
+   I=;
+X-IronPort-AV: E=Sophos;i="5.99,210,1677542400"; 
+   d="scan'208";a="1124137496"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1e-m6i4x-9694bb9e.us-east-1.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Apr 2023 19:25:36 +0000
+Received: from EX19MTAUWB002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1e-m6i4x-9694bb9e.us-east-1.amazon.com (Postfix) with ESMTPS id 5FDA8818D0;
+        Wed, 19 Apr 2023 19:25:30 +0000 (UTC)
+Received: from EX19D028UWA002.ant.amazon.com (10.13.138.248) by
+ EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.25; Wed, 19 Apr 2023 19:25:29 +0000
+Received: from uda95858fd22f53.ant.amazon.com (10.106.101.53) by
+ EX19D028UWA002.ant.amazon.com (10.13.138.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.26;
+ Wed, 19 Apr 2023 19:25:27 +0000
+From:   Mengchi Cheng <mengcc@amazon.com>
+To:     <roberto.sassu@huaweicloud.com>
+CC:     <bpf@vger.kernel.org>, <casey@schaufler-ca.com>,
+        <dmitry.kasatkin@gmail.com>, <eparis@parisplace.org>,
+        <jmorris@namei.org>, <kamatam@amazon.com>, <keescook@chromium.org>,
+        <kpsingh@kernel.org>, <linux-integrity@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-unionfs@vger.kernel.org>, <mengcc@amazon.com>,
+        <miklos@szeredi.hu>, <nicolas.bouchinet@clip-os.org>,
+        <paul@paul-moore.com>, <reiserfs-devel@vger.kernel.org>,
+        <roberto.sassu@huawei.com>, <selinux@vger.kernel.org>,
+        <serge@hallyn.com>, <stephen.smalley.work@gmail.com>,
+        <yoonjaeh@amazon.com>, <zohar@linux.ibm.com>
+Subject: Re: [PATCH] Smack modifications for: security: Allow all LSMs to provide xattrs for inode_init_security hook
+Date:   Wed, 19 Apr 2023 12:25:16 -0700
+Message-ID: <20230419192516.757220-1-mengcc@amazon.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <0fccab67e496f10f4ee7bf2220e70a655013935f.camel@huaweicloud.com>
+References: <0fccab67e496f10f4ee7bf2220e70a655013935f.camel@huaweicloud.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-2-9d4064cb0075@tessares.net>
-References: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
-In-Reply-To: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
-To:     Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>, mptcp@lists.linux.dev,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>
-X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2936;
- i=matthieu.baerts@tessares.net; h=from:subject:message-id;
- bh=mqr2BGqHqewUUPR1OCVjrPaTiiM4zt6T6l/x3JibBwM=;
- b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBkQCh9Ojvp++qr8MSZ7mbE4nq4WiFrlXM05/A7K
- yVFNIdEH6iJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCZEAofQAKCRD2t4JPQmmg
- c9LJD/4s7Mgv6rEvplVwimrhxteV4tT/cc+JAKks+NedETm2aWSdjhgSwxJaxoS4sdYz4HOu8x6
- wG+Gt3I6TOCxlYGI+2AGOpJ7dDN0XJO+hmOsIo7LY+el7LC64eSLZgSeq4kN3pKFT48zS5bdjjE
- fRMekhhhIp9+foseeTlMcY+Swdghpg2EphVcY4zJSNaJ3rxai900o8F5ey2MTO9VIW98pPhAQ+J
- aKUOSviER5SnJ+QlTvxXGdlHAr05NpOCv/NzFzpAhDuiEu8fXqO61br7PHDG2wF7CP0bOJ8X1cy
- uw9PcQhaqPMIo+rZx7QdD9xjPYndmrNS3XX3DmM2fnTkomvg0EJ+givdU8oiYgYY/Bx+0riSGBf
- k8WJUe23qyfvKoluqcO6KjsgmS7kVU2hYB9jGiGgEWb9FxryGSZMRLn9ysV+Lg0OtO8A0l1RBEx
- iuCin6uQxQMZsCtUDOsjteDr7lq+DcfgreakHSfRPqvPlcE/gurYM9LGtI9fltkryVy7f6kBHTB
- cURGSeQDof0R858t1Z5S0AKQ1vmLtHoBMIcKCwwcWlWiSL1xu3ptTFyiuXjNn+y6X0155MvM7WU
- EXer4DIlV5ZGy4vmWOWUbS2LHdlI+pPnpR6XB1P3SLhnaCaX3SLOVcxcDBzehO0Kg0IvI8/wnHt
- Iw+9Ay7f8DP3vdg==
-X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
- fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.106.101.53]
+X-ClientProxiedBy: EX19D035UWA001.ant.amazon.com (10.13.139.101) To
+ EX19D028UWA002.ant.amazon.com (10.13.138.248)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+> 
+> I got some errors during xattr removal, so not sure if my patch was
+> working properly or not (it happened also without it, didn't
+> investigate more).
+> 
+> However, I saw another discussion related to transmute:
+> 
+> https://lore.kernel.org/linux-security-module/20230419002338.566487-1-mengcc@amazon.com/
+> 
+> I add the people in CC.
+> 
+> The steps described were so easy to understand and executed, I tried
+> without and with overlayfs.
+> 
+> Without:
+> 
+> # echo "_ system rwxatl" > /sys/fs/smackfs/load2
+> # mkdir /data
+> # chsmack -a "system" /data
+> # chsmack -t /data
+> # mkdir -p /data/dir1/dir2
+> # chsmack /data/dir1
+> /data/dir1 access="system" transmute="TRUE"
+> # chsmack /data/dir1/dir2
+> /data/dir1/dir2 access="system" transmute="TRUE"
+> 
+> It seems to work, right?
+> 
+> With overlay fs it didn't work, same result as the one Mengchi
+> reported. Since Mengchi's solution was to set SMK_INODE_CHANGED, and I
+> want to get rid of it, I thought to investigate more.
+> 
+> Looking at smack_dentry_create_files_as(), I see that the label of the
+> process is overwritten with the label of the transmuting directory.
+> 
+> That causes smack_inode_init_security() to lookup the transmuting rule
+> on the overridden credential, and not on the original one.
+> 
+> In the example above, it means that, when overlayfs is creating the new
+> inode, the label of the process is system, not _. So no transmute
+> permission, and also the xattr will not be added, as observed by
+> Mengchi.
+> 
+> Hopefully I undertood the code, so in this particular case we would not
+> need to override the label of the process in smack_dentry_create_files_
+> as().
+> 
+> If you see smack_inode_init_security():
+> 
+> 	struct smack_known *skp = smk_of_current();
+> 	struct smack_known *isp = smk_of_inode(inode);
+> 	struct smack_known *dsp = smk_of_inode(dir);
+> 
+> [...]
+> 
+> 		if (may > 0 && ((may & MAY_TRANSMUTE) != 0) &&
+> 		    smk_inode_transmutable(dir)) {
+> 			isp = dsp;
+> [...]
+> 
+> 		xattr->value = kstrdup(isp->smk_known, GFP_NOFS);
+> 
+> This code is telling, if there is a transmute rule, and the directory
+> is transmuting, set the label of the new inode to the label of the
+> directory. That should be already the result that we wanted to obtain.
+> 
+> The current code should have been doing it by overriding the label of
+> the process in smack_dentry_create_files_as() with the label of the
+> parent directory, and letting the inode being created with the
+> overridden label of the process. The transmute xattr is not set due to
+> the problem described above.
+> 
+> So, as a quick test, I kept this patch with the change to xattr2->name, 
+> and skipped the label override in smack_dentry_create_files_as(). It
+> worked, I get the same result as without overlayfs. Wondering if the
+> process label override is necessary in other cases.
 
-Newly added subflows should inherit the LSM label from the associated
-msk socket regarless current context.
+If I understand correctly, removing the if block below is what you suggested.
 
-This patch implements the above copying sid and class from the msk
-context, deleting the existing subflow label, if any, and then
-re-creating a new one.
-
-The new helper reuses the selinux_netlbl_sk_security_free() function,
-and the latter can end-up being called multiple times with the same
-argument; we additionally need to make it idempotent.
-
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
----
- security/selinux/hooks.c    | 16 ++++++++++++++++
- security/selinux/netlabel.c |  8 ++++++--
- 2 files changed, 22 insertions(+), 2 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9a5bdfc21314..53cfc1cb67d2 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5476,6 +5476,21 @@ static void selinux_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk
- 	selinux_netlbl_sctp_sk_clone(sk, newsk);
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index cfcbb748da25..a867288e9de9 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4769,8 +4769,8 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
+                 * providing access is transmuting use the containing
+                 * directory label instead of the process label.
+                 */
+-               if (may > 0 && (may & MAY_TRANSMUTE))
+-                       ntsp->smk_task = isp->smk_inode;
++//             if (may > 0 && (may & MAY_TRANSMUTE))
++//                     ntsp->smk_task = isp->smk_inode;
+        }
+        return 0;
  }
- 
-+static int selinux_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-+{
-+	struct sk_security_struct *ssksec = ssk->sk_security;
-+	struct sk_security_struct *sksec = sk->sk_security;
-+
-+	ssksec->sclass = sksec->sclass;
-+	ssksec->sid = sksec->sid;
-+
-+	/* replace the existing subflow label deleting the existing one
-+	 * and re-recrating a new label using the current context
-+	 */
-+	selinux_netlbl_sk_security_free(ssksec);
-+	return selinux_netlbl_socket_post_create(ssk, ssk->sk_family);
-+}
-+
- static int selinux_inet_conn_request(const struct sock *sk, struct sk_buff *skb,
- 				     struct request_sock *req)
- {
-@@ -7216,6 +7231,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(sctp_sk_clone, selinux_sctp_sk_clone),
- 	LSM_HOOK_INIT(sctp_bind_connect, selinux_sctp_bind_connect),
- 	LSM_HOOK_INIT(sctp_assoc_established, selinux_sctp_assoc_established),
-+	LSM_HOOK_INIT(mptcp_add_subflow, selinux_mptcp_add_subflow),
- 	LSM_HOOK_INIT(inet_conn_request, selinux_inet_conn_request),
- 	LSM_HOOK_INIT(inet_csk_clone, selinux_inet_csk_clone),
- 	LSM_HOOK_INIT(inet_conn_established, selinux_inet_conn_established),
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 1321f15799e2..33187e38def7 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -155,8 +155,12 @@ void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error, int gateway)
-  */
- void selinux_netlbl_sk_security_free(struct sk_security_struct *sksec)
- {
--	if (sksec->nlbl_secattr != NULL)
--		netlbl_secattr_free(sksec->nlbl_secattr);
-+	if (!sksec->nlbl_secattr)
-+		return;
-+
-+	netlbl_secattr_free(sksec->nlbl_secattr);
-+	sksec->nlbl_secattr = NULL;
-+	sksec->nlbl_state = NLBL_UNSET;
- }
- 
- /**
 
--- 
-2.39.2
+This way will have issue in the following situation on the vanila kernel.
+data in the lowerdir has "_" label before overlay and dir1 is already
+created in the lowerdir.
+# chsmack /data
+/data access="_"
+# chsmack /data/dir1
+/data/dir1 access="system" transmute="TRUE"
+Apply overlay on data directory and set the smack rule in the same way.
+data has the same smack label.
+# chsmack /data
+/data access="system" transmute="TRUE"
+After that, remove dir1 and mkdir dir1 again. dir1 did not get the correct
+label.
+# rm -r /data/dir1
+# mkdir -p /data/dir1
+# chsmack /data/dir1
+/data/dir1 access="_"
 
+Since I am not very familiar your change. Could you help check with your
+patch will this issue also happen? 
+
+
+Best,
+Mengchi
+
+>  
+> Roberto
