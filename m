@@ -2,169 +2,210 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98326C77B75
-	for <selinux@archiver.kernel.org>; Wed, 19 Apr 2023 14:38:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C79CC7EE21
+	for <selinux@archiver.kernel.org>; Wed, 19 Apr 2023 17:44:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233298AbjDSOit (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Apr 2023 10:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39274 "EHLO
+        id S232644AbjDSRok (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Apr 2023 13:44:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233293AbjDSOip (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Apr 2023 10:38:45 -0400
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C51901D
-        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 07:38:40 -0700 (PDT)
-Received: by mail-yb1-xb2e.google.com with SMTP id o11so12864930ybk.11
-        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 07:38:40 -0700 (PDT)
+        with ESMTP id S233142AbjDSRoi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Apr 2023 13:44:38 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC377684
+        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 10:44:33 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-3f17edbc15eso353175e9.3
+        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 10:44:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1681915120; x=1684507120;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fWZiMALMH89i7PDBcLl9ZeqJbldqh6JjZ32NtRW6De4=;
-        b=LQN4aCOqoHQ5A0XxtIiHiweiMtxVPWBLvrXNdIl/cTWwf0SCEDWxa5DtjLN5b0TV0b
-         pqweuMH6UWw3sANhI2F9HIF3EqYZivxt5L57nmH365GJ9Ngtnjy/C+cfy3U/9cc/ej0d
-         lK0TAHQT1xBmSO80pIojRmzPa6Iaxsctu0wnpC9zX8wIpZM0lGsIx+qkSxsHf5YnVw/3
-         kNdwdnoEy9auCi7Ib1PuezR6J2Djb7+mawoXuzRMjRfLTELeh0o7Rawec08WY7tiXPV7
-         Io7koP2QS0TNmmsZ4i4wnYWbZ7Nda5sOYWMm+mtC0yVEQKAydo6G019+TMJVpgAgt+9E
-         xctQ==
+        d=tessares.net; s=google; t=1681926271; x=1684518271;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9RbIwTqRb0BDbnwq8YaxJ333m+AcgTDfn8Ja+ySsZ+Q=;
+        b=suVtm7MgYycUt3Fu5QA/59FP2JJaRuXf2BK9rn6LghytcioCuAsQFkuUW9VBzDJbEd
+         lNI0Qv3RB4pAw72J+1UNm/9PtDOpay6XEXbcjO0t/hdiGOY4LHikTS2caNfv4zW00JK7
+         V48Rv2ApL6wcDb7haKa/uYEB0k97ppGi8Byu/9zB4YtCCTtLQngt+B3A6YyYKCtioRD2
+         SLnR6hpmQ76QmjZYHgOPabUWd0X1NONEGJVtXp0EJPTQmD75iwIzXchHwcdNXwEYv24X
+         1vvl+p8QK3Avo70JGjdVK/NzUx8OCDQqG+bxKYw0m3vXawWCSzfQofZ3unIeIyXgTykW
+         M+pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681915120; x=1684507120;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1681926271; x=1684518271;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fWZiMALMH89i7PDBcLl9ZeqJbldqh6JjZ32NtRW6De4=;
-        b=c4Y42aGVuG8fiDA7NmDfNE23TsTIr/nYIaA1zGqMPOw9W5xGyd16JJrsn2kkP3VffC
-         bYqrzuoCU94IQOGSS9CsUKpUr+D0JQ7Y5JGc3IdWELdLyvj/2rAUI+ai71RcmM40GFll
-         fH3XrByqcc2GssZS0hrGf6/IuoJ4+6g8uTBvx3fXnGIb+2TmkjkROvstZ+q5aaE9b+/m
-         LGAN7rdUalFl7e+FJqVwhnWAlzCrtG5wRp8ME1ND9t6JCcQ2oOd7NBkVP/vQ+jtQRtS6
-         x2ZAXTW8JRynJbmBA5/sj7/IdQHGRvvOxn0hn8yIGdZnhRF4j0Y9xDTzFxYdDzznkuun
-         a5Zw==
-X-Gm-Message-State: AAQBX9f3LiYEGsvvJDkFAlCdsCWa0E4zxp5cFy8VGGjtuqnMqZWRDHEL
-        4CwtkhIfOOgIwDny+RMEA79FbNyEBneBDgCu0CJ4
-X-Google-Smtp-Source: AKy350Z4qMNIiRgB/vcByC5+mNU91yN6YSfmxnRnim0l4y4Smf7s0LYagf+ZnWYtLR5cTFGYaT3phWDJ7z6zjqPa6EI=
-X-Received: by 2002:a25:aea2:0:b0:b8f:523f:3d02 with SMTP id
- b34-20020a25aea2000000b00b8f523f3d02mr21147135ybj.21.1681915119903; Wed, 19
- Apr 2023 07:38:39 -0700 (PDT)
+        bh=9RbIwTqRb0BDbnwq8YaxJ333m+AcgTDfn8Ja+ySsZ+Q=;
+        b=L8xOX1zAEiYdAzP4iPmuZSBn+qgotxmfAH7vE6/o4EtETJIXsedcUP0kNwOvzWgVB9
+         sqgRwh/uD93IYt/cS+vZ6sCpbFhhNopd+wzrWH+fCOBQG/4EQ9OWkjwgZbcn2XzgWcYD
+         K3jLsRFf4PGQJeUFCqBuSA9h5lB3aR10USQQZmAcq6w4VP4J5M67lTEzWQVAcJiDvGfy
+         CZeHRm+3Qx9y++Lv8fbXU1Swa+9Wx0Rcuh3a6X+uiP7ZJ0l4CLknulq1kx2gqYDfSCB2
+         ESsTy3uSrx6qnldt7bvjGexr4iW56gzMtfCgeBgChBb1HGzH1Bbg99dXeNy73K4UKP8Q
+         liRg==
+X-Gm-Message-State: AAQBX9fBT1cNf4bjIvBzg7aas8lo3JbYag7ASFqAnjb44aOwaiKIZtlY
+        Mn8MRm+iE9biokNkHqik4yEyPA==
+X-Google-Smtp-Source: AKy350ZsBR/rG8NHy6xl33yYUblYRCRtrbFQZIKTbB2C9q68PjffYkmfWsDbBim4BfUCGaEc+2Fraw==
+X-Received: by 2002:adf:e688:0:b0:2fb:f93f:b96 with SMTP id r8-20020adfe688000000b002fbf93f0b96mr5159967wrm.31.1681926271574;
+        Wed, 19 Apr 2023 10:44:31 -0700 (PDT)
+Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
+        by smtp.gmail.com with ESMTPSA id o18-20020a5d4092000000b002fe87e0706bsm3027879wrp.97.2023.04.19.10.44.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Apr 2023 10:44:31 -0700 (PDT)
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+Date:   Wed, 19 Apr 2023 19:44:04 +0200
+Subject: [PATCH LSM 1/2] security, lsm: Introduce
+ security_mptcp_add_subflow()
 MIME-Version: 1.0
-References: <20230418210230.3495922-1-longman@redhat.com> <20230418141852.75e551e57e97f4b522957c5c@linux-foundation.org>
- <6c3c68b1-c4d4-dd82-58e8-f7013fb6c8e5@redhat.com> <cffc7454-614-1939-f235-7b139dc46b41@google.com>
- <22aee5ea-dd6b-ac2b-0b28-a25ee6602b48@redhat.com> <ZD9e7A4gaZ6qkGhy@casper.infradead.org>
-In-Reply-To: <ZD9e7A4gaZ6qkGhy@casper.infradead.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 19 Apr 2023 10:38:29 -0400
-Message-ID: <CAHC9VhTcVzth0N+tTj_HHCPfHnp+-MfWkj+Ft2Uk4xMncDL9HA@mail.gmail.com>
-Subject: Re: [PATCH] mm/mmap: Map MAP_STACK to VM_STACK
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Waiman Long <longman@redhat.com>, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, Joe Mario <jmario@redhat.com>,
-        Barry Marson <bmarson@redhat.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        James Morris <jmorris@namei.org>,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-1-9d4064cb0075@tessares.net>
+References: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
+In-Reply-To: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
+To:     Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, mptcp@lists.linux.dev,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4147;
+ i=matthieu.baerts@tessares.net; h=from:subject:message-id;
+ bh=ImEO6jhjyTkNStj63VHfS9Fa8J/JaMOk/HAY9HrkSs8=;
+ b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBkQCh9B3Q/tK29huTRfn80vFL4Qelr+A0+fhoMw
+ 1w1X6DnbVGJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCZEAofQAKCRD2t4JPQmmg
+ c1ToD/4op14xnZbmNIFBWh1PT+MnRYeBRoLHSUX4MyRze6NzRUnFd3wdNDqBEq9+dorFoeg6ydC
+ mpLldYd+FDZq1ngzAkg0ZvgVgFEA+WcpqjYk4iegbkQY+4xKW0cu8NY336bbR1ecvQ1m9k+OpvU
+ sV72MtDizAw11irqLp0leoPgd1xuUyu/Adm9GZ8gcFv9RNWw61nNm5rmYM1TaLZesBySHyqLKEX
+ XbC050oI2AOrlMroQx5OU0O/aIuyUWclATrS2q7EcgbD/paYmiXvSK4mn/AiFLBkBJsuo+t/kGD
+ gQKiyZNqWSh+/jQ5KS4m1QsQAqUuRqbEbFjZZPZvEfK114xuKCwVdUNllin3QEm32JHTYWFeN4H
+ A86k2I5H4pIcMIHBxMvRcIOo4jpoTyohVgvNWgetgcwH1KC4YtaN6s8iwNSXe9dVBcMyAiA9wjV
+ ceY6wH1Mrsrbt/p/YrJec0hxpUuCH8oFZRHMaVV98N36SSLcfLUr6PpsFLIOww6531pJb52/fId
+ DH1AE7jeDQ4EHkqiTZ1Gjs37/IkS1pFBGs9mTGjlloCcrAU0HpKvFSDDZfuog7F1lhrgkgwG6pQ
+ UXhls5pgeB86jNIgGEPlK+hubj6LRu72BGpgTk6BCaTsa/3fCOiepTPi/iTzwfUl5tghbPZZwJb
+ bmTxgWmL+QlF3Ug==
+X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
+ fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 18, 2023 at 11:24=E2=80=AFPM Matthew Wilcox <willy@infradead.or=
-g> wrote:
-> On Tue, Apr 18, 2023 at 09:45:34PM -0400, Waiman Long wrote:
-> > On 4/18/23 21:36, Hugh Dickins wrote:
-> > > On Tue, 18 Apr 2023, Waiman Long wrote:
-> > > > On 4/18/23 17:18, Andrew Morton wrote:
-> > > > > On Tue, 18 Apr 2023 17:02:30 -0400 Waiman Long <longman@redhat.co=
-m> wrote:
-> > > > >
-> > > > > > One of the flags of mmap(2) is MAP_STACK to request a memory se=
-gment
-> > > > > > suitable for a process or thread stack. The kernel currently ig=
-nores
-> > > > > > this flags. Glibc uses MAP_STACK when mmapping a thread stack. =
-However,
-> > > > > > selinux has an execstack check in selinux_file_mprotect() which=
- disallows
-> > > > > > a stack VMA to be made executable.
-> > > > > >
-> > > > > > Since MAP_STACK is a noop, it is possible for a stack VMA to be=
- merged
-> > > > > > with an adjacent anonymous VMA. With that merging, using mprote=
-ct(2)
-> > > > > > to change a part of the merged anonymous VMA to make it executa=
-ble may
-> > > > > > fail. This can lead to sporadic failure of applications that ne=
-ed to
-> > > > > > make those changes.
-> > > > > "Sporadic failure of applications" sounds quite serious.  Can you
-> > > > > provide more details?
-> > > > The problem boils down to the fact that it is possible for user cod=
-e to mmap a
-> > > > region of memory and then for the kernel to merge the VMA for that =
-memory with
-> > > > the VMA for one of the application's thread stacks. This is causing=
- random
-> > > > SEGVs with one of our large customer application.
-> > > >
-> > > > At a high level, this is what's happening:
-> > > >
-> > > >   1) App runs creating lots of threads.
-> > > >   2) It mmap's 256K pages of anonymous memory.
-> > > >   3) It writes executable code to that memory.
-> > > >   4) It calls mprotect() with PROT_EXEC on that memory so
-> > > >      it can subsequently execute the code.
-> > > >
-> > > > The above mprotect() will fail if the mmap'd region's VMA gets merg=
-ed with the
-> > > > VMA for one of the thread stacks.  That's because the default RHEL =
-SELinux
-> > > > policy is to not allow executable stacks.
-> > > Then wouldn't the bug be at the SELinux end?  VMAs may have been merg=
-ed
-> > > already, but the mprotect() with PROT_EXEC of the good non-stack rang=
-e
-> > > will then split that area off from the stack again - maybe the SELinu=
-x
-> > > check does not understand that must happen?
-> >
-> > The SELinux check is done per VMA, not a region within a VMA. After VMA
-> > merging, SELinux is probably not able to determine which part of a VMA =
-is a
-> > stack unless we keep that information somewhere and provide an API for
-> > SELinux to query. That can be quite a lot of work. So the easiest way t=
-o
-> > prevent this problem is to avoid merging a stack VMA with a regular
-> > anonymous VMA.
->
-> To paraphrase you, "Yes, SELinux is buggy, but we don't want to fix it".
->
-> Cc'ing the SELinux people so it can be fixed properly.
+From: Paolo Abeni <pabeni@redhat.com>
 
-SELinux needs some way to determine what memory region is currently
-being used by an application's stacks.  The current logic can be found
-in selinux_file_mprotect(), the relevant snippet is below:
+MPTCP can create subflows in kernel context, and later indirectly
+expose them to user-space, via the owning mptcp socket.
 
-int selinux_file_mprotect(struct vm_area_struct *vma, ...)
-{
-  ...
-  } else if (!vma->vm_file &&
-    ((vma->vm_start <=3D vma->vm_mm->start_stack &&
-      vma->vm_end >=3D vma->vm_mm->start_stack) ||
-    vma_is_stack_for_current(vma))) {
-      rc =3D avc_has_perm(&selinux_state,
-                        sid, sid, SECCLASS_PROCESS,
-                        PROCESS__EXECSTACK, NULL);
+As discussed in the reported link, the above causes unexpected failures
+for server, MPTCP-enabled applications.
+
+Let's introduce a new LSM hook to allow the security module to relabel
+the subflow according to the owing process.
+
+Note that the new hook requires both the mptcp socket and the new
+subflow. This could allow future extensions, e.g. explicitly validating
+the mptcp <-> subflow linkage.
+
+Link: https://lore.kernel.org/mptcp/CAHC9VhTNh-YwiyTds=P1e3rixEDqbRTFj22bpya=+qJqfcaMfg@mail.gmail.com/
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+---
+ include/linux/lsm_hook_defs.h |  1 +
+ include/linux/security.h      |  6 ++++++
+ net/mptcp/subflow.c           |  6 ++++++
+ security/security.c           | 15 +++++++++++++++
+ 4 files changed, 28 insertions(+)
+
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 6bb55e61e8e8..7308a1a7599b 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -343,6 +343,7 @@ LSM_HOOK(void, LSM_RET_VOID, sctp_sk_clone, struct sctp_association *asoc,
+ 	 struct sock *sk, struct sock *newsk)
+ LSM_HOOK(int, 0, sctp_assoc_established, struct sctp_association *asoc,
+ 	 struct sk_buff *skb)
++LSM_HOOK(int, 0, mptcp_add_subflow, struct sock *sk, struct sock *ssk)
+ #endif /* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/include/linux/security.h b/include/linux/security.h
+index cd23221ce9e6..80a0b37a9f26 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1465,6 +1465,7 @@ void security_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk,
+ 			    struct sock *newsk);
+ int security_sctp_assoc_established(struct sctp_association *asoc,
+ 				    struct sk_buff *skb);
++int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk);
+ 
+ #else	/* CONFIG_SECURITY_NETWORK */
+ static inline int security_unix_stream_connect(struct sock *sock,
+@@ -1692,6 +1693,11 @@ static inline int security_sctp_assoc_established(struct sctp_association *asoc,
+ {
+ 	return 0;
  }
-  ...
-}
++
++static inline int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
++{
++	return 0;
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 4ae1a7304cf0..d361749cabff 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1692,6 +1692,10 @@ int mptcp_subflow_create_socket(struct sock *sk, unsigned short family,
+ 
+ 	lock_sock_nested(sf->sk, SINGLE_DEPTH_NESTING);
+ 
++	err = security_mptcp_add_subflow(sk, sf->sk);
++	if (err)
++		goto release_ssk;
++
+ 	/* the newly created socket has to be in the same cgroup as its parent */
+ 	mptcp_attach_cgroup(sk, sf->sk);
+ 
+@@ -1704,6 +1708,8 @@ int mptcp_subflow_create_socket(struct sock *sk, unsigned short family,
+ 	get_net_track(net, &sf->sk->ns_tracker, GFP_KERNEL);
+ 	sock_inuse_add(net, 1);
+ 	err = tcp_set_ulp(sf->sk, "mptcp");
++
++release_ssk:
+ 	release_sock(sf->sk);
+ 
+ 	if (err) {
+diff --git a/security/security.c b/security/security.c
+index f4170efcddda..24cf2644a4b9 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -4667,6 +4667,21 @@ int security_sctp_assoc_established(struct sctp_association *asoc,
+ }
+ EXPORT_SYMBOL(security_sctp_assoc_established);
+ 
++/**
++ * security_mptcp_add_subflow() - Inherit the LSM label from the MPTCP socket
++ * @sk: the owning MPTCP socket
++ * @ssk: the new subflow
++ *
++ * Update the labeling for the given MPTCP subflow, to match the one of the
++ * owning MPTCP socket.
++ *
++ * Return: Returns 0 on success or a negative error code on failure.
++ */
++int security_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
++{
++	return call_int_hook(mptcp_add_subflow, 0, sk, ssk);
++}
++
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
 
-If someone has a better, more foolproof way to determine an
-application's stack please let us know, or better yet submit a patch
-:)
+-- 
+2.39.2
 
---=20
-paul-moore.com
