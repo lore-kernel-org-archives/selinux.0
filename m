@@ -2,135 +2,313 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E946C77B73
-	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 10:46:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C001CC77B73
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 12:58:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235030AbjDTKqG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Apr 2023 06:46:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56686 "EHLO
+        id S229668AbjDTM6M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Apr 2023 08:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233846AbjDTKpi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 06:45:38 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B525FE9;
-        Thu, 20 Apr 2023 03:44:52 -0700 (PDT)
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 33K9OBMs020332;
-        Thu, 20 Apr 2023 10:44:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=JiP4gaodXYE5HqdkzObSDp1lyfjXWhoq3PMYmdlsmkI=;
- b=UBmdFr4z5vi+OCGrGzJRjVwynCNjsEGshJFbizog0JX6dFd5v2HW268zR2hdJBQPzpvp
- ufTkv58EVnf+uOpHegmGYYQAzjMsGBkagych/iPTha7NP0hhb74J7KA0qGxfesXj5QkJ
- 4TRMC0gfKBJHThcQ9Tx010WFKYjiaHeoBG4ObjtTDh+iPEDJ6Jw/ft1L7rtE37UoXnQc
- bAdTfvZ0ys4BPwWfpevCR+Qv2n5/AKgyVg9651yvrobAyWQzOr3eu+TPpVFeLVCau3xZ
- 3jC5J/CXudsZ6QttEToqLklqNaf7/kMVX+V/rg6Aa7LWC54aCx8RpSXaSSOscsWZZfGu 1A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q32qvtpwk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Apr 2023 10:44:07 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33KAW1vP031769;
-        Thu, 20 Apr 2023 10:44:06 GMT
-Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3q32qvtpve-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Apr 2023 10:44:06 +0000
-Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
-        by ppma03wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 33K97YPM010080;
-        Thu, 20 Apr 2023 10:44:04 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([9.208.129.119])
-        by ppma03wdc.us.ibm.com (PPS) with ESMTPS id 3pykj7krdf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 20 Apr 2023 10:44:04 +0000
-Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 33KAi3SO12452206
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 20 Apr 2023 10:44:03 GMT
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 25B0158045;
-        Thu, 20 Apr 2023 10:44:03 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id DC4F958052;
-        Thu, 20 Apr 2023 10:44:00 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.163.16.65])
-        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-        Thu, 20 Apr 2023 10:44:00 +0000 (GMT)
-Message-ID: <97849695ef53ab3186e59d8a2c6b74812f13ee19.camel@linux.ibm.com>
-Subject: Re: [PATCH] Smack modifications for: security: Allow all LSMs to
- provide xattrs for inode_init_security hook
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mengchi Cheng <mengcc@amazon.com>, miklos@szeredi.hu,
-        linux-unionfs@vger.kernel.org, kamatam@amazon.com,
-        yoonjaeh@amazon.com
-Date:   Thu, 20 Apr 2023 06:44:00 -0400
-In-Reply-To: <a98ddf946c474a3500bdcd72766c6cb0043278ff.camel@huaweicloud.com>
-References: <c7f38789-fe47-8289-e73a-4d07fbaf791d@schaufler-ca.com>
-         <20230411172337.340518-1-roberto.sassu@huaweicloud.com>
-         <2dc6486f-ce9b-f171-14fe-48a90386e1b7@schaufler-ca.com>
-         <8e7705972a0f306922d8bc4893cf940e319abb19.camel@huaweicloud.com>
-         <72b46d0f-75c7-ac18-4984-2bf1d6dad352@schaufler-ca.com>
-         <82ee6ddf66bb34470aa7b591df4d70783fdb2422.camel@huaweicloud.com>
-         <91f05dc4-a4b7-b40a-ba1a-0ccc489c84b2@schaufler-ca.com>
-         <5c50d98f1e5745c88270ae4ad3de6d9a803db4c6.camel@huaweicloud.com>
-         <48c6073f-59b0-f5d1-532e-fe4b912b939d@schaufler-ca.com>
-         <0fccab67e496f10f4ee7bf2220e70a655013935f.camel@huaweicloud.com>
-         <c16dd895-f488-241d-0be8-e56e5f0c1adb@schaufler-ca.com>
-         <a98ddf946c474a3500bdcd72766c6cb0043278ff.camel@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YMT3HG0ZS9vIkqH-n2uqmA3l0ZvnTJcF
-X-Proofpoint-ORIG-GUID: HmNKNdJGFNLBRcpC25uuB5H0hmVx9xdl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-04-20_06,2023-04-20_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 mlxlogscore=860
- clxscore=1011 bulkscore=0 impostorscore=0 adultscore=0 suspectscore=0
- priorityscore=1501 malwarescore=0 mlxscore=0 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303200000 definitions=main-2304200085
+        with ESMTP id S229521AbjDTM6K (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 08:58:10 -0400
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23ED21B9
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 05:58:08 -0700 (PDT)
+Received: by mail-qk1-x72f.google.com with SMTP id af79cd13be357-74e19dcf217so32371085a.2
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 05:58:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1681995487; x=1684587487;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DL1VGdOjmK08RtAiKgjYYWfxfzo6g6KGVCEZUQTl/bI=;
+        b=kK6yW2ivvzcJw5ZeyPoWYR5UqsBFQR5hEW3/D/DGItFKkmlIuqXeHlhYLkHyb98ZJU
+         oz0+it2PXc7XbuQ/Z8gyqG+akvS6MGb3OG3SA1vagZZpPtcdFotj9xzTrJ6Z8p9Isy3o
+         X2gK/lIvlJ0XhHPXEnaA1ixeU/Fw+/uVaFAM/zn8heiHqPGyweC+4G8Xoc6gOoKShbEj
+         gfh96XBegRhoLVlQuCpyXptxOtDzxIkUz/Ypy8uLqYUnNLebVt08iMt3kHbgblwJXa1u
+         hC1cDSDN6MrJPRq0xYNa95poWLi4nW1DsfCMewizIM+9FQXjYTfQtcTx8NoBUvPX1Q4Z
+         wCDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1681995487; x=1684587487;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=DL1VGdOjmK08RtAiKgjYYWfxfzo6g6KGVCEZUQTl/bI=;
+        b=hdyb7dAKcnr99AS1HyoT70QDx2qYMeRdc5UjzBwuosYHFF+ggJVWgqJl4q7MbPwdCZ
+         oGNgNrP5dxq0GeEulNF+56/LjH/JOECuqbacu1ELkXLZ9JUdd8jZGzsUPPHpItJR394k
+         UNuvtTaH89Yp9rTZsGhJ3t/r60/+2YR5M92Dtx1zFyVC9pRzqamJHSFxV7cyPLB6Jd4k
+         I00xa7WqVX3tj5wwhpkGQ8Ej0U2xJ9cbS+2Escp/UkCQXL3Ev52Rwr2qF62uUA7dZkdl
+         UE82ULFPofxRQMPY9ZMBBiikB0JyHxOU51iivCe5p+Cz1NQj/jKl3FJJ2dzOxmtEknBQ
+         MrMg==
+X-Gm-Message-State: AAQBX9dcKJOK6rAYlHMYzb+DBDIEeNxPBnXtG7HF1fgcSqu6ierKk09U
+        s233D7EBhJxvrMuI4ekPHzeNqlnij/o=
+X-Google-Smtp-Source: AKy350b/1KUXzy+hKXZH9e0WxLJkWbJwbTicnb7yXmC3k8y+bNzrag/PYTXwQSLKAObKmt4/akbIYg==
+X-Received: by 2002:a05:6214:d4e:b0:5eb:74ab:2e5e with SMTP id 14-20020a0562140d4e00b005eb74ab2e5emr1919079qvr.11.1681995486834;
+        Thu, 20 Apr 2023 05:58:06 -0700 (PDT)
+Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
+        by smtp.gmail.com with ESMTPSA id x16-20020a0cb210000000b005fcbafebfeasm215242qvd.46.2023.04.20.05.58.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Apr 2023 05:58:06 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libsepol/cil: Fix class permission verification in CIL
+Date:   Thu, 20 Apr 2023 08:58:01 -0400
+Message-Id: <20230420125801.999381-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.39.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-04-20 at 10:50 +0200, Roberto Sassu wrote:
-> > 
-> > It's possible. It's been a long time since I've looked at this.
-> > I'm tempted to take a change to make overlayfs work upstream and
-> > then worry about the ima changes. There seems to be a lot more
-> > going on with the ima changes than is obvious from what's in the
-> > Smack code.
+Before the CIL post processing phase (where expressions are evaluated,
+various ebitmaps are set, etc) there is a pre-verification where
+checks are made to find self references or loops in bounds, attribute
+sets, and class permissions. The class permission checking is faulty
+in two ways.
 
-It doesn't sound like the patch set introduces the overlayfs bug.
+First, it does not check for the use of "all" in a permission expression
+for a class that has no permissions. An error will still be generated
+later and secilc will exit cleanly, but without an error message that
+explains the problem.
 
-The security_inode_init_security() change to initialize multiple LSMs
-and IMA xattrs and include them in the EVM hmac calculation is straight
-forward.
+Second, it does not properly handle lists in permission expressions.
+For example, "(C ((P)))" is a legitimate class permission. The
+permissions expression contains one item that is a list containing
+one permission. This permission expression will be properly evaluated.
+Unfortunately, the class permission verification assumes that each
+item in the permission expression is either an operator or a
+permission datum and a segmenation fault will occur.
 
-In addition, the patch set creates the infrastructure for allowing
-multiple per LSM xattrs, as requested, to be initialized in
-security_inode_init_security() and included in the EVM hmac.
+Refactor the class permission checking to give a proper error when
+"all" is used in a permission expression for a class that has no
+permissions and so that it can handle lists in permission
+expressions. Also, check for the actual flavor of each item in
+the permission expression and return an error if an unexpected
+flavor is found.
 
-Mimi
+The failure to properly handle lists in permission expressions was
+found by oss-fuzz (#58085).
 
-> We could also set only SMACK64 in smack_inode_init_security(), and move
-> SMACKTRANSMUTE64 later, when we figure out how to fix the case of
-> overlayfs.
-> 
-> IMA and EVM would work in both cases.
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil_verify.c | 167 +++++++++++++++++++++++-----------
+ 1 file changed, 114 insertions(+), 53 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 4640dc59..3f58969d 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -1700,31 +1700,109 @@ static int __add_perm_to_list(__attribute__((unused)) hashtab_key_t k, hashtab_d
+ 	return SEPOL_OK;
+ }
+ 
+-static int __cil_verify_classperms(struct cil_list *classperms,
+-				   struct cil_symtab_datum *orig,
+-				   struct cil_symtab_datum *parent,
+-				   struct cil_symtab_datum *cur,
+-				   enum cil_flavor flavor,
+-				   unsigned steps, unsigned limit)
++static int __cil_verify_classperms(struct cil_list *classperms, struct cil_symtab_datum *orig, struct cil_symtab_datum *cur, unsigned steps, unsigned limit);
++
++static int __cil_verify_map_perm(struct cil_class *class, struct cil_perm *perm, struct cil_symtab_datum *orig, unsigned steps, unsigned limit)
++{
++	int rc;
++
++	if (!perm->classperms) {
++		cil_tree_log(NODE(class), CIL_ERR, "No class permissions for map class %s, permission %s", DATUM(class)->name, DATUM(perm)->name);
++		goto exit;
++	}
++
++	rc = __cil_verify_classperms(perm->classperms, orig, &perm->datum, steps, limit);
++	if (rc != SEPOL_OK) {
++		cil_tree_log(NODE(class), CIL_ERR, "There was an error verifying class permissions for map class %s, permission %s", DATUM(class)->name, DATUM(perm)->name);
++		goto exit;
++	}
++
++	return SEPOL_OK;
++
++exit:
++	return SEPOL_ERR;
++}
++
++
++static int __cil_verify_perms(struct cil_class *class, struct cil_list *perms, struct cil_symtab_datum *orig, unsigned steps, unsigned limit)
+ {
+ 	int rc = SEPOL_ERR;
+-	struct cil_list_item *curr;
++	int count = 0;
++	struct cil_list_item *i = NULL;
+ 
+-	if (classperms == NULL) {
+-		if (flavor == CIL_MAP_PERM) {
+-			cil_tree_log(NODE(cur), CIL_ERR, "Map class %s does not have a classmapping for %s", parent->name, cur->name);
++	if (!perms) {
++		cil_tree_log(NODE(class), CIL_ERR, "No permissions for class %s in class permissions", DATUM(class)->name);
++		goto exit;
++	}
++
++	cil_list_for_each(i, perms) {
++		count++;
++		if (i->flavor == CIL_LIST) {
++			rc = __cil_verify_perms(class, i->data, orig, steps, limit);
++			if (rc != SEPOL_OK) {
++				goto exit;
++			}
++		} else if (i->flavor == CIL_DATUM) {
++			struct cil_perm *perm = i->data;
++			if (FLAVOR(perm) == CIL_MAP_PERM) {
++				rc = __cil_verify_map_perm(class, perm, orig, steps, limit);
++				if (rc != SEPOL_OK) {
++					goto exit;
++				}
++			}
++		} else if (i->flavor == CIL_OP) {
++			enum cil_flavor op = (enum cil_flavor)(uintptr_t)i->data;
++			if (op == CIL_ALL) {
++				struct cil_list *perm_list;
++				struct cil_list_item *j = NULL;
++				int count2 = 0;
++				cil_list_init(&perm_list, CIL_MAP_PERM);
++				cil_symtab_map(&class->perms, __add_perm_to_list, perm_list);
++				cil_list_for_each(j, perm_list) {
++					count2++;
++					struct cil_perm *perm = j->data;
++					if (FLAVOR(perm) == CIL_MAP_PERM) {
++						rc = __cil_verify_map_perm(class, perm, orig, steps, limit);
++						if (rc != SEPOL_OK) {
++							cil_list_destroy(&perm_list, CIL_FALSE);
++							goto exit;
++						}
++					}
++				}
++				cil_list_destroy(&perm_list, CIL_FALSE);
++				if (count2 == 0) {
++					cil_tree_log(NODE(class), CIL_ERR, "Operator \"all\" used for %s which has no permissions associated with it", DATUM(class)->name);
++					goto exit;
++				}
++			}
+ 		} else {
+-			cil_tree_log(NODE(cur), CIL_ERR, "Classpermission %s does not have a classpermissionset", cur->name);
++			cil_tree_log(NODE(class), CIL_ERR, "Permission list for %s has an unexpected flavor: %d", DATUM(class)->name, i->flavor);
++			goto exit;
+ 		}
++	}
++
++	if (count == 0) {
++		cil_tree_log(NODE(class), CIL_ERR, "Empty permissions list for class %s in class permissions", DATUM(class)->name);
++		goto exit;
++	}
++
++	return SEPOL_OK;
++
++exit:
++	return SEPOL_ERR;
++}
++
++static int __cil_verify_classperms(struct cil_list *classperms, struct cil_symtab_datum *orig, struct cil_symtab_datum *cur, unsigned steps, unsigned limit)
++{
++	int rc;
++	struct cil_list_item *i;
++
++	if (classperms == NULL) {
+ 		goto exit;
+ 	}
+ 
+ 	if (steps > 0 && orig == cur) {
+-		if (flavor == CIL_MAP_PERM) {
+-			cil_tree_log(NODE(cur), CIL_ERR, "Found circular class permissions involving the map class %s and permission %s", parent->name, cur->name);
+-		} else {
+-			cil_tree_log(NODE(cur), CIL_ERR, "Found circular class permissions involving the set %s", cur->name);
+-		}
++		cil_tree_log(NODE(cur), CIL_ERR, "Found circular class permissions involving %s", cur->name);
+ 		goto exit;
+ 	} else {
+ 		steps++;
+@@ -1735,44 +1813,20 @@ static int __cil_verify_classperms(struct cil_list *classperms,
+ 		}
+ 	}
+ 
+-	cil_list_for_each(curr, classperms) {
+-		if (curr->flavor == CIL_CLASSPERMS) {
+-			struct cil_classperms *cp = curr->data;
+-			if (FLAVOR(cp->class) != CIL_CLASS) { /* MAP */
+-				struct cil_list_item *i = NULL;
+-				cil_list_for_each(i, cp->perms) {
+-					if (i->flavor != CIL_OP) {
+-						struct cil_perm *cmp = i->data;
+-						rc = __cil_verify_classperms(cmp->classperms, orig, &cp->class->datum, &cmp->datum, CIL_MAP_PERM, steps, limit);
+-						if (rc != SEPOL_OK) {
+-							goto exit;
+-						}
+-					} else {
+-						enum cil_flavor op = (enum cil_flavor)(uintptr_t)i->data;
+-						if (op == CIL_ALL) {
+-							struct cil_class *mc = cp->class;
+-							struct cil_list *perm_list;
+-							struct cil_list_item *j = NULL;
+-
+-							cil_list_init(&perm_list, CIL_MAP_PERM);
+-							cil_symtab_map(&mc->perms, __add_perm_to_list, perm_list);
+-							cil_list_for_each(j, perm_list) {
+-								struct cil_perm *cmp = j->data;
+-								rc = __cil_verify_classperms(cmp->classperms, orig, &cp->class->datum, &cmp->datum, CIL_MAP_PERM, steps, limit);
+-								if (rc != SEPOL_OK) {
+-									cil_list_destroy(&perm_list, CIL_FALSE);
+-									goto exit;
+-								}
+-							}
+-							cil_list_destroy(&perm_list, CIL_FALSE);
+-						}
+-					}
+-				}
++	cil_list_for_each(i, classperms) {
++		if (i->flavor == CIL_CLASSPERMS) {
++			struct cil_classperms *cp = i->data;
++			rc = __cil_verify_perms(cp->class, cp->perms, orig, steps, limit);
++			if (rc != SEPOL_OK) {
++				goto exit;
+ 			}
+ 		} else { /* SET */
+-			struct cil_classperms_set *cp_set = curr->data;
++			struct cil_classperms_set *cp_set = i->data;
+ 			struct cil_classpermission *cp = cp_set->set;
+-			rc = __cil_verify_classperms(cp->classperms, orig, NULL, &cp->datum, CIL_CLASSPERMISSION, steps, limit);
++			if (!cp->classperms) {
++				cil_tree_log(NODE(cur), CIL_ERR, "Classpermission %s does not have a classpermissionset", DATUM(cp)->name);
++			}
++			rc = __cil_verify_classperms(cp->classperms, orig, &cp->datum, steps, limit);
+ 			if (rc != SEPOL_OK) {
+ 				goto exit;
+ 			}
+@@ -1787,9 +1841,15 @@ exit:
+ 
+ static int __cil_verify_classpermission(struct cil_tree_node *node)
+ {
++	int rc;
+ 	struct cil_classpermission *cp = node->data;
+ 
+-	return __cil_verify_classperms(cp->classperms, &cp->datum, NULL, &cp->datum, CIL_CLASSPERMISSION, 0, 2);
++	rc = __cil_verify_classperms(cp->classperms, &cp->datum, &cp->datum, 0, 2);
++	if (rc != SEPOL_OK) {
++		cil_tree_log(node, CIL_ERR, "Error verifying class permissions for classpermission %s", DATUM(cp)->name);
++	}
++
++	return rc;
+ }
+ 
+ struct cil_verify_map_args {
+@@ -1804,8 +1864,9 @@ static int __verify_map_perm_classperms(__attribute__((unused)) hashtab_key_t k,
+ 	struct cil_perm *cmp = (struct cil_perm *)d;
+ 	int rc;
+ 
+-	rc = __cil_verify_classperms(cmp->classperms, &cmp->datum, &map_args->class->datum, &cmp->datum, CIL_MAP_PERM, 0, 2);
++	rc = __cil_verify_classperms(cmp->classperms, &cmp->datum, &cmp->datum, 0, 2);
+ 	if (rc != SEPOL_OK) {
++		cil_tree_log(NODE(cmp), CIL_ERR, "Error verifying class permissions for map class %s, permission %s", DATUM(map_args->class)->name, DATUM(cmp)->name);
+ 		map_args->rc = rc;
+ 	}
+ 
+-- 
+2.39.2
 
