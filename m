@@ -2,139 +2,86 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E8CFC77B73
-	for <selinux@archiver.kernel.org>; Wed, 19 Apr 2023 21:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6036EC77B73
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 00:43:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231882AbjDSVax (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Apr 2023 17:30:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54446 "EHLO
+        id S231816AbjDTAnT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Apr 2023 20:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231726AbjDSVav (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Apr 2023 17:30:51 -0400
-Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B511583E2
-        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 14:30:41 -0700 (PDT)
-Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-555e170df98so17987617b3.10
-        for <selinux@vger.kernel.org>; Wed, 19 Apr 2023 14:30:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1681939841; x=1684531841;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tvk3BDMxry1ipK9jIkb7whZPWk90UaY3lbkZAbRwP5Q=;
-        b=MJW0SyZPFqwSZjSpPv9dsTF6Vb8IBzlx4kCKoI+Ken23d8y7osBgfVeL/Qm+3YiOPK
-         m4W9yVN90fZAjji9fGn3dMJC+EOm0fJ/WjNIKl/iqvqmA+iepK2QRXQ9KBX4xIuMUUcT
-         VxAGbINo/4eGu7Ks90qfdYfWEZN/Bqx0jVJ2DmhDQRqVRmRkIkwGvu0289zsG68oynkl
-         8Y3heXBi+qjMMCj+ARwbHbwsgxHCaPlWX4wjzK6UXk6QW2C8hWwAa+3C3zdSQSMeHv+5
-         AGXriFuyE6AnRXGKSbsDu8KbxIJ6iNyAlzdb37mZx7KXceZp4iY3+hbkzMTcHKkeSpci
-         5RhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681939841; x=1684531841;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tvk3BDMxry1ipK9jIkb7whZPWk90UaY3lbkZAbRwP5Q=;
-        b=fv5TKtttd/Zn818N7CnbZkzB1hyjUU2mD/ot/BFHC8BkzlNJl47F6urTTENYKX3xZ4
-         vc8+wC7fANEzhdv07qvs0jdWndFcu2pFTcDnh4wRVRqqzfX2nLu9ui+Eiy4GBoH67/uM
-         D9tnvAzFDwkjX3Yuc9e/Irvn1YrJVYFHUlyhn33VKTCw2lqilhiZ1LsRZV4dowYuMSKl
-         FyRddA48JPkrXgfG6GIH2TixYJvjcSAdCCyvnYIRz9r0g5gX5teMMWd37VkDln455A1a
-         gQZpyfLfA+BFnMk/ytghXKjYIUUp+eBp3OYlHmftpC2p3sgnTfct/37AXxsQ2etN/niN
-         fDuA==
-X-Gm-Message-State: AAQBX9c6NkzKVwTM3iTcJwgExm1lA/DSOnHMhAbdv13h9tXQv6JwCvIV
-        umSjBG1gmGfP6/ohLaG4VjXdKZRvDhgvSJrE8lC6
-X-Google-Smtp-Source: AKy350aiV7Ppniz441YlSZ2+c00+8FsnYukqiDdssbLd+Wxma6NYUlYGnP2cFtiWsz5nKfAvL/4d0Td0KowHt1ZypVE=
-X-Received: by 2002:a0d:df06:0:b0:54f:e6a:5d10 with SMTP id
- i6-20020a0ddf06000000b0054f0e6a5d10mr4814428ywe.22.1681939840790; Wed, 19 Apr
- 2023 14:30:40 -0700 (PDT)
+        with ESMTP id S231241AbjDTAnT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Apr 2023 20:43:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4091FC3;
+        Wed, 19 Apr 2023 17:43:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A82EE64356;
+        Thu, 20 Apr 2023 00:43:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6316AC433EF;
+        Thu, 20 Apr 2023 00:43:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681951396;
+        bh=3TfSNpFYsuhxboTNumVnC5z5KX5U1yvWsKH2bQsrios=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XXm7+VqkcSuSfr75tU1q/8kzjPiLx9R2H7MT+z59XkHoh7y+n6BFa4ZsP/lSS5Op/
+         //Bv6mhBEG0ADIGRs0IlXQ3BaZIetBr+kiHpMJsEQTokgBUpsr+ZMyGeWAABqVMqyS
+         DpcYp3RCl/TZuauDdZLOezqu25ymatHL/dcGQoOuLdyr8WxsAaI0LIAp/OOQmx6gIn
+         z2LsaXJqe09nmyImfbN2gllFiUHdJMyUs7RkFgVmdWpaZCt+j1K4SoOPLkFjqsJ9co
+         dN8k975bSGvdD/xJ8vsltoN/NJSDMcnfEC7Acm63wFzu2Vm8PyATtdCO2MWh2CIWWZ
+         vDLMLd9U8VMkA==
+Date:   Wed, 19 Apr 2023 17:43:11 -0700
+From:   Saeed Mahameed <saeed@kernel.org>
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     Saeed Mahameed <saeedm@nvidia.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        Shay Drory <shayd@nvidia.com>, netdev@vger.kernel.org,
+        selinux@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>
+Subject: Re: Potential regression/bug in net/mlx5 driver
+Message-ID: <ZECKn2WwX22wrsMt@x130>
+References: <ZDhwUYpMFvCRf1EC@x130>
+ <20230413152150.4b54d6f4@kernel.org>
+ <ZDiDbQL5ksMwaMeB@x130>
+ <20230413155139.22d3b2f4@kernel.org>
+ <ZDjCdpWcchQGNBs1@x130>
+ <20230413202631.7e3bd713@kernel.org>
+ <ZDnRkVNYlHk4QVqy@x130>
+ <20230414173445.0800b7cf@kernel.org>
+ <ZDoqw8x7+UHOTCyM@x130>
+ <20230417083825.6e034c75@kernel.org>
 MIME-Version: 1.0
-References: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
- <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-2-9d4064cb0075@tessares.net>
-In-Reply-To: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-2-9d4064cb0075@tessares.net>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 19 Apr 2023 17:30:30 -0400
-Message-ID: <CAHC9VhQz_ZUot1Sxa6zhzXh_ECz+rR=Nq3zzDEEL7GKvzYQziA@mail.gmail.com>
-Subject: Re: [PATCH LSM 2/2] selinux: Implement mptcp_add_subflow hook
-To:     Matthieu Baerts <matthieu.baerts@tessares.net>
-Cc:     James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>, mptcp@lists.linux.dev,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20230417083825.6e034c75@kernel.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 19, 2023 at 1:44=E2=80=AFPM Matthieu Baerts
-<matthieu.baerts@tessares.net> wrote:
-> From: Paolo Abeni <pabeni@redhat.com>
+On 17 Apr 08:38, Jakub Kicinski wrote:
+>On Fri, 14 Apr 2023 21:40:35 -0700 Saeed Mahameed wrote:
+>> >What do we do now, tho? If the main side effect of a revert is that
+>> >users of a newfangled device with an order of magnitude lower
+>> >deployment continue to see a warning/error in the logs - I'm leaning
+>> >towards applying it :(
+>>
+>> I tend to agree with you but let me check with the FW architect what he has
+>> to offer, either we provide a FW version check or another more accurate
+>> FW cap test that could solve the issue for everyone. If I don't come up with
+>> a solution by next Wednesday I will repost your revert in my next net PR
+>> on Wednesday. You can mark it awaiting-upstream for now, if that works for
+>> you.
 >
-> Newly added subflows should inherit the LSM label from the associated
-> msk socket regarless current context.
+>OK, sounds good.
 
-"... from the associated main MPTCP socket regardless of the current contex=
-t."
 
-Us SELinux folks may not always be able to make the jump from "msk" to
-"main MPTCP socket" when we are looking through the git log in the
-future, let's make it easier on us/me ;)
+So I checked with Arch and we agreed that the only devices that need to
+expose this management PF are Bluefield chips, which have dedicated device
+IDs, and newer than the affected FW, so we can fix this by making the check
+more strict by testing device IDs as well.
 
-> This patch implements the above copying sid and class from the msk
-> context, deleting the existing subflow label, if any, and then
+I will provide a patch by tomorrow, will let Paul test it first.
 
-"... from the main MPTCP socket context, deleting ..."
 
-> re-creating a new one.
->
-> The new helper reuses the selinux_netlbl_sk_security_free() function,
-> and the latter can end-up being called multiple times with the same
-> argument; we additionally need to make it idempotent.
->
-> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-> Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-> Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-> ---
->  security/selinux/hooks.c    | 16 ++++++++++++++++
->  security/selinux/netlabel.c |  8 ++++++--
->  2 files changed, 22 insertions(+), 2 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 9a5bdfc21314..53cfc1cb67d2 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5476,6 +5476,21 @@ static void selinux_sctp_sk_clone(struct sctp_asso=
-ciation *asoc, struct sock *sk
->         selinux_netlbl_sctp_sk_clone(sk, newsk);
->  }
->
-> +static int selinux_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
-> +{
-> +       struct sk_security_struct *ssksec =3D ssk->sk_security;
-> +       struct sk_security_struct *sksec =3D sk->sk_security;
-> +
-> +       ssksec->sclass =3D sksec->sclass;
-> +       ssksec->sid =3D sksec->sid;
-> +
-> +       /* replace the existing subflow label deleting the existing one
-> +        * and re-recrating a new label using the current context
-
-"... new label using the updated context"
-
-Let's avoid the phrase "current context" as that could imply the
-current task, which is exactly what we are trying not to do.
-
-> +        */
-> +       selinux_netlbl_sk_security_free(ssksec);
-> +       return selinux_netlbl_socket_post_create(ssk, ssk->sk_family);
-> +}
-> +
-
---
-paul-moore.com
