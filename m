@@ -2,101 +2,129 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 921CFC77B73
-	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 14:08:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 149A1C77B7F
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 14:11:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231787AbjDTOIA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Apr 2023 10:08:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36598 "EHLO
+        id S231916AbjDTOLb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Apr 2023 10:11:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231756AbjDTOH7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 10:07:59 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88BAF2133
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 07:07:58 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id a640c23a62f3a-94f0dd117dcso64657366b.3
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 07:07:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681999677; x=1684591677;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GWmsPbAhwm2H7YParhvNj2v1HQUEyXyn8tA+D81x+vM=;
-        b=LZ59JkC+yT17BuWKB8jzURWBj8FDYdxbYlVy7Z/hcRPZHwsy2sTQ8Nn1ptQq2mbP2M
-         889BF46zA1UkGVqXOLFM3UhZ+Hsqg53h42kHgXzQg6tipEW/trHR8szA49LlAPn3TDp8
-         srQ7DVIllrwg09a0G/ED8TyqiCQ5ESqqclbPNeO9q2vg+14cvWRg9DR+dCIMuzKQpS6Q
-         UghnLpKX10wj5P7h2Y4Z6oX0+MhjtrGyoGhbIUyTOGhRUX+ZF14x+klmhYTIbqInr1d6
-         R+rVguxNUKXqMA80tQQPLZj5X2dkqXJlMWXuMfHqkJNV1TVWeci++U3PiKz2gHSTYx6Y
-         BgaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681999677; x=1684591677;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GWmsPbAhwm2H7YParhvNj2v1HQUEyXyn8tA+D81x+vM=;
-        b=hionXZ6xMfSezxN7Mg5iwXRH9DtDVrAKt5TGmEQnC1ce+uimd26MJWfHYm9V5nUjv8
-         vDbdXBkI0F1i+L2iAAywP8j88k/RASquAoOdGBThfVizL7LoCqpRP1LZ2yVyDLJQ9Nh1
-         IZfJisMrBNYzKFvO88FTcnpEg1QIVZGbansooCe+lcwNOF8Gw5R8qjpv8Pyf6tEFVUOo
-         oUSnQHcBlJE40223RM6P1YwfORt1K48864XbNSDNGgDFJMk7s3XKZSSY1n0MoCix2juV
-         MV0LXaFf9FqCaHwrIZR2BQncR4cczZVC0OSBC5u5nfHIihAcCZC1mbolSV1cagkiKbyV
-         6d2g==
-X-Gm-Message-State: AAQBX9feS8vcdnf17GHEkJ5NvyvcEcYNXpQMoARo6GMXoq4h1jGr8zs2
-        h8V4QHyN4XTQFwtSI8X1s10KuITE58RAX+8NVotxK4ID
-X-Google-Smtp-Source: AKy350b1TtBwArS4BR2RcibyxCFwOtUgl65jut5YV0BH5Zcqk93B8tyTdJpR0GPl9b736dxSfYffuQQf40H/kl90tx0=
-X-Received: by 2002:aa7:d94d:0:b0:504:80a4:d019 with SMTP id
- l13-20020aa7d94d000000b0050480a4d019mr2133638eds.12.1681999676870; Thu, 20
- Apr 2023 07:07:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230401124902.76959-1-cgzones@googlemail.com>
-In-Reply-To: <20230401124902.76959-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 20 Apr 2023 10:07:45 -0400
-Message-ID: <CAP+JOzSTkhfxLOYpbmpOjo7gi_9GNAGu=+rrJ=j=X8mSoywofw@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: fix memory leak in semanage_user_roles
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+        with ESMTP id S229769AbjDTOLa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 10:11:30 -0400
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F83A212D;
+        Thu, 20 Apr 2023 07:11:28 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.227])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4Q2K8c0mhtz9v7fx;
+        Thu, 20 Apr 2023 22:01:52 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwB3JDvmR0Fk1Yo8Ag--.1954S2;
+        Thu, 20 Apr 2023 15:10:59 +0100 (CET)
+Message-ID: <5a9ba6618b37a592cda13ce36ea35cf78c98122b.camel@huaweicloud.com>
+Subject: Re: [PATCH] Smack modifications for: security: Allow all LSMs to
+ provide xattrs for inode_init_security hook
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org
+Cc:     reiserfs-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mengchi Cheng <mengcc@amazon.com>, miklos@szeredi.hu,
+        linux-unionfs@vger.kernel.org, kamatam@amazon.com,
+        yoonjaeh@amazon.com
+Date:   Thu, 20 Apr 2023 16:10:42 +0200
+In-Reply-To: <97849695ef53ab3186e59d8a2c6b74812f13ee19.camel@linux.ibm.com>
+References: <c7f38789-fe47-8289-e73a-4d07fbaf791d@schaufler-ca.com>
+         <20230411172337.340518-1-roberto.sassu@huaweicloud.com>
+         <2dc6486f-ce9b-f171-14fe-48a90386e1b7@schaufler-ca.com>
+         <8e7705972a0f306922d8bc4893cf940e319abb19.camel@huaweicloud.com>
+         <72b46d0f-75c7-ac18-4984-2bf1d6dad352@schaufler-ca.com>
+         <82ee6ddf66bb34470aa7b591df4d70783fdb2422.camel@huaweicloud.com>
+         <91f05dc4-a4b7-b40a-ba1a-0ccc489c84b2@schaufler-ca.com>
+         <5c50d98f1e5745c88270ae4ad3de6d9a803db4c6.camel@huaweicloud.com>
+         <48c6073f-59b0-f5d1-532e-fe4b912b939d@schaufler-ca.com>
+         <0fccab67e496f10f4ee7bf2220e70a655013935f.camel@huaweicloud.com>
+         <c16dd895-f488-241d-0be8-e56e5f0c1adb@schaufler-ca.com>
+         <a98ddf946c474a3500bdcd72766c6cb0043278ff.camel@huaweicloud.com>
+         <97849695ef53ab3186e59d8a2c6b74812f13ee19.camel@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: GxC2BwB3JDvmR0Fk1Yo8Ag--.1954S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7WFy5WrW3Zr1kur17GFW3ZFb_yoW8ZFW5pF
+        WIgayUKrs5tFWxGrZ2yr47Xa1I9rWrCF43JryYk34kAFn8Cr1ftFyFqw4Uuay8GrsYvr1Y
+        vFWUZ398Zr1DXaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkYb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
+        7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
+        Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
+        6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
+        AIw20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280
+        aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU13rcDUUUUU==
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQANBF1jj4xFswAAsD
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Apr 1, 2023 at 8:50=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The output parameter `role_arr` of semanage_user_get_roles() is an array
-> of non-owned role names.  Since the array is never used again, as its
-> contents have been copied into the return value `roles`, free it.
->
-> Example leak report from useradd(8):
->
->     Direct leak of 8 byte(s) in 1 object(s) allocated from:
->     #0 0x5597624284a8 in __interceptor_calloc (./shadow/src/useradd+0xee4=
-a8)
->     #1 0x7f53aefcbbf9 in sepol_user_get_roles src/user_record.c:270:21
+On Thu, 2023-04-20 at 06:44 -0400, Mimi Zohar wrote:
+> On Thu, 2023-04-20 at 10:50 +0200, Roberto Sassu wrote:
+> > > It's possible. It's been a long time since I've looked at this.
+> > > I'm tempted to take a change to make overlayfs work upstream and
+> > > then worry about the ima changes. There seems to be a lot more
+> > > going on with the ima changes than is obvious from what's in the
+> > > Smack code.
+> 
+> It doesn't sound like the patch set introduces the overlayfs bug.
 
-I was going to ack this, but I just noticed that it doesn't have a
-signed-off line.
-Jim
+Correct.
 
-> ---
->  libsemanage/src/seusers_local.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_lo=
-cal.c
-> index 6508ec05..795a33d6 100644
-> --- a/libsemanage/src/seusers_local.c
-> +++ b/libsemanage/src/seusers_local.c
-> @@ -47,6 +47,7 @@ static char *semanage_user_roles(semanage_handle_t * ha=
-ndle, const char *sename)
->                                                 }
->                                         }
->                                 }
-> +                               free(roles_arr);
->                         }
->                         semanage_user_free(user);
->                 }
-> --
-> 2.40.0
->
+The first problem of overlayfs is that smack_dentry_create_files_as()
+override the credentials in a way that transmuting is not detected
+correctly anymore in smack_inode_init_security(). The process label is
+already overwritten with the directory label, at the time smack_inode_i
+nit_security() calls smk_access_entry(), so the latter will not find
+the transmuting rule that refers to the original process label.
+
+The second problem is that overlayfs temporarily creates the new
+directory in the working directory, that does not necessarily have the
+same label of the parent directory the new file/directory will be added
+to, causing the transmuting to be computed incorrectly.
+
+> The security_inode_init_security() change to initialize multiple LSMs
+> and IMA xattrs and include them in the EVM hmac calculation is straight
+> forward.
+> 
+> In addition, the patch set creates the infrastructure for allowing
+> multiple per LSM xattrs, as requested, to be initialized in
+> security_inode_init_security() and included in the EVM hmac.
+> 
+> Mimi
+> 
+> > We could also set only SMACK64 in smack_inode_init_security(), and move
+> > SMACKTRANSMUTE64 later, when we figure out how to fix the case of
+> > overlayfs.
+> > 
+> > IMA and EVM would work in both cases.
+
+Thanks to Mimi, I realized that adding SMACKTRANSMUTE64 in
+smack_inode_init_security() is actually necessary.
+Calling __vfs_getxattr() in smack_d_instantiate() causes the xattr to
+be added without EVM updating the HMAC (thus, making the HMAC invalid).
+
+Thanks
+
+Roberto
+
