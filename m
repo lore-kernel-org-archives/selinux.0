@@ -2,153 +2,155 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4647EC77B7C
-	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 16:56:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EFA8C77B73
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 17:17:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229659AbjDTQ4i (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Apr 2023 12:56:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
+        id S231363AbjDTRRf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Apr 2023 13:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230433AbjDTQ41 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 12:56:27 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F9F95B85
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 09:55:42 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-2eed43bfa4bso696530f8f.2
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 09:55:42 -0700 (PDT)
+        with ESMTP id S229707AbjDTRRe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 13:17:34 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C86F30F9
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 10:17:32 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-3f1728c2a57so8847485e9.0
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 10:17:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares.net; s=google; t=1682009737; x=1684601737;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=8COwJogh85Ubwzwgh/WUbXgMHnHM+aYpGZRMSZHXeAE=;
-        b=7735fAM0RfQN/72GfpWio7Ue3N+D6rEkT9esXjhDRUXYjmeGqg74PICYX3rX5edhG6
-         WmBo3MGCtjXZgkPGCaXq70Fsef6i3PT6zXvrfxo3mLIwZiOoiTIvkIjKezb0OBwMDqY+
-         P0bNB3DG1DqdotBnpLPl+NgcqKm+C3rFCNQg4lEdzGp4xE3K1JgKZO1hnet7cPi2COxp
-         qqmTxX09a86em2tS6txiygizTsuyc5xUAF7L1BNKOJio1npYaZmDxFwYkJt0HQuDDfzh
-         +18tegTXmZKNEW+I1swyGmdBwdQ89UkMxUJW/Z0frhcI9rK1EPoGWHvUgGJbeMjOSNHu
-         840w==
+        d=tessares.net; s=google; t=1682011051; x=1684603051;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=QG0pWKhg00K0GoVywBEm4/H503vgg5ftRkPAl0FnNsA=;
+        b=u3Uyf15Hur77NzuRmS2Ijqx7/Cgx4Yk5NzfYwVpZZ7tGCTbDq3FIaSG8c+JfeOmnMq
+         vHEW1pr6zfECX2PQPbFCnzkyI1285fq1dJL56xSpAEkMKw8eHx0KIevu37Rr855huRAc
+         ttHqSi2bFfRizmcKqzoTocrMZ52fWtR+XHB/oDwNO26ozwpQHVeZdnHQr870ygb3HrAm
+         QLUR20qWgnIl/OUic1XUFU1K9AmDEtC/fot5KjJOwyxDTtyOeEd6QOXCSYKjua2TB3T5
+         9DW33MKOMDMTbX/9mw8SulW6IDk1S8HDS5f1NKA/U6QjCHcX2rFAr318ks+FGFO52RUQ
+         TS3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682009737; x=1684601737;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8COwJogh85Ubwzwgh/WUbXgMHnHM+aYpGZRMSZHXeAE=;
-        b=kO3gOFuhk3GoSkoIe6qJX7AnKHPVSFgp9q8HIpSSzmJGaU4SMk1FK6Je5MgIpJKdYw
-         fD5NpWNKjYjMXsmYaWkTkymVY1zrilMisAkVyqCPhGJtNHaPZn5ywr4qT23roFazmbuD
-         3xabQV4rIIDH7PwtSnexCaqI6Bdqyvg61Ifx26ejEzXm0yWDYRDHoxwN1y1GYoG+9nDD
-         Q8soq7dAu1myKRgOemTJfP2jBH2+Goh8OvQcep1JjbIZHqAH5hJJUVSQmV4udl6c0fTm
-         lsN697qRZ4NBRee6ukQglI5qARfEs41jjOIDNqH5a0TP9oosGRAMJlf4qPGUSJkuC+33
-         /Y3A==
-X-Gm-Message-State: AAQBX9f7V4LNepEfEE7q4d5DdvOKHxLw00BzEcaorcRrSYk/d2bVCfMR
-        4Bo/KNVi3dYTgR5DqWKVGIU/ug==
-X-Google-Smtp-Source: AKy350bJXlirEoh+ll5SJQuNZFSA3O6ZxUYGjwRW+yp/nsQKRvbua1otjr+kqF67Yjclfcoa7H8/Mg==
-X-Received: by 2002:adf:ebc4:0:b0:2fe:c0ea:18ad with SMTP id v4-20020adfebc4000000b002fec0ea18admr1795221wrn.47.1682009737423;
-        Thu, 20 Apr 2023 09:55:37 -0700 (PDT)
-Received: from ?IPV6:2a02:578:8593:1200:2c80:31d2:9220:ee01? ([2a02:578:8593:1200:2c80:31d2:9220:ee01])
-        by smtp.gmail.com with ESMTPSA id w13-20020adff9cd000000b002cea9d931e6sm2386104wrr.78.2023.04.20.09.55.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Apr 2023 09:55:37 -0700 (PDT)
-Message-ID: <f251507a-517e-b703-aa1d-50f6b3de8c8d@tessares.net>
-Date:   Thu, 20 Apr 2023 18:55:29 +0200
+        d=1e100.net; s=20221208; t=1682011051; x=1684603051;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=QG0pWKhg00K0GoVywBEm4/H503vgg5ftRkPAl0FnNsA=;
+        b=J0XDqTGl4XldwlyI0fyHE2R2jUCbp+xD8BUlv9Aqnleb/L4HdJWc0zdg6VmSymShoK
+         rmhugUd5SvPgKGLL74eNclNYh53dZnuXIvazMZZk+WWZ/GVZPjcIf4nUT0xQy7MsaTQ2
+         kp6K3i8mAaFqM4BVvusaqCa6VyUjHVCE24gKFR/piK5nxoIrLUizwqbymBFk0ahcRCFt
+         zhQ6X76vevJRQ153EwLkDmBe76fxcMvzCjBLf5ZIY/9hMSemxWc+6fz5nO2uEDVXSzop
+         V6FlLIIbo5bYUbBal2FrfIB6LzablDRlVSgl1zYAV+EJxzVU+/lX811Qh53Lge/u1t34
+         uQxQ==
+X-Gm-Message-State: AAQBX9fSWz7UoCvZDo8FkIU7cHFFUhYrHLpWqdiEukiC39hDDU9pjT5Z
+        hzk9qPAGXJBD3pNSwO90Mbnc4A==
+X-Google-Smtp-Source: AKy350bBvWmh1CIYAFolFtcwrJjTAeHbdsZabDeihNWi2nOsM5lK3gNSDkadryhGo2N9EwQbAX8gQw==
+X-Received: by 2002:adf:feca:0:b0:2fb:9e73:d5eb with SMTP id q10-20020adffeca000000b002fb9e73d5ebmr1770927wrs.46.1682011050714;
+        Thu, 20 Apr 2023 10:17:30 -0700 (PDT)
+Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
+        by smtp.gmail.com with ESMTPSA id h18-20020a5d6892000000b002f9bfac5baesm2450752wru.47.2023.04.20.10.17.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Apr 2023 10:17:30 -0700 (PDT)
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH LSM v2 0/2] security: SELinux/LSM label with MPTCP and
+ accept
+Date:   Thu, 20 Apr 2023 19:17:12 +0200
+Message-Id: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v2-0-e7a3c8c15676@tessares.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH LSM 0/2] security: SELinux/LSM label with MPTCP and accept
-Content-Language: en-GB
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     James Morris <jmorris@namei.org>,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAJhzQWQC/6WOQQ6CMBBFr0Jm7ZiCgOLKA+jKpXHRlkGaQCGdg
+ hjD3S0kegGX/7/k5b2ByRliOEZvcDQaNp0NI9lEoGtpH4SmDBsSkexEGhc49OwdyRYbbtHS5PG
+ H2t7rHnlQTfdkHIIZtZ+QiPLsUMlKKwnBqyQTKietrhfz17Og3lFlpjXnBufrBe7hrA37zr3Wx
+ DFe0R81Y4wCizIVeaqVEPvs5IlZOuKtJQ/3eZ4/l2EKCBUBAAA=
+To:     Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Paolo Abeni <pabeni@redhat.com>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Ondrej Mosnacek <omosnace@redhat.com>, mptcp@lists.linux.dev,
         linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-References: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
- <CAHC9VhR68fw+0oaenL08tRecLEC_oCdYcfGaN_m6PW3KZYtdTQ@mail.gmail.com>
-From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-In-Reply-To: <CAHC9VhR68fw+0oaenL08tRecLEC_oCdYcfGaN_m6PW3KZYtdTQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3103;
+ i=matthieu.baerts@tessares.net; h=from:subject:message-id;
+ bh=kIXu2fyfQa8O7KLci2YSVLhtJxzQ4pVEKqSM7NOk2MQ=;
+ b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBkQXOpLKMDt+UdFrUsdSqBbRy5+6vX80VYO1ozd
+ SHNYsWkU/SJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCZEFzqQAKCRD2t4JPQmmg
+ c68pD/40GQbAT8dVRVD6xxWsm+mm9xmRCFYRHWANz7GK5+0TbERSxm8e3ClaDvoN/Vv8SxWYAu4
+ t4+TtT44BAx7Do30pszv4U/ZFiJT0UFqu7TFsChwxYIUTEX8lYGNHuvHmadBYBbsWSSAPa+NoKB
+ 7qRUzdxUen0lb1bLSH2dqD6uC9/QhuOxwpleIwILadHX5s+qSMIp5TN013a8RO8ERAiri492tYf
+ GHTlBP4p9gsn6gNKeAZuZ93DNILuHgqhOE72NM9F9xRPyolPLskoyegDlBTplD/0VSj2bmgHZDb
+ yKe/IaKWhUEa4cy2pIMIG5MYoVxVVaLbavemmM8NMe5ZKqvSXUd+TQNcwwFB9OTCC6R2hn6M2+q
+ eCQsbrXKFpEkw5bvMwJY00IP12DBaQ9nHPTq8LThGEY4hepNB0ZLp7JRDnimtWSTxTKBx4yWxkR
+ OS7zrYa2nu5uV6gxWh457XFdA8EQS/HEMt0lzRzCp2Cy1wk3Go7frkdSvgpTTkZDeOUNCRKqPU9
+ g0q4AkkqhOtCkMtHtW9FRVePvwXQUzWGH+KUVgqg3d0aJesMnAGqGPCORgK+VInJZ2+XCy2eTPH
+ UuzkigrBK/fs9uAke9c0VtzsKh/IZLlQGi22JwDaHAFQhnEwffXhtoyeQGU0H8C0gPDViEapTwZ
+ tB9rIE3wJEdVkUA==
+X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
+ fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Paul,
+In [1], Ondrej Mosnacek explained they discovered the (userspace-facing)
+sockets returned by accept(2) when using MPTCP always end up with the
+label representing the kernel (typically system_u:system_r:kernel_t:s0),
+while it would make more sense to inherit the context from the parent
+socket (the one that is passed to accept(2)). Thanks to the
+participation of Paul Moore in the discussions, modifications on MPTCP
+side have started and the result is available here.
 
-On 19/04/2023 23:30, Paul Moore wrote:
-> On Wed, Apr 19, 2023 at 1:44 PM Matthieu Baerts
-> <matthieu.baerts@tessares.net> wrote:
->>
->> In [1], Ondrej Mosnacek explained they discovered the (userspace-facing)
->> sockets returned by accept(2) when using MPTCP always end up with the
->> label representing the kernel (typically system_u:system_r:kernel_t:s0),
->> while it would make more sense to inherit the context from the parent
->> socket (the one that is passed to accept(2)). Thanks to the
->> participation of Paul Moore in the discussions, modifications on MPTCP
->> side have started and the result is available here.
->>
->> Paolo Abeni worked hard to refactor the initialisation of the first
->> subflow of a listen socket. The first subflow allocation is no longer
->> done at the initialisation of the socket but later, when the connection
->> request is received or when requested by the userspace. This was a
->> prerequisite to proper support of SELinux/LSM labels with MPTCP and
->> accept. The last batch containing the commit ddb1a072f858 ("mptcp: move
->> first subflow allocation at mpc access time") [2] has been recently
->> accepted and applied in netdev/net-next repo [3].
->>
->> This series of 2 patches is based on top of the lsm/next branch. Despite
->> the fact they depend on commits that are in netdev/net-next repo to
->> support the new feature, they can be applied in lsm/next without
->> creating conflicts with net-next or causing build issues. These two
->> patches on top of lsm/next still passes all the MPTCP-specific tests.
->> The only thing is that the new feature only works properly with the
->> patches that are on netdev/net-next. The tests with the new labels have
->> been done on top of them.
->>
->> It then looks OK to us to send these patches for review on your side. We
->> hope that's OK for you as well. If the patches look good to you and if
->> you prefer, it is fine to apply these patches before or after having
->> synced the lsm/next branch with Linus' tree when it will include the
->> modifications from the netdev/net-next repo.
->>
->> Regarding the two patches, the first one introduces a new LSM hook
->> called from MPTCP side when creating a new subflow socket. This hook
->> allows the security module to relabel the subflow according to the owing
->> process. The second one implements this new hook on the SELinux side.
-> 
-> Thank you so much for working on this, I really appreciate the help!
+Paolo Abeni worked hard to refactor the initialisation of the first
+subflow of a listen socket. The first subflow allocation is no longer
+done at the initialisation of the socket but later, when the connection
+request is received or when requested by the userspace. This was a
+prerequisite to proper support of SELinux/LSM labels with MPTCP and
+accept. The last batch containing the commit ddb1a072f858 ("mptcp: move
+first subflow allocation at mpc access time") [2] has been recently
+accepted and applied in netdev/net-next repo [3].
 
-Thank you for the review!
+This series of 2 patches is based on top of the lsm/next branch. Despite
+the fact they depend on commits that are in netdev/net-next repo to
+support the new feature, they can be applied in lsm/next without
+creating conflicts with net-next or causing build issues. These two
+patches on top of lsm/next still passes all the MPTCP-specific tests.
+The only thing is that the new feature only works properly with the
+patches that are on netdev/net-next. The tests with the new labels have
+been done on top of them.
 
-We are working on a v2 addressing your comments.
+Regarding the two patches, the first one introduces a new LSM hook
+called from MPTCP side when creating a new subflow socket. This hook
+allows the security module to relabel the subflow according to the owing
+process. The second one implements this new hook on the SELinux side.
 
-Just one small detail regarding these comments: I hope you don't mind if
-we use "MPTCP socket" instead of "main MPTCP socket". Per connection,
-there is one MPTCP socket and possibly multiple subflow (TCP) sockets.
-There is then no concept of "main MPTCP socket".
+Link: https://lore.kernel.org/netdev/CAFqZXNs2LF-OoQBUiiSEyranJUXkPLcCfBkMkwFeM6qEwMKCTw@mail.gmail.com/ [1]
+Link: https://git.kernel.org/netdev/net-next/c/ddb1a072f858 [2]
+Link: https://lore.kernel.org/netdev/20230414-upstream-net-next-20230414-mptcp-refactor-first-subflow-init-v1-0-04d177057eb9@tessares.net/ [3]
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+---
+Changes in v2:
+- Address Paul's comments, see the notes on each patch
+- Link to v1: https://lore.kernel.org/r/20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net
 
-> As far as potential merge issues with netdev/net-next and lsm/next, I
-> think we'll be okay.  I have a general policy[1] of not accepting new
-> patchsets, unless critical bugfixes, past rc5/rc6 so this would be
-> merged into lsm/next *after* the current merge window closes and
-> presumably after the netdev/net-next branch finds its way into Linus'
-> tree.
-It makes sense, we understand. These two patches were ready for a bit of
-time but we wanted to send them only after the prerequisite commits
-applied in net-next first. But that got delayed because we had a couple
-of nasty issues with them :)
+---
+Paolo Abeni (2):
+      security, lsm: Introduce security_mptcp_add_subflow()
+      selinux: Implement mptcp_add_subflow hook
 
-We hope it will not be an issue for you to maintain them in your tree
-for a couple of months but we tried to minimised the modifications in
-MPTCP code. Do not hesitate to reach us if there are some issues with them!
+ include/linux/lsm_hook_defs.h |  1 +
+ include/linux/security.h      |  6 ++++++
+ net/mptcp/subflow.c           |  6 ++++++
+ security/security.c           | 17 +++++++++++++++++
+ security/selinux/hooks.c      | 16 ++++++++++++++++
+ security/selinux/netlabel.c   |  8 ++++++--
+ 6 files changed, 52 insertions(+), 2 deletions(-)
+---
+base-commit: d82dcd9e21b77d338dc4875f3d4111f0db314a7c
+change-id: 20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-eee658fafcba
 
-Cheers,
-Matt
+Best regards,
 -- 
-Tessares | Belgium | Hybrid Access Solutions
-www.tessares.net
+Matthieu Baerts <matthieu.baerts@tessares.net>
+
