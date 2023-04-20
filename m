@@ -2,60 +2,60 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E59A5C77B76
-	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 15:05:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E396CC77B7C
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 15:05:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232134AbjDTPFy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Apr 2023 11:05:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
+        id S232226AbjDTPF4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Apr 2023 11:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233814AbjDTPFy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 11:05:54 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6758527A
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:05:52 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id dm2so7057868ejc.8
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:05:52 -0700 (PDT)
+        with ESMTP id S232600AbjDTPFz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 11:05:55 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CDA4C3E
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:05:53 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id u3so6974264ejj.12
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:05:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1682003151; x=1684595151;
+        d=googlemail.com; s=20221208; t=1682003152; x=1684595152;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=CWjcK5QBFoPapJ2mUnTvrIxFHaP0NjqWeXLAOwwwqVQ=;
-        b=qfsmhjAjPUK+vRtFe3VN5A7/rM1mE6pBbIjgo7b1MewD+JfVrRaSOSeoM5ci+/zCPd
-         cwNGZJshSJfT9EzDCkMdLU2Zus4+EvLlNzPugppx5XkvEQisF71mjNbH3xFTrCJzZ5rL
-         v9dipBs3+Oi6rWG1JRgbZuUZi5AJFlmBZQhylEgcDDEOKe9E7Lci6ZCSD5RyADzm2K0k
-         PytMP0C3zS4ZHj6EXIzNonQPUYU8D3PDEf2v/YtmJXUfWseKOA0iATL4dlEGUL06EGa5
-         tnGuPExUIpvOD0tad/08Ovntcs/CkmiJQzUavtNTpPn5zuHZW7mRG1p7qdewYidXhqQi
-         o+Ow==
+        bh=yn6I9/njhMxdU7VzCxBwfVe8IAelAP6oEreCcSg+PUE=;
+        b=PdPQcZUv0pQNul7gNcPlkjwX0K/bm9xLrNzqhL/MYnS5TB4Rj0PrXJ1LyXeXep1GsO
+         F0dUX9cVM5KDtRN34HgVUBxytKxciij24OG7Vp2dIykK4YoO1c58L1NAs7Vchi4/VNkL
+         3xPVz3abc957ovJj+Bs+7alFaVWvIJteXOYtH3LzT3WsskmF023UMFYVTPJGLO8dpYb6
+         tlAQ9MMnz7pCW7V8PQfJN0U5jGhXeWgrxFIGtGKj4V5YyH3K5MYGE18e9S87S+CMUN3B
+         JqMCgEoxfB0I9S2IAs7f9HL2MrZb3h4C514U/YP+hzmRoBBYwjJCFEvaGgEYcfVgneID
+         9BqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682003151; x=1684595151;
+        d=1e100.net; s=20221208; t=1682003152; x=1684595152;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CWjcK5QBFoPapJ2mUnTvrIxFHaP0NjqWeXLAOwwwqVQ=;
-        b=d4ddvd+JcGtJmCPbDFKNDmYkMEyYmoeOlLcgOP1Il01dZYMI99dBtVwv02fU4N5EqI
-         irSm0/goeohNv+Pbjj+cIP6xMV1nOFlTuDSbNhyLySot+mCknU4WY0vvwpFriLD04gif
-         98g6nRNkUUqvHP0zwVBd8ZA7IbcQ4PHv1M6HipOaXNQLEQvKiJFHcQGdyROkLxwtfY5c
-         erxqxik4ooxUt+jUSiJ4Nv/KpKPdKtOGP6gBlSkhMO3lYjBDgARDdS3E6b2YMJrNAi6a
-         2jYiCrhNpwYcs706lr7CP+H4FGpAjyFqHkTI+rWR1kQ7m6Y9FHzFUmA4w2fFB2HdatsU
-         tuag==
-X-Gm-Message-State: AAQBX9fJXAYZvNyP3k1uxMKQrgZtmVpOlc3RsNBOSO3ZkC6VaAFES2TU
-        pa3wTn0unN3Cq/F6EfhbPcY=
-X-Google-Smtp-Source: AKy350b6dbHXse+0G0vXW8ZMhMZFkx1BBcW9L60OPz4+7vOpac5uWRRS/YoTmxbsWXt9yQ27FdoaoA==
-X-Received: by 2002:a17:906:5648:b0:94f:2eb1:ffd2 with SMTP id v8-20020a170906564800b0094f2eb1ffd2mr2071423ejr.40.1682003150953;
-        Thu, 20 Apr 2023 08:05:50 -0700 (PDT)
+        bh=yn6I9/njhMxdU7VzCxBwfVe8IAelAP6oEreCcSg+PUE=;
+        b=G0KfqDaZxHYVWDvnkk480cSdMS4/LW5aeXzr/ApJiB3dEdSksJ8SrYhZlmaxxnJeIz
+         L+wJPIOgPcLLvX3323AKGQuDHWd9Mg8tiKKS7v8hE3zPZMkHUTo8IXlzImEPSdz5YmAx
+         9/GaGm7TX6oBd8vWFoXQO+y5q8j51FpvdA8W9owJtGrFOn55oDEBNYySmBKtseVtfnQm
+         QJVWch5fFdpD6X4ZxF/Z8WUfzHoSXqUrXcaffhkt4ybBKPar4CBNWUyQhbV/2fMhaqaz
+         Go2ncv24JLXvBk+i4NCea5iWp2woJkLJQbNZy3i5zMCJwA05CHu5dd0oyBOY7oYIuQ+o
+         VfUQ==
+X-Gm-Message-State: AAQBX9dK0T4ixOT36FtAaMW3ZcA5X8omB1rKNnAxYP+bsKCi0mMFJPs0
+        uTOgi5bAD9LqtYQ/rss+dpg=
+X-Google-Smtp-Source: AKy350aBYwHrDZi2XEUTLMhTf4k3AuDT2sL+HOzMlTm2U5dvv7saGU5nFsDISj2f/Ac1czhPwcv8ug==
+X-Received: by 2002:a17:906:4808:b0:94f:b5c:a254 with SMTP id w8-20020a170906480800b0094f0b5ca254mr2023186ejq.49.1682003152154;
+        Thu, 20 Apr 2023 08:05:52 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-119-201-251.95.119.pool.telefonica.de. [95.119.201.251])
-        by smtp.gmail.com with ESMTPSA id jo2-20020a170906f6c200b009538cc79241sm827430ejb.56.2023.04.20.08.05.50
+        by smtp.gmail.com with ESMTPSA id jo2-20020a170906f6c200b009538cc79241sm827430ejb.56.2023.04.20.08.05.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Apr 2023 08:05:50 -0700 (PDT)
+        Thu, 20 Apr 2023 08:05:51 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
-Subject: [PATCH 2/6] selinux: adjust typos in comments
-Date:   Thu, 20 Apr 2023 17:04:59 +0200
-Message-Id: <20230420150503.22227-2-cgzones@googlemail.com>
+Subject: [PATCH 4/6] selinux: drop return at end of void function avc_insert()
+Date:   Thu, 20 Apr 2023 17:05:01 +0200
+Message-Id: <20230420150503.22227-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.0
 In-Reply-To: <20230420150503.22227-1-cgzones@googlemail.com>
 References: <20230420150503.22227-1-cgzones@googlemail.com>
@@ -66,96 +66,28 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Found by codespell(1)
+Commit 539813e4184a ("selinux: stop returning node from avc_insert()")
+converted the return value of avc_insert() to void but left the now
+unnecessary trailing return statement.
 
+Improves: 539813e4184a ("selinux: stop returning node from avc_insert()")
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/hooks.c         | 2 +-
- security/selinux/ima.c           | 2 +-
- security/selinux/include/audit.h | 2 +-
- security/selinux/include/ima.h   | 2 +-
- security/selinux/selinuxfs.c     | 2 +-
- security/selinux/ss/services.c   | 2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
+ security/selinux/avc.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79b4890e9936..c49ce2044a17 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -937,7 +937,7 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 6bc65830e1a9..1074db66e5ff 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -642,7 +642,6 @@ static void avc_insert(u32 ssid, u32 tsid, u16 tclass,
+ 	hlist_add_head_rcu(&node->list, head);
+ found:
+ 	spin_unlock_irqrestore(lock, flag);
+-	return;
  }
  
- /*
-- * NOTE: the caller is resposible for freeing the memory even if on error.
-+ * NOTE: the caller is responsible for freeing the memory even if on error.
-  */
- static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- {
-diff --git a/security/selinux/ima.c b/security/selinux/ima.c
-index 7daf59667f59..aa34da9b0aeb 100644
---- a/security/selinux/ima.c
-+++ b/security/selinux/ima.c
-@@ -4,7 +4,7 @@
-  *
-  * Author: Lakshmi Ramasubramanian (nramas@linux.microsoft.com)
-  *
-- * Measure critical data structures maintainted by SELinux
-+ * Measure critical data structures maintained by SELinux
-  * using IMA subsystem.
-  */
- #include <linux/vmalloc.h>
-diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
-index 406bceb90c6c..d5495134a5b9 100644
---- a/security/selinux/include/audit.h
-+++ b/security/selinux/include/audit.h
-@@ -41,7 +41,7 @@ void selinux_audit_rule_free(void *rule);
-  *	selinux_audit_rule_match - determine if a context ID matches a rule.
-  *	@sid: the context ID to check
-  *	@field: the field this rule refers to
-- *	@op: the operater the rule uses
-+ *	@op: the operator the rule uses
-  *	@rule: pointer to the audit rule to check against
-  *
-  *	Returns 1 if the context id matches the rule, 0 if it does not, and
-diff --git a/security/selinux/include/ima.h b/security/selinux/include/ima.h
-index 05e04172c86d..93c05e97eb7f 100644
---- a/security/selinux/include/ima.h
-+++ b/security/selinux/include/ima.h
-@@ -4,7 +4,7 @@
-  *
-  * Author: Lakshmi Ramasubramanian (nramas@linux.microsoft.com)
-  *
-- * Measure critical data structures maintainted by SELinux
-+ * Measure critical data structures maintained by SELinux
-  * using IMA subsystem.
-  */
- 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 69a583b91fc5..7cc7e2f0272b 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -951,7 +951,7 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
- 		 * either whitespace or multibyte characters, they shall be
- 		 * encoded based on the percentage-encoding rule.
- 		 * If not encoded, the sscanf logic picks up only left-half
--		 * of the supplied name; splitted by a whitespace unexpectedly.
-+		 * of the supplied name; split by a whitespace unexpectedly.
- 		 */
- 		char   *r, *w;
- 		int     c1, c2;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f14d1ffe54c5..9571a447e427 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -583,7 +583,7 @@ static void type_attribute_bounds_av(struct policydb *policydb,
- 
- /*
-  * flag which drivers have permissions
-- * only looking for ioctl based extended permssions
-+ * only looking for ioctl based extended permissions
-  */
- void services_compute_xperms_drivers(
- 		struct extended_perms *xperms,
+ /**
 -- 
 2.40.0
 
