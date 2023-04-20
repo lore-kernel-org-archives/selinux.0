@@ -2,174 +2,97 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0723FC77B72
-	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 13:36:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8166EC77B72
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 13:58:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230459AbjDTNgw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Apr 2023 09:36:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43660 "EHLO
+        id S231756AbjDTN6S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Apr 2023 09:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229612AbjDTNgv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 09:36:51 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03E1049F5
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 06:36:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1681997766;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3wWuwBNIBqszgmpaomKkPTJ0mZyy8RyGPna6xBQla1w=;
-        b=iKL0AUUNN9y1RvKZhCAlboQhLo4xBSp2gNPq6Pup51oD/bYVvbkYAUf6qKtp3mQ2mfu8CU
-        g4bPbYS+v6rgTvvBUeonxBCsUWYnHYNyNafvuYE8+liraM18y9Q/8X+yzl9Dzcvf+Hr2ob
-        dY+KuDraTMLwVGOUz59rUM5tLAim3bc=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-175-HXQwxbOYNB6wZYNeIELktA-1; Thu, 20 Apr 2023 09:36:04 -0400
-X-MC-Unique: HXQwxbOYNB6wZYNeIELktA-1
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-24b25d3538eso523585a91.1
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 06:36:04 -0700 (PDT)
+        with ESMTP id S231777AbjDTN6P (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 09:58:15 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73FA6A40
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 06:58:11 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id dx24so6494886ejb.11
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 06:58:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1681999090; x=1684591090;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z2P05TwsZ01gAf8SJpOOkQ99qZ/U/7GBu8NTvpZCyjs=;
+        b=snQgJF1JqSlPcx2Q6o3DRQL3UNPj7RaMRpkM1Rf4h+rIftWNstBahUovR2veLZVaDu
+         yUsuDMSWz5RxLE+uLLGOxwZiwjBOa0FqqYzktrRk2owleZAWZZhdq//aRj8jyRSCj8VT
+         kFSYCwemlOzKTlNvpuHyDXdWg3I94g+V2mnorXso0YcREFsicWfGnlw/iOOWvVCLAIou
+         TQBuzlSY67p3nh2FpEwpC5lq0o++6oYwfmPBPLKn//Y2NYH230KoBQvCvq6CVIo4Cgrv
+         PUiLdOum12TM40YoR6cAIoiYQH18/iqREFfx/8UA4OUFEX7XO+bEEpHgYUFh7UP/02sY
+         RXOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681997763; x=1684589763;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3wWuwBNIBqszgmpaomKkPTJ0mZyy8RyGPna6xBQla1w=;
-        b=D0g2Yn1x8u69184I9U00XTqnrBAw15jMq/Z4xIBrHtVSc6eyqB5n692T8KH1UaW47+
-         9cpy1vkG+XtaGWt5Nnd8PZ1moGuIvXkJKi97C97iPZ5Py4exehdlXrPnsIupZsCgASPX
-         Fv5LdRvJswUxZY5uXiqjRNCWPorNIk8kaDc899fEKbKChgMl5KReFoLeOdCYTXVRKIOX
-         rsMY8Ltv6KLFTgahAKnwlCNZqhXjYoYlDu2RapuGNl3URB1VzyAs+A0ERUg0u1gJkgK/
-         Xahe+p48hVjUwIvalHw30NNBj+OqAQafNr0s/YLZjkNIrMaOqWNYt7xjvyBrU94rUZa6
-         tLWw==
-X-Gm-Message-State: AAQBX9cuVRNNMem1PS5IL46lZrknT9u50fM0nb3rKAf/JXGXBNeT/h0N
-        oBfh5Ms+5qMJDkafiUdzjqazDV3R5/XYzTlGpYkhrLlzuZLZHspMVzBkAl7LrY4cqzzeJAIPTqn
-        YZBayyILqBaqApGv9GmoNF/9SdaHaeEmpLi8lXjC4xhbvVjM=
-X-Received: by 2002:a17:90a:f48d:b0:246:fd10:a652 with SMTP id bx13-20020a17090af48d00b00246fd10a652mr1686327pjb.33.1681997763401;
-        Thu, 20 Apr 2023 06:36:03 -0700 (PDT)
-X-Google-Smtp-Source: AKy350bMXdvy/rytoRnsGamIZCg1tM6Dreol8wEDega/UGpu+2eDnXfiMT4qmkmibwwJiWqwcGgLiZChzZkjHUBRDKQ=
-X-Received: by 2002:a17:90a:f48d:b0:246:fd10:a652 with SMTP id
- bx13-20020a17090af48d00b00246fd10a652mr1686307pjb.33.1681997763030; Thu, 20
- Apr 2023 06:36:03 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1681999090; x=1684591090;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z2P05TwsZ01gAf8SJpOOkQ99qZ/U/7GBu8NTvpZCyjs=;
+        b=IWwZXsMYegfJxhSqvnYCMq3AzjuaK3n4eQyVAcsH1O98BcN3/CDNpImsHZj3oGxsQ7
+         e2LfqFBoayRHBzXSI3eP0XK3hnruro8hyHEgls/mAfLkEqOSUeYlweV9tkSZ6dsZNwJX
+         SlFgApzaAYji7Xmta8tKdVNdNP+dH1/XHMNJENVt9qJUP1g88ApegECb8YvkdUUp5ZDB
+         GQ0msClX4Ndy8Txiqg24Ht2aIKcHYVwUQpaDiSbe9zW86Y+ZvuJkwR9LAulNYgFFl9+p
+         mseVfqtT0Z8PSPX4dZ9Wy4Fo1VmRlCHmatO9U7StDEkL4YFm9OjpYa6uVeleTkQf2BLu
+         2iqQ==
+X-Gm-Message-State: AAQBX9dxqrlXfZWg1wPei15KMdwlTVsc1zjqbrg06QU7mh+66x+N0Si9
+        i7AXjC82/AeK3flI8gnzgOi685R/c4A=
+X-Google-Smtp-Source: AKy350YJzcgTzFwA+1cs5PBWQQFS83FYgtVb4bevpyoqM1+RUeWoxe1h9qxugZs+IeShj4ryEY608A==
+X-Received: by 2002:a17:906:1db:b0:94a:76f6:8e52 with SMTP id 27-20020a17090601db00b0094a76f68e52mr1691140ejj.35.1681999090196;
+        Thu, 20 Apr 2023 06:58:10 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-119-201-251.95.119.pool.telefonica.de. [95.119.201.251])
+        by smtp.gmail.com with ESMTPSA id re4-20020a170906d8c400b0094a82a236cbsm746688ejb.129.2023.04.20.06.58.09
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Apr 2023 06:58:09 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [TESTSUITE PATCH] README.md: update dependencies
+Date:   Thu, 20 Apr 2023 15:58:03 +0200
+Message-Id: <20230420135803.4692-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-References: <20230412205429.389382-1-paul@paul-moore.com> <CAFqZXNtjnHtDXp-dS6tpHp8bDdSYHhZLu-KRVYx1wrXe4ZbKvw@mail.gmail.com>
- <CAHC9VhQ6MTCcgVvy2SH-01codHFbYUj2knqDphN-JpBOvdAmNw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ6MTCcgVvy2SH-01codHFbYUj2knqDphN-JpBOvdAmNw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 20 Apr 2023 15:35:51 +0200
-Message-ID: <CAFqZXNt3J4h=7Knu6f3JS_gwZaHfae11kU482epxBdNnwbFdog@mail.gmail.com>
-Subject: Re: [PATCH] selinux: ensure av_permissions.h is built when needed
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 13, 2023 at 1:46=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Wed, Apr 12, 2023 at 6:00=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.=
-com> wrote:
-> > On Wed, Apr 12, 2023 at 10:56=E2=80=AFPM Paul Moore <paul@paul-moore.co=
-m> wrote:
-> > > The Makefile rule responsible for building flask.h and
-> > > av_permissions.h only lists flask.h as a target which means that
-> > > av_permissions.h is only generated when flash.h needs to be
-> >
-> > Typo: flash.h -> flask.h
->
-> Thanks.  Spell checkers don't work very well when you typo one word
-> into another wrong, but correctly spelled, word :)
->
-> > > generated.  This patch fixes this by adding av_permissions.h as a
-> > > target to the rule.
-> > >
-> > > Fixes: 8753f6bec352 ("selinux: generate flask headers during kernel b=
-uild")
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > ---
-> > >  security/selinux/Makefile | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-> > > index 103c2776478a..df35d4ec46f0 100644
-> > > --- a/security/selinux/Makefile
-> > > +++ b/security/selinux/Makefile
-> > > @@ -26,5 +26,5 @@ quiet_cmd_flask =3D GEN     $(obj)/flask.h $(obj)/a=
-v_permissions.h
-> > >        cmd_flask =3D $< $(obj)/flask.h $(obj)/av_permissions.h
-> > >
-> > >  targets +=3D flask.h av_permissions.h
-> > > -$(obj)/flask.h: scripts/selinux/genheaders/genheaders FORCE
-> > > +$(obj)/flask.h $(obj)/av_permissions.h: scripts/selinux/genheaders/g=
-enheaders FORCE
-> >
-> > I had something like this in my patch originally, but then I couldn't
-> > come up with a scenario where it would matter, so I dropped it... Are
-> > you sure it's really needed?
->
-> Yep.  I don't hit this very often, but it does happen.  Here is a
-> forced example:
->
-> % rm security/selinux/av_permissions.h
-> % make security/selinux/
->  CALL    scripts/checksyscalls.sh
->  DESCEND objtool
-> make[3]: 'install_headers' is up to date.
->  CC      security/selinux/avc.o
-> In file included from security/selinux/avc.c:30:
-> ./security/selinux/include/avc.h:20:10: fatal error: av_permissions.h: No=
- such f
-> ile or directory
->   20 | #include "av_permissions.h"
->      |          ^~~~~~~~~~~~~~~~~~
-> compilation terminated.
-> make[3]: *** [scripts/Makefile.build:252: security/selinux/avc.o] Error 1
-> make[2]: *** [scripts/Makefile.build:494: security/selinux] Error 2
-> make[1]: *** [scripts/Makefile.build:494: security] Error 2
-> make: *** [Makefile:2028: .] Error 2
->
-> > (See also the "$(addprefix
-> > $(obj)/,$(selinux-y)): $(obj)/flask.h" rule above.)
->
-> Yes, I know, but since there are only two files/targets I felt it was
-> clearer to add the file without the function-mangling.  If people feel
-> strongly about it I can change it, but I'd just assume leave it as-is.
-> If there were a number of files, yes, using 'addprefix' would be the
-> way to go.
+Add libibverbs-dev, required since 4b4922e1 ("tests/infiniband*:
+simplify test activation"):
 
-Sorry, that's not what I meant. My point was that that line makes the
-whole SELinux code dependent on (only) flask.h, and that flask.h is
-being used to establish the link between SELinux code and the
-genheaders invocation. I don't quite understand how you would end up
-with fresh flask.h, but missing/outdated av_permissions.h (other than
-forcibly removing it as in your example).
+    create_modify_qp.c:10:10: fatal error: infiniband/verbs.h: No such file or directory
+       10 | #include <infiniband/verbs.h>
+          |          ^~~~~~~~~~~~~~~~~~~~
 
-Nonetheless, I agree it's better to list both as a grouped target to
-avoid confusion and broken corner cases. However, we should then also
-adjust the "addprefix" rule to depend on both flask.h and
-av_permissions.h to keep the symmetry and completeness. Since you
-already merged the v2 without it - do you want to send another patch
-to close the gap or should I?
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> > If it is, then I think you want to use "grouped targets" instead:
-> >
-> >     $(obj)/flask.h $(obj)/av_permissions.h &: [...]
-> >
-> > See:
-> > https://www.gnu.org/software/make/manual/html_node/Multiple-Targets.htm=
-l
->
-> Thanks, I wasn't aware of that.
->
-> --
-> paul-moore.com
->
-
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+diff --git a/README.md b/README.md
+index 7bd1dbc..5256cda 100644
+--- a/README.md
++++ b/README.md
+@@ -82,6 +82,7 @@ following command (NOTE: On Fedora 32 and below you need to remove
+ 		lksctp-tools-devel \
+ 		attr \
+ 		libbpf-devel \
++		libibverbs-devel \
+ 		keyutils-libs-devel \
+ 		quota \
+ 		xfsprogs-devel \
+@@ -124,6 +125,7 @@ command:
+ 		libselinux1-dev \
+ 		net-tools \
+ 		iptables \
++		libibverbs-dev \
+ 		libsctp-dev \
+ 		attr \
+ 		libbpf-dev \
+-- 
+2.40.0
 
