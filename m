@@ -2,117 +2,98 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E0EEC77B72
-	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 15:11:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E332EC77B72
+	for <selinux@archiver.kernel.org>; Thu, 20 Apr 2023 15:15:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231807AbjDTPLt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Apr 2023 11:11:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
+        id S231638AbjDTPPN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Apr 2023 11:15:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231926AbjDTPLs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 11:11:48 -0400
-Received: from mail-ua1-x92c.google.com (mail-ua1-x92c.google.com [IPv6:2607:f8b0:4864:20::92c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D64E85B93
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:11:45 -0700 (PDT)
-Received: by mail-ua1-x92c.google.com with SMTP id q10so2404229uas.2
-        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:11:45 -0700 (PDT)
+        with ESMTP id S230384AbjDTPPM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Apr 2023 11:15:12 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7009E3
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:15:07 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id fy21so7101797ejb.9
+        for <selinux@vger.kernel.org>; Thu, 20 Apr 2023 08:15:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1682003505; x=1684595505;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mye6GepEqqNMiSm6lQCpnBS1iaC+thlW149tusbF94U=;
-        b=F2f7MO66u+FZufdjAxqKvuVA/v47css9CMxSeifVaB93bkoygjqZvrN/MFAPn5t65i
-         tcbUtqKfghwD7hPDiehKj8lSi2vkxRuqJE1w33VC70Ft7GvFvnq9oM/qVTLVdGwW8clS
-         kBCGn55vKTIvChJ1VkIbAKCoKxPcy1FVpVVtpVh4iM4Ts5veccoJPWNLNicxXfUbWRUl
-         oA/1/vDsoXhfRlVCv9XTfpIIihAm+umY1Q1xEch06NSgha459267tjuOu9f/AWIfCoIs
-         b2xh2vcS6xI5WfayhDpMXO1iZ+qeAN7ukXLS4Aa6NAw+OBYTLH0qRDUe+ILKUxLzt5kH
-         4myw==
+        d=googlemail.com; s=20221208; t=1682003706; x=1684595706;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AnrQwDtFxlw5DWIhokJvKCT7TWn1lVJrVcAmFi3+goQ=;
+        b=BSRdypgHXlq23A8UuXRyCaYWaqiSSi2U80cXhTzQBqf+sV6NtKYvJN1vysoHW21a5y
+         1hkXnCO8TPmept+60TPVS/uGdtpcyEcqUZF2v98HjcN6/OwfQWHPwOXYj/Rv2Oobiy0Y
+         a/K5p3Xazd8O4chiIKhZDURJEeVukrvaoupmVf8mAi78dlp+4JHoz7HTGHkO8YrEt3DL
+         /pVhLbsdJq6VfmOVwkbWotKx7mlye/pLgAPFkUDyn/9NybjesHqDwQDvNXj6maR4D+ef
+         Vt64CiCj1ifxgSPjEVTAE6eBcj9nOUB5LFd0mJYCKXgcFzTDuJSotZk1yy4vkBjc/c/+
+         fg2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682003505; x=1684595505;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1682003706; x=1684595706;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mye6GepEqqNMiSm6lQCpnBS1iaC+thlW149tusbF94U=;
-        b=la2ckTflnfMNXB+wm1wz9nWyfpZDhJNFFeQre2XTBsA062N3uf33+7YVyKFh3ytAGf
-         1NgkSAXsfD0VPh/4FE640mj1lyA18ySRTDFQXW/oUYgGypSOEK7OsQHN11uXyQiTaPL1
-         2I0yDDQrhWMnzZJELi1EkCbi6/0qrRYg88yc8BFtuUDqm4nuq2ue6vx/Ni8jMwmmBfcy
-         UNLBh78EMm0y9oLinclNP2XYrg1qd3jIxDmwf8fepmR0ghv8lgFc07YSHSl2nmmp8IvP
-         o6HnDPuw3h1gC6ih7RGMJgzsb+T4H/7wIsgV1h6APP0dRw/xFrBUulDK59Jok0csrnTs
-         2RnA==
-X-Gm-Message-State: AAQBX9di//hBq0Fz++g35SxaEOne9+Bftnan2BVmfgtOTw7PzV9y+U7S
-        SRA4hCre83l1YTE3bP8kTbER/JPhpEZ/X0ddu8O2ZbyU
-X-Google-Smtp-Source: AKy350bW20HsyfodtMWlNsuf4amIZSertqDVLKFaqS71bfBhorY5/G4FU8KvK9/RxsJaARu7Mn89P8ais/88MPew3uw=
-X-Received: by 2002:a1f:a994:0:b0:446:c76f:a7e5 with SMTP id
- s142-20020a1fa994000000b00446c76fa7e5mr1200272vke.0.1682003504645; Thu, 20
- Apr 2023 08:11:44 -0700 (PDT)
+        bh=AnrQwDtFxlw5DWIhokJvKCT7TWn1lVJrVcAmFi3+goQ=;
+        b=FKVUMMzWmRBh9hEp7BmoCBHQZrCXp065FxwVcveB6Jx+atu7rDMtTmi4QG4GjDR1sF
+         pk6c8nCjII9yK/APz4G35dXs0NcGXm0hLFCTzoyVt3/UpvjmjlXIs40W8zUbhvlvXpJu
+         bTeunnIojVcxDc55uM2HymcSDofDbWwD/Pv+0ia2Ea+RgTpGuXnS6QviRO3x6oRkG63Q
+         Z7oTfzPrgo/Kg07SuxugyKq1VPM1kclttJJo88UZUWYTlHZVme0HBXAIDyskZSeQAbNS
+         QSizZwUsfAovgpjim/PGgx+NJISUCoOkGGKxzx9xDy38pAufkpK9woR889WFl3V1UCQf
+         5kvw==
+X-Gm-Message-State: AAQBX9d+6wsMkYi4E0ArQvMFBNKuPbWorjk5YlWSZtxLWjCfNGDb6CQw
+        yb1QyGcFE5odZK2aeYafnldEB5WE7A8=
+X-Google-Smtp-Source: AKy350bOWBj8TF2+UiL8UnC316faA6sghUrlPtscmyOgtqsaqluN6wfBA+ZxiIg9amqphciK07AEyg==
+X-Received: by 2002:a17:907:9247:b0:94e:afb6:eda2 with SMTP id kb7-20020a170907924700b0094eafb6eda2mr1686638ejb.8.1682003706227;
+        Thu, 20 Apr 2023 08:15:06 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-119-201-251.95.119.pool.telefonica.de. [95.119.201.251])
+        by smtp.gmail.com with ESMTPSA id q14-20020a17090676ce00b00932ba722482sm850503ejn.149.2023.04.20.08.15.05
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Apr 2023 08:15:05 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH RESEND] libsemanage: fix memory leak in semanage_user_roles
+Date:   Thu, 20 Apr 2023 17:15:00 +0200
+Message-Id: <20230420151500.23679-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.0
+In-Reply-To: <20230401124902.76959-1-cgzones@googlemail.com>
+References: <20230401124902.76959-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20230420135803.4692-1-cgzones@googlemail.com> <CAFqZXNtQ+zxTGBJbxXySaLVZHf7O3nXa9K84kV7GNtLJKZASAw@mail.gmail.com>
-In-Reply-To: <CAFqZXNtQ+zxTGBJbxXySaLVZHf7O3nXa9K84kV7GNtLJKZASAw@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Thu, 20 Apr 2023 17:11:33 +0200
-Message-ID: <CAJ2a_De91qKV4Cz-VSuJqQn+xXaeHLhXwF4LvA+qRtHfezLhwQ@mail.gmail.com>
-Subject: Re: [TESTSUITE PATCH] README.md: update dependencies
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 20 Apr 2023 at 16:28, Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Thu, Apr 20, 2023 at 3:59=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> > Add libibverbs-dev, required since 4b4922e1 ("tests/infiniband*:
-> > simplify test activation"):
-> >
-> >     create_modify_qp.c:10:10: fatal error: infiniband/verbs.h: No such =
-file or directory
-> >        10 | #include <infiniband/verbs.h>
-> >           |          ^~~~~~~~~~~~~~~~~~~~
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  README.md | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/README.md b/README.md
-> > index 7bd1dbc..5256cda 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -82,6 +82,7 @@ following command (NOTE: On Fedora 32 and below you n=
-eed to remove
-> >                 lksctp-tools-devel \
-> >                 attr \
-> >                 libbpf-devel \
-> > +               libibverbs-devel \
-> >                 keyutils-libs-devel \
-> >                 quota \
-> >                 xfsprogs-devel \
-> > @@ -124,6 +125,7 @@ command:
-> >                 libselinux1-dev \
-> >                 net-tools \
-> >                 iptables \
-> > +               libibverbs-dev \
-> >                 libsctp-dev \
-> >                 attr \
-> >                 libbpf-dev \
-> > --
-> > 2.40.0
-> >
->
-> These have already been added in
-> https://github.com/SELinuxProject/selinux-testsuite/commit/65cbbb8c4a4caf=
-d1b307bfbd954acd7c5a653bb8
+The output parameter `role_arr` of semanage_user_get_roles() is an array
+of non-owned role names.  Since the array is never used again, as its
+contents have been copied into the return value `roles`, free it.
 
-Whoops, must have looked on an outdated fork.
-Please disregard my fault.
+Example leak report from useradd(8):
 
->
-> --
-> Ondrej Mosnacek
-> Senior Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
->
+    Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x5597624284a8 in __interceptor_calloc (./shadow/src/useradd+0xee4a8)
+    #1 0x7f53aefcbbf9 in sepol_user_get_roles src/user_record.c:270:21
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+same as v1, only signed-of
+---
+ libsemanage/src/seusers_local.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
+index 6508ec05..795a33d6 100644
+--- a/libsemanage/src/seusers_local.c
++++ b/libsemanage/src/seusers_local.c
+@@ -47,6 +47,7 @@ static char *semanage_user_roles(semanage_handle_t * handle, const char *sename)
+ 						}
+ 					}
+ 				}
++				free(roles_arr);
+ 			}
+ 			semanage_user_free(user);
+ 		}
+-- 
+2.40.0
+
