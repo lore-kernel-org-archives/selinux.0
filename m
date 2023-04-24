@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A8E2C7618E
-	for <selinux@archiver.kernel.org>; Mon, 24 Apr 2023 19:06:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB707C77B61
+	for <selinux@archiver.kernel.org>; Mon, 24 Apr 2023 19:07:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231938AbjDXTGa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Apr 2023 15:06:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56904 "EHLO
+        id S231710AbjDXTHj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Apr 2023 15:07:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231481AbjDXTG3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Apr 2023 15:06:29 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CF64C23
-        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:06:27 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-5050497df77so7400180a12.1
-        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:06:27 -0700 (PDT)
+        with ESMTP id S232245AbjDXTHh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Apr 2023 15:07:37 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12F6E9
+        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:07:32 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-94a34a14a54so882820366b.1
+        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:07:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682363186; x=1684955186;
+        d=gmail.com; s=20221208; t=1682363251; x=1684955251;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6nnP7RfSxu9faHFozWwTP9fgXrJtIeENUYapf/j6+A8=;
-        b=U/WfsDyRdRacJbpWyjt5xyRNGFe0qMc9xiceSjK66p2dlDwumEM1JHTrSKzIycxAHz
-         PmD//mhO6yfKyZs+J7PbBxc+pGfr1a9Rc7enlSjmcDW5YNxfbUpbmp88T9OKMO721UkO
-         aoSL86bzYbBRtJ8fWAzuam+dx/ena+uB9W/M9FezLowjrMX4SUOFr4gAm5786Juma6mH
-         59nhgg4wCEtmgzsV37Rd/TE6Wi74V8fGDwWI5O32KIHfLb1kXrlYyPaR1QZPjKF1eVjZ
-         TfprurqEYBLRpkURLUq7hdqCWPSi7dUwafsnf8zr+AANDN80v33yKGPgO9X8DAgsuy22
-         xO4w==
+        bh=R0KP8Ruhmqk0CHTKXZiV7LTzV23+2U21VcCUUAOv5Cw=;
+        b=OFGi5JqzB++m0rNGWzpEW1zJuOj4KFZYXJcAzn/GgO4uGxJ1Oov/yRHX4nj3xAN8DS
+         RryNPw5JAyL43lZOMCE2F+yeIw2GWJ0CRC2pE/IeQF7myjuIq/5E1dhsvx6+U88RTm0X
+         INjY5YvvCsXcvQzfRO7pfIu/jn7RUKLDeNzR/kU5BI+7sFJh5rfHAdzPkgl6xlAsTnuG
+         SCu/qfQHMuPXgcJUngB1GYAXvjyL0TzlvzvoEGpi4UFD9KiKp5EvfAaa8ErnCtkLPymJ
+         gtWlh9Pkrh0/5RUngWC41oXJRdBQZa2k4YJ6eFSlsD5I8xtGzzzE0Dwm4jmq1Tm/WyI6
+         MtpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682363186; x=1684955186;
+        d=1e100.net; s=20221208; t=1682363251; x=1684955251;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6nnP7RfSxu9faHFozWwTP9fgXrJtIeENUYapf/j6+A8=;
-        b=AvBhQBB5Z7rYiLELUJFLgSrPPcq2b3eRbuzTKTEqbRL3lCfq1h5+VwMTq/21IK5+F0
-         8CdLwMfWGDXLNZ435LxPQz3F1yYagGJhacsp+2uVqJjIUyY9piDyuMzHP6y0HJ/uwSWQ
-         fYhyPbTpfYobauZnIO5itQfBrHyo1CdxY9fhoSJpy2TEFjDGPxIT3nL332kDhJVbEbNi
-         pIgekHo9Nux+hqeyJ2MLCg6lXpIEepQu7C3VssATev1Gpsl7ds7OjMJVExqIPoFi/zV2
-         LRxMWQNasb2/UxA9FmcyRLUQe9PlX8BRwWrsoXBEqR7IiosRQLQqVoCN3QEzfm2D0xvC
-         1c/Q==
-X-Gm-Message-State: AAQBX9cILGCYfK+krceacT+KoaSaPtP8QU76zm6FYsmdmK+4Y0Ew9D+/
-        +AKuq7yQ4lCbSIxBj6kkl+1vHf+Bx7+//4Lj/wPKeOH/
-X-Google-Smtp-Source: AKy350aXIN5OIS+xMCNUgAwsYKyQfyjHiz2/iIRGoPTuz0ZfK9RKCyhikDzGp22FI1vHcQ6qRFhCIv1yfCH4b60lBFY=
-X-Received: by 2002:a50:ee86:0:b0:506:a446:b926 with SMTP id
- f6-20020a50ee86000000b00506a446b926mr13683601edr.19.1682363186108; Mon, 24
- Apr 2023 12:06:26 -0700 (PDT)
+        bh=R0KP8Ruhmqk0CHTKXZiV7LTzV23+2U21VcCUUAOv5Cw=;
+        b=XfqL59i3Ut0stU6NcJW2w2CY2DF/F3romifocfvQs2bYX66SsOurwzMGZD+nmWK/pJ
+         uVCoEeS/9hbfEcGqbmMaExv2H9Hudg8Ubb+QsQAAQCVopSkQv0n7iTnijRikxaq0313o
+         66CO3heLanaHJFwrZ+s2lDveW4hE7BKjdftesaQHioHhzh6VC2Ht1PlNGvjKa9cIJumJ
+         9auCjk8MqTimTEFq9VMSnwjhqdV2mWe/1XhrmOia0s9MVnaTrB1cb+ujUGGpCCkwwFL9
+         UxfVzJz3K9DkWXg8vhnRRCus5ZMijS5zyQVArRl8uYSM8K6mSLaJJeEResiKsdH4fT2+
+         2H1A==
+X-Gm-Message-State: AAQBX9eJA2WmNv+lznnOCDzVnnKtW7J61lAnIMNtZ6hp3Z3NWgf6ME9N
+        yHAMpVjruQaRZRJQpoTcA5CH1CF3kW4j9v90tZ4=
+X-Google-Smtp-Source: AKy350apVnjFKT3E0GGNfwtzLI+ULfX5bUI9qQ0/JxHbfNsBq++agZuTJ11hNxwhleUbgRoCTD2XEMiMaYy1pyQ9Ap0=
+X-Received: by 2002:a17:907:765a:b0:94a:643f:ba5e with SMTP id
+ kj26-20020a170907765a00b0094a643fba5emr10601879ejc.46.1682363251039; Mon, 24
+ Apr 2023 12:07:31 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230331173442.101678-1-cgzones@googlemail.com>
-In-Reply-To: <20230331173442.101678-1-cgzones@googlemail.com>
+References: <20230331173442.101678-1-cgzones@googlemail.com> <20230331173442.101678-2-cgzones@googlemail.com>
+In-Reply-To: <20230331173442.101678-2-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 24 Apr 2023 15:06:15 -0400
-Message-ID: <CAP+JOzRuiMvi1nk0HmpEXFbp_do28O=aXTyLHA6Nos9hVNSzaA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] checkpolicy: add option to skip checking neverallow rules
+Date:   Mon, 24 Apr 2023 15:07:20 -0400
+Message-ID: <CAP+JOzRNquDkfZm98Wv3+Ce0nOQVypvYM8dQnUJmGpCHKPowJQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3] checkpolicy/dispol: add output functions
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -64,234 +64,165 @@ X-Mailing-List: selinux@vger.kernel.org
 On Fri, Mar 31, 2023 at 1:37=E2=80=AFPM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Add the command line argument `-N/--disable-neverallow`, similar to
-> secilc(8), to checkpolicy(8) and checkmodule(8) to skip the check of
-> neverallow rule violations.
->
-> This is mainly useful in development, e.g. to quickly add rules to a
-> policy without fulfilling all neverallow rules or build policies with
-> known violations.
+> Add the ability to show booleans, classes, roles, types and type
+> attributes of policies.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  checkpolicy/checkmodule.8 |  5 ++++-
->  checkpolicy/checkmodule.c | 13 +++++++++----
->  checkpolicy/checkpolicy.8 |  5 ++++-
->  checkpolicy/checkpolicy.c | 12 ++++++++----
->  4 files changed, 25 insertions(+), 10 deletions(-)
+> Almost all of the time seinfo(8) is a superior tool and several policy
+> details are still not supported, e.g. genfscon, ocontexts and class
+> constraints.
+> dispol was however useful in the past to analyze some OSS-Fuzz generated
+> policies, since seinfo trips over non-ascii identifier names.
+> ---
+>  checkpolicy/test/dispol.c | 94 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 94 insertions(+)
 >
-> diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
-> index 1061a6f2..ed9efd4c 100644
-> --- a/checkpolicy/checkmodule.8
-> +++ b/checkpolicy/checkmodule.8
-> @@ -3,7 +3,7 @@
->  checkmodule \- SELinux policy module compiler
->  .SH SYNOPSIS
->  .B checkmodule
-> -.I "[\-h] [\-b] [\-c policy_version] [\-C] [\-E] [\-m] [\-M] [\-U handle=
-_unknown] [\-V] [\-o output_file] [input_file]"
-> +.I "[\-h] [\-b] [\-c policy_version] [\-C] [\-E] [\-m] [\-M] [\-N] [\-U =
-handle_unknown] [\-V] [\-o output_file] [input_file]"
->  .SH "DESCRIPTION"
->  This manual page describes the
->  .BR checkmodule
-> @@ -43,6 +43,9 @@ Generate a non-base policy module.
->  .B \-M,\-\-mls
->  Enable the MLS/MCS support when checking and compiling the policy module=
-.
->  .TP
-> +.B \-N,\-\-disable-neverallow
-> +Do not check neverallow rules.
-> +.TP
->  .B \-V,\-\-version
->  Show policy versions created by this program.
->  .TP
-> diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
-> index 3432608b..4f0d7bbe 100644
-> --- a/checkpolicy/checkmodule.c
-> +++ b/checkpolicy/checkmodule.c
-> @@ -123,7 +123,7 @@ static int write_binary_policy(policydb_t * p, FILE *=
-outfp)
+> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> index 36a3362c..adac2370 100644
+> --- a/checkpolicy/test/dispol.c
+> +++ b/checkpolicy/test/dispol.c
+> @@ -274,6 +274,18 @@ static int change_bool(char *name, int state, policy=
+db_t * p, FILE * fp)
+>         return 0;
+>  }
 >
->  static __attribute__((__noreturn__)) void usage(const char *progname)
+> +static int display_booleans(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "booleans:\n");
+> +       for (i =3D 0; i < p->p_bools.nprim; i++) {
+> +               fprintf(fp, "\t%s : %d\n", p->p_bool_val_to_name[i],
+> +                       p->bool_val_to_struct[i]->state);
+> +       }
+> +       return 0;
+> +}
+> +
+>  static void display_policycaps(policydb_t * p, FILE * fp)
 >  {
-> -       printf("usage:  %s [-h] [-V] [-b] [-C] [-E] [-U handle_unknown] [=
--m] [-M] [-o FILE] [-c VERSION] [INPUT]\n", progname);
-> +       printf("usage:  %s [-h] [-V] [-b] [-C] [-E] [-U handle_unknown] [=
--m] [-M] [-N] [-o FILE] [-c VERSION] [INPUT]\n", progname);
->         printf("Build base and policy modules.\n");
->         printf("Options:\n");
->         printf("  INPUT      build module from INPUT (else read from \"%s=
-\")\n",
-> @@ -139,6 +139,7 @@ static __attribute__((__noreturn__)) void usage(const=
- char *progname)
->         printf("               allow: Allow unknown kernel checks\n");
->         printf("  -m         build a policy module instead of a base modu=
-le\n");
->         printf("  -M         enable MLS policy\n");
-> +       printf("  -N         do not check neverallow rules\n");
->         printf("  -o FILE    write module to FILE (else just check syntax=
-)\n");
->         printf("  -c VERSION build a policy module targeting a modular po=
-licy version (%d-%d)\n",
->                MOD_POLICYDB_VERSION_MIN, MOD_POLICYDB_VERSION_MAX);
-> @@ -148,7 +149,7 @@ static __attribute__((__noreturn__)) void usage(const=
- char *progname)
->  int main(int argc, char **argv)
->  {
->         const char *file =3D txtfile, *outfile =3D NULL;
-> -       unsigned int binary =3D 0, cil =3D 0;
-> +       unsigned int binary =3D 0, cil =3D 0, check_neverallow =3D 1;
-
-It is odd to use a variable named "check_neverallow" and to unset it
-for the "-N" option. All other options set a variable when the option
-is used.
-I would rather call this "disable_neverallow" and set it with the
-option. This is also what secilc does.
-
-Thanks,
-Jim
-
->         int ch;
->         int show_version =3D 0;
->         policydb_t modpolicydb;
-> @@ -159,12 +160,13 @@ int main(int argc, char **argv)
->                 {"version", no_argument, NULL, 'V'},
->                 {"handle-unknown", required_argument, NULL, 'U'},
->                 {"mls", no_argument, NULL, 'M'},
-> +               {"disable-neverallow", no_argument, NULL, 'N'},
->                 {"cil", no_argument, NULL, 'C'},
->                 {"werror", no_argument, NULL, 'E'},
->                 {NULL, 0, NULL, 0}
->         };
+>         ebitmap_node_t *node;
+> @@ -292,6 +304,20 @@ static void display_policycaps(policydb_t * p, FILE =
+* fp)
+>         }
+>  }
 >
-> -       while ((ch =3D getopt_long(argc, argv, "ho:bVEU:mMCc:", long_opti=
-ons, NULL)) !=3D -1) {
-> +       while ((ch =3D getopt_long(argc, argv, "ho:bVEU:mMNCc:", long_opt=
-ions, NULL)) !=3D -1) {
->                 switch (ch) {
->                 case 'h':
->                         usage(argv[0]);
-> @@ -202,6 +204,9 @@ int main(int argc, char **argv)
->                 case 'M':
->                         mlspol =3D 1;
+> +static int display_classes(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "classes:\n");
+> +       for (i =3D 0; i < p->p_classes.nprim; i++) {
+> +               if (!p->p_class_val_to_name[i])
+> +                       continue;
+> +
+> +               fprintf(fp, "\t%s\n", p->p_class_val_to_name[i]);
+> +       }
+> +       return 0;
+> +}
+> +
+>  static void display_id(policydb_t *p, FILE *fp, uint32_t symbol_type,
+>                        uint32_t symbol_value, const char *prefix)
+>  {
+> @@ -312,6 +338,54 @@ static void display_permissive(policydb_t *p, FILE *=
+fp)
+>         }
+>  }
+>
+> +static int display_roles(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "roles:\n");
+> +       for (i =3D 0; i < p->p_roles.nprim; i++) {
+> +               if (!p->p_role_val_to_name[i])
+> +                       continue;
+> +
+> +               fprintf(fp, "\t%s\n", p->p_role_val_to_name[i]);
+> +       }
+> +       return 0;
+> +}
+> +
+> +static int display_types(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "types:\n");
+> +       for (i =3D 0; i < p->p_types.nprim; i++) {
+> +               if (!p->p_type_val_to_name[i])
+> +                       continue;
+> +
+> +               if (p->type_val_to_struct[i]->flavor =3D=3D TYPE_ATTRIB)
+> +                       continue;
+> +
+> +               fprintf(fp, "\t%s\n", p->p_type_val_to_name[i]);
+> +       }
+> +       return 0;
+> +}
+> +
+> +static int display_attributes(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "attributes:\n");
+> +       for (i =3D 0; i < p->p_types.nprim; i++) {
+> +               if (!p->p_type_val_to_name[i])
+> +                       continue;
+> +
+> +               if (p->type_val_to_struct[i]->flavor !=3D TYPE_ATTRIB)
+> +                       continue;
+> +
+> +               fprintf(fp, "\t%s\n", p->p_type_val_to_name[i]);
+> +       }
+> +       return 0;
+> +}
+> +
+>  static void display_role_trans(policydb_t *p, FILE *fp)
+>  {
+>         role_trans_t *rt;
+> @@ -381,6 +455,11 @@ static int menu(void)
+>         printf("8)  display role transitions\n");
+>         printf("\n");
+>         printf("c)  display policy capabilities\n");
+> +       printf("b)  display booleans\n");
+> +       printf("C)  display classes\n");
+> +       printf("r)  display roles\n");
+> +       printf("t)  display types\n");
+> +       printf("a)  display type attributes\n");
+>         printf("p)  display the list of permissive types\n");
+>         printf("u)  display unknown handling setting\n");
+>         printf("F)  display filename_trans rules\n");
+> @@ -511,12 +590,27 @@ int main(int argc, char **argv)
+>                 case '8':
+>                         display_role_trans(&policydb, out_fp);
 >                         break;
-> +               case 'N':
-> +                       check_neverallow =3D 0;
+> +               case 'a':
+> +                       display_attributes(&policydb, out_fp);
 > +                       break;
->                 case 'C':
->                         cil =3D 1;
->                         break;
-> @@ -317,7 +322,7 @@ int main(int argc, char **argv)
->                         fprintf(stderr, "%s:  link modules failed\n", arg=
-v[0]);
->                         exit(1);
->                 }
-> -               if (expand_module(NULL, &modpolicydb, &kernpolicydb, 0, 1=
-)) {
-> +               if (expand_module(NULL, &modpolicydb, &kernpolicydb, /*ve=
-rbose=3D*/0, check_neverallow)) {
->                         fprintf(stderr, "%s:  expand module failed\n", ar=
-gv[0]);
->                         exit(1);
->                 }
-> diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-> index 2984c238..c66e084b 100644
-> --- a/checkpolicy/checkpolicy.8
-> +++ b/checkpolicy/checkpolicy.8
-> @@ -3,7 +3,7 @@
->  checkpolicy \- SELinux policy compiler
->  .SH SYNOPSIS
->  .B checkpolicy
-> -.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] =
-[\-c policyvers] [\-o output_file|\-] [\-S] [\-t target_platform (selinux,x=
-en)] [\-O] [\-E] [\-V] [input_file]"
-> +.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] =
-[\-N] [\-c policyvers] [\-o output_file|\-] [\-S] [\-t target_platform (sel=
-inux,xen)] [\-O] [\-E] [\-V] [input_file]"
->  .br
->  .SH "DESCRIPTION"
->  This manual page describes the
-> @@ -38,6 +38,9 @@ Specify how the kernel should handle unknown classes or=
- permissions (deny, allow
->  .B \-M,\-\-mls
->  Enable the MLS policy when checking and compiling the policy.
->  .TP
-> +.B \-N,\-\-disable-neverallow
-> +Do not check neverallow rules.
-> +.TP
->  .B \-c policyvers
->  Specify the policy version, defaults to the latest.
->  .TP
-> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index 48c31261..209f36d8 100644
-> --- a/checkpolicy/checkpolicy.c
-> +++ b/checkpolicy/checkpolicy.c
-> @@ -109,7 +109,7 @@ static __attribute__((__noreturn__)) void usage(const=
- char *progname)
->  {
->         printf
->             ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny=
-,reject)] [-M] "
-> -            "[-c policyvers (%d-%d)] [-o output_file|-] [-S] [-O] "
-> +            "[-N] [-c policyvers (%d-%d)] [-o output_file|-] [-S] [-O] "
->              "[-t target_platform (selinux,xen)] [-E] [-V] [input_file]\n=
-",
->              progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
->         exit(1);
-> @@ -393,7 +393,7 @@ int main(int argc, char **argv)
->         size_t scontext_len, pathlen;
->         unsigned int i;
->         unsigned int protocol, port;
-> -       unsigned int binary =3D 0, debug =3D 0, sort =3D 0, cil =3D 0, co=
-nf =3D 0, optimize =3D 0;
-> +       unsigned int binary =3D 0, debug =3D 0, sort =3D 0, cil =3D 0, co=
-nf =3D 0, optimize =3D 0, check_neverallow =3D 1;
->         struct val_to_name v;
->         int ret, ch, fd, target =3D SEPOL_TARGET_SELINUX;
->         unsigned int nel, uret;
-> @@ -415,6 +415,7 @@ int main(int argc, char **argv)
->                 {"version", no_argument, NULL, 'V'},
->                 {"handle-unknown", required_argument, NULL, 'U'},
->                 {"mls", no_argument, NULL, 'M'},
-> +               {"disable-neverallow", no_argument, NULL, 'N'},
->                 {"cil", no_argument, NULL, 'C'},
->                 {"conf",no_argument, NULL, 'F'},
->                 {"sort", no_argument, NULL, 'S'},
-> @@ -424,7 +425,7 @@ int main(int argc, char **argv)
->                 {NULL, 0, NULL, 0}
->         };
->
-> -       while ((ch =3D getopt_long(argc, argv, "o:t:dbU:MCFSVc:OEh", long=
-_options, NULL)) !=3D -1) {
-> +       while ((ch =3D getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OEh", lon=
-g_options, NULL)) !=3D -1) {
->                 switch (ch) {
->                 case 'o':
->                         outfile =3D optarg;
-> @@ -473,6 +474,9 @@ int main(int argc, char **argv)
->                 case 'M':
->                         mlspol =3D 1;
->                         break;
-> +               case 'N':
-> +                       check_neverallow =3D 0;
+> +               case 'b':
+> +                       display_booleans(&policydb, out_fp);
 > +                       break;
->                 case 'C':
->                         cil =3D 1;
+>                 case 'c':
+>                         display_policycaps(&policydb, out_fp);
 >                         break;
-> @@ -630,7 +634,7 @@ int main(int argc, char **argv)
->                                 fprintf(stderr, "%s:  policydb_init faile=
-d\n", argv[0]);
->                                 exit(1);
->                         }
-> -                       if (expand_module(NULL, policydbp, &policydb, 0, =
-1)) {
-> +                       if (expand_module(NULL, policydbp, &policydb, /*v=
-erbose=3D*/0, check_neverallow)) {
->                                 fprintf(stderr, "Error while expanding po=
-licy\n");
->                                 exit(1);
->                         }
+> +               case 'C':
+> +                       display_classes(&policydb, out_fp);
+> +                       break;
+>                 case 'p':
+>                         display_permissive(&policydb, out_fp);
+>                         break;
+> +               case 'r':
+> +                       display_roles(&policydb, out_fp);
+> +                       break;
+> +               case 't':
+> +                       display_types(&policydb, out_fp);
+> +                       break;
+>                 case 'u':
+>                 case 'U':
+>                         display_handle_unknown(&policydb, out_fp);
 > --
 > 2.40.0
 >
