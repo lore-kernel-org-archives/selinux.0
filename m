@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB707C77B61
-	for <selinux@archiver.kernel.org>; Mon, 24 Apr 2023 19:07:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35A65C7618E
+	for <selinux@archiver.kernel.org>; Mon, 24 Apr 2023 19:13:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231710AbjDXTHj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Apr 2023 15:07:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58110 "EHLO
+        id S231418AbjDXTNF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Apr 2023 15:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232245AbjDXTHh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Apr 2023 15:07:37 -0400
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12F6E9
-        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:07:32 -0700 (PDT)
-Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-94a34a14a54so882820366b.1
-        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:07:32 -0700 (PDT)
+        with ESMTP id S229929AbjDXTNE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Apr 2023 15:13:04 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A910A7A99
+        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:12:49 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id 4fb4d7f45d1cf-5067736607fso8375814a12.0
+        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:12:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1682363251; x=1684955251;
+        d=gmail.com; s=20221208; t=1682363568; x=1684955568;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=R0KP8Ruhmqk0CHTKXZiV7LTzV23+2U21VcCUUAOv5Cw=;
-        b=OFGi5JqzB++m0rNGWzpEW1zJuOj4KFZYXJcAzn/GgO4uGxJ1Oov/yRHX4nj3xAN8DS
-         RryNPw5JAyL43lZOMCE2F+yeIw2GWJ0CRC2pE/IeQF7myjuIq/5E1dhsvx6+U88RTm0X
-         INjY5YvvCsXcvQzfRO7pfIu/jn7RUKLDeNzR/kU5BI+7sFJh5rfHAdzPkgl6xlAsTnuG
-         SCu/qfQHMuPXgcJUngB1GYAXvjyL0TzlvzvoEGpi4UFD9KiKp5EvfAaa8ErnCtkLPymJ
-         gtWlh9Pkrh0/5RUngWC41oXJRdBQZa2k4YJ6eFSlsD5I8xtGzzzE0Dwm4jmq1Tm/WyI6
-         MtpA==
+        bh=tQOuYXIDx3snxH44eUGb6Wnk940LG0Aq1IEr+cRoa+I=;
+        b=JYJXDuBuBHYV32EkipK3KGx9IpA4lUAz2n/OpYbUkB6bX5FtwiI05MRUi+oZC1K82R
+         YjDLeF3GyCr6yEjlcftd3m3qi1ipWMqCRtHFNsBF6t5fxtQx2mj7bPhFJPANabuOY16t
+         SDAKRIITW/BODwJIwPOZA5Xe/KwM1L+mNUFds7NOrtCWtDZBFQPpzlZz2cbgomGShqTI
+         Zw4o/+RXuwBN/bV/zG/oJR9ZaV6Zm38iNtcjuodhclFv4u8PkXl4tMqoinRaaBWydU9r
+         Ltfonh2MuBNEnCWmr848RF+JRv8gxg2F42qOwM76sHlp/VlLpXiXXqKr3z+e9lqekGmg
+         psCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682363251; x=1684955251;
+        d=1e100.net; s=20221208; t=1682363568; x=1684955568;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=R0KP8Ruhmqk0CHTKXZiV7LTzV23+2U21VcCUUAOv5Cw=;
-        b=XfqL59i3Ut0stU6NcJW2w2CY2DF/F3romifocfvQs2bYX66SsOurwzMGZD+nmWK/pJ
-         uVCoEeS/9hbfEcGqbmMaExv2H9Hudg8Ubb+QsQAAQCVopSkQv0n7iTnijRikxaq0313o
-         66CO3heLanaHJFwrZ+s2lDveW4hE7BKjdftesaQHioHhzh6VC2Ht1PlNGvjKa9cIJumJ
-         9auCjk8MqTimTEFq9VMSnwjhqdV2mWe/1XhrmOia0s9MVnaTrB1cb+ujUGGpCCkwwFL9
-         UxfVzJz3K9DkWXg8vhnRRCus5ZMijS5zyQVArRl8uYSM8K6mSLaJJeEResiKsdH4fT2+
-         2H1A==
-X-Gm-Message-State: AAQBX9eJA2WmNv+lznnOCDzVnnKtW7J61lAnIMNtZ6hp3Z3NWgf6ME9N
-        yHAMpVjruQaRZRJQpoTcA5CH1CF3kW4j9v90tZ4=
-X-Google-Smtp-Source: AKy350apVnjFKT3E0GGNfwtzLI+ULfX5bUI9qQ0/JxHbfNsBq++agZuTJ11hNxwhleUbgRoCTD2XEMiMaYy1pyQ9Ap0=
-X-Received: by 2002:a17:907:765a:b0:94a:643f:ba5e with SMTP id
- kj26-20020a170907765a00b0094a643fba5emr10601879ejc.46.1682363251039; Mon, 24
- Apr 2023 12:07:31 -0700 (PDT)
+        bh=tQOuYXIDx3snxH44eUGb6Wnk940LG0Aq1IEr+cRoa+I=;
+        b=T7cC90d3wEPeMAWBWPV+tvGhnLTLxbYqVmOFIr94Td/sVgMVNJIyKFweNeQkt/I5Vm
+         bd2BnepugQ6XEbdQJPJVVfhN7XFKG3VqOQ+2SH0eFDwrwC+R8sWQA56lVa1M2srpfJjP
+         bQvAz//FZnoT42ssCeYvTo6xpRayC49mFxuuDldE6+p0tVNQL4hob4kqWwVQ10k8c9NA
+         /Nxgw/HcB7BSqut34Szvyt9bf3HEKbhLsjBBAbBlklq2K6YtDvT0alXfHqUFoWXIngKh
+         9HThH10e5dhH9GAMgQrp+NE2X7u3FofLwKBfcFo7HpRmoax6lAi58j6BrduImTajyOTN
+         XJ/g==
+X-Gm-Message-State: AAQBX9dU0FBWJ8jVl8YLqBtxagnzBhpABjcwooFo50kYkCMBGDaWJ05T
+        cS8GckxbBz67wpsygXzYoqaQz4qEbVeVRUaK6cg=
+X-Google-Smtp-Source: AKy350Zd8TTqIsmW6m8XbNUzI6t7PO1MwAG9XrBYxDGftbCQkm7ASppILg8copUhFZEMn0iBJoLEZeuZVZKXHEaeYpY=
+X-Received: by 2002:aa7:cd71:0:b0:504:8bff:8285 with SMTP id
+ ca17-20020aa7cd71000000b005048bff8285mr13254920edb.14.1682363567968; Mon, 24
+ Apr 2023 12:12:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230331173442.101678-1-cgzones@googlemail.com> <20230331173442.101678-2-cgzones@googlemail.com>
-In-Reply-To: <20230331173442.101678-2-cgzones@googlemail.com>
+References: <20230331173442.101678-1-cgzones@googlemail.com> <20230331173442.101678-3-cgzones@googlemail.com>
+In-Reply-To: <20230331173442.101678-3-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 24 Apr 2023 15:07:20 -0400
-Message-ID: <CAP+JOzRNquDkfZm98Wv3+Ce0nOQVypvYM8dQnUJmGpCHKPowJQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] checkpolicy/dispol: add output functions
+Date:   Mon, 24 Apr 2023 15:12:36 -0400
+Message-ID: <CAP+JOzRkrwxuizU_pWY=X5yOkXBki=Twv=VEHcRsirA_BX4r5Q@mail.gmail.com>
+Subject: Re: [PATCH 3/3] checkpolicy/dismod: misc improvements
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -64,165 +64,146 @@ X-Mailing-List: selinux@vger.kernel.org
 On Fri, Mar 31, 2023 at 1:37=E2=80=AFPM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Add the ability to show booleans, classes, roles, types and type
-> attributes of policies.
+> * fix minus self formatting in neverallow rules, avoiding `~ - self`
+>
+> * show neverallow and neverallowxperm rules
+>
+> * whitespace improvements in output
+>   - avoid duplicate whitespaces before permission list, since
+>     sepol_av_to_string() already adds a trailing one
+>   - avoid duplicate whitespace after wildcard type
+>   - unify indentation for xperm rules
+>
+> * drop unused global variables
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
 > ---
-> Almost all of the time seinfo(8) is a superior tool and several policy
-> details are still not supported, e.g. genfscon, ocontexts and class
-> constraints.
-> dispol was however useful in the past to analyze some OSS-Fuzz generated
-> policies, since seinfo trips over non-ascii identifier names.
-> ---
->  checkpolicy/test/dispol.c | 94 +++++++++++++++++++++++++++++++++++++++
->  1 file changed, 94 insertions(+)
+>  checkpolicy/test/dismod.c | 33 ++++++++++++++++++---------------
+>  1 file changed, 18 insertions(+), 15 deletions(-)
 >
-> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
-> index 36a3362c..adac2370 100644
-> --- a/checkpolicy/test/dispol.c
-> +++ b/checkpolicy/test/dispol.c
-> @@ -274,6 +274,18 @@ static int change_bool(char *name, int state, policy=
-db_t * p, FILE * fp)
->         return 0;
->  }
+> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+> index a2d74d42..ebc1eec3 100644
+> --- a/checkpolicy/test/dismod.c
+> +++ b/checkpolicy/test/dismod.c
+> @@ -54,11 +54,8 @@
+>  #define DISPLAY_AVBLOCK_FILENAME_TRANS 7
 >
-> +static int display_booleans(policydb_t * p, FILE *fp)
-> +{
-> +       uint32_t i;
-> +
-> +       fprintf(fp, "booleans:\n");
-> +       for (i =3D 0; i < p->p_bools.nprim; i++) {
-> +               fprintf(fp, "\t%s : %d\n", p->p_bool_val_to_name[i],
-> +                       p->bool_val_to_struct[i]->state);
-> +       }
-> +       return 0;
-> +}
-> +
->  static void display_policycaps(policydb_t * p, FILE * fp)
+>  static policydb_t policydb;
+> -extern unsigned int ss_initialized;
+>
+> -int policyvers =3D MOD_POLICYDB_VERSION_BASE;
+> -
+> -static const char *symbol_labels[9] =3D {
+> +static const char *const symbol_labels[9] =3D {
+>         "commons",
+>         "classes", "roles  ", "types  ", "users  ", "bools  ",
+>         "levels ", "cats   ", "attribs"
+> @@ -86,12 +83,12 @@ static void render_access_bitmap(ebitmap_t * map, uin=
+t32_t class,
 >  {
->         ebitmap_node_t *node;
-> @@ -292,6 +304,20 @@ static void display_policycaps(policydb_t * p, FILE =
-* fp)
+>         unsigned int i;
+>         char *perm;
+> -       fprintf(fp, "{");
+> +       fprintf(fp, " {");
+>         for (i =3D ebitmap_startbit(map); i < ebitmap_length(map); i++) {
+>                 if (ebitmap_get_bit(map, i)) {
+>                         perm =3D sepol_av_to_string(p, class, UINT32_C(1)=
+ << i);
+>                         if (perm)
+> -                               fprintf(fp, " %s", perm);
+> +                               fprintf(fp, "%s", perm);
+>                 }
 >         }
->  }
+>         fprintf(fp, " }");
+> @@ -117,7 +114,7 @@ static int display_type_set(type_set_t * set, uint32_=
+t flags, policydb_t * polic
+>         unsigned int i, num_types;
 >
-> +static int display_classes(policydb_t * p, FILE *fp)
-> +{
-> +       uint32_t i;
-> +
-> +       fprintf(fp, "classes:\n");
-> +       for (i =3D 0; i < p->p_classes.nprim; i++) {
-> +               if (!p->p_class_val_to_name[i])
-> +                       continue;
-> +
-> +               fprintf(fp, "\t%s\n", p->p_class_val_to_name[i]);
-> +       }
-> +       return 0;
-> +}
-> +
->  static void display_id(policydb_t *p, FILE *fp, uint32_t symbol_type,
->                        uint32_t symbol_value, const char *prefix)
->  {
-> @@ -312,6 +338,54 @@ static void display_permissive(policydb_t *p, FILE *=
-fp)
+>         if (set->flags & TYPE_STAR) {
+> -               fprintf(fp, " * ");
+> +               fprintf(fp, " *");
+>                 return 0;
+>         } else if (set->flags & TYPE_COMP) {
+>                 fprintf(fp, " ~");
+> @@ -149,7 +146,7 @@ static int display_type_set(type_set_t * set, uint32_=
+t flags, policydb_t * polic
 >         }
->  }
 >
-> +static int display_roles(policydb_t * p, FILE *fp)
-> +{
-> +       uint32_t i;
-> +
-> +       fprintf(fp, "roles:\n");
-> +       for (i =3D 0; i < p->p_roles.nprim; i++) {
-> +               if (!p->p_role_val_to_name[i])
-> +                       continue;
-> +
-> +               fprintf(fp, "\t%s\n", p->p_role_val_to_name[i]);
-> +       }
-> +       return 0;
-> +}
-> +
-> +static int display_types(policydb_t * p, FILE *fp)
-> +{
-> +       uint32_t i;
-> +
-> +       fprintf(fp, "types:\n");
-> +       for (i =3D 0; i < p->p_types.nprim; i++) {
-> +               if (!p->p_type_val_to_name[i])
-> +                       continue;
-> +
-> +               if (p->type_val_to_struct[i]->flavor =3D=3D TYPE_ATTRIB)
-> +                       continue;
-> +
-> +               fprintf(fp, "\t%s\n", p->p_type_val_to_name[i]);
-> +       }
-> +       return 0;
-> +}
-> +
-> +static int display_attributes(policydb_t * p, FILE *fp)
-> +{
-> +       uint32_t i;
-> +
-> +       fprintf(fp, "attributes:\n");
-> +       for (i =3D 0; i < p->p_types.nprim; i++) {
-> +               if (!p->p_type_val_to_name[i])
-> +                       continue;
-> +
-> +               if (p->type_val_to_struct[i]->flavor !=3D TYPE_ATTRIB)
-> +                       continue;
-> +
-> +               fprintf(fp, "\t%s\n", p->p_type_val_to_name[i]);
-> +       }
-> +       return 0;
-> +}
-> +
->  static void display_role_trans(policydb_t *p, FILE *fp)
->  {
->         role_trans_t *rt;
-> @@ -381,6 +455,11 @@ static int menu(void)
->         printf("8)  display role transitions\n");
->         printf("\n");
->         printf("c)  display policy capabilities\n");
-> +       printf("b)  display booleans\n");
-> +       printf("C)  display classes\n");
-> +       printf("r)  display roles\n");
-> +       printf("t)  display types\n");
-> +       printf("a)  display type attributes\n");
->         printf("p)  display the list of permissive types\n");
->         printf("u)  display unknown handling setting\n");
->         printf("F)  display filename_trans rules\n");
-> @@ -511,12 +590,27 @@ int main(int argc, char **argv)
->                 case '8':
->                         display_role_trans(&policydb, out_fp);
->                         break;
-> +               case 'a':
-> +                       display_attributes(&policydb, out_fp);
-> +                       break;
-> +               case 'b':
-> +                       display_booleans(&policydb, out_fp);
-> +                       break;
->                 case 'c':
->                         display_policycaps(&policydb, out_fp);
->                         break;
-> +               case 'C':
-> +                       display_classes(&policydb, out_fp);
-> +                       break;
->                 case 'p':
->                         display_permissive(&policydb, out_fp);
->                         break;
-> +               case 'r':
-> +                       display_roles(&policydb, out_fp);
-> +                       break;
-> +               case 't':
-> +                       display_types(&policydb, out_fp);
-> +                       break;
->                 case 'u':
->                 case 'U':
->                         display_handle_unknown(&policydb, out_fp);
+>         if (num_types > 1)
+> -               fprintf(fp, "{");
+> +               fprintf(fp, " {");
+>
+
+This causes a problem with a type set using "~". It gets displayed
+with a space between the "~" and the "{".
+
+Thanks,
+Jim
+
+
+>         for (i =3D ebitmap_startbit(&set->types); i < ebitmap_length(&set=
+->types);
+>              i++) {
+> @@ -170,7 +167,10 @@ static int display_type_set(type_set_t * set, uint32=
+_t flags, policydb_t * polic
+>         }
+>
+>         if (flags & RULE_NOTSELF) {
+> -               fprintf(fp, " -self");
+> +               if (set->flags & TYPE_COMP)
+> +                       fprintf(fp, " self");
+> +               else
+> +                       fprintf(fp, " -self");
+>         }
+>
+>         if (num_types > 1)
+> @@ -234,6 +234,9 @@ static int display_avrule(avrule_t * avrule, policydb=
+_t * policy,
+>                 if (avrule->specified & AVRULE_DONTAUDIT) {
+>                         fprintf(fp, "  dontaudit");
+>                 }
+> +               if (avrule->specified & AVRULE_NEVERALLOW) {
+> +                       fprintf(fp, "  neverallow");
+> +               }
+>         } else if (avrule->specified & AVRULE_TYPE) {
+>                 if (avrule->specified & AVRULE_TRANSITION) {
+>                         fprintf(fp, "  type_transition");
+> @@ -244,15 +247,15 @@ static int display_avrule(avrule_t * avrule, policy=
+db_t * policy,
+>                 if (avrule->specified & AVRULE_CHANGE) {
+>                         fprintf(fp, "  type_change");
+>                 }
+> -       } else if (avrule->specified & AVRULE_NEVERALLOW) {
+> -               fprintf(fp, "  neverallow");
+>         } else if (avrule->specified & AVRULE_XPERMS) {
+>                 if (avrule->specified & AVRULE_XPERMS_ALLOWED)
+> -                       fprintf(fp, "allowxperm ");
+> +                       fprintf(fp, "  allowxperm");
+>                 else if (avrule->specified & AVRULE_XPERMS_AUDITALLOW)
+> -                       fprintf(fp, "auditallowxperm ");
+> +                       fprintf(fp, "  auditallowxperm");
+>                 else if (avrule->specified & AVRULE_XPERMS_DONTAUDIT)
+> -                       fprintf(fp, "dontauditxperm ");
+> +                       fprintf(fp, "  dontauditxperm");
+> +               else if (avrule->specified & AVRULE_XPERMS_NEVERALLOW)
+> +                       fprintf(fp, "  neverallowxperm");
+>         } else {
+>                 fprintf(fp, "     ERROR: no valid rule type specified\n")=
+;
+>                 return -1;
+> @@ -560,7 +563,7 @@ static int display_scope_index(scope_index_t * indice=
+s, policydb_t * p,
+>                                                                      p, o=
+ut_fp);
+>                                         } else {
+>                                                 fprintf(out_fp,
+> -                                                       "<no perms known>=
+");
+> +                                                       " <no perms known=
+>");
+>                                         }
+>                                 }
+>                         }
 > --
 > 2.40.0
 >
