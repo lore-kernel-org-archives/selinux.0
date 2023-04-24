@@ -2,68 +2,85 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3BEEC77B61
-	for <selinux@archiver.kernel.org>; Mon, 24 Apr 2023 18:50:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 378FEC7618E
+	for <selinux@archiver.kernel.org>; Mon, 24 Apr 2023 19:02:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232525AbjDXSuU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Apr 2023 14:50:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45214 "EHLO
+        id S231802AbjDXTCe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Apr 2023 15:02:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232479AbjDXSt6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Apr 2023 14:49:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E273EAF32;
-        Mon, 24 Apr 2023 11:49:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D029A6284C;
-        Mon, 24 Apr 2023 18:47:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3F7B2C433EF;
-        Mon, 24 Apr 2023 18:47:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1682362055;
-        bh=N2cZySwmFQ9XSHlJHgIN+fvENa3SaLNzWwM96Pl7eq4=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=VhYsQIxI3ltxOqPzEI6ON/jn2ZyRdBg49483c/BsbCye2bFdwD1D3xuAQWprdKrb9
-         7608yN+qfN/LA+n0QlskzKoYGRib8Xm8T8weSrwrVTqRJnN/LzDsDo/jyz2ytXB4+B
-         GjaLmzTiuHIQGHWGXta1tQrzfm+jGT0f3iZFro1aMIuAhH00Pofr3ttrce8ys8Ar4z
-         v/sVKaLfXodPcNnvSTYXdg6TP7+xKycZiEEg3zLYT4ecezClHo5j1T1+xCWI2fHbDF
-         oZXh/hf3yI5cTbDqkFuAcezE75NMsjzJn56MbpjoubZeo5z4odVKZCW9VQbkxM0X/y
-         m1M7XxL9UQ3RQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 2F259C395D8;
-        Mon, 24 Apr 2023 18:47:35 +0000 (UTC)
-Subject: Re: [GIT PULL] SELinux patches for v6.4
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <CAHC9VhQEXm3XG7B1wJBVsd15xFNpMjyuyxWDEcTAGrSN6zWoaA@mail.gmail.com>
-References: <CAHC9VhQEXm3XG7B1wJBVsd15xFNpMjyuyxWDEcTAGrSN6zWoaA@mail.gmail.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <CAHC9VhQEXm3XG7B1wJBVsd15xFNpMjyuyxWDEcTAGrSN6zWoaA@mail.gmail.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20230420
-X-PR-Tracked-Commit-Id: 4ce1f694eb5d8ca607fed8542d32a33b4f1217a5
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 72eaa0967b594cb9886c2f277a69ac1ea935b1a8
-Message-Id: <168236205518.5635.17206457047162868498.pr-tracker-bot@kernel.org>
-Date:   Mon, 24 Apr 2023 18:47:35 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        with ESMTP id S231438AbjDXTCd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Apr 2023 15:02:33 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A546184
+        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:02:32 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id 4fb4d7f45d1cf-504efe702d5so7105280a12.3
+        for <selinux@vger.kernel.org>; Mon, 24 Apr 2023 12:02:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682362951; x=1684954951;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X6lrmicIeHGL0qo57xssdswircD9/1VajNoyUNT0Llo=;
+        b=fT+Vtna3ewXA8l0tz36UZKtI06+7YIQa3GTs1+uzQcp3u0Iut3BfQzd1jurar5i7HZ
+         jyYlb1BTU5CxeGTBhSn1Zc//dmapnbD5sVhrt9L8f/Vu1xWAOKzvt9Tp+xVRIuruZinq
+         MC1qW9MoPUdHKCyPZwP8Z9h4qPyg9kaB2HhMLdzDiqLYJd+ejGnqvpXWGWAjZ4jgR8CL
+         iMLEwlU08Tfqguo+eOMlyI+pdkQuGZnjORYYoUgzNLVCncxap25+DyJzJ91Wp4EOBgcG
+         ENAYSGv0zFsaqI7Z4pXmzZ9awSPEs74iaVppoKvfNXL05zCVsPreJRYMWyD/fmvjLh+S
+         Kbqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682362951; x=1684954951;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=X6lrmicIeHGL0qo57xssdswircD9/1VajNoyUNT0Llo=;
+        b=BnIKy8yN75IVC+xIZelZMvCb+Ez6y5wpt7DLqQDXSv9WCaOX047sYU4hYnuq6ZW4z+
+         O65All2Q/I9EWSoiD6/1tZsjjlMByNj+QgKCP77Xply8DOJp3Z7iAgMGcFJxpSUrjgk3
+         fcf6lETTZr27SX+WcCJOyhaJIaLkeSD0PDN9HEhbgIyL0JjtiByRxFWM3Lcw2Lb3UrZV
+         oAYv+7Kj8WQWiB35w53f4Hv9bFSfGkEUsxEVRj4kaIl8C/g0IyO4TI7JfWlSbjd4sa6+
+         P9NDEyZWtvDaPjcvhnoQYCNoCDsBH+a9G5knvxN9y6WFr6j74eZ72oeCieCgmcovCOgA
+         Ffmg==
+X-Gm-Message-State: AAQBX9fuoaNeO9DDTjcPeewiXh8+zEaZMDZbgrn7Xa8kUdJ0ONiyughk
+        CmfmBZOpBbHkh77cppuEuS0rvollFGlwiPCKnljOTCXG
+X-Google-Smtp-Source: AKy350aYediU8mlgyTUrp32FKpR8EHfsW8kOnH2kA/THanN/OnUV3WzH2+EmksKFFHqqVf1sEHVY3pwkbOdsOsfdiFE=
+X-Received: by 2002:a05:6402:4c6:b0:504:b177:3ef3 with SMTP id
+ n6-20020a05640204c600b00504b1773ef3mr11544497edw.3.1682362951078; Mon, 24 Apr
+ 2023 12:02:31 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230331173442.101678-1-cgzones@googlemail.com> <361e270e-ff0f-681b-5354-fc8fe98bb26c@linux.microsoft.com>
+In-Reply-To: <361e270e-ff0f-681b-5354-fc8fe98bb26c@linux.microsoft.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 24 Apr 2023 15:02:19 -0400
+Message-ID: <CAP+JOzQuwp+S6F=Y0MzM35_ZTXT-FmmV8YHq8GoZQDKuONf_Wg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] checkpolicy: add option to skip checking neverallow rules
+To:     Daniel Burgener <dburgener@linux.microsoft.com>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Thu, 20 Apr 2023 19:52:45 -0400:
+On Fri, Mar 31, 2023 at 1:59=E2=80=AFPM Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
+>
+> On 3/31/2023 1:34 PM, Christian G=C3=B6ttsche wrote:
+> > Add the command line argument `-N/--disable-neverallow`, similar to
+> > secilc(8), to checkpolicy(8) and checkmodule(8) to skip the check of
+> > neverallow rule violations.
+> >
+> > This is mainly useful in development, e.g. to quickly add rules to a
+> > policy without fulfilling all neverallow rules or build policies with
+> > known violations.
+>
+> I think it might be helpful to print a quick warning along the lines of
+> "Warning: neverallow checking is disabled, compiled policy may violate
+> neverallow rules" or similar when the flag is set, just to double-check
+> against accidental misuse.
+>
+> -Daniel
+>
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20230420
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/72eaa0967b594cb9886c2f277a69ac1ea935b1a8
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+I am ok without a warning. secilc doesn't warn when disabling neverallows.
+Jim
