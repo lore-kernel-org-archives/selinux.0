@@ -2,155 +2,165 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E4EC77B78
-	for <selinux@archiver.kernel.org>; Wed, 26 Apr 2023 15:54:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D8EEC77B60
+	for <selinux@archiver.kernel.org>; Wed, 26 Apr 2023 20:49:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239512AbjDZPyy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Apr 2023 11:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57836 "EHLO
+        id S239957AbjDZUtz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Apr 2023 16:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241312AbjDZPyu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Apr 2023 11:54:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D777C65BC
-        for <selinux@vger.kernel.org>; Wed, 26 Apr 2023 08:54:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1682524441;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=aOwcjKUlSIrPQM3pkwc5J9Nr9D+zkUMTCHjfBo47nCk=;
-        b=HgcDeoljbl4TdVie/biRHumlNtb+IO2WL8nrKQOm6+nMB5pVzcA9404RI/aC2zWPs6zMZ8
-        EH+qm9XjvVgh5Z0yI5jch7GqDQRQ2KtwbGPkFWN7hd/v0KrF7o3OTdfNffgeyHZzpS/HCM
-        j8Gd0gg5+uubZ2TKUMRkULS7htXQzUQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-538-KEIS7aotP9aQAz82r11Ddg-1; Wed, 26 Apr 2023 11:53:59 -0400
-X-MC-Unique: KEIS7aotP9aQAz82r11Ddg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F3FEC1C0950B;
-        Wed, 26 Apr 2023 15:53:58 +0000 (UTC)
-Received: from localhost (unknown [10.45.225.106])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B39E41121314;
-        Wed, 26 Apr 2023 15:53:58 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH] libselinux: set CFLAGS for pip installation
-In-Reply-To: <87h6t2n0wb.fsf@redhat.com>
-References: <20230420162700.41974-1-cgzones@googlemail.com>
- <87h6t2n0wb.fsf@redhat.com>
-Date:   Wed, 26 Apr 2023 17:53:58 +0200
-Message-ID: <87edo6myg9.fsf@redhat.com>
+        with ESMTP id S239909AbjDZUtv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Apr 2023 16:49:51 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C16F1FF6
+        for <selinux@vger.kernel.org>; Wed, 26 Apr 2023 13:49:34 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-54f851bcd4fso90447767b3.3
+        for <selinux@vger.kernel.org>; Wed, 26 Apr 2023 13:49:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1682542174; x=1685134174;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=r4rJdKQ7xY8jpnF0AffukVPnUu/ms1dIRsJxDMqyrkc=;
+        b=Rgdq0t7hxHEPm1qLjVg3CBZYJc6G1wpnFDHqA1BpBJLIBTW/vQxbQAe+qv+C0FC7dJ
+         e5X2ElxCAfjdTneKY3KmjYyZp5g7E/qcF7Y7OfNqh0fIaqAF7KvNjlX/cwNnJ0ilFie6
+         TPX+91L0tbyvAMpB/UceUQomZGyeTNLOUbJekFUqRsSkyOPEoACnsyVSWrJKoih8STzf
+         zfmNiucl/dyrh9M6gp/BjyJZJHi4vACYi3jPtRm1e4bzqVIW4N8Efgt6/Hh7swhEHZdz
+         3KmbkltpQL6onE23Q25wEEkQm5xHMXIh/Z+p1fFa4XpYS6MhdCrJGwNqC61o5lk+9Nfj
+         EPsw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682542174; x=1685134174;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=r4rJdKQ7xY8jpnF0AffukVPnUu/ms1dIRsJxDMqyrkc=;
+        b=KNU72a4cMxq2C1E33Nno5eqCO6E1YUKgRljQ4R2thSW9hmvPreO3v/zLoa4WDhBs3s
+         7nNmidgJo4qnQ/YOIwQgMGfJkVMBjeXA6JiumjpC9rJp4Z/hhICLi0RjH85HXExeVYyc
+         5IZdHfLBpuMj+l/gnMWJ4jRE+jJ1pfuwXjCIb9OgfFexSQbaRv8EdYraYpnPVYhxRyfk
+         /0qH0NC5TqgvGyZzbjsTgtOGnJBDHt7+z2+BQGCcbt9XKuYrWfPK8KCgygQI4JfPdI+h
+         f0STbYGxrG0HaoFAcNFVdyYe2f7MrBWn+qreMMYV9LzTJlXWADOFs1USR0ROTjhboOfI
+         3fSA==
+X-Gm-Message-State: AAQBX9eFDZ/W8lp6vssEHFjAWyKum6CPhaOs3uFo2IIfrCeV+Rc7fGVT
+        r0XQmhFWJr7n+WrnDzkT40GSZVTelS3O2JqoTyJm
+X-Google-Smtp-Source: AKy350a12tvjCY07iukVLD60nWTYZGRcAFv0h8Sj3IbRUahlkzdfNqgEHT4Va4jn8DOd0csVprbdJ3OXk0s+6pdmkbM=
+X-Received: by 2002:a81:4fd2:0:b0:54f:8b2b:adec with SMTP id
+ d201-20020a814fd2000000b0054f8b2badecmr14188403ywb.33.1682542173844; Wed, 26
+ Apr 2023 13:49:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net>
+ <CAHC9VhR68fw+0oaenL08tRecLEC_oCdYcfGaN_m6PW3KZYtdTQ@mail.gmail.com> <f251507a-517e-b703-aa1d-50f6b3de8c8d@tessares.net>
+In-Reply-To: <f251507a-517e-b703-aa1d-50f6b3de8c8d@tessares.net>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 26 Apr 2023 16:49:23 -0400
+Message-ID: <CAHC9VhQqgau3rL2182bVzONHqnfN2CtCT5hz29CVzYi=gpX6+A@mail.gmail.com>
+Subject: Re: [PATCH LSM 0/2] security: SELinux/LSM label with MPTCP and accept
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>
+Cc:     James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, mptcp@lists.linux.dev,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Petr Lautrbach <plautrba@redhat.com> writes:
+On Thu, Apr 20, 2023 at 12:55=E2=80=AFPM Matthieu Baerts
+<matthieu.baerts@tessares.net> wrote:
+> On 19/04/2023 23:30, Paul Moore wrote:
+> > On Wed, Apr 19, 2023 at 1:44=E2=80=AFPM Matthieu Baerts
+> > <matthieu.baerts@tessares.net> wrote:
+> >>
+> >> In [1], Ondrej Mosnacek explained they discovered the (userspace-facin=
+g)
+> >> sockets returned by accept(2) when using MPTCP always end up with the
+> >> label representing the kernel (typically system_u:system_r:kernel_t:s0=
+),
+> >> while it would make more sense to inherit the context from the parent
+> >> socket (the one that is passed to accept(2)). Thanks to the
+> >> participation of Paul Moore in the discussions, modifications on MPTCP
+> >> side have started and the result is available here.
+> >>
+> >> Paolo Abeni worked hard to refactor the initialisation of the first
+> >> subflow of a listen socket. The first subflow allocation is no longer
+> >> done at the initialisation of the socket but later, when the connectio=
+n
+> >> request is received or when requested by the userspace. This was a
+> >> prerequisite to proper support of SELinux/LSM labels with MPTCP and
+> >> accept. The last batch containing the commit ddb1a072f858 ("mptcp: mov=
+e
+> >> first subflow allocation at mpc access time") [2] has been recently
+> >> accepted and applied in netdev/net-next repo [3].
+> >>
+> >> This series of 2 patches is based on top of the lsm/next branch. Despi=
+te
+> >> the fact they depend on commits that are in netdev/net-next repo to
+> >> support the new feature, they can be applied in lsm/next without
+> >> creating conflicts with net-next or causing build issues. These two
+> >> patches on top of lsm/next still passes all the MPTCP-specific tests.
+> >> The only thing is that the new feature only works properly with the
+> >> patches that are on netdev/net-next. The tests with the new labels hav=
+e
+> >> been done on top of them.
+> >>
+> >> It then looks OK to us to send these patches for review on your side. =
+We
+> >> hope that's OK for you as well. If the patches look good to you and if
+> >> you prefer, it is fine to apply these patches before or after having
+> >> synced the lsm/next branch with Linus' tree when it will include the
+> >> modifications from the netdev/net-next repo.
+> >>
+> >> Regarding the two patches, the first one introduces a new LSM hook
+> >> called from MPTCP side when creating a new subflow socket. This hook
+> >> allows the security module to relabel the subflow according to the owi=
+ng
+> >> process. The second one implements this new hook on the SELinux side.
+> >
+> > Thank you so much for working on this, I really appreciate the help!
+>
+> Thank you for the review!
+>
+> We are working on a v2 addressing your comments.
 
-> Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
->
->> Explicitly set CFLAGS for the pip install command, similar to calling
->> setup.py, to ignore known compiler warnings treated as errors, e.g.:
->>
->>     selinuxswig_python_wrap.c:3593:19: error: 'sidget' is deprecated [-W=
-error,-Wdeprecated-declarations]
->>                 result =3D (int)sidget(arg1);
->>                               ^
->>     selinuxswig_python_wrap.c:15024:1: error: no previous prototype for =
-function 'PyInit__selinux' [-Werror,-Wmissing-prototypes]
->>             SWIG_init(void) {
->>             ^
->>
->> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
->
-> It looks like a problem in build system - selinuxswig_python_wrap.o is
-> built twice, first time by
->
-> pywrap: all selinuxswig_python_exception.i
-> 	CFLAGS=3D"$(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext
->
->
-> clang -fdeclspec -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O=
-3 -Wall -O2 -Werror -Wall -Wextra -Wfloat-equal -Wformat=3D2 -Winit-self -W=
-missing-format-attribute -Wmissing-noreturn -Wmissing-prototypes -Wnull-der=
-eference -Wpointer-arith -Wshadow -Wstrict-prototypes -Wundef -Wunused -Wwr=
-ite-strings -fno-common -I/tmp/destdir/usr/include -I../include -D_GNU_SOUR=
-CE -DNO_ANDROID_BACKEND -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=3D8 -Wno-error =
--Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter -Wn=
-o-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declaratio=
-ns -Wno-deprecated-declarations -fPIC -I../include -I/opt/hostedtoolcache/P=
-ython/3.9.16/x64/include/python3.9 -c selinuxswig_python_wrap.c -o build/te=
-mp.linux-x86_64-3.9/selinuxswig_python_wrap.o
->
->
-> and second time by
->
-> install-pywrap: pywrap
-> 	$(PYTHON) -m pip install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" && e=
-cho --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
->
-> clang -fdeclspec -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O=
-3 -Wall -O2 -Werror -Wall -Wextra -Wfloat-equal -Wformat=3D2 -Winit-self -W=
-missing-format-attribute -Wmissing-noreturn -Wmissing-prototypes -Wnull-der=
-eference -Wpointer-arith -Wshadow -Wstrict-prototypes -Wundef -Wunused -Wwr=
-ite-strings -fno-common -I/tmp/destdir/usr/include -I../include -D_GNU_SOUR=
-CE -DNO_ANDROID_BACKEND -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=3D8 -fPIC -I../=
-include -I/opt/hostedtoolcache/Python/3.9.16/x64/include/python3.9 -c selin=
-uxswig_python_wrap.c -o build/temp.linux-x86_64-cpython-39/selinuxswig_pyth=
-on_wrap.o
->
->
-> I'd expect that it's built only in pywrap target and install-pywrap
-> would just install it.
+Thanks for getting v2 out so quickly.  I'm getting caught up on other
+issue while we're in the merge window right now, but I'll give the v2
+patchset a look in the not-to-distant future.  I'm fairly confident
+we'll get it merged this dev cycle.
 
-So according to the internet, pip install does all setup.py operations
-[build_ext, build, install, ...] on it's own and therefore pywrap target
-with `setup.py build` seems to be useless.
+> Just one small detail regarding these comments: I hope you don't mind if
+> we use "MPTCP socket" instead of "main MPTCP socket". Per connection,
+> there is one MPTCP socket and possibly multiple subflow (TCP) sockets.
+> There is then no concept of "main MPTCP socket".
 
-But your change is necessary.
+Sure, no problem.
 
-Acked-by: Petr Lautrbach <lautrbach@redhat.com>
-
-
-
-
+> > As far as potential merge issues with netdev/net-next and lsm/next, I
+> > think we'll be okay.  I have a general policy[1] of not accepting new
+> > patchsets, unless critical bugfixes, past rc5/rc6 so this would be
+> > merged into lsm/next *after* the current merge window closes and
+> > presumably after the netdev/net-next branch finds its way into Linus'
+> > tree.
 >
+> It makes sense, we understand. These two patches were ready for a bit of
+> time but we wanted to send them only after the prerequisite commits
+> applied in net-next first. But that got delayed because we had a couple
+> of nasty issues with them :)
 >
->> ---
->> fixes GitHub CI, see https://github.com/SELinuxProject/selinux/pull/388
->> ---
->>  libselinux/src/Makefile | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->> index 36d57122..f9a1e5f5 100644
->> --- a/libselinux/src/Makefile
->> +++ b/libselinux/src/Makefile
->> @@ -187,7 +187,7 @@ install: all
->>  	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$=
-(TARGET)
->>=20=20
->>  install-pywrap: pywrap
->> -	$(PYTHON) -m pip install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" &&=
- echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
->> +	CFLAGS=3D"$(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip install --prefix=
-=3D$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-insta=
-lled --no-deps` $(PYTHON_SETUP_ARGS) .
->>  	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__=
-.py
->>  	ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) =
-$(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
->>=20=20
->> --=20
->> 2.40.0
+> We hope it will not be an issue for you to maintain them in your tree
+> for a couple of months but we tried to minimised the modifications in
+> MPTCP code. Do not hesitate to reach us if there are some issues with the=
+m!
 
+No worries, I'm happy to maintain them in either the LSM or the
+SELinux tree (I'll need to remind myself of the changes to see which
+is the best fit).
+
+--
+paul-moore.com
