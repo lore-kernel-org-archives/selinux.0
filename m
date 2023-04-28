@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6720C77B60
-	for <selinux@archiver.kernel.org>; Fri, 28 Apr 2023 20:32:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85DBBC77B7E
+	for <selinux@archiver.kernel.org>; Fri, 28 Apr 2023 20:39:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346638AbjD1Ucx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Apr 2023 16:32:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52388 "EHLO
+        id S1346698AbjD1UjV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Apr 2023 16:39:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346612AbjD1Ucr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Apr 2023 16:32:47 -0400
-Received: from sonic310-30.consmr.mail.ne1.yahoo.com (sonic310-30.consmr.mail.ne1.yahoo.com [66.163.186.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDDF59D0
-        for <selinux@vger.kernel.org>; Fri, 28 Apr 2023 13:32:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1682713910; bh=R0jF7owPjAofxGFVfe8NSr+6LkFf6NiHHVKy2FUlHAY=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=nGMSbTcqFl5zSsJh4MgZd1fgNeWFpOGPiR4zFGZdb6dWu045pA+xDw6Ypa0hwxIqCmXgjfQPQdmfERG4HN6Sq7/bKAE2jrPg0M5Oesnq+XvYkSLTCMQhnoi9CW+k2uJONrFmWMjUJdtVJbxgfI3o8EUMAttO68ZkpM9JKhYrAF5Qxqx3rh9ejb7X/OF+r9yCmvIVNtquwJXRLu5cuK5ihwDdTGI4p9C3AOkz7NqTd1AJrxJ9MrRarGuYrVyeyBjqO/luNmy+ckez6KPUR7pPQonH8fuvmb+p1YWSrN8wrPsvAq4zzGQRi/3bwp/qoqyYS77eHFFKjaxZtWt8/aE1MQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1682713910; bh=AhK7sysCFIFVAC2X6jmBddfKxX1NutK81rZNdMKD6Fx=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=ipI5UYea1fBGxZdek3aWSC440rJnnDn+rs/ShgiR301twqYtB+Yw0caR2+LR0QmVnXDNH+r9ZMlaHRbKZq+cgf61IIN2w0G2w8aWx2o9I8Pq5U8EEhOIiexVpKbJYb7cNRAYxOELOCy09eipFYkdV0EAH0eXBCWGeMYV2LAcvUG4tAXbxZcTA9xWW4TUlkfwyzP6/33uKJ8y6WRkO290mrK+tmGmfmGSGJQHT0jfFsqJEkQCGr00jPUQrU/Rp3u3OU04NUQDFc3Dp5JmDBnOPe46Q686UYg+W2IQmlGvGmvaWiWZXEDbusWmhcaa1DHdI0hxnx1uc2ahjX+QXLMjrQ==
-X-YMail-OSG: BHF2xMUVM1kihIn0qM2v.GZ0khvVUBxK32Q9ecmPsBDgzMIbTO0vk8qQQfJxgkC
- JddKBsjYMmsg0a4FbS6Aw27OjT_JDuXpVgIVvIwbd9OaCqhc9XIVGXrXp6faTHS8F1Dgyw_v3hX8
- uaXdUYOe6aN8TAyTtEQty6x.FK91cEHDM3NITByWD3H8oJqXcnGpvqfr0o0FmZcoz3Zu_F.pCGcr
- Vs4S_BWVKq.ErOeR1xX6xZ9r9HF9Q.nVYlx4I_z.T2OR19RVxtIZH3ckKIhyczE0SU6YC2eSJk4p
- VXpjwm8890qyP3cxwOJORhiMHc_U9X9Cfxk.qImIpMX.4TJeycU4gMPF7CnEZlNVLBUuVhREBYCZ
- WGuQsgdO8UFNGJkH3IZq4PeiamVG7siMi3JBvK76E9Dmhdxjac8rrHsCvMKXUJ2d77p4dVOYMjTb
- 94CB1uDss7nh7WsH3LgdnKJZIsUcFyKcSq9sBIRE5bgy0NTf9oJ4.2zV017Olbc_8NpXtvY9NceO
- jxICSol8lrjOenk7ZvWXoG4VH9xtRMPmE.6YIIYlpmgtV.S7MgR7ZC7LgzZNw_CJn7XCZiZGTQxH
- Yay5tKANDiyszRd1mPNfzsZBZPKKF8tugk_LJn1DxL.sTKltQUUflM6glRseEpBuUywTh_cOE4P6
- K0zAuApXjWN2KX21exeHYKJDtt_cn9pkgs5iy6Gy5QNETc829szIlstQkcck2yG5UUbkjaucFJ0R
- pG99KcimM3q8LRGimAhTmWctuU6L1vOYn6aJ7IvZ3c_FAYCGDcY8tvSBKYiWCrpITkvefGLkY5Fp
- fxz5uQ2Er1A2ewynYT3Q4HRoqhiMceG7H90Bu6dEa7s9CF9.RwG.h01K_EUzfY7pdmPO6L2LkZlp
- ADpNWr7ffjMhBOHPtu8FlmO1vAMJbit7GX3lbex6TbHzwI7rHhwCQzYVOYPnxN4uoC_Dkfcbv44b
- 58TcrI0F9ufVpRHmqNbpa9mpG_PYSqiCIQvwLH20FJCJ.jAyitKk0oZPhRtCKoTV9H6eup99mOl_
- lAb2pRBCkeWon5lyLwS_RHXgcajAdmo2hQc6yBEcXOOndtM48p7_jbZMO0fDlzCOLbnK4t2SMYd9
- qmdQwt8oF08fdkJym_9He9ZMcOHG2vytD1XAxTurfQrmemwoQrmdxwgX6eUWoSoIgKRwf.JZTKF0
- ca7B00fQeqb3QEourePVgmy2R08CMXBSRMhWLZGvFqnJMRojuOsDx5VMGtNricxtDOz.5IVjr0ak
- vJic.h5PkH5NZs51uOhpz1z88WdRQqhzxDibx8gnoaBlCDmF1Hei6a0ZTawB573H6LPPp57YBi7Q
- zHqyl2raa962L9MCLNTsCHhnrF2rmsKx3YKA0Z2yy9QLV6EFtzzXZ9T_7Lt.IkHs9pmXS0aITLP0
- T.GX2tq3rNSe2QisZKrVnIoN5FyB73ItVVWyBo_X0_CYHM4djw6TyaEjRGgkthpQs5ClK81JlLwL
- WBuNU_nirggYoJeJTbS8drD4sJQkaKZtcdN7t9r2dngKwOX4upuaVznzkKMMsDutr_L0bjKn3u53
- h5FrzSUOZQeE4n2B0OjfUaLQw0LcmPmnG_T5mV11dzHMbrdsiOJlurikycZH4jdhmWSjubL7I7z7
- d536yImHyOPB3FweT_sW_8RAqyQvT7sX0e1faYRKWzBXwGbjc.ZoCBjKGPbfsSGniMRpXynpLYTd
- xAmLCGbKR9JCZD9YwFcFj5G0iv4Nqvn27lCmQgNVm1FKDUmyWrBqrnk559bgNEL2C6FCzV5YBplz
- 6_HxX0tPPN0yv4_GwpZw_pb7AkxYX0dv1RwVrmihB241Ssi5gKG9OcspruRGbjM0A_f.0FkMODpJ
- 24qXcwnP3YEIdEFSToGp0FWio7YEZrlku2eKxpRdESJlrox2spM0eErmG9Zo6SpGmmzGZB6kOsfQ
- j2UFZtK9IUQ0C65Fq4082kbbSDfLWJLxLxS3WISBGDSf5rOZw9ISBw4Hg2CfP6OAIbqM0TtKT1fP
- VhMg4fHRt8zz1AiThDbh_7CD6r8fAtxUVwg5cnqWIa8sS2a7dcELszZJhDiYGq04MW5rN4SufBgN
- TzJ2cUHv6D_dFa2Ec9X5hmieH.uAhUqsKFiqTh8FBFlZD9NdIokGTB9nxRQXKNBBpa.lHQp3WvLK
- hDr.i9dop.pR4VS88V8ZQHW6BaxvIQmW4djSgaDdn3z1FY61hqRnFQUbIdSzsqJAA7rvazXu3xoM
- ZLJ.9BCZoPFtARgSQCj6vK0FaX1cN4ATR43UhJtbNsLvoGXkfxGZwM_WUOtHnL_R6g0xyGFvDEWg
- wkJQvkdwCBO43F8_PRJzkLuRi6w29yw--
+        with ESMTP id S230001AbjD1UjT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Apr 2023 16:39:19 -0400
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB012D5B
+        for <selinux@vger.kernel.org>; Fri, 28 Apr 2023 13:39:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1682714356; bh=R0jF7owPjAofxGFVfe8NSr+6LkFf6NiHHVKy2FUlHAY=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=BcDApmNlyB/fJOtFnCI1FpNDkOAuiSaDOHEq5dWpAO/HCI5f37jf2CueDt0kg2EXethm65sS/rMnYp89dCp1qKIufvPDUbzZtuzV4uSKF9dyPd/rk6WtTrCj67zJswQIg2GM2oIQ9hk6yGoVht24vPoEEqb0ZqbJBRBE4/Y+53IdBwyNomZUEwMvD6+2R7lLGJU3NZL1OZcc4ZCTj9gG7dZ/Gflnn9dT5xO3XTRzYZUVVRyQmnRXO5Vc+sRY1B1Ywglyka8DEBFVsbT3a/H8MZu1QuIQZm+KmhQGLxFqnwC0qVVBkRsvi4YYC+TEdkZqPrhXuVQGeZhUDhOiEMl9Ig==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1682714356; bh=QEcyaAQ2FUOj7y3sSb407ttq4zeqqHhuI1/HOYYhNsz=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=tHjeYELFfknpMIg5tD2NcWmQAL6eW77I8fgmAkqLft19+PaPXo4lQlqQwiRWK+P5aKXZW9AOxlhWhQq8V1iJljj9gkIQYvkJhyH6yGsH/fpEnsM8Rmk4mu18KefulfRvArM2BMxm5p5PwEyZoK+EYhrKSxL9sDeXujgWhXPRBAR99p+YJ06Fdim65AXeVX6gQi33+/JFnd7PM8CB51vbAc/16OhdwHDVuJHLWlVNSkZyqLmX9jBBNm40HPbNaPAv0VyaDQbwGVToPcZgVn0QYlHA/k2/DVjS7KeSCu5vJ+P/xPM25ZnfPhxUEHu6bxH6WQqeb3xMMV6E/1pbSsmlew==
+X-YMail-OSG: ZcnO2AkVM1liitLb9d.7JkxEeOGA9r5fPiy7MJ0vu0OtqUPevXBhuOnywMMn.76
+ LsdMFYBjxrBpc8dJ4ccmiXU0dquIvb8klcFmrxLy0A1oldUhF9GYC8ai1XsxjOWfj6M0Pe8R9Slt
+ Tr7z6GXkDi1jxKXc6gadr6Q4odg.nti5JuuAKifOUr.za8gknU4T9HqWeZPiAeG9sTgYzcOo3hQ3
+ r1cTXU7KsxIfyHF6immuYCbWPEtos7QKwUHNVIx9el98bT5Xp1TqZkgiVEzaBYsHTIB_vw9h54Ov
+ woqrpf.IRR3KhFw7c6np8A6stmqE9xLkVZWAhhrIZZP1uFOHim7KCj2mB9EQFx77o4YgfZbgj7TE
+ b4LbD5mRLHPV6M7KvHKKpC_NpSCKtAvzEHYS53ih6jfEl_VenRoJe5RzF_IyK.cJGHkM701ebJ0n
+ J_xpnQW1avgbAfdAtnO0xGs.3xVH_rSg6U71Zkgp5j95IhNiKURvp_M0cgbAy53cgITTWNxPpb_7
+ kUfb12vohKtXvv8EZ_6ZGUy9OFtwG6_SK2_6R2dRtByx1rXueSpe6BcOdHwy65gYBzcSS6Px32Hz
+ k3NqEcB0Xhb9rZURFFvLIFjgnlgkhGMXLGFUH59naWXTTiAeCqUw3iXJ4A.Zpq96cYhJV7qioncN
+ r1xBQ_cVZQGu_vFQBn4mb7KjWhC_Azv4OW8JeIxKcRW6xmN3hhxbWgETvR0DItbyUbb2sOW6MCpx
+ Opc73zNkvyb_Gdv0QxnZPcxwwfxgPaPAjyVF80HbYnve8kv48J4wwBMqfLzJVOknlBBZF0kblbID
+ uJjZ1Cd.wm1R0d4U3fg1xWtdK35whr4p40y8.xKGByHS2nvPkIJEgyNV31nAc7UghTvwOqRyvtWb
+ _uwF8WRf6Pg1L8s0LHWaEO0EKRad.jhIl3BSfIeL8r5ERMuPCvVWbeQZ3epyGB2El.lSPUwUQ5Bb
+ L.8slFDf.dgX0w4m7r8ULxb3kow9eyWtezXsIeefdxLQhdPiVUgpb.LWb9rIPS4KNNJ3Yq8zHE.Q
+ NH9OpijgcaiZhlclzfOh13eNa.A5voKTnTCCkRaYFHFQdwkK1RCR0o9njfKOF2xXo_ZycqAYRKW2
+ IBhWG87W1sd8EJzWgeqviKcUWfC9dWWURH6kCtOWAzwEOZfJK5C.PYJUpb0dTCxBP62b2w7SJNn.
+ TLmMUDAPlZcIbv0WsgxXlMu8pSxaFGwWHoj1Nj9NB2Xie_09XfuFGgpjIw2VJS1q.vrNzE1eegRE
+ 2CL56BdkxHGf5xxO705CBKbiqXqaSQ4YN.wcmp2akRzFEWHHwGG8MMc9wc2.KbMbRQU239T7D4ES
+ U0tA5LMeQvWUjKpS44DSpbDgyOl2iF9mKugTn_g5vgq0A7BkbmueALypAl0Drh2_VqOoEiDLKwhG
+ WIneThRLdOQqh5QqcB4GmVIp8j4nbRW5io54V7GQ7sLqLlsC1UpoaHGXiFrzWB4jbSIsayWHuTNZ
+ 5CYdo9zitBWntgfAuascA5K7_7clCS4LRm37erSI1w4OnbaR0lFpZjVZtfV2D2u_vrxk4uITaMWv
+ KD8XQYV5GSda6PnvHqfjiEtb7zWgC69CeGUa3K.mGZ3DtQ79vi69zfq7UMA384hYps1mvLt8Euui
+ Y0TmKkyfGqvbaafixWqBAOIMZPqJ7.gKDc_Bq.3JkMywRDVxByYGIC3plYBZOr_DgjJiCJ8aMttz
+ oEDDKKk0igIMASnd.JSjlCiR39GW.eYbQgsMm5XsM6CnQblYpY_GLlZj2YX.VEKIW.GAx1jlDswe
+ 6sYf0phvlbMJA1GO.gCn.ZQMQLDuBB6DFqiICyuWWbpeZrUujcFcWbOWiUd_zlPntEZFP3W4vKoV
+ divDmCJdpT2vOdIgTqT80qnHfReivP6jhBT4D.tH4IS8UN3_UTwXilFYqVXZ7ftSFlfyPgli7rL5
+ 752GF.oQT0oBQs3HjmFEq0NR9ErnuiimfLlEkoqTMZHk5Oa1kIwOVZB1iaBRE9fnVit0Cfx9hV1e
+ XlALCsK.OzE_HjF007IcwxpyIdom.UISXc73oM1wGC45Wf7CzPrZcRmFTYahE4LYGETiVOqc66YQ
+ TfBvgn4alicC8WdDqB8g871zwsVYc8WK56bDFnP2VqhA03toTDHDZcCCZ0SvgQ40evfFyDcZyMB7
+ 6FOAPcx_BpMKf2AvfJb7C4ivU3t5YrKtB_i6wGUdfJPgfFXl7tktXYUkXT93NLW89ZtBKB0nEpYy
+ 4uZjUkfp5SMW3XzciJhWZZigO76dcYHbifrx0IoCu.IF96R3di2NbXUUruKY41csutovGF3jLpFt
+ 4FjB0wTMT8sxP02jTuBEIE3N63zDVWA--
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: d8b9a78b-dfc2-4a2e-a9fc-a2d46a0fef96
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Fri, 28 Apr 2023 20:31:50 +0000
-Received: by hermes--production-ne1-7dbd98dd99-nn8pc (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8cc315084576b185b2e2f1400cc9c961;
-          Fri, 28 Apr 2023 20:31:45 +0000 (UTC)
+X-Sonic-ID: b7106443-eda9-45df-a9bd-a5edf83173ae
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Fri, 28 Apr 2023 20:39:16 +0000
+Received: by hermes--production-bf1-5f9df5c5c4-wvm2h (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 7872f02abf9ba03acc5bf1902aa8c755;
+          Fri, 28 Apr 2023 20:39:12 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey@schaufler-ca.com, paul@paul-moore.com,
         linux-security-module@vger.kernel.org
@@ -61,11 +61,11 @@ Cc:     jmorris@namei.org, keescook@chromium.org,
         stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
         linux-api@vger.kernel.org, mic@digikod.net, selinux@vger.kernel.org
 Subject: [PATCH v10 10/11] SELinux: Add selfattr hooks
-Date:   Fri, 28 Apr 2023 13:26:50 -0700
-Message-Id: <20230428202651.159828-11-casey@schaufler-ca.com>
+Date:   Fri, 28 Apr 2023 13:34:16 -0700
+Message-Id: <20230428203417.159874-11-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230428202651.159828-1-casey@schaufler-ca.com>
-References: <20230428202651.159828-1-casey@schaufler-ca.com>
+In-Reply-To: <20230428203417.159874-1-casey@schaufler-ca.com>
+References: <20230428203417.159874-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
