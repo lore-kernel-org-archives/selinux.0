@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59C67C77B75
-	for <selinux@archiver.kernel.org>; Wed,  3 May 2023 18:35:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DFFBC77B78
+	for <selinux@archiver.kernel.org>; Wed,  3 May 2023 18:36:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229928AbjECSe7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 May 2023 14:34:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40010 "EHLO
+        id S229636AbjECSgS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 May 2023 14:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjECSen (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 May 2023 14:34:43 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3CFC7D8B
-        for <selinux@vger.kernel.org>; Wed,  3 May 2023 11:34:26 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id 2adb3069b0e04-4f137dbaa4fso1406962e87.2
-        for <selinux@vger.kernel.org>; Wed, 03 May 2023 11:34:26 -0700 (PDT)
+        with ESMTP id S229610AbjECSgR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 May 2023 14:36:17 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3A12680
+        for <selinux@vger.kernel.org>; Wed,  3 May 2023 11:36:15 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2a7b02615f1so58147931fa.0
+        for <selinux@vger.kernel.org>; Wed, 03 May 2023 11:36:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683138865; x=1685730865;
+        d=gmail.com; s=20221208; t=1683138974; x=1685730974;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FVk7wrNJHr7l2K+19NoQsFvBJzolnT62XzINoSB2C2Q=;
-        b=P+LfQa6rnFySG95uzNvl7Btxq1HMIcprBLnEmNj2ikh5GqOJtN8GrbxlbWWgpYW0kG
-         MoNdfNxYf9J7yf4Lj7A9QaJKWmh8Sm8EzdO5pZW9qfRG5+rsAJFuDcwQG99ycFnti+t6
-         klb/LrTt1aEh8irpE6BKY/WjwfXTa0jNLQrmvssHU1xrNFSvZOUApzSk0sHiy1zGx+i5
-         B7YpEJZmPaBN2luw2Zai1oz5RquwiNkHysWpA85sY0LsVoO0MUl1i3eeKki1VJIHv8n+
-         TCTecjO1xobkPZ958eg6WxjBkm8GmBo11Sd8f49EsVEA2ytAs7JiX6cobhSfZQEXBtnL
-         TS1A==
+        bh=IzFBjHA9/WyOIBGv96GMBXK4aNIGloMXnUJbAtJaHNA=;
+        b=rj/FYQRufw/PAArKxaFEJ1CNwvN6hc4v3WEj4xkrzfH0LS0QkSruYGiArnJdAxVTQJ
+         8ujaCCxC7pcrcaQC9SHXPVMpPZwC6gTh4ycKOGF020yjk2qquxRWd/bxG+s4js0hoVF/
+         3Mynt903KzGnYHUqrndl8vwLNSkt8u95LBLQQbhcggFk5HMl+E6Ea2Z7RD+5swsAfJSm
+         kxvvCCpu5FSjgnvOv1t1D/VZzChSPEyEWVbEAb7JEK9Xp5YNPwiT75TZ/J/4wf4m8Qwk
+         rFZRjzty4L/hPj0L/1tUvkGWofncyrHdxHN4StANav6yH55RJQYVkAGe/4UXgAfvNVhY
+         xB8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683138865; x=1685730865;
+        d=1e100.net; s=20221208; t=1683138974; x=1685730974;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FVk7wrNJHr7l2K+19NoQsFvBJzolnT62XzINoSB2C2Q=;
-        b=imJjNt+0aqRB+lKazutMYrBoJKBOmVuSA0A5ZpShGsAAawBtPyIYP+98FLoFpdhOBB
-         MuWaproeHwN625BR5lJ4/sKT7Hnucy9cIpXHFKGSx6vUn+bEMDMwa9msz+TNsJ1Lg99u
-         MelmMOEF5BXHdKpnJ2w+JZhUodSE5pxpIpM74EiUgjkRrs7LH9CyhiKQV2pjrdUSHrxV
-         plwT2a8NaaQrgSkdgbrkk9hoEUBfFv8bJgcMj+ypyl9fySVvigY7VSmuSWyO/3nffywB
-         Sc+KPi8K/BDUdj3DGNNRB2WIjAAa5GgODWc9vpwIasbNq7lI58KmQmPqqjAOfheEvv6q
-         3vdg==
-X-Gm-Message-State: AC+VfDy0gITpL3FpIDIqqeuelVoP5hV8PpRTvkmeifDBAZ7m0FgaKWpG
-        8AOC5MWP6MymDmTHXBDS9g0z9oYwyLTP8MrCQxU=
-X-Google-Smtp-Source: ACHHUZ5k2OXvJVGG/WM4yrz/fPJtNdnVRV2jN7mTt9M/QoVIsbbWECAAySk9M8kA1cSZOQEaa74EX0WWFhWncr/kR3w=
-X-Received: by 2002:ac2:4196:0:b0:4e7:fa9a:4d3c with SMTP id
- z22-20020ac24196000000b004e7fa9a4d3cmr1059076lfh.16.1683138864875; Wed, 03
- May 2023 11:34:24 -0700 (PDT)
+        bh=IzFBjHA9/WyOIBGv96GMBXK4aNIGloMXnUJbAtJaHNA=;
+        b=SV7rYB6VC4TLQ5KzhvKQ3iuyFAq/Zhv48P4yClsU0fuCPTu3d89Q0095PkEcsaZiyI
+         8+8ZVmiQRwx+edtm7rZQKavJlAN/QVTR/4UzbnXF/gDWLUCXE/zU62Gh0LLXcg/7USBB
+         rztQX6kOPEZ6+oESwQmMNkLiM4wsT/SkSNHxYyjXSx3W9Hmm0SlN3YG4skXau2Ip8ysm
+         Gs5wLvGnKFGqy1IhQ0vGHoTqItR/mEYnDbwSzNg/bbcNxB9OuHOb9Et6/xAOd4WY2ReQ
+         u1i4gx/9o+VHDr/g2LkQC82oOAPE+Gnw6QaVDKNM0BOHAfeo9y3f+lyV7TiPXm18nsW4
+         lmeA==
+X-Gm-Message-State: AC+VfDw7O+mg7BNLGoHxtvCs6ckdLyaTG7ZWiKPSGXzeOBpy/WrLWE04
+        4Xt2B4y/7yGha04zlSgDBEIPTvWLzIpFU07nxvc=
+X-Google-Smtp-Source: ACHHUZ7mkCbXhc59IVg9nPZUpMY/CpHwaAF94FUtPkzLDSdyHoIoZNERuiP/BjfxbIvclIK5VGqjsBFUqem+9zAQRFU=
+X-Received: by 2002:a2e:9bc4:0:b0:2a8:b129:f735 with SMTP id
+ w4-20020a2e9bc4000000b002a8b129f735mr238187ljj.28.1683138973649; Wed, 03 May
+ 2023 11:36:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230503120332.699464-1-vmojzis@redhat.com> <20230503120332.699464-2-vmojzis@redhat.com>
-In-Reply-To: <20230503120332.699464-2-vmojzis@redhat.com>
+References: <20230503120332.699464-1-vmojzis@redhat.com> <20230503120332.699464-3-vmojzis@redhat.com>
+In-Reply-To: <20230503120332.699464-3-vmojzis@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 3 May 2023 14:34:13 -0400
-Message-ID: <CAP+JOzS-uvCErLiQVrqeOnhqo1vmcOmX9xmca7XJrB5M4eph6A@mail.gmail.com>
-Subject: Re: [PATCH 1/3] python/chcat: Improve man pages
+Date:   Wed, 3 May 2023 14:36:02 -0400
+Message-ID: <CAP+JOzRMumhq7ycQhQcFXef1DMhR73LxoQR9VL+GCm=p0au+Kw@mail.gmail.com>
+Subject: Re: [PATCH 2/3] python/audit2allow: Add missing options to man page
 To:     Vit Mojzis <vmojzis@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -64,88 +64,87 @@ X-Mailing-List: selinux@vger.kernel.org
 On Wed, May 3, 2023 at 8:11=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wrot=
 e:
 >
-> - Explain applying range/list of categories
-> - "-d" removes all categories of given file/user
-> - Add examples
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 > ---
->  python/chcat/chcat.8 | 23 ++++++++++++++++-------
->  1 file changed, 16 insertions(+), 7 deletions(-)
+>  python/audit2allow/audit2allow.1 | 27 ++++++++++++++++++++++-----
+>  1 file changed, 22 insertions(+), 5 deletions(-)
 >
-> diff --git a/python/chcat/chcat.8 b/python/chcat/chcat.8
-> index d095a255..ae65fef1 100644
-> --- a/python/chcat/chcat.8
-> +++ b/python/chcat/chcat.8
-> @@ -1,6 +1,6 @@
->  .TH CHCAT "8" "September 2005" "chcat" "User Commands"
->  .SH NAME
-> -chcat \- change file SELinux security category
-> +chcat \- change SELinux security categories of files/users
->  .SH SYNOPSIS
->  .B chcat
->  \fIcategory file\fR...
-> @@ -25,23 +25,33 @@ chcat \- change file SELinux security category
->  .br
->  .SH DESCRIPTION
->  .PP
-> -Change/Remove the security \fIcategory\fR for each \fIfile\fR or \fIuser=
-\fR.
-> -.PP
-> -Use +/- to add/remove categories from a \fIfile\fR or \fIuser\fR.
-> +Use +/- to add/remove categories from a \fIfile\fR or \fIuser\fR (only a=
- single category can be specified at a time). Or specify the desired list/r=
-ange of categories to be applied (replacing the existing categories).
->  .PP
->  .B
->  Note:
-> -When removing a category you must specify '\-\-' on the command line bef=
-ore using the \-Category syntax.  This tells the command that you have fini=
-shed entering options and are now specifying a category name instead.
-> +When removing a category you must specify '\-\-' on the command line bef=
-ore using the \-Category syntax. This tells the command that you have finis=
-hed entering options and are now specifying a category name instead.
->
+> diff --git a/python/audit2allow/audit2allow.1 b/python/audit2allow/audit2=
+allow.1
+> index 04ec3239..b7d30918 100644
+> --- a/python/audit2allow/audit2allow.1
+> +++ b/python/audit2allow/audit2allow.1
+> @@ -40,26 +40,36 @@
+>  Read input from audit and message log, conflicts with \-i
 >  .TP
->  \fB\-d\fR
-> -delete the category from each FILE/USER.
-> +delete all categories from given FILE/USER.
+>  .B "\-b" | "\-\-boot"
+> -Read input from audit messages since last boot conflicts with \-i
+> +Read input from audit messages since last boot, conflicts with \-i
 >  .TP
->  \fB\-L\fR
->  list available categories.
+>  .B "\-d" | "\-\-dmesg"
+> -Read input from output of
+> +Read input from output of
+>  .I /bin/dmesg.
+>  Note that all audit messages are not available via dmesg when
+>  auditd is running; use "ausearch \-m avc | audit2allow"  or "\-a" instea=
+d.
 >  .TP
->  \fB\-l\fR
->  Tells chcat to operate on users instead of files.
-> +
-> +.SH EXAMPLE
-> +.nf
-> +Replace categories of user "test" with c0.c6
-> +# chcat -l c0.c6 test
-> +Add category c1023 to user "test"
-> +# chcat -l +c1023 test
-> +Remove category c5 from file "file"
-> +# chcat -- -c5 file
-> +Remove all categories from file "file"
-> +# sudo chcat -d file
+> +.B "\-\-debug"
+> +Leave generated modules for -M
 
-Don't want the sudo here.
-
-Everything else looks fine with this patch.
-
+I know that this is what it says in the usage of audit2allow, but I
+have no idea what it means or what "--debug" actually does.
 Thanks,
 Jim
 
-
-> +
->  .SH "SEE ALSO"
+> +.TP
+>  .B "\-D" | "\-\-dontaudit"
+>  Generate dontaudit rules (Default: allow)
 >  .TP
->  chcon(1), selinux(8), semanage(8)
-> @@ -52,4 +62,3 @@ When operating on files this script wraps the chcon com=
-mand.
->  /etc/selinux/{SELINUXTYPE}/setrans.conf
->  .br
->  /etc/selinux/{SELINUXTYPE}/seusers
-> -
+> +.B "\-e" | "\-\-explain"
+> +Fully explain generated output
+> +.TP
+>  .B "\-h" | "\-\-help"
+>  Print a short usage message
+>  .TP
+>  .B "\-i  <inputfile>" | "\-\-input <inputfile>"
+> -read input from
+> +Read input from
+>  .I <inputfile>
+>  .TP
+> +.B "\-\-interface-info=3D<interface_info_file>"
+> +Read interface information from
+> +.I <interface_info_file>
+> +.TP
+>  .B "\-l" | "\-\-lastreload"
+> -read input only after last policy reload
+> +Read input only after last policy reload
+>  .TP
+>  .B "\-m <modulename>" | "\-\-module <modulename>"
+>  Generate module/require output <modulename>
+> @@ -70,8 +80,12 @@ Generate loadable module package, conflicts with \-o
+>  .B "\-p <policyfile>"  | "\-\-policy <policyfile>"
+>  Policy file to use for analysis
+>  .TP
+> +.B "\-\-perm-map <perm_map_file>"
+> +Read permission map from
+> +.I <perm_map_file>
+> +.TP
+>  .B "\-o <outputfile>"  | "\-\-output <outputfile>"
+> -append output to
+> +Append output to
+>  .I <outputfile>
+>  .TP
+>  .B "\-r" | "\-\-requires"
+> @@ -85,6 +99,9 @@ This is the default behavior.
+>  Generate reference policy using installed macros.
+>  This attempts to match denials against interfaces and may be inaccurate.
+>  .TP
+> +.B "\-t <type_regex>" | "\-\-type=3D<type_regex>"
+> +Only process messages with a type that matches this regex
+> +.TP
+>  .B "\-x" | "\-\-xperms"
+>  Generate extended permission access vector rules
+>  .TP
 > --
 > 2.40.0
 >
