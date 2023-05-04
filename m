@@ -2,78 +2,146 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6657AC7EE21
-	for <selinux@archiver.kernel.org>; Thu,  4 May 2023 12:05:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C296CC77B78
+	for <selinux@archiver.kernel.org>; Thu,  4 May 2023 14:06:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230306AbjEDMF5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 May 2023 08:05:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
+        id S230403AbjEDOGh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 May 2023 10:06:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229973AbjEDMF5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 May 2023 08:05:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 910F95FD3
-        for <selinux@vger.kernel.org>; Thu,  4 May 2023 05:05:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1683201906;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qQHbVYuOZ0deRmjL2IHXFA5K21OXeNDor/S80uDmL2I=;
-        b=IsPOBaX6KuMUOmZN6j5rFHsvDQciMmCrFgwE5Ws2KrqfaURTkGYVlx+c6LgecjgCst74Qs
-        K8Z6OXXGNWjGkk+uq/1OD3zIQYAw/kCufBVnC/nzSJKut+Vj588VWuHrvwk0Ub+6or/ln5
-        aonIExNfefC3Xe0mTOVv+aV0v4/hA9Y=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-526-7qDk8p4KNgW6wsPj4uJAOg-1; Thu, 04 May 2023 08:05:05 -0400
-X-MC-Unique: 7qDk8p4KNgW6wsPj4uJAOg-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 21DFD38221C4
-        for <selinux@vger.kernel.org>; Thu,  4 May 2023 12:05:05 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.59])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B69FD492C3E
-        for <selinux@vger.kernel.org>; Thu,  4 May 2023 12:05:04 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2 4/4] python/audit2allow: Remove unused "debug" option
-Date:   Thu,  4 May 2023 14:04:50 +0200
-Message-Id: <20230504120450.771407-5-vmojzis@redhat.com>
-In-Reply-To: <20230504120450.771407-1-vmojzis@redhat.com>
-References: <CAP+JOzQBSknYVqAqhu6WGwnTDBCXc-P1B73+MnfbcEyGi621CA@mail.gmail.com>
- <20230504120450.771407-1-vmojzis@redhat.com>
-Reply-To: <CAP+JOzQBSknYVqAqhu6WGwnTDBCXc-P1B73+MnfbcEyGi621CA@mail.gmail.com>
+        with ESMTP id S230326AbjEDOGg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 May 2023 10:06:36 -0400
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4138D46BB
+        for <selinux@vger.kernel.org>; Thu,  4 May 2023 07:06:35 -0700 (PDT)
+Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4efeea05936so619177e87.2
+        for <selinux@vger.kernel.org>; Thu, 04 May 2023 07:06:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1683209193; x=1685801193;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OtzhorbA6J45KMyuD5gYbGUR3ZUi1Fa3o38ByCBi5aE=;
+        b=bQy3+IsE9nrY5X4QtmNybu4rhHywc0I9L2/Df+OCSamtzwx23JchwqRCKZ7L0x3UTN
+         FzgfIkbpCzjj24LbuGb0cSHSaFgFBr+61hXw++V3I0r3TPNSPSm4NrVmYh8z435r++Dd
+         89VjIZt69TB0puUIKRHHIMKKTI11UCKL1XL5OAe9EL0viMEhYDAAlx4f3dzl0VWh/j1V
+         Y+HfXWcMshMrALKIAsifGHGtjxmcYer3Qd9f1P3l5+fBBdIu9y0OyvjgLDOiHBS+gFG3
+         rLVVvaY6e+RCSYrk6CtgpXcVBlJYYbsWzMKG7gXizeA7BMwjgLGrFE6QfkvenneXkjBs
+         QyQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683209193; x=1685801193;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OtzhorbA6J45KMyuD5gYbGUR3ZUi1Fa3o38ByCBi5aE=;
+        b=Nbv7QICtdOG2NFxWmmFkPyK2oK5ofsIQ5JGcRKXgEIIN1GSRygu0trU8rnmpGPaArI
+         tI6+01MyTyXPRO2mE4E7UXVRsAaNuau83gRAppqvCjWqL+2ikquuyZHgiXgVExcjHygE
+         brEjbWloTa3tnHm+57+QQQAq/HQTu46DxAeuI58loBsA9NkOaUNuRatyHRimwDlnije8
+         0vKFAZm6ybewiUne9cG7LIe6NlyadbG1e9dEmiOX75oqM99IwgWeRY1xsoik79J4Rxqe
+         rZU+T7OMin1V5fxQidsJlW4faqQ/wgVZRor48SzfK/zMoWKrwpy01iX8kU/WYFpOfrbK
+         7UCQ==
+X-Gm-Message-State: AC+VfDyapDNjXAvD0F07CCbaSAomPuQkACR6u+BEWhAEH68i1G4d+aXo
+        aHloRbxl8Yk58UJM6/0qhW0Pykek/hP5b6F7xAw=
+X-Google-Smtp-Source: ACHHUZ6DtStECm+ttkgSVmWT0iU5pBUg5Av5Ed5ujJ/olgjZ03z7NCc7Zq6dHkfkwar94EIFgIPyPquy7pwSH8b67fU=
+X-Received: by 2002:ac2:508d:0:b0:4eb:18d:91df with SMTP id
+ f13-20020ac2508d000000b004eb018d91dfmr1624692lfm.27.1683209193333; Thu, 04
+ May 2023 07:06:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+References: <CAP+JOzQBSknYVqAqhu6WGwnTDBCXc-P1B73+MnfbcEyGi621CA@mail.gmail.com>
+ <20230504120450.771407-1-vmojzis@redhat.com> <20230504120450.771407-2-vmojzis@redhat.com>
+In-Reply-To: <20230504120450.771407-2-vmojzis@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 4 May 2023 10:06:22 -0400
+Message-ID: <CAP+JOzQR=8PSe8AXDvBWoA4LXHCbO_eHJJGuSduH4g-uPHqnRA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] python/chcat: Improve man pages
+To:     CAP+JOzQBSknYVqAqhu6WGwnTDBCXc-P1B73+MnfbcEyGi621CA@mail.gmail.com
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The option is not referenced anywhere in the code and I couldn't figure
-out its purpose from the description.
+On Thu, May 4, 2023 at 8:06=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wrot=
+e:
+>
+> - Explain applying range/list of categories
+> - "-d" removes all categories of given file/user
+> - Add examples
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/audit2allow/audit2allow | 2 --
- 1 file changed, 2 deletions(-)
+For all four of these patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/python/audit2allow/audit2allow b/python/audit2allow/audit2allow
-index eafeea88..5587a2db 100644
---- a/python/audit2allow/audit2allow
-+++ b/python/audit2allow/audit2allow
-@@ -88,8 +88,6 @@ class AuditToPolicy:
-         parser.add_option("--interface-info", dest="interface_info", help="file name of interface information")
-         parser.add_option("-x", "--xperms", action="store_true", dest="xperms",
-                           default=False, help="generate extended permission rules")
--        parser.add_option("--debug", dest="debug", action="store_true", default=False,
--                          help="leave generated modules for -M")
-         parser.add_option("-w", "--why", dest="audit2why", action="store_true", default=(os.path.basename(sys.argv[0]) == "audit2why"),
-                           help="Translates SELinux audit messages into a description of why the access was denied")
- 
--- 
-2.40.0
-
+> ---
+>  python/chcat/chcat.8 | 23 ++++++++++++++++-------
+>  1 file changed, 16 insertions(+), 7 deletions(-)
+>
+> diff --git a/python/chcat/chcat.8 b/python/chcat/chcat.8
+> index d095a255..3e1f7ca2 100644
+> --- a/python/chcat/chcat.8
+> +++ b/python/chcat/chcat.8
+> @@ -1,6 +1,6 @@
+>  .TH CHCAT "8" "September 2005" "chcat" "User Commands"
+>  .SH NAME
+> -chcat \- change file SELinux security category
+> +chcat \- change SELinux security categories of files/users
+>  .SH SYNOPSIS
+>  .B chcat
+>  \fIcategory file\fR...
+> @@ -25,23 +25,33 @@ chcat \- change file SELinux security category
+>  .br
+>  .SH DESCRIPTION
+>  .PP
+> -Change/Remove the security \fIcategory\fR for each \fIfile\fR or \fIuser=
+\fR.
+> -.PP
+> -Use +/- to add/remove categories from a \fIfile\fR or \fIuser\fR.
+> +Use +/- to add/remove categories from a \fIfile\fR or \fIuser\fR (only a=
+ single category can be specified at a time). Or specify the desired list/r=
+ange of categories to be applied (replacing the existing categories).
+>  .PP
+>  .B
+>  Note:
+> -When removing a category you must specify '\-\-' on the command line bef=
+ore using the \-Category syntax.  This tells the command that you have fini=
+shed entering options and are now specifying a category name instead.
+> +When removing a category you must specify '\-\-' on the command line bef=
+ore using the \-Category syntax. This tells the command that you have finis=
+hed entering options and are now specifying a category name instead.
+>
+>  .TP
+>  \fB\-d\fR
+> -delete the category from each FILE/USER.
+> +delete all categories from given FILE/USER.
+>  .TP
+>  \fB\-L\fR
+>  list available categories.
+>  .TP
+>  \fB\-l\fR
+>  Tells chcat to operate on users instead of files.
+> +
+> +.SH EXAMPLE
+> +.nf
+> +Replace categories of user "test" with c0.c6
+> +# chcat -l c0.c6 test
+> +Add category c1023 to user "test"
+> +# chcat -l +c1023 test
+> +Remove category c5 from file "file"
+> +# chcat -- -c5 file
+> +Remove all categories from file "file"
+> +# chcat -d file
+> +
+>  .SH "SEE ALSO"
+>  .TP
+>  chcon(1), selinux(8), semanage(8)
+> @@ -52,4 +62,3 @@ When operating on files this script wraps the chcon com=
+mand.
+>  /etc/selinux/{SELINUXTYPE}/setrans.conf
+>  .br
+>  /etc/selinux/{SELINUXTYPE}/seusers
+> -
+> --
+> 2.40.0
+>
