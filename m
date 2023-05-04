@@ -2,201 +2,178 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7111FC77B7C
-	for <selinux@archiver.kernel.org>; Thu,  4 May 2023 14:16:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B0A1C7EE21
+	for <selinux@archiver.kernel.org>; Thu,  4 May 2023 16:14:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230264AbjEDOQm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 May 2023 10:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54846 "EHLO
+        id S229446AbjEDQOT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 May 2023 12:14:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231176AbjEDOQl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 May 2023 10:16:41 -0400
-X-Greylist: delayed 125 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 04 May 2023 07:16:37 PDT
-Received: from sender11-of-o53.zoho.eu (sender11-of-o53.zoho.eu [31.186.226.239])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405388687
-        for <selinux@vger.kernel.org>; Thu,  4 May 2023 07:16:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1683209639; cv=none; 
-        d=zohomail.eu; s=zohoarc; 
-        b=Kvwx/nTWAFX8V5F15QZ+wzvdHqgmDOncBpoaYrusM6SePTvLG48TXv23YVkXBewvelA+i8EoO8Pmfyy+qwSqdt48+uwhY7zKCLCyYk1N+3vfp9kGTpJMZh7D5mQIsUHJ6w1qkFRSLxaVGyaemdT3C0GTVi9iiq9zauyC8sh/+tk=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-        t=1683209639; h=Content-Transfer-Encoding:Cc:Date:From:MIME-Version:Message-ID:Subject:To; 
-        bh=A7VjTUqeY7lcEX4S7nZtCjU2soxgNwJB4MzowP5hKC8=; 
-        b=Yq93YFTnzZXE3D2PDZgMzBejxHQYzU2b+c7QrO6qTEMLSBcNVapRcZA7dT2a0cCNN5U55DbaLBBaGNA4J6Kur2L2FvCKx60AuYViWcJdjaM1vVfEkYgzLoUDJ3zlm6Es12z9kxQYa1HARHLtY+txggd8V0JRwdobAlpN+PXnnQw=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-        dkim=pass  header.i=jurajmarcin.com;
-        spf=pass  smtp.mailfrom=juraj@jurajmarcin.com;
-        dmarc=pass header.from=<juraj@jurajmarcin.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1683209639;
-        s=zoho; d=jurajmarcin.com; i=juraj@jurajmarcin.com;
-        h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-Id:Message-Id:MIME-Version:Content-Transfer-Encoding:Reply-To;
-        bh=A7VjTUqeY7lcEX4S7nZtCjU2soxgNwJB4MzowP5hKC8=;
-        b=eI4Ght/x6XViBIFKIWJJA8YDG6u9Bud7YBW+JbU9NVJWtyrCiUp9UloVll+PGR7W
-        7wZRl+m2ng1nfbd/X7u9EqzZLuillmu9fZpVzckSVbPLfQuFLKkfAdnTl16ZgyoNG89
-        pLHe7XRVn0WHhFoitgUA51qI241WelFdbMp9sUJ0=
-Received: from morty01.jurajmarcin.com (129.159.244.31 [129.159.244.31]) by mx.zoho.eu
-        with SMTPS id 1683209637545998.9070998817757; Thu, 4 May 2023 16:13:57 +0200 (CEST)
-Received: from jmarcin-t14s-01.. (unknown [213.175.37.10])
-        by morty01.jurajmarcin.com (Postfix) with ESMTPSA id 730612079AC0;
-        Thu,  4 May 2023 14:13:56 +0000 (UTC)
-From:   Juraj Marcin <juraj@jurajmarcin.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-Subject: [PATCH] selinux: make cleanup on error consistent
-Date:   Thu,  4 May 2023 16:13:30 +0200
-Message-Id: <20230504141330.1557243-1-juraj@jurajmarcin.com>
-MIME-Version: 1.0
+        with ESMTP id S229470AbjEDQOS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 May 2023 12:14:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FEB55583
+        for <selinux@vger.kernel.org>; Thu,  4 May 2023 09:13:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1683216809;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FCERTes3cUqeH2NVPYErrzXP04o1ceM5Rm63oz0hrwA=;
+        b=T0NuVRqB3i+D2acfpbAuysJIjFR2JjMP9v0+kmnSJLAeNHhFawks18kKL2uUTXQIAIkRse
+        11XbFFhopDe52xGsiORtT4Tkl0kEt/40y999hkFh2Z9lsmQTIgvxfoCsq5KLhSct9Bk3po
+        Yb+e4UbnSuyUQHdsqVeQg/6dgsUWlAI=
+Received: from mail-vk1-f200.google.com (mail-vk1-f200.google.com
+ [209.85.221.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-592-2FYXQ5FwPZqavXX3atFXmw-1; Thu, 04 May 2023 12:13:28 -0400
+X-MC-Unique: 2FYXQ5FwPZqavXX3atFXmw-1
+Received: by mail-vk1-f200.google.com with SMTP id 71dfb90a1353d-44fe5556165so16458e0c.0
+        for <selinux@vger.kernel.org>; Thu, 04 May 2023 09:13:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683216808; x=1685808808;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FCERTes3cUqeH2NVPYErrzXP04o1ceM5Rm63oz0hrwA=;
+        b=jWg0aK5RV7u+ljBrptePRICYPgeBrsAqZIYTeMOlmVgeynhRyX0NC1cc3Nf3fzey+B
+         7OfneI3aybwcU8UB0yRxMAfPNbU+nm0+R4gm2fIZ4O081EHV7Dk70RtvmnKp+z4DL/Ev
+         60cLvVLmtI/07qQ8ozOY7olG12xY5MIT06AI/1z30Il1Cqi7wJAsgJlsJEKU6YQSlo6q
+         y6x57YCwmYKJjAPqHWEaYwhgvx7sqtWTE63JMUx+/Qn8mxCDQ+AAYzaHOoA5wwcCgyBD
+         tyO5W6yXXz8iCIM+sEwFZbNoAgAhr8sLAQbZKXAKRv1bs1gsa6jaOJbRX8LjQ0adNB8C
+         3q2g==
+X-Gm-Message-State: AC+VfDzgvXGktmDNG7p1AU4fYv3mCqSiZQPsaWkRzNZqbF40Oqc66Us7
+        bX6nTmbEGlkRw9bRI/h+Vs/A8x2uqQW9dqbPQC6R1XWphuLn+TnsYz0MYgCiDgE8NqClMuVxZV5
+        V68dsbRPeXfLsRvGQVQ==
+X-Received: by 2002:a1f:b646:0:b0:448:1241:47ae with SMTP id g67-20020a1fb646000000b00448124147aemr3069413vkf.1.1683216807870;
+        Thu, 04 May 2023 09:13:27 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6pUnL9fUfiStXzh1jo+rajlFzURLwzhhKGNCKNVHx6d9nP0QKmPVmXXzyvOtLVq7RYWk28Ew==
+X-Received: by 2002:a1f:b646:0:b0:448:1241:47ae with SMTP id g67-20020a1fb646000000b00448124147aemr3069388vkf.1.1683216807461;
+        Thu, 04 May 2023 09:13:27 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-244-79.dyn.eolo.it. [146.241.244.79])
+        by smtp.gmail.com with ESMTPSA id 75-20020a370b4e000000b0074df3f7e14esm11694249qkl.67.2023.05.04.09.13.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 May 2023 09:13:27 -0700 (PDT)
+Message-ID: <11201df515ec41db88ad915fd1e425e62c4f81e5.camel@redhat.com>
+Subject: Re: [PATCH LSM v2 0/2] security: SELinux/LSM label with MPTCP and
+ accept
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>
+Cc:     Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, mptcp@lists.linux.dev,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Date:   Thu, 04 May 2023 18:13:23 +0200
+In-Reply-To: <CAFqZXNt16B5A2o6fZeN5b1coNCW2m6kp7JToJFDorvPajhFyxA@mail.gmail.com>
+References: <20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-v2-0-e7a3c8c15676@tessares.net>
+         <CAFqZXNt16B5A2o6fZeN5b1coNCW2m6kp7JToJFDorvPajhFyxA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The file security.c contains two functions (security_read_policy() and
-security_read_state_kernel()) that are almost identical, but their
-cleanup conventions differ.
-
-This patch unifies the behavior by adding cleanup to
-security_read_policy() in case some call inside it fails instead of
-relying on the caller to properly free the memory. On top of that, this
-patch future-proofs both functions by adding local variables and
-modifying the pointers only in case of a success.
-
-Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
----
- security/selinux/include/security.h |  4 +--
- security/selinux/selinuxfs.c        |  2 --
- security/selinux/ss/services.c      | 50 +++++++++++++++++++----------
- 3 files changed, 35 insertions(+), 21 deletions(-)
-
-diff --git a/security/selinux/include/security.h b/security/selinux/inclu=
-de/security.h
-index 8746fafeb7789..2990b3d08236d 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -213,8 +213,8 @@ int security_load_policy(void *data, size_t len,
- 			 struct selinux_load_state *load_state);
- void selinux_policy_commit(struct selinux_load_state *load_state);
- void selinux_policy_cancel(struct selinux_load_state *load_state);
--int security_read_policy(void **data, size_t *len);
--int security_read_state_kernel(void **data, size_t *len);
-+int security_read_policy(void **pdata, size_t *plen);
-+int security_read_state_kernel(void **pdata, size_t *plen);
- int security_policycap_supported(unsigned int req_cap);
-=20
- #define SEL_VEC_MAX 32
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 69a583b91fc57..6d4cd66360739 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -406,8 +406,6 @@ static int sel_open_policy(struct inode *inode, struc=
-t file *filp)
- err:
- 	mutex_unlock(&selinux_state.policy_mutex);
-=20
--	if (plm)
--		vfree(plm->data);
- 	kfree(plm);
- 	return rc;
- }
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-index f14d1ffe54c5d..f2fd2b6510560 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3941,12 +3941,16 @@ static int __security_read_policy(struct selinux_=
-policy *policy,
-=20
- /**
-  * security_read_policy - read the policy.
-- * @data: binary policy data
-- * @len: length of data in bytes
-+ * @pdata: binary policy data
-+ * @plen: length of data in bytes
-  *
-+ * In case of a failure, the pointers are not modified.
-  */
--int security_read_policy(void **data, size_t *len)
-+int security_read_policy(void **pdata, size_t *plen)
- {
-+	int err;
-+	void *data;
-+	size_t len;
- 	struct selinux_state *state =3D &selinux_state;
- 	struct selinux_policy *policy;
-=20
-@@ -3955,28 +3959,39 @@ int security_read_policy(void **data, size_t *len=
+On Thu, 2023-05-04 at 16:14 +0200, Ondrej Mosnacek wrote:
+> On Thu, Apr 20, 2023 at 7:17=E2=80=AFPM Matthieu Baerts
+> <matthieu.baerts@tessares.net> wrote:
+> >=20
+> > In [1], Ondrej Mosnacek explained they discovered the (userspace-facing=
 )
- 	if (!policy)
- 		return -EINVAL;
-=20
--	*len =3D policy->policydb.len;
--	*data =3D vmalloc_user(*len);
--	if (!*data)
-+	len =3D policy->policydb.len;
-+	data =3D vmalloc_user(len);
-+	if (!data)
- 		return -ENOMEM;
-=20
--	return __security_read_policy(policy, *data, len);
-+	err =3D __security_read_policy(policy, data, &len);
-+	if (err) {
-+		vfree(data);
-+		return err;
-+	}
-+	*pdata =3D data;
-+	*plen =3D len;
-+	return err;
- }
-=20
- /**
-  * security_read_state_kernel - read the policy.
-- * @data: binary policy data
-- * @len: length of data in bytes
-+ * @pdata: binary policy data
-+ * @plen: length of data in bytes
-  *
-  * Allocates kernel memory for reading SELinux policy.
-  * This function is for internal use only and should not
-  * be used for returning data to user space.
-  *
-+ * In case of a failure, the pointers are not modified.
-+ *
-  * This function must be called with policy_mutex held.
-  */
--int security_read_state_kernel(void **data, size_t *len)
-+int security_read_state_kernel(void **pdata, size_t *plen)
- {
- 	int err;
-+	void *data;
-+	size_t len;
- 	struct selinux_state *state =3D &selinux_state;
- 	struct selinux_policy *policy;
-=20
-@@ -3985,16 +4000,17 @@ int security_read_state_kernel(void **data, size_=
-t *len)
- 	if (!policy)
- 		return -EINVAL;
-=20
--	*len =3D policy->policydb.len;
--	*data =3D vmalloc(*len);
--	if (!*data)
-+	len =3D policy->policydb.len;
-+	data =3D vmalloc(len);
-+	if (!data)
- 		return -ENOMEM;
-=20
--	err =3D __security_read_policy(policy, *data, len);
-+	err =3D __security_read_policy(policy, data, &len);
- 	if (err) {
--		vfree(*data);
--		*data =3D NULL;
--		*len =3D 0;
-+		vfree(data);
-+		return err;
- 	}
-+	*pdata =3D data;
-+	*plen =3D len;
- 	return err;
- }
---=20
-2.39.2
+> > sockets returned by accept(2) when using MPTCP always end up with the
+> > label representing the kernel (typically system_u:system_r:kernel_t:s0)=
+,
+> > while it would make more sense to inherit the context from the parent
+> > socket (the one that is passed to accept(2)). Thanks to the
+> > participation of Paul Moore in the discussions, modifications on MPTCP
+> > side have started and the result is available here.
+> >=20
+> > Paolo Abeni worked hard to refactor the initialisation of the first
+> > subflow of a listen socket. The first subflow allocation is no longer
+> > done at the initialisation of the socket but later, when the connection
+> > request is received or when requested by the userspace. This was a
+> > prerequisite to proper support of SELinux/LSM labels with MPTCP and
+> > accept. The last batch containing the commit ddb1a072f858 ("mptcp: move
+> > first subflow allocation at mpc access time") [2] has been recently
+> > accepted and applied in netdev/net-next repo [3].
+> >=20
+> > This series of 2 patches is based on top of the lsm/next branch. Despit=
+e
+> > the fact they depend on commits that are in netdev/net-next repo to
+> > support the new feature, they can be applied in lsm/next without
+> > creating conflicts with net-next or causing build issues. These two
+> > patches on top of lsm/next still passes all the MPTCP-specific tests.
+> > The only thing is that the new feature only works properly with the
+> > patches that are on netdev/net-next. The tests with the new labels have
+> > been done on top of them.
+> >=20
+> > Regarding the two patches, the first one introduces a new LSM hook
+> > called from MPTCP side when creating a new subflow socket. This hook
+> > allows the security module to relabel the subflow according to the owin=
+g
+> > process. The second one implements this new hook on the SELinux side.
+> >=20
+> > Link: https://lore.kernel.org/netdev/CAFqZXNs2LF-OoQBUiiSEyranJUXkPLcCf=
+BkMkwFeM6qEwMKCTw@mail.gmail.com/ [1]
+> > Link: https://git.kernel.org/netdev/net-next/c/ddb1a072f858 [2]
+> > Link: https://lore.kernel.org/netdev/20230414-upstream-net-next-2023041=
+4-mptcp-refactor-first-subflow-init-v1-0-04d177057eb9@tessares.net/ [3]
+> > Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+> > ---
+> > Changes in v2:
+> > - Address Paul's comments, see the notes on each patch
+> > - Link to v1: https://lore.kernel.org/r/20230419-upstream-lsm-next-2023=
+0419-mptcp-sublows-user-ctx-v1-0-9d4064cb0075@tessares.net
+> >=20
+> > ---
+> > Paolo Abeni (2):
+> >       security, lsm: Introduce security_mptcp_add_subflow()
+> >       selinux: Implement mptcp_add_subflow hook
+> >=20
+> >  include/linux/lsm_hook_defs.h |  1 +
+> >  include/linux/security.h      |  6 ++++++
+> >  net/mptcp/subflow.c           |  6 ++++++
+> >  security/security.c           | 17 +++++++++++++++++
+> >  security/selinux/hooks.c      | 16 ++++++++++++++++
+> >  security/selinux/netlabel.c   |  8 ++++++--
+> >  6 files changed, 52 insertions(+), 2 deletions(-)
+> > ---
+> > base-commit: d82dcd9e21b77d338dc4875f3d4111f0db314a7c
+> > change-id: 20230419-upstream-lsm-next-20230419-mptcp-sublows-user-ctx-e=
+ee658fafcba
+> >=20
+> > Best regards,
+> > --
+> > Matthieu Baerts <matthieu.baerts@tessares.net>
+> >=20
+>=20
+> I haven't yet looked closer at the code in this series, but I can at
+> least confirm that with the series (applied on top of net-next) the
+> selinux-testsuite now passes when run under mptcpize, with one caveat:
+>=20
+> The "client" test prog in the inet_socket subtest sets the SO_SNDTIMEO
+> socket option on the client socket, but the subtest takes
+> significantly longer to complete than when run without mptcpize. That
+> suggests to me that there is possibly some (pre-existing) issue with
+> MPTCP where the send/receive timeouts are not being passed to the
+> subflow socket(s), leading to a longer wait (I guess the default is
+> higher?)=C2=A0
+
+Indeed the behavior you describe is due to some mptcp bug in handling
+the SO_{SND,RCV}TIMEO socket tions, and it's really unrelated to the
+initially reported selinux issue.
+
+If you could file an issue on our tracker, that would help ;)
+
+Thanks!
+
+Paolo
 
