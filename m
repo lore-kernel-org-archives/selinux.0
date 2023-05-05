@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 918C3C77B75
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7F1CC77B7C
 	for <selinux@archiver.kernel.org>; Fri,  5 May 2023 22:50:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233443AbjEEWuC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 May 2023 18:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52598 "EHLO
+        id S232561AbjEEWuD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 May 2023 18:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233501AbjEEWth (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 May 2023 18:49:37 -0400
+        with ESMTP id S233625AbjEEWts (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 May 2023 18:49:48 -0400
 Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E465FCF
-        for <selinux@vger.kernel.org>; Fri,  5 May 2023 15:49:36 -0700 (PDT)
-Received: by mail-qv1-xf2b.google.com with SMTP id 6a1803df08f44-61b71b7803bso12820566d6.1
-        for <selinux@vger.kernel.org>; Fri, 05 May 2023 15:49:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE8F5FD1
+        for <selinux@vger.kernel.org>; Fri,  5 May 2023 15:49:46 -0700 (PDT)
+Received: by mail-qv1-xf2b.google.com with SMTP id 6a1803df08f44-61af33bdf1dso12463226d6.2
+        for <selinux@vger.kernel.org>; Fri, 05 May 2023 15:49:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1683326975; x=1685918975;
+        d=paul-moore.com; s=google; t=1683326985; x=1685918985;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=QSkMnoxNVH4vWJuJqw5JGkRnHdFNTQMDAlyM9wr5RQA=;
-        b=aqStHC4Y3LPKACs1xbkLHKJexjktQBCe5UHe2LdRRMCrdro2bQlqQ6wi6n9PbJp13z
-         A0GRi0jrsmo2XXbVVeCrsgWLKBvuqPbZKrMHQT4OUOFZlRT88pYCt3EnLDsP9g6oIB2M
-         Pzq10gfLh8BpmzSXcqclx5HnMvO7xuCzbnOEunJUrn87oqlktabn4Wh3xftJSsz0ab3n
-         1BZ3CJWWcV/803TFxmp7Ltmx2eVFOdk1HpnhMc5lR9eea/xEpu4RPsvluH8Rhfn3mMbr
-         Jc5nvlgFlIDU5RQi9hh75w6M0MgxbKU6NanD/b/UjZoLGvKpmZu5LsnawGHIfA9TPuiv
-         WosA==
+        bh=Y+ZVZxFhC+qOpGJjCAReTca009rA4ucMoe68kcV2dac=;
+        b=MlHSMoNFMPAAS5B8NmmDf0gGkoPrpOWmf2+XA0OqhKReVff0ezTJOGSamrE5QIHMZe
+         c/7O2zuZYw6AQJJsIA+9bEl/3+7cKHnLiChwVycVqHKvcRDNNVZ5Z3GYtjoWy77AOAiC
+         j+07kzCD40I4ZxSzz7fBHGRtxO+QCAQlqaEuXa582oGfzWvlgAIXW65p0JCfAigEsIV8
+         plyC88z/Zfl509vosZFMpFmCxiBLSBAbO8q+u3X+cjp/81L4or8BnZ6FgPT7fE99VFB4
+         4vyUVtMLG9q77v3QQmNxmqBXZBJbu5ZaLxdn/4g15eIhwGK/PxuyFuFDLTjMI8mpIDYi
+         KBKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683326975; x=1685918975;
+        d=1e100.net; s=20221208; t=1683326985; x=1685918985;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QSkMnoxNVH4vWJuJqw5JGkRnHdFNTQMDAlyM9wr5RQA=;
-        b=gXYnC0amQmndj/GgrqU2VZbqiq/xwWdakOrZ2mXf1MK0qW2eXWQq7ziDwnJe2ShXf0
-         VUPXyZ+zVmiXfi3ALB8Ukic2cKA2a+pRkU35zoCqEMnKKtYWXb7RDALO9A4oktpdPggV
-         /IjMIko+QH8VyhiASU/ExNdMWF5kiG/Ui9mLiji6KgiMsQ2EodFifk32w4J+lW62BI+f
-         jMYYuh08t/pNZmZSQmFmKVcH/IYXlHDvN/LGYAr3slpg++b4MT1XraWLY89zSuDdBkZ0
-         9xDCQs15mamUOYOlBOzde0R5de5vl5L+p97Sfg66DZXqRJDGI8AOoCutZMTYQqJU9g/g
-         whjw==
-X-Gm-Message-State: AC+VfDwq2JQlzrAwvV7Omw0QzbHC1q4wjXPCjEju9dkH4AUuRUVpnUx4
-        3S/9B2IByDyjwaunDJ+44hQn9mBi/Mdzop1pUQ==
-X-Google-Smtp-Source: ACHHUZ4MSMz7dKpCi9IQelXBUfdfEv6EBtuNmDwue2OHDE+1+SEfiGcjijt1q7K431tLocDVoAY93w==
-X-Received: by 2002:a05:6214:1c87:b0:61b:68e1:1211 with SMTP id ib7-20020a0562141c8700b0061b68e11211mr4562802qvb.10.1683326975051;
-        Fri, 05 May 2023 15:49:35 -0700 (PDT)
+        bh=Y+ZVZxFhC+qOpGJjCAReTca009rA4ucMoe68kcV2dac=;
+        b=HRXKZn1f9twRswdL1AgYi78LEee4Gx1IJ2pEIdg4hnvlsjMRChUAXytfZKU94oO2zK
+         9skgtsoGph2s5lx46eloO47IH6WkuwVYbGxBtP6YGd9q9Onp3T62JehrJ/+CjhymNTup
+         dtJFG35lSLMVSGPCTTLsai3zmaPYKDf2QPQEk5bunDC+sHqbxonxfI/NnNSN3KgkF41t
+         PJuiBgNsCKpjalD3haFs8gCoKEHSm888Gr9ke+GDLhfu+mBglRPi3JfCcqAs9jbSLMDJ
+         xXXTVSXk2RxxuWYyyspwRaty56Sa6u6s0lxlRJZ2C+GHXJQR90sy2JS3IUwXW0NwlpSn
+         JTFA==
+X-Gm-Message-State: AC+VfDyQhPCgpisXhmjAnHKBEQg9T4NeYsFf73GaTppJhv92kgV1GyvA
+        scrqcjGfZlyzO2MguljfyMGwAmbRtFUbG2AV+A==
+X-Google-Smtp-Source: ACHHUZ7TpIvI6v7gUqw/8ePyxnSL9UdFY/YoqgJxbEerM0w1X39W/jEYJvy4deFlK5R5WZ6o0/AA4g==
+X-Received: by 2002:a05:6214:21aa:b0:600:5dbc:c31a with SMTP id t10-20020a05621421aa00b006005dbcc31amr4077340qvc.7.1683326984998;
+        Fri, 05 May 2023 15:49:44 -0700 (PDT)
 Received: from localhost (pool-108-26-161-203.bstnma.fios.verizon.net. [108.26.161.203])
-        by smtp.gmail.com with ESMTPSA id z7-20020a0cf007000000b00620ea255c72sm682618qvk.35.2023.05.05.15.49.34
+        by smtp.gmail.com with ESMTPSA id v16-20020a0cdd90000000b0061b721f27b3sm912242qvk.123.2023.05.05.15.49.44
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 May 2023 15:49:34 -0700 (PDT)
+        Fri, 05 May 2023 15:49:44 -0700 (PDT)
 From:   Paul Moore <paul@paul-moore.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] selinux: remove avc_disable() as it is no longer used
-Date:   Fri,  5 May 2023 18:49:34 -0400
-Message-Id: <20230505224934.645040-1-paul@paul-moore.com>
+Subject: [PATCH] selinux: small cleanups in selinux_audit_rule_init()
+Date:   Fri,  5 May 2023 18:49:44 -0400
+Message-Id: <20230505224944.645203-1-paul@paul-moore.com>
 X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -60,56 +60,104 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-With the removal of the runtime disable functionality we no longer
-have any callers of the avc_disable() function, remove it.
+A few small tweaks to selinux_audit_rule_init():
+
+- Adjust how we use the @rc variable so we are not doing any extra
+  work in the common/success case.
+
+- Related to the above, rework the 'out' jump label so that the
+  success and error paths are different, simplifying both.
+
+- Cleanup some of the vertical whitespace while we are making the
+  other changes.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/avc.c         | 19 -------------------
- security/selinux/include/avc.h |  3 ---
- 2 files changed, 22 deletions(-)
+ security/selinux/ss/services.c | 38 ++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index eaed5c2da02b..6bc65830e1a9 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -1203,22 +1203,3 @@ u32 avc_policy_seqno(void)
- {
- 	return selinux_avc.avc_cache.latest_notif;
- }
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f14d1ffe54c5..7840797be23c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -3541,38 +3541,38 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+ 	tmprule = kzalloc(sizeof(struct selinux_audit_rule), GFP_KERNEL);
+ 	if (!tmprule)
+ 		return -ENOMEM;
 -
--void avc_disable(void)
--{
--	/*
--	 * If you are looking at this because you have realized that we are
--	 * not destroying the avc_node_cachep it might be easy to fix, but
--	 * I don't know the memory barrier semantics well enough to know.  It's
--	 * possible that some other task dereferenced security_ops when
--	 * it still pointed to selinux operations.  If that is the case it's
--	 * possible that it is about to use the avc and is about to need the
--	 * avc_node_cachep.  I know I could wrap the security.c security_ops call
--	 * in an rcu_lock, but seriously, it's not worth it.  Instead I just flush
--	 * the cache and get that memory back.
--	 */
--	if (avc_node_cachep) {
--		avc_flush();
--		/* kmem_cache_destroy(avc_node_cachep); */
--	}
--}
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 9301222c8e55..9e055f74daf6 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -168,9 +168,6 @@ int avc_get_hash_stats(char *page);
- unsigned int avc_get_cache_threshold(void);
- void avc_set_cache_threshold(unsigned int cache_threshold);
+ 	context_init(&tmprule->au_ctxt);
  
--/* Attempt to free avc node cache */
--void avc_disable(void);
+ 	rcu_read_lock();
+ 	policy = rcu_dereference(state->policy);
+ 	policydb = &policy->policydb;
 -
- #ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
- DECLARE_PER_CPU(struct avc_cache_stats, avc_cache_stats);
- #endif
+ 	tmprule->au_seqno = policy->latest_granting;
+-
+ 	switch (field) {
+ 	case AUDIT_SUBJ_USER:
+ 	case AUDIT_OBJ_USER:
+-		rc = -EINVAL;
+ 		userdatum = symtab_search(&policydb->p_users, rulestr);
+-		if (!userdatum)
+-			goto out;
++		if (!userdatum) {
++			rc = -EINVAL;
++			goto err;
++		}
+ 		tmprule->au_ctxt.user = userdatum->value;
+ 		break;
+ 	case AUDIT_SUBJ_ROLE:
+ 	case AUDIT_OBJ_ROLE:
+-		rc = -EINVAL;
+ 		roledatum = symtab_search(&policydb->p_roles, rulestr);
+-		if (!roledatum)
+-			goto out;
++		if (!roledatum) {
++			rc = -EINVAL;
++			goto err;
++		}
+ 		tmprule->au_ctxt.role = roledatum->value;
+ 		break;
+ 	case AUDIT_SUBJ_TYPE:
+ 	case AUDIT_OBJ_TYPE:
+-		rc = -EINVAL;
+ 		typedatum = symtab_search(&policydb->p_types, rulestr);
+-		if (!typedatum)
+-			goto out;
++		if (!typedatum) {
++			rc = -EINVAL;
++			goto err;
++		}
+ 		tmprule->au_ctxt.type = typedatum->value;
+ 		break;
+ 	case AUDIT_SUBJ_SEN:
+@@ -3582,20 +3582,18 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+ 		rc = mls_from_string(policydb, rulestr, &tmprule->au_ctxt,
+ 				     GFP_ATOMIC);
+ 		if (rc)
+-			goto out;
++			goto err;
+ 		break;
+ 	}
+-	rc = 0;
+-out:
+ 	rcu_read_unlock();
+ 
+-	if (rc) {
+-		selinux_audit_rule_free(tmprule);
+-		tmprule = NULL;
+-	}
+-
+ 	*rule = tmprule;
++	return 0;
+ 
++err:
++	rcu_read_unlock();
++	selinux_audit_rule_free(tmprule);
++	*rule = NULL;
+ 	return rc;
+ }
+ 
 -- 
 2.40.1
 
