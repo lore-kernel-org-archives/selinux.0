@@ -2,87 +2,84 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3F93C77B7F
-	for <selinux@archiver.kernel.org>; Mon,  8 May 2023 20:53:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36C0DC77B7F
+	for <selinux@archiver.kernel.org>; Mon,  8 May 2023 20:55:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbjEHUxQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 May 2023 16:53:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45020 "EHLO
+        id S232429AbjEHUz0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 May 2023 16:55:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229492AbjEHUxP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 May 2023 16:53:15 -0400
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 990A15BB5
-        for <selinux@vger.kernel.org>; Mon,  8 May 2023 13:53:13 -0700 (PDT)
-Received: by mail-yb1-xb2b.google.com with SMTP id 3f1490d57ef6-b9a6869dd3cso6826668276.2
-        for <selinux@vger.kernel.org>; Mon, 08 May 2023 13:53:13 -0700 (PDT)
+        with ESMTP id S233449AbjEHUzX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 May 2023 16:55:23 -0400
+Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACD488685
+        for <selinux@vger.kernel.org>; Mon,  8 May 2023 13:54:54 -0700 (PDT)
+Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-b9246a5f3feso7807721276.1
+        for <selinux@vger.kernel.org>; Mon, 08 May 2023 13:54:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1683579192; x=1686171192;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=paul-moore.com; s=google; t=1683579291; x=1686171291;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=O4yGmI0zReXeT9uYxy8OKzLUssU3of7sjK1VlydCLwk=;
-        b=aQkol6Rq8jv6TmDf+rZiiApaS1HhYq05mcCWYnNFCgsQdqGYO15CXTYDtUdl/x+hlR
-         h4xnDiaZufqCdFM+utqTKRIfdwwf7hm9tgYFuHRJE5HrK33BIbtap+Z8fU/KLDzjzLIj
-         06u+gmB09FGJ/21xvGsYToixiYDhyZzKvBPTOEvvkwz38j47JEaFOlAApNif7fH2k6Uu
-         mSp2p+yk4TYkVDh5LJ/NV+pDl+WdADAb+8IwR3miOErFezmTwwQ3N7qJAqUYTkv6AWEV
-         N513+8ldSJwRWaII5megoIpUQyPWiED1zsD3CYES7KBGH3JEKI6jAmhJF8c8xeyP64eK
-         MfDQ==
+        bh=Q/f8w9vZTY/u60jY1WmmECHwpOTY4fCe1NILqBO9Yqg=;
+        b=fmi3nNch4jWyAeB+592jt3yCwMMidS85VbG1AJQ2dn1mH84FYWFzM2tBUwkAgLQmg1
+         LlMmFC2j9Sbmz/JyctnJLf+sCQl6KQtlMO6DbShywpGZvtPeBXkHwQ8UA8cTd9SuScGF
+         UAsFnE8Fo6Tut6puD1Di4D7EMbfnNtN3zz4S0v03B1qyDzlI8ZRSWoLglw7KHjBe9ID7
+         ad2e7CV6BFVBpQgJKFVuEJ2uZuk2SQ9vxf6nbhZVUa0MDAwkWftc7U11yktVOxuthi5l
+         h1GhPG/8zHQfltSp/2hUm5R0imE+6twH/2E/0kG0kynn+HY8trW5UXtI3//RFMaPvxfd
+         TmwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683579192; x=1686171192;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20221208; t=1683579291; x=1686171291;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=O4yGmI0zReXeT9uYxy8OKzLUssU3of7sjK1VlydCLwk=;
-        b=TogG0AxijUbCetfPhLaRAW5OHXmRJygm2SfaanWvW36BxLqZZS9IqVHLB/PkAgdcQ8
-         IBZBP60huFKVLx/CtD/xW5a+xflbVkVpme/VrGKwr9niE1CuRsDX0H0acpMWHIHDdQK9
-         7+62uAzaXcAxHChh03qBX046OvHlakEdv9O6j77TF+oaY8zD5hZLjcv8G5gUNREpdO6A
-         TUIFnPiWrIJQvxjWSghSoNtdTvc/eg9osX6f68o4o4gzccRe3zMxKx6mMC7TfUrrTk6V
-         /kyQ8JYunisZPL0kfb3jdXPb+lEA/qYqE8UZkLOUeptgjANt/U8YFjHroklKOsq6KVct
-         DMiQ==
-X-Gm-Message-State: AC+VfDwBYebsKgW0BMY4UrCm/7V97Iq4Cl9T7G/RcTffkTedVGge2Gro
-        /QzjhzIWttYyVZPY7M3FYcSQ5Kffr8nfpb41mIbI
-X-Google-Smtp-Source: ACHHUZ5YSxi22kjly1UPvqYO4ABqBY5V1HYUkDRMqiNWw+cVuGsAe+FKzW/Xd6yR9zdmI1dCaCMJr84VnzNHyswtNMg=
-X-Received: by 2002:a25:4209:0:b0:ba1:d995:5237 with SMTP id
- p9-20020a254209000000b00ba1d9955237mr12505755yba.2.1683579192658; Mon, 08 May
- 2023 13:53:12 -0700 (PDT)
+        bh=Q/f8w9vZTY/u60jY1WmmECHwpOTY4fCe1NILqBO9Yqg=;
+        b=Xr0r5Sr9aJlRLIhwP1oIIR4ejv87tZMUU8ub1Qy9Y13OHIw1cyDQORoTARC7+9lLAw
+         lILqIFOBibvxJjnEfhA2nq+2bVb3/v8d5i1nRTE63zHxVuao5a31cxKEpsltu+ldnzGA
+         GCIn7HnHr/6u4FsfLCuprpF2pEh0cElX1rvsTuGUl3uRzlF8rwgKQvAlpLOyyw5j+u0o
+         v2FRm9Y8s/rzT4UxUo/jHwVBIFbEYqLnryZufGo/Q6VDc+icOs1/o10pGjnK0yf3hP3L
+         kABB3tWQ3DlLwwgWHHwerpE/1rVcbpK5W6FH1GZkVAQhUx1FaQsy1/djdzkPT1ouhB6o
+         gCeA==
+X-Gm-Message-State: AC+VfDyWKAU8vdebiARNIGukF2UwF2bncRsMrX3O1EWxMGCIqUz4plQ4
+        IU1+ZepvMoGwbEBFMaB6maRsDfc4zj5dH7YbwTzXT1ulOD3Q1Qc=
+X-Google-Smtp-Source: ACHHUZ4xFMt0DakYV/nLBdUss21BuKJCxzi0lN9WDmvpxAgRrUdS4ZYhEpsxOv0Ixll9+uQjyQlYN+yKoFAIBWx1MMI=
+X-Received: by 2002:a25:6801:0:b0:b9e:453e:d0c4 with SMTP id
+ d1-20020a256801000000b00b9e453ed0c4mr12484616ybc.28.1683579291627; Mon, 08
+ May 2023 13:54:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230420150503.22227-1-cgzones@googlemail.com> <20230420150503.22227-6-cgzones@googlemail.com>
-In-Reply-To: <20230420150503.22227-6-cgzones@googlemail.com>
+References: <20230505224944.645203-1-paul@paul-moore.com>
+In-Reply-To: <20230505224944.645203-1-paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 8 May 2023 16:53:02 -0400
-Message-ID: <CAHC9VhRz0=-MXKG49+x1aC-hR2GXMx3bhRvwEpJtbLOYp4MtHQ@mail.gmail.com>
-Subject: Re: [PATCH 6/6] selinux: declare read-only data arrays const
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Date:   Mon, 8 May 2023 16:54:41 -0400
+Message-ID: <CAHC9VhRf-hScJFLNSLR+Fa4GuoTz3XFe0aBOk5ocY2ER056s3Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: small cleanups in selinux_audit_rule_init()
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 20, 2023 at 11:05=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Fri, May 5, 2023 at 6:49=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
 >
-> The array of mount tokens in only used in match_opt_prefix() and never
-> modified.
+> A few small tweaks to selinux_audit_rule_init():
 >
-> The array of symtab names is never modified and only used in the
-> DEBUG_HASHES configuration as output.
+> - Adjust how we use the @rc variable so we are not doing any extra
+>   work in the common/success case.
 >
-> The array of files for the SElinux filesystem sub-directory `ss` is
-> similar to the other `struct tree_descr` usages only read from to
-> construct the containing entries.
+> - Related to the above, rework the 'out' jump label so that the
+>   success and error paths are different, simplifying both.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> - Cleanup some of the vertical whitespace while we are making the
+>   other changes.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  security/selinux/hooks.c       | 2 +-
->  security/selinux/selinuxfs.c   | 2 +-
->  security/selinux/ss/policydb.c | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+>  security/selinux/ss/services.c | 38 ++++++++++++++++------------------
+>  1 file changed, 18 insertions(+), 20 deletions(-)
 
-Merged into selinux/next, thanks.
+Merged into selinux/next.
 
 --=20
 paul-moore.com
