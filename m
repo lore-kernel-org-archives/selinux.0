@@ -2,63 +2,74 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72E51C7EE23
-	for <selinux@archiver.kernel.org>; Thu, 11 May 2023 12:33:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E50FDC7EE23
+	for <selinux@archiver.kernel.org>; Thu, 11 May 2023 14:26:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237524AbjEKMdc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 May 2023 08:33:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35740 "EHLO
+        id S238347AbjEKO06 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 May 2023 10:26:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237570AbjEKMda (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 May 2023 08:33:30 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7737293F4;
-        Thu, 11 May 2023 05:33:04 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id 4fb4d7f45d1cf-50bc040c7b8so13019291a12.2;
-        Thu, 11 May 2023 05:33:04 -0700 (PDT)
+        with ESMTP id S238459AbjEKO0n (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 May 2023 10:26:43 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D8CF11600;
+        Thu, 11 May 2023 07:26:32 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id 4fb4d7f45d1cf-50b383222f7so12957097a12.3;
+        Thu, 11 May 2023 07:26:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1683808382; x=1686400382;
+        d=googlemail.com; s=20221208; t=1683815191; x=1686407191;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=B1HnU7hHqbTpTiFx0D4GmXFi6g1csMfXh2pFRmqf63Q=;
-        b=cZOkZddVd06q0IYtPQjNvERik5w+80yb6gfW6TPrOrwznxgHEEZgC4SocVmagWAdxb
-         eZdcQwGi4lch1wKUmPdKMv4tAbDXvPO1fFAXO1Xqh2lO3AIUUpUPC70b/eFZQ4vjXC/k
-         Z/h1oA/vdZvVYjPlNWRZ7ThNRzdyuqmpPRIr8YmojTn4Qh25tGvkFvrIlhn70W4FoMvW
-         KuVuAtDuAKnEltwY4GQ4kbrXIyhHnbybA1iYLv8qsr1dSELGyWWcDauyJOhyD8nKTvE7
-         4zzEx2aM53p+TyrAv+9gF6Map+JhEgh55wsTYriqMLmLe20hfp2bG3E3Z06xlrBmwEEr
-         j5Ow==
+        bh=FfHvJaE373FwPkBo+MbvKKH9vrJm6j2m01pppMLR2Fs=;
+        b=n9Y7Em7SkB9orYrAbcCUvQXxkKi727MiQdFajf4HlIYSHX2PG9dMO34uyKqJrZ5cit
+         i4+wO58Ror05WSxbokgiqseHvrBbqqie2cxX7KTFU071x1BQhSh+2dEnOHgunVWzaPOO
+         IQvNEKYfRGf05i3DNDX88Njr55+onoL6F2nnpPjanz16zRSjfQdZj6yyRVqiQrzImILd
+         Z/OWXk2gkmISUByuBUlZnuNGfbmO4N9WHTkesGj3dEgnTkcJmbXkIqjAHdpjSzgn8YLm
+         wTv3jqTgBm+oKURueLWtI94wjqxO2TmC1YXk9er+4EojpU1xst3Cr6Jg+XEtf2oScBgM
+         odyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683808382; x=1686400382;
+        d=1e100.net; s=20221208; t=1683815191; x=1686407191;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=B1HnU7hHqbTpTiFx0D4GmXFi6g1csMfXh2pFRmqf63Q=;
-        b=dYf9cQDLjswyRAhn7zD0Qu/SQqHDd6f4/1qE4Lz9PALPZSwnnybROeLCV9JJPJMCcd
-         Jf09qHGT/qtFqlV1XFvdoMdZ9dyI2XRwNAAko33a/+o/IlU1lGq9j51CX+FPpCFP6oYA
-         /nxLoMIhJR1sW39hB7NX+TAw9nw0H32/Jo1ANu58S/3sqxS6IBZZAbLl+irUrPEUs4cI
-         JftQ55deW6sOCnaYh9qi0y4HWp3f8r5Otc1TuEVVEAuYlD6PzPRzKXjnNW0b98CVOPp5
-         1i/7wKiVw9K3qrw8nUzD4nKK+KPzdOyV1CAF6jY2Vsl7BGav34VfIPYtKCAebfSbE1Xt
-         ZI0w==
-X-Gm-Message-State: AC+VfDwOZdXGAJ6xHHRV4NVTK/SEvC1T4R1LJs7blxMoFB5/CFenGMis
-        5u1Sd29x0tGCKl5uvuXjuRKmhEyw6VUetw==
-X-Google-Smtp-Source: ACHHUZ4RhLm/85qEFAJSfeTkxZQiCvA9R35mMVU82bid3wS2Hw3iIXntAX9PvWGjM5zEmZdBdUqfnA==
-X-Received: by 2002:a17:907:1b17:b0:965:6075:d0e1 with SMTP id mp23-20020a1709071b1700b009656075d0e1mr16727032ejc.72.1683808382331;
-        Thu, 11 May 2023 05:33:02 -0700 (PDT)
+        bh=FfHvJaE373FwPkBo+MbvKKH9vrJm6j2m01pppMLR2Fs=;
+        b=l9eaLf5Zu+DvpscGeB6yQrBViffhtwaRVI2YX+Izny+pezvhT7zBj7pmBFtBYB70Wv
+         ylUFhwVfCbdk9rX7V04m/N8747AoAPf56lfzUXxh7YHY4pCZHz1crkyu0G00CxbjlFDJ
+         emgTYKddD4GXNssnFQbvfxw/OJWi5kLEjK6PGVdhtMdL403gvIWPgtJKZrFHmWRJx/j8
+         k8F3NoCB7lraMg6c3mT3+LXw3Sm6LS9Leeu1Pyt2nBsOtLLAYZiUgYWpFUrp7Bs3OLZJ
+         Ml1PlDcLplxvu8hq3lNEzdtcYa74mpebOf3G+Pf/HyHDCJDqQeWiNSfR961IPz/V5+tW
+         +hQw==
+X-Gm-Message-State: AC+VfDwOa1LydRGbHSNmP9YW/CWzf+wGyU4ycosvmVHI5oGQk6vEvnS9
+        JnN2bmQgW63dq797dKEos36qjCx6TMY9og==
+X-Google-Smtp-Source: ACHHUZ5y1zkVgoN4BZ0TJw5mvRpA0PrhNACP4gefsO5AZ+PYeLklJn3cCj9SPGF8TNfMkgAfKB6DEQ==
+X-Received: by 2002:a17:907:a46:b0:94f:2b80:f3b4 with SMTP id be6-20020a1709070a4600b0094f2b80f3b4mr17315061ejc.69.1683815190662;
+        Thu, 11 May 2023 07:26:30 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-077-008-180-228.77.8.pool.telefonica.de. [77.8.180.228])
-        by smtp.gmail.com with ESMTPSA id mz11-20020a1709071b8b00b009603d34cfecsm3908638ejc.164.2023.05.11.05.33.01
+        by smtp.gmail.com with ESMTPSA id hf15-20020a1709072c4f00b0094f58a85bc5sm4056647ejc.180.2023.05.11.07.26.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 May 2023 05:33:02 -0700 (PDT)
+        Thu, 11 May 2023 07:26:29 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+Cc:     Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>,
         James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] security: keys: perform capable check only on privileged operations
-Date:   Thu, 11 May 2023 14:32:52 +0200
-Message-Id: <20230511123252.723185-1-cgzones@googlemail.com>
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Frederick Lawler <fred@cloudflare.com>,
+        =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack3000@gmail.com>,
+        linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com,
+        linux-security-module@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH v4 1/9] capability: introduce new capable flag NODENYAUDIT
+Date:   Thu, 11 May 2023 16:25:24 +0200
+Message-Id: <20230511142535.732324-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,54 +78,99 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-If the current task fails the check for the queried capability via
-`capable(CAP_SYS_ADMIN)` LSMs like SELinux generate a denial message.
-Issuing such denial messages unnecessarily can lead to a policy author
-granting more privileges to a subject than needed to silence them.
+Introduce a new capable flag, CAP_OPT_NODENYAUDIT, to not generate
+an audit event if the requested capability is not granted.  This will be
+used in a new capable_any() functionality to reduce the number of
+necessary capable calls.
 
-Reorder CAP_SYS_ADMIN checks after the check whether the operation is
-actually privileged.
+Handle the flag accordingly in AppArmor and SELinux.
 
+Suggested-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/keys/keyctl.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ include/linux/security.h       |  2 ++
+ security/apparmor/capability.c |  8 +++++---
+ security/selinux/hooks.c       | 14 ++++++++------
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index d54f73c558f7..19be69fa4d05 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -980,14 +980,19 @@ long keyctl_chown_key(key_serial_t id, uid_t user, gid_t group)
- 	ret = -EACCES;
- 	down_write(&key->sem);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index e2734e9e44d5..629c775ec297 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -67,6 +67,8 @@ struct watch_notification;
+ #define CAP_OPT_NOAUDIT BIT(1)
+ /* If capable is being called by a setid function */
+ #define CAP_OPT_INSETID BIT(2)
++/* If capable should audit the security request for authorized requests only */
++#define CAP_OPT_NODENYAUDIT BIT(3)
  
--	if (!capable(CAP_SYS_ADMIN)) {
-+	{
-+		bool is_privileged_op = false;
-+
- 		/* only the sysadmin can chown a key to some other UID */
- 		if (user != (uid_t) -1 && !uid_eq(key->uid, uid))
--			goto error_put;
-+			is_privileged_op = true;
+ /* LSM Agnostic defines for security_sb_set_mnt_opts() flags */
+ #define SECURITY_LSM_NATIVE_LABELS	1
+diff --git a/security/apparmor/capability.c b/security/apparmor/capability.c
+index 326a51838ef2..98120dd62ca7 100644
+--- a/security/apparmor/capability.c
++++ b/security/apparmor/capability.c
+@@ -108,7 +108,8 @@ static int audit_caps(struct common_audit_data *sa, struct aa_profile *profile,
+  * profile_capable - test if profile allows use of capability @cap
+  * @profile: profile being enforced    (NOT NULL, NOT unconfined)
+  * @cap: capability to test if allowed
+- * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
++ * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
++ *	record is generated
+  * @sa: audit data (MAY BE NULL indicating no auditing)
+  *
+  * Returns: 0 if allowed else -EPERM
+@@ -126,7 +127,7 @@ static int profile_capable(struct aa_profile *profile, int cap,
+ 	else
+ 		error = -EPERM;
  
- 		/* only the sysadmin can set the key's GID to a group other
- 		 * than one of those that the current process subscribes to */
- 		if (group != (gid_t) -1 && !gid_eq(gid, key->gid) && !in_group_p(gid))
-+			is_privileged_op = true;
-+
-+		if (is_privileged_op && !capable(CAP_SYS_ADMIN))
- 			goto error_put;
+-	if (opts & CAP_OPT_NOAUDIT) {
++	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && error)) {
+ 		if (!COMPLAIN_MODE(profile))
+ 			return error;
+ 		/* audit the cap request in complain mode but note that it
+@@ -142,7 +143,8 @@ static int profile_capable(struct aa_profile *profile, int cap,
+  * aa_capable - test permission to use capability
+  * @label: label being tested for capability (NOT NULL)
+  * @cap: capability to be tested
+- * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
++ * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
++ *	record is generated
+  *
+  * Look up capability in profile capability set.
+  *
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 79b4890e9936..0730edf2f5f1 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1571,7 +1571,7 @@ static int cred_has_capability(const struct cred *cred,
+ 	u16 sclass;
+ 	u32 sid = cred_sid(cred);
+ 	u32 av = CAP_TO_MASK(cap);
+-	int rc;
++	int rc, rc2;
+ 
+ 	ad.type = LSM_AUDIT_DATA_CAP;
+ 	ad.u.cap = cap;
+@@ -1590,11 +1590,13 @@ static int cred_has_capability(const struct cred *cred,
  	}
  
-@@ -1088,7 +1093,7 @@ long keyctl_setperm_key(key_serial_t id, key_perm_t perm)
- 	down_write(&key->sem);
+ 	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+-	if (!(opts & CAP_OPT_NOAUDIT)) {
+-		int rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
+-		if (rc2)
+-			return rc2;
+-	}
++	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && rc))
++		return rc;
++
++	rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
++	if (rc2)
++		return rc2;
++
+ 	return rc;
+ }
  
- 	/* if we're not the sysadmin, we can only change a key that we own */
--	if (capable(CAP_SYS_ADMIN) || uid_eq(key->uid, current_fsuid())) {
-+	if (uid_eq(key->uid, current_fsuid()) || capable(CAP_SYS_ADMIN)) {
- 		key->perm = perm;
- 		notify_key(key, NOTIFY_KEY_SETATTR, 0);
- 		ret = 0;
 -- 
 2.40.1
 
