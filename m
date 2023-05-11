@@ -2,139 +2,72 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73226C7EE2D
-	for <selinux@archiver.kernel.org>; Wed, 10 May 2023 00:58:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CB0FC7EE25
+	for <selinux@archiver.kernel.org>; Thu, 11 May 2023 07:06:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229734AbjEJA6Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 May 2023 20:58:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45640 "EHLO
+        id S237351AbjEKHGN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 May 2023 03:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229702AbjEJA6W (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 May 2023 20:58:22 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A375E44AB;
-        Tue,  9 May 2023 17:58:20 -0700 (PDT)
-Received: from dggpeml500023.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4QGGjw6xnszTkTS;
-        Wed, 10 May 2023 08:53:40 +0800 (CST)
-Received: from [10.67.110.112] (10.67.110.112) by
- dggpeml500023.china.huawei.com (7.185.36.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.23; Wed, 10 May 2023 08:58:18 +0800
-Message-ID: <c6e84076-9134-8c27-75bb-9191da6c23c3@huawei.com>
-Date:   Wed, 10 May 2023 08:58:17 +0800
+        with ESMTP id S237229AbjEKHF7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 May 2023 03:05:59 -0400
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 830DC5FF2;
+        Thu, 11 May 2023 00:05:29 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=tianjia.zhang@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0ViJZHzM_1683788724;
+Received: from localhost(mailfrom:tianjia.zhang@linux.alibaba.com fp:SMTPD_---0ViJZHzM_1683788724)
+          by smtp.aliyun-inc.com;
+          Thu, 11 May 2023 15:05:25 +0800
+From:   Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+To:     Serge Hallyn <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Frederick Lawler <fred@cloudflare.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH 0/2] capability: Introduce CAP_BLOCK_ADMIN
+Date:   Thu, 11 May 2023 15:05:18 +0800
+Message-Id: <20230511070520.72939-1-tianjia.zhang@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.3 (Apple Git-128)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [PATCH -next 0/2] lsm: Change inode_setattr() to take struct
-Content-Language: en-US
-From:   xiujianfeng <xiujianfeng@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <rafael@kernel.org>,
-        <viro@zeniv.linux.org.uk>, <brauner@kernel.org>,
-        <dhowells@redhat.com>, <code@tyhicks.com>,
-        <hirofumi@mail.parknet.co.jp>, <linkinjeon@kernel.org>,
-        <sfrench@samba.org>, <senozhatsky@chromium.org>, <tom@talpey.com>,
-        <chuck.lever@oracle.com>, <jlayton@kernel.org>,
-        <miklos@szeredi.hu>, <paul@paul-moore.com>, <jmorris@namei.org>,
-        <serge@hallyn.com>, <stephen.smalley.work@gmail.com>,
-        <eparis@parisplace.org>, <casey@schaufler-ca.com>,
-        <dchinner@redhat.com>, <john.johansen@canonical.com>,
-        <mcgrof@kernel.org>, <mortonm@chromium.org>, <fred@cloudflare.com>,
-        <mic@digikod.net>, <mpe@ellerman.id.au>, <nathanl@linux.ibm.com>,
-        <gnoack3000@gmail.com>, <roberto.sassu@huawei.com>
-CC:     <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-cachefs@redhat.com>, <ecryptfs@vger.kernel.org>,
-        <linux-cifs@vger.kernel.org>, <linux-nfs@vger.kernel.org>,
-        <linux-unionfs@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>, <selinux@vger.kernel.org>,
-        <wangweiyang2@huawei.com>
-References: <20230505081200.254449-1-xiujianfeng@huawei.com>
-In-Reply-To: <20230505081200.254449-1-xiujianfeng@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.112]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpeml500023.china.huawei.com (7.185.36.114)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-sorry, I forgot to add the link to preview discussion:
+Separated fine-grained capability CAP_BLOCK_ADMIN from CAP_SYS_ADMIN.
+For backward compatibility, the CAP_BLOCK_ADMIN capability is included
+within CAP_SYS_ADMIN.
 
-https://lore.kernel.org/all/20220827111215.131442-1-xiujianfeng@huawei.com/
+Some database products rely on shared storage to complete the
+write-once-read-multiple and write-multiple-read-multiple functions.
+When HA occurs, they rely on the PR (Persistent Reservations) protocol
+provided by the storage layer to manage block device permissions to
+ensure data correctness.
 
-On 2023/5/5 16:11, Xiu Jianfeng wrote:
-> Hi,
-> 
-> I am working on adding xattr/attr support for landlock [1], so we can
-> control fs accesses such as chmod, chown, uptimes, setxattr, etc.. inside
-> landlock sandbox. the LSM hooks as following are invoved:
-> 1.inode_setattr
-> 2.inode_setxattr
-> 3.inode_removexattr
-> 4.inode_set_acl
-> 5.inode_remove_acl
-> which are controlled by LANDLOCK_ACCESS_FS_WRITE_METADATA.
-> 
-> and
-> 1.inode_getattr
-> 2.inode_get_acl
-> 3.inode_getxattr
-> 4.inode_listxattr
-> which are controlled by LANDLOCK_ACCESS_FS_READ_METADATA
-> 
-> Some of these hooks only take struct dentry as a argument, However, for
-> path-based LSMs such Landlock, Apparmor and Tomoyo, struct path instead
-> of struct dentry required to make sense of attr/xattr accesses. So we
-> need to refactor these hooks to take a struct path argument.
-> 
-> This patchset only refators inode_setattr hook as part of whole work.
-> 
-> Also, I have a problem about file_dentry() in __file_remove_privs() of the
-> first patch, before changes in commit c1892c37769cf ("vfs: fix deadlock in
-> file_remove_privs() on overlayfs"), it gets dentry and inode as belows:
-> 
-> struct dentry *dentry = file->f_path.dentry;
-> struct inode *inode = d_inode(dentry);
-> 
-> That would be clear to change it to pass &file->f_path to
-> __remove_privs()->notify_change()->inode_setattr().
-> After that commit, it has been changed to:
-> 
-> struct dentry *dentry = file_dentry(file);
-> struct inode *inode = file_inode(file);
-> 
-> If I understand correctly, the dentry from file_dentry() maybe the upper
-> or the lower, it can be different from file->f_path.dentry. It can't just
-> go back to use &file->f_path otherwise the bug will come back for
-> overlayfs. So for such scenario, how to get a path from file if the file
-> maybe or not from overlayfs, and which kind of overlayfs path is ok for
-> Landlock?
-> 
-> Xiu Jianfeng (2):
->   fs: Change notify_change() to take struct path argument
->   lsm: Change inode_setattr hook to take struct path argument
-> 
->  drivers/base/devtmpfs.c       |  5 +++--
->  fs/attr.c                     |  7 ++++---
->  fs/cachefiles/interface.c     |  4 ++--
->  fs/coredump.c                 |  2 +-
->  fs/ecryptfs/inode.c           | 18 +++++++++---------
->  fs/fat/file.c                 |  2 +-
->  fs/inode.c                    |  8 +++++---
->  fs/ksmbd/smb2pdu.c            |  6 +++---
->  fs/ksmbd/smbacl.c             |  2 +-
->  fs/namei.c                    |  2 +-
->  fs/nfsd/vfs.c                 | 12 ++++++++----
->  fs/open.c                     | 19 ++++++++++---------
->  fs/overlayfs/overlayfs.h      |  4 +++-
->  fs/utimes.c                   |  2 +-
->  include/linux/fs.h            |  4 ++--
->  include/linux/lsm_hook_defs.h |  2 +-
->  include/linux/security.h      |  4 ++--
->  security/security.c           | 10 +++++-----
->  security/selinux/hooks.c      |  3 ++-
->  security/smack/smack_lsm.c    |  5 +++--
->  20 files changed, 67 insertions(+), 54 deletions(-)
-> 
+CAP_SYS_ADMIN is required in the PR protocol implementation of existing
+block devices in the Linux kernel, which has too many sensitive
+permissions, which may lead to risks such as container escape. The
+kernel needs to provide more fine-grained permission management like
+CAP_NET_ADMIN to avoid online products directly relying on root to run.
+
+CAP_BLOCK_ADMIN can also provide support for other block device
+operations that require CAP_SYS_ADMIN capabilities in the future,
+ensuring that applications run with least privilege.
+
+Tianjia Zhang (2):
+  capability: Introduce CAP_BLOCK_ADMIN
+  block: use block_admin_capable() for Persistent Reservations
+
+ block/ioctl.c                       | 10 +++++-----
+ include/linux/capability.h          |  5 +++++
+ include/uapi/linux/capability.h     |  7 ++++++-
+ security/selinux/include/classmap.h |  4 ++--
+ 4 files changed, 18 insertions(+), 8 deletions(-)
+
+-- 
+2.24.3 (Apple Git-128)
+
