@@ -2,47 +2,49 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A29BC77B75
-	for <selinux@archiver.kernel.org>; Fri, 12 May 2023 11:07:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E362C77B7F
+	for <selinux@archiver.kernel.org>; Fri, 12 May 2023 11:07:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240333AbjELLHi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 May 2023 07:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34586 "EHLO
+        id S239919AbjELLHj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 May 2023 07:07:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239919AbjELLHh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 May 2023 07:07:37 -0400
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79F4930DC
-        for <selinux@vger.kernel.org>; Fri, 12 May 2023 04:07:36 -0700 (PDT)
-Received: by mail-ed1-x532.google.com with SMTP id 4fb4d7f45d1cf-50bceaf07b8so17915170a12.3
-        for <selinux@vger.kernel.org>; Fri, 12 May 2023 04:07:36 -0700 (PDT)
+        with ESMTP id S240091AbjELLHi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 May 2023 07:07:38 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB7F10C
+        for <selinux@vger.kernel.org>; Fri, 12 May 2023 04:07:37 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-965ddb2093bso1413727066b.2
+        for <selinux@vger.kernel.org>; Fri, 12 May 2023 04:07:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20221208; t=1683889655; x=1686481655;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=mfWUcV0M0NL0oIA6gXma0OTQCk5PechLdX2RyNUV3h0=;
-        b=iL6MdKbHpBdAzOVKFAwnsQSzGEjAK4EJ5q63TnG6Xj6AbKQhnO9qmfe2iGpfZ3mdda
-         cfpSPZQWgx0fIymXO1mgXukMirdenhR1ljNWvLujMrRasMXN5ExZNXJR1/IicKMzkaO/
-         XaYPfiM6sjf/KqwO/PVpu+u6LgVbdictYMHzelDRrFPulXQ7KO3BYCxYb35q34H/Ji3b
-         oJuY7P4fli2R4X/N5A+3Msc5etUnqTgBBPX0kZ1VzP3UZZLJOdobiDwU/rpZzDB+iglf
-         rPTkun8urZT3XLjn8hU5uQe05ycxxUg/vI3EDQcmr3gez+3OXYXQYsqw/M0J7rNJInR2
-         C3Ug==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=nFiuVsxKFUZx7E8GAEhGTXPdCZlmj4NaqGM1VUvD2lI=;
+        b=HWq9iz6IIfax5hFx+D0bhpy55tEWPaF7EogLMClVadfVq7W/9fQdEB3ySxwbWMd6td
+         KbGi8HSTxpAO8e7Qx1ULS9SWGg5o4tb6w6Wy/XJtnE3uCZHiGJowYBRIxgyQWRS6YhJ6
+         Kwpg1BeMcWf9wRIawz8keP7AYyNnNvfrBYBMpQqW8VXwY0BLmY9RZVfH0En1zTRmmMi+
+         kLP1s6FHve+WgUQe+EmdKsTSh++RGzpwnRIaJTMxMvfpfCUJhKfPRlveE7qcBszQHXqb
+         yZMzkfOGvpphOw4zof8fGzq40F3zG87/bPelUgCMM8Y9iVPDLIPU2NKadcK/UjJN4acC
+         6FMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20221208; t=1683889655; x=1686481655;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=mfWUcV0M0NL0oIA6gXma0OTQCk5PechLdX2RyNUV3h0=;
-        b=l24Ce/3CIkocVkxnf9hx9S8FHN8Kcyg2Qq8nXlnHWatbHvxjF3tSb+HMh+bE+p5JZU
-         Y2jMAKap+VdtzJ0B86xQroAne+jF73dMH0yVz00iWPGCRhtkIlVauBFQFp3BBMlPjdCY
-         zpael8CwYdJVpg+v37RhgXDo2UWF3qupsjaaqvl7NVu0wW6waVlObPvUTPSsy1SnuVmu
-         2lh9Iz9l6QQJvkw7QdtDNYm6gzLMlRYSftNwTZr/Ppn6mlNU7Fjksaouiz2sUhyUWpNu
-         LtnhLNedKsQKnjry/5pXWMu4/nArpcsn/hEf8DPBpzKmHJOiP4JgtnoL40OqyA5HDdQC
-         /OPg==
-X-Gm-Message-State: AC+VfDyM5ZaFSTlNygUMmtIBm40HYnKUwJNDY3zSV9bu+6F0s7AdEDEM
-        aBHd2BTyujr/xkdVeb8StA8UqGkIW3P0aA==
-X-Google-Smtp-Source: ACHHUZ6dIMBfqANUQtzNVSclcpX0fbNBgcVGduR+Qy6acDaM33IvO1ihN1fvLSgDrGeNbpdWwljPaw==
-X-Received: by 2002:aa7:c586:0:b0:50d:b92e:d1dc with SMTP id g6-20020aa7c586000000b0050db92ed1dcmr10058258edq.14.1683889654687;
-        Fri, 12 May 2023 04:07:34 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nFiuVsxKFUZx7E8GAEhGTXPdCZlmj4NaqGM1VUvD2lI=;
+        b=iILSY05CihIfb+Z01n6YwM/gSm5df+7fFwPQZIHIXWZLPOUIjJ1Eyf6YfOMmeu0c0R
+         oW24OIUk1CUQ5KWyeXn+LhvqelpTkn37EB24n60DFvPftPWhXkjNKT31YzeNBq3V7bxh
+         WEMiRrwSoVBTj9v5xY40e3pzKfmIL0G95pX3fxkm93zwyyboZvJzT/ehgonU3EaPTOEE
+         ghNE8c7Rwsc2KuxihF3bx9ChOaWWe4b8JPVkqNx6P6hwTX0aW1b5/uqK3TbSYm3FE4H7
+         tcnZVqkLv0tO9MF7zmpGXYbtttymshT+3eL3WLqn06NtlouzGfnsCPkh5GG94yf3du0p
+         Uyiw==
+X-Gm-Message-State: AC+VfDzFg8rQ5AQDYXhLmoHAWKW/kkXMJx2FMILuN9JQ5wM2mKXrKw9Y
+        42HN7IDY7TZ6tVNFl2/scaX4wRXIPkRIEw==
+X-Google-Smtp-Source: ACHHUZ7kn6PMENFEZIf86XfN7Nu9nOK+3plONmJhMXxZu3yxlvnIgeAB7g/2QTxWKq2S6XUEXT2Hdw==
+X-Received: by 2002:a17:907:9488:b0:96a:a0fd:d43e with SMTP id dm8-20020a170907948800b0096aa0fdd43emr1953720ejc.49.1683889655371;
+        Fri, 12 May 2023 04:07:35 -0700 (PDT)
 Received: from debianHome.localdomain (dynamic-095-116-181-041.95.116.pool.telefonica.de. [95.116.181.41])
         by smtp.gmail.com with ESMTPSA id o11-20020aa7c7cb000000b0050bde945c00sm3812016eds.78.2023.05.12.04.07.34
         for <selinux@vger.kernel.org>
@@ -50,10 +52,12 @@ Received: from debianHome.localdomain (dynamic-095-116-181-041.95.116.pool.telef
         Fri, 12 May 2023 04:07:34 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 1/4] semodule_expand: update
-Date:   Fri, 12 May 2023 13:07:27 +0200
-Message-Id: <20230512110730.78672-1-cgzones@googlemail.com>
+Subject: [RFC PATCH 2/4] semodule_link: update
+Date:   Fri, 12 May 2023 13:07:28 +0200
+Message-Id: <20230512110730.78672-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230512110730.78672-1-cgzones@googlemail.com>
+References: <20230512110730.78672-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -62,9 +66,7 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 Drop unnecessary declarations.
-Reduce scope of file global variable.
-Mention -v argument in help usage message.
-More strict integer conversion.
+More verbose error messages and add missing trailing newline.
 More strict argument count checking.
 Check closing file for incomplete write.
 Rework resource cleanup, so that all files and allocated memory are
@@ -73,208 +75,152 @@ libsepol under valgrind(8) or sanitizers.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- .../semodule_expand/semodule_expand.c         | 91 +++++++++++--------
- 1 file changed, 55 insertions(+), 36 deletions(-)
+ semodule-utils/semodule_link/semodule_link.c | 65 ++++++++++++--------
+ 1 file changed, 38 insertions(+), 27 deletions(-)
 
-diff --git a/semodule-utils/semodule_expand/semodule_expand.c b/semodule-utils/semodule_expand/semodule_expand.c
-index 895cdd78..8d9feb05 100644
---- a/semodule-utils/semodule_expand/semodule_expand.c
-+++ b/semodule-utils/semodule_expand/semodule_expand.c
-@@ -21,30 +21,24 @@
- #include <unistd.h>
- #include <string.h>
+diff --git a/semodule-utils/semodule_link/semodule_link.c b/semodule-utils/semodule_link/semodule_link.c
+index 38a6843c..58a82cb0 100644
+--- a/semodule-utils/semodule_link/semodule_link.c
++++ b/semodule-utils/semodule_link/semodule_link.c
+@@ -21,9 +21,7 @@
  
+ #define LINKPOLICY_VERSION "1.0"
+ 
+-char *progname;
 -extern char *optarg;
 -extern int optind;
--
--int policyvers = 0;
--
- #define EXPANDPOLICY_VERSION "1.0"
++static const char *progname;
  
  static __attribute__((__noreturn__)) void usage(const char *program_name)
  {
--	printf("usage: %s [-V -a -c [version]] basemodpkg outputfile\n",
-+	printf("usage: %s [-V -a -c [version] -v] basemodpkg outputfile\n",
- 	       program_name);
+@@ -32,7 +30,7 @@ static __attribute__((__noreturn__)) void usage(const char *program_name)
  	exit(1);
  }
  
+-static sepol_module_package_t *load_module(char *filename)
++static sepol_module_package_t *load_module(const char *filename)
+ {
+ 	int ret;
+ 	FILE *fp = NULL;
+@@ -49,7 +47,7 @@ static sepol_module_package_t *load_module(char *filename)
+ 	}
+ 	fp = fopen(filename, "r");
+ 	if (!fp) {
+-		fprintf(stderr, "%s:  Could not open package %s:  %s", progname,
++		fprintf(stderr, "%s:  Could not open package %s:  %s\n", progname,
+ 			filename, strerror(errno));
+ 		goto bad;
+ 	}
+@@ -76,11 +74,10 @@ static sepol_module_package_t *load_module(char *filename)
+ 
  int main(int argc, char **argv)
  {
--	char *basename, *outname;
--	int ch, ret, show_version = 0, verbose = 0;
+-	int ch, i, show_version = 0, verbose = 0, num_mods;
+-	char *basename, *outname = NULL;
+-	sepol_module_package_t *base, **mods;
+-	FILE *outfile;
 -	struct sepol_policy_file *pf;
--	sepol_module_package_t *base;
--	sepol_policydb_t *out, *p;
--	FILE *fp, *outfile;
--	int check_assertions = 1;
--	sepol_handle_t *handle;
-+	const char *basename, *outname;
-+	int ch, ret, show_version = 0, verbose = 0, policyvers = 0, check_assertions = 1;
++	int ch, i, ret, show_version = 0, verbose = 0, num_mods = 0;
++	const char *basename, *outname = NULL;
++	sepol_module_package_t *base = NULL, **mods = NULL;
 +	struct sepol_policy_file *pf = NULL;
-+	sepol_module_package_t *base = NULL;
-+	sepol_policydb_t *out = NULL, *p;
-+	FILE *fp = NULL, *outfile = NULL;
-+	sepol_handle_t *handle = NULL;
  
- 	while ((ch = getopt(argc, argv, "c:Vva")) != EOF) {
- 		switch (ch) {
-@@ -55,13 +49,15 @@ int main(int argc, char **argv)
- 			verbose = 1;
- 			break;
- 		case 'c':{
--				long int n = strtol(optarg, NULL, 10);
-+				long int n;
-+
-+				errno = 0;
-+				n = strtol(optarg, NULL, 10);
- 				if (errno) {
- 					fprintf(stderr,
- 						"%s:  Invalid policyvers specified: %s\n",
- 						argv[0], optarg);
- 					usage(argv[0]);
--					exit(1);
- 				}
- 				if (n < sepol_policy_kern_vers_min()
- 				    || n > sepol_policy_kern_vers_max()) {
-@@ -71,7 +67,6 @@ int main(int argc, char **argv)
- 						sepol_policy_kern_vers_min(),
- 						sepol_policy_kern_vers_max());
- 					usage(argv[0]);
--					exit(1);
- 				}
- 				policyvers = n;
- 				break;
-@@ -96,7 +91,7 @@ int main(int argc, char **argv)
+ 	progname = argv[0];
+ 
+@@ -106,7 +103,7 @@ int main(int argc, char **argv)
  	}
  
  	/* check args */
 -	if (argc < 3 || !(optind != (argc - 1))) {
-+	if (argc < 3 || argc - optind != 2) {
++	if (argc < 3 || optind + 2 > argc) {
  		fprintf(stderr,
- 			"%s:  You must provide the base module package and output filename\n",
+ 			"%s:  You must provide the base module package and at least one other module package\n",
  			argv[0]);
-@@ -107,69 +102,74 @@ int main(int argc, char **argv)
- 	outname = argv[optind];
- 
- 	handle = sepol_handle_create();
--	if (!handle)
--		exit(1);
-+	if (!handle) {
-+		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-+		goto failure;
-+	}
- 
- 	if (sepol_policy_file_create(&pf)) {
- 		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
--		exit(1);
-+		goto failure;
- 	}
- 
- 	/* read the base module */
- 	if (sepol_module_package_create(&base)) {
- 		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
--		exit(1);
-+		goto failure;
- 	}
-+
- 	fp = fopen(basename, "r");
- 	if (!fp) {
- 		fprintf(stderr, "%s:  Can't open '%s':  %s\n",
- 			argv[0], basename, strerror(errno));
--		exit(1);
-+		goto failure;
- 	}
-+
- 	sepol_policy_file_set_fp(pf, fp);
- 	ret = sepol_module_package_read(base, pf, 0);
- 	if (ret) {
- 		fprintf(stderr, "%s:  Error in reading package from %s\n",
+@@ -119,18 +116,15 @@ int main(int argc, char **argv)
+ 		fprintf(stderr,
+ 			"%s:  Could not load base module from file %s\n",
  			argv[0], basename);
 -		exit(1);
 +		goto failure;
  	}
-+
- 	fclose(fp);
-+	fp = NULL;
  
- 	/* linking the base takes care of enabling optional avrules */
- 	p = sepol_module_package_get_policy(base);
- 	if (sepol_link_modules(handle, p, NULL, 0, 0)) {
- 		fprintf(stderr, "%s:  Error while enabling avrules\n", argv[0]);
--		exit(1);
-+		goto failure;
- 	}
- 
- 	/* create the output policy */
- 
- 	if (sepol_policydb_create(&out)) {
+ 	num_mods = argc - optind;
+-	mods =
+-	    (sepol_module_package_t **) malloc(sizeof(sepol_module_package_t *)
+-					       * num_mods);
++	mods = calloc(num_mods, sizeof(sepol_module_package_t *));
+ 	if (!mods) {
  		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
 -		exit(1);
 +		goto failure;
  	}
+-	memset(mods, 0, sizeof(sepol_module_package_t *) * num_mods);
  
- 	sepol_set_expand_consume_base(handle, 1);
- 
- 	if (sepol_expand_module(handle, p, out, verbose, check_assertions)) {
- 		fprintf(stderr, "%s:  Error while expanding policy\n", argv[0]);
--		exit(1);
-+		goto failure;
- 	}
- 
- 	if (policyvers) {
- 		if (sepol_policydb_set_vers(out, policyvers)) {
- 			fprintf(stderr, "%s:  Invalid version %d\n", argv[0],
- 				policyvers);
+ 	for (i = 0; optind < argc; optind++, i++) {
+ 		mods[i] = load_module(argv[optind]);
+@@ -138,39 +132,56 @@ int main(int argc, char **argv)
+ 			fprintf(stderr,
+ 				"%s:  Could not load module from file %s\n",
+ 				argv[0], argv[optind]);
 -			exit(1);
 +			goto failure;
  		}
  	}
  
--	sepol_module_package_free(base);
--
- 	outfile = fopen(outname, "w");
- 	if (!outfile) {
--		perror(outname);
+ 	if (sepol_link_packages(NULL, base, mods, num_mods, verbose)) {
+ 		fprintf(stderr, "%s:  Error while linking packages\n", argv[0]);
 -		exit(1);
-+		fprintf(stderr, "%s:  Can't open '%s':  %s\n",
-+			argv[0], outname, strerror(errno));
 +		goto failure;
  	}
  
- 	sepol_policy_file_set_fp(pf, outfile);
-@@ -178,12 +178,31 @@ int main(int argc, char **argv)
- 		fprintf(stderr,
- 			"%s:  Error while writing expanded policy to %s\n",
- 			argv[0], outname);
--		exit(1);
-+		goto failure;
+ 	if (outname) {
+-		outfile = fopen(outname, "w");
++		FILE *outfile = fopen(outname, "w");
+ 		if (!outfile) {
+-			perror(outname);
+-			exit(1);
++			fprintf(stderr, "%s:  Could not open output file %s:  %s\n",
++				progname, outname, strerror(errno));
++			goto failure;
+ 		}
+ 
+ 		if (sepol_policy_file_create(&pf)) {
+ 			fprintf(stderr, "%s:  Out of memory\n", argv[0]);
+-			exit(1);
++			fclose(outfile);
++			goto failure;
+ 		}
+ 		sepol_policy_file_set_fp(pf, outfile);
+ 		if (sepol_module_package_write(base, pf)) {
+ 			fprintf(stderr, "%s:  Error writing linked package.\n",
+ 				argv[0]);
+-			exit(1);
++			sepol_policy_file_free(pf);
++			fclose(outfile);
++			goto failure;
+ 		}
+ 		sepol_policy_file_free(pf);
+-		fclose(outfile);
++
++		if (fclose(outfile)) {
++			fprintf(stderr, "%s:  Error closing linked package:  %s\n",
++				argv[0], strerror(errno));
++			goto failure;
++		}
  	}
--	fclose(outfile);
--	sepol_handle_destroy(handle);
-+
-+	ret = fclose(outfile);
-+	outfile = NULL;
-+	if (ret) {
-+		fprintf(stderr, "%s:  Error closing policy file %s:  %s\n",
-+			argv[0], outname, strerror(errno));
-+		goto failure;
-+	}
-+
+ 
+-	sepol_module_package_free(base);
 +	ret = EXIT_SUCCESS;
++
 +cleanup:
-+	if (outfile)
-+		fclose(outfile);
- 	sepol_policydb_free(out);
-+	if (fp)
-+		fclose(fp);
+ 	for (i = 0; i < num_mods; i++)
+ 		sepol_module_package_free(mods[i]);
+ 	free(mods);
+-	exit(0);
 +	sepol_module_package_free(base);
- 	sepol_policy_file_free(pf);
-+	sepol_handle_destroy(handle);
 +
 +	return ret;
- 
--	return 0;
++
 +failure:
 +	ret = EXIT_FAILURE;
 +	goto cleanup;
