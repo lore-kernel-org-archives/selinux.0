@@ -2,113 +2,112 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAAA6C7EE22
-	for <selinux@archiver.kernel.org>; Fri, 12 May 2023 02:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B25C77B7C
+	for <selinux@archiver.kernel.org>; Fri, 12 May 2023 09:22:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239700AbjELCOj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 May 2023 22:14:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56048 "EHLO
+        id S240427AbjELJWT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 May 2023 05:22:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231799AbjELCOh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 May 2023 22:14:37 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 860C41FD4;
-        Thu, 11 May 2023 19:14:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1683857676; x=1715393676;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+uP3qdeQwkNNyPV4cDI0woVqqifLQC8W3QFlpDqZ5rw=;
-  b=F4RRofB/TqVdWNMqcWSV2VTr5oEbxfzszF4QI2BHmzFGYPjiHxrP9X0X
-   AZf9XUZYJi+g+iDNlF2Ag1NRvT8SgstWCmrXl1bv5Yfn4dCDXxYzQWOfO
-   sxZJJRlzAMzQstwT7B6Kxn1GHrZsz6o3kpaF8mE8VjphslFaA/h0u7CJD
-   sd/R1rdK2AOJzpKwh4DWFPuESIe1cRA4iv/f1UVQJxvVkC8ijQQOMlgTs
-   5e29YY1IbCtB57J8JN0ST01mRpglfoZoTjN5dfHsQr8628LaRqKmIlJPf
-   qvN0SRxK4A+dBYULY2ykFiUemc5D5uXEdMEhZdwuTVEG5+JiBljIvE0UW
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10707"; a="437016856"
-X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; 
-   d="scan'208";a="437016856"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2023 19:14:36 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10707"; a="730630998"
-X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; 
-   d="scan'208";a="730630998"
-Received: from lkp-server01.sh.intel.com (HELO dea6d5a4f140) ([10.239.97.150])
-  by orsmga008.jf.intel.com with ESMTP; 11 May 2023 19:14:34 -0700
-Received: from kbuild by dea6d5a4f140 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pxIIj-0004Q8-0p;
-        Fri, 12 May 2023 02:14:33 +0000
-Date:   Fri, 12 May 2023 10:13:40 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-Cc:     oe-kbuild-all@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
+        with ESMTP id S240120AbjELJWM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 May 2023 05:22:12 -0400
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B93EA10E49;
+        Fri, 12 May 2023 02:22:09 -0700 (PDT)
+Received: by mail-ed1-x531.google.com with SMTP id 4fb4d7f45d1cf-50bd37ca954so87572154a12.0;
+        Fri, 12 May 2023 02:22:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1683883328; x=1686475328;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=A8e0icE3DzwJ0q8S0zcOAvv0mzDXd8pUb6FlHP/5Hbs=;
+        b=nmiRftXjqQhVsLaaVEh29GEPTMdH1oQnJjUYlAb9EVI8kGPkrhtuRizWKHDwoI2mJq
+         31BNopRs6JUYawn4vmKKbXmZuMAynwPfcmPBr3NoPo7gRMR/FmR8kOV74ghR2NYTOShr
+         liZpb8TYT8++f4o53s58EVmJgRiofghgJqAz7g2U3De9nXfr5CuKn5ms5wo+FfHf19Ik
+         ZycZWEIFhAKmARcB+j5iLxnYtaHJ2iST9A96a8YgAYiJ3bvNPxqWsYcmQXaZHNIx91Fx
+         bRE6s+/TZX0MfqOOWBkQmuUIz/xljjA50cOEELl8UcxATogE9miVoTdNNscKECva6hLl
+         UKlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683883328; x=1686475328;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=A8e0icE3DzwJ0q8S0zcOAvv0mzDXd8pUb6FlHP/5Hbs=;
+        b=lFLt3kA3FnsdBFZ8Yp3Z91zqDrg4oQ2xya5Q+BWjIC5xJaYS+osMuWjbRwcuBsIw4M
+         nxf1tMDV3zzl/y/RHyx2ZFAiVM73kAo8Mw6jnwHFfeqoUKcjDeOIc1TZJh+h0W/4V/ih
+         sCusECGgctdL46y7E8S5dEjbFIzb4uwZ7Ky3YvY90IDgLZVyhSD7Es2nPpkoK0lx8lCM
+         3zHBZU0z9VjJFz0HRXrVgvY3qo/TMLZTmZU3myyh/wMX1fB8bXUXjZ1C1H+i9OZkPWvq
+         FdNmZpP60OF64RKHSzpgr3f7c5yEIjdD/3mJeZUCGq5obdMqKTgUUtXWS0Ht4cCEyTQv
+         itUA==
+X-Gm-Message-State: AC+VfDzWKAvO+WtH2uFgSVPIK+IesPdXvgu4k+4ciA34WnANQ9VUYafC
+        gb0NhHeaVQYcWs9HNqf31g7EgSYSdJon1w==
+X-Google-Smtp-Source: ACHHUZ6hCIZYsmx8Q7LZJC5KojKvD9cjYZvXRxbpQHewlOkgeAot5A783VEo7hsNohO71WM7nb2yEA==
+X-Received: by 2002:aa7:ccc6:0:b0:50b:dfe2:91 with SMTP id y6-20020aa7ccc6000000b0050bdfe20091mr21351040edt.7.1683883327825;
+        Fri, 12 May 2023 02:22:07 -0700 (PDT)
+Received: from debianHome.localdomain (dynamic-095-116-181-041.95.116.pool.telefonica.de. [95.116.181.41])
+        by smtp.gmail.com with ESMTPSA id p15-20020aa7cc8f000000b0050bcca2e459sm3652156edt.8.2023.05.12.02.22.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 May 2023 02:22:07 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: make header files self-including
-Message-ID: <202305121044.Q88iF2NQ-lkp@intel.com>
+Subject: [PATCH v2] selinux: make header files self-including
+Date:   Fri, 12 May 2023 11:21:55 +0200
+Message-Id: <20230512092157.41850-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230511123236.723025-1-cgzones@googlemail.com>
 References: <20230511123236.723025-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230511123236.723025-1-cgzones@googlemail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Christian,
+Include all necessary headers in header files to enable third party
+applications, like LSP servers, to resolve all used symbols.
 
-kernel test robot noticed the following build errors:
+ibpkey.h: include "flask.h" for SECINITSID_UNLABELED
+initial_sid_to_string.h: include <linux/stddef.h> for NULL
 
-[auto build test ERROR on pcmoore-selinux/next]
-[also build test ERROR on linus/master v6.4-rc1 next-20230511]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+    use raw flask.h instead of ../flask.h
+    Link: https://lore.kernel.org/oe-kbuild-all/202305121044.Q88iF2NQ-lkp@intel.com/
+---
+ security/selinux/include/ibpkey.h                | 1 +
+ security/selinux/include/initial_sid_to_string.h | 3 +++
+ 2 files changed, 4 insertions(+)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Christian-G-ttsche/selinux-make-header-files-self-including/20230511-203619
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-patch link:    https://lore.kernel.org/r/20230511123236.723025-1-cgzones%40googlemail.com
-patch subject: [PATCH] selinux: make header files self-including
-config: mips-allyesconfig (https://download.01.org/0day-ci/archive/20230512/202305121044.Q88iF2NQ-lkp@intel.com/config)
-compiler: mips-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/2b237d995d423baa5707fe9f59441d4744892eda
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Christian-G-ttsche/selinux-make-header-files-self-including/20230511-203619
-        git checkout 2b237d995d423baa5707fe9f59441d4744892eda
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips SHELL=/bin/bash
-
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202305121044.Q88iF2NQ-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   In file included from security/selinux/ibpkey.c:26:
->> security/selinux/include/ibpkey.h:18:10: fatal error: ../flask.h: No such file or directory
-      18 | #include "../flask.h"
-         |          ^~~~~~~~~~~~
-   compilation terminated.
-
-
-vim +18 security/selinux/include/ibpkey.h
-
-    16	
-    17	#include <linux/types.h>
-  > 18	#include "../flask.h"
-    19	
-
+diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
+index c992f83b0aae..875b055849e1 100644
+--- a/security/selinux/include/ibpkey.h
++++ b/security/selinux/include/ibpkey.h
+@@ -15,6 +15,7 @@
+ #define _SELINUX_IB_PKEY_H
+ 
+ #include <linux/types.h>
++#include "flask.h"
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+ void sel_ib_pkey_flush(void);
+diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
+index 60820517aa43..ecc6e74fa09b 100644
+--- a/security/selinux/include/initial_sid_to_string.h
++++ b/security/selinux/include/initial_sid_to_string.h
+@@ -1,4 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
++
++#include <linux/stddef.h>
++
+ static const char *const initial_sid_to_string[] = {
+ 	NULL,
+ 	"kernel",
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.40.1
+
