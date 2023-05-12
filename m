@@ -2,98 +2,113 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71504C7EE22
-	for <selinux@archiver.kernel.org>; Thu, 11 May 2023 16:53:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAAA6C7EE22
+	for <selinux@archiver.kernel.org>; Fri, 12 May 2023 02:14:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238514AbjEKQxZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 May 2023 12:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34972 "EHLO
+        id S239700AbjELCOj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 May 2023 22:14:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238516AbjEKQxY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 May 2023 12:53:24 -0400
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0AEC59DC;
-        Thu, 11 May 2023 09:53:22 -0700 (PDT)
-Received: by mail-ua1-x92f.google.com with SMTP id a1e0cc1a2514c-77e80c37af1so2479561241.0;
-        Thu, 11 May 2023 09:53:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1683824001; x=1686416001;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=D7CyuNeO1bKn8cJ+nOjq+BFfHo7Ts+ohomPRgom/d1k=;
-        b=nHXKHuXToMZIHYv6zpwAqjgg+hlwgncxBpc2kvB0Tr3VCMpfOqH3tri9226u988h+8
-         NeMpTHcryTDzBrxA6SE7OB2GbvwKt057XjBUcbVFrcPHHJCZDWCUseBd96ELRwRALuUZ
-         DVBPCyJusx5/PWrDIEd1Pq3D+h0y+/z2kNghXtqdQT5oxlJvGymkELEP27R1mhKJ3CB3
-         KqNbOdH6YK4wkJinlV+x9AJ7m08Oj7AIT4GY8Erm1XJR3dkLxqZfJ1Gfe0cErlfwOOOh
-         45bhNiynGXqEzhgHHJXm3K9V0ppqOiRFGc/crJZSzAaULz1tKDmgY2ORhftvOA6FzqKD
-         uc/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683824001; x=1686416001;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=D7CyuNeO1bKn8cJ+nOjq+BFfHo7Ts+ohomPRgom/d1k=;
-        b=BucIJmEFmCSRhRuSp1W8hJD7NDFYU8b6eIDomKHS46ncgCg+RgvgdF5NQ7hgluRid1
-         2+MXnXpxs60jGH2BtVzCq6dFh7kUU8KaS8ixnqiL3hhYV2Ma1XBPlMywvR572SbEj4Ow
-         n57uZLHdYek9bZfqeOXiLt0LxDM4GIily0nzNbKN1KM/7/pg16sZrmlwt9ujToMFl5qQ
-         xPlnr0z9acfbQo/JM/853KUFKQGSh7WS3RfF7sbC0bXc07wGp0mkXKIrUKjE+PJwwOwi
-         ZTfiLgdtpJQw7fiSQv0SqQfTpEYTmhR/Mytsiq+FnYCmbAKH/JB+NYyHvR5ArJKa6NOg
-         orSA==
-X-Gm-Message-State: AC+VfDy82IifM5t2pRAbfag2W8qW3qHaCq8NpoSP3/Rmeker0w8LWaXD
-        5/eDLULUIhfdcI8BYup6/nCPVtpQSwPMa8QdkYw=
-X-Google-Smtp-Source: ACHHUZ4aUqksIqw7q6XK5aUmktWWI15AwBlyuT3gm+Nn55vbT17csRXZOgyZLke+iIdzRgKnsrxWb86Ob0pUeZMwOAs=
-X-Received: by 2002:a67:e242:0:b0:436:bef:1eac with SMTP id
- w2-20020a67e242000000b004360bef1eacmr5228663vse.29.1683824001262; Thu, 11 May
- 2023 09:53:21 -0700 (PDT)
+        with ESMTP id S231799AbjELCOh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 May 2023 22:14:37 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 860C41FD4;
+        Thu, 11 May 2023 19:14:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1683857676; x=1715393676;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+uP3qdeQwkNNyPV4cDI0woVqqifLQC8W3QFlpDqZ5rw=;
+  b=F4RRofB/TqVdWNMqcWSV2VTr5oEbxfzszF4QI2BHmzFGYPjiHxrP9X0X
+   AZf9XUZYJi+g+iDNlF2Ag1NRvT8SgstWCmrXl1bv5Yfn4dCDXxYzQWOfO
+   sxZJJRlzAMzQstwT7B6Kxn1GHrZsz6o3kpaF8mE8VjphslFaA/h0u7CJD
+   sd/R1rdK2AOJzpKwh4DWFPuESIe1cRA4iv/f1UVQJxvVkC8ijQQOMlgTs
+   5e29YY1IbCtB57J8JN0ST01mRpglfoZoTjN5dfHsQr8628LaRqKmIlJPf
+   qvN0SRxK4A+dBYULY2ykFiUemc5D5uXEdMEhZdwuTVEG5+JiBljIvE0UW
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10707"; a="437016856"
+X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; 
+   d="scan'208";a="437016856"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2023 19:14:36 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10707"; a="730630998"
+X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; 
+   d="scan'208";a="730630998"
+Received: from lkp-server01.sh.intel.com (HELO dea6d5a4f140) ([10.239.97.150])
+  by orsmga008.jf.intel.com with ESMTP; 11 May 2023 19:14:34 -0700
+Received: from kbuild by dea6d5a4f140 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pxIIj-0004Q8-0p;
+        Fri, 12 May 2023 02:14:33 +0000
+Date:   Fri, 12 May 2023 10:13:40 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: make header files self-including
+Message-ID: <202305121044.Q88iF2NQ-lkp@intel.com>
+References: <20230511123236.723025-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20230511142535.732324-1-cgzones@googlemail.com>
- <20230511142535.732324-4-cgzones@googlemail.com> <ZF0LXRWZb+xL+pTS@infradead.org>
-In-Reply-To: <ZF0LXRWZb+xL+pTS@infradead.org>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Thu, 11 May 2023 18:53:10 +0200
-Message-ID: <CAJ2a_DdwSZciKNtbbK14sOt5BqbATpmvqMVpR3tJvhMZitHxDw@mail.gmail.com>
-Subject: Re: [PATCH v4 4/9] block: use new capable_any functionality
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     selinux@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Alistair Delva <adelva@google.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Serge Hallyn <serge@hallyn.com>, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230511123236.723025-1-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 11 May 2023 at 17:35, Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Thu, May 11, 2023 at 04:25:27PM +0200, Christian G=C3=B6ttsche wrote:
-> > Use the new added capable_any function in appropriate cases, where a
-> > task is required to have any of two capabilities.
->
-> What is this new function and why should we using it?
+Hi Christian,
 
-Quoting the description from
-https://lore.kernel.org/all/20230511142535.732324-10-cgzones@googlemail.com=
-/
-:
+kernel test robot noticed the following build errors:
 
-Add the interfaces `capable_any()` and `ns_capable_any()` as an
-alternative to multiple `capable()`/`ns_capable()` calls, like
-`capable_any(CAP_SYS_NICE, CAP_SYS_ADMIN)` instead of
-`capable(CAP_SYS_NICE) || capable(CAP_SYS_ADMIN)`.
+[auto build test ERROR on pcmoore-selinux/next]
+[also build test ERROR on linus/master v6.4-rc1 next-20230511]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-`capable_any()`/`ns_capable_any()` will in particular generate exactly
-one audit message, either for the left most capability in effect or, if
-the task has none, the first one.
+url:    https://github.com/intel-lab-lkp/linux/commits/Christian-G-ttsche/selinux-make-header-files-self-including/20230511-203619
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+patch link:    https://lore.kernel.org/r/20230511123236.723025-1-cgzones%40googlemail.com
+patch subject: [PATCH] selinux: make header files self-including
+config: mips-allyesconfig (https://download.01.org/0day-ci/archive/20230512/202305121044.Q88iF2NQ-lkp@intel.com/config)
+compiler: mips-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/2b237d995d423baa5707fe9f59441d4744892eda
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Christian-G-ttsche/selinux-make-header-files-self-including/20230511-203619
+        git checkout 2b237d995d423baa5707fe9f59441d4744892eda
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=mips SHELL=/bin/bash
 
-This is especially helpful with regard to SELinux, where each audit
-message about a not allowed capability request will create a denial
-message.  Using this new wrapper with the least invasive capability as
-left most argument (e.g. CAP_SYS_NICE before CAP_SYS_ADMIN) enables
-policy writers to only grant the least invasive one for the particular
-subject instead of both.
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202305121044.Q88iF2NQ-lkp@intel.com/
 
-> Your also forgot to Cc the block list on the entire series, making this
-> page completely unreviewable.
+All errors (new ones prefixed by >>):
+
+   In file included from security/selinux/ibpkey.c:26:
+>> security/selinux/include/ibpkey.h:18:10: fatal error: ../flask.h: No such file or directory
+      18 | #include "../flask.h"
+         |          ^~~~~~~~~~~~
+   compilation terminated.
+
+
+vim +18 security/selinux/include/ibpkey.h
+
+    16	
+    17	#include <linux/types.h>
+  > 18	#include "../flask.h"
+    19	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
