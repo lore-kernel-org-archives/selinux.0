@@ -2,99 +2,137 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A96C7EE2E
-	for <selinux@archiver.kernel.org>; Mon, 15 May 2023 15:12:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0FBEC7EE24
+	for <selinux@archiver.kernel.org>; Tue, 16 May 2023 06:38:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242135AbjEOPMk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 May 2023 11:12:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58010 "EHLO
+        id S230051AbjEPGi4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 May 2023 02:38:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239217AbjEOPMi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 May 2023 11:12:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27F9A8E;
-        Mon, 15 May 2023 08:12:38 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AE57625F3;
-        Mon, 15 May 2023 15:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AA3FC433D2;
-        Mon, 15 May 2023 15:12:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1684163557;
-        bh=W0/Ro3g+UnuQaJT98MLDjMPTmmzKa0SW17mCg2HptuM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qEwtpFA4B/izRqgX0Ybd2/WCOsnAVQoJrCFH/KTc479UYdVLoJ0CCpe6eI64JOn8t
-         1IUMF1n1TH7q3GPEeqE3DxNpZlBFGo4xjAV2N8V/AQpZjs78o85IccISP779XvEB0j
-         uQ2HJPQ8T3w6XH5FsTz+/wcYHQT39jwQU37RQI9xK7+grnrsT8A+1wDt+loetoEtQE
-         kX/E/qdTJRobgxzTV6j0aHTA1+rE8G2HJTsEZymPuCUZCQTepnSwR+L4qLoaMNsfQV
-         fa6j7N1q4xFWI0djfVNyNhnX9akdSQcaKgz0lrGYRdbLLg9ZP7ZeD6UeOIf9O1mnRt
-         nMKXs1lMWu9tQ==
-Date:   Mon, 15 May 2023 17:12:24 +0200
-From:   Christian Brauner <brauner@kernel.org>
-To:     Xiu Jianfeng <xiujianfeng@huawei.com>
-Cc:     gregkh@linuxfoundation.org, rafael@kernel.org,
-        viro@zeniv.linux.org.uk, dhowells@redhat.com, code@tyhicks.com,
-        hirofumi@mail.parknet.co.jp, linkinjeon@kernel.org,
-        sfrench@samba.org, senozhatsky@chromium.org, tom@talpey.com,
-        chuck.lever@oracle.com, jlayton@kernel.org, miklos@szeredi.hu,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, dchinner@redhat.com,
-        john.johansen@canonical.com, mcgrof@kernel.org,
-        mortonm@chromium.org, fred@cloudflare.com, mic@digikod.net,
-        mpe@ellerman.id.au, nathanl@linux.ibm.com, gnoack3000@gmail.com,
-        roberto.sassu@huawei.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        wangweiyang2@huawei.com
-Subject: Re: [PATCH -next 0/2] lsm: Change inode_setattr() to take struct
-Message-ID: <20230515-nutzen-umgekehrt-eee629a0101e@brauner>
-References: <20230505081200.254449-1-xiujianfeng@huawei.com>
+        with ESMTP id S230086AbjEPGiz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 May 2023 02:38:55 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9101FD4;
+        Mon, 15 May 2023 23:38:54 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34G6c1f8024124;
+        Tue, 16 May 2023 06:38:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ content-transfer-encoding : in-reply-to; s=pp1;
+ bh=9DmXpqDg3O9x9sNFjmzLOnR7Rix1h8qN/8nG3xKpvRY=;
+ b=UEsj2VKSJ1H9Xp0n1zHRNCf1ZNlcPgij2sZ94uPNQg1kjt8BJQWspIVdjmiD0L7iGvpJ
+ YMilIL/ilwe1K1YSCHZxN6d5Cazwnd5+mzBh/nBAttSs74qTuvo+Qlr6YJBXQcfTiG1K
+ Z5HTi3QPkat/739riWjX22ij51vvyUvOqMp1I/a9jlo1tOPQVjP8GUPbxfSKTjnj0uxO
+ x1Nd0qf7c3RW4/drx+NMKH2Nvl48Dy/oWHlZCR4L83+D6iruAl2IZIliiMCXCAgygcPA
+ T6M8cTEJyFwxOFdmJ+ThK6wfSw3p0KCJ25TyJ1Hz0Q7DvEBGqNM33kVts/tNUI1qyAsb nQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm3ms1qy9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 06:38:47 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 34G6cV4M027450;
+        Tue, 16 May 2023 06:38:46 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3qm3ms1qvp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 06:38:46 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 34G3nLnr002047;
+        Tue, 16 May 2023 06:33:43 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3qj1tdseb6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 16 May 2023 06:33:43 +0000
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+        by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 34G6XdHJ62521808
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 16 May 2023 06:33:39 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9875D20040;
+        Tue, 16 May 2023 06:33:39 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1CF7B20043;
+        Tue, 16 May 2023 06:33:38 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.179.16.42])
+        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 16 May 2023 06:33:38 +0000 (GMT)
+Date:   Tue, 16 May 2023 08:33:36 +0200
+From:   Alexander Gordeev <agordeev@linux.ibm.com>
+To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v4 5/9] drivers: use new capable_any functionality
+Message-ID: <ZGMjwGTDgCGrfsC8@li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com>
+References: <20230511142535.732324-1-cgzones@googlemail.com>
+ <20230511142535.732324-5-cgzones@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20230505081200.254449-1-xiujianfeng@huawei.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230511142535.732324-5-cgzones@googlemail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: xqf_N-JoXc2UVfYLwyAFExMe35oo7Cp0
+X-Proofpoint-ORIG-GUID: PZdVErVtm-1oMWtVtghhxQof6lFPLe0D
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-05-16_02,2023-05-05_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 suspectscore=0
+ priorityscore=1501 mlxlogscore=999 adultscore=0 malwarescore=0
+ impostorscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0 phishscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2304280000 definitions=main-2305160056
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 05, 2023 at 04:11:58PM +0800, Xiu Jianfeng wrote:
-> Hi,
+On Thu, May 11, 2023 at 04:25:28PM +0200, Christian Göttsche wrote:
+> Use the new added capable_any function in appropriate cases, where a
+> task is required to have any of two capabilities.
 > 
-> I am working on adding xattr/attr support for landlock [1], so we can
-> control fs accesses such as chmod, chown, uptimes, setxattr, etc.. inside
-> landlock sandbox. the LSM hooks as following are invoved:
-> 1.inode_setattr
-> 2.inode_setxattr
-> 3.inode_removexattr
-> 4.inode_set_acl
-> 5.inode_remove_acl
-> which are controlled by LANDLOCK_ACCESS_FS_WRITE_METADATA.
+> Reorder CAP_SYS_ADMIN last.
 > 
-> and
-> 1.inode_getattr
-> 2.inode_get_acl
-> 3.inode_getxattr
-> 4.inode_listxattr
-> which are controlled by LANDLOCK_ACCESS_FS_READ_METADATA
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+> v4:
+>    Additional usage in kfd_ioctl()
+> v3:
+>    rename to capable_any()
+> ---
+>  drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 3 +--
+>  drivers/net/caif/caif_serial.c           | 2 +-
+>  drivers/s390/block/dasd_eckd.c           | 2 +-
+>  3 files changed, 3 insertions(+), 4 deletions(-)
+...
+> diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+> index ade1369fe5ed..67d1058bce1b 100644
+> --- a/drivers/s390/block/dasd_eckd.c
+> +++ b/drivers/s390/block/dasd_eckd.c
+> @@ -5370,7 +5370,7 @@ static int dasd_symm_io(struct dasd_device *device, void __user *argp)
+>  	char psf0, psf1;
+>  	int rc;
+>  
+> -	if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RAWIO))
+> +	if (!capable_any(CAP_SYS_RAWIO, CAP_SYS_ADMIN))
+>  		return -EACCES;
+>  	psf0 = psf1 = 0;
 
-It would be helpful to get the complete, full picture.
-
-Piecemeal extending vfs helpers with struct path arguments is costly,
-will cause a lot of churn and will require a lot of review time from us.
-
-Please give us the list of all security hooks to which you want to pass
-a struct path (if there are more to come apart from the ones listed
-here). Then please follow all callchains and identify the vfs helpers
-that would need to be updated. Then please figure out where those
-vfs helpers are called from and follow all callchains finding all
-inode_operations that would have to be updated and passed a struct path
-argument. So ultimately we'll end up with a list of vfs helpers and
-inode_operations that would have to be changed.
-
-I'm very reluctant to see anything merged without knowing _exactly_ what
-you're getting us into.
+For s390 part:
+Acked-by: Alexander Gordeev <agordeev@linux.ibm.com>
