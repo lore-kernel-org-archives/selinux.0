@@ -2,103 +2,117 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC524C7EE23
-	for <selinux@archiver.kernel.org>; Tue, 16 May 2023 12:05:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2979FC77B75
+	for <selinux@archiver.kernel.org>; Tue, 16 May 2023 18:42:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232537AbjEPMFh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 May 2023 08:05:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59514 "EHLO
+        id S229842AbjEPSmp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 May 2023 14:42:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232827AbjEPMFf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 16 May 2023 08:05:35 -0400
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EBEB59C0;
-        Tue, 16 May 2023 05:05:30 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=tianjia.zhang@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VioIoq8_1684238723;
-Received: from 30.240.108.124(mailfrom:tianjia.zhang@linux.alibaba.com fp:SMTPD_---0VioIoq8_1684238723)
-          by smtp.aliyun-inc.com;
-          Tue, 16 May 2023 20:05:27 +0800
-Message-ID: <e1242268-e7b6-d77c-a94f-edd913845ca7@linux.alibaba.com>
-Date:   Tue, 16 May 2023 20:05:21 +0800
+        with ESMTP id S230110AbjEPSmo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 16 May 2023 14:42:44 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A08D58682;
+        Tue, 16 May 2023 11:42:41 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id 4fb4d7f45d1cf-50bc0117683so25648466a12.1;
+        Tue, 16 May 2023 11:42:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684262560; x=1686854560;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ctdc7Vyub0mk2EGAJTcTi0bqYHOoN+2odaP2Y74iYhQ=;
+        b=ITTFYV9T1R0GCoNhHcirFKAfxFgL9j67lWUr6BaPppSIm8pNaLJGdLD1e9JxWTi4nh
+         aifTJbWIjyEOctvzEoey3XKA3OO5GctYulwVfv+shOcOfDJQTEwnXC2PQuJI4kGjZSUB
+         txhqj858QhYHIbMuQV7V6JzldmbLoZL4bvloWK9n+UUIBJvEOududEHqm7SabzlpWw37
+         NjEo7QTa58bf9G3mwyYTi2A+s++GIGZy5WDYKSPmsS3qJSu//Ooeww60wQRjPXPp6Y3P
+         diVnqUEE6m8JzLKNpFc6WVsUx0Ff1oD8UVyudDpP7+nCcRWlu2KmfTNGYq5CJoVfUA5w
+         tDWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684262560; x=1686854560;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ctdc7Vyub0mk2EGAJTcTi0bqYHOoN+2odaP2Y74iYhQ=;
+        b=g/B7KHG2ZhUFTHk5Evl8zkW2Mtz3mGW6O5rcQaxgUeV5B1qfo6JfuBv20v2IiC+O8x
+         01DIA8qjwFWROxgwF3xRSbx6AV/FNE3Lh/siP+eUGqekf6j5eHEGnGEMqcMya3Vi18aH
+         lXzd6JoAFjj1/r3hL6xLm4CT+Q50jYje82QMQ06U9hRy2nO6aoaneUQwprU68np8gKQN
+         UyEQmU/m+3NVC1vB5HVKVSmg3i7Tm9OpjqyWZd7C4bxWaEgalZw97rILEZGn80svzKa0
+         B2fw6VPyynD6duNqjbfDmq+elOXzlf9FmZ5BRxPsM/+qCFIm5UA0pliX5r+PTuRkvsLq
+         7KOQ==
+X-Gm-Message-State: AC+VfDxnCrFLHf57MM0QYkoAfRr5QnavUNxgeJff6VELWuJcuXIHofMn
+        PB1XaGwqyE194aRrFbPT7p3C/n5I0oEiRXkAJSpuxGMgpwjqhA==
+X-Google-Smtp-Source: ACHHUZ5auCBVedIw+9g8zXMtUaifjrxWpSLDT4qGZEDOWMARxDQNXhz/LN8vqaTnrZvYr3HU/wSlGrY0Osx48mbsgCg=
+X-Received: by 2002:aa7:cfcc:0:b0:50b:fb29:1d8f with SMTP id
+ r12-20020aa7cfcc000000b0050bfb291d8fmr228386edy.0.1684262559943; Tue, 16 May
+ 2023 11:42:39 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.6.1
-Subject: Re: [PATCH 0/2] capability: Introduce CAP_BLOCK_ADMIN
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Frederick Lawler <fred@cloudflare.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        louxiao.lx@alibaba-inc.com
-References: <20230511070520.72939-1-tianjia.zhang@linux.alibaba.com>
- <b645e195-7875-9fc3-a8de-6676dfe800b8@schaufler-ca.com>
-Content-Language: en-US
-From:   Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <b645e195-7875-9fc3-a8de-6676dfe800b8@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20230511142535.732324-1-cgzones@googlemail.com> <20230511142535.732324-3-cgzones@googlemail.com>
+In-Reply-To: <20230511142535.732324-3-cgzones@googlemail.com>
+From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Date:   Tue, 16 May 2023 11:42:27 -0700
+Message-ID: <CAEf4BzYRzqGSd8QkNsEPpHzWoSDcH3h6o1m=fxQDKQNT_OCsQw@mail.gmail.com>
+Subject: Re: [PATCH v4 3/9] capability: use new capable_any functionality
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Serge Hallyn <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Casey,
+On Thu, May 11, 2023 at 7:27=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Use the new added capable_any function in appropriate cases, where a
+> task is required to have any of two capabilities.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+> v3:
+>   - rename to capable_any()
+>   - simplify checkpoint_restore_ns_capable()
+> ---
+>  include/linux/capability.h | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+>
+> diff --git a/include/linux/capability.h b/include/linux/capability.h
+> index eeb958440656..4db0ffb47271 100644
+> --- a/include/linux/capability.h
+> +++ b/include/linux/capability.h
+> @@ -204,18 +204,17 @@ extern bool file_ns_capable(const struct file *file=
+, struct user_namespace *ns,
+>  extern bool ptracer_capable(struct task_struct *tsk, struct user_namespa=
+ce *ns);
+>  static inline bool perfmon_capable(void)
+>  {
+> -       return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
+> +       return capable_any(CAP_PERFMON, CAP_SYS_ADMIN);
+>  }
+>
+>  static inline bool bpf_capable(void)
+>  {
+> -       return capable(CAP_BPF) || capable(CAP_SYS_ADMIN);
+> +       return capable_any(CAP_BPF, CAP_SYS_ADMIN);
+>  }
+>
 
-On 5/12/23 12:17 AM, Casey Schaufler wrote:
-> On 5/11/2023 12:05 AM, Tianjia Zhang wrote:
->> Separated fine-grained capability CAP_BLOCK_ADMIN from CAP_SYS_ADMIN.
->> For backward compatibility, the CAP_BLOCK_ADMIN capability is included
->> within CAP_SYS_ADMIN.
->>
->> Some database products rely on shared storage to complete the
->> write-once-read-multiple and write-multiple-read-multiple functions.
->> When HA occurs, they rely on the PR (Persistent Reservations) protocol
->> provided by the storage layer to manage block device permissions to
->> ensure data correctness.
->>
->> CAP_SYS_ADMIN is required in the PR protocol implementation of existing
->> block devices in the Linux kernel, which has too many sensitive
->> permissions, which may lead to risks such as container escape. The
->> kernel needs to provide more fine-grained permission management like
->> CAP_NET_ADMIN to avoid online products directly relying on root to run.
->>
->> CAP_BLOCK_ADMIN can also provide support for other block device
->> operations that require CAP_SYS_ADMIN capabilities in the future,
->> ensuring that applications run with least privilege.
-> 
-> Can you demonstrate that there are cases where a program that needs
-> CAP_BLOCK_ADMIN does not also require CAP_SYS_ADMIN for other operations?
-> How much of what's allowed by CAP_SYS_ADMIN would be allowed by
-> CAP_BLOCK_ADMIN? If use of a new capability is rare it's difficult to
-> justify.
-> 
+For bpf parts:
 
-For the previous non-container scenarios, the block device is a shared
-device, because the business-system generally operates the file system
-on the block. Therefore, directly operating the block device has a high
-probability of affecting other processes on the same host, and it is a
-reasonable requirement to need the CAP_SYS_ADMIN capability.
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
 
-But for a database running in a container scenario, especially a
-container scenario on the cloud, it is likely that a container
-exclusively occupies a block device. That is to say, for a container,
-its access to the block device will not affect other process, there is
-no need to obtain a higher CAP_SYS_ADMIN capability.
-
-For a file system similar to distributed write-once-read-many, it is
-necessary to ensure the correctness of recovery, then when recovery
-occurs, it is necessary to ensure that no inflighting-io is completed
-after recovery.
-
-This can be guaranteed by performing operations such as SCSI/NVME
-Persistent Reservations on block devices on the distributed file system.
-Therefore, at present, it is only necessary to have the relevant
-permission support of the control command of such container-exclusive
-block devices.
-
-Kind regards,
-Tianjia
+>  static inline bool checkpoint_restore_ns_capable(struct user_namespace *=
+ns)
+>  {
+> -       return ns_capable(ns, CAP_CHECKPOINT_RESTORE) ||
+> -               ns_capable(ns, CAP_SYS_ADMIN);
+> +       return ns_capable_any(ns, CAP_CHECKPOINT_RESTORE, CAP_SYS_ADMIN);
+>  }
+>
+>  /* audit system wants to get cap info from files as well */
+> --
+> 2.40.1
+>
+>
