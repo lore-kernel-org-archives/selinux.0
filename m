@@ -2,163 +2,124 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C967C77B73
-	for <selinux@archiver.kernel.org>; Thu, 18 May 2023 20:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53184C7EE23
+	for <selinux@archiver.kernel.org>; Fri, 19 May 2023 21:08:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbjERUSX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 May 2023 16:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46434 "EHLO
+        id S229662AbjESVIF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 May 2023 17:08:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbjERUSW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 May 2023 16:18:22 -0400
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA1A10D0
-        for <selinux@vger.kernel.org>; Thu, 18 May 2023 13:18:20 -0700 (PDT)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-562191bcfb9so1774917b3.3
-        for <selinux@vger.kernel.org>; Thu, 18 May 2023 13:18:20 -0700 (PDT)
+        with ESMTP id S229458AbjESVIE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 May 2023 17:08:04 -0400
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B06F1B4
+        for <selinux@vger.kernel.org>; Fri, 19 May 2023 14:08:03 -0700 (PDT)
+Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-ba865ac594bso4989510276.0
+        for <selinux@vger.kernel.org>; Fri, 19 May 2023 14:08:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1684441100; x=1687033100;
+        d=paul-moore.com; s=google; t=1684530482; x=1687122482;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vT9t62V6Ng7zAzJOoOv8Omp/rmWX41+dyHJ3EkYyjTs=;
-        b=UvYfhpIVnvt2TG2FBhPNupz8v8wmMjb+Y8gwjNSxEwf9KsJDSKtsVecFMrvgZO9g19
-         VR+kBs2SfEQriq5GBs+0kWDwKH9vyzNhGpjUXdYReuT5CZGlC5VUM0owPTmWoW2Nl1qF
-         ioggPgigCgmPDSEvzhoXfCYLd0/ODUNGMbznkbCyuu96JD+3Lb7iBgXbF8jHPFJgtgoT
-         iK/XvR9VCexp534pXTTUtTZSKmZzQWEOY+kfs3J4YdrrZGYRYYa+lCnTIeWGuSiY/HKi
-         gFd0GX27TAApjMknMfrCppRx106BhErdG/4EDlDNru1XKOhcSpuRXpXXXv2GwpEi88yg
-         T/YA==
+        bh=YNAr0eN3BJd6PClx9Trgynq1tOTvA9sGtw9njPJi4AA=;
+        b=bJFzqPPi7avVdIui/TRooN20CFKx9KYo8TAzWQ29ywDcMmuR5PcGA0guADaiYjNra+
+         OwzR2l3rx31682QPw5fBUNatPj3awLlc3U1rercD9OOS2fxUFHMOEnzAUCgYC/kwy2ts
+         X/oxxrX/RhV0s2zByMqo7QsbkBjS7YAAdXAL0ra3jBIXCB9sSshbo9v6PFErb8fDP5JD
+         6dRPpEHRsoatyufGev5ITqTmXAL8MY4qUUFV7y3dYg3w8HXCGzCa3h23u96UIkIUMWVr
+         GrLMiDfV5xNCvIHDiei26awruRyjpOUaZfz0KaPAYpbPfstpSeDBwlRIXa3cYrGeoO5A
+         xXGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684441100; x=1687033100;
+        d=1e100.net; s=20221208; t=1684530482; x=1687122482;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vT9t62V6Ng7zAzJOoOv8Omp/rmWX41+dyHJ3EkYyjTs=;
-        b=M4L5i+dWKJaKIQhUBARaxKj2lirS3MWOQ88FGPZXJw+tkNJQFY1ioIYn3rtMU0lu6T
-         4UwQ9/xqKl3JXpzaJKFWZyL+DDN3HCBpGO02Ipy5gK4a+mAxOCGOx7RNr54hrcfyqRdq
-         HhBUORJuwjvVIR2vNVYZbJWq4S4WozzVZmhioprCqAq103vsUMcB6LHeXYpWoGcaduX5
-         RAhOGm1oEFdzjDpqTUhGUQ1W+pFc0FDG5mh+oXowbuCnCgfhRE2RDaQV+OPs/ahV7mL/
-         C1dUDdz9+gIV2icTEwHmf+gRVFULbYHD+3gSatbR1z/A8ulGSFvCovZdsH09SNz0d5Xp
-         sZxA==
-X-Gm-Message-State: AC+VfDyDV+c/gkLaA9Vnu+PfhrTpGS2Gvy8Rf8Xj8HtPaatrUGLF9y/o
-        +wE564VG7NyV3ZM+qnMaUaBHuW881Qdy08FyyEwM
-X-Google-Smtp-Source: ACHHUZ5kqEcrFMzgs1IizDsrp297c/mz4qZ+Tcc3WrLuNQoy0GHcwcv9vxWknXnTtkZJar+k9ytS2C9NEkslq9O5lg4=
-X-Received: by 2002:a0d:d40f:0:b0:561:cb5c:17ac with SMTP id
- w15-20020a0dd40f000000b00561cb5c17acmr2511962ywd.27.1684441099971; Thu, 18
- May 2023 13:18:19 -0700 (PDT)
+        bh=YNAr0eN3BJd6PClx9Trgynq1tOTvA9sGtw9njPJi4AA=;
+        b=V3DGBFoJeUtcQwGxSLMO6YofkbxQvkKWAGSgbGtzN/CCbRidwZZPbcAHyjBD0Zco09
+         qALH8l4EDBLjoJX/IK9Y930zKRK6TmuOlnoJ/a4wtkggJ0qKzM8ArhcQEvGqnSbe16ca
+         NkFWSRhm9n77CLfAfDWqnwUZOi0Ly9TGrWukPEv5TpaZh0uxFdSsfLkd1g3htYVVkGhQ
+         Zyp9CQWkq4Q6fg0E8S0Gs5wcdBajkfJ4q6UkyITf6vc+AQbUj/ZFjoRLm2730kon6ohq
+         bJR/XgkyXr6w+VJXP0PFXojGSeJRiz2T45iu0emzoV4fqO9v5PAJihiYFSKveoLQMAPe
+         XNOg==
+X-Gm-Message-State: AC+VfDzKugZ+OvcdZgjv3vE2cRWPLQ0S3BiT8uj4tfazD7gjD2YqqIAC
+        EwOpbO5//8WcTVS1cQjhk3Lr+BnkVM0VrRLot80w
+X-Google-Smtp-Source: ACHHUZ6rUZO8aO+ZoLpFa4vGZYtcdoPjtguqDe3esXvg+x5MOcHlbXSr4JeS7AcsSIzX8Kzsg3kr/HozvceYuV5l5P8=
+X-Received: by 2002:a25:d24a:0:b0:ba2:bffc:5f8d with SMTP id
+ j71-20020a25d24a000000b00ba2bffc5f8dmr2924220ybg.29.1684530482287; Fri, 19
+ May 2023 14:08:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230511123213.722912-1-cgzones@googlemail.com> <6301fdfd0927df2b2fd7a4f2b384e477.paul@paul-moore.com>
-In-Reply-To: <6301fdfd0927df2b2fd7a4f2b384e477.paul@paul-moore.com>
+References: <20230511123252.723185-1-cgzones@googlemail.com>
+In-Reply-To: <20230511123252.723185-1-cgzones@googlemail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 18 May 2023 16:18:09 -0400
-Message-ID: <CAHC9VhSSA04wzPFgx_Z4jf1gOdEO40hU-augjMqX1uGd-eHLQA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: deprecated fs ocon
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        linux-kernel@vger.kernel.org
+Date:   Fri, 19 May 2023 17:07:51 -0400
+Message-ID: <CAHC9VhTcso+RTEOkGOCDxyMscznEXrUhp+quDWvATUhEzEOhRQ@mail.gmail.com>
+Subject: Re: [PATCH] security: keys: perform capable check only on privileged operations
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 18, 2023 at 1:56=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On May 11, 2023 =3D?UTF-8?q?Christian=3D20G=3DC3=3DB6ttsche?=3D <cgzones@=
-googlemail.com> wrote:
-> >
-> > The object context type `fs`, not to be confused with the well used
-> > object context type `fscon`, was introduced in the initial git commit
-> > 1da177e4c3f4 ("Linux-2.6.12-rc2") but never actually used since.
-> >
-> > The paper "A Security Policy Configuration for the Security-Enhanced
-> > Linux" [1] mentions it under `7.2 File System Contexts` but also states=
-:
-> >
-> >     Currently, this configuration is unused.
-> >
-> > The policy statement defining such object contexts is `fscon`, e.g.:
-> >
-> >     fscon 2 3 gen_context(system_u:object_r:conA_t,s0) gen_context(syst=
-em_u:object_r:conB_t,s0)
-> >
-> > It is not documented at selinuxproject.org or in the SELinux notebook
-> > and not supported by the Reference Policy buildsystem - the statement i=
-s
-> > not properly sorted - and thus not used in the Reference or Fedora
-> > Policy.
-> >
-> > Print a warning message at policy load for each such object context:
-> >
-> >     SELinux:  void and deprecated fs ocon 02:03
-> >
-> > This topic was initially highlighted by Nicolas Iooss [2].
-> >
-> > [1]: https://media.defense.gov/2021/Jul/29/2002815735/-1/-1/0/SELINUX-S=
-ECURITY-POLICY-CONFIGURATION-REPORT.PDF
-> > [2]: https://lore.kernel.org/selinux/CAJfZ7=3DmP2eJaq2BfO3y0VnwUJaY2cS2=
-p=3DHZMN71z1pKjzaT0Eg@mail.gmail.com/
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  security/selinux/ss/policydb.c | 4 ++++
-> >  security/selinux/ss/policydb.h | 2 +-
-> >  2 files changed, 5 insertions(+), 1 deletion(-)
+On Thu, May 11, 2023 at 8:33=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Thanks, this is a nice catch, although some minor suggestions below ...
+> If the current task fails the check for the queried capability via
+> `capable(CAP_SYS_ADMIN)` LSMs like SELinux generate a denial message.
+> Issuing such denial messages unnecessarily can lead to a policy author
+> granting more privileges to a subject than needed to silence them.
 >
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/polic=
-ydb.c
-> > index 97c0074f9312..31b08b34c722 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -2257,6 +2257,10 @@ static int ocontext_read(struct policydb *p, con=
-st struct policydb_compat_info *
-> >                               if (rc)
-> >                                       goto out;
-> >
-> > +                             if (i =3D=3D OCON_FS)
-> > +                                     pr_warn("SELinux:  void and depre=
-cated fs ocon %s\n",
-> > +                                             c->u.name);
+> Reorder CAP_SYS_ADMIN checks after the check whether the operation is
+> actually privileged.
 >
-> Instead of having to check if 'i =3D=3D OCON_FS', why not simply put the
-> pr_warn() call up in the OCON_FS case block on line ~2249 and let it
-> continue to fallthrough to the OCON_NETIF block?
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  security/keys/keyctl.c | 11 ++++++++---
+>  1 file changed, 8 insertions(+), 3 deletions(-)
+>
+> diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+> index d54f73c558f7..19be69fa4d05 100644
+> --- a/security/keys/keyctl.c
+> +++ b/security/keys/keyctl.c
+> @@ -980,14 +980,19 @@ long keyctl_chown_key(key_serial_t id, uid_t user, =
+gid_t group)
+>         ret =3D -EACCES;
+>         down_write(&key->sem);
+>
+> -       if (!capable(CAP_SYS_ADMIN)) {
+> +       {
+> +               bool is_privileged_op =3D false;
+> +
+>                 /* only the sysadmin can chown a key to some other UID */
+>                 if (user !=3D (uid_t) -1 && !uid_eq(key->uid, uid))
+> -                       goto error_put;
+> +                       is_privileged_op =3D true;
+>
+>                 /* only the sysadmin can set the key's GID to a group oth=
+er
+>                  * than one of those that the current process subscribes =
+to */
+>                 if (group !=3D (gid_t) -1 && !gid_eq(gid, key->gid) && !i=
+n_group_p(gid))
+> +                       is_privileged_op =3D true;
+> +
+> +               if (is_privileged_op && !capable(CAP_SYS_ADMIN))
+>                         goto error_put;
+>         }
 
-Bah, nevermind, you need to leave it here because of the 'c->u.name'
-in the pr_warn().  If you're okay with me adjusting the deprecation
-comment (below) during the merge I'll can merge this now ... ?
+Hmm.  Using braces just to create a new scope is a bit hacky; I'll
+admit to using it to quickly create new local variables, but I only do
+so in debug/test situations, not production code.
 
-> >                               rc =3D context_read_and_validate(&c->cont=
-ext[0], p, fp);
-> >                               if (rc)
-> >                                       goto out;
-> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/polic=
-ydb.h
-> > index ffc4e7bad205..39cd6222e1a8 100644
-> > --- a/security/selinux/ss/policydb.h
-> > +++ b/security/selinux/ss/policydb.h
-> > @@ -225,7 +225,7 @@ struct genfs {
-> >
-> >  /* object context array indices */
-> >  #define OCON_ISID    0 /* initial SIDs */
-> > -#define OCON_FS              1 /* unlabeled file systems */
-> > +#define OCON_FS              1 /* unlabeled file systems (deprecated i=
-n 6.5) */
->
-> Since you are likely re-spinning this (see above), I would just leave
-> it as "(deprecated)"; those that want to know where it was deprecated
-> can always check the git log/tags.
->
-> >  #define OCON_PORT    2 /* TCP and UDP port numbers */
-> >  #define OCON_NETIF   3 /* network interfaces */
-> >  #define OCON_NODE    4 /* nodes */
-> > --
-> > 2.40.1
+What if you move the CAP_SYS_ADMIN check down into the if-conditional
+where the code checks to see if CAP_SYS_ADMIN is needed when changing
+the UID?  It should be possible to structure the CAP_SYS_ADMIN check
+such that it is only executed if needed.  It's a little more
+complicated in the GID case, but I believe it should be doable.
 
 --=20
 paul-moore.com
