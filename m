@@ -2,170 +2,140 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C965DC7EE26
-	for <selinux@archiver.kernel.org>; Tue, 23 May 2023 18:25:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C686DC7EE2D
+	for <selinux@archiver.kernel.org>; Tue, 23 May 2023 18:33:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237559AbjEWSZt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 May 2023 14:25:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
+        id S237723AbjEWSdg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 May 2023 14:33:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237518AbjEWSZr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 May 2023 14:25:47 -0400
-Received: from mail-vs1-xe30.google.com (mail-vs1-xe30.google.com [IPv6:2607:f8b0:4864:20::e30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29E4D120;
-        Tue, 23 May 2023 11:25:37 -0700 (PDT)
-Received: by mail-vs1-xe30.google.com with SMTP id ada2fe7eead31-4392f532cdaso2764622137.3;
-        Tue, 23 May 2023 11:25:37 -0700 (PDT)
+        with ESMTP id S230283AbjEWSdf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 May 2023 14:33:35 -0400
+Received: from mail-vs1-xe31.google.com (mail-vs1-xe31.google.com [IPv6:2607:f8b0:4864:20::e31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C3D11D;
+        Tue, 23 May 2023 11:33:34 -0700 (PDT)
+Received: by mail-vs1-xe31.google.com with SMTP id ada2fe7eead31-437e4f09268so3516235137.2;
+        Tue, 23 May 2023 11:33:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1684866336; x=1687458336;
+        d=googlemail.com; s=20221208; t=1684866813; x=1687458813;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BDi0EUIF+xc//kmdFaxsPGdDVrHBBOXPVNcw7FtRbqk=;
-        b=rv2cB8HbB9ut8R7MKZXeukWX44msdpuRltrNUIk6Q76XBMc78At3Kq3IbuHkRRa6/z
-         iWK65yAuwSsOI8OIQTv+rG1Z8bdaju5opZh946ZoE5nahGgDJD2XqiL3WAqmJ6yZtZSZ
-         ZdHtcAbARaedT51hBcSrB5rPSwfVPKD83HRYjRZUpPJ84K/1pL5nIRp3BtQ9/qZDlkE+
-         tv36teekdfSNbs4Reb+qXVJAeorRHZVb59XSF19NWM0Tme3aC5OEWobCGrGJiCu+8zcR
-         RgglftdqqZszYbLQ5tK0JQIISLN391T8b/nWRbNE8z9nHuvtW7BZfZAjGXLJWN8AlzTZ
-         y3NA==
+        bh=oiyNEH3rrNmb0uCq25edqFrYB/PmZzAkhlex9L2Z4jY=;
+        b=EVWCMpFN2b7hkabCE5vXnwnAeIW2N9QqWx9n+7hKxi8lkzwTaBsSqucICIROLLWp9M
+         We5RucK6RoPuMbasunYsKEZP4Jl51nQvt0SnZfQsLGzPjs9i1pffeg2nzMxX9qY8wAAF
+         FxZH4BGPWWZIM8dvoBuaQi+RrKb5kfI/JQRHCQmc1LunSnk81TS7qb43LTebrWGGYryb
+         DCfar+h6bJ8mlWtwBiFDbQ5HWnkkQ7oog36PiJmjS9RXjhhfqXA5Z3ckowMaXfZSHYjU
+         SKyf6NClV90umizeFgYJx0wR43OeVS0/AEfi/3UOvGhi8lYEeCgnv/e7/aii6dgJPPrV
+         IsrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684866336; x=1687458336;
+        d=1e100.net; s=20221208; t=1684866813; x=1687458813;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BDi0EUIF+xc//kmdFaxsPGdDVrHBBOXPVNcw7FtRbqk=;
-        b=AiG3Ql74CzHXx/w250cYDQnXQQkI/HjT8amUwY0I4I5ELg5KpCXmpX5dG3yluRz+G4
-         RFtPZGBPMynQldQ0d/AJcw9+wC4CmkoZ5uiWimm4CflI1e0Jr8x7j4Bq1VYVxc3TCxP8
-         5ANjDkeCKv2pALBO/OY5mjXWGGnBYjYud/dK7uLsjL2yQf18OCKD0xNEwZY+bP/42KXv
-         bC1S7pnhJ466eOEpsinjlRyUFnJKYiCdAEL5de9YUxk+wbe4XubJVljZFK6Yh+RY0WQ8
-         Mh3d1IUZ8Knquh8irb1/mFVWTUGNjP2i96vnrU1Chg1RLqmFOFoJvc/iljgIwuyrc00i
-         rMyw==
-X-Gm-Message-State: AC+VfDwh+LvEP4mcJsTfaYPIdd7d4qZWJHWQNnA2t4oS5AzEGTEpfLVx
-        88L48POWusqoPgy7/4oxaWls268OKocoEWrB7hr/yKxRNOs=
-X-Google-Smtp-Source: ACHHUZ73XBtW1dudeuf03KWzhzYn2RnEsBS2kNL9QFDRb8S6ThKHh5ydXVhRdPb8XaESJqOlyO6giiNxhs9tTl3sMuE=
-X-Received: by 2002:a67:ed8d:0:b0:434:6d1f:9032 with SMTP id
- d13-20020a67ed8d000000b004346d1f9032mr4370411vsp.14.1684866336124; Tue, 23
- May 2023 11:25:36 -0700 (PDT)
+        bh=oiyNEH3rrNmb0uCq25edqFrYB/PmZzAkhlex9L2Z4jY=;
+        b=fXaV8MTIudpq+rdSntUZ7oUWeq7akoeafIWnKT8Samn4TkkmhDpX6N39EU3YdScRie
+         mgt/NHEGnfkLeLNJjM+9Q9a9Eq43L3vymq6Mdd6OfcxG7dYgZsaBkPSSUHub6kU00GSI
+         1aCw5sfvb5qFWJsfOrUjQTfFY0Bd/q/DvUXPRTcmD1mdlikQmniIXdzSxogG0jL+UGWu
+         Teh38MMVCYrKU4jnM8yRXdSS7cLtfuqbaSER4Mwt1l0tyeazsre5YyPK1rBbKkHnplOe
+         IMzSD4mUO7jWJefYOMuLPHggVF98KNEuJkGersRTJRJpgsgBsFxigdbSbl/Y52jSpvho
+         7cnQ==
+X-Gm-Message-State: AC+VfDyby/NyqOHKk/CAxkFEOIWDP+klXjS6GGZo/pIkZNbY21aQDr6h
+        tgjMjxHADYa3iuWf8QWq7DKxL5+Nx/cx05xxmWs=
+X-Google-Smtp-Source: ACHHUZ4kW1y4PMLPAdDQFxZ+ImH0yD6CzvT8cKI5ePE850dHnObWYOy8X0YX39SUL0y6H0cY6GM2rNGtaOn89NP7Q+E=
+X-Received: by 2002:a67:f1d7:0:b0:439:4112:814 with SMTP id
+ v23-20020a67f1d7000000b0043941120814mr3215406vsm.2.1684866813198; Tue, 23 May
+ 2023 11:33:33 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230511123213.722912-1-cgzones@googlemail.com>
- <6301fdfd0927df2b2fd7a4f2b384e477.paul@paul-moore.com> <CAHC9VhSSA04wzPFgx_Z4jf1gOdEO40hU-augjMqX1uGd-eHLQA@mail.gmail.com>
-In-Reply-To: <CAHC9VhSSA04wzPFgx_Z4jf1gOdEO40hU-augjMqX1uGd-eHLQA@mail.gmail.com>
+References: <20230511123252.723185-1-cgzones@googlemail.com> <CAHC9VhTcso+RTEOkGOCDxyMscznEXrUhp+quDWvATUhEzEOhRQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhTcso+RTEOkGOCDxyMscznEXrUhp+quDWvATUhEzEOhRQ@mail.gmail.com>
 From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 23 May 2023 20:25:25 +0200
-Message-ID: <CAJ2a_DeJhGcXBtVfuOp3xeUNxJyFR4QG-+5=4Q_38go+v6d9-A@mail.gmail.com>
-Subject: Re: [PATCH] selinux: deprecated fs ocon
+Date:   Tue, 23 May 2023 20:33:22 +0200
+Message-ID: <CAJ2a_DfRGq+Cg_U7+Rsie9Bywxquu9CuMwYUGNv3+Sg9=wt9Og@mail.gmail.com>
+Subject: Re: [PATCH] security: keys: perform capable check only on privileged operations
 To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        linux-kernel@vger.kernel.org
+Cc:     selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 18 May 2023 at 22:18, Paul Moore <paul@paul-moore.com> wrote:
+On Fri, 19 May 2023 at 23:08, Paul Moore <paul@paul-moore.com> wrote:
 >
-> On Thu, May 18, 2023 at 1:56=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > On May 11, 2023 =3D?UTF-8?q?Christian=3D20G=3DC3=3DB6ttsche?=3D <cgzone=
-s@googlemail.com> wrote:
-> > >
-> > > The object context type `fs`, not to be confused with the well used
-> > > object context type `fscon`, was introduced in the initial git commit
-> > > 1da177e4c3f4 ("Linux-2.6.12-rc2") but never actually used since.
-> > >
-> > > The paper "A Security Policy Configuration for the Security-Enhanced
-> > > Linux" [1] mentions it under `7.2 File System Contexts` but also stat=
-es:
-> > >
-> > >     Currently, this configuration is unused.
-> > >
-> > > The policy statement defining such object contexts is `fscon`, e.g.:
-> > >
-> > >     fscon 2 3 gen_context(system_u:object_r:conA_t,s0) gen_context(sy=
-stem_u:object_r:conB_t,s0)
-> > >
-> > > It is not documented at selinuxproject.org or in the SELinux notebook
-> > > and not supported by the Reference Policy buildsystem - the statement=
- is
-> > > not properly sorted - and thus not used in the Reference or Fedora
-> > > Policy.
-> > >
-> > > Print a warning message at policy load for each such object context:
-> > >
-> > >     SELinux:  void and deprecated fs ocon 02:03
-> > >
-> > > This topic was initially highlighted by Nicolas Iooss [2].
-> > >
-> > > [1]: https://media.defense.gov/2021/Jul/29/2002815735/-1/-1/0/SELINUX=
--SECURITY-POLICY-CONFIGURATION-REPORT.PDF
-> > > [2]: https://lore.kernel.org/selinux/CAJfZ7=3DmP2eJaq2BfO3y0VnwUJaY2c=
-S2p=3DHZMN71z1pKjzaT0Eg@mail.gmail.com/
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > ---
-> > >  security/selinux/ss/policydb.c | 4 ++++
-> > >  security/selinux/ss/policydb.h | 2 +-
-> > >  2 files changed, 5 insertions(+), 1 deletion(-)
+> On Thu, May 11, 2023 at 8:33=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > Thanks, this is a nice catch, although some minor suggestions below ...
+> > If the current task fails the check for the queried capability via
+> > `capable(CAP_SYS_ADMIN)` LSMs like SELinux generate a denial message.
+> > Issuing such denial messages unnecessarily can lead to a policy author
+> > granting more privileges to a subject than needed to silence them.
 > >
-> > > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/pol=
-icydb.c
-> > > index 97c0074f9312..31b08b34c722 100644
-> > > --- a/security/selinux/ss/policydb.c
-> > > +++ b/security/selinux/ss/policydb.c
-> > > @@ -2257,6 +2257,10 @@ static int ocontext_read(struct policydb *p, c=
-onst struct policydb_compat_info *
-> > >                               if (rc)
-> > >                                       goto out;
-> > >
-> > > +                             if (i =3D=3D OCON_FS)
-> > > +                                     pr_warn("SELinux:  void and dep=
-recated fs ocon %s\n",
-> > > +                                             c->u.name);
+> > Reorder CAP_SYS_ADMIN checks after the check whether the operation is
+> > actually privileged.
 > >
-> > Instead of having to check if 'i =3D=3D OCON_FS', why not simply put th=
-e
-> > pr_warn() call up in the OCON_FS case block on line ~2249 and let it
-> > continue to fallthrough to the OCON_NETIF block?
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  security/keys/keyctl.c | 11 ++++++++---
+> >  1 file changed, 8 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+> > index d54f73c558f7..19be69fa4d05 100644
+> > --- a/security/keys/keyctl.c
+> > +++ b/security/keys/keyctl.c
+> > @@ -980,14 +980,19 @@ long keyctl_chown_key(key_serial_t id, uid_t user=
+, gid_t group)
+> >         ret =3D -EACCES;
+> >         down_write(&key->sem);
+> >
+> > -       if (!capable(CAP_SYS_ADMIN)) {
+> > +       {
+> > +               bool is_privileged_op =3D false;
+> > +
+> >                 /* only the sysadmin can chown a key to some other UID =
+*/
+> >                 if (user !=3D (uid_t) -1 && !uid_eq(key->uid, uid))
+> > -                       goto error_put;
+> > +                       is_privileged_op =3D true;
+> >
+> >                 /* only the sysadmin can set the key's GID to a group o=
+ther
+> >                  * than one of those that the current process subscribe=
+s to */
+> >                 if (group !=3D (gid_t) -1 && !gid_eq(gid, key->gid) && =
+!in_group_p(gid))
+> > +                       is_privileged_op =3D true;
+> > +
+> > +               if (is_privileged_op && !capable(CAP_SYS_ADMIN))
+> >                         goto error_put;
+> >         }
 >
-> Bah, nevermind, you need to leave it here because of the 'c->u.name'
-> in the pr_warn().  If you're okay with me adjusting the deprecation
-> comment (below) during the merge I'll can merge this now ... ?
+> Hmm.  Using braces just to create a new scope is a bit hacky; I'll
+> admit to using it to quickly create new local variables, but I only do
+> so in debug/test situations, not production code.
+>
+> What if you move the CAP_SYS_ADMIN check down into the if-conditional
+> where the code checks to see if CAP_SYS_ADMIN is needed when changing
+> the UID?  It should be possible to structure the CAP_SYS_ADMIN check
+> such that it is only executed if needed.  It's a little more
+> complicated in the GID case, but I believe it should be doable.
 
-Yes, please feel free to adjust the inline comment.
+This complication I exactly wanted to avoid.  For me the inner scope
+encapsulates the all the logic around the capability check just fine
+and is quite readable.  An alternative would be to create a new
+function performing the checks and call it via
 
->
-> > >                               rc =3D context_read_and_validate(&c->co=
-ntext[0], p, fp);
-> > >                               if (rc)
-> > >                                       goto out;
-> > > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/pol=
-icydb.h
-> > > index ffc4e7bad205..39cd6222e1a8 100644
-> > > --- a/security/selinux/ss/policydb.h
-> > > +++ b/security/selinux/ss/policydb.h
-> > > @@ -225,7 +225,7 @@ struct genfs {
-> > >
-> > >  /* object context array indices */
-> > >  #define OCON_ISID    0 /* initial SIDs */
-> > > -#define OCON_FS              1 /* unlabeled file systems */
-> > > +#define OCON_FS              1 /* unlabeled file systems (deprecated=
- in 6.5) */
-> >
-> > Since you are likely re-spinning this (see above), I would just leave
-> > it as "(deprecated)"; those that want to know where it was deprecated
-> > can always check the git log/tags.
-> >
-> > >  #define OCON_PORT    2 /* TCP and UDP port numbers */
-> > >  #define OCON_NETIF   3 /* network interfaces */
-> > >  #define OCON_NODE    4 /* nodes */
-> > > --
-> > > 2.40.1
+    if (!chown_key_capable(key, user, uid, group, gid))
+        got error_put;
+
+A minor inconvenience is the number of needed arguments (and the
+actual code after inlining should be the same to the inner scope in
+the end).
+
 >
 > --
 > paul-moore.com
