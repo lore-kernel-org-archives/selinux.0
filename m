@@ -2,46 +2,46 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D871C7EE2C
-	for <selinux@archiver.kernel.org>; Wed, 24 May 2023 11:16:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDFA8C77B7A
+	for <selinux@archiver.kernel.org>; Wed, 24 May 2023 11:16:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229834AbjEXLQn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 24 May 2023 07:16:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44014 "EHLO
+        id S229457AbjEXLQs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 24 May 2023 07:16:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbjEXLQl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 24 May 2023 07:16:41 -0400
+        with ESMTP id S229723AbjEXLQo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 24 May 2023 07:16:44 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4082131
-        for <selinux@vger.kernel.org>; Wed, 24 May 2023 04:15:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94F8C5
+        for <selinux@vger.kernel.org>; Wed, 24 May 2023 04:15:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1684926957;
+        s=mimecast20190719; t=1684926954;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=2hKQiu9Ol9XdSzmkXgU3bOPrJ6s7dUJ6A8KPpCPBgUM=;
-        b=halLpcDSYHmRHKNg4xCmEC4M+oru0V4Gw1ZJv7nzQ7owAUYYlWg8Jn1bWlPE2+Rwp/d65q
-        8W2n087AbY/eI4NXwVlhRTwb9aw+3qU1oOskPCnkRu9D7hjzUhyV4Y8knvumvq54v/lf7p
-        Gr044qsfbfMtUHHMkp1wFd6pe9Wm6dY=
+        bh=scr5o3e2Q+QzVUd7TiFOcq1Kf7ELGeWL22rpBIIy9VA=;
+        b=h9wSkpuhbMo1biGfBwyj6ylY/UnMqqsiw6IOhjdmQ0DNi4tpg3rTze+ayNqbu3KCX8vG6u
+        vzTyO9P/yOaFT+E2sz5OgL7Fnva0FeHmEW+/1bg1AdsZng9VUW542CTtBmW7dTvZqls7LM
+        1YJi42mt+IKpnON8qK5Jfm/yQh8Hw2E=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-295-SBBRGlA-P6yuKCfiYtuwEA-1; Wed, 24 May 2023 07:15:56 -0400
-X-MC-Unique: SBBRGlA-P6yuKCfiYtuwEA-1
+ us-mta-101-KwPqNytiM62YIXFwbMkC7A-1; Wed, 24 May 2023 07:15:53 -0400
+X-MC-Unique: KwPqNytiM62YIXFwbMkC7A-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 44ABB811E93
-        for <selinux@vger.kernel.org>; Wed, 24 May 2023 11:15:56 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B3813101A53B
+        for <selinux@vger.kernel.org>; Wed, 24 May 2023 11:15:52 +0000 (UTC)
 Received: from fedora.. (unknown [10.43.12.115])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E3CD9400F1F
-        for <selinux@vger.kernel.org>; Wed, 24 May 2023 11:15:55 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5E128492B00
+        for <selinux@vger.kernel.org>; Wed, 24 May 2023 11:15:52 +0000 (UTC)
 From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 5/5] libselinux: Add examples to man pages
-Date:   Wed, 24 May 2023 13:15:35 +0200
-Message-Id: <20230524111535.1743163-5-vmojzis@redhat.com>
+Subject: [PATCH 4/5] checkpolicy: Add examples to man pages
+Date:   Wed, 24 May 2023 13:15:34 +0200
+Message-Id: <20230524111535.1743163-4-vmojzis@redhat.com>
 In-Reply-To: <20230524111535.1743163-1-vmojzis@redhat.com>
 References: <20230524111535.1743163-1-vmojzis@redhat.com>
 MIME-Version: 1.0
@@ -51,114 +51,44 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Also fix some typos and remove trailing whitespaces.
-
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- libselinux/man/man8/getsebool.8    | 18 +++++++++++-------
- libselinux/man/man8/matchpathcon.8 | 19 +++++++++++++------
- 2 files changed, 24 insertions(+), 13 deletions(-)
+ checkpolicy/checkpolicy.8 | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/man/man8/getsebool.8 b/libselinux/man/man8/getsebool.8
-index d70bf1e4..9e36f04f 100644
---- a/libselinux/man/man8/getsebool.8
-+++ b/libselinux/man/man8/getsebool.8
-@@ -1,6 +1,6 @@
- .TH "getsebool" "8" "11 Aug 2004" "dwalsh@redhat.com" "SELinux Command Line documentation"
- .SH "NAME"
--getsebool \- get SELinux boolean value(s) 
-+getsebool \- get SELinux boolean value(s)
- .
- .SH "SYNOPSIS"
- .B getsebool
-@@ -8,17 +8,16 @@ getsebool \- get SELinux boolean value(s)
- .RI [ boolean ]
- .
- .SH "DESCRIPTION"
--.B getsebool 
--reports where a particular SELinux boolean or
--all SELinux booleans are on or off
--In certain situations a boolean can be in one state with a pending 
--change to the other state.  getsebool will report this as a pending change.
-+.B getsebool
-+reports whether a particular SELinux boolean, or all SELinux booleans, are on or off.
-+In certain situations a boolean can be in one state with a pending
-+change to the other state. getsebool will report this as a pending change.
- The pending value indicates
- the value that will be applied upon the next boolean commit.
+diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
+index 2984c238..aefa148c 100644
+--- a/checkpolicy/checkpolicy.8
++++ b/checkpolicy/checkpolicy.8
+@@ -12,8 +12,8 @@ command.
+ .PP
+ .B checkpolicy
+ is a program that checks and compiles a SELinux security policy configuration
+-into a binary representation that can be loaded into the kernel.  If no 
+-input file name is specified,
++into a binary representation that can be loaded into the kernel.
++If no input file name is specified,
+ .B checkpolicy
+ will attempt to read from policy.conf or policy, depending on whether the \-b
+ flag is specified.
+@@ -64,6 +64,17 @@ Show version information.
+ .B \-h,\-\-help
+ Show usage information.
  
- The setting of boolean values occurs in two stages; first the pending
- value is changed, then the booleans are committed, causing their
--active values to become their pending values.  This allows a group of
-+active values to become their pending values. This allows a group of
- booleans to be changed in a single transaction, by setting all of
- their pending values as desired and then committing once.
- .
-@@ -27,6 +26,11 @@ their pending values as desired and then committing once.
- .B \-a
- Show all SELinux booleans.
- .
 +.SH EXAMPLE
 +.nf
-+Show current state of httpd_can_connect_ftp
-+# getsebool httpd_can_connect_ftp
-+.
- .SH AUTHOR
- This manual page was written by Dan Walsh <dwalsh@redhat.com>.
- The program was written by Tresys Technology.
-diff --git a/libselinux/man/man8/matchpathcon.8 b/libselinux/man/man8/matchpathcon.8
-index 50c0d392..6d848f43 100644
---- a/libselinux/man/man8/matchpathcon.8
-+++ b/libselinux/man/man8/matchpathcon.8
-@@ -25,8 +25,8 @@ queries the system policy and outputs the default security context associated wi
- Identical paths can have different security contexts, depending on the file
- type (regular file, directory, link file, char file ...).
++Generate policy.conf based on the system policy
++# checkpolicy -b -M -F /etc/selinux/targeted/policy/policy.* -o policy.conf
++Recompile system policy so that unknown permissions are denied (uses policy.conf from ^^).
++Note that binary policy extension represents its version, which is subject to change
++# checkpolicy -M -U deny -o /etc/selinux/targeted/policy/policy.33 policy.conf
++# load_policy
++Generate CIL representation of current system policy
++# checkpolicy -b -M -C /etc/selinux/targeted/policy/policy.* -o policy.out
++
+ .SH "SEE ALSO"
+ SELinux Reference Policy documentation at https://github.com/SELinuxProject/refpolicy/wiki
  
--.B matchpathcon 
--will also take the file type into consideration in determining the default security context if the file exists.  If the file does not exist, no file type matching will occur.
-+.B matchpathcon
-+will also take the file type into consideration in determining the default security context if the file exists. If the file does not exist, no file type matching will occur.
- .
- .SH OPTIONS
- .TP
-@@ -34,19 +34,19 @@ will also take the file type into consideration in determining the default secur
- Force file type for the lookup.
- Valid types are
- .BR file ", " dir ", "pipe ", " chr_file ", " blk_file ", "
--.BR lnk_file ", " sock_file .
-+.BR lnk_file ", " sock_file
- .TP
- .B \-n
--Do not display path.
-+Do not display path
- .TP
- .B \-N
--Do not use translations.
-+Do not use translations
- .TP
- .BI \-f " file_context_file"
- Use alternate file_context file
- .TP
- .BI \-p " prefix"
--Use prefix to speed translations
-+Use prefix to speed up translations
- .TP
- .BI \-P " policy_root_path"
- Use alternate policy root path
-@@ -54,6 +54,13 @@ Use alternate policy root path
- .B \-V
- Verify file context on disk matches defaults
- .
-+.SH EXAMPLE
-+.nf
-+Show the default label of sock_file cups.sock
-+# matchpathcon -m sock_file /var/run/cups/cups.sock
-+Verify that /var/www/html directory is labeled correctly (the content of the folder is not checked)
-+# matchpathcon -V /var/www/html
-+.
- .SH AUTHOR
- This manual page was written by Dan Walsh <dwalsh@redhat.com>.
- .
 -- 
 2.40.0
 
