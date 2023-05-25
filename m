@@ -2,139 +2,147 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD18BC77B7A
-	for <selinux@archiver.kernel.org>; Thu, 25 May 2023 20:36:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C036C7EE29
+	for <selinux@archiver.kernel.org>; Thu, 25 May 2023 21:25:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbjEYUgu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 May 2023 16:36:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43464 "EHLO
+        id S240779AbjEYVZQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 May 2023 17:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241589AbjEYUgt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 May 2023 16:36:49 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A0F19A
-        for <selinux@vger.kernel.org>; Thu, 25 May 2023 13:36:47 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id 38308e7fff4ca-2af1e290921so10706521fa.3
-        for <selinux@vger.kernel.org>; Thu, 25 May 2023 13:36:47 -0700 (PDT)
+        with ESMTP id S240840AbjEYVZP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 May 2023 17:25:15 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51AB01A8
+        for <selinux@vger.kernel.org>; Thu, 25 May 2023 14:25:13 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id 3f1490d57ef6-ba8a0500f4aso126367276.3
+        for <selinux@vger.kernel.org>; Thu, 25 May 2023 14:25:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685047005; x=1687639005;
+        d=paul-moore.com; s=google; t=1685049912; x=1687641912;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rIl3VdphiLiG5x8VmDKJzUC41vxCK42nBqjyXCOU9vU=;
-        b=oZG966Fm4+jRImGsy0hPZ2vtyCrhYEF9niNhdtKVW4zMvvWa2/JihfN+cJMngDkD8H
-         6JjTCY7LUH8Y3YwVbCti5XwCy9bL3x4JZrt7aD4ph0aGEA2CYYKias5u+hFDs8+vBduk
-         ku9CSJwjW0BD3INa5QBq5VwQAKHt4HT6zifCYgcr0scJwKlz8aHsZN5z0DsWxqsGKhhf
-         l2LgQGgoQyzbNy3l9/z3lpsCjA4Aai7/nifIDYExqaxMNVVlS76aliljHiKN1MMoAS/5
-         Yb+0wEtzeY0Vml7e5c3vJdDrrNEQSSCuayA7ZmdgUzrdKcJBvczd7tYnFX8u62lixkbF
-         wj6w==
+        bh=SwImV3hCdNQ/cPrrcGQnqX5yRqt1VqU5w9NHupD1Oqw=;
+        b=ausE72tZUtVgq3OE6jbQbIa/leBFAJauIufQqHDIWfCOK4tCyZN5yxLDRb+KYU8/Zi
+         oqAQZ2nr6BWCKdGk2hGXP86m3oMIGlkr3rbq9VZb31pmbTHapV845qHjkkZ1KojhqrIw
+         JnDgGO+tJC8rU+QFwiO6vl/OV3Md+MSo+TCTLwUd6C1u8LrR68VK7NVhBIom/Jhp2IZK
+         RJT3zzAtpRW/4ReAzrsVkdji92WSUVA3rPu/jj9UDFalEB4Cx6pHU+0uCb3Vc7zCnVt1
+         Ql8Kf52bgRIh4hgzkiWx+dYbocVSSDq57/yRveM9eDaKW3mEQQzY3PY5OvGiXDPa7qbm
+         mrEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685047005; x=1687639005;
+        d=1e100.net; s=20221208; t=1685049912; x=1687641912;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rIl3VdphiLiG5x8VmDKJzUC41vxCK42nBqjyXCOU9vU=;
-        b=Oq3tz0fV9Qc2B187Cvue09Mbvy0cfooR0SHlTHoYb4Ev5oZhnZ+YswboG44dmrOjhk
-         VH0hpRXxaqh7MyKQCSNgR6NWeGVvyQmbISUs6fD5HGbsUj6SE8tbVOMVPEo6iFDPh1FO
-         qmUdqtsq5m+PMGZdxmyar0bvmXcRvfNkEI/+tfsdIoiMwW0WDuf21FMk0NqhD9tENwSY
-         I6iQBhkFNuUqiFdX17soy/Ccorbvl0Mo85j2Pnpp/Wjsd60wNg8mEpe/3MmE0n6jE49W
-         VmrmXrpQNtnfXhCjZ4m1ITudSygCLTSeZFwUpIG7QzeYF7q4lnp68ADDQtXYoQRiDw3/
-         Fc4A==
-X-Gm-Message-State: AC+VfDzlR1iY4HUsToNut5P7xM5PN5wdzGEu5814noSmCj7VYkvNOcha
-        S5AsHO57R+clhbvwkLnBB6I7afoN6G5hi2rRzh9SC16cq28=
-X-Google-Smtp-Source: ACHHUZ6mb6elfxDSF2oby1X6R6ZUyJ7ntLXz/jCQS8/JRDCcgjfW5Bk8dBB25vqizHoyOZwCwWyF3pyTDZPemRJpOiY=
-X-Received: by 2002:a2e:990f:0:b0:2ac:75fa:495c with SMTP id
- v15-20020a2e990f000000b002ac75fa495cmr1386612lji.27.1685047005239; Thu, 25
- May 2023 13:36:45 -0700 (PDT)
+        bh=SwImV3hCdNQ/cPrrcGQnqX5yRqt1VqU5w9NHupD1Oqw=;
+        b=RmqsjBW12IT86U0k8cxZIHU4l5y743FOCZ2hneEkNhrYP9stms5drVKXEruy6pDWeF
+         OnJklQFvpUFICrUAM/EyQSUoggQlKy65Ca/Pm48qGsLD3+gT89+y3MLKDpE3Ie2rfKrE
+         5O1IElOKnubeQbwuhakdyhdYFF2QtmkNLcCTLEBU+qhGl/vGhYNg7Xsn6gZAyjvyILck
+         d1B0ul60eZbebt03dU4shuOORQABdyDvpoYGZpPzoqxPmjdIHJN3t6bwRZYsR7ptSeaH
+         wARA/1IsSkze58KCZd/a0cC4R7K+cIYrndwbV9phLbrUXRErZ2RBiTwzCnD80H5lbVsi
+         sDBg==
+X-Gm-Message-State: AC+VfDzpg5NF6v4/qK3V4EfPs3RmU+0y0eYe1sJoVn2qE1QuQjgV1gJG
+        hApYpGG0/DLYx4I1D0bBr5QaOCwepE2qnCd3Zesk
+X-Google-Smtp-Source: ACHHUZ6tdm6/gLqOUrZ5Geqc/0P5xwmBz4FTleHnApASZm8S5p/ciH5MUryggJKU3jHvSAobWc0g5dx0IAaX8ic7tMY=
+X-Received: by 2002:a0d:d911:0:b0:561:cb5c:17ac with SMTP id
+ b17-20020a0dd911000000b00561cb5c17acmr1091519ywe.27.1685049912500; Thu, 25
+ May 2023 14:25:12 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230512093001.49208-1-cgzones@googlemail.com>
-In-Reply-To: <20230512093001.49208-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 25 May 2023 16:36:33 -0400
-Message-ID: <CAP+JOzRJVORDra0SZ=X+mfaYtj=5NMv5-6CeM9xAewO+6P7uwA@mail.gmail.com>
-Subject: Re: [PATCH 1/5] libsepol: validate some object contexts
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+References: <20230511123252.723185-1-cgzones@googlemail.com>
+ <CAHC9VhTcso+RTEOkGOCDxyMscznEXrUhp+quDWvATUhEzEOhRQ@mail.gmail.com> <CAJ2a_DfRGq+Cg_U7+Rsie9Bywxquu9CuMwYUGNv3+Sg9=wt9Og@mail.gmail.com>
+In-Reply-To: <CAJ2a_DfRGq+Cg_U7+Rsie9Bywxquu9CuMwYUGNv3+Sg9=wt9Og@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 25 May 2023 17:25:01 -0400
+Message-ID: <CAHC9VhSbZ5YheAVec5a=Xht85mNu6wRjeYaoqPGSiHjFP2NN6Q@mail.gmail.com>
+Subject: Re: [PATCH] security: keys: perform capable check only on privileged operations
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>, keyrings@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 12, 2023 at 5:32=E2=80=AFAM Christian G=C3=B6ttsche
+On Tue, May 23, 2023 at 2:33=E2=80=AFPM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
+> On Fri, 19 May 2023 at 23:08, Paul Moore <paul@paul-moore.com> wrote:
+> > On Thu, May 11, 2023 at 8:33=E2=80=AFAM Christian G=C3=B6ttsche
+> > <cgzones@googlemail.com> wrote:
+> > >
+> > > If the current task fails the check for the queried capability via
+> > > `capable(CAP_SYS_ADMIN)` LSMs like SELinux generate a denial message.
+> > > Issuing such denial messages unnecessarily can lead to a policy autho=
+r
+> > > granting more privileges to a subject than needed to silence them.
+> > >
+> > > Reorder CAP_SYS_ADMIN checks after the check whether the operation is
+> > > actually privileged.
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > ---
+> > >  security/keys/keyctl.c | 11 ++++++++---
+> > >  1 file changed, 8 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+> > > index d54f73c558f7..19be69fa4d05 100644
+> > > --- a/security/keys/keyctl.c
+> > > +++ b/security/keys/keyctl.c
+> > > @@ -980,14 +980,19 @@ long keyctl_chown_key(key_serial_t id, uid_t us=
+er, gid_t group)
+> > >         ret =3D -EACCES;
+> > >         down_write(&key->sem);
+> > >
+> > > -       if (!capable(CAP_SYS_ADMIN)) {
+> > > +       {
+> > > +               bool is_privileged_op =3D false;
+> > > +
+> > >                 /* only the sysadmin can chown a key to some other UI=
+D */
+> > >                 if (user !=3D (uid_t) -1 && !uid_eq(key->uid, uid))
+> > > -                       goto error_put;
+> > > +                       is_privileged_op =3D true;
+> > >
+> > >                 /* only the sysadmin can set the key's GID to a group=
+ other
+> > >                  * than one of those that the current process subscri=
+bes to */
+> > >                 if (group !=3D (gid_t) -1 && !gid_eq(gid, key->gid) &=
+& !in_group_p(gid))
+> > > +                       is_privileged_op =3D true;
+> > > +
+> > > +               if (is_privileged_op && !capable(CAP_SYS_ADMIN))
+> > >                         goto error_put;
+> > >         }
+> >
+> > Hmm.  Using braces just to create a new scope is a bit hacky; I'll
+> > admit to using it to quickly create new local variables, but I only do
+> > so in debug/test situations, not production code.
+> >
+> > What if you move the CAP_SYS_ADMIN check down into the if-conditional
+> > where the code checks to see if CAP_SYS_ADMIN is needed when changing
+> > the UID?  It should be possible to structure the CAP_SYS_ADMIN check
+> > such that it is only executed if needed.  It's a little more
+> > complicated in the GID case, but I believe it should be doable.
 >
-> Ensure various object context entries have a name, since they are
-> duplicated via strdup(3), and the order for ports and memory regions is
-> valid.
+> This complication I exactly wanted to avoid.  For me the inner scope
+> encapsulates the all the logic around the capability check just fine
+> and is quite readable.  An alternative would be to create a new
+> function performing the checks and call it via
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>     if (!chown_key_capable(key, user, uid, group, gid))
+>         got error_put;
+>
+> A minor inconvenience is the number of needed arguments (and the
+> actual code after inlining should be the same to the inner scope in
+> the end).
 
-For these five patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Well, lucky for you, Jarkko and David maintain the keys code, not me,
+and Jarkko seems to like your patch just fine :)
 
-> ---
->  libsepol/src/policydb_validate.c | 30 ++++++++++++++++++++++++++++++
->  1 file changed, 30 insertions(+)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index 301aa200..e0d290ff 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -1149,6 +1149,8 @@ static int validate_ocontexts(sepol_handle_t *handl=
-e, const policydb_t *p, valid
->                                 case OCON_NETIF:
->                                         if (validate_context(&octx->conte=
-xt[1], flavors, p->mls))
->                                                 goto bad;
-> +                                       if (!octx->u.name)
-> +                                               goto bad;
->                                         break;
->                                 case OCON_PORT:
->                                         if (octx->u.port.low_port > octx-=
->u.port.high_port)
-> @@ -1163,6 +1165,34 @@ static int validate_ocontexts(sepol_handle_t *hand=
-le, const policydb_t *p, valid
->                                         default:
->                                                 goto bad;
->                                         }
-> +                                       if (!octx->u.name)
-> +                                               goto bad;
-> +                                       break;
-> +                               case OCON_IBPKEY:
-> +                                       if (octx->u.ibpkey.low_pkey > oct=
-x->u.ibpkey.high_pkey)
-> +                                               goto bad;
-> +                                       break;
-> +                               case OCON_IBENDPORT:
-> +                                       if (!octx->u.ibendport.dev_name)
-> +                                               goto bad;
-> +                                       break;
-> +                               }
-> +                       } else if (p->target_platform =3D=3D SEPOL_TARGET=
-_XEN) {
-> +                               switch(i) {
-> +                               case OCON_XEN_IOPORT:
-> +                                       if (octx->u.ioport.low_ioport > o=
-ctx->u.ioport.high_ioport)
-> +                                               goto bad;
-> +                                       break;
-> +                               case OCON_XEN_IOMEM:
-> +                                       if (octx->u.iomem.low_iomem > oct=
-x->u.iomem.high_iomem)
-> +                                               goto bad;
-> +                                       if (p->policyvers < POLICYDB_VERS=
-ION_XEN_DEVICETREE && octx->u.iomem.high_iomem > 0xFFFFFFFFULL)
-> +                                               goto bad;
-> +                                       break;
-> +                               case OCON_XEN_DEVICETREE:
-> +                                       if (!octx->u.name)
-> +                                               goto bad;
-> +                                       break;
->                                 }
->                         }
->                 }
-> --
-> 2.40.1
->
+Jarkko, I assume you'll be taking this via the keys tree?
+
+--=20
+paul-moore.com
