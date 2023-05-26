@@ -2,147 +2,56 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C036C7EE29
-	for <selinux@archiver.kernel.org>; Thu, 25 May 2023 21:25:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62D09C77B7A
+	for <selinux@archiver.kernel.org>; Fri, 26 May 2023 08:12:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240779AbjEYVZQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 May 2023 17:25:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35664 "EHLO
+        id S242278AbjEZIMK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 May 2023 04:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240840AbjEYVZP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 May 2023 17:25:15 -0400
-Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51AB01A8
-        for <selinux@vger.kernel.org>; Thu, 25 May 2023 14:25:13 -0700 (PDT)
-Received: by mail-yb1-xb2f.google.com with SMTP id 3f1490d57ef6-ba8a0500f4aso126367276.3
-        for <selinux@vger.kernel.org>; Thu, 25 May 2023 14:25:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1685049912; x=1687641912;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SwImV3hCdNQ/cPrrcGQnqX5yRqt1VqU5w9NHupD1Oqw=;
-        b=ausE72tZUtVgq3OE6jbQbIa/leBFAJauIufQqHDIWfCOK4tCyZN5yxLDRb+KYU8/Zi
-         oqAQZ2nr6BWCKdGk2hGXP86m3oMIGlkr3rbq9VZb31pmbTHapV845qHjkkZ1KojhqrIw
-         JnDgGO+tJC8rU+QFwiO6vl/OV3Md+MSo+TCTLwUd6C1u8LrR68VK7NVhBIom/Jhp2IZK
-         RJT3zzAtpRW/4ReAzrsVkdji92WSUVA3rPu/jj9UDFalEB4Cx6pHU+0uCb3Vc7zCnVt1
-         Ql8Kf52bgRIh4hgzkiWx+dYbocVSSDq57/yRveM9eDaKW3mEQQzY3PY5OvGiXDPa7qbm
-         mrEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685049912; x=1687641912;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SwImV3hCdNQ/cPrrcGQnqX5yRqt1VqU5w9NHupD1Oqw=;
-        b=RmqsjBW12IT86U0k8cxZIHU4l5y743FOCZ2hneEkNhrYP9stms5drVKXEruy6pDWeF
-         OnJklQFvpUFICrUAM/EyQSUoggQlKy65Ca/Pm48qGsLD3+gT89+y3MLKDpE3Ie2rfKrE
-         5O1IElOKnubeQbwuhakdyhdYFF2QtmkNLcCTLEBU+qhGl/vGhYNg7Xsn6gZAyjvyILck
-         d1B0ul60eZbebt03dU4shuOORQABdyDvpoYGZpPzoqxPmjdIHJN3t6bwRZYsR7ptSeaH
-         wARA/1IsSkze58KCZd/a0cC4R7K+cIYrndwbV9phLbrUXRErZ2RBiTwzCnD80H5lbVsi
-         sDBg==
-X-Gm-Message-State: AC+VfDzpg5NF6v4/qK3V4EfPs3RmU+0y0eYe1sJoVn2qE1QuQjgV1gJG
-        hApYpGG0/DLYx4I1D0bBr5QaOCwepE2qnCd3Zesk
-X-Google-Smtp-Source: ACHHUZ6tdm6/gLqOUrZ5Geqc/0P5xwmBz4FTleHnApASZm8S5p/ciH5MUryggJKU3jHvSAobWc0g5dx0IAaX8ic7tMY=
-X-Received: by 2002:a0d:d911:0:b0:561:cb5c:17ac with SMTP id
- b17-20020a0dd911000000b00561cb5c17acmr1091519ywe.27.1685049912500; Thu, 25
- May 2023 14:25:12 -0700 (PDT)
+        with ESMTP id S242258AbjEZIMJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 May 2023 04:12:09 -0400
+Received: from mail.craftsplex.pl (mail.craftsplex.pl [162.19.155.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D46BA3
+        for <selinux@vger.kernel.org>; Fri, 26 May 2023 01:12:07 -0700 (PDT)
+Received: by mail.craftsplex.pl (Postfix, from userid 1002)
+        id 64D8D225AD; Fri, 26 May 2023 08:11:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=craftsplex.pl;
+        s=mail; t=1685088711;
+        bh=PcMncQpBfIZCnTOfZJY5G1G+gaLn4c9QPfFvoXrE4rA=;
+        h=Date:From:To:Subject:From;
+        b=qE8xeuo7+RUiIBBHAV0T4Vc+lemS44Cq84i5n+AkuYfVS42IjPamifP5xG1ZLF/f8
+         gxPmd13C6Ak64MHplwyaxRAugyswWM7x5MJneapT3EO5EH0P5/g9J1v4qOb/Y/XmVp
+         vsu/FFEelN6k3a3L1+08zF3+ODG4UnKkIcH+D3G/I6CCg/XZSYItuJKF6pIktT2DHe
+         /jvAT2Sap8PWg0sOZr6VLnnvCMihLyMORo5EliQOQ1X/WI9bgXNObJLSjVQDbJYDBS
+         2E5gds6ntFFRixFz/uTmmvoJtfyPwiBeN/XFtAxpTOqNuD9F+vLocwoSw0UZ1z7mit
+         193DVavO7AYwQ==
+Received: by mail.craftsplex.pl for <selinux@vger.kernel.org>; Fri, 26 May 2023 08:10:31 GMT
+Message-ID: <20230526064500-0.1.6d.xtx6.0.l08g37gy3m@craftsplex.pl>
+Date:   Fri, 26 May 2023 08:10:31 GMT
+From:   "Kamil Tralewski" <kamil.tralewski@craftsplex.pl>
+To:     <selinux@vger.kernel.org>
+Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania?=
+X-Mailer: mail.craftsplex.pl
 MIME-Version: 1.0
-References: <20230511123252.723185-1-cgzones@googlemail.com>
- <CAHC9VhTcso+RTEOkGOCDxyMscznEXrUhp+quDWvATUhEzEOhRQ@mail.gmail.com> <CAJ2a_DfRGq+Cg_U7+Rsie9Bywxquu9CuMwYUGNv3+Sg9=wt9Og@mail.gmail.com>
-In-Reply-To: <CAJ2a_DfRGq+Cg_U7+Rsie9Bywxquu9CuMwYUGNv3+Sg9=wt9Og@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 25 May 2023 17:25:01 -0400
-Message-ID: <CAHC9VhSbZ5YheAVec5a=Xht85mNu6wRjeYaoqPGSiHjFP2NN6Q@mail.gmail.com>
-Subject: Re: [PATCH] security: keys: perform capable check only on privileged operations
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, May 23, 2023 at 2:33=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> On Fri, 19 May 2023 at 23:08, Paul Moore <paul@paul-moore.com> wrote:
-> > On Thu, May 11, 2023 at 8:33=E2=80=AFAM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> > >
-> > > If the current task fails the check for the queried capability via
-> > > `capable(CAP_SYS_ADMIN)` LSMs like SELinux generate a denial message.
-> > > Issuing such denial messages unnecessarily can lead to a policy autho=
-r
-> > > granting more privileges to a subject than needed to silence them.
-> > >
-> > > Reorder CAP_SYS_ADMIN checks after the check whether the operation is
-> > > actually privileged.
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > ---
-> > >  security/keys/keyctl.c | 11 ++++++++---
-> > >  1 file changed, 8 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-> > > index d54f73c558f7..19be69fa4d05 100644
-> > > --- a/security/keys/keyctl.c
-> > > +++ b/security/keys/keyctl.c
-> > > @@ -980,14 +980,19 @@ long keyctl_chown_key(key_serial_t id, uid_t us=
-er, gid_t group)
-> > >         ret =3D -EACCES;
-> > >         down_write(&key->sem);
-> > >
-> > > -       if (!capable(CAP_SYS_ADMIN)) {
-> > > +       {
-> > > +               bool is_privileged_op =3D false;
-> > > +
-> > >                 /* only the sysadmin can chown a key to some other UI=
-D */
-> > >                 if (user !=3D (uid_t) -1 && !uid_eq(key->uid, uid))
-> > > -                       goto error_put;
-> > > +                       is_privileged_op =3D true;
-> > >
-> > >                 /* only the sysadmin can set the key's GID to a group=
- other
-> > >                  * than one of those that the current process subscri=
-bes to */
-> > >                 if (group !=3D (gid_t) -1 && !gid_eq(gid, key->gid) &=
-& !in_group_p(gid))
-> > > +                       is_privileged_op =3D true;
-> > > +
-> > > +               if (is_privileged_op && !capable(CAP_SYS_ADMIN))
-> > >                         goto error_put;
-> > >         }
-> >
-> > Hmm.  Using braces just to create a new scope is a bit hacky; I'll
-> > admit to using it to quickly create new local variables, but I only do
-> > so in debug/test situations, not production code.
-> >
-> > What if you move the CAP_SYS_ADMIN check down into the if-conditional
-> > where the code checks to see if CAP_SYS_ADMIN is needed when changing
-> > the UID?  It should be possible to structure the CAP_SYS_ADMIN check
-> > such that it is only executed if needed.  It's a little more
-> > complicated in the GID case, but I believe it should be doable.
->
-> This complication I exactly wanted to avoid.  For me the inner scope
-> encapsulates the all the logic around the capability check just fine
-> and is quite readable.  An alternative would be to create a new
-> function performing the checks and call it via
->
->     if (!chown_key_capable(key, user, uid, group, gid))
->         got error_put;
->
-> A minor inconvenience is the number of needed arguments (and the
-> actual code after inlining should be the same to the inner scope in
-> the end).
+Dzie=C5=84 dobry,
 
-Well, lucky for you, Jarkko and David maintain the keys code, not me,
-and Jarkko seems to like your patch just fine :)
+zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
+=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
+o dalszych rozm=C3=B3w.=20
 
-Jarkko, I assume you'll be taking this via the keys tree?
+Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
+=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
+=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
+strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
 
---=20
-paul-moore.com
+Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
+
+Pozdrawiam
+Kamil Tralewski
