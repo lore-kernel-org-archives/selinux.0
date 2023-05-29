@@ -2,113 +2,74 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E16FC7EE2E
-	for <selinux@archiver.kernel.org>; Fri, 26 May 2023 16:42:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D11C3C7EE29
+	for <selinux@archiver.kernel.org>; Mon, 29 May 2023 13:01:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236829AbjEZQmb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 May 2023 12:42:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44182 "EHLO
+        id S229459AbjE2NB5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 May 2023 09:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236800AbjEZQm3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 May 2023 12:42:29 -0400
-X-Greylist: delayed 553 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 26 May 2023 09:42:26 PDT
-Received: from smtp-8faa.mail.infomaniak.ch (smtp-8faa.mail.infomaniak.ch [83.166.143.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B3C19C
-        for <selinux@vger.kernel.org>; Fri, 26 May 2023 09:42:26 -0700 (PDT)
-Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4QSVpc2hLFzMq9gR;
-        Fri, 26 May 2023 18:33:12 +0200 (CEST)
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4QSVpV20JTzMskdH;
-        Fri, 26 May 2023 18:33:06 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-        s=20191114; t=1685118792;
-        bh=HJQhmbmtbBhKQKuJigfXUA3I5dGt5vNd+kwPhAR19ZE=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=QqUfw9dzLlsE/jUv5i4Jbgo6yOquEH/LNulEp4j1bWACweWhxdKLOxVud95fbWB4E
-         npEnxoPtqyuJGwkskhuE2oFCSu10WcSFOgyuW8dZTYuf1lnresczWPQXS0hze8B1ou
-         boYfLZK8RC3g7VGc+V2WpOIG30d240jDxiyeRn5Q=
-Message-ID: <75b4746d-d41e-7c9f-4bb0-42a46bda7f17@digikod.net>
-Date:   Fri, 26 May 2023 18:33:05 +0200
-MIME-Version: 1.0
-User-Agent: 
-Subject: Re: [PATCH -next 0/2] lsm: Change inode_setattr() to take struct
-Content-Language: en-US
-To:     Christian Brauner <brauner@kernel.org>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
-Cc:     gregkh@linuxfoundation.org, rafael@kernel.org,
-        viro@zeniv.linux.org.uk, dhowells@redhat.com, code@tyhicks.com,
-        hirofumi@mail.parknet.co.jp, linkinjeon@kernel.org,
-        sfrench@samba.org, senozhatsky@chromium.org, tom@talpey.com,
-        chuck.lever@oracle.com, jlayton@kernel.org, miklos@szeredi.hu,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, dchinner@redhat.com,
-        john.johansen@canonical.com, mcgrof@kernel.org,
-        mortonm@chromium.org, fred@cloudflare.com, mpe@ellerman.id.au,
-        nathanl@linux.ibm.com, gnoack3000@gmail.com,
-        roberto.sassu@huawei.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        wangweiyang2@huawei.com
-References: <20230505081200.254449-1-xiujianfeng@huawei.com>
- <20230515-nutzen-umgekehrt-eee629a0101e@brauner>
-From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-In-Reply-To: <20230515-nutzen-umgekehrt-eee629a0101e@brauner>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Infomaniak-Routing: alpha
+        with ESMTP id S229659AbjE2NBk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 May 2023 09:01:40 -0400
+Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39BC4CD;
+        Mon, 29 May 2023 06:01:39 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.30.67.153])
+        by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4QVFz15Fg2z4f3nwW;
+        Mon, 29 May 2023 21:01:33 +0800 (CST)
+Received: from ubuntu1804.huawei.com (unknown [10.67.174.58])
+        by APP4 (Coremail) with SMTP id gCh0CgAHvbAuonRkVCbnKQ--.22101S4;
+        Mon, 29 May 2023 21:01:35 +0800 (CST)
+From:   Xiu Jianfeng <xiujianfeng@huaweicloud.com>
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: cleanup exit_sel_fs() declaration
+Date:   Mon, 29 May 2023 21:00:18 +0800
+Message-Id: <20230529130018.89391-1-xiujianfeng@huaweicloud.com>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID: gCh0CgAHvbAuonRkVCbnKQ--.22101S4
+X-Coremail-Antispam: 1UD129KBjvdXoWrZryxKF4UWF1fZw1DuFyDJrb_yoWfCwbE93
+        Z7Cr4kZr48ZF4Fyw1YyFn7ZF90g34xZ348W3WFqFyDXwn3ArW5G3W7JFyxJw4UGryjyrnF
+        gF17Cas7Ww1DXjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbokYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20E
+        Y4v20xvaj40_JFC_Wr1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+        A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x02
+        67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
+        0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Y
+        z7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zV
+        AF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4l
+        IxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s
+        0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsG
+        vfC2KfnxnUUI43ZEXa7IU1zuWJUUUUU==
+X-CM-SenderInfo: x0lxyxpdqiv03j6k3tpzhluzxrxghudrp/
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+exit_sel_fs() has been removed since commit f22f9aaf6c3d ("selinux:
+remove the runtime disable functionality").
 
-On 15/05/2023 17:12, Christian Brauner wrote:
-> On Fri, May 05, 2023 at 04:11:58PM +0800, Xiu Jianfeng wrote:
->> Hi,
->>
->> I am working on adding xattr/attr support for landlock [1], so we can
->> control fs accesses such as chmod, chown, uptimes, setxattr, etc.. inside
->> landlock sandbox. the LSM hooks as following are invoved:
->> 1.inode_setattr
->> 2.inode_setxattr
->> 3.inode_removexattr
->> 4.inode_set_acl
->> 5.inode_remove_acl
->> which are controlled by LANDLOCK_ACCESS_FS_WRITE_METADATA.
->>
->> and
->> 1.inode_getattr
->> 2.inode_get_acl
->> 3.inode_getxattr
->> 4.inode_listxattr
->> which are controlled by LANDLOCK_ACCESS_FS_READ_METADATA
-> 
-> It would be helpful to get the complete, full picture.
-> 
-> Piecemeal extending vfs helpers with struct path arguments is costly,
-> will cause a lot of churn and will require a lot of review time from us.
-> 
-> Please give us the list of all security hooks to which you want to pass
-> a struct path (if there are more to come apart from the ones listed
-> here). Then please follow all callchains and identify the vfs helpers
-> that would need to be updated. Then please figure out where those
-> vfs helpers are called from and follow all callchains finding all
-> inode_operations that would have to be updated and passed a struct path
-> argument. So ultimately we'll end up with a list of vfs helpers and
-> inode_operations that would have to be changed.
-> 
-> I'm very reluctant to see anything merged without knowing _exactly_ what
-> you're getting us into.
+Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+---
+ security/selinux/include/security.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-Ultimately we'd like the path-based LSMs to reach parity with the 
-inode-based LSMs. This proposal's goal is to provide users the ability 
-to control (in a complete and easy way) file metadata access. For these 
-we need to extend the inode_*attr hooks and inode_*acl hooks to handle 
-paths. The chown/chmod hooks are already good.
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 8746fafeb778..815838ba7f2a 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -384,7 +384,6 @@ struct selinux_kernel_status {
+ extern void selinux_status_update_setenforce(int enforcing);
+ extern void selinux_status_update_policyload(int seqno);
+ extern void selinux_complete_init(void);
+-extern void exit_sel_fs(void);
+ extern struct path selinux_null;
+ extern void selnl_notify_setenforce(int val);
+ extern void selnl_notify_policyload(u32 seqno);
+-- 
+2.17.1
 
-In the future, I'd also like to be able to control directory traversals 
-(e.g. chdir), which currently only calls inode_permission().
-
-What would be the best way to reach this goal?
