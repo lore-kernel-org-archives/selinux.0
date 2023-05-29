@@ -2,237 +2,94 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78B07C77B7A
-	for <selinux@archiver.kernel.org>; Mon, 29 May 2023 14:06:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50072C77B7A
+	for <selinux@archiver.kernel.org>; Mon, 29 May 2023 16:18:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230262AbjE2OGj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 May 2023 10:06:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47784 "EHLO
+        id S229551AbjE2QSF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 May 2023 12:18:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230248AbjE2OGf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 May 2023 10:06:35 -0400
+        with ESMTP id S229486AbjE2QSD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 May 2023 12:18:03 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8EAE5
-        for <selinux@vger.kernel.org>; Mon, 29 May 2023 07:05:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85B4BE
+        for <selinux@vger.kernel.org>; Mon, 29 May 2023 09:17:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685369132;
+        s=mimecast20190719; t=1685377034;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=Z+rrwHN03QPS6TAetT3cVJlQgmklbmOfMVH/q5lnNv0=;
-        b=OU4M2h9LIvLCAyHdbqzQO1JdPyHx4TTN9ziLqoSY+Hgx6YHYmPdN40oYv/KRFYryAxj2wc
-        km2D4wbW/V+nljp/voXHEEwfPBXDqaIUiTeBJV6JJjC1P71bSesn4dVnqpCNMYPUQR9YVl
-        4duz7rUQ9Gzc5aeiYNtc1VKUHNllr7g=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-59-VQi0j4AsNH-gC7ftVv2-0g-1; Mon, 29 May 2023 10:05:31 -0400
-X-MC-Unique: VQi0j4AsNH-gC7ftVv2-0g-1
-Received: by mail-ed1-f70.google.com with SMTP id 4fb4d7f45d1cf-513f4c301e8so3469827a12.2
-        for <selinux@vger.kernel.org>; Mon, 29 May 2023 07:05:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685369130; x=1687961130;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Z+rrwHN03QPS6TAetT3cVJlQgmklbmOfMVH/q5lnNv0=;
-        b=SSTafPs4a/+/xcfLUzOeCaECE+pedo/k1nHm2Io7OmofRWHKzqyt7cjjI97+kLUi8y
-         Ftht1hykRwK0rgj5TJLHvP/b0NLoKFjFPznCUd7JkfxlBiF1I8AqOEl3VatR5/tJMf/w
-         EH0E5VoPpcU1bMfmvWuWhqcm+4Y+sfbWmdO0l/D4lDNJeINXLyA1s1GOA9Axlk3EXvrX
-         WcJmKPioYDYnlFub7xXhDup9ohwhiXwwBEpsmHiNkb8f9tE8Bu7lVgNWleIfCNSFbX3Q
-         sG0m6NEv8KyMjwGnexfz49ujpSNuXFUXaoGWGtTY7lRkDb8v5AbiN5OFb+yJ39B0uPSA
-         zffw==
-X-Gm-Message-State: AC+VfDxNpXCJxJd4KF2o2kRmOkvUJcAqQoc0dF2cIVb4X30nru5EwKKO
-        wpkNsmceOHT1laAAtgBoE5Lle6OmxiFlbMoTNT59rGH1NYFj8pB5NQEtjsIe943L5FpD0c/Dxql
-        6b+jmx0XD/2Ug3OicqQ==
-X-Received: by 2002:a05:6402:128a:b0:514:a5f7:a6d1 with SMTP id w10-20020a056402128a00b00514a5f7a6d1mr1023557edv.1.1685369130245;
-        Mon, 29 May 2023 07:05:30 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ6BVTv/vNlk+GNBLP9/KnNH3y8jD+JkOXokGh6P5yxpManP78VN1nCJFoTE1H/HG92XEd2H6w==
-X-Received: by 2002:a05:6402:128a:b0:514:a5f7:a6d1 with SMTP id w10-20020a056402128a00b00514a5f7a6d1mr1023540edv.1.1685369129968;
-        Mon, 29 May 2023 07:05:29 -0700 (PDT)
-Received: from localhost.localdomain ([2a02:8308:b104:2c00:2e8:ec99:5760:fb52])
-        by smtp.gmail.com with ESMTPSA id y24-20020aa7d518000000b005149e90115bsm1082330edq.83.2023.05.29.07.05.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 May 2023 07:05:29 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, linux-nfs@vger.kernel.org,
-        Scott Mayhew <smayhew@redhat.com>
-Subject: [PATCH] selinux: make labeled NFS work when mounted before policy load
-Date:   Mon, 29 May 2023 16:05:27 +0200
-Message-Id: <20230529140527.901242-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.40.1
+        bh=Nd++fIaXD+2Rv1UVAccR801JwRsbfugnBa7t9MSJA7g=;
+        b=Irm/6KpDPGFeopKq2dCozabKdcM2BDkD6NGq0n3E9xwFUv18DRoX2Tg5YLjloQDz8A2BbF
+        8/eS2jv5SQf+f3jMU+OSXRvtPGlHaz3Linpq/0KGqWMI1eiQIMJZBt0rtZJbsEXPifdCBO
+        80B8QhSCSphOLFOd4hukshH2EUlPFZc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-589-ALAqaRSLN7SBVuRBhHrpJA-1; Mon, 29 May 2023 12:17:07 -0400
+X-MC-Unique: ALAqaRSLN7SBVuRBhHrpJA-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BC2EB101A53A
+        for <selinux@vger.kernel.org>; Mon, 29 May 2023 16:17:06 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.225.101])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 571F048205E
+        for <selinux@vger.kernel.org>; Mon, 29 May 2023 16:17:06 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] python/sepolicy: Add/remove user even when SELinux is disabled
+Date:   Mon, 29 May 2023 18:17:02 +0200
+Message-Id: <20230529161702.1920540-1-vmojzis@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Currently, when an NFS filesystem that supports passing LSM/SELinux
-labels is mounted during early boot (before the SELinux policy is
-loaded), it ends up mounted without the labeling support (i.e. with
-Fedora policy all files get the generic NFS label
-system_u:object_r:nfs_t:s0).
+Use "semanage user -a/-d" in spec file generated by "sepolicy generate"
+even when SELinux is disabled. The command works properly when SELinux
+is disabled and with this change the user will be present once SELinux
+is re-enabled.
+Also, do not execute the command when the package is updated, only when
+it is first installed.
 
-This is because the information that the NFS mount supports passing
-labels (communicated to the LSM layer via the kern_flags argument of
-security_set_mnt_opts()) gets lost and when the policy is loaded the
-mount is initialized as if the passing is not supported.
-
-Fix this by noting the "native labeling" in newsbsec->flags (using a new
-SE_SBNATIVE flag) on the pre-policy-loaded call of
-selinux_set_mnt_opts() and then making sure it is respected on the
-second call from delayed_superblock_init().
-
-Additionally, make inode_doinit_with_dentry() initialize the inode's
-label from its extended attributes whenever it doesn't find it already
-intitialized by the filesystem. This is needed to properly initialize
-pre-existing inodes when delayed_superblock_init() is called. It should
-not trigger in any other cases (and if it does, it's still better to
-initialize the correct label instead of leaving the inode unlabeled).
-
-Fixes: eb9ae686507bc5 ("SELinux: Add new labeling type native labels")
-Tested-by: Scott Mayhew <smayhew@redhat.com>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- security/selinux/hooks.c            | 58 ++++++++++++++++++++---------
- security/selinux/include/security.h |  1 +
- 2 files changed, 42 insertions(+), 17 deletions(-)
+ python/sepolicy/sepolicy/templates/spec.py | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 99ded60a6b911..d600616a9e6d1 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -605,6 +605,13 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	u32 defcontext_sid = 0;
- 	int rc = 0;
+diff --git a/python/sepolicy/sepolicy/templates/spec.py b/python/sepolicy/sepolicy/templates/spec.py
+index 16a22081..433c298a 100644
+--- a/python/sepolicy/sepolicy/templates/spec.py
++++ b/python/sepolicy/sepolicy/templates/spec.py
+@@ -43,20 +43,23 @@ install -m 644 %{SOURCE3} %{buildroot}/etc/selinux/targeted/contexts/users/DOMAI
  
-+	/*
-+	 * Specifying internal flags without providing a place to
-+	 * place the results is not allowed
-+	 */
-+	if (kern_flags && !set_kern_flags)
-+		return -EINVAL;
-+
- 	mutex_lock(&sbsec->lock);
+ %post
+ semodule -n -i %{_datadir}/selinux/packages/MODULENAME.pp
++# Add the new user defined in DOMAINNAME_u only when the package is installed (not during updates)
++if [ $1 -eq 1 ]; then
++    /usr/sbin/semanage user -a -R DOMAINNAME_r DOMAINNAME_u
++fi
+ if /usr/sbin/selinuxenabled ; then
+     /usr/sbin/load_policy
+     %relabel_files
+-    /usr/sbin/semanage user -a -R DOMAINNAME_r DOMAINNAME_u
+ fi;
+ exit 0
  
- 	if (!selinux_initialized()) {
-@@ -612,6 +619,10 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			/* Defer initialization until selinux_complete_init,
- 			   after the initial policy is loaded and the security
- 			   server is ready to handle calls. */
-+			if (kern_flags & SECURITY_LSM_NATIVE_LABELS) {
-+				sbsec->flags |= SE_SBNATIVE;
-+				*set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
-+			}
- 			goto out;
- 		}
- 		rc = -EINVAL;
-@@ -619,12 +630,6 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			"before the security server is initialized\n");
- 		goto out;
- 	}
--	if (kern_flags && !set_kern_flags) {
--		/* Specifying internal flags without providing a place to
--		 * place the results is not allowed */
--		rc = -EINVAL;
--		goto out;
--	}
- 
- 	/*
- 	 * Binary mount data FS will come through this function twice.  Once
-@@ -757,7 +762,17 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 * sets the label used on all file below the mountpoint, and will set
- 	 * the superblock context if not already set.
- 	 */
--	if (kern_flags & SECURITY_LSM_NATIVE_LABELS && !context_sid) {
-+	if (sbsec->flags & SE_SBNATIVE) {
-+		/*
-+		 * This means we are initializing a superblock that has been
-+		 * mounted before the SELinux was initialized and the
-+		 * filesystem requested native labeling. We had already
-+		 * returned SECURITY_LSM_NATIVE_LABELS in *set_kern_flags
-+		 * in the original mount attempt, so now we just need to set
-+		 * the SECURITY_FS_USE_NATIVE behavior.
-+		 */
-+		sbsec->behavior = SECURITY_FS_USE_NATIVE;
-+	} else if (kern_flags & SECURITY_LSM_NATIVE_LABELS && !context_sid) {
- 		sbsec->behavior = SECURITY_FS_USE_NATIVE;
- 		*set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
- 	}
-@@ -868,13 +883,6 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
- 	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
- 	int set_rootcontext =	(oldsbsec->flags & ROOTCONTEXT_MNT);
- 
--	/*
--	 * if the parent was able to be mounted it clearly had no special lsm
--	 * mount options.  thus we can safely deal with this superblock later
--	 */
--	if (!selinux_initialized())
--		return 0;
--
- 	/*
- 	 * Specifying internal flags without providing a place to
- 	 * place the results is not allowed.
-@@ -882,18 +890,31 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
- 	if (kern_flags && !set_kern_flags)
- 		return -EINVAL;
- 
-+	mutex_lock(&newsbsec->lock);
-+
-+	/*
-+	 * if the parent was able to be mounted it clearly had no special lsm
-+	 * mount options.  thus we can safely deal with this superblock later
-+	 */
-+	if (!selinux_initialized()) {
-+		if (kern_flags & SECURITY_LSM_NATIVE_LABELS) {
-+			newsbsec->flags |= SE_SBNATIVE;
-+			*set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
-+		}
-+		goto out;
-+	}
-+
- 	/* how can we clone if the old one wasn't set up?? */
- 	BUG_ON(!(oldsbsec->flags & SE_SBINITIALIZED));
- 
- 	/* if fs is reusing a sb, make sure that the contexts match */
- 	if (newsbsec->flags & SE_SBINITIALIZED) {
-+		mutex_unlock(&newsbsec->lock);
- 		if ((kern_flags & SECURITY_LSM_NATIVE_LABELS) && !set_context)
- 			*set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
- 		return selinux_cmp_sb_context(oldsb, newsb);
- 	}
- 
--	mutex_lock(&newsbsec->lock);
--
- 	newsbsec->flags = oldsbsec->flags;
- 
- 	newsbsec->sid = oldsbsec->sid;
-@@ -1394,8 +1415,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 	spin_unlock(&isec->lock);
- 
- 	switch (sbsec->behavior) {
-+	/*
-+	 * In case of SECURITY_FS_USE_NATIVE we need to re-fetch the labels
-+	 * via xattr when called from delayed_superblock_init().
-+	 */
- 	case SECURITY_FS_USE_NATIVE:
--		break;
- 	case SECURITY_FS_USE_XATTR:
- 		if (!(inode->i_opflags & IOP_XATTR)) {
- 			sid = sbsec->def_sid;
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 8746fafeb7789..0b9c2c25413ba 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -65,6 +65,7 @@
- #define SE_SBPROC		0x0200
- #define SE_SBGENFS		0x0400
- #define SE_SBGENFS_XATTR	0x0800
-+#define SE_SBNATIVE		0x1000
- 
- #define CONTEXT_STR	"context"
- #define FSCONTEXT_STR	"fscontext"
+ %postun
+ if [ $1 -eq 0 ]; then
++    /usr/sbin/semanage user -d DOMAINNAME_u
+     semodule -n -r MODULENAME
+     if /usr/sbin/selinuxenabled ; then
+        /usr/sbin/load_policy
+        %relabel_files
+-       /usr/sbin/semanage user -d DOMAINNAME_u
+     fi;
+ fi;
+ exit 0
 -- 
-2.40.1
+2.40.0
 
