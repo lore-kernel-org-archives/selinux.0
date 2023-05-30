@@ -2,102 +2,76 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9925C7EE23
-	for <selinux@archiver.kernel.org>; Tue, 30 May 2023 17:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47649C77B73
+	for <selinux@archiver.kernel.org>; Tue, 30 May 2023 20:44:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230527AbjE3Rva (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 May 2023 13:51:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42250 "EHLO
+        id S231590AbjE3UoH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 May 2023 16:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230234AbjE3Rv3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 May 2023 13:51:29 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E92A3
-        for <selinux@vger.kernel.org>; Tue, 30 May 2023 10:51:28 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-4f004cc54f4so5501246e87.3
-        for <selinux@vger.kernel.org>; Tue, 30 May 2023 10:51:28 -0700 (PDT)
+        with ESMTP id S230193AbjE3UoG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 May 2023 16:44:06 -0400
+Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B329599
+        for <selinux@vger.kernel.org>; Tue, 30 May 2023 13:44:03 -0700 (PDT)
+Received: by mail-qk1-x733.google.com with SMTP id af79cd13be357-75b0df81142so572003985a.2
+        for <selinux@vger.kernel.org>; Tue, 30 May 2023 13:44:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685469086; x=1688061086;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Dh45W9PPwbbi7lkwe0OaYM9t3xbsxLWv1PhZOLo6h/o=;
-        b=f8I9Qboal0VHeWZHnJDR538l45x6ra+te+ERY+fX93ZeqUeh1/HCW+gb/8CmNwQgE7
-         wV6V8J5bM8PrXkeBaPbmIp7dC2GqyrAp72x8usuCkE/92RLfVu2T3WEXuibpMxE8JFmc
-         eIpexr0PnoIjNDloZj2aWemxOVfs7Q5duf2BCRgjMqFXEkyYgtE3cCbEoo2qgYOQUP1f
-         3fnZG3fqNAyMZDNkvfOEExiSgMeTVj3UPwOrPB6/9PG0DG/Abd7eNS564h9AueZXQA/m
-         Gyi+AZVAFH09Y7/F4J5m0ConXvLWl7Z+2rTPEOqMEMfQFiWPSr5VFb79vNvqOot0m9Lg
-         tdNw==
+        d=paul-moore.com; s=google; t=1685479443; x=1688071443;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=p3b6DJXDHbh5GF3m9xX7f8I5wETK6FJ7eZD5W780N34=;
+        b=H8aFyZm3Qhu8NIYvE1PRPnX288KvaYVZZXkoFuMHVfJqFodJ5I7+uxHp3Gtj0CJTzE
+         TbTKl/nZUghbEzPW8yYzymxrBjiFDLmxyuXBxD2KpcFqRaaQqHa4rtJiRWrzND50AGAp
+         CvBbnVex8eVuiT3ydy+eknz0OivaSFH3IbQEtM8On+3WtBaqbfQA/5R4asixjaHLD/K9
+         w89M6yUQyavCuKSAqrGhpuO6p+BAfVwP945XC9m90O7MRpjTTqY2uNxeVzeudrPtIyJX
+         Xmm+Kv5EaYwd9K55z7cfpovLQqtS/Mnc0sj8hHrca9cVOjaYU96qo2z4B4KQ2xBbZEp9
+         I1nA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685469086; x=1688061086;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Dh45W9PPwbbi7lkwe0OaYM9t3xbsxLWv1PhZOLo6h/o=;
-        b=V3m2tWgu1a/MJQWQIHEhGifZX6XF5KdQhAGOlOMwIrY5+nMj9Bw3iy1m7nYzkKMJ2v
-         gN9qM5SReVtsP4WB8W6fBCe30ClFDkWDnJItez3oRSRyb5IA9jQeXyqj+tBmFvKb0ubG
-         gX09Dud5ReSeUXruCY7NwVOlh/VUEbYcEGTWO/xHThaMg6QzVMro+6OnRo+keAuT+xtZ
-         BPQPsYpSxt33Z3v9B/8wlwAd81kdcoOkJrEyyQM5q7mq984wCy08rxbnLATCAjSoC5aK
-         OtF9SD5efVd2djOMzlh9nmoDKSwGchOzdxJEfSdVdoJzgAU0rWlCCyUMZeIITRwIC/35
-         7Akw==
-X-Gm-Message-State: AC+VfDx0U3sCcqB5clB50CDNLe6O7rv824NlHpzfeY3Znwu1INYT353B
-        w2VkQ4CENBSBALxRiJ5Q7w8m/hmKRkc=
-X-Google-Smtp-Source: ACHHUZ7P/kUi8A43+9UAGjQyuKJOJ6/etTd6uWZOvq70/j61vdNe3JgLHS4lkx4Qb8Bs5/S0H+/phQ==
-X-Received: by 2002:ac2:4829:0:b0:4f3:8f3a:f98d with SMTP id 9-20020ac24829000000b004f38f3af98dmr1246807lft.45.1685469086010;
-        Tue, 30 May 2023 10:51:26 -0700 (PDT)
-Received: from localhost.localdomain (91-159-144-182.elisa-laajakaista.fi. [91.159.144.182])
-        by smtp.gmail.com with ESMTPSA id o10-20020ac2494a000000b004eff1f7f206sm412871lfi.9.2023.05.30.10.51.25
+        d=1e100.net; s=20221208; t=1685479443; x=1688071443;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=p3b6DJXDHbh5GF3m9xX7f8I5wETK6FJ7eZD5W780N34=;
+        b=b2UjbZTvN0JIPikgfPz36Ru2Y5yfmSso+bmGgG7x72MFo7IOrb/6uQWSG/n6aiMpmo
+         aqKp1pwxwtiHdunxNNSSdQjM9zm5L8TTpYjxWxdGLru7cfQ7WxV6xTYbhfPp9jygKUCS
+         EzFuGoXi6TRPzUuVtrfYu2K5Vpht13u91MU6nostcr8XgY1ICHkJ3O/QeVXdlRLCXyaX
+         D1Lu+Eq693tqOA1rEgt9kW9gYZgXm+uVw3C5WsBhGjyl8Le+S11f5I6g0DxpS5EtYYrv
+         JrcebNTCBjZutCl3grpxD+n9jrUYNGS7IFsucu+VdS/8cFJGqOxwk/J/oJSr96FZReZF
+         Ta1A==
+X-Gm-Message-State: AC+VfDxD4cWu3pTL3DyLA2F5qoB6pZFCl+yc7HIRkgtw/Auqu/wFCDJa
+        1tl5y7q3O89nthdETLukVGr5
+X-Google-Smtp-Source: ACHHUZ6f1GRV0UvgvtPovTzxRNuNEYf9LHwcVykqRhwmJG0WLF3q48vPcI++gmwVj4HdFGuZNETV/A==
+X-Received: by 2002:a05:620a:8c93:b0:75b:23a0:de93 with SMTP id ra19-20020a05620a8c9300b0075b23a0de93mr3049981qkn.17.1685479442851;
+        Tue, 30 May 2023 13:44:02 -0700 (PDT)
+Received: from localhost (pool-108-26-161-203.bstnma.fios.verizon.net. [108.26.161.203])
+        by smtp.gmail.com with ESMTPSA id j2-20020a05620a146200b00759300a1ef9sm4409270qkl.31.2023.05.30.13.44.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 May 2023 10:51:25 -0700 (PDT)
-From:   Topi Miettinen <toiwoton@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH PR#394] semanage: list all ports even if not attributed with port_type
-Date:   Tue, 30 May 2023 20:49:30 +0300
-Message-Id: <20230530174929.10325-1-toiwoton@gmail.com>
-X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tue, 30 May 2023 13:44:02 -0700 (PDT)
+Date:   Tue, 30 May 2023 16:44:01 -0400
+Message-ID: <cdf6d7b33765b8509a6a700175f0fa09.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     Xiu Jianfeng <xiujianfeng@huaweicloud.com>,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: cleanup exit_sel_fs() declaration
+References: <20230529130018.89391-1-xiujianfeng@huaweicloud.com>
+In-Reply-To: <20230529130018.89391-1-xiujianfeng@huaweicloud.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Show also ports which are not attributed with `port_type`. Such ports
-may exist in custom policies and even the attribute `port_type` may
-not be defined.
+On May 29, 2023 Xiu Jianfeng <xiujianfeng@huaweicloud.com> wrote:
+> 
+> exit_sel_fs() has been removed since commit f22f9aaf6c3d ("selinux:
+> remove the runtime disable functionality").
+> 
+> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+> ---
+>  security/selinux/include/security.h | 1 -
+>  1 file changed, 1 deletion(-)
 
-This fixes the following error:
+Merged into selinux/next, thanks.
 
-Traceback (most recent call last):
-  File "/usr/sbin/semanage", line 975, in <module>
-    do_parser()
-  File "/usr/sbin/semanage", line 947, in do_parser
-    args.func(args)
-  File "/usr/sbin/semanage", line 441, in handlePort
-    OBJECT = object_dict['port'](args)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/seobject.py", line 1057, in __init__
-    self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
-                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
-
-Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
----
- python/semanage/seobject.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index d82da494..72a2ec55 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -1055,7 +1055,7 @@ class portRecords(semanageRecords):
-     def __init__(self, args = None):
-         semanageRecords.__init__(self, args)
-         try:
--            self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
-+            self.valid_types = list(list(sepolicy.info(sepolicy.PORT))[0]["type"])
-         except RuntimeError:
-             pass
- 
--- 
-2.39.2
-
+--
+paul-moore.com
