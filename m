@@ -2,378 +2,116 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFDDFC7EE23
-	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 14:18:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88052C7EE31
+	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 14:20:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236631AbjEaOSW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 May 2023 10:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60132 "EHLO
+        id S232018AbjEaOUH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 May 2023 10:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236656AbjEaOSJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 10:18:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E677E1BF9
-        for <selinux@vger.kernel.org>; Wed, 31 May 2023 07:15:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685542455;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=N7+krhBrrNU4RjI+OyZ0K0PQOT2H9Zwj5a0/Jw6aGh4=;
-        b=IyZzgmyvp8a+ls9a4h/XzRwjqfBg/eTthFhZFS66IKpe/UuOANFUOQ+uvPAbBSKi5RJQR/
-        HaSIfWe8lwhI22h6tWKudMmkYDX5MPGXDHf3pcs5rNsG4CEfC7ubScDlZ+nxrtlPM0O6UT
-        xaMfc0VFVk+xp0a12WfyugiB575Hvec=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-510-i1hPn1BuO7OSRqNK-OjH7Q-1; Wed, 31 May 2023 10:14:14 -0400
-X-MC-Unique: i1hPn1BuO7OSRqNK-OjH7Q-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 38DE6811E7C
-        for <selinux@vger.kernel.org>; Wed, 31 May 2023 14:14:14 +0000 (UTC)
-Received: from localhost (unknown [10.45.226.160])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B874F40C6CD0;
-        Wed, 31 May 2023 14:14:13 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH 1/5] policycoreutils: Add examples to man pages
-In-Reply-To: <20230524111535.1743163-1-vmojzis@redhat.com>
-References: <20230524111535.1743163-1-vmojzis@redhat.com>
-Date:   Wed, 31 May 2023 16:14:12 +0200
-Message-ID: <874jnslhaj.fsf@redhat.com>
+        with ESMTP id S231436AbjEaOTa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 10:19:30 -0400
+Received: from sonic311-29.consmr.mail.ne1.yahoo.com (sonic311-29.consmr.mail.ne1.yahoo.com [66.163.188.210])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B2410CB
+        for <selinux@vger.kernel.org>; Wed, 31 May 2023 07:18:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1685542634; bh=u06wsoXDKdLhDwBL6GQjdUhNEcg8dn6HnYPO197Z4ZY=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=uTl2NPF0uY45Lh47ZMmSIPqHz12daNS0NgeNKiReY8eyrxDDrfTQcgiz4NnQWUNQW7F1MwuSDHW9ZpVyLJqKOHJPOz/6KCpO4nKGd5BVNbzRyKmJHyu80qxzU/KEvZHBOfLp6u/SJMgRS0b0pLcN8zO52SWl1YDRCuA2SaotQ3TXufEATP7RYyKZYnLWthOz2EVCLnd2aIr7rdJVTCDb3fvEe/oQHsU+l8nHuw+OTcr/AF+gsikWYq13eAlw1UEkTq5PNC3MECGdLjrjmklJLYIaf8/CDVL5UuQVhvmo7Bzp6nE4UogviP7f3QRdcwQxCbsQypmHU8PKuSDA+WRWnQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1685542634; bh=In52hxvGcGscBnK4YcfxGoJg05ahXzVDO4vWcIkg9zX=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=FZcoenma9wFmozb+7JbcPV2PcIO/+4pT7+0R3axAr1SRbtx7EI4JAlM/1BveGMIbY5/tsB7TSdMdDoPO635kk3pi4OH2yXPwQL9RGvoIBv+SGfINgAwDfdKoKx50N5kV0s0L2STPyKq7F7FzFebllYJEYJ3uo5NUAHsE2hEpixpnCq+vJOongrz1lr2O5immV+bFN2Bw03Q6hv43aBYMle/pRgjoqhWpfI6aO9u9sYPrvKq0k91adtMIH2cpfvckSuHxsStj/3CaZJ7acD5JASKu7FwJe6R4fuSCz+LDohr6Vir2j/LSuECeSdR73HaRKDE6jPOUDMmA2yQE5Vv4QA==
+X-YMail-OSG: YS2OiOgVM1kmwmgmji0DUz5dLhGzTb5Z198M4.LCNKObOZhn4oZZvKSnFZmfrxY
+ UN6hR2P.A3qTmfVVDLFNYjn5QLt.nWYU8UGVZqmdVBdYYliraQ4peiZ_mZcfzn3.A8K3FJVwas4G
+ KCkturum0T2vml6moo5VB_FFFCpq9blIh4jyzDm553j1p2bCA71u8R6jlUzlpTIt_AfZPJNoCA__
+ H0qDyP0SzecdXb8h5oqmF9l3hveY.Oscf_4EXTa6rBmRoFDSjkoq8QSewWZX3XufbrpnwqTtTVUw
+ 5P4lE4bm8YEuzhtOqPLNsFHy8ALL9jifaNIHQeYWomRilT54uVLHQBjcs2PUTQk9EBgGFm1Rmmdt
+ B4KynaXuuw1_MkEUIlciCaFkiDKBTKzMlbGg2PyiNrmZEinAVHVh7PTVCsbfiMwSBRjXxhjqgdSt
+ ukLyssbUujJcgQLRcitba21rG1jjuK3FNCDPagA7f.v1IE_d76aBghD7vp8dhcSs2aiicgjLXhtp
+ 0KsakzlYZyz0O0sTeXe_c2ac9GCL_AlpGd9TzKiouagsNT9CCDbgbIU.MKNYAOMcAo1l7PChe4iE
+ zSTIZcZEnzmTx1Cwxy.VgFIeEXgxMD22KonFWwq1k8lyWC7isb9.8czYhGHqT4KuTjcg.fGOd.p5
+ PcYFKBOQm0244ErDybsrwRrRoYWLFQcFq5ZM3_akYqobgfpsqw1KPRGneQQA8Nz3fja7n6GUbi.0
+ sF3GEfazRl_OkzU9pLsL2tvFb2oo4cLKB9oLJQvfOMX5PVv6KquqCIGB9kQFvpCtGrDQpkhF9uwO
+ zByidQDBEvSU.ktIviMPVxB1aqq5pcdpQkfsVS.cPz9SKVqFZQ661XuWjjPg9Kgp3e9M0POOl4R1
+ rXvZJb_zS8HqbT.vWYysdJ5KhAGE6Iz5wlVivG2pXjXNGRJpLUOvz25viKevlGxdtO7j48C9FwUS
+ bJG0rsEKsL62VVoxF4PuMPsAyFj9B5XdmQL_8uEABBVfXBEFeiB26z7FB0vJ0a3YZ_uSrDioHI9k
+ nkQITYnz2FAAVrFLOcedWIc8xj4iPYDkkLJIqyno6KmWYiZQrQLAJWx4iOGKg72Fg2ihfubvT85r
+ fbelkwhNU7S814bNZoeXzHHJKHNqpW.SVpzgloR_rWwPhwopW2hv5P4zcV3N_BNwZ7hVDUwn0TBZ
+ TrnvLMAvHMzsjtYBAkpZE19ZH6b0R_qDTh95G_nF7DgX7oBkCp0lgN96yAmR9uxkxgRJGLxycFN5
+ I9iuict_MkQhlkgXJ3Z0HtOrvP.Eg6jO5tzPRE9zS23fN.zQb5mWCTkZO5tTD6f0v0gWiR4Ipy.Q
+ WP4x.2R7E5ZW4bBZ4Dyh_CmcklfnK6Xd5b6p3XFXwPn0iSWp1EyX7y7eKWSqjAzLG9e4sLtj4Ms8
+ OA9jegw6OLMyuMrqCGCN6aJ6mlG6jhFhiPgl8AkiPLFOD.KEoqO4IkMnkBE_cyF3EpqnDZOqHnbS
+ 1eg3T_W027MlCxYxaQnjXm3ovfPg3S2zbHe4E2Su6n5D7vpK_pcTsL.VBJP7M31FkZABOboMXUl8
+ 9OjG9feh6TKi7q1wcG4iNFhgeOlXfcxzG.1zgrTbib79_ZBbsgsob9dNCzCFEZkf8dhcXeqBGA8D
+ 35Re5Hm2sZgi1YAJK0qvF5hPlMFmciJVbhlYm9hDa50iGdskBZoLcn1SJFHjx6yxBNbXWnD2vqiX
+ zMwjsMNeICbbzvVLzWiA7iHhQ1jUvnKO8xGwQXjGy3b8CA2wQ6LOf4G2wabay9gwtSzKpAoNCRwf
+ 2903ZRu3jb1qoz3OXVdKb6G9phej1Yr1.G2LnSPYfiZGYNhFEsRXWF9JMI7IEX2TGbS6Yy4brrPf
+ TNrZ4dFaKP1cNxLBT7tQKWqHopat3VrDLHWs0pfcgBKvk1wJjWiVZuRPdMtlQ5m.YBhpcT3KeubG
+ 2Nddz9SCkTCdE9dLB6PQOLpd6IfCLw9clJNhKfccV1hvMEJ6B0Si2Dm5lG6ehw0.HhcC61YrSuNo
+ MZTp9MbC.z0KejFZeSUufaJa.0QwifMQkyjMV7LWTZnp.fo2C2RYgPyxqZCc46kXctvazZO.6WuD
+ 2puR7R75dq8bRw77TcUQ.gG1I6Lv4sdt8Fxf84nPpOLxQ0VR_kRW.3StmliYVsqwshi_2FIMrC.i
+ JraN9OfrRBrDGTnKPvU4OpTs8nRiDZNPm.CboKKDWSWk6uMsAXNkpyxWW7dRodvE1zI1oKKFsniL
+ 0ArNumaHMH7b9R6glIEZlbmcJ3zn.5mQyOhh0J4YxJszoanvccTV_P02lqJGioEc-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 4d60b986-7ed3-4d05-823c-5d7a7b7466b1
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 31 May 2023 14:17:14 +0000
+Received: by hermes--production-ne1-574d4b7954-bq277 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 174ebacd8784abefa7ff5b7a2ade66e9;
+          Wed, 31 May 2023 14:17:11 +0000 (UTC)
+Message-ID: <cbd61b82-43e1-ad4d-e984-775f1209948c@schaufler-ca.com>
+Date:   Wed, 31 May 2023 07:17:08 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH -next 0/2] lsm: Change inode_setattr() to take struct
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8?= =?UTF-8?Q?n?= <mic@digikod.net>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        viro@zeniv.linux.org.uk, dhowells@redhat.com, code@tyhicks.com,
+        hirofumi@mail.parknet.co.jp, linkinjeon@kernel.org,
+        sfrench@samba.org, senozhatsky@chromium.org, tom@talpey.com,
+        chuck.lever@oracle.com, jlayton@kernel.org, miklos@szeredi.hu,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        dchinner@redhat.com, john.johansen@canonical.com,
+        mcgrof@kernel.org, mortonm@chromium.org, fred@cloudflare.com,
+        mpe@ellerman.id.au, nathanl@linux.ibm.com, gnoack3000@gmail.com,
+        roberto.sassu@huawei.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        wangweiyang2@huawei.com, Casey Schaufler <casey@schaufler-ca.com>
+References: <20230505081200.254449-1-xiujianfeng@huawei.com>
+ <20230515-nutzen-umgekehrt-eee629a0101e@brauner>
+ <75b4746d-d41e-7c9f-4bb0-42a46bda7f17@digikod.net>
+ <20230530-mietfrei-zynisch-8b63a8566f66@brauner>
+ <20230530142826.GA9376@lst.de>
+ <301a58de-e03f-02fd-57c5-1267876eb2df@schaufler-ca.com>
+ <20230531132200.GB30016@lst.de>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20230531132200.GB30016@lst.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21495 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Vit Mojzis <vmojzis@redhat.com> writes:
+On 5/31/2023 6:22 AM, Christoph Hellwig wrote:
+> On Tue, May 30, 2023 at 07:55:17AM -0700, Casey Schaufler wrote:
+>> Which LSM(s) do you think ought to be deprecated?
+> I have no idea.  But what I want is less weirdo things messing with
+> VFS semantics.
 
-> While at it, remove trailing whitespaces.
+I am curious what you consider a weirdo thing done by LSMs. Things like
+io_uring are much stranger than anything an LSM does.
+
 >
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>> I only see one that I
+>> might consider a candidate. As for weird behavior, that's what LSMs are
+>> for, and the really weird ones proposed (e.g. pathname character set limitations)
+>> (and excepting for BPF, of course) haven't gotten far.
+> They haven't gotten far for a reason usually.  Trying to sneak things in
+> through the back door is exactly what is the problem with LSMs.
 
-See my comments bellow.
+Mostly developers play by the rules, and we don't let things sneak in. 
 
-> ---
->  policycoreutils/scripts/fixfiles.8          | 35 +++++++++++++--------
->  policycoreutils/secon/secon.1               | 12 +++++--
->  policycoreutils/semodule/semodule.8         | 14 ++++-----
->  policycoreutils/setfiles/restorecon.8       |  9 ++++++
->  policycoreutils/setfiles/restorecon_xattr.8 |  7 +++++
->  policycoreutils/setfiles/setfiles.8         |  9 ++++++
->  policycoreutils/setsebool/setsebool.8       | 16 +++++++---
->  7 files changed, 75 insertions(+), 27 deletions(-)
->
-> diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
-> index 9a317d91..2365df19 100644
-> --- a/policycoreutils/scripts/fixfiles.8
-> +++ b/policycoreutils/scripts/fixfiles.8
-> @@ -14,7 +14,7 @@ fixfiles \- fix file SELinux security contexts.
->  .B fixfiles
->  .I [\-v] [\-F] [\-B | \-N time ] [\-T nthreads] { check | restore | verify }
->  
-> -.B fixfiles 
-> +.B fixfiles
->  .I [\-v] [\-F] [\-T nthreads] \-R rpmpackagename[,rpmpackagename...] { check | restore | verify }
->  
->  .B fixfiles
-> @@ -31,7 +31,7 @@ This manual page describes the
->  script.
->  .P
->  This script is primarily used to correct the security context
-> -database (extended attributes) on filesystems.  
-> +database (extended attributes) on filesystems.
->  .P
->  It can also be run at any time to relabel when adding support for
->  new policy, or  just check whether the file contexts are all
-> @@ -41,29 +41,29 @@ option.  You can use the \-R flag to use rpmpackages as an alternative.
->  The file /etc/selinux/fixfiles_exclude_dirs can contain a list of directories
->  excluded from relabeling.
->  .P
-> -.B fixfiles onboot 
-> +.B fixfiles onboot
->  will setup the machine to relabel on the next reboot.
->  
->  .SH "OPTIONS"
-> -.TP 
-> +.TP
->  .B \-B
->  If specified with onboot, this fixfiles will record the current date in the /.autorelabel file, so that it can be used later to speed up labeling. If used with restore, the restore will only affect files that were modified today.
->  .TP
->  .B \-F
->  Force reset of context to match file_context for customizable files
->  
-> -.TP 
-> +.TP
->  .B \-f
->  Clear /tmp directory with out prompt for removal.
->  
-> -.TP 
-> +.TP
->  .B \-R rpmpackagename[,rpmpackagename...]
->  Use the rpm database to discover all files within the specified packages and restore the file contexts.
->  .TP
->  .B \-C PREVIOUS_FILECONTEXT
->  Run a diff on  the PREVIOUS_FILECONTEXT file to the currently installed one, and restore the context of all affected files.
->  
-> -.TP 
-> +.TP
->  .B \-N time
->  Only act on files created after the specified date.  Date must be specified in
->  "YYYY\-MM\-DD HH:MM" format.  Date field will be passed to find \-\-newermt command.
-> @@ -83,19 +83,29 @@ Use parallel relabeling, see
->  
->  .SH "ARGUMENTS"
->  One of:
-> -.TP 
-> +.TP
->  .B check | verify
->  print any incorrect file context labels, showing old and new context, but do not change them.
-> -.TP 
-> +.TP
->  .B restore
->  change any incorrect file context labels.
-> -.TP 
-> +.TP
->  .B relabel
->  Prompt for removal of contents of /tmp directory and then change any incorrect file context labels to match the install file_contexts file.
-> -.TP 
-> -.B [[dir/file] ... ] 
-> +.TP
-> +.B [[dir/file] ... ]
->  List of files or directories trees that you wish to check file context on.
->  
-> +.SH EXAMPLE
-> +.nf
-> +Clear /tmp and relabel the whole filesystem, forcing relabeling of customizable types.
-> +Note that all paths listed in /etc/selinux/fixfiles_exclude_dirs will be ignored
-> +# fixfiles -f -F relabel
-
-I think that leaning /tmp in running system could break user sessions so it's
-important to note that. Or avoid -f in examples completely.
-
-> +Schedule the machine to relabel on the next boot
-> +# fixfiles onboot
-
-I'd add (or change it) to `fixfiles -F onboot`
-
-> +Check labeling of all files from the samba package (while not changing any labels)
-> +# fixfiles -R samba check
-> +
->  .SH "AUTHOR"
->  This man page was written by Richard Hally <rhally@mindspring.com>.
->  The script  was written by Dan Walsh <dwalsh@redhat.com>
-> @@ -103,4 +113,3 @@ The script  was written by Dan Walsh <dwalsh@redhat.com>
->  .SH "SEE ALSO"
->  .BR setfiles (8),
->  .BR restorecon (8)
-> -
-> diff --git a/policycoreutils/secon/secon.1 b/policycoreutils/secon/secon.1
-> index 501b5cb8..c0e8b05a 100644
-> --- a/policycoreutils/secon/secon.1
-> +++ b/policycoreutils/secon/secon.1
-> @@ -107,16 +107,24 @@ then the context will be read from stdin.
->  .br
->  If there is no argument,
->  .B secon
-> -will try reading a context from stdin, if that is not a tty, otherwise 
-> +will try reading a context from stdin, if that is not a tty, otherwise
->  .B secon
->  will act as though \fB\-\-self\fR had been passed.
->  .PP
->  If none of \fB\-\-user\fR, \fB\-\-role\fR, \fB\-\-type\fR, \fB\-\-level\fR or
->  \fB\-\-mls\-range\fR is passed.
->  Then all of them will be output.
-> +
-> +.SH EXAMPLE
-> +.nf
-> +Show SElinux context of the init process
-> +# secon --pid 1
-> +Parse the type portion of given security context
-> +# secon -t system_u:object_r:httpd_sys_rw_content_t:s0
-> +
->  .PP
->  .SH SEE ALSO
->  .BR chcon (1)
->  .SH AUTHORS
->  .nf
-> -James Antill (james.antill@redhat.com) 
-> +James Antill (james.antill@redhat.com)
-> diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-> index c56e580f..01757b00 100644
-> --- a/policycoreutils/semodule/semodule.8
-> +++ b/policycoreutils/semodule/semodule.8
-> @@ -1,5 +1,5 @@
->  .TH SEMODULE "8" "Nov 2005" "Security Enhanced Linux" NSA
-> -.SH NAME 
-> +.SH NAME
->  semodule \- Manage SELinux policy modules.
->  
->  .SH SYNOPSIS
-> @@ -8,7 +8,7 @@ semodule \- Manage SELinux policy modules.
->  .SH DESCRIPTION
->  .PP
->  semodule is the tool used to manage SELinux policy modules,
-> -including installing, upgrading, listing and removing modules.  
-> +including installing, upgrading, listing and removing modules.
->  semodule may also be used to force a rebuild of policy from the
->  module store and/or to force a reload of policy without performing
->  any other transaction.  semodule acts on module packages created
-> @@ -39,7 +39,7 @@ install/replace a module package
->  .B  \-u,\-\-upgrade=MODULE_PKG
->  deprecated, alias for --install
->  .TP
-> -.B  \-b,\-\-base=MODULE_PKG   
-> +.B  \-b,\-\-base=MODULE_PKG
->  deprecated, alias for --install
->  .TP
->  .B  \-r,\-\-remove=MODULE_NAME
-> @@ -77,7 +77,7 @@ name of the store to operate on
->  .B  \-n,\-\-noreload,\-N
->  do not reload policy after commit
->  .TP
-> -.B  \-h,\-\-help        
-> +.B  \-h,\-\-help
->  prints help message and quit
->  .TP
->  .B \-P,\-\-preserve_tunables
-> @@ -92,7 +92,7 @@ Use an alternate path for the policy root
->  .B \-S,\-\-store-path
->  Use an alternate path for the policy store root
->  .TP
-> -.B  \-v,\-\-verbose     
-> +.B  \-v,\-\-verbose
->  be verbose
->  .TP
->  .B  \-c,\-\-cil
-> @@ -131,8 +131,6 @@ $ semodule \-B
->  $ semodule \-d alsa
->  # Install a module at a specific priority.
->  $ semodule \-X 100 \-i alsa.pp
-> -# List all modules.
-> -$ semodule \-\-list=full
-
-Why is this removed?
-
-
->  # Set an alternate path for the policy root
->  $ semodule \-B \-p "/tmp"
->  # Set an alternate path for the policy store root
-> @@ -143,6 +141,8 @@ $ semodule \-X 400 \-\-hll \-E puppet \-\-cil \-E wireshark
->  # Check whether a module in "localmodule.pp" file is same as installed module "localmodule"
->  $ /usr/libexec/selinux/hll/pp localmodule.pp | sha256sum
->  $ semodule -l -m | grep localmodule
-> +# Translate binary module file into CIL (useful for debugging installation errors)
-> +$ /usr/libexec/selinux/hll/pp alsa.pp > alsa.cil
->  .fi
-
-I'd put this before the check above, i.e. translate a binary first and then get checksum so that
-/usr/libexec/selinux/hll/pp is used only once and it's clear what it
-does.
-
-
->  .SH SEE ALSO
-> diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-> index e07db2c8..c3cc5c9b 100644
-> --- a/policycoreutils/setfiles/restorecon.8
-> +++ b/policycoreutils/setfiles/restorecon.8
-> @@ -224,6 +224,15 @@ and provided the
->  option is NOT set and recursive mode is set, files will be relabeled as
->  required with the digests then being updated provided there are no errors.
->  
-> +.SH EXAMPLE
-> +.nf
-> +Fix labeling of /var/www/ including all sub-directories and list all context changes
-> +# restorecon -rv /var/www/
-> +List mislabeled files in user home directory and what the correct label should be
-> +# restorecon -nvr ~
-> +Fix labeling of files listed in file_list file, ignoring any that do not exist
-> +# restorecon -vif file_list
-> +
-
-I personally prefer when options are not joined - restorecon -n -v -r ...
-
->  .SH "AUTHOR"
->  This man page was written by Dan Walsh <dwalsh@redhat.com>.
->  Some of the content of this man page was taken from the setfiles
-> diff --git a/policycoreutils/setfiles/restorecon_xattr.8 b/policycoreutils/setfiles/restorecon_xattr.8
-> index e04528e6..51d12a4d 100644
-> --- a/policycoreutils/setfiles/restorecon_xattr.8
-> +++ b/policycoreutils/setfiles/restorecon_xattr.8
-> @@ -112,6 +112,13 @@ If the option is not specified, then the default file_contexts will be used.
->  .br
->  the pathname of the directory tree to be searched.
->  
-> +.SH EXAMPLE
-> +.nf
-> +List all paths that where assigned a checksum by "restorecon/setfiles -D"
-> +# restorecon_xattr -r /
-> +Remove all non-matching checksums
-> +# restorecon_xattr -rd /
-> +
->  .SH "SEE ALSO"
->  .BR restorecon (8),
->  .BR setfiles (8)
-> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-> index bf26e161..892a5062 100644
-> --- a/policycoreutils/setfiles/setfiles.8
-> +++ b/policycoreutils/setfiles/setfiles.8
-> @@ -289,6 +289,15 @@ and provided the
->  option is NOT set, files will be relabeled as required with the digests then
->  being updated provided there are no errors.
->  
-> +.SH EXAMPLE
-> +.nf
-> +Fix labeling of /var/www/ including all sub-directories, using targeted policy file context definitions and list all context changes
-> +# setfiles -v /etc/selinux/targeted/contexts/files/file_contexts /var/www/
-> +List mislabeled files in user home directory and what the label should be based on targeted policy file context definitions
-> +# setfiles -nv /etc/selinux/targeted/contexts/files/file_contexts ~
-> +Fix labeling of files listed in file_list file, ignoring any that do not exist
-> +# setfiles -vif file_list /etc/selinux/targeted/contexts/files/file_contexts
-> +
->  .SH "AUTHOR"
->  This man page was written by Russell Coker <russell@coker.com.au>.
->  The program was written by Stephen Smalley <sds@tycho.nsa.gov>
-> diff --git a/policycoreutils/setsebool/setsebool.8 b/policycoreutils/setsebool/setsebool.8
-> index 52936f5a..f54664fb 100644
-> --- a/policycoreutils/setsebool/setsebool.8
-> +++ b/policycoreutils/setsebool/setsebool.8
-> @@ -7,13 +7,13 @@ setsebool \- set SELinux boolean value
->  .I "[ \-PNV ] boolean value | bool1=val1 bool2=val2 ..."
->  
->  .SH "DESCRIPTION"
-> -.B setsebool 
-> -sets the current state of a particular SELinux boolean or a list of booleans 
-> -to a given value. The value may be 1 or true or on to enable the boolean, or 0 or false or off to disable it. 
-> +.B setsebool
-> +sets the current state of a particular SELinux boolean or a list of booleans
-> +to a given value. The value may be 1 or true or on to enable the boolean, or 0 or false or off to disable it.
->  
->  Without the \-P option, only the current boolean value is
-> -affected; the boot-time default settings 
-> -are not changed. 
-> +affected; the boot-time default settings
-> +are not changed.
->  
->  If the \-P option is given, all pending values are written to
->  the policy file on disk. So they will be persistent across reboots.
-> @@ -22,6 +22,12 @@ If the \-N option is given, the policy on disk is not reloaded into the kernel.
->  
->  If the \-V option is given, verbose error messages will be printed from semanage libraries.
->  
-> +.SH EXAMPLE
-> +.nf
-> +Enable container_use_devices boolean (will return to persistent value after reboot)
-> +# setsebool container_use_devices 1
-> +Persistently enable samba_create_home_dirs and samba_enable_home_dirs booleans
-> +# setsebool -P samba_create_home_dirs=on samba_enable_home_dirs=on
->  
->  .SH AUTHOR
->  This manual page was written by Dan Walsh <dwalsh@redhat.com>.
-> -- 
-> 2.40.0
 
