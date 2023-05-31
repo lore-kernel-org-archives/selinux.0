@@ -2,116 +2,159 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88052C7EE31
-	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 14:20:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 344ABC77B73
+	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 14:37:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232018AbjEaOUH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 May 2023 10:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33140 "EHLO
+        id S236563AbjEaOh0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 May 2023 10:37:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231436AbjEaOTa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 10:19:30 -0400
-Received: from sonic311-29.consmr.mail.ne1.yahoo.com (sonic311-29.consmr.mail.ne1.yahoo.com [66.163.188.210])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37B2410CB
-        for <selinux@vger.kernel.org>; Wed, 31 May 2023 07:18:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1685542634; bh=u06wsoXDKdLhDwBL6GQjdUhNEcg8dn6HnYPO197Z4ZY=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=uTl2NPF0uY45Lh47ZMmSIPqHz12daNS0NgeNKiReY8eyrxDDrfTQcgiz4NnQWUNQW7F1MwuSDHW9ZpVyLJqKOHJPOz/6KCpO4nKGd5BVNbzRyKmJHyu80qxzU/KEvZHBOfLp6u/SJMgRS0b0pLcN8zO52SWl1YDRCuA2SaotQ3TXufEATP7RYyKZYnLWthOz2EVCLnd2aIr7rdJVTCDb3fvEe/oQHsU+l8nHuw+OTcr/AF+gsikWYq13eAlw1UEkTq5PNC3MECGdLjrjmklJLYIaf8/CDVL5UuQVhvmo7Bzp6nE4UogviP7f3QRdcwQxCbsQypmHU8PKuSDA+WRWnQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1685542634; bh=In52hxvGcGscBnK4YcfxGoJg05ahXzVDO4vWcIkg9zX=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=FZcoenma9wFmozb+7JbcPV2PcIO/+4pT7+0R3axAr1SRbtx7EI4JAlM/1BveGMIbY5/tsB7TSdMdDoPO635kk3pi4OH2yXPwQL9RGvoIBv+SGfINgAwDfdKoKx50N5kV0s0L2STPyKq7F7FzFebllYJEYJ3uo5NUAHsE2hEpixpnCq+vJOongrz1lr2O5immV+bFN2Bw03Q6hv43aBYMle/pRgjoqhWpfI6aO9u9sYPrvKq0k91adtMIH2cpfvckSuHxsStj/3CaZJ7acD5JASKu7FwJe6R4fuSCz+LDohr6Vir2j/LSuECeSdR73HaRKDE6jPOUDMmA2yQE5Vv4QA==
-X-YMail-OSG: YS2OiOgVM1kmwmgmji0DUz5dLhGzTb5Z198M4.LCNKObOZhn4oZZvKSnFZmfrxY
- UN6hR2P.A3qTmfVVDLFNYjn5QLt.nWYU8UGVZqmdVBdYYliraQ4peiZ_mZcfzn3.A8K3FJVwas4G
- KCkturum0T2vml6moo5VB_FFFCpq9blIh4jyzDm553j1p2bCA71u8R6jlUzlpTIt_AfZPJNoCA__
- H0qDyP0SzecdXb8h5oqmF9l3hveY.Oscf_4EXTa6rBmRoFDSjkoq8QSewWZX3XufbrpnwqTtTVUw
- 5P4lE4bm8YEuzhtOqPLNsFHy8ALL9jifaNIHQeYWomRilT54uVLHQBjcs2PUTQk9EBgGFm1Rmmdt
- B4KynaXuuw1_MkEUIlciCaFkiDKBTKzMlbGg2PyiNrmZEinAVHVh7PTVCsbfiMwSBRjXxhjqgdSt
- ukLyssbUujJcgQLRcitba21rG1jjuK3FNCDPagA7f.v1IE_d76aBghD7vp8dhcSs2aiicgjLXhtp
- 0KsakzlYZyz0O0sTeXe_c2ac9GCL_AlpGd9TzKiouagsNT9CCDbgbIU.MKNYAOMcAo1l7PChe4iE
- zSTIZcZEnzmTx1Cwxy.VgFIeEXgxMD22KonFWwq1k8lyWC7isb9.8czYhGHqT4KuTjcg.fGOd.p5
- PcYFKBOQm0244ErDybsrwRrRoYWLFQcFq5ZM3_akYqobgfpsqw1KPRGneQQA8Nz3fja7n6GUbi.0
- sF3GEfazRl_OkzU9pLsL2tvFb2oo4cLKB9oLJQvfOMX5PVv6KquqCIGB9kQFvpCtGrDQpkhF9uwO
- zByidQDBEvSU.ktIviMPVxB1aqq5pcdpQkfsVS.cPz9SKVqFZQ661XuWjjPg9Kgp3e9M0POOl4R1
- rXvZJb_zS8HqbT.vWYysdJ5KhAGE6Iz5wlVivG2pXjXNGRJpLUOvz25viKevlGxdtO7j48C9FwUS
- bJG0rsEKsL62VVoxF4PuMPsAyFj9B5XdmQL_8uEABBVfXBEFeiB26z7FB0vJ0a3YZ_uSrDioHI9k
- nkQITYnz2FAAVrFLOcedWIc8xj4iPYDkkLJIqyno6KmWYiZQrQLAJWx4iOGKg72Fg2ihfubvT85r
- fbelkwhNU7S814bNZoeXzHHJKHNqpW.SVpzgloR_rWwPhwopW2hv5P4zcV3N_BNwZ7hVDUwn0TBZ
- TrnvLMAvHMzsjtYBAkpZE19ZH6b0R_qDTh95G_nF7DgX7oBkCp0lgN96yAmR9uxkxgRJGLxycFN5
- I9iuict_MkQhlkgXJ3Z0HtOrvP.Eg6jO5tzPRE9zS23fN.zQb5mWCTkZO5tTD6f0v0gWiR4Ipy.Q
- WP4x.2R7E5ZW4bBZ4Dyh_CmcklfnK6Xd5b6p3XFXwPn0iSWp1EyX7y7eKWSqjAzLG9e4sLtj4Ms8
- OA9jegw6OLMyuMrqCGCN6aJ6mlG6jhFhiPgl8AkiPLFOD.KEoqO4IkMnkBE_cyF3EpqnDZOqHnbS
- 1eg3T_W027MlCxYxaQnjXm3ovfPg3S2zbHe4E2Su6n5D7vpK_pcTsL.VBJP7M31FkZABOboMXUl8
- 9OjG9feh6TKi7q1wcG4iNFhgeOlXfcxzG.1zgrTbib79_ZBbsgsob9dNCzCFEZkf8dhcXeqBGA8D
- 35Re5Hm2sZgi1YAJK0qvF5hPlMFmciJVbhlYm9hDa50iGdskBZoLcn1SJFHjx6yxBNbXWnD2vqiX
- zMwjsMNeICbbzvVLzWiA7iHhQ1jUvnKO8xGwQXjGy3b8CA2wQ6LOf4G2wabay9gwtSzKpAoNCRwf
- 2903ZRu3jb1qoz3OXVdKb6G9phej1Yr1.G2LnSPYfiZGYNhFEsRXWF9JMI7IEX2TGbS6Yy4brrPf
- TNrZ4dFaKP1cNxLBT7tQKWqHopat3VrDLHWs0pfcgBKvk1wJjWiVZuRPdMtlQ5m.YBhpcT3KeubG
- 2Nddz9SCkTCdE9dLB6PQOLpd6IfCLw9clJNhKfccV1hvMEJ6B0Si2Dm5lG6ehw0.HhcC61YrSuNo
- MZTp9MbC.z0KejFZeSUufaJa.0QwifMQkyjMV7LWTZnp.fo2C2RYgPyxqZCc46kXctvazZO.6WuD
- 2puR7R75dq8bRw77TcUQ.gG1I6Lv4sdt8Fxf84nPpOLxQ0VR_kRW.3StmliYVsqwshi_2FIMrC.i
- JraN9OfrRBrDGTnKPvU4OpTs8nRiDZNPm.CboKKDWSWk6uMsAXNkpyxWW7dRodvE1zI1oKKFsniL
- 0ArNumaHMH7b9R6glIEZlbmcJ3zn.5mQyOhh0J4YxJszoanvccTV_P02lqJGioEc-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 4d60b986-7ed3-4d05-823c-5d7a7b7466b1
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 31 May 2023 14:17:14 +0000
-Received: by hermes--production-ne1-574d4b7954-bq277 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 174ebacd8784abefa7ff5b7a2ade66e9;
-          Wed, 31 May 2023 14:17:11 +0000 (UTC)
-Message-ID: <cbd61b82-43e1-ad4d-e984-775f1209948c@schaufler-ca.com>
-Date:   Wed, 31 May 2023 07:17:08 -0700
+        with ESMTP id S235403AbjEaOhZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 10:37:25 -0400
+X-Greylist: delayed 900 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 May 2023 07:37:23 PDT
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2378AB2;
+        Wed, 31 May 2023 07:37:23 -0700 (PDT)
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+        id 06C79FEF; Wed, 31 May 2023 09:08:47 -0500 (CDT)
+Date:   Wed, 31 May 2023 09:08:47 -0500
+From:   "Serge E. Hallyn" <serge@hallyn.com>
+To:     "Serge E. Hallyn" <serge@hallyn.com>
+Cc:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Frederick Lawler <fred@cloudflare.com>,
+        =?iso-8859-1?Q?G=FCnther?= Noack <gnoack3000@gmail.com>,
+        linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com,
+        linux-security-module@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] capability: introduce new capable flag NODENYAUDIT
+Message-ID: <20230531140847.GB515872@mail.hallyn.com>
+References: <20230511142535.732324-1-cgzones@googlemail.com>
+ <20230531140734.GA515872@mail.hallyn.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH -next 0/2] lsm: Change inode_setattr() to take struct
-Content-Language: en-US
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8?= =?UTF-8?Q?n?= <mic@digikod.net>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        viro@zeniv.linux.org.uk, dhowells@redhat.com, code@tyhicks.com,
-        hirofumi@mail.parknet.co.jp, linkinjeon@kernel.org,
-        sfrench@samba.org, senozhatsky@chromium.org, tom@talpey.com,
-        chuck.lever@oracle.com, jlayton@kernel.org, miklos@szeredi.hu,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        dchinner@redhat.com, john.johansen@canonical.com,
-        mcgrof@kernel.org, mortonm@chromium.org, fred@cloudflare.com,
-        mpe@ellerman.id.au, nathanl@linux.ibm.com, gnoack3000@gmail.com,
-        roberto.sassu@huawei.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
-        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        wangweiyang2@huawei.com, Casey Schaufler <casey@schaufler-ca.com>
-References: <20230505081200.254449-1-xiujianfeng@huawei.com>
- <20230515-nutzen-umgekehrt-eee629a0101e@brauner>
- <75b4746d-d41e-7c9f-4bb0-42a46bda7f17@digikod.net>
- <20230530-mietfrei-zynisch-8b63a8566f66@brauner>
- <20230530142826.GA9376@lst.de>
- <301a58de-e03f-02fd-57c5-1267876eb2df@schaufler-ca.com>
- <20230531132200.GB30016@lst.de>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20230531132200.GB30016@lst.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21495 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230531140734.GA515872@mail.hallyn.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/31/2023 6:22 AM, Christoph Hellwig wrote:
-> On Tue, May 30, 2023 at 07:55:17AM -0700, Casey Schaufler wrote:
->> Which LSM(s) do you think ought to be deprecated?
-> I have no idea.  But what I want is less weirdo things messing with
-> VFS semantics.
+On Wed, May 31, 2023 at 09:07:34AM -0500, Serge E. Hallyn wrote:
+> On Thu, May 11, 2023 at 04:25:24PM +0200, Christian Göttsche wrote:
+> > Introduce a new capable flag, CAP_OPT_NODENYAUDIT, to not generate
+> > an audit event if the requested capability is not granted.  This will be
+> > used in a new capable_any() functionality to reduce the number of
+> > necessary capable calls.
+> > 
+> > Handle the flag accordingly in AppArmor and SELinux.
+> > 
+> > Suggested-by: Paul Moore <paul@paul-moore.com>
+> > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> 
+> Reviewed-by: Serge Hallyn <serge@hallyn.com>
 
-I am curious what you consider a weirdo thing done by LSMs. Things like
-io_uring are much stranger than anything an LSM does.
+Sorry, obviously I should have removed this, until the comment below was
+answered :)
 
->
->> I only see one that I
->> might consider a candidate. As for weird behavior, that's what LSMs are
->> for, and the really weird ones proposed (e.g. pathname character set limitations)
->> (and excepting for BPF, of course) haven't gotten far.
-> They haven't gotten far for a reason usually.  Trying to sneak things in
-> through the back door is exactly what is the problem with LSMs.
-
-Mostly developers play by the rules, and we don't let things sneak in. 
-
-
+> > ---
+> >  include/linux/security.h       |  2 ++
+> >  security/apparmor/capability.c |  8 +++++---
+> >  security/selinux/hooks.c       | 14 ++++++++------
+> >  3 files changed, 15 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index e2734e9e44d5..629c775ec297 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -67,6 +67,8 @@ struct watch_notification;
+> >  #define CAP_OPT_NOAUDIT BIT(1)
+> >  /* If capable is being called by a setid function */
+> >  #define CAP_OPT_INSETID BIT(2)
+> > +/* If capable should audit the security request for authorized requests only */
+> > +#define CAP_OPT_NODENYAUDIT BIT(3)
+> >  
+> >  /* LSM Agnostic defines for security_sb_set_mnt_opts() flags */
+> >  #define SECURITY_LSM_NATIVE_LABELS	1
+> > diff --git a/security/apparmor/capability.c b/security/apparmor/capability.c
+> > index 326a51838ef2..98120dd62ca7 100644
+> > --- a/security/apparmor/capability.c
+> > +++ b/security/apparmor/capability.c
+> > @@ -108,7 +108,8 @@ static int audit_caps(struct common_audit_data *sa, struct aa_profile *profile,
+> >   * profile_capable - test if profile allows use of capability @cap
+> >   * @profile: profile being enforced    (NOT NULL, NOT unconfined)
+> >   * @cap: capability to test if allowed
+> > - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
+> > + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
+> > + *	record is generated
+> >   * @sa: audit data (MAY BE NULL indicating no auditing)
+> >   *
+> >   * Returns: 0 if allowed else -EPERM
+> > @@ -126,7 +127,7 @@ static int profile_capable(struct aa_profile *profile, int cap,
+> >  	else
+> >  		error = -EPERM;
+> >  
+> > -	if (opts & CAP_OPT_NOAUDIT) {
+> > +	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && error)) {
+> >  		if (!COMPLAIN_MODE(profile))
+> >  			return error;
+> >  		/* audit the cap request in complain mode but note that it
+> > @@ -142,7 +143,8 @@ static int profile_capable(struct aa_profile *profile, int cap,
+> >   * aa_capable - test permission to use capability
+> >   * @label: label being tested for capability (NOT NULL)
+> >   * @cap: capability to be tested
+> > - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
+> > + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
+> > + *	record is generated
+> >   *
+> >   * Look up capability in profile capability set.
+> >   *
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 79b4890e9936..0730edf2f5f1 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -1571,7 +1571,7 @@ static int cred_has_capability(const struct cred *cred,
+> >  	u16 sclass;
+> >  	u32 sid = cred_sid(cred);
+> >  	u32 av = CAP_TO_MASK(cap);
+> > -	int rc;
+> > +	int rc, rc2;
+> >  
+> >  	ad.type = LSM_AUDIT_DATA_CAP;
+> >  	ad.u.cap = cap;
+> > @@ -1590,11 +1590,13 @@ static int cred_has_capability(const struct cred *cred,
+> >  	}
+> >  
+> >  	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+> > -	if (!(opts & CAP_OPT_NOAUDIT)) {
+> > -		int rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
+> > -		if (rc2)
+> > -			return rc2;
+> > -	}
+> > +	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && rc))
+> > +		return rc;
+> 
+> Hm, if the caller passes only CAP_OPT_NODENYAUDIT, and rc == 0, then
+> you will audit the allow.  Is that what you want, or did you want, or
+> did you want CAP_OPT_NODENYAUDIT to imply CAP_OPT_NOAUDIT?
+> 
+> > +
+> > +	rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
+> > +	if (rc2)
+> > +		return rc2;
+> > +
+> >  	return rc;
+> >  }
+> >  
+> > -- 
+> > 2.40.1
