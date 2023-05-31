@@ -2,74 +2,100 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01A75C7EE24
-	for <selinux@archiver.kernel.org>; Tue, 30 May 2023 23:04:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08B87C7EE31
+	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 01:16:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233498AbjE3XEs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 May 2023 19:04:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36680 "EHLO
+        id S233878AbjEaBQp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 May 2023 21:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233468AbjE3XEk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 May 2023 19:04:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E50C4EC;
-        Tue, 30 May 2023 16:04:39 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S233779AbjEaBQo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 May 2023 21:16:44 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E9CC7
+        for <selinux@vger.kernel.org>; Tue, 30 May 2023 18:15:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1685495758;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=SLqpAy0cfht4LSZVVRgAE92Aqh4PJyLj6MfjtkW75PU=;
+        b=Hz6jxhld9/mt92biXKQnT+mKukwpi9e8W1SLh/Kxnkg5tKmmwL97dy46SI01ptAGQno/Ma
+        vY8KHZas87F+rMz9n+eUcwrqhjPq9Q2VJuo447bWKAw6lf8wNAX+6XPBBoAKyoTvJOhRjy
+        xxXFLH9tUSyDOU5GLH48ocumEmJ//gA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-648-AaFQ9VswO3u1FqWYBJsX-Q-1; Tue, 30 May 2023 21:15:57 -0400
+X-MC-Unique: AaFQ9VswO3u1FqWYBJsX-Q-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79C076181B;
-        Tue, 30 May 2023 23:04:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E8EFC433D2;
-        Tue, 30 May 2023 23:04:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685487878;
-        bh=nmCxxkdcGAW8i+jZq5LyWD2wJfMQHxP2xZqU+KCy38k=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=aZMNEE+LqE57xeVo9wB3CivHR/y/CXj93mgpisrKTuoUs/JouoCFFFAl0+wWHPufv
-         LhZqLhYmQFbYbN5M8AQ134Vqox+12eGT4d8uH/PIw54StrE2/bam4g2aTPDq8sjlaq
-         yPm8zBzcibR5jpdvZ9ZMv25GOUcJgmzRMzeULmDgLSj9JXKRBoxP+G1f99QUzcnicb
-         b0UGYas11v/AaEjGZ+8hLmLvLv2YZsV5lqgKCDcx+pp+Qyttn0ruZtyyeqHn3q1+XY
-         gZWUxc4mvFThSHR8P4Ga4c9RDKZZ7IqA8neKVxyhIeZ1r57z+zF6ezAJXVSgyqpqp0
-         MDmj5ia17/7cQ==
-Message-ID: <fb2f0b6a4202d08857bc08a5507a62d7d9adaf78.camel@kernel.org>
-Subject: Re: [PATCH] security: keys: perform capable check only on
- privileged operations
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Paul Moore <paul@paul-moore.com>,
-        Christian =?ISO-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, keyrings@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Wed, 31 May 2023 02:04:35 +0300
-In-Reply-To: <CAHC9VhSbZ5YheAVec5a=Xht85mNu6wRjeYaoqPGSiHjFP2NN6Q@mail.gmail.com>
-References: <20230511123252.723185-1-cgzones@googlemail.com>
-         <CAHC9VhTcso+RTEOkGOCDxyMscznEXrUhp+quDWvATUhEzEOhRQ@mail.gmail.com>
-         <CAJ2a_DfRGq+Cg_U7+Rsie9Bywxquu9CuMwYUGNv3+Sg9=wt9Og@mail.gmail.com>
-         <CAHC9VhSbZ5YheAVec5a=Xht85mNu6wRjeYaoqPGSiHjFP2NN6Q@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.1-0ubuntu1 
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3BA99185A78B
+        for <selinux@vger.kernel.org>; Wed, 31 May 2023 01:15:57 +0000 (UTC)
+Received: from dev64.localdomain.com (unknown [10.64.240.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8821F140EBB8;
+        Wed, 31 May 2023 01:15:56 +0000 (UTC)
+From:   Masatake YAMATO <yamato@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     yamato@redhat.com
+Subject: [PATCH] Makefile: expand ~ in DESTDIR
+Date:   Wed, 31 May 2023 10:15:48 +0900
+Message-Id: <20230531011548.1133249-1-yamato@redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-05-25 at 17:25 -0400, Paul Moore wrote:
-> > A minor inconvenience is the number of needed arguments (and the
-> > actual code after inlining should be the same to the inner scope in
-> > the end).
->=20
-> Well, lucky for you, Jarkko and David maintain the keys code, not me,
-> and Jarkko seems to like your patch just fine :)
->=20
-> Jarkko, I assume you'll be taking this via the keys tree?
+Though instructed as
 
-I just picked it and mirrored to linux-next.
+    DESTDIR=~/obj ./scripts/env_use_destdir make test
 
-I think it is super important change because it tones down the human
-error (a little bit at least). You could say improves user experience
-kind of I guess :-)
+in README.md, compiling policy_define.c was failed with following errors:
 
-BR, Jarkko
+    make[1]: Entering directory '/home/yamato/var/selinux/checkpolicy'
+    cc -O2 -Werror -Wall -Wextra -Wfloat-equal -Wformat=2 -Winit-self \
+       -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-prototypes \
+       -Wnull-dereference -Wpointer-arith -Wshadow -Wstrict-prototypes \
+       -Wundef -Wunused -Wwrite-strings -fno-common -I~/obj/usr/include \
+       -o policy_define.o -c policy_define.c
+    policy_define.c: In function ‘define_te_avtab_xperms_helper’:
+    policy_define.c:2083:61: error: ‘RULE_NOTSELF’ undeclared (first use in this function); did you mean ‘RULE_SELF’?
+     2083 |                         avrule->flags |= (add ? RULE_SELF : RULE_NOTSELF);
+	  |                                                             ^~~~~~~~~~~~
+	  |                                                             RULE_SELF
+
+because cc cannot find the directory ~/obj/usr/include passed via -I option.
+
+cc doesn't expand "~".
+
+Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+---
+ Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 2ffba8e9..053c6d3d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -26,11 +26,11 @@ else
+ endif
+ 
+ ifneq ($(DESTDIR),)
+-	LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
++	LIBDIR ?= $(wildcard $(DESTDIR))$(PREFIX)/lib
+ 	LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+ 
+-	CFLAGS += -I$(DESTDIR)$(PREFIX)/include
+-	LDFLAGS += -L$(DESTDIR)$(PREFIX)/lib -L$(LIBDIR)
++	CFLAGS += -I$(wildcard $(DESTDIR))$(PREFIX)/include
++	LDFLAGS += -L$(wildcard $(DESTDIR))$(PREFIX)/lib -L$(LIBDIR)
+ 	export CFLAGS
+ 	export LDFLAGS
+ 	export LIBSEPOLA
+-- 
+2.40.1
 
