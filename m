@@ -2,153 +2,108 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36AF1C77B7A
-	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 15:07:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C39A6C77B7A
+	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 15:32:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbjEaPHt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 May 2023 11:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38600 "EHLO
+        id S230470AbjEaPca (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 May 2023 11:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231215AbjEaPHo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 11:07:44 -0400
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDF3185;
-        Wed, 31 May 2023 08:07:22 -0700 (PDT)
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id 1C6E2EC5; Wed, 31 May 2023 09:07:34 -0500 (CDT)
-Date:   Wed, 31 May 2023 09:07:34 -0500
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Micah Morton <mortonm@chromium.org>,
-        Frederick Lawler <fred@cloudflare.com>,
-        =?iso-8859-1?Q?G=FCnther?= Noack <gnoack3000@gmail.com>,
-        linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com,
-        linux-security-module@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v4 1/9] capability: introduce new capable flag NODENYAUDIT
-Message-ID: <20230531140734.GA515872@mail.hallyn.com>
-References: <20230511142535.732324-1-cgzones@googlemail.com>
+        with ESMTP id S234430AbjEaPc3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 11:32:29 -0400
+X-Greylist: delayed 612 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 May 2023 08:32:28 PDT
+Received: from smtp-8faa.mail.infomaniak.ch (smtp-8faa.mail.infomaniak.ch [IPv6:2001:1600:4:17::8faa])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47AAD107;
+        Wed, 31 May 2023 08:32:28 -0700 (PDT)
+Received: from smtp-2-0000.mail.infomaniak.ch (unknown [10.5.36.107])
+        by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4QWY0Q2wK1zMqBkH;
+        Wed, 31 May 2023 17:22:14 +0200 (CEST)
+Received: from unknown by smtp-2-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4QWY0G4Z6QzMqFfF;
+        Wed, 31 May 2023 17:22:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
+        s=20191114; t=1685546534;
+        bh=8echtExvY903wL+VZOZ6yhBJAcvuAYpaWxyyr0rVy8w=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=UCoFqVu9Y/RRO0Tl+8GYdhg+QL2jsnrLmJVc95PGsjviUz1MFlPNr9Ls9etbgky2f
+         +NJTVdzCzpayOxC7AXXulIEL5iaLoblXaS+YwfxQZuO5HILy95zRI7Soj1IzfZ1+CL
+         pp3TTVVWN5YMTh+pZ03O1kvnD/qtJwnRtDiHcV8s=
+Message-ID: <4b3fff12-f696-3d02-5873-645fef2117e1@digikod.net>
+Date:   Wed, 31 May 2023 17:22:05 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230511142535.732324-1-cgzones@googlemail.com>
+User-Agent: 
+Subject: Re: [PATCH -next 0/2] lsm: Change inode_setattr() to take struct
+Content-Language: en-US
+To:     Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <brauner@kernel.org>
+Cc:     Xiu Jianfeng <xiujianfeng@huawei.com>, gregkh@linuxfoundation.org,
+        rafael@kernel.org, viro@zeniv.linux.org.uk, dhowells@redhat.com,
+        code@tyhicks.com, hirofumi@mail.parknet.co.jp,
+        linkinjeon@kernel.org, sfrench@samba.org, senozhatsky@chromium.org,
+        tom@talpey.com, chuck.lever@oracle.com, jlayton@kernel.org,
+        miklos@szeredi.hu, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com, dchinner@redhat.com,
+        john.johansen@canonical.com, mcgrof@kernel.org,
+        mortonm@chromium.org, fred@cloudflare.com, mpe@ellerman.id.au,
+        nathanl@linux.ibm.com, gnoack3000@gmail.com,
+        roberto.sassu@huawei.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-cachefs@redhat.com,
+        ecryptfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        wangweiyang2@huawei.com
+References: <20230505081200.254449-1-xiujianfeng@huawei.com>
+ <20230515-nutzen-umgekehrt-eee629a0101e@brauner>
+ <75b4746d-d41e-7c9f-4bb0-42a46bda7f17@digikod.net>
+ <20230530-mietfrei-zynisch-8b63a8566f66@brauner>
+ <20230530142826.GA9376@lst.de>
+From:   =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+In-Reply-To: <20230530142826.GA9376@lst.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Infomaniak-Routing: alpha
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 11, 2023 at 04:25:24PM +0200, Christian Göttsche wrote:
-> Introduce a new capable flag, CAP_OPT_NODENYAUDIT, to not generate
-> an audit event if the requested capability is not granted.  This will be
-> used in a new capable_any() functionality to reduce the number of
-> necessary capable calls.
+
+On 30/05/2023 16:28, Christoph Hellwig wrote:
+> On Tue, May 30, 2023 at 03:58:35PM +0200, Christian Brauner wrote:
+>> The main concern which was expressed on other patchsets before is that
+>> modifying inode operations to take struct path is not the way to go.
+>> Passing struct path into individual filesystems is a clear layering
+>> violation for most inode operations, sometimes downright not feasible,
+>> and in general exposing struct vfsmount to filesystems is a hard no. At
+>> least as far as I'm concerned.
 > 
-> Handle the flag accordingly in AppArmor and SELinux.
+> Agreed.  Passing struct path into random places is not how the VFS works.
+
+I understand, it makes sense for the FS layer to not get access to 
+things not required. IIUC, the main issue is the layering, with LSM 
+calls being sometime at the last layer.
+
+
 > 
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-
-Reviewed-by: Serge Hallyn <serge@hallyn.com>
-
-> ---
->  include/linux/security.h       |  2 ++
->  security/apparmor/capability.c |  8 +++++---
->  security/selinux/hooks.c       | 14 ++++++++------
->  3 files changed, 15 insertions(+), 9 deletions(-)
+>> So the best way to achieve the landlock goal might be to add new hooks
 > 
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index e2734e9e44d5..629c775ec297 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -67,6 +67,8 @@ struct watch_notification;
->  #define CAP_OPT_NOAUDIT BIT(1)
->  /* If capable is being called by a setid function */
->  #define CAP_OPT_INSETID BIT(2)
-> +/* If capable should audit the security request for authorized requests only */
-> +#define CAP_OPT_NODENYAUDIT BIT(3)
->  
->  /* LSM Agnostic defines for security_sb_set_mnt_opts() flags */
->  #define SECURITY_LSM_NATIVE_LABELS	1
-> diff --git a/security/apparmor/capability.c b/security/apparmor/capability.c
-> index 326a51838ef2..98120dd62ca7 100644
-> --- a/security/apparmor/capability.c
-> +++ b/security/apparmor/capability.c
-> @@ -108,7 +108,8 @@ static int audit_caps(struct common_audit_data *sa, struct aa_profile *profile,
->   * profile_capable - test if profile allows use of capability @cap
->   * @profile: profile being enforced    (NOT NULL, NOT unconfined)
->   * @cap: capability to test if allowed
-> - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
-> + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
-> + *	record is generated
->   * @sa: audit data (MAY BE NULL indicating no auditing)
->   *
->   * Returns: 0 if allowed else -EPERM
-> @@ -126,7 +127,7 @@ static int profile_capable(struct aa_profile *profile, int cap,
->  	else
->  		error = -EPERM;
->  
-> -	if (opts & CAP_OPT_NOAUDIT) {
-> +	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && error)) {
->  		if (!COMPLAIN_MODE(profile))
->  			return error;
->  		/* audit the cap request in complain mode but note that it
-> @@ -142,7 +143,8 @@ static int profile_capable(struct aa_profile *profile, int cap,
->   * aa_capable - test permission to use capability
->   * @label: label being tested for capability (NOT NULL)
->   * @cap: capability to be tested
-> - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
-> + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
-> + *	record is generated
->   *
->   * Look up capability in profile capability set.
->   *
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 79b4890e9936..0730edf2f5f1 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1571,7 +1571,7 @@ static int cred_has_capability(const struct cred *cred,
->  	u16 sclass;
->  	u32 sid = cred_sid(cred);
->  	u32 av = CAP_TO_MASK(cap);
-> -	int rc;
-> +	int rc, rc2;
->  
->  	ad.type = LSM_AUDIT_DATA_CAP;
->  	ad.u.cap = cap;
-> @@ -1590,11 +1590,13 @@ static int cred_has_capability(const struct cred *cred,
->  	}
->  
->  	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
-> -	if (!(opts & CAP_OPT_NOAUDIT)) {
-> -		int rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
-> -		if (rc2)
-> -			return rc2;
-> -	}
-> +	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && rc))
-> +		return rc;
+> What is "the landlock goal", and why does it matter?
 
-Hm, if the caller passes only CAP_OPT_NODENYAUDIT, and rc == 0, then
-you will audit the allow.  Is that what you want, or did you want, or
-did you want CAP_OPT_NODENYAUDIT to imply CAP_OPT_NOAUDIT?
+Landlock's goal is to enable (unprivileged) users to set their own 
+access rights for their (ephemeral) processes (on top of the existing 
+access-controls of course) i.e., to sandbox applications. Landlock rules 
+are defined by users, and then according to the FS topology they see. 
+This means that Landlock relies on inodes and mount points to define and 
+enforce a policy.
 
-> +
-> +	rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
-> +	if (rc2)
-> +		return rc2;
-> +
->  	return rc;
->  }
->  
-> -- 
-> 2.40.1
+
+> 
+>> or not. And we keep adding new LSMs without deprecating older ones (A
+>> problem we also face in the fs layer.) and then they sit around but
+>> still need to be taken into account when doing changes.
+> 
+> Yes, I'm really worried about th amount of LSMs we have, and the weird
+> things they do.
+
+About Landlock, it's a new LSM that fit an actual need. I'd be glad to 
+hear about not recommended things and how to improve the situation. I 
+don't know all the history between VFS and LSM.
