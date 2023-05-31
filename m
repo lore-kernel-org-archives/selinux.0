@@ -2,233 +2,104 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29477C77B73
-	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 22:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E130DC77B73
+	for <selinux@archiver.kernel.org>; Wed, 31 May 2023 22:24:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231211AbjEaWOi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 May 2023 18:14:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37826 "EHLO
+        id S231183AbjEaWY0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 May 2023 18:24:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231176AbjEaWO2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 18:14:28 -0400
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65076E4A
-        for <selinux@vger.kernel.org>; Wed, 31 May 2023 15:14:07 -0700 (PDT)
-Received: by mail-yb1-xb32.google.com with SMTP id 3f1490d57ef6-bad0c4f6f50so397143276.1
-        for <selinux@vger.kernel.org>; Wed, 31 May 2023 15:14:07 -0700 (PDT)
+        with ESMTP id S229553AbjEaWYZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 May 2023 18:24:25 -0400
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E72079F
+        for <selinux@vger.kernel.org>; Wed, 31 May 2023 15:24:23 -0700 (PDT)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-568900c331aso1265287b3.3
+        for <selinux@vger.kernel.org>; Wed, 31 May 2023 15:24:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1685571246; x=1688163246;
+        d=paul-moore.com; s=google; t=1685571863; x=1688163863;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1mXm+9uLIvxYwyN0O9GdRX8Q16XpxPjqx3kAU0XOoV0=;
-        b=gYnDBlElaWB7V6hFlQCDrVssCIXI7+yBRtbun0CV/vffPdCvHCQnjryKR2kLSmgOmK
-         2jsHD3akLv6VqRCANKAyHvdtcStTC69fIO4LWoZKkXF83YjvnA/ryGHeTUKMzwo35EKS
-         gFqKgLXtjdIRlGb/F2rH4YA9MNZaYKjHnaOzoi2Lymst9BSI5TmcgQ3pL3XJG0wyjyV+
-         RhE3D6XuYhBLES3YpAnCgXp7wTBY8kQahaubx/D0NHAAmp2ZzhjyogY5xjBQZfCM+2lB
-         Mm6XY+Zdaf5BXFq75tmYUOo9N/qG69gPpcPr45ITBwSGhKseamFxkKAvr+L+iXfQoMv/
-         NjjA==
+        bh=0oi+kxpsjM0R3ZKtaCQmHdOemwN8jrXhop8kskOBysM=;
+        b=WYcxVp55abw4Qg93LbwDbWUqbUea1epr+9Rq0b8frDOOt3dKSrSkmSrS6hswRqLRun
+         8JMlAgvWlFzrJdf5xdjz1FmaA32xg05al3XgnO5r8k/upgjf0QfXNi9bkC21b7wzCmc0
+         cqDQ85Mcj5otBESJtffLUUVZ81MVABUjtlnad65dzf5tpnOq0k/fPc8qKjpDIji4wl3c
+         7KZ0NMSedcU5rh0mYP+5FZ5GFXJNby++yUUnrI4N1qZyIUg0NYMfZR3RFfZ+pPCL1ZsV
+         hImW30UthqLIqjaIG16oomPtdXrtSYdJqRvBvInmuYpr8+EtPlrzs14Sc0KtqfyEce4j
+         vu/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685571246; x=1688163246;
+        d=1e100.net; s=20221208; t=1685571863; x=1688163863;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1mXm+9uLIvxYwyN0O9GdRX8Q16XpxPjqx3kAU0XOoV0=;
-        b=C4/+RV88g+ugpnnKe2pQp4iQ7m2+twPA/jYnYZAaPjgOCh75/5dl3326wMzHT/tdXv
-         M0ID5zb/KkWOHyk3HXbh6B1817ib5pZi5R+Nad/lcmZMYLm6qfyWbmhmfrd3GskWz7V7
-         IP6iPZy/+yJT7msVO0VvZMe45MeQt+2DDzUqLeLyMHFlgR8aYkxYFYRfeBrlU38UePLe
-         0bAfTr/oO+YHGsoUIBKVqli9fs2Swuz7D7RJX3n6YRwUnyx58gX69N3rf2wYZdjV8a0m
-         2dmbdpzbXCrchr/HDEMq+44gbEdEYm411r0ph9L++rc6ZIp1elquND1gWELU8DIyHxXM
-         wRUQ==
-X-Gm-Message-State: AC+VfDwwOcJq4OldN16/qJ9nADHTPKyyC/xFyjr0Aa3afEvFV1/a5rDT
-        NneX3ActiwN0UqHh3Iw3MxajnOakwm21eCiefxi6
-X-Google-Smtp-Source: ACHHUZ6W6xMZjbfsh3GA/9bSdwgRt6B7PxdsSqmYwJEzbse/7y5frYRLMcpD5xI0njjiSUcSqtlaTSAAFyUXSScXWg4=
-X-Received: by 2002:a25:508c:0:b0:b94:bbf2:19a3 with SMTP id
- e134-20020a25508c000000b00b94bbf219a3mr8184411ybb.18.1685571246124; Wed, 31
- May 2023 15:14:06 -0700 (PDT)
+        bh=0oi+kxpsjM0R3ZKtaCQmHdOemwN8jrXhop8kskOBysM=;
+        b=T/ZmFF5BxeRdgATBTPPGYMVwZ0LyBCFGwWPCa438AHBRZAbqx1oRmuTbBjby6tANsI
+         PS7jSrS3aaRfPgQ2fV1V8ulpdDFa2hplJb9mcBAN3oxwuiWraj3/BzIO5K34627CpcRt
+         tttTVFrK3FGzM5+6jKiP6Kr6vlIURfxRTxPkAjJY1bPBwweNX0fewipu2ATS+wc7MUe0
+         32DjcCBMxpyejpixK5Sj857oWowosv0EwE4OD8AWxL6ZidPJlulKMUoTjImFtgI2lklp
+         AszkntzB+Sdm9KKvjQQ+h6FxVD78GemFx2kljLwzj4K2g7gWZnVtkCFsk8OgVgDrLqUH
+         cTZw==
+X-Gm-Message-State: AC+VfDxDQI35i1X1gOHRGnlinDoCYjyIkPP2uEU3oLFNyxGH+Onxkazi
+        dzlKZCR9F24ZV6+8wUZYmnZfArSwf66KWxMNriojLkJ5WpEt/j0=
+X-Google-Smtp-Source: ACHHUZ4TaW9vTmLgrYMJUYwT+PdecTpgsqkFS6hFCROzlDXXyD2tB6JK+eqklFeRv1WMXBGaMNoLJBiWXEuuu0O3Cag=
+X-Received: by 2002:a81:a115:0:b0:569:19e4:bd51 with SMTP id
+ y21-20020a81a115000000b0056919e4bd51mr745141ywg.43.1685571863118; Wed, 31 May
+ 2023 15:24:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230511142535.732324-1-cgzones@googlemail.com>
- <20230531140734.GA515872@mail.hallyn.com> <20230531140847.GB515872@mail.hallyn.com>
- <CAJ2a_DesiD+LU-aWOEWRkyc0rcmZ0Za5i6-rZX-kHP2GzQyuFg@mail.gmail.com>
-In-Reply-To: <CAJ2a_DesiD+LU-aWOEWRkyc0rcmZ0Za5i6-rZX-kHP2GzQyuFg@mail.gmail.com>
+References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
+In-Reply-To: <20230531112927.1957093-1-juraj@jurajmarcin.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 31 May 2023 18:13:55 -0400
-Message-ID: <CAHC9VhQBuQ+yE1wmEYA4UcVwnRFXoyu9_4Qw5LWszUrkm_ornw@mail.gmail.com>
-Subject: Re: [PATCH v4 1/9] capability: introduce new capable flag NODENYAUDIT
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     "Serge E. Hallyn" <serge@hallyn.com>, selinux@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Nathan Lynch <nathanl@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Micah Morton <mortonm@chromium.org>,
-        Frederick Lawler <fred@cloudflare.com>,
-        =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack3000@gmail.com>,
-        linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com,
-        linux-security-module@vger.kernel.org, bpf@vger.kernel.org
+Date:   Wed, 31 May 2023 18:24:12 -0400
+Message-ID: <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
+Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type transitions
+To:     Juraj Marcin <juraj@jurajmarcin.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 31, 2023 at 2:34=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> On Wed, 31 May 2023 at 16:08, Serge E. Hallyn <serge@hallyn.com> wrote:
-> >
-> > On Wed, May 31, 2023 at 09:07:34AM -0500, Serge E. Hallyn wrote:
-> > > On Thu, May 11, 2023 at 04:25:24PM +0200, Christian G=C3=B6ttsche wro=
-te:
-> > > > Introduce a new capable flag, CAP_OPT_NODENYAUDIT, to not generate
-> > > > an audit event if the requested capability is not granted.  This wi=
-ll be
-> > > > used in a new capable_any() functionality to reduce the number of
-> > > > necessary capable calls.
-> > > >
-> > > > Handle the flag accordingly in AppArmor and SELinux.
-> > > >
-> > > > Suggested-by: Paul Moore <paul@paul-moore.com>
-> > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > Reviewed-by: Serge Hallyn <serge@hallyn.com>
-> >
-> > Sorry, obviously I should have removed this, until the comment below wa=
-s
-> > answered :)
-> >
-> > > > ---
-> > > >  include/linux/security.h       |  2 ++
-> > > >  security/apparmor/capability.c |  8 +++++---
-> > > >  security/selinux/hooks.c       | 14 ++++++++------
-> > > >  3 files changed, 15 insertions(+), 9 deletions(-)
-> > > >
-> > > > diff --git a/include/linux/security.h b/include/linux/security.h
-> > > > index e2734e9e44d5..629c775ec297 100644
-> > > > --- a/include/linux/security.h
-> > > > +++ b/include/linux/security.h
-> > > > @@ -67,6 +67,8 @@ struct watch_notification;
-> > > >  #define CAP_OPT_NOAUDIT BIT(1)
-> > > >  /* If capable is being called by a setid function */
-> > > >  #define CAP_OPT_INSETID BIT(2)
-> > > > +/* If capable should audit the security request for authorized req=
-uests only */
-> > > > +#define CAP_OPT_NODENYAUDIT BIT(3)
-> > > >
-> > > >  /* LSM Agnostic defines for security_sb_set_mnt_opts() flags */
-> > > >  #define SECURITY_LSM_NATIVE_LABELS 1
-> > > > diff --git a/security/apparmor/capability.c b/security/apparmor/cap=
-ability.c
-> > > > index 326a51838ef2..98120dd62ca7 100644
-> > > > --- a/security/apparmor/capability.c
-> > > > +++ b/security/apparmor/capability.c
-> > > > @@ -108,7 +108,8 @@ static int audit_caps(struct common_audit_data =
-*sa, struct aa_profile *profile,
-> > > >   * profile_capable - test if profile allows use of capability @cap
-> > > >   * @profile: profile being enforced    (NOT NULL, NOT unconfined)
-> > > >   * @cap: capability to test if allowed
-> > > > - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is g=
-enerated
-> > > > + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines wheth=
-er audit
-> > > > + * record is generated
-> > > >   * @sa: audit data (MAY BE NULL indicating no auditing)
-> > > >   *
-> > > >   * Returns: 0 if allowed else -EPERM
-> > > > @@ -126,7 +127,7 @@ static int profile_capable(struct aa_profile *p=
-rofile, int cap,
-> > > >     else
-> > > >             error =3D -EPERM;
-> > > >
-> > > > -   if (opts & CAP_OPT_NOAUDIT) {
-> > > > +   if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) &=
-& error)) {
-> > > >             if (!COMPLAIN_MODE(profile))
-> > > >                     return error;
-> > > >             /* audit the cap request in complain mode but note that=
- it
-> > > > @@ -142,7 +143,8 @@ static int profile_capable(struct aa_profile *p=
-rofile, int cap,
-> > > >   * aa_capable - test permission to use capability
-> > > >   * @label: label being tested for capability (NOT NULL)
-> > > >   * @cap: capability to be tested
-> > > > - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is g=
-enerated
-> > > > + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines wheth=
-er audit
-> > > > + * record is generated
-> > > >   *
-> > > >   * Look up capability in profile capability set.
-> > > >   *
-> > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > > index 79b4890e9936..0730edf2f5f1 100644
-> > > > --- a/security/selinux/hooks.c
-> > > > +++ b/security/selinux/hooks.c
-> > > > @@ -1571,7 +1571,7 @@ static int cred_has_capability(const struct c=
-red *cred,
-> > > >     u16 sclass;
-> > > >     u32 sid =3D cred_sid(cred);
-> > > >     u32 av =3D CAP_TO_MASK(cap);
-> > > > -   int rc;
-> > > > +   int rc, rc2;
-> > > >
-> > > >     ad.type =3D LSM_AUDIT_DATA_CAP;
-> > > >     ad.u.cap =3D cap;
-> > > > @@ -1590,11 +1590,13 @@ static int cred_has_capability(const struct=
- cred *cred,
-> > > >     }
-> > > >
-> > > >     rc =3D avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
-> > > > -   if (!(opts & CAP_OPT_NOAUDIT)) {
-> > > > -           int rc2 =3D avc_audit(sid, sid, sclass, av, &avd, rc, &=
-ad);
-> > > > -           if (rc2)
-> > > > -                   return rc2;
-> > > > -   }
-> > > > +   if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) &=
-& rc))
-> > > > +           return rc;
-> > >
-> > > Hm, if the caller passes only CAP_OPT_NODENYAUDIT, and rc =3D=3D 0, t=
-hen
-> > > you will audit the allow.  Is that what you want, or did you want, or
-> > > did you want CAP_OPT_NODENYAUDIT to imply CAP_OPT_NOAUDIT?
-> > >
+On Wed, May 31, 2023 at 7:32=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin.com=
+> wrote:
 >
-> The new option should cause to issue an audit event if (and only if)
-> the requested capability is in effect for the current task. If the
-> task does not have the capability no audit event should be issued.
+> Currently, filename transitions are stored separately from other type
+> enforcement rules and only support exact name matching. However, in
+> practice, the names contain variable parts. This leads to many
+> duplicated rules in the policy that differ only in the part of the name,
+> or it is even impossible to cover all possible combinations.
 >
-> The new option should not imply CAP_OPT_NOAUDIT since we want an audit
-> event in the case the capability is in effect.
+> First, this series of patches moves the filename transitions to be part
+> of the avtab structures. This not only makes the implementation of
+> prefix/suffix matching and future enhancements easier, but also reduces
+> the technical debt regarding the filename transitions. Next, the last
+> patch implements the support for prefix/suffix name matching itself by
+> extending the structures added in previous patches in this series.
 >
-> I admit the naming is a bit confusing as CAP_OPT_NODENYAUDIT as well
-> as the commit description contains a double negation (while the inline
-> comment for the macro definition does not).
+> Even though, moving everything to avtab increases the memory usage and
+> the size of the binary policy itself and thus the loading time, the
+> ability to match the prefix or suffix of the name will reduce the
+> overall number of rules in the policy which should mitigate this issue.
 >
-> Do you prefer naming the constant CAP_OPT_ALLOWAUDIT or CAP_OPT_AUDIT_ON_=
-ALLOW?
+> This implementation has been successfully tested using the existing and
+> also new tests in the SELinux Testsuite.
+>
+> Juraj Marcin (5):
+>   selinux: move transition to separate structure in avtab_datum
+>   selinux: move filename transitions to avtab
+>   selinux: implement new binary format for filename transitions in avtab
+>   selinux: filename transitions move tests
+>   selinux: add prefix/suffix matching support to filename type
+>     transitions
 
-I think we need a different name, although I'm struggling to think of
-something ... I don't think ALLOWAUDIT is right, as I believe it
-implies that it is needed to "allow" auditing to take place for the
-operation.  AUDIT_ON_ALLOW is better, but it still seems like it would
-be required if you wanted to generate audit records on a successful
-operation, which isn't correct.  I think we need to focus on the idea
-that the flag blocks auditing for denials.
-
-CAP_OPT_NOAUDITDENY is pretty much what you have, but in my mind the
-NOAUDITDENY shares enough with the existing NOAUDIT flag that it makes
-a bit more sense.
-
-I honestly don't know.  However, whatever you pick, make sure you
-update patch 2/X so that the name of ns_capable_nodenyaudit() is kept
-close to the flag's name.
+Just a quick comment as I haven't had a chance to properly review this
+series yet; you show some memory usage and performance measurements in
+some of the intermediate patches, that's good, but I don't see the
+same measurements taken when the full patchset is applied.  Please
+provide the same memory usage and performance comparisons with the
+full patchset applied.
 
 --=20
 paul-moore.com
