@@ -2,137 +2,101 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FDFFC77B7A
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 17:03:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6193C77B7E
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 18:06:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229667AbjFARDN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 13:03:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45894 "EHLO
+        id S231890AbjFASGu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 14:06:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230151AbjFARDM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 13:03:12 -0400
-Received: from sender11-of-o52.zoho.eu (sender11-of-o52.zoho.eu [31.186.226.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456D5136
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 10:03:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1685638987; cv=none; 
-        d=zohomail.eu; s=zohoarc; 
-        b=dgvH+3V9N66kmpe2d2DCyz7EfjCwsb6w2iar3KWh/ivrtJQ6cQfJRTK42Ci4VAlX9fLYMVo7lfoDHZItczXY7IFMggFtwjaHTIohgOm6QRBElOLU5kPsQU0fMmSynwu+ozN2DJeYZ7pmwtjo2oLesgvoE0FWPK72v6vncez27r0=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-        t=1685638987; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=6CRZzQ7NDhNem3iRtqdr7C5h5DCcCDuWM4CA4iujKCo=; 
-        b=MFbtK16/PwYKYrY+eNOvnAdTUUYSWr4AR3iqF0VpE13Op92BVYso5qbyG3NY4+/TwGms1uvHFvg9ho6sDgYJ/aim4YsXuKWkNsucngzG5TPtDf58AtpR0Sgo6aIFNQ/uE3SPapJStb/C/RGIYgFYWCZ8fvM+GH/U4pN3j0R1Xx8=
-ARC-Authentication-Results: i=1; mx.zohomail.eu;
-        dkim=pass  header.i=jurajmarcin.com;
-        spf=pass  smtp.mailfrom=juraj@jurajmarcin.com;
-        dmarc=pass header.from=<juraj@jurajmarcin.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1685638987;
-        s=zoho; d=jurajmarcin.com; i=juraj@jurajmarcin.com;
-        h=Date:Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Content-Transfer-Encoding:Message-Id:Reply-To;
-        bh=6CRZzQ7NDhNem3iRtqdr7C5h5DCcCDuWM4CA4iujKCo=;
-        b=LRyTV6oaBMkQ64TiFjdnbxtv1Zq3gmotUF2NmwPpNjBAbRqSptLfD7rXIziX4bu7
-        SuUzCoVNN2H12pWXKFbkznFyYrTrk/u2AwkIQF11hE89EJ6r3TcugB/uq1WiytYCQtx
-        wgfIFcq3WkCoYAKcvfqZTITNaRgMS831wkPcDQUw=
-Received: from morty01.jurajmarcin.com (129.159.244.31 [129.159.244.31]) by mx.zoho.eu
-        with SMTPS id 1685638985263141.66033061061626; Thu, 1 Jun 2023 19:03:05 +0200 (CEST)
-Received: from jmarcin-t14s-01 (unknown [147.251.183.113])
-        by morty01.jurajmarcin.com (Postfix) with ESMTPSA id 575732081F76;
-        Thu,  1 Jun 2023 17:03:04 +0000 (UTC)
-Date:   Thu, 1 Jun 2023 19:03:02 +0200
-From:   Juraj Marcin <juraj@jurajmarcin.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type
- transitions
-Message-ID: <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01>
-References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
- <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
+        with ESMTP id S232323AbjFASGt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 14:06:49 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE7121A2
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 11:06:44 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id af79cd13be357-75b2726f04cso96306585a.3
+        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 11:06:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1685642804; x=1688234804;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=han+Wp1gmrwD3MGPT7YKrI3QucY//yN+Pdm/tDnefv0=;
+        b=cdnMzB+VqWUWlgyMHNgox32r1A/yyZfIfXILDs04b16MfsWKEBxtW4wOm5y8W7wVuw
+         OQP5prU5tRVhUmH3n/NSnz2SuAAT8LJSBVWC0ejVTReWYcgj6kTz8WuDylr+UgjdBE91
+         02XDOynJGcz4gmfo3LNPV9fXpxr+ezA/X751EkBBGwFuH10ARAFZGImE7wJICA+eBtlS
+         o9BjGJG/FbCgtKrueoF3LtFFFWXLFFljIdSyVvpEItAhamcZFByVTkCBeAZl6lk/ouLE
+         UTFt9EYNCSTpQIqg6pmniHDXgETHacwgg4WFKwFFMRDaSbjBFBb00EeQo8vMmHM+roFa
+         jUzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685642804; x=1688234804;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=han+Wp1gmrwD3MGPT7YKrI3QucY//yN+Pdm/tDnefv0=;
+        b=eDgk63HBUOvPVl0neApmHnVsDIB+02o8rq4qWNWq+b0lkdEt2XdFWbD7XY/PT3TPf5
+         b6CNYd39wQurhnqHN6P940Zcr19o5xh/k1Xaw757++E81kSE5ASAyHFiqQ3CWOVziuvy
+         ruVjZy6T0/OVzwlM/EIRucvbv0ollrC+YmzycLGOA2eWAVe9+zgnfgty5TGVZDPRLeZN
+         PxYEWaW9CApMHjfB7pRDKDxf9+Y4sRYkGUXeQ1iHBpQIcV01gZsERNSqMIiJgVTtcg0u
+         LmBpVex2vs8gh0BtkfEn6WlU22EVq2hpfqUml+882W/wk+OnOnxD1VLUC9WdLDZS3iEg
+         8/BA==
+X-Gm-Message-State: AC+VfDwRNjZi0vEG1/5vXqknT0XTkENuWZkd5/leRfu3riO1YtpAwLRJ
+        H80LiIcyKLovulRb0Kr2yaL8Vsqj6rfTD1DKig==
+X-Google-Smtp-Source: ACHHUZ5zjQjT/3JO2bLHFQtDkfr6V6Us+dyQQPMj4XaT76JochCrHwaqnE+WSpm3e9CvlSE96dPacw==
+X-Received: by 2002:a05:6214:20ed:b0:56b:f28e:628a with SMTP id 13-20020a05621420ed00b0056bf28e628amr12088050qvk.6.1685642803852;
+        Thu, 01 Jun 2023 11:06:43 -0700 (PDT)
+Received: from localhost (pool-108-26-161-203.bstnma.fios.verizon.net. [108.26.161.203])
+        by smtp.gmail.com with ESMTPSA id n24-20020ae9c318000000b0075b09ae68b1sm6962969qkg.118.2023.06.01.11.06.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Jun 2023 11:06:43 -0700 (PDT)
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Cc:     Erwan Velu <e.velu@criteo.com>,
+        Luiz Capitulino <luizcap@amazon.com>
+Subject: [PATCH] selinux: don't use make's grouped targets feature yet
+Date:   Thu,  1 Jun 2023 14:06:43 -0400
+Message-Id: <20230601180643.211112-1-paul@paul-moore.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
-Content-Transfer-Encoding: quoted-printable
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1579; i=paul@paul-moore.com; h=from:subject; bh=1uMo3UXqLPExtasw2K0aolC4UOtXoIOLCOWsfLjKCIQ=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBkeN4sbhhtA3LZoeaAVtPvhQlO4cqIRvcXVl6rJ LjLTDeOoMuJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZHjeLAAKCRDqIPLalzeJ c4KyEACopHoVm8NbC5bqJJtJEcbF8NJJifjyvH0CGJKKFiII4fYBmZ+H7vPnNOq2RqgBSE9hGOf zrE+c/EYRKrfhfASWSROqC4NXJuMI2tTHK3pZYxKrfzlKzW8xBAsrt5cuKxN5PzuzL01+Rg7PLG 1APvKHSPK2AOXc4UH8N3SuDCp7AsY850f0FieeO+8Hlu4bTIIrULC1OktfxLuAz/YfI/h6qtfkP yMr8aNDedvRYm7dc91ncEfbaYZsBJee2UGDobNtVvmD9X5VGv1ZV2ZEqLqHDdKge4Y3kCDgncNI cmxYaqPCSlbbCYp2Q8sxQV+IbMf3PO1T4CJQ5rhwnm9SB1vVHljKHFYeJBQcQa4ZeE2gTp6b/tO esFTiqA21xfEwUNcS6EBzaTM1XceYtkTAJR9q5QAbGdm1CASEDOI+qs11r3nUUPwsHQantHMIY/ 2VBYO76vuW416pcCXNaFjP4gIng2boRT9dRK4UuNy13RTKakMEEqJuACUi8wLPEeHkiip9/in7J ZMRHExslRVVyuerzNRCMxwP+y9S6msgECr2Rd47pc+j9WnnOTLgxYteSKWxLb78QvYqFvj7Uhwm qKCu0a7/L7yYxjjzSbyw5S5zMNmVWFNC8P0kbOslRj6qGhnTqvKZxSN2qPTjrSRQYGHA3eVxptN q8/kwAMgnMe0W2w==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2023-05-31 18:24, Paul Moore wrote:
-> On Wed, May 31, 2023 at 7:32=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin=
-.com> wrote:
-> >
-> > Currently, filename transitions are stored separately from other type
-> > enforcement rules and only support exact name matching. However, in
-> > practice, the names contain variable parts. This leads to many
-> > duplicated rules in the policy that differ only in the part of the na=
-me,
-> > or it is even impossible to cover all possible combinations.
-> >
-> > First, this series of patches moves the filename transitions to be pa=
-rt
-> > of the avtab structures. This not only makes the implementation of
-> > prefix/suffix matching and future enhancements easier, but also reduc=
-es
-> > the technical debt regarding the filename transitions. Next, the last
-> > patch implements the support for prefix/suffix name matching itself b=
-y
-> > extending the structures added in previous patches in this series.
-> >
-> > Even though, moving everything to avtab increases the memory usage an=
-d
-> > the size of the binary policy itself and thus the loading time, the
-> > ability to match the prefix or suffix of the name will reduce the
-> > overall number of rules in the policy which should mitigate this issu=
-e.
-> >
-> > This implementation has been successfully tested using the existing a=
-nd
-> > also new tests in the SELinux Testsuite.
-> >
-> > Juraj Marcin (5):
-> >   selinux: move transition to separate structure in avtab_datum
-> >   selinux: move filename transitions to avtab
-> >   selinux: implement new binary format for filename transitions in av=
-tab
-> >   selinux: filename transitions move tests
-> >   selinux: add prefix/suffix matching support to filename type
-> >     transitions
->=20
-> Just a quick comment as I haven't had a chance to properly review this
-> series yet; you show some memory usage and performance measurements in
-> some of the intermediate patches, that's good, but I don't see the
-> same measurements taken when the full patchset is applied.  Please
-> provide the same memory usage and performance comparisons with the
-> full patchset applied.
+The Linux Kernel currently only requires make v3.82 while the grouped
+target functionality requires make v4.3.  Removed the grouped target
+introduced in 4ce1f694eb5d ("selinux: ensure av_permissions.h is
+built when needed") as well as the multiple header file targets in
+the make rule.  This effectively reverts the problem commit.
 
-Of course, here are the measurements with the whole patchset applied.
+We will revisit this change when make >= 4.3 is required by the rest
+of the kernel.
 
-I also included measurements with new policy (based on the Fedora
-policy) that uses prefix filename transitions where possible. This new
-policy has been generated by merging existing filename transitions into
-prefix ones if it would reduce the number of transitions overall while
-keeping the resulting type same.
+Cc: stable@vger.kernel.org
+Fixes: 4ce1f694eb5d ("selinux: ensure av_permissions.h is built when needed")
+Reported-by: Erwan Velu <e.velu@criteo.com>
+Reported-by: Luiz Capitulino <luizcap@amazon.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/Makefile | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index 0aecf9334ec3..8b21520bd4b9 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -26,5 +26,9 @@ quiet_cmd_flask = GEN     $(obj)/flask.h $(obj)/av_permissions.h
+       cmd_flask = $< $(obj)/flask.h $(obj)/av_permissions.h
+ 
+ targets += flask.h av_permissions.h
+-$(obj)/flask.h $(obj)/av_permissions.h &: scripts/selinux/genheaders/genheaders FORCE
++# once make >= 4.3 is required, we can use grouped targets in the rule below,
++# which basically involves adding both headers and a '&' before the colon, see
++# the example below:
++#   $(obj)/flask.h $(obj)/av_permissions.h &: scripts/selinux/...
++$(obj)/flask.h: scripts/selinux/genheaders/genheaders FORCE
+ 	$(call if_changed,flask)
+-- 
+2.40.1
 
-[1] Reference kernel (c52df19e3759), Fedora policy (format v33)
-[2] This patchset, Fedora policy (format v33)
-[3] This patchset, Fedora policy without prefix/suffix rules (format v35)
-[4] This patchset, Fedora policy with prefix rules (format v35)
-
-
- Test | Mem   | Binary | Policy | Create tty      | osbench
-      | Usage | policy | load   |                 | create
-      |       | size   | time   | (ms/file)       | files=20
-      | (MiB) | (MiB)  | (ms)   | real   | kernel | (us/file)
-------+-------+--------+--------+--------+--------+-----------
- [1]  |   157 |    3.4 |     78 | 1.1021 | 0.7586 | 7.8277
- [2]  |   200 |    3.4 |    206 | 1.1193 | 0.7724 | 8.2711
- [3]  |   169 |    5.8 |    106 | 1.1021 | 0.7724 | 8.0304
- [4]  |   164 |    3.8 |     86 | 1.1029 | 0.7586 | 7.9609
-
-
->=20
-> --=20
-> paul-moore.com
-
---=20
-Juraj Marcin
