@@ -2,112 +2,88 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 669AAC7EE23
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 19:23:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 537C1C7EE23
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 20:21:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbjFATX5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 15:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59242 "EHLO
+        id S231213AbjFAUVI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 16:21:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbjFATX5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 15:23:57 -0400
-Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1210D98
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 12:23:56 -0700 (PDT)
+        with ESMTP id S232498AbjFAUUx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 16:20:53 -0400
+Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD71E10CB
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 13:20:27 -0700 (PDT)
+Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-565ba2c7554so13182827b3.3
+        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 13:20:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1685647436; x=1717183436;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=vntPPY4b/rD0pELZr3vAZEI41k3shZCddJYx5jb1gZE=;
-  b=Hi7t4Wy9jQDmOyRNtVkx4Ko6yKPgGDDuzweMDFPt31RkYJdGTjmo0ZSf
-   0sc3F8czA3LuKfQzHtCsdzSciOhjtnIw5reBUFZFjDYNNLMBqKtojSzry
-   GvxdGK6oW5+vH0AXtZAcqLR0LtlIohkmmn4BZz8GqgadgZmBcpvyvOQlL
-   Q=;
-X-IronPort-AV: E=Sophos;i="6.00,210,1681171200"; 
-   d="scan'208";a="1135110352"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-32fb4f1a.us-west-2.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2023 19:23:50 +0000
-Received: from EX19MTAUEC001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-pdx-2b-m6i4x-32fb4f1a.us-west-2.amazon.com (Postfix) with ESMTPS id 0354BCB3E2;
-        Thu,  1 Jun 2023 19:23:49 +0000 (UTC)
-Received: from EX19D028UEC003.ant.amazon.com (10.252.137.159) by
- EX19MTAUEC001.ant.amazon.com (10.252.135.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.26; Thu, 1 Jun 2023 19:22:55 +0000
-Received: from [192.168.209.155] (10.106.239.22) by
- EX19D028UEC003.ant.amazon.com (10.252.137.159) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.26; Thu, 1 Jun 2023 19:22:54 +0000
-Message-ID: <275be495-96f3-8ad6-33ca-815068f3a4f2@amazon.com>
-Date:   Thu, 1 Jun 2023 15:22:51 -0400
+        d=paul-moore.com; s=google; t=1685650805; x=1688242805;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5wZEzrXagpd1ZJ5FybW+SpSMtP2A4Kb7Kwz7t352G3o=;
+        b=ULL5p4OGKEWTMAYj5H/gjjjRR99Zmdgk/VtUIuIwvAMkFWwQSOg6mE9tp+qlTcGyMU
+         pd/xKspV/KKJd0VsKXqbwNi+IiN6leHgUNtbS02trdTElizSV4BwV9hng7UC5xXqNjKI
+         bc+TJFqxDCplOIx3hsJjgTB5xnqNDvzL514N+tWu8tAajEwBsDCZDJesf9rdJZsadTLl
+         dzIpL7mM5RfWFqZRS3POB4KWdJnOUnrtss5Qdp1W/DFZrCTBu8fPEtKrNZkyDp+M1XJ4
+         oibMiso6ExHPm0iePnwur0ldq3fC0uWbnT00Ex4UjCB8rGz8igQqEBqt/bbf+3qZQsDZ
+         j8SQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685650805; x=1688242805;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5wZEzrXagpd1ZJ5FybW+SpSMtP2A4Kb7Kwz7t352G3o=;
+        b=lRuHmqQKRh0ps6vYIEF+A+RnwPK6AgxNqIeCKTJI+Sh0IdFNiDrNWCgk2jzLBtIiKT
+         YkEQWO03MFR7h0EzTJu7cQRLzothAwD4e6jMOv44c+f0oNCn7vnvxyE1r36dC/ou57Z/
+         BRNTF4L0LD1t7chVe/C7koka6l8Y/bpljhhlKgGnFxa2lxPcSO1p3yrX0izo5lZ22gEZ
+         VKsH2Wjl+6p0xhRtoQGgaM+yzvSLDm3NIqpU8CyyYa18dcjV2K4ZrOtqGwU7r2Z2MGJO
+         /VkuuIdfMv4ZSVxY/SOn2nUTN0CEeD80HPEo8KxfmmUGnUvxCEmgyxOCM2xWbV5r29AK
+         aumw==
+X-Gm-Message-State: AC+VfDys9Mn3ZS51grixqAy16D2p7wHQKCOUgMf9Nw38t4ztNjuT5lFL
+        4nCQVBHJDfMi0y7T7sggU8rB8jSRG8hvFeVxbBhw
+X-Google-Smtp-Source: ACHHUZ7ooyhDbrvk4fGCIRVOS8dSxcUhCqxd0ePQhG1BII+do6kkPujL3e5mdU6cHoSMA8RY7Jw628NCBvpaL9FcuRg=
+X-Received: by 2002:a81:8544:0:b0:568:c576:aca2 with SMTP id
+ v65-20020a818544000000b00568c576aca2mr9221861ywf.49.1685650805714; Thu, 01
+ Jun 2023 13:20:05 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
+References: <20230601180643.211112-1-paul@paul-moore.com> <275be495-96f3-8ad6-33ca-815068f3a4f2@amazon.com>
+In-Reply-To: <275be495-96f3-8ad6-33ca-815068f3a4f2@amazon.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 1 Jun 2023 16:19:54 -0400
+Message-ID: <CAHC9VhQr-Mj_XXtjJ8ZnjHuna5L_z9dDPDxEDaFDWkVV-PmxhQ@mail.gmail.com>
 Subject: Re: [PATCH] selinux: don't use make's grouped targets feature yet
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>, <selinux@vger.kernel.org>
-CC:     Erwan Velu <e.velu@criteo.com>
-References: <20230601180643.211112-1-paul@paul-moore.com>
-From:   Luiz Capitulino <luizcap@amazon.com>
-In-Reply-To: <20230601180643.211112-1-paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.106.239.22]
-X-ClientProxiedBy: EX19D042UWB003.ant.amazon.com (10.13.139.135) To
- EX19D028UEC003.ant.amazon.com (10.252.137.159)
+To:     Luiz Capitulino <luizcap@amazon.com>
+Cc:     selinux@vger.kernel.org, Erwan Velu <e.velu@criteo.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Jun 1, 2023 at 3:23=E2=80=AFPM Luiz Capitulino <luizcap@amazon.com>=
+ wrote:
+> On 2023-06-01 14:06, Paul Moore wrote:
+> >
+> > The Linux Kernel currently only requires make v3.82 while the grouped
+> > target functionality requires make v4.3.  Removed the grouped target
+> > introduced in 4ce1f694eb5d ("selinux: ensure av_permissions.h is
+> > built when needed") as well as the multiple header file targets in
+> > the make rule.  This effectively reverts the problem commit.
+> >
+> > We will revisit this change when make >=3D 4.3 is required by the rest
+> > of the kernel.
+>
+> Tested-by: Luiz Capitulino <luizcap@amazon.com>
 
+Great, thanks for the help.  I'm going to merge this into
+selinux/stable-6.4 and send it up to Linus as soon as the testing with
+that is done (should be later tonight).
 
-On 2023-06-01 14:06, Paul Moore wrote:
+> Note for -stable: this is needed in all kernels that backported
+> commit 4ce1f694eb5d
+>
+> Thanks, Paul!
 
-> 
-> 
-> 
-> The Linux Kernel currently only requires make v3.82 while the grouped
-> target functionality requires make v4.3.  Removed the grouped target
-> introduced in 4ce1f694eb5d ("selinux: ensure av_permissions.h is
-> built when needed") as well as the multiple header file targets in
-> the make rule.  This effectively reverts the problem commit.
-> 
-> We will revisit this change when make >= 4.3 is required by the rest
-> of the kernel.
-
-Tested-by: Luiz Capitulino <luizcap@amazon.com>
-
-Note for -stable: this is needed in all kernels that backported
-commit 4ce1f694eb5d
-
-Thanks, Paul!
-
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 4ce1f694eb5d ("selinux: ensure av_permissions.h is built when needed")
-> Reported-by: Erwan Velu <e.velu@criteo.com>
-> Reported-by: Luiz Capitulino <luizcap@amazon.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->   security/selinux/Makefile | 6 +++++-
->   1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-> index 0aecf9334ec3..8b21520bd4b9 100644
-> --- a/security/selinux/Makefile
-> +++ b/security/selinux/Makefile
-> @@ -26,5 +26,9 @@ quiet_cmd_flask = GEN     $(obj)/flask.h $(obj)/av_permissions.h
->         cmd_flask = $< $(obj)/flask.h $(obj)/av_permissions.h
-> 
->   targets += flask.h av_permissions.h
-> -$(obj)/flask.h $(obj)/av_permissions.h &: scripts/selinux/genheaders/genheaders FORCE
-> +# once make >= 4.3 is required, we can use grouped targets in the rule below,
-> +# which basically involves adding both headers and a '&' before the colon, see
-> +# the example below:
-> +#   $(obj)/flask.h $(obj)/av_permissions.h &: scripts/selinux/...
-> +$(obj)/flask.h: scripts/selinux/genheaders/genheaders FORCE
->          $(call if_changed,flask)
-> --
-> 2.40.1
-> 
+--=20
+paul-moore.com
