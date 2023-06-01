@@ -2,48 +2,49 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 872B2C7EE2A
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 14:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66E25C7EE23
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 14:40:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233476AbjFAOkY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 10:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54064 "EHLO
+        id S233772AbjFAOkZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 10:40:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233662AbjFAOkV (ORCPT
+        with ESMTP id S233655AbjFAOkV (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 10:40:21 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BEF193
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 07:39:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F3D192
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 07:39:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685630367;
+        s=mimecast20190719; t=1685630366;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=TR+G6oJzokCd6xF152p0glXQ42c83TWeJ0fIdVE9uLI=;
-        b=QT1ENsu0aueYIzJfjxVTW0cIwhsrwT2uqSrmu2Z90MwYvVCmCZEng8I2LFfSqY2HBloUPa
-        Vv+7NijdMoI0GMSQC0dsGh0CnbA2Rx0At+ftH2ja0vrfz9gA6bTyKADM+mdq8/DmOtHit8
-        C4xGsyFwILmwA17ykE6jM/WL9RK321Y=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=j7KvTgiYbvvf/Qv0EvYIjCz835JJ+blCd+jyl5D10Vw=;
+        b=KAZuLsCCrex5y6VSkLFqpRLHjcV/I/GscUXiLaE1vminGOWTCkqMsbBSd9aWaVoNE/IIGy
+        GW56Ar+/m7QTqVvvCsRrDgzOEgekUEJLMrzHvZuWC8nU9RxEDzPx9bu86IkbtkE+bMoc29
+        fJWcjv2fesyETpSKlW9CgD6mSvJJLoI=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-312-7evOhL06MI23QElHQxIGDg-1; Thu, 01 Jun 2023 10:39:23 -0400
-X-MC-Unique: 7evOhL06MI23QElHQxIGDg-1
+ us-mta-440-3fQKDt_8MY6n6ZX8UgxnDA-1; Thu, 01 Jun 2023 10:39:25 -0400
+X-MC-Unique: 3fQKDt_8MY6n6ZX8UgxnDA-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 36AB9101B040
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:39:23 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B3AFF3C11C81
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:39:24 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.45.226.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AB2F314171BB
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:39:22 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 47E1014171BB
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:39:24 +0000 (UTC)
 From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2 1/5] policycoreutils: Add examples to man pages
-Date:   Thu,  1 Jun 2023 16:39:11 +0200
-Message-Id: <20230601143915.2051922-1-vmojzis@redhat.com>
-In-Reply-To: <87ttvsk0qx.fsf@redhat.com>
+Subject: [PATCH v2 2/5] python/sepolicy: Improve man pages
+Date:   Thu,  1 Jun 2023 16:39:12 +0200
+Message-Id: <20230601143915.2051922-2-vmojzis@redhat.com>
+In-Reply-To: <20230601143915.2051922-1-vmojzis@redhat.com>
 References: <87ttvsk0qx.fsf@redhat.com>
+ <20230601143915.2051922-1-vmojzis@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
@@ -51,305 +52,387 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-While at it, remove trailing whitespaces.
+- Add missing options
+- Add examples
+- Emphasize keywords
+- Remove trailing whitespaces
 
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- policycoreutils/scripts/fixfiles.8          | 34 +++++++++++++--------
- policycoreutils/secon/secon.1               | 12 ++++++--
- policycoreutils/semodule/semodule.8         | 14 ++++-----
- policycoreutils/setfiles/restorecon.8       |  9 ++++++
- policycoreutils/setfiles/restorecon_xattr.8 |  7 +++++
- policycoreutils/setfiles/setfiles.8         |  9 ++++++
- policycoreutils/setsebool/setsebool.8       | 16 +++++++---
- 7 files changed, 74 insertions(+), 27 deletions(-)
+ python/sepolicy/sepolicy-booleans.8    | 15 +++++++++---
+ python/sepolicy/sepolicy-communicate.8 | 14 ++++++++---
+ python/sepolicy/sepolicy-generate.8    | 34 ++++++++++++--------------
+ python/sepolicy/sepolicy-gui.8         |  4 +--
+ python/sepolicy/sepolicy-interface.8   | 18 +++++++++++---
+ python/sepolicy/sepolicy-manpage.8     | 25 ++++++++++++++-----
+ python/sepolicy/sepolicy-network.8     | 17 ++++++-------
+ python/sepolicy/sepolicy-transition.8  | 19 +++++++++-----
+ 8 files changed, 96 insertions(+), 50 deletions(-)
 
-diff --git a/policycoreutils/scripts/fixfiles.8 b/policycoreutils/scripts/fixfiles.8
-index 9a317d91..928b8200 100644
---- a/policycoreutils/scripts/fixfiles.8
-+++ b/policycoreutils/scripts/fixfiles.8
-@@ -14,7 +14,7 @@ fixfiles \- fix file SELinux security contexts.
- .B fixfiles
- .I [\-v] [\-F] [\-B | \-N time ] [\-T nthreads] { check | restore | verify }
- 
--.B fixfiles 
-+.B fixfiles
- .I [\-v] [\-F] [\-T nthreads] \-R rpmpackagename[,rpmpackagename...] { check | restore | verify }
- 
- .B fixfiles
-@@ -31,7 +31,7 @@ This manual page describes the
- script.
- .P
- This script is primarily used to correct the security context
--database (extended attributes) on filesystems.  
-+database (extended attributes) on filesystems.
- .P
- It can also be run at any time to relabel when adding support for
- new policy, or  just check whether the file contexts are all
-@@ -41,29 +41,29 @@ option.  You can use the \-R flag to use rpmpackages as an alternative.
- The file /etc/selinux/fixfiles_exclude_dirs can contain a list of directories
- excluded from relabeling.
- .P
--.B fixfiles onboot 
-+.B fixfiles onboot
- will setup the machine to relabel on the next reboot.
- 
- .SH "OPTIONS"
--.TP 
-+.TP
- .B \-B
- If specified with onboot, this fixfiles will record the current date in the /.autorelabel file, so that it can be used later to speed up labeling. If used with restore, the restore will only affect files that were modified today.
- .TP
- .B \-F
- Force reset of context to match file_context for customizable files
- 
--.TP 
-+.TP
- .B \-f
- Clear /tmp directory with out prompt for removal.
- 
--.TP 
-+.TP
- .B \-R rpmpackagename[,rpmpackagename...]
- Use the rpm database to discover all files within the specified packages and restore the file contexts.
- .TP
- .B \-C PREVIOUS_FILECONTEXT
- Run a diff on  the PREVIOUS_FILECONTEXT file to the currently installed one, and restore the context of all affected files.
- 
--.TP 
-+.TP
- .B \-N time
- Only act on files created after the specified date.  Date must be specified in
- "YYYY\-MM\-DD HH:MM" format.  Date field will be passed to find \-\-newermt command.
-@@ -83,19 +83,28 @@ Use parallel relabeling, see
- 
- .SH "ARGUMENTS"
- One of:
--.TP 
-+.TP
- .B check | verify
- print any incorrect file context labels, showing old and new context, but do not change them.
--.TP 
-+.TP
- .B restore
- change any incorrect file context labels.
--.TP 
-+.TP
- .B relabel
- Prompt for removal of contents of /tmp directory and then change any incorrect file context labels to match the install file_contexts file.
--.TP 
--.B [[dir/file] ... ] 
-+.TP
-+.B [[dir/file] ... ]
- List of files or directories trees that you wish to check file context on.
- 
-+.SH EXAMPLE
-+.nf
-+Relabel the whole filesystem, except paths listed in /etc/selinux/fixfiles_exclude_dirs
-+# fixfiles relabel
-+Schedule the machine to relabel on the next boot and force relabeling of customizable types
-+# fixfiles -F onboot
-+Check labeling of all files from the samba package (while not changing any labels)
-+# fixfiles -R samba check
-+
- .SH "AUTHOR"
- This man page was written by Richard Hally <rhally@mindspring.com>.
- The script  was written by Dan Walsh <dwalsh@redhat.com>
-@@ -103,4 +112,3 @@ The script  was written by Dan Walsh <dwalsh@redhat.com>
- .SH "SEE ALSO"
- .BR setfiles (8),
- .BR restorecon (8)
--
-diff --git a/policycoreutils/secon/secon.1 b/policycoreutils/secon/secon.1
-index 501b5cb8..c0e8b05a 100644
---- a/policycoreutils/secon/secon.1
-+++ b/policycoreutils/secon/secon.1
-@@ -107,16 +107,24 @@ then the context will be read from stdin.
- .br
- If there is no argument,
- .B secon
--will try reading a context from stdin, if that is not a tty, otherwise 
-+will try reading a context from stdin, if that is not a tty, otherwise
- .B secon
- will act as though \fB\-\-self\fR had been passed.
- .PP
- If none of \fB\-\-user\fR, \fB\-\-role\fR, \fB\-\-type\fR, \fB\-\-level\fR or
- \fB\-\-mls\-range\fR is passed.
- Then all of them will be output.
-+
-+.SH EXAMPLE
-+.nf
-+Show SElinux context of the init process
-+# secon --pid 1
-+Parse the type portion of given security context
-+# secon -t system_u:object_r:httpd_sys_rw_content_t:s0
-+
- .PP
- .SH SEE ALSO
- .BR chcon (1)
- .SH AUTHORS
- .nf
--James Antill (james.antill@redhat.com) 
-+James Antill (james.antill@redhat.com)
-diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-index c56e580f..01757b00 100644
---- a/policycoreutils/semodule/semodule.8
-+++ b/policycoreutils/semodule/semodule.8
-@@ -1,5 +1,5 @@
- .TH SEMODULE "8" "Nov 2005" "Security Enhanced Linux" NSA
--.SH NAME 
-+.SH NAME
- semodule \- Manage SELinux policy modules.
- 
- .SH SYNOPSIS
-@@ -8,7 +8,7 @@ semodule \- Manage SELinux policy modules.
- .SH DESCRIPTION
- .PP
- semodule is the tool used to manage SELinux policy modules,
--including installing, upgrading, listing and removing modules.  
-+including installing, upgrading, listing and removing modules.
- semodule may also be used to force a rebuild of policy from the
- module store and/or to force a reload of policy without performing
- any other transaction.  semodule acts on module packages created
-@@ -39,7 +39,7 @@ install/replace a module package
- .B  \-u,\-\-upgrade=MODULE_PKG
- deprecated, alias for --install
- .TP
--.B  \-b,\-\-base=MODULE_PKG   
-+.B  \-b,\-\-base=MODULE_PKG
- deprecated, alias for --install
- .TP
- .B  \-r,\-\-remove=MODULE_NAME
-@@ -77,7 +77,7 @@ name of the store to operate on
- .B  \-n,\-\-noreload,\-N
- do not reload policy after commit
- .TP
--.B  \-h,\-\-help        
-+.B  \-h,\-\-help
- prints help message and quit
- .TP
- .B \-P,\-\-preserve_tunables
-@@ -92,7 +92,7 @@ Use an alternate path for the policy root
- .B \-S,\-\-store-path
- Use an alternate path for the policy store root
- .TP
--.B  \-v,\-\-verbose     
-+.B  \-v,\-\-verbose
- be verbose
- .TP
- .B  \-c,\-\-cil
-@@ -131,8 +131,6 @@ $ semodule \-B
- $ semodule \-d alsa
- # Install a module at a specific priority.
- $ semodule \-X 100 \-i alsa.pp
--# List all modules.
--$ semodule \-\-list=full
- # Set an alternate path for the policy root
- $ semodule \-B \-p "/tmp"
- # Set an alternate path for the policy store root
-@@ -143,6 +141,8 @@ $ semodule \-X 400 \-\-hll \-E puppet \-\-cil \-E wireshark
- # Check whether a module in "localmodule.pp" file is same as installed module "localmodule"
- $ /usr/libexec/selinux/hll/pp localmodule.pp | sha256sum
- $ semodule -l -m | grep localmodule
-+# Translate binary module file into CIL (useful for debugging installation errors)
-+$ /usr/libexec/selinux/hll/pp alsa.pp > alsa.cil
- .fi
- 
- .SH SEE ALSO
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index e07db2c8..c3cc5c9b 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -224,6 +224,15 @@ and provided the
- option is NOT set and recursive mode is set, files will be relabeled as
- required with the digests then being updated provided there are no errors.
- 
-+.SH EXAMPLE
-+.nf
-+Fix labeling of /var/www/ including all sub-directories and list all context changes
-+# restorecon -rv /var/www/
-+List mislabeled files in user home directory and what the correct label should be
-+# restorecon -nvr ~
-+Fix labeling of files listed in file_list file, ignoring any that do not exist
-+# restorecon -vif file_list
-+
- .SH "AUTHOR"
- This man page was written by Dan Walsh <dwalsh@redhat.com>.
- Some of the content of this man page was taken from the setfiles
-diff --git a/policycoreutils/setfiles/restorecon_xattr.8 b/policycoreutils/setfiles/restorecon_xattr.8
-index e04528e6..51d12a4d 100644
---- a/policycoreutils/setfiles/restorecon_xattr.8
-+++ b/policycoreutils/setfiles/restorecon_xattr.8
-@@ -112,6 +112,13 @@ If the option is not specified, then the default file_contexts will be used.
- .br
- the pathname of the directory tree to be searched.
- 
-+.SH EXAMPLE
-+.nf
-+List all paths that where assigned a checksum by "restorecon/setfiles -D"
-+# restorecon_xattr -r /
-+Remove all non-matching checksums
-+# restorecon_xattr -rd /
-+
- .SH "SEE ALSO"
- .BR restorecon (8),
- .BR setfiles (8)
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index bf26e161..892a5062 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -289,6 +289,15 @@ and provided the
- option is NOT set, files will be relabeled as required with the digests then
- being updated provided there are no errors.
- 
-+.SH EXAMPLE
-+.nf
-+Fix labeling of /var/www/ including all sub-directories, using targeted policy file context definitions and list all context changes
-+# setfiles -v /etc/selinux/targeted/contexts/files/file_contexts /var/www/
-+List mislabeled files in user home directory and what the label should be based on targeted policy file context definitions
-+# setfiles -nv /etc/selinux/targeted/contexts/files/file_contexts ~
-+Fix labeling of files listed in file_list file, ignoring any that do not exist
-+# setfiles -vif file_list /etc/selinux/targeted/contexts/files/file_contexts
-+
- .SH "AUTHOR"
- This man page was written by Russell Coker <russell@coker.com.au>.
- The program was written by Stephen Smalley <sds@tycho.nsa.gov>
-diff --git a/policycoreutils/setsebool/setsebool.8 b/policycoreutils/setsebool/setsebool.8
-index 52936f5a..f54664fb 100644
---- a/policycoreutils/setsebool/setsebool.8
-+++ b/policycoreutils/setsebool/setsebool.8
-@@ -7,13 +7,13 @@ setsebool \- set SELinux boolean value
- .I "[ \-PNV ] boolean value | bool1=val1 bool2=val2 ..."
+diff --git a/python/sepolicy/sepolicy-booleans.8 b/python/sepolicy/sepolicy-booleans.8
+index f8d8b56d..7f4b18e7 100644
+--- a/python/sepolicy/sepolicy-booleans.8
++++ b/python/sepolicy/sepolicy-booleans.8
+@@ -8,12 +8,16 @@ sepolicy-booleans \- Query SELinux Policy to see description of booleans
+ .B sepolicy booleans [\-h] [ \-a | \-b booleanname ... ]
  
  .SH "DESCRIPTION"
--.B setsebool 
--sets the current state of a particular SELinux boolean or a list of booleans 
--to a given value. The value may be 1 or true or on to enable the boolean, or 0 or false or off to disable it. 
-+.B setsebool
-+sets the current state of a particular SELinux boolean or a list of booleans
-+to a given value. The value may be 1 or true or on to enable the boolean, or 0 or false or off to disable it.
+-sepolicy booleans will show all booleans and their descriptions, or you can 
+-choose individual booleans to display
++.B sepolicy booleans
++will show all booleans and their descriptions, or you can
++choose individual booleans to display.
++Please make sure that selinux-policy-devel is present in your system since it contains boolean descriptions extracted from the policy source code. Otherwise
++.B sepolicy booleans
++will only show descriptions generated based on boolean names.
  
- Without the \-P option, only the current boolean value is
--affected; the boot-time default settings 
--are not changed. 
-+affected; the boot-time default settings
-+are not changed.
- 
- If the \-P option is given, all pending values are written to
- the policy file on disk. So they will be persistent across reboots.
-@@ -22,6 +22,12 @@ If the \-N option is given, the policy on disk is not reloaded into the kernel.
- 
- If the \-V option is given, verbose error messages will be printed from semanage libraries.
+ .SH "OPTIONS"
+ .TP
+-.I                \-h, \-\-help       
++.I                \-h, \-\-help
+ Display help message
+ .TP
+ .I                \-a, \-\-all
+@@ -22,6 +26,11 @@ Display all boolean descriptions
+ .I                \-b, \-\-boolean
+ boolean to get description
  
 +.SH EXAMPLE
 +.nf
-+Enable container_use_devices boolean (will return to persistent value after reboot)
-+# setsebool container_use_devices 1
-+Persistently enable samba_create_home_dirs and samba_enable_home_dirs booleans
-+# setsebool -P samba_create_home_dirs=on samba_enable_home_dirs=on
++List descriptions of samba_create_home_dirs and samba_enable_home_dirs booleans
++# sepolicy booleans -b samba_create_home_dirs samba_enable_home_dirs
++
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>
  
- .SH AUTHOR
- This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+diff --git a/python/sepolicy/sepolicy-communicate.8 b/python/sepolicy/sepolicy-communicate.8
+index 050aa475..5ecf6eff 100644
+--- a/python/sepolicy/sepolicy-communicate.8
++++ b/python/sepolicy/sepolicy-communicate.8
+@@ -8,7 +8,9 @@ sepolicy-communicate \- Generate a report showing if two SELinux Policy Domains
+ .B sepolicy communicate [\-h] \-s SOURCE \-t TARGET [\-c TCLASS] [\-S SOURCEACCESS] [\-T TARGETACCESS]
+ 
+ .SH "DESCRIPTION"
+-Use sepolicy communicate to examine SELinux Policy to if a source SELinux Domain can communicate with a target SELinux Domain.
++Use
++.B sepolicy communicate
++to examine SELinux Policy and determine if a source SELinux Domain can communicate with a target SELinux Domain.
+ The default command looks to see if there are any file types that the source domain can write, which the target domain can read.
+ 
+ .SH "OPTIONS"
+@@ -16,7 +18,7 @@ The default command looks to see if there are any file types that the source dom
+ .I                \-c, \-\-class
+ Specify the SELinux class which the source domain will attempt to communicate with the target domain.  (Default file)
+ .TP
+-.I                \-h, \-\-help       
++.I                \-h, \-\-help
+ Display help message
+ .TP
+ .I                \-s, \-\-source
+@@ -31,9 +33,15 @@ Specify the target SELinux domain type.
+ .I                \-T, \-\-targetaccess
+ Specify the list of accesses used by the target SELinux domain type to receive communications from the source domain. Default Open, Read.
+ 
++.SH EXAMPLE
++.nf
++List types that can be used to communicate between samba daemon and apache server
++# sepolicy communicate -s httpd_t -t smbd_t
++Consider a type to be accessible by the source domain when it can be opened and appended to (as opposed to opened and written to)
++# sepolicy communicate -s httpd_t -t smbd_t -S open,append
++
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>
+ 
+ .SH "SEE ALSO"
+ sepolicy(8), selinux(8)
+-
+diff --git a/python/sepolicy/sepolicy-generate.8 b/python/sepolicy/sepolicy-generate.8
+index 0c5f998f..72d0e8e4 100644
+--- a/python/sepolicy/sepolicy-generate.8
++++ b/python/sepolicy/sepolicy-generate.8
+@@ -57,32 +57,29 @@ path. \fBsepolicy generate\fP will use the rpm payload of the
+ application along with \fBnm \-D APPLICATION\fP to help it generate
+ types and policy rules for your policy files.
+ 
+-.B Type Enforcing File NAME.te
++.B NAME.te
+ .br
+-This file can be used to define all the types rules for a particular domain.
++This file can be used to define all the types enforcement rules for a particular domain.
+ 
+ .I Note:
+-Policy generated by \fBsepolicy generate\fP will automatically add a permissive DOMAIN to your te file.  When you are satisfied that your policy works, you need to remove the permissive line from the te file to run your domain in enforcing mode.
++Policy generated by \fBsepolicy generate\fP will automatically add a \fIpermissive DOMAIN\fP to your \fB.te\fP file. When you are satisfied that your policy works, you need to remove the permissive line from the \fB.te\fP file to run your domain in enforcing mode.
+ 
+-.B Interface File NAME.if
++.B NAME.if
+ .br
+-This file defines the interfaces for the types generated in the te file, which can be used by other policy domains.
++This file defines the interfaces for the types generated in the \fB.te\fP file, which can be used by other policy domains.
+ 
+-.B File Context NAME.fc
++.B NAME.fc
+ .br
+-This file defines the default file context for the system, it takes the file types created in the te file and associates
++This file defines the default file context for the system, it takes the file types created in the \fB.te\fP file and associates
+ file paths to the types.  Tools like restorecon and RPM will use these paths to put down labels.
+ 
+-.B RPM Spec File NAME_selinux.spec
++.B NAME_selinux.spec
+ .br
+-This file is an RPM SPEC file that can be used to install the SELinux policy on to machines and setup the labeling. The spec file also installs the interface file and a man page describing the policy.  You can use \fBsepolicy manpage \-d NAME\fP to generate the man page.
++This file is an RPM SPEC file that can be used to install the SELinux policy on to machines and setup the labeling. The spec file also installs the interface file and a man page describing the policy. You can use \fBsepolicy manpage \-d NAME\fP to generate the man page.
+ 
+-.B Shell File NAME.sh
++.B NAME.sh
+ .br
+-This is a helper shell script to compile, install and fix the labeling on your test system.  It will also generate a man page based on the installed policy, and
+-compile and build an RPM suitable to be installed on other machines
+-
+-If a generate is possible, this tool will print out all generate paths from the source domain to the target domain
++This is a helper shell script to compile, install and fix the labeling on your test system. It will also generate a man page based on the installed policy, and compile and build an RPM suitable to be installed on other machines.
+ 
+ .SH "OPTIONS"
+ .TP
+@@ -97,10 +94,11 @@ Specify alternate name of policy. The policy will default to the executable or n
+ .TP
+ .I                \-p, \-\-path
+ Specify the directory to store the created policy files. (Default to current working directory )
++.TP
+ optional arguments:
+ .TP
+ .I                \-r, \-\-role
+-Enter role(s) to which this admin user will transition.
++Enter role(s) to which this admin user will transition
+ .TP
+ .I                \-t, \-\-type
+ Enter type(s) for which you will generate new definition and rule(s)
+@@ -109,12 +107,12 @@ Enter type(s) for which you will generate new definition and rule(s)
+ SELinux user(s) which will transition to this domain
+ .TP
+ .I                \-w, \-\-writepath
+-Path(s) which the confined processes need to write
++Path(s) which the confined processes need to write to
+ .TP
+ .I                \-a, \-\-admin
+ Domain(s) which the confined admin will administrate
+ .TP
+-.I  \-\-admin_user 
++.I  \-\-admin_user
+ Generate Policy for Administrator Login User Role
+ .TP
+ .I  \-\-application
+@@ -142,7 +140,7 @@ Generate Policy for Internet Services Daemon
+ Generate Policy for Standard Init Daemon (Default)
+ .TP
+ .I  \-\-newtype
+-Generate new policy for new types to add to an existing policy.
++Generate new policy for new types to add to an existing policy
+ .TP
+ .I  \-\-sandbox
+ Generate Policy for Sandbox
+diff --git a/python/sepolicy/sepolicy-gui.8 b/python/sepolicy/sepolicy-gui.8
+index ed744cdb..65b69fab 100644
+--- a/python/sepolicy/sepolicy-gui.8
++++ b/python/sepolicy/sepolicy-gui.8
+@@ -11,7 +11,7 @@ Common options
+ .br
+ 
+ .SH "DESCRIPTION"
+-Use \fBsepolicy gui\fP to run a the graphical user interface, which
++Use \fBsepolicy gui\fP to run the graphical user interface, which
+ allows you to explore how SELinux confines different process domains.
+ 
+ .SH "OPTIONS"
+@@ -20,7 +20,7 @@ allows you to explore how SELinux confines different process domains.
+ Display help message
+ .TP
+ .I                \-d, \-\-domain
+-Initialize gui to the selected domain.
++Initialize gui to the selected domain
+ 
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>
+diff --git a/python/sepolicy/sepolicy-interface.8 b/python/sepolicy/sepolicy-interface.8
+index 3e74ea62..a70a9306 100644
+--- a/python/sepolicy/sepolicy-interface.8
++++ b/python/sepolicy/sepolicy-interface.8
+@@ -5,10 +5,10 @@ sepolicy-interface \- Print interface information based on the installed SELinux
+ .SH "SYNOPSIS"
+ 
+ .br
+-.B sepolicy interface  [\-h] [\-c] [\-v] [\-a | \-u | \-l | \-i INTERFACE [INTERFACE ... ]]
++.B sepolicy interface  [\-h] [\-c] [\-v] [\-f FILE] [\-a | \-u | \-l | \-i INTERFACE [INTERFACE ... ]]
+ 
+ .SH "DESCRIPTION"
+-Use sepolicy interface to print interfaces information based on SELinux Policy.
++Use \fBsepolicy interface\fP to print interface information based on SELinux Policy.
+ 
+ .SH "OPTIONS"
+ .TP
+@@ -18,7 +18,7 @@ List all domains with admin interface
+ .I                \-c, \-\-compile
+ Test compile of interfaces
+ .TP
+-.I                \-h, \-\-help       
++.I                \-h, \-\-help
+ Display help message
+ .TP
+ .I                \-i, \-\-interface
+@@ -32,6 +32,18 @@ List all domains with SELinux user role interface
+ .TP
+ .I                \-v, \-\-verbose
+ Display extended information about the interface including parameters and description if available.
++.TP
++.I                \-f, \-\-file
++Interface file to be explored
++
++.SH EXAMPLE
++.nf
++Show description of given interface
++# sepolicy interface -vi samba_rw_config
++List interfaces in given interface file and show their description
++# sepolicy interface -f my_policy.if -lv
++Run compile test for all interfaces in given file
++# sepolicy interface -f my_policy.if -lc
+ 
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>
+diff --git a/python/sepolicy/sepolicy-manpage.8 b/python/sepolicy/sepolicy-manpage.8
+index c05c9430..4991f645 100644
+--- a/python/sepolicy/sepolicy-manpage.8
++++ b/python/sepolicy/sepolicy-manpage.8
+@@ -8,27 +8,40 @@ sepolicy-manpage \- Generate a man page based on the installed SELinux Policy
+ .B sepolicy manpage [\-w] [\-h] [\-p PATH ] [\-r ROOTDIR ] [\-a | \-d ]
+ 
+ .SH "DESCRIPTION"
+-Use sepolicy manpage to generate manpages based on SELinux Policy.
++Use \fBsepolicy manpage\fP to generate manpages based on SELinux Policy.
+ 
+ .SH "OPTIONS"
+ .TP
+-.I                \-a, \-\-all        
++.I                \-a, \-\-all
+ Generate Man Pages for All Domains
+ .TP
+-.I                \-d, \-\-domain     
++.I                \-d, \-\-domain
+ Generate a Man Page for the specified domain. (Supports multiple commands)
+ .TP
+-.I                \-h, \-\-help       
++.I                \-h, \-\-help
+ Display help message
+ .TP
++.I                \-o, \-\-os
++Specify the name of the OS to be used in the man page (only affects HTML man pages)
++.TP
+ .I                \-p, \-\-path
+ Specify the directory to store the created man pages. (Default to /tmp)
+ .TP
+ .I                \-r, \-\-root
+-Specify alternate root directory to generate man pages from. (Default to /)
++Specify alternative root directory to generate man pages from. (Default to /)
++.TP
++.I                \-\-source_files
++Use file_contexts and policy.xml files from the specified root directory (the alternative root needs to include both files)
+ .TP
+ .I                \-w, \-\-web
+-Generate an additional HTML man pages for the specified domain(s).
++Generate an additional HTML man pages for the specified domain(s)
++
++.SH EXAMPLE
++.nf
++Generate man pages for all available domains
++# sepolicy manpage -a
++Generate an HTML man page for domain alsa_t, setting the OS name to "My_distro"
++# sepolicy manpage -o My_distro -d alsa_t -w
+ 
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>
+diff --git a/python/sepolicy/sepolicy-network.8 b/python/sepolicy/sepolicy-network.8
+index dcddec75..6faf60ab 100644
+--- a/python/sepolicy/sepolicy-network.8
++++ b/python/sepolicy/sepolicy-network.8
+@@ -8,27 +8,27 @@ sepolicy-network \- Examine the SELinux Policy and generate a network report
+ .B sepolicy network [\-h] (\-l | \-a application [application ...] | \-p PORT [PORT ...] | \-t TYPE [TYPE ...] | \-d DOMAIN [DOMAIN ...])
+ 
+ .SH "DESCRIPTION"
+-Use sepolicy network to examine SELinux Policy and generate network reports.
++Use \fBsepolicy network\fP to examine SELinux Policy and generate network reports.
+ 
+ .SH "OPTIONS"
+ .TP
+ .I                \-a, \-\-application
+-Generate a report listing the ports to which the specified init application is allowed to connect and or bind.
++Generate a report listing the ports to which the specified init application is allowed to connect and or bind
+ .TP
+-.I                \-d, \-\-domain     
+-Generate a report listing the ports to which the specified domain is allowed to connect and or bind.
++.I                \-d, \-\-domain
++Generate a report listing the ports to which the specified domain is allowed to connect and or bind
+ .TP
+-.I                \-l, \-\-list        
++.I                \-l, \-\-list
+ List all Network Port Types defined in SELinux Policy
+ .TP
+-.I                \-h, \-\-help       
++.I                \-h, \-\-help
+ Display help message
+ .TP
+ .I                \-t, \-\-type
+-Generate a report listing the port numbers associate with the specified SELinux port type.
++Generate a report listing the port numbers associate with the specified SELinux port type
+ .TP
+ .I                \-p, \-\-port
+-Generate a report listing the SELinux port types associate with the specified port number.
++Generate a report listing the SELinux port types associate with the specified port number
+ 
+ .SH "EXAMPLES"
+ 
+@@ -88,4 +88,3 @@ This man page was written by Daniel Walsh <dwalsh@redhat.com>
+ 
+ .SH "SEE ALSO"
+ sepolicy(8), selinux(8), semanage(8)
+-
+diff --git a/python/sepolicy/sepolicy-transition.8 b/python/sepolicy/sepolicy-transition.8
+index 897f0c4c..9f9ff5a5 100644
+--- a/python/sepolicy/sepolicy-transition.8
++++ b/python/sepolicy/sepolicy-transition.8
+@@ -11,21 +11,28 @@ sepolicy-transition \- Examine the SELinux Policy and generate a process transit
+ .B sepolicy transition [\-h] \-s SOURCE \-t TARGET
+ 
+ .SH "DESCRIPTION"
+-sepolicy transition will show all domains that a give SELinux source domain can transition to, including the entrypoint.
++\fBsepolicy transition\fP will show all domains that a given SELinux source domain can transition to, including the entrypoint.
+ 
+-If a target domain is given, sepolicy transition will examine policy for all transition paths from the source domain to the target domain, and will list the 
+-paths.  If a transition is possible, this tool will print out all transition paths from the source domain to the target domain
++If a target domain is given, sepolicy transition will examine policy for all transition paths from the source domain to the target domain, and will list the
++paths.
+ 
+ .SH "OPTIONS"
+ .TP
+-.I                \-h, \-\-help       
++.I                \-h, \-\-help
+ Display help message
+ .TP
+ .I                \-s, \-\-source
+-Specify the source SELinux domain type.
++Specify the source SELinux domain type
+ .TP
+ .I                \-t, \-\-target
+-Specify the target SELinux domain type.
++Specify the target SELinux domain type
++
++.SH EXAMPLE
++.nf
++List all domain transition paths from init_t to httpd_t
++# sepolicy transition -s init_t -t httpd_t
++List all transitions available from samba domain, including entry points and booleans controlling each transition
++# sepolicy transition -s smbd_t
+ 
+ .SH "AUTHOR"
+ This man page was written by Daniel Walsh <dwalsh@redhat.com>
 -- 
 2.40.0
 
