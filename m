@@ -2,176 +2,102 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8C96C7EE2E
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 14:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D5CEC7EE2F
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 15:10:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232941AbjFAOkZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 10:40:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54276 "EHLO
+        id S233749AbjFAPKm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 11:10:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233532AbjFAOkX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 10:40:23 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10780196
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 07:39:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685630368;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XZK6BHP4xVwIIppXQ4xd3VFSKwCeAUV1MBdw0ankKOk=;
-        b=dkChLGlMbz0leK1lglpunauVzZMmTWs4kmnYa7XY6S2WZ9iw26eUTdM5moAmqBKKu7a6/z
-        56XzVv+QJsVfbPfs0zAhvb9CwnQF1pnj855FZEXSr8HSyj3QAFFNfYzlwK9BoiCm4AuMtZ
-        UItVw2Ep7R0nKGzr/EjPd8tDOA2tIxg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-516-0WBElp5lMmCFMk3Mds1Awg-1; Thu, 01 Jun 2023 10:39:27 -0400
-X-MC-Unique: 0WBElp5lMmCFMk3Mds1Awg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BBB79185A78B
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:39:26 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.226.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5C35314171BB
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:39:26 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2 3/5] sandbox: Add examples to man pages
-Date:   Thu,  1 Jun 2023 16:39:13 +0200
-Message-Id: <20230601143915.2051922-3-vmojzis@redhat.com>
-In-Reply-To: <20230601143915.2051922-1-vmojzis@redhat.com>
-References: <87ttvsk0qx.fsf@redhat.com>
- <20230601143915.2051922-1-vmojzis@redhat.com>
+        with ESMTP id S233670AbjFAPKl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 11:10:41 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D03741A6
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 08:10:15 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id 38308e7fff4ca-2af2ef0d0daso13273851fa.2
+        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 08:10:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1685632213; x=1688224213;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=U5SBFHcpI3d+h5o9i7o3FRY60+UBS97afYfarxcEF20=;
+        b=Ffax6NzP86yweqBmmZV/EZap1jmYsQbrKOZc9ue2JlRvflEU6HzwnlIUPMET7mpzSM
+         dHhOdzgLmqxMTY71n35N9i3z9GDZgZGigzdR/TfGGVUHrLNisApWZ5TsGCrEHQAG069D
+         e4lLN4qOKRhh5k9+EY1JHnmynzk0IsZv3qJK2U8GsZ8OTZ39edaQ8jmvZ3IN93WLJdxe
+         XY1UCdQz8gXafmOJD2WTuwbsQJ3TiG2W347njLM69i2+EyhUMffToRXVN/s/pP3wpptj
+         JBI5e0roQcU8D5RKYXW1ZD4B9SWIiL9vgF34GsDMpEoX4U3PY/v7+Pt7BERNCR9rXQTU
+         mlTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685632213; x=1688224213;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=U5SBFHcpI3d+h5o9i7o3FRY60+UBS97afYfarxcEF20=;
+        b=U43CzzjsiS8OIfc1CzVRgOi9HuZi7atIHflFUxTAn6XwPdQR4+yk7nI2wCCMpR95TO
+         L4D31nyAw/viMYkHwG2QaYV7AVpnDuov1aPMsJuiHmFeW9nIFxv84+RWpN4c3Jx5XJrL
+         k0O/TFAXknzUEuzvso3zuBxMfDsNK+U5uHB8XYenQWtye3llCtBQDEL3rZF/ymD0ze/M
+         P+g3Y2GNPYE2A5ecoWfLK1Ks6QFZRpxHchsRTrQ9e79wN7hA1oZ3zYL8k3k4YdGKt8Y1
+         g0zNlHw99oSMByIVW05Xeyo2gCqeCUJF83CbBleX2rdnuE1rZXl2PalxA1Ch89A69aK2
+         tCzw==
+X-Gm-Message-State: AC+VfDzy9NM81Snki3Xl5Orf1yEOlGMRneq/KAoYezc8hfw3cN6yUUpQ
+        qJiSHFEtPaFqgp0R2wPQ1rN+z4R6BX3k9G1BShI=
+X-Google-Smtp-Source: ACHHUZ4evVNw78YExQccS2DH7HPFn07LFuGPrQKyUtq8tNd7/QyDWRXWmjfgIGwZ3ecO1e279O2IrhEvd7hENKzRggg=
+X-Received: by 2002:a2e:9f02:0:b0:2ac:e66c:e91 with SMTP id
+ u2-20020a2e9f02000000b002ace66c0e91mr4936209ljk.19.1685632212849; Thu, 01 Jun
+ 2023 08:10:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+References: <20230512101333.67196-1-cgzones@googlemail.com>
+In-Reply-To: <20230512101333.67196-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 1 Jun 2023 11:10:01 -0400
+Message-ID: <CAP+JOzScriL43-Jsbas1zA0nEmY=ntCdHnMHW+Zidr2aBGPTXw@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libsepol: drop message for uncommon error cases
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-While at it, remove trailing whitespaces.
+These four patches need sign-off lines.
+Thanks,
+Jim
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- sandbox/sandbox.8   | 28 ++++++++++++++++++----------
- sandbox/seunshare.8 | 21 ++++++++++++++-------
- 2 files changed, 32 insertions(+), 17 deletions(-)
 
-diff --git a/sandbox/sandbox.8 b/sandbox/sandbox.8
-index 1ee0ecea..095b9e27 100644
---- a/sandbox/sandbox.8
-+++ b/sandbox/sandbox.8
-@@ -11,12 +11,12 @@ sandbox \- Run cmd under an SELinux sandbox
- .br
- .SH DESCRIPTION
- .PP
--Run the 
--.I cmd 
-+Run the
-+.I cmd
- application within a tightly confined SELinux domain.  The default sandbox domain only allows applications the ability to read and write stdin, stdout and any other file descriptors handed to it. It is not allowed to open any other files.  The \-M option will mount an alternate homedir and tmpdir to be used by the sandbox.
- 
--If you have the 
--.I policycoreutils-sandbox 
-+If you have the
-+.I policycoreutils-sandbox
- package installed, you can use the \-X option and the \-M option.
- .B sandbox \-X
- allows you to run X applications within a sandbox.  These applications will start up their own X Server and create a temporary home directory and /tmp.  The default SELinux policy does not allow any capabilities or network access.  It also prevents all access to the users other processes and files.  Files specified on the command that are in the home directory or /tmp will be copied into the sandbox directories.
-@@ -78,27 +78,35 @@ Run a full desktop session, Requires level, and home and tmpdir.
- Specifies the windowsize when creating an X based Sandbox. The default windowsize is 1000x700.
- .TP
- \fB\-W\fR \fB\-\-windowmanager\fR
--Select alternative window manager to run within 
-+Select alternative window manager to run within
- .B sandbox \-X.
- Default to /usr/bin/openbox.
- .TP
--\fB\-X\fR 
-+\fB\-X\fR
- Create an X based Sandbox for gui apps, temporary files for
- $HOME and /tmp, secondary Xserver, defaults to sandbox_x_t
- .TP
- \fB\-d\fR \fB\-\-dpi\fR
- Set the DPI value for the sandbox X Server. Defaults to the current X Sever DPI.
- .TP
--\fB\-C\fR \fB\-\-capabilities\fR Use capabilities within the
--sandbox. By default applications executed within the sandbox will not
--be allowed to use capabilities (setuid apps), with the \-C flag, you
--can use programs requiring capabilities.
-+\fB\-C\fR \fB\-\-capabilities\fR
-+Use capabilities within the sandbox. By default applications executed within the sandbox will not be allowed to use capabilities (setuid apps), with the \-C flag, you can use programs requiring capabilities.
- .PP
- .SH "SEE ALSO"
- .TP
- runcon(1), seunshare(8), selinux(8)
- .PP
- 
-+.SH EXAMPLE
-+.nf
-+Run a graphical application inside the sandbox
-+# sandbox -X evince
-+Run a graphical application that requires the use of network
-+# sandbox ‑X ‑t sandbox_web_t firefox
-+Preserve data from one session to the next
-+# mkdir -p ~/sandbox/home ~/sandbox/tmp
-+# sandbox -H ~/sandbox/home -T ~/sandbox/tmp -X libreoffice --writer
-+
- .SH AUTHOR
- This manual page was written by
- .I Dan Walsh <dwalsh@redhat.com>
-diff --git a/sandbox/seunshare.8 b/sandbox/seunshare.8
-index 09cf7fea..5339a3b1 100644
---- a/sandbox/seunshare.8
-+++ b/sandbox/seunshare.8
-@@ -9,29 +9,36 @@ seunshare \- Run cmd with alternate homedir, tmpdir and/or SELinux context
- .PP
- Run the
- .I executable
--within the specified context, using the alternate home directory and /tmp directory.  The seunshare command unshares from the default namespace, then mounts the specified homedir and tmpdir over the default homedir and /tmp. Finally it tells the kernel to execute the application under the specified SELinux context.
-+within the specified context, using custom home directory and /tmp directory. The seunshare command unshares from the default namespace, then mounts the specified homedir and tmpdir over the default homedir and /tmp. Finally it tells the kernel to execute the application under the specified SELinux context.
- 
- .TP
- \fB\-h homedir\fR
--Alternate homedir to be used by the application.  Homedir must be owned by the user.
-+Alternate homedir to be used by the application. Homedir must be owned by the user
- .TP
- \fB\-t\ tmpdir
--Use alternate temporary directory to mount on /tmp.  tmpdir must be owned by the user.
-+Use alternate temporary directory to mount on /tmp. tmpdir must be owned by the user
- .TP
- \fB\-r\ runuserdir
--Use alternate temporary directory to mount on XDG_RUNTIME_DIR (/run/user/$UID). runuserdir must be owned by the user.
-+Use alternate temporary directory to mount on XDG_RUNTIME_DIR (/run/user/$UID). runuserdir must be owned by the user
- .TP
- \fB\-C --capabilities\fR
--Allow apps executed within the namespace to use capabilities.  Default is no capabilities.
-+Allow apps executed within the namespace to use capabilities. Default is no capabilities
- .TP
- \fB\-k --kill\fR
--Kill all processes with matching MCS level.
-+Kill all processes with matching MCS level
- .TP
- \fB\-Z\ context
--Use alternate SELinux context while running the executable.
-+Use alternate SELinux context while running the executable
- .TP
- \fB\-v\fR
- Verbose output
-+
-+.SH EXAMPLE
-+.nf
-+Run bash with temporary /home and /tmp directory
-+# USERHOMEDIR=`mktemp -d /tmp/home.XXXXXX`; USERTEMPDIR=`mktemp -d /tmp/temp.XXXXXX`
-+# seunshare -v -h ${USERHOMEDIR} -t ${USERTEMPDIR} -- /bin/bash
-+
- .SH "SEE ALSO"
- .TP
- runcon(1), sandbox(8), selinux(8)
--- 
-2.40.0
-
+On Fri, May 12, 2023 at 6:17=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Match surrounding code and the message were quite generic too.
+> ---
+>  libsepol/src/kernel_to_conf.c | 2 --
+>  1 file changed, 2 deletions(-)
+>
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index c48a7114..cb7cb740 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -2886,7 +2886,6 @@ static int write_xen_pirq_rules_to_conf(FILE *out, =
+struct policydb *pdb)
+>         for (pirq =3D pdb->ocontexts[1]; pirq !=3D NULL; pirq =3D pirq->n=
+ext) {
+>                 rc =3D snprintf(pirq_str, 21, "%i", pirq->u.pirq);
+>                 if (rc < 0 || rc >=3D 21) {
+> -                       fprintf(stderr,"error1\n");
+>                         rc =3D -1;
+>                         goto exit;
+>                 }
+> @@ -2894,7 +2893,6 @@ static int write_xen_pirq_rules_to_conf(FILE *out, =
+struct policydb *pdb)
+>                 ctx =3D context_to_str(pdb, &pirq->context[0]);
+>                 if (!ctx) {
+>                         rc =3D -1;
+> -                       fprintf(stderr,"error2\n");
+>                         goto exit;
+>                 }
+>
+> --
+> 2.40.1
+>
