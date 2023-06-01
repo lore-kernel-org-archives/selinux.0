@@ -2,385 +2,256 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0C88C77B7E
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 21:01:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F22A9C77B7E
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 21:03:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232558AbjFAVBC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 17:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
+        id S229689AbjFAVDo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 17:03:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232444AbjFAVA7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 17:00:59 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BCEC1A4
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:00:55 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id 38308e7fff4ca-2af2602848aso19045641fa.2
-        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 14:00:55 -0700 (PDT)
+        with ESMTP id S229554AbjFAVDn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 17:03:43 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC434189
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 14:03:41 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2af177f12d1so19838711fa.0
+        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 14:03:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685653254; x=1688245254;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LWOe9VMJrMG6U7XWjKCkEn4zGdFAwvzc7AQ3Uya88U4=;
-        b=ABrVMohgF754ww4zRFgjZyKZ5zj5n5IOD9CbyYhSQoQT4XCYvUxwu77baq9NaC58r6
-         q/0IltZD/ehZLC6ridEfxVNtP59p06kOu1vvWd3TAQ5nH1K/UnKXlLAT/P6DBNhoeKEc
-         9rdJzKWM9M0QfRvqXTLyeAQiIABWJ8n/o1dsZpEhMlSztHcYBEZl4348QMeiXz7MttTs
-         p96lnwmmZjdVjJ85O/THbggJnycy/UFfkCrLwtuJIfLqGJ2ne39APeJKeH0iC+55/eZq
-         jcwOFtEofhMkiPf/2VWo3d8Oi6NdwuxY8CREnEs7sTkV1zRM1npZIbj9pYe4qRV8CSLz
-         G+Ug==
+        d=gmail.com; s=20221208; t=1685653420; x=1688245420;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=htHLBaszbef2qZhC9F7J6DWVHmMjexLnjWq22rbKqvE=;
+        b=Ps17iC5VC17YGwzUGJ4jpramuxwk8EjNWY1wrmVzpV7SwkH5X9c00gVDC2Rr2SSUfP
+         4Iss1SihcMu+JpGFOCB1F/v/VdSLZs6cgKuwdnvM7MNOH+XdTZwq13UMKN8ij3c38vcL
+         FDmr7noNbE6+6UOjnvwyQiOzCcQtl/5qNrw4SWJrV0RNDiSd0KM162Wu65k0cv0+pXsw
+         w2rxCYC4pFhauLaAXTT533q+6J01ECJeqVE2vTUqVBI6p2dSZJqz54Z+K6f/ePW9r2CG
+         NXz38b6hw/AMvGp1POen1bV5Mtag8ViV0YdW6TpacgyPhwmUIM0/bfrPfIYAltxYbAig
+         6tng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685653254; x=1688245254;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LWOe9VMJrMG6U7XWjKCkEn4zGdFAwvzc7AQ3Uya88U4=;
-        b=W9q9Pavs3Cgyn7oG839/YB6ocpyYg5gQXBRRGYZS0yvn2f6g8co6BB1hygLEwSaA3h
-         K/5WSLXwYQvcr/A9/BwduVd0txpHjgP0XWZA2pFLK47f8boKmxVmpATGahISs2z+uxG9
-         ZCAviDT2gIHFAFKl7wmkQTLEWZLsE8F6j1mU4+RM7iBcQeIp3K8HX9uix5FJ2YfUoOuP
-         G8GHxwRNQ+9PI/YlOTkOcZbLJw/fSYPYL8DDUR/Zl2g5d19xoh1wFNsiWHQH/FR4zqJF
-         LYn7ktrwU7CSQ1evLJl5JGT0NXxJRLlCmfYxqeqjeCVn93FVb11Vy9qraSvnE1sK+snw
-         me9Q==
-X-Gm-Message-State: AC+VfDzMrcjsd3JelAw3JW8dGucU895WLUXq8T55GffL8cdIXYN5TTgU
-        6GlTNLE8nWOnl9cyHc0N0faFK7pxrP07F0R9dqQ=
-X-Google-Smtp-Source: ACHHUZ7LsMyPOKB7Y7RybfdH7hlh59kipMHSIoUKkmI3LalVsmL4WsamJ09ir1Cf5I59cfo6rXa/hfQ3N0ki+/EDpSw=
-X-Received: by 2002:a2e:351a:0:b0:2ac:7ffb:6bda with SMTP id
- z26-20020a2e351a000000b002ac7ffb6bdamr456172ljz.2.1685653253430; Thu, 01 Jun
- 2023 14:00:53 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1685653420; x=1688245420;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=htHLBaszbef2qZhC9F7J6DWVHmMjexLnjWq22rbKqvE=;
+        b=Y8YSTaHeWG5LkQb9U9vjAhjhKifSjC3G7zQ9cfBeeRiHRsKzOpp9RB1X4tbQJnbb9S
+         8yyYW+Cra1vB3OxEoAiTSuZlGGHZkU8l9FVhMylLgyORRQHbcxz7M6OfmCJCuFkFWrgr
+         05/bJaysd47mLV53NcUUOLZ2dftqjBrPk1qU0ZnM9UKeapkQb7hh9phg34aIj4K12sgH
+         QAnIq9fG+Z1mAsdSNKpDcXIDGAuZin/+dYCLS4sMKg2N5jbx8EoIW2peaZ61V3nJxLAK
+         SnZ8U2gHYmdxSUtQgoCuSJAMrVqlOPwXUDo1VDoKenfVUnBU6bpY2Klw3dUGMByQFVSG
+         VDBA==
+X-Gm-Message-State: AC+VfDyqE3I/fhtAb4u5vt5YcOZ1mHTQJgnNdNHK6qdBlxDsfsW8UPib
+        qMXQTI7IzOFGMKO8m3xGXHuSZck4/rDngyjpg3o=
+X-Google-Smtp-Source: ACHHUZ4UnxJ13QJ2h1kMfuLxJHFwgCdJ6d6I8e03LQe+7JFHI9ExrH41p5SyDiuX3LgH5ihthHFjvJ6M4ZtSxrXNDIo=
+X-Received: by 2002:a2e:9c8b:0:b0:2ad:90c8:7fa3 with SMTP id
+ x11-20020a2e9c8b000000b002ad90c87fa3mr425959lji.29.1685653419692; Thu, 01 Jun
+ 2023 14:03:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230531114914.2237609-1-juraj@jurajmarcin.com> <20230531114914.2237609-9-juraj@jurajmarcin.com>
-In-Reply-To: <20230531114914.2237609-9-juraj@jurajmarcin.com>
+References: <20230531114914.2237609-1-juraj@jurajmarcin.com>
+In-Reply-To: <20230531114914.2237609-1-juraj@jurajmarcin.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 1 Jun 2023 17:00:42 -0400
-Message-ID: <CAP+JOzRAGwD0fjuZsim4vgqz+dgOiOtn2vg1uc02_mgXJMULyQ@mail.gmail.com>
-Subject: Re: [PATCH 8/8] libsepol/cil: add support for prefix/suffix filename
- transtions to CIL
+Date:   Thu, 1 Jun 2023 17:03:28 -0400
+Message-ID: <CAP+JOzS1nhxF8EttikRtYBW2QtW=ck+P4mC2dovgP4kp-g9WQQ@mail.gmail.com>
+Subject: Re: [PATCH 0/8] checkpolicy, libsepol: add prefix/suffix matching to
+ filename type transitions
 To:     Juraj Marcin <juraj@jurajmarcin.com>
 Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: multipart/mixed; boundary="0000000000004bec0c05fd17c5be"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 31, 2023 at 7:51=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin.com=
-> wrote:
->
-> This patch implements the support for prefix/suffix filename transitions
-> in CIL structures as well as to CIL policy parser.
->
+--0000000000004bec0c05fd17c5be
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-As for the checkpolicy patch, I would like to see some examples of the
-new syntax here.
+I did a bit of testing.
 
-> Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
-> ---
->  libsepol/cil/src/cil.c             |  8 ++++++++
->  libsepol/cil/src/cil_binary.c      |  8 ++++----
->  libsepol/cil/src/cil_build_ast.c   | 25 +++++++++++++++++++------
->  libsepol/cil/src/cil_copy_ast.c    |  1 +
->  libsepol/cil/src/cil_internal.h    |  5 +++++
->  libsepol/cil/src/cil_policy.c      | 17 ++++++++++++++++-
->  libsepol/cil/src/cil_resolve_ast.c | 10 ++++++++++
->  libsepol/cil/src/cil_write_ast.c   |  2 ++
->  8 files changed, 65 insertions(+), 11 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index 38edcf8e..3b086de9 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -95,6 +95,9 @@ char *CIL_KEY_TUNABLEIF;
->  char *CIL_KEY_ALLOW;
->  char *CIL_KEY_DONTAUDIT;
->  char *CIL_KEY_TYPETRANSITION;
-> +char *CIL_KEY_MATCH_EXACT;
-> +char *CIL_KEY_MATCH_PREFIX;
-> +char *CIL_KEY_MATCH_SUFFIX;
->  char *CIL_KEY_TYPECHANGE;
->  char *CIL_KEY_CALL;
->  char *CIL_KEY_TUNABLE;
-> @@ -264,6 +267,9 @@ static void cil_init_keys(void)
->         CIL_KEY_ALLOW =3D cil_strpool_add("allow");
->         CIL_KEY_DONTAUDIT =3D cil_strpool_add("dontaudit");
->         CIL_KEY_TYPETRANSITION =3D cil_strpool_add("typetransition");
-> +       CIL_KEY_MATCH_EXACT =3D cil_strpool_add("match_exact");
-> +       CIL_KEY_MATCH_PREFIX =3D cil_strpool_add("match_prefix");
-> +       CIL_KEY_MATCH_SUFFIX =3D cil_strpool_add("match_suffix");
+These all work:
+~/local/usr/bin/secil2tree -o test_01.cil.tree test_01.cil
+~/local/usr/bin/secilc -o test_01.cil.bin test_01.cil
+~/local/usr/bin/checkpolicy -C -b -o test_01.cil.bin.cil test_01.cil.bin
 
-Also, like the checkpolicy patch, I would prefer "exact", "prefix",
-and "suffix" unless using those keywords will cause problems.
+/local/usr/bin/checkpolicy -o test_01.conf.bin test_01.conf
+~/local/usr/bin/checkpolicy -C -b -o test_01.conf.bin.cil test_01.conf.bin
+
+~/local/usr/bin/secil2conf -o test_01.cil.conf test_01.cil
+~/local/usr/bin/checkpolicy -o test_01.cil.conf.bin test_01.cil.conf
+
+~/local/usr/bin/checkmodule -o base_01.mod base_01.te
+~/local/usr/bin/checkmodule -m -o mod_02.mod mod_02.te
+~/local/usr/bin/semodule_package -o base_01.pp -m base_01.mod
+~/local/usr/bin/semodule_package -o mod_02.pp -m mod_02.mod
+~/local/usr/bin/semodule_link -o test_01.pp.lnk base_01.pp mod_02.pp
+~/local/usr/bin/semodule_expand test_01.pp.lnk test_01.pp.bin
+
+These do not work:
+~/local/usr/bin/checkpolicy -F -b -o test_01.cil.bin.conf test_01.cil.bin
+~/local/usr/bin/checkpolicy -F -b -o test_01.conf.bin.conf test_01.conf.bin
+~/local/usr/bin/checkpolicy -F -b -o test_01.pp.bin.conf test_01.pp.bin
+
+It appears something is wrong with translating the binary to a
+policy.conf, but I haven't had a chance to look deeper.
+
+I've attached the very simple test policies I used.
 
 Thanks,
 Jim
 
-
->         CIL_KEY_TYPECHANGE =3D cil_strpool_add("typechange");
->         CIL_KEY_CALL =3D cil_strpool_add("call");
->         CIL_KEY_TUNABLE =3D cil_strpool_add("tunable");
-> @@ -2387,6 +2393,8 @@ void cil_nametypetransition_init(struct cil_nametyp=
-etransition **nametypetrans)
->         (*nametypetrans)->obj =3D NULL;
->         (*nametypetrans)->name_str =3D NULL;
->         (*nametypetrans)->name =3D NULL;
-> +       (*nametypetrans)->name_match_str =3D NULL;
-> +       (*nametypetrans)->name_match =3D NAME_TRANS_MATCH_EXACT;
->         (*nametypetrans)->result_str =3D NULL;
->         (*nametypetrans)->result =3D NULL;
->  }
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
-c
-> index ffa44be7..ea0cef32 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -1193,7 +1193,7 @@ static int __cil_typetransition_to_avtab_helper(pol=
-icydb_t *pdb,
->                                                 type_datum_t *sepol_src,
->                                                 type_datum_t *sepol_tgt,
->                                                 struct cil_list *class_li=
-st,
-> -                                               char *name,
-> +                                               char *name, uint8_t name_=
-match,
->                                                 type_datum_t *sepol_resul=
-t)
->  {
->         int rc;
-> @@ -1211,7 +1211,7 @@ static int __cil_typetransition_to_avtab_helper(pol=
-icydb_t *pdb,
->                 avt_key.target_type =3D sepol_tgt->s.value;
->                 avt_key.target_class =3D sepol_obj->s.value;
->                 rc =3D avtab_insert_filename_trans(&pdb->te_avtab, &avt_k=
-ey,
-> -                       sepol_result->s.value, name, NAME_TRANS_MATCH_EXA=
-CT,
-> +                       sepol_result->s.value, name, name_match,
->                         &otype);
->                 if (rc !=3D SEPOL_OK) {
->                         if (rc =3D=3D SEPOL_EEXIST) {
-> @@ -1280,7 +1280,7 @@ static int __cil_typetransition_to_avtab(policydb_t=
- *pdb, const struct cil_db *d
+On Wed, May 31, 2023 at 7:51=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin.com=
+> wrote:
 >
->                         rc =3D __cil_typetransition_to_avtab_helper(
->                                 pdb, sepol_src, sepol_src, class_list,
-> -                               name, sepol_result
-> +                               name, typetrans->name_match, sepol_result
->                         );
->                         if (rc !=3D SEPOL_OK) goto exit;
->                 }
-> @@ -1298,7 +1298,7 @@ static int __cil_typetransition_to_avtab(policydb_t=
- *pdb, const struct cil_db *d
+> Currently, filename transitions are stored separately from other type
+> enforcement rules and only support exact name matching. However, in
+> practice, the names contain variable parts. This leads to many
+> duplicated rules in the policy that differ only in the part of the name,
+> or it is even impossible to cover all possible combinations.
 >
->                                 rc =3D __cil_typetransition_to_avtab_help=
-er(
->                                         pdb, sepol_src, sepol_tgt, class_=
-list,
-> -                                       name, sepol_result
-> +                                       name, typetrans->name_match, sepo=
-l_result
->                                 );
->                                 if (rc !=3D SEPOL_OK) goto exit;
->                         }
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_buil=
-d_ast.c
-> index 4177c9f6..47513f92 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -3334,10 +3334,11 @@ int cil_gen_typetransition(struct cil_db *db, str=
-uct cil_tree_node *parse_curren
->                 CIL_SYN_STRING,
->                 CIL_SYN_STRING,
->                 CIL_SYN_STRING | CIL_SYN_END,
-> -               CIL_SYN_END
-> +               CIL_SYN_STRING | CIL_SYN_END,
-> +               CIL_SYN_END,
->         };
->         size_t syntax_len =3D sizeof(syntax)/sizeof(*syntax);
-> -       char *s1, *s2, *s3, *s4, *s5;
-> +       char *s1, *s2, *s3, *s4, *s5, *s6;
+> This series implements equivalent changes made by this kernel patch
+> series [1].
 >
->         if (db =3D=3D NULL || parse_current =3D=3D NULL || ast_node =3D=
-=3D NULL ) {
->                 goto exit;
-> @@ -3353,16 +3354,27 @@ int cil_gen_typetransition(struct cil_db *db, str=
-uct cil_tree_node *parse_curren
->         s3 =3D parse_current->next->next->next->data;
->         s4 =3D parse_current->next->next->next->next->data;
->         s5 =3D NULL;
-> +       s6 =3D NULL;
+> First, this series of patches moves the filename transitions to be part
+> of the avtab and avrule structures. This not only makes the
+> implementation of prefix/suffix matching and future enhancements easier,
+> but also reduces the technical debt regarding the filename transitions.
+> Next, the last three patches implement the support for prefix/suffix
+> name matching itself by extending the structures added in previous
+> patches in this series and adding the support to CIL in the last of the
+> triple.
 >
->         if (parse_current->next->next->next->next->next) {
->                 if (s4 =3D=3D CIL_KEY_STAR) {
-> -                       s4 =3D parse_current->next->next->next->next->nex=
-t->data;
-> +                       if (parse_current->next->next->next->next->next->=
-next) {
-> +                               s4 =3D parse_current->next->next->next->n=
-ext->next->next->data;
-> +                       } else {
-> +                               s4 =3D parse_current->next->next->next->n=
-ext->next->data;
-> +                       }
->                 } else {
-> -                       s5 =3D parse_current->next->next->next->next->nex=
-t->data;
-> +                       if (parse_current->next->next->next->next->next->=
-next) {
-> +                               s5 =3D parse_current->next->next->next->n=
-ext->next->data;
-> +                               s6 =3D parse_current->next->next->next->n=
-ext->next->next->data;
-> +                       } else {
-> +                               s5 =3D CIL_KEY_MATCH_EXACT;
-> +                               s6 =3D parse_current->next->next->next->n=
-ext->next->data;
-> +                       }
->                 }
->         }
+> Even though, moving everything to avtab increases the memory usage and
+> the size of the binary policy itself and thus the loading time, the
+> ability to match the prefix or suffix of the name will reduce the
+> overall number of rules in the policy which should mitigate this issue.
 >
-> -       if (s5) {
-> +       if (s6) {
->                 struct cil_nametypetransition *nametypetrans =3D NULL;
+> [1]: https://lore.kernel.org/selinux/20230531112927.1957093-1-juraj@juraj=
+marcin.com/
 >
->                 cil_nametypetransition_init(&nametypetrans);
-> @@ -3370,8 +3382,9 @@ int cil_gen_typetransition(struct cil_db *db, struc=
-t cil_tree_node *parse_curren
->                 nametypetrans->src_str =3D s1;
->                 nametypetrans->tgt_str =3D s2;
->                 nametypetrans->obj_str =3D s3;
-> -               nametypetrans->result_str =3D s5;
-> +               nametypetrans->result_str =3D s6;
->                 nametypetrans->name_str =3D s4;
-> +               nametypetrans->name_match_str =3D s5;
+> Juraj Marcin (8):
+>   checkpolicy, libsepol: move transition to separate structure in avtab
+>   checkpolicy, libsepol: move filename transitions to avtab
+>   checkpolicy, libsepol: move filename transition rules to avrule
+>   libsepol: implement new kernel binary format for avtab
+>   libsepol: implement new module binary format of avrule
+>   checkpolicy, libsepol: add prefix/suffix support to kernel policy
+>   checkpolicy, libsepol: add prefix/suffix support to module policy
+>   libsepol/cil: add support for prefix/suffix filename transtions to CIL
 >
->                 ast_node->data =3D nametypetrans;
->                 ast_node->flavor =3D CIL_NAMETYPETRANSITION;
-> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_=
-ast.c
-> index 17f05021..a2d2fe40 100644
-> --- a/libsepol/cil/src/cil_copy_ast.c
-> +++ b/libsepol/cil/src/cil_copy_ast.c
-> @@ -726,6 +726,7 @@ int cil_copy_nametypetransition(__attribute__((unused=
-)) struct cil_db *db, void
->         new->tgt_str =3D orig->tgt_str;
->         new->obj_str =3D orig->obj_str;
->         new->name_str =3D orig->name_str;
-> +       new->name_match_str =3D orig->name_match_str;
->         new->result_str =3D orig->result_str;
+>  checkpolicy/checkmodule.c                  |   9 +
+>  checkpolicy/module_compiler.c              |  12 -
+>  checkpolicy/module_compiler.h              |   1 -
+>  checkpolicy/policy_define.c                | 211 +-----
+>  checkpolicy/policy_define.h                |   3 +-
+>  checkpolicy/policy_parse.y                 |  15 +-
+>  checkpolicy/policy_scan.l                  |   6 +
+>  checkpolicy/test/dismod.c                  |  39 +-
+>  checkpolicy/test/dispol.c                  | 106 +--
+>  libsepol/cil/src/cil.c                     |   8 +
+>  libsepol/cil/src/cil_binary.c              |  63 +-
+>  libsepol/cil/src/cil_build_ast.c           |  25 +-
+>  libsepol/cil/src/cil_copy_ast.c            |   1 +
+>  libsepol/cil/src/cil_internal.h            |   5 +
+>  libsepol/cil/src/cil_policy.c              |  17 +-
+>  libsepol/cil/src/cil_resolve_ast.c         |  10 +
+>  libsepol/cil/src/cil_write_ast.c           |   2 +
+>  libsepol/include/sepol/policydb/avtab.h    |  19 +-
+>  libsepol/include/sepol/policydb/hashtab.h  |  14 +
+>  libsepol/include/sepol/policydb/policydb.h |  50 +-
+>  libsepol/src/avrule_block.c                |   1 -
+>  libsepol/src/avtab.c                       | 336 +++++++++-
+>  libsepol/src/conditional.c                 |   6 +-
+>  libsepol/src/expand.c                      | 149 ++---
+>  libsepol/src/kernel_to_cil.c               | 182 ++----
+>  libsepol/src/kernel_to_common.h            |  10 +
+>  libsepol/src/kernel_to_conf.c              | 178 ++----
+>  libsepol/src/link.c                        |  57 +-
+>  libsepol/src/module_to_cil.c               |  86 +--
+>  libsepol/src/optimize.c                    |   8 +
+>  libsepol/src/policydb.c                    | 479 +++-----------
+>  libsepol/src/policydb_validate.c           | 100 +--
+>  libsepol/src/services.c                    |   5 +-
+>  libsepol/src/write.c                       | 712 ++++++++++++++++-----
+>  34 files changed, 1534 insertions(+), 1391 deletions(-)
 >
->
-> diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_inter=
-nal.h
-> index a7604762..f7a8d0f7 100644
-> --- a/libsepol/cil/src/cil_internal.h
-> +++ b/libsepol/cil/src/cil_internal.h
-> @@ -112,6 +112,9 @@ extern char *CIL_KEY_TUNABLEIF;
->  extern char *CIL_KEY_ALLOW;
->  extern char *CIL_KEY_DONTAUDIT;
->  extern char *CIL_KEY_TYPETRANSITION;
-> +extern char *CIL_KEY_MATCH_EXACT;
-> +extern char *CIL_KEY_MATCH_PREFIX;
-> +extern char *CIL_KEY_MATCH_SUFFIX;
->  extern char *CIL_KEY_TYPECHANGE;
->  extern char *CIL_KEY_CALL;
->  extern char *CIL_KEY_TUNABLE;
-> @@ -575,6 +578,8 @@ struct cil_nametypetransition {
->         struct cil_class *obj;
->         char *name_str;
->         struct cil_name *name;
-> +       char *name_match_str;
-> +       uint8_t name_match;
->         char *result_str;
->         void *result; /* type or alias */
->
-> diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.=
-c
-> index feb97868..c8253818 100644
-> --- a/libsepol/cil/src/cil_policy.c
-> +++ b/libsepol/cil/src/cil_policy.c
-> @@ -1260,6 +1260,7 @@ static void cil_nametypetransition_to_policy(FILE *=
-out, struct cil_nametypetrans
->         struct cil_name *name;
->         struct cil_list *class_list;
->         struct cil_list_item *i1;
-> +       const char *name_match_str =3D "";
->
->         src =3D trans->src;
->         tgt =3D trans->tgt;
-> @@ -1268,7 +1269,21 @@ static void cil_nametypetransition_to_policy(FILE =
-*out, struct cil_nametypetrans
->
->         class_list =3D cil_expand_class(trans->obj);
->         cil_list_for_each(i1, class_list) {
-> -               fprintf(out, "type_transition %s %s : %s %s \"%s\";\n", s=
-rc->fqn, tgt->fqn, DATUM(i1->data)->fqn, res->fqn, name->datum.fqn);
-> +               switch (trans->name_match) {
-> +               case NAME_TRANS_MATCH_EXACT:
-> +                       name_match_str =3D "";
-> +                       break;
-> +               case NAME_TRANS_MATCH_PREFIX:
-> +                       name_match_str =3D " MATCH_PREFIX";
-> +                       break;
-> +               case NAME_TRANS_MATCH_SUFFIX:
-> +                       name_match_str =3D " MATCH_SUFFIX";
-> +                       break;
-> +               default:
-> +                       name_match_str =3D "???";
-> +                       break;
-> +               }
-> +               fprintf(out, "type_transition %s %s : %s %s \"%s\"%s;\n",=
- src->fqn, tgt->fqn, DATUM(i1->data)->fqn, res->fqn, name->datum.fqn, name_=
-match_str);
->         }
->         cil_list_destroy(&class_list, CIL_FALSE);
->  }
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_re=
-solve_ast.c
-> index d2bfdc81..fbb0fdcc 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -668,6 +668,16 @@ int cil_resolve_nametypetransition(struct cil_tree_n=
-ode *current, void *extra_ar
->                 nametypetrans->name =3D (struct cil_name *)name_datum;
->         }
->
-> +       if (nametypetrans->name_match_str =3D=3D CIL_KEY_MATCH_EXACT) {
-> +               nametypetrans->name_match =3D NAME_TRANS_MATCH_EXACT;
-> +       } else if (nametypetrans->name_match_str =3D=3D CIL_KEY_MATCH_PRE=
-FIX) {
-> +               nametypetrans->name_match =3D NAME_TRANS_MATCH_PREFIX;
-> +       } else if (nametypetrans->name_match_str =3D=3D CIL_KEY_MATCH_SUF=
-FIX) {
-> +               nametypetrans->name_match =3D NAME_TRANS_MATCH_SUFFIX;
-> +       } else {
-> +               cil_tree_log(current, CIL_ERR, "Invalid name match type \=
-"%s\"", nametypetrans->name_match_str);
-> +       }
-> +
->         rc =3D cil_resolve_name(current, nametypetrans->result_str, CIL_S=
-YM_TYPES, extra_args, &result_datum);
->         if (rc !=3D SEPOL_OK) {
->                 goto exit;
-> diff --git a/libsepol/cil/src/cil_write_ast.c b/libsepol/cil/src/cil_writ=
-e_ast.c
-> index b75784ef..d96f6c39 100644
-> --- a/libsepol/cil/src/cil_write_ast.c
-> +++ b/libsepol/cil/src/cil_write_ast.c
-> @@ -1168,6 +1168,8 @@ void cil_write_ast_node(FILE *out, struct cil_tree_=
-node *node)
->                 fprintf(out, "%s ", datum_or_str(DATUM(rule->tgt), rule->=
-tgt_str));
->                 fprintf(out, "%s ", datum_or_str(DATUM(rule->obj), rule->=
-obj_str));
->                 fprintf(out, "\"%s\" ", datum_or_str(DATUM(rule->name), r=
-ule->name_str));
-> +               if (rule->name_match !=3D NAME_TRANS_MATCH_EXACT)
-> +                       fprintf(out, "%s ", rule->name_match_str);
->                 fprintf(out, "%s", datum_or_str(DATUM(rule->result), rule=
-->result_str));
->                 fprintf(out, ")\n");
->                 break;
 > --
 > 2.40.0
 >
+
+--0000000000004bec0c05fd17c5be
+Content-Type: text/plain; charset="US-ASCII"; name="test_01.conf"
+Content-Disposition: attachment; filename="test_01.conf"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lidmi2ds1>
+X-Attachment-Id: f_lidmi2ds1
+
+Y2xhc3MgQ0xBU1MxCmNsYXNzIENMQVNTMDEKY2xhc3MgQ0xBU1MwMgpjbGFzcyBDTEFTUzAzCmNs
+YXNzIENMQVNTMDQKY2xhc3MgQ0xBU1MwNQpjbGFzcyBDTEFTUzA2CnNpZCBrZXJuZWwKY2xhc3Mg
+Q0xBU1MxIHsgUEVSTTEgfQpjbGFzcyBDTEFTUzAxIHsgUEVSTTAxIH0KY2xhc3MgQ0xBU1MwMiB7
+IFBFUk0wMiB9CmNsYXNzIENMQVNTMDMgeyBQRVJNMDMgfQpjbGFzcyBDTEFTUzA0IHsgUEVSTTA0
+IH0KY2xhc3MgQ0xBU1MwNSB7IFBFUk0wNSB9CmNsYXNzIENMQVNTMDYgeyBQRVJNMDYgfQp0eXBl
+IFRZUEUxOwp0eXBlIHRhOwp0eXBlIHRiOwp0eXBlIHRjOwphbGxvdyBUWVBFMSBzZWxmIDogQ0xB
+U1MxIHsgUEVSTTEgfTsKdHlwZV90cmFuc2l0aW9uIHRhIHRiIDogQ0xBU1MwMSB0YyAiZmlsZTAx
+IjsKdHlwZV90cmFuc2l0aW9uIHRhIHRiIDogQ0xBU1MwMiB0YyAiW2ZpbGUwMl0iOwp0eXBlX3Ry
+YW5zaXRpb24gdGEgdGIgOiBDTEFTUzAzIHRjICJmaWxlMDMiOwp0eXBlX3RyYW5zaXRpb24gdGEg
+dGIgOiBDTEFTUzA0IHRjICJmaWxlMDQiIG1hdGNoX3ByZWZpeDsKdHlwZV90cmFuc2l0aW9uIHRh
+IHRiIDogQ0xBU1MwNSB0YyAiZmlsZTA1IiBtYXRjaF9zdWZmaXg7CnJvbGUgUk9MRTE7CnJvbGUg
+Uk9MRTEgdHlwZXMgeyBUWVBFMSB9Owp1c2VyIFVTRVIxIHJvbGVzIFJPTEUxOwpzaWQga2VybmVs
+IFVTRVIxOlJPTEUxOlRZUEUxCg==
+--0000000000004bec0c05fd17c5be
+Content-Type: application/vnd.ms-artgalry; name="test_01.cil"
+Content-Disposition: attachment; filename="test_01.cil"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lidmhx7i0>
+X-Attachment-Id: f_lidmhx7i0
+
+KGhhbmRsZXVua25vd24gZGVueSkKKGNsYXNzIENMQVNTMSAoUEVSTTEpKQooY2xhc3MgQ0xBU1Mw
+MSAoUEVSTTAxKSkKKGNsYXNzIENMQVNTMDIgKFBFUk0wMikpCihjbGFzcyBDTEFTUzAzIChQRVJN
+MDMpKQooY2xhc3MgQ0xBU1MwNCAoUEVSTTA0KSkKKGNsYXNzIENMQVNTMDUgKFBFUk0wNSkpCihj
+bGFzcyBDTEFTUzA2IChQRVJNMDYpKQooY2xhc3NvcmRlciAoQ0xBU1MxIENMQVNTMDEgQ0xBU1Mw
+MiBDTEFTUzAzIENMQVNTMDQgQ0xBU1MwNSBDTEFTUzA2KSkKKHNpZCBrZXJuZWwpCihzaWRvcmRl
+ciAoa2VybmVsKSkKKHVzZXIgVVNFUjEpCihyb2xlIFJPTEUxKQoodHlwZSBUWVBFMSkKKGNhdGVn
+b3J5IENBVDEpCihjYXRlZ29yeW9yZGVyIChDQVQxKSkKKHNlbnNpdGl2aXR5IFNFTlMxKQooc2Vu
+c2l0aXZpdHlvcmRlciAoU0VOUzEpKQooc2Vuc2l0aXZpdHljYXRlZ29yeSBTRU5TMSAoQ0FUMSkp
+CihhbGxvdyBUWVBFMSBzZWxmIChDTEFTUzEgKFBFUk0xKSkpCihyb2xldHlwZSBST0xFMSBUWVBF
+MSkKKHVzZXJyb2xlIFVTRVIxIFJPTEUxKQoodXNlcmxldmVsIFVTRVIxIChTRU5TMSkpCih1c2Vy
+cmFuZ2UgVVNFUjEgKChTRU5TMSkoU0VOUzEgKENBVDEpKSkpCihzaWRjb250ZXh0IGtlcm5lbCAo
+VVNFUjEgUk9MRTEgVFlQRTEgKChTRU5TMSkoU0VOUzEpKSkpCgoodHlwZSB0YSkKKHR5cGUgdGIp
+Cih0eXBlIHRjKQoKOyBOb3JtYWwgZmlsZW5hbWUgdHlwZXRyYW5zaXRpb25zCih0eXBldHJhbnNp
+dGlvbiB0YSB0YiBDTEFTUzAxICJmaWxlMDEiIHRjKQoodHlwZXRyYW5zaXRpb24gdGEgdGIgQ0xB
+U1MwMiAiW2ZpbGUwMl0iIHRjKQoKOyBQcmVmaXggYW5kIFN1ZmZpeCBmaWxlbmFtZSB0eXBldHJh
+bnNpdGlvbnMKKHR5cGV0cmFuc2l0aW9uIHRhIHRiIENMQVNTMDMgImZpbGUwMyIgbWF0Y2hfZXhh
+Y3QgdGMpCih0eXBldHJhbnNpdGlvbiB0YSB0YiBDTEFTUzA0ICJmaWxlMDQiIG1hdGNoX3ByZWZp
+eCB0YykKKHR5cGV0cmFuc2l0aW9uIHRhIHRiIENMQVNTMDUgImZpbGUwNSIgbWF0Y2hfc3VmZml4
+IHRjKQo=
+--0000000000004bec0c05fd17c5be
+Content-Type: application/octet-stream; name="base_01.te"
+Content-Disposition: attachment; filename="base_01.te"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lidmi7p82>
+X-Attachment-Id: f_lidmi7p82
+
+Y2xhc3MgQ0xBU1MxCmNsYXNzIENMQVNTMDEKY2xhc3MgQ0xBU1MwMgpjbGFzcyBDTEFTUzAzCmNs
+YXNzIENMQVNTMDQKY2xhc3MgQ0xBU1MwNQpjbGFzcyBDTEFTUzA2CnNpZCBrZXJuZWwKY2xhc3Mg
+Q0xBU1MxIHsgUEVSTTEgfQpjbGFzcyBDTEFTUzAxIHsgUEVSTTAxIH0KY2xhc3MgQ0xBU1MwMiB7
+IFBFUk0wMiB9CmNsYXNzIENMQVNTMDMgeyBQRVJNMDMgfQpjbGFzcyBDTEFTUzA0IHsgUEVSTTA0
+IH0KY2xhc3MgQ0xBU1MwNSB7IFBFUk0wNSB9CmNsYXNzIENMQVNTMDYgeyBQRVJNMDYgfQp0eXBl
+IFRZUEUxOwphbGxvdyBUWVBFMSBzZWxmIDogQ0xBU1MxIFBFUk0xOwpyb2xlIFJPTEUxOwpyb2xl
+IFJPTEUxIHR5cGVzIFRZUEUxOwp1c2VyIFVTRVIxIHJvbGVzIFJPTEUxOwpzaWQga2VybmVsIFVT
+RVIxOlJPTEUxOlRZUEUxCg==
+--0000000000004bec0c05fd17c5be
+Content-Type: application/octet-stream; name="mod_02.te"
+Content-Disposition: attachment; filename="mod_02.te"
+Content-Transfer-Encoding: base64
+Content-ID: <f_lidmica13>
+X-Attachment-Id: f_lidmica13
+
+bW9kdWxlIG1vZF8wMiAwLjAuMTsKCnJlcXVpcmUgewoJY2xhc3MgQ0xBU1MwMSB7IFBFUk0wMSB9
+OwoJY2xhc3MgQ0xBU1MwMiB7IFBFUk0wMiB9OwoJY2xhc3MgQ0xBU1MwMyB7IFBFUk0wMyB9OwoJ
+Y2xhc3MgQ0xBU1MwNCB7IFBFUk0wNCB9OwoJY2xhc3MgQ0xBU1MwNSB7IFBFUk0wNSB9OwoJY2xh
+c3MgQ0xBU1MwNiB7IFBFUk0wNiB9Owp9Cgp0eXBlIHRhOwp0eXBlIHRiOwp0eXBlIHRjOwoKdHlw
+ZV90cmFuc2l0aW9uIHRhIHRiIDogQ0xBU1MwMSB0YyAiZmlsZTAxIjsKdHlwZV90cmFuc2l0aW9u
+IHRhIHRiIDogQ0xBU1MwMiB0YyAiW2ZpbGUwMl0iOwp0eXBlX3RyYW5zaXRpb24gdGEgdGIgOiBD
+TEFTUzAzIHRjICJmaWxlMDMiIG1hdGNoX2V4YWN0Owp0eXBlX3RyYW5zaXRpb24gdGEgdGIgOiBD
+TEFTUzA0IHRjICJmaWxlMDQiIG1hdGNoX3ByZWZpeDsKdHlwZV90cmFuc2l0aW9uIHRhIHRiIDog
+Q0xBU1MwNSB0YyAiZmlsZTA1IiBtYXRjaF9zdWZmaXg7Cg==
+--0000000000004bec0c05fd17c5be--
