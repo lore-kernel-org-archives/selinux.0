@@ -2,102 +2,135 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D5CEC7EE2F
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 15:10:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52938C7EE23
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 16:36:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233749AbjFAPKm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 11:10:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
+        id S231216AbjFAQgm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 12:36:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233670AbjFAPKl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 11:10:41 -0400
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D03741A6
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 08:10:15 -0700 (PDT)
-Received: by mail-lj1-x231.google.com with SMTP id 38308e7fff4ca-2af2ef0d0daso13273851fa.2
-        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 08:10:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685632213; x=1688224213;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=U5SBFHcpI3d+h5o9i7o3FRY60+UBS97afYfarxcEF20=;
-        b=Ffax6NzP86yweqBmmZV/EZap1jmYsQbrKOZc9ue2JlRvflEU6HzwnlIUPMET7mpzSM
-         dHhOdzgLmqxMTY71n35N9i3z9GDZgZGigzdR/TfGGVUHrLNisApWZ5TsGCrEHQAG069D
-         e4lLN4qOKRhh5k9+EY1JHnmynzk0IsZv3qJK2U8GsZ8OTZ39edaQ8jmvZ3IN93WLJdxe
-         XY1UCdQz8gXafmOJD2WTuwbsQJ3TiG2W347njLM69i2+EyhUMffToRXVN/s/pP3wpptj
-         JBI5e0roQcU8D5RKYXW1ZD4B9SWIiL9vgF34GsDMpEoX4U3PY/v7+Pt7BERNCR9rXQTU
-         mlTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685632213; x=1688224213;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=U5SBFHcpI3d+h5o9i7o3FRY60+UBS97afYfarxcEF20=;
-        b=U43CzzjsiS8OIfc1CzVRgOi9HuZi7atIHflFUxTAn6XwPdQR4+yk7nI2wCCMpR95TO
-         L4D31nyAw/viMYkHwG2QaYV7AVpnDuov1aPMsJuiHmFeW9nIFxv84+RWpN4c3Jx5XJrL
-         k0O/TFAXknzUEuzvso3zuBxMfDsNK+U5uHB8XYenQWtye3llCtBQDEL3rZF/ymD0ze/M
-         P+g3Y2GNPYE2A5ecoWfLK1Ks6QFZRpxHchsRTrQ9e79wN7hA1oZ3zYL8k3k4YdGKt8Y1
-         g0zNlHw99oSMByIVW05Xeyo2gCqeCUJF83CbBleX2rdnuE1rZXl2PalxA1Ch89A69aK2
-         tCzw==
-X-Gm-Message-State: AC+VfDzy9NM81Snki3Xl5Orf1yEOlGMRneq/KAoYezc8hfw3cN6yUUpQ
-        qJiSHFEtPaFqgp0R2wPQ1rN+z4R6BX3k9G1BShI=
-X-Google-Smtp-Source: ACHHUZ4evVNw78YExQccS2DH7HPFn07LFuGPrQKyUtq8tNd7/QyDWRXWmjfgIGwZ3ecO1e279O2IrhEvd7hENKzRggg=
-X-Received: by 2002:a2e:9f02:0:b0:2ac:e66c:e91 with SMTP id
- u2-20020a2e9f02000000b002ace66c0e91mr4936209ljk.19.1685632212849; Thu, 01 Jun
- 2023 08:10:12 -0700 (PDT)
+        with ESMTP id S231550AbjFAQgl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 12:36:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC6013E
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 09:36:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1685637362;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=QD+OxyQew44D49ZBnFgHAMKhTH8BPRvgCbGoZL26IOk=;
+        b=jGHEI9ZGG0GQvpedwkmv9y5TzpeBhjxymOa1hx8wHaKBOK+Qhs51flnYENFvTOgkNMvdzh
+        5C0dI/vg283n8c4ePq/l3mlu7cVX4fIXULuRx7k3i3SFULetbCUwdHSwPzNFzzBQtQBSsJ
+        UyWsFkiwiw+9VZ5zsXFSLfwVTNFxXso=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-2-TluqBC5POgG16uZN-HZnHQ-1; Thu, 01 Jun 2023 12:34:35 -0400
+X-MC-Unique: TluqBC5POgG16uZN-HZnHQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2540E811E85
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 16:34:35 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.226.133])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AC60D40C6EC4
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 16:34:34 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] python/sepolicy: Fix template for confined user policy modules
+Date:   Thu,  1 Jun 2023 18:34:30 +0200
+Message-Id: <20230601163430.2062951-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-References: <20230512101333.67196-1-cgzones@googlemail.com>
-In-Reply-To: <20230512101333.67196-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 1 Jun 2023 11:10:01 -0400
-Message-ID: <CAP+JOzScriL43-Jsbas1zA0nEmY=ntCdHnMHW+Zidr2aBGPTXw@mail.gmail.com>
-Subject: Re: [PATCH 1/4] libsepol: drop message for uncommon error cases
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These four patches need sign-off lines.
-Thanks,
-Jim
+The following commit
+https://github.com/SELinuxProject/refpolicy/commit/330b0fc3331d3b836691464734c96f3da3044490
+changed the userdom_base_user_template, which now requires a role
+corresponding to the user being created to be defined outside of the
+template.
+Similar change was also done to fedora-selinux/selinux-policy
+https://github.com/fedora-selinux/selinux-policy/commit/e1e216b25df1bdb4eb7dbb8f73f32927ad6f3d1f
 
+Although I believe the template should define the role (just as it
+defines the new user), that will require extensive changes to refpolicy.
+In the meantime the role needs to be defined separately.
 
-On Fri, May 12, 2023 at 6:17=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Match surrounding code and the message were quite generic too.
-> ---
->  libsepol/src/kernel_to_conf.c | 2 --
->  1 file changed, 2 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index c48a7114..cb7cb740 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -2886,7 +2886,6 @@ static int write_xen_pirq_rules_to_conf(FILE *out, =
-struct policydb *pdb)
->         for (pirq =3D pdb->ocontexts[1]; pirq !=3D NULL; pirq =3D pirq->n=
-ext) {
->                 rc =3D snprintf(pirq_str, 21, "%i", pirq->u.pirq);
->                 if (rc < 0 || rc >=3D 21) {
-> -                       fprintf(stderr,"error1\n");
->                         rc =3D -1;
->                         goto exit;
->                 }
-> @@ -2894,7 +2893,6 @@ static int write_xen_pirq_rules_to_conf(FILE *out, =
-struct policydb *pdb)
->                 ctx =3D context_to_str(pdb, &pirq->context[0]);
->                 if (!ctx) {
->                         rc =3D -1;
-> -                       fprintf(stderr,"error2\n");
->                         goto exit;
->                 }
->
-> --
-> 2.40.1
->
+Fixes:
+\# sepolicy generate --term_user -n newuser
+Created the following files:
+/root/a/test/newuser.te # Type Enforcement file
+/root/a/test/newuser.if # Interface file
+/root/a/test/newuser.fc # File Contexts file
+/root/a/test/newuser_selinux.spec # Spec file
+/root/a/test/newuser.sh # Setup Script
+
+\# ./newuser.sh
+Building and Loading Policy
++ make -f /usr/share/selinux/devel/Makefile newuser.pp
+Compiling targeted newuser module
+Creating targeted newuser.pp policy package
+rm tmp/newuser.mod tmp/newuser.mod.fc
++ /usr/sbin/semodule -i newuser.pp
+Failed to resolve roleattributeset statement at /var/lib/selinux/targeted/tmp/modules/400/newuser/cil:8
+Failed to resolve AST
+/usr/sbin/semodule:  Failed!
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ python/sepolicy/sepolicy/templates/user.py | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/python/sepolicy/sepolicy/templates/user.py b/python/sepolicy/sepolicy/templates/user.py
+index 1ff9d2ce..7081fbae 100644
+--- a/python/sepolicy/sepolicy/templates/user.py
++++ b/python/sepolicy/sepolicy/templates/user.py
+@@ -28,6 +28,8 @@ policy_module(TEMPLATETYPE, 1.0.0)
+ #
+ # Declarations
+ #
++role TEMPLATETYPE_r;
++
+ userdom_unpriv_user_template(TEMPLATETYPE)
+ """
+ 
+@@ -38,6 +40,8 @@ policy_module(TEMPLATETYPE, 1.0.0)
+ #
+ # Declarations
+ #
++role TEMPLATETYPE_r;
++
+ userdom_admin_user_template(TEMPLATETYPE)
+ """
+ 
+@@ -48,6 +52,7 @@ policy_module(TEMPLATETYPE, 1.0.0)
+ #
+ # Declarations
+ #
++role TEMPLATETYPE_r;
+ 
+ userdom_restricted_user_template(TEMPLATETYPE)
+ """
+@@ -59,6 +64,7 @@ policy_module(TEMPLATETYPE, 1.0.0)
+ #
+ # Declarations
+ #
++role TEMPLATETYPE_r;
+ 
+ userdom_restricted_xwindows_user_template(TEMPLATETYPE)
+ """
+@@ -89,6 +95,7 @@ gen_tunable(TEMPLATETYPE_manage_user_files, false)
+ #
+ # Declarations
+ #
++role TEMPLATETYPE_r;
+ 
+ userdom_base_user_template(TEMPLATETYPE)
+ """
+-- 
+2.40.0
+
