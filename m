@@ -2,135 +2,137 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52938C7EE23
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 16:36:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FDFFC77B7A
+	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 17:03:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231216AbjFAQgm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 12:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53162 "EHLO
+        id S229667AbjFARDN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 13:03:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231550AbjFAQgl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 12:36:41 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC6013E
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 09:36:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685637362;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=QD+OxyQew44D49ZBnFgHAMKhTH8BPRvgCbGoZL26IOk=;
-        b=jGHEI9ZGG0GQvpedwkmv9y5TzpeBhjxymOa1hx8wHaKBOK+Qhs51flnYENFvTOgkNMvdzh
-        5C0dI/vg283n8c4ePq/l3mlu7cVX4fIXULuRx7k3i3SFULetbCUwdHSwPzNFzzBQtQBSsJ
-        UyWsFkiwiw+9VZ5zsXFSLfwVTNFxXso=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-2-TluqBC5POgG16uZN-HZnHQ-1; Thu, 01 Jun 2023 12:34:35 -0400
-X-MC-Unique: TluqBC5POgG16uZN-HZnHQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2540E811E85
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 16:34:35 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.226.133])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AC60D40C6EC4
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 16:34:34 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] python/sepolicy: Fix template for confined user policy modules
-Date:   Thu,  1 Jun 2023 18:34:30 +0200
-Message-Id: <20230601163430.2062951-1-vmojzis@redhat.com>
+        with ESMTP id S230151AbjFARDM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 13:03:12 -0400
+Received: from sender11-of-o52.zoho.eu (sender11-of-o52.zoho.eu [31.186.226.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456D5136
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 10:03:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1685638987; cv=none; 
+        d=zohomail.eu; s=zohoarc; 
+        b=dgvH+3V9N66kmpe2d2DCyz7EfjCwsb6w2iar3KWh/ivrtJQ6cQfJRTK42Ci4VAlX9fLYMVo7lfoDHZItczXY7IFMggFtwjaHTIohgOm6QRBElOLU5kPsQU0fMmSynwu+ozN2DJeYZ7pmwtjo2oLesgvoE0FWPK72v6vncez27r0=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+        t=1685638987; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=6CRZzQ7NDhNem3iRtqdr7C5h5DCcCDuWM4CA4iujKCo=; 
+        b=MFbtK16/PwYKYrY+eNOvnAdTUUYSWr4AR3iqF0VpE13Op92BVYso5qbyG3NY4+/TwGms1uvHFvg9ho6sDgYJ/aim4YsXuKWkNsucngzG5TPtDf58AtpR0Sgo6aIFNQ/uE3SPapJStb/C/RGIYgFYWCZ8fvM+GH/U4pN3j0R1Xx8=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+        dkim=pass  header.i=jurajmarcin.com;
+        spf=pass  smtp.mailfrom=juraj@jurajmarcin.com;
+        dmarc=pass header.from=<juraj@jurajmarcin.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1685638987;
+        s=zoho; d=jurajmarcin.com; i=juraj@jurajmarcin.com;
+        h=Date:Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Content-Transfer-Encoding:Message-Id:Reply-To;
+        bh=6CRZzQ7NDhNem3iRtqdr7C5h5DCcCDuWM4CA4iujKCo=;
+        b=LRyTV6oaBMkQ64TiFjdnbxtv1Zq3gmotUF2NmwPpNjBAbRqSptLfD7rXIziX4bu7
+        SuUzCoVNN2H12pWXKFbkznFyYrTrk/u2AwkIQF11hE89EJ6r3TcugB/uq1WiytYCQtx
+        wgfIFcq3WkCoYAKcvfqZTITNaRgMS831wkPcDQUw=
+Received: from morty01.jurajmarcin.com (129.159.244.31 [129.159.244.31]) by mx.zoho.eu
+        with SMTPS id 1685638985263141.66033061061626; Thu, 1 Jun 2023 19:03:05 +0200 (CEST)
+Received: from jmarcin-t14s-01 (unknown [147.251.183.113])
+        by morty01.jurajmarcin.com (Postfix) with ESMTPSA id 575732081F76;
+        Thu,  1 Jun 2023 17:03:04 +0000 (UTC)
+Date:   Thu, 1 Jun 2023 19:03:02 +0200
+From:   Juraj Marcin <juraj@jurajmarcin.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type
+ transitions
+Message-ID: <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01>
+References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
+ <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The following commit
-https://github.com/SELinuxProject/refpolicy/commit/330b0fc3331d3b836691464734c96f3da3044490
-changed the userdom_base_user_template, which now requires a role
-corresponding to the user being created to be defined outside of the
-template.
-Similar change was also done to fedora-selinux/selinux-policy
-https://github.com/fedora-selinux/selinux-policy/commit/e1e216b25df1bdb4eb7dbb8f73f32927ad6f3d1f
+On 2023-05-31 18:24, Paul Moore wrote:
+> On Wed, May 31, 2023 at 7:32=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin=
+.com> wrote:
+> >
+> > Currently, filename transitions are stored separately from other type
+> > enforcement rules and only support exact name matching. However, in
+> > practice, the names contain variable parts. This leads to many
+> > duplicated rules in the policy that differ only in the part of the na=
+me,
+> > or it is even impossible to cover all possible combinations.
+> >
+> > First, this series of patches moves the filename transitions to be pa=
+rt
+> > of the avtab structures. This not only makes the implementation of
+> > prefix/suffix matching and future enhancements easier, but also reduc=
+es
+> > the technical debt regarding the filename transitions. Next, the last
+> > patch implements the support for prefix/suffix name matching itself b=
+y
+> > extending the structures added in previous patches in this series.
+> >
+> > Even though, moving everything to avtab increases the memory usage an=
+d
+> > the size of the binary policy itself and thus the loading time, the
+> > ability to match the prefix or suffix of the name will reduce the
+> > overall number of rules in the policy which should mitigate this issu=
+e.
+> >
+> > This implementation has been successfully tested using the existing a=
+nd
+> > also new tests in the SELinux Testsuite.
+> >
+> > Juraj Marcin (5):
+> >   selinux: move transition to separate structure in avtab_datum
+> >   selinux: move filename transitions to avtab
+> >   selinux: implement new binary format for filename transitions in av=
+tab
+> >   selinux: filename transitions move tests
+> >   selinux: add prefix/suffix matching support to filename type
+> >     transitions
+>=20
+> Just a quick comment as I haven't had a chance to properly review this
+> series yet; you show some memory usage and performance measurements in
+> some of the intermediate patches, that's good, but I don't see the
+> same measurements taken when the full patchset is applied.  Please
+> provide the same memory usage and performance comparisons with the
+> full patchset applied.
 
-Although I believe the template should define the role (just as it
-defines the new user), that will require extensive changes to refpolicy.
-In the meantime the role needs to be defined separately.
+Of course, here are the measurements with the whole patchset applied.
 
-Fixes:
-\# sepolicy generate --term_user -n newuser
-Created the following files:
-/root/a/test/newuser.te # Type Enforcement file
-/root/a/test/newuser.if # Interface file
-/root/a/test/newuser.fc # File Contexts file
-/root/a/test/newuser_selinux.spec # Spec file
-/root/a/test/newuser.sh # Setup Script
+I also included measurements with new policy (based on the Fedora
+policy) that uses prefix filename transitions where possible. This new
+policy has been generated by merging existing filename transitions into
+prefix ones if it would reduce the number of transitions overall while
+keeping the resulting type same.
 
-\# ./newuser.sh
-Building and Loading Policy
-+ make -f /usr/share/selinux/devel/Makefile newuser.pp
-Compiling targeted newuser module
-Creating targeted newuser.pp policy package
-rm tmp/newuser.mod tmp/newuser.mod.fc
-+ /usr/sbin/semodule -i newuser.pp
-Failed to resolve roleattributeset statement at /var/lib/selinux/targeted/tmp/modules/400/newuser/cil:8
-Failed to resolve AST
-/usr/sbin/semodule:  Failed!
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/sepolicy/sepolicy/templates/user.py | 7 +++++++
- 1 file changed, 7 insertions(+)
+[1] Reference kernel (c52df19e3759), Fedora policy (format v33)
+[2] This patchset, Fedora policy (format v33)
+[3] This patchset, Fedora policy without prefix/suffix rules (format v35)
+[4] This patchset, Fedora policy with prefix rules (format v35)
 
-diff --git a/python/sepolicy/sepolicy/templates/user.py b/python/sepolicy/sepolicy/templates/user.py
-index 1ff9d2ce..7081fbae 100644
---- a/python/sepolicy/sepolicy/templates/user.py
-+++ b/python/sepolicy/sepolicy/templates/user.py
-@@ -28,6 +28,8 @@ policy_module(TEMPLATETYPE, 1.0.0)
- #
- # Declarations
- #
-+role TEMPLATETYPE_r;
-+
- userdom_unpriv_user_template(TEMPLATETYPE)
- """
- 
-@@ -38,6 +40,8 @@ policy_module(TEMPLATETYPE, 1.0.0)
- #
- # Declarations
- #
-+role TEMPLATETYPE_r;
-+
- userdom_admin_user_template(TEMPLATETYPE)
- """
- 
-@@ -48,6 +52,7 @@ policy_module(TEMPLATETYPE, 1.0.0)
- #
- # Declarations
- #
-+role TEMPLATETYPE_r;
- 
- userdom_restricted_user_template(TEMPLATETYPE)
- """
-@@ -59,6 +64,7 @@ policy_module(TEMPLATETYPE, 1.0.0)
- #
- # Declarations
- #
-+role TEMPLATETYPE_r;
- 
- userdom_restricted_xwindows_user_template(TEMPLATETYPE)
- """
-@@ -89,6 +95,7 @@ gen_tunable(TEMPLATETYPE_manage_user_files, false)
- #
- # Declarations
- #
-+role TEMPLATETYPE_r;
- 
- userdom_base_user_template(TEMPLATETYPE)
- """
--- 
-2.40.0
 
+ Test | Mem   | Binary | Policy | Create tty      | osbench
+      | Usage | policy | load   |                 | create
+      |       | size   | time   | (ms/file)       | files=20
+      | (MiB) | (MiB)  | (ms)   | real   | kernel | (us/file)
+------+-------+--------+--------+--------+--------+-----------
+ [1]  |   157 |    3.4 |     78 | 1.1021 | 0.7586 | 7.8277
+ [2]  |   200 |    3.4 |    206 | 1.1193 | 0.7724 | 8.2711
+ [3]  |   169 |    5.8 |    106 | 1.1021 | 0.7724 | 8.0304
+ [4]  |   164 |    3.8 |     86 | 1.1029 | 0.7586 | 7.9609
+
+
+>=20
+> --=20
+> paul-moore.com
+
+--=20
+Juraj Marcin
