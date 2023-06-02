@@ -2,129 +2,94 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1059C7EE29
-	for <selinux@archiver.kernel.org>; Thu,  1 Jun 2023 22:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AE45C77B7A
+	for <selinux@archiver.kernel.org>; Fri,  2 Jun 2023 01:13:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbjFAWg4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Jun 2023 18:36:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
+        id S232941AbjFBBNs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Jun 2023 21:13:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232523AbjFAWgz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 18:36:55 -0400
-Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08F3136
-        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 15:36:53 -0700 (PDT)
-Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-568928af8f5so22781467b3.1
-        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 15:36:53 -0700 (PDT)
+        with ESMTP id S231259AbjFBBNr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Jun 2023 21:13:47 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C8418D
+        for <selinux@vger.kernel.org>; Thu,  1 Jun 2023 18:13:45 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-565a3cdba71so16580527b3.0
+        for <selinux@vger.kernel.org>; Thu, 01 Jun 2023 18:13:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1685659013; x=1688251013;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PImXdHKXqYIGgwpxjRysvZD3YRUZJhah0IyxPjnbRkw=;
-        b=WPMfL28+DR8m9RECMKwuzyDm//n6MDkMcDHr3KMZ8zZi1uDgF/rCcTvQGaD5R8sZ+/
-         jIccgp0c/mDPo5kSPQIQ9rzRE8i7jvdT/2ng4ztlRqtkfSGglESoY4dCd0xhCjiw1U7Q
-         hUTb0fQB4LQkDwuhct50p/SsJ/cLxPbS2n1sdcumT04AtP2bWxTPxz7pf5jjj5vhTvMZ
-         pazMiGncj2gCSGxegqGsYz5SZ0vF38mBBzZ2NrFGGZIYIAt8xZ2WAIhEgcCVJC71BCbl
-         iqbSvyhxpTGoX9IwFMQtx/gl/AvpG3x/qtfEkNnyaMKUDkE4zlwpSnVXwYkPyYWyfyZ1
-         5KdA==
+        d=paul-moore.com; s=google; t=1685668424; x=1688260424;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=4nydeH8fGmYfEq//3RT6MGqc1Z4XWdWvcyC0fJTwhtM=;
+        b=JFBun+Pik8MgDtLxGed2bleSGjQCew45jQglAUHqtG3l9V53YpgjD3ZokHdpg2u95+
+         nR3woVnNJRgAcLxwgbda8dkLv7dMAMIbAlzoqLQJUEsKtUYBApsyTpqbc7P042Sygxxd
+         h7m4VmiGKxlLVAj7GLE9wuDHP+uMeFHB8rslF/yhflnSNcewswQICHjPdlKOn/CzSLi0
+         avgCmxnCuYQslsl6cyl+JmCfP2xp9u5BWKAuUdpiMomu6oGeT0n594nYyRhKfCj0ifuw
+         1UyLccigYVvCOx7oT453wNtRcR5Rgw1d1JSSharO0tegFGxPuP4VBIk6ifiO5wKy7r1+
+         T8jA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685659013; x=1688251013;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PImXdHKXqYIGgwpxjRysvZD3YRUZJhah0IyxPjnbRkw=;
-        b=EKTc82wynegxpUtF0Hy/fcuGaR+faYy82+/+t079oiIZaXQ3IJdeTUiS5zHzpA05Jd
-         qJZM6xaMBAQbIysar+a8PO1ptPfb9XGz28/45dr4K5iZZNdtVLySZ15+cxI+pV8S9rP/
-         gFeQ1HZRQ/p8dlB41fzFLCoOh/Y/LT4/O/wI3I5cTMA0ihgQwUEmXuCYX0tUVsRhb0TI
-         5L4+gNAgT2hca7YclyagjP7LBY5/zwvFa+S0JRtOs4TCMgV371S/d2Q1apH10FJVO6Xy
-         szi38sTdMjsKRbXLNbRokuIgHjxeA6djW8w/LclLZxVK+V7ZPwaBXA1OjsRkycBdqnws
-         qyZg==
-X-Gm-Message-State: AC+VfDzglv+7PYu7xMRmeoUpwoq4+pvvth37BNxfIOlV9r6fhp+2N3LB
-        cUTBja/2AbWK5DPyamSZcgn1CzJPAbewb8LO6mNnJPBnw6CcPbHFKg==
-X-Google-Smtp-Source: ACHHUZ6j51bxMN1pllUCH0uJbZMMwIUnalz8OH51UHJC4o4HY08JH3njFjsw4KpBD83SHJOP4TFmxmm7zZ7f/dUWJEg=
-X-Received: by 2002:a0d:d651:0:b0:55d:626e:3dcf with SMTP id
- y78-20020a0dd651000000b0055d626e3dcfmr3779590ywd.12.1685659012670; Thu, 01
- Jun 2023 15:36:52 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1685668424; x=1688260424;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=4nydeH8fGmYfEq//3RT6MGqc1Z4XWdWvcyC0fJTwhtM=;
+        b=kIFFcEtnMP90HlibrLEhtHerFFSM+OVJVDnqdNzgH+aJWIuTXulyru+SZsfKa529jn
+         hwVY+rbOi7WFBgxSHRGrjLRPzaziFXDmY99s0IethoQ+pMoKYvso2ZX0FHHm+f/rBAkB
+         KshMwXQg6DbRC59ZrcQs60746KMfkUFfrgjdQAbLCBCtMrcH9I9uISElUetytKj3571j
+         XT6wDp3GLXoukkTyhzXRK/J0PTOgAVVSfX34XAm7PH0i9pASMK1kfi+gfNxxy1W95+WC
+         QCLytAPsQaYt+2W2anRo7qH5cNJxkUuv/ZcRbWMIt0JsUOLfEJjSkLwCLbDkPEq6DZeM
+         YWcQ==
+X-Gm-Message-State: AC+VfDz+7aSPFlVMUUnouSQ6DfBXOAvcn5w+qd0GDcokE0Ys9VCc8wqQ
+        XeGnPL7zhjGXzeDD9zbyXA4Z44i2GLddiIleU47X
+X-Google-Smtp-Source: ACHHUZ7orX0SaNZQ72ZLc51WkA3Dy6WwNhQoWx2L0nYgKXT4snf9ah6BwBrapuvf/G9Xsr9zVyKYPNl1JmUAZdSPl3g=
+X-Received: by 2002:a0d:e801:0:b0:561:e8d7:ac6b with SMTP id
+ r1-20020a0de801000000b00561e8d7ac6bmr10789383ywe.49.1685668424300; Thu, 01
+ Jun 2023 18:13:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230601214751.406786-1-paul@paul-moore.com>
-In-Reply-To: <20230601214751.406786-1-paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 1 Jun 2023 18:36:42 -0400
-Message-ID: <CAHC9VhQ=ysi=sOQbp_ZmZZEze-TJwUfFQ7FRB7mrGTLduQf5AA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix Makefile for versions of make < v4.3
-To:     selinux@vger.kernel.org
+Date:   Thu, 1 Jun 2023 21:13:33 -0400
+Message-ID: <CAHC9VhQPMmWZwS-S9FQpU5rETcizcDPK0Nm1mwXeWpykUdDLFw@mail.gmail.com>
+Subject: [GIT PULL] SELinux fixes for v6.4 (#1)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 1, 2023 at 5:47=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> As noted in the comments of this commit, the current SELinux Makefile
-> requires features found in make v4.3 or later, which is problematic
-> as the Linux Kernel currently only requires make v3.82.  This patch
-> fixes the SELinux Makefile so that it works properly on these older
-> versions of make, and adds a couple of comments to the Makefile about
-> how it can be improved once make v4.3 is required by the kernel.
->
-> Fixes: 6f933aa7dfd0 ("selinux: more Makefile tweaks")
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/Makefile | 17 ++++++++++++++---
->  1 file changed, 14 insertions(+), 3 deletions(-)
->
-> diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-> index ab8c3093d5fd..abf19fee09f8 100644
-> --- a/security/selinux/Makefile
-> +++ b/security/selinux/Makefile
-> @@ -3,6 +3,11 @@
->  # Makefile for building the SELinux module as part of the kernel tree.
->  #
->
-> +# NOTE: There are a number of improvements that can be made to this Make=
-file
-> +# once the kernel requires make v4.3 or greater; the most important feat=
-ure
-> +# lacking in older versions of make is support for grouped targets.  The=
-se
-> +# improvements are noted inline in the Makefile below ...
-> +
->  obj-$(CONFIG_SECURITY_SELINUX) :=3D selinux.o
->
->  ccflags-y :=3D -I$(srctree)/security/selinux -I$(srctree)/security/selin=
-ux/include
-> @@ -19,11 +24,17 @@ selinux-$(CONFIG_IMA) +=3D ima.o
->
->  genhdrs :=3D flask.h av_permissions.h
->
-> -$(addprefix $(obj)/,$(selinux-y)): $(addprefix $(obj)/,$(genhdrs))
-> +# see the note above, replace the dependency rule with the one below:
-> +#  $(addprefix $(obj)/,$(selinux-y)): $(addprefix $(obj)/,$(genhdrs))
-> +$(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
->
->  quiet_cmd_genhdrs =3D GEN     $(addprefix $(obj)/,$(genhdrs))
->        cmd_genhdrs =3D $< $(addprefix $(obj)/,$(genhdrs))
->
-> -targets +=3D $(genhdrs)
-> -$(addprefix $(obj)/,$(genhdrs)) &: scripts/selinux/genheaders/genheaders=
- FORCE
-> +# see the note above, replace the $targets and $genhdrs dependency rule =
-with
-> +# the lines below:
+Hi Linus,
 
-My apologies, I didn't fully refresh my patch before sending it out so
-there is a slight difference in the comments, below is what I
-currently have in my working branch:
+A small SELinux Makefile fix to resolve a problem seen when building
+the kernel with older versions of make.  The fix is pretty trivial and
+effectively reverts a patch that was merged during the last merge
+window.  As usual, the commit description has more information.
 
--# see the note above, replace the $targets and $genhdrs dependency rule wi=
-th
--# the lines below:
-+# see the note above, replace the $targets and 'flask.h' rule with the lin=
-es
-+# below:
+Thanks,
+-Paul
+--
+The following changes since commit ac9a78681b921877518763ba0e89202254349d1b:
 
---=20
+ Linux 6.4-rc1 (2023-05-07 13:34:35 -0700)
+
+are available in the Git repository at:
+
+ https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20230601
+
+for you to fetch changes up to 42c4e97e06a839b07d834f640a10911ad84ec8b3:
+
+ selinux: don't use make's grouped targets feature yet
+   (2023-06-01 13:56:13 -0400)
+
+----------------------------------------------------------------
+selinux/stable-6.4 PR 20230601
+
+----------------------------------------------------------------
+Paul Moore (1):
+     selinux: don't use make's grouped targets feature yet
+
+security/selinux/Makefile | 6 +++++-
+1 file changed, 5 insertions(+), 1 deletion(-)
+
+-- 
 paul-moore.com
