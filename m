@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD9A7C7EE2C
-	for <selinux@archiver.kernel.org>; Fri,  2 Jun 2023 13:06:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8ECFCC7EE24
+	for <selinux@archiver.kernel.org>; Fri,  2 Jun 2023 13:06:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234982AbjFBNGX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S235863AbjFBNGX (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 2 Jun 2023 09:06:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235867AbjFBNGU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Jun 2023 09:06:20 -0400
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33E32E4C
-        for <selinux@vger.kernel.org>; Fri,  2 Jun 2023 06:06:17 -0700 (PDT)
-Received: by mail-lj1-x231.google.com with SMTP id 38308e7fff4ca-2b1a46ad09fso23394281fa.2
-        for <selinux@vger.kernel.org>; Fri, 02 Jun 2023 06:06:17 -0700 (PDT)
+        with ESMTP id S235849AbjFBNGW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Jun 2023 09:06:22 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9F11B1
+        for <selinux@vger.kernel.org>; Fri,  2 Jun 2023 06:06:18 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-5149e65c218so2967208a12.2
+        for <selinux@vger.kernel.org>; Fri, 02 Jun 2023 06:06:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1685711175; x=1688303175;
+        d=googlemail.com; s=20221208; t=1685711176; x=1688303176;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=d6e/YvWURXRbA9yHh/CLpAgKhIdhkW4fVyKRWrB6iQA=;
-        b=Ns83oj1SPGULw+qCkmj1VYeiH+FHYAo+L1puQPEsuKBgDYdEweE1bcFbrSdIwC/1bL
-         k/8ajlqE9WzYbFpFsOHChZDsYsE7qNGe3ejVGA/hPvw+5J+rM5mjSvbRlznm+CQQBB8c
-         +VMt6gAknBohTEaBV/7kHCAYkjA5fVCP83Lfe5TozxZmPrk1vrjBeTicvtmMu+/YOlle
-         oS2zERbHBfiRmM0rnlnSwQ8Az/VjKQyZotsoBexvtX7DI7/tHXysACljX8R2gAmDQaDn
-         YA5t276n9bBeW/P77VTuKrkL+vdpX9tihM7vTyHx6LQyCFyl844AEMbFoh2sUcYqb8ke
-         uI1w==
+        bh=szaE7PIPBT8ltu6v3ucUuocqS0af//KmsoAdMMXNThg=;
+        b=ISgKVuLbBs1WFchpY0hvgktz/OJsc8Byu7v/G6jI+VnS0IBw4nXpkAGdnbU73ZvFoa
+         6WEISd/q803V3bQ1NPhi6LBKfj4AHlrig5aNFjf49j34WQ87rILnIT65w1LnoZKWgmYK
+         j53q136AlEAioYsTtfJqVipHONBajfcrWhu1ImZKWNHO3ySnxE+d2pd8Z32aS3e+nyIj
+         WtmySibXM+nMLoMsnv8K2L5UrV2hHU+tyEHkycDfVQk0FTvHFwgsMbhdPiv2jEwA4dHG
+         jiiRsSSTw4v9y+OqQXOsPmiHNGVJeQrf8bpjO1e6UILyGrNlB+5QcR7ruRuVAKYbcjVZ
+         2OqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685711175; x=1688303175;
+        d=1e100.net; s=20221208; t=1685711176; x=1688303176;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=d6e/YvWURXRbA9yHh/CLpAgKhIdhkW4fVyKRWrB6iQA=;
-        b=lShrFJoEpt/rCcK9iVV0EOSj5K03Eg7JSziOXhVkvHOIJA7iOifU8FKNFQk/6BoMft
-         KHfFWiSE1qnmdLeJ5kjrqz57+gY+E5iX0M+DdjETqor+Liw4EJFv5vKfdUPbHdF722Kc
-         i7zPeb/dg2hIkzdz/zeNKISdMTOMWu/e2/qpb6YXsOXVMMjqi+wNjVD3J62ncxaD9ZP2
-         xIrkRgqm+bR+OXU5VfK8TR4OYD7GLxUcsZgdLOcQCVqoZRBUkZbejjQx3GtIfp4xPKhR
-         96QkpnfLOQkEJbmpwZQLTK2R8fMWx222TYckzbNfCvEVnoRd7Vhy1EZaYQFtCPeREt1x
-         xs6g==
-X-Gm-Message-State: AC+VfDw9lIrIPx7K8acEz77Ehf8MolC7jxyj66lwQzUj60qYNnqagPXy
-        4SE1+oRyZXk8aCmLOfOxxv72QcsxnmLySw==
-X-Google-Smtp-Source: ACHHUZ4Te6k2ckzj/fQwJN6ARaBKcP4h9vZTlEXfeWsO1L4QIHtAkjpD5ma2+6+22tVVC3jeqD1/Pw==
-X-Received: by 2002:a2e:96cb:0:b0:2ad:a955:dfa3 with SMTP id d11-20020a2e96cb000000b002ada955dfa3mr1670587ljj.9.1685711174978;
-        Fri, 02 Jun 2023 06:06:14 -0700 (PDT)
+        bh=szaE7PIPBT8ltu6v3ucUuocqS0af//KmsoAdMMXNThg=;
+        b=J5Ibtm7iVss1+runbV7plCZc0FuOcO/Ss7FBpQUtzCM5QJQBnoZ+PR45T6WKI04wLO
+         9KXNmMvsVV+segp5783WFJIhZgwZws+j9cJO900jjT/GPDMnIEYITKjMnsfwraJrYCid
+         jzK45JDykTY0gaUM5LQ3wXycY3oBG4UKVcdKfw2vG2tCl+nWIChILGgX7RmoWkzHiSE6
+         tdM3dlnVlbB91mcsmW0GrNCypp8fQaFRZjsxl79Q+KVWHXrfE5V2CHbVGMxnHUonAmgA
+         0iLNLKTCtudyMNURl1LcFlnjy1p91DfGX5QahxbaDygEWm3bJF2cnlGsOUZffEDbYRJ/
+         72Bw==
+X-Gm-Message-State: AC+VfDyj9BOWd+z9fw3LXP7ziho/9i6HL3vhNiDPASTJ1Djmk6J1HjW4
+        G0MXpPs4huWwJxQTDUhLysGeHgmaAi6g0A==
+X-Google-Smtp-Source: ACHHUZ7HzXcAMhluc3cswi0DkIAGKJVcn5DV0XP/G+SNmO2WqNyKluQ55S/9oUBtbvOR4NKAKbqx6Q==
+X-Received: by 2002:a05:6402:1242:b0:514:a4da:408e with SMTP id l2-20020a056402124200b00514a4da408emr1770737edw.2.1685711176513;
+        Fri, 02 Jun 2023 06:06:16 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-112-062-107.95.112.pool.telefonica.de. [95.112.62.107])
-        by smtp.gmail.com with ESMTPSA id z19-20020aa7c653000000b005149b6ec1bdsm669961edr.29.2023.06.02.06.06.14
+        by smtp.gmail.com with ESMTPSA id z19-20020aa7c653000000b005149b6ec1bdsm669961edr.29.2023.06.02.06.06.15
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 02 Jun 2023 06:06:14 -0700 (PDT)
+        Fri, 02 Jun 2023 06:06:16 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2 2/4] libsepol: drop duplicate newline in sepol_log_err() calls
-Date:   Fri,  2 Jun 2023 15:06:06 +0200
-Message-Id: <20230602130608.24586-2-cgzones@googlemail.com>
+Subject: [PATCH v2 4/4] libsepol: replace log_err() by ERR()
+Date:   Fri,  2 Jun 2023 15:06:08 +0200
+Message-Id: <20230602130608.24586-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230602130608.24586-1-cgzones@googlemail.com>
 References: <20230602130608.24586-1-cgzones@googlemail.com>
@@ -65,750 +65,734 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-sepol_log_err() will already append a newline unconditionally.
+Use the libsepol internal wrapper ERR() with a NULL handler to emit
+error messages.  ERR() will besides adding a prefix of "libsepol" also
+write to stderr.  One benefit is the option to suppress the messages via
+sepol_debug(), although marked deprecated, e.g. in fuzzers.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
 v2:
   added signed-off
 ---
- libsepol/src/kernel_to_cil.c    | 78 ++++++++++++++++-----------------
- libsepol/src/kernel_to_common.c |  4 +-
- libsepol/src/kernel_to_conf.c   | 78 ++++++++++++++++-----------------
- 3 files changed, 80 insertions(+), 80 deletions(-)
+ libsepol/src/module_to_cil.c | 173 ++++++++++++++++-------------------
+ 1 file changed, 80 insertions(+), 93 deletions(-)
 
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index e9cd89c2..edca4d5f 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -314,7 +314,7 @@ static int class_constraint_rules_to_strs(struct policydb *pdb, char *classkey,
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index e7bc6ee6..1a490089 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -52,6 +52,7 @@
+ #include <sepol/policydb/services.h>
+ #include <sepol/policydb/util.h>
  
- 	return 0;
- exit:
--	sepol_log_err("Error gathering constraint rules\n");
-+	sepol_log_err("Error gathering constraint rules");
- 	return rc;
++#include "debug.h"
+ #include "kernel_to_common.h"
+ #include "private.h"
+ #include "module_internal.h"
+@@ -71,24 +72,10 @@ static FILE *out_file;
+ #define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/cil/src/cil_post.c */
+ #define ROLEATTR_INFIX "_roleattr_"
+ 
+-__attribute__ ((format(printf, 1, 2)))
+-static void log_err(const char *fmt, ...)
+-{
+-	va_list argptr;
+-	va_start(argptr, fmt);
+-	if (vfprintf(stderr, fmt, argptr) < 0) {
+-		_exit(EXIT_FAILURE);
+-	}
+-	va_end(argptr);
+-	if (fprintf(stderr, "\n") < 0) {
+-		_exit(EXIT_FAILURE);
+-	}
+-}
+-
+ static void cil_indent(int indent)
+ {
+ 	if (fprintf(out_file, "%*s", indent * 4, "") < 0) {
+-		log_err("Failed to write to output");
++		ERR(NULL, "Failed to write to output");
+ 		_exit(EXIT_FAILURE);
+ 	}
  }
+@@ -98,7 +85,7 @@ static void cil_printf(const char *fmt, ...) {
+ 	va_list argptr;
+ 	va_start(argptr, fmt);
+ 	if (vfprintf(out_file, fmt, argptr) < 0) {
+-		log_err("Failed to write to output");
++		ERR(NULL, "Failed to write to output");
+ 		_exit(EXIT_FAILURE);
+ 	}
+ 	va_end(argptr);
+@@ -111,12 +98,12 @@ static void cil_println(int indent, const char *fmt, ...)
+ 	cil_indent(indent);
+ 	va_start(argptr, fmt);
+ 	if (vfprintf(out_file, fmt, argptr) < 0) {
+-		log_err("Failed to write to output");
++		ERR(NULL, "Failed to write to output");
+ 		_exit(EXIT_FAILURE);
+ 	}
+ 	va_end(argptr);
+ 	if (fprintf(out_file, "\n") < 0) {
+-		log_err("Failed to write to output");
++		ERR(NULL, "Failed to write to output");
+ 		_exit(EXIT_FAILURE);
+ 	}
+ }
+@@ -142,7 +129,7 @@ static int get_line(char **start, char *end, char **line)
  
-@@ -543,7 +543,7 @@ static int write_class_decl_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing class rules to CIL\n");
-+		sepol_log_err("Error writing class rules to CIL");
+ 	*line = malloc(len+1);
+ 	if (*line == NULL) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -593,7 +580,7 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
+ 		rule = "typechange";
+ 		break;
+ 	default:
+-		log_err("Unknown avrule type: %i", type);
++		ERR(NULL, "Unknown avrule type: %i", type);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -602,7 +589,7 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
+ 		if (type & AVRULE_AV) {
+ 			perms = sepol_av_to_string(pdb, classperm->tclass, classperm->data);
+ 			if (perms == NULL) {
+-				log_err("Failed to generate permission string");
++				ERR(NULL, "Failed to generate permission string");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -702,7 +689,7 @@ static int avrulex_to_cil(int indent, struct policydb *pdb, uint32_t type, const
+ 		rule = "neverallowx";
+ 		break;
+ 	default:
+-		log_err("Unknown avrule xperm type: %i", type);
++		ERR(NULL, "Unknown avrule xperm type: %i", type);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -762,13 +749,13 @@ static char *get_new_attr_name(struct policydb *pdb, int is_type)
+ 	len = strlen(pdb->name) + strlen(infix) + num_digits(num_attrs) + 1;
+ 	attr_name = malloc(len);
+ 	if (!attr_name) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		goto exit;
  	}
  
- 	return rc;
-@@ -616,7 +616,7 @@ exit:
+ 	rlen = snprintf(attr_name, len, "%s%s%i", pdb->name, infix, num_attrs);
+ 	if (rlen < 0 || rlen >= len) {
+-		log_err("Failed to generate attribute name");
++		ERR(NULL, "Failed to generate attribute name");
+ 		free(attr_name);
+ 		attr_name = NULL;
+ 		goto exit;
+@@ -785,7 +772,7 @@ static int cil_add_attr_to_list(struct list *attr_list, char *attr_name, int is_
+ 
+ 	attr_list_node = calloc(1, sizeof(*attr_list_node));
+ 	if (attr_list_node == NULL) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		rc = -1;
+ 		goto exit;
  	}
- 	strs_destroy(&strs);
- 	if (rc != 0) {
--		sepol_log_err("Error writing sid rules to CIL\n");
-+		sepol_log_err("Error writing sid rules to CIL");
+@@ -975,7 +962,7 @@ static int set_to_names(struct policydb *pdb, int is_type, void *set, struct lis
+ 
+ 	*names = malloc(sizeof(char *));
+ 	if (!*names) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		rc = -1;
+ 		goto exit;
  	}
+@@ -997,7 +984,7 @@ static int ebitmap_to_names(struct ebitmap *map, char **vals_to_names, char ***n
+ 	num = 0;
+ 	ebitmap_for_each_positive_bit(map, node, i) {
+ 		if (num >= UINT32_MAX / sizeof(*name_arr)) {
+-			log_err("Overflow");
++			ERR(NULL, "Overflow");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -1012,7 +999,7 @@ static int ebitmap_to_names(struct ebitmap *map, char **vals_to_names, char ***n
  
- 	return rc;
-@@ -795,7 +795,7 @@ static int write_default_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing default rules to CIL\n");
-+		sepol_log_err("Error writing default rules to CIL");
+ 	name_arr = calloc(num, sizeof(*name_arr));
+ 	if (name_arr == NULL) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		rc = -1;
+ 		goto exit;
  	}
+@@ -1139,25 +1126,25 @@ static int name_list_to_string(char **names, unsigned int num_names, char **stri
  
- 	return rc;
-@@ -906,7 +906,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing sensitivity rules to CIL\n");
-+		sepol_log_err("Error writing sensitivity rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1010,7 +1010,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing category rules to CIL\n");
-+		sepol_log_err("Error writing category rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1141,7 +1141,7 @@ static int write_sensitivitycategory_rules_to_cil(FILE *out, struct policydb *pd
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing sensitivitycategory rules to CIL\n");
-+		sepol_log_err("Error writing sensitivitycategory rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1177,7 +1177,7 @@ static int write_mls_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing mls rules to CIL\n");
-+		sepol_log_err("Error writing mls rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1218,7 +1218,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing polcap rules to CIL\n");
-+		sepol_log_err("Error writing polcap rules to CIL");
+ 	for (i = 0; i < num_names; i++) {
+ 		if (__builtin_add_overflow(len, strlen(names[i]), &len)) {
+-			log_err("Overflow");
++			ERR(NULL, "Overflow");
+ 			return -1;
+ 		}
  	}
  
- 	return rc;
-@@ -1263,7 +1263,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing typeattribute rules to CIL\n");
-+		sepol_log_err("Error writing typeattribute rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1308,7 +1308,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing roleattribute rules to CIL\n");
-+		sepol_log_err("Error writing roleattribute rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1348,7 +1348,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing boolean declarations to CIL\n");
-+		sepol_log_err("Error writing boolean declarations to CIL");
- 	}
- 
- 	return rc;
-@@ -1393,7 +1393,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing type declarations to CIL\n");
-+		sepol_log_err("Error writing type declarations to CIL");
- 	}
- 
- 	return rc;
-@@ -1476,7 +1476,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing type alias rules to CIL\n");
-+		sepol_log_err("Error writing type alias rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1530,7 +1530,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing type bounds rules to CIL\n");
-+		sepol_log_err("Error writing type bounds rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1578,7 +1578,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing typeattributeset rules to CIL\n");
-+		sepol_log_err("Error writing typeattributeset rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1620,7 +1620,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing typepermissive rules to CIL\n");
-+		sepol_log_err("Error writing typepermissive rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1862,7 +1862,7 @@ static int write_avtab_to_cil(FILE *out, struct policydb *pdb, int indent)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing avtab rules to CIL\n");
-+		sepol_log_err("Error writing avtab rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1933,7 +1933,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing filename typetransition rules to CIL\n");
-+		sepol_log_err("Error writing filename typetransition rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2044,7 +2044,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing range transition rules to CIL\n");
-+		sepol_log_err("Error writing range transition rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2184,7 +2184,7 @@ exit:
- 	}
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing conditional rules to CIL\n");
-+		sepol_log_err("Error writing conditional rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2309,7 +2309,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing role declarations to CIL\n");
-+		sepol_log_err("Error writing role declarations to CIL");
- 	}
- 
- 	return rc;
-@@ -2350,7 +2350,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing role transition rules to CIL\n");
-+		sepol_log_err("Error writing role transition rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2388,7 +2388,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing role allow rules to CIL\n");
-+		sepol_log_err("Error writing role allow rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2529,7 +2529,7 @@ exit:
- 		strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing user declarations to CIL\n");
-+		sepol_log_err("Error writing user declarations to CIL");
- 	}
- 
- 	return rc;
-@@ -2611,7 +2611,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing sidcontext rules to CIL\n");
-+		sepol_log_err("Error writing sidcontext rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2655,7 +2655,7 @@ static int write_selinux_fsuse_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing fsuse rules to CIL\n");
-+		sepol_log_err("Error writing fsuse rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2733,7 +2733,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing genfscon rules to CIL\n");
-+		sepol_log_err("Error writing genfscon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2788,7 +2788,7 @@ static int write_selinux_port_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing portcon rules to CIL\n");
-+		sepol_log_err("Error writing portcon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2822,7 +2822,7 @@ static int write_selinux_netif_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing netifcon rules to CIL\n");
-+		sepol_log_err("Error writing netifcon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2862,7 +2862,7 @@ static int write_selinux_node_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing nodecon rules to CIL\n");
-+		sepol_log_err("Error writing nodecon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2902,7 +2902,7 @@ static int write_selinux_node6_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing nodecon rules to CIL\n");
-+		sepol_log_err("Error writing nodecon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2958,7 +2958,7 @@ static int write_selinux_ibpkey_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing ibpkeycon rules to CIL\n");
-+		sepol_log_err("Error writing ibpkeycon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -2995,7 +2995,7 @@ static int write_selinux_ibendport_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing ibendportcon rules to CIL\n");
-+		sepol_log_err("Error writing ibendportcon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -3035,7 +3035,7 @@ static int write_xen_pirq_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing pirqcon rules to CIL\n");
-+		sepol_log_err("Error writing pirqcon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -3078,7 +3078,7 @@ static int write_xen_ioport_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing ioportcon rules to CIL\n");
-+		sepol_log_err("Error writing ioportcon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -3121,7 +3121,7 @@ static int write_xen_iomem_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing iomemcon rules to CIL\n");
-+		sepol_log_err("Error writing iomemcon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -3156,7 +3156,7 @@ static int write_xen_pcidevice_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing pcidevicecon rules to CIL\n");
-+		sepol_log_err("Error writing pcidevicecon rules to CIL");
- 	}
- 
- 	return rc;
-@@ -3183,7 +3183,7 @@ static int write_xen_devicetree_rules_to_cil(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing devicetreecon rules to CIL\n");
-+		sepol_log_err("Error writing devicetreecon rules to CIL");
- 	}
- 
- 	return rc;
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 775703a9..8da399e2 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -627,7 +627,7 @@ static int sort_ocontext_data(struct ocontext **ocons, int (*cmp)(const void *,
- 
- 	data = calloc(sizeof(*data), num);
- 	if (!data) {
--		sepol_log_err("Out of memory\n");
-+		sepol_log_err("Out of memory");
+ 	// add spaces + null terminator
+ 	if (__builtin_add_overflow(len, (size_t)num_names, &len)) {
+-		log_err("Overflow");
++		ERR(NULL, "Overflow");
  		return -1;
  	}
  
-@@ -718,7 +718,7 @@ int sort_ocontexts(struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error sorting ocontexts\n");
-+		sepol_log_err("Error sorting ocontexts");
+ 	if (!len) {
+-		log_err("Empty list");
++		ERR(NULL, "Empty list");
+ 		return -1;
  	}
  
- 	return rc;
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index cb7cb740..1d812b19 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -318,7 +318,7 @@ static int class_constraint_rules_to_strs(struct policydb *pdb, char *classkey,
+ 	str = malloc(len);
+ 	if (str == NULL) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -1266,7 +1253,7 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 
+ 	rc = stack_init(&stack);
+ 	if (rc != 0) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		goto exit;
+ 	}
+ 
+@@ -1277,13 +1264,13 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 			len = strlen(val1) + 2 + 1;
+ 			new_val = malloc(len);
+ 			if (new_val == NULL) {
+-				log_err("Out of memory");
++				ERR(NULL, "Out of memory");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+ 			rlen = snprintf(new_val, len, "(%s)", val1);
+ 			if (rlen < 0 || rlen >= len) {
+-				log_err("Failed to generate conditional expression");
++				ERR(NULL, "Failed to generate conditional expression");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1306,7 +1293,7 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 				val1 = stack_pop(stack);
+ 				val2 = strdup("");
+ 				if (val2 == NULL) {
+-					log_err("Out of memory");
++					ERR(NULL, "Out of memory");
+ 					rc = -1;
+ 					goto exit;
+ 				}
+@@ -1318,7 +1305,7 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 			}
+ 
+ 			if (val1 == NULL || val2 == NULL) {
+-				log_err("Invalid conditional expression");
++				ERR(NULL, "Invalid conditional expression");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1331,14 +1318,14 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 			len = strlen(val1) + strlen(val2) + strlen(op) + (num_params * 1) + 2 + 1;
+ 			new_val = malloc(len);
+ 			if (new_val == NULL) {
+-				log_err("Out of memory");
++				ERR(NULL, "Out of memory");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+ 
+ 			rlen = snprintf(new_val, len, "(%s %s%s%s)", op, val1, sep, val2);
+ 			if (rlen < 0 || rlen >= len) {
+-				log_err("Failed to generate conditional expression");
++				ERR(NULL, "Failed to generate conditional expression");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1351,7 +1338,7 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 
+ 		rc = stack_push(stack, new_val);
+ 		if (rc != 0) {
+-			log_err("Out of memory");
++			ERR(NULL, "Out of memory");
+ 			goto exit;
+ 		}
+ 		new_val = NULL;
+@@ -1365,7 +1352,7 @@ static int cond_expr_to_cil(int indent, struct policydb *pdb, struct cond_expr *
+ 
+ 	val1 = stack_pop(stack);
+ 	if (val1 == NULL || stack_peek(stack) != NULL) {
+-		log_err("Invalid conditional expression");
++		ERR(NULL, "Invalid conditional expression");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -1739,7 +1726,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 			case CEXPR_DOMBY:   op = "domby";  break;
+ 			case CEXPR_INCOMP:  op = "incomp"; break;
+ 			default:
+-				log_err("Unknown constraint operator type: %i", expr->op);
++				ERR(NULL, "Unknown constraint operator type: %i", expr->op);
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1761,7 +1748,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 			case CEXPR_L1H1:                 attr1 = "l1"; attr2 = "h1"; break;
+ 			case CEXPR_L2H2:                 attr1 = "l2"; attr2 = "h2"; break;
+ 			default:
+-				log_err("Unknown expression attribute type: %i", expr->attr);
++				ERR(NULL, "Unknown expression attribute type: %i", expr->attr);
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1771,13 +1758,13 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 				len = strlen(op) + strlen(attr1) + strlen(attr2) + 2 + 2 + 1;
+ 				new_val = malloc(len);
+ 				if (new_val == NULL) {
+-					log_err("Out of memory");
++					ERR(NULL, "Out of memory");
+ 					rc = -1;
+ 					goto exit;
+ 				}
+ 				rlen = snprintf(new_val, len, "(%s %s %s)", op, attr1, attr2);
+ 				if (rlen < 0 || rlen >= len) {
+-					log_err("Failed to generate constraint expression");
++					ERR(NULL, "Failed to generate constraint expression");
+ 					rc = -1;
+ 					goto exit;
+ 				}
+@@ -1819,7 +1806,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 				}
+ 				new_val = malloc(len);
+ 				if (new_val == NULL) {
+-					log_err("Out of memory");
++					ERR(NULL, "Out of memory");
+ 					rc = -1;
+ 					goto exit;
+ 				}
+@@ -1829,7 +1816,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 					rlen = snprintf(new_val, len, "(%s %s %s)", op, attr1, names);
+ 				}
+ 				if (rlen < 0 || rlen >= len) {
+-					log_err("Failed to generate constraint expression");
++					ERR(NULL, "Failed to generate constraint expression");
+ 					rc = -1;
+ 					goto exit;
+ 				}
+@@ -1844,7 +1831,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 			case CEXPR_AND: op = "and"; break;
+ 			case CEXPR_OR:  op = "or"; break;
+ 			default:
+-				log_err("Unknown constraint expression type: %i", expr->expr_type);
++				ERR(NULL, "Unknown constraint expression type: %i", expr->expr_type);
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1855,7 +1842,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 				val1 = stack_pop(stack);
+ 				val2 = strdup("");
+ 				if (val2 == NULL) {
+-					log_err("Out of memory");
++					ERR(NULL, "Out of memory");
+ 					rc = -1;
+ 					goto exit;
+ 				}
+@@ -1867,7 +1854,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 			}
+ 
+ 			if (val1 == NULL || val2 == NULL) {
+-				log_err("Invalid constraint expression");
++				ERR(NULL, "Invalid constraint expression");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1880,14 +1867,14 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 			len = strlen(val1) + strlen(val2) + strlen(op) + (num_params * 1) + 2 + 1;
+ 			new_val = malloc(len);
+ 			if (new_val == NULL) {
+-				log_err("Out of memory");
++				ERR(NULL, "Out of memory");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+ 
+ 			rlen = snprintf(new_val, len, "(%s %s%s%s)", op, val1, sep, val2);
+ 			if (rlen < 0 || rlen >= len) {
+-				log_err("Failed to generate constraint expression");
++				ERR(NULL, "Failed to generate constraint expression");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -1900,7 +1887,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 
+ 		rc = stack_push(stack, new_val);
+ 		if (rc != 0) {
+-			log_err("Out of memory");
++			ERR(NULL, "Out of memory");
+ 			goto exit;
+ 		}
+ 
+@@ -1909,7 +1896,7 @@ static int constraint_expr_to_string(struct policydb *pdb, struct constraint_exp
+ 
+ 	new_val = stack_pop(stack);
+ 	if (new_val == NULL || stack_peek(stack) != NULL) {
+-		log_err("Invalid constraint expression");
++		ERR(NULL, "Invalid constraint expression");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -2012,7 +1999,7 @@ static int class_to_cil(int indent, struct policydb *pdb, struct avrule_block *U
+ 		case DEFAULT_SOURCE:	dflt = "source";	break;
+ 		case DEFAULT_TARGET:	dflt = "target";	break;
+ 		default:
+-			log_err("Unknown default user value: %i", class->default_user);
++			ERR(NULL, "Unknown default user value: %i", class->default_user);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2024,7 +2011,7 @@ static int class_to_cil(int indent, struct policydb *pdb, struct avrule_block *U
+ 		case DEFAULT_SOURCE:	dflt = "source";	break;
+ 		case DEFAULT_TARGET:	dflt = "target";	break;
+ 		default:
+-			log_err("Unknown default role value: %i", class->default_role);
++			ERR(NULL, "Unknown default role value: %i", class->default_role);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2036,7 +2023,7 @@ static int class_to_cil(int indent, struct policydb *pdb, struct avrule_block *U
+ 		case DEFAULT_SOURCE:	dflt = "source";	break;
+ 		case DEFAULT_TARGET:	dflt = "target";	break;
+ 		default:
+-			log_err("Unknown default type value: %i", class->default_type);
++			ERR(NULL, "Unknown default type value: %i", class->default_type);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2053,7 +2040,7 @@ static int class_to_cil(int indent, struct policydb *pdb, struct avrule_block *U
+ 		case DEFAULT_TARGET_LOW_HIGH:	dflt = "target low-high";	break;
+ 		case DEFAULT_GLBLUB:		dflt = "glblub";		break;
+ 		default:
+-			log_err("Unknown default range value: %i", class->default_range);
++			ERR(NULL, "Unknown default range value: %i", class->default_range);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2168,7 +2155,7 @@ static int role_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 		}
+ 
+ 		if (ebitmap_cardinality(&role->dominates) > 1) {
+-			log_err("Warning: role 'dominance' statement unsupported in CIL. Dropping from output.");
++			ERR(NULL, "Warning: role 'dominance' statement unsupported in CIL. Dropping from output.");
+ 		}
+ 
+ 		ts = &role->types;
+@@ -2218,7 +2205,7 @@ static int role_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 		break;
+ 
+ 	default:
+-		log_err("Unknown role type: %i", role->flavor);
++		ERR(NULL, "Unknown role type: %i", role->flavor);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -2297,7 +2284,7 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 	case TYPE_ALIAS:
+ 		break;
+ 	default:
+-		log_err("Unknown flavor (%i) of type %s", type->flavor, key);
++		ERR(NULL, "Unknown flavor (%i) of type %s", type->flavor, key);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -2477,7 +2464,7 @@ static int polcaps_to_cil(struct policydb *pdb)
+ 	ebitmap_for_each_positive_bit(map, node, i) {
+ 		name = sepol_polcap_getname(i);
+ 		if (name == NULL) {
+-			log_err("Unknown policy capability id: %i", i);
++			ERR(NULL, "Unknown policy capability id: %i", i);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2564,13 +2551,13 @@ static int ocontext_isid_to_cil(struct policydb *pdb, const char *const *sid_to_
+ 		// ocontext) for sidorder statement
+ 		item = malloc(sizeof(*item));
+ 		if (item == NULL) {
+-			log_err("Out of memory");
++			ERR(NULL, "Out of memory");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+ 		item->sid_key = strdup(sid);
+ 		if (!item->sid_key) {
+-			log_err("Out of memory");
++			ERR(NULL, "Out of memory");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2616,7 +2603,7 @@ exit:
+ static int ocontext_selinux_fs_to_cil(struct policydb *UNUSED(pdb), struct ocontext *fss)
+ {
+ 	if (fss != NULL) {
+-		log_err("Warning: 'fscon' statement unsupported in CIL. Dropping from output.");
++		ERR(NULL, "Warning: 'fscon' statement unsupported in CIL. Dropping from output.");
+ 	}
  
  	return 0;
- exit:
--	sepol_log_err("Error gathering constraint rules\n");
-+	sepol_log_err("Error gathering constraint rules");
- 	return rc;
- }
+@@ -2638,7 +2625,7 @@ static int ocontext_selinux_port_to_cil(struct policydb *pdb, struct ocontext *p
+ 		case IPPROTO_DCCP: protocol = "dccp"; break;
+ 		case IPPROTO_SCTP: protocol = "sctp"; break;
+ 		default:
+-			log_err("Unknown portcon protocol: %i", portcon->u.port.protocol);
++			ERR(NULL, "Unknown portcon protocol: %i", portcon->u.port.protocol);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2680,7 +2667,7 @@ static int ocontext_selinux_ibpkey_to_cil(struct policydb *pdb,
  
-@@ -495,7 +495,7 @@ exit:
+ 		if (inet_ntop(AF_INET6, &subnet_prefix.s6_addr,
+ 			      subnet_prefix_str, INET6_ADDRSTRLEN) == NULL) {
+-			log_err("ibpkeycon subnet_prefix is invalid: %m");
++			ERR(NULL, "ibpkeycon subnet_prefix is invalid: %m");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2725,13 +2712,13 @@ static int ocontext_selinux_node_to_cil(struct policydb *pdb, struct ocontext *n
+ 
+ 	for (node = nodes; node != NULL; node = node->next) {
+ 		if (inet_ntop(AF_INET, &node->u.node.addr, addr, INET_ADDRSTRLEN) == NULL) {
+-			log_err("Nodecon address is invalid: %m");
++			ERR(NULL, "Nodecon address is invalid: %m");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+ 
+ 		if (inet_ntop(AF_INET, &node->u.node.mask, mask, INET_ADDRSTRLEN) == NULL) {
+-			log_err("Nodecon mask is invalid: %m");
++			ERR(NULL, "Nodecon mask is invalid: %m");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2757,13 +2744,13 @@ static int ocontext_selinux_node6_to_cil(struct policydb *pdb, struct ocontext *
+ 
+ 	for (node = nodes; node != NULL; node = node->next) {
+ 		if (inet_ntop(AF_INET6, &node->u.node6.addr, addr, INET6_ADDRSTRLEN) == NULL) {
+-			log_err("Nodecon address is invalid: %m");
++			ERR(NULL, "Nodecon address is invalid: %m");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+ 
+ 		if (inet_ntop(AF_INET6, &node->u.node6.mask, mask, INET6_ADDRSTRLEN) == NULL) {
+-			log_err("Nodecon mask is invalid: %m");
++			ERR(NULL, "Nodecon mask is invalid: %m");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2807,7 +2794,7 @@ static int ocontext_selinux_fsuse_to_cil(struct policydb *pdb, struct ocontext *
+ 		case SECURITY_FS_USE_TRANS: behavior = "trans"; break;
+ 		case SECURITY_FS_USE_TASK:  behavior = "task"; break;
+ 		default:
+-			log_err("Unknown fsuse behavior: %i", fsuse->v.behavior);
++			ERR(NULL, "Unknown fsuse behavior: %i", fsuse->v.behavior);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -2950,7 +2937,7 @@ static int ocontexts_to_cil(struct policydb *pdb)
+ 		ocon_funcs = ocon_xen_funcs;
+ 		break;
+ 	default:
+-		log_err("Unknown target platform: %i", pdb->target_platform);
++		ERR(NULL, "Unknown target platform: %i", pdb->target_platform);
+ 		rc = -1;
+ 		goto exit;
  	}
- 	strs_destroy(&strs);
+@@ -3022,7 +3009,7 @@ static int level_string_to_cil(char *levelstr)
+ 
+ 	matched = tokenize(levelstr, ':', 2, &sens, &cats);
+ 	if (matched < 1 || matched > 2) {
+-		log_err("Invalid level: %s", levelstr);
++		ERR(NULL, "Invalid level: %s", levelstr);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -3087,7 +3074,7 @@ static int context_string_to_cil(char *contextstr)
+ 
+ 	matched = tokenize(contextstr, ':', 4, &user, &role, &type, &level);
+ 	if (matched < 3 || matched > 4) {
+-		log_err("Invalid context: %s", contextstr);
++		ERR(NULL, "Invalid context: %s", contextstr);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -3148,7 +3135,7 @@ static int seusers_to_cil(struct sepol_module_package *mod_pkg)
+ 		matched = tokenize(tmp, ':', 3, &user, &seuser, &level);
+ 
+ 		if (matched < 2 || matched > 3) {
+-			log_err("Invalid seuser line: %s", line);
++			ERR(NULL, "Invalid seuser line: %s", line);
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -3197,7 +3184,7 @@ static int netfilter_contexts_to_cil(struct sepol_module_package *mod_pkg)
+ 	size_t netcons_len = sepol_module_package_get_netfilter_contexts_len(mod_pkg);
+ 
+ 	if (netcons_len > 0) {
+-		log_err("Warning: netfilter_contexts are unsupported in CIL. Dropping from output.");
++		ERR(NULL, "Warning: netfilter_contexts are unsupported in CIL. Dropping from output.");
+ 	}
+ 
+ 	return 0;
+@@ -3239,7 +3226,7 @@ static int user_extra_to_cil(struct sepol_module_package *mod_pkg)
+ 		matched = tokenize(tmp, ' ', 4, &user_str, &user, &prefix_str, &prefix);
+ 		if (matched != 4) {
+ 			rc = -1;
+-			log_err("Invalid user extra line: %s", line);
++			ERR(NULL, "Invalid user extra line: %s", line);
+ 			goto exit;
+ 		}
+ 
+@@ -3247,7 +3234,7 @@ static int user_extra_to_cil(struct sepol_module_package *mod_pkg)
+ 		eol = prefix + prefix_len - 1;
+ 		if (*eol != ';' || strcmp(user_str, "user") || strcmp(prefix_str, "prefix")) {
+ 			rc = -1;
+-			log_err("Invalid user extra line: %s", line);
++			ERR(NULL, "Invalid user extra line: %s", line);
+ 			goto exit;
+ 		}
+ 		*eol = '\0';
+@@ -3309,7 +3296,7 @@ static int file_contexts_to_cil(struct sepol_module_package *mod_pkg)
+ 		matched = tokenize(tmp, ' ', 3, &regex, &mode, &context);
+ 		if (matched < 2 || matched > 3) {
+ 			rc = -1;
+-			log_err("Invalid file context line: %s", line);
++			ERR(NULL, "Invalid file context line: %s", line);
+ 			goto exit;
+ 		}
+ 
+@@ -3336,7 +3323,7 @@ static int file_contexts_to_cil(struct sepol_module_package *mod_pkg)
+ 			cilmode = "symlink";
+ 		} else {
+ 			rc = -1;
+-			log_err("Invalid mode in file context line: %s", line);
++			ERR(NULL, "Invalid mode in file context line: %s", line);
+ 			goto exit;
+ 		}
+ 
+@@ -3734,7 +3721,7 @@ static int module_block_to_cil(struct policydb *pdb, struct avrule_block *block,
+ 	}
+ 
+ 	if (decl->next != NULL) {
+-		log_err("Warning: 'else' blocks in optional statements are unsupported in CIL. Dropping from output.");
++		ERR(NULL, "Warning: 'else' blocks in optional statements are unsupported in CIL. Dropping from output.");
+ 	}
+ 
+ 	if (block->flags & AVRULE_OPTIONAL) {
+@@ -3775,7 +3762,7 @@ static int global_block_to_cil(struct policydb *pdb, struct avrule_block *block,
+ 	}
+ 
+ 	if (decl->next != NULL) {
+-		log_err("Warning: 'else' not allowed in global block. Dropping from output.");
++		ERR(NULL, "Warning: 'else' not allowed in global block. Dropping from output.");
+ 	}
+ 
+ 	stack_push(stack, decl);
+@@ -3912,7 +3899,7 @@ static int handle_unknown_to_cil(struct policydb *pdb)
+ 		hu = "allow";
+ 		break;
+ 	default:
+-		log_err("Unknown value for handle-unknown: %i", pdb->handle_unknown);
++		ERR(NULL, "Unknown value for handle-unknown: %i", pdb->handle_unknown);
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -3981,7 +3968,7 @@ static int fix_module_name(struct policydb *pdb)
+ 	if (pdb->policy_type == POLICY_BASE) {
+ 		pdb->name = strdup("base");
+ 		if (pdb->name == NULL) {
+-			log_err("Out of memory");
++			ERR(NULL, "Out of memory");
+ 			rc = -1;
+ 			goto exit;
+ 		}
+@@ -4015,7 +4002,7 @@ int sepol_module_policydb_to_cil(FILE *fp, struct policydb *pdb, int linked)
+ 
+ 	if (pdb->policy_type != SEPOL_POLICY_BASE &&
+ 		pdb->policy_type != SEPOL_POLICY_MOD) {
+-		log_err("Policy package is not a base or module");
++		ERR(NULL, "Policy package is not a base or module");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -4121,7 +4108,7 @@ int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg)
+ 
+ 	pdb = sepol_module_package_get_policy(mod_pkg);
+ 	if (pdb == NULL) {
+-		log_err("Failed to get policydb");
++		ERR(NULL, "Failed to get policydb");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -4167,7 +4154,7 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
+ 
+ 	d = malloc(max_len);
+ 	if (d == NULL) {
+-		log_err("Out of memory");
++		ERR(NULL, "Out of memory");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -4178,7 +4165,7 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
+ 			max_len *= 2;
+ 			d_tmp = realloc(d, max_len);
+ 			if (d_tmp == NULL) {
+-				log_err("Out of memory");
++				ERR(NULL, "Out of memory");
+ 				rc = -1;
+ 				goto exit;
+ 			}
+@@ -4187,7 +4174,7 @@ static int fp_to_buffer(FILE *fp, char **data, size_t *data_len)
+ 	}
+ 
+ 	if (ferror(fp) != 0) {
+-		log_err("Failed to read pp file");
++		ERR(NULL, "Failed to read pp file");
+ 		rc = -1;
+ 		goto exit;
+ 	}
+@@ -4214,7 +4201,7 @@ int sepol_ppfile_to_module_package(FILE *fp, struct sepol_module_package **mod_p
+ 
+ 	rc = sepol_policy_file_create(&pf);
  	if (rc != 0) {
--		sepol_log_err("Error writing sid rules to policy.conf\n");
-+		sepol_log_err("Error writing sid rules to policy.conf");
+-		log_err("Failed to create policy file");
++		ERR(NULL, "Failed to create policy file");
+ 		goto exit;
  	}
  
- 	return rc;
-@@ -610,7 +610,7 @@ static int write_class_and_common_rules_to_conf(FILE *out, struct policydb *pdb)
+@@ -4240,13 +4227,13 @@ int sepol_ppfile_to_module_package(FILE *fp, struct sepol_module_package **mod_p
  
- exit:
+ 	rc = sepol_module_package_create(&pkg);
  	if (rc != 0) {
--		sepol_log_err("Error writing class rules to policy.conf\n");
-+		sepol_log_err("Error writing class rules to policy.conf");
+-		log_err("Failed to create module package");
++		ERR(NULL, "Failed to create module package");
+ 		goto exit;
  	}
  
- 	return rc;
-@@ -771,7 +771,7 @@ static int write_default_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
+ 	rc = sepol_module_package_read(pkg, pf, 0);
  	if (rc != 0) {
--		sepol_log_err("Error writing default rules to policy.conf\n");
-+		sepol_log_err("Error writing default rules to policy.conf");
+-		log_err("Failed to read policy package");
++		ERR(NULL, "Failed to read policy package");
+ 		goto exit;
  	}
  
- 	return rc;
-@@ -902,7 +902,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing sensitivity rules to CIL\n");
-+		sepol_log_err("Error writing sensitivity rules to CIL");
- 	}
- 
- 	return rc;
-@@ -1010,7 +1010,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing category rules to policy.conf\n");
-+		sepol_log_err("Error writing category rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1129,7 +1129,7 @@ static int write_level_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing level rules to policy.conf\n");
-+		sepol_log_err("Error writing level rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1160,7 +1160,7 @@ static int write_mls_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing mls rules to policy.conf\n");
-+		sepol_log_err("Error writing mls rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1201,7 +1201,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing polcap rules to policy.conf\n");
-+		sepol_log_err("Error writing polcap rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1246,7 +1246,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing typeattribute rules to policy.conf\n");
-+		sepol_log_err("Error writing typeattribute rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1291,7 +1291,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing roleattribute rules to policy.conf\n");
-+		sepol_log_err("Error writing roleattribute rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1331,7 +1331,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing boolean declarations to policy.conf\n");
-+		sepol_log_err("Error writing boolean declarations to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1376,7 +1376,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing type declarations to policy.con\n");
-+		sepol_log_err("Error writing type declarations to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1450,7 +1450,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing type alias rules to policy.conf\n");
-+		sepol_log_err("Error writing type alias rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1504,7 +1504,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing type bounds rules to policy.conf\n");
-+		sepol_log_err("Error writing type bounds rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1631,7 +1631,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing typeattributeset rules to policy.conf\n");
-+		sepol_log_err("Error writing typeattributeset rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1673,7 +1673,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing typepermissive rules to policy.conf\n");
-+		sepol_log_err("Error writing typepermissive rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1838,7 +1838,7 @@ static int write_avtab_to_conf(FILE *out, struct policydb *pdb, int indent)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing avtab rules to policy.conf\n");
-+		sepol_log_err("Error writing avtab rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -1909,7 +1909,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing filename typetransition rules to policy.conf\n");
-+		sepol_log_err("Error writing filename typetransition rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2020,7 +2020,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing range transition rules to policy.conf\n");
-+		sepol_log_err("Error writing range transition rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2158,7 +2158,7 @@ exit:
- 	}
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing conditional rules to policy.conf\n");
-+		sepol_log_err("Error writing conditional rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2240,7 +2240,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing role declarations to policy.conf\n");
-+		sepol_log_err("Error writing role declarations to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2281,7 +2281,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing role transition rules to policy.conf\n");
-+		sepol_log_err("Error writing role transition rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2319,7 +2319,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing role allow rules to policy.conf\n");
-+		sepol_log_err("Error writing role allow rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2402,7 +2402,7 @@ exit:
- 		strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing user declarations to policy.conf\n");
-+		sepol_log_err("Error writing user declarations to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2479,7 +2479,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing sidcontext rules to policy.conf\n");
-+		sepol_log_err("Error writing sidcontext rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2523,7 +2523,7 @@ static int write_selinux_fsuse_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing fsuse rules to policy.conf\n");
-+		sepol_log_err("Error writing fsuse rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2601,7 +2601,7 @@ exit:
- 	strs_destroy(&strs);
- 
- 	if (rc != 0) {
--		sepol_log_err("Error writing genfscon rules to policy.conf\n");
-+		sepol_log_err("Error writing genfscon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2656,7 +2656,7 @@ static int write_selinux_port_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing portcon rules to policy.conf\n");
-+		sepol_log_err("Error writing portcon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2690,7 +2690,7 @@ static int write_selinux_netif_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing netifcon rules to policy.conf\n");
-+		sepol_log_err("Error writing netifcon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2730,7 +2730,7 @@ static int write_selinux_node_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing nodecon rules to policy.conf\n");
-+		sepol_log_err("Error writing nodecon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2771,7 +2771,7 @@ static int write_selinux_node6_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing nodecon rules to policy.conf\n");
-+		sepol_log_err("Error writing nodecon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2828,7 +2828,7 @@ static int write_selinux_ibpkey_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing ibpkeycon rules to policy.conf\n");
-+		sepol_log_err("Error writing ibpkeycon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2864,7 +2864,7 @@ static int write_selinux_ibendport_rules_to_conf(FILE *out, struct policydb *pdb
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing ibendportcon rules to policy.conf\n");
-+		sepol_log_err("Error writing ibendportcon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2905,7 +2905,7 @@ static int write_xen_pirq_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing pirqcon rules to policy.conf\n");
-+		sepol_log_err("Error writing pirqcon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2948,7 +2948,7 @@ static int write_xen_ioport_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing ioportcon rules to policy.conf\n");
-+		sepol_log_err("Error writing ioportcon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -2991,7 +2991,7 @@ static int write_xen_iomem_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing iomemcon rules to policy.conf\n");
-+		sepol_log_err("Error writing iomemcon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -3026,7 +3026,7 @@ static int write_xen_pcidevice_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing pcidevicecon rules to policy.conf\n");
-+		sepol_log_err("Error writing pcidevicecon rules to policy.conf");
- 	}
- 
- 	return rc;
-@@ -3053,7 +3053,7 @@ static int write_xen_devicetree_rules_to_conf(FILE *out, struct policydb *pdb)
- 
- exit:
- 	if (rc != 0) {
--		sepol_log_err("Error writing devicetreecon rules to policy.conf\n");
-+		sepol_log_err("Error writing devicetreecon rules to policy.conf");
- 	}
- 
- 	return rc;
 -- 
 2.40.1
 
