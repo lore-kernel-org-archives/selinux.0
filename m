@@ -2,68 +2,142 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1E9DC7EE29
-	for <selinux@archiver.kernel.org>; Fri,  2 Jun 2023 12:21:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 325D0C77B7A
+	for <selinux@archiver.kernel.org>; Fri,  2 Jun 2023 12:54:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235465AbjFBMVG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 2 Jun 2023 08:21:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32864 "EHLO
+        id S229538AbjFBMyn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 2 Jun 2023 08:54:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236002AbjFBMUw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 2 Jun 2023 08:20:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D42E71;
-        Fri,  2 Jun 2023 05:20:38 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6789464FE3;
-        Fri,  2 Jun 2023 12:19:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id CC3F5C433D2;
-        Fri,  2 Jun 2023 12:19:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1685708378;
-        bh=ZjmVsfJZPDIRqu+hGMgWbdozX9icQaUCr51LGriC2Aw=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=j3KG239aufywXMxz1ZrJ2Xs0YKBNnQBHS3sqtG7upxG0lrQreZgIoTP5VyStylyWc
-         llXQazboBppPWf0v6upOuyLvC/ik2Mn0T0/ml78IbhMMiGBqSjL+6XbODz+SmmatgW
-         28Nj5OKbaBoGd/XeqzZBY1fqvKKSaryH7xl01UJBA7px1e6H2woWSO//ROm8Oxrrb2
-         XCiy+ZxRzvZ1jyHd9b1H2+p5/qfe2jzPhu9UFZ13Dk9sEs63/GDe0Hkqs5vkexqx3w
-         mFCu8HMBL923MUiNQJ3BBeVGAzaSFX+9+IDwpJxrGLAVd5g6taG9nsjfnl5D3Z69/+
-         MIWobKJCySs9g==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BB218E52BF5;
-        Fri,  2 Jun 2023 12:19:38 +0000 (UTC)
-Subject: Re: [GIT PULL] SELinux fixes for v6.4 (#1)
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <CAHC9VhQPMmWZwS-S9FQpU5rETcizcDPK0Nm1mwXeWpykUdDLFw@mail.gmail.com>
-References: <CAHC9VhQPMmWZwS-S9FQpU5rETcizcDPK0Nm1mwXeWpykUdDLFw@mail.gmail.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <CAHC9VhQPMmWZwS-S9FQpU5rETcizcDPK0Nm1mwXeWpykUdDLFw@mail.gmail.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20230601
-X-PR-Tracked-Commit-Id: 42c4e97e06a839b07d834f640a10911ad84ec8b3
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 1419c3ba31446feecb728f49820ff2730d6deaed
-Message-Id: <168570837876.24915.8384597581978470137.pr-tracker-bot@kernel.org>
-Date:   Fri, 02 Jun 2023 12:19:38 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        with ESMTP id S234971AbjFBMym (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 2 Jun 2023 08:54:42 -0400
+Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54AB31A6
+        for <selinux@vger.kernel.org>; Fri,  2 Jun 2023 05:54:40 -0700 (PDT)
+Received: by mail-ua1-x932.google.com with SMTP id a1e0cc1a2514c-786e37900fbso385292241.1
+        for <selinux@vger.kernel.org>; Fri, 02 Jun 2023 05:54:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1685710479; x=1688302479;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6oOjWOnZjOqxKTHRRdlxR1Oyh68pR+go1KcfMgbTVLo=;
+        b=kttywS1xoZfJlhILKEF+6bq9nFjuKQtZhvx4hA7iDFejd2O3MsBnZZvuTNXJpOF5H4
+         ymnpi9pOK11pvc2WH6LWz9v4CaaXiEAl/pjVT4+F8gU1JFKVRevqvHb1Av9RqaaPqQTD
+         uJPlT6LMTZdAaHUpdhvIO+byUu1Xnwn+Q425n5yp+XbleKeMJnlCK3cNsZuri7zOr1Fi
+         nKpdgnCqpnZMuy3gWOW93Us7LFkrmXpnX7CmksZlJBfuVBPghWKkjgK9gVDrD9R2qko7
+         sWPTri/VveFbHdFK+L6arpYv0M+H1O/lYf2xhdsIYpmGuxJk6Lce77sa+WUdFLyd2z/r
+         wN+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1685710479; x=1688302479;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6oOjWOnZjOqxKTHRRdlxR1Oyh68pR+go1KcfMgbTVLo=;
+        b=Ct59ww2ivvhJgvnuG3vRfUNOATPa5jxp1fXBTUDmS9J9ZB9NT8JDIxYzcqriUXrjrR
+         9s6jPWEicLyG6+Nc/2ODeyyqw1kbarOCh3iQLSORIKMKkFESHulPBqwEsuukJul4su9y
+         mwlj5w9SXRRckcbdXKi+koV089ZbyqYMp6g/iDeNEYDVUxjlcBr7v4OOR9YOdY4XHDtc
+         4ArW2RDJtg7AnLPFRuQpOR7dBkt5xwwQtYfMfjPB2R5rSVoQM8XNByYUrENsiufbh8ox
+         P/qLzOvVp8jlCQ5nKK5gTk/w3ngOZ6/hpRD+EKpFoSX61vAEWsIwVY3P0ZSEjw9xSyft
+         MgRQ==
+X-Gm-Message-State: AC+VfDzFWaAwb8Ev7o8Jzjrt5FZMtVIsZEKD66zn1EFKZl+ZyFOWB/cZ
+        uue43tBovG7BB78UaYsE9TTu602TjGMWF0RcUTqzZKdM77Q7Zg==
+X-Google-Smtp-Source: ACHHUZ5eQuJDajEwfe3GxKB/+xVJ7Nkr5YxEp2D00dx8wOSJZY6Td6br+YQqOYTbiF1McAj1gGkqzl+2hivsNljxkVs=
+X-Received: by 2002:a67:f853:0:b0:434:5d46:f297 with SMTP id
+ b19-20020a67f853000000b004345d46f297mr3502233vsp.31.1685710479171; Fri, 02
+ Jun 2023 05:54:39 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230531011548.1133249-1-yamato@redhat.com> <87o7lyjcim.fsf@redhat.com>
+In-Reply-To: <87o7lyjcim.fsf@redhat.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Fri, 2 Jun 2023 14:54:28 +0200
+Message-ID: <CAJ2a_Dd5tCrgoNQvhD+BZ7M7HSmGp026i2GooT6-ytq7WqYSZA@mail.gmail.com>
+Subject: Re: [PATCH] Makefile: expand ~ in DESTDIR
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     Masatake YAMATO <yamato@redhat.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Thu, 1 Jun 2023 21:13:33 -0400:
+On Fri, 2 Jun 2023 at 14:05, Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Masatake YAMATO <yamato@redhat.com> writes:
+>
+> > Though instructed as
+> >
+> >     DESTDIR=3D~/obj ./scripts/env_use_destdir make test
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20230601
+Is that a valid use case of the script `env_use_destdir`?
+I thought the script is just for executing binaries depending on the
+shared libraries in DESTDIR (e.g. `DESTDIR=3D~/obj
+./scripts/env_use_destdir seinfo`), not for make invocations.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/1419c3ba31446feecb728f49820ff2730d6deaed
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> >
+> > in README.md, compiling policy_define.c was failed with following error=
+s:
+> >
+> >     make[1]: Entering directory '/home/yamato/var/selinux/checkpolicy'
+> >     cc -O2 -Werror -Wall -Wextra -Wfloat-equal -Wformat=3D2 -Winit-self=
+ \
+> >        -Wmissing-format-attribute -Wmissing-noreturn -Wmissing-prototyp=
+es \
+> >        -Wnull-dereference -Wpointer-arith -Wshadow -Wstrict-prototypes =
+\
+> >        -Wundef -Wunused -Wwrite-strings -fno-common -I~/obj/usr/include=
+ \
+> >        -o policy_define.o -c policy_define.c
+> >     policy_define.c: In function =E2=80=98define_te_avtab_xperms_helper=
+=E2=80=99:
+> >     policy_define.c:2083:61: error: =E2=80=98RULE_NOTSELF=E2=80=99 unde=
+clared (first use in this function); did you mean =E2=80=98RULE_SELF=E2=80=
+=99?
+> >      2083 |                         avrule->flags |=3D (add ? RULE_SELF=
+ : RULE_NOTSELF);
+> >         |                                                             ^=
+~~~~~~~~~~~
+> >         |                                                             R=
+ULE_SELF
+> >
+> > because cc cannot find the directory ~/obj/usr/include passed via -I op=
+tion.
+> >
+> > cc doesn't expand "~".
+> >
+> > Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+>
+> It doesn't work when DESTDIR does not exist -  If no existing file name
+> matches a pattern, then that pattern is omitted from the output of the
+> wildcard function, see
+> https://www.gnu.org/software/make/manual/html_node/Wildcard-Function.html
+>
+>
+> Petr
+>
+> > ---
+> >  Makefile | 6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/Makefile b/Makefile
+> > index 2ffba8e9..053c6d3d 100644
+> > --- a/Makefile
+> > +++ b/Makefile
+> > @@ -26,11 +26,11 @@ else
+> >  endif
+> >
+> >  ifneq ($(DESTDIR),)
+> > -     LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
+> > +     LIBDIR ?=3D $(wildcard $(DESTDIR))$(PREFIX)/lib
+> >       LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
+> >
+> > -     CFLAGS +=3D -I$(DESTDIR)$(PREFIX)/include
+> > -     LDFLAGS +=3D -L$(DESTDIR)$(PREFIX)/lib -L$(LIBDIR)
+> > +     CFLAGS +=3D -I$(wildcard $(DESTDIR))$(PREFIX)/include
+> > +     LDFLAGS +=3D -L$(wildcard $(DESTDIR))$(PREFIX)/lib -L$(LIBDIR)
+> >       export CFLAGS
+> >       export LDFLAGS
+> >       export LIBSEPOLA
+> > --
+> > 2.40.1
+>
