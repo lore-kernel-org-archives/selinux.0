@@ -2,58 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F124EC7EE29
-	for <selinux@archiver.kernel.org>; Sun,  4 Jun 2023 12:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64640C77B73
+	for <selinux@archiver.kernel.org>; Sun,  4 Jun 2023 16:04:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231598AbjFDMCA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 4 Jun 2023 08:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41686 "EHLO
+        id S230366AbjFDQEz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 4 Jun 2023 12:04:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231597AbjFDMCA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 4 Jun 2023 08:02:00 -0400
+        with ESMTP id S230493AbjFDQEz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 4 Jun 2023 12:04:55 -0400
 Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01C9BF
-        for <selinux@vger.kernel.org>; Sun,  4 Jun 2023 05:01:58 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2b1c910ee19so2544981fa.3
-        for <selinux@vger.kernel.org>; Sun, 04 Jun 2023 05:01:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BED9E0
+        for <selinux@vger.kernel.org>; Sun,  4 Jun 2023 09:04:52 -0700 (PDT)
+Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2b1ba50e50bso15238721fa.1
+        for <selinux@vger.kernel.org>; Sun, 04 Jun 2023 09:04:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685880117; x=1688472117;
+        d=gmail.com; s=20221208; t=1685894690; x=1688486690;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=56Qa8qCyu2XpDXfSfZSvkji2qkMvuCN3iJh/xkGfwC4=;
-        b=cisJ69ZPYHcqfkYXjpM1V50+Md0cIAqrsRmbMLSTIMdMayvy4d/FZR80CbKZYM3SRH
-         QhD9su612uFWk+5XbTf6iYDKc8CfaeTPNUc0UPME/PjsrEHOeHtk5YZ0RAJn7fM0YwY5
-         p7tAXEofbhd3UunGdjhHH8pDI8R4246sUqFY6XCmgbXQLv+J9nQ0updpMnT3xXZX3syY
-         Qp/cSOn5tf4PkPTpTIqfLqkhIiszyu9C43fikJ8fbF4Mz+VVQK+rwnNzgTG/l+V4hifJ
-         C13LtCwH25yIludyW3ws/Ddh+WA/h+7AP1lS/pOx92qfRkdIfVK6Ftl2BsY8C/aEh1Pu
-         R5rA==
+        bh=w4J7PE00gDfpIBnPCwaL1cIOpU+JG4QATMk3Yy/79Tw=;
+        b=C7EyRO4+wqu4tCCkDIYVGEkq+nhuO6haQ09eRcS/UCmcaF8pmLj7M1M1qYwrQV67wA
+         BGlXJhcXl3/H925Klqm7vo9yunnvCSYI2hLmEVTLHOsQDYTtazBdnZ1TXfqqW5Fz7K0A
+         p/FlqhWLb2IHnS15RoC7Q5CXYkZ8cw2NG9lujM2xH6mWxoABH4p15jK+oduj5vl2vQjH
+         6IuO2zWBOSMbTAFDMrEYjvl4IlG4uIzeDVc9tlXH4M6zoSBV4YM7hm/sIxNqdc3oL4o5
+         ZIgeLsFUmihJObY8zQnyAdjOW9nJSRo+G3oDRGq67F4d3EMtCjyPakTazuq6ato9h/MJ
+         p3dQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685880117; x=1688472117;
+        d=1e100.net; s=20221208; t=1685894690; x=1688486690;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=56Qa8qCyu2XpDXfSfZSvkji2qkMvuCN3iJh/xkGfwC4=;
-        b=B4ULG3jywaHX4lU14w+fis9CKfEb8q5gVliqnyNbKG5PgNj2vVMOkJialE19LNGmRE
-         qq1z0p2E0QiMw5mT/KAt9RIFk3+2Z7KTlfRUtgFUSWrRME9tyIopWD+ryj0RFNVNhzpv
-         LGvdn4eTZp/vD1sZgkKABHbgIinDITHRCpJEIkbGRoxeAzpxN3mTXjR+HcZGNsx3BmQP
-         rvJ01qW8kna8kvqFrmIqcXijSHw4/2DstDHbcJ30/7WMj/He+H8B9PhZSFLfQ/lowYqB
-         ik2n1RUCqZpEDVx4PVemYKplTP+ALanjuX7VO/cqeqs92vffLf8H+ZEqRuXFq720+qKO
-         xnnw==
-X-Gm-Message-State: AC+VfDzM2qRyhXtcWpsbWWF8xd1sqgGnXKlnvIG5YrT+3o3uKFqS6dnx
-        vJf+jtnzMhoGW+6SZq7XCZ/q1zxVsQk=
-X-Google-Smtp-Source: ACHHUZ4BYL1Rs2Em1Kh+ehn0Xh8/2dWIroghEihtKWxhdpQb2kVnG6Gzsgh1rHqaoGFeG5ZhuOt+yA==
-X-Received: by 2002:a2e:875a:0:b0:2b1:b301:e651 with SMTP id q26-20020a2e875a000000b002b1b301e651mr2806313ljj.3.1685880116618;
-        Sun, 04 Jun 2023 05:01:56 -0700 (PDT)
+        bh=w4J7PE00gDfpIBnPCwaL1cIOpU+JG4QATMk3Yy/79Tw=;
+        b=ZysB2gpEbC4o0IUgWxGxdB/jur2D7NvpHCaZB5+WBYdc95XcgeA6XcFqn3MuNhGQJp
+         HhFgt2ICTYBhlGxNrwRJASR67AfD61Sr00kChDZ0FtvI2L2oy62J9mcHrBNLiG+IVQe6
+         8FgFgW08dmixepKcMf1IOoeeu3z3QrU4cJZFG9NyJCg0bjYKatEwNc5Hx00UjEh+VVVR
+         3gKc2J+v9Gh68biEwjZ0pC3HdVFIXJkmPBve+n31WS5lacEDdgnuXJCcYJOiZhSId1BW
+         42IPkqOJH3M2ZQsb66nUwlBSUJTdBKnINTauWK2WQDEaPqCD6HqVjmRIwz1NCH6dm6JU
+         3Qzg==
+X-Gm-Message-State: AC+VfDx/JGn41kqJsJXTQ/WycmAyYu6YjZrIz9PkX2upzfvPbOtlrhS/
+        0JtJnOiNM7l6RJTnwwqq+Mfp/XIke5c=
+X-Google-Smtp-Source: ACHHUZ5p9TSazLdHcsOGntquabNRlu2NrZGMMMMCwh9CyMcwQIVP4mXUBwuS3fV19FQnGlD/VyA/Nw==
+X-Received: by 2002:a2e:87da:0:b0:2af:2871:9a66 with SMTP id v26-20020a2e87da000000b002af28719a66mr3023074ljj.39.1685894690020;
+        Sun, 04 Jun 2023 09:04:50 -0700 (PDT)
 Received: from localhost.localdomain (91-159-144-182.elisa-laajakaista.fi. [91.159.144.182])
-        by smtp.gmail.com with ESMTPSA id k11-20020a2e92cb000000b00295a3a64816sm1009671ljh.2.2023.06.04.05.01.55
+        by smtp.gmail.com with ESMTPSA id s8-20020a2e81c8000000b002a76bb6bce0sm1076600ljg.37.2023.06.04.09.04.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Jun 2023 05:01:56 -0700 (PDT)
+        Sun, 04 Jun 2023 09:04:49 -0700 (PDT)
 From:   Topi Miettinen <toiwoton@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH] sepolicy: clarify manual page of sepolicy interface
-Date:   Sun,  4 Jun 2023 14:57:27 +0300
-Message-Id: <20230604115726.11247-1-toiwoton@gmail.com>
+Subject: [PATCH] semanage: list all nodes even if not attributed with node_type
+Date:   Sun,  4 Jun 2023 19:03:34 +0300
+Message-Id: <20230604160334.10484-1-toiwoton@gmail.com>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -61,36 +61,111 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Expand the description to make it more clear what "interfaces" mean
-here. They're different from network interfaces used by SELinux
-command `semanage interface`.
+For `semanage node -l`, show also nodes which are not attributed with
+`node_type`. Such nodes may exist in custom policies and even the
+attribute `node_type` may not be defined.
 
-Add a note that the information comes from on-disk file which has been
-installed and it doesn't necessarily match the policy loaded to the
-kernel.
+Fix also bash completion to work with such policies and actually start
+using __get_all_node_types().
+
+This fixes the following error with `semanage node -l`:
+
+Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 975, in <module>
+    do_parser()
+  File "/usr/sbin/semanage", line 947, in do_parser
+    args.func(args)
+  File "/usr/sbin/semanage", line 652, in handleNode
+    OBJECT = object_dict['node'](args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/seobject.py", line 1850, in __init__
+    self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_type"))[0]["types"])
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
 
 Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 ---
- python/sepolicy/sepolicy-interface.8 | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ python/semanage/semanage-bash-completion.sh |  7 ++++++-
+ python/semanage/seobject.py                 |  2 +-
+ python/sepolicy/sepolicy/__init__.py        | 13 +++++++++++++
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/python/sepolicy/sepolicy-interface.8 b/python/sepolicy/sepolicy-interface.8
-index 3e74ea62..c8985afb 100644
---- a/python/sepolicy/sepolicy-interface.8
-+++ b/python/sepolicy/sepolicy-interface.8
-@@ -8,7 +8,11 @@ sepolicy-interface \- Print interface information based on the installed SELinux
- .B sepolicy interface  [\-h] [\-c] [\-v] [\-a | \-u | \-l | \-i INTERFACE [INTERFACE ... ]]
+diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
+index d0dd139f..54a4d8ad 100644
+--- a/python/semanage/semanage-bash-completion.sh
++++ b/python/semanage/semanage-bash-completion.sh
+@@ -43,7 +43,7 @@ __get_all_domains () {
+     seinfo -adomain -x 2>/dev/null | tail -n +2 
+ }
+ __get_all_node_types () { 
+-    seinfo -anode_type -x 2>/dev/null | tail -n +2 
++    seinfo --nodecon -x 2>/dev/null | sed -n 's/^\s\+nodecon\s\+\S\+\s\+\S\+\s\+[^:]\+:[^:]\+:\([^:]\+\):\S\+$/\1/gp'
+ }
+ __get_all_file_types () { 
+     seinfo -afile_type -x 2>/dev/null | tail -n +2 
+@@ -98,6 +98,11 @@ _semanage () {
+ 	            COMPREPLY=( $(compgen -W "$( __get_all_modules ) " -- "$cur") )
+ 		    return 0
+ 		fi
++	elif [ "$command" = "node" ]; then
++		if [ "$prev" = "-t" ] || [ "$prev" = "--type" ]; then
++	            COMPREPLY=( $(compgen -W "$( __get_all_node_types ) " -- "$cur") )
++		    return 0
++		fi
+ 	fi
+ 	if   [ "$verb" = "" -a "$prev" = "semanage" ]; then
+                 comps="${VERBS[*]}"
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index d82da494..cc208a81 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -1848,7 +1848,7 @@ class nodeRecords(semanageRecords):
+         semanageRecords.__init__(self, args)
+         self.protocol = ["ipv4", "ipv6"]
+         try:
+-            self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_type"))[0]["types"])
++            self.valid_types = list(list(sepolicy.info(sepolicy.NODE)))
+         except RuntimeError:
+             pass
  
- .SH "DESCRIPTION"
--Use sepolicy interface to print interfaces information based on SELinux Policy.
-+Use sepolicy interface to print information of interface macros
-+between domains in SELinux policy modules, as used in Reference
-+Policy. The information is based on installed on-disk representation
-+of the SELinux Policy and it may be different from the policy which is
-+currently loaded.
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+index c177cdfc..829f5c61 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -13,6 +13,7 @@ import re
+ import gzip
  
- .SH "OPTIONS"
- .TP
+ from setools.boolquery import BoolQuery
++from setools.nodeconquery import NodeconQuery
+ from setools.portconquery import PortconQuery
+ from setools.policyrep import SELinuxPolicy
+ from setools.objclassquery import ObjClassQuery
+@@ -49,6 +50,7 @@ PORT = 4
+ USER = 5
+ BOOLEAN = 6
+ TCLASS = 7
++NODE = 8
+ 
+ ALLOW = 'allow'
+ AUDITALLOW = 'auditallow'
+@@ -299,6 +301,17 @@ def info(setype, name=None):
+             'permlist': list(x.perms),
+         } for x in q.results())
+ 
++    elif setype == NODE:
++        q = NodeconQuery(_pol)
++        if name:
++            q.name = name
++
++        return ({
++            'address': re.fullmatch('nodecon (\S+) \S+ \S+', str(x)).group(1),
++            'mask': re.fullmatch('nodecon \S+ (\S+) \S+', str(x)).group(1),
++            'type': re.fullmatch('nodecon \S+ \S+ (\S+)', str(x)).group(1)
++        } for x in list(q.results()))
++
+     else:
+         raise ValueError("Invalid type")
+ 
 -- 
 2.39.2
 
