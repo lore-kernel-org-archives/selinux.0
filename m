@@ -2,106 +2,169 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 218E0C7EE2F
-	for <selinux@archiver.kernel.org>; Tue,  6 Jun 2023 09:40:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A198C7EE24
+	for <selinux@archiver.kernel.org>; Tue,  6 Jun 2023 10:02:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235422AbjFFJkp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Jun 2023 05:40:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48956 "EHLO
+        id S229532AbjFFKCE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Jun 2023 06:02:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236745AbjFFJkD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jun 2023 05:40:03 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E414126
-        for <selinux@vger.kernel.org>; Tue,  6 Jun 2023 02:40:02 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-babb7aaa605so8903346276.3
-        for <selinux@vger.kernel.org>; Tue, 06 Jun 2023 02:40:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1686044401; x=1688636401;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=wogCD7rA1VihyKkXqb4tCWeHwtcMlnUVui/jzF3rpwg=;
-        b=vAGa7NHMWULeNKPjn4HL/FZePFkO1gnoGdWcckY2IuMcwZpmd30ADvQwhQaw3Uzr/j
-         ZmZ04rPYcB8H9A9OmRSBZ62LYVE/iXRmyOQafUcIGAGGnLu43FYdbz9JM+y8pvSzkule
-         gm85us+ujJTVHIbROT/2Pdd9bWbHYYaZjIwaLWtxqCPFC/kDedAAwoOlo46JZHRY85+T
-         2C3hS7Evc6F098YNoG7qXOI+Oto48qvNo1hCfpViKhYZ47EbO4QotnpbqkRFmB/BepKw
-         gNI2FIneLB8GUQ5OB12GwreB8apg9YNRRdh13QU8cJJA5RMZs/W30liuecUZ4GrE4aYu
-         hV5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686044401; x=1688636401;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=wogCD7rA1VihyKkXqb4tCWeHwtcMlnUVui/jzF3rpwg=;
-        b=BPZj6x9WwSCy20PszFLTXVVXjONFfIIVBkGSMvKjH0oLLDgxqGqQOmuJ03L1pW4Tho
-         grOt94tgFk0rEot1KoUtSFPENUfVf7eOWk5NE9Qi50GqYfarNClnwkdR1e1+mYGUr7Gp
-         8fW5GRuDbPdt6ceEyaUV1pbs0wlT1OX1KjwZocoMbn1iBEhDUBFzye7ORJatLaLLFH+w
-         i15kHfv05h6GL+vxmy+GCYQANNr9Hikn1RKqkpLytHjiR6k1mf3GOwpM3Ffwb/qp5n/P
-         VzTCA0lRyckf2n3cEBjbXEy0AczX16y2Rs/8oo2nb7UUOJmbpdCFAYM2dIBLVuYEuQYO
-         l5IA==
-X-Gm-Message-State: AC+VfDy+Pv48dNndcudrQ0UoTOpzsYHfBK+eAxf206Pm77xKYKacpOoI
-        96u0gg+x7ziY0fyyAKaaIH4M/bbf01deHyKYpCtBTtVxS5BqX/uYKSvK4ruEvi81SkEn7M/ogG1
-        W76NCfZsuV6cUeAuse+SpL+Rym5n8ww/Wyv65VOdKAbtcleeLbGY17IvfNn1PvH5uC3b9+EaoeA
-        ==
-X-Google-Smtp-Source: ACHHUZ7/hX7IfZEyfOc+n016Lh4lneOhfMGxal51JFbiHRY/ZGvweqQNBff5q76H1b6Vt6TGlVKD09wpbkSfUqou
-X-Received: from chungsheng-work.c.googlers.com ([fda3:e722:ac3:cc00:4f:4b78:c0a8:2ab])
- (user=chungsheng job=sendgmr) by 2002:a05:6902:1006:b0:bac:3439:4f59 with
- SMTP id w6-20020a056902100600b00bac34394f59mr810083ybt.2.1686044401279; Tue,
- 06 Jun 2023 02:40:01 -0700 (PDT)
-Date:   Tue,  6 Jun 2023 09:39:57 +0000
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.41.0.rc0.172.g3f132b7071-goog
-Message-ID: <20230606093957.2264516-1-chungsheng@google.com>
-Subject: [PATCH] libselinux: Add CPPFLAGS to Makefile
-From:   ChungSheng Wu <chungsheng@google.com>
-To:     selinux@vger.kernel.org
-Cc:     Chung-Sheng Wu <chungsheng@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S232343AbjFFKCD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jun 2023 06:02:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E4AF3
+        for <selinux@vger.kernel.org>; Tue,  6 Jun 2023 03:01:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1686045672;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=axJl9kAS0oLgwkpDP21VkRhXbEHO89mBGrVzHDjd7Nk=;
+        b=EuUP7lKp6/OS++WRkkI12sXlPAwcAQywJOsJ4eoFn7tUIlkLZwk4m18GmaCX3fgNZpfJ1d
+        7NkVBryDP9C/4dnhEdrm6Y4RXYjYN+IxugnuA5CuPZAwoZ3B33o4wh0Yxs028pfp0UnosQ
+        z57vjdkrO/CFWld7pS/jjkukzVxWynE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-279-X231oeY8PTmY5lkV6L2eZQ-1; Tue, 06 Jun 2023 06:01:11 -0400
+X-MC-Unique: X231oeY8PTmY5lkV6L2eZQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 77530185A791;
+        Tue,  6 Jun 2023 10:01:10 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.103])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 36C1CC1603B;
+        Tue,  6 Jun 2023 10:01:10 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Topi Miettinen <toiwoton@gmail.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH v2] semanage, sepolicy: list also ports not attributed
+ with port_type
+In-Reply-To: <20230602190720.12623-1-toiwoton@gmail.com>
+References: <20230602190720.12623-1-toiwoton@gmail.com>
+Date:   Tue, 06 Jun 2023 12:01:09 +0200
+Message-ID: <87o7lsj4ey.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Chung-Sheng Wu <chungsheng@google.com>
+Topi Miettinen <toiwoton@gmail.com> writes:
 
-Add CPPFLAGS to Makefile to allow users change the flags of
-preprocessor.
-We offen use CFLAGS for compiler flags and use CPPFLAGS for
-preprocessor.
+> For `semanage port -l` and `sepolicy network -t type`, show also ports
+> which are not attributed with `port_type`. Such ports may exist in
+> custom policies and even the attribute `port_type` may not be defined.
+>
+> This fixes the following error with `semanage port -l` (and similar
+> error with `sepolicy network -t type`):
+>
+> Traceback (most recent call last):
+>   File "/usr/sbin/semanage", line 975, in <module>
+>     do_parser()
+>   File "/usr/sbin/semanage", line 947, in do_parser
+>     args.func(args)
+>   File "/usr/sbin/semanage", line 441, in handlePort
+>     OBJECT = object_dict['port'](args)
+>              ^^^^^^^^^^^^^^^^^^^^^^^^^
+>   File "/usr/lib/python3/dist-packages/seobject.py", line 1057, in __init__
+>     self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
+>                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+> IndexError: list index out of range
+>
+> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+>
+> ---
+>
+> v2: fix other cases and use better version courtesy of Petr Lautrbach
+> ---
+>  python/semanage/semanage-bash-completion.sh | 2 +-
+>  python/semanage/seobject.py                 | 2 +-
+>  python/sepolicy/sepolicy-bash-completion.sh | 2 +-
+>  python/sepolicy/sepolicy/__init__.py        | 2 +-
+>  4 files changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
+> index d0dd139f..1e3f6f9d 100644
+> --- a/python/semanage/semanage-bash-completion.sh
+> +++ b/python/semanage/semanage-bash-completion.sh
+> @@ -37,7 +37,7 @@ __get_all_types () {
+>      seinfo -t 2> /dev/null | tail -n +3 
+>  }
+>  __get_all_port_types () { 
+> -    seinfo -aport_type -x 2>/dev/null | tail -n +2 
+> +    sepolicy network -l
+>  }
 
-Signed-off-by: Chung-Sheng Wu <chungsheng@google.com>
----
- libselinux/src/Makefile | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+I support this change but it could have a side effect on distributions.
+E.g. in Fedora we ship semanage bash completion in
+policycoreutils-python-utils while sepolicy in policycoreutils-devel. On
+the other hand seinfo is in setools-console package which is not required by
+policycoreutils-python-utils so completions would not work anyway.
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index f9a1e5f5..4e4640f0 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -149,10 +149,10 @@ pywrap: all selinuxswig_python_exception.i
- rubywrap: all $(SWIGRUBYSO)
- 
- $(SWIGRUBYLOBJ): $(SWIGRUBYCOUT)
--	$(CC) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
--	$(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(RUBYLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(RUBYLIBS)
- 
- $(LIBA): $(OBJS)
- 	$(AR) rcs $@ $^
-@@ -169,10 +169,10 @@ selinuxswig_python_exception.i: exception.sh ../include/selinux/selinux.h
- 	bash -e exception.sh > $@ || (rm -f $@ ; false)
- 
- %.o:  %.c policy.h
--	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
- 
- %.lo:  %.c policy.h
--	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGRUBYCOUT): $(SWIGRUBYIF)
- 	$(SWIGRUBY) $<
--- 
-2.41.0.rc0.172.g3f132b7071-goog
+From upstream POV, it improves the situation so unless there's any other
+objection from other distribution maintainers I would not block it..
+
+
+
+
+>  __get_all_domains () { 
+>      seinfo -adomain -x 2>/dev/null | tail -n +2 
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index d82da494..21a6fc91 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -1055,7 +1055,7 @@ class portRecords(semanageRecords):
+>      def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>          try:
+> -            self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
+> +            self.valid_types = [x["type"] for x in list(list(sepolicy.info(sepolicy.PORT)))]
+
+I know it's suggested by me. But looking on to it I see repeating list()
+which is unnecessary. sepolicy.info() returns a generator and so the new
+list could be constructed directly from it:
+
+[x["type"] for x in sepolicy.info(sepolicy.PORT)]
+
+
+>          except RuntimeError:
+>              pass
+>  
+> diff --git a/python/sepolicy/sepolicy-bash-completion.sh b/python/sepolicy/sepolicy-bash-completion.sh
+> index 13638e4d..467333b8 100644
+> --- a/python/sepolicy/sepolicy-bash-completion.sh
+> +++ b/python/sepolicy/sepolicy-bash-completion.sh
+> @@ -52,7 +52,7 @@ __get_all_classes () {
+>      seinfo -c 2> /dev/null | tail -n +2
+>  }
+>  __get_all_port_types () {
+> -    seinfo -aport_type -x 2> /dev/null | tail -n +2
+> +    sepolicy network -l
+>  }
+
+Here the change does not have any side effect and improves the
+functionality
+
+>  __get_all_domain_types () {
+>      seinfo -adomain -x 2> /dev/null | tail -n +2
+> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+> index c177cdfc..76ac7797 100644
+> --- a/python/sepolicy/sepolicy/__init__.py
+> +++ b/python/sepolicy/sepolicy/__init__.py
+> @@ -989,7 +989,7 @@ def get_all_port_types():
+>      global port_types
+>      if port_types:
+>          return port_types
+> -    port_types = list(sorted(info(ATTRIBUTE, "port_type"))[0]["types"])
+> +    port_types = [x["type"] for x in list(list(info(PORT)))]
+
+[x["type"] for x in info(PORT)]
+
+>      return port_types
+>  
+>  
+> -- 
+> 2.39.2
 
