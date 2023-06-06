@@ -2,69 +2,195 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC96CC77B7A
-	for <selinux@archiver.kernel.org>; Tue,  6 Jun 2023 17:06:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 829B6C77B7A
+	for <selinux@archiver.kernel.org>; Tue,  6 Jun 2023 19:00:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbjFFRGC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Jun 2023 13:06:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
+        id S238426AbjFFTAT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Jun 2023 15:00:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238422AbjFFRF4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jun 2023 13:05:56 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6488510CB
-        for <selinux@vger.kernel.org>; Tue,  6 Jun 2023 10:05:55 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id 41be03b00d2f7-51452556acdso3717315a12.2
-        for <selinux@vger.kernel.org>; Tue, 06 Jun 2023 10:05:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686071155; x=1688663155;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=NFP9xq0nwGuiDFPEwUo+ZoPchSWncRXq8AFy5TZsENc=;
-        b=oJ0RdgZGD/rLdFrrD6ozGsVxfEZJKkOpji9b8FQ8/lJHwv7mb6CGV2j7cFtVOlBfZf
-         DCsoN9gJ4rC4dXD6N5FqHvxSCGXzNW7HIXj+7KqJyK22ipfpSRznfu924ATdNV9nStLj
-         539Wb7rYLIgiOR9puOTzbnCqFkfEtMZTNNI2N/Pq6zWyoCb889YEB+XEWSA5M4aNQdbN
-         5V9saWqiXUHmisuNy03aZkON0ey7pDyInDTQC9n1syauCckgO+4aGmt71eT9sz8F0b40
-         GxRLiwaUIgKgHlG2qMQR+lpLSHxnRLsPRSWbkF6G3a1wJ9R3ChlWpkR6VBM9LrL0cS/U
-         XGWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686071155; x=1688663155;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NFP9xq0nwGuiDFPEwUo+ZoPchSWncRXq8AFy5TZsENc=;
-        b=j9LsmahxkVuPLwjxq/Rd3uUv/NSkfL17jee0zOdbWjTqahcswu2iio6zlzH9eOUStY
-         T9xpUc7HxE3cbU0wJJrJg1IJZktIIsgpKfN2iOlssqtn4sFvxL6oI0ui3MLNyuzAQm6h
-         bb58FTazY5DuXqS7d6SqkYrj5yHKO3uwxf8cScW2iZp2V3ZZ1HKC1ZGHP7xXlkepmWqj
-         Cnz0/ZrhhM7tmyhZ/gXhoI916e0TcrFyH05cVGIt7KDu9/DVuf2I/HeCKz0t4DJQPxOU
-         VnzMvv+zls7714a31Bf6gs1jF7ov/Q4O2MGKoLQfqmZP4oIbxaMfxPLxqZTYNUb7Yh9u
-         2ETA==
-X-Gm-Message-State: AC+VfDziHPUyZPOe2FBybkIZ1JsEd80iVnvsueaa44dYio2dkGdBl/lg
-        jF2iy5AN7YpG8Us7sPWbln764wV6rQ7HGeJj3mpA4XQu
-X-Google-Smtp-Source: ACHHUZ4UPVhTax7WvqrFqL4EOl7MDlnDuwTDYte+K12KTDJIfZdBHvT/WrzwBmcBpoEWMxQCl0H/fhL+JTZ/RMVM8GM=
-X-Received: by 2002:a17:90b:68c:b0:259:3cc4:f978 with SMTP id
- m12-20020a17090b068c00b002593cc4f978mr1727091pjz.19.1686071154385; Tue, 06
- Jun 2023 10:05:54 -0700 (PDT)
+        with ESMTP id S231895AbjFFTAS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Jun 2023 15:00:18 -0400
+Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7459E;
+        Tue,  6 Jun 2023 12:00:15 -0700 (PDT)
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+        id 8A751F2D; Tue,  6 Jun 2023 14:00:13 -0500 (CDT)
+Date:   Tue, 6 Jun 2023 14:00:13 -0500
+From:   "Serge E. Hallyn" <serge@hallyn.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>, selinux@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Frederick Lawler <fred@cloudflare.com>,
+        =?iso-8859-1?Q?G=FCnther?= Noack <gnoack3000@gmail.com>,
+        linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com,
+        linux-security-module@vger.kernel.org, bpf@vger.kernel.org
+Subject: Re: [PATCH v4 1/9] capability: introduce new capable flag NODENYAUDIT
+Message-ID: <20230606190013.GA640488@mail.hallyn.com>
+References: <20230511142535.732324-1-cgzones@googlemail.com>
+ <20230531140734.GA515872@mail.hallyn.com>
+ <20230531140847.GB515872@mail.hallyn.com>
+ <CAJ2a_DesiD+LU-aWOEWRkyc0rcmZ0Za5i6-rZX-kHP2GzQyuFg@mail.gmail.com>
+ <CAHC9VhQBuQ+yE1wmEYA4UcVwnRFXoyu9_4Qw5LWszUrkm_ornw@mail.gmail.com>
 MIME-Version: 1.0
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 6 Jun 2023 13:05:43 -0400
-Message-ID: <CAEjxPJ7P5XQUx4-ENXt4WGGhnegxKmDD0V-4Ffab6AY8PL-O2A@mail.gmail.com>
-Subject: multiple inconsistent perm_map files
-To:     SElinux list <selinux@vger.kernel.org>,
-        Chris PeBenito <pebenito@ieee.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhQBuQ+yE1wmEYA4UcVwnRFXoyu9_4Qw5LWszUrkm_ornw@mail.gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+On Wed, May 31, 2023 at 06:13:55PM -0400, Paul Moore wrote:
+> On Wed, May 31, 2023 at 2:34 PM Christian Göttsche
+> <cgzones@googlemail.com> wrote:
+> > On Wed, 31 May 2023 at 16:08, Serge E. Hallyn <serge@hallyn.com> wrote:
+> > >
+> > > On Wed, May 31, 2023 at 09:07:34AM -0500, Serge E. Hallyn wrote:
+> > > > On Thu, May 11, 2023 at 04:25:24PM +0200, Christian Göttsche wrote:
+> > > > > Introduce a new capable flag, CAP_OPT_NODENYAUDIT, to not generate
+> > > > > an audit event if the requested capability is not granted.  This will be
+> > > > > used in a new capable_any() functionality to reduce the number of
+> > > > > necessary capable calls.
+> > > > >
+> > > > > Handle the flag accordingly in AppArmor and SELinux.
+> > > > >
+> > > > > Suggested-by: Paul Moore <paul@paul-moore.com>
+> > > > > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> > > >
+> > > > Reviewed-by: Serge Hallyn <serge@hallyn.com>
+> > >
+> > > Sorry, obviously I should have removed this, until the comment below was
+> > > answered :)
+> > >
+> > > > > ---
+> > > > >  include/linux/security.h       |  2 ++
+> > > > >  security/apparmor/capability.c |  8 +++++---
+> > > > >  security/selinux/hooks.c       | 14 ++++++++------
+> > > > >  3 files changed, 15 insertions(+), 9 deletions(-)
+> > > > >
+> > > > > diff --git a/include/linux/security.h b/include/linux/security.h
+> > > > > index e2734e9e44d5..629c775ec297 100644
+> > > > > --- a/include/linux/security.h
+> > > > > +++ b/include/linux/security.h
+> > > > > @@ -67,6 +67,8 @@ struct watch_notification;
+> > > > >  #define CAP_OPT_NOAUDIT BIT(1)
+> > > > >  /* If capable is being called by a setid function */
+> > > > >  #define CAP_OPT_INSETID BIT(2)
+> > > > > +/* If capable should audit the security request for authorized requests only */
+> > > > > +#define CAP_OPT_NODENYAUDIT BIT(3)
+> > > > >
+> > > > >  /* LSM Agnostic defines for security_sb_set_mnt_opts() flags */
+> > > > >  #define SECURITY_LSM_NATIVE_LABELS 1
+> > > > > diff --git a/security/apparmor/capability.c b/security/apparmor/capability.c
+> > > > > index 326a51838ef2..98120dd62ca7 100644
+> > > > > --- a/security/apparmor/capability.c
+> > > > > +++ b/security/apparmor/capability.c
+> > > > > @@ -108,7 +108,8 @@ static int audit_caps(struct common_audit_data *sa, struct aa_profile *profile,
+> > > > >   * profile_capable - test if profile allows use of capability @cap
+> > > > >   * @profile: profile being enforced    (NOT NULL, NOT unconfined)
+> > > > >   * @cap: capability to test if allowed
+> > > > > - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
+> > > > > + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
+> > > > > + * record is generated
+> > > > >   * @sa: audit data (MAY BE NULL indicating no auditing)
+> > > > >   *
+> > > > >   * Returns: 0 if allowed else -EPERM
+> > > > > @@ -126,7 +127,7 @@ static int profile_capable(struct aa_profile *profile, int cap,
+> > > > >     else
+> > > > >             error = -EPERM;
+> > > > >
+> > > > > -   if (opts & CAP_OPT_NOAUDIT) {
+> > > > > +   if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && error)) {
+> > > > >             if (!COMPLAIN_MODE(profile))
+> > > > >                     return error;
+> > > > >             /* audit the cap request in complain mode but note that it
+> > > > > @@ -142,7 +143,8 @@ static int profile_capable(struct aa_profile *profile, int cap,
+> > > > >   * aa_capable - test permission to use capability
+> > > > >   * @label: label being tested for capability (NOT NULL)
+> > > > >   * @cap: capability to be tested
+> > > > > - * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
+> > > > > + * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NODENYAUDIT bit determines whether audit
+> > > > > + * record is generated
+> > > > >   *
+> > > > >   * Look up capability in profile capability set.
+> > > > >   *
+> > > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > > > index 79b4890e9936..0730edf2f5f1 100644
+> > > > > --- a/security/selinux/hooks.c
+> > > > > +++ b/security/selinux/hooks.c
+> > > > > @@ -1571,7 +1571,7 @@ static int cred_has_capability(const struct cred *cred,
+> > > > >     u16 sclass;
+> > > > >     u32 sid = cred_sid(cred);
+> > > > >     u32 av = CAP_TO_MASK(cap);
+> > > > > -   int rc;
+> > > > > +   int rc, rc2;
+> > > > >
+> > > > >     ad.type = LSM_AUDIT_DATA_CAP;
+> > > > >     ad.u.cap = cap;
+> > > > > @@ -1590,11 +1590,13 @@ static int cred_has_capability(const struct cred *cred,
+> > > > >     }
+> > > > >
+> > > > >     rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+> > > > > -   if (!(opts & CAP_OPT_NOAUDIT)) {
+> > > > > -           int rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
+> > > > > -           if (rc2)
+> > > > > -                   return rc2;
+> > > > > -   }
+> > > > > +   if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NODENYAUDIT) && rc))
+> > > > > +           return rc;
+> > > >
+> > > > Hm, if the caller passes only CAP_OPT_NODENYAUDIT, and rc == 0, then
+> > > > you will audit the allow.  Is that what you want, or did you want, or
+> > > > did you want CAP_OPT_NODENYAUDIT to imply CAP_OPT_NOAUDIT?
+> > > >
+> >
+> > The new option should cause to issue an audit event if (and only if)
+> > the requested capability is in effect for the current task. If the
+> > task does not have the capability no audit event should be issued.
+> >
+> > The new option should not imply CAP_OPT_NOAUDIT since we want an audit
+> > event in the case the capability is in effect.
+> >
+> > I admit the naming is a bit confusing as CAP_OPT_NODENYAUDIT as well
+> > as the commit description contains a double negation (while the inline
+> > comment for the macro definition does not).
+> >
+> > Do you prefer naming the constant CAP_OPT_ALLOWAUDIT or CAP_OPT_AUDIT_ON_ALLOW?
+> 
+> I think we need a different name, although I'm struggling to think of
+> something ... I don't think ALLOWAUDIT is right, as I believe it
+> implies that it is needed to "allow" auditing to take place for the
+> operation.  AUDIT_ON_ALLOW is better, but it still seems like it would
+> be required if you wanted to generate audit records on a successful
+> operation, which isn't correct.  I think we need to focus on the idea
+> that the flag blocks auditing for denials.
+> 
+> CAP_OPT_NOAUDITDENY is pretty much what you have, but in my mind the
+> NOAUDITDENY shares enough with the existing NOAUDIT flag that it makes
+> a bit more sense.
+> 
+> I honestly don't know.  However, whatever you pick, make sure you
+> update patch 2/X so that the name of ns_capable_nodenyaudit() is kept
+> close to the flag's name.
 
-There appear to be two separate copies of the permission mapping
-(perm_map) file, one in selinux/python/sepolgen/src/share/perm_map and
-one in setools/setools/perm_map. The first one in selinux hasn't been
-updated since 2016 (just a move) or 2011 (last actual content change).
-The second one in setools has been getting regular updates but the
-seinfoflow man page refers to the location where the first one from
-selinux is installed.
+(Sorry for the late response.  I still need to fix my filters)
 
-Also guessing that no one has written a perm_map for Android userspace
-classes/permissions.
+Is CAP_OPT_NOAUDIT_ONDENY or CAP_OPT_AUDIT_ONLY_ONALLOW too long? :)
+
+Anyway, Christian, I leave the final choice to you, then please feel
+free to add my Reviewed-by.
+
+thanks,
+-serge
