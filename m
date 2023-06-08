@@ -2,139 +2,73 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF892C7EE23
-	for <selinux@archiver.kernel.org>; Wed,  7 Jun 2023 23:40:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32EB7C7EE29
+	for <selinux@archiver.kernel.org>; Thu,  8 Jun 2023 00:28:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbjFGXk3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 7 Jun 2023 19:40:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48770 "EHLO
+        id S232210AbjFHA2Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 7 Jun 2023 20:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233513AbjFGXkU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 7 Jun 2023 19:40:20 -0400
-Received: from sonic311-31.consmr.mail.ne1.yahoo.com (sonic311-31.consmr.mail.ne1.yahoo.com [66.163.188.212])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B342724
-        for <selinux@vger.kernel.org>; Wed,  7 Jun 2023 16:39:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1686181198; bh=MLg3eEIQ6oxa5ubin2En3vP+BFYlpn63vPZqcYHn8/c=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=L/8MkD72LF/Lc0nlDvMsqldR6tGxbQz3xtUxMnnexoh4/yczWF813WrtkaYNqlNBwO834Bu8cJpigYShXpbYLcHyoOyyn69fGBwM9WnG1SEGj419LTUK5QsAtlFaUGTVxfo7bFKY3MoHw1BmflWrLg7ZiXIwB3FFigweISoJhMac99mHDl/aaRklQJ397FvsEuVptW0EhNRZOURnWXEUfPHep4ZX/jU1CB55Ae1AZ1mkqUbtY7YmaL0GUGzjeaARxHgq9WteMManQ1IW/+JAf7M/R+oK07TXWm4ce1QaM+Y8+C+lCeG2Xwk3uiEqimjFFMl4cw8E0T/wMFmiL4/pQQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1686181198; bh=T8klwkrVKqfnlECaKgGkKbooPwQxUIVUUHSupnXE/Fy=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=EYSNA8nZ62hxDRua+4mKwljUmw7Pvie0EdDDL3p4swLATTSJVJJCeKdcbDDA4sutujm4oLRTWVELJkbBxglHqB8vsww5njtMUS+zL8JvPdrSxuMQV3Thgsu8TCSWHK3XKKRpMOlG9ZVGqQBO4V11hwghzbqZ2uQhRQF5yEw0Hl9iX3sNadMJfotyydIkN7eQi69GWN1hZUsOwIRQkFSfHO4yttTJG0PrMR/qy6/5JRv71D71qTKD2CS89ah04544v/rqYQkPSzoDGEb2rIXvRDQ6CJJYMJKMl8t4FXUDTv+M72dEfgUyoNPSpAe6/+yOTRziURHScPcoYC6mghzp3Q==
-X-YMail-OSG: 9DZ00UIVM1nf7gHNoSEJ_nQWRcW9g8Xfe_zpCClhZWdUoGLj_c_czAmMX82snG.
- EtXqu9.iP68RkKlYIDDaphvlBZCmGws9fbP4QhqaDyVLSzVGNWxXLVb2MOQVcAry.HF3I52WhI4D
- PKG_tAo_sviZephuG5VTSLYTBMsMPY7xJvJk25w60qIqC62H6UXeYqeg0HdIVd.Us.aysoxmkPxf
- ogF_ILbmys0RhgLlVtr.EhhS7BGJSVOkaTxA02G9S5n1lgQbBXqsedAJ64mkzCG3jQCOJjlmx.Dv
- 6y_H7TQGYRRVQql5NQrONSRPZ2YpzkfmqxzDHMv_objgDooc_lrUUzf8UHdpuaPVqY6rpNeU8TOZ
- e5mLjKbYPwp49p37sJpsBPcMNyGHBq7U6hkGLPix84zf1ipMbjOLYfpF7B5a3LHXjAAfHWrvqCcN
- lMffFRTxLeBBjN.vsgm0nBrL5IJUQKGsaie0Q6oezroJWGJ.OR3NL2frCfA4cal9wDEGRkRWGcfW
- iO24EvJ5RL8HkIaPN1DG3y2Io0kWag1b9epoONUrA6zggtd5U479RiczA0vul9evpicsvAMpHbbl
- ITDGSLv5cEu69DRFUYMOGZf6DNhgBhH_Tor9.7gt.FCYxWjpL0rPtCO_CQv1dTSYnJqAY_ypMUad
- hdqW2asKRPaC9dw0zJ22uYfuvf5GgkSfcFJFWzvsoG3eBywJF1rpSfcwKE45ppUV5rGRnJjvpXDQ
- 9YFOhypYjgDgZyxH3Ewm.JKJF77YpUouBT9fDtWFqBqV7U5gsoQlW4Vg5Q3npVsnXm9C34lybazL
- P_XpmC2d9NjTPUR3fpDLSYvH26OBYeetWh2ewrfV7kPWSNSOIy5SlP7iHv7_WaAxbsrtR2msS6AC
- Qtb8yxIFH0TP2wE2hd5QJxaKIQGNJm34bej_u.2QpkjRUr1pgAnniF22_EWBrhrhDGqjB55eJZLt
- jgIDr.eiHxoKMfKaBv9vwRs65eygNRDNqIVaAixkt7ho3DiqRTw5CJeJPIIjy8auG2t9iqEo.UcV
- KOHF1yx.J.SL2aATCAltOtvp2uS.kPXV.DB..aaBSogrOBD2WdgGcjKcDrhZNrdy.2zvEObvi_DW
- FvFj1lkvebih76k2HCiuOv_FfcriX48tFjqgAuAOW43.yFnk_PyvjKXBveAEHGIEnURD7jDFcDBY
- yJyY.ndXsula46PI7Pc9Tra7cSC3AY6Ti5wi0fc0d.aJM9YVKQ1FPfjw8CL.q..lJULUpn1Uksk5
- gn.wxf2KdRODJ0Tk7vSUBzHRpsHtuGGvZLnA8DPJypNEAOqbOgONzd5iwyhi8WRlR0OactKXuB3T
- t5wVUbhSU9WLwyDUAxoDhScJLYK_eyiG_HiTh8I96ftIMPwYStsnRLQQt.3erIT31LU105kO0gwf
- 1nDpz5vW6jtPcesr6lvz4xm95vysDUZr7_1z_fRF4DqY2vPsYuPsnBzhAXSBEleiGrdBZtt0lWtZ
- P4qbTLNvvnrISQM6OmOUHXactFUmSLnqmgW80oUX9QFPqsb3DQWw5pxe0j7_4dECibAiaJPrUK5K
- 8yowLBcUFs5iF5EhnPGh4.03qSKGEbah82axnlMqA.Xl.iPvq0vsDEfO8dWTfcWRkq1LaIkOo4lj
- kuKI9JoK0P9MAdgThuSvlb6hp8s50ykZc_dc606j_HFoUXT_T2YaXWE1Y_gC1fpK53FfW8xrbgul
- dvsVCquT88yypSo6va9qg42R3I3U7ks7yspn2CQodLJ8gu4NOe_Fwnt105YHjmWY9gZnvUmzwLJr
- f5SLOU4QgvMsJ9lCMhRSJcS4cZ841PgNTes5Yx.mi1E3Kl0Lr7Ic40allvm.2TfbQqVovCjkvyq6
- 7l.Ot0Im08EswnGuamVZUu6DiINcXAgx54rBdLdtqPOTnGZCbFe4KAclmZETJWuumgxWHyLva.Tb
- 1Da6hr0DzkMSiw5IJr_xNJLJtuAkXgIxghOKuoZRP1uow0vJI2q2YEPdNdPw2MlGupEMOJA9hWqC
- y9rohL3BVno3vrHQeyTklM8uzKagPnjJ2mvC7LFbGqqqFjRcmEmUyfHyhb7D33Pllt.a4iPvD5Yu
- eiHRSt75FCH4EzEmyzwCMneLEDQKlfHoIYNDr7sc5po5FVzUIiQP2pVI1E_fMSj4y1h2wdLD3ovs
- TVLef8m_Ug0gSLcpzFYt52HToxDS4pOwtBACGwxqOhczApOKFskW01vy1UVEyXdtV.PcYTwRqfWb
- V_gZQdnheV3reVNzsB.CWOm16ZZPXQVi.VzGIpWDiSHsko9r2PMZ.ORE_bF6AG0OdJwdYwOa.auz
- QPoT0s_qdpN4ooTJffd0v
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: aa61df0c-dead-4c2e-8f62-dac88edc3df4
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 7 Jun 2023 23:39:58 +0000
-Received: by hermes--production-ne1-574d4b7954-xz2cn (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 722d8a43fe0be971fa9347acc11d3ac0;
-          Wed, 07 Jun 2023 23:39:57 +0000 (UTC)
-Message-ID: <3319126a-c5b5-c9db-dddb-7ed169ac7e83@schaufler-ca.com>
-Date:   Wed, 7 Jun 2023 16:39:55 -0700
+        with ESMTP id S232873AbjFHA2X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 7 Jun 2023 20:28:23 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C731D2682
+        for <selinux@vger.kernel.org>; Wed,  7 Jun 2023 17:28:22 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-565a6837a0bso76927b3.3
+        for <selinux@vger.kernel.org>; Wed, 07 Jun 2023 17:28:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1686184102; x=1688776102;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=SjHbksShdKUc96XErESLsDPFS9b2BZzPiy47z90/B2k=;
+        b=AYgTMwQCW43rOLFalGB6KPxqpKdlrC8/xaeQBJxD7vgv5XkpIAvpQd/o75maqPJymA
+         3baIPsYwAB3ru48MFPD7aqst+XKsdEYrjm3O9NWWHnF7bQnyKTpKEWjH7mRH0xW/jIXq
+         RnwGt17luMMtOY/f9BSbRfap2RVUIWEWrR3SbA/I4NBXyJT4Mn9w7Oymyi2erz3kGXFC
+         NH2t9jsftR8C4qL+k5SvBb54bQsCwsD443JHzvkZVZO5VIfvE51PgBf6jy8xjl/3u4MI
+         GHZupille7JnJcal9ABTyKvqXV0Kb13WQLQk3wquBCNOZZLLNrB48C3YLCBwAo8X60BF
+         nS2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686184102; x=1688776102;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SjHbksShdKUc96XErESLsDPFS9b2BZzPiy47z90/B2k=;
+        b=LfUGRjfOCQqhXoUDwsvyVS+PHkhGQAT+CFRj96d4FI9jWRjmK2KpnAFA1PEkxaJw7M
+         1bsatEw6i7LsRxvTH2igqVT88y0Sup6WY0P3eioGgw8JhbfqC7QgKmDMbP6mumf/gyN0
+         wQ+Yp9KT6rwdH3/awBjUyTzpFD4kT1c79zWzIPxjc97s6e1qZcL7/pwxvZsnEJs2aMuX
+         7q94OGCJLGNAN675ri0C5iox1XRcIuLiFuI/DejvsvnzZVs+C38rJyWxUpz76O+CMvXM
+         UVrtHp1wIE8EbeZQNqSATuJgT0gwMC/3loi5VGsNIuVC9QoQwGyJ1G0srMoLOT+XGkFm
+         cIpg==
+X-Gm-Message-State: AC+VfDwDp12+gvJiWmsJpE40q9lEH79sFax8xHsMEZCSm8+QJjkr2BZl
+        0xGNzo5aGUPXtL6z2s7Sk72kmSKbLEpCrX736nSNAsO4FHil1fk=
+X-Google-Smtp-Source: ACHHUZ5G3yzArbV1oPD5eCFv1h26ramBAE0RXDDM1tsabXZ/IslvJVnvBVLPFsyRiP8cTrSvwCdTHlZLPUfTy7Lq5ks=
+X-Received: by 2002:a81:498b:0:b0:565:ef60:3f2f with SMTP id
+ w133-20020a81498b000000b00565ef603f2fmr8618093ywa.44.1686184101796; Wed, 07
+ Jun 2023 17:28:21 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v10 10/11] SELinux: Add selfattr hooks
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>,
-        linux-security-module@vger.kernel.org
-Cc:     jmorris@namei.org, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, mic@digikod.net,
-        selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20230428203417.159874-11-casey@schaufler-ca.com>
- <b09b591926e0f297fe0a3e9d8fcf3a6a.paul@paul-moore.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <b09b591926e0f297fe0a3e9d8fcf3a6a.paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21516 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 7 Jun 2023 20:28:11 -0400
+Message-ID: <CAHC9VhR0Lm0WmSPQkieNwzG3DBbmChsXZJPysWjqhZzG2y2ftw@mail.gmail.com>
+Subject: ANN: SELinux and stable kernel changes
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/7/2023 3:32 PM, Paul Moore wrote:
-> On Apr 28, 2023 Casey Schaufler <casey@schaufler-ca.com> wrote:
->> Add hooks for setselfattr and getselfattr. These hooks are not very
->> different from their setprocattr and getprocattr equivalents, and
->> much of the code is shared.
->>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> Cc: selinux@vger.kernel.org
->> Cc: Paul Moore <paul@paul-moore.com>
->> ---
->>  security/selinux/hooks.c | 154 +++++++++++++++++++++++++++++++--------
->>  1 file changed, 124 insertions(+), 30 deletions(-)
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 2ee92d3fb79d..e78b955e04f8 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -6542,6 +6559,81 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
->>  	return error;
->>  }
->>  
->> +static int selinux_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
->> +			       size_t *size, u32 flags)
->> +{
->> +	char *value;
->> +	size_t total_len;
->> +	int len;
->> +	int rc;
->> +
->> +	len = selinux_lsm_getattr(attr, current, &value);
->> +	if (len < 0)
->> +		return len;
->> +
->> +	total_len = ALIGN(struct_size(ctx, ctx, len), 8);
->> +
->> +	if (total_len > *size)
->> +		rc = -E2BIG;
-> Hmm.  Since we need to calculate the aligned @total_len value in the
-> LSM specific code, perhaps it doesn't make sense to also do the
-> alignment in lsm_fill_user_ctx().  My apologies, I know I was the one
-> who suggested doing the alignment in a common place previously.
+Hello all,
 
-Some future user of lsm_fill_user_ctx() may not need to do the
-calculation, so I would be inclined to leave it here. I'm thinking
-SO_PEERCONTEXT, or the like. But I'll go with whatever gets the
-patchset moving forward.
+After a discussion with the stable kernel maintainers, I've learned
+that they have a list of subsystems where only commits that are
+explicitly marked for the stable kernels are backported to the stable
+kernels.  As this has always made more sense to me than the current
+approach of simply backporting everything with a 'Fixes:' tag, I've
+asked the stable kernel maintainers to add the SELinux subsystem to
+that list.
 
->
->> +	else if (ctx)
->> +		rc = lsm_fill_user_ctx(ctx, value, len, LSM_ID_SELINUX, 0);
->> +	else
->> +		rc = 1;
->> +
->> +	*size = total_len;
->> +	if (rc < 0)
->> +		return rc;
->> +	return 1;
->> +}
-> --
-> paul-moore.com
+I don't view this as a significant change for SELinux since I have
+been explicitly marking stable candidate commits as part of the normal
+merge process, but it is something to keep in mind.  My hope is that
+this should help reduce unnecessary, and risky, backports.
+
+--
+paul-moore.com
