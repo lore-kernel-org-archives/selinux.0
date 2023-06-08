@@ -2,114 +2,115 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53010C7EE29
-	for <selinux@archiver.kernel.org>; Thu,  8 Jun 2023 19:52:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9990EC7EE29
+	for <selinux@archiver.kernel.org>; Thu,  8 Jun 2023 19:52:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230238AbjFHTw2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Jun 2023 15:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
+        id S232068AbjFHTwz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Jun 2023 15:52:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230162AbjFHTw2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Jun 2023 15:52:28 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3472733
-        for <selinux@vger.kernel.org>; Thu,  8 Jun 2023 12:52:27 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4f642a24555so1259121e87.3
-        for <selinux@vger.kernel.org>; Thu, 08 Jun 2023 12:52:27 -0700 (PDT)
+        with ESMTP id S233586AbjFHTwy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Jun 2023 15:52:54 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66112D6A
+        for <selinux@vger.kernel.org>; Thu,  8 Jun 2023 12:52:51 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id 38308e7fff4ca-2b1a7e31dcaso10051411fa.2
+        for <selinux@vger.kernel.org>; Thu, 08 Jun 2023 12:52:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686253945; x=1688845945;
+        d=gmail.com; s=20221208; t=1686253970; x=1688845970;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ccvhZqcWVMzvy4J9b25guBRPHxiClPTDiSqH9WZozM4=;
-        b=AJpK3mdFNb7To+wK2QHHo5xQgbizKRY6JAphPJn8GOCcCKyqfuzGso6yMvNXVkcNrB
-         MEmdhVq+ngBwVmg7zeTQbgniFB4WNXjVNUD2dgEj2vvGzjIGJ74erZt/2IYpPANYu1jn
-         GqeNR9XIn+yGsN5WkJjyhk+2aG0iQ+l2BbXFldk/BsNLdaoa5Ej5vupG83NWaQRgm4ZY
-         L/BppzdWXJnvvVL+phawb0A4PyUNpb17OZICBwQoqNc8VrXKMndAWK1WKtqgF3h0BWx7
-         4Kiq6XkyEI0I5Xg/bMgCt2Qpte5Thes65EdKfo6i/3UtXOkKUHefBvBazsIHF1aRojzI
-         /KPw==
+        bh=BFULCShR7Wh3U78WTMLmkPI4ywB7wt6gOWAKJOiBl9U=;
+        b=O+VR/iMgR+B6VBeAf0Z7WNIRbkxsGvgmhaFI+UsVbSs64ffxvXZ9a0s5a5XXfFWHBH
+         2rh5+c6iMNZfiy/6KGSWgItiFuMIMDCYI7tUZ/y1YwxQh2/7CBiD3U4lz3S66mkiUTs8
+         D+ey6NA3KstjHkL5n+Lkamdda4jbC0eq5VKj3hcnwoW+tuPu7fcvhP6H9Hjwn3aSMJKF
+         WnVEhmKRXeGD/io5u2vqagKMR+h4l3n/tEnupcSSqK82vLkLpiZN71xX0nueEHTTPrhX
+         HYbFTqsANzfZZ9sKdZjViFZCOhWoLXBcTCJby/4Rv6NiKB6Qp18Ae4p+8GHO+fcbCRUg
+         E92g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686253945; x=1688845945;
+        d=1e100.net; s=20221208; t=1686253970; x=1688845970;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ccvhZqcWVMzvy4J9b25guBRPHxiClPTDiSqH9WZozM4=;
-        b=YrCIHoObfqPzBd+wel+Epl2isERO061lT/JlgOqN9MK/biA97tIhkWpxitARv7jzd8
-         tg4mInHE8yCG7/JW6UD9gDoDGPSEp5f4QlgLALvmiVcWVYXRS+zToZ6JTUF8Ex8mmPcf
-         +DconDvRElA55AdIXtIW1tK/z8a1mCrTp/ufNB6/bGU6A0jmRe0bVFtNd/e6JbeNlob+
-         BJhedZ6jMzJuApVY7WC8ZiiFUcJ7xEUCJokrfgHdc2Gern+/yLl0CwJhdkCzW015Hkb8
-         6SHhHeoBJDldxHwp9h0xJLxJIoCILQp6Au9Hmf+b8UQhCFz3naWbZSty0q+Fg2D5i1gR
-         IRMQ==
-X-Gm-Message-State: AC+VfDyA0RXQPR7/YFbz3DD4RNh+s4h9qzW4nKmVIhPk6/BZ5tj3CdMB
-        Z/E6GacjgcuW6yLYmB2G7f6ZNcIySFGe03+ZNc8=
-X-Google-Smtp-Source: ACHHUZ5ZpXDWcksAMjL8TyqRmmt3VaGWKGi8bhF23spKFLsal8iHwnW/5zT9jZ7CpgszZQ2c0mqyVO5DMyewyNM1Hf0=
-X-Received: by 2002:a2e:3317:0:b0:2b1:e369:f98 with SMTP id
- d23-20020a2e3317000000b002b1e3690f98mr3729243ljc.11.1686253945158; Thu, 08
- Jun 2023 12:52:25 -0700 (PDT)
+        bh=BFULCShR7Wh3U78WTMLmkPI4ywB7wt6gOWAKJOiBl9U=;
+        b=VFd/BAjLZL94cEfVlyPxpdonNxC2nRwxp8Om1hbFiTxxrE6yVxuI5gmUIqBF9d9gqN
+         Msj5VQRnRh6nD1PwA/8WbjMLOXs1Sn2bOiBPowluQEHfgvlWlKTsXwvAhMnFO2SNQndb
+         D4lUfgkQrrJ30W0LsMINrpLja1tZEMPzha9fGcTb0HdCEgoU9L56l3FbgxrghugLt6pK
+         jLlW8elIufWaRCld5bIgAIj0GC5IQEkwAzBPewE+SWpkwrrgKdZMjsPH5QPKpo0Aqr3C
+         lUPya7qxOzhQjBmHDufRUfE4vX22O4lBnJ2Lz9ty8LhZWIDNbs2d3Y7WlW+/XDklQDAb
+         ItKw==
+X-Gm-Message-State: AC+VfDzKVdIsNINjmSkqQmI0v1dH63k4XLdZtqSVW8CGNICdupYyaqpR
+        HK0vgB5Rd+6n9wwiSi0iU8hCUnyO0673NfqCzbI=
+X-Google-Smtp-Source: ACHHUZ5g1RnMARCGLuD01WnrR8PD8UVDgbu0W7qSgi51pEMxk7u1PtUilfyLLWzl+B9NMtnHkdUrE8sBr0EgOvnvtik=
+X-Received: by 2002:a2e:3c19:0:b0:2b2:104d:8f8d with SMTP id
+ j25-20020a2e3c19000000b002b2104d8f8dmr1464674lja.7.1686253969760; Thu, 08 Jun
+ 2023 12:52:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230604115726.11247-1-toiwoton@gmail.com> <877csijnj0.fsf@redhat.com>
-In-Reply-To: <877csijnj0.fsf@redhat.com>
+References: <20230608015241.2454912-1-yamato@redhat.com> <CAP+JOzTYNajYPUwYHMat=U3TJH1Pd6yprN0tm-EN3jxuOQaz3A@mail.gmail.com>
+In-Reply-To: <CAP+JOzTYNajYPUwYHMat=U3TJH1Pd6yprN0tm-EN3jxuOQaz3A@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 8 Jun 2023 15:52:13 -0400
-Message-ID: <CAP+JOzS9Z6+TSbZe+oM9fnT9CzYPa3Sg+MrMWzNqL7EY1ZwbZw@mail.gmail.com>
-Subject: Re: [PATCH] sepolicy: clarify manual page of sepolicy interface
-To:     Petr Lautrbach <lautrbach@redhat.com>
-Cc:     Topi Miettinen <toiwoton@gmail.com>, selinux@vger.kernel.org
+Date:   Thu, 8 Jun 2023 15:52:38 -0400
+Message-ID: <CAP+JOzT4jOg+ZiyhhjWrL0f4CFCFAtDEBf51ZnHS5UvqJ8OyhQ@mail.gmail.com>
+Subject: Re: [PATCH 1/4] dispol: add --help option
+To:     Masatake YAMATO <yamato@redhat.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 5, 2023 at 5:17=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
+On Thu, Jun 8, 2023 at 10:21=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> On Wed, Jun 7, 2023 at 9:59=E2=80=AFPM Masatake YAMATO <yamato@redhat.com=
 > wrote:
->
-> Topi Miettinen <toiwoton@gmail.com> writes:
->
-> > Expand the description to make it more clear what "interfaces" mean
-> > here. They're different from network interfaces used by SELinux
-> > command `semanage interface`.
 > >
-> > Add a note that the information comes from on-disk file which has been
-> > installed and it doesn't necessarily match the policy loaded to the
-> > kernel.
-> >
-> > Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+> > Signed-off-by: Masatake YAMATO <yamato@redhat.com>
 >
-> Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+> For these four patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged.
+These four patches have been merged.
 Thanks,
 Jim
 
-> Thanks!
+> Thanks,
+> Jim
 >
 > > ---
-> >  python/sepolicy/sepolicy-interface.8 | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> >  checkpolicy/test/dispol.c | 8 ++++++--
+> >  1 file changed, 6 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/python/sepolicy/sepolicy-interface.8 b/python/sepolicy/sep=
-olicy-interface.8
-> > index 3e74ea62..c8985afb 100644
-> > --- a/python/sepolicy/sepolicy-interface.8
-> > +++ b/python/sepolicy/sepolicy-interface.8
-> > @@ -8,7 +8,11 @@ sepolicy-interface \- Print interface information base=
-d on the installed SELinux
-> >  .B sepolicy interface  [\-h] [\-c] [\-v] [\-a | \-u | \-l | \-i INTERF=
-ACE [INTERFACE ... ]]
+> > diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> > index b61f1b4b..50027e40 100644
+> > --- a/checkpolicy/test/dispol.c
+> > +++ b/checkpolicy/test/dispol.c
+> > @@ -38,7 +38,11 @@ static policydb_t policydb;
 > >
-> >  .SH "DESCRIPTION"
-> > -Use sepolicy interface to print interfaces information based on SELinu=
-x Policy.
-> > +Use sepolicy interface to print information of interface macros
-> > +between domains in SELinux policy modules, as used in Reference
-> > +Policy. The information is based on installed on-disk representation
-> > +of the SELinux Policy and it may be different from the policy which is
-> > +currently loaded.
+> >  static __attribute__((__noreturn__)) void usage(const char *progname)
+> >  {
+> > -       printf("usage:  %s binary_pol_file\n\n", progname);
+> > +       puts("Usage:");
+> > +       printf(" %s [OPTIONS] binary_pol_file\n\n", progname);
+> > +       puts("Options:");
+> > +       puts(" -h, --help   print this help message");
+> > +       puts("\n");
+> >         exit(1);
+> >  }
 > >
-> >  .SH "OPTIONS"
-> >  .TP
+> > @@ -481,7 +485,7 @@ int main(int argc, char **argv)
+> >         int state;
+> >         struct policy_file pf;
+> >
+> > -       if (argc !=3D 2)
+> > +       if (argc < 2 || strcmp(argv[1], "-h") =3D=3D 0 || strcmp(argv[1=
+], "--help") =3D=3D 0)
+> >                 usage(argv[0]);
+> >
+> >         fd =3D open(argv[1], O_RDONLY);
 > > --
-> > 2.39.2
->
+> > 2.40.1
+> >
