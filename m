@@ -2,462 +2,231 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81C0DC7EE25
-	for <selinux@archiver.kernel.org>; Fri,  9 Jun 2023 19:33:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF0F0C7EE2E
+	for <selinux@archiver.kernel.org>; Fri,  9 Jun 2023 19:36:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbjFITdH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Jun 2023 15:33:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42680 "EHLO
+        id S229454AbjFITf7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Jun 2023 15:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbjFITdH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Jun 2023 15:33:07 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682D535B0
-        for <selinux@vger.kernel.org>; Fri,  9 Jun 2023 12:33:05 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-4f61d79b0f2so2815578e87.3
-        for <selinux@vger.kernel.org>; Fri, 09 Jun 2023 12:33:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686339183; x=1688931183;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5TCvpxMsmagg6LF2dxnly/IZCKsyk13uhV1dD4125M0=;
-        b=RZynVi4E7TXLQgyyuDqAbhCuOwd0ZPpd7qD8bHIu1RGXw89LYdO/ALqJVkHIt0ia6P
-         hCFH3FXbH+RZxZQQOvSqTFHtWAOwWNSsVEZRVojkz+Iz79l8Ujnv2V9sXZTRtVGp+69G
-         Rafkd+UR1CXjdrVmAlUjz8wMv18wdo7uB899DRverkvDKOzE+DkenH7k2NVh6T5cGUqG
-         CCI2cFaoufk597VL3y+Jb20nAEiXA4Dj2L4xPrnwmsWydm1pUoFaW95Nlzm1RaM6t9HZ
-         tBanyOkRzEhPiS8PmRIckNZq+E3Hr5ZpxHRmy7q2FBTp6SFXsm9SxCM9K2KSppzbU0xu
-         4b6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686339183; x=1688931183;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5TCvpxMsmagg6LF2dxnly/IZCKsyk13uhV1dD4125M0=;
-        b=SQBd1oytEcWyIn+A8o3wnXW73fGTUjfvqVMeedVpSa0xbpfnctotdXL7oXNdgvNwmB
-         HBz7Ls15PFV3qhW0iGJX38aQ9En9WlDdSVHZEkTnabzIOl8yWhkpwyiMoUHDlGd5s0JS
-         1ZimhBb7Qf3yvSnSME0rW67JXYjJM0M4kgtxMM1+/YMB7IRtlsnQQbOjyTklTJybBgaI
-         U46ne/TvhcYUi2tFW9egEMyMmzeOW+vqMCrT4Fr6Y8VJhYlWMUus17xvWoi1b04ZJ7/R
-         txb65m51PoCBgZLBgFoPc405RJNjSf4l9A3GK4BMnU6VcbC5h756fXmoXuOw0zsNX4/h
-         hInQ==
-X-Gm-Message-State: AC+VfDwxSdGCtTA/WTMWgvDvkoi6OFiz5VD4HengyDMsEU53Ais0wfMV
-        VImqVtR1zjSacLBjTisIb0K7DAo+7m1ILH/pXrvyBU4Q
-X-Google-Smtp-Source: ACHHUZ4eiUEGAdWKPCRBjRMoA08aCoSi1yiQ9sW1hmtnLIwmSuRL0EfZQTHjzjvwWxdqfuhKdhDqOovIXcUq/RSDZAY=
-X-Received: by 2002:a05:651c:1035:b0:2b1:bf83:4165 with SMTP id
- w21-20020a05651c103500b002b1bf834165mr1667494ljm.37.1686339183481; Fri, 09
- Jun 2023 12:33:03 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230512110730.78672-1-cgzones@googlemail.com> <20230512110730.78672-3-cgzones@googlemail.com>
-In-Reply-To: <20230512110730.78672-3-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 9 Jun 2023 15:32:52 -0400
-Message-ID: <CAP+JOzTimAPS0jtoZPOa=Ju3Q_h+Rg54ZwttKA2OTYXMm3v11w@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/4] semodule_package: update
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S229517AbjFITf6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Jun 2023 15:35:58 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A93372D44;
+        Fri,  9 Jun 2023 12:35:57 -0700 (PDT)
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 359JGqJQ012298;
+        Fri, 9 Jun 2023 19:35:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Y0ujg9aOXTZyHj+DvN6KuOtO3okoMAH+tLdcdj97GkA=;
+ b=tfp4COfNj/vOt+kJRYllS+GzyaQg3IGzSQ0OX8XVEm5mzuQJjyEYK8qKDjCqSzzg9qHM
+ KSE/u13U4cFj5rWVNi6LoFgyv2kIX32ZqkYlzS9gZbXEVzRGuvCM17T5MhV0i+y5eYER
+ n3eU1G6lRjglbkRjhqxOXk6RwSoS/tEdevywbzL5I8Frs6HqIjwftPFc4AhIYBn+T6Me
+ E31E80A3Lp0e43cJYVcTnINR1DBrbnwOR7fjNjuxZEaJtREWS0rTu+WUnTRb4VDWM2Yu
+ f/c4h4k6IsXkCEeLpihSVEoij2lMBeXWhD2ZKIygwLQnAJB1PsAhGe1db4aU8aFwiOCB YQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r4a3rgc9g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Jun 2023 19:35:25 +0000
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 359JN2fK005410;
+        Fri, 9 Jun 2023 19:35:25 GMT
+Received: from ppma02wdc.us.ibm.com (aa.5b.37a9.ip4.static.sl-reverse.com [169.55.91.170])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r4a3rgc8x-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Jun 2023 19:35:25 +0000
+Received: from pps.filterd (ppma02wdc.us.ibm.com [127.0.0.1])
+        by ppma02wdc.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 359I0J1L022047;
+        Fri, 9 Jun 2023 19:35:23 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([9.208.129.116])
+        by ppma02wdc.us.ibm.com (PPS) with ESMTPS id 3r2a7877ed-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 09 Jun 2023 19:35:23 +0000
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 359JZMNX63832338
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 9 Jun 2023 19:35:22 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 962415805D;
+        Fri,  9 Jun 2023 19:35:22 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9B6AD5805F;
+        Fri,  9 Jun 2023 19:35:20 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.47.53])
+        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Fri,  9 Jun 2023 19:35:20 +0000 (GMT)
+Message-ID: <5f8d8e67a7803ede8847d30ffe3204723b4ac7a7.camel@linux.ibm.com>
+Subject: Re: [PATCH v11 2/4] smack: Set the SMACK64TRANSMUTE xattr in
+ smack_inode_init_security()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Fri, 09 Jun 2023 15:35:20 -0400
+In-Reply-To: <20230603191518.1397490-3-roberto.sassu@huaweicloud.com>
+References: <20230603191518.1397490-1-roberto.sassu@huaweicloud.com>
+         <20230603191518.1397490-3-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FCgk3rjaKMOBhScgfSMfj6JgJR_VTDAy
+X-Proofpoint-ORIG-GUID: dyexbh4t4OtmTEw-ws6fhxaBcksaz967
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-09_14,2023-06-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ malwarescore=0 adultscore=0 mlxlogscore=723 mlxscore=0 clxscore=1015
+ impostorscore=0 spamscore=0 phishscore=0 priorityscore=1501 bulkscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306090164
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 12, 2023 at 7:25=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Drop unnecessary declarations.
-> Add missing error messages.
-> More strict command line argument parsing.
-> Check closing file for incomplete write.
-> Rework resource cleanup, so that all files and allocated memory are
-> released in all branches, useful to minimize reports while debugging
-> libsepol under valgrind(8) or sanitizers.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Hi Roberto,
+
+On Sat, 2023-06-03 at 21:15 +0200, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> With the newly added ability of LSMs to supply multiple xattrs, set
+> SMACK64TRASMUTE in smack_inode_init_security(), instead of d_instantiate().
+> Do it by incrementing SMACK_INODE_INIT_XATTRS to 2 and by calling
+> lsm_get_xattr_slot() a second time, if the transmuting conditions are met.
+> 
+> The LSM infrastructure passes all xattrs provided by LSMs to the
+> filesystems through the initxattrs() callback, so that filesystems can
+> store xattrs in the disk.
+> 
+> After the change, the SMK_INODE_TRANSMUTE inode flag is always set by
+> d_instantiate() after fetching SMACK64TRANSMUTE from the disk. Before it
+> was done by smack_inode_post_setxattr() as result of the __vfs_setxattr()
+> call.
+> 
+> Removing __vfs_setxattr() also prevents invalidating the EVM HMAC, by
+> adding a new xattr without checking and updating the existing HMAC.
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+
+Just a few comments/nits inline.
+
 > ---
->  .../semodule_package/semodule_package.c       | 203 +++++++++++-------
->  1 file changed, 125 insertions(+), 78 deletions(-)
->
-> diff --git a/semodule-utils/semodule_package/semodule_package.c b/semodul=
-e-utils/semodule_package/semodule_package.c
-> index bc8584b5..7485e254 100644
-> --- a/semodule-utils/semodule_package/semodule_package.c
-> +++ b/semodule-utils/semodule_package/semodule_package.c
-> @@ -19,8 +19,7 @@
->  #include <fcntl.h>
->  #include <errno.h>
->
-> -char *progname =3D NULL;
-> -extern char *optarg;
-> +static const char *progname =3D NULL;
->
->  static __attribute__((__noreturn__)) void usage(const char *prog)
+>  security/smack/smack.h     |  2 +-
+>  security/smack/smack_lsm.c | 43 +++++++++++++++++++++++---------------
+>  2 files changed, 27 insertions(+), 18 deletions(-)
+> 
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index aa15ff56ed6..041688e5a77 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -128,7 +128,7 @@ struct task_smack {
+>  
+>  #define	SMK_INODE_INSTANT	0x01	/* inode is instantiated */
+>  #define	SMK_INODE_TRANSMUTE	0x02	/* directory is transmuting */
+> -#define	SMK_INODE_CHANGED	0x04	/* smack was transmuted */
+> +#define	SMK_INODE_CHANGED	0x04	/* smack was transmuted (unused) */
+>  #define	SMK_INODE_IMPURE	0x08	/* involved in an impure transaction */
+>  
+>  /*
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index a1c30275692..b67d901ee74 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -52,7 +52,14 @@
+>  #define SMK_RECEIVING	1
+>  #define SMK_SENDING	2
+>  
+> -#define SMACK_INODE_INIT_XATTRS 1
+> +/*
+> + * Smack uses multiple xattrs.
+> + * SMACK64 - for access control,
+> + * SMACK64TRANSMUTE - label initialization,
+> + * Not saved on files - SMACK64IPIN and SMACK64IPOUT,
+> + * Must be set explicitly - SMACK64EXEC and SMACK64MMAP
+> + */
+> +#define SMACK_INODE_INIT_XATTRS 2
+>  
+>  #ifdef SMACK_IPV6_PORT_LABELING
+>  static DEFINE_MUTEX(smack_ipv6_lock);
+> @@ -935,7 +942,6 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+>  				     struct xattr *xattrs, int *xattr_count)
 >  {
-> @@ -37,26 +36,6 @@ static __attribute__((__noreturn__)) void usage(const =
-char *prog)
->         exit(1);
-
-Same comment as patch 1 about "exit(1)".
-
->  }
->
-> -static int file_to_policy_file(const char *filename, struct sepol_policy=
-_file **pf,
-> -                              const char *mode)
-> -{
-> -       FILE *f;
-> -
-> -       if (sepol_policy_file_create(pf)) {
-> -               fprintf(stderr, "%s:  Out of memory\n", progname);
-> -               return -1;
-> -       }
-> -
-> -       f =3D fopen(filename, mode);
-> -       if (!f) {
-> -               fprintf(stderr, "%s:  Could not open file %s:  %s\n", pro=
-gname,
-> -                       strerror(errno), filename);
-> -               return -1;
-> -       }
-> -       sepol_policy_file_set_fp(*pf, f);
-> -       return 0;
-> -}
-> -
->  static int file_to_data(const char *path, char **data, size_t * len)
->  {
->         int fd;
-> @@ -94,17 +73,18 @@ static int file_to_data(const char *path, char **data=
-, size_t * len)
->
->  int main(int argc, char **argv)
->  {
-> -       struct sepol_module_package *pkg;
-> -       struct sepol_policy_file *mod, *out;
-> +       struct sepol_module_package *pkg =3D NULL;
-> +       struct sepol_policy_file *mod =3D NULL, *out =3D NULL;
-> +       FILE *fp =3D NULL;
->         char *module =3D NULL, *file_contexts =3D NULL, *seusers =3D
->             NULL, *user_extra =3D NULL;
->         char *fcdata =3D NULL, *outfile =3D NULL, *seusersdata =3D
->             NULL, *user_extradata =3D NULL;
->         char *netfilter_contexts =3D NULL, *ncdata =3D NULL;
->         size_t fclen =3D 0, seuserslen =3D 0, user_extralen =3D 0, nclen =
-=3D 0;
-> -       int i;
-> +       int i, ret;
->
-> -       static struct option opts[] =3D {
-> +       const struct option opts[] =3D {
->                 {"module", required_argument, NULL, 'm'},
->                 {"fc", required_argument, NULL, 'f'},
->                 {"seuser", required_argument, NULL, 's'},
-> @@ -115,11 +95,12 @@ int main(int argc, char **argv)
->                 {NULL, 0, NULL, 0}
->         };
->
-> +       progname =3D argv[0];
+>  	struct task_smack *tsp = smack_cred(current_cred());
+> -	struct inode_smack *issp = smack_inode(inode);
+>  	struct smack_known *skp = smk_of_task(tsp);
+>  	struct smack_known *isp = smk_of_inode(inode);
+>  	struct smack_known *dsp = smk_of_inode(dir);
+> @@ -963,6 +969,8 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+>  		if ((tsp->smk_task == tsp->smk_transmuted) ||
+>  		    (may > 0 && ((may & MAY_TRANSMUTE) != 0) &&
+>  		     smk_inode_transmutable(dir))) {
+> +			struct xattr *xattr_transmute;
 > +
->         while ((i =3D getopt_long(argc, argv, "m:f:s:u:o:n:h", opts, NULL=
-)) !=3D -1) {
->                 switch (i) {
->                 case 'h':
-> -                       usage(argv[0]);
-> -                       exit(0);
-> +                       usage(progname);
->                 case 'm':
->                         if (module) {
->                                 fprintf(stderr,
-> @@ -127,8 +108,10 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                         module =3D strdup(optarg);
-> -                       if (!module)
-> +                       if (!module) {
-> +                               fprintf(stderr, "%s:  Out of memory\n", p=
-rogname);
->                                 exit(1);
-> +                       }
->                         break;
->                 case 'f':
->                         if (file_contexts) {
-> @@ -137,8 +120,10 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                         file_contexts =3D strdup(optarg);
-> -                       if (!file_contexts)
-> +                       if (!file_contexts) {
-> +                               fprintf(stderr, "%s:  Out of memory\n", p=
-rogname);
->                                 exit(1);
-> +                       }
->                         break;
->                 case 'o':
->                         if (outfile) {
-> @@ -147,8 +132,10 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                         outfile =3D strdup(optarg);
-> -                       if (!outfile)
-> +                       if (!outfile) {
-> +                               fprintf(stderr, "%s:  Out of memory\n", p=
-rogname);
->                                 exit(1);
-> +                       }
->                         break;
->                 case 's':
->                         if (seusers) {
-> @@ -157,8 +144,10 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                         seusers =3D strdup(optarg);
-> -                       if (!seusers)
-> +                       if (!seusers) {
-> +                               fprintf(stderr, "%s:  Out of memory\n", p=
-rogname);
->                                 exit(1);
-> +                       }
->                         break;
->                 case 'u':
->                         if (user_extra) {
-> @@ -167,8 +156,10 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                         user_extra =3D strdup(optarg);
-> -                       if (!user_extra)
-> +                       if (!user_extra) {
-> +                               fprintf(stderr, "%s:  Out of memory\n", p=
-rogname);
->                                 exit(1);
-> +                       }
->                         break;
->                 case 'n':
->                         if (netfilter_contexts) {
-> @@ -177,88 +168,144 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                         netfilter_contexts =3D strdup(optarg);
-> -                       if (!netfilter_contexts)
-> +                       if (!netfilter_contexts) {
-> +                               fprintf(stderr, "%s:  Out of memory\n", p=
-rogname);
->                                 exit(1);
-> +                       }
->                         break;
-> +               case '?':
-> +                       usage(progname);
 
-What is this option "?" for?
+Variables should be defined at the beginning of the function.
 
-> +               default:
-> +                       fprintf(stderr, "%s:  Unsupported getopt return c=
-ode: %d\n", progname, i);
-> +                       usage(progname);
+Is there a reason for beginning the function with "if (xattr) {"
+instead "if (!xattr) return 0;".  This causes unnecessary indenting.  
 
-Why not just default to calling usage() without the error message?
+>  			/*
+>  			 * The caller of smack_dentry_create_files_as()
+>  			 * should have overridden the current cred, so the
+> @@ -971,7 +979,16 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+>  			 */
+>  			if (tsp->smk_task != tsp->smk_transmuted)
+>  				isp = dsp;
+> -			issp->smk_flags |= SMK_INODE_CHANGED;
+> +			xattr_transmute = lsm_get_xattr_slot(xattrs, xattr_count);
+> +			if (xattr_transmute) {
+> +				xattr_transmute->value = kmemdup(TRANS_TRUE,
+> +						TRANS_TRUE_SIZE, GFP_NOFS);
 
->                 }
->         }
->
-> -       progname =3D argv[0];
-> -
-> -       if (!module || !outfile) {
-> -               usage(argv[0]);
-> -               exit(0);
-> +       if (optind < argc) {
-> +               fprintf(stderr, "%s:  Superfluous command line arguments:=
- ", progname);
-> +                while (optind < argc)
-> +                        fprintf(stderr, "%s ", argv[optind++]);
-> +               fprintf(stderr, "\n");
-> +               usage(progname);
->         }
->
-> -       if (file_contexts) {
-> -               if (file_to_data(file_contexts, &fcdata, &fclen))
-> -                       exit(1);
-> -       }
-> +       if (!module || !outfile)
-> +               usage(progname);
->
-> -       if (seusers) {
-> -               if (file_to_data(seusers, &seusersdata, &seuserslen))
-> -                       exit(1);
-> -       }
-> +       if (file_contexts && file_to_data(file_contexts, &fcdata, &fclen)=
-)
-> +               goto failure;
->
-> -       if (user_extra) {
-> -               if (file_to_data(user_extra, &user_extradata, &user_extra=
-len))
-> -                       exit(1);
-> -       }
-> +       if (seusers && file_to_data(seusers, &seusersdata, &seuserslen))
-> +               goto failure;
-> +
-> +       if (user_extra && file_to_data(user_extra, &user_extradata, &user=
-_extralen))
-> +               goto failure;
->
-> -       if (netfilter_contexts) {
-> -               if (file_to_data(netfilter_contexts, &ncdata, &nclen))
-> -                       exit(1);
-> +       if (netfilter_contexts && file_to_data(netfilter_contexts, &ncdat=
-a, &nclen))
-> +               goto failure;
-> +
-> +       if (sepol_policy_file_create(&mod)) {
-> +               fprintf(stderr, "%s:  Out of memory\n", progname);
-> +               goto failure;
->         }
->
-> -       if (file_to_policy_file(module, &mod, "r"))
-> -               exit(1);
-> +       fp =3D fopen(module, "r");
-> +       if (!fp) {
-> +               fprintf(stderr, "%s:  Could not open file %s:  %s\n", pro=
-gname,
-> +                       module, strerror(errno));
-> +               goto failure;
-> +       }
-> +       sepol_policy_file_set_fp(mod, fp);
->
->         if (sepol_module_package_create(&pkg)) {
->                 fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-> -               exit(1);
-> +               goto failure;
->         }
->
->         if (sepol_policydb_read(sepol_module_package_get_policy(pkg), mod=
-)) {
->                 fprintf(stderr,
->                         "%s:  Error while reading policy module from %s\n=
-",
->                         argv[0], module);
-> -               exit(1);
-> +               goto failure;
->         }
->
-> -       if (fclen)
-> -               sepol_module_package_set_file_contexts(pkg, fcdata, fclen=
-);
-> +       fclose(fp);
-> +       fp =3D NULL;
->
-> -       if (seuserslen)
-> -               sepol_module_package_set_seusers(pkg, seusersdata, seuser=
-slen);
-> +       if (fclen && sepol_module_package_set_file_contexts(pkg, fcdata, =
-fclen)) {
-> +               fprintf(stderr, "%s:  Error while setting file contexts\n=
-", progname);
-> +               goto failure;
-> +       }
->
-> -       if (user_extra)
-> -               sepol_module_package_set_user_extra(pkg, user_extradata,
-> -                                                   user_extralen);
-> +       if (seuserslen && sepol_module_package_set_seusers(pkg, seusersda=
-ta, seuserslen)) {
-> +               fprintf(stderr, "%s:  Error while setting seusers\n", pro=
-gname);
-> +               goto failure;
-> +       }
->
-> -       if (nclen)
-> -               sepol_module_package_set_netfilter_contexts(pkg, ncdata, =
-nclen);
-> +       if (user_extra && sepol_module_package_set_user_extra(pkg, user_e=
-xtradata, user_extralen)) {
-> +               fprintf(stderr, "%s:  Error while setting extra users\n",=
- progname);
-> +               goto failure;
-> +       }
-> +
-> +       if (nclen && sepol_module_package_set_netfilter_contexts(pkg, ncd=
-ata, nclen)) {
-> +               fprintf(stderr, "%s:  Error while setting netfilter conte=
-xts\n", progname);
-> +               goto failure;
-> +       }
-> +
-> +       if (sepol_policy_file_create(&out)) {
-> +               fprintf(stderr, "%s:  Out of memory\n", progname);
-> +               goto failure;
-> +       }
->
-> -       if (file_to_policy_file(outfile, &out, "w"))
-> -               exit(1);
-> +       fp =3D fopen(outfile, "w");
-> +       if (!fp) {
-> +               fprintf(stderr, "%s:  Could not open file %s:  %s\n", pro=
-gname,
-> +                       outfile, strerror(errno));
-> +               goto failure;
-> +       }
-> +       sepol_policy_file_set_fp(out, fp);
->
->         if (sepol_module_package_write(pkg, out)) {
->                 fprintf(stderr,
->                         "%s:  Error while writing module package to %s\n"=
-,
->                         argv[0], argv[1]);
-> -               exit(1);
-> +               goto failure;
->         }
->
-> -       if (fclen)
-> -               munmap(fcdata, fclen);
-> +       ret =3D fclose(fp);
-> +       fp =3D NULL;
-> +       if (ret) {
-> +               fprintf(stderr, "%s:  Could not close file %s:  %s\n", pr=
-ogname,
-> +                       outfile, strerror(errno));
-> +               goto failure;
-> +       }
-> +
-> +       ret =3D EXIT_SUCCESS;
-> +
-> +cleanup:
-> +       if (fp)
-> +               fclose(fp);
-> +       sepol_policy_file_free(out);
->         if (nclen)
->                 munmap(ncdata, nclen);
-> -       sepol_policy_file_free(mod);
-> -       sepol_policy_file_free(out);
-> +       if (user_extradata)
-> +               munmap(user_extradata, user_extralen);
-> +       if (seuserslen)
-> +               munmap(seusersdata, seuserslen);
-> +       if (fclen)
-> +               munmap(fcdata, fclen);
->         sepol_module_package_free(pkg);
-> -       free(file_contexts);
-> +       sepol_policy_file_free(mod);
-> +       free(netfilter_contexts);
-> +       free(user_extra);
-> +       free(seusers);
->         free(outfile);
-> +       free(file_contexts);
->         free(module);
-> -       free(seusers);
-> -       free(user_extra);
-> -       exit(0);
-> +
-> +       return ret;
-> +
-> +failure:
-> +       ret =3D EXIT_FAILURE;
-> +       goto cleanup;
+script/checkpatch --strict complains here.
 
-Same as the comment for patch 1 about preferring "return ret" to be at the =
-end.
+> +				if (xattr_transmute->value == NULL)
+> +					return -ENOMEM;
+> +
+> +				xattr_transmute->value_len = TRANS_TRUE_SIZE;
+> +				xattr_transmute->name = XATTR_SMACK_TRANSMUTE;
+> +			}
+>  		}
+>  
+>  		xattr->value = kstrdup(isp->smk_known, GFP_NOFS);
+> @@ -3518,20 +3535,12 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+>  			 * If there is a transmute attribute on the
+>  			 * directory mark the inode.
+>  			 */
+> -			if (isp->smk_flags & SMK_INODE_CHANGED) {
+> -				isp->smk_flags &= ~SMK_INODE_CHANGED;
+> -				rc = __vfs_setxattr(&nop_mnt_idmap, dp, inode,
+> -					XATTR_NAME_SMACKTRANSMUTE,
+> -					TRANS_TRUE, TRANS_TRUE_SIZE,
+> -					0);
+> -			} else {
+> -				rc = __vfs_getxattr(dp, inode,
+> -					XATTR_NAME_SMACKTRANSMUTE, trattr,
+> -					TRANS_TRUE_SIZE);
+> -				if (rc >= 0 && strncmp(trattr, TRANS_TRUE,
+> -						       TRANS_TRUE_SIZE) != 0)
+> -					rc = -EINVAL;
+> -			}
+> +			rc = __vfs_getxattr(dp, inode,
+> +					    XATTR_NAME_SMACKTRANSMUTE, trattr,
+> +					    TRANS_TRUE_SIZE);
+> +			if (rc >= 0 && strncmp(trattr, TRANS_TRUE,
+> +					       TRANS_TRUE_SIZE) != 0)
+> +				rc = -EINVAL;
+>  			if (rc >= 0)
+>  				transflag = SMK_INODE_TRANSMUTE;
+>  		}
 
-Thanks,
-Jim
 
->  }
-> --
-> 2.40.1
->
