@@ -2,203 +2,112 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EE51C7EE29
-	for <selinux@archiver.kernel.org>; Thu,  8 Jun 2023 21:00:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D78CC7EE29
+	for <selinux@archiver.kernel.org>; Fri,  9 Jun 2023 02:22:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229678AbjFHVAP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Jun 2023 17:00:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53246 "EHLO
+        id S229582AbjFICWU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Jun 2023 22:22:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235943AbjFHVAO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Jun 2023 17:00:14 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A752697
-        for <selinux@vger.kernel.org>; Thu,  8 Jun 2023 14:00:13 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-4f5f728c4aaso1330981e87.0
-        for <selinux@vger.kernel.org>; Thu, 08 Jun 2023 14:00:13 -0700 (PDT)
+        with ESMTP id S229506AbjFICWT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Jun 2023 22:22:19 -0400
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F639269A
+        for <selinux@vger.kernel.org>; Thu,  8 Jun 2023 19:22:18 -0700 (PDT)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-5664b14966bso11582827b3.1
+        for <selinux@vger.kernel.org>; Thu, 08 Jun 2023 19:22:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686258011; x=1688850011;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jhBhEqU2KKGB3Tu/KFzW+hjk16Xj1KrkkOqPB4qONw0=;
-        b=hWWlWm/6WeND4rsGjnWlrcILQ5JLizpqPPlndBr/o+/ZmUqoaiwZlV5HWNakBu/dL5
-         I3gBcayqeozbMUIsClltAiY/O8FnqLwS5kqsJ6AWT8jx1G1s9gOjjsNll9TniO6XwK0S
-         kcOqDtqnWyUVAVDknCWm3vhwJZfyeyJPqul+zAns+VJE21Nf6FhR7u74sgIeW8++9Hun
-         34BSy93D+PO5mhPKQVIKxinzInH09yq9yv2ZTDcrDmSz8x5hV69nPMlEi4p7OJGx7C6w
-         PSPwCHo1Lr5eoyRvqNQRf3X6HZFKngnsZLcVSEPOXpP0NEat01qPzLAvxroDhTwTmCQa
-         RPnQ==
+        d=paul-moore.com; s=google; t=1686277337; x=1688869337;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=7GkzvWGo8LVIilwXTa9Amc70beC4kl4jwbBB1cIdha0=;
+        b=KrxJ28PW9tEM1BrpzrBHouwTtF7uUjoJk/1WqXZK1CU6Hd6KBNwycG09QHVDqfhk49
+         SGtvSUewmu3YVUVlpm+w6D0pPaXDTsCv8fPoNs2kUImHfVf4+iU2uKfcQgOgTViqZV8z
+         m7R1qZvKrBQcRUfJzRG8CWu8ZU1qX8GzBBJIX8KSzdX7kC1HNrix172wm+SkkKckvT9H
+         R4rDmqzkAkfWp1gETVqmdTQkt+QFt4V7GLLf2YQLc0qkWxULCjsw/z4EsteIKWF2YfdP
+         1ZnTwmEY6XWcOPNvvyblh8bOSJ6Pt3ymurrSW0Y82TPDpkbeA2QPgRDUaKKyt0mAnRpF
+         rKVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686258011; x=1688850011;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jhBhEqU2KKGB3Tu/KFzW+hjk16Xj1KrkkOqPB4qONw0=;
-        b=BHkXv5yeJTyHa2nSipvq64zIdOEmXWC8eXqB/HBP+HISUcdwCUWeFZ3oYDnEOAPsHK
-         6AMikSycFr/ZrS0GErhZ4ufLp5jexg3uxpVmm7qK1Ff1okzPjqjwpSJpj2v+ObSwemIz
-         QStZsevhgRyMD+hdvtHxBurTrxt8pfWTY8BwNFHwI7GRMpdSkbYs4hz6ofE/gNafcXlp
-         GRLpF+MfraJcqEpeJkW4SbY43/uutnLOk6XSDGmog1l7Z0EUvNUW2Ii0q2ZBbs/BWmzf
-         f//21bpv6/Z8AmmGuCyeBVWfG8hoRJIW1giPHlZ+vCvQt05ni2vW7oyGYnnSKLEwSWIK
-         tOJg==
-X-Gm-Message-State: AC+VfDxJPPxiVP1H3qyqRq46mZU/qVO0Wzx8m/eIjznElaoG3j6mXLQb
-        Hg4ecUmspvWRGWpR33pIB94p/e4FNeVh5L9xbBzyrn32KIo=
-X-Google-Smtp-Source: ACHHUZ6jBGsGZJEhSqsJhQ6tHYYwkJ5nbkeO17qSjXCigOLu9HX154faAS0kAcjAeLoub1IKA2p2/5C79xrFrfl5fZo=
-X-Received: by 2002:a2e:a169:0:b0:2ac:8b00:91a2 with SMTP id
- u9-20020a2ea169000000b002ac8b0091a2mr1137828ljl.20.1686258011211; Thu, 08 Jun
- 2023 14:00:11 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1686277337; x=1688869337;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=7GkzvWGo8LVIilwXTa9Amc70beC4kl4jwbBB1cIdha0=;
+        b=ENoy6euI4sf+PEfz6jeZ6avJyfs276lHs4dRBLZCNEIM/RDeqFeOpd01S0ki732PXx
+         WWIVr9W6xTX3Kmb/EKL1kpiH7okZDAcOqje741dSfQ1C68HlkqZ78Mh8PDLwOB8vcibK
+         tf7ZQSNJUIFNYrt6MiUtq1BUBwcX250+PMwqd9sa+GZpg9YTcNXzMUXJJ2GQ9cowozOt
+         m7Lgupm7iF9Zlc9YEObNQLFFjpXbvPx0uoI8u5gB/lgY9bJzrKUmZZOUqwWIAAwJlNaS
+         Aj7CtZjYIjgkCt2kEBL7LZa4SD6rMtFzBK/IwzG8lwA1CBo/P4ibSGJjEG44mj1CtZp1
+         OEFw==
+X-Gm-Message-State: AC+VfDzXCr4myeH0dFCDoUG5Wbl8LsMotHhynXqr1MzNguuAK27VSZH3
+        ZOkl5K8CtqtaKZ7dWnVURXcNR1nHlas/PpVzT3S/J4i+QSpXmV8ilQ==
+X-Google-Smtp-Source: ACHHUZ6Bt0piJlNFBGEDl14pVWW+swo8D3M3JOTXRYL/v9iecRlbHU8sNZt9CfORY/aI7Qul5GtrZJdUTgIwfW3oQ3o=
+X-Received: by 2002:a0d:d107:0:b0:556:c778:9d60 with SMTP id
+ t7-20020a0dd107000000b00556c7789d60mr1127072ywd.43.1686277336939; Thu, 08 Jun
+ 2023 19:22:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230331173442.101678-3-cgzones@googlemail.com> <20230512100845.63558-1-cgzones@googlemail.com>
-In-Reply-To: <20230512100845.63558-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 8 Jun 2023 17:00:00 -0400
-Message-ID: <CAP+JOzQdRXvEBwYVGoGy+Pmbzwr0jCF6OzSb42CRkYYU_OZ56g@mail.gmail.com>
-Subject: Re: [PATCH v2] checkpolicy/dismod: misc improvements
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 8 Jun 2023 22:22:06 -0400
+Message-ID: <CAHC9VhRpBZpqwJ4J+sPHr=ZMmkpd5qmLW-a+B+GGKre=NSU-AA@mail.gmail.com>
+Subject: RFC: style/formatting changes for SELinux kernel code
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 12, 2023 at 6:12=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> * fix minus self formatting in neverallow rules, avoiding `~ - self`
->
-> * show neverallow and neverallowxperm rules
->
-> * whitespace improvements in output
->   - avoid duplicate whitespaces before permission list, since
->     sepol_av_to_string() already adds a trailing one
->   - avoid duplicate whitespace after wildcard type
->   - unify indentation for xperm rules
->
-> * drop unused global variables
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Hello all,
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Over the past few weeks, as time allowed, I've been working on adding
+some automation to my Linux Kernel workflows.  Most of this has been
+scripting various maintainer tasks, e.g. reviewing and merging
+patches, which I expect is not very interesting to most people reading
+this, but I think there is one aspect of these automations that might
+be interesting for a wider audience: basic patch sanity/verification
+tests.  These tests are intended to mimic the sanity tests I perform
+when reviewing patch submissions, things like "run checkpatch", "make
+sure it builds without error", "ensure the style/formatting is
+reasonable", etc.  For those that are curious, you can see the current
+tests in the repo below, but I will caution you that there are surely
+problems with the scripts, they are still very new and barely tested;
+expect changes.  I should also note that I haven't published the
+tool/framework which I use to run these tests just yet, but the tests
+are intended to be standalone so there should still be value as-is.
+My thinking is that by sharing these scripts, and keeping them
+updated, it will help keep the developers and reviewers sync'd as to
+what is expected from a SELinux kernel patch.  Much like checkpatch, I
+don't expect these scripts to represent a perfect, ideal standard but
+I think they represent a "good enough" example where the accepted
+verification failures should be relatively few.
 
-> ---
-> v2:
->    drop extra whitespace in between ~ and { for type sets
->    (there are still some minor spacing issues like
->        neverallow  test1_t ~ self : file { read };
->    but they would need an overhaul of the common display_id() function)
-> ---
->  checkpolicy/test/dismod.c | 33 +++++++++++++++++++--------------
->  1 file changed, 19 insertions(+), 14 deletions(-)
->
-> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-> index 929ee308..5ec33860 100644
-> --- a/checkpolicy/test/dismod.c
-> +++ b/checkpolicy/test/dismod.c
-> @@ -54,11 +54,8 @@
->  #define DISPLAY_AVBLOCK_FILENAME_TRANS 7
->
->  static policydb_t policydb;
-> -extern unsigned int ss_initialized;
->
-> -int policyvers =3D MOD_POLICYDB_VERSION_BASE;
-> -
-> -static const char *symbol_labels[9] =3D {
-> +static const char *const symbol_labels[9] =3D {
->         "commons",
->         "classes", "roles  ", "types  ", "users  ", "bools  ",
->         "levels ", "cats   ", "attribs"
-> @@ -86,12 +83,12 @@ static void render_access_bitmap(ebitmap_t * map, uin=
-t32_t class,
->  {
->         unsigned int i;
->         char *perm;
-> -       fprintf(fp, "{");
-> +       fprintf(fp, " {");
->         for (i =3D ebitmap_startbit(map); i < ebitmap_length(map); i++) {
->                 if (ebitmap_get_bit(map, i)) {
->                         perm =3D sepol_av_to_string(p, class, UINT32_C(1)=
- << i);
->                         if (perm)
-> -                               fprintf(fp, " %s", perm);
-> +                               fprintf(fp, "%s", perm);
->                 }
->         }
->         fprintf(fp, " }");
-> @@ -117,10 +114,12 @@ static int display_type_set(type_set_t * set, uint3=
-2_t flags, policydb_t * polic
->         unsigned int i, num_types;
->
->         if (set->flags & TYPE_STAR) {
-> -               fprintf(fp, " * ");
-> +               fprintf(fp, " *");
->                 return 0;
->         } else if (set->flags & TYPE_COMP) {
->                 fprintf(fp, " ~");
-> +       } else {
-> +               fprintf(fp, " ");
->         }
->
->         num_types =3D 0;
-> @@ -170,7 +169,10 @@ static int display_type_set(type_set_t * set, uint32=
-_t flags, policydb_t * polic
->         }
->
->         if (flags & RULE_NOTSELF) {
-> -               fprintf(fp, " -self");
-> +               if (set->flags & TYPE_COMP)
-> +                       fprintf(fp, " self");
-> +               else
-> +                       fprintf(fp, " -self");
->         }
->
->         if (num_types > 1)
-> @@ -234,6 +236,9 @@ static int display_avrule(avrule_t * avrule, policydb=
-_t * policy,
->                 if (avrule->specified & AVRULE_DONTAUDIT) {
->                         fprintf(fp, "  dontaudit");
->                 }
-> +               if (avrule->specified & AVRULE_NEVERALLOW) {
-> +                       fprintf(fp, "  neverallow");
-> +               }
->         } else if (avrule->specified & AVRULE_TYPE) {
->                 if (avrule->specified & AVRULE_TRANSITION) {
->                         fprintf(fp, "  type_transition");
-> @@ -244,15 +249,15 @@ static int display_avrule(avrule_t * avrule, policy=
-db_t * policy,
->                 if (avrule->specified & AVRULE_CHANGE) {
->                         fprintf(fp, "  type_change");
->                 }
-> -       } else if (avrule->specified & AVRULE_NEVERALLOW) {
-> -               fprintf(fp, "  neverallow");
->         } else if (avrule->specified & AVRULE_XPERMS) {
->                 if (avrule->specified & AVRULE_XPERMS_ALLOWED)
-> -                       fprintf(fp, "allowxperm ");
-> +                       fprintf(fp, "  allowxperm");
->                 else if (avrule->specified & AVRULE_XPERMS_AUDITALLOW)
-> -                       fprintf(fp, "auditallowxperm ");
-> +                       fprintf(fp, "  auditallowxperm");
->                 else if (avrule->specified & AVRULE_XPERMS_DONTAUDIT)
-> -                       fprintf(fp, "dontauditxperm ");
-> +                       fprintf(fp, "  dontauditxperm");
-> +               else if (avrule->specified & AVRULE_XPERMS_NEVERALLOW)
-> +                       fprintf(fp, "  neverallowxperm");
->         } else {
->                 fprintf(fp, "     ERROR: no valid rule type specified\n")=
-;
->                 return -1;
-> @@ -560,7 +565,7 @@ static int display_scope_index(scope_index_t * indice=
-s, policydb_t * p,
->                                                                      p, o=
-ut_fp);
->                                         } else {
->                                                 fprintf(out_fp,
-> -                                                       "<no perms known>=
-");
-> +                                                       " <no perms known=
->");
->                                         }
->                                 }
->                         }
-> --
-> 2.40.1
->
+* https://github.com/pcmoore/git-verification_scripts
+
+With all of the above in mind, I wanted to get everyone's opinions on
+the style/formatting suggested by the scripts above.  As anyone who
+has looked at the SELinux kernel code knows, the style is somewhat
+inconsistent, both with respect to the SELinux subsystem, and the
+kernel as a whole.  That unfortunately means that if we want to be
+able to start vetting the style of new code changes, we really need to
+properly (re)format the existing code first.  Before I went too far
+with this I wanted to see what it might look like when applied to one
+of our ugliest source files, security/selinux/hooks.c; you can see the
+results in the commit below:
+
+* https://github.com/pcmoore/misc-linux_kernel/commit/3f94fd77b46522a038eb6771b63d0a6d36ca3547
+
+I'd like to hear what everyone thinks about making a change like this.
+I personally think it is a positive step forward, but I do acknowledge
+that those who have to do backports will likely feel some occasional
+pain.  As the backport pain will eventually subside, and the benefits
+of nicer-looking code and improved/shared patch verification will
+continue, I'm leaning towards reformatting the code, but I do *really*
+want to hear what people have to say before we do this.
+
+Also, just in case you think I'm pushing my own crazy style ideas on
+everyone, the scripts in the GitHub repo above actually leverages the
+kernel's own clang-format configuration (with a minor tweak).
+
+* https://www.kernel.org/doc/html/next/process/clang-format.html
+* https://github.com/pcmoore/git-verification_scripts/blob/main/configs/clang-format.d/clang-format.linux
+
+-- 
+paul-moore.com
