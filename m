@@ -2,59 +2,37 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C379C7EE2E
-	for <selinux@archiver.kernel.org>; Fri,  9 Jun 2023 20:06:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 026E5C7EE43
+	for <selinux@archiver.kernel.org>; Sat, 10 Jun 2023 07:02:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229827AbjFIUGN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Jun 2023 16:06:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54912 "EHLO
+        id S229565AbjFJHCZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 10 Jun 2023 03:02:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229523AbjFIUGM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Jun 2023 16:06:12 -0400
-Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A61C435B5
-        for <selinux@vger.kernel.org>; Fri,  9 Jun 2023 13:06:09 -0700 (PDT)
-Received: by mail-ot1-x331.google.com with SMTP id 46e09a7af769-6b2b6910facso909813a34.1
-        for <selinux@vger.kernel.org>; Fri, 09 Jun 2023 13:06:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1686341168; x=1688933168;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HhgUZ/b6d8SyK6wuMhy/QUdrYEmRpokDPNLka3VEsFM=;
-        b=NMpC/mp9kDSPKq28g6LDQCDDNdNID/NGCD4PlXsPaupeI+dF9VZy9b2ejR281Q3k98
-         rb8B22FPmmZ0RD4boaJzVR/s13NgyWQkfTqCJpoiQvLGx/u6K2eDihPxJgpaWCTPN9M4
-         69YLB0faetThS7IigtDzx38Q/Cptxe1++JWyviikhxkBlY8rTQoVyr7EdInLRnwS+yoQ
-         2kIvx+KBDoNXPuvn3sR39ADkFEecwxizVPVYt7ZeAqP/Vtt31UlnUdu2P/AgAsHIkhM4
-         InASaCsWEX6YsVrMjZe4FIE5oVOrAfeLrdPnhopkUt4SfFhxVdvI4CaSbx4IB7fK6fJt
-         npig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686341168; x=1688933168;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HhgUZ/b6d8SyK6wuMhy/QUdrYEmRpokDPNLka3VEsFM=;
-        b=OxAzt6oeFtc2ioV8BJxq/VwMACl0xOzywoUkuy/AhAugty7Bodv2KwtitAamVU/WDb
-         mFJm2D1L/GurlvFDH8o9SpbmW+yca1WpJpzozl3DLVPReQLbz4XthrBpNTlQKrnC/6iy
-         Jqr8CDvEfLNeHG2g6k/FujEMvV9rpssdXiZ4QC8e27aT0BrstlfAwbedIiH1uu9xbwPG
-         /Ir57ZYlpAJiyTqdewSpj/x0JNE9IKn2wUlcymLDUKNpxrnPxLUCYMOIVUFF8HrqIJo7
-         L58HKkOL7QdOGw4WX1oH46JPfcWJvBd1aeXXEOrGu03vUwKJfiN1kv542CnZYTbv+5Oh
-         Yx5w==
-X-Gm-Message-State: AC+VfDwcHKtuN86UmZ1sA//L9FxJkiRQKqKRBswqgbWT6EkX322gRO68
-        GFZjtkGM+fgAxxzqDvucuFSqMz/9QhM/EK5idX+s
-X-Google-Smtp-Source: ACHHUZ46O13fZRr5wz1JZPgAzoj3AsioK3u9YBoDpoGeFFr4WNUgRnEFS4DSXi6Tlfcrxs+oLK/wnZQXgEqZ/V9Vh+s=
-X-Received: by 2002:a05:6358:9f92:b0:129:bfd3:994 with SMTP id
- fy18-20020a0563589f9200b00129bfd30994mr1938185rwb.20.1686341168398; Fri, 09
- Jun 2023 13:06:08 -0700 (PDT)
+        with ESMTP id S232993AbjFJHCW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 10 Jun 2023 03:02:22 -0400
+Received: from frasgout13.his.huawei.com (unknown [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665A93A9B;
+        Sat, 10 Jun 2023 00:02:21 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4QdTBt3y1Sz9y5Yv;
+        Sat, 10 Jun 2023 14:51:50 +0800 (CST)
+Received: from [10.81.219.229] (unknown [10.81.219.229])
+        by APP1 (Coremail) with SMTP id LxC2BwDnSubSH4RkcgIoAw--.4557S2;
+        Sat, 10 Jun 2023 08:01:51 +0100 (CET)
+Message-ID: <34b72280-ab31-15a1-f37e-58eac34a0d37@huaweicloud.com>
+Date:   Sat, 10 Jun 2023 09:01:35 +0200
 MIME-Version: 1.0
-References: <20230603191518.1397490-1-roberto.sassu@huaweicloud.com>
-In-Reply-To: <20230603191518.1397490-1-roberto.sassu@huaweicloud.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 9 Jun 2023 16:05:57 -0400
-Message-ID: <CAHC9VhSzC0zV31XrEz06HKp=NNbz0XPT24ja0O1sZtNM_aXqHg@mail.gmail.com>
-Subject: Re: [PATCH v11 0/4] evm: Do HMAC of multiple per LSM xattrs for new inodes
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
-Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v11 2/4] smack: Set the SMACK64TRANSMUTE xattr in
+ smack_inode_init_security()
+Content-Language: en-US
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Mengchi Cheng <mengcc@amazon.com>
+Cc:     miklos@szeredi.hu, linux-unionfs@vger.kernel.org,
+        kamatam@amazon.com, yoonjaeh@amazon.com, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
         serge@hallyn.com, stephen.smalley.work@gmail.com,
         eparis@parisplace.org, casey@schaufler-ca.com,
         linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
@@ -62,31 +40,59 @@ Cc:     zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
         bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
         nicolas.bouchinet@clip-os.org,
         Roberto Sassu <roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+References: <20230603191518.1397490-1-roberto.sassu@huaweicloud.com>
+ <20230603191518.1397490-3-roberto.sassu@huaweicloud.com>
+ <9f4b7bef5d090da9de50ed1aa1e103abc19b125f.camel@huaweicloud.com>
+ <CT7XVY50ISCC.1I60H7POH94ES@suppilovahvero>
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+In-Reply-To: <CT7XVY50ISCC.1I60H7POH94ES@suppilovahvero>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwDnSubSH4RkcgIoAw--.4557S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrKFyUtrW5XrWfJF15KF4kWFg_yoWxAFX_Zr
+        40kwn3trZxXrs7urWv9Fy5Was2ga10kr1Yv3yUZ3W3C3Z5JayxWF4Yka4rZF95W3Z2ka9r
+        K3ZYqFyYy347KjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbxAYFVCjjxCrM7AC8VAFwI0_Xr0_Wr1l1xkIjI8I6I8E6xAIw20E
+        Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+        A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+        67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267
+        AKxVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
+        j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
+        kEbVWUJVW8JwACjcxG0xvEwIxGrwACI402YVCY1x02628vn2kIc2xKxwCYjI0SjxkI62AI
+        1cAE67vIY487MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I
+        8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWr
+        XwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x
+        0267AKxVW8JVWxJwCI42IY6xAIw20EY4v20xvaj40_Zr0_Wr1UMIIF0xvEx4A2jsIE14v2
+        6r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07
+        UWwZcUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAEBF1jj45+OQAAs5
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jun 3, 2023 at 3:16=E2=80=AFPM Roberto Sassu
-<roberto.sassu@huaweicloud.com> wrote:
->
-> From: Roberto Sassu <roberto.sassu@huawei.com>
->
-> One of the major goals of LSM stacking is to run multiple LSMs side by si=
-de
-> without interfering with each other. The ultimate decision will depend on
-> individual LSM decision.
->
-> Several changes need to be made to the LSM infrastructure to be able to
-> support that. This patch set tackles one of them: gives to each LSM the
-> ability to specify one or multiple xattrs to be set at inode creation
-> time and, at the same time, gives to EVM the ability to access all those
-> xattrs and calculate the HMAC on them ...
+On 6/9/2023 9:26 AM, Jarkko Sakkinen wrote:
+> On Mon Jun 5, 2023 at 11:38 AM EEST, Roberto Sassu wrote:
+>> On Sat, 2023-06-03 at 21:15 +0200, Roberto Sassu wrote:
+>>> From: Roberto Sassu <roberto.sassu@huawei.com>
+>>>
+>>> With the newly added ability of LSMs to supply multiple xattrs, set
+>>> SMACK64TRASMUTE in smack_inode_init_security(), instead of d_instantiate().
+> 
+> nit: TRANSMUTE
+> 
+> Sorry, just hit into my eye. I skimmed it because I implemented original
+> feature :-)
 
-Thanks for sticking with this Roberto, I see a few
-comments/suggestions on this patchset, but overall it is looking
-pretty good; I'm hopeful we will be able to merge the next revision.
+Cool!
 
---=20
-paul-moore.com
+Currently the transmute xattr is defined as:
+
+#define XATTR_SMACK_TRANSMUTE "SMACK64TRANSMUTE"
+
+so, should be good to say the full xattr name, right?
+
+Thanks
+
+Roberto
+
