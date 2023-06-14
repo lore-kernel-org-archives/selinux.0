@@ -2,144 +2,117 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55429EB64D8
-	for <selinux@archiver.kernel.org>; Wed, 14 Jun 2023 19:55:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FD2CEB64DB
+	for <selinux@archiver.kernel.org>; Wed, 14 Jun 2023 23:56:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230499AbjFNTy4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Jun 2023 15:54:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40534 "EHLO
+        id S235399AbjFNX4X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Jun 2023 19:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236724AbjFNTyw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Jun 2023 15:54:52 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6F6395
-        for <selinux@vger.kernel.org>; Wed, 14 Jun 2023 12:54:50 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2b4420a8c44so1798401fa.2
-        for <selinux@vger.kernel.org>; Wed, 14 Jun 2023 12:54:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686772489; x=1689364489;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bdSLfV2N5Cu9p5Ql+sv3if5NncBehzjcHIQOu6CwXO0=;
-        b=i4g9ImJWYYBk60Y5i8vhKW5omRK1QdyBVJkF8j78ytg/m2oqZaTw8T7CaJ32Ku3d4X
-         UBu/ACRmyxOTwNCZDadpjRBXlauFezZGWREEicGCY7OBlfkeZpJM/IqVZg26sUnRjk+/
-         8cmUUjQq9Y22xGqFyPbgvpo/pXly4rlJmJEUUKD8wdmUOjl0aazmJxt6ZLlZtfLxza9G
-         KElVLq8NkLkeFZ1ARP47x8psJmS6Qie8gL9di0mqwZa/mub/dEw1VGTyHSujo8yVdQfz
-         BtP75Kbv0ilOPhlO5ROLRGjSiC+a8cr4goWGhAgmFBhqr9syKobjmyjH43jh0Psjghf0
-         WGSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686772489; x=1689364489;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bdSLfV2N5Cu9p5Ql+sv3if5NncBehzjcHIQOu6CwXO0=;
-        b=bltq+FKXRXbkiTS6TKpOsnqTxLkv07O/75tvnl8c0ImSijKRYxkeEVP9JjmrK8fz/s
-         aLk5R1cFBh5oN1yKMjq2kEUvOphKVIlwH7kUBN4SG5w5U48wK9YRcIHnQPpE8GyByky/
-         mVa5WGUjpKO+1npfvfc8EgRyPhsETt8MCl8VpTMw5czmGNbvhS3Htvmg2DdeF53Kjzdk
-         9Zc4eqC5UDyXD3HJbm7ZQk20Z/pjNZO1iqjHMWSEqGPFm8aViVQXKF54i0ZPMtsBBpzP
-         HxDp3qD+SgyisfuNh4ULkgMYtZKYm+vqznG2FnFf750s9gSFqTpQPB6aeSY5R0Py4dnq
-         /2zA==
-X-Gm-Message-State: AC+VfDw5Tsl/NswqLt5HVfIa7PvKAZnh5TW9Yo5+kbVRsKRMIA7eOc5U
-        ryb67drJ25gO8M0cN3nyEFflzWylXD7bjSwWfMmidC51mOQ=
-X-Google-Smtp-Source: ACHHUZ6HzJMXTPHNVW23OMUyWAv4SGD9qMzAlbXMFxegnN3I3M11MjHQbkHJWDJSRxG4qaLgXvJGN437cj68jj6W3to=
-X-Received: by 2002:a2e:3c08:0:b0:2b3:4891:eb01 with SMTP id
- j8-20020a2e3c08000000b002b34891eb01mr2183813lja.20.1686772488885; Wed, 14 Jun
- 2023 12:54:48 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230614191658.3356192-1-yamato@redhat.com>
-In-Reply-To: <20230614191658.3356192-1-yamato@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 14 Jun 2023 15:54:37 -0400
-Message-ID: <CAP+JOzQXyjmqh65=uXi18Z7_yNAg0ne0cPhxyXs7miqfb5F0Xg@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] dismod: print the policy version only in
- interactive mode
-To:     Masatake YAMATO <yamato@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230298AbjFNX4W (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Jun 2023 19:56:22 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4231BF8;
+        Wed, 14 Jun 2023 16:56:21 -0700 (PDT)
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 35ENkwqs010614;
+        Wed, 14 Jun 2023 23:55:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Rp5y6wdKAFFhOp75eoI6smxrxPDGYZjPfkK3i0xfTgQ=;
+ b=YwT4r+U0KU1pqlgvUjY131SMKPYOq/pKOq/gGiE5Z6Z8R+nDtANd6XgCenQycufFpCbu
+ upL8D4p4kEQH5jPpyT73jTWPEoFUnpj3BJsCn8ghHVrt99BGXK1rgdOIFRIz5/uBRZ5H
+ dQxWdxSudqEOsRTKKvj3D4kssn8zD7FpFJP97ezTxNFp0JpBmmHftrm/WA2CicEfd/AW
+ 8hJ2VMFtaffzRCtUAEj0+xUpzLJXqi4X6LnYxh7kF3dyt+3Bg8aVW1q6GCEc+ZkRg0jV
+ d6Tl6vQzypTloZalgDAF3qlGL7OvOG5s5TE69CKzqv6OiAP71/x7JtySjdtYcRemX61m Pw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r7qh783ug-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Jun 2023 23:55:46 +0000
+Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 35ENoGVo018069;
+        Wed, 14 Jun 2023 23:55:46 GMT
+Received: from ppma04dal.us.ibm.com (7a.29.35a9.ip4.static.sl-reverse.com [169.53.41.122])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3r7qh783u9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Jun 2023 23:55:46 +0000
+Received: from pps.filterd (ppma04dal.us.ibm.com [127.0.0.1])
+        by ppma04dal.us.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 35ELkAmE011857;
+        Wed, 14 Jun 2023 23:55:45 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([9.208.129.118])
+        by ppma04dal.us.ibm.com (PPS) with ESMTPS id 3r4gt65hkk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 14 Jun 2023 23:55:45 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 35ENtild58786260
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 14 Jun 2023 23:55:44 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 08C7D58054;
+        Wed, 14 Jun 2023 23:55:44 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E4FB58045;
+        Wed, 14 Jun 2023 23:55:42 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.19.215])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 14 Jun 2023 23:55:42 +0000 (GMT)
+Message-ID: <8e59ce95a1cc100c41806ef72afe4265a1d43058.camel@linux.ibm.com>
+Subject: Re: [PATCH v12 3/4] evm: Align evm_inode_init_security() definition
+ with LSM infrastructure
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Wed, 14 Jun 2023 19:55:41 -0400
+In-Reply-To: <20230610075738.3273764-4-roberto.sassu@huaweicloud.com>
+References: <20230610075738.3273764-1-roberto.sassu@huaweicloud.com>
+         <20230610075738.3273764-4-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9MmicGRGr_BY5jXpaH0qxroHoqQr9NWE
+X-Proofpoint-ORIG-GUID: MqKmAuuQ6av1wziaiH_Uwr-EakIm6oWy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-14_14,2023-06-14_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
+ impostorscore=0 mlxlogscore=999 malwarescore=0 lowpriorityscore=0
+ phishscore=0 bulkscore=0 suspectscore=0 priorityscore=1501 spamscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2305260000 definitions=main-2306140206
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 14, 2023 at 3:23=E2=80=AFPM Masatake YAMATO <yamato@redhat.com>=
- wrote:
->
-> Instead, a new action, 'v' for printing the policy (and/or
-> module) version in batch mode is added.
->
-> Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+On Sat, 2023-06-10 at 09:57 +0200, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> Change the evm_inode_init_security() definition to align with the LSM
+> infrastructure. Keep the existing behavior of including in the HMAC
+> calculation only the first xattr provided by LSMs.
+> 
+> Changing the evm_inode_init_security() definition requires passing the
+> xattr array allocated by security_inode_init_security(), and the number of
+> xattrs filled by previously invoked LSMs.
+> 
+> Use the newly introduced lsm_get_xattr_slot() to position EVM correctly in
+> the xattrs array, like a regular LSM, and to increment the number of filled
+> slots. For now, the LSM infrastructure allocates enough xattrs slots to
+> store the EVM xattr, without using the reservation mechanism.
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-For both patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Thanks, Roberto!
 
-> ---
->  checkpolicy/test/dismod.c | 30 ++++++++++++++++++++----------
->  1 file changed, 20 insertions(+), 10 deletions(-)
->
-> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-> index 515fc9a5..fa729ef2 100644
-> --- a/checkpolicy/test/dismod.c
-> +++ b/checkpolicy/test/dismod.c
-> @@ -91,6 +91,7 @@ static struct command {
->         {CMD|NOOPT, 'l', "Link in a module"},
->         {CMD,       'u', "Display the unknown handling setting"},
->         {CMD,       'F', "Display filename_trans rules"},
-> +       {CMD,       'v', "display the version of policy and/or module"},
->         {HEADER, 0, ""},
->         {CMD|NOOPT, 'f',  "set output file"},
->         {CMD|NOOPT, 'm',  "display menu"},
-> @@ -899,6 +900,19 @@ static int menu(void)
->         return 0;
->  }
->
-> +static void print_version_info(policydb_t * p, FILE * fp)
-> +{
-> +       if (p->policy_type =3D=3D POLICY_BASE) {
-> +               fprintf(fp, "Binary base policy file loaded.\n");
-> +       } else {
-> +               fprintf(fp, "Binary policy module file loaded.\n");
-> +               fprintf(fp, "Module name: %s\n", p->name);
-> +               fprintf(fp, "Module version: %s\n", p->version);
-> +       }
-> +
-> +       fprintf(fp, "Policy version: %d\n\n", p->policyvers);
-> +}
-> +
->  int main(int argc, char **argv)
->  {
->         char *ops =3D NULL;
-> @@ -952,17 +966,10 @@ int main(int argc, char **argv)
->                 exit(1);
->         }
->
-> -       if (policydb.policy_type =3D=3D POLICY_BASE) {
-> -               printf("Binary base policy file loaded.\n");
-> -       } else {
-> -               printf("Binary policy module file loaded.\n");
-> -               printf("Module name: %s\n", policydb.name);
-> -               printf("Module version: %s\n", policydb.version);
-> -       }
-> -
-> -       printf("Policy version: %d\n\n", policydb.policyvers);
-> -       if (!ops)
-> +       if (!ops) {
-> +               print_version_info(&policydb, stdout);
->                 menu();
-> +       }
->         for (;;) {
->                 if (ops) {
->                         puts("");
-> @@ -1069,6 +1076,9 @@ int main(int argc, char **argv)
->                 case 'l':
->                         link_module(&policydb, out_fp);
->                         break;
-> +               case 'v':
-> +                       print_version_info(&policydb, out_fp);
-> +                       break;
->                 case 'q':
->                         policydb_destroy(&policydb);
->                         exit(0);
-> --
-> 2.40.1
->
+Acked-by: Mimi Zohar <zohar@linux.ibm.com>
+
