@@ -2,227 +2,151 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AD96EB64D9
-	for <selinux@archiver.kernel.org>; Thu, 15 Jun 2023 20:31:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 092C3EB64DA
+	for <selinux@archiver.kernel.org>; Fri, 16 Jun 2023 02:04:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230244AbjFOUb2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 15 Jun 2023 16:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45610 "EHLO
+        id S232201AbjFPCEY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 15 Jun 2023 22:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbjFOUb2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 15 Jun 2023 16:31:28 -0400
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597DF26A1
-        for <selinux@vger.kernel.org>; Thu, 15 Jun 2023 13:31:26 -0700 (PDT)
-Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-4f849a0e371so695347e87.1
-        for <selinux@vger.kernel.org>; Thu, 15 Jun 2023 13:31:26 -0700 (PDT)
+        with ESMTP id S229588AbjFPCEX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 15 Jun 2023 22:04:23 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37502135
+        for <selinux@vger.kernel.org>; Thu, 15 Jun 2023 19:04:21 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id af79cd13be357-76228cfd5afso26332185a.2
+        for <selinux@vger.kernel.org>; Thu, 15 Jun 2023 19:04:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1686861084; x=1689453084;
+        d=paul-moore.com; s=google; t=1686881061; x=1689473061;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vqKQzP39kqJ6KntcOyovhMzwgHScJMBr5zTCrTiiS9w=;
-        b=ZiXRv4u/mWXZy5hCTe7HQ888N9jojl+g7NY+ruDoLdWkJqIik1AvLLNpWxhXyw56/A
-         01qsLe4Inya/20wY7YmrpQEmr6Bnz61Pb11h0Flxl1Es2dxXl9A1uxhg4fGmeis2hBUq
-         0xqy0YUhqw14LPzIUW5p0yri/wFrqP/AozN/sBcD6VJ9Wux+TOSPhcYA0m8BYIfQyZRM
-         hot2oj56OwTvjPPhIyD72auJLDzYQrl3zZqqxTMlY0nugSwzFwpAbZUXGuPEiUj19HCg
-         wJvAiCzLYVR3OQ1FxKW8MRoahes0xxnIPGyoazGKE69ATgDYmPhd2dkNz5Z9mo2T59aI
-         rGZw==
+        bh=r941DbmSHryypmdWJXUOSdFaOQn70DfzQh7tnWdPwm0=;
+        b=Xi7evTjV8BRCQeHMaPv4rr+SLstR+TWBHfCUZNz6NDKjO5L6zOEhkxZf65hdMz0epO
+         7gIONgvmPnGlJH9YFvNHIJpIkxrz6cT3VlIN9PLhyetLc3DX2y3xrx/9ttKUnE0mhd7s
+         r+cr/sohPEJ7NFXOzehWq7+g9x/XjXq/z0lbm0AMTVRY89jd4ck+f+CQba0P9wRvazpB
+         G2FFtmJHE9OU0Py2RPcMQ65dpADmV9j1/lQm9FsjoTxUF0Vy3QBNnb/1VPPZXa6ZbsbN
+         Q9EaUBqU9Cx9z1oW/VCtlAQ8vLBFKOrPI0TjbAjMDm3ryl1qGFigOlwyzyjAvmxKPpHJ
+         4e8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686861084; x=1689453084;
+        d=1e100.net; s=20221208; t=1686881061; x=1689473061;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vqKQzP39kqJ6KntcOyovhMzwgHScJMBr5zTCrTiiS9w=;
-        b=fr1MQuOZuKg0V1r8XGCQ4Jg9LUuqg/VgvViBEW/z3pKIFDIBliVW7HxZLELX5zPsIs
-         vXgiHMu4+L+Mt/JUAk2ChQBqdSYewH8q7DKzwpFLzbMzdEfnKtvdVwU2DKiUBY4HAeun
-         4Kubxmmy5ft1iw+TYymBazFvOlPdtTTJDJZidma0M5AHyq137/7/9A1LhLwAH+i7DXIc
-         qqT6WYPyp4LWqK+s+z/q/RfYD2PhLHlIT50Rg4dsQyCv5Fn+Xp+msMdeXhOrPQnvvFyI
-         vZmbhinD+s3bQj6YMRY/m+9L+D9G1jxqgYG6R1hgYQJ2+1eREyCpoLNHBXDSNcGdHDUK
-         jdNA==
-X-Gm-Message-State: AC+VfDxziUHAp6tGCUDEy5cisQrtC51bIG5gYjPHGG68T2dv1gtNS4Ra
-        Qd6Y7WD8LNcRcmrgqlLVnD4glLsAvYXLUMO2GEW5VJj34Vs=
-X-Google-Smtp-Source: ACHHUZ7mpxqofNHVp1mM8+zUb0wZUP/0KEu0K5IuKQJiyCiSBOb4LNRGTAN4/dKQoxgmsvIxv8aNt/uBGS4JEmaK6Kk=
-X-Received: by 2002:a2e:9542:0:b0:2b1:a89a:5f2b with SMTP id
- t2-20020a2e9542000000b002b1a89a5f2bmr361413ljh.2.1686861084153; Thu, 15 Jun
- 2023 13:31:24 -0700 (PDT)
+        bh=r941DbmSHryypmdWJXUOSdFaOQn70DfzQh7tnWdPwm0=;
+        b=QlrCALqByXLTab6ITxqBckwDRYNXHQzky7sioGq0gk4gAfzMvHOOa5JOeuoUR5B5to
+         jQ12nK0FI+HlcphJR+xyDtpI4uY8fhaBZry0Yh1hzPgMuAAsd/VZHFhejtykrQAfXJGm
+         n8Kuo17H3u4DkQPsQob8FPQC1hOBgztSl1MSxvNC8Hk8s25li/Hq+SumdW25I28VQp/q
+         Z7GKAiYW7suAM6NlFYi171TF/e3cQ+OM/6k2vE7sOgpUGY6cwRdLFwo+ItxZByFlcMA8
+         cn9nTMA2dAqJi1r7GWzdn1S0ZBfF9YO0q9212MuUAme3XdHtLHSABhKF5gGbztNJ5wGd
+         Mliw==
+X-Gm-Message-State: AC+VfDw4qcdTulNu4iOWR4HPpKm+IjaqI9Mn0yKW1qavOuxxs0Z2ALx4
+        iHtDNo0NsQjwuI8scTqReu7c1q7KDfFU919/Um1J
+X-Google-Smtp-Source: ACHHUZ5rKWcckiulAzoud+4ALGQPsTjilwrs4EOhMUl3BBe9r64P/FkYDk7gRkY30E7vwBSXMyGPmlVXeGQNzrpgRhQ=
+X-Received: by 2002:a05:620a:458e:b0:75b:23a1:3670 with SMTP id
+ bp14-20020a05620a458e00b0075b23a13670mr376273qkb.49.1686881060737; Thu, 15
+ Jun 2023 19:04:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230512102322.72235-1-cgzones@googlemail.com> <20230512102322.72235-2-cgzones@googlemail.com>
-In-Reply-To: <20230512102322.72235-2-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 15 Jun 2023 16:31:12 -0400
-Message-ID: <CAP+JOzTRFByfdYUVqCmV+yTSZ1id5vjWyhSZE+3h04J3fibnrg@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] libselinux: deprecate matchpathcon and
- compute_user interfaces
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
+References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
+ <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com> <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01>
+In-Reply-To: <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 15 Jun 2023 22:04:09 -0400
+Message-ID: <CAHC9VhRCBkx7ioHAEMpn=ug3zAo2nEOUBe2uWsm0Tb8p6-vE7g@mail.gmail.com>
+Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type transitions
+To:     Juraj Marcin <juraj@jurajmarcin.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 12, 2023 at 6:25=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Thu, Jun 1, 2023 at 1:03=E2=80=AFPM Juraj Marcin <juraj@jurajmarcin.com>=
+ wrote:
+> On 2023-05-31 18:24, Paul Moore wrote:
+> > On Wed, May 31, 2023 at 7:32=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin=
+.com> wrote:
+> > >
+> > > Currently, filename transitions are stored separately from other type
+> > > enforcement rules and only support exact name matching. However, in
+> > > practice, the names contain variable parts. This leads to many
+> > > duplicated rules in the policy that differ only in the part of the na=
+me,
+> > > or it is even impossible to cover all possible combinations.
+> > >
+> > > First, this series of patches moves the filename transitions to be pa=
+rt
+> > > of the avtab structures. This not only makes the implementation of
+> > > prefix/suffix matching and future enhancements easier, but also reduc=
+es
+> > > the technical debt regarding the filename transitions. Next, the last
+> > > patch implements the support for prefix/suffix name matching itself b=
+y
+> > > extending the structures added in previous patches in this series.
+> > >
+> > > Even though, moving everything to avtab increases the memory usage an=
+d
+> > > the size of the binary policy itself and thus the loading time, the
+> > > ability to match the prefix or suffix of the name will reduce the
+> > > overall number of rules in the policy which should mitigate this issu=
+e.
+> > >
+> > > This implementation has been successfully tested using the existing a=
+nd
+> > > also new tests in the SELinux Testsuite.
+> > >
+> > > Juraj Marcin (5):
+> > >   selinux: move transition to separate structure in avtab_datum
+> > >   selinux: move filename transitions to avtab
+> > >   selinux: implement new binary format for filename transitions in av=
+tab
+> > >   selinux: filename transitions move tests
+> > >   selinux: add prefix/suffix matching support to filename type
+> > >     transitions
+> >
+> > Just a quick comment as I haven't had a chance to properly review this
+> > series yet; you show some memory usage and performance measurements in
+> > some of the intermediate patches, that's good, but I don't see the
+> > same measurements taken when the full patchset is applied.  Please
+> > provide the same memory usage and performance comparisons with the
+> > full patchset applied.
 >
-> Annotate interfaces of the matchpathcon family and
-> security_compute_user(3) and security_compute_user_raw(3) as deprecated.
+> Of course, here are the measurements with the whole patchset applied.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/include/selinux/selinux.h | 28 +++++++++++++++-------------
->  1 file changed, 15 insertions(+), 13 deletions(-)
+> I also included measurements with new policy (based on the Fedora
+> policy) that uses prefix filename transitions where possible. This new
+> policy has been generated by merging existing filename transitions into
+> prefix ones if it would reduce the number of transitions overall while
+> keeping the resulting type same.
 >
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/se=
-linux/selinux.h
-> index 7f8deb65..4799dd1c 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -261,10 +261,12 @@ extern int security_compute_member_raw(const char *=
- scon,
->   */
->  extern int security_compute_user(const char * scon,
->                                  const char *username,
-> -                                char *** con) selinux_nonnull((1,2,3)) s=
-elinux_nodiscard;
-> +                                char *** con) selinux_nonnull((1,2,3)) s=
-elinux_nodiscard
-> +                                              selinux_deprecated("Use ge=
-t_ordered_context_list(3) family");
->  extern int security_compute_user_raw(const char * scon,
->                                      const char *username,
-> -                                    char *** con) selinux_nonnull((1,2,3=
-)) selinux_nodiscard;
-> +                                    char *** con) selinux_nonnull((1,2,3=
-)) selinux_nodiscard
-> +                                                  selinux_deprecated("Us=
-e get_ordered_context_list(3) family");
+> [1] Reference kernel (c52df19e3759), Fedora policy (format v33)
+> [2] This patchset, Fedora policy (format v33)
+> [3] This patchset, Fedora policy without prefix/suffix rules (format v35)
+> [4] This patchset, Fedora policy with prefix rules (format v35)
 >
->  /* Validate a transition. This determines whether a transition from scon=
- to newcon
->     using tcon as the target for object class tclass is valid in the load=
-ed policy.
-> @@ -435,7 +437,7 @@ extern void selinux_flush_class_cache(void);
->  /* Set the function used by matchpathcon_init when displaying
->     errors about the file_contexts configuration.  If not set,
->     then this defaults to fprintf(stderr, fmt, ...). */
-> -extern void set_matchpathcon_printf(void (*f) (const char *fmt, ...));
-> +extern void set_matchpathcon_printf(void (*f) (const char *fmt, ...)) se=
-linux_deprecated("matchpathcon family is deprecated");
 >
->  /* Set the function used by matchpathcon_init when checking the
->     validity of a context in the file contexts configuration.  If not set=
-,
-> @@ -444,7 +446,7 @@ extern void set_matchpathcon_printf(void (*f) (const =
-char *fmt, ...));
->     may include the 'path' and 'lineno' in such error messages. */
->  extern void set_matchpathcon_invalidcon(int (*f) (const char *path,
->                                                   unsigned lineno,
-> -                                                 char *context));
-> +                                                 char *context)) selinux=
-_deprecated("matchpathcon family is deprecated");
->
->  /* Same as above, but also allows canonicalization of the context,
->     by changing *context to refer to the canonical form.  If not set,
-> @@ -452,13 +454,13 @@ extern void set_matchpathcon_invalidcon(int (*f) (c=
-onst char *path,
->     security_canonicalize_context(). */
->  extern void set_matchpathcon_canoncon(int (*f) (const char *path,
->                                                 unsigned lineno,
-> -                                               char **context));
-> +                                               char **context)) selinux_=
-deprecated("matchpathcon family is deprecated");
->
->  /* Set flags controlling operation of matchpathcon_init or matchpathcon.=
- */
->  #define MATCHPATHCON_BASEONLY 1        /* Only process the base file_con=
-texts file. */
->  #define MATCHPATHCON_NOTRANS  2        /* Do not perform any context tra=
-nslation. */
->  #define MATCHPATHCON_VALIDATE 4        /* Validate/canonicalize contexts=
- at init time. */
-> -extern void set_matchpathcon_flags(unsigned int flags);
-> +extern void set_matchpathcon_flags(unsigned int flags) selinux_deprecate=
-d("matchpathcon family is deprecated");
->
+>  Test | Mem   | Binary | Policy | Create tty      | osbench
+>       | Usage | policy | load   |                 | create
+>       |       | size   | time   | (ms/file)       | files
+>       | (MiB) | (MiB)  | (ms)   | real   | kernel | (us/file)
+> ------+-------+--------+--------+--------+--------+-----------
+>  [1]  |   157 |    3.4 |     78 | 1.1021 | 0.7586 | 7.8277
+>  [2]  |   200 |    3.4 |    206 | 1.1193 | 0.7724 | 8.2711
+>  [3]  |   169 |    5.8 |    106 | 1.1021 | 0.7724 | 8.0304
+>  [4]  |   164 |    3.8 |     86 | 1.1029 | 0.7586 | 7.9609
 
-It seems that set_matchpathcon_printf(),
-set_matchpathcon_invalidcon(), and set_matchpathcon_flags() should be
-deprecated, but I can't find anything that says that they are.
-Jim
+Thanks for performing those measurements.
 
+I apologize that I haven't had an opportunity to review your patcheset
+in detail just yet (I've been struggling with some self-inflicted
+networking issues this week), but looking strictly at the numbers
+above it appears that by every metric in the table this patchset
+results in a policy that is larger (both on-disk and in-memory) as
+well as performance that is at best the same (although in most cases,
+it is worse).  Are there any improvements expected beyond test
+configuration [4] (above)?
 
->  /* Load the file contexts configuration specified by 'path'
->     into memory for use by subsequent matchpathcon calls.
-> @@ -472,7 +474,7 @@ extern int matchpathcon_init(const char *path) selinu=
-x_nodiscard selinux_depreca
->
->  /* Same as matchpathcon_init, but only load entries with
->     regexes that have stems that are prefixes of 'prefix'. */
-> -extern int matchpathcon_init_prefix(const char *path, const char *prefix=
-) selinux_nodiscard;
-> +extern int matchpathcon_init_prefix(const char *path, const char *prefix=
-) selinux_nodiscard selinux_deprecated("Use selabel_open(3) with backend SE=
-LABEL_CTX_FILE");
->
->  /* Free the memory allocated by matchpathcon_init. */
->  extern void matchpathcon_fini(void) selinux_deprecated("Use selabel_clos=
-e(3)");
-> @@ -480,7 +482,7 @@ extern void matchpathcon_fini(void) selinux_deprecate=
-d("Use selabel_close(3)");
->  /* Resolve all of the symlinks and relative portions of a pathname, but =
-NOT
->   * the final component (same a realpath() unless the final component is =
-a
->   * symlink.  Resolved path must be a path of size PATH_MAX + 1 */
-> -extern int realpath_not_final(const char *name, char *resolved_path) sel=
-inux_nonnull((1,2)) selinux_nodiscard;
-> +extern int realpath_not_final(const char *name, char *resolved_path) sel=
-inux_nonnull((1,2)) selinux_nodiscard selinux_deprecated("Not meant for ext=
-ernal use");
->
->  /* Match the specified pathname and mode against the file contexts
->     configuration and set *con to refer to the resulting context.
-> @@ -494,25 +496,25 @@ extern int matchpathcon(const char *path,
->  /* Same as above, but return a specification index for
->     later use in a matchpathcon_filespec_add() call - see below. */
->  extern int matchpathcon_index(const char *path,
-> -                             mode_t mode, char ** con) selinux_nonnull((=
-1,3)) selinux_nodiscard;
-> +                             mode_t mode, char ** con) selinux_nonnull((=
-1,3)) selinux_nodiscard selinux_deprecated("Use selabel_lookup(3)");
->
->  /* Maintain an association between an inode and a specification index,
->     and check whether a conflicting specification is already associated
->     with the same inode (e.g. due to multiple hard links).  If so, then
->     use the latter of the two specifications based on their order in the
->     file contexts configuration.  Return the used specification index. */
-> -extern int matchpathcon_filespec_add(ino_t ino, int specind, const char =
-*file) selinux_nonnull((3)) selinux_nodiscard;
-> +extern int matchpathcon_filespec_add(ino_t ino, int specind, const char =
-*file) selinux_nonnull((3)) selinux_nodiscard selinux_deprecated("matchpath=
-con family is deprecated");
->
->  /* Destroy any inode associations that have been added, e.g. to restart
->     for a new filesystem. */
-> -extern void matchpathcon_filespec_destroy(void);
-> +extern void matchpathcon_filespec_destroy(void) selinux_deprecated("matc=
-hpathcon family is deprecated");
->
->  /* Display statistics on the hash table usage for the associations. */
-> -extern void matchpathcon_filespec_eval(void);
-> +extern void matchpathcon_filespec_eval(void) selinux_deprecated("matchpa=
-thcon family is deprecated");
->
->  /* Check to see whether any specifications had no matches and report the=
-m.
->     The 'str' is used as a prefix for any warning messages. */
-> -extern void matchpathcon_checkmatches(char *str);
-> +extern void matchpathcon_checkmatches(char *str) selinux_deprecated("mat=
-chpathcon family is deprecated");
->
->  /* Match the specified media and against the media contexts
->     configuration and set *con to refer to the resulting context.
-> --
-> 2.40.1
->
+--=20
+paul-moore.com
