@@ -2,332 +2,176 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF244EB64DA
-	for <selinux@archiver.kernel.org>; Fri, 16 Jun 2023 16:58:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07AFBEB64DA
+	for <selinux@archiver.kernel.org>; Fri, 16 Jun 2023 20:43:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346065AbjFPQ6E (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Jun 2023 12:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
+        id S229518AbjFPUnb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Jun 2023 16:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345972AbjFPQ5o (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Jun 2023 12:57:44 -0400
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A25468F
-        for <selinux@vger.kernel.org>; Fri, 16 Jun 2023 09:55:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1686934557; bh=3KfYzQZSdHbYQjB0V2Ilq3MFhzyKnWJ15K+bVlsg+sU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=pW3koTkDB55Q7fKjgheLlFOImcUnn6twslQTVxnLBv0ijl9Fmk1ih2S/k9PTdQ8xNRUPTC5SEVnlhW6UiUHcebtHjIoSJrSjSuMhQKvyn2suPEyrw4z80gG7yDeiIlCjaL/kiUZ+ygunsblU1YcS46mX2WmCAdYGizfvX/SG98KrajOky/VU7cyQnZF/EMVNVVh+s6RvvZRHCROHLJ7j+8QxFo9WuWfL9LdKUCISlsBGsIPa9igEs0lK8R9plYXFLboxviF+1ZRBwrUWjfT6EMuJBDcuFcaFsEQwnxhSbqp+4RoKVOPf71Ev/ePXd11qkJzHy0SnQ0PqKZ9M1SVMrw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1686934557; bh=LYVqupBZG03jat7NE2oFGCjbV2g/Jb3wL5M/XTDh/FO=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=QQ4iZrcVJeJxR8BYDVnyGJixw+NvsSyqu5c0/lyfRSlLCM5qhzP7pAV1XJwQ2o2/xf2C0aix3/gohLjV+aQLF3jU03oECl48CrMPsrclX9vBDzyMyF6NSBjEe+rSwMfPs2BUyUMBeOkqAFPDgI0fjB1rDGfkB8TWC5FD22smNYt7aXqks3XsFB/CLLMgtDhlezB2ob1vPoRqXZdh0BcOFEg1aMdc5ifhLU+9p3LBjrMv3154JgaWsTS2Rf5Ww01kEZ6bVxjbgfumgKjCz9cnpwTCBkcgiVRCo/vFjtZOQoVZdT4/YCZQojqbVzdF9avLgeAJvocY+5/GS5EsDGWXIQ==
-X-YMail-OSG: iividokVM1m8tpceTRFA9lrwKdf1XkSt6oFM3b.y33AT3vVnUIlxzWjk1MTJQ.H
- cRSn9yDVEWGezLn_beWFtuK.xnpaahRoaaYRcztSjk9TKr9ROJiL14fQ9v1JuEVhPHW9bpiSbeyD
- 9_rtGOw_l.mCtppm5NRa_6Gg9W9Lo43tfJKIGKO.6G_LSr6_E.VL781yr8mEk1Ad0YhCdLd1U_Ff
- Hf2oNxIR8SXwVMH7ioofKByX46HNGtmPhQfoEYhW8LV3Prq.NVpFrsbvOcpiKG_G9vkiINwlZTDR
- JW8pNyBbhq0A7Vyks9ZNd7i6s.NWY1cx65k9BLd1jQbjfIq6Jfgisml80K3hnX1SYICbv.4rw6Ds
- .RusM_0mDaDQFQT7CBgPmFcUbOvECV4KyFzyOQFNiMfdUPfX8H.bK09NDHDlXhpKxOHLwemExHVg
- 2nNHKdIU0UtdMn6XOKrfRns.L4EArQaaaga_yICphvAW5mBHlYg5zFuuReGCdPMM2E8JKS36WmWK
- lLk2AnQYviDbeedA1861.AQuYFg1O8lAhtp71ZVL2xqk2Ymw5_D7lS5wNYoYUfBlGyTUEWUl1I2d
- 1r1LqV12UEGFZRvq6KOrjut3XVuZneeTsldphcaAzvZ6iNgYwmMgJDlhPGGx7xxvr7a2wb3VKdXb
- rIIXKPu.4CXZiGhYnom6doA6lAu4414sXmRIoCPBJlFksskXDBPtEARBZB2ZPhvFyXtD52x96BDa
- Wr_dBA_6vOKfUGhkneybjRgfaIVcWoop20ozJfInZLpTrBF43F0hXnoKOpc_bpi2tYe4sV_AWknG
- A.o9TOVbi6VW1CtpLzpsExMAZmdj9jVCQUMpy_CDDS3nlQt_CBAwWM_EJbIT5g9VrAF0xfmRa_9W
- o6CxARBE3dQAVBxvfnNJZ55NVjdlD0KUzH6UqyjGgOYadVhwysDZ7SD.xFDKg2UJ8xD1I5t3nO58
- uRykReaey4OfjU43mXcIQWTS1dxaLmTm6v_dVhZ1w1O4bGkrX8W7BQqozirXasufUVbNVVTqxfJZ
- bQF8ULWQrTls8awWKD9MKsEtC3j8N23uH.7iPuHWyAHV.sg8lLcqVzQh3_Q1CDeSuyUAege5SsL3
- Co7VQUY6IY4mxy3.jQE_tlQwKE14KwnGeun0dvWcoKwkM2tB2VsI7rIuTlJVxo9TKP5bbhA0L3Gf
- 21izp_HQulyUlUZi0L9IQrFovyeOcl7tVxgxsIZzjwHLkEmCAU6rQvD2jbHxiU0viIIn7DdIz9ab
- 9OYT2pzzCfweSRzfBoJpPlPxnGvkUXqWENRyrIrdg7uj9XshIuujJQXmJsUN8nJiwDtrpQ958Gq4
- ZOHiyghly3jkXwtDlx4QyAFAM7qG_CwGS4YbfJigYUySEXwYQgoQ3Gr5BP.W6dgolFH6HSQalD2s
- B1SdycDQtrG0vmS6mD98McYIMdb1CV9Eym6qSPzNG0Zeig4O1fiR1eV3PXTujQCM5V2dJr2fgvBI
- hcYefkerPzBIu5vZ9YwPPKUy1Oo4CKaI_JiVZ.p41Gm1bMB8yWGDNyIwmJkoXyhv7kF0kGmiXwcA
- XRTxDOy6gZbSt7ly1h_UY3_o70MKkF1Pd6oDNcvsngH4Zy9Y_GstDXc3fw8hT0Lr8sdzSmlhLtSk
- DDJnapfGGMbcbYf5_MbogXMsIPvQXa2HfKzASIvyIr.4dSnAlAjnCS6SDMFFXKarpzTcwF0Hzyuc
- t3CEvbssiOfQMkJgmi6IVaq_ZSvkn0ryL1yKaYSBvg_IThAhw9A6i60j2ZnHH32MB1FAmDS6tiRR
- ZhEFYiMPIjokzzAPW2EmWpnVPvDaX7YRH9MgQWZ9yd3LmdlJHvuPz95mS2vYVFkYYMDfwx_2ZYYL
- fH0T1aTdlkHTHvIaGOg5qHlJx2WwXvjrQ47TTacXVFgOszKHBXNkuuwRhKlD4WieLc_ajqN7Ksw0
- h_JnEwhwECQm.x_Qp9uXOnwOAvmWunrifI3CTczC1nm6az26b_i0iONpFrSK38q3JPISHTVjt.jj
- .E8cFZ.PvnO_GoVW0xrI.teSkpe.DZ76AyBRcIkUtuVkUoz2NgLE01WQLJKt86Vr9SafyvLPhOPl
- GEJNfy44QtVTTR9RkhfxSbqSGoeQEBa9HuTPk94XKF0qMlcZ1LZu91_1yxeO3a0F0iO59CZ7DymZ
- onoCYT92SGwYZmbPmtHIAqKD26S5NMBLgeDtCwrR2nCuno8ZM.TINVjCC_Q_rlFohyRdAsH0cxRU
- NtHb4C46BsjNabdGg5j2wVYujvYdSr0TwGK2Wdln.3L1pLtwhJXemWaKwvgSmVB2HkAUU1Bn3Hol
- A1ogFVctPbQ82qvny.Q0TU1PDqC3C
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 6ca35e08-3069-48c7-89e1-9e4c8c84f532
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Fri, 16 Jun 2023 16:55:57 +0000
-Received: by hermes--production-ne1-574d4b7954-tvjss (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8aab4ebac04292db835fd6d81244177c;
-          Fri, 16 Jun 2023 16:55:53 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey@schaufler-ca.com, paul@paul-moore.com,
-        linux-security-module@vger.kernel.org
-Cc:     jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, mic@digikod.net, selinux@vger.kernel.org
-Subject: [PATCH v11 10/11] SELinux: Add selfattr hooks
-Date:   Fri, 16 Jun 2023 09:50:54 -0700
-Message-Id: <20230616165055.4705-11-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230616165055.4705-1-casey@schaufler-ca.com>
-References: <20230616165055.4705-1-casey@schaufler-ca.com>
+        with ESMTP id S230244AbjFPUn2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Jun 2023 16:43:28 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A9363A91
+        for <selinux@vger.kernel.org>; Fri, 16 Jun 2023 13:43:26 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-5704fce0f23so13415597b3.3
+        for <selinux@vger.kernel.org>; Fri, 16 Jun 2023 13:43:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1686948206; x=1689540206;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/MfB4vAsE+paFtRmVm47qvorv9QjwKwGCNsi8Wh9N4c=;
+        b=XpRk5uNvUXzArrZZ3HgT20gxW6Ka4jyH5kJmbtxw5Xvkwy53xigRBBpnQM+MNp57by
+         pUU2MTRdOd0VtyqBgu7FiwQFMYNNmp5+1/kJak3MbYd4vHASVhfnogwW+ZcNCFVpfU8Y
+         PULae/e6KkSFjp/vSbWSty7FejpgqDA9B6aRX1ZOF2qXLtoGVKG7cq1bHMf9ib/bayQG
+         ZurB4k54DTBBLFnzs9hvkSEhIeCsfbZdRUBfgMa13k+YTzeQBqDrffHvsQr26o1MkNet
+         7dP61Kniz9R0ct8AJbE49pyiz1sQdNXvK53gofa/8YR1zVprmFMJtlKq+ZkP9sIoZjmY
+         dLOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686948206; x=1689540206;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/MfB4vAsE+paFtRmVm47qvorv9QjwKwGCNsi8Wh9N4c=;
+        b=li/eHon3ArZoUSKc2/mRo45rfoNp1lq0M6k6eoFsVQIXP9fqwdPHRYkcNPMwHqNuDk
+         f/eGSyScomZF1gGagntx9rLbbsfoRrC4i1vCixjV0rEHXwokCTJqEIMCfoAAJV+l8gXS
+         s9imuGv3ZehnvVldxqdns9wsvxI0UfcfXT62/XprfqWVWPcXKRTIiJwM3QKv1wVE1yEx
+         afyskieD2OfsjmFcVraFUo3JHpzAnkUT4NAoBdMiQsASQupbJ5DDsshvquMy+VDAyCZp
+         AS0Fi2FxdkTZ3hMsVS3OG3tGxEUsYT9DHLp7MAU9WkPQoaJFcQg7lFyHImH2FNAR2s0S
+         FaLw==
+X-Gm-Message-State: AC+VfDzqro34JQjE80QjJZQPNBYt+c3ukOyHnOXgcFhyMCWnLXl8qErk
+        xutz8UnbfhT0ui1siVcBVdsQc2QzPR8iYRww4jD+Nkxhq5P6pwk=
+X-Google-Smtp-Source: ACHHUZ5J71gS+5BaU2cjneJ1y0zoLxY8T03SIomgKEWzRknLyT1Ew95Amn716LtV0vaRQidSh+ZwuifgcVBxSRgWrl8=
+X-Received: by 2002:a0d:f5c2:0:b0:565:a3d1:be19 with SMTP id
+ e185-20020a0df5c2000000b00565a3d1be19mr2935269ywf.31.1686948205692; Fri, 16
+ Jun 2023 13:43:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230612090145.1059245-1-omosnace@redhat.com>
+In-Reply-To: <20230612090145.1059245-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 16 Jun 2023 16:43:14 -0400
+Message-ID: <CAHC9VhQg3ThH4A5+MggCqNxGnUOsEEgawbTmb4VO1XTWSAKCPg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: introduce an initial SID for early boot processes
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add hooks for setselfattr and getselfattr. These hooks are not very
-different from their setprocattr and getprocattr equivalents, and
-much of the code is shared.
+On Mon, Jun 12, 2023 at 5:01=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
+>
+> Currently, SELinux doesn't allow distinguishing between kernel threads
+> and userspace processes that are started before the policy is first
+> loaded - both get the label corresponding to the kernel SID. The only
+> way a process that persists from early boot can get a meaningful label
+> is by doing a voluntary dyntransition or re-executing itself.
+>
+> Reusing the kernel label for userspace processes is problematic for
+> several reasons:
+> 1. The kernel is considered to be a privileged domain and generally
+>    needs to have a wide range of permissions allowed to work correctly,
+>    which prevents the policy writer from effectively hardening against
+>    early boot processes that might remain running unintentionally after
+>    the policy is loaded (they represent a potential extra attack surface
+>    that should be mitigated).
+> 2. Despite the kernel being treated as a privileged domain, the policy
+>    writer may want to impose certain special limitations on kernel
+>    threads that may conflict with the requirements of intentional early
+>    boot processes. For example, it is a good hardening practice to limit
+>    what executables the kernel can execute as usermode helpers and to
+>    confine the resulting usermode helper processes. However, a
+>    (legitimate) process surviving from early boot may need to execute a
+>    different set of executables.
+> 3. As currently implemented, overlayfs remembers the security context of
+>    the process that created an overlayfs mount and uses it to bound
+>    subsequent operations on files using this context. If an overlayfs
+>    mount is created before the SELinux policy is loaded, these "mounter"
+>    checks are made against the kernel context, which may clash with
+>    restrictions on the kernel domain (see 2.).
+>
+> To resolve this, introduce a new initial SID (reusing the slot of the
+> former "init" initial SID) that will be assigned to any userspace
+> process started before the policy is first loaded. This is easy to do,
+> as we can simply label any process that goes through the
+> bprm_creds_for_exec LSM hook with the new init-SID instead of
+> propagating the kernel SID from the parent.
+>
+> To provide backwards compatibility for existing policies that are
+> unaware of this new semantic of the "init" initial SID, introduce a new
+> policy capability "userspace_initial_context" and set the "init" SID to
+> the same context as the "kernel" SID unless this capability is set by
+> the policy.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  security/selinux/hooks.c                      | 27 +++++++++++++++++++
+>  .../selinux/include/initial_sid_to_string.h   |  2 +-
+>  security/selinux/include/policycap.h          |  1 +
+>  security/selinux/include/policycap_names.h    |  3 ++-
+>  security/selinux/include/security.h           |  7 +++++
+>  security/selinux/ss/policydb.c                | 27 +++++++++++++++++++
+>  6 files changed, 65 insertions(+), 2 deletions(-)
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 148 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 121 insertions(+), 27 deletions(-)
+Thanks Ondrej, this looks pretty good to me.  There is some minor
+nitpicky stuff below, but those comments are mainly FYIs for future
+reference.  Given where we are at in the -rcX cycle, I am going to
+hold off on merging this until after the upcoming merge window.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 49ec74bc006c..a4a536552717 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6226,8 +6226,8 @@ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
- 		inode_doinit_with_dentry(inode, dentry);
- }
- 
--static int selinux_getprocattr(struct task_struct *p,
--			       const char *name, char **value)
-+static int selinux_lsm_getattr(unsigned int attr, struct task_struct *p,
-+			       char **value)
- {
- 	const struct task_security_struct *__tsec;
- 	u32 sid;
-@@ -6244,20 +6244,27 @@ static int selinux_getprocattr(struct task_struct *p,
- 			goto bad;
- 	}
- 
--	if (!strcmp(name, "current"))
-+	switch (attr) {
-+	case LSM_ATTR_CURRENT:
- 		sid = __tsec->sid;
--	else if (!strcmp(name, "prev"))
-+		break;
-+	case LSM_ATTR_PREV:
- 		sid = __tsec->osid;
--	else if (!strcmp(name, "exec"))
-+		break;
-+	case LSM_ATTR_EXEC:
- 		sid = __tsec->exec_sid;
--	else if (!strcmp(name, "fscreate"))
-+		break;
-+	case LSM_ATTR_FSCREATE:
- 		sid = __tsec->create_sid;
--	else if (!strcmp(name, "keycreate"))
-+		break;
-+	case LSM_ATTR_KEYCREATE:
- 		sid = __tsec->keycreate_sid;
--	else if (!strcmp(name, "sockcreate"))
-+		break;
-+	case LSM_ATTR_SOCKCREATE:
- 		sid = __tsec->sockcreate_sid;
--	else {
--		error = -EINVAL;
-+		break;
-+	default:
-+		error = -EOPNOTSUPP;
- 		goto bad;
- 	}
- 	rcu_read_unlock();
-@@ -6275,7 +6282,7 @@ static int selinux_getprocattr(struct task_struct *p,
- 	return error;
- }
- 
--static int selinux_setprocattr(const char *name, void *value, size_t size)
-+static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
- {
- 	struct task_security_struct *tsec;
- 	struct cred *new;
-@@ -6286,23 +6293,31 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	/*
- 	 * Basic control over ability to set these attributes at all.
- 	 */
--	if (!strcmp(name, "exec"))
-+	switch (attr) {
-+	case LSM_ATTR_EXEC:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETEXEC, NULL);
--	else if (!strcmp(name, "fscreate"))
-+		break;
-+	case LSM_ATTR_FSCREATE:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETFSCREATE, NULL);
--	else if (!strcmp(name, "keycreate"))
-+		break;
-+	case LSM_ATTR_KEYCREATE:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETKEYCREATE, NULL);
--	else if (!strcmp(name, "sockcreate"))
-+		break;
-+	case LSM_ATTR_SOCKCREATE:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETSOCKCREATE, NULL);
--	else if (!strcmp(name, "current"))
-+		break;
-+	case LSM_ATTR_CURRENT:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETCURRENT, NULL);
--	else
--		error = -EINVAL;
-+		break;
-+	default:
-+		error = -EOPNOTSUPP;
-+		break;
-+	}
- 	if (error)
- 		return error;
- 
-@@ -6314,13 +6329,14 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 		}
- 		error = security_context_to_sid(value, size,
- 						&sid, GFP_KERNEL);
--		if (error == -EINVAL && !strcmp(name, "fscreate")) {
-+		if (error == -EINVAL && attr == LSM_ATTR_FSCREATE) {
- 			if (!has_cap_mac_admin(true)) {
- 				struct audit_buffer *ab;
- 				size_t audit_size;
- 
--				/* We strip a nul only if it is at the end, otherwise the
--				 * context contains a nul and we should audit that */
-+				/* We strip a nul only if it is at the end,
-+				 * otherwise the context contains a nul and
-+				 * we should audit that */
- 				if (str[size - 1] == '\0')
- 					audit_size = size - 1;
- 				else
-@@ -6331,7 +6347,8 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 				if (!ab)
- 					return error;
- 				audit_log_format(ab, "op=fscreate invalid_context=");
--				audit_log_n_untrustedstring(ab, value, audit_size);
-+				audit_log_n_untrustedstring(ab, value,
-+							    audit_size);
- 				audit_log_end(ab);
- 
- 				return error;
-@@ -6354,11 +6371,11 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	   checks and may_create for the file creation checks. The
- 	   operation will then fail if the context is not permitted. */
- 	tsec = selinux_cred(new);
--	if (!strcmp(name, "exec")) {
-+	if (attr == LSM_ATTR_EXEC) {
- 		tsec->exec_sid = sid;
--	} else if (!strcmp(name, "fscreate")) {
-+	} else if (attr == LSM_ATTR_FSCREATE) {
- 		tsec->create_sid = sid;
--	} else if (!strcmp(name, "keycreate")) {
-+	} else if (attr == LSM_ATTR_KEYCREATE) {
- 		if (sid) {
- 			error = avc_has_perm(mysid, sid,
- 					     SECCLASS_KEY, KEY__CREATE, NULL);
-@@ -6366,9 +6383,9 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 				goto abort_change;
- 		}
- 		tsec->keycreate_sid = sid;
--	} else if (!strcmp(name, "sockcreate")) {
-+	} else if (attr == LSM_ATTR_SOCKCREATE) {
- 		tsec->sockcreate_sid = sid;
--	} else if (!strcmp(name, "current")) {
-+	} else if (attr == LSM_ATTR_CURRENT) {
- 		error = -EINVAL;
- 		if (sid == 0)
- 			goto abort_change;
-@@ -6410,6 +6427,81 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	return error;
- }
- 
-+static int selinux_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
-+			       size_t *size, u32 flags)
-+{
-+	char *value;
-+	size_t total_len;
-+	int len;
-+	int rc;
-+
-+	len = selinux_lsm_getattr(attr, current, &value);
-+	if (len < 0)
-+		return len;
-+
-+	total_len = ALIGN(struct_size(ctx, ctx, len), 8);
-+
-+	if (total_len > *size)
-+		rc = -E2BIG;
-+	else if (ctx)
-+		rc = lsm_fill_user_ctx(ctx, value, len, LSM_ID_SELINUX, 0);
-+	else
-+		rc = 1;
-+
-+	*size = total_len;
-+	if (rc < 0)
-+		return rc;
-+	return 1;
-+}
-+
-+static int selinux_setselfattr(unsigned int __user attr,
-+			       struct lsm_ctx __user *ctx, size_t __user size,
-+			       u32 __user flags)
-+{
-+	struct lsm_ctx *lctx;
-+	int rc;
-+
-+	lctx = kmalloc(size, GFP_KERNEL);
-+	if (lctx == NULL)
-+		return -ENOMEM;
-+
-+	if (copy_from_user(lctx, ctx, size))
-+		rc = -EFAULT;
-+	else if (lctx->ctx_len > size)
-+		rc = -EINVAL;
-+	else
-+		rc = selinux_lsm_setattr(attr, lctx->ctx, lctx->ctx_len);
-+
-+	kfree(lctx);
-+	if (rc > 0)
-+		return 0;
-+	return rc;
-+}
-+
-+static int selinux_getprocattr(struct task_struct *p,
-+			       const char *name, char **value)
-+{
-+	unsigned int attr = lsm_name_to_attr(name);
-+	int rc;
-+
-+	if (attr) {
-+		rc = selinux_lsm_getattr(attr, p, value);
-+		if (rc != -EOPNOTSUPP)
-+			return rc;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int selinux_setprocattr(const char *name, void *value, size_t size)
-+{
-+	int attr = lsm_name_to_attr(name);
-+
-+	if (attr)
-+		return selinux_lsm_setattr(attr, value, size);
-+	return -EINVAL;
-+}
-+
- static int selinux_ismaclabel(const char *name)
- {
- 	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
-@@ -7041,6 +7133,8 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- 
- 	LSM_HOOK_INIT(d_instantiate, selinux_d_instantiate),
- 
-+	LSM_HOOK_INIT(getselfattr, selinux_getselfattr),
-+	LSM_HOOK_INIT(setselfattr, selinux_setselfattr),
- 	LSM_HOOK_INIT(getprocattr, selinux_getprocattr),
- 	LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
- 
--- 
-2.40.1
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 99ded60a6b911..dd410ceb178cb 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2264,6 +2264,18 @@ static int selinux_bprm_creds_for_exec(struct linu=
+x_binprm *bprm)
+>         new_tsec->keycreate_sid =3D 0;
+>         new_tsec->sockcreate_sid =3D 0;
+>
+> +       /*
+> +        * Before policy is loaded, label any task outside kernel space
+> +        * as SECINITSID_INIT, so that any userspace tasks surviving from
+> +        * early boot end up with a label different from SECINITSID_KERNE=
+L
+> +        * (if the policy chooses to set SECINITSID_INIT !=3D SECINITSID_=
+KERNEL).
+> +        */
+> +       if (!selinux_initialized()) {
+> +               new_tsec->sid =3D SECINITSID_INIT;
+> +               new_tsec->exec_sid =3D 0; /* just in case */
 
+Style nit, I don't like placing trailing comments on the same line as
+code.  Don't respin this patch just for this, but remember this for
+future submissions.
+
+> +               return 0;
+> +       }
+> +
+>         if (old_tsec->exec_sid) {
+>                 new_tsec->sid =3D old_tsec->exec_sid;
+>                 /* Reset exec SID on execve. */
+
+...
+
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
+b.c
+> index 97c0074f9312a..240e0fb1d57f9 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -863,6 +863,8 @@ void policydb_destroy(struct policydb *p)
+>  int policydb_load_isids(struct policydb *p, struct sidtab *s)
+>  {
+>         struct ocontext *head, *c;
+> +       bool secsid_init_supported =3D ebitmap_get_bit(&p->policycaps,
+> +                                                    POLICYDB_CAP_USERSPA=
+CE_INITIAL_CONTEXT);
+
+This is another "please don't respin for this", but if you have to
+respin for any reason can you change the variable name to
+"isid_init_supported" or something similar?  The "secsid" portion of
+the name looks wrong to me.
+
+--=20
+paul-moore.com
