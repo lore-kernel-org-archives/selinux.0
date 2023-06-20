@@ -2,47 +2,47 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D123EB64DB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92F23EB64D8
 	for <selinux@archiver.kernel.org>; Tue, 20 Jun 2023 09:02:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232099AbjFTJCg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S232070AbjFTJCg (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 20 Jun 2023 05:02:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59066 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231765AbjFTJCd (ORCPT
+        with ESMTP id S232058AbjFTJCd (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 20 Jun 2023 05:02:33 -0400
 Received: from sender11-of-o52.zoho.eu (sender11-of-o52.zoho.eu [31.186.226.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABEDE1706
-        for <selinux@vger.kernel.org>; Tue, 20 Jun 2023 02:02:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1687251743; cv=none; 
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B0A10FE
+        for <selinux@vger.kernel.org>; Tue, 20 Jun 2023 02:02:26 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1687251742; cv=none; 
         d=zohomail.eu; s=zohoarc; 
-        b=bXSrxpEHdZhQ6cEQB9WHCyt6MiOslmMyKHhh7/m5tQaXPmxmgm1Pz1Qjv4p+BQa/abWn1u7eYrqbDNpVY0e7j7Qed9t0VWcr2o+r+VKcgJqkjaiAN+R6YEsEIneNYscHdtsULtGNziMvsEjHFUbnyRuPdwCj+OegF+Cz+mj9P4U=
+        b=DmorbhxIa1DAbtSybZsSTh8c5e3Iu2r9ft8KdPu1d0wq9VOes+lSVrb+v30MfLEPJRbd8JIbaHPLewso9zv9FHVRXrxTSqF7lsWuxwGdYEtiySUOfGi0i6X6vpEm9IcKpg/EHuf8SnpG+sCDG0aJQBF1r4YHrWu+y4vMu18HK/8=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
-        t=1687251743; h=Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=41DagNBY51Sv6DxbtPcGnCsly9E3PsHLL7ATv5HFqXI=; 
-        b=fPaL+ZGQXnz2WBNBgNyFWFL+pTTnx1j+SfeHe5wAKB7fQOkpoja4bWdNwMfc2F2sTJaB1+S7StlbYLT73KdIEwXf0oAThJs1PO210fZqSIiSLo92+QwUEp88oB6HZsf5XuTGFA7XtSuqpFDzaICI798cyHc464+aBibKsucY77M=
+        t=1687251742; h=Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=fubBD2SkN9sov+9T9bkTkDYwpWymMWf4A5oY56B3esA=; 
+        b=L/6GrhGnwRvNjozkHxyiBdY0tHnA0cEGcllISar8sEE8oxhU9sJOzJjgiJXkhyGXyIuO8Wi2yDpb8ZGT55UCuc+9kg838Y14FcXbOAp34fllMbqX4CESEZfO93ubSzlZzPMC0YiuXBG+B+kCUMQHhYNwG3BFvlqIg/NQDcyUbTo=
 ARC-Authentication-Results: i=1; mx.zohomail.eu;
         dkim=pass  header.i=jurajmarcin.com;
         spf=pass  smtp.mailfrom=juraj@jurajmarcin.com;
         dmarc=pass header.from=<juraj@jurajmarcin.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1687251743;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1687251742;
         s=zoho; d=jurajmarcin.com; i=juraj@jurajmarcin.com;
         h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-Id:Message-Id:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Reply-To;
-        bh=41DagNBY51Sv6DxbtPcGnCsly9E3PsHLL7ATv5HFqXI=;
-        b=V0n7BkVabACIrdtWf0Hpk6vNVBmDqN/cztArtGiUi2/N4LOQEvqYDH975y7h+3vN
-        aLwpdzBBuAmacsbw0TSLmVpqmUQCRSDXDkRiJwqrL225gHpowsl8j99wWSeTxT6eg6a
-        6xU0Gn5Sl1AsaFgVtkmg71v8pZouhkh1wzBrEc+s=
+        bh=fubBD2SkN9sov+9T9bkTkDYwpWymMWf4A5oY56B3esA=;
+        b=HaHDjzU5LKkBOho8MD+ZcBOkuS/47T2cp730sfAdVAXwR7PYFWaY9qmlD08yCzoc
+        vMivs4h/xGmzWnK1obQZ+qDhmwku/2PE/XK1RuETbdGRacjsOyo8pVg1EGFX9gmS/Ob
+        MJGSUMF5vtVmArun1oN6cChTmn2kBpQmUDEfLUdg=
 Received: from morty01.jurajmarcin.com (129.159.244.31 [129.159.244.31]) by mx.zoho.eu
-        with SMTPS id 1687251742559691.6562824648195; Tue, 20 Jun 2023 11:02:22 +0200 (CEST)
+        with SMTPS id 1687251740596656.9946366253265; Tue, 20 Jun 2023 11:02:20 +0200 (CEST)
 Received: from jmarcin-t14s-01.redhat.com (unknown [213.175.37.12])
-        by morty01.jurajmarcin.com (Postfix) with ESMTPSA id 03F982081F76;
-        Tue, 20 Jun 2023 09:02:22 +0000 (UTC)
+        by morty01.jurajmarcin.com (Postfix) with ESMTPSA id 0173D2081F76;
+        Tue, 20 Jun 2023 09:02:19 +0000 (UTC)
 From:   Juraj Marcin <juraj@jurajmarcin.com>
 To:     selinux@vger.kernel.org
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v2 3/8] checkpolicy,libsepol: move filename transition rules to avrule
-Date:   Tue, 20 Jun 2023 11:01:18 +0200
-Message-Id: <d59ca7606adbb1c01f2187b9965cd847656bc026.1687251081.git.juraj@jurajmarcin.com>
+Subject: [PATCH v2 2/8] checkpolicy,libsepol: move filename transitions to avtab
+Date:   Tue, 20 Jun 2023 11:01:17 +0200
+Message-Id: <1e743e36c7f059dbe713f4d3944b1de8ebe149fb.1687251081.git.juraj@jurajmarcin.com>
 In-Reply-To: <cover.1687251081.git.juraj@jurajmarcin.com>
 References: <cover.1687251081.git.juraj@jurajmarcin.com>
 MIME-Version: 1.0
@@ -51,1340 +51,2344 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Similarly to the previous patch, filename transition rules are stored
-and parsed separately from other type enforcement rules. Moving them to
-avrule makes it consistent with the filename transitions in avtab and
-makes future improvements easier to implement.
+Currently, filename transitions are stored separately from other type
+enforcement rules. This leads to possibly sub-optimal performance and
+makes further improvements cumbersome.
 
-This patch adds an optional object name attribute to the avrule
-structure and uses this new attribute to move filename transition rules
-to avrule. It also updates functions for parsing type enforcement rules
-to accept rules with a filename as their last argument (filename
-transition rules), separate functions for parsing filename transitions
-are therefore no longer needed.
+This patch adds a symbol table with filename transitions to the
+transition structure added to avtab in the previous patch. It also
+implements functions required for reading and writing filename
+transitions (either binary or source formats) and updates the code for
+expanding attributes. Last but not least, it updates the conflict check
+in the conditional avtab to account for empty transitions in the
+non-conditional avtab.
+
+These changes are expected to cause higher memory usage, as now there
+needs to be a filename transition structure for every stype. This patch
+effectively undoes most of the commit 42ae834a ("libsepol,checkpolicy:
+optimize storage of filename transitions"), but this will be mitigated
+by providing support for matching prefix/suffix of the filename for
+filename transitions in future patches which will reduce to need to have
+so many of them.
 
 Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
 Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
 ---
- checkpolicy/checkpolicy.c                  |   9 -
- checkpolicy/module_compiler.c              |  12 --
- checkpolicy/module_compiler.h              |   1 -
- checkpolicy/policy_define.c                | 215 +++------------------
- checkpolicy/policy_define.h                |   3 +-
- checkpolicy/policy_parse.y                 |   8 +-
- checkpolicy/test/dismod.c                  |  25 +--
- libsepol/cil/src/cil_binary.c              |   2 +
- libsepol/include/sepol/policydb/policydb.h |  16 +-
- libsepol/src/avrule_block.c                |   1 -
- libsepol/src/expand.c                      | 132 ++++---------
- libsepol/src/link.c                        |  56 +-----
- libsepol/src/module_to_cil.c               |  71 +------
- libsepol/src/policydb.c                    |  70 ++-----
- libsepol/src/policydb_validate.c           |  27 ---
- libsepol/src/write.c                       |  86 +++++----
- 16 files changed, 154 insertions(+), 580 deletions(-)
+ checkpolicy/checkmodule.c                  |   9 +
+ checkpolicy/checkpolicy.c                  |   9 +
+ checkpolicy/policy_define.c                |  21 +-
+ checkpolicy/test/dispol.c                  |  83 ++--
+ libsepol/cil/src/cil_binary.c              |  27 +-
+ libsepol/include/sepol/policydb/avtab.h    |   9 +
+ libsepol/include/sepol/policydb/hashtab.h  |   8 +
+ libsepol/include/sepol/policydb/policydb.h |  22 -
+ libsepol/src/avtab.c                       | 199 +++++++++
+ libsepol/src/conditional.c                 |   6 +-
+ libsepol/src/expand.c                      |  27 +-
+ libsepol/src/kernel_to_cil.c               | 159 ++-----
+ libsepol/src/kernel_to_common.h            |   9 +
+ libsepol/src/kernel_to_conf.c              | 155 ++-----
+ libsepol/src/optimize.c                    |   8 +-
+ libsepol/src/policydb.c                    | 343 +--------------
+ libsepol/src/policydb_validate.c           |  69 ++-
+ libsepol/src/write.c                       | 463 +++++++++++++++------
+ 18 files changed, 804 insertions(+), 822 deletions(-)
 
+diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+index 3432608b..d68a56a1 100644
+--- a/checkpolicy/checkmodule.c
++++ b/checkpolicy/checkmodule.c
+@@ -275,6 +275,15 @@ int main(int argc, char **argv)
+ 		modpolicydb.mls =3D mlspol;
+ 		modpolicydb.handle_unknown =3D handle_unknown;
+=20
++		/*
++		 * Init and alloc te_avtab for filename transition duplicate
++		 * checking
++		 */
++		if (avtab_init(&modpolicydb.te_avtab))
++			exit(1);
++		if (avtab_alloc(&modpolicydb.te_avtab, 1 << 11))
++			exit(1);
++
+ 		if (read_source_policy(&modpolicydb, file, argv[0]) =3D=3D -1) {
+ 			exit(1);
+ 		}
 diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index 6e8ed833..2485142d 100644
+index 2485142d..6e8ed833 100644
 --- a/checkpolicy/checkpolicy.c
 +++ b/checkpolicy/checkpolicy.c
-@@ -611,15 +611,6 @@ int main(int argc, char **argv)
+@@ -611,6 +611,15 @@ int main(int argc, char **argv)
  		parse_policy.mls =3D mlspol;
  		parse_policy.handle_unknown =3D handle_unknown;
 =20
--		/*
--		 * Init and alloc te_avtab for filename transition duplicate
--		 * checking
--		 */
--		if (avtab_init(&parse_policy.te_avtab))
--			exit(1);
--		if (avtab_alloc(&parse_policy.te_avtab, 1 << 11))
--			exit(1);
--
++		/*
++		 * Init and alloc te_avtab for filename transition duplicate
++		 * checking
++		 */
++		if (avtab_init(&parse_policy.te_avtab))
++			exit(1);
++		if (avtab_alloc(&parse_policy.te_avtab, 1 << 11))
++			exit(1);
++
  		policydbp =3D &parse_policy;
 =20
  		if (read_source_policy(policydbp, file, "checkpolicy") < 0)
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.=
-c
-index 3188af89..5fe1729a 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -1278,18 +1278,6 @@ void append_role_allow(role_allow_rule_t * role_al=
-low_rules)
- 	decl->role_allow_rules =3D role_allow_rules;
- }
-=20
--/* this doesn't actually append, but really prepends it */
--void append_filename_trans(filename_trans_rule_t * filename_trans_rules)
--{
--	avrule_decl_t *decl =3D stack_top->decl;
--
--	/* filename transitions are not allowed within conditionals */
--	assert(stack_top->type =3D=3D 1);
--
--	filename_trans_rules->next =3D decl->filename_trans_rules;
--	decl->filename_trans_rules =3D filename_trans_rules;
--}
--
- /* this doesn't actually append, but really prepends it */
- void append_range_trans(range_trans_rule_t * range_tr_rules)
- {
-diff --git a/checkpolicy/module_compiler.h b/checkpolicy/module_compiler.=
-h
-index 29b824b4..6f8bb9b9 100644
---- a/checkpolicy/module_compiler.h
-+++ b/checkpolicy/module_compiler.h
-@@ -83,7 +83,6 @@ void append_avrule(avrule_t * avrule);
- void append_role_trans(role_trans_rule_t * role_tr_rules);
- void append_role_allow(role_allow_rule_t * role_allow_rules);
- void append_range_trans(range_trans_rule_t * range_tr_rules);
--void append_filename_trans(filename_trans_rule_t * filename_trans_rules)=
-;
-=20
- /* Create a new optional block and add it to the global policy.
-  * During the second pass resolve the block's requirements.  Return 0
 diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index dc2ee8f3..25dbf25d 100644
+index cef8f3c4..dc2ee8f3 100644
 --- a/checkpolicy/policy_define.c
 +++ b/checkpolicy/policy_define.c
-@@ -1601,7 +1601,7 @@ static int set_types(type_set_t * set, char *id, in=
-t *add, char starallowed)
- 	return -1;
- }
-=20
--static int define_compute_type_helper(int which, avrule_t ** rule)
-+static int define_compute_type_helper(int which, avrule_t ** rule, int h=
-as_filename)
- {
- 	char *id;
- 	type_datum_t *datum;
-@@ -1669,6 +1669,14 @@ static int define_compute_type_helper(int which, a=
-vrule_t ** rule)
- 	}
- 	free(id);
-=20
-+	if (has_filename) {
-+		avrule->object_name =3D queue_remove(id_queue);
-+		if (!avrule->object_name) {
-+			yyerror("no object_name?");
-+			goto bad;
-+		}
-+	}
-+
- 	ebitmap_for_each_positive_bit(&tclasses, node, i) {
- 		perm =3D malloc(sizeof(class_perm_node_t));
- 		if (!perm) {
-@@ -1692,7 +1700,7 @@ static int define_compute_type_helper(int which, av=
-rule_t ** rule)
- 	return -1;
- }
-=20
--int define_compute_type(int which)
-+int define_compute_type(int which, int has_filename)
- {
- 	char *id;
- 	avrule_t *avrule;
-@@ -1706,10 +1714,14 @@ int define_compute_type(int which)
- 			free(id);
- 		id =3D queue_remove(id_queue);
- 		free(id);
-+		if (has_filename) {
-+			id =3D queue_remove(id_queue);
-+			free(id);
-+		}
- 		return 0;
- 	}
-=20
--	if (define_compute_type_helper(which, &avrule))
-+	if (define_compute_type_helper(which, &avrule, has_filename))
- 		return -1;
-=20
- 	append_avrule(avrule);
-@@ -1733,7 +1745,7 @@ avrule_t *define_cond_compute_type(int which)
- 		return (avrule_t *) 1;
- 	}
-=20
--	if (define_compute_type_helper(which, &avrule))
-+	if (define_compute_type_helper(which, &avrule, 0))
- 		return COND_ERR;
-=20
- 	return avrule;
-@@ -2375,6 +2387,13 @@ static int avrule_cpy(avrule_t *dest, const avrule=
-_t *src)
- 		yyerror("out of memory");
- 		return -1;
- 	}
-+	if (src->object_name) {
-+		dest->object_name =3D strdup(src->object_name);
-+		if (!dest->object_name) {
-+			yyerror("out of memory");
-+			return -1;
-+		}
-+	}
- 	dest->line =3D src->line;
- 	dest->source_filename =3D strdup(source_file);
- 	if (!dest->source_filename) {
-@@ -3343,194 +3362,6 @@ avrule_t *define_cond_filename_trans(void)
- 	return COND_ERR;
- }
-=20
--int define_filename_trans(void)
--{
--	char *id, *name =3D NULL;
--	type_set_t stypes, ttypes;
--	ebitmap_t e_stypes, e_ttypes;
--	ebitmap_t e_tclasses;
--	ebitmap_node_t *snode, *tnode, *cnode;
--	filename_trans_rule_t *ftr;
--	type_datum_t *typdatum;
--	avtab_key_t avt_key;
--	uint32_t otype;
--	unsigned int c, s, t;
--	int add, self, rc;
--
--	if (pass =3D=3D 1) {
--		/* stype */
--		while ((id =3D queue_remove(id_queue)))
--			free(id);
--		/* ttype */
--		while ((id =3D queue_remove(id_queue)))
--			free(id);
--		/* tclass */
--		while ((id =3D queue_remove(id_queue)))
--			free(id);
--		/* otype */
--		id =3D queue_remove(id_queue);
--		free(id);
--		/* name */
--		id =3D queue_remove(id_queue);
--		free(id);
--		return 0;
--	}
--
--	type_set_init(&stypes);
--	type_set_init(&ttypes);
--	ebitmap_init(&e_stypes);
--	ebitmap_init(&e_ttypes);
--	ebitmap_init(&e_tclasses);
--
--	add =3D 1;
--	while ((id =3D queue_remove(id_queue))) {
--		if (set_types(&stypes, id, &add, 0))
--			goto bad;
--	}
--
--	self =3D 0;
--	add =3D 1;
--	while ((id =3D queue_remove(id_queue))) {
--		if (strcmp(id, "self") =3D=3D 0) {
--			free(id);
--			if (add =3D=3D 0) {
--				yyerror("-self is not supported");
--				goto bad;
--			}
--			self =3D 1;
--			continue;
--		}
--		if (set_types(&ttypes, id, &add, 0))
--			goto bad;
--	}
--
--	if (read_classes(&e_tclasses))
--		goto bad;
--
--	id =3D (char *)queue_remove(id_queue);
--	if (!id) {
--		yyerror("no otype in transition definition?");
--		goto bad;
--	}
--	if (!is_id_in_scope(SYM_TYPES, id)) {
--		yyerror2("type %s is not within scope", id);
--		free(id);
--		goto bad;
--	}
--	typdatum =3D hashtab_search(policydbp->p_types.table, id);
--	if (!typdatum) {
--		yyerror2("unknown type %s used in transition definition", id);
--		free(id);
--		goto bad;
--	}
--	free(id);
--	otype =3D typdatum->s.value;
--
--	name =3D queue_remove(id_queue);
--	if (!name) {
--		yyerror("no pathname specified in filename_trans definition?");
--		goto bad;
--	}
--
--	/* We expand the class set into separate rules.  We expand the types
--	 * just to make sure there are not duplicates.  They will get turned
--	 * into separate rules later */
--	if (type_set_expand(&stypes, &e_stypes, policydbp, 1))
--		goto bad;
--
--	if (type_set_expand(&ttypes, &e_ttypes, policydbp, 1))
--		goto bad;
--
--	ebitmap_for_each_positive_bit(&e_tclasses, cnode, c) {
--		ebitmap_for_each_positive_bit(&e_stypes, snode, s) {
--			ebitmap_for_each_positive_bit(&e_ttypes, tnode, t) {
--				avt_key.specified =3D AVTAB_TRANSITION;
--				avt_key.source_type =3D s + 1;
--				avt_key.target_type =3D t + 1;
--				avt_key.target_class =3D c + 1;
--				rc =3D avtab_insert_filename_trans(
--					&policydbp->te_avtab, &avt_key, otype,
--					name, NULL
--				);
--				if (rc !=3D SEPOL_OK) {
--					if (rc =3D=3D SEPOL_EEXIST) {
--						yyerror2("duplicate filename transition for: filename_trans %s %s =
-%s:%s",
--							name,
--							policydbp->p_type_val_to_name[s],
--							policydbp->p_type_val_to_name[t],
--							policydbp->p_class_val_to_name[c]);
--						goto bad;
--					}
--					yyerror("out of memory");
--					goto bad;
--				}
--			}
--			if (self) {
--				avt_key.specified =3D AVTAB_TRANSITION;
--				avt_key.source_type =3D s + 1;
--				avt_key.target_type =3D t + 1;
--				avt_key.target_class =3D c + 1;
--				rc =3D avtab_insert_filename_trans(
--					&policydbp->te_avtab, &avt_key, otype,
--					name, NULL
--				);
--				if (rc !=3D SEPOL_OK) {
--					if (rc =3D=3D SEPOL_EEXIST) {
--						yyerror2("duplicate filename transition for: filename_trans %s %s =
-%s:%s",
--							name,
--							policydbp->p_type_val_to_name[s],
--							policydbp->p_type_val_to_name[s],
--							policydbp->p_class_val_to_name[c]);
--						goto bad;
--					}
--					yyerror("out of memory");
--					goto bad;
--				}
--			}
--		}
--=09
--		/* Now add the real rule since we didn't find any duplicates */
--		ftr =3D malloc(sizeof(*ftr));
--		if (!ftr) {
--			yyerror("out of memory");
--			goto bad;
--		}
--		filename_trans_rule_init(ftr);
--		append_filename_trans(ftr);
--
--		ftr->name =3D strdup(name);
--		if (type_set_cpy(&ftr->stypes, &stypes)) {
--			yyerror("out of memory");
--			goto bad;
--		}
--		if (type_set_cpy(&ftr->ttypes, &ttypes)) {
--			yyerror("out of memory");
--			goto bad;
--		}
--		ftr->tclass =3D c + 1;
--		ftr->otype =3D otype;
--		ftr->flags =3D self ? RULE_SELF : 0;
--	}
--
--	free(name);
--	ebitmap_destroy(&e_stypes);
--	ebitmap_destroy(&e_ttypes);
--	ebitmap_destroy(&e_tclasses);
--	type_set_destroy(&stypes);
--	type_set_destroy(&ttypes);
--
--	return 0;
--
--bad:
--	free(name);
--	ebitmap_destroy(&e_stypes);
--	ebitmap_destroy(&e_ttypes);
--	ebitmap_destroy(&e_tclasses);
--	type_set_destroy(&stypes);
--	type_set_destroy(&ttypes);
--	return -1;
--}
--
- static constraint_expr_t *constraint_expr_clone(const constraint_expr_t =
-* expr)
- {
- 	constraint_expr_t *h =3D NULL, *l =3D NULL, *newe;
-diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
-index 50a7ba78..5d0f70e4 100644
---- a/checkpolicy/policy_define.h
-+++ b/checkpolicy/policy_define.h
-@@ -28,7 +28,7 @@ int define_default_role(int which);
- int define_default_type(int which);
- int define_default_range(int which);
- int define_common_perms(void);
--int define_compute_type(int which);
-+int define_compute_type(int which, int has_filename);
- int define_conditional(cond_expr_t *expr, avrule_t *t_list, avrule_t *f_=
-list );
- int define_constraint(constraint_expr_t *expr);
- int define_dominance(void);
-@@ -57,7 +57,6 @@ int define_role_trans(int class_specified);
- int define_role_types(void);
- int define_role_attr(void);
- int define_roleattribute(void);
--int define_filename_trans(void);
- int define_sens(void);
- int define_te_avtab(int which);
- int define_te_avtab_extended_perms(int which);
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index da32a776..2a14fc1e 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -451,13 +451,13 @@ cond_dontaudit_def	: DONTAUDIT names names ':' name=
-s names ';'
- 		        ;
- 			;
- transition_def		: TYPE_TRANSITION  names names ':' names identifier file=
-name ';'
--			{if (define_filename_trans()) return -1; }
-+			{if (define_compute_type(AVRULE_TRANSITION, 1)) return -1; }
- 			| TYPE_TRANSITION names names ':' names identifier ';'
--                        {if (define_compute_type(AVRULE_TRANSITION)) ret=
-urn -1;}
-+                        {if (define_compute_type(AVRULE_TRANSITION, 0)) =
-return -1;}
-                         | TYPE_MEMBER names names ':' names identifier '=
-;'
--                        {if (define_compute_type(AVRULE_MEMBER)) return =
--1;}
-+                        {if (define_compute_type(AVRULE_MEMBER, 0)) retu=
-rn -1;}
-                         | TYPE_CHANGE names names ':' names identifier '=
-;'
--                        {if (define_compute_type(AVRULE_CHANGE)) return =
--1;}
-+                        {if (define_compute_type(AVRULE_CHANGE, 0)) retu=
-rn -1;}
-     			;
- range_trans_def		: RANGE_TRANSITION names names mls_range_def ';'
- 			{ if (define_range_trans(0)) return -1; }
-diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-index 515fc9a5..cde80f95 100644
---- a/checkpolicy/test/dismod.c
-+++ b/checkpolicy/test/dismod.c
-@@ -50,7 +50,6 @@
- #define DISPLAY_AVBLOCK_ROLE_ALLOW	4
- #define DISPLAY_AVBLOCK_REQUIRES	5
- #define DISPLAY_AVBLOCK_DECLARES	6
--#define DISPLAY_AVBLOCK_FILENAME_TRANS	7
-=20
- static policydb_t policydb;
- extern unsigned int ss_initialized;
-@@ -90,7 +89,6 @@ static struct command {
- 	{CMD,       'c', "Display policy capabilities"},
- 	{CMD|NOOPT, 'l', "Link in a module"},
- 	{CMD,       'u', "Display the unknown handling setting"},
--	{CMD,       'F', "Display filename_trans rules"},
+@@ -3352,6 +3352,7 @@ int define_filename_trans(void)
+ 	ebitmap_node_t *snode, *tnode, *cnode;
+ 	filename_trans_rule_t *ftr;
+ 	type_datum_t *typdatum;
++	avtab_key_t avt_key;
+ 	uint32_t otype;
+ 	unsigned int c, s, t;
+ 	int add, self, rc;
+@@ -3443,9 +3444,13 @@ int define_filename_trans(void)
+ 	ebitmap_for_each_positive_bit(&e_tclasses, cnode, c) {
+ 		ebitmap_for_each_positive_bit(&e_stypes, snode, s) {
+ 			ebitmap_for_each_positive_bit(&e_ttypes, tnode, t) {
+-				rc =3D policydb_filetrans_insert(
+-					policydbp, s+1, t+1, c+1, name,
+-					NULL, otype, NULL
++				avt_key.specified =3D AVTAB_TRANSITION;
++				avt_key.source_type =3D s + 1;
++				avt_key.target_type =3D t + 1;
++				avt_key.target_class =3D c + 1;
++				rc =3D avtab_insert_filename_trans(
++					&policydbp->te_avtab, &avt_key, otype,
++					name, NULL
+ 				);
+ 				if (rc !=3D SEPOL_OK) {
+ 					if (rc =3D=3D SEPOL_EEXIST) {
+@@ -3461,9 +3466,13 @@ int define_filename_trans(void)
+ 				}
+ 			}
+ 			if (self) {
+-				rc =3D policydb_filetrans_insert(
+-					policydbp, s+1, s+1, c+1, name,
+-					NULL, otype, NULL
++				avt_key.specified =3D AVTAB_TRANSITION;
++				avt_key.source_type =3D s + 1;
++				avt_key.target_type =3D t + 1;
++				avt_key.target_class =3D c + 1;
++				rc =3D avtab_insert_filename_trans(
++					&policydbp->te_avtab, &avt_key, otype,
++					name, NULL
+ 				);
+ 				if (rc !=3D SEPOL_OK) {
+ 					if (rc =3D=3D SEPOL_EEXIST) {
+diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+index de1a5d11..e86ad2ed 100644
+--- a/checkpolicy/test/dispol.c
++++ b/checkpolicy/test/dispol.c
+@@ -63,7 +63,6 @@ static struct command {
+ 	{CMD,       'a',  "display type attributes"},
+ 	{CMD,       'p',  "display the list of permissive types"},
+ 	{CMD,       'u',  "display unknown handling setting"},
+-	{CMD,       'F',  "display filename_trans rules"},
  	{HEADER, 0, ""},
  	{CMD|NOOPT, 'f',  "set output file"},
  	{CMD|NOOPT, 'm',  "display menu"},
-@@ -339,6 +337,8 @@ static int display_avrule(avrule_t * avrule, policydb=
-_t * policy,
- 				   policy, fp);
- 	} else if (avrule->specified & AVRULE_TYPE) {
- 		display_id(policy, fp, SYM_TYPES, avrule->perms->data - 1, "");
-+		if (avrule->object_name)
-+			fprintf(fp, " \"%s\"", avrule->object_name);
- 	} else if (avrule->specified & AVRULE_XPERMS) {
- 		avtab_extended_perms_t xperms;
- 		int i;
-@@ -556,18 +556,6 @@ static void display_role_allow(role_allow_rule_t * r=
-a, policydb_t * p, FILE * fp
+@@ -126,6 +125,26 @@ static int render_key(avtab_key_t * key, policydb_t =
+* p, FILE * fp)
+ 	return 0;
+ }
+=20
++typedef struct {
++	avtab_key_t *key;
++	policydb_t *p;
++	FILE *fp;
++} render_name_trans_args_t;
++
++static int render_name_trans_helper(hashtab_key_t k, hashtab_datum_t d, =
+void *a)
++{
++	char *name =3D k;
++	uint32_t *otype =3D d;
++	render_name_trans_args_t *args =3D a;
++
++	fprintf(args->fp, "type_transition ");
++	render_key(args->key, args->p, args->fp);
++	render_type(*otype, args->p, args->fp);
++	fprintf(args->fp, " \"%s\";\n", name);
++
++	return 0;
++}
++
+ /* 'what' values for this function */
+ #define	RENDER_UNCONDITIONAL	0x0001	/* render all regardless of enabled =
+state */
+ #define RENDER_ENABLED		0x0002
+@@ -178,10 +197,19 @@ static int render_av_rule(avtab_key_t * key, avtab_=
+datum_t * datum, uint32_t wha
+ 		}
+ 	} else if (key->specified & AVTAB_TYPE) {
+ 		if (key->specified & AVTAB_TRANSITION) {
+-			fprintf(fp, "type_transition ");
+-			render_key(key, p, fp);
+-			render_type(datum->trans->otype, p, fp);
+-			fprintf(fp, ";\n");
++			if (datum->trans->otype) {
++				fprintf(fp, "type_transition ");
++				render_key(key, p, fp);
++				render_type(datum->trans->otype, p, fp);
++				fprintf(fp, ";\n");
++			}
++			render_name_trans_args_t args =3D {
++				.key =3D key,
++				.p =3D p,
++				.fp =3D fp,
++			};
++			hashtab_map(datum->trans->name_trans.table,
++				    render_name_trans_helper, &args);
+ 		}
+ 		if (key->specified & AVTAB_MEMBER) {
+ 			fprintf(fp, "type_member ");
+@@ -448,48 +476,6 @@ static void display_role_trans(policydb_t *p, FILE *=
+fp)
  	}
  }
 =20
--static void display_filename_trans(filename_trans_rule_t * tr, policydb_=
-t * p, FILE * fp)
+-struct filenametr_display_args {
+-	policydb_t *p;
+-	FILE *fp;
+-};
+-
+-static int filenametr_display(hashtab_key_t key,
+-			      hashtab_datum_t datum,
+-			      void *ptr)
 -{
--	fprintf(fp, "filename transition");
--	for (; tr; tr =3D tr->next) {
--		display_type_set(&tr->stypes, 0, p, fp);
--		display_type_set(&tr->ttypes, 0, p, fp);
--		display_id(p, fp, SYM_CLASSES, tr->tclass - 1, ":");
--		display_id(p, fp, SYM_TYPES, tr->otype - 1, "");
--		fprintf(fp, " %s\n", tr->name);
--	}
+-	struct filename_trans_key *ft =3D (struct filename_trans_key *)key;
+-	struct filename_trans_datum *ftdatum =3D datum;
+-	struct filenametr_display_args *args =3D ptr;
+-	policydb_t *p =3D args->p;
+-	FILE *fp =3D args->fp;
+-	ebitmap_node_t *node;
+-	uint32_t bit;
+-
+-	do {
+-		ebitmap_for_each_positive_bit(&ftdatum->stypes, node, bit) {
+-			display_id(p, fp, SYM_TYPES, bit, "");
+-			display_id(p, fp, SYM_TYPES, ft->ttype - 1, "");
+-			display_id(p, fp, SYM_CLASSES, ft->tclass - 1, ":");
+-			display_id(p, fp, SYM_TYPES, ftdatum->otype - 1, "");
+-			fprintf(fp, " %s\n", ft->name);
+-		}
+-		ftdatum =3D ftdatum->next;
+-	} while (ftdatum);
+-
+-	return 0;
 -}
 -
- static int role_display_callback(hashtab_key_t key __attribute__((unused=
-)),
- 			  hashtab_datum_t datum, void *data)
+-
+-static void display_filename_trans(policydb_t *p, FILE *fp)
+-{
+-	struct filenametr_display_args args;
+-
+-	fprintf(fp, "filename_trans rules:\n");
+-	args.p =3D p;
+-	args.fp =3D fp;
+-	hashtab_map(p->filename_trans, filenametr_display, &args);
+-}
+-
+ static int menu(void)
  {
-@@ -732,10 +720,6 @@ static int display_avdecl(avrule_decl_t * decl, int =
-field,
- 			}
- 			break;
- 		}
--	case DISPLAY_AVBLOCK_FILENAME_TRANS:
--		display_filename_trans(decl->filename_trans_rules, policy,
--				       out_fp);
--		break;
- 	default:{
- 			assert(0);
- 		}
-@@ -1061,11 +1045,6 @@ int main(int argc, char **argv)
+ 	unsigned int i;
+@@ -690,9 +676,6 @@ int main(int argc, char **argv)
  			if (out_fp !=3D stdout)
  				printf("\nOutput to file: %s\n", OutfileName);
  			break;
 -		case 'F':
--			fprintf(out_fp, "filename_trans rules:\n");
--			display_avblock(DISPLAY_AVBLOCK_FILENAME_TRANS,
--					&policydb, out_fp);
+-			display_filename_trans(&policydb, out_fp);
 -			break;
- 		case 'l':
- 			link_module(&policydb, out_fp);
- 			break;
+ 		case 'q':
+ 			policydb_destroy(&policydb);
+ 			exit(0);
 diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
 c
-index 7150d405..996bad70 100644
+index 3f264594..7150d405 100644
 --- a/libsepol/cil/src/cil_binary.c
 +++ b/libsepol/cil/src/cil_binary.c
-@@ -4650,6 +4650,7 @@ static avrule_t *__cil_init_sepol_avrule(uint32_t k=
-ind, struct cil_tree_node *no
- 	__cil_init_sepol_type_set(&avrule->stypes);
- 	__cil_init_sepol_type_set(&avrule->ttypes);
- 	avrule->perms =3D NULL;
-+	avrule->object_name =3D NULL;
- 	avrule->line =3D node->line;
-=20
- 	avrule->source_filename =3D NULL;
-@@ -4676,6 +4677,7 @@ static void __cil_destroy_sepol_avrules(avrule_t *c=
-urr)
- 		ebitmap_destroy(&curr->stypes.negset);
- 		ebitmap_destroy(&curr->ttypes.types);
- 		ebitmap_destroy(&curr->ttypes.negset);
-+		free(curr->object_name);
- 		__cil_destroy_sepol_class_perms(curr->perms);
- 		free(curr);
- 		curr =3D next;
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/includ=
-e/sepol/policydb/policydb.h
-index 8bb11d18..d30f26af 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -278,6 +278,7 @@ typedef struct avrule {
- 	type_set_t stypes;
- 	type_set_t ttypes;
- 	class_perm_node_t *perms;
-+	char *object_name;	/* optional object name */
- 	av_extended_perms_t *xperms;
- 	unsigned long line;	/* line number from policy.conf where
- 				 * this rule originated  */
-@@ -301,16 +302,6 @@ typedef struct role_allow_rule {
- 	struct role_allow_rule *next;
- } role_allow_rule_t;
-=20
--typedef struct filename_trans_rule {
--	uint32_t flags; /* may have RULE_SELF set */
--	type_set_t stypes;
--	type_set_t ttypes;
--	uint32_t tclass;
--	char *name;
--	uint32_t otype;	/* new type */
--	struct filename_trans_rule *next;
--} filename_trans_rule_t;
--
- typedef struct range_trans_rule {
- 	type_set_t stypes;
- 	type_set_t ttypes;
-@@ -451,9 +442,6 @@ typedef struct avrule_decl {
- 	scope_index_t required;	/* symbols needed to activate this block */
- 	scope_index_t declared;	/* symbols declared within this block */
-=20
--	/* type transition rules with a 'name' component */
--	filename_trans_rule_t *filename_trans_rules;
--
- 	/* for additive statements (type attribute, roles, and users) */
- 	symtab_t symtab[SYM_NUM];
-=20
-@@ -656,8 +644,6 @@ extern void avrule_destroy(avrule_t * x);
- extern void avrule_list_destroy(avrule_t * x);
- extern void role_trans_rule_init(role_trans_rule_t * x);
- extern void role_trans_rule_list_destroy(role_trans_rule_t * x);
--extern void filename_trans_rule_init(filename_trans_rule_t * x);
--extern void filename_trans_rule_list_destroy(filename_trans_rule_t * x);
-=20
- extern void role_datum_init(role_datum_t * x);
- extern void role_datum_destroy(role_datum_t * x);
-diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
-index dcfce8b8..fce4e772 100644
---- a/libsepol/src/avrule_block.c
-+++ b/libsepol/src/avrule_block.c
-@@ -99,7 +99,6 @@ void avrule_decl_destroy(avrule_decl_t * x)
- 	cond_list_destroy(x->cond_list);
- 	avrule_list_destroy(x->avrules);
- 	role_trans_rule_list_destroy(x->role_tr_rules);
--	filename_trans_rule_list_destroy(x->filename_trans_rules);
- 	role_allow_rule_list_destroy(x->role_allow_rules);
- 	range_trans_rule_list_destroy(x->range_tr_rules);
- 	scope_index_destroy(&x->required);
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 878b0f21..a4c92f4f 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1407,94 +1407,6 @@ static int copy_role_trans(expand_state_t * state,=
- role_trans_rule_t * rules)
- 	return 0;
- }
-=20
--static int expand_filename_trans_helper(expand_state_t *state,
--					filename_trans_rule_t *rule,
--					unsigned int s, unsigned int t)
--{
--	uint32_t mapped_otype, present_otype;
--	int rc;
--	avtab_key_t avt_key;
--
--	mapped_otype =3D state->typemap[rule->otype - 1];
--
--	avt_key.specified =3D AVTAB_TRANSITION;
--	avt_key.source_type =3D s + 1;
--	avt_key.target_type =3D t + 1;
--	avt_key.target_class =3D rule->tclass;
--
--	rc =3D avtab_insert_filename_trans(&state->out->te_avtab, &avt_key,
--		mapped_otype, rule->name, &present_otype);
--	if (rc =3D=3D SEPOL_EEXIST) {
--		/* duplicate rule, ignore */
--		if (present_otype =3D=3D mapped_otype)
--			return 0;
--
--		ERR(state->handle, "Conflicting name-based type_transition %s %s:%s \"=
-%s\":  %s vs %s",
--		    state->out->p_type_val_to_name[s],
--		    state->out->p_type_val_to_name[t],
--		    state->out->p_class_val_to_name[rule->tclass - 1],
--		    rule->name,
--		    state->out->p_type_val_to_name[present_otype - 1],
--		    state->out->p_type_val_to_name[mapped_otype - 1]);
--		return -1;
--	} else if (rc < 0) {
--		ERR(state->handle, "Out of memory!");
--		return -1;
--	}
--	return 0;
--}
--
--static int expand_filename_trans(expand_state_t *state, filename_trans_r=
-ule_t *rules)
--{
--	unsigned int i, j;
--	filename_trans_rule_t *cur_rule;
--	ebitmap_t stypes, ttypes;
--	ebitmap_node_t *snode, *tnode;
--	int rc;
--
--	cur_rule =3D rules;
--	while (cur_rule) {
--		ebitmap_init(&stypes);
--		ebitmap_init(&ttypes);
--
--		if (expand_convert_type_set(state->out, state->typemap,
--					    &cur_rule->stypes, &stypes, 1)) {
--			ERR(state->handle, "Out of memory!");
--			return -1;
--		}
--
--		if (expand_convert_type_set(state->out, state->typemap,
--					    &cur_rule->ttypes, &ttypes, 1)) {
--			ERR(state->handle, "Out of memory!");
--			return -1;
--		}
--
--
--		ebitmap_for_each_positive_bit(&stypes, snode, i) {
--			ebitmap_for_each_positive_bit(&ttypes, tnode, j) {
--				rc =3D expand_filename_trans_helper(
--					state, cur_rule, i, j
--				);
--				if (rc)
--					return rc;
--			}
--			if (cur_rule->flags & RULE_SELF) {
--				rc =3D expand_filename_trans_helper(
--					state, cur_rule, i, i
--				);
--				if (rc)
--					return rc;
--			}
--		}
--
--		ebitmap_destroy(&stypes);
--		ebitmap_destroy(&ttypes);
--
--		cur_rule =3D cur_rule->next;
--	}
--	return 0;
--}
--
- static int exp_rangetr_helper(uint32_t stype, uint32_t ttype, uint32_t t=
-class,
- 			      mls_semantic_range_t * trange,
- 			      expand_state_t * state)
-@@ -1708,7 +1620,7 @@ static int expand_terule_helper(sepol_handle_t * ha=
-ndle,
- 				uint32_t specified, cond_av_list_t ** cond,
- 				cond_av_list_t ** other, uint32_t stype,
- 				uint32_t ttype, class_perm_node_t * perms,
--				avtab_t * avtab, int enabled)
-+				char *object_name, avtab_t * avtab, int enabled)
- {
- 	avtab_key_t avkey;
- 	avtab_datum_t *avdatump;
-@@ -1732,6 +1644,34 @@ static int expand_terule_helper(sepol_handle_t * h=
-andle,
- 		    typemap ? typemap[cur->data - 1] : cur->data;
- 		avkey.target_class =3D cur->tclass;
-=20
-+		/*
-+		 * if expanded node is a filename transition, insert it, insert
-+		 * function checks for duplicates
-+		 */
-+		if (specified & AVRULE_TRANSITION && object_name) {
-+			int rc =3D avtab_insert_filename_trans(avtab, &avkey,
-+							     remapped_data,
-+							     object_name,
-+							     &oldtype);
-+			if (rc =3D=3D SEPOL_EEXIST) {
-+				ERR(handle, "conflicting filename transition %s %s:%s \"%s\": %s vs =
-%s",
-+				    p->p_type_val_to_name[avkey.source_type - 1],
-+				    p->p_type_val_to_name[avkey.target_type - 1],
-+				    p->p_class_val_to_name[avkey.target_class - 1],
-+				    object_name,
-+				    p->p_type_val_to_name[oldtype - 1],
-+				    p->p_type_val_to_name[remapped_data - 1]);
-+				return EXPAND_RULE_CONFLICT;
-+			}
-+			if (rc < 0)
-+				return EXPAND_RULE_ERROR;
-+			/*
-+			 * filename transtion inserted, continue with next node
-+			 */
-+			cur =3D cur->next;
-+			continue;
-+		}
-+
- 		conflict =3D 0;
- 		/* check to see if the expanded TE already exists --
- 		 * either in the global scope or in another
-@@ -1777,12 +1717,9 @@ static int expand_terule_helper(sepol_handle_t * h=
-andle,
- 				    || node->parse_context =3D=3D cond)
- 					return EXPAND_RULE_SUCCESS;
- 				ERR(handle, "duplicate TE rule for %s %s:%s %s",
--				    p->p_type_val_to_name[avkey.source_type -
--							  1],
--				    p->p_type_val_to_name[avkey.target_type -
--							  1],
--				    p->p_class_val_to_name[avkey.target_class -
--							   1],
-+				    p->p_type_val_to_name[avkey.source_type - 1],
-+				    p->p_type_val_to_name[avkey.target_type - 1],
-+				    p->p_class_val_to_name[avkey.target_class - 1],
- 				    p->p_type_val_to_name[oldtype - 1]);
- 				return EXPAND_RULE_CONFLICT;
- 			}
-@@ -1947,6 +1884,7 @@ static int expand_rule_helper(sepol_handle_t * hand=
-le,
- 				retval =3D expand_terule_helper(handle, p, typemap,
- 							      source_rule->specified, cond,
- 							      other, i, i, source_rule->perms,
-+							      source_rule->object_name,
- 							      dest_avtab, enabled);
- 				if (retval !=3D EXPAND_RULE_SUCCESS)
- 					return retval;
-@@ -1963,6 +1901,7 @@ static int expand_rule_helper(sepol_handle_t * hand=
-le,
- 				retval =3D expand_terule_helper(handle, p, typemap,
- 							      source_rule->specified, cond,
- 							      other, i, j, source_rule->perms,
-+							      source_rule->object_name,
- 							      dest_avtab, enabled);
- 				if (retval !=3D EXPAND_RULE_SUCCESS)
- 					return retval;
-@@ -2791,9 +2730,6 @@ static int copy_and_expand_avrule_block(expand_stat=
-e_t * state)
- 			goto cleanup;
- 		}
-=20
--		if (expand_filename_trans(state, decl->filename_trans_rules))
--			goto cleanup;
--
- 		/* expand the range transition rules */
- 		if (expand_range_trans(state, decl->range_tr_rules))
- 			goto cleanup;
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 3b7742bc..88b23594 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -1249,6 +1249,12 @@ static int copy_avrule_list(avrule_t * list, avrul=
-e_t ** dst,
- 			goto cleanup;
- 		}
-=20
-+		if (cur->object_name) {
-+			new_rule->object_name =3D strdup(cur->object_name);
-+			if (!new_rule->object_name)
-+				goto cleanup;
-+		}
-+
- 		cur_perm =3D cur->perms;
- 		tail_perm =3D NULL;
- 		while (cur_perm) {
-@@ -1412,51 +1418,6 @@ static int copy_role_allow_list(role_allow_rule_t =
-* list,
- 	return -1;
- }
-=20
--static int copy_filename_trans_list(filename_trans_rule_t * list,
--				    filename_trans_rule_t ** dst,
--				    policy_module_t * module,
--				    link_state_t * state)
--{
--	filename_trans_rule_t *cur, *new_rule, *tail;
--
--	cur =3D list;
--	tail =3D *dst;
--	while (tail && tail->next)
--		tail =3D tail->next;
--
--	while (cur) {
--		new_rule =3D malloc(sizeof(*new_rule));
--		if (!new_rule)
--			goto err;
--
--		filename_trans_rule_init(new_rule);
--
--		if (*dst =3D=3D NULL)
--			*dst =3D new_rule;
--		else
--			tail->next =3D new_rule;
--		tail =3D new_rule;
--
--		new_rule->name =3D strdup(cur->name);
--		if (!new_rule->name)
--			goto err;
--
--		if (type_set_or_convert(&cur->stypes, &new_rule->stypes, module) ||
--		    type_set_or_convert(&cur->ttypes, &new_rule->ttypes, module))
--			goto err;
--
--		new_rule->tclass =3D module->map[SYM_CLASSES][cur->tclass - 1];
--		new_rule->otype =3D module->map[SYM_TYPES][cur->otype - 1];
--		new_rule->flags =3D cur->flags;
--
--		cur =3D cur->next;
--	}
--	return 0;
--err:
--	ERR(state->handle, "Out of memory!");
--	return -1;
--}
--
- static int copy_range_trans_list(range_trans_rule_t * rules,
- 				 range_trans_rule_t ** dst,
- 				 policy_module_t * mod, link_state_t * state)
-@@ -1679,11 +1640,6 @@ static int copy_avrule_decl(link_state_t * state, =
-policy_module_t * module,
- 		return -1;
+@@ -1005,7 +1005,12 @@ static int __cil_insert_type_rule(policydb_t *pdb,=
+ uint32_t kind, uint32_t src,
+ 	}
+ =09
+ 	existing =3D avtab_search_node(&pdb->te_avtab, &avtab_key);
+-	if (existing) {
++	/*
++	 * There might be empty transition node containing filename transitions
++	 * only. That is okay, we can merge them later.
++	 */
++	if (existing && !(existing->key.specified & AVTAB_TRANSITION &&
++	    !existing->datum.trans->otype)) {
+ 		/* Don't add duplicate type rule and warn if they conflict.
+ 		 * A warning should have been previously given if there is a
+ 		 * non-duplicate rule using the same key.
+@@ -1029,7 +1034,13 @@ static int __cil_insert_type_rule(policydb_t *pdb,=
+ uint32_t kind, uint32_t src,
  	}
 =20
--	if (copy_filename_trans_list(src_decl->filename_trans_rules,
--				     &dest_decl->filename_trans_rules,
--				     module, state))
--		return -1;
+ 	if (!cond_node) {
+-		rc =3D avtab_insert(&pdb->te_avtab, &avtab_key, &avtab_datum);
++		/* If we have node from empty filename transition, use it */
++		if (existing && existing->key.specified & AVTAB_TRANSITION &&
++		    !existing->datum.trans->otype)
++			existing->datum.trans->otype =3D avtab_datum.trans->otype;
++		else
++			rc =3D avtab_insert(&pdb->te_avtab, &avtab_key,
++					  &avtab_datum);
+ 	} else {
+ 		existing =3D avtab_search_node(&pdb->te_cond_avtab, &avtab_key);
+ 		if (existing) {
+@@ -1189,16 +1200,18 @@ static int __cil_typetransition_to_avtab_helper(p=
+olicydb_t *pdb,
+ 	class_datum_t *sepol_obj =3D NULL;
+ 	uint32_t otype;
+ 	struct cil_list_item *c;
++	avtab_key_t avt_key;
+=20
+ 	cil_list_for_each(c, class_list) {
+ 		rc =3D __cil_get_sepol_class_datum(pdb, DATUM(c->data), &sepol_obj);
+ 		if (rc !=3D SEPOL_OK) return rc;
+=20
+-		rc =3D policydb_filetrans_insert(
+-			pdb, sepol_src->s.value, sepol_tgt->s.value,
+-			sepol_obj->s.value, name, NULL,
+-			sepol_result->s.value, &otype
+-		);
++		avt_key.specified =3D AVTAB_TRANSITION;
++		avt_key.source_type =3D sepol_src->s.value;
++		avt_key.target_type =3D sepol_tgt->s.value;
++		avt_key.target_class =3D sepol_obj->s.value;
++		rc =3D avtab_insert_filename_trans(&pdb->te_avtab, &avt_key,
++			sepol_result->s.value, name, &otype);
+ 		if (rc !=3D SEPOL_OK) {
+ 			if (rc =3D=3D SEPOL_EEXIST) {
+ 				if (sepol_result->s.value!=3D otype) {
+diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/s=
+epol/policydb/avtab.h
+index ca009c16..5dc720cc 100644
+--- a/libsepol/include/sepol/policydb/avtab.h
++++ b/libsepol/include/sepol/policydb/avtab.h
+@@ -42,6 +42,7 @@
+=20
+ #include <sys/types.h>
+ #include <stdint.h>
++#include <sepol/policydb/symtab.h>
+=20
+ #ifdef __cplusplus
+ extern "C" {
+@@ -72,6 +73,7 @@ typedef struct avtab_key {
+=20
+ typedef struct avtab_trans {
+ 	uint32_t otype;		/* resulting type of the new object */
++	symtab_t name_trans;	/* filename transitions */
+ } avtab_trans_t;
+=20
+ typedef struct avtab_extended_perms {
+@@ -115,6 +117,8 @@ extern int avtab_insert(avtab_t * h, avtab_key_t * k,=
+ avtab_datum_t * d);
+=20
+ extern avtab_datum_t *avtab_search(avtab_t * h, avtab_key_t * k);
+=20
++extern void avtab_trans_destroy(avtab_trans_t *trans);
++
+ extern void avtab_destroy(avtab_t * h);
+=20
+ extern int avtab_map(const avtab_t * h,
+@@ -148,6 +152,11 @@ extern avtab_ptr_t avtab_search_node_next(avtab_ptr_=
+t node, int specified);
+ /* avtab_alloc uses one bucket per 2-4 elements, so adjust to get maximu=
+m buckets */
+ #define MAX_AVTAB_SIZE (MAX_AVTAB_HASH_BUCKETS << 1)
+=20
++extern int avtab_insert_filename_trans(avtab_t *a, avtab_key_t *key,
++				       uint32_t otype, const char *name,
++				       uint32_t *present_otype);
++extern int avtab_filename_trans_read(void *fp, uint32_t vers, avtab_t *a=
+);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/libsepol/include/sepol/policydb/hashtab.h b/libsepol/include=
+/sepol/policydb/hashtab.h
+index dca8c983..354ebb43 100644
+--- a/libsepol/include/sepol/policydb/hashtab.h
++++ b/libsepol/include/sepol/policydb/hashtab.h
+@@ -110,6 +110,14 @@ extern int hashtab_map(hashtab_t h,
+=20
+ extern void hashtab_hash_eval(hashtab_t h, char *tag);
+=20
++/* Returns number of elements in the hashtab h or 0 is h is NULL */
++static inline uint32_t hashtab_nel(hashtab_t h)
++{
++	if (!h)
++		return 0;
++	return h->nel;
++}
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/includ=
+e/sepol/policydb/policydb.h
+index b014b7a8..8bb11d18 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -161,19 +161,6 @@ typedef struct role_allow {
+ 	struct role_allow *next;
+ } role_allow_t;
+=20
+-/* filename_trans rules */
+-typedef struct filename_trans_key {
+-	uint32_t ttype;
+-	uint32_t tclass;
+-	char *name;
+-} filename_trans_key_t;
 -
- 	if (copy_range_trans_list(src_decl->range_tr_rules,
- 				  &dest_decl->range_tr_rules, module, state))
- 		return -1;
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 1a490089..1e002c4e 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -547,7 +547,7 @@ static int semantic_level_to_cil(struct policydb *pdb=
-, int sens_offset, struct m
- 	return 0;
+-typedef struct filename_trans_datum {
+-	ebitmap_t stypes;
+-	uint32_t otype;
+-	struct filename_trans_datum *next;
+-} filename_trans_datum_t;
+-
+ /* Type attributes */
+ typedef struct type_datum {
+ 	symtab_datum_t s;
+@@ -592,10 +579,6 @@ typedef struct policydb {
+ 	/* range transitions table (range_trans_key -> mls_range) */
+ 	hashtab_t range_tr;
+=20
+-	/* file transitions with the last path component */
+-	hashtab_t filename_trans;
+-	uint32_t filename_trans_count;
+-
+ 	ebitmap_t *type_attr_map;
+=20
+ 	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
+@@ -654,11 +637,6 @@ extern int policydb_load_isids(policydb_t * p, sidta=
+b_t * s);
+=20
+ extern int policydb_sort_ocontexts(policydb_t *p);
+=20
+-extern int policydb_filetrans_insert(policydb_t *p, uint32_t stype,
+-				     uint32_t ttype, uint32_t tclass,
+-				     const char *name, char **name_alloc,
+-				     uint32_t otype, uint32_t *present_otype);
+-
+ /* Deprecated */
+ extern int policydb_context_isvalid(const policydb_t * p,
+ 				    const context_struct_t * c);
+diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+index 4c292e8b..eef259cf 100644
+--- a/libsepol/src/avtab.c
++++ b/libsepol/src/avtab.c
+@@ -315,6 +315,20 @@ avtab_ptr_t avtab_search_node_next(avtab_ptr_t node,=
+ int specified)
+ 	return NULL;
  }
 =20
--static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type=
-, const char *src, const char *tgt, const struct class_perm_node *classpe=
-rms)
-+static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type=
-, const char *src, const char *tgt, const char *object_name, const struct=
- class_perm_node *classperms)
++static int avtab_trans_destroy_helper(hashtab_key_t k, hashtab_datum_t d=
+,
++				      void *a __attribute__ ((unused)))
++{
++	free(k);
++	free(d);
++	return 0;
++}
++
++void avtab_trans_destroy(avtab_trans_t *trans)
++{
++	hashtab_map(trans->name_trans.table, avtab_trans_destroy_helper, NULL);
++	symtab_destroy(&trans->name_trans);
++}
++
+ void avtab_destroy(avtab_t * h)
  {
- 	int rc =3D -1;
- 	const char *rule;
-@@ -597,6 +597,12 @@ static int avrule_to_cil(int indent, struct policydb=
- *pdb, uint32_t type, const
- 					rule, src, tgt,
- 					pdb->p_class_val_to_name[classperm->tclass - 1],
- 					perms + 1);
-+		} else if (object_name) {
-+			cil_println(indent, "(%s %s %s %s \"%s\" %s)",
-+					rule, src, tgt,
-+					pdb->p_class_val_to_name[classperm->tclass - 1],
-+					object_name,
-+					pdb->p_type_val_to_name[classperm->data - 1]);
+ 	unsigned int i;
+@@ -329,6 +343,7 @@ void avtab_destroy(avtab_t * h)
+ 			if (cur->key.specified & AVTAB_XPERMS) {
+ 				free(cur->datum.xperms);
+ 			} else if (cur->key.specified & AVTAB_TRANSITION) {
++				avtab_trans_destroy(cur->datum.trans);
+ 				free(cur->datum.trans);
+ 			}
+ 			temp =3D cur;
+@@ -660,3 +675,187 @@ int avtab_read(avtab_t * a, struct policy_file *fp,=
+ uint32_t vers)
+ 	avtab_destroy(a);
+ 	return -1;
+ }
++
++/* policydb filename transition compatibility */
++
++int avtab_insert_filename_trans(avtab_t *a, avtab_key_t *key,
++				uint32_t otype, const char *name,
++				uint32_t *present_otype)
++{
++	int rc =3D SEPOL_ENOMEM;
++	avtab_trans_t new_trans =3D {0};
++	avtab_datum_t new_datum =3D {.trans =3D &new_trans};
++	avtab_datum_t *datum;
++	avtab_ptr_t node;
++	char *name_key =3D NULL;
++	uint32_t *otype_datum =3D NULL;
++
++	datum =3D avtab_search(a, key);
++	if (!datum) {
++		/*
++		 * insert is actually unique, but with this function we can get
++		 * the inserted node and therefore the datum
++		 */
++		node =3D avtab_insert_nonunique(a, key, &new_datum);
++		if (!node)
++			return SEPOL_ENOMEM;
++		datum =3D &node->datum;
++	}
++
++	if (!datum->trans->name_trans.table) {
++		rc =3D symtab_init(&datum->trans->name_trans, 1 << 8);
++		if (rc < 0)
++			return rc;
++	}
++
++	rc =3D SEPOL_ENOMEM;
++	name_key =3D strdup(name);
++	if (!name_key)
++		goto bad;
++
++	rc =3D SEPOL_ENOMEM;
++	otype_datum =3D malloc(sizeof(*otype_datum));
++	if (!otype_datum)
++		goto bad;
++	*otype_datum =3D otype;
++
++	rc =3D hashtab_insert(datum->trans->name_trans.table, name_key,
++			    otype_datum);
++	if (rc < 0)
++		goto bad;
++
++	return SEPOL_OK;
++
++bad:
++	free(name_key);
++	free(otype_datum);
++	if (rc =3D=3D SEPOL_EEXIST && present_otype) {
++		otype_datum =3D hashtab_search(datum->trans->name_trans.table,
++					     name);
++		if (otype_datum)
++			*present_otype =3D *otype_datum;
++	}
++	return rc;
++}
++
++static int filename_trans_read_one(avtab_t *a, void *fp)
++{
++	int rc;
++	uint32_t buf[4], len, otype;
++	char *name =3D NULL;
++	avtab_key_t key;
++
++	/* read length of the name and the name */
++	rc =3D next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return SEPOL_ERR;
++	len =3D le32_to_cpu(*buf);
++	rc =3D str_read(&name, fp, len);
++	if (rc < 0)
++		return SEPOL_ERR;
++
++	/* read stype, ttype, tclass and otype */
++	rc =3D next_entry(buf, fp, sizeof(uint32_t) * 4);
++	if (rc < 0)
++		goto err;
++
++	key.specified =3D AVTAB_TRANSITION;
++	key.source_type =3D le32_to_cpu(buf[0]);
++	key.target_type =3D le32_to_cpu(buf[1]);
++	key.target_class =3D le32_to_cpu(buf[2]);
++	otype =3D le32_to_cpu(buf[3]);
++
++	rc =3D avtab_insert_filename_trans(a, &key, otype, name, NULL);
++	if (rc)
++		goto err;
++
++	free(name);
++	return SEPOL_OK;
++err:
++	free(name);
++	return SEPOL_ERR;
++}
++
++static int filename_trans_comp_read_one(avtab_t *a, void *fp)
++{
++	int rc;
++	uint32_t buf[3], len, ndatum, i, bit, otype;
++	char *name =3D NULL;
++	avtab_key_t key;
++	ebitmap_t stypes;
++	ebitmap_node_t *node;
++
++	/* read length of the name and the name */
++	rc =3D next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return SEPOL_ERR;
++	len =3D le32_to_cpu(*buf);
++	rc =3D str_read(&name, fp, len);
++	if (rc < 0)
++		return SEPOL_ERR;
++
++	/* read ttype, tclass, ndatum */
++	rc =3D next_entry(buf, fp, sizeof(uint32_t) * 3);
++	if (rc < 0)
++		goto err;
++
++	key.specified =3D AVTAB_TRANSITION;
++	key.target_type =3D le32_to_cpu(buf[0]);
++	key.target_class =3D le32_to_cpu(buf[1]);
++
++	ndatum =3D le32_to_cpu(buf[2]);
++	for (i =3D 0; i < ndatum; i++) {
++		rc =3D ebitmap_read(&stypes, fp);
++		if (rc < 0)
++			goto err;
++
++		rc =3D next_entry(buf, fp, sizeof(uint32_t));
++		if (rc < 0)
++			goto err_ebitmap;
++		otype =3D le32_to_cpu(*buf);
++
++		ebitmap_for_each_positive_bit(&stypes, node, bit) {
++			key.source_type =3D bit + 1;
++
++			rc =3D avtab_insert_filename_trans(a, &key, otype, name,
++				NULL);
++			if (rc < 0)
++				goto err_ebitmap;
++		}
++	}
++
++	free(name);
++	return SEPOL_OK;
++
++err_ebitmap:
++	ebitmap_destroy(&stypes);
++err:
++	free(name);
++	return rc;
++}
++
++int avtab_filename_trans_read(void *fp, uint32_t vers, avtab_t *a)
++{
++	uint32_t buf[1], nel, i;
++	int rc;
++
++	rc =3D next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return rc;
++	nel =3D le32_to_cpu(*buf);
++
++	if (vers < POLICYDB_VERSION_COMP_FTRANS) {
++		for (i =3D 0; i < nel; i++) {
++			rc =3D filename_trans_read_one(a, fp);
++			if (rc < 0)
++				return rc;
++		}
++	} else {
++		for (i =3D 0; i < nel; i++) {
++			rc =3D filename_trans_comp_read_one(a, fp);
++			if (rc < 0)
++				return rc;
++		}
++	}
++	return SEPOL_OK;
++}
+diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+index 24380ea0..7900e928 100644
+--- a/libsepol/src/conditional.c
++++ b/libsepol/src/conditional.c
+@@ -624,6 +624,7 @@ static int cond_insertf(avtab_t * a
+ 	struct policydb *p =3D data->p;
+ 	cond_av_list_t *other =3D data->other, *list, *cur;
+ 	avtab_ptr_t node_ptr;
++	avtab_datum_t *existing;
+ 	uint8_t found;
+=20
+ 	/*
+@@ -632,7 +633,10 @@ static int cond_insertf(avtab_t * a
+ 	 * cond_te_avtab.
+ 	 */
+ 	if (k->specified & AVTAB_TYPE) {
+-		if (avtab_search(&p->te_avtab, k)) {
++		existing =3D avtab_search(&p->te_avtab, k);
++		/* empty transition rule is not a conflict */
++		if (existing && !(k->specified & AVTAB_TRANSITION
++		    && !existing->trans->otype)) {
+ 			WARN(NULL, "security: type rule already exists outside of a condition=
+al.");
+ 			return -1;
+ 		}
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 6793a27d..878b0f21 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1413,14 +1413,17 @@ static int expand_filename_trans_helper(expand_st=
+ate_t *state,
+ {
+ 	uint32_t mapped_otype, present_otype;
+ 	int rc;
++	avtab_key_t avt_key;
+=20
+ 	mapped_otype =3D state->typemap[rule->otype - 1];
+=20
+-	rc =3D policydb_filetrans_insert(
+-		state->out, s + 1, t + 1,
+-		rule->tclass, rule->name,
+-		NULL, mapped_otype, &present_otype
+-	);
++	avt_key.specified =3D AVTAB_TRANSITION;
++	avt_key.source_type =3D s + 1;
++	avt_key.target_type =3D t + 1;
++	avt_key.target_class =3D rule->tclass;
++
++	rc =3D avtab_insert_filename_trans(&state->out->te_avtab, &avt_key,
++		mapped_otype, rule->name, &present_otype);
+ 	if (rc =3D=3D SEPOL_EEXIST) {
+ 		/* duplicate rule, ignore */
+ 		if (present_otype =3D=3D mapped_otype)
+@@ -1734,6 +1737,16 @@ static int expand_terule_helper(sepol_handle_t * h=
+andle,
+ 		 * either in the global scope or in another
+ 		 * conditional AV tab */
+ 		node =3D avtab_search_node(&p->te_avtab, &avkey);
++
++		/*
++		 * if node does not already contain transition, it is not a
++		 * conflict and transition otype will be set to node found by
++		 * find_avtab_node()
++		 */
++		if (specified & AVRULE_TRANSITION && node &&
++		    !node->datum.trans->otype)
++			node =3D NULL;
++
+ 		if (node) {
+ 			conflict =3D 1;
  		} else {
- 			cil_println(indent, "(%s %s %s %s %s)",
- 					rule, src, tgt,
-@@ -1199,7 +1205,7 @@ static int avrule_list_to_cil(int indent, struct po=
-licydb *pdb, struct avrule *a
- 				if (avrule->specified & AVRULE_XPERMS) {
- 					rc =3D avrulex_to_cil(indent, pdb, avrule->specified, snames[s], tn=
-ames[t], avrule->perms, avrule->xperms);
- 				} else {
--					rc =3D avrule_to_cil(indent, pdb, avrule->specified, snames[s], tna=
-mes[t], avrule->perms);
-+					rc =3D avrule_to_cil(indent, pdb, avrule->specified, snames[s], tna=
-mes[t], avrule->object_name, avrule->perms);
- 				}
- 				if (rc !=3D 0) {
- 					goto exit;
-@@ -1210,7 +1216,7 @@ static int avrule_list_to_cil(int indent, struct po=
-licydb *pdb, struct avrule *a
- 				if (avrule->specified & AVRULE_XPERMS) {
- 					rc =3D avrulex_to_cil(indent, pdb, avrule->specified, snames[s], "s=
-elf", avrule->perms, avrule->xperms);
- 				} else {
--					rc =3D avrule_to_cil(indent, pdb, avrule->specified, snames[s], "se=
-lf", avrule->perms);
-+					rc =3D avrule_to_cil(indent, pdb, avrule->specified, snames[s], "se=
-lf", avrule->object_name, avrule->perms);
- 				}
- 				if (rc !=3D 0) {
- 					goto exit;
-@@ -1576,60 +1582,6 @@ exit:
+@@ -1741,6 +1754,10 @@ static int expand_terule_helper(sepol_handle_t * h=
+andle,
+ 			if (node && node->parse_context !=3D other) {
+ 				conflict =3D 2;
+ 			}
++			/*
++			 * conditional avtab does not contain filename
++			 * transitions, no need to check for otype =3D=3D 0
++			 */
+ 		}
+=20
+ 		if (conflict) {
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index b1fd1bf7..e829e235 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -1702,14 +1702,24 @@ static char *xperms_to_str(avtab_extended_perms_t=
+ *xperms)
+ 	return xpermsbuf;
+ }
+=20
+-static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, a=
+vtab_datum_t *datum)
++static int name_trans_to_strs_helper(hashtab_key_t k, hashtab_datum_t d,=
+ void *a)
+ {
+-	uint32_t data =3D key->specified & AVTAB_TRANSITION
+-		? datum->trans->otype : datum->data;
++	char *name =3D k;
++	uint32_t *otype =3D d;
++	name_trans_to_strs_args_t *args =3D a;
++	return strs_create_and_add(args->strs, "(%s %s %s %s \"%s\" %s)", 6,
++				   args->flavor, args->src, args->tgt,
++				   args->class, name,
++				   args->pdb->p_type_val_to_name[*otype - 1]);
++}
++
++static int avtab_node_to_strs(struct policydb *pdb, avtab_key_t *key, av=
+tab_datum_t *datum, struct strs *strs)
++{
++	int rc =3D SEPOL_OK;
++	uint32_t data =3D datum->data;
+ 	type_datum_t *type;
+ 	const char *flavor, *tgt;
+ 	char *src, *class, *perms, *new;
+-	char *rule =3D NULL;
+=20
+ 	switch (0xFFF & key->specified) {
+ 	case AVTAB_ALLOWED:
+@@ -1742,7 +1752,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
+, avtab_key_t *key, avtab_dat
+ 		break;
+ 	default:
+ 		ERR(NULL, "Unknown avtab type: %i", key->specified);
+-		goto exit;
++		return SEPOL_ERR;
+ 	}
+=20
+ 	src =3D pdb->p_type_val_to_name[key->source_type - 1];
+@@ -1759,33 +1769,44 @@ static char *avtab_node_to_str(struct policydb *p=
+db, avtab_key_t *key, avtab_dat
+ 		perms =3D sepol_av_to_string(pdb, key->target_class, data);
+ 		if (perms =3D=3D NULL) {
+ 			ERR(NULL, "Failed to generate permission string");
+-			goto exit;
++			return SEPOL_ERR;
+ 		}
+-		rule =3D create_str("(%s %s %s (%s (%s)))", 5,
+-				  flavor, src, tgt, class, perms+1);
++		rc =3D strs_create_and_add(strs, "(%s %s %s (%s (%s)))", 5,
++					 flavor, src, tgt, class, perms + 1);
+ 	} else if (key->specified & AVTAB_XPERMS) {
+ 		perms =3D xperms_to_str(datum->xperms);
+ 		if (perms =3D=3D NULL) {
+ 			ERR(NULL, "Failed to generate extended permission string");
+-			goto exit;
++			return SEPOL_ERR;
+ 		}
+=20
+-		rule =3D create_str("(%s %s %s (%s %s (%s)))", 6,
+-				  flavor, src, tgt, "ioctl", class, perms);
++		rc =3D strs_create_and_add(strs, "(%s %s %s (%s %s (%s)))", 6,
++					 flavor, src, tgt, "ioctl", class, perms);
++	} else if (key->specified & AVTAB_TRANSITION) {
++		if (datum->trans->otype) {
++			rc =3D strs_create_and_add(strs, "(%s %s %s %s %s)", 5,
++						 flavor, src, tgt, class,
++						 pdb->p_type_val_to_name[datum->trans->otype - 1]);
++			if (rc < 0)
++				return rc;
++		}
++		name_trans_to_strs_args_t args =3D {
++			.pdb =3D pdb,
++			.strs =3D strs,
++			.flavor =3D flavor,
++			.src =3D src,
++			.tgt =3D tgt,
++			.class =3D class,
++		};
++		rc =3D hashtab_map(datum->trans->name_trans.table,
++				 name_trans_to_strs_helper, &args);
+ 	} else {
+ 		new =3D pdb->p_type_val_to_name[data - 1];
+=20
+-		rule =3D create_str("(%s %s %s %s %s)", 5, flavor, src, tgt, class, ne=
+w);
+-	}
+-
+-	if (!rule) {
+-		goto exit;
++		rc =3D strs_create_and_add(strs, "(%s %s %s %s %s)", 5, flavor, src, t=
+gt, class, new);
+ 	}
+=20
+-	return rule;
+-
+-exit:
+-	return NULL;
++	return rc;
+ }
+=20
+ struct map_avtab_args {
+@@ -1800,23 +1821,12 @@ static int map_avtab_write_helper(avtab_key_t *ke=
+y, avtab_datum_t *datum, void *
+ 	uint32_t flavor =3D map_args->flavor;
+ 	struct policydb *pdb =3D map_args->pdb;
+ 	struct strs *strs =3D map_args->strs;
+-	char *rule;
+ 	int rc =3D 0;
+=20
+ 	if (key->specified & flavor) {
+-		rule =3D avtab_node_to_str(pdb, key, datum);
+-		if (!rule) {
+-			rc =3D -1;
+-			goto exit;
+-		}
+-		rc =3D strs_add(strs, rule);
+-		if (rc !=3D 0) {
+-			free(rule);
+-			goto exit;
+-		}
++		rc =3D avtab_node_to_strs(pdb, key, datum, strs);
+ 	}
+=20
+-exit:
  	return rc;
  }
 =20
--static int filename_trans_to_cil(int indent, struct policydb *pdb, struc=
-t filename_trans_rule *rules, struct list *attr_list)
+@@ -1870,77 +1880,6 @@ exit:
+ 	return rc;
+ }
+=20
+-struct map_filename_trans_args {
+-	struct policydb *pdb;
+-	struct strs *strs;
+-};
+-
+-static int map_filename_trans_to_str(hashtab_key_t key, void *data, void=
+ *arg)
 -{
--	int rc =3D -1;
--	char **stypes =3D NULL;
--	unsigned int num_stypes =3D 0;
--	unsigned int stype;
--	char **ttypes =3D NULL;
--	unsigned int num_ttypes =3D 0;
--	unsigned int ttype;
--	struct type_set *ts;
--	struct filename_trans_rule *rule;
+-	filename_trans_key_t *ft =3D (filename_trans_key_t *)key;
+-	filename_trans_datum_t *datum =3D data;
+-	struct map_filename_trans_args *map_args =3D arg;
+-	struct policydb *pdb =3D map_args->pdb;
+-	struct strs *strs =3D map_args->strs;
+-	char *src, *tgt, *class, *filename, *new;
+-	struct ebitmap_node *node;
+-	uint32_t bit;
+-	int rc;
 -
--	for (rule =3D rules; rule !=3D NULL; rule =3D rule->next) {
--		ts =3D &rule->stypes;
--		rc =3D process_typeset(pdb, ts, attr_list, &stypes, &num_stypes);
--		if (rc !=3D 0) {
--			goto exit;
+-	tgt =3D pdb->p_type_val_to_name[ft->ttype - 1];
+-	class =3D pdb->p_class_val_to_name[ft->tclass - 1];
+-	filename =3D ft->name;
+-	do {
+-		new =3D pdb->p_type_val_to_name[datum->otype - 1];
+-
+-		ebitmap_for_each_positive_bit(&datum->stypes, node, bit) {
+-			src =3D pdb->p_type_val_to_name[bit];
+-			rc =3D strs_create_and_add(strs,
+-						 "(typetransition %s %s %s \"%s\" %s)",
+-						 5, src, tgt, class, filename, new);
+-			if (rc)
+-				return rc;
 -		}
 -
--		ts =3D &rule->ttypes;
--		rc =3D process_typeset(pdb, ts, attr_list, &ttypes, &num_ttypes);
--		if (rc !=3D 0) {
--			goto exit;
--		}
+-		datum =3D datum->next;
+-	} while (datum);
 -
--		for (stype =3D 0; stype < num_stypes; stype++) {
--			for (ttype =3D 0; ttype < num_ttypes; ttype++) {
--				cil_println(indent, "(typetransition %s %s %s \"%s\" %s)",
--					    stypes[stype], ttypes[ttype],
--					    pdb->p_class_val_to_name[rule->tclass - 1],
--					    rule->name,
--					    pdb->p_type_val_to_name[rule->otype - 1]);
--			}
--			if (rule->flags & RULE_SELF) {
--				cil_println(indent, "(typetransition %s self %s \"%s\" %s)",
--					    stypes[stype],
--					    pdb->p_class_val_to_name[rule->tclass - 1],
--					    rule->name,
--					    pdb->p_type_val_to_name[rule->otype - 1]);
--			}
--		}
--
--		names_destroy(&stypes, &num_stypes);
--		names_destroy(&ttypes, &num_ttypes);
--	}
--
--	rc =3D 0;
--exit:
--	names_destroy(&stypes, &num_stypes);
--	names_destroy(&ttypes, &num_ttypes);
--
--	return rc;
+-	return 0;
 -}
 -
- struct class_perm_datum {
- 	char *name;
- 	uint32_t val;
-@@ -3683,11 +3635,6 @@ static int block_to_cil(struct policydb *pdb, stru=
-ct avrule_block *block, struct
- 		goto exit;
- 	}
-=20
--	rc =3D filename_trans_to_cil(indent, pdb, decl->filename_trans_rules, t=
-ype_attr_list);
+-static int write_filename_trans_rules_to_cil(FILE *out, struct policydb =
+*pdb)
+-{
+-	struct map_filename_trans_args args;
+-	struct strs *strs;
+-	int rc =3D 0;
+-
+-	rc =3D strs_init(&strs, 100);
 -	if (rc !=3D 0) {
 -		goto exit;
 -	}
 -
- 	rc =3D cond_list_to_cil(indent, pdb, decl->cond_list, type_attr_list);
- 	if (rc !=3D 0) {
- 		goto exit;
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index c1ce9c34..4913ee21 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -638,6 +638,7 @@ void avrule_destroy(avrule_t * x)
- 	}
-=20
- 	free(x->xperms);
-+	free(x->object_name);
- }
-=20
- void role_trans_rule_init(role_trans_rule_t * x)
-@@ -667,33 +668,6 @@ void role_trans_rule_list_destroy(role_trans_rule_t =
-* x)
- 	}
- }
-=20
--void filename_trans_rule_init(filename_trans_rule_t * x)
--{
--	memset(x, 0, sizeof(*x));
--	type_set_init(&x->stypes);
--	type_set_init(&x->ttypes);
--}
+-	args.pdb =3D pdb;
+-	args.strs =3D strs;
 -
--static void filename_trans_rule_destroy(filename_trans_rule_t * x)
--{
--	if (!x)
--		return;
--	type_set_destroy(&x->stypes);
--	type_set_destroy(&x->ttypes);
--	free(x->name);
--}
--
--void filename_trans_rule_list_destroy(filename_trans_rule_t * x)
--{
--	filename_trans_rule_t *next;
--	while (x) {
--		next =3D x->next;
--		filename_trans_rule_destroy(x);
--		free(x);
--		x =3D next;
+-	rc =3D hashtab_map(pdb->filename_trans, map_filename_trans_to_str, &arg=
+s);
+-	if (rc !=3D 0) {
+-		goto exit;
 -	}
+-
+-	strs_sort(strs);
+-	strs_write_each(strs, out);
+-
+-exit:
+-	strs_free_all(strs);
+-	strs_destroy(&strs);
+-
+-	if (rc !=3D 0) {
+-		ERR(NULL, "Error writing filename typetransition rules to CIL");
+-	}
+-
+-	return rc;
 -}
 -
- void role_allow_rule_init(role_allow_rule_t * x)
+ static char *level_to_str(struct policydb *pdb, struct mls_level *level)
  {
- 	memset(x, 0, sizeof(role_allow_rule_t));
-@@ -3493,31 +3467,32 @@ static int role_allow_rule_read(role_allow_rule_t=
- ** r, struct policy_file *fp)
- 	return 0;
- }
-=20
--static int filename_trans_rule_read(policydb_t *p, filename_trans_rule_t=
- **r,
-+static int filename_trans_rule_read(policydb_t *p, avrule_t **r,
- 				    struct policy_file *fp)
- {
- 	uint32_t buf[3], nel, i, len;
- 	unsigned int entries;
--	filename_trans_rule_t *ftr, *lftr;
-+	avrule_t *cur;
+ 	ebitmap_t *cats =3D &level->cat;
+@@ -2060,7 +1999,6 @@ static int write_cond_av_list_to_cil(FILE *out, str=
+uct policydb *pdb, cond_av_li
+ 	avtab_key_t *key;
+ 	avtab_datum_t *datum;
+ 	struct strs *strs;
+-	char *rule;
+ 	unsigned i;
  	int rc;
 =20
- 	rc =3D next_entry(buf, fp, sizeof(uint32_t));
- 	if (rc < 0)
- 		return -1;
- 	nel =3D le32_to_cpu(buf[0]);
--	lftr =3D NULL;
- 	for (i =3D 0; i < nel; i++) {
--		ftr =3D malloc(sizeof(*ftr));
--		if (!ftr)
-+		cur =3D malloc(sizeof(avrule_t));
-+		if (!cur)
- 			return -1;
-+		avrule_init(cur);
-=20
--		filename_trans_rule_init(ftr);
-+		cur->next =3D *r;
-+		*r =3D cur;
-=20
--		if (lftr)
--			lftr->next =3D ftr;
--		else
--			*r =3D ftr;
--		lftr =3D ftr;
-+		cur->specified =3D AVRULE_TRANSITION;
-+		cur->perms =3D malloc(sizeof(class_perm_node_t));
-+		if (!cur->perms)
-+			return -1;
-+		class_perm_node_init(cur->perms);
-=20
- 		rc =3D next_entry(buf, fp, sizeof(uint32_t));
- 		if (rc < 0)
-@@ -3527,19 +3502,14 @@ static int filename_trans_rule_read(policydb_t *p=
-, filename_trans_rule_t **r,
- 		if (zero_or_saturated(len))
- 			return -1;
-=20
--		ftr->name =3D malloc(len + 1);
--		if (!ftr->name)
--			return -1;
--
--		rc =3D next_entry(ftr->name, fp, len);
-+		rc =3D str_read(&cur->object_name, fp, len);
- 		if (rc)
- 			return -1;
--		ftr->name[len] =3D 0;
-=20
--		if (type_set_read(&ftr->stypes, fp))
-+		if (type_set_read(&cur->stypes, fp))
- 			return -1;
-=20
--		if (type_set_read(&ftr->ttypes, fp))
-+		if (type_set_read(&cur->ttypes, fp))
- 			return -1;
-=20
- 		if (p->policyvers >=3D MOD_POLICYDB_VERSION_SELF_TYPETRANS)
-@@ -3550,10 +3520,10 @@ static int filename_trans_rule_read(policydb_t *p=
-, filename_trans_rule_t **r,
- 		rc =3D next_entry(buf, fp, sizeof(uint32_t) * entries);
- 		if (rc < 0)
- 			return -1;
--		ftr->tclass =3D le32_to_cpu(buf[0]);
--		ftr->otype =3D le32_to_cpu(buf[1]);
-+		cur->perms->tclass =3D le32_to_cpu(buf[0]);
-+		cur->perms->data =3D le32_to_cpu(buf[1]);
- 		if (p->policyvers >=3D MOD_POLICYDB_VERSION_SELF_TYPETRANS)
--			ftr->flags =3D le32_to_cpu(buf[2]);
-+			cur->flags =3D le32_to_cpu(buf[2]);
+@@ -2076,14 +2014,8 @@ static int write_cond_av_list_to_cil(FILE *out, st=
+ruct policydb *pdb, cond_av_li
+ 			key =3D &node->key;
+ 			datum =3D &node->datum;
+ 			if (key->specified & flavor) {
+-				rule =3D avtab_node_to_str(pdb, key, datum);
+-				if (!rule) {
+-					rc =3D -1;
+-					goto exit;
+-				}
+-				rc =3D strs_add(strs, rule);
++				rc =3D avtab_node_to_strs(pdb, key, datum, strs);
+ 				if (rc !=3D 0) {
+-					free(rule);
+ 					goto exit;
+ 				}
+ 			}
+@@ -3331,11 +3263,6 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct=
+ policydb *pdb)
+ 		goto exit;
  	}
+=20
+-	rc =3D write_filename_trans_rules_to_cil(out, pdb);
+-	if (rc !=3D 0) {
+-		goto exit;
+-	}
+-
+ 	if (pdb->mls) {
+ 		rc =3D write_range_trans_rules_to_cil(out, pdb);
+ 		if (rc !=3D 0) {
+diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
+mon.h
+index 7a3960b0..524a4b0f 100644
+--- a/libsepol/src/kernel_to_common.h
++++ b/libsepol/src/kernel_to_common.h
+@@ -83,6 +83,15 @@ struct strs {
+ 	size_t size;
+ };
+=20
++typedef struct {
++	policydb_t *pdb;
++	struct strs *strs;
++	const char *flavor;
++	const char *src;
++	const char *tgt;
++	const char *class;
++} name_trans_to_strs_args_t;
++
+ void sepol_indent(FILE *out, int indent);
+ __attribute__ ((format(printf, 2, 3)))
+ void sepol_printf(FILE *out, const char *fmt, ...);
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+index 7e1e1b49..a637c207 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -1680,13 +1680,24 @@ exit:
+ 	return rc;
+ }
+=20
+-static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, a=
+vtab_datum_t *datum)
++static int name_trans_to_strs_helper(hashtab_key_t k, hashtab_datum_t d,=
+ void *a)
+ {
+-	uint32_t data =3D key->specified & AVTAB_TRANSITION
+-		? datum->trans->otype : datum->data;
++	char *name =3D k;
++	uint32_t *otype =3D d;
++	name_trans_to_strs_args_t *args =3D a;
++	return strs_create_and_add(args->strs, "%s %s %s:%s %s \"%s\";", 6,
++				   args->flavor, args->src, args->tgt,
++				   args->class,
++				   args->pdb->p_type_val_to_name[*otype - 1],
++				   name);
++}
++
++static int avtab_node_to_strs(struct policydb *pdb, avtab_key_t *key, av=
+tab_datum_t *datum, struct strs *strs)
++{
++	int rc =3D SEPOL_OK;
++	uint32_t data =3D datum->data;
+ 	type_datum_t *type;
+ 	const char *flavor, *src, *tgt, *class, *perms, *new;
+-	char *rule =3D NULL;
+=20
+ 	switch (0xFFF & key->specified) {
+ 	case AVTAB_ALLOWED:
+@@ -1719,7 +1730,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
+, avtab_key_t *key, avtab_dat
+ 		break;
+ 	default:
+ 		ERR(NULL, "Unknown avtab type: %i", key->specified);
+-		goto exit;
++		return SEPOL_ERR;
+ 	}
+=20
+ 	src =3D pdb->p_type_val_to_name[key->source_type - 1];
+@@ -1736,32 +1747,42 @@ static char *avtab_node_to_str(struct policydb *p=
+db, avtab_key_t *key, avtab_dat
+ 		perms =3D sepol_av_to_string(pdb, key->target_class, data);
+ 		if (perms =3D=3D NULL) {
+ 			ERR(NULL, "Failed to generate permission string");
+-			goto exit;
++			return SEPOL_ERR;
+ 		}
+-		rule =3D create_str("%s %s %s:%s { %s };", 5,
+-				  flavor, src, tgt, class, perms+1);
++		rc =3D strs_create_and_add(strs, "%s %s %s:%s { %s };", 5,
++					 flavor, src, tgt, class, perms + 1);
+ 	} else if (key->specified & AVTAB_XPERMS) {
+ 		perms =3D sepol_extended_perms_to_string(datum->xperms);
+ 		if (perms =3D=3D NULL) {
+ 			ERR(NULL, "Failed to generate extended permission string");
+-			goto exit;
++			return SEPOL_ERR;
++		}
++		rc =3D strs_create_and_add(strs, "%s %s %s:%s %s;", 5, flavor, src, tg=
+t, class, perms);
++	} else if (key->specified & AVTAB_TRANSITION) {
++		if (datum->trans->otype) {
++			rc =3D strs_create_and_add(strs, "%s %s %s:%s %s;", 5,
++						 flavor, src, tgt, class,
++						 pdb->p_type_val_to_name[datum->trans->otype - 1]);
++			if (rc < 0)
++				return rc;
+ 		}
+-
+-		rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, tgt, class, per=
+ms);
++		name_trans_to_strs_args_t args =3D {
++			.pdb =3D pdb,
++			.strs =3D strs,
++			.flavor =3D flavor,
++			.src =3D src,
++			.tgt =3D tgt,
++			.class =3D class,
++		};
++		rc =3D hashtab_map(datum->trans->name_trans.table,
++				 name_trans_to_strs_helper, &args);
+ 	} else {
+ 		new =3D pdb->p_type_val_to_name[data - 1];
+=20
+-		rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, tgt, class, new=
+);
++		rc =3D strs_create_and_add(strs, "%s %s %s:%s %s;", 5, flavor, src, tg=
+t, class, new);
+ 	}
+=20
+-	if (!rule) {
+-		goto exit;
+-	}
+-
+-	return rule;
+-
+-exit:
+-	return NULL;
++	return rc;
+ }
+=20
+ struct map_avtab_args {
+@@ -1776,23 +1797,12 @@ static int map_avtab_write_helper(avtab_key_t *ke=
+y, avtab_datum_t *datum, void *
+ 	uint32_t flavor =3D map_args->flavor;
+ 	struct policydb *pdb =3D map_args->pdb;
+ 	struct strs *strs =3D map_args->strs;
+-	char *rule;
+ 	int rc =3D 0;
+=20
+ 	if (key->specified & flavor) {
+-		rule =3D avtab_node_to_str(pdb, key, datum);
+-		if (!rule) {
+-			rc =3D -1;
+-			goto exit;
+-		}
+-		rc =3D strs_add(strs, rule);
+-		if (rc !=3D 0) {
+-			free(rule);
+-			goto exit;
+-		}
++		rc =3D avtab_node_to_strs(pdb, key, datum, strs);
+ 	}
+=20
+-exit:
+ 	return rc;
+ }
+=20
+@@ -1846,77 +1856,6 @@ exit:
+ 	return rc;
+ }
+=20
+-struct map_filename_trans_args {
+-	struct policydb *pdb;
+-	struct strs *strs;
+-};
+-
+-static int map_filename_trans_to_str(hashtab_key_t key, void *data, void=
+ *arg)
+-{
+-	filename_trans_key_t *ft =3D (filename_trans_key_t *)key;
+-	filename_trans_datum_t *datum =3D data;
+-	struct map_filename_trans_args *map_args =3D arg;
+-	struct policydb *pdb =3D map_args->pdb;
+-	struct strs *strs =3D map_args->strs;
+-	char *src, *tgt, *class, *filename, *new;
+-	struct ebitmap_node *node;
+-	uint32_t bit;
+-	int rc;
+-
+-	tgt =3D pdb->p_type_val_to_name[ft->ttype - 1];
+-	class =3D pdb->p_class_val_to_name[ft->tclass - 1];
+-	filename =3D ft->name;
+-	do {
+-		new =3D pdb->p_type_val_to_name[datum->otype - 1];
+-
+-		ebitmap_for_each_positive_bit(&datum->stypes, node, bit) {
+-			src =3D pdb->p_type_val_to_name[bit];
+-			rc =3D strs_create_and_add(strs,
+-						 "type_transition %s %s:%s %s \"%s\";",
+-						 5, src, tgt, class, new, filename);
+-			if (rc)
+-				return rc;
+-		}
+-
+-		datum =3D datum->next;
+-	} while (datum);
+-
+-	return 0;
+-}
+-
+-static int write_filename_trans_rules_to_conf(FILE *out, struct policydb=
+ *pdb)
+-{
+-	struct map_filename_trans_args args;
+-	struct strs *strs;
+-	int rc =3D 0;
+-
+-	rc =3D strs_init(&strs, 100);
+-	if (rc !=3D 0) {
+-		goto exit;
+-	}
+-
+-	args.pdb =3D pdb;
+-	args.strs =3D strs;
+-
+-	rc =3D hashtab_map(pdb->filename_trans, map_filename_trans_to_str, &arg=
+s);
+-	if (rc !=3D 0) {
+-		goto exit;
+-	}
+-
+-	strs_sort(strs);
+-	strs_write_each(strs, out);
+-
+-exit:
+-	strs_free_all(strs);
+-	strs_destroy(&strs);
+-
+-	if (rc !=3D 0) {
+-		ERR(NULL, "Error writing filename typetransition rules to policy.conf"=
+);
+-	}
+-
+-	return rc;
+-}
+-
+ static char *level_to_str(struct policydb *pdb, struct mls_level *level)
+ {
+ 	ebitmap_t *cats =3D &level->cat;
+@@ -2036,7 +1975,6 @@ static int write_cond_av_list_to_conf(FILE *out, st=
+ruct policydb *pdb, cond_av_l
+ 	avtab_key_t *key;
+ 	avtab_datum_t *datum;
+ 	struct strs *strs;
+-	char *rule;
+ 	unsigned i;
+ 	int rc;
+=20
+@@ -2052,14 +1990,8 @@ static int write_cond_av_list_to_conf(FILE *out, s=
+truct policydb *pdb, cond_av_l
+ 			key =3D &node->key;
+ 			datum =3D &node->datum;
+ 			if (key->specified & flavor) {
+-				rule =3D avtab_node_to_str(pdb, key, datum);
+-				if (!rule) {
+-					rc =3D -1;
+-					goto exit;
+-				}
+-				rc =3D strs_add(strs, rule);
++				rc =3D avtab_node_to_strs(pdb, key, datum, strs);
+ 				if (rc !=3D 0) {
+-					free(rule);
+ 					goto exit;
+ 				}
+ 			}
+@@ -3205,7 +3137,6 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct=
+ policydb *pdb)
+ 	if (rc !=3D 0) {
+ 		goto exit;
+ 	}
+-	write_filename_trans_rules_to_conf(out, pdb);
+=20
+ 	if (pdb->mls) {
+ 		rc =3D write_range_trans_rules_to_conf(out, pdb);
+diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
+index 2d4a2d7a..7948d983 100644
+--- a/libsepol/src/optimize.c
++++ b/libsepol/src/optimize.c
+@@ -308,8 +308,10 @@ static void optimize_avtab(policydb_t *p, const stru=
+ct type_vec *type_map)
+ 				*cur =3D tmp->next;
+ 				if (tmp->key.specified & AVTAB_XPERMS)
+ 					free(tmp->datum.xperms);
+-				if (tmp->key.specified & AVTAB_TRANSITION)
++				if (tmp->key.specified & AVTAB_TRANSITION) {
++					avtab_trans_destroy(tmp->datum.trans);
+ 					free(tmp->datum.trans);
++				}
+ 				free(tmp);
+=20
+ 				tab->nel--;
+@@ -429,8 +431,10 @@ static void optimize_cond_avtab(policydb_t *p, const=
+ struct type_vec *type_map)
+ 				*cur =3D tmp->next;
+ 				if (tmp->key.specified & AVTAB_XPERMS)
+ 					free(tmp->datum.xperms);
+-				if (tmp->key.specified & AVTAB_TRANSITION)
++				if (tmp->key.specified & AVTAB_TRANSITION) {
++					avtab_trans_destroy(tmp->datum.trans);
+ 					free(tmp->datum.trans);
++				}
+ 				free(tmp);
+=20
+ 				tab->nel--;
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 605d290a..c1ce9c34 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -801,47 +801,6 @@ static int roles_init(policydb_t * p)
+ 	goto out;
+ }
+=20
+-ignore_unsigned_overflow_
+-static inline unsigned long
+-partial_name_hash(unsigned long c, unsigned long prevhash)
+-{
+-	return (prevhash + (c << 4) + (c >> 4)) * 11;
+-}
+-
+-static unsigned int filenametr_hash(hashtab_t h, const_hashtab_key_t k)
+-{
+-	const filename_trans_key_t *ft =3D (const filename_trans_key_t *)k;
+-	unsigned long hash;
+-	unsigned int byte_num;
+-	unsigned char focus;
+-
+-	hash =3D ft->ttype ^ ft->tclass;
+-
+-	byte_num =3D 0;
+-	while ((focus =3D ft->name[byte_num++]))
+-		hash =3D partial_name_hash(focus, hash);
+-	return hash & (h->size - 1);
+-}
+-
+-static int filenametr_cmp(hashtab_t h __attribute__ ((unused)),
+-			  const_hashtab_key_t k1, const_hashtab_key_t k2)
+-{
+-	const filename_trans_key_t *ft1 =3D (const filename_trans_key_t *)k1;
+-	const filename_trans_key_t *ft2 =3D (const filename_trans_key_t *)k2;
+-	int v;
+-
+-	v =3D spaceship_cmp(ft1->ttype, ft2->ttype);
+-	if (v)
+-		return v;
+-
+-	v =3D spaceship_cmp(ft1->tclass, ft2->tclass);
+-	if (v)
+-		return v;
+-
+-	return strcmp(ft1->name, ft2->name);
+-
+-}
+-
+ static unsigned int rangetr_hash(hashtab_t h, const_hashtab_key_t k)
+ {
+ 	const struct range_trans *key =3D (const struct range_trans *)k;
+@@ -909,12 +868,6 @@ int policydb_init(policydb_t * p)
+ 	if (rc)
+ 		goto err;
+=20
+-	p->filename_trans =3D hashtab_create(filenametr_hash, filenametr_cmp, (=
+1 << 10));
+-	if (!p->filename_trans) {
+-		rc =3D -ENOMEM;
+-		goto err;
+-	}
+-
+ 	p->range_tr =3D hashtab_create(rangetr_hash, rangetr_cmp, 256);
+ 	if (!p->range_tr) {
+ 		rc =3D -ENOMEM;
+@@ -926,7 +879,6 @@ int policydb_init(policydb_t * p)
 =20
  	return 0;
-@@ -3656,7 +3626,7 @@ static int avrule_decl_read(policydb_t * p, avrule_=
-decl_t * decl,
- 	}
+ err:
+-	hashtab_destroy(p->filename_trans);
+ 	hashtab_destroy(p->range_tr);
+ 	for (i =3D 0; i < SYM_NUM; i++) {
+ 		hashtab_destroy(p->symtab[i].table);
+@@ -1412,23 +1364,6 @@ static int (*destroy_f[SYM_NUM]) (hashtab_key_t ke=
+y, hashtab_datum_t datum,
+ common_destroy, class_destroy, role_destroy, type_destroy, user_destroy,
+ 	    cond_destroy_bool, sens_destroy, cat_destroy,};
 =20
- 	if (p->policyvers >=3D MOD_POLICYDB_VERSION_FILENAME_TRANS &&
--	    filename_trans_rule_read(p, &decl->filename_trans_rules, fp))
-+	    filename_trans_rule_read(p, &decl->avrules, fp))
- 		return -1;
+-static int filenametr_destroy(hashtab_key_t key, hashtab_datum_t datum,
+-			      void *p __attribute__ ((unused)))
+-{
+-	filename_trans_key_t *ft =3D (filename_trans_key_t *)key;
+-	filename_trans_datum_t *fd =3D datum, *next;
+-
+-	free(ft->name);
+-	free(key);
+-	do {
+-		next =3D fd->next;
+-		ebitmap_destroy(&fd->stypes);
+-		free(fd);
+-		fd =3D next;
+-	} while (fd);
+-	return 0;
+-}
+-
+ static int range_tr_destroy(hashtab_key_t key, hashtab_datum_t datum,
+ 			    void *p __attribute__ ((unused)))
+ {
+@@ -1564,9 +1499,6 @@ void policydb_destroy(policydb_t * p)
+ 	if (lra)
+ 		free(lra);
 =20
- 	if (p->policyvers >=3D MOD_POLICYDB_VERSION_RANGETRANS &&
+-	hashtab_map(p->filename_trans, filenametr_destroy, NULL);
+-	hashtab_destroy(p->filename_trans);
+-
+ 	hashtab_map(p->range_tr, range_tr_destroy, NULL);
+ 	hashtab_destroy(p->range_tr);
+=20
+@@ -2596,279 +2528,6 @@ static int role_allow_read(role_allow_t ** r, str=
+uct policy_file *fp)
+ 	return 0;
+ }
+=20
+-int policydb_filetrans_insert(policydb_t *p, uint32_t stype, uint32_t tt=
+ype,
+-			      uint32_t tclass, const char *name,
+-			      char **name_alloc, uint32_t otype,
+-			      uint32_t *present_otype)
+-{
+-	filename_trans_key_t *ft, key;
+-	filename_trans_datum_t *datum, *last;
+-
+-	key.ttype =3D ttype;
+-	key.tclass =3D tclass;
+-	key.name =3D (char *)name;
+-
+-	last =3D NULL;
+-	datum =3D hashtab_search(p->filename_trans, (hashtab_key_t)&key);
+-	while (datum) {
+-		if (ebitmap_get_bit(&datum->stypes, stype - 1)) {
+-			if (present_otype)
+-				*present_otype =3D datum->otype;
+-			return SEPOL_EEXIST;
+-		}
+-		if (datum->otype =3D=3D otype)
+-			break;
+-		last =3D datum;
+-		datum =3D datum->next;
+-	}
+-	if (!datum) {
+-		datum =3D malloc(sizeof(*datum));
+-		if (!datum)
+-			return SEPOL_ENOMEM;
+-
+-		ebitmap_init(&datum->stypes);
+-		datum->otype =3D otype;
+-		datum->next =3D NULL;
+-
+-		if (last) {
+-			last->next =3D datum;
+-		} else {
+-			char *name_dup;
+-
+-			if (name_alloc) {
+-				name_dup =3D *name_alloc;
+-				*name_alloc =3D NULL;
+-			} else {
+-				name_dup =3D strdup(name);
+-				if (!name_dup) {
+-					free(datum);
+-					return SEPOL_ENOMEM;
+-				}
+-			}
+-
+-			ft =3D malloc(sizeof(*ft));
+-			if (!ft) {
+-				free(name_dup);
+-				free(datum);
+-				return SEPOL_ENOMEM;
+-			}
+-
+-			ft->ttype =3D ttype;
+-			ft->tclass =3D tclass;
+-			ft->name =3D name_dup;
+-
+-			if (hashtab_insert(p->filename_trans, (hashtab_key_t)ft,
+-					   (hashtab_datum_t)datum)) {
+-				free(name_dup);
+-				free(datum);
+-				free(ft);
+-				return SEPOL_ENOMEM;
+-			}
+-		}
+-	}
+-
+-	p->filename_trans_count++;
+-	return ebitmap_set_bit(&datum->stypes, stype - 1, 1);
+-}
+-
+-static int filename_trans_read_one_compat(policydb_t *p, struct policy_f=
+ile *fp)
+-{
+-	uint32_t buf[4], len, stype, ttype, tclass, otype;
+-	char *name =3D NULL;
+-	int rc;
+-
+-	rc =3D next_entry(buf, fp, sizeof(uint32_t));
+-	if (rc < 0)
+-		return -1;
+-	len =3D le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
+-		return -1;
+-
+-	name =3D calloc(len + 1, sizeof(*name));
+-	if (!name)
+-		return -1;
+-
+-	rc =3D next_entry(name, fp, len);
+-	if (rc < 0)
+-		goto err;
+-
+-	rc =3D next_entry(buf, fp, sizeof(uint32_t) * 4);
+-	if (rc < 0)
+-		goto err;
+-
+-	stype =3D le32_to_cpu(buf[0]);
+-	if (stype =3D=3D 0)
+-		goto err;
+-
+-	ttype  =3D le32_to_cpu(buf[1]);
+-	tclass =3D le32_to_cpu(buf[2]);
+-	otype  =3D le32_to_cpu(buf[3]);
+-
+-	rc =3D policydb_filetrans_insert(p, stype, ttype, tclass, name, &name,
+-				       otype, NULL);
+-	if (rc) {
+-		if (rc !=3D SEPOL_EEXIST)
+-			goto err;
+-		/*
+-		 * Some old policies were wrongly generated with
+-		 * duplicate filename transition rules.  For backward
+-		 * compatibility, do not reject such policies, just
+-		 * ignore the duplicate.
+-		 */
+-	}
+-	free(name);
+-	return 0;
+-err:
+-	free(name);
+-	return -1;
+-}
+-
+-static int filename_trans_check_datum(filename_trans_datum_t *datum)
+-{
+-	ebitmap_t stypes, otypes;
+-	int rc =3D -1;
+-
+-	ebitmap_init(&stypes);
+-	ebitmap_init(&otypes);
+-
+-	while (datum) {
+-		if (ebitmap_get_bit(&otypes, datum->otype))
+-			goto out;
+-
+-		if (ebitmap_set_bit(&otypes, datum->otype, 1))
+-			goto out;
+-
+-		if (ebitmap_match_any(&stypes, &datum->stypes))
+-			goto out;
+-
+-		if (ebitmap_union(&stypes, &datum->stypes))
+-			goto out;
+-
+-		datum =3D datum->next;
+-	}
+-	rc =3D 0;
+-out:
+-	ebitmap_destroy(&stypes);
+-	ebitmap_destroy(&otypes);
+-	return rc;
+-}
+-
+-static int filename_trans_read_one(policydb_t *p, struct policy_file *fp=
+)
+-{
+-	filename_trans_key_t *ft =3D NULL;
+-	filename_trans_datum_t **dst, *datum, *first =3D NULL;
+-	unsigned int i;
+-	uint32_t buf[3], len, ttype, tclass, ndatum;
+-	char *name =3D NULL;
+-	int rc;
+-
+-	rc =3D next_entry(buf, fp, sizeof(uint32_t));
+-	if (rc < 0)
+-		return -1;
+-	len =3D le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
+-		return -1;
+-
+-	name =3D calloc(len + 1, sizeof(*name));
+-	if (!name)
+-		return -1;
+-
+-	rc =3D next_entry(name, fp, len);
+-	if (rc < 0)
+-		goto err;
+-
+-	rc =3D next_entry(buf, fp, sizeof(uint32_t) * 3);
+-	if (rc < 0)
+-		goto err;
+-
+-	ttype =3D le32_to_cpu(buf[0]);
+-	tclass =3D le32_to_cpu(buf[1]);
+-	ndatum =3D le32_to_cpu(buf[2]);
+-	if (ndatum =3D=3D 0)
+-		goto err;
+-
+-	dst =3D &first;
+-	for (i =3D 0; i < ndatum; i++) {
+-		datum =3D malloc(sizeof(*datum));
+-		if (!datum)
+-			goto err;
+-
+-		datum->next =3D NULL;
+-		*dst =3D datum;
+-
+-		/* ebitmap_read() will at least init the bitmap */
+-		rc =3D ebitmap_read(&datum->stypes, fp);
+-		if (rc < 0)
+-			goto err;
+-
+-		rc =3D next_entry(buf, fp, sizeof(uint32_t));
+-		if (rc < 0)
+-			goto err;
+-
+-		datum->otype =3D le32_to_cpu(buf[0]);
+-
+-		p->filename_trans_count +=3D ebitmap_cardinality(&datum->stypes);
+-
+-		dst =3D &datum->next;
+-	}
+-
+-	if (ndatum > 1 && filename_trans_check_datum(first))
+-		goto err;
+-
+-	ft =3D malloc(sizeof(*ft));
+-	if (!ft)
+-		goto err;
+-
+-	ft->ttype =3D ttype;
+-	ft->tclass =3D tclass;
+-	ft->name =3D name;
+-
+-	rc =3D hashtab_insert(p->filename_trans, (hashtab_key_t)ft,
+-			    (hashtab_datum_t)first);
+-	if (rc)
+-		goto err;
+-
+-	return 0;
+-err:
+-	free(ft);
+-	free(name);
+-	while (first) {
+-		datum =3D first;
+-		first =3D first->next;
+-
+-		ebitmap_destroy(&datum->stypes);
+-		free(datum);
+-	}
+-	return -1;
+-}
+-
+-static int filename_trans_read(policydb_t *p, struct policy_file *fp)
+-{
+-	unsigned int i;
+-	uint32_t buf[1], nel;
+-	int rc;
+-
+-	rc =3D next_entry(buf, fp, sizeof(uint32_t));
+-	if (rc < 0)
+-		return -1;
+-	nel =3D le32_to_cpu(buf[0]);
+-
+-	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
+-		for (i =3D 0; i < nel; i++) {
+-			rc =3D filename_trans_read_one_compat(p, fp);
+-			if (rc < 0)
+-				return -1;
+-		}
+-	} else {
+-		for (i =3D 0; i < nel; i++) {
+-			rc =3D filename_trans_read_one(p, fp);
+-			if (rc < 0)
+-				return -1;
+-		}
+-	}
+-	return 0;
+-}
+-
+ static int ocontext_read_xen(const struct policydb_compat_info *info,
+ 	policydb_t *p, struct policy_file *fp)
+ {
+@@ -4470,7 +4129,7 @@ int policydb_read(policydb_t * p, struct policy_fil=
+e *fp, unsigned verbose)
+ 		if (role_allow_read(&p->role_allow, fp))
+ 			goto bad;
+ 		if (r_policyvers >=3D POLICYDB_VERSION_FILENAME_TRANS &&
+-		    filename_trans_read(p, fp))
++		    avtab_filename_trans_read(fp, r_policyvers, &p->te_avtab))
+ 			goto bad;
+ 	} else {
+ 		/* first read the AV rule blocks, then the scope tables */
 diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
 idate.c
-index 89306185..0b8e8eee 100644
+index f402b506..89306185 100644
 --- a/libsepol/src/policydb_validate.c
 +++ b/libsepol/src/policydb_validate.c
-@@ -1313,31 +1313,6 @@ bad:
+@@ -829,6 +829,18 @@ static int validate_xperms(const avtab_extended_perm=
+s_t *xperms)
+ bad:
+ 	return -1;
+ }
++
++static int validate_name_trans_helper(hashtab_key_t k __attribute__ ((un=
+used)),
++				      hashtab_datum_t d, void *a)
++{
++	uint32_t *otype =3D d;
++	map_arg_t *margs =3D a;
++
++	if (validate_simpletype(*otype, margs->policy, margs->flavors))
++		return -1;
++	return 0;
++}
++
+ static int validate_avtab_key_and_datum(avtab_key_t *k, avtab_datum_t *d=
+, void *args)
+ {
+ 	map_arg_t *margs =3D args;
+@@ -836,10 +848,23 @@ static int validate_avtab_key_and_datum(avtab_key_t=
+ *k, avtab_datum_t *d, void *
+ 	if (validate_avtab_key(k, 0, margs->policy, margs->flavors))
+ 		return -1;
+=20
+-	uint32_t otype =3D k->specified & AVTAB_TRANSITION
+-		? d->trans->otype : d->data;
+-	if ((k->specified & AVTAB_TYPE) && validate_simpletype(otype, margs->po=
+licy, margs->flavors))
++	if (k->specified & AVTAB_TRANSITION) {
++		/* if otype is set (non-zero), it must by a valid simple type */
++		if (d->trans->otype && validate_simpletype(d->trans->otype, margs->pol=
+icy, margs->flavors))
++			return -1;
++
++		/* also each transition must be non empty */
++		if (!d->trans->otype &&
++		    !hashtab_nel(d->trans->name_trans.table))
++			return -1;
++
++		/* and each filename transition must be also valid */
++		if (hashtab_map(d->trans->name_trans.table,
++				validate_name_trans_helper, margs))
++			return -1;
++	} else if ((k->specified & AVTAB_TYPE) && validate_simpletype(d->data, =
+margs->policy, margs->flavors)) {
+ 		return -1;
++	}
+=20
+ 	if ((k->specified & AVTAB_XPERMS) && validate_xperms(d->xperms))
+ 		return -1;
+@@ -1092,41 +1117,6 @@ bad:
  	return -1;
  }
 =20
--
--static int validate_filename_trans_rules(sepol_handle_t *handle, const f=
-ilename_trans_rule_t *filename_trans, const policydb_t *p, validate_t fla=
-vors[])
+-static int validate_filename_trans(hashtab_key_t k, hashtab_datum_t d, v=
+oid *args)
 -{
--	for (; filename_trans; filename_trans =3D filename_trans->next) {
--		if (validate_type_set(&filename_trans->stypes, &flavors[SYM_TYPES]))
--			goto bad;
--		if (validate_type_set(&filename_trans->ttypes, &flavors[SYM_TYPES]))
--			goto bad;
--		if (validate_value(filename_trans->tclass,&flavors[SYM_CLASSES] ))
--			goto bad;
--		if (validate_simpletype(filename_trans->otype, p, flavors))
--			goto bad;
+-	const filename_trans_key_t *ftk =3D (filename_trans_key_t *)k;
+-	const filename_trans_datum_t *ftd =3D d;
+-	validate_t *flavors =3D (validate_t *)args;
 -
--		/* currently only the RULE_SELF flag can be set */
--		if ((filename_trans->flags & ~RULE_SELF) !=3D 0)
+-	if (validate_value(ftk->ttype, &flavors[SYM_TYPES]))
+-		goto bad;
+-	if (validate_value(ftk->tclass, &flavors[SYM_CLASSES]))
+-		goto bad;
+-	if (!ftd)
+-		goto bad;
+-	for (; ftd; ftd =3D ftd->next) {
+-		if (validate_ebitmap(&ftd->stypes, &flavors[SYM_TYPES]))
+-			goto bad;
+-		if (validate_value(ftd->otype, &flavors[SYM_TYPES]))
 -			goto bad;
 -	}
 -
 -	return 0;
 -
 -bad:
--	ERR(handle, "Invalid filename trans rule list");
 -	return -1;
 -}
 -
- static int validate_symtabs(sepol_handle_t *handle, const symtab_t symta=
-bs[], validate_t flavors[])
+-static int validate_filename_trans_hashtab(sepol_handle_t *handle, hasht=
+ab_t filename_trans, validate_t flavors[])
+-{
+-	if (hashtab_map(filename_trans, validate_filename_trans, flavors)) {
+-		ERR(handle, "Invalid filename trans");
+-		return -1;
+-	}
+-
+-	return 0;
+-}
+-
+ static int validate_context(const context_struct_t *con, validate_t flav=
+ors[], int mls)
  {
- 	unsigned int i;
-@@ -1372,8 +1347,6 @@ static int validate_avrule_blocks(sepol_handle_t *h=
-andle, const avrule_block_t *
- 				goto bad;
- 			if (validate_scope_index(handle, &decl->declared, flavors))
- 				goto bad;
--			if (validate_filename_trans_rules(handle, decl->filename_trans_rules,=
- p, flavors))
+ 	if (validate_value(con->user, &flavors[SYM_USERS]))
+@@ -1556,9 +1546,6 @@ int policydb_validate(sepol_handle_t *handle, const=
+ policydb_t *p)
+ 			goto bad;
+ 		if (validate_role_allows(handle, p->role_allow, flavors))
+ 			goto bad;
+-		if (p->policyvers >=3D POLICYDB_VERSION_FILENAME_TRANS)
+-			if (validate_filename_trans_hashtab(handle, p->filename_trans, flavor=
+s))
 -				goto bad;
- 			if (validate_symtabs(handle, decl->symtab, flavors))
- 				goto bad;
- 		}
+ 	} else {
+ 		if (validate_avrule_blocks(handle, p->global, p, flavors))
+ 			goto bad;
 diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index c4d593ab..2035b350 100644
+index 0d3d5f14..c4d593ab 100644
 --- a/libsepol/src/write.c
 +++ b/libsepol/src/write.c
-@@ -1970,6 +1970,10 @@ static int avrule_write(policydb_t *p, avrule_t * =
-avrule,
- 	uint32_t buf[32], len;
- 	class_perm_node_t *cur;
+@@ -116,6 +116,14 @@ static int avtab_write_item(policydb_t * p,
+ 				&& p->policyvers < POLICYDB_VERSION_AVTAB);
+ 	unsigned int i;
 =20
-+	/* skip filename transitions for now */
-+	if (avrule->specified & AVRULE_TRANSITION && avrule->object_name)
-+		return POLICYDB_SUCCESS;
++	/* skip entries which only contain filename transitions */
++	if (cur->key.specified & AVTAB_TRANSITION && !cur->datum.trans->otype) =
+{
++		/* if oldvers, reduce nel, because this node will be skipped */
++		if (oldvers && nel)
++			(*nel)--;
++		return 0;
++	}
 +
- 	if (p->policyvers < MOD_POLICYDB_VERSION_SELF_TYPETRANS &&
- 	    (avrule->specified & AVRULE_TYPE) &&
- 	    (avrule->flags & RULE_SELF)) {
-@@ -2063,7 +2067,9 @@ static int avrule_write_list(policydb_t *p, avrule_=
-t * avrules,
- 	avrule =3D avrules;
- 	len =3D 0;
- 	while (avrule) {
--		len++;
-+		if (!(avrule->specified & AVRULE_TRANSITION &&
-+		      avrule->object_name))
-+			len++;
- 		avrule =3D avrule->next;
- 	}
-=20
-@@ -2162,55 +2168,67 @@ static int role_allow_rule_write(role_allow_rule_=
-t * r, struct policy_file *fp)
- 	return POLICYDB_SUCCESS;
+ 	if (oldvers) {
+ 		/* Generate the old avtab format.
+ 		   Requires merging similar entries if uncond avtab. */
+@@ -313,8 +321,23 @@ static int avtab_write(struct policydb *p, avtab_t *=
+ a, struct policy_file *fp)
+ 		avtab_reset_merged(a);
+ 		nel =3D a->nel;
+ 	} else {
+-		/* New avtab format.  nel is good to go. */
+-		nel =3D cpu_to_le32(a->nel);
++		/*
++		 * New avtab format.  nel is good to go unless we need to skip
++		 * filename transitions.
++		 */
++		nel =3D a->nel;
++		/*
++		 * entries containing only filename transitions are skipped and
++		 * written out later
++		 */
++		for (i =3D 0; i < a->nslot; i++) {
++			for (cur =3D a->htable[i]; cur; cur =3D cur->next) {
++				if (cur->key.specified & AVTAB_TRANSITION &&
++				    !cur->datum.trans->otype)
++					nel--;
++			}
++		}
++		nel =3D cpu_to_le32(nel);
+ 		items =3D put_entry(&nel, sizeof(uint32_t), 1, fp);
+ 		if (items !=3D 1)
+ 			return POLICYDB_ERROR;
+@@ -358,6 +381,307 @@ static int avtab_write(struct policydb *p, avtab_t =
+* a, struct policy_file *fp)
+ 	return rc;
  }
 =20
--static int filename_trans_rule_write(policydb_t *p, filename_trans_rule_=
-t *t,
-+static int filename_trans_rule_write(policydb_t *p, avrule_t *rules,
- 				     struct policy_file *fp)
- {
- 	int nel =3D 0;
- 	size_t items, entries;
- 	uint32_t buf[3], len;
--	filename_trans_rule_t *ftr;
-+	avrule_t *rule;
-+	class_perm_node_t *perm;
-=20
--	for (ftr =3D t; ftr; ftr =3D ftr->next)
--		nel++;
-+	for (rule =3D rules; rule; rule =3D rule->next) {
-+		if (rule->specified & AVRULE_TRANSITION && rule->object_name) {
-+			for (perm =3D rule->perms; perm; perm =3D perm->next) {
-+				nel++;
++/* policydb filename transition compatibility */
++
++typedef struct filenametr_key {
++	uint32_t ttype;
++	uint32_t tclass;
++	char *name;
++} filenametr_key_t;
++
++typedef struct filenametr_datum {
++	ebitmap_t stypes;
++	uint32_t otype;
++	struct filenametr_datum *next;
++} filenametr_datum_t;
++
++ignore_unsigned_overflow_
++static inline unsigned long
++partial_name_hash(unsigned long c, unsigned long prevhash)
++{
++	return (prevhash + (c << 4) + (c >> 4)) * 11;
++}
++
++static unsigned int filenametr_hash(hashtab_t h, const_hashtab_key_t k)
++{
++	const filenametr_key_t *ft =3D (const filenametr_key_t *)k;
++	unsigned long hash;
++	unsigned int byte_num;
++	unsigned char focus;
++
++	hash =3D ft->ttype ^ ft->tclass;
++
++	byte_num =3D 0;
++	while ((focus =3D ft->name[byte_num++]))
++		hash =3D partial_name_hash(focus, hash);
++	return hash & (h->size - 1);
++}
++
++static int filenametr_cmp(hashtab_t h __attribute__ ((unused)),
++			  const_hashtab_key_t k1, const_hashtab_key_t k2)
++{
++	const filenametr_key_t *ft1 =3D (const filenametr_key_t *)k1;
++	const filenametr_key_t *ft2 =3D (const filenametr_key_t *)k2;
++	int v;
++
++	v =3D spaceship_cmp(ft1->ttype, ft2->ttype);
++	if (v)
++		return v;
++
++	v =3D spaceship_cmp(ft1->tclass, ft2->tclass);
++	if (v)
++		return v;
++
++	return strcmp(ft1->name, ft2->name);
++}
++
++static int filenametr_destroy(hashtab_key_t key, hashtab_datum_t datum,
++			      void *p __attribute__ ((unused)))
++{
++	filenametr_key_t *ft =3D (filenametr_key_t *)key;
++	filenametr_datum_t *fd =3D datum, *next;
++
++	free(ft->name);
++	free(key);
++	do {
++		next =3D fd->next;
++		ebitmap_destroy(&fd->stypes);
++		free(fd);
++		fd =3D next;
++	} while (fd);
++	return 0;
++}
++
++typedef struct {
++	void *fp;
++	avtab_key_t *key;
++} name_trans_write_args_t;
++
++static int name_trans_write_helper(hashtab_key_t k, hashtab_datum_t d, v=
+oid *a)
++{
++	char *name =3D k;
++	uint32_t *otype =3D d;
++	name_trans_write_args_t *args =3D a;
++	size_t items;
++	uint32_t len, buf[4];
++
++	len =3D strlen(name);
++	buf[0] =3D cpu_to_le32(len);
++	items =3D put_entry(buf, sizeof(uint32_t), 1, args->fp);
++	if (items !=3D 1)
++		return -1;
++
++	items =3D put_entry(name, sizeof(char), len,args-> fp);
++	if (items !=3D len)
++		return -1;
++
++	buf[0] =3D cpu_to_le32(args->key->source_type);
++	buf[1] =3D cpu_to_le32(args->key->target_type);
++	buf[2] =3D cpu_to_le32(args->key->target_class);
++	buf[3] =3D cpu_to_le32(*otype);
++
++	items =3D put_entry(buf, sizeof(uint32_t), 4, args->fp);
++	if (items !=3D 4)
++		return -1;
++	return 0;
++}
++
++typedef struct {
++	hashtab_t fnts_tab;
++	avtab_key_t *av_key;
++} name_trans_insert_args_t;
++
++static int name_trans_insert_helper(hashtab_key_t k, hashtab_datum_t d, =
+void *a)
++{
++	char *name =3D k;
++	uint32_t *otype =3D d;
++	name_trans_insert_args_t *args =3D a;
++	filenametr_key_t key, *ft =3D NULL;
++	filenametr_datum_t *last, *datum =3D NULL;
++	int rc;
++
++	key.ttype =3D args->av_key->target_type;
++	key.tclass =3D args->av_key->target_class;
++	key.name =3D name;
++
++	last =3D NULL;
++	datum =3D hashtab_search(args->fnts_tab, (hashtab_key_t)&key);
++	while (datum) {
++		if (ebitmap_get_bit(&datum->stypes, args->av_key->source_type - 1)) {
++			datum =3D NULL;
++			goto bad;
++		}
++		if (datum->otype =3D=3D *otype)
++			break;
++		last =3D datum;
++		datum =3D datum->next;
++	}
++	if (!datum) {
++		datum =3D malloc(sizeof(filenametr_datum_t));
++		if (!datum)
++			goto bad;
++
++		ebitmap_init(&datum->stypes);
++		datum->otype =3D *otype;
++		datum->next =3D NULL;
++
++		if (last) {
++			last->next =3D datum;
++		} else {
++			ft =3D malloc(sizeof(filenametr_key_t));
++			if (!ft)
++				goto bad;
++
++			ft->ttype =3D args->av_key->target_type;
++			ft->tclass =3D args->av_key->target_class;
++			ft->name =3D strdup(name);
++			if (!ft->name)
++				goto bad;
++
++			rc =3D hashtab_insert(args->fnts_tab, (hashtab_key_t)ft, datum);
++			if (rc)
++				goto bad;
++		}
++	}
++
++	return ebitmap_set_bit(&datum->stypes, args->av_key->source_type - 1, 1=
+);
++
++bad:
++	if (ft !=3D NULL)
++		free(ft->name);
++	free(ft);
++	free(datum);
++	return -1;
++}
++
++static int filenametr_comp_write_one(hashtab_key_t key, void *data, void=
+ *ptr)
++{
++	uint32_t buf[3];
++	size_t items, len, ndatum;
++	filenametr_key_t *ft =3D (filenametr_key_t *)key;
++	filenametr_datum_t *datum;
++	void *fp =3D ptr;
++
++	len =3D strlen(ft->name);
++	buf[0] =3D cpu_to_le32(len);
++	items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
++	if (items !=3D 1)
++		return POLICYDB_ERROR;
++
++	items =3D put_entry(ft->name, sizeof(char), len, fp);
++	if (items !=3D len)
++		return POLICYDB_ERROR;
++
++	ndatum =3D 0;
++	datum =3D data;
++	do {
++		ndatum++;
++		datum =3D datum->next;
++	} while (datum);
++
++	buf[0] =3D cpu_to_le32(ft->ttype);
++	buf[1] =3D cpu_to_le32(ft->tclass);
++	buf[2] =3D cpu_to_le32(ndatum);
++	items =3D put_entry(buf, sizeof(uint32_t), 3, fp);
++	if (items !=3D 3)
++		return POLICYDB_ERROR;
++
++	datum =3D data;
++	do {
++		if (ebitmap_write(&datum->stypes, fp))
++			return POLICYDB_ERROR;
++
++		buf[0] =3D cpu_to_le32(datum->otype);
++		items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items !=3D 1)
++			return POLICYDB_ERROR;
++
++		datum =3D datum->next;
++	} while (datum);
++
++	return 0;
++}
++
++static int avtab_filename_trans_write(policydb_t *pol, avtab_t *a,
++				      policy_file_t *fp)
++{
++	policydb_t *p =3D pol;
++	uint32_t buf[1];
++	int rc;
++	size_t items;
++	uint32_t i, nel =3D 0;
++	struct avtab_node *cur;
++	hashtab_t fnts_tab;
++	name_trans_write_args_t write_args =3D { .fp =3D fp };
++	name_trans_insert_args_t insert_args;
++
++	/* count number of filename transitions */
++	for (i =3D 0; i < a->nslot; i++) {
++		for (cur =3D a->htable[i]; cur; cur =3D cur->next) {
++			if (cur->key.specified & AVTAB_TRANSITION) {
++				nel +=3D hashtab_nel(cur->datum.trans->name_trans.table);
 +			}
 +		}
 +	}
++
++	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++		buf[0] =3D cpu_to_le32(nel);
++		items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items !=3D 1)
++			return -1;
++
++		/* write filename transitions */
++		for (i =3D 0; i < a->nslot; i++) {
++			for (cur =3D a->htable[i]; cur; cur =3D cur->next) {
++				if (cur->key.specified & AVTAB_TRANSITION) {
++					write_args.key =3D &cur->key;
++					rc =3D hashtab_map(cur->datum.trans->name_trans.table,
++							 name_trans_write_helper,
++							 &write_args);
++					if (rc)
++						return -1;
++				}
++			}
++		}
++		return 0;
++	}
++
++	/* init filename transitions */
++	fnts_tab =3D hashtab_create(filenametr_hash, filenametr_cmp, nel);
++	if (!fnts_tab)
++		return -1;
++	insert_args.fnts_tab =3D fnts_tab;
++
++	for (i =3D 0; i < a->nslot; i++) {
++		for (cur =3D a->htable[i]; cur; cur =3D cur->next) {
++			if (cur->key.specified & AVTAB_TRANSITION) {
++				insert_args.av_key =3D &cur->key;
++				rc =3D hashtab_map(cur->datum.trans->name_trans.table,
++						 name_trans_insert_helper,
++						 &insert_args);
++			}
++		}
++	}
++
++	rc =3D -1;
++	/* write compressed filename transitions */
++	buf[0] =3D cpu_to_le32(fnts_tab->nel);
++	items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
++	if (items !=3D 1)
++		goto out;
++
++	rc =3D hashtab_map(fnts_tab, filenametr_comp_write_one, fp);
++
++out:
++	/* destroy temp filename transitions table */
++	hashtab_map(fnts_tab, filenametr_destroy, NULL);
++	hashtab_destroy(fnts_tab);
++
++	return rc ? -1 : 0;
++}
++
++/* end policydb filename transition compatibility */
++
+ /*
+  * Write a semantic MLS level structure to a policydb binary=20
+  * representation file.
+@@ -580,118 +904,6 @@ static int role_allow_write(role_allow_t * r, struc=
+t policy_file *fp)
+ 	return POLICYDB_SUCCESS;
+ }
 =20
- 	buf[0] =3D cpu_to_le32(nel);
- 	items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
- 	if (items !=3D 1)
- 		return POLICYDB_ERROR;
-=20
--	for (ftr =3D t; ftr; ftr =3D ftr->next) {
--		len =3D strlen(ftr->name);
--		buf[0] =3D cpu_to_le32(len);
+-static int filename_write_one_compat(hashtab_key_t key, void *data, void=
+ *ptr)
+-{
+-	uint32_t bit, buf[4];
+-	size_t items, len;
+-	filename_trans_key_t *ft =3D (filename_trans_key_t *)key;
+-	filename_trans_datum_t *datum =3D data;
+-	ebitmap_node_t *node;
+-	void *fp =3D ptr;
+-
+-	len =3D strlen(ft->name);
+-	do {
+-		ebitmap_for_each_positive_bit(&datum->stypes, node, bit) {
+-			buf[0] =3D cpu_to_le32(len);
+-			items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
+-			if (items !=3D 1)
+-				return POLICYDB_ERROR;
+-
+-			items =3D put_entry(ft->name, sizeof(char), len, fp);
+-			if (items !=3D len)
+-				return POLICYDB_ERROR;
+-
+-			buf[0] =3D cpu_to_le32(bit + 1);
+-			buf[1] =3D cpu_to_le32(ft->ttype);
+-			buf[2] =3D cpu_to_le32(ft->tclass);
+-			buf[3] =3D cpu_to_le32(datum->otype);
+-			items =3D put_entry(buf, sizeof(uint32_t), 4, fp);
+-			if (items !=3D 4)
+-				return POLICYDB_ERROR;
+-		}
+-
+-		datum =3D datum->next;
+-	} while (datum);
+-
+-	return 0;
+-}
+-
+-static int filename_write_one(hashtab_key_t key, void *data, void *ptr)
+-{
+-	uint32_t buf[3];
+-	size_t items, len, ndatum;
+-	filename_trans_key_t *ft =3D (filename_trans_key_t *)key;
+-	filename_trans_datum_t *datum;
+-	void *fp =3D ptr;
+-
+-	len =3D strlen(ft->name);
+-	buf[0] =3D cpu_to_le32(len);
+-	items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
+-	if (items !=3D 1)
+-		return POLICYDB_ERROR;
+-
+-	items =3D put_entry(ft->name, sizeof(char), len, fp);
+-	if (items !=3D len)
+-		return POLICYDB_ERROR;
+-
+-	ndatum =3D 0;
+-	datum =3D data;
+-	do {
+-		ndatum++;
+-		datum =3D datum->next;
+-	} while (datum);
+-
+-	buf[0] =3D cpu_to_le32(ft->ttype);
+-	buf[1] =3D cpu_to_le32(ft->tclass);
+-	buf[2] =3D cpu_to_le32(ndatum);
+-	items =3D put_entry(buf, sizeof(uint32_t), 3, fp);
+-	if (items !=3D 3)
+-		return POLICYDB_ERROR;
+-
+-	datum =3D data;
+-	do {
+-		if (ebitmap_write(&datum->stypes, fp))
+-			return POLICYDB_ERROR;
+-
+-		buf[0] =3D cpu_to_le32(datum->otype);
 -		items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
 -		if (items !=3D 1)
 -			return POLICYDB_ERROR;
-+	for (rule =3D rules; rule; rule =3D rule->next) {
-+		if (!(rule->specified & AVRULE_TRANSITION && rule->object_name))
-+			continue;
-+		len =3D strlen(rule->object_name);
-+		for (perm =3D rule->perms; perm; perm =3D perm->next) {
-+			buf[0] =3D cpu_to_le32(len);
-+			items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
-+			if (items !=3D 1)
-+				return POLICYDB_ERROR;
-=20
--		items =3D put_entry(ftr->name, sizeof(char), len, fp);
--		if (items !=3D len)
--			return POLICYDB_ERROR;
-+			items =3D put_entry(rule->object_name, sizeof(char), len,
-+					  fp);
-+			if (items !=3D len)
-+				return POLICYDB_ERROR;
-=20
--		if (type_set_write(&ftr->stypes, fp))
--			return POLICYDB_ERROR;
--		if (type_set_write(&ftr->ttypes, fp))
--			return POLICYDB_ERROR;
-+			if (type_set_write(&rule->stypes, fp))
-+				return POLICYDB_ERROR;
-+			if (type_set_write(&rule->ttypes, fp))
-+				return POLICYDB_ERROR;
-=20
--		buf[0] =3D cpu_to_le32(ftr->tclass);
--		buf[1] =3D cpu_to_le32(ftr->otype);
--		buf[2] =3D cpu_to_le32(ftr->flags);
-+			buf[0] =3D cpu_to_le32(perm->tclass);
-+			buf[1] =3D cpu_to_le32(perm->data);
-+			buf[2] =3D cpu_to_le32(rule->flags);
-+
-+			if (p->policyvers >=3D
-+			    MOD_POLICYDB_VERSION_SELF_TYPETRANS) {
-+				entries =3D 3;
-+			} else if (!(rule->flags & RULE_SELF)) {
-+				entries =3D 2;
-+			} else {
-+				ERR(fp->handle,
-+				    "Module contains a self rule not supported by the target module =
-policy version");
-+				return POLICYDB_ERROR;
-+			}
-=20
--		if (p->policyvers >=3D MOD_POLICYDB_VERSION_SELF_TYPETRANS) {
--			entries =3D 3;
--		} else if (!(ftr->flags & RULE_SELF)) {
--			entries =3D 2;
--		} else {
--			ERR(fp->handle,
--			    "Module contains a self rule not supported by the target module p=
-olicy version");
--			return POLICYDB_ERROR;
-+			items =3D put_entry(buf, sizeof(uint32_t), entries, fp);
-+			if (items !=3D entries)
-+				return POLICYDB_ERROR;
- 		}
 -
--		items =3D put_entry(buf, sizeof(uint32_t), entries, fp);
--		if (items !=3D entries)
+-		datum =3D datum->next;
+-	} while (datum);
+-
+-	return 0;
+-}
+-
+-static int filename_trans_write(struct policydb *p, void *fp)
+-{
+-	size_t items;
+-	uint32_t buf[1];
+-	int rc;
+-
+-	if (p->policyvers < POLICYDB_VERSION_FILENAME_TRANS)
+-		return 0;
+-
+-	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
+-		buf[0] =3D cpu_to_le32(p->filename_trans_count);
+-		items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
+-		if (items !=3D 1)
 -			return POLICYDB_ERROR;
- 	}
- 	return POLICYDB_SUCCESS;
+-
+-		rc =3D hashtab_map(p->filename_trans, filename_write_one_compat,
+-				 fp);
+-	} else {
+-		buf[0] =3D cpu_to_le32(p->filename_trans->nel);
+-		items =3D put_entry(buf, sizeof(uint32_t), 1, fp);
+-		if (items !=3D 1)
+-			return POLICYDB_ERROR;
+-
+-		rc =3D hashtab_map(p->filename_trans, filename_write_one, fp);
+-	}
+-	return rc;
+-}
+-
+ static int role_set_write(role_set_t * x, struct policy_file *fp)
+ {
+ 	size_t items;
+@@ -2202,6 +2414,21 @@ static int role_attr_uncount(hashtab_key_t key __a=
+ttribute__ ((unused)),
+ 	return 0;
  }
-@@ -2284,7 +2302,7 @@ static int avrule_decl_write(avrule_decl_t * decl, =
-int num_scope_syms,
- 	}
 =20
- 	if (p->policyvers >=3D MOD_POLICYDB_VERSION_FILENAME_TRANS &&
--	    filename_trans_rule_write(p, decl->filename_trans_rules, fp))
-+	    filename_trans_rule_write(p, decl->avrules, fp))
- 		return POLICYDB_ERROR;
-=20
- 	if (p->policyvers >=3D MOD_POLICYDB_VERSION_RANGETRANS &&
++static int avtab_has_filename_transitions(avtab_t *a)
++{
++	uint32_t i;
++	struct avtab_node *cur;
++	for (i =3D 0; i < a->nslot; i++) {
++		for (cur =3D a->htable[i]; cur; cur =3D cur->next) {
++			if (cur->key.specified & AVTAB_TRANSITION) {
++				if (hashtab_nel(cur->datum.trans->name_trans.table))
++					return 1;
++			}
++		}
++	}
++	return 0;
++}
++
+ /*
+  * Write the configuration data in a policy database
+  * structure to a policy database binary representation
+@@ -2381,11 +2608,11 @@ int policydb_write(policydb_t * p, struct policy_=
+file *fp)
+ 		if (role_allow_write(p->role_allow, fp))
+ 			return POLICYDB_ERROR;
+ 		if (p->policyvers >=3D POLICYDB_VERSION_FILENAME_TRANS) {
+-			if (filename_trans_write(p, fp))
++			if (avtab_filename_trans_write(p, &p->te_avtab, fp))
+ 				return POLICYDB_ERROR;
+-		} else {
+-			if (p->filename_trans)
+-				WARN(fp->handle, "Discarding filename type transition rules");
++		} else if (avtab_has_filename_transitions(&p->te_avtab)) {
++			WARN(fp->handle,
++			     "Discarding filename type transition rules");
+ 		}
+ 	} else {
+ 		if (avrule_block_write(p->global, num_syms, p, fp) =3D=3D -1) {
 --=20
 2.40.0
 
