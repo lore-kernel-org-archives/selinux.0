@@ -2,134 +2,210 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DABECEB64DB
-	for <selinux@archiver.kernel.org>; Mon, 19 Jun 2023 21:58:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48E6BEB64D7
+	for <selinux@archiver.kernel.org>; Tue, 20 Jun 2023 07:52:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbjFSV6V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 19 Jun 2023 17:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58888 "EHLO
+        id S230032AbjFTHwT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 20 Jun 2023 03:52:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbjFSV6V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 19 Jun 2023 17:58:21 -0400
-Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E814134
-        for <selinux@vger.kernel.org>; Mon, 19 Jun 2023 14:58:19 -0700 (PDT)
-Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-570282233ceso33459847b3.1
-        for <selinux@vger.kernel.org>; Mon, 19 Jun 2023 14:58:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1687211898; x=1689803898;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZfGwSWonWBN26ecTP3gWkXOCwieG5Sr/urFm9BHeFnc=;
-        b=JoZOnSLC6AiZEFNYuVasCpycJzKb47uM/FVrx9BpgWer7FqiUb7DHvntPC0iLZEif7
-         7HBOHXHADBR+DReJJgthfT2XJyqaHvfG94b5zHgNyOf1C0ElOGfcS7y75u7GrJIUsuQt
-         iZH0vFK1M6eObfbH9Xopht1l0H8JhHwN9WekP89P49ewcXNWpSctrp28L435Udo/EWsD
-         pKAWoBM8BIcoEY+5QygBFzV9wGruBBmPjju77rM0y7IOBUU1zq+GCtZmi4Sf7fU8iXiR
-         wnAN1SPkSdi3r9JLntadNiY4R6fkqhM3wSpbUC7malD8wDfsK3s4GGgwaMMKOi3TRDHp
-         uDlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687211898; x=1689803898;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZfGwSWonWBN26ecTP3gWkXOCwieG5Sr/urFm9BHeFnc=;
-        b=MBYX+W/gjaLm8ijU3kOcyxRNu0KhPZ6KRmGiyX+w3BZwg9kslwlmNYwrvrOxNrlnh2
-         s8SgOGieU5+yg/+t98+eKtQ1miQ7udQh6E7Q4KTTwyI5Li45kFG6Y2tc+1UhCaNz8D8q
-         9ob6RmZ0/FzfQ1EKpgO8Qr/NuMxWZW6bynBRrOGQo3iR1eJaVmNTwcRf0V6g/Bph+ZHL
-         AN/QuMuNt5j/q54VfDwRKfjqU03u1kYoj3hG/szT5z9GH0Q8HC/QxhcGt+fxBUcnw5rl
-         XitIbmi6iILyEh99K+lVH4I+LcxyVumEtDHNdAqPLgT/hTn8xmjsdfyeSCDGxMmGVcu5
-         PAjw==
-X-Gm-Message-State: AC+VfDzUk7reoWtlKJkXpLXICCjo94veAAiKcxoQCZBxphaamoWZ/3Ix
-        03YXQdeyWUyDmWU0kjkOGk6kdIJ0en/jE1g4d1ZjTS1otbhUJ0KRQg==
-X-Google-Smtp-Source: ACHHUZ7oDnHnbcgQfdy7IN9CaF9OwDO5e3prALV57cRCdmT2ybXZDKum56f3hR+A8lQrCILwJuocrs0ZU8gl7UCgVp4=
-X-Received: by 2002:a25:e70b:0:b0:bc7:f963:eb48 with SMTP id
- e11-20020a25e70b000000b00bc7f963eb48mr5681392ybh.32.1687211898503; Mon, 19
- Jun 2023 14:58:18 -0700 (PDT)
+        with ESMTP id S231329AbjFTHwG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 20 Jun 2023 03:52:06 -0400
+Received: from sender11-of-o52.zoho.eu (sender11-of-o52.zoho.eu [31.186.226.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E3819B3
+        for <selinux@vger.kernel.org>; Tue, 20 Jun 2023 00:51:33 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1687247464; cv=none; 
+        d=zohomail.eu; s=zohoarc; 
+        b=L0gSbDyRgk/jj75gmeTFrKhutM+KHmSBsBves5g7uPirF/gBeT9SF0h5ZscMIN+xBukFQo8jPI6xB+YvNMdRBzbXXkoxnNAtGi6YLm4OUR91UZAG7s7g+FvMLSSOr1Nv/q184zH+WZp2O4EX7biV1+/YtSdhuNNTc5/ORTLNU70=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.eu; s=zohoarc; 
+        t=1687247464; h=Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=rqV1DCDeCRHrMTmgJXj4v8SPPgCFjcjmCS0yWQ6QWTw=; 
+        b=YL50eFw1pQagImDMo4/fTBUaOHnGCXDzzMe+tkHUGA9cY62wQln1ikHceJTtZNj/8CstG62WBdWY2QbCqi2HhoELUgCdzlNE+DnPiBkUCNOvjpDD7Bv0jLEwTPEmFxHiZnaRdU7+lrA06UNz18st565WmHDCIBu011tvFHh0wP8=
+ARC-Authentication-Results: i=1; mx.zohomail.eu;
+        dkim=pass  header.i=jurajmarcin.com;
+        spf=pass  smtp.mailfrom=juraj@jurajmarcin.com;
+        dmarc=pass header.from=<juraj@jurajmarcin.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1687247464;
+        s=zoho; d=jurajmarcin.com; i=juraj@jurajmarcin.com;
+        h=Date:Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Content-Transfer-Encoding:Message-Id:Reply-To;
+        bh=rqV1DCDeCRHrMTmgJXj4v8SPPgCFjcjmCS0yWQ6QWTw=;
+        b=D6zui6632JCOIjpg0mDjHsi8jvr3uRBtAvtNSCYZVoTfexHeQTs5l/AtSTEdInej
+        GAQnRlf/+VUYzZIZzHkyCEn/Bm90Z9lV18H1WOM3ecc5+j7BWsUme/3LKiVe1LKB7k1
+        8mfIbn40M6bM/+YgH5wsg9KJbHP6x2Gn2cAbrNRA=
+Received: from morty01.jurajmarcin.com (129.159.244.31 [129.159.244.31]) by mx.zoho.eu
+        with SMTPS id 1687247463177866.8783535744361; Tue, 20 Jun 2023 09:51:03 +0200 (CEST)
+Received: from jmarcin-t14s-01 (unknown [213.175.37.12])
+        by morty01.jurajmarcin.com (Postfix) with ESMTPSA id 3CC5D2081F76;
+        Tue, 20 Jun 2023 07:51:02 +0000 (UTC)
+Date:   Tue, 20 Jun 2023 09:51:00 +0200
+From:   Juraj Marcin <juraj@jurajmarcin.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type
+ transitions
+Message-ID: <20230620075100.4wvquojo52dhrixa@jmarcin-t14s-01>
+References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
+ <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
+ <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01>
+ <CAHC9VhRCBkx7ioHAEMpn=ug3zAo2nEOUBe2uWsm0Tb8p6-vE7g@mail.gmail.com>
+ <20230618094047.oa4o2d2qj5nvvhhs@jmarcin-t14s-01>
+ <CAHC9VhRGgrihrYEB9VxjttUA5uQC7hD4iyBd+Rkf5_WQ=p+-9w@mail.gmail.com>
 MIME-Version: 1.0
-References: <CAHC9VhRAXQyzG7OsgXQfWT09qEFQRmeN2foGLGnU8cHdRKePUA@mail.gmail.com>
- <87r0qcotc0.fsf@redhat.com> <CAJ2a_Dd0EM10WsgrEGY_SUh3L444d23_T1F36pphdJDnk_DSLg@mail.gmail.com>
-In-Reply-To: <CAJ2a_Dd0EM10WsgrEGY_SUh3L444d23_T1F36pphdJDnk_DSLg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 19 Jun 2023 17:58:07 -0400
-Message-ID: <CAHC9VhRbEa8keNU=oNd1oNCkZuYYUZdLhvJTqhJ522sB9Fo=sg@mail.gmail.com>
-Subject: Re: SELinux and systemd integration
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org,
-        selinux-refpolicy@vger.kernel.org,
-        Lennart Poettering <lennart@poettering.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhRGgrihrYEB9VxjttUA5uQC7hD4iyBd+Rkf5_WQ=p+-9w@mail.gmail.com>
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jun 17, 2023 at 2:09=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> On Fri, 16 Jun 2023 at 07:43, Petr Lautrbach <plautrba@redhat.com> wrote:
-> > Paul Moore <paul@paul-moore.com> writes:
+On 2023-06-19 17:53, Paul Moore wrote:
+> On Sun, Jun 18, 2023 at 5:41=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin=
+.com> wrote:
 > >
-> > > Hello all,
+> > On 2023-06-15 22:04, Paul Moore wrote:
+> > > On Thu, Jun 1, 2023 at 1:03=E2=80=AFPM Juraj Marcin <juraj@jurajmar=
+cin.com> wrote:
+> > > > On 2023-05-31 18:24, Paul Moore wrote:
+> > > > > On Wed, May 31, 2023 at 7:32=E2=80=AFAM Juraj Marcin <juraj@jur=
+ajmarcin.com> wrote:
+> > > > > >
+> > > > > > Currently, filename transitions are stored separately from ot=
+her type
+> > > > > > enforcement rules and only support exact name matching. Howev=
+er, in
+> > > > > > practice, the names contain variable parts. This leads to man=
+y
+> > > > > > duplicated rules in the policy that differ only in the part o=
+f the name,
+> > > > > > or it is even impossible to cover all possible combinations.
+> > > > > >
+> > > > > > First, this series of patches moves the filename transitions =
+to be part
+> > > > > > of the avtab structures. This not only makes the implementati=
+on of
+> > > > > > prefix/suffix matching and future enhancements easier, but al=
+so reduces
+> > > > > > the technical debt regarding the filename transitions. Next, =
+the last
+> > > > > > patch implements the support for prefix/suffix name matching =
+itself by
+> > > > > > extending the structures added in previous patches in this se=
+ries.
+> > > > > >
+> > > > > > Even though, moving everything to avtab increases the memory =
+usage and
+> > > > > > the size of the binary policy itself and thus the loading tim=
+e, the
+> > > > > > ability to match the prefix or suffix of the name will reduce=
+ the
+> > > > > > overall number of rules in the policy which should mitigate t=
+his issue.
+> > > > > >
+> > > > > > This implementation has been successfully tested using the ex=
+isting and
+> > > > > > also new tests in the SELinux Testsuite.
+> > > > > >
+> > > > > > Juraj Marcin (5):
+> > > > > >   selinux: move transition to separate structure in avtab_dat=
+um
+> > > > > >   selinux: move filename transitions to avtab
+> > > > > >   selinux: implement new binary format for filename transitio=
+ns in avtab
+> > > > > >   selinux: filename transitions move tests
+> > > > > >   selinux: add prefix/suffix matching support to filename typ=
+e
+> > > > > >     transitions
+> > > > >
+> > > > > Just a quick comment as I haven't had a chance to properly revi=
+ew this
+> > > > > series yet; you show some memory usage and performance measurem=
+ents in
+> > > > > some of the intermediate patches, that's good, but I don't see =
+the
+> > > > > same measurements taken when the full patchset is applied.  Ple=
+ase
+> > > > > provide the same memory usage and performance comparisons with =
+the
+> > > > > full patchset applied.
+> > > >
+> > > > Of course, here are the measurements with the whole patchset appl=
+ied.
+> > > >
+> > > > I also included measurements with new policy (based on the Fedora
+> > > > policy) that uses prefix filename transitions where possible. Thi=
+s new
+> > > > policy has been generated by merging existing filename transition=
+s into
+> > > > prefix ones if it would reduce the number of transitions overall =
+while
+> > > > keeping the resulting type same.
+> > > >
+> > > > [1] Reference kernel (c52df19e3759), Fedora policy (format v33)
+> > > > [2] This patchset, Fedora policy (format v33)
+> > > > [3] This patchset, Fedora policy without prefix/suffix rules (for=
+mat v35)
+> > > > [4] This patchset, Fedora policy with prefix rules (format v35)
+> > > >
+> > > >
+> > > >  Test | Mem   | Binary | Policy | Create tty      | osbench
+> > > >       | Usage | policy | load   |                 | create
+> > > >       |       | size   | time   | (ms/file)       | files
+> > > >       | (MiB) | (MiB)  | (ms)   | real   | kernel | (us/file)
+> > > > ------+-------+--------+--------+--------+--------+-----------
+> > > >  [1]  |   157 |    3.4 |     78 | 1.1021 | 0.7586 | 7.8277
+> > > >  [2]  |   200 |    3.4 |    206 | 1.1193 | 0.7724 | 8.2711
+> > > >  [3]  |   169 |    5.8 |    106 | 1.1021 | 0.7724 | 8.0304
+> > > >  [4]  |   164 |    3.8 |     86 | 1.1029 | 0.7586 | 7.9609
 > > >
-> > > Amongst Christian's various other SELinux contributions, over the pas=
-t
-> > > several years Christian has been working on improving the SELinux
-> > > integration in systemd.  One of the things that Christian has been
-> > > working on is revamping the SELinux permissions that systemd uses for
-> > > unitfile operations, both to resolve problems and generally improve
-> > > the mapping of permissions to systemd operations.  As this work has
-> > > been languishing for several years, I would like to see if we can get
-> > > things "unstuck" by proposing two things:
+> > > Thanks for performing those measurements.
 > > >
-> > > 1. I've provided links to the systemd GH PRs below, but I think it
-> > > might be helpful if Christian could provide a quick summary of the ne=
-w
-> > > permissions, how they map to systemd operations, and how they map to
-> > > the existing SELinux/systemd permissions with a focus on helping
-> > > policy developers migrate existing SELinux policies.
-> > >
-> > > 2. Given the significance of systemd to modern Linux distributions, I
-> > > think it might be a good idea if we selected a SELinux "liaison" for
-> > > the systemd project.  This person, or group of people, would work wit=
-h
-> > > the systemd folks to keep the SELinux integration in good working
-> > > order, review systemd code as necessary, and help represent the
-> > > SELinux project within systemd.
-> > >
-> > > How does that sound to everyone?  If we are in agreement on #2, and
-> > > assuming he would be willing to help out, I would like to nominate
-> > > Christian as our SELinux liaison to systemd; any objections?  Anyone
-> > > else interested in helping out?
+> > > I apologize that I haven't had an opportunity to review your patche=
+set
+> > > in detail just yet (I've been struggling with some self-inflicted
+> > > networking issues this week), but looking strictly at the numbers
+> > > above it appears that by every metric in the table this patchset
+> > > results in a policy that is larger (both on-disk and in-memory) as
+> > > well as performance that is at best the same (although in most case=
+s,
+> > > it is worse).  Are there any improvements expected beyond test
+> > > configuration [4] (above)?
 > >
-> > I agree with the Christian's nomination.
+> > The main goal of this patchset is to bring the possibility to use pre=
+fix
+> > or suffix matching in filename transitions, as now it is not possible=
+ to
+> > cover files that have fixed prefix and variable part after it. For
+> > example devices in /dev (the policy now enumerates all possible numbe=
+r
+> > suffixes) or files with random suffix/prefix (not possible at all).
 > >
-> > As for #1, I looked on both, but I have to admit that I had a lack of
-> > understanding of the problem and so I would need some time to get
-> > into it. Therefore I postponed it due to other priorities, (but never
-> > come back). If it's still open I'll focus on it next week.
+> > The next goal is to make future improvements easier, for example
+> > supporting filename transitions in conditional policies or inherent
+> > support for type attributes.
 > >
-> >
-> > > For reference, Christian's systemd PRs on GH:
-> > > * https://github.com/systemd/systemd/pull/10023
-> > > * https://github.com/systemd/systemd/pull/20387
-> > >
-> >
-> > Thanks,
-> >
-> > Petr
-> >
->
-> Hi all,
->
-> Thanks Paul for attracting some attention to the SELinux integration
-> of systemd.  It has been several months since I last worked on the
-> systemd related patches, so they all need a rebase and another round
-> of testing.
->
-> Addressing the first point, here are some details about the changes I
-> would like to see in systemd ...
+> > As for performance, the goal is to implement previous goals while not
+> > killing the performance by them. Christian suggested some possible
+> > optimizations [1], but after trying them out [2] they either not prov=
+ide
+> > much measurable difference or the difference is small and the
+> > implementation hacky.
+>=20
+> I understand performance improvements were not the main motivation
+> behind this patchset, but I'm somewhat concerned that policy load time
+> *almost* triples in the case of an unmodified policy with this patch
+> applied.  Since that will be most everyone as soon as this patch is
+> applied, that regression does concern me ... I'm not sure just yet how
+> much it concerns me, but it isn't trivial.
 
-Thanks for all the details Christian :)
+I also understand your concern. That higher load time (and also memory
+usage) is the cost of doing the conversion from the older binary policy
+format in the kernel during load.
+
+However, to reduce both load time and memory usage to the values in the
+third test, the only action needed is recompiling the policy with newer
+checkpolicy/libsepol, patches to which I also proposed.
 
 --=20
-paul-moore.com
+Juraj Marcin
