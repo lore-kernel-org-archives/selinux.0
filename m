@@ -2,78 +2,103 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE0ACEB64D8
-	for <selinux@archiver.kernel.org>; Wed, 21 Jun 2023 14:56:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26D8CEB64D8
+	for <selinux@archiver.kernel.org>; Thu, 22 Jun 2023 09:53:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbjFUO4D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 21 Jun 2023 10:56:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58316 "EHLO
+        id S230256AbjFVJxZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 22 Jun 2023 05:53:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233007AbjFUOx6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 21 Jun 2023 10:53:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7192680;
-        Wed, 21 Jun 2023 07:50:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        with ESMTP id S230338AbjFVJw6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 22 Jun 2023 05:52:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED6559FC
+        for <selinux@vger.kernel.org>; Thu, 22 Jun 2023 02:43:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1687427038;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tfBTLjWk9HMhuQRWRNusLiVYa6Eoe9Ih4uI1VHHwYKo=;
+        b=Z5Ylw4XudqNRLDUt1zZ0O3jvkVbA3lM4QpC4bETSDlWXB/yl85TQCD0zHpf/sOn9qdvymB
+        SaC7cPVfW0iltfkIxP7a0xexBX+2Qh9oA7kIIReGw2B6FNDlBBl/giDDZcSzK0ODe8lLWM
+        P26UlLiI3JhylQNHc00slaMUFNXyZ0s=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-551-6ZfbrOVuOnC-a63VXVSF_A-1; Thu, 22 Jun 2023 05:43:55 -0400
+X-MC-Unique: 6ZfbrOVuOnC-a63VXVSF_A-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BCA7615C4;
-        Wed, 21 Jun 2023 14:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB368C433C8;
-        Wed, 21 Jun 2023 14:49:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1687358991;
-        bh=BiaJ5jpIOWljnOkZ7WeAt5Z0pozvTMv5IciOmpdTiC0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4lhUOxjgWZaORXhjiT0ymA4hLJhfJWZkvH4rxtLAEw7wqxOhE+e+W3lY1BYmWIyj
-         2jtRj5IXXQgdB9uKvZhTlnGTXeqntH/1XA90X3V2bMQpa039ZaimPFCprbd/mz194p
-         YBA3uCEd/FPISjPRQe2UUSYuk0djBw0An5PbAZbzJXgRmMa3oaJw2xHR5E0+Wo6KJ3
-         LVuBck367fZw1ghK9JP2djxIM9pa8YsjoF8TB8PZCSpV1ORztGvWnk0v/FDAGm2nwJ
-         PfpM9TYiqZxJo3oetNq4LH/DF07+/+eq6CTONLIHMwHuo20iJK5cU9lBzReGCRWhww
-         rDpdl89Zqmj1w==
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Christian Brauner <brauner@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 78/79] selinux: switch to new ctime accessors
-Date:   Wed, 21 Jun 2023 10:46:31 -0400
-Message-ID: <20230621144735.55953-77-jlayton@kernel.org>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230621144735.55953-1-jlayton@kernel.org>
-References: <20230621144507.55591-1-jlayton@kernel.org>
- <20230621144735.55953-1-jlayton@kernel.org>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9227E873229
+        for <selinux@vger.kernel.org>; Thu, 22 Jun 2023 09:43:55 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.244])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3EC4540D1A4;
+        Thu, 22 Jun 2023 09:43:55 +0000 (UTC)
+From:   Petr Lautrbach <lautrbach@redhat.com>
+To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH] python/sepolicy: Add/remove user even when SELinux is
+ disabled
+In-Reply-To: <20230529161702.1920540-1-vmojzis@redhat.com>
+References: <20230529161702.1920540-1-vmojzis@redhat.com>
+Date:   Thu, 22 Jun 2023 11:43:54 +0200
+Message-ID: <87r0q36dd1.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In later patches, we're going to change how the ctime.tv_nsec field is
-utilized. Switch to using accessor functions instead of raw accesses of
-inode->i_ctime.
+Vit Mojzis <vmojzis@redhat.com> writes:
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
----
- security/selinux/selinuxfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Use "semanage user -a/-d" in spec file generated by "sepolicy generate"
+> even when SELinux is disabled. The command works properly when SELinux
+> is disabled and with this change the user will be present once SELinux
+> is re-enabled.
+> Also, do not execute the command when the package is updated, only when
+> it is first installed.
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index bad1f6b685fd..d3908baddb30 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1197,7 +1197,7 @@ static struct inode *sel_make_inode(struct super_block *sb, int mode)
- 
- 	if (ret) {
- 		ret->i_mode = mode;
--		ret->i_atime = ret->i_mtime = ret->i_ctime = current_time(ret);
-+		ret->i_atime = ret->i_mtime = inode_ctime_set_current(ret);
- 	}
- 	return ret;
- }
--- 
-2.41.0
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+
+
+> ---
+>  python/sepolicy/sepolicy/templates/spec.py | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/python/sepolicy/sepolicy/templates/spec.py b/python/sepolicy/sepolicy/templates/spec.py
+> index 16a22081..433c298a 100644
+> --- a/python/sepolicy/sepolicy/templates/spec.py
+> +++ b/python/sepolicy/sepolicy/templates/spec.py
+> @@ -43,20 +43,23 @@ install -m 644 %{SOURCE3} %{buildroot}/etc/selinux/targeted/contexts/users/DOMAI
+>  
+>  %post
+>  semodule -n -i %{_datadir}/selinux/packages/MODULENAME.pp
+> +# Add the new user defined in DOMAINNAME_u only when the package is installed (not during updates)
+> +if [ $1 -eq 1 ]; then
+> +    /usr/sbin/semanage user -a -R DOMAINNAME_r DOMAINNAME_u
+> +fi
+>  if /usr/sbin/selinuxenabled ; then
+>      /usr/sbin/load_policy
+>      %relabel_files
+> -    /usr/sbin/semanage user -a -R DOMAINNAME_r DOMAINNAME_u
+>  fi;
+>  exit 0
+>  
+>  %postun
+>  if [ $1 -eq 0 ]; then
+> +    /usr/sbin/semanage user -d DOMAINNAME_u
+>      semodule -n -r MODULENAME
+>      if /usr/sbin/selinuxenabled ; then
+>         /usr/sbin/load_policy
+>         %relabel_files
+> -       /usr/sbin/semanage user -d DOMAINNAME_u
+>      fi;
+>  fi;
+>  exit 0
+> -- 
+> 2.40.0
 
