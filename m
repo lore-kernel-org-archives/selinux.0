@@ -2,218 +2,219 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2216EB64D7
-	for <selinux@archiver.kernel.org>; Fri, 23 Jun 2023 19:10:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 574C7EB64D7
+	for <selinux@archiver.kernel.org>; Fri, 23 Jun 2023 19:32:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbjFWTKW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Jun 2023 15:10:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
+        id S231709AbjFWTct (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Jun 2023 15:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231129AbjFWTKU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jun 2023 15:10:20 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5013A9D
-        for <selinux@vger.kernel.org>; Fri, 23 Jun 2023 12:10:17 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2b475b54253so16655311fa.2
-        for <selinux@vger.kernel.org>; Fri, 23 Jun 2023 12:10:17 -0700 (PDT)
+        with ESMTP id S231742AbjFWTcr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jun 2023 15:32:47 -0400
+Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51192711;
+        Fri, 23 Jun 2023 12:32:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1687547415; x=1690139415;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=u+cvx5bknuJrsVZun2ZLXJXWNR+f0wYFv/gKwhnOKBU=;
-        b=FHchhthCnKZpWVGhGX8EXOY7wVHaqMf+5+hkR8fMRyWy+9nlj/w5PlssnqqnteYgCk
-         lGHS4Td5giisK8hgteNHqaodnRg/uNGj2947rjKJlbuMYkyWizmque5uvnRc38AKHqBA
-         Pg/Qo/dMYdZnekGCcOBAEbyXbf17GmdU2uRDIIqL+g6Pq+53TzwOP9p1uk5yJnVTGwC0
-         GwQV7XVDEHzHd1MSwNGoJHFCcr891sRfiLspIjHPC6ds4YWLdXsV6fP6ZXGO0/Uw5Or7
-         c0yQDelhf4HSS3JVMYot5IWK46/ffKMR29h+H5DzyEXYn/O2ZR1QKswjlF3URvYRC2jn
-         KprA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687547415; x=1690139415;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u+cvx5bknuJrsVZun2ZLXJXWNR+f0wYFv/gKwhnOKBU=;
-        b=Cqy7lcY0QdRHe+3mIsk9MC/rTmB+a6N89T5heWCIr6lStu8bxFnWsNoSbJsZqSpR+M
-         Ouk0iWd91wvuPgyWHOXOkK5sPCktob7DZysoRqvvZpufoKMayXcCbGq8pYkYDSKt6UCA
-         s/Ls5S0UaXpqCBNx7HFgXLjxbHvt/WowdGirmcgAkXdT2ag/TBBJUvlaYFi0qHIj/J1O
-         LN/DaPcTB17sWKix97iXhjqksOgU1uUSnSuRu6+7hLN71Q+pgp9HaIwj5GkthcSt0pjI
-         qMgf8tc46TJpiLET2a69vAJgF+ClrsJyEVRcR2RiRbwSf0w7vLmXyuO39nA3WuVkgxVw
-         PB1w==
-X-Gm-Message-State: AC+VfDx93kc+WN5WTp8BZsuZ0nkVRzfiUltojWmcOxsTEgrE18VOvBEV
-        A6Xg1id6Vhk5a1H/jGLazUo/C0NzF9K+IkBEn/KbaswVt+s=
-X-Google-Smtp-Source: ACHHUZ64E3chEoiDIUkzsjzK8m05Jbgk3HgpOmcy5dBcBuce7dYY0fdEjFQNV+lTGhOkhQpNiDIhuUTGK6l8o8otYvc=
-X-Received: by 2002:a2e:9910:0:b0:2b5:8d7d:641a with SMTP id
- v16-20020a2e9910000000b002b58d7d641amr4314941lji.53.1687547415167; Fri, 23
- Jun 2023 12:10:15 -0700 (PDT)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1687548766; x=1719084766;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=MXGjsQVBbUEfugTyhqtLOg34xJrVsEnXiFXbx+PaHRY=;
+  b=UeBmqFaRBZo0LDtqdhDP+Lx7Igt3lPCiaclNEshFzFYa8pq9OAvmbg5x
+   BNrQDx/bcCJCOm36lZsIE7QQCmf9uNwu01CVUwrsnGDUxIMzt3bcNxYsy
+   DJhuAbGuZbBKHzzhqg0Y+zHXN6qCFCy82o2PrKhTb32avjKZPVAr5tGzh
+   A=;
+X-IronPort-AV: E=Sophos;i="6.01,152,1684800000"; 
+   d="scan'208";a="222788639"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-iad-1e-m6i4x-a65ebc6e.us-east-1.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2023 19:32:42 +0000
+Received: from EX19MTAUWA002.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1e-m6i4x-a65ebc6e.us-east-1.amazon.com (Postfix) with ESMTPS id E6DAB66811;
+        Fri, 23 Jun 2023 19:32:35 +0000 (UTC)
+Received: from EX19D028UWA002.ant.amazon.com (10.13.138.248) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.26; Fri, 23 Jun 2023 19:32:35 +0000
+Received: from uda95858fd22f53.ant.amazon.com (10.88.166.238) by
+ EX19D028UWA002.ant.amazon.com (10.13.138.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.26; Fri, 23 Jun 2023 19:32:34 +0000
+From:   Mengchi Cheng <mengcc@amazon.com>
+To:     <roberto.sassu@huaweicloud.com>
+CC:     <bpf@vger.kernel.org>, <casey@schaufler-ca.com>,
+        <dmitry.kasatkin@gmail.com>, <eparis@parisplace.org>,
+        <jmorris@namei.org>, <kamatam@amazon.com>, <keescook@chromium.org>,
+        <kpsingh@kernel.org>, <linux-integrity@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-unionfs@vger.kernel.org>, <mengcc@amazon.com>,
+        <miklos@szeredi.hu>, <nicolas.bouchinet@clip-os.org>,
+        <paul@paul-moore.com>, <roberto.sassu@huawei.com>,
+        <selinux@vger.kernel.org>, <serge@hallyn.com>,
+        <stephen.smalley.work@gmail.com>, <yoonjaeh@amazon.com>,
+        <zohar@linux.ibm.com>
+Subject: Re: [PATCH v11 2/4] smack: Set the SMACK64TRANSMUTE xattr in smack_inode_init_security()
+Date:   Fri, 23 Jun 2023 12:32:22 -0700
+Message-ID: <20230623193222.2326429-1-mengcc@amazon.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <9f4b7bef5d090da9de50ed1aa1e103abc19b125f.camel@huaweicloud.com>
+References: <9f4b7bef5d090da9de50ed1aa1e103abc19b125f.camel@huaweicloud.com>
 MIME-Version: 1.0
-References: <20230612093107.1066410-1-omosnace@redhat.com> <20230612093107.1066410-2-omosnace@redhat.com>
-In-Reply-To: <20230612093107.1066410-2-omosnace@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 23 Jun 2023 15:10:03 -0400
-Message-ID: <CAP+JOzRBA3wfcm7oeMpisyS+KEMenNTfUq4Z=JGEm3qD1VXc6w@mail.gmail.com>
-Subject: Re: [PATCH userspace 1/2] libsepol: stop translating deprecated
- intial SIDs to strings
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.88.166.238]
+X-ClientProxiedBy: EX19D044UWA001.ant.amazon.com (10.13.139.100) To
+ EX19D028UWA002.ant.amazon.com (10.13.138.248)
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 12, 2023 at 5:50=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
+On Mon, 2023-06-05 08:38:29 +0000, Roberto Sassu wrote:
 >
-> Many of the initial SIDs are no longer used by the kernel, so
-> translating them to the legacy names doesn't bring much value. Clear the
-> legacy names from the table and let the code translate them to the
-> fallback "unknown" names instead.
->
-> Note that this only affects the generated text output when converting
-> policies from binary to text form. The text policy languages let the
-> policy define its own names for the initial SIDs based on the order in
-> which they are declared, so the table is never used to convert from name
-> to SID. Thus this is just a cosmetic change and has no functional
-> impact.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> On Sat, 2023-06-03 at 21:15 +0200, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > With the newly added ability of LSMs to supply multiple xattrs, set
+> > SMACK64TRASMUTE in smack_inode_init_security(), instead of d_instantiate().
+> > Do it by incrementing SMACK_INODE_INIT_XATTRS to 2 and by calling
+> > lsm_get_xattr_slot() a second time, if the transmuting conditions are met.
+> > 
+> > The LSM infrastructure passes all xattrs provided by LSMs to the
+> > filesystems through the initxattrs() callback, so that filesystems can
+> > store xattrs in the disk.
+> > 
+> > After the change, the SMK_INODE_TRANSMUTE inode flag is always set by
+> > d_instantiate() after fetching SMACK64TRANSMUTE from the disk. Before it
+> > was done by smack_inode_post_setxattr() as result of the __vfs_setxattr()
+> > call.
+> > 
+> > Removing __vfs_setxattr() also prevents invalidating the EVM HMAC, by
+> > adding a new xattr without checking and updating the existing HMAC.
+> 
+> Hi Mengchi
+> 
+> could you please redo your tests with this patch set applied?
+> 
+> https://lore.kernel.org/linux-integrity/20230603191518.1397490-1-roberto.sassu@huaweicloud.com/
+> 
+> You need:
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git/log/?h=next
+> 
+> https://github.com/cschaufler/smack-next/commits/next
+> 
+> Thanks
+> 
+> Roberto
 
-For these two patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Sorry for the later reply. It turned out lsm.git repo needs your previous
+two overlay fs fixes before applying these four patches.
+With v12 I did not see the issue I reported anymore.
 
-> ---
->  libsepol/src/kernel_to_cil.c    |  4 ++--
->  libsepol/src/kernel_to_common.h | 36 ++++++++++++++++-----------------
->  libsepol/src/kernel_to_conf.c   |  4 ++--
->  libsepol/src/module_to_cil.c    |  2 +-
->  4 files changed, 23 insertions(+), 23 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index e9cd89c2..bd04c087 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -567,7 +567,7 @@ static int write_sids_to_cil(FILE *out, const char *c=
-onst *sid_to_str,
->
->         for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
->                 i =3D isid->sid[0];
-> -               if (i < num_sids) {
-> +               if (i < num_sids && sid_to_str[i]) {
->                         sid =3D (char *)sid_to_str[i];
->                 } else {
->                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-> @@ -2577,7 +2577,7 @@ static int write_sid_context_rules_to_cil(FILE *out=
-, struct policydb *pdb, const
->
->         for (isid =3D pdb->ocontexts[0]; isid !=3D NULL; isid =3D isid->n=
-ext) {
->                 i =3D isid->sid[0];
-> -               if (i < num_sids) {
-> +               if (i < num_sids && sid_to_str[i]) {
->                         sid =3D (char *)sid_to_str[i];
->                 } else {
->                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-> diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
-mon.h
-> index 159c4289..6073ff3a 100644
-> --- a/libsepol/src/kernel_to_common.h
-> +++ b/libsepol/src/kernel_to_common.h
-> @@ -13,33 +13,33 @@
->  // initial sid names aren't actually stored in the pp files, need to a h=
-ave
->  // a mapping, taken from the linux kernel
->  static const char * const selinux_sid_to_str[] =3D {
-> -       "null",
-> +       NULL,
->         "kernel",
->         "security",
->         "unlabeled",
-> -       "fs",
-> +       NULL,
->         "file",
-> -       "file_labels",
-> -       "init",
-> +       NULL,
-> +       NULL,
->         "any_socket",
->         "port",
->         "netif",
->         "netmsg",
->         "node",
-> -       "igmp_packet",
-> -       "icmp_socket",
-> -       "tcp_socket",
-> -       "sysctl_modprobe",
-> -       "sysctl",
-> -       "sysctl_fs",
-> -       "sysctl_kernel",
-> -       "sysctl_net",
-> -       "sysctl_net_unix",
-> -       "sysctl_vm",
-> -       "sysctl_dev",
-> -       "kmod",
-> -       "policy",
-> -       "scmp_packet",
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
-> +       NULL,
->         "devnull",
->  };
->
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index c48a7114..3be87184 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -464,7 +464,7 @@ static int write_sids_to_conf(FILE *out, const char *=
-const *sid_to_str,
->
->         for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
->                 i =3D isid->sid[0];
-> -               if (i < num_sids) {
-> +               if (i < num_sids && sid_to_str[i]) {
->                         sid =3D (char *)sid_to_str[i];
->                 } else {
->                         snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
-WN", i);
-> @@ -2445,7 +2445,7 @@ static int write_sid_context_rules_to_conf(FILE *ou=
-t, struct policydb *pdb, cons
->
->         for (isid =3D pdb->ocontexts[0]; isid !=3D NULL; isid =3D isid->n=
-ext) {
->                 i =3D isid->sid[0];
-> -               if (i < num_sids) {
-> +               if (i < num_sids && sid_to_str[i]) {
->                         sid =3D (char *)sid_to_str[i];
->                 } else {
->                         snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
-WN", i);
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index e7bc6ee6..a46775ca 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -2549,7 +2549,7 @@ static int ocontext_isid_to_cil(struct policydb *pd=
-b, const char *const *sid_to_
->
->         for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
->                 i =3D isid->sid[0];
-> -               if (i < num_sids) {
-> +               if (i < num_sids && sid_to_string[i]) {
->                         sid =3D (char*)sid_to_string[i];
->                 } else {
->                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-> --
-> 2.40.1
->
+Best,
+Mengchi
+
+> 
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  security/smack/smack.h     |  2 +-
+> >  security/smack/smack_lsm.c | 43 +++++++++++++++++++++++---------------
+> >  2 files changed, 27 insertions(+), 18 deletions(-)
+> > 
+> > diff --git a/security/smack/smack.h b/security/smack/smack.h
+> > index aa15ff56ed6..041688e5a77 100644
+> > --- a/security/smack/smack.h
+> > +++ b/security/smack/smack.h
+> > @@ -128,7 +128,7 @@ struct task_smack {
+> >  
+> >  #define	SMK_INODE_INSTANT	0x01	/* inode is instantiated */
+> >  #define	SMK_INODE_TRANSMUTE	0x02	/* directory is transmuting */
+> > -#define	SMK_INODE_CHANGED	0x04	/* smack was transmuted */
+> > +#define	SMK_INODE_CHANGED	0x04	/* smack was transmuted (unused) */
+> >  #define	SMK_INODE_IMPURE	0x08	/* involved in an impure transaction */
+> >  
+> >  /*
+> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> > index a1c30275692..b67d901ee74 100644
+> > --- a/security/smack/smack_lsm.c
+> > +++ b/security/smack/smack_lsm.c
+> > @@ -52,7 +52,14 @@
+> >  #define SMK_RECEIVING	1
+> >  #define SMK_SENDING	2
+> >  
+> > -#define SMACK_INODE_INIT_XATTRS 1
+> > +/*
+> > + * Smack uses multiple xattrs.
+> > + * SMACK64 - for access control,
+> > + * SMACK64TRANSMUTE - label initialization,
+> > + * Not saved on files - SMACK64IPIN and SMACK64IPOUT,
+> > + * Must be set explicitly - SMACK64EXEC and SMACK64MMAP
+> > + */
+> > +#define SMACK_INODE_INIT_XATTRS 2
+> >  
+> >  #ifdef SMACK_IPV6_PORT_LABELING
+> >  static DEFINE_MUTEX(smack_ipv6_lock);
+> > @@ -935,7 +942,6 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+> >  				     struct xattr *xattrs, int *xattr_count)
+> >  {
+> >  	struct task_smack *tsp = smack_cred(current_cred());
+> > -	struct inode_smack *issp = smack_inode(inode);
+> >  	struct smack_known *skp = smk_of_task(tsp);
+> >  	struct smack_known *isp = smk_of_inode(inode);
+> >  	struct smack_known *dsp = smk_of_inode(dir);
+> > @@ -963,6 +969,8 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+> >  		if ((tsp->smk_task == tsp->smk_transmuted) ||
+> >  		    (may > 0 && ((may & MAY_TRANSMUTE) != 0) &&
+> >  		     smk_inode_transmutable(dir))) {
+> > +			struct xattr *xattr_transmute;
+> > +
+> >  			/*
+> >  			 * The caller of smack_dentry_create_files_as()
+> >  			 * should have overridden the current cred, so the
+> > @@ -971,7 +979,16 @@ static int smack_inode_init_security(struct inode *inode, struct inode *dir,
+> >  			 */
+> >  			if (tsp->smk_task != tsp->smk_transmuted)
+> >  				isp = dsp;
+> > -			issp->smk_flags |= SMK_INODE_CHANGED;
+> > +			xattr_transmute = lsm_get_xattr_slot(xattrs, xattr_count);
+> > +			if (xattr_transmute) {
+> > +				xattr_transmute->value = kmemdup(TRANS_TRUE,
+> > +						TRANS_TRUE_SIZE, GFP_NOFS);
+> > +				if (xattr_transmute->value == NULL)
+> > +					return -ENOMEM;
+> > +
+> > +				xattr_transmute->value_len = TRANS_TRUE_SIZE;
+> > +				xattr_transmute->name = XATTR_SMACK_TRANSMUTE;
+> > +			}
+> >  		}
+> >  
+> >  		xattr->value = kstrdup(isp->smk_known, GFP_NOFS);
+> > @@ -3518,20 +3535,12 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+> >  			 * If there is a transmute attribute on the
+> >  			 * directory mark the inode.
+> >  			 */
+> > -			if (isp->smk_flags & SMK_INODE_CHANGED) {
+> > -				isp->smk_flags &= ~SMK_INODE_CHANGED;
+> > -				rc = __vfs_setxattr(&nop_mnt_idmap, dp, inode,
+> > -					XATTR_NAME_SMACKTRANSMUTE,
+> > -					TRANS_TRUE, TRANS_TRUE_SIZE,
+> > -					0);
+> > -			} else {
+> > -				rc = __vfs_getxattr(dp, inode,
+> > -					XATTR_NAME_SMACKTRANSMUTE, trattr,
+> > -					TRANS_TRUE_SIZE);
+> > -				if (rc >= 0 && strncmp(trattr, TRANS_TRUE,
+> > -						       TRANS_TRUE_SIZE) != 0)
+> > -					rc = -EINVAL;
+> > -			}
+> > +			rc = __vfs_getxattr(dp, inode,
+> > +					    XATTR_NAME_SMACKTRANSMUTE, trattr,
+> > +					    TRANS_TRUE_SIZE);
+> > +			if (rc >= 0 && strncmp(trattr, TRANS_TRUE,
+> > +					       TRANS_TRUE_SIZE) != 0)
+> > +				rc = -EINVAL;
+> >  			if (rc >= 0)
+> >  				transflag = SMK_INODE_TRANSMUTE;
+> >  		}
+> 
+> 
