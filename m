@@ -2,99 +2,218 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8351EB64D7
-	for <selinux@archiver.kernel.org>; Fri, 23 Jun 2023 14:17:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2216EB64D7
+	for <selinux@archiver.kernel.org>; Fri, 23 Jun 2023 19:10:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231750AbjFWORg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 23 Jun 2023 10:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49482 "EHLO
+        id S230317AbjFWTKW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 23 Jun 2023 15:10:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231484AbjFWORg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jun 2023 10:17:36 -0400
-Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5012810C
-        for <selinux@vger.kernel.org>; Fri, 23 Jun 2023 07:17:35 -0700 (PDT)
-Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-5700e993f37so28044117b3.0
-        for <selinux@vger.kernel.org>; Fri, 23 Jun 2023 07:17:35 -0700 (PDT)
+        with ESMTP id S231129AbjFWTKU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 23 Jun 2023 15:10:20 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5013A9D
+        for <selinux@vger.kernel.org>; Fri, 23 Jun 2023 12:10:17 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2b475b54253so16655311fa.2
+        for <selinux@vger.kernel.org>; Fri, 23 Jun 2023 12:10:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1687529854; x=1690121854;
+        d=gmail.com; s=20221208; t=1687547415; x=1690139415;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9hhPkJzJTd1tk8nJo88vfLnrAVm4JBHHpgdE5qdxJHA=;
-        b=LNozVzhCbSjgK8QTuH49h55WiUJoCjZy0D33+zUE9dDF7wc7ieiv0SmLbJTUcs6Xa7
-         LAkGvoxSgTddrvTVKN4V40ovLXTmYMdlzvIIo8tZp0GX998dZ7IBzFeDc2wB9LM7iA5V
-         p39rRnK/x3F8WL0G+48PQH7QLEdKoqR6bqk39KBcoYVPfyLUaKnfEs9P6XIlg3h2uLNf
-         Ur+ikyWH4mXuQgaP+6rs5yYNf4bwmqzm9XRIp4FYfjS76VCYkcA8jQnZOHD+LZ+wZTfd
-         D/dgbRZerAIBW5Tp7ufy9Pni3Gq7V7NRgdOAon0dch4lG2ZnzOKaMkFcfO/krp5+co5f
-         xyRQ==
+        bh=u+cvx5bknuJrsVZun2ZLXJXWNR+f0wYFv/gKwhnOKBU=;
+        b=FHchhthCnKZpWVGhGX8EXOY7wVHaqMf+5+hkR8fMRyWy+9nlj/w5PlssnqqnteYgCk
+         lGHS4Td5giisK8hgteNHqaodnRg/uNGj2947rjKJlbuMYkyWizmque5uvnRc38AKHqBA
+         Pg/Qo/dMYdZnekGCcOBAEbyXbf17GmdU2uRDIIqL+g6Pq+53TzwOP9p1uk5yJnVTGwC0
+         GwQV7XVDEHzHd1MSwNGoJHFCcr891sRfiLspIjHPC6ds4YWLdXsV6fP6ZXGO0/Uw5Or7
+         c0yQDelhf4HSS3JVMYot5IWK46/ffKMR29h+H5DzyEXYn/O2ZR1QKswjlF3URvYRC2jn
+         KprA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687529854; x=1690121854;
+        d=1e100.net; s=20221208; t=1687547415; x=1690139415;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9hhPkJzJTd1tk8nJo88vfLnrAVm4JBHHpgdE5qdxJHA=;
-        b=c11o/tTvrtvMz5h+tqlmlMBaWWMaTFGyZ/Wn8ZuZkodRbAd3xEsYsCv607OBgQFzYs
-         573mym9nSAwem6TgtGWfdUxVZOn1NrpyvFfOgt7KN2wlyzV16wmbQs7Yy37r0zGvsaZT
-         8lIMjeB4Z+niX6EGLvG/+dkzSaGoG/AeJUaEidcUBvMmA4swUu3LToyk07/OWDjDF5EQ
-         XzP3MprbWmUdsuo0/BhIkUnV44Qqz2JsrlAT+RV/1h05BIms3++FRBMtb2VWJfsbyWlx
-         SgzjS3r0E9NtObRT7wvJ9MP5O/UmK7Ebm42VJZrOqgNgJqORpvHAPzQWxLjtYue/rbkF
-         yeNg==
-X-Gm-Message-State: AC+VfDzHBQMT0BQJgod/ZdCyxXY1LDxAz7DD8mAId4hhkcSz43/Ea2gi
-        Jty6KxZ483Z3uQU9CoJRs5xu7eQ5VhNwjQnf67ms
-X-Google-Smtp-Source: ACHHUZ6ZbJpKQzkZkI3KtRTLbfkDnIPkJqOK8+fHrsLk/UY4YrqCF84sgVtX5DewxoKzKKdFtizpnaI1EEDOAtOEC1Y=
-X-Received: by 2002:a81:a08f:0:b0:56c:f0c7:7d72 with SMTP id
- x137-20020a81a08f000000b0056cf0c77d72mr26595008ywg.4.1687529854506; Fri, 23
- Jun 2023 07:17:34 -0700 (PDT)
+        bh=u+cvx5bknuJrsVZun2ZLXJXWNR+f0wYFv/gKwhnOKBU=;
+        b=Cqy7lcY0QdRHe+3mIsk9MC/rTmB+a6N89T5heWCIr6lStu8bxFnWsNoSbJsZqSpR+M
+         Ouk0iWd91wvuPgyWHOXOkK5sPCktob7DZysoRqvvZpufoKMayXcCbGq8pYkYDSKt6UCA
+         s/Ls5S0UaXpqCBNx7HFgXLjxbHvt/WowdGirmcgAkXdT2ag/TBBJUvlaYFi0qHIj/J1O
+         LN/DaPcTB17sWKix97iXhjqksOgU1uUSnSuRu6+7hLN71Q+pgp9HaIwj5GkthcSt0pjI
+         qMgf8tc46TJpiLET2a69vAJgF+ClrsJyEVRcR2RiRbwSf0w7vLmXyuO39nA3WuVkgxVw
+         PB1w==
+X-Gm-Message-State: AC+VfDx93kc+WN5WTp8BZsuZ0nkVRzfiUltojWmcOxsTEgrE18VOvBEV
+        A6Xg1id6Vhk5a1H/jGLazUo/C0NzF9K+IkBEn/KbaswVt+s=
+X-Google-Smtp-Source: ACHHUZ64E3chEoiDIUkzsjzK8m05Jbgk3HgpOmcy5dBcBuce7dYY0fdEjFQNV+lTGhOkhQpNiDIhuUTGK6l8o8otYvc=
+X-Received: by 2002:a2e:9910:0:b0:2b5:8d7d:641a with SMTP id
+ v16-20020a2e9910000000b002b58d7d641amr4314941lji.53.1687547415167; Fri, 23
+ Jun 2023 12:10:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230621144507.55591-1-jlayton@kernel.org> <20230621144735.55953-1-jlayton@kernel.org>
- <20230621144735.55953-77-jlayton@kernel.org>
-In-Reply-To: <20230621144735.55953-77-jlayton@kernel.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 23 Jun 2023 10:17:23 -0400
-Message-ID: <CAHC9VhRC-aj2P0oLJX-dX49A4Z-En=v=9=brUqCC0tEgiSbZ9A@mail.gmail.com>
-Subject: Re: [PATCH 78/79] selinux: switch to new ctime accessors
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20230612093107.1066410-1-omosnace@redhat.com> <20230612093107.1066410-2-omosnace@redhat.com>
+In-Reply-To: <20230612093107.1066410-2-omosnace@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 23 Jun 2023 15:10:03 -0400
+Message-ID: <CAP+JOzRBA3wfcm7oeMpisyS+KEMenNTfUq4Z=JGEm3qD1VXc6w@mail.gmail.com>
+Subject: Re: [PATCH userspace 1/2] libsepol: stop translating deprecated
+ intial SIDs to strings
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 21, 2023 at 10:49=E2=80=AFAM Jeff Layton <jlayton@kernel.org> w=
-rote:
+On Mon, Jun 12, 2023 at 5:50=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
 >
-> In later patches, we're going to change how the ctime.tv_nsec field is
-> utilized. Switch to using accessor functions instead of raw accesses of
-> inode->i_ctime.
+> Many of the initial SIDs are no longer used by the kernel, so
+> translating them to the legacy names doesn't bring much value. Clear the
+> legacy names from the table and let the code translate them to the
+> fallback "unknown" names instead.
 >
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> Note that this only affects the generated text output when converting
+> policies from binary to text form. The text policy languages let the
+> policy define its own names for the initial SIDs based on the order in
+> which they are declared, so the table is never used to convert from name
+> to SID. Thus this is just a cosmetic change and has no functional
+> impact.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+For these two patches:
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  security/selinux/selinuxfs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libsepol/src/kernel_to_cil.c    |  4 ++--
+>  libsepol/src/kernel_to_common.h | 36 ++++++++++++++++-----------------
+>  libsepol/src/kernel_to_conf.c   |  4 ++--
+>  libsepol/src/module_to_cil.c    |  2 +-
+>  4 files changed, 23 insertions(+), 23 deletions(-)
 >
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index bad1f6b685fd..d3908baddb30 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1197,7 +1197,7 @@ static struct inode *sel_make_inode(struct super_bl=
-ock *sb, int mode)
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index e9cd89c2..bd04c087 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -567,7 +567,7 @@ static int write_sids_to_cil(FILE *out, const char *c=
+onst *sid_to_str,
 >
->         if (ret) {
->                 ret->i_mode =3D mode;
-> -               ret->i_atime =3D ret->i_mtime =3D ret->i_ctime =3D curren=
-t_time(ret);
-> +               ret->i_atime =3D ret->i_mtime =3D inode_ctime_set_current=
-(ret);
-
-Same issue as in 77/79.
-
-Acked-by: Paul Moore <paul@paul-moore.com>
-
---
-paul-moore.com
+>         for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+>                 i =3D isid->sid[0];
+> -               if (i < num_sids) {
+> +               if (i < num_sids && sid_to_str[i]) {
+>                         sid =3D (char *)sid_to_str[i];
+>                 } else {
+>                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> @@ -2577,7 +2577,7 @@ static int write_sid_context_rules_to_cil(FILE *out=
+, struct policydb *pdb, const
+>
+>         for (isid =3D pdb->ocontexts[0]; isid !=3D NULL; isid =3D isid->n=
+ext) {
+>                 i =3D isid->sid[0];
+> -               if (i < num_sids) {
+> +               if (i < num_sids && sid_to_str[i]) {
+>                         sid =3D (char *)sid_to_str[i];
+>                 } else {
+>                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
+mon.h
+> index 159c4289..6073ff3a 100644
+> --- a/libsepol/src/kernel_to_common.h
+> +++ b/libsepol/src/kernel_to_common.h
+> @@ -13,33 +13,33 @@
+>  // initial sid names aren't actually stored in the pp files, need to a h=
+ave
+>  // a mapping, taken from the linux kernel
+>  static const char * const selinux_sid_to_str[] =3D {
+> -       "null",
+> +       NULL,
+>         "kernel",
+>         "security",
+>         "unlabeled",
+> -       "fs",
+> +       NULL,
+>         "file",
+> -       "file_labels",
+> -       "init",
+> +       NULL,
+> +       NULL,
+>         "any_socket",
+>         "port",
+>         "netif",
+>         "netmsg",
+>         "node",
+> -       "igmp_packet",
+> -       "icmp_socket",
+> -       "tcp_socket",
+> -       "sysctl_modprobe",
+> -       "sysctl",
+> -       "sysctl_fs",
+> -       "sysctl_kernel",
+> -       "sysctl_net",
+> -       "sysctl_net_unix",
+> -       "sysctl_vm",
+> -       "sysctl_dev",
+> -       "kmod",
+> -       "policy",
+> -       "scmp_packet",
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+> +       NULL,
+>         "devnull",
+>  };
+>
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index c48a7114..3be87184 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -464,7 +464,7 @@ static int write_sids_to_conf(FILE *out, const char *=
+const *sid_to_str,
+>
+>         for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+>                 i =3D isid->sid[0];
+> -               if (i < num_sids) {
+> +               if (i < num_sids && sid_to_str[i]) {
+>                         sid =3D (char *)sid_to_str[i];
+>                 } else {
+>                         snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
+WN", i);
+> @@ -2445,7 +2445,7 @@ static int write_sid_context_rules_to_conf(FILE *ou=
+t, struct policydb *pdb, cons
+>
+>         for (isid =3D pdb->ocontexts[0]; isid !=3D NULL; isid =3D isid->n=
+ext) {
+>                 i =3D isid->sid[0];
+> -               if (i < num_sids) {
+> +               if (i < num_sids && sid_to_str[i]) {
+>                         sid =3D (char *)sid_to_str[i];
+>                 } else {
+>                         snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
+WN", i);
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index e7bc6ee6..a46775ca 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -2549,7 +2549,7 @@ static int ocontext_isid_to_cil(struct policydb *pd=
+b, const char *const *sid_to_
+>
+>         for (isid =3D isids; isid !=3D NULL; isid =3D isid->next) {
+>                 i =3D isid->sid[0];
+> -               if (i < num_sids) {
+> +               if (i < num_sids && sid_to_string[i]) {
+>                         sid =3D (char*)sid_to_string[i];
+>                 } else {
+>                         snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> --
+> 2.40.1
+>
