@@ -2,259 +2,101 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F76EEB64DD
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 10:27:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE398EB64D9
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:23:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231745AbjGFK1Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 06:27:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32950 "EHLO
+        id S230290AbjGFNXr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 09:23:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbjGFK1U (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 06:27:20 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B1E1BFD;
-        Thu,  6 Jul 2023 03:27:09 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id DB4D120295;
-        Thu,  6 Jul 2023 10:27:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1688639226; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=bA8lspzVCI0QkBBZSOZ2NaXyU+WIcRfNoOGE3kPhpJ0=;
-        b=cwJXVYMxjabgJAc1WiPXwEoX0OTfi47rAf4OBX1TAQ+OGmO9dcjviKfq9JaMZbP2e77Zft
-        ZFGj4L7K2Mk/xcezt5kjd+qP2pHojrW25RMENmZ0z2yxrjNTco/s31l/aUs5F51DaCvlcK
-        y6kdxWpKryRTZKsAyjQoNnmkqAh2mzg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1688639226;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=bA8lspzVCI0QkBBZSOZ2NaXyU+WIcRfNoOGE3kPhpJ0=;
-        b=NZCT2CDl1JUNY6ijIJLjHssrtsmLEPFUK3ppAhWe46d1TfukNG5xi7VbWtXEv0lhKCq/xt
-        xNVG4YexDp28AbCA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B716213A90;
-        Thu,  6 Jul 2023 10:27:06 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 0OOvLPqWpmTQdAAAMHmgww
-        (envelope-from <jack@suse.cz>); Thu, 06 Jul 2023 10:27:06 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 1CB0FA0707; Thu,  6 Jul 2023 12:27:06 +0200 (CEST)
-Date:   Thu, 6 Jul 2023 12:27:06 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     jk@ozlabs.org, arnd@arndb.de, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
-        cmllamas@google.com, surenb@google.com,
-        dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca,
-        leon@kernel.org, bwarrum@linux.ibm.com, rituagar@linux.ibm.com,
-        ericvh@kernel.org, lucho@ionkov.net, asmadeus@codewreck.org,
-        linux_oss@crudebyte.com, dsterba@suse.com, dhowells@redhat.com,
-        marc.dionne@auristor.com, viro@zeniv.linux.org.uk,
-        raven@themaw.net, luisbg@kernel.org, salah.triki@gmail.com,
-        aivazian.tigran@gmail.com, ebiederm@xmission.com,
-        keescook@chromium.org, clm@fb.com, josef@toxicpanda.com,
-        xiubli@redhat.com, idryomov@gmail.com, jaharkes@cs.cmu.edu,
-        coda@cs.cmu.edu, jlbec@evilplan.org, hch@lst.de, nico@fluxnic.net,
-        rafael@kernel.org, code@tyhicks.com, ardb@kernel.org,
-        xiang@kernel.org, chao@kernel.org, huyue2@coolpad.com,
-        jefflexu@linux.alibaba.com, linkinjeon@kernel.org,
-        sj1557.seo@samsung.com, jack@suse.com, tytso@mit.edu,
-        adilger.kernel@dilger.ca, jaegeuk@kernel.org,
-        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
-        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
-        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
-        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
-        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
-        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
-        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
-        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
-        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
-        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
-        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
-        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
-        senozhatsky@chromium.org, phillip@squashfs.org.uk,
-        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
-        hdegoede@redhat.com, djwong@kernel.org, dlemoal@kernel.org,
-        naohiro.aota@wdc.com, jth@kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-        song@kernel.org, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org, sdf@google.com, haoluo@google.com,
-        jolsa@kernel.org, hughd@google.com, akpm@linux-foundation.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, john.johansen@canonical.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
-        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
-        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
-        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
-        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
-        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
-        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
-        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
-        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
-        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
-        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
-        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
-        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
-        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
-        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
-        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
-        ebiggers@google.com, princekumarmaurya06@gmail.com,
-        chenzhongjin@huawei.com, riel@surriel.com,
-        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
-        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
-        autofs@vger.kernel.org, linux-mm@kvack.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, linux-um@lists.infradead.org,
-        linux-mtd@lists.infradead.org,
-        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
-        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH v2 08/92] fs: new helper: simple_rename_timestamp
-Message-ID: <20230706102706.w7udmbmuwp7hhcry@quack3>
-References: <20230705185812.579118-1-jlayton@kernel.org>
- <20230705185812.579118-3-jlayton@kernel.org>
+        with ESMTP id S229919AbjGFNXq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:23:46 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6995B1994;
+        Thu,  6 Jul 2023 06:23:45 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id a640c23a62f3a-992acf67388so81793166b.1;
+        Thu, 06 Jul 2023 06:23:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1688649824; x=1691241824;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YMgn8v5HSr1CwulZfQm2e0c4LiCcjYghl7RePYF3Io4=;
+        b=jpy3SNoTSnMnS3x/7zAxQzz/XTlzy17ldr228oGAP/Xg3V+9epfdo7Z6fxtc61UDY6
+         BF9Jic/dXx03T4dhI9Z2/nmLamZVb9XV7stxUkqVGdmcxTEHj8Sc3P7e5J5/ywfubHPJ
+         53AR6eU2vP0kXzZ2V05E5Cq0hNMEss9qE+Jr4fiU/V8/HU/VFrUn8rQ3sJ5vEST9RwRM
+         hs+LPBn6dznCGQVF78+4O1/mI76LLSqwn0gqCEBZ5VvLLEovATYVnvn9K91/V5ikdy0m
+         PHIewlEU+uEsezVRORrmi1ZkJHUhVPEP501P81U5exIcNEUwvhqahsDqcPuU9grOGAa7
+         TBww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688649824; x=1691241824;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=YMgn8v5HSr1CwulZfQm2e0c4LiCcjYghl7RePYF3Io4=;
+        b=WcfmKpqOA+vYe6vR9SLsfa/qQq4g2irLGPhpJcTUhcyu2pikZqDbzX1rcHg7zzN9ej
+         QubZOEj4VoxVbh7RDnNRwOqBVyO6Nv9Ov65YM3I9ww5UkKQgJmrrPyZSdQfy0a7etkNA
+         i28tNRSR5nv4Ezx8CQ/4QMoAF6MK3uCeHVPEvpFsHMkLuVv4bqL7qI4DEZjCZNBwdqTA
+         +Cljh6m9dMfvxx0YgF8b6UzfcUArnWDWWTjHp6mMW6WlkPgPdjpo9i6r2ZzrjKsNtqwB
+         IVQK/ohiHvIFRo6mLVRHLOaIn0wnxjGrcEm52KdXVkDYnr1ZXV8U+aVdXWyC9J6iiPdz
+         B3CA==
+X-Gm-Message-State: ABy/qLaeC+dXvmDldtJriJpT1W/fvaa8gdvBKR0YnXAxfWgqaqiupQEs
+        rXnVgDGaXhsRIHpTpTeyZqit/pZ6BjK0oPCB
+X-Google-Smtp-Source: APBJJlFgmj/+QSgNFv8mSQQTWgHKLzeq7A2LBLwU6guAw9JIAleSC3NfGCZaY/drGJm1XdQ6LAdVAQ==
+X-Received: by 2002:a17:906:51da:b0:992:4a1b:30e2 with SMTP id v26-20020a17090651da00b009924a1b30e2mr1598976ejk.7.1688649823591;
+        Thu, 06 Jul 2023 06:23:43 -0700 (PDT)
+Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
+        by smtp.gmail.com with ESMTPSA id r2-20020a170906364200b00988dbbd1f7esm808024ejb.213.2023.07.06.06.23.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Jul 2023 06:23:43 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH 01/20] selinux: check for multiplication overflow in put_entry()
+Date:   Thu,  6 Jul 2023 15:23:16 +0200
+Message-Id: <20230706132337.15924-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230705185812.579118-3-jlayton@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed 05-07-23 14:58:11, Jeff Layton wrote:
-> A rename potentially involves updating 4 different inode timestamps. Add
-> a function that handles the details sanely, and convert the libfs.c
-> callers to use it.
-> 
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+The function is always inlined and most of the time both relevant
+arguments are compile time constants, allowing compilers to elide the
+check.  Also the function is part of outputting the policy, which is not
+performance critical.
 
-Looks good to me. Feel free to add:
+Also convert the type of the third parameter into a size_t, since it
+should always be a non-negative number of elements.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ security/selinux/ss/policydb.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-								Honza
-
-> ---
->  fs/libfs.c         | 36 +++++++++++++++++++++++++++---------
->  include/linux/fs.h |  2 ++
->  2 files changed, 29 insertions(+), 9 deletions(-)
-> 
-> diff --git a/fs/libfs.c b/fs/libfs.c
-> index a7e56baf8bbd..9ee79668c909 100644
-> --- a/fs/libfs.c
-> +++ b/fs/libfs.c
-> @@ -692,6 +692,31 @@ int simple_rmdir(struct inode *dir, struct dentry *dentry)
->  }
->  EXPORT_SYMBOL(simple_rmdir);
->  
-> +/**
-> + * simple_rename_timestamp - update the various inode timestamps for rename
-> + * @old_dir: old parent directory
-> + * @old_dentry: dentry that is being renamed
-> + * @new_dir: new parent directory
-> + * @new_dentry: target for rename
-> + *
-> + * POSIX mandates that the old and new parent directories have their ctime and
-> + * mtime updated, and that inodes of @old_dentry and @new_dentry (if any), have
-> + * their ctime updated.
-> + */
-> +void simple_rename_timestamp(struct inode *old_dir, struct dentry *old_dentry,
-> +			     struct inode *new_dir, struct dentry *new_dentry)
-> +{
-> +	struct inode *newino = d_inode(new_dentry);
-> +
-> +	old_dir->i_mtime = inode_set_ctime_current(old_dir);
-> +	if (new_dir != old_dir)
-> +		new_dir->i_mtime = inode_set_ctime_current(new_dir);
-> +	inode_set_ctime_current(d_inode(old_dentry));
-> +	if (newino)
-> +		inode_set_ctime_current(newino);
-> +}
-> +EXPORT_SYMBOL_GPL(simple_rename_timestamp);
-> +
->  int simple_rename_exchange(struct inode *old_dir, struct dentry *old_dentry,
->  			   struct inode *new_dir, struct dentry *new_dentry)
->  {
-> @@ -707,11 +732,7 @@ int simple_rename_exchange(struct inode *old_dir, struct dentry *old_dentry,
->  			inc_nlink(old_dir);
->  		}
->  	}
-> -	old_dir->i_ctime = old_dir->i_mtime =
-> -	new_dir->i_ctime = new_dir->i_mtime =
-> -	d_inode(old_dentry)->i_ctime =
-> -	d_inode(new_dentry)->i_ctime = current_time(old_dir);
-> -
-> +	simple_rename_timestamp(old_dir, old_dentry, new_dir, new_dentry);
->  	return 0;
->  }
->  EXPORT_SYMBOL_GPL(simple_rename_exchange);
-> @@ -720,7 +741,6 @@ int simple_rename(struct mnt_idmap *idmap, struct inode *old_dir,
->  		  struct dentry *old_dentry, struct inode *new_dir,
->  		  struct dentry *new_dentry, unsigned int flags)
->  {
-> -	struct inode *inode = d_inode(old_dentry);
->  	int they_are_dirs = d_is_dir(old_dentry);
->  
->  	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE))
-> @@ -743,9 +763,7 @@ int simple_rename(struct mnt_idmap *idmap, struct inode *old_dir,
->  		inc_nlink(new_dir);
->  	}
->  
-> -	old_dir->i_ctime = old_dir->i_mtime = new_dir->i_ctime =
-> -		new_dir->i_mtime = inode->i_ctime = current_time(old_dir);
-> -
-> +	simple_rename_timestamp(old_dir, old_dentry, new_dir, new_dentry);
->  	return 0;
->  }
->  EXPORT_SYMBOL(simple_rename);
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index bdfbd11a5811..14e38bd900f1 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -2979,6 +2979,8 @@ extern int simple_open(struct inode *inode, struct file *file);
->  extern int simple_link(struct dentry *, struct inode *, struct dentry *);
->  extern int simple_unlink(struct inode *, struct dentry *);
->  extern int simple_rmdir(struct inode *, struct dentry *);
-> +void simple_rename_timestamp(struct inode *old_dir, struct dentry *old_dentry,
-> +			     struct inode *new_dir, struct dentry *new_dentry);
->  extern int simple_rename_exchange(struct inode *old_dir, struct dentry *old_dentry,
->  				  struct inode *new_dir, struct dentry *new_dentry);
->  extern int simple_rename(struct mnt_idmap *, struct inode *,
-> -- 
-> 2.41.0
-> 
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 74b63ed1173f..6b4ad8e91265 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -366,9 +366,12 @@ static inline int next_entry(void *buf, struct policy_file *fp, size_t bytes)
+ 	return 0;
+ }
+ 
+-static inline int put_entry(const void *buf, size_t bytes, int num, struct policy_file *fp)
++static inline int put_entry(const void *buf, size_t bytes, size_t num, struct policy_file *fp)
+ {
+-	size_t len = bytes * num;
++	size_t len;
++
++	if (unlikely(check_mul_overflow(bytes, num, &len)))
++		return -EINVAL;
+ 
+ 	if (len > fp->len)
+ 		return -EINVAL;
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+2.40.1
+
