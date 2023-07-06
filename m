@@ -2,62 +2,62 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92927EB64D9
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:23:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29638EB64D9
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:23:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbjGFNXu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 09:23:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41068 "EHLO
+        id S232129AbjGFNXx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 09:23:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229452AbjGFNXs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:23:48 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B671996;
-        Thu,  6 Jul 2023 06:23:46 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-992dcae74e0so86525466b.3;
-        Thu, 06 Jul 2023 06:23:46 -0700 (PDT)
+        with ESMTP id S232016AbjGFNXu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:23:50 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8DF1996;
+        Thu,  6 Jul 2023 06:23:48 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id a640c23a62f3a-98e39784a85so357558066b.1;
+        Thu, 06 Jul 2023 06:23:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1688649825; x=1691241825;
+        d=googlemail.com; s=20221208; t=1688649827; x=1691241827;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8KXOwe/OoiOsg3u6jeXshSKZbJW8vs60/BO9XDGBs3Y=;
-        b=jY0NxM1fOsvqjqWcv8woY/9bHhNdhAj4dl2++BNcG5i7ocYXmRGvyPZwCMgzdOtv7R
-         Cio8rSxIVPC/CJe8aMvoozBaNyWxXWh4esvng3yb5GD5DQfskWdra+UcZrxOvd4K0Dhx
-         BMxw9tMQFf/YdE5CpZifgUr81pUEyjW5+rYfn503xzcMvxO56x7awEIczgPBq2beWWRB
-         bUPQrklEpLUPnuM4qurvS9axsQq/GDKyh0v1fka3eSK1F6hPDXcy7EjzpBrAa2sPcfT5
-         e0RTd0TDoTzR2zEydWF4HwqBtltWICv7h1E3j2GBpGToOerboTptctEzhLtC6hJCiek/
-         swjg==
+        bh=92d6Vul513gSV9/1vQgZrdNmQwl67uBvttC751CUwUE=;
+        b=hS4AMI2jCzCL3VWz2p35RhxjI+7LKoR6iK5B1kPOAI0fEjm55EdD/OrT/Sy4qXZTEF
+         Z4CykaL7llo75jRXvaoAo6wVteido48LdufNhcZ2mHtkrILnm/AB1OAZKhbsED3trTt2
+         Wfxk20NdrlGc6DYdisyQZnGwc5CJmSiwLQFsomh43Hw0YxT8aF0jdxPVSDpAYJjw3dRg
+         ZgKnobjhDLh0SHk5gH/7frbpbsyrjf9usDedrp0NKNuLHOu5LNvwy4zGDnKGCm7NI1Ex
+         G0WAzthgfwQWDH7VXJBcSbU/4sX84b0LPfyZF//RelBojLiDm1fQa6lJWCCNp3dEFhew
+         5PdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688649825; x=1691241825;
+        d=1e100.net; s=20221208; t=1688649827; x=1691241827;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8KXOwe/OoiOsg3u6jeXshSKZbJW8vs60/BO9XDGBs3Y=;
-        b=RxjU00sYf1BEgkJF21eN+4dAJdEqh9/eNo5wB+U2KZ76+6q9vD0liGzty/uQaaw4Al
-         15EhXwEN7/12jy/CU+Oy8XXAM+vLc03e+uI+ANkL33TGlo4hOtNcYzp1jnnFQxvsY5Xz
-         28+K5/xajYWKtvrtZ3DBm9YbIhGTlZiQKPFSE3q7rn8YhQiIRH70kZJfU5Bnq6scX4L8
-         W2H8IT/bIl62khqRV42TfESCNIRwQ9vynj/1QfaLkSgEl5TkuohHvA+JsBWKSP0fwDji
-         7rhe1e+IhyCmhJ3Pm8w6ZfFoxIaoBwpho7hns3wboS3VnCOMhcMWRTTKC9DWlCyVndpB
-         +Ohw==
-X-Gm-Message-State: ABy/qLbhiykYl3L2QoFejoLnI/DebmMzdJE/lXnXd3DeQ0KAo4J9AsO4
-        SxN9V8FSQyR/DvNFLLGO3UyxgC7fn9MGjO+9
-X-Google-Smtp-Source: APBJJlGI7creXc4Ga4EfBmjJ6RQ4w4zxDFSml/GbNcxZd2+jyZ2HidG77CKc8cf4T57PN7IqTu3PGg==
-X-Received: by 2002:a17:906:74da:b0:988:6491:98e3 with SMTP id z26-20020a17090674da00b00988649198e3mr1380778ejl.68.1688649824631;
-        Thu, 06 Jul 2023 06:23:44 -0700 (PDT)
+        bh=92d6Vul513gSV9/1vQgZrdNmQwl67uBvttC751CUwUE=;
+        b=II8NCWa2rx0ah24Kx2XjX2vUkF5ZYu72CzukmFENt7QmmTCNtrFSqmyufXAhFnXcwL
+         7lmjNzz+mId7qfXxN4pZXtuR2MABFe2IyUAJZjfrRgqaHJ6G07ikhYuXU34Bg3t7MgN7
+         GV/j5KbQF3sVDY/YtAPGXJSYPUOg6vZs4kr2EZMhXbFqm0zJcm9cO8JDwwkLQ7aKLTQX
+         FrDUF6vP94TGCppOn9omF5XKqWmRpaTmikQfsEODvOGAabO4e8oeQbzOgccq5KQ6rdf7
+         v1t880bNpiImrlBjmbbnNA9vv1euVNPlPrW021JLbfjBYNxOvYfXYbBpLtKvR5yYZjCI
+         DE/Q==
+X-Gm-Message-State: ABy/qLZP90UpImibpGbPvJvvB6LFZ9Aatk9lQkZlJcVYkmSOIuJlUXWF
+        N2l4u/83Zk5HKUx2tSBbPCKnAGu73fLVlbT3
+X-Google-Smtp-Source: APBJJlHoc5jnjV3vUFqN4/yWUCziBYDrlZcrRLYJuk93naI8hIqAmBTgFOJEjJnuyhwsVC30Tjvnzw==
+X-Received: by 2002:a17:906:1041:b0:992:8d96:4de3 with SMTP id j1-20020a170906104100b009928d964de3mr2081378ejj.24.1688649827107;
+        Thu, 06 Jul 2023 06:23:47 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
-        by smtp.gmail.com with ESMTPSA id r2-20020a170906364200b00988dbbd1f7esm808024ejb.213.2023.07.06.06.23.44
+        by smtp.gmail.com with ESMTPSA id r2-20020a170906364200b00988dbbd1f7esm808024ejb.213.2023.07.06.06.23.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Jul 2023 06:23:44 -0700 (PDT)
+        Thu, 06 Jul 2023 06:23:46 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 02/20] selinux: avtab: avoid implicit conversions
-Date:   Thu,  6 Jul 2023 15:23:17 +0200
-Message-Id: <20230706132337.15924-2-cgzones@googlemail.com>
+Subject: [RFC PATCH 04/20] selinux: ebitmap: use u32 as bit type
+Date:   Thu,  6 Jul 2023 15:23:19 +0200
+Message-Id: <20230706132337.15924-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230706132337.15924-1-cgzones@googlemail.com>
 References: <20230706132337.15924-1-cgzones@googlemail.com>
@@ -68,191 +68,223 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Return u32 from avtab_hash() instead of int, since the hashing is done
-on u32 and the result is used as an index on the hash array.
-
-Use the type of the limit in for loops.
-
-Avoid signed to unsigned conversion of multiplication result in
-avtab_hash_eval().
-
-Use unsigned loop iterator for index operations, to avoid sign
-extension.
+The extensible bitmap supports bit positions up to U32_MAX due to the
+type of the member highbit being u32.  Use u32 consistently as the type
+for bit positions to announce to callers what range of values is
+supported.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/avtab.c | 38 ++++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 20 deletions(-)
+ security/selinux/ss/ebitmap.c | 32 ++++++++++++++++----------------
+ security/selinux/ss/ebitmap.h | 32 ++++++++++++++++----------------
+ 2 files changed, 32 insertions(+), 32 deletions(-)
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 6766edc0fe68..fbf51986afcf 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -29,7 +29,7 @@ static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
- /* Based on MurmurHash3, written by Austin Appleby and placed in the
-  * public domain.
-  */
--static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
-+static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index d31b87be9a1e..17d2d9b0d444 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -24,7 +24,7 @@
+ #include "ebitmap.h"
+ #include "policydb.h"
+ 
+-#define BITS_PER_U64	(sizeof(u64) * 8)
++#define BITS_PER_U64	((u32)(sizeof(u64) * 8))
+ 
+ static struct kmem_cache *ebitmap_node_cachep __ro_after_init;
+ 
+@@ -82,7 +82,8 @@ int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src)
+ int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebitmap *e2)
  {
- 	static const u32 c1 = 0xcc9e2d51;
- 	static const u32 c2 = 0x1b873593;
-@@ -66,7 +66,7 @@ static inline int avtab_hash(const struct avtab_key *keyp, u32 mask)
+ 	struct ebitmap_node *n;
+-	int bit, rc;
++	u32 bit;
++	int rc;
+ 
+ 	ebitmap_init(dst);
+ 
+@@ -113,8 +114,7 @@ int ebitmap_netlbl_export(struct ebitmap *ebmap,
+ {
+ 	struct ebitmap_node *e_iter = ebmap->node;
+ 	unsigned long e_map;
+-	u32 offset;
+-	unsigned int iter;
++	u32 offset, iter;
+ 	int rc;
+ 
+ 	if (e_iter == NULL) {
+@@ -259,7 +259,7 @@ int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2, u32 las
+ 	return 1;
  }
  
- static struct avtab_node*
--avtab_insert_node(struct avtab *h, int hvalue,
-+avtab_insert_node(struct avtab *h, u32 hvalue,
- 		  struct avtab_node *prev,
- 		  const struct avtab_key *key, const struct avtab_datum *datum)
+-int ebitmap_get_bit(const struct ebitmap *e, unsigned long bit)
++int ebitmap_get_bit(const struct ebitmap *e, u32 bit)
  {
-@@ -106,7 +106,7 @@ avtab_insert_node(struct avtab *h, int hvalue,
- static int avtab_insert(struct avtab *h, const struct avtab_key *key,
- 			const struct avtab_datum *datum)
+ 	const struct ebitmap_node *n;
+ 
+@@ -276,7 +276,7 @@ int ebitmap_get_bit(const struct ebitmap *e, unsigned long bit)
+ 	return 0;
+ }
+ 
+-int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
++int ebitmap_set_bit(struct ebitmap *e, u32 bit, int value)
  {
--	int hvalue;
-+	u32 hvalue;
- 	struct avtab_node *prev, *cur, *newnode;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+ 	struct ebitmap_node *n, *prev, *new;
  
-@@ -152,7 +152,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
- 					  const struct avtab_key *key,
- 					  const struct avtab_datum *datum)
- {
--	int hvalue;
-+	u32 hvalue;
- 	struct avtab_node *prev, *cur;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+@@ -287,7 +287,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+ 			if (value) {
+ 				ebitmap_node_set_bit(n, bit);
+ 			} else {
+-				unsigned int s;
++				u32 s;
  
-@@ -182,7 +182,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 				ebitmap_node_clr_bit(n, bit);
  
- struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *key)
- {
--	int hvalue;
-+	u32 hvalue;
- 	struct avtab_node *cur;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
-@@ -218,7 +218,7 @@ struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *key)
- struct avtab_node *avtab_search_node(struct avtab *h,
- 				     const struct avtab_key *key)
- {
--	int hvalue;
-+	u32 hvalue;
- 	struct avtab_node *cur;
- 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
- 
-@@ -278,13 +278,12 @@ avtab_search_node_next(struct avtab_node *node, int specified)
- 
- void avtab_destroy(struct avtab *h)
- {
--	int i;
- 	struct avtab_node *cur, *temp;
- 
- 	if (!h)
- 		return;
- 
--	for (i = 0; i < h->nslot; i++) {
-+	for (u32 i = 0; i < h->nslot; i++) {
- 		cur = h->htable[i];
- 		while (cur) {
- 			temp = cur;
-@@ -356,14 +355,14 @@ int avtab_alloc_dup(struct avtab *new, const struct avtab *orig)
- 
- void avtab_hash_eval(struct avtab *h, const char *tag)
- {
--	int i, chain_len, slots_used, max_chain_len;
-+	unsigned int chain_len, slots_used, max_chain_len;
- 	unsigned long long chain2_len_sum;
- 	struct avtab_node *cur;
- 
- 	slots_used = 0;
- 	max_chain_len = 0;
- 	chain2_len_sum = 0;
--	for (i = 0; i < h->nslot; i++) {
-+	for (u32 i = 0; i < h->nslot; i++) {
- 		cur = h->htable[i];
- 		if (cur) {
- 			slots_used++;
-@@ -404,13 +403,13 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- {
- 	__le16 buf16[4];
- 	u16 enabled;
--	u32 items, items2, val, vers = pol->policyvers;
-+	u32 items, items2, val;
- 	struct avtab_key key;
- 	struct avtab_datum datum;
- 	struct avtab_extended_perms xperms;
- 	__le32 buf32[ARRAY_SIZE(xperms.perms.p)];
--	int i, rc;
--	unsigned set;
+@@ -370,7 +370,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 	u64 map;
+ 	__le64 mapbits;
+ 	__le32 buf[3];
+-	int rc, i;
 +	int rc;
-+	unsigned int set, vers = pol->policyvers;
  
- 	memset(&key, 0, sizeof(struct avtab_key));
- 	memset(&datum, 0, sizeof(struct avtab_datum));
-@@ -470,7 +469,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 			return -EINVAL;
- 		}
+ 	ebitmap_init(e);
  
--		for (i = 0; i < ARRAY_SIZE(spec_order); i++) {
-+		for (u32 i = 0; i < ARRAY_SIZE(spec_order); i++) {
- 			if (val & spec_order[i]) {
- 				key.specified = spec_order[i] | enabled;
- 				datum.u.data = le32_to_cpu(buf32[items++]);
-@@ -508,7 +507,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+@@ -384,7 +384,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 
+ 	if (mapunit != BITS_PER_U64) {
+ 		pr_err("SELinux: ebitmap: map size %u does not "
+-		       "match my size %zd (high bit was %d)\n",
++		       "match my size %d (high bit was %d)\n",
+ 		       mapunit, BITS_PER_U64, e->highbit);
+ 		goto bad;
  	}
- 
- 	set = 0;
--	for (i = 0; i < ARRAY_SIZE(spec_order); i++) {
-+	for (u32 i = 0; i < ARRAY_SIZE(spec_order); i++) {
- 		if (key.specified & spec_order[i])
- 			set++;
- 	}
-@@ -540,7 +539,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 			pr_err("SELinux: avtab: truncated entry\n");
- 			return rc;
- 		}
--		for (i = 0; i < ARRAY_SIZE(xperms.perms.p); i++)
-+		for (u32 i = 0; i < ARRAY_SIZE(xperms.perms.p); i++)
- 			xperms.perms.p[i] = le32_to_cpu(buf32[i]);
- 		datum.u.xperms = &xperms;
- 	} else {
-@@ -569,7 +568,7 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
- {
- 	int rc;
- 	__le32 buf[1];
--	u32 nel, i;
-+	u32 nel;
- 
- 
- 	rc = next_entry(buf, fp, sizeof(u32));
-@@ -588,7 +587,7 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
- 	if (rc)
+@@ -401,7 +401,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 	if (e->highbit && !count)
  		goto bad;
  
--	for (i = 0; i < nel; i++) {
-+	for (u32 i = 0; i < nel; i++) {
- 		rc = avtab_read_item(a, fp, pol, avtab_insertf, NULL);
- 		if (rc) {
- 			if (rc == -ENOMEM)
-@@ -646,7 +645,6 @@ int avtab_write_item(struct policydb *p, const struct avtab_node *cur, void *fp)
- 
- int avtab_write(struct policydb *p, struct avtab *a, void *fp)
+-	for (i = 0; i < count; i++) {
++	for (u32 i = 0; i < count; i++) {
+ 		rc = next_entry(&ebitmap_start, fp, sizeof(u32));
+ 		if (rc < 0) {
+ 			pr_err("SELinux: ebitmap: truncated map\n");
+@@ -471,18 +471,18 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ int ebitmap_write(const struct ebitmap *e, void *fp)
  {
--	unsigned int i;
- 	int rc = 0;
- 	struct avtab_node *cur;
- 	__le32 buf[1];
-@@ -656,7 +654,7 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
- 	if (rc)
+ 	struct ebitmap_node *n;
+-	u32 count;
++	u32 bit, count, last_bit, last_startbit;
+ 	__le32 buf[3];
+ 	u64 map;
+-	int bit, last_bit, last_startbit, rc;
++	int rc;
+ 
+ 	buf[0] = cpu_to_le32(BITS_PER_U64);
+ 
+ 	count = 0;
+ 	last_bit = 0;
+-	last_startbit = -1;
++	last_startbit = (u32)-1;
+ 	ebitmap_for_each_positive_bit(e, n, bit) {
+-		if (rounddown(bit, (int)BITS_PER_U64) > last_startbit) {
++		if (last_startbit == (u32)-1 || rounddown(bit, BITS_PER_U64) > last_startbit) {
+ 			count++;
+ 			last_startbit = rounddown(bit, BITS_PER_U64);
+ 		}
+@@ -496,9 +496,9 @@ int ebitmap_write(const struct ebitmap *e, void *fp)
  		return rc;
  
--	for (i = 0; i < a->nslot; i++) {
-+	for (u32 i = 0; i < a->nslot; i++) {
- 		for (cur = a->htable[i]; cur;
- 		     cur = cur->next) {
- 			rc = avtab_write_item(p, cur, fp);
+ 	map = 0;
+-	last_startbit = INT_MIN;
++	last_startbit = (u32)-1;
+ 	ebitmap_for_each_positive_bit(e, n, bit) {
+-		if (rounddown(bit, (int)BITS_PER_U64) > last_startbit) {
++		if (last_startbit == (u32)-1 || rounddown(bit, BITS_PER_U64) > last_startbit) {
+ 			__le64 buf64[1];
+ 
+ 			/* this is the very first bit */
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index e5b57dc3fc53..fab3e5bef896 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -44,10 +44,10 @@ struct ebitmap {
+ 
+ #define ebitmap_length(e) ((e)->highbit)
+ 
+-static inline unsigned int ebitmap_start_positive(const struct ebitmap *e,
++static inline u32 ebitmap_start_positive(const struct ebitmap *e,
+ 						  struct ebitmap_node **n)
+ {
+-	unsigned int ofs;
++	u32 ofs;
+ 
+ 	for (*n = e->node; *n; *n = (*n)->next) {
+ 		ofs = find_first_bit((*n)->maps, EBITMAP_SIZE);
+@@ -62,11 +62,11 @@ static inline void ebitmap_init(struct ebitmap *e)
+ 	memset(e, 0, sizeof(*e));
+ }
+ 
+-static inline unsigned int ebitmap_next_positive(const struct ebitmap *e,
++static inline u32 ebitmap_next_positive(const struct ebitmap *e,
+ 						 struct ebitmap_node **n,
+-						 unsigned int bit)
++						 u32 bit)
+ {
+-	unsigned int ofs;
++	u32 ofs;
+ 
+ 	ofs = find_next_bit((*n)->maps, EBITMAP_SIZE, bit - (*n)->startbit + 1);
+ 	if (ofs < EBITMAP_SIZE)
+@@ -86,10 +86,10 @@ static inline unsigned int ebitmap_next_positive(const struct ebitmap *e,
+ 	(((bit) - (node)->startbit) % EBITMAP_UNIT_SIZE)
+ 
+ static inline int ebitmap_node_get_bit(const struct ebitmap_node *n,
+-				       unsigned int bit)
++				       u32 bit)
+ {
+-	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
+-	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
++	u32 index = EBITMAP_NODE_INDEX(n, bit);
++	u32 ofs = EBITMAP_NODE_OFFSET(n, bit);
+ 
+ 	BUG_ON(index >= EBITMAP_UNIT_NUMS);
+ 	if ((n->maps[index] & (EBITMAP_BIT << ofs)))
+@@ -98,20 +98,20 @@ static inline int ebitmap_node_get_bit(const struct ebitmap_node *n,
+ }
+ 
+ static inline void ebitmap_node_set_bit(struct ebitmap_node *n,
+-					unsigned int bit)
++					u32 bit)
+ {
+-	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
+-	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
++	u32 index = EBITMAP_NODE_INDEX(n, bit);
++	u32 ofs = EBITMAP_NODE_OFFSET(n, bit);
+ 
+ 	BUG_ON(index >= EBITMAP_UNIT_NUMS);
+ 	n->maps[index] |= (EBITMAP_BIT << ofs);
+ }
+ 
+ static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
+-					unsigned int bit)
++					u32 bit)
+ {
+-	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
+-	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
++	u32 index = EBITMAP_NODE_INDEX(n, bit);
++	u32 ofs = EBITMAP_NODE_OFFSET(n, bit);
+ 
+ 	BUG_ON(index >= EBITMAP_UNIT_NUMS);
+ 	n->maps[index] &= ~(EBITMAP_BIT << ofs);
+@@ -126,8 +126,8 @@ int ebitmap_cmp(const struct ebitmap *e1, const struct ebitmap *e2);
+ int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src);
+ int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebitmap *e2);
+ int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2, u32 last_e2bit);
+-int ebitmap_get_bit(const struct ebitmap *e, unsigned long bit);
+-int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value);
++int ebitmap_get_bit(const struct ebitmap *e, u32 bit);
++int ebitmap_set_bit(struct ebitmap *e, u32 bit, int value);
+ void ebitmap_destroy(struct ebitmap *e);
+ int ebitmap_read(struct ebitmap *e, void *fp);
+ int ebitmap_write(const struct ebitmap *e, void *fp);
 -- 
 2.40.1
 
