@@ -2,62 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43DA5EB64DC
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:24:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BE9CEB64D9
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:24:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232624AbjGFNYt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 09:24:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41258 "EHLO
+        id S232151AbjGFNYv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 09:24:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232477AbjGFNY1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:24:27 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4816D1FFA;
-        Thu,  6 Jul 2023 06:24:06 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id a640c23a62f3a-9741caaf9d4so80309866b.0;
-        Thu, 06 Jul 2023 06:24:06 -0700 (PDT)
+        with ESMTP id S232335AbjGFNY3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:24:29 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1012C1FFE
+        for <selinux@vger.kernel.org>; Thu,  6 Jul 2023 06:24:06 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id 4fb4d7f45d1cf-51e278e344bso994995a12.0
+        for <selinux@vger.kernel.org>; Thu, 06 Jul 2023 06:24:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1688649844; x=1691241844;
+        d=googlemail.com; s=20221208; t=1688649845; x=1691241845;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PKZMCCQ7wVVZeBi4fnxNrrCgfWKmBY0QQttlYN04RUs=;
-        b=muMEGpAzBHoY1MUttdjulommg6urYMBgqAf79lMnKAkKiLzwVe8gSTZQ9T/xHy04ZV
-         9hg+R5svbXxS3mCWeU+qFOrB+knC7NugjL8h5lNJv3ApRtujq9SNzam0CiOmapqlJj5H
-         cPSDQOn1VanGnQEwDtu3z92yA30uD+fryYr7sMce4KVF2KK4te5NqVXCs5qoYitIJKXR
-         lXCOAVmr/sMlosDCDntFJEDuJUJHRDDvs6qVEiRBBuiMfhJml818V4oJSbvQcuLznkz8
-         m8qkeKKbBfFAj2/71tqIwx9ABUTOWLOX191nLz1wsyyRT3jQFsy0+s05QFFA5KoI6BCm
-         HerA==
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=NzvXFSCF9KljaGfjOzEbY1a8bJgSlIMuMFtuBQF2RF4=;
+        b=iGwaheogfjd6fH/XsTkfQAUeDaGFP2oT5ZrbAS1VqPJdB7IiqlX7p22mjmB6ttfXqP
+         f6TG8w6tu69JMg1j9DhNyyDSjR5+LBZOde2rrzGTbRGL6a2hcu9Fk5i3pMKk7q92kfvO
+         qHp03z8lrm7JbTYEEtLfQjzVKKVrRGslZ0Zttx0M1F+PskFuScQPRvCyJzoMA2hQpGKL
+         dTdgCD3lhUOHQ5tCOpUuglpIa+Bsnzp/+psw8enK0h/snQ2S8hRgTNm7u8U8cWZP7RkI
+         ilGkABov/hAwZS/B1wwQkVzdugonJM97KKFjhPN1gEuI/SQ75zqYL/DsvCvUEX9eQPTm
+         9JxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688649844; x=1691241844;
+        d=1e100.net; s=20221208; t=1688649845; x=1691241845;
         h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=PKZMCCQ7wVVZeBi4fnxNrrCgfWKmBY0QQttlYN04RUs=;
-        b=emcbEmzGA4LGmi+S1u0GXOqjaW42ThHa05udoUT0n7PGEco/uu1B3u2oifcDKVUElR
-         98l6H19QIV2qHI23YykiGOgHzJBpZn96QI2it8jfEB1zsvK7koURcvc6IVjASpBNeXih
-         znussI0X3VZsO/CO4cpkqZCBw+fWo40XO1PMbeGqrfW8o/P2GyR+KX6f3PtELuVtT7Sf
-         6kSjJcpl56AbClFiOmMzCG4eDDawTalxLRFJWN43HJiAjx/DtKl9mqAMYVsmHNFk/yFk
-         KdsqpbpMTOYIDcO6dha8SY5QYVUEjmdiqK6s1lqOG51bZlrBuwE3lpbGUyVfqiSbO58V
-         PXuw==
-X-Gm-Message-State: ABy/qLYsfXiRGJszNVBhUeXXFBSBYMO5b5kUsH4lFBK8HxOZBVpweklr
-        bxZsEvlwrAvKUCYmlSUuhgGzhwK3gLjXTfBZ
-X-Google-Smtp-Source: APBJJlFckSqvoDXL/eQidtpW3U+6Djau0WKh/p6TYRKDgZMhLIer1UJ7Tx87tsWh35bpRmAih2z3ZA==
-X-Received: by 2002:a17:906:7e11:b0:988:699d:64d0 with SMTP id e17-20020a1709067e1100b00988699d64d0mr1759883ejr.32.1688649844399;
+        bh=NzvXFSCF9KljaGfjOzEbY1a8bJgSlIMuMFtuBQF2RF4=;
+        b=NXnbjpbOpuFWrDx3yYfasEklzAj1dg8u8ZsJudjYxI6olxooc/o2YDeL/+TSSYVLxp
+         ZnnJi8k5a7H4sIB2iz95p7lpT6hvTtzRyWqzASoqMa8MawAzomZAWpgtGXAw09kdjOs1
+         Kn72GqZoREHUHWzBMga3R5AKXbo0SawoW/YOuuMD7gdCnyLhvfnCphJFbX+Zc+5pIs4r
+         rc+HJG9STfWFXKwJGmhHAZOCftWpFg5bz7G6v9O4Fr5lSaa0J1WcZ2zb8qO3wXxOIQem
+         yOcaleRRhfaX9XA2XYxO8OvMTK9ozL7oV2a2VFMZrxT/xBVL9C/aFGCLFvp2Tu2EjDvc
+         LE3w==
+X-Gm-Message-State: ABy/qLaC8eXAbQD2UBRk/eq/OSuCFq+NiU/7fQJA54bj6fK0VYmJfkEO
+        gke6lQ6dAgRnqp8nRXMGqZYA0pgA26xsW1/T
+X-Google-Smtp-Source: APBJJlG6+ggT7stbFRLF8OoJv48ph5YrRQ7ATlFHkxIg+Zis9R87/aO/JJhEUV8AcUOwi23b3AVzpg==
+X-Received: by 2002:a17:906:fd55:b0:991:e458:d04 with SMTP id wi21-20020a170906fd5500b00991e4580d04mr1261066ejb.51.1688649844930;
         Thu, 06 Jul 2023 06:24:04 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
-        by smtp.gmail.com with ESMTPSA id r2-20020a170906364200b00988dbbd1f7esm808024ejb.213.2023.07.06.06.24.03
+        by smtp.gmail.com with ESMTPSA id r2-20020a170906364200b00988dbbd1f7esm808024ejb.213.2023.07.06.06.24.04
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 06 Jul 2023 06:24:04 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 20/20] selinux: selinuxfs: avoid implicit conversions
-Date:   Thu,  6 Jul 2023 15:23:35 +0200
-Message-Id: <20230706132337.15924-20-cgzones@googlemail.com>
+Subject: [RFC PATCH 00/20] selinux: be more strict about integer conversions
+Date:   Thu,  6 Jul 2023 15:23:36 +0200
+Message-Id: <20230706132337.15924-21-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230706132337.15924-1-cgzones@googlemail.com>
 References: <20230706132337.15924-1-cgzones@googlemail.com>
@@ -68,78 +65,69 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use unsigned loop counters where the upper bound is of unsigned
-type.
+The C language allows implicit conversions between distinct integer types.
+These conversions can lead to unintended truncations or sign extensions.
+Be more strict about integer types by using identical types where
+applicable.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- security/selinux/selinuxfs.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+This patches utilizes the C99 feature of declaring loop iterators inside
+for loops, supported since Linux 5.18.
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 88d856f5c6bc..a2dc415779ae 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1074,7 +1074,7 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- 	u32 sid, *sids = NULL;
- 	ssize_t length;
- 	char *newcon;
--	int i, rc;
-+	int rc;
- 	u32 len, nsids;
- 
- 	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
-@@ -1107,7 +1107,7 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- 
- 	length = sprintf(buf, "%u", nsids) + 1;
- 	ptr = buf + length;
--	for (i = 0; i < nsids; i++) {
-+	for (u32 i = 0; i < nsids; i++) {
- 		rc = security_sid_to_context(sids[i], &newcon, &len);
- 		if (rc) {
- 			length = rc;
-@@ -1612,7 +1612,6 @@ static int sel_make_avc_files(struct dentry *dir)
- {
- 	struct super_block *sb = dir->d_sb;
- 	struct selinux_fs_info *fsi = sb->s_fs_info;
--	int i;
- 	static const struct tree_descr files[] = {
- 		{ "cache_threshold",
- 		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
-@@ -1622,7 +1621,7 @@ static int sel_make_avc_files(struct dentry *dir)
- #endif
- 	};
- 
--	for (i = 0; i < ARRAY_SIZE(files); i++) {
-+	for (u32 i = 0; i < ARRAY_SIZE(files); i++) {
- 		struct inode *inode;
- 		struct dentry *dentry;
- 
-@@ -1648,12 +1647,11 @@ static int sel_make_ss_files(struct dentry *dir)
- {
- 	struct super_block *sb = dir->d_sb;
- 	struct selinux_fs_info *fsi = sb->s_fs_info;
--	int i;
- 	static const struct tree_descr files[] = {
- 		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
- 	};
- 
--	for (i = 0; i < ARRAY_SIZE(files); i++) {
-+	for (u32 i = 0; i < ARRAY_SIZE(files); i++) {
- 		struct inode *inode;
- 		struct dentry *dentry;
- 
-@@ -1699,9 +1697,7 @@ static const struct file_operations sel_initcon_ops = {
- 
- static int sel_make_initcon_files(struct dentry *dir)
- {
--	int i;
--
--	for (i = 1; i <= SECINITSID_NUM; i++) {
-+	for (u32 i = 1; i <= SECINITSID_NUM; i++) {
- 		struct inode *inode;
- 		struct dentry *dentry;
- 		const char *s = security_get_initial_sid_context(i);
+Not all implicit conversions are removed, there are still many in the
+selinuxfs code related to foreign interfaces, error-pointer related ones,
+and some truncations around reading class, type and other identifiers from
+binary policies (which might be subject for future work).
+
+A possible instance of a integer conversion related issue might have been
+reported at [1].
+
+
+[1]: https://lore.kernel.org/selinux/0fad7bb5f511433ca59140a813e2d200@quicinc.com/
+
+
+Christian Göttsche (20):
+  selinux: check for multiplication overflow in put_entry()
+  selinux: avtab: avoid implicit conversions
+  selinux: avoid avtab overflows
+  selinux: ebitmap: use u32 as bit type
+  selinux: hashtab: use identical iterator type
+  selinux: mls: avoid implicit conversions
+  selinux: services: update type for umber of class permissions
+  selinux: services: avoid implicit conversions
+  selinux: status: consistently use u32 as sequence number type
+  selinux: netif: avoid implicit conversions
+  selinux: avc: avoid implicit conversions
+  selinux: hooks: avoid implicit conversions
+  selinux: selinuxfs: avoid implicit conversions
+  selinux: use consistent type for AV rule specifier
+  selinux: policydb: implicit conversions
+  selinux: symtab: implicit conversion
+  selinux: services: implicit conversions
+  selinux: nlmsgtab: implicit conversion
+  selinux: status: avoid implicit conversions regarding enforcing status
+  selinux: selinuxfs: avoid implicit conversions
+
+ security/selinux/avc.c              |  15 ++--
+ security/selinux/hooks.c            |  26 +++----
+ security/selinux/include/security.h |   8 +-
+ security/selinux/netif.c            |   4 +-
+ security/selinux/nlmsgtab.c         |   4 +-
+ security/selinux/selinuxfs.c        |  33 ++++----
+ security/selinux/ss/avtab.c         |  44 ++++++-----
+ security/selinux/ss/avtab.h         |   2 +-
+ security/selinux/ss/ebitmap.c       |  32 ++++----
+ security/selinux/ss/ebitmap.h       |  32 ++++----
+ security/selinux/ss/hashtab.c       |   6 +-
+ security/selinux/ss/mls.c           |  11 +--
+ security/selinux/ss/policydb.c      | 112 ++++++++++++++++------------
+ security/selinux/ss/policydb.h      |   7 +-
+ security/selinux/ss/services.c      |  36 ++++-----
+ security/selinux/ss/services.h      |   2 +-
+ security/selinux/ss/symtab.c        |   2 +-
+ security/selinux/ss/symtab.h        |   2 +-
+ security/selinux/status.c           |   6 +-
+ 19 files changed, 195 insertions(+), 189 deletions(-)
+
 -- 
 2.40.1
 
