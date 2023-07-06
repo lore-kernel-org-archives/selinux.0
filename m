@@ -2,62 +2,62 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BE9CEB64D9
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:24:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C23DDEB64D9
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:30:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbjGFNYv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 09:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41116 "EHLO
+        id S231912AbjGFNaM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 09:30:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232335AbjGFNY3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:24:29 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1012C1FFE
-        for <selinux@vger.kernel.org>; Thu,  6 Jul 2023 06:24:06 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id 4fb4d7f45d1cf-51e278e344bso994995a12.0
-        for <selinux@vger.kernel.org>; Thu, 06 Jul 2023 06:24:06 -0700 (PDT)
+        with ESMTP id S229843AbjGFNaL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:30:11 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAD1D10F7;
+        Thu,  6 Jul 2023 06:30:09 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-992f6d7c7fbso89557766b.3;
+        Thu, 06 Jul 2023 06:30:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1688649845; x=1691241845;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=NzvXFSCF9KljaGfjOzEbY1a8bJgSlIMuMFtuBQF2RF4=;
-        b=iGwaheogfjd6fH/XsTkfQAUeDaGFP2oT5ZrbAS1VqPJdB7IiqlX7p22mjmB6ttfXqP
-         f6TG8w6tu69JMg1j9DhNyyDSjR5+LBZOde2rrzGTbRGL6a2hcu9Fk5i3pMKk7q92kfvO
-         qHp03z8lrm7JbTYEEtLfQjzVKKVrRGslZ0Zttx0M1F+PskFuScQPRvCyJzoMA2hQpGKL
-         dTdgCD3lhUOHQ5tCOpUuglpIa+Bsnzp/+psw8enK0h/snQ2S8hRgTNm7u8U8cWZP7RkI
-         ilGkABov/hAwZS/B1wwQkVzdugonJM97KKFjhPN1gEuI/SQ75zqYL/DsvCvUEX9eQPTm
-         9JxA==
+        d=googlemail.com; s=20221208; t=1688650208; x=1691242208;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+r4qB5Yyg/pgrXiwZDTUnAOVLvTLgHpA3Uvo0HsgaAg=;
+        b=JSQjT1QHfx4VkiRD66176ur56gKrN4qPlxIodiILIQiGANgZMqUlBNJx7jeEVVcOd5
+         l3l2U+nrGaLLd3FW0n0wsnOF8bdNvFzpSvNcDToN4Y8h16VKZGfDjXC1TucM4g45OJcX
+         p3ezmFDC8tNnDmq7HaQcvdf5J0dTTy/Eu5zx9iSZZSEX8cNooEsXaAoBNzpcSUb7Yp7A
+         C56mi0o2lsabsqq0dle/7B4Lws5D5xqU6Fq0DMJmydqBir4IdIBeNNjr76cEUzII79MQ
+         /YKeq6Y/Gf2TwqVqIU00mrjiL+JJhD55fY/+nBdrRx3zSKmia42wvzXnpTVOe7r0x60n
+         OHfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688649845; x=1691241845;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NzvXFSCF9KljaGfjOzEbY1a8bJgSlIMuMFtuBQF2RF4=;
-        b=NXnbjpbOpuFWrDx3yYfasEklzAj1dg8u8ZsJudjYxI6olxooc/o2YDeL/+TSSYVLxp
-         ZnnJi8k5a7H4sIB2iz95p7lpT6hvTtzRyWqzASoqMa8MawAzomZAWpgtGXAw09kdjOs1
-         Kn72GqZoREHUHWzBMga3R5AKXbo0SawoW/YOuuMD7gdCnyLhvfnCphJFbX+Zc+5pIs4r
-         rc+HJG9STfWFXKwJGmhHAZOCftWpFg5bz7G6v9O4Fr5lSaa0J1WcZ2zb8qO3wXxOIQem
-         yOcaleRRhfaX9XA2XYxO8OvMTK9ozL7oV2a2VFMZrxT/xBVL9C/aFGCLFvp2Tu2EjDvc
-         LE3w==
-X-Gm-Message-State: ABy/qLaC8eXAbQD2UBRk/eq/OSuCFq+NiU/7fQJA54bj6fK0VYmJfkEO
-        gke6lQ6dAgRnqp8nRXMGqZYA0pgA26xsW1/T
-X-Google-Smtp-Source: APBJJlG6+ggT7stbFRLF8OoJv48ph5YrRQ7ATlFHkxIg+Zis9R87/aO/JJhEUV8AcUOwi23b3AVzpg==
-X-Received: by 2002:a17:906:fd55:b0:991:e458:d04 with SMTP id wi21-20020a170906fd5500b00991e4580d04mr1261066ejb.51.1688649844930;
-        Thu, 06 Jul 2023 06:24:04 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1688650208; x=1691242208;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+r4qB5Yyg/pgrXiwZDTUnAOVLvTLgHpA3Uvo0HsgaAg=;
+        b=k94qNrKUDOoCg2xOfmuTl89MqKE25BQzjFHXu1JuxpLI/b4cWaEnWEUz3GqKAO26oQ
+         NoAakTp+qBdIkpHtD5/A/wZ6SrYd2yRCSb66wlLDmMXyYFYQguafU3HrKL6XVKuc8pj2
+         WtPb8rrV7Qm84R7E3af7jhV/8iNP1vEx9gAOk8MVozoQAGLR9GVxPxDJ7wOyok8fSJ6b
+         pnzV9iD77auH0C4V3NneBYkkXowfx1d34DGQ1G+ZDiHzSaWlxbAUAmDl07hl7mue+z/c
+         UHXWV3U2UTB7rl0EkD6wPYC4P/rSh0hfLe95PToIdzzZIOim8FYjkwGlSqbgNO/wKRIO
+         R9CQ==
+X-Gm-Message-State: ABy/qLZoJdA9qxWuuauEN8SdgnwnfvthSvsYliMHMIEBMUNqvLoNlVZa
+        yDnINkqqBJbkzjgOFrww1FTu6c9UJNe/Qk7U
+X-Google-Smtp-Source: APBJJlHSe/vEbrhLpTlGr4dktDRERNZWfhvtYvBXMa6Dr6EVTfDaPShrHJjkxQPG6UffY504odoWpg==
+X-Received: by 2002:a17:906:b88d:b0:98d:cd3e:c193 with SMTP id hb13-20020a170906b88d00b0098dcd3ec193mr1243417ejb.46.1688650208224;
+        Thu, 06 Jul 2023 06:30:08 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
-        by smtp.gmail.com with ESMTPSA id r2-20020a170906364200b00988dbbd1f7esm808024ejb.213.2023.07.06.06.24.04
-        for <selinux@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id j16-20020a170906831000b00985ed2f1584sm808770ejx.187.2023.07.06.06.30.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Jul 2023 06:24:04 -0700 (PDT)
+        Thu, 06 Jul 2023 06:30:07 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 00/20] selinux: be more strict about integer conversions
-Date:   Thu,  6 Jul 2023 15:23:36 +0200
-Message-Id: <20230706132337.15924-21-cgzones@googlemail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] selinux: implement avtab_search() via avtab_search_node()
+Date:   Thu,  6 Jul 2023 15:30:03 +0200
+Message-Id: <20230706133004.19064-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230706132337.15924-1-cgzones@googlemail.com>
-References: <20230706132337.15924-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -65,69 +65,87 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The C language allows implicit conversions between distinct integer types.
-These conversions can lead to unintended truncations or sign extensions.
-Be more strict about integer types by using identical types where
-applicable.
+Deduplicate avtab_search() by using the identical implementation from
+avtab_search_node().
 
-This patches utilizes the C99 feature of declaring loop iterators inside
-for loops, supported since Linux 5.18.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ security/selinux/ss/avtab.c | 32 --------------------------------
+ security/selinux/ss/avtab.h | 11 ++++++++++-
+ 2 files changed, 10 insertions(+), 33 deletions(-)
 
-Not all implicit conversions are removed, there are still many in the
-selinuxfs code related to foreign interfaces, error-pointer related ones,
-and some truncations around reading class, type and other identifiers from
-binary policies (which might be subject for future work).
-
-A possible instance of a integer conversion related issue might have been
-reported at [1].
-
-
-[1]: https://lore.kernel.org/selinux/0fad7bb5f511433ca59140a813e2d200@quicinc.com/
-
-
-Christian Göttsche (20):
-  selinux: check for multiplication overflow in put_entry()
-  selinux: avtab: avoid implicit conversions
-  selinux: avoid avtab overflows
-  selinux: ebitmap: use u32 as bit type
-  selinux: hashtab: use identical iterator type
-  selinux: mls: avoid implicit conversions
-  selinux: services: update type for umber of class permissions
-  selinux: services: avoid implicit conversions
-  selinux: status: consistently use u32 as sequence number type
-  selinux: netif: avoid implicit conversions
-  selinux: avc: avoid implicit conversions
-  selinux: hooks: avoid implicit conversions
-  selinux: selinuxfs: avoid implicit conversions
-  selinux: use consistent type for AV rule specifier
-  selinux: policydb: implicit conversions
-  selinux: symtab: implicit conversion
-  selinux: services: implicit conversions
-  selinux: nlmsgtab: implicit conversion
-  selinux: status: avoid implicit conversions regarding enforcing status
-  selinux: selinuxfs: avoid implicit conversions
-
- security/selinux/avc.c              |  15 ++--
- security/selinux/hooks.c            |  26 +++----
- security/selinux/include/security.h |   8 +-
- security/selinux/netif.c            |   4 +-
- security/selinux/nlmsgtab.c         |   4 +-
- security/selinux/selinuxfs.c        |  33 ++++----
- security/selinux/ss/avtab.c         |  44 ++++++-----
- security/selinux/ss/avtab.h         |   2 +-
- security/selinux/ss/ebitmap.c       |  32 ++++----
- security/selinux/ss/ebitmap.h       |  32 ++++----
- security/selinux/ss/hashtab.c       |   6 +-
- security/selinux/ss/mls.c           |  11 +--
- security/selinux/ss/policydb.c      | 112 ++++++++++++++++------------
- security/selinux/ss/policydb.h      |   7 +-
- security/selinux/ss/services.c      |  36 ++++-----
- security/selinux/ss/services.h      |   2 +-
- security/selinux/ss/symtab.c        |   2 +-
- security/selinux/ss/symtab.h        |   2 +-
- security/selinux/status.c           |   6 +-
- 19 files changed, 195 insertions(+), 189 deletions(-)
-
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index 6766edc0fe68..33a54fbd989b 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -180,38 +180,6 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 	return avtab_insert_node(h, hvalue, prev, key, datum);
+ }
+ 
+-struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *key)
+-{
+-	int hvalue;
+-	struct avtab_node *cur;
+-	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
+-
+-	if (!h || !h->nslot)
+-		return NULL;
+-
+-	hvalue = avtab_hash(key, h->mask);
+-	for (cur = h->htable[hvalue]; cur;
+-	     cur = cur->next) {
+-		if (key->source_type == cur->key.source_type &&
+-		    key->target_type == cur->key.target_type &&
+-		    key->target_class == cur->key.target_class &&
+-		    (specified & cur->key.specified))
+-			return &cur->datum;
+-
+-		if (key->source_type < cur->key.source_type)
+-			break;
+-		if (key->source_type == cur->key.source_type &&
+-		    key->target_type < cur->key.target_type)
+-			break;
+-		if (key->source_type == cur->key.source_type &&
+-		    key->target_type == cur->key.target_type &&
+-		    key->target_class < cur->key.target_class)
+-			break;
+-	}
+-
+-	return NULL;
+-}
+-
+ /* This search function returns a node pointer, and can be used in
+  * conjunction with avtab_search_next_node()
+  */
+diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+index d6742fd9c560..16238c7bcbba 100644
+--- a/security/selinux/ss/avtab.h
++++ b/security/selinux/ss/avtab.h
+@@ -90,7 +90,6 @@ struct avtab {
+ void avtab_init(struct avtab *h);
+ int avtab_alloc(struct avtab *, u32);
+ int avtab_alloc_dup(struct avtab *new, const struct avtab *orig);
+-struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *k);
+ void avtab_destroy(struct avtab *h);
+ void avtab_hash_eval(struct avtab *h, const char *tag);
+ 
+@@ -110,6 +109,16 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 
+ struct avtab_node *avtab_search_node(struct avtab *h,
+ 				     const struct avtab_key *key);
++static inline struct avtab_datum *avtab_search(struct avtab *h,
++					       const struct avtab_key *key)
++{
++	struct avtab_node *cur = avtab_search_node(h, key);
++
++	if (cur)
++		return &cur->datum;
++
++	return NULL;
++}
+ 
+ struct avtab_node *avtab_search_node_next(struct avtab_node *node, int specified);
+ 
 -- 
 2.40.1
 
