@@ -2,48 +2,48 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12E63EB64DD
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 14:54:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3432BEB64D9
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 14:54:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233591AbjGFOyA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 10:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42744 "EHLO
+        id S233598AbjGFOyB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 10:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233635AbjGFOxu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 10:53:50 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648651FCD
+        with ESMTP id S233641AbjGFOxv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 10:53:51 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFE31FD0
         for <selinux@vger.kernel.org>; Thu,  6 Jul 2023 07:53:42 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id 4fb4d7f45d1cf-51e28cac164so3114582a12.1
+Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-9923833737eso92350666b.3
         for <selinux@vger.kernel.org>; Thu, 06 Jul 2023 07:53:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1688655220; x=1691247220;
+        d=googlemail.com; s=20221208; t=1688655221; x=1691247221;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=9HpY4Gh6QgXBtXMuvVmIeoV7IOkNU6VF7iQ1M4SSVAU=;
-        b=HVTH1gESZNERcCZtt5tCv+NpluqFGk1m+ITKfRtalu2IZyM6Wh9zf+O2b1fON/ZM7G
-         o1Lvo4SmXsSGfq6dez5lV7WOBodv0zgImm0dhiLOOD0QkJqoBSaw87sY2pYZRyvwYUiQ
-         CdKJ+9hlV6bO1ZWiHYyrfjtD/XTAhMOFkWRO1YwERF3MZutlu6TLZDQm1Zl2Hvyitwzq
-         0W+1ENqRw/OY3OA4WuUQwoHh8tE5BrZY/ccRkwCxwJDWww69d/gP6GGqx7EzJKYiovCn
-         y3XUZnkE1McOoLWuv+Y5clAsJgRtYdjXS5AHSFfFBC4vm3kaxOTSBlyTSh1etnO3fSam
-         D3FQ==
+        bh=Bb3htgQgbIaeF0kcdRyAMMtzYpfuadImE65EPHDASck=;
+        b=VN1vUR615ltlZfLEb6xTyB4t5EH7BiyrST1SFG3xbxeZO3TG8sBu5fIghIqeNb8fzj
+         u8DEowhpdlSDg8tyRUEkjiwEFsxsrBWzXoW3yn2RKuFEQ5b2jzmR0VAWW9j2BNUYOYZB
+         NNVvX6EvXVh3xVmJLohStqzBZz8S+8d+oi9gvhcYP0YMLWtyLJpX2ZRg/kJ2TnGtmQ6V
+         +JHRfx2Wd/6ELiaio6liH1Eh7K85/plTBgLOErb50glwFBPfzJJ5dqip/RhhL8uADF/Z
+         BYBEjQP0iym6t/fTULHQNqtCLienKXkCU1ybmwYB0J1YTs/3GDxGxV6yF7WdR4NuJR64
+         nxWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688655220; x=1691247220;
+        d=1e100.net; s=20221208; t=1688655221; x=1691247221;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9HpY4Gh6QgXBtXMuvVmIeoV7IOkNU6VF7iQ1M4SSVAU=;
-        b=ViBt0SIIdrJutvyMmMyti9NRFIjcjTlf+CPtj5Ys+DAlKbjXxE5nf2PgIQDu6PerG9
-         SODYNWmdfZwmwP6ztu0EvsJbCuqzwTnqa6zwE7Sy6mv8fJk+4Mt32ChKuafV2W5JiRR1
-         sZkCTUCdQcqyliIw2FI8X6mobt0EFf0R9Yxf6N0MqDMr1xVWTZ6wnYXRJ4ag9DAW3pwf
-         PFUSXdwU+bluqKlgB0Hpgpm64HonLy4XHx0/QZFh9YLS3k+7mOZEWQGQHiwDtCjgaWOK
-         sn4IF8m8qdAoZ3DoXPwcU5DwzGUWjbEI6OOcIG2nVkpW00ExYWenhWVKPTi5qPpUO9bL
-         4pWg==
-X-Gm-Message-State: ABy/qLYdrY31m9pXgOou7Kc7koRRrf+AndaVvjODPq/qJUwI3cPZ5pdY
-        NA46pk2Cyu7vSvsNMCzm2pPy13cf19bXzGE2
-X-Google-Smtp-Source: APBJJlFEKqMRFALsd+QsiYKmwytv57vKLypmgUACvnG+VjgfrJ9zg3v1ejW5Lurxiz4trwMWdoWK2w==
-X-Received: by 2002:a17:906:728f:b0:94e:4285:390c with SMTP id b15-20020a170906728f00b0094e4285390cmr2498701ejl.10.1688655220464;
+        bh=Bb3htgQgbIaeF0kcdRyAMMtzYpfuadImE65EPHDASck=;
+        b=cvYlmvYexYdgblxnk8VetJDN4j/R0V8zlgPKD3UpsCZcs30SVMupcHOIAx+3U3P3Jg
+         XFAI9+nx9qqn227Of+6br8thsMka2gO83jkoXoFeyniHKvgB0Qb9lZq/X/xCJOd4Z6bU
+         yjGPquL9m6etjpZUBy5UltvlFxgnq0tZrh7UvZ0hxf+LvkHwDaCN6ZPz3abZ92u/E+WN
+         7E9B9VSwYlhFJKwupiTpxgmetvZiln82yqfoanh/S1Ydw5biqw9CWxLhDT32UpcxtOoA
+         Tp0jcl5p67vaFLbQaJLOuMeOFkI6x8k0hSpPELHbEB/zr1tbx9VAoOVLbtQIN7Kw8APS
+         opGQ==
+X-Gm-Message-State: ABy/qLZesJeizcusvcWvUC3ndB6YDtjHVBKXIbR3cF4g7ysnF3BCsuRV
+        GiEbwfigUo1SvvCgUBEGqTBpkKcs5p1cyh8R
+X-Google-Smtp-Source: APBJJlHAqq/s0k78Zy21fCvIpbne9L6nrzshnm508g6g1aEHWDGmlN1blsLCsdGTImuv5jHJdrBXRg==
+X-Received: by 2002:a17:906:3612:b0:97b:6c24:8d2b with SMTP id q18-20020a170906361200b0097b6c248d2bmr1632474ejb.55.1688655220973;
         Thu, 06 Jul 2023 07:53:40 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
         by smtp.gmail.com with ESMTPSA id va25-20020a17090711d900b00992e265495csm905659ejb.212.2023.07.06.07.53.40
@@ -52,9 +52,9 @@ Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.
         Thu, 06 Jul 2023 07:53:40 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2 2/4] semodule_link: update
-Date:   Thu,  6 Jul 2023 16:53:33 +0200
-Message-Id: <20230706145335.71452-2-cgzones@googlemail.com>
+Subject: [PATCH v2 3/4] semodule_package: update
+Date:   Thu,  6 Jul 2023 16:53:34 +0200
+Message-Id: <20230706145335.71452-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230706145335.71452-1-cgzones@googlemail.com>
 References: <20230706145335.71452-1-cgzones@googlemail.com>
@@ -66,217 +66,358 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 Drop unnecessary declarations.
-More verbose error messages and add missing trailing newline.
-More strict argument count checking.
+Add missing error messages.
+More strict command line argument parsing.
 Check closing file for incomplete write.
 Rework resource cleanup, so that all files and allocated memory are
 released in all branches, useful to minimize reports while debugging
 libsepol under valgrind(8) or sanitizers.
-Add help argument option -h.
 Set close-on-exec flag in case of any sibling thread.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
 v2:
   - address comment from Jim
-    * avoid exit() calls
+    * drop exit() calls
     * reduce to one final return statement
+    * drop unnecessary ? option handling
     * drop global variable progname
-  - add help argument option
   - set close-on-exec flag
 ---
- semodule-utils/semodule_link/semodule_link.8 |  5 +-
- semodule-utils/semodule_link/semodule_link.c | 87 +++++++++++---------
- 2 files changed, 53 insertions(+), 39 deletions(-)
+ .../semodule_package/semodule_package.8       |   3 +
+ .../semodule_package/semodule_package.c       | 227 +++++++++++-------
+ 2 files changed, 139 insertions(+), 91 deletions(-)
 
-diff --git a/semodule-utils/semodule_link/semodule_link.8 b/semodule-utils/semodule_link/semodule_link.8
-index a2bda3f9..dba3d3b6 100644
---- a/semodule-utils/semodule_link/semodule_link.8
-+++ b/semodule-utils/semodule_link/semodule_link.8
-@@ -3,7 +3,7 @@
- semodule_link \- Link SELinux policy module packages together
- 
- .SH SYNOPSIS
--.B semodule_link [-Vv] [-o outfile] basemodpkg modpkg1 [modpkg2]...
-+.B semodule_link [-hVv] [-o outfile] basemodpkg modpkg1 [modpkg2]...
- .br
- .SH DESCRIPTION
- .PP
-@@ -16,6 +16,9 @@ semodule_package.
- 
- .SH "OPTIONS"
+diff --git a/semodule-utils/semodule_package/semodule_package.8 b/semodule-utils/semodule_package/semodule_package.8
+index 9697cc55..725d3d15 100644
+--- a/semodule-utils/semodule_package/semodule_package.8
++++ b/semodule-utils/semodule_package/semodule_package.8
+@@ -42,6 +42,9 @@ File contexts file for the module (optional).
  .TP
-+.B \-h
-+show help
+ .B  \-n \-\-nc <netfilter context file>
+ netfilter context file to be included in the package.
 +.TP
- .B \-V
- show version
- .TP
-diff --git a/semodule-utils/semodule_link/semodule_link.c b/semodule-utils/semodule_link/semodule_link.c
-index 38a6843c..0f157bd9 100644
---- a/semodule-utils/semodule_link/semodule_link.c
-+++ b/semodule-utils/semodule_link/semodule_link.c
-@@ -21,18 +21,13 @@
++.B  \-h \-\-help
++Show help message.
  
- #define LINKPOLICY_VERSION "1.0"
+ .SH SEE ALSO
+ .B checkmodule(8), semodule(8), semodule_unpackage(8)
+diff --git a/semodule-utils/semodule_package/semodule_package.c b/semodule-utils/semodule_package/semodule_package.c
+index bc8584b5..4cb6f5a3 100644
+--- a/semodule-utils/semodule_package/semodule_package.c
++++ b/semodule-utils/semodule_package/semodule_package.c
+@@ -19,10 +19,7 @@
+ #include <fcntl.h>
+ #include <errno.h>
  
--char *progname;
+-char *progname = NULL;
 -extern char *optarg;
--extern int optind;
 -
--static __attribute__((__noreturn__)) void usage(const char *program_name)
-+static void usage(const char *program_name)
+-static __attribute__((__noreturn__)) void usage(const char *prog)
++static void usage(const char *prog)
  {
--	printf("usage: %s [-Vv] [-o outfile] basemodpkg modpkg1 [modpkg2]...\n",
-+	printf("usage: %s [-hVv] [-o outfile] basemodpkg modpkg1 [modpkg2]...\n",
- 	       program_name);
+ 	printf("usage: %s -o <output file> -m <module> [-f <file contexts>]\n",
+ 	       prog);
+@@ -34,34 +31,14 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
+ 	printf
+ 	    ("  -u --user_extra	user_extra file (only valid in base)\n");
+ 	printf("  -n --nc		Netfilter contexts file\n");
 -	exit(1);
++	printf("  -h --help		Show this help message\n");
  }
  
--static sepol_module_package_t *load_module(char *filename)
-+static sepol_module_package_t *load_module(const char *filename, const char *progname)
+-static int file_to_policy_file(const char *filename, struct sepol_policy_file **pf,
+-			       const char *mode)
+-{
+-	FILE *f;
+-
+-	if (sepol_policy_file_create(pf)) {
+-		fprintf(stderr, "%s:  Out of memory\n", progname);
+-		return -1;
+-	}
+-
+-	f = fopen(filename, mode);
+-	if (!f) {
+-		fprintf(stderr, "%s:  Could not open file %s:  %s\n", progname,
+-			strerror(errno), filename);
+-		return -1;
+-	}
+-	sepol_policy_file_set_fp(*pf, f);
+-	return 0;
+-}
+-
+-static int file_to_data(const char *path, char **data, size_t * len)
++static int file_to_data(const char *path, char **data, size_t * len, const char *progname)
  {
- 	int ret;
- 	FILE *fp = NULL;
-@@ -47,9 +42,9 @@ static sepol_module_package_t *load_module(char *filename)
- 		fprintf(stderr, "%s:  Out of memory\n", progname);
- 		goto bad;
- 	}
--	fp = fopen(filename, "r");
-+	fp = fopen(filename, "re");
- 	if (!fp) {
--		fprintf(stderr, "%s:  Could not open package %s:  %s", progname,
-+		fprintf(stderr, "%s:  Could not open package %s:  %s\n", progname,
- 			filename, strerror(errno));
- 		goto bad;
- 	}
-@@ -76,16 +71,16 @@ static sepol_module_package_t *load_module(char *filename)
+ 	int fd;
+ 	struct stat sb;
+-	fd = open(path, O_RDONLY);
++	fd = open(path, O_RDONLY | O_CLOEXEC);
+ 	if (fd < 0) {
+ 		fprintf(stderr, "%s:  Failed to open %s:  %s\n", progname, path,
+ 			strerror(errno));
+@@ -94,17 +71,18 @@ static int file_to_data(const char *path, char **data, size_t * len)
  
  int main(int argc, char **argv)
  {
--	int ch, i, show_version = 0, verbose = 0, num_mods;
--	char *basename, *outname = NULL;
--	sepol_module_package_t *base, **mods;
--	FILE *outfile;
--	struct sepol_policy_file *pf;
--
--	progname = argv[0];
-+	int ch, i, ret, show_version = 0, verbose = 0, num_mods = 0;
-+	const char *basename, *outname = NULL;
-+	sepol_module_package_t *base = NULL, **mods = NULL;
-+	struct sepol_policy_file *pf = NULL;
+-	struct sepol_module_package *pkg;
+-	struct sepol_policy_file *mod, *out;
++	struct sepol_module_package *pkg = NULL;
++	struct sepol_policy_file *mod = NULL, *out = NULL;
++	FILE *fp = NULL;
+ 	char *module = NULL, *file_contexts = NULL, *seusers =
+ 	    NULL, *user_extra = NULL;
+ 	char *fcdata = NULL, *outfile = NULL, *seusersdata =
+ 	    NULL, *user_extradata = NULL;
+ 	char *netfilter_contexts = NULL, *ncdata = NULL;
+ 	size_t fclen = 0, seuserslen = 0, user_extralen = 0, nclen = 0;
+-	int i;
++	int i, ret;
  
--	while ((ch = getopt(argc, argv, "o:Vv")) != EOF) {
-+	while ((ch = getopt(argc, argv, "ho:Vv")) != EOF) {
- 		switch (ch) {
-+		case 'h':
-+			usage(argv[0]);
-+			return EXIT_SUCCESS;
- 		case 'V':
- 			show_version = 1;
- 			break;
-@@ -97,80 +92,96 @@ int main(int argc, char **argv)
- 			break;
- 		default:
+-	static struct option opts[] = {
++	const struct option opts[] = {
+ 		{"module", required_argument, NULL, 'm'},
+ 		{"fc", required_argument, NULL, 'f'},
+ 		{"seuser", required_argument, NULL, 's'},
+@@ -119,146 +97,213 @@ int main(int argc, char **argv)
+ 		switch (i) {
+ 		case 'h':
  			usage(argv[0]);
+-			exit(0);
++			return EXIT_SUCCESS;
+ 		case 'm':
+ 			if (module) {
+ 				fprintf(stderr,
+ 					"May not specify more than one module\n");
+-				exit(1);
++				return EXIT_FAILURE;
+ 			}
+ 			module = strdup(optarg);
+-			if (!module)
+-				exit(1);
++			if (!module) {
++				fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++				return EXIT_FAILURE;
++			}
+ 			break;
+ 		case 'f':
+ 			if (file_contexts) {
+ 				fprintf(stderr,
+ 					"May not specify more than one file context file\n");
+-				exit(1);
++				return EXIT_FAILURE;
+ 			}
+ 			file_contexts = strdup(optarg);
+-			if (!file_contexts)
+-				exit(1);
++			if (!file_contexts) {
++				fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++				return EXIT_FAILURE;
++			}
+ 			break;
+ 		case 'o':
+ 			if (outfile) {
+ 				fprintf(stderr,
+ 					"May not specify more than one output file\n");
+-				exit(1);
++				return EXIT_FAILURE;
+ 			}
+ 			outfile = strdup(optarg);
+-			if (!outfile)
+-				exit(1);
++			if (!outfile) {
++				fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++				return EXIT_FAILURE;
++			}
+ 			break;
+ 		case 's':
+ 			if (seusers) {
+ 				fprintf(stderr,
+ 					"May not specify more than one seuser file\n");
+-				exit(1);
++				return EXIT_FAILURE;
+ 			}
+ 			seusers = strdup(optarg);
+-			if (!seusers)
+-				exit(1);
++			if (!seusers) {
++				fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++				return EXIT_FAILURE;
++			}
+ 			break;
+ 		case 'u':
+ 			if (user_extra) {
+ 				fprintf(stderr,
+ 					"May not specify more than one user_extra file\n");
+-				exit(1);
++				return EXIT_FAILURE;
+ 			}
+ 			user_extra = strdup(optarg);
+-			if (!user_extra)
+-				exit(1);
++			if (!user_extra) {
++				fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++				return EXIT_FAILURE;
++			}
+ 			break;
+ 		case 'n':
+ 			if (netfilter_contexts) {
+ 				fprintf(stderr,
+ 					"May not specify more than one netfilter contexts file\n");
+-				exit(1);
++				return EXIT_FAILURE;
+ 			}
+ 			netfilter_contexts = strdup(optarg);
+-			if (!netfilter_contexts)
+-				exit(1);
++			if (!netfilter_contexts) {
++				fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++				return EXIT_FAILURE;
++			}
+ 			break;
++		default:
++			usage(argv[0]);
 +			return EXIT_FAILURE;
  		}
  	}
  
- 	if (show_version) {
- 		printf("%s\n", LINKPOLICY_VERSION);
--		exit(0);
-+		return EXIT_SUCCESS;
- 	}
+-	progname = argv[0];
++	if (optind < argc) {
++		fprintf(stderr, "%s:  Superfluous command line arguments: ", argv[0]);
++		while (optind < argc)
++			 fprintf(stderr, "%s ", argv[optind++]);
++		fprintf(stderr, "\n");
++		usage(argv[0]);
++		return EXIT_FAILURE;
++	}
  
- 	/* check args */
--	if (argc < 3 || !(optind != (argc - 1))) {
-+	if (argc < 3 || optind + 2 > argc) {
- 		fprintf(stderr,
- 			"%s:  You must provide the base module package and at least one other module package\n",
- 			argv[0]);
+ 	if (!module || !outfile) {
  		usage(argv[0]);
+-		exit(0);
 +		return EXIT_FAILURE;
  	}
  
- 	basename = argv[optind++];
--	base = load_module(basename);
-+	base = load_module(basename, argv[0]);
- 	if (!base) {
- 		fprintf(stderr,
- 			"%s:  Could not load base module from file %s\n",
- 			argv[0], basename);
--		exit(1);
+-	if (file_contexts) {
+-		if (file_to_data(file_contexts, &fcdata, &fclen))
+-			exit(1);
+-	}
++	if (file_contexts && file_to_data(file_contexts, &fcdata, &fclen, argv[0]))
++		goto failure;
+ 
+-	if (seusers) {
+-		if (file_to_data(seusers, &seusersdata, &seuserslen))
+-			exit(1);
+-	}
++	if (seusers && file_to_data(seusers, &seusersdata, &seuserslen, argv[0]))
++		goto failure;
+ 
+-	if (user_extra) {
+-		if (file_to_data(user_extra, &user_extradata, &user_extralen))
+-			exit(1);
+-	}
++	if (user_extra && file_to_data(user_extra, &user_extradata, &user_extralen, argv[0]))
++		goto failure;
++
++	if (netfilter_contexts && file_to_data(netfilter_contexts, &ncdata, &nclen, argv[0]))
++		goto failure;
+ 
+-	if (netfilter_contexts) {
+-		if (file_to_data(netfilter_contexts, &ncdata, &nclen))
+-			exit(1);
++	if (sepol_policy_file_create(&mod)) {
++		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
 +		goto failure;
  	}
  
- 	num_mods = argc - optind;
--	mods =
--	    (sepol_module_package_t **) malloc(sizeof(sepol_module_package_t *)
--					       * num_mods);
-+	mods = calloc(num_mods, sizeof(sepol_module_package_t *));
- 	if (!mods) {
+-	if (file_to_policy_file(module, &mod, "r"))
+-		exit(1);
++	fp = fopen(module, "re");
++	if (!fp) {
++		fprintf(stderr, "%s:  Could not open file %s:  %s\n", argv[0],
++			module, strerror(errno));
++		goto failure;
++	}
++	sepol_policy_file_set_fp(mod, fp);
+ 
+ 	if (sepol_module_package_create(&pkg)) {
  		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
 -		exit(1);
 +		goto failure;
  	}
--	memset(mods, 0, sizeof(sepol_module_package_t *) * num_mods);
  
- 	for (i = 0; optind < argc; optind++, i++) {
--		mods[i] = load_module(argv[optind]);
-+		mods[i] = load_module(argv[optind], argv[0]);
- 		if (!mods[i]) {
- 			fprintf(stderr,
- 				"%s:  Could not load module from file %s\n",
- 				argv[0], argv[optind]);
--			exit(1);
-+			goto failure;
- 		}
- 	}
- 
- 	if (sepol_link_packages(NULL, base, mods, num_mods, verbose)) {
- 		fprintf(stderr, "%s:  Error while linking packages\n", argv[0]);
+ 	if (sepol_policydb_read(sepol_module_package_get_policy(pkg), mod)) {
+ 		fprintf(stderr,
+ 			"%s:  Error while reading policy module from %s\n",
+ 			argv[0], module);
 -		exit(1);
 +		goto failure;
  	}
  
- 	if (outname) {
--		outfile = fopen(outname, "w");
-+		FILE *outfile = fopen(outname, "we");
- 		if (!outfile) {
--			perror(outname);
--			exit(1);
-+			fprintf(stderr, "%s:  Could not open output file %s:  %s\n",
-+				argv[0], outname, strerror(errno));
-+			goto failure;
- 		}
+-	if (fclen)
+-		sepol_module_package_set_file_contexts(pkg, fcdata, fclen);
++	fclose(fp);
++	fp = NULL;
  
- 		if (sepol_policy_file_create(&pf)) {
- 			fprintf(stderr, "%s:  Out of memory\n", argv[0]);
--			exit(1);
-+			fclose(outfile);
-+			goto failure;
- 		}
- 		sepol_policy_file_set_fp(pf, outfile);
- 		if (sepol_module_package_write(base, pf)) {
- 			fprintf(stderr, "%s:  Error writing linked package.\n",
- 				argv[0]);
--			exit(1);
-+			sepol_policy_file_free(pf);
-+			fclose(outfile);
-+			goto failure;
- 		}
- 		sepol_policy_file_free(pf);
--		fclose(outfile);
+-	if (seuserslen)
+-		sepol_module_package_set_seusers(pkg, seusersdata, seuserslen);
++	if (fclen && sepol_module_package_set_file_contexts(pkg, fcdata, fclen)) {
++		fprintf(stderr, "%s:  Error while setting file contexts\n", argv[0]);
++		goto failure;
++	}
+ 
+-	if (user_extra)
+-		sepol_module_package_set_user_extra(pkg, user_extradata,
+-						    user_extralen);
++	if (seuserslen && sepol_module_package_set_seusers(pkg, seusersdata, seuserslen)) {
++		fprintf(stderr, "%s:  Error while setting seusers\n", argv[0]);
++		goto failure;
++	}
+ 
+-	if (nclen)
+-		sepol_module_package_set_netfilter_contexts(pkg, ncdata, nclen);
++	if (user_extra && sepol_module_package_set_user_extra(pkg, user_extradata, user_extralen)) {
++		fprintf(stderr, "%s:  Error while setting extra users\n", argv[0]);
++		goto failure;
++	}
 +
-+		if (fclose(outfile)) {
-+			fprintf(stderr, "%s:  Error closing linked package:  %s\n",
-+				argv[0], strerror(errno));
-+			goto failure;
-+		}
++	if (nclen && sepol_module_package_set_netfilter_contexts(pkg, ncdata, nclen)) {
++		fprintf(stderr, "%s:  Error while setting netfilter contexts\n", argv[0]);
++		goto failure;
++	}
+ 
+-	if (file_to_policy_file(outfile, &out, "w"))
+-		exit(1);
++	if (sepol_policy_file_create(&out)) {
++		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
++		goto failure;
++	}
++
++	fp = fopen(outfile, "we");
++	if (!fp) {
++		fprintf(stderr, "%s:  Could not open file %s:  %s\n", argv[0],
++			outfile, strerror(errno));
++		goto failure;
++	}
++	sepol_policy_file_set_fp(out, fp);
+ 
+ 	if (sepol_module_package_write(pkg, out)) {
+ 		fprintf(stderr,
+ 			"%s:  Error while writing module package to %s\n",
+ 			argv[0], argv[1]);
+-		exit(1);
++		goto failure;
  	}
  
--	sepol_module_package_free(base);
+-	if (fclen)
+-		munmap(fcdata, fclen);
++	ret = fclose(fp);
++	fp = NULL;
++	if (ret) {
++		fprintf(stderr, "%s:  Could not close file %s:  %s\n", argv[0],
++			outfile, strerror(errno));
++		goto failure;
++	}
++
 +	ret = EXIT_SUCCESS;
 +	goto cleanup;
 +
@@ -284,11 +425,31 @@ index 38a6843c..0f157bd9 100644
 +	ret = EXIT_FAILURE;
 +
 +cleanup:
- 	for (i = 0; i < num_mods; i++)
- 		sepol_module_package_free(mods[i]);
- 	free(mods);
++	if (fp)
++		fclose(fp);
++	sepol_policy_file_free(out);
+ 	if (nclen)
+ 		munmap(ncdata, nclen);
+-	sepol_policy_file_free(mod);
+-	sepol_policy_file_free(out);
++	if (user_extradata)
++		munmap(user_extradata, user_extralen);
++	if (seuserslen)
++		munmap(seusersdata, seuserslen);
++	if (fclen)
++		munmap(fcdata, fclen);
+ 	sepol_module_package_free(pkg);
+-	free(file_contexts);
++	sepol_policy_file_free(mod);
++	free(netfilter_contexts);
++	free(user_extra);
++	free(seusers);
+ 	free(outfile);
++	free(file_contexts);
+ 	free(module);
+-	free(seusers);
+-	free(user_extra);
 -	exit(0);
-+	sepol_module_package_free(base);
 +
 +	return ret;
  }
