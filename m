@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EC1DEB64D9
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:57:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6555EB64D9
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 14:02:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229831AbjGFN5b (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 09:57:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36506 "EHLO
+        id S232134AbjGFOCl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 10:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231906AbjGFN53 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:57:29 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C071BFF
-        for <selinux@vger.kernel.org>; Thu,  6 Jul 2023 06:57:21 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-5149aafef44so1038874a12.0
-        for <selinux@vger.kernel.org>; Thu, 06 Jul 2023 06:57:21 -0700 (PDT)
+        with ESMTP id S231721AbjGFOCk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 10:02:40 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D94BE1BD2
+        for <selinux@vger.kernel.org>; Thu,  6 Jul 2023 07:02:39 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-4f9fdb0ef35so1080155e87.0
+        for <selinux@vger.kernel.org>; Thu, 06 Jul 2023 07:02:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1688651840; x=1691243840;
+        d=googlemail.com; s=20221208; t=1688652158; x=1691244158;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=j9fGK0bHQ2gHTCshdX3jYBtF0K612inbodPaeRB4osA=;
-        b=nnrW75UZmhc1+N/3J2ZOM6Ve6zOYUAywIIhPOZkjOEVKYDROMJaE9k+VWwESL3WABc
-         AiT6xQPXSNfHbpVcNAqLF9Xl8kr+QOG9kBFBNPbAVLUOpjRCWU9WLDwuespTnjqEdv9e
-         /NV/PJOqnRebYoH/kfUtnnakhgmYT9DgDDK+ykHel3m75BfwWmk96vHIvHHjqU4Oubgy
-         gSyG1srHcjIvdQuwr+EogEVEgg56Bk9zZUEO3ROmgLl1jbUKOIYdAmFJnt7cbk6JwbEI
-         WT4xF2XgeWF0AwNkb0gNi452maIohR9rDQRTLl0inbH03YESSj6zVWYwX+PUmVfg6Fa+
-         gPxw==
+        bh=uWL68vJ58sQTNpMR0md2KCO7W2kGqfI61ckHKiHWwYw=;
+        b=JpHhbH7RK+jMgFxi1yVzMPG0pSDz2Qhf0g64LIHKuK8aZS5ggufvTX49ynlxZi0QYT
+         7CMjvkPtTj4iw0jR3YWE/kcknVNnUVKx3N8M1BgO4eHTTA3NGexYI8/2HxI0pxAhH+/N
+         D6G8/CLjFqhpUr1hk6KLLeX9qjhUDsiW+EdJMsCDNjKY3UsXOJlE66IerH5mweuSsLfj
+         +EjBkrrEpj7X8yrY7ze8/XT/IbGKYm9SKNutcig2hc4U4mbxMq23/j6U65ZSc4PJB24c
+         fVSTSoDrKbRoUFS2N0FHTBWsRaiD2pNe0xJezejit73oQN0eoDtHRYWAcStHQsOls2Cp
+         6L6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688651840; x=1691243840;
+        d=1e100.net; s=20221208; t=1688652158; x=1691244158;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=j9fGK0bHQ2gHTCshdX3jYBtF0K612inbodPaeRB4osA=;
-        b=FHgbt95seG/l8OKgSWiRtdL9o+nX6wdpssHUvhG2nD/QW7jUvHLjRQJ2uxW1w3NF7/
-         s/Jngq5oZhXN3YRtrfbG9cESCra2ahHsrtTxgB/UW5buhRNoUf5WdqzxI4bt5Me9+wSi
-         O93UlgQ+yRDNvJ9GMmfqIIvgN02xiii8QAl68jQmLckfcWpiTBbDTHTS3jUfv62/tBb1
-         BwwhutQiC5ihQB1PUTqk3BwrK8MMXCrBLeMyyBl9WRloDavkxPCcBKx61vN51UQ1oxxL
-         O3VVXjC3IuIsda2I5at6vJCEZQNUxDaDWSQL4gYQGKEbr99aYFCex+nxDHSDVJtBfjet
-         Q2sA==
-X-Gm-Message-State: ABy/qLa0a02p/CuFdgjHHLdPB8IC3CJSoGaWIlnsbLKtaKeHQuNdNbiX
-        MDDQsjbH6CWRCCjX+rdFYhlS7AgnPCV3DMgx
-X-Google-Smtp-Source: APBJJlFMlVuTMgRkcfG8VPnaMEuU9qY7Elpf+FTuMi/T6m7HoJNzaeWwg3cyoBWH+KZbSmTiNE4Rdw==
-X-Received: by 2002:a17:906:253:b0:978:6be4:7efa with SMTP id 19-20020a170906025300b009786be47efamr1523447ejl.18.1688651840233;
-        Thu, 06 Jul 2023 06:57:20 -0700 (PDT)
+        bh=uWL68vJ58sQTNpMR0md2KCO7W2kGqfI61ckHKiHWwYw=;
+        b=J8Xnno6h1oKHJA42PuX4fmtJwzrGkmEiFHkHhgWlqrb5bVMGrdfd7TAi8clO9qrKks
+         sfIOYF3bAYgE1SQ8ff50XA8HHL9FSawNFzVVUbeHduQVQqeoAtk2L5ojeCoZyZmaJjil
+         HafPbz5H4bY/BohQOs71LWVAakRuL7xTDMj27ZjFcCFbLhH0napYy2a8voOi0i3HUYRB
+         iI/1wRJpLfl9sgnn74t6dJFGsl654d+2CZjlGxpW0pAmVGHJRUCV5Mi2fsU2WesusD8z
+         IFn0eifx9yD9in88MOqEcYwJZ7QbimpKWm8DJsdhPT3KfXvA+MfoGcw3SxDHGQXFL2Dl
+         8iqA==
+X-Gm-Message-State: ABy/qLYgaUPWAaDQUFHgA+QhV0FCWxMi8w3KretDbPXBH/mmClKKnSLX
+        6cebiiirzzOewVeaMmMmq8VCY/PJQBrV/rOq
+X-Google-Smtp-Source: APBJJlHObrE/GFtzR0S74GxpO8DDZ6yRAvVb+vEf0ap2lAdAMpFngph3xtu0B0LT7cXBg07P1IiVTg==
+X-Received: by 2002:a2e:93d0:0:b0:2b6:ef10:f018 with SMTP id p16-20020a2e93d0000000b002b6ef10f018mr1456757ljh.42.1688652157913;
+        Thu, 06 Jul 2023 07:02:37 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
-        by smtp.gmail.com with ESMTPSA id bn19-20020a170906c0d300b00993a37aebc5sm843688ejb.50.2023.07.06.06.57.19
+        by smtp.gmail.com with ESMTPSA id f2-20020a17090624c200b00965a4350411sm874678ejb.9.2023.07.06.07.02.37
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Jul 2023 06:57:19 -0700 (PDT)
+        Thu, 06 Jul 2023 07:02:37 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: check for overflow in put_entry()
-Date:   Thu,  6 Jul 2023 15:57:18 +0200
-Message-Id: <20230706135718.44908-1-cgzones@googlemail.com>
+Subject: [PATCH] libsepol/fuzz: more strict fuzzing of binary policies
+Date:   Thu,  6 Jul 2023 16:02:33 +0200
+Message-Id: <20230706140233.45990-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,30 +61,66 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-put_entry() is used during writing binary policies.  Avoid short writes
-due to an overflow.
+Validate policy after optimizing.
+
+Run policy assertion check, ignoring any assertions.
+
+Abort on failures writing the parsed policy, as writing should not fail on
+validated policies.
+
+Set close-on-exec flag in case of any sibling thread.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/services.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ libsepol/fuzz/binpolicy-fuzzer.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 062510ab..07ae051b 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -1708,7 +1708,10 @@ int next_entry(void *buf, struct policy_file *fp, size_t bytes)
- size_t put_entry(const void *ptr, size_t size, size_t n,
- 			struct policy_file *fp)
- {
--	size_t bytes = size * n;
-+	size_t bytes;
-+
-+	if (__builtin_mul_overflow(size, n, &bytes))
-+		return 0;
+diff --git a/libsepol/fuzz/binpolicy-fuzzer.c b/libsepol/fuzz/binpolicy-fuzzer.c
+index 85c59645..79d42b0e 100644
+--- a/libsepol/fuzz/binpolicy-fuzzer.c
++++ b/libsepol/fuzz/binpolicy-fuzzer.c
+@@ -3,6 +3,8 @@
+ #include <sepol/kernel_to_conf.h>
+ #include <sepol/policydb/policydb.h>
  
- 	switch (fp->type) {
- 	case PF_USE_STDIO:
++extern int policydb_validate(sepol_handle_t *handle, const policydb_t *p);
++
+ extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+ 
+ static int write_binary_policy(policydb_t *p, FILE *outfp)
+@@ -38,18 +40,27 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	if (policydb_load_isids(&policydb, &sidtab))
+ 		goto exit;
+ 
+-	if (policydb.policy_type == POLICY_KERN)
++	if (policydb.policy_type == POLICY_KERN) {
+ 		(void) policydb_optimize(&policydb);
+ 
+-	devnull = fopen("/dev/null", "w");
++		if (policydb_validate(NULL, &policydb) == -1)
++			abort();
++	}
++
++	(void) check_assertions(NULL, &policydb, policydb.global->branch_list->avrules);
++
++	devnull = fopen("/dev/null", "we");
+ 	if (!devnull)
+ 		goto exit;
+ 
+-	(void) write_binary_policy(&policydb, devnull);
++	if (write_binary_policy(&policydb, devnull))
++		abort();
+ 
+-	(void) sepol_kernel_policydb_to_conf(devnull, &policydb);
++	if (sepol_kernel_policydb_to_conf(devnull, &policydb))
++		abort();
+ 
+-	(void) sepol_kernel_policydb_to_cil(devnull, &policydb);
++	if (sepol_kernel_policydb_to_cil(devnull, &policydb))
++		abort();
+ 
+ exit:
+ 	if (devnull != NULL)
 -- 
 2.40.1
 
