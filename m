@@ -2,61 +2,61 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C23DDEB64D9
-	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99CE3EB64DC
+	for <selinux@archiver.kernel.org>; Thu,  6 Jul 2023 13:38:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231912AbjGFNaM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jul 2023 09:30:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
+        id S232327AbjGFNiD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jul 2023 09:38:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbjGFNaL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:30:11 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAD1D10F7;
-        Thu,  6 Jul 2023 06:30:09 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-992f6d7c7fbso89557766b.3;
-        Thu, 06 Jul 2023 06:30:09 -0700 (PDT)
+        with ESMTP id S232543AbjGFNh5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jul 2023 09:37:57 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32AF7E3;
+        Thu,  6 Jul 2023 06:37:56 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-4fbc0314a7bso1007181e87.2;
+        Thu, 06 Jul 2023 06:37:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1688650208; x=1691242208;
+        d=googlemail.com; s=20221208; t=1688650674; x=1691242674;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+r4qB5Yyg/pgrXiwZDTUnAOVLvTLgHpA3Uvo0HsgaAg=;
-        b=JSQjT1QHfx4VkiRD66176ur56gKrN4qPlxIodiILIQiGANgZMqUlBNJx7jeEVVcOd5
-         l3l2U+nrGaLLd3FW0n0wsnOF8bdNvFzpSvNcDToN4Y8h16VKZGfDjXC1TucM4g45OJcX
-         p3ezmFDC8tNnDmq7HaQcvdf5J0dTTy/Eu5zx9iSZZSEX8cNooEsXaAoBNzpcSUb7Yp7A
-         C56mi0o2lsabsqq0dle/7B4Lws5D5xqU6Fq0DMJmydqBir4IdIBeNNjr76cEUzII79MQ
-         /YKeq6Y/Gf2TwqVqIU00mrjiL+JJhD55fY/+nBdrRx3zSKmia42wvzXnpTVOe7r0x60n
-         OHfA==
+        bh=xuEiPXjKjwUIdKAreCBVtaU25Eh4PG9V/Wqte4w7hxk=;
+        b=YuAJBBuM7cxzYQ36GGql0ThppA9e4sGKzf6fDSyHcZCr7enEw22UlwOVsWf+IV+MqB
+         lajNMNsEPkfbXfO1rIRsOfcI/01Q6rNHKqHyppcYh5XQfIHVoJ5oXXiNL1AQPt1anJJt
+         N9R0j9pxl9/Oix201l5iJBhZArCTeyRS3Udc9tQYoMjzLzbBzTXlEfC5zJcM4tqN1Qls
+         cHWboQEmL75DcjulTQHDJhhk0Wg9fixniRVG7VC6HmgigPH5bxPI3aOt/vwKP7g7pFtq
+         74JcbjK1addLP4FIaWER5YQ5gvNbgXHYC7rXACoCmHO2wZikB7zAbE5re1usRvc6Oy5p
+         hn9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688650208; x=1691242208;
+        d=1e100.net; s=20221208; t=1688650674; x=1691242674;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+r4qB5Yyg/pgrXiwZDTUnAOVLvTLgHpA3Uvo0HsgaAg=;
-        b=k94qNrKUDOoCg2xOfmuTl89MqKE25BQzjFHXu1JuxpLI/b4cWaEnWEUz3GqKAO26oQ
-         NoAakTp+qBdIkpHtD5/A/wZ6SrYd2yRCSb66wlLDmMXyYFYQguafU3HrKL6XVKuc8pj2
-         WtPb8rrV7Qm84R7E3af7jhV/8iNP1vEx9gAOk8MVozoQAGLR9GVxPxDJ7wOyok8fSJ6b
-         pnzV9iD77auH0C4V3NneBYkkXowfx1d34DGQ1G+ZDiHzSaWlxbAUAmDl07hl7mue+z/c
-         UHXWV3U2UTB7rl0EkD6wPYC4P/rSh0hfLe95PToIdzzZIOim8FYjkwGlSqbgNO/wKRIO
-         R9CQ==
-X-Gm-Message-State: ABy/qLZoJdA9qxWuuauEN8SdgnwnfvthSvsYliMHMIEBMUNqvLoNlVZa
-        yDnINkqqBJbkzjgOFrww1FTu6c9UJNe/Qk7U
-X-Google-Smtp-Source: APBJJlHSe/vEbrhLpTlGr4dktDRERNZWfhvtYvBXMa6Dr6EVTfDaPShrHJjkxQPG6UffY504odoWpg==
-X-Received: by 2002:a17:906:b88d:b0:98d:cd3e:c193 with SMTP id hb13-20020a170906b88d00b0098dcd3ec193mr1243417ejb.46.1688650208224;
-        Thu, 06 Jul 2023 06:30:08 -0700 (PDT)
+        bh=xuEiPXjKjwUIdKAreCBVtaU25Eh4PG9V/Wqte4w7hxk=;
+        b=dPajtKjFdPhilJ0KtFDPImxq9gwQN6IVoz+oBo8NrqkGA5TyXP8yLqTWJ4kg2d41rb
+         6sUVHGf/aAzIVwEu02odovQO1uQpHr8VZ74WN27Ov5OLqvHUP7E2t21jeBAZ9DJ/dyd9
+         KrsJFgft34/JatcWjreGx48ppwXWjoXEB3y2D/e712k+5hi0IdZzehpds2/K5H6vZIvg
+         Tx1PFFGAxEgjOkthGOs1w8Kvf7G4kaVY9+P0mapSJKoF6/XFltnVziOxMkOz4vDYF/xz
+         b0XanYFDPseJYNpJpfZkfxlRZonvj+86SzchzM4ztVNw/89m/RNEhujLLHDInMQGiDnX
+         2/sg==
+X-Gm-Message-State: ABy/qLZRdk+mDz7aVVXlY4a5U0CuHmhH/3fmnweH1udkFJ8wo6x386HX
+        +fJSSK8G7DpkhcsnwphVEbqU1FbALnzok5EJ
+X-Google-Smtp-Source: APBJJlGZ3am9zOfeBgWijBLbuF/tNDpOUBY57m2T6CWy3qGzqO/mdo5xjJCO2vtzAg3Vue0vh5ZSIQ==
+X-Received: by 2002:a05:6512:1045:b0:4fb:ca59:50ff with SMTP id c5-20020a056512104500b004fbca5950ffmr1705108lfb.13.1688650674256;
+        Thu, 06 Jul 2023 06:37:54 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-008-088-179.77.8.pool.telefonica.de. [77.8.88.179])
-        by smtp.gmail.com with ESMTPSA id j16-20020a170906831000b00985ed2f1584sm808770ejx.187.2023.07.06.06.30.07
+        by smtp.gmail.com with ESMTPSA id w23-20020aa7da57000000b0051debcb1fa2sm786198eds.69.2023.07.06.06.37.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Jul 2023 06:30:07 -0700 (PDT)
+        Thu, 06 Jul 2023 06:37:53 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] selinux: implement avtab_search() via avtab_search_node()
-Date:   Thu,  6 Jul 2023 15:30:03 +0200
-Message-Id: <20230706133004.19064-1-cgzones@googlemail.com>
+Subject: [RFC PATCH] selinux: disable debug functions by default
+Date:   Thu,  6 Jul 2023 15:37:49 +0200
+Message-Id: <20230706133751.38149-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,87 +65,86 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Deduplicate avtab_search() by using the identical implementation from
-avtab_search_node().
+avtab_hash_eval() and hashtab_stat() are only used in policydb.c when
+the debug macro DEBUG_HASHES is defined.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/avtab.c | 32 --------------------------------
- security/selinux/ss/avtab.h | 11 ++++++++++-
- 2 files changed, 10 insertions(+), 33 deletions(-)
+ security/selinux/ss/avtab.c   | 2 ++
+ security/selinux/ss/avtab.h   | 3 +++
+ security/selinux/ss/hashtab.c | 3 ++-
+ security/selinux/ss/hashtab.h | 2 ++
+ 4 files changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 6766edc0fe68..33a54fbd989b 100644
+index 6766edc0fe68..2fd1a21b4428 100644
 --- a/security/selinux/ss/avtab.c
 +++ b/security/selinux/ss/avtab.c
-@@ -180,38 +180,6 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
- 	return avtab_insert_node(h, hvalue, prev, key, datum);
+@@ -354,6 +354,7 @@ int avtab_alloc_dup(struct avtab *new, const struct avtab *orig)
+ 	return avtab_alloc_common(new, orig->nslot);
  }
  
--struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *key)
--{
--	int hvalue;
--	struct avtab_node *cur;
--	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
--
--	if (!h || !h->nslot)
--		return NULL;
--
--	hvalue = avtab_hash(key, h->mask);
--	for (cur = h->htable[hvalue]; cur;
--	     cur = cur->next) {
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class == cur->key.target_class &&
--		    (specified & cur->key.specified))
--			return &cur->datum;
--
--		if (key->source_type < cur->key.source_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type < cur->key.target_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class < cur->key.target_class)
--			break;
--	}
--
--	return NULL;
--}
--
- /* This search function returns a node pointer, and can be used in
-  * conjunction with avtab_search_next_node()
-  */
++#ifdef DEBUG_HASHES
+ void avtab_hash_eval(struct avtab *h, const char *tag)
+ {
+ 	int i, chain_len, slots_used, max_chain_len;
+@@ -384,6 +385,7 @@ void avtab_hash_eval(struct avtab *h, const char *tag)
+ 	       tag, h->nel, slots_used, h->nslot, max_chain_len,
+ 	       chain2_len_sum);
+ }
++#endif
+ 
+ static const uint16_t spec_order[] = {
+ 	AVTAB_ALLOWED,
 diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index d6742fd9c560..16238c7bcbba 100644
+index d6742fd9c560..66c9077b7098 100644
 --- a/security/selinux/ss/avtab.h
 +++ b/security/selinux/ss/avtab.h
-@@ -90,7 +90,6 @@ struct avtab {
- void avtab_init(struct avtab *h);
- int avtab_alloc(struct avtab *, u32);
+@@ -92,7 +92,10 @@ int avtab_alloc(struct avtab *, u32);
  int avtab_alloc_dup(struct avtab *new, const struct avtab *orig);
--struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *k);
+ struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *k);
  void avtab_destroy(struct avtab *h);
++
++#ifdef DEBUG_HASHES
  void avtab_hash_eval(struct avtab *h, const char *tag);
++#endif
  
-@@ -110,6 +109,16 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ struct policydb;
+ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
+index 3fb8f9026e9b..672ea20ad1bb 100644
+--- a/security/selinux/ss/hashtab.c
++++ b/security/selinux/ss/hashtab.c
+@@ -103,7 +103,7 @@ int hashtab_map(struct hashtab *h,
+ 	return 0;
+ }
  
- struct avtab_node *avtab_search_node(struct avtab *h,
- 				     const struct avtab_key *key);
-+static inline struct avtab_datum *avtab_search(struct avtab *h,
-+					       const struct avtab_key *key)
-+{
-+	struct avtab_node *cur = avtab_search_node(h, key);
-+
-+	if (cur)
-+		return &cur->datum;
-+
-+	return NULL;
-+}
+-
++#ifdef DEBUG_HASHES
+ void hashtab_stat(struct hashtab *h, struct hashtab_info *info)
+ {
+ 	u32 i, chain_len, slots_used, max_chain_len;
+@@ -129,6 +129,7 @@ void hashtab_stat(struct hashtab *h, struct hashtab_info *info)
+ 	info->slots_used = slots_used;
+ 	info->max_chain_len = max_chain_len;
+ }
++#endif
  
- struct avtab_node *avtab_search_node_next(struct avtab_node *node, int specified);
+ int hashtab_duplicate(struct hashtab *new, struct hashtab *orig,
+ 		int (*copy)(struct hashtab_node *new,
+diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
+index 043a773bf0b7..64010a7f01a1 100644
+--- a/security/selinux/ss/hashtab.h
++++ b/security/selinux/ss/hashtab.h
+@@ -143,6 +143,8 @@ int hashtab_duplicate(struct hashtab *new, struct hashtab *orig,
+ 		void *args);
  
+ /* Fill info with some hash table statistics */
++#ifdef DEBUG_HASHES
+ void hashtab_stat(struct hashtab *h, struct hashtab_info *info);
++#endif
+ 
+ #endif	/* _SS_HASHTAB_H */
 -- 
 2.40.1
 
