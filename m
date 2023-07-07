@@ -2,194 +2,523 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F546C0015E
-	for <selinux@archiver.kernel.org>; Fri,  7 Jul 2023 16:54:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 499A3EB64DA
+	for <selinux@archiver.kernel.org>; Fri,  7 Jul 2023 18:12:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbjGGQyu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Jul 2023 12:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35438 "EHLO
+        id S229458AbjGGSMi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Jul 2023 14:12:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233081AbjGGQyr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Jul 2023 12:54:47 -0400
-Received: from sonic314-26.consmr.mail.ne1.yahoo.com (sonic314-26.consmr.mail.ne1.yahoo.com [66.163.189.152])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 134842690
-        for <selinux@vger.kernel.org>; Fri,  7 Jul 2023 09:54:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1688748848; bh=7dUG/tEyuCsnWvgTF+ykPusSsDtzDF4QTHRG8+l4fWM=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=k33JwQsSTksi1u+D4jg0dnnvzQuJoiIQuMELZK73bYM19E5jrrEVHxkKBATJ3CIQy4agP2hErjjpbFK76q7HdCYIMzMFXwxR7fAl1kg39dx1afZXa8eKMkvl9J4gBbWgVUT9ovyjCxIIgtauM7BidhyVu39YfW4acPysfAEXVYvuZl7B3sCiA131t6GRwKBU0juqrfNQMbtFlzBuWxz/ZEvEaCXXZ9tBx8wxwd4WHAQqDikU1cyFjooBiQyDkM3iMsb9y4e8QOgU6U25gxxleIijzzeJbZiiOKHYfAQxY/f70pXWSBHRz3+yS1xQrsrB+5ZRALrb4aTXkI2a4cwxWw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1688748848; bh=tx9k0TN1T8vin8wdHwO2nG4qX/v/r09tkKCH6Un2w5v=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=emeh3ncUq7JgNSue0N0j/Fgm2DlP2UHlUPyz3SHcLXk7/4WXmnygV/tkPu/tzU5Pdhk1HmJ3HhbQvuf3ujiGDlVD+MSsnbUanpaym0EOWXUuOF7lKHQPZNOEovV8mO3Ptziljka2f9Wa3cs3iITZTrxWwEBmFjqX7z1Pv83lss9PkL6FRrn6OPHVkgyUDIpGowNv3zInoCvxakXnwdq31asOYiQ4u+GsrLPNpjVl7FTpHSfqdgObppaIBzwISsVq7C8fiK9pHUJuR7DF1AKM6EJW7T1L38YCdEPKGq73+BF4nvP9IWUYhp+bKOQlMxOJRPoqEXJ9BSVNBFT0LOVvoA==
-X-YMail-OSG: 3cMWPXEVM1ksAsW6ExbAWo3xHajlrtgcL1H_yMZEUdZajHEEbDWayzDJl9unhFx
- V2I46457HBKjxa8YP9y9f1u7E2dRKrSawhO23vd.M4HcGojwyiRn6BEPRWf97aLuC1mflAnCm6tM
- WlczvkiigYXMFAWN3M2lpUd3aqyPu8u1pdBLbQsbWZ_zgEO3JXhcbAoVt0hz4_tuLMXFJZwbS5dq
- Q3lCh_w3aoC4DEytKBscnH5l_D_U5GAQG.hmNekYBnKtlQZN5V0GxmLcvqFBnmMIOaFl1g9oDXGg
- nOrtwRP61KHzW2nnxz0PVeW1qfevQ76WEKtjmFLMz8qjipv7oAG25p0iv1yqrnF9lzwyWWT8ycbq
- zcmilJsaDYje5auB6zVrV4YZcmxW0bEkHhOvupWVMZwvzyZKIMxGfofOVldwWz4yoaC1Hn7u72YR
- JtTz_aWAB6OFYHfjz8Uho0tT5dN2lLbmlS7t8Djh0kcyEZi.IjLlIsVJAvUfGg.TWWZl_95AyaJZ
- ObS9vycfzaNh0yNu1S1GeUoBkFQ1ep.bQq.OJscU9mjajdkcKE4kM7ZeiaaGrgH6_93_I_RfFj1I
- pWZ1mwpcWl0k.00tbVj4LFpBqlXg9ebnsDrSo8isUeecWGnetLsbKhXJT2jI5Hw6XgnAWLqo6mSW
- TOeKXX5ev0XF23DHQCj6tfN9TqAbmrHOXyEqjicTRaCOhQTztTSv3lvVSIxHH1EV0I8R1Q0tNMgF
- N1GsjrBW6AY6ds5Kgz_gBzPq8mpz.G3QX_lYEUf5hz5vEpvJ3qSnrUpOas_3Ahnnr5s_CWxLWG9V
- INjKYK4zVW84Me_kGJGqTp1NHHd_8AMvFCm_SktAmH7MddZnt6J6.jW0g11rjp7DSw_CqHNVdxs.
- efsQ_I6gtbLE6KLDw1s86Ky8WWT8.I6qQQIoBNT1czh8JumJb_Q9ALfGk2cm4FD2x0FVmmMQXYOy
- 1vptlrjZjD4A9KFEUDi.a2Sij2cUpwT3dDCvPevmhfwB55fYUXW9oBG9p6KLDXWQbpO._S4N25Mo
- Pa9dIiWCcSqhNZJlCRUFVCfK8ZNxJl.szRY6aYZfQmIOwmdorJQICm2KyjS0PRUxlfzXGHZZNMfO
- 4_hNr0d1HaRuprP9dz5rdIs8SO8X4FuAOPFBgKX.AG_6ei9y675CSr1dnhjDUWPWjEzwOSR6E31n
- eHrQM3hqPVOcMl3ILksF3a9poPzgwHE76Kf44UBZMCUNbZZhX7fcLvudutA25XNmxIx4iU8WUwTV
- 22mVXAZ3KFkOnNuBybve7TeQ82xSbgsC1qszhx4q2.3ygpDXhGRVeB4cuOC7omxDJJl472esmlLK
- 6OWWOkksKlawCNnw2ZfdSxnzHLNr6fXZw5Fy3hKPBQHjiegdLrb3vOaQWNFfKxeztI1UOMFqAgb1
- QveMIRWGYJwnd19GzrCkm20G2QQgzCJ5weBGd7TtxJ.RMAl.9mOnnF8z9GmNkZ8M7.Ql4K1zHxCS
- 5ILM49RYVmo9mEKRR9bQq5P.g3Hl2OjbCRKj0Rkoi23a0FsdA_enxgTUrwZAwg2VVClPLjU9lWw0
- eGwf9I9yecWmm.hnZ2Nhqc4Dxh7OisHW.GnBhxV7FbVuRDfqOU6G76wKBu9ElqHb62ZtaX0ati1F
- rwcGJbxMYgttxxvVOYa1Vf01GtMGZF4SDriwYiGdF2UiKU40GXZqHKHzKCkGXYd8vPEXp4b0twqk
- jj3TUHl6L.5zYYjjGo6b5UVUEMyyFbNSI.2t5XaRmq57Mo9N8mUbFxYZkMa4_eQvJ5isj4rDayPl
- W82bKlmpH_K3MXQVIlo6uKVnOrXkJDT1LHHLV75zNiSL_CoKoealpTCQRoX89LWDuemeKSKchEtD
- Z70z9z6TdKdFBCe7520rZCD_9pfY1EVwWzA28celp3YG.y0WmrysXXF9oXrzwU.M8i6LDKpuqT33
- .OzOUOLKgLmjD4RHP39pFa5uwWJYDLuGr_55ipZLcVUU9UJ1iE6rly3dbQDqyKVkxGgZ7QArEGQQ
- 6g5LHA8dDXtRjG4z3B7vGht8zmpVxM_H3nJUCpo4VontlqyNDXnN9b5_WllLCj1Sa3T9CM1rOB2d
- AtkiisZnRZjay67spOW1b2wib6ERZECTBRS.MNbmxRsLcZQd4rh0BoKAU9Nqy7Lt13.mTIbdExOy
- M8BtBJofjnnuIv21rHyKUwqDktBEXsv9O6ZfaEVPdWLe2f2hwdVJO0MfV7G5g.QmYeUCUUjQjkCo
- E5WGcnNmqH9xhqf9z2RMo9YzdRv0R.ccKma_5yP3jm4fOO6u2Cx9zYXrQKXzZIojrsNOSJqa8NhA
- cN5yEA_XMQQ3W
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 8a7232ca-1467-48de-b49b-55042b582814
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Fri, 7 Jul 2023 16:54:08 +0000
-Received: by hermes--production-bf1-5d96b4b9f-2ghnc (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 74f4f2705c6e8c4c65d3815b934ef2a1;
-          Fri, 07 Jul 2023 16:54:02 +0000 (UTC)
-Message-ID: <a28c8fce-741b-e088-af5e-8a83daa7e25d@schaufler-ca.com>
-Date:   Fri, 7 Jul 2023 09:53:57 -0700
+        with ESMTP id S232566AbjGGSMh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Jul 2023 14:12:37 -0400
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F00F2121
+        for <selinux@vger.kernel.org>; Fri,  7 Jul 2023 11:12:35 -0700 (PDT)
+Received: by mail-lj1-x22e.google.com with SMTP id 38308e7fff4ca-2b6f0508f54so34242541fa.3
+        for <selinux@vger.kernel.org>; Fri, 07 Jul 2023 11:12:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1688753554; x=1691345554;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xbL0+ZsgXQ8e2WEPUS+kWAo3wqGkSgTqQbUATrkDv2w=;
+        b=nroX+KHQ8aiv0leO6HT65GiGfTzROTz79qqvM3Lg6QWhLPTEEQzeBNEQyXPpdMbRuM
+         r6oaG9W5od5xM8tCcIIDndRcaReBk75eoT7I92erWD0dNav1wQxDtQuxOtuWA9TwNWWG
+         OKUdQI6DbZ3A4UHUSGNNFxL/GQtv+hdelzcjOKK0/Dk7E86kKUnrbJbZ61TkuUpFrvS+
+         GpTzwR/C9ObeYvtiIyeXojRfD2cHRybIKZPnPVyCOqU+zfHB+8Y/8tjwSzsc4p/UpFOh
+         1eKu3VYU8Q9+n7hKgUdoJOO/pR648yrg33FfdB2Ko9Z+rJGHkO1lVy38GmScb29b3QlS
+         ScKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688753554; x=1691345554;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xbL0+ZsgXQ8e2WEPUS+kWAo3wqGkSgTqQbUATrkDv2w=;
+        b=Jg1kOQ50hO+jsWq7zVFMGGpjZ57ezIMBqS2hm0bfR9FaWOOdkuZQLqRSfsKlRxS2gm
+         /agYXPDTqmDEm9q7KIS8BSTtDZyyCHKJ26t/kIWSnbyTRiFvkHAku6Auy4N9b20qonMY
+         se+ZPouK19ckrBIC/CC/bHaRgcZ1wtsbw9dncZEelLwggbRXLrV1jhhRPrMwcIzicKZf
+         b9w40AntCSRGuTR9CXBUtriXw3oHw9YTNa520HOfE7CYz8Bo8DYcVhw7FfUUatF5+Pn9
+         RE0G7IctHjZxwIuLTGKa0eg69nMxg9HX0Mw09qdFC3cgrrU3QYDvHhX95jqPzL0TH499
+         OUUQ==
+X-Gm-Message-State: ABy/qLb6moOBfI5CHIIVGpaeWN01vypTITxdgwsVPV+2k+S4U7dhiye8
+        pEXC9QGifIH0BPTF3Z6I2T9WGbk8TN9dBtuOYMYLYEVx+XQ=
+X-Google-Smtp-Source: APBJJlEtrWm/7ICNq7UF+dz6LM5jsFbDz/YxrcsYylgYCBuSUWWbkctqmPR5OL1IrGPPicxe30PKi7QhWlS53hMLWtg=
+X-Received: by 2002:a2e:3507:0:b0:2b6:b611:64e9 with SMTP id
+ z7-20020a2e3507000000b002b6b61164e9mr3553775ljz.52.1688753553287; Fri, 07 Jul
+ 2023 11:12:33 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [PATCH v12 1/4] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>,
-        Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org
-Cc:     linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20230610075738.3273764-2-roberto.sassu@huaweicloud.com>
- <1c8c612d99e202a61e6a6ecf50d4cace.paul@paul-moore.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <1c8c612d99e202a61e6a6ecf50d4cace.paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21638 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <cover.1687251081.git.juraj@jurajmarcin.com> <cc615a87b1025866d6332bce787dece49766ca52.1687251081.git.juraj@jurajmarcin.com>
+In-Reply-To: <cc615a87b1025866d6332bce787dece49766ca52.1687251081.git.juraj@jurajmarcin.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 7 Jul 2023 14:12:21 -0400
+Message-ID: <CAP+JOzS4PSk_iupHQY=Lj=TOow_AQ5x2w+jFNX9Qin24O0s-yw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/8] checkpolicy,libsepol: move transition to separate
+ structure in avtab
+To:     Juraj Marcin <juraj@jurajmarcin.com>
+Cc:     selinux@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/6/2023 6:43 PM, Paul Moore wrote:
-> On Jun 10, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
->> Currently, the LSM infrastructure supports only one LSM providing an xattr
->> and EVM calculating the HMAC on that xattr, plus other inode metadata.
->>
->> Allow all LSMs to provide one or multiple xattrs, by extending the security
->> blob reservation mechanism. Introduce the new lbs_xattr_count field of the
->> lsm_blob_sizes structure, so that each LSM can specify how many xattrs it
->> needs, and the LSM infrastructure knows how many xattr slots it should
->> allocate.
->>
->> Modify the inode_init_security hook definition, by passing the full
->> xattr array allocated in security_inode_init_security(), and the current
->> number of xattr slots in that array filled by LSMs. The first parameter
->> would allow EVM to access and calculate the HMAC on xattrs supplied by
->> other LSMs, the second to not leave gaps in the xattr array, when an LSM
->> requested but did not provide xattrs (e.g. if it is not initialized).
->>
->> Introduce lsm_get_xattr_slot(), which LSMs can call as many times as the
->> number specified in the lbs_xattr_count field of the lsm_blob_sizes
->> structure. During each call, lsm_get_xattr_slot() increments the number of
->> filled xattrs, so that at the next invocation it returns the next xattr
->> slot to fill.
->>
->> Cleanup security_inode_init_security(). Unify the !initxattrs and
->> initxattrs case by simply not allocating the new_xattrs array in the
->> former. Update the documentation to reflect the changes, and fix the
->> description of the xattr name, as it is not allocated anymore.
->>
->> Adapt both SELinux and Smack to use the new definition of the
->> inode_init_security hook, and to call lsm_get_xattr_slot() to obtain and
->> fill the reserved slots in the xattr array.
->>
->> Move the xattr->name assignment after the xattr->value one, so that it is
->> done only in case of successful memory allocation.
->>
->> Finally, change the default return value of the inode_init_security hook
->> from zero to -EOPNOTSUPP, so that BPF LSM correctly follows the hook
->> conventions.
->>
->> Reported-by: Nicolas Bouchinet <nicolas.bouchinet@clip-os.org>
->> Link: https://lore.kernel.org/linux-integrity/Y1FTSIo+1x+4X0LS@archlinux/
->> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
->> ---
->>  include/linux/lsm_hook_defs.h |  6 +--
->>  include/linux/lsm_hooks.h     | 20 ++++++++++
->>  security/security.c           | 71 +++++++++++++++++++++++------------
->>  security/selinux/hooks.c      | 17 +++++----
->>  security/smack/smack_lsm.c    | 25 ++++++------
->>  5 files changed, 92 insertions(+), 47 deletions(-)
-> Two *very* small suggestions below, but I can make those during the
-> merge if you are okay with that Roberto?
+On Tue, Jun 20, 2023 at 5:11=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin.com=
+> wrote:
 >
-> I'm also going to assume that Casey is okay with the Smack portion of
-> this patchset?  It looks fine to me, and considering his ACK on the
-> other Smack patch in this patchset I'm assuming he is okay with this
-> one as well ... ?
+> To move filename transitions to be part of avtab, we need to create
+> space for it in the avtab_datum structure which holds the rule for
+> a certain combination of stype, ttype and tclass.
+>
+> As only type transitions have a special variant that uses a filename, it
+> would be suboptimal to add a (mostly empty) pointer to some structure to
+> all avtab rules.
+>
+> Therefore, this patch adds a new structure to the avtab_datum and moves
+> the otype of the transition to this structure. In the next patch, this
+> structure will also hold filename transitions for the combination of
+> stype, ttype and tclass.
+>
+> Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
 
-Yes, please feel free to add my Acked-by as needed.
+I have this fear that I missed something, but I have tested
+compatibility as much as I can and everything seems to work fine. Even
+building older policy versions doesn't break anything that I can find.
 
+Patch 3 no longer applies cleanly with some of the recent dismod, but
+it is minor and I can handle it when I merge this series.
+
+If at some point we allow named type transitions in conditional
+policy, then CIL can handle all type transitions like named type
+transitions. But that is for another day.
+
+For this series of eight patches:
+Acked-by: James Carter <jwcart2@gmail.com>
+
+
+> ---
+>  checkpolicy/test/dispol.c               |  2 +-
+>  libsepol/cil/src/cil_binary.c           | 26 +++++++++++++++-----
+>  libsepol/include/sepol/policydb/avtab.h |  7 +++++-
+>  libsepol/src/avtab.c                    | 32 ++++++++++++++++++++++++-
+>  libsepol/src/expand.c                   |  8 +++++--
+>  libsepol/src/kernel_to_cil.c            |  3 ++-
+>  libsepol/src/kernel_to_conf.c           |  3 ++-
+>  libsepol/src/optimize.c                 |  4 ++++
+>  libsepol/src/policydb_validate.c        |  4 +++-
+>  libsepol/src/services.c                 |  5 +++-
+>  libsepol/src/write.c                    | 17 ++++++++++---
+>  11 files changed, 93 insertions(+), 18 deletions(-)
 >
->> diff --git a/security/security.c b/security/security.c
->> index ee4f1cc4902..d5ef7df1ce4 100644
->> --- a/security/security.c
->> +++ b/security/security.c
->> @@ -1591,11 +1592,15 @@ EXPORT_SYMBOL(security_dentry_create_files_as);
->>   * created inode and set up the incore security field for the new inode.  This
->>   * hook is called by the fs code as part of the inode creation transaction and
->>   * provides for atomic labeling of the inode, unlike the post_create/mkdir/...
->> - * hooks called by the VFS.  The hook function is expected to allocate the name
->> - * and value via kmalloc, with the caller being responsible for calling kfree
->> - * after using them.  If the security module does not use security attributes
->> - * or does not wish to put a security attribute on this particular inode, then
->> - * it should return -EOPNOTSUPP to skip this processing.
->> + * hooks called by the VFS.  The hook function is expected to populate the
->> + * @xattrs array, by calling lsm_get_xattr_slot() to retrieve the slots
-> I think we want to change "@xattrs array" to just "xattrs array" as
-> there is no function parameter named "xattrs" in the LSM/security_XXX
-> hook itself, just in the 'inode_init_security' hook implementation.
+> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> index bee1a660..de1a5d11 100644
+> --- a/checkpolicy/test/dispol.c
+> +++ b/checkpolicy/test/dispol.c
+> @@ -180,7 +180,7 @@ static int render_av_rule(avtab_key_t * key, avtab_da=
+tum_t * datum, uint32_t wha
+>                 if (key->specified & AVTAB_TRANSITION) {
+>                         fprintf(fp, "type_transition ");
+>                         render_key(key, p, fp);
+> -                       render_type(datum->data, p, fp);
+> +                       render_type(datum->trans->otype, p, fp);
+>                         fprintf(fp, ";\n");
+>                 }
+>                 if (key->specified & AVTAB_MEMBER) {
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
+c
+> index c4ee2380..3f264594 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -975,28 +975,34 @@ static int __cil_insert_type_rule(policydb_t *pdb, =
+uint32_t kind, uint32_t src,
+>         int rc =3D SEPOL_OK;
+>         avtab_key_t avtab_key;
+>         avtab_datum_t avtab_datum;
+> +       avtab_trans_t trans;
+>         avtab_ptr_t existing;
 >
-> I might also break the new text describing the hook implementation
-> into a new paragraph.
+>         avtab_key.source_type =3D src;
+>         avtab_key.target_type =3D tgt;
+>         avtab_key.target_class =3D obj;
 >
->> + * reserved by the security module with the lbs_xattr_count field of the
->> + * lsm_blob_sizes structure.  For each slot, the hook function should set ->name
->> + * to the attribute name suffix (e.g. selinux), to allocate ->value (will be
->> + * freed by the caller) and set it to the attribute value, to set ->value_len to
->> + * the length of the value.  If the security module does not use security
->> + * attributes or does not wish to put a security attribute on this particular
->> + * inode, then it should return -EOPNOTSUPP to skip this processing.
->>   *
->>   * Return: Returns 0 on success, -EOPNOTSUPP if no security attribute is
->>   * needed, or -ENOMEM on memory allocation failure.
->> @@ -1604,33 +1609,51 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
->>  				 const struct qstr *qstr,
->>  				 const initxattrs initxattrs, void *fs_data)
->>  {
->> -	struct xattr new_xattrs[MAX_LSM_EVM_XATTR + 1];
->> -	struct xattr *lsm_xattr, *evm_xattr, *xattr;
->> -	int ret;
->> +	struct security_hook_list *P;
-> The above comments were nitpicky, this one is even more so ...
-> convention within security/security.c is to call the
-> security_hook_list pointer "hp", not "P" (although I recognize P is
-> used in the macro).
+> +       memset(&avtab_datum, 0, sizeof(avtab_datum_t));
+> +       memset(&trans, 0, sizeof(avtab_trans_t));
+> +
+>         switch (kind) {
+>         case CIL_TYPE_TRANSITION:
+>                 avtab_key.specified =3D AVTAB_TRANSITION;
+> +               trans.otype =3D res;
+> +               avtab_datum.trans =3D &trans;
+>                 break;
+>         case CIL_TYPE_CHANGE:
+>                 avtab_key.specified =3D AVTAB_CHANGE;
+> +               avtab_datum.data =3D res;
+>                 break;
+>         case CIL_TYPE_MEMBER:
+>                 avtab_key.specified =3D AVTAB_MEMBER;
+> +               avtab_datum.data =3D res;
+>                 break;
+>         default:
+>                 rc =3D SEPOL_ERR;
+>                 goto exit;
+>         }
+> -
+> -       avtab_datum.data =3D res;
 >
->> +	struct xattr *new_xattrs = NULL;
->> +	int ret = -EOPNOTSUPP, xattr_count = 0;
+>         existing =3D avtab_search_node(&pdb->te_avtab, &avtab_key);
+>         if (existing) {
+> @@ -1004,13 +1010,17 @@ static int __cil_insert_type_rule(policydb_t *pdb=
+, uint32_t kind, uint32_t src,
+>                  * A warning should have been previously given if there i=
+s a
+>                  * non-duplicate rule using the same key.
+>                  */
+> -               if (existing->datum.data !=3D res) {
+> +               uint32_t existing_otype =3D
+> +                       existing->key.specified & AVTAB_TRANSITION
+> +                       ? existing->datum.trans->otype
+> +                       : existing->datum.data;
+> +               if (existing_otype !=3D res) {
+>                         cil_log(CIL_ERR, "Conflicting type rules (scontex=
+t=3D%s tcontext=3D%s tclass=3D%s result=3D%s), existing=3D%s\n",
+>                                 pdb->p_type_val_to_name[src - 1],
+>                                 pdb->p_type_val_to_name[tgt - 1],
+>                                 pdb->p_class_val_to_name[obj - 1],
+>                                 pdb->p_type_val_to_name[res - 1],
+> -                               pdb->p_type_val_to_name[existing->datum.d=
+ata - 1]);
+> +                               pdb->p_type_val_to_name[existing_otype - =
+1]);
+>                         cil_log(CIL_ERR, "Expanded from type rule (sconte=
+xt=3D%s tcontext=3D%s tclass=3D%s result=3D%s)\n",
+>                                 cil_rule->src_str, cil_rule->tgt_str, cil=
+_rule->obj_str, cil_rule->result_str);
+>                         rc =3D SEPOL_ERR;
+> @@ -1037,13 +1047,17 @@ static int __cil_insert_type_rule(policydb_t *pdb=
+, uint32_t kind, uint32_t src,
+>
+>                         search_datum =3D cil_cond_av_list_search(&avtab_k=
+ey, other_list);
+>                         if (search_datum =3D=3D NULL) {
+> -                               if (existing->datum.data !=3D res) {
+> +                               uint32_t existing_otype =3D
+> +                                       existing->key.specified & AVTAB_T=
+RANSITION
+> +                                       ? existing->datum.trans->otype
+> +                                       : existing->datum.data;
+> +                               if (existing_otype !=3D res) {
+>                                         cil_log(CIL_ERR, "Conflicting typ=
+e rules (scontext=3D%s tcontext=3D%s tclass=3D%s result=3D%s), existing=3D%=
+s\n",
+>                                                 pdb->p_type_val_to_name[s=
+rc - 1],
+>                                                 pdb->p_type_val_to_name[t=
+gt - 1],
+>                                                 pdb->p_class_val_to_name[=
+obj - 1],
+>                                                 pdb->p_type_val_to_name[r=
+es - 1],
+> -                                               pdb->p_type_val_to_name[e=
+xisting->datum.data - 1]);
+> +                                               pdb->p_type_val_to_name[e=
+xisting_otype - 1]);
+>                                         cil_log(CIL_ERR, "Expanded from t=
+ype rule (scontext=3D%s tcontext=3D%s tclass=3D%s result=3D%s)\n",
+>                                                 cil_rule->src_str, cil_ru=
+le->tgt_str, cil_rule->obj_str, cil_rule->result_str);
+>                                         rc =3D SEPOL_ERR;
+> diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/s=
+epol/policydb/avtab.h
+> index e4c48576..ca009c16 100644
+> --- a/libsepol/include/sepol/policydb/avtab.h
+> +++ b/libsepol/include/sepol/policydb/avtab.h
+> @@ -70,6 +70,10 @@ typedef struct avtab_key {
+>         uint16_t specified;     /* what fields are specified */
+>  } avtab_key_t;
+>
+> +typedef struct avtab_trans {
+> +       uint32_t otype;         /* resulting type of the new object */
+> +} avtab_trans_t;
+> +
+>  typedef struct avtab_extended_perms {
+>
+>  #define AVTAB_XPERMS_IOCTLFUNCTION     0x01
+> @@ -81,7 +85,8 @@ typedef struct avtab_extended_perms {
+>  } avtab_extended_perms_t;
+>
+>  typedef struct avtab_datum {
+> -       uint32_t data;          /* access vector or type */
+> +       uint32_t data;          /* access vector, member or change value =
+*/
+> +       avtab_trans_t *trans;   /* transition value */
+>         avtab_extended_perms_t *xperms;
+>  } avtab_datum_t;
+>
+> diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+> index 82fec783..4c292e8b 100644
+> --- a/libsepol/src/avtab.c
+> +++ b/libsepol/src/avtab.c
+> @@ -94,6 +94,7 @@ avtab_insert_node(avtab_t * h, int hvalue, avtab_ptr_t =
+prev, avtab_key_t * key,
+>                   avtab_datum_t * datum)
+>  {
+>         avtab_ptr_t newnode;
+> +       avtab_trans_t *trans;
+>         avtab_extended_perms_t *xperms;
+>
+>         newnode =3D (avtab_ptr_t) malloc(sizeof(struct avtab_node));
+> @@ -117,6 +118,16 @@ avtab_insert_node(avtab_t * h, int hvalue, avtab_ptr=
+_t prev, avtab_key_t * key,
+>                  * So copy data so it is set in the avtab
+>                  */
+>                 newnode->datum.data =3D datum->data;
+> +       } else if (key->specified & AVTAB_TRANSITION) {
+> +               trans =3D calloc(1, sizeof(*trans));
+> +               if (trans =3D=3D NULL) {
+> +                       free(newnode);
+> +                       return NULL;
+> +               }
+> +               if (datum->trans) /* else caller populates transition */
+> +                       *trans =3D *(datum->trans);
+> +
+> +               newnode->datum.trans =3D trans;
+>         } else {
+>                 newnode->datum =3D *datum;
+>         }
+> @@ -317,6 +328,8 @@ void avtab_destroy(avtab_t * h)
+>                 while (cur !=3D NULL) {
+>                         if (cur->key.specified & AVTAB_XPERMS) {
+>                                 free(cur->datum.xperms);
+> +                       } else if (cur->key.specified & AVTAB_TRANSITION)=
+ {
+> +                               free(cur->datum.trans);
+>                         }
+>                         temp =3D cur;
+>                         cur =3D cur->next;
+> @@ -440,6 +453,7 @@ int avtab_read_item(struct policy_file *fp, uint32_t =
+vers, avtab_t * a,
+>         uint32_t buf32[8], items, items2, val;
+>         avtab_key_t key;
+>         avtab_datum_t datum;
+> +       avtab_trans_t trans;
+>         avtab_extended_perms_t xperms;
+>         unsigned set;
+>         unsigned int i;
+> @@ -447,6 +461,7 @@ int avtab_read_item(struct policy_file *fp, uint32_t =
+vers, avtab_t * a,
+>
+>         memset(&key, 0, sizeof(avtab_key_t));
+>         memset(&datum, 0, sizeof(avtab_datum_t));
+> +       memset(&trans, 0, sizeof(avtab_trans_t));
+>         memset(&xperms, 0, sizeof(avtab_extended_perms_t));
+>
+>         if (vers < POLICYDB_VERSION_AVTAB) {
+> @@ -509,7 +524,14 @@ int avtab_read_item(struct policy_file *fp, uint32_t=
+ vers, avtab_t * a,
+>                                         return -1;
+>                                 }
+>                                 key.specified =3D spec_order[i] | enabled=
+;
+> -                               datum.data =3D le32_to_cpu(buf32[items++]=
+);
+> +                               if (key.specified & AVTAB_TRANSITION) {
+> +                                       trans.otype =3D
+> +                                               le32_to_cpu(buf32[items++=
+]);
+> +                                       datum.trans =3D &trans;
+> +                               } else {
+> +                                       datum.data =3D
+> +                                               le32_to_cpu(buf32[items++=
+]);
+> +                               }
+>                                 rc =3D insertf(a, &key, &datum, p);
+>                                 if (rc)
+>                                         return rc;
+> @@ -571,6 +593,14 @@ int avtab_read_item(struct policy_file *fp, uint32_t=
+ vers, avtab_t * a,
+>                 for (i =3D 0; i < ARRAY_SIZE(xperms.perms); i++)
+>                         xperms.perms[i] =3D le32_to_cpu(buf32[i]);
+>                 datum.xperms =3D &xperms;
+> +       } else if (key.specified & AVTAB_TRANSITION) {
+> +               rc =3D next_entry(buf32, fp, sizeof(uint32_t));
+> +               if (rc < 0) {
+> +                       ERR(fp->handle, "truncated entry");
+> +                       return -1;
+> +               }
+> +               trans.otype =3D le32_to_cpu(*buf32);
+> +               datum.trans =3D &trans;
+>         } else {
+>                 rc =3D next_entry(buf32, fp, sizeof(uint32_t));
+>                 if (rc < 0) {
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 8795229a..6793a27d 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1746,7 +1746,7 @@ static int expand_terule_helper(sepol_handle_t * ha=
+ndle,
+>                 if (conflict) {
+>                         avdatump =3D &node->datum;
+>                         if (specified & AVRULE_TRANSITION) {
+> -                               oldtype =3D avdatump->data;
+> +                               oldtype =3D avdatump->trans->otype;
+>                         } else if (specified & AVRULE_MEMBER) {
+>                                 oldtype =3D avdatump->data;
+>                         } else if (specified & AVRULE_CHANGE) {
+> @@ -1789,7 +1789,11 @@ static int expand_terule_helper(sepol_handle_t * h=
+andle,
+>                 }
+>
+>                 avdatump =3D &node->datum;
+> -               avdatump->data =3D remapped_data;
+> +               if (specified & AVRULE_TRANSITION) {
+> +                       avdatump->trans->otype =3D remapped_data;
+> +               } else {
+> +                       avdatump->data =3D remapped_data;
+> +               }
+>
+>                 cur =3D cur->next;
+>         }
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index f2b0d902..b1fd1bf7 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -1704,7 +1704,8 @@ static char *xperms_to_str(avtab_extended_perms_t *=
+xperms)
+>
+>  static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, a=
+vtab_datum_t *datum)
+>  {
+> -       uint32_t data =3D datum->data;
+> +       uint32_t data =3D key->specified & AVTAB_TRANSITION
+> +               ? datum->trans->otype : datum->data;
+>         type_datum_t *type;
+>         const char *flavor, *tgt;
+>         char *src, *class, *perms, *new;
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index 15161caa..7e1e1b49 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -1682,7 +1682,8 @@ exit:
+>
+>  static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, a=
+vtab_datum_t *datum)
+>  {
+> -       uint32_t data =3D datum->data;
+> +       uint32_t data =3D key->specified & AVTAB_TRANSITION
+> +               ? datum->trans->otype : datum->data;
+>         type_datum_t *type;
+>         const char *flavor, *src, *tgt, *class, *perms, *new;
+>         char *rule =3D NULL;
+> diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
+> index a38025ec..2d4a2d7a 100644
+> --- a/libsepol/src/optimize.c
+> +++ b/libsepol/src/optimize.c
+> @@ -308,6 +308,8 @@ static void optimize_avtab(policydb_t *p, const struc=
+t type_vec *type_map)
+>                                 *cur =3D tmp->next;
+>                                 if (tmp->key.specified & AVTAB_XPERMS)
+>                                         free(tmp->datum.xperms);
+> +                               if (tmp->key.specified & AVTAB_TRANSITION=
+)
+> +                                       free(tmp->datum.trans);
+>                                 free(tmp);
+>
+>                                 tab->nel--;
+> @@ -427,6 +429,8 @@ static void optimize_cond_avtab(policydb_t *p, const =
+struct type_vec *type_map)
+>                                 *cur =3D tmp->next;
+>                                 if (tmp->key.specified & AVTAB_XPERMS)
+>                                         free(tmp->datum.xperms);
+> +                               if (tmp->key.specified & AVTAB_TRANSITION=
+)
+> +                                       free(tmp->datum.trans);
+>                                 free(tmp);
+>
+>                                 tab->nel--;
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
+idate.c
+> index 3540f34a..f402b506 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -836,7 +836,9 @@ static int validate_avtab_key_and_datum(avtab_key_t *=
+k, avtab_datum_t *d, void *
+>         if (validate_avtab_key(k, 0, margs->policy, margs->flavors))
+>                 return -1;
+>
+> -       if ((k->specified & AVTAB_TYPE) && validate_simpletype(d->data, m=
+args->policy, margs->flavors))
+> +       uint32_t otype =3D k->specified & AVTAB_TRANSITION
+> +               ? d->trans->otype : d->data;
+> +       if ((k->specified & AVTAB_TYPE) && validate_simpletype(otype, mar=
+gs->policy, margs->flavors))
+>                 return -1;
+>
+>         if ((k->specified & AVTAB_XPERMS) && validate_xperms(d->xperms))
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index 062510ab..72772dbd 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -1423,7 +1423,10 @@ static int sepol_compute_sid(sepol_security_id_t s=
+sid,
+>
+>         if (avdatum) {
+>                 /* Use the type from the type transition/member/change ru=
+le. */
+> -               newcontext.type =3D avdatum->data;
+> +               if (specified & AVTAB_TRANSITION)
+> +                       newcontext.type =3D avdatum->trans->otype;
+> +               else
+> +                       newcontext.type =3D avdatum->data;
+>         }
+>
+>         /* Check for class-specific changes. */
+> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> index 024fe628..0d3d5f14 100644
+> --- a/libsepol/src/write.c
+> +++ b/libsepol/src/write.c
+> @@ -190,14 +190,20 @@ static int avtab_write_item(policydb_t * p,
+>                                                 ERR(fp->handle, "missing =
+node");
+>                                                 return POLICYDB_ERROR;
+>                                         }
+> -                                       buf32[items++] =3D
+> -                                           cpu_to_le32(node->datum.data)=
+;
+> +                                       uint32_t data =3D
+> +                                               node->key.specified & AVT=
+AB_TRANSITION
+> +                                               ? node->datum.trans->otyp=
+e
+> +                                               : node->datum.data;
+> +                                       buf32[items++] =3D cpu_to_le32(da=
+ta);
+>                                         set--;
+>                                         node->merged =3D 1;
+>                                 }
+>                         }
+>                 } else {
+> -                       buf32[items++] =3D cpu_to_le32(cur->datum.data);
+> +                       uint32_t data =3D cur->key.specified & AVTAB_TRAN=
+SITION
+> +                               ? cur->datum.trans->otype
+> +                               : cur->datum.data;
+> +                       buf32[items++] =3D cpu_to_le32(data);
+>                         cur->merged =3D 1;
+>                         set--;
+>                 }
+> @@ -256,6 +262,11 @@ static int avtab_write_item(policydb_t * p,
+>                 items =3D put_entry(buf32, sizeof(uint32_t),8,fp);
+>                 if (items !=3D 8)
+>                         return POLICYDB_ERROR;
+> +       } else if (cur->key.specified & AVTAB_TRANSITION) {
+> +               buf32[0] =3D cpu_to_le32(cur->datum.trans->otype);
+> +               items =3D put_entry(buf32, sizeof(uint32_t), 1, fp);
+> +               if (items !=3D 1)
+> +                       return POLICYDB_ERROR;
+>         } else {
+>                 buf32[0] =3D cpu_to_le32(cur->datum.data);
+>                 items =3D put_entry(buf32, sizeof(uint32_t), 1, fp);
 > --
-> paul-moore.com
+> 2.40.0
+>
