@@ -2,163 +2,78 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C68A3EB64D9
-	for <selinux@archiver.kernel.org>; Mon, 10 Jul 2023 18:05:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF290EB64D9
+	for <selinux@archiver.kernel.org>; Mon, 10 Jul 2023 18:27:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231334AbjGJSFL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jul 2023 14:05:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
+        id S230459AbjGJS1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jul 2023 14:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231222AbjGJSFL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jul 2023 14:05:11 -0400
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A0BAB
-        for <selinux@vger.kernel.org>; Mon, 10 Jul 2023 11:05:09 -0700 (PDT)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-57688a146ecso60278797b3.2
-        for <selinux@vger.kernel.org>; Mon, 10 Jul 2023 11:05:09 -0700 (PDT)
+        with ESMTP id S230487AbjGJS1M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jul 2023 14:27:12 -0400
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A3A518C
+        for <selinux@vger.kernel.org>; Mon, 10 Jul 2023 11:27:05 -0700 (PDT)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-576a9507a9bso86916667b3.1
+        for <selinux@vger.kernel.org>; Mon, 10 Jul 2023 11:27:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689012309; x=1691604309;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=paul-moore.com; s=google; t=1689013624; x=1691605624;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=EB5CFdTYWApS8YMHOsiv0TiQQf51kpScKMC8hHDqG8g=;
-        b=PRUSckhb2w2tvQVVqKRnAyFmh/xH4DVarLn2tfQUHuZsRmlUdlaoZS4tZ/DtqvuCcC
-         vw7wH9gSaid4XnJN8d0feAmFI+jdpMwX19vdHLHSWTT/aaIB+ces3ILY4kHUkuLjXoHQ
-         CmEpOHNRRSFnNjUm0goZkW6P579aehUi1pSQtU87E+sxiJeekPKGmihjBe2w1IN/vS5h
-         SSeoBmil9Z+t5D3S1+K20tHmPDDQdCz0gPzjlQBkR3Kw6vrkkebxGQd93XdCw+eVSM5A
-         bv/ahQVscDhIR+kBLYh6Q/z5/MEcwbba/IK44dTuptfxx2eLDdO7uulqpaNx7DtWj5qb
-         B3ig==
+        bh=8oy4lK8CzDdtqbHuSGAF17DmX8m83NWsHS5QtzlnP2U=;
+        b=VY3iGpnE8Ikrlh/lcRhiD3w2wVp4o61OAW7tr3rbgy00eqwi8SzWG2zirCTqJ4XrGO
+         LuFykgMl9TSnesLpyGJ9DAyT+s6Vk+RnxCp2uv7oQBx1dCKvUnGywCmklfGAbYdON4uc
+         3/AgttCVT4I0srXEsYtPDqt3xAZHNqbgem7bg/458nACDUZjZG7Kid/gCD5tIpdiSe20
+         HTgkXrVDs4IQv1BMlWTGogfJBz+32KPQTTmnfFfSelr23GjHl5tn4ChbYQ5kZghYLcSi
+         SMmqAO8YpsFzQVIzLuM3RQX456bKL1y0+2VZanccPnH7QHqcxFWG2+nMShOyiThHK64z
+         Sj/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689012309; x=1691604309;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20221208; t=1689013624; x=1691605624;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EB5CFdTYWApS8YMHOsiv0TiQQf51kpScKMC8hHDqG8g=;
-        b=ENx/GuwuC4VIM/JnABuEsLOKGsnS6a41N+EqMujrrilEv/Seoiwsj96iwCWZEvreFw
-         vCa0XVkXk12HxVehEG0wKNFe7n+X70WvXL9uaQ+m5Y9NC9kqToZT1Zl+G1stymBjuEAl
-         LuK4Tz2vAJhWVDIwqvsC7+YvgrLNF6NUDtAOokm4TgbEf2faEiGlNLbfMSwlP2FA3Ehh
-         KewhlIvhgoe0rZwNdsCqL+p4DUIhTeFfa1QZ1L/kkEBB4Phfj/Q58kSzcSvEi3xJiP5M
-         tdTQAQbgJmkMx/YxyIN+Vlt5XWtn3kC6mE4EiQEbPF8mt5bsDYhd6RSO4tiUuyCHWlbg
-         mbLg==
-X-Gm-Message-State: ABy/qLazN6B8jP4hzpdX5Tmmka/WcNZblP2AJfEeJ3qxrX2ozIyX3sB4
-        NNZTYiV1VXnrdilGRy5l49r9DfyOOcjGOu/AIzt/
-X-Google-Smtp-Source: APBJJlEXMnAXAqgSe2gS4I8jMdsUlxV2m1S0LePICnU+VtDinyOkis46Y0X2+XrvApiiB580t/Us4PR4QCI8RZeUqGA=
-X-Received: by 2002:a0d:cc47:0:b0:577:a46:26e5 with SMTP id
- o68-20020a0dcc47000000b005770a4626e5mr12504009ywd.31.1689012309085; Mon, 10
- Jul 2023 11:05:09 -0700 (PDT)
+        bh=8oy4lK8CzDdtqbHuSGAF17DmX8m83NWsHS5QtzlnP2U=;
+        b=X1VnP6qO4ROvNEScZqpFh7jOZfLfHYLOd5GKQhJpT0up5OzQruSWfzCjoSCEISpr7V
+         iN/PnXEERusoKjkh679E3OgjzwGdd5I9jmVuwMzq/AwbzLYSXkC6aeA0PeZBJK2hdSRL
+         8+Z1u2O97atuNWHRZ7wU1YwQ8N3Ovccf0wXOp2TZGrEkvZjojR3WdsoQhkvce4p7apvf
+         Q4qIUVoew3ePishJ8szAOwy4SCccDOV8AYYuRI/IQcxeE5VDZyD9OB27jr95OK6yuIC0
+         H9Hm69Hkl6hNHP8Gp3jfzbB44CZExPvpmNCtBDb6sGc50ltgBrj8VANjYYNF2410BQ9e
+         S+Rw==
+X-Gm-Message-State: ABy/qLbAbwJrHDYD/nuAJ4mpIgLmIId3O11MDeiHZ+I30JPb11gnVK0R
+        JDKXhVQkehahfTrahullEuDnB2DvYUW368mTIvadsEBX7u4YgPQ=
+X-Google-Smtp-Source: APBJJlHaoOs+L7uOxyi56GDkWHr37TuBLXgRj6XcFXKU2a46ncj8CmGY6TEqkH0wpp5kG9MXgdy4lTs1pvfOXZwRLFs=
+X-Received: by 2002:a0d:e6c6:0:b0:57a:8ba5:224b with SMTP id
+ p189-20020a0de6c6000000b0057a8ba5224bmr2270936ywe.9.1689013624152; Mon, 10
+ Jul 2023 11:27:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230610075738.3273764-2-roberto.sassu@huaweicloud.com>
- <1c8c612d99e202a61e6a6ecf50d4cace.paul@paul-moore.com> <a28c8fce-741b-e088-af5e-8a83daa7e25d@schaufler-ca.com>
- <CAHC9VhSNqzVpHcDw59a2CznaME1078SJWuEcqJx=R5PQgSjTDg@mail.gmail.com>
-In-Reply-To: <CAHC9VhSNqzVpHcDw59a2CznaME1078SJWuEcqJx=R5PQgSjTDg@mail.gmail.com>
+References: <20230616220242.340763-2-paul@paul-moore.com>
+In-Reply-To: <20230616220242.340763-2-paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 10 Jul 2023 14:04:58 -0400
-Message-ID: <CAHC9VhSFy6wf+7DXrG=6CXZC4RrpTeP2sQezX0BPc95fxGAWxQ@mail.gmail.com>
-Subject: Re: [PATCH v12 1/4] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>, zohar@linux.ibm.com,
-        dmitry.kasatkin@gmail.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Mon, 10 Jul 2023 14:26:52 -0400
+Message-ID: <CAHC9VhQJeaeaBmWHrhjLbqchZVZ4HBxXs=DgL-++nHea12nL8A@mail.gmail.com>
+Subject: Re: [PATCH] selinux: cleanup the policycap accessor functions
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 7, 2023 at 5:44=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
-> On Fri, Jul 7, 2023 at 12:54=E2=80=AFPM Casey Schaufler <casey@schaufler-=
-ca.com> wrote:
-> > On 7/6/2023 6:43 PM, Paul Moore wrote:
-> > > On Jun 10, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
-> > >> Currently, the LSM infrastructure supports only one LSM providing an=
- xattr
-> > >> and EVM calculating the HMAC on that xattr, plus other inode metadat=
-a.
-> > >>
-> > >> Allow all LSMs to provide one or multiple xattrs, by extending the s=
-ecurity
-> > >> blob reservation mechanism. Introduce the new lbs_xattr_count field =
-of the
-> > >> lsm_blob_sizes structure, so that each LSM can specify how many xatt=
-rs it
-> > >> needs, and the LSM infrastructure knows how many xattr slots it shou=
-ld
-> > >> allocate.
-> > >>
-> > >> Modify the inode_init_security hook definition, by passing the full
-> > >> xattr array allocated in security_inode_init_security(), and the cur=
-rent
-> > >> number of xattr slots in that array filled by LSMs. The first parame=
-ter
-> > >> would allow EVM to access and calculate the HMAC on xattrs supplied =
-by
-> > >> other LSMs, the second to not leave gaps in the xattr array, when an=
- LSM
-> > >> requested but did not provide xattrs (e.g. if it is not initialized)=
-.
-> > >>
-> > >> Introduce lsm_get_xattr_slot(), which LSMs can call as many times as=
- the
-> > >> number specified in the lbs_xattr_count field of the lsm_blob_sizes
-> > >> structure. During each call, lsm_get_xattr_slot() increments the num=
-ber of
-> > >> filled xattrs, so that at the next invocation it returns the next xa=
-ttr
-> > >> slot to fill.
-> > >>
-> > >> Cleanup security_inode_init_security(). Unify the !initxattrs and
-> > >> initxattrs case by simply not allocating the new_xattrs array in the
-> > >> former. Update the documentation to reflect the changes, and fix the
-> > >> description of the xattr name, as it is not allocated anymore.
-> > >>
-> > >> Adapt both SELinux and Smack to use the new definition of the
-> > >> inode_init_security hook, and to call lsm_get_xattr_slot() to obtain=
- and
-> > >> fill the reserved slots in the xattr array.
-> > >>
-> > >> Move the xattr->name assignment after the xattr->value one, so that =
-it is
-> > >> done only in case of successful memory allocation.
-> > >>
-> > >> Finally, change the default return value of the inode_init_security =
-hook
-> > >> from zero to -EOPNOTSUPP, so that BPF LSM correctly follows the hook
-> > >> conventions.
-> > >>
-> > >> Reported-by: Nicolas Bouchinet <nicolas.bouchinet@clip-os.org>
-> > >> Link: https://lore.kernel.org/linux-integrity/Y1FTSIo+1x+4X0LS@archl=
-inux/
-> > >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > >> ---
-> > >>  include/linux/lsm_hook_defs.h |  6 +--
-> > >>  include/linux/lsm_hooks.h     | 20 ++++++++++
-> > >>  security/security.c           | 71 +++++++++++++++++++++++---------=
----
-> > >>  security/selinux/hooks.c      | 17 +++++----
-> > >>  security/smack/smack_lsm.c    | 25 ++++++------
-> > >>  5 files changed, 92 insertions(+), 47 deletions(-)
-> > > Two *very* small suggestions below, but I can make those during the
-> > > merge if you are okay with that Roberto?
-> > >
-> > > I'm also going to assume that Casey is okay with the Smack portion of
-> > > this patchset?  It looks fine to me, and considering his ACK on the
-> > > other Smack patch in this patchset I'm assuming he is okay with this
-> > > one as well ... ?
-> >
-> > Yes, please feel free to add my Acked-by as needed.
+On Fri, Jun 16, 2023 at 6:02=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> Done.  Thanks Casey.
+> In the process of reverting back to directly accessing the global
+> selinux_state pointer we left behind some artifacts in the
+> selinux_policycap_XXX() helper functions.  This patch cleans up
+> some of that left-behind cruft.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/selinux/include/security.h | 35 +++++++++--------------------
+>  1 file changed, 11 insertions(+), 24 deletions(-)
 
-I'm merging the full patchset into lsm/next right now.  Thanks for all
-your work on this Roberto, and a thank you for everyone else who
-helped with reviews, testing, etc.
+Merged into selinux/next.
 
 --=20
 paul-moore.com
