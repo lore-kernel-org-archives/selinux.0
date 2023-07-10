@@ -2,203 +2,163 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51B2EC001DE
-	for <selinux@archiver.kernel.org>; Mon, 10 Jul 2023 13:33:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C68A3EB64D9
+	for <selinux@archiver.kernel.org>; Mon, 10 Jul 2023 18:05:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232762AbjGJNdP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jul 2023 09:33:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43150 "EHLO
+        id S231334AbjGJSFL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jul 2023 14:05:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232944AbjGJNdF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jul 2023 09:33:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B68019F;
-        Mon, 10 Jul 2023 06:32:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5933560FE9;
-        Mon, 10 Jul 2023 13:32:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E3BC433C9;
-        Mon, 10 Jul 2023 13:32:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688995962;
-        bh=ypo6EEC/a10vTp0LME1omXwBE1UiKK/mReyAl6l5UHQ=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=J7Z7W1QfjLNRfgVQcSdKnYFRxtD+3fk+fVeHY9xuci1TKV61DCMVSYVvDG9kwuCBX
-         g+QpzC0XDkSjeL9nV9+lGdPbp68Q96EXBiPlDNXBynN9HrAz4Y+E89ZYAnFm4gMFob
-         SGwQAd+JWX6wsLqjr9V4UXCKsBkrO6/s1MT1FJcjDjR0RhV1HnH8M/padgIYfYI3iT
-         50AKfuQ1Ba3eH+A3TeCdkft2SWR53hIVATzxttJnSld1dtaOLY6XNcMPkiIrdtp3w+
-         UMgZy7XJf81pa8iQgs3v7vGfymFo80jGgmK2T6kIjmEHcqRaAvCUmLi8QnIHmVmDpT
-         pZFJemBst7t+w==
-Message-ID: <c4eaff9389fe63ec4e29404ec0d1181b74935426.camel@kernel.org>
-Subject: Re: [PATCH v2 00/89] fs: new accessors for inode->i_ctime
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     jk@ozlabs.org, arnd@arndb.de, mpe@ellerman.id.au,
-        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-        maco@android.com, joel@joelfernandes.org, cmllamas@google.com,
-        surenb@google.com, dennis.dalessandro@cornelisnetworks.com,
-        jgg@ziepe.ca, leon@kernel.org, bwarrum@linux.ibm.com,
-        rituagar@linux.ibm.com, ericvh@kernel.org, lucho@ionkov.net,
-        asmadeus@codewreck.org, linux_oss@crudebyte.com, dsterba@suse.com,
-        dhowells@redhat.com, marc.dionne@auristor.com,
-        viro@zeniv.linux.org.uk, raven@themaw.net, luisbg@kernel.org,
-        salah.triki@gmail.com, aivazian.tigran@gmail.com,
-        ebiederm@xmission.com, keescook@chromium.org, clm@fb.com,
-        josef@toxicpanda.com, xiubli@redhat.com, idryomov@gmail.com,
-        jaharkes@cs.cmu.edu, coda@cs.cmu.edu, jlbec@evilplan.org,
-        hch@lst.de, nico@fluxnic.net, rafael@kernel.org, code@tyhicks.com,
-        ardb@kernel.org, xiang@kernel.org, chao@kernel.org,
-        huyue2@coolpad.com, jefflexu@linux.alibaba.com,
-        linkinjeon@kernel.org, sj1557.seo@samsung.com, jack@suse.com,
-        tytso@mit.edu, adilger.kernel@dilger.ca, jaegeuk@kernel.org,
-        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
-        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
-        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
-        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
-        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
-        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
-        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
-        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
-        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
-        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
-        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
-        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
-        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
-        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
-        senozhatsky@chromium.org, phillip@squashfs.org.uk,
-        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
-        hdegoede@redhat.com, djwong@kernel.org, dlemoal@kernel.org,
-        naohiro.aota@wdc.com, jth@kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
-        song@kernel.org, yhs@fb.com, john.fastabend@gmail.com,
-        kpsingh@kernel.org, sdf@google.com, haoluo@google.com,
-        jolsa@kernel.org, hughd@google.com, akpm@linux-foundation.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, john.johansen@canonical.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
-        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
-        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
-        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
-        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
-        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
-        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
-        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
-        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
-        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
-        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
-        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
-        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
-        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
-        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
-        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
-        ebiggers@google.com, princekumarmaurya06@gmail.com,
-        chenzhongjin@huawei.com, riel@surriel.com,
-        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
-        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
-        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
-        autofs@vger.kernel.org, linux-mm@kvack.org,
-        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
-        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
-        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        cluster-devel@redhat.com, linux-um@lists.infradead.org,
-        linux-mtd@lists.infradead.org,
-        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
-        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
-        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
-        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
-        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org,
-        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, netdev@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Date:   Mon, 10 Jul 2023 09:32:23 -0400
-In-Reply-To: <20230710-zudem-entkam-bb508cbd8c78@brauner>
-References: <20230705185812.579118-1-jlayton@kernel.org>
-         <5e40891f6423feb5b68f025e31f26e9a50ae9390.camel@kernel.org>
-         <20230710-zudem-entkam-bb508cbd8c78@brauner>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        with ESMTP id S231222AbjGJSFL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jul 2023 14:05:11 -0400
+Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A0BAB
+        for <selinux@vger.kernel.org>; Mon, 10 Jul 2023 11:05:09 -0700 (PDT)
+Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-57688a146ecso60278797b3.2
+        for <selinux@vger.kernel.org>; Mon, 10 Jul 2023 11:05:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1689012309; x=1691604309;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EB5CFdTYWApS8YMHOsiv0TiQQf51kpScKMC8hHDqG8g=;
+        b=PRUSckhb2w2tvQVVqKRnAyFmh/xH4DVarLn2tfQUHuZsRmlUdlaoZS4tZ/DtqvuCcC
+         vw7wH9gSaid4XnJN8d0feAmFI+jdpMwX19vdHLHSWTT/aaIB+ces3ILY4kHUkuLjXoHQ
+         CmEpOHNRRSFnNjUm0goZkW6P579aehUi1pSQtU87E+sxiJeekPKGmihjBe2w1IN/vS5h
+         SSeoBmil9Z+t5D3S1+K20tHmPDDQdCz0gPzjlQBkR3Kw6vrkkebxGQd93XdCw+eVSM5A
+         bv/ahQVscDhIR+kBLYh6Q/z5/MEcwbba/IK44dTuptfxx2eLDdO7uulqpaNx7DtWj5qb
+         B3ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689012309; x=1691604309;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EB5CFdTYWApS8YMHOsiv0TiQQf51kpScKMC8hHDqG8g=;
+        b=ENx/GuwuC4VIM/JnABuEsLOKGsnS6a41N+EqMujrrilEv/Seoiwsj96iwCWZEvreFw
+         vCa0XVkXk12HxVehEG0wKNFe7n+X70WvXL9uaQ+m5Y9NC9kqToZT1Zl+G1stymBjuEAl
+         LuK4Tz2vAJhWVDIwqvsC7+YvgrLNF6NUDtAOokm4TgbEf2faEiGlNLbfMSwlP2FA3Ehh
+         KewhlIvhgoe0rZwNdsCqL+p4DUIhTeFfa1QZ1L/kkEBB4Phfj/Q58kSzcSvEi3xJiP5M
+         tdTQAQbgJmkMx/YxyIN+Vlt5XWtn3kC6mE4EiQEbPF8mt5bsDYhd6RSO4tiUuyCHWlbg
+         mbLg==
+X-Gm-Message-State: ABy/qLazN6B8jP4hzpdX5Tmmka/WcNZblP2AJfEeJ3qxrX2ozIyX3sB4
+        NNZTYiV1VXnrdilGRy5l49r9DfyOOcjGOu/AIzt/
+X-Google-Smtp-Source: APBJJlEXMnAXAqgSe2gS4I8jMdsUlxV2m1S0LePICnU+VtDinyOkis46Y0X2+XrvApiiB580t/Us4PR4QCI8RZeUqGA=
+X-Received: by 2002:a0d:cc47:0:b0:577:a46:26e5 with SMTP id
+ o68-20020a0dcc47000000b005770a4626e5mr12504009ywd.31.1689012309085; Mon, 10
+ Jul 2023 11:05:09 -0700 (PDT)
 MIME-Version: 1.0
+References: <20230610075738.3273764-2-roberto.sassu@huaweicloud.com>
+ <1c8c612d99e202a61e6a6ecf50d4cace.paul@paul-moore.com> <a28c8fce-741b-e088-af5e-8a83daa7e25d@schaufler-ca.com>
+ <CAHC9VhSNqzVpHcDw59a2CznaME1078SJWuEcqJx=R5PQgSjTDg@mail.gmail.com>
+In-Reply-To: <CAHC9VhSNqzVpHcDw59a2CznaME1078SJWuEcqJx=R5PQgSjTDg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 10 Jul 2023 14:04:58 -0400
+Message-ID: <CAHC9VhSFy6wf+7DXrG=6CXZC4RrpTeP2sQezX0BPc95fxGAWxQ@mail.gmail.com>
+Subject: Re: [PATCH v12 1/4] security: Allow all LSMs to provide xattrs for
+ inode_init_security hook
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
+        nicolas.bouchinet@clip-os.org,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2023-07-10 at 14:35 +0200, Christian Brauner wrote:
-> On Fri, Jul 07, 2023 at 08:42:31AM -0400, Jeff Layton wrote:
-> > On Wed, 2023-07-05 at 14:58 -0400, Jeff Layton wrote:
-> > > v2:
-> > > - prepend patches to add missing ctime updates
-> > > - add simple_rename_timestamp helper function
-> > > - rename ctime accessor functions as inode_get_ctime/inode_set_ctime_=
-*
-> > > - drop individual inode_ctime_set_{sec,nsec} helpers
-> > >=20
-> >=20
-> > After review by Jan and others, and Jan's ext4 rework, the diff on top
-> > of the series I posted a couple of days ago is below. I don't really
-> > want to spam everyone with another ~100 patch v3 series, but I can if
-> > you think that's best.
-> >=20
-> > Christian, what would you like me to do here?
->=20
-> I picked up the series from the list and folded the fixups you posted
-> here into the respective fs conversion patches. I hope that helps you
-> avoid a resend. You should have received a separate "thank you" mail for
-> all of this.
->=20
-> To each patch that I folded one of the fixlets from below into I added a
-> git note that records a link to your mail here and the respective patch
-> hunk from this mail that I folded into the patch. git.kernel.org will
-> show notes by default. For example,
-> https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git/commit/?h=3Dv=
-fs.ctime&id=3D8b0e3c2e99004609a16ba145bcbdfdddb78e220e
-> should show you the note I added. You can also fetch them via
-> git fetch $remote refs/notes/*:refs/notes/*
-> (You probably know that ofc but jic.) if you're interested.
->=20
-> Based on v6.5-rc1 as of today.
->=20
+On Fri, Jul 7, 2023 at 5:44=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
+> On Fri, Jul 7, 2023 at 12:54=E2=80=AFPM Casey Schaufler <casey@schaufler-=
+ca.com> wrote:
+> > On 7/6/2023 6:43 PM, Paul Moore wrote:
+> > > On Jun 10, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
+> > >> Currently, the LSM infrastructure supports only one LSM providing an=
+ xattr
+> > >> and EVM calculating the HMAC on that xattr, plus other inode metadat=
+a.
+> > >>
+> > >> Allow all LSMs to provide one or multiple xattrs, by extending the s=
+ecurity
+> > >> blob reservation mechanism. Introduce the new lbs_xattr_count field =
+of the
+> > >> lsm_blob_sizes structure, so that each LSM can specify how many xatt=
+rs it
+> > >> needs, and the LSM infrastructure knows how many xattr slots it shou=
+ld
+> > >> allocate.
+> > >>
+> > >> Modify the inode_init_security hook definition, by passing the full
+> > >> xattr array allocated in security_inode_init_security(), and the cur=
+rent
+> > >> number of xattr slots in that array filled by LSMs. The first parame=
+ter
+> > >> would allow EVM to access and calculate the HMAC on xattrs supplied =
+by
+> > >> other LSMs, the second to not leave gaps in the xattr array, when an=
+ LSM
+> > >> requested but did not provide xattrs (e.g. if it is not initialized)=
+.
+> > >>
+> > >> Introduce lsm_get_xattr_slot(), which LSMs can call as many times as=
+ the
+> > >> number specified in the lbs_xattr_count field of the lsm_blob_sizes
+> > >> structure. During each call, lsm_get_xattr_slot() increments the num=
+ber of
+> > >> filled xattrs, so that at the next invocation it returns the next xa=
+ttr
+> > >> slot to fill.
+> > >>
+> > >> Cleanup security_inode_init_security(). Unify the !initxattrs and
+> > >> initxattrs case by simply not allocating the new_xattrs array in the
+> > >> former. Update the documentation to reflect the changes, and fix the
+> > >> description of the xattr name, as it is not allocated anymore.
+> > >>
+> > >> Adapt both SELinux and Smack to use the new definition of the
+> > >> inode_init_security hook, and to call lsm_get_xattr_slot() to obtain=
+ and
+> > >> fill the reserved slots in the xattr array.
+> > >>
+> > >> Move the xattr->name assignment after the xattr->value one, so that =
+it is
+> > >> done only in case of successful memory allocation.
+> > >>
+> > >> Finally, change the default return value of the inode_init_security =
+hook
+> > >> from zero to -EOPNOTSUPP, so that BPF LSM correctly follows the hook
+> > >> conventions.
+> > >>
+> > >> Reported-by: Nicolas Bouchinet <nicolas.bouchinet@clip-os.org>
+> > >> Link: https://lore.kernel.org/linux-integrity/Y1FTSIo+1x+4X0LS@archl=
+inux/
+> > >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > >> ---
+> > >>  include/linux/lsm_hook_defs.h |  6 +--
+> > >>  include/linux/lsm_hooks.h     | 20 ++++++++++
+> > >>  security/security.c           | 71 +++++++++++++++++++++++---------=
+---
+> > >>  security/selinux/hooks.c      | 17 +++++----
+> > >>  security/smack/smack_lsm.c    | 25 ++++++------
+> > >>  5 files changed, 92 insertions(+), 47 deletions(-)
+> > > Two *very* small suggestions below, but I can make those during the
+> > > merge if you are okay with that Roberto?
+> > >
+> > > I'm also going to assume that Casey is okay with the Smack portion of
+> > > this patchset?  It looks fine to me, and considering his ACK on the
+> > > other Smack patch in this patchset I'm assuming he is okay with this
+> > > one as well ... ?
+> >
+> > Yes, please feel free to add my Acked-by as needed.
+>
+> Done.  Thanks Casey.
 
-Many thanks!!! I'll get to work rebasing the multigrain timestamp series
-on top of that.
+I'm merging the full patchset into lsm/next right now.  Thanks for all
+your work on this Roberto, and a thank you for everyone else who
+helped with reviews, testing, etc.
 
-> Btw, both b4 and patchwork somehow treat the series in weird was.
-> IOW, based on the message id of the cover letter I was able to pull most
-> messages except for:
->=20
-> [07/92] fs: add ctime accessors infrastructure
-> [08/92] fs: new helper: simple_rename_timestamp
-> [92/92] fs: rename i_ctime field to __i_ctime
->=20
-> which I pulled in separately. Not sure what the cause of=A0
->=20
-> this is.
-
-Good to know.
-
-I ended up doing the send in two phases: one for the cover letter and
-infrastructure patches that went to everyone, and one for the per-
-subsystem patches that went do individual maintainers and lists.
-
-I suspect that screwed up the message IDs somehow. Hopefully I won't
-need to do a posting like that again soon, but I'll pay closer attention
-to the message id handling next time.
-
-Thanks again!
 --=20
-Jeff Layton <jlayton@kernel.org>
+paul-moore.com
