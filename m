@@ -2,152 +2,100 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36AC9C001DC
-	for <selinux@archiver.kernel.org>; Fri,  7 Jul 2023 21:44:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AA73EB64D9
+	for <selinux@archiver.kernel.org>; Mon, 10 Jul 2023 08:25:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231184AbjGGVoU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Jul 2023 17:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
+        id S231190AbjGJIZe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jul 2023 04:25:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230289AbjGGVoT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Jul 2023 17:44:19 -0400
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3E71FEC
-        for <selinux@vger.kernel.org>; Fri,  7 Jul 2023 14:44:17 -0700 (PDT)
-Received: by mail-yb1-xb31.google.com with SMTP id 3f1490d57ef6-c11e2b31b95so2625584276.3
-        for <selinux@vger.kernel.org>; Fri, 07 Jul 2023 14:44:17 -0700 (PDT)
+        with ESMTP id S230349AbjGJIZd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jul 2023 04:25:33 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FC84E5;
+        Mon, 10 Jul 2023 01:25:29 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-262e839647eso3228431a91.2;
+        Mon, 10 Jul 2023 01:25:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1688766256; x=1691358256;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PK1B4XUSmsVxTGEVpYofcXNkzU0O6/lnVCuUw/ZeQdk=;
-        b=LxFbbWM7m6qXuw+EWly1pWO3MyAtoZxWg6TZcpJu3iLzq2QY6sJIpGl0wupo0luYRx
-         pVRIys2j3G32VXIbzojRdil2K8tEOVhqGT5OUOeIE2PwQ52jk237oQWfc38OdQNCuGkr
-         O3fs4CDLUm4gid4rwtg7kHQU6fErmfotacH+6pwf4wXfYDRN/UcXKS1TBfFSeuz7L8io
-         EWFDUqNP4GfIkqaB31XF+P077AoYn46zSTZwCFuxxsRAkWGdRPFPeY0rpjNeM7qVBJ9s
-         BlZ5tGh7pfjTerY3fWfBsICMEwxkSP8po8czRPdb2mZscFahYWG3VZ+r0KrnClXG8nmo
-         Nwbw==
+        d=gmail.com; s=20221208; t=1688977529; x=1691569529;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=euAD73FxrqgX4gYf9cb8DIHf1pvqA0RRBkCOGjGePjQ=;
+        b=Vvxqw74ZcgEcC16phKaNK/uLFlHjNdq2y9f7JLmGab9CnmUhfpookk5dHI0pE0bIxO
+         LRjZVinIwcdgNCL3Eg5KFMQQeBlHXAcxgI7wDfU+xIzFDTrWosJguAD2K1i/sXOQGhMI
+         kqE6Mk108f4C+yiNBLK+riGUZnbmcDQVZvEFqyTw1J6s0udPI/tMD7z9fGo7apbKnER8
+         EyImHSwQJPPW4+kQ7iNmOi3BIfzj5fHj9B+jVFjrA5gw/7YlrKsr3Rb1tKI724ELnr4n
+         tqN3QtjuxYDcBKXk8wKq7F/bX9+Wve62viQ/T1RLig49WWhzwRtbszEcju/lV+llsqAg
+         adKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688766256; x=1691358256;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PK1B4XUSmsVxTGEVpYofcXNkzU0O6/lnVCuUw/ZeQdk=;
-        b=OkANeurwx6rTT1YPnDxmXWktnK0To4jXTr/PMfnlgHZvw+zsjd3zG+wmLggDcwEmuo
-         vLWwNxtpWVtZ2VRNd6QAnkfQ+87WoTKGPTi3z+tOABRe/2uvx40J2/8Rr3OKltUyLUem
-         Y/2tWGyWTXDsYdjBDGCcs2vasTbVUxPwh5KwkQVtSvGBC3f//nLInOO16dRfm/RidsPy
-         m2FTGRXOpO0IDO3Ybo1iuEg/Xs+q2Veg0hZY1o3INKcKvD6ETfdN6tAJ2FUK7rGhaDvK
-         EvtgPpyCV5Ox/z8zintbZegfuuo2IHVOhtHT5gG/k8Gf1NJVLAdeGmR2SEfvuNOSQq5P
-         BTDw==
-X-Gm-Message-State: ABy/qLaVfivg0mVNWXZpcQtrutJ+xFrI8m0/AK47UUMnvkj4B/dhJhxL
-        U8o8b013ysOZ+Q+dhuYKPkp1tjtRCOY1EGz1jQTQ
-X-Google-Smtp-Source: APBJJlGR43ihrdLgGgsRYf1YCP/AYWhQnuzYXgap5iD4vXhzbx7EYJXYzdJ8PVZfRsiuJT0N3fBYjkJYeCWWKTttST4=
-X-Received: by 2002:a0d:d64b:0:b0:579:ed5c:2d10 with SMTP id
- y72-20020a0dd64b000000b00579ed5c2d10mr5867478ywd.30.1688766256372; Fri, 07
- Jul 2023 14:44:16 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1688977529; x=1691569529;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=euAD73FxrqgX4gYf9cb8DIHf1pvqA0RRBkCOGjGePjQ=;
+        b=gEjxIdKsLKvTDBP8kXSkhY3TffBfMJXwJWgnxzTfq5PnKP32M3Er5ARWK0M4zLb03t
+         W3Tw4eH/jrcpGVZ9gvr4hDM680re0DfIELgWY6f+NjcGx98EzLqMnjdPdqmhFJnIVctP
+         Csp6peFu9K1WVL6ulP90BXc3G5GOFyXAEmT16B9FgLhvlc2hZCvVzwfxBqdIj8ssYcFO
+         rr4o1kj5/S2jBrINEIVMK/Eh92WKKTd93ohZEp/lOs7Nq5i9QJJID+i5/5zV/uGtKBDA
+         iPKJ0IWMjTbeRbgsAwKqWV53PwsBKcxPnu9Ns1AMFbdIil7V+kAhg7djV+Fq4DYwsNYx
+         LMWA==
+X-Gm-Message-State: ABy/qLa5+PdueXnf+VbpCQ+9mkvbaP2Vsb5Re1kkGJRTffptGsdJMmyj
+        QH540kuHMSo4VpzmCqw9BRqkAK5gKh07wPuSc4c=
+X-Google-Smtp-Source: APBJJlHRvaqlWVjz/Y1IZSUcs+XH5s6zsw1pngI0Hmn9h0OcD2FE53c9uFMHy8Jqx2frb22rfUBEOw==
+X-Received: by 2002:a17:90a:1f8f:b0:262:f8b8:dba2 with SMTP id x15-20020a17090a1f8f00b00262f8b8dba2mr11733398pja.35.1688977528849;
+        Mon, 10 Jul 2023 01:25:28 -0700 (PDT)
+Received: from sandbox.. ([115.178.65.130])
+        by smtp.googlemail.com with ESMTPSA id l7-20020a17090aaa8700b00264044cca0fsm11081679pjq.1.2023.07.10.01.25.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jul 2023 01:25:28 -0700 (PDT)
+Sender: Leesoo Ahn <yisooan.dev@gmail.com>
+From:   Leesoo Ahn <lsahn@ooseel.net>
+X-Google-Original-From: Leesoo Ahn <lsahn@wewakecorp.com>
+To:     lsahn@wewakecorp.com
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: optimize major part with a kernel config in selinux_mmap_addr()
+Date:   Mon, 10 Jul 2023 17:25:00 +0900
+Message-Id: <20230710082500.1838896-1-lsahn@wewakecorp.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20230610075738.3273764-2-roberto.sassu@huaweicloud.com>
- <1c8c612d99e202a61e6a6ecf50d4cace.paul@paul-moore.com> <a28c8fce-741b-e088-af5e-8a83daa7e25d@schaufler-ca.com>
-In-Reply-To: <a28c8fce-741b-e088-af5e-8a83daa7e25d@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 7 Jul 2023 17:44:05 -0400
-Message-ID: <CAHC9VhSNqzVpHcDw59a2CznaME1078SJWuEcqJx=R5PQgSjTDg@mail.gmail.com>
-Subject: Re: [PATCH v12 1/4] security: Allow all LSMs to provide xattrs for
- inode_init_security hook
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Roberto Sassu <roberto.sassu@huaweicloud.com>, zohar@linux.ibm.com,
-        dmitry.kasatkin@gmail.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        linux-kernel@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        bpf@vger.kernel.org, kpsingh@kernel.org, keescook@chromium.org,
-        nicolas.bouchinet@clip-os.org,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 7, 2023 at 12:54=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
-> On 7/6/2023 6:43 PM, Paul Moore wrote:
-> > On Jun 10, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
-> >> Currently, the LSM infrastructure supports only one LSM providing an x=
-attr
-> >> and EVM calculating the HMAC on that xattr, plus other inode metadata.
-> >>
-> >> Allow all LSMs to provide one or multiple xattrs, by extending the sec=
-urity
-> >> blob reservation mechanism. Introduce the new lbs_xattr_count field of=
- the
-> >> lsm_blob_sizes structure, so that each LSM can specify how many xattrs=
- it
-> >> needs, and the LSM infrastructure knows how many xattr slots it should
-> >> allocate.
-> >>
-> >> Modify the inode_init_security hook definition, by passing the full
-> >> xattr array allocated in security_inode_init_security(), and the curre=
-nt
-> >> number of xattr slots in that array filled by LSMs. The first paramete=
-r
-> >> would allow EVM to access and calculate the HMAC on xattrs supplied by
-> >> other LSMs, the second to not leave gaps in the xattr array, when an L=
-SM
-> >> requested but did not provide xattrs (e.g. if it is not initialized).
-> >>
-> >> Introduce lsm_get_xattr_slot(), which LSMs can call as many times as t=
-he
-> >> number specified in the lbs_xattr_count field of the lsm_blob_sizes
-> >> structure. During each call, lsm_get_xattr_slot() increments the numbe=
-r of
-> >> filled xattrs, so that at the next invocation it returns the next xatt=
-r
-> >> slot to fill.
-> >>
-> >> Cleanup security_inode_init_security(). Unify the !initxattrs and
-> >> initxattrs case by simply not allocating the new_xattrs array in the
-> >> former. Update the documentation to reflect the changes, and fix the
-> >> description of the xattr name, as it is not allocated anymore.
-> >>
-> >> Adapt both SELinux and Smack to use the new definition of the
-> >> inode_init_security hook, and to call lsm_get_xattr_slot() to obtain a=
-nd
-> >> fill the reserved slots in the xattr array.
-> >>
-> >> Move the xattr->name assignment after the xattr->value one, so that it=
- is
-> >> done only in case of successful memory allocation.
-> >>
-> >> Finally, change the default return value of the inode_init_security ho=
-ok
-> >> from zero to -EOPNOTSUPP, so that BPF LSM correctly follows the hook
-> >> conventions.
-> >>
-> >> Reported-by: Nicolas Bouchinet <nicolas.bouchinet@clip-os.org>
-> >> Link: https://lore.kernel.org/linux-integrity/Y1FTSIo+1x+4X0LS@archlin=
-ux/
-> >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> >> ---
-> >>  include/linux/lsm_hook_defs.h |  6 +--
-> >>  include/linux/lsm_hooks.h     | 20 ++++++++++
-> >>  security/security.c           | 71 +++++++++++++++++++++++-----------=
--
-> >>  security/selinux/hooks.c      | 17 +++++----
-> >>  security/smack/smack_lsm.c    | 25 ++++++------
-> >>  5 files changed, 92 insertions(+), 47 deletions(-)
-> > Two *very* small suggestions below, but I can make those during the
-> > merge if you are okay with that Roberto?
-> >
-> > I'm also going to assume that Casey is okay with the Smack portion of
-> > this patchset?  It looks fine to me, and considering his ACK on the
-> > other Smack patch in this patchset I'm assuming he is okay with this
-> > one as well ... ?
->
-> Yes, please feel free to add my Acked-by as needed.
+The major part, the conditional branch in selinux_mmap_addr() is always to be
+false so long as CONFIG_LSM_MMAP_MIN_ADDR is set to zero at compile time.
 
-Done.  Thanks Casey.
+This usually happens in some linux distros, for instance Ubuntu, which
+the config is set to zero in release version. Therefore it could be a bit
+optimized with '#if <expr>' at compile time.
 
---=20
-paul-moore.com
+Signed-off-by: Leesoo Ahn <lsahn@wewakecorp.com>
+---
+ security/selinux/hooks.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d06e350fedee..a049aab6524b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3723,11 +3723,13 @@ static int selinux_mmap_addr(unsigned long addr)
+ {
+ 	int rc = 0;
+ 
++#if CONFIG_LSM_MMAP_MIN_ADDR > 0
+ 	if (addr < CONFIG_LSM_MMAP_MIN_ADDR) {
+ 		u32 sid = current_sid();
+ 		rc = avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
+ 				  MEMPROTECT__MMAP_ZERO, NULL);
+ 	}
++#endif
+ 
+ 	return rc;
+ }
+-- 
+2.34.1
+
