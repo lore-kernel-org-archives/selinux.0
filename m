@@ -2,141 +2,2149 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C9ECEB64DA
-	for <selinux@archiver.kernel.org>; Wed, 12 Jul 2023 16:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A94C6EB64DA
+	for <selinux@archiver.kernel.org>; Wed, 12 Jul 2023 17:33:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233076AbjGLQZf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jul 2023 12:25:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56624 "EHLO
+        id S232634AbjGLRdy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jul 2023 13:33:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233142AbjGLQZR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jul 2023 12:25:17 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2076.outbound.protection.outlook.com [40.107.244.76])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6BB2213B;
-        Wed, 12 Jul 2023 09:25:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oMQY69OsbHpYa8pdE2U0rC6WHGhZe/guMD/qRM/yzjmEeVpE226KswZ4lpWNvY3qyPs5ZiO+shWV4/pX17WSKRGkYW+Pjfu+fxmad8GzXuHXpBdG3uwmO2jpe//zhHwFA7/rGtrDiXFb54Q+HT/hVz3mT+rMpcZnySXi1u5XL/UCpoN5BZkZ2VohoIofY2YIGrEYJKn4dyIUhuTJ6yBD0yQhLTwWWRY1dZUUetipNUiLwNARNTXkobfP2DWm+1elelycVg1KjPzjWt1hDF3sGZWo0gBalaLm8DYh+xnhddR9xskiaT589YJks3R5MRssF4u+fwxa4N/UU28T7La8Tw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/3/47gkvMH55/0CMpRSovEUXrZ/vEpWrsM9f3h0jkD4=;
- b=WSztg56+BI7hLJOvNlhO7fWZsctji2JzCErEhsSR43Agh1WKN5IuBUiAAEFHLwC9KTetS5LueozC8iiH3KsumjfcI01eGXE9/cjO9+ZQKVSYSUpH1eXumncOsKcdz0Q3Rx7nL7VBfQDnryc9q/D6uN8d0TYDA0xSaauSMcUIHDuuoWAZ6ykelru3fK2hOadRLyg8+m+fPXTWab1TCj/7sd4tcUCgFv1tUlfv+Kw5pwrkcMKPuYPLv6lxFYUbU5uNBNEB72ybrndExjyLmO71xf/fzeiRNQQCY8iJjOAxWQ2Zeh8+Pfz+cOS5QOM3Lbgkkxvezl0S7OF1Q/PCWfNhpg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/3/47gkvMH55/0CMpRSovEUXrZ/vEpWrsM9f3h0jkD4=;
- b=nmP0PBH9CMjr7HUHzTS0M6Qlb2T3j2VcFqwUjXoiZCnbQ6TjLGGdInTY/P5tAk5FcNr7Fbw7cYqQcV0DvDIVdBdV/AcNmTLw3LofU6RDO+4tOuNznBgrzeIGbiucGPtdvEgOb9OcHKaNton06mzHJ9qLeF4UV2leme4ck9kslkg=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
- by SJ0PR12MB5405.namprd12.prod.outlook.com (2603:10b6:a03:3af::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6565.30; Wed, 12 Jul
- 2023 16:25:01 +0000
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::2dc3:c1:e72d:55bc]) by BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::2dc3:c1:e72d:55bc%7]) with mapi id 15.20.6588.022; Wed, 12 Jul 2023
- 16:25:01 +0000
-Message-ID: <83f11260-cd26-5b46-e9d4-1ca97565a1d0@amd.com>
-Date:   Wed, 12 Jul 2023 12:24:57 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH 3/5] drm/amdkfd: use vma_is_stack() and vma_is_heap()
-Content-Language: en-US
-To:     Christoph Hellwig <hch@infradead.org>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
-        selinux@vger.kernel.org
-References: <20230712143831.120701-1-wangkefeng.wang@huawei.com>
- <20230712143831.120701-4-wangkefeng.wang@huawei.com>
- <ZK671bHU1QLYagj8@infradead.org>
-From:   Felix Kuehling <felix.kuehling@amd.com>
-In-Reply-To: <ZK671bHU1QLYagj8@infradead.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: YQBPR0101CA0048.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c00:1::25) To BN9PR12MB5115.namprd12.prod.outlook.com
- (2603:10b6:408:118::14)
+        with ESMTP id S229757AbjGLRdx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jul 2023 13:33:53 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAD2196
+        for <selinux@vger.kernel.org>; Wed, 12 Jul 2023 10:33:48 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id 38308e7fff4ca-2b702319893so117277521fa.3
+        for <selinux@vger.kernel.org>; Wed, 12 Jul 2023 10:33:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1689183226; x=1691775226;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5AdMbsKFBoNSSu+kYcIhQ66cmyCh19u3R5pLUKrc55s=;
+        b=Yuz3hHg5e0qt6k6hlBmK0Rw+hZ/d0OdCj6DclqYdtFDYzuCC9ASiSiaqso9FWdq25Q
+         7lvBKIzRmFeAlBup5SpmyGmt3tIZJdCftHIcTOBHNIY1rKHKXlmUxN2u7qgZnTP3pe7/
+         btHu8vQ9yljLTHU7RZ/TmPoiBQIZR2CDH75En2vGdQ5FYMOvovhxl6B+eCEn5SQ+MXjh
+         ZeMgGn0HvghmMnbHksINW85cLr4iIubCBfyLPOR4rHJUAPsgQON/SAhFyoYzQMESt3P8
+         TdaJZL+5dXwsmmnbvEq76itNOlS0qeKdHCosToiuQyRDGSd59Wj3xvAM8pgkoGYnDqDZ
+         1l+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689183226; x=1691775226;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5AdMbsKFBoNSSu+kYcIhQ66cmyCh19u3R5pLUKrc55s=;
+        b=hoLtP+rGcPmcwE+/2d9hajYpu5K7tclfWcyQF5hJmkXiwKP/ZKTCwm+jULbokvO/M9
+         jEbREuY+t6CJWmUoJh1ejZMtt6PL6YXr1tIEcHGI2YM5Se+AhiDTHuob23DH3dv8pVyX
+         qHNBLw0tQNdF8JtofMEzyU6GKBtLCfKFzDGzWIaJ0IKc+J4aY4J2qEmIIyXuhCJNqpd3
+         YvenFWnVR2JX0tkKd9WNZVmX1FKiIL3Wdvs1mM2lcJAfv+NGuxWgQOPBkgsGQNWq69JY
+         MdBhNp+D0rp0UGqFvZxVdDi3JZDuQDmQl7D2WNVEWfLUZlydA6Vsv9EOE11z+jkZX8zI
+         H8UA==
+X-Gm-Message-State: ABy/qLZXMfSvHHXtW4PXA5jkevRQ1HN5aXWNL0h6xx4IeABio5B49UTo
+        Fkf0SAiXnM4m2KjgGT2PPKiwILeeUe1WilewTT8=
+X-Google-Smtp-Source: APBJJlHNgz8Rvr1Ia6duvXjfUnGUulrtRxXlG/vwzxDO2Rm943V93TtA4og1E6xdHI4Q7sagsEjR2ejx7iy2KHEptYQ=
+X-Received: by 2002:a2e:9194:0:b0:2b6:e6cc:9057 with SMTP id
+ f20-20020a2e9194000000b002b6e6cc9057mr15172523ljg.51.1689183225250; Wed, 12
+ Jul 2023 10:33:45 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|SJ0PR12MB5405:EE_
-X-MS-Office365-Filtering-Correlation-Id: 54d2cf1a-4060-42c6-f067-08db82f48a53
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: DdS/k/UyI757s5MIVZCkAnaiewmbp9b9MhABMbpSasgeLFu+dl+cRwaDZ6j501gaswKmBIhVv/3D0xWQcsKXbXvQtcHDbTX3kBzaPmoLYP7Qb6vX3uyCdVaPZaD8yuZZFUq+xCdZ+FziuSHce91BeZlZGB7uEtSW4aTJU1ohNIK+F7HYz8AhXpCtadbA8NL+OmajUF6q7YE/687Be48OK9imbGNdWy04mDUvOWOySO6/5TI1zXB1vCTG3nX+dDFRJWmAjoiA16gbTmTWPMswGszLFFNw86eOyHuzvnrMcn+7SqmmpizYtOscSvvddU1RNAhVSFDvtjjou1GHlbFisSV22K3/suW37Ji3frPD+uxZs6JB9R09cUctI6ftQeeb/zmc8OY5v014qpgaUt/yLpN0JZPfhjq8tKVV3yKCXc9gni2VxT3zfg2FNggzW8U2v0/ZU61rbUP5Uy/93xtLEN1R/WMDLkGIsDfQvKDuOvQOhynwrP7K8qTQNzU24QRwaCnMRvOOSg8sUvexe4PLnTIlDroX8er1DaVD84z3Pss3NjD793FpmqCMSATJPAtecp8OSZ6YsM5gnOiTXd9HKorVrWErsxA0zAsKBQo0LWvy1vVBc0TsuzzlQzvP6aGW47OryX3tbXuSKMGI32Qqhw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(366004)(39860400002)(136003)(376002)(396003)(451199021)(38100700002)(31696002)(86362001)(31686004)(186003)(6666004)(36756003)(110136005)(6486002)(6506007)(26005)(5660300002)(2616005)(6512007)(66946007)(2906002)(66556008)(316002)(4744005)(66476007)(7416002)(8676002)(44832011)(8936002)(478600001)(83380400001)(4326008)(41300700001)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?U0V0cy96UU1JUitoMURIQ3RkZG5sbFNFT3FPbTROeCs5VDllYWYrZzdwNjBR?=
- =?utf-8?B?djNCL1VzQUd6WXRHUGxqQmNoZ2J2VTcvNkRNT2ZyK1FQMUFKOXdGOFFpWTd4?=
- =?utf-8?B?cFo3YTh1cmtCVTBReGdZdTFaK092SkRsbTlXSG4vVFliTXVjdGpxZyt5WW15?=
- =?utf-8?B?SStxMXVvZ1NWaXk2T0VSVStySHRzT1FCeFkyS09JL3JHTm9WRGYxZnlTZFpI?=
- =?utf-8?B?SkJsckFNYnFXNjF1N1FoeTZYNGJ5cXUvdVZkWGZJUjV0RzFOL2FLQ2MzdE1V?=
- =?utf-8?B?d0dHYUJRL3VDbDB2TjRQMlZVRDB5cnpUYVhsdzB3NkVnWW9RWXJhSnJGY3hK?=
- =?utf-8?B?RUpXMEsrSElxL2FRLzVGdis1MVBsSmtoaG5jcytzZDJmeUV2bzd3UUJ2d2VL?=
- =?utf-8?B?eCttakhkUWdpSlZPazNZY0dBWlphZ20yK3dwckEzaFRoWU1MNUFrOU5zKzhp?=
- =?utf-8?B?YU5FMWFjcFJHaEIyZU5USnJiaW9VUXpRK3JhWDIyOHRsZ29OQldmNG1ibWwz?=
- =?utf-8?B?ZkNWUHQ4dk9ycUdkVlY2SkloUlpHMzg0bjZkRUxMaXBSVDRQZkEwSmNpV2xa?=
- =?utf-8?B?Qy85bk94enVjTmQ4ZmN2Mml0bFU0M0VtTytVKzV6My9qeTVqVUVkTnU5Y0RC?=
- =?utf-8?B?d2RlTG9xUHJrcTlvTlo1M0hSV3Y1aFFvMVhzZmh6UlVncTBWZC9zSC9MQ29B?=
- =?utf-8?B?aDl2NEVuNHpwSTkxZXdBZWdwVGdQWHNYWkdvbjlVeHNoMHRScms3amc5ckhj?=
- =?utf-8?B?MDNFWHMxQmJXNVhwdGFtZHR6dklPMTdBUDFONUtITm8vem5YM3hEQ25OeDhZ?=
- =?utf-8?B?ZmtnL25XN2pOS0JSVmdIQmZsUC93SDRQempaK2Z3VUpCM3R2cE1jRTZFdHlQ?=
- =?utf-8?B?TndBTXROeFJuc0RhR2dVVmtPaEh4QUxIN1Q3Q0QwakJVQ3FNUlV0YjNSVllF?=
- =?utf-8?B?RWIzSzZHR1ZETFZ0ZEtMRzRVMkVyVFdaR3pVNStkWXFxOUtaNnRNVEx6QXQ4?=
- =?utf-8?B?RnlFMklaYlNwRW41K3cxU3dDVVZibTBpcmhOTkpRMFplWFBnL3RvZlUxdU5J?=
- =?utf-8?B?NWlvdGZvL3gwRWtxeVFSeGFnWVpqOU5CUWhQM3ZMSlE2eHNLNGhjZjJoNzIx?=
- =?utf-8?B?R2l4alQvb0NkcjlnRzB5UCtiMlVGdk9SajlQV3EvY01CSVRFeFNBbXpzUExG?=
- =?utf-8?B?QVlSWTRGWThHZkNKdER2MHd4d0l3S1Y4L040bDFXc1NrYlU3Qnl4VnBaNU03?=
- =?utf-8?B?UGVaN1IvWi9ZWVRISjVrZkJHeFZvc2k4b3FFNUtCU3BKVTRQNFgrcjdWemQx?=
- =?utf-8?B?WFNXd0dNenpiTlJpNkkvMTF1V2ZQZ21oK0tXQlZLMUVyRitveENoOURDN0p0?=
- =?utf-8?B?Wi9ObWlLdU5iS1hPN2VzVmMzVW5SRko4anZVRE9tUlhYU0t2R0dweWZ4VmZR?=
- =?utf-8?B?c1dGc3BEbkEyOWVuRy9pQ0dtUzBvcmRkZkp6SHpDNDVaZXVHY1krTkRkdkVN?=
- =?utf-8?B?OCtpblNZK3lvODJFcGZoUDJaNS9NNmRJRll6ellwdTJIU0lYd3NnVzIzQ3hO?=
- =?utf-8?B?emYxZHVkV2VES0c2N0gwKzhQcHFCaEd4Y1BVc1B5N0lUZnI0QXFHenhEY2Jp?=
- =?utf-8?B?TXdZZVNRcTBHeElwVWhSS2x6WGttR29oaWJadTkvSDVvYTFqQ1N3UFJCcTNz?=
- =?utf-8?B?cCs1aHZicjJXbWZIa0pUZElmWCt4NFZRZ0pjOUlMK2g5MFhscWF3MnpNQW5T?=
- =?utf-8?B?YnRMeVlSVFBUN2NyZ29yVVovUkJGWlNjR3RJRjArNVVTNVBtV1dqR0FDaWs5?=
- =?utf-8?B?WmxLeVh1QU04Y2VnM2pNYnViTlJBdUlsUlhTeXE4bjYzaEd4L2xrRTJSOE1Y?=
- =?utf-8?B?czd3WnRwRFdrMzJBT1lma0ZjUThjbllOTmhTalpsVDBmWEdLRUZMZkNSb2RS?=
- =?utf-8?B?VjFlUk10UnhZUzVxMWlWT05Na0FrSUwrQ3JJMTg5cHFzQjVOTGhodlN1MkVs?=
- =?utf-8?B?ekpEOHlneE9FZGhQWnhNbWxIT2NxVnpPTjZjTHRZYjlpREJSQ3Q1VnB6cmRo?=
- =?utf-8?B?ekRTUU4zNERQZXJKVzZBeGZYcHpQbS9YQkhES0VDbElFVVdxbHpGYk5aMzFR?=
- =?utf-8?Q?k6zPpGmn6hJnz4s4tpRnwbJVg?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 54d2cf1a-4060-42c6-f067-08db82f48a53
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2023 16:25:00.8883
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: C1zh1/k5wDb4P/oLtfnufCF8yl68ug1VUFVZPmHwO/NuQxu1Q3mWaf+9JHW8ifrz3c+Ggr0EtkKciPcpuSSyIA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB5405
+References: <20230613094346.2667592-5-lautrbach@redhat.com>
+ <20230613112054.2694389-1-lautrbach@redhat.com> <20230613112054.2694389-5-lautrbach@redhat.com>
+ <378be0be-4493-9992-8aab-c235078d3f18@redhat.com> <871qhx2en5.fsf@redhat.com> <CAP+JOzSj+F=v4r60X2ZAqNjJf9MikJ=y-DR4QTzzJQNOBEDyEg@mail.gmail.com>
+In-Reply-To: <CAP+JOzSj+F=v4r60X2ZAqNjJf9MikJ=y-DR4QTzzJQNOBEDyEg@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 12 Jul 2023 13:33:33 -0400
+Message-ID: <CAP+JOzQ1cFLBQ71hoH2FdXxkfccdkk-WD=7mzxywYzLgO8+uFg@mail.gmail.com>
+Subject: Re: [PATCH v4 4/4] python: update python.pot
+To:     Petr Lautrbach <lautrbach@redhat.com>
+Cc:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Allocations in the heap and stack tend to be small, with several 
-allocations sharing the same page. Sharing the same page for different 
-allocations with different access patterns leads to thrashing when we 
-migrate data back and forth on GPU and CPU access. To avoid this we 
-disable HMM migrations for head and stack VMAs.
-
-Regards,
-   Felix
-
-
-Am 2023-07-12 um 10:42 schrieb Christoph Hellwig:
-> On Wed, Jul 12, 2023 at 10:38:29PM +0800, Kefeng Wang wrote:
->> Use the helpers to simplify code.
-> Nothing against your addition of a helper, but a GPU driver really
-> should have no business even looking at this information..
+On Thu, Jul 6, 2023 at 9:39=E2=80=AFAM James Carter <jwcart2@gmail.com> wro=
+te:
 >
+> On Tue, Jun 27, 2023 at 10:12=E2=80=AFAM Petr Lautrbach <lautrbach@redhat=
+.com> wrote:
+> >
+> > Vit Mojzis <vmojzis@redhat.com> writes:
+> >
+> > > On 6/13/23 13:20, Petr Lautrbach wrote:
+> > >> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> >
+> > > For all four patches:
+> > > Reviewed-by: Vit Mojzis <vmojzis@redhat.com>
+> >
+> > Thanks.
+> >
+> >
+> > If there's no objection I'd like to merge this soon.
+> >
 >
+> I have no objections.
+> For these four patches,
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
+
+These four patches have been merged.
+Thanks,
+Jim
+
+> >
+> > >> ---
+> > >>   python/po/python.pot | 963 ++++++++++++++++++++++-----------------=
+----
+> > >>   1 file changed, 487 insertions(+), 476 deletions(-)
+> > >>
+> > >> diff --git a/python/po/python.pot b/python/po/python.pot
+> > >> index 16d04eb0f18e..435a1b764e34 100644
+> > >> --- a/python/po/python.pot
+> > >> +++ b/python/po/python.pot
+> > >> @@ -8,7 +8,7 @@ msgid ""
+> > >>   msgstr ""
+> > >>   "Project-Id-Version: PACKAGE VERSION\n"
+> > >>   "Report-Msgid-Bugs-To: \n"
+> > >> -"POT-Creation-Date: 2023-01-18 11:57+0100\n"
+> > >> +"POT-Creation-Date: 2023-06-12 18:13+0200\n"
+> > >>   "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+> > >>   "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+> > >>   "Language-Team: LANGUAGE <LL@li.org>\n"
+> > >> @@ -17,17 +17,12 @@ msgstr ""
+> > >>   "Content-Type: text/plain; charset=3DUTF-8\n"
+> > >>   "Content-Transfer-Encoding: 8bit\n"
+> > >>
+> > >> -#: ../audit2allow/audit2allow:239
+> > >> -msgid "******************** IMPORTANT ***********************\n"
+> > >> +#: ../audit2allow/audit2allow:244
+> > >> +msgid "IMPORTANT"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../audit2allow/audit2allow:240
+> > >> -#, python-format
+> > >> -msgid ""
+> > >> -"To make this policy package active, execute:\n"
+> > >> -"\n"
+> > >> -"semodule -i %s\n"
+> > >> -"\n"
+> > >> +#: ../audit2allow/audit2allow:245
+> > >> +msgid "To make this policy package active, execute:"
+> > >>   msgstr ""
+> > >>
+> > >>   #: ../chcat/chcat:111 ../chcat/chcat:191
+> > >> @@ -40,13 +35,13 @@ msgid "Can not modify sensitivity levels using '=
++' on %s"
+> > >>   msgstr ""
+> > >>
+> > >>   #: ../chcat/chcat:128
+> > >> -#, python-format
+> > >> -msgid "%s is already in %s"
+> > >> +#, python-brace-format
+> > >> +msgid "{target} is already in {category}"
+> > >>   msgstr ""
+> > >>
+> > >>   #: ../chcat/chcat:210 ../chcat/chcat:220
+> > >> -#, python-format
+> > >> -msgid "%s is not in %s"
+> > >> +#, python-brace-format
+> > >> +msgid "{target} is not in {category}"
+> > >>   msgstr ""
+> > >>
+> > >>   #: ../chcat/chcat:291 ../chcat/chcat:296
+> > >> @@ -152,218 +147,222 @@ msgstr ""
+> > >>
+> > >>   #: ../semanage/semanage:242
+> > >>   msgid ""
+> > >> -"\n"
+> > >> -"MLS/MCS Security Range (MLS/MCS Systems only)\n"
+> > >> -"SELinux Range  for SELinux login mapping\n"
+> > >> -"defaults to the SELinux user record range.\n"
+> > >> -"SELinux Range for SELinux user defaults to s0.\n"
+> > >> +"MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SE=
+Linux "
+> > >> +"login mapping defaults to the SELinux user record range. SELinux R=
+ange for "
+> > >> +"SELinux user defaults to s0."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:251
+> > >> +#: ../semanage/semanage:249
+> > >>   msgid ""
+> > >> -"\n"
+> > >> -"    Protocol  for  the specified port (tcp|udp|dccp|sctp) or inter=
+net "
+> > >> -"protocol\n"
+> > >> -"    version for the specified node (ipv4|ipv6).\n"
+> > >> +"Protocol for the specified port (tcp|udp|dccp|sctp) or internet pr=
+otocol "
+> > >> +"version for the specified node (ipv4|ipv6)."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:257
+> > >> -msgid ""
+> > >> -"\n"
+> > >> -"    Subnet prefix for  the specified infiniband ibpkey.\n"
+> > >> +#: ../semanage/semanage:253
+> > >> +msgid "Subnet prefix for  the specified infiniband ibpkey."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:262
+> > >> -msgid ""
+> > >> -"\n"
+> > >> -"    Name for the specified infiniband end port.\n"
+> > >> +#: ../semanage/semanage:256
+> > >> +msgid "Name for the specified infiniband end port."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:267
+> > >> +#: ../semanage/semanage:259
+> > >>   #, python-format
+> > >>   msgid "Modify a record of the %s object type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:271
+> > >> +#: ../semanage/semanage:263
+> > >>   #, python-format
+> > >>   msgid "List records of the %s object type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:275
+> > >> +#: ../semanage/semanage:267
+> > >>   #, python-format
+> > >>   msgid "Delete a record of the %s object type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:279
+> > >> +#: ../semanage/semanage:271
+> > >>   msgid "Extract customizable commands, for use within a transaction=
+"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:283
+> > >> +#: ../semanage/semanage:275
+> > >>   #, python-format
+> > >>   msgid "Remove all %s objects local customizations"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:287
+> > >> +#: ../semanage/semanage:279
+> > >>   msgid "SELinux user name"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:292
+> > >> +#: ../semanage/semanage:284
+> > >>   msgid "Manage login mappings between linux users and SELinux confi=
+ned users"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:309
+> > >> +#: ../semanage/semanage:301
+> > >>   #, python-format
+> > >>   msgid "login_name | %%groupname"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:361
+> > >> +#: ../semanage/semanage:344
+> > >>   msgid "Manage file context mapping definitions"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:375
+> > >> +#: ../semanage/semanage:359
+> > >> +msgid ""
+> > >> +"Substitute target path with sourcepath when generating default lab=
+el. This "
+> > >> +"is used with fcontext. Requires source and target path arguments. =
+The "
+> > >> +"context labeling for the target subtree is made equivalent to that=
+ defined "
+> > >> +"for the source."
+> > >> +msgstr ""
+> > >> +
+> > >> +#: ../semanage/semanage:363
+> > >>   msgid ""
+> > >> -"Substitute  target  path with sourcepath when generating default\n=
+"
+> > >> -"                                                                  =
+label.  "
+> > >> -"This is used with fcontext. Requires source  and  target\n"
+> > >> -"                                                                  =
+path  "
+> > >> -"arguments.  The context labeling for the target subtree is\n"
+> > >> -"                                                                  =
+made "
+> > >> -"equivalent to that defined for the source."
+> > >> +"File Type. This is used with fcontext. Requires a file type as sho=
+wn in the "
+> > >> +"mode field by ls, e.g. use d to match only directories or f to mat=
+ch only "
+> > >> +"regular files. The following file type options can be passed: f (r=
+egular "
+> > >> +"file), d (directory), c (character device), b (block device), s (s=
+ocket), l "
+> > >> +"(symbolic link), p (named pipe). If you do not specify a file type=
+, the file "
+> > >> +"type will default to \"all files\"."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:383
+> > >> +#: ../semanage/semanage:371
+> > >>   msgid ""
+> > >>   "Path to be labeled (may be in the form of a Perl compatible regul=
+ar "
+> > >>   "expression)"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:411
+> > >> +#: ../semanage/semanage:399
+> > >>   msgid "Manage SELinux confined users (Roles and levels for an SELi=
+nux user)"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:429
+> > >> +#: ../semanage/semanage:417
+> > >>   msgid ""
+> > >> -"\n"
+> > >> -"SELinux Roles.  You must enclose multiple roles within quotes, sep=
+arate by "
+> > >> -"spaces. Or specify -R multiple times.\n"
+> > >> +"SELinux Roles. You must enclose multiple roles within quotes, sepa=
+rate by "
+> > >> +"spaces. Or specify -R multiple times."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:433
+> > >> +#: ../semanage/semanage:419
+> > >>   msgid "selinux_name"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:461
+> > >> +#: ../semanage/semanage:447
+> > >>   msgid "Manage network port type definitions"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:477
+> > >> +#: ../semanage/semanage:463
+> > >>   msgid "port | port_range"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:506
+> > >> +#: ../semanage/semanage:492
+> > >>   msgid "Manage infiniband ibpkey type definitions"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:522
+> > >> +#: ../semanage/semanage:508
+> > >>   msgid "pkey | pkey_range"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:549
+> > >> +#: ../semanage/semanage:535
+> > >>   msgid "Manage infiniband end port type definitions"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:565
+> > >> +#: ../semanage/semanage:551
+> > >>   msgid "ibendport"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:592
+> > >> +#: ../semanage/semanage:578
+> > >>   msgid "Manage network interface type definitions"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:607
+> > >> +#: ../semanage/semanage:593
+> > >>   msgid "interface_spec"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:631
+> > >> +#: ../semanage/semanage:617
+> > >>   msgid "Manage SELinux policy modules"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:642
+> > >> +#: ../semanage/semanage:628
+> > >>   msgid "Add a module"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:643
+> > >> +#: ../semanage/semanage:629
+> > >>   msgid "Remove a module"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:644
+> > >> +#: ../semanage/semanage:630
+> > >>   msgid "Disable a module"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:645
+> > >> +#: ../semanage/semanage:631
+> > >>   msgid "Enable a module"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:672
+> > >> +#: ../semanage/semanage:658
+> > >>   msgid "Manage network node type definitions"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:686
+> > >> +#: ../semanage/semanage:672
+> > >>   msgid "Network Mask"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:690
+> > >> +#: ../semanage/semanage:676
+> > >>   msgid "node"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:715
+> > >> +#: ../semanage/semanage:701
+> > >>   msgid "Manage booleans to selectively enable functionality"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:720
+> > >> +#: ../semanage/semanage:706
+> > >>   msgid "boolean"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:730
+> > >> +#: ../semanage/semanage:716
+> > >>   msgid "Enable the boolean"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:731
+> > >> +#: ../semanage/semanage:717
+> > >>   msgid "Disable the boolean"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:752
+> > >> +#: ../semanage/semanage:738
+> > >>   msgid "semanage permissive: error: the following argument is requi=
+red: type\n"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:756
+> > >> +#: ../semanage/semanage:742
+> > >>   msgid "Manage process type enforcement mode"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:768 ../semanage/seobject.py:2677
+> > >> +#: ../semanage/semanage:754 ../semanage/seobject.py:2672
+> > >>   msgid "type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:779
+> > >> +#: ../semanage/semanage:765
+> > >>   msgid "Disable/Enable dontaudit rules in policy"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:799
+> > >> +#: ../semanage/semanage:785
+> > >>   msgid "Output local customizations"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:801
+> > >> +#: ../semanage/semanage:787
+> > >>   msgid "Output file"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:894
+> > >> +#: ../semanage/semanage:880
+> > >>   msgid "Import local customizations"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/semanage:897
+> > >> +#: ../semanage/semanage:883
+> > >>   msgid "Input file"
+> > >>   msgstr ""
+> > >>
+> > >> +#: ../semanage/semanage:891
+> > >> +msgid ""
+> > >> +"semanage is used to configure certain elements of SELinux policy w=
+ith-out "
+> > >> +"requiring modification or recompilation from policy source."
+> > >> +msgstr ""
+> > >> +
+> > >>   #: ../semanage/seobject.py:279
+> > >>   msgid "Could not create semanage handle"
+> > >>   msgstr ""
+> > >> @@ -485,123 +484,115 @@ msgstr ""
+> > >>   msgid "Customized Permissive Types"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:510
+> > >> -msgid ""
+> > >> -"The sepolgen python module is required to setup permissive domains=
+.\n"
+> > >> -"In some distributions it is included in the policycoreutils-devel =
+package.\n"
+> > >> -"# yum install policycoreutils-devel\n"
+> > >> -"Or similar for your distro."
+> > >> -msgstr ""
+> > >> -
+> > >> -#: ../semanage/seobject.py:520
+> > >> +#: ../semanage/seobject.py:515
+> > >>   #, python-format
+> > >>   msgid "Could not set permissive domain %s (module installation fai=
+led)"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:526
+> > >> +#: ../semanage/seobject.py:521
+> > >>   #, python-format
+> > >>   msgid "Could not remove permissive domain %s (remove failed)"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:563 ../semanage/seobject.py:633
+> > >> -#: ../semanage/seobject.py:678 ../semanage/seobject.py:797
+> > >> -#: ../semanage/seobject.py:827 ../semanage/seobject.py:892
+> > >> -#: ../semanage/seobject.py:948 ../semanage/seobject.py:1226
+> > >> -#: ../semanage/seobject.py:1492 ../semanage/seobject.py:2502
+> > >> -#: ../semanage/seobject.py:2575 ../semanage/seobject.py:2599
+> > >> -#: ../semanage/seobject.py:2730 ../semanage/seobject.py:2781
+> > >> +#: ../semanage/seobject.py:558 ../semanage/seobject.py:628
+> > >> +#: ../semanage/seobject.py:673 ../semanage/seobject.py:792
+> > >> +#: ../semanage/seobject.py:822 ../semanage/seobject.py:887
+> > >> +#: ../semanage/seobject.py:943 ../semanage/seobject.py:1221
+> > >> +#: ../semanage/seobject.py:1487 ../semanage/seobject.py:2497
+> > >> +#: ../semanage/seobject.py:2570 ../semanage/seobject.py:2594
+> > >> +#: ../semanage/seobject.py:2725 ../semanage/seobject.py:2776
+> > >>   #, python-format
+> > >>   msgid "Could not create a key for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:567 ../semanage/seobject.py:637
+> > >> -#: ../semanage/seobject.py:682 ../semanage/seobject.py:688
+> > >> +#: ../semanage/seobject.py:562 ../semanage/seobject.py:632
+> > >> +#: ../semanage/seobject.py:677 ../semanage/seobject.py:683
+> > >>   #, python-format
+> > >>   msgid "Could not check if login mapping for %s is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:569
+> > >> +#: ../semanage/seobject.py:564
+> > >>   #, python-format
+> > >>   msgid "Login mapping for %s is already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:574
+> > >> +#: ../semanage/seobject.py:569
+> > >>   #, python-format
+> > >>   msgid "Linux Group %s does not exist"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:579
+> > >> +#: ../semanage/seobject.py:574
+> > >>   #, python-format
+> > >>   msgid "Linux User %s does not exist"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:583
+> > >> +#: ../semanage/seobject.py:578
+> > >>   #, python-format
+> > >>   msgid "Could not create login mapping for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:587 ../semanage/seobject.py:841
+> > >> +#: ../semanage/seobject.py:582 ../semanage/seobject.py:836
+> > >>   #, python-format
+> > >>   msgid "Could not set name for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:592 ../semanage/seobject.py:851
+> > >> +#: ../semanage/seobject.py:587 ../semanage/seobject.py:846
+> > >>   #, python-format
+> > >>   msgid "Could not set MLS range for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:596
+> > >> +#: ../semanage/seobject.py:591
+> > >>   #, python-format
+> > >>   msgid "Could not set SELinux user for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:600
+> > >> +#: ../semanage/seobject.py:595
+> > >>   #, python-format
+> > >>   msgid "Could not add login mapping for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:616
+> > >> +#: ../semanage/seobject.py:611
+> > >>   msgid "Requires seuser or serange"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:639 ../semanage/seobject.py:684
+> > >> +#: ../semanage/seobject.py:634 ../semanage/seobject.py:679
+> > >>   #, python-format
+> > >>   msgid "Login mapping for %s is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:643
+> > >> +#: ../semanage/seobject.py:638
+> > >>   #, python-format
+> > >>   msgid "Could not query seuser for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:658
+> > >> +#: ../semanage/seobject.py:653
+> > >>   #, python-format
+> > >>   msgid "Could not modify login mapping for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:690
+> > >> +#: ../semanage/seobject.py:685
+> > >>   #, python-format
+> > >>   msgid "Login mapping for %s is defined in policy, cannot be delete=
+d"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:694
+> > >> +#: ../semanage/seobject.py:689
+> > >>   #, python-format
+> > >>   msgid "Could not delete login mapping for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:713 ../semanage/seobject.py:745
+> > >> -#: ../semanage/seobject.py:991
+> > >> +#: ../semanage/seobject.py:708 ../semanage/seobject.py:740
+> > >> +#: ../semanage/seobject.py:986
+> > >>   msgid "Could not list login mappings"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:772 ../semanage/seobject.py:784
+> > >> +#: ../semanage/seobject.py:767 ../semanage/seobject.py:779
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:1156
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:3138
+> > >>   msgid "Login Name"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:772 ../semanage/seobject.py:784
+> > >> -#: ../semanage/seobject.py:1041 ../semanage/seobject.py:1046
+> > >> +#: ../semanage/seobject.py:767 ../semanage/seobject.py:779
+> > >> +#: ../semanage/seobject.py:1036 ../semanage/seobject.py:1041
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:1182
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:3156
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:3242
+> > >> @@ -609,938 +600,958 @@ msgstr ""
+> > >>   msgid "SELinux User"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:772
+> > >> +#: ../semanage/seobject.py:767
+> > >>   msgid "MLS/MCS Range"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:772
+> > >> +#: ../semanage/seobject.py:767
+> > >>   msgid "Service"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:800 ../semanage/seobject.py:831
+> > >> -#: ../semanage/seobject.py:896 ../semanage/seobject.py:952
+> > >> -#: ../semanage/seobject.py:958
+> > >> +#: ../semanage/seobject.py:795 ../semanage/seobject.py:826
+> > >> +#: ../semanage/seobject.py:891 ../semanage/seobject.py:947
+> > >> +#: ../semanage/seobject.py:953
+> > >>   #, python-format
+> > >>   msgid "Could not check if SELinux user %s is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:803 ../semanage/seobject.py:902
+> > >> -#: ../semanage/seobject.py:964
+> > >> +#: ../semanage/seobject.py:798 ../semanage/seobject.py:897
+> > >> +#: ../semanage/seobject.py:959
+> > >>   #, python-format
+> > >>   msgid "Could not query user for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:823
+> > >> +#: ../semanage/seobject.py:818
+> > >>   #, python-format
+> > >>   msgid "You must add at least one role for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:833
+> > >> +#: ../semanage/seobject.py:828
+> > >>   #, python-format
+> > >>   msgid "SELinux user %s is already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:837
+> > >> +#: ../semanage/seobject.py:832
+> > >>   #, python-format
+> > >>   msgid "Could not create SELinux user for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:846
+> > >> -#, python-format
+> > >> -msgid "Could not add role %s for %s"
+> > >> +#: ../semanage/seobject.py:841
+> > >> +#, python-brace-format
+> > >> +msgid "Could not add role {role} for {name}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:855
+> > >> +#: ../semanage/seobject.py:850
+> > >>   #, python-format
+> > >>   msgid "Could not set MLS level for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:858
+> > >> -#, python-format
+> > >> -msgid "Could not add prefix %s for %s"
+> > >> +#: ../semanage/seobject.py:853
+> > >> +#, python-brace-format
+> > >> +msgid "Could not add prefix {prefix} for {role}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:861
+> > >> +#: ../semanage/seobject.py:856
+> > >>   #, python-format
+> > >>   msgid "Could not extract key for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:865
+> > >> +#: ../semanage/seobject.py:860
+> > >>   #, python-format
+> > >>   msgid "Could not add SELinux user %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:886
+> > >> +#: ../semanage/seobject.py:881
+> > >>   msgid "Requires prefix, roles, level or range"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:888
+> > >> +#: ../semanage/seobject.py:883
+> > >>   msgid "Requires prefix or roles"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:898 ../semanage/seobject.py:954
+> > >> +#: ../semanage/seobject.py:893 ../semanage/seobject.py:949
+> > >>   #, python-format
+> > >>   msgid "SELinux user %s is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:927
+> > >> +#: ../semanage/seobject.py:922
+> > >>   #, python-format
+> > >>   msgid "Could not modify SELinux user %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:960
+> > >> +#: ../semanage/seobject.py:955
+> > >>   #, python-format
+> > >>   msgid "SELinux user %s is defined in policy, cannot be deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:971
+> > >> +#: ../semanage/seobject.py:966
+> > >>   #, python-format
+> > >>   msgid "Could not delete SELinux user %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1009
+> > >> +#: ../semanage/seobject.py:1004
+> > >>   msgid "Could not list SELinux users"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1015
+> > >> +#: ../semanage/seobject.py:1010
+> > >>   #, python-format
+> > >>   msgid "Could not list roles for user %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1040
+> > >> +#: ../semanage/seobject.py:1035
+> > >>   msgid "Labeling"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1040
+> > >> +#: ../semanage/seobject.py:1035
+> > >>   msgid "MLS/"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1041
+> > >> +#: ../semanage/seobject.py:1036
+> > >>   msgid "Prefix"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1041
+> > >> +#: ../semanage/seobject.py:1036
+> > >>   msgid "MCS Level"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1041
+> > >> +#: ../semanage/seobject.py:1036
+> > >>   msgid "MCS Range"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1041 ../semanage/seobject.py:1046
+> > >> +#: ../semanage/seobject.py:1036 ../semanage/seobject.py:1041
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:3262
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:5233
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:5382
+> > >>   msgid "SELinux Roles"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1071
+> > >> +#: ../semanage/seobject.py:1066
+> > >>   msgid "Protocol has to be one of udp, tcp, dccp or sctp"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1073
+> > >> +#: ../semanage/seobject.py:1068
+> > >>   msgid "Port is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1087
+> > >> +#: ../semanage/seobject.py:1082
+> > >>   msgid "Invalid Port"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1091 ../semanage/seobject.py:1365
+> > >> -#, python-format
+> > >> -msgid "Could not create a key for %s/%s"
+> > >> +#: ../semanage/seobject.py:1086
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create a key for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1102 ../semanage/seobject.py:1376
+> > >> -#: ../semanage/seobject.py:1631
+> > >> +#: ../semanage/seobject.py:1097 ../semanage/seobject.py:1371
+> > >> +#: ../semanage/seobject.py:1626
+> > >>   msgid "Type is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1107 ../semanage/seobject.py:1172
+> > >> +#: ../semanage/seobject.py:1102 ../semanage/seobject.py:1167
+> > >>   #, python-format
+> > >>   msgid "Type %s is invalid, must be a port type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1113 ../semanage/seobject.py:1178
+> > >> -#: ../semanage/seobject.py:1244 ../semanage/seobject.py:1250
+> > >> -#, python-format
+> > >> -msgid "Could not check if port %s/%s is defined"
+> > >> +#: ../semanage/seobject.py:1108 ../semanage/seobject.py:1173
+> > >> +#: ../semanage/seobject.py:1239 ../semanage/seobject.py:1245
+> > >> +#, python-brace-format
+> > >> +msgid "Could not check if port {proto}/{port} is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1115
+> > >> -#, python-format
+> > >> -msgid "Port %s/%s already defined"
+> > >> +#: ../semanage/seobject.py:1110
+> > >> +#, python-brace-format
+> > >> +msgid "Port {proto}/{port} already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1119
+> > >> -#, python-format
+> > >> -msgid "Could not create port for %s/%s"
+> > >> +#: ../semanage/seobject.py:1114
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create port for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1125 ../semanage/seobject.py:1399
+> > >> -#: ../semanage/seobject.py:1653
+> > >> -#, python-format
+> > >> -msgid "Could not create context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1120
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create context for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1129
+> > >> -#, python-format
+> > >> -msgid "Could not set user in port context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1124
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set user in port context for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1133
+> > >> -#, python-format
+> > >> -msgid "Could not set role in port context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1128
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set role in port context for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1137
+> > >> -#, python-format
+> > >> -msgid "Could not set type in port context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1132
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set type in port context for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1142
+> > >> -#, python-format
+> > >> -msgid "Could not set mls fields in port context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1137
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set mls fields in port context for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1146
+> > >> -#, python-format
+> > >> -msgid "Could not set port context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1141
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set port context for {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1150
+> > >> -#, python-format
+> > >> -msgid "Could not add port %s/%s"
+> > >> +#: ../semanage/seobject.py:1145
+> > >> +#, python-brace-format
+> > >> +msgid "Could not add port {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1166 ../semanage/seobject.py:1438
+> > >> -#: ../semanage/seobject.py:1692 ../semanage/seobject.py:1970
+> > >> -#: ../semanage/seobject.py:2176
+> > >> +#: ../semanage/seobject.py:1161 ../semanage/seobject.py:1433
+> > >> +#: ../semanage/seobject.py:1687 ../semanage/seobject.py:1965
+> > >> +#: ../semanage/seobject.py:2171
+> > >>   msgid "Requires setype or serange"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1168 ../semanage/seobject.py:1440
+> > >> -#: ../semanage/seobject.py:1694
+> > >> +#: ../semanage/seobject.py:1163 ../semanage/seobject.py:1435
+> > >> +#: ../semanage/seobject.py:1689
+> > >>   msgid "Requires setype"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1180 ../semanage/seobject.py:1246
+> > >> -#, python-format
+> > >> -msgid "Port %s/%s is not defined"
+> > >> +#: ../semanage/seobject.py:1175 ../semanage/seobject.py:1241
+> > >> +#, python-brace-format
+> > >> +msgid "Port {proto}/{port} is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1184
+> > >> -#, python-format
+> > >> -msgid "Could not query port %s/%s"
+> > >> +#: ../semanage/seobject.py:1179
+> > >> +#, python-brace-format
+> > >> +msgid "Could not query port {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1198
+> > >> -#, python-format
+> > >> -msgid "Could not modify port %s/%s"
+> > >> +#: ../semanage/seobject.py:1193
+> > >> +#, python-brace-format
+> > >> +msgid "Could not modify port {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1213
+> > >> +#: ../semanage/seobject.py:1208
+> > >>   msgid "Could not list the ports"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1230
+> > >> +#: ../semanage/seobject.py:1225
+> > >>   #, python-format
+> > >>   msgid "Could not delete the port %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1252
+> > >> -#, python-format
+> > >> -msgid "Port %s/%s is defined in policy, cannot be deleted"
+> > >> +#: ../semanage/seobject.py:1247
+> > >> +#, python-brace-format
+> > >> +msgid "Port {proto}/{port} is defined in policy, cannot be deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1256
+> > >> -#, python-format
+> > >> -msgid "Could not delete port %s/%s"
+> > >> +#: ../semanage/seobject.py:1251
+> > >> +#, python-brace-format
+> > >> +msgid "Could not delete port {proto}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1274 ../semanage/seobject.py:1294
+> > >> +#: ../semanage/seobject.py:1269 ../semanage/seobject.py:1289
+> > >>   msgid "Could not list ports"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1329 ../sepolicy/sepolicy/sepolicy.glade=
+:2668
+> > >> +#: ../semanage/seobject.py:1324 ../sepolicy/sepolicy/sepolicy.glade=
+:2668
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:2766
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:4630
+> > >>   msgid "SELinux Port Type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1329
+> > >> +#: ../semanage/seobject.py:1324
+> > >>   msgid "Proto"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1329 ../semanage/seobject.py:1835
+> > >> +#: ../semanage/seobject.py:1324 ../semanage/seobject.py:1830
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:1407
+> > >>   msgid "Port Number"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1351
+> > >> +#: ../semanage/seobject.py:1346
+> > >>   msgid "Subnet Prefix is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1361
+> > >> +#: ../semanage/seobject.py:1356
+> > >>   msgid "Invalid Pkey"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1381 ../semanage/seobject.py:1445
+> > >> +#: ../semanage/seobject.py:1360
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create a key for {subnet_prefix}/{pkey}"
+> > >> +msgstr ""
+> > >> +
+> > >> +#: ../semanage/seobject.py:1376 ../semanage/seobject.py:1440
+> > >>   #, python-format
+> > >>   msgid "Type %s is invalid, must be a ibpkey type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1387 ../semanage/seobject.py:1451
+> > >> -#: ../semanage/seobject.py:1505 ../semanage/seobject.py:1511
+> > >> -#, python-format
+> > >> -msgid "Could not check if ibpkey %s/%s is defined"
+> > >> +#: ../semanage/seobject.py:1382 ../semanage/seobject.py:1446
+> > >> +#: ../semanage/seobject.py:1500 ../semanage/seobject.py:1506
+> > >> +#, python-brace-format
+> > >> +msgid "Could not check if ibpkey {subnet_prefix}/{pkey} is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1389
+> > >> -#, python-format
+> > >> -msgid "ibpkey %s/%s already defined"
+> > >> +#: ../semanage/seobject.py:1384
+> > >> +#, python-brace-format
+> > >> +msgid "ibpkey {subnet_prefix}/{pkey} already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1393
+> > >> -#, python-format
+> > >> -msgid "Could not create ibpkey for %s/%s"
+> > >> +#: ../semanage/seobject.py:1388
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create ibpkey for {subnet_prefix}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1403
+> > >> -#, python-format
+> > >> -msgid "Could not set user in ibpkey context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1394
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create context for {subnet_prefix}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1407
+> > >> -#, python-format
+> > >> -msgid "Could not set role in ibpkey context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1398
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set user in ibpkey context for {subnet_prefix}/{pk=
+ey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1411
+> > >> -#, python-format
+> > >> -msgid "Could not set type in ibpkey context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1402
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set role in ibpkey context for {subnet_prefix}/{pk=
+ey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1416
+> > >> -#, python-format
+> > >> -msgid "Could not set mls fields in ibpkey context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1406
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set type in ibpkey context for {subnet_prefix}/{pk=
+ey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1420
+> > >> -#, python-format
+> > >> -msgid "Could not set ibpkey context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1411
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set mls fields in ibpkey context for {subnet_prefi=
+x}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1424
+> > >> -#, python-format
+> > >> -msgid "Could not add ibpkey %s/%s"
+> > >> +#: ../semanage/seobject.py:1415
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set ibpkey context for {subnet_prefix}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1453 ../semanage/seobject.py:1507
+> > >> -#, python-format
+> > >> -msgid "ibpkey %s/%s is not defined"
+> > >> +#: ../semanage/seobject.py:1419
+> > >> +#, python-brace-format
+> > >> +msgid "Could not add ibpkey {subnet_prefix}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1457
+> > >> -#, python-format
+> > >> -msgid "Could not query ibpkey %s/%s"
+> > >> +#: ../semanage/seobject.py:1448 ../semanage/seobject.py:1502
+> > >> +#, python-brace-format
+> > >> +msgid "ibpkey {subnet_prefix}/{pkey} is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1468
+> > >> -#, python-format
+> > >> -msgid "Could not modify ibpkey %s/%s"
+> > >> +#: ../semanage/seobject.py:1452
+> > >> +#, python-brace-format
+> > >> +msgid "Could not query ibpkey {subnet_prefix}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1481
+> > >> +#: ../semanage/seobject.py:1463
+> > >> +#, python-brace-format
+> > >> +msgid "Could not modify ibpkey {subnet_prefix}/{pkey}"
+> > >> +msgstr ""
+> > >> +
+> > >> +#: ../semanage/seobject.py:1476
+> > >>   msgid "Could not list the ibpkeys"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1496
+> > >> +#: ../semanage/seobject.py:1491
+> > >>   #, python-format
+> > >>   msgid "Could not delete the ibpkey %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1513
+> > >> -#, python-format
+> > >> -msgid "ibpkey %s/%s is defined in policy, cannot be deleted"
+> > >> +#: ../semanage/seobject.py:1508
+> > >> +#, python-brace-format
+> > >> +msgid "ibpkey {subnet_prefix}/{pkey} is defined in policy, cannot b=
+e deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1517
+> > >> -#, python-format
+> > >> -msgid "Could not delete ibpkey %s/%s"
+> > >> +#: ../semanage/seobject.py:1512
+> > >> +#, python-brace-format
+> > >> +msgid "Could not delete ibpkey {subnet_prefix}/{pkey}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1533 ../semanage/seobject.py:1554
+> > >> +#: ../semanage/seobject.py:1528 ../semanage/seobject.py:1549
+> > >>   msgid "Could not list ibpkeys"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1589
+> > >> +#: ../semanage/seobject.py:1584
+> > >>   msgid "SELinux IB Pkey Type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1589
+> > >> +#: ../semanage/seobject.py:1584
+> > >>   msgid "Subnet_Prefix"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1589
+> > >> +#: ../semanage/seobject.py:1584
+> > >>   msgid "Pkey Number"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1611
+> > >> +#: ../semanage/seobject.py:1606
+> > >>   msgid "IB device name is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1616
+> > >> +#: ../semanage/seobject.py:1611
+> > >>   msgid "Invalid Port Number"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1620
+> > >> -#, python-format
+> > >> -msgid "Could not create a key for ibendport %s/%s"
+> > >> +#: ../semanage/seobject.py:1615
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create a key for ibendport {ibdev_name}/{ibendport=
+}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1636 ../semanage/seobject.py:1699
+> > >> +#: ../semanage/seobject.py:1631 ../semanage/seobject.py:1694
+> > >>   #, python-format
+> > >>   msgid "Type %s is invalid, must be an ibendport type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1641 ../semanage/seobject.py:1705
+> > >> -#: ../semanage/seobject.py:1757 ../semanage/seobject.py:1763
+> > >> -#, python-format
+> > >> -msgid "Could not check if ibendport %s/%s is defined"
+> > >> +#: ../semanage/seobject.py:1636
+> > >> +#, python-brace-format
+> > >> +msgid "Could not check if ibendport {ibdev_name}/{port} is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1643
+> > >> -#, python-format
+> > >> -msgid "ibendport %s/%s already defined"
+> > >> +#: ../semanage/seobject.py:1638
+> > >> +#, python-brace-format
+> > >> +msgid "ibendport {ibdev_name}/{port} already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1647
+> > >> -#, python-format
+> > >> -msgid "Could not create ibendport for %s/%s"
+> > >> +#: ../semanage/seobject.py:1642
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create ibendport for {ibdev_name}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1657
+> > >> -#, python-format
+> > >> -msgid "Could not set user in ibendport context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1648
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create context for {ibendport}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1661
+> > >> -#, python-format
+> > >> -msgid "Could not set role in ibendport context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1652
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set user in ibendport context for {ibdev_name}/{po=
+rt}"
+> > >> +msgstr ""
+> > >> +
+> > >> +#: ../semanage/seobject.py:1656
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set role in ibendport context for {ibdev_name}/{po=
+rt}"
+> > >> +msgstr ""
+> > >> +
+> > >> +#: ../semanage/seobject.py:1660
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set type in ibendport context for {ibdev_name}/{po=
+rt}"
+> > >>   msgstr ""
+> > >>
+> > >>   #: ../semanage/seobject.py:1665
+> > >> -#, python-format
+> > >> -msgid "Could not set type in ibendport context for %s/%s"
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set mls fields in ibendport context for {ibdev_nam=
+e}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1670
+> > >> -#, python-format
+> > >> -msgid "Could not set mls fields in ibendport context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1669
+> > >> +#, python-brace-format
+> > >> +msgid "Could not set ibendport context for {ibdev_name}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1674
+> > >> -#, python-format
+> > >> -msgid "Could not set ibendport context for %s/%s"
+> > >> +#: ../semanage/seobject.py:1673
+> > >> +#, python-brace-format
+> > >> +msgid "Could not add ibendport {ibdev_name}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1678
+> > >> -#, python-format
+> > >> -msgid "Could not add ibendport %s/%s"
+> > >> +#: ../semanage/seobject.py:1700 ../semanage/seobject.py:1752
+> > >> +#: ../semanage/seobject.py:1758
+> > >> +#, python-brace-format
+> > >> +msgid "Could not check if ibendport {ibdev_name}/{ibendport} is def=
+ined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1707 ../semanage/seobject.py:1759
+> > >> -#, python-format
+> > >> -msgid "ibendport %s/%s is not defined"
+> > >> +#: ../semanage/seobject.py:1702 ../semanage/seobject.py:1754
+> > >> +#, python-brace-format
+> > >> +msgid "ibendport {ibdev_name}/{ibendport} is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1711
+> > >> -#, python-format
+> > >> -msgid "Could not query ibendport %s/%s"
+> > >> +#: ../semanage/seobject.py:1706
+> > >> +#, python-brace-format
+> > >> +msgid "Could not query ibendport {ibdev_name}/{ibendport}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1722
+> > >> -#, python-format
+> > >> -msgid "Could not modify ibendport %s/%s"
+> > >> +#: ../semanage/seobject.py:1717
+> > >> +#, python-brace-format
+> > >> +msgid "Could not modify ibendport {ibdev_name}/{ibendport}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1735
+> > >> +#: ../semanage/seobject.py:1730
+> > >>   msgid "Could not list the ibendports"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1744
+> > >> -#, python-format
+> > >> -msgid "Could not create a key for %s/%d"
+> > >> +#: ../semanage/seobject.py:1739
+> > >> +#, python-brace-format
+> > >> +msgid "Could not create a key for {ibdev_name}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1748
+> > >> -#, python-format
+> > >> -msgid "Could not delete the ibendport %s/%d"
+> > >> +#: ../semanage/seobject.py:1743
+> > >> +#, python-brace-format
+> > >> +msgid "Could not delete the ibendport {ibdev_name}/{port}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1765
+> > >> -#, python-format
+> > >> -msgid "ibendport %s/%s is defined in policy, cannot be deleted"
+> > >> +#: ../semanage/seobject.py:1760
+> > >> +#, python-brace-format
+> > >> +msgid ""
+> > >> +"ibendport {ibdev_name}/{ibendport} is defined in policy, cannot be=
+ deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1769
+> > >> -#, python-format
+> > >> -msgid "Could not delete ibendport %s/%s"
+> > >> +#: ../semanage/seobject.py:1764
+> > >> +#, python-brace-format
+> > >> +msgid "Could not delete ibendport {ibdev_name}/{ibendport}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1785 ../semanage/seobject.py:1805
+> > >> +#: ../semanage/seobject.py:1780 ../semanage/seobject.py:1800
+> > >>   msgid "Could not list ibendports"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1835
+> > >> +#: ../semanage/seobject.py:1830
+> > >>   msgid "SELinux IB End Port Type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1835
+> > >> +#: ../semanage/seobject.py:1830
+> > >>   msgid "IB Device Name"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1861
+> > >> +#: ../semanage/seobject.py:1856
+> > >>   msgid "Node Address is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1873 ../semanage/seobject.py:1885
+> > >> +#: ../semanage/seobject.py:1868 ../semanage/seobject.py:1880
+> > >>   msgid "Unknown or missing protocol"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1899
+> > >> +#: ../semanage/seobject.py:1894
+> > >>   msgid "SELinux node type is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1904 ../semanage/seobject.py:1975
+> > >> +#: ../semanage/seobject.py:1899 ../semanage/seobject.py:1970
+> > >>   #, python-format
+> > >>   msgid "Type %s is invalid, must be a node type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1908 ../semanage/seobject.py:1979
+> > >> -#: ../semanage/seobject.py:2016 ../semanage/seobject.py:2117
+> > >> -#: ../semanage/seobject.py:2180 ../semanage/seobject.py:2216
+> > >> -#: ../semanage/seobject.py:2435
+> > >> +#: ../semanage/seobject.py:1903 ../semanage/seobject.py:1974
+> > >> +#: ../semanage/seobject.py:2011 ../semanage/seobject.py:2112
+> > >> +#: ../semanage/seobject.py:2175 ../semanage/seobject.py:2211
+> > >> +#: ../semanage/seobject.py:2430
+> > >>   #, python-format
+> > >>   msgid "Could not create key for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1912 ../semanage/seobject.py:1983
+> > >> -#: ../semanage/seobject.py:2020 ../semanage/seobject.py:2026
+> > >> +#: ../semanage/seobject.py:1907 ../semanage/seobject.py:1978
+> > >> +#: ../semanage/seobject.py:2015 ../semanage/seobject.py:2021
+> > >>   #, python-format
+> > >>   msgid "Could not check if addr %s is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1914
+> > >> +#: ../semanage/seobject.py:1909
+> > >>   #, python-format
+> > >>   msgid "Addr %s already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1918
+> > >> +#: ../semanage/seobject.py:1913
+> > >>   #, python-format
+> > >>   msgid "Could not create addr for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1924 ../semanage/seobject.py:2132
+> > >> -#: ../semanage/seobject.py:2389
+> > >> +#: ../semanage/seobject.py:1919 ../semanage/seobject.py:2127
+> > >> +#: ../semanage/seobject.py:2384
+> > >>   #, python-format
+> > >>   msgid "Could not create context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1928
+> > >> +#: ../semanage/seobject.py:1923
+> > >>   #, python-format
+> > >>   msgid "Could not set mask for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1932
+> > >> +#: ../semanage/seobject.py:1927
+> > >>   #, python-format
+> > >>   msgid "Could not set user in addr context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1936
+> > >> +#: ../semanage/seobject.py:1931
+> > >>   #, python-format
+> > >>   msgid "Could not set role in addr context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1940
+> > >> +#: ../semanage/seobject.py:1935
+> > >>   #, python-format
+> > >>   msgid "Could not set type in addr context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1945
+> > >> +#: ../semanage/seobject.py:1940
+> > >>   #, python-format
+> > >>   msgid "Could not set mls fields in addr context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1949
+> > >> +#: ../semanage/seobject.py:1944
+> > >>   #, python-format
+> > >>   msgid "Could not set addr context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1953
+> > >> +#: ../semanage/seobject.py:1948
+> > >>   #, python-format
+> > >>   msgid "Could not add addr %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1985 ../semanage/seobject.py:2022
+> > >> +#: ../semanage/seobject.py:1980 ../semanage/seobject.py:2017
+> > >>   #, python-format
+> > >>   msgid "Addr %s is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1989
+> > >> +#: ../semanage/seobject.py:1984
+> > >>   #, python-format
+> > >>   msgid "Could not query addr %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:1999
+> > >> +#: ../semanage/seobject.py:1994
+> > >>   #, python-format
+> > >>   msgid "Could not modify addr %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2028
+> > >> +#: ../semanage/seobject.py:2023
+> > >>   #, python-format
+> > >>   msgid "Addr %s is defined in policy, cannot be deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2032
+> > >> +#: ../semanage/seobject.py:2027
+> > >>   #, python-format
+> > >>   msgid "Could not delete addr %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2046
+> > >> +#: ../semanage/seobject.py:2041
+> > >>   msgid "Could not deleteall node mappings"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2060
+> > >> +#: ../semanage/seobject.py:2055
+> > >>   msgid "Could not list addrs"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2113 ../semanage/seobject.py:2426
+> > >> +#: ../semanage/seobject.py:2108 ../semanage/seobject.py:2421
+> > >>   msgid "SELinux Type is required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2121 ../semanage/seobject.py:2184
+> > >> -#: ../semanage/seobject.py:2220 ../semanage/seobject.py:2226
+> > >> +#: ../semanage/seobject.py:2116 ../semanage/seobject.py:2179
+> > >> +#: ../semanage/seobject.py:2215 ../semanage/seobject.py:2221
+> > >>   #, python-format
+> > >>   msgid "Could not check if interface %s is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2123
+> > >> +#: ../semanage/seobject.py:2118
+> > >>   #, python-format
+> > >>   msgid "Interface %s already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2127
+> > >> +#: ../semanage/seobject.py:2122
+> > >>   #, python-format
+> > >>   msgid "Could not create interface for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2136
+> > >> +#: ../semanage/seobject.py:2131
+> > >>   #, python-format
+> > >>   msgid "Could not set user in interface context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2140
+> > >> +#: ../semanage/seobject.py:2135
+> > >>   #, python-format
+> > >>   msgid "Could not set role in interface context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2144
+> > >> +#: ../semanage/seobject.py:2139
+> > >>   #, python-format
+> > >>   msgid "Could not set type in interface context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2149
+> > >> +#: ../semanage/seobject.py:2144
+> > >>   #, python-format
+> > >>   msgid "Could not set mls fields in interface context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2153
+> > >> +#: ../semanage/seobject.py:2148
+> > >>   #, python-format
+> > >>   msgid "Could not set interface context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2157
+> > >> +#: ../semanage/seobject.py:2152
+> > >>   #, python-format
+> > >>   msgid "Could not set message context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2161
+> > >> +#: ../semanage/seobject.py:2156
+> > >>   #, python-format
+> > >>   msgid "Could not add interface %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2186 ../semanage/seobject.py:2222
+> > >> +#: ../semanage/seobject.py:2181 ../semanage/seobject.py:2217
+> > >>   #, python-format
+> > >>   msgid "Interface %s is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2190
+> > >> +#: ../semanage/seobject.py:2185
+> > >>   #, python-format
+> > >>   msgid "Could not query interface %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2201
+> > >> +#: ../semanage/seobject.py:2196
+> > >>   #, python-format
+> > >>   msgid "Could not modify interface %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2228
+> > >> +#: ../semanage/seobject.py:2223
+> > >>   #, python-format
+> > >>   msgid "Interface %s is defined in policy, cannot be deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2232
+> > >> +#: ../semanage/seobject.py:2227
+> > >>   #, python-format
+> > >>   msgid "Could not delete interface %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2246
+> > >> +#: ../semanage/seobject.py:2241
+> > >>   msgid "Could not delete all interface  mappings"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2260
+> > >> +#: ../semanage/seobject.py:2255
+> > >>   msgid "Could not list interfaces"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2285
+> > >> +#: ../semanage/seobject.py:2280
+> > >>   msgid "SELinux Interface"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2285 ../semanage/seobject.py:2677
+> > >> +#: ../semanage/seobject.py:2280 ../semanage/seobject.py:2672
+> > >>   msgid "Context"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2355
+> > >> +#: ../semanage/seobject.py:2350
+> > >>   #, python-format
+> > >>   msgid "Target %s is not valid. Target is not allowed to end with '=
+/'"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2358
+> > >> +#: ../semanage/seobject.py:2353
+> > >>   #, python-format
+> > >>   msgid "Substitute %s is not valid. Substitute is not allowed to en=
+d with '/'"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2361
+> > >> +#: ../semanage/seobject.py:2356
+> > >>   #, python-format
+> > >>   msgid "Equivalence class for %s already exists"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2367
+> > >> +#: ../semanage/seobject.py:2362
+> > >>   #, python-format
+> > >>   msgid "File spec %s conflicts with equivalency rule '%s %s'"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2378
+> > >> +#: ../semanage/seobject.py:2373
+> > >>   #, python-format
+> > >>   msgid "Equivalence class for %s does not exist"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2395
+> > >> +#: ../semanage/seobject.py:2390
+> > >>   #, python-format
+> > >>   msgid "Could not set user in file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2399
+> > >> +#: ../semanage/seobject.py:2394
+> > >>   #, python-format
+> > >>   msgid "Could not set role in file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2404 ../semanage/seobject.py:2464
+> > >> +#: ../semanage/seobject.py:2399 ../semanage/seobject.py:2459
+> > >>   #, python-format
+> > >>   msgid "Could not set mls fields in file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2410
+> > >> +#: ../semanage/seobject.py:2405
+> > >>   msgid "Invalid file specification"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2412
+> > >> +#: ../semanage/seobject.py:2407
+> > >>   msgid "File specification can not include spaces"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2417
+> > >> +#: ../semanage/seobject.py:2412
+> > >>   #, python-format
+> > >>   msgid ""
+> > >>   "File spec %s conflicts with equivalency rule '%s %s'; Try adding =
+'%s' instead"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2431 ../semanage/seobject.py:2496
+> > >> +#: ../semanage/seobject.py:2426 ../semanage/seobject.py:2491
+> > >>   #, python-format
+> > >>   msgid "Type %s is invalid, must be a file or device type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2439 ../semanage/seobject.py:2444
+> > >> -#: ../semanage/seobject.py:2506 ../semanage/seobject.py:2515
+> > >> -#: ../semanage/seobject.py:2603 ../semanage/seobject.py:2607
+> > >> +#: ../semanage/seobject.py:2434 ../semanage/seobject.py:2439
+> > >> +#: ../semanage/seobject.py:2501 ../semanage/seobject.py:2510
+> > >> +#: ../semanage/seobject.py:2598 ../semanage/seobject.py:2602
+> > >>   #, python-format
+> > >>   msgid "Could not check if file context for %s is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2447
+> > >> +#: ../semanage/seobject.py:2442
+> > >>   #, python-format
+> > >>   msgid "File context for %s already defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2451
+> > >> +#: ../semanage/seobject.py:2446
+> > >>   #, python-format
+> > >>   msgid "Could not create file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2459
+> > >> +#: ../semanage/seobject.py:2454
+> > >>   #, python-format
+> > >>   msgid "Could not set type in file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2467 ../semanage/seobject.py:2539
+> > >> -#: ../semanage/seobject.py:2543
+> > >> +#: ../semanage/seobject.py:2462 ../semanage/seobject.py:2534
+> > >> +#: ../semanage/seobject.py:2538
+> > >>   #, python-format
+> > >>   msgid "Could not set file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2473
+> > >> +#: ../semanage/seobject.py:2468
+> > >>   #, python-format
+> > >>   msgid "Could not add file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2492
+> > >> +#: ../semanage/seobject.py:2487
+> > >>   msgid "Requires setype, serange or seuser"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2511 ../semanage/seobject.py:2521
+> > >> +#: ../semanage/seobject.py:2506 ../semanage/seobject.py:2516
+> > >>   #, python-format
+> > >>   msgid "Could not query file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2517 ../semanage/seobject.py:2611
+> > >> +#: ../semanage/seobject.py:2512 ../semanage/seobject.py:2606
+> > >>   #, python-format
+> > >>   msgid "File context for %s is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2547
+> > >> +#: ../semanage/seobject.py:2542
+> > >>   #, python-format
+> > >>   msgid "Could not modify file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2565
+> > >> +#: ../semanage/seobject.py:2560
+> > >>   msgid "Could not list the file contexts"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2579
+> > >> +#: ../semanage/seobject.py:2574
+> > >>   #, python-format
+> > >>   msgid "Could not delete the file context %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2609
+> > >> +#: ../semanage/seobject.py:2604
+> > >>   #, python-format
+> > >>   msgid "File context for %s is defined in policy, cannot be deleted=
+"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2615
+> > >> +#: ../semanage/seobject.py:2610
+> > >>   #, python-format
+> > >>   msgid "Could not delete file context for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2632
+> > >> +#: ../semanage/seobject.py:2627
+> > >>   msgid "Could not list file contexts"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2636
+> > >> +#: ../semanage/seobject.py:2631
+> > >>   msgid "Could not list file contexts for home directories"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2640
+> > >> +#: ../semanage/seobject.py:2635
+> > >>   msgid "Could not list local file contexts"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2677
+> > >> +#: ../semanage/seobject.py:2672
+> > >>   msgid "SELinux fcontext"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2690
+> > >> +#: ../semanage/seobject.py:2685
+> > >>   msgid ""
+> > >>   "\n"
+> > >>   "SELinux Distribution fcontext Equivalence \n"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2695
+> > >> +#: ../semanage/seobject.py:2690
+> > >>   msgid ""
+> > >>   "\n"
+> > >>   "SELinux Local fcontext Equivalence \n"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2733 ../semanage/seobject.py:2784
+> > >> -#: ../semanage/seobject.py:2790
+> > >> +#: ../semanage/seobject.py:2728 ../semanage/seobject.py:2779
+> > >> +#: ../semanage/seobject.py:2785
+> > >>   #, python-format
+> > >>   msgid "Could not check if boolean %s is defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2735 ../semanage/seobject.py:2786
+> > >> +#: ../semanage/seobject.py:2730 ../semanage/seobject.py:2781
+> > >>   #, python-format
+> > >>   msgid "Boolean %s is not defined"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2739
+> > >> +#: ../semanage/seobject.py:2734
+> > >>   #, python-format
+> > >>   msgid "Could not query file context %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2744
+> > >> +#: ../semanage/seobject.py:2739
+> > >>   #, python-format
+> > >>   msgid "You must specify one of the following values: %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2749
+> > >> +#: ../semanage/seobject.py:2744
+> > >>   #, python-format
+> > >>   msgid "Could not set active value of boolean %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2752
+> > >> +#: ../semanage/seobject.py:2747
+> > >>   #, python-format
+> > >>   msgid "Could not modify boolean %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2768
+> > >> -#, python-format
+> > >> -msgid "Bad format %s: Record %s"
+> > >> +#: ../semanage/seobject.py:2763
+> > >> +#, python-brace-format
+> > >> +msgid "Bad format {filename}: Record {record}"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2792
+> > >> +#: ../semanage/seobject.py:2787
+> > >>   #, python-format
+> > >>   msgid "Boolean %s is defined in policy, cannot be deleted"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2796
+> > >> +#: ../semanage/seobject.py:2791
+> > >>   #, python-format
+> > >>   msgid "Could not delete boolean %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2808 ../semanage/seobject.py:2825
+> > >> +#: ../semanage/seobject.py:2803 ../semanage/seobject.py:2820
+> > >>   msgid "Could not list booleans"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2858
+> > >> +#: ../semanage/seobject.py:2853
+> > >>   msgid "off"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2858
+> > >> +#: ../semanage/seobject.py:2853
+> > >>   msgid "on"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2870
+> > >> +#: ../semanage/seobject.py:2865
+> > >>   msgid "SELinux boolean"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2870
+> > >> +#: ../semanage/seobject.py:2865
+> > >>   msgid "State"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2870
+> > >> +#: ../semanage/seobject.py:2865
+> > >>   msgid "Default"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../semanage/seobject.py:2870 ../sepolicy/sepolicy/sepolicy.glade=
+:2140
+> > >> +#: ../semanage/seobject.py:2865 ../sepolicy/sepolicy/sepolicy.glade=
+:2140
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:2510
+> > >>   #: ../sepolicy/sepolicy/sepolicy.glade:5099
+> > >>   msgid "Description"
+> > >> @@ -1555,151 +1566,151 @@ msgstr ""
+> > >>   msgid "Missing interface definition for %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:140
+> > >> +#: ../sepolicy/sepolicy/generate.py:138
+> > >>   msgid "Standard Init Daemon"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:141
+> > >> +#: ../sepolicy/sepolicy/generate.py:139
+> > >>   msgid "DBUS System Daemon"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:142
+> > >> +#: ../sepolicy/sepolicy/generate.py:140
+> > >>   msgid "Internet Services Daemon"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:143
+> > >> +#: ../sepolicy/sepolicy/generate.py:141
+> > >>   msgid "Web Application/Script (CGI)"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:144
+> > >> +#: ../sepolicy/sepolicy/generate.py:142
+> > >>   msgid "Sandbox"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:145
+> > >> +#: ../sepolicy/sepolicy/generate.py:143
+> > >>   msgid "User Application"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:146
+> > >> +#: ../sepolicy/sepolicy/generate.py:144
+> > >>   msgid "Existing Domain Type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:147
+> > >> +#: ../sepolicy/sepolicy/generate.py:145
+> > >>   msgid "Minimal Terminal Login User Role"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:148
+> > >> +#: ../sepolicy/sepolicy/generate.py:146
+> > >>   msgid "Minimal X Windows Login User Role"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:149
+> > >> +#: ../sepolicy/sepolicy/generate.py:147
+> > >>   msgid "Desktop Login User Role"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:150
+> > >> +#: ../sepolicy/sepolicy/generate.py:148
+> > >>   msgid "Administrator Login User Role"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:151
+> > >> +#: ../sepolicy/sepolicy/generate.py:149
+> > >>   msgid "Confined Root Administrator Role"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:152
+> > >> +#: ../sepolicy/sepolicy/generate.py:150
+> > >>   msgid "Module information for a new type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:158
+> > >> +#: ../sepolicy/sepolicy/generate.py:156
+> > >>   msgid "Valid Types:\n"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:193
+> > >> +#: ../sepolicy/sepolicy/generate.py:191
+> > >>   #, python-format
+> > >>   msgid "Ports must be numbers or ranges of numbers from 1 to %d "
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:205
+> > >> +#: ../sepolicy/sepolicy/generate.py:203
+> > >>   msgid "You must enter a valid policy type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:208
+> > >> +#: ../sepolicy/sepolicy/generate.py:206
+> > >>   #, python-format
+> > >>   msgid "You must enter a name for your policy module for your '%s'.=
+"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:346
+> > >> +#: ../sepolicy/sepolicy/generate.py:344
+> > >>   msgid ""
+> > >>   "Name must be alphanumeric with no spaces. Consider using option \=
+"-n "
+> > >>   "MODULENAME\""
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:438
+> > >> +#: ../sepolicy/sepolicy/generate.py:436
+> > >>   msgid "User Role types can not be assigned executables."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:444
+> > >> +#: ../sepolicy/sepolicy/generate.py:442
+> > >>   msgid "Only Daemon apps can use an init script."
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:462
+> > >> +#: ../sepolicy/sepolicy/generate.py:460
+> > >>   msgid "use_resolve must be a boolean value "
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:468
+> > >> +#: ../sepolicy/sepolicy/generate.py:466
+> > >>   msgid "use_syslog must be a boolean value "
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:474
+> > >> +#: ../sepolicy/sepolicy/generate.py:472
+> > >>   msgid "use_kerberos must be a boolean value "
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:480
+> > >> +#: ../sepolicy/sepolicy/generate.py:478
+> > >>   msgid "manage_krb5_rcache must be a boolean value "
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:510
+> > >> +#: ../sepolicy/sepolicy/generate.py:508
+> > >>   msgid "USER Types automatically get a tmp type"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:847
+> > >> +#: ../sepolicy/sepolicy/generate.py:845
+> > >>   #, python-format
+> > >>   msgid "'%s' policy modules require existing domains"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:872
+> > >> +#: ../sepolicy/sepolicy/generate.py:870
+> > >>   msgid "Type field required"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:885
+> > >> +#: ../sepolicy/sepolicy/generate.py:883
+> > >>   #, python-format
+> > >>   msgid ""
+> > >>   "You need to define a new type which ends with: \n"
+> > >>   " %s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1113
+> > >> +#: ../sepolicy/sepolicy/generate.py:1111
+> > >>   msgid "You must enter the executable path for your confined proces=
+s"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1378
+> > >> +#: ../sepolicy/sepolicy/generate.py:1376
+> > >>   msgid "Created the following files:\n"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1379
+> > >> +#: ../sepolicy/sepolicy/generate.py:1377
+> > >>   msgid "Type Enforcement file"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1380
+> > >> +#: ../sepolicy/sepolicy/generate.py:1378
+> > >>   msgid "Interface file"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1381
+> > >> +#: ../sepolicy/sepolicy/generate.py:1379
+> > >>   msgid "File Contexts file"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1383
+> > >> +#: ../sepolicy/sepolicy/generate.py:1381
+> > >>   msgid "Spec file"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/generate.py:1384
+> > >> +#: ../sepolicy/sepolicy/generate.py:1382
+> > >>   msgid "Setup Script"
+> > >>   msgstr ""
+> > >>
+> > >> @@ -2367,29 +2378,29 @@ msgstr ""
+> > >>   msgid "named pipe"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/__init__.py:148
+> > >> +#: ../sepolicy/sepolicy/__init__.py:149
+> > >>   msgid "No SELinux Policy installed"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/__init__.py:184
+> > >> +#: ../sepolicy/sepolicy/__init__.py:185
+> > >>   #, python-format
+> > >>   msgid "Failed to read %s policy file"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/__init__.py:470
+> > >> +#: ../sepolicy/sepolicy/__init__.py:471
+> > >>   #, python-format
+> > >>   msgid "-- Allowed %s [ %s ]"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/__init__.py:896
+> > >> +#: ../sepolicy/sepolicy/__init__.py:897
+> > >>   msgid "You must regenerate interface info by running /usr/bin/sepo=
+lgen-ifgen"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/__init__.py:1221
+> > >> +#: ../sepolicy/sepolicy/__init__.py:1230
+> > >>   msgid "unknown"
+> > >>   msgstr ""
+> > >>
+> > >> -#: ../sepolicy/sepolicy/__init__.py:1230
+> > >> +#: ../sepolicy/sepolicy/__init__.py:1239
+> > >>   #, python-brace-format
+> > >>   msgid "Allow {subject} to {rest}"
+> > >>   msgstr ""
+> > >
+> >
