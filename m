@@ -2,34 +2,34 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48BC6EB64DA
-	for <selinux@archiver.kernel.org>; Wed, 12 Jul 2023 14:25:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEEEFC001DE
+	for <selinux@archiver.kernel.org>; Wed, 12 Jul 2023 14:25:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232757AbjGLOZc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jul 2023 10:25:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57602 "EHLO
+        id S232359AbjGLOZd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jul 2023 10:25:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232441AbjGLOZW (ORCPT
+        with ESMTP id S232448AbjGLOZW (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 12 Jul 2023 10:25:22 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6D491BC6;
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0E91BC5;
         Wed, 12 Jul 2023 07:25:17 -0700 (PDT)
-Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4R1Kkb0rdCz1JCP8;
-        Wed, 12 Jul 2023 22:24:39 +0800 (CST)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.57])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4R1KhX4dLLzPkCX;
+        Wed, 12 Jul 2023 22:22:52 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
  dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Wed, 12 Jul 2023 22:25:13 +0800
+ 15.1.2507.27; Wed, 12 Jul 2023 22:25:12 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
         <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
         <linux-mm@kvack.org>, <linux-perf-users@vger.kernel.org>,
         <selinux@vger.kernel.org>, Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH 3/5] drm/amdkfd: use vma_is_stack() and vma_is_heap()
-Date:   Wed, 12 Jul 2023 22:38:29 +0800
-Message-ID: <20230712143831.120701-4-wangkefeng.wang@huawei.com>
+Subject: [PATCH 1/5] mm: introduce vma_is_stack() and vma_is_heap()
+Date:   Wed, 12 Jul 2023 22:38:27 +0800
+Message-ID: <20230712143831.120701-2-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230712143831.120701-1-wangkefeng.wang@huawei.com>
 References: <20230712143831.120701-1-wangkefeng.wang@huawei.com>
@@ -44,29 +44,36 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use the helpers to simplify code.
+Introduce the two helpers for general use.
 
 Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ include/linux/mm.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index 479c4f66afa7..19ce68a7e1a8 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -2623,10 +2623,7 @@ svm_range_get_range_boundaries(struct kfd_process *p, int64_t addr,
- 		return -EFAULT;
- 	}
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 1462cf15badf..0bbeb31ac750 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -926,6 +926,18 @@ static inline bool vma_is_anonymous(struct vm_area_struct *vma)
+ 	return !vma->vm_ops;
+ }
  
--	*is_heap_stack = (vma->vm_start <= vma->vm_mm->brk &&
--			  vma->vm_end >= vma->vm_mm->start_brk) ||
--			 (vma->vm_start <= vma->vm_mm->start_stack &&
--			  vma->vm_end >= vma->vm_mm->start_stack);
-+	*is_heap_stack = vma_is_heap(vma) || vma_is_stack(vma);
- 
- 	start_limit = max(vma->vm_start >> PAGE_SHIFT,
- 		      (unsigned long)ALIGN_DOWN(addr, 2UL << 8));
++static inline bool vma_is_heap(struct vm_area_struct *vma)
++{
++       return vma->vm_start <= vma->vm_mm->brk &&
++		vma->vm_end >= vma->vm_mm->start_brk;
++}
++
++static inline bool vma_is_stack(struct vm_area_struct *vma)
++{
++       return vma->vm_start <= vma->vm_mm->start_stack &&
++	       vma->vm_end >= vma->vm_mm->start_stack;
++}
++
+ static inline bool vma_is_temporary_stack(struct vm_area_struct *vma)
+ {
+ 	int maybe_stack = vma->vm_flags & (VM_GROWSDOWN | VM_GROWSUP);
 -- 
 2.41.0
 
