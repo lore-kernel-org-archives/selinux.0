@@ -2,101 +2,98 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF7B3C0015E
-	for <selinux@archiver.kernel.org>; Fri, 14 Jul 2023 17:35:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 217FDEB64DC
+	for <selinux@archiver.kernel.org>; Fri, 14 Jul 2023 18:08:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236038AbjGNRfQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Jul 2023 13:35:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53344 "EHLO
+        id S235752AbjGNSIw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Jul 2023 14:08:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235829AbjGNRfP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jul 2023 13:35:15 -0400
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC95835A4
-        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 10:35:11 -0700 (PDT)
-Received: by mail-lj1-x232.google.com with SMTP id 38308e7fff4ca-2b700e85950so32858171fa.3
-        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 10:35:11 -0700 (PDT)
+        with ESMTP id S235759AbjGNSIv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jul 2023 14:08:51 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9B9270D
+        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:08:21 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id 6a1803df08f44-6237faa8677so10790096d6.1
+        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:08:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1689356110; x=1691948110;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hEdwcOPZkfclJLuH4bXG5+2DmBwPm0mnO43ICxZNJWI=;
-        b=m0gXPRe4SKNrDvarC31GcJerRRugbx7nhD0QtFySgdcfOI3J/d0jydcXUso5vwDO/z
-         unHjT2LPugjr58Xq30m+DWRUhkzq0mKS48Sjwh/bw+wA7+ToTIpqXglo7V7NOn3I56lE
-         b6unxKEFsiXevePLw0KAaa6brM3vvm4Lx+y+Zf6kurbIDdNki7lKP8qVPWNHne0TZEyE
-         KBm2vOId0ezNbywz45SAw/FuMv8pzakRPiD2LHSgkVgVt8GuZlEIKD7ix1REUoUgUgiq
-         0dCIvLli4iTxOmKGAcY/+3UNIHa5DOwuKS5QKy3A/qR2SfpPQ0gNCZxIwR5RmktuYHHM
-         uLZw==
+        d=gmail.com; s=20221208; t=1689358035; x=1691950035;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=3l/+teR5B2EzzQ6v/aXSXGKcx3ixpWmQuLEofQQ4BnU=;
+        b=NRAOD5A9bPg8NIxuRYdlSX2ERcAlIPejLL0mEP6LH3SwT4Ah6weN/DULbXZkm9rDme
+         zzs444Aq/yRHxHHBEcFLsDYODewa66mGnpe1YQ/OuFFKBZbSmuP4BBrSHghsx7wKARx1
+         w0vnDPDQ7Nevz6a6stLUwAFbJS6wzGcS/RmkHEaIQ+9wuUyX+sF/o7hDjpPEQ/qVRrJY
+         e1NrxdScRGyYwQJMcU2tNopdh+1XnHAoLQSSY6EPklmrwIEvN9/qwFiXLe86sRnfqmP3
+         aU6RLwTNiw8CUjTNiUPhG1pTjKEpsExj6pjIMVHfLxv2gkpmb1Ao5hqsin+iyEzQFTFh
+         F2wQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689356110; x=1691948110;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hEdwcOPZkfclJLuH4bXG5+2DmBwPm0mnO43ICxZNJWI=;
-        b=BTfWfK3oA8/HU5NG0ymjaXwcsHXxtQ+31t55uAvWfJzL10D3D2vlnnVDvNFJ1wGLs8
-         u93Ohz7HBI9ceOQ1V0g2j4Hdwib/HDxLgyJ53g/aCfGo/ISL59Wh6c77AhcNZbk+Skjg
-         MmkZvkfc/D6Xo29tFrzjjBO/6Tkq7ZRFKtRgvGHTEyM8vSVmw3NYkPOnIRl4uwQJxt81
-         9KeqH102Azmd9JMRaUU6g6IHht/YcVA90UKohCpvtf0sOGpfhT9+hoq39pP5D2q5p51H
-         s4cVVem0rtsg7YTad6Aw0eqFqsFkCpIXAuJSgB4ZdH+VuXCgq+asBSwAoTWn19c32sfx
-         jDNg==
-X-Gm-Message-State: ABy/qLak1EDDHhFPgKwmjoNp0nK7BoPNBZC4m6AB+pNdvverpCCXzKcR
-        DIbyv7GoSNse89aTxTsK8oO4hIqHx3KrOGB30j2DayK/
-X-Google-Smtp-Source: APBJJlFL8fQTLCOOZJo7UPCKfRoiVZ5feqbbkVPflb2U4Nj4C6wCgmS5CDe3q+k/4mrLxZOlMXZvYMGlXIZcsLJhUh4=
-X-Received: by 2002:a2e:9f48:0:b0:2b6:a841:e686 with SMTP id
- v8-20020a2e9f48000000b002b6a841e686mr4251355ljk.6.1689356109852; Fri, 14 Jul
- 2023 10:35:09 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1689358035; x=1691950035;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3l/+teR5B2EzzQ6v/aXSXGKcx3ixpWmQuLEofQQ4BnU=;
+        b=jkyfawnc+hCklCXsXevsT+3rI/xQ2RUywdVi2jr1pUWiy95EKV2bhdDENlHe+7nBrL
+         K4TiLgU0QaW6Kyv4fxBFzyOLoljg7RtLXXv1cITC1KhtenBxdH9FdQB82SreAJTGaTp4
+         EkSsaKlEM9oiOoRAUdylLMtrGne56ovJ5iSYdF/fv8JmMnbJ+B6J0G2lrXcpz7MKOlwT
+         tGPe7/uVSu+hsp2QtFDiJabz/mg4XKjWBFbFN8Q/yssUd11PUxnGfuYSSZ7qcfOB5rXu
+         U3wKQUrGJTzvxvfBqsE6m6BuQFOQYI7xsu3xZRsabu0lGClNL6qK7Kd9lSTg49XMfWFo
+         9ZXw==
+X-Gm-Message-State: ABy/qLYo54iKg0M5B0/9I9b+rW7xMBtd3/jiNCiiGah3/l2L2IIZiLnh
+        qY+JUVRBAKMmN96hFWXpk5DB8u6Dons=
+X-Google-Smtp-Source: APBJJlG8I5kkHOk9pUYmpvb3MHpTPWoYapJTX8Y6UxZEb+0Iei5xIk5ripsquvq9NWFl/ofIAf7kxA==
+X-Received: by 2002:a0c:b258:0:b0:62f:f2fb:6915 with SMTP id k24-20020a0cb258000000b0062ff2fb6915mr3765367qve.0.1689358034761;
+        Fri, 14 Jul 2023 11:07:14 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id a19-20020a0cca93000000b006379c3f7895sm4157271qvk.52.2023.07.14.11.07.14
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Jul 2023 11:07:14 -0700 (PDT)
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     omosnace@redhat.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite] policy: allow inet socket test domains to search user home content
+Date:   Fri, 14 Jul 2023 14:05:55 -0400
+Message-Id: <20230714180554.17850-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-References: <20230706162120.25610-1-cgzones@googlemail.com>
-In-Reply-To: <20230706162120.25610-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 14 Jul 2023 13:34:58 -0400
-Message-ID: <CAP+JOzSZZOEvBF1Wu_jm0COLa8arB_x9jhMExu4Q2M6xeFDi8w@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy: free role identifier in define_role_dom()
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 6, 2023 at 12:34=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Free the role identifier in case the role has been already defined
-> beforehand, since in that case the identifier is not stored via
-> declare_symbol().
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+This is necessary for resolving pathnames when running the testsuite
+from a user home directory.
 
-The right answer here is to just remove role dominance from
-checkpolicy. I've sent a patch to the list.
-Thanks,
-Jim
+Reproducer:
+1. Clone selinux-testsuite into home directory.
+2. Try running it there.
 
-> ---
-> Triggered by the checkpolicy round-trip patch in the GitHub CI.
-> ---
->  checkpolicy/policy_define.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index cef8f3c4..e10c92ff 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -3045,7 +3045,11 @@ role_datum_t *define_role_dom(role_datum_t * r)
->                         yyerror("Out of memory!");
->                         goto cleanup;
->                 }
-> +       } else {
-> +               free(role_id);
-> +               role_id =3D NULL;
->         }
-> +
->         if (r) {
->                 ebitmap_t types;
->                 ebitmap_init(&types);
-> --
-> 2.40.1
->
+Before:
+inet_socket/tcp/test ........ Flag file open: Permission denied
+(test hangs)
+
+After:
+all tests complete and pass
+
+Fixes: 4dcea27ada77f51c2868095e951aab790374fba9 ("tests/inet_socket:
+cover the MPTCP protocol")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ policy/test_inet_socket.te | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/policy/test_inet_socket.te b/policy/test_inet_socket.te
+index 47969fc..0eacb31 100644
+--- a/policy/test_inet_socket.te
++++ b/policy/test_inet_socket.te
+@@ -154,3 +154,6 @@ allow test_inet_client_t test_server_packet_t:packet { send recv };
+ # Send/recv unlabeled packets.
+ kernel_sendrecv_unlabeled_packets(inetsocketdomain)
+ kernel_recvfrom_unlabeled_peer(inetsocketdomain)
++
++# Search user home directories (for running testsuite from one)
++userdom_search_user_home_content(inetsocketdomain)
+-- 
+2.40.1
+
