@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55E28EB64DC
-	for <selinux@archiver.kernel.org>; Fri, 14 Jul 2023 18:29:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFDE6EB64DC
+	for <selinux@archiver.kernel.org>; Fri, 14 Jul 2023 18:44:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236413AbjGNS30 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Jul 2023 14:29:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43872 "EHLO
+        id S236503AbjGNSoZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Jul 2023 14:44:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235734AbjGNS30 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jul 2023 14:29:26 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDC52733
-        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:29:23 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-98df3dea907so286859466b.3
-        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:29:23 -0700 (PDT)
+        with ESMTP id S235463AbjGNSoY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jul 2023 14:44:24 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C0B32D6B
+        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:44:23 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id a640c23a62f3a-9926623e367so299289566b.0
+        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:44:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1689359362; x=1691951362;
+        d=googlemail.com; s=20221208; t=1689360262; x=1691952262;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9L7z9OwZTA17ZnTK3k2GH/j3j1ZHKYlRhfwIRh65LUE=;
-        b=b90SdLanf8/IkOMnGCtgFNsYeVeAXsPUxfrFoZEpL/unxgFjhvQ3L0ch8wal2gisi+
-         KV+OQPr0e/RuoCo/dC9RB1KlQneEAvSZcl1o35jhjWa5VqNhI1bxKA8AQm1RXaJ7hbxl
-         HHvDNAjdz04dNZxdkOgyab3DqTtMEnvSNb9XzHKIMaSTw1W2RgK2Pc05+sDHS2WXDsM/
-         ITi3QqDhKdvA+VIMwCKQC0NZuCbSN5+iSylwfYoWjf5OaMRcSPc8nLVk8WCPalcvRULE
-         HJLLWI4cFqPxZc04B6TU4Yy017RDoKE0tVI2hjYfMjy+YmFetuT+b5qn0TbFyb8bZHCz
-         zgsw==
+        bh=2GNxra1aV40ir7qGnj4nvL+9oXUzgUjUbIrEK/WMMok=;
+        b=Jl01EBCyp37iQdHlLPsZ8pZA1cksQa7Jn0vCOOkChBeh67kkZZ2Zyh4Xvkl+iBaclB
+         F7811LUNOeTf6HpPxzf6J96Kl2CbnrC/QcQnFGp+5eDa2YrDKjE9L92Ks7DHLSHCDMGX
+         NnmJ9RWP4ashomlVy+EI8OSHs9246bpzCIN4lUchgbEw/ZEtovHkYDSbSGYhfnZ8aQ2I
+         jWYZoU1ScV7WvjYVzliqyEijPadTEDaXIBVKxp/HTKXjd/UK7ohe9UNyL0UJo1XIP82W
+         KU81PYZbWsetuf3ecqtyg2X3v/oQyiBDjNiF3CUXU0rjJGUZrrFNyx9RU9GEY65sEHby
+         P/cQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689359362; x=1691951362;
+        d=1e100.net; s=20221208; t=1689360262; x=1691952262;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9L7z9OwZTA17ZnTK3k2GH/j3j1ZHKYlRhfwIRh65LUE=;
-        b=Z2xxXLLaMfI/nnEiR2I3tBYCTzXHjWQyq5XkQ6xVcJPXjfF0OQr8hN7F2Vwac+vqny
-         FZf9zYPdcwt0Nq7DVwPSQLz8q/oNolgulz9fWyJKIhCUEgjB+d3oV17xlpgfOmJEnXCc
-         Hf0b7PlMiWLxBwcRMEBQjRTaxw/LnQ5hvL0svw35aidlXhlKmPfy+kEzHG9IMibkifmz
-         czyDZ5pBNmweLpK2cDFUtv1WUoFcSYjhgmJlCKgiJegg+PCV/fmmWrWi9SdV/DExVtZr
-         2irzCLGQ8e3gf4KOticWyccs/kLMr6IjLlniBOprFAjZIwY2th1QGJbToD3+UE0FOcen
-         fdhw==
-X-Gm-Message-State: ABy/qLZjf77MMYcvykI9vkh5Oip0NGuuzy/afqGT4qRhbN2lXR9P142G
-        oENWWsE0qu1/4+brmvgmV/h9W+H5j9WxlA==
-X-Google-Smtp-Source: APBJJlGuWBNBlbriL1jltjyF/vy/HxemP1H47QtmUbgDNmLaOlwFsEaf12ERlyTTvqf5QNfr+KaWgA==
-X-Received: by 2002:a17:906:dfee:b0:991:e7c3:5712 with SMTP id lc14-20020a170906dfee00b00991e7c35712mr4421127ejc.30.1689359361848;
-        Fri, 14 Jul 2023 11:29:21 -0700 (PDT)
+        bh=2GNxra1aV40ir7qGnj4nvL+9oXUzgUjUbIrEK/WMMok=;
+        b=gACCMPn3vnWRx5Rt7AruIZkwue27TYdXE3VgL75juUPBD+9LTKOPMRciw4glI/pr8m
+         3qaGT2vD1g/KZhi5UjczTdd7K3SbQwYLyGqjD3uje17lV3AdxoLNER/FwZ3wuEpXb9Gk
+         xVAcovjob2JQ65s0xo0RmTP2fKFgyiOt1r9RMlYc5qpQnH8SLP9SQ6f+zoa8p4thHoFZ
+         pcSEAD+M5Akm+AWfV/pXM7hWcTme0v/8z5r26OfWYaQsfie6U9EtNc3HfvFKGBt18vRz
+         GdlRXoCV9M+aaV5f9q5sYt0f9mABlD0LwMS9VcwuEHCcMHnypRT7Df43wCL/kkv+Ko/o
+         L5/w==
+X-Gm-Message-State: ABy/qLatBAT3YxkBANJJmm/JIHDHCnWmjsQRqLa8Y8y0AYOy1qhnxriO
+        aDKMntzD0eLgIc4mOjLUaw05IpCe4AxDuw==
+X-Google-Smtp-Source: APBJJlHI+P2FZnF25HK4oacUi9M+UVOviGPVD7g5bVBRobBbZ37I1ChAz8Almw0y+nslyxUbYLtwyw==
+X-Received: by 2002:a17:906:207:b0:988:aeb7:2a37 with SMTP id 7-20020a170906020700b00988aeb72a37mr4350990ejd.33.1689360261630;
+        Fri, 14 Jul 2023 11:44:21 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-078-050-124-229.78.50.pool.telefonica.de. [78.50.124.229])
-        by smtp.gmail.com with ESMTPSA id gr10-20020a170906e2ca00b0098d25cbb899sm5688134ejb.41.2023.07.14.11.29.21
+        by smtp.gmail.com with ESMTPSA id s7-20020a1709064d8700b00993004239a4sm5692167eju.215.2023.07.14.11.44.21
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jul 2023 11:29:21 -0700 (PDT)
+        Fri, 14 Jul 2023 11:44:21 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: use explicit type for function parameters
-Date:   Fri, 14 Jul 2023 20:29:18 +0200
-Message-Id: <20230714182918.30917-1-cgzones@googlemail.com>
+Subject: [PATCH 1/4] libsepol: validate: use fixed sized integers
+Date:   Fri, 14 Jul 2023 20:44:11 +0200
+Message-Id: <20230714184414.40724-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,59 +61,72 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use a pointer to the explicit type struct policy_file instead of void
-for increased type safety and readability.
+Avoid issues on architectures where unsigned int and uint32_t are not of
+the same size.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/include/sepol/policydb/avtab.h | 2 +-
- libsepol/src/avtab.c                    | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ libsepol/src/policydb_validate.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
-index 7d892879..2bb583f5 100644
---- a/libsepol/include/sepol/policydb/avtab.h
-+++ b/libsepol/include/sepol/policydb/avtab.h
-@@ -158,7 +158,7 @@ extern int avtab_insert_filename_trans(avtab_t *a, avtab_key_t *key,
- 				       uint32_t otype, const char *name,
- 				       uint8_t name_match,
- 				       uint32_t *present_otype);
--extern int avtab_filename_trans_read(void *fp, uint32_t vers, avtab_t *a);
-+extern int avtab_filename_trans_read(struct policy_file *fp, uint32_t vers, avtab_t *a);
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 08b4a477..7db4ad35 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -23,7 +23,7 @@ typedef struct map_arg {
  
- #ifdef __cplusplus
- }
-diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index 99fdaa87..7a35fc17 100644
---- a/libsepol/src/avtab.c
-+++ b/libsepol/src/avtab.c
-@@ -843,7 +843,7 @@ bad:
- 	return rc;
- }
- 
--static int filename_trans_read_one(avtab_t *a, void *fp)
-+static int filename_trans_read_one(avtab_t *a, struct policy_file *fp)
+ static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebitmap_t *gaps)
  {
- 	int rc;
- 	uint32_t buf[4], len, otype;
-@@ -882,7 +882,7 @@ err:
- 	return SEPOL_ERR;
- }
+-	unsigned int i;
++	uint32_t i;
  
--static int filename_trans_comp_read_one(avtab_t *a, void *fp)
-+static int filename_trans_comp_read_one(avtab_t *a, struct policy_file *fp)
- {
- 	int rc;
- 	uint32_t buf[3], len, ndatum, i, bit, otype;
-@@ -941,7 +941,7 @@ err:
- 	return rc;
- }
+ 	ebitmap_init(gaps);
  
--int avtab_filename_trans_read(void *fp, uint32_t vers, avtab_t *a)
-+int avtab_filename_trans_read(struct policy_file *fp, uint32_t vers, avtab_t *a)
+@@ -180,7 +180,7 @@ static int validate_scope(__attribute__ ((unused)) hashtab_key_t k, hashtab_datu
  {
- 	uint32_t buf[1], nel, i;
- 	int rc;
+ 	const scope_datum_t *scope_datum = (scope_datum_t *)d;
+ 	const uint32_t *nprim = (uint32_t *)args;
+-	unsigned int i;
++	uint32_t i;
+ 
+ 	switch (scope_datum->scope) {
+ 	case SCOPE_REQ:
+@@ -205,7 +205,7 @@ static int validate_scopes(sepol_handle_t *handle, const symtab_t scopes[], cons
+ {
+ 	const avrule_decl_t *decl;
+ 	unsigned int i;
+-	unsigned int num_decls = 0;
++	uint32_t num_decls = 0;
+ 
+ 	for (; block != NULL; block = block->next) {
+ 		for (decl = block->branch_list; decl; decl = decl->next) {
+@@ -685,7 +685,7 @@ static int validate_bool_datum_wrapper(__attribute__((unused)) hashtab_key_t k,
+ 
+ static int validate_datum_array_gaps(sepol_handle_t *handle, const policydb_t *p, validate_t flavors[])
+ {
+-	unsigned int i;
++	uint32_t i;
+ 
+ 	for (i = 0; i < p->p_classes.nprim; i++) {
+ 		if (bool_xnor(p->class_val_to_struct[i], ebitmap_get_bit(&flavors[SYM_CLASSES].gaps, i)))
+@@ -1377,7 +1377,7 @@ bad:
+ static int validate_permissives(sepol_handle_t *handle, const policydb_t *p, validate_t flavors[])
+ {
+ 	ebitmap_node_t *node;
+-	unsigned i;
++	uint32_t i;
+ 
+ 	ebitmap_for_each_positive_bit(&p->permissive_map, node, i) {
+ 		if (validate_simpletype(i, p, flavors))
+@@ -1429,7 +1429,7 @@ static int validate_range_transitions(sepol_handle_t *handle, const policydb_t *
+ static int validate_typeattr_map(sepol_handle_t *handle, const policydb_t *p, validate_t flavors[])
+ {
+ 	const ebitmap_t *maps = p->type_attr_map;
+-	unsigned int i;
++	uint32_t i;
+ 
+ 	if (p->policy_type == POLICY_KERN) {
+ 		for (i = 0; i < p->p_types.nprim; i++) {
 -- 
 2.40.1
 
