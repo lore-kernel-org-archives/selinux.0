@@ -2,91 +2,103 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAC0AEB64DC
-	for <selinux@archiver.kernel.org>; Fri, 14 Jul 2023 18:53:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F21C0015E
+	for <selinux@archiver.kernel.org>; Mon, 17 Jul 2023 10:26:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236395AbjGNSxp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Jul 2023 14:53:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55454 "EHLO
+        id S231208AbjGQK0f (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jul 2023 06:26:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbjGNSxp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jul 2023 14:53:45 -0400
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A135330F8
-        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:53:43 -0700 (PDT)
-Received: by mail-lj1-x231.google.com with SMTP id 38308e7fff4ca-2b703cbfaf5so33903221fa.1
-        for <selinux@vger.kernel.org>; Fri, 14 Jul 2023 11:53:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1689360822; x=1691952822;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xj2s60J3+h8i7urGmsuDKVcid5xQo6YFvIMFhXiJJKo=;
-        b=fvKWT2eEAGHi0Plve5tHh4mhYu6h+EYS/S551Zmngr1O/jrKGcIjua8uUPWlmTne3A
-         +/9sDExq+LK/aOVfTzH7XS23Bf+/OPPJgIWKYMX84Vt909d4x4pieK3/YtadCWGLSFzc
-         zA8YBU0ZAKpFoYa8cGC51C7Oy0yCN5EJluLQZRhjXxRRMd8b0l+Z+VAm+L7t5xJxKIBo
-         i8L+ir0AdoEn/JM25jwEogCLvYTcTQefx+ulsDzHyqmHvOwmjM9bIV+aEDW73SV+27pl
-         mClxTJTssoDyZ4FahMdrpgEBpXCHrjkghTd1knfCTqV6ZRdIlQNQUOAfdAa+9FPxn7Ww
-         VZWg==
+        with ESMTP id S230306AbjGQK0e (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 06:26:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3201BE
+        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 03:25:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1689589547;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3ZxqwFcIYi400ycUN1jF1UBiOV7Go/IiKqR9OlilEKQ=;
+        b=SfykH/ii3gUCTwlyPuuCth+cz001fCWo95eWHJiSUOn65rniv0I8nUqum9T2TOTs9h0f/8
+        YGi6pYFViNM1FtuYbUvoywXkP25N53QuE15VHpDDSb8eO792EaoINwhwjmRGMQ47lVVkCQ
+        c+j9coZwgS0ZIcR7yWBv3h+UhR4T6rg=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-279-UojQLJ3pNha7ZhewQpBkuQ-1; Mon, 17 Jul 2023 06:25:46 -0400
+X-MC-Unique: UojQLJ3pNha7ZhewQpBkuQ-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3158f4d72e9so2372137f8f.1
+        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 03:25:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689360822; x=1691952822;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xj2s60J3+h8i7urGmsuDKVcid5xQo6YFvIMFhXiJJKo=;
-        b=Rpn/T+VCoVj0g8zhN7zvZhNUVcumy77SdFrqzBfXvXGXX5BDd5r0kpuNxUt9+/e4LY
-         B4vhTtD4r6zxUtSUjeFCNneW3yTXQT+6X4NDgm1b1/TIq/E10GM4bybS5bThgjGpi9a/
-         A0XPrh30ts2MqCC/S1jXxKNbzay7E6d4JlEVq+CKscCfnwdyr6BQLBBz1Vj4WuEAIW2F
-         SZJ3o1TWV+mArcu6DkTanE1dWIkYKPfJJpA/ymm6VBqxcWuIjmmyZ/Qp644eJ4G9bMdY
-         7iWibfEsORgK0cy3XLd87tQg4fZKXfu2DRto07iOHABMsc+8lhf+r238791/vqTUe5Op
-         8AFw==
-X-Gm-Message-State: ABy/qLbB5yr0VrGSEDdH07aoi5XlPMQmOMN+p4SyUwDU4V+STw0UipTg
-        zxi5By23Em01n9eg4eHf6xOt2/qeH/FQ6A==
-X-Google-Smtp-Source: APBJJlEU5l60VNI/cx3M+h0SZGzGzQn7xIW2WprUVaXqqthazAL01gowgNh8p4d0aCs3YCYNqE61lw==
-X-Received: by 2002:a2e:8885:0:b0:2b4:6bc2:a540 with SMTP id k5-20020a2e8885000000b002b46bc2a540mr4976167lji.15.1689360821608;
-        Fri, 14 Jul 2023 11:53:41 -0700 (PDT)
-Received: from debian_development.DebianHome (dynamic-078-050-124-229.78.50.pool.telefonica.de. [78.50.124.229])
-        by smtp.gmail.com with ESMTPSA id j3-20020a170906278300b00988a0765e29sm5729201ejc.104.2023.07.14.11.53.41
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jul 2023 11:53:41 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: free potential transition tables on insertion failure
-Date:   Fri, 14 Jul 2023 20:53:38 +0200
-Message-Id: <20230714185338.46147-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.40.1
+        d=1e100.net; s=20221208; t=1689589545; x=1692181545;
+        h=content-transfer-encoding:in-reply-to:organization:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3ZxqwFcIYi400ycUN1jF1UBiOV7Go/IiKqR9OlilEKQ=;
+        b=MTsmR8YCuC8elSTjdyHm3VmG78bvaPn7jZ0V1YJ2hNi7rGKf0mW1tZFkBVwD+3L5YM
+         I4wkbC5DZAht1gkMpZwl8cmVfnRBizQZzodFviVM8SAVPcz+aWxcNzVufGL+wRAxzvbv
+         t/R5Gwatwm+R6u7uSSGw+4L4tN/oJuI1rCunnEC7c4w90R3OMbVQwjHIFJkMTn6WUUIP
+         CCT/30IlJoKkmKWpK+p/xQN134BporyUK8/HBM/r6f6EYL+N53TGmSnW8SbJbfbJnbZG
+         8rthPp0c8uemwyOA8UZYILwfcP14WFinRYqlgeTr8/4PXb1I33OTM35bunqF74lqXtGx
+         AkTg==
+X-Gm-Message-State: ABy/qLYHqzdyVa8pbyFd/4obIqMr1HJWukFO2NAuOxSH3meY7KbnnuNh
+        gdZY4L1YzyspeoTIX1ZvvYbDrwaKgP/82UrUJjZS7cOTyjja4QlHEyzdXs7nu1APBnmCR8ZsxFq
+        OLU+ydMQAzIDfYvfxcA==
+X-Received: by 2002:a5d:6301:0:b0:313:f548:25b9 with SMTP id i1-20020a5d6301000000b00313f54825b9mr10182302wru.40.1689589545445;
+        Mon, 17 Jul 2023 03:25:45 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlEWwgj2gvrTcZVcFzDTLfBjRjMXpKrSXg5bhLw4PXADJbZO+n+htRPdtsID+emCjARx8zYmVw==
+X-Received: by 2002:a5d:6301:0:b0:313:f548:25b9 with SMTP id i1-20020a5d6301000000b00313f54825b9mr10182288wru.40.1689589545080;
+        Mon, 17 Jul 2023 03:25:45 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c735:400:2501:5a2e:13c6:88da? (p200300cbc735040025015a2e13c688da.dip0.t-ipconnect.de. [2003:cb:c735:400:2501:5a2e:13c6:88da])
+        by smtp.gmail.com with ESMTPSA id j1-20020a5d4641000000b0031434936f0dsm18732085wrs.68.2023.07.17.03.25.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Jul 2023 03:25:44 -0700 (PDT)
+Message-ID: <2000511c-d551-5b3d-a9a9-adb4ba3be1f1@redhat.com>
+Date:   Mon, 17 Jul 2023 12:25:43 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH 2/5] mm: use vma_is_stack() and vma_is_heap()
+Content-Language: en-US
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        selinux@vger.kernel.org
+References: <20230712143831.120701-1-wangkefeng.wang@huawei.com>
+ <20230712143831.120701-3-wangkefeng.wang@huawei.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20230712143831.120701-3-wangkefeng.wang@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-If the insertion via the callback insertf fails, free the potential
-previously allocated transition hashtables.
+On 12.07.23 16:38, Kefeng Wang wrote:
+> Use the helpers to simplify code.
+> 
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> ---
+>   fs/proc/task_mmu.c   | 24 ++++--------------------
+>   fs/proc/task_nommu.c | 15 +--------------
+>   2 files changed, 5 insertions(+), 34 deletions(-)
+> 
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/avtab.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Please squash patch #1 and this patch and call it something like
 
-diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index 99fdaa87..6c74eff7 100644
---- a/libsepol/src/avtab.c
-+++ b/libsepol/src/avtab.c
-@@ -715,7 +715,12 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
- 		}
- 		datum.data = le32_to_cpu(*buf32);
- 	}
--	return insertf(a, &key, &datum, p);
-+
-+	rc = insertf(a, &key, &datum, p);
-+	if (rc < 0)
-+		avtab_trans_destroy(&trans);
-+
-+	return rc;
- }
- 
- static int avtab_insertf(avtab_t * a, avtab_key_t * k, avtab_datum_t * d,
+"mm: factor out VMA stack and heap checks"
+
+And then, maybe also keep the comments in these functions, they sound 
+reasonable to have.
+
 -- 
-2.40.1
+Cheers,
+
+David / dhildenb
 
