@@ -2,133 +2,168 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 135ABEB64DC
-	for <selinux@archiver.kernel.org>; Mon, 17 Jul 2023 20:31:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C281EB64DC
+	for <selinux@archiver.kernel.org>; Mon, 17 Jul 2023 20:46:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbjGQUbu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jul 2023 16:31:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33650 "EHLO
+        id S231183AbjGQUq1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jul 2023 16:46:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230126AbjGQUbt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 16:31:49 -0400
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com (sonic301-38.consmr.mail.ne1.yahoo.com [66.163.184.207])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DB1188
-        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 13:31:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1689625908; bh=9ph4eCZmhDQ3lr6GTYBorpZ/DsudWvdab7mcX4Jc74g=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=uYL2mCK4ol7FbXJQ4VXftNOTkITyi16WXWkMe8uXJxlv9QmamwFy4fGomBe81+fHk05Q4w3O5Rq8fDiwBaYql8HEZED6w9QFhHob7p15OoYFPOCZCnh1SkGRimktI4FGGiJTrFBm3PokXFTK0Nc3H+x5Xdg4kJ5j+ouH2OAmrVEwKQLmufKA7jE0LyINQBe5UsddjwYgqewWkAu/w46eUYkn1vziLE+4ab5alSHh9Fu3+8Z+ewr+5NZkSFzPxMNJ3fag90u3lBMYfhaqxxfFSWziQ59GUF3A2sPf2RIHreWcNXhklJAscdS7IZM6CgZlrtGangQ18JwlKdQalZtEaA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1689625908; bh=o9DqBOfO9b/ahv1j+U3RJovW0axQHKQhOYXh8AE5EJ/=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=GA1ShMGomWqYlvK1uxw8aHniLqq8sTn2A5w5q4ZXaqpitBBgg6DN2/G8AzWFMwhQ8XUGjtkLZ/ElaosqDarg5RnFam9UrDUhZnVVhTzY5zx+dPMYVuQlJ4qLqJWSBqfsRAsx8z0fv1FhhC1qZUvyDnxlidFfDvudou4x4WUBf0jHhm2DaVaRu92kS9NnLOyXVyWPbDbZRz63dI00jKFecCYx0cSvTi6zqyTpDaotbCyhN3Clph2i85Bd0OeVqa7+ZHHB/CSHKMISoRcFzSrxdiKScnAtUIqYGiaI5hksTl8+/K1uvCyy6qB4dnCf9mCh6SlosDgz9oe8uZDO8Lvp8Q==
-X-YMail-OSG: C334pLkVM1n3mGdfcTaWiTiwcRUmAwhEqYWBzjdmDNeiMkrMORK5qqvQUEQRO0O
- rbjD.OXukwPPwhgcHu6PLSo5vxQksSBQvbYUpvEBUngpy8IhEqMk3OPNRPAoHvLHg0gG1.j8.dne
- RDYcvMmRK13ra.4UmFu1GxAXnbRoWtG3ZMjfy0XKkYxz5cUOuvwsw3pK8PrQzhto5NdgdpX2_8Kv
- JTh8WtXhCFxaAuuf2pqxGK0M0AlmET3_VXttL7DLA2Lzgv31j.vlWh7I.mpNCcI.eXF4DMtmz1WJ
- WtCI1DrGIYG9_iDhRC0GAMXuRrx9eKXudh3qv_fBZScovOEme324Ef_nwcLIlmL_DG2ix2E39YL4
- JeYYvuf.OFDYr8B6HJF3F9liNRZV3aNNgtEsBGbKmDyTfMnTWbB0CBwRE3ibylnYd4ZVXn5J5PJR
- EMh9FLKac88NZCVU_3QDEVHnap.vrfI64oR5TY2W5RY2zxykrOL9NA2wIz9y3yPD.hFIzRSIQoSl
- TVzfB_2cG5Ugneyl2ujkFb6aY6ADntXDcQvdtBD1_F0AGILkUu0TbEUQg4hJwGqWo_LMNUlmqX5Z
- hIowkqR0WlkPkT7caqn553eeYvziMuYUmz2STHdY6goplAC1_7zoWXOjll9XwB6FTQBCDwTnCdGf
- b0Y2rZim_mUU.9D4CZMSnPAiSM35BCZSGWnkgTlCDvrA8ksDBZ_ngZMsUN_J8cWYCof4Q0l8Onca
- HBqzF4sdbtdPtJy1WYb3KO__FkJwlLv.GuD895RJlNIja5_.inu2vNnnpq4ccijyXPpngXjqgbNq
- nAyYyRfnSVP5HjdKgUY92ojd6kMr2q3gZSDKrM9gnntFslKf1f5.3_nqPmCtremqqcevKzerobVW
- V07g1Btka0hsNXy4PGt44oAirRN2YXk7ewC2H3gpQheYRQulRPBMngnCWJ4w6ylfT4pRDfO5Pzc5
- BOCmi17I.0iVQT7TDQFlH3I7jmThsYwIYBLipiayWIUxfigdETPR6uhRGD_DwUTx6SfUAo0itdT_
- w59Ek2es29BbwCVqkZPkKXD2ATvdr4e6txfGzKdsXC_.nTK0VfXr4M762rv0ZN3Xe2xGyiodJaDP
- LDkeN.0U3HmALoJG7woSDtcpQ.JS6ZLMdxddux4lnfmBrTw5I0OdVbpiBb8MDQKlXgt5j0Yu3q7i
- W5Kr1YKFQCRTlqV.D1VKxC4gMH8cu.A3G9F3uEtO9L6Q.gYS87Sf7HfUDamLavwUdlHfUf86xl2B
- wh.faRm7AyKuwGlicJ9KBneipftyQbZInTidzmUlYdDj9wuw1AnVS_SA3WiM6814YIvtFEzQ1Ni8
- l_qdNv0CqwCylfi7teed17VPvdRD2fyj9SyhMne01z4Qc1Womznimbw95hbL98MhITl4JlAcHfTv
- p1rdIaC3Qj76fMgRYLkJ5qiBzSDzO7uBIHr8vXKtAsgJfkGzru2T4HQX2R4KDS73UUQpAg2PEJil
- LqWB8P97ba8oJ84euzvfOqNAS5erq1XV8Tjuo.S5RcDSH.77zyIOHk194rftguVQu.DE_RqldlD1
- ETXZfox4tpTNJzzMyzqbE2GQAcaN.7grGy0zue15l99X9SgMrIxFsMnWbVQcC4boI2AIlrK7hKUK
- PUNvVCU6HL.SGFXS1gt9UdDVidkuryEJB3RvSxrFAJEQOOkaRZDBKJ6s4IVHmDPs6mu5NlPboE58
- l5pAMOgkZm7MY1Ivu3LLDGzlmw8mPUgPbk__YCsH8U43KoZP2OnyN_Lf9K1o74L2YcUtG5lOTSr2
- NByjHWKFWI6C9tIYdiz.3_bVXSXMX.ogAVv9Lq77G5iEKb_Pr9bKDJvgnB10XJ9q3OQ_tAmjA_Wb
- gcnuwrs.d65CEwjoHozp1PeYEjHfRh4oIkbYmhtJGg.LzJRDvlRDIBxo0_eJYt3C3BDKFB2tXzqh
- 6vXDpyf8J6gDYkuW58LSy4ZIoNO8haPpoTPJmNQufilgWoShihG0AU4Ik6u5OcCWh39gOnOd43m0
- eUuHz81Ml_pL4hPm4ivactKG1UauOUOnLKdHd5Fpzwx5RP.OIRePkcUeqWyzpP7BGV6Wz.HVq0Bt
- VxeudsBGcrMZcRnYEAwfm1esoXr0B0dEMwV6IYJEQ.bRuKywKu0zGrDuVDCj34A6D5bRfDdTqBIR
- 8CZR3kAiiwGLO0FGZ08YC.BC4KTj761aCzQCOd44jo7nvdjckZgLRcnZi_vKF1R1fnCUfA_GxZaJ
- a99chuYM.NaF0aLV2wsAixHFSuJF.VCwBkGCesQZsjIty86jCa9a1XvwjR2lBuLxH4V4wuVtE1ZC
- O5c__uwqUvB0-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 3365421f-4eaf-4161-bd32-60d398ead7ed
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Mon, 17 Jul 2023 20:31:48 +0000
-Received: by hermes--production-bf1-69c9587855-ftxdj (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID be6be41bd27bd00225caf7b38170cf90;
-          Mon, 17 Jul 2023 20:31:46 +0000 (UTC)
-Message-ID: <0fcac6a8-4ab8-91bc-34e0-cbbb81da3973@schaufler-ca.com>
-Date:   Mon, 17 Jul 2023 13:31:41 -0700
+        with ESMTP id S229742AbjGQUqX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 16:46:23 -0400
+Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC9810C4
+        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 13:46:22 -0700 (PDT)
+Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-5774098f16eso52777477b3.0
+        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 13:46:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1689626781; x=1692218781;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nEdcEcIb3INTfFcQiUk0YSKaQiTgc3Kskp0pp8FOXTk=;
+        b=JWD3XIdVT+GpokCpDezMxA5qSflvlS2Tl/XIK/P3zokCNIE8IsLwFXHZODC/dXPPkA
+         639sg3K1ISUjHT1umjBfRimeLMgfeLGDmIdmQ1TCENOQ/H0Mb2AvZRn5rGDObI6lNoV1
+         Wz86nTYUxWQRKblpl0osV3xUgq+l3PuwIHHSS+tvy6CMB0udcdnk36NTKPklgdo0fbDd
+         inX3vV0SQemh+3ZcVSdO/DhFXYkbnFNsl2YRtpif5vedqQs0a+Z8/5ce8ryKg6+KYlcQ
+         Rq1ZsAChTPCgyeovI4V6+w3HAJN+MCFY/jQU1uaEzEH2noIK6CBkV/jo8n0qRHn4GfXE
+         Q45A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689626781; x=1692218781;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nEdcEcIb3INTfFcQiUk0YSKaQiTgc3Kskp0pp8FOXTk=;
+        b=KbBib1ICU1M5Js9hkAp1Kq/Rrzgvm6S7m0Jc2g3Gmt0P8CIrsOsMKEpY5Tnie2HtLc
+         RBXFoB0iaq6wiGPfhB0eNJgcIepXXpqguS2gC57O1okBqkg8OIH843+gVULKNF+auoOJ
+         Vk+jmQe3fpJW1i27l0pdVIGTIWanyONYW2axSOVVP+PCMDUli3ylYXBFq5cou0Sd77pr
+         kxzE6MxDrUMnv9gRCwsS+2/mtMzGRkcvohUEyYAv+ll/1tLA9FvC94jy9kCnkHv00Qcs
+         ddo20MqMHuoHVFzeIMEZ4j4o/YJgvUO5e8O7R1P4Vr3weLYP3zHITM0hQzML3CKXp3qh
+         Df/g==
+X-Gm-Message-State: ABy/qLZ9nxDDRaAN7a/ufcPZmDtKEzTqyTpCJoOj20VQwVpf5YohepEb
+        8NAzFlj8tWT6bjRchSJRMAKBW7ViP4u4vD3vofam
+X-Google-Smtp-Source: APBJJlFXvlWe55QM5YJhg5GUjTrvMhqBVX+o3OiftGPE9hM+2FUj2AVtjmH00pTMqyPP3xaY8BVDYaML4FGEVXSm81Q=
+X-Received: by 2002:a81:6c55:0:b0:57a:8ecb:11ad with SMTP id
+ h82-20020a816c55000000b0057a8ecb11admr14789633ywc.43.1689626781235; Mon, 17
+ Jul 2023 13:46:21 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH] selinux: optimize major part with a kernel config in
- selinux_mmap_addr()
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>, Leesoo Ahn <lsahn@ooseel.net>
-Cc:     lsahn@wewakecorp.com,
+References: <20230706133004.19064-1-cgzones@googlemail.com>
+In-Reply-To: <20230706133004.19064-1-cgzones@googlemail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 17 Jul 2023 16:46:10 -0400
+Message-ID: <CAHC9VhS=DzORJHPH+ObJJ8HpsnBqcDw0_PzzP1=TNL9gvaPgsg@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: implement avtab_search() via avtab_search_node()
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20230710082500.1838896-1-lsahn@wewakecorp.com>
- <CAHC9VhQY0Uq_xQ_AwAuZ8gJbS52nQvRONHvCxiR-dGDg3BviRw@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhQY0Uq_xQ_AwAuZ8gJbS52nQvRONHvCxiR-dGDg3BviRw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.21647 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+        Eric Paris <eparis@parisplace.org>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/17/2023 1:13 PM, Paul Moore wrote:
-> On Mon, Jul 10, 2023 at 4:25 AM Leesoo Ahn <lsahn@ooseel.net> wrote:
->> The major part, the conditional branch in selinux_mmap_addr() is always to be
->> false so long as CONFIG_LSM_MMAP_MIN_ADDR is set to zero at compile time.
->>
->> This usually happens in some linux distros, for instance Ubuntu, which
->> the config is set to zero in release version. Therefore it could be a bit
->> optimized with '#if <expr>' at compile time.
->>
->> Signed-off-by: Leesoo Ahn <lsahn@wewakecorp.com>
->> ---
->>  security/selinux/hooks.c | 2 ++
->>  1 file changed, 2 insertions(+)
-> First, I agree with Stephen's comments that you should ask your distro
-> (you mentioned Debian) to move MIN_ADDR higher.  Beyond that, I have
-> one request, see below ...
+On Thu, Jul 6, 2023 at 9:30=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index d06e350fedee..a049aab6524b 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -3723,11 +3723,13 @@ static int selinux_mmap_addr(unsigned long addr)
->>  {
->>         int rc = 0;
->>
->> +#if CONFIG_LSM_MMAP_MIN_ADDR > 0
->>         if (addr < CONFIG_LSM_MMAP_MIN_ADDR) {
->>                 u32 sid = current_sid();
->>                 rc = avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
->>                                   MEMPROTECT__MMAP_ZERO, NULL);
->>         }
->> +#endif
->>
->>         return rc;
->>  }
-> Pre-processor conditionals inside a function are generally something
-> we don't recommend.  In this case I would suggest doing something like
-> this:
+> Deduplicate avtab_search() by using the identical implementation from
+> avtab_search_node().
 >
-> #if (MMAP_MIN_ADDR > 0)
-> static int selinux_mmap_addr(...)
-> {
->   /* current func definition */
-> }
-> #else /* MMAP_MIN_ADDR > 0 */
-> static int selinux_mmap_addr(...)
-> {
->   return 0;
-> }
-> #endif /* MMAP_MIN_ADDR > 0 */
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  security/selinux/ss/avtab.c | 32 --------------------------------
+>  security/selinux/ss/avtab.h | 11 ++++++++++-
+>  2 files changed, 10 insertions(+), 33 deletions(-)
 
-Better yet, skip the #else here and #if out the LSM_HOOK_INIT(mmap_addr, ...).
-No hook at all is faster than a hook that does nothing.
+I only see three avtab_search() callers, and only one that actually
+cares about a return value other than NULL/non-NULL.  With that in
+mind, how about we remove avtab_search() entirely and update
+security_compute_sid() to use avtab_search_node()?  After all, it
+already uses it for the conditional rules lookup ... not sure why it
+doesn't use it everywhere?
 
+> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+> index 6766edc0fe68..33a54fbd989b 100644
+> --- a/security/selinux/ss/avtab.c
+> +++ b/security/selinux/ss/avtab.c
+> @@ -180,38 +180,6 @@ struct avtab_node *avtab_insert_nonunique(struct avt=
+ab *h,
+>         return avtab_insert_node(h, hvalue, prev, key, datum);
+>  }
+>
+> -struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key=
+ *key)
+> -{
+> -       int hvalue;
+> -       struct avtab_node *cur;
+> -       u16 specified =3D key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_=
+OLD);
+> -
+> -       if (!h || !h->nslot)
+> -               return NULL;
+> -
+> -       hvalue =3D avtab_hash(key, h->mask);
+> -       for (cur =3D h->htable[hvalue]; cur;
+> -            cur =3D cur->next) {
+> -               if (key->source_type =3D=3D cur->key.source_type &&
+> -                   key->target_type =3D=3D cur->key.target_type &&
+> -                   key->target_class =3D=3D cur->key.target_class &&
+> -                   (specified & cur->key.specified))
+> -                       return &cur->datum;
+> -
+> -               if (key->source_type < cur->key.source_type)
+> -                       break;
+> -               if (key->source_type =3D=3D cur->key.source_type &&
+> -                   key->target_type < cur->key.target_type)
+> -                       break;
+> -               if (key->source_type =3D=3D cur->key.source_type &&
+> -                   key->target_type =3D=3D cur->key.target_type &&
+> -                   key->target_class < cur->key.target_class)
+> -                       break;
+> -       }
+> -
+> -       return NULL;
+> -}
+> -
+>  /* This search function returns a node pointer, and can be used in
+>   * conjunction with avtab_search_next_node()
+>   */
+> diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+> index d6742fd9c560..16238c7bcbba 100644
+> --- a/security/selinux/ss/avtab.h
+> +++ b/security/selinux/ss/avtab.h
+> @@ -90,7 +90,6 @@ struct avtab {
+>  void avtab_init(struct avtab *h);
+>  int avtab_alloc(struct avtab *, u32);
+>  int avtab_alloc_dup(struct avtab *new, const struct avtab *orig);
+> -struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key=
+ *k);
+>  void avtab_destroy(struct avtab *h);
+>  void avtab_hash_eval(struct avtab *h, const char *tag);
+>
+> @@ -110,6 +109,16 @@ struct avtab_node *avtab_insert_nonunique(struct avt=
+ab *h,
+>
+>  struct avtab_node *avtab_search_node(struct avtab *h,
+>                                      const struct avtab_key *key);
+> +static inline struct avtab_datum *avtab_search(struct avtab *h,
+> +                                              const struct avtab_key *ke=
+y)
+> +{
+> +       struct avtab_node *cur =3D avtab_search_node(h, key);
+> +
+> +       if (cur)
+> +               return &cur->datum;
+> +
+> +       return NULL;
+> +}
+>
+>  struct avtab_node *avtab_search_node_next(struct avtab_node *node, int s=
+pecified);
+>
+> --
+> 2.40.1
+
+--=20
+paul-moore.com
