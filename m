@@ -2,90 +2,108 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B19CEB64DC
-	for <selinux@archiver.kernel.org>; Mon, 17 Jul 2023 16:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B9F3EB64DC
+	for <selinux@archiver.kernel.org>; Mon, 17 Jul 2023 16:13:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231861AbjGQQF7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jul 2023 12:05:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55918 "EHLO
+        id S230518AbjGQQNc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jul 2023 12:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229564AbjGQQF5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 12:05:57 -0400
-Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052E0F4
-        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 09:05:56 -0700 (PDT)
-Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-1b06ea7e7beso3667598fac.0
-        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 09:05:55 -0700 (PDT)
+        with ESMTP id S232076AbjGQQNN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 12:13:13 -0400
+Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC7FCFC
+        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 09:13:09 -0700 (PDT)
+Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-579d5d89b41so47072917b3.2
+        for <selinux@vger.kernel.org>; Mon, 17 Jul 2023 09:13:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689609955; x=1692201955;
+        d=paul-moore.com; s=google; t=1689610389; x=1692202389;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wnFL1AmrlheeY75vh6+ImZJxiaSYl7pddcdn0WO5Ko4=;
-        b=Og7E9Y0BGSs9U4HtJuBz92O5FCZFfUD7Bu5iNoKzoW4e25+9ledteWm+0hcBx8wi0N
-         MLTdgyZKDLKzLXSEkx/H2jPMhIdp6Ln8Z53FFcHUkwnWwJqEuFhGv/xAHFfPfGrrM/hX
-         e3oPeqqIYVt7wXwoRlTz6irQydaBMW31ZC8L7WxMoSTrza1lCy+sBL/JpKXhqW8dMmTZ
-         qENiyUXayZPzeKWhrL2Djot02nFtOL3W0fRMKZaSBPV0SGmU7F/UymPu4Pt/7jZxge4t
-         rAEJ/G0RSmLjWG60NDnjRuYVQWYC1TJu7xJIv9nA/vndEANaERhcf5R/paJuG7GZmrOV
-         qeig==
+        bh=8CqPKH8zLjxPG0T2aNpKAIqJzacVH6EbJBb3LjExpjw=;
+        b=cQpEj7wQVECv/U9cTpn+RN55ujAIWvks3MU4IX4Wr/hwnFIe0F/qx5YUKjSMpnx703
+         CHzs0WWQ7uBihIAx5z5eiCKmCaltnArXhlaNRgavYeytVm5vSw/gQiRT1py2AerifbO6
+         AiJnYOTJCz0R2HkNoD7T9Yf9t3z2uTFa83xyLrtRemXVRe2lrXcVvM5qyrJMMViUNE7U
+         6aLZBv3MPfrrvSHz+w10LReOyQijeOLBQAf/Jl5WjQxapxktKezBDH2erUpWfo+TfrZS
+         RnuZ/YnESkQ6HSr7gO5+BgLJh/oDlySt0yQzLcBh/BGfPb0h9TdwTyAHNWQPywULEg7z
+         BUVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689609955; x=1692201955;
+        d=1e100.net; s=20221208; t=1689610389; x=1692202389;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wnFL1AmrlheeY75vh6+ImZJxiaSYl7pddcdn0WO5Ko4=;
-        b=i7KLUCFQhNjZ28ZYPHnm6Jbf8RWOZ5Fp8a8h2mUm3cytwZwrZOgpI37aLgtN44JHO/
-         13ORF0/ztmJ+MV+CLeZAlYcRdtVasEPjs8UbeJefNfbiaGbAqYHjb3ZdtQ1GVeUfuU14
-         rzrUTLqqHcncQV/OQJwgDmQkRb9u0pXLfPuJlvmLnDDQZVVCufs/UejuLj3uELcTngDS
-         p9sL54IR0CAHzXpidNdUf6uOvAiT728+RPkAdQmCg/M15eOylWI30KrUX4ajl203xNcc
-         ciJ9M7uf4ZcEUZCv9CpsJ6FAjUlwt5Ez2DjExjWvl71WssajD08JzQbyPMI57Z2EW0LC
-         NzUA==
-X-Gm-Message-State: ABy/qLZpHuZ8ml+K4+FazP7oN9OetUgfmcJGZqPfzAes4INj2woBz3wo
-        cAAYBLeh5kMIlX5aKrH3jhIm4itZvOub9nOYbzg2
-X-Google-Smtp-Source: APBJJlEkQ8jfboNvol4sSiMDOSxb3dzPR8+YbJL6Osnf4gfzCjolPepfBVC3Z8iLIS3Ip+BO+PBLYW9yf+OYEA0pBoc=
-X-Received: by 2002:a05:6870:9726:b0:1b0:5bf7:3bb6 with SMTP id
- n38-20020a056870972600b001b05bf73bb6mr13595803oaq.28.1689609955350; Mon, 17
- Jul 2023 09:05:55 -0700 (PDT)
+        bh=8CqPKH8zLjxPG0T2aNpKAIqJzacVH6EbJBb3LjExpjw=;
+        b=IqJ/c95pqn8U36Qg12PXQmOx/0spl63Gi7fnOJ3kLRkPlpLQ5VD9u/LZ7CfAPuTHP6
+         V6eSCSqFxbhLYtXrsxBLgfwS9Ae/WSg/JZV5j4j1Cw5Rlrl8LJ7j6+gz2xsUEV4cm65L
+         3fIweEQtD+fbs44rBlY3XAfsbozLQIiEFVdA5nXq8r1Qi5OvQAe7CojifMThCOVMXe+J
+         9rhBfvbe4POZPI/OtPApk8F0preSgk4X2sAoVsALKOBYgAqAJmX7XHXbv6s03gtspvlQ
+         DzZd0waEL/gI31MgWUA7DgTHgIJwx+AF8mwyhOK30Gsum7QCjWH5mDIVSpqspMbaj42z
+         lmwg==
+X-Gm-Message-State: ABy/qLYt7YVMQEboUxyfEuItXIjpEKA0zpRIG7O0opoDerd87RNsEHBp
+        oZgjQli+cwDKPUUjwvZTsriyirH9+2DzNgpBYm9e
+X-Google-Smtp-Source: APBJJlGog4dyfGlwFIS3iBtcrvJFLeH/ogm5YcXS+semC1utnZAcGzlBZgUKou2DvMgGuYXX4nNPAERtXRDz/TQJF88=
+X-Received: by 2002:a81:67c1:0:b0:577:2fda:f181 with SMTP id
+ b184-20020a8167c1000000b005772fdaf181mr12551811ywc.44.1689610388723; Mon, 17
+ Jul 2023 09:13:08 -0700 (PDT)
 MIME-Version: 1.0
-References: <cover.1689077819.git.gnault@redhat.com> <980e4d705147a44b119fe30565c40e2424dce563.1689077819.git.gnault@redhat.com>
-In-Reply-To: <980e4d705147a44b119fe30565c40e2424dce563.1689077819.git.gnault@redhat.com>
+References: <20230712143831.120701-1-wangkefeng.wang@huawei.com> <20230712143831.120701-5-wangkefeng.wang@huawei.com>
+In-Reply-To: <20230712143831.120701-5-wangkefeng.wang@huawei.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 17 Jul 2023 12:05:44 -0400
-Message-ID: <CAHC9VhTrfw+5XJ+Fr0dQg0XayiD5x4-SREjpjOGmqroEbScVgw@mail.gmail.com>
-Subject: Re: [PATCH net-next 1/4] security: Constify sk in the sk_getsecid hook.
-To:     Guillaume Nault <gnault@redhat.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>, netdev@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Date:   Mon, 17 Jul 2023 12:12:58 -0400
+Message-ID: <CAHC9VhSU=T5FEP=sZyNukykE-xRzWsqyddS2-+sEsy2bmfGHKQ@mail.gmail.com>
+Subject: Re: [PATCH 4/5] selinux: use vma_is_stack() and vma_is_heap()
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 11, 2023 at 9:06=E2=80=AFAM Guillaume Nault <gnault@redhat.com>=
- wrote:
+On Wed, Jul 12, 2023 at 10:25=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawe=
+i.com> wrote:
 >
-> The sk_getsecid hook shouldn't need to modify its socket argument.
-> Make it const so that callers of security_sk_classify_flow() can use a
-> const struct sock *.
+> Use the helpers to simplify code.
 >
-> Signed-off-by: Guillaume Nault <gnault@redhat.com>
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > ---
->  include/linux/lsm_hook_defs.h | 2 +-
->  include/linux/security.h      | 5 +++--
->  security/security.c           | 2 +-
->  security/selinux/hooks.c      | 4 ++--
->  4 files changed, 7 insertions(+), 6 deletions(-)
+>  security/selinux/hooks.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 4e46cf3d67b6..289ef2d6a427 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3775,13 +3775,10 @@ static int selinux_file_mprotect(struct vm_area_s=
+truct *vma,
+>         if (default_noexec &&
+>             (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+>                 int rc =3D 0;
+> -               if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+> -                   vma->vm_end <=3D vma->vm_mm->brk) {
+> +               if (vma_is_heap(vma)) {
+>                         rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>                                           PROCESS__EXECHEAP, NULL);
+> -               } else if (!vma->vm_file &&
+> -                          ((vma->vm_start <=3D vma->vm_mm->start_stack &=
+&
+> -                            vma->vm_end >=3D vma->vm_mm->start_stack) ||
+> +               } else if (!vma->vm_file && vma_is_stack(vma) ||
+>                             vma_is_stack_for_current(vma))) {
 
-Thanks Guillaume, this looks good to me.  I had limited network access
-last week and was only monitoring my email for urgent issues, but from
-what I can tell it looks like this was picked up in the netdev tree so
-I'll leave it alone, but if anything changes let me know and I'll
-merge it via the LSM tree.
+With the parens fix that Andrew already provided.
+
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+>                         rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>                                           PROCESS__EXECSTACK, NULL);
+> --
+> 2.41.0
 
 --=20
 paul-moore.com
