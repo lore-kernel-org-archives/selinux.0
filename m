@@ -2,78 +2,139 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEF1FEB64DD
-	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4250EB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231338AbjGRWBj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 18:01:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59440 "EHLO
+        id S231352AbjGRWBk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jul 2023 18:01:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231190AbjGRWBV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:21 -0400
-Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9E919B3
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:18 -0700 (PDT)
-Received: by mail-qv1-xf36.google.com with SMTP id 6a1803df08f44-636801fada1so36848076d6.3
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:18 -0700 (PDT)
+        with ESMTP id S231208AbjGRWBW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:22 -0400
+Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043D1198D
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:19 -0700 (PDT)
+Received: by mail-qt1-x82f.google.com with SMTP id d75a77b69052e-403c6a0f3aaso47841151cf.2
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689717678; x=1692309678;
+        d=paul-moore.com; s=google; t=1689717679; x=1692309679;
         h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=OhqKt40L8OqcLw8LjCrBqzYCuugFm8zkJphxDeUn8N4=;
-        b=A74w8Ia/08u2KKgpEdKm/cB4wUc5lgnl5inl+w0GbhySy3LhwF2EATnxn98ZomdjxB
-         y2yNP67zyDrxPfJbQCYtTp+36LSm2pvCZrTjyV/wY+z4hWumu/Ezy1AjpKk10cz/hwnr
-         GHgTCEgzCf4NtjeHWFtoDhLM27ptVAWfvQa58bBTZcdkBIQcxd0YQBFkV60ya6fZ8mda
-         nFGWuKE+lG2hRQ+WXuL9liQI34NpzlIvMLpiHcZ4PMf00y5DG66d8cYdFuI+srohbxyv
-         VxAFONU2x71W3v1dlIaQMQNyffv9x2+nScWklSjvaMbw4RbOfMjoAE+Bs95dgyFmsgmw
-         LqRw==
+        bh=5n8Bh8d66inhHJw21BuddS5DHM8rIYty9eo51n5me8c=;
+        b=SmEJ/PYXRCfDwB/QBMY8+BmuMyIgZB9ZFGqhWWC73Lqmv5OyUaW6te3ef8eW8eaGUA
+         CIR1qjgqNlI2izKOCp5q+1Qiu/pyza6W102BK7eyK+O2QxdIz+7tFJwluq+w7iCtHrzn
+         M4q0Hpt0WPpB/ovjuaxrWG298LJ7e5Oe+8uk7RmRMyQylwlaoFvf2yvpbqu1nF5ATNBa
+         XtLOtAEwLkAOMr9TkiZ+wk3+o/SvLufTMVMjgTiscKxw1+CsbpeOsVOMJUots4yXD6Nj
+         Ddon3CY8R6K6kxFAn5pw4L5i2+w7rO/9G3UHE2F0TMOQC3Puvcw2jvgthID0S181uBgl
+         DFiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689717678; x=1692309678;
+        d=1e100.net; s=20221208; t=1689717679; x=1692309679;
         h=in-reply-to:references:subject:cc:to:from:message-id:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=OhqKt40L8OqcLw8LjCrBqzYCuugFm8zkJphxDeUn8N4=;
-        b=lhdQ3T7jrFfypS6udVdd405FGjpx3CDxZGDjdMsB0d0t7ubOs0NMVlwUVdlRBByjeF
-         gfgJXCavgwuNEPubbpwep88jyGxJOD2cB6RqmngUD6G95ueBwHM+bkvS60RKI1duV05B
-         s3bDSljAVnpLD6uedWNEegscJ9QC9gOubGgIE3glzAMojZD11nSuNJbplvlWnNJGNbV8
-         sc4PR6JFU+p6jzNskWO2KmSRLNbUDeZdmHOaa4K18uJb/IsqTFQxuP0WNkccbGi/sN/B
-         qDgRRitvKfKNT30L5VeNdBZ4R3glUqGcNyPsOgWG+jjdj/E+gO0Qz7+0XWjSPb18ov0C
-         hC1w==
-X-Gm-Message-State: ABy/qLZBWiUJkNuaQ5jJ8xK4xPTWpTHuAv8XLBKxbyyZ+JeIkvAZgzwL
-        iQnYbQidFRWmGbvKNoGYTKYz/gjDqJCYtyKPYQ==
-X-Google-Smtp-Source: APBJJlFM2D/vWvk/N3b7jmz6SpkkmDM8jnnTUOWslc/8qaPiP91FO1WU3tPpR8EmnPZ02vnOKZTaAg==
-X-Received: by 2002:a0c:be8b:0:b0:636:a9a3:9035 with SMTP id n11-20020a0cbe8b000000b00636a9a39035mr12896162qvi.42.1689717677899;
-        Tue, 18 Jul 2023 15:01:17 -0700 (PDT)
+        bh=5n8Bh8d66inhHJw21BuddS5DHM8rIYty9eo51n5me8c=;
+        b=MVqXB9KU0OT3/CZJ7ddJwXS2WBB2/cGf0EJe6T/qEUYCZOf6knJGYX6QliK/N8iGYh
+         QG2PN3iBJ8vktb6OlNgxMQEWuTJZgganiUrTe1gAYwnsNkMfff4J27J7i12LeKXBquaW
+         7whstgXuBN8WK7Y+XDqQe/DB0306KrDT3EapowvaZGhjJtvFaLk1dQIVVSX0yOsecstd
+         X9QELRtvl/cgBEhbLsPbiEXlpQF+QScB2/Qmg/798bdg0SPm4E3SjV1cBeWoHwf0zkUJ
+         tgP5oLDY9YHKmAURcsuKcNyHVqowl+tmkDsOrjJALJL3wPbchtYOQ3A6beYxMndU8qAn
+         BKpA==
+X-Gm-Message-State: ABy/qLame/vizXcQ/Dsl1AhvqjP3MAooG12tioWDELLakT4hB7Gcb/0B
+        1MWn7CZ88HqvQAtvCflW8geK
+X-Google-Smtp-Source: APBJJlF5JOrCTg3q4UiAHi9JMoDlk1oRvaAdE925uSkHMaJC3+uT0s8qsIU/Yvq18MaXgjY2sZjhSw==
+X-Received: by 2002:a05:622a:144e:b0:403:c687:bfb6 with SMTP id v14-20020a05622a144e00b00403c687bfb6mr23713673qtx.1.1689717678774;
+        Tue, 18 Jul 2023 15:01:18 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id l18-20020a0c9792000000b006379c3f7895sm1036919qvd.52.2023.07.18.15.01.17
+        by smtp.gmail.com with ESMTPSA id bs19-20020ac86f13000000b00403fc303060sm549663qtb.97.2023.07.18.15.01.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 15:01:17 -0700 (PDT)
-Date:   Tue, 18 Jul 2023 18:01:16 -0400
-Message-ID: <aedacdf95535c7147e6add61419c2cab.paul@paul-moore.com>
+        Tue, 18 Jul 2023 15:01:18 -0700 (PDT)
+Date:   Tue, 18 Jul 2023 18:01:18 -0400
+Message-ID: <703e95374a9a0d25186e7ac472f143d7.paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
-To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
+To:     Gong Ruiqi <gongruiqi1@huawei.com>,
+        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
 Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 6/20] selinux: mls: avoid implicit conversions
-References: <20230706132337.15924-6-cgzones@googlemail.com>
-In-Reply-To: <20230706132337.15924-6-cgzones@googlemail.com>
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH RFC 7/20] selinux: services: update type for umber of class  permissions
+References: <20230706132337.15924-7-cgzones@googlemail.com>
+In-Reply-To: <20230706132337.15924-7-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Jul  6, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
+On Jul  6, 2023 Gong Ruiqi <gongruiqi1@huawei.com> wrote:
 > 
-> Use u32 for ebitmap bits.
-> 
-> Use char for the default range of a class.
+> Security classes have only up to 32 permissions, hence using an u16 is
+> sufficient (while improving padding).
+
+Can you explain the improved padding comment?  It looks like you are
+only changing the iterator's type so the struct should remain
+unchanged, and FWIW, it looks like security_class_wrapping allocates
+space for 33 permission strings.
+
+> Also use a fixed sized cast in a bit shift to work correctly on
+> architectures where sizeof(unsigned int) != sizeof(u32).
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/ss/mls.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
-
-Two words: "loop iterators"
+>  security/selinux/ss/services.c | 6 +++---
+>  security/selinux/ss/services.h | 2 +-
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 78946b71c1c1..3275cfe2c8f7 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -97,7 +97,6 @@ static int selinux_set_mapping(struct policydb *pol,
+>  			       struct selinux_map *out_map)
+>  {
+>  	u16 i, j;
+> -	unsigned k;
+>  	bool print_unknown_handle = false;
+>  
+>  	/* Find number of classes in the input mapping */
+> @@ -117,6 +116,7 @@ static int selinux_set_mapping(struct policydb *pol,
+>  	while (map[j].name) {
+>  		const struct security_class_mapping *p_in = map + (j++);
+>  		struct selinux_mapping *p_out = out_map->mapping + j;
+> +		u16 k;
+>  
+>  		/* An empty class string skips ahead */
+>  		if (!strcmp(p_in->name, "")) {
+> @@ -202,7 +202,7 @@ static void map_decision(struct selinux_map *map,
+>  {
+>  	if (tclass < map->size) {
+>  		struct selinux_mapping *mapping = &map->mapping[tclass];
+> -		unsigned int i, n = mapping->num_perms;
+> +		u16 i, n = mapping->num_perms;
+>  		u32 result;
+>  
+>  		for (i = 0, result = 0; i < n; i++) {
+> @@ -230,7 +230,7 @@ static void map_decision(struct selinux_map *map,
+>  		 * should audit that denial
+>  		 */
+>  		for (; i < (sizeof(u32)*8); i++)
+> -			result |= 1<<i;
+> +			result |= 1<<((u32)i);
+>  		avd->auditdeny = result;
+>  	}
+>  }
+> diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
+> index 8a9b85f44b66..b6f99353301e 100644
+> --- a/security/selinux/ss/services.h
+> +++ b/security/selinux/ss/services.h
+> @@ -12,7 +12,7 @@
+>  /* Mapping for a single class */
+>  struct selinux_mapping {
+>  	u16 value; /* policy value for class */
+> -	unsigned int num_perms; /* number of permissions in class */
+> +	u16 num_perms; /* number of permissions in class */
+>  	u32 perms[sizeof(u32) * 8]; /* policy values for permissions */
+>  };
+>  
+> -- 
+> 2.40.1
 
 --
 paul-moore.com
