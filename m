@@ -2,83 +2,76 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 283BFEB64DD
-	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5611EB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230317AbjGRWBT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 18:01:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59440 "EHLO
+        id S229679AbjGRWBV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jul 2023 18:01:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbjGRWBQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:16 -0400
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF98A19B2
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:13 -0700 (PDT)
-Received: by mail-qk1-x736.google.com with SMTP id af79cd13be357-766fd5f9536so421787985a.3
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:13 -0700 (PDT)
+        with ESMTP id S231138AbjGRWBR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:17 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE2CE1992
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:15 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id af79cd13be357-76714caf466so573165085a.1
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689717673; x=1692309673;
+        d=paul-moore.com; s=google; t=1689717675; x=1692309675;
         h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=Z0/uf5AvHD3Ad9NS83FZnzRuH3oiKZoLYaLQ80T3/84=;
-        b=Be6zVOCErHmcczCO6fqOr11lh9Xyzw7rJ7oPkz/UXLYHG4MTP+IhvLNL26Q0V4eMH6
-         OLG2EBrwnWD5iYXvs0uuxaUJFT3E1Fc3O78lusGJF2KBKgaYeeSkKDyzmCrAfyiJGP0S
-         dv76BfQ2bFT+DjoV1+4LJL9WFyolS4/2Pxz9NC4RHsLIWCb7dl9on8XIYOF6yS4IVF+9
-         BKeokHt3R78is4+UjwIerhOpSQKhlLO7cOhwmWHD8ijMP+GuDCr+uFdw14BAYnHbHPDi
-         /oLO1EfP6nHwbX3dfFWcAHCsXO2XTQGkg5zWgXCZLAOqURbBPJWFe861glRe1Xp1/GIB
-         TpVg==
+        bh=4IjGZohETdjPHZY0jgJlCHUZfh0j2caOQw0qpHSDuUs=;
+        b=Egpx/3mU8nHxuwS90A737HBe/wb3ru2UpMAjRsdRg9x1/YlYYqSuZOJs+qkRF2LX9f
+         YnkAfHqW1XPrto0fHK1qxXzbMpu58JZdDGrdc+s4CTzQIQQKNWgcKcakX8XMoFRKaTiX
+         BlyhT1kHQUFzvAnf4k4k/AyINf+zgCYrjlrpQ5ydvWHpSIZYTtjhPWdrzdiJ3IUNC/7o
+         4Hl8r2coMYHVxZSxZV6T3aXjKAysyTfXXdPPygaRznbVGAWof4nWIR3ydae0j5kkF2K3
+         Fot99/HlntMXPJURhaijWrRIb4NjvX8B5jsSrXBUcCHuW7bJJR1Oeku9yRcX3ZyqbrwP
+         jU3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689717673; x=1692309673;
+        d=1e100.net; s=20221208; t=1689717675; x=1692309675;
         h=in-reply-to:references:subject:cc:to:from:message-id:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Z0/uf5AvHD3Ad9NS83FZnzRuH3oiKZoLYaLQ80T3/84=;
-        b=dvzTDFprPnDfVaFEVtq5YO5HwJs62myrDK86yjebc6Z3jy9z1ARTi97faZHajTBYIq
-         c2BiOsrJjrCagUMYFDcxFbCKBE3RjF5Kym0rcrcLigB1jP57GYtjp4qV8A0aDAi/TQOc
-         9wniLXlQpmpb2v9qh8IimdjELZ/zZXdaKdZEcA6mcipM9e6i8902XS9kuyh+0HMp3J/R
-         dWY6y9CKVbd7pK0TAIYipaTuQ6CNhe4aKH0NgKR5VjcIBRF/nyBexoI8+BxNmRwX33yC
-         KNNY+xFPNjxPCv7wFN3cgadoxMvdH1ES75EQpmzAXbARiiH3gIG2FpLZDxcFyE2X63mJ
-         Fnbw==
-X-Gm-Message-State: ABy/qLYQ1ONk2Ud5TCmXOoDXB11wl3i3Mc5gbm84v5lM559SxoTKqMmp
-        Qm8Yq2ym/uXbBW4Y2AADCJ60
-X-Google-Smtp-Source: APBJJlHFnLy5PH2r2LCdf+C6Xe1C4n2YBqesF57TOIq56DDmQRQbh04seW3hlYl3u+MrP4i9FEQdeQ==
-X-Received: by 2002:a05:620a:1a84:b0:767:e57f:6fe with SMTP id bl4-20020a05620a1a8400b00767e57f06femr1115499qkb.61.1689717673041;
-        Tue, 18 Jul 2023 15:01:13 -0700 (PDT)
+        bh=4IjGZohETdjPHZY0jgJlCHUZfh0j2caOQw0qpHSDuUs=;
+        b=EIk/9X1VHP3GW8mff2Jlx8R7bwiDReLVQjRczCDHbP9akUx1laYAoJf5eM1Y+Lm9Cw
+         QixVAanzIWdGGZecKa6jRoex3q66fjHBPMq2yigVv8qNsBCfwRdOa34+6NFTs+FYl9fb
+         g3SpPOSSIJqIAlgErNbUpqGBJDWDHuIJI5N0q5I9505hNMSOKuXq7gkwyhqo9MzLybvj
+         ETPwhlgqCQup8VRq+cXwpBH1L5kJgFumtXcGOCKCQWNKxyz6zCtJkuOpqvaadoCuH0ju
+         U4/jRQt5rJ3DX9ARaMt6jhjBnqiWBlddglPUR59s6/ZJrSkghcpJUZ6TYisUyGqHo1UH
+         uKlA==
+X-Gm-Message-State: ABy/qLbkDSvtLEjZ5M8/niJCqKF6Xd8BO71bdQ2uOKQWWyIAx4GzwlsP
+        d7fgUiXHjW7OSimXo86jgsWzyzGfkahq1fNxCA==
+X-Google-Smtp-Source: APBJJlGx4IU9+zM6kx05Ik9M0KN19dtlnJCgZkzHF+W/3Owaw+2ZzuGTFIJ7zOhdg0y+Y/xBZFJgDQ==
+X-Received: by 2002:a37:5802:0:b0:768:2193:6023 with SMTP id m2-20020a375802000000b0076821936023mr5935731qkb.58.1689717674926;
+        Tue, 18 Jul 2023 15:01:14 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id i2-20020a05620a074200b00767fbfea21dsm877906qki.69.2023.07.18.15.01.12
+        by smtp.gmail.com with ESMTPSA id a26-20020a05620a103a00b00767b24f68edsm890832qkk.62.2023.07.18.15.01.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 15:01:12 -0700 (PDT)
-Date:   Tue, 18 Jul 2023 18:01:12 -0400
-Message-ID: <6fcffe16a17c4e1b28daa23f3c6ca49f.paul@paul-moore.com>
+        Tue, 18 Jul 2023 15:01:14 -0700 (PDT)
+Date:   Tue, 18 Jul 2023 18:01:14 -0400
+Message-ID: <04dcd1f6040e03c5533b3259629988f7.paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
-To:     Gong Ruiqi <gongruiqi1@huawei.com>,
-        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
+To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
 Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
-Subject: Re: [PATCH RFC 1/20] selinux: check for multiplication overflow in  put_entry()
-References: <20230706132337.15924-1-cgzones@googlemail.com>
-In-Reply-To: <20230706132337.15924-1-cgzones@googlemail.com>
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC 3/20] selinux: avoid avtab overflows
+References: <20230706132337.15924-3-cgzones@googlemail.com>
+In-Reply-To: <20230706132337.15924-3-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Jul  6, 2023 Gong Ruiqi <gongruiqi1@huawei.com> wrote:
+On Jul  6, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
 > 
-> The function is always inlined and most of the time both relevant
-> arguments are compile time constants, allowing compilers to elide the
-> check.  Also the function is part of outputting the policy, which is not
-> performance critical.
-> 
-> Also convert the type of the third parameter into a size_t, since it
-> should always be a non-negative number of elements.
+> Prevent inserting more than the supported U32_MAX number of entries.
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/ss/policydb.h | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+>  security/selinux/ss/avtab.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Merged into selinux/next, thanks.
+Merged into selinux/next, thanks!
 
 --
 paul-moore.com
