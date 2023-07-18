@@ -2,62 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0180DEB64DD
-	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 18:49:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25838EB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 19:00:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbjGRStc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 14:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41206 "EHLO
+        id S229949AbjGRTAf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jul 2023 15:00:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230281AbjGRSta (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 14:49:30 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C49B610B
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 11:49:28 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id 4fb4d7f45d1cf-52165886aa3so6878693a12.3
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 11:49:28 -0700 (PDT)
+        with ESMTP id S230356AbjGRTAe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 15:00:34 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E89B198
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 12:00:29 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-9922d6f003cso834610466b.0
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 12:00:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1689706167; x=1692298167;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ZodW3TXnM31uibPuRNqYlwXl8LeWTene5W4t1FOYt7g=;
-        b=afoT3Knbj+Px88LwcTVKJy9/bns/hdvSpRbgkMiNwddTXZ99Sg3q7ybNxWpBWwUt6T
-         Yj7q/+Pcv5cDwPZvUFyVvu5Kl5bgowhFtjFyyDW6PH2XFpv1PDkOwh2b1NpHhosho+qY
-         dPHotU+Eh1yB0z6V4p4WuyUCiLeFDF55NCeqXXX4kl8tGOCDvpKKeeW9rRZYxBWSCI7e
-         TRJ7PWTrPFs9xnEbepSetdDldUvyND4FKUN9gebKHsRuLse57JQpv69YfhHF11DMuVhK
-         lq49CHJ0ipJorgCEKln04bEJmxBwRs1iPa4g9kG7QLVPAjwsWxBiorECR7gIdQ7PCsnP
-         YWYw==
+        d=googlemail.com; s=20221208; t=1689706828; x=1692298828;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=tGm76TP2Lzl4mroJqgC7s33076/FSW+9yWS/FMEJBvA=;
+        b=UKIUbt6dJJY4dJwVSTWACZKrBTu5AkKmqKtngXTz3AvEKfC8StppXxuxFb7pr3c4Jr
+         6Ds9Eal2FZp9nYAnU8cn50Py8eeIEwR0VRXiVGni8imMPIp8gfdC002kxPwMX81f7X0V
+         Wc1m31rXWCG1hN63YoQservUmdWLQt7cd+feFHBrroifqqKDoMhygQg/poIt+q/i7duR
+         wUMz/2IUtehtONKTUh96JNdBOFuevb2SvkHE9xSbHcQAAc9YdWaobZgYfVXA3B5kTHqh
+         PUH5Jh16dafJfnSgW+210gVT91VyOmx3ee9oAtHros6cjG1YGR+f2VM5ZoNnfXOvC6Qp
+         VwtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689706167; x=1692298167;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZodW3TXnM31uibPuRNqYlwXl8LeWTene5W4t1FOYt7g=;
-        b=ktmB8Lb1Zt0fazJJnjVcjhCHI0XYaBmLzRWJRxLT7szjbvqdeYr7qdzmK5NLM6piAA
-         H+dmUjU94q8RZ+/M7z73PpFSrnx81qSlSjRJOj8Ud/ZGiL6osFd1RU8ObieI5roIPfUX
-         /iDnPHdGv7IZ/RgMtLaxcVF8OgJVZC6ycdOzCpy++62/yJaS59ht2l9VKho0GPeJnuQh
-         WTqMyy9QqBxveg9GqmnU30f87OqtNHbLetjZ5oYKtyxk/PCRKKQM+ZqGsCQ9hG/bmizk
-         nnPpRxc6O516YSjgadOpYJcOF8VFLB+W/pWsk+U0V5EUer8t0G/Z16CSgxge6qJRR8cn
-         6GcA==
-X-Gm-Message-State: ABy/qLZ8kSHSXYm23VzUYZI6UCFx9ai0KPBlZPWJgbPs4FDShh4Pbgme
-        Ziz73oJuNw9BTXfCT/ePuBA1ac3jE6uY6g==
-X-Google-Smtp-Source: APBJJlFwAP33W4RI9oX28xa/uUWNp/F9Zk+zlmZ4wM4SZ+5germr0kJj99vMw4Pt2iGo2daxs4RZaw==
-X-Received: by 2002:aa7:cc8c:0:b0:51d:d30d:a037 with SMTP id p12-20020aa7cc8c000000b0051dd30da037mr747596edt.10.1689706167284;
-        Tue, 18 Jul 2023 11:49:27 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1689706828; x=1692298828;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=tGm76TP2Lzl4mroJqgC7s33076/FSW+9yWS/FMEJBvA=;
+        b=LcR3I2p6rcN1SxWAz5bYoyWfFsYBkagIkvCmYzsoUfS+Kdtje6taaCCrZqlCBh9k8k
+         gJ63yZuf0jIV6s0KMSDyie8bmduZ+qkNoNB6yQxGLT/nPrGar2DRBgMq4qWzGqFJ4LFO
+         7W97bQY0GhrlGcbVO064Thx4kXJv4hj1acLsj/fS8bxLOJPsZnh9m2IXqDy7lWIe0HW1
+         1leZnl4Oh0oweVubMekHtXO2Q2Gpw8CG6X7NBz5P3YHlBy7RifeFgE57sQhNU8U25DPd
+         G5HbK2OwLNmEQMFMHGQAznXBkDnRUDXvfkOsji7DeB23aPusBWKdJLg6bGxQeT7gcOLb
+         om0Q==
+X-Gm-Message-State: ABy/qLZ+eg1a+03lb/bC3PLLtJ4MI7MJz/kM/bAGUNqzmggDxGo3Wy5D
+        Kz+eSuShjj6ic+IfWrWJy3lMjrEI81Hg0A==
+X-Google-Smtp-Source: APBJJlHCMnWYPTsSZYszLilq2d6auZzBU/l9R5CauoqtQOGvo8ZrhKsoo5KDR9AT+SjrNcK50MqPgg==
+X-Received: by 2002:a17:907:7819:b0:988:9d0f:db52 with SMTP id la25-20020a170907781900b009889d0fdb52mr660311ejc.35.1689706827754;
+        Tue, 18 Jul 2023 12:00:27 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-119-136-221.95.119.pool.telefonica.de. [95.119.136.221])
-        by smtp.gmail.com with ESMTPSA id c17-20020a056402121100b0051e1660a34esm1603758edw.51.2023.07.18.11.49.26
+        by smtp.gmail.com with ESMTPSA id a11-20020a170906244b00b0099307a5c564sm1352669ejb.55.2023.07.18.12.00.27
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 11:49:27 -0700 (PDT)
+        Tue, 18 Jul 2023 12:00:27 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 3/3] selinux: log missing anonclass in debug configuration
-Date:   Tue, 18 Jul 2023 20:49:21 +0200
-Message-Id: <20230718184921.112786-3-cgzones@googlemail.com>
+Subject: [PATCH] selinux: add missing newlines in print statements
+Date:   Tue, 18 Jul 2023 21:00:24 +0200
+Message-Id: <20230718190024.117662-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230718184921.112786-1-cgzones@googlemail.com>
-References: <20230718184921.112786-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -65,38 +61,59 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Log under the SELinux debug configuration when a caller to the LSM hook
-inode_init_security_anon does not pass a anonymous inode class name.
-The class name allows policy writers to transition the anonymous inode
-into a private type via a name based type transition.
+The kernel print statements do not append an implicit newline to format
+strings.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/hooks.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ security/selinux/hooks.c       | 2 +-
+ security/selinux/ss/policydb.c | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b8a8a4f0f2ad..f6ffab9958b6 100644
+index b8a8a4f0f2ad..121741e63c48 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2918,6 +2918,17 @@ static int selinux_inode_init_security_anon(struct inode *inode,
- 	if (unlikely(!selinux_initialized()))
- 		return 0;
+@@ -2930,7 +2930,7 @@ static int selinux_inode_init_security_anon(struct inode *inode,
+ 		struct inode_security_struct *context_isec =
+ 			selinux_inode(context_inode);
+ 		if (context_isec->initialized != LABEL_INITIALIZED) {
+-			pr_err("SELinux:  context_inode is not initialized");
++			pr_err("SELinux:  context_inode is not initialized\n");
+ 			return -EACCES;
+ 		}
  
-+#ifdef CONFIG_SECURITY_SELINUX_DEBUG
-+	/*
-+	 * Allow policy writers to transition the anonymous inode into
-+	 * a private type via a name based type transition.
-+	 */
-+	if (!name) {
-+		pr_debug("SELinux:  no class given for anonymous inode\n");
-+		dump_stack();
-+	}
-+#endif
-+
- 	isec = selinux_inode(inode);
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index cfe77ef24ee2..61e0e5000025 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1687,7 +1687,7 @@ static int user_bounds_sanity_check(void *key, void *datum, void *datap)
  
- 	/*
+ 		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
+ 			pr_err("SELinux: user %s: "
+-			       "too deep or looped boundary",
++			       "too deep or looped boundary\n",
+ 			       (char *) key);
+ 			return -EINVAL;
+ 		}
+@@ -1766,7 +1766,7 @@ static int type_bounds_sanity_check(void *key, void *datum, void *datap)
+ 
+ 		if (upper->attribute) {
+ 			pr_err("SELinux: type %s: "
+-			       "bounded by attribute %s",
++			       "bounded by attribute %s\n",
+ 			       (char *) key,
+ 			       sym_name(p, SYM_TYPES, upper->value - 1));
+ 			return -EINVAL;
+@@ -3675,7 +3675,7 @@ int policydb_write(struct policydb *p, void *fp)
+ 	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+ 		pr_err("SELinux: compatibility lookup failed for policy "
+-		    "version %d", p->policyvers);
++		    "version %d\n", p->policyvers);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.40.1
 
