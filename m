@@ -2,101 +2,104 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 274B1EB64DD
-	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 13:25:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9A19EB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 15:10:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231926AbjGRNZX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 09:25:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58796 "EHLO
+        id S233197AbjGRPK2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jul 2023 11:10:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232303AbjGRNZQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 09:25:16 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10089E0
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 06:24:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1689686672;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=dgledF1WRoLwrfDvjbydZH7nQLxGFefypqZhBkMsdxg=;
-        b=JbtM9jiBJvSJJeW2EOW85Wzert9tpZG5fev0BV7dVyx+omX11G5irSBWEYUi8F6PpQ7i3R
-        aG3jm4ul21dJZDpYlGRQyXU6QOlN7RI/nHfpu9Wpfor0xaVhf08knKi29cv1Nh03UqUJQ7
-        irbTE7acMOOCjyNazPoRzOIEMJkllY4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-241-Tkt302CUP3iz11o0VtpMww-1; Tue, 18 Jul 2023 09:24:28 -0400
-X-MC-Unique: Tkt302CUP3iz11o0VtpMww-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6965A8D168D;
-        Tue, 18 Jul 2023 13:24:28 +0000 (UTC)
-Received: from segfault.boston.devel.redhat.com (segfault.boston.devel.redhat.com [10.19.60.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1E9E42166B25;
-        Tue, 18 Jul 2023 13:24:28 +0000 (UTC)
-From:   Jeff Moyer <jmoyer@redhat.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] io_uring: don't audit the capability check in io_uring_create()
-References: <20230718115607.65652-1-omosnace@redhat.com>
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-Date:   Tue, 18 Jul 2023 09:30:18 -0400
-In-Reply-To: <20230718115607.65652-1-omosnace@redhat.com> (Ondrej Mosnacek's
-        message of "Tue, 18 Jul 2023 13:56:07 +0200")
-Message-ID: <x49lefd4aad.fsf@segfault.boston.devel.redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        with ESMTP id S231501AbjGRPK1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 11:10:27 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB66171A;
+        Tue, 18 Jul 2023 08:10:26 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id 5614622812f47-3a3efee1d44so4313944b6e.3;
+        Tue, 18 Jul 2023 08:10:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1689693026; x=1692285026;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=JNQ6/gc5vfGP1wHAlH0r+RXd8q2VGkAv8eOnlipw9dY=;
+        b=CV3ZKEqZWXlKDj1uZ5AVabNJrLd2Eg+AK05DTeuCA+f5zQEMBxYFca0FBmwFTkHcK7
+         3MlmM5lZTYfktW0UF6SbvxyLoTf1TuBv6ZgILXcv8VOuLPDPduWcM5h/tDvlr0ypg5/q
+         smpype/Nr37YgegIwLWzCYWecOynGyznMId0h5Yu07QY99zOYbeNAPhOMiBJCFwdHIg1
+         os2djPgcqhMTtJsBcOr448wqDatFIAol+X13i+uIjse3EoWbTEh8eawvWBB+t+x4nBHX
+         AwOdbRVZlXT+Nd0dKShzXbdAGtZ+nCvMDk4XVNYGLQfeaKo9QT1PyMpwDQCP/QPpHn7V
+         zClA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689693026; x=1692285026;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JNQ6/gc5vfGP1wHAlH0r+RXd8q2VGkAv8eOnlipw9dY=;
+        b=LRA0oZN4mUBW4jmsOjoQ2EWbta78mTwljgAYIai1i8OEqEOAEcej0/jugixJtQnbJh
+         P+6ZhYRp3LdX7pcnFhgA+hFRz3Kdo/APSJV+0WNFofoQCfdf4ngsC3XTBLKVOBCM36lz
+         8ujR2MX2n4SrtplsBlPKkNpMPgZZF8DVSgRWiDdWpKk479KXg0UOXyiZ/r7e57NzkS0R
+         kTrGFm5b2UH7uJSFMj6jyucrTQ4vFH/HqF1ZdChzzLcIV3Yn0bsBFn9Ns4iRG+CGOlf1
+         E1yJb4S3trM7GXXGHAFSFEq8tfmejaOzxUH/QxnlSpj1M2o4ezRMxsMePL+pyBlB4dzk
+         9Jjw==
+X-Gm-Message-State: ABy/qLb0JpLIuAhc47AZr08INcMG88PRUX+b51N3aTeoKz8mPAuBFxiC
+        ews8AYOnQ6swl2gsDjFLYBQTu4xWaKdujOAs13tenJbNcBEzWA==
+X-Google-Smtp-Source: APBJJlHDVXGokvOwlHVsvWNoqkFMjjyNFTxOWLqeqnl954tIVvHpuyY0R8psa6PK/CXU+eZaGshpae8nJo4WqnvYlBA=
+X-Received: by 2002:a05:6358:7f0d:b0:134:c37f:4b60 with SMTP id
+ p13-20020a0563587f0d00b00134c37f4b60mr11494410rwn.32.1689693025766; Tue, 18
+ Jul 2023 08:10:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+References: <20230712143831.120701-1-wangkefeng.wang@huawei.com> <20230712143831.120701-2-wangkefeng.wang@huawei.com>
+In-Reply-To: <20230712143831.120701-2-wangkefeng.wang@huawei.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 18 Jul 2023 17:10:14 +0200
+Message-ID: <CAJ2a_Dd+CUggq0gtaeuPSP+iCrqUH08cCwU95AYGXxv5TBWSuA@mail.gmail.com>
+Subject: Re: [PATCH 1/5] mm: introduce vma_is_stack() and vma_is_heap()
+To:     Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi, Ondrej,
-
-Ondrej Mosnacek <omosnace@redhat.com> writes:
-
-> The check being unconditional may lead to unwanted denials reported by
-> LSMs when a process has the capability granted by DAC, but denied by an
-> LSM. In the case of SELinux such denials are a problem, since they can't
-> be effectively filtered out via the policy and when not silenced, they
-> produce noise that may hide a true problem or an attack.
+On Wed, 12 Jul 2023 at 16:25, Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
 >
-> Since not having the capability merely means that the created io_uring
-> context will be accounted against the current user's RLIMIT_MEMLOCK
-> limit, we can disable auditing of denials for this check by using
-> ns_capable_noaudit() instead of capable().
-
-Could you add a comment, or add some documentation to
-ns_capable_noaudit() about when it should be used?  It wasn't apparent
-to me, at least, before this explanation.
-
-> Fixes: 2b188cc1bb85 ("Add io_uring IO interface")
-> Link: https://bugzilla.redhat.com/show_bug.cgi?id=2193317
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Introduce the two helpers for general use.
+>
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 > ---
->  io_uring/io_uring.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  include/linux/mm.h | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 >
-> diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-> index 7505de2428e03..a9923676d16d6 100644
-> --- a/io_uring/io_uring.c
-> +++ b/io_uring/io_uring.c
-> @@ -3870,7 +3870,7 @@ static __cold int io_uring_create(unsigned entries, struct io_uring_params *p,
->  		ctx->syscall_iopoll = 1;
->  
->  	ctx->compat = in_compat_syscall();
-> -	if (!capable(CAP_IPC_LOCK))
-> +	if (!ns_capable_noaudit(&init_user_ns, CAP_IPC_LOCK))
->  		ctx->user = get_uid(current_user());
->  
->  	/*
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 1462cf15badf..0bbeb31ac750 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -926,6 +926,18 @@ static inline bool vma_is_anonymous(struct vm_area_struct *vma)
+>         return !vma->vm_ops;
+>  }
+>
+> +static inline bool vma_is_heap(struct vm_area_struct *vma)
 
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
+What about declaring the parameters const to document in code these
+functions do not modify any state, and allow callers to pass pointers
+to const?
 
+> +{
+> +       return vma->vm_start <= vma->vm_mm->brk &&
+> +               vma->vm_end >= vma->vm_mm->start_brk;
+> +}
+> +
+> +static inline bool vma_is_stack(struct vm_area_struct *vma)
+> +{
+> +       return vma->vm_start <= vma->vm_mm->start_stack &&
+> +              vma->vm_end >= vma->vm_mm->start_stack;
+> +}
+> +
+>  static inline bool vma_is_temporary_stack(struct vm_area_struct *vma)
+>  {
+>         int maybe_stack = vma->vm_flags & (VM_GROWSDOWN | VM_GROWSUP);
+> --
+> 2.41.0
+>
