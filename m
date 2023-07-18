@@ -2,82 +2,72 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 352E4EB64DC
-	for <selinux@archiver.kernel.org>; Mon, 17 Jul 2023 21:15:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A335DEB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 00:51:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbjGQVPz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jul 2023 17:15:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52204 "EHLO
+        id S230269AbjGRAvZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jul 2023 20:51:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229669AbjGQVPz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 17:15:55 -0400
-Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ABA4F3;
-        Mon, 17 Jul 2023 14:15:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=t-8ch.de; s=mail;
-        t=1689628551; bh=aykiJeEyynq6EQjWV0Y3bk+J73cLE6yf17a01KGynCc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qKBTZH8ETNgNA2LVTp75YYVZAURhCrFzye9lWlWKwlEnzi+TEHP0PMbt5+0EwM0tS
-         UqC82dVVd109sAwHtWrfWdMDjI0AYlP0A+ANs79c4lky8ryDsRv9c516If5BhJePV9
-         7Gy3piku64llOz5uRySr+PJRfEOtQSDJkedXOylI=
-Date:   Mon, 17 Jul 2023 23:15:50 +0200
-From:   Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas@t-8ch.de>
-To:     Leesoo Ahn <lsahn@ooseel.net>
-Cc:     lsahn@wewakecorp.com, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: optimize major part with a kernel config in
- selinux_mmap_addr()
-Message-ID: <505b3356-4bb3-42b9-a4fd-92b097a93e1e@t-8ch.de>
-References: <20230710082500.1838896-1-lsahn@wewakecorp.com>
+        with ESMTP id S229935AbjGRAvY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jul 2023 20:51:24 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0D11990;
+        Mon, 17 Jul 2023 17:50:52 -0700 (PDT)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.55])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4R4gN02ZJyz18LXj;
+        Tue, 18 Jul 2023 08:50:08 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Tue, 18 Jul 2023 08:50:49 +0800
+Message-ID: <66b5cff0-3c06-222a-c8ab-af18dc7af7f1@huawei.com>
+Date:   Tue, 18 Jul 2023 08:50:49 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230710082500.1838896-1-lsahn@wewakecorp.com>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.1
+Subject: Re: [PATCH 2/5] mm: use vma_is_stack() and vma_is_heap()
+Content-Language: en-US
+To:     David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+CC:     <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
+        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <linux-perf-users@vger.kernel.org>,
+        <selinux@vger.kernel.org>
+References: <20230712143831.120701-1-wangkefeng.wang@huawei.com>
+ <20230712143831.120701-3-wangkefeng.wang@huawei.com>
+ <2000511c-d551-5b3d-a9a9-adb4ba3be1f1@redhat.com>
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+In-Reply-To: <2000511c-d551-5b3d-a9a9-adb4ba3be1f1@redhat.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.177.243]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm500001.china.huawei.com (7.185.36.107)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2023-07-10 17:25:00+0900, Leesoo Ahn wrote:
-> The major part, the conditional branch in selinux_mmap_addr() is always to be
-> false so long as CONFIG_LSM_MMAP_MIN_ADDR is set to zero at compile time.
+
+
+On 2023/7/17 18:25, David Hildenbrand wrote:
+> On 12.07.23 16:38, Kefeng Wang wrote:
+>> Use the helpers to simplify code.
+>>
+>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+>> ---
+>>   fs/proc/task_mmu.c   | 24 ++++--------------------
+>>   fs/proc/task_nommu.c | 15 +--------------
+>>   2 files changed, 5 insertions(+), 34 deletions(-)
+>>
 > 
-> This usually happens in some linux distros, for instance Ubuntu, which
-> the config is set to zero in release version. Therefore it could be a bit
-> optimized with '#if <expr>' at compile time.
+> Please squash patch #1 and this patch and call it something like
 > 
-> Signed-off-by: Leesoo Ahn <lsahn@wewakecorp.com>
-> ---
->  security/selinux/hooks.c | 2 ++
->  1 file changed, 2 insertions(+)
+> "mm: factor out VMA stack and heap checks"
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index d06e350fedee..a049aab6524b 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3723,11 +3723,13 @@ static int selinux_mmap_addr(unsigned long addr)
->  {
->  	int rc = 0;
->  
-> +#if CONFIG_LSM_MMAP_MIN_ADDR > 0
->  	if (addr < CONFIG_LSM_MMAP_MIN_ADDR) {
->  		u32 sid = current_sid();
->  		rc = avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
->  				  MEMPROTECT__MMAP_ZERO, NULL);
->  	}
-> +#endif
+> And then, maybe also keep the comments in these functions, they sound 
+> reasonable to have.
 
-Shouldn't the compiler figure out on its own that "0 < 0" is always
-false and optimize it all away? My gcc 13.1.1 does so.
-
-Without your change:
-
-$ ./scripts/bloat-o-meter  security/selinux/hooks.o-min-addr-64k security/selinux/hooks.o-min-addr-0
-add/remove: 0/0 grow/shrink: 0/1 up/down: 0/-65 (-65)
-Function                                     old     new   delta
-selinux_mmap_addr                             81      16     -65
-Total: Before=57673, After=57608, chg -0.11%
-
-The same with your patch and also with the proposal by Paul that
-redefines the whole function to "return 0".
+Thanks, will re-post them.
+> 
