@@ -2,95 +2,74 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96B6FC001E0
-	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 20:16:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA5FCEB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbjGRUQq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 16:16:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40796 "EHLO
+        id S231176AbjGRWBR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jul 2023 18:01:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229504AbjGRUQp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 16:16:45 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0E791993
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 13:16:43 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id ca18e2360f4ac-785d3a53ed6so68509239f.1
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 13:16:43 -0700 (PDT)
+        with ESMTP id S229679AbjGRWBP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:15 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE8319A1
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:13 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-403f65a3f8cso9822411cf.2
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1689711403; x=1690316203;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oVimXmbmZTbISW+7n71WjspppK5V6kmtNbt/YEu7vIA=;
-        b=XQBKteELQXQuORaGgRT8MImSS86ueNUmG6KmdfwU/IYB/3xX2bftT3kU9krYco4iBf
-         2EY8gyAq93spVBZSeqNYbMhhVAusjsvMI1i+kW9/79nxRDHJWUZIUOeXBLQUo4ITiaKl
-         hN8dttzbEUwpb9easpzanAVhKCsCH1l3TletOmmAzhY0OFJkRLieHyvIBykbFUElb0ey
-         TEyR95wK6S7ITaK/cyhFaVEkXNH5ouo6FD5Ijo1bJ8LI7BXHVca0G0EVijlMgl2+bk7e
-         b6nyPVioInukFXEV/ytCqgQ5BKwCPXvEK6nzq5B/tYyL2ovFrPSa6xDzNIFvb7ztxnEk
-         pByg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689711403; x=1690316203;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+        d=paul-moore.com; s=google; t=1689717672; x=1692309672;
+        h=in-reply-to:references:subject:to:from:message-id:date:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=oVimXmbmZTbISW+7n71WjspppK5V6kmtNbt/YEu7vIA=;
-        b=Uwp+i/BQoxrFxhu75bZGTUH6SXik4WIzGAOWixbXat3utA08yjpstKISbWbvTcUpXP
-         tQYiVUIrJYWGoPw2rZqTzihtV2pq16IBbqX/0tyh3yemnV054DVbV4uU90vzKhjnd5mD
-         2rjwyu90h1nqHBzcuLe3r/7dwrxLfEnAdyRXKrowaHTvOdcR/mu7pCvUNxI0fc/rSDlu
-         /SgVzYtBekzh4QPCjcpeeh1KsV7fTdrfD2e64Dq/Qyp/0EuwrJX8NRnyb48dKiUYcaX+
-         GMgG0DRG/cKJP6W6qWhQoCW2/dKmyp5BDoSDGmhpcG30aCs+YP7vsbkWRgMi5fALJUGn
-         XlIg==
-X-Gm-Message-State: ABy/qLZSjoHmzb1wbP7vDBm8E2073lftkkmuvPC6iEnQj9yIeBEOCvHT
-        who40Ju1+z0OyBanXIcpL7T1PA==
-X-Google-Smtp-Source: APBJJlG3LsH0V59+W63s/Sd5XTnlN8wuLVAG/nWDa1vOSLOvAlH/dGdy3BqBw/xqRu9m5tl1VqoSyg==
-X-Received: by 2002:a05:6602:3f04:b0:780:d65c:d78f with SMTP id em4-20020a0566023f0400b00780d65cd78fmr3674323iob.2.1689711403339;
-        Tue, 18 Jul 2023 13:16:43 -0700 (PDT)
-Received: from [127.0.0.1] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id x7-20020a5e8f47000000b00785cfdd968bsm845993iop.5.2023.07.18.13.16.42
+        bh=8VFdIk0BvNVWoYcBJ7ZJ98kMSLfELMJH5H472QJGTXg=;
+        b=A9TM+l85HCHNq7zpcZqNMc3rbC/8lCR4yIFotyS0vKA0QlCMZeAkF/zNuncwsOnw2W
+         klAs8xWFilvejg5KYt8CdVteKpT923E7d4g2TYVzMdqtuReJV9H1Mp0DVyIlHEYBCHgU
+         uiyTV7hkTH88X9jH96WZAg1KFePFG3WnJ40nKEPYdth2CaCc03WiFHSFbZnGBdy6bif8
+         /tsqz98vY9djrJJtZxyy5ZB3G0XwnF57NXbCTSkb4Uu+gJEecF0mbUGv96NVCM3hE7Gk
+         +JkcSqsHmXwAcDmy5aFHj74oGxyuta2G49qCck2wAPlt7SKpCLEIB2EWFqMZtRxob/uu
+         RRSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689717672; x=1692309672;
+        h=in-reply-to:references:subject:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8VFdIk0BvNVWoYcBJ7ZJ98kMSLfELMJH5H472QJGTXg=;
+        b=ZsfQdccfH3EKipEYDm0cENlyZvvViD510hK/M9rLG38j6RaA2UWKcipHxWlbagmr4F
+         OzOUhwPalR2bB6FWOiDKXUqH0Fd52p55iyFUiZP2ztoO9coYojvsMqWxHK4TSdu76Vwq
+         Fo13BRHWvFg05H3LX1R+C5oPiogyAxn1a2zVaVPGlBejrEkdlW2w8Sj+yLxIPEa8EhEW
+         /iEkGj0uMBji9z6Cc80KzdUiN4J1EivYCXM7U6cvdGZwGjXf2Kjq7Dfw8tHqyHWjwkSq
+         W92WIy2N9+LcSyAvkSX0tFDkAIWIOwn2dhTI1+i8l4qjbKyGMSguMayzGmxjp9P6/Wv9
+         o0Tw==
+X-Gm-Message-State: ABy/qLZI5Zt6aMs3IMzclw1Is4mNWhXlLJzkKWPJRF1J8e7TvPdwvodc
+        sFINcZyWHaeCQ9l4neSuPcEA7A4mGVFp+WGJZA==
+X-Google-Smtp-Source: APBJJlERJct4N6ZM2ahrMDZI+M8aEZyZBc5wfj2jyYVzZ9bJvEFjqlY6u7w/hM/zPNoR1c+FyimniQ==
+X-Received: by 2002:a05:622a:34c:b0:400:9126:3f16 with SMTP id r12-20020a05622a034c00b0040091263f16mr22445850qtw.1.1689717672136;
+        Tue, 18 Jul 2023 15:01:12 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id f16-20020ac84990000000b00404f8e9902dsm5253qtq.2.2023.07.18.15.01.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 13:16:42 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20230718115607.65652-1-omosnace@redhat.com>
-References: <20230718115607.65652-1-omosnace@redhat.com>
-Subject: Re: [PATCH] io_uring: don't audit the capability check in
- io_uring_create()
-Message-Id: <168971140212.1482414.1220631096211660246.b4-ty@kernel.dk>
-Date:   Tue, 18 Jul 2023 14:16:42 -0600
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-099c9
+        Tue, 18 Jul 2023 15:01:11 -0700 (PDT)
+Date:   Tue, 18 Jul 2023 18:01:11 -0400
+Message-ID: <c789aced1f7d6989af7832c672c7a23b.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH RFC 0/20] selinux: be more strict about integer conversions
+References: <20230706132337.15924-21-cgzones@googlemail.com>
+In-Reply-To: <20230706132337.15924-21-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
-On Tue, 18 Jul 2023 13:56:07 +0200, Ondrej Mosnacek wrote:
-> The check being unconditional may lead to unwanted denials reported by
-> LSMs when a process has the capability granted by DAC, but denied by an
-> LSM. In the case of SELinux such denials are a problem, since they can't
-> be effectively filtered out via the policy and when not silenced, they
-> produce noise that may hide a true problem or an attack.
+On Jul  6, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
 > 
-> Since not having the capability merely means that the created io_uring
-> context will be accounted against the current user's RLIMIT_MEMLOCK
-> limit, we can disable auditing of denials for this check by using
-> ns_capable_noaudit() instead of capable().
-> 
-> [...]
 
-Applied, thanks!
+...
 
-[1/1] io_uring: don't audit the capability check in io_uring_create()
-      commit: 6adc2272aaaf84f34b652cf77f770c6fcc4b8336
+> This patches utilizes the C99 feature of declaring loop iterators inside
+> for loops, supported since Linux 5.18.
 
-Best regards,
--- 
-Jens Axboe
+Unless we have no other choice but to declare iterators inside the
+loops, let's avoid doing so until all of the stable kernels have moved
+past v5.18.
 
-
-
+--
+paul-moore.com
