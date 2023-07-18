@@ -2,76 +2,113 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB618C001E0
-	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E359BEB64DC
+	for <selinux@archiver.kernel.org>; Tue, 18 Jul 2023 22:01:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231246AbjGRWBo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 18:01:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
+        id S231423AbjGRWBx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jul 2023 18:01:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbjGRWBi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:38 -0400
-Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 914621BCB
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:22 -0700 (PDT)
-Received: by mail-qt1-x82c.google.com with SMTP id d75a77b69052e-40388dc19ecso853051cf.1
-        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:22 -0700 (PDT)
+        with ESMTP id S231138AbjGRWBj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 18:01:39 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD17D1BDA
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:23 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-401e23045beso47834451cf.0
+        for <selinux@vger.kernel.org>; Tue, 18 Jul 2023 15:01:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689717681; x=1692309681;
+        d=paul-moore.com; s=google; t=1689717682; x=1692309682;
         h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=jPmFRD6HAvOvApo7bLEAbR/mPngPunSQTE6IrY5h7mc=;
-        b=T+N3DepxpqqALJTBpS9PpizBAQqOUm3EiHM7GmQfzH0kNCCAe8JTwjULvwwLu3qN+X
-         AXl9JxXSRdyV5tz4nPRngAURXKRGpdf9+/NJeATKpeNb+ujHJoRuPoz5dDkZ9WHA3H5p
-         iE07Q7YneDwJ2i9MWJU0EesoOaWNU/YP0yN9Pou93eJllcP7XHzZRsdfbQC774DLLJPD
-         jIcjyIGC/VMdwGh9vNwJ3YLBRcsM+uJWfgQe5iUKLv/otjhi7Rado5E2QQ1AAgvqXjFX
-         GjpHZRixe0OyFOEsiAs75DR3iK0YdBX4/YPSGO+bZ+640Wi8inRos/zwkM6qD3QiD+ZD
-         D/rQ==
+        bh=HJdB/tckdsw1C9JSuGoRZk4dEKtmzYTAAI0Lzw0ckzw=;
+        b=BwN2cFWCHh2NX1g8x4fq1pPqcjxWBBGRoPqK8sSu9fYwpACAinG65Ua/ErMWA401Kx
+         WpjubZJDAwaquKSQZTzL9tIiY9IuUo1IjXXIphx/GiANa+eok9rRcmj02RhnDnVf37AW
+         zC1ggW//kuR2T/ZlnqBZwTHmzgS3jGf4MjQbfyBZ800/DsmHzd2Hizc7hluHBDWpY96g
+         w6ALZbOvjmoa/YuqGXB/RdTXYYTA6orF8dodgD8F7o7YFVxo24rj1GVQK/XqBmAMQlGO
+         Tb1T8Xjk0dBI9OT6d4JteJeD4pxU8SNqWUpqj8wrdiAP9rfPsJ3l2Yq+8IvKKQBl1u7e
+         iBtQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689717681; x=1692309681;
+        d=1e100.net; s=20221208; t=1689717682; x=1692309682;
         h=in-reply-to:references:subject:cc:to:from:message-id:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jPmFRD6HAvOvApo7bLEAbR/mPngPunSQTE6IrY5h7mc=;
-        b=HIanxeBZfxj+LvyztK0EK/e9yy8hObFnBLBcLovrqqVLyxdhgQLfUHdgqMFK1Ktn0F
-         OON/7lnaZt8+aFzxqujEYqQIsdmjn8UiGyZ1H8B7bnwU6lFmv/zHAryNEjhN8DOVui9D
-         DJ2Wq+YTi88fm4tLFlKzdrJhLcHeW2+ozcmiBpVsXrpaWche5zwvPkKghtI4JhCu7nRP
-         daZnX4u9dNz+69vlQ3CbxouZ+bb9KFi4o37Vwr2DK+eyRwq7n39KZApJrcg4vmPy1Bdo
-         ZSSKQaARR2qIwpU1i2yfS8wxV/kHuXUkhjYR3t1J9Bo30BXV/HhDzfY5PK3C6b6EaK0t
-         3a0g==
-X-Gm-Message-State: ABy/qLbAKcKujtt1WpsR1PCgsQX1oAW3yusBWRMZdB8HNMhej9Rpsr8R
-        VEH6IoZSI88peCon0ryBW8qx
-X-Google-Smtp-Source: APBJJlFdK8Q1TtqIq+sJcPmUgNNd9z5p+54MhqsfYo5ixQmX2vMA44Se9JK9TfbtSMwVEgzASve0wA==
-X-Received: by 2002:a05:622a:193:b0:400:9847:59f6 with SMTP id s19-20020a05622a019300b00400984759f6mr573173qtw.13.1689717681697;
-        Tue, 18 Jul 2023 15:01:21 -0700 (PDT)
+        bh=HJdB/tckdsw1C9JSuGoRZk4dEKtmzYTAAI0Lzw0ckzw=;
+        b=jfoHUKR+GKG4I+jqNFmv9lUlMbfJdsDkt7ajI2X0i8d8oZR368gy6mRzUTBcjXYvRO
+         7EUlp+GSB/XjWWXVDrHVMz5aq4q9PnZdKpvZRgHv5r7CQKW0YGWdLVbwpFXpYGB6JIV2
+         vcIhIR3JJlthHTPXB7T3XT/jEuHdlNRG/xn29tzMlCK70nQ5QJ6SkoMpxKCdTBQMjARb
+         +psoTiRINneZusxXmV9CA8bXgN4JhJkjdCOZjr5v6WaxNsobkOuzfUOvPBQuWKmbjLGs
+         CiuakTbhCG7lpqMgH61OmYFbQVGpsQwEpcGoXPL2ajeAruNdFzJ81ImMNDmKQad8w23/
+         hjyg==
+X-Gm-Message-State: ABy/qLanuF3fNlcQC/6K0wQVKv+zZfgTU7Foe5mKnGHZNMlEFQGxQbkU
+        WALVCUtwiAYihvWQCP0urzfZ
+X-Google-Smtp-Source: APBJJlFZKd3MZ4X8+GBML5T1tSXA9fr1iOheaptzr1M5TlZfDED6hMg9lSFU1+s15annHM/c95amNg==
+X-Received: by 2002:ac8:5f83:0:b0:404:e64:f5ad with SMTP id j3-20020ac85f83000000b004040e64f5admr1247007qta.47.1689717682607;
+        Tue, 18 Jul 2023 15:01:22 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id f14-20020ac8464e000000b00403f1a7be90sm907937qto.88.2023.07.18.15.01.21
+        by smtp.gmail.com with ESMTPSA id ew13-20020a05622a514d00b00403b1fb1f48sm925936qtb.17.2023.07.18.15.01.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jul 2023 15:01:21 -0700 (PDT)
-Date:   Tue, 18 Jul 2023 18:01:20 -0400
-Message-ID: <1baf124726770d3fe90916b5f8826e70.paul@paul-moore.com>
+        Tue, 18 Jul 2023 15:01:22 -0700 (PDT)
+Date:   Tue, 18 Jul 2023 18:01:21 -0400
+Message-ID: <3232876554476c0f52c3da75d9e21555.paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
 To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
         selinux@vger.kernel.org
 Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 10/20] selinux: netif: avoid implicit conversions
-References: <20230706132337.15924-10-cgzones@googlemail.com>
-In-Reply-To: <20230706132337.15924-10-cgzones@googlemail.com>
+Subject: Re: [PATCH RFC 11/20] selinux: avc: avoid implicit conversions
+References: <20230706132337.15924-11-cgzones@googlemail.com>
+In-Reply-To: <20230706132337.15924-11-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On Jul  6, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
 > 
-> Use the identical type sel_netif_hashfn() returns.
+> Use a consistent type of u32 for sequence numbers.
+> 
+> Use a non-negative and input parameter matching type for the hash
+> result.
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/netif.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  security/selinux/avc.c | 15 ++++++++-------
+>  1 file changed, 8 insertions(+), 7 deletions(-)
 
-Merged into selinux/next, thanks.
+...
+
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 1074db66e5ff..cd55479cce25 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -654,9 +654,9 @@ static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
+>  {
+>  	struct common_audit_data *ad = a;
+>  	struct selinux_audit_data *sad = ad->selinux_audit_data;
+> -	u32 av = sad->audited;
+> +	u32 av = sad->audited, perm;
+>  	const char *const *perms;
+> -	int i, perm;
+> +	u32 i;
+
+Technically the perm type change doesn't fit with the description, but
+it's minor enough that it shouldn't be an issue.
+
+Merged into selinux/next.
+
+>  	audit_log_format(ab, "avc:  %s ", sad->denied ? "denied" : "granted");
+>  
+> @@ -833,7 +833,8 @@ static int avc_update_node(u32 event, u32 perms, u8 driver, u8 xperm, u32 ssid,
+>  			   struct extended_perms_decision *xpd,
+>  			   u32 flags)
+>  {
+> -	int hvalue, rc = 0;
+> +	u32 hvalue;
+> +	int rc = 0;
+>  	unsigned long flag;
+>  	struct avc_node *pos, *node, *orig = NULL;
+>  	struct hlist_head *head;
+> -- 
+> 2.40.1
 
 --
 paul-moore.com
