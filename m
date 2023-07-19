@@ -2,98 +2,76 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F10DCEB64DA
-	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 15:28:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4ABDC001B0
+	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 15:29:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230035AbjGSP2t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jul 2023 11:28:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38366 "EHLO
+        id S229752AbjGSP3w (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jul 2023 11:29:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbjGSP2s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 11:28:48 -0400
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648A4BE
-        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:28:47 -0700 (PDT)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-5768a7e3adbso14179777b3.0
-        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:28:47 -0700 (PDT)
+        with ESMTP id S231458AbjGSP3v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 11:29:51 -0400
+Received: from mail-yw1-x112a.google.com (mail-yw1-x112a.google.com [IPv6:2607:f8b0:4864:20::112a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE192CC
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:29:50 -0700 (PDT)
+Received: by mail-yw1-x112a.google.com with SMTP id 00721157ae682-57a6df91b1eso75634327b3.1
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:29:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689780526; x=1692372526;
+        d=paul-moore.com; s=google; t=1689780590; x=1692372590;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DZqxBoihuKM1j0H2TsOWj7G6busyi2ZI8SrsSezPsfE=;
-        b=CumoM3l8kTzsdAFyaztIXyT8ZcwssDPl8N2N8w06F7CytsX+2B45AROLpMZjD3vC1f
-         JvO47zotR6CfGQd/BQMCB2OqxLOnxKBRaxyN2ewhmH2CmmRFozdFescbeZliuMkHnnmV
-         /OybyXpVWqkVPqWqSs9pYnu0+VCOKPN9h2Zo/Eki9Ls1ETR7uuaIJCuVZA6uSLg61uGJ
-         1aTMtSlHurqUO0tYh2gwatNAdJjMa+u0R8lLeKqcO4feQsAD+Qjhz0d2RIaRTW1laheG
-         1z0oOnUsFh7+BoaimToMiQnQRy3J/HCqS58w2c4tIy3HKmIUgzajIJbkc8K7/dJxKNd8
-         gc3A==
+        bh=u04Eedal4JHVqrOnujGEZuDjrvzEeNSiLwtBthkgXBo=;
+        b=EAFonRkquVoIadd/jwkwSEtFunlEZX8HbM8nwFnb+qvwdP478UX8+ma+N3SOIfi8Tm
+         qMi4Ml39nCnDDFg3kLf/bckeSlVBfYcwKNgiwUOoEb3HUL6kcL9/MoA2R5r1sBKQnBJS
+         G2CJrlO7LO1q4ggW+jUayA8uW0+IkulWRgjUx7VN/h2NWcP5xeuHtLqvJLYAXFBT6c10
+         Zj1X40A06Btx4SOQorypCzBWuyYLM7P2fC3SaNhA+bmAQWI3I4tIbam98pZKLjupY13k
+         3Xn8MIstxwtFmUkXeFHMGR7x3KzAHH1TrgynRrA04rzR9MQZo5KS9B2l922a6iuhSd7e
+         U6bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689780526; x=1692372526;
+        d=1e100.net; s=20221208; t=1689780590; x=1692372590;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=DZqxBoihuKM1j0H2TsOWj7G6busyi2ZI8SrsSezPsfE=;
-        b=kekW+SP8+foz9qFhpzBK8A0IpsiQW6GT2+juKDxZ7IPOGwQZNa5ava1h86vpxdYZNd
-         e+9+B7L/jrFNY2/xNFpU07VkTue3rxeFKxRDXdXZKolcAQeqHLqyInXRKN/ze5fRbuTu
-         trk6VnXkn18JHK3UQtJO62PBBX/jPlhAWJ57sLMGtCUN1ni6AnSbe5PfpmUpZG/Ul3+W
-         v1bNPTXtldeyc6cRO7Lm8x2EX81QqrUIA/oDMnLf4ksKeVpY2aGFa3RPxrUAuLfZbnH1
-         3bc6K9ZBij2Hi94qhnXvKjroz47H81ZelUPwqrZZHX6V2EFqpow3x45/+120BjIv3Wxk
-         vldQ==
-X-Gm-Message-State: ABy/qLZAlaaJp4yX0dxmBkKfJlYJIYiiYOwUu/wW/2p9xIy6BIRlhrEX
-        GA3uRaJewtHFQ1CJyiRgYmxVE6icS6w9Knm25ja0220qiNpGJRFCjw==
-X-Google-Smtp-Source: APBJJlFoNggiajWPcYibr87DY/DfDFaIRlfMac0SIBps3Scv/EKSYiSCqH52sRWjBv6u/Zjts7bFMGB4VAcGhAYquf4=
-X-Received: by 2002:a0d:cbd0:0:b0:577:186c:2a3c with SMTP id
- n199-20020a0dcbd0000000b00577186c2a3cmr2516484ywd.19.1689780526575; Wed, 19
- Jul 2023 08:28:46 -0700 (PDT)
+        bh=u04Eedal4JHVqrOnujGEZuDjrvzEeNSiLwtBthkgXBo=;
+        b=ApFjmKPxgid/KERug7ket6kuGef8izfNFEXWUzLZXnQpls0CcAudMOwkfTZlIWyvho
+         wsG3rieb3vFNLGKS8Z8hm8NXroXaKWNhPZHD/pg7NEFTHIgU84CM7wmC1zRk4xC/+Xrz
+         hfhKWHkcsX38wVwQhMNqixFSqYOPmjAz38PSbCElHMwjksybEtQ2ij0FIzAKDSGm+D2J
+         90bvW/sv/VeQ85w5IlxicGNUijhjRCJ5PAqqu5szBXu3Uf195+octBsZO3oXYtykVoAU
+         acN025D6n+8zb2zoX6nEaNxAAnvoj09Qjv2bqE1/1ZHYyZgVqq1SQ2qjf0iY3K1ZyLnC
+         v5Ag==
+X-Gm-Message-State: ABy/qLaxDCaQLaymdaKzgqVr/BpNT3Bqz1nBZ30qtWdctc3VTbri/vIq
+        GM736PeYbUGXuUSfzNmCVw03BuunbI8/38VGkmEFf0moZ41EKdM47w==
+X-Google-Smtp-Source: APBJJlFem0jB69JMfBTziFa69wOH7y70/lEehy+AvuBFusD12AWbHnY0YXZqCAdcjcMib17VHF652rLp+kIo27jQENc=
+X-Received: by 2002:a81:6709:0:b0:570:654f:aa42 with SMTP id
+ b9-20020a816709000000b00570654faa42mr6105589ywc.40.1689780589751; Wed, 19 Jul
+ 2023 08:29:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230719151249.11818-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20230719151249.11818-1-stephen.smalley.work@gmail.com>
+References: <20230718190024.117662-1-cgzones@googlemail.com>
+In-Reply-To: <20230718190024.117662-1-cgzones@googlemail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 19 Jul 2023 11:28:35 -0400
-Message-ID: <CAHC9VhSgtERPhkCzDA6mjbTsKA1h1+O-xszmhY9h1bbLNTYPtA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: update my email address
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     selinux@vger.kernel.org, omosnace@redhat.com
+Date:   Wed, 19 Jul 2023 11:29:39 -0400
+Message-ID: <CAHC9VhT9YzToyeQOZdqA2FFUWvn4wZ6fcYeeEEJH12mON_tB2w@mail.gmail.com>
+Subject: Re: [PATCH] selinux: add missing newlines in print statements
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 19, 2023 at 11:14=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Tue, Jul 18, 2023 at 3:00=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Update my email address; MAINTAINERS was updated some time ago.
+> The kernel print statements do not append an implicit newline to format
+> strings.
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/avc.c              | 2 +-
->  security/selinux/hooks.c            | 2 +-
->  security/selinux/include/avc.h      | 2 +-
->  security/selinux/include/avc_ss.h   | 2 +-
->  security/selinux/include/objsec.h   | 2 +-
->  security/selinux/include/security.h | 2 +-
->  security/selinux/ss/avtab.c         | 2 +-
->  security/selinux/ss/avtab.h         | 2 +-
->  security/selinux/ss/constraint.h    | 2 +-
->  security/selinux/ss/context.h       | 2 +-
->  security/selinux/ss/ebitmap.c       | 2 +-
->  security/selinux/ss/ebitmap.h       | 2 +-
->  security/selinux/ss/hashtab.c       | 2 +-
->  security/selinux/ss/hashtab.h       | 2 +-
->  security/selinux/ss/mls.c           | 2 +-
->  security/selinux/ss/mls.h           | 2 +-
->  security/selinux/ss/mls_types.h     | 2 +-
->  security/selinux/ss/policydb.c      | 2 +-
->  security/selinux/ss/policydb.h      | 2 +-
->  security/selinux/ss/services.c      | 2 +-
->  security/selinux/ss/services.h      | 2 +-
->  security/selinux/ss/sidtab.c        | 2 +-
->  security/selinux/ss/sidtab.h        | 2 +-
->  security/selinux/ss/symtab.c        | 2 +-
->  security/selinux/ss/symtab.h        | 2 +-
->  25 files changed, 25 insertions(+), 25 deletions(-)
+>  security/selinux/hooks.c       | 2 +-
+>  security/selinux/ss/policydb.c | 6 +++---
+>  2 files changed, 4 insertions(+), 4 deletions(-)
 
 Merged into selinux/next, thanks.
 
