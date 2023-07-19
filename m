@@ -2,74 +2,94 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 855D0C001DE
-	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 17:40:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD7E6C0015E
+	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 18:19:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230218AbjGSRkK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jul 2023 13:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32936 "EHLO
+        id S229525AbjGSSTl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jul 2023 14:19:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230227AbjGSRkJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 13:40:09 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AA0310CC
-        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 10:40:08 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-5577900c06bso5397376a12.2
-        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 10:40:08 -0700 (PDT)
+        with ESMTP id S229451AbjGSSTl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 14:19:41 -0400
+Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 466C5B6
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 11:19:40 -0700 (PDT)
+Received: by mail-lj1-x231.google.com with SMTP id 38308e7fff4ca-2b9338e4695so70731891fa.2
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 11:19:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1689788408; x=1690393208;
+        d=gmail.com; s=20221208; t=1689790778; x=1690395578;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pOOfKh8VF2KxQksw4uRuHbrjoMkQ+dvjxk0oAD3QU48=;
-        b=ky/DALolj//nIBRKWYnv6fnnxId3Iz88tJFXtupFyKwL79SD6xymxSG+ROyEe+dRcd
-         B1hXU2F8CJFRrLLXZQpbJzwg+WmeuYx2R3mui7vd/t2ddEmvXqD+Q3yyWtl9BNUOBp+c
-         zSsmi/k/pkhONA520AR0bm5UvH+YfEKTEUGLJroVz7VdT4iau00IC2/zEmRqd24Z9/KI
-         xuukNOMXbmVQu/R7PZiQmhIJAFoiCJAx2DuZWhij1c+n9zLY4OH2pndIFdmBv22CHcrT
-         sN0sx0W4PYAvsG0pmjX67hGuMCj1yMS72sRMaQjpaaa8YC/kcm4U16xsICHPokA9rjaz
-         NVTQ==
+        bh=5NM7k9DGAL3CqSUNq/elVYRl4JWhDW5IS6Q6vmMKl9M=;
+        b=Ym7T5PrnyoA+n/rM1WUjPbsYlSe1RtMo7ZBymfmKDZvPvirWPZ1syd+TMqjkzsvCow
+         JdRR3F+11DC9pzyRIXfi7JoTSri1pFB9mTE2a85EByjRacc9Zw/XXR45d/bnaCjdpwu7
+         Ub8w2WU6rPuPIIBJx7VFAo/VfJh83QqkvxVKGJjgTdhaXf1+kI6NjZBaQ8uOuhlDMMyt
+         ETInq9QgnbZHE8p47+GeA3FCualb+aO356TaPwH57axNHRnARXW/JW1gAmatVOTMEvjx
+         V1oB8ivIU6KjM5KlVvyRK9BEj9yaQ/EOzVdznHE+htmafqnAX82mEfS+DR8I1pDy/Xf1
+         Y/2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689788408; x=1690393208;
+        d=1e100.net; s=20221208; t=1689790778; x=1690395578;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pOOfKh8VF2KxQksw4uRuHbrjoMkQ+dvjxk0oAD3QU48=;
-        b=LHlW3gwTNf9sPYYbN02rDk3Fvds/LY9ku5ow8y2CJhAVRN/5jSEZcLdcEuxA+1ao1N
-         jOkQvLKfwRvR7N+lvAo/x81NZk1N14LXbxC53eGtvZOQTjpTzWcKZQdDs3Xh3AijtK8S
-         1GKv2uvtmsjk2YKlMDF6MwXM2nugirnh+WEVgn6MSnE1H1d3JmcUWKLVbY9QbftJQrP6
-         l7T2K1AemyDpvuyueO9eM4myye9OLX8pjGXZBBzPZE8JBXlXEXGVK445xDadaLN2aJvu
-         mfQY5t3Oxx8dX9z2G0FAwid7/1FsTPgH5f5dkqABur1lj85/Vk87ObLLHKnvJyHatJ7k
-         2Szg==
-X-Gm-Message-State: ABy/qLYPl9a3Yhh4LLktjdoRywTk+YFFR4qrrApk2q8AyJf7WwXvtaNH
-        5c+e1Tridx56IuGm/pJkHyDCOZF24IBxhqMuDXqS3Wbu
-X-Google-Smtp-Source: APBJJlGB9p8ERzxfFhF+TrXBLALZFqTa0xHBgI8eNopiAIHedKFQAYbvKC4f5cLDpIpb+g0dfesKCMZ9NolBznOymCQ=
-X-Received: by 2002:a17:90a:1f05:b0:262:f99b:a530 with SMTP id
- u5-20020a17090a1f0500b00262f99ba530mr17398902pja.34.1689788407811; Wed, 19
- Jul 2023 10:40:07 -0700 (PDT)
+        bh=5NM7k9DGAL3CqSUNq/elVYRl4JWhDW5IS6Q6vmMKl9M=;
+        b=AV6vhpPSCWSRy2ng4w2n1ZmhMsbv3OtPzDoOtBAEy6KFRHD8Muwq3FvXbmV5KqSlN4
+         hK+sN09Lr+/4MtG9CWSGhWZ0GIkrz3qCR+CievvlwKP+AkKDIfw0K5gf1cajlLJwqAej
+         DSMebDwbonbDMRkNLiqO4CcTylK0Qtk4XoI7lyoAKxY+01x2+tGzUtfco3dpLYbyg/zW
+         wgLtGW4xXNUNAAYjjZ6HZUpKzLNT+L75L08chxUHN4nJi+Yr9DHqn4VnH08OA7N5eLy6
+         sIUN+pdo2FH3D1lbc4AJ72yRKDUZrjM5gOcUmfFAE+FHxzv9vtIiiJW8mlE51GhyCFX0
+         tziQ==
+X-Gm-Message-State: ABy/qLaHTSzTHNE7nrNSDvTWictpkFkJhIOni5a6/fmjHYbEMrTItTJv
+        6XL0aNEz4Y5nz49Dpnkkc1r3lomdUZIk0bnycB0=
+X-Google-Smtp-Source: APBJJlGXyTbhbfH5NBRlbGIds4TOHabNY7dXeW00XKBfvyvu43Wb1ejmxBxBdfyoue5JPW8reESEBdiIm115+Wv995s=
+X-Received: by 2002:a2e:960b:0:b0:2b9:4b2e:5420 with SMTP id
+ v11-20020a2e960b000000b002b94b2e5420mr49085ljh.52.1689790778185; Wed, 19 Jul
+ 2023 11:19:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230719173635.934-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20230719173635.934-1-stephen.smalley.work@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 19 Jul 2023 13:39:56 -0400
-Message-ID: <CAEjxPJ63j3TjkYrT1yppFm=W39cFq31H1VzDX4-hzRpyTrmazw@mail.gmail.com>
-Subject: Re: [PATCH userspace] checkpolicy,libselinux,libsepol,policycoreutils,semodule-utils:
- update my email
-To:     selinux@vger.kernel.org
-Cc:     jwcart2@gmail.com
+References: <20230710224933.152174-1-luhuaxin1@huawei.com>
+In-Reply-To: <20230710224933.152174-1-luhuaxin1@huawei.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 19 Jul 2023 14:19:26 -0400
+Message-ID: <CAP+JOzTo+gQasdVPYMAY7+iasAm1JfMB=asq+DObKPSBuv9Zqw@mail.gmail.com>
+Subject: Re: [PATCH] restorecond: add check for strdup in strings_list_add
+To:     Huaxin Lu <luhuaxin1@huawei.com>
+Cc:     selinux@vger.kernel.org, shenyining@huawei.com,
+        fangxiuning@huawei.com, zhujianwei7@huawei.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 19, 2023 at 1:37=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Jul 10, 2023 at 9:49=E2=80=AFPM Huaxin Lu <luhuaxin1@huawei.com> wr=
+ote:
 >
-> Update my email address.
+> Check the return value of strdup() to avoid null pointer reference.
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
 
-Forgot to mention: I dropped the references altogether from the
-checkmodule man page because that was wrongly copied from the
-checkpolicy man page; I wasn't an author of checkmodule per se (aside
-from all the shared code it inherited).
+Acked-by: James Carter <jwcart2@gmail.com>
+
+
+> ---
+>  restorecond/stringslist.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/restorecond/stringslist.c b/restorecond/stringslist.c
+> index f9404b1..a76542a 100644
+> --- a/restorecond/stringslist.c
+> +++ b/restorecond/stringslist.c
+> @@ -48,6 +48,8 @@ void strings_list_add(struct stringsList **list, const =
+char *string)
+>         if (!newptr)
+>                 exitApp("Out of Memory");
+>         newptr->string =3D strdup(string);
+> +       if (!newptr->string)
+> +               exitApp("Out of Memory");
+>         newptr->next =3D ptr;
+>         if (prev)
+>                 prev->next =3D newptr;
+> --
+> 2.33.0
+>
