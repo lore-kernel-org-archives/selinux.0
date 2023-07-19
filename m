@@ -2,162 +2,84 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03D08C001B0
-	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 14:25:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71DEEEB64DA
+	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 15:04:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231584AbjGSOZG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jul 2023 10:25:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55714 "EHLO
+        id S229681AbjGSPEh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jul 2023 11:04:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231608AbjGSOZB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 10:25:01 -0400
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2040.outbound.protection.outlook.com [40.107.93.40])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBB926BF;
-        Wed, 19 Jul 2023 07:24:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QI6sOzi+gtQNdbN9C9GztwX037PSU2qhwGRIMd/ULjCFzbtl6G3vaGFx69Ru1dK2qxwYfscPcjX7u6az40Zuas8P2TIXBwRmBXSngKlE0q82RopW/vblRncDIe+/Y3xZzl3DeaCACmPW7kHidfJPFdQD2ycLHD5f4gesGlnSTv6YFpEINOYs2eIHDe/1ya/cDnqio0tJ1GlKWq5c4/eHIPGOeIQsgK4Y0HHwuIrY0itAVrwwYE/woVCFvByXlBC1cC4EWZoHxjmCvfclmNGCm4rQybJjlhQLheVJbjyFLNkaVATnLk39tlnQgrl8RZl6V+7u2T9yyBc7AVHnY0h86A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JiTW8fCjX/4q7DDyRSjV238D/QVT/rwNhUJ0BOiO6vE=;
- b=HY35YnX8iZAJYNOVeC4Aj1Dc5oo6aDFeOITJq49ORmFY01L2PElKQiKuNFCv9H4HgW+RZGDp/drbb6vJlR2897IW7zfIp0nlEGw3s99nhuKO6GCJiWKCTUO2MhY4TbhfyooCG8ErX+6Ml8jAo2b/rUaUtZikyj1WV5kqedoaneUwjonYfhz5WkfXrppi8MRsZs4PkFimUwJcJItmBcDkoEaCRdlR/5mcIF3CVY6P/AeVP8j0sgPCBGwhBYrqiaXJl2uK8018am8YHGZrZC49bIMUz0iQQdP6fAmsufU2xb/Ji+nWhSFdFAJUJlVoVvxFEgxceRJzcPbgaYxIWOifAw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JiTW8fCjX/4q7DDyRSjV238D/QVT/rwNhUJ0BOiO6vE=;
- b=RI8ipCUVyRQQgyvzjHqzmMZkkYuMs7UfgrnLQD6lfqMKKp0P96fgQmoQ2/5h+kXQ2V7x0P+4j8G+zET0DUt+GNYsHIw8qBKxAJBaoRHl993HvswGMTQANS3/yvXtKNe2U1Ad+EpZCFy/oTVJckWowftSS4mmIpNfjItNWbqDhkM=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com (2603:10b6:408:118::14)
- by BL3PR12MB6546.namprd12.prod.outlook.com (2603:10b6:208:38d::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6588.33; Wed, 19 Jul
- 2023 14:24:37 +0000
-Received: from BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::ca28:efb4:a838:58fb]) by BN9PR12MB5115.namprd12.prod.outlook.com
- ([fe80::ca28:efb4:a838:58fb%4]) with mapi id 15.20.6609.024; Wed, 19 Jul 2023
- 14:24:37 +0000
-Message-ID: <8b547ba9-45bb-312c-293f-356b5bea01c7@amd.com>
-Date:   Wed, 19 Jul 2023 10:24:33 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v2 2/4] drm/amdkfd: use vma_is_initial_stack() and
- vma_is_initial_heap()
-Content-Language: en-US
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
-        selinux@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>
-References: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
- <20230719075127.47736-3-wangkefeng.wang@huawei.com>
-From:   Felix Kuehling <felix.kuehling@amd.com>
-In-Reply-To: <20230719075127.47736-3-wangkefeng.wang@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: YQBPR0101CA0140.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c01:e::13) To BN9PR12MB5115.namprd12.prod.outlook.com
- (2603:10b6:408:118::14)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5115:EE_|BL3PR12MB6546:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4144b76c-73e1-4298-7dc1-08db8863e16c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: K8/s9c9gpEtTTD5iV+55HocmMU3c/dddZ6HOlFsLY90f1RZ9fx51+cmnVGOCC86xxqNjZQ44pIYb6Lo44qjrOvcvdzlrEivSSuEHRxa9+PiSW8VbVDApzVWbFUoSVydb8lYP7aVA+dQQqgo9uc4Y7DlftYJGNhcSoD5wfS4NsmT1FY0pqJljqBrYBwiIYpI4l1BrRiiiWncDgznn7ZyivLTaCAl/dLVQh+yncEXt/LMheF5R1QxG7VfK0pu4SjebkeOJ9/D6F1Axx2cemAmMR1ePcQNSCj8UfcXsldTfLiXyp6TCZ6xjWEHr++7I5Hn2KzZGVlAjdeE3djJxxYjy1WoV+73ZVmbBbtR9Mg/hxtMa56CbXpMjaiwLkKHiqrYGh5cDTl8K+kMQqdwIyg12fIJCNQaz3A2HkydnQXSpGEVGIhSf8nSKe78ZQzNSDoqmiuOI9BLcA4K0yQvtkv5anrX94LxnDO7LZMLk8I2T9SMBi65M6FwTa0hKOaLc5bACjtzpaqYqpdhDsR/6G/bA/60wDzYXGmtgfMS9SJotkkEqesY28vnro90o2jKpCoIQuog4PM/CWXRVrMu2lZr0TRmbnKM9aQIyClJ+lXjmM5eX3G5LBcIG5eRPEkJCm8ZvhjrPwtfARg9Iz6pWacGrTQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR12MB5115.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(396003)(39860400002)(376002)(366004)(136003)(451199021)(66946007)(54906003)(6486002)(110136005)(41300700001)(478600001)(8676002)(8936002)(5660300002)(6666004)(66476007)(66556008)(6512007)(4326008)(2616005)(316002)(66574015)(83380400001)(186003)(26005)(6506007)(38100700002)(31696002)(86362001)(36756003)(7416002)(44832011)(2906002)(31686004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?M3FZVW1jVFRjVW1UcmdKcTQyTW83bGpLSHJiTVRMK3dVWFNxbHJQVDdCZHFO?=
- =?utf-8?B?bktiYkpVYy9Vd0RGSzNNc2YrcmFSaXg1QzNkdFp2NnhlN3Vyc0pPS056cFJD?=
- =?utf-8?B?c2RpQy9TKzdSWlFCZDkzQ3llNGVFbGFybUpGZElsQmp1RVZmR1BTUitsL1pO?=
- =?utf-8?B?YytPRHlET3dYZHRxNVJXMG03NDc4ZVJGWHY3UHREMTRWNDBkQXMvTWlQYTlQ?=
- =?utf-8?B?YmFLUVFwRkdDM1JvL1RyLzNuMS9uK3dYRDNWYlA3MWVSeUV3RjF4eVluL3Fk?=
- =?utf-8?B?b0RNZGFrdVVIajdaL2IxSHNXVW5OMnNkSC9iaWhoRFBJL0kyRHU2TGUxM21P?=
- =?utf-8?B?SDBlRXVFSjJYczdXSldZdHhKZmx2NjRRaUdOYkxmQzZxK29ZSmQvOTlxWDZV?=
- =?utf-8?B?WWUyNjJtL3BjNHZuRVR2aVkrSEdON1czTjZQOVBFY3MwN3VJa08yTzVvcUlB?=
- =?utf-8?B?ZGdITk9kZzRJSm5OWE5zUlJqMW1tekRsZGh6aEdhU1E2cG5aVkZIcTc2TXVE?=
- =?utf-8?B?enV5TXFiQ0pGRmhqb1JGc2gyWEV5NXdCaXRxM0czMVA2ci9NZGV4bFpRUGhY?=
- =?utf-8?B?SVArbmpGWVBxQ0FRTzB0NUpScncwSG8zKzZETzJKaXc0cWsrK3ZhL0VrNk5C?=
- =?utf-8?B?ckpJdzl1cHR2dHovMlVYMVhZRGZWY1d4QVh4eFFxeHlqaHBOa2czWmMra3Zh?=
- =?utf-8?B?T1k3MklUeVQySDZVY1B0bUZyN0VhVEZPcWo1ZExqRXROQWdBRm9KSnFhK0Vi?=
- =?utf-8?B?OW1oWTEzemsxVlJheVcwcHZKRDNIMDdjWGNqc1dGdzBiTGppY1hzeG5RZjQx?=
- =?utf-8?B?ZmVid0ZEanoyWndsYTlldWcxbU9hTVEzalZKZEFRRTBBOEFqUGpjeklEK1ps?=
- =?utf-8?B?U2pkYUkrbCtvOFh4TGVOckVZUGtjTEd0ak9rL29wTXBRN2h3SktFRU1LM2lL?=
- =?utf-8?B?WjZ6UFFmR2IzSUF1NGdTK09FVGV0N3llcSt2UEhuRjF0MVF4cGxJajZRWjVG?=
- =?utf-8?B?RnhUTXJLVnRLaGw5ck15NnlBRmFPanBPc0Fhbmo0UWFaNDdrenV2WVNSZEk4?=
- =?utf-8?B?akhWRWh0cW82SkI3UG9LMXVaV0RQYVJrdS82dEFWWGR2eTdJekxuSnBjczJC?=
- =?utf-8?B?V1czTjEyU1ZCMGtwUEFUc09PaTVsb0tyQXFtZkx3QXltZFBFOWYrRDZSQkFo?=
- =?utf-8?B?SEV6UHIzRi9CNk1Ga0JoaUs2QlBTMGF5TW9pRk9HclNDN280RlN0UWRLWGVC?=
- =?utf-8?B?VDNFelBYN0o4cTZJL0IwLzZyaTlyOTJicDVRRkxGeFZadGF4MDdzYm9oYXR4?=
- =?utf-8?B?VEhJVEFRa3BJMEZwRXJMZUJWZTgybEpKS0g5SVVmZERNY2Rzemk0VVc1QzY5?=
- =?utf-8?B?a3BXYTJXaFA4S0Q5Qm1VSHZEdE5xVy9CWGZqSmVsQWFEcmFmWndHL25jelF3?=
- =?utf-8?B?S2hMSS9PbDN4SjZvTEUzRXh1UXpxUjJZQy9QNGp1bmEyRHc5QXVrV204WHB1?=
- =?utf-8?B?dzZ1Z0pwU0RTYjVZTkUwcFIrRldDcS9nY00rb1ZxVHFtRjlhU0J6Ly9sT25u?=
- =?utf-8?B?ZVVSSHcwb3Z1RHNHcmRRZlIzeThXZ05JNmJFcThLQXoyaWs5QkV0TmRwdS8z?=
- =?utf-8?B?dGdQQThPYXpGTUxEcUo3TGRBSU5LYlY3blNVN3lKZUdLV0lhb2hvOG1NcVlV?=
- =?utf-8?B?R2swM1lPUTRVVXhUTzUyRXMyQy9meE9qYTdWbjh2YklFVHBTTjJGL1NIcEda?=
- =?utf-8?B?UWE0azJXV1haMnFoanBKREdNUk9BRHZtT0VqeGFxRzFnbTcyd0hFNytsSVM4?=
- =?utf-8?B?aFQ3YXJIc1UrSWNreTJmTG9YTUlrU1ZIRHh5RzJwTlhteHBWSjdRYkJ4ajBq?=
- =?utf-8?B?dXlkdXlIUTg1eTJGSmVmZU5HK0xURzZLbGxURkZ6N1U3VnRKcGNTK3p6NElU?=
- =?utf-8?B?SlVwRmJNL3YxdEtrZHI4RnZsRm9GS3dyVkhoUjV1Njh6ZDZIeDMzMkRUZkNW?=
- =?utf-8?B?N2F1S1hmcFJGRTgxSldoMm9wNlEzWVNGWnFzcXR5RjhUVncwbFpLM0t2WTR6?=
- =?utf-8?B?cmluY1BvWnJJVEViclJrRE95QktIY2RoYzNUdVlMQkJTUTR5emphak41Mmxh?=
- =?utf-8?Q?xXPXac7sO71yvO0K2k7wf4JtO?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4144b76c-73e1-4298-7dc1-08db8863e16c
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR12MB5115.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jul 2023 14:24:36.9856
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: VMONTdcPTmTQCYzKTQBdirY9O5MRcWMIMiyW9FCa5ox8nCg8KayC4GgW0qNCTbAxEhI+7UehTqpytCcLBLk5NA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6546
+        with ESMTP id S230164AbjGSPEh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 11:04:37 -0400
+Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 254BCEC
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:04:36 -0700 (PDT)
+Received: by mail-qv1-xf31.google.com with SMTP id 6a1803df08f44-635dd1b52a2so37375606d6.3
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:04:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1689779075; x=1692371075;
+        h=in-reply-to:references:subject:to:from:message-id:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OvCb31k6AaSMVk10T7htY1/dGkoPwx9jkobRrkYxHZw=;
+        b=CbF1oeJsmnL36bF10Vd0YtyisQVDAImrkSXxG0jtHAaJtRzrPtki/cJtea5lURou2J
+         NmKgZWceJSsN0pJ2INnTbHzFjx6FAHHdvaJEmy9X1+IxaRcbA2yhX4ddHr95iJ4Uzx74
+         d7pO5NjqOMVcwzS7Qx6v1vgjHiIwxuIIxOV8yvY4a413JrJ24A+YxaFw7VqnjulOMYBX
+         Gn/xFXA6pXSZc5MBp8A2LJAv/PrACcts2V/33rmxftsq8NBYVVPtHImWMGSp3Bxifs7G
+         TXAcIfqC293UFNRBG4qkTtZSD40A96HsbuPBvtBUTBIDD1NnO+y6xMutghY1WgYr6Ylp
+         XjeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689779075; x=1692371075;
+        h=in-reply-to:references:subject:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=OvCb31k6AaSMVk10T7htY1/dGkoPwx9jkobRrkYxHZw=;
+        b=AJDc6bjqxbKvo9Sseln2P7h9SNSYEExGe6u90XQ0tWyOIn1C54VDJdWK2VXKX9r5FB
+         igAxOpA9hKbfXZr5pm8Fm2nwCR2k/DCHXsZFr3jnpJQmXLF02QxHE0kDDVB8IxDkEEAw
+         LY621VyzWvQ/Kbj4jFP38LpJted/339DDDSXd6WcDlFiJprtyWGu25FK1X8Pf1+kiS5s
+         jluRpohbKx9k/rER4svL7KMcYcJszuAN4xK2PzL6Tcv/48ocne0B/xK471SPGfxRB8qe
+         dt9ElZDgb1r2+PAUz1Q+oXVZdTYTdJWFRAFdyOwDQm8675k6xTan42HWOKAgxEAABuht
+         0+9g==
+X-Gm-Message-State: ABy/qLbrmSFqDACmS5+seae12grhYprrbOkpMR+U0siW97uRrJS+ZnH/
+        ThQ1Nzla7KH1BOoJJdC9l4R1VHjudDpJzacx7w==
+X-Google-Smtp-Source: APBJJlFrxgv86WliWEj+CWedBuL3slSLrzoQ4Oa4VUYnhINFlCEAbSUYTKZRTg1Zz7uEC/Pgz0rOYw==
+X-Received: by 2002:a0c:e108:0:b0:635:ce65:38b2 with SMTP id w8-20020a0ce108000000b00635ce6538b2mr2112714qvk.62.1689779075171;
+        Wed, 19 Jul 2023 08:04:35 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id x19-20020a0ce0d3000000b0063c7037f85fsm1501346qvk.73.2023.07.19.08.04.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jul 2023 08:04:34 -0700 (PDT)
+Date:   Wed, 19 Jul 2023 11:04:34 -0400
+Message-ID: <9b71e772b62ab89c5688a2f85ef5a128.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH] selinux: drop avtab_search()
+References: <20230718180627.91873-1-cgzones@googlemail.com>
+In-Reply-To: <20230718180627.91873-1-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
-Am 2023-07-19 um 03:51 schrieb Kefeng Wang:
-> Use the helpers to simplify code.
->
-> Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-> Cc: Alex Deucher <alexander.deucher@amd.com>
-> Cc: "Christian König" <christian.koenig@amd.com>
-> Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
-> Cc: David Airlie <airlied@gmail.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-
-
+On Jul 18, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
+> 
+> avtab_search() shares the same logic with avtab_search_node(), except
+> that it returns, if found, a pointer to the struct avtab_node member
+> datum instead of the node itself.  Since the member is an embedded
+> struct, and not a pointer, the returned value of avtab_search() and
+> avtab_search_node() will always in unison either be NULL or non-NULL.
+> 
+> Drop avtab_search() and replace its calls by avtab_search_node() to
+> deduplicate logic and adopt the only caller caring for the type of
+> the returned value accordingly.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->   drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 5 +----
->   1 file changed, 1 insertion(+), 4 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-> index 5ff1a5a89d96..0b7bfbd0cb66 100644
-> --- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-> +++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-> @@ -2621,10 +2621,7 @@ svm_range_get_range_boundaries(struct kfd_process *p, int64_t addr,
->   		return -EFAULT;
->   	}
->   
-> -	*is_heap_stack = (vma->vm_start <= vma->vm_mm->brk &&
-> -			  vma->vm_end >= vma->vm_mm->start_brk) ||
-> -			 (vma->vm_start <= vma->vm_mm->start_stack &&
-> -			  vma->vm_end >= vma->vm_mm->start_stack);
-> +	*is_heap_stack = vma_is_initial_heap(vma) || vma_is_initial_stack(vma);
->   
->   	start_limit = max(vma->vm_start >> PAGE_SHIFT,
->   		      (unsigned long)ALIGN_DOWN(addr, 2UL << 8));
+>  security/selinux/ss/avtab.c       | 32 -------------------------------
+>  security/selinux/ss/avtab.h       |  1 -
+>  security/selinux/ss/conditional.c |  4 ++--
+>  security/selinux/ss/services.c    | 13 ++++++-------
+>  4 files changed, 8 insertions(+), 42 deletions(-)
+
+Merged into selinux/next, thanks!
+
+--
+paul-moore.com
