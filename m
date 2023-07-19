@@ -2,87 +2,67 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57FFAEB64DC
-	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 01:45:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66349C001E0
+	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 07:40:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbjGSBpV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jul 2023 21:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39590 "EHLO
+        id S229604AbjGSHkM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jul 2023 03:40:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbjGSBpU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jul 2023 21:45:20 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06E91BCD;
-        Tue, 18 Jul 2023 18:45:18 -0700 (PDT)
-Received: from dggpemm500016.china.huawei.com (unknown [172.30.72.55])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4R5JXK407Bz18LxF;
-        Wed, 19 Jul 2023 09:44:33 +0800 (CST)
-Received: from [10.67.110.48] (10.67.110.48) by dggpemm500016.china.huawei.com
- (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Wed, 19 Jul
- 2023 09:45:16 +0800
-Message-ID: <d1c27478-a90c-359e-dc49-fc2d9eec3112@huawei.com>
-Date:   Wed, 19 Jul 2023 09:45:09 +0800
+        with ESMTP id S229714AbjGSHkH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 03:40:07 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 837AF1BDC;
+        Wed, 19 Jul 2023 00:40:05 -0700 (PDT)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R5SPf3rLczrRnl;
+        Wed, 19 Jul 2023 15:39:18 +0800 (CST)
+Received: from localhost.localdomain.localdomain (10.175.113.25) by
+ dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Wed, 19 Jul 2023 15:40:02 +0800
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
+        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <linux-perf-users@vger.kernel.org>,
+        <selinux@vger.kernel.org>, Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH v2 0/4] mm: convert to vma_is_initial_heap/stack()
+Date:   Wed, 19 Jul 2023 15:51:10 +0800
+Message-ID: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH RFC 7/20] selinux: services: update type for umber of
- class permissions
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>,
-        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
-CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
-References: <20230706132337.15924-7-cgzones@googlemail.com>
- <703e95374a9a0d25186e7ac472f143d7.paul@paul-moore.com>
-From:   Gong Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <703e95374a9a0d25186e7ac472f143d7.paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.48]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm500016.china.huawei.com (7.185.36.25)
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.175.113.25]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm500001.china.huawei.com (7.185.36.107)
 X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Add vma_is_initial_stack() and vma_is_initial_heap() helper and use
+them to simplify code.
 
+v2:
+- address comments per David Hildenbrand and Christian Göttsche
+- fix selinux build
 
-On 2023/07/19 6:01, Paul Moore wrote:
-> On Jul  6, 2023 Gong Ruiqi <gongruiqi1@huawei.com> wrote:
->>
->> Security classes have only up to 32 permissions, hence using an u16 is
->> sufficient (while improving padding).
-> 
-> Can you explain the improved padding comment?  
+Kefeng Wang (4):
+  mm: factor out VMA stack and heap checks
+  drm/amdkfd: use vma_is_initial_stack() and vma_is_initial_heap()
+  selinux: use vma_is_initial_stack() and vma_is_initial_heap()
+  perf/core: use vma_is_initial_stack() and vma_is_initial_heap()
 
-I think what Christian means is that struct selinux_mapping will occupy
-less memory since num_perms is changed from uint (32 bits) to u16, which
-saves 16 bits of space due to padding.
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c |  5 +----
+ fs/proc/task_mmu.c                   | 24 ++++--------------------
+ fs/proc/task_nommu.c                 | 15 +--------------
+ include/linux/mm.h                   | 21 +++++++++++++++++++++
+ kernel/events/core.c                 | 22 +++++++---------------
+ security/selinux/hooks.c             |  7 ++-----
+ 6 files changed, 36 insertions(+), 58 deletions(-)
 
-> [...]
->
->> diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
->> index 8a9b85f44b66..b6f99353301e 100644
->> --- a/security/selinux/ss/services.h
->> +++ b/security/selinux/ss/services.h
->> @@ -12,7 +12,7 @@
->>  /* Mapping for a single class */
->>  struct selinux_mapping {
->>  	u16 value; /* policy value for class */
->> -	unsigned int num_perms; /* number of permissions in class */
->> +	u16 num_perms; /* number of permissions in class */
->>  	u32 perms[sizeof(u32) * 8]; /* policy values for permissions */
->>  };
+-- 
+2.27.0
 
-Check here.
-
->>  
->> -- 
->> 2.40.1
-> 
-> --
-> paul-moore.com
