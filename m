@@ -2,35 +2,44 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66349C001E0
-	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 07:40:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83896C04FE1
+	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 07:40:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229604AbjGSHkM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jul 2023 03:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37102 "EHLO
+        id S229808AbjGSHkN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jul 2023 03:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229714AbjGSHkH (ORCPT
+        with ESMTP id S229724AbjGSHkH (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 03:40:07 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 837AF1BDC;
-        Wed, 19 Jul 2023 00:40:05 -0700 (PDT)
-Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R5SPf3rLczrRnl;
-        Wed, 19 Jul 2023 15:39:18 +0800 (CST)
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CEE1BE3;
+        Wed, 19 Jul 2023 00:40:06 -0700 (PDT)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.54])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4R5SMh4XL3zLns5;
+        Wed, 19 Jul 2023 15:37:36 +0800 (CST)
 Received: from localhost.localdomain.localdomain (10.175.113.25) by
  dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Wed, 19 Jul 2023 15:40:02 +0800
+ 15.1.2507.27; Wed, 19 Jul 2023 15:40:03 +0800
 From:   Kefeng Wang <wangkefeng.wang@huawei.com>
 To:     Andrew Morton <akpm@linux-foundation.org>
 CC:     <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
         <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
         <linux-mm@kvack.org>, <linux-perf-users@vger.kernel.org>,
-        <selinux@vger.kernel.org>, Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH v2 0/4] mm: convert to vma_is_initial_heap/stack()
-Date:   Wed, 19 Jul 2023 15:51:10 +0800
-Message-ID: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
+        <selinux@vger.kernel.org>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
+        David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: [PATCH v2 2/4] drm/amdkfd: use vma_is_initial_stack() and vma_is_initial_heap()
+Date:   Wed, 19 Jul 2023 15:51:12 +0800
+Message-ID: <20230719075127.47736-3-wangkefeng.wang@huawei.com>
 X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
+References: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
@@ -42,27 +51,35 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add vma_is_initial_stack() and vma_is_initial_heap() helper and use
-them to simplify code.
+Use the helpers to simplify code.
 
-v2:
-- address comments per David Hildenbrand and Christian Göttsche
-- fix selinux build
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
+Cc: David Airlie <airlied@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Kefeng Wang (4):
-  mm: factor out VMA stack and heap checks
-  drm/amdkfd: use vma_is_initial_stack() and vma_is_initial_heap()
-  selinux: use vma_is_initial_stack() and vma_is_initial_heap()
-  perf/core: use vma_is_initial_stack() and vma_is_initial_heap()
-
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c |  5 +----
- fs/proc/task_mmu.c                   | 24 ++++--------------------
- fs/proc/task_nommu.c                 | 15 +--------------
- include/linux/mm.h                   | 21 +++++++++++++++++++++
- kernel/events/core.c                 | 22 +++++++---------------
- security/selinux/hooks.c             |  7 ++-----
- 6 files changed, 36 insertions(+), 58 deletions(-)
-
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+index 5ff1a5a89d96..0b7bfbd0cb66 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -2621,10 +2621,7 @@ svm_range_get_range_boundaries(struct kfd_process *p, int64_t addr,
+ 		return -EFAULT;
+ 	}
+ 
+-	*is_heap_stack = (vma->vm_start <= vma->vm_mm->brk &&
+-			  vma->vm_end >= vma->vm_mm->start_brk) ||
+-			 (vma->vm_start <= vma->vm_mm->start_stack &&
+-			  vma->vm_end >= vma->vm_mm->start_stack);
++	*is_heap_stack = vma_is_initial_heap(vma) || vma_is_initial_stack(vma);
+ 
+ 	start_limit = max(vma->vm_start >> PAGE_SHIFT,
+ 		      (unsigned long)ALIGN_DOWN(addr, 2UL << 8));
 -- 
 2.27.0
 
