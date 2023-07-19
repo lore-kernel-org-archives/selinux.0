@@ -2,371 +2,362 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92913C001B0
-	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 15:58:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EF3C0015E
+	for <selinux@archiver.kernel.org>; Wed, 19 Jul 2023 17:00:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230094AbjGSP6x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jul 2023 11:58:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58298 "EHLO
+        id S229566AbjGSRAR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jul 2023 13:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229752AbjGSP6w (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 11:58:52 -0400
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E36197
-        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:58:50 -0700 (PDT)
-Received: by mail-lj1-x235.google.com with SMTP id 38308e7fff4ca-2b700e85950so104464091fa.3
-        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 08:58:50 -0700 (PDT)
+        with ESMTP id S229492AbjGSRAQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jul 2023 13:00:16 -0400
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3D1B7
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 10:00:11 -0700 (PDT)
+Received: by mail-qt1-x834.google.com with SMTP id d75a77b69052e-403fa83523eso14682981cf.2
+        for <selinux@vger.kernel.org>; Wed, 19 Jul 2023 10:00:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1689782329; x=1690387129;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=50yrXKwPWJywz9bsE6WP7k/g+SIbx/ynOBkh4FRR36c=;
-        b=JYi4TKcC+p8FF4zXRURwXEbxcI2el+P0xW4u3RuK6n3EBtKCBIQIHiPVBzVjhO0IkX
-         YQ7XKpzZsZDyWHTKJngpmco/H98eynCIUjpCwGgiYnTy4nsPS4dpNfJkiXZ8uGYUWDmd
-         5+KU9BjHfo9BiLaX6DUozHKT4UvLVEnDb+iDcizh1VQOZ7eghbN7DARhD0mumuaxkL5C
-         3e5AeCzKVrwHYwMq/RrJcWoFFMsLNAfqxO5/yvhe+DbWmJOVMNJWyhSrsmZEXlwexmrS
-         GByDULT2vPWOZCmOPqpGs3BPnpYmppwMrectwDtR2JCxLPZfKlSnqOAyuTj2e1EAkkzz
-         SDnQ==
+        d=gmail.com; s=20221208; t=1689786010; x=1690390810;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=khiWLd2mrAh7hhlwm7TNVIeIEJyKrRNzyQyEx3FU6tQ=;
+        b=GhiH/Cns8flIqGPok7kbKb+MWnv1i2WdKAgEwVP+8IkyjymIZqNUu7Bp35pzqfMFwH
+         QT2i+h1JQVc+RDj7en1i4AVlWxQbuAOZjAvd5Imvo089uxA13+MIPEie97uaZqdHRBlw
+         TnQL7gQxrtpVZ4/CQJANvA/3uEo0cIrjUQ91Il9ibvTenTwyxgwB3bdxWz2jb/iSFh3L
+         MxWO3ggImkUVaP4xfxoOz71WRhnwB+ZyBK99/I/3H5+XODmy7k2u0aiJu66VrocXrFKQ
+         EfwrMoVip5TKUoUMkPbOESpUlD16211CKOESyFq2g9lYU9DH98peHHgX7pS6TH0doxX3
+         svvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689782329; x=1690387129;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=50yrXKwPWJywz9bsE6WP7k/g+SIbx/ynOBkh4FRR36c=;
-        b=DRdREHC3ZbCWKIY9ZlXIR1XD/1KJo+vi53ZyRh4nALOVJkZiI55AepdIEkEEhssHxG
-         sW0OEYpqKEgLqn6xLsc+h560PiXoVSfAtHMoZvLPNWQtU6FXFe1a3tq8V8FC7W5nO4FM
-         XeO3S6DBpFuEMQIQrk7aJa8F5RwpspyxQ0MiH6jP7wl7+wYOZUTAja/PwiPXpIH8mMBJ
-         cTixTfTLX1+J3mTJjnovbuwPtjVSeKxNdVKnzhtc5RHvNybHZo1TcfeDkj0hqfXw/ZWj
-         PMGbERQ3Ai2Y5URFa6AxrlJG4UnudItcLd8BXC5MIgXKBOqlAnFFjoEyRSu8JTo1lEs2
-         QeTQ==
-X-Gm-Message-State: ABy/qLZWMTwFUoemnW98aZs/7f/W0SfZFMrBOrwd19KfawEF5rAZ+UA7
-        JJCRMOt/UOSufMhlQ/345DZmPwv6wD3HAb2pWvc=
-X-Google-Smtp-Source: APBJJlEE99MoRY78U+tmR8fBkQgE3vDwVwyt5FjNU8CZ5FPcT8K/os+sgDKm54zJz/s8pcJNTx5mcZiusmA7yVoNsX0=
-X-Received: by 2002:a2e:80cd:0:b0:2b5:9f54:e28b with SMTP id
- r13-20020a2e80cd000000b002b59f54e28bmr288360ljg.7.1689782328820; Wed, 19 Jul
- 2023 08:58:48 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1689786010; x=1690390810;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=khiWLd2mrAh7hhlwm7TNVIeIEJyKrRNzyQyEx3FU6tQ=;
+        b=WzdjdQIyi22EX8aWrvoeZG4DRcLkruWmH8IeiVa68vjwktpMnGNcBmLcHOWoAhoGF+
+         RT6z02mIQ/NJZ3fp8WgokHFFGv+fKIQDyacTVtF56V2cH+9jhWj3NSvsloLN/O+uEFDR
+         5z3FqYg4Xkiga6rBWP0AKPuAfC95lVu1ZRRiig+vMgbgt3bt9GLDuISnGO0H3Z7+4Off
+         XtNtcfHVsbBoS3tGv6pH3DJk3Upisfifv+iLc4WHusUDTWPnqSKUaRTQ5u2SrRBI6SaO
+         tpA4LjB4bKmApEJ6uz5ePirF8+9Im/WBAc1piK2XCaSaYahAvSpGIp/1OsnTqGrjKOcp
+         qojw==
+X-Gm-Message-State: ABy/qLa0c4UGN8MHSjH70Ovx5dc1leV38IP8F+uOs7ckELOSa0TQ1Is9
+        Q7fhVKjxMkb+VnIkzNmD6tBx5lHEeEc=
+X-Google-Smtp-Source: APBJJlF8Qtj5XUeZB0XyhmqcZ5PNHf4W8xWrl3siJG2IQdxQCGIgPKOF+kGQyQjx0GZioXinO3rzEA==
+X-Received: by 2002:a05:622a:199d:b0:403:a662:a408 with SMTP id u29-20020a05622a199d00b00403a662a408mr7327895qtc.34.1689786010441;
+        Wed, 19 Jul 2023 10:00:10 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id e12-20020ac8130c000000b003f9aecb599fsm1466393qtj.35.2023.07.19.10.00.09
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 19 Jul 2023 10:00:10 -0700 (PDT)
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     omosnace@redhat.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH userspace] libselinux,policycoreutils,python,semodule-utils: de-brand SELinux
+Date:   Wed, 19 Jul 2023 12:57:17 -0400
+Message-Id: <20230719165716.18285-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-References: <20230706145335.71452-1-cgzones@googlemail.com>
-In-Reply-To: <20230706145335.71452-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 19 Jul 2023 11:58:37 -0400
-Message-ID: <CAP+JOzQ00KQ4-XuE3jXLG76jNfXmfxs1r5_2_8tX+MhGjNyUrg@mail.gmail.com>
-Subject: Re: [PATCH v2 1/4] semodule_expand: update
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 6, 2023 at 10:54=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Drop unnecessary declarations.
-> Reduce scope of file global variable.
-> Mention -v argument in help usage message.
-> More strict integer conversion.
-> More strict argument count checking.
-> Check closing file for incomplete write.
-> Rework resource cleanup, so that all files and allocated memory are
-> released in all branches, useful to minimize reports while debugging
-> libsepol under valgrind(8) or sanitizers.
-> Add help argument option -h.
-> Set close-on-exec flag in case of any sibling threads.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Change "NSA SELinux" to just "SELinux" and remove NSA from the
+SELinux manual pages.
 
-For this series of four patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ libselinux/man/man8/selinux.8                           | 4 ++--
+ libselinux/man/ru/man8/selinux.8                        | 4 ++--
+ policycoreutils/load_policy/load_policy.8               | 2 +-
+ policycoreutils/load_policy/ru/load_policy.8            | 2 +-
+ policycoreutils/newrole/newrole.1                       | 2 +-
+ policycoreutils/newrole/ru/newrole.1                    | 2 +-
+ policycoreutils/run_init/open_init_pty.8                | 2 +-
+ policycoreutils/run_init/ru/open_init_pty.8             | 2 +-
+ policycoreutils/run_init/ru/run_init.8                  | 2 +-
+ policycoreutils/run_init/run_init.8                     | 2 +-
+ policycoreutils/secon/ru/secon.1                        | 2 +-
+ policycoreutils/secon/secon.1                           | 2 +-
+ policycoreutils/semodule/ru/semodule.8                  | 2 +-
+ policycoreutils/semodule/semodule.8                     | 2 +-
+ python/audit2allow/audit2allow.1                        | 2 +-
+ python/audit2allow/ru/audit2allow.1                     | 2 +-
+ semodule-utils/semodule_expand/ru/semodule_expand.8     | 2 +-
+ semodule-utils/semodule_expand/semodule_expand.8        | 2 +-
+ semodule-utils/semodule_link/ru/semodule_link.8         | 2 +-
+ semodule-utils/semodule_link/semodule_link.8            | 2 +-
+ semodule-utils/semodule_package/ru/semodule_package.8   | 2 +-
+ semodule-utils/semodule_package/ru/semodule_unpackage.8 | 2 +-
+ semodule-utils/semodule_package/semodule_package.8      | 2 +-
+ semodule-utils/semodule_package/semodule_unpackage.8    | 2 +-
+ 24 files changed, 26 insertions(+), 26 deletions(-)
 
-> ---
-> v2:
->   - address comments by Jim:
->     * drop exit() calls
->     * reduce to only one final return statement
->   - add help argument option -h
->   - set close-on-exec flag
-> ---
->  .../semodule_expand/semodule_expand.8         |   5 +-
->  .../semodule_expand/semodule_expand.c         | 112 +++++++++++-------
->  2 files changed, 73 insertions(+), 44 deletions(-)
->
-> diff --git a/semodule-utils/semodule_expand/semodule_expand.8 b/semodule-=
-utils/semodule_expand/semodule_expand.8
-> index 1b482a1f..84b943cd 100644
-> --- a/semodule-utils/semodule_expand/semodule_expand.8
-> +++ b/semodule-utils/semodule_expand/semodule_expand.8
-> @@ -3,7 +3,7 @@
->  semodule_expand \- Expand a SELinux policy module package.
->
->  .SH SYNOPSIS
-> -.B semodule_expand [-V ] [ -a ] [ -c [version]] basemodpkg outputfile
-> +.B semodule_expand [-ahV] [ -c [version]] basemodpkg outputfile
->  .br
->  .SH DESCRIPTION
->  .PP
-> @@ -17,6 +17,9 @@ together a set of packages into a single package).
->
->  .SH "OPTIONS"
->  .TP
-> +.B \-h
-> +show help
-> +.TP
->  .B \-V
->  show version
->  .TP
-> diff --git a/semodule-utils/semodule_expand/semodule_expand.c b/semodule-=
-utils/semodule_expand/semodule_expand.c
-> index 895cdd78..99380abe 100644
-> --- a/semodule-utils/semodule_expand/semodule_expand.c
-> +++ b/semodule-utils/semodule_expand/semodule_expand.c
-> @@ -21,32 +21,25 @@
->  #include <unistd.h>
->  #include <string.h>
->
-> -extern char *optarg;
-> -extern int optind;
-> -
-> -int policyvers =3D 0;
-> -
->  #define EXPANDPOLICY_VERSION "1.0"
->
-> -static __attribute__((__noreturn__)) void usage(const char *program_name=
-)
-> +static void usage(const char *program_name)
->  {
-> -       printf("usage: %s [-V -a -c [version]] basemodpkg outputfile\n",
-> +       printf("usage: %s [-h -V -a -c [version] -v] basemodpkg outputfil=
-e\n",
->                program_name);
-> -       exit(1);
->  }
->
->  int main(int argc, char **argv)
->  {
-> -       char *basename, *outname;
-> -       int ch, ret, show_version =3D 0, verbose =3D 0;
-> -       struct sepol_policy_file *pf;
-> -       sepol_module_package_t *base;
-> -       sepol_policydb_t *out, *p;
-> -       FILE *fp, *outfile;
-> -       int check_assertions =3D 1;
-> -       sepol_handle_t *handle;
-> -
-> -       while ((ch =3D getopt(argc, argv, "c:Vva")) !=3D EOF) {
-> +       const char *basename, *outname;
-> +       int ch, ret, show_version =3D 0, verbose =3D 0, policyvers =3D 0,=
- check_assertions =3D 1;
-> +       struct sepol_policy_file *pf =3D NULL;
-> +       sepol_module_package_t *base =3D NULL;
-> +       sepol_policydb_t *out =3D NULL, *p;
-> +       FILE *fp =3D NULL, *outfile =3D NULL;
-> +       sepol_handle_t *handle =3D NULL;
-> +
-> +       while ((ch =3D getopt(argc, argv, "c:Vvah")) !=3D EOF) {
->                 switch (ch) {
->                 case 'V':
->                         show_version =3D 1;
-> @@ -54,14 +47,20 @@ int main(int argc, char **argv)
->                 case 'v':
->                         verbose =3D 1;
->                         break;
-> +               case 'h':
-> +                       usage(argv[0]);
-> +                       return EXIT_SUCCESS;
->                 case 'c':{
-> -                               long int n =3D strtol(optarg, NULL, 10);
-> +                               long int n;
-> +
-> +                               errno =3D 0;
-> +                               n =3D strtol(optarg, NULL, 10);
->                                 if (errno) {
->                                         fprintf(stderr,
->                                                 "%s:  Invalid policyvers =
-specified: %s\n",
->                                                 argv[0], optarg);
->                                         usage(argv[0]);
-> -                                       exit(1);
-> +                                       return EXIT_FAILURE;
->                                 }
->                                 if (n < sepol_policy_kern_vers_min()
->                                     || n > sepol_policy_kern_vers_max()) =
-{
-> @@ -71,7 +70,7 @@ int main(int argc, char **argv)
->                                                 sepol_policy_kern_vers_mi=
-n(),
->                                                 sepol_policy_kern_vers_ma=
-x());
->                                         usage(argv[0]);
-> -                                       exit(1);
-> +                                       return EXIT_FAILURE;
->                                 }
->                                 policyvers =3D n;
->                                 break;
-> @@ -82,6 +81,7 @@ int main(int argc, char **argv)
->                         }
->                 default:
->                         usage(argv[0]);
-> +                       return EXIT_FAILURE;
->                 }
->         }
->
-> @@ -92,84 +92,90 @@ int main(int argc, char **argv)
->
->         if (show_version) {
->                 printf("%s\n", EXPANDPOLICY_VERSION);
-> -               exit(0);
-> +               return EXIT_SUCCESS;
->         }
->
->         /* check args */
-> -       if (argc < 3 || !(optind !=3D (argc - 1))) {
-> +       if (argc < 3 || argc - optind !=3D 2) {
->                 fprintf(stderr,
->                         "%s:  You must provide the base module package an=
-d output filename\n",
->                         argv[0]);
->                 usage(argv[0]);
-> +               return EXIT_FAILURE;
->         }
->
->         basename =3D argv[optind++];
->         outname =3D argv[optind];
->
->         handle =3D sepol_handle_create();
-> -       if (!handle)
-> -               exit(1);
-> +       if (!handle) {
-> +               fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-> +               goto failure;
-> +       }
->
->         if (sepol_policy_file_create(&pf)) {
->                 fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-> -               exit(1);
-> +               goto failure;
->         }
->
->         /* read the base module */
->         if (sepol_module_package_create(&base)) {
->                 fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-> -               exit(1);
-> +               goto failure;
->         }
-> -       fp =3D fopen(basename, "r");
-> +
-> +       fp =3D fopen(basename, "re");
->         if (!fp) {
->                 fprintf(stderr, "%s:  Can't open '%s':  %s\n",
->                         argv[0], basename, strerror(errno));
-> -               exit(1);
-> +               goto failure;
->         }
-> +
->         sepol_policy_file_set_fp(pf, fp);
->         ret =3D sepol_module_package_read(base, pf, 0);
->         if (ret) {
->                 fprintf(stderr, "%s:  Error in reading package from %s\n"=
-,
->                         argv[0], basename);
-> -               exit(1);
-> +               goto failure;
->         }
-> +
->         fclose(fp);
-> +       fp =3D NULL;
->
->         /* linking the base takes care of enabling optional avrules */
->         p =3D sepol_module_package_get_policy(base);
->         if (sepol_link_modules(handle, p, NULL, 0, 0)) {
->                 fprintf(stderr, "%s:  Error while enabling avrules\n", ar=
-gv[0]);
-> -               exit(1);
-> +               goto failure;
->         }
->
->         /* create the output policy */
->
->         if (sepol_policydb_create(&out)) {
->                 fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-> -               exit(1);
-> +               goto failure;
->         }
->
->         sepol_set_expand_consume_base(handle, 1);
->
->         if (sepol_expand_module(handle, p, out, verbose, check_assertions=
-)) {
->                 fprintf(stderr, "%s:  Error while expanding policy\n", ar=
-gv[0]);
-> -               exit(1);
-> +               goto failure;
->         }
->
->         if (policyvers) {
->                 if (sepol_policydb_set_vers(out, policyvers)) {
->                         fprintf(stderr, "%s:  Invalid version %d\n", argv=
-[0],
->                                 policyvers);
-> -                       exit(1);
-> +                       goto failure;
->                 }
->         }
->
-> -       sepol_module_package_free(base);
-> -
-> -       outfile =3D fopen(outname, "w");
-> +       outfile =3D fopen(outname, "we");
->         if (!outfile) {
-> -               perror(outname);
-> -               exit(1);
-> +               fprintf(stderr, "%s:  Can't open '%s':  %s\n",
-> +                       argv[0], outname, strerror(errno));
-> +               goto failure;
->         }
->
->         sepol_policy_file_set_fp(pf, outfile);
-> @@ -178,12 +184,32 @@ int main(int argc, char **argv)
->                 fprintf(stderr,
->                         "%s:  Error while writing expanded policy to %s\n=
-",
->                         argv[0], outname);
-> -               exit(1);
-> +               goto failure;
->         }
-> -       fclose(outfile);
-> -       sepol_handle_destroy(handle);
-> +
-> +       ret =3D fclose(outfile);
-> +       outfile =3D NULL;
-> +       if (ret) {
-> +               fprintf(stderr, "%s:  Error closing policy file %s:  %s\n=
-",
-> +                       argv[0], outname, strerror(errno));
-> +               goto failure;
-> +       }
-> +
-> +       ret =3D EXIT_SUCCESS;
-> +       goto cleanup;
-> +
-> +failure:
-> +       ret =3D EXIT_FAILURE;
-> +
-> +cleanup:
-> +       if (outfile)
-> +               fclose(outfile);
->         sepol_policydb_free(out);
-> +       if (fp)
-> +               fclose(fp);
-> +       sepol_module_package_free(base);
->         sepol_policy_file_free(pf);
-> +       sepol_handle_destroy(handle);
->
-> -       return 0;
-> +       return ret;
->  }
-> --
-> 2.40.1
->
+diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
+index 5842150b..9c466d57 100644
+--- a/libselinux/man/man8/selinux.8
++++ b/libselinux/man/man8/selinux.8
+@@ -1,9 +1,9 @@
+ .TH  "selinux"  "8"  "29 Apr 2005" "dwalsh@redhat.com" "SELinux Command Line documentation"
+ .SH "NAME"
+-SELinux \- NSA Security-Enhanced Linux (SELinux)
++SELinux \- Security-Enhanced Linux (SELinux)
+ .
+ .SH "DESCRIPTION"
+-NSA Security-Enhanced Linux (SELinux) is an implementation of a
++Security-Enhanced Linux (SELinux) is an implementation of a
+ flexible mandatory access control architecture in the Linux operating
+ system.  The SELinux architecture provides general support for the
+ enforcement of many kinds of mandatory access control policies,
+diff --git a/libselinux/man/ru/man8/selinux.8 b/libselinux/man/ru/man8/selinux.8
+index 271809de..4ab64276 100644
+--- a/libselinux/man/ru/man8/selinux.8
++++ b/libselinux/man/ru/man8/selinux.8
+@@ -1,9 +1,9 @@
+ .TH  "selinux"  "8"  "29 апреля 2005" "dwalsh@redhat.com" "Документация по командной строке SELinux"
+ .SH "ИМЯ"
+-SELinux \- Linux с улучшенной безопасностью от NSA (SELinux)
++SELinux \- Linux с улучшенной безопасностью от (SELinux)
+ .
+ .SH "ОПИСАНИЕ"
+-Linux с улучшенной безопасностью от NSA - это реализация гибкой архитектуры мандатного
++Linux с улучшенной безопасностью от - это реализация гибкой архитектуры мандатного
+ управления доступом в операционной системе Linux. Архитектура SELinux предоставляет
+ общую поддержку использования различных видов политик мандатного управления доступом,
+ включая основанные на концепциях Type Enforcement® (принудительное присвоение типов),
+diff --git a/policycoreutils/load_policy/load_policy.8 b/policycoreutils/load_policy/load_policy.8
+index 0810995c..867c35e4 100644
+--- a/policycoreutils/load_policy/load_policy.8
++++ b/policycoreutils/load_policy/load_policy.8
+@@ -1,4 +1,4 @@
+-.TH LOAD_POLICY "8" "May 2003" "Security Enhanced Linux" NSA
++.TH LOAD_POLICY "8" "May 2003" "Security Enhanced Linux"
+ .SH NAME
+ load_policy \- load a new SELinux policy into the kernel
+ 
+diff --git a/policycoreutils/load_policy/ru/load_policy.8 b/policycoreutils/load_policy/ru/load_policy.8
+index db3d9f65..25140b2e 100644
+--- a/policycoreutils/load_policy/ru/load_policy.8
++++ b/policycoreutils/load_policy/ru/load_policy.8
+@@ -1,4 +1,4 @@
+-.TH LOAD_POLICY "8" "Май 2003" "Security Enhanced Linux" NSA
++.TH LOAD_POLICY "8" "Май 2003" "Security Enhanced Linux"
+ .SH ИМЯ
+ load_policy \- загрузить новую политику SELinux в ядро
+ 
+diff --git a/policycoreutils/newrole/newrole.1 b/policycoreutils/newrole/newrole.1
+index 893c42f7..544274d7 100644
+--- a/policycoreutils/newrole/newrole.1
++++ b/policycoreutils/newrole/newrole.1
+@@ -1,4 +1,4 @@
+-.TH NEWROLE "1" "October 2000" "Security Enhanced Linux" NSA
++.TH NEWROLE "1" "October 2000" "Security Enhanced Linux"
+ .SH NAME
+ newrole \- run a shell with a new SELinux role
+ .SH SYNOPSIS
+diff --git a/policycoreutils/newrole/ru/newrole.1 b/policycoreutils/newrole/ru/newrole.1
+index c4078789..6d9c6dd0 100644
+--- a/policycoreutils/newrole/ru/newrole.1
++++ b/policycoreutils/newrole/ru/newrole.1
+@@ -1,4 +1,4 @@
+-.TH NEWROLE "1" "Октябрь 2000" "Security Enhanced Linux" NSA
++.TH NEWROLE "1" "Октябрь 2000" "Security Enhanced Linux"
+ .SH ИМЯ
+ newrole \- запустить оболочку с новой ролью SELinux
+ .SH ОБЗОР
+diff --git a/policycoreutils/run_init/open_init_pty.8 b/policycoreutils/run_init/open_init_pty.8
+index 4b0a2f3c..8bfb9d69 100644
+--- a/policycoreutils/run_init/open_init_pty.8
++++ b/policycoreutils/run_init/open_init_pty.8
+@@ -22,7 +22,7 @@
+ .\" USA.
+ .\"
+ .\"
+-.TH OPEN_INIT_PTY "8" "January 2005" "Security Enhanced Linux" NSA
++.TH OPEN_INIT_PTY "8" "January 2005" "Security Enhanced Linux"
+ .SH NAME
+ open_init_pty \- run an program under a pseudo terminal
+ .SH SYNOPSIS
+diff --git a/policycoreutils/run_init/ru/open_init_pty.8 b/policycoreutils/run_init/ru/open_init_pty.8
+index bac4fd94..143941e1 100644
+--- a/policycoreutils/run_init/ru/open_init_pty.8
++++ b/policycoreutils/run_init/ru/open_init_pty.8
+@@ -22,7 +22,7 @@
+ .\" USA.
+ .\"
+ .\"
+-.TH OPEN_INIT_PTY "8" "Январь 2005" "Security Enhanced Linux" NSA
++.TH OPEN_INIT_PTY "8" "Январь 2005" "Security Enhanced Linux"
+ .SH ИМЯ
+ open_init_pty \- запустить программу под псевдотерминалом
+ .SH ОБЗОР
+diff --git a/policycoreutils/run_init/ru/run_init.8 b/policycoreutils/run_init/ru/run_init.8
+index 174d9c53..26b767ce 100644
+--- a/policycoreutils/run_init/ru/run_init.8
++++ b/policycoreutils/run_init/ru/run_init.8
+@@ -1,4 +1,4 @@
+-.TH RUN_INIT "8" "Май 2003" "Security Enhanced Linux" NSA
++.TH RUN_INIT "8" "Май 2003" "Security Enhanced Linux"
+ .SH ИМЯ
+ run_init \- запустить сценарий init в правильном контексте SELinux
+ .SH ОБЗОР
+diff --git a/policycoreutils/run_init/run_init.8 b/policycoreutils/run_init/run_init.8
+index a031d5d2..d7ff45d0 100644
+--- a/policycoreutils/run_init/run_init.8
++++ b/policycoreutils/run_init/run_init.8
+@@ -1,4 +1,4 @@
+-.TH RUN_INIT "8" "May 2003" "Security Enhanced Linux" NSA
++.TH RUN_INIT "8" "May 2003" "Security Enhanced Linux"
+ .SH NAME
+ run_init \- run an init script in the proper SELinux context
+ .SH SYNOPSIS
+diff --git a/policycoreutils/secon/ru/secon.1 b/policycoreutils/secon/ru/secon.1
+index acbc14fb..3c9aa535 100644
+--- a/policycoreutils/secon/ru/secon.1
++++ b/policycoreutils/secon/ru/secon.1
+@@ -1,4 +1,4 @@
+-.TH SECON "1" "Апрель 2006" "Security Enhanced Linux" NSA
++.TH SECON "1" "Апрель 2006" "Security Enhanced Linux"
+ .SH ИМЯ
+ secon \- показать контекст SELinux для файла, программы или ввода пользователя.
+ .SH ОБЗОР
+diff --git a/policycoreutils/secon/secon.1 b/policycoreutils/secon/secon.1
+index c0e8b05a..1a454edc 100644
+--- a/policycoreutils/secon/secon.1
++++ b/policycoreutils/secon/secon.1
+@@ -1,4 +1,4 @@
+-.TH SECON "1" "April 2006" "Security Enhanced Linux" NSA
++.TH SECON "1" "April 2006" "Security Enhanced Linux"
+ .SH NAME
+ secon \- See an SELinux context, from a file, program or user input.
+ .SH SYNOPSIS
+diff --git a/policycoreutils/semodule/ru/semodule.8 b/policycoreutils/semodule/ru/semodule.8
+index 26515201..d7ff9b56 100644
+--- a/policycoreutils/semodule/ru/semodule.8
++++ b/policycoreutils/semodule/ru/semodule.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE "8" "Ноябрь 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE "8" "Ноябрь 2005" "Security Enhanced Linux"
+ .SH ИМЯ 
+ semodule \- управление модулями политики SELinux.
+ 
+diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+index 01757b00..00c60c1e 100644
+--- a/policycoreutils/semodule/semodule.8
++++ b/policycoreutils/semodule/semodule.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE "8" "Nov 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE "8" "Nov 2005" "Security Enhanced Linux"
+ .SH NAME
+ semodule \- Manage SELinux policy modules.
+ 
+diff --git a/python/audit2allow/audit2allow.1 b/python/audit2allow/audit2allow.1
+index c31021d3..c208b3b2 100644
+--- a/python/audit2allow/audit2allow.1
++++ b/python/audit2allow/audit2allow.1
+@@ -23,7 +23,7 @@
+ .\" USA.
+ .\"
+ .\"
+-.TH AUDIT2ALLOW "1" "October 2010" "Security Enhanced Linux" NSA
++.TH AUDIT2ALLOW "1" "October 2010" "Security Enhanced Linux"
+ .SH NAME
+ .BR audit2allow
+ \- generate SELinux policy allow/dontaudit rules from logs of denied operations
+diff --git a/python/audit2allow/ru/audit2allow.1 b/python/audit2allow/ru/audit2allow.1
+index 1633fa3b..b631895d 100644
+--- a/python/audit2allow/ru/audit2allow.1
++++ b/python/audit2allow/ru/audit2allow.1
+@@ -23,7 +23,7 @@
+ .\" USA.
+ .\"
+ .\"
+-.TH AUDIT2ALLOW "1" "Октябрь 2010" "Security Enhanced Linux" NSA
++.TH AUDIT2ALLOW "1" "Октябрь 2010" "Security Enhanced Linux"
+ .SH ИМЯ
+ .BR audit2allow
+ \- создаёт правила политики SELinux allow/dontaudit из журналов отклонённых операций
+diff --git a/semodule-utils/semodule_expand/ru/semodule_expand.8 b/semodule-utils/semodule_expand/ru/semodule_expand.8
+index afdc129e..28b381af 100644
+--- a/semodule-utils/semodule_expand/ru/semodule_expand.8
++++ b/semodule-utils/semodule_expand/ru/semodule_expand.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_EXPAND "8" "ноябрь 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_EXPAND "8" "ноябрь 2005" "Security Enhanced Linux"
+ .SH ИМЯ 
+ semodule_expand \- расширить пакет модуля политики SELinux
+ 
+diff --git a/semodule-utils/semodule_expand/semodule_expand.8 b/semodule-utils/semodule_expand/semodule_expand.8
+index 1b482a1f..eba7b40e 100644
+--- a/semodule-utils/semodule_expand/semodule_expand.8
++++ b/semodule-utils/semodule_expand/semodule_expand.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_EXPAND "8" "Nov 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_EXPAND "8" "Nov 2005" "Security Enhanced Linux"
+ .SH NAME 
+ semodule_expand \- Expand a SELinux policy module package.
+ 
+diff --git a/semodule-utils/semodule_link/ru/semodule_link.8 b/semodule-utils/semodule_link/ru/semodule_link.8
+index 31d81206..4a8f414e 100644
+--- a/semodule-utils/semodule_link/ru/semodule_link.8
++++ b/semodule-utils/semodule_link/ru/semodule_link.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_LINK "8" "Ноябрь 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_LINK "8" "Ноябрь 2005" "Security Enhanced Linux"
+ .SH ИМЯ 
+ semodule_link \- связать вместе пакеты модулей политики SELinux
+ 
+diff --git a/semodule-utils/semodule_link/semodule_link.8 b/semodule-utils/semodule_link/semodule_link.8
+index a2bda3f9..95a9ba19 100644
+--- a/semodule-utils/semodule_link/semodule_link.8
++++ b/semodule-utils/semodule_link/semodule_link.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_LINK "8" "Nov 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_LINK "8" "Nov 2005" "Security Enhanced Linux"
+ .SH NAME 
+ semodule_link \- Link SELinux policy module packages together
+ 
+diff --git a/semodule-utils/semodule_package/ru/semodule_package.8 b/semodule-utils/semodule_package/ru/semodule_package.8
+index 6af67b29..3f4b16a9 100644
+--- a/semodule-utils/semodule_package/ru/semodule_package.8
++++ b/semodule-utils/semodule_package/ru/semodule_package.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_PACKAGE "8" "Ноябрь 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_PACKAGE "8" "Ноябрь 2005" "Security Enhanced Linux"
+ .SH ИМЯ 
+ semodule_package \- создать пакет модуля политики SELinux
+ 
+diff --git a/semodule-utils/semodule_package/ru/semodule_unpackage.8 b/semodule-utils/semodule_package/ru/semodule_unpackage.8
+index 910fee02..6c7e234b 100644
+--- a/semodule-utils/semodule_package/ru/semodule_unpackage.8
++++ b/semodule-utils/semodule_package/ru/semodule_unpackage.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_PACKAGE "8" "Ноябрь 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_PACKAGE "8" "Ноябрь 2005" "Security Enhanced Linux"
+ .SH ИМЯ
+ semodule_unpackage \- извлечь модуль политики и файл контекстов файлов из пакета модуля политики SELinux
+ 
+diff --git a/semodule-utils/semodule_package/semodule_package.8 b/semodule-utils/semodule_package/semodule_package.8
+index 9697cc55..1d64bad3 100644
+--- a/semodule-utils/semodule_package/semodule_package.8
++++ b/semodule-utils/semodule_package/semodule_package.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux"
+ .SH NAME 
+ semodule_package \- Create a SELinux policy module package.
+ 
+diff --git a/semodule-utils/semodule_package/semodule_unpackage.8 b/semodule-utils/semodule_package/semodule_unpackage.8
+index 5c92bf51..0432f7a1 100644
+--- a/semodule-utils/semodule_package/semodule_unpackage.8
++++ b/semodule-utils/semodule_package/semodule_unpackage.8
+@@ -1,4 +1,4 @@
+-.TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux" NSA
++.TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux"
+ .SH NAME
+ semodule_unpackage \- Extract policy module and file context file from an SELinux policy module package.
+ 
+-- 
+2.40.1
+
