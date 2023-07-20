@@ -2,111 +2,92 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D014AC0015E
-	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 08:28:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F964EB64DA
+	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 10:36:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbjGTI21 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Jul 2023 04:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
+        id S229618AbjGTKgE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Jul 2023 06:36:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231741AbjGTI2Y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 04:28:24 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5312C2686;
-        Thu, 20 Jul 2023 01:28:23 -0700 (PDT)
-Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.53])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R65N85vy8ztRZ2;
-        Thu, 20 Jul 2023 16:25:12 +0800 (CST)
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Thu, 20 Jul 2023 16:28:20 +0800
-Message-ID: <1e839238-c78d-71e0-28ae-7efff0e04953@huawei.com>
-Date:   Thu, 20 Jul 2023 16:28:19 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.1
-Subject: Re: [PATCH v2 3/4] selinux: use vma_is_initial_stack() and
- vma_is_initial_heap()
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>,
-        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
-CC:     Andrew Morton <akpm@linux-foundation.org>,
-        <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
-        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <linux-perf-users@vger.kernel.org>,
-        <selinux@vger.kernel.org>,
+        with ESMTP id S229601AbjGTKgE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 06:36:04 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DC81701;
+        Thu, 20 Jul 2023 03:36:01 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-9922d6f003cso115598066b.0;
+        Thu, 20 Jul 2023 03:36:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1689849360; x=1690454160;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=SUzZiQbIbwXExbwyLXyL6QTtU7zKUZIs5oay+PeoQH4=;
+        b=lbGAhI3TWPCeHfjuTvzHxUhuanEelb/heJ7SeHctCRYfm+QWF8GHn8Md+He+VbiGXZ
+         QlGXhDQfXsHA5j6cRbnU2NnRAfxcjpMhA3LSuP/aDtd2nzHfqsIRN7ATOF6tJ9sGiiyE
+         iX7nHni3ggsr7NLqwIjpCswqaHAUD/HUukm/BgAyx7qU7tumOpIcMYFrwkgYxgR3tpsb
+         vhXmSj59goiwRwyY3OQKYqjAoUynyL/lf2bFSO5xinYswZL7bjBDVbRiegECwjTEoK0X
+         f9SmgN/4g3reSciKakAhevHDI0Tet1HTmogQdn5QoMxmvAyRk1tWIOa0F2aD3ZeB37G9
+         CtkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689849360; x=1690454160;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=SUzZiQbIbwXExbwyLXyL6QTtU7zKUZIs5oay+PeoQH4=;
+        b=f8aYa4xczfi+Z7pEvpdrVXLW/ChvnKieKPCiIy/nweSTLhqQILFSdUzlXDKasYmXjZ
+         KOMW+CFyUOO3/I82cB2QNL5IPhv58JKvHb2NVvhf2xCDXqEkxEFMKi1b6FhgCkgy5evs
+         5uspAjVJNxQmjeGebutzyX1eiLaJu4x7/m3/H1EK8kt+nq0QVuDKHfX/69bh/TNCdtb7
+         +6KNN1XfKpyArUkl9t6uFWmCWz0IMCyfodm+LI8JGyOLaBYOUoS47+UsURSj2hS3fj9x
+         qc40Q9EueYrdrPXIbg6LzRwRaXqmswVLRBmvjTAqNQ4and3B8TGQIzmZDXEDOXiTvmQd
+         183A==
+X-Gm-Message-State: ABy/qLZh52JN6wCU2j8QqaxrC0f47S2vUohWrDNg6UzXuKU2G/aRZzct
+        nT8Vm9GSHU2WM786qeVo4kPD77eVuBRPQg==
+X-Google-Smtp-Source: APBJJlHU7RWvGxx4xRhz7aGfsiE5xm9sPm1j5fol2plE9ifR8JSz0gNkRTG0N1XxmLaYU9NQHPhTyA==
+X-Received: by 2002:a17:906:3f4f:b0:997:e7ce:1e8e with SMTP id f15-20020a1709063f4f00b00997e7ce1e8emr4858854ejj.55.1689849359620;
+        Thu, 20 Jul 2023 03:35:59 -0700 (PDT)
+Received: from debian_development.DebianHome (dynamic-077-008-188-137.77.8.pool.telefonica.de. [77.8.188.137])
+        by smtp.gmail.com with ESMTPSA id z9-20020a1709064e0900b009886aaeb722sm496540eju.137.2023.07.20.03.35.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Jul 2023 03:35:59 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-References: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
- <20230719075127.47736-4-wangkefeng.wang@huawei.com>
- <CAJ2a_DfGvPeDuN38UBXD4f2928n9GZpHFgdiPo9MoSAY7YXeOg@mail.gmail.com>
- <dc8223db-b4ac-7bee-6f89-63475a7dcaf8@huawei.com>
- <CAHC9VhQzJ3J0kEymDUn3i+dnP_34GMNRjaCHXc4oddUCFb0Ygw@mail.gmail.com>
-From:   Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <CAHC9VhQzJ3J0kEymDUn3i+dnP_34GMNRjaCHXc4oddUCFb0Ygw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+        Eric Paris <eparis@parisplace.org>,
+        linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] selinux: log about VM being executable by default
+Date:   Thu, 20 Jul 2023 12:35:49 +0200
+Message-Id: <20230720103549.25255-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.243]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500001.china.huawei.com (7.185.36.107)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+In case virtual memory is being marked as executable by default, SELinux
+checks regarding explicit potential dangerous use are disabled.
 
+Inform the user about it.
 
-On 2023/7/19 23:25, Paul Moore wrote:
-> On Wed, Jul 19, 2023 at 6:23 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
->> On 2023/7/19 17:02, Christian Göttsche wrote:
->>> On Wed, 19 Jul 2023 at 09:40, Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
->>>>
->>>> Use the helpers to simplify code.
->>>>
->>>> Cc: Paul Moore <paul@paul-moore.com>
->>>> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
->>>> Cc: Eric Paris <eparis@parisplace.org>
->>>> Acked-by: Paul Moore <paul@paul-moore.com>
->>>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
->>>> ---
->>>>    security/selinux/hooks.c | 7 ++-----
->>>>    1 file changed, 2 insertions(+), 5 deletions(-)
->>>>
->>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>>> index d06e350fedee..ee8575540a8e 100644
->>>> --- a/security/selinux/hooks.c
->>>> +++ b/security/selinux/hooks.c
->>>> @@ -3762,13 +3762,10 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
->>>>           if (default_noexec &&
->>>>               (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
->>>>                   int rc = 0;
->>>> -               if (vma->vm_start >= vma->vm_mm->start_brk &&
->>>> -                   vma->vm_end <= vma->vm_mm->brk) {
->>>> +               if (vma_is_initial_heap(vma)) {
->>>
->>> This seems to change the condition from
->>>
->>>       vma->vm_start >= vma->vm_mm->start_brk && vma->vm_end <= vma->vm_mm->brk
->>>
->>> to
->>>
->>>       vma->vm_start <= vma->vm_mm->brk && vma->vm_end >= vma->vm_mm->start_brk
->>>
->>> (or AND arguments swapped)
->>>
->>>       vma->vm_end >= vma->vm_mm->start_brk && vma->vm_start <= vma->vm_mm->brk
->>>
->>> Is this intended?
->>
->> The new condition is to check whether there is intersection between
->> [startbrk,brk] and [vm_start,vm_end], it contains orignal check, so
->> I think it is ok, but for selinux check, I am not sure if there is
->> some other problem.
-> 
-> This particular SELinux vma check is see if the vma falls within the
-> heap; can you confirm that this change preserves this?
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ security/selinux/hooks.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Yes, within is one case of new vma scope check.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6f53fa71fbdb..3a7ece84c2cc 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7265,6 +7265,8 @@ static __init int selinux_init(void)
+ 	cred_init_security();
+ 
+ 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
++	if (!default_noexec)
++		pr_notice("SELinux:  virtual memory is executable by default - related checks disabled\n");
+ 
+ 	avc_init();
+ 
+-- 
+2.40.1
 
-> 
