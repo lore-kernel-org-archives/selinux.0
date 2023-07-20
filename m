@@ -2,62 +2,111 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2F6CEB64DA
-	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 08:11:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D014AC0015E
+	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 08:28:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229743AbjGTILE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Jul 2023 04:11:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52212 "EHLO
+        id S231644AbjGTI21 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Jul 2023 04:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229832AbjGTILD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 04:11:03 -0400
-X-Greylist: delayed 233 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 20 Jul 2023 01:10:39 PDT
-Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2a10:3781:2099::123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8597270B
-        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 01:10:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-        s=default; t=1689840404;
-        bh=O7/OP8MZip/AQLo8N/TxObB/dRAJ2SvUHLoWhGOP9Ws=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=DXEDefh87td6pDBN5JtRo3C6QeleeJz38+yYSV97sqg4ABWupNGu2adUk3RHeIFav
-         uFE2PbzmZlvT6yPHook+Qu0tpBtVUH2PE/iN2Li3f4ngRyEafQlYsmElp4BEjKevsu
-         QXHjCdgGejaPhQtB4AUoyhd6IU5m2nWsFdgQ5whs=
-Received: from paulus (paulus.lan [IPv6:2a10:3781:2099::515])
-        by markus.defensec.nl (Postfix) with ESMTPSA id 412F67D;
-        Thu, 20 Jul 2023 10:06:44 +0200 (CEST)
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Brett Anderson <brett@bzdzb.com>
-Cc:     selinux@vger.kernel.org
-Subject: Re: SELinux Mascot/Logo
-References: <CAPQCZivM+qGve5eUekri3_iEzAPE5o3ymqOunYMjQJ=4mRwPUg@mail.gmail.com>
-Date:   Thu, 20 Jul 2023 10:06:43 +0200
-In-Reply-To: <CAPQCZivM+qGve5eUekri3_iEzAPE5o3ymqOunYMjQJ=4mRwPUg@mail.gmail.com>
-        (Brett Anderson's message of "Wed, 19 Jul 2023 14:42:01 -0400")
-Message-ID: <877cqv6m7g.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
+        with ESMTP id S231741AbjGTI2Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 04:28:24 -0400
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5312C2686;
+        Thu, 20 Jul 2023 01:28:23 -0700 (PDT)
+Received: from dggpemm500001.china.huawei.com (unknown [172.30.72.53])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4R65N85vy8ztRZ2;
+        Thu, 20 Jul 2023 16:25:12 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm500001.china.huawei.com (7.185.36.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Thu, 20 Jul 2023 16:28:20 +0800
+Message-ID: <1e839238-c78d-71e0-28ae-7efff0e04953@huawei.com>
+Date:   Thu, 20 Jul 2023 16:28:19 +0800
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.1
+Subject: Re: [PATCH v2 3/4] selinux: use vma_is_initial_stack() and
+ vma_is_initial_heap()
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
+CC:     Andrew Morton <akpm@linux-foundation.org>,
+        <amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
+        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <linux-perf-users@vger.kernel.org>,
+        <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>
+References: <20230719075127.47736-1-wangkefeng.wang@huawei.com>
+ <20230719075127.47736-4-wangkefeng.wang@huawei.com>
+ <CAJ2a_DfGvPeDuN38UBXD4f2928n9GZpHFgdiPo9MoSAY7YXeOg@mail.gmail.com>
+ <dc8223db-b4ac-7bee-6f89-63475a7dcaf8@huawei.com>
+ <CAHC9VhQzJ3J0kEymDUn3i+dnP_34GMNRjaCHXc4oddUCFb0Ygw@mail.gmail.com>
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+In-Reply-To: <CAHC9VhQzJ3J0kEymDUn3i+dnP_34GMNRjaCHXc4oddUCFb0Ygw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.177.243]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpemm500001.china.huawei.com (7.185.36.107)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Brett Anderson <brett@bzdzb.com> writes:
 
-> Hello!
->
-> I made an SELinux logo for my own purposes and figured I would share
-> it with you in case you would like to use it. I'm putting this into
-> the public domain and you can do with it as you see fit; attribution
-> would be cool, but not required.
->
-> https://imgur.com/a/khkSEux.png
->
-> Cheers!
 
-Nice. No .svg? Check out: https://github.com/SELinuxProject/selinux-artwork#readme
+On 2023/7/19 23:25, Paul Moore wrote:
+> On Wed, Jul 19, 2023 at 6:23 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+>> On 2023/7/19 17:02, Christian Göttsche wrote:
+>>> On Wed, 19 Jul 2023 at 09:40, Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+>>>>
+>>>> Use the helpers to simplify code.
+>>>>
+>>>> Cc: Paul Moore <paul@paul-moore.com>
+>>>> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+>>>> Cc: Eric Paris <eparis@parisplace.org>
+>>>> Acked-by: Paul Moore <paul@paul-moore.com>
+>>>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+>>>> ---
+>>>>    security/selinux/hooks.c | 7 ++-----
+>>>>    1 file changed, 2 insertions(+), 5 deletions(-)
+>>>>
+>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>>> index d06e350fedee..ee8575540a8e 100644
+>>>> --- a/security/selinux/hooks.c
+>>>> +++ b/security/selinux/hooks.c
+>>>> @@ -3762,13 +3762,10 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+>>>>           if (default_noexec &&
+>>>>               (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+>>>>                   int rc = 0;
+>>>> -               if (vma->vm_start >= vma->vm_mm->start_brk &&
+>>>> -                   vma->vm_end <= vma->vm_mm->brk) {
+>>>> +               if (vma_is_initial_heap(vma)) {
+>>>
+>>> This seems to change the condition from
+>>>
+>>>       vma->vm_start >= vma->vm_mm->start_brk && vma->vm_end <= vma->vm_mm->brk
+>>>
+>>> to
+>>>
+>>>       vma->vm_start <= vma->vm_mm->brk && vma->vm_end >= vma->vm_mm->start_brk
+>>>
+>>> (or AND arguments swapped)
+>>>
+>>>       vma->vm_end >= vma->vm_mm->start_brk && vma->vm_start <= vma->vm_mm->brk
+>>>
+>>> Is this intended?
+>>
+>> The new condition is to check whether there is intersection between
+>> [startbrk,brk] and [vm_start,vm_end], it contains orignal check, so
+>> I think it is ok, but for selinux check, I am not sure if there is
+>> some other problem.
+> 
+> This particular SELinux vma check is see if the vma falls within the
+> heap; can you confirm that this change preserves this?
 
--- 
-gpg --locate-keys dominick.grift@defensec.nl (wkd)
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-Mastodon: @kcinimod@defensec.nl
+Yes, within is one case of new vma scope check.
+
+> 
