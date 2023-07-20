@@ -2,108 +2,91 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 913FBEB64DD
-	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 20:22:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0418AEB64DA
+	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 20:31:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229613AbjGTUWA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Jul 2023 16:22:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59800 "EHLO
+        id S229517AbjGTUb1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Jul 2023 16:31:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229653AbjGTUWA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 16:22:00 -0400
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE44D2733
-        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:21:52 -0700 (PDT)
-Received: by mail-qt1-x82d.google.com with SMTP id d75a77b69052e-403b6b7c0f7so10905901cf.0
-        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:21:52 -0700 (PDT)
+        with ESMTP id S229452AbjGTUb0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 16:31:26 -0400
+Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95C899E
+        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:31:25 -0700 (PDT)
+Received: by mail-qk1-x736.google.com with SMTP id af79cd13be357-76758b855edso114859785a.0
+        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:31:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689884512; x=1690489312;
-        h=in-reply-to:references:subject:to:from:message-id:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HHyuLsgnQpUkZCQoLU/jEv4V7OgD3rMUxhJnhOhWi14=;
-        b=Yb5M0PpHwf7QzVRrWXhI4GSejp/dTkjmcf9GRRp+5meR5//PwdIhFLvv0C2zvcyX/K
-         g8Y6pOArHQAbTnHiNypVQbTgsb8T+Luo/qOBiIxi14Cs9GC5551IzrAjUpQGsS3uHJHv
-         psM6EqNvKuuHc3kzUPlhLEhkOn5XTstkaDloK/ZyX3288Inshx7aEc9xK+yX2tCRb1Ev
-         AYwIIGt/fuLEk+lfy77zmV1P+e2xoB84grja0HdmVrhQXsSkBBFGuw3vRd/M1zNe9PCt
-         MabIyobFLPMHjg7RDBDpJXYMjX+hhySdzrk5g4mhwLoJcUb6GrgTNnpTm5PDYFfXCVvs
-         0bOQ==
+        d=paul-moore.com; s=google; t=1689885084; x=1690489884;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IT60q12rOLtuzgguwkPmRwtIaxsySqA30caj9iR32pQ=;
+        b=Mmgb9EupskgxuN08eWIojHMt58YMqp+dDDEzhVXltdz4TYrk6Y7jHaZuV56JZSVDV8
+         ozlXhZoQ49ALdfMsOCgm6AJigStnMJeedqtVztYTuHbF2tpyNijiSoRIJFekdpcztsCo
+         3UiqplwcmMIjCNOEA0A6aXR7WEXQMssWH4E5a/7shUGnC/bG2PSP/gvjf2T4hptkjag1
+         +aPHmY4tiRTT/YJMc291NIt1ZskfSWJ+B8liZAQ/nR3lI1tQG4nDy+pxG7PckECHJU6p
+         KKJkAuFMZdaZyaWTEt8WcOyCVv44+WMGgEW1sp7/e/FWz8hYd5+zjnMtWKC9S9qxFi8i
+         zSGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689884512; x=1690489312;
-        h=in-reply-to:references:subject:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HHyuLsgnQpUkZCQoLU/jEv4V7OgD3rMUxhJnhOhWi14=;
-        b=MzzmQEEXdI7I5MrKoAzJykUOenSGPxh7GiKO8UqtFUlFvrGu6UjS0MV3Mmtq/eUhQL
-         hK3eCysfUeIIM1MeC3PhHaHEmG01X6imojs3Ufa4ND+FFg0Ld5oS7561oAm8CYNdtVsc
-         ZDsbNRJlGv0YZVp/VdTohA1ZajUrY7wlOoFoA2uo6WpyMMjH0nMrtsUuCV+SxFka7Ova
-         +KpwBc26XnoFzhkjMComnqZvcCli+oDOHT0+ldFFiXkBEWyV3nhUI2ZFgshI9sjRWpZ9
-         fOBRhaaltyBnmMd6rN8OgGapzDPY7JhQJjsDF61l54DEQeBY/OajCIzNLcdCFSpwuFaT
-         Q2Cw==
-X-Gm-Message-State: ABy/qLYTIZX+ifSxuASoIy5BTH8GZElwQ7U7nnxYhjurJtp3GHrX/mZO
-        2aZ2cMxteKdXvlcX8T0Z8DH7XaWHss+2ljGMdQ==
-X-Google-Smtp-Source: APBJJlGrmSXvG5d0+GvWOPLIJSDujnUW0KvP6PNgs53aHmHuR0Q7LjfrbzEvyedSya5UKMHGBoaSsQ==
-X-Received: by 2002:ac8:5c4c:0:b0:403:e895:155b with SMTP id j12-20020ac85c4c000000b00403e895155bmr11678qtj.34.1689884511758;
-        Thu, 20 Jul 2023 13:21:51 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1689885084; x=1690489884;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=IT60q12rOLtuzgguwkPmRwtIaxsySqA30caj9iR32pQ=;
+        b=HysmiYnOqcbZv3n7naomYkxiWzW8QPg61UospYqcIhBuhdNiI4yZAzQ6o9vk/lnc1m
+         bIUw/03c0KV/rGhIEp1kA/PtrAoaGpv1WIIfbCxAxMcFbouOn6W8/kbeLpISlyk2xgzp
+         49XW1F8nRhplE4rY7Ftq/Ews5Cg4yDwDUQ0VV/DdwWHjSTDCBBBmG7YwFHlPtdiyRFvV
+         c/xQUvdcskgXvIWUpVRmU42btfZp8lEpIYYnfK4lMabpd4IxSBv8YcDqD4mnnQnmumS/
+         08Xd0lQvkMYZkS/Mjh9h9YcogKFsYcoE90SFIY3OZ/qGL4/mXnOmU7uUp2mcl4J9rsVu
+         KH8Q==
+X-Gm-Message-State: ABy/qLa1dXYMxWCpnTLX8G2Eg3BL4/+56UrFzcrmaYt7E3hd494R2Ib4
+        INmZ3mvE1HBL25x29KOXP/ZGfa8DIW0YyrqsMQ==
+X-Google-Smtp-Source: APBJJlGmR+/etWqJBgaecbhARuV5wXNI2pzrYbRaio+xNj2N/f5HdzJyM9DVmnSODV3XHiUR7VlVbQ==
+X-Received: by 2002:a05:620a:444a:b0:762:3841:c098 with SMTP id w10-20020a05620a444a00b007623841c098mr7767558qkp.30.1689885084564;
+        Thu, 20 Jul 2023 13:31:24 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id fu39-20020a05622a5da700b003f6c9f8f0a8sm673819qtb.68.2023.07.20.13.21.51
+        by smtp.gmail.com with ESMTPSA id c10-20020a05620a134a00b00767db1ba172sm610231qkl.31.2023.07.20.13.31.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jul 2023 13:21:51 -0700 (PDT)
-Date:   Thu, 20 Jul 2023 16:21:51 -0400
-Message-ID: <4e8ed564dd7443b84bd5b9e329efad2f.paul@paul-moore.com>
+        Thu, 20 Jul 2023 13:31:23 -0700 (PDT)
 From:   Paul Moore <paul@paul-moore.com>
-To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH 3/3] selinux: log missing anonclass in debug configuration
-References: <20230718184921.112786-3-cgzones@googlemail.com>
-In-Reply-To: <20230718184921.112786-3-cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH] selinux: fix a 0/NULL mistmatch in ad_net_init_from_iif()
+Date:   Thu, 20 Jul 2023 16:31:17 -0400
+Message-ID: <20230720203116.316250-2-paul@paul-moore.com>
+X-Mailer: git-send-email 2.41.0
+MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=904; i=paul@paul-moore.com; h=from:subject; bh=h5vMeiJOTTe0eFjjp/UWEni3exUyLgBJJk/h14o8+Po=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBkuZmUN4ZhNYtmPFEDcO/2kn+WTxFcg5t1zqXj2 mEA0C+gmwuJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZLmZlAAKCRDqIPLalzeJ czVQEACwKplj51iAsU4f1LbAGl0FGJghQdBM6cymzyQagbWeOBp4cup/r4LP7L6yPise78Q12pC tAYZ90kNXxBA+RprUy76DOE/kTLWoJduWXInnBpup+4ZYGLUHO5agaf/PnC8F51wb3TDPnlW2Mk ZnuxPYYxjuxDOR95SEUu406G/VGw/RFI5TRYcNW7wG2CocseJU26M9ZPxPKO3zgZ4W4REGTA0sh xsrj/5nZwoQHfGcR9SJgI/LVdRtV7Xp9nfSoLXEhxWN3v1F1fRcssd6qDyWI292TMLvJi8b8U4U juhiAYCFUj4iw4k+MfOWbx08Pp51uAe/N0pkRtVLgAvPBo6kDBYq/nI0LLiLnDENOxpSOe/64oO XdTmGnVux8W9J03PcGACkg9H8ngmYA7Oeqwjhf9SfOTceai41GOgWcrxABaY+nGJOubnWGcAbw2 jT9Pyb6jmHqPYv5ljjAOCx5nUYDTuWaq3UU6dcnraYgjgx8PP/rONK7zGghMLDIKfiSDtzU7G0u za7lh8yLHzsD7GCV1aU2RYGuYzL5AOZMg5h1KFgXSD9giYm0ImV8d9Sjh0dis/5C4fvpMeuhjmU U7dAynRIQRsv3Hr5K9b+RoJfVgHQyseRvJBHzyena9ZgsE2nbs+ZVeBHjq/i5AyWrvqihvFLnHz xHMsc1ouHB/4bMg==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Jul 18, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
-> 
-> Log under the SELinux debug configuration when a caller to the LSM hook
-> inode_init_security_anon does not pass a anonymous inode class name.
-> The class name allows policy writers to transition the anonymous inode
-> into a private type via a name based type transition.
-> 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
-> ---
->  security/selinux/hooks.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+Use a NULL instead of a zero to resolve a int/pointer mismatch.
 
-Is this really a problem?  There are two callers in v6.5-rc2 and both
-properly populate the @name parameter.
+Cc: Paolo Abeni <pabeni@redhat.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202307210332.4AqFZfzI-lkp@intel.com/
+Fixes: dd51fcd42fd6 ("selinux: introduce and use lsm_ad_net_init*() helpers")
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Considering how easy it is to look up the callers in the kernel source
-and ensure they are passing a valid @name parameter I'm inclined to
-leave this patch unmerged.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6f53fa71fbdb..5194f12def97 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -246,7 +246,7 @@ static void ad_net_init_from_iif(struct common_audit_data *ad,
+ 				 struct lsm_network_audit *net,
+ 				 int ifindex, u16 family)
+ {
+-	__ad_net_init(ad, net, ifindex, 0, family);
++	__ad_net_init(ad, net, ifindex, NULL, family);
+ }
+ 
+ /*
+-- 
+2.41.0
 
-Thoughts?
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index b8a8a4f0f2ad..f6ffab9958b6 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2918,6 +2918,17 @@ static int selinux_inode_init_security_anon(struct inode *inode,
->  	if (unlikely(!selinux_initialized()))
->  		return 0;
->  
-> +#ifdef CONFIG_SECURITY_SELINUX_DEBUG
-> +	/*
-> +	 * Allow policy writers to transition the anonymous inode into
-> +	 * a private type via a name based type transition.
-> +	 */
-> +	if (!name) {
-> +		pr_debug("SELinux:  no class given for anonymous inode\n");
-> +		dump_stack();
-> +	}
-> +#endif
-> +
->  	isec = selinux_inode(inode);
->  
->  	/*
-> -- 
-> 2.40.1
-
---
-paul-moore.com
