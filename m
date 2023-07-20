@@ -2,123 +2,108 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01837C001DC
-	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 20:22:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 913FBEB64DD
+	for <selinux@archiver.kernel.org>; Thu, 20 Jul 2023 20:22:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230040AbjGTUWA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S229613AbjGTUWA (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Thu, 20 Jul 2023 16:22:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59796 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbjGTUV7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 16:21:59 -0400
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5120271C
-        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:21:51 -0700 (PDT)
-Received: by mail-qt1-x830.google.com with SMTP id d75a77b69052e-403c6a0f3aaso10743251cf.2
-        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:21:51 -0700 (PDT)
+        with ESMTP id S229653AbjGTUWA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Jul 2023 16:22:00 -0400
+Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE44D2733
+        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:21:52 -0700 (PDT)
+Received: by mail-qt1-x82d.google.com with SMTP id d75a77b69052e-403b6b7c0f7so10905901cf.0
+        for <selinux@vger.kernel.org>; Thu, 20 Jul 2023 13:21:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689884511; x=1690489311;
+        d=paul-moore.com; s=google; t=1689884512; x=1690489312;
         h=in-reply-to:references:subject:to:from:message-id:date:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=P4Sfe5Mrn930JlcyLKLnmbZvBMtHPPh5Pz03h2TZaeg=;
-        b=ZaPf5/oFix7Sj5lQ0vH4hxMJscvWCWW54709Yk5gh0ydtAEVSbXpECo5SuzMGQDHdx
-         1TyspXaDwCnt8CniVTMGts3flCl2hsETd9e1aX+cMN8HD+jZahx5QXokfDWhw+581yGH
-         YcdRbqQIndZ5x7u5juWHTdp6aHonvR7Kdedf+sEub3K1P8N5JhJa3IEb709ssqzDH0m9
-         EDeTomIxELUiWqVI7L7OWFo/l8Akx8vqlM5rQjeheCFWu0JYmwkQMbSbdP5kRh2wGMY7
-         Ge7ApKpTMS0fej++uC2R5/zb65lRXqu6gCESmjDr6Ra7GC5MvdtHlg1R+55UGKL5OhJt
-         3zfg==
+        bh=HHyuLsgnQpUkZCQoLU/jEv4V7OgD3rMUxhJnhOhWi14=;
+        b=Yb5M0PpHwf7QzVRrWXhI4GSejp/dTkjmcf9GRRp+5meR5//PwdIhFLvv0C2zvcyX/K
+         g8Y6pOArHQAbTnHiNypVQbTgsb8T+Luo/qOBiIxi14Cs9GC5551IzrAjUpQGsS3uHJHv
+         psM6EqNvKuuHc3kzUPlhLEhkOn5XTstkaDloK/ZyX3288Inshx7aEc9xK+yX2tCRb1Ev
+         AYwIIGt/fuLEk+lfy77zmV1P+e2xoB84grja0HdmVrhQXsSkBBFGuw3vRd/M1zNe9PCt
+         MabIyobFLPMHjg7RDBDpJXYMjX+hhySdzrk5g4mhwLoJcUb6GrgTNnpTm5PDYFfXCVvs
+         0bOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689884511; x=1690489311;
+        d=1e100.net; s=20221208; t=1689884512; x=1690489312;
         h=in-reply-to:references:subject:to:from:message-id:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=P4Sfe5Mrn930JlcyLKLnmbZvBMtHPPh5Pz03h2TZaeg=;
-        b=BfTRAcjdfiCJ+pNbXwXfbgkYFxrqkhRr+l8zlBpO3x1BYCyNwZw9J2OqSwZ+L32lsW
-         X6A5ENHa3vS2rsSILzcKmPadyCxdmMNJ5/fQxpXATaArTzCMzaCvP3L7GZbaNi6opRZu
-         zziHHQwkWz99YoQpSla9wLEOSahlQHO3eHzeDdSiL5n1ESKYOpyzirdN0NqPcjnZcLfl
-         OpvytCWFDuQ8KFbQhtCuS1Zudqw35ti2YRTPmaQ9isJuam6+8HFJ1ThrGroHuHqoZ2IQ
-         zgJld6q5UHq0QS6kiOcu7RH7HwPT8ALcRb5Agb24SEltCnwnXYa9fl9pLy2GPPEtukbW
-         FlKQ==
-X-Gm-Message-State: ABy/qLbJioAtgA4CZzWcD44MZ19pO+LpN8p5ttjZyN5NULOmB4TitD5n
-        Gv/XZ7DZ929S4w4WBHnraffSqmR/IfChzrbkJA==
-X-Google-Smtp-Source: APBJJlGdxvzfWNt+HLqy4TzkMKMfdoGhWK1XOT7aOU1tQHS79ei7ftEVTnWfbq19nP/NK5K75f3aMQ==
-X-Received: by 2002:ac8:7dc1:0:b0:403:3048:b98 with SMTP id c1-20020ac87dc1000000b0040330480b98mr190000qte.34.1689884510991;
-        Thu, 20 Jul 2023 13:21:50 -0700 (PDT)
+        bh=HHyuLsgnQpUkZCQoLU/jEv4V7OgD3rMUxhJnhOhWi14=;
+        b=MzzmQEEXdI7I5MrKoAzJykUOenSGPxh7GiKO8UqtFUlFvrGu6UjS0MV3Mmtq/eUhQL
+         hK3eCysfUeIIM1MeC3PhHaHEmG01X6imojs3Ufa4ND+FFg0Ld5oS7561oAm8CYNdtVsc
+         ZDsbNRJlGv0YZVp/VdTohA1ZajUrY7wlOoFoA2uo6WpyMMjH0nMrtsUuCV+SxFka7Ova
+         +KpwBc26XnoFzhkjMComnqZvcCli+oDOHT0+ldFFiXkBEWyV3nhUI2ZFgshI9sjRWpZ9
+         fOBRhaaltyBnmMd6rN8OgGapzDPY7JhQJjsDF61l54DEQeBY/OajCIzNLcdCFSpwuFaT
+         Q2Cw==
+X-Gm-Message-State: ABy/qLYTIZX+ifSxuASoIy5BTH8GZElwQ7U7nnxYhjurJtp3GHrX/mZO
+        2aZ2cMxteKdXvlcX8T0Z8DH7XaWHss+2ljGMdQ==
+X-Google-Smtp-Source: APBJJlGrmSXvG5d0+GvWOPLIJSDujnUW0KvP6PNgs53aHmHuR0Q7LjfrbzEvyedSya5UKMHGBoaSsQ==
+X-Received: by 2002:ac8:5c4c:0:b0:403:e895:155b with SMTP id j12-20020ac85c4c000000b00403e895155bmr11678qtj.34.1689884511758;
+        Thu, 20 Jul 2023 13:21:51 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id r26-20020ac8521a000000b00402ed9adfa1sm675819qtn.87.2023.07.20.13.21.50
+        by smtp.gmail.com with ESMTPSA id fu39-20020a05622a5da700b003f6c9f8f0a8sm673819qtb.68.2023.07.20.13.21.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jul 2023 13:21:50 -0700 (PDT)
-Date:   Thu, 20 Jul 2023 16:21:50 -0400
-Message-ID: <5ec875c70a55ac6b086cccf5a06db703.paul@paul-moore.com>
+        Thu, 20 Jul 2023 13:21:51 -0700 (PDT)
+Date:   Thu, 20 Jul 2023 16:21:51 -0400
+Message-ID: <4e8ed564dd7443b84bd5b9e329efad2f.paul@paul-moore.com>
 From:   Paul Moore <paul@paul-moore.com>
 To:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
         selinux@vger.kernel.org
-Subject: Re: [PATCH 2/3] selinux: move debug functions into debug configuration
-References: <20230718184921.112786-2-cgzones@googlemail.com>
-In-Reply-To: <20230718184921.112786-2-cgzones@googlemail.com>
+Subject: Re: [PATCH 3/3] selinux: log missing anonclass in debug configuration
+References: <20230718184921.112786-3-cgzones@googlemail.com>
+In-Reply-To: <20230718184921.112786-3-cgzones@googlemail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On Jul 18, 2023 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
 > 
-> avtab_hash_eval() and hashtab_stat() are only used in policydb.c when
-> the configuration SECURITY_SELINUX_DEBUG is enabled.
-> 
-> Move the function declarations and definitions under that configuration
-> as well.
+> Log under the SELinux debug configuration when a caller to the LSM hook
+> inode_init_security_anon does not pass a anonymous inode class name.
+> The class name allows policy writers to transition the anonymous inode
+> into a private type via a name based type transition.
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/ss/avtab.c   | 2 ++
->  security/selinux/ss/avtab.h   | 3 +++
->  security/selinux/ss/hashtab.c | 3 ++-
->  security/selinux/ss/hashtab.h | 2 ++
->  4 files changed, 9 insertions(+), 1 deletion(-)
+>  security/selinux/hooks.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 
-...
+Is this really a problem?  There are two callers in v6.5-rc2 and both
+properly populate the @name parameter.
 
-> diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-> index d6742fd9c560..0ea1ee9d4dae 100644
-> --- a/security/selinux/ss/avtab.h
-> +++ b/security/selinux/ss/avtab.h
-> @@ -92,7 +92,10 @@ int avtab_alloc(struct avtab *, u32);
->  int avtab_alloc_dup(struct avtab *new, const struct avtab *orig);
->  struct avtab_datum *avtab_search(struct avtab *h, const struct avtab_key *k);
->  void avtab_destroy(struct avtab *h);
-> +
-> +#ifdef CONFIG_SECURITY_SELINUX_DEBUG
->  void avtab_hash_eval(struct avtab *h, const char *tag);
-> +#endif
+Considering how easy it is to look up the callers in the kernel source
+and ensure they are passing a valid @name parameter I'm inclined to
+leave this patch unmerged.
 
-Let's do the usual dummy function here so we don't have to use the
-CONFIG_SECURITY_SELINUX_DEBUG more than we have to ...
+Thoughts?
 
-#ifdef CONFIG_SECURITY_SELINUX_DEBUG
-void avtab_hash_eval(struct avtab *h, const char *tag);
-#else
-void avtab_hash_eval(struct avtab *h, const char *tag)
-{
-	return;
-}
-#endif
-
-Please do the same for symtab_hash_eval() too so we can get rid of
-the #ifdef in the callers.
-
-> diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
-> index 043a773bf0b7..7836c0995871 100644
-> --- a/security/selinux/ss/hashtab.h
-> +++ b/security/selinux/ss/hashtab.h
-> @@ -142,7 +142,9 @@ int hashtab_duplicate(struct hashtab *new, struct hashtab *orig,
->  		int (*destroy)(void *k, void *d, void *args),
->  		void *args);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index b8a8a4f0f2ad..f6ffab9958b6 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2918,6 +2918,17 @@ static int selinux_inode_init_security_anon(struct inode *inode,
+>  	if (unlikely(!selinux_initialized()))
+>  		return 0;
 >  
 > +#ifdef CONFIG_SECURITY_SELINUX_DEBUG
->  /* Fill info with some hash table statistics */
->  void hashtab_stat(struct hashtab *h, struct hashtab_info *info);
+> +	/*
+> +	 * Allow policy writers to transition the anonymous inode into
+> +	 * a private type via a name based type transition.
+> +	 */
+> +	if (!name) {
+> +		pr_debug("SELinux:  no class given for anonymous inode\n");
+> +		dump_stack();
+> +	}
 > +#endif
-
-Same thing here.
+> +
+>  	isec = selinux_inode(inode);
+>  
+>  	/*
+> -- 
+> 2.40.1
 
 --
 paul-moore.com
