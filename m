@@ -2,125 +2,246 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B0E3EB64DD
-	for <selinux@archiver.kernel.org>; Fri, 21 Jul 2023 16:43:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAFEAEB64DC
+	for <selinux@archiver.kernel.org>; Fri, 21 Jul 2023 16:46:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbjGUQnP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Jul 2023 12:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43266 "EHLO
+        id S229452AbjGUQqG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 Jul 2023 12:46:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229609AbjGUQmx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Jul 2023 12:42:53 -0400
-Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1555A3580
-        for <selinux@vger.kernel.org>; Fri, 21 Jul 2023 09:42:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1689957725; bh=V9dOu9Ky2pqvJawWDuTlA/cc/wSDtbwaMovWTd36Ir0=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=qbbXeBScNl0vdISfM84hJyJsPPYE8fYFhtSJhaDXP40bv9fh+YA8besHHCyzu93K74QyMkkOnPtiAO6TejIlP+lWcaRZAnUy2NuoGQAn0z/42eFWmyFW2AvxYnyXCH/aYWqpI9vyJyu7j6+WuTWuwYFFddtFoEOesdrLYLzSwiw3W/oJyWocVXa7PkpaqscHObB8i3n4am/jNRl6wnnBGSNuXW+HQxB64EIcUwobuSwH+7xskqvCEE+wV9pN0Hj5JflDcaXFw0g+dEMPpmWU1DAVkCaAnP2ueyWQfmcG8K32b3Irr6yMWxUyyUguw6d94gCiG2ki76R+S5tC2jwE1w==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1689957725; bh=shf7tvNtnnk6qZNEMOYpWN72RKOJ91fE2HIopW1AYDj=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=IGtYPa0pprgT2wRM7CZK6YRMXdODN8ETUpB1bYFLLbIP3PTy6kQC0/uqhKZx1s9d+KPHrt6vif0mtvlxBdNf9a6gvifjBkr6wBK7Cj/7Snz57yKtMPFHIefDz6LoKjESwmacwUptgzAbE25/qihc90xihWA/a0wt0PMgyxTGSiF4JsovA7FXdBRz9rjGBQLLrrwFTE2i5hftuYEv5aSwGxT7ehZG/jrWzQYThX0ruKqzY8KhY4hwnNMjoru4uuNt56SSudQOpMGjd7mE8P/KbGo34UhQWlLDAusYgZ6OtI+MKaq/gR9HAGJbeyCdvFqlNstD5v5Dqj25eHA2xxQtWA==
-X-YMail-OSG: 2FHoy48VM1mlwbrEE8ShMTn9qIRrRRHE5aVtGc9B3MLESGI0uOE9p25.JLZwCV1
- Owc4Z45ZQwQR_p2cczv504zGiLBjX.TOecq1YUJuZDKrScE7zaPKT3Z74L710QcinQ2QaU9xZ..E
- zn09FEKfy_4FW2.2OssWBp42aU7QNxigO49fMQDKxArBsouBqk5.vObO93Ofm_qgh8Svw_DmHWZ9
- Xc3TT4xD3ztuuDVy8FuIsxOrOD7IQvcd40L0roUigQ72kf6B8Uv_DMuPzd9Ms29ifVU6KnEmOs8_
- V1IQWQyumUzN.uPzPqwW7l9dG2dQZNLSkgBdK5LDHk5h6Oiw1d3e8x3CHR3T9YQ1yz45tohCc56s
- qIIfD5J1blnfysQaV0hxp32WS2hhR1sNhJlPPUUtx31MHOUBnb9Zgd6pOBM_EuiPpYijvd1JWDE9
- XiDbtutJ7L7K2iND2B2_AX6Bj.V.bBGMs.nRRusG871KC1f60_gAfV2W1ltsLL7FBv7ug1kNcacn
- rcY53XdTz3jDP4QdlulTLaHEXe.lq_wHA4YhiUrUyx32V5G4e3QrWRMAuSrVb9CwmWfIKbP57dzu
- 0yuR4y7jFmyobWvLcvTU.8x3nUEGJzLZJkQwqdjuKbuxJlWC5w7ruMHQWY1Sys.pXvqinZ5WG3II
- UCp_bBZMmOXK8LM8zi7sfCrIKagQpYkotZ_9pUMOSpkuUc.euemdFsADMVMXR2meYs4b4SqvCybt
- XGFDnT80B.jebXOuZWgKnKtCEFNg2oL1eIa7if7dV_pBA.zFZ50UzOByC1bK4s_.iT7akGn7u7Uz
- bxganHcDHdQlwKaIsxbvQikA8jzUUJR8PluZLRUBNh.I1K9uda3i0kVQSC4tzXdA5CcJAiEVJ3fZ
- VKIXOKNXpeOTp3FmvzrxUFCoqEx8XJw2v_78OxMRg17a.AJ90UMKB6jOvuyc0SKKRge_Bcu0T88.
- drCZ9Abalkxt_csnYHmhX0uQTllpx6mikiJ2Ie64XF6rEnWJDxCITy9xn1xHE0eHG2b121SxC_pe
- CQg2yp6tN0Oz7Rn3afA3AviWTvyZY_Yo_Pu87JqEDFPcVhu8zjMowKv2hOtP1nErACfvRMmdgLp.
- JvFGjmwTyOBOfhI28NicPdaup7WvBwFiHBKfS6Bs5RzarwcphZjRHXqslsE89uzYl8FA16Ke5Gzc
- 3IgeW47anD4lYveeHmWI42jjE7CVzFDfyLI3w7qdEGRRm1.4VJFlSdhT9OV5wCtIIOA573dHCP80
- dqb8oyrXnGnfki04CghliU9qix_BYmb5Uj1OfCMg6SVjjD8s9biDme0O81oaGyhhMH4qOz4R2n1s
- Yo6GYGBrOkhjDAsuDDbO4cVh44JuU0xS2ZCSgrUZadJihUKCtr6zAdKYVogKB04qXygXUoi3wIlh
- hFt1LM1SfE5BY36N0y00IVf_Lzv0Sw2H7Zmh5AVAKPRHVNX0IwilbsTwFlWTgoOipplV7iHrA_.9
- 9o6Sywq0VSWNyoeJY9Ybe8pPYV5h14t3elcu0r7IlekzL7ehq6gFVIDrl21bfSgp9TFsoMpI4Czp
- 6vfOVOnNmLhzWStFCkZOGoinZYjsvx_1cAgdmhSax4osgbO3jJEU1oZ3qmSmArQ9dLrKt26BJoGX
- f8nleB0YZLijgaw7jYHATpeldB2IKGK3KA1jRmO1p9OYaJ3s8bBXD3lYI44RT_zcz.7urNNwYgOq
- Sw7gcXwyuqp3T1ZEG7DBEMDrJlv4o3.zVIMwGlib50N8wtdA9fUM2l5Y7p8CFRIefuUoy21PRTgq
- FtqhJEj6UpIZi1lalQOCOHwHBKfn8WTObBbdGvuSLLvTZeji8MZUbRYHsPSGwnHVAIJS2xaS57Gd
- JHMwQXfVcUDAC8S4J6ALAVQrHbzbVZRz0HaKl5bmEq25ZMC4r9aaCzVcsufERqLPMXjoCQf7hwVm
- qUYAy5DNBASIN31SFTP6qbfDzNwL..yh5GLJyaBzv7ccJC4yyt4cG_7lufhc9V3zUGIhLp9YAG2q
- JNAcebflXs23cu3gKNDmvrfVy99bmAWVxaBhh8RWGnaerRmMQtSMZbo_8OxA1mT6r_1YVsI9JixU
- w0EpT2gRSwyuieqNCPdQrNNmtf7mnNfWB2zY7op63d961uootplVnyk3vfSWJBrE1FTfOenSVVBM
- BjgO5gAdrv4GrP6CS6rYCI8jVCLYVlnv8Mm7GEAqJ68IRfT2MQaIDVOT2vRks7dxy3haCwXYWYqG
- xdDmquhE7He0U1STNJyEnbP.FnoPLzWNSXv43d8pai0JlF4RS8USu0IhGhdya4UBtxBLK2crRWR3
- rtW07Ppv4pg--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 0d35e154-3db0-441c-8f0a-9a6e0ee19a4a
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Fri, 21 Jul 2023 16:42:05 +0000
-Received: by hermes--production-ne1-77c6dd44c7-b2ztb (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 9db050f78d2d5093cbc6bde4da7a5542;
-          Fri, 21 Jul 2023 16:31:32 +0000 (UTC)
-Message-ID: <4c4e6d51-1ee4-46bc-b355-c15151b3214f@schaufler-ca.com>
-Date:   Fri, 21 Jul 2023 09:31:30 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [RFC PATCH] selinux: introduce and use ad_init_net*() helpers
-Content-Language: en-US
-To:     Paolo Abeni <pabeni@redhat.com>, selinux@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-security-module@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <73a810980a8452f0cb98d25698c4ae83285b7393.1689604030.git.pabeni@redhat.com>
- <679840421f2e7794bb69962b97e0cee1a4e0f0f6.camel@redhat.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <679840421f2e7794bb69962b97e0cee1a4e0f0f6.camel@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21647 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+        with ESMTP id S229653AbjGUQqF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 Jul 2023 12:46:05 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CFFE0;
+        Fri, 21 Jul 2023 09:46:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1689957964; x=1721493964;
+  h=date:from:to:cc:subject:message-id;
+  bh=0vJZvfyeuPCcbCK5nKN91Q7m1ImkShSE9dltvmo+dDY=;
+  b=FgDrKT/LNYtT6ENnccaLuI3HauOPXMTOlOqUClM0gm5XI3JBbyv1Yj+s
+   goUQYGsjGnptgyw6KK2bWltUen3whlqc+z9ybXrvlIs2VpSDWbosltx3Y
+   JuuqZgcl29FiLvriTQX59rPv36nACgGkuwFoBQxRodGdEQuxKwe0mmbDl
+   NiUiIEhR8ynI5zWP2qIKLazIaBiTOKRmOJq0pomt2PbatTQWCpVK5XV+N
+   pJrwfxor+afUChxHqzgzsxYq4gBHcz7qtcsmqK3IFFHTvluFuLkJBL4uO
+   1khZN1KnI1qOrWDZ/8WDplWePvB9vc+ll9Js3v0JUzOWXRwcAZmlTUrOx
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10778"; a="367100453"
+X-IronPort-AV: E=Sophos;i="6.01,222,1684825200"; 
+   d="scan'208";a="367100453"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Jul 2023 09:46:03 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10778"; a="795019301"
+X-IronPort-AV: E=Sophos;i="6.01,222,1684825200"; 
+   d="scan'208";a="795019301"
+Received: from lkp-server02.sh.intel.com (HELO 36946fcf73d7) ([10.239.97.151])
+  by fmsmga004.fm.intel.com with ESMTP; 21 Jul 2023 09:46:02 -0700
+Received: from kbuild by 36946fcf73d7 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qMtGQ-0007Sh-39;
+        Fri, 21 Jul 2023 16:45:59 +0000
+Date:   Sat, 22 Jul 2023 00:45:11 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Linux Memory Management List <linux-mm@kvack.org>,
+        linux-wireless@vger.kernel.org, selinux@vger.kernel.org
+Subject: [linux-next:master] BUILD REGRESSION
+ ae867bc97b713121b2a7f5fcac68378a0774739b
+Message-ID: <202307220005.C1KROs0z-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/21/2023 8:34 AM, Paolo Abeni wrote:
-> Hi all,
->
-> On Mon, 2023-07-17 at 16:27 +0200, Paolo Abeni wrote:
->> The only
->> remaining perf-related pain-point I see is the indirect call at the
->> security_ level, and tackling it looks much more difficult... :(
-> I spent a little more time on this latest topic. AFAICS recently such
-> overhead has increased due to the bpf lsm introduction. My
-> understanding is that a major LSM and BPF LSM simultaneously enabled is
-> a common usage scenario. That means 2 indirect calls + 2 untrain trails
-> and 3 additional cache-lines used per hook.
->
-> Under the assumption than having multiple major lsms enabled
-> concurrently is less common, I hacked some (not exactly spectacularly
-> beautiful) code to avoid the above. Basically, after initialization,
-> for a limited number of hooks, it checks if only the default major lsm
-> and eventually the bpf lsm are registered and if so, converts such
-> hooks to static call[s], using static branches.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+branch HEAD: ae867bc97b713121b2a7f5fcac68378a0774739b  Add linux-next specific files for 20230721
 
-K.P. Singh proposed similar changes recently, and Brendan Jackman
-had something in 2020. The performance benefit demonstrated has
-been encouraging. The approach has two serious problems. It doesn't
-lend itself very well to special cases, and the code is incredibly
-ugly.
+Error/Warning reports:
 
->
-> The idea would be to keep the above infra usage restricted to the most
-> performance-relevant hooks (e.g. one-off initialization or
-> configuration  are not relevant from that perspective). For obvious
-> reasons I started from a few of network related hooks ;)
->
-> As said the code could be more nice: there is some quite heavy macro
-> usage and some duplication I was not able to avoid). On the flip side
-> it shows quite measurable benefit when enabled, 0 impact when disabled,
-> and it's available to all major LSM, except tomoyo (but even the latter
-> could be accommodated with some effort).
->
-> If there is some shared interest for the above I can share the current
-> status and try to cleanup the code.
->
-> Any feedback more then appreciated!
->
-> Cheers,
->
-> Paolo
->
+https://lore.kernel.org/oe-kbuild-all/202306260401.qZlYQpV2-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202307201439.A9MArfeq-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202307210332.4AqFZfzI-lkp@intel.com
+
+Error/Warning: (recently discovered and may have been fixed)
+
+../lib/gcc/loongarch64-linux/12.3.0/plugin/include/config/loongarch/loongarch-opts.h:31:10: fatal error: loongarch-def.h: No such file or directory
+drivers/mfd/max77541.c:176:18: warning: cast to smaller integer type 'enum max7754x_ids' from 'const void *' [-Wvoid-pointer-to-enum-cast]
+drivers/regulator/max77857-regulator.c:312:16: error: initializer element is not a compile-time constant
+
+Unverified Error/Warning (likely false positive, please contact us if interested):
+
+drivers/regulator/max77857-regulator.c:428:28: sparse: sparse: symbol 'max77857_id' was not declared. Should it be static?
+drivers/regulator/max77857-regulator.c:446:19: sparse: sparse: symbol 'max77857_driver' was not declared. Should it be static?
+drivers/regulator/max77857-regulator.c:70:22: sparse: sparse: symbol 'max77857_regmap_config' was not declared. Should it be static?
+mm/khugepaged.c:2137 collapse_file() warn: variable dereferenced before check 'cc' (see line 1787)
+net/wireless/scan.c:373 cfg80211_gen_new_ie() warn: potential spectre issue 'sub->data' [r]
+net/wireless/scan.c:397 cfg80211_gen_new_ie() warn: possible spectre second half.  'ext_id'
+
+Error/Warning ids grouped by kconfigs:
+
+gcc_recent_errors
+|-- i386-randconfig-m021-20230721
+|   |-- net-wireless-scan.c-cfg80211_gen_new_ie()-warn:possible-spectre-second-half.-ext_id
+|   `-- net-wireless-scan.c-cfg80211_gen_new_ie()-warn:potential-spectre-issue-sub-data-r
+|-- loongarch-allmodconfig
+|   `-- lib-gcc-loongarch64-linux-..-plugin-include-config-loongarch-loongarch-opts.h:fatal-error:loongarch-def.h:No-such-file-or-directory
+|-- microblaze-randconfig-r091-20230720
+|   |-- drivers-regulator-max77857-regulator.c:sparse:sparse:symbol-max77857_driver-was-not-declared.-Should-it-be-static
+|   |-- drivers-regulator-max77857-regulator.c:sparse:sparse:symbol-max77857_id-was-not-declared.-Should-it-be-static
+|   `-- drivers-regulator-max77857-regulator.c:sparse:sparse:symbol-max77857_regmap_config-was-not-declared.-Should-it-be-static
+|-- x86_64-randconfig-m001-20230720
+|   `-- mm-khugepaged.c-collapse_file()-warn:variable-dereferenced-before-check-cc-(see-line-)
+`-- x86_64-randconfig-x063-20230720
+    `-- security-selinux-hooks.c:sparse:sparse:Using-plain-integer-as-NULL-pointer
+clang_recent_errors
+|-- hexagon-randconfig-r021-20230720
+|   `-- drivers-regulator-max77857-regulator.c:error:initializer-element-is-not-a-compile-time-constant
+|-- riscv-randconfig-r042-20230720
+|   `-- drivers-mfd-max77541.c:warning:cast-to-smaller-integer-type-enum-max7754x_ids-from-const-void
+|-- x86_64-randconfig-x001-20230720
+|   `-- drivers-mfd-max77541.c:warning:cast-to-smaller-integer-type-enum-max7754x_ids-from-const-void
+|-- x86_64-randconfig-x002-20230720
+|   `-- drivers-mfd-max77541.c:warning:cast-to-smaller-integer-type-enum-max7754x_ids-from-const-void
+`-- x86_64-randconfig-x006-20230720
+    `-- drivers-mfd-max77541.c:warning:cast-to-smaller-integer-type-enum-max7754x_ids-from-const-void
+
+elapsed time: 728m
+
+configs tested: 129
+configs skipped: 10
+
+tested configs:
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+alpha                randconfig-r033-20230720   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                        nsim_700_defconfig   gcc  
+arc                  randconfig-r032-20230720   gcc  
+arc                  randconfig-r043-20230720   gcc  
+arm                              allmodconfig   gcc  
+arm                              allyesconfig   gcc  
+arm                          collie_defconfig   clang
+arm                                 defconfig   gcc  
+arm                       netwinder_defconfig   clang
+arm                  randconfig-r046-20230720   gcc  
+arm                        vexpress_defconfig   clang
+arm                         wpcm450_defconfig   gcc  
+arm64                            allyesconfig   gcc  
+arm64                               defconfig   gcc  
+csky                                defconfig   gcc  
+csky                 randconfig-r012-20230720   gcc  
+hexagon              randconfig-r026-20230720   clang
+hexagon              randconfig-r041-20230720   clang
+hexagon              randconfig-r045-20230720   clang
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-r004-20230720   gcc  
+i386         buildonly-randconfig-r005-20230720   gcc  
+i386         buildonly-randconfig-r006-20230720   gcc  
+i386                              debian-10.3   gcc  
+i386                                defconfig   gcc  
+i386                 randconfig-i001-20230720   gcc  
+i386                 randconfig-i002-20230720   gcc  
+i386                 randconfig-i003-20230720   gcc  
+i386                 randconfig-i004-20230720   gcc  
+i386                 randconfig-i005-20230720   gcc  
+i386                 randconfig-i006-20230720   gcc  
+i386                 randconfig-i011-20230720   clang
+i386                 randconfig-i012-20230720   clang
+i386                 randconfig-i013-20230720   clang
+i386                 randconfig-i014-20230720   clang
+i386                 randconfig-i015-20230720   clang
+i386                 randconfig-i016-20230720   clang
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch            randconfig-r025-20230720   gcc  
+loongarch            randconfig-r034-20230720   gcc  
+m68k                             allmodconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                                defconfig   gcc  
+m68k                        mvme147_defconfig   gcc  
+m68k                 randconfig-r014-20230720   gcc  
+m68k                        stmark2_defconfig   gcc  
+microblaze           randconfig-r005-20230720   gcc  
+mips                             allmodconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                  cavium_octeon_defconfig   clang
+mips                            gpr_defconfig   gcc  
+mips                      maltaaprp_defconfig   clang
+mips                        maltaup_defconfig   clang
+mips                           mtx1_defconfig   clang
+mips                        omega2p_defconfig   clang
+mips                        qi_lb60_defconfig   clang
+nios2                               defconfig   gcc  
+openrisc                  or1klitex_defconfig   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc               randconfig-r002-20230720   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+powerpc                       eiger_defconfig   gcc  
+powerpc                        fsp2_defconfig   clang
+powerpc                     ksi8560_defconfig   clang
+powerpc                      obs600_defconfig   clang
+powerpc                      ppc40x_defconfig   gcc  
+powerpc                      ppc64e_defconfig   clang
+powerpc              randconfig-r021-20230720   clang
+powerpc                     stx_gp3_defconfig   gcc  
+powerpc                     tqm8555_defconfig   gcc  
+riscv                            allmodconfig   gcc  
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   gcc  
+riscv                               defconfig   gcc  
+riscv                randconfig-r042-20230720   clang
+riscv                          rv32_defconfig   gcc  
+s390                             allmodconfig   gcc  
+s390                             allyesconfig   gcc  
+s390                                defconfig   gcc  
+s390                 randconfig-r031-20230720   gcc  
+s390                 randconfig-r044-20230720   clang
+sh                               alldefconfig   gcc  
+sh                               allmodconfig   gcc  
+sh                             espt_defconfig   gcc  
+sh                   randconfig-r001-20230720   gcc  
+sh                   randconfig-r011-20230720   gcc  
+sh                          rsk7201_defconfig   gcc  
+sparc                            allyesconfig   gcc  
+sparc                               defconfig   gcc  
+sparc                       sparc64_defconfig   gcc  
+sparc64              randconfig-r036-20230720   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   clang
+um                                  defconfig   gcc  
+um                             i386_defconfig   gcc  
+um                           x86_64_defconfig   gcc  
+x86_64                           allyesconfig   gcc  
+x86_64       buildonly-randconfig-r001-20230720   gcc  
+x86_64       buildonly-randconfig-r002-20230720   gcc  
+x86_64       buildonly-randconfig-r003-20230720   gcc  
+x86_64                              defconfig   gcc  
+x86_64                                  kexec   gcc  
+x86_64               randconfig-r013-20230720   clang
+x86_64               randconfig-x001-20230720   clang
+x86_64               randconfig-x002-20230720   clang
+x86_64               randconfig-x003-20230720   clang
+x86_64               randconfig-x004-20230720   clang
+x86_64               randconfig-x005-20230720   clang
+x86_64               randconfig-x006-20230720   clang
+x86_64               randconfig-x011-20230720   gcc  
+x86_64               randconfig-x012-20230720   gcc  
+x86_64               randconfig-x013-20230720   gcc  
+x86_64               randconfig-x014-20230720   gcc  
+x86_64               randconfig-x015-20230720   gcc  
+x86_64               randconfig-x016-20230720   gcc  
+x86_64                          rhel-8.3-rust   clang
+x86_64                               rhel-8.3   gcc  
+xtensa                          iss_defconfig   gcc  
+xtensa               randconfig-r023-20230720   gcc  
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
