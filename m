@@ -2,117 +2,99 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B29FC001E0
-	for <selinux@archiver.kernel.org>; Fri, 21 Jul 2023 16:12:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B48D6EB64DD
+	for <selinux@archiver.kernel.org>; Fri, 21 Jul 2023 16:18:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232396AbjGUQMn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Jul 2023 12:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39972 "EHLO
+        id S229898AbjGUQSL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 Jul 2023 12:18:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232484AbjGUQM3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Jul 2023 12:12:29 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8917C4212
-        for <selinux@vger.kernel.org>; Fri, 21 Jul 2023 09:12:03 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-ce4e3a68cfbso1858340276.3
-        for <selinux@vger.kernel.org>; Fri, 21 Jul 2023 09:12:03 -0700 (PDT)
+        with ESMTP id S230413AbjGUQRq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 Jul 2023 12:17:46 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C0BE30FF
+        for <selinux@vger.kernel.org>; Fri, 21 Jul 2023 09:16:37 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-1b89d47ffb6so12706525ad.2
+        for <selinux@vger.kernel.org>; Fri, 21 Jul 2023 09:16:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1689955906; x=1690560706;
+        d=gmail.com; s=20221208; t=1689956197; x=1690560997;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xxyXwUMYyMvFKFhBcqHjy6FPhm+754pa75RGLMebRPg=;
-        b=Wj+FUhDvmTTeRSt9GaR6tT+3MpYlB4CoZ9KWDMJGexsGe20N+xrnxTgIMSctx8ApfR
-         EWLBqTE2J3z2aNzKu9T21hFYuf4gqvmY+BWZZLAVsvQssNtzRZsRYJHCUn7lM9Zx5VZv
-         Y9LJbGNtTTxgUpi+Ooi51JzwchZVJAriStKfAFU79+X2s879ekFC4GPubWJ8G5H9iq4c
-         OGryoD/XHUmN09lH4+tPMlk+Sa2ictQRXSDhJBq6bOdA7PlcKCwTPrsO8oo3JEfgvaCL
-         WlSSokMxu+nyn8RY+R5zjvItZEjv4nxU0j99yqgGEAr1am/w5TPQTmTwDTWQWVVYXeY/
-         dA7Q==
+        bh=kOfcF6KC97lXasyQVeAOft04SGnnQ/5b4hYknAwKrjA=;
+        b=I7MkF4r57mMZK0tMPo4rDKdSKlHUiiDZWesKn6ZA3q3nKQEI/brg0chEYE8T5YZcGy
+         7btgrhms6d5BkFaIombCIOVrPfYyLRY5HhsluGfRWtvBMRJi2Jr4LgTBQ5ve+4X5w2Zi
+         EoQp1aDZlbruvA7V4jENiuM2xSjKJtWwhIaY36z7JXW0LAB+S3YgioyfeyTrON5VhhBr
+         ljjALHcyVPM69JRgYqx07Si/EORzpMEH0063W0oemWwaMnQRFFlbqvFzycCLNpfStLKJ
+         chhWIiQNsWhy3KfCL6Z2yYPxA3So4Hz0kNQAB3fLKKFluN/VPnNv3u9BVnHdxhTBV0Xy
+         0kMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689955906; x=1690560706;
+        d=1e100.net; s=20221208; t=1689956197; x=1690560997;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xxyXwUMYyMvFKFhBcqHjy6FPhm+754pa75RGLMebRPg=;
-        b=bjDtby4TSRESttlRaapWOIapo3dmteYmvWh6d4tXGevuw5hjyb8CAuohY7ImGAtjDc
-         MVYfWFYGhehmqr9fd7nbnoRDlTrJYbvxvz7FOuMe/7Ie/Qkqf1OvSqAUbWFt6p828zWe
-         N5TiB6pKz2iOh2GoHWcPahl0Fm4bggI7G4lMufOUSrAVBRX9eJ2M/cj5Lbh5KehMoEGh
-         GfgJeaHc/Cq5+R/0cu9J9jDVXn7ZqiM47sFvshoNP2WqYYXYcmtZhmOQz93Uk5TOizKV
-         g95lljcXHpl2p70DD+r7GVK8gePXGJ3afA3aWwZXeekgIfLy09AnoMPvFy7G3QbpRfa7
-         ZFkQ==
-X-Gm-Message-State: ABy/qLbEq1eGwKKb3K9br2RfD22mVW/C4B2n6u7R6wFA2ncTtwqcCVTE
-        FW6VkIJFiyx3hv7GV2vZfWx1l2oZrejzbzxv3KDK6QCPL5seuzmZAQ==
-X-Google-Smtp-Source: APBJJlGoHBcPT9hiWIWL6i3mvF4rekhA0utDaCn/hE81JlepiVuxAGpbe69fcrxsAy+mQbEZo7YWwncQp01TNjEWgQQ=
-X-Received: by 2002:a25:9c82:0:b0:c01:308a:44f2 with SMTP id
- y2-20020a259c82000000b00c01308a44f2mr2067818ybo.57.1689955906621; Fri, 21 Jul
- 2023 09:11:46 -0700 (PDT)
+        bh=kOfcF6KC97lXasyQVeAOft04SGnnQ/5b4hYknAwKrjA=;
+        b=H88xiIWUMnnSc7210OZ2BVcopw3Rb9V5yRLFOKI8oyhHjhyDQ2r2sv3cpzuW2hI2DE
+         DijJ8matbI1m4J5taZEYeQ5swu+mWwWmX6ESLfztbmmON44qjIaTnOendMQco0o7L+yi
+         FfeaVCl30oHwWSsbE6bLwzVRB5Z1L8eoZoY+uOLeIV8LkOYGg59p5VTkZkn/sibPI9AZ
+         ewxXyGNsoVNFzQaG6xyOrZVXs7cNKLB8hho/eJxW+kRu8Wb+oF4pekrmMYKLR5P2X+wZ
+         0oqfsHrh1rUHZzxcDAe3bWqPw3daEKst4t34sa2BS/qp0jQrwIDpS76mu7jSHA+miNNQ
+         P50w==
+X-Gm-Message-State: ABy/qLZEPyi2CitS6fu8g7uDz+BTyudl14GBxbS5Gs49NQyJv/kuZZbg
+        maSFCucSIe/n1C9uhi5fPp9Itvf8J3ZalfSRZyY=
+X-Google-Smtp-Source: APBJJlELCBo3IY9Z9ETMuwz2fmtDHKhh/K6QHRRucSaHGuPMo9d2j8BpYJQy1TdSxQEjHBe95PAmXmeetIwk/6URBDQ=
+X-Received: by 2002:a17:90a:9311:b0:262:ece1:5fd0 with SMTP id
+ p17-20020a17090a931100b00262ece15fd0mr1730505pjo.12.1689956197204; Fri, 21
+ Jul 2023 09:16:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <73a810980a8452f0cb98d25698c4ae83285b7393.1689604030.git.pabeni@redhat.com>
- <679840421f2e7794bb69962b97e0cee1a4e0f0f6.camel@redhat.com>
-In-Reply-To: <679840421f2e7794bb69962b97e0cee1a4e0f0f6.camel@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 Jul 2023 12:11:35 -0400
-Message-ID: <CAHC9VhTRkWL_R0xdnrYChwmbp3FvXKMjQYpdBn9OvCH23mW=bA@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: introduce and use ad_init_net*() helpers
-To:     Paolo Abeni <pabeni@redhat.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-security-module@vger.kernel.org
+References: <20230121180318.11853-1-carenas@gmail.com> <20230123014047.84911-1-carenas@gmail.com>
+In-Reply-To: <20230123014047.84911-1-carenas@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 21 Jul 2023 12:16:25 -0400
+Message-ID: <CAEjxPJ4qzgLWJ8neZBd9TLP-rzE0JrXYCKx0+NCQiFbErWcmpA@mail.gmail.com>
+Subject: Re: [PATCH 0/3] improve performance of pcre matches
+To:     =?UTF-8?Q?Carlo_Marcelo_Arenas_Bel=C3=B3n?= <carenas@gmail.com>
+Cc:     selinux@vger.kernel.org, "inseob@google.com" <inseob@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 21, 2023 at 11:35=E2=80=AFAM Paolo Abeni <pabeni@redhat.com> wr=
-ote:
+On Sun, Jan 22, 2023 at 8:46=E2=80=AFPM Carlo Marcelo Arenas Bel=C3=B3n
+<carenas@gmail.com> wrote:
 >
-> Hi all,
+> The following series optimizes the way PCRE2 matches are done by using
+> more efficiently the match_data resources and shows over 30% reduction
+> in cpu utilization while only using 1/5 of the memory as shown in the
+> bug report[1] that started it all.
 >
-> On Mon, 2023-07-17 at 16:27 +0200, Paolo Abeni wrote:
-> > The only
-> > remaining perf-related pain-point I see is the indirect call at the
-> > security_ level, and tackling it looks much more difficult... :(
+> The first patch is just an administrative change that I found useful
+> while building and testing the code with a development version of PCRE2.
 >
-> I spent a little more time on this latest topic. AFAICS recently such
-> overhead has increased due to the bpf lsm introduction. My
-> understanding is that a major LSM and BPF LSM simultaneously enabled is
-> a common usage scenario. That means 2 indirect calls + 2 untrain trails
-> and 3 additional cache-lines used per hook.
+> The second patch reverts the workaround merged in 30b3e9d2 (libselinux:
+> Workaround for heap overhead of pcre, 2023-01-12) while addressing the
+> increased memory utilization that it was trying to prevent by changing
+> the way the match_data required for each match was being handled.
 >
-> Under the assumption than having multiple major lsms enabled
-> concurrently is less common, I hacked some (not exactly spectacularly
-> beautiful) code to avoid the above. Basically, after initialization,
-> for a limited number of hooks, it checks if only the default major lsm
-> and eventually the bpf lsm are registered and if so, converts such
-> hooks to static call[s], using static branches.
+> The last patch changes the single threaded codepath to allow for a simila=
+r
+> performance improvement done to the multithreaded codepath by intentional=
+ly
+> leaking one match_data that could be reused for all matches.
 >
-> The idea would be to keep the above infra usage restricted to the most
-> performance-relevant hooks (e.g. one-off initialization or
-> configuration  are not relevant from that perspective). For obvious
-> reasons I started from a few of network related hooks ;)
+> Carlo Marcelo Arenas Bel=C3=B3n (3):
+>   scripts: respect an initial LD_LIBRARY_PATH with env_use_destdir
+>   libselinux: improve performance with pcre matches
+>   libselinux: use a static match_data if single threaded
 >
-> As said the code could be more nice: there is some quite heavy macro
-> usage and some duplication I was not able to avoid). On the flip side
-> it shows quite measurable benefit when enabled, 0 impact when disabled,
-> and it's available to all major LSM, except tomoyo (but even the latter
-> could be accommodated with some effort).
+>  libselinux/src/regex.c            | 111 +++++++++++++++++-------------
+>  libselinux/src/selinux_internal.h |   4 ++
+>  scripts/env_use_destdir           |   8 ++-
+>  3 files changed, 73 insertions(+), 50 deletions(-)
 >
-> If there is some shared interest for the above I can share the current
-> status and try to cleanup the code.
->
-> Any feedback more then appreciated!
+> [1] https://github.com/PCRE2Project/pcre2/issues/194
 
-KP, the BPF LSM maintainer, has posted patches to move the LSM hooks
-over to static calls, but to the best of my current understanding the
-patchset intermingles a bug fix with the performance improvements,
-which I want to avoid.
-
-There have been updated patchsets posted, but the original link
-(below) contains my comments:
-https://lore.kernel.org/linux-security-module/20230119231033.1307221-1-kpsi=
-ngh@kernel.org/
-
---=20
-paul-moore.com
+Sorry for the delay in responding. Looking at AOSP, I only see the 2nd
+patch in this series applied, not the third one. Checking to see
+whether the 3rd patch is still desired/needed.
