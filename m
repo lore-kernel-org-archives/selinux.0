@@ -2,95 +2,120 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7361FC00528
-	for <selinux@archiver.kernel.org>; Mon, 24 Jul 2023 16:29:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BD95C001E0
+	for <selinux@archiver.kernel.org>; Tue, 25 Jul 2023 11:10:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231555AbjGXQ3h (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Jul 2023 12:29:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55250 "EHLO
+        id S234074AbjGYLKW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jul 2023 07:10:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231496AbjGXQ3Z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jul 2023 12:29:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD0C122
-        for <selinux@vger.kernel.org>; Mon, 24 Jul 2023 09:28:41 -0700 (PDT)
+        with ESMTP id S234047AbjGYLKC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jul 2023 07:10:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5121730F1
+        for <selinux@vger.kernel.org>; Tue, 25 Jul 2023 04:08:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690216120;
+        s=mimecast20190719; t=1690283287;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=VPc6LfzoRjjMU729bz7XR4bzpQ4gehtU1LQqpTZbFIM=;
-        b=D3ZvozONozRktpav431xSgK2J+6EnN0+NY3JhoGAyUm4NFUfwEfbLhDeq/Y1sZASY3eDXt
-        br04+R42W2d7sclDXR2RpPMJDU6JZphIzHGDdg7Q4JNSa+drxUkvz1keSp8TM/grQ3+oH3
-        sZkFQrzYgUvIENAOVmnjKwmuQtjoDiU=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=EIk2rY8kbIKJb0IQXAUy6YHfdWW3cnFIe2mfNcTspbo=;
+        b=NbF7r7mSlXlc50/2TTM8w5uRirzzTXxg1YKM52DoiDOL5jQzk2D/F6/vtlBTyF8d2lC7Gp
+        45RSsWkbra2rCe3r3JpXLXoICjBEHhwkwaaMhwgsJI/1lzihOKkC/UAlr50JfHxKTNijp2
+        6+gkuQOklV6Zahw9qAvqVtn1vqrrCso=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-558-aUfIyVIWO9yABZhFL3nw9w-1; Mon, 24 Jul 2023 12:28:39 -0400
-X-MC-Unique: aUfIyVIWO9yABZhFL3nw9w-1
-Received: by mail-qt1-f198.google.com with SMTP id d75a77b69052e-40559875dd1so4869961cf.1
-        for <selinux@vger.kernel.org>; Mon, 24 Jul 2023 09:28:39 -0700 (PDT)
+ us-mta-121-W7wAIMHFNgyAWJHlO1PCHQ-1; Tue, 25 Jul 2023 07:08:05 -0400
+X-MC-Unique: W7wAIMHFNgyAWJHlO1PCHQ-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-26814a0122dso1485172a91.1
+        for <selinux@vger.kernel.org>; Tue, 25 Jul 2023 04:08:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690216118; x=1690820918;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=VPc6LfzoRjjMU729bz7XR4bzpQ4gehtU1LQqpTZbFIM=;
-        b=I6VXjc7IQb0uQdkC7loFhyTuE7x0fVhkbtObrv3B4qZeqeh5xL67bZPFPVEe0yldNq
-         Ao3RFCuDqEMFQVBxHMg7fo58G18Fe8mdcui8WniFegqrIO6J76zPGsfoRfif4l5yY7Rb
-         HjhcwltMqip2dC9HbVqAwPOftd+UOO2omtmarHV60fPHvOQDDHyAWzVN8OCAEplw0PLj
-         4WEl/3CO+Yu1IeWicdJB4zGGfLfz3aY1ydexIJm3IoZI2f3UeSgT6ehFNVc0whf2qFqK
-         WkZDEL/PozT9ovY3IBGzvMExaKqLCJ8WMikakcRXAdrulkhRIHZiWM/FaGVksf/MNM0C
-         3/Gg==
-X-Gm-Message-State: ABy/qLaKaTm572Vyj9FR3OlWZnfWttSUCdBgJvEC6mqdt/NE3pI8o2GX
-        yVZeCtxsLdAauTW4f/xSq8qlz40bUEJDZ+CDtNFuyUcpyvqq+UJebQByP6Ov4pvGmpiYSgMbfOK
-        GX82/IgexLVE5zQXdYA==
-X-Received: by 2002:a05:622a:1b9f:b0:400:a9a4:8517 with SMTP id bp31-20020a05622a1b9f00b00400a9a48517mr12402955qtb.4.1690216118770;
-        Mon, 24 Jul 2023 09:28:38 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlEYe2r1e44ymBAW9LBiJ+Iz0wbFf4q2jQ3Fp4Qsce6fbppjpC0MEicv/dPVwjkV1zWzRFj2Rg==
-X-Received: by 2002:a05:622a:1b9f:b0:400:a9a4:8517 with SMTP id bp31-20020a05622a1b9f00b00400a9a48517mr12402937qtb.4.1690216118483;
-        Mon, 24 Jul 2023 09:28:38 -0700 (PDT)
-Received: from gerbillo.redhat.com (146-241-226-170.dyn.eolo.it. [146.241.226.170])
-        by smtp.gmail.com with ESMTPSA id e6-20020ac84b46000000b004052f71f79bsm3409071qts.74.2023.07.24.09.28.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jul 2023 09:28:38 -0700 (PDT)
-Message-ID: <7b11a20a9ea302d1e719ce7e65b668ce2a3c8c63.camel@redhat.com>
-Subject: Re: [RFC PATCH] selinux: introduce and use ad_init_net*() helpers
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-security-module@vger.kernel.org
-Date:   Mon, 24 Jul 2023 18:28:35 +0200
-In-Reply-To: <CAHC9VhTRkWL_R0xdnrYChwmbp3FvXKMjQYpdBn9OvCH23mW=bA@mail.gmail.com>
-References: <73a810980a8452f0cb98d25698c4ae83285b7393.1689604030.git.pabeni@redhat.com>
-         <679840421f2e7794bb69962b97e0cee1a4e0f0f6.camel@redhat.com>
-         <CAHC9VhTRkWL_R0xdnrYChwmbp3FvXKMjQYpdBn9OvCH23mW=bA@mail.gmail.com>
+        d=1e100.net; s=20221208; t=1690283285; x=1690888085;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EIk2rY8kbIKJb0IQXAUy6YHfdWW3cnFIe2mfNcTspbo=;
+        b=gu3wvkUZ1/vaGw+Auhs4G6uwb30xjRppElnJ9kB//ftaDKtJR2PviD3H2ttU4nZtBq
+         BJoJLQSQhPO1g6XpS7tIqe2WJJ9tkPYwpnUr02iz8P6G0kFMl7QjlACnb3BRytzhn0D3
+         OAuYNIZntqdWEgWGCRWTx97UKPl5Z0qbFlgo1BLGDTAGas57M3yQ9CKy4wnKFNghdp5a
+         FmQcPCeHnxUnTL+rImNcZ5wHN1ZMh3HOLnzhwJZoLRm5M19/XQi2Lu5fmaR2HP91GEqc
+         RmuxeSPltdAoHomiZg8C3ZhYFG+ydkGk9ItNbh4AM2MsJmEEyvbOpMVwJcigs0tcCUff
+         x1gg==
+X-Gm-Message-State: ABy/qLYCVuhvx2z1FDKypSIIueem9ZKU6qDB+Ye3OuCL1gX2UE8Kw3YX
+        zwgrTJdsezbcm0B5yKcOYKMS2ywTOKOtTFkx9UGNovptY/aFg1FUWjMUqPhbG994RPgAvWxtibH
+        ZDzZWjIISJl8oAasGU2PjkaKuVzL/EhzqpA==
+X-Received: by 2002:a17:90b:30cb:b0:268:abf:6431 with SMTP id hi11-20020a17090b30cb00b002680abf6431mr2408050pjb.24.1690283284969;
+        Tue, 25 Jul 2023 04:08:04 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlEUO5iRoKmcTndiV1yc+RB63ntBijY7f5j5g118bUiJEFickPVx8jsUlZUrzSyxeXZ1uOPR28AIDchVPKuta5A=
+X-Received: by 2002:a17:90b:30cb:b0:268:abf:6431 with SMTP id
+ hi11-20020a17090b30cb00b002680abf6431mr2408031pjb.24.1690283284663; Tue, 25
+ Jul 2023 04:08:04 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230718115607.65652-1-omosnace@redhat.com> <x49lefd4aad.fsf@segfault.boston.devel.redhat.com>
+In-Reply-To: <x49lefd4aad.fsf@segfault.boston.devel.redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 25 Jul 2023 13:07:53 +0200
+Message-ID: <CAFqZXNt5UXWagXu5QR5k5wOAeQJVKWrET4prEzb+5aftFEtyZw@mail.gmail.com>
+Subject: Re: [PATCH] io_uring: don't audit the capability check in io_uring_create()
+To:     Jeff Moyer <jmoyer@redhat.com>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        io-uring@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
-MIME-Version: 1.0
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+On Tue, Jul 18, 2023 at 3:24=E2=80=AFPM Jeff Moyer <jmoyer@redhat.com> wrot=
+e:
+>
+> Hi, Ondrej,
+>
+> Ondrej Mosnacek <omosnace@redhat.com> writes:
+>
+> > The check being unconditional may lead to unwanted denials reported by
+> > LSMs when a process has the capability granted by DAC, but denied by an
+> > LSM. In the case of SELinux such denials are a problem, since they can'=
+t
+> > be effectively filtered out via the policy and when not silenced, they
+> > produce noise that may hide a true problem or an attack.
+> >
+> > Since not having the capability merely means that the created io_uring
+> > context will be accounted against the current user's RLIMIT_MEMLOCK
+> > limit, we can disable auditing of denials for this check by using
+> > ns_capable_noaudit() instead of capable().
+>
+> Could you add a comment, or add some documentation to
+> ns_capable_noaudit() about when it should be used?  It wasn't apparent
+> to me, at least, before this explanation.
 
-On Fri, 2023-07-21 at 12:11 -0400, Paul Moore wrote:
-> There have been updated patchsets posted, but the original link
-> (below) contains my comments:
-> https://lore.kernel.org/linux-security-module/20230119231033.1307221-1-kp=
-singh@kernel.org/
+This has been requested before, so I finally forced myself to look
+into it and only now I realized that there is a subtle difference
+between the has_capability and capable helpers. As the docstrings say,
+the former doesn't set the PF_SUPERPRIV on the task when the check
+succeeds, while the latter does. The problem is that I don't know what
+the exact implications are and thus I'm not able to document which
+helper should be used in what situation... It is possible some of the
+existing call sites use the wrong helper in the noaudit case (possibly
+including ones that I added/suggested).
 
-Thanks for the reference. Interestingly there are both similarities and
-differences between my approach and the above. I'll try to study the
-above a little bit more and then possibly I'll share what I have, just
-for reference.
+The comment at its declaration says "Used super-user privileges" and
+it seems to be used only to propagate into the ASU flag in task
+accounting information. But in the case of capability checks that do
+not fail the syscall it is not easy to tell if "super-user privileges"
+were "used" or not (or, rather, whether the task should be accounted
+as such or not after a successful check).
 
-Cheers,
+If anyone is reading this and has a better understanding of the
+PF_SUPERPRIV flag semantics, I'd be thankful for a clarification so
+that we can sort out this mess :)
 
-Paolo
+--
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
