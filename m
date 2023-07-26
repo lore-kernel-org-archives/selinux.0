@@ -2,75 +2,142 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A98FC001B0
-	for <selinux@archiver.kernel.org>; Wed, 26 Jul 2023 15:33:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4D72C001B0
+	for <selinux@archiver.kernel.org>; Wed, 26 Jul 2023 15:55:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232540AbjGZPdb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Jul 2023 11:33:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42390 "EHLO
+        id S231165AbjGZPzm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jul 2023 11:55:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232070AbjGZPdb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jul 2023 11:33:31 -0400
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8647CB5
-        for <selinux@vger.kernel.org>; Wed, 26 Jul 2023 08:33:30 -0700 (PDT)
-Received: by mail-yb1-xb2b.google.com with SMTP id 3f1490d57ef6-cc4f4351ac7so7478955276.2
-        for <selinux@vger.kernel.org>; Wed, 26 Jul 2023 08:33:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1690385610; x=1690990410;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yjfRFTtLTwuOwQaDRF2WUF+prHDZXG6s1rD4JDcmzSA=;
-        b=F286KToGmPdQiNyf43PhC0Ax8rgy1Y8lNu+8JkYP+h1G0cAyDJSh8pM57DJD/214Ze
-         VkdQsKQuGzAN4EOqmGqOGTtlAHhcUv/WRDYWuxtc/rGavcE4OwIXMMj1YfI2mjUs2XGc
-         ismXMQ8B6NR9dhEtz/HlLDnoG5akK8bWnbNEg3c9mMqFLzMK4mhO1GA45Ql9wW98bmHG
-         28MIx5Ib6TEl2HaMedLF6mduHCfCQTmzlIa2tIRRAh3XikRZAVrMU0poLhJ/dYSSN3BI
-         h0D1LfyTBNtzQgh/leVGLjSJD23OSIOuQdlvyQNCnJGtnI0gYsk/NgfuUzKy7ayUz8Ju
-         EbpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690385610; x=1690990410;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yjfRFTtLTwuOwQaDRF2WUF+prHDZXG6s1rD4JDcmzSA=;
-        b=e7ByKasQcwjIfdB29VmbaIjwMiOLc69EBCWQQPmST/MHaJ2yZmYqhoGOsg6w/pzYrw
-         adqFvnsYSCInTS3jSZLPywomBkDtoFb2FBq3j+XKgXbJiuFraGK1GNSf/36s4/j9HTxz
-         qAkk9gP4HeJtdH9kPKc5ZnNGD/nMAZ8QYhUBCjzDeQzfQr4N/uIgkxo5KZujUE6iVbYE
-         kF7Ko/QVtiW/J5hQgwmphdKQEOyDH0f2rRgGCtxW6G++pRnRSA/9bSO5GckkglW4CsUk
-         gqywyuvAyF5ehtLe1Sd1J6/0U4ZBaeqPvM6phW/9pTzfuT8SPWtD52pNRJvkSlkqwp+8
-         Gndg==
-X-Gm-Message-State: ABy/qLaHw9EZReYi2KNyJaZNf1Yd/8JUm8LTOMNfCqW+GFJJ+6rcvFvN
-        1EigB0UtSC818tzL4JfxGAcyjmZBL6Yl2NDWc0Kmvu9O3G1pT7s=
-X-Google-Smtp-Source: APBJJlHbAcZg6uUYCcbO9RtLUiwcnVpnk6KRRgg6At38n/oiVDhc6pmtVTmond4F4IDlpV6bnzlfdvPjibgRz3HHbh4=
-X-Received: by 2002:a81:7242:0:b0:583:4f9b:27d7 with SMTP id
- n63-20020a817242000000b005834f9b27d7mr2057893ywc.52.1690385609752; Wed, 26
- Jul 2023 08:33:29 -0700 (PDT)
+        with ESMTP id S232537AbjGZPzl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jul 2023 11:55:41 -0400
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F02A82109
+        for <selinux@vger.kernel.org>; Wed, 26 Jul 2023 08:55:39 -0700 (PDT)
+Received: from [192.168.1.10] (pool-96-241-71-43.washdc.fios.verizon.net [96.241.71.43])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 3A6552380B28;
+        Wed, 26 Jul 2023 08:55:39 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3A6552380B28
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1690386939;
+        bh=MSLH9r5OVmh7NATFcCdzFGpnLjuhFplECYzplAKu2CY=;
+        h=Date:Subject:To:References:From:In-Reply-To:From;
+        b=fObU/GTv0Ppk68z0/hQHEt6A2li+wMcHb/tkEase8f2QwWbSKf4K6WGM0PFvx0meT
+         Qxii7wbxg6lNVRo7l4EodYJ0n0SyZppP5UOp/jsQUbea9SbirzFrgsRmoGoRtRtq6V
+         3BQwY+Ov8MzyNaPVj3xE48c8cOzheIqFFQlSXEy8=
+Message-ID: <6c74b08b-4319-b21a-6570-330f570c3660@linux.microsoft.com>
+Date:   Wed, 26 Jul 2023 11:55:35 -0400
 MIME-Version: 1.0
-References: <20230726142549.94685-1-jwcart2@gmail.com>
-In-Reply-To: <20230726142549.94685-1-jwcart2@gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 26 Jul 2023 11:33:18 -0400
-Message-ID: <CAHC9VhR2MdM1nvb=8+HWuwuwA99-zbj=pEsMZ94ewhaW-b1aPQ@mail.gmail.com>
-Subject: Re: [PATCH 0/8] Revert the prefix/suffix filename transition patches
-To:     James Carter <jwcart2@gmail.com>
-Cc:     selinux@vger.kernel.org, juraj@jurajmarcin.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.2
+Subject: Re: [PATCH 9/9 v3] secilc/docs: Add deny rule to CIL documentation
+Content-Language: en-US
+To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+References: <20230413193445.588395-1-jwcart2@gmail.com>
+ <20230413193445.588395-10-jwcart2@gmail.com>
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <20230413193445.588395-10-jwcart2@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 26, 2023 at 10:25=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
->
-> Since the kernel patches have not been accepted yet, it seems better to
-> revert these patches while they can still be cleanly reverted just in
-> case the kernel patches are not accepted.
->
-> If the kernel patches get accepted, then I will re-apply these patches.
+On 4/13/2023 3:34 PM, James Carter wrote:
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+> v3: Remove the "*Where" section, since the notself patch series moves all of
+>      that to beginning of the access vector section before talking about specific
+>      rules.
 
-Thanks James, I think this is the smart move.
+It doesn't look to me like the patch matches this description.  I still 
+see a "where" section added.
 
---=20
-paul-moore.com
+(Presumably the updated patch should also add deny to the "av_flavor" 
+portion of the new common "Where" section)
+
+-Daniel
+
+> 
+>   secilc/docs/cil_access_vector_rules.md | 67 ++++++++++++++++++++++++++
+>   1 file changed, 67 insertions(+)
+> 
+> diff --git a/secilc/docs/cil_access_vector_rules.md b/secilc/docs/cil_access_vector_rules.md
+> index 034185da..385c4f4a 100644
+> --- a/secilc/docs/cil_access_vector_rules.md
+> +++ b/secilc/docs/cil_access_vector_rules.md
+> @@ -175,6 +175,73 @@ This example will not compile as `type_3` is not allowed to be a source type for
+>           (allow type_3 self (property_service (set)))
+>       )
+>   ```
+> +deny
+> +----------
+> +
+> +Remove the access rights defined from any matching allow rules. These rules are processed before [`neverallow`](cil_access_vector_rules.md#neverallow) checking.
+> +
+> +**Rule definition:**
+> +
+> +```secil
+> +    (deny source_id target_id|self classpermissionset_id ...)
+> +```
+> +
+> +**Where:**
+> +
+> +<table>
+> +<colgroup>
+> +<col width="27%" />
+> +<col width="72%" />
+> +</colgroup>
+> +<tbody>
+> +<tr class="odd">
+> +<td align="left"><p><code>deny</code></p></td>
+> +<td align="left"><p>The <code>deny</code> keyword.</p></td>
+> +</tr>
+> +<tr class="even">
+> +<td align="left"><p><code>source_id</code></p></td>
+> +<td align="left"><p>A single previously defined source <code>type</code>, <code>typealias</code> or <code>typeattribute</code> identifier.</p></td>
+> +</tr>
+> +<tr class="odd">
+> +<td align="left"><p><code>target_id</code></p></td>
+> +<td align="left"><p>A single previously defined target <code>type</code>, <code>typealias</code> or <code>typeattribute</code> identifier.</p>
+> +<p>The <code>self</code> keyword may be used instead to signify that source and target are the same.</p></td>
+> +</tr>
+> +<tr class="even">
+> +<td align="left"><p><code>classpermissionset_id</code></p></td>
+> +<td align="left"><p>A single named or anonymous <code>classpermissionset</code> or a single set of <code>classmap</code>/<code>classmapping</code> identifiers.</p></td>
+> +</tr>
+> +</tbody>
+> +</table>
+> +
+> +**Example:**
+> +
+> +```secil
+> +    (class class1 (perm1 perm2))
+> +
+> +    (type type1)
+> +    (type type2)
+> +    (allow type1 type2 (class1 (perm1))) ; Allow-1
+> +    (deny type1 type2 (class1 (perm1)))  ; Deny-1
+> +    ; Allow-1 will be complete removed by Deny-1.
+> +
+> +    (type type3)
+> +    (type type4)
+> +    (allow type3 type4 (class1 (perm1 perm2))) ; Allow-2
+> +    (deny type3 type4 (class1 (perm1)))        ; Deny-2
+> +    ; Allow-2 will be removed and replaced with the following when Deny-2 is evaluated
+> +    ; (allow type3 type4 (class1 (perm2)))
+> +
+> +    (type type5)
+> +    (type type6)
+> +    (typeattribute attr1)
+> +    (typeattributeset attr1 (type5 type6))
+> +    (allow attr1 attr1 (class1 (perm1))) ; Allow-3
+> +    (deny type5 type6 (class1 (perm1)))  ; Deny-3
+> +    ; Allow-3 will be removed and replaced with the following when Deny-3 is evaluated
+> +    ; (allow type6 attr1 (class1 (perm1)))
+> +    ; (allow type5 type5 (class1 (perm1)))
+> +```
+>   
+>   allowx
+>   ------
+
