@@ -2,176 +2,91 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC13BC001DE
-	for <selinux@archiver.kernel.org>; Tue, 25 Jul 2023 12:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A69CC001DE
+	for <selinux@archiver.kernel.org>; Wed, 26 Jul 2023 05:39:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbjGYMMX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jul 2023 08:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
+        id S230125AbjGZFjN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jul 2023 01:39:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229657AbjGYMMW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jul 2023 08:12:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6488EA3
-        for <selinux@vger.kernel.org>; Tue, 25 Jul 2023 05:11:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690287093;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=pz9abTA0tzxFGmgbJTLGbW5VpiLcREZN7k8Y2lC/nCo=;
-        b=FpP2ZotdDucvGzgS9QJHcveFuRoL2sYRhSB3Wg/JA8dzjQHzGcmMd/l+Dih1iALfDjJZ4D
-        7s++Qwsr+MvdAVZQGRuGpMMYWZF7CUZqA+i2x4WYnCzCUiXh+6pNMriUMGshinNOCsBZz1
-        etA6GTx2kTwqAGxsg6sO0C5/NLRaOTA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-482-ORTzzH7dODC6zsILZ93bVw-1; Tue, 25 Jul 2023 08:11:32 -0400
-X-MC-Unique: ORTzzH7dODC6zsILZ93bVw-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-3fbdf341934so32267855e9.3
-        for <selinux@vger.kernel.org>; Tue, 25 Jul 2023 05:11:31 -0700 (PDT)
+        with ESMTP id S229949AbjGZFjM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jul 2023 01:39:12 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1388310CB
+        for <selinux@vger.kernel.org>; Tue, 25 Jul 2023 22:39:11 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id 98e67ed59e1d1-26813478800so1764237a91.1
+        for <selinux@vger.kernel.org>; Tue, 25 Jul 2023 22:39:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bzdzb-com.20221208.gappssmtp.com; s=20221208; t=1690349950; x=1690954750;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1TYQ0BVBvZTOCvI/FzH6ve1D8Z37B89W1NJbrejSx60=;
+        b=WwFS7w1FpAFhf0/eSfck6NtCT/5tcCC6XwMIePqVSnPsZ6JrBDBAcWkJPzAm/aHiBH
+         XvWfB2Ee5BKtf7w4h2r+N8RjlITSDmb0leIgqjlj2I4vL7ZWKfTPm24P+71l+Le9mbCC
+         JxwVnWD9xvjYyg0e0D+9OyHbWNGx0RL/R27xrhnQXtsyLjd2fdcoYkMTPWV0NBaaOnMm
+         Ne+n77vk9MfLGpTjSJy7vGuoj5ta0kFP09ppXWeanNhMdvGDIYItgemBKWs1bewsBXdG
+         mEIbNP3Kahda5nvGo24NXkvuSQ/ZKH+znE/EZiuE2GRq0qXK8BOFFSGcfU7LDOW+IuEE
+         cTjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690287090; x=1690891890;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pz9abTA0tzxFGmgbJTLGbW5VpiLcREZN7k8Y2lC/nCo=;
-        b=BlimGyZCLAJ6CEBOIGfrm3aGn/n3JOGkak7xsSL92oOtiD3BAl92ZiOFduRXDxT9tv
-         p2nJcFmrQP+AQce3doz3z3JWDW9qWEZD4tJCyaV/oNZ4pVKjAcvK23UtiI8u/Rjf9J40
-         U0aMs8Kf1AM3p9HTq68ReaFOsC6SIQoTPkkW9T4IXm3Q4vTNCNzZdahYFnmpFMh3mI3I
-         eQsjiu66exQEwuTJEdlNfT41iwgN3W5lcdmNx7Ig5Rct7kKDfN1Z+MptJXsrrx8E0e9X
-         zuW6mXWhWmThD4P4sMb7MMx3am++6pQcf7gUtb6Ymx74LedHIj2Yn1q0444wf2fgjQMh
-         PV9A==
-X-Gm-Message-State: ABy/qLaiEtBCeJRVe8uB8ye/8b9g0YBozfW0SnTA80gaagpHIdEiFyTd
-        UuHjY1X7PLLrShupx5Mefh2F9pU9eN9OgC7pukTBiCQSTRaTQejFaUONYjkdUiuM+WPqryKsGgR
-        K09WQAdVOcaJzdMk4040lmPAfAlrI+hbo/jO3JlsjkwJWIpPcUYjQNARC3ffKIhVas54pV6QPBL
-        e+MNiD
-X-Received: by 2002:a05:600c:204:b0:3f9:b748:ff37 with SMTP id 4-20020a05600c020400b003f9b748ff37mr10800358wmi.20.1690287090582;
-        Tue, 25 Jul 2023 05:11:30 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlFoeTbbk4v5k6nGQE43txxdzyu5JrsAppd6eQUkQpuaR0PVMXQL5uFgnKsO2y/oWG998CYorg==
-X-Received: by 2002:a05:600c:204:b0:3f9:b748:ff37 with SMTP id 4-20020a05600c020400b003f9b748ff37mr10800341wmi.20.1690287090095;
-        Tue, 25 Jul 2023 05:11:30 -0700 (PDT)
-Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id n19-20020a7bc5d3000000b003fc02e8ea68sm16036138wmk.13.2023.07.25.05.11.29
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jul 2023 05:11:29 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] ci: test also on CentOS Stream 9
-Date:   Tue, 25 Jul 2023 14:11:28 +0200
-Message-ID: <20230725121128.1243722-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.41.0
+        d=1e100.net; s=20221208; t=1690349950; x=1690954750;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1TYQ0BVBvZTOCvI/FzH6ve1D8Z37B89W1NJbrejSx60=;
+        b=MEefA7ibKwzywcoEE+z94t8Kveea7kiJaTsP2C+rjHhX068blIS8kc+G62M8+ePgBM
+         bf9Shh4/LAKA0Te7pLdI2V2t2cwVPkJUavXe1vPTowbV8lcBiIWh0KSM5miNM45EdfGU
+         Hu4eqSf/QblZ67RFzwByMub+sEFGGcTJqHn1BQR9O5NB9TWx0m4vn76bDz3H9cwSWyxj
+         1zziaUXfujVRiijwVEL30mK8GxrCZg/jRFlwsuHu13/pO9B7ySwXQyFRiO+n5dIf7zIY
+         SiwRfb1vXuZx9og2PK7wRCJMX3aWkHDCXmANBGb6mdnxeERNuu3HOJ1zA01gxeac/U/p
+         vYpg==
+X-Gm-Message-State: ABy/qLa/XPOTgRtSJNck8nOHxphstUe8Df+p5TKU3VhRKXh22apavfIp
+        wI6Rq5jii00iabNq1rtGw1N+Ds1+3LP8WQCl/cHPSQ==
+X-Google-Smtp-Source: APBJJlHF5n3m7uBmTER4PHrmkvcfzIu5BQ+Ptc+B6Keo2SZzCmv4IJAkRd9VL3CtMdt3XA+tMfarcG/IqBUPDFtclLU=
+X-Received: by 2002:a17:90a:9112:b0:263:a37:fcc3 with SMTP id
+ k18-20020a17090a911200b002630a37fcc3mr880842pjo.5.1690349950444; Tue, 25 Jul
+ 2023 22:39:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAPQCZivM+qGve5eUekri3_iEzAPE5o3ymqOunYMjQJ=4mRwPUg@mail.gmail.com>
+ <877cqv6m7g.fsf@defensec.nl>
+In-Reply-To: <877cqv6m7g.fsf@defensec.nl>
+From:   Brett Anderson <brett@bzdzb.com>
+Date:   Wed, 26 Jul 2023 01:38:54 -0400
+Message-ID: <CAPQCZitsWEmZopbg0fEVx73XGW=ujQXozZk1-imK-vGDjQRBzA@mail.gmail.com>
+Subject: Re: SELinux Mascot/Logo
+To:     Dominick Grift <dominick.grift@defensec.nl>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Now that there is an up-to-date CS9 box available in Vagrant [1], we can
-test on it in the CI to ensure that the testsuite is compatible with
-this distribution.
+I submitted a PR with SVGs and PNGs with the existing dimensions and
+file naming scheme.
 
-Note that there may be a few test cases skipped that could in fact be
-run on the latest CS9 thanks to backports, but that can be addressed
-later.
-
-[1] https://issues.redhat.com/browse/CS-1186
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- .github/workflows/checks.yml | 13 +++++++------
- Vagrantfile                  | 23 +++++++++++++++--------
- 2 files changed, 22 insertions(+), 14 deletions(-)
-
-diff --git a/.github/workflows/checks.yml b/.github/workflows/checks.yml
-index 9d9ebd9..e43b793 100644
---- a/.github/workflows/checks.yml
-+++ b/.github/workflows/checks.yml
-@@ -10,18 +10,19 @@ jobs:
-       - uses: actions/checkout@v2
-       - run: sudo chown $(id -u):$(id -g) .
-       - run: tools/check-syntax -f && git diff --exit-code
--  fedora-test:
-+  vm-test:
-     runs-on: macos-12
-     strategy:
-       fail-fast: false
-       matrix:
-         domain: [unconfined_t, sysadm_t]
-         env:
--          - { version: 37, kernel: default }
--          - { version: 38, kernel: default }
--          - { version: 38, kernel: secnext }
-+          - { image: fedora/37-cloud-base, kernel: default }
-+          - { image: fedora/38-cloud-base, kernel: default }
-+          - { image: fedora/38-cloud-base, kernel: secnext }
-+          - { image: centos/stream9, kernel: latest }
-     env:
--      FEDORA_VERSION: ${{ matrix.env.version }}
-+      IMAGE_NAME: ${{ matrix.env.image }}
-       KERNEL_TYPE: ${{ matrix.env.kernel }}
-       ROOT_DOMAIN: ${{ matrix.domain }}
-     steps:
-@@ -47,6 +48,6 @@ jobs:
-       - name: Run SELinux testsuite
-         run: vagrant ssh -- sudo make -C /root/testsuite test
-       - name: Check unwanted denials
--        run: vagrant ssh -- '! sudo ausearch -m avc -i </dev/null | grep ${{ matrix.domain }}'
-+        run: vagrant ssh -- '! sudo ausearch -m avc -i </dev/null | grep "^type=AVC .*${{ matrix.domain }}"'
-       - name: Check .gitignore coverage
-         run: test "$(vagrant ssh -- sudo git -C /root/testsuite ls-files -o --exclude-standard | wc -l)" -eq 0
-diff --git a/Vagrantfile b/Vagrantfile
-index 682b805..c0cc377 100644
---- a/Vagrantfile
-+++ b/Vagrantfile
-@@ -5,7 +5,7 @@
- #
- # To create a new virtual machine:
- #
--#    FEDORA_VERSION=33 vagrant up
-+#    IMAGE_NAME=fedora/34-cloud-base KERNEL_TYPE=default vagrant up
- #
- # To launch tests (for example after modifications have been made):
- #
-@@ -20,7 +20,7 @@
- # backwards compatibility). Please don't change it unless you know what
- # you're doing.
- Vagrant.configure("2") do |config|
--  config.vm.box = "fedora/#{ENV['FEDORA_VERSION']}-cloud-base"
-+  config.vm.box = "#{ENV['IMAGE_NAME']}"
-   config.vm.synced_folder ".", "/vagrant", disabled: true
-   config.vm.synced_folder ".", "/root/testsuite", type: "rsync",
-     # need to disable '--copy-links', which is in rsync__args by default
-@@ -33,16 +33,23 @@ Vagrant.configure("2") do |config|
-     v.memory = 4096
-   end
- 
-+  kernel_subpkgs = ['devel', 'modules']
-+
-+  dnf_opts = ''
-+  case ENV['IMAGE_NAME']
-+  when /^centos\//
-+    dnf_opts << ' --enablerepo crb'
-+    kernel_subpkgs << 'modules-extra'
-+  end
-+
-   case ENV['KERNEL_TYPE']
-   when 'default'
--    dnf_opts = ''
--    kernel_pkgs = 'kernel-devel-"$(uname -r)" kernel-modules-"$(uname -r)"'
-+    kernel_pkgs = kernel_subpkgs.map{|s| "kernel-#{s}-\"$(uname -r)\""}.join(' ')
-   when 'latest'
--    dnf_opts = ''
--    kernel_pkgs = 'kernel-devel kernel-modules'
-+    kernel_pkgs = kernel_subpkgs.map{|s| "kernel-#{s}"}.join(' ')
-   when 'secnext'
--    dnf_opts = '--nogpgcheck --releasever rawhide --repofrompath kernel-secnext,https://repo.paul-moore.com/rawhide/x86_64'
--    kernel_pkgs = 'kernel-devel kernel-modules'
-+    dnf_opts << ' --nogpgcheck --releasever rawhide --repofrompath kernel-secnext,https://repo.paul-moore.com/rawhide/x86_64'
-+    kernel_pkgs = kernel_subpkgs.map{|s| "kernel-#{s}"}.join(' ')
-   else
-     print("Invalid KERNEL_TYPE '#{ENV['KERNEL_TYPE']}'")
-     abort
--- 
-2.41.0
-
+On Thu, Jul 20, 2023 at 4:06=E2=80=AFAM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
+>
+> Brett Anderson <brett@bzdzb.com> writes:
+>
+> > Hello!
+> >
+> > I made an SELinux logo for my own purposes and figured I would share
+> > it with you in case you would like to use it. I'm putting this into
+> > the public domain and you can do with it as you see fit; attribution
+> > would be cool, but not required.
+> >
+> > https://imgur.com/a/khkSEux.png
+> >
+> > Cheers!
+>
+> Nice. No .svg? Check out: https://github.com/SELinuxProject/selinux-artwo=
+rk#readme
+>
+> --
+> gpg --locate-keys dominick.grift@defensec.nl (wkd)
+> Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+> Dominick Grift
+> Mastodon: @kcinimod@defensec.nl
