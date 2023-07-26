@@ -2,102 +2,120 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB392C0015E
-	for <selinux@archiver.kernel.org>; Wed, 26 Jul 2023 15:56:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2EAAC001B0
+	for <selinux@archiver.kernel.org>; Wed, 26 Jul 2023 16:32:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231933AbjGZP4h (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Jul 2023 11:56:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
+        id S231324AbjGZQcT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jul 2023 12:32:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233918AbjGZP4g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jul 2023 11:56:36 -0400
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id ABC312109
-        for <selinux@vger.kernel.org>; Wed, 26 Jul 2023 08:56:34 -0700 (PDT)
-Received: from [192.168.1.10] (pool-96-241-71-43.washdc.fios.verizon.net [96.241.71.43])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 133142380B28;
-        Wed, 26 Jul 2023 08:56:34 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 133142380B28
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1690386994;
-        bh=g6cY6HfbW8LyrS/6rxfCLn8FoD5dfRasdZT578mRROQ=;
-        h=Date:Subject:To:References:From:In-Reply-To:From;
-        b=icjFg4G7AAxOaUOxyQatfrl6FcxWp/96lrZnf/YjdkvhzRvN5eKQOBeYBHCQ3AP4H
-         6pX0Yo0vInegmspnZ3Slvg0bsP7ZtHt8cCp/ot+MQoWFWVv23jb3NJFTujVLndlbFl
-         PNTSibdb6mAlZZfx0oKC9UHhmhy/XLsg93LXf9hQ=
-Message-ID: <3eda4dfc-d489-5cc4-ca99-1d0c06ea62aa@linux.microsoft.com>
-Date:   Wed, 26 Jul 2023 11:56:34 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.2
-Subject: Re: [PATCH 0/9 v3] Add CIL Deny Rule
-Content-Language: en-US
+        with ESMTP id S231335AbjGZQcT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jul 2023 12:32:19 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A480626AE
+        for <selinux@vger.kernel.org>; Wed, 26 Jul 2023 09:31:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1690389091;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=M9gjEokf0ulKdOd//VSvm0jGiN3rIlkzfEqOMkGT9VI=;
+        b=WQT95dF9xrb4I4Ud+jbH3Bb3eheFev+OflNOCGH+oC6qyYZHxpwV7Bq+8LdDTqMaiDjjNA
+        9oEpkn1MX+rfWcnF8a1tPF0s//PxtQ+DO+0D/MCHNWbxomq5EEkSVgd46fS7HBgyzg3WRV
+        5SwOC4T8D9eHfKLvD5jWZSo8Kq75WN4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-610-XQclruTrNaGxC9pLQ3k4iw-1; Wed, 26 Jul 2023 12:31:29 -0400
+X-MC-Unique: XQclruTrNaGxC9pLQ3k4iw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B10AC80C4FF;
+        Wed, 26 Jul 2023 16:31:28 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.182])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6C7B1200B41D;
+        Wed, 26 Jul 2023 16:31:28 +0000 (UTC)
+From:   Petr Lautrbach <lautrbach@redhat.com>
 To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-References: <20230413193445.588395-1-jwcart2@gmail.com>
-From:   Daniel Burgener <dburgener@linux.microsoft.com>
-In-Reply-To: <20230413193445.588395-1-jwcart2@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc:     juraj@jurajmarcin.com, James Carter <jwcart2@gmail.com>
+Subject: Re: [PATCH 0/8] Revert the prefix/suffix filename transition patches
+In-Reply-To: <20230726142549.94685-1-jwcart2@gmail.com>
+References: <20230726142549.94685-1-jwcart2@gmail.com>
+Date:   Wed, 26 Jul 2023 18:31:27 +0200
+Message-ID: <87o7jyy6qo.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/13/2023 3:34 PM, James Carter wrote:
-> This patch series depends on the "Add support for notself and other to
-> CIL" patch series from April 12th.
-> 
-> These patches add a deny rule to CIL. Deny rules will be processed after
-> everything except for neverallow rules. Unlike neverallow rules, they
-> remove the permissions in the deny rule rather than reporting an error.
-> 
-> See the individual patches for an explanation of what they do.
-> 
-> Patches 2, 5, 6, and 7 are unchanged from v2. For the other patches, see
-> the patch for a list of the changes from v2.
-> 
-> James Carter (9):
->    libsepol/cil: Parse and add deny rule to AST, but do not process
->    libsepol/cil: Add cil_list_is_empty macro
->    libsepol/cil: Add cil_tree_node_remove function
->    libsepol/cil: Process deny rules
->    libsepol/cil: Add cil_write_post_ast function
->    libsepol: Export the cil_write_post_ast function
->    secilc/secil2tree: Add option to write CIL AST after post processing
->    secilc/test: Add deny rule tests
->    secilc/docs: Add deny rule to CIL documentation
-> 
->   libsepol/cil/include/cil/cil.h         |    1 +
->   libsepol/cil/src/cil.c                 |   68 ++
->   libsepol/cil/src/cil_build_ast.c       |   56 +
->   libsepol/cil/src/cil_build_ast.h       |    2 +
->   libsepol/cil/src/cil_copy_ast.c        |   19 +
->   libsepol/cil/src/cil_copy_ast.h        |    1 +
->   libsepol/cil/src/cil_deny.c            | 1413 ++++++++++++++++++++++++
->   libsepol/cil/src/cil_deny.h            |   36 +
->   libsepol/cil/src/cil_flavor.h          |    1 +
->   libsepol/cil/src/cil_internal.h        |   10 +
->   libsepol/cil/src/cil_list.h            |    3 +
->   libsepol/cil/src/cil_post.c            |    7 +
->   libsepol/cil/src/cil_reset_ast.c       |    8 +
->   libsepol/cil/src/cil_resolve_ast.c     |   48 +
->   libsepol/cil/src/cil_resolve_ast.h     |    1 +
->   libsepol/cil/src/cil_tree.c            |   35 +
->   libsepol/cil/src/cil_tree.h            |    1 +
->   libsepol/cil/src/cil_verify.c          |    9 +
->   libsepol/cil/src/cil_write_ast.c       |   10 +
->   libsepol/cil/src/cil_write_ast.h       |    1 +
->   libsepol/src/libsepol.map.in           |    5 +
->   secilc/docs/cil_access_vector_rules.md |   67 ++
->   secilc/secil2tree.c                    |    8 +-
->   secilc/test/deny_rule_test1.cil        |  580 ++++++++++
->   secilc/test/deny_rule_test2.cil        |  418 +++++++
->   25 files changed, 2807 insertions(+), 1 deletion(-)
->   create mode 100644 libsepol/cil/src/cil_deny.c
->   create mode 100644 libsepol/cil/src/cil_deny.h
->   create mode 100644 secilc/test/deny_rule_test1.cil
->   create mode 100644 secilc/test/deny_rule_test2.cil
+James Carter <jwcart2@gmail.com> writes:
 
-For patches 1-8:
+> Since the kernel patches have not been accepted yet, it seems better to
+> revert these patches while they can still be cleanly reverted just in
+> case the kernel patches are not accepted.
+>
+> If the kernel patches get accepted, then I will re-apply these patches.
+>
+> I should have waited for the kernel patches to be accepted before committing
+> these in the first place.
 
-Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+
+
+> James Carter (8):
+>   Revert "libsepol/cil: add support for prefix/suffix filename
+>     transtions to CIL"
+>   Revert "checkpolicy,libsepol: add prefix/suffix support to module
+>     policy"
+>   Revert "checkpolicy,libsepol: add prefix/suffix support to kernel
+>     policy"
+>   Revert "libsepol: implement new module binary format of avrule"
+>   Revert "libsepol: implement new kernel binary format for avtab"
+>   Revert "checkpolicy,libsepol: move filename transition rules to
+>     avrule"
+>   Revert "checkpolicy,libsepol: move filename transitions to avtab"
+>   Revert "checkpolicy,libsepol: move transition to separate structure in
+>     avtab"
+>
+>  checkpolicy/checkmodule.c                  |   9 -
+>  checkpolicy/module_compiler.c              |  12 +
+>  checkpolicy/module_compiler.h              |   1 +
+>  checkpolicy/policy_define.c                | 211 +++++-
+>  checkpolicy/policy_define.h                |   3 +-
+>  checkpolicy/policy_parse.y                 |  13 +-
+>  checkpolicy/policy_scan.l                  |   4 -
+>  checkpolicy/test/dismod.c                  |  39 +-
+>  checkpolicy/test/dispol.c                  | 106 ++-
+>  libsepol/cil/src/cil.c                     |   6 -
+>  libsepol/cil/src/cil_binary.c              |  63 +-
+>  libsepol/cil/src/cil_build_ast.c           |  26 +-
+>  libsepol/cil/src/cil_copy_ast.c            |   1 -
+>  libsepol/cil/src/cil_internal.h            |   4 -
+>  libsepol/cil/src/cil_policy.c              |  17 +-
+>  libsepol/cil/src/cil_resolve_ast.c         |  10 -
+>  libsepol/cil/src/cil_write_ast.c           |   2 -
+>  libsepol/include/sepol/policydb/avtab.h    |  19 +-
+>  libsepol/include/sepol/policydb/hashtab.h  |   8 -
+>  libsepol/include/sepol/policydb/policydb.h |  50 +-
+>  libsepol/src/avrule_block.c                |   1 +
+>  libsepol/src/avtab.c                       | 338 +---------
+>  libsepol/src/conditional.c                 |   6 +-
+>  libsepol/src/expand.c                      | 153 +++--
+>  libsepol/src/kernel_to_cil.c               | 182 +++--
+>  libsepol/src/kernel_to_common.h            |  10 -
+>  libsepol/src/kernel_to_conf.c              | 178 +++--
+>  libsepol/src/link.c                        |  57 +-
+>  libsepol/src/module_to_cil.c               |  86 ++-
+>  libsepol/src/optimize.c                    |   8 -
+>  libsepol/src/policydb.c                    | 479 +++++++++++---
+>  libsepol/src/policydb_validate.c           | 101 ++-
+>  libsepol/src/services.c                    |   5 +-
+>  libsepol/src/write.c                       | 735 +++++----------------
+>  34 files changed, 1390 insertions(+), 1553 deletions(-)
+>
+> -- 
+> 2.41.0
 
