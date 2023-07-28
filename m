@@ -2,150 +2,129 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1787DC04A94
-	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 11:52:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A27DC0015E
+	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 12:48:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235584AbjG1Lwh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jul 2023 07:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47262 "EHLO
+        id S235372AbjG1Ms0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Jul 2023 08:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236330AbjG1Lwg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 07:52:36 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35B8735B5;
-        Fri, 28 Jul 2023 04:52:35 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id 98e67ed59e1d1-26813cd7a8aso1477209a91.2;
-        Fri, 28 Jul 2023 04:52:35 -0700 (PDT)
+        with ESMTP id S234717AbjG1MsZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 08:48:25 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B67030D6
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 05:48:25 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id 98e67ed59e1d1-267fabc8465so1219375a91.1
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 05:48:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690545154; x=1691149954;
+        d=gmail.com; s=20221208; t=1690548504; x=1691153304;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=uH9ascag3hCYRu/BXQyOaYFN0XTaBKhDKrOIAGkCAeg=;
-        b=Zk1YwlUBckWCahbtf+rodHjh6i5AfLASREmfXGKVNbGp5RnDGYpDb1ekLtVIiCByt/
-         /2qKsdFXs6m8jsVB2Bj7FgS48MXAnrDJUGbPIg+CNSBARDm6XhXPzGlesLxcgiiyu91h
-         LRmSLf9z2j63TMKyjZMEORJS+aoirlqQ5GJ4gVQ3xEuNGTX1e+36P1EXGPOT8nEpozPe
-         Chs/WVgo6F6NUlkcTji4OFJCHtcPWe7Oh7/kK8P7do38ITCc1pBf9xlX4H0nEgtojJlY
-         BZBNGCQyuzi+SMlFt1VhgHMIbexpc6ACDJHmX1LjCXnxABXbDbwII1ws2ioq33NK1Uiy
-         gl2A==
+        bh=Wn91qj6Ey8vrcniEGC7CLPEKb5LcnREM5yaJxeHntB8=;
+        b=ib3E7LQkXWoz7dHkzyTsWpr0x5AQsPbV/9t9L+5Pmer/o3wS0ndJApQhAg80K9ebtB
+         5ZNf4BKMJuAOeEy150vaPYypoQtuOfsKYDp9aUz7hYTmpd/a47g0EWQFeco8y0rYwIFT
+         FJQ4CP2SDEyd0DbuY4/aOUjl7aa//jWP7GY1E18HZYLJhGzocQQj/QkGhWuhUQwV9kOA
+         JvKduRrXVUjztTUeNc1Nah3GI2NAbymbB+GoPReJiHWVavSpVeqdGgNNZ/IFgz+f2gDE
+         jHM45sFr3c4bY+AyOhoAUaF7027uPyiTVcRMh90+YSfzfYT9vZSVe2kmEypYyaernox/
+         0WkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690545154; x=1691149954;
+        d=1e100.net; s=20221208; t=1690548504; x=1691153304;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=uH9ascag3hCYRu/BXQyOaYFN0XTaBKhDKrOIAGkCAeg=;
-        b=SHqIxRcWNQ91Z0CKqoAdbfOrKmFjNQH9YSu23PGnYp/LMVuuR/BFh8n76iGJvZF13F
-         aL3F7LBQ3K+2Fakr3LctS3Y28nV/JNxtNuqXM29X9OOqRO50Ua8l3i8yXBezUlCJBXi4
-         gVGxgrEupXsp4eEuztpZjr6QeXSEqOJ6X9DeRoyQRtizAzsHNdfnKNGVBYx94jOi+d4k
-         y7V/79VNuwiLJT17RPQPnh3DUR6noUFflZIxVAazJjALbJdipTCgYAYNt3YPW/XPxVVr
-         UWIUTk59AIe0VfGySKO0gWKGSdg+gic/R6F3dWTdNT61CKkEiQkBbFKBNOItyY9KzlFI
-         hS+w==
-X-Gm-Message-State: ABy/qLZCglkzaln98yJSX2QLAVLhALOsdUUsRROgYXXFo2l8EwvSBe3O
-        vDnurk5W1BgbBbtmhXXmxYEJepBMAbw4uc5qQo4=
-X-Google-Smtp-Source: APBJJlEKIPLfaERcHOpXWVP4t3Ap2T9bttAzGZNmTiMoti48b/zUIeUDKCZ4gg86RmsEoY5Y4h9ilPFxn6zr1XNT90Q=
-X-Received: by 2002:a17:90b:46d5:b0:262:ebb9:dd59 with SMTP id
- jx21-20020a17090b46d500b00262ebb9dd59mr1418281pjb.20.1690545154528; Fri, 28
- Jul 2023 04:52:34 -0700 (PDT)
+        bh=Wn91qj6Ey8vrcniEGC7CLPEKb5LcnREM5yaJxeHntB8=;
+        b=T6ge/WE2+SwHgkQNeyML6wH0jAju10JMkoUuNdwrh4Sv/s5/oY/n3NRQWzN3HnLjvN
+         rU973cJ9tYFAr0VrK38lIXDuK8UUasknpWLWFNoX7jEp3tf9nlGa4yb1tyL6liS8rSr2
+         X0MhUYPObMcFP5r+46ZSUds5Y/SZ6PEWfHB1aTqNITm5fCSeaxm8ByRWmrzTQo94vFXI
+         g9BfH+cNKkIATLuYJsTseBRDWI2c/LZvxBV/6nImmYv2coTiDCbp1T6hpEY6LMRhr1Hq
+         CVojngCJmLm7DLyj7Waf5YHGP62dKMPRD2RNEJPN4aOq+EPkMBUjccuuTuMRVjHl+qDy
+         WKVw==
+X-Gm-Message-State: ABy/qLa661AZw4x3DYXdbSEkzrEDVh+2/O+Z5hpEDab1njukm8aQhrBC
+        y2gpWMek8ND1aBc8fFr4HDA1FUR2dfrS9JeLJQLVjije
+X-Google-Smtp-Source: APBJJlHc9l7i0c3zcOS5YIpDEugIOh9bJRPfgK1WL2hYnwKa9LlUDTOLcNR4hwg8/69uVOKetS2qYohVpLT2D6K9460=
+X-Received: by 2002:a17:90b:46c8:b0:262:d7db:2520 with SMTP id
+ jx8-20020a17090b46c800b00262d7db2520mr1353701pjb.26.1690548504330; Fri, 28
+ Jul 2023 05:48:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230620131223.431281-1-omosnace@redhat.com> <87edkseqf8.fsf@mail.lhotse>
- <CAFqZXNtsCKsr0YHPCSJJQ5An=RoMhf0dufgr7P_SnAAv7CrLjw@mail.gmail.com>
-In-Reply-To: <CAFqZXNtsCKsr0YHPCSJJQ5An=RoMhf0dufgr7P_SnAAv7CrLjw@mail.gmail.com>
+References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
+ <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
+ <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01> <CAHC9VhRCBkx7ioHAEMpn=ug3zAo2nEOUBe2uWsm0Tb8p6-vE7g@mail.gmail.com>
+ <20230618094047.oa4o2d2qj5nvvhhs@jmarcin-t14s-01> <CAHC9VhRGgrihrYEB9VxjttUA5uQC7hD4iyBd+Rkf5_WQ=p+-9w@mail.gmail.com>
+ <20230620075100.4wvquojo52dhrixa@jmarcin-t14s-01> <CAEjxPJ6RSkOXRuuUCJr2=irN4k7M_isL12Gky--ucqJ-Fmmzcg@mail.gmail.com>
+ <20230727164259.cys5mabxa5aeonod@jmarcin-t14s-01>
+In-Reply-To: <20230727164259.cys5mabxa5aeonod@jmarcin-t14s-01>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 28 Jul 2023 07:52:23 -0400
-Message-ID: <CAEjxPJ643nmW6HZOmQGNFDj-cQGf-x3jzZcrO8BHVN9thM23Dw@mail.gmail.com>
-Subject: Re: Login broken with old userspace (was Re: [PATCH v2] selinux:
- introduce an initial SID for early boot processes)
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-next@vger.kernel.org
+Date:   Fri, 28 Jul 2023 08:48:11 -0400
+Message-ID: <CAEjxPJ7t6jr5gZm_mCZqPko207rh6t-CUc+gQxqLXi2QPJx9WA@mail.gmail.com>
+Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type transitions
+To:     Juraj Marcin <juraj@jurajmarcin.com>
+Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 7:36=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+On Thu, Jul 27, 2023 at 12:43=E2=80=AFPM Juraj Marcin <juraj@jurajmarcin.co=
 m> wrote:
 >
-> On Fri, Jul 28, 2023 at 4:12=E2=80=AFAM Michael Ellerman <mpe@ellerman.id=
-.au> wrote:
+> On 2023-07-17 14:44, Stephen Smalley wrote:
 > >
-> > Ondrej Mosnacek <omosnace@redhat.com> writes:
-> > > Currently, SELinux doesn't allow distinguishing between kernel thread=
-s
-> > > and userspace processes that are started before the policy is first
-> > > loaded - both get the label corresponding to the kernel SID. The only
-> > > way a process that persists from early boot can get a meaningful labe=
-l
-> > > is by doing a voluntary dyntransition or re-executing itself.
-> >
-> > Hi,
-> >
-> > This commit breaks login for me when booting linux-next kernels with ol=
-d
-> > userspace, specifically Ubuntu 16.04 on ppc64le. 18.04 is OK.
-> >
-> > The symptom is that login never accepts the root password, it just
-> > always says "Login incorrect".
-> >
-> > Bisect points to this commit.
-> >
-> > Reverting this commit on top of next-20230726, fixes the problem
-> > (ie. login works again).
-> >
-> > Booting with selinux=3D0 also fixes the problem.
-> >
-> > Is this expected? The change log below suggests backward compatibility
-> > was considered, is 16.04 just too old?
+> > I'd be curious to see what results you would get if you simply added
+> > the new feature (prefix/suffix matching) without moving the name-based
+> > transitions into the avtab.
 >
-> Hi Michael,
+> Here are the performance metrics of a prototype solution, where the
+> filename transition key is extended with match_type and match is found
+> by shortening the name from the end or the beginning if a full match is
+> not found.
 >
-> I can reproduce it on Fedora 38 when I boot with SELINUX=3Ddisabled in
-> /etc/selinux/config (+ a kernel including that commit), so it likely
-> isn't caused by the userspace being old. Can you check what you have
-> in /etc/selinux/config (or if it exists at all)?
+> [2] Reference kernel (447a5688005e), Fedora policy (format v33)
+> [3] This patchset, Fedora policy (format v33)
+> [4] This patchset, Fedora policy without prefix/suffix rules (format v34)
+> [5] This patchset, Fedora policy with prefix rules (format v34)
 >
-> We have deprecated and removed the "runtime disable" functionality in
-> SELinux recently [1], which was used to implement "disabling" SELinux
-> via the /etc/selinux/config file, so now the situation (selinux=3D0 +
-> SELINUX=3Ddisabled in /etc/selinux/config) leads to a state where
-> SELinux is enabled, but no policy is loaded (and no enforcement is
-> done). Such a state mostly behaves as if SElinux was truly disabled
-> (via kernel command line), but there are some subtle differences and I
-> believe we don't officially support it (Paul might clarify). With
-> latest kernels it is recommended to either disable SELinux via the
-> kernel command line (or Kconfig[2]) or to boot it in Enforcing or
-> Permissive mode with a valid/usable policy installed.
 >
-> So I wonder if Ubuntu ships by default with the bad configuration or
-> if it's just a result of using the custom-built linux-next kernel (or
-> some changes on your part). If Ubuntu's stock kernel is configured to
-> boot with SELinux enabled by default, they should also by default ship
-> a usable policy and SELINUX=3Dpermissive/enforcing in
-> /etc/selinux/config (or configure the kernel[2] or bootloader to boot
-> with SELinux disabled by default). (Although if they ship a pre-[1]
-> kernel, they may continue to rely on the runtime disable
-> functionality, but it means people will have to be careful when
-> booting newer or custom kernels.)
->
-> That said, I'd like to get to the bottom of why the commit causes the
-> login to fail and fix it somehow. I presume something in PAM chokes on
-> the fact that userspace tasks now have "init" instead of "kernel" as
-> the pre-policy-load security context, but so far I haven't been able
-> to pinpoint the problem. I'll keep digging...
->
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/co=
-mmit/?id=3Df22f9aaf6c3d92ebd5ad9e67acc03afebaaeb289
-> [2] via CONFIG_LSM (or CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE on older k=
-ernels)
+>  Test | Mem   | Binary | Policy | Create tty      | osbench
+>       | Usage | policy | load   |                 | create
+>       |       | size   | time   | (ms/file)       | files
+>       | (MiB) | (MiB)  | (ms)   | real   | kernel | (us/file)
+> ------+-------+--------+--------+--------+--------+-----------
+>  [2]  |   157 |    3.4 |     76 |  1.256 |  0.871 | 9.4492
+>  [3]  |   156 |    3.4 |     77 |  1.208 |  0.869 | 9.6160
+>  [4]  |   157 |    3.4 |     71 |  1.239 |  0.893 | 9.6297
+>  [5]  |   156 |    2.4 |     71 |  1.211 |  0.838 | 9.8305
 
-Prior to selinux userspace commit
-685f4aeeadc0b60f3770404d4f149610d656e3c8 ("libselinux:
-is_selinux_enabled(): drop no-policy-loaded test.") libselinux was
-checking the result of reading /proc/self/attr/current to see if it
-returned the "kernel" string as a means of detecting a system with
-SELinux enabled but no policy loaded, and treated that as if SELinux
-were disabled. Hence, this does break old userspace. Not sure though
-why you'd see the same behavior with modern libselinux.
+This looks more promising to me - little-to-no impact on existing
+users with old policy/userspace, reduced memory usage once fully
+transitioned. Still some degradation in runtime for osbench but not
+sure what the variance/stddev is for those numbers.
+
+> > Also wondering whether you considered the simpler approach of just
+> > augmenting the kernel to recognize and support use of wildcards at the
+> > beginning and/or end of the existing name field to signify a prefix or
+> > suffix match. That seems more amenable to extensions beyond just
+> > prefix or suffix match.
+>
+> I had not considered this approach in the beginning, but as I thought
+> about it, it did not seem as simple.
+>
+> For example, along with adding the wildcard character, we also need to
+> add the ability to escape it; otherwise, it would be a weird edge case
+> of an unsupported filename. Also, possibly to escape the escape
+> character itself. This adds more complexity to the solution.
+>
+> In addition to this, extending such solution to support wildcards
+> anywhere in the filename would also require reimplementing the filename
+> transitions structures or moving rules with wildcards away from current
+> filename transitions. Currently, the filename is part of the hashtab key
+> and prefix/suffix could work by checking all prefixes and suffixes of a
+> filename, which there are not that many. However, with a wildcard at any
+> position, this is not feasible.
+
+Fair enough. That said, I do wonder if users will immediately start
+asking for wildcards at any position, then file globbing or regexes,
+etc, and would like to allow for future extensibility in a less
+disruptive manner.
