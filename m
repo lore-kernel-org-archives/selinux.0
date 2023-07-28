@@ -2,144 +2,243 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B726C0015E
-	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 15:59:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02FB6C001E0
+	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 16:54:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234277AbjG1P7o (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jul 2023 11:59:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46764 "EHLO
+        id S230221AbjG1QyE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Jul 2023 12:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbjG1P7n (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 11:59:43 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5236D30C5;
-        Fri, 28 Jul 2023 08:59:42 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id 38308e7fff4ca-2b9cdbf682eso15545331fa.2;
-        Fri, 28 Jul 2023 08:59:42 -0700 (PDT)
+        with ESMTP id S235771AbjG1QxB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 12:53:01 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED6E1BD6
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 09:51:36 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-d13e11bb9ecso2068758276.0
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 09:51:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1690559980; x=1691164780;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZCo106lcr9OqOXKGEBc+DWq16XxEQ27Fez5FxReeABs=;
-        b=KYAbHJ5LH+6aRGAn/7WkpYeyXXARCEkOEG+I8VHav2Bv9WJffcJ5uztxifyhpuTPjs
-         nzZoDWg4Zj0pxIG10JMgsZLYFU7wmRpLHgd94u8c/fS9wVf5SKy1NYbyqx0ML9OHmNxs
-         0tFWzO8QaS/s8kkjyx9TcvvZ4zkF9sE8Gmqk3pdGZ+ft1IhK46tFu3tl8bwk9yHs+B3C
-         3oTTxD8Yrl3xKRqnNxuZiASXdockAuWDljHS3gjeqGAQ4GqhlSlnO74CCq+NvbuLE9Ug
-         a/CAIPmyOKTqhDUyyMI7CnCVx5m40153Zw0dtvq497zHZNvi0hQiol0DTWLGqeiIM56R
-         5U7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690559980; x=1691164780;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=google.com; s=20221208; t=1690563084; x=1691167884;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ZCo106lcr9OqOXKGEBc+DWq16XxEQ27Fez5FxReeABs=;
-        b=Mi7Yewi8DCq+O0YG5MEVsgM+mLvBXA9UFk+gSgzZVL46QggdkCRJUFmthRrnnUG10w
-         49g/AxBgFoQBqr9tISZN1Wt/Zak1dNzEABjy/sgDmtMbvD7/Sp+y1sDxl+UnGe1sTcIB
-         iB0hV6/hbNyOsPcElU7t40O3ZTA8n5NeXqRtuUJifmFxBwvaXABwDjUYEscQrH2QCTbK
-         GoWyqxcqlr5OlXGYbF8jx0J5VdY9MjcEM0iScrHuAbNbPDogfRi2t3Ep2WTg0uSyDk8Y
-         bdJgFiGemyCtgdFG8A7/5lae/eiLL2S0azUDuqjyKIiuh+V1Pytdqt0e4p6TtX2m3+yk
-         K7qg==
-X-Gm-Message-State: ABy/qLY+mjfZhZiq082lERLaGFJ8dnEC2pCCFc+xsz0B17tyfGinfAUc
-        27nHBUncAlDiNPd0rgQaBhB3ehldEe5VRLDh
-X-Google-Smtp-Source: APBJJlFngmMeT1B/NQJD0a55UKx2ii0K3srqbk3P4CC5ivKeUAKqKFzB0MR6HKuhwkNamexMh8lEcw==
-X-Received: by 2002:a05:651c:156:b0:2b9:c644:415d with SMTP id c22-20020a05651c015600b002b9c644415dmr1981105ljd.46.1690559980215;
-        Fri, 28 Jul 2023 08:59:40 -0700 (PDT)
-Received: from debian_development.DebianHome (dynamic-077-000-157-016.77.0.pool.telefonica.de. [77.0.157.16])
-        by smtp.gmail.com with ESMTPSA id lu44-20020a170906faec00b00992f309cfe8sm2215810ejb.178.2023.07.28.08.59.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Jul 2023 08:59:39 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
+        bh=hSztq2dvrAtj1uS3ESiNs+Jg1HePYMDsZwSdft0wsVY=;
+        b=uC9D4FcQ4hwzphsSwJRgDNbPH7AACt801Mlm2IGAsaCpAbFm8nZ/5u79Nw0s7R6uTN
+         S0AqDXgmdZcN9sqoD6w3I4W2sdk/FkYcC/gwy7cQgo0LGGfDS5+9+Sm0owWE9jYCC8TN
+         TmtJK10RK9ulRo6V6oV6oDwYY1nnMo3vfgBGy0Ozsi9gIkswPMzDAjG+jewR7raXO+P3
+         95CCiOUHijIqyJXPUFIHEmwBnCL9VRYUEvCY5LGHTJHB32w4QIzGmnk+/XdJM1+8eN8Y
+         +AgjzUEjfZ/EFu/piAU2X3fpKgrpzv3rT9tuambFkZRwDttE7wnctxSipbS5Ay9LyUoi
+         1piw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690563084; x=1691167884;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hSztq2dvrAtj1uS3ESiNs+Jg1HePYMDsZwSdft0wsVY=;
+        b=BeAUNNODZtNXGKApxpf8FHdoXgLPeXdpHgXUPAHVAGnDWJaqQ0BKIdilgTfBPIOqqC
+         EjRW31LtxbOCQP4NxCzBGclmTBfEKshDTm/MdkJQqfGVNUVKN+vByYqe3ayDYS9lZtC+
+         GpJQjO5nnaBNP8Hx46PYr3xARC7HUZn8nux2t/Br5+jz2MmOG5dYj0Tqq9wvpbWMtYLz
+         BhvNPpV9FxfaGm48rU+foxbQXxunX/bIgjW6thppu1UBJyrLJR8xmQjFgcC+JfUgC1IV
+         LktuCkpGKTYNmHshnHolEQRuMREuiepQWRniLDRn/y01jppLgJ/O9C6yS3jC11cqFRLE
+         COwA==
+X-Gm-Message-State: ABy/qLYtDu90awZfiUXNLjL2lrKliPRa148BKhoeFjEuDGZ3/PZMfFOO
+        aPehHuVrVq39wev6AceVckOEuzQ=
+X-Google-Smtp-Source: APBJJlEi55DECGldnh4oz+7pIZRoVzrzq1k+o9LpkI1MyKXobMp3xALP+1XPqinyyja4f6VBX3Vg0pc=
+X-Received: from sdf.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5935])
+ (user=sdf job=sendgmr) by 2002:a25:f89:0:b0:d0b:c67:de3b with SMTP id
+ 131-20020a250f89000000b00d0b0c67de3bmr13938ybp.13.1690563084070; Fri, 28 Jul
+ 2023 09:51:24 -0700 (PDT)
+Date:   Fri, 28 Jul 2023 09:51:22 -0700
+In-Reply-To: <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
+Mime-Version: 1.0
+References: <3076188eb88cca9151a2d12b50ba1e870b11ce09.1689693294.git.geliang.tang@suse.com>
+ <CAHC9VhS_LKdkEmm5_J5y34RpaRcTbg8==fpz8pMThDCjF6nYtQ@mail.gmail.com>
+ <b41babb1-f0f2-dc2f-c2e3-1870107fbd9f@tessares.net> <ZMKxC+CFj4GbCklg@google.com>
+ <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
+Message-ID: <ZMPyCt2uozns776Q@google.com>
+Subject: Re: [RFC bpf-next v5] bpf: Force to MPTCP
+From:   Stanislav Fomichev <sdf@google.com>
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>
 Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org
-Subject: [RFC PATCH] selinux: optimize ebitmap_and()
-Date:   Fri, 28 Jul 2023 17:59:36 +0200
-Message-Id: <20230728155937.41580-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.40.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        Geliang Tang <geliang.tang@suse.com>,
+        Alexei Starovoitov <ast@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Iterate on nodes instead of single bits to save node resolution for each
-single bit.
+On 07/28, Matthieu Baerts wrote:
+> Hi Stanislav,
+>=20
+> On 27/07/2023 20:01, Stanislav Fomichev wrote:
+> > On 07/27, Matthieu Baerts wrote:
+> >> Hi Paul, Stanislav,
+> >>
+> >> On 18/07/2023 18:14, Paul Moore wrote:
+> >>> On Tue, Jul 18, 2023 at 11:21=E2=80=AFAM Geliang Tang <geliang.tang@s=
+use.com> wrote:
+> >>>>
+> >>>> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]=
+:
+> >>>>
+> >>>> "Your app can create sockets with IPPROTO_MPTCP as the proto:
+> >>>> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
+> >>>> forced to create and use MPTCP sockets instead of TCP ones via the
+> >>>> mptcpize command bundled with the mptcpd daemon."
+> >>>>
+> >>>> But the mptcpize (LD_PRELOAD technique) command has some limitations
+> >>>> [2]:
+> >>>>
+> >>>>  - it doesn't work if the application is not using libc (e.g. GoLang
+> >>>> apps)
+> >>>>  - in some envs, it might not be easy to set env vars / change the w=
+ay
+> >>>> apps are launched, e.g. on Android
+> >>>>  - mptcpize needs to be launched with all apps that want MPTCP: we c=
+ould
+> >>>> have more control from BPF to enable MPTCP only for some apps or all=
+ the
+> >>>> ones of a netns or a cgroup, etc.
+> >>>>  - it is not in BPF, we cannot talk about it at netdev conf.
+> >>>>
+> >>>> So this patchset attempts to use BPF to implement functions similer =
+to
+> >>>> mptcpize.
+> >>>>
+> >>>> The main idea is add a hook in sys_socket() to change the protocol i=
+d
+> >>>> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
+> >>>>
+> >>>> [1]
+> >>>> https://github.com/multipath-tcp/mptcp_net-next/wiki
+> >>>> [2]
+> >>>> https://github.com/multipath-tcp/mptcp_net-next/issues/79
+> >>>>
+> >>>> v5:
+> >>>>  - add bpf_mptcpify helper.
+> >>>>
+> >>>> v4:
+> >>>>  - use lsm_cgroup/socket_create
+> >>>>
+> >>>> v3:
+> >>>>  - patch 8: char cmd[128]; -> char cmd[256];
+> >>>>
+> >>>> v2:
+> >>>>  - Fix build selftests errors reported by CI
+> >>>>
+> >>>> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
+> >>>> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+> >>>> ---
+> >>>>  include/linux/bpf.h                           |   1 +
+> >>>>  include/linux/lsm_hook_defs.h                 |   2 +-
+> >>>>  include/linux/security.h                      |   6 +-
+> >>>>  include/uapi/linux/bpf.h                      |   7 +
+> >>>>  kernel/bpf/bpf_lsm.c                          |   2 +
+> >>>>  net/mptcp/bpf.c                               |  20 +++
+> >>>>  net/socket.c                                  |   4 +-
+> >>>>  security/apparmor/lsm.c                       |   8 +-
+> >>>>  security/security.c                           |   2 +-
+> >>>>  security/selinux/hooks.c                      |   6 +-
+> >>>>  tools/include/uapi/linux/bpf.h                |   7 +
+> >>>>  .../testing/selftests/bpf/prog_tests/mptcp.c  | 128 +++++++++++++++=
++--
+> >>>>  tools/testing/selftests/bpf/progs/mptcpify.c  |  17 +++
+> >>>>  13 files changed, 187 insertions(+), 23 deletions(-)
+> >>>>  create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
+> >>>
+> >>> ...
+> >>>
+> >>>> diff --git a/security/security.c b/security/security.c
+> >>>> index b720424ca37d..bbebcddce420 100644
+> >>>> --- a/security/security.c
+> >>>> +++ b/security/security.c
+> >>>> @@ -4078,7 +4078,7 @@ EXPORT_SYMBOL(security_unix_may_send);
+> >>>>   *
+> >>>>   * Return: Returns 0 if permission is granted.
+> >>>>   */
+> >>>> -int security_socket_create(int family, int type, int protocol, int =
+kern)
+> >>>> +int security_socket_create(int *family, int *type, int *protocol, i=
+nt kern)
+> >>>>  {
+> >>>>         return call_int_hook(socket_create, 0, family, type, protoco=
+l, kern);
+> >>>>  }
+> >>>
+> >>> Using the LSM to change the protocol family is not something we want
+> >>> to allow.  I'm sorry, but you will need to take a different approach.
+> >>
+> >> @Paul: Thank you for your feedback. It makes sense and I understand.
+> >>
+> >> @Stanislav: Despite the fact the implementation was smaller and reusin=
+g
+> >> more code, it looks like we cannot go in the direction you suggested. =
+Do
+> >> you think what Geliang suggested before in his v3 [1] can be accepted?
+> >>
+> >> (Note that the v3 is the same as the v1, only some fixes in the selfte=
+sts.)
+> >=20
+> > We have too many hooks in networking, so something that doesn't add
+> > a new one is preferable :-(
+>=20
+> Thank you for your reply and the explanation, I understand.
+>=20
+> > Moreover, we already have a 'socket init' hook, but it runs a bit late.
+>=20
+> Indeed. And we cannot move it before the creation of the socket.
+>=20
+> > Is existing cgroup/sock completely unworkable? Is it possible to
+> > expose some new bpf_upgrade_socket_to(IPPROTO_MPTCP) kfunc which would
+> > call some new net_proto_family->upgrade_to(IPPROTO_MPTCP) to do the sur=
+gery?
+> > Or is it too hacky?
+>=20
+> I cannot judge if it is too hacky or not but if you think it would be
+> OK, please tell us :)
 
-Similar to userspace patch efcd00814879 ("libsepol: optimize
-ebitmap_and").
+Maybe try and see how it goes? Doing the surgery to convert from tcp
+to mptcp is probably hard, but it seems that we should be able to
+do something like:
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- security/selinux/ss/ebitmap.c | 48 ++++++++++++++++++++++++++++++-----
- 1 file changed, 41 insertions(+), 7 deletions(-)
+int upgrade_to(sock, sk) {
+	if (sk is not a tcp one) return -EINVAL;
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 77875ad355f7..5ac8acacf873 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -81,18 +81,52 @@ int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src)
- 
- int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebitmap *e2)
- {
--	struct ebitmap_node *n;
--	int bit, rc;
-+	const struct ebitmap_node *n1, *n2;
-+	struct ebitmap_node *new = NULL, **prev;
- 
- 	ebitmap_init(dst);
- 
--	ebitmap_for_each_positive_bit(e1, n, bit) {
--		if (ebitmap_get_bit(e2, bit)) {
--			rc = ebitmap_set_bit(dst, bit, 1);
--			if (rc < 0)
--				return rc;
-+	prev = &dst->node;
-+	n1 = e1->node;
-+	n2 = e2->node;
-+	while (n1 && n2) {
-+		if (n1->startbit == n2->startbit) {
-+			unsigned long testmap[EBITMAP_UNIT_NUMS];
-+			unsigned int i;
-+			bool match = false;
-+
-+			for (i = 0; i < sizeof(testmap); i++) {
-+				testmap[i] = n1->maps[i] & n2->maps[i];
-+				if (testmap[i] != 0)
-+					match = true;
-+			}
-+
-+			if (match) {
-+				new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
-+				if (!new) {
-+					ebitmap_destroy(dst);
-+					return -ENOMEM;
-+				}
-+				new->startbit = n1->startbit;
-+				memcpy(new->maps, testmap, EBITMAP_SIZE / 8);
-+				new->next = NULL;
-+
-+				*prev = new;
-+				prev = &(new->next);
-+			}
-+
-+			n1 = n1->next;
-+			n2 = n2->next;
-+		} else if (n1->startbit > n2->startbit) {
-+			n2 = n2->next;
-+		} else {
-+			n1 = n1->next;
- 		}
- 	}
-+
-+	if (new)
-+		dst->highbit = new->startbit + EBITMAP_SIZE;
-+
- 	return 0;
- }
- 
--- 
-2.40.1
+	sk_common_release(sk);
+	return inet6_create(net, sock, IPPROTO_MPTCP, false);
+}
 
+?
+
+The only thing I'm not sure about is whether you can call inet6_create
+on a socket that has seen sk_common_release'd...
+=20
+> > Another option Alexei suggested is to add some fentry-like thing:
+> >=20
+> > noinline int update_socket_protocol(int protocol)
+> > {
+> > 	return protocol;
+> > }
+> > /* TODO: ^^^ add the above to mod_ret set */
+> >=20
+> > int __sys_socket(int family, int type, int protocol)
+> > {
+> > 	...
+> >=20
+> > 	protocol =3D update_socket_protocol(protocol);
+> >=20
+> > 	...
+> > }
+> >=20
+> > But it's also too problem specific it seems? And it's not cgroup-aware.
+>=20
+> It looks like it is what Geliang did in his v6. If it is the only
+> acceptable solution, I guess we can do without cgroup support. We can
+> continue the discussions in his v6 if that's easier.
+
+Ack, that works too, let's see how other people feel about it. I'm
+assuming in the bpf program we can always do bpf_get_current_cgroup_id()
+to filter by cgroup.
