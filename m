@@ -2,257 +2,218 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F363C001DE
-	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 15:12:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E45AFC0015E
+	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 15:15:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233488AbjG1PMN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jul 2023 11:12:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46480 "EHLO
+        id S234149AbjG1PPJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Jul 2023 11:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235086AbjG1PMN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 11:12:13 -0400
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8F693AAC
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 08:12:10 -0700 (PDT)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-5838881e30bso23286887b3.2
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 08:12:10 -0700 (PDT)
+        with ESMTP id S234744AbjG1PPJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 11:15:09 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72ACB2D4D
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 08:15:06 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id 4fb4d7f45d1cf-522462d8416so2872805a12.1
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 08:15:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1690557130; x=1691161930;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=K9VTV3cc3uFUdaaZLXGJRHZxLwC7rzN3WwthVACLw1g=;
-        b=cbUs7BZvU5wP3klQssJl1mW304F4sSMSIHV9d8dNWgTmc9u7aawcWP9DoX8bi+u2vu
-         9xOwfUi8KFOZItTI/FLIdtAZHAXY/VVtCS/Ro7QrnrMLuP2qRvC9T4s8EhArRm4W4TuY
-         hgwshl4PZesthutHYQtLrwIou8EupKl3N0+wJS73I91a9AptcIVKZrDzkBgh9jUpA9Rx
-         2ODn1Z91Yn7k1F3TPPB1Y22qyELIjhYRZCLngiWnUo3SZpIqa0bcdhgafIRYTwLfgqv7
-         O1dvDO8eu6sBGpGSSyCDOV8X61dtoUjXGopoxkWfl8m5q8YUmNBhMH/n1ZBRqV69gsp7
-         jAeg==
+        d=tessares.net; s=google; t=1690557305; x=1691162105;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=dUsoDe1aciZkS3SYBk+FJnom/bcWm6HUHz7xtg9wGVE=;
+        b=xlBQr91VrE+fcTMQtJeL8UehPRNRDcOoL3Jb7oeY/mrCveqo1mf708pc0eDYwfspAJ
+         A+kaOd3By9dV4yBq+KBkmUafQK3E1WIz9fm1vsVKJtrzZ69uoTGDsVyPg7Xo8lpzBMV7
+         F6TD0DCllb2LydrhPW33jZF0TgI2xFAg27NxhuBNndHVKqMobgm/+RCpx6Ngqg8YxKB7
+         b83oDwxzwWX8OZXxHIXZG598ch1mn5d3uloQxGo1tY0/gZEnwuPNS6xRJH8gYeGIarEo
+         Gc73xHWp4OAegZDVNbxQI5pzehlWrR/ANJAK/2Ze7/lopQhmjJV/Vq/9Qqv6X8RhKmbK
+         ZQvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690557130; x=1691161930;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=K9VTV3cc3uFUdaaZLXGJRHZxLwC7rzN3WwthVACLw1g=;
-        b=bthIX1Ifqw6/xfOx35kHu+bPtGLp4snQb3nnGWCqSUgp6SzEb4bXzhDakFMcOD9x8K
-         YZeGifAGghE/WIC0XWQoDfBmVNEX9oglhKS7GDV+2RBR/m9SJ4lgwQMH28Ui+RZjzn3M
-         l3ZkJF2kkuvrA2vj33XlTYxknUedMnLt5JvQLuZkOaneuOuvWaNyY4nkiwKtoAjTh1N7
-         4rGSUXKR6VnoFx2g4rGkpHgBtMA7Kr/UEeLLrZXo3uowCayYz8JcwQKMMwJqWJFCMoIA
-         Cp6s4Fv4J23nXB8SEiTiq1/mxUViA6MZ5Dv7+wcLkgh/192084Z7GJ6ANMW2tgUD6mTB
-         sicg==
-X-Gm-Message-State: ABy/qLbIC5vCuYfxD+Q+Jr9eZuPOLb39rNkMKqr2lG4jeu6msrUvcLWC
-        omJQ3YV6YSAOfqq1OgZBpw6ek+Kk5D+6oGC/1zEZ+tXqxmzBvcJCTQ==
-X-Google-Smtp-Source: APBJJlF9k8AoCv5KjPjcbgdT2p1nC+ahxGbIPsazhnM8tgHnjdHF65q3xdEGgbvngzfwVTp+/Bv7ceLxm0HQFpIaNHg=
-X-Received: by 2002:a81:9242:0:b0:583:9c78:9a84 with SMTP id
- j63-20020a819242000000b005839c789a84mr2147967ywg.43.1690557129725; Fri, 28
- Jul 2023 08:12:09 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1690557305; x=1691162105;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=dUsoDe1aciZkS3SYBk+FJnom/bcWm6HUHz7xtg9wGVE=;
+        b=ft+K1iaGSCbnmGalv3RXeDljsBzi12X/EDUVUueNj1txnTj8YPwvsCKRX+oEcbfVv7
+         oVpuf/SwPeQ3u2xUBvT1O26+TblzuIdM96O0DExhpxvAJEgRm83Udyjk85ngY3xwCZY1
+         7EM43TkOj5sIN38BybxPtsX3d7Centu5yWxwIFQD/M/BNdSSlBnqs/xXPG9nkgG15Ren
+         l1E4zx89CTn15EfpvbsS+1zt6dFq8ttpcqiRec7rqjtG80c4XDMQRvmd3sTq/yQUVdR7
+         gsmCxf2D2P4bGPHrBaVyT8NKlhL4cqbgOXU34x4itB4L0pNYJ+2oO8i6VMN8luzICGHj
+         P3gw==
+X-Gm-Message-State: ABy/qLZybRJnkJjDgilo8+dB7EUwuq5xcxmAmDRUPpQLyL6I2gQ4tkpy
+        khTNEFdUrXqB+QLEdRu5G3266w==
+X-Google-Smtp-Source: APBJJlGrx217B3+2JoDDsOR5Pe+xG2RV8Yfclk4WQBqChj/RTKdH94R2bDDyfq5dnAZDNu9v1WPHIA==
+X-Received: by 2002:aa7:c68f:0:b0:51e:24e1:c0e9 with SMTP id n15-20020aa7c68f000000b0051e24e1c0e9mr2023024edq.10.1690557304905;
+        Fri, 28 Jul 2023 08:15:04 -0700 (PDT)
+Received: from [10.44.2.5] ([81.246.10.41])
+        by smtp.gmail.com with ESMTPSA id ba4-20020a0564021ac400b00522572f323dsm1880856edb.16.2023.07.28.08.15.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 Jul 2023 08:15:04 -0700 (PDT)
+Message-ID: <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
+Date:   Fri, 28 Jul 2023 17:15:03 +0200
 MIME-Version: 1.0
-References: <20230620131223.431281-1-omosnace@redhat.com> <87edkseqf8.fsf@mail.lhotse>
- <CAFqZXNtsCKsr0YHPCSJJQ5An=RoMhf0dufgr7P_SnAAv7CrLjw@mail.gmail.com>
- <CAEjxPJ643nmW6HZOmQGNFDj-cQGf-x3jzZcrO8BHVN9thM23Dw@mail.gmail.com>
- <CAFqZXNuM-807tmT84rZ25xwh078BxvSfav88AozH=tt=J+dCrA@mail.gmail.com> <CAJ2a_DdZHFTHiRu5+ZENAwUq1Cor-jVoE9qdhb2x5uSej-MaRA@mail.gmail.com>
-In-Reply-To: <CAJ2a_DdZHFTHiRu5+ZENAwUq1Cor-jVoE9qdhb2x5uSej-MaRA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 28 Jul 2023 11:11:58 -0400
-Message-ID: <CAHC9VhQVQv78Xr1bDoJcuT5s441Lvc8AanMvMh8KXG-PuPTVAQ@mail.gmail.com>
-Subject: Re: Login broken with old userspace (was Re: [PATCH v2] selinux:
- introduce an initial SID for early boot processes)
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, selinux@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-next@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [RFC bpf-next v5] bpf: Force to MPTCP
+Content-Language: en-GB
+To:     Stanislav Fomichev <sdf@google.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Geliang Tang <geliang.tang@suse.com>,
+        Alexei Starovoitov <ast@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+References: <3076188eb88cca9151a2d12b50ba1e870b11ce09.1689693294.git.geliang.tang@suse.com>
+ <CAHC9VhS_LKdkEmm5_J5y34RpaRcTbg8==fpz8pMThDCjF6nYtQ@mail.gmail.com>
+ <b41babb1-f0f2-dc2f-c2e3-1870107fbd9f@tessares.net>
+ <ZMKxC+CFj4GbCklg@google.com>
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+In-Reply-To: <ZMKxC+CFj4GbCklg@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 9:24=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> On Fri, 28 Jul 2023 at 15:14, Ondrej Mosnacek <omosnace@redhat.com> wrote=
-:
-> >
-> > On Fri, Jul 28, 2023 at 1:52=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Fri, Jul 28, 2023 at 7:36=E2=80=AFAM Ondrej Mosnacek <omosnace@red=
-hat.com> wrote:
-> > > >
-> > > > On Fri, Jul 28, 2023 at 4:12=E2=80=AFAM Michael Ellerman <mpe@eller=
-man.id.au> wrote:
-> > > > >
-> > > > > Ondrej Mosnacek <omosnace@redhat.com> writes:
-> > > > > > Currently, SELinux doesn't allow distinguishing between kernel =
-threads
-> > > > > > and userspace processes that are started before the policy is f=
-irst
-> > > > > > loaded - both get the label corresponding to the kernel SID. Th=
-e only
-> > > > > > way a process that persists from early boot can get a meaningfu=
-l label
-> > > > > > is by doing a voluntary dyntransition or re-executing itself.
-> > > > >
-> > > > > Hi,
-> > > > >
-> > > > > This commit breaks login for me when booting linux-next kernels w=
-ith old
-> > > > > userspace, specifically Ubuntu 16.04 on ppc64le. 18.04 is OK.
-> > > > >
-> > > > > The symptom is that login never accepts the root password, it jus=
-t
-> > > > > always says "Login incorrect".
-> > > > >
-> > > > > Bisect points to this commit.
-> > > > >
-> > > > > Reverting this commit on top of next-20230726, fixes the problem
-> > > > > (ie. login works again).
-> > > > >
-> > > > > Booting with selinux=3D0 also fixes the problem.
-> > > > >
-> > > > > Is this expected? The change log below suggests backward compatib=
-ility
-> > > > > was considered, is 16.04 just too old?
-> > > >
-> > > > Hi Michael,
-> > > >
-> > > > I can reproduce it on Fedora 38 when I boot with SELINUX=3Ddisabled=
- in
-> > > > /etc/selinux/config (+ a kernel including that commit), so it likel=
-y
-> > > > isn't caused by the userspace being old. Can you check what you hav=
-e
-> > > > in /etc/selinux/config (or if it exists at all)?
-> > > >
-> > > > We have deprecated and removed the "runtime disable" functionality =
-in
-> > > > SELinux recently [1], which was used to implement "disabling" SELin=
-ux
-> > > > via the /etc/selinux/config file, so now the situation (selinux=3D0=
- +
-> > > > SELINUX=3Ddisabled in /etc/selinux/config) leads to a state where
-> > > > SELinux is enabled, but no policy is loaded (and no enforcement is
-> > > > done). Such a state mostly behaves as if SElinux was truly disabled
-> > > > (via kernel command line), but there are some subtle differences an=
-d I
-> > > > believe we don't officially support it (Paul might clarify). With
-> > > > latest kernels it is recommended to either disable SELinux via the
-> > > > kernel command line (or Kconfig[2]) or to boot it in Enforcing or
-> > > > Permissive mode with a valid/usable policy installed.
-> > > >
-> > > > So I wonder if Ubuntu ships by default with the bad configuration o=
-r
-> > > > if it's just a result of using the custom-built linux-next kernel (=
-or
-> > > > some changes on your part). If Ubuntu's stock kernel is configured =
-to
-> > > > boot with SELinux enabled by default, they should also by default s=
-hip
-> > > > a usable policy and SELINUX=3Dpermissive/enforcing in
-> > > > /etc/selinux/config (or configure the kernel[2] or bootloader to bo=
-ot
-> > > > with SELinux disabled by default). (Although if they ship a pre-[1]
-> > > > kernel, they may continue to rely on the runtime disable
-> > > > functionality, but it means people will have to be careful when
-> > > > booting newer or custom kernels.)
-> > > >
-> > > > That said, I'd like to get to the bottom of why the commit causes t=
-he
-> > > > login to fail and fix it somehow. I presume something in PAM chokes=
- on
-> > > > the fact that userspace tasks now have "init" instead of "kernel" a=
-s
-> > > > the pre-policy-load security context, but so far I haven't been abl=
-e
-> > > > to pinpoint the problem. I'll keep digging...
-> > > >
-> > > > [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.=
-git/commit/?id=3Df22f9aaf6c3d92ebd5ad9e67acc03afebaaeb289
-> > > > [2] via CONFIG_LSM (or CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE on o=
-lder kernels)
-> > >
-> > > Prior to selinux userspace commit
-> > > 685f4aeeadc0b60f3770404d4f149610d656e3c8 ("libselinux:
-> > > is_selinux_enabled(): drop no-policy-loaded test.") libselinux was
-> > > checking the result of reading /proc/self/attr/current to see if it
-> > > returned the "kernel" string as a means of detecting a system with
-> > > SELinux enabled but no policy loaded, and treated that as if SELinux
-> > > were disabled. Hence, this does break old userspace. Not sure though
-> > > why you'd see the same behavior with modern libselinux.
-> >
-> > Hm... now I tried booting the stock Fedora kernel (without the early
-> > boot initial SID commit) and I got the same failure to login as with
-> > the new kernel. So if Ubuntu 16.04 ships with pre-685f4aeeadc0
-> > libselinux (quite possible), then it seems that the scenario with
-> > terminal login + SELinux enabled + policy not loaded only works with
-> > pre-685f4aeeadc0 libselinux and pre-5b0eea835d4e kernel, the other
-> > combinations are broken. With pre-685f4aeeadc0 libselinux +
-> > post-5b0eea835d4e kernel it is expected as you say (and probably
-> > inevitable barring some hack on the kernel side), but it's not clear
-> > why also only updating libselinux seems to break it... /sys/fs/selinux
-> > is not mounted in my scenario, so there must be something else coming
-> > into play.
-> >
-> >
-> > --
-> > Ondrej Mosnacek
-> > Senior Software Engineer, Linux Security - SELinux kernel
-> > Red Hat, Inc.
-> >
->
-> Completely untested:
->
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index 2c5be06fbada..1ed275bd4551 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1322,8 +1322,19 @@ static int security_sid_to_context_core(u32
-> sid, char **scontext,
->         if (!selinux_initialized()) {
->                 if (sid <=3D SECINITSID_NUM) {
->                         char *scontextp;
-> -                       const char *s =3D initial_sid_to_string[sid];
-> +                       const char *s;
->
-> +                       /*
-> +                        * Hide the context split of kernel threads and
-> +                        * userspace threads from userspace before the fi=
-rst
-> +                        * policy is loaded.  Userspace, e.g. libselinux =
-prior
-> +                        * to v2.6 or systemd, depends on the context bei=
-ng
-> +                        * "kernel".
-> +                        */
-> +                       if (sid =3D=3D SECINITSID_INIT)
-> +                               sid =3D SECINITSID_KERNEL;
-> +
-> +                       s =3D initial_sid_to_string[sid];
->                         if (!s)
->                                 return -EINVAL;
->                         *scontext_len =3D strlen(s) + 1;
+Hi Stanislav,
 
-I think I'd rather see something that does the following:
+On 27/07/2023 20:01, Stanislav Fomichev wrote:
+> On 07/27, Matthieu Baerts wrote:
+>> Hi Paul, Stanislav,
+>>
+>> On 18/07/2023 18:14, Paul Moore wrote:
+>>> On Tue, Jul 18, 2023 at 11:21 AM Geliang Tang <geliang.tang@suse.com> wrote:
+>>>>
+>>>> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]:
+>>>>
+>>>> "Your app can create sockets with IPPROTO_MPTCP as the proto:
+>>>> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
+>>>> forced to create and use MPTCP sockets instead of TCP ones via the
+>>>> mptcpize command bundled with the mptcpd daemon."
+>>>>
+>>>> But the mptcpize (LD_PRELOAD technique) command has some limitations
+>>>> [2]:
+>>>>
+>>>>  - it doesn't work if the application is not using libc (e.g. GoLang
+>>>> apps)
+>>>>  - in some envs, it might not be easy to set env vars / change the way
+>>>> apps are launched, e.g. on Android
+>>>>  - mptcpize needs to be launched with all apps that want MPTCP: we could
+>>>> have more control from BPF to enable MPTCP only for some apps or all the
+>>>> ones of a netns or a cgroup, etc.
+>>>>  - it is not in BPF, we cannot talk about it at netdev conf.
+>>>>
+>>>> So this patchset attempts to use BPF to implement functions similer to
+>>>> mptcpize.
+>>>>
+>>>> The main idea is add a hook in sys_socket() to change the protocol id
+>>>> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
+>>>>
+>>>> [1]
+>>>> https://github.com/multipath-tcp/mptcp_net-next/wiki
+>>>> [2]
+>>>> https://github.com/multipath-tcp/mptcp_net-next/issues/79
+>>>>
+>>>> v5:
+>>>>  - add bpf_mptcpify helper.
+>>>>
+>>>> v4:
+>>>>  - use lsm_cgroup/socket_create
+>>>>
+>>>> v3:
+>>>>  - patch 8: char cmd[128]; -> char cmd[256];
+>>>>
+>>>> v2:
+>>>>  - Fix build selftests errors reported by CI
+>>>>
+>>>> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
+>>>> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+>>>> ---
+>>>>  include/linux/bpf.h                           |   1 +
+>>>>  include/linux/lsm_hook_defs.h                 |   2 +-
+>>>>  include/linux/security.h                      |   6 +-
+>>>>  include/uapi/linux/bpf.h                      |   7 +
+>>>>  kernel/bpf/bpf_lsm.c                          |   2 +
+>>>>  net/mptcp/bpf.c                               |  20 +++
+>>>>  net/socket.c                                  |   4 +-
+>>>>  security/apparmor/lsm.c                       |   8 +-
+>>>>  security/security.c                           |   2 +-
+>>>>  security/selinux/hooks.c                      |   6 +-
+>>>>  tools/include/uapi/linux/bpf.h                |   7 +
+>>>>  .../testing/selftests/bpf/prog_tests/mptcp.c  | 128 ++++++++++++++++--
+>>>>  tools/testing/selftests/bpf/progs/mptcpify.c  |  17 +++
+>>>>  13 files changed, 187 insertions(+), 23 deletions(-)
+>>>>  create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
+>>>
+>>> ...
+>>>
+>>>> diff --git a/security/security.c b/security/security.c
+>>>> index b720424ca37d..bbebcddce420 100644
+>>>> --- a/security/security.c
+>>>> +++ b/security/security.c
+>>>> @@ -4078,7 +4078,7 @@ EXPORT_SYMBOL(security_unix_may_send);
+>>>>   *
+>>>>   * Return: Returns 0 if permission is granted.
+>>>>   */
+>>>> -int security_socket_create(int family, int type, int protocol, int kern)
+>>>> +int security_socket_create(int *family, int *type, int *protocol, int kern)
+>>>>  {
+>>>>         return call_int_hook(socket_create, 0, family, type, protocol, kern);
+>>>>  }
+>>>
+>>> Using the LSM to change the protocol family is not something we want
+>>> to allow.  I'm sorry, but you will need to take a different approach.
+>>
+>> @Paul: Thank you for your feedback. It makes sense and I understand.
+>>
+>> @Stanislav: Despite the fact the implementation was smaller and reusing
+>> more code, it looks like we cannot go in the direction you suggested. Do
+>> you think what Geliang suggested before in his v3 [1] can be accepted?
+>>
+>> (Note that the v3 is the same as the v1, only some fixes in the selftests.)
+> 
+> We have too many hooks in networking, so something that doesn't add
+> a new one is preferable :-(
 
-1. Convert all direct access of @initial_sid_to_string to calls to
-security_get_initial_sid_context().  I think we can leave all the
-stuff under scripts/ as-is, but I didn't think about it that hard, so
-some additional thought would be required here.
+Thank you for your reply and the explanation, I understand.
 
-2. Modify security_get_initial_sid_context() to so something similar
-to what Christian proposed, e.g. translate INIT to KERNEL, but do so
-only when POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT is not enabled.  I
-believe this should cover both the uninitialized and old policy case.
+> Moreover, we already have a 'socket init' hook, but it runs a bit late.
 
-It might be easier if both were done as a single patch, as those that
-want the userspace isid patch will likely want this as a fix, but if
-it becomes to ugly I have no problem splitting #1 and #2 into
-different patches.
+Indeed. And we cannot move it before the creation of the socket.
 
-What do folks think?  Am I missing something?
+> Is existing cgroup/sock completely unworkable? Is it possible to
+> expose some new bpf_upgrade_socket_to(IPPROTO_MPTCP) kfunc which would
+> call some new net_proto_family->upgrade_to(IPPROTO_MPTCP) to do the surgery?
+> Or is it too hacky?
 
---=20
-paul-moore.com
+I cannot judge if it is too hacky or not but if you think it would be
+OK, please tell us :)
+
+> Another option Alexei suggested is to add some fentry-like thing:
+> 
+> noinline int update_socket_protocol(int protocol)
+> {
+> 	return protocol;
+> }
+> /* TODO: ^^^ add the above to mod_ret set */
+> 
+> int __sys_socket(int family, int type, int protocol)
+> {
+> 	...
+> 
+> 	protocol = update_socket_protocol(protocol);
+> 
+> 	...
+> }
+> 
+> But it's also too problem specific it seems? And it's not cgroup-aware.
+
+It looks like it is what Geliang did in his v6. If it is the only
+acceptable solution, I guess we can do without cgroup support. We can
+continue the discussions in his v6 if that's easier.
+
+Cheers,
+Matt
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
