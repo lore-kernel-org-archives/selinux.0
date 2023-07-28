@@ -2,243 +2,242 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02FB6C001E0
-	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 16:54:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB1AC001E0
+	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 17:52:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230221AbjG1QyE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jul 2023 12:54:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52608 "EHLO
+        id S229817AbjG1RwW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Jul 2023 13:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235771AbjG1QxB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 12:53:01 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED6E1BD6
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 09:51:36 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-d13e11bb9ecso2068758276.0
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 09:51:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1690563084; x=1691167884;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hSztq2dvrAtj1uS3ESiNs+Jg1HePYMDsZwSdft0wsVY=;
-        b=uC9D4FcQ4hwzphsSwJRgDNbPH7AACt801Mlm2IGAsaCpAbFm8nZ/5u79Nw0s7R6uTN
-         S0AqDXgmdZcN9sqoD6w3I4W2sdk/FkYcC/gwy7cQgo0LGGfDS5+9+Sm0owWE9jYCC8TN
-         TmtJK10RK9ulRo6V6oV6oDwYY1nnMo3vfgBGy0Ozsi9gIkswPMzDAjG+jewR7raXO+P3
-         95CCiOUHijIqyJXPUFIHEmwBnCL9VRYUEvCY5LGHTJHB32w4QIzGmnk+/XdJM1+8eN8Y
-         +AgjzUEjfZ/EFu/piAU2X3fpKgrpzv3rT9tuambFkZRwDttE7wnctxSipbS5Ay9LyUoi
-         1piw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690563084; x=1691167884;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=hSztq2dvrAtj1uS3ESiNs+Jg1HePYMDsZwSdft0wsVY=;
-        b=BeAUNNODZtNXGKApxpf8FHdoXgLPeXdpHgXUPAHVAGnDWJaqQ0BKIdilgTfBPIOqqC
-         EjRW31LtxbOCQP4NxCzBGclmTBfEKshDTm/MdkJQqfGVNUVKN+vByYqe3ayDYS9lZtC+
-         GpJQjO5nnaBNP8Hx46PYr3xARC7HUZn8nux2t/Br5+jz2MmOG5dYj0Tqq9wvpbWMtYLz
-         BhvNPpV9FxfaGm48rU+foxbQXxunX/bIgjW6thppu1UBJyrLJR8xmQjFgcC+JfUgC1IV
-         LktuCkpGKTYNmHshnHolEQRuMREuiepQWRniLDRn/y01jppLgJ/O9C6yS3jC11cqFRLE
-         COwA==
-X-Gm-Message-State: ABy/qLYtDu90awZfiUXNLjL2lrKliPRa148BKhoeFjEuDGZ3/PZMfFOO
-        aPehHuVrVq39wev6AceVckOEuzQ=
-X-Google-Smtp-Source: APBJJlEi55DECGldnh4oz+7pIZRoVzrzq1k+o9LpkI1MyKXobMp3xALP+1XPqinyyja4f6VBX3Vg0pc=
-X-Received: from sdf.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:5935])
- (user=sdf job=sendgmr) by 2002:a25:f89:0:b0:d0b:c67:de3b with SMTP id
- 131-20020a250f89000000b00d0b0c67de3bmr13938ybp.13.1690563084070; Fri, 28 Jul
- 2023 09:51:24 -0700 (PDT)
-Date:   Fri, 28 Jul 2023 09:51:22 -0700
-In-Reply-To: <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
-Mime-Version: 1.0
-References: <3076188eb88cca9151a2d12b50ba1e870b11ce09.1689693294.git.geliang.tang@suse.com>
- <CAHC9VhS_LKdkEmm5_J5y34RpaRcTbg8==fpz8pMThDCjF6nYtQ@mail.gmail.com>
- <b41babb1-f0f2-dc2f-c2e3-1870107fbd9f@tessares.net> <ZMKxC+CFj4GbCklg@google.com>
- <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
-Message-ID: <ZMPyCt2uozns776Q@google.com>
-Subject: Re: [RFC bpf-next v5] bpf: Force to MPTCP
-From:   Stanislav Fomichev <sdf@google.com>
-To:     Matthieu Baerts <matthieu.baerts@tessares.net>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Geliang Tang <geliang.tang@suse.com>,
-        Alexei Starovoitov <ast@kernel.org>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        with ESMTP id S230148AbjG1RwV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 13:52:21 -0400
+X-Greylist: delayed 405 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 28 Jul 2023 10:52:16 PDT
+Received: from out-97.mta0.migadu.com (out-97.mta0.migadu.com [91.218.175.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2833585
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 10:52:16 -0700 (PDT)
+Message-ID: <4cfb1cae-5c25-107f-3f0b-c9538d62bd14@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1690566329; h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=djOJ7aCL19RNXe8MF64c4n/fALjFZtWZ/lQcY9gY93c=;
+        b=j5qOOAwcCkJHCY+tpKam4iLC6WF0wfvro1pvZmCS6NEVSkx+pvjP1XRnbwHnhZVY+26DhX
+        Jy+eKeWSfPGnhF54abvyFS6yxO3U7CuVTz19X4u85lngnyrT9mtTuaHJGaO5vm1nn3AEqk
+        XFGxmPjP/gAah8N55wYVQRaJmxGjshM=
+Date:   Fri, 28 Jul 2023 10:45:17 -0700
+MIME-Version: 1.0
+Reply-To: yonghong.song@linux.dev
+Subject: Re: [RFC bpf-next v6] bpf: Force to MPTCP
+Content-Language: en-US
+To:     Geliang Tang <geliang.tang@suse.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Brendan Jackman <jackmanb@chromium.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>
+Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org, mptcp@lists.linux.dev,
         apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+References: <c0647d0d3c7158b96dec4604ba317df311c5012d.1690531142.git.geliang.tang@suse.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Yonghong Song <yonghong.song@linux.dev>
+In-Reply-To: <c0647d0d3c7158b96dec4604ba317df311c5012d.1690531142.git.geliang.tang@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 07/28, Matthieu Baerts wrote:
-> Hi Stanislav,
->=20
-> On 27/07/2023 20:01, Stanislav Fomichev wrote:
-> > On 07/27, Matthieu Baerts wrote:
-> >> Hi Paul, Stanislav,
-> >>
-> >> On 18/07/2023 18:14, Paul Moore wrote:
-> >>> On Tue, Jul 18, 2023 at 11:21=E2=80=AFAM Geliang Tang <geliang.tang@s=
-use.com> wrote:
-> >>>>
-> >>>> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]=
-:
-> >>>>
-> >>>> "Your app can create sockets with IPPROTO_MPTCP as the proto:
-> >>>> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
-> >>>> forced to create and use MPTCP sockets instead of TCP ones via the
-> >>>> mptcpize command bundled with the mptcpd daemon."
-> >>>>
-> >>>> But the mptcpize (LD_PRELOAD technique) command has some limitations
-> >>>> [2]:
-> >>>>
-> >>>>  - it doesn't work if the application is not using libc (e.g. GoLang
-> >>>> apps)
-> >>>>  - in some envs, it might not be easy to set env vars / change the w=
-ay
-> >>>> apps are launched, e.g. on Android
-> >>>>  - mptcpize needs to be launched with all apps that want MPTCP: we c=
-ould
-> >>>> have more control from BPF to enable MPTCP only for some apps or all=
- the
-> >>>> ones of a netns or a cgroup, etc.
-> >>>>  - it is not in BPF, we cannot talk about it at netdev conf.
-> >>>>
-> >>>> So this patchset attempts to use BPF to implement functions similer =
-to
-> >>>> mptcpize.
-> >>>>
-> >>>> The main idea is add a hook in sys_socket() to change the protocol i=
-d
-> >>>> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
-> >>>>
-> >>>> [1]
-> >>>> https://github.com/multipath-tcp/mptcp_net-next/wiki
-> >>>> [2]
-> >>>> https://github.com/multipath-tcp/mptcp_net-next/issues/79
-> >>>>
-> >>>> v5:
-> >>>>  - add bpf_mptcpify helper.
-> >>>>
-> >>>> v4:
-> >>>>  - use lsm_cgroup/socket_create
-> >>>>
-> >>>> v3:
-> >>>>  - patch 8: char cmd[128]; -> char cmd[256];
-> >>>>
-> >>>> v2:
-> >>>>  - Fix build selftests errors reported by CI
-> >>>>
-> >>>> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
-> >>>> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-> >>>> ---
-> >>>>  include/linux/bpf.h                           |   1 +
-> >>>>  include/linux/lsm_hook_defs.h                 |   2 +-
-> >>>>  include/linux/security.h                      |   6 +-
-> >>>>  include/uapi/linux/bpf.h                      |   7 +
-> >>>>  kernel/bpf/bpf_lsm.c                          |   2 +
-> >>>>  net/mptcp/bpf.c                               |  20 +++
-> >>>>  net/socket.c                                  |   4 +-
-> >>>>  security/apparmor/lsm.c                       |   8 +-
-> >>>>  security/security.c                           |   2 +-
-> >>>>  security/selinux/hooks.c                      |   6 +-
-> >>>>  tools/include/uapi/linux/bpf.h                |   7 +
-> >>>>  .../testing/selftests/bpf/prog_tests/mptcp.c  | 128 +++++++++++++++=
-+--
-> >>>>  tools/testing/selftests/bpf/progs/mptcpify.c  |  17 +++
-> >>>>  13 files changed, 187 insertions(+), 23 deletions(-)
-> >>>>  create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
-> >>>
-> >>> ...
-> >>>
-> >>>> diff --git a/security/security.c b/security/security.c
-> >>>> index b720424ca37d..bbebcddce420 100644
-> >>>> --- a/security/security.c
-> >>>> +++ b/security/security.c
-> >>>> @@ -4078,7 +4078,7 @@ EXPORT_SYMBOL(security_unix_may_send);
-> >>>>   *
-> >>>>   * Return: Returns 0 if permission is granted.
-> >>>>   */
-> >>>> -int security_socket_create(int family, int type, int protocol, int =
-kern)
-> >>>> +int security_socket_create(int *family, int *type, int *protocol, i=
-nt kern)
-> >>>>  {
-> >>>>         return call_int_hook(socket_create, 0, family, type, protoco=
-l, kern);
-> >>>>  }
-> >>>
-> >>> Using the LSM to change the protocol family is not something we want
-> >>> to allow.  I'm sorry, but you will need to take a different approach.
-> >>
-> >> @Paul: Thank you for your feedback. It makes sense and I understand.
-> >>
-> >> @Stanislav: Despite the fact the implementation was smaller and reusin=
-g
-> >> more code, it looks like we cannot go in the direction you suggested. =
-Do
-> >> you think what Geliang suggested before in his v3 [1] can be accepted?
-> >>
-> >> (Note that the v3 is the same as the v1, only some fixes in the selfte=
-sts.)
-> >=20
-> > We have too many hooks in networking, so something that doesn't add
-> > a new one is preferable :-(
->=20
-> Thank you for your reply and the explanation, I understand.
->=20
-> > Moreover, we already have a 'socket init' hook, but it runs a bit late.
->=20
-> Indeed. And we cannot move it before the creation of the socket.
->=20
-> > Is existing cgroup/sock completely unworkable? Is it possible to
-> > expose some new bpf_upgrade_socket_to(IPPROTO_MPTCP) kfunc which would
-> > call some new net_proto_family->upgrade_to(IPPROTO_MPTCP) to do the sur=
-gery?
-> > Or is it too hacky?
->=20
-> I cannot judge if it is too hacky or not but if you think it would be
-> OK, please tell us :)
 
-Maybe try and see how it goes? Doing the surgery to convert from tcp
-to mptcp is probably hard, but it seems that we should be able to
-do something like:
 
-int upgrade_to(sock, sk) {
-	if (sk is not a tcp one) return -EINVAL;
+On 7/28/23 12:59 AM, Geliang Tang wrote:
+> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]:
+> 
+> "Your app can create sockets with IPPROTO_MPTCP as the proto:
+> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
+> forced to create and use MPTCP sockets instead of TCP ones via the
+> mptcpize command bundled with the mptcpd daemon."
+> 
+> But the mptcpize (LD_PRELOAD technique) command has some limitations
+> [2]:
+> 
+>   - it doesn't work if the application is not using libc (e.g. GoLang
+> apps)
+>   - in some envs, it might not be easy to set env vars / change the way
+> apps are launched, e.g. on Android
+>   - mptcpize needs to be launched with all apps that want MPTCP: we could
+> have more control from BPF to enable MPTCP only for some apps or all the
+> ones of a netns or a cgroup, etc.
+>   - it is not in BPF, we cannot talk about it at netdev conf.
+> 
+> So this patchset attempts to use BPF to implement functions similer to
+> mptcpize.
+> 
+> The main idea is add a hook in sys_socket() to change the protocol id
+> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
+> 
+> [1]
+> https://github.com/multipath-tcp/mptcp_net-next/wiki
+> [2]
+> https://github.com/multipath-tcp/mptcp_net-next/issues/79
+> 
+> v6:
+>   - add update_socket_protocol.
+> 
+> v5:
+>   - add bpf_mptcpify helper.
+> 
+> v4:
+>   - use lsm_cgroup/socket_create
+> 
+> v3:
+>   - patch 8: char cmd[128]; -> char cmd[256];
+> 
+> v2:
+>   - Fix build selftests errors reported by CI
+> 
+> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
+> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+> ---
+>   net/mptcp/bpf.c                               |  17 +++
+>   net/socket.c                                  |   6 +
+>   .../testing/selftests/bpf/prog_tests/mptcp.c  | 126 ++++++++++++++++--
+>   tools/testing/selftests/bpf/progs/mptcpify.c  |  26 ++++
+>   4 files changed, 166 insertions(+), 9 deletions(-)
+>   create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
+> 
+> diff --git a/net/mptcp/bpf.c b/net/mptcp/bpf.c
+> index 5a0a84ad94af..c43aee31014d 100644
+> --- a/net/mptcp/bpf.c
+> +++ b/net/mptcp/bpf.c
+> @@ -12,6 +12,23 @@
+>   #include <linux/bpf.h>
+>   #include "protocol.h"
+>   
+> +#ifdef CONFIG_BPF_JIT
+> +BTF_SET8_START(bpf_mptcp_fmodret_ids)
+> +BTF_ID_FLAGS(func, update_socket_protocol)
+> +BTF_SET8_END(bpf_mptcp_fmodret_ids)
+> +
+> +static const struct btf_kfunc_id_set bpf_mptcp_fmodret_set = {
+> +	.owner = THIS_MODULE,
+> +	.set   = &bpf_mptcp_fmodret_ids,
+> +};
+> +
+> +static int __init bpf_mptcp_kfunc_init(void)
+> +{
+> +	return register_btf_fmodret_id_set(&bpf_mptcp_fmodret_set);
+> +}
+> +late_initcall(bpf_mptcp_kfunc_init);
+> +#endif /* CONFIG_BPF_JIT */
+> +
+>   struct mptcp_sock *bpf_mptcp_sock_from_subflow(struct sock *sk)
+>   {
+>   	if (sk && sk_fullsock(sk) && sk->sk_protocol == IPPROTO_TCP && sk_is_mptcp(sk))
+> diff --git a/net/socket.c b/net/socket.c
+> index 2b0e54b2405c..4c7b2ff711f0 100644
+> --- a/net/socket.c
+> +++ b/net/socket.c
+> @@ -1644,11 +1644,17 @@ struct file *__sys_socket_file(int family, int type, int protocol)
+>   	return sock_alloc_file(sock, flags, NULL);
+>   }
+>   
+> +noinline int update_socket_protocol(int family, int type, int protocol)
+> +{
+> +	return protocol;
+> +}
 
-	sk_common_release(sk);
-	return inet6_create(net, sock, IPPROTO_MPTCP, false);
-}
+You need to add __weak attribute to the above function, otherwise,
+although compiler will not inline this function, it may still poke
+into this function and if the function body is simply enough, it will
+"inline" it like in this case. Adding a '__weak' attribute can
+prevent this.
 
-?
+The following is a snipet of asm code from a clang build kernel.
 
-The only thing I'm not sure about is whether you can call inet6_create
-on a socket that has seen sk_common_release'd...
-=20
-> > Another option Alexei suggested is to add some fentry-like thing:
-> >=20
-> > noinline int update_socket_protocol(int protocol)
-> > {
-> > 	return protocol;
-> > }
-> > /* TODO: ^^^ add the above to mod_ret set */
-> >=20
-> > int __sys_socket(int family, int type, int protocol)
-> > {
-> > 	...
-> >=20
-> > 	protocol =3D update_socket_protocol(protocol);
-> >=20
-> > 	...
-> > }
-> >=20
-> > But it's also too problem specific it seems? And it's not cgroup-aware.
->=20
-> It looks like it is what Geliang did in his v6. If it is the only
-> acceptable solution, I guess we can do without cgroup support. We can
-> continue the discussions in his v6 if that's easier.
+ffffffff8206a280 <update_socket_protocol>:
+ffffffff8206a280: f3 0f 1e fa           endbr64
+ffffffff8206a284: 0f 1f 44 00 00        nopl    (%rax,%rax)
+ffffffff8206a289: 89 d0                 movl    %edx, %eax
+ffffffff8206a28b: c3                    retq
+ffffffff8206a28c: 0f 1f 40 00           nopl    (%rax)
 
-Ack, that works too, let's see how other people feel about it. I'm
-assuming in the bpf program we can always do bpf_get_current_cgroup_id()
-to filter by cgroup.
+ffffffff8206a290 <__sys_socket>:
+ffffffff8206a290: f3 0f 1e fa           endbr64
+ffffffff8206a294: 0f 1f 44 00 00        nopl    (%rax,%rax)
+ffffffff8206a299: 55                    pushq   %rbp
+ffffffff8206a29a: 41 57                 pushq   %r15
+ffffffff8206a29c: 41 56                 pushq   %r14
+ffffffff8206a29e: 41 54                 pushq   %r12
+ffffffff8206a2a0: 53                    pushq   %rbx
+ffffffff8206a2a1: 50                    pushq   %rax
+ffffffff8206a2a2: f7 c6 f0 f7 f7 ff     testl   $0xfff7f7f0, %esi 
+# imm = 0xFFF7F7F0
+ffffffff8206a2a8: 74 0c                 je      0xffffffff8206a2b6 
+<__sys_socket+0x26>
+ffffffff8206a2aa: 49 c7 c6 ea ff ff ff  movq    $-0x16, %r14
+ffffffff8206a2b1: e9 a5 00 00 00        jmp     0xffffffff8206a35b 
+<__sys_socket+0xcb>
+ffffffff8206a2b6: 89 d3                 movl    %edx, %ebx
+ffffffff8206a2b8: 89 f5                 movl    %esi, %ebp
+ffffffff8206a2ba: 41 89 fe              movl    %edi, %r14d
+ffffffff8206a2bd: 41 89 f7              movl    %esi, %r15d
+ffffffff8206a2c0: 41 83 e7 0f           andl    $0xf, %r15d
+ffffffff8206a2c4: 65 4c 8b 25 74 e9 fc 7d       movq 
+%gs:0x7dfce974(%rip), %r12
+ffffffff8206a2cc: 49 8d bc 24 b0 07 00 00       leaq    0x7b0(%r12), %rdi
+ffffffff8206a2d4: e8 a7 49 41 ff        callq   0xffffffff8147ec80 
+<__asan_load8_noabort>
+ffffffff8206a2d9: 4d 8b a4 24 b0 07 00 00       movq    0x7b0(%r12), %r12
+ffffffff8206a2e1: 49 8d 7c 24 28        leaq    0x28(%r12), %rdi
+ffffffff8206a2e6: e8 95 49 41 ff        callq   0xffffffff8147ec80 
+<__asan_load8_noabort>
+ffffffff8206a2eb: 49 8b 7c 24 28        movq    0x28(%r12), %rdi
+ffffffff8206a2f0: 49 89 e0              movq    %rsp, %r8
+ffffffff8206a2f3: 44 89 f6              movl    %r14d, %esi
+ffffffff8206a2f6: 44 89 fa              movl    %r15d, %edx
+ffffffff8206a2f9: 89 d9                 movl    %ebx, %ecx
+ffffffff8206a2fb: 45 31 c9              xorl    %r9d, %r9d
+ffffffff8206a2fe: e8 1d fa ff ff        callq   0xffffffff82069d20 
+<__sock_create>
+
+update_socket_protocol() is still there but its content
+has been inlined.
+
+Also, do you need a prototype for this global function?
+See kernel/cgroup/rstat.c for an example to use
+'__diag_*' to avoid a prototype.
+
+> +
+>   int __sys_socket(int family, int type, int protocol)
+>   {
+>   	struct socket *sock;
+>   	int flags;
+>   
+> +	protocol = update_socket_protocol(family, type, protocol);
+>   	sock = __sys_socket_create(family, type, protocol);
+>   	if (IS_ERR(sock))
+>   		return PTR_ERR(sock);
+[...]
