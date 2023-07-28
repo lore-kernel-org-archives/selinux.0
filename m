@@ -2,242 +2,151 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB1AC001E0
-	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 17:52:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E77D3C001DE
+	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 17:52:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229817AbjG1RwW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jul 2023 13:52:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
+        id S230145AbjG1Rwi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Jul 2023 13:52:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230148AbjG1RwV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 13:52:21 -0400
-X-Greylist: delayed 405 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 28 Jul 2023 10:52:16 PDT
-Received: from out-97.mta0.migadu.com (out-97.mta0.migadu.com [91.218.175.97])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D2833585
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 10:52:16 -0700 (PDT)
-Message-ID: <4cfb1cae-5c25-107f-3f0b-c9538d62bd14@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1690566329; h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=djOJ7aCL19RNXe8MF64c4n/fALjFZtWZ/lQcY9gY93c=;
-        b=j5qOOAwcCkJHCY+tpKam4iLC6WF0wfvro1pvZmCS6NEVSkx+pvjP1XRnbwHnhZVY+26DhX
-        Jy+eKeWSfPGnhF54abvyFS6yxO3U7CuVTz19X4u85lngnyrT9mtTuaHJGaO5vm1nn3AEqk
-        XFGxmPjP/gAah8N55wYVQRaJmxGjshM=
-Date:   Fri, 28 Jul 2023 10:45:17 -0700
+        with ESMTP id S229731AbjG1Rwh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 13:52:37 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95462D60
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 10:52:35 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2b703a0453fso36927721fa.3
+        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 10:52:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1690566754; x=1691171554;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NUI6IPACJgySeGbmM9TBKlFS/LqULA1ZeDinvwXoXeI=;
+        b=fmNK65K0V7XiF9FCjk0Mv4EKbzY/IoJk2PdFnu8rsyJforzwkkcLkjHze4pS6K2Kaq
+         V/YWSIqlYqC8bgcGlQXzEpE8lhTNHtntUzcFC07dKTp5Q0dNfte33IKJB1bL4yFXI2hQ
+         mnq8NB92DIVoH57DXFYCrzM1L9p58P/oBNxphJxr6aTvF8bV9Wd8jGs9F4Qx2vngQbog
+         rRiCnZmF6h97wnBLjJ8mVMKGNiq9AOyTg0Srhc70pPus8ENMyJfP0Qo8XZxveaaOVD2I
+         qs9Gzg3ldbhqk1cjkaLAOvdaGxqiOXG+hv5uyzOw1pAKVLR5n+3K0Xc7nHci/tJg7DYj
+         5KsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690566754; x=1691171554;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NUI6IPACJgySeGbmM9TBKlFS/LqULA1ZeDinvwXoXeI=;
+        b=K7r+yMPLKdWS1fK9XS9eSLU48myBHmuGRx2CHN8HKj+ln9+ZiZ+yKM1HmbIMJnC8Od
+         uDnPN9qeHf9Ynllai8AihXpLHY7KpN/U9jnld9vemKmZg4qO9J0s68qImiFomS4TIcro
+         LVfbqDU+IbDqIr75YEqzzbDxbJsv9TwpfP2kmT2bM4SkVPZzgpT9EYVB0UJSQvvTTTvB
+         G1uIIX6J/+OpBe+rh714AGcmSjflXya2cZUPQr2msU5QhNPbbU2qaoegrBdzpJxP8MXK
+         m6c1CHnBTVmvAcQvZ76Y7ixHnzrbLoSdJXdZrYgKegX28FKItc2wNXKpQC2xdTlWDlq+
+         Oj3w==
+X-Gm-Message-State: ABy/qLYr94SvXhpXeYTw1pQU5jLchyYz048ecJE4LrQhzjlkh05H5c+H
+        Satcj/LtuzD4JxYz7Yl/hgoZ41QbsAGYUOMmJbQ=
+X-Google-Smtp-Source: APBJJlHwpIhIMoklZJlgZY6HmDUu64UDWGVYvfRvdv2Z8+Cgown/tG+tagoPkYpuJNgEy7UJqINvdxYU7VD8sOlt1aA=
+X-Received: by 2002:a2e:9e51:0:b0:2b4:65ef:3af5 with SMTP id
+ g17-20020a2e9e51000000b002b465ef3af5mr2693188ljk.30.1690566753837; Fri, 28
+ Jul 2023 10:52:33 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: yonghong.song@linux.dev
-Subject: Re: [RFC bpf-next v6] bpf: Force to MPTCP
-Content-Language: en-US
-To:     Geliang Tang <geliang.tang@suse.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Florent Revest <revest@chromium.org>,
-        Brendan Jackman <jackmanb@chromium.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <martineau@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>
-Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org, mptcp@lists.linux.dev,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
-References: <c0647d0d3c7158b96dec4604ba317df311c5012d.1690531142.git.geliang.tang@suse.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Yonghong Song <yonghong.song@linux.dev>
-In-Reply-To: <c0647d0d3c7158b96dec4604ba317df311c5012d.1690531142.git.geliang.tang@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+References: <20230531112927.1957093-1-juraj@jurajmarcin.com>
+ <CAHC9VhQZE9Qtsu=7N38sOjHkD=RS4GXsqHOcUgobsJOA+iq2_A@mail.gmail.com>
+ <20230601170302.nrhuay2wh44g6sh4@jmarcin-t14s-01> <CAHC9VhRCBkx7ioHAEMpn=ug3zAo2nEOUBe2uWsm0Tb8p6-vE7g@mail.gmail.com>
+ <20230618094047.oa4o2d2qj5nvvhhs@jmarcin-t14s-01> <CAHC9VhRGgrihrYEB9VxjttUA5uQC7hD4iyBd+Rkf5_WQ=p+-9w@mail.gmail.com>
+ <20230620075100.4wvquojo52dhrixa@jmarcin-t14s-01> <CAEjxPJ6RSkOXRuuUCJr2=irN4k7M_isL12Gky--ucqJ-Fmmzcg@mail.gmail.com>
+ <20230727164259.cys5mabxa5aeonod@jmarcin-t14s-01> <CAEjxPJ7t6jr5gZm_mCZqPko207rh6t-CUc+gQxqLXi2QPJx9WA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7t6jr5gZm_mCZqPko207rh6t-CUc+gQxqLXi2QPJx9WA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 28 Jul 2023 13:52:22 -0400
+Message-ID: <CAP+JOzSoMQkUXt7tp5qe7k0arnyeX4d--hJSqE2d4ESvcRERCQ@mail.gmail.com>
+Subject: Re: [PATCH 0/5] selinux: add prefix/suffix matching to filename type transitions
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Juraj Marcin <juraj@jurajmarcin.com>,
+        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Fri, Jul 28, 2023 at 9:29=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Thu, Jul 27, 2023 at 12:43=E2=80=AFPM Juraj Marcin <juraj@jurajmarcin.=
+com> wrote:
+> >
+> > On 2023-07-17 14:44, Stephen Smalley wrote:
+> > >
+> > > I'd be curious to see what results you would get if you simply added
+> > > the new feature (prefix/suffix matching) without moving the name-base=
+d
+> > > transitions into the avtab.
+> >
+> > Here are the performance metrics of a prototype solution, where the
+> > filename transition key is extended with match_type and match is found
+> > by shortening the name from the end or the beginning if a full match is
+> > not found.
+> >
+> > [2] Reference kernel (447a5688005e), Fedora policy (format v33)
+> > [3] This patchset, Fedora policy (format v33)
+> > [4] This patchset, Fedora policy without prefix/suffix rules (format v3=
+4)
+> > [5] This patchset, Fedora policy with prefix rules (format v34)
+> >
+> >
+> >  Test | Mem   | Binary | Policy | Create tty      | osbench
+> >       | Usage | policy | load   |                 | create
+> >       |       | size   | time   | (ms/file)       | files
+> >       | (MiB) | (MiB)  | (ms)   | real   | kernel | (us/file)
+> > ------+-------+--------+--------+--------+--------+-----------
+> >  [2]  |   157 |    3.4 |     76 |  1.256 |  0.871 | 9.4492
+> >  [3]  |   156 |    3.4 |     77 |  1.208 |  0.869 | 9.6160
+> >  [4]  |   157 |    3.4 |     71 |  1.239 |  0.893 | 9.6297
+> >  [5]  |   156 |    2.4 |     71 |  1.211 |  0.838 | 9.8305
+>
+> This looks more promising to me - little-to-no impact on existing
+> users with old policy/userspace, reduced memory usage once fully
+> transitioned. Still some degradation in runtime for osbench but not
+> sure what the variance/stddev is for those numbers.
+>
 
+It does look promising.
 
-On 7/28/23 12:59 AM, Geliang Tang wrote:
-> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]:
-> 
-> "Your app can create sockets with IPPROTO_MPTCP as the proto:
-> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
-> forced to create and use MPTCP sockets instead of TCP ones via the
-> mptcpize command bundled with the mptcpd daemon."
-> 
-> But the mptcpize (LD_PRELOAD technique) command has some limitations
-> [2]:
-> 
->   - it doesn't work if the application is not using libc (e.g. GoLang
-> apps)
->   - in some envs, it might not be easy to set env vars / change the way
-> apps are launched, e.g. on Android
->   - mptcpize needs to be launched with all apps that want MPTCP: we could
-> have more control from BPF to enable MPTCP only for some apps or all the
-> ones of a netns or a cgroup, etc.
->   - it is not in BPF, we cannot talk about it at netdev conf.
-> 
-> So this patchset attempts to use BPF to implement functions similer to
-> mptcpize.
-> 
-> The main idea is add a hook in sys_socket() to change the protocol id
-> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
-> 
-> [1]
-> https://github.com/multipath-tcp/mptcp_net-next/wiki
-> [2]
-> https://github.com/multipath-tcp/mptcp_net-next/issues/79
-> 
-> v6:
->   - add update_socket_protocol.
-> 
-> v5:
->   - add bpf_mptcpify helper.
-> 
-> v4:
->   - use lsm_cgroup/socket_create
-> 
-> v3:
->   - patch 8: char cmd[128]; -> char cmd[256];
-> 
-> v2:
->   - Fix build selftests errors reported by CI
-> 
-> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
-> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-> ---
->   net/mptcp/bpf.c                               |  17 +++
->   net/socket.c                                  |   6 +
->   .../testing/selftests/bpf/prog_tests/mptcp.c  | 126 ++++++++++++++++--
->   tools/testing/selftests/bpf/progs/mptcpify.c  |  26 ++++
->   4 files changed, 166 insertions(+), 9 deletions(-)
->   create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
-> 
-> diff --git a/net/mptcp/bpf.c b/net/mptcp/bpf.c
-> index 5a0a84ad94af..c43aee31014d 100644
-> --- a/net/mptcp/bpf.c
-> +++ b/net/mptcp/bpf.c
-> @@ -12,6 +12,23 @@
->   #include <linux/bpf.h>
->   #include "protocol.h"
->   
-> +#ifdef CONFIG_BPF_JIT
-> +BTF_SET8_START(bpf_mptcp_fmodret_ids)
-> +BTF_ID_FLAGS(func, update_socket_protocol)
-> +BTF_SET8_END(bpf_mptcp_fmodret_ids)
-> +
-> +static const struct btf_kfunc_id_set bpf_mptcp_fmodret_set = {
-> +	.owner = THIS_MODULE,
-> +	.set   = &bpf_mptcp_fmodret_ids,
-> +};
-> +
-> +static int __init bpf_mptcp_kfunc_init(void)
-> +{
-> +	return register_btf_fmodret_id_set(&bpf_mptcp_fmodret_set);
-> +}
-> +late_initcall(bpf_mptcp_kfunc_init);
-> +#endif /* CONFIG_BPF_JIT */
-> +
->   struct mptcp_sock *bpf_mptcp_sock_from_subflow(struct sock *sk)
->   {
->   	if (sk && sk_fullsock(sk) && sk->sk_protocol == IPPROTO_TCP && sk_is_mptcp(sk))
-> diff --git a/net/socket.c b/net/socket.c
-> index 2b0e54b2405c..4c7b2ff711f0 100644
-> --- a/net/socket.c
-> +++ b/net/socket.c
-> @@ -1644,11 +1644,17 @@ struct file *__sys_socket_file(int family, int type, int protocol)
->   	return sock_alloc_file(sock, flags, NULL);
->   }
->   
-> +noinline int update_socket_protocol(int family, int type, int protocol)
-> +{
-> +	return protocol;
-> +}
+Does this new prototype change the kernel policy format and the userspace p=
+arts.
+If it does, then I will go ahead and revert the previous userspace
+patches and wait for the new ones.
 
-You need to add __weak attribute to the above function, otherwise,
-although compiler will not inline this function, it may still poke
-into this function and if the function body is simply enough, it will
-"inline" it like in this case. Adding a '__weak' attribute can
-prevent this.
+> > > Also wondering whether you considered the simpler approach of just
+> > > augmenting the kernel to recognize and support use of wildcards at th=
+e
+> > > beginning and/or end of the existing name field to signify a prefix o=
+r
+> > > suffix match. That seems more amenable to extensions beyond just
+> > > prefix or suffix match.
+> >
+> > I had not considered this approach in the beginning, but as I thought
+> > about it, it did not seem as simple.
+> >
+> > For example, along with adding the wildcard character, we also need to
+> > add the ability to escape it; otherwise, it would be a weird edge case
+> > of an unsupported filename. Also, possibly to escape the escape
+> > character itself. This adds more complexity to the solution.
+> >
+> > In addition to this, extending such solution to support wildcards
+> > anywhere in the filename would also require reimplementing the filename
+> > transitions structures or moving rules with wildcards away from current
+> > filename transitions. Currently, the filename is part of the hashtab ke=
+y
+> > and prefix/suffix could work by checking all prefixes and suffixes of a
+> > filename, which there are not that many. However, with a wildcard at an=
+y
+> > position, this is not feasible.
+>
+> Fair enough. That said, I do wonder if users will immediately start
+> asking for wildcards at any position, then file globbing or regexes,
+> etc, and would like to allow for future extensibility in a less
+> disruptive manner.
 
-The following is a snipet of asm code from a clang build kernel.
-
-ffffffff8206a280 <update_socket_protocol>:
-ffffffff8206a280: f3 0f 1e fa           endbr64
-ffffffff8206a284: 0f 1f 44 00 00        nopl    (%rax,%rax)
-ffffffff8206a289: 89 d0                 movl    %edx, %eax
-ffffffff8206a28b: c3                    retq
-ffffffff8206a28c: 0f 1f 40 00           nopl    (%rax)
-
-ffffffff8206a290 <__sys_socket>:
-ffffffff8206a290: f3 0f 1e fa           endbr64
-ffffffff8206a294: 0f 1f 44 00 00        nopl    (%rax,%rax)
-ffffffff8206a299: 55                    pushq   %rbp
-ffffffff8206a29a: 41 57                 pushq   %r15
-ffffffff8206a29c: 41 56                 pushq   %r14
-ffffffff8206a29e: 41 54                 pushq   %r12
-ffffffff8206a2a0: 53                    pushq   %rbx
-ffffffff8206a2a1: 50                    pushq   %rax
-ffffffff8206a2a2: f7 c6 f0 f7 f7 ff     testl   $0xfff7f7f0, %esi 
-# imm = 0xFFF7F7F0
-ffffffff8206a2a8: 74 0c                 je      0xffffffff8206a2b6 
-<__sys_socket+0x26>
-ffffffff8206a2aa: 49 c7 c6 ea ff ff ff  movq    $-0x16, %r14
-ffffffff8206a2b1: e9 a5 00 00 00        jmp     0xffffffff8206a35b 
-<__sys_socket+0xcb>
-ffffffff8206a2b6: 89 d3                 movl    %edx, %ebx
-ffffffff8206a2b8: 89 f5                 movl    %esi, %ebp
-ffffffff8206a2ba: 41 89 fe              movl    %edi, %r14d
-ffffffff8206a2bd: 41 89 f7              movl    %esi, %r15d
-ffffffff8206a2c0: 41 83 e7 0f           andl    $0xf, %r15d
-ffffffff8206a2c4: 65 4c 8b 25 74 e9 fc 7d       movq 
-%gs:0x7dfce974(%rip), %r12
-ffffffff8206a2cc: 49 8d bc 24 b0 07 00 00       leaq    0x7b0(%r12), %rdi
-ffffffff8206a2d4: e8 a7 49 41 ff        callq   0xffffffff8147ec80 
-<__asan_load8_noabort>
-ffffffff8206a2d9: 4d 8b a4 24 b0 07 00 00       movq    0x7b0(%r12), %r12
-ffffffff8206a2e1: 49 8d 7c 24 28        leaq    0x28(%r12), %rdi
-ffffffff8206a2e6: e8 95 49 41 ff        callq   0xffffffff8147ec80 
-<__asan_load8_noabort>
-ffffffff8206a2eb: 49 8b 7c 24 28        movq    0x28(%r12), %rdi
-ffffffff8206a2f0: 49 89 e0              movq    %rsp, %r8
-ffffffff8206a2f3: 44 89 f6              movl    %r14d, %esi
-ffffffff8206a2f6: 44 89 fa              movl    %r15d, %edx
-ffffffff8206a2f9: 89 d9                 movl    %ebx, %ecx
-ffffffff8206a2fb: 45 31 c9              xorl    %r9d, %r9d
-ffffffff8206a2fe: e8 1d fa ff ff        callq   0xffffffff82069d20 
-<__sock_create>
-
-update_socket_protocol() is still there but its content
-has been inlined.
-
-Also, do you need a prototype for this global function?
-See kernel/cgroup/rstat.c for an example to use
-'__diag_*' to avoid a prototype.
-
-> +
->   int __sys_socket(int family, int type, int protocol)
->   {
->   	struct socket *sock;
->   	int flags;
->   
-> +	protocol = update_socket_protocol(family, type, protocol);
->   	sock = __sys_socket_create(family, type, protocol);
->   	if (IS_ERR(sock))
->   		return PTR_ERR(sock);
-[...]
+If anyone knows of any cases where a prefix or suffix match would not
+work, it would be nice to hear about those cases now.
+Jim
