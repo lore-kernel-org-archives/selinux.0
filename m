@@ -2,141 +2,91 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50F5DC001DF
-	for <selinux@archiver.kernel.org>; Fri, 28 Jul 2023 18:12:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF183C41513
+	for <selinux@archiver.kernel.org>; Sat, 29 Jul 2023 08:10:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231889AbjG1SMC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jul 2023 14:12:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56886 "EHLO
+        id S230468AbjG2IKq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 29 Jul 2023 04:10:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbjG1SMB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jul 2023 14:12:01 -0400
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F106F1724
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 11:11:58 -0700 (PDT)
-Received: by mail-lj1-x22f.google.com with SMTP id 38308e7fff4ca-2b9a2033978so37311921fa.0
-        for <selinux@vger.kernel.org>; Fri, 28 Jul 2023 11:11:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690567917; x=1691172717;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vJq8k6lNNex+jxuHtO6Nud6WPY1Yrkpm7xO/rdyH600=;
-        b=RTehvfHgLhFcS611WXRXOL/MjJ5r5/Mb2bsiQpNqrdarq07Qb32fiyOlZNv4zamAgO
-         6soM2JerxHQaKL+nF2+5rU25FRSqtAKOO6RdE4qlE5k48h1khHKU12YmE1GHv8JCOQNh
-         t+vcSTfgvRunrh6FPxhXaoQaQYgkgjmunMHAx11T7sWPwQZdIEz8aPhm1W0PvIglGt0T
-         vtkbLe7th1Var2Y4onJpUZLB5IWuwYsskZOOLXz//ObRGzRlsL+spJ7zIB9OshlKrovW
-         cAeu0KInEFULxQfCaymfJCJ3pQcD9YYtnPiG5Ju7F3vEsBPUI640S10jSp3ySoXp08qV
-         88Gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690567917; x=1691172717;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vJq8k6lNNex+jxuHtO6Nud6WPY1Yrkpm7xO/rdyH600=;
-        b=LPzqLk8IDtvJ2tkD/riNphn9HAXDGHt9UK7ozFVbaZ1FtF0qapHigGfYhdGUHkyHmt
-         q+d8FtEkNbQLC1uNSSsDXQ3YSm6brRLiOvI6UKDj+iwIl/UOgS7JORxtyEF1xNt7HrWZ
-         91dbu4zy9Q/M4HOfGt4WM+30p9WdxJNRWn2cxf6XCqlWMQd2vqdvxol7b9S7R6nDrryJ
-         cRj+KJm+21bGmmH3P9wILaUQ2pIUiu0GfBa6amwRD0MI+mlTG+85mwKVs4sVgpcfwr0c
-         mAcCg3CBjbLO7N7F43QZPzG27skl9fv9ZArgyBW6M85mFKZEikBePTI3n7wMbl7cvBGC
-         +CnA==
-X-Gm-Message-State: ABy/qLYRe+5jg72kEsQwH4qvWWItTOFYIpQ62bES/5Xchy9HEm4h4rnH
-        VzKbxQ/XkTUm1kTkRTVHppySwK8dWl4AaY4fwdG09BgvOV0=
-X-Google-Smtp-Source: APBJJlGEi5yJwV2Q0d5cNaIKZIrL+EYMooRALEs2W7ljpR8n0z76SrzvDo6eBPrft3VzREpvUb3ArQWz2DRCMA0EcUg=
-X-Received: by 2002:a2e:9e89:0:b0:2b9:cddc:adeb with SMTP id
- f9-20020a2e9e89000000b002b9cddcadebmr2137662ljk.29.1690567916938; Fri, 28 Jul
- 2023 11:11:56 -0700 (PDT)
+        with ESMTP id S230025AbjG2IKq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 29 Jul 2023 04:10:46 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DAC3C30;
+        Sat, 29 Jul 2023 01:10:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1690618237;
+        bh=K9Nu5Mur1VUu1WUTzSv/ImXqpeDJ9TPv/2LQQo1sYIo=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=QSIFGoJV6H8Ihv2zIshooG1Ggr7zvlYF8ylzKx+wur+ekbenPmlijEx3jPFhzkdhM
+         +WKTT8VLXbmuYYd/PJWEg+yUmj0mu17Bg71e/2S7d5IcvAkxJSbVWxDPgZA19dQVUe
+         dQAIBM+a+DPt3E36gO3f1NUBcBy2L8L93lDQZieZH/SJGAa9s5OtVkqDuCFtC/lvM+
+         GQ2cBQh/jLQN0ubpN8Kzvln82vTJA4/Vf3reWUmaA4gf6LbOJfl2OlsjMLE1buEsLT
+         j7dn2oQowirDgwKXH77u2JlctB+7LT43oY/tnW+7Ajs06e+sKC6Encse0tnaGl2Wxr
+         gjZbR9n4rzgLg==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4RCcd91fYnz4wb8;
+        Sat, 29 Jul 2023 18:10:37 +1000 (AEST)
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-next@vger.kernel.org
+Subject: Re: Login broken with old userspace (was Re: [PATCH v2] selinux:
+ introduce an initial SID for early boot processes)
+In-Reply-To: <CAFqZXNtsCKsr0YHPCSJJQ5An=RoMhf0dufgr7P_SnAAv7CrLjw@mail.gmail.com>
+References: <20230620131223.431281-1-omosnace@redhat.com>
+ <87edkseqf8.fsf@mail.lhotse>
+ <CAFqZXNtsCKsr0YHPCSJJQ5An=RoMhf0dufgr7P_SnAAv7CrLjw@mail.gmail.com>
+Date:   Sat, 29 Jul 2023 18:10:36 +1000
+Message-ID: <875y63dtoj.fsf@mail.lhotse>
 MIME-Version: 1.0
-References: <20230714185033.45471-1-cgzones@googlemail.com>
-In-Reply-To: <20230714185033.45471-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 28 Jul 2023 14:11:45 -0400
-Message-ID: <CAP+JOzSz83bTgWaWF6EogNrfcbsZG7SgKZ_5aFz2co4iYMZgxg@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux/utils: introduce getpolicyload
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 14, 2023 at 2:56=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+Ondrej Mosnacek <omosnace@redhat.com> writes:
+> On Fri, Jul 28, 2023 at 4:12=E2=80=AFAM Michael Ellerman <mpe@ellerman.id=
+.au> wrote:
+>>
+>> Ondrej Mosnacek <omosnace@redhat.com> writes:
+>> > Currently, SELinux doesn't allow distinguishing between kernel threads
+>> > and userspace processes that are started before the policy is first
+>> > loaded - both get the label corresponding to the kernel SID. The only
+>> > way a process that persists from early boot can get a meaningful label
+>> > is by doing a voluntary dyntransition or re-executing itself.
+>>
+>> Hi,
+>>
+>> This commit breaks login for me when booting linux-next kernels with old
+>> userspace, specifically Ubuntu 16.04 on ppc64le. 18.04 is OK.
+>>
+>> The symptom is that login never accepts the root password, it just
+>> always says "Login incorrect".
+>>
+>> Bisect points to this commit.
+>>
+>> Reverting this commit on top of next-20230726, fixes the problem
+>> (ie. login works again).
+>>
+>> Booting with selinux=3D0 also fixes the problem.
+>>
+>> Is this expected? The change log below suggests backward compatibility
+>> was considered, is 16.04 just too old?
 >
-> Introduce a helper binary to print the number of policy reloads on the
-> running system.
-> Print only a single number to ease the usage by scripts.
+> Hi Michael,
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> I can reproduce it on Fedora 38 when I boot with SELINUX=3Ddisabled in
+> /etc/selinux/config (+ a kernel including that commit), so it likely
+> isn't caused by the userspace being old. Can you check what you have
+> in /etc/selinux/config (or if it exists at all)?
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Not sure if you still need it, but /etc/selinux/config doesn't exist in
+the 16.04 image.
 
-> ---
-> v2:
->   - use main() prototype with arguments
->   - use argv[0] instead of hard coding program name
->   - fix indentation and spacing issues
->   - add binary to .gitignore file
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/utils/.gitignore      |  1 +
->  libselinux/utils/getpolicyload.c | 30 ++++++++++++++++++++++++++++++
->  2 files changed, 31 insertions(+)
->  create mode 100644 libselinux/utils/getpolicyload.c
->
-> diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-> index b19b94a8..b3311360 100644
-> --- a/libselinux/utils/.gitignore
-> +++ b/libselinux/utils/.gitignore
-> @@ -10,6 +10,7 @@ getenforce
->  getfilecon
->  getpidcon
->  getpidprevcon
-> +getpolicyload
->  getsebool
->  getseuser
->  matchpathcon
-> diff --git a/libselinux/utils/getpolicyload.c b/libselinux/utils/getpolic=
-yload.c
-> new file mode 100644
-> index 00000000..ce06bb78
-> --- /dev/null
-> +++ b/libselinux/utils/getpolicyload.c
-> @@ -0,0 +1,30 @@
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +
-> +#include <selinux/avc.h>
-> +
-> +
-> +int main(int argc __attribute__ ((unused)),
-> +         char* argv[] __attribute__ ((unused))) {
-> +       int rc;
-> +
-> +       /*
-> +       * Do not use netlink as fallback, since selinux_status_policyload=
-(3)
-> +       * works only after a first message has been received.
-> +       */
-> +       rc =3D selinux_status_open(/*fallback=3D*/0);
-> +       if (rc < 0) {
-> +               fprintf(stderr, "%s:  failed to open SELinux status map: =
- %m\n", argv[0]);
-> +               return EXIT_FAILURE;
-> +       }
-> +
-> +       rc =3D selinux_status_policyload();
-> +       if (rc < 0)
-> +               fprintf(stderr, "%s:  failed to read policyload from SELi=
-nux status page:  %m\n", argv[0]);
-> +       else
-> +               printf("%d\n", rc);
-> +
-> +       selinux_status_close();
-> +
-> +       return (rc < 0) ? EXIT_FAILURE : EXIT_SUCCESS;
-> +}
-> --
-> 2.40.1
->
+cheers
