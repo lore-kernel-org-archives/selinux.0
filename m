@@ -2,250 +2,137 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53B66C001DC
-	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 14:02:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D296EC41513
+	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 14:27:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbjGaOCI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jul 2023 10:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49614 "EHLO
+        id S229743AbjGaO1F (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jul 2023 10:27:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232081AbjGaOBt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 10:01:49 -0400
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66F381BDF
-        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:56:44 -0700 (PDT)
-Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2b9bb097c1bso67091741fa.0
-        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:56:44 -0700 (PDT)
+        with ESMTP id S229763AbjGaO0i (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 10:26:38 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A229C9
+        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 07:26:37 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id d2e1a72fcca58-6874d1c8610so173063b3a.0
+        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 07:26:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tessares.net; s=google; t=1690811802; x=1691416602;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=//IuSF4aR8dDqdSUTPXRXM7wMeZmyHZKY6Im4lg/WZA=;
-        b=LmkI7deeD2ks/5C8RN/irm6cJromc4pVohQqFgm+kYIyM/FhhiHSbwR/wZtwbsAZ3Y
-         nhki4BBNcC4SYzhXv3w+vyXgnRyrS7U0A9AjcHduigl4wz3qK60pzT+Vaf22lkMNnXS5
-         GArHH+YQttOEsMC9C0qVcKcHFkAiGz5MNM5I5n0fmWRsHxGz79bc0Tr8CD0/zAm9qsGP
-         YtW2dyqPXFmRSfc8iiyhVjq211n8k2vMr8jdS4zOzLnPAxWsHwnTZ3kB2uV22HNnL9C5
-         V7jbptUdpJjN/bAWZzMx7/xvbs/CEKgqpYUZ/I0G8V2A4HzFtx+y+LqbFvaB18dskmWs
-         zf9g==
+        d=gmail.com; s=20221208; t=1690813597; x=1691418397;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qpL2j81fN635u6TrQn9FMkHTOEzcm6uzxL+im6W4Yhg=;
+        b=Yjd4tKGRJaJQG9Xl2g0mrwT1jPwpa6qHu7IrvnDjx/Ra/SCqj3q/i1wXobWBjyDUe1
+         KEdpeqpdy4AJJtPVCLWHpLw0M1mE7V3fsETwVBZdvb8UercrME5+RRhGhoGRL/Pr90oC
+         s5v3kf0RhkhK21Me2+a/3i4zNHJOt2RyPVRwGjHDLYL/vHK/zUNulx0gyyXQU8rs/6tT
+         lgJnpzFWV9nZeKQpwri2RxUeYf5L+xqfonP6uQY6BjRscFVnEje5Jgk92VfRd6Q4Mixr
+         x5zchCQD0WF/lDIAvBRTqWMQyAZB0ad46wz1NHQYaTOSwpQRFxKt9gj7rTNwNuK2Lzei
+         i5pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690811802; x=1691416602;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=//IuSF4aR8dDqdSUTPXRXM7wMeZmyHZKY6Im4lg/WZA=;
-        b=N9R9fr7jA+tK3MTHpxSxAu/FAo1XOI+Q9g1WVAHsCnaRL2rYHSwH/8WT/G+co1vi5h
-         51xXoV1PIONAwYDJy8/U9dG8qRUXiK7SreNFkffzm73jYkr2vwXwB0Skz4pWusuO8lDS
-         J/GZpe2er7qAka37ntp5/4+PMHiPlhB1tgKK1qQNxKo+OY/VIeWqC/dPCp6rm+ERl4V1
-         qijVY27lYWWhIjGwlKHr4GV3qjWzAOS8S126Z8hsmAZS1puSEQmvWoLNTFnt4ywH7+Um
-         KH0NCF+VH12UmfRiWNCVzqYpgQjWdAjoL8uN3NqBvL0GM7sYrM00oG4I2zguiideJIvg
-         I/pg==
-X-Gm-Message-State: ABy/qLYusrBmrfXFjlQP9s0S/jq7UmuitzjWvY1k9QH0eXGbW+T+8Qfj
-        HBJ1GD3ESxavl7/QQQmEzSEkQw==
-X-Google-Smtp-Source: APBJJlHKc9Sq7znL8pmKS0GHJT9fHimiY4SCiPYkbNF+F1H/EbJPFLhADxI0WinnSPbnG2LtV5voIQ==
-X-Received: by 2002:a2e:8192:0:b0:2b6:dfef:d526 with SMTP id e18-20020a2e8192000000b002b6dfefd526mr39265ljg.11.1690811801505;
-        Mon, 31 Jul 2023 06:56:41 -0700 (PDT)
-Received: from ?IPV6:2a02:578:8593:1200:98dd:e30:7e10:82aa? ([2a02:578:8593:1200:98dd:e30:7e10:82aa])
-        by smtp.gmail.com with ESMTPSA id i9-20020a1709061cc900b0099b5a71b0bfsm6226337ejh.94.2023.07.31.06.56.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 31 Jul 2023 06:56:41 -0700 (PDT)
-Message-ID: <b1f63c3f-5a26-4c69-af8f-216eaac19b69@tessares.net>
-Date:   Mon, 31 Jul 2023 15:56:40 +0200
+        d=1e100.net; s=20221208; t=1690813597; x=1691418397;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qpL2j81fN635u6TrQn9FMkHTOEzcm6uzxL+im6W4Yhg=;
+        b=YBvHJga4NbMRw1V8pzPFfHUmJTXHrUuw2mRQF95TeeR62My+ERrEze8G4efkqBRRqY
+         fZ1TzBrub4Lb/k+RoVY1KLTtk8T7wBd6+8DlrEiKuV0hg++Ri6zu0IaLL39fGn86A1cj
+         JP7H7LvToH0wu09XH29cjwd7Z4ggA2VEz4SuF+AaZmSjMOS4SmGes8HOiO3lKnDHJHmG
+         kLpHVNBy7rXLWBcx2Ft3e6JY8qDpd7rTn02gT0XQHG4MRFq/fnn29Nm+Jns+m2LQD1dp
+         nS0u9UsRAsCK+iQGIRGHo1xjv53Se2gk/q+OXQk3l8x/NabEazT5Fj+oAM3JMoXHrZKn
+         +8gw==
+X-Gm-Message-State: ABy/qLbSLFQ9ongi5m26T40ThmS/yF3jC/lGI1vbAjQ8mX2mTZJX+w9E
+        Wd1+2ENLBDOz/bjQHU7QcByCpqL8g9eFQjXvsHIAkDhTAZ0=
+X-Google-Smtp-Source: APBJJlHX8AObUNx4eF/rJmEkhMhNVh6X8mxvFEgNRstXxfgtF67sonnuVKpRRLZlu+1WQzihqTLsuhEENwlsWFaO+jE=
+X-Received: by 2002:a17:90a:86c7:b0:268:2b5c:14c with SMTP id
+ y7-20020a17090a86c700b002682b5c014cmr8165481pjv.13.1690813596786; Mon, 31 Jul
+ 2023 07:26:36 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [RFC bpf-next v5] bpf: Force to MPTCP
-Content-Language: en-GB
-To:     Stanislav Fomichev <sdf@google.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Geliang Tang <geliang.tang@suse.com>,
-        Alexei Starovoitov <ast@kernel.org>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, mptcp@lists.linux.dev,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
-References: <3076188eb88cca9151a2d12b50ba1e870b11ce09.1689693294.git.geliang.tang@suse.com>
- <CAHC9VhS_LKdkEmm5_J5y34RpaRcTbg8==fpz8pMThDCjF6nYtQ@mail.gmail.com>
- <b41babb1-f0f2-dc2f-c2e3-1870107fbd9f@tessares.net>
- <ZMKxC+CFj4GbCklg@google.com>
- <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
- <ZMPyCt2uozns776Q@google.com>
-From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-In-Reply-To: <ZMPyCt2uozns776Q@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20230728050043.59880-1-wangkefeng.wang@huawei.com> <20230728050043.59880-4-wangkefeng.wang@huawei.com>
+In-Reply-To: <20230728050043.59880-4-wangkefeng.wang@huawei.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 31 Jul 2023 10:26:25 -0400
+Message-ID: <CAEjxPJ5ZuBGVDah0f3g0-7t2v1uSXTmp_cTT3g_MSP3J9QtoeA@mail.gmail.com>
+Subject: Fwd: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and vma_is_initial_heap()
+To:     Paul Moore <paul@paul-moore.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Stanislav,
+I believe this patch yields a semantic change in the SELinux execheap
+permission check. That said, I think the change is for the better. For
+ease of comparison, is_initial_heap() is defined in patch 1 of the
+series as:
++/*
++ * Indicate if the VMA is a heap for the given task; for
++ * /proc/PID/maps that is the heap of the main task.
++ */
++static inline bool vma_is_initial_heap(const struct vm_area_struct *vma)
++{
++       return vma->vm_start <=3D vma->vm_mm->brk &&
++               vma->vm_end >=3D vma->vm_mm->start_brk;
++}
++
 
-On 28/07/2023 18:51, Stanislav Fomichev wrote:
-> On 07/28, Matthieu Baerts wrote:
->> Hi Stanislav,
->>
->> On 27/07/2023 20:01, Stanislav Fomichev wrote:
->>> On 07/27, Matthieu Baerts wrote:
->>>> Hi Paul, Stanislav,
->>>>
->>>> On 18/07/2023 18:14, Paul Moore wrote:
->>>>> On Tue, Jul 18, 2023 at 11:21 AM Geliang Tang <geliang.tang@suse.com> wrote:
->>>>>>
->>>>>> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]:
->>>>>>
->>>>>> "Your app can create sockets with IPPROTO_MPTCP as the proto:
->>>>>> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
->>>>>> forced to create and use MPTCP sockets instead of TCP ones via the
->>>>>> mptcpize command bundled with the mptcpd daemon."
->>>>>>
->>>>>> But the mptcpize (LD_PRELOAD technique) command has some limitations
->>>>>> [2]:
->>>>>>
->>>>>>  - it doesn't work if the application is not using libc (e.g. GoLang
->>>>>> apps)
->>>>>>  - in some envs, it might not be easy to set env vars / change the way
->>>>>> apps are launched, e.g. on Android
->>>>>>  - mptcpize needs to be launched with all apps that want MPTCP: we could
->>>>>> have more control from BPF to enable MPTCP only for some apps or all the
->>>>>> ones of a netns or a cgroup, etc.
->>>>>>  - it is not in BPF, we cannot talk about it at netdev conf.
->>>>>>
->>>>>> So this patchset attempts to use BPF to implement functions similer to
->>>>>> mptcpize.
->>>>>>
->>>>>> The main idea is add a hook in sys_socket() to change the protocol id
->>>>>> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
->>>>>>
->>>>>> [1]
->>>>>> https://github.com/multipath-tcp/mptcp_net-next/wiki
->>>>>> [2]
->>>>>> https://github.com/multipath-tcp/mptcp_net-next/issues/79
->>>>>>
->>>>>> v5:
->>>>>>  - add bpf_mptcpify helper.
->>>>>>
->>>>>> v4:
->>>>>>  - use lsm_cgroup/socket_create
->>>>>>
->>>>>> v3:
->>>>>>  - patch 8: char cmd[128]; -> char cmd[256];
->>>>>>
->>>>>> v2:
->>>>>>  - Fix build selftests errors reported by CI
->>>>>>
->>>>>> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
->>>>>> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
->>>>>> ---
->>>>>>  include/linux/bpf.h                           |   1 +
->>>>>>  include/linux/lsm_hook_defs.h                 |   2 +-
->>>>>>  include/linux/security.h                      |   6 +-
->>>>>>  include/uapi/linux/bpf.h                      |   7 +
->>>>>>  kernel/bpf/bpf_lsm.c                          |   2 +
->>>>>>  net/mptcp/bpf.c                               |  20 +++
->>>>>>  net/socket.c                                  |   4 +-
->>>>>>  security/apparmor/lsm.c                       |   8 +-
->>>>>>  security/security.c                           |   2 +-
->>>>>>  security/selinux/hooks.c                      |   6 +-
->>>>>>  tools/include/uapi/linux/bpf.h                |   7 +
->>>>>>  .../testing/selftests/bpf/prog_tests/mptcp.c  | 128 ++++++++++++++++--
->>>>>>  tools/testing/selftests/bpf/progs/mptcpify.c  |  17 +++
->>>>>>  13 files changed, 187 insertions(+), 23 deletions(-)
->>>>>>  create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
->>>>>
->>>>> ...
->>>>>
->>>>>> diff --git a/security/security.c b/security/security.c
->>>>>> index b720424ca37d..bbebcddce420 100644
->>>>>> --- a/security/security.c
->>>>>> +++ b/security/security.c
->>>>>> @@ -4078,7 +4078,7 @@ EXPORT_SYMBOL(security_unix_may_send);
->>>>>>   *
->>>>>>   * Return: Returns 0 if permission is granted.
->>>>>>   */
->>>>>> -int security_socket_create(int family, int type, int protocol, int kern)
->>>>>> +int security_socket_create(int *family, int *type, int *protocol, int kern)
->>>>>>  {
->>>>>>         return call_int_hook(socket_create, 0, family, type, protocol, kern);
->>>>>>  }
->>>>>
->>>>> Using the LSM to change the protocol family is not something we want
->>>>> to allow.  I'm sorry, but you will need to take a different approach.
->>>>
->>>> @Paul: Thank you for your feedback. It makes sense and I understand.
->>>>
->>>> @Stanislav: Despite the fact the implementation was smaller and reusing
->>>> more code, it looks like we cannot go in the direction you suggested. Do
->>>> you think what Geliang suggested before in his v3 [1] can be accepted?
->>>>
->>>> (Note that the v3 is the same as the v1, only some fixes in the selftests.)
->>>
->>> We have too many hooks in networking, so something that doesn't add
->>> a new one is preferable :-(
->>
->> Thank you for your reply and the explanation, I understand.
->>
->>> Moreover, we already have a 'socket init' hook, but it runs a bit late.
->>
->> Indeed. And we cannot move it before the creation of the socket.
->>
->>> Is existing cgroup/sock completely unworkable? Is it possible to
->>> expose some new bpf_upgrade_socket_to(IPPROTO_MPTCP) kfunc which would
->>> call some new net_proto_family->upgrade_to(IPPROTO_MPTCP) to do the surgery?
->>> Or is it too hacky?
->>
->> I cannot judge if it is too hacky or not but if you think it would be
->> OK, please tell us :)
-> 
-> Maybe try and see how it goes? Doing the surgery to convert from tcp
-> to mptcp is probably hard, but it seems that we should be able to
-> do something like:
-> 
-> int upgrade_to(sock, sk) {
-> 	if (sk is not a tcp one) return -EINVAL;
-> 
-> 	sk_common_release(sk);
-> 	return inet6_create(net, sock, IPPROTO_MPTCP, false);
-> }
-> 
-> ?
-> 
-> The only thing I'm not sure about is whether you can call inet6_create
-> on a socket that has seen sk_common_release'd...
+This is a check for whether the mapping has a non-empty intersection
+with the heap range.
+Whereas the existing test in the SELinux code only appears to check
+whether the mapping is _within_ the heap range.
 
-Oh sorry, now I better understand your suggestion and the fact it is
-hacky. Good workaround, we can keep this in mind if there is no other
-solutions to avoid these create-release-create operations.
+---------- Forwarded message ---------
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Date: Fri, Jul 28, 2023 at 12:48=E2=80=AFAM
+Subject: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and
+vma_is_initial_heap()
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: <amd-gfx@lists.freedesktop.org>,
+<dri-devel@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>,
+<linux-fsdevel@vger.kernel.org>, <linux-mm@kvack.org>,
+<linux-perf-users@vger.kernel.org>, <selinux@vger.kernel.org>,
+Christian G=C3=B6ttsche <cgzones@googlemail.com>, David Hildenbrand
+<david@redhat.com>, Felix Kuehling <Felix.Kuehling@amd.com>, Alex
+Deucher <alexander.deucher@amd.com>, <christian.koenig@amd.com>,
+<Xinhui.Pan@amd.com>, <airlied@gmail.com>, <daniel@ffwll.ch>,
+<paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+<eparis@parisplace.org>, <peterz@infradead.org>, <acme@kernel.org>,
+Kefeng Wang <wangkefeng.wang@huawei.com>
 
->>> Another option Alexei suggested is to add some fentry-like thing:
->>>
->>> noinline int update_socket_protocol(int protocol)
->>> {
->>> 	return protocol;
->>> }
->>> /* TODO: ^^^ add the above to mod_ret set */
->>>
->>> int __sys_socket(int family, int type, int protocol)
->>> {
->>> 	...
->>>
->>> 	protocol = update_socket_protocol(protocol);
->>>
->>> 	...
->>> }
->>>
->>> But it's also too problem specific it seems? And it's not cgroup-aware.
->>
->> It looks like it is what Geliang did in his v6. If it is the only
->> acceptable solution, I guess we can do without cgroup support. We can
->> continue the discussions in his v6 if that's easier.
-> 
-> Ack, that works too, let's see how other people feel about it. I'm
-> assuming in the bpf program we can always do bpf_get_current_cgroup_id()
-> to filter by cgroup.
 
-Good point, that works too and looks enough!
+Use the helpers to simplify code.
 
-Cheers,
-Matt
--- 
-Tessares | Belgium | Hybrid Access Solutions
-www.tessares.net
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ security/selinux/hooks.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c87b79a29fad..ac582c046c51 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3800,13 +3800,10 @@ static int selinux_file_mprotect(struct
+vm_area_struct *vma,
+        if (default_noexec &&
+            (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+                int rc =3D 0;
+-               if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+-                   vma->vm_end <=3D vma->vm_mm->brk) {
++               if (vma_is_initial_heap(vma)) {
+                        rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+                                          PROCESS__EXECHEAP, NULL);
+-               } else if (!vma->vm_file &&
+-                          ((vma->vm_start <=3D vma->vm_mm->start_stack &&
+-                            vma->vm_end >=3D vma->vm_mm->start_stack) ||
++               } else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
+                            vma_is_stack_for_current(vma))) {
+                        rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+                                          PROCESS__EXECSTACK, NULL);
+--
+2.41.0
