@@ -2,220 +2,86 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44524EB64DD
-	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 02:02:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7776CC001DF
+	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 07:10:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbjGaCCF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 30 Jul 2023 22:02:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
+        id S231154AbjGaHKJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jul 2023 03:10:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbjGaCCE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 30 Jul 2023 22:02:04 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF5810C6;
-        Sun, 30 Jul 2023 19:02:02 -0700 (PDT)
-Received: from dggpemm500016.china.huawei.com (unknown [172.30.72.53])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4RDhKn0hzmz1GC28;
-        Mon, 31 Jul 2023 10:01:01 +0800 (CST)
-Received: from [10.67.110.48] (10.67.110.48) by dggpemm500016.china.huawei.com
- (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Mon, 31 Jul
- 2023 10:01:59 +0800
-Message-ID: <f899f0af-6aea-7cd6-cd44-a2082cb267cb@huawei.com>
-Date:   Mon, 31 Jul 2023 10:01:59 +0800
+        with ESMTP id S231139AbjGaHJv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 03:09:51 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8893630F6;
+        Mon, 31 Jul 2023 00:08:18 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-3fb4146e8fcso28260395e9.0;
+        Mon, 31 Jul 2023 00:08:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1690787265; x=1691392065;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=CrTsz8QawI4NoHoGnNEcszB2yjFUPV7z0R4z7qGc2Tg=;
+        b=cMmkR/Nw8pe8AaKpbaRL9SRljMNQBv8XEvvy+xwdGDc8CoC16Gq1t8q9XujyqUD/ZV
+         CUgid/Kb7nQkFFOoxbmNtkMficwKnJFW84MToIfcNr4PKT+chcVnL2hcP4DGV+QgLFwB
+         8LjSwkGKTQ4OAfxSKEQ34VPvLWjkx8jycS70ciiudM8pbgACJuS2d0t0Kral8K9qcYLV
+         pXeoexF57S6kZAKrr6mCo8zX2mAx/9NLP5iKEBfZqEoRHC5+ZUmeWPoFPkHX6Q7GVK2G
+         l93oNndBLwckSonT2e3EDf/TfD3b4rCDyKAseHe3FD3gqJecPNGzhDsKXcrTSwBgDPIg
+         cw3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690787265; x=1691392065;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=CrTsz8QawI4NoHoGnNEcszB2yjFUPV7z0R4z7qGc2Tg=;
+        b=jZuapdHVeUeUQxoUH6yusp62cAZtbbr9j685rE7yZ6ZpOywHZWoM/mWkt7uHmxKpni
+         NIifse6HZ3coT2hDCIHhGgfd/XUSqHsgzPiLYM46bv5jqMceEnEafznQ29/YuqAhQhNj
+         JX7ILHUCsLU2wrDRWqYPYpddxgnSp1jhnAyo2VgTLxi0+PaIm1jFPlG6ifDLtv3dlHNO
+         +TD3AhBt9YO79pmZSa8Mojm7U8AzniAJ0H0Cr/o14hzdOU6bqf6G5N5SBzW9SfoxkRdz
+         YrVzQZJ/k6Y/q8zj0mEx8Zyc7hAt1SgJomRmvQmg8XGB3ldr4cg/bBvXyZVBUyXA1lAD
+         NdlA==
+X-Gm-Message-State: ABy/qLZlxQt+cWgCTe2yFIcvjjb9dpoYGIc05A3/ai5F5pTDmv8gM2MQ
+        +Ug8twcvFaw9PCUVpX76+04=
+X-Google-Smtp-Source: APBJJlF2YjxFQlhdr/gdJJSW3Aeoej8UVQHl6XofWSLbtf0ibd+hIaZrJHGyDSVNaUsCo46L6b1LYA==
+X-Received: by 2002:a7b:c44a:0:b0:3fb:c060:9698 with SMTP id l10-20020a7bc44a000000b003fbc0609698mr8041465wmi.5.1690787265337;
+        Mon, 31 Jul 2023 00:07:45 -0700 (PDT)
+Received: from khadija-virtual-machine.localdomain ([39.41.65.235])
+        by smtp.gmail.com with ESMTPSA id l10-20020a05600c1d0a00b003fd2d3462fcsm15114098wms.1.2023.07.31.00.07.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Jul 2023 00:07:44 -0700 (PDT)
+From:   Khadija Kamran <kamrankhadijadj@gmail.com>
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, jmorris@namei.org, serge@hallyn.com,
+        linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com,
+        john.johansen@canonical.com, alison.schofield@intel.com,
+        ztarkhani@microsoft.com
+Cc:     Khadija Kamran <kamrankhadijadj@gmail.com>
+Subject: [PATCH 0/2] lsm: change security_capget LSM hook
+Date:   Mon, 31 Jul 2023 12:07:30 +0500
+Message-Id: <cover.1690786466.git.kamrankhadijadj@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v2 6/9] selinux: avoid implicit conversions in services
- code
-Content-Language: en-US
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
-        <selinux@vger.kernel.org>
-CC:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Xiu Jianfeng <xiujianfeng@huaweicloud.com>,
-        <linux-kernel@vger.kernel.org>
-References: <20230728155501.39632-1-cgzones@googlemail.com>
- <20230728155501.39632-5-cgzones@googlemail.com>
-From:   Gong Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <20230728155501.39632-5-cgzones@googlemail.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.110.48]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemm500016.china.huawei.com (7.185.36.25)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Change security_capget LSM hook's target parameter to constant and split
+cap_capget decalration line to multiple lines.
 
+Khadija Kamran (2):
+  lsm: change 'target' parameter to 'const' in security_capget LSM hook
+  lsm: split cap_capget() declaration to multiple lines
 
-On 2023/07/28 23:54, Christian Göttsche wrote:
-> Use u32 as the output parameter type in security_get_classes() and
-> security_get_permissions(), based on the type of the symtab nprim
-> member.
-> 
-> Declare the read-only class string parameter of
-> security_get_permissions() const.
-> 
-> Avoid several implicit conversions by using the identical type for the
-> destination.
-> 
-> Use the type identical to the source for local variables.
-> 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+ include/linux/lsm_hook_defs.h | 2 +-
+ include/linux/security.h      | 7 ++++---
+ kernel/capability.c           | 2 +-
+ security/apparmor/lsm.c       | 2 +-
+ security/commoncap.c          | 2 +-
+ security/security.c           | 2 +-
+ security/selinux/hooks.c      | 2 +-
+ 7 files changed, 10 insertions(+), 9 deletions(-)
 
-Reviewed-by: GONG, Ruiqi <gongruiqi1@huawei.com>
+-- 
+2.34.1
 
-> ---
-> v2: avoid declarations in init-clauses of for loops
-> ---
->  security/selinux/include/security.h |  4 ++--
->  security/selinux/selinuxfs.c        |  7 ++++---
->  security/selinux/ss/services.c      | 23 ++++++++++++-----------
->  3 files changed, 18 insertions(+), 16 deletions(-)
-> 
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 668e393a9709..074d439fe9ad 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -312,9 +312,9 @@ int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
->  				 u32 *peer_sid);
->  
->  int security_get_classes(struct selinux_policy *policy,
-> -			 char ***classes, int *nclasses);
-> +			 char ***classes, u32 *nclasses);
->  int security_get_permissions(struct selinux_policy *policy,
-> -			     char *class, char ***perms, int *nperms);
-> +			     const char *class, char ***perms, u32 *nperms);
->  int security_get_reject_unknown(void);
->  int security_get_allow_unknown(void);
->  
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index f79e96f0f221..b969e87fd870 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1798,7 +1798,8 @@ static int sel_make_perm_files(struct selinux_policy *newpolicy,
->  			char *objclass, int classvalue,
->  			struct dentry *dir)
->  {
-> -	int i, rc, nperms;
-> +	u32 i, nperms;
-> +	int rc;
->  	char **perms;
->  
->  	rc = security_get_permissions(newpolicy, objclass, &perms, &nperms);
-> @@ -1868,8 +1869,8 @@ static int sel_make_classes(struct selinux_policy *newpolicy,
->  			    struct dentry *class_dir,
->  			    unsigned long *last_class_ino)
->  {
-> -
-> -	int rc, nclasses, i;
-> +	u32 i, nclasses;
-> +	int rc;
->  	char **classes;
->  
->  	rc = security_get_classes(newpolicy, &classes, &nclasses);
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index cf4b87ec4a0e..3a03243f52e7 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -856,7 +856,7 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
->  	struct sidtab *sidtab;
->  	struct sidtab_entry *old_entry, *new_entry;
->  	struct type_datum *type;
-> -	int index;
-> +	u32 index;
->  	int rc;
->  
->  	if (!selinux_initialized())
-> @@ -1511,7 +1511,7 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
->  		return -ENOMEM;
->  
->  	if (!selinux_initialized()) {
-> -		int i;
-> +		u32 i;
->  
->  		for (i = 1; i < SECINITSID_NUM; i++) {
->  			const char *s = initial_sid_to_string[i];
-> @@ -2821,7 +2821,6 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
->  {
->  	struct policydb *policydb = &policy->policydb;
->  	struct sidtab *sidtab = policy->sidtab;
-> -	int len;
->  	u16 sclass;
->  	struct genfs *genfs;
->  	struct ocontext *c;
-> @@ -2843,7 +2842,7 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
->  		return -ENOENT;
->  
->  	for (c = genfs->head; c; c = c->next) {
-> -		len = strlen(c->u.name);
-> +		size_t len = strlen(c->u.name);
->  		if ((!c->v.sclass || sclass == c->v.sclass) &&
->  		    (strncmp(c->u.name, path, len) == 0))
->  			break;
-> @@ -3331,7 +3330,7 @@ static int get_classes_callback(void *k, void *d, void *args)
->  {
->  	struct class_datum *datum = d;
->  	char *name = k, **classes = args;
-> -	int value = datum->value - 1;
-> +	u32 value = datum->value - 1;
->  
->  	classes[value] = kstrdup(name, GFP_ATOMIC);
->  	if (!classes[value])
-> @@ -3341,7 +3340,7 @@ static int get_classes_callback(void *k, void *d, void *args)
->  }
->  
->  int security_get_classes(struct selinux_policy *policy,
-> -			 char ***classes, int *nclasses)
-> +			 char ***classes, u32 *nclasses)
->  {
->  	struct policydb *policydb;
->  	int rc;
-> @@ -3357,7 +3356,8 @@ int security_get_classes(struct selinux_policy *policy,
->  	rc = hashtab_map(&policydb->p_classes.table, get_classes_callback,
->  			 *classes);
->  	if (rc) {
-> -		int i;
-> +		u32 i;
-> +
->  		for (i = 0; i < *nclasses; i++)
->  			kfree((*classes)[i]);
->  		kfree(*classes);
-> @@ -3371,7 +3371,7 @@ static int get_permissions_callback(void *k, void *d, void *args)
->  {
->  	struct perm_datum *datum = d;
->  	char *name = k, **perms = args;
-> -	int value = datum->value - 1;
-> +	u32 value = datum->value - 1;
->  
->  	perms[value] = kstrdup(name, GFP_ATOMIC);
->  	if (!perms[value])
-> @@ -3381,10 +3381,11 @@ static int get_permissions_callback(void *k, void *d, void *args)
->  }
->  
->  int security_get_permissions(struct selinux_policy *policy,
-> -			     char *class, char ***perms, int *nperms)
-> +			     const char *class, char ***perms, u32 *nperms)
->  {
->  	struct policydb *policydb;
-> -	int rc, i;
-> +	u32 i;
-> +	int rc;
->  	struct class_datum *match;
->  
->  	policydb = &policy->policydb;
-> @@ -3599,7 +3600,7 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
->  /* Check to see if the rule contains any selinux fields */
->  int selinux_audit_rule_known(struct audit_krule *rule)
->  {
-> -	int i;
-> +	u32 i;
->  
->  	for (i = 0; i < rule->field_count; i++) {
->  		struct audit_field *f = &rule->fields[i];
