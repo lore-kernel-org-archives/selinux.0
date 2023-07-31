@@ -2,80 +2,205 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F23DCC001DF
-	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 13:47:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7564FC41513
+	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 13:52:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbjGaNrn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jul 2023 09:47:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41120 "EHLO
+        id S232040AbjGaNwp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jul 2023 09:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230354AbjGaNrg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 09:47:36 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D500170C;
-        Mon, 31 Jul 2023 06:47:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=phaaJIZq1BLWmPqCytuBa+h2XJylFF98eK0c+HuebO4=; b=Fr1NrfcLzdpJVpmcOBL17zaxcV
-        zEYs26Dbdcqza8yQ2T/gXt6eJXboPEJDuFGznraLpotq5X7rjBlo3FpAmzHfseZRvk68l8JasNeG0
-        +WtScm3eUB5qzFnSVptSpdbfn3qDJe20ysVK0l4UYj/pksK8xkHmndNPZ00AHymM1PT3Pm8xhyoDY
-        P+N/gRHEh7Tq3zv150c3HLMnk43p8seEmT9AypoQn+WvEN1JpoUi0OMnBGLkKxGj2S7ARg8vVk7DS
-        ncdBCZlrKI1aVZGJJBi4u8phMp2+tpPtCrQZpp5BoEk7L6K4hd2fVmDuvQ7SjuHtMjV1S1M4MQvp1
-        CtbLs/0Q==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qQTEs-001wMI-Lv; Mon, 31 Jul 2023 13:47:11 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 0F9B93001DD;
-        Mon, 31 Jul 2023 15:47:10 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id EB506203EA053; Mon, 31 Jul 2023 15:47:09 +0200 (CEST)
-Date:   Mon, 31 Jul 2023 15:47:09 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
-        selinux@vger.kernel.org,
-        Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
-        David Hildenbrand <david@redhat.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        acme@kernel.org
-Subject: Re: [PATCH v3 0/4] mm: convert to vma_is_initial_heap/stack()
-Message-ID: <20230731134709.GJ29590@hirez.programming.kicks-ass.net>
-References: <20230728050043.59880-1-wangkefeng.wang@huawei.com>
+        with ESMTP id S231743AbjGaNwL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 09:52:11 -0400
+Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D41C719A1
+        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:51:45 -0700 (PDT)
+Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2b9e6cc93c6so18017891fa.2
+        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:51:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1690811504; x=1691416304;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5EO/7sPL9Jam6MjvPJknMxFIWejtALmfL6vveBYoL1w=;
+        b=APUalQ7/cTHmLJ4GbZPIlbZkJxVH1Njb58vJbR9Ui7/2k8I8jDlkEDCwHuoSa/0Vg7
+         bC5b7/aHoHihxioWBzmoCc4Jw83jk7Q7BpFugpOjFjU2JBUSogvUOl18Alc22jvQAndp
+         vUu4/BPzz4jwPA2jqTiJkI6BR+uG0MPKj7ZE+sBd+HfvgQXcwTPz3jsX+o/vrd4RhiVk
+         kNVZ2HRgOaBiQfbKl4XGgczUVY2wonyRBq3LDB/8RgK3Le4DEkmrVRWb/khVFepS6g3y
+         q0nVAr0yZW7qmkM8S9saB9ABLM8+ShlE/sNgpuNU56ecDLRiUk6ri6PsesGDUi4eVD6N
+         JJfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690811504; x=1691416304;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5EO/7sPL9Jam6MjvPJknMxFIWejtALmfL6vveBYoL1w=;
+        b=M1Fd+3In3zD330b+hcACeCSGowSqKlvGFpDMFQrsaYqWQuU9353rUTUBWrVc3XjTUF
+         vEP7QturolE5N4jVfRxnqeJ/y6A63UJa9jy+0HVtZVaPr+RNLX9W6R9/Qrmv7cRYNn4Y
+         SjHo1RypVOrxUty2mtnN1zJUDbotc9vDCG03G08RdLMFbeu3qudwn+VAxq/4lPUGEvOq
+         9dSXr2rR1Yb8QyD9LXkXW6Gp1oE5zN3sjvsnIK840vv6NAxD/QsqJluockvhZ53ARjVY
+         zNNHA4seEGf/eSL193l/hDPp305pye03AD0uZ+tYg9ix5x7xPoSlmdoLmZFbKmIZGIkS
+         zYEQ==
+X-Gm-Message-State: ABy/qLbpp5GAa9HGgH3eXstN7jtp2SR57UTuV/TZxSqU8OouboRMa8PD
+        HHL+AioKY3p2UyihlrqxwCuvkNxEGKC28V/8vuTewhgsYYE=
+X-Google-Smtp-Source: APBJJlGhZEQxF1Xco7MGZNjtg/S83IewlADEG+CmQRaxXQqkvRoY5UM5JCVgi70nl1n86SeBb5V/FwmjNODQ3f8Zg5w=
+X-Received: by 2002:a2e:3307:0:b0:2b6:ba54:cc8 with SMTP id
+ d7-20020a2e3307000000b002b6ba540cc8mr16002ljc.30.1690811503762; Mon, 31 Jul
+ 2023 06:51:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230728050043.59880-1-wangkefeng.wang@huawei.com>
+References: <20230706141329.57661-1-cgzones@googlemail.com>
+In-Reply-To: <20230706141329.57661-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 31 Jul 2023 09:51:32 -0400
+Message-ID: <CAP+JOzRq7qM0m40=2G44nZkxEmga48QwbVBGXWFvK=Yw0cKkPA@mail.gmail.com>
+Subject: Re: [RFC PATCH] libsepol/cil: support parallel neverallow checks
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 01:00:39PM +0800, Kefeng Wang wrote:
+On Thu, Jul 6, 2023 at 10:22=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Add support to check for neverallow assertions in parallel.  Since the
+> policy is not modified during those checks there needs to be no
+> extensive locking.
+>
+> The checks are run by semodule(8) if the semanage.conf(5) setting
+> expand-check is set.
+>
+> Implement the parallel procedure via OpenMP, to minimize code changes
+> and to allow users a simple way to enable or disable the functionality
+> at build time.  Currently the support opt-in.
+>
+> Example benchmark:
+>
+>     Benchmark 1: ./test_load_wip.sh (serial)
+>       Time (mean =C2=B1 =CF=83):      3.485 s =C2=B1  0.019 s    [User: 0=
+.003 s, System: 0.002 s]
+>       Range (min =E2=80=A6 max):    3.455 s =E2=80=A6  3.501 s    5 runs
+>
+>     Benchmark 1: ./test_load_wip.sh (parallel)
+>       Time (mean =C2=B1 =CF=83):      2.443 s =C2=B1  0.035 s    [User: 0=
+.004 s, System: 0.001 s]
+>       Range (min =E2=80=A6 max):    2.411 s =E2=80=A6  2.500 s    5 runs
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-> Kefeng Wang (4):
->   mm: factor out VMA stack and heap checks
->   drm/amdkfd: use vma_is_initial_stack() and vma_is_initial_heap()
->   selinux: use vma_is_initial_stack() and vma_is_initial_heap()
->   perf/core: use vma_is_initial_stack() and vma_is_initial_heap()
-> 
->  drivers/gpu/drm/amd/amdkfd/kfd_svm.c |  5 +----
->  fs/proc/task_mmu.c                   | 24 ++++----------------
->  fs/proc/task_nommu.c                 | 15 +------------
->  include/linux/mm.h                   | 25 +++++++++++++++++++++
->  kernel/events/core.c                 | 33 ++++++++++------------------
->  security/selinux/hooks.c             |  7 ++----
->  6 files changed, 44 insertions(+), 65 deletions(-)
+Needs a "-fopenmp" when building.
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+I am not seeing very much change (1.8 sec originally, 1.6 sec with this pat=
+ch).
+Jim
+
+> ---
+>  libsepol/cil/src/cil_binary.c | 60 ++++++++++++++++++++++++++++-------
+>  1 file changed, 48 insertions(+), 12 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
+c
+> index c4ee2380..7f6212e3 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -4828,8 +4828,11 @@ static int cil_check_neverallow(const struct cil_d=
+b *db, policydb_t *pdb, struct
+>
+>                 rc =3D check_assertion(pdb, rule);
+>                 if (rc =3D=3D CIL_TRUE) {
+> -                       *violation =3D CIL_TRUE;
+> -                       rc =3D __cil_print_neverallow_failure(db, node);
+> +                       #pragma omp critical (output)
+> +                       {
+> +                               *violation =3D CIL_TRUE;
+> +                               rc =3D __cil_print_neverallow_failure(db,=
+ node);
+> +                       }
+>                         if (rc !=3D SEPOL_OK) {
+>                                 goto exit;
+>                         }
+> @@ -4850,8 +4853,11 @@ static int cil_check_neverallow(const struct cil_d=
+b *db, policydb_t *pdb, struct
+>                         rule->xperms =3D item->data;
+>                         rc =3D check_assertion(pdb, rule);
+>                         if (rc =3D=3D CIL_TRUE) {
+> -                               *violation =3D CIL_TRUE;
+> -                               rc =3D __cil_print_neverallow_failure(db,=
+ node);
+> +                               #pragma omp critical (output)
+> +                               {
+> +                                       *violation =3D CIL_TRUE;
+> +                                       rc =3D __cil_print_neverallow_fai=
+lure(db, node);
+> +                               }
+>                                 if (rc !=3D SEPOL_OK) {
+>                                         goto exit;
+>                                 }
+> @@ -4876,18 +4882,48 @@ exit:
+>
+>  static int cil_check_neverallows(const struct cil_db *db, policydb_t *pd=
+b, struct cil_list *neverallows, int *violation)
+>  {
+> -       int rc =3D SEPOL_OK;
+> -       struct cil_list_item *item;
+> +       int rc_sync =3D SEPOL_OK;
+> +
+> +       #pragma omp parallel
+> +       {
+> +
+> +               #pragma omp single
+> +               {
+> +
+> +                       struct cil_list_item *item;
+> +                       cil_list_for_each(item, neverallows) {
+> +
+> +                               struct cil_tree_node *node =3D item->data=
+;
+> +                               int rc_test;
+> +
+> +                               #pragma omp task default(none) firstpriva=
+te(node, db, pdb, violation) shared(rc_sync) untied
+> +                               {
+> +                                       int rc_task =3D cil_check_neveral=
+low(
+> +                                               db,
+> +                                               pdb,
+> +                                               node,
+> +                                               violation);
+> +
+> +                                       if (rc_task !=3D SEPOL_OK) {
+> +                                               #pragma omp atomic write
+> +                                               rc_sync =3D rc_task;
+> +                                       }
+> +                               }
+> +
+> +                               #pragma omp atomic read
+> +                               rc_test =3D rc_sync;
+> +
+> +                               if (rc_test !=3D SEPOL_OK)
+> +                                       break;
+> +
+> +                       }
+>
+> -       cil_list_for_each(item, neverallows) {
+> -               rc =3D cil_check_neverallow(db, pdb, item->data, violatio=
+n);
+> -               if (rc !=3D SEPOL_OK) {
+> -                       goto exit;
+>                 }
+> +
+> +               #pragma omp taskwait
+>         }
+>
+> -exit:
+> -       return rc;
+> +       return rc_sync;
+>  }
+>
+>  static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint1=
+6_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct ci=
+l_perm **perm_value_to_cil[])
+> --
+> 2.40.1
+>
