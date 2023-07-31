@@ -2,91 +2,129 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A70C001DC
-	for <selinux@archiver.kernel.org>; Sun, 30 Jul 2023 20:33:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA51AEB64DD
+	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 01:46:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbjG3UdA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 30 Jul 2023 16:33:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
+        id S229533AbjGaBqp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 30 Jul 2023 21:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230173AbjG3Uc6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 30 Jul 2023 16:32:58 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40FCD113
-        for <selinux@vger.kernel.org>; Sun, 30 Jul 2023 13:32:57 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id 46e09a7af769-6bc57401cb9so808991a34.0
-        for <selinux@vger.kernel.org>; Sun, 30 Jul 2023 13:32:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690749176; x=1691353976;
-        h=content-transfer-encoding:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UtHSSHTSpp5yRjGTp1nfl+H3jc4Vu5E/WPsv1chvl+I=;
-        b=neyuE6FQ/Xa+l1NofkcW7PZiPoe/mhtnoUgYHne2xJphBDBN0VTECkRJO5IRGTh+Ce
-         NqNplTBfPEbdD4pR3402vihrV+FG5HCAVMSeN+6G9yY71HTxbPcXZwmIs4vHLUMOg2yh
-         a+yiOabLdQNMPCO91WH+HNJvUK0NX8/8klDIj5xLX2EsknpTciyf3hDr/w50YCHO1Ecj
-         A5P9rR8qbVBsj2MKkOVNBFu0MnOiW56ZKciqk86JFR72RaJWVzVVNEDmcO9c2WjpZMHw
-         W5GNAAtSmuDBDFGF0XQ7SeqjfnLTlQu126K1Cvd/GJIFMkFkbRKAMkKTf28NTpCv627B
-         PsYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690749176; x=1691353976;
-        h=content-transfer-encoding:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=UtHSSHTSpp5yRjGTp1nfl+H3jc4Vu5E/WPsv1chvl+I=;
-        b=W9+Z2nNEqhFGt6y1W23Jt5tbUjEIl++tLXFD0Fp8krETSzvXVDd7MFthrtP0AVJfdj
-         e3sFfKvikTABSr6fRJHlWyofyidP0OpQQRwUgqxc23RXeW+qK6aoJe8UPXwwYSpjPaCa
-         YRcKEFdK4NN4N4KcRIjTreLbndEcdXARjwluA/yHzCMj1uLWREjKdpEqkt6/bVNEiOmG
-         p5meXDvX1FJEDexCq2SkSZlH5hNoHnx2uk70aKGkXeheDE1eNt8xRBaoZm/aLillr6Qk
-         vKM0oPa3V0a81lUuCgTGpUYLGQnumbXz16ZS7yYthC+GeGZzSNVzP67MsCzaQN5XyPbR
-         2XJw==
-X-Gm-Message-State: ABy/qLYI0GKm1qxGRWUVsJP87PQKZWE2RG5LLwK5BiG7jZEmb46edfdn
-        VF0zj2/VGlj/DFvikE0w24452MkXohg=
-X-Google-Smtp-Source: APBJJlGm4nYImhSOSR9BBNlHTN+LGPZAxuSNkJEA/yo6+GjNtlOjEByggRTTpIRoCksqJRfC/KRLDg==
-X-Received: by 2002:a05:6820:2201:b0:560:b01a:653d with SMTP id cj1-20020a056820220100b00560b01a653dmr4376705oob.0.1690749176294;
-        Sun, 30 Jul 2023 13:32:56 -0700 (PDT)
-Received: from [172.31.250.1] (192-063-109-134.res.spectrum.com. [192.63.109.134])
-        by smtp.gmail.com with ESMTPSA id b11-20020a4a98cb000000b00566383daeaasm3735155ooj.32.2023.07.30.13.32.55
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 30 Jul 2023 13:32:55 -0700 (PDT)
-Message-ID: <5d5fdc57-6bf3-ec9a-b71b-b17e259f55d7@gmail.com>
-Date:   Sun, 30 Jul 2023 15:32:54 -0500
+        with ESMTP id S229478AbjGaBqp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 30 Jul 2023 21:46:45 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D9BE57;
+        Sun, 30 Jul 2023 18:46:43 -0700 (PDT)
+Received: from dggpemm500016.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RDgxJ1NhKzNmNT;
+        Mon, 31 Jul 2023 09:43:16 +0800 (CST)
+Received: from [10.67.110.48] (10.67.110.48) by dggpemm500016.china.huawei.com
+ (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Mon, 31 Jul
+ 2023 09:46:40 +0800
+Message-ID: <f91fc274-31c0-739c-b7f5-ec970a0d87bb@huawei.com>
+Date:   Mon, 31 Jul 2023 09:46:34 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH v2 5/9] selinux: services: update type for number of class
+ permissions
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
+        <selinux@vger.kernel.org>
+CC:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+References: <20230728155501.39632-1-cgzones@googlemail.com>
+ <20230728155501.39632-4-cgzones@googlemail.com>
 Content-Language: en-US
-To:     SElinux list <selinux@vger.kernel.org>
-From:   Ian Pilcher <arequipeno@gmail.com>
-Subject: Network ports - multiple types?
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From:   Gong Ruiqi <gongruiqi1@huawei.com>
+In-Reply-To: <20230728155501.39632-4-cgzones@googlemail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.67.110.48]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm500016.china.huawei.com (7.185.36.25)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I've been playing with network port types, and I've just discovered that
-it appears to be possible to assign more than one type to a network
-port (e.g. udp/1900).
 
-# semanage port -a -t fdf_port_t -p udp 1900
-ValueError: Port udp/1900 already defined
 
-# semanage port -m -t fdf_port_t -p udp 1900
+On 2023/07/28 23:54, Christian Göttsche wrote:
+> Security classes have only up to 32 permissions, hence using an u16 is
+> sufficient (while improving padding in struct selinux_mapping).
+> 
+> Also use a fixed sized cast in a bit shift to avoid (well defined)
+> overflows on architectures where sizeof(unsigned int) != sizeof(u32)
+> resulting in no bits set.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
-# semanage port -l | grep 1900
-fdf_port_t                     udp      1900, 3483
-ssdp_port_t                    tcp      1900
-ssdp_port_t                    udp      1900
+Reviewed-by: GONG, Ruiqi <gongruiqi1@huawei.com>
 
-And, sure enough, my FDF service is now able to bind to udp/1900.
-
-I was not previously aware of this feature, and my internet searches
-aren't turning up anything about it.  I'd just like to confirm that this
-is expected behavior (as it just seems really weird).  Are there any
-caveats to doing this?
-
--- 
-========================================================================
-Google                                      Where SkyNet meets Idiocracy
-========================================================================
+> ---
+> v2:
+>    update commit description:
+>      - mention struct selinux_mapping  in the padding argument
+>        (currently between the first and second member there are 2 bytes
+>         padding)
+>      - mention overflow in the cast argument and the result of setting
+>        no bits due to it
+> ---
+>  security/selinux/ss/services.c | 6 +++---
+>  security/selinux/ss/services.h | 2 +-
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 2c5be06fbada..cf4b87ec4a0e 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -97,7 +97,6 @@ static int selinux_set_mapping(struct policydb *pol,
+>  			       struct selinux_map *out_map)
+>  {
+>  	u16 i, j;
+> -	unsigned k;
+>  	bool print_unknown_handle = false;
+>  
+>  	/* Find number of classes in the input mapping */
+> @@ -117,6 +116,7 @@ static int selinux_set_mapping(struct policydb *pol,
+>  	while (map[j].name) {
+>  		const struct security_class_mapping *p_in = map + (j++);
+>  		struct selinux_mapping *p_out = out_map->mapping + j;
+> +		u16 k;
+>  
+>  		/* An empty class string skips ahead */
+>  		if (!strcmp(p_in->name, "")) {
+> @@ -202,7 +202,7 @@ static void map_decision(struct selinux_map *map,
+>  {
+>  	if (tclass < map->size) {
+>  		struct selinux_mapping *mapping = &map->mapping[tclass];
+> -		unsigned int i, n = mapping->num_perms;
+> +		u16 i, n = mapping->num_perms;
+>  		u32 result;
+>  
+>  		for (i = 0, result = 0; i < n; i++) {
+> @@ -230,7 +230,7 @@ static void map_decision(struct selinux_map *map,
+>  		 * should audit that denial
+>  		 */
+>  		for (; i < (sizeof(u32)*8); i++)
+> -			result |= 1<<i;
+> +			result |= 1<<((u32)i);
+>  		avd->auditdeny = result;
+>  	}
+>  }
+> diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
+> index ed2ee6600467..d24b0a3d198e 100644
+> --- a/security/selinux/ss/services.h
+> +++ b/security/selinux/ss/services.h
+> @@ -12,7 +12,7 @@
+>  /* Mapping for a single class */
+>  struct selinux_mapping {
+>  	u16 value; /* policy value for class */
+> -	unsigned int num_perms; /* number of permissions in class */
+> +	u16 num_perms; /* number of permissions in class */
+>  	u32 perms[sizeof(u32) * 8]; /* policy values for permissions */
+>  };
+>  
