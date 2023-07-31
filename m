@@ -2,205 +2,250 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7564FC41513
-	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 13:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53B66C001DC
+	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 14:02:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232040AbjGaNwp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jul 2023 09:52:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43492 "EHLO
+        id S232090AbjGaOCI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jul 2023 10:02:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231743AbjGaNwL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 09:52:11 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D41C719A1
-        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:51:45 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2b9e6cc93c6so18017891fa.2
-        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:51:45 -0700 (PDT)
+        with ESMTP id S232081AbjGaOBt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 10:01:49 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66F381BDF
+        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:56:44 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2b9bb097c1bso67091741fa.0
+        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 06:56:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690811504; x=1691416304;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5EO/7sPL9Jam6MjvPJknMxFIWejtALmfL6vveBYoL1w=;
-        b=APUalQ7/cTHmLJ4GbZPIlbZkJxVH1Njb58vJbR9Ui7/2k8I8jDlkEDCwHuoSa/0Vg7
-         bC5b7/aHoHihxioWBzmoCc4Jw83jk7Q7BpFugpOjFjU2JBUSogvUOl18Alc22jvQAndp
-         vUu4/BPzz4jwPA2jqTiJkI6BR+uG0MPKj7ZE+sBd+HfvgQXcwTPz3jsX+o/vrd4RhiVk
-         kNVZ2HRgOaBiQfbKl4XGgczUVY2wonyRBq3LDB/8RgK3Le4DEkmrVRWb/khVFepS6g3y
-         q0nVAr0yZW7qmkM8S9saB9ABLM8+ShlE/sNgpuNU56ecDLRiUk6ri6PsesGDUi4eVD6N
-         JJfg==
+        d=tessares.net; s=google; t=1690811802; x=1691416602;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=//IuSF4aR8dDqdSUTPXRXM7wMeZmyHZKY6Im4lg/WZA=;
+        b=LmkI7deeD2ks/5C8RN/irm6cJromc4pVohQqFgm+kYIyM/FhhiHSbwR/wZtwbsAZ3Y
+         nhki4BBNcC4SYzhXv3w+vyXgnRyrS7U0A9AjcHduigl4wz3qK60pzT+Vaf22lkMNnXS5
+         GArHH+YQttOEsMC9C0qVcKcHFkAiGz5MNM5I5n0fmWRsHxGz79bc0Tr8CD0/zAm9qsGP
+         YtW2dyqPXFmRSfc8iiyhVjq211n8k2vMr8jdS4zOzLnPAxWsHwnTZ3kB2uV22HNnL9C5
+         V7jbptUdpJjN/bAWZzMx7/xvbs/CEKgqpYUZ/I0G8V2A4HzFtx+y+LqbFvaB18dskmWs
+         zf9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690811504; x=1691416304;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5EO/7sPL9Jam6MjvPJknMxFIWejtALmfL6vveBYoL1w=;
-        b=M1Fd+3In3zD330b+hcACeCSGowSqKlvGFpDMFQrsaYqWQuU9353rUTUBWrVc3XjTUF
-         vEP7QturolE5N4jVfRxnqeJ/y6A63UJa9jy+0HVtZVaPr+RNLX9W6R9/Qrmv7cRYNn4Y
-         SjHo1RypVOrxUty2mtnN1zJUDbotc9vDCG03G08RdLMFbeu3qudwn+VAxq/4lPUGEvOq
-         9dSXr2rR1Yb8QyD9LXkXW6Gp1oE5zN3sjvsnIK840vv6NAxD/QsqJluockvhZ53ARjVY
-         zNNHA4seEGf/eSL193l/hDPp305pye03AD0uZ+tYg9ix5x7xPoSlmdoLmZFbKmIZGIkS
-         zYEQ==
-X-Gm-Message-State: ABy/qLbpp5GAa9HGgH3eXstN7jtp2SR57UTuV/TZxSqU8OouboRMa8PD
-        HHL+AioKY3p2UyihlrqxwCuvkNxEGKC28V/8vuTewhgsYYE=
-X-Google-Smtp-Source: APBJJlGhZEQxF1Xco7MGZNjtg/S83IewlADEG+CmQRaxXQqkvRoY5UM5JCVgi70nl1n86SeBb5V/FwmjNODQ3f8Zg5w=
-X-Received: by 2002:a2e:3307:0:b0:2b6:ba54:cc8 with SMTP id
- d7-20020a2e3307000000b002b6ba540cc8mr16002ljc.30.1690811503762; Mon, 31 Jul
- 2023 06:51:43 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1690811802; x=1691416602;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=//IuSF4aR8dDqdSUTPXRXM7wMeZmyHZKY6Im4lg/WZA=;
+        b=N9R9fr7jA+tK3MTHpxSxAu/FAo1XOI+Q9g1WVAHsCnaRL2rYHSwH/8WT/G+co1vi5h
+         51xXoV1PIONAwYDJy8/U9dG8qRUXiK7SreNFkffzm73jYkr2vwXwB0Skz4pWusuO8lDS
+         J/GZpe2er7qAka37ntp5/4+PMHiPlhB1tgKK1qQNxKo+OY/VIeWqC/dPCp6rm+ERl4V1
+         qijVY27lYWWhIjGwlKHr4GV3qjWzAOS8S126Z8hsmAZS1puSEQmvWoLNTFnt4ywH7+Um
+         KH0NCF+VH12UmfRiWNCVzqYpgQjWdAjoL8uN3NqBvL0GM7sYrM00oG4I2zguiideJIvg
+         I/pg==
+X-Gm-Message-State: ABy/qLYusrBmrfXFjlQP9s0S/jq7UmuitzjWvY1k9QH0eXGbW+T+8Qfj
+        HBJ1GD3ESxavl7/QQQmEzSEkQw==
+X-Google-Smtp-Source: APBJJlHKc9Sq7znL8pmKS0GHJT9fHimiY4SCiPYkbNF+F1H/EbJPFLhADxI0WinnSPbnG2LtV5voIQ==
+X-Received: by 2002:a2e:8192:0:b0:2b6:dfef:d526 with SMTP id e18-20020a2e8192000000b002b6dfefd526mr39265ljg.11.1690811801505;
+        Mon, 31 Jul 2023 06:56:41 -0700 (PDT)
+Received: from ?IPV6:2a02:578:8593:1200:98dd:e30:7e10:82aa? ([2a02:578:8593:1200:98dd:e30:7e10:82aa])
+        by smtp.gmail.com with ESMTPSA id i9-20020a1709061cc900b0099b5a71b0bfsm6226337ejh.94.2023.07.31.06.56.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 31 Jul 2023 06:56:41 -0700 (PDT)
+Message-ID: <b1f63c3f-5a26-4c69-af8f-216eaac19b69@tessares.net>
+Date:   Mon, 31 Jul 2023 15:56:40 +0200
 MIME-Version: 1.0
-References: <20230706141329.57661-1-cgzones@googlemail.com>
-In-Reply-To: <20230706141329.57661-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 31 Jul 2023 09:51:32 -0400
-Message-ID: <CAP+JOzRq7qM0m40=2G44nZkxEmga48QwbVBGXWFvK=Yw0cKkPA@mail.gmail.com>
-Subject: Re: [RFC PATCH] libsepol/cil: support parallel neverallow checks
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [RFC bpf-next v5] bpf: Force to MPTCP
+Content-Language: en-GB
+To:     Stanislav Fomichev <sdf@google.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Geliang Tang <geliang.tang@suse.com>,
+        Alexei Starovoitov <ast@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+References: <3076188eb88cca9151a2d12b50ba1e870b11ce09.1689693294.git.geliang.tang@suse.com>
+ <CAHC9VhS_LKdkEmm5_J5y34RpaRcTbg8==fpz8pMThDCjF6nYtQ@mail.gmail.com>
+ <b41babb1-f0f2-dc2f-c2e3-1870107fbd9f@tessares.net>
+ <ZMKxC+CFj4GbCklg@google.com>
+ <1023fdeb-a45a-2e9e-cd2e-7e44e655e8fc@tessares.net>
+ <ZMPyCt2uozns776Q@google.com>
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+In-Reply-To: <ZMPyCt2uozns776Q@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 6, 2023 at 10:22=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Add support to check for neverallow assertions in parallel.  Since the
-> policy is not modified during those checks there needs to be no
-> extensive locking.
->
-> The checks are run by semodule(8) if the semanage.conf(5) setting
-> expand-check is set.
->
-> Implement the parallel procedure via OpenMP, to minimize code changes
-> and to allow users a simple way to enable or disable the functionality
-> at build time.  Currently the support opt-in.
->
-> Example benchmark:
->
->     Benchmark 1: ./test_load_wip.sh (serial)
->       Time (mean =C2=B1 =CF=83):      3.485 s =C2=B1  0.019 s    [User: 0=
-.003 s, System: 0.002 s]
->       Range (min =E2=80=A6 max):    3.455 s =E2=80=A6  3.501 s    5 runs
->
->     Benchmark 1: ./test_load_wip.sh (parallel)
->       Time (mean =C2=B1 =CF=83):      2.443 s =C2=B1  0.035 s    [User: 0=
-.004 s, System: 0.001 s]
->       Range (min =E2=80=A6 max):    2.411 s =E2=80=A6  2.500 s    5 runs
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Hi Stanislav,
 
-Needs a "-fopenmp" when building.
+On 28/07/2023 18:51, Stanislav Fomichev wrote:
+> On 07/28, Matthieu Baerts wrote:
+>> Hi Stanislav,
+>>
+>> On 27/07/2023 20:01, Stanislav Fomichev wrote:
+>>> On 07/27, Matthieu Baerts wrote:
+>>>> Hi Paul, Stanislav,
+>>>>
+>>>> On 18/07/2023 18:14, Paul Moore wrote:
+>>>>> On Tue, Jul 18, 2023 at 11:21 AM Geliang Tang <geliang.tang@suse.com> wrote:
+>>>>>>
+>>>>>> As is described in the "How to use MPTCP?" section in MPTCP wiki [1]:
+>>>>>>
+>>>>>> "Your app can create sockets with IPPROTO_MPTCP as the proto:
+>>>>>> ( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
+>>>>>> forced to create and use MPTCP sockets instead of TCP ones via the
+>>>>>> mptcpize command bundled with the mptcpd daemon."
+>>>>>>
+>>>>>> But the mptcpize (LD_PRELOAD technique) command has some limitations
+>>>>>> [2]:
+>>>>>>
+>>>>>>  - it doesn't work if the application is not using libc (e.g. GoLang
+>>>>>> apps)
+>>>>>>  - in some envs, it might not be easy to set env vars / change the way
+>>>>>> apps are launched, e.g. on Android
+>>>>>>  - mptcpize needs to be launched with all apps that want MPTCP: we could
+>>>>>> have more control from BPF to enable MPTCP only for some apps or all the
+>>>>>> ones of a netns or a cgroup, etc.
+>>>>>>  - it is not in BPF, we cannot talk about it at netdev conf.
+>>>>>>
+>>>>>> So this patchset attempts to use BPF to implement functions similer to
+>>>>>> mptcpize.
+>>>>>>
+>>>>>> The main idea is add a hook in sys_socket() to change the protocol id
+>>>>>> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
+>>>>>>
+>>>>>> [1]
+>>>>>> https://github.com/multipath-tcp/mptcp_net-next/wiki
+>>>>>> [2]
+>>>>>> https://github.com/multipath-tcp/mptcp_net-next/issues/79
+>>>>>>
+>>>>>> v5:
+>>>>>>  - add bpf_mptcpify helper.
+>>>>>>
+>>>>>> v4:
+>>>>>>  - use lsm_cgroup/socket_create
+>>>>>>
+>>>>>> v3:
+>>>>>>  - patch 8: char cmd[128]; -> char cmd[256];
+>>>>>>
+>>>>>> v2:
+>>>>>>  - Fix build selftests errors reported by CI
+>>>>>>
+>>>>>> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
+>>>>>> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
+>>>>>> ---
+>>>>>>  include/linux/bpf.h                           |   1 +
+>>>>>>  include/linux/lsm_hook_defs.h                 |   2 +-
+>>>>>>  include/linux/security.h                      |   6 +-
+>>>>>>  include/uapi/linux/bpf.h                      |   7 +
+>>>>>>  kernel/bpf/bpf_lsm.c                          |   2 +
+>>>>>>  net/mptcp/bpf.c                               |  20 +++
+>>>>>>  net/socket.c                                  |   4 +-
+>>>>>>  security/apparmor/lsm.c                       |   8 +-
+>>>>>>  security/security.c                           |   2 +-
+>>>>>>  security/selinux/hooks.c                      |   6 +-
+>>>>>>  tools/include/uapi/linux/bpf.h                |   7 +
+>>>>>>  .../testing/selftests/bpf/prog_tests/mptcp.c  | 128 ++++++++++++++++--
+>>>>>>  tools/testing/selftests/bpf/progs/mptcpify.c  |  17 +++
+>>>>>>  13 files changed, 187 insertions(+), 23 deletions(-)
+>>>>>>  create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
+>>>>>
+>>>>> ...
+>>>>>
+>>>>>> diff --git a/security/security.c b/security/security.c
+>>>>>> index b720424ca37d..bbebcddce420 100644
+>>>>>> --- a/security/security.c
+>>>>>> +++ b/security/security.c
+>>>>>> @@ -4078,7 +4078,7 @@ EXPORT_SYMBOL(security_unix_may_send);
+>>>>>>   *
+>>>>>>   * Return: Returns 0 if permission is granted.
+>>>>>>   */
+>>>>>> -int security_socket_create(int family, int type, int protocol, int kern)
+>>>>>> +int security_socket_create(int *family, int *type, int *protocol, int kern)
+>>>>>>  {
+>>>>>>         return call_int_hook(socket_create, 0, family, type, protocol, kern);
+>>>>>>  }
+>>>>>
+>>>>> Using the LSM to change the protocol family is not something we want
+>>>>> to allow.  I'm sorry, but you will need to take a different approach.
+>>>>
+>>>> @Paul: Thank you for your feedback. It makes sense and I understand.
+>>>>
+>>>> @Stanislav: Despite the fact the implementation was smaller and reusing
+>>>> more code, it looks like we cannot go in the direction you suggested. Do
+>>>> you think what Geliang suggested before in his v3 [1] can be accepted?
+>>>>
+>>>> (Note that the v3 is the same as the v1, only some fixes in the selftests.)
+>>>
+>>> We have too many hooks in networking, so something that doesn't add
+>>> a new one is preferable :-(
+>>
+>> Thank you for your reply and the explanation, I understand.
+>>
+>>> Moreover, we already have a 'socket init' hook, but it runs a bit late.
+>>
+>> Indeed. And we cannot move it before the creation of the socket.
+>>
+>>> Is existing cgroup/sock completely unworkable? Is it possible to
+>>> expose some new bpf_upgrade_socket_to(IPPROTO_MPTCP) kfunc which would
+>>> call some new net_proto_family->upgrade_to(IPPROTO_MPTCP) to do the surgery?
+>>> Or is it too hacky?
+>>
+>> I cannot judge if it is too hacky or not but if you think it would be
+>> OK, please tell us :)
+> 
+> Maybe try and see how it goes? Doing the surgery to convert from tcp
+> to mptcp is probably hard, but it seems that we should be able to
+> do something like:
+> 
+> int upgrade_to(sock, sk) {
+> 	if (sk is not a tcp one) return -EINVAL;
+> 
+> 	sk_common_release(sk);
+> 	return inet6_create(net, sock, IPPROTO_MPTCP, false);
+> }
+> 
+> ?
+> 
+> The only thing I'm not sure about is whether you can call inet6_create
+> on a socket that has seen sk_common_release'd...
 
-I am not seeing very much change (1.8 sec originally, 1.6 sec with this pat=
-ch).
-Jim
+Oh sorry, now I better understand your suggestion and the fact it is
+hacky. Good workaround, we can keep this in mind if there is no other
+solutions to avoid these create-release-create operations.
 
-> ---
->  libsepol/cil/src/cil_binary.c | 60 ++++++++++++++++++++++++++++-------
->  1 file changed, 48 insertions(+), 12 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
-c
-> index c4ee2380..7f6212e3 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -4828,8 +4828,11 @@ static int cil_check_neverallow(const struct cil_d=
-b *db, policydb_t *pdb, struct
->
->                 rc =3D check_assertion(pdb, rule);
->                 if (rc =3D=3D CIL_TRUE) {
-> -                       *violation =3D CIL_TRUE;
-> -                       rc =3D __cil_print_neverallow_failure(db, node);
-> +                       #pragma omp critical (output)
-> +                       {
-> +                               *violation =3D CIL_TRUE;
-> +                               rc =3D __cil_print_neverallow_failure(db,=
- node);
-> +                       }
->                         if (rc !=3D SEPOL_OK) {
->                                 goto exit;
->                         }
-> @@ -4850,8 +4853,11 @@ static int cil_check_neverallow(const struct cil_d=
-b *db, policydb_t *pdb, struct
->                         rule->xperms =3D item->data;
->                         rc =3D check_assertion(pdb, rule);
->                         if (rc =3D=3D CIL_TRUE) {
-> -                               *violation =3D CIL_TRUE;
-> -                               rc =3D __cil_print_neverallow_failure(db,=
- node);
-> +                               #pragma omp critical (output)
-> +                               {
-> +                                       *violation =3D CIL_TRUE;
-> +                                       rc =3D __cil_print_neverallow_fai=
-lure(db, node);
-> +                               }
->                                 if (rc !=3D SEPOL_OK) {
->                                         goto exit;
->                                 }
-> @@ -4876,18 +4882,48 @@ exit:
->
->  static int cil_check_neverallows(const struct cil_db *db, policydb_t *pd=
-b, struct cil_list *neverallows, int *violation)
->  {
-> -       int rc =3D SEPOL_OK;
-> -       struct cil_list_item *item;
-> +       int rc_sync =3D SEPOL_OK;
-> +
-> +       #pragma omp parallel
-> +       {
-> +
-> +               #pragma omp single
-> +               {
-> +
-> +                       struct cil_list_item *item;
-> +                       cil_list_for_each(item, neverallows) {
-> +
-> +                               struct cil_tree_node *node =3D item->data=
-;
-> +                               int rc_test;
-> +
-> +                               #pragma omp task default(none) firstpriva=
-te(node, db, pdb, violation) shared(rc_sync) untied
-> +                               {
-> +                                       int rc_task =3D cil_check_neveral=
-low(
-> +                                               db,
-> +                                               pdb,
-> +                                               node,
-> +                                               violation);
-> +
-> +                                       if (rc_task !=3D SEPOL_OK) {
-> +                                               #pragma omp atomic write
-> +                                               rc_sync =3D rc_task;
-> +                                       }
-> +                               }
-> +
-> +                               #pragma omp atomic read
-> +                               rc_test =3D rc_sync;
-> +
-> +                               if (rc_test !=3D SEPOL_OK)
-> +                                       break;
-> +
-> +                       }
->
-> -       cil_list_for_each(item, neverallows) {
-> -               rc =3D cil_check_neverallow(db, pdb, item->data, violatio=
-n);
-> -               if (rc !=3D SEPOL_OK) {
-> -                       goto exit;
->                 }
-> +
-> +               #pragma omp taskwait
->         }
->
-> -exit:
-> -       return rc;
-> +       return rc_sync;
->  }
->
->  static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint1=
-6_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct ci=
-l_perm **perm_value_to_cil[])
-> --
-> 2.40.1
->
+>>> Another option Alexei suggested is to add some fentry-like thing:
+>>>
+>>> noinline int update_socket_protocol(int protocol)
+>>> {
+>>> 	return protocol;
+>>> }
+>>> /* TODO: ^^^ add the above to mod_ret set */
+>>>
+>>> int __sys_socket(int family, int type, int protocol)
+>>> {
+>>> 	...
+>>>
+>>> 	protocol = update_socket_protocol(protocol);
+>>>
+>>> 	...
+>>> }
+>>>
+>>> But it's also too problem specific it seems? And it's not cgroup-aware.
+>>
+>> It looks like it is what Geliang did in his v6. If it is the only
+>> acceptable solution, I guess we can do without cgroup support. We can
+>> continue the discussions in his v6 if that's easier.
+> 
+> Ack, that works too, let's see how other people feel about it. I'm
+> assuming in the bpf program we can always do bpf_get_current_cgroup_id()
+> to filter by cgroup.
+
+Good point, that works too and looks enough!
+
+Cheers,
+Matt
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
