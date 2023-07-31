@@ -2,48 +2,50 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA51AEB64DD
-	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 01:46:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44524EB64DD
+	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 02:02:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbjGaBqp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 30 Jul 2023 21:46:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52062 "EHLO
+        id S229521AbjGaCCF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 30 Jul 2023 22:02:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbjGaBqp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 30 Jul 2023 21:46:45 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D9BE57;
-        Sun, 30 Jul 2023 18:46:43 -0700 (PDT)
-Received: from dggpemm500016.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4RDgxJ1NhKzNmNT;
-        Mon, 31 Jul 2023 09:43:16 +0800 (CST)
+        with ESMTP id S229579AbjGaCCE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 30 Jul 2023 22:02:04 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EF5810C6;
+        Sun, 30 Jul 2023 19:02:02 -0700 (PDT)
+Received: from dggpemm500016.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4RDhKn0hzmz1GC28;
+        Mon, 31 Jul 2023 10:01:01 +0800 (CST)
 Received: from [10.67.110.48] (10.67.110.48) by dggpemm500016.china.huawei.com
  (7.185.36.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Mon, 31 Jul
- 2023 09:46:40 +0800
-Message-ID: <f91fc274-31c0-739c-b7f5-ec970a0d87bb@huawei.com>
-Date:   Mon, 31 Jul 2023 09:46:34 +0800
+ 2023 10:01:59 +0800
+Message-ID: <f899f0af-6aea-7cd6-cd44-a2082cb267cb@huawei.com>
+Date:   Mon, 31 Jul 2023 10:01:59 +0800
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.11.0
-Subject: Re: [PATCH v2 5/9] selinux: services: update type for number of class
- permissions
+Subject: Re: [PATCH v2 6/9] selinux: avoid implicit conversions in services
+ code
+Content-Language: en-US
 To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
         <selinux@vger.kernel.org>
 CC:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Xiu Jianfeng <xiujianfeng@huaweicloud.com>,
         <linux-kernel@vger.kernel.org>
 References: <20230728155501.39632-1-cgzones@googlemail.com>
- <20230728155501.39632-4-cgzones@googlemail.com>
-Content-Language: en-US
+ <20230728155501.39632-5-cgzones@googlemail.com>
 From:   Gong Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <20230728155501.39632-4-cgzones@googlemail.com>
+In-Reply-To: <20230728155501.39632-5-cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 X-Originating-IP: [10.67.110.48]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
  dggpemm500016.china.huawei.com (7.185.36.25)
 X-CFilter-Loop: Reflected
 Precedence: bulk
@@ -53,78 +55,167 @@ X-Mailing-List: selinux@vger.kernel.org
 
 
 On 2023/07/28 23:54, Christian Göttsche wrote:
-> Security classes have only up to 32 permissions, hence using an u16 is
-> sufficient (while improving padding in struct selinux_mapping).
+> Use u32 as the output parameter type in security_get_classes() and
+> security_get_permissions(), based on the type of the symtab nprim
+> member.
 > 
-> Also use a fixed sized cast in a bit shift to avoid (well defined)
-> overflows on architectures where sizeof(unsigned int) != sizeof(u32)
-> resulting in no bits set.
+> Declare the read-only class string parameter of
+> security_get_permissions() const.
+> 
+> Avoid several implicit conversions by using the identical type for the
+> destination.
+> 
+> Use the type identical to the source for local variables.
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
 Reviewed-by: GONG, Ruiqi <gongruiqi1@huawei.com>
 
 > ---
-> v2:
->    update commit description:
->      - mention struct selinux_mapping  in the padding argument
->        (currently between the first and second member there are 2 bytes
->         padding)
->      - mention overflow in the cast argument and the result of setting
->        no bits due to it
+> v2: avoid declarations in init-clauses of for loops
 > ---
->  security/selinux/ss/services.c | 6 +++---
->  security/selinux/ss/services.h | 2 +-
->  2 files changed, 4 insertions(+), 4 deletions(-)
+>  security/selinux/include/security.h |  4 ++--
+>  security/selinux/selinuxfs.c        |  7 ++++---
+>  security/selinux/ss/services.c      | 23 ++++++++++++-----------
+>  3 files changed, 18 insertions(+), 16 deletions(-)
 > 
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 668e393a9709..074d439fe9ad 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -312,9 +312,9 @@ int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
+>  				 u32 *peer_sid);
+>  
+>  int security_get_classes(struct selinux_policy *policy,
+> -			 char ***classes, int *nclasses);
+> +			 char ***classes, u32 *nclasses);
+>  int security_get_permissions(struct selinux_policy *policy,
+> -			     char *class, char ***perms, int *nperms);
+> +			     const char *class, char ***perms, u32 *nperms);
+>  int security_get_reject_unknown(void);
+>  int security_get_allow_unknown(void);
+>  
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index f79e96f0f221..b969e87fd870 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1798,7 +1798,8 @@ static int sel_make_perm_files(struct selinux_policy *newpolicy,
+>  			char *objclass, int classvalue,
+>  			struct dentry *dir)
+>  {
+> -	int i, rc, nperms;
+> +	u32 i, nperms;
+> +	int rc;
+>  	char **perms;
+>  
+>  	rc = security_get_permissions(newpolicy, objclass, &perms, &nperms);
+> @@ -1868,8 +1869,8 @@ static int sel_make_classes(struct selinux_policy *newpolicy,
+>  			    struct dentry *class_dir,
+>  			    unsigned long *last_class_ino)
+>  {
+> -
+> -	int rc, nclasses, i;
+> +	u32 i, nclasses;
+> +	int rc;
+>  	char **classes;
+>  
+>  	rc = security_get_classes(newpolicy, &classes, &nclasses);
 > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 2c5be06fbada..cf4b87ec4a0e 100644
+> index cf4b87ec4a0e..3a03243f52e7 100644
 > --- a/security/selinux/ss/services.c
 > +++ b/security/selinux/ss/services.c
-> @@ -97,7 +97,6 @@ static int selinux_set_mapping(struct policydb *pol,
->  			       struct selinux_map *out_map)
+> @@ -856,7 +856,7 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
+>  	struct sidtab *sidtab;
+>  	struct sidtab_entry *old_entry, *new_entry;
+>  	struct type_datum *type;
+> -	int index;
+> +	u32 index;
+>  	int rc;
+>  
+>  	if (!selinux_initialized())
+> @@ -1511,7 +1511,7 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
+>  		return -ENOMEM;
+>  
+>  	if (!selinux_initialized()) {
+> -		int i;
+> +		u32 i;
+>  
+>  		for (i = 1; i < SECINITSID_NUM; i++) {
+>  			const char *s = initial_sid_to_string[i];
+> @@ -2821,7 +2821,6 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
 >  {
->  	u16 i, j;
-> -	unsigned k;
->  	bool print_unknown_handle = false;
+>  	struct policydb *policydb = &policy->policydb;
+>  	struct sidtab *sidtab = policy->sidtab;
+> -	int len;
+>  	u16 sclass;
+>  	struct genfs *genfs;
+>  	struct ocontext *c;
+> @@ -2843,7 +2842,7 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
+>  		return -ENOENT;
 >  
->  	/* Find number of classes in the input mapping */
-> @@ -117,6 +116,7 @@ static int selinux_set_mapping(struct policydb *pol,
->  	while (map[j].name) {
->  		const struct security_class_mapping *p_in = map + (j++);
->  		struct selinux_mapping *p_out = out_map->mapping + j;
-> +		u16 k;
->  
->  		/* An empty class string skips ahead */
->  		if (!strcmp(p_in->name, "")) {
-> @@ -202,7 +202,7 @@ static void map_decision(struct selinux_map *map,
+>  	for (c = genfs->head; c; c = c->next) {
+> -		len = strlen(c->u.name);
+> +		size_t len = strlen(c->u.name);
+>  		if ((!c->v.sclass || sclass == c->v.sclass) &&
+>  		    (strncmp(c->u.name, path, len) == 0))
+>  			break;
+> @@ -3331,7 +3330,7 @@ static int get_classes_callback(void *k, void *d, void *args)
 >  {
->  	if (tclass < map->size) {
->  		struct selinux_mapping *mapping = &map->mapping[tclass];
-> -		unsigned int i, n = mapping->num_perms;
-> +		u16 i, n = mapping->num_perms;
->  		u32 result;
+>  	struct class_datum *datum = d;
+>  	char *name = k, **classes = args;
+> -	int value = datum->value - 1;
+> +	u32 value = datum->value - 1;
 >  
->  		for (i = 0, result = 0; i < n; i++) {
-> @@ -230,7 +230,7 @@ static void map_decision(struct selinux_map *map,
->  		 * should audit that denial
->  		 */
->  		for (; i < (sizeof(u32)*8); i++)
-> -			result |= 1<<i;
-> +			result |= 1<<((u32)i);
->  		avd->auditdeny = result;
->  	}
+>  	classes[value] = kstrdup(name, GFP_ATOMIC);
+>  	if (!classes[value])
+> @@ -3341,7 +3340,7 @@ static int get_classes_callback(void *k, void *d, void *args)
 >  }
-> diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
-> index ed2ee6600467..d24b0a3d198e 100644
-> --- a/security/selinux/ss/services.h
-> +++ b/security/selinux/ss/services.h
-> @@ -12,7 +12,7 @@
->  /* Mapping for a single class */
->  struct selinux_mapping {
->  	u16 value; /* policy value for class */
-> -	unsigned int num_perms; /* number of permissions in class */
-> +	u16 num_perms; /* number of permissions in class */
->  	u32 perms[sizeof(u32) * 8]; /* policy values for permissions */
->  };
 >  
+>  int security_get_classes(struct selinux_policy *policy,
+> -			 char ***classes, int *nclasses)
+> +			 char ***classes, u32 *nclasses)
+>  {
+>  	struct policydb *policydb;
+>  	int rc;
+> @@ -3357,7 +3356,8 @@ int security_get_classes(struct selinux_policy *policy,
+>  	rc = hashtab_map(&policydb->p_classes.table, get_classes_callback,
+>  			 *classes);
+>  	if (rc) {
+> -		int i;
+> +		u32 i;
+> +
+>  		for (i = 0; i < *nclasses; i++)
+>  			kfree((*classes)[i]);
+>  		kfree(*classes);
+> @@ -3371,7 +3371,7 @@ static int get_permissions_callback(void *k, void *d, void *args)
+>  {
+>  	struct perm_datum *datum = d;
+>  	char *name = k, **perms = args;
+> -	int value = datum->value - 1;
+> +	u32 value = datum->value - 1;
+>  
+>  	perms[value] = kstrdup(name, GFP_ATOMIC);
+>  	if (!perms[value])
+> @@ -3381,10 +3381,11 @@ static int get_permissions_callback(void *k, void *d, void *args)
+>  }
+>  
+>  int security_get_permissions(struct selinux_policy *policy,
+> -			     char *class, char ***perms, int *nperms)
+> +			     const char *class, char ***perms, u32 *nperms)
+>  {
+>  	struct policydb *policydb;
+> -	int rc, i;
+> +	u32 i;
+> +	int rc;
+>  	struct class_datum *match;
+>  
+>  	policydb = &policy->policydb;
+> @@ -3599,7 +3600,7 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
+>  /* Check to see if the rule contains any selinux fields */
+>  int selinux_audit_rule_known(struct audit_krule *rule)
+>  {
+> -	int i;
+> +	u32 i;
+>  
+>  	for (i = 0; i < rule->field_count; i++) {
+>  		struct audit_field *f = &rule->fields[i];
