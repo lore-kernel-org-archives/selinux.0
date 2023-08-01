@@ -2,104 +2,102 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F926C41513
-	for <selinux@archiver.kernel.org>; Mon, 31 Jul 2023 23:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30F76C001DE
+	for <selinux@archiver.kernel.org>; Tue,  1 Aug 2023 00:43:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbjGaXNO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 31 Jul 2023 19:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38260 "EHLO
+        id S229888AbjHAAnu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 31 Jul 2023 20:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230177AbjGaXNN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 19:13:13 -0400
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246D9212E
-        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 16:12:58 -0700 (PDT)
-Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-d0e009433c4so5425302276.2
-        for <selinux@vger.kernel.org>; Mon, 31 Jul 2023 16:12:58 -0700 (PDT)
+        with ESMTP id S229646AbjHAAnt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 31 Jul 2023 20:43:49 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C4261BC8;
+        Mon, 31 Jul 2023 17:43:29 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id d2e1a72fcca58-686e0213c0bso3505184b3a.1;
+        Mon, 31 Jul 2023 17:43:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1690845177; x=1691449977;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LIWQwaIJWW2AH6m7nJzzmwOP84vQW5rxfB4Hc5L4BUo=;
-        b=IjJOcbHGcC4ZOac+W3yi7m60UCrSW/CzySpZnLwGp5cxE4iUUxa0SFEg+mufLIZ0Vh
-         wc9+4lUF4qfV33FmDU2w5Wln53Ocg3R65paebn2djGEDOPeOKnCeq+RcCzNYCxcTGg4L
-         oHF9U61NDgBeN+/1LQlJRVuJ/th1vSWqF/zEOZmNS9k51w96VLDQHtzIWQ3y6K5aSnb8
-         n2CifxmjVDzWj61tnCVBvwOpgihQKHsXe4aCufmwdbJ2I3dFJF4rfENk/qbMzzm2OIz1
-         DFJwNompym00u/FLtNjb0tzXvcdWrrmRM6AuUTsy4FPun7VgGc8c4NtxtIMwVEeHj23F
-         sBDA==
+        d=gmail.com; s=20221208; t=1690850609; x=1691455409;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=bhtZuHVuD/5ejYMblEMyj6RnAY5Q/SWusGE7WOY4wLk=;
+        b=RVDofTb81vwCNbApr9KlLqeCll9uBMlfud/WfmddUfEN0IK3PpETDcLv6Q8CrKqyGc
+         vrGsvn3wQYftFQ8P0nKXwzd4g/jbOqkt02t1/eY0RzKfpUTztKsHrxEJfGaUvEBoHnza
+         8oTL79e6ngOzRjUfNCcKD6awElo7WX7j9wnSP+2/XEusL/SbKzOD9YZ6R9Pc63GOWq3W
+         9s8APfiP/DHZEct6jOAEcxB3S5B93mptSEUqVTSi7uPzc6ZDsZP3Fv9AJK/bqsY+UKeS
+         xTw0ePYHH/dpFa9JmYBlfnqooLGD7NQpLva3ftfWSoB7LC/7+CUIcaXZ95Up8LkDp0I9
+         esNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690845177; x=1691449977;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LIWQwaIJWW2AH6m7nJzzmwOP84vQW5rxfB4Hc5L4BUo=;
-        b=ApfEenQLaUGUOYayAq5YqFkQEtcqhRoWvO8gbtKz0Qv/n3U64xGYALKUcyB5RBeOFd
-         XsJgezDyNkOQM7MZmdfKFgBGjoKuLBePQULRSEPno0r7T9KVZ+ElISMfyOOkugytrych
-         59IodlnnBdCFpcDX/JhQ3ZhGPPl62z6zYxHbOekIqN1vAbdnLXUEiyeq7sJmLd3KdCli
-         cCLrvAO3yLszRb1b9Th5rSIc+KQuTccpZj6XJS2CF1DqP0R1KQLcNaPt8gxvzm6qFYSy
-         6px4TKguKlJq88xmL4Me31rrMLmoEAfwxPLctDSdBSXfkaotRP0FgUzbfogExQpNJBSf
-         XlIA==
-X-Gm-Message-State: ABy/qLbNTD12mKamn4QSxVd2eiGvGslhV+qinC+jphbCZ2tteFjOARKD
-        u7E1YMGIaGdBBoFdaw9as+P5WB06IQNdG7OP0cEz
-X-Google-Smtp-Source: APBJJlFulKerGdHVB3knYAE6fgtR0BvCzLLl6dr1yYLVbIWyOkLfHwCDxaHBRpR9Gq2ObKDOrC/wkVpmt7gz1yn6o0Q=
-X-Received: by 2002:a81:608b:0:b0:569:e7cb:cd4e with SMTP id
- u133-20020a81608b000000b00569e7cbcd4emr11274976ywb.48.1690845177332; Mon, 31
- Jul 2023 16:12:57 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1690850609; x=1691455409;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bhtZuHVuD/5ejYMblEMyj6RnAY5Q/SWusGE7WOY4wLk=;
+        b=gPMQnYJTM6uqDJNvFBYf387bSHGMd6uwWa4wdh9a/82k9FmTCtrXuDyQQrE8vqRfzm
+         d7+6odnztP2Dq3OWv7cGk/pI6nUzSwQxwSbSvO+o19y/9ppdYrCcZUT1tEqRzh9cxpcx
+         tNs6k/V2Lb0RgxCfM5LEsAB9dkoEx25Cib+XlKXFzsVajFdkqctPFSdpOw/GGysoWMms
+         cw4ResOJGfU9skNuOmTBV+DnnrFIuE0+SU+3Ths8kVYQDyA2TFN268b/snQuT8esgmOU
+         Ul+GQAJdFn3dl0TaUoo5a0wb9FbPkIPTEOd7jdEvh+gCqI5jAYvMgzqxo4NMuCpPi8ph
+         M4eQ==
+X-Gm-Message-State: ABy/qLbK77jsnYNytJe/qzLunvKPzqdKZJdXs3b4D6ESfgzpKYsrl23h
+        54eKsAQPe9NKjdtI/nvEY9U=
+X-Google-Smtp-Source: APBJJlEDasJjNH4eP//Am3nFp4ZsQ53OoZYJ+ckrfSoVwD3WviUA3efisvHN+OOYWAmDO2aQriVD0g==
+X-Received: by 2002:a05:6a20:4a06:b0:10f:f672:6e88 with SMTP id fr6-20020a056a204a0600b0010ff6726e88mr9441980pzb.4.1690850608691;
+        Mon, 31 Jul 2023 17:43:28 -0700 (PDT)
+Received: from MacBook-Pro-8.local ([2620:10d:c090:400::5:6cea])
+        by smtp.gmail.com with ESMTPSA id y15-20020a637d0f000000b00563b36264besm8688220pgc.85.2023.07.31.17.43.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Jul 2023 17:43:28 -0700 (PDT)
+Date:   Mon, 31 Jul 2023 17:43:23 -0700
+From:   Alexei Starovoitov <alexei.starovoitov@gmail.com>
+To:     Geliang Tang <geliang.tang@suse.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Brendan Jackman <jackmanb@chromium.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
+        bpf@vger.kernel.org, netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [RFC bpf-next v7 0/6] bpf: Force to MPTCP
+Message-ID: <20230801004323.l2npfegkq3srzff3@MacBook-Pro-8.local>
+References: <cover.1690624340.git.geliang.tang@suse.com>
 MIME-Version: 1.0
-References: <cover.1690786466.git.kamrankhadijadj@gmail.com>
- <7fd5ea487559760818af96f7c1f2c25bec515049.1690786467.git.kamrankhadijadj@gmail.com>
- <ZMfpGXM5LlDdrENi@aschofie-mobl2>
-In-Reply-To: <ZMfpGXM5LlDdrENi@aschofie-mobl2>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 31 Jul 2023 19:12:46 -0400
-Message-ID: <CAHC9VhQiZG4+t7LGS2JKuArAWifNLTK39v1h+sjhpwS04QGVDA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] lsm: change 'target' parameter to 'const' in
- security_capget LSM hook
-To:     Alison Schofield <alison.schofield@intel.com>
-Cc:     Khadija Kamran <kamrankhadijadj@gmail.com>,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        jmorris@namei.org, serge@hallyn.com,
-        linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com,
-        john.johansen@canonical.com, ztarkhani@microsoft.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1690624340.git.geliang.tang@suse.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 31, 2023 at 1:02=E2=80=AFPM Alison Schofield
-<alison.schofield@intel.com> wrote:
-> On Mon, Jul 31, 2023 at 12:07:31PM +0500, Khadija Kamran wrote:
-> > Three LSMs register the implementations for the "capget" hook: AppArmor=
-,
-> > SELinux, and the normal capability code. Looking at the function
-> > implementations we may observe that the first parameter "target" is not
-> > changing.
-> >
-> > Mark the first argument "target" of LSM hook security_capget(...) as
-> > "const" since it will not be changing in the LSM hook.
->
->
-> The commit message may be simplified, from this:
-> [PATCH 1/2] lsm: change 'target' parameter to 'const' in security_capget =
-LSM hook
->
-> to something like this:
-> [PATCH 1/2] lsm: Constify the target parameter in security_capget()
->
-> "Constify" is the commonly used language in git logs.
-> See git log --pretty=3Doneline --abbrev-commit | grep Constify
+On Sat, Jul 29, 2023 at 05:57:21PM +0800, Geliang Tang wrote:
+> 
+> The main idea is to add a hook in sys_socket() to change the protocol id
+> from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
 
-I'm not overly worried about the subject line; yes, Allison's
-suggestion is an improvement, but the original is okay.  However, I
-would like to see patches 1/2 and 2/2 squashed together into a single
-patch.  If patch 1/2 hadn't already touched the function declaration
-line that was too long there may have been an argument for keeping the
-patchset as two patches, but since patch 1/2 does modify the function
-declaration we might as well wrap that declaration line in that patch
-too.
+I still think it's a hack, but its blast radius is nicely contained.
+And since I cannot propose any better I'm ok with it.
 
---
-paul-moore.com
+Patches 1-2 can be squashed into one.
+Just like patches 3-6 as a single patch for selftests.
+
+But before proceeding I'd like an explicit ack from netdev maintainers.
