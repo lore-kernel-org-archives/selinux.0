@@ -2,69 +2,64 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95023C0015E
-	for <selinux@archiver.kernel.org>; Tue,  1 Aug 2023 13:25:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CE65C04A6A
+	for <selinux@archiver.kernel.org>; Tue,  1 Aug 2023 19:02:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234105AbjHANZc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Aug 2023 09:25:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36778 "EHLO
+        id S232087AbjHATCv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Aug 2023 15:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234128AbjHANZZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Aug 2023 09:25:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67E5E198A
-        for <selinux@vger.kernel.org>; Tue,  1 Aug 2023 06:24:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1690896278;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=du9AAG/dP7EybnXiTIbMPQ2DqZuLKJ1D8f7iRAwNssA=;
-        b=Nx7HD14vi4zxz/iNiM1G5X6oWGbOBzk2isKAYjjwoU07j8IWWJNrcl2/p9dOx7buw8bJmw
-        U4wcdfR1dTdr30O6moLyDOMHSpnGFLj3UHIVyhYOmk/0SzUWzgdeZ7O7G9exrWX9VwOGrX
-        MpuSLlq3L5b9nYDdSG8J7i8ImVk2O8U=
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
- [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-599-CA61DfKgOgODSu0LsE48rw-1; Tue, 01 Aug 2023 09:24:36 -0400
-X-MC-Unique: CA61DfKgOgODSu0LsE48rw-1
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-56336f5dc6cso3648120a12.0
-        for <selinux@vger.kernel.org>; Tue, 01 Aug 2023 06:24:36 -0700 (PDT)
+        with ESMTP id S229517AbjHATCs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Aug 2023 15:02:48 -0400
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A8D31B6
+        for <selinux@vger.kernel.org>; Tue,  1 Aug 2023 12:02:47 -0700 (PDT)
+Received: by mail-yb1-xb2c.google.com with SMTP id 3f1490d57ef6-d18566dc0c1so6316564276.0
+        for <selinux@vger.kernel.org>; Tue, 01 Aug 2023 12:02:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1690916566; x=1691521366;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SclraCm3h0ZTin0EjlVWz7al4/ZvI3IRr+5XmagqLbs=;
+        b=YnJLmjRH0KqDrmcD+ZDiIsWHBYb7i1IT5zarLsqaoLjrQuoWLdV5MwUUB8C1sTLKl+
+         BMldfKW/RIDQGp/B5BkIyTHX8Qmk82ZNbKlR7miY22lCzi0XhjYgybxgMq4s3laONYdL
+         wEPcZZVZcQy/tB9W0XFuGu6FKWvcX5obRDAWSVXJZfa7jwn4cGxHid6CJCG1dVa5k84j
+         MydtQkd2kO55QROQObazhaq/w2duJ7+sBnHZDSn4jxAYMrjVyTmLQn+cqrliXnAEU3Bc
+         EhZFby4QcyzEMeJ+aDmGJOSUVEyBdKlcrMMjR3TZFmaK0jQXERcC5jzWTJuZgVlZIdtq
+         Moxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690896275; x=1691501075;
+        d=1e100.net; s=20221208; t=1690916566; x=1691521366;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=du9AAG/dP7EybnXiTIbMPQ2DqZuLKJ1D8f7iRAwNssA=;
-        b=G6CxNYx7C7w6VRu7QehoOV+t1jm8QmYqEo4BkYqC8FNSuWg+YCfhsyvGQpY8pGp2ZJ
-         IHJA/cYnQpW6CEpDqE8ElrT7TXV8Mgdx2kvDp6R44u+XutV4RNl1Q2h35jRazDZkzeKW
-         vtvsATti2sPB2GO8BLgcWTGDFWqXpGJ83GsYYKKBM0l00GDSIrXy98AEsOio8BdgDAyb
-         OVlempNtiolwJYqD1Iw+rP9E9bSXpTvgtRPYLS/k6xu5tTDmKaHVpGD9p/qu2LGQtRBg
-         ybRWPrT5jLuOgzQyOdkRPl/yg/7HgE60rUvVWFbmR7FLCERUBuRxtBCgrMedvtjM+naP
-         4sqQ==
-X-Gm-Message-State: ABy/qLYJkPPzJnkSERVM/ozmbPbjTYf7wVWSC9MANNeEWunlCzCG++IL
-        Do5y/3MUbP0Hi6SIoQgenfLbHuOdrxLW787oVmZcP5AQvGhUeWi2wNG/twlxGIl6HAnkgcP2Xrp
-        ADEYV8JoZ/QzQK3r51PihlydvlpiQ20ZGCw==
-X-Received: by 2002:a17:902:8301:b0:1b0:3a74:7fc4 with SMTP id bd1-20020a170902830100b001b03a747fc4mr9249080plb.24.1690896275001;
-        Tue, 01 Aug 2023 06:24:35 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlEdL4Qc45HE412hd5YyrtzfiXVBDGQUYaed1NNu54V07lQbE55W9fai0JxCrCvPbOe8HjogCi1SMpvR70AlGak=
-X-Received: by 2002:a17:902:8301:b0:1b0:3a74:7fc4 with SMTP id
- bd1-20020a170902830100b001b03a747fc4mr9249064plb.24.1690896274612; Tue, 01
- Aug 2023 06:24:34 -0700 (PDT)
+        bh=SclraCm3h0ZTin0EjlVWz7al4/ZvI3IRr+5XmagqLbs=;
+        b=FX08STLNurudCOxRn72GUb50kaXxxS3nFbexfzxeXrSg6Uyf7XGgn7RjDWd0TnMJ3v
+         tWamUJ10x76TGyLD1b0idE8ZZwWn6VapyEx+m/1R94rOcmGtZQNzN+bwUEbr8SjiLR2v
+         QIlh5Y2YJqMRWXTUqcWbIHVtsPtxWzqRE4uaXJpCnSRq2vgxV+5B1GAXdJ4rBl00GId9
+         cd0+KRYvPTFpP3gS8a0CAKJvi6j+ILokY+s1FxqaXcWf3vs6aBJmfocUDP01Xq+J0x5l
+         3vTRqhMKzGlNhQSIgs5c6I19YDYsVSikcKvFvNmWxSHlq6oki1vtJFO5Ic/opvKTiMV4
+         j3WA==
+X-Gm-Message-State: ABy/qLbHdtH45QpXS69R/8E7IlgnuiRH3A+eNU00aLOIN+0z6KM0TXFM
+        xNN8uj1dAJN1ToZKPWELeOrRiMIavt4n20FUl41b53uInO1rzz3f+7yd
+X-Google-Smtp-Source: APBJJlGkxJn21mWe9Sf6JvEwFYjnL8542MYOjbs7yCSg+g+MDcAynIxRWeKd2lmeK9qLIMtSojkUVVblgXdfDv0SPWY=
+X-Received: by 2002:a25:b285:0:b0:cf8:1070:82d3 with SMTP id
+ k5-20020a25b285000000b00cf8107082d3mr15388769ybj.32.1690916566066; Tue, 01
+ Aug 2023 12:02:46 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230620131223.431281-1-omosnace@redhat.com> <87edkseqf8.fsf@mail.lhotse>
  <CAFqZXNtsCKsr0YHPCSJJQ5An=RoMhf0dufgr7P_SnAAv7CrLjw@mail.gmail.com>
  <CAEjxPJ643nmW6HZOmQGNFDj-cQGf-x3jzZcrO8BHVN9thM23Dw@mail.gmail.com>
  <CAFqZXNuM-807tmT84rZ25xwh078BxvSfav88AozH=tt=J+dCrA@mail.gmail.com>
- <CAJ2a_DdZHFTHiRu5+ZENAwUq1Cor-jVoE9qdhb2x5uSej-MaRA@mail.gmail.com> <CAHC9VhQVQv78Xr1bDoJcuT5s441Lvc8AanMvMh8KXG-PuPTVAQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhQVQv78Xr1bDoJcuT5s441Lvc8AanMvMh8KXG-PuPTVAQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 1 Aug 2023 15:24:23 +0200
-Message-ID: <CAFqZXNvt1Hz7yZoY47sYQdjUPTTPxa=VmR0=z7or9XjVMwkU=A@mail.gmail.com>
+ <CAJ2a_DdZHFTHiRu5+ZENAwUq1Cor-jVoE9qdhb2x5uSej-MaRA@mail.gmail.com>
+ <CAHC9VhQVQv78Xr1bDoJcuT5s441Lvc8AanMvMh8KXG-PuPTVAQ@mail.gmail.com> <CAFqZXNvt1Hz7yZoY47sYQdjUPTTPxa=VmR0=z7or9XjVMwkU=A@mail.gmail.com>
+In-Reply-To: <CAFqZXNvt1Hz7yZoY47sYQdjUPTTPxa=VmR0=z7or9XjVMwkU=A@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 1 Aug 2023 15:02:35 -0400
+Message-ID: <CAHC9VhRZKtext3ZquaZHDFgfH_SvEPO2Tf8Q6B2SJpt8RRE55g@mail.gmail.com>
 Subject: Re: Login broken with old userspace (was Re: [PATCH v2] selinux:
  introduce an initial SID for early boot processes)
-To:     Paul Moore <paul@paul-moore.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>, selinux@vger.kernel.org,
@@ -76,222 +71,239 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 28, 2023 at 5:12=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Fri, Jul 28, 2023 at 9:24=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
+On Tue, Aug 1, 2023 at 9:24=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
+> wrote:
+> On Fri, Jul 28, 2023 at 5:12=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
 > >
-> > On Fri, 28 Jul 2023 at 15:14, Ondrej Mosnacek <omosnace@redhat.com> wro=
-te:
+> > On Fri, Jul 28, 2023 at 9:24=E2=80=AFAM Christian G=C3=B6ttsche
+> > <cgzones@googlemail.com> wrote:
 > > >
-> > > On Fri, Jul 28, 2023 at 1:52=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
+> > > On Fri, 28 Jul 2023 at 15:14, Ondrej Mosnacek <omosnace@redhat.com> w=
+rote:
 > > > >
-> > > > On Fri, Jul 28, 2023 at 7:36=E2=80=AFAM Ondrej Mosnacek <omosnace@r=
-edhat.com> wrote:
+> > > > On Fri, Jul 28, 2023 at 1:52=E2=80=AFPM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
 > > > > >
-> > > > > On Fri, Jul 28, 2023 at 4:12=E2=80=AFAM Michael Ellerman <mpe@ell=
-erman.id.au> wrote:
+> > > > > On Fri, Jul 28, 2023 at 7:36=E2=80=AFAM Ondrej Mosnacek <omosnace=
+@redhat.com> wrote:
 > > > > > >
-> > > > > > Ondrej Mosnacek <omosnace@redhat.com> writes:
-> > > > > > > Currently, SELinux doesn't allow distinguishing between kerne=
-l threads
-> > > > > > > and userspace processes that are started before the policy is=
- first
-> > > > > > > loaded - both get the label corresponding to the kernel SID. =
-The only
-> > > > > > > way a process that persists from early boot can get a meaning=
-ful label
-> > > > > > > is by doing a voluntary dyntransition or re-executing itself.
+> > > > > > On Fri, Jul 28, 2023 at 4:12=E2=80=AFAM Michael Ellerman <mpe@e=
+llerman.id.au> wrote:
+> > > > > > >
+> > > > > > > Ondrej Mosnacek <omosnace@redhat.com> writes:
+> > > > > > > > Currently, SELinux doesn't allow distinguishing between ker=
+nel threads
+> > > > > > > > and userspace processes that are started before the policy =
+is first
+> > > > > > > > loaded - both get the label corresponding to the kernel SID=
+. The only
+> > > > > > > > way a process that persists from early boot can get a meani=
+ngful label
+> > > > > > > > is by doing a voluntary dyntransition or re-executing itsel=
+f.
+> > > > > > >
+> > > > > > > Hi,
+> > > > > > >
+> > > > > > > This commit breaks login for me when booting linux-next kerne=
+ls with old
+> > > > > > > userspace, specifically Ubuntu 16.04 on ppc64le. 18.04 is OK.
+> > > > > > >
+> > > > > > > The symptom is that login never accepts the root password, it=
+ just
+> > > > > > > always says "Login incorrect".
+> > > > > > >
+> > > > > > > Bisect points to this commit.
+> > > > > > >
+> > > > > > > Reverting this commit on top of next-20230726, fixes the prob=
+lem
+> > > > > > > (ie. login works again).
+> > > > > > >
+> > > > > > > Booting with selinux=3D0 also fixes the problem.
+> > > > > > >
+> > > > > > > Is this expected? The change log below suggests backward comp=
+atibility
+> > > > > > > was considered, is 16.04 just too old?
 > > > > > >
-> > > > > > Hi,
+> > > > > > Hi Michael,
 > > > > > >
-> > > > > > This commit breaks login for me when booting linux-next kernels=
- with old
-> > > > > > userspace, specifically Ubuntu 16.04 on ppc64le. 18.04 is OK.
+> > > > > > I can reproduce it on Fedora 38 when I boot with SELINUX=3Ddisa=
+bled in
+> > > > > > /etc/selinux/config (+ a kernel including that commit), so it l=
+ikely
+> > > > > > isn't caused by the userspace being old. Can you check what you=
+ have
+> > > > > > in /etc/selinux/config (or if it exists at all)?
 > > > > > >
-> > > > > > The symptom is that login never accepts the root password, it j=
-ust
-> > > > > > always says "Login incorrect".
-> > > > > >
-> > > > > > Bisect points to this commit.
-> > > > > >
-> > > > > > Reverting this commit on top of next-20230726, fixes the proble=
-m
-> > > > > > (ie. login works again).
-> > > > > >
-> > > > > > Booting with selinux=3D0 also fixes the problem.
-> > > > > >
-> > > > > > Is this expected? The change log below suggests backward compat=
-ibility
-> > > > > > was considered, is 16.04 just too old?
-> > > > >
-> > > > > Hi Michael,
-> > > > >
-> > > > > I can reproduce it on Fedora 38 when I boot with SELINUX=3Ddisabl=
-ed in
-> > > > > /etc/selinux/config (+ a kernel including that commit), so it lik=
-ely
-> > > > > isn't caused by the userspace being old. Can you check what you h=
-ave
-> > > > > in /etc/selinux/config (or if it exists at all)?
-> > > > >
-> > > > > We have deprecated and removed the "runtime disable" functionalit=
-y in
-> > > > > SELinux recently [1], which was used to implement "disabling" SEL=
-inux
-> > > > > via the /etc/selinux/config file, so now the situation (selinux=
+> > > > > > We have deprecated and removed the "runtime disable" functional=
+ity in
+> > > > > > SELinux recently [1], which was used to implement "disabling" S=
+ELinux
+> > > > > > via the /etc/selinux/config file, so now the situation (selinux=
 =3D0 +
-> > > > > SELINUX=3Ddisabled in /etc/selinux/config) leads to a state where
-> > > > > SELinux is enabled, but no policy is loaded (and no enforcement i=
+> > > > > > SELINUX=3Ddisabled in /etc/selinux/config) leads to a state whe=
+re
+> > > > > > SELinux is enabled, but no policy is loaded (and no enforcement=
+ is
+> > > > > > done). Such a state mostly behaves as if SElinux was truly disa=
+bled
+> > > > > > (via kernel command line), but there are some subtle difference=
+s and I
+> > > > > > believe we don't officially support it (Paul might clarify). Wi=
+th
+> > > > > > latest kernels it is recommended to either disable SELinux via =
+the
+> > > > > > kernel command line (or Kconfig[2]) or to boot it in Enforcing =
+or
+> > > > > > Permissive mode with a valid/usable policy installed.
+> > > > > >
+> > > > > > So I wonder if Ubuntu ships by default with the bad configurati=
+on or
+> > > > > > if it's just a result of using the custom-built linux-next kern=
+el (or
+> > > > > > some changes on your part). If Ubuntu's stock kernel is configu=
+red to
+> > > > > > boot with SELinux enabled by default, they should also by defau=
+lt ship
+> > > > > > a usable policy and SELINUX=3Dpermissive/enforcing in
+> > > > > > /etc/selinux/config (or configure the kernel[2] or bootloader t=
+o boot
+> > > > > > with SELinux disabled by default). (Although if they ship a pre=
+-[1]
+> > > > > > kernel, they may continue to rely on the runtime disable
+> > > > > > functionality, but it means people will have to be careful when
+> > > > > > booting newer or custom kernels.)
+> > > > > >
+> > > > > > That said, I'd like to get to the bottom of why the commit caus=
+es the
+> > > > > > login to fail and fix it somehow. I presume something in PAM ch=
+okes on
+> > > > > > the fact that userspace tasks now have "init" instead of "kerne=
+l" as
+> > > > > > the pre-policy-load security context, but so far I haven't been=
+ able
+> > > > > > to pinpoint the problem. I'll keep digging...
+> > > > > >
+> > > > > > [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/li=
+nux.git/commit/?id=3Df22f9aaf6c3d92ebd5ad9e67acc03afebaaeb289
+> > > > > > [2] via CONFIG_LSM (or CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE =
+on older kernels)
+> > > > >
+> > > > > Prior to selinux userspace commit
+> > > > > 685f4aeeadc0b60f3770404d4f149610d656e3c8 ("libselinux:
+> > > > > is_selinux_enabled(): drop no-policy-loaded test.") libselinux wa=
 s
-> > > > > done). Such a state mostly behaves as if SElinux was truly disabl=
-ed
-> > > > > (via kernel command line), but there are some subtle differences =
-and I
-> > > > > believe we don't officially support it (Paul might clarify). With
-> > > > > latest kernels it is recommended to either disable SELinux via th=
-e
-> > > > > kernel command line (or Kconfig[2]) or to boot it in Enforcing or
-> > > > > Permissive mode with a valid/usable policy installed.
-> > > > >
-> > > > > So I wonder if Ubuntu ships by default with the bad configuration=
- or
-> > > > > if it's just a result of using the custom-built linux-next kernel=
- (or
-> > > > > some changes on your part). If Ubuntu's stock kernel is configure=
-d to
-> > > > > boot with SELinux enabled by default, they should also by default=
- ship
-> > > > > a usable policy and SELINUX=3Dpermissive/enforcing in
-> > > > > /etc/selinux/config (or configure the kernel[2] or bootloader to =
-boot
-> > > > > with SELinux disabled by default). (Although if they ship a pre-[=
-1]
-> > > > > kernel, they may continue to rely on the runtime disable
-> > > > > functionality, but it means people will have to be careful when
-> > > > > booting newer or custom kernels.)
-> > > > >
-> > > > > That said, I'd like to get to the bottom of why the commit causes=
- the
-> > > > > login to fail and fix it somehow. I presume something in PAM chok=
-es on
-> > > > > the fact that userspace tasks now have "init" instead of "kernel"=
- as
-> > > > > the pre-policy-load security context, but so far I haven't been a=
-ble
-> > > > > to pinpoint the problem. I'll keep digging...
-> > > > >
-> > > > > [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linu=
-x.git/commit/?id=3Df22f9aaf6c3d92ebd5ad9e67acc03afebaaeb289
-> > > > > [2] via CONFIG_LSM (or CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE on=
- older kernels)
-> > > >
-> > > > Prior to selinux userspace commit
-> > > > 685f4aeeadc0b60f3770404d4f149610d656e3c8 ("libselinux:
-> > > > is_selinux_enabled(): drop no-policy-loaded test.") libselinux was
-> > > > checking the result of reading /proc/self/attr/current to see if it
-> > > > returned the "kernel" string as a means of detecting a system with
-> > > > SELinux enabled but no policy loaded, and treated that as if SELinu=
-x
-> > > > were disabled. Hence, this does break old userspace. Not sure thoug=
+> > > > > checking the result of reading /proc/self/attr/current to see if =
+it
+> > > > > returned the "kernel" string as a means of detecting a system wit=
 h
-> > > > why you'd see the same behavior with modern libselinux.
+> > > > > SELinux enabled but no policy loaded, and treated that as if SELi=
+nux
+> > > > > were disabled. Hence, this does break old userspace. Not sure tho=
+ugh
+> > > > > why you'd see the same behavior with modern libselinux.
+> > > >
+> > > > Hm... now I tried booting the stock Fedora kernel (without the earl=
+y
+> > > > boot initial SID commit) and I got the same failure to login as wit=
+h
+> > > > the new kernel. So if Ubuntu 16.04 ships with pre-685f4aeeadc0
+> > > > libselinux (quite possible), then it seems that the scenario with
+> > > > terminal login + SELinux enabled + policy not loaded only works wit=
+h
+> > > > pre-685f4aeeadc0 libselinux and pre-5b0eea835d4e kernel, the other
+> > > > combinations are broken. With pre-685f4aeeadc0 libselinux +
+> > > > post-5b0eea835d4e kernel it is expected as you say (and probably
+> > > > inevitable barring some hack on the kernel side), but it's not clea=
+r
+> > > > why also only updating libselinux seems to break it... /sys/fs/seli=
+nux
+> > > > is not mounted in my scenario, so there must be something else comi=
+ng
+> > > > into play.
+> > > >
+> > > >
+> > > > --
+> > > > Ondrej Mosnacek
+> > > > Senior Software Engineer, Linux Security - SELinux kernel
+> > > > Red Hat, Inc.
+> > > >
 > > >
-> > > Hm... now I tried booting the stock Fedora kernel (without the early
-> > > boot initial SID commit) and I got the same failure to login as with
-> > > the new kernel. So if Ubuntu 16.04 ships with pre-685f4aeeadc0
-> > > libselinux (quite possible), then it seems that the scenario with
-> > > terminal login + SELinux enabled + policy not loaded only works with
-> > > pre-685f4aeeadc0 libselinux and pre-5b0eea835d4e kernel, the other
-> > > combinations are broken. With pre-685f4aeeadc0 libselinux +
-> > > post-5b0eea835d4e kernel it is expected as you say (and probably
-> > > inevitable barring some hack on the kernel side), but it's not clear
-> > > why also only updating libselinux seems to break it... /sys/fs/selinu=
-x
-> > > is not mounted in my scenario, so there must be something else coming
-> > > into play.
+> > > Completely untested:
 > > >
+> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/ser=
+vices.c
+> > > index 2c5be06fbada..1ed275bd4551 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -1322,8 +1322,19 @@ static int security_sid_to_context_core(u32
+> > > sid, char **scontext,
+> > >         if (!selinux_initialized()) {
+> > >                 if (sid <=3D SECINITSID_NUM) {
+> > >                         char *scontextp;
+> > > -                       const char *s =3D initial_sid_to_string[sid];
+> > > +                       const char *s;
 > > >
-> > > --
-> > > Ondrej Mosnacek
-> > > Senior Software Engineer, Linux Security - SELinux kernel
-> > > Red Hat, Inc.
-> > >
+> > > +                       /*
+> > > +                        * Hide the context split of kernel threads a=
+nd
+> > > +                        * userspace threads from userspace before th=
+e first
+> > > +                        * policy is loaded.  Userspace, e.g. libseli=
+nux prior
+> > > +                        * to v2.6 or systemd, depends on the context=
+ being
+> > > +                        * "kernel".
+> > > +                        */
+> > > +                       if (sid =3D=3D SECINITSID_INIT)
+> > > +                               sid =3D SECINITSID_KERNEL;
+> > > +
+> > > +                       s =3D initial_sid_to_string[sid];
+> > >                         if (!s)
+> > >                                 return -EINVAL;
+> > >                         *scontext_len =3D strlen(s) + 1;
 > >
-> > Completely untested:
+> > I think I'd rather see something that does the following:
 > >
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/servi=
-ces.c
-> > index 2c5be06fbada..1ed275bd4551 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -1322,8 +1322,19 @@ static int security_sid_to_context_core(u32
-> > sid, char **scontext,
-> >         if (!selinux_initialized()) {
-> >                 if (sid <=3D SECINITSID_NUM) {
-> >                         char *scontextp;
-> > -                       const char *s =3D initial_sid_to_string[sid];
-> > +                       const char *s;
-> >
-> > +                       /*
-> > +                        * Hide the context split of kernel threads and
-> > +                        * userspace threads from userspace before the =
-first
-> > +                        * policy is loaded.  Userspace, e.g. libselinu=
-x prior
-> > +                        * to v2.6 or systemd, depends on the context b=
-eing
-> > +                        * "kernel".
-> > +                        */
-> > +                       if (sid =3D=3D SECINITSID_INIT)
-> > +                               sid =3D SECINITSID_KERNEL;
-> > +
-> > +                       s =3D initial_sid_to_string[sid];
-> >                         if (!s)
-> >                                 return -EINVAL;
-> >                         *scontext_len =3D strlen(s) + 1;
+> > 1. Convert all direct access of @initial_sid_to_string to calls to
+> > security_get_initial_sid_context().  I think we can leave all the
+> > stuff under scripts/ as-is, but I didn't think about it that hard, so
+> > some additional thought would be required here.
 >
-> I think I'd rather see something that does the following:
->
-> 1. Convert all direct access of @initial_sid_to_string to calls to
-> security_get_initial_sid_context().  I think we can leave all the
-> stuff under scripts/ as-is, but I didn't think about it that hard, so
-> some additional thought would be required here.
+> What should we then do with the reverse translation in
+> security_context_to_sid_core()? It seems it is currently possible for
+> a process to e.g. change its SID to another initial SID before the
+> policy is loaded - would we let it to set itself to INIT and yet still
+> return back KERNEL afterwards?
 
-What should we then do with the reverse translation in
-security_context_to_sid_core()? It seems it is currently possible for
-a process to e.g. change its SID to another initial SID before the
-policy is loaded - would we let it to set itself to INIT and yet still
-return back KERNEL afterwards?
+Yeah, I wasn't thinking of the reverse translation.  While the sid to
+context string mapping is definitely flexible, I really don't like the
+idea of changing the sid assigned to an entity, even if there isn't a
+policy loaded (yet).
 
-> 2. Modify security_get_initial_sid_context() to so something similar
-> to what Christian proposed, e.g. translate INIT to KERNEL, but do so
-> only when POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT is not enabled.  I
-> believe this should cover both the uninitialized and old policy case.
+> > 2. Modify security_get_initial_sid_context() to so something similar
+> > to what Christian proposed, e.g. translate INIT to KERNEL, but do so
+> > only when POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT is not enabled.  I
+> > believe this should cover both the uninitialized and old policy case.
+>
+> You don't know whether the policycap is enabled or not until the
+> policy is loaded and at that point it doesn't matter because then you
+> already have a full context assigned to the SID.
 
-You don't know whether the policycap is enabled or not until the
-policy is loaded and at that point it doesn't matter because then you
-already have a full context assigned to the SID. So we could only
-translate INIT to KERNEL unconditionally, but it feels wrong to lie to
-userspace like that (plus there is the reverse translation issue
-above)... OTOH, I don't know if we have another choice given the "no
-regressions" rule...
+My perspective is that there are really only two states we care about:
+policy loaded with the INITIAL_CONTEXT policycap, and everything else
+(including no policy loaded).
 
-> It might be easier if both were done as a single patch, as those that
-> want the userspace isid patch will likely want this as a fix, but if
-> it becomes to ugly I have no problem splitting #1 and #2 into
-> different patches.
->
-> What do folks think?  Am I missing something?
->
-> --
-> paul-moore.com
->
+> OTOH, I don't know if we have another choice given the "no regressions" r=
+ule...
+
+Here's the thing, we're at -rc4 right now and I'm a little concerned
+that I haven't seen a fix on-list for this.  If we don't at least have
+some sort of design by the end of this week, with a patch early next
+week, I'm going to have to revert the patch in selinux/next.
+
+You don't have to like the silly little design above, but we need
+*something* to fix this.
 
 --=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+paul-moore.com
