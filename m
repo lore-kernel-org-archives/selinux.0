@@ -2,320 +2,201 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B547BC04A94
-	for <selinux@archiver.kernel.org>; Wed,  2 Aug 2023 17:51:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3683DC04A94
+	for <selinux@archiver.kernel.org>; Wed,  2 Aug 2023 18:16:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234169AbjHBRvS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Aug 2023 13:51:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39984 "EHLO
+        id S232559AbjHBSQH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Aug 2023 14:16:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234080AbjHBRuq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Aug 2023 13:50:46 -0400
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCD43C3E
-        for <selinux@vger.kernel.org>; Wed,  2 Aug 2023 10:49:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1690998576; bh=7+Se1+Ef5nv1L5D0ZYy5ttVjUz7zz9DskE81Pzn1f2s=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=qZIx+UGAsF/q3yBkxwWiLY/tIU3wGTLYkQZ4ABNrIz+WrogeWMIw65CQ+6DW1Mw9MTPZYMhnXUmp12hJ9mAOTCb7CHZ5EUiySUVV26ZQbRIMu3hozUpy5K0MnkHjrBdBsvsfWQQ04uL/P9s1CCYH7bsWyM8H8UWPvl2c47UtB1BP4GgVoWDEWXUfj23WTaU/vfAXkwJI24dfOYMpjjb7Yp44vQlXeDMrFLKqfDKvFrrH6LLDS2r49UOLRQL7nR9oYkqqFoe5SGmC2d53GdmH/XrCNPo0bBCAKyTlHM4yPlgO5A+tvM3Dy0qtJNGpwjMaGPnpqeUWIzwOT46rnG1eyg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1690998576; bh=wU7xfLI4hi0p4/9Hm8Mf+VzD72RutSPiUUBUwzRd/Y5=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=bCLXIh/SR9oMOR3UTwV8u5NM2qozhN8gtDA8CDAUbfLQyJVxRTbJ5/6n2uG4skdTnEcclKElzHJ/xL4jGQakDm19tzS4GweAaFmr0E9aIbuIqd8cCJ5dkrGrIHX4aCFBxRLZyngRZ11raT2Sen8T2DaRgO5vT+1WZTIYCZ92G+QfmHK4rxFEqRcZtZPN/6tUP3OY1ZYS529fYNxaCMsipo1u7rRxP/fxw88wNBzxpiaH1QzbF7Ob2ufbsVpu6SINsBsW39iUhzhXBWeIpEzLAR0fcsuBzv4V6ec3u0eNUwLxwJnUogsTYIyeF6qfA8BSiEjZ7kNAHGfVHRYxu4hoOQ==
-X-YMail-OSG: PpRoHtYVM1kL6Fdpcxx6CR5GzkNgG2N8f.KbOR41IjWQPxyGYnIB1gM1Rqmgh9j
- OFcS1u_BoOk4Tr4ajCnI2T1jSvSn8Vqh7kz4ygti083bGn9aURvEec3wldpDJunvAlYEwRC22Qcc
- Qt0Bc_T_MViQJF7aNxuotai4K0QadPPLCTzuGh6D9LgC41XT.Vvp7QHEmRaWsK4cK7UF6Pm8heW.
- QACliooASQkAQGXNq7nkMzMIuyuuxApv57cPGqMH18Sxnoz4vQsUoL6E4EbOdZDBUZDofRSlPSxm
- FTxa.g3psdZzQFS.7P1ohQkaa9D3aW6wzyATPkRO5GdKNOfMFLZaQ_byjSdv_Nv_Oxuy5oTD9q7A
- 8pKwRB02Md9_iAW3O_v_If1Mmxyak3E9KdZj_VuteA3CJAzT.vDz_KKsQQgW655LIbro3Cc7gZTM
- 8NiLVroAswU.f5H_7AgsuAkWFXCDd2g0VjEZeoN4oPn2uTXZXoAMR72X7.53_dhhy1ezjQmjLzDh
- naXV6yCvG7Q3uZKjS4JneVvaHs2FhPGfX.2o8H7.lQAIka6BpR83qMJeC9mtNFYX5Q_jLAus0qOv
- SUn0CZAgBVuubc_o7O3rxmQnVnxO9iZFdxo0olp5tWP9rtc9wybgl9eWn3VvdKdCEFUFOa9zgOFU
- Isptm06ivV8FXrK1Vrz2up3q9GWlE.UFqQOxwR2JZfomH8DZEEANr7y7bSfGBE54nL0MDtPfJfjJ
- 4XC2PqyTo9kgXmpNHB1Yj9BDoCYOnkorb7eWddkjceZdjBZLJ.k1hySmaelKXfkdpWBME9Vb1wmV
- saXnNb765nDv18P10kzSLAltOeJskll0lCJOG9EMcbWOFHOwR_u2sXI0hduKR_s7G1.KEINJZIyH
- aqJUgbhYGRqiZrH7TNd9cwOtGVVfsG9uF74iRiAXkWA3rXjhdiT_2RLYe14aJnVM0elg.LnC1I91
- HN7N0nozo15uYIOXSLr42IrmEtu69vWvi1LlV_qHgvn30pAIEdoffgrGFtPeia9_5ABuLdH0geVs
- lFbDWouswjETA0K9IyoWQ4YP6EgsiDE0qfKe9ValjT9QpxDUWu5H2eywdtKrG.jOJ2SJQzLxshou
- e9hXPTHHXOUuhUHqxfNJvF3xo0avdkmEK5GlU68NSKXO1CFTb7yGyIMS3dfjLD1A5MROhMi89m5B
- RD.O3j2Fd7o257kBu4RDfatQA.wIhYnXP_lTzXfwNMx9GHP6rbivEqHioVNFKpOgoszx62r76jwS
- zKGJcuN.RYpRv3mSLoYuo7O8muPKvKcu4UIiy2OQ2kgRZQwMYWs8QnpVaZDjrowLxHQsFRIr7qJQ
- PoGJ0zxha7uHlUav4QzCBrHYn973ttEYrnZ5h1hyhs.A3BR7ZEurAK59bYKqEEIwl0GeTIT6We6S
- MsssyKcKZ_ZRGw_w3Ay6FBq4vyJBND7ZBRpLnqqLO14bKfJuI2ql6iN5loNS5Wt75ihGblWJ2eZg
- 84ENiz8KLk.4gzA0QVje__CZUCWbDSd85SCtHsKr3_hKckaZlV4JcPHJGNY6NYveao3VtX5nW6SF
- vL1M5QZTNq5Boyd5i7TZP9P3qcd4qnrRo8QJthdRuNoEXQBh4I3PrnWNQ9pngV08XeqWR4tb7k7B
- 4rEW_VtPCsw1uQrWruAgN7SJMPl976zWWxi7YtiiwNxRxnQWv5z0iwo.6XqqyWlLmflsh7D43XdS
- HXKiADyMG45rFQ0YoeX.NowkdNp5OMtDcE81KbgHVV4NSfxKKL1DiW9ot2wagHuqqc5kRfb5b3GO
- 5eko7do6PDr7jvQiKC.JA2CYMyXmR1kD5.07wdHekZl.asN9AOiNpmC8FfUAOsaFecgOqSRuAx6I
- MN_hMmJOMJrVoIqec7R5E7Ur017Vq0UtS5sWyCYeeGMLkqCxaPcznaLYpt2SMl1stSO2i5xn_P46
- Dkpe2TUHZN1l.xgYy9qlM5ztOPQWO2aN8sSNIEiMYUb0fENbRbq6sswCgRexCBRb.2Ez2YbWBIGo
- xUk1TxXruCcdXxLS.Xo7JcRuASAm7tXopq52IKVnY0biMFVe2O21u5aBJUqSfRmxjyvW0r1NdNUQ
- xgOKbYsu.Q.3wxg8DI4HI9Zx_ckAysvrYm8yqMyi4L5XC6TbdsARTwjroasl0Qv3hN83kFAticf4
- FaoNpe1TyYB0YYF.QqkXnYnA10uzDklFZ5EHIzVELX7X3dDyN1hts8mwVo9M2XTZ1s2OTaVhAvFC
- WC1pwq4XzHrpKej2CQud1fzkiJaaMZUijEHFQCHRMoMv3tNUfVY93ua72kiRc7A_qsH7sQ5otcs0
- syFDiBkYK.uWx4Aao5aeNcupo3Bp7
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: b02ce2e0-359c-4f18-823b-92ae002194e0
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Wed, 2 Aug 2023 17:49:36 +0000
-Received: by hermes--production-gq1-7d844d8954-l5pzx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 6a2fae4a0e3a5f2539f1465356d53db3;
-          Wed, 02 Aug 2023 17:49:35 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey@schaufler-ca.com, paul@paul-moore.com,
-        linux-security-module@vger.kernel.org
-Cc:     jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, mic@digikod.net, selinux@vger.kernel.org
-Subject: [PATCH v13 10/11] SELinux: Add selfattr hooks
-Date:   Wed,  2 Aug 2023 10:44:33 -0700
-Message-ID: <20230802174435.11928-11-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230802174435.11928-1-casey@schaufler-ca.com>
-References: <20230802174435.11928-1-casey@schaufler-ca.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S231859AbjHBSQF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Aug 2023 14:16:05 -0400
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596F419A8
+        for <selinux@vger.kernel.org>; Wed,  2 Aug 2023 11:16:02 -0700 (PDT)
+Received: by mail-qk1-x72e.google.com with SMTP id af79cd13be357-76754b9eac0so5995885a.0
+        for <selinux@vger.kernel.org>; Wed, 02 Aug 2023 11:16:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1691000161; x=1691604961;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Jttay3Y7tZ44PZ3pDqY6yaCEufBzLxT6C+Rmg0Bmtnw=;
+        b=d0PA4A+jJfozBkqa8UDo7N4WMrxQqmldV/JhxJQwAwTQxncKxV7wRNigctbcr86AYI
+         clESekvuuB+Wrv1ZtpfR4IysIKu6fag+QBQshGld66Kt0Q5XuzBVE3sezvwdHHM5GBRA
+         /QbFR57HWoXChW9HY4Unpbabt/NXEcF8Mp8W4kKnIVcnINk3NpDlTQ2PvG6h59YoeeXG
+         0UBUUmhk4nFes79N033bvPCT31OiqdAXrld91YhXQF+3Z9q1JUL6gOI1m0L868Lko8rS
+         dBxtDaX/QpbTdFRjMbLdH9vVb6j6uBlTpEPyJ6bFjo/PFc4fUwtLddOSw2bqQJ2b0DU5
+         m/4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691000161; x=1691604961;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Jttay3Y7tZ44PZ3pDqY6yaCEufBzLxT6C+Rmg0Bmtnw=;
+        b=OGJqljAETt+cx36Y5whNMrKyl8+JKxtZVV8aY/GzpCighxTZcicQ7dMWCsyIgc3WWN
+         yMBhKwCsxl1I5lBO89aZL5F0mmsc58j9ttgZ1fGM6rTSR6yc3u3nLvcw5s+RwIPyO1km
+         +02BBDTuGl+qSGOIeSfhOEs3aXtNpggGaFJLTdGYRWu1cwA9ATfUy0gwN4PVFOBqUR/H
+         IkaRQ3mbRo6I2jjxkk0P+Oa35TtB89l43qtEUTMRKt7Px/OimXA25E05ezzy9W2VMP+T
+         EQQlp81B8TqAxWMu/a+CXAQqBfPr4zgibc9nBnK4Ks/46juf6M99KxfzwYQm8pvt9t5L
+         gu1g==
+X-Gm-Message-State: ABy/qLavQ58eep+mnpMLp/gaxPh8oXVv8bioswJnS9WATqhQ0uidcbur
+        v7ldk0UWMYKOYUphA4y/Pp/4MccS+H6jQytjC9GC5VQ=
+X-Google-Smtp-Source: APBJJlGGqbRJcuJCCqcoiQEPQ2nJxHgmcoYfak2Lu/M5Lqa7mfvnk8ungVqsLJDbg3pq5fFNVCUEEg==
+X-Received: by 2002:a05:620a:2204:b0:76c:d007:b544 with SMTP id m4-20020a05620a220400b0076cd007b544mr2485423qkh.26.1691000161351;
+        Wed, 02 Aug 2023 11:16:01 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id u19-20020a05620a121300b007659935ce64sm5224030qkj.71.2023.08.02.11.16.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Aug 2023 11:16:00 -0700 (PDT)
+Date:   Wed, 02 Aug 2023 14:16:00 -0400
+Message-ID: <bac543537058619345b363bbfc745927.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     Jeff Layton <jlayton@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        David Howells <dhowells@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6] vfs, security: Fix automount superblock LSM init  problem, preventing NFS sb sharing
+References: <20230802-master-v6-1-45d48299168b@kernel.org>
+In-Reply-To: <20230802-master-v6-1-45d48299168b@kernel.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add hooks for setselfattr and getselfattr. These hooks are not very
-different from their setprocattr and getprocattr equivalents, and
-much of the code is shared.
+On Aug  2, 2023 Jeff Layton <jlayton@kernel.org> wrote:
+> 
+> When NFS superblocks are created by automounting, their LSM parameters
+> aren't set in the fs_context struct prior to sget_fc() being called,
+> leading to failure to match existing superblocks.
+> 
+> Fix this by adding a new LSM hook to load fc->security for submount
+> creation when alloc_fs_context() is creating the fs_context for it.
+> 
+> However, this uncovers a further bug: nfs_get_root() initialises the
+> superblock security manually by calling security_sb_set_mnt_opts() or
+> security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
+> security_sb_set_mnt_opts(), which can lead to SELinux, at least,
+> complaining.
+> 
+> Fix that by adding a flag to the fs_context that suppresses the
+> security_sb_set_mnt_opts() call in vfs_get_tree().  This can be set by NFS
+> when it sets the LSM context on the new superblock.
+>
+> The first bug leads to messages like the following appearing in dmesg:
+> 
+> 	NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,100000,100000,2ee,3a98,1d4c,3a98,1)
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount() to it.")
+> Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
+> Tested-by: Jeff Layton <jlayton@kernel.org>
+> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> Acked-by: "Christian Brauner (Microsoft)" <brauner@kernel.org>
+> Link: https://lore.kernel.org/r/165962680944.3334508.6610023900349142034.stgit@warthog.procyon.org.uk/ # v1
+> Link: https://lore.kernel.org/r/165962729225.3357250.14350728846471527137.stgit@warthog.procyon.org.uk/ # v2
+> Link: https://lore.kernel.org/r/165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk/ # v3
+> Link: https://lore.kernel.org/r/166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk/ # v4
+> Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.uk/ # v5
+> ---
+> This patch was originally sent by David several months ago, but it
+> never got merged. I'm resending to resurrect the discussion. Can we
+> get this fixed?
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 136 +++++++++++++++++++++++++++++++--------
- 1 file changed, 109 insertions(+), 27 deletions(-)
+Sorry, I sorta lost track of this after the ROOTCONTEXT_MNT discussion
+back in v3.  Looking at it a bit closer now I have one nitpicky
+request and one larger concern (see below).
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c900813fc8f7..f66a28f672b2 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6265,8 +6265,8 @@ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
- 		inode_doinit_with_dentry(inode, dentry);
- }
- 
--static int selinux_getprocattr(struct task_struct *p,
--			       const char *name, char **value)
-+static int selinux_lsm_getattr(unsigned int attr, struct task_struct *p,
-+			       char **value)
- {
- 	const struct task_security_struct *__tsec;
- 	u32 sid;
-@@ -6283,20 +6283,27 @@ static int selinux_getprocattr(struct task_struct *p,
- 			goto bad;
- 	}
- 
--	if (!strcmp(name, "current"))
-+	switch (attr) {
-+	case LSM_ATTR_CURRENT:
- 		sid = __tsec->sid;
--	else if (!strcmp(name, "prev"))
-+		break;
-+	case LSM_ATTR_PREV:
- 		sid = __tsec->osid;
--	else if (!strcmp(name, "exec"))
-+		break;
-+	case LSM_ATTR_EXEC:
- 		sid = __tsec->exec_sid;
--	else if (!strcmp(name, "fscreate"))
-+		break;
-+	case LSM_ATTR_FSCREATE:
- 		sid = __tsec->create_sid;
--	else if (!strcmp(name, "keycreate"))
-+		break;
-+	case LSM_ATTR_KEYCREATE:
- 		sid = __tsec->keycreate_sid;
--	else if (!strcmp(name, "sockcreate"))
-+		break;
-+	case LSM_ATTR_SOCKCREATE:
- 		sid = __tsec->sockcreate_sid;
--	else {
--		error = -EINVAL;
-+		break;
-+	default:
-+		error = -EOPNOTSUPP;
- 		goto bad;
- 	}
- 	rcu_read_unlock();
-@@ -6314,7 +6321,7 @@ static int selinux_getprocattr(struct task_struct *p,
- 	return error;
- }
- 
--static int selinux_setprocattr(const char *name, void *value, size_t size)
-+static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
- {
- 	struct task_security_struct *tsec;
- 	struct cred *new;
-@@ -6325,23 +6332,31 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	/*
- 	 * Basic control over ability to set these attributes at all.
- 	 */
--	if (!strcmp(name, "exec"))
-+	switch (attr) {
-+	case LSM_ATTR_EXEC:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETEXEC, NULL);
--	else if (!strcmp(name, "fscreate"))
-+		break;
-+	case LSM_ATTR_FSCREATE:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETFSCREATE, NULL);
--	else if (!strcmp(name, "keycreate"))
-+		break;
-+	case LSM_ATTR_KEYCREATE:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETKEYCREATE, NULL);
--	else if (!strcmp(name, "sockcreate"))
-+		break;
-+	case LSM_ATTR_SOCKCREATE:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETSOCKCREATE, NULL);
--	else if (!strcmp(name, "current"))
-+		break;
-+	case LSM_ATTR_CURRENT:
- 		error = avc_has_perm(mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETCURRENT, NULL);
--	else
--		error = -EINVAL;
-+		break;
-+	default:
-+		error = -EOPNOTSUPP;
-+		break;
-+	}
- 	if (error)
- 		return error;
- 
-@@ -6353,13 +6368,14 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 		}
- 		error = security_context_to_sid(value, size,
- 						&sid, GFP_KERNEL);
--		if (error == -EINVAL && !strcmp(name, "fscreate")) {
-+		if (error == -EINVAL && attr == LSM_ATTR_FSCREATE) {
- 			if (!has_cap_mac_admin(true)) {
- 				struct audit_buffer *ab;
- 				size_t audit_size;
- 
--				/* We strip a nul only if it is at the end, otherwise the
--				 * context contains a nul and we should audit that */
-+				/* We strip a nul only if it is at the end,
-+				 * otherwise the context contains a nul and
-+				 * we should audit that */
- 				if (str[size - 1] == '\0')
- 					audit_size = size - 1;
- 				else
-@@ -6370,7 +6386,8 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 				if (!ab)
- 					return error;
- 				audit_log_format(ab, "op=fscreate invalid_context=");
--				audit_log_n_untrustedstring(ab, value, audit_size);
-+				audit_log_n_untrustedstring(ab, value,
-+							    audit_size);
- 				audit_log_end(ab);
- 
- 				return error;
-@@ -6393,11 +6410,11 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	   checks and may_create for the file creation checks. The
- 	   operation will then fail if the context is not permitted. */
- 	tsec = selinux_cred(new);
--	if (!strcmp(name, "exec")) {
-+	if (attr == LSM_ATTR_EXEC) {
- 		tsec->exec_sid = sid;
--	} else if (!strcmp(name, "fscreate")) {
-+	} else if (attr == LSM_ATTR_FSCREATE) {
- 		tsec->create_sid = sid;
--	} else if (!strcmp(name, "keycreate")) {
-+	} else if (attr == LSM_ATTR_KEYCREATE) {
- 		if (sid) {
- 			error = avc_has_perm(mysid, sid,
- 					     SECCLASS_KEY, KEY__CREATE, NULL);
-@@ -6405,9 +6422,9 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 				goto abort_change;
- 		}
- 		tsec->keycreate_sid = sid;
--	} else if (!strcmp(name, "sockcreate")) {
-+	} else if (attr == LSM_ATTR_SOCKCREATE) {
- 		tsec->sockcreate_sid = sid;
--	} else if (!strcmp(name, "current")) {
-+	} else if (attr == LSM_ATTR_CURRENT) {
- 		error = -EINVAL;
- 		if (sid == 0)
- 			goto abort_change;
-@@ -6449,6 +6466,69 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 	return error;
- }
- 
-+static int selinux_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
-+			       size_t *size, u32 flags)
-+{
-+	char *value;
-+	size_t total_len;
-+	int len;
-+	int rc;
-+
-+	len = selinux_lsm_getattr(attr, current, &value);
-+	if (len < 0)
-+		return len;
-+
-+	total_len = ALIGN(struct_size(ctx, ctx, len), 8);
-+
-+	if (total_len > *size)
-+		rc = -E2BIG;
-+	else if (ctx)
-+		rc = lsm_fill_user_ctx(ctx, value, len, LSM_ID_SELINUX, 0);
-+	else
-+		rc = 1;
-+
-+	kfree(value);
-+	*size = total_len;
-+	if (rc < 0)
-+		return rc;
-+	return 1;
-+}
-+
-+static int selinux_setselfattr(unsigned int __user attr, struct lsm_ctx *ctx,
-+			       size_t __user size, u32 __user flags)
-+{
-+	int rc;
-+
-+	rc = selinux_lsm_setattr(attr, ctx->ctx, ctx->ctx_len);
-+	if (rc > 0)
-+		return 0;
-+	return rc;
-+}
-+
-+static int selinux_getprocattr(struct task_struct *p,
-+			       const char *name, char **value)
-+{
-+	unsigned int attr = lsm_name_to_attr(name);
-+	int rc;
-+
-+	if (attr) {
-+		rc = selinux_lsm_getattr(attr, p, value);
-+		if (rc != -EOPNOTSUPP)
-+			return rc;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static int selinux_setprocattr(const char *name, void *value, size_t size)
-+{
-+	int attr = lsm_name_to_attr(name);
-+
-+	if (attr)
-+		return selinux_lsm_setattr(attr, value, size);
-+	return -EINVAL;
-+}
-+
- static int selinux_ismaclabel(const char *name)
- {
- 	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
-@@ -7080,6 +7160,8 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- 
- 	LSM_HOOK_INIT(d_instantiate, selinux_d_instantiate),
- 
-+	LSM_HOOK_INIT(getselfattr, selinux_getselfattr),
-+	LSM_HOOK_INIT(setselfattr, selinux_setselfattr),
- 	LSM_HOOK_INIT(getprocattr, selinux_getprocattr),
- 	LSM_HOOK_INIT(setprocattr, selinux_setprocattr),
- 
--- 
-2.41.0
+> diff --git a/fs/super.c b/fs/super.c
+> index e781226e2880..13adf43e2e5d 100644
+> --- a/fs/super.c
+> +++ b/fs/super.c
+> @@ -1541,10 +1541,12 @@ int vfs_get_tree(struct fs_context *fc)
+>  	smp_wmb();
+>  	sb->s_flags |= SB_BORN;
+>  
+> -	error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+> -	if (unlikely(error)) {
+> -		fc_drop_locked(fc);
+> -		return error;
+> +	if (!(fc->lsm_set)) {
+> +		error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
+> +		if (unlikely(error)) {
+> +			fc_drop_locked(fc);
+> +			return error;
+> +		}
+>  	}
 
+I generally dislike core kernel code which makes LSM calls conditional
+on some kernel state maintained outside the LSM.  Sometimes it has to
+be done as there is no other good options, but I would like us to try
+and avoid it if possible.  The commit description mentioned that this
+was put here to avoid a SELinux complaint, can you provide an example
+of the complain?  Does it complain about a double/invalid mount, e.g.
+"SELinux: mount invalid.  Same superblock, different security ..."?
+
+I'd like to understand why the sb_set_mnt_opts() call fails when it
+comes after the fs_context_init() call.  I'm particulary curious to
+know if the failure is due to conflicting SELinux state in the
+fs_context, or if it is simply an issue of sb_set_mnt_opts() not
+properly handling existing values.  Perhaps I'm being overly naive,
+but I'm hopeful that we can address both of these within the SELinux
+code itself.
+
+In a worst case situation, we could always implement a flag *inside*
+the SELinux code, similar to what has been done with 'lsm_set' here.
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index d06e350fedee..29cce0fadbeb 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2745,6 +2745,30 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
+>  				   FILESYSTEM__UNMOUNT, NULL);
+>  }
+>  
+> +static int selinux_fs_context_init(struct fs_context *fc,
+> +				   struct dentry *reference)
+> +{
+> +	const struct superblock_security_struct *sbsec;
+> +	struct selinux_mnt_opts *opts;
+> +
+> +	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
+> +		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
+> +		if (!opts)
+> +			return -ENOMEM;
+> +
+> +		sbsec = selinux_superblock(reference->d_sb);
+> +		if (sbsec->flags & FSCONTEXT_MNT)
+> +			opts->fscontext_sid	= sbsec->sid;
+> +		if (sbsec->flags & CONTEXT_MNT)
+> +			opts->context_sid	= sbsec->mntpoint_sid;
+> +		if (sbsec->flags & DEFCONTEXT_MNT)
+> +			opts->defcontext_sid	= sbsec->def_sid;
+
+I acknowledge this is very nitpicky, but we're starting to make a
+greater effort towards using consistent style within the SELinux
+code.  With that in mind, please remove the alignment whitespace in
+the assignments above.  Thank you.
+
+> +		fc->security = opts;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int selinux_fs_context_dup(struct fs_context *fc,
+>  				  struct fs_context *src_fc)
+>  {
+
+--
+paul-moore.com
