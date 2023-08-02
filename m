@@ -2,201 +2,162 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3683DC04A94
-	for <selinux@archiver.kernel.org>; Wed,  2 Aug 2023 18:16:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1625C04A94
+	for <selinux@archiver.kernel.org>; Wed,  2 Aug 2023 19:21:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232559AbjHBSQH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Aug 2023 14:16:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
+        id S231604AbjHBTVJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Aug 2023 15:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231859AbjHBSQF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Aug 2023 14:16:05 -0400
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596F419A8
-        for <selinux@vger.kernel.org>; Wed,  2 Aug 2023 11:16:02 -0700 (PDT)
-Received: by mail-qk1-x72e.google.com with SMTP id af79cd13be357-76754b9eac0so5995885a.0
-        for <selinux@vger.kernel.org>; Wed, 02 Aug 2023 11:16:02 -0700 (PDT)
+        with ESMTP id S229771AbjHBTVI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Aug 2023 15:21:08 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157A9DA
+        for <selinux@vger.kernel.org>; Wed,  2 Aug 2023 12:21:07 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id 38308e7fff4ca-2b9cbaee7a9so2503171fa.0
+        for <selinux@vger.kernel.org>; Wed, 02 Aug 2023 12:21:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1691000161; x=1691604961;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Jttay3Y7tZ44PZ3pDqY6yaCEufBzLxT6C+Rmg0Bmtnw=;
-        b=d0PA4A+jJfozBkqa8UDo7N4WMrxQqmldV/JhxJQwAwTQxncKxV7wRNigctbcr86AYI
-         clESekvuuB+Wrv1ZtpfR4IysIKu6fag+QBQshGld66Kt0Q5XuzBVE3sezvwdHHM5GBRA
-         /QbFR57HWoXChW9HY4Unpbabt/NXEcF8Mp8W4kKnIVcnINk3NpDlTQ2PvG6h59YoeeXG
-         0UBUUmhk4nFes79N033bvPCT31OiqdAXrld91YhXQF+3Z9q1JUL6gOI1m0L868Lko8rS
-         dBxtDaX/QpbTdFRjMbLdH9vVb6j6uBlTpEPyJ6bFjo/PFc4fUwtLddOSw2bqQJ2b0DU5
-         m/4A==
+        d=gmail.com; s=20221208; t=1691004064; x=1691608864;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5l/xoxiz18JZxl6gbvx5Wutezs55u7wJCbU+r+1U9cE=;
+        b=dITyX3Rd3l02TxzwTfXSR1ZsdHbRnR8F5pSEBHK3DgdbCvzXHrGuP/aOozzXqQ3xpJ
+         0qmL5davy3i6Q0rMOF7CIuAMbRVaEuNJc+tTG1pKCl6cnC3nxSnqk9UdOenoChODuH3g
+         siOsiXASmNLY+u/o9NMOEB66LdeWbU/OQJVA0xW8zha8ckjxb7O6T4hGAcB+8WOfUCXI
+         b0B8gBs3JLZq1M7QDr8QkjcBlYYAkRwvWdsofcPOedL2YFBDAXqtT5fm2Urjw4dOjdU6
+         NkosDdhLI1P14kfL+w+sUW2Jg0IA+78l1YMHWwQebiBqIoITJecHV9Dgr95WwiV3RoEy
+         hOUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691000161; x=1691604961;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Jttay3Y7tZ44PZ3pDqY6yaCEufBzLxT6C+Rmg0Bmtnw=;
-        b=OGJqljAETt+cx36Y5whNMrKyl8+JKxtZVV8aY/GzpCighxTZcicQ7dMWCsyIgc3WWN
-         yMBhKwCsxl1I5lBO89aZL5F0mmsc58j9ttgZ1fGM6rTSR6yc3u3nLvcw5s+RwIPyO1km
-         +02BBDTuGl+qSGOIeSfhOEs3aXtNpggGaFJLTdGYRWu1cwA9ATfUy0gwN4PVFOBqUR/H
-         IkaRQ3mbRo6I2jjxkk0P+Oa35TtB89l43qtEUTMRKt7Px/OimXA25E05ezzy9W2VMP+T
-         EQQlp81B8TqAxWMu/a+CXAQqBfPr4zgibc9nBnK4Ks/46juf6M99KxfzwYQm8pvt9t5L
-         gu1g==
-X-Gm-Message-State: ABy/qLavQ58eep+mnpMLp/gaxPh8oXVv8bioswJnS9WATqhQ0uidcbur
-        v7ldk0UWMYKOYUphA4y/Pp/4MccS+H6jQytjC9GC5VQ=
-X-Google-Smtp-Source: APBJJlGGqbRJcuJCCqcoiQEPQ2nJxHgmcoYfak2Lu/M5Lqa7mfvnk8ungVqsLJDbg3pq5fFNVCUEEg==
-X-Received: by 2002:a05:620a:2204:b0:76c:d007:b544 with SMTP id m4-20020a05620a220400b0076cd007b544mr2485423qkh.26.1691000161351;
-        Wed, 02 Aug 2023 11:16:01 -0700 (PDT)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id u19-20020a05620a121300b007659935ce64sm5224030qkj.71.2023.08.02.11.16.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Aug 2023 11:16:00 -0700 (PDT)
-Date:   Wed, 02 Aug 2023 14:16:00 -0400
-Message-ID: <bac543537058619345b363bbfc745927.paul@paul-moore.com>
-From:   Paul Moore <paul@paul-moore.com>
-To:     Jeff Layton <jlayton@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        David Howells <dhowells@redhat.com>,
-        Scott Mayhew <smayhew@redhat.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v6] vfs, security: Fix automount superblock LSM init  problem, preventing NFS sb sharing
-References: <20230802-master-v6-1-45d48299168b@kernel.org>
-In-Reply-To: <20230802-master-v6-1-45d48299168b@kernel.org>
+        d=1e100.net; s=20221208; t=1691004064; x=1691608864;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5l/xoxiz18JZxl6gbvx5Wutezs55u7wJCbU+r+1U9cE=;
+        b=dnTeMHl7VbE3sCi4spjofci6yPM4GijWJ67tCgcuaxS85Prz2QAvMZvNTtd2rwOVPV
+         XcnD3ZoM8nb79vhEJ/pCMHJ5fdc7VfK7ecyErjDr0fJ07l/qt+WJHxgNB4gmK3L7ULqW
+         GbvhFggENQkjiw9vkloRSET4mfJWqX+NSA6XsDbyz35vFyJXjuLoofeJX2Um26lY0liQ
+         jXXW80j1cL/FMHV+kYLgQXG6dovZIRJJcwUK4n6N7HNcGzIocez8HJbgvH0VRc1glkqu
+         JyMLHwqi93TdX0b8Hyh96PtoK52yzCnR5j5YsUk18ldQJhkkp/YZmNOALyxGXzvD50OA
+         Aj9A==
+X-Gm-Message-State: ABy/qLbBUbhrOGBOOPQo+xC75r6B7L0jOuDn9brtAjSmNOzmN0GBeo16
+        X3bsvVSgVFU8mewq/c0W0k5NTEfp1MC03WIzLU25FKOYr/c=
+X-Google-Smtp-Source: APBJJlGDhoA58s+i/9Qh+YIL4a/iQjVSIWvGrJZlL7BGMgzsdOA25jCTTbBfL60jn3AJs09rL04qjyb70qb3DAKWyHI=
+X-Received: by 2002:a2e:998f:0:b0:2b9:45ad:88b1 with SMTP id
+ w15-20020a2e998f000000b002b945ad88b1mr6074563lji.2.1691004064102; Wed, 02 Aug
+ 2023 12:21:04 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230706142126.59907-1-cgzones@googlemail.com>
+In-Reply-To: <20230706142126.59907-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 2 Aug 2023 15:20:52 -0400
+Message-ID: <CAP+JOzRxWk_O2OF9cRke6=0TV3huLp+xD8aOnOhVyrYj4t=obQ@mail.gmail.com>
+Subject: Re: [PATCH] setsebool: improve bash-completion script
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Aug  2, 2023 Jeff Layton <jlayton@kernel.org> wrote:
-> 
-> When NFS superblocks are created by automounting, their LSM parameters
-> aren't set in the fs_context struct prior to sget_fc() being called,
-> leading to failure to match existing superblocks.
-> 
-> Fix this by adding a new LSM hook to load fc->security for submount
-> creation when alloc_fs_context() is creating the fs_context for it.
-> 
-> However, this uncovers a further bug: nfs_get_root() initialises the
-> superblock security manually by calling security_sb_set_mnt_opts() or
-> security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
-> security_sb_set_mnt_opts(), which can lead to SELinux, at least,
-> complaining.
-> 
-> Fix that by adding a flag to the fs_context that suppresses the
-> security_sb_set_mnt_opts() call in vfs_get_tree().  This can be set by NFS
-> when it sets the LSM context on the new superblock.
+On Thu, Jul 6, 2023 at 10:42=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> The first bug leads to messages like the following appearing in dmesg:
-> 
-> 	NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,100000,100000,2ee,3a98,1d4c,3a98,1)
-> 
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount() to it.")
-> Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
-> Tested-by: Jeff Layton <jlayton@kernel.org>
-> Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-> Acked-by: "Christian Brauner (Microsoft)" <brauner@kernel.org>
-> Link: https://lore.kernel.org/r/165962680944.3334508.6610023900349142034.stgit@warthog.procyon.org.uk/ # v1
-> Link: https://lore.kernel.org/r/165962729225.3357250.14350728846471527137.stgit@warthog.procyon.org.uk/ # v2
-> Link: https://lore.kernel.org/r/165970659095.2812394.6868894171102318796.stgit@warthog.procyon.org.uk/ # v3
-> Link: https://lore.kernel.org/r/166133579016.3678898.6283195019480567275.stgit@warthog.procyon.org.uk/ # v4
-> Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.uk/ # v5
+> Support the usage format of multiple booleans to change, e.g.:
+>
+>     setsebool bool1=3Don bool2=3Doff
+>
+> Support the options -N and -V.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
-> This patch was originally sent by David several months ago, but it
-> never got merged. I'm resending to resurrect the discussion. Can we
-> get this fixed?
-
-Sorry, I sorta lost track of this after the ROOTCONTEXT_MNT discussion
-back in v3.  Looking at it a bit closer now I have one nitpicky
-request and one larger concern (see below).
-
-> diff --git a/fs/super.c b/fs/super.c
-> index e781226e2880..13adf43e2e5d 100644
-> --- a/fs/super.c
-> +++ b/fs/super.c
-> @@ -1541,10 +1541,12 @@ int vfs_get_tree(struct fs_context *fc)
->  	smp_wmb();
->  	sb->s_flags |= SB_BORN;
->  
-> -	error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
-> -	if (unlikely(error)) {
-> -		fc_drop_locked(fc);
-> -		return error;
-> +	if (!(fc->lsm_set)) {
-> +		error = security_sb_set_mnt_opts(sb, fc->security, 0, NULL);
-> +		if (unlikely(error)) {
-> +			fc_drop_locked(fc);
-> +			return error;
-> +		}
->  	}
-
-I generally dislike core kernel code which makes LSM calls conditional
-on some kernel state maintained outside the LSM.  Sometimes it has to
-be done as there is no other good options, but I would like us to try
-and avoid it if possible.  The commit description mentioned that this
-was put here to avoid a SELinux complaint, can you provide an example
-of the complain?  Does it complain about a double/invalid mount, e.g.
-"SELinux: mount invalid.  Same superblock, different security ..."?
-
-I'd like to understand why the sb_set_mnt_opts() call fails when it
-comes after the fs_context_init() call.  I'm particulary curious to
-know if the failure is due to conflicting SELinux state in the
-fs_context, or if it is simply an issue of sb_set_mnt_opts() not
-properly handling existing values.  Perhaps I'm being overly naive,
-but I'm hopeful that we can address both of these within the SELinux
-code itself.
-
-In a worst case situation, we could always implement a flag *inside*
-the SELinux code, similar to what has been done with 'lsm_set' here.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index d06e350fedee..29cce0fadbeb 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2745,6 +2745,30 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
->  				   FILESYSTEM__UNMOUNT, NULL);
+>  .../setsebool/setsebool-bash-completion.sh    | 54 ++++++++++++++-----
+>  1 file changed, 42 insertions(+), 12 deletions(-)
+>
+> diff --git a/policycoreutils/setsebool/setsebool-bash-completion.sh b/pol=
+icycoreutils/setsebool/setsebool-bash-completion.sh
+> index d0f3b424..f7fe0c0c 100644
+> --- a/policycoreutils/setsebool/setsebool-bash-completion.sh
+> +++ b/policycoreutils/setsebool/setsebool-bash-completion.sh
+> @@ -15,26 +15,56 @@
+>  # You should have received a copy of the GNU General Public License
+>  # along with systemd; If not, see <http://www.gnu.org/licenses/>.
+>
+> -__contains_word () {
+> -        local word=3D$1; shift
+> -        for w in $*; do [[ $w =3D $word ]] && return 0; done
+> -        return 1
+> -}
+> -
+>  __get_all_booleans () {
+>      getsebool -a | cut -f1 -d' '
 >  }
->  
-> +static int selinux_fs_context_init(struct fs_context *fc,
-> +				   struct dentry *reference)
-> +{
-> +	const struct superblock_security_struct *sbsec;
-> +	struct selinux_mnt_opts *opts;
+>
+>  _setsebool () {
+> -        local command=3D${COMP_WORDS[1]}
+>          local cur=3D${COMP_WORDS[COMP_CWORD]} prev=3D${COMP_WORDS[COMP_C=
+WORD-1]}
+> -        local verb comps
+>
+> -       if   [ "$verb" =3D "" -a "$prev" =3D "setsebool" -o "$prev" =3D "=
+-P" ]; then
+> -               COMPREPLY=3D( $(compgen -W "-P $( __get_all_booleans ) " =
+-- "$cur") )
+> -               return 0
+> +        if [ "$prev" =3D '=3D' ]; then
+> +                COMPREPLY=3D( $(compgen -W "on off" -- "$cur") )
+> +                return 0
+>          fi
+> -        COMPREPLY=3D( $(compgen -W "0 1 -P" -- "$cur") )
 > +
-> +	if (fc->purpose == FS_CONTEXT_FOR_SUBMOUNT) {
-> +		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-> +		if (!opts)
-> +			return -ENOMEM;
+> +        case "$cur" in
+> +        '0')
+> +                COMPREPLY=3D( $(compgen -W "0 1" -- "$cur") )
+> +                return 0
+> +        ;;
+> +        '1')
+> +                COMPREPLY=3D( $(compgen -W "0 1" -- "$cur") )
+> +                return 0
+> +        ;;
+> +        =3D)
+> +                COMPREPLY=3D( $(compgen -W "on off" -- "") )
+> +                return 0
+> +        ;;
+> +        -*)
+> +                COMPREPLY=3D( $(compgen -W "-N -P -V" -- "$cur") )
+> +                return 0
+> +        ;;
+> +        '')
+> +                if [ "$prev" =3D '0' ] || [ "$prev" =3D '1' ]; then
+> +                        COMPREPLY=3D( $(compgen -W "-N -P -V" -- "$cur")=
+ )
+> +                        return 0
+> +                fi
+> +                if getsebool "$prev" > /dev/null 2>&1; then
+> +                        COMPREPLY=3D( $(compgen -W "0 1" -- "$cur") )
+> +                        return 0
+> +                fi
+> +        ;;
+> +        *)
+> +                if getsebool "$cur" > /dev/null 2>&1; then
+> +                        COMPREPLY=3D( $(compgen -W '$( __get_all_boolean=
+s ) "$cur=3Don " "$cur=3Doff "' -- "$cur") )
+> +                        compopt -o nospace
+> +                        return 0
+> +                fi
+> +        ;;
+> +        esac
 > +
-> +		sbsec = selinux_superblock(reference->d_sb);
-> +		if (sbsec->flags & FSCONTEXT_MNT)
-> +			opts->fscontext_sid	= sbsec->sid;
-> +		if (sbsec->flags & CONTEXT_MNT)
-> +			opts->context_sid	= sbsec->mntpoint_sid;
-> +		if (sbsec->flags & DEFCONTEXT_MNT)
-> +			opts->defcontext_sid	= sbsec->def_sid;
-
-I acknowledge this is very nitpicky, but we're starting to make a
-greater effort towards using consistent style within the SELinux
-code.  With that in mind, please remove the alignment whitespace in
-the assignments above.  Thank you.
-
-> +		fc->security = opts;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  static int selinux_fs_context_dup(struct fs_context *fc,
->  				  struct fs_context *src_fc)
->  {
-
---
-paul-moore.com
+> +        COMPREPLY=3D( $(compgen -W '"-N " "-P " "-V " $( __get_all_boole=
+ans ) ' -- "$cur") )
+> +        compopt -o nospace
+>          return 0
+>  }
+>
+> --
+> 2.40.1
+>
