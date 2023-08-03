@@ -2,164 +2,201 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7CF0C001DE
-	for <selinux@archiver.kernel.org>; Thu,  3 Aug 2023 02:46:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E08A9C41513
+	for <selinux@archiver.kernel.org>; Thu,  3 Aug 2023 07:35:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbjHCCqp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Aug 2023 22:46:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33746 "EHLO
+        id S230202AbjHCHfS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Aug 2023 03:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230210AbjHCCqo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Aug 2023 22:46:44 -0400
-Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56DE7A1
-        for <selinux@vger.kernel.org>; Wed,  2 Aug 2023 19:46:42 -0700 (PDT)
-Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-583f837054eso4002787b3.3
-        for <selinux@vger.kernel.org>; Wed, 02 Aug 2023 19:46:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1691030801; x=1691635601;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=C7rPDjP3w7SFi7WVbOLZnOQv42SK/YK3pgxUtFOJqn8=;
-        b=NhqdR98K7bSRKTQ7CDjVRuusX4/Mn2110sFpO+gM2ndRgcP5OGA/FvizImRpEFEI4Z
-         PzGJ2fbtz7V+aSAsGKRRX4zdMzG2Ac0+NO8G5LU04GpWmY1oYpNibBULXCfo1KfjeD/Y
-         VkGVoJ4W5p9nydWS1OU+rOHdFLg07+H2eJVFgHRBmy669hWJ8MfQyLHxBzHgyNt/2Jk+
-         CcwoWKuzcB5rmpv9andPMrMoVDPaHBL3zU3r1fFGqN7x74QhHlDsK1NwpW9SEdncDCRd
-         FkoTtcniWlVsCYHVycdjAtMDuJQ9Pfykj7simTA9WCo2OIiEEMeuJSS5RVZpb31IsaiE
-         GjcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691030801; x=1691635601;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=C7rPDjP3w7SFi7WVbOLZnOQv42SK/YK3pgxUtFOJqn8=;
-        b=NIgNhsW0ujUx3GhWYLZJ8igPhxmj1a/4CO+o60WguVzSuO2WRo78cNnXGWWypZF1yw
-         tpO4vasNBbI+J9zj4Pl0iJ/YtzS8LnRkHg2TWihSu1yexI+ntWlEMsG+6opLZx2iS4+4
-         o+YCxxIbSaAkZslaJy4h9RrqymZterQL6+D7NToRReCYvu0Om+d1Jjt/nIn5eASt3oyb
-         nTG7FlK1IcFTNOoJkK1IYNExE858H6uCKxe8C1JMXZp8WdHVrdoYxaQ54fuqk9161cLB
-         ej5C6OBSlMFjHio9fJvPmIMgjd2jzFZ6+09lPW7K548SzfrPlDWlh5VZgpgvf+nuaLtc
-         29iQ==
-X-Gm-Message-State: ABy/qLYiStiVfRUB4L2WAagXDIjpvQtDU/ZhKW2P+9fEmd+IptVvvEs/
-        jVPy6I2+iLGqK34f27rIsVgL0IkGkDngiJ9PyoMd
-X-Google-Smtp-Source: APBJJlFqHlrp0u9AowD2PWwPoxkgbyl77rYK4KODV0+X/B9t9X/ggsV9oR4Jf3avj9eFA1ansLbJ8J91robM9izXfWw=
-X-Received: by 2002:a81:7b05:0:b0:56c:e1e0:8da1 with SMTP id
- w5-20020a817b05000000b0056ce1e08da1mr23328025ywc.19.1691030801385; Wed, 02
- Aug 2023 19:46:41 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230802-master-v6-1-45d48299168b@kernel.org> <bac543537058619345b363bbfc745927.paul@paul-moore.com>
- <ca156cecbc070c3b7c68626572274806079a6e04.camel@kernel.org>
-In-Reply-To: <ca156cecbc070c3b7c68626572274806079a6e04.camel@kernel.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 2 Aug 2023 22:46:30 -0400
-Message-ID: <CAHC9VhTQDVyZewU0Oiy4AfJt_UtB7O2_-PcUmXkZtuwKDQBfXg@mail.gmail.com>
-Subject: Re: [PATCH v6] vfs, security: Fix automount superblock LSM init
- problem, preventing NFS sb sharing
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
+        with ESMTP id S232328AbjHCHeb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Aug 2023 03:34:31 -0400
+Received: from EUR01-HE1-obe.outbound.protection.outlook.com (mail-he1eur01on2057.outbound.protection.outlook.com [40.107.13.57])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0671D358B;
+        Thu,  3 Aug 2023 00:31:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T+xhAVzOXg7/wr8SUxxlM9gejl4mJWwEC3rmq2dA3fNQVhstATTEcGUSV7BhEP8bbJSW3H097OfLHpFx62M5I4lN7ZZ5D85kgfxls8VoKIwYEMTyA8inj8rYW98PMDb5esMEfIKpdvYvsWG+O3Nn8AyYqtSoxPDLejW97e7SrGYbrJ3A3Kbf4f84LTWsggdwZkr9/2W7XVAuuWrGiwv4cNVM2NLGymaXGkkvNSslRzmC+EzgIfMOoCgGcdjcJLJxmHS3Cj7XhqoH2DjE/rQcQYvYQdZGVn4f19E3h6d+MJ70XUkGYK8/ZajlYoSM0x2u2ldqXNIv/YyEglDX+Z9rFA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=s3Zpc13VQKmdeew9QFMkdWECjPzXhN6puIMosDugDIo=;
+ b=Jj78f2EI48WoTAsd18QYmUVu+8IDj+OxTejq5dQ9J3PZGyieDlQw9w5CjcgdzpUZbMa/gQfegRkyrILHZJDGqccDQAeiyc/OHTA7ThElXDUHSELX9/AyE1LyP2MzkYlZtdFbBYSouDv1PZicBn4quhE5QHlHeiyTTbnP/K/RCAEJJn8Lo1yWfDYAl+UAWVLYm1lEJw7fJdWfPiHk+Ze91QS1jQ0wDPt4T0Ft14AXhsantmaSUIXT1TdvfoV2WS+1xAadRZL8RKeCCHo9pKXbde2vIIuhluimXDMyLv/2bnHrw5kFQtwsrY06grnwyhU47QVuWvKRUfGPcmpRFlkfRQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
+ dkim=pass header.d=suse.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=s3Zpc13VQKmdeew9QFMkdWECjPzXhN6puIMosDugDIo=;
+ b=tUdsImkPbgtZdwM4vOVXmfY5zKrUY8k+KlrRezmABatWWNx78fRlkHLeMMoCM+UZsYe0YdzVpRDXvIDZ8M0ef8uzzQMOq2pmllpxl9lue8KaEkFEStUmaXjjwLNiu3AnaEUMi0bOtwK+NgKpohfoUcaxNsK4MO7dv/JBB1HLKpF3/Z4MGxkUOr1k1a0tCFQijlckGLiP/5l8hIDavKUYsA4NjGfQwKOaC9+Wmb46Lpw/2a9tRTumwlEA6RWT9ozGihTAVHPsRrph7X9qSOTgB0cQbqUQa1q7vd24E2MpPumuWJ2EbPkJX/SbpSNnb8drasyDdCp/pqjvs7YbUKVmgw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=suse.com;
+Received: from HE1PR0402MB3497.eurprd04.prod.outlook.com (2603:10a6:7:83::14)
+ by AM9PR04MB8571.eurprd04.prod.outlook.com (2603:10a6:20b:436::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6652.20; Thu, 3 Aug
+ 2023 07:30:38 +0000
+Received: from HE1PR0402MB3497.eurprd04.prod.outlook.com
+ ([fe80::bf65:a49a:8861:4f92]) by HE1PR0402MB3497.eurprd04.prod.outlook.com
+ ([fe80::bf65:a49a:8861:4f92%2]) with mapi id 15.20.6631.045; Thu, 3 Aug 2023
+ 07:30:37 +0000
+From:   Geliang Tang <geliang.tang@suse.com>
+To:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Brendan Jackman <jackmanb@chromium.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        David Howells <dhowells@redhat.com>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>
+Cc:     Geliang Tang <geliang.tang@suse.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH bpf-next v8 0/4] bpf: Force to MPTCP
+Date:   Thu,  3 Aug 2023 15:30:38 +0800
+Message-Id: <cover.1691047403.git.geliang.tang@suse.com>
+X-Mailer: git-send-email 2.35.3
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: TYAPR01CA0095.jpnprd01.prod.outlook.com
+ (2603:1096:404:2c::35) To HE1PR0402MB3497.eurprd04.prod.outlook.com
+ (2603:10a6:7:83::14)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: HE1PR0402MB3497:EE_|AM9PR04MB8571:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8a2dd2b7-692f-4c37-5ae0-08db93f38829
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: BtQbsr2arAfghba4qaXP9/8IGOVA7z+KXRguXbb+L+EsukAFC2v5RXXjQDYWGYwVJmcnno+5dCA7QvfgpHRvApbVMtFfvTjUSafn/hSq9FimWw3W8WJqsoPyHjSekYgo5goAyaK+Sl24Y/1V6xfCrRc084ddwj6LdcUWTkSC8A+4uovfXpnT4JCL0xe+byd6kMAx+gafwU+0/9IwsxHpmbR08p5hre8KBm5TKpPhD7JjhM45llfAg7A5QV17J6BZv1GCPbPeX3jf8vMnZcJw9+g9gC2soW2r/4CY0cBX6q8MM7oZkm5u7E062be+ttpz+QjBzeI277C/MjpLQEcNdhhykS4SD2V6jfaesLDrPH3zobZYzje0P74sMEt3NrCiGTw8QnQU0KWkskSAg6vFHMMITPP4nR62wF+dR4FBICAfGXUKShVrQfInEGsd4BvIAMs/2dn6UwFtHcUhZILYr2cTlkgVIL5IKLkaQ63DuW/a4dybkjOXDjuN4+eZJC/njK6GN6b1zFDl8EqDPO6hqi1fBIBV0XYoIump7OM51pToGy638hfmb/BVMtNuwkrzZ9Ub6bTaJiq0TkdlbhMYNQdtM8KbS3ogmAxanbte9x8bpXlJ4vdXo9RsLWa6gMSougO5oqS7m6fPrJhs9mU/uMXnrQXvtsfwTUC0wVIEURkT9IweX4lTtMYRb8fGqsWHsfqP22QXWh0noQpSo+a8CQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HE1PR0402MB3497.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(376002)(346002)(366004)(39860400002)(396003)(136003)(451199021)(110136005)(6486002)(41300700001)(478600001)(7416002)(5660300002)(8936002)(8676002)(7406005)(186003)(4326008)(6512007)(966005)(316002)(66476007)(26005)(6506007)(66556008)(66946007)(2616005)(2906002)(83380400001)(44832011)(36756003)(38100700002)(921005)(86362001)(13296009);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?v8rn6oh7Qa9b5+u01+DKZM9BjIf1GPH40I8UfYTX77hAPZYH7mpyFgFfmhgO?=
+ =?us-ascii?Q?WtLv0o2aiHceLjQI7TxdLgcUZFpBnTtKfe7zlQJD6A5hNVSQVkp/VNj1BIjw?=
+ =?us-ascii?Q?+k/4m4/TEw8k0Een8v3V4sCTcKgmg74wJjXQwWlUvXCjMJ7Al481tD6SaF/d?=
+ =?us-ascii?Q?fw/xsg/ToYDGI+5cHsIXP/+a+Ar+Dwx2oKw89Wswh3eQDEe4Sb5S7BQtWJ3a?=
+ =?us-ascii?Q?t2ckcFVHi2SJs+Tc6Jf2t1OUtnknvah7L9mVctaxBxjSJaoUfrg56nbC5YpL?=
+ =?us-ascii?Q?sRbSHTesK7KgdFH2hvyFDJxyms2iaTvJdQIuschoNYlSflQ2i+GrC3VUSkwB?=
+ =?us-ascii?Q?NupYLgjaEJVMfT47gyuymxHnCIr4lEhGQ/ELUwB7OA7PLOPx13+a6RtTM64C?=
+ =?us-ascii?Q?P6MH8O1yfgEPLLZlz6njCGVJWm9z65RxKW3g8todQSUKtHG1Oi6mbRic2acM?=
+ =?us-ascii?Q?M0iNocdG1zCBs0PkuljtdanWD5uF10gau743Ye+Ux3XdJfvHw3j9gizUFy3m?=
+ =?us-ascii?Q?McX/MlsWpHhQvsIZBtyd3cb5tf/RFtmKPFGsnl3PbEAY59exEJsXwRgUaCuF?=
+ =?us-ascii?Q?S+Fi8FqtaZR3ji/tNxodHmSbdXbl8NNATsUYTmNEIB9Ee0D6WH9ySfnnt7qP?=
+ =?us-ascii?Q?Ql96CnXFt9dsczLM1mX2fIyJMz9hQZaL2kcR46g0GnImEoD4Mz7PaHAevNmL?=
+ =?us-ascii?Q?LIFbGbn+gf8PFL+vCxgh9LEDt6oYQBuCgTx4EQTbSC5NruEc9Fbh5L7xMTq3?=
+ =?us-ascii?Q?gM95iAKRczVxjjVdEP6+a2DRyQicLIs8j7/LtR5nMxBYQe30/o9W5rswyxgJ?=
+ =?us-ascii?Q?Jst0UNtfyjBTnISNo/rmBXegpFu3ltctzqNlacqTdwYtMgZwEmgopuF+OSbe?=
+ =?us-ascii?Q?Vk8XIOaqYVvS4hMmn8c0Dz5c94fQJyUOGJtcqcn0jPE7hHRGndpwN8V/W2z7?=
+ =?us-ascii?Q?4NNPGQZYJqq9DzRjiRNGOzcVxY9jr2My4jTZgJrhb4Za7Isn4bEOCkXW+XDN?=
+ =?us-ascii?Q?j20DPfSyEeJ3CLLw1Askez5wD0GTaoUyS9v6SJulznQSh+f6K2rLOrflwNDn?=
+ =?us-ascii?Q?30yrgjjR20hGidQ/9VAyAEZyTw3ay+nbp9cvEBTghF7gerfnKirIAaq8wCFy?=
+ =?us-ascii?Q?T/GRA4PuqFAmFrX10LYtM+u/jlvtyvEkkrSohRsj3k6qpuFpoLXQBqL2H3v5?=
+ =?us-ascii?Q?T8gLKWQxOpEwveyurS+vL1HYuLqxgZWEumliPhWcZR27RU9grMzXtLucTJ1e?=
+ =?us-ascii?Q?txSHUzyDYlI5oS3nd59fAsFRyvWeuuMuGDPBozxE5s0Ih0M6DvPapHyXM8lt?=
+ =?us-ascii?Q?eEBrV365rlvzNYpQBRhiz19gHwjcN5bIbbDPvvAn6GiLdhoEMuubZQ7EDli6?=
+ =?us-ascii?Q?+n6fkTyuJqQnwiLArD2cYjY2+/XfmpeLiPzTYwMRFuInBqZilob1RaWALLyo?=
+ =?us-ascii?Q?q/BPo/ACqApmm3uzqoCrUBL7Hpj8mr2z93kH14Hql1gc/u81uYdFFRMs7Dwk?=
+ =?us-ascii?Q?fDbnatp++Yf4ccfWz/IOOFuSrfpqauWtmVbdBr4wZgB7I5qRqjIZ6kcdG9C2?=
+ =?us-ascii?Q?JUM+PDKNyVPpunVsCftwWETyMDHwK+3QTpF9wif82lhEJtPX5hsGvpOni65j?=
+ =?us-ascii?Q?zQ=3D=3D?=
+X-OriginatorOrg: suse.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8a2dd2b7-692f-4c37-5ae0-08db93f38829
+X-MS-Exchange-CrossTenant-AuthSource: HE1PR0402MB3497.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Aug 2023 07:30:37.7475
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Eo2o9q+ep6x+gORrupfJBJZvBkFrM+2jzzkFNlVWaWk5407uB5qwRgMEObmgk53hUWc0GnUiO8ht4hxyudduuQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR04MB8571
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 2, 2023 at 3:34=E2=80=AFPM Jeff Layton <jlayton@kernel.org> wro=
-te:
-> On Wed, 2023-08-02 at 14:16 -0400, Paul Moore wrote:
-> > On Aug  2, 2023 Jeff Layton <jlayton@kernel.org> wrote:
+As is described in the "How to use MPTCP?" section in MPTCP wiki [1]:
 
-...
+"Your app should create sockets with IPPROTO_MPTCP as the proto:
+( socket(AF_INET, SOCK_STREAM, IPPROTO_MPTCP); ). Legacy apps can be
+forced to create and use MPTCP sockets instead of TCP ones via the
+mptcpize command bundled with the mptcpd daemon."
 
-> > I generally dislike core kernel code which makes LSM calls conditional
-> > on some kernel state maintained outside the LSM.  Sometimes it has to
-> > be done as there is no other good options, but I would like us to try
-> > and avoid it if possible.  The commit description mentioned that this
-> > was put here to avoid a SELinux complaint, can you provide an example
-> > of the complain?  Does it complain about a double/invalid mount, e.g.
-> > "SELinux: mount invalid.  Same superblock, different security ..."?
->
-> The problem I had was not so much SELinux warnings, but rather that in a
-> situation where I would expect to share superblocks between two
-> filesystems, it didn't.
->
-> Basically if you do something like this:
->
-> # mount nfsserver:/export/foo /mnt/foo -o context=3Dsystem_u:object_r:roo=
-t_t:s0
-> # mount nfsserver:/export/bar /mnt/bar -o context=3Dsystem_u:object_r:roo=
-t_t:s0
->
-> ...when "foo" and "bar" are directories on the same filesystem on the
-> server, you should get two vfsmounts that share a superblock. That's
-> what you get if selinux is disabled, but not when it's enabled (even
-> when it's in permissive mode).
+But the mptcpize (LD_PRELOAD technique) command has some limitations
+[2]:
 
-Thanks, that helps.  I'm guessing the difference in behavior is due to
-the old->has_sec_mnt_opts check in nfs_compare_super().
+ - it doesn't work if the application is not using libc (e.g. GoLang
+apps)
+ - in some envs, it might not be easy to set env vars / change the way
+apps are launched, e.g. on Android
+ - mptcpize needs to be launched with all apps that want MPTCP: we could
+have more control from BPF to enable MPTCP only for some apps or all the
+ones of a netns or a cgroup, etc.
+ - it is not in BPF, we cannot talk about it at netdev conf.
 
-> > I'd like to understand why the sb_set_mnt_opts() call fails when it
-> > comes after the fs_context_init() call.  I'm particulary curious to
-> > know if the failure is due to conflicting SELinux state in the
-> > fs_context, or if it is simply an issue of sb_set_mnt_opts() not
-> > properly handling existing values.  Perhaps I'm being overly naive,
-> > but I'm hopeful that we can address both of these within the SELinux
-> > code itself.
->
-> The problem I hit was that nfs_compare_super is called with a fs_context
-> that has a NULL ->security pointer. That caused it to call
-> selinux_sb_mnt_opts_compat with mnt_opts set to NULL, and at that point
-> it returns 1 and decides not to share sb's.
->
-> Filling out fc->security with this new operation seems to fix that, but
-> if you see a better way to do this, then I'm certainly open to the idea.
+So this patchset attempts to use BPF to implement functions similer to
+mptcpize.
 
-Just as you mention that you are not a LSM expert, I am not a VFS
-expert, so I think we'll have to help each other a bit ;)
+The main idea is to add a hook in sys_socket() to change the protocol id
+from IPPROTO_TCP (or 0) to IPPROTO_MPTCP.
 
-I think I'm beginning to understand alloc_fs_context() a bit more,
-including the fs_context_for_XXX() wrappers.  One thing I have
-realized is that I believe we need to update the
-selinux_fs_context_init() and smack_fs_context_init() functions to
-properly handle a NULL @reference dentry; I think returning without
-error in both cases is the correct answer.  In the non-NULL @reference
-case, I believe your patch is correct, we do want to inherit the
-options from @reference.  My only concern now is the
-fs_context::lsm_set flag.
+[1]
+https://github.com/multipath-tcp/mptcp_net-next/wiki
+[2]
+https://github.com/multipath-tcp/mptcp_net-next/issues/79
 
-You didn't mention exactly why the security_sb_set_mnt_opts() was
-failing, and requires the fs_context::lsm_set check, but my guess is
-that something is tripping over the fact that the superblock is
-already properly setup.  I'm working under the assumption that this
-problem - attempting to reconfigure a properly configured superblock -
-should only be happening in the submount/non-NULL-reference case.  If
-it is happening elsewhere I think I'm going to need some help
-understanding that ...
+v8:
+ - drop the additional checks on the 'protocol' value after the
+'update_socket_protocol()' call.
 
-However, assuming I'm mostly correct in the above paragraph, would it
-be possible to take a reference to the @reference dentry's superblock
-in security_fs_context_init(), that we could later compare to the
-superblock passed into security_sb_set_mnt_opts()?  If we know that
-the fs_context was initialized with the same superblock we are now
-being asked to set mount options on, we should be able to return from
-the LSM hook without doing anything.
+v7:
+ - add __weak and __diag_* for update_socket_protocol.
 
-Right?
+v6:
+ - add update_socket_protocol.
 
-Or am I missing something really silly? :)
+v5:
+ - add bpf_mptcpify helper.
 
---=20
-paul-moore.com
+v4:
+ - use lsm_cgroup/socket_create
+
+v3:
+ - patch 8: char cmd[128]; -> char cmd[256];
+
+v2:
+ - Fix build selftests errors reported by CI
+
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
+
+Geliang Tang (4):
+  bpf: Add update_socket_protocol hook
+  selftests/bpf: Use random netns name for mptcp
+  selftests/bpf: Add two mptcp netns helpers
+  selftests/bpf: Add mptcpify test
+
+ net/mptcp/bpf.c                               |  17 +++
+ net/socket.c                                  |  25 ++++
+ .../testing/selftests/bpf/prog_tests/mptcp.c  | 125 ++++++++++++++++--
+ tools/testing/selftests/bpf/progs/mptcpify.c  |  25 ++++
+ 4 files changed, 183 insertions(+), 9 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/progs/mptcpify.c
+
+-- 
+2.35.3
+
