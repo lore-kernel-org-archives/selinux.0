@@ -2,445 +2,395 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2155AC001DB
-	for <selinux@archiver.kernel.org>; Thu,  3 Aug 2023 18:59:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9970DC001DF
+	for <selinux@archiver.kernel.org>; Thu,  3 Aug 2023 20:34:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbjHCS7A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 3 Aug 2023 14:59:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44018 "EHLO
+        id S230369AbjHCUen (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 3 Aug 2023 16:34:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbjHCS7A (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 3 Aug 2023 14:59:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C492A3A9C;
-        Thu,  3 Aug 2023 11:58:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EF1E61E7A;
-        Thu,  3 Aug 2023 18:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D57FC433C8;
-        Thu,  3 Aug 2023 18:58:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691089129;
-        bh=hDv8LWjWgKvZp7KwDrZhjBj9e+DeCL7C2LJNQvTVA0w=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=NnciuiivLNwNSGtUcWGXa4mnldxlR5zX18ly69SmF12VK0QYIvqpH/QZEomeM7Yq3
-         7gPqegMa9AW+c0J6WcTiulSCn1C3+KW8fX+KNipNCY1OHuuIKvOn6UsHSqNP8NdTPD
-         mqtgtdxPvnUyDmsdL7o5EL7MXDncFQtPEYbFl1NC6eMnWNy/Mp0/lJVK3ET5OLp8K6
-         iSMqbDv2tdCD/cd8vZcQZ/HXdbkL1w5YDh9khfyqsLyXa2xqgx8ArRo15V8Hc0hP8R
-         joOqsRhm6iXw5JVM44g93EcmBDoQmq4w/ceEci+ZVZUcDqAOIQnyhjWLTG0zqDIiVr
-         nfo0sNtdfFzkQ==
-Message-ID: <bab1dda495bc157d3d0650738ea9b620365d9813.camel@kernel.org>
-Subject: Re: [PATCH v6] vfs, security: Fix automount superblock LSM init
- problem, preventing NFS sb sharing
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Christian Brauner <brauner@kernel.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        David Howells <dhowells@redhat.com>,
-        Scott Mayhew <smayhew@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Date:   Thu, 03 Aug 2023 14:58:46 -0400
-In-Reply-To: <20230803-verstanden-perfide-70ee3b425417@brauner>
-References: <20230802-master-v6-1-45d48299168b@kernel.org>
-         <bac543537058619345b363bbfc745927.paul@paul-moore.com>
-         <ca156cecbc070c3b7c68626572274806079a6e04.camel@kernel.org>
-         <20230803-verlassen-lernprogramm-b9e61719ce55@brauner>
-         <782a39afec947b1a3575be9cf8921e7294190326.camel@kernel.org>
-         <20230803-verstanden-perfide-70ee3b425417@brauner>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+        with ESMTP id S229578AbjHCUen (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 3 Aug 2023 16:34:43 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076872D5A
+        for <selinux@vger.kernel.org>; Thu,  3 Aug 2023 13:34:41 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id 38308e7fff4ca-2b9dc1bff38so21317891fa.1
+        for <selinux@vger.kernel.org>; Thu, 03 Aug 2023 13:34:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1691094879; x=1691699679;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ib0PKJT4//XjXFUKuCz26kYMtF6s0WUHzQsISgNwW7I=;
+        b=jmfb7p9dbND0WKv9zPca7BWzcin7SWcaXdUlHiL9k0U4XDxO84bhbNF1nD9LBhlgbt
+         nmRUcyuFt4Coqipvad7FJRQAMuk4NLDadon6t+b3NgavsnPaVFQ3iTqfbQVFqV+z1Fg8
+         A3MItTEzw0UPusKwhnApmT9xPzqIc5+R2abvSmo5m1Fhf4bBGyHEhzIE3kBSslJJA+xw
+         AqumSpsGhkd+iRwHh+xasselya+lxXcyegPelOFfBaTrS4h2WUnopcEYbaI1irvXb1pN
+         wUvFhYrfjPelphRyehxyyyi6rTlpZ2q+wfHR3XB5V0uSR2KxU0tg0rMG6NTFq4kT92eo
+         TWag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691094879; x=1691699679;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ib0PKJT4//XjXFUKuCz26kYMtF6s0WUHzQsISgNwW7I=;
+        b=gSpt6/H+8nN+JPnk8iTOKdZpHECCcKGdRk8bbGBDep3hWxPLsgJYg960j7UXj1HH2E
+         EhWz84ZRZYqkvZ6K9bp/eZ+Ro/L8+F2L5pCNzvXIiGfekNVymncoEgjUq1mGv4y/ALKJ
+         0MgxqjuPzE4NfI10IOnmNTkHarFSi+2P+osG4zntMVFc2Ll+2hoEfDPL9Y3KcxPaxzlP
+         Bn8Hchnr8BmRCv9Jcnn/8YAw7q0yuQrPgn+fmXRzM/Ajaw/mbxPdYiCnXQenu+U/CcT8
+         l8HStmc4q8zeh9XgsPvzz2RfEU1WOHotREZCX3mDuztBl+LhcbiAjkLYsM0de4cIimr4
+         ISWg==
+X-Gm-Message-State: ABy/qLZjA6LZcRBbKbM9e5bSbM2B9Gy1zojbR3nbpx6u2wl13X+kl9fZ
+        0FcLQueGOOCTg32lmpTfJ9VRBhn+/J0ceAm03K50dHMh
+X-Google-Smtp-Source: APBJJlHEon5QRUyAbHcphIFIQdZkeQk8tmnPpxJ8wRpTzg/Q52N2dBs8KA1G7QgtIWd2oy5i7d+E0tx4xswvqer1q+E=
+X-Received: by 2002:a2e:9d8b:0:b0:2b9:cb50:7043 with SMTP id
+ c11-20020a2e9d8b000000b002b9cb507043mr7996725ljj.2.1691094878936; Thu, 03 Aug
+ 2023 13:34:38 -0700 (PDT)
 MIME-Version: 1.0
+References: <20230420125801.999381-1-jwcart2@gmail.com> <fbad54d3-07e6-c364-2547-0730f4d69cd7@googlemail.com>
+In-Reply-To: <fbad54d3-07e6-c364-2547-0730f4d69cd7@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 3 Aug 2023 16:34:27 -0400
+Message-ID: <CAP+JOzSqtLfbyQwsFU03eXvqvsjteWTPmWv=Laot=Mn8=27+Aw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Fix class permission verification in CIL
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-08-03 at 19:36 +0200, Christian Brauner wrote:
-> On Thu, Aug 03, 2023 at 12:09:33PM -0400, Jeff Layton wrote:
-> > On Thu, 2023-08-03 at 15:27 +0200, Christian Brauner wrote:
-> > > On Wed, Aug 02, 2023 at 03:34:27PM -0400, Jeff Layton wrote:
-> > > > On Wed, 2023-08-02 at 14:16 -0400, Paul Moore wrote:
-> > > > > On Aug  2, 2023 Jeff Layton <jlayton@kernel.org> wrote:
-> > > > > >=20
-> > > > > > When NFS superblocks are created by automounting, their LSM par=
-ameters
-> > > > > > aren't set in the fs_context struct prior to sget_fc() being ca=
-lled,
-> > > > > > leading to failure to match existing superblocks.
-> > > > > >=20
-> > > > > > Fix this by adding a new LSM hook to load fc->security for subm=
-ount
-> > > > > > creation when alloc_fs_context() is creating the fs_context for=
- it.
-> > > > > >=20
-> > > > > > However, this uncovers a further bug: nfs_get_root() initialise=
-s the
-> > > > > > superblock security manually by calling security_sb_set_mnt_opt=
-s() or
-> > > > > > security_sb_clone_mnt_opts() - but then vfs_get_tree() calls
-> > > > > > security_sb_set_mnt_opts(), which can lead to SELinux, at least=
-,
-> > > > > > complaining.
-> > > > > >=20
-> > > > > > Fix that by adding a flag to the fs_context that suppresses the
-> > > > > > security_sb_set_mnt_opts() call in vfs_get_tree().  This can be=
- set by NFS
-> > > > > > when it sets the LSM context on the new superblock.
-> > > > > >=20
-> > > > > > The first bug leads to messages like the following appearing in=
- dmesg:
-> > > > > >=20
-> > > > > > 	NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,=
-,,,100000,100000,2ee,3a98,1d4c,3a98,1)
-> > > > > >=20
-> > > > > > Signed-off-by: David Howells <dhowells@redhat.com>
-> > > > > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > > > > > Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_ker=
-n_mount() to it.")
-> > > > > > Fixes: 779df6a5480f ("NFS: Ensure security label is set for roo=
-t inode)
-> > > > > > Tested-by: Jeff Layton <jlayton@kernel.org>
-> > > > > > Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> > > > > > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-> > > > > > Acked-by: "Christian Brauner (Microsoft)" <brauner@kernel.org>
-> > > > > > Link: https://lore.kernel.org/r/165962680944.3334508.6610023900=
-349142034.stgit@warthog.procyon.org.uk/ # v1
-> > > > > > Link: https://lore.kernel.org/r/165962729225.3357250.1435072884=
-6471527137.stgit@warthog.procyon.org.uk/ # v2
-> > > > > > Link: https://lore.kernel.org/r/165970659095.2812394.6868894171=
-102318796.stgit@warthog.procyon.org.uk/ # v3
-> > > > > > Link: https://lore.kernel.org/r/166133579016.3678898.6283195019=
-480567275.stgit@warthog.procyon.org.uk/ # v4
-> > > > > > Link: https://lore.kernel.org/r/217595.1662033775@warthog.procy=
-on.org.uk/ # v5
-> > > > > > ---
-> > > > > > This patch was originally sent by David several months ago, but=
- it
-> > > > > > never got merged. I'm resending to resurrect the discussion. Ca=
-n we
-> > > > > > get this fixed?
-> > > > >=20
-> > > > > Sorry, I sorta lost track of this after the ROOTCONTEXT_MNT discu=
-ssion
-> > > > > back in v3.  Looking at it a bit closer now I have one nitpicky
-> > > > > request and one larger concern (see below).
-> > > > >=20
-> > > > > > diff --git a/fs/super.c b/fs/super.c
-> > > > > > index e781226e2880..13adf43e2e5d 100644
-> > > > > > --- a/fs/super.c
-> > > > > > +++ b/fs/super.c
-> > > > > > @@ -1541,10 +1541,12 @@ int vfs_get_tree(struct fs_context *fc)
-> > > > > >  	smp_wmb();
-> > > > > >  	sb->s_flags |=3D SB_BORN;
-> > > > > > =20
-> > > > > > -	error =3D security_sb_set_mnt_opts(sb, fc->security, 0, NULL)=
-;
-> > > > > > -	if (unlikely(error)) {
-> > > > > > -		fc_drop_locked(fc);
-> > > > > > -		return error;
-> > > > > > +	if (!(fc->lsm_set)) {
-> > > > > > +		error =3D security_sb_set_mnt_opts(sb, fc->security, 0, NULL=
-);
-> > > > > > +		if (unlikely(error)) {
-> > > > > > +			fc_drop_locked(fc);
-> > > > > > +			return error;
-> > > > > > +		}
-> > > > > >  	}
-> > > > >=20
-> > > > > I generally dislike core kernel code which makes LSM calls condit=
-ional
-> > > > > on some kernel state maintained outside the LSM.  Sometimes it ha=
-s to
-> > > > > be done as there is no other good options, but I would like us to=
- try
-> > > > > and avoid it if possible.  The commit description mentioned that =
-this
-> > > > > was put here to avoid a SELinux complaint, can you provide an exa=
-mple
-> > > > > of the complain?  Does it complain about a double/invalid mount, =
-e.g.
-> > > > > "SELinux: mount invalid.  Same superblock, different security ...=
-"?
-> > > > >=20
-> > > >=20
-> > > > The problem I had was not so much SELinux warnings, but rather that=
- in a
-> > > > situation where I would expect to share superblocks between two
-> > > > filesystems, it didn't.
-> > > >=20
-> > > > Basically if you do something like this:
-> > > >=20
-> > > > # mount nfsserver:/export/foo /mnt/foo -o context=3Dsystem_u:object=
-_r:root_t:s0
-> > > > # mount nfsserver:/export/bar /mnt/bar -o context=3Dsystem_u:object=
-_r:root_t:s0
-> > > >=20
-> > > > ...when "foo" and "bar" are directories on the same filesystem on t=
-he
-> > > > server, you should get two vfsmounts that share a superblock. That'=
-s
-> > > > what you get if selinux is disabled, but not when it's enabled (eve=
+On Wed, Jul 12, 2023 at 12:01=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> On 4/20/23 14:58, James Carter wrote:
+> > Before the CIL post processing phase (where expressions are evaluated,
+> > various ebitmaps are set, etc) there is a pre-verification where
+> > checks are made to find self references or loops in bounds, attribute
+> > sets, and class permissions. The class permission checking is faulty
+> > in two ways.
+> >
+> > First, it does not check for the use of "all" in a permission expressio=
 n
-> > > > when it's in permissive mode).
-> > > >=20
-> > > > The problems that David hit with the automounter have a similar roo=
-t
-> > > > cause though, I believe.
-> > > >=20
-> > > > > I'd like to understand why the sb_set_mnt_opts() call fails when =
-it
-> > > > > comes after the fs_context_init() call.  I'm particulary curious =
-to
-> > > > > know if the failure is due to conflicting SELinux state in the
-> > > > > fs_context, or if it is simply an issue of sb_set_mnt_opts() not
-> > > > > properly handling existing values.  Perhaps I'm being overly naiv=
-e,
-> > > > > but I'm hopeful that we can address both of these within the SELi=
-nux
-> > > > > code itself.
-> > > > >=20
-> > > >=20
-> > > > The problem I hit was that nfs_compare_super is called with a fs_co=
-ntext
-> > > > that has a NULL ->security pointer. That caused it to call
-> > > > selinux_sb_mnt_opts_compat with mnt_opts set to NULL, and at that p=
-oint
-> > > > it returns 1 and decides not to share sb's.
-> > >=20
-> > > I tried to follow this because I'm really still quite puzzled by this
-> > > whole thing. Two consecutive mounts that should share the superblock
-> > > don't share the superblock. But behavior differs between nfs3 and nfs=
-4
-> > > due to how automounting works.
-> > >=20
-> > > Afaict, the callchain you're looking at in this scenario is:
-> > >=20
-> > > (1) nfs3
-> > >=20
-> > > (1.1) mount 127.0.0.1:/export/foo /mnt/foo -o context=3Dsystem_u:obje=
-ct_r:root_t:s0,nfsvers=3D3
-> > >       vfs_get_tree(fc_foo)
-> > >       -> fs_contex_operations->get_tree::nfs_get_tree(fc_foo)
-> > >             -> ctx->nfs_mod->rpc_ops->try_get_tree::nfs_try_get_tree(=
-fc_foo)
-> > >                -> nfs_get_tree_common(fc_foo)
-> > >                   -> sb_foo =3D sget_fc(fc_foo, nfs_compare_super, ..=
-.)
-> > >=20
-> > > (1.2) mount 127.0.0.1:/export/bar /mnt/bar -o context=3Dsystem_u:obje=
-ct_r:root_t:s0,nfsvers=3D3
-> > >       vfs_get_tree(fc_bar)
-> > >       -> fs_contex_operations->get_tree::nfs_get_tree(fc_bar)
-> > >             -> ctx->nfs_mod->rpc_ops->try_get_tree::nfs_try_get_tree(=
-fc_bar)
-> > >                -> nfs_get_tree_common(fc_bar)
-> > >                   -> sb_foo =3D sget_fc(fc_bar, nfs_compare_super, ..=
-.)
-> > >                      -> nfs_compare_super(sb_foo, fc_bar)
-> > >                         -> selinux_sb_mnt_opts_compat(sb_foo, fc_bar-=
->security)
-> > >=20
-> > > And fc_bar->security is non-NULL and compatible with sb_foo's current
-> > > security settings. Fine.
-> > >=20
-> > > (2) nfs4
-> > >=20
-> > > But for nfs4 we're looking at a vastly more complicated callchain at
-> > > least looking at this from a local nfs:
-> > >=20
-> > > (2.1) mount 127.0.0.1:/export/foo /mnt/foo -o context=3Dsystem_u:obje=
-ct_r:root_t:s0
-> > >       vfs_get_tree(fc_foo)
-> > >       -> fs_contex_operations->get_tree::nfs_get_tree(fc_foo)
-> > >          -> if (!ctx->internal) branch is taken
-> > >             -> ctx->nfs_mod->rpc_ops->try_get_tree::nfs4_try_get_tree=
-(fc_foo)
-> > >                -> do_nfs4_mount(fc_foo)
-> > >                   -> fc_dup_foo =3D vfs_dup_fs_context(fc_foo)
-> > >                     -> security_fs_context_dup(fc_dup_foo, fc_foo)
-> > >                        {
-> > >                                 fc_dup_foo->security =3D kmemdup(fc_f=
-oo->security)
-> > >                        }
-> > >                        new_fs_context->internal =3D true
-> > >                   -> foo_mnt =3D fc_mount(fc_dup_foo)
-> > >                     -> vfs_get_tree(fc_dup_foo)
-> > >                        -> if (!ctx->internal) branch is _not_ taken
-> > >                           -> nfs_get_tree_common(fc_dup_foo)
-> > >                                  sb_foo =3D sget_fc(fc, nfs_compare_s=
-uper, ...)
-> > >                   -> mount_subtree()
-> > >                      -> vfs_path_lookup(..., "/export/foo", LOOKUP_AU=
-TOMOUNT)
-> > >                         -> nfs_d_automount("export")
-> > >                            -> fc_sub_foo =3D fs_context_for_submount(=
-)
-> > >                               {
-> > >                                       fc_sub_bar->security =3D NULL
-> >=20
-> >=20
-> > Should the above be:
-> >=20
-> > 					fc_sub_foo->security =3D NULL;
->=20
-> Yes, typo for whatever reason.
->=20
-> >=20
-> > ?
-> >=20
-> > If so, then with this patch, the above would no longer be NULL. We'd
-> > inherit the security context info from the reference dentry passed to
-> > fs_context_for_submount().
-> >=20
-> > >                               {
-> > >                            -> nfs4_submount(fc_sub_foo)
-> > >                               -> nfs4_do_submount(fc_sub_foo)
-> > >                                  -> vfs_get_tree(fc_sub_foo)
-> > >                                     -> nfs_get_tree_common(fc_sub_foo=
-)
-> > >                                        -> sb_foo_2 =3D sget_fc(fc_sub=
-_foo, nfs_compare_super, ...)
-> > >                         -> nfs_d_automount("foo")
-> > >                            -> fc_sub_foo =3D fs_context_for_submount(=
-)
-> > >                               {
-> > >                                       fc_sub_bar->security =3D NULL
-> >=20
-> > Ditto here -- that should be fc_sub_foo , correct?
->=20
-> Yes, same. Was just a typo.
->=20
-> > >                               {
-> > >                            -> nfs4_submount(fc_sub_foo)
-> > >                               -> nfs4_do_submount(fc_sub_foo)
-> > >                                  -> vfs_get_tree(fc_sub_foo)
-> > >                                     -> nfs_get_tree_common(fc_sub_foo=
-)
-> > >              |--------------------------> sb_foo_3 =3D sget_fc(fc_sub=
-_foo, nfs_compare_super, ...)
-> > >              |
-> > > As far as I can see you're already allocating 3 separate superblocks =
-of
-> > > which two are discarded and only one survives. Afaict, the one that
-> > > survives is _| the last one. Under the assumption that I'm correct,
-> > > where does the third superblock get it's selinux context from given t=
-hat
-> > > fc->security isn't even set during submount?
-> > >=20
-> >=20
-> > That's the problem this patch is intended to fix. It allows child mount=
-s
-> > to properly inherit security options from a parent dentry.
->=20
-> Yeah, I'm aware. Your patch will ensure that the last superblock is
-> found again. But you're always going to allocate addititional
-> superblocks afaict. That's at least what I can gather from the logic.
-> Say you have:
->=20
-> /export/a/b/c/d/e/foo   *(rw,insecure,no_subtree_check,no_root_squash)
-> /export/a/b/c/d/e/bar   *(rw,insecure,no_subtree_check,no_root_squash)
->=20
-> you allocate 8 superblocks (it's always path components +1) of which you
-> immediately discard 7 after you finished. That's easily reproducible
-> with selinux completely disabled. I'm just astonished.
->=20
+> > for a class that has no permissions. An error will still be generated
+> > later and secilc will exit cleanly, but without an error message that
+> > explains the problem.
+> >
+> > Second, it does not properly handle lists in permission expressions.
+> > For example, "(C ((P)))" is a legitimate class permission. The
+> > permissions expression contains one item that is a list containing
+> > one permission. This permission expression will be properly evaluated.
+> > Unfortunately, the class permission verification assumes that each
+> > item in the permission expression is either an operator or a
+> > permission datum and a segmenation fault will occur.
+> >
+> > Refactor the class permission checking to give a proper error when
+> > "all" is used in a permission expression for a class that has no
+> > permissions and so that it can handle lists in permission
+> > expressions. Also, check for the actual flavor of each item in
+> > the permission expression and return an error if an unexpected
+> > flavor is found.
+> >
+> > The failure to properly handle lists in permission expressions was
+> > found by oss-fuzz (#58085).
+>
+>
+> For what it's worth:
+>
+> Verified the fuzzer no longer crashes and no new issues arose after
+> running for ~1h.
+>
+> Successfully build DSSP5.
+>
+>
+> Tested-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
 
-Actually, your callchain might not be correct.
-
-I think that you should only end up calling back into nfs_d_automount
-and creating a new sb when we cross a mount boundary. So if each of
-those intermediate directories represents a different fs, then you'll
-get a bunch of superblocks that will end up discarded, but I don't
-believe we create a new mount just for intermediate directories that we
-can walk.
-
-Basically the nfsv4 mount process is to create a (hidden) superblock for
-the root of the tree on the server, and then use the normal pathwalk
-scheme to walk down to the right dentry for the root. Once we get there
-we can prune everything above that point and we end up with a single sb.
+I plan on merging this soon, unless I hear any objections.
+Jim
 
 
-
-> >=20
-> > > And where is the context=3D%s output generated for mountinfo?
-> > >=20
-> >=20
-> > security_sb_show_options / selinux_sb_show_options
-> >=20
-> > > Is this a correct callchain?
-> > >=20
-> >=20
-> > I think it looks about right, but I didn't verify the details to the
-> > degree you have.
-> >=20
-> > > >=20
-> > > > Filling out fc->security with this new operation seems to fix that,=
- but
-> > > > if you see a better way to do this, then I'm certainly open to the =
-idea.
-> > > >=20
-> > > > > In a worst case situation, we could always implement a flag *insi=
-de*
-> > > > > the SELinux code, similar to what has been done with 'lsm_set' he=
-re.
-> > > > >=20
-> > > >=20
-> > > > I'm fine with a different solution, if you see a better one. You'll=
- have
-> > >=20
-> > > Independent of the modification in fs_context_for_submount() you migh=
-t want to
-> > > think about something like:
-> > >=20
-> > > static const struct fs_context_operations nfs4_fs_context_ops =3D {
-> > >       .free           =3D nfs4_free,
-> > >       .parse_param    =3D nfs4_parse_param,
-> > >       .get_tree       =3D nfs4_get_tree,
-> > > };
-> > >=20
-> > > static const struct fs_context_operations nfs4_fs_submount_ops =3D {
-> > >       .free           =3D nfs4_free_submount,
-> > >       .parse_param    =3D nfs4_parse_param_submount,
-> > >       .get_tree       =3D nfs4_get_tree_submount,
-> > > };
-> > >=20
-> > > static int nfs4_init_fs_context_submount(struct fs_context *fc)
-> > > {
-> > >         return 0;
-> > > }
-> > >=20
-> > > static int nfs4_fs_context_get_tree(struct fs_context *fc)
-> > > {
-> > >         if (fc->purpose =3D=3D FS_CONTEXT_FOR_SUBMOUNT)
-> > >                 fc->ops =3D &nfs4_fs_submount_ops;
-> > >         else
-> > >                 fc->ops =3D &nfs4_fs_context_ops;
-> > >         .
-> > >         .
-> > >         .
-> > > }
-> > >=20
-> > > which will make the callchain probably a lot to follow instead of waf=
-ting
-> > > through the same nested functions over and over. But just a thought.
-> >=20
-> > Sounds reasonable. I'd rather do that sort of cleanup afterward though,
-> > to make this patch easier to eventually backport.
->=20
-> Yeah, sure.
-
---=20
-Jeff Layton <jlayton@kernel.org>
+>
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >   libsepol/cil/src/cil_verify.c | 167 +++++++++++++++++++++++----------=
+-
+> >   1 file changed, 114 insertions(+), 53 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verif=
+y.c
+> > index 4640dc59..3f58969d 100644
+> > --- a/libsepol/cil/src/cil_verify.c
+> > +++ b/libsepol/cil/src/cil_verify.c
+> > @@ -1700,31 +1700,109 @@ static int __add_perm_to_list(__attribute__((u=
+nused)) hashtab_key_t k, hashtab_d
+> >       return SEPOL_OK;
+> >   }
+> >
+> > -static int __cil_verify_classperms(struct cil_list *classperms,
+> > -                                struct cil_symtab_datum *orig,
+> > -                                struct cil_symtab_datum *parent,
+> > -                                struct cil_symtab_datum *cur,
+> > -                                enum cil_flavor flavor,
+> > -                                unsigned steps, unsigned limit)
+> > +static int __cil_verify_classperms(struct cil_list *classperms, struct=
+ cil_symtab_datum *orig, struct cil_symtab_datum *cur, unsigned steps, unsi=
+gned limit);
+> > +
+> > +static int __cil_verify_map_perm(struct cil_class *class, struct cil_p=
+erm *perm, struct cil_symtab_datum *orig, unsigned steps, unsigned limit)
+> > +{
+> > +     int rc;
+> > +
+> > +     if (!perm->classperms) {
+> > +             cil_tree_log(NODE(class), CIL_ERR, "No class permissions =
+for map class %s, permission %s", DATUM(class)->name, DATUM(perm)->name);
+> > +             goto exit;
+> > +     }
+> > +
+> > +     rc =3D __cil_verify_classperms(perm->classperms, orig, &perm->dat=
+um, steps, limit);
+> > +     if (rc !=3D SEPOL_OK) {
+> > +             cil_tree_log(NODE(class), CIL_ERR, "There was an error ve=
+rifying class permissions for map class %s, permission %s", DATUM(class)->n=
+ame, DATUM(perm)->name);
+> > +             goto exit;
+> > +     }
+> > +
+> > +     return SEPOL_OK;
+> > +
+> > +exit:
+> > +     return SEPOL_ERR;
+> > +}
+> > +
+> > +
+> > +static int __cil_verify_perms(struct cil_class *class, struct cil_list=
+ *perms, struct cil_symtab_datum *orig, unsigned steps, unsigned limit)
+> >   {
+> >       int rc =3D SEPOL_ERR;
+> > -     struct cil_list_item *curr;
+> > +     int count =3D 0;
+> > +     struct cil_list_item *i =3D NULL;
+> >
+> > -     if (classperms =3D=3D NULL) {
+> > -             if (flavor =3D=3D CIL_MAP_PERM) {
+> > -                     cil_tree_log(NODE(cur), CIL_ERR, "Map class %s do=
+es not have a classmapping for %s", parent->name, cur->name);
+> > +     if (!perms) {
+> > +             cil_tree_log(NODE(class), CIL_ERR, "No permissions for cl=
+ass %s in class permissions", DATUM(class)->name);
+> > +             goto exit;
+> > +     }
+> > +
+> > +     cil_list_for_each(i, perms) {
+> > +             count++;
+> > +             if (i->flavor =3D=3D CIL_LIST) {
+> > +                     rc =3D __cil_verify_perms(class, i->data, orig, s=
+teps, limit);
+> > +                     if (rc !=3D SEPOL_OK) {
+> > +                             goto exit;
+> > +                     }
+> > +             } else if (i->flavor =3D=3D CIL_DATUM) {
+> > +                     struct cil_perm *perm =3D i->data;
+> > +                     if (FLAVOR(perm) =3D=3D CIL_MAP_PERM) {
+> > +                             rc =3D __cil_verify_map_perm(class, perm,=
+ orig, steps, limit);
+> > +                             if (rc !=3D SEPOL_OK) {
+> > +                                     goto exit;
+> > +                             }
+> > +                     }
+> > +             } else if (i->flavor =3D=3D CIL_OP) {
+> > +                     enum cil_flavor op =3D (enum cil_flavor)(uintptr_=
+t)i->data;
+> > +                     if (op =3D=3D CIL_ALL) {
+> > +                             struct cil_list *perm_list;
+> > +                             struct cil_list_item *j =3D NULL;
+> > +                             int count2 =3D 0;
+> > +                             cil_list_init(&perm_list, CIL_MAP_PERM);
+> > +                             cil_symtab_map(&class->perms, __add_perm_=
+to_list, perm_list);
+> > +                             cil_list_for_each(j, perm_list) {
+> > +                                     count2++;
+> > +                                     struct cil_perm *perm =3D j->data=
+;
+> > +                                     if (FLAVOR(perm) =3D=3D CIL_MAP_P=
+ERM) {
+> > +                                             rc =3D __cil_verify_map_p=
+erm(class, perm, orig, steps, limit);
+> > +                                             if (rc !=3D SEPOL_OK) {
+> > +                                                     cil_list_destroy(=
+&perm_list, CIL_FALSE);
+> > +                                                     goto exit;
+> > +                                             }
+> > +                                     }
+> > +                             }
+> > +                             cil_list_destroy(&perm_list, CIL_FALSE);
+> > +                             if (count2 =3D=3D 0) {
+> > +                                     cil_tree_log(NODE(class), CIL_ERR=
+, "Operator \"all\" used for %s which has no permissions associated with it=
+", DATUM(class)->name);
+> > +                                     goto exit;
+> > +                             }
+> > +                     }
+> >               } else {
+> > -                     cil_tree_log(NODE(cur), CIL_ERR, "Classpermission=
+ %s does not have a classpermissionset", cur->name);
+> > +                     cil_tree_log(NODE(class), CIL_ERR, "Permission li=
+st for %s has an unexpected flavor: %d", DATUM(class)->name, i->flavor);
+> > +                     goto exit;
+> >               }
+> > +     }
+> > +
+> > +     if (count =3D=3D 0) {
+> > +             cil_tree_log(NODE(class), CIL_ERR, "Empty permissions lis=
+t for class %s in class permissions", DATUM(class)->name);
+> > +             goto exit;
+> > +     }
+> > +
+> > +     return SEPOL_OK;
+> > +
+> > +exit:
+> > +     return SEPOL_ERR;
+> > +}
+> > +
+> > +static int __cil_verify_classperms(struct cil_list *classperms, struct=
+ cil_symtab_datum *orig, struct cil_symtab_datum *cur, unsigned steps, unsi=
+gned limit)
+> > +{
+> > +     int rc;
+> > +     struct cil_list_item *i;
+> > +
+> > +     if (classperms =3D=3D NULL) {
+> >               goto exit;
+> >       }
+> >
+> >       if (steps > 0 && orig =3D=3D cur) {
+> > -             if (flavor =3D=3D CIL_MAP_PERM) {
+> > -                     cil_tree_log(NODE(cur), CIL_ERR, "Found circular =
+class permissions involving the map class %s and permission %s", parent->na=
+me, cur->name);
+> > -             } else {
+> > -                     cil_tree_log(NODE(cur), CIL_ERR, "Found circular =
+class permissions involving the set %s", cur->name);
+> > -             }
+> > +             cil_tree_log(NODE(cur), CIL_ERR, "Found circular class pe=
+rmissions involving %s", cur->name);
+> >               goto exit;
+> >       } else {
+> >               steps++;
+> > @@ -1735,44 +1813,20 @@ static int __cil_verify_classperms(struct cil_l=
+ist *classperms,
+> >               }
+> >       }
+> >
+> > -     cil_list_for_each(curr, classperms) {
+> > -             if (curr->flavor =3D=3D CIL_CLASSPERMS) {
+> > -                     struct cil_classperms *cp =3D curr->data;
+> > -                     if (FLAVOR(cp->class) !=3D CIL_CLASS) { /* MAP */
+> > -                             struct cil_list_item *i =3D NULL;
+> > -                             cil_list_for_each(i, cp->perms) {
+> > -                                     if (i->flavor !=3D CIL_OP) {
+> > -                                             struct cil_perm *cmp =3D =
+i->data;
+> > -                                             rc =3D __cil_verify_class=
+perms(cmp->classperms, orig, &cp->class->datum, &cmp->datum, CIL_MAP_PERM, =
+steps, limit);
+> > -                                             if (rc !=3D SEPOL_OK) {
+> > -                                                     goto exit;
+> > -                                             }
+> > -                                     } else {
+> > -                                             enum cil_flavor op =3D (e=
+num cil_flavor)(uintptr_t)i->data;
+> > -                                             if (op =3D=3D CIL_ALL) {
+> > -                                                     struct cil_class =
+*mc =3D cp->class;
+> > -                                                     struct cil_list *=
+perm_list;
+> > -                                                     struct cil_list_i=
+tem *j =3D NULL;
+> > -
+> > -                                                     cil_list_init(&pe=
+rm_list, CIL_MAP_PERM);
+> > -                                                     cil_symtab_map(&m=
+c->perms, __add_perm_to_list, perm_list);
+> > -                                                     cil_list_for_each=
+(j, perm_list) {
+> > -                                                             struct ci=
+l_perm *cmp =3D j->data;
+> > -                                                             rc =3D __=
+cil_verify_classperms(cmp->classperms, orig, &cp->class->datum, &cmp->datum=
+, CIL_MAP_PERM, steps, limit);
+> > -                                                             if (rc !=
+=3D SEPOL_OK) {
+> > -                                                                     c=
+il_list_destroy(&perm_list, CIL_FALSE);
+> > -                                                                     g=
+oto exit;
+> > -                                                             }
+> > -                                                     }
+> > -                                                     cil_list_destroy(=
+&perm_list, CIL_FALSE);
+> > -                                             }
+> > -                                     }
+> > -                             }
+> > +     cil_list_for_each(i, classperms) {
+> > +             if (i->flavor =3D=3D CIL_CLASSPERMS) {
+> > +                     struct cil_classperms *cp =3D i->data;
+> > +                     rc =3D __cil_verify_perms(cp->class, cp->perms, o=
+rig, steps, limit);
+> > +                     if (rc !=3D SEPOL_OK) {
+> > +                             goto exit;
+> >                       }
+> >               } else { /* SET */
+> > -                     struct cil_classperms_set *cp_set =3D curr->data;
+> > +                     struct cil_classperms_set *cp_set =3D i->data;
+> >                       struct cil_classpermission *cp =3D cp_set->set;
+> > -                     rc =3D __cil_verify_classperms(cp->classperms, or=
+ig, NULL, &cp->datum, CIL_CLASSPERMISSION, steps, limit);
+> > +                     if (!cp->classperms) {
+> > +                             cil_tree_log(NODE(cur), CIL_ERR, "Classpe=
+rmission %s does not have a classpermissionset", DATUM(cp)->name);
+> > +                     }
+> > +                     rc =3D __cil_verify_classperms(cp->classperms, or=
+ig, &cp->datum, steps, limit);
+> >                       if (rc !=3D SEPOL_OK) {
+> >                               goto exit;
+> >                       }
+> > @@ -1787,9 +1841,15 @@ exit:
+> >
+> >   static int __cil_verify_classpermission(struct cil_tree_node *node)
+> >   {
+> > +     int rc;
+> >       struct cil_classpermission *cp =3D node->data;
+> >
+> > -     return __cil_verify_classperms(cp->classperms, &cp->datum, NULL, =
+&cp->datum, CIL_CLASSPERMISSION, 0, 2);
+> > +     rc =3D __cil_verify_classperms(cp->classperms, &cp->datum, &cp->d=
+atum, 0, 2);
+> > +     if (rc !=3D SEPOL_OK) {
+> > +             cil_tree_log(node, CIL_ERR, "Error verifying class permis=
+sions for classpermission %s", DATUM(cp)->name);
+> > +     }
+> > +
+> > +     return rc;
+> >   }
+> >
+> >   struct cil_verify_map_args {
+> > @@ -1804,8 +1864,9 @@ static int __verify_map_perm_classperms(__attribu=
+te__((unused)) hashtab_key_t k,
+> >       struct cil_perm *cmp =3D (struct cil_perm *)d;
+> >       int rc;
+> >
+> > -     rc =3D __cil_verify_classperms(cmp->classperms, &cmp->datum, &map=
+_args->class->datum, &cmp->datum, CIL_MAP_PERM, 0, 2);
+> > +     rc =3D __cil_verify_classperms(cmp->classperms, &cmp->datum, &cmp=
+->datum, 0, 2);
+> >       if (rc !=3D SEPOL_OK) {
+> > +             cil_tree_log(NODE(cmp), CIL_ERR, "Error verifying class p=
+ermissions for map class %s, permission %s", DATUM(map_args->class)->name, =
+DATUM(cmp)->name);
+> >               map_args->rc =3D rc;
+> >       }
+> >
