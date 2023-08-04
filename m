@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA93CC001DF
-	for <selinux@archiver.kernel.org>; Fri,  4 Aug 2023 18:37:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D461EC001DB
+	for <selinux@archiver.kernel.org>; Fri,  4 Aug 2023 18:38:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230113AbjHDShK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Aug 2023 14:37:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59032 "EHLO
+        id S229564AbjHDSiB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 4 Aug 2023 14:38:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230235AbjHDSgl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 4 Aug 2023 14:36:41 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B832A5585
-        for <selinux@vger.kernel.org>; Fri,  4 Aug 2023 11:36:03 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2b9b904bb04so40108201fa.1
-        for <selinux@vger.kernel.org>; Fri, 04 Aug 2023 11:36:03 -0700 (PDT)
+        with ESMTP id S230060AbjHDShH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 4 Aug 2023 14:37:07 -0400
+Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D32C5254
+        for <selinux@vger.kernel.org>; Fri,  4 Aug 2023 11:36:36 -0700 (PDT)
+Received: by mail-lj1-x232.google.com with SMTP id 38308e7fff4ca-2ba0f27a4c2so34744711fa.2
+        for <selinux@vger.kernel.org>; Fri, 04 Aug 2023 11:36:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691174162; x=1691778962;
+        d=gmail.com; s=20221208; t=1691174194; x=1691778994;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XqosJXcjbNP3ljws6F5RiOBvWxFw2Nfi0lWwf0MdAbw=;
-        b=Kir0dpHzxiHTTW5ViOkntWLGPuzUMoRwJ9Oj/oEPKD0OYyO3gWH661S245uYAypTRG
-         i7ugbRPy7Ky2RAIYjdlu9EZsMrNbjcxqMhKJTJFY6jKbL7V46LcAR2jVwEeguwVcNyGz
-         HzWoNFIBMlYllDdMGTk3/ezryLdKRS699sWuBVfNpMOTvWx4kNcdWBrRtvn3UnueX9J3
-         adZxFRTD29veC/XjGrdLISgaaoeOu625mGdBEmni979+lA1kJWIJ0x2Cth7xqPNeSxVe
-         cej/npXDkSX0j5RrE9jJOVKc41RNnrI0w7fqU5iouRszSaNMwdQVzm4K41r0SyeVcERY
-         qVkw==
+        bh=xiWD7fsxgHNHT2bOYaDqjsO4OoIfZu4ul6+R5HKBdPk=;
+        b=QMbEyS33au3RulKUjqoSzKRdRIHjAfxivuA7xPQJicDLOyU7RTn7uk3CgndUbO4fbE
+         pJdMDFBYpbKEifr65F/Y/Hd8XQdxd7lDcWtosQlCKzyQIN5rS7LpQmKKUJXXwgx4Tsnb
+         ueJjEIogxEA5sKELh/kkaal/3bWc4OiEzVDE2zLIZzCNOoyIZH0QSSlm/oMFwbd8Tz3F
+         gKb2hh0SElLQ9cFbVI/W0XfKiHJJrV8gucQbq7CHiEAcmovRymzUDguRnsJHMIkyJgzA
+         MHqxkBTixiyDge0DFpDyQ9138TzhgHQrwFaG/syKyWLAdIUSC2i05e3Rc6Vi20Lx6XEv
+         +h1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691174162; x=1691778962;
+        d=1e100.net; s=20221208; t=1691174194; x=1691778994;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XqosJXcjbNP3ljws6F5RiOBvWxFw2Nfi0lWwf0MdAbw=;
-        b=X6gsr2Adrq9loHzItNuzD6Rebmy6J+pCp0Hs9pX96ufChqLNIAlNCjxbZ7Sxw+eLsk
-         4o2S0t6HdVdGmkesuPC2BVbzhT3H9fuvKQKtbstexM7hFpx1DYS16gM1ArzCSFVwd3Aj
-         Sl5Vm/w6HvmKdzQokjj3Xn4ej9yP2jhpM9HWRMAhP2gZkudL015vVm/PrWSs6HnmuhnA
-         SZniBrPL8SCj57+wAik0gGP/z6jC5gA4n4fW350IlP1/uZ8lgLTMjnIriY6bn+YQi2/p
-         yzMlKe+qbZ3tVWFi3is7iIZujccWAvHVGxB+0Fgishj+tseO0T1Zv+yU3UfYdqLvOpiK
-         F9aw==
-X-Gm-Message-State: AOJu0YxZCn/uY1VJFGP2xbpjAhYt14uAsU/JzqvtMt93U6HZderUmF5t
-        LQP+sA9dydYmND2EN7QuWxLUgglA1wlcRFktaFd0ncTl
-X-Google-Smtp-Source: AGHT+IF4jQz217vJ89PQ4m/KWlppNWKkf6SnGRML6MnbhicFU2LlVlsitqV9tPUL5SfunXY8j8SRIRK4Eo1xw3DpFsg=
-X-Received: by 2002:a2e:850b:0:b0:2b9:36d5:729c with SMTP id
- j11-20020a2e850b000000b002b936d5729cmr2035909lji.47.1691174161725; Fri, 04
- Aug 2023 11:36:01 -0700 (PDT)
+        bh=xiWD7fsxgHNHT2bOYaDqjsO4OoIfZu4ul6+R5HKBdPk=;
+        b=lLCO7XuyMoVUzKUSl2X2MD+67wXkcMNuZ6ivitNcpKCAv1Co6tqk3AM2fJQ6wtNBSp
+         3HaW9Mx+Ub4E1Xncoh++Wpv4mWbaUA6w2Z2plqbs9eOEinWdsjQG69rUsZD+G13gVce/
+         tm2Ekvgi8v1vnrLIr+UOsVSFtTlb6xNLd3NZWb6IA4j/XHmP/ZwHn4B17wp8KyfaeE3p
+         h2NNc/BK0avrkjvkekV9DcsVBwAJq0Dd9X7sbOQpqS85ToDlel7OatxnEFfN0TYDfKUX
+         0SQAF/ew0BOIFqh+b2yqLSO7y0VNL+jecPtO16Q1Sk+7Pg97e+f3u84rDzuCN0ShzsVV
+         oJbQ==
+X-Gm-Message-State: AOJu0YzmRop+j1Lq4VppLOFYUjNwBKR6XEXhl890LRVhLAh2jU0/TdAZ
+        9aTq9HzG/6av2ZZPA4neUMN65UjH1QezZsIaVPyuDxjG
+X-Google-Smtp-Source: AGHT+IF5EW1sYvvS8OPRh15v9kWnE8xZ1q/4Zj6Nh+t9vLWCL05GSm8nolXW4x8H5mkYy6caxssTpxhVWFseEcnPLAA=
+X-Received: by 2002:a2e:959a:0:b0:2b9:c005:c1e5 with SMTP id
+ w26-20020a2e959a000000b002b9c005c1e5mr2179523ljh.34.1691174194313; Fri, 04
+ Aug 2023 11:36:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230706142126.59907-1-cgzones@googlemail.com> <CAP+JOzRxWk_O2OF9cRke6=0TV3huLp+xD8aOnOhVyrYj4t=obQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzRxWk_O2OF9cRke6=0TV3huLp+xD8aOnOhVyrYj4t=obQ@mail.gmail.com>
+References: <20230706141801.58737-1-cgzones@googlemail.com> <CAP+JOzR7zmVzTPdM5dBrbwKGuBZFw2C+Uxa_eLGV=RSjKiMUJw@mail.gmail.com>
+In-Reply-To: <CAP+JOzR7zmVzTPdM5dBrbwKGuBZFw2C+Uxa_eLGV=RSjKiMUJw@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 4 Aug 2023 14:35:50 -0400
-Message-ID: <CAP+JOzQtG5o8_RQH3vic=BekzLgg+xNCuw08qrzZsoGE2ZsW=g@mail.gmail.com>
-Subject: Re: [PATCH] setsebool: improve bash-completion script
+Date:   Fri, 4 Aug 2023 14:36:22 -0400
+Message-ID: <CAP+JOzSjkFjbRPOfUFkNk71+28S=9DGj2JduXaMCtO8KHXuJaA@mail.gmail.com>
+Subject: Re: [PATCH] setsebool: drop unnecessary linking against libsepol
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,17 +61,15 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 2, 2023 at 3:20=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+On Wed, Aug 2, 2023 at 3:21=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
 te:
 >
-> On Thu, Jul 6, 2023 at 10:42=E2=80=AFAM Christian G=C3=B6ttsche
+> On Thu, Jul 6, 2023 at 10:43=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > Support the usage format of multiple booleans to change, e.g.:
-> >
-> >     setsebool bool1=3Don bool2=3Doff
-> >
-> > Support the options -N and -V.
+> > setsebool does not directly use any symbols from libsepol.  Any
+> > transitional ones, via libsemanage, are available by linking against
+> > libsemanage.
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
@@ -83,89 +81,23 @@ Thanks,
 Jim
 
 > > ---
-> >  .../setsebool/setsebool-bash-completion.sh    | 54 ++++++++++++++-----
-> >  1 file changed, 42 insertions(+), 12 deletions(-)
+> >  policycoreutils/setsebool/Makefile | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> > diff --git a/policycoreutils/setsebool/setsebool-bash-completion.sh b/p=
-olicycoreutils/setsebool/setsebool-bash-completion.sh
-> > index d0f3b424..f7fe0c0c 100644
-> > --- a/policycoreutils/setsebool/setsebool-bash-completion.sh
-> > +++ b/policycoreutils/setsebool/setsebool-bash-completion.sh
-> > @@ -15,26 +15,56 @@
-> >  # You should have received a copy of the GNU General Public License
-> >  # along with systemd; If not, see <http://www.gnu.org/licenses/>.
+> > diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setse=
+bool/Makefile
+> > index 4b55046c..c1440c1c 100644
+> > --- a/policycoreutils/setsebool/Makefile
+> > +++ b/policycoreutils/setsebool/Makefile
+> > @@ -6,7 +6,7 @@ MANDIR =3D $(PREFIX)/share/man
+> >  BASHCOMPLETIONDIR ?=3D $(PREFIX)/share/bash-completion/completions
 > >
-> > -__contains_word () {
-> > -        local word=3D$1; shift
-> > -        for w in $*; do [[ $w =3D $word ]] && return 0; done
-> > -        return 1
-> > -}
-> > -
-> >  __get_all_booleans () {
-> >      getsebool -a | cut -f1 -d' '
-> >  }
+> >  CFLAGS ?=3D -Werror -Wall -W
+> > -override LDLIBS +=3D -lsepol -lselinux -lsemanage
+> > +override LDLIBS +=3D -lselinux -lsemanage
+> >  SETSEBOOL_OBJS =3D setsebool.o
 > >
-> >  _setsebool () {
-> > -        local command=3D${COMP_WORDS[1]}
-> >          local cur=3D${COMP_WORDS[COMP_CWORD]} prev=3D${COMP_WORDS[COMP=
-_CWORD-1]}
-> > -        local verb comps
-> >
-> > -       if   [ "$verb" =3D "" -a "$prev" =3D "setsebool" -o "$prev" =3D=
- "-P" ]; then
-> > -               COMPREPLY=3D( $(compgen -W "-P $( __get_all_booleans ) =
-" -- "$cur") )
-> > -               return 0
-> > +        if [ "$prev" =3D '=3D' ]; then
-> > +                COMPREPLY=3D( $(compgen -W "on off" -- "$cur") )
-> > +                return 0
-> >          fi
-> > -        COMPREPLY=3D( $(compgen -W "0 1 -P" -- "$cur") )
-> > +
-> > +        case "$cur" in
-> > +        '0')
-> > +                COMPREPLY=3D( $(compgen -W "0 1" -- "$cur") )
-> > +                return 0
-> > +        ;;
-> > +        '1')
-> > +                COMPREPLY=3D( $(compgen -W "0 1" -- "$cur") )
-> > +                return 0
-> > +        ;;
-> > +        =3D)
-> > +                COMPREPLY=3D( $(compgen -W "on off" -- "") )
-> > +                return 0
-> > +        ;;
-> > +        -*)
-> > +                COMPREPLY=3D( $(compgen -W "-N -P -V" -- "$cur") )
-> > +                return 0
-> > +        ;;
-> > +        '')
-> > +                if [ "$prev" =3D '0' ] || [ "$prev" =3D '1' ]; then
-> > +                        COMPREPLY=3D( $(compgen -W "-N -P -V" -- "$cur=
-") )
-> > +                        return 0
-> > +                fi
-> > +                if getsebool "$prev" > /dev/null 2>&1; then
-> > +                        COMPREPLY=3D( $(compgen -W "0 1" -- "$cur") )
-> > +                        return 0
-> > +                fi
-> > +        ;;
-> > +        *)
-> > +                if getsebool "$cur" > /dev/null 2>&1; then
-> > +                        COMPREPLY=3D( $(compgen -W '$( __get_all_boole=
-ans ) "$cur=3Don " "$cur=3Doff "' -- "$cur") )
-> > +                        compopt -o nospace
-> > +                        return 0
-> > +                fi
-> > +        ;;
-> > +        esac
-> > +
-> > +        COMPREPLY=3D( $(compgen -W '"-N " "-P " "-V " $( __get_all_boo=
-leans ) ' -- "$cur") )
-> > +        compopt -o nospace
-> >          return 0
-> >  }
-> >
+> >  BASHCOMPLETIONS=3Dsetsebool-bash-completion.sh
 > > --
 > > 2.40.1
 > >
