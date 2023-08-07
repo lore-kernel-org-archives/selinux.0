@@ -2,205 +2,242 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC432EB64DD
-	for <selinux@archiver.kernel.org>; Mon,  7 Aug 2023 06:59:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54F23C001B0
+	for <selinux@archiver.kernel.org>; Mon,  7 Aug 2023 12:57:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229663AbjHGG7g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Aug 2023 02:59:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55028 "EHLO
+        id S231672AbjHGM5J (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Aug 2023 08:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjHGG7g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Aug 2023 02:59:36 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3071BB;
-        Sun,  6 Aug 2023 23:59:34 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-3fe2048c910so34773985e9.1;
-        Sun, 06 Aug 2023 23:59:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691391573; x=1691996373;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yoEjkyoJWoU8MTKFrPpvoEvG+DJ9Uo0OBGnuZDHzeuY=;
-        b=aBHdNavavWvZNE5TYPD1x/w6Y7U0r4NdjdRVcoKX2DCGZ+pKFMVv2LEcR/J/Hj7+2T
-         LTk3k4CHSpSh3AI9vA9n5pf4OqCtfyfjzJUSuSn3/2r/2Q/mWoX8MZKdKrrqHZbjtxlE
-         vBPUC/c1Ry/iMVSSqRYfFWQT/+OS4oaxD5/FPk5r/AlkpZA2n1e9W0qNVLenJ+bdG7+S
-         aUSFTYxPFgl6GOxKlniNKAnYqqACwZtJFLgX8nUfKBrPhlDnEscvbrcVGn2IPhzC4Gpf
-         /uux5h4WM51ZCQk3w6maeHNZyqWU3vCeBlfb8m85eBAh34f4c2i013tsK9nWlpa32Bcf
-         mnJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691391573; x=1691996373;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yoEjkyoJWoU8MTKFrPpvoEvG+DJ9Uo0OBGnuZDHzeuY=;
-        b=jchkr7yZTclX37K8urYIEOeKfjtdDWSyCRB+O5ambmBAwUmB2Y2Krlr++B66QYyveQ
-         mpjkWBYQULLRcTnN3DSK9Ca/Mb9tc1C1w8sXtEVh5UGY/FZjFS70xmG1ot/C2XhIcaNk
-         JtR+3zTxe4tRUguty0yJR/VlwEVVVFjJ6NghGDaDHKXpseMq2IQlI5igdEQzafAgZjqP
-         MjUoAZE3JtXLeKx6jtaeqNoXSaj9eS13xRuLZOx1jUE08/UdSebw6/3RG3tz0ffwZJfy
-         5SbgWET13jXuk000AQsQxarO0YiZEWif3hSg61+XFfJt/HohNu/sd6/b0Y79OYJwhzwh
-         abvg==
-X-Gm-Message-State: AOJu0YzKqImfKuFFqYf6flFmKeChoBTRAvh48yX5N2neO6v9Kd/pSFt1
-        gtO9JjGbCy8WYkolGDJcVRw=
-X-Google-Smtp-Source: AGHT+IFNpTAp1sf/QAMLhuwEX/5EuBOM3S+430+mCRJJeI/cGJ4W192pU/l3+DGp1K6bF8bs2omGlg==
-X-Received: by 2002:a7b:ce09:0:b0:3fe:2219:9052 with SMTP id m9-20020a7bce09000000b003fe22199052mr5327478wmc.18.1691391572688;
-        Sun, 06 Aug 2023 23:59:32 -0700 (PDT)
-Received: from khadija-virtual-machine ([124.29.208.67])
-        by smtp.gmail.com with ESMTPSA id q7-20020a1cf307000000b003fa98908014sm14086700wmq.8.2023.08.06.23.59.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Aug 2023 23:59:32 -0700 (PDT)
-Date:   Mon, 7 Aug 2023 11:59:29 +0500
-From:   Khadija Kamran <kamrankhadijadj@gmail.com>
-To:     Alison Schofield <alison.schofield@intel.com>, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        jmorris@namei.org, serge@hallyn.com,
-        linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com,
-        john.johansen@canonical.com, ztarkhani@microsoft.com
-Subject: [PATCH v2] lsm: constify the 'target' parameter in security_capget()
-Message-ID: <ZNCWUQXKrZnCeB/5@gmail.com>
+        with ESMTP id S232548AbjHGM5J (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Aug 2023 08:57:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1DE10FD;
+        Mon,  7 Aug 2023 05:57:07 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93BF5619EC;
+        Mon,  7 Aug 2023 12:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D66C433C9;
+        Mon,  7 Aug 2023 12:57:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691413026;
+        bh=mt1uuFOc8AlyTQ1K8cBuzB7Csp9E0a8Jlb1PTdNlCp0=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=jAy5x1jASO3bVRPC78HEg0wHowcZoXtyllawrTdBEwQgceCCOovenUYMXV4Ph/dRD
+         RBukby2R3Ud+sLX3uZv7UGsK1zfOSPF9+Bu/RBqOnc3jYbCDWk/BoGxPgA/2r3r6zw
+         zgFILbbA7pRWxUNxWgrHvykIc4rpB74nklYVAefu15qE1grPgMC9I1dNFH1O3azBJL
+         B0EMkt/MfnUWT/Vnd7j37m2uoiMZBR13TPOCn7veRdC7bU/OWsOPxK9GlD6nWfkcGl
+         b2HU9SxG+xncyjJxEhNeQi+7jFjsg2u7frLL+YMTW2c3t6s5fPgfdKU6A2xhd8GrGi
+         M4dW1B0/4b1ig==
+Message-ID: <650f7b6ea6b55de4c9cbc791af0da4f800907c21.camel@kernel.org>
+Subject: Re: [PATCH v7] vfs, security: Fix automount superblock LSM init
+ problem, preventing NFS sb sharing
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        David Howells <dhowells@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Date:   Mon, 07 Aug 2023 08:57:03 -0400
+In-Reply-To: <20230805-anrechnen-medien-c639c85ebd42@brauner>
+References: <20230804-master-v7-1-5d4e48407298@kernel.org>
+         <20230805-anrechnen-medien-c639c85ebd42@brauner>
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Three LSMs register the implementations for the "capget" hook: AppArmor,
-SELinux, and the normal capability code. Looking at the function
-implementations we may observe that the first parameter "target" is not
-changing.
+On Sat, 2023-08-05 at 14:43 +0200, Christian Brauner wrote:
+> On Fri, Aug 04, 2023 at 12:09:34PM -0400, Jeff Layton wrote:
+> > From: David Howells <dhowells@redhat.com>
+> >=20
+> > When NFS superblocks are created by automounting, their LSM parameters
+> > aren't set in the fs_context struct prior to sget_fc() being called,
+> > leading to failure to match existing superblocks.
+> >=20
+> > This bug leads to messages like the following appearing in dmesg when
+> > fscache is enabled:
+> >=20
+> >     NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,10=
+0000,100000,2ee,3a98,1d4c,3a98,1)
+> >=20
+> > Fix this by adding a new LSM hook to load fc->security for submount
+> > creation when alloc_fs_context() is creating the fs_context for it.
+> >=20
+> > Signed-off-by: David Howells <dhowells@redhat.com>
+> > Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> > Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount(=
+) to it.")
+> > Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
+> > Tested-by: Jeff Layton <jlayton@kernel.org>
+> > Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> > Acked-by: "Christian Brauner (Microsoft)" <brauner@kernel.org>
+> > Link: https://lore.kernel.org/r/165962680944.3334508.661002390034914203=
+4.stgit@warthog.procyon.org.uk/ # v1
+> > Link: https://lore.kernel.org/r/165962729225.3357250.143507288464715271=
+37.stgit@warthog.procyon.org.uk/ # v2
+> > Link: https://lore.kernel.org/r/165970659095.2812394.686889417110231879=
+6.stgit@warthog.procyon.org.uk/ # v3
+> > Link: https://lore.kernel.org/r/166133579016.3678898.628319501948056727=
+5.stgit@warthog.procyon.org.uk/ # v4
+> > Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.u=
+k/ # v5
+> > ---
+> > ver #7)
+> >  - Drop lsm_set boolean
+> >  - Link to v6: https://lore.kernel.org/r/20230802-master-v6-1-45d482991=
+68b@kernel.org
+> >=20
+> > ver #6)
+> >  - Rebase onto v6.5.0-rc4
+> >=20
+> > ver #5)
+> >  - Removed unused variable.
+> >  - Only allocate smack_mnt_opts if we're dealing with a submount.
+> >=20
+> > ver #4)
+> >  - When doing a FOR_SUBMOUNT mount, don't set the root label in SELinux=
+ or
+> >    Smack.
+> >=20
+> > ver #3)
+> >  - Made LSM parameter extraction dependent on fc->purpose =3D=3D
+> >    FS_CONTEXT_FOR_SUBMOUNT.  Shouldn't happen on FOR_RECONFIGURE.
+> >=20
+> > ver #2)
+> >  - Added Smack support
+> >  - Made LSM parameter extraction dependent on reference !=3D NULL.
+> > ---
+> >  fs/fs_context.c               |  4 ++++
+> >  include/linux/lsm_hook_defs.h |  1 +
+> >  include/linux/security.h      |  6 +++++
+> >  security/security.c           | 14 +++++++++++
+> >  security/selinux/hooks.c      | 25 ++++++++++++++++++++
+> >  security/smack/smack_lsm.c    | 54 +++++++++++++++++++++++++++++++++++=
+++++++++
+> >  6 files changed, 104 insertions(+)
+> >=20
+> > diff --git a/fs/fs_context.c b/fs/fs_context.c
+> > index 851214d1d013..a523aea956c4 100644
+> > --- a/fs/fs_context.c
+> > +++ b/fs/fs_context.c
+> > @@ -282,6 +282,10 @@ static struct fs_context *alloc_fs_context(struct =
+file_system_type *fs_type,
+> >  		break;
+> >  	}
+> > =20
+> > +	ret =3D security_fs_context_init(fc, reference);
+> > +	if (ret < 0)
+> > +		goto err_fc;
+> > +
+> >  	/* TODO: Make all filesystems support this unconditionally */
+> >  	init_fs_context =3D fc->fs_type->init_fs_context;
+> >  	if (!init_fs_context)
+> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_def=
+s.h
+> > index 7308a1a7599b..7ce3550154b1 100644
+> > --- a/include/linux/lsm_hook_defs.h
+> > +++ b/include/linux/lsm_hook_defs.h
+> > @@ -54,6 +54,7 @@ LSM_HOOK(int, 0, bprm_creds_from_file, struct linux_b=
+inprm *bprm, struct file *f
+> >  LSM_HOOK(int, 0, bprm_check_security, struct linux_binprm *bprm)
+> >  LSM_HOOK(void, LSM_RET_VOID, bprm_committing_creds, struct linux_binpr=
+m *bprm)
+> >  LSM_HOOK(void, LSM_RET_VOID, bprm_committed_creds, struct linux_binprm=
+ *bprm)
+> > +LSM_HOOK(int, 0, fs_context_init, struct fs_context *fc, struct dentry=
+ *reference)
+> >  LSM_HOOK(int, 0, fs_context_dup, struct fs_context *fc,
+> >  	 struct fs_context *src_sc)
+> >  LSM_HOOK(int, -ENOPARAM, fs_context_parse_param, struct fs_context *fc=
+,
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 32828502f09e..61fda06fac9d 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -293,6 +293,7 @@ int security_bprm_creds_from_file(struct linux_binp=
+rm *bprm, struct file *file);
+> >  int security_bprm_check(struct linux_binprm *bprm);
+> >  void security_bprm_committing_creds(struct linux_binprm *bprm);
+> >  void security_bprm_committed_creds(struct linux_binprm *bprm);
+> > +int security_fs_context_init(struct fs_context *fc, struct dentry *ref=
+erence);
+> >  int security_fs_context_dup(struct fs_context *fc, struct fs_context *=
+src_fc);
+> >  int security_fs_context_parse_param(struct fs_context *fc, struct fs_p=
+arameter *param);
+> >  int security_sb_alloc(struct super_block *sb);
+> > @@ -629,6 +630,11 @@ static inline void security_bprm_committed_creds(s=
+truct linux_binprm *bprm)
+> >  {
+> >  }
+> > =20
+> > +static inline int security_fs_context_init(struct fs_context *fc,
+> > +					   struct dentry *reference)
+>=20
+> I think that's the wrong way of doing this hook. The security hook
+> really doesn't belong into alloc_fs_context().
+>=20
+> I think what we want is a dedicated helper similar to vfs_dup_context():
+>=20
+> // Only pass the superblock. There's no need for the dentry. I would
+> // avoid even passing fs_context but if that's preferred then sure.
+> security_fs_context_submount(struct fs_context *fc, const struct super_bl=
+ock *sb)
+>=20
+> vfs_submount_fs_context(struct file_system_type *fs_type, struct dentry *=
+reference)
+> {
+>         fc =3D fs_context_for_submount(fs_type, reference);
+>=20
+>         security_fs_context_for_submount(fc, reference->d_sb);
+> }
+>=20
+> This automatically ensures it's only called for submounts, the LSM
+> doesn't need to care about fc->purpose and this isn't called
+> in a pure allocation function for all allocation calls.
+>=20
+> The we should switch all callers over to that new helper and unexport
+> that fs_context_for_submount() thing completely. Yes, that's more work
+> but that's the correct thing to do. And we need to audit fuse, cifs,
+> afs, and nfs anyway that they work fine with the new security hook.*
+>=20
 
-Mark the first argument "target" of LSM hook security_capget() as
-"const" since it will not be changing in the LSM hook.
+It's the same prototype. We could just move the hook call to the end of
+fs_context_for_submount, and that would be less churn for its callers.
+Or were you wanting to do that to make this a more gradual changeover
+for some reason?
 
-cap_capget() LSM hook declaration exceeds the 80 characters per line
-limit. Split the function declaration to multple lines to decrease the
-line length.
+I will rework the security hook to take a sb pointer instead though.
 
-Signed-off-by: Khadija Kamran <kamrankhadijadj@gmail.com>
----
-Changes in v2:
- - Squash the patches 1/2 and 2/2 into a single patch
- - Simplify the commit message
+>=20
+> [1]: If really needed, then any additional fs specific work that needs
+>      to be done during submount allocation should probably probably be
+>      done in a new callback.
+>=20
+>      struct fs_context_operations {
+>             void (*free)(struct fs_context *fc);
+>             int (*dup)(struct fs_context *fc, struct fs_context *src_fc);
+>     +       int (*submount)(struct fs_context *fc, const struct super_blo=
+ck *sb);
 
- include/linux/lsm_hook_defs.h | 2 +-
- include/linux/security.h      | 7 ++++---
- kernel/capability.c           | 2 +-
- security/apparmor/lsm.c       | 2 +-
- security/commoncap.c          | 2 +-
- security/security.c           | 2 +-
- security/selinux/hooks.c      | 2 +-
- 7 files changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 6bb55e61e8e8..fd3844e11077 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -36,7 +36,7 @@ LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
- LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
- 	 unsigned int mode)
- LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
--LSM_HOOK(int, 0, capget, struct task_struct *target, kernel_cap_t *effective,
-+LSM_HOOK(int, 0, capget, const struct task_struct *target, kernel_cap_t *effective,
- 	 kernel_cap_t *inheritable, kernel_cap_t *permitted)
- LSM_HOOK(int, 0, capset, struct cred *new, const struct cred *old,
- 	 const kernel_cap_t *effective, const kernel_cap_t *inheritable,
-diff --git a/include/linux/security.h b/include/linux/security.h
-index e2734e9e44d5..fef65d0e522d 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -145,7 +145,8 @@ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
- extern int cap_settime(const struct timespec64 *ts, const struct timezone *tz);
- extern int cap_ptrace_access_check(struct task_struct *child, unsigned int mode);
- extern int cap_ptrace_traceme(struct task_struct *parent);
--extern int cap_capget(struct task_struct *target, kernel_cap_t *effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
-+extern int cap_capget(const struct task_struct *target, kernel_cap_t *effective,
-+					  kernel_cap_t *inheritable, kernel_cap_t *permitted);
- extern int cap_capset(struct cred *new, const struct cred *old,
- 		      const kernel_cap_t *effective,
- 		      const kernel_cap_t *inheritable,
-@@ -271,7 +272,7 @@ int security_binder_transfer_file(const struct cred *from,
- 				  const struct cred *to, struct file *file);
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
- int security_ptrace_traceme(struct task_struct *parent);
--int security_capget(struct task_struct *target,
-+int security_capget(const struct task_struct *target,
- 		    kernel_cap_t *effective,
- 		    kernel_cap_t *inheritable,
- 		    kernel_cap_t *permitted);
-@@ -553,7 +554,7 @@ static inline int security_ptrace_traceme(struct task_struct *parent)
- 	return cap_ptrace_traceme(parent);
- }
- 
--static inline int security_capget(struct task_struct *target,
-+static inline int security_capget(const struct task_struct *target,
- 				   kernel_cap_t *effective,
- 				   kernel_cap_t *inheritable,
- 				   kernel_cap_t *permitted)
-diff --git a/kernel/capability.c b/kernel/capability.c
-index 3e058f41df32..67bdee3414dd 100644
---- a/kernel/capability.c
-+++ b/kernel/capability.c
-@@ -112,7 +112,7 @@ static inline int cap_get_target_pid(pid_t pid, kernel_cap_t *pEp,
- 	int ret;
- 
- 	if (pid && (pid != task_pid_vnr(current))) {
--		struct task_struct *target;
-+		const struct task_struct *target;
- 
- 		rcu_read_lock();
- 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index f431251ffb91..12dd96c3b2f0 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -144,7 +144,7 @@ static int apparmor_ptrace_traceme(struct task_struct *parent)
- }
- 
- /* Derived from security/commoncap.c:cap_capget */
--static int apparmor_capget(struct task_struct *target, kernel_cap_t *effective,
-+static int apparmor_capget(const struct task_struct *target, kernel_cap_t *effective,
- 			   kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
- 	struct aa_label *label;
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 0b3fc2f3afe7..5fd64d3e5bfd 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -197,7 +197,7 @@ int cap_ptrace_traceme(struct task_struct *parent)
-  * This function retrieves the capabilities of the nominated task and returns
-  * them to the caller.
-  */
--int cap_capget(struct task_struct *target, kernel_cap_t *effective,
-+int cap_capget(const struct task_struct *target, kernel_cap_t *effective,
- 	       kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
- 	const struct cred *cred;
-diff --git a/security/security.c b/security/security.c
-index d5ff7ff45b77..fb2d93b481f1 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -893,7 +893,7 @@ int security_ptrace_traceme(struct task_struct *parent)
-  *
-  * Return: Returns 0 if the capability sets were successfully obtained.
-  */
--int security_capget(struct task_struct *target,
-+int security_capget(const struct task_struct *target,
- 		    kernel_cap_t *effective,
- 		    kernel_cap_t *inheritable,
- 		    kernel_cap_t *permitted)
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79b4890e9936..ff42d49f1b41 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2056,7 +2056,7 @@ static int selinux_ptrace_traceme(struct task_struct *parent)
- 			    SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
- }
- 
--static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
-+static int selinux_capget(const struct task_struct *target, kernel_cap_t *effective,
- 			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
- {
- 	return avc_has_perm(current_sid(), task_sid_obj(target),
--- 
-2.34.1
-
+--=20
+Jeff Layton <jlayton@kernel.org>
