@@ -2,63 +2,62 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCC5C04E69
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F19CBC001B0
 	for <selinux@archiver.kernel.org>; Mon,  7 Aug 2023 17:11:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231347AbjHGRL6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Aug 2023 13:11:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
+        id S231675AbjHGRL7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Aug 2023 13:11:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbjHGRL5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Aug 2023 13:11:57 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CC8E65;
-        Mon,  7 Aug 2023 10:11:56 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-4fe11652b64so7387754e87.0;
+        with ESMTP id S230343AbjHGRL6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Aug 2023 13:11:58 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 071821A3;
+        Mon,  7 Aug 2023 10:11:57 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id 4fb4d7f45d1cf-52222562f1eso6588859a12.3;
         Mon, 07 Aug 2023 10:11:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1691428314; x=1692033114;
+        d=googlemail.com; s=20221208; t=1691428315; x=1692033115;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1KhCpc37sMq8hfJahbNI7sAkZNZxhd0cG15a8ZsTo7w=;
-        b=Sh52DhymwxQXUXmMTjKNMSN1j8bLQn0UKLirqyD6CTjQY6jT0qgixd5ekHUsNSvjAT
-         NlctFiVmROOkJknjucfzWTja1FcU6YDglvns52lOeWG3kVzAEAwAYT6FegYBnEFOATV6
-         uN/xcY8WqD1IN+5GQ3ReC/fSjiAkkyTzqc+OZFgPK5m9GvioP2sNfl6IgdnDVmxj3jAb
-         p6Ar8cCtSlv8+arYuzGOaqPHU/93hu0gzwdL0g4azaB6+tludIQBKv28zo80yUwuc7bV
-         /wLlRxRObF/x1PzqOTKKtsAnvBkP1Zzhv8KQk0eQ5JwrtNhc2zxAGi3XVWLe4JWvwsPH
-         io4A==
+        bh=n++x1VyupiNA1jLZvucgYL91izWJdNor+dndheNguCo=;
+        b=W9Rx6EozIRNL2uZal/Q25+X+xyX9WQ88IheKymL4vdDvOWHBLHyCkkkDKq/+5tZXh1
+         fY24hvgjUggAzq1XcWKgw3U97gJMnxgmWA9mIU6hGlu0RP+QDyeB2S7ZjDA8p4PVg4Ab
+         PZYvBukK2p5Qqfio/Wj1oiS1+moack1GwTjQ2liT8a2ygSlFANPEZxxGKPyeJIxfDrnT
+         YC83t9RRrUoIBe+BBLSZExpmufDAw/So2rEVMkpHNEnBjqGTnAtheiYwRQHZBtZysBK1
+         3L8EbDc8YyJfLVKPmUctI0TEDv/k8AwEBxmUcTuBTZe/C74vQ5hq7DznahUfvRUYxmbP
+         i8hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691428314; x=1692033114;
+        d=1e100.net; s=20221208; t=1691428315; x=1692033115;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1KhCpc37sMq8hfJahbNI7sAkZNZxhd0cG15a8ZsTo7w=;
-        b=JVolW9NyUux8obmOVL9CVfArQln5TlrqnRkxTlMT48d98/KvFfc+Xs0QTwNE/WvQzi
-         O3cqTTDz1Tjp9h91HuoTDAuNvI1xJVauLg/0YQE/b3M6NJDCzAhTw/7rEaFoI7qSX5lu
-         JHEIp+MULEZskAE8AQbHcsiFsfr72MwhMilYvfHeXKB8Z0ZelSkaPZpiz/+QWHRThzKK
-         xw51z83q4LjOhM/jqlCLu4AHkVCWEdYxyMm0WLQ0ODtZx36dRWGJEyO9tJ/ZLU0yQvkN
-         EU9JYs0FJUXvcHe4smE5MCmkKFDffgZtsEEa0YKYDPBJAepaRIV7RWTwNrCz2cFLkksW
-         C5FA==
-X-Gm-Message-State: AOJu0Ywdf/vB43TOXk0gJ5x21/bqMaaLa4g+7XOXEP7ZVrQcNAXewV+K
-        wVR8bRbL71HuLG6L0GiJYulbVIz0jPONWg==
-X-Google-Smtp-Source: AGHT+IET/AFGK+4+CLYk42xKMODKni6DQCsckrcFGBs624e3hfN1sCJq6kNnpt0/pNFm7ohbZ0kn6Q==
-X-Received: by 2002:a19:6742:0:b0:4fb:7d73:d097 with SMTP id e2-20020a196742000000b004fb7d73d097mr5892482lfj.39.1691428314359;
-        Mon, 07 Aug 2023 10:11:54 -0700 (PDT)
+        bh=n++x1VyupiNA1jLZvucgYL91izWJdNor+dndheNguCo=;
+        b=D5Y9jquOp0qYqJlom1ZzqQvcLZfJBd3nhRWF0y5XzdMX2MsHVWiFaKbgn4NoQmxe4p
+         N1xZvv178Hr+bBzbFSdoYnyQWYo5pB0spqth2ZWoo4BiWsen+tw6qdzXL+532ndiN5E8
+         JO3KuAbgCOt5yNk+XwF6Z1U9ftzeCqKcPcsj5opENpK40eZaQ3AosiCf9IOLRWIRT6Nk
+         16D31IzCUU0Qs8CzL4bdgHPytI+VRvlMw67/tajTCletahGRuxOGqco/+tyHYHMbOBD1
+         LaxE/FNn61Y6TpGf1xXKZFoFAs5r69ZMhwkM9oyfzNo90JyxjlmaMQ/p2GojwHzoHv7K
+         RKvg==
+X-Gm-Message-State: AOJu0YwDBgceInAhiFjABBcskjil11S/SrO2/fwro74zHqOpZ5aSH2+V
+        Q/M8g/iaJOTMnvYEtXMkkBjl5JH7F69t2Q==
+X-Google-Smtp-Source: AGHT+IHUdCLdza+YiraPasZnGbIcTqMVGNbrozQCAkRkbk+2XE5/9GN/9Yb7c6tXyG0rgvi13FHn2g==
+X-Received: by 2002:aa7:da96:0:b0:523:38eb:395f with SMTP id q22-20020aa7da96000000b0052338eb395fmr2338743eds.2.1691428315338;
+        Mon, 07 Aug 2023 10:11:55 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-112-033-028.95.112.pool.telefonica.de. [95.112.33.28])
-        by smtp.gmail.com with ESMTPSA id e10-20020a056402148a00b005224d960e66sm5420814edv.96.2023.08.07.10.11.53
+        by smtp.gmail.com with ESMTPSA id e10-20020a056402148a00b005224d960e66sm5420814edv.96.2023.08.07.10.11.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Aug 2023 10:11:54 -0700 (PDT)
+        Mon, 07 Aug 2023 10:11:55 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "GONG, Ruiqi" <gongruiqi1@huawei.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 4/7] selinux: make left shifts well defined
-Date:   Mon,  7 Aug 2023 19:11:38 +0200
-Message-Id: <20230807171143.208481-3-cgzones@googlemail.com>
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 5/7] selinux: avoid implicit conversions in selinuxfs code
+Date:   Mon,  7 Aug 2023 19:11:39 +0200
+Message-Id: <20230807171143.208481-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230807171143.208481-1-cgzones@googlemail.com>
 References: <20230807171143.208481-1-cgzones@googlemail.com>
@@ -69,59 +68,82 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The loops upper bound represent the number of permissions used (for the
-current class or in general).  The limit for this is 32, thus we might
-left shift of one less, 31.  Shifting a base of 1 results in undefined
-behavior; use (u32)1 as base.
+Use umode_t as parameter type for sel_make_inode(), which assigns the
+value to the member i_mode of struct inode.
+
+Use identical and unsigned types for loop iterators.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v3: split from parent commit and apply cast to correct shift operand
+v3:
+  - drop leftover declaration in init-clauses of for loops
+  - use unsigned int instead of u32 for loop iterator with loop bounds
+    known at compile time to be small (<100)
+v2: avoid declarations in init-clauses of for loops
 ---
- security/selinux/ss/services.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ security/selinux/selinuxfs.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index dacec2ebdcd7..1eeffc66ea7d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -207,22 +207,22 @@ static void map_decision(struct selinux_map *map,
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index b969e87fd870..107b028d5e40 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -97,7 +97,7 @@ static int selinux_fs_info_create(struct super_block *sb)
+ static void selinux_fs_info_free(struct super_block *sb)
+ {
+ 	struct selinux_fs_info *fsi = sb->s_fs_info;
+-	int i;
++	unsigned int i;
  
- 		for (i = 0, result = 0; i < n; i++) {
- 			if (avd->allowed & mapping->perms[i])
--				result |= 1<<i;
-+				result |= (u32)1<<i;
- 			if (allow_unknown && !mapping->perms[i])
--				result |= 1<<i;
-+				result |= (u32)1<<i;
- 		}
- 		avd->allowed = result;
+ 	if (fsi) {
+ 		for (i = 0; i < fsi->bool_num; i++)
+@@ -1075,8 +1075,8 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
+ 	u32 sid, *sids = NULL;
+ 	ssize_t length;
+ 	char *newcon;
+-	int i, rc;
+-	u32 len, nsids;
++	int rc;
++	u32 i, len, nsids;
  
- 		for (i = 0, result = 0; i < n; i++)
- 			if (avd->auditallow & mapping->perms[i])
--				result |= 1<<i;
-+				result |= (u32)1<<i;
- 		avd->auditallow = result;
- 
- 		for (i = 0, result = 0; i < n; i++) {
- 			if (avd->auditdeny & mapping->perms[i])
--				result |= 1<<i;
-+				result |= (u32)1<<i;
- 			if (!allow_unknown && !mapping->perms[i])
--				result |= 1<<i;
-+				result |= (u32)1<<i;
- 		}
- 		/*
- 		 * In case the kernel has a bug and requests a permission
-@@ -230,7 +230,7 @@ static void map_decision(struct selinux_map *map,
- 		 * should audit that denial
- 		 */
- 		for (; i < (sizeof(u32)*8); i++)
--			result |= 1<<i;
-+			result |= (u32)1<<i;
- 		avd->auditdeny = result;
- 	}
+ 	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
+@@ -1192,7 +1192,7 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
+ 	return length;
  }
+ 
+-static struct inode *sel_make_inode(struct super_block *sb, int mode)
++static struct inode *sel_make_inode(struct super_block *sb, umode_t mode)
+ {
+ 	struct inode *ret = new_inode(sb);
+ 
+@@ -1613,7 +1613,7 @@ static int sel_make_avc_files(struct dentry *dir)
+ {
+ 	struct super_block *sb = dir->d_sb;
+ 	struct selinux_fs_info *fsi = sb->s_fs_info;
+-	int i;
++	unsigned int i;
+ 	static const struct tree_descr files[] = {
+ 		{ "cache_threshold",
+ 		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
+@@ -1649,7 +1649,7 @@ static int sel_make_ss_files(struct dentry *dir)
+ {
+ 	struct super_block *sb = dir->d_sb;
+ 	struct selinux_fs_info *fsi = sb->s_fs_info;
+-	int i;
++	unsigned int i;
+ 	static const struct tree_descr files[] = {
+ 		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
+ 	};
+@@ -1700,7 +1700,7 @@ static const struct file_operations sel_initcon_ops = {
+ 
+ static int sel_make_initcon_files(struct dentry *dir)
+ {
+-	int i;
++	unsigned int i;
+ 
+ 	for (i = 1; i <= SECINITSID_NUM; i++) {
+ 		struct inode *inode;
 -- 
 2.40.1
 
