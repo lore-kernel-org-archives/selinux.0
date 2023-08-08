@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB8CEC04A6A
-	for <selinux@archiver.kernel.org>; Tue,  8 Aug 2023 20:03:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FB31C41513
+	for <selinux@archiver.kernel.org>; Tue,  8 Aug 2023 20:45:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233489AbjHHUDs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Aug 2023 16:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
+        id S234079AbjHHUpp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Aug 2023 16:45:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233994AbjHHUDc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 8 Aug 2023 16:03:32 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655C68C09E
-        for <selinux@vger.kernel.org>; Tue,  8 Aug 2023 11:21:10 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id 38308e7fff4ca-2b9db1de50cso92057611fa.3
-        for <selinux@vger.kernel.org>; Tue, 08 Aug 2023 11:21:10 -0700 (PDT)
+        with ESMTP id S234049AbjHHUpd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 8 Aug 2023 16:45:33 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8685533920
+        for <selinux@vger.kernel.org>; Tue,  8 Aug 2023 09:34:16 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id 41be03b00d2f7-517ab9a4a13so4327032a12.1
+        for <selinux@vger.kernel.org>; Tue, 08 Aug 2023 09:34:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691518868; x=1692123668;
+        d=gmail.com; s=20221208; t=1691512428; x=1692117228;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=bP2FjwaN4IGcW4joBs+CLjau9Y+cdOLxKP3zGYTN5qY=;
-        b=nwEma481bjR2dVkvmw3gYcM4OaJZHx6IRoMIB50ZvK8CLaD1WjC6AqxQyLU0mqavvt
-         1ssXv6G89CZdtDO6QpA5oK9SSZ55ZiN/KnTLMGAHpbwAUdi8KqFbM4TNX5qVrHIlMSXK
-         Oc1v2Na/0hLiK2IyvdcYGASsGDC7f6Tr1qHfkyF6SUhTzTYzo3NjJyakw1j3C2KzhlnI
-         JNKvy1xw/+RDSNOWGYJpOl9ghhaWyZ9TmOvA3A99ZazeQ7I047iUYk9Ec+keF1GmNxsZ
-         EI5SJvTq/IFde5IsdlrhiUavpZjnw8qbtaIwxuYe4I+rcHYd8MPg+NaODONqKJcKaJKh
-         HAow==
+        bh=XE/9U5XQqMyn/QRibeavGPD3cYH+oLlR2G3qAXNtjMo=;
+        b=MVYpPwlxsqcPGYocN+lBW1OwjBI6vsc+8rYKA2bRiOYZP7O0gg+APqiVP+bcloiLFP
+         xIjYgBJkm8ZQjWX0XghDZK5pCGzvVF+4n6UeESXqGjkuDD8pzkvQFlzfcEXMFIpF7Nhp
+         xipHB+W1+5sp0LPyevYN9wb+8Xn5IGqFXoh/F1OwQK9VdoFZQRzGJNBH9iwYcsdai7xu
+         PXNCZJBjEBdNb/I70zFAAC677mHLFZ6i03LYlOTDB6izO3/oWvmm5ORYIigkKDEeefFe
+         DjM+MxMM3DNsehy91YCWSebal4Cr+4uLKn5IzhAtU8oPF/ly0wKS6kpgRvoHtq5a++md
+         nT9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691518868; x=1692123668;
+        d=1e100.net; s=20221208; t=1691512428; x=1692117228;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=bP2FjwaN4IGcW4joBs+CLjau9Y+cdOLxKP3zGYTN5qY=;
-        b=Wm3ySURzbbqZr0HGuKzHQKESvIPZtaFrnfW61EHnZfTp8tRoUVo0ozzKo/cAUV3YOt
-         cdwkuSUGWc+vdYtlwrwA8qAbStOwh3YiSqXaHb1uB60jnu1SR6B+M+fEoAeZ0lzct4Lw
-         LyhQdxJ2Lwi1Xq3v70iFMjvDcZmHg8OL4cMOOQnFkxzdiezMnyBgVa8QPNUMexpxjXyp
-         oshgOwISKSLAN2UCRqnn3py8FBORGb5MeyOxc3Hpbx8DTflUvzd9eFPdTjNXmrKTWE2D
-         HRZ+6EiYXtEz/vjlUES4flTI+XtxXNcfL9OEpOyHu4y3ARZoCM3MAgP85otThgPmhTjX
-         gO5w==
-X-Gm-Message-State: AOJu0YyOyoqSHJPXKLPRpsIBtRzt5ZR28BbTT6c1brqF1nxSuWD8Suxv
-        LN1qaaX5lxq3DX0LTaK1VgHDGAAxlgFE29zxNz52P3B29k8=
-X-Google-Smtp-Source: AGHT+IHzd72MXRBUxxu0kGsv897AldAmF82BtYlpnQ8tHDWZm9juAjsfUZUdG08vO7RwYdA5t7BPvhrRtRP5xD4HUx0=
-X-Received: by 2002:a2e:83cd:0:b0:2b4:75f0:b9e9 with SMTP id
- s13-20020a2e83cd000000b002b475f0b9e9mr211628ljh.10.1691518868206; Tue, 08 Aug
- 2023 11:21:08 -0700 (PDT)
+        bh=XE/9U5XQqMyn/QRibeavGPD3cYH+oLlR2G3qAXNtjMo=;
+        b=iwK//h8BYe9NoqU2Mio4Gdof1sJ0kVNXwbNeRpo5btExdz/44Y3f/kjQLs6S0bHqWh
+         Lg1nnsmg/1M15ChJE/ial8NRgNb++A/WDjV5TjrGwMOKJUyHa0OujmolZuZFdr9Rfw7M
+         xDOqY+roAqdy+4w56aY5jxWI0tZKTPxBWfr1J6qSkAYQtum9wIn3JNkIqsIsYpJ73pc/
+         /36hqA8SdlNW+zYz+8Koj6sY6o2h7Hymt+7bxrsuc0INEqM941rOnLkG2OynqDRYNR44
+         oLg9iP5pSaZPABpNF+WMvH5f5br6bXMwOPvrybMPYFBUaeUPm2BS50MfFnuIkoxUSAIG
+         dl/Q==
+X-Gm-Message-State: AOJu0YyT3Ilmm5tiIv06CvIxpK4cSg7fqwlYR8WmRGnUULyoGL6qMTA5
+        8ELSHZPCjKj/iLpchFqRUQKpwszt2CqUNCpdOm/ix719
+X-Google-Smtp-Source: AGHT+IH9TriqlZIGNmQz5LGtfmnOX1+2R6ph0Qp3MeC63fFgD+tz3ls3JknCm9bSHLVuQ3NYX9mQvuLuKr/d5NJJ0xA=
+X-Received: by 2002:a17:90a:9f95:b0:268:565f:44a with SMTP id
+ o21-20020a17090a9f9500b00268565f044amr102191pjp.9.1691512428205; Tue, 08 Aug
+ 2023 09:33:48 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230803162245.302488-1-cgzones@googlemail.com>
-In-Reply-To: <20230803162245.302488-1-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 8 Aug 2023 14:20:56 -0400
-Message-ID: <CAP+JOzSxiGJ2vWC2CHZgKcRXUC0x=LP3OrEHt9O4tLptd1im+A@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: ebitmap: avoid branches for iteration
+References: <20230807180518.223481-1-cgzones@googlemail.com>
+In-Reply-To: <20230807180518.223481-1-cgzones@googlemail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 8 Aug 2023 12:33:37 -0400
+Message-ID: <CAEjxPJ7=zm2_Bky=M9VwFPA70c6HO5bOuc3a01E_UbTmwHwpuQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: use GFP_KERNEL while reading binary policy
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,254 +61,80 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 3, 2023 at 12:36=E2=80=AFPM Christian G=C3=B6ttsche
+On Mon, Aug 7, 2023 at 2:42=E2=80=AFPM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Otherwise Linus might think we don't understand pointers.
+> Use GFP_KERNEL instead of GFP_ATOMIC while reading a binary policy in
+> sens_read() and cat_read(), similar to surrounding code.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Congrats, you found something that appears to have been present since
+before SELinux went into mainline Linux 2.6.0-test3. Going back to my
+old CVS history, it looks like we switched the other allocations from
+GFP_ATOMIC to GFP_KERNEL at a time when all of the MLS-related
+functions were still in mls.c rather than policydb.c, but those didn't
+get updated and were subsequently moved over.
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  libsepol/src/ebitmap.c | 83 +++++++++++++++++++-----------------------
->  1 file changed, 37 insertions(+), 46 deletions(-)
+>  security/selinux/ss/policydb.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 >
-> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-> index 3ec1042f..f166b7d6 100644
-> --- a/libsepol/src/ebitmap.c
-> +++ b/libsepol/src/ebitmap.c
-> @@ -18,13 +18,13 @@
->  int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * =
-e2)
->  {
->         const ebitmap_node_t *n1, *n2;
-> -       ebitmap_node_t *new, *prev;
-> +       ebitmap_node_t *new =3D NULL, **prev;
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
+b.c
+> index a424997c79eb..bb850b608dc6 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1597,7 +1597,7 @@ static int sens_read(struct policydb *p, struct sym=
+tab *s, void *fp)
+>         __le32 buf[2];
+>         u32 len;
 >
->         ebitmap_init(dst);
+> -       levdatum =3D kzalloc(sizeof(*levdatum), GFP_ATOMIC);
+> +       levdatum =3D kzalloc(sizeof(*levdatum), GFP_KERNEL);
+>         if (!levdatum)
+>                 return -ENOMEM;
 >
-> +       prev =3D &dst->node;
->         n1 =3D e1->node;
->         n2 =3D e2->node;
-> -       prev =3D 0;
->         while (n1 || n2) {
->                 new =3D (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t))=
+> @@ -1608,12 +1608,12 @@ static int sens_read(struct policydb *p, struct s=
+ymtab *s, void *fp)
+>         len =3D le32_to_cpu(buf[0]);
+>         levdatum->isalias =3D le32_to_cpu(buf[1]);
+>
+> -       rc =3D str_read(&key, GFP_ATOMIC, fp, len);
+> +       rc =3D str_read(&key, GFP_KERNEL, fp, len);
+>         if (rc)
+>                 goto bad;
+>
+>         rc =3D -ENOMEM;
+> -       levdatum->level =3D kmalloc(sizeof(*levdatum->level), GFP_ATOMIC)=
 ;
->                 if (!new) {
-> @@ -46,12 +46,10 @@ int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1,=
- const ebitmap_t * e2)
->                         n2 =3D n2->next;
->                 }
->
-> -               new->next =3D 0;
-> -               if (prev)
-> -                       prev->next =3D new;
-> -               else
-> -                       dst->node =3D new;
-> -               prev =3D new;
-> +               new->next =3D NULL;
-> +
-> +               *prev =3D new;
-> +               prev =3D &new->next;
->         }
->
->         dst->highbit =3D (e1->highbit > e2->highbit) ? e1->highbit : e2->=
-highbit;
-> @@ -74,10 +72,11 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * =
-e1)
->  int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2=
-)
->  {
->         const ebitmap_node_t *n1, *n2;
-> -       ebitmap_node_t *new, *prev =3D NULL;
-> +       ebitmap_node_t *new =3D NULL, **prev;
->
->         ebitmap_init(dst);
->
-> +       prev =3D &dst->node;
->         n1 =3D e1->node;
->         n2 =3D e2->node;
->         while (n1 && n2) {
-> @@ -92,11 +91,8 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, c=
-onst ebitmap_t *e2)
->                                 new->map =3D n1->map & n2->map;
->                                 new->next =3D NULL;
->
-> -                               if (prev)
-> -                                       prev->next =3D new;
-> -                               else
-> -                                       dst->node =3D new;
-> -                               prev =3D new;
-> +                               *prev =3D new;
-> +                               prev =3D &new->next;
->                         }
->
->                         n1 =3D n1->next;
-> @@ -108,8 +104,8 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, =
-const ebitmap_t *e2)
->                 }
->         }
->
-> -       if (prev)
-> -               dst->highbit =3D prev->startbit + MAPSIZE;
-> +       if (new)
-> +               dst->highbit =3D new->startbit + MAPSIZE;
->
->         return 0;
->  }
-> @@ -117,12 +113,13 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1=
-, const ebitmap_t *e2)
->  int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *e2=
-)
->  {
->         const ebitmap_node_t *n1, *n2;
-> -       ebitmap_node_t *new, *prev =3D NULL;
-> +       ebitmap_node_t *new =3D NULL, **prev;
->         uint32_t startbit;
->         MAPTYPE map;
->
->         ebitmap_init(dst);
->
-> +       prev =3D &dst->node;
->         n1 =3D e1->node;
->         n2 =3D e2->node;
->         while (n1 || n2) {
-> @@ -150,16 +147,14 @@ int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1=
-, const ebitmap_t *e2)
->                         new->startbit =3D startbit;
->                         new->map =3D map;
->                         new->next =3D NULL;
-> -                       if (prev)
-> -                               prev->next =3D new;
-> -                       else
-> -                               dst->node =3D new;
-> -                       prev =3D new;
-> +
-> +                       *prev =3D new;
-> +                       prev =3D &new->next;
->                 }
->         }
->
-> -       if (prev)
-> -               dst->highbit =3D prev->startbit + MAPSIZE;
-> +       if (new)
-> +               dst->highbit =3D new->startbit + MAPSIZE;
->
->         return 0;
->  }
-> @@ -167,12 +162,13 @@ int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1=
-, const ebitmap_t *e2)
->  int ebitmap_not(ebitmap_t *dst, const ebitmap_t *e1, unsigned int maxbit=
-)
->  {
->         const ebitmap_node_t *n;
-> -       ebitmap_node_t *new, *prev =3D NULL;
-> +       ebitmap_node_t *new =3D NULL, **prev;
->         uint32_t startbit, cur_startbit;
->         MAPTYPE map;
->
->         ebitmap_init(dst);
->
-> +       prev =3D &dst->node;
->         n =3D e1->node;
->         for (cur_startbit =3D 0; cur_startbit < maxbit; cur_startbit +=3D=
- MAPSIZE) {
->                 if (n && n->startbit =3D=3D cur_startbit) {
-> @@ -199,16 +195,13 @@ int ebitmap_not(ebitmap_t *dst, const ebitmap_t *e1=
-, unsigned int maxbit)
->                         new->map =3D map;
->                         new->next =3D NULL;
->
-> -                       if (prev)
-> -                               prev->next =3D new;
-> -                       else
-> -                               dst->node =3D new;
-> -                       prev =3D new;
-> +                       *prev =3D new;
-> +                       prev =3D &new->next;
->                 }
->         }
->
-> -       if (prev)
-> -               dst->highbit =3D prev->startbit + MAPSIZE;
-> +       if (new)
-> +               dst->highbit =3D new->startbit + MAPSIZE;
->
->         return 0;
->  }
-> @@ -278,11 +271,11 @@ int ebitmap_cmp(const ebitmap_t * e1, const ebitmap=
-_t * e2)
->  int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src)
->  {
->         const ebitmap_node_t *n;
-> -       ebitmap_node_t *new, *prev;
-> +       ebitmap_node_t *new =3D NULL, **prev;
->
->         ebitmap_init(dst);
->         n =3D src->node;
-> -       prev =3D 0;
-> +       prev =3D &dst->node;
->         while (n) {
->                 new =3D (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t))=
+> +       levdatum->level =3D kmalloc(sizeof(*levdatum->level), GFP_KERNEL)=
 ;
->                 if (!new) {
-> @@ -291,12 +284,11 @@ int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * =
-src)
->                 }
->                 new->startbit =3D n->startbit;
->                 new->map =3D n->map;
-> -               new->next =3D 0;
-> -               if (prev)
-> -                       prev->next =3D new;
-> -               else
-> -                       dst->node =3D new;
-> -               prev =3D new;
-> +               new->next =3D NULL;
-> +
-> +               *prev =3D new;
-> +               prev =3D &new->next;
-> +
->                 n =3D n->next;
->         }
+>         if (!levdatum->level)
+>                 goto bad;
 >
-> @@ -450,7 +442,7 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, =
-int value)
+> @@ -1638,7 +1638,7 @@ static int cat_read(struct policydb *p, struct symt=
+ab *s, void *fp)
+>         __le32 buf[3];
+>         u32 len;
 >
->  int ebitmap_init_range(ebitmap_t * e, unsigned int minbit, unsigned int =
-maxbit)
->  {
-> -       ebitmap_node_t *new, *prev =3D NULL;
-> +       ebitmap_node_t *new =3D NULL, **prev;
->         uint32_t minstartbit =3D minbit & ~(MAPSIZE - 1);
->         uint32_t maxstartbit =3D maxbit & ~(MAPSIZE - 1);
->         uint32_t minhighbit =3D minstartbit + MAPSIZE;
-> @@ -466,6 +458,8 @@ int ebitmap_init_range(ebitmap_t * e, unsigned int mi=
-nbit, unsigned int maxbit)
->         if (minhighbit =3D=3D 0 || maxhighbit =3D=3D 0)
->                 return -EOVERFLOW;
+> -       catdatum =3D kzalloc(sizeof(*catdatum), GFP_ATOMIC);
+> +       catdatum =3D kzalloc(sizeof(*catdatum), GFP_KERNEL);
+>         if (!catdatum)
+>                 return -ENOMEM;
 >
-> +       prev =3D &e->node;
-> +
->         for (startbit =3D minstartbit; startbit <=3D maxstartbit; startbi=
-t +=3D MAPSIZE) {
->                 new =3D malloc(sizeof(ebitmap_node_t));
->                 if (!new)
-> @@ -485,11 +479,8 @@ int ebitmap_init_range(ebitmap_t * e, unsigned int m=
-inbit, unsigned int maxbit)
->                         new->map =3D (mask << (minbit - startbit));
->                 }
+> @@ -1650,7 +1650,7 @@ static int cat_read(struct policydb *p, struct symt=
+ab *s, void *fp)
+>         catdatum->value =3D le32_to_cpu(buf[1]);
+>         catdatum->isalias =3D le32_to_cpu(buf[2]);
 >
-> -               if (prev)
-> -                       prev->next =3D new;
-> -               else
-> -                       e->node =3D new;
-> -               prev =3D new;
-> +               *prev =3D new;
-> +               prev =3D &new->next;
->         }
+> -       rc =3D str_read(&key, GFP_ATOMIC, fp, len);
+> +       rc =3D str_read(&key, GFP_KERNEL, fp, len);
+>         if (rc)
+>                 goto bad;
 >
->         e->highbit =3D maxhighbit;
 > --
 > 2.40.1
 >
