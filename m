@@ -2,65 +2,65 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61C99C04FE2
-	for <selinux@archiver.kernel.org>; Wed,  9 Aug 2023 16:31:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F2C7C04A94
+	for <selinux@archiver.kernel.org>; Wed,  9 Aug 2023 16:31:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230426AbjHIQbP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Aug 2023 12:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40748 "EHLO
+        id S230469AbjHIQbQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Aug 2023 12:31:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230493AbjHIQbM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Aug 2023 12:31:12 -0400
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CCF21FF9
-        for <selinux@vger.kernel.org>; Wed,  9 Aug 2023 09:31:10 -0700 (PDT)
-Received: by mail-oi1-x232.google.com with SMTP id 5614622812f47-3a426e70575so4153294b6e.0
-        for <selinux@vger.kernel.org>; Wed, 09 Aug 2023 09:31:10 -0700 (PDT)
+        with ESMTP id S230368AbjHIQbP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Aug 2023 12:31:15 -0400
+Received: from mail-vk1-xa36.google.com (mail-vk1-xa36.google.com [IPv6:2607:f8b0:4864:20::a36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4022E1BFE
+        for <selinux@vger.kernel.org>; Wed,  9 Aug 2023 09:31:14 -0700 (PDT)
+Received: by mail-vk1-xa36.google.com with SMTP id 71dfb90a1353d-48719fc6b18so12117e0c.1
+        for <selinux@vger.kernel.org>; Wed, 09 Aug 2023 09:31:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691598669; x=1692203469;
+        d=gmail.com; s=20221208; t=1691598673; x=1692203473;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=chHhdLscKETf/Gevo28yCeGUdA/NXCmqf9Ulries4zE=;
-        b=csXTtzGL4pJlzlqwVEOz14Mxte/kv47rjYmHkIKYrd0l48Qj5o5jKyyKXWq5+JBW8u
-         63xZggUBPG6vA2ILDwKAZvStHrGpYtlGLuAGBgr91qUPBd/fHyW+pk9bqHEWAa0zr4Sy
-         jFK44z6+6gH/8WmA04dqO8MGxbPgBahmgw1ReRXKQyN6+ZVEsOkEne/SU+L0nfMjeZ5p
-         nsaX103tL3Z3GyLlsWGpH7jHha7Fps9NNX0SeQ1EEhNFVLg1wnVT3vDeNytjIrQEn2M6
-         XYKlEBi2NuDA1gaEIvr4KfSNL3QuZ1WNMnVIjHYMT/mrgVhkpdpdnXAUf/M0ncp1Xm53
-         nzyA==
+        bh=//TQINjJX2PICywLpObgoGGAix8Mp5Lz3WYe+ZbbLJI=;
+        b=Q8nvdejHxrFTBx9h+1+pqV9Z0q20604NWRK8hHvmu+nqnkJdLBP6IHaKPLGM2HNAGW
+         u+kADGr1BgE2DB+ZlWQQ+/Xzkk/7nr54zsey3OQec/IlynbCnwbLqgwmcuoc5/VQ/eWR
+         5BJOoLbGP9jurpynSF6IMwnAjCBFBtbg62UtIJTNOlKBBfeoLD+/keGYuGyYmaN+NbIs
+         s//pozhQ0FmSx4+tTYwC/XRy20UUGR1qFxtoMptOGJU9n7jVb4XGUXOg/1zl71DC5KtV
+         u6Z6DR5uS4PL+mRt0WHG29DtwUxNevr3zcQpjZ8B2QptR76aNIw+2LG1mckffo7zrp3y
+         z9bg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691598669; x=1692203469;
+        d=1e100.net; s=20221208; t=1691598673; x=1692203473;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=chHhdLscKETf/Gevo28yCeGUdA/NXCmqf9Ulries4zE=;
-        b=cQW+gcP8K1XxuAHzaQ3LcjNtRbu6OHEaPIu4nMk91kYWzPlvTXhBYgIbUMCilzicvC
-         NJW6vSrKKZMD5W2xxvwwwN+6EvSMpWv3JVoUaIcK8sQJP6SqZDE4lBsyHBwtjh6TWhR9
-         CVUTZgD+0jivF+l0nZ9VRa4YwSq0N/n6rj6ZBeOk2xxaJ7jA4S/F1RFWhgK/DraCIZ2V
-         KbqevJWUO1ZtthrIJwK+MBayLqOaBPDAK6HYDgHpHe3dnXuCXYT8TiDy4uFkjrNpWrFD
-         F6fIX/m0xlkX8gFT4e9q8g2KLPeKSkRgJRoxSYvzP6qXsbW7YytgrGbf1UE6t++I3Eil
-         XNDA==
-X-Gm-Message-State: AOJu0Yyv7SuxqLBqfTTOlosAFSO1q+NXFIbbat5TkPZSrbLQzsU+CVDA
-        QloiC6eaqy4A4/9vJ9tbK+fQUpGGF+w=
-X-Google-Smtp-Source: AGHT+IFgt5KfosrnEtkXOoP3Otyeg0zrzbK1vlJBZdH7xb4Nq+dKepezcwu6P/Jne0ixbLzrRxI5ng==
-X-Received: by 2002:a05:6808:a1c:b0:3a7:72e2:f6be with SMTP id n28-20020a0568080a1c00b003a772e2f6bemr3016461oij.2.1691598669041;
-        Wed, 09 Aug 2023 09:31:09 -0700 (PDT)
+        bh=//TQINjJX2PICywLpObgoGGAix8Mp5Lz3WYe+ZbbLJI=;
+        b=VPOIl7Qfu1JTM1ky41R2pSQ5lHOwcwQ64qXEsG9VNSjwIXV3XIGRfpKsm7EeuhMaJ0
+         C5Of+bRJAcsCf1zQvLFRGD2VvisK3/fhKj4rrdtylpCPWghRRcJoHIpAS7w1eJYS5oX9
+         u2m24s54bvmk+W3lNtRJD4A8xqmtYBLGlyHXlDeO9oYnhVjG4s1oiNzcU5BcuArqJXya
+         Lmmd2QVb7zTz88yZJ+jrgvMMIUYRXajsf2FIrGudk6C81aDvd9Vsm0ngMNsv45jzuWLE
+         GNg4XpEf5UW+ckDAa8ZURPF1qP0y1SuW3I0k4rDdtF1194DnmiGLinYuHN6yxQBhNgrg
+         rs4w==
+X-Gm-Message-State: AOJu0YzTUnjFOfJ6/ABT6g/rm0p8iPTMr17RKIkzJ9IIHlRG3U74jwAq
+        LK0ybMs6E5k3wrMp69GCXGbfRQUwsdQ=
+X-Google-Smtp-Source: AGHT+IFk194noDFfcFZPEMgWS2z+LpUig46eVMLCWYl73eqUXPCe5JJvuakndt+gJ6V0UVmZK1pbYQ==
+X-Received: by 2002:a1f:41c9:0:b0:487:16e2:b653 with SMTP id o192-20020a1f41c9000000b0048716e2b653mr4024431vka.13.1691598672729;
+        Wed, 09 Aug 2023 09:31:12 -0700 (PDT)
 Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
-        by smtp.gmail.com with ESMTPSA id l7-20020a0ce507000000b0063d2ea55018sm4609570qvm.125.2023.08.09.09.31.08
+        by smtp.gmail.com with ESMTPSA id l7-20020a0ce507000000b0063d2ea55018sm4609570qvm.125.2023.08.09.09.31.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Aug 2023 09:31:08 -0700 (PDT)
+        Wed, 09 Aug 2023 09:31:12 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     plautrba@redhat.com, James Carter <jwcart2@gmail.com>
-Subject: [PATCH 07/12] mcstrans: Remove the Russian translations
-Date:   Wed,  9 Aug 2023 12:30:52 -0400
-Message-ID: <20230809163059.97671-7-jwcart2@gmail.com>
+Subject: [PATCH 11/12] sandbox: Remove the Russian translations
+Date:   Wed,  9 Aug 2023 12:30:56 -0400
+Message-ID: <20230809163059.97671-11-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230809163059.97671-1-jwcart2@gmail.com>
 References: <20230809163059.97671-1-jwcart2@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
@@ -71,494 +71,216 @@ date, so remove them.
 Suggested-by: Petr Lautrbach <plautrba@redhat.com>
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- mcstrans/man/ru/man5/setrans.conf.5 | 106 ----------------------------
- mcstrans/man/ru/man8/mcs.8          |  24 -------
- mcstrans/man/ru/man8/mcstransd.8    |  32 ---------
- 3 files changed, 162 deletions(-)
- delete mode 100644 mcstrans/man/ru/man5/setrans.conf.5
- delete mode 100644 mcstrans/man/ru/man8/mcs.8
- delete mode 100644 mcstrans/man/ru/man8/mcstransd.8
+ sandbox/ru/sandbox.5   |  42 -----------------
+ sandbox/ru/sandbox.8   | 100 -----------------------------------------
+ sandbox/ru/seunshare.8 |  42 -----------------
+ 3 files changed, 184 deletions(-)
+ delete mode 100644 sandbox/ru/sandbox.5
+ delete mode 100644 sandbox/ru/sandbox.8
+ delete mode 100644 sandbox/ru/seunshare.8
 
-diff --git a/mcstrans/man/ru/man5/setrans.conf.5 b/mcstrans/man/ru/man5/set=
-rans.conf.5
+diff --git a/sandbox/ru/sandbox.5 b/sandbox/ru/sandbox.5
 deleted file mode 100644
-index 724b206b..00000000
---- a/mcstrans/man/ru/man5/setrans.conf.5
+index 69e822d8..00000000
+--- a/sandbox/ru/sandbox.5
 +++ /dev/null
-@@ -1,106 +0,0 @@
--.TH "setrans.conf" "5" "13 =D0=B8=D1=8E=D0=BB=D1=8F 2010" "txtoth@gmail.co=
-m" "=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=D1=86=D0=B8=D1=
-=8F =D0=BF=D0=BE setrans.conf"
--.SH "=D0=98=D0=9C=D0=AF"
--setrans.conf \- =D1=84=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=
-=B3=D1=83=D1=80=D0=B0=D1=86=D0=B8=D0=B8 =D0=BF=D1=80=D0=B5=D0=BE=D0=B1=D1=
-=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D1=8F =D0=B4=D0=BB=D1=8F =D1=
-=81=D0=B8=D1=81=D1=82=D0=B5=D0=BC MCS/MLS SELinux
+@@ -1,42 +0,0 @@
+-.TH sandbox.conf "5" "Июнь 2010" "sandbox.conf" "Администрирование системы Linux"
+-.SH ИМЯ
+-sandbox.conf \- файл конфигурации пользователей для изолированной среды SELinux
+-.SH ОПИСАНИЕ
+-.PP
+-Если изолированная среда запускается с аргументом -C, она будет ограничена с помощью групп управления. Системный администратор может указать, как именно ограничить изолированную среду.
 -
--.SH "=D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95"
--=D0=A4=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B3=D1=83=D1=80=
-=D0=B0=D1=86=D0=B8=D0=B8
--.I /etc/selinux/{SELINUXTYPE}/setrans.conf
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D1=81=D0=BF=
-=D0=BE=D1=81=D0=BE=D0=B1, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=BC =D0=BC=
-=D0=B5=D1=82=D0=BA=D0=B8 SELinux MCS/MLS =D0=BF=D1=80=D0=B5=D0=BE=D0=B1=D1=
-=80=D0=B0=D0=B7=D0=BE=D0=B2=D1=8B=D0=B2=D0=B0=D1=8E=D1=82=D1=81=D1=8F =D0=
-=B2 =D1=83=D0=B4=D0=BE=D0=B1=D0=BD=D1=83=D1=8E =D0=B4=D0=BB=D1=8F =D0=BF=D1=
-=80=D0=BE=D1=87=D1=82=D0=B5=D0=BD=D0=B8=D1=8F =D1=87=D0=B5=D0=BB=D0=BE=D0=
-=B2=D0=B5=D0=BA=D0=BE=D0=BC =D1=84=D0=BE=D1=80=D0=BC=D1=83 =D1=81 =D0=BF=D0=
-=BE=D0=BC=D0=BE=D1=89=D1=8C=D1=8E =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B5=D0=
-=BD=D0=BD=D0=B5=D0=B9 =D1=81=D0=BB=D1=83=D0=B6=D0=B1=D1=8B mcstransd. =D0=
-=9F=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 =D0=BF=D0=BE =D1=83=D0=BC=D0=
-=BE=D0=BB=D1=87=D0=B0=D0=BD=D0=B8=D1=8E =D0=BF=D0=BE=D0=B4=D0=B4=D0=B5=D1=
-=80=D0=B6=D0=B8=D0=B2=D0=B0=D1=8E=D1=82 16 =D1=83=D1=80=D0=BE=D0=B2=D0=BD=
-=D0=B5=D0=B9 =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=D0=BD=D1=86=D0=B8=
-=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8 (=D0=BE=D1=82 s0 =D0=B4=D0=
-=BE s15) =D0=B8 1024 =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B8=
- (=D0=BE=D1=82 c0 =D0=B4=D0=BE c1023). =D0=95=D1=81=D0=BB=D0=B8 =D0=BA=D0=
-=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 =D0=BD=D0=B5=D1=81=D0=BA=D0=
-=BE=D0=BB=D1=8C=D0=BA=D0=BE, =D0=B8=D1=85 =D0=BC=D0=BE=D0=B6=D0=BD=D0=BE =
-=D1=80=D0=B0=D0=B7=D0=B4=D0=B5=D0=BB=D0=B8=D1=82=D1=8C =D0=B7=D0=B0=D0=BF=
-=D1=8F=D1=82=D1=8B=D0=BC=D0=B8 (c0,c1,c3,c5), =D0=B0 =D0=B4=D0=B8=D0=B0=D0=
-=BF=D0=B0=D0=B7=D0=BE=D0=BD =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=
-=B8=D0=B9 - =D1=81=D0=BE=D0=BA=D1=80=D0=B0=D1=82=D0=B8=D1=82=D1=8C =D1=81 =
-=D0=BF=D0=BE=D0=BC=D0=BE=D1=89=D1=8C=D1=8E =D1=83=D0=BA=D0=B0=D0=B7=D0=B0=
-=D0=BD=D0=B8=D1=8F =D1=87=D0=B5=D1=80=D0=B5=D0=B7 =D1=82=D0=BE=D1=87=D0=BA=
-=D1=83 (c0.c3,c5).
+-.PP
+-Весь текст после "#" игнорируется, как и пустые строки. Все аргументы должны быть разделены пробелами и иметь знаки равенства ("=").
 -
--.SS "=D0=9A=D0=BB=D1=8E=D1=87=D0=B5=D0=B2=D1=8B=D0=B5 =D1=81=D0=BB=D0=BE=
-=D0=B2=D0=B0"
+-.PP
+-Эти ключевые слова разрешены.
+-
+-.RS
+-.TP
+-.B NAME
+-Имя группы управления изолированной средой.  По умолчанию: "sandbox".
 -
 -.TP
--Base\fR
--=D0=BA=D0=BE=D0=B3=D0=B4=D0=B0 =D0=BE=D0=B1=D1=8A=D1=8F=D0=B2=D0=BB=D1=8F=
-=D0=B5=D1=82=D1=81=D1=8F =D0=B1=D0=B0=D0=B7=D0=B0, =D0=BA=D0=BE =D0=B2=D1=
-=81=D0=B5=D0=BC =D0=BF=D0=BE=D1=81=D0=BB=D0=B5=D0=B4=D1=83=D1=8E=D1=89=D0=
-=B8=D0=BC =D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D0=B5=D0=BD=D0=B8=D1=
-=8F=D0=BC =D0=BC=D0=B5=D1=82=D0=BE=D0=BA =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=
-=B4=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8=
- =D0=B1=D1=83=D0=B4=D1=83=D1=82 =D0=BF=D1=80=D0=B8 =D0=BF=D1=80=D0=B5=D0=BE=
-=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B8 =D0=BF=D1=80=
-=D0=B8=D0=BC=D0=B5=D0=BD=D1=8F=D1=82=D1=8C=D1=81=D1=8F =D0=BC=D0=BE=D0=B4=
-=D0=B8=D1=84=D0=B8=D0=BA=D0=B0=D1=82=D0=BE=D1=80=D1=8B.
--=D0=9C=D0=B5=D1=82=D0=BA=D0=B8 =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=
-=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8, =D0=BA=
-=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=B5 =D0=B1=D1=8B=D0=BB=D0=B8 =D0=BE=D0=BF=
-=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D0=B5=D0=BD=D1=8B =D0=B4=D0=BE =D0=BE=D0=B1=
-=D1=8A=D1=8F=D0=B2=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F =D0=B1=D0=B0=D0=B7=D1=8B, =
-=D0=BD=D0=B5=D0=B7=D0=B0=D0=BC=D0=B5=D0=B4=D0=BB=D0=B8=D1=82=D0=B5=D0=BB=D1=
-=8C=D0=BD=D0=BE =D0=BA=D1=8D=D1=88=D0=B8=D1=80=D1=83=D1=8E=D1=82=D1=81=D1=
-=8F, =D0=B8 =D0=BA =D0=BD=D0=B8=D0=BC =D0=BD=D0=B5 =D0=BF=D1=80=D0=B8=D0=BC=
-=D0=B5=D0=BD=D1=8F=D1=8E=D1=82=D1=81=D1=8F =D0=BC=D0=BE=D0=B4=D0=B8=D1=84=
-=D0=B8=D0=BA=D0=B0=D1=82=D0=BE=D1=80=D1=8B; =D0=BE=D0=BD=D0=B8 =D0=B8=D1=81=
-=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D1=83=D1=8E=D1=82=D1=81=D1=8F =D0=B2 =D0=BA=
-=D0=B0=D1=87=D0=B5=D1=81=D1=82=D0=B2=D0=B5 =D0=BF=D1=80=D1=8F=D0=BC=D0=BE=
-=D0=B3=D0=BE =D0=BF=D1=80=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=
-=D0=B0=D0=BD=D0=B8=D1=8F.=20
+-.B CPUAFFINITY
+-Определяет, каким процессорам назначить изолированную среду. По умолчанию она назначается всем процессорам (ALL), но пользователи могут указать разделённый запятыми список с дефисами ("-"), чтобы представить диапазоны. Пример: 0-2,5
 -
 -.TP
--Default\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=B1=D0=B8=
-=D1=82=D0=BE=D0=B2=D1=8B=D0=B9 =D0=B4=D0=B8=D0=B0=D0=BF=D0=B0=D0=B7=D0=BE=
-=D0=BD =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9, =D0=BA=D0=BE=
-=D1=82=D0=BE=D1=80=D1=8B=D0=B9 =D0=B1=D1=83=D0=B4=D0=B5=D1=82 =D0=B8=D1=81=
-=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D1=8C=D1=81=D1=8F =
-=D0=B4=D0=BB=D1=8F =D0=BE=D0=B1=D1=80=D0=B0=D1=82=D0=BD=D1=8B=D1=85 =D0=B1=
-=D0=B8=D1=82=D0=BE=D0=B2.
+-.B MEMUSAGE
+-Определяет, сколько памяти разрешается использовать изолированной среде. Значение по умолчанию: 80%. Пользователи могут указать либо процентное значение, либо значение в виде числа, за которым следует суффикс  K, M, G, для соответствующего обозначения килобайтов, мегабайтов или гигабайтов. Пример: 50% или 100M
 -
 -.TP
--Domain\fR
--=D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D1=91=D1=82 =D0=BD=D0=BE=D0=B2=D1=8B=D0=B9 =
-=D0=B4=D0=BE=D0=BC=D0=B5=D0=BD =D1=81 =D1=83=D0=BA=D0=B0=D0=B7=D0=B0=D0=BD=
-=D0=BD=D1=8B=D0=BC =D0=B8=D0=BC=D0=B5=D0=BD=D0=B5=D0=BC.
+-.B CPUUSAGE
+-Процент использования ЦП, разрешённый для изолированной среды. По умолчанию: 80%. Укажите значение, за которым следует знак процента ("%"). Пример: 50%
 -
+-
+-
+-.SH "СМОТРИТЕ ТАКЖЕ"
 -.TP
--Include\fR
--=D0=BF=D1=80=D0=BE=D1=87=D0=B8=D1=82=D0=B0=D1=82=D1=8C =D0=B8 =D0=BE=D0=B1=
-=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=B0=D1=82=D1=8C =D1=81=D0=BE=D0=B4=D0=B5=
-=D1=80=D0=B6=D0=B8=D0=BC=D0=BE=D0=B5 =D1=83=D0=BA=D0=B0=D0=B7=D0=B0=D0=BD=
-=D0=BD=D0=BE=D0=B3=D0=BE =D1=84=D0=B0=D0=B9=D0=BB=D0=B0 =D0=BA=D0=BE=D0=BD=
-=D1=84=D0=B8=D0=B3=D1=83=D1=80=D0=B0=D1=86=D0=B8=D0=B8.
+-sandbox(8)
+-.PP
 -
--.TP
--Join\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D1=81=D0=B8=
-=D0=BC=D0=B2=D0=BE=D0=BB, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=B9 =D0=B8=
-=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D1=83=D0=B5=D1=82=D1=81=D1=8F =D0=B4=
-=D0=BB=D1=8F =D1=80=D0=B0=D0=B7=D0=B4=D0=B5=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F =
-=D1=83=D1=87=D0=B0=D1=81=D1=82=D0=BD=D0=B8=D0=BA=D0=BE=D0=B2 =D0=B3=D1=80=
-=D1=83=D0=BF=D0=BF=D1=8B =D0=BC=D0=BE=D0=B4=D0=B8=D1=84=D0=B8=D0=BA=D0=B0=
-=D1=82=D0=BE=D1=80=D0=BE=D0=B2, =D0=BA=D0=BE=D0=B3=D0=B4=D0=B0 =D1=83=D0=BA=
-=D0=B0=D0=B7=D0=B0=D0=BD=D0=BE =D0=B1=D0=BE=D0=BB=D0=B5=D0=B5 =D0=BE=D0=B4=
-=D0=BD=D0=BE=D0=B3=D0=BE (=D0=BD=D0=B0=D0=BF=D1=80=D0=B8=D0=BC=D0=B5=D1=80,=
- USA/AUS).
+-.SH АВТОРЫ
+-Эта страница руководства была написана
+-.I Thomas Liu <tliu@fedoraproject.org>.
+-Перевод на русский язык выполнила
+-.I Герасименко Олеся <gammaray@basealt.ru>.
+diff --git a/sandbox/ru/sandbox.8 b/sandbox/ru/sandbox.8
+deleted file mode 100644
+index 5e6e0aad..00000000
+--- a/sandbox/ru/sandbox.8
++++ /dev/null
+@@ -1,100 +0,0 @@
+-.TH SANDBOX "8" "Май 2010" "sandbox" "Команды пользователя"
+-.SH ИМЯ
+-sandbox \- выполнить приложение cmd в изолированной среде SELinux
+-.SH ОБЗОР
+-.B sandbox
+-[\-C] [\-s] [ \-d DPI ] [\-l level ] [[\-M | \-X]  \-H homedir \-T tempdir ] [\-I includefile ] [ \-W windowmanager ] [ \-w windowsize ] [[\-i file ]...] [ \-t type ] cmd
 -
--.TP
--ModifierGroup\fR
--=D1=81=D1=80=D0=B5=D0=B4=D1=81=D1=82=D0=B2=D0=BE =D0=B3=D1=80=D1=83=D0=BF=
-=D0=BF=D0=B8=D1=80=D0=BE=D0=B2=D0=BA=D0=B8 =D0=B1=D0=B8=D1=82=D0=BE=D0=B2=
-=D1=8B=D1=85 =D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D0=B5=D0=BD=D0=B8=
-=D0=B9 =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 =D0=BF=D0=BE =
-=D1=82=D0=BE=D0=BC=D1=83, =D0=BA=D0=B0=D0=BA =D0=BE=D0=BD=D0=B8 =D0=B8=D0=
-=B7=D0=BC=D0=B5=D0=BD=D1=8F=D1=8E=D1=82 =D0=BC=D0=B5=D1=82=D0=BA=D1=83 =D0=
-=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=
-=D0=BD=D0=BE=D1=81=D1=82=D0=B8.
--
--.TP
--Prefix\fR
--=D1=81=D0=BB=D0=BE=D0=B2=D0=B0 (=D1=81=D0=BB=D0=BE=D0=B2=D0=B0), =D0=BA=D0=
-=BE=D1=82=D0=BE=D1=80=D0=BE=D0=B5 =D0=BC=D0=BE=D0=B6=D0=B5=D1=82 =D0=BF=D1=
-=80=D0=B5=D0=B4=D1=88=D0=B5=D1=81=D1=82=D0=B2=D0=BE=D0=B2=D0=B0=D1=82=D1=8C=
- =D1=83=D1=87=D0=B0=D1=81=D1=82=D0=BD=D0=B8=D0=BA=D1=83 (=D1=83=D1=87=D0=B0=
-=D1=81=D1=82=D0=BD=D0=B8=D0=BA=D0=B0=D0=BC) =D0=B3=D1=80=D1=83=D0=BF=D0=BF=
-=D1=8B =D0=BC=D0=BE=D0=B4=D0=B8=D1=84=D0=B8=D0=BA=D0=B0=D1=82=D0=BE=D1=80=
-=D0=BE=D0=B2 (=D0=BD=D0=B0=D0=BF=D1=80=D0=B8=D0=BC=D0=B5=D1=80, REL USA).
--
--.TP
--Suffix\fR
--=D1=81=D0=BB=D0=BE=D0=B2=D0=BE (=D1=81=D0=BB=D0=BE=D0=B2=D0=B0), =D0=BA=D0=
-=BE=D1=82=D0=BE=D1=80=D0=BE=D0=B5 =D0=BC=D0=BE=D0=B6=D0=B5=D1=82 =D1=81=D0=
-=BB=D0=B5=D0=B4=D0=BE=D0=B2=D0=B0=D1=82=D1=8C =D0=B7=D0=B0 =D1=83=D1=87=D0=
-=B0=D1=81=D1=82=D0=BD=D0=B8=D0=BA=D0=BE=D0=BC (=D1=83=D1=87=D0=B0=D1=81=D1=
-=82=D0=BD=D0=B8=D0=BA=D0=B0=D0=BC=D0=B8) =D0=B3=D1=80=D1=83=D0=BF=D0=BF=D1=
-=8B =D0=BC=D0=BE=D0=B4=D0=B8=D1=84=D0=B8=D0=BA=D0=B0=D1=82=D0=BE=D1=80=D0=
-=BE=D0=B2 (=D0=BD=D0=B0=D0=BF=D1=80=D0=B8=D0=BC=D0=B5=D1=80, USA EYES ONLY).
--
--.TP
--Whitespace\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BD=D0=B0=
-=D0=B1=D0=BE=D1=80 =D0=B4=D0=BE=D0=BF=D1=83=D1=81=D1=82=D0=B8=D0=BC=D1=8B=
-=D1=85 =D0=BF=D1=80=D0=BE=D0=B1=D0=B5=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D1=81=
-=D0=B8=D0=BC=D0=B2=D0=BE=D0=BB=D0=BE=D0=B2, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=
-=D1=8B=D0=B5 =D0=BC=D0=BE=D0=B3=D1=83=D1=82 =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=
-=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D1=8C=D1=81=D1=8F =D0=B2 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D1=8B=D0=B2=D0=B0=D0=B5=D0=
-=BC=D0=BE=D0=B9 =D0=BC=D0=B5=D1=82=D0=BA=D0=B5.
--
--.SS "=D0=9F=D1=80=D0=B8=D0=BC=D0=B5=D1=80=D1=8B =D0=BE=D0=BF=D1=80=D0=B5=
-=D0=B4=D0=B5=D0=BB=D0=B5=D0=BD=D0=B8=D1=8F =D1=83=D1=80=D0=BE=D0=B2=D0=BD=
-=D1=8F =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=
-=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8"
--
--.TP=20
--s0=3DSystemLow\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 s0=
- (=D0=BC=D0=B8=D0=BD=D0=B8=D0=BC=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D0=B3=D0=BE =
-=D1=83=D1=80=D0=BE=D0=B2=D0=BD=D1=8F =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=
-=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8) =
-=D0=B1=D0=B5=D0=B7 =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 =
-=D0=B2 SystemLow.
--
--.TP=20
--s15:c0.c1023=3DSystemHigh\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 s1=
-5:c0.c1023 =D0=B2 SystemHigh. c0.c1023 - =D1=81=D0=BE=D0=BA=D1=80=D0=B0=D1=
-=89=D1=91=D0=BD=D0=BD=D0=BE=D0=B5 =D0=BE=D0=B1=D0=BE=D0=B7=D0=BD=D0=B0=D1=
-=87=D0=B5=D0=BD=D0=B8=D0=B5 =D0=B2=D1=81=D0=B5=D1=85 =D0=BA=D0=B0=D1=82=D0=
-=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9. =D0=A3=D1=80=D0=BE=D0=B2=D0=B5=D0=BD=D1=
-=8C =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=
-=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8 =D0=B8 =D0=BA=D0=B0=D1=82=D0=B5=D0=
-=B3=D0=BE=D1=80=D0=B8=D0=B8 =D1=80=D0=B0=D0=B7=D0=B4=D0=B5=D0=BB=D0=B5=D0=
-=BD=D1=8B =D0=B4=D0=B2=D0=BE=D0=B5=D1=82=D0=BE=D1=87=D0=B8=D0=B5=D0=BC.
--
--.TP=20
--s0\-s15:c0.c1023=3DSystemLow\-SystemHigh\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 =
-=D0=B4=D0=B8=D0=B0=D0=BF=D0=B0=D0=B7=D0=BE=D0=BD=D0=B0 s0\-s15:c0.c1023 =D0=
-=B2 SystemLow\-SystemHigh. =D0=94=D0=B2=D0=B0 =D0=BA=D0=BE=D0=BC=D0=BF=D0=
-=BE=D0=BD=D0=B5=D0=BD=D1=82=D0=B0 =D0=B4=D0=B8=D0=B0=D0=BF=D0=B0=D0=B7=D0=
-=BE=D0=BD=D0=B0 =D1=80=D0=B0=D0=B7=D0=B4=D0=B5=D0=BB=D0=B5=D0=BD=D1=8B =D0=
-=B4=D0=B5=D1=84=D0=B8=D1=81=D0=BE=D0=BC.
--
--.TP=20
--s0:c0=3DPatientRecord\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 =
-=D1=83=D1=80=D0=BE=D0=B2=D0=BD=D1=8F =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=
-=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8 s0=
- =D1=81 =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B5=D0=B9 c0 =D0=
-=B2 PatientRecord.
--
--.TP=20
--s0:c1=3DAccounting\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 =
-=D1=83=D1=80=D0=BE=D0=B2=D0=BD=D1=8F =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=
-=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8 s0=
- =D1=81 =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B5=D0=B9 c1 =D0=
-=B2 Accounting.
--
--.TP=20
--s2:c1,c2,c3=3DConfidential3Categories
--.TP=20
--s2:c1.c3=3DConfidential3Categories\fR
--=D0=B8 =D1=82=D0=BE, =D0=B8 =D0=B4=D1=80=D1=83=D0=B3=D0=BE=D0=B5 =D0=BE=D0=
-=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=D0=B5=D0=
-=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 =D1=83=D1=
-=80=D0=BE=D0=B2=D0=BD=D1=8F =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=D0=
-=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8 s2 =D1=81 =
-=D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D1=8F=D0=BC=D0=B8 c1, c2 =
-=D0=B8 c3 =D0=B2 Confidential3Categories.
--
--.TP=20
--s5=3DTopSecret\fR
--=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D1=80=
-=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B5 =
-=D1=83=D1=80=D0=BE=D0=B2=D0=BD=D1=8F =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=
-=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D1=81=D1=82=D0=B8 s5=
- =D0=B1=D0=B5=D0=B7 =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 =
-=D0=B2 TopSecret.
--
--.SS "=D0=9F=D1=80=D0=B8=D0=BC=D0=B5=D1=80=D1=8B =D0=BE=D0=B3=D1=80=D0=B0=
-=D0=BD=D0=B8=D1=87=D0=B5=D0=BD=D0=B8=D1=8F"
--
--.TP
--c0!c1
--=D0=B5=D1=81=D0=BB=D0=B8 =D0=BE=D0=B4=D0=BD=D0=BE=D0=B2=D1=80=D0=B5=D0=BC=
-=D0=B5=D0=BD=D0=BD=D0=BE =D0=B7=D0=B0=D0=B4=D0=B0=D0=BD=D1=8B =D0=B1=D0=B8=
-=D1=82=D1=8B =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 0 =D0=
-=B8 1, =D0=BE=D0=B3=D1=80=D0=B0=D0=BD=D0=B8=D1=87=D0=B5=D0=BD=D0=B8=D0=B5 =
-=D0=BD=D0=B5 =D1=81=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=B0=D0=B5=D1=82 =D0=B8 =
-=D0=B1=D1=83=D0=B4=D0=B5=D1=82 =D0=B2=D0=BE=D0=B7=D0=B2=D1=80=D0=B0=D1=89=
-=D1=91=D0=BD =D0=B8=D1=81=D1=85=D0=BE=D0=B4=D0=BD=D1=8B=D0=B9 =D0=BA=D0=BE=
-=D0=BD=D1=82=D0=B5=D0=BA=D1=81=D1=82.
--
--.TP
--c5.c9>c1
--=D0=B5=D1=81=D0=BB=D0=B8 =D0=B7=D0=B0=D0=B4=D0=B0=D0=BD=D1=8B =D0=B1=D0=B8=
-=D1=82=D1=8B =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 =D1=81 =
-5 =D0=BF=D0=BE 9, =D0=B1=D0=B8=D1=82 1 =D1=82=D0=B0=D0=BA=D0=B6=D0=B5 =D0=
-=BD=D0=B5=D0=BE=D0=B1=D1=85=D0=BE=D0=B4=D0=B8=D0=BC=D0=BE =D1=83=D1=81=D1=
-=82=D0=B0=D0=BD=D0=BE=D0=B2=D0=B8=D1=82=D1=8C - =D0=B8=D0=BD=D0=B0=D1=87=D0=
-=B5 =D0=BE=D0=B3=D1=80=D0=B0=D0=BD=D0=B8=D1=87=D0=B5=D0=BD=D0=B8=D0=B5 =D0=
-=BD=D0=B5 =D1=81=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=B0=D0=B5=D1=82 =D0=B8 =D0=
-=B1=D1=83=D0=B4=D0=B5=D1=82 =D0=B2=D0=BE=D0=B7=D0=B2=D1=80=D0=B0=D1=89=D1=
-=91=D0=BD =D0=B8=D1=81=D1=85=D0=BE=D0=B4=D0=BD=D1=8B=D0=B9 =D0=BA=D0=BE=D0=
-=BD=D1=82=D0=B5=D0=BA=D1=81=D1=82.
--
--.TP
--s1!c5,c9
--=D0=B5=D1=81=D0=BB=D0=B8 =D0=B7=D0=B0=D0=B4=D0=B0=D0=BD=D1=8B =D0=B1=D0=B8=
-=D1=82=D1=8B =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9 =D1=81 =
-5 =D0=BF=D0=BE 9 =D0=B8 =D1=83=D1=80=D0=BE=D0=B2=D0=B5=D0=BD=D1=8C =D0=BA=
-=D0=BE=D0=BD=D1=84=D0=B8=D0=B4=D0=B5=D0=BD=D1=86=D0=B8=D0=B0=D0=BB=D1=8C=D0=
-=BD=D0=BE=D1=81=D1=82=D0=B8 =D1=80=D0=B0=D0=B2=D0=B5=D0=BD s1, =D0=BE=D0=B3=
-=D1=80=D0=B0=D0=BD=D0=B8=D1=87=D0=B5=D0=BD=D0=B8=D0=B5 =D0=BD=D0=B5 =D1=81=
-=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=B0=D0=B5=D1=82 =D0=B8 =D0=B1=D1=83=D0=B4=
-=D0=B5=D1=82 =D0=B2=D0=BE=D0=B7=D0=B2=D1=80=D0=B0=D1=89=D1=91=D0=BD =D0=B8=
-=D1=81=D1=85=D0=BE=D0=B4=D0=BD=D1=8B=D0=B9 =D0=BA=D0=BE=D0=BD=D1=82=D0=B5=
-=D0=BA=D1=81=D1=82.
--
--.SH "=D0=A4=D0=90=D0=99=D0=9B=D0=AB"
--/etc/selinux/{SELINUXTYPE}/setrans.conf
 -.br
--/usr/share/mcstrans/examples
+-.B sandbox
+-[\-C] [\-s] [ \-d DPI ] [\-l level ] [[\-M | \-X]  \-H homedir \-T tempdir ] [\-I includefile ] [ \-W windowmanager ] [ \-w windowsize ] [[\-i file ]...] [ \-t type ] \-S
+-.br
+-.SH ОПИСАНИЕ
+-.PP
+-Выполнить приложение
+-.I cmd 
+-в строго ограниченном домене SELinux. По умолчанию в домене изолированной среды приложения могут только читать и записывать stdin, stdout и любые другие передаваемые дескрипторы файлов. Открывать другие файлы нельзя. Параметр \-M позволяет смонтировать альтернативные домашний каталог и временный каталог, которые будут использоваться изолированной средой.
 -
--.SH "=D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
-=D0=96=D0=95"
--selinux(8), mcs(8), mls(8), chcon(1)
+-Если установлен пакет 
+-.I policycoreutils-sandbox, 
+-можно использовать параметр \-X и параметр \-M.
+-.B sandbox \-X
+-позволяет запускать приложения X в изолированной среде. Эти приложения запускаются на своём собственном X-сервере и создают временные домашний каталог и каталог /tmp. Политика SELinux по умолчанию не разрешает использовать какие-либо средства для управления привилегиями или осуществлять доступ к сети. Она также предотвращает доступ к другим процессам и файлам пользователей. Указанные в команде файлы, которые находятся в домашнем каталоге или каталоге /tmp, будут скопированы в каталоги изолированной среды.
 -
--.SH "=D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB"
--    =D0=9D=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=BE Joe Nall <joe@nall.co=
-m>.
--    =D0=9E=D0=B1=D0=BD=D0=BE=D0=B2=D0=BB=D0=B5=D0=BD=D0=BE Ted X. Toth <tx=
-toth@gmail.com>.
--    =D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=
-=D1=81=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=
-=D0=BE=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=
-=D0=BC=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@bas=
-ealt.ru>.
-diff --git a/mcstrans/man/ru/man8/mcs.8 b/mcstrans/man/ru/man8/mcs.8
-deleted file mode 100644
-index c869ed2c..00000000
---- a/mcstrans/man/ru/man8/mcs.8
-+++ /dev/null
-@@ -1,24 +0,0 @@
--.TH  "mcs"  "8"  "8 =D1=81=D0=B5=D0=BD=D1=82=D1=8F=D0=B1=D1=80=D1=8F 2005"=
- "dwalsh@redhat.com" "=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=
-=B0=D1=86=D0=B8=D1=8F =D0=BF=D0=BE MCS"
--
--.SH "=D0=98=D0=9C=D0=AF"
--mcs \- =D0=BC=D1=83=D0=BB=D1=8C=D1=82=D0=B8=D0=BA=D0=B0=D1=82=D0=B5=D0=B3=
-=D0=BE=D1=80=D0=B8=D0=B9=D0=BD=D0=B0=D1=8F =D1=81=D0=B8=D1=81=D1=82=D0=B5=
-=D0=BC=D0=B0
--
--.SH "=D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95"
--MCS (=D0=BC=D1=83=D0=BB=D1=8C=D1=82=D0=B8=D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=
-=BE=D1=80=D0=B8=D0=B9=D0=BD=D0=B0=D1=8F =D1=81=D0=B8=D1=81=D1=82=D0=B5=D0=
-=BC=D0=B0) =D0=BF=D0=BE=D0=B7=D0=B2=D0=BE=D0=BB=D1=8F=D0=B5=D1=82 =D0=BF=D0=
-=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D0=B5=D0=BB=D1=8F=D0=BC =D0=
-=BF=D1=80=D0=BE=D1=81=D1=82=D0=B0=D0=B2=D0=BB=D1=8F=D1=82=D1=8C =D0=B2 =D1=
-=81=D0=B2=D0=BE=D0=B5=D0=B9 =D1=81=D0=B8=D1=81=D1=82=D0=B5=D0=BC=D0=B5 =D0=
-=BC=D0=B5=D1=82=D0=BA=D0=B8 =D0=B4=D0=BB=D1=8F =D1=84=D0=B0=D0=B9=D0=BB=D0=
-=BE=D0=B2 =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B8 =D0=BE=D0=BF=D1=80=D0=B5=D0=
-=B4=D0=B5=D0=BB=D1=91=D0=BD=D0=BD=D1=8B=D1=85 =D0=B0=D0=B4=D0=BC=D0=B8=D0=
-=BD=D0=B8=D1=81=D1=82=D1=80=D0=B0=D1=82=D0=BE=D1=80=D0=BE=D0=BC =D0=BA=D0=
-=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9. =D0=97=D0=B0=D1=82=D0=B5=D0=
-=BC =D1=8D=D1=82=D0=B0 =D1=81=D0=B8=D1=81=D1=82=D0=B5=D0=BC=D0=B0 =D0=B8=D1=
-=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D1=83=D0=B5=D1=82 =D0=BF=D1=80=D0=B8=D0=
-=BD=D1=83=D0=B4=D0=B8=D1=82=D0=B5=D0=BB=D1=8C=D0=BD=D0=BE=D0=B5 =D1=83=D0=
-=BF=D1=80=D0=B0=D0=B2=D0=BB=D0=B5=D0=BD=D0=B8=D0=B5 =D0=B4=D0=BE=D1=81=D1=
-=82=D1=83=D0=BF=D0=BE=D0=BC SELinux, =D1=87=D1=82=D0=BE=D0=B1=D1=8B =D0=B7=
-=D0=B0=D1=89=D0=B8=D1=82=D0=B8=D1=82=D1=8C =D1=8D=D1=82=D0=B8 =D1=84=D0=B0=
-=D0=B9=D0=BB=D1=8B. MCS - =D0=B4=D0=B8=D1=81=D0=BA=D1=80=D0=B5=D1=86=D0=B8=
-=D0=BE=D0=BD=D0=BD=D0=B0=D1=8F =D0=BC=D0=BE=D0=B4=D0=B5=D0=BB=D1=8C, =D0=BA=
-=D0=BE=D1=82=D0=BE=D1=80=D0=B0=D1=8F =D0=BF=D0=BE=D0=B7=D0=B2=D0=BE=D0=BB=
-=D1=8F=D0=B5=D1=82 =D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=
-=D0=B5=D0=BB=D1=8F=D0=BC =D0=BE=D1=82=D0=BC=D0=B5=D1=87=D0=B0=D1=82=D1=8C =
-=D1=81=D0=B2=D0=BE=D0=B8 =D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D0=B5 =D0=B4=D0=BE=
-=D0=BF=D0=BE=D0=BB=D0=BD=D0=B8=D1=82=D0=B5=D0=BB=D1=8C=D0=BD=D1=8B=D0=BC=D0=
-=B8 =D1=82=D0=B5=D0=B3=D0=B0=D0=BC=D0=B8, =D0=BD=D0=B0=D0=BA=D0=BB=D0=B0=D0=
-=B4=D1=8B=D0=B2=D0=B0=D1=8F =D0=B4=D0=B0=D0=BB=D1=8C=D0=BD=D0=B5=D0=B9=D1=
-=88=D0=B8=D0=B5 =D0=BE=D0=B3=D1=80=D0=B0=D0=BD=D0=B8=D1=87=D0=B5=D0=BD=D0=
-=B8=D1=8F =D0=B4=D0=BE=D1=81=D1=82=D1=83=D0=BF=D0=B0. =D0=9E=D0=B1=D1=8F=D0=
-=B7=D0=B0=D1=82=D0=B5=D0=BB=D1=8C=D0=BD=D1=8B=D0=BC =D1=8F=D0=B2=D0=BB=D1=
-=8F=D0=B5=D1=82=D1=81=D1=8F =D1=82=D0=BE=D0=BB=D1=8C=D0=BA=D0=BE =D0=BE=D0=
-=B4=D0=B8=D0=BD =D0=B0=D1=81=D0=BF=D0=B5=D0=BA=D1=82 - =D0=B0=D0=B2=D1=82=
-=D0=BE=D1=80=D0=B8=D0=B7=D0=BE=D0=B2=D1=8B=D0=B2=D0=B0=D1=82=D1=8C =D0=BF=
-=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=D0=B5=D0=BB=D0=B5=D0=B9 =
-=D0=B4=D0=BB=D1=8F =D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9, =
-=D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D1=8F=D1=8F =D0=B8=D1=85 =D1=83=
-=D1=80=D0=BE=D0=B2=D0=B5=D0=BD=D1=8C =D0=B4=D0=BE=D0=BF=D1=83=D1=81=D0=BA=
-=D0=B0 =D0=B2 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B5. MCS =D0=BF=
-=D0=BE=D1=85=D0=BE=D0=B6=D0=B0 =D0=BD=D0=B0 MLS, =D0=B2=D1=8B=D0=BF=D0=BE=
-=D0=BB=D0=BD=D1=8F=D0=B5=D1=82 =D1=82=D0=B5 =D0=B6=D0=B5 =D1=81=D0=B0=D0=BC=
-=D1=8B=D0=B5 =D0=BF=D1=83=D1=82=D0=B8 =D0=BA=D0=BE=D0=B4=D0=B0 =D0=B8 =D0=
-=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D1=83=D0=B5=D1=82 =D1=82=D1=83 =D0=
-=B6=D0=B5 =D1=81=D0=B0=D0=BC=D1=83=D1=8E =D0=B8=D0=BD=D1=84=D1=80=D0=B0=D1=
-=81=D1=82=D1=80=D1=83=D0=BA=D1=82=D1=83=D1=80=D1=83 =D0=BF=D0=BE=D0=B4=D0=
-=B4=D0=B5=D1=80=D0=B6=D0=BA=D0=B8. =D0=9E=D0=BD=D0=B8 =D0=BE=D1=82=D0=BB=D0=
-=B8=D1=87=D0=B0=D1=8E=D1=82=D1=81=D1=8F =D0=BC=D0=B5=D0=B6=D0=B4=D1=83 =D1=
-=81=D0=BE=D0=B1=D0=BE=D0=B9 =D1=82=D0=BE=D0=BB=D1=8C=D0=BA=D0=BE =D1=81=D0=
-=BF=D0=B5=D1=86=D0=B8=D1=84=D0=B8=D0=BA=D0=BE=D0=B9 =D0=BD=D0=B0=D1=81=D1=
-=82=D1=80=D0=BE=D0=B9=D0=BA=D0=B8.
--
--
--=D0=A4=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B3=D1=83=D1=80=
-=D0=B0=D1=86=D0=B8=D0=B8
--.I /etc/selinux/{SELINUXTYPE}/setrans.conf
--=D0=BF=D1=80=D0=B5=D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=B2=D1=8B=D0=B2=
-=D0=B0=D0=B5=D1=82 =D0=BC=D0=B5=D1=82=D0=BA=D0=B8 =D0=BD=D0=B0 =D0=B4=D0=B8=
-=D1=81=D0=BA=D0=B5 =D0=B2 =D1=83=D0=B4=D0=BE=D0=B1=D0=BD=D1=83=D1=8E =D0=B4=
-=D0=BB=D1=8F =D0=BF=D1=80=D0=BE=D1=87=D1=82=D0=B5=D0=BD=D0=B8=D1=8F =D1=87=
-=D0=B5=D0=BB=D0=BE=D0=B2=D0=B5=D0=BA=D0=BE=D0=BC =D1=84=D0=BE=D1=80=D0=BC=
-=D1=83. =D0=92 =D1=8D=D1=82=D0=BE=D0=BC =D1=84=D0=B0=D0=B9=D0=BB=D0=B5 =D0=
-=B0=D0=B4=D0=BC=D0=B8=D0=BD=D0=B8=D1=81=D1=82=D1=80=D0=B0=D1=82=D0=BE=D1=80=
-=D1=8B =D0=BC=D0=BE=D0=B3=D1=83=D1=82 =D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=
-=D0=BB=D0=B8=D1=82=D1=8C =D0=BB=D1=8E=D0=B1=D1=8B=D0=B5 =D0=BD=D0=B5=D0=BE=
-=D0=B1=D1=85=D0=BE=D0=B4=D0=B8=D0=BC=D1=8B=D0=B5 =D0=BC=D0=B5=D1=82=D0=BA=
-=D0=B8.
--=D0=9D=D0=B5=D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=B5 =D0=BF=D1=80=D0=B8=
-=D0=BB=D0=BE=D0=B6=D0=B5=D0=BD=D0=B8=D1=8F, =D1=82=D0=B0=D0=BA=D0=B8=D0=B5 =
-=D0=BA=D0=B0=D0=BA =D0=B2=D1=8B=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=8D=D0=BA=
-=D1=80=D0=B0=D0=BD =D0=B8 =D0=B0=D1=83=D0=B4=D0=B8=D1=82, =D0=B1=D1=83=D0=
-=B4=D1=83=D1=82 =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=
-=B0=D1=82=D1=8C =D1=8D=D1=82=D0=B8 =D0=BC=D0=B5=D1=82=D0=BA=D0=B8 =D0=B4=D0=
-=BB=D1=8F =D0=B8=D0=B4=D0=B5=D0=BD=D1=82=D0=B8=D1=84=D0=B8=D0=BA=D0=B0=D1=
-=86=D0=B8=D0=B8 =D1=84=D0=B0=D0=B9=D0=BB=D0=BE=D0=B2. =D0=95=D1=81=D0=BB=D0=
-=B8 =D0=B4=D0=BB=D1=8F =D1=84=D0=B0=D0=B9=D0=BB=D0=B0 =D0=B1=D1=83=D0=B4=D0=
-=B5=D1=82 =D0=B7=D0=B0=D0=B4=D0=B0=D0=BD=D0=B0 =D0=BA=D0=B0=D1=82=D0=B5=D0=
-=B3=D0=BE=D1=80=D0=B8=D1=8F, =D0=B4=D1=80=D1=83=D0=B3=D0=B8=D0=B5 =D0=BF=D1=
-=80=D0=B8=D0=BB=D0=BE=D0=B6=D0=B5=D0=BD=D0=B8=D1=8F/=D1=81=D0=BB=D1=83=D0=
-=B6=D0=B1=D1=8B =D0=BD=D0=B5 =D0=BF=D0=BE=D0=BB=D1=83=D1=87=D0=B0=D1=82 =D0=
-=BA =D0=BD=D0=B5=D0=BC=D1=83 =D0=B4=D0=BE=D1=81=D1=82=D1=83=D0=BF.
--.P
--=D0=9F=D1=80=D0=B8=D0=BC=D0=B5=D1=80=D1=8B =D0=BC=D0=B5=D1=82=D0=BE=D0=BA =
-=D1=84=D0=B0=D0=B9=D0=BB=D0=BE=D0=B2: PatientRecord, CompanyConfidential =
-=D0=B8 =D1=82=D0=B0=D0=BA =D0=B4=D0=B0=D0=BB=D0=B5=D0=B5.
--
--.SH "=D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
-=D0=96=D0=95"
--selinux(8), chcon(1)
--
--.SH =D0=A4=D0=90=D0=99=D0=9B=D0=AB
--/etc/selinux/{SELINUXTYPE}/setrans.conf=20
--
--.SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
--=D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=D1=81=
-=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=D0=BE=
-=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=D0=BC=
-=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@basealt.r=
-u>
-diff --git a/mcstrans/man/ru/man8/mcstransd.8 b/mcstrans/man/ru/man8/mcstra=
-nsd.8
-deleted file mode 100644
-index 4cd68c17..00000000
---- a/mcstrans/man/ru/man8/mcstransd.8
-+++ /dev/null
-@@ -1,32 +0,0 @@
--.TH "mcstransd" "8" "16 =D0=BE=D0=BA=D1=82=D1=8F=D0=B1=D1=80=D1=8F 2009" "=
-dwalsh@redhat.com" "=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=
-=D1=86=D0=B8=D1=8F =D0=BF=D0=BE MCS"
--.SH "=D0=98=D0=9C=D0=AF"
--mcstransd \- =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B5=D0=BD=D0=BD=D1=8F=D1=8F =
-=D1=81=D0=BB=D1=83=D0=B6=D0=B1=D0=B0 MCS (=D0=BC=D1=83=D0=BB=D1=8C=D1=82=D0=
-=B8=D0=BA=D0=B0=D1=82=D0=B5=D0=B3=D0=BE=D1=80=D0=B8=D0=B9=D0=BD=D0=B0=D1=8F=
- =D1=81=D0=B8=D1=81=D1=82=D0=B5=D0=BC=D0=B0). =D0=9F=D0=B5=D1=80=D0=B5=D0=
-=B2=D0=BE=D0=B4=D0=B8=D1=82 =D0=BC=D0=B5=D1=82=D0=BA=D0=B8 MCS/MLS SELinux =
-=D0=B2 =D1=83=D0=B4=D0=BE=D0=B1=D0=BD=D1=83=D1=8E =D0=B4=D0=BB=D1=8F =D0=BF=
-=D1=80=D0=BE=D1=87=D1=82=D0=B5=D0=BD=D0=B8=D1=8F =D1=87=D0=B5=D0=BB=D0=BE=
-=D0=B2=D0=B5=D0=BA=D0=BE=D0=BC =D1=84=D0=BE=D1=80=D0=BC=D1=83.
--
--.SH "=D0=9E=D0=91=D0=97=D0=9E=D0=A0"
--.B mcstransd [-f] [-h]
--.P
--
--.SH "=D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95"
--=D0=AD=D1=82=D0=B0 =D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =D1=80=
-=D1=83=D0=BA=D0=BE=D0=B2=D0=BE=D0=B4=D1=81=D1=82=D0=B2=D0=B0 =D1=81=D0=BE=
-=D0=B4=D0=B5=D1=80=D0=B6=D0=B8=D1=82 =D0=BE=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=
-=D0=B8=D0=B5 =D0=BF=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D1=8B
--.BR mcstransd.
--.P
--=D0=AD=D1=82=D0=B0 =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B5=D0=BD=D0=BD=D1=8F=
-=D1=8F =D1=81=D0=BB=D1=83=D0=B6=D0=B1=D0=B0 =D0=B2=D1=8B=D0=BF=D0=BE=D0=BB=
-=D0=BD=D1=8F=D0=B5=D1=82 =D1=87=D1=82=D0=B5=D0=BD=D0=B8=D0=B5 =D1=84=D0=B0=
-=D0=B9=D0=BB=D0=B0 =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B3=D1=83=D1=80=D0=B0=
-=D1=86=D0=B8=D0=B8 /etc/selinux/{SELINUXTYPE}/setrans.conf =D0=B8 =D1=81=D0=
-=B2=D1=8F=D0=B7=D1=8B=D0=B2=D0=B0=D0=B5=D1=82=D1=81=D1=8F =D1=81 libselinux=
- =D1=87=D0=B5=D1=80=D0=B5=D0=B7 =D1=81=D0=BE=D0=BA=D0=B5=D1=82 =D0=B2 /var/=
-run/setrans.
--.SH "=D0=9F=D0=90=D0=A0=D0=90=D0=9C=D0=95=D0=A2=D0=A0=D0=AB"
+-Если каталоги указаны с параметром \-H или \-T, их контекст будет изменён chcon(1) (если только с помощью параметра \-l не указан уровень). Если уровень безопасности MLS/MCS указан, пользователь должен установить правильные метки.
+-.PP
 -.TP
--\-f
--=D0=97=D0=B0=D0=BF=D1=83=D1=81=D1=82=D0=B8=D1=82=D1=8C mcstransd =D0=BD=D0=
-=B0 =D0=BF=D0=B5=D1=80=D0=B5=D0=B4=D0=BD=D0=B5=D0=BC =D0=BF=D0=BB=D0=B0=D0=
-=BD=D0=B5. =D0=9D=D0=B5 =D0=B7=D0=B0=D0=BF=D1=83=D1=81=D0=BA=D0=B0=D1=82=D1=
-=8C =D0=BA=D0=B0=D0=BA =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B5=D0=BD=D0=BD=D1=
-=8E=D1=8E =D1=81=D0=BB=D1=83=D0=B6=D0=B1=D1=83.
+-\fB\-h\ \fB\-\-help\fR
+-Показать сведения об использовании
 -.TP
--\-h
--=D0=92=D1=8B=D0=B2=D0=B5=D1=81=D1=82=D0=B8 =D0=BA=D1=80=D0=B0=D1=82=D0=BA=
-=D0=BE=D0=B5 =D0=BE=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B8=D0=B5 =D0=B4=D0=BE=
-=D1=81=D1=82=D1=83=D0=BF=D0=BD=D1=8B=D1=85 =D0=BF=D0=B0=D1=80=D0=B0=D0=BC=
-=D0=B5=D1=82=D1=80=D0=BE=D0=B2 =D0=BA=D0=BE=D0=BC=D0=B0=D0=BD=D0=B4=D0=BD=
-=D0=BE=D0=B9 =D1=81=D1=82=D1=80=D0=BE=D0=BA=D0=B8\&.
+-\fB\-H\ \fB\-\-homedir\fR
+-Указать альтернативный домашний каталог для монтирования вместо вашего домашнего каталога. По умолчанию используется временный каталог. Требуется \-X или \-M.
+-.TP
+-\fB\-i\fR \fB\-\-include\fR
+-Копировать этот файл в соответствующий временный каталог изолированной среды. Команду можно повторять.
+-.TP
+-\fB\-I\fR \fB\-\-includefile\fR
+-Копировать все файлы, перечисленные во входном файле (inputfile), в соответствующие временные каталоги изолированной среды.
+-.TP
+-\fB\-l\fR \fB\-\-level\fR
+-Указать уровень безопасности MLS/MCS, с которым следует запускать изолированную среду. По умолчанию используется случайное значение.
+-.TP
+-\fB\-M\fR \fB\-\-mount\fR
+-Создать изолированную среду с временными файлами для $HOME и /tmp.
+-.TP
+-\fB\-s\fR \fB\-\-shred\fR
+-Уничтожить временные файлы, созданные в $HOME в /tmp, перед удалением.
+-.TP
+-\fB\-t\fR \fB\-\-type\fR
+-Использовать альтернативный тип изолированной среды. По умолчанию: sandbox_t или sandbox_x_t для \-X.
 -
--.SH "=D0=A4=D0=90=D0=99=D0=9B=D0=AB"
--/etc/selinux/{SELINUXTYPE}/setrans.conf=20
+-\fBПримеры:\fR
+-.br
+-sandbox_t	\-	без X, без доступа к сети, без открытия, чтение/запись передаются в дескрипторах файлов.
+-.br
+-sandbox_min_t	\-	без доступа к сети
+-.br
+-sandbox_x_t	\-	порты для X-приложений, которые следует запустить локально
+-.br
+-sandbox_web_t	\-	порты, необходимые для работы в Интернете
+-.br
+-sandbox_net_t	\-		сетевые порты (для серверного ПО)
+-.br
+-sandbox_net_client_t	\-	все сетевые порты
 -
--.SH "=D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
-=D0=96=D0=95"
--.BR setrans.conf (5), mcs (8)
+-.TP
+-\fB\-T\fR \fB\-\-tmpdir\fR
+-Использовать альтернативный временный каталог для монтирования в /tmp. По умолчанию: tmpfs. Требуется \-X или \-M.
+-.TP
+-\fB\-S\fR \fB\-\-session\fR
+-Запустить полный сеанс рабочего стола. Требуется уровень, домашний каталог и временный каталог.
+-.TP
+-\fB\-w\fR \fB\-\-windowsize\fR
+-Указать размер окна при создании изолированной среды на основе X. По умолчанию: 1000x700.
+-.TP
+-\fB\-W\fR \fB\-\-windowmanager\fR
+-Выбрать альтернативный диспетчер окон для запуска в 
+-.B sandbox \-X.
+-По умолчанию: /usr/bin/openbox.
+-.TP
+-\fB\-X\fR 
+-Создать изолированную среду на основе X для приложений графического интерфейса пользователя, временные файлы для $HOME и /tmp, дополнительный X-сервер. По умолчанию: sandbox_x_t
+-.TP
+-\fB\-d\fR \fB\-\-dpi\fR
+-Указать значение разрешения (DPI) для X-сервера изолированной среды. По умолчанию используется значение разрешения текущего X-сервера.
+-.TP
+-\fB\-C\fR \fB\-\-capabilities\fR
+-Использовать средства для управления привилегиями внутри изолированной среды. По умолчанию приложениям, которые выполняются в изолированной среде, запрещено использовать средства для управления привилегиями (setuid apps), но с флагом \-C можно использовать программы, которым необходимы средства для управления привилегиями.
+-.PP
+-.SH "СМОТРИТЕ ТАКЖЕ"
+-.TP
+-runcon(1), seunshare(8), selinux(8)
+-.PP
 -
--.SH "=D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB"
--=D0=AD=D1=82=D0=B0 man-=D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =
-=D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Dan Walsh <dwalsh@redhat.c=
-om>.
--=D0=98=D1=81=D1=85=D0=BE=D0=B4=D0=BD=D0=B0=D1=8F =D0=B2=D0=B5=D1=80=D1=81=
-=D0=B8=D1=8F =D0=BF=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D1=8B =D0=BD=
-=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Dan Walsh <dwalsh@redhat.com>.
--=D0=9F=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D0=B0 =D1=83=D0=BB=D1=83=
-=D1=87=D1=88=D0=B5=D0=BD=D0=B0/=D0=BF=D0=B5=D1=80=D0=B5=D0=BF=D0=B8=D1=81=
-=D0=B0=D0=BD=D0=B0 Joe Nall <joe@nall.com>.
--=D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=D1=81=
-=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=D0=BE=
-=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=D0=BC=
-=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@basealt.r=
-u>.
---=20
+-.SH АВТОРЫ
+-Эта страница руководства была написана
+-.I Dan Walsh <dwalsh@redhat.com>
+-и
+-.I Thomas Liu <tliu@fedoraproject.org>.
+-Перевод на русский язык выполнила 
+-.I Герасименко Олеся <gammaray@basealt.ru>.
+diff --git a/sandbox/ru/seunshare.8 b/sandbox/ru/seunshare.8
+deleted file mode 100644
+index f604b9eb..00000000
+--- a/sandbox/ru/seunshare.8
++++ /dev/null
+@@ -1,42 +0,0 @@
+-.TH SEUNSHARE "8" "Май 2010" "seunshare" "Команды пользователя"
+-.SH ИМЯ
+-seunshare \- выполнить cmd с другим домашним каталогом (homedir), временным каталогом (tmpdir) и/или контекстом SELinux 
+-.SH ОБЗОР
+-.B seunshare
+-[ -v ] [ -C ] [ -k ] [ -t tmpdir ] [ -h homedir ] [ -Z context ] -- executable [args]
+-.br
+-.SH ОПИСАНИЕ
+-.PP
+-Запустите исполняемый файл
+-.I executable
+-в указанном контексте, используя альтернативный домашний каталог и каталог /tmp. Команда seunshare отменяет общий доступ из пространства имён по умолчанию, затем монтирует указанные домашний каталог и временный каталог вместо домашнего каталога и временного каталога по умолчанию. После этого команда сообщает ядру, что следует выполнить приложение в указанном контексте SELinux.
+-
+-.TP
+-\fB\-h homedir\fR
+-Альтернативный домашний каталог для использования приложением. Пользователь должен быть владельцем домашнего каталога.
+-.TP
+-\fB\-t\ tmpdir
+-Использовать альтернативный временный каталог для монтирования в /tmp. Пользователь должен быть владельцем временного каталога.
+-.TP
+-\fB\-C --capabilities\fR
+-Разрешить приложениям, исполняемым в пространстве имён, использовать средства для управления привилегиям. По умолчанию использование средств для управления привилегиями запрещено.
+-.TP
+-\fB\-k --kill\fR
+-Завершить все процессы с соответствующим уровнем MCS.
+-.TP
+-\fB\-Z\ context
+-Использовать альтернативный контекст SELinux при запуске исполняемого файла.
+-.TP
+-\fB\-v\fR
+-Подробный вывод
+-.SH "СМОТРИТЕ ТАКЖЕ"
+-.TP
+-runcon(1), sandbox(8), selinux(8)
+-.PP
+-.SH АВТОРЫ
+-Эта страница руководства была написана
+-.I Dan Walsh <dwalsh@redhat.com>
+-и
+-.I Thomas Liu <tliu@fedoraproject.org>.
+-Перевод на русский язык выполнила
+-.I Герасименко Олеся <gammaray@basealt.ru>.
+-- 
 2.41.0
 
