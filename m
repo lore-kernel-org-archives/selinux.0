@@ -2,267 +2,279 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CA9CC001B0
-	for <selinux@archiver.kernel.org>; Wed,  9 Aug 2023 17:28:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F11C001B0
+	for <selinux@archiver.kernel.org>; Wed,  9 Aug 2023 20:10:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231743AbjHIR2c (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Aug 2023 13:28:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49042 "EHLO
+        id S231704AbjHIUK7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Aug 2023 16:10:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231536AbjHIR2b (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Aug 2023 13:28:31 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEECA90
-        for <selinux@vger.kernel.org>; Wed,  9 Aug 2023 10:28:29 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id 2adb3069b0e04-4fe7e67cc77so2554974e87.2
-        for <selinux@vger.kernel.org>; Wed, 09 Aug 2023 10:28:29 -0700 (PDT)
+        with ESMTP id S231228AbjHIUK6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Aug 2023 16:10:58 -0400
+Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D90910C4
+        for <selinux@vger.kernel.org>; Wed,  9 Aug 2023 13:10:57 -0700 (PDT)
+Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-1c023900f3fso188952fac.0
+        for <selinux@vger.kernel.org>; Wed, 09 Aug 2023 13:10:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf.com; s=google; t=1691602108; x=1692206908;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yw22Rug4OEXyPMn54DIvL6wFU6vMQ8oGwoG/iSU6CIc=;
-        b=KIbY2LyyTl/AnYXTkkb6pgPDIwlxFzi/gU1TOXHFBIULY9+bxRCqT0/5PbrBQZr65u
-         8ThZm7mo/+9F5dlunFcUes8zmBpOi4GsUlCOLcfKT8uAkLUulHD92tPA2i1ve2IBJIUZ
-         D/NL9+3lSH9g3jwpXQ9hc2hG37wgUM9SNAYuMLmU0pp4prRKrCiKVdtYeHuVIdo7p8zk
-         WTL1Capi6iCC69SDt+EVndrPPpbesmWQcHbMOSX/evqo9RJAWI0TlSiSjqmCkpWYvNrY
-         IdkFfg2hyXY2jFG1qswWzSBv/aaeQaDhiVhK8ptuomf4MZWDnBdlCZCxWHh8NqcU7jEq
-         5mJA==
+        d=gmail.com; s=20221208; t=1691611855; x=1692216655;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=pcd4lpuzwV3jzn/lKopjVe27KqF0ZY2po9hK2nT7bA4=;
+        b=An3nhn2W9r+cAUlwJfDbM4hwP4zBSlvu9QVCWwqffbzTKJcTjLcQ6CUXg1OcnzUGWn
+         m/tyeJXzAO0RC1U8iZop/GAdCLJ1SdHZ73RxwZWBnUEpY+9GEPV4TMMpGNPH+NuwxqNZ
+         NCPgufJH0vGPneyXwIIdLoLa6pBn8q9cYCVphcgP59oUQelriIbsRBIEmn5PpZ9ONCAr
+         XovLzwC+lywhm2622DgtqrXZShFJHOuoYw7yYafqdR37h8HHuLNI3cd8EWBwEYyHIOJ9
+         nL+Ibbiuc9cm2Oyb1cVkJreUUWNem5V9HoqNYZ+x13jdjHwA8Gvj5EEHUT2MVyQ51Zar
+         r24w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691602108; x=1692206908;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yw22Rug4OEXyPMn54DIvL6wFU6vMQ8oGwoG/iSU6CIc=;
-        b=SbeeXva4qjlZFiGnRqv7wwMta7cftGIwwIFcV5BvfxegWPBd7Qu9Sgda7IUS7rSQ87
-         I/Gq1QrpkQBY5dIm9yExalNNzLx+uVo0LtSGHe12uUHeKQGAvAMFddGwDNa01KDDTduI
-         zkWtH6DljrorPe7p8LCVNAP/t/SF2MU1Yv9+UFHMl0zuRQYnA1jFaTU4JiKnKUoi/o7N
-         EUBwwE2tsEnEU22HVNAPTZRK+wOnDvq+DcRNorhKsw+ympCqK6zriwpa00BMdXjA/0i8
-         HA0n9bkIfeUt22JVa2NWHTzaq3k44d9rfwDtzOOWXW2Z45EPHzgBdjtL8Jq7P4loz5Qe
-         BRtQ==
-X-Gm-Message-State: AOJu0YwyvXVdsAG8fyJTgodOyRMj25GRGkuL0fJnFKObExLCy9ebiMdS
-        JlsCXCwG7cG5kY1aUoRCCeOamQ==
-X-Google-Smtp-Source: AGHT+IFGU6DlsIDGan/Ed64LTo5h4x9cjw5aWImDy8ojY1Rnld19e+Tgnw2G60Ovk+FaCUg8I76/yg==
-X-Received: by 2002:a19:8c54:0:b0:4fe:676:8c0b with SMTP id i20-20020a198c54000000b004fe06768c0bmr2411269lfj.11.1691602107522;
-        Wed, 09 Aug 2023 10:28:27 -0700 (PDT)
-Received: from [10.43.1.246] ([83.142.187.84])
-        by smtp.gmail.com with ESMTPSA id p3-20020a19f003000000b004fcddf3671dsm2388034lfc.177.2023.08.09.10.28.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Aug 2023 10:28:26 -0700 (PDT)
-Message-ID: <dc055b47-b868-7f5d-98bf-51e27df6b2d8@semihalf.com>
-Date:   Wed, 9 Aug 2023 19:28:25 +0200
+        d=1e100.net; s=20221208; t=1691611855; x=1692216655;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=pcd4lpuzwV3jzn/lKopjVe27KqF0ZY2po9hK2nT7bA4=;
+        b=bgmSLfWnpgRDaq1hC3ahTAKonJJ4vYO3CdWeLZRpc/su4cw80hsNk3WmrotcOAppAu
+         /5dBacq/ByZmmn3X9GlcwHnADK2bPNtCkMByB0tdP+PsMx2luQPh2nG8eaHOTLzbALXZ
+         qeTtF+3TcHmz6M9IHCw9vXGAnApleZz2T2K7Vmsn2pGF+JJ0qnQIAlZ9TdGUaprQdYHO
+         l5EaaphVA/u6gelBuVkRn3pO3Olx1++O7NTOBnW3UmmilKbs+PIXAQLiupnmm94LMw4M
+         UvtMsIeAkmey5PwlwzrdhS+G8xLqJi+ZY9KZaoQ9mDvimB7ym6IopBE/A56kR39QNv5n
+         9i6Q==
+X-Gm-Message-State: AOJu0YxhPIC5TKux9lAOOuWFkDSZXJ1+lAq8As5GryE4JMoL6hXiP1nj
+        ct54UbPZjorqGfR563/clSR1jbwvyn8=
+X-Google-Smtp-Source: AGHT+IHB/mt/3cbvCtkX2XSQJYs9tkeJfVirYNWXYeooMy4GfAyBSUTuiiAKowGpQGLMbNwWKT9HkQ==
+X-Received: by 2002:a05:6870:a193:b0:1b0:222f:9cda with SMTP id a19-20020a056870a19300b001b0222f9cdamr395462oaf.0.1691611855245;
+        Wed, 09 Aug 2023 13:10:55 -0700 (PDT)
+Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
+        by smtp.gmail.com with ESMTPSA id w11-20020ae9e50b000000b00767d572d651sm4220210qkf.87.2023.08.09.13.10.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Aug 2023 13:10:54 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     plautrba@redhat.com, James Carter <jwcart2@gmail.com>
+Subject: [PATCH 00/13 v2] Remove the Russian translations
+Date:   Wed,  9 Aug 2023 16:10:36 -0400
+Message-ID: <20230809201051.108944-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
-Content-Language: en-US
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Jeffrey Vander Stoep <jeffv@google.com>,
-        Gil Cukierman <cukie@google.com>, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Joel Granados <j.granados@samsung.com>,
-        Jeff Xu <jeffxu@google.com>,
-        Takaya Saeki <takayas@chromium.org>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Matteo Rizzo <matteorizzo@google.com>,
-        Andres Freund <andres@anarazel.de>
-References: <20221107205754.2635439-1-cukie@google.com>
- <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
- <CABXk95ChjusTneWJgj5a58CZceZv0Ay-P-FwBcH2o4rO0g2Ggw@mail.gmail.com>
- <CAHC9VhRTWGuiMpJJiFrUpgsm7nQaNA-n1CYRMPS-24OLvzdA2A@mail.gmail.com>
- <54c8fd9c-0edd-7fea-fd7a-5618859b0827@semihalf.com>
- <CAHC9VhS9BXTUjcFy-URYhG=XSxBC+HsePbu01_xBGzM8sebCYQ@mail.gmail.com>
- <d2eaa3f8-cca6-2f51-ce98-30242c528b6f@semihalf.com>
- <CAHC9VhQDAM8X-MV9ONckc2NBWDZrsMteanDo9_NS4SirdQAx=w@mail.gmail.com>
-From:   Dmytro Maluka <dmy@semihalf.com>
-In-Reply-To: <CAHC9VhQDAM8X-MV9ONckc2NBWDZrsMteanDo9_NS4SirdQAx=w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/9/23 16:49, Paul Moore wrote:
-> On Wed, Aug 9, 2023 at 7:22 AM Dmytro Maluka <dmy@semihalf.com> wrote:
->> On 8/9/23 02:31, Paul Moore wrote:
->>> On Tue, Aug 8, 2023 at 4:40 PM Dmytro Maluka <dmy@semihalf.com> wrote:
->>>> On 11/10/22 22:04, Paul Moore wrote:
->>>>> On Thu, Nov 10, 2022 at 12:54 PM Jeffrey Vander Stoep <jeffv@google.com> wrote:
->>>>>> On Mon, Nov 7, 2022 at 10:17 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>>>>
->>>>>>> On Mon, Nov 7, 2022 at 3:58 PM Gil Cukierman <cukie@google.com> wrote:
->>>>>>>>
->>>>>>>> This patchset provides the changes required for controlling access to
->>>>>>>> the io_uring_setup system call by LSMs. It does this by adding a new
->>>>>>>> hook to io_uring. It also provides the SELinux implementation for a new
->>>>>>>> permission, io_uring { setup }, using the new hook.
->>>>>>>>
->>>>>>>> This is important because existing io_uring hooks only support limiting
->>>>>>>> the sharing of credentials and access to the sensitive uring_cmd file
->>>>>>>> op. Users of LSMs may also want the ability to tightly control which
->>>>>>>> callers can retrieve an io_uring capable fd from the kernel, which is
->>>>>>>> needed for all subsequent io_uring operations.
->>>>>>>
->>>>>>> It isn't immediately obvious to me why simply obtaining a io_uring fd
->>>>>>> from io_uring_setup() would present a problem, as the security
->>>>>>> relevant operations that are possible with that io_uring fd *should*
->>>>>>> still be controlled by other LSM hooks.  Can you help me understand
->>>>>>> what security issue you are trying to resolve with this control?
->>>>>>
->>>>>> I think there are a few reasons why we want this particular hook.
->>>>>>
->>>>>> 1.  It aligns well with how other resources are managed by selinux
->>>>>> where access to the resource is the first control point (e.g. "create"
->>>>>> for files, sockets, or bpf_maps, "prog_load" for bpf programs, and
->>>>>> "open" for perf_event) and then additional functionality or
->>>>>> capabilities require additional permissions.
->>>>>
->>>>> [NOTE: there were two reply sections in your email, and while similar,
->>>>> they were not identical; I've trimmed the other for the sake of
->>>>> clarity]
->>>>>
->>>>> The resources you mention are all objects which contain some type of
->>>>> information (either user data, configuration, or program
->>>>> instructions), with the resulting fd being a handle to those objects.
->>>>> In the case of io_uring the fd is a handle to the io_uring
->>>>> interface/rings, which by itself does not contain any information
->>>>> which is not already controlled by other permissions.
->>>>>
->>>>> I/O operations which transfer data between the io_uring buffers and
->>>>> other system objects, e.g. IORING_OP_READV, are still subject to the
->>>>> same file access controls as those done by the application using
->>>>> syscalls.  Even the IORING_OP_OPENAT command goes through the standard
->>>>> VFS code path which means it will trigger the same access control
->>>>> checks as an open*() done by the application normally.
->>>>>
->>>>> The 'interesting' scenarios are those where the io_uring operation
->>>>> servicing credentials, aka personalities, differ from the task
->>>>> controlling the io_uring.  However in those cases we have the new
->>>>> io_uring controls to gate these delegated operations.  Passing an
->>>>> io_uring fd is subject to the fd/use permission like any other fd.
->>>>>
->>>>> Although perhaps the most relevant to your request is the fact that
->>>>> the io_uring inode is created using the new(ish) secure anon inode
->>>>> interface which ensures that the creating task has permission to
->>>>> create an io_uring.  This io_uring inode label also comes into play
->>>>> when a task attempts to mmap() the io_uring rings, a critical part of
->>>>> the io_uring API.
->>>>>
->>>>> If I'm missing something you believe to be important, please share the details.
->>>>>
->>>>>> 2. It aligns well with how resources are managed on Android. We often
->>>>>> do not grant direct access to resources (like memory buffers).
->>>>>
->>>>> Accessing the io_uring buffers requires a task to mmap() the io_uring
->>>>> fd which is controlled by the normal SELinux mmap() access controls.
->>>>>
->>>>>> 3. Attack surface management. One of the primary uses of selinux on
->>>>>> Android is to assess and limit attack surface (e.g.
->>>>>> https://twitter.com/jeffvanderstoep/status/1422771606309335043) . As
->>>>>> io_uring vulnerabilities have made their way through our vulnerability
->>>>>> management system, it's become apparent that it's complicated to
->>>>>> assess the impact. Is a use-after-free reachable? Creating
->>>>>> proof-of-concept exploits takes a lot of time, and often functionality
->>>>>> can be reached by multiple paths. How many of the known io_uring
->>>>>> vulnerabilities would be gated by the existing checks? How many future
->>>>>> ones will be gated by the existing checks? I don't know the answer to
->>>>>> either of these questions and it's not obvious. This hook makes that
->>>>>> initial assessment simple and effective.
->>>>>
->>>>> It should be possible to deny access to io_uring via the anonymous
->>>>> inode labels, the mmap() controls, and the fd/use permission.  If you
->>>>> find a way to do meaningful work with an io_uring fd that can't be
->>>>> controlled via an existing permission check please let me know.
->>>>
->>>> Thank you a lot for this explanation. However, IMHO we should not
->>>> confuse 2 somewhat different problems here:
->>>>
->>>> - protecting io_uring related resources (file descriptors, memory
->>>>   buffers) against unauthorized access
->>>>
->>>> - protecting the entire system against potential vulnerabilities in
->>>>   io_uring
->>>>
->>>> And while I agree that the existing permission checks should be already
->>>> sufficient for the former, I'm not quite sure they are sufficient for
->>>> the latter.
->>>
->>> ...
->>>
->>>> I already have a PoC patch [3] adding such LSM hook. But before I try to
->>>> submit it for upstream, I'd like to know your opinion on the whole idea.
->>>
->>> First please explain how the existing LSM/SELinux control points are
->>> not sufficient for restricting io_uring operations.  I'm looking for a
->>> real program flow that is able to "do meaningful work with an io_uring
->>> fd that can't be controlled via an existing permission check".
->>
->> As I said at the beginning of my reply, I agree with you that the
->> existing LSM controls are sufficient for restricting io_uring I/O
->> operations. That is not my concern here. The concern is: how to (and
->> do we need to) restrict triggering execution of *any* io_uring code in
->> kernel, *in addition to* restricting the actual io_uring operations.
-> 
-> If your concern is preventing *any* io_uring code from being executed,
-> I would suggest simply not enabling io_uring at build time.  If you
-> need to selectively enable io_uring for some subset of processes, you
-> will need to make use of one of the options you discussed previously,
-> e.g. a LSM, seccomp, etc.
-> 
-> From a LSM perspective, I don't believe we want to be in the business
-> of blocking entire kernel subsystems from execution, rather we want to
-> provide control points so that admins and users can have better, or
-> more granular control over the security relevant operations that take
-> place within the different kernel subsystems.
-> 
->> In other words, "a real program doing a meaningful work with io_uring"
->> in this case would mean "an exploit for a real vulnerability in io_uring
->> code (in the current or any older kernel) which does not require an
->> access to io_uring operations to be exploited". I don't claim that such
->> vulnerabilities exist or are likely to be introduced in future kernels.
->> But I'm neither an io_uring expert nor, more importantly, a security
->> expert, so I cannot tell with confidence that they are not and we have
->> nothing to worry about here. So I'm interested in your and others'
->> opinion on that.
-> 
-> Once again, if you have serious concerns about the security or safety
-> of an individual kernel subsystem, your best option is to simply build
-> a kernel without that subsystem enabled.
+The Russian translations have not been maintained and are out of
+date, so remove them.
 
-Thanks for the answer. Yeah, disabling a problematic kernel subsystem at
-build time is surely the safest option (and that is what we are already
-doing in ChromeOS for io_uring, for that matter), and if we still want
-to enable it for a limited subset of processes, it seems the cleanest
-option is to use seccomp, rather than to add new ad-hoc LSM hooks for
-blocking a specific subsystem.
+Patch 9 in the first version was too large, so the only change
+in v2 is to split the removal of the Russian translations in
+the python directory into two patches.
 
-One of the angles I'm coming from is actually the following:
+James Carter (13):
+  checkpolicy: Remove the Russian translations
+  gui: Remove the Russian translations
+  libselinux: Remove the Russian translations
+  libselinux: Remove the Russian translations
+  libsemanage: Remove the Russian translations
+  libsepol: Remove the Russian translations
+  mcstrans: Remove the Russian translations
+  policycoreutils: Remove the Russian translations
+  python: Remove the Russian translations
+  python: Remove the Russian translations
+  restorecond: Remove the Russian translations
+  sandbox: Remove the Russian translations
+  semodule-utils: Remove the Russian translations
 
-- Android currently enables io_uring but limits its use to a few
-  processes. But the way Android does that is by relying on the existing
-  SELinux access controls for io_uring resources [1][2], rather than by
-  preventing execution of any io_uring code via seccomp or other means.
+ checkpolicy/ru/checkmodule.8                  |  55 -----
+ checkpolicy/ru/checkpolicy.8                  |  60 -----
+ gui/ru/selinux-polgengui.8                    |  35 ---
+ gui/ru/system-config-selinux.8                |  36 ---
+ libselinux/man/ru/man5/customizable_types.5   |  63 -----
+ libselinux/man/ru/man5/default_contexts.5     |  75 ------
+ libselinux/man/ru/man5/default_type.5         |  43 ----
+ libselinux/man/ru/man5/failsafe_context.5     |  68 ------
+ libselinux/man/ru/man5/file_contexts.5        |   1 -
+ .../man/ru/man5/file_contexts.homedirs.5      |   1 -
+ libselinux/man/ru/man5/file_contexts.local.5  |   1 -
+ libselinux/man/ru/man5/file_contexts.subs.5   |   1 -
+ .../man/ru/man5/file_contexts.subs_dist.5     |   1 -
+ libselinux/man/ru/man5/media.5                |   1 -
+ libselinux/man/ru/man5/removable_context.5    |  39 ----
+ libselinux/man/ru/man5/secolor.conf.5         | 180 --------------
+ libselinux/man/ru/man5/securetty_types.5      |  49 ----
+ libselinux/man/ru/man5/selabel_db.5           | 219 -----------------
+ libselinux/man/ru/man5/selabel_file.5         | 219 -----------------
+ libselinux/man/ru/man5/selabel_media.5        |  92 --------
+ libselinux/man/ru/man5/selabel_x.5            | 168 -------------
+ libselinux/man/ru/man5/sepgsql_contexts.5     |   1 -
+ libselinux/man/ru/man5/service_seusers.5      |  71 ------
+ libselinux/man/ru/man5/seusers.5              |  67 ------
+ libselinux/man/ru/man5/user_contexts.5        |  85 -------
+ .../man/ru/man5/virtual_domain_context.5      |  44 ----
+ .../man/ru/man5/virtual_image_context.5       |  46 ----
+ libselinux/man/ru/man5/x_contexts.5           |   1 -
+ libselinux/man/ru/man8/avcstat.8              |  35 ---
+ libselinux/man/ru/man8/booleans.8             |  46 ----
+ libselinux/man/ru/man8/getenforce.8           |  19 --
+ libselinux/man/ru/man8/getsebool.8            |  40 ----
+ libselinux/man/ru/man8/matchpathcon.8         |  62 -----
+ libselinux/man/ru/man8/sefcontext_compile.8   |  70 ------
+ libselinux/man/ru/man8/selinux.8              | 106 ---------
+ libselinux/man/ru/man8/selinuxenabled.8       |  21 --
+ libselinux/man/ru/man8/selinuxexeccon.8       |  28 ---
+ libselinux/man/ru/man8/setenforce.8           |  32 ---
+ libselinux/man/ru/man8/togglesebool.8         |  23 --
+ libsemanage/man/ru/man5/semanage.conf.5       | 117 ----------
+ libsepol/man/ru/man8/chkcon.8                 |  39 ----
+ mcstrans/man/ru/man5/setrans.conf.5           | 106 ---------
+ mcstrans/man/ru/man8/mcs.8                    |  24 --
+ mcstrans/man/ru/man8/mcstransd.8              |  32 ---
+ policycoreutils/load_policy/ru/load_policy.8  |  41 ----
+ policycoreutils/man/ru/man5/selinux_config.5  | 136 -----------
+ policycoreutils/newrole/ru/newrole.1          | 109 ---------
+ policycoreutils/run_init/ru/open_init_pty.8   |  42 ----
+ policycoreutils/run_init/ru/run_init.8        |  26 ---
+ policycoreutils/scripts/ru/fixfiles.8         |  94 --------
+ policycoreutils/secon/ru/secon.1              | 120 ----------
+ policycoreutils/semodule/ru/genhomedircon.8   |  25 --
+ policycoreutils/semodule/ru/semodule.8        | 133 -----------
+ policycoreutils/sestatus/ru/sestatus.8        |  79 -------
+ policycoreutils/sestatus/ru/sestatus.conf.5   |  97 --------
+ policycoreutils/setfiles/ru/restorecon.8      | 193 ---------------
+ .../setfiles/ru/restorecon_xattr.8            | 115 ---------
+ policycoreutils/setfiles/ru/setfiles.8        | 221 ------------------
+ policycoreutils/setsebool/ru/setsebool.8      |  27 ---
+ python/audit2allow/ru/audit2allow.1           | 210 -----------------
+ python/audit2allow/ru/audit2why.1             |   1 -
+ python/chcat/ru/chcat.8                       |  57 -----
+ python/semanage/ru/semanage-boolean.8         |  60 -----
+ python/semanage/ru/semanage-dontaudit.8       |  32 ---
+ python/semanage/ru/semanage-export.8          |  36 ---
+ python/semanage/ru/semanage-fcontext.8        |  84 -------
+ python/semanage/ru/semanage-ibendport.8       |  67 ------
+ python/semanage/ru/semanage-ibpkey.8          |  67 ------
+ python/semanage/ru/semanage-import.8          |  35 ---
+ python/semanage/ru/semanage-interface.8       |  62 -----
+ python/semanage/ru/semanage-login.8           |  67 ------
+ python/semanage/ru/semanage-module.8          |  61 -----
+ python/semanage/ru/semanage-node.8            |  59 -----
+ python/semanage/ru/semanage-permissive.8      |  47 ----
+ python/semanage/ru/semanage-port.8            |  69 ------
+ python/semanage/ru/semanage-user.8            |  70 ------
+ python/semanage/ru/semanage.8                 |  84 -------
+ python/sepolicy/ru/sepolgen.8                 |   1 -
+ python/sepolicy/ru/sepolicy-booleans.8        |  29 ---
+ python/sepolicy/ru/sepolicy-communicate.8     |  40 ----
+ python/sepolicy/ru/sepolicy-generate.8        | 173 --------------
+ python/sepolicy/ru/sepolicy-gui.8             |  29 ---
+ python/sepolicy/ru/sepolicy-interface.8       |  41 ----
+ python/sepolicy/ru/sepolicy-manpage.8         |  38 ---
+ python/sepolicy/ru/sepolicy-network.8         |  90 -------
+ python/sepolicy/ru/sepolicy-transition.8      |  34 ---
+ python/sepolicy/ru/sepolicy.8                 |  77 ------
+ restorecond/ru/restorecond.8                  |  41 ----
+ sandbox/ru/sandbox.5                          |  42 ----
+ sandbox/ru/sandbox.8                          | 100 --------
+ sandbox/ru/seunshare.8                        |  42 ----
+ .../semodule_expand/ru/semodule_expand.8      |  31 ---
+ .../semodule_link/ru/semodule_link.8          |  32 ---
+ .../semodule_package/ru/semodule_package.8    |  48 ----
+ .../semodule_package/ru/semodule_unpackage.8  |  24 --
+ 95 files changed, 6060 deletions(-)
+ delete mode 100644 checkpolicy/ru/checkmodule.8
+ delete mode 100644 checkpolicy/ru/checkpolicy.8
+ delete mode 100644 gui/ru/selinux-polgengui.8
+ delete mode 100644 gui/ru/system-config-selinux.8
+ delete mode 100644 libselinux/man/ru/man5/customizable_types.5
+ delete mode 100644 libselinux/man/ru/man5/default_contexts.5
+ delete mode 100644 libselinux/man/ru/man5/default_type.5
+ delete mode 100644 libselinux/man/ru/man5/failsafe_context.5
+ delete mode 100644 libselinux/man/ru/man5/file_contexts.5
+ delete mode 100644 libselinux/man/ru/man5/file_contexts.homedirs.5
+ delete mode 100644 libselinux/man/ru/man5/file_contexts.local.5
+ delete mode 100644 libselinux/man/ru/man5/file_contexts.subs.5
+ delete mode 100644 libselinux/man/ru/man5/file_contexts.subs_dist.5
+ delete mode 100644 libselinux/man/ru/man5/media.5
+ delete mode 100644 libselinux/man/ru/man5/removable_context.5
+ delete mode 100644 libselinux/man/ru/man5/secolor.conf.5
+ delete mode 100644 libselinux/man/ru/man5/securetty_types.5
+ delete mode 100644 libselinux/man/ru/man5/selabel_db.5
+ delete mode 100644 libselinux/man/ru/man5/selabel_file.5
+ delete mode 100644 libselinux/man/ru/man5/selabel_media.5
+ delete mode 100644 libselinux/man/ru/man5/selabel_x.5
+ delete mode 100644 libselinux/man/ru/man5/sepgsql_contexts.5
+ delete mode 100644 libselinux/man/ru/man5/service_seusers.5
+ delete mode 100644 libselinux/man/ru/man5/seusers.5
+ delete mode 100644 libselinux/man/ru/man5/user_contexts.5
+ delete mode 100644 libselinux/man/ru/man5/virtual_domain_context.5
+ delete mode 100644 libselinux/man/ru/man5/virtual_image_context.5
+ delete mode 100644 libselinux/man/ru/man5/x_contexts.5
+ delete mode 100644 libselinux/man/ru/man8/avcstat.8
+ delete mode 100644 libselinux/man/ru/man8/booleans.8
+ delete mode 100644 libselinux/man/ru/man8/getenforce.8
+ delete mode 100644 libselinux/man/ru/man8/getsebool.8
+ delete mode 100644 libselinux/man/ru/man8/matchpathcon.8
+ delete mode 100644 libselinux/man/ru/man8/sefcontext_compile.8
+ delete mode 100644 libselinux/man/ru/man8/selinux.8
+ delete mode 100644 libselinux/man/ru/man8/selinuxenabled.8
+ delete mode 100644 libselinux/man/ru/man8/selinuxexeccon.8
+ delete mode 100644 libselinux/man/ru/man8/setenforce.8
+ delete mode 100644 libselinux/man/ru/man8/togglesebool.8
+ delete mode 100644 libsemanage/man/ru/man5/semanage.conf.5
+ delete mode 100644 libsepol/man/ru/man8/chkcon.8
+ delete mode 100644 mcstrans/man/ru/man5/setrans.conf.5
+ delete mode 100644 mcstrans/man/ru/man8/mcs.8
+ delete mode 100644 mcstrans/man/ru/man8/mcstransd.8
+ delete mode 100644 policycoreutils/load_policy/ru/load_policy.8
+ delete mode 100644 policycoreutils/man/ru/man5/selinux_config.5
+ delete mode 100644 policycoreutils/newrole/ru/newrole.1
+ delete mode 100644 policycoreutils/run_init/ru/open_init_pty.8
+ delete mode 100644 policycoreutils/run_init/ru/run_init.8
+ delete mode 100644 policycoreutils/scripts/ru/fixfiles.8
+ delete mode 100644 policycoreutils/secon/ru/secon.1
+ delete mode 100644 policycoreutils/semodule/ru/genhomedircon.8
+ delete mode 100644 policycoreutils/semodule/ru/semodule.8
+ delete mode 100644 policycoreutils/sestatus/ru/sestatus.8
+ delete mode 100644 policycoreutils/sestatus/ru/sestatus.conf.5
+ delete mode 100644 policycoreutils/setfiles/ru/restorecon.8
+ delete mode 100644 policycoreutils/setfiles/ru/restorecon_xattr.8
+ delete mode 100644 policycoreutils/setfiles/ru/setfiles.8
+ delete mode 100644 policycoreutils/setsebool/ru/setsebool.8
+ delete mode 100644 python/audit2allow/ru/audit2allow.1
+ delete mode 100644 python/audit2allow/ru/audit2why.1
+ delete mode 100644 python/chcat/ru/chcat.8
+ delete mode 100644 python/semanage/ru/semanage-boolean.8
+ delete mode 100644 python/semanage/ru/semanage-dontaudit.8
+ delete mode 100644 python/semanage/ru/semanage-export.8
+ delete mode 100644 python/semanage/ru/semanage-fcontext.8
+ delete mode 100644 python/semanage/ru/semanage-ibendport.8
+ delete mode 100644 python/semanage/ru/semanage-ibpkey.8
+ delete mode 100644 python/semanage/ru/semanage-import.8
+ delete mode 100644 python/semanage/ru/semanage-interface.8
+ delete mode 100644 python/semanage/ru/semanage-login.8
+ delete mode 100644 python/semanage/ru/semanage-module.8
+ delete mode 100644 python/semanage/ru/semanage-node.8
+ delete mode 100644 python/semanage/ru/semanage-permissive.8
+ delete mode 100644 python/semanage/ru/semanage-port.8
+ delete mode 100644 python/semanage/ru/semanage-user.8
+ delete mode 100644 python/semanage/ru/semanage.8
+ delete mode 100644 python/sepolicy/ru/sepolgen.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-booleans.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-communicate.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-generate.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-gui.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-interface.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-manpage.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-network.8
+ delete mode 100644 python/sepolicy/ru/sepolicy-transition.8
+ delete mode 100644 python/sepolicy/ru/sepolicy.8
+ delete mode 100644 restorecond/ru/restorecond.8
+ delete mode 100644 sandbox/ru/sandbox.5
+ delete mode 100644 sandbox/ru/sandbox.8
+ delete mode 100644 sandbox/ru/seunshare.8
+ delete mode 100644 semodule-utils/semodule_expand/ru/semodule_expand.8
+ delete mode 100644 semodule-utils/semodule_link/ru/semodule_link.8
+ delete mode 100644 semodule-utils/semodule_package/ru/semodule_package.8
+ delete mode 100644 semodule-utils/semodule_package/ru/semodule_unpackage.8
 
-  I guess the reason why Android doesn't use seccomp for that is the
-  downsides of seccomp which I mentioned previously: in short, seccomp
-  is well-suited for selectively denying syscalls for specific
-  processes, but not so well-suited for selectively allowing them.
+-- 
+2.41.0
 
-  So one of the questions I'm wondering about is: if Android implemented
-  preventing execution of any io_uring code by non-trusted processes
-  (via seccomp or any other way), how much would it help to reduce the
-  risk of attacks, compared to its current SELinux based solution?
-
-- ChromeOS currently completely disables io_uring in kernel, but we do
-  want to allow it for a limited set of processes similarly to Android,
-  and we are exploring ways to do it securely. Thus the above
-  considerations for Android apply to ChromeOS as well.
-
-[1] https://android-review.git.corp.google.com/c/platform/system/sepolicy/+/2302679
-[2] https://android-review.git.corp.google.com/c/platform/system/sepolicy/+/2302679/6/public/te_macros
