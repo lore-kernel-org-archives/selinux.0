@@ -2,187 +2,106 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94AA6C001E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E918DC41513
 	for <selinux@archiver.kernel.org>; Wed,  9 Aug 2023 20:40:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbjHIUky (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S229943AbjHIUky (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 9 Aug 2023 16:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36220 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229943AbjHIUkx (ORCPT
+        with ESMTP id S231251AbjHIUkx (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 9 Aug 2023 16:40:53 -0400
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535A2196
-        for <selinux@vger.kernel.org>; Wed,  9 Aug 2023 13:40:52 -0700 (PDT)
-Received: by mail-qk1-x734.google.com with SMTP id af79cd13be357-765a7768f1dso17777785a.0
-        for <selinux@vger.kernel.org>; Wed, 09 Aug 2023 13:40:52 -0700 (PDT)
+Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56912A6
+        for <selinux@vger.kernel.org>; Wed,  9 Aug 2023 13:40:50 -0700 (PDT)
+Received: by mail-qt1-x82d.google.com with SMTP id d75a77b69052e-40fd2de0ddcso932781cf.2
+        for <selinux@vger.kernel.org>; Wed, 09 Aug 2023 13:40:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691613651; x=1692218451;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tkoXBwXrQ5LRt3UU4emrLWsDPN+ezmGSl2c5buk89ik=;
-        b=g4f0iiwcitLyy+60gbzurysjLMW91jB6Eaz5ph9TIpnOCI7kBeS676tsTfhSWU0xBU
-         7UwqNR9IUKhqWu9W31ysLK2+mlEeqLez4EIyMuZKe493fub0KSQ2Dqcl5DVQu+JhZLQu
-         hZYtbCaT23sx21vQTBlu+/dLDEDGdyx2pyh10fv4K0vcOZEwE4KOafTSJpG0UGv13yCu
-         bj78tZf3MYLxhcSu2CU5elrbyJvWt8FF7KtJOiEYgBl9VlabGdWeH3IBcmLYDdLT+4jg
-         DU87xIQcW66FrSZzDEqXX2tXMV+cNdlWjqHIg3Ukig7qZrjXZ5yI5WJirpEl/BLqjeTg
-         ixeg==
+        d=gmail.com; s=20221208; t=1691613649; x=1692218449;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=qZ0/YG3gLWpY0C8Yy2IFIsdeBP7URnrVgcg/UM80qGI=;
+        b=HKW9dE/WTnEmDpcOqW4dWujnkrNw8rjPk0Z56AXM/a8AgRJ3Qa+0zyhLrmg7rhiyil
+         2zbWI0mHANW0EMwvi0v68PP1OVeJs1q7ERQDGfCJr29+6hGWYTZl4yamFHGK001OAKZP
+         H76kNiP3NKvkAKqo/NZuWwOHVcxerl/bfagXsUA8LjedE0wF1x9e9JpekrRz4XvsOvHD
+         rNr5lLBSTxIRhxryYv9Z299ogbowcDRWeXuP2WQV1kHeh5SUqdRci8sGhGKGAUJm2U5U
+         W4PaermGg1X/c2hmwhk1fUDDFwdzB7NfOQNZRU2bvxkj30IaJ9PIc8Mxxo2rCTy1lDcK
+         0n1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691613651; x=1692218451;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tkoXBwXrQ5LRt3UU4emrLWsDPN+ezmGSl2c5buk89ik=;
-        b=jDEWGIHx5a/mWG7xJn0Pw78oEPKKTARAOCPrUhWskkTpF+FwKhh36NyYk/1O3Bmig3
-         EAsfQtXdMOOkFP7WGN7bvNB4s/MMS16yzedspTafX9uDvrf9LkT8AXKocBbKYv+KQRG4
-         v7EVo14CQsvvuPXw8irfg6zxRF7IUpQONGg4BBy77bXoJpHXt1yt/gZRex5bTChO8RoS
-         iTVuQhwDxo8Ry/5+sMg7Ag6rs74Azwpe0rrXRRy/5Xdj2C/Ucg5pspSZnItsTv1v4hOT
-         dEoJkPOp+cdg4q+FcX193EoTnIB8ll/tSK1icN9cF/jlW65KzjEuADFnUkDdiBRClpEW
-         Nk8w==
-X-Gm-Message-State: AOJu0YwrUCKxdqcM/5j4ESdwwPBQDTFHH2fvIL/MUJ08gTjzpDSsHHVm
-        hTRX78Sn1gk/5PBQbamXKCCbTotjTRg=
-X-Google-Smtp-Source: AGHT+IHk0YDVq5PgKX9slMF8FrrqbeZ0TYyzpH2ROASrd/SagKSLaD/TXqnJ6buqwIrBjtvAY5ZxAA==
-X-Received: by 2002:a05:620a:45a4:b0:76c:7d2a:2dbf with SMTP id bp36-20020a05620a45a400b0076c7d2a2dbfmr123088qkb.57.1691613650928;
-        Wed, 09 Aug 2023 13:40:50 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1691613649; x=1692218449;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qZ0/YG3gLWpY0C8Yy2IFIsdeBP7URnrVgcg/UM80qGI=;
+        b=F9jvVWaWF2AFR6zhogk+l1ddBLj7PUaH5/k2aXwKxAj/Ufg5WjhSQGqsjBY/34W3Va
+         lw/XprOA0veaORN5LJPHd3UwGvKPV8W4HQCr6aDKcWVXPDZnWZx3Kb+ETrZgNXon65DF
+         lBojHJb91kT9xarCgJBk8H4r2PW5ToPCNaz18yH0Z0pIBgVQmkpU5Bz5340KMK0wq3ww
+         EZgxeVqMNuJ4nkeNTBPWdnMTkHHRPedRRPr1gk0AStkP0Fb9efef2KvNK61JFsc4a5GP
+         nNcw8nUZJLOW87EtLO0wz8dWblDipgGR2lnmDCjmcvlMmSA/6S+rSH/06XqqfF6LErEN
+         HnVw==
+X-Gm-Message-State: AOJu0YzGx8PyXg7r+JAtqU5h0EYf9WzY+RH5yC9wDobHBQhcrrRp9IBG
+        9/weWfe5gf+CrkhycUFZpx8NbcqdJlo=
+X-Google-Smtp-Source: AGHT+IFHNlMNZE3A+ZSuNwEgcYci2oLT+1Ykaq8hrKrMKuPzZNY9IcSylv2yGL4/LWWVCDkLx3PibA==
+X-Received: by 2002:a05:622a:1009:b0:403:b5a1:7ee0 with SMTP id d9-20020a05622a100900b00403b5a17ee0mr614949qte.32.1691613649006;
+        Wed, 09 Aug 2023 13:40:49 -0700 (PDT)
 Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
-        by smtp.gmail.com with ESMTPSA id u18-20020a05622a14d200b0041020e8e261sm711295qtx.1.2023.08.09.13.40.50
+        by smtp.gmail.com with ESMTPSA id u18-20020a05622a14d200b0041020e8e261sm711295qtx.1.2023.08.09.13.40.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Aug 2023 13:40:50 -0700 (PDT)
+        Wed, 09 Aug 2023 13:40:48 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     dburgener@linux.microsoft.com, cgzones@googlemail.com,
         James Carter <jwcart2@gmail.com>
-Subject: [PATCH 2/7 v2] libsepol/cil: Do not call ebitmap_init twice for an ebitmap
-Date:   Wed,  9 Aug 2023 16:40:41 -0400
-Message-ID: <20230809204046.110783-3-jwcart2@gmail.com>
+Subject: [PATCH 0/7 v2] Add support for notself and other to CIL
+Date:   Wed,  9 Aug 2023 16:40:39 -0400
+Message-ID: <20230809204046.110783-1-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230809204046.110783-1-jwcart2@gmail.com>
-References: <20230809204046.110783-1-jwcart2@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-While it does no harm to call ebitmap_init() twice for an ebitmap,
-since it is just memsetting the ebitmap to 0, it is poor practice.
+This patch set adds support for using notself and other in AV rules.
+See patch 3 for more details.
 
-In the function cil_type_matches() in cil_find.c, either ebitmap_and()
-or ebitmap_set_bit() will be called. The function ebitmap_and() will
-call ebitmap_init() on the destination ebitmap, but ebitmap_set_bit()
-does not.
+Patches 1-4, 6-7 are the same as the patches from April 12th, see:
+https://lore.kernel.org/selinux/20230412210406.522892-1-jwcart2@gmail.com/
 
-Instead of calling ebitmap_init() before the call to cil_type_matches(),
-let cil_type_matches() make the call if it is going to call
-ebitmap_set_bit(). It can also call ebitmap_destroy() on an error.
+Patch 5 updates Christian's patch to use ERR() instead of log_err(), see:
+https://lore.kernel.org/selinux/20230602130608.24586-4-cgzones@googlemail.com/
 
-Since we are removing the call to ebitmap_init() in cil_self_match_any(),
-cleanup some other things in the function (like using the FLAVOR()
-macro and using ebitmap_is_empty()).
+Nothing else has changed.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/cil/src/cil_find.c | 60 +++++++++++++++++++------------------
- 1 file changed, 31 insertions(+), 29 deletions(-)
+Christian Göttsche (1):
+  libsepol: update CIL generation for trivial not-self rules
 
-diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
-index 8b755277..0246d133 100644
---- a/libsepol/cil/src/cil_find.c
-+++ b/libsepol/cil/src/cil_find.c
-@@ -85,29 +85,34 @@ static int cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, str
- 	enum cil_flavor f1 = FLAVOR(d1);
- 	enum cil_flavor f2 = FLAVOR(d2);
- 
--	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
--		struct cil_type *t1 = (struct cil_type *)d1;
--		struct cil_type *t2 = (struct cil_type *)d2;
--		if (t1->value == t2->value) {
--			ebitmap_set_bit(matches, t1->value, 1);
--		}
--	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
--		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
--		struct cil_type *t = (struct cil_type *)d2;
--		if (ebitmap_get_bit(a->types, t->value)) {
--			ebitmap_set_bit(matches, t->value, 1);
--		}
--	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
--		struct cil_type *t = (struct cil_type *)d1;
--		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
--		if (ebitmap_get_bit(a->types, t->value)) {
--			ebitmap_set_bit(matches, t->value, 1);
--		}
--	} else {
--		/* Both are attributes */
-+	if (f1 == CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
- 		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
- 		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
- 		rc = ebitmap_and(matches, a1->types, a2->types);
-+	} else {
-+		ebitmap_init(matches);
-+		if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
-+			struct cil_type *t1 = (struct cil_type *)d1;
-+			struct cil_type *t2 = (struct cil_type *)d2;
-+			if (t1->value == t2->value) {
-+				rc = ebitmap_set_bit(matches, t1->value, 1);
-+			}
-+		} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
-+			struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
-+			struct cil_type *t = (struct cil_type *)d2;
-+			if (ebitmap_get_bit(a->types, t->value)) {
-+				rc = ebitmap_set_bit(matches, t->value, 1);
-+			}
-+		} else { // f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE
-+			struct cil_type *t = (struct cil_type *)d1;
-+			struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
-+			if (ebitmap_get_bit(a->types, t->value)) {
-+				rc = ebitmap_set_bit(matches, t->value, 1);
-+			}
-+		}
-+		if (rc != SEPOL_OK) {
-+			ebitmap_destroy(matches);
-+		}
- 	}
- 
- 	return rc;
-@@ -115,31 +120,28 @@ static int cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, str
- 
- /* s1 is the src type that is matched with a self
-  * s2, and t2 are the source and type of the other rule
-+ * Assumes there is a match between s1 and s2
-  */
- static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
- {
- 	int rc;
--	struct cil_tree_node *n1 = NODE(s1);
--	if (n1->flavor != CIL_TYPEATTRIBUTE) {
-+
-+	if (FLAVOR(s1) != CIL_TYPEATTRIBUTE) {
- 		rc = cil_type_match_any(s1, t2);
- 	} else {
- 		struct cil_typeattribute *a = (struct cil_typeattribute *)s1;
- 		ebitmap_t map;
--		ebitmap_init(&map);
- 		rc = cil_type_matches(&map, s2, t2);
- 		if (rc < 0) {
--			ebitmap_destroy(&map);
--			goto exit;
-+			return rc;
- 		}
--		if (map.node == NULL) {
--			rc = CIL_FALSE;
--			goto exit;
-+		if (ebitmap_is_empty(&map)) {
-+			return CIL_FALSE;
- 		}
- 		rc = ebitmap_match_any(&map, a->types);
- 		ebitmap_destroy(&map);
- 	}
- 
--exit:
- 	return rc;
- }
- 
+James Carter (6):
+  libsepol: Changes to ebitmap.h to fix compiler warnings
+  libsepol/cil: Do not call ebitmap_init twice for an ebitmap
+  libsepol/cil: Add notself and other support to CIL
+  libsepol: Use ERR() instead of log_err()
+  secilc/docs: Add notself and other keywords to CIL documentation
+  secilc/test: Add notself and other tests
+
+ libsepol/cil/src/cil.c                    |  12 ++
+ libsepol/cil/src/cil_binary.c             |  91 +++++++-
+ libsepol/cil/src/cil_build_ast.c          |  10 +-
+ libsepol/cil/src/cil_find.c               | 246 ++++++++++++++++++----
+ libsepol/cil/src/cil_internal.h           |   4 +
+ libsepol/cil/src/cil_resolve_ast.c        |   4 +
+ libsepol/cil/src/cil_verify.c             |   3 +-
+ libsepol/include/sepol/policydb/ebitmap.h |   4 +-
+ libsepol/src/module_to_cil.c              |  30 ++-
+ secilc/docs/README.md                     |   1 -
+ secilc/docs/cil_access_vector_rules.md    | 244 +++------------------
+ secilc/docs/cil_reference_guide.md        |   9 -
+ secilc/docs/secil.xml                     |   2 +
+ secilc/test/notself_and_other.cil         |  65 ++++++
+ 14 files changed, 444 insertions(+), 281 deletions(-)
+ create mode 100644 secilc/test/notself_and_other.cil
+
 -- 
 2.41.0
 
