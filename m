@@ -2,102 +2,156 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD088C04A94
-	for <selinux@archiver.kernel.org>; Thu, 10 Aug 2023 12:28:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA56C001B0
+	for <selinux@archiver.kernel.org>; Thu, 10 Aug 2023 13:57:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235344AbjHJM2I (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Aug 2023 08:28:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
+        id S235496AbjHJN5k (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Aug 2023 09:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235199AbjHJM2I (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Aug 2023 08:28:08 -0400
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86EC81B4;
-        Thu, 10 Aug 2023 05:28:07 -0700 (PDT)
-Received: by mail-ot1-x335.google.com with SMTP id 46e09a7af769-6bca66e6c44so849184a34.0;
-        Thu, 10 Aug 2023 05:28:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691670487; x=1692275287;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iZ5e6iHymhzYgHWJ9Iho76Ykmmu5+XifAghQRovvEwQ=;
-        b=VcdExpqHQyymIYvXS7iHoWNsQS8udm/Z/6xOHf2gx7FZy4MvvRPNP3MeBoDFsq2aVw
-         PQFBWU5ZrhDpC0OeVxCGJOkSDtm0rrEiZYojw9c71s2hLUgrhuPJrnyGyhzAPBNKmW/8
-         wDOfQIXnSUU5HJ1cOHBPJwPiS2oI+EdS+CLHwbFi0vWZLbnH6XvGg2ZsEHbHPN0fcEQu
-         s9uc/LfTCV8mpzGSjjPLQeIFhe4Q5i5oNJWWDWdeCnYZ5IZJhM7LJk8mhZ9ZCQ2t5H9e
-         JwXt3MQX0lqRldlU0fpsA0yZhciPFpPmRKIVgXS6vDGZuBzTXpF2xmFsyKoZirTxMhQo
-         ujTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691670487; x=1692275287;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iZ5e6iHymhzYgHWJ9Iho76Ykmmu5+XifAghQRovvEwQ=;
-        b=TK2EnPHhczPkDGDIKI42HN4qZzec1NIS42XH0j1u7GQcKB97GNLmw6lV+dSsHDn3QT
-         Ftx8Y29bJXgOQlCzxAngZAwOGHYHWv+W1C09VOtBm/ewaUmQ0rr8rE/X4JPfZjw8ulIm
-         4reB1RD6q37PuIrdWYlTnPFvVDLEl31k56IEfHwg9qw+J0rr6emb9ta8qbakaUeSpUWX
-         XQiy+CTaoI6PcPcXpBMqsUH29ZmiDanbtFHz22vh+KkR3SnruSjNepcLnaqkHQZicEaJ
-         fygz/tYHAMygvCig9eSQn5z8SRMNIjzncS4P+DZCbFvccnsrK85V3HA7k0/NK6HQwrRx
-         7lZQ==
-X-Gm-Message-State: AOJu0YwxDqVa0mhR98/fZUM9mZjQkcG8Bhr/f1iZn5nUBvzHKKT4dYek
-        hdWE/093Sets5RmYPOSA12V+9AAtkduiG3Sm1Naz1c5u
-X-Google-Smtp-Source: AGHT+IFryjaMoJoCHESoJ6S4U2w2WXnvQnzGOtocx2Aaq82gMMjPYovQPIjWKOl8VJrPvTnY6YPxl1J5FqFGJioZhAo=
-X-Received: by 2002:a9d:7517:0:b0:6bc:f276:717f with SMTP id
- r23-20020a9d7517000000b006bcf276717fmr2741648otk.13.1691670486788; Thu, 10
- Aug 2023 05:28:06 -0700 (PDT)
-MIME-Version: 1.0
-References: <20221107205754.2635439-1-cukie@google.com> <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
- <CABXk95ChjusTneWJgj5a58CZceZv0Ay-P-FwBcH2o4rO0g2Ggw@mail.gmail.com>
- <CAHC9VhRTWGuiMpJJiFrUpgsm7nQaNA-n1CYRMPS-24OLvzdA2A@mail.gmail.com>
- <54c8fd9c-0edd-7fea-fd7a-5618859b0827@semihalf.com> <CAHC9VhS9BXTUjcFy-URYhG=XSxBC+HsePbu01_xBGzM8sebCYQ@mail.gmail.com>
- <d2eaa3f8-cca6-2f51-ce98-30242c528b6f@semihalf.com> <CAHC9VhQDAM8X-MV9ONckc2NBWDZrsMteanDo9_NS4SirdQAx=w@mail.gmail.com>
- <dc055b47-b868-7f5d-98bf-51e27df6b2d8@semihalf.com> <6c5157fd-0feb-bce0-c160-f8d89a06f640@semihalf.com>
-In-Reply-To: <6c5157fd-0feb-bce0-c160-f8d89a06f640@semihalf.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 10 Aug 2023 08:27:55 -0400
-Message-ID: <CAEjxPJ7xiqKAbfX2JhN2NBbWsdgEesE18RG4d81ELyee6bfOkQ@mail.gmail.com>
-Subject: Re: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
-To:     Dmytro Maluka <dmy@semihalf.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Gil Cukierman <cukie@google.com>, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
+        with ESMTP id S230446AbjHJN5j (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Aug 2023 09:57:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5236C212B;
+        Thu, 10 Aug 2023 06:57:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E464C64A1F;
+        Thu, 10 Aug 2023 13:57:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88C1C433C7;
+        Thu, 10 Aug 2023 13:57:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691675858;
+        bh=8TLHDCTColfLSCdxEVFmLaRfu1yS1/99cHLfJeUUwA4=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=WBhsUVuR/RFO+wlrVpHGFEl49UYiU3eSfSTZmXJVEdoAdppwGGfY1w94k5Awt0ScR
+         Mqsx+eEA35BFxGTQ6rkQd/rL3nPeGShFLDkTNa42ScNw5j4b/fjbB05P7hiyqzbNYJ
+         nN7kCP3gcuWcsLOE62Yuk4R+iQPdGPvIi6q/A10mLqSk7zYclfVcVqEi2fIsVKmcFj
+         Xic7aeTVbHof/AB+wNsYOau7ha5h5XA3NAN0mFV1OnC2glqxt4UQWeFDy/jX8q/X4y
+         fJHzeKfg1Khy1hd/P0L7mEFqlG9B9C7f4sn9WirH0GBvu4zmim+X7zZnn1Tmdz+YfY
+         EjgoHPnX7wiBw==
+Message-ID: <7d596fc2c526a5d6e4a84240dede590e868f3345.camel@kernel.org>
+Subject: Re: [PATCH v9] vfs, security: Fix automount superblock LSM init
+ problem, preventing NFS sb sharing
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Christian Brauner <brauner@kernel.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
-        Eric Paris <eparis@parisplace.org>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Joel Granados <j.granados@samsung.com>,
-        Jeff Xu <jeffxu@google.com>,
-        Takaya Saeki <takayas@chromium.org>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Matteo Rizzo <matteorizzo@google.com>,
-        Andres Freund <andres@anarazel.de>
-Content-Type: text/plain; charset="UTF-8"
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        David Howells <dhowells@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Date:   Thu, 10 Aug 2023 09:57:35 -0400
+In-Reply-To: <20230808-erdaushub-sanieren-2bd8d7e0a286@brauner>
+References: <20230808-master-v9-1-e0ecde888221@kernel.org>
+         <20230808-erdaushub-sanieren-2bd8d7e0a286@brauner>
+Content-Type: text/plain; charset="ISO-8859-15"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+MIME-Version: 1.0
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 10, 2023 at 5:08=E2=80=AFAM Dmytro Maluka <dmy@semihalf.com> wr=
-ote:
->
-> On 8/9/23 19:28, Dmytro Maluka wrote:
-> >   So one of the questions I'm wondering about is: if Android implemente=
-d
-> >   preventing execution of any io_uring code by non-trusted processes
-> >   (via seccomp or any other way), how much would it help to reduce the
-> >   risk of attacks, compared to its current SELinux based solution?
->
-> And why exactly I'm wondering about that: AFAICT, Android folks are
-> concerned about the high likelihood of vulnerabilities in io_uring code
-> just like we (ChromeOS folks) are, and that is the main reason why
-> Android takes care of restricting io_uring usage in the first place.
+On Tue, 2023-08-08 at 15:31 +0200, Christian Brauner wrote:
+> On Tue, Aug 08, 2023 at 07:34:20AM -0400, Jeff Layton wrote:
+> > From: David Howells <dhowells@redhat.com>
+> >=20
+> > When NFS superblocks are created by automounting, their LSM parameters
+> > aren't set in the fs_context struct prior to sget_fc() being called,
+> > leading to failure to match existing superblocks.
+> >=20
+> > This bug leads to messages like the following appearing in dmesg when
+> > fscache is enabled:
+> >=20
+> >     NFS: Cache volume key already in use (nfs,4.2,2,108,106a8c0,1,,,,10=
+0000,100000,2ee,3a98,1d4c,3a98,1)
+> >=20
+> > Fix this by adding a new LSM hook to load fc->security for submount
+> > creation.
+> >=20
+> > Signed-off-by: David Howells <dhowells@redhat.com>
+> > Signed-off-by: Jeff Layton <jlayton@kernel.org>
+> > Fixes: 9bc61ab18b1d ("vfs: Introduce fs_context, switch vfs_kern_mount(=
+) to it.")
+> > Fixes: 779df6a5480f ("NFS: Ensure security label is set for root inode)
+> > Tested-by: Jeff Layton <jlayton@kernel.org>
+> > Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 
-I think if you audit the io_uring syscalls and find a code path that
-is not already mediated by a LSM hook (potentially at an earlier point
-during setup / fd creation) that accesses any shared resource or
-performs a privileged action, we would be open to adding a LSM hook to
-cover that code path. But you'd have to do the work to identify and
-propose such cases.
+I've made a significant number of changes since Casey acked this. It
+might be a good idea to drop his Acked-by (unless he wants to chime in
+and ask us to keep it).
+
+Thanks,
+Jeff
+
+> > Acked-by: "Christian Brauner (Microsoft)" <brauner@kernel.org>
+> > Link: https://lore.kernel.org/r/165962680944.3334508.661002390034914203=
+4.stgit@warthog.procyon.org.uk/ # v1
+> > Link: https://lore.kernel.org/r/165962729225.3357250.143507288464715271=
+37.stgit@warthog.procyon.org.uk/ # v2
+> > Link: https://lore.kernel.org/r/165970659095.2812394.686889417110231879=
+6.stgit@warthog.procyon.org.uk/ # v3
+> > Link: https://lore.kernel.org/r/166133579016.3678898.628319501948056727=
+5.stgit@warthog.procyon.org.uk/ # v4
+> > Link: https://lore.kernel.org/r/217595.1662033775@warthog.procyon.org.u=
+k/ # v5
+> > ---
+> > ver #2)
+> > - Added Smack support
+> > - Made LSM parameter extraction dependent on reference !=3D NULL.
+> >=20
+> > ver #3)
+> > - Made LSM parameter extraction dependent on fc->purpose =3D=3D
+> >    FS_CONTEXT_FOR_SUBMOUNT.  Shouldn't happen on FOR_RECONFIGURE.
+> >=20
+> > ver #4)
+> > - When doing a FOR_SUBMOUNT mount, don't set the root label in SELinux =
+or Smack.
+> >=20
+> > ver #5)
+> > - Removed unused variable.
+> > - Only allocate smack_mnt_opts if we're dealing with a submount.
+> >=20
+> > ver #6)
+> > - Rebase onto v6.5.0-rc4
+> > - Link to v6: https://lore.kernel.org/r/20230802-master-v6-1-45d4829916=
+8b@kernel.org
+> >=20
+> > ver #7)
+> > - Drop lsm_set boolean
+> > - Link to v7: https://lore.kernel.org/r/20230804-master-v7-1-5d4e484072=
+98@kernel.org
+> >=20
+> > ver #8)
+> > - Remove spurious semicolon in smack_fs_context_init
+> > - Make fs_context_init take a superblock as reference instead of dentry
+> > - WARN_ON_ONCE's when fc->purpose !=3D FS_CONTEXT_FOR_SUBMOUNT
+> > - Call the security hook from fs_context_for_submount instead of alloc_=
+fs_context
+> > - Link to v8: https://lore.kernel.org/r/20230807-master-v8-1-54e249595f=
+10@kernel.org
+> >=20
+> > ver #9)
+> > - rename *_fs_context_init to *_fs_context_submount
+> > - remove checks for FS_CONTEXT_FOR_SUBMOUNT and NULL reference pointers
+> > - fix prototype on smack_fs_context_submount
+>=20
+> Thanks, this looks good from my perspective. If it looks fine to LSM
+> folks as well I can put it with the rest of the super work for this
+> cycle or it can go through the LSM tree.
+
+--=20
+Jeff Layton <jlayton@kernel.org>
