@@ -2,100 +2,96 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1D87C04E69
-	for <selinux@archiver.kernel.org>; Thu, 10 Aug 2023 09:09:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DB72C001B0
+	for <selinux@archiver.kernel.org>; Thu, 10 Aug 2023 10:04:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234099AbjHJJJM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Aug 2023 05:09:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33262 "EHLO
+        id S235313AbjHJKEH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Aug 2023 06:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233139AbjHJJIj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Aug 2023 05:08:39 -0400
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC037211E
-        for <selinux@vger.kernel.org>; Thu, 10 Aug 2023 02:08:38 -0700 (PDT)
-Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-4fe0c566788so956200e87.0
-        for <selinux@vger.kernel.org>; Thu, 10 Aug 2023 02:08:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf.com; s=google; t=1691658517; x=1692263317;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Xol/W+TvwhMd6CwwK6yrJqAS9Tv78RNFD7MRPU7oFb8=;
-        b=ZRu0XiA9V0IseCnwRNvEo1LfISeMdXM1UxAINjtcjxJhEfoYn84di4Vf4feEnvyjQr
-         YLWyP3ULvjpqTaVDtUpr8YSQj8NWEHB5oKl8plMtJsPjRwwaRGm8mQRB3ptHSV4m2PRn
-         cSZkXXGe1ODstwlN5h/HNWEu9qHRs5bw+OXYzs94NagW5uvFWziudlA4AsDpey7e/i2q
-         K9Vb6tJKP/AnJ5WorlHIhscNzBnEZZ6rLwPYCTUKKVyy66oMvFpJWNRYVLG+Q7CO+CJr
-         B5iudtNyIzushzY9/Lw2XoudjDo90IAFanrTR4G+Zxis52gBKzGVtA5BaNcgzN6pDjd6
-         Wr7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691658517; x=1692263317;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Xol/W+TvwhMd6CwwK6yrJqAS9Tv78RNFD7MRPU7oFb8=;
-        b=jsOyKNmRTrNlNurmQoYTFPd7XPTMYOGQQUHoO9zLQqhhe8xJHKOzbrtx3inTreO5fh
-         1XjEKTMqYjpTJi8HuA3JL4iGxnQ8G4YRyPM+h0+3Cr6OMxYk1TMsE9OxBMTC9ZS2oR21
-         FnMIlB6T0VO+hihfTP4MEhdJNaWt7ecfYA+/tOE0wa6JX2tWVktOLZHdCJLkiEkcqWUR
-         d6t5lbQeh8iq3PJfAMVQ5pLkk5fYuT/ideuYyaZr4K+SFQ4tSbVyKL0N8fGWgNBlsc/7
-         Uo/G7q1PwkIYxT3i/9lPoyGdXZl7Sx8e3RNRriETmiCzPqRg9X3aoZlv9O6y0S+PvRlq
-         3tkg==
-X-Gm-Message-State: AOJu0YxypPWxRTixi0mJuhqQaxlNiYeWag4EomtfkUT3UCOcDnGSTdtj
-        Rs7Q3OJRByshA6IYDSkJoKOl7w==
-X-Google-Smtp-Source: AGHT+IGHsVD7kNwE0OP5lernztvDqqsgfDrdbPMMQprcfSZ56KzwkpOB3mBxt0B0KFX7TvbYMtw6Fw==
-X-Received: by 2002:a05:6512:2808:b0:4fe:1f02:e54b with SMTP id cf8-20020a056512280800b004fe1f02e54bmr1743000lfb.56.1691658516875;
-        Thu, 10 Aug 2023 02:08:36 -0700 (PDT)
-Received: from [10.43.1.246] ([83.142.187.84])
-        by smtp.gmail.com with ESMTPSA id s7-20020a19ad47000000b004fe83d228e4sm203930lfd.71.2023.08.10.02.08.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Aug 2023 02:08:36 -0700 (PDT)
-Message-ID: <6c5157fd-0feb-bce0-c160-f8d89a06f640@semihalf.com>
-Date:   Thu, 10 Aug 2023 11:08:34 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.1
-Subject: Re: [PATCH v1 0/2] Add LSM access controls for io_uring_setup
-Content-Language: en-US
-From:   Dmytro Maluka <dmy@semihalf.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Jeffrey Vander Stoep <jeffv@google.com>,
-        Gil Cukierman <cukie@google.com>, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
+        with ESMTP id S235195AbjHJKDo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Aug 2023 06:03:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63A93ABF;
+        Thu, 10 Aug 2023 03:01:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5608B6570C;
+        Thu, 10 Aug 2023 10:01:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14833C433C7;
+        Thu, 10 Aug 2023 10:01:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1691661703;
+        bh=7ugjWJhVsy+T1T5nRjQNqcfhGEJuIF4KKFMz/3r4FkI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MT5PkUJBlaKBchM5vURYE9/YCNX/fU6qtulF8QygyYrLJfspVjsVkV6e5lvibTMgx
+         9J7pG5gQZcab+isZSkfbQhuK1e15vqx/IpeZpSQYYYkb/0jx6EtYCxOA619AOd6P1a
+         aUij20wCV4kmq08+eFMQxVGp1eGIAmw6u6y/gchASNm/Gwt6ZyvSXY3tSAxK36Pn3O
+         nkY0HdFfTTXrTdwBMrK1iPe6V0i3ohJ1seNTVbDEBvCnppa/R9PjA2JozL8MO7OAzO
+         0TnF9LNiemrXuxTMb4qVY4SaTd60u+HnBpdQOFPMXH9uO1mca6pZgq4TkU/HKstKkS
+         aj7ZtcUTSUU1Q==
+From:   Christian Brauner <brauner@kernel.org>
+To:     Jeff Layton <jlayton@kernel.org>, Paul Moore <paul@paul-moore.com>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, kernel-team@android.com,
-        linux-kernel@vger.kernel.org, io-uring@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        Joel Granados <j.granados@samsung.com>,
-        Jeff Xu <jeffxu@google.com>,
-        Takaya Saeki <takayas@chromium.org>,
-        Tomasz Nowicki <tn@semihalf.com>,
-        Matteo Rizzo <matteorizzo@google.com>,
-        Andres Freund <andres@anarazel.de>
-References: <20221107205754.2635439-1-cukie@google.com>
- <CAHC9VhTLBWkw2XzqdFx1LFVKDtaAL2pEfsmm+LEmS0OWM1mZgA@mail.gmail.com>
- <CABXk95ChjusTneWJgj5a58CZceZv0Ay-P-FwBcH2o4rO0g2Ggw@mail.gmail.com>
- <CAHC9VhRTWGuiMpJJiFrUpgsm7nQaNA-n1CYRMPS-24OLvzdA2A@mail.gmail.com>
- <54c8fd9c-0edd-7fea-fd7a-5618859b0827@semihalf.com>
- <CAHC9VhS9BXTUjcFy-URYhG=XSxBC+HsePbu01_xBGzM8sebCYQ@mail.gmail.com>
- <d2eaa3f8-cca6-2f51-ce98-30242c528b6f@semihalf.com>
- <CAHC9VhQDAM8X-MV9ONckc2NBWDZrsMteanDo9_NS4SirdQAx=w@mail.gmail.com>
- <dc055b47-b868-7f5d-98bf-51e27df6b2d8@semihalf.com>
-In-Reply-To: <dc055b47-b868-7f5d-98bf-51e27df6b2d8@semihalf.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Eric Paris <eparis@parisplace.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        David Howells <dhowells@redhat.com>,
+        Scott Mayhew <smayhew@redhat.com>
+Subject: Re: [PATCH v9] vfs, security: Fix automount superblock LSM init problem, preventing NFS sb sharing
+Date:   Thu, 10 Aug 2023 12:01:34 +0200
+Message-Id: <20230810-wagten-otter-2cbcbcf048cd@brauner>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230808-master-v9-1-e0ecde888221@kernel.org>
+References: <20230808-master-v9-1-e0ecde888221@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1286; i=brauner@kernel.org; h=from:subject:message-id; bh=7ugjWJhVsy+T1T5nRjQNqcfhGEJuIF4KKFMz/3r4FkI=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaRc2Vo578LFWEe+wOnaTz9yLfnaLrX1iNqH8++/344+eyvm b4j35o5SFgYxLgZZMUUWh3aTcLnlPBWbjTI1YOawMoEMYeDiFICJ3LNkZPgQuujHFakSh5mPkjfG9j 1WFoqblxt66sgFGT4BMRcjJXGG/xG+CcoiCWpWxfsfLq1vVI1+M7vohPcGly2flkzTXOd1kgcA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/9/23 19:28, Dmytro Maluka wrote:
->   So one of the questions I'm wondering about is: if Android implemented
->   preventing execution of any io_uring code by non-trusted processes
->   (via seccomp or any other way), how much would it help to reduce the
->   risk of attacks, compared to its current SELinux based solution?
+On Tue, 08 Aug 2023 07:34:20 -0400, Jeff Layton wrote:
+> When NFS superblocks are created by automounting, their LSM parameters
+> aren't set in the fs_context struct prior to sget_fc() being called,
+> leading to failure to match existing superblocks.
+> 
+> This bug leads to messages like the following appearing in dmesg when
+> fscache is enabled:
+> 
+> [...]
 
-And why exactly I'm wondering about that: AFAICT, Android folks are
-concerned about the high likelihood of vulnerabilities in io_uring code
-just like we (ChromeOS folks) are, and that is the main reason why
-Android takes care of restricting io_uring usage in the first place.
+I'm stuffing this on vfs.misc because this should be in -next for some
+time. If there's objections let me know.
+
+---
+
+Applied to the vfs.misc branch of the vfs/vfs.git tree.
+Patches in the vfs.misc branch should appear in linux-next soon.
+
+Please report any outstanding bugs that were missed during review in a
+new review to the original patch series allowing us to drop it.
+
+It's encouraged to provide Acked-bys and Reviewed-bys even though the
+patch has now been applied. If possible patch trailers will be updated.
+
+Note that commit hashes shown below are subject to change due to rebase,
+trailer updates or similar. If in doubt, please check the listed branch.
+
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
+branch: vfs.misc
+
+[1/1] vfs, security: Fix automount superblock LSM init problem, preventing NFS sb sharing
+      https://git.kernel.org/vfs/vfs/c/4b4fb74b1aa1
