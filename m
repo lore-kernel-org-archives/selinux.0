@@ -2,124 +2,157 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40A28C41513
-	for <selinux@archiver.kernel.org>; Thu, 10 Aug 2023 22:24:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B97DC001DE
+	for <selinux@archiver.kernel.org>; Fri, 11 Aug 2023 05:53:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231559AbjHJWYa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Aug 2023 18:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
+        id S233265AbjHKFx5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Aug 2023 01:53:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229636AbjHJWY3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Aug 2023 18:24:29 -0400
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1E48273C
-        for <selinux@vger.kernel.org>; Thu, 10 Aug 2023 15:24:28 -0700 (PDT)
-Received: by mail-qt1-x82d.google.com with SMTP id d75a77b69052e-40ff57072f2so6860881cf.1
-        for <selinux@vger.kernel.org>; Thu, 10 Aug 2023 15:24:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1691706268; x=1692311068;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=FLWNnusBQnURb+xt4DXlBk9kVPWvxt5Ijw2JQ29Fx8Y=;
-        b=PBDelp9ylnd1p2zMIhh8FOdARsKvJDy8PLP1C3HivQIoVhjSR67cE5WxfIaI6Q/ZFz
-         DEkN1mgdlvZTuViYovzDLhJyNP63ciyHtcSsOFP35Y2r3nfvchju03Lm1py3hn0YK13B
-         Tf033gd+fiSAz+zAyU1P7vdthhxKsqo7+UHR0SG9nY0b9bFpiMDg3P/p/pfY1q/HRl9H
-         oDuuwG/e0xmgnELlV/MVDjuss+NpV2Zg7lyplBP0JrPT788bpif3a08YQaePW5Mobn6z
-         orNqyhVtqc51s8BUq2eKc9Qx52+JGXPrxI41MnZZN+lH4fgMXwoDJX0bBz3M4TNMuZfa
-         rrpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691706268; x=1692311068;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FLWNnusBQnURb+xt4DXlBk9kVPWvxt5Ijw2JQ29Fx8Y=;
-        b=Ao2cGzecGScC4PBtU7PZ422EULbb/OU4WNuy1BvMUVfrFC7rT4qatsJe9KvVorvPfs
-         sJSppDtsSRq9+1R1BQzP2fjVFPPbn0Rn7cAWZrGJvJpEcnnnJkrFWl3FubkcWF0aYFfH
-         vLdTSmNcoaf1Bz7yrjSGtH/Zdzd/y3Vgpz3dMGffDhS0+zFoalMsponVPVesJeF7UahS
-         YhVPf+i79NmmHtyVmN++MwU9lVKWnIwkTZMke13wM6x6LL92bPhMRdWwcijtk0ZVOVRx
-         x10FslDDhH/kOTg3gmNYpWXQYnSaesijMq28gs+ITssxAEAppncmLnHWaoYwPd5OoVsu
-         KvWA==
-X-Gm-Message-State: AOJu0Yz4kLdcXnMFKPcwfdx42xDtas3uLN34TmwZyaqPRJVle4DhWLvc
-        wl8xJWtidzelA+Pl5uwPjk9D
-X-Google-Smtp-Source: AGHT+IEqhheF+cXXqXhsi4mrHMlBChr9PecL3CPsD6reX5pruGhIm1HrgtXPC/T91Y/HTSCU4vriDQ==
-X-Received: by 2002:a05:622a:4ca:b0:40e:f7cb:8c44 with SMTP id q10-20020a05622a04ca00b0040ef7cb8c44mr4507471qtx.23.1691706267776;
-        Thu, 10 Aug 2023 15:24:27 -0700 (PDT)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id q9-20020ac84509000000b00401217aa51dsm778611qtn.76.2023.08.10.15.24.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Aug 2023 15:24:27 -0700 (PDT)
-Date:   Thu, 10 Aug 2023 18:24:26 -0400
-Message-ID: <1088bd209427626090f6a062a2ad1486.paul@paul-moore.com>
-From:   Paul Moore <paul@paul-moore.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com,
-        linux-security-module@vger.kernel.org
-Cc:     jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-        linux-api@vger.kernel.org, mic@digikod.net, selinux@vger.kernel.org
-Subject: Re: [PATCH v13 10/11] SELinux: Add selfattr hooks
-References: <20230802174435.11928-11-casey@schaufler-ca.com>
-In-Reply-To: <20230802174435.11928-11-casey@schaufler-ca.com>
+        with ESMTP id S231643AbjHKFxx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Aug 2023 01:53:53 -0400
+Received: from out-124.mta1.migadu.com (out-124.mta1.migadu.com [IPv6:2001:41d0:203:375::7c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A25D2D4F
+        for <selinux@vger.kernel.org>; Thu, 10 Aug 2023 22:53:51 -0700 (PDT)
+Message-ID: <ffd1bb86-ed32-3301-346a-e369219841de@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1691733229;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=a0vN514ycLDgfH8MPcX9gq+8dxj3gNQV5oVnf0li0cE=;
+        b=JGmgvn6cT7iTucUb6YruBhmAOZ9kEYGTR86F5nxUdlIxB1sAjLg16WTdyyeLeQTmzqgKdH
+        jGa16MemhcwHh+bjncETZ1dIBXUzxGMceG+QpeyqE8KeRwXCnrlguN+d04BUCLqtJo7fjP
+        XWZKQ8rVNuEVS9ZwUFm0eyigLr88Kog=
+Date:   Thu, 10 Aug 2023 22:53:38 -0700
+MIME-Version: 1.0
+Subject: Re: [PATCH bpf-next v11 2/5] selftests/bpf: Use random netns name for
+ mptcp
+Content-Language: en-US
+To:     Geliang Tang <geliang.tang@suse.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Brendan Jackman <jackmanb@chromium.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
+        Simon Horman <horms@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+References: <cover.1691125344.git.geliang.tang@suse.com>
+ <15d7646940fcbb8477b1be1aa11a5d5485d10b48.1691125344.git.geliang.tang@suse.com>
+ <8b706f66-2afa-b3d0-a13a-11f1ffb452fe@linux.dev>
+ <20230807064044.GA11180@localhost.localdomain>
+ <9a84e026-402d-b6d9-b6d1-57d91455da47@linux.dev>
+ <20230809081944.GA29707@bogon>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Martin KaFai Lau <martin.lau@linux.dev>
+In-Reply-To: <20230809081944.GA29707@bogon>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Aug  2, 2023 Casey Schaufler <casey@schaufler-ca.com> wrote:
+On 8/9/23 1:19 AM, Geliang Tang wrote:
+> On Tue, Aug 08, 2023 at 11:03:30PM -0700, Martin KaFai Lau wrote:
+>> On 8/6/23 11:40 PM, Geliang Tang wrote:
+>>> On Fri, Aug 04, 2023 at 05:23:32PM -0700, Martin KaFai Lau wrote:
+>>>> On 8/3/23 10:07 PM, Geliang Tang wrote:
+>>>>> Use rand() to generate a random netns name instead of using the fixed
+>>>>> name "mptcp_ns" for every test.
+>>>>>
+>>>>> By doing that, we can re-launch the test even if there was an issue
+>>>>> removing the previous netns or if by accident, a netns with this generic
+>>>>> name already existed on the system.
+>>>>>
+>>>>> Note that using a different name each will also help adding more
+>>>>> subtests in future commits.
+>>>
+>>> Hi Martin,
+>>>
+>>> I tried to run mptcp tests simultaneously, and got "Cannot create
+>>> namespace file "/var/run/netns/mptcp_ns": File exists" errors sometimes.
+>>> So I add this patch to fix it.
+>>>
+>>> It's easy to reproduce, just run this commands in multiple terminals:
+>>>    > for i in `seq 1 100`; do sudo ./test_progs -t mptcp; done
+>>
+>> Not only the "-t mptcp" test. Other tests in test_progs also don't support
+>> running parallel in multiple terminals. Does it really help to test the bpf
+>> part of the prog_tests/mptcp.c test by running like this? If it wants to
+>> exercise the other mptcp networking specific code like this, a separate
+>> mptcp test is needed outside of test_progs and it won't be run in the bpf
+>> CI.
+>>
+>> If you agree, can you please avoid introducing unnecessary randomness to the
+>> test_progs where bpf CI and most users don't run in this way?
 > 
-> Add hooks for setselfattr and getselfattr. These hooks are not very
-> different from their setprocattr and getprocattr equivalents, and
-> much of the code is shared.
+> Thanks Martin. Sure, I agree. Let's drop this patch.
+
+Thanks you.
+
+>> I have a high level question. In LPC 2022
+>> (https://lpc.events/event/16/contributions/1354/), I recall there was idea
+>> in using bpf to make other mptcp decision/policy. Any thought and progress
+>> on this? This set which only uses bpf to change the protocol feels like an
+>> incomplete solution.
 > 
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: selinux@vger.kernel.org
-> Cc: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/hooks.c | 136 +++++++++++++++++++++++++++++++--------
->  1 file changed, 109 insertions(+), 27 deletions(-)
+> We are implementing MPTCP packet scheduler using BPF. Patches aren't
+> sent to BPF mail list yet, only temporarily on our mptcp repo[1].
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index c900813fc8f7..f66a28f672b2 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
+> Here are the patches:
+> 
+>   selftests/bpf: Add bpf_burst test
+>   selftests/bpf: Add bpf_burst scheduler
+>   bpf: Export more bpf_burst related functions
+>   selftests/bpf: Add bpf_red test
+>   selftests/bpf: Add bpf_red scheduler
+>   selftests/bpf: Add bpf_rr test
+>   selftests/bpf: Add bpf_rr scheduler
+>   selftests/bpf: Add bpf_bkup test
+>   selftests/bpf: Add bpf_bkup scheduler
+>   selftests/bpf: Add bpf_first test
+>   selftests/bpf: Add bpf_first scheduler
+>   selftests/bpf: Add bpf scheduler test
+>   selftests/bpf: add two mptcp netns helpers
+>   selftests/bpf: use random netns name for mptcp
+>   selftests/bpf: Add mptcp sched structs
+>   bpf: Add bpf_mptcp_sched_kfunc_set
+>   bpf: Add bpf_mptcp_sched_ops
+> 
+> If you could take a look at these patches in advance, I would greatly
+> appreciate it. Any feedback is welcome.
+> 
+> [1]
+> https://github.com/multipath-tcp/mptcp_net-next.git
 
-...
+Thanks for sharing. I did not go into the details. iiuc, the scheduler is 
+specific to a namespace. Do you see if it is useful to have more finer control 
+like depending on what IP address it is connected to? BPF policy is usually 
+found more useful to have finer policy control than global or per-netns.
 
-> @@ -6449,6 +6466,69 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
->  	return error;
->  }
->  
-> +static int selinux_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
-> +			       size_t *size, u32 flags)
-> +{
-> +	char *value;
-> +	size_t total_len;
-> +	int len;
-> +	int rc;
-> +
-> +	len = selinux_lsm_getattr(attr, current, &value);
-> +	if (len < 0)
-> +		return len;
-> +
-> +	total_len = ALIGN(struct_size(ctx, ctx, len), 8);
-> +
-> +	if (total_len > *size)
-> +		rc = -E2BIG;
-> +	else if (ctx)
-> +		rc = lsm_fill_user_ctx(ctx, value, len, LSM_ID_SELINUX, 0);
-> +	else
-> +		rc = 1;
+The same question goes for the fmod_ret here in this patch. The progs/mptcpify.c 
+selftest is as good as upgrading all TCP connections. Is it your only use case 
+and no need for finer selection?
 
-I'd probably either set rc to zero when at declaration time and drop
-this final else, or explicitly set rc to one here to better fit what
-lsm_fill_user_ctx() does on success.  However, the end result is the
-same so we can just fix that with a follow-up patch once this is
-merged into the lsm/next branch.
-
-> +	kfree(value);
-> +	*size = total_len;
-> +	if (rc < 0)
-> +		return rc;
-> +	return 1;
-> +}
-
---
-paul-moore.com
