@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5FCFC04A94
-	for <selinux@archiver.kernel.org>; Fri, 11 Aug 2023 16:27:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CF89C04E69
+	for <selinux@archiver.kernel.org>; Fri, 11 Aug 2023 16:27:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233767AbjHKQ15 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Aug 2023 12:27:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57534 "EHLO
+        id S233860AbjHKQ16 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Aug 2023 12:27:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232970AbjHKQ1z (ORCPT
+        with ESMTP id S231939AbjHKQ1z (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 11 Aug 2023 12:27:55 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 455DF2D69
-        for <selinux@vger.kernel.org>; Fri, 11 Aug 2023 09:27:54 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id a640c23a62f3a-99bcfe28909so294209566b.3
-        for <selinux@vger.kernel.org>; Fri, 11 Aug 2023 09:27:54 -0700 (PDT)
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5921C2D70
+        for <selinux@vger.kernel.org>; Fri, 11 Aug 2023 09:27:55 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-99357737980so297358866b.2
+        for <selinux@vger.kernel.org>; Fri, 11 Aug 2023 09:27:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1691771273; x=1692376073;
+        d=googlemail.com; s=20221208; t=1691771274; x=1692376074;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=zldRw8Qz99PhYJpeHb62+a0eKAIAXQBkbyHdUHPmJps=;
-        b=G6UgNH4/d0jYp/YGUav2/pFvZNeG7xrjnjE7MrFvQUsRzFt008R17ml5RHKe0usWlz
-         473tGCbIPg0FbLm3DJ0g0RaBJK4o9aTAKfRyPZFZzYr6NL7SACYX/d+DSTlYSAAUlB49
-         wn/VJTJWxSryTxbTqn99Qct+Lzw5WkoMwOfCes5pZZuiulNKXHzHyNyPzePv1wJ8Xxzv
-         /2QnnuLJ/9C1gBrq2/HBtO01GNwrQ+9zyW6iVW5XfJNtF/+3VO1+zLW79T1+li09GhiY
-         1UBQ/E9LJLV6UCr04ziEC9rU2YYq5cdm9+kPgFK8YYwth5L+gKXRL8C7mjZuMCeSiemG
-         Cipg==
+        bh=X8nTYQ0/hIFZJNZrMpjQuMCmggV7Ae4denN2XBUk8J8=;
+        b=COhe1I5UFs/Ajbm0OxQ/SWInt+m/8BHQhcweiH7171vHvitXrfewbxFEPlDN+OE4Wm
+         oq0Va5u+7I5Ye4aPZja5SEDrgneZeMIR9blfUYhsmc64Fvc+WSmrWEy+B/IVKOPN0Rpa
+         FODwW+XaRg9ybr2nXzfmTUja9Eusp881slWzSPoLX+w3Hd+miLVhvzhgHe6+MzB95022
+         TpPUO9BBSkwEm+BatAAYJqUF1YNg6v74wZHJAiiSBPaoR3Y2A3PHmVwEdL1ywYhGaI4b
+         VucliLs9wxe42liy12uw3p2YpNHUxpMrQMLSFF4jZadjCUMAicUlUFozwK04ESXWbTow
+         bxpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691771273; x=1692376073;
+        d=1e100.net; s=20221208; t=1691771274; x=1692376074;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zldRw8Qz99PhYJpeHb62+a0eKAIAXQBkbyHdUHPmJps=;
-        b=IxXwxIgcrNquVmnNQ5YTfYnM+P4E7VturYwjX3EYcRUXrbG7JTjDWOasUqX3z61Avw
-         n7zJ1RdywDFRiAfFKunYrh2bT22nu1pJ0XrHvY1/42rZjJHqQKN8lTpnDT0nRwA3RYV4
-         1VeZZuuJPlrnQO72lMVvyfIXQseDoMWfSx+JlWz1o0IZ7cHyl/ruJ03FtBp45YvTx5Dm
-         Bhugh8h8z7sEcbKjBbjr/UW/Btfz8nx9WNOgiD03l92iKYNPnfqKytVrNjq7wEQ8psyO
-         6Hj47IQpLTYQUCC/T2XQcBCX6iUOuLLfHNmiRGxzjfUDcdrBHNbm9OApXc5RoZXwSJtL
-         CvbA==
-X-Gm-Message-State: AOJu0YxswGAzm0nvPG0xd9bm74VvZGEfolAZUdZTve10mSc1R0gtO8+T
-        s4tvkMt8iSz+O9mPV+/MglfZzGQSp6VdPg==
-X-Google-Smtp-Source: AGHT+IGZJJZsBB7Eu964glbwp9HGn1TOA3gUD7okgVmGVVSaLh1168llUyi9ZSqK5TwD8Jx2JdgJ+w==
-X-Received: by 2002:a17:906:3097:b0:991:c566:979 with SMTP id 23-20020a170906309700b00991c5660979mr1931837ejv.36.1691771272434;
-        Fri, 11 Aug 2023 09:27:52 -0700 (PDT)
+        bh=X8nTYQ0/hIFZJNZrMpjQuMCmggV7Ae4denN2XBUk8J8=;
+        b=fXu14GCTtqP9xaWli+L7dYRBjMmqNNoQ1DZrOW26Aj891+/W4sGc7KlOh4buVH2odM
+         k7+cFfbLx/vJCO9/oWlJ9gGzKQA/zPomwXJS58O4Ydf0Pd/5O5cQ0kErNlmkmfnmB7Es
+         ACLZsyS1uq3f9NG+GO6Dziyy5Bywh8ux51UK8WWliLD+sOmCpd91FUTekM0nq0dvAGkT
+         3bb0p58MRkx8R1I5/ahMgCVVUrJjAA/wLZpwdd4vTWuohNsHEebqs2eCg2RhfsOGkL+N
+         5MHpAlW4fanp0/xMDCZ301zcwOleEJQ9slUWeGJPJT6dD7DoFHJgDbout9qCxfvZNsxW
+         X15g==
+X-Gm-Message-State: AOJu0YweJljYIlVfvQ9b6c+SK7IniGz01gWqSajqgDRswm+d6iiCUGxn
+        0cgdtEUL4JBJdykQk1GmnVvkV8s2iH0xJQ==
+X-Google-Smtp-Source: AGHT+IHYvD62Me5xiKEfHRzILmP9JPOUaRQS6SwIHucgr5K1KHxUbiyQ23lr1Mtj5GaIycKHQ+hnaA==
+X-Received: by 2002:a17:906:32c6:b0:99c:ae01:a6d0 with SMTP id k6-20020a17090632c600b0099cae01a6d0mr2269192ejk.68.1691771273765;
+        Fri, 11 Aug 2023 09:27:53 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-000-174-226.77.0.pool.telefonica.de. [77.0.174.226])
-        by smtp.gmail.com with ESMTPSA id p9-20020a170906b20900b00992afee724bsm2408807ejz.76.2023.08.11.09.27.51
+        by smtp.gmail.com with ESMTPSA id p9-20020a170906b20900b00992afee724bsm2408807ejz.76.2023.08.11.09.27.53
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Aug 2023 09:27:52 -0700 (PDT)
+        Fri, 11 Aug 2023 09:27:53 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 08/24] libselinux: introduce reallocarray(3)
-Date:   Fri, 11 Aug 2023 18:27:15 +0200
-Message-Id: <20230811162731.50697-9-cgzones@googlemail.com>
+Subject: [RFC PATCH 10/24] libselinux: introduce selabel_nuke
+Date:   Fri, 11 Aug 2023 18:27:17 +0200
+Message-Id: <20230811162731.50697-11-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230811162731.50697-1-cgzones@googlemail.com>
 References: <20230811162731.50697-1-cgzones@googlemail.com>
@@ -65,126 +65,170 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Introduce reallocarray(3), a realloc(3) wrapper incorporating a
-multiplication overflow check.
+Introduce a helper to remove SELinux file contexts.
 
-Add private implementation in case the function is not provided by the
-standard C library.
-
-Use in appropriate locations.
+Mainly for testing label operations and only for SELinux disabled
+systems, since removing file contexts is not supported by SELinux.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/Makefile             |  6 ++++++
- libselinux/src/get_context_list.c   |  2 +-
- libselinux/src/matchpathcon.c       |  4 ++--
- libselinux/src/selinux_internal.c   | 16 ++++++++++++++++
- libselinux/src/selinux_internal.h   |  4 ++++
- libselinux/src/selinux_restorecon.c |  3 +--
- 6 files changed, 30 insertions(+), 5 deletions(-)
+ libselinux/utils/.gitignore     |   1 +
+ libselinux/utils/selabel_nuke.c | 134 ++++++++++++++++++++++++++++++++
+ 2 files changed, 135 insertions(+)
+ create mode 100644 libselinux/utils/selabel_nuke.c
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 20d79312..ac656257 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -108,6 +108,12 @@ ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char*d,*s;strlc
- override CFLAGS += -DHAVE_STRLCPY
- endif
- 
-+# check for reallocarray(3) availability
-+H := \#
-+ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-+override CFLAGS += -DHAVE_REALLOCARRAY
-+endif
-+
- SWIG_CFLAGS += -Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter \
- 		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations \
- 		-Wno-deprecated-declarations
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-index 0342823c..9dafa519 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -272,7 +272,7 @@ static int get_context_user(FILE * fp,
- 			continue;
- 		}
- 		if (security_check_context(usercon_str2) == 0) {
--			new_reachable = realloc(*reachable, (*nreachable + 2) * sizeof(char *));
-+			new_reachable = reallocarray(*reachable, *nreachable + 2, sizeof(char *));
- 			if (!new_reachable) {
- 				context_free(usercon);
- 				rc = -1;
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index 9a9bafb0..a1c5b0cc 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -95,8 +95,8 @@ static int add_array_elt(char *con)
- 	if (con_array_size) {
- 		while (con_array_used >= con_array_size) {
- 			con_array_size *= 2;
--			tmp = (char **)realloc(con_array, sizeof(char*) *
--						     con_array_size);
-+			tmp = (char **)reallocarray(con_array, con_array_size,
-+						    sizeof(char*));
- 			if (!tmp) {
- 				free_array_elts();
- 				return -1;
-diff --git a/libselinux/src/selinux_internal.c b/libselinux/src/selinux_internal.c
-index c2be7c0a..9f1aff40 100644
---- a/libselinux/src/selinux_internal.c
-+++ b/libselinux/src/selinux_internal.c
-@@ -1,5 +1,7 @@
- #include "selinux_internal.h"
- 
+diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
+index b3311360..a92e1e94 100644
+--- a/libselinux/utils/.gitignore
++++ b/libselinux/utils/.gitignore
+@@ -20,6 +20,7 @@ selabel_digest
+ selabel_get_digests_all_partial_matches
+ selabel_lookup
+ selabel_lookup_best_match
++selabel_nuke
+ selabel_partial_match
+ selinux_check_securetty_context
+ selinuxenabled
+diff --git a/libselinux/utils/selabel_nuke.c b/libselinux/utils/selabel_nuke.c
+new file mode 100644
+index 00000000..b6a2df66
+--- /dev/null
++++ b/libselinux/utils/selabel_nuke.c
+@@ -0,0 +1,134 @@
++#include <dirent.h>
 +#include <errno.h>
++#include <fcntl.h>
++#include <getopt.h>
++#include <linux/magic.h>
++#include <stdbool.h>
++#include <stdio.h>
 +#include <stdlib.h>
- #include <string.h>
- 
- 
-@@ -16,3 +18,17 @@ size_t strlcpy(char *dest, const char *src, size_t size)
- 	return ret;
- }
- #endif /* HAVE_STRLCPY */
++#include <string.h>
++#include <sys/types.h>
++#include <sys/xattr.h>
++#include <unistd.h>
 +
-+#ifndef HAVE_REALLOCARRAY
-+void *reallocarray(void *ptr, size_t nmemb, size_t size)
++#include <selinux/selinux.h>
++
++
++#define XATTR_NAME_SELINUX "security.selinux"
++
++
++static void usage(const char *progname)
 +{
-+	
-+	if (size && nmemb > -1 / size) {
-+			errno = ENOMEM;
-+			return 0;
++	fprintf(stderr, "usage: %s [-nrv] <path>\n", progname);
++}
++
++static void nuke(int atfd, const char *path, const char *fullpath, bool dry_run, bool recursive, bool verbose)
++{
++	ssize_t ret;
++	int fd, rc;
++	DIR *dir;
++
++	ret = lgetxattr(fullpath, XATTR_NAME_SELINUX, NULL, 0);
++	if (ret <= 0) {
++		if (errno != ENODATA && errno != ENOTSUP)
++			fprintf(stderr, "Failed to get SELinux label of %s:  %m\n", fullpath);
++		else if (verbose)
++			printf("Failed to get SELinux label of %s:  %m\n", fullpath);
++	} else {
++		if (dry_run) {
++			printf("Would remove SELinux label of %s\n", fullpath);
++		} else {
++			if (verbose)
++				printf("Removing label of %s\n", fullpath);
++
++			rc = lremovexattr(fullpath, XATTR_NAME_SELINUX);
++			if (rc < 0)
++				fprintf(stderr, "Failed to remove SELinux label of %s:  %m\n", fullpath);
++		}
 +	}
 +
-+	return realloc(ptr, nmemb * size);
++	if (!recursive)
++		return;
 +
++	fd = openat(atfd, path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
++	if (fd < 0) {
++		if (errno != ENOTDIR)
++			fprintf(stderr, "Failed to open %s:  %m\n", fullpath);
++		return;
++	}
++
++	dir = fdopendir(fd);
++	if (!dir) {
++		fprintf(stderr, "Failed to open directory %s:  %m\n", fullpath);
++		close(fd);
++		return;
++	}
++
++	while (true) {
++		const struct dirent *entry;
++		char *nextfullpath;
++
++		errno = 0;
++		entry = readdir(dir);
++		if (!entry) {
++			if (errno)
++				fprintf(stderr, "Failed to iterate directory %s:  %m\n", fullpath);
++			break;
++		}
++
++		if (entry->d_name[0] == '.' && (entry->d_name[1] == '\0' || (entry->d_name[1] == '.' && entry->d_name[2] == '\0')))
++			continue;
++
++		rc = asprintf(&nextfullpath, "%s/%s", strcmp(fullpath, "/") == 0 ? "" : fullpath, entry->d_name);
++		if (rc < 0) {
++			fprintf(stderr, "Out of memory!\n");
++			closedir(dir);
++			return;
++		}
++
++		nuke(dirfd(dir), entry->d_name, nextfullpath, dry_run, recursive, verbose);
++
++		free(nextfullpath);
++	}
++
++	closedir(dir);
 +}
-+#endif /* HAVE_REALLOCARRAY */
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 06f2c038..af69ff04 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -98,4 +98,8 @@ extern int has_selinux_config ;
- size_t strlcpy(char *dest, const char *src, size_t size);
- #endif
- 
-+#ifndef HAVE_REALLOCARRAY
-+void *reallocarray(void *ptr, size_t nmemb, size_t size);
-+#endif
 +
- #endif /* SELINUX_INTERNAL_H_ */
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 7ef2d45d..38f10f1c 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -175,8 +175,7 @@ static int add_exclude(const char *directory, bool who)
- 		return -1;
- 	}
- 
--	tmp_list = realloc(exclude_lst,
--			   sizeof(struct edir) * (exclude_count + 1));
-+	tmp_list = reallocarray(exclude_lst, exclude_count + 1, sizeof(struct edir));
- 	if (!tmp_list)
- 		goto oom;
- 
++
++int main(int argc, char *argv[])
++{
++	bool dry_run = false, recursive = false, verbose = false;
++	int c;
++
++	while ((c = getopt(argc, argv, "nrv")) != -1) {
++		switch (c) {
++		case 'n':
++			dry_run = true;
++			break;
++		case 'r':
++			recursive = true;
++			break;
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			usage(argv[0]);
++			return EXIT_FAILURE;
++		}
++	}
++
++	if (optind >= argc) {
++		usage(argv[0]);
++		return EXIT_FAILURE;
++	}
++
++	if (is_selinux_enabled()) {
++		fprintf(stderr, "Removing SELinux attributes on a SELinux enabled system is not supported!\n");
++		return EXIT_FAILURE;
++	}
++
++	for (int index = optind; index < argc; index++)
++		nuke(AT_FDCWD, argv[index], argv[index], dry_run, recursive, verbose);
++
++	return EXIT_SUCCESS;
++}
 -- 
 2.40.1
 
