@@ -2,755 +2,277 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4979DC04A6A
-	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 13:22:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B54D3C001DB
+	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 13:27:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230306AbjHNNVo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Aug 2023 09:21:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55442 "EHLO
+        id S229552AbjHNN1D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Aug 2023 09:27:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230378AbjHNNVT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 09:21:19 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABA110CE
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:20:57 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-99bdcade7fbso562109566b.1
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:20:57 -0700 (PDT)
+        with ESMTP id S229511AbjHNN0c (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 09:26:32 -0400
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70BB610F0
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:26:10 -0700 (PDT)
+Received: by mail-lj1-x235.google.com with SMTP id 38308e7fff4ca-2b974031aeaso67030371fa.0
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:26:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692019256; x=1692624056;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1692019566; x=1692624366;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=i9sB/i+fJ2D8NRrEogkLTLeWWVpbDLi6FEgRZblUVIM=;
-        b=LDgIg5Udn5UUr3Xki2PJQhIBmx2AX4uf2Nd0z/5RFSb7o+uAKVJWkwdoduCZWRhWt6
-         xBjHIZClXDtnR9AW1jmD7r6h5LoZFQ/qExmmb7dDzTpKpGCCsM/MJUBXYtR3bVBuCNe6
-         hdLi6D/cocO5uepQjb0X/8mc9TXEkqWG8e+/K7163NFCzSjFOVAKq5VWK3Bxkmg1TLq8
-         lOJHjq9XPeIH8WFobopDIz6CK3t87lSatUhbd0bVXwHvpF2BE+iVwKAHx9aul04b8GIm
-         qhYC7AczSLarYvRadsPSye5Boz7dHqyfcLnGWQ1oHSXpiuy91Hf0HhLhKAKzQMSDwG3o
-         liJA==
+        bh=tIFqIFt5Zr08etkfrzraK+1ZeRe2mZw3lEJumsubTPc=;
+        b=oY669Rg6Yznr2sg7Oy18TIDOr3BreE3JfP/Io+amAUxHjuWn48sXDXrm3s88k2Xpit
+         LtBvi+NaF80ZXgrM6Qmwi9xs/b8gWS4CXEr+YTg5+VVV1MQzhdwdRCmhmbXYXBGCdaHu
+         UVC4L4RQiL1R5tder2jpRYnM44xkFdPoPyi3NYZHdOdtC1nwloUvMLPKBdcwBRrAA5nn
+         0cCBzy0O0ObAAd+5NpD5l4JAGVQcN6AaI1KEjb3Jr5WPXNvnzzMsZF1cEWxklNn7jJ+4
+         cR/TnZgezB31LNd1g9715bDucri0T6YrbAL8J2tEFb7osFwHTUqyNJvyhUdc/FIFIxeR
+         fc7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692019256; x=1692624056;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1692019566; x=1692624366;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=i9sB/i+fJ2D8NRrEogkLTLeWWVpbDLi6FEgRZblUVIM=;
-        b=WqG0pQbbuiDfCoUtGsyxJ1fxz44auMVIXE/VlyyLDWp2tFo4eq6qLt39G7xLmGtkfl
-         k2ktmnPwTjVuyHZm2ZxJjZ96HDM4/Y7y3UJod+uJ8vGOpZEHOFimh2p1EcTXF4wsCWIo
-         jkY4RTdPFYKPVyNqHy8fwdIao+8KqAOdODHREsyehD/oo1iP5JLP4VHeXJZE5eGScdsQ
-         yYQ0UGiwV0kPvRet+FWsh+pwcucnkC3AZ16mH1NEEsB93Tnz9RiepRPrcscQEa9UnuZw
-         K3J4WIqr6I0PGL5E68GVOnYtWiDnb6eaVWXlBilUMPjEIL61w0ZvC/kSJCc/4sr6BARz
-         jNNQ==
-X-Gm-Message-State: AOJu0YxHgotVyePjXFvb+Trr+MOvHgZoibh6RZQPC/DVQtzYIDap1ykB
-        Ey+tbPfGGfGhuv6oIODkUJBlopN+M54lmuliVYY=
-X-Google-Smtp-Source: AGHT+IHz3ZzqHZJ9ggoSTaYwbUqioWBWuUoojPh9UDGE2PK+/EHUm4QaFEbL6pOHjKPYH9pklRzODA==
-X-Received: by 2002:a17:906:3f12:b0:99c:5623:a8fb with SMTP id c18-20020a1709063f1200b0099c5623a8fbmr8408181ejj.18.1692019256264;
-        Mon, 14 Aug 2023 06:20:56 -0700 (PDT)
-Received: from debian_development.DebianHome (dynamic-095-112-167-009.95.112.pool.telefonica.de. [95.112.167.9])
-        by smtp.gmail.com with ESMTPSA id ck9-20020a170906c44900b00993664a9987sm5683541ejb.103.2023.08.14.06.20.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Aug 2023 06:20:55 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Cc:     Evgeny Vereshchagin <evverx@gmail.com>
-Subject: [RFC PATCH v2 27/27] libselinux: add selabel_file(5) fuzzer
-Date:   Mon, 14 Aug 2023 15:20:25 +0200
-Message-Id: <20230814132025.45364-28-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230814132025.45364-1-cgzones@googlemail.com>
-References: <20230814132025.45364-1-cgzones@googlemail.com>
+        bh=tIFqIFt5Zr08etkfrzraK+1ZeRe2mZw3lEJumsubTPc=;
+        b=U5u7yqUAsNaq3qrbqdMo3Dsf+pXlfsYmeWgc9xxxwK15zxhHQeh3SnwoWoUTLpqWCv
+         j2saNzDGfKKuQ5MRBEfjHa0ZLCp1Zf7TXL9hL5UcM4CPr2cV3nesbNhsYlTw80URBsa+
+         xL1grjRwZUvKnvvm7bmgmiqPVP2kL9HVrJYz+57hy0ZX07HGh3/tUZC5xqan3+QhhlTq
+         A7SvjvRitR/egIokwtAqd+jQRWfoU/pXVHYAgr9RIShm1d2dvrt7lGKsgzDhxG5sriau
+         MuXIR5T+x/h4PE0JgIo9Bh+FkdrJtRT7YamWDvbwh/1+HIAsejuU2M0dhVARpnUFlLvi
+         +q3w==
+X-Gm-Message-State: AOJu0Yycjrd45ZkpuNJ0j2+xqmvKeC5fl6iESQGtTQ17K4LxcBeSOUas
+        FAA2X3Cd6xT4YYlwnbiUhhfLqXiN5B4ng9mgMyGLWpFR
+X-Google-Smtp-Source: AGHT+IGJgJsozphu0hYYp86piW0Bxgmx7wFNpkxBiDZuMPdj5M0MTwot6cA05c7SrAM+5Yuz8ea1cZyAEyRclld15LU=
+X-Received: by 2002:a2e:8559:0:b0:2b9:ecab:d91f with SMTP id
+ u25-20020a2e8559000000b002b9ecabd91fmr6848904ljj.10.1692019565633; Mon, 14
+ Aug 2023 06:26:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20230809163059.97671-1-jwcart2@gmail.com> <20230809163059.97671-12-jwcart2@gmail.com>
+ <87350mc6v2.fsf@redhat.com> <CAP+JOzSxQL9dqB7MXfCJKyc4Q4nsNTnxhC4ChnqctSXSqRRapA@mail.gmail.com>
+In-Reply-To: <CAP+JOzSxQL9dqB7MXfCJKyc4Q4nsNTnxhC4ChnqctSXSqRRapA@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 14 Aug 2023 09:25:54 -0400
+Message-ID: <CAP+JOzRgv7nmyXEC9=CftWoYjcJLg9Wzssz7efwEBb8yXsxniQ@mail.gmail.com>
+Subject: Re: [PATCH 12/12] semodule-utils: Remove the Russian translations
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add two fuzzer reading and performing lookup on selabel_file(5)
-databases.  One fuzzer takes input in form of a textual fcontext
-definition, the other one takes compiled fcontexts definitions.  The
-lookup key and whether to lookup any or a specific file type is also
-part of the generated input.
-
-CC: Evgeny Vereshchagin <evverx@gmail.com>
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2: add patch
----
- libselinux/fuzz/input                         |   0
- .../fuzz/selabel_file_compiled-fuzzer.c       | 279 ++++++++++++++++++
- libselinux/fuzz/selabel_file_text-fuzzer.c    | 223 ++++++++++++++
- libselinux/src/label_file.c                   |  36 ++-
- libselinux/src/label_file.h                   |  17 ++
- scripts/oss-fuzz.sh                           |  25 ++
- 6 files changed, 561 insertions(+), 19 deletions(-)
- create mode 100644 libselinux/fuzz/input
- create mode 100644 libselinux/fuzz/selabel_file_compiled-fuzzer.c
- create mode 100644 libselinux/fuzz/selabel_file_text-fuzzer.c
-
-diff --git a/libselinux/fuzz/input b/libselinux/fuzz/input
-new file mode 100644
-index 00000000..e69de29b
-diff --git a/libselinux/fuzz/selabel_file_compiled-fuzzer.c b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
-new file mode 100644
-index 00000000..cd0b41d7
---- /dev/null
-+++ b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
-@@ -0,0 +1,279 @@
-+#include <errno.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <sys/mman.h>
-+#include <unistd.h>
-+
-+#include <selinux/label.h>
-+
-+#include "../src/label_file.h"
-+
-+extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-+
-+#define MEMFD_FILE_NAME "file_contexts"
-+#define CTRL_PARTIAL  (1U << 0)
-+#define CTRL_FIND_ALL (1U << 1)
-+#define CTRL_MODE     (1U << 2)
-+
-+
-+__attribute__ ((format(printf, 2, 3)))
-+static int null_log(int type __attribute__((unused)), const char *fmt __attribute__((unused)), ...)
-+{
-+	return 0;
-+}
-+
-+static int validate_context(char **ctxp)
-+{
-+	assert(strcmp(*ctxp, "<<none>>") != 0);
-+
-+	if (*ctxp[0] == '\0') {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int write_full(int fd, const void *data, size_t size)
-+{
-+	ssize_t rc;
-+	const unsigned char *p = data;
-+
-+	while (size > 0) {
-+		rc = write(fd, p, size);
-+		if (rc == -1) {
-+			if (errno == EINTR)
-+				continue;
-+
-+			return -1;
-+		}
-+
-+		p += rc;
-+		size -= rc;
-+	}
-+
-+	return 0;
-+}
-+
-+static FILE* convert_data(const uint8_t *data, size_t size)
-+{
-+	FILE* stream;
-+	int fd, rc;
-+
-+	fd = memfd_create(MEMFD_FILE_NAME, MFD_CLOEXEC);
-+	if (fd == -1)
-+		return NULL;
-+
-+	rc = write_full(fd, data, size);
-+	if (rc == -1) {
-+		close(fd);
-+		return NULL;
-+	}
-+
-+	stream = fdopen(fd, "r");
-+	if (!stream) {
-+		close(fd);
-+		return NULL;
-+	}
-+
-+	rc = fseek(stream, 0L, SEEK_SET);
-+	if (rc == -1) {
-+		fclose(stream);
-+		return NULL;
-+	}
-+
-+	return stream;
-+}
-+
-+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-+{
-+	struct selabel_handle rec;
-+	struct saved_data sdata = {};
-+	struct spec_node *root = NULL;
-+	FILE* fp = NULL;
-+	struct lookup_result *result = NULL;
-+	uint8_t control;
-+	uint8_t *fcontext_data1 = NULL, *fcontext_data2 = NULL, *fcontext_data3 = NULL;
-+	char *key = NULL;
-+	size_t fcontext_data1_len, fcontext_data2_len, fcontext_data3_len, key_len;
-+	bool partial, find_all;
-+	mode_t mode;
-+	int rc;
-+
-+	/*
-+	 * Treat first byte as control byte, whether to use partial mode, find all matches or mode to lookup
-+	 */
-+	if (size == 0)
-+		return 0;
-+
-+	control = data[0];
-+	data++;
-+	size--;
-+
-+	if (control & ~(CTRL_PARTIAL | CTRL_FIND_ALL | CTRL_MODE))
-+		return 0;
-+
-+	partial  = control & CTRL_PARTIAL;
-+	find_all = control & CTRL_FIND_ALL;
-+	/* S_IFSOCK has the highest integer value */
-+	mode     = (control & CTRL_MODE) ? S_IFSOCK : 0;
-+
-+
-+	/*
-+	 * Split the fuzzer input into up to four pieces: one to three compiled fcontext
-+	 * definitions (to mimic file_contexts, file_contexts.homedirs and file_contexts.local,
-+	 * and the lookup key
-+	 */
-+	const unsigned char separator[4] = { 0xde, 0xad, 0xbe, 0xef };
-+	const uint8_t *sep = memmem(data, size, separator, 4);
-+	if (!sep || sep == data)
-+		return 0;
-+
-+	fcontext_data1_len = sep - data;
-+	fcontext_data1 = malloc(fcontext_data1_len);
-+	if (!fcontext_data1)
-+		goto cleanup;
-+
-+	memcpy(fcontext_data1, data, fcontext_data1_len);
-+	data += fcontext_data1_len + 4;
-+	size -= fcontext_data1_len + 4;
-+
-+	sep = memmem(data, size, separator, 4);
-+	if (sep) {
-+		fcontext_data2_len = sep - data;
-+		fcontext_data2 = malloc(fcontext_data2_len);
-+		if (!fcontext_data2)
-+			goto cleanup;
-+
-+		memcpy(fcontext_data2, data, fcontext_data2_len);
-+		data += fcontext_data2_len + 4;
-+		size -= fcontext_data2_len + 4;
-+	}
-+
-+	sep = memmem(data, size, separator, 4);
-+	if (sep) {
-+		fcontext_data3_len = sep - data;
-+		fcontext_data3 = malloc(fcontext_data3_len);
-+		if (!fcontext_data3)
-+			goto cleanup;
-+
-+		memcpy(fcontext_data3, data, fcontext_data3_len);
-+		data += fcontext_data3_len + 4;
-+		size -= fcontext_data3_len + 4;
-+	}
-+
-+	key_len = size;
-+	key = malloc(key_len + 1);
-+	if (!key)
-+		goto cleanup;
-+
-+	memcpy(key, data, key_len);
-+	key[key_len] = '\0';
-+
-+
-+	/*
-+	 * Mock selabel handle
-+	 */
-+	rec = (struct selabel_handle) {
-+		.backend = SELABEL_CTX_FILE,
-+		.validating = 1,
-+		.data = &sdata,
-+	};
-+
-+	selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) { .func_log = &null_log });
-+	/* validate to pre-compile regular expressions */
-+	selinux_set_callback(SELINUX_CB_VALIDATE, (union selinux_callback) { .func_validate = &validate_context });
-+
-+	root = calloc(1, sizeof(*root));
-+	if (!root)
-+		goto cleanup;
-+
-+	sdata.root = root;
-+
-+	fp = convert_data(fcontext_data1, fcontext_data1_len);
-+	if (!fp)
-+		goto cleanup;
-+
-+	errno = 0;
-+	rc = load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME);
-+	if (rc) {
-+		assert(errno != 0);
-+		goto cleanup;
-+	}
-+
-+	fclose(fp);
-+
-+	fp = convert_data(fcontext_data2, fcontext_data2_len);
-+	if (!fp)
-+		goto cleanup;
-+
-+	errno = 0;
-+	rc = load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME);
-+	if (rc) {
-+		assert(errno != 0);
-+		goto cleanup;
-+	}
-+
-+	fclose(fp);
-+
-+	fp = convert_data(fcontext_data3, fcontext_data3_len);
-+	if (!fp)
-+		goto cleanup;
-+
-+	errno = 0;
-+	rc = load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME);
-+	if (rc) {
-+		assert(errno != 0);
-+		goto cleanup;
-+	}
-+
-+	sort_specs(&sdata);
-+
-+	errno = 0;
-+	result = lookup_all(&rec, key, mode, partial, find_all);
-+
-+	if (!result)
-+		assert(errno != 0);
-+
-+	for (const struct lookup_result *res = result; res; res = res->next) {
-+		assert(res->regex_str);
-+		assert(res->regex_str[0] != '\0');
-+		assert(res->lr->ctx_raw);
-+		assert(res->lr->ctx_raw[0] != '\0');
-+		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
-+		assert(!res->lr->ctx_trans);
-+		assert(res->lr->validated);
-+		assert(res->prefix_len <= strlen(res->regex_str));
-+	}
-+
-+
-+cleanup:
-+	free_lookup_result(result);
-+	if (fp)
-+		fclose(fp);
-+	if (sdata.root) {
-+		free_spec_node(sdata.root);
-+		free(sdata.root);
-+	}
-+
-+	{
-+		struct mmap_area *area, *last_area;
-+
-+		area = sdata.mmap_areas;
-+		while (area) {
-+			rc = munmap(area->addr, area->len);
-+			assert(rc == 0);
-+			last_area = area;
-+			area = area->next;
-+			free(last_area);
-+		}
-+	}
-+
-+	free(key);
-+	free(fcontext_data3);
-+	free(fcontext_data2);
-+	free(fcontext_data1);
-+
-+	/* Non-zero return values are reserved for future use. */
-+	return 0;
-+}
-diff --git a/libselinux/fuzz/selabel_file_text-fuzzer.c b/libselinux/fuzz/selabel_file_text-fuzzer.c
-new file mode 100644
-index 00000000..fd25078f
---- /dev/null
-+++ b/libselinux/fuzz/selabel_file_text-fuzzer.c
-@@ -0,0 +1,223 @@
-+#include <errno.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <sys/mman.h>
-+#include <unistd.h>
-+
-+#include <selinux/label.h>
-+
-+#include "../src/label_file.h"
-+
-+extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
-+
-+#define MEMFD_FILE_NAME "file_contexts"
-+#define CTRL_PARTIAL  (1U << 0)
-+#define CTRL_FIND_ALL (1U << 1)
-+#define CTRL_MODE     (1U << 2)
-+
-+
-+__attribute__ ((format(printf, 2, 3)))
-+static int null_log(int type __attribute__((unused)), const char *fmt __attribute__((unused)), ...)
-+{
-+	return 0;
-+}
-+
-+static int validate_context(char **ctxp)
-+{
-+	assert(strcmp(*ctxp, "<<none>>") != 0);
-+
-+	if (*ctxp[0] == '\0') {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int write_full(int fd, const void *data, size_t size)
-+{
-+	ssize_t rc;
-+	const unsigned char *p = data;
-+
-+	while (size > 0) {
-+		rc = write(fd, p, size);
-+		if (rc == -1) {
-+			if (errno == EINTR)
-+				continue;
-+
-+			return -1;
-+		}
-+
-+		p += rc;
-+		size -= rc;
-+	}
-+
-+	return 0;
-+}
-+
-+static FILE* convert_data(const uint8_t *data, size_t size)
-+{
-+	FILE* stream;
-+	int fd, rc;
-+
-+	fd = memfd_create(MEMFD_FILE_NAME, MFD_CLOEXEC);
-+	if (fd == -1)
-+		return NULL;
-+
-+	rc = write_full(fd, data, size);
-+	if (rc == -1) {
-+		close(fd);
-+		return NULL;
-+	}
-+
-+	stream = fdopen(fd, "r");
-+	if (!stream) {
-+		close(fd);
-+		return NULL;
-+	}
-+
-+	rc = fseek(stream, 0L, SEEK_SET);
-+	if (rc == -1) {
-+		fclose(stream);
-+		return NULL;
-+	}
-+
-+	return stream;
-+}
-+
-+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-+{
-+	struct selabel_handle rec;
-+	struct saved_data sdata = {};
-+	struct spec_node *root = NULL;
-+	FILE* fp = NULL;
-+	struct lookup_result *result = NULL;
-+	uint8_t control;
-+	uint8_t *fcontext_data = NULL;
-+	char *key = NULL;
-+	size_t fcontext_data_len, key_len;
-+	bool partial, find_all;
-+	mode_t mode;
-+	int rc;
-+
-+	/*
-+	 * Treat first byte as control byte, whether to use partial mode, find all matches or mode to lookup
-+	 */
-+	if (size == 0)
-+		return 0;
-+
-+	control = data[0];
-+	data++;
-+	size--;
-+
-+	if (control & ~(CTRL_PARTIAL | CTRL_FIND_ALL | CTRL_MODE))
-+		return 0;
-+
-+	partial  = control & CTRL_PARTIAL;
-+	find_all = control & CTRL_FIND_ALL;
-+	/* S_IFSOCK has the highest integer value */
-+	mode     = (control & CTRL_MODE) ? S_IFSOCK : 0;
-+
-+
-+	/*
-+	 * Split the fuzzer input into two pieces: the textual fcontext definition and the lookup key
-+	 */
-+	const unsigned char separator[4] = { 0xde, 0xad, 0xbe, 0xef };
-+	const uint8_t *sep = memmem(data, size, separator, 4);
-+	if (!sep || sep == data)
-+		return 0;
-+
-+	fcontext_data_len = sep - data;
-+	fcontext_data = malloc(fcontext_data_len);
-+	if (!fcontext_data)
-+		goto cleanup;
-+
-+	memcpy(fcontext_data, data, fcontext_data_len);
-+
-+	key_len = size - fcontext_data_len - 4;
-+	key = malloc(key_len + 1);
-+	if (!key)
-+		goto cleanup;
-+
-+	memcpy(key, sep + 4, key_len);
-+	key[key_len] = '\0';
-+
-+
-+	/*
-+	 * Mock selabel handle
-+	 */
-+	rec = (struct selabel_handle) {
-+		.backend = SELABEL_CTX_FILE,
-+		.validating = 1,
-+		.data = &sdata,
-+	};
-+
-+	selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) { .func_log = &null_log });
-+	/* validate to pre-compile regular expressions */
-+	selinux_set_callback(SELINUX_CB_VALIDATE, (union selinux_callback) { .func_validate = &validate_context });
-+
-+	root = calloc(1, sizeof(*root));
-+	if (!root)
-+		goto cleanup;
-+
-+	sdata.root = root;
-+
-+	fp = convert_data(fcontext_data, fcontext_data_len);
-+	if (!fp)
-+		goto cleanup;
-+
-+	errno = 0;
-+	rc = process_text_file(fp, &rec, MEMFD_FILE_NAME);
-+	if (rc) {
-+		assert(errno != 0);
-+		goto cleanup;
-+	}
-+
-+	sort_specs(&sdata);
-+
-+	errno = 0;
-+	result = lookup_all(&rec, key, mode, partial, find_all);
-+
-+	if (!result)
-+		assert(errno != 0);
-+
-+	for (const struct lookup_result *res = result; res; res = res->next) {
-+		assert(res->regex_str);
-+		assert(res->regex_str[0] != '\0');
-+		assert(res->lr->ctx_raw);
-+		assert(res->lr->ctx_raw[0] != '\0');
-+		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
-+		assert(!res->lr->ctx_trans);
-+		assert(res->lr->validated);
-+		assert(res->prefix_len <= strlen(res->regex_str));
-+	}
-+
-+
-+cleanup:
-+	free_lookup_result(result);
-+	if (fp)
-+		fclose(fp);
-+	if (sdata.root) {
-+		free_spec_node(sdata.root);
-+		free(sdata.root);
-+	}
-+
-+	{
-+		struct mmap_area *area, *last_area;
-+
-+		area = sdata.mmap_areas;
-+		while (area) {
-+			rc = munmap(area->addr, area->len);
-+			assert(rc == 0);
-+			last_area = area;
-+			area = area->next;
-+			free(last_area);
-+		}
-+	}
-+
-+	free(key);
-+	free(fcontext_data);
-+
-+	/* Non-zero return values are reserved for future use. */
-+	return 0;
-+}
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index bb4b7130..60510551 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -26,6 +26,13 @@
- #include "label_file.h"
- 
- 
-+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-+# define FUZZ_EXTERN
-+#else
-+# define FUZZ_EXTERN static
-+#endif  /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
-+
-+
- /*
-  * Warn about duplicate specifications.
-  */
-@@ -113,8 +120,8 @@ static int nodups_spec_node(const struct spec_node *node, const char *path)
- 	return rc;
- }
- 
--static int process_text_file(FILE *fp,
--			     struct selabel_handle *rec, const char *path)
-+FUZZ_EXTERN int process_text_file(FILE *fp,
-+				  struct selabel_handle *rec, const char *path)
- {
- 	int rc;
- 	size_t line_len;
-@@ -669,8 +676,8 @@ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bo
- 	return 0;
- }
- 
--static int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec,
--		     const char *path)
-+FUZZ_EXTERN int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec,
-+			  const char *path)
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	struct spec_node *root = NULL;
-@@ -1363,16 +1370,7 @@ static uint32_t search_literal_spec(const struct literal_spec *array, uint32_t s
- 	return (uint32_t)-1;
- }
- 
--struct lookup_result {
--	const char *regex_str;
--	struct selabel_lookup_rec *lr;
--	mode_t mode;
--	bool has_meta_chars;
--	uint16_t prefix_len;
--	struct lookup_result *next;
--};
--
--static void free_lookup_result(struct lookup_result *result)
-+FUZZ_EXTERN void free_lookup_result(struct lookup_result *result)
- {
- 	struct lookup_result *tmp;
- 
-@@ -1577,11 +1575,11 @@ static struct spec_node* lookup_find_deepest_node(struct spec_node *node, const
- // Finds all the matches of |key| in the given context. Returns the result in
- // the allocated array and updates the match count. If match_count is NULL,
- // stops early once the 1st match is found.
--static struct lookup_result *lookup_all(struct selabel_handle *rec,
--					const char *key,
--					int type,
--					bool partial,
--					bool find_all)
-+FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
-+				 const char *key,
-+				 int type,
-+				 bool partial,
-+				 bool find_all)
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	struct lookup_result *result = NULL;
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index ee01defe..8e4824e8 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -40,6 +40,23 @@
- /* Required selinux_restorecon and selabel_get_digests_all_partial_matches() */
- #define RESTORECON_PARTIAL_MATCH_DIGEST  "security.sehash"
- 
-+/* Only exported for fuzzing*/
-+struct lookup_result {
-+	const char *regex_str;
-+	struct selabel_lookup_rec *lr;
-+	mode_t mode;
-+	bool has_meta_chars;
-+	uint16_t prefix_len;
-+	struct lookup_result *next;
-+};
-+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-+extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec, const char *path);
-+extern int process_text_file(FILE *fp, struct selabel_handle *rec, const char *path);
-+extern void free_lookup_result(struct lookup_result *result);
-+extern struct lookup_result *lookup_all(struct selabel_handle *rec, const char *key, int type, bool partial, bool find_all);
-+#endif  /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
-+
-+
- struct selabel_sub {
- 	char *src;
- 	unsigned int slen;
-diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
-index 72d275e8..e51efe74 100755
---- a/scripts/oss-fuzz.sh
-+++ b/scripts/oss-fuzz.sh
-@@ -44,10 +44,13 @@ export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
- 
- rm -rf "$DESTDIR"
- make -C libsepol clean
-+make -C libselinux clean
- # LIBSO and LIBMAP shouldn't be expanded here because their values are unknown until Makefile
- # has been read by make
- # shellcheck disable=SC2016
- make -C libsepol V=1 LD_SONAME_FLAGS='-soname,$(LIBSO),--version-script=$(LIBMAP)' -j"$(nproc)" install
-+# shellcheck disable=SC2016
-+make -C libselinux V=1 LD_SONAME_FLAGS='-soname,$(LIBSO),--version-script=libselinux.map' -j"$(nproc)" install
- 
- ## secilc fuzzer ##
- 
-@@ -70,3 +73,25 @@ $CC $CFLAGS -c -o binpolicy-fuzzer.o libsepol/fuzz/binpolicy-fuzzer.c
- $CXX $CXXFLAGS $LIB_FUZZING_ENGINE binpolicy-fuzzer.o "$DESTDIR/usr/lib/libsepol.a" -o "$OUT/binpolicy-fuzzer"
- 
- zip -j "$OUT/binpolicy-fuzzer_seed_corpus.zip" libsepol/fuzz/policy.bin
-+
-+## selabel-file text fcontext based fuzzer ##
-+
-+# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepted by
-+# the compiler/linker so they shouldn't be quoted
-+# shellcheck disable=SC2086
-+$CC $CFLAGS -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 -c -o selabel_file_text-fuzzer.o libselinux/fuzz/selabel_file_text-fuzzer.c
-+# shellcheck disable=SC2086
-+$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_text-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" -lpcre2-8 -o "$OUT/selabel_file_text-fuzzer"
-+
-+zip -j "$OUT/selabel_file_text-fuzzer_seed_corpus.zip" libselinux/fuzz/input
-+
-+## selabel-file compiled fcontext based fuzzer ##
-+
-+# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepted by
-+# the compiler/linker so they shouldn't be quoted
-+# shellcheck disable=SC2086
-+$CC $CFLAGS -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 -c -o selabel_file_compiled-fuzzer.o libselinux/fuzz/selabel_file_compiled-fuzzer.c
-+# shellcheck disable=SC2086
-+$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_compiled-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" -lpcre2-8 -o "$OUT/selabel_file_compiled-fuzzer"
-+
-+zip -j "$OUT/selabel_file_compiled-fuzzer_seed_corpus.zip" libselinux/fuzz/input
--- 
-2.40.1
-
+T24gTW9uLCBBdWcgMTQsIDIwMjMgYXQgODo0NuKAr0FNIEphbWVzIENhcnRlciA8andjYXJ0MkBn
+bWFpbC5jb20+IHdyb3RlOg0KPg0KPiBPbiBNb24sIEF1ZyAxNCwgMjAyMyBhdCA1OjI24oCvQU0g
+UGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+IHdyb3RlOg0KPiA+DQo+ID4gSmFt
+ZXMgQ2FydGVyIDxqd2NhcnQyQGdtYWlsLmNvbT4gd3JpdGVzOg0KPiA+DQo+ID4gPiBUaGUgUnVz
+c2lhbiB0cmFuc2xhdGlvbnMgaGF2ZSBub3QgYmVlbiBtYWludGFpbmVkIGFuZCBhcmUgb3V0IG9m
+DQo+ID4gPiBkYXRlLCBzbyByZW1vdmUgdGhlbS4NCj4gPiA+DQo+ID4gPiBTdWdnZXN0ZWQtYnk6
+IFBldHIgTGF1dHJiYWNoIDxwbGF1dHJiYUByZWRoYXQuY29tPg0KPiA+ID4gU2lnbmVkLW9mZi1i
+eTogSmFtZXMgQ2FydGVyIDxqd2NhcnQyQGdtYWlsLmNvbT4NCj4gPg0KPiA+IEJhc2VkIG9uIGh0
+dHBzOi8vZ2l0aHViLmNvbS9TRUxpbnV4UHJvamVjdC9zZWxpbnV4L3B1bGwvNDA1DQo+ID4NCj4g
+PiBGb3IgYWxsIDEyOg0KPiA+DQo+ID4gQWNrZWQtYnk6IFBldHIgTGF1dHJiYWNoIDxsYXV0cmJh
+Y2hAcmVkaGF0LmNvbT4NCj4gPg0KPiA+IE5vdGUgdGhhdCBNYWtlZmlsZSdzIHN0aWxsIGNvbnRh
+aW46DQo+ID4NCj4gPiBgYGANCj4gPiBMSU5HVUFTID89IHJ1DQo+ID4gLi4uDQo+ID4gaW5zdGFs
+bDogYWxsDQo+ID4gLi4uDQo+ID4gICAgIGZvciBsYW5nIGluICQoTElOR1VBUykgOyBkbyBcDQo+
+ID4gICAgICAgICAgICAgICAgIGlmIFsgLWUgJCR7bGFuZ30gXSA7IHRoZW4gXA0KPiA+ICAgICAg
+ICAgICAgICAgICAgICAgICAgIG1rZGlyIC1wICQoREVTVERJUikkKE1BTkRJUikvJCR7bGFuZ30v
+bWFuNSA7IFwNCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICBta2RpciAtcCAkKERFU1RESVIp
+JChNQU5ESVIpLyQke2xhbmd9L21hbjggOyBcDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAg
+aW5zdGFsbCAtbSA2NDQgJCR7bGFuZ30vKi41ICQoREVTVERJUikkKE1BTkRJUikvJCR7bGFuZ30v
+bWFuNS8gOyBcDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgaW5zdGFsbCAtbSA2NDQgJCR7
+bGFuZ30vKi44ICQoREVTVERJUikkKE1BTkRJUikvJCR7bGFuZ30vbWFuOC8gOyBcDQo+ID4gICAg
+ICAgICAgICAgICAgIGZpIDsgXA0KPiA+ICAgICAgICAgZG9uZQ0KPiA+IGBgYA0KPiA+DQo+ID4g
+SSdkIHNpbXBseSBkcm9wICdydScgZnJvbSBMSU5HVUFTIGluIG9yZGVyIHRvIG1ha2UgaXQgcG9z
+c2libGUgdG8gdXNlDQo+ID4gb3JpZ2luYWwgcnUgcGFnZXMgZXh0cmFjdGVkIGZyb20gb3RoZXIg
+c291cmNlIGFuZCBzZXR0aW5nIExJTkdVQVMgaW4gdGhlDQo+ID4gYnVpbGQgZW52aXJvbm1lbnQs
+IGUuZy46DQo+ID4NCj4gPiBgYGANCj4gPiAtLS0gYS9jaGVja3BvbGljeS9NYWtlZmlsZQ0KPiA+
+ICsrKyBiL2NoZWNrcG9saWN5L01ha2VmaWxlDQo+ID4gQEAgLTEsNyArMSw3IEBADQo+ID4gICMN
+Cj4gPiAgIyBNYWtlZmlsZSBmb3IgYnVpbGRpbmcgdGhlIGNoZWNrcG9saWN5IHByb2dyYW0NCj4g
+PiAgIw0KPiA+IC1MSU5HVUFTID89IHJ1DQo+ID4gK0xJTkdVQVMgPz0NCg0KV29uJ3QgaXQgYmUg
+YmV0dGVyIHRvIGp1c3QgcmVtb3ZlIHRoZSB3aG9sZSBsaW5lPw0KSmltDQoNCj4gPiAgUFJFRklY
+ID89IC91c3INCj4gPiAgQklORElSID89ICQoUFJFRklYKS9iaW4NCj4gPiAgTUFORElSID89ICQo
+UFJFRklYKS9zaGFyZS9tYW4NCj4gPiBgYGANCj4gPg0KPg0KPiBJIGRpZG4ndCB0aGluayBvZiB0
+aGUgTWFrZWZpbGVzLg0KPiBJJ2xsIHNlbmQgYSBwYXRjaCB0byBtYWtlIHRoZSBjaGFuZ2UgeW91
+IHJlY29tbWVuZCBhYm92ZSB0byBhbGwgb2YgdGhlDQo+IE1ha2VmaWxlcy4NCj4NCj4gVGhhbmtz
+LA0KPiBKaW0NCj4NCj4NCj4gPg0KPiA+ID4gLS0tDQo+ID4gPiAgLi4uL3NlbW9kdWxlX2V4cGFu
+ZC9ydS9zZW1vZHVsZV9leHBhbmQuOCAgICAgIHwgMzEgLS0tLS0tLS0tLS0tDQo+ID4gPiAgLi4u
+L3NlbW9kdWxlX2xpbmsvcnUvc2Vtb2R1bGVfbGluay44ICAgICAgICAgIHwgMzIgLS0tLS0tLS0t
+LS0tLQ0KPiA+ID4gIC4uLi9zZW1vZHVsZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3BhY2thZ2UuOCAg
+ICB8IDQ4IC0tLS0tLS0tLS0tLS0tLS0tLS0NCj4gPiA+ICAuLi4vc2Vtb2R1bGVfcGFja2FnZS9y
+dS9zZW1vZHVsZV91bnBhY2thZ2UuOCAgfCAyNCAtLS0tLS0tLS0tDQo+ID4gPiAgNCBmaWxlcyBj
+aGFuZ2VkLCAxMzUgZGVsZXRpb25zKC0pDQo+ID4gPiAgZGVsZXRlIG1vZGUgMTAwNjQ0IHNlbW9k
+dWxlLXV0aWxzL3NlbW9kdWxlX2V4cGFuZC9ydS9zZW1vZHVsZV9leHBhbmQuOA0KPiA+ID4gIGRl
+bGV0ZSBtb2RlIDEwMDY0NCBzZW1vZHVsZS11dGlscy9zZW1vZHVsZV9saW5rL3J1L3NlbW9kdWxl
+X2xpbmsuOA0KPiA+ID4gIGRlbGV0ZSBtb2RlIDEwMDY0NCBzZW1vZHVsZS11dGlscy9zZW1vZHVs
+ZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3BhY2thZ2UuOA0KPiA+ID4gIGRlbGV0ZSBtb2RlIDEwMDY0
+NCBzZW1vZHVsZS11dGlscy9zZW1vZHVsZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3VucGFja2FnZS44
+DQo+ID4gPg0KPiA+ID4gZGlmZiAtLWdpdCBhL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX2V4cGFu
+ZC9ydS9zZW1vZHVsZV9leHBhbmQuOCBiL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX2V4cGFuZC9y
+dS9zZW1vZHVsZV9leHBhbmQuOA0KPiA+ID4gZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0DQo+ID4g
+PiBpbmRleCAyOGIzODFhZi4uMDAwMDAwMDANCj4gPiA+IC0tLSBhL3NlbW9kdWxlLXV0aWxzL3Nl
+bW9kdWxlX2V4cGFuZC9ydS9zZW1vZHVsZV9leHBhbmQuOA0KPiA+ID4gKysrIC9kZXYvbnVsbA0K
+PiA+ID4gQEAgLTEsMzEgKzAsMCBAQA0KPiA+ID4gLS5USCBTRU1PRFVMRV9FWFBBTkQgIjgiICLQ
+vdC+0Y/QsdGA0YwgMjAwNSIgIlNlY3VyaXR5IEVuaGFuY2VkIExpbnV4Ig0KPiA+ID4gLS5TSCDQ
+mNCc0K8NCj4gPiA+IC1zZW1vZHVsZV9leHBhbmQgXC0g0YDQsNGB0YjQuNGA0LjRgtGMINC/0LDQ
+utC10YIg0LzQvtC00YPQu9GPINC/0L7Qu9C40YLQuNC60LggU0VMaW51eA0KPiA+ID4gLQ0KPiA+
+ID4gLS5TSCDQntCR0JfQntCgDQo+ID4gPiAtLkIgc2Vtb2R1bGVfZXhwYW5kIFstViBdIFsgLWEg
+XSBbIC1jIFt2ZXJzaW9uXV0gYmFzZW1vZHBrZyBvdXRwdXRmaWxlDQo+ID4gPiAtLmJyDQo+ID4g
+PiAtLlNIINCe0J/QmNCh0JDQndCY0JUNCj4gPiA+IC0uUFANCj4gPiA+IC1zZW1vZHVsZV9leHBh
+bmQgLSDRg9GC0LjQu9C40YLQsCDRgNCw0LfRgNCw0LHQvtGC0LrQuCDQtNC70Y8g0YDRg9GH0L3Q
+vtCz0L4g0YDQsNGB0YjQuNGA0LXQvdC40Y8g0L/QsNC60LXRgtCwINCx0LDQt9C+0LLQvtCz0L4g
+0LzQvtC00YPQu9GPINC/0L7Qu9C40YLQuNC60Lgg0LIg0LTQstC+0LjRh9C90YvQuSDRhNCw0LnQ
+uyDQv9C+0LvQuNGC0LjQutC4INGP0LTRgNCwLg0KPiA+ID4gLdCt0YLQviDRgdGA0LXQtNGB0YLQ
+stC+INC90LUg0Y/QstC70Y/QtdGC0YHRjyDQvdC10L7QsdGF0L7QtNC40LzRi9C8INC00LvRjyDQ
+vdC+0YDQvNCw0LvRjNC90L7QuSDRgNCw0LHQvtGC0YsgU0VMaW51eC4g0J7QsdGL0YfQvdC+INGC
+0LDQutC+0LUg0YDQsNGB0YjQuNGA0LXQvdC40LUg0LLRi9C/0L7Qu9C90Y/QtdGC0YHRjyBsaWJz
+ZW1hbmFnZSDQstC90YPRgtGA0LXQvdC90LjQvCDQvtCx0YDQsNC30L7QvCDQsiDQvtGC0LLQtdGC
+INC90LAg0LrQvtC80LDQvdC00Ysgc2Vtb2R1bGUuINCf0LDQutC10YLRiyDQsdCw0LfQvtCy0YvR
+hSDQvNC+0LTRg9C70LXQuSDQv9C+0LvQuNGC0LjQutC4INC80L7QttC90L4g0YHQvtC30LTQsNCy
+0LDRgtGMINC90LXQv9C+0YHRgNC10LTRgdGC0LLQtdC90L3QviDRgSDQv9C+0LzQvtGJ0YzRjiBz
+ZW1vZHVsZV9wYWNrYWdlINC40LvQuCBzZW1vZHVsZV9saW5rICjQv9GA0Lgg0YHQstGP0LfRi9Cy
+0LDQvdC40Lgg0L3QsNCx0L7RgNCwINC/0LDQutC10YLQvtCyINCyINC+0LTQuNC9INC/0LDQutC1
+0YIpLg0KPiA+ID4gLQ0KPiA+ID4gLS5TSCAi0J/QkNCg0JDQnNCV0KLQoNCrIg0KPiA+ID4gLS5U
+UA0KPiA+ID4gLS5CIFwtVg0KPiA+ID4gLdCf0L7QutCw0LfQsNGC0Ywg0LLQtdGA0YHQuNGODQo+
+ID4gPiAtLlRQDQo+ID4gPiAtLkIgXC1jIFt2ZXJzaW9uXQ0KPiA+ID4gLdCS0LXRgNGB0LjRjyDQ
+v9C+0LvQuNGC0LjQutC4LCDQutC+0YLQvtGA0YPRjiDRgdC70LXQtNGD0LXRgiDRgdC+0LfQtNCw
+0YLRjA0KPiA+ID4gLS5UUA0KPiA+ID4gLS5CIFwtYQ0KPiA+ID4gLdCd0LUg0L/RgNC+0LLQtdGA
+0Y/RgtGMINGD0YLQstC10YDQttC00LXQvdC40Y8uINCf0YDQuCDQuNGB0L/QvtC70YzQt9C+0LLQ
+sNC90LjQuCDRjdGC0L7Qs9C+INC/0LDRgNCw0LzQtdGC0YDQsCDQv9C+0LvQuNGC0LjQutCwINC9
+0LUg0LHRg9C00LXRgiDQv9GA0L7QstC10YDRj9GC0Ywg0LfQsNC/0YDQtdGJ0LDRjtGJ0LjQtSDQ
+v9GA0LDQstC40LvQsCAobmV2ZXJhbGxvdykuDQo+ID4gPiAtDQo+ID4gPiAtLlNIINCh0JzQntCi
+0KDQmNCi0JUg0KLQkNCa0JbQlQ0KPiA+ID4gLS5CIGNoZWNrbW9kdWxlKDgpLCBzZW1vZHVsZV9w
+YWNrYWdlKDgpLCBzZW1vZHVsZSg4KSwgc2Vtb2R1bGVfbGluayg4KQ0KPiA+ID4gLSg4KSwNCj4g
+PiA+IC0uU0gg0JDQktCi0J7QoNCrDQo+ID4gPiAtLm5mDQo+ID4gPiAt0K3RgtCwINGB0YLRgNCw
+0L3QuNGG0LAg0YDRg9C60L7QstC+0LTRgdGC0LLQsCDQsdGL0LvQsCDQvdCw0L/QuNGB0LDQvdCw
+IERhbiBXYWxzaCA8ZHdhbHNoQHJlZGhhdC5jb20+Lg0KPiA+ID4gLdCf0YDQvtCz0YDQsNC80LzQ
+sCDQsdGL0LvQsCDQvdCw0L/QuNGB0LDQvdCwIEthcmwgTWFjTWlsbGFuIDxrbWFjbWlsbGFuQHRy
+ZXN5cy5jb20+LCBKb3NodWEgQnJpbmRsZSA8amJyaW5kbGVAdHJlc3lzLmNvbT4uDQo+ID4gPiAt
+0J/QtdGA0LXQstC+0LQg0L3QsCDRgNGD0YHRgdC60LjQuSDRj9C30YvQuiDQstGL0L/QvtC70L3Q
+uNC70LAg0JPQtdGA0LDRgdC40LzQtdC90LrQviDQntC70LXRgdGPIDxnYW1tYXJheUBiYXNlYWx0
+LnJ1Pi4NCj4gPiA+IGRpZmYgLS1naXQgYS9zZW1vZHVsZS11dGlscy9zZW1vZHVsZV9saW5rL3J1
+L3NlbW9kdWxlX2xpbmsuOCBiL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX2xpbmsvcnUvc2Vtb2R1
+bGVfbGluay44DQo+ID4gPiBkZWxldGVkIGZpbGUgbW9kZSAxMDA2NDQNCj4gPiA+IGluZGV4IDRh
+OGY0MTRlLi4wMDAwMDAwMA0KPiA+ID4gLS0tIGEvc2Vtb2R1bGUtdXRpbHMvc2Vtb2R1bGVfbGlu
+ay9ydS9zZW1vZHVsZV9saW5rLjgNCj4gPiA+ICsrKyAvZGV2L251bGwNCj4gPiA+IEBAIC0xLDMy
+ICswLDAgQEANCj4gPiA+IC0uVEggU0VNT0RVTEVfTElOSyAiOCIgItCd0L7Rj9Cx0YDRjCAyMDA1
+IiAiU2VjdXJpdHkgRW5oYW5jZWQgTGludXgiDQo+ID4gPiAtLlNIINCY0JzQrw0KPiA+ID4gLXNl
+bW9kdWxlX2xpbmsgXC0g0YHQstGP0LfQsNGC0Ywg0LLQvNC10YHRgtC1INC/0LDQutC10YLRiyDQ
+vNC+0LTRg9C70LXQuSDQv9C+0LvQuNGC0LjQutC4IFNFTGludXgNCj4gPiA+IC0NCj4gPiA+IC0u
+U0gg0J7QkdCX0J7QoA0KPiA+ID4gLS5CIHNlbW9kdWxlX2xpbmsgWy1Wdl0gWy1vIG91dGZpbGVd
+IGJhc2Vtb2Rwa2cgbW9kcGtnMSBbbW9kcGtnMl0uLi4NCj4gPiA+IC0uYnINCj4gPiA+IC0uU0gg
+0J7Qn9CY0KHQkNCd0JjQlQ0KPiA+ID4gLS5QUA0KPiA+ID4gLXNlbW9kdWxlX2xpbmsgLSDRg9GC
+0LjQu9C40YLQsCDRgNCw0LfRgNCw0LHQvtGC0LrQuCDQtNC70Y8g0YDRg9GH0L3QvtCz0L4g0YHQ
+stGP0LfRi9Cy0LDQvdC40Y8g0L3QsNCx0L7RgNCwINC/0LDQutC10YLQvtCyINC80L7QtNGD0LvQ
+tdC5INC/0L7Qu9C40YLQuNC60LggU0VMaW51eCDQsiDQvtC00LjQvSDQv9Cw0LrQtdGCINC80L7Q
+tNGD0LvQtdC5INC/0L7Qu9C40YLQuNC60LguDQo+ID4gPiAt0K3RgtC+INGB0YDQtdC00YHRgtCy
+0L4g0L3QtSDRj9Cy0LvRj9C10YLRgdGPINC90LXQvtCx0YXQvtC00LjQvNGL0Lwg0LTQu9GPINC9
+0L7RgNC80LDQu9GM0L3QvtC5INGA0LDQsdC+0YLRiyBTRUxpbnV4LiDQntCx0YvRh9C90L4g0YLQ
+sNC60L7QtSDRgdCy0Y/Qt9GL0LLQsNC90LjQtSDQstGL0L/QvtC70L3Rj9C10YLRgdGPIGxpYnNl
+bWFuYWdlINCy0L3Rg9GC0YDQtdC90L3QuNC8INC+0LHRgNCw0LfQvtC8INCyINC+0YLQstC10YIg
+0L3QsCDQutC+0LzQsNC90LTRiyBzZW1vZHVsZS4g0J/QsNC60LXRgtGLINC80L7QtNGD0LvQtdC5
+INGB0L7Qt9C00LDRjtGC0YHRjyDRgSDQv9C+0LzQvtGJ0YzRjiBzZW1vZHVsZV9wYWNrYWdlLg0K
+PiA+ID4gLQ0KPiA+ID4gLS5TSCAi0J/QkNCg0JDQnNCV0KLQoNCrIg0KPiA+ID4gLS5UUA0KPiA+
+ID4gLS5CIFwtVg0KPiA+ID4gLdCf0L7QutCw0LfQsNGC0Ywg0LLQtdGA0YHQuNGODQo+ID4gPiAt
+LlRQDQo+ID4gPiAtLkIgXC12DQo+ID4gPiAt0J/QvtC00YDQvtCx0L3Ri9C5INGA0LXQttC40LwN
+Cj4gPiA+IC0uVFANCj4gPiA+IC0uQiBcLW8gPG91dHB1dCBmaWxlPg0KPiA+ID4gLdCh0LLRj9C3
+0LDQvdC90YvQuSDQv9Cw0LrQtdGCINC80L7QtNGD0LvQtdC5INC/0L7Qu9C40YLQuNC60LgsINGB
+0L7Qt9C00LDQvdC90YvQuSDRgSDQv9C+0LzQvtGJ0YzRjiDRjdGC0L7Qs9C+INGB0YDQtdC00YHR
+gtCy0LANCj4gPiA+IC0NCj4gPiA+IC0NCj4gPiA+IC0uU0gg0KHQnNCe0KLQoNCY0KLQlSDQotCQ
+0JrQltCVDQo+ID4gPiAtLkIgY2hlY2ttb2R1bGUoOCksIHNlbW9kdWxlX3BhY2thZ2UoOCksIHNl
+bW9kdWxlKDgpLCBzZW1vZHVsZV9leHBhbmQoOCkNCj4gPiA+IC0oOCksDQo+ID4gPiAtLlNIINCQ
+0JLQotCe0KDQqw0KPiA+ID4gLS5uZg0KPiA+ID4gLdCt0YLQsCDRgdGC0YDQsNC90LjRhtCwINGA
+0YPQutC+0LLQvtC00YHRgtCy0LAg0LHRi9C70LAg0L3QsNC/0LjRgdCw0L3QsCBEYW4gV2Fsc2gg
+PGR3YWxzaEByZWRoYXQuY29tPi4NCj4gPiA+IC3Qn9GA0L7Qs9GA0LDQvNC80LAg0LHRi9C70LAg
+0L3QsNC/0LjRgdCw0L3QsCBLYXJsIE1hY01pbGxhbiA8a21hY21pbGxhbkB0cmVzeXMuY29tPi4N
+Cj4gPiA+IC3Qn9C10YDQtdCy0L7QtCDQvdCwINGA0YPRgdGB0LrQuNC5INGP0LfRi9C6INCy0YvQ
+v9C+0LvQvdC40LvQsCDQk9C10YDQsNGB0LjQvNC10L3QutC+INCe0LvQtdGB0Y8gPGdhbW1hcmF5
+QGJhc2VhbHQucnU+Lg0KPiA+ID4gZGlmZiAtLWdpdCBhL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxl
+X3BhY2thZ2UvcnUvc2Vtb2R1bGVfcGFja2FnZS44IGIvc2Vtb2R1bGUtdXRpbHMvc2Vtb2R1bGVf
+cGFja2FnZS9ydS9zZW1vZHVsZV9wYWNrYWdlLjgNCj4gPiA+IGRlbGV0ZWQgZmlsZSBtb2RlIDEw
+MDY0NA0KPiA+ID4gaW5kZXggM2Y0YjE2YTkuLjAwMDAwMDAwDQo+ID4gPiAtLS0gYS9zZW1vZHVs
+ZS11dGlscy9zZW1vZHVsZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3BhY2thZ2UuOA0KPiA+ID4gKysr
+IC9kZXYvbnVsbA0KPiA+ID4gQEAgLTEsNDggKzAsMCBAQA0KPiA+ID4gLS5USCBTRU1PRFVMRV9Q
+QUNLQUdFICI4IiAi0J3QvtGP0LHRgNGMIDIwMDUiICJTZWN1cml0eSBFbmhhbmNlZCBMaW51eCIN
+Cj4gPiA+IC0uU0gg0JjQnNCvDQo+ID4gPiAtc2Vtb2R1bGVfcGFja2FnZSBcLSDRgdC+0LfQtNCw
+0YLRjCDQv9Cw0LrQtdGCINC80L7QtNGD0LvRjyDQv9C+0LvQuNGC0LjQutC4IFNFTGludXgNCj4g
+PiA+IC0NCj4gPiA+IC0uU0gg0J7QkdCX0J7QoA0KPiA+ID4gLS5CIHNlbW9kdWxlX3BhY2thZ2Ug
+XC1vIDxvdXRwdXQgZmlsZT4gXC1tIDxtb2R1bGU+IFtcLWYgPGZpbGUgY29udGV4dHM+XQ0KPiA+
+ID4gLS5icg0KPiA+ID4gLS5TSCDQntCf0JjQodCQ0J3QmNCVDQo+ID4gPiAtLlBQDQo+ID4gPiAt
+c2Vtb2R1bGVfcGFja2FnZSAtINGD0YLQuNC70LjRgtCwLCDQutC+0YLQvtGA0LDRjyDQuNGB0L/Q
+vtC70YzQt9GD0LXRgtGB0Y8g0LTQu9GPINGB0L7Qt9C00LDQvdC40Y8g0L/QsNC60LXRgtCwINC8
+0L7QtNGD0LvRjyDQv9C+0LvQuNGC0LjQutC4IFNFTGludXgg0LjQtyDQtNCy0L7QuNGH0L3QvtCz
+0L4g0LzQvtC00YPQu9GPINC/0L7Qu9C40YLQuNC60Lgg0LggKNC90LXQvtCx0Y/Qt9Cw0YLQtdC7
+0YzQvdC+KSDQtNGA0YPQs9C40YUg0LTQsNC90L3Ri9GFLCDRgtCw0LrQuNGFINC60LDQuiDQutC+
+0L3RgtC10LrRgdGC0Ysg0YTQsNC50LvQvtCyLiDQmtC+0LzQsNC90LTQsCBzZW1vZHVsZV9wYWNr
+YWdlINGD0L/QsNC60L7QstGL0LLQsNC10YIg0LTQstC+0LjRh9C90YvQtSDQvNC+0LTRg9C70Lgg
+0L/QvtC70LjRgtC40LrQuCwg0YHQvtC30LTQsNC90L3Ri9C1INGBINC/0L7QvNC+0YnRjNGOIGNo
+ZWNrbW9kdWxlLiDQn9Cw0LrQtdGCINC/0L7Qu9C40YLQuNC60LgsINGB0L7Qt9C00LDQvdC90YvQ
+uSDRgSDQv9C+0LzQvtGJ0YzRjiBzZW1vZHVsZV9wYWNrYWdlLCDQt9Cw0YLQtdC8INC80L7QttC9
+0L4g0YPRgdGC0LDQvdC+0LLQuNGC0Ywg0YfQtdGA0LXQtyBzZW1vZHVsZS4NCj4gPiA+IC0NCj4g
+PiA+IC0uU0gg0J/QoNCY0JzQldCgDQo+ID4gPiAtLm5mDQo+ID4gPiAtIyDQodC+0LHRgNCw0YLR
+jCDQv9Cw0LrQtdGCINC/0L7Qu9C40YLQuNC60Lgg0LTQu9GPINCx0LDQt9C+0LLQvtCz0L4g0LzQ
+vtC00YPQu9GPLg0KPiA+ID4gLSQgc2Vtb2R1bGVfcGFja2FnZSBcLW8gYmFzZS5wcCBcLW0gYmFz
+ZS5tb2QgXC1mIGZpbGVfY29udGV4dHMNCj4gPiA+IC0jINCh0L7QsdGA0LDRgtGMINC/0LDQutC1
+0YIg0L/QvtC70LjRgtC40LrQuCDQtNC70Y8g0LzQvtC00YPQu9GPIGh0dHBkLg0KPiA+ID4gLSQg
+c2Vtb2R1bGVfcGFja2FnZSBcLW8gaHR0cGQucHAgXC1tIGh0dHBkLm1vZCBcLWYgaHR0cGQuZmMN
+Cj4gPiA+IC0jINCh0L7QsdGA0LDRgtGMINC/0LDQutC10YIg0L/QvtC70LjRgtC40LrQuCDQtNC7
+0Y8g0LvQvtC60LDQu9GM0L3Ri9GFINC/0YDQsNCy0LjQuyDQv9GA0LjQvdGD0LTQuNGC0LXQu9GM
+0L3QvtCz0L4g0L/RgNC40YHQstC+0LXQvdC40Y8g0YLQuNC/0L7Qsiwg0L3QtSDQstC60LvRjtGH
+0LDRjyDQutC+0L3RgtC10LrRgdGC0Ysg0YTQsNC50LvQvtCyLg0KPiA+ID4gLSQgc2Vtb2R1bGVf
+cGFja2FnZSBcLW8gbG9jYWwucHAgXC1tIGxvY2FsLm1vZA0KPiA+ID4gLS5maQ0KPiA+ID4gLQ0K
+PiA+ID4gLS5TSCAi0J/QkNCg0JDQnNCV0KLQoNCrIg0KPiA+ID4gLS5UUA0KPiA+ID4gLS5CIFwt
+byBcLVwtb3V0ZmlsZSA8b3V0cHV0IGZpbGU+DQo+ID4gPiAt0KTQsNC50Lsg0L/QsNC60LXRgtCw
+INC80L7QtNGD0LvRjyDQv9C+0LvQuNGC0LjQutC4LCDRgdC+0LfQtNCw0L3QvdGL0Lkg0Y3RgtC4
+0Lwg0YHRgNC10LTRgdGC0LLQvtC8Lg0KPiA+ID4gLS5UUA0KPiA+ID4gLS5CICBcLXMgXC1cLXNl
+dXNlciA8c2V1c2VyIGZpbGU+DQo+ID4gPiAt0KTQsNC50Lsgc2V1c2VyLCDQutC+0YLQvtGA0YvQ
+uSDRgdC70LXQtNGD0LXRgiDQstC60LvRjtGH0LjRgtGMINCyINC/0LDQutC10YIuDQo+ID4gPiAt
+LlRQDQo+ID4gPiAtLkIgIFwtdSBcLVwtdXNlcl9leHRyYSA8dXNlciBleHRyYSBmaWxlPg0KPiA+
+ID4gLdCk0LDQudC7IHVzZXJfZXh0cmEsINC60L7RgtC+0YDRi9C5INGB0LvQtdC00YPQtdGCINCy
+0LrQu9GO0YfQuNGC0Ywg0LIg0L/QsNC60LXRgi4NCj4gPiA+IC0uVFANCj4gPiA+IC0uQiAgXC1t
+IFwtXC1tb2R1bGUgPE1vZHVsZSBmaWxlPg0KPiA+ID4gLdCk0LDQudC7INC80L7QtNGD0LvRjyDQ
+v9C+0LvQuNGC0LjQutC4LCDQutC+0YLQvtGA0YvQuSDRgdC70LXQtNGD0LXRgiDQstC60LvRjtGH
+0LjRgtGMINCyINC/0LDQutC10YIuDQo+ID4gPiAtLlRQDQo+ID4gPiAtLkIgIFwtZiBcLVwtZmMg
+PEZpbGUgY29udGV4dCBmaWxlPg0KPiA+ID4gLdCk0LDQudC7INC60L7QvdGC0LXQutGB0YLQvtCy
+INGE0LDQudC70L7QsiDQtNC70Y8g0LzQvtC00YPQu9GPICjQvdC10L7QsdGP0LfQsNGC0LXQu9GM
+0L3QvikuDQo+ID4gPiAtLlRQDQo+ID4gPiAtLkIgIFwtbiBcLVwtbmMgPG5ldGZpbHRlciBjb250
+ZXh0IGZpbGU+DQo+ID4gPiAt0KTQsNC50Lsg0LrQvtC90YLQtdC60YHRgtCwIG5ldGZpbHRlciwg
+0LrQvtGC0L7RgNGL0Lkg0YHQu9C10LTRg9C10YIg0LLQutC70Y7Rh9C40YLRjCDQsiDQv9Cw0LrQ
+tdGCLg0KPiA+ID4gLQ0KPiA+ID4gLS5TSCDQodCc0J7QotCg0JjQotCVINCi0JDQmtCW0JUNCj4g
+PiA+IC0uQiBjaGVja21vZHVsZSg4KSwgc2Vtb2R1bGUoOCksIHNlbW9kdWxlX3VucGFja2FnZSg4
+KQ0KPiA+ID4gLS5TSCDQkNCS0KLQntCg0KsNCj4gPiA+IC0ubmYNCj4gPiA+IC3QrdGC0LAg0YHR
+gtGA0LDQvdC40YbQsCDRgNGD0LrQvtCy0L7QtNGB0YLQstCwINCx0YvQu9CwINC90LDQv9C40YHQ
+sNC90LAgRGFuIFdhbHNoIDxkd2Fsc2hAcmVkaGF0LmNvbT4uDQo+ID4gPiAt0J/RgNC+0LPRgNCw
+0LzQvNCwINCx0YvQu9CwINC90LDQv9C40YHQsNC90LAgS2FybCBNYWNNaWxsYW4gPGttYWNtaWxs
+YW5AdHJlc3lzLmNvbT4uDQo+ID4gPiAt0J/QtdGA0LXQstC+0LQg0L3QsCDRgNGD0YHRgdC60LjQ
+uSDRj9C30YvQuiDQstGL0L/QvtC70L3QuNC70LAg0JPQtdGA0LDRgdC40LzQtdC90LrQviDQntC7
+0LXRgdGPIDxnYW1tYXJheUBiYXNlYWx0LnJ1Pi4NCj4gPiA+IGRpZmYgLS1naXQgYS9zZW1vZHVs
+ZS11dGlscy9zZW1vZHVsZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3VucGFja2FnZS44IGIvc2Vtb2R1
+bGUtdXRpbHMvc2Vtb2R1bGVfcGFja2FnZS9ydS9zZW1vZHVsZV91bnBhY2thZ2UuOA0KPiA+ID4g
+ZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0DQo+ID4gPiBpbmRleCAwNTdhZTNkNy4uMDAwMDAwMDAN
+Cj4gPiA+IC0tLSBhL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX3BhY2thZ2UvcnUvc2Vtb2R1bGVf
+dW5wYWNrYWdlLjgNCj4gPiA+ICsrKyAvZGV2L251bGwNCj4gPiA+IEBAIC0xLDI0ICswLDAgQEAN
+Cj4gPiA+IC0uVEggU0VNT0RVTEVfUEFDS0FHRSAiOCIgItCd0L7Rj9Cx0YDRjCAyMDA1IiAiU2Vj
+dXJpdHkgRW5oYW5jZWQgTGludXgiDQo+ID4gPiAtLlNIINCY0JzQrw0KPiA+ID4gLXNlbW9kdWxl
+X3VucGFja2FnZSBcLSDQuNC30LLQu9C10YfRjCDQvNC+0LTRg9C70Ywg0L/QvtC70LjRgtC40LrQ
+uCDQuCDRhNCw0LnQuyDQutC+0L3RgtC10LrRgdGC0L7QsiDRhNCw0LnQu9C+0LIg0LjQtyDQv9Cw
+0LrQtdGC0LAg0LzQvtC00YPQu9GPINC/0L7Qu9C40YLQuNC60LggU0VMaW51eA0KPiA+ID4gLQ0K
+PiA+ID4gLS5TSCDQntCR0JfQntCgDQo+ID4gPiAtLkIgc2Vtb2R1bGVfdW5wYWNrYWdlIHBwZmls
+ZSBtb2RmaWxlIFtmY2ZpbGVdDQo+ID4gPiAtLmJyDQo+ID4gPiAtLlNIINCe0J/QmNCh0JDQndCY
+0JUNCj4gPiA+IC0uUFANCj4gPiA+IC1zZW1vZHVsZV91bnBhY2thZ2UgLSDRg9GC0LjQu9C40YLQ
+sCwg0LrQvtGC0L7RgNCw0Y8g0LjRgdC/0L7Qu9GM0LfRg9C10YLRgdGPINC00LvRjyDQuNC30LLQ
+u9C10YfQtdC90LjRjyDRhNCw0LnQu9CwINC80L7QtNGD0LvRjyDQv9C+0LvQuNGC0LjQutC4IFNF
+TGludXgg0Lgg0YTQsNC50LvQsCDQutC+0L3RgtC10LrRgdGC0L7QsiDRhNCw0LnQu9C+0LIg0LjQ
+tyDQv9Cw0LrQtdGC0LAg0L/QvtC70LjRgtC40LrQuCBTRUxpbnV4Lg0KPiA+ID4gLQ0KPiA+ID4g
+LS5TSCDQn9Cg0JjQnNCV0KANCj4gPiA+IC0ubmYNCj4gPiA+IC0jINCY0LfQstC70LXRh9GMINGE
+0LDQudC7INC80L7QtNGD0LvRjyBodHRwZCDQuNC3INC/0LDQutC10YLQsCDQv9C+0LvQuNGC0LjQ
+utC4IGh0dHBkLg0KPiA+ID4gLSQgc2Vtb2R1bGVfdW5wYWNrYWdlIGh0dHBkLnBwIGh0dHBkLm1v
+ZCBodHRwZC5mYw0KPiA+ID4gLS5maQ0KPiA+ID4gLQ0KPiA+ID4gLS5TSCDQodCc0J7QotCg0JjQ
+otCVINCi0JDQmtCW0JUNCj4gPiA+IC0uQiBzZW1vZHVsZV9wYWNrYWdlKDgpDQo+ID4gPiAtLlNI
+INCQ0JLQotCe0KDQqw0KPiA+ID4gLS5uZg0KPiA+ID4gLdCt0YLQsCDRgdGC0YDQsNC90LjRhtCw
+INGA0YPQutC+0LLQvtC00YHRgtCy0LAg0LHRi9C70LAg0L3QsNC/0LjRgdCw0L3QsCBEYW4gV2Fs
+c2ggPGR3YWxzaEByZWRoYXQuY29tPi4NCj4gPiA+IC3Qn9GA0L7Qs9GA0LDQvNC80LAg0LHRi9C7
+0LAg0L3QsNC/0LjRgdCw0L3QsCBTdGVwaGVuIFNtYWxsZXkgPHN0ZXBoZW4uc21hbGxleS53b3Jr
+QGdtYWlsLmNvbT4uDQo+ID4gPiAt0J/QtdGA0LXQstC+0LQg0L3QsCDRgNGD0YHRgdC60LjQuSDR
+j9C30YvQuiDQstGL0L/QvtC70L3QuNC70LAg0JPQtdGA0LDRgdC40LzQtdC90LrQviDQntC70LXR
+gdGPIDxnYW1tYXJheUBiYXNlYWx0LnJ1Pi4NCj4gPiA+IC0tDQo+ID4gPiAyLjQxLjANCj4gPg0K
