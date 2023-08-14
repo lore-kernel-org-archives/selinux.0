@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CD64C25B73
-	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 13:21:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3067EC001B0
+	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 13:22:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230328AbjHNNVY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Aug 2023 09:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55332 "EHLO
+        id S230466AbjHNNVm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Aug 2023 09:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230472AbjHNNUt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 09:20:49 -0400
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E106173F
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:20:45 -0700 (PDT)
-Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-4fe457ec6e7so6848083e87.3
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:20:45 -0700 (PDT)
+        with ESMTP id S230356AbjHNNVK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 09:21:10 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 518F5199C
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:20:57 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-997c4107d62so576376566b.0
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 06:20:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692019243; x=1692624043;
+        d=googlemail.com; s=20221208; t=1692019256; x=1692624056;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=WMRdXXPySKs4DfE+y8O69B0s6zAZugNBKWTPys88D5c=;
-        b=FeXhuEn4ssl5cFBjtlxcYV9o10zgg2RJy8hcAdOtBQp+L6qcM9mFv/fpr08gVEL2IV
-         4mNCzonZ+Qav9gU6Cz/y+/Y5iSzEEHV/fW/x4vHAzLrF3mvuZweJ+QZMIqX9kAxQjt2q
-         uI8w9h1Y1H4SaNfM9hixVU1iqQ+ATY2EolSyYOBSjUIcErbJ4WauVEkOTd1PpPAevOM4
-         4M0fUMZzmi7ZCI4e2Y4xry3vjH5inmxVjuSi8Foofn1l74IenzMIZb+cmmY0hd7Xa+Fc
-         SF98hN/0QnOJdWWOHjYUkeVD7t9mlmrwB7CGa7fUexAEhVneS9q7Lz6bAQK7lHTSohjW
-         EdTQ==
+        bh=8KTCosaLfwXLbYBf8UrPTir9MQzO7NqD5UT+xcBIAMg=;
+        b=R1NTZqBYnHrD/IbL7z7kbpNDwBDCmIRB7rzPbPOuCUKUop3Xa7F94nI3Rb57cVl/5s
+         0dTmAIJI3HQi8Etls5Y0gsbNC6VVMK1MauSXjvLcxpW6FmrQQpzsVQS9etFVsFo99Zye
+         bc13W6a79os0uncN4330Z20lyCQ/4upPh2+4oY4JwGWyxDGKrUZXxG+Lnirnv1BirMnw
+         7Rw1Hi0k6nwIX3RPGV4kbM9E4z3qUXCW3+Ii/gBOL9PDlTxHn2EDOahrriflax8RzzLd
+         O2gOQY15ANOwoqlhxtQRdgU3hURxBUAPS9ponhULmFQbNi8mufAamxaFyFQCHajQ+o1T
+         Xbbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692019243; x=1692624043;
+        d=1e100.net; s=20221208; t=1692019256; x=1692624056;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WMRdXXPySKs4DfE+y8O69B0s6zAZugNBKWTPys88D5c=;
-        b=XFw/AK/W788r4v36V4Gu4Dd2BW+XmeX3FZucN2gjsl2ZGlw0bizaJLpry0c96oXCVx
-         Lc/s+HCTeV3Cx2l04cVBDlrJihfZqbQOiue3YMKwr5CuvXMyV3v8kiuwqFZgQXWJoPBc
-         usMnoGGz4Rziw5F6O1Cdym8HytxeyiK7q96SQv6CFk+QKQIq972/D9LCEL+EQGT7b63u
-         V6TcryebpCPZxgTIdDxEvkCiv0Ys9bhEvLmjfXWwoFXOsgx5rfEqtirg7KczraaAIV8u
-         JEeULOSQa0zd4f9O2taERZKKDD66QHxovhc4dN3yrdo5msipPzjYrHfbsfTyrt78Q1AI
-         sPEQ==
-X-Gm-Message-State: AOJu0YyOmPkezjgg5KiC9ZbzlwOZvWLsZ56FT3WRCJFlxyDMS0tnFaWr
-        iIquiBq1IYQBkAVGJZm0FxIrnqlPMUdAqbjzlZA=
-X-Google-Smtp-Source: AGHT+IFZwwlTqCwrn7szGmrCth6vFo76YRSorzOdD5UBe7xZsJxMiAWQhQ/73c/Zytrq3Ml4NnZpRw==
-X-Received: by 2002:a05:6512:3b0f:b0:4fc:4f3e:9cbf with SMTP id f15-20020a0565123b0f00b004fc4f3e9cbfmr7960746lfv.50.1692019243320;
-        Mon, 14 Aug 2023 06:20:43 -0700 (PDT)
+        bh=8KTCosaLfwXLbYBf8UrPTir9MQzO7NqD5UT+xcBIAMg=;
+        b=QY625jPEB2BQ7J4dQndgLFIo+CKnWY3DKJDAGz5WPzybApR8act21aNKLjns1zFq+A
+         xKxQYvKBtPuOd6gSccXDJAlTmhRd8f93IhKxo+ATcY7d3jWWmmW49IM4DGzfWaaFDHep
+         C8a8QfSjcjIOiSySMhonc5bn7rFLMqzhMgJFfBGksd8tFALtCXHjjajJglCD2VuJl+vY
+         6NKq7PGnWh4EiqZFtowrsOCO3OHblkEnLq3x6Kg+MiKadRZajnrMOZ9OhHXfwm9+VhM4
+         GL0s/mxoeT6nDwy6gxa7c97G4f9Sb7LMUzncCTj8YdtYK+Jbk47P9bkpTqVPAm6529Bl
+         Z1kw==
+X-Gm-Message-State: AOJu0YzH3FGYKaZtmhkNJ5TeqSZBVIRFhusi4FupTRy66Eai4KfNk/zy
+        /HAxq5ttQ3ERFf7JuGky9EkeR7+EVpRtvcEyFE4=
+X-Google-Smtp-Source: AGHT+IEso7+3S1SfOP0EUUgGJy+zpa31vAWgyaLfETnVcXynwbIHq4Z6D5IaSyqZ+P/tpsRLVP8WOQ==
+X-Received: by 2002:a17:907:2c42:b0:99b:c689:3f3d with SMTP id hf2-20020a1709072c4200b0099bc6893f3dmr7870738ejc.25.1692019255660;
+        Mon, 14 Aug 2023 06:20:55 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-112-167-009.95.112.pool.telefonica.de. [95.112.167.9])
-        by smtp.gmail.com with ESMTPSA id ck9-20020a170906c44900b00993664a9987sm5683541ejb.103.2023.08.14.06.20.42
+        by smtp.gmail.com with ESMTPSA id ck9-20020a170906c44900b00993664a9987sm5683541ejb.103.2023.08.14.06.20.55
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Aug 2023 06:20:43 -0700 (PDT)
+        Mon, 14 Aug 2023 06:20:55 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH v2 06/27] libselinux: cast to unsigned char for character handling function
-Date:   Mon, 14 Aug 2023 15:20:04 +0200
-Message-Id: <20230814132025.45364-7-cgzones@googlemail.com>
+Subject: [RFC PATCH v2 26/27] libselinux: remove unused hashtab code
+Date:   Mon, 14 Aug 2023 15:20:24 +0200
+Message-Id: <20230814132025.45364-27-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230814132025.45364-1-cgzones@googlemail.com>
 References: <20230814132025.45364-1-cgzones@googlemail.com>
@@ -65,382 +65,379 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Character handling functions, like isspace(3), expect a value
-representable as unsigned char or equal to EOF.  Otherwise the behavior
-is undefined.
-
-See https://wiki.sei.cmu.edu/confluence/display/c/STR37-C.+Arguments+to+character-handling+functions+must+be+representable+as+an+unsigned+char
+Due to the selabel_file(5) rework this code is no longer used.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/booleans.c                        |  8 ++++----
- libselinux/src/compute_create.c                  |  2 +-
- libselinux/src/get_context_list.c                | 12 ++++++------
- libselinux/src/get_default_type.c                |  2 +-
- libselinux/src/label_file.c                      |  8 ++++----
- libselinux/src/label_media.c                     |  2 +-
- libselinux/src/label_support.c                   |  8 ++++----
- libselinux/src/label_x.c                         |  2 +-
- libselinux/src/load_policy.c                     |  2 +-
- libselinux/src/matchmediacon.c                   |  6 +++---
- libselinux/src/selinux_check_securetty_context.c |  4 ++--
- libselinux/src/selinux_config.c                  | 12 ++++++------
- libselinux/src/seusers.c                         |  6 +++---
- 13 files changed, 37 insertions(+), 37 deletions(-)
+ libselinux/src/hashtab.c | 234 ---------------------------------------
+ libselinux/src/hashtab.h | 117 --------------------
+ 2 files changed, 351 deletions(-)
+ delete mode 100644 libselinux/src/hashtab.c
+ delete mode 100644 libselinux/src/hashtab.h
 
-diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-index e34b39ff..c557df65 100644
---- a/libselinux/src/booleans.c
-+++ b/libselinux/src/booleans.c
-@@ -107,7 +107,7 @@ char *selinux_boolean_sub(const char *name)
- 		char *ptr;
- 		char *src = line_buf;
- 		char *dst;
--		while (*src && isspace(*src))
-+		while (*src && isspace((unsigned char)*src))
- 			src++;
- 		if (!*src)
- 			continue;
-@@ -115,19 +115,19 @@ char *selinux_boolean_sub(const char *name)
- 			continue;
- 
- 		ptr = src;
--		while (*ptr && !isspace(*ptr))
-+		while (*ptr && !isspace((unsigned char)*ptr))
- 			ptr++;
- 		*ptr++ = '\0';
- 		if (strcmp(src, name) != 0)
- 			continue;
- 
- 		dst = ptr;
--		while (*dst && isspace(*dst))
-+		while (*dst && isspace((unsigned char)*dst))
- 			dst++;
- 		if (!*dst)
- 			continue;
- 		ptr = dst;
--		while (*ptr && !isspace(*ptr))
-+		while (*ptr && !isspace((unsigned char)*ptr))
- 			ptr++;
- 		*ptr = '\0';
- 
-diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
-index e9f3c96a..92ee2fc3 100644
---- a/libselinux/src/compute_create.c
-+++ b/libselinux/src/compute_create.c
-@@ -23,7 +23,7 @@ static int object_name_encode(const char *objname, char *buffer, size_t buflen)
- 	do {
- 		code = *objname++;
- 
--		if (isalnum(code) || code == '\0' || code == '-' ||
-+		if (isalnum((unsigned char)code) || code == '\0' || code == '-' ||
- 		    code == '.' || code == '_' || code == '~') {
- 			if (buflen - offset < 1)
- 				return -1;
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-index d774b9cf..0342823c 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -170,27 +170,27 @@ static int get_context_user(FILE * fp,
- 
- 		/* Skip leading whitespace. */
- 		start = line;
--		while (*start && isspace(*start))
-+		while (*start && isspace((unsigned char)*start))
- 			start++;
- 		if (!(*start))
- 			continue;
- 
- 		/* Find the end of the (partial) fromcon in the line. */
- 		end = start;
--		while (*end && !isspace(*end))
-+		while (*end && !isspace((unsigned char)*end))
- 			end++;
- 		if (!(*end))
- 			continue;
- 
- 		/* Check for a match. */
- 		linerole = start;
--		while (*start && !isspace(*start) && *start != ':')
-+		while (*start && !isspace((unsigned char)*start) && *start != ':')
- 			start++;
- 		if (*start != ':')
- 			continue;
- 		*start = 0;
- 		linetype = ++start;
--		while (*start && !isspace(*start) && *start != ':')
-+		while (*start && !isspace((unsigned char)*start) && *start != ':')
- 			start++;
- 		if (!(*start))
- 			continue;
-@@ -210,14 +210,14 @@ static int get_context_user(FILE * fp,
- 	start = ++end;
- 	while (*start) {
- 		/* Skip leading whitespace */
--		while (*start && isspace(*start))
-+		while (*start && isspace((unsigned char)*start))
- 			start++;
- 		if (!(*start))
- 			break;
- 
- 		/* Find the end of this partial context. */
- 		end = start;
--		while (*end && !isspace(*end))
-+		while (*end && !isspace((unsigned char)*end))
- 			end++;
- 		if (*end)
- 			*end++ = 0;
-diff --git a/libselinux/src/get_default_type.c b/libselinux/src/get_default_type.c
-index 766ea4b7..87e9c72c 100644
---- a/libselinux/src/get_default_type.c
-+++ b/libselinux/src/get_default_type.c
-@@ -42,7 +42,7 @@ static int find_default_type(FILE * fp, const char *role, char **type)
- 			buf[strlen(buf) - 1] = 0;
- 
- 		ptr = buf;
--		while (*ptr && isspace(*ptr))
-+		while (*ptr && isspace((unsigned char)*ptr))
- 			ptr++;
- 		if (!(*ptr))
- 			continue;
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 3da28c45..461abc61 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -697,20 +697,20 @@ static int selabel_subs_init(const char *path, struct selabel_digest *digest,
- 		char *src = buf;
- 		char *dst = NULL;
- 
--		while (*src && isspace(*src))
-+		while (*src && isspace((unsigned char)*src))
- 			src++;
- 		if (src[0] == '#') continue;
- 		ptr = src;
--		while (*ptr && ! isspace(*ptr))
-+		while (*ptr && ! isspace((unsigned char)*ptr))
- 			ptr++;
- 		*ptr++ = '\0';
- 		if (! *src) continue;
- 
- 		dst = ptr;
--		while (*dst && isspace(*dst))
-+		while (*dst && isspace((unsigned char)*dst))
- 			dst++;
- 		ptr = dst;
--		while (*ptr && ! isspace(*ptr))
-+		while (*ptr && ! isspace((unsigned char)*ptr))
- 			ptr++;
- 		*ptr = '\0';
- 		if (! *dst)
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index 3137c18e..f09461ab 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -39,7 +39,7 @@ static int process_line(const char *path, char *line_buf, int pass,
- 	char *key, *context;
- 
- 	buf_p = line_buf;
--	while (isspace(*buf_p))
-+	while (isspace((unsigned char)*buf_p))
- 		buf_p++;
- 	/* Skip comment lines and empty lines. */
- 	if (*buf_p == '#' || *buf_p == 0)
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index df474cba..94fb6697 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -26,14 +26,14 @@ static inline int read_spec_entry(char **entry, char **ptr, int *len, const char
- 	*entry = NULL;
- 	char *tmp_buf = NULL;
- 
--	while (isspace(**ptr) && **ptr != '\0')
-+	while (isspace((unsigned char)**ptr) && **ptr != '\0')
- 		(*ptr)++;
- 
- 	tmp_buf = *ptr;
- 	*len = 0;
- 
--	while (!isspace(**ptr) && **ptr != '\0') {
--		if (!isascii(**ptr)) {
-+	while (!isspace((unsigned char)**ptr) && **ptr != '\0') {
-+		if (!isascii((unsigned char)**ptr)) {
- 			errno = EINVAL;
- 			*errbuf = "Non-ASCII characters found";
- 			return -1;
-@@ -80,7 +80,7 @@ int  read_spec_entries(char *line_buf, const char **errbuf, int num_args, ...)
- 		len++;
- 
- 	buf_p = line_buf;
--	while (isspace(*buf_p))
-+	while (isspace((unsigned char)*buf_p))
- 		buf_p++;
- 
- 	/* Skip comment lines and empty lines. */
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index e6e8d9f6..e80bf107 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -41,7 +41,7 @@ static int process_line(const char *path, char *line_buf, int pass,
- 	char *type, *key, *context;
- 
- 	buf_p = line_buf;
--	while (isspace(*buf_p))
-+	while (isspace((unsigned char)*buf_p))
- 		buf_p++;
- 	/* Skip comment lines and empty lines. */
- 	if (*buf_p == '#' || *buf_p == 0)
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index 17918e8b..57d7aaef 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -252,7 +252,7 @@ int selinux_init_load_policy(int *enforce)
- 		}
- 		if (fgets(buf, selinux_page_size, cfg) &&
- 		    (tmp = strstr(buf, "enforcing="))) {
--			if (tmp == buf || isspace(*(tmp - 1))) {
-+			if (tmp == buf || isspace((unsigned char)*(tmp - 1))) {
- 				secmdline =
- 				    atoi(tmp + sizeof("enforcing=") - 1);
- 			}
-diff --git a/libselinux/src/matchmediacon.c b/libselinux/src/matchmediacon.c
-index d3d95043..6ba87b99 100644
---- a/libselinux/src/matchmediacon.c
-+++ b/libselinux/src/matchmediacon.c
-@@ -29,7 +29,7 @@ int matchmediacon(const char *media, char ** con)
- 			current_line[strlen(current_line) - 1] = 0;
- 		/* Skip leading whitespace before the partial context. */
- 		ptr = current_line;
--		while (*ptr && isspace(*ptr))
-+		while (*ptr && isspace((unsigned char)*ptr))
- 			ptr++;
- 
- 		if (!(*ptr))
-@@ -37,7 +37,7 @@ int matchmediacon(const char *media, char ** con)
- 
- 		/* Find the end of the media context. */
- 		ptr2 = ptr;
--		while (*ptr2 && !isspace(*ptr2))
-+		while (*ptr2 && !isspace((unsigned char)*ptr2))
- 			ptr2++;
- 		if (!(*ptr2))
- 			continue;
-@@ -53,7 +53,7 @@ int matchmediacon(const char *media, char ** con)
- 		return -1;
- 
- 	/* Skip whitespace. */
--	while (*ptr2 && isspace(*ptr2))
-+	while (*ptr2 && isspace((unsigned char)*ptr2))
- 		ptr2++;
- 	if (!(*ptr2)) {
- 		return -1;
-diff --git a/libselinux/src/selinux_check_securetty_context.c b/libselinux/src/selinux_check_securetty_context.c
-index c5c557fd..7609752e 100644
---- a/libselinux/src/selinux_check_securetty_context.c
-+++ b/libselinux/src/selinux_check_securetty_context.c
-@@ -26,13 +26,13 @@ int selinux_check_securetty_context(const char * tty_context)
- 
- 				/* Skip leading whitespace. */
- 				start = line;
--				while (*start && isspace(*start))
-+				while (*start && isspace((unsigned char)*start))
- 					start++;
- 				if (!(*start))
- 					continue;
- 
- 				end = start;
--				while (*end && !isspace(*end))
-+				while (*end && !isspace((unsigned char)*end))
- 					end++;
- 				if (*end)
- 					*end++ = 0;
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index d2e49ee1..1d8cfb71 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -103,7 +103,7 @@ int selinux_getenforcemode(int *enforce)
- 			if (strncmp(buf, SELINUXTAG, len))
- 				continue;
- 			tag = buf+len;
--			while (isspace(*tag))
-+			while (isspace((unsigned char)*tag))
- 				tag++;
- 			if (!strncasecmp
- 			    (tag, "enforcing", sizeof("enforcing") - 1)) {
-@@ -173,7 +173,7 @@ static void init_selinux_config(void)
- 			if (line_buf[len - 1] == '\n')
- 				line_buf[len - 1] = 0;
- 			buf_p = line_buf;
--			while (isspace(*buf_p))
-+			while (isspace((unsigned char)*buf_p))
- 				buf_p++;
- 			if (*buf_p == '#' || *buf_p == 0)
- 				continue;
-@@ -181,7 +181,7 @@ static void init_selinux_config(void)
- 			if (!strncasecmp(buf_p, SELINUXTYPETAG,
- 					 sizeof(SELINUXTYPETAG) - 1)) {
- 				buf_p += sizeof(SELINUXTYPETAG) - 1;
--				while (isspace(*buf_p))
-+				while (isspace((unsigned char)*buf_p))
- 					buf_p++;
- 				type = strdup(buf_p);
- 				if (!type) {
-@@ -191,7 +191,7 @@ static void init_selinux_config(void)
- 				}
- 				end = type + strlen(type) - 1;
- 				while ((end > type) &&
--				       (isspace(*end) || iscntrl(*end))) {
-+				       (isspace((unsigned char)*end) || iscntrl((unsigned char)*end))) {
- 					*end = 0;
- 					end--;
- 				}
-@@ -206,14 +206,14 @@ static void init_selinux_config(void)
- 			} else if (!strncmp(buf_p, REQUIRESEUSERS,
- 					    sizeof(REQUIRESEUSERS) - 1)) {
- 				value = buf_p + sizeof(REQUIRESEUSERS) - 1;
--				while (isspace(*value))
-+				while (isspace((unsigned char)*value))
- 					value++;
- 				intptr = &require_seusers;
- 			} else {
- 				continue;
- 			}
- 
--			if (isdigit(*value))
-+			if (isdigit((unsigned char)*value))
- 				*intptr = atoi(value);
- 			else if (strncasecmp(value, "true", sizeof("true") - 1))
- 				*intptr = 1;
-diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
-index fff80c1a..6da8c318 100644
---- a/libselinux/src/seusers.c
-+++ b/libselinux/src/seusers.c
-@@ -25,7 +25,7 @@ static int process_seusers(const char *buffer,
- 		goto err;
- 
- 	start = newbuf;
--	while (isspace(*start))
-+	while (isspace((unsigned char)*start))
- 		start++;
- 	if (*start == '#' || *start == 0) {
- 		free(newbuf);
-@@ -46,7 +46,7 @@ static int process_seusers(const char *buffer,
- 		mls_found = 0;
- 
- 		end = start;
--		while (*end && !isspace(*end))
-+		while (*end && !isspace((unsigned char)*end))
- 			end++;
- 	}
- 	*end = 0;
-@@ -63,7 +63,7 @@ static int process_seusers(const char *buffer,
- 		goto out;
- 
- 	start = ++end;
--	while (*end && !isspace(*end))
-+	while (*end && !isspace((unsigned char)*end))
- 		end++;
- 	*end = 0;
- 
+diff --git a/libselinux/src/hashtab.c b/libselinux/src/hashtab.c
+deleted file mode 100644
+index 7452613b..00000000
+--- a/libselinux/src/hashtab.c
++++ /dev/null
+@@ -1,234 +0,0 @@
+-
+-/* Author : Stephen Smalley, <stephen.smalley.work@gmail.com> */
+-
+-/* FLASK */
+-
+-/*
+- * Implementation of the hash table type.
+- */
+-
+-#include <stdlib.h>
+-#include <string.h>
+-#include "hashtab.h"
+-
+-hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
+-						     const_hashtab_key_t key),
+-			 int (*keycmp) (hashtab_t h,
+-					const_hashtab_key_t key1,
+-					const_hashtab_key_t key2),
+-			 unsigned int size)
+-{
+-
+-	hashtab_t p;
+-	unsigned int i;
+-
+-	p = (hashtab_t) malloc(sizeof(hashtab_val_t));
+-	if (p == NULL)
+-		return p;
+-
+-	memset(p, 0, sizeof(hashtab_val_t));
+-	p->size = size;
+-	p->nel = 0;
+-	p->hash_value = hash_value;
+-	p->keycmp = keycmp;
+-	p->htable = (hashtab_ptr_t *) malloc(sizeof(hashtab_ptr_t) * size);
+-	if (p->htable == NULL) {
+-		free(p);
+-		return NULL;
+-	}
+-	for (i = 0; i < size; i++)
+-		p->htable[i] = (hashtab_ptr_t) NULL;
+-
+-	return p;
+-}
+-
+-int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
+-{
+-	unsigned int hvalue;
+-	hashtab_ptr_t prev, cur, newnode;
+-
+-	if (!h)
+-		return HASHTAB_OVERFLOW;
+-
+-	hvalue = h->hash_value(h, key);
+-	prev = NULL;
+-	cur = h->htable[hvalue];
+-	while (cur && h->keycmp(h, key, cur->key) > 0) {
+-		prev = cur;
+-		cur = cur->next;
+-	}
+-
+-	if (cur && (h->keycmp(h, key, cur->key) == 0))
+-		return HASHTAB_PRESENT;
+-
+-	newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
+-	if (newnode == NULL)
+-		return HASHTAB_OVERFLOW;
+-	memset(newnode, 0, sizeof(struct hashtab_node));
+-	newnode->key = key;
+-	newnode->datum = datum;
+-	if (prev) {
+-		newnode->next = prev->next;
+-		prev->next = newnode;
+-	} else {
+-		newnode->next = h->htable[hvalue];
+-		h->htable[hvalue] = newnode;
+-	}
+-
+-	h->nel++;
+-	return HASHTAB_SUCCESS;
+-}
+-
+-int hashtab_remove(hashtab_t h, hashtab_key_t key,
+-		   void (*destroy) (hashtab_key_t k,
+-				    hashtab_datum_t d, void *args), void *args)
+-{
+-	unsigned int hvalue;
+-	hashtab_ptr_t cur, last;
+-
+-	if (!h)
+-		return HASHTAB_MISSING;
+-
+-	hvalue = h->hash_value(h, key);
+-	last = NULL;
+-	cur = h->htable[hvalue];
+-	while (cur != NULL && h->keycmp(h, key, cur->key) > 0) {
+-		last = cur;
+-		cur = cur->next;
+-	}
+-
+-	if (cur == NULL || (h->keycmp(h, key, cur->key) != 0))
+-		return HASHTAB_MISSING;
+-
+-	if (last == NULL)
+-		h->htable[hvalue] = cur->next;
+-	else
+-		last->next = cur->next;
+-
+-	if (destroy)
+-		destroy(cur->key, cur->datum, args);
+-	free(cur);
+-	h->nel--;
+-	return HASHTAB_SUCCESS;
+-}
+-
+-hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t key)
+-{
+-
+-	unsigned int hvalue;
+-	hashtab_ptr_t cur;
+-
+-	if (!h)
+-		return NULL;
+-
+-	hvalue = h->hash_value(h, key);
+-	cur = h->htable[hvalue];
+-	while (cur != NULL && h->keycmp(h, key, cur->key) > 0)
+-		cur = cur->next;
+-
+-	if (cur == NULL || (h->keycmp(h, key, cur->key) != 0))
+-		return NULL;
+-
+-	return cur->datum;
+-}
+-
+-void hashtab_destroy(hashtab_t h)
+-{
+-	unsigned int i;
+-	hashtab_ptr_t cur, temp;
+-
+-	if (!h)
+-		return;
+-
+-	for (i = 0; i < h->size; i++) {
+-		cur = h->htable[i];
+-		while (cur != NULL) {
+-			temp = cur;
+-			cur = cur->next;
+-			free(temp);
+-		}
+-		h->htable[i] = NULL;
+-	}
+-
+-	free(h->htable);
+-	h->htable = NULL;
+-
+-	free(h);
+-}
+-
+-void hashtab_destroy_key(hashtab_t h,
+-		int (*destroy_key) (hashtab_key_t k))
+-{
+-	unsigned int i;
+-	hashtab_ptr_t cur, temp;
+-
+-	if (!h)
+-		return;
+-
+-	for (i = 0; i < h->size; i++) {
+-		cur = h->htable[i];
+-		while (cur != NULL) {
+-			temp = cur;
+-			cur = cur->next;
+-			destroy_key(temp->key);
+-			free(temp);
+-		}
+-		h->htable[i] = NULL;
+-	}
+-
+-	free(h->htable);
+-	h->htable = NULL;
+-
+-	free(h);
+-}
+-
+-int hashtab_map(hashtab_t h,
+-		int (*apply) (hashtab_key_t k,
+-			      hashtab_datum_t d, void *args), void *args)
+-{
+-	unsigned int i;
+-	hashtab_ptr_t cur;
+-	int ret;
+-
+-	if (!h)
+-		return HASHTAB_SUCCESS;
+-
+-	for (i = 0; i < h->size; i++) {
+-		cur = h->htable[i];
+-		while (cur != NULL) {
+-			ret = apply(cur->key, cur->datum, args);
+-			if (ret)
+-				return ret;
+-			cur = cur->next;
+-		}
+-	}
+-	return HASHTAB_SUCCESS;
+-}
+-
+-void hashtab_hash_eval(hashtab_t h, char *tag)
+-{
+-	unsigned int i;
+-	int chain_len, slots_used, max_chain_len;
+-	hashtab_ptr_t cur;
+-
+-	slots_used = 0;
+-	max_chain_len = 0;
+-	for (i = 0; i < h->size; i++) {
+-		cur = h->htable[i];
+-		if (cur) {
+-			slots_used++;
+-			chain_len = 0;
+-			while (cur) {
+-				chain_len++;
+-				cur = cur->next;
+-			}
+-
+-			if (chain_len > max_chain_len)
+-				max_chain_len = chain_len;
+-		}
+-	}
+-
+-	printf
+-	    ("%s:  %d entries and %d/%d buckets used, longest chain length %d\n",
+-	     tag, h->nel, slots_used, h->size, max_chain_len);
+-}
+diff --git a/libselinux/src/hashtab.h b/libselinux/src/hashtab.h
+deleted file mode 100644
+index f10fc0af..00000000
+--- a/libselinux/src/hashtab.h
++++ /dev/null
+@@ -1,117 +0,0 @@
+-
+-/* Author : Stephen Smalley, <stephen.smalley.work@gmail.com> */
+-
+-/* FLASK */
+-
+-/*
+- * A hash table (hashtab) maintains associations between
+- * key values and datum values.  The type of the key values
+- * and the type of the datum values is arbitrary.  The
+- * functions for hash computation and key comparison are
+- * provided by the creator of the table.
+- */
+-
+-#ifndef _SELINUX_HASHTAB_H_
+-#define _SELINUX_HASHTAB_H_
+-
+-#include <stdint.h>
+-#include <errno.h>
+-#include <stdio.h>
+-
+-typedef char *hashtab_key_t;	/* generic key type */
+-typedef const char *const_hashtab_key_t;	/* constant generic key type */
+-typedef void *hashtab_datum_t;	/* generic datum type */
+-
+-typedef struct hashtab_node *hashtab_ptr_t;
+-
+-typedef struct hashtab_node {
+-	hashtab_key_t key;
+-	hashtab_datum_t datum;
+-	hashtab_ptr_t next;
+-} hashtab_node_t;
+-
+-typedef struct hashtab_val {
+-	hashtab_ptr_t *htable;	/* hash table */
+-	unsigned int size;	/* number of slots in hash table */
+-	uint32_t nel;		/* number of elements in hash table */
+-	unsigned int (*hash_value) (struct hashtab_val * h, const_hashtab_key_t key);	/* hash function */
+-	int (*keycmp) (struct hashtab_val * h, const_hashtab_key_t key1, const_hashtab_key_t key2);	/* key comparison function */
+-} hashtab_val_t;
+-
+-typedef hashtab_val_t *hashtab_t;
+-
+-/* Define status codes for hash table functions */
+-#define HASHTAB_SUCCESS     0
+-#define HASHTAB_OVERFLOW    -ENOMEM
+-#define HASHTAB_PRESENT     -EEXIST
+-#define HASHTAB_MISSING     -ENOENT
+-
+-/*
+-   Creates a new hash table with the specified characteristics.
+-
+-   Returns NULL if insufficient space is available or
+-   the new hash table otherwise.
+- */
+-extern hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
+-							    const_hashtab_key_t
+-							    key),
+-				int (*keycmp) (hashtab_t h,
+-					       const_hashtab_key_t key1,
+-					       const_hashtab_key_t key2),
+-				unsigned int size);
+-/*
+-   Inserts the specified (key, datum) pair into the specified hash table.
+-
+-   Returns HASHTAB_OVERFLOW if insufficient space is available or
+-   HASHTAB_PRESENT  if there is already an entry with the same key or
+-   HASHTAB_SUCCESS otherwise.
+- */
+-extern int hashtab_insert(hashtab_t h, hashtab_key_t k, hashtab_datum_t d);
+-
+-/*
+-   Removes the entry with the specified key from the hash table.
+-   Applies the specified destroy function to (key,datum,args) for
+-   the entry.
+-
+-   Returns HASHTAB_MISSING if no entry has the specified key or
+-   HASHTAB_SUCCESS otherwise.
+- */
+-extern int hashtab_remove(hashtab_t h, hashtab_key_t k,
+-			  void (*destroy) (hashtab_key_t k,
+-					   hashtab_datum_t d,
+-					   void *args), void *args);
+-
+-/*
+-   Searches for the entry with the specified key in the hash table.
+-
+-   Returns NULL if no entry has the specified key or
+-   the datum of the entry otherwise.
+- */
+-extern hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t k);
+-
+-/*
+-   Destroys the specified hash table.
+- */
+-extern void hashtab_destroy(hashtab_t h);
+-extern void hashtab_destroy_key(hashtab_t h,
+-			int (*destroy_key) (hashtab_key_t k));
+-
+-/*
+-   Applies the specified apply function to (key,datum,args)
+-   for each entry in the specified hash table.
+-
+-   The order in which the function is applied to the entries
+-   is dependent upon the internal structure of the hash table.
+-
+-   If apply returns a non-zero status, then hashtab_map will cease
+-   iterating through the hash table and will propagate the error
+-   return to its caller.
+- */
+-extern int hashtab_map(hashtab_t h,
+-		       int (*apply) (hashtab_key_t k,
+-				     hashtab_datum_t d,
+-				     void *args), void *args);
+-
+-extern void hashtab_hash_eval(hashtab_t h, char *tag);
+-
+-#endif
 -- 
 2.40.1
 
