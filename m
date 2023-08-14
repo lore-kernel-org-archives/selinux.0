@@ -2,174 +2,459 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 447C6C001B0
-	for <selinux@archiver.kernel.org>; Sat, 12 Aug 2023 15:31:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A299C04FE1
+	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 09:29:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbjHLPbM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 12 Aug 2023 11:31:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32886 "EHLO
+        id S235217AbjHNJ2k (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Aug 2023 05:28:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229547AbjHLPbM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 12 Aug 2023 11:31:12 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31E44E54;
-        Sat, 12 Aug 2023 08:31:15 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-3fe12820bffso25398185e9.3;
-        Sat, 12 Aug 2023 08:31:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1691854273; x=1692459073;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=9DHdR91Cr4ayDwVTatLZNJpXNEH0l3fIlA2RBT4y8Nw=;
-        b=sBI47C8sROOOoOauu/0AewfZ/TtFdD7cBXumaPW16qnFg+64JOPiZ5ivUdpezCqx9T
-         5G3H2rbVJ+pCmj9CJ06C49+HzudKW48Fcts9+JpKeRccd0lV8uDX2q1pytG7M7QH6MZw
-         2C5WMnkEXpFWXGWQq/wLqNotYotqZyGi/760m2LTVZS5+zIRVeHsU7afOcQ4KA1d6jbr
-         YYYIilw1CRdCDon6ewhclVVZLF+JOeBz7Ya6jCvvDGMM4AeeG117qTn281+WIc+2IPnC
-         jdT7XGxF6NRG55xdgPXvI+qtiAlksonCuZx9dpk6k5ZSCIv8jKPYwA0pO9i+Iua/A4qz
-         iCbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691854273; x=1692459073;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9DHdR91Cr4ayDwVTatLZNJpXNEH0l3fIlA2RBT4y8Nw=;
-        b=dn7TUmBEypId8Qrk4ekxlip9pJeRVdEuyHHvy+Zit3F31HndaT6g/DV+zBgEEfJ6JC
-         EiDxA8/rDlfxitH4xurpw9+BCJzJZfWrsuUsuOjzcLtvY/twfV6a/738DH7r6I2WY5k3
-         8QD14OiKKq+E1+4lub9/FpjWnf772P4ojne20UJwAThUXN0qVfIY1cOPHF4x+Us21OJQ
-         +r9APaHjR4DCiryowt++deIuSrlBGsUeYroQmt7kMMgkFAYTK4dglcjfFP052md7wFI0
-         qK2P2Rw+n0eYxpCstkmqGsEiOW/XljJ5G58WLBOfEyS4bbG9zjieGK6FogGzAzli2MzR
-         RWLQ==
-X-Gm-Message-State: AOJu0Yw1GQo6B+L6LJvXH+mgFeJIikjy8L29g0JCtdOmn0CjqvEbBTvG
-        QcN69/HhZqyoE8C7e/Kmq7r8mz7LpI+MYaRY
-X-Google-Smtp-Source: AGHT+IFAkCEVX5isT1RM/A+iymAypK8ZWczDIkWY0y9LfWpyJuMt0qY+rlEliQ3EaDRIXAZFuECTcQ==
-X-Received: by 2002:a05:600c:22cc:b0:3fe:2186:e9ad with SMTP id 12-20020a05600c22cc00b003fe2186e9admr3906207wmg.6.1691854273289;
-        Sat, 12 Aug 2023 08:31:13 -0700 (PDT)
-Received: from khadija-virtual-machine ([154.80.49.20])
-        by smtp.gmail.com with ESMTPSA id v1-20020a05600c214100b003fe215e4492sm8699606wml.4.2023.08.12.08.31.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 12 Aug 2023 08:31:12 -0700 (PDT)
-Date:   Sat, 12 Aug 2023 20:31:08 +0500
-From:   Khadija Kamran <kamrankhadijadj@gmail.com>
-To:     Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        ztarkhani@microsoft.com,
-        Alison Schofield <alison.schofield@intel.com>
-Subject: [PATCH] lsm: constify the 'file' parameter in
- security_binder_transfer_file()
-Message-ID: <ZNelvBCFG7wZt24g@gmail.com>
+        with ESMTP id S236241AbjHNJ2V (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 05:28:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B42173D
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 02:27:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1692005191;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cEY8zYsUYpuCszfXkzYyo8HPMkMT3K2Ir1fHwRdD2no=;
+        b=ZzSYrZNhSk0Nk+QWUJVutnSxNHJ8pkupv2AegKMzXBQrDK9e+AFjoglWmusUkDq6zi2YQw
+        m4j4VxwQmWq/7vXVqe45V7XSGoctvEf4ThTUB88hTafxMCqjSm3A0T+TjLEitpylPbijAW
+        ShT5kp4ouV3/iBwFVNh6HMWKaKMQFV0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-504-vg4mWzZ2NCCH_BtOSyqrlw-1; Mon, 14 Aug 2023 05:26:27 -0400
+X-MC-Unique: vg4mWzZ2NCCH_BtOSyqrlw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 61D9B80557A;
+        Mon, 14 Aug 2023 09:26:27 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.51])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E026D140E950;
+        Mon, 14 Aug 2023 09:26:26 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH 12/12] semodule-utils: Remove the Russian translations
+In-Reply-To: <20230809163059.97671-12-jwcart2@gmail.com>
+References: <20230809163059.97671-1-jwcart2@gmail.com>
+ <20230809163059.97671-12-jwcart2@gmail.com>
+Date:   Mon, 14 Aug 2023 11:26:25 +0200
+Message-ID: <87350mc6v2.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-SELinux registers the implementation for the "binder_transfer_file"
-hook. Looking at the function implementation we observe that the
-parameter "file" is not changing.
+James Carter <jwcart2@gmail.com> writes:
 
-Mark the "file" parameter of LSM hook security_binder_transfer_file() as
-"const" since it will not be changing in the LSM hook.
+> The Russian translations have not been maintained and are out of
+> date, so remove them.
+>
+> Suggested-by: Petr Lautrbach <plautrba@redhat.com>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Signed-off-by: Khadija Kamran <kamrankhadijadj@gmail.com>
----
- include/linux/lsm_hook_defs.h | 2 +-
- include/linux/security.h      | 4 ++--
- security/security.c           | 2 +-
- security/selinux/hooks.c      | 8 ++++----
- 4 files changed, 8 insertions(+), 8 deletions(-)
+Based on https://github.com/SELinuxProject/selinux/pull/405
 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 6bb55e61e8e8..cda9e787cfc2 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -32,7 +32,7 @@ LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
- LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
- 	 const struct cred *to)
- LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
--	 const struct cred *to, struct file *file)
-+	 const struct cred *to, const struct file *file)
- LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
- 	 unsigned int mode)
- LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index e2734e9e44d5..79ddeb2a2ff1 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -268,7 +268,7 @@ int security_binder_transaction(const struct cred *from,
- int security_binder_transfer_binder(const struct cred *from,
- 				    const struct cred *to);
- int security_binder_transfer_file(const struct cred *from,
--				  const struct cred *to, struct file *file);
-+				  const struct cred *to, const struct file *file);
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
- int security_ptrace_traceme(struct task_struct *parent);
- int security_capget(struct task_struct *target,
-@@ -537,7 +537,7 @@ static inline int security_binder_transfer_binder(const struct cred *from,
- 
- static inline int security_binder_transfer_file(const struct cred *from,
- 						const struct cred *to,
--						struct file *file)
-+						const struct file *file)
- {
- 	return 0;
- }
-diff --git a/security/security.c b/security/security.c
-index d5ff7ff45b77..9e222e8156b1 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -840,7 +840,7 @@ int security_binder_transfer_binder(const struct cred *from,
-  * Return: Returns 0 if permission is granted.
-  */
- int security_binder_transfer_file(const struct cred *from,
--				  const struct cred *to, struct file *file)
-+				  const struct cred *to, const struct file *file)
- {
- 	return call_int_hook(binder_transfer_file, 0, from, to, file);
- }
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79b4890e9936..f801b10d0822 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1665,7 +1665,7 @@ static inline int file_path_has_perm(const struct cred *cred,
- }
- 
- #ifdef CONFIG_BPF_SYSCALL
--static int bpf_fd_pass(struct file *file, u32 sid);
-+static int bpf_fd_pass(const struct file *file, u32 sid);
- #endif
- 
- /* Check whether a task can use an open file descriptor to
-@@ -1926,7 +1926,7 @@ static inline u32 file_mask_to_av(int mode, int mask)
- }
- 
- /* Convert a Linux file to an access vector. */
--static inline u32 file_to_av(struct file *file)
-+static inline u32 file_to_av(const struct file *file)
- {
- 	u32 av = 0;
- 
-@@ -2001,7 +2001,7 @@ static int selinux_binder_transfer_binder(const struct cred *from,
- 
- static int selinux_binder_transfer_file(const struct cred *from,
- 					const struct cred *to,
--					struct file *file)
-+					const struct file *file)
- {
- 	u32 sid = cred_sid(to);
- 	struct file_security_struct *fsec = selinux_file(file);
-@@ -6679,7 +6679,7 @@ static u32 bpf_map_fmode_to_av(fmode_t fmode)
-  * access the bpf object and that's why we have to add this additional check in
-  * selinux_file_receive and selinux_binder_transfer_files.
-  */
--static int bpf_fd_pass(struct file *file, u32 sid)
-+static int bpf_fd_pass(const struct file *file, u32 sid)
- {
- 	struct bpf_security_struct *bpfsec;
- 	struct bpf_prog *prog;
--- 
-2.34.1
+For all 12:
+
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+
+Note that Makefile's still contain:
+
+```
+LINGUAS ?=3D ru
+...
+install: all
+...
+    for lang in $(LINGUAS) ; do \
+		if [ -e $${lang} ] ; then \
+			mkdir -p $(DESTDIR)$(MANDIR)/$${lang}/man5 ; \
+			mkdir -p $(DESTDIR)$(MANDIR)/$${lang}/man8 ; \
+			install -m 644 $${lang}/*.5 $(DESTDIR)$(MANDIR)/$${lang}/man5/ ; \
+			install -m 644 $${lang}/*.8 $(DESTDIR)$(MANDIR)/$${lang}/man8/ ; \
+		fi ; \
+	done
+```
+
+I'd simply drop 'ru' from LINGUAS in order to make it possible to use
+original ru pages extracted from other source and setting LINGUAS in the
+build environment, e.g.:
+
+```
+--- a/checkpolicy/Makefile
++++ b/checkpolicy/Makefile
+@@ -1,7 +1,7 @@
+ #
+ # Makefile for building the checkpolicy program
+ #
+-LINGUAS ?=3D ru
++LINGUAS ?=3D
+ PREFIX ?=3D /usr
+ BINDIR ?=3D $(PREFIX)/bin
+ MANDIR ?=3D $(PREFIX)/share/man
+```
+
+
+> ---
+>  .../semodule_expand/ru/semodule_expand.8      | 31 ------------
+>  .../semodule_link/ru/semodule_link.8          | 32 -------------
+>  .../semodule_package/ru/semodule_package.8    | 48 -------------------
+>  .../semodule_package/ru/semodule_unpackage.8  | 24 ----------
+>  4 files changed, 135 deletions(-)
+>  delete mode 100644 semodule-utils/semodule_expand/ru/semodule_expand.8
+>  delete mode 100644 semodule-utils/semodule_link/ru/semodule_link.8
+>  delete mode 100644 semodule-utils/semodule_package/ru/semodule_package.8
+>  delete mode 100644 semodule-utils/semodule_package/ru/semodule_unpackage=
+.8
+>
+> diff --git a/semodule-utils/semodule_expand/ru/semodule_expand.8 b/semodu=
+le-utils/semodule_expand/ru/semodule_expand.8
+> deleted file mode 100644
+> index 28b381af..00000000
+> --- a/semodule-utils/semodule_expand/ru/semodule_expand.8
+> +++ /dev/null
+> @@ -1,31 +0,0 @@
+> -.TH SEMODULE_EXPAND "8" "=D0=BD=D0=BE=D1=8F=D0=B1=D1=80=D1=8C 2005" "Sec=
+urity Enhanced Linux"
+> -.SH =D0=98=D0=9C=D0=AF=20
+> -semodule_expand \- =D1=80=D0=B0=D1=81=D1=88=D0=B8=D1=80=D0=B8=D1=82=D1=
+=8C =D0=BF=D0=B0=D0=BA=D0=B5=D1=82 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=
+=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux
+> -
+> -.SH =D0=9E=D0=91=D0=97=D0=9E=D0=A0
+> -.B semodule_expand [-V ] [ -a ] [ -c [version]] basemodpkg outputfile
+> -.br
+> -.SH =D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95
+> -.PP
+> -semodule_expand - =D1=83=D1=82=D0=B8=D0=BB=D0=B8=D1=82=D0=B0 =D1=80=D0=
+=B0=D0=B7=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=BA=D0=B8 =D0=B4=D0=BB=D1=8F =D1=
+=80=D1=83=D1=87=D0=BD=D0=BE=D0=B3=D0=BE =D1=80=D0=B0=D1=81=D1=88=D0=B8=D1=
+=80=D0=B5=D0=BD=D0=B8=D1=8F =D0=BF=D0=B0=D0=BA=D0=B5=D1=82=D0=B0 =D0=B1=D0=
+=B0=D0=B7=D0=BE=D0=B2=D0=BE=D0=B3=D0=BE =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=
+=8F =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 =D0=B2 =D0=B4=D0=B2=D0=
+=BE=D0=B8=D1=87=D0=BD=D1=8B=D0=B9 =D1=84=D0=B0=D0=B9=D0=BB =D0=BF=D0=BE=D0=
+=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 =D1=8F=D0=B4=D1=80=D0=B0.
+> -=D0=AD=D1=82=D0=BE =D1=81=D1=80=D0=B5=D0=B4=D1=81=D1=82=D0=B2=D0=BE =D0=
+=BD=D0=B5 =D1=8F=D0=B2=D0=BB=D1=8F=D0=B5=D1=82=D1=81=D1=8F =D0=BD=D0=B5=D0=
+=BE=D0=B1=D1=85=D0=BE=D0=B4=D0=B8=D0=BC=D1=8B=D0=BC =D0=B4=D0=BB=D1=8F =D0=
+=BD=D0=BE=D1=80=D0=BC=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D0=B9 =D1=80=D0=B0=D0=
+=B1=D0=BE=D1=82=D1=8B SELinux. =D0=9E=D0=B1=D1=8B=D1=87=D0=BD=D0=BE =D1=82=
+=D0=B0=D0=BA=D0=BE=D0=B5 =D1=80=D0=B0=D1=81=D1=88=D0=B8=D1=80=D0=B5=D0=BD=
+=D0=B8=D0=B5 =D0=B2=D1=8B=D0=BF=D0=BE=D0=BB=D0=BD=D1=8F=D0=B5=D1=82=D1=81=
+=D1=8F libsemanage =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B5=D0=BD=D0=BD=D0=B8=
+=D0=BC =D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=BC =D0=B2 =D0=BE=D1=82=D0=B2=
+=D0=B5=D1=82 =D0=BD=D0=B0 =D0=BA=D0=BE=D0=BC=D0=B0=D0=BD=D0=B4=D1=8B semodu=
+le. =D0=9F=D0=B0=D0=BA=D0=B5=D1=82=D1=8B =D0=B1=D0=B0=D0=B7=D0=BE=D0=B2=D1=
+=8B=D1=85 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D0=B5=D0=B9 =D0=BF=D0=BE=D0=BB=D0=
+=B8=D1=82=D0=B8=D0=BA=D0=B8 =D0=BC=D0=BE=D0=B6=D0=BD=D0=BE =D1=81=D0=BE=D0=
+=B7=D0=B4=D0=B0=D0=B2=D0=B0=D1=82=D1=8C =D0=BD=D0=B5=D0=BF=D0=BE=D1=81=D1=
+=80=D0=B5=D0=B4=D1=81=D1=82=D0=B2=D0=B5=D0=BD=D0=BD=D0=BE =D1=81 =D0=BF=D0=
+=BE=D0=BC=D0=BE=D1=89=D1=8C=D1=8E semodule_package =D0=B8=D0=BB=D0=B8 semod=
+ule_link (=D0=BF=D1=80=D0=B8 =D1=81=D0=B2=D1=8F=D0=B7=D1=8B=D0=B2=D0=B0=D0=
+=BD=D0=B8=D0=B8 =D0=BD=D0=B0=D0=B1=D0=BE=D1=80=D0=B0 =D0=BF=D0=B0=D0=BA=D0=
+=B5=D1=82=D0=BE=D0=B2 =D0=B2 =D0=BE=D0=B4=D0=B8=D0=BD =D0=BF=D0=B0=D0=BA=D0=
+=B5=D1=82).
+> -
+> -.SH "=D0=9F=D0=90=D0=A0=D0=90=D0=9C=D0=95=D0=A2=D0=A0=D0=AB"
+> -.TP
+> -.B \-V
+> -=D0=9F=D0=BE=D0=BA=D0=B0=D0=B7=D0=B0=D1=82=D1=8C =D0=B2=D0=B5=D1=80=D1=
+=81=D0=B8=D1=8E
+> -.TP
+> -.B \-c [version]
+> -=D0=92=D0=B5=D1=80=D1=81=D0=B8=D1=8F =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=
+=B8=D0=BA=D0=B8, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=83=D1=8E =D1=81=D0=BB=D0=
+=B5=D0=B4=D1=83=D0=B5=D1=82 =D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D1=82=D1=8C
+> -.TP
+> -.B \-a
+> -=D0=9D=D0=B5 =D0=BF=D1=80=D0=BE=D0=B2=D0=B5=D1=80=D1=8F=D1=82=D1=8C =D1=
+=83=D1=82=D0=B2=D0=B5=D1=80=D0=B6=D0=B4=D0=B5=D0=BD=D0=B8=D1=8F. =D0=9F=D1=
+=80=D0=B8 =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D0=
+=BD=D0=B8=D0=B8 =D1=8D=D1=82=D0=BE=D0=B3=D0=BE =D0=BF=D0=B0=D1=80=D0=B0=D0=
+=BC=D0=B5=D1=82=D1=80=D0=B0 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=
+=B0 =D0=BD=D0=B5 =D0=B1=D1=83=D0=B4=D0=B5=D1=82 =D0=BF=D1=80=D0=BE=D0=B2=D0=
+=B5=D1=80=D1=8F=D1=82=D1=8C =D0=B7=D0=B0=D0=BF=D1=80=D0=B5=D1=89=D0=B0=D1=
+=8E=D1=89=D0=B8=D0=B5 =D0=BF=D1=80=D0=B0=D0=B2=D0=B8=D0=BB=D0=B0 (neverallo=
+w).
+> -
+> -.SH =D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
+=D0=96=D0=95
+> -.B checkmodule(8), semodule_package(8), semodule(8), semodule_link(8)
+> -(8),
+> -.SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
+> -.nf
+> -=D0=AD=D1=82=D0=B0 =D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =D1=
+=80=D1=83=D0=BA=D0=BE=D0=B2=D0=BE=D0=B4=D1=81=D1=82=D0=B2=D0=B0 =D0=B1=D1=
+=8B=D0=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Dan Walsh =
+<dwalsh@redhat.com>.
+> -=D0=9F=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D0=B0 =D0=B1=D1=8B=D0=
+=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Karl MacMillan <=
+kmacmillan@tresys.com>, Joshua Brindle <jbrindle@tresys.com>.
+> -=D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=D1=
+=81=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=D0=
+=BE=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=D0=
+=BC=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@baseal=
+t.ru>.
+> diff --git a/semodule-utils/semodule_link/ru/semodule_link.8 b/semodule-u=
+tils/semodule_link/ru/semodule_link.8
+> deleted file mode 100644
+> index 4a8f414e..00000000
+> --- a/semodule-utils/semodule_link/ru/semodule_link.8
+> +++ /dev/null
+> @@ -1,32 +0,0 @@
+> -.TH SEMODULE_LINK "8" "=D0=9D=D0=BE=D1=8F=D0=B1=D1=80=D1=8C 2005" "Secur=
+ity Enhanced Linux"
+> -.SH =D0=98=D0=9C=D0=AF=20
+> -semodule_link \- =D1=81=D0=B2=D1=8F=D0=B7=D0=B0=D1=82=D1=8C =D0=B2=D0=BC=
+=D0=B5=D1=81=D1=82=D0=B5 =D0=BF=D0=B0=D0=BA=D0=B5=D1=82=D1=8B =D0=BC=D0=BE=
+=D0=B4=D1=83=D0=BB=D0=B5=D0=B9 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=
+=D0=B8 SELinux
+> -
+> -.SH =D0=9E=D0=91=D0=97=D0=9E=D0=A0
+> -.B semodule_link [-Vv] [-o outfile] basemodpkg modpkg1 [modpkg2]...
+> -.br
+> -.SH =D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95
+> -.PP
+> -semodule_link - =D1=83=D1=82=D0=B8=D0=BB=D0=B8=D1=82=D0=B0 =D1=80=D0=B0=
+=D0=B7=D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=BA=D0=B8 =D0=B4=D0=BB=D1=8F =D1=80=
+=D1=83=D1=87=D0=BD=D0=BE=D0=B3=D0=BE =D1=81=D0=B2=D1=8F=D0=B7=D1=8B=D0=B2=
+=D0=B0=D0=BD=D0=B8=D1=8F =D0=BD=D0=B0=D0=B1=D0=BE=D1=80=D0=B0 =D0=BF=D0=B0=
+=D0=BA=D0=B5=D1=82=D0=BE=D0=B2 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D0=B5=D0=B9 =
+=D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux =D0=B2 =D0=BE=D0=
+=B4=D0=B8=D0=BD =D0=BF=D0=B0=D0=BA=D0=B5=D1=82 =D0=BC=D0=BE=D0=B4=D1=83=D0=
+=BB=D0=B5=D0=B9 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8.=20
+> -=D0=AD=D1=82=D0=BE =D1=81=D1=80=D0=B5=D0=B4=D1=81=D1=82=D0=B2=D0=BE =D0=
+=BD=D0=B5 =D1=8F=D0=B2=D0=BB=D1=8F=D0=B5=D1=82=D1=81=D1=8F =D0=BD=D0=B5=D0=
+=BE=D0=B1=D1=85=D0=BE=D0=B4=D0=B8=D0=BC=D1=8B=D0=BC =D0=B4=D0=BB=D1=8F =D0=
+=BD=D0=BE=D1=80=D0=BC=D0=B0=D0=BB=D1=8C=D0=BD=D0=BE=D0=B9 =D1=80=D0=B0=D0=
+=B1=D0=BE=D1=82=D1=8B SELinux. =D0=9E=D0=B1=D1=8B=D1=87=D0=BD=D0=BE =D1=82=
+=D0=B0=D0=BA=D0=BE=D0=B5 =D1=81=D0=B2=D1=8F=D0=B7=D1=8B=D0=B2=D0=B0=D0=BD=
+=D0=B8=D0=B5 =D0=B2=D1=8B=D0=BF=D0=BE=D0=BB=D0=BD=D1=8F=D0=B5=D1=82=D1=81=
+=D1=8F libsemanage =D0=B2=D0=BD=D1=83=D1=82=D1=80=D0=B5=D0=BD=D0=BD=D0=B8=
+=D0=BC =D0=BE=D0=B1=D1=80=D0=B0=D0=B7=D0=BE=D0=BC =D0=B2 =D0=BE=D1=82=D0=B2=
+=D0=B5=D1=82 =D0=BD=D0=B0 =D0=BA=D0=BE=D0=BC=D0=B0=D0=BD=D0=B4=D1=8B semodu=
+le. =D0=9F=D0=B0=D0=BA=D0=B5=D1=82=D1=8B =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D0=
+=B5=D0=B9 =D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D1=8E=D1=82=D1=81=D1=8F =D1=81 =D0=
+=BF=D0=BE=D0=BC=D0=BE=D1=89=D1=8C=D1=8E semodule_package.
+> -
+> -.SH "=D0=9F=D0=90=D0=A0=D0=90=D0=9C=D0=95=D0=A2=D0=A0=D0=AB"
+> -.TP
+> -.B \-V
+> -=D0=9F=D0=BE=D0=BA=D0=B0=D0=B7=D0=B0=D1=82=D1=8C =D0=B2=D0=B5=D1=80=D1=
+=81=D0=B8=D1=8E
+> -.TP
+> -.B \-v
+> -=D0=9F=D0=BE=D0=B4=D1=80=D0=BE=D0=B1=D0=BD=D1=8B=D0=B9 =D1=80=D0=B5=D0=
+=B6=D0=B8=D0=BC
+> -.TP
+> -.B \-o <output file>=20
+> -=D0=A1=D0=B2=D1=8F=D0=B7=D0=B0=D0=BD=D0=BD=D1=8B=D0=B9 =D0=BF=D0=B0=D0=
+=BA=D0=B5=D1=82 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D0=B5=D0=B9 =D0=BF=D0=BE=D0=
+=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8, =D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D0=BD=D0=
+=BD=D1=8B=D0=B9 =D1=81 =D0=BF=D0=BE=D0=BC=D0=BE=D1=89=D1=8C=D1=8E =D1=8D=D1=
+=82=D0=BE=D0=B3=D0=BE =D1=81=D1=80=D0=B5=D0=B4=D1=81=D1=82=D0=B2=D0=B0
+> -
+> -
+> -.SH =D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
+=D0=96=D0=95
+> -.B checkmodule(8), semodule_package(8), semodule(8), semodule_expand(8)
+> -(8),
+> -.SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
+> -.nf
+> -=D0=AD=D1=82=D0=B0 =D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =D1=
+=80=D1=83=D0=BA=D0=BE=D0=B2=D0=BE=D0=B4=D1=81=D1=82=D0=B2=D0=B0 =D0=B1=D1=
+=8B=D0=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Dan Walsh =
+<dwalsh@redhat.com>.
+> -=D0=9F=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D0=B0 =D0=B1=D1=8B=D0=
+=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Karl MacMillan <=
+kmacmillan@tresys.com>.
+> -=D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=D1=
+=81=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=D0=
+=BE=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=D0=
+=BC=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@baseal=
+t.ru>.
+> diff --git a/semodule-utils/semodule_package/ru/semodule_package.8 b/semo=
+dule-utils/semodule_package/ru/semodule_package.8
+> deleted file mode 100644
+> index 3f4b16a9..00000000
+> --- a/semodule-utils/semodule_package/ru/semodule_package.8
+> +++ /dev/null
+> @@ -1,48 +0,0 @@
+> -.TH SEMODULE_PACKAGE "8" "=D0=9D=D0=BE=D1=8F=D0=B1=D1=80=D1=8C 2005" "Se=
+curity Enhanced Linux"
+> -.SH =D0=98=D0=9C=D0=AF=20
+> -semodule_package \- =D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D1=82=D1=8C =D0=BF=D0=
+=B0=D0=BA=D0=B5=D1=82 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=BF=D0=BE=D0=
+=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux
+> -
+> -.SH =D0=9E=D0=91=D0=97=D0=9E=D0=A0
+> -.B semodule_package \-o <output file> \-m <module> [\-f <file contexts>]
+> -.br
+> -.SH =D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95
+> -.PP
+> -semodule_package - =D1=83=D1=82=D0=B8=D0=BB=D0=B8=D1=82=D0=B0, =D0=BA=D0=
+=BE=D1=82=D0=BE=D1=80=D0=B0=D1=8F =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=D0=
+=B7=D1=83=D0=B5=D1=82=D1=81=D1=8F =D0=B4=D0=BB=D1=8F =D1=81=D0=BE=D0=B7=D0=
+=B4=D0=B0=D0=BD=D0=B8=D1=8F =D0=BF=D0=B0=D0=BA=D0=B5=D1=82=D0=B0 =D0=BC=D0=
+=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=
+=B8 SELinux =D0=B8=D0=B7 =D0=B4=D0=B2=D0=BE=D0=B8=D1=87=D0=BD=D0=BE=D0=B3=
+=D0=BE =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=
+=D0=B8=D0=BA=D0=B8 =D0=B8 (=D0=BD=D0=B5=D0=BE=D0=B1=D1=8F=D0=B7=D0=B0=D1=82=
+=D0=B5=D0=BB=D1=8C=D0=BD=D0=BE) =D0=B4=D1=80=D1=83=D0=B3=D0=B8=D1=85 =D0=B4=
+=D0=B0=D0=BD=D0=BD=D1=8B=D1=85, =D1=82=D0=B0=D0=BA=D0=B8=D1=85 =D0=BA=D0=B0=
+=D0=BA =D0=BA=D0=BE=D0=BD=D1=82=D0=B5=D0=BA=D1=81=D1=82=D1=8B =D1=84=D0=B0=
+=D0=B9=D0=BB=D0=BE=D0=B2. =D0=9A=D0=BE=D0=BC=D0=B0=D0=BD=D0=B4=D0=B0 semodu=
+le_package =D1=83=D0=BF=D0=B0=D0=BA=D0=BE=D0=B2=D1=8B=D0=B2=D0=B0=D0=B5=D1=
+=82 =D0=B4=D0=B2=D0=BE=D0=B8=D1=87=D0=BD=D1=8B=D0=B5 =D0=BC=D0=BE=D0=B4=D1=
+=83=D0=BB=D0=B8 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8, =D1=81=D0=
+=BE=D0=B7=D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D0=B5 =D1=81 =D0=BF=D0=BE=D0=BC=D0=
+=BE=D1=89=D1=8C=D1=8E checkmodule. =D0=9F=D0=B0=D0=BA=D0=B5=D1=82 =D0=BF=D0=
+=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8, =D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D0=
+=BD=D0=BD=D1=8B=D0=B9 =D1=81 =D0=BF=D0=BE=D0=BC=D0=BE=D1=89=D1=8C=D1=8E sem=
+odule_package, =D0=B7=D0=B0=D1=82=D0=B5=D0=BC =D0=BC=D0=BE=D0=B6=D0=BD=D0=
+=BE =D1=83=D1=81=D1=82=D0=B0=D0=BD=D0=BE=D0=B2=D0=B8=D1=82=D1=8C =D1=87=D0=
+=B5=D1=80=D0=B5=D0=B7 semodule.=20
+> -
+> -.SH =D0=9F=D0=A0=D0=98=D0=9C=D0=95=D0=A0
+> -.nf
+> -# =D0=A1=D0=BE=D0=B1=D1=80=D0=B0=D1=82=D1=8C =D0=BF=D0=B0=D0=BA=D0=B5=D1=
+=82 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 =D0=B4=D0=BB=D1=8F =D0=
+=B1=D0=B0=D0=B7=D0=BE=D0=B2=D0=BE=D0=B3=D0=BE =D0=BC=D0=BE=D0=B4=D1=83=D0=
+=BB=D1=8F.
+> -$ semodule_package \-o base.pp \-m base.mod \-f file_contexts
+> -# =D0=A1=D0=BE=D0=B1=D1=80=D0=B0=D1=82=D1=8C =D0=BF=D0=B0=D0=BA=D0=B5=D1=
+=82 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 =D0=B4=D0=BB=D1=8F =D0=
+=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F httpd.
+> -$ semodule_package \-o httpd.pp \-m httpd.mod \-f httpd.fc
+> -# =D0=A1=D0=BE=D0=B1=D1=80=D0=B0=D1=82=D1=8C =D0=BF=D0=B0=D0=BA=D0=B5=D1=
+=82 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 =D0=B4=D0=BB=D1=8F =D0=
+=BB=D0=BE=D0=BA=D0=B0=D0=BB=D1=8C=D0=BD=D1=8B=D1=85 =D0=BF=D1=80=D0=B0=D0=
+=B2=D0=B8=D0=BB =D0=BF=D1=80=D0=B8=D0=BD=D1=83=D0=B4=D0=B8=D1=82=D0=B5=D0=
+=BB=D1=8C=D0=BD=D0=BE=D0=B3=D0=BE =D0=BF=D1=80=D0=B8=D1=81=D0=B2=D0=BE=D0=
+=B5=D0=BD=D0=B8=D1=8F =D1=82=D0=B8=D0=BF=D0=BE=D0=B2, =D0=BD=D0=B5 =D0=B2=
+=D0=BA=D0=BB=D1=8E=D1=87=D0=B0=D1=8F =D0=BA=D0=BE=D0=BD=D1=82=D0=B5=D0=BA=
+=D1=81=D1=82=D1=8B =D1=84=D0=B0=D0=B9=D0=BB=D0=BE=D0=B2.
+> -$ semodule_package \-o local.pp \-m local.mod
+> -.fi
+> -
+> -.SH "=D0=9F=D0=90=D0=A0=D0=90=D0=9C=D0=95=D0=A2=D0=A0=D0=AB"
+> -.TP
+> -.B \-o \-\-outfile <output file>=20
+> -=D0=A4=D0=B0=D0=B9=D0=BB =D0=BF=D0=B0=D0=BA=D0=B5=D1=82=D0=B0 =D0=BC=D0=
+=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=
+=B8, =D1=81=D0=BE=D0=B7=D0=B4=D0=B0=D0=BD=D0=BD=D1=8B=D0=B9 =D1=8D=D1=82=D0=
+=B8=D0=BC =D1=81=D1=80=D0=B5=D0=B4=D1=81=D1=82=D0=B2=D0=BE=D0=BC.
+> -.TP
+> -.B  \-s \-\-seuser <seuser file>
+> -=D0=A4=D0=B0=D0=B9=D0=BB seuser, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=
+=B9 =D1=81=D0=BB=D0=B5=D0=B4=D1=83=D0=B5=D1=82 =D0=B2=D0=BA=D0=BB=D1=8E=D1=
+=87=D0=B8=D1=82=D1=8C =D0=B2 =D0=BF=D0=B0=D0=BA=D0=B5=D1=82.
+> -.TP
+> -.B  \-u \-\-user_extra <user extra file>
+> -=D0=A4=D0=B0=D0=B9=D0=BB user_extra, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=
+=8B=D0=B9 =D1=81=D0=BB=D0=B5=D0=B4=D1=83=D0=B5=D1=82 =D0=B2=D0=BA=D0=BB=D1=
+=8E=D1=87=D0=B8=D1=82=D1=8C =D0=B2 =D0=BF=D0=B0=D0=BA=D0=B5=D1=82.
+> -.TP
+> -.B  \-m \-\-module <Module file>
+> -=D0=A4=D0=B0=D0=B9=D0=BB =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=BF=D0=
+=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=
+=8B=D0=B9 =D1=81=D0=BB=D0=B5=D0=B4=D1=83=D0=B5=D1=82 =D0=B2=D0=BA=D0=BB=D1=
+=8E=D1=87=D0=B8=D1=82=D1=8C =D0=B2 =D0=BF=D0=B0=D0=BA=D0=B5=D1=82.
+> -.TP
+> -.B  \-f \-\-fc <File context file>
+> -=D0=A4=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=82=D0=B5=D0=BA=D1=81=D1=
+=82=D0=BE=D0=B2 =D1=84=D0=B0=D0=B9=D0=BB=D0=BE=D0=B2 =D0=B4=D0=BB=D1=8F =D0=
+=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F (=D0=BD=D0=B5=D0=BE=D0=B1=D1=8F=D0=B7=D0=
+=B0=D1=82=D0=B5=D0=BB=D1=8C=D0=BD=D0=BE).
+> -.TP
+> -.B  \-n \-\-nc <netfilter context file>
+> -=D0=A4=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=82=D0=B5=D0=BA=D1=81=D1=
+=82=D0=B0 netfilter, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=8B=D0=B9 =D1=81=D0=
+=BB=D0=B5=D0=B4=D1=83=D0=B5=D1=82 =D0=B2=D0=BA=D0=BB=D1=8E=D1=87=D0=B8=D1=
+=82=D1=8C =D0=B2 =D0=BF=D0=B0=D0=BA=D0=B5=D1=82.
+> -
+> -.SH =D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
+=D0=96=D0=95
+> -.B checkmodule(8), semodule(8), semodule_unpackage(8)
+> -.SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
+> -.nf
+> -=D0=AD=D1=82=D0=B0 =D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =D1=
+=80=D1=83=D0=BA=D0=BE=D0=B2=D0=BE=D0=B4=D1=81=D1=82=D0=B2=D0=B0 =D0=B1=D1=
+=8B=D0=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Dan Walsh =
+<dwalsh@redhat.com>.
+> -=D0=9F=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D0=B0 =D0=B1=D1=8B=D0=
+=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Karl MacMillan <=
+kmacmillan@tresys.com>.
+> -=D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=D1=
+=81=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=D0=
+=BE=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=D0=
+=BC=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@baseal=
+t.ru>.
+> diff --git a/semodule-utils/semodule_package/ru/semodule_unpackage.8 b/se=
+module-utils/semodule_package/ru/semodule_unpackage.8
+> deleted file mode 100644
+> index 057ae3d7..00000000
+> --- a/semodule-utils/semodule_package/ru/semodule_unpackage.8
+> +++ /dev/null
+> @@ -1,24 +0,0 @@
+> -.TH SEMODULE_PACKAGE "8" "=D0=9D=D0=BE=D1=8F=D0=B1=D1=80=D1=8C 2005" "Se=
+curity Enhanced Linux"
+> -.SH =D0=98=D0=9C=D0=AF
+> -semodule_unpackage \- =D0=B8=D0=B7=D0=B2=D0=BB=D0=B5=D1=87=D1=8C =D0=BC=
+=D0=BE=D0=B4=D1=83=D0=BB=D1=8C =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=
+=D0=B8 =D0=B8 =D1=84=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=82=D0=B5=D0=BA=
+=D1=81=D1=82=D0=BE=D0=B2 =D1=84=D0=B0=D0=B9=D0=BB=D0=BE=D0=B2 =D0=B8=D0=B7 =
+=D0=BF=D0=B0=D0=BA=D0=B5=D1=82=D0=B0 =D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F =
+=D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux
+> -
+> -.SH =D0=9E=D0=91=D0=97=D0=9E=D0=A0
+> -.B semodule_unpackage ppfile modfile [fcfile]
+> -.br
+> -.SH =D0=9E=D0=9F=D0=98=D0=A1=D0=90=D0=9D=D0=98=D0=95
+> -.PP
+> -semodule_unpackage - =D1=83=D1=82=D0=B8=D0=BB=D0=B8=D1=82=D0=B0, =D0=BA=
+=D0=BE=D1=82=D0=BE=D1=80=D0=B0=D1=8F =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=
+=D0=B7=D1=83=D0=B5=D1=82=D1=81=D1=8F =D0=B4=D0=BB=D1=8F =D0=B8=D0=B7=D0=B2=
+=D0=BB=D0=B5=D1=87=D0=B5=D0=BD=D0=B8=D1=8F =D1=84=D0=B0=D0=B9=D0=BB=D0=B0 =
+=D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=
+=D0=BA=D0=B8 SELinux =D0=B8 =D1=84=D0=B0=D0=B9=D0=BB=D0=B0 =D0=BA=D0=BE=D0=
+=BD=D1=82=D0=B5=D0=BA=D1=81=D1=82=D0=BE=D0=B2 =D1=84=D0=B0=D0=B9=D0=BB=D0=
+=BE=D0=B2 =D0=B8=D0=B7 =D0=BF=D0=B0=D0=BA=D0=B5=D1=82=D0=B0 =D0=BF=D0=BE=D0=
+=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux.
+> -
+> -.SH =D0=9F=D0=A0=D0=98=D0=9C=D0=95=D0=A0
+> -.nf
+> -# =D0=98=D0=B7=D0=B2=D0=BB=D0=B5=D1=87=D1=8C =D1=84=D0=B0=D0=B9=D0=BB =
+=D0=BC=D0=BE=D0=B4=D1=83=D0=BB=D1=8F httpd =D0=B8=D0=B7 =D0=BF=D0=B0=D0=BA=
+=D0=B5=D1=82=D0=B0 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 httpd.
+> -$ semodule_unpackage httpd.pp httpd.mod httpd.fc
+> -.fi
+> -
+> -.SH =D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
+=D0=96=D0=95
+> -.B semodule_package(8)
+> -.SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
+> -.nf
+> -=D0=AD=D1=82=D0=B0 =D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =D1=
+=80=D1=83=D0=BA=D0=BE=D0=B2=D0=BE=D0=B4=D1=81=D1=82=D0=B2=D0=B0 =D0=B1=D1=
+=8B=D0=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Dan Walsh =
+<dwalsh@redhat.com>.
+> -=D0=9F=D1=80=D0=BE=D0=B3=D1=80=D0=B0=D0=BC=D0=BC=D0=B0 =D0=B1=D1=8B=D0=
+=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Stephen Smalley =
+<stephen.smalley.work@gmail.com>.
+> -=D0=9F=D0=B5=D1=80=D0=B5=D0=B2=D0=BE=D0=B4 =D0=BD=D0=B0 =D1=80=D1=83=D1=
+=81=D1=81=D0=BA=D0=B8=D0=B9 =D1=8F=D0=B7=D1=8B=D0=BA =D0=B2=D1=8B=D0=BF=D0=
+=BE=D0=BB=D0=BD=D0=B8=D0=BB=D0=B0 =D0=93=D0=B5=D1=80=D0=B0=D1=81=D0=B8=D0=
+=BC=D0=B5=D0=BD=D0=BA=D0=BE =D0=9E=D0=BB=D0=B5=D1=81=D1=8F <gammaray@baseal=
+t.ru>.
+> --=20
+> 2.41.0
 
