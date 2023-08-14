@@ -2,297 +2,386 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 864C9C41513
-	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 14:18:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98925C001DB
+	for <selinux@archiver.kernel.org>; Mon, 14 Aug 2023 14:26:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230499AbjHNORh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Aug 2023 10:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36614 "EHLO
+        id S229506AbjHNOZ6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Aug 2023 10:25:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231697AbjHNORK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 10:17:10 -0400
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B3910DD
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 07:17:05 -0700 (PDT)
-Received: by mail-lj1-x22a.google.com with SMTP id 38308e7fff4ca-2b9c66e2e36so50915831fa.1
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 07:17:05 -0700 (PDT)
+        with ESMTP id S230116AbjHNOZ3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 10:25:29 -0400
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1929B2
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 07:25:27 -0700 (PDT)
+Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-40694b191cfso35818501cf.3
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 07:25:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692022623; x=1692627423;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6j3ni0ULEKiv+16X4UCpLOf3HC4egOCRihonHJDdjHM=;
-        b=O4AqLiOE0WvlYDAbVtw7x/2txF+n94idpnMotlPMt+Hj9ECG365iAyXGkNVV78tnmZ
-         /QsBAs6CyLtcmvmIFgzgG+irRwCzWTXS+an1CbJOoN/x71LfsPY4AtDU2vYNF6yETAbS
-         7VIxApFmunS83oy+woUlIjGFfdAmNCUoJkDqeUqU0WWP/osP3mAmTbhrwR0HWebjWXlZ
-         gCgVet6lATBML1SkZHhNKh8BD8RBKfCBemsZ1B1cyYRzPrSaNr9PXm3iLmFwgKBDZxtF
-         g6H0zBRdg0LssleW2fO2lbLgY33wPMBZZ/CRWeMsQZ25y8bUWx2B2iUQ3ELu3PT8TLwR
-         XoOg==
+        d=gmail.com; s=20221208; t=1692023126; x=1692627926;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=iYP6G7IdwZLL3wdIZSQ/WP4kNlNR4C08+ta1jzIZyKM=;
+        b=SA2pa80vT92WYmZ520a2/0UcTtp+TCdb46VdzSX74cMyC36mkBmrSott6BTeBsISAK
+         GANFE0wJyso12fMclP4Me3nkDNj89e2P0M5dxNWr7mUwj8heIqcMqyHOMd9gAV6n8VgG
+         3Dpseqxl6P54AT0wgqWEmrt3pq8C2UFpuBCiODBCaPSY13Mdm3tyKG78BbdTRjrtdEEK
+         vcuq6rHbSp9PvB6F+9S2/1HKyC58NjdNePC/Q+0xFppo0u4DWjyodF8WpcTB4WAc9DEd
+         xGJbLSlE7m3+5SmqHWKy3+qVnYb+0AblbLOVtAKoRpkOFQcFtQQpEYmpgMWUXqzbAsFl
+         KhoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692022623; x=1692627423;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6j3ni0ULEKiv+16X4UCpLOf3HC4egOCRihonHJDdjHM=;
-        b=XjXO63XwmKjceZnNdMXvq+DjQCiUsmpOb9ER+32vHk9XyRYD0gI5AT7aC9DuVpKeVb
-         zZAoO+4gdJ1Kzi6fe2gdXh4rsi4XHf87yJxt4qn0YBkFxysA2L6tdIkyGAFC+jMYxLSs
-         in0iuwFlW2w3mbl/9XnpRWIIOQMKPvN2jyfTlRw7Vl6/XgTr34fa8O9mSyZlJfcaGU2j
-         HAeTe1ev0jrPamK51Y3GfsUW0tmAEk0lSar2hEuWgCVFZSn6ALJv/ohCmuc5XoDCHj/D
-         SRzih6V1bK1GcBsBVJyn18jSK4yQ+4D8H5TJnhuvgt+ekFIH0L4OmNnA5ViTPpoV2PJF
-         JaIg==
-X-Gm-Message-State: AOJu0YxnKXw+/QtsUZrB9j38sSeWnQnpCrL3Eb/Du1rbe7bdqGXVpQYX
-        9BiN2E8Em4RNHEo3OUkiIaHOuryMTZZbRWLotsZYS85H
-X-Google-Smtp-Source: AGHT+IH0O81t8WnB2+HGeU4kBakcuJqIdQImg4aYTOxFeyVJkXd7y5SLx0EeUEnyRuqf89XGIqkwxRtdct8Eno4Lc4E=
-X-Received: by 2002:a05:651c:84:b0:2b8:8642:c00d with SMTP id
- 4-20020a05651c008400b002b88642c00dmr3404732ljq.17.1692022623021; Mon, 14 Aug
- 2023 07:17:03 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230809163059.97671-1-jwcart2@gmail.com> <20230809163059.97671-12-jwcart2@gmail.com>
- <87350mc6v2.fsf@redhat.com> <CAP+JOzSxQL9dqB7MXfCJKyc4Q4nsNTnxhC4ChnqctSXSqRRapA@mail.gmail.com>
- <CAP+JOzRgv7nmyXEC9=CftWoYjcJLg9Wzssz7efwEBb8yXsxniQ@mail.gmail.com> <87wmxxbuwl.fsf@redhat.com>
-In-Reply-To: <87wmxxbuwl.fsf@redhat.com>
+        d=1e100.net; s=20221208; t=1692023126; x=1692627926;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=iYP6G7IdwZLL3wdIZSQ/WP4kNlNR4C08+ta1jzIZyKM=;
+        b=NZKDzCt0PV98iTyDg67lfiR162fCtE3dRye3/oNFq0Ew7fgISoLksgo6CWS1+cSvSk
+         D/r+2DY4INb1WZ7cObD8oFqEaByg4TEIfsGCqxYGtiO4cWo0RQ766TsygsKIOTRY5xyO
+         +TXnXk0uNCwox1yvO1VB3k3ng28HWo+Naei6d03VZxpRnSQFOAuQ+QJ6DxX+2OFdnmHn
+         9ihSejMaxwLsDOG9g3g03hs9K6lhK+AQBPi+u7RVatzUw71tNvHmWC2RfPyvYOONr6Tc
+         KEzJgw0T4eW5Wlm0ns0ZAD7164R4XtECdnZDl+Riisodz3+bhuEENdZ3xD1DGbLetPMP
+         s9sA==
+X-Gm-Message-State: AOJu0Yx/2jv62M1Hrj1j2frp6ifypf5/c92qMTRkspJY93dEBWDYYBHH
+        TQkZj01VJD5aK6ggQNE8A/LQIw9rX+U=
+X-Google-Smtp-Source: AGHT+IEGLIQhlHQSMqsFHQYyeom7Y2xLdZ5p9nI14xOfk8mx/A2HWd4m9voMwAHipa1f1sLIYcNtAg==
+X-Received: by 2002:a05:622a:5103:b0:400:9666:4349 with SMTP id ev3-20020a05622a510300b0040096664349mr13224473qtb.46.1692023126322;
+        Mon, 14 Aug 2023 07:25:26 -0700 (PDT)
+Received: from electric.. (c-73-172-54-2.hsd1.md.comcast.net. [73.172.54.2])
+        by smtp.gmail.com with ESMTPSA id q5-20020ac87345000000b003fde3d63d22sm3103601qtp.69.2023.08.14.07.25.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Aug 2023 07:25:25 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 14 Aug 2023 10:16:51 -0400
-Message-ID: <CAP+JOzT9L2ucK7hYTgZEWTHZGxdEapcXp-RxfJEpn2kBTPFHMA@mail.gmail.com>
-Subject: Re: [PATCH 12/12] semodule-utils: Remove the Russian translations
-To:     Petr Lautrbach <lautrbach@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>,
+        Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH] Do not automatically install Russian translations
+Date:   Mon, 14 Aug 2023 10:25:16 -0400
+Message-ID: <20230814142516.505390-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.41.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-T24gTW9uLCBBdWcgMTQsIDIwMjMgYXQgOTo0NOKAr0FNIFBldHIgTGF1dHJiYWNoIDxsYXV0cmJh
-Y2hAcmVkaGF0LmNvbT4gd3JvdGU6DQo+DQo+IEphbWVzIENhcnRlciA8andjYXJ0MkBnbWFpbC5j
-b20+IHdyaXRlczoNCj4NCj4gPiBPbiBNb24sIEF1ZyAxNCwgMjAyMyBhdCA4OjQ24oCvQU0gSmFt
-ZXMgQ2FydGVyIDxqd2NhcnQyQGdtYWlsLmNvbT4gd3JvdGU6DQo+ID4+DQo+ID4+IE9uIE1vbiwg
-QXVnIDE0LCAyMDIzIGF0IDU6MjbigK9BTSBQZXRyIExhdXRyYmFjaCA8cGxhdXRyYmFAcmVkaGF0
-LmNvbT4gd3JvdGU6DQo+ID4+ID4NCj4gPj4gPiBKYW1lcyBDYXJ0ZXIgPGp3Y2FydDJAZ21haWwu
-Y29tPiB3cml0ZXM6DQo+ID4+ID4NCj4gPj4gPiA+IFRoZSBSdXNzaWFuIHRyYW5zbGF0aW9ucyBo
-YXZlIG5vdCBiZWVuIG1haW50YWluZWQgYW5kIGFyZSBvdXQgb2YNCj4gPj4gPiA+IGRhdGUsIHNv
-IHJlbW92ZSB0aGVtLg0KPiA+PiA+ID4NCj4gPj4gPiA+IFN1Z2dlc3RlZC1ieTogUGV0ciBMYXV0
-cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+DQo+ID4+ID4gPiBTaWduZWQtb2ZmLWJ5OiBKYW1l
-cyBDYXJ0ZXIgPGp3Y2FydDJAZ21haWwuY29tPg0KPiA+PiA+DQo+ID4+ID4gQmFzZWQgb24gaHR0
-cHM6Ly9naXRodWIuY29tL1NFTGludXhQcm9qZWN0L3NlbGludXgvcHVsbC80MDUNCj4gPj4gPg0K
-PiA+PiA+IEZvciBhbGwgMTI6DQo+ID4+ID4NCj4gPj4gPiBBY2tlZC1ieTogUGV0ciBMYXV0cmJh
-Y2ggPGxhdXRyYmFjaEByZWRoYXQuY29tPg0KPiA+PiA+DQo+ID4+ID4gTm90ZSB0aGF0IE1ha2Vm
-aWxlJ3Mgc3RpbGwgY29udGFpbjoNCj4gPj4gPg0KPiA+PiA+IGBgYA0KPiA+PiA+IExJTkdVQVMg
-Pz0gcnUNCj4gPj4gPiAuLi4NCj4gPj4gPiBpbnN0YWxsOiBhbGwNCj4gPj4gPiAuLi4NCj4gPj4g
-PiAgICAgZm9yIGxhbmcgaW4gJChMSU5HVUFTKSA7IGRvIFwNCj4gPj4gPiAgICAgICAgICAgICAg
-ICAgaWYgWyAtZSAkJHtsYW5nfSBdIDsgdGhlbiBcDQo+ID4+ID4gICAgICAgICAgICAgICAgICAg
-ICAgICAgbWtkaXIgLXAgJChERVNURElSKSQoTUFORElSKS8kJHtsYW5nfS9tYW41IDsgXA0KPiA+
-PiA+ICAgICAgICAgICAgICAgICAgICAgICAgIG1rZGlyIC1wICQoREVTVERJUikkKE1BTkRJUikv
-JCR7bGFuZ30vbWFuOCA7IFwNCj4gPj4gPiAgICAgICAgICAgICAgICAgICAgICAgICBpbnN0YWxs
-IC1tIDY0NCAkJHtsYW5nfS8qLjUgJChERVNURElSKSQoTUFORElSKS8kJHtsYW5nfS9tYW41LyA7
-IFwNCj4gPj4gPiAgICAgICAgICAgICAgICAgICAgICAgICBpbnN0YWxsIC1tIDY0NCAkJHtsYW5n
-fS8qLjggJChERVNURElSKSQoTUFORElSKS8kJHtsYW5nfS9tYW44LyA7IFwNCj4gPj4gPiAgICAg
-ICAgICAgICAgICAgZmkgOyBcDQo+ID4+ID4gICAgICAgICBkb25lDQo+ID4+ID4gYGBgDQo+ID4+
-ID4NCj4gPj4gPiBJJ2Qgc2ltcGx5IGRyb3AgJ3J1JyBmcm9tIExJTkdVQVMgaW4gb3JkZXIgdG8g
-bWFrZSBpdCBwb3NzaWJsZSB0byB1c2UNCj4gPj4gPiBvcmlnaW5hbCBydSBwYWdlcyBleHRyYWN0
-ZWQgZnJvbSBvdGhlciBzb3VyY2UgYW5kIHNldHRpbmcgTElOR1VBUyBpbiB0aGUNCj4gPj4gPiBi
-dWlsZCBlbnZpcm9ubWVudCwgZS5nLjoNCj4gPj4gPg0KPiA+PiA+IGBgYA0KPiA+PiA+IC0tLSBh
-L2NoZWNrcG9saWN5L01ha2VmaWxlDQo+ID4+ID4gKysrIGIvY2hlY2twb2xpY3kvTWFrZWZpbGUN
-Cj4gPj4gPiBAQCAtMSw3ICsxLDcgQEANCj4gPj4gPiAgIw0KPiA+PiA+ICAjIE1ha2VmaWxlIGZv
-ciBidWlsZGluZyB0aGUgY2hlY2twb2xpY3kgcHJvZ3JhbQ0KPiA+PiA+ICAjDQo+ID4+ID4gLUxJ
-TkdVQVMgPz0gcnUNCj4gPj4gPiArTElOR1VBUyA/PQ0KPiA+DQo+ID4gV29uJ3QgaXQgYmUgYmV0
-dGVyIHRvIGp1c3QgcmVtb3ZlIHRoZSB3aG9sZSBsaW5lPw0KPiA+IEppbQ0KPg0KPiBJIHdhcyB0
-aGlua2luZyBhYm91dCBiZXR0ZXIgZGlzY292ZXJhYmlsaXR5LiBUaGUgY29kZSBpcyBoaWRkZW4g
-aW4NCj4gaW5zdGFsbCwgYnV0IHRoZSBlbXB0eSB2YXJpYWJsZSBzaG93cyB0aGF0IHRoZXJlJ3Mg
-dGhpcyBwb3NzaWJpbGl0eS4NCj4NCg0KT2ssIEkgYW0gZmluZSB3aXRoIHRoYXQuDQpUaGFua3Ms
-DQpKaW0NCg0KDQo+DQo+ID4NCj4gPj4gPiAgUFJFRklYID89IC91c3INCj4gPj4gPiAgQklORElS
-ID89ICQoUFJFRklYKS9iaW4NCj4gPj4gPiAgTUFORElSID89ICQoUFJFRklYKS9zaGFyZS9tYW4N
-Cj4gPj4gPiBgYGANCj4gPj4gPg0KPiA+Pg0KPiA+PiBJIGRpZG4ndCB0aGluayBvZiB0aGUgTWFr
-ZWZpbGVzLg0KPiA+PiBJJ2xsIHNlbmQgYSBwYXRjaCB0byBtYWtlIHRoZSBjaGFuZ2UgeW91IHJl
-Y29tbWVuZCBhYm92ZSB0byBhbGwgb2YgdGhlDQo+ID4+IE1ha2VmaWxlcy4NCj4gPj4NCj4gPj4g
-VGhhbmtzLA0KPiA+PiBKaW0NCj4gPj4NCj4gPj4NCj4gPj4gPg0KPiA+PiA+ID4gLS0tDQo+ID4+
-ID4gPiAgLi4uL3NlbW9kdWxlX2V4cGFuZC9ydS9zZW1vZHVsZV9leHBhbmQuOCAgICAgIHwgMzEg
-LS0tLS0tLS0tLS0tDQo+ID4+ID4gPiAgLi4uL3NlbW9kdWxlX2xpbmsvcnUvc2Vtb2R1bGVfbGlu
-ay44ICAgICAgICAgIHwgMzIgLS0tLS0tLS0tLS0tLQ0KPiA+PiA+ID4gIC4uLi9zZW1vZHVsZV9w
-YWNrYWdlL3J1L3NlbW9kdWxlX3BhY2thZ2UuOCAgICB8IDQ4IC0tLS0tLS0tLS0tLS0tLS0tLS0N
-Cj4gPj4gPiA+ICAuLi4vc2Vtb2R1bGVfcGFja2FnZS9ydS9zZW1vZHVsZV91bnBhY2thZ2UuOCAg
-fCAyNCAtLS0tLS0tLS0tDQo+ID4+ID4gPiAgNCBmaWxlcyBjaGFuZ2VkLCAxMzUgZGVsZXRpb25z
-KC0pDQo+ID4+ID4gPiAgZGVsZXRlIG1vZGUgMTAwNjQ0IHNlbW9kdWxlLXV0aWxzL3NlbW9kdWxl
-X2V4cGFuZC9ydS9zZW1vZHVsZV9leHBhbmQuOA0KPiA+PiA+ID4gIGRlbGV0ZSBtb2RlIDEwMDY0
-NCBzZW1vZHVsZS11dGlscy9zZW1vZHVsZV9saW5rL3J1L3NlbW9kdWxlX2xpbmsuOA0KPiA+PiA+
-ID4gIGRlbGV0ZSBtb2RlIDEwMDY0NCBzZW1vZHVsZS11dGlscy9zZW1vZHVsZV9wYWNrYWdlL3J1
-L3NlbW9kdWxlX3BhY2thZ2UuOA0KPiA+PiA+ID4gIGRlbGV0ZSBtb2RlIDEwMDY0NCBzZW1vZHVs
-ZS11dGlscy9zZW1vZHVsZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3VucGFja2FnZS44DQo+ID4+ID4g
-Pg0KPiA+PiA+ID4gZGlmZiAtLWdpdCBhL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX2V4cGFuZC9y
-dS9zZW1vZHVsZV9leHBhbmQuOCBiL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX2V4cGFuZC9ydS9z
-ZW1vZHVsZV9leHBhbmQuOA0KPiA+PiA+ID4gZGVsZXRlZCBmaWxlIG1vZGUgMTAwNjQ0DQo+ID4+
-ID4gPiBpbmRleCAyOGIzODFhZi4uMDAwMDAwMDANCj4gPj4gPiA+IC0tLSBhL3NlbW9kdWxlLXV0
-aWxzL3NlbW9kdWxlX2V4cGFuZC9ydS9zZW1vZHVsZV9leHBhbmQuOA0KPiA+PiA+ID4gKysrIC9k
-ZXYvbnVsbA0KPiA+PiA+ID4gQEAgLTEsMzEgKzAsMCBAQA0KPiA+PiA+ID4gLS5USCBTRU1PRFVM
-RV9FWFBBTkQgIjgiICLQvdC+0Y/QsdGA0YwgMjAwNSIgIlNlY3VyaXR5IEVuaGFuY2VkIExpbnV4
-Ig0KPiA+PiA+ID4gLS5TSCDQmNCc0K8NCj4gPj4gPiA+IC1zZW1vZHVsZV9leHBhbmQgXC0g0YDQ
-sNGB0YjQuNGA0LjRgtGMINC/0LDQutC10YIg0LzQvtC00YPQu9GPINC/0L7Qu9C40YLQuNC60Lgg
-U0VMaW51eA0KPiA+PiA+ID4gLQ0KPiA+PiA+ID4gLS5TSCDQntCR0JfQntCgDQo+ID4+ID4gPiAt
-LkIgc2Vtb2R1bGVfZXhwYW5kIFstViBdIFsgLWEgXSBbIC1jIFt2ZXJzaW9uXV0gYmFzZW1vZHBr
-ZyBvdXRwdXRmaWxlDQo+ID4+ID4gPiAtLmJyDQo+ID4+ID4gPiAtLlNIINCe0J/QmNCh0JDQndCY
-0JUNCj4gPj4gPiA+IC0uUFANCj4gPj4gPiA+IC1zZW1vZHVsZV9leHBhbmQgLSDRg9GC0LjQu9C4
-0YLQsCDRgNCw0LfRgNCw0LHQvtGC0LrQuCDQtNC70Y8g0YDRg9GH0L3QvtCz0L4g0YDQsNGB0YjQ
-uNGA0LXQvdC40Y8g0L/QsNC60LXRgtCwINCx0LDQt9C+0LLQvtCz0L4g0LzQvtC00YPQu9GPINC/
-0L7Qu9C40YLQuNC60Lgg0LIg0LTQstC+0LjRh9C90YvQuSDRhNCw0LnQuyDQv9C+0LvQuNGC0LjQ
-utC4INGP0LTRgNCwLg0KPiA+PiA+ID4gLdCt0YLQviDRgdGA0LXQtNGB0YLQstC+INC90LUg0Y/Q
-stC70Y/QtdGC0YHRjyDQvdC10L7QsdGF0L7QtNC40LzRi9C8INC00LvRjyDQvdC+0YDQvNCw0LvR
-jNC90L7QuSDRgNCw0LHQvtGC0YsgU0VMaW51eC4g0J7QsdGL0YfQvdC+INGC0LDQutC+0LUg0YDQ
-sNGB0YjQuNGA0LXQvdC40LUg0LLRi9C/0L7Qu9C90Y/QtdGC0YHRjyBsaWJzZW1hbmFnZSDQstC9
-0YPRgtGA0LXQvdC90LjQvCDQvtCx0YDQsNC30L7QvCDQsiDQvtGC0LLQtdGCINC90LAg0LrQvtC8
-0LDQvdC00Ysgc2Vtb2R1bGUuINCf0LDQutC10YLRiyDQsdCw0LfQvtCy0YvRhSDQvNC+0LTRg9C7
-0LXQuSDQv9C+0LvQuNGC0LjQutC4INC80L7QttC90L4g0YHQvtC30LTQsNCy0LDRgtGMINC90LXQ
-v9C+0YHRgNC10LTRgdGC0LLQtdC90L3QviDRgSDQv9C+0LzQvtGJ0YzRjiBzZW1vZHVsZV9wYWNr
-YWdlINC40LvQuCBzZW1vZHVsZV9saW5rICjQv9GA0Lgg0YHQstGP0LfRi9Cy0LDQvdC40Lgg0L3Q
-sNCx0L7RgNCwINC/0LDQutC10YLQvtCyINCyINC+0LTQuNC9INC/0LDQutC10YIpLg0KPiA+PiA+
-ID4gLQ0KPiA+PiA+ID4gLS5TSCAi0J/QkNCg0JDQnNCV0KLQoNCrIg0KPiA+PiA+ID4gLS5UUA0K
-PiA+PiA+ID4gLS5CIFwtVg0KPiA+PiA+ID4gLdCf0L7QutCw0LfQsNGC0Ywg0LLQtdGA0YHQuNGO
-DQo+ID4+ID4gPiAtLlRQDQo+ID4+ID4gPiAtLkIgXC1jIFt2ZXJzaW9uXQ0KPiA+PiA+ID4gLdCS
-0LXRgNGB0LjRjyDQv9C+0LvQuNGC0LjQutC4LCDQutC+0YLQvtGA0YPRjiDRgdC70LXQtNGD0LXR
-giDRgdC+0LfQtNCw0YLRjA0KPiA+PiA+ID4gLS5UUA0KPiA+PiA+ID4gLS5CIFwtYQ0KPiA+PiA+
-ID4gLdCd0LUg0L/RgNC+0LLQtdGA0Y/RgtGMINGD0YLQstC10YDQttC00LXQvdC40Y8uINCf0YDQ
-uCDQuNGB0L/QvtC70YzQt9C+0LLQsNC90LjQuCDRjdGC0L7Qs9C+INC/0LDRgNCw0LzQtdGC0YDQ
-sCDQv9C+0LvQuNGC0LjQutCwINC90LUg0LHRg9C00LXRgiDQv9GA0L7QstC10YDRj9GC0Ywg0LfQ
-sNC/0YDQtdGJ0LDRjtGJ0LjQtSDQv9GA0LDQstC40LvQsCAobmV2ZXJhbGxvdykuDQo+ID4+ID4g
-PiAtDQo+ID4+ID4gPiAtLlNIINCh0JzQntCi0KDQmNCi0JUg0KLQkNCa0JbQlQ0KPiA+PiA+ID4g
-LS5CIGNoZWNrbW9kdWxlKDgpLCBzZW1vZHVsZV9wYWNrYWdlKDgpLCBzZW1vZHVsZSg4KSwgc2Vt
-b2R1bGVfbGluayg4KQ0KPiA+PiA+ID4gLSg4KSwNCj4gPj4gPiA+IC0uU0gg0JDQktCi0J7QoNCr
-DQo+ID4+ID4gPiAtLm5mDQo+ID4+ID4gPiAt0K3RgtCwINGB0YLRgNCw0L3QuNGG0LAg0YDRg9C6
-0L7QstC+0LTRgdGC0LLQsCDQsdGL0LvQsCDQvdCw0L/QuNGB0LDQvdCwIERhbiBXYWxzaCA8ZHdh
-bHNoQHJlZGhhdC5jb20+Lg0KPiA+PiA+ID4gLdCf0YDQvtCz0YDQsNC80LzQsCDQsdGL0LvQsCDQ
-vdCw0L/QuNGB0LDQvdCwIEthcmwgTWFjTWlsbGFuIDxrbWFjbWlsbGFuQHRyZXN5cy5jb20+LCBK
-b3NodWEgQnJpbmRsZSA8amJyaW5kbGVAdHJlc3lzLmNvbT4uDQo+ID4+ID4gPiAt0J/QtdGA0LXQ
-stC+0LQg0L3QsCDRgNGD0YHRgdC60LjQuSDRj9C30YvQuiDQstGL0L/QvtC70L3QuNC70LAg0JPQ
-tdGA0LDRgdC40LzQtdC90LrQviDQntC70LXRgdGPIDxnYW1tYXJheUBiYXNlYWx0LnJ1Pi4NCj4g
-Pj4gPiA+IGRpZmYgLS1naXQgYS9zZW1vZHVsZS11dGlscy9zZW1vZHVsZV9saW5rL3J1L3NlbW9k
-dWxlX2xpbmsuOCBiL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX2xpbmsvcnUvc2Vtb2R1bGVfbGlu
-ay44DQo+ID4+ID4gPiBkZWxldGVkIGZpbGUgbW9kZSAxMDA2NDQNCj4gPj4gPiA+IGluZGV4IDRh
-OGY0MTRlLi4wMDAwMDAwMA0KPiA+PiA+ID4gLS0tIGEvc2Vtb2R1bGUtdXRpbHMvc2Vtb2R1bGVf
-bGluay9ydS9zZW1vZHVsZV9saW5rLjgNCj4gPj4gPiA+ICsrKyAvZGV2L251bGwNCj4gPj4gPiA+
-IEBAIC0xLDMyICswLDAgQEANCj4gPj4gPiA+IC0uVEggU0VNT0RVTEVfTElOSyAiOCIgItCd0L7R
-j9Cx0YDRjCAyMDA1IiAiU2VjdXJpdHkgRW5oYW5jZWQgTGludXgiDQo+ID4+ID4gPiAtLlNIINCY
-0JzQrw0KPiA+PiA+ID4gLXNlbW9kdWxlX2xpbmsgXC0g0YHQstGP0LfQsNGC0Ywg0LLQvNC10YHR
-gtC1INC/0LDQutC10YLRiyDQvNC+0LTRg9C70LXQuSDQv9C+0LvQuNGC0LjQutC4IFNFTGludXgN
-Cj4gPj4gPiA+IC0NCj4gPj4gPiA+IC0uU0gg0J7QkdCX0J7QoA0KPiA+PiA+ID4gLS5CIHNlbW9k
-dWxlX2xpbmsgWy1Wdl0gWy1vIG91dGZpbGVdIGJhc2Vtb2Rwa2cgbW9kcGtnMSBbbW9kcGtnMl0u
-Li4NCj4gPj4gPiA+IC0uYnINCj4gPj4gPiA+IC0uU0gg0J7Qn9CY0KHQkNCd0JjQlQ0KPiA+PiA+
-ID4gLS5QUA0KPiA+PiA+ID4gLXNlbW9kdWxlX2xpbmsgLSDRg9GC0LjQu9C40YLQsCDRgNCw0LfR
-gNCw0LHQvtGC0LrQuCDQtNC70Y8g0YDRg9GH0L3QvtCz0L4g0YHQstGP0LfRi9Cy0LDQvdC40Y8g
-0L3QsNCx0L7RgNCwINC/0LDQutC10YLQvtCyINC80L7QtNGD0LvQtdC5INC/0L7Qu9C40YLQuNC6
-0LggU0VMaW51eCDQsiDQvtC00LjQvSDQv9Cw0LrQtdGCINC80L7QtNGD0LvQtdC5INC/0L7Qu9C4
-0YLQuNC60LguDQo+ID4+ID4gPiAt0K3RgtC+INGB0YDQtdC00YHRgtCy0L4g0L3QtSDRj9Cy0LvR
-j9C10YLRgdGPINC90LXQvtCx0YXQvtC00LjQvNGL0Lwg0LTQu9GPINC90L7RgNC80LDQu9GM0L3Q
-vtC5INGA0LDQsdC+0YLRiyBTRUxpbnV4LiDQntCx0YvRh9C90L4g0YLQsNC60L7QtSDRgdCy0Y/Q
-t9GL0LLQsNC90LjQtSDQstGL0L/QvtC70L3Rj9C10YLRgdGPIGxpYnNlbWFuYWdlINCy0L3Rg9GC
-0YDQtdC90L3QuNC8INC+0LHRgNCw0LfQvtC8INCyINC+0YLQstC10YIg0L3QsCDQutC+0LzQsNC9
-0LTRiyBzZW1vZHVsZS4g0J/QsNC60LXRgtGLINC80L7QtNGD0LvQtdC5INGB0L7Qt9C00LDRjtGC
-0YHRjyDRgSDQv9C+0LzQvtGJ0YzRjiBzZW1vZHVsZV9wYWNrYWdlLg0KPiA+PiA+ID4gLQ0KPiA+
-PiA+ID4gLS5TSCAi0J/QkNCg0JDQnNCV0KLQoNCrIg0KPiA+PiA+ID4gLS5UUA0KPiA+PiA+ID4g
-LS5CIFwtVg0KPiA+PiA+ID4gLdCf0L7QutCw0LfQsNGC0Ywg0LLQtdGA0YHQuNGODQo+ID4+ID4g
-PiAtLlRQDQo+ID4+ID4gPiAtLkIgXC12DQo+ID4+ID4gPiAt0J/QvtC00YDQvtCx0L3Ri9C5INGA
-0LXQttC40LwNCj4gPj4gPiA+IC0uVFANCj4gPj4gPiA+IC0uQiBcLW8gPG91dHB1dCBmaWxlPg0K
-PiA+PiA+ID4gLdCh0LLRj9C30LDQvdC90YvQuSDQv9Cw0LrQtdGCINC80L7QtNGD0LvQtdC5INC/
-0L7Qu9C40YLQuNC60LgsINGB0L7Qt9C00LDQvdC90YvQuSDRgSDQv9C+0LzQvtGJ0YzRjiDRjdGC
-0L7Qs9C+INGB0YDQtdC00YHRgtCy0LANCj4gPj4gPiA+IC0NCj4gPj4gPiA+IC0NCj4gPj4gPiA+
-IC0uU0gg0KHQnNCe0KLQoNCY0KLQlSDQotCQ0JrQltCVDQo+ID4+ID4gPiAtLkIgY2hlY2ttb2R1
-bGUoOCksIHNlbW9kdWxlX3BhY2thZ2UoOCksIHNlbW9kdWxlKDgpLCBzZW1vZHVsZV9leHBhbmQo
-OCkNCj4gPj4gPiA+IC0oOCksDQo+ID4+ID4gPiAtLlNIINCQ0JLQotCe0KDQqw0KPiA+PiA+ID4g
-LS5uZg0KPiA+PiA+ID4gLdCt0YLQsCDRgdGC0YDQsNC90LjRhtCwINGA0YPQutC+0LLQvtC00YHR
-gtCy0LAg0LHRi9C70LAg0L3QsNC/0LjRgdCw0L3QsCBEYW4gV2Fsc2ggPGR3YWxzaEByZWRoYXQu
-Y29tPi4NCj4gPj4gPiA+IC3Qn9GA0L7Qs9GA0LDQvNC80LAg0LHRi9C70LAg0L3QsNC/0LjRgdCw
-0L3QsCBLYXJsIE1hY01pbGxhbiA8a21hY21pbGxhbkB0cmVzeXMuY29tPi4NCj4gPj4gPiA+IC3Q
-n9C10YDQtdCy0L7QtCDQvdCwINGA0YPRgdGB0LrQuNC5INGP0LfRi9C6INCy0YvQv9C+0LvQvdC4
-0LvQsCDQk9C10YDQsNGB0LjQvNC10L3QutC+INCe0LvQtdGB0Y8gPGdhbW1hcmF5QGJhc2VhbHQu
-cnU+Lg0KPiA+PiA+ID4gZGlmZiAtLWdpdCBhL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX3BhY2th
-Z2UvcnUvc2Vtb2R1bGVfcGFja2FnZS44IGIvc2Vtb2R1bGUtdXRpbHMvc2Vtb2R1bGVfcGFja2Fn
-ZS9ydS9zZW1vZHVsZV9wYWNrYWdlLjgNCj4gPj4gPiA+IGRlbGV0ZWQgZmlsZSBtb2RlIDEwMDY0
-NA0KPiA+PiA+ID4gaW5kZXggM2Y0YjE2YTkuLjAwMDAwMDAwDQo+ID4+ID4gPiAtLS0gYS9zZW1v
-ZHVsZS11dGlscy9zZW1vZHVsZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3BhY2thZ2UuOA0KPiA+PiA+
-ID4gKysrIC9kZXYvbnVsbA0KPiA+PiA+ID4gQEAgLTEsNDggKzAsMCBAQA0KPiA+PiA+ID4gLS5U
-SCBTRU1PRFVMRV9QQUNLQUdFICI4IiAi0J3QvtGP0LHRgNGMIDIwMDUiICJTZWN1cml0eSBFbmhh
-bmNlZCBMaW51eCINCj4gPj4gPiA+IC0uU0gg0JjQnNCvDQo+ID4+ID4gPiAtc2Vtb2R1bGVfcGFj
-a2FnZSBcLSDRgdC+0LfQtNCw0YLRjCDQv9Cw0LrQtdGCINC80L7QtNGD0LvRjyDQv9C+0LvQuNGC
-0LjQutC4IFNFTGludXgNCj4gPj4gPiA+IC0NCj4gPj4gPiA+IC0uU0gg0J7QkdCX0J7QoA0KPiA+
-PiA+ID4gLS5CIHNlbW9kdWxlX3BhY2thZ2UgXC1vIDxvdXRwdXQgZmlsZT4gXC1tIDxtb2R1bGU+
-IFtcLWYgPGZpbGUgY29udGV4dHM+XQ0KPiA+PiA+ID4gLS5icg0KPiA+PiA+ID4gLS5TSCDQntCf
-0JjQodCQ0J3QmNCVDQo+ID4+ID4gPiAtLlBQDQo+ID4+ID4gPiAtc2Vtb2R1bGVfcGFja2FnZSAt
-INGD0YLQuNC70LjRgtCwLCDQutC+0YLQvtGA0LDRjyDQuNGB0L/QvtC70YzQt9GD0LXRgtGB0Y8g
-0LTQu9GPINGB0L7Qt9C00LDQvdC40Y8g0L/QsNC60LXRgtCwINC80L7QtNGD0LvRjyDQv9C+0LvQ
-uNGC0LjQutC4IFNFTGludXgg0LjQtyDQtNCy0L7QuNGH0L3QvtCz0L4g0LzQvtC00YPQu9GPINC/
-0L7Qu9C40YLQuNC60Lgg0LggKNC90LXQvtCx0Y/Qt9Cw0YLQtdC70YzQvdC+KSDQtNGA0YPQs9C4
-0YUg0LTQsNC90L3Ri9GFLCDRgtCw0LrQuNGFINC60LDQuiDQutC+0L3RgtC10LrRgdGC0Ysg0YTQ
-sNC50LvQvtCyLiDQmtC+0LzQsNC90LTQsCBzZW1vZHVsZV9wYWNrYWdlINGD0L/QsNC60L7QstGL
-0LLQsNC10YIg0LTQstC+0LjRh9C90YvQtSDQvNC+0LTRg9C70Lgg0L/QvtC70LjRgtC40LrQuCwg
-0YHQvtC30LTQsNC90L3Ri9C1INGBINC/0L7QvNC+0YnRjNGOIGNoZWNrbW9kdWxlLiDQn9Cw0LrQ
-tdGCINC/0L7Qu9C40YLQuNC60LgsINGB0L7Qt9C00LDQvdC90YvQuSDRgSDQv9C+0LzQvtGJ0YzR
-jiBzZW1vZHVsZV9wYWNrYWdlLCDQt9Cw0YLQtdC8INC80L7QttC90L4g0YPRgdGC0LDQvdC+0LLQ
-uNGC0Ywg0YfQtdGA0LXQtyBzZW1vZHVsZS4NCj4gPj4gPiA+IC0NCj4gPj4gPiA+IC0uU0gg0J/Q
-oNCY0JzQldCgDQo+ID4+ID4gPiAtLm5mDQo+ID4+ID4gPiAtIyDQodC+0LHRgNCw0YLRjCDQv9Cw
-0LrQtdGCINC/0L7Qu9C40YLQuNC60Lgg0LTQu9GPINCx0LDQt9C+0LLQvtCz0L4g0LzQvtC00YPQ
-u9GPLg0KPiA+PiA+ID4gLSQgc2Vtb2R1bGVfcGFja2FnZSBcLW8gYmFzZS5wcCBcLW0gYmFzZS5t
-b2QgXC1mIGZpbGVfY29udGV4dHMNCj4gPj4gPiA+IC0jINCh0L7QsdGA0LDRgtGMINC/0LDQutC1
-0YIg0L/QvtC70LjRgtC40LrQuCDQtNC70Y8g0LzQvtC00YPQu9GPIGh0dHBkLg0KPiA+PiA+ID4g
-LSQgc2Vtb2R1bGVfcGFja2FnZSBcLW8gaHR0cGQucHAgXC1tIGh0dHBkLm1vZCBcLWYgaHR0cGQu
-ZmMNCj4gPj4gPiA+IC0jINCh0L7QsdGA0LDRgtGMINC/0LDQutC10YIg0L/QvtC70LjRgtC40LrQ
-uCDQtNC70Y8g0LvQvtC60LDQu9GM0L3Ri9GFINC/0YDQsNCy0LjQuyDQv9GA0LjQvdGD0LTQuNGC
-0LXQu9GM0L3QvtCz0L4g0L/RgNC40YHQstC+0LXQvdC40Y8g0YLQuNC/0L7Qsiwg0L3QtSDQstC6
-0LvRjtGH0LDRjyDQutC+0L3RgtC10LrRgdGC0Ysg0YTQsNC50LvQvtCyLg0KPiA+PiA+ID4gLSQg
-c2Vtb2R1bGVfcGFja2FnZSBcLW8gbG9jYWwucHAgXC1tIGxvY2FsLm1vZA0KPiA+PiA+ID4gLS5m
-aQ0KPiA+PiA+ID4gLQ0KPiA+PiA+ID4gLS5TSCAi0J/QkNCg0JDQnNCV0KLQoNCrIg0KPiA+PiA+
-ID4gLS5UUA0KPiA+PiA+ID4gLS5CIFwtbyBcLVwtb3V0ZmlsZSA8b3V0cHV0IGZpbGU+DQo+ID4+
-ID4gPiAt0KTQsNC50Lsg0L/QsNC60LXRgtCwINC80L7QtNGD0LvRjyDQv9C+0LvQuNGC0LjQutC4
-LCDRgdC+0LfQtNCw0L3QvdGL0Lkg0Y3RgtC40Lwg0YHRgNC10LTRgdGC0LLQvtC8Lg0KPiA+PiA+
-ID4gLS5UUA0KPiA+PiA+ID4gLS5CICBcLXMgXC1cLXNldXNlciA8c2V1c2VyIGZpbGU+DQo+ID4+
-ID4gPiAt0KTQsNC50Lsgc2V1c2VyLCDQutC+0YLQvtGA0YvQuSDRgdC70LXQtNGD0LXRgiDQstC6
-0LvRjtGH0LjRgtGMINCyINC/0LDQutC10YIuDQo+ID4+ID4gPiAtLlRQDQo+ID4+ID4gPiAtLkIg
-IFwtdSBcLVwtdXNlcl9leHRyYSA8dXNlciBleHRyYSBmaWxlPg0KPiA+PiA+ID4gLdCk0LDQudC7
-IHVzZXJfZXh0cmEsINC60L7RgtC+0YDRi9C5INGB0LvQtdC00YPQtdGCINCy0LrQu9GO0YfQuNGC
-0Ywg0LIg0L/QsNC60LXRgi4NCj4gPj4gPiA+IC0uVFANCj4gPj4gPiA+IC0uQiAgXC1tIFwtXC1t
-b2R1bGUgPE1vZHVsZSBmaWxlPg0KPiA+PiA+ID4gLdCk0LDQudC7INC80L7QtNGD0LvRjyDQv9C+
-0LvQuNGC0LjQutC4LCDQutC+0YLQvtGA0YvQuSDRgdC70LXQtNGD0LXRgiDQstC60LvRjtGH0LjR
-gtGMINCyINC/0LDQutC10YIuDQo+ID4+ID4gPiAtLlRQDQo+ID4+ID4gPiAtLkIgIFwtZiBcLVwt
-ZmMgPEZpbGUgY29udGV4dCBmaWxlPg0KPiA+PiA+ID4gLdCk0LDQudC7INC60L7QvdGC0LXQutGB
-0YLQvtCyINGE0LDQudC70L7QsiDQtNC70Y8g0LzQvtC00YPQu9GPICjQvdC10L7QsdGP0LfQsNGC
-0LXQu9GM0L3QvikuDQo+ID4+ID4gPiAtLlRQDQo+ID4+ID4gPiAtLkIgIFwtbiBcLVwtbmMgPG5l
-dGZpbHRlciBjb250ZXh0IGZpbGU+DQo+ID4+ID4gPiAt0KTQsNC50Lsg0LrQvtC90YLQtdC60YHR
-gtCwIG5ldGZpbHRlciwg0LrQvtGC0L7RgNGL0Lkg0YHQu9C10LTRg9C10YIg0LLQutC70Y7Rh9C4
-0YLRjCDQsiDQv9Cw0LrQtdGCLg0KPiA+PiA+ID4gLQ0KPiA+PiA+ID4gLS5TSCDQodCc0J7QotCg
-0JjQotCVINCi0JDQmtCW0JUNCj4gPj4gPiA+IC0uQiBjaGVja21vZHVsZSg4KSwgc2Vtb2R1bGUo
-OCksIHNlbW9kdWxlX3VucGFja2FnZSg4KQ0KPiA+PiA+ID4gLS5TSCDQkNCS0KLQntCg0KsNCj4g
-Pj4gPiA+IC0ubmYNCj4gPj4gPiA+IC3QrdGC0LAg0YHRgtGA0LDQvdC40YbQsCDRgNGD0LrQvtCy
-0L7QtNGB0YLQstCwINCx0YvQu9CwINC90LDQv9C40YHQsNC90LAgRGFuIFdhbHNoIDxkd2Fsc2hA
-cmVkaGF0LmNvbT4uDQo+ID4+ID4gPiAt0J/RgNC+0LPRgNCw0LzQvNCwINCx0YvQu9CwINC90LDQ
-v9C40YHQsNC90LAgS2FybCBNYWNNaWxsYW4gPGttYWNtaWxsYW5AdHJlc3lzLmNvbT4uDQo+ID4+
-ID4gPiAt0J/QtdGA0LXQstC+0LQg0L3QsCDRgNGD0YHRgdC60LjQuSDRj9C30YvQuiDQstGL0L/Q
-vtC70L3QuNC70LAg0JPQtdGA0LDRgdC40LzQtdC90LrQviDQntC70LXRgdGPIDxnYW1tYXJheUBi
-YXNlYWx0LnJ1Pi4NCj4gPj4gPiA+IGRpZmYgLS1naXQgYS9zZW1vZHVsZS11dGlscy9zZW1vZHVs
-ZV9wYWNrYWdlL3J1L3NlbW9kdWxlX3VucGFja2FnZS44IGIvc2Vtb2R1bGUtdXRpbHMvc2Vtb2R1
-bGVfcGFja2FnZS9ydS9zZW1vZHVsZV91bnBhY2thZ2UuOA0KPiA+PiA+ID4gZGVsZXRlZCBmaWxl
-IG1vZGUgMTAwNjQ0DQo+ID4+ID4gPiBpbmRleCAwNTdhZTNkNy4uMDAwMDAwMDANCj4gPj4gPiA+
-IC0tLSBhL3NlbW9kdWxlLXV0aWxzL3NlbW9kdWxlX3BhY2thZ2UvcnUvc2Vtb2R1bGVfdW5wYWNr
-YWdlLjgNCj4gPj4gPiA+ICsrKyAvZGV2L251bGwNCj4gPj4gPiA+IEBAIC0xLDI0ICswLDAgQEAN
-Cj4gPj4gPiA+IC0uVEggU0VNT0RVTEVfUEFDS0FHRSAiOCIgItCd0L7Rj9Cx0YDRjCAyMDA1IiAi
-U2VjdXJpdHkgRW5oYW5jZWQgTGludXgiDQo+ID4+ID4gPiAtLlNIINCY0JzQrw0KPiA+PiA+ID4g
-LXNlbW9kdWxlX3VucGFja2FnZSBcLSDQuNC30LLQu9C10YfRjCDQvNC+0LTRg9C70Ywg0L/QvtC7
-0LjRgtC40LrQuCDQuCDRhNCw0LnQuyDQutC+0L3RgtC10LrRgdGC0L7QsiDRhNCw0LnQu9C+0LIg
-0LjQtyDQv9Cw0LrQtdGC0LAg0LzQvtC00YPQu9GPINC/0L7Qu9C40YLQuNC60LggU0VMaW51eA0K
-PiA+PiA+ID4gLQ0KPiA+PiA+ID4gLS5TSCDQntCR0JfQntCgDQo+ID4+ID4gPiAtLkIgc2Vtb2R1
-bGVfdW5wYWNrYWdlIHBwZmlsZSBtb2RmaWxlIFtmY2ZpbGVdDQo+ID4+ID4gPiAtLmJyDQo+ID4+
-ID4gPiAtLlNIINCe0J/QmNCh0JDQndCY0JUNCj4gPj4gPiA+IC0uUFANCj4gPj4gPiA+IC1zZW1v
-ZHVsZV91bnBhY2thZ2UgLSDRg9GC0LjQu9C40YLQsCwg0LrQvtGC0L7RgNCw0Y8g0LjRgdC/0L7Q
-u9GM0LfRg9C10YLRgdGPINC00LvRjyDQuNC30LLQu9C10YfQtdC90LjRjyDRhNCw0LnQu9CwINC8
-0L7QtNGD0LvRjyDQv9C+0LvQuNGC0LjQutC4IFNFTGludXgg0Lgg0YTQsNC50LvQsCDQutC+0L3R
-gtC10LrRgdGC0L7QsiDRhNCw0LnQu9C+0LIg0LjQtyDQv9Cw0LrQtdGC0LAg0L/QvtC70LjRgtC4
-0LrQuCBTRUxpbnV4Lg0KPiA+PiA+ID4gLQ0KPiA+PiA+ID4gLS5TSCDQn9Cg0JjQnNCV0KANCj4g
-Pj4gPiA+IC0ubmYNCj4gPj4gPiA+IC0jINCY0LfQstC70LXRh9GMINGE0LDQudC7INC80L7QtNGD
-0LvRjyBodHRwZCDQuNC3INC/0LDQutC10YLQsCDQv9C+0LvQuNGC0LjQutC4IGh0dHBkLg0KPiA+
-PiA+ID4gLSQgc2Vtb2R1bGVfdW5wYWNrYWdlIGh0dHBkLnBwIGh0dHBkLm1vZCBodHRwZC5mYw0K
-PiA+PiA+ID4gLS5maQ0KPiA+PiA+ID4gLQ0KPiA+PiA+ID4gLS5TSCDQodCc0J7QotCg0JjQotCV
-INCi0JDQmtCW0JUNCj4gPj4gPiA+IC0uQiBzZW1vZHVsZV9wYWNrYWdlKDgpDQo+ID4+ID4gPiAt
-LlNIINCQ0JLQotCe0KDQqw0KPiA+PiA+ID4gLS5uZg0KPiA+PiA+ID4gLdCt0YLQsCDRgdGC0YDQ
-sNC90LjRhtCwINGA0YPQutC+0LLQvtC00YHRgtCy0LAg0LHRi9C70LAg0L3QsNC/0LjRgdCw0L3Q
-sCBEYW4gV2Fsc2ggPGR3YWxzaEByZWRoYXQuY29tPi4NCj4gPj4gPiA+IC3Qn9GA0L7Qs9GA0LDQ
-vNC80LAg0LHRi9C70LAg0L3QsNC/0LjRgdCw0L3QsCBTdGVwaGVuIFNtYWxsZXkgPHN0ZXBoZW4u
-c21hbGxleS53b3JrQGdtYWlsLmNvbT4uDQo+ID4+ID4gPiAt0J/QtdGA0LXQstC+0LQg0L3QsCDR
-gNGD0YHRgdC60LjQuSDRj9C30YvQuiDQstGL0L/QvtC70L3QuNC70LAg0JPQtdGA0LDRgdC40LzQ
-tdC90LrQviDQntC70LXRgdGPIDxnYW1tYXJheUBiYXNlYWx0LnJ1Pi4NCj4gPj4gPiA+IC0tDQo+
-ID4+ID4gPiAyLjQxLjANCj4gPj4gPg0KPg0K
+Since they are being removed, there will be nothing to install.
+
+Suggested-by: Petr Lautrbach <plautrba@redhat.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ checkpolicy/Makefile                     | 2 +-
+ gui/Makefile                             | 2 +-
+ libselinux/man/Makefile                  | 2 +-
+ libsemanage/man/Makefile                 | 2 +-
+ libsepol/man/Makefile                    | 2 +-
+ mcstrans/man/Makefile                    | 2 +-
+ policycoreutils/load_policy/Makefile     | 2 +-
+ policycoreutils/man/Makefile             | 2 +-
+ policycoreutils/newrole/Makefile         | 2 +-
+ policycoreutils/run_init/Makefile        | 2 +-
+ policycoreutils/scripts/Makefile         | 2 +-
+ policycoreutils/secon/Makefile           | 2 +-
+ policycoreutils/semodule/Makefile        | 2 +-
+ policycoreutils/sestatus/Makefile        | 2 +-
+ policycoreutils/setfiles/Makefile        | 2 +-
+ policycoreutils/setsebool/Makefile       | 2 +-
+ python/audit2allow/Makefile              | 2 +-
+ python/chcat/Makefile                    | 2 +-
+ python/semanage/Makefile                 | 2 +-
+ python/sepolicy/Makefile                 | 2 +-
+ restorecond/Makefile                     | 2 +-
+ sandbox/Makefile                         | 2 +-
+ semodule-utils/semodule_expand/Makefile  | 2 +-
+ semodule-utils/semodule_link/Makefile    | 2 +-
+ semodule-utils/semodule_package/Makefile | 2 +-
+ 25 files changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
+index f9e1fc7c..c37e0310 100644
+--- a/checkpolicy/Makefile
++++ b/checkpolicy/Makefile
+@@ -1,7 +1,7 @@
+ #
+ # Makefile for building the checkpolicy program
+ #
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/gui/Makefile b/gui/Makefile
+index 4035fb21..b29610d4 100644
+--- a/gui/Makefile
++++ b/gui/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ SHAREDIR ?= $(PREFIX)/share/system-config-selinux
+diff --git a/libselinux/man/Makefile b/libselinux/man/Makefile
+index 4b3626d2..fdc0825f 100644
+--- a/libselinux/man/Makefile
++++ b/libselinux/man/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX	?= /usr
+ MANDIR ?=  $(PREFIX)/share/man
+ MAN3SUBDIR ?= man3
+diff --git a/libsemanage/man/Makefile b/libsemanage/man/Makefile
+index f626447d..5e21a65e 100644
+--- a/libsemanage/man/Makefile
++++ b/libsemanage/man/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ MANDIR ?=  $(PREFIX)/share/man
+ MAN3SUBDIR ?= man3
+diff --git a/libsepol/man/Makefile b/libsepol/man/Makefile
+index f54e478d..0b410c19 100644
+--- a/libsepol/man/Makefile
++++ b/libsepol/man/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ MANDIR ?=  $(PREFIX)/share/man
+ MAN3SUBDIR ?= man3
+diff --git a/mcstrans/man/Makefile b/mcstrans/man/Makefile
+index 71713818..895a592d 100644
+--- a/mcstrans/man/Makefile
++++ b/mcstrans/man/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ MANDIR ?=  $(PREFIX)/share/man
+ MAN5SUBDIR ?= man5
+diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
+index c1ba805b..ad80d500 100644
+--- a/policycoreutils/load_policy/Makefile
++++ b/policycoreutils/load_policy/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/policycoreutils/man/Makefile b/policycoreutils/man/Makefile
+index 94bbf586..a4539f24 100644
+--- a/policycoreutils/man/Makefile
++++ b/policycoreutils/man/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ MANDIR ?= $(PREFIX)/share/man
+ MAN5DIR ?= $(MANDIR)/man5
+diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
+index b3ccf671..4b8145d3 100644
+--- a/policycoreutils/newrole/Makefile
++++ b/policycoreutils/newrole/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/Makefile
+index e86364a4..619ebc1d 100644
+--- a/policycoreutils/run_init/Makefile
++++ b/policycoreutils/run_init/Makefile
+@@ -1,6 +1,6 @@
+ 
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/policycoreutils/scripts/Makefile b/policycoreutils/scripts/Makefile
+index 75e75b80..6d8196c6 100644
+--- a/policycoreutils/scripts/Makefile
++++ b/policycoreutils/scripts/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/policycoreutils/secon/Makefile b/policycoreutils/secon/Makefile
+index 576a6203..440503a1 100644
+--- a/policycoreutils/secon/Makefile
++++ b/policycoreutils/secon/Makefile
+@@ -1,5 +1,5 @@
+ # secon tool - command-line context
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/Makefile
+index 73801e48..9fbf99d6 100644
+--- a/policycoreutils/semodule/Makefile
++++ b/policycoreutils/semodule/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestatus/Makefile
+index 3dbb792b..aebf050c 100644
+--- a/policycoreutils/sestatus/Makefile
++++ b/policycoreutils/sestatus/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ SBINDIR ?= $(PREFIX)/sbin
+diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
+index d7670a8f..84ffb08b 100644
+--- a/policycoreutils/setfiles/Makefile
++++ b/policycoreutils/setfiles/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= /sbin
+ MANDIR = $(PREFIX)/share/man
+diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool/Makefile
+index c1440c1c..fc5b4ff6 100644
+--- a/policycoreutils/setsebool/Makefile
++++ b/policycoreutils/setsebool/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+diff --git a/python/audit2allow/Makefile b/python/audit2allow/Makefile
+index 76bf4e37..fb04b8bd 100644
+--- a/python/audit2allow/Makefile
++++ b/python/audit2allow/Makefile
+@@ -2,7 +2,7 @@ PYTHON ?= python3
+ SECILC ?= secilc
+ 
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/python/chcat/Makefile b/python/chcat/Makefile
+index e4873bf4..7b3ee17f 100644
+--- a/python/chcat/Makefile
++++ b/python/chcat/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/python/semanage/Makefile b/python/semanage/Makefile
+index b53ee33d..628d135a 100644
+--- a/python/semanage/Makefile
++++ b/python/semanage/Makefile
+@@ -1,7 +1,7 @@
+ PYTHON ?= python3
+ 
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
+index 4e9e93d0..1a26cfdc 100644
+--- a/python/sepolicy/Makefile
++++ b/python/sepolicy/Makefile
+@@ -1,7 +1,7 @@
+ PYTHON ?= python3
+ 
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/restorecond/Makefile b/restorecond/Makefile
+index 8e9a5ef1..1ddfcc92 100644
+--- a/restorecond/Makefile
++++ b/restorecond/Makefile
+@@ -1,7 +1,7 @@
+ PKG_CONFIG ?= pkg-config
+ 
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+diff --git a/sandbox/Makefile b/sandbox/Makefile
+index 84cb5a39..360a8bc5 100644
+--- a/sandbox/Makefile
++++ b/sandbox/Makefile
+@@ -1,7 +1,7 @@
+ PYTHON ?= python3
+ 
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ SYSCONFDIR ?= /etc/sysconfig
+ BINDIR ?= $(PREFIX)/bin
+diff --git a/semodule-utils/semodule_expand/Makefile b/semodule-utils/semodule_expand/Makefile
+index e63dcff2..ad776b15 100644
+--- a/semodule-utils/semodule_expand/Makefile
++++ b/semodule-utils/semodule_expand/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/semodule-utils/semodule_link/Makefile b/semodule-utils/semodule_link/Makefile
+index c5cf69cd..936d161c 100644
+--- a/semodule-utils/semodule_link/Makefile
++++ b/semodule-utils/semodule_link/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+diff --git a/semodule-utils/semodule_package/Makefile b/semodule-utils/semodule_package/Makefile
+index 680ab836..6a289f73 100644
+--- a/semodule-utils/semodule_package/Makefile
++++ b/semodule-utils/semodule_package/Makefile
+@@ -1,5 +1,5 @@
+ # Installation directories.
+-LINGUAS ?= ru
++LINGUAS ?=
+ PREFIX ?= /usr
+ BINDIR ?= $(PREFIX)/bin
+ MANDIR ?= $(PREFIX)/share/man
+-- 
+2.41.0
+
