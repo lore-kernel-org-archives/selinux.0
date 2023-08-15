@@ -2,87 +2,104 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D803C001DB
-	for <selinux@archiver.kernel.org>; Tue, 15 Aug 2023 02:52:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BFF1C04A6A
+	for <selinux@archiver.kernel.org>; Tue, 15 Aug 2023 06:24:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234357AbjHOCwQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Aug 2023 22:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36958 "EHLO
+        id S231857AbjHOGYR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Aug 2023 02:24:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233724AbjHOCvr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Aug 2023 22:51:47 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5682114
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 19:51:46 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-268bc714ce0so4151603a91.0
-        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 19:51:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gwmail.gwu.edu; s=google; t=1692067906; x=1692672706;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=eTjcw/8D2nvgNEovPDNAunkGW/khAzoCSkLLfHBnfS0=;
-        b=HCsHDAQuu5iQ/sMCKP7jU05AWhLBspoIvhFH9fEcxPrXrQEJDMutaQtWVDARkbPMqh
-         4sXdCIJOeIbw2u9OVGDKaIWf+m4RJsg5Uzxh477YzO2gW+9qo6YpfNKM949kPZPGtz4b
-         ao1b4CB3Ahhpe00NRRIIzog8VdTYKd9uoBTuHP+sWge5P1mhn8dX89wRzZhDGtcvxObT
-         yJsb7PhjHxos6elXpx7xtrJfCPDgQ9uiwYXuWFOFNX+T9NU6exLmHAIS8za6MDYK2IUT
-         ckZ4kA84bh+nV/Cr/DfJYv0dZaiCW2H750ji0LOJgUl642ZGcQh9XFiygsEHJbgiN+ee
-         tpSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692067906; x=1692672706;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=eTjcw/8D2nvgNEovPDNAunkGW/khAzoCSkLLfHBnfS0=;
-        b=G+W/xrl7Tg8d31PUdapNqyvTPb7VQO2gwy7vu1s7riueEdhLSMQizDUw6whM3Q4+VT
-         9WNFcqIvXcVZpeXv5syFfLBXceCbS1/37uCzxAkIHUAA5zFM2eRRprrtaaNusFQR+fXb
-         prJOQSdgBX4bRWfnBeqrk+PC0vXg/uTZP6p4gDZrR7717xuSOiX9/iR+yFjHXUQHAmAr
-         OEHjWYcAl4RtW0vlqo91wCPpFs6zzy8NHSDW1KApIS8cbmZQaFeXJJT6V8qNN/LpTp3w
-         1fSaLrlySg9afI2MIGxD2LmgLFMHWNGA440gFLuPxmWB1kSDGeDmzkf3LDD8TRkpQ2/L
-         Ae0w==
-X-Gm-Message-State: AOJu0YwAzdCI0Kqztqa1SM2EElqq+2BQQn4sg4eMgSaF6uVVOZHIpRHf
-        0lvpFPbp95+qoUE7VQ32TprNhq3epAdrNIWrW2MsOzabNTSZxanCZDY=
-X-Google-Smtp-Source: AGHT+IGeJr/BZZrbP3XCdI89anr8FS03YGwnsZiw4cAODKWOLTO/G3oQg4gr5MYvG6g4ouYiInJKru8yl3SUlvZER6o=
-X-Received: by 2002:a17:90a:9485:b0:268:4498:ad68 with SMTP id
- s5-20020a17090a948500b002684498ad68mr991495pjo.19.1692067906011; Mon, 14 Aug
- 2023 19:51:46 -0700 (PDT)
+        with ESMTP id S234988AbjHOGYK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Aug 2023 02:24:10 -0400
+Received: from out-66.mta1.migadu.com (out-66.mta1.migadu.com [IPv6:2001:41d0:203:375::42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1017910F4
+        for <selinux@vger.kernel.org>; Mon, 14 Aug 2023 23:24:06 -0700 (PDT)
+Message-ID: <00809f4a-e7ca-bf53-7824-e22791ee6738@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1692080644;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RXs3mjgqnXvJbDWmMqsJFyBV4L79LKcBz77qKeWFKs0=;
+        b=n5Z7aeODmFnpxRq1tq/1towSY5Vnmq8J3If4HVdOILRY9tGldVJelfEK7OflTEghT2ylaT
+        FwevqkJ08/wDoAnDCisAFJIVXCpY4HjTBwvs77ikhfhubWGREzp6Yk3cZTkumhx89307Ls
+        TZY9i5fhGm35TwOvttEx3Cm5S6DlzyQ=
+Date:   Mon, 14 Aug 2023 23:23:49 -0700
 MIME-Version: 1.0
-From:   Alan Ma <alanma@gwmail.gwu.edu>
-Date:   Mon, 14 Aug 2023 22:51:27 -0400
-Message-ID: <CACzUrp4own2mQpHtcpsRgWH6LbJOginxMWqcbZRRrh1AGF5MNg@mail.gmail.com>
-Subject: AWS RHEL Image / SplunkWeb / SELinux
-To:     selinux@vger.kernel.org, stephen.smalley.work@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH mptcp-next v13 4/4] selftests/bpf: Add mptcpify test
+Content-Language: en-US
+To:     Geliang Tang <geliang.tang@suse.com>
+Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        Yonghong Song <yonghong.song@linux.dev>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Brendan Jackman <jackmanb@chromium.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
+        Simon Horman <horms@kernel.org>
+References: <cover.1691808484.git.geliang.tang@suse.com>
+ <15a618b03f65177166adf2850d4159cd4b77dfb1.1691808484.git.geliang.tang@suse.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Martin KaFai Lau <martin.lau@linux.dev>
+In-Reply-To: <15a618b03f65177166adf2850d4159cd4b77dfb1.1691808484.git.geliang.tang@suse.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello SELinux experts,
+On 8/11/23 7:54 PM, Geliang Tang wrote:
+> +static int verify_mptcpify(int server_fd)
+> +{
+> +	socklen_t optlen;
+> +	char cmd[256];
+> +	int protocol;
+> +	int err = 0;
+> +
+> +	optlen = sizeof(protocol);
+> +	if (!ASSERT_OK(getsockopt(server_fd, SOL_SOCKET, SO_PROTOCOL, &protocol, &optlen),
+> +		       "getsockopt(SOL_PROTOCOL)"))
+> +		return -1;
+> +
+> +	if (!ASSERT_EQ(protocol, IPPROTO_MPTCP, "protocol isn't MPTCP"))
+> +		err++;
+> +
+> +	/* Output of nstat:
+> +	 *
+> +	 * #kernel
+> +	 * MPTcpExtMPCapableSYNACKRX       1                  0.0
+> +	 */
+> +	snprintf(cmd, sizeof(cmd),
+> +		 "ip netns exec %s nstat -asz %s | awk '%s' | grep -q '%s'",
+> +		 NS_TEST, "MPTcpExtMPCapableSYNACKRX",
+> +		 "NR==1 {next} {print $2}", "1");
 
-I have one odd RHEL 8 AWS host that refuses to allow me to run on port
-8000 for Splunk to run it's Web application when SElinux is enforcing
-or permissive. I have another host with the same AMI and VLAN that
-works flawlessly.
+Is the mp-capable something that the regular mptcp user want to learn from a fd 
+also? Does it have a simpler way like to learn this, eg. getsockopt(fd, 
+SOL_MPTCP, MPTCP_xxx), instead of parsing text output?
 
-I have reviewed all Splunk, and Firewalld configurations.
-
-The host is not throwing any deny or errors in var/log/audit or /messages.
-
-The only time SplunkWeb loads is when SELinux is disabled.
-
-The browser will throw an error when SELinux is enabled.
-
-I suspect this maybe a bug as Splunk and SELinux had a known
-compatibility issue almost 20 years ago.
-
-However, those old fixes no longer work.
-
-I appreciate and look forward to everyone's response. Thank you in advance.
+> +	if (!ASSERT_OK(system(cmd), "No MPTcpExtMPCapableSYNACKRX found!"))
 
 
--- 
-Very Respectfully,
-
-Alan Ma
-(703) 609-5617
-George Washington University
-Executive Masters Information Systems Technology
-CIO University Certificate
