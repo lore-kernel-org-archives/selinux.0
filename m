@@ -2,142 +2,88 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14CA3C04FE0
-	for <selinux@archiver.kernel.org>; Tue, 15 Aug 2023 18:59:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D5D4C04A94
+	for <selinux@archiver.kernel.org>; Tue, 15 Aug 2023 20:05:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239563AbjHOS6c (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Aug 2023 14:58:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40912 "EHLO
+        id S240138AbjHOUFA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Aug 2023 16:05:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239642AbjHOS6H (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Aug 2023 14:58:07 -0400
-Received: from out-58.mta0.migadu.com (out-58.mta0.migadu.com [IPv6:2001:41d0:1004:224b::3a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4111FFB
-        for <selinux@vger.kernel.org>; Tue, 15 Aug 2023 11:58:01 -0700 (PDT)
-Message-ID: <afdc1b5f-650e-99a6-7fe8-ccd6463066f9@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1692125880;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=I5DcgThCjjtE1+nYureWow+fA/SCBcwrGd6zc9WACKM=;
-        b=rSvIj7fRML9vmcrA9nhPpNeVu4VEXDPVQZGAKxuORdlmijW7hssGuyZy9lT+z9uiFzAG5p
-        89liqVk4ra5EJjydxE7yrMUDLiQ1MOXke6kbk+6Ajwkeg7Bejl7HC+Akd7JykIlbGd/GM7
-        5tWVZG8W0DWS9XWMzfXR98ebD5W3PWE=
-Date:   Tue, 15 Aug 2023 11:57:52 -0700
-MIME-Version: 1.0
-Subject: Re: [PATCH mptcp-next v13 4/4] selftests/bpf: Add mptcpify test
-To:     Geliang Tang <geliang.tang@suse.com>
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Florent Revest <revest@chromium.org>,
-        Brendan Jackman <jackmanb@chromium.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <martineau@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
+        with ESMTP id S240139AbjHOUEg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Aug 2023 16:04:36 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A8BE83
+        for <selinux@vger.kernel.org>; Tue, 15 Aug 2023 13:04:35 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id af79cd13be357-7653bd3ff2fso512672285a.3
+        for <selinux@vger.kernel.org>; Tue, 15 Aug 2023 13:04:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1692129874; x=1692734674;
+        h=in-reply-to:references:subject:to:from:message-id:date:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BxBcBZ5izURGaV85QiqkgIIt0uW9MKUgeI/7gZxjeAM=;
+        b=Hs1LdeO1bMOezQQmtOJh4tQ8RppcJpDww1RyECA+NBNbh+o67S+EX0IhWuS6XFliIu
+         ox+a7W+tiPavrDH0nDeSdzK76OZpoDVgGRBLPJlqL6Az4NNnijixjG5QWQmeg2vCic/1
+         uU96PJV67hQT6O4vuQjJ4Y1GoLBaK9CfVI4UXx2140pVO8nkpoRd36r8q2icXyXObkdr
+         Jljk+lfVg/mmxu1XwvccHXcWcY0ZOfQgJTHvBzGZRap7YW3CQ0WwrdMuVTfMFY6Q1cCd
+         OPSn2MiTOWFtJK6eGbXQFQ22+ZyemAPucn01UIRjcX8QxIXUo8eWrineAmhLa4kRseEL
+         2OMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692129874; x=1692734674;
+        h=in-reply-to:references:subject:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BxBcBZ5izURGaV85QiqkgIIt0uW9MKUgeI/7gZxjeAM=;
+        b=Hpo0Wk9M038bYw0UFHs9cNcAHD+PrDjd9R0a9dhce3kdi0piYmd7YaxX7y4tAP/nco
+         Lb+q1p2CNEiXtbOEfC3pfeFpZyuY4LraRUVy22gakUYeaIyxLlML9pCbL6GJPY2+/YKe
+         bjTzM/zH7m7+Bz3i95TxsCQ6UjBuKULAtCFOsnd6yv70ZSWP0nVif/AvwtwTm49XKlmw
+         k7V21KEe/PjDIuOPpkXLS2QN7nMD2n4r6hx39hqej00ysO5PjZp0o9bp7e/0RmSAmVee
+         rZLekDSDav/a1VgeJAgXPsFW5z8NOC3wFLQiHpb/GakUz0WS1Wz7ubMgUTP9RzzNLB17
+         oqfQ==
+X-Gm-Message-State: AOJu0YwMgE6CjtUj8RDNpj6ycn5Bh/9kllP5Gb+yDYN9ICfBiQ3jDvet
+        oavlWxAWwHyWEXGQeWRC9XED
+X-Google-Smtp-Source: AGHT+IGXKkLXbf2kSy5nxFQoOTgiIrJcf4VQzgmwi7i6SkA7G7K2scNqrhMtLFn0vi6s58wg05XIxg==
+X-Received: by 2002:a05:620a:240a:b0:765:a77c:7219 with SMTP id d10-20020a05620a240a00b00765a77c7219mr19235159qkn.0.1692129874156;
+        Tue, 15 Aug 2023 13:04:34 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id g13-20020ac8468d000000b004033c3948f9sm4016624qto.42.2023.08.15.13.04.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Aug 2023 13:04:33 -0700 (PDT)
+Date:   Tue, 15 Aug 2023 16:04:33 -0400
+Message-ID: <80c3c2b488a603da62a0fd15201dec0b.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     Khadija Kamran <kamrankhadijadj@gmail.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
-        Simon Horman <horms@kernel.org>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, mptcp@lists.linux.dev,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-References: <cover.1691808484.git.geliang.tang@suse.com>
- <15a618b03f65177166adf2850d4159cd4b77dfb1.1691808484.git.geliang.tang@suse.com>
- <00809f4a-e7ca-bf53-7824-e22791ee6738@linux.dev>
- <20230815100816.GA24858@bogon>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Martin KaFai Lau <martin.lau@linux.dev>
-In-Reply-To: <20230815100816.GA24858@bogon>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        ztarkhani@microsoft.com,
+        Alison Schofield <alison.schofield@intel.com>
+Subject: Re: [PATCH] lsm: constify the 'file' parameter in  security_binder_transfer_file()
+References: <ZNelvBCFG7wZt24g@gmail.com>
+In-Reply-To: <ZNelvBCFG7wZt24g@gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/15/23 3:08 AM, Geliang Tang wrote:
-> On Mon, Aug 14, 2023 at 11:23:49PM -0700, Martin KaFai Lau wrote:
->> On 8/11/23 7:54 PM, Geliang Tang wrote:
->>> +static int verify_mptcpify(int server_fd)
->>> +{
->>> +	socklen_t optlen;
->>> +	char cmd[256];
->>> +	int protocol;
->>> +	int err = 0;
->>> +
->>> +	optlen = sizeof(protocol);
->>> +	if (!ASSERT_OK(getsockopt(server_fd, SOL_SOCKET, SO_PROTOCOL, &protocol, &optlen),
->>> +		       "getsockopt(SOL_PROTOCOL)"))
->>> +		return -1;
->>> +
->>> +	if (!ASSERT_EQ(protocol, IPPROTO_MPTCP, "protocol isn't MPTCP"))
->>> +		err++;
->>> +
->>> +	/* Output of nstat:
->>> +	 *
->>> +	 * #kernel
->>> +	 * MPTcpExtMPCapableSYNACKRX       1                  0.0
->>> +	 */
->>> +	snprintf(cmd, sizeof(cmd),
->>> +		 "ip netns exec %s nstat -asz %s | awk '%s' | grep -q '%s'",
->>> +		 NS_TEST, "MPTcpExtMPCapableSYNACKRX",
->>> +		 "NR==1 {next} {print $2}", "1");
->>
->> Is the mp-capable something that the regular mptcp user want to learn from a
->> fd also? Does it have a simpler way like to learn this, eg. getsockopt(fd,
->> SOL_MPTCP, MPTCP_xxx), instead of parsing text output?
+On Aug 12, 2023 Khadija Kamran <kamrankhadijadj@gmail.com> wrote:
 > 
-> Thanks Martin. Yes, you're right. A better one is using getsockopt
-> (MPTCP_INFO) to get the mptcpi_flags, then test the FALLBACK bit to make
-> sure this MPTCP connection didn't fallback. This is, in other word, this
-> MPTCP connection has been established correctly. Something like this:
+> SELinux registers the implementation for the "binder_transfer_file"
+> hook. Looking at the function implementation we observe that the
+> parameter "file" is not changing.
 > 
-> +       optlen = sizeof(info);
-> +       if (!ASSERT_OK(getsockopt(fd, SOL_MPTCP, MPTCP_INFO, &info, &optlen),
-> +                      "getsockopt(MPTCP_INFO)"))
-> +               return -1;
-> +
-> +       if (!ASSERT_FALSE(info.mptcpi_flags & MPTCP_INFO_FLAG_FALLBACK,
-> +                         "MPTCP fallback"))
-> +               err++;
+> Mark the "file" parameter of LSM hook security_binder_transfer_file() as
+> "const" since it will not be changing in the LSM hook.
 > 
-> It's necessary to add this further check after the MPTCP protocol check
-> using getsockopt(SOL_PROTOCOL). Since in some cases, the MPTCP protocol
-> check is not enough. Say, if we change TCP protocol into MPTCP using
-> "cgroup/sock_create", the hook of BPF_CGROUP_RUN_PROG_INET_SOCK in
-> inet_create(), this place is too late to change the protocol. Although
-> sk->sk_protocol is set to MPTCP correctly, and the MPTCP protocol check
-> using getsockopt(SOL_PROTOCOL) will pass. This MPTCP connection will
-> fallback to TCP connection. So this further check is needed.
+> Signed-off-by: Khadija Kamran <kamrankhadijadj@gmail.com>
+> ---
+>  include/linux/lsm_hook_defs.h | 2 +-
+>  include/linux/security.h      | 4 ++--
+>  security/security.c           | 2 +-
+>  security/selinux/hooks.c      | 8 ++++----
+>  4 files changed, 8 insertions(+), 8 deletions(-)
 
-If I read it correctly, it sounds like the "ip netns... nstat.... awk...grep..." 
-can be replaced with the getsockopt(MPTCP_INFO)?  If that is the case, could you 
-respin one more time to do getsockopt(MPTCP_INFO) instead? I would like the test 
-to avoid parsing text output and have less dependency on external binary/library 
-if possible (On top of 'ip', the above uses nstat, awk, grep...). This will make 
-the bpf CI and other developers' environment tricky to maintain. eg. fwiw, 
-although unrelated to the commands used above, my dev environment suddenly like 
-to give this text output when I run "e"grep: "egrep: warning: egrep is 
-obsolescent; using grep -E"
+Looks good to me, merged into lsm/next, thanks!
 
->>
->>> +	if (!ASSERT_OK(system(cmd), "No MPTcpExtMPCapableSYNACKRX found!"))
->>
->>
-
+--
+paul-moore.com
