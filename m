@@ -2,129 +2,142 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA51C0015E
-	for <selinux@archiver.kernel.org>; Tue, 15 Aug 2023 15:10:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14CA3C04FE0
+	for <selinux@archiver.kernel.org>; Tue, 15 Aug 2023 18:59:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237389AbjHOPK1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Aug 2023 11:10:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59354 "EHLO
+        id S239563AbjHOS6c (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Aug 2023 14:58:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237838AbjHOPKU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Aug 2023 11:10:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06FA41733
-        for <selinux@vger.kernel.org>; Tue, 15 Aug 2023 08:09:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1692112171;
+        with ESMTP id S239642AbjHOS6H (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Aug 2023 14:58:07 -0400
+Received: from out-58.mta0.migadu.com (out-58.mta0.migadu.com [IPv6:2001:41d0:1004:224b::3a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4111FFB
+        for <selinux@vger.kernel.org>; Tue, 15 Aug 2023 11:58:01 -0700 (PDT)
+Message-ID: <afdc1b5f-650e-99a6-7fe8-ccd6463066f9@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+        t=1692125880;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ycRQTp8KxzcHecAMFhdZQVaqV+raTcW9mCvyhuO+mgU=;
-        b=YFH8INIEycai5/7SpiQR3xZUJAJPc5vOJEafZdbjg0ibp3ezSdpZ7fLbSbfJZ6u3OZiQjj
-        T31kBLx7rsntb2mKH85/DlCZjnQgzjNe571b12x1e59Bu7MbLP1mXMiW3pN2aixm84tRdr
-        Mgm1IgmkfcCoFretM2cj6doVmr08UOg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-513-1H5ZE346PK-3nJv7OTCCSg-1; Tue, 15 Aug 2023 11:09:29 -0400
-X-MC-Unique: 1H5ZE346PK-3nJv7OTCCSg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BE859101AA63;
-        Tue, 15 Aug 2023 15:09:28 +0000 (UTC)
-Received: from localhost (unknown [10.45.226.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7DE1440D2839;
-        Tue, 15 Aug 2023 15:09:28 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-Cc:     dburgener@linux.microsoft.com, James Carter <jwcart2@gmail.com>
-Subject: Re: [PATCH 0/9 v4] Add CIL Deny Rule
-In-Reply-To: <20230809210157.112275-1-jwcart2@gmail.com>
-References: <20230809210157.112275-1-jwcart2@gmail.com>
-Date:   Tue, 15 Aug 2023 17:09:27 +0200
-Message-ID: <87zg2se40o.fsf@redhat.com>
+        bh=I5DcgThCjjtE1+nYureWow+fA/SCBcwrGd6zc9WACKM=;
+        b=rSvIj7fRML9vmcrA9nhPpNeVu4VEXDPVQZGAKxuORdlmijW7hssGuyZy9lT+z9uiFzAG5p
+        89liqVk4ra5EJjydxE7yrMUDLiQ1MOXke6kbk+6Ajwkeg7Bejl7HC+Akd7JykIlbGd/GM7
+        5tWVZG8W0DWS9XWMzfXR98ebD5W3PWE=
+Date:   Tue, 15 Aug 2023 11:57:52 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Subject: Re: [PATCH mptcp-next v13 4/4] selftests/bpf: Add mptcpify test
+To:     Geliang Tang <geliang.tang@suse.com>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Brendan Jackman <jackmanb@chromium.org>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Mat Martineau <martineau@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
+        Simon Horman <horms@kernel.org>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, mptcp@lists.linux.dev,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+References: <cover.1691808484.git.geliang.tang@suse.com>
+ <15a618b03f65177166adf2850d4159cd4b77dfb1.1691808484.git.geliang.tang@suse.com>
+ <00809f4a-e7ca-bf53-7824-e22791ee6738@linux.dev>
+ <20230815100816.GA24858@bogon>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From:   Martin KaFai Lau <martin.lau@linux.dev>
+In-Reply-To: <20230815100816.GA24858@bogon>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-James Carter <jwcart2@gmail.com> writes:
+On 8/15/23 3:08 AM, Geliang Tang wrote:
+> On Mon, Aug 14, 2023 at 11:23:49PM -0700, Martin KaFai Lau wrote:
+>> On 8/11/23 7:54 PM, Geliang Tang wrote:
+>>> +static int verify_mptcpify(int server_fd)
+>>> +{
+>>> +	socklen_t optlen;
+>>> +	char cmd[256];
+>>> +	int protocol;
+>>> +	int err = 0;
+>>> +
+>>> +	optlen = sizeof(protocol);
+>>> +	if (!ASSERT_OK(getsockopt(server_fd, SOL_SOCKET, SO_PROTOCOL, &protocol, &optlen),
+>>> +		       "getsockopt(SOL_PROTOCOL)"))
+>>> +		return -1;
+>>> +
+>>> +	if (!ASSERT_EQ(protocol, IPPROTO_MPTCP, "protocol isn't MPTCP"))
+>>> +		err++;
+>>> +
+>>> +	/* Output of nstat:
+>>> +	 *
+>>> +	 * #kernel
+>>> +	 * MPTcpExtMPCapableSYNACKRX       1                  0.0
+>>> +	 */
+>>> +	snprintf(cmd, sizeof(cmd),
+>>> +		 "ip netns exec %s nstat -asz %s | awk '%s' | grep -q '%s'",
+>>> +		 NS_TEST, "MPTcpExtMPCapableSYNACKRX",
+>>> +		 "NR==1 {next} {print $2}", "1");
+>>
+>> Is the mp-capable something that the regular mptcp user want to learn from a
+>> fd also? Does it have a simpler way like to learn this, eg. getsockopt(fd,
+>> SOL_MPTCP, MPTCP_xxx), instead of parsing text output?
+> 
+> Thanks Martin. Yes, you're right. A better one is using getsockopt
+> (MPTCP_INFO) to get the mptcpi_flags, then test the FALLBACK bit to make
+> sure this MPTCP connection didn't fallback. This is, in other word, this
+> MPTCP connection has been established correctly. Something like this:
+> 
+> +       optlen = sizeof(info);
+> +       if (!ASSERT_OK(getsockopt(fd, SOL_MPTCP, MPTCP_INFO, &info, &optlen),
+> +                      "getsockopt(MPTCP_INFO)"))
+> +               return -1;
+> +
+> +       if (!ASSERT_FALSE(info.mptcpi_flags & MPTCP_INFO_FLAG_FALLBACK,
+> +                         "MPTCP fallback"))
+> +               err++;
+> 
+> It's necessary to add this further check after the MPTCP protocol check
+> using getsockopt(SOL_PROTOCOL). Since in some cases, the MPTCP protocol
+> check is not enough. Say, if we change TCP protocol into MPTCP using
+> "cgroup/sock_create", the hook of BPF_CGROUP_RUN_PROG_INET_SOCK in
+> inet_create(), this place is too late to change the protocol. Although
+> sk->sk_protocol is set to MPTCP correctly, and the MPTCP protocol check
+> using getsockopt(SOL_PROTOCOL) will pass. This MPTCP connection will
+> fallback to TCP connection. So this further check is needed.
 
-> This patch series depends on the "Add support for notself and other to
-> CIL" patch series from August 9th
->
-> These patches add a deny rule to CIL. Deny rules will be processed after
-> everything except for neverallow rules. Unlike neverallow rules, they
-> remove the permissions in the deny rule rather than reporting an error.
->
-> See the individual patches for an explanation of what they do.
->
-> Patches 1-8 are unchanged from v3, see:
-> https://lore.kernel.org/selinux/20230413193445.588395-1-jwcart2@gmail.com/
->
-> Previously, patch 9, as Daniel Burgener noted, did not do what it said it
-> was going to do. Now it does.
+If I read it correctly, it sounds like the "ip netns... nstat.... awk...grep..." 
+can be replaced with the getsockopt(MPTCP_INFO)?  If that is the case, could you 
+respin one more time to do getsockopt(MPTCP_INFO) instead? I would like the test 
+to avoid parsing text output and have less dependency on external binary/library 
+if possible (On top of 'ip', the above uses nstat, awk, grep...). This will make 
+the bpf CI and other developers' environment tricky to maintain. eg. fwiw, 
+although unrelated to the commands used above, my dev environment suddenly like 
+to give this text output when I run "e"grep: "egrep: warning: egrep is 
+obsolescent; using grep -E"
 
-I've pushed all 16 into
-https://github.com/bachradsusi/SELinuxProject-selinux/commits/notself-other-deny
-and I'm building it in my COPR repo -
-https://copr.fedorainfracloud.org/coprs/plautrba/selinux-patchwork/builds/
-
-I've already run some tests and it looks good.
-
-For all 16 patches - together with notself and other serie:
-
-Acked-by: Petr Lautrbach <lautrbach@redhat.com>
-
-Thanks!
-
-
-
-> James Carter (9):
->   libsepol/cil: Parse and add deny rule to AST, but do not process
->   libsepol/cil: Add cil_list_is_empty macro
->   libsepol/cil: Add cil_tree_node_remove function
->   libsepol/cil: Process deny rules
->   libsepol/cil: Add cil_write_post_ast function
->   libsepol: Export the cil_write_post_ast function
->   secilc/secil2tree: Add option to write CIL AST after post processing
->   secilc/test: Add deny rule tests
->   secilc/docs: Add deny rule to CIL documentation
->
->  libsepol/cil/include/cil/cil.h         |    1 +
->  libsepol/cil/src/cil.c                 |   68 ++
->  libsepol/cil/src/cil_build_ast.c       |   56 +
->  libsepol/cil/src/cil_build_ast.h       |    2 +
->  libsepol/cil/src/cil_copy_ast.c        |   19 +
->  libsepol/cil/src/cil_copy_ast.h        |    1 +
->  libsepol/cil/src/cil_deny.c            | 1413 ++++++++++++++++++++++++
->  libsepol/cil/src/cil_deny.h            |   36 +
->  libsepol/cil/src/cil_flavor.h          |    1 +
->  libsepol/cil/src/cil_internal.h        |   10 +
->  libsepol/cil/src/cil_list.h            |    3 +
->  libsepol/cil/src/cil_post.c            |    7 +
->  libsepol/cil/src/cil_reset_ast.c       |    8 +
->  libsepol/cil/src/cil_resolve_ast.c     |   48 +
->  libsepol/cil/src/cil_resolve_ast.h     |    1 +
->  libsepol/cil/src/cil_tree.c            |   35 +
->  libsepol/cil/src/cil_tree.h            |    1 +
->  libsepol/cil/src/cil_verify.c          |    9 +
->  libsepol/cil/src/cil_write_ast.c       |   10 +
->  libsepol/cil/src/cil_write_ast.h       |    1 +
->  libsepol/src/libsepol.map.in           |    5 +
->  secilc/docs/cil_access_vector_rules.md |   41 +-
->  secilc/secil2tree.c                    |    8 +-
->  secilc/test/deny_rule_test1.cil        |  580 ++++++++++
->  secilc/test/deny_rule_test2.cil        |  418 +++++++
->  25 files changed, 2780 insertions(+), 2 deletions(-)
->  create mode 100644 libsepol/cil/src/cil_deny.c
->  create mode 100644 libsepol/cil/src/cil_deny.h
->  create mode 100644 secilc/test/deny_rule_test1.cil
->  create mode 100644 secilc/test/deny_rule_test2.cil
->
-> -- 
-> 2.41.0
+>>
+>>> +	if (!ASSERT_OK(system(cmd), "No MPTcpExtMPCapableSYNACKRX found!"))
+>>
+>>
 
