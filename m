@@ -2,58 +2,62 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE677C001B0
-	for <selinux@archiver.kernel.org>; Wed, 16 Aug 2023 12:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEBBDC001B0
+	for <selinux@archiver.kernel.org>; Wed, 16 Aug 2023 12:39:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244571AbjHPMjN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 16 Aug 2023 08:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
+        id S244924AbjHPMjO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 16 Aug 2023 08:39:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245334AbjHPMjB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 16 Aug 2023 08:39:01 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62A5E1FF9
-        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:00 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-99bccc9ec02so906283866b.2
-        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:00 -0700 (PDT)
+        with ESMTP id S245337AbjHPMjD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Aug 2023 08:39:03 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40291FF9
+        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:01 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-99c93638322so1341188066b.1
+        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692189539; x=1692794339;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=/+eEK6P0Emorw5bqNn4hrxlxmAnnitBogOhVrqsDH/0=;
-        b=gZb+rEx384h0w+LO4arkODmSgek3G+SYKm/uYi13hflKlZU1tu43gGRDpDB08py0ba
-         MG4dqMx5yEbBnnhCniEysDJwoqiMCvGZAIRU6a4gZvwPuqrILm9azN8keXte62hxxlwr
-         R1aX/NvAN9XymTxvaCMaIDv0VaG2SqCNdNofXimup2UD3LnxvmQwwRRMdchdDZa9d3vZ
-         cu856g81B4eh60ZfPXc/m3XH3djyaa0ZiBNCNl9sxNk19cJXeOqNKkceUHgGiK1RAc8L
-         VRygLYNiswZ4e297zcNX+RdXAArTFXHhazOQ+qFgyIJlu6/HsjmWmYAxjR5ZVm4jz2o7
-         shhw==
+        d=googlemail.com; s=20221208; t=1692189540; x=1692794340;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zV8Nj7OSIjTcqPOry4WQD9ptaRYnPm3zWW0w3f0QsoU=;
+        b=gx99UklzAc9ZyYY758iJwiH2C7+ngOGjDPfkIGlUXMi7soIMj+t1/YjG5iQ21XOgB+
+         3vTcYKa3dPsuibDdXhfFmqvFw+AEGXpJ5l6fqdEaBQilnmPEKYiAvB08yUYwkdx7zgqd
+         eW1WCjb/sQ9qv6KGR9Sb5j/2DO/dS1OQfzHQ+7UyCPYMkgzsoT8wVgibi1GTipMXLLMR
+         6kQ9M9XlagED9lT1xUvqSfHe7vQL5fAO8NsDMujCErmvUhDSkBWA9MBMHQxH5htSvJzT
+         siFXU00/8VI8dcNDTCwYDOs4arvoAkpruxIP5Dqre+BZDLO/gDph3ZqqflhL7WOGa9zy
+         Fc8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692189539; x=1692794339;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/+eEK6P0Emorw5bqNn4hrxlxmAnnitBogOhVrqsDH/0=;
-        b=NziHudhV3glfqWBVN5Pteqp0X9eKXFb1JgU7MAb3FWCs+JJixrgxka4O2woa7M+XcF
-         7l8l57Mlo4PQ5XERFcLM0oAtwCrJvHm5tk+sxqAaJcjWUneNqNKAXjyjjqFl4OupSTLL
-         bHIyRpXnfFszfOBonrEU6Eou/KD5RouhQGoDr/+VzaH3lDSJIgm6Mr9hdmWNfMNo0Giu
-         nkCmcmxc25lKTgXdHd663V5hZo+mUN73i2nT+I/XQA7GW2Zy8XeiL0mXUOnwL2MQnx5Q
-         rBrIbbGfjQPkwR7ONR92yo/21Udy5YDEupFjhNnyz0Kz2mTe05ZX8XEEkcwivcBTUk9G
-         ZmCQ==
-X-Gm-Message-State: AOJu0YwRsTLMI/q1M6ePlCUrSz85s+o4KGZmmeIapQubGWTMeU/USMI0
-        PVhgvvGL70m0cE1rQ7tf58TUY4LVKKQLtGSn
-X-Google-Smtp-Source: AGHT+IESHjQVDC6Prx/A/1FOClkhgAgWc2VmUEg17/5OSIFzQDTacoeJ7rh3SJ1qaZ3olXCIeyzLTA==
-X-Received: by 2002:a17:906:cc18:b0:99c:bb4d:f5a1 with SMTP id ml24-20020a170906cc1800b0099cbb4df5a1mr1195412ejb.4.1692189538666;
-        Wed, 16 Aug 2023 05:38:58 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1692189540; x=1692794340;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zV8Nj7OSIjTcqPOry4WQD9ptaRYnPm3zWW0w3f0QsoU=;
+        b=Ituel3iTfzOmdWufOHyZzzm3YE6EJYlU9wQFy+3RMIFe4vfQeTzC3MRA3eo2pR+y0b
+         A2m/VJZ52BV54ngvc3X/V58w53KSE+cAsPRLw2eSijDUGDBbGfD1jYWI9LtQKFPgmd7l
+         RLTglnWPZiXaRxAUDSRwyLgvYSRGo8jeKzFef13ToOpnJ5eG8LT7n3VA0tT9ae5dbBV5
+         vRJCWsdJCPGpuGtAco8Bg0MGnp1QgmH4aF4vpYkn4CFvwfkUoyGuubBUUofOZH8wb7I2
+         ZAJj8cRo1PJf0uULTKpk7ltrhetSEvOSD67LrgsxwShcdKReFCKlQ423QftzWNZqSbzl
+         jryw==
+X-Gm-Message-State: AOJu0YwtarmAD5CohLGwJ6zNcLOjFy1kOH7z5lELNee/PvhFLfZxuGHl
+        q26Cy8/XytVOSP2LYNj/G1z6B9t520R6ATwb
+X-Google-Smtp-Source: AGHT+IFf71fVW5Q1zN98d5qFabGHYfj/Ygs1RejWhv6F6/NCtqzF66G4h1sh4GcSdThsyP8BE1bjDA==
+X-Received: by 2002:a17:906:5a46:b0:997:e7d0:e26d with SMTP id my6-20020a1709065a4600b00997e7d0e26dmr2140499ejc.4.1692189540242;
+        Wed, 16 Aug 2023 05:39:00 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-001-094-128.77.1.pool.telefonica.de. [77.1.94.128])
-        by smtp.gmail.com with ESMTPSA id l27-20020a170906415b00b009886aaeb722sm8434075ejk.137.2023.08.16.05.38.58
+        by smtp.gmail.com with ESMTPSA id l27-20020a170906415b00b009886aaeb722sm8434075ejk.137.2023.08.16.05.38.59
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Aug 2023 05:38:58 -0700 (PDT)
+        Wed, 16 Aug 2023 05:38:59 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/5] libsepol: include length squared in hashtab_hash_eval()
-Date:   Wed, 16 Aug 2023 14:38:41 +0200
-Message-Id: <20230816123845.80171-1-cgzones@googlemail.com>
+Subject: [PATCH 4/5] libselinux: use DJB2a string hash function
+Date:   Wed, 16 Aug 2023 14:38:44 +0200
+Message-Id: <20230816123845.80171-4-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230816123845.80171-1-cgzones@googlemail.com>
+References: <20230816123845.80171-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,47 +65,47 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Include the chain length squared sum as metric in the debug function
-hashtab_hash_eval(), adopted from the kernel avtab.
+The hash table implementation uses `& (SIDTAB_SIZE - 1)` to truncate
+generated hashes to the number of buckets.  This operation is equal to
+`% SIDTAB_SIZE` if and only if the size is a power of two (which seems
+to be always the case).  One property of the binary and with a power of
+two (and probably a small one <=2048) is all higher bits are discarded.
+Thus a hash function is needed with a good avalanche effect, which the
+current one is not.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/hashtab.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ libselinux/src/avc_sidtab.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
-index b1a9bdc2..2af3a9bf 100644
---- a/libsepol/src/hashtab.c
-+++ b/libsepol/src/hashtab.c
-@@ -243,11 +243,12 @@ int hashtab_map(hashtab_t h,
- void hashtab_hash_eval(hashtab_t h, const char *tag)
+diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
+index f179d855..e396a938 100644
+--- a/libselinux/src/avc_sidtab.c
++++ b/libselinux/src/avc_sidtab.c
+@@ -15,16 +15,13 @@
+ 
+ static inline unsigned sidtab_hash(const char * key)
  {
- 	unsigned int i;
--	size_t chain_len, slots_used, max_chain_len;
-+	size_t chain_len, slots_used, max_chain_len, chain2_len_sum;
- 	hashtab_ptr_t cur;
- 
- 	slots_used = 0;
- 	max_chain_len = 0;
-+	chain2_len_sum = 0;
- 	for (i = 0; i < h->size; i++) {
- 		cur = h->htable[i];
- 		if (cur) {
-@@ -260,10 +261,12 @@ void hashtab_hash_eval(hashtab_t h, const char *tag)
- 
- 			if (chain_len > max_chain_len)
- 				max_chain_len = chain_len;
-+			chain2_len_sum += chain_len * chain_len;
- 		}
- 	}
- 
- 	printf
--	    ("%s:  %d entries and %zu/%d buckets used, longest chain length %zu\n",
--	     tag, h->nel, slots_used, h->size, max_chain_len);
-+	    ("%s:  %d entries and %zu/%d buckets used, longest chain length %zu, chain length^2 %zu, normalized chain length^2 %.2f\n",
-+	     tag, h->nel, slots_used, h->size, max_chain_len, chain2_len_sum,
-+	     chain2_len_sum ? (float)chain2_len_sum / slots_used : 0);
+-	const char *p;
+-	unsigned int size;
+-	unsigned int val;
+-
+-	val = 0;
+-	size = strlen(key);
+-	for (p = key; (unsigned int)(p - key) < size; p++)
+-		val =
+-		    (val << 4 | (val >> (8 * sizeof(unsigned int) - 4))) ^ (*p);
+-	return val & (SIDTAB_SIZE - 1);
++	unsigned int hash = 5381;
++	unsigned char c;
++
++	while ((c = *(unsigned const char *)key++))
++		hash = ((hash << 5) + hash) ^ c;
++
++	return hash & (SIDTAB_SIZE - 1);
  }
+ 
+ int sidtab_init(struct sidtab *s)
 -- 
 2.40.1
 
