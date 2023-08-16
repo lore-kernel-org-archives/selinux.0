@@ -2,180 +2,321 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6799AC04E69
-	for <selinux@archiver.kernel.org>; Wed, 16 Aug 2023 15:02:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E2B9C001E0
+	for <selinux@archiver.kernel.org>; Wed, 16 Aug 2023 17:38:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235266AbjHPPBr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 16 Aug 2023 11:01:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
+        id S1344525AbjHPRiT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 16 Aug 2023 13:38:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343941AbjHPPBW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 16 Aug 2023 11:01:22 -0400
-Received: from mail-ua1-x930.google.com (mail-ua1-x930.google.com [IPv6:2607:f8b0:4864:20::930])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9561B272D;
-        Wed, 16 Aug 2023 08:01:02 -0700 (PDT)
-Received: by mail-ua1-x930.google.com with SMTP id a1e0cc1a2514c-7919342c456so1303299241.2;
-        Wed, 16 Aug 2023 08:01:02 -0700 (PDT)
+        with ESMTP id S1345260AbjHPRh5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Aug 2023 13:37:57 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC73270D
+        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 10:37:56 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id 38308e7fff4ca-2b9b5ee9c5aso106310181fa.1
+        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 10:37:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692198061; x=1692802861;
+        d=gmail.com; s=20221208; t=1692207474; x=1692812274;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/cIDEmBHb5D43ntWAMcN2URraJwh91Y1MhrwxbNqNiE=;
-        b=MeCnBMstGuBjHVspzdxShXREwMHXDQExuppwbeoPNkvcg0EEuQwd0KdS1m9c1FNxEf
-         9sdRudXyWGovYGrC6QhhbbFiWwVgoB02LdA6A0sbAeky5NkNeU8Gi+lRI2+awBFqzuwc
-         CxKvoGSluvCsJKjsn6u0SLhjukpESlPT1tA4YYuv1QLP4IhzUCj9XsUUrw+cdHtrA61F
-         koeDoY71tDXIVcWF4JqfC+/Av3krQFY6Yb6iT3GuEk29zqgwKHYMIo4eDOb5CsySWNec
-         W595orqEExwHsRb+b+cWKZ2bQssklZ3oWJkAV9eiYk7dE0xScAkhFT1yoghRjtPTt6Zq
-         cZjw==
+        bh=kFvtyjrOEyVb16bl2BjhJSausGUe31/ifsfR5hQ+qAk=;
+        b=sWFVOXoK2ZV+0TeFOzOcqPJxIb/y6btMd/5hasapUbXG7xDI1zY5lBYDY0dPnjVlOE
+         eh6fqWrpJ5b292kZuwEfkRFu74vYJqeoZqNomPQlhws0dxulIFPrbZjD9E1tm29rPL1A
+         PvOH8zBTZVQAog98UuMauuad4eiNb+/J674vr6khA1xJMeO3EVWTR5Mv9OVMfqUyw/LI
+         puHrxDzqUmX1ySnI+Uax+6lb0eAhnPj2/s3k98r+a3h6M9Kz/p6kwm0+1UhMVP3XGA6i
+         vp6Nce9s6cN+Q9dUWvIixycGFT4uaRcZECUPRkTwNIXaAtkmJyJaeB+NdJulbQ1TkEHy
+         3igQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692198061; x=1692802861;
+        d=1e100.net; s=20221208; t=1692207474; x=1692812274;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/cIDEmBHb5D43ntWAMcN2URraJwh91Y1MhrwxbNqNiE=;
-        b=fGe3c8OEMa2IGtf9uu2bmAe/J3teEWJsTNz6FdOMve2dfy4crcyw5NArix1SLWCnDE
-         ISLHz/PhcSFsUxuWP2a5NRyLwxiw5QociFRf4BpOXpAQDsf4sCuPXosSW3VVxG3LsbqA
-         fRmz4PhUKm5CzrBM3Yvx7Yq+skF+y0GQqa3F74TqmOvLZpZQOFP0xXlVQ2NQSfyVYmTW
-         bhwMmdPnkFYXA/WcceQDJMfXAIRiqMQiZJyflP21dL79N9/RmkCIuE1LHk8R8YV1kY8g
-         UcQwttYvvVYW9SEtOmkrrrxq0oD2E6hzukzBJ5hXB8rrj0ulK4gbagVw7d20ZrEhmjBA
-         hRWA==
-X-Gm-Message-State: AOJu0Yzt91YXcYwHEjStCEbdDprIy/M0ekdKpzXx5lY2Y5oyPEd+TpUv
-        xmUdpZesDR0EjkGzIyB9TEDPUMdtOh9k/gPFR4Q=
-X-Google-Smtp-Source: AGHT+IHNrPpwZVvuCPz3VPJEDsWJ1apzOlcCESeV+8PTH/Ei7Gtk2/UEXl+hgyA1xmM7bqs68UHu9+azk/U054twS0U=
-X-Received: by 2002:a05:6102:201:b0:443:6392:71ea with SMTP id
- z1-20020a056102020100b00443639271eamr1176992vsp.34.1692198061483; Wed, 16 Aug
- 2023 08:01:01 -0700 (PDT)
+        bh=kFvtyjrOEyVb16bl2BjhJSausGUe31/ifsfR5hQ+qAk=;
+        b=WSI1iXsNSmKqR1XsgporY9CMwin1CcimITtlbZvqjlxArQZXHELbXrefwl+HnzgPlC
+         Q7e2g1hZAexq4x6u1g3qlxvn7TxUj91KqUXrqI8y3sXNdysy9PCNMI5WJpibMMg+wtoN
+         M3ffjq2UMjlD8jsdqTJXHbBvY/2y83feu/FJUZTAqU2xImBQW7kkwYYr8ahxWCgaSQhU
+         +4u40Of9pT5A8sPx1Quf6X6crBhZmEndD6Vii9LnqZzQB/et8bEl8gtyIO49qKW2wMct
+         OzvkHbVcVXRtepWSty/rYrUU+K84tWKgPh46To0JP/mDVGMQj00rrKchAkUYm60kQoy+
+         oXEQ==
+X-Gm-Message-State: AOJu0Yxf4/NamS1bsTinTKAkw+W82PDfUnGnx8ovfg/uLlwKuMGTaHNs
+        nnwXh4u1dXJdsiZJLm+G+qd5TkKGCa+LfrFiKiLq/aPm
+X-Google-Smtp-Source: AGHT+IFQFUnh8ERBoQryoWbm3K2lVTYbMvVLA2DBE/8pvJzzlgFqesyiSjRrnR++ypSWAGLgL/1qQ0dsAKeOdquiLrE=
+X-Received: by 2002:a2e:9d45:0:b0:2bb:8bc1:db55 with SMTP id
+ y5-20020a2e9d45000000b002bb8bc1db55mr1993518ljj.52.1692207473853; Wed, 16 Aug
+ 2023 10:37:53 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230807171143.208481-1-cgzones@googlemail.com> <67cee6245e2895e81a0177c4c1ed01ba.paul@paul-moore.com>
-In-Reply-To: <67cee6245e2895e81a0177c4c1ed01ba.paul@paul-moore.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Wed, 16 Aug 2023 17:00:50 +0200
-Message-ID: <CAJ2a_DdLR40CB6Ua5cNjYhtexNmGkzQRsVrJn+dhVaZO-aVKsA@mail.gmail.com>
-Subject: Re: [PATCH v3 2/7] selinux: use u32 as bit type in ebitmap code
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org
+References: <20230803162245.302488-1-cgzones@googlemail.com> <CAP+JOzSxiGJ2vWC2CHZgKcRXUC0x=LP3OrEHt9O4tLptd1im+A@mail.gmail.com>
+In-Reply-To: <CAP+JOzSxiGJ2vWC2CHZgKcRXUC0x=LP3OrEHt9O4tLptd1im+A@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 16 Aug 2023 13:37:42 -0400
+Message-ID: <CAP+JOzQdv_6Cp=UO5fs2k9kZ9k5xO5=pgj5aO7cMS8R1rX4aZA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: ebitmap: avoid branches for iteration
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 10 Aug 2023 at 01:07, Paul Moore <paul@paul-moore.com> wrote:
+On Tue, Aug 8, 2023 at 2:20=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> On Aug  7, 2023 =3D?UTF-8?q?Christian=3D20G=3DC3=3DB6ttsche?=3D <cgzones@=
-googlemail.com> wrote:
+> On Thu, Aug 3, 2023 at 12:36=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > The extensible bitmap supports bit positions up to U32_MAX due to the
-> > type of the member highbit being u32.  Use u32 consistently as the type
-> > for bit positions to announce to callers what range of values is
-> > supported.
+> > Otherwise Linus might think we don't understand pointers.
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > v3:
-> >   - revert type change of unrelated iter variable
-> >   - use U32_MAX instead of (u32)-1
-> > v2: avoid declarations in init-clauses of for loops
-> > ---
-> >  security/selinux/ss/ebitmap.c | 29 +++++++++++++++--------------
-> >  security/selinux/ss/ebitmap.h | 32 ++++++++++++++++----------------
-> >  2 files changed, 31 insertions(+), 30 deletions(-)
 >
-> ...
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
-> > diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitma=
-p.c
-> > index 77875ad355f7..a313e633aa8e 100644
-> > --- a/security/selinux/ss/ebitmap.c
-> > +++ b/security/selinux/ss/ebitmap.c
-> > @@ -471,18 +472,18 @@ int ebitmap_read(struct ebitmap *e, void *fp)
-> >  int ebitmap_write(const struct ebitmap *e, void *fp)
+
+Merged.
+Thanks,
+Jim
+
+> > ---
+> >  libsepol/src/ebitmap.c | 83 +++++++++++++++++++-----------------------
+> >  1 file changed, 37 insertions(+), 46 deletions(-)
+> >
+> > diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+> > index 3ec1042f..f166b7d6 100644
+> > --- a/libsepol/src/ebitmap.c
+> > +++ b/libsepol/src/ebitmap.c
+> > @@ -18,13 +18,13 @@
+> >  int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t =
+* e2)
 > >  {
-> >       struct ebitmap_node *n;
-> > -     u32 count;
-> > +     u32 bit, count, last_bit, last_startbit;
-> >       __le32 buf[3];
-> >       u64 map;
-> > -     int bit, last_bit, last_startbit, rc;
-> > +     int rc;
+> >         const ebitmap_node_t *n1, *n2;
+> > -       ebitmap_node_t *new, *prev;
+> > +       ebitmap_node_t *new =3D NULL, **prev;
 > >
-> >       buf[0] =3D cpu_to_le32(BITS_PER_U64);
+> >         ebitmap_init(dst);
 > >
-> >       count =3D 0;
-> >       last_bit =3D 0;
-> > -     last_startbit =3D -1;
-> > +     last_startbit =3D U32_MAX;
-> >       ebitmap_for_each_positive_bit(e, n, bit) {
-> > -             if (rounddown(bit, (int)BITS_PER_U64) > last_startbit) {
-> > +             if (last_startbit =3D=3D U32_MAX || rounddown(bit, BITS_P=
-ER_U64) > last_startbit) {
->
-> I'm getting worried about what might happen if the ebitmap starts to
-> contain bits near the end of the range, e.g. U32_MAX.  When lastbit
-> was signed this was a non-issue as we could set it to a negative
-> value (-1) and not worry about it, although the maximum value
-> difference between the signed and unsigned types would eventually be
-> a problem.
-
-For the maximum bit of U32_MAX `rounddown(bit, BITS_PER_U64)` will
-return U32_MAX-63, so it does not collide with the special
-last_startbit value of U32_MAX.
-
-> While looking closer at this loop, I'm now wondering if we shouldn't
-> just rewrite the logic a bit to simplify things, and possibly speed
-> it up a small amount.  How about something like this:
->
->   count =3D 1;
->   n =3D e->node;
->   while (n->next) {
->     count++;
->     n =3D n->next;
->   }
->   last_startbit =3D n->startbit;
->   last_bit =3D n->startbit + find_last_bit(n->maps, EBITMAP_SIZE);
->
-> You should probably verify that there isn't something stupid like an
-> off-by-one bug in the code above, but I think it is a lot cleaner
-> than what we currently have and should resolve a lot of the type/math
-> issues.
-
-I think this loop does not work, since in the binary format the map
-size is 64 bits (and thus we need to calculate the number of 64bit
-nodes), but the kernel supports (depending on the architecture) 32bit
-maps for the in-memory representation.
-So the number of in-memory nodes might not be the same as the number
-of nodes in binary format.
-
-p.s.:
-
-Looking at the patch again, `rounddown(bit, BITS_PER_U64)` is computed
-twice and last_bit can probably be dropped in favor of e->highbit.
-
->
-> >                       count++;
-> >                       last_startbit =3D rounddown(bit, BITS_PER_U64);
-> >               }
-> > @@ -496,9 +497,9 @@ int ebitmap_write(const struct ebitmap *e, void *fp=
-)
-> >               return rc;
+> > +       prev =3D &dst->node;
+> >         n1 =3D e1->node;
+> >         n2 =3D e2->node;
+> > -       prev =3D 0;
+> >         while (n1 || n2) {
+> >                 new =3D (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t=
+));
+> >                 if (!new) {
+> > @@ -46,12 +46,10 @@ int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e=
+1, const ebitmap_t * e2)
+> >                         n2 =3D n2->next;
+> >                 }
 > >
-> >       map =3D 0;
-> > -     last_startbit =3D INT_MIN;
-> > +     last_startbit =3D U32_MAX;
-> >       ebitmap_for_each_positive_bit(e, n, bit) {
-> > -             if (rounddown(bit, (int)BITS_PER_U64) > last_startbit) {
-> > +             if (last_startbit =3D=3D U32_MAX || rounddown(bit, BITS_P=
-ER_U64) > last_startbit) {
-> >                       __le64 buf64[1];
->
-> Similar to the above, I think we can probably rewrite this to simply
-> walk the ebitmap nodes and write them out.  Using
-> ebitmap_for_each_positive_bit() seems overly complicated to me,
-> although I may be missing something important and obvious ...
->
-> --
-> paul-moore.com
+> > -               new->next =3D 0;
+> > -               if (prev)
+> > -                       prev->next =3D new;
+> > -               else
+> > -                       dst->node =3D new;
+> > -               prev =3D new;
+> > +               new->next =3D NULL;
+> > +
+> > +               *prev =3D new;
+> > +               prev =3D &new->next;
+> >         }
+> >
+> >         dst->highbit =3D (e1->highbit > e2->highbit) ? e1->highbit : e2=
+->highbit;
+> > @@ -74,10 +72,11 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t =
+* e1)
+> >  int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *=
+e2)
+> >  {
+> >         const ebitmap_node_t *n1, *n2;
+> > -       ebitmap_node_t *new, *prev =3D NULL;
+> > +       ebitmap_node_t *new =3D NULL, **prev;
+> >
+> >         ebitmap_init(dst);
+> >
+> > +       prev =3D &dst->node;
+> >         n1 =3D e1->node;
+> >         n2 =3D e2->node;
+> >         while (n1 && n2) {
+> > @@ -92,11 +91,8 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1,=
+ const ebitmap_t *e2)
+> >                                 new->map =3D n1->map & n2->map;
+> >                                 new->next =3D NULL;
+> >
+> > -                               if (prev)
+> > -                                       prev->next =3D new;
+> > -                               else
+> > -                                       dst->node =3D new;
+> > -                               prev =3D new;
+> > +                               *prev =3D new;
+> > +                               prev =3D &new->next;
+> >                         }
+> >
+> >                         n1 =3D n1->next;
+> > @@ -108,8 +104,8 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *e1=
+, const ebitmap_t *e2)
+> >                 }
+> >         }
+> >
+> > -       if (prev)
+> > -               dst->highbit =3D prev->startbit + MAPSIZE;
+> > +       if (new)
+> > +               dst->highbit =3D new->startbit + MAPSIZE;
+> >
+> >         return 0;
+> >  }
+> > @@ -117,12 +113,13 @@ int ebitmap_and(ebitmap_t *dst, const ebitmap_t *=
+e1, const ebitmap_t *e2)
+> >  int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *e1, const ebitmap_t *=
+e2)
+> >  {
+> >         const ebitmap_node_t *n1, *n2;
+> > -       ebitmap_node_t *new, *prev =3D NULL;
+> > +       ebitmap_node_t *new =3D NULL, **prev;
+> >         uint32_t startbit;
+> >         MAPTYPE map;
+> >
+> >         ebitmap_init(dst);
+> >
+> > +       prev =3D &dst->node;
+> >         n1 =3D e1->node;
+> >         n2 =3D e2->node;
+> >         while (n1 || n2) {
+> > @@ -150,16 +147,14 @@ int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *=
+e1, const ebitmap_t *e2)
+> >                         new->startbit =3D startbit;
+> >                         new->map =3D map;
+> >                         new->next =3D NULL;
+> > -                       if (prev)
+> > -                               prev->next =3D new;
+> > -                       else
+> > -                               dst->node =3D new;
+> > -                       prev =3D new;
+> > +
+> > +                       *prev =3D new;
+> > +                       prev =3D &new->next;
+> >                 }
+> >         }
+> >
+> > -       if (prev)
+> > -               dst->highbit =3D prev->startbit + MAPSIZE;
+> > +       if (new)
+> > +               dst->highbit =3D new->startbit + MAPSIZE;
+> >
+> >         return 0;
+> >  }
+> > @@ -167,12 +162,13 @@ int ebitmap_xor(ebitmap_t *dst, const ebitmap_t *=
+e1, const ebitmap_t *e2)
+> >  int ebitmap_not(ebitmap_t *dst, const ebitmap_t *e1, unsigned int maxb=
+it)
+> >  {
+> >         const ebitmap_node_t *n;
+> > -       ebitmap_node_t *new, *prev =3D NULL;
+> > +       ebitmap_node_t *new =3D NULL, **prev;
+> >         uint32_t startbit, cur_startbit;
+> >         MAPTYPE map;
+> >
+> >         ebitmap_init(dst);
+> >
+> > +       prev =3D &dst->node;
+> >         n =3D e1->node;
+> >         for (cur_startbit =3D 0; cur_startbit < maxbit; cur_startbit +=
+=3D MAPSIZE) {
+> >                 if (n && n->startbit =3D=3D cur_startbit) {
+> > @@ -199,16 +195,13 @@ int ebitmap_not(ebitmap_t *dst, const ebitmap_t *=
+e1, unsigned int maxbit)
+> >                         new->map =3D map;
+> >                         new->next =3D NULL;
+> >
+> > -                       if (prev)
+> > -                               prev->next =3D new;
+> > -                       else
+> > -                               dst->node =3D new;
+> > -                       prev =3D new;
+> > +                       *prev =3D new;
+> > +                       prev =3D &new->next;
+> >                 }
+> >         }
+> >
+> > -       if (prev)
+> > -               dst->highbit =3D prev->startbit + MAPSIZE;
+> > +       if (new)
+> > +               dst->highbit =3D new->startbit + MAPSIZE;
+> >
+> >         return 0;
+> >  }
+> > @@ -278,11 +271,11 @@ int ebitmap_cmp(const ebitmap_t * e1, const ebitm=
+ap_t * e2)
+> >  int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src)
+> >  {
+> >         const ebitmap_node_t *n;
+> > -       ebitmap_node_t *new, *prev;
+> > +       ebitmap_node_t *new =3D NULL, **prev;
+> >
+> >         ebitmap_init(dst);
+> >         n =3D src->node;
+> > -       prev =3D 0;
+> > +       prev =3D &dst->node;
+> >         while (n) {
+> >                 new =3D (ebitmap_node_t *) malloc(sizeof(ebitmap_node_t=
+));
+> >                 if (!new) {
+> > @@ -291,12 +284,11 @@ int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t =
+* src)
+> >                 }
+> >                 new->startbit =3D n->startbit;
+> >                 new->map =3D n->map;
+> > -               new->next =3D 0;
+> > -               if (prev)
+> > -                       prev->next =3D new;
+> > -               else
+> > -                       dst->node =3D new;
+> > -               prev =3D new;
+> > +               new->next =3D NULL;
+> > +
+> > +               *prev =3D new;
+> > +               prev =3D &new->next;
+> > +
+> >                 n =3D n->next;
+> >         }
+> >
+> > @@ -450,7 +442,7 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit=
+, int value)
+> >
+> >  int ebitmap_init_range(ebitmap_t * e, unsigned int minbit, unsigned in=
+t maxbit)
+> >  {
+> > -       ebitmap_node_t *new, *prev =3D NULL;
+> > +       ebitmap_node_t *new =3D NULL, **prev;
+> >         uint32_t minstartbit =3D minbit & ~(MAPSIZE - 1);
+> >         uint32_t maxstartbit =3D maxbit & ~(MAPSIZE - 1);
+> >         uint32_t minhighbit =3D minstartbit + MAPSIZE;
+> > @@ -466,6 +458,8 @@ int ebitmap_init_range(ebitmap_t * e, unsigned int =
+minbit, unsigned int maxbit)
+> >         if (minhighbit =3D=3D 0 || maxhighbit =3D=3D 0)
+> >                 return -EOVERFLOW;
+> >
+> > +       prev =3D &e->node;
+> > +
+> >         for (startbit =3D minstartbit; startbit <=3D maxstartbit; start=
+bit +=3D MAPSIZE) {
+> >                 new =3D malloc(sizeof(ebitmap_node_t));
+> >                 if (!new)
+> > @@ -485,11 +479,8 @@ int ebitmap_init_range(ebitmap_t * e, unsigned int=
+ minbit, unsigned int maxbit)
+> >                         new->map =3D (mask << (minbit - startbit));
+> >                 }
+> >
+> > -               if (prev)
+> > -                       prev->next =3D new;
+> > -               else
+> > -                       e->node =3D new;
+> > -               prev =3D new;
+> > +               *prev =3D new;
+> > +               prev =3D &new->next;
+> >         }
+> >
+> >         e->highbit =3D maxhighbit;
+> > --
+> > 2.40.1
+> >
