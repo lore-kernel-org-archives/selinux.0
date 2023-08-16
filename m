@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1117FC41513
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 337A6C04FDF
 	for <selinux@archiver.kernel.org>; Wed, 16 Aug 2023 12:39:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244516AbjHPMjO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S245283AbjHPMjO (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 16 Aug 2023 08:39:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35098 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245336AbjHPMjC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 16 Aug 2023 08:39:02 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC9326B1
-        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:01 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-99d90ffed68so857205166b.0
-        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:01 -0700 (PDT)
+        with ESMTP id S245341AbjHPMjE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Aug 2023 08:39:04 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6685E26AD
+        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:02 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id a640c23a62f3a-99c4923195dso878622366b.2
+        for <selinux@vger.kernel.org>; Wed, 16 Aug 2023 05:39:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692189540; x=1692794340;
+        d=googlemail.com; s=20221208; t=1692189541; x=1692794341;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Sg6l6Rhu1p5H5AHYMUEAumZ4eKjnIcBrWpBZ+y3B+wQ=;
-        b=qM6/FgIW8Ig61/yIr9Xg8W5tynjtFCBwvPr6jLEVvGzgoD65R4ghS84HrqRRlNOi6a
-         FWkvdkJogL8Hm9uiPXwhRaflxfKipiXoXLMowLdWlnI+oZVubxegXUU+MUSfDVTfLHhZ
-         OXLU7xEYqg/hJ/Zl02ibVrccZBzr+OtoY4dH1Cez/ldRU/OXwcg7aRrJMCooORIe+Y2L
-         yxLjDry4qVBfNepH7aM+T0NGYnAXpaqf7jVzpsa3O7MuhsRRKzcnEJdTwMQPuvJoQ2zV
-         JeTv/2SYUaS0q92at9q83YuEzymshEsK9vWFxvsqkkmv8M56cH3/ESb00bcJuYhW+hYJ
-         oU7Q==
+        bh=xRKI2CkRVXkPU8ujHaTJKF3+4wx1OlgSghxDrBnixgA=;
+        b=L2lS569m9knaVmLxglzcTUdnSVlncl9RmWQUCK9HWbXchD/OM1h1ktRr9qWDoq+YuC
+         hpS3IWzjhcVmjRApK5sQMWxJY94zRmiJVOmYRS7cnCihYJlgvZBcnWB1dGc7kWKagQX+
+         qh7R1ftajv8WeV1ZoFNFRFOOdbHeyJMwN+uXce6LPB4tmydNvVI8Idigo6jNSFCiAuRx
+         daxKmiu/B9DA6Od5E9zAcf9qFeXJnuDfo9Fvywo1u1VPeFVEOPRYWzM/+/QjoG0rfHvg
+         xWufCBuNw5WTbwTu14ke5bhfSBc7xu/+453Tg0L5nyroOrZ/41X7pLfULyJK1nwyG8GH
+         Debw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692189540; x=1692794340;
+        d=1e100.net; s=20221208; t=1692189541; x=1692794341;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Sg6l6Rhu1p5H5AHYMUEAumZ4eKjnIcBrWpBZ+y3B+wQ=;
-        b=LlFUqp/XqM1zfDCBUOBXyzvli8mItjrkC9M811rubmIUGNDuwZt4rGjduLR+o8ku6g
-         1fF7LlCOfPN6L9KJCCKdPV++QxM7BnfeOLmjZasw6aZM18IZRn2Ejd3yo9XYmC3GkmP7
-         lbVC/iYZB5wJbGfe+DLfAfN7Huk0O4pdSGFqlZyCaEPWyl4OY5tJq4FJT/tJFU2kYgPJ
-         EdOyDCzVLl3AtY0ffyesFER5gz4oOCan7Y5PewzfF4emU9lQUjwnvm/6DSL1tIagSigw
-         e59WIUk6pscvek+YxO5/vK/J92YqM1aqByRfxM+BbAv4bpGFoOOiyeryl8uI2hbHMzuj
-         AP4g==
-X-Gm-Message-State: AOJu0YxazmKX7zRcaPshEK7wH9RVgvsvEaEZwhiD1BHc5Ae5TSNdvF+p
-        h0it+rst5mo8ofPPoncpMQ3i2cThjDFgdMi7
-X-Google-Smtp-Source: AGHT+IEAJFjD8AiI44+LLh8r7dOOjttlnLqzg58a37RUzTMsBc83xOn3lnLvEFqtwbnLMRQz4lqClg==
-X-Received: by 2002:a17:906:519e:b0:99d:decd:3deb with SMTP id y30-20020a170906519e00b0099ddecd3debmr2532114ejk.14.1692189539760;
-        Wed, 16 Aug 2023 05:38:59 -0700 (PDT)
+        bh=xRKI2CkRVXkPU8ujHaTJKF3+4wx1OlgSghxDrBnixgA=;
+        b=GDcblcz5XEo5URW4FI0QrIIq4jixmQK31akyx/S2fO3itqjdOpo4L8kq/tjmVmcM9p
+         0xG0XoNJq7UwN6iNwVM9uYPkLVSv63fEzyWnHbG5HDowpG5cnspJFu17eYqH48l0MsjX
+         /gyALCxPrVo29YCerYKolJSPYldFae6rFW9whm+cq8/CeDihmK2P12nfqngfUhxBeKNJ
+         3MkD452JntOGN3zycrdVXH0k6M8nKJ0CdeKqp27uSbCu0m6/3YR71APmPWTIAboR7ntY
+         O9D2CaVKh8v1MrS3JaKkg3xcsb3etOpcZD5dAEMUo1S0JKLpWoSeC1UbWMVMyFkgs8bO
+         DG1Q==
+X-Gm-Message-State: AOJu0YzCgZeCvuozDBEl7ursqP9I4evqzeYKWFMNHSKZ0dZE6P5hxxrh
+        6gAlr7cQ3FKhIAs2K/oqbMM5U0Q062waQ2ZC
+X-Google-Smtp-Source: AGHT+IHFQX6PLwKaFUaZhVjYMAXgLBBOGJGTL+u/f0TIFTWuxDi3l8LDkc5mxtFjUYpt1X++Esu5Cg==
+X-Received: by 2002:a17:907:784b:b0:99b:dd1d:bc58 with SMTP id lb11-20020a170907784b00b0099bdd1dbc58mr1335170ejc.41.1692189540762;
+        Wed, 16 Aug 2023 05:39:00 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-077-001-094-128.77.1.pool.telefonica.de. [77.1.94.128])
-        by smtp.gmail.com with ESMTPSA id l27-20020a170906415b00b009886aaeb722sm8434075ejk.137.2023.08.16.05.38.59
+        by smtp.gmail.com with ESMTPSA id l27-20020a170906415b00b009886aaeb722sm8434075ejk.137.2023.08.16.05.39.00
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Aug 2023 05:38:59 -0700 (PDT)
+        Wed, 16 Aug 2023 05:39:00 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 3/5] libsepol/cil: use DJB2a string hash function
-Date:   Wed, 16 Aug 2023 14:38:43 +0200
-Message-Id: <20230816123845.80171-3-cgzones@googlemail.com>
+Subject: [PATCH 5/5] newrole: use DJB2a string hash function
+Date:   Wed, 16 Aug 2023 14:38:45 +0200
+Message-Id: <20230816123845.80171-5-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230816123845.80171-1-cgzones@googlemail.com>
 References: <20230816123845.80171-1-cgzones@googlemail.com>
@@ -73,48 +73,39 @@ always the case).  One property of the binary and with a power of two
 Thus a hash function is needed with a good avalanche effect, which the
 current one is not.
 
-Benchmark of building dssp5:
-
-    # Current
-    Time (mean ± σ):      1.347 s ±  0.065 s    [User: 1.207 s, System: 0.138 s]
-    Range (min … max):    1.274 s …  1.436 s    10 runs
-
-    # Patch
-    Time (mean ± σ):      1.336 s ±  0.029 s    [User: 1.195 s, System: 0.140 s]
-    Range (min … max):    1.303 s …  1.376 s    10 runs
-
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/cil/src/cil_strpool.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ policycoreutils/newrole/newrole.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
-index e32ee4e9..beea5c9d 100644
---- a/libsepol/cil/src/cil_strpool.c
-+++ b/libsepol/cil/src/cil_strpool.c
-@@ -47,16 +47,13 @@ static hashtab_t cil_strpool_tab = NULL;
+diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
+index d9efa68a..5a1a1129 100644
+--- a/policycoreutils/newrole/newrole.c
++++ b/policycoreutils/newrole/newrole.c
+@@ -229,16 +229,13 @@ static int free_hashtab_entry(hashtab_key_t key, hashtab_datum_t d,
  
- static unsigned int cil_strpool_hash(hashtab_t h, const_hashtab_key_t key)
+ static unsigned int reqsymhash(hashtab_t h, const_hashtab_key_t key)
  {
 -	const char *p;
 -	size_t size;
 -	unsigned int val;
-+	unsigned int hash = 5381;
-+	unsigned char c;
- 
+-
 -	val = 0;
 -	size = strlen(key);
 -	for (p = key; ((size_t) (p - key)) < size; p++)
 -		val =
 -		    (val << 4 | (val >> (8 * sizeof(unsigned int) - 4))) ^ (*p);
 -	return val & (h->size - 1);
++	unsigned int hash = 5381;
++	unsigned char c;
++
 +	while ((c = *(unsigned const char *)key++))
 +		hash = ((hash << 5) + hash) ^ c;
 +
 +	return hash & (h->size - 1);
  }
  
- static int cil_strpool_compare(hashtab_t h __attribute__ ((unused)), const_hashtab_key_t key1, const_hashtab_key_t key2)
+ static int reqsymcmp(hashtab_t h
 -- 
 2.40.1
 
