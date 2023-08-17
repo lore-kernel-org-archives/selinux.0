@@ -2,53 +2,61 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F05AC5479A
-	for <selinux@archiver.kernel.org>; Thu, 17 Aug 2023 20:23:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70391C64EBC
+	for <selinux@archiver.kernel.org>; Thu, 17 Aug 2023 20:54:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354832AbjHQUWw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Aug 2023 16:22:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
+        id S1355039AbjHQUyF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Aug 2023 16:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354818AbjHQUWX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Aug 2023 16:22:23 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACDFA30DF
-        for <selinux@vger.kernel.org>; Thu, 17 Aug 2023 13:22:21 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-68871bbfe33so195283b3a.0
-        for <selinux@vger.kernel.org>; Thu, 17 Aug 2023 13:22:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1692303741; x=1692908541;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=CQWTQHtC1ITha/tOEZ9DX/iOFJ3wpSlHPk0KGWIN+BE=;
-        b=IAxdc2j2QTjPlPywoE11+AaxM9vPILUqMj103UtiRZvlm2AdOrRBhW08TzXFxh0CSF
-         9VkutAjQVk5ucHl7yCtFEuzSfZGMCxSOn8dIsc6tM5bm1daac88Mc+OTJAs0t2MfOs3h
-         NnGcACX1ls5v6sgq2427aZRJqr2eK92x6n+w0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692303741; x=1692908541;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=CQWTQHtC1ITha/tOEZ9DX/iOFJ3wpSlHPk0KGWIN+BE=;
-        b=dn3/IJgVQgi/0IcN6o0y1HPY1sGO3f7L/YRt18jzzcS0gmBpz2n9eQJh/Vh4hMUQyB
-         wtjt8B3OcAlQ3t2b0DB19eXYqapiNI25Zvjuq1IRzgvv8NUMsjVvSdDtxv+0N1MSyWuh
-         71Kroh6KjpTRo9SEMdWGScZ6o0ePIaXCJeLrnAyfE4ZG7Ig83I//AAPBm0oD+tx+LKIx
-         pfL1EMvpChPGY7k7HG/0nB/SoJ9P3V/Lja5FW9OSt7ZMV4Kb+sXtJFrL7rWd027GWz/n
-         y6sbMVBwuNGu6uNxFQ2VFngZLYoc03ysjWFnmmj53y1uTVudbgAPuQmQOrsHMGc+0vK6
-         +j5A==
-X-Gm-Message-State: AOJu0Yw0hklIZvfRmW2Ehee11G9FTccWErHeIcabASZLII77D1ggWxh0
-        dSJ2fj1hFES2ppZ3irNkoAIGGg==
-X-Google-Smtp-Source: AGHT+IH0a7s6AYYQXpvO0xlNMu3ZvWTFwdxg4ZxRGN+ufbgm5n14hckHsT5PGrY2DP6SM76vFO1geQ==
-X-Received: by 2002:a05:6a00:1952:b0:686:7621:5494 with SMTP id s18-20020a056a00195200b0068676215494mr681891pfk.27.1692303741176;
-        Thu, 17 Aug 2023 13:22:21 -0700 (PDT)
-Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net. [198.0.35.241])
-        by smtp.gmail.com with ESMTPSA id t4-20020a62ea04000000b006884844dfcasm168593pfh.20.2023.08.17.13.22.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Aug 2023 13:22:20 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        with ESMTP id S1355073AbjHQUxl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Aug 2023 16:53:41 -0400
+X-Greylist: delayed 90 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 17 Aug 2023 13:53:37 PDT
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0723589
+        for <selinux@vger.kernel.org>; Thu, 17 Aug 2023 13:53:37 -0700 (PDT)
+Received: from eig-obgw-6002a.ext.cloudfilter.net ([10.0.30.222])
+        by cmsmtp with ESMTP
+        id WgueqdNCkEoVsWjyRq9d1B; Thu, 17 Aug 2023 20:52:07 +0000
+Received: from gator4166.hostgator.com ([108.167.133.22])
+        by cmsmtp with ESMTPS
+        id WjyQqvKCunVnbWjyQqULK6; Thu, 17 Aug 2023 20:52:07 +0000
+X-Authority-Analysis: v=2.4 cv=IuUNzZzg c=1 sm=1 tr=0 ts=64de8877
+ a=1YbLdUo/zbTtOZ3uB5T3HA==:117 a=WzbPXH4gqzPVN0x6HrNMNA==:17
+ a=OWjo9vPv0XrRhIrVQ50Ab3nP57M=:19 a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19
+ a=IkcTkHD0fZMA:10 a=UttIx32zK-AA:10 a=wYkD_t78qR0A:10 a=NEAV23lmAAAA:8
+ a=xVhDTqbCAAAA:8 a=pGLkceISAAAA:8 a=77d_1CzMAAAA:8 a=20KFwNOVAAAA:8
+ a=VwQbUJbxAAAA:8 a=cm27Pg_UAAAA:8 a=HvF037n1xESchLcPDVoA:9 a=QEXdDO2ut3YA:10
+ a=GrmWmAYt4dzCMttCBZOh:22 a=QN4qkdld4szc5MSp8JWP:22 a=AjGcO6oz07-iQ99wixmX:22
+ a=xmb-EsYY8bH0VWELuYED:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=VioEz5G8YTOEnVp9KTSVuftAiGJ+QqIcrXKXiyfBXxo=; b=gRfj77ASVgwk7W9vj9NUd5LT59
+        x2/zDeRrxkJDlOexjziQTrEXg9RvoGfgTQbIRnbKHs8VDFX5DdyC2IcAfxcfPhzQR0X6sbNcS8/jX
+        +ajCNDc0xvIWbU8xHxkalORbTahdOyEkySt1Tm5z2TCOITNMTadT07SwjyJkCtbsvTQyVb5JTQtZ/
+        9G71q4cbbM8cofQtQPjE9jDldyHRTMmsNBfVj/L8xPV0vEGq8UrqMtA1OCSc3wpv/VYo9wxSFMvPl
+        OCHRhv3pGiieTrdO9LGdNj7yeDAaBY7suszXDHmIYKccIli+AvBhchfm0g7ueBx58HMlfmDqof/9h
+        FrsLBRWw==;
+Received: from 187-162-21-192.static.axtel.net ([187.162.21.192]:39854 helo=[192.168.15.8])
+        by gator4166.hostgator.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.96)
+        (envelope-from <gustavo@embeddedor.com>)
+        id 1qWjyP-001JbT-22;
+        Thu, 17 Aug 2023 15:52:05 -0500
+Message-ID: <ae4756a2-55a4-fe0b-50e0-b87c17151354@embeddedor.com>
+Date:   Thu, 17 Aug 2023 14:53:07 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH] selinux: Annotate struct sidtab_str_cache with
+ __counted_by
+Content-Language: en-US
+To:     Kees Cook <keescook@chromium.org>, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         Nathan Chancellor <nathan@kernel.org>,
@@ -57,64 +65,75 @@ Cc:     Kees Cook <keescook@chromium.org>,
         "GONG, Ruiqi" <gongruiqi1@huawei.com>,
         linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
         linux-hardening@vger.kernel.org
-Subject: [PATCH] selinux: Annotate struct sidtab_str_cache with __counted_by
-Date:   Thu, 17 Aug 2023 13:22:17 -0700
-Message-Id: <20230817202210.never.014-kees@kernel.org>
-X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1268; i=keescook@chromium.org;
- h=from:subject:message-id; bh=5Z4+8RXLjnXvukVAkS7m5m0h4iQubudAZnU60GhPgXg=;
- b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBk3oF5KSG7/oZzgaaPj8L+TfV6vQF49o7iTLsqc
- CsYE4XVyXKJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZN6BeQAKCRCJcvTf3G3A
- JgINEACRVV1slxrlC0ri8tUBcUXOZbMOJUzsOq8h62tcR9gcOtuvpI2j7ncVYE2gzQMF/lfe2EM
- eFkQuRsXwRWYkINbr5swbgpGKslbMiORIP/wAcv/7LDEKBlnYDP87Oko3qg83DdFUCgfrc+9rYX
- 1CPvNfgia4Ch+n1glNONk16VQ18zFnOdzIdmD7XXKVBpMSgz3nhHhmzfEDKwpPJcMryd/4KOglv
- mtxax6VU5t0XHzhLHpbQyzsrkvRGJoDa7kVMqahwhEvAFCnQq7cRi/c4CQulbhmivf/ptML/DtB
- 5bCKzdZQjuTw5dOTvB7Q+2O1Gbfov/jbt5Wxaz9axEH83pcM/BWxpzLU62KolOZ5Mf5N8GvPBMI
- HbU1WtKFmctbKwjRwkZaa5LzGtg50Sc8Y7E087X/3CqERSG8rg1Wb16y+2Jeo344hhpfTW99DY4
- +H4zIrXdT8z/JpFr/jur1LOuspwfoqFP4Cu80UX44Y/7G4PokWHijVukaYR5jRCF0/YAKc5DaWg
- p65cb1RgbhovtG1xRdv1vbk7A/4Goi9Tx5OqyydDqw08ma9/HXD0rzkvVVaRNZJ8fuQt6CmCTrX
- 5QoJhPToUTVGWVeYgfz5yWWL5UUos+kmjpgvPL+xAAyvufz60SoS4NyB6/UwhkS2YdIgiFV3Fpi
- tH6g9Ya 25O81AvQ==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
+References: <20230817202210.never.014-kees@kernel.org>
+From:   "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+In-Reply-To: <20230817202210.never.014-kees@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - embeddedor.com
+X-BWhitelist: no
+X-Source-IP: 187.162.21.192
+X-Source-L: No
+X-Exim-ID: 1qWjyP-001JbT-22
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 187-162-21-192.static.axtel.net ([192.168.15.8]) [187.162.21.192]:39854
+X-Source-Auth: gustavo@embeddedor.com
+X-Email-Count: 60
+X-Org:  HG=hgshared;ORG=hostgator;
+X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfIAfaaRXn+fLwXzBJZ/Q1NSGKaTQtQGffqAYxt7QphufSBHuCzH/lVmObXhtayGJqwKLSUj36eqpvVOhXuvjXTT+lh2gNqoVfGThs8sc+LzUmAJ/Ky/b
+ MMUfpnPCn6eurxLczd1U7FqDtKjSIErET7NfcAxD5GuIVZmfk1lk2zd0lk9lGsuj3Ns++fWeF7NQiF3GgiuSQe56PfPReltQxUA=
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Prepare for the coming implementation by GCC and Clang of the __counted_by
-attribute. Flexible array members annotated with __counted_by can have
-their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
-(for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
-functions).
 
-As found with Coccinelle[1], add __counted_by for struct sidtab_str_cache.
 
-[1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
+On 8/17/23 14:22, Kees Cook wrote:
+> Prepare for the coming implementation by GCC and Clang of the __counted_by
+> attribute. Flexible array members annotated with __counted_by can have
+> their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
+> (for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
+> functions).
+> 
+> As found with Coccinelle[1], add __counted_by for struct sidtab_str_cache.
+> 
+> [1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
+> 
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: selinux@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Eric Paris <eparis@parisplace.org>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- security/selinux/ss/sidtab.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index d8ead463b8df..732fd8e22a12 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -25,7 +25,7 @@ struct sidtab_str_cache {
- 	struct list_head lru_member;
- 	struct sidtab_entry *parent;
- 	u32 len;
--	char str[];
-+	char str[] __counted_by(len);
- };
- 
- #define index_to_sid(index) ((index) + SECINITSID_NUM + 1)
--- 
-2.34.1
+Thanks
+--
+Gustavo
 
+> ---
+>   security/selinux/ss/sidtab.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index d8ead463b8df..732fd8e22a12 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -25,7 +25,7 @@ struct sidtab_str_cache {
+>   	struct list_head lru_member;
+>   	struct sidtab_entry *parent;
+>   	u32 len;
+> -	char str[];
+> +	char str[] __counted_by(len);
+>   };
+>   
+>   #define index_to_sid(index) ((index) + SECINITSID_NUM + 1)
