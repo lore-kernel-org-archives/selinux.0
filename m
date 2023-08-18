@@ -2,53 +2,52 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E6AC7115A
-	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:13:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E63BC77B7A
+	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:13:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377989AbjHRPND (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1377993AbjHRPND (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 18 Aug 2023 11:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378079AbjHRPMq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:46 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0307F44BB;
-        Fri, 18 Aug 2023 08:12:31 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id 4fb4d7f45d1cf-5234f46c6f9so1302209a12.3;
-        Fri, 18 Aug 2023 08:12:30 -0700 (PDT)
+        with ESMTP id S1378071AbjHRPMo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:44 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24055420C;
+        Fri, 18 Aug 2023 08:12:27 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id a640c23a62f3a-99bf8e5ab39so133932566b.2;
+        Fri, 18 Aug 2023 08:12:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692371549; x=1692976349;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4/WNaebago/aJqZZVlC3lFxaEfE7d2mg3xgPUu5EqLQ=;
-        b=Hcnq/di8BsbBcYaSke+l7b6FwHMPwVJFgYRLEAKgYIcEyDkBRT1VNXOhv0XFcX7mRZ
-         RppUIGV9CXMCM6lk36f2jbfxdh5Vclnw+ON+qxvKUNu9ZihNI86AyHN5njcY3wgkjhA9
-         8RwvNNf4wqh5YOh5G6FejL6ml4dYgKSirRdBS8imftBECryhECYyoqUWK519IScauSNb
-         KgYHAwieGkVPCPxQpJM/ycyJ2+EAKdPu/K4NR0mCPR05b2FRkA4mqH7fLeeuLhoN4S0L
-         Zz9bxPT+1IZk2QRZtYb0Su0Ijipk7ZFDSSKrzq5nea4g0VRF8BY7we8WeymTEgNLYF0w
-         mP9w==
+        d=googlemail.com; s=20221208; t=1692371545; x=1692976345;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rmwLesiFYumNQ6O67fwcKZ7FMnVzuOPHn3ALA9q8Gkg=;
+        b=bWv9yL6kAXBMtiAE5R3Vf0Ub8ZGiElyEL7Odw7Z3/0+CCMfc6Ym2nt0TFzS4q91NGe
+         T/vzJY8OOdNIzWtoVmFSog2rI/VfXGhHW5ziEC4FkrvI1uxZ67Pew0SkAeTRxZ59CGR3
+         h0LJeU3dxCbNKIFIKicCLI3SM2SvGwbPXQBL4DDtkHuUTXj07MvqJ6x9y791lW9K/U1Q
+         9b7rQSOw86thqXaEhTTgHE5gCIwWFDNO87zSn9jBqXOzDDYTC8rWPUiGmPHbXI3c/j+F
+         ZQz517p0R9VCw+6nuf4/yIbRQIiMrSROOoNZM9CXNFmCKDrfvY01w1iA5iaO6Fsc6If7
+         PVgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692371549; x=1692976349;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4/WNaebago/aJqZZVlC3lFxaEfE7d2mg3xgPUu5EqLQ=;
-        b=kH1s5YHtVagSaSgPRE6UI47vEQKSv1lzhQ4iQz3YlO9On6kPPnEbMZ0VJ4FhogyLgC
-         04R+s+jsCzOaV/3Yqu/nr04hqloXQxpuhp3PY7/905CByKrRKOy727Eg6QECJrilyoyn
-         USQbrKgWXKV6doZ8raOBMqql6LB5FivbWN+oz72mjHP+Jj/ZWZ532wdSmuqngOoSK0Ri
-         uMFh1Wjv67xBetP47RVS9/kkz5QgErjS3bHRxSM+m54636HvNOu+pbTZHxCm/iJxm8er
-         ts8ptS1WaVVsFPDhKxtHWCIPbUFOSUh/+6TB6FEeAjZTcTwyhkOX+s/U2wBHwuV3UF+S
-         f8+Q==
-X-Gm-Message-State: AOJu0YxE3xJo5TuLXNEtGkBwdg5jCBoY0/8/Lq/dQ/IOdmZiVrb0x+3/
-        TXT0SCvO8yvBoZItgTah00NZH2Zdo/FQTQ==
-X-Google-Smtp-Source: AGHT+IGFWZElf1DbrvlGXU7UqtZRx9/EpHWXV8o2fqe4FEIPObb7LMccx5zwrREke6ZJS/lmKgcGqg==
-X-Received: by 2002:a17:906:d0:b0:965:6075:d100 with SMTP id 16-20020a17090600d000b009656075d100mr2203978eji.39.1692371549310;
-        Fri, 18 Aug 2023 08:12:29 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1692371545; x=1692976345;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rmwLesiFYumNQ6O67fwcKZ7FMnVzuOPHn3ALA9q8Gkg=;
+        b=VbEwUDFkOl+bH6g1sX0PseY0wPEVbznpU+fwSL9YGmCM1ht7rh03jSMx8eVQY1bpdo
+         v0wNhjkO3YggPKG9/2sYtmVsM2B3LCNdVAk/SJXsAGqTm+stLnV69qL8fIs3D/wNUQ+g
+         51ZjQkhCIVQOqaBIUpFNvrsONGXmqiekE1LjgNdKfPJnSqIV+WorDvTJP0yZbmzKPQRe
+         QzaVF4r0G1vWkOCesBH4xVqGQJ1afoPCCRV4KBw45HdXpWbgXZwCag2VDhk0ZmHEFyvX
+         Eth1k8bIls2ZF/1/fZYH8EpTNeTAeayP0+WiJ/nI01tyJY5yVvl21w1QE3qySpo5YpBe
+         lFHQ==
+X-Gm-Message-State: AOJu0Yz3KJ4dG92XDTnMTMVx4zjUS3f9R0p30tcf7O/S4Onhtg08QKRB
+        tHz6VL6w2773QE5cYbyITy+/a/7fTEh8aQ==
+X-Google-Smtp-Source: AGHT+IFJ1Hdu25ZB09hgePICL8nmS6b458AH2wdxKHHueAU4N5ZIFOtwjnnZ06Wph1T+T/fjT9+rpA==
+X-Received: by 2002:a17:906:3099:b0:974:1ef7:1e88 with SMTP id 25-20020a170906309900b009741ef71e88mr2205288ejv.13.1692371545323;
+        Fri, 18 Aug 2023 08:12:25 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-071-217.95.116.pool.telefonica.de. [95.116.71.217])
-        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.28
+        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Aug 2023 08:12:29 -0700 (PDT)
+        Fri, 18 Aug 2023 08:12:25 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
@@ -56,12 +55,10 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] selinux: simplify avtab slot calculation
-Date:   Fri, 18 Aug 2023 17:12:15 +0200
-Message-Id: <20230818151220.166215-3-cgzones@googlemail.com>
+Subject: [PATCH 2/6] selinux: dump statistics for more hash tables
+Date:   Fri, 18 Aug 2023 17:12:13 +0200
+Message-Id: <20230818151220.166215-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230818151220.166215-1-cgzones@googlemail.com>
-References: <20230818151220.166215-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -69,37 +66,61 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Instead of dividing by 8 and then performing log2 by hand, use a more
-readable calculation.
-
-The behavior of rounddown_pow_of_two() for an input of 0 is undefined,
-so handle that case and small values manually to achieve the same
-results.
+Dump in the SELinux debug configuration the statistics for the
+conditional rules avtab, the role transition, and class and common
+permission hash tables.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/avtab.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ security/selinux/ss/conditional.c | 3 +++
+ security/selinux/ss/policydb.c    | 6 ++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 955cfe495606..1d1ffe085b35 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -298,13 +298,7 @@ int avtab_alloc(struct avtab *h, u32 nrules)
- 	u32 nslot = 0;
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 81ff676f209a..0dd17fe76286 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -171,6 +171,9 @@ int cond_init_bool_indexes(struct policydb *p)
+ 					      GFP_KERNEL);
+ 	if (!p->bool_val_to_struct)
+ 		return -ENOMEM;
++
++	avtab_hash_eval(&p->te_cond_avtab, "conditional_rules");
++
+ 	return 0;
+ }
  
- 	if (nrules != 0) {
--		u32 shift = 1;
--		u32 work = nrules >> 3;
--		while (work) {
--			work >>= 1;
--			shift++;
--		}
--		nslot = 1 << shift;
-+		nslot = nrules > 3 ? rounddown_pow_of_two(nrules / 2) : 2;
- 		if (nslot > MAX_AVTAB_HASH_BUCKETS)
- 			nslot = MAX_AVTAB_HASH_BUCKETS;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 84f02d4f8093..932e383bcad6 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1158,6 +1158,8 @@ static int common_read(struct policydb *p, struct symtab *s, void *fp)
+ 			goto bad;
+ 	}
  
++	hash_eval(&comdatum->permissions.table, "common_permissions");
++
+ 	rc = symtab_insert(s, key, comdatum);
+ 	if (rc)
+ 		goto bad;
+@@ -1339,6 +1341,8 @@ static int class_read(struct policydb *p, struct symtab *s, void *fp)
+ 			goto bad;
+ 	}
+ 
++	hash_eval(&cladatum->permissions.table, "class_permissions");
++
+ 	rc = read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
+ 	if (rc)
+ 		goto bad;
+@@ -2616,6 +2620,8 @@ int policydb_read(struct policydb *p, void *fp)
+ 		rtd = NULL;
+ 	}
+ 
++	hash_eval(&p->role_tr, "roletr");
++
+ 	rc = next_entry(buf, fp, sizeof(u32));
+ 	if (rc)
+ 		goto bad;
 -- 
 2.40.1
 
