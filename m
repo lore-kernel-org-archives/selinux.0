@@ -2,53 +2,53 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2354C7EE24
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDE6BC7EE2D
 	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:13:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378033AbjHRPNE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1378030AbjHRPNE (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 18 Aug 2023 11:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46922 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378095AbjHRPMs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:48 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1AB4689;
-        Fri, 18 Aug 2023 08:12:35 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-99bdcade7fbso126168766b.1;
-        Fri, 18 Aug 2023 08:12:35 -0700 (PDT)
+        with ESMTP id S1378072AbjHRPMp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:45 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 242D6420F;
+        Fri, 18 Aug 2023 08:12:29 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id a640c23a62f3a-99c47ef365cso136754466b.0;
+        Fri, 18 Aug 2023 08:12:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692371553; x=1692976353;
+        d=googlemail.com; s=20221208; t=1692371547; x=1692976347;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zJbw1GCaNkp1mvMvks0R4KmZq/5vNngaaWzPgKdzcBI=;
-        b=ksW2sAFDtA29aAzJUwQOx9s35kbGa38cSw6gn/6bghi/w/hDCnNOR6d/pJJgxsFJQV
-         nvIYkxT8bY//ugPLl/NoVCre/uRgA5eCdjhQoQSHiu12/NDkdjwBfpUKHGoIFPOXJuLR
-         0ioWDR+toiAoESkX9Oxv0bYbzeomZBKccuBMZqudKFJkPfRWr/IwxWr59i4SFHDVVisn
-         hN6cazsNtrLYTA4f8kBto5U5JkH2dLdj8AjdPLzGCpIQU7TDV1Ud0ATqRZ8JJ5tiTMXT
-         FoCevzYhG8NajA9g0nsdkLA0nne+OINEbkYvZtv2XR6/HMvS7Ld24hF9GEWJVxuskGDv
-         kSCA==
+        bh=aZnmcLyRXXMZRHPXrv6ePuzpP+/82gvSRdg+zxUbEoY=;
+        b=PR6E/gu5dWaAGyXOLnmhr0dRrUQhWYq4G4mzcZDo6w4A5ZQo1LzuAqJh0orL5nMZGU
+         CqMLt8bjwvOc/sRD0auPZ7jwc67DB5DmFMAueyJJUW6G2sp9gZHm1ZpDXT65CYvoWOZL
+         E99LnOjVDA7+ZkvC6hcyZpMqTnbkmwh50V9l8t0tlC3PRWzFxslZeg6Aw6fzq3TkSumU
+         EHkcjI0JFQo6oo9MwSQQp/ckZFmypzYOlU0GRxeG0cpneHRX1Am893WIjEGyQ0snW/b5
+         xeDDq8L6SLE37QIf/7vy+G5GRid7LPsjYCvWlNYbKoQnJUAuLEHfWidU/lCoCbvcaLgL
+         HHng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692371553; x=1692976353;
+        d=1e100.net; s=20221208; t=1692371547; x=1692976347;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zJbw1GCaNkp1mvMvks0R4KmZq/5vNngaaWzPgKdzcBI=;
-        b=C1pGWcmtnXFwdObk/YYv0h9Ld6MjrHehMZSzVNmVbMkrQChhVNNWY6Gx/qivTm5x9W
-         1EolcPP4utl7VyuMwLS7xYBfgjZVspo1/ig8MBhY+LEbgocAA/2d8wuQNWk1WoTRmFHx
-         RsB3GmWasUx9ykvDMMY4aClxTvTTeehzp2TQA7zFnmniv18Jr3dTMltU7m6p/glrRMYr
-         qcFGP1XiSEz5kGmJCVwZKKlBfMqYZSF7KaYtvrWLoC64a8kEJ8yQn8z/YZCkPa+ApyYm
-         LjawS6BQJznR+hT2aRxA3Pn98WfWO+vUgRqZOO+jEJylIbvlqKT2h/nygnxhjxIVMwx2
-         pjGQ==
-X-Gm-Message-State: AOJu0YwidPqswAb6xVfDPLIihPch0joL7cbu1gpbb+D9y5iOFvg1MLZT
-        QczQeO4dcfpX7dmTtbw9SdkAY30uih0g4w==
-X-Google-Smtp-Source: AGHT+IEA+txfXn8wU5i+Z9VkmOutImS3pUopFpT0HIgeXmvf7AQabi5uU9iMJS44FIOXvLcfFkKsHw==
-X-Received: by 2002:a17:907:762a:b0:988:9ec1:a8c5 with SMTP id jy10-20020a170907762a00b009889ec1a8c5mr1931135ejc.55.1692371553557;
-        Fri, 18 Aug 2023 08:12:33 -0700 (PDT)
+        bh=aZnmcLyRXXMZRHPXrv6ePuzpP+/82gvSRdg+zxUbEoY=;
+        b=KtdQrs+mZlKXtZ+h0iMQQH6GAYaeQ2QrNB1CQZlgQ0637peFlFpar19xGZCbh07ZuN
+         iyIbBhNO60L/h6rvGLo9LccQQ3C7KZnXVA51CgC0sNtuq2iKqitwGEo6NuiFXA6lPMEu
+         +AAujJeJJr94G/cgg7SsXaJzqhB0BX/IZORzZ30E9rV/2SWpJdEUZV/5Dla0l25D3nOp
+         yUMhEW5ew4A9zSiW9GpJurVeL9zPytRZiCObOfrnshVUL12p1PTfQoNnVjrDWK6Jcuks
+         dpX1fqmvgiQiTLgeSANWhjzLIkwZiibmOcdkMNSlsCBEgZNWZfAvanDHsn82bS8FyKTh
+         kBJw==
+X-Gm-Message-State: AOJu0Yy/6Qarv6NIvAOaPbqvNHR+KnxErQ5VJLYKMjl2Bl6/rfzwsdkL
+        KqqIQud7IhvZL8/KE9VddydDn3CNR/p0xA==
+X-Google-Smtp-Source: AGHT+IG8jWZ6cYQXclRyWxtIZ9h6mMLk3fFHxvoLhY9num9K8nCMXsx7+gnX543S9aZ9GZDWfVBamw==
+X-Received: by 2002:a17:906:74d7:b0:994:56d3:8a42 with SMTP id z23-20020a17090674d700b0099456d38a42mr2235318ejl.27.1692371547308;
+        Fri, 18 Aug 2023 08:12:27 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-071-217.95.116.pool.telefonica.de. [95.116.71.217])
-        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.33
+        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Aug 2023 08:12:33 -0700 (PDT)
+        Fri, 18 Aug 2023 08:12:27 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
@@ -56,9 +56,9 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 6/6] selinux: improve symtab string hashing
-Date:   Fri, 18 Aug 2023 17:12:17 +0200
-Message-Id: <20230818151220.166215-5-cgzones@googlemail.com>
+Subject: [PATCH 3/6] selinux: improve debug configuration
+Date:   Fri, 18 Aug 2023 17:12:14 +0200
+Message-Id: <20230818151220.166215-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230818151220.166215-1-cgzones@googlemail.com>
 References: <20230818151220.166215-1-cgzones@googlemail.com>
@@ -69,68 +69,51 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The number of buckets is calculated by performing a binary AND against
-the mask of the hash table, which is one less than its size (which is a
-power of two).  This leads to all top bits being discarded, requiring
-for short or similar inputs a hash function with a good avalanche
-effect.
+If the SELinux debug configuration is enabled define the macro DEBUG
+such that pr_debug() calls are always enabled, regardless of
+CONFIG_DYNAMIC_DEBUG, since those message are the main reason for this
+configuration in the first place.
 
-Use djb2a:
-
-    # current
-    common prefixes:  7 entries and 5/8 buckets used, longest chain length 2, sum of chain length^2 11
-    classes:  134 entries and 100/256 buckets used, longest chain length 5, sum of chain length^2 234
-    roles:  15 entries and 6/16 buckets used, longest chain length 5, sum of chain length^2 57
-    types:  4448 entries and 3016/8192 buckets used, longest chain length 41, sum of chain length^2 14922
-    users:  7 entries and 3/8 buckets used, longest chain length 3, sum of chain length^2 17
-    bools:  306 entries and 221/512 buckets used, longest chain length 4, sum of chain length^2 524
-    levels:  1 entries and 1/1 buckets used, longest chain length 1, sum of chain length^2 1
-    categories:  1024 entries and 400/1024 buckets used, longest chain length 4, sum of chain length^2 2740
-
-    # patch
-    common prefixes:  7 entries and 5/8 buckets used, longest chain length 2, sum of chain length^2 11
-    classes:  134 entries and 101/256 buckets used, longest chain length 3, sum of chain length^2 210
-    roles:  15 entries and 9/16 buckets used, longest chain length 3, sum of chain length^2 31
-    types:  4448 entries and 3459/8192 buckets used, longest chain length 5, sum of chain length^2 6778
-    users:  7 entries and 5/8 buckets used, longest chain length 3, sum of chain length^2 13
-    bools:  306 entries and 236/512 buckets used, longest chain length 5, sum of chain length^2 470
-    levels:  1 entries and 1/1 buckets used, longest chain length 1, sum of chain length^2 1
-    categories:  1024 entries and 518/1024 buckets used, longest chain length 7, sum of chain length^2 2992
+Mention example usage in case CONFIG_DYNAMIC_DEBUG is enabled in the
+help section of the configuration.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/symtab.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ security/selinux/Kconfig  | 10 ++++++++++
+ security/selinux/Makefile |  2 ++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
-index 43d7f0319ccd..b6761b96eee4 100644
---- a/security/selinux/ss/symtab.c
-+++ b/security/selinux/ss/symtab.c
-@@ -11,16 +11,14 @@
- 
- static unsigned int symhash(const void *key)
- {
--	const char *p, *keyp;
--	unsigned int size;
--	unsigned int val;
--
--	val = 0;
--	keyp = key;
--	size = strlen(keyp);
--	for (p = keyp; (p - keyp) < size; p++)
--		val = (val << 4 | (val >> (8*sizeof(unsigned int)-4))) ^ (*p);
--	return val;
-+	/* djb2a */
-+	unsigned int hash = 5381;
-+	unsigned char c;
+diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+index d30348fbe0df..61abc1e094a8 100644
+--- a/security/selinux/Kconfig
++++ b/security/selinux/Kconfig
+@@ -77,3 +77,13 @@ config SECURITY_SELINUX_DEBUG
+ 	  This enables debugging code designed to help SELinux kernel
+ 	  developers, unless you know what this does in the kernel code you
+ 	  should leave this disabled.
 +
-+	while ((c = *(const unsigned char *)key++))
-+		hash = ((hash << 5) + hash) ^ c;
++	  To fine control the messages to be printed enable
++	  CONFIG_DYNAMIC_DEBUG and see
++	  Documentation/admin-guide/dynamic-debug-howto.rst for additional
++	  information.
 +
-+	return hash;
- }
++	  Example usage:
++
++		echo -n 'file "security/selinux/*" +p' > \
++			/proc/dynamic_debug/control
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index 836379639058..c47519ed8156 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -12,6 +12,8 @@ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
  
- static int symcmp(const void *key1, const void *key2)
+ ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+ 
++ccflags-$(CONFIG_SECURITY_SELINUX_DEBUG) += -DDEBUG
++
+ selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
+ 	     netnode.o netport.o status.o \
+ 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
 -- 
 2.40.1
 
