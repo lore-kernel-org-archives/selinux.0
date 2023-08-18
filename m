@@ -2,53 +2,53 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64730C71155
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E6AC7115A
 	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:13:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378019AbjHRPNE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Aug 2023 11:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59384 "EHLO
+        id S1377989AbjHRPND (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Aug 2023 11:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378106AbjHRPMu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:50 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 197864691;
-        Fri, 18 Aug 2023 08:12:38 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2b9fa64db41so17195911fa.1;
-        Fri, 18 Aug 2023 08:12:38 -0700 (PDT)
+        with ESMTP id S1378079AbjHRPMq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:46 -0400
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0307F44BB;
+        Fri, 18 Aug 2023 08:12:31 -0700 (PDT)
+Received: by mail-ed1-x52d.google.com with SMTP id 4fb4d7f45d1cf-5234f46c6f9so1302209a12.3;
+        Fri, 18 Aug 2023 08:12:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692371556; x=1692976356;
+        d=googlemail.com; s=20221208; t=1692371549; x=1692976349;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Nrjf0t8/+tWorDt5ATsu0uwkTQCJ3AKC0mV+zReeAks=;
-        b=C6aXLHqXPydc67rzEejZehoy1UgVUKujAoxb7mHuAy8TuIaaqkLYGDAl6/SlUrlZVv
-         F+6Ki8z5pVgTaj0GdcVBVcbpY87iVFlePwbYTyLRpYo160fag1pAYHbfaLzPwQVOMJBO
-         QUMzXK8GFLBlFIzmAeTGz6lEB6jaTI3cAriCxIHy0L9eBjkEmohn2DfsDu0R/FBTSSOa
-         8B8TllObHGwdhg7+XYA3nIieg1sp1aUqxz9Q5YW97WmDs3AlDhxzqnZgJ4+aQU57OOow
-         /awE7TPAUhMEOSsoAjhhKssoyFX+N9fLEZ6j0NaIR6PCPhAsNfAIew19EVomv0oGuLPn
-         m6cQ==
+        bh=4/WNaebago/aJqZZVlC3lFxaEfE7d2mg3xgPUu5EqLQ=;
+        b=Hcnq/di8BsbBcYaSke+l7b6FwHMPwVJFgYRLEAKgYIcEyDkBRT1VNXOhv0XFcX7mRZ
+         RppUIGV9CXMCM6lk36f2jbfxdh5Vclnw+ON+qxvKUNu9ZihNI86AyHN5njcY3wgkjhA9
+         8RwvNNf4wqh5YOh5G6FejL6ml4dYgKSirRdBS8imftBECryhECYyoqUWK519IScauSNb
+         KgYHAwieGkVPCPxQpJM/ycyJ2+EAKdPu/K4NR0mCPR05b2FRkA4mqH7fLeeuLhoN4S0L
+         Zz9bxPT+1IZk2QRZtYb0Su0Ijipk7ZFDSSKrzq5nea4g0VRF8BY7we8WeymTEgNLYF0w
+         mP9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692371556; x=1692976356;
+        d=1e100.net; s=20221208; t=1692371549; x=1692976349;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Nrjf0t8/+tWorDt5ATsu0uwkTQCJ3AKC0mV+zReeAks=;
-        b=XbjcK64PmaTW+TCxTMmOBGVwdKIg+RRoDdqxagWmIfuRCQitLIjRdUlYDwFotK/MuX
-         xdnX666dAexY37/PDcx/RQMaLk2Jd48NZWujotjEovMZzFYXLsN1H0DqYQbonUkgDvNA
-         V/Je1MobAZDmThzkZse9cPz5RS+hr/oqicSBh8qdy3spaRHI+Oh8fzgqsLJuXQMiN2oB
-         K2SzV66InoDrnhgGQTlzMVj9GuweYyxXadsMcgeK36ct7lBlwv0XpWZnEsB0jg+untqz
-         2hIHp04GnK+BL+TXWkMBZZw0juRqNegwp9M0EfpKabUAEeD2qom0N8ByX+cVYTGd1TLX
-         Es9Q==
-X-Gm-Message-State: AOJu0Yy7L3/aAZiPjdHxsu7+v0emM6v0+wLZTOjh+WCPGVhFksU80cG3
-        AJiaYg6e2ic2+YdpdwjNL674akD8051txQ==
-X-Google-Smtp-Source: AGHT+IF5HJOYkcnwtOi2QbJfJiI7iE60S+GXRtNvGBLqt7zvaC2ojE2nlEQhzztp7oyjFgI5oWaYIw==
-X-Received: by 2002:a2e:9283:0:b0:2b6:d603:7667 with SMTP id d3-20020a2e9283000000b002b6d6037667mr1793342ljh.8.1692371555528;
-        Fri, 18 Aug 2023 08:12:35 -0700 (PDT)
+        bh=4/WNaebago/aJqZZVlC3lFxaEfE7d2mg3xgPUu5EqLQ=;
+        b=kH1s5YHtVagSaSgPRE6UI47vEQKSv1lzhQ4iQz3YlO9On6kPPnEbMZ0VJ4FhogyLgC
+         04R+s+jsCzOaV/3Yqu/nr04hqloXQxpuhp3PY7/905CByKrRKOy727Eg6QECJrilyoyn
+         USQbrKgWXKV6doZ8raOBMqql6LB5FivbWN+oz72mjHP+Jj/ZWZ532wdSmuqngOoSK0Ri
+         uMFh1Wjv67xBetP47RVS9/kkz5QgErjS3bHRxSM+m54636HvNOu+pbTZHxCm/iJxm8er
+         ts8ptS1WaVVsFPDhKxtHWCIPbUFOSUh/+6TB6FEeAjZTcTwyhkOX+s/U2wBHwuV3UF+S
+         f8+Q==
+X-Gm-Message-State: AOJu0YxE3xJo5TuLXNEtGkBwdg5jCBoY0/8/Lq/dQ/IOdmZiVrb0x+3/
+        TXT0SCvO8yvBoZItgTah00NZH2Zdo/FQTQ==
+X-Google-Smtp-Source: AGHT+IGFWZElf1DbrvlGXU7UqtZRx9/EpHWXV8o2fqe4FEIPObb7LMccx5zwrREke6ZJS/lmKgcGqg==
+X-Received: by 2002:a17:906:d0:b0:965:6075:d100 with SMTP id 16-20020a17090600d000b009656075d100mr2203978eji.39.1692371549310;
+        Fri, 18 Aug 2023 08:12:29 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-071-217.95.116.pool.telefonica.de. [95.116.71.217])
-        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.35
+        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Aug 2023 08:12:35 -0700 (PDT)
+        Fri, 18 Aug 2023 08:12:29 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
@@ -56,9 +56,9 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/6] selinux: print sum of chain lengths^2 for hash tables
-Date:   Fri, 18 Aug 2023 17:12:18 +0200
-Message-Id: <20230818151220.166215-6-cgzones@googlemail.com>
+Subject: [PATCH 4/6] selinux: simplify avtab slot calculation
+Date:   Fri, 18 Aug 2023 17:12:15 +0200
+Message-Id: <20230818151220.166215-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230818151220.166215-1-cgzones@googlemail.com>
 References: <20230818151220.166215-1-cgzones@googlemail.com>
@@ -69,93 +69,37 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Print the sum of chain lengths squared as a metric for hash tables to
-provide more insights, similar to avtabs.
+Instead of dividing by 8 and then performing log2 by hand, use a more
+readable calculation.
 
-While on it add a comma in the avtab message to improve readability of
-the output.
+The behavior of rounddown_pow_of_two() for an input of 0 is undefined,
+so handle that case and small values manually to achieve the same
+results.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/avtab.c    | 2 +-
- security/selinux/ss/hashtab.c  | 5 +++++
- security/selinux/ss/hashtab.h  | 1 +
- security/selinux/ss/policydb.c | 4 ++--
- 4 files changed, 9 insertions(+), 3 deletions(-)
+ security/selinux/ss/avtab.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
 diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 86d98a8e291b..955cfe495606 100644
+index 955cfe495606..1d1ffe085b35 100644
 --- a/security/selinux/ss/avtab.c
 +++ b/security/selinux/ss/avtab.c
-@@ -349,7 +349,7 @@ void avtab_hash_eval(struct avtab *h, const char *tag)
- 	}
+@@ -298,13 +298,7 @@ int avtab_alloc(struct avtab *h, u32 nrules)
+ 	u32 nslot = 0;
  
- 	pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, "
--	       "longest chain length %d sum of chain length^2 %llu\n",
-+	       "longest chain length %d, sum of chain length^2 %llu\n",
- 	       tag, h->nel, slots_used, h->nslot, max_chain_len,
- 	       chain2_len_sum);
- }
-diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-index ac5cdddfbf78..c05d8346a94a 100644
---- a/security/selinux/ss/hashtab.c
-+++ b/security/selinux/ss/hashtab.c
-@@ -107,10 +107,12 @@ int hashtab_map(struct hashtab *h,
- void hashtab_stat(struct hashtab *h, struct hashtab_info *info)
- {
- 	u32 i, chain_len, slots_used, max_chain_len;
-+	u64 chain2_len_sum;
- 	struct hashtab_node *cur;
+ 	if (nrules != 0) {
+-		u32 shift = 1;
+-		u32 work = nrules >> 3;
+-		while (work) {
+-			work >>= 1;
+-			shift++;
+-		}
+-		nslot = 1 << shift;
++		nslot = nrules > 3 ? rounddown_pow_of_two(nrules / 2) : 2;
+ 		if (nslot > MAX_AVTAB_HASH_BUCKETS)
+ 			nslot = MAX_AVTAB_HASH_BUCKETS;
  
- 	slots_used = 0;
- 	max_chain_len = 0;
-+	chain2_len_sum = 0;
- 	for (i = 0; i < h->size; i++) {
- 		cur = h->htable[i];
- 		if (cur) {
-@@ -123,11 +125,14 @@ void hashtab_stat(struct hashtab *h, struct hashtab_info *info)
- 
- 			if (chain_len > max_chain_len)
- 				max_chain_len = chain_len;
-+
-+			chain2_len_sum += (u64)chain_len * chain_len;
- 		}
- 	}
- 
- 	info->slots_used = slots_used;
- 	info->max_chain_len = max_chain_len;
-+	info->chain2_len_sum = chain2_len_sum;
- }
- #endif /* CONFIG_SECURITY_SELINUX_DEBUG */
- 
-diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
-index f9713b56d3d0..09b0a3744937 100644
---- a/security/selinux/ss/hashtab.h
-+++ b/security/selinux/ss/hashtab.h
-@@ -38,6 +38,7 @@ struct hashtab {
- struct hashtab_info {
- 	u32 slots_used;
- 	u32 max_chain_len;
-+	u64 chain2_len_sum;
- };
- 
- /*
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 28bd75dc6f71..84f02d4f8093 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -684,9 +684,9 @@ static void hash_eval(struct hashtab *h, const char *hash_name)
- 	struct hashtab_info info;
- 
- 	hashtab_stat(h, &info);
--	pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, longest chain length %d\n",
-+	pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, longest chain length %d, sum of chain length^2 %llu\n",
- 		 hash_name, h->nel, info.slots_used, h->size,
--		 info.max_chain_len);
-+		 info.max_chain_len, info.chain2_len_sum);
- }
- 
- static void symtab_hash_eval(struct symtab *s)
 -- 
 2.40.1
 
