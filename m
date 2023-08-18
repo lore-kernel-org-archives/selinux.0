@@ -2,52 +2,53 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E63BC77B7A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2354C7EE24
 	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:13:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377993AbjHRPND (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Aug 2023 11:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34704 "EHLO
+        id S1378033AbjHRPNE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Aug 2023 11:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378071AbjHRPMo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:44 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24055420C;
-        Fri, 18 Aug 2023 08:12:27 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id a640c23a62f3a-99bf8e5ab39so133932566b.2;
-        Fri, 18 Aug 2023 08:12:27 -0700 (PDT)
+        with ESMTP id S1378095AbjHRPMs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:12:48 -0400
+Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1AB4689;
+        Fri, 18 Aug 2023 08:12:35 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-99bdcade7fbso126168766b.1;
+        Fri, 18 Aug 2023 08:12:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692371545; x=1692976345;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rmwLesiFYumNQ6O67fwcKZ7FMnVzuOPHn3ALA9q8Gkg=;
-        b=bWv9yL6kAXBMtiAE5R3Vf0Ub8ZGiElyEL7Odw7Z3/0+CCMfc6Ym2nt0TFzS4q91NGe
-         T/vzJY8OOdNIzWtoVmFSog2rI/VfXGhHW5ziEC4FkrvI1uxZ67Pew0SkAeTRxZ59CGR3
-         h0LJeU3dxCbNKIFIKicCLI3SM2SvGwbPXQBL4DDtkHuUTXj07MvqJ6x9y791lW9K/U1Q
-         9b7rQSOw86thqXaEhTTgHE5gCIwWFDNO87zSn9jBqXOzDDYTC8rWPUiGmPHbXI3c/j+F
-         ZQz517p0R9VCw+6nuf4/yIbRQIiMrSROOoNZM9CXNFmCKDrfvY01w1iA5iaO6Fsc6If7
-         PVgw==
+        d=googlemail.com; s=20221208; t=1692371553; x=1692976353;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zJbw1GCaNkp1mvMvks0R4KmZq/5vNngaaWzPgKdzcBI=;
+        b=ksW2sAFDtA29aAzJUwQOx9s35kbGa38cSw6gn/6bghi/w/hDCnNOR6d/pJJgxsFJQV
+         nvIYkxT8bY//ugPLl/NoVCre/uRgA5eCdjhQoQSHiu12/NDkdjwBfpUKHGoIFPOXJuLR
+         0ioWDR+toiAoESkX9Oxv0bYbzeomZBKccuBMZqudKFJkPfRWr/IwxWr59i4SFHDVVisn
+         hN6cazsNtrLYTA4f8kBto5U5JkH2dLdj8AjdPLzGCpIQU7TDV1Ud0ATqRZ8JJ5tiTMXT
+         FoCevzYhG8NajA9g0nsdkLA0nne+OINEbkYvZtv2XR6/HMvS7Ld24hF9GEWJVxuskGDv
+         kSCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692371545; x=1692976345;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rmwLesiFYumNQ6O67fwcKZ7FMnVzuOPHn3ALA9q8Gkg=;
-        b=VbEwUDFkOl+bH6g1sX0PseY0wPEVbznpU+fwSL9YGmCM1ht7rh03jSMx8eVQY1bpdo
-         v0wNhjkO3YggPKG9/2sYtmVsM2B3LCNdVAk/SJXsAGqTm+stLnV69qL8fIs3D/wNUQ+g
-         51ZjQkhCIVQOqaBIUpFNvrsONGXmqiekE1LjgNdKfPJnSqIV+WorDvTJP0yZbmzKPQRe
-         QzaVF4r0G1vWkOCesBH4xVqGQJ1afoPCCRV4KBw45HdXpWbgXZwCag2VDhk0ZmHEFyvX
-         Eth1k8bIls2ZF/1/fZYH8EpTNeTAeayP0+WiJ/nI01tyJY5yVvl21w1QE3qySpo5YpBe
-         lFHQ==
-X-Gm-Message-State: AOJu0Yz3KJ4dG92XDTnMTMVx4zjUS3f9R0p30tcf7O/S4Onhtg08QKRB
-        tHz6VL6w2773QE5cYbyITy+/a/7fTEh8aQ==
-X-Google-Smtp-Source: AGHT+IFJ1Hdu25ZB09hgePICL8nmS6b458AH2wdxKHHueAU4N5ZIFOtwjnnZ06Wph1T+T/fjT9+rpA==
-X-Received: by 2002:a17:906:3099:b0:974:1ef7:1e88 with SMTP id 25-20020a170906309900b009741ef71e88mr2205288ejv.13.1692371545323;
-        Fri, 18 Aug 2023 08:12:25 -0700 (PDT)
+        d=1e100.net; s=20221208; t=1692371553; x=1692976353;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zJbw1GCaNkp1mvMvks0R4KmZq/5vNngaaWzPgKdzcBI=;
+        b=C1pGWcmtnXFwdObk/YYv0h9Ld6MjrHehMZSzVNmVbMkrQChhVNNWY6Gx/qivTm5x9W
+         1EolcPP4utl7VyuMwLS7xYBfgjZVspo1/ig8MBhY+LEbgocAA/2d8wuQNWk1WoTRmFHx
+         RsB3GmWasUx9ykvDMMY4aClxTvTTeehzp2TQA7zFnmniv18Jr3dTMltU7m6p/glrRMYr
+         qcFGP1XiSEz5kGmJCVwZKKlBfMqYZSF7KaYtvrWLoC64a8kEJ8yQn8z/YZCkPa+ApyYm
+         LjawS6BQJznR+hT2aRxA3Pn98WfWO+vUgRqZOO+jEJylIbvlqKT2h/nygnxhjxIVMwx2
+         pjGQ==
+X-Gm-Message-State: AOJu0YwidPqswAb6xVfDPLIihPch0joL7cbu1gpbb+D9y5iOFvg1MLZT
+        QczQeO4dcfpX7dmTtbw9SdkAY30uih0g4w==
+X-Google-Smtp-Source: AGHT+IEA+txfXn8wU5i+Z9VkmOutImS3pUopFpT0HIgeXmvf7AQabi5uU9iMJS44FIOXvLcfFkKsHw==
+X-Received: by 2002:a17:907:762a:b0:988:9ec1:a8c5 with SMTP id jy10-20020a170907762a00b009889ec1a8c5mr1931135ejc.55.1692371553557;
+        Fri, 18 Aug 2023 08:12:33 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-071-217.95.116.pool.telefonica.de. [95.116.71.217])
-        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.24
+        by smtp.gmail.com with ESMTPSA id sa19-20020a170906edb300b0099ca4f61a8bsm1285913ejb.92.2023.08.18.08.12.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Aug 2023 08:12:25 -0700 (PDT)
+        Fri, 18 Aug 2023 08:12:33 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
@@ -55,10 +56,12 @@ Cc:     Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 2/6] selinux: dump statistics for more hash tables
-Date:   Fri, 18 Aug 2023 17:12:13 +0200
-Message-Id: <20230818151220.166215-1-cgzones@googlemail.com>
+Subject: [PATCH 6/6] selinux: improve symtab string hashing
+Date:   Fri, 18 Aug 2023 17:12:17 +0200
+Message-Id: <20230818151220.166215-5-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230818151220.166215-1-cgzones@googlemail.com>
+References: <20230818151220.166215-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -66,61 +69,68 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dump in the SELinux debug configuration the statistics for the
-conditional rules avtab, the role transition, and class and common
-permission hash tables.
+The number of buckets is calculated by performing a binary AND against
+the mask of the hash table, which is one less than its size (which is a
+power of two).  This leads to all top bits being discarded, requiring
+for short or similar inputs a hash function with a good avalanche
+effect.
+
+Use djb2a:
+
+    # current
+    common prefixes:  7 entries and 5/8 buckets used, longest chain length 2, sum of chain length^2 11
+    classes:  134 entries and 100/256 buckets used, longest chain length 5, sum of chain length^2 234
+    roles:  15 entries and 6/16 buckets used, longest chain length 5, sum of chain length^2 57
+    types:  4448 entries and 3016/8192 buckets used, longest chain length 41, sum of chain length^2 14922
+    users:  7 entries and 3/8 buckets used, longest chain length 3, sum of chain length^2 17
+    bools:  306 entries and 221/512 buckets used, longest chain length 4, sum of chain length^2 524
+    levels:  1 entries and 1/1 buckets used, longest chain length 1, sum of chain length^2 1
+    categories:  1024 entries and 400/1024 buckets used, longest chain length 4, sum of chain length^2 2740
+
+    # patch
+    common prefixes:  7 entries and 5/8 buckets used, longest chain length 2, sum of chain length^2 11
+    classes:  134 entries and 101/256 buckets used, longest chain length 3, sum of chain length^2 210
+    roles:  15 entries and 9/16 buckets used, longest chain length 3, sum of chain length^2 31
+    types:  4448 entries and 3459/8192 buckets used, longest chain length 5, sum of chain length^2 6778
+    users:  7 entries and 5/8 buckets used, longest chain length 3, sum of chain length^2 13
+    bools:  306 entries and 236/512 buckets used, longest chain length 5, sum of chain length^2 470
+    levels:  1 entries and 1/1 buckets used, longest chain length 1, sum of chain length^2 1
+    categories:  1024 entries and 518/1024 buckets used, longest chain length 7, sum of chain length^2 2992
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/conditional.c | 3 +++
- security/selinux/ss/policydb.c    | 6 ++++++
- 2 files changed, 9 insertions(+)
+ security/selinux/ss/symtab.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index 81ff676f209a..0dd17fe76286 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -171,6 +171,9 @@ int cond_init_bool_indexes(struct policydb *p)
- 					      GFP_KERNEL);
- 	if (!p->bool_val_to_struct)
- 		return -ENOMEM;
+diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
+index 43d7f0319ccd..b6761b96eee4 100644
+--- a/security/selinux/ss/symtab.c
++++ b/security/selinux/ss/symtab.c
+@@ -11,16 +11,14 @@
+ 
+ static unsigned int symhash(const void *key)
+ {
+-	const char *p, *keyp;
+-	unsigned int size;
+-	unsigned int val;
+-
+-	val = 0;
+-	keyp = key;
+-	size = strlen(keyp);
+-	for (p = keyp; (p - keyp) < size; p++)
+-		val = (val << 4 | (val >> (8*sizeof(unsigned int)-4))) ^ (*p);
+-	return val;
++	/* djb2a */
++	unsigned int hash = 5381;
++	unsigned char c;
 +
-+	avtab_hash_eval(&p->te_cond_avtab, "conditional_rules");
++	while ((c = *(const unsigned char *)key++))
++		hash = ((hash << 5) + hash) ^ c;
 +
- 	return 0;
++	return hash;
  }
  
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 84f02d4f8093..932e383bcad6 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1158,6 +1158,8 @@ static int common_read(struct policydb *p, struct symtab *s, void *fp)
- 			goto bad;
- 	}
- 
-+	hash_eval(&comdatum->permissions.table, "common_permissions");
-+
- 	rc = symtab_insert(s, key, comdatum);
- 	if (rc)
- 		goto bad;
-@@ -1339,6 +1341,8 @@ static int class_read(struct policydb *p, struct symtab *s, void *fp)
- 			goto bad;
- 	}
- 
-+	hash_eval(&cladatum->permissions.table, "class_permissions");
-+
- 	rc = read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
- 	if (rc)
- 		goto bad;
-@@ -2616,6 +2620,8 @@ int policydb_read(struct policydb *p, void *fp)
- 		rtd = NULL;
- 	}
- 
-+	hash_eval(&p->role_tr, "roletr");
-+
- 	rc = next_entry(buf, fp, sizeof(u32));
- 	if (rc)
- 		goto bad;
+ static int symcmp(const void *key1, const void *key2)
 -- 
 2.40.1
 
