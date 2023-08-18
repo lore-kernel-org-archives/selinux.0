@@ -2,185 +2,109 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7685BC7115C
-	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:27:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1B9FC71159
+	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:29:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377984AbjHRP0j (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Aug 2023 11:26:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37526 "EHLO
+        id S1345522AbjHRP3S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Aug 2023 11:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378256AbjHRP0Z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:26:25 -0400
-Received: from out-10.mta1.migadu.com (out-10.mta1.migadu.com [95.215.58.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47E304202
-        for <selinux@vger.kernel.org>; Fri, 18 Aug 2023 08:26:22 -0700 (PDT)
-Message-ID: <a1a18bec-e694-9a51-9d88-753baf0e6d2b@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1692372380; h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rpOkpEVZn5CL5W7EAycreIplkq31utU1vc2qT8RLF0I=;
-        b=eBSx5X1E+DVJxnvdttP+6LGiobNZ2bXieBHa4SYqjjpROll57ltjQHcGaqQuIsY2HRil/w
-        H4f++ByqLdjgVDSFB1I2rb2uicMilticELsV3OLADKQ70uGWAuPiZHzEWRH4CGdc4JfiOB
-        7MMqkNOEj6wpi9+abF+K/C+jZFB5YIg=
-Date:   Fri, 18 Aug 2023 08:26:06 -0700
-MIME-Version: 1.0
-Reply-To: yonghong.song@linux.dev
-Subject: Re: [PATCH bpf-next v14 1/4] bpf: Add update_socket_protocol hook
-Content-Language: en-US
-To:     Geliang Tang <geliang.tang@suse.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Florent Revest <revest@chromium.org>,
-        Brendan Jackman <jackmanb@chromium.org>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <martineau@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Paul Moore <paul@paul-moore.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+        with ESMTP id S1378219AbjHRP3R (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:29:17 -0400
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EEC2D69;
+        Fri, 18 Aug 2023 08:29:15 -0700 (PDT)
+Received: by mail-lj1-x233.google.com with SMTP id 38308e7fff4ca-2b9b5ee9c5aso15996321fa.1;
+        Fri, 18 Aug 2023 08:29:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20221208; t=1692372554; x=1692977354;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=tGdhKDagLNiyvMYG4vSpVc/SWNCjljR9K7K1OsrdWaE=;
+        b=MwPzDBJhV7igODZT5nXZdih7Mtw8E8LRKumyLrNRhCj2uJo3YG+j3gnV2RcGX1done
+         AgliGTCMnkghr1okSuZcO1Sjfy9Nr9sfVsLSYmxlU5X4YZ+yCGtLxRMWbTsh51/utoo9
+         1IwU++yk96A7av17PjAVFFtDHfqPLKn5bpa3PQAG3LfizJLBguiUNv52bKqFii+rn2eu
+         4gy9QSxKWL7rYEKeNxsuN+/+wRqyuHO5jDEb5tGFyafcjGZd24kjY4+2BjxFGMQ0jUxJ
+         iWL1pCAIDVpunah5tCdfNOHRhbkZ/tRpJpMrCljK8+BtdZEg7yTJZi2nTs87MUG4g+zx
+         +Xpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692372554; x=1692977354;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tGdhKDagLNiyvMYG4vSpVc/SWNCjljR9K7K1OsrdWaE=;
+        b=JgtdU3nIunizhsfY2Id9Hb71badS9v9FboVv2YfIIEu2kXWy11KmG/OV5+O57urNsT
+         ygzroN6J8sSN5OFJIZrEQ2BlbccHMaFtGAw5UfZ5of7PZYGusnVQKU/LNkpCIg95KKtN
+         g8a58quCKXcM6kBPk1VJFAZj235zTqLBLAI67KvsUFohJahPr+UxXFGbmfhS7f34MEUV
+         0CuiiN0LqDP5ZGZ4J8hGNKP7Jhqz11zds90cxZ4lZMPH/VY6lxFXu+GNLuUtEm7qWm+4
+         FaurB43eP/e18TCLXyhl+W3A1pr782Gy1gDRLt2VlO4tIBu3iJ/EnMPBchmS+H90Jqwm
+         vmWg==
+X-Gm-Message-State: AOJu0YwGwTwwR+dw4eaje2cqnk4vHl0J/AbZBlHRpZZCpuhQvfKSnjos
+        6MoOl9kZJ4GRju90MaKsf37T46Ahcrd0qA==
+X-Google-Smtp-Source: AGHT+IGkbgl6jn14jt/o0eSJUF1QSIigvpFhD3+0nyY7tr854Zx7mv71Gb18aw9pTtsbbwK4BUeoZQ==
+X-Received: by 2002:a2e:9b0d:0:b0:2b9:ba02:436c with SMTP id u13-20020a2e9b0d000000b002b9ba02436cmr2370679lji.28.1692372553487;
+        Fri, 18 Aug 2023 08:29:13 -0700 (PDT)
+Received: from debian_development.DebianHome (dynamic-095-116-071-217.95.116.pool.telefonica.de. [95.116.71.217])
+        by smtp.gmail.com with ESMTPSA id l7-20020a17090615c700b00999bb1e01dfsm1294142ejd.52.2023.08.18.08.29.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Aug 2023 08:29:13 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
-        Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
-        Simon Horman <horms@kernel.org>
-Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org, mptcp@lists.linux.dev,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-References: <cover.1692147782.git.geliang.tang@suse.com>
- <ac84be00f97072a46f8a72b4e2be46cbb7fa5053.1692147782.git.geliang.tang@suse.com>
- <20230818082417.GA20274@bogon>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Yonghong Song <yonghong.song@linux.dev>
-In-Reply-To: <20230818082417.GA20274@bogon>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: reject invalid ebitmaps
+Date:   Fri, 18 Aug 2023 17:29:09 +0200
+Message-Id: <20230818152910.176044-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.40.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Reject ebitmaps with a node containing an empty map or with an incorrect
+highbit.  Both checks are already performed by userspace, the former
+since 2008 (patch 13cd4c896068 ("initial import from svn trunk revision
+2950")), the latter since v2.7 in 2017 (patch 75b14a5de10a ("libsepol:
+ebitmap: reject loading bitmaps with incorrect high bit")).
 
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ security/selinux/ss/ebitmap.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-On 8/18/23 1:24 AM, Geliang Tang wrote:
-> On Wed, Aug 16, 2023 at 09:11:56AM +0800, Geliang Tang wrote:
->> Add a hook named update_socket_protocol in __sys_socket(), for bpf
->> progs to attach to and update socket protocol. One user case is to
->> force legacy TCP apps to create and use MPTCP sockets instead of
->> TCP ones.
->>
->> Define a fmod_ret set named bpf_mptcp_fmodret_ids, add the hook
->> update_socket_protocol into this set, and register it in
->> bpf_mptcp_kfunc_init().
->>
->> Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/79
->> Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
->> Acked-by: Yonghong Song <yonghong.song@linux.dev>
->> Signed-off-by: Geliang Tang <geliang.tang@suse.com>
->> ---
->>   net/mptcp/bpf.c | 15 +++++++++++++++
->>   net/socket.c    | 26 +++++++++++++++++++++++++-
->>   2 files changed, 40 insertions(+), 1 deletion(-)
->>
->> diff --git a/net/mptcp/bpf.c b/net/mptcp/bpf.c
->> index 5a0a84ad94af..8a16672b94e2 100644
->> --- a/net/mptcp/bpf.c
->> +++ b/net/mptcp/bpf.c
->> @@ -19,3 +19,18 @@ struct mptcp_sock *bpf_mptcp_sock_from_subflow(struct sock *sk)
->>   
->>   	return NULL;
->>   }
->> +
->> +BTF_SET8_START(bpf_mptcp_fmodret_ids)
->> +BTF_ID_FLAGS(func, update_socket_protocol)
->> +BTF_SET8_END(bpf_mptcp_fmodret_ids)
->> +
->> +static const struct btf_kfunc_id_set bpf_mptcp_fmodret_set = {
->> +	.owner = THIS_MODULE,
->> +	.set   = &bpf_mptcp_fmodret_ids,
->> +};
->> +
->> +static int __init bpf_mptcp_kfunc_init(void)
->> +{
->> +	return register_btf_fmodret_id_set(&bpf_mptcp_fmodret_set);
->> +}
->> +late_initcall(bpf_mptcp_kfunc_init);
->> diff --git a/net/socket.c b/net/socket.c
->> index 5d4e37595e9a..fdb5233bf560 100644
->> --- a/net/socket.c
->> +++ b/net/socket.c
->> @@ -1657,12 +1657,36 @@ struct file *__sys_socket_file(int family, int type, int protocol)
->>   	return sock_alloc_file(sock, flags, NULL);
->>   }
->>   
->> +/*	A hook for bpf progs to attach to and update socket protocol.
->> + *
->> + *	A static noinline declaration here could cause the compiler to
->> + *	optimize away the function. A global noinline declaration will
->> + *	keep the definition, but may optimize away the callsite.
->> + *	Therefore, __weak is needed to ensure that the call is still
->> + *	emitted, by telling the compiler that we don't know what the
->> + *	function might eventually be.
->> + *
->> + *	__diag_* below are needed to dismiss the missing prototype warning.
->> + */
->> +
->> +__diag_push();
->> +__diag_ignore_all("-Wmissing-prototypes",
->> +		  "A fmod_ret entry point for BPF programs");
-> 
-> Hi Martin & Yonghong,
-> 
-> I got a sparse warning for this new added 'update_socket_protocol':
-> 
->   > touch net/socket.c && make C=1 net/socket.o
-> 
->   net/socket.c:1676:21: warning: symbol 'update_socket_protocol' was not declared. Should it be static?
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index 77875ad355f7..ac9da819531d 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -450,6 +450,10 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 			goto bad;
+ 		}
+ 		map = le64_to_cpu(mapbits);
++		if (!map) {
++			pr_err("SELinux: ebitmap: empty map\n");
++			goto bad;
++		}
+ 
+ 		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
+ 		while (map) {
+@@ -457,6 +461,13 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 			map = EBITMAP_SHIFT_UNIT_SIZE(map);
+ 		}
+ 	}
++
++	if (n && n->startbit + EBITMAP_SIZE != e->highbit) {
++		pr_err("SELinux: ebitmap: high bit %d has not the expected value %ld\n",
++		       e->highbit, n->startbit + EBITMAP_SIZE);
++		goto bad;
++	}
++
+ ok:
+ 	rc = 0;
+ out:
+-- 
+2.40.1
 
-This is a sparse warning. Let us ignore it for now. We already have
-__diag_ignore for missing prototypes in the above, but sparse won't 
-recognize them. Also, 'static' is conflict with '__weak' attribute,
-and we cannot remove '__weak' attribute.
-
-> 
-> What should I do to fix it, or should I just leave it here? Please give
-> me some suggestions.
-> 
-> Thanks,
-> -Geliang
-> 
->> +
->> +__weak noinline int update_socket_protocol(int family, int type, int protocol)
->> +{
->> +	return protocol;
->> +}
->> +
->> +__diag_pop();
->> +
->>   int __sys_socket(int family, int type, int protocol)
->>   {
->>   	struct socket *sock;
->>   	int flags;
->>   
->> -	sock = __sys_socket_create(family, type, protocol);
->> +	sock = __sys_socket_create(family, type,
->> +				   update_socket_protocol(family, type, protocol));
->>   	if (IS_ERR(sock))
->>   		return PTR_ERR(sock);
->>   
->> -- 
->> 2.35.3
->>
-> 
