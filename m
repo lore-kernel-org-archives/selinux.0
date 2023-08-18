@@ -2,61 +2,62 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1B9FC71159
-	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:29:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 362B0C7115C
+	for <selinux@archiver.kernel.org>; Fri, 18 Aug 2023 15:34:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345522AbjHRP3S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Aug 2023 11:29:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45468 "EHLO
+        id S1353502AbjHRPeJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Aug 2023 11:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378219AbjHRP3R (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:29:17 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EEC2D69;
-        Fri, 18 Aug 2023 08:29:15 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id 38308e7fff4ca-2b9b5ee9c5aso15996321fa.1;
-        Fri, 18 Aug 2023 08:29:15 -0700 (PDT)
+        with ESMTP id S1378209AbjHRPeF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Aug 2023 11:34:05 -0400
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64B292D59;
+        Fri, 18 Aug 2023 08:34:04 -0700 (PDT)
+Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-997c4107d62so136952266b.0;
+        Fri, 18 Aug 2023 08:34:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20221208; t=1692372554; x=1692977354;
+        d=googlemail.com; s=20221208; t=1692372843; x=1692977643;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=tGdhKDagLNiyvMYG4vSpVc/SWNCjljR9K7K1OsrdWaE=;
-        b=MwPzDBJhV7igODZT5nXZdih7Mtw8E8LRKumyLrNRhCj2uJo3YG+j3gnV2RcGX1done
-         AgliGTCMnkghr1okSuZcO1Sjfy9Nr9sfVsLSYmxlU5X4YZ+yCGtLxRMWbTsh51/utoo9
-         1IwU++yk96A7av17PjAVFFtDHfqPLKn5bpa3PQAG3LfizJLBguiUNv52bKqFii+rn2eu
-         4gy9QSxKWL7rYEKeNxsuN+/+wRqyuHO5jDEb5tGFyafcjGZd24kjY4+2BjxFGMQ0jUxJ
-         iWL1pCAIDVpunah5tCdfNOHRhbkZ/tRpJpMrCljK8+BtdZEg7yTJZi2nTs87MUG4g+zx
-         +Xpw==
+        bh=bF4TgkbLm0fvbwnbGkYZU8P4NjgBdb0I7AE42Vz1VxE=;
+        b=YM89jcpEG/wAcdZAu583E+8CcevhptfW93UQ74eV1QkAa6Iqln1binF7pJ+05ZO3Zu
+         oV8OJzyEdUzEwEYl9wp56pHlQdAGaY494/vONT6nFp92Kj1skRTqqYfi6ngB9X/BCshQ
+         KxPnx42/YMdwGKYAAD3XfNVqmBbefz38MK/v2sKLuHieUqbhPU6kFIV1M9jMiiS/Nl+I
+         2aQ7W6/1wVDPzdmGqrHFLTuJhS7GeG3GzkPKp32HQ+aZArR37UHw8WwrIvfBPdG3v/sp
+         DT93dfGdpc/8QUMwH/oU3H2FOu5A31hVz47O1StOXstcrMoZ2bMoxpfXnEwysbBN+lwm
+         o5dQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692372554; x=1692977354;
+        d=1e100.net; s=20221208; t=1692372843; x=1692977643;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=tGdhKDagLNiyvMYG4vSpVc/SWNCjljR9K7K1OsrdWaE=;
-        b=JgtdU3nIunizhsfY2Id9Hb71badS9v9FboVv2YfIIEu2kXWy11KmG/OV5+O57urNsT
-         ygzroN6J8sSN5OFJIZrEQ2BlbccHMaFtGAw5UfZ5of7PZYGusnVQKU/LNkpCIg95KKtN
-         g8a58quCKXcM6kBPk1VJFAZj235zTqLBLAI67KvsUFohJahPr+UxXFGbmfhS7f34MEUV
-         0CuiiN0LqDP5ZGZ4J8hGNKP7Jhqz11zds90cxZ4lZMPH/VY6lxFXu+GNLuUtEm7qWm+4
-         FaurB43eP/e18TCLXyhl+W3A1pr782Gy1gDRLt2VlO4tIBu3iJ/EnMPBchmS+H90Jqwm
-         vmWg==
-X-Gm-Message-State: AOJu0YwGwTwwR+dw4eaje2cqnk4vHl0J/AbZBlHRpZZCpuhQvfKSnjos
-        6MoOl9kZJ4GRju90MaKsf37T46Ahcrd0qA==
-X-Google-Smtp-Source: AGHT+IGkbgl6jn14jt/o0eSJUF1QSIigvpFhD3+0nyY7tr854Zx7mv71Gb18aw9pTtsbbwK4BUeoZQ==
-X-Received: by 2002:a2e:9b0d:0:b0:2b9:ba02:436c with SMTP id u13-20020a2e9b0d000000b002b9ba02436cmr2370679lji.28.1692372553487;
-        Fri, 18 Aug 2023 08:29:13 -0700 (PDT)
+        bh=bF4TgkbLm0fvbwnbGkYZU8P4NjgBdb0I7AE42Vz1VxE=;
+        b=DEI5fo6gSBQl9HtNYcvXjfnJWVfIdWok1LtsiHSaLKDuIjuF6V5bgVGmH5CQPY1Rxc
+         Ewnz/ZUtdKrA9hQlhBR6zu1M5bl+yCl/E1nIe+YAsDUgS5p8lFy8CYLKE95t3xsEw5sm
+         giyNYjJ15etqJS5+aDebmEGKWNwv695xdG2C8kf9J1/mlFFGkjRZKDeHYIqlEtQ0RSeW
+         xfh6ZQLa4DiOjlVcZRWN2OvPWyz/qPMNgNXEyCse3PeErzqzLh7YKj17T5gaYp24bxan
+         fJiKpcpNClKoGZVX9qtY2VN+yGqkCD9XVdCrek5bscAl7t+dgXF5d/uJVSNprh9q0qgj
+         0pDQ==
+X-Gm-Message-State: AOJu0YzCKrNQleEIZt/ZmDe3/licXzgKaHBfeFrVfq6iaN3fWMEQyJfC
+        rmZdbq91Q8E2urYtBaqM0ixXct5T81hDIw==
+X-Google-Smtp-Source: AGHT+IGicpmCzG4jBwkYy0+7/tsg17Kebn63f9HkvNw3qynPSaJZGVjBWRakzh6PsexvBfBQd3p80g==
+X-Received: by 2002:a17:907:75e6:b0:987:5761:2868 with SMTP id jz6-20020a17090775e600b0098757612868mr2184753ejc.11.1692372842475;
+        Fri, 18 Aug 2023 08:34:02 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-071-217.95.116.pool.telefonica.de. [95.116.71.217])
-        by smtp.gmail.com with ESMTPSA id l7-20020a17090615c700b00999bb1e01dfsm1294142ejd.52.2023.08.18.08.29.12
+        by smtp.gmail.com with ESMTPSA id kd16-20020a17090798d000b00992b7ff3993sm1299671ejc.126.2023.08.18.08.34.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Aug 2023 08:29:13 -0700 (PDT)
+        Fri, 18 Aug 2023 08:34:02 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
 Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: reject invalid ebitmaps
-Date:   Fri, 18 Aug 2023 17:29:09 +0200
-Message-Id: <20230818152910.176044-1-cgzones@googlemail.com>
+Subject: [PATCH] selinux: set next pointer before attaching to list
+Date:   Fri, 18 Aug 2023 17:33:58 +0200
+Message-Id: <20230818153358.179248-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,46 +66,36 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Reject ebitmaps with a node containing an empty map or with an incorrect
-highbit.  Both checks are already performed by userspace, the former
-since 2008 (patch 13cd4c896068 ("initial import from svn trunk revision
-2950")), the latter since v2.7 in 2017 (patch 75b14a5de10a ("libsepol:
-ebitmap: reject loading bitmaps with incorrect high bit")).
+Set the next pointer in filename_trans_read_helper() before attaching
+the new node under construction to the list, otherwise garbage would be
+dereferenced on subsequent failure during cleanup in the out goto label.
 
+Fixes: 430059024389 ("selinux: implement new format of filename transitions")
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/ebitmap.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ security/selinux/ss/policydb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 77875ad355f7..ac9da819531d 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -450,6 +450,10 @@ int ebitmap_read(struct ebitmap *e, void *fp)
- 			goto bad;
- 		}
- 		map = le64_to_cpu(mapbits);
-+		if (!map) {
-+			pr_err("SELinux: ebitmap: empty map\n");
-+			goto bad;
-+		}
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 28bd75dc6f71..2d528f699a22 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -2009,6 +2009,7 @@ static int filename_trans_read_helper(struct policydb *p, void *fp)
+ 		if (!datum)
+ 			goto out;
  
- 		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
- 		while (map) {
-@@ -457,6 +461,13 @@ int ebitmap_read(struct ebitmap *e, void *fp)
- 			map = EBITMAP_SHIFT_UNIT_SIZE(map);
- 		}
++		datum->next = NULL;
+ 		*dst = datum;
+ 
+ 		/* ebitmap_read() will at least init the bitmap */
+@@ -2021,7 +2022,6 @@ static int filename_trans_read_helper(struct policydb *p, void *fp)
+ 			goto out;
+ 
+ 		datum->otype = le32_to_cpu(buf[0]);
+-		datum->next = NULL;
+ 
+ 		dst = &datum->next;
  	}
-+
-+	if (n && n->startbit + EBITMAP_SIZE != e->highbit) {
-+		pr_err("SELinux: ebitmap: high bit %d has not the expected value %ld\n",
-+		       e->highbit, n->startbit + EBITMAP_SIZE);
-+		goto bad;
-+	}
-+
- ok:
- 	rc = 0;
- out:
 -- 
 2.40.1
 
