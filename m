@@ -2,64 +2,65 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8EE2EE49AF
-	for <selinux@archiver.kernel.org>; Wed, 23 Aug 2023 08:57:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B2D1EE4993
+	for <selinux@archiver.kernel.org>; Wed, 23 Aug 2023 08:59:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235016AbjHWI5N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Aug 2023 04:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40502 "EHLO
+        id S234889AbjHWI53 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Aug 2023 04:57:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234938AbjHWIxp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Aug 2023 04:53:45 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69BA91FC7;
-        Wed, 23 Aug 2023 01:51:32 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id 5b1f17b1804b1-3fee769fd53so35409245e9.1;
-        Wed, 23 Aug 2023 01:51:32 -0700 (PDT)
+        with ESMTP id S235057AbjHWIzm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Aug 2023 04:55:42 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C5F2268B;
+        Wed, 23 Aug 2023 01:44:51 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-3fef2f05356so25303765e9.0;
+        Wed, 23 Aug 2023 01:44:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692780691; x=1693385491;
+        d=gmail.com; s=20221208; t=1692780290; x=1693385090;
         h=content-disposition:mime-version:message-id:subject:to:from:date
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=ins+aoeevfrM2N2uoE9dDFUb3W9Apm1jV2A2ukI9V7k=;
-        b=VnnN3tXNhHVy13DfPC8w0dVEHWthUl+TZ5KVVHf0FH+DYTW3ojh9VFxziBUwwRdYoc
-         v/cepRcg7sltX7lBpWX24ElHh82pko9ohWyeI2InAQPIBYaXUNET//I5f6owF9aaK8xB
-         /hjMvCodvInK7XX5VyvyfSDjXNGysKY0fxx28u1FC4uFACCyLA5Jn38yw/NZgtGWFNnx
-         X1gEDdBDoASiGDllmm2BlSiFKImnupUTDUgO+pGKkgMI45SBwbk6W0Lnytd92X178ORb
-         pt2FjzCBnCW/7qlbORDVlwCg5ASy0tsJbmJHtRhulvYQYvrp/WZBRJ94PsxiUHzL9i6Y
-         RXgQ==
+        bh=qDc8l3Yzp5tDJpEn7LMGbnQ8OZ73E/PvsDzFi6JBRGg=;
+        b=k3GQIgBx9xjTNWfWp3bav2qDM5n05bOba37PlEh2emOGBOH6FGbk4Qn43bxkihGE7E
+         0kzcUU1LwesF6z+9vFDwJzDMWvvxHIOgOpexPqA0O1YTZ0L7KaHeTlLyCDUbebiAHE65
+         61uiKpQiDqecRF5lMs32YK2/Tha0SmXpRiXbYwdaJDOz6G2/0al7Xq//czGJj8IsZkSQ
+         KEFZcvHTrzqC5qx6OkRkhnS/lQ67kywVMQK38vnYGPbyhQPsI8pLYpdxzYLmWgHm5FLC
+         UbqeSGWqNku0Cv6E/9T1zTD14SpoCFH76u3pLhUw87UUhdcFYlgKmFO9T7tMrht7SvKb
+         mneA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692780691; x=1693385491;
+        d=1e100.net; s=20221208; t=1692780290; x=1693385090;
         h=content-disposition:mime-version:message-id:subject:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ins+aoeevfrM2N2uoE9dDFUb3W9Apm1jV2A2ukI9V7k=;
-        b=PdcuMqNg19GMwNxZYzDlUUYWJdM26Xj+2I9ZiwheLAl3OQ+IPRd5rNPW/AgzUVY0lZ
-         wAp8yo8NEFJlwi7QRSMaBpL3b2QhTyFahNABM5fazwHQsK2VEoWBclblWybyDWMPq18H
-         WGo2zXlQl8klZM0et+uaTWvdenhAqeECMkgoRbhmM7pukcy1eVwlPStWYa+bZuHAGXC0
-         UlUthGHMlewK3GFJJqut0uhDiPnbVLwlCt8LDDkLbuLZI68czIPpE5X5vkPi45EfV7Hl
-         s4/lgn+1JTAY6GdRswxXRSrOVeCgggt88OpUphwHvvlbMVwjRY/XhTrX+N5R4Kz9+ZHc
-         RvyQ==
-X-Gm-Message-State: AOJu0YwUFyqntzSvAYMfLzBQIsXvmWd7JeF5xPbOUa4mhtAyavA4ac1T
-        mh20LhAcQmctfsn9tT5NHJM=
-X-Google-Smtp-Source: AGHT+IG/PyFTUsbBdpcSGxfFT+5psF/daoSgA9PzozLbcDrQimZJPzkouWAil7uNGbS/GVJfy1MduA==
-X-Received: by 2002:a05:600c:3799:b0:3fe:5053:1a0b with SMTP id o25-20020a05600c379900b003fe50531a0bmr10090752wmr.11.1692780690674;
-        Wed, 23 Aug 2023 01:51:30 -0700 (PDT)
+        bh=qDc8l3Yzp5tDJpEn7LMGbnQ8OZ73E/PvsDzFi6JBRGg=;
+        b=I+UtRvcN1W0h3Dzw/OFSFgIhHBxlnwmcSHVkFOAM021bGseMD+UwOqp2f10j3HBr64
+         LJASknLWc+/mbfK/GrH+I3bBqmxovVvdLWbW8P3TdqOTALX9KEnPBPYELQ8bU1Tuk1l4
+         78CwLknlob+8k5lG792q5dJj88pXOJb/xO8BsWeWwYy/jtKbrLK1U9PLr8JyAfRBRKXH
+         FET1IJeS+rHTu9ktHPSTu+z7VSmHDuhBORr/wqJZ10tJ1X3/Vy8YaTmv1W/nakReUiVC
+         v7q7klD+FqDg3C6E9AraYssKcuaABvOantz2CVHoZAHX7Kpkafyo0R9zeor0+ooc6uSm
+         pgNQ==
+X-Gm-Message-State: AOJu0YyrK3Rc0CEHmm2j/hFdtOTSGXN/VXEovCfB/dEQsefcPX6+GTQD
+        GQgZ3SAuIHFvZThgcMl0qJ8=
+X-Google-Smtp-Source: AGHT+IEJ8b1KzeciqboA2CRFXXlm+Zx9pnOG7fxIuXsgE5Mg25Z2OiKoNgwyB/ea3FEOJ6hLGq1IDw==
+X-Received: by 2002:adf:e844:0:b0:317:568d:d69a with SMTP id d4-20020adfe844000000b00317568dd69amr9147173wrn.11.1692780289823;
+        Wed, 23 Aug 2023 01:44:49 -0700 (PDT)
 Received: from khadija-virtual-machine ([124.29.208.67])
-        by smtp.gmail.com with ESMTPSA id 21-20020a05600c22d500b003fee777fd84sm13169744wmg.41.2023.08.23.01.51.29
+        by smtp.gmail.com with ESMTPSA id n17-20020a5d4211000000b0030ae499da59sm18067674wrq.111.2023.08.23.01.44.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Aug 2023 01:51:30 -0700 (PDT)
-Date:   Wed, 23 Aug 2023 13:51:27 +0500
+        Wed, 23 Aug 2023 01:44:49 -0700 (PDT)
+Date:   Wed, 23 Aug 2023 13:44:45 +0500
 From:   Khadija Kamran <kamrankhadijadj@gmail.com>
-To:     =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+To:     Casey Schaufler <casey@schaufler-ca.com>,
         Paul Moore <paul@paul-moore.com>,
         James Morris <jmorris@namei.org>,
         "Serge E. Hallyn" <serge@hallyn.com>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        ztarkhani@microsoft.com, alison.schofield@intel.com
-Subject: [PATCH] lsm: constify 'sb' parameter in security_sb_remount()
-Message-ID: <ZOXIjzLnnbuoLOrF@gmail.com>
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, ztarkhani@microsoft.com,
+        alison.schofield@intel.com
+Subject: [PATCH] lsm: constify 'mnt_opts' parameter in
+ security_free_mnt_opts()
+Message-ID: <ZOXG/VVC1XRc7TtI@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -67,87 +68,87 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The "sb_remount" hook has implementations registered in SELinux and
-Landlock. Looking at the function implementations we observe that the
-"sb" parameter is not changing.
+The "sb_free_mnt_opts" hook has implementations registered in SELinux
+and Smack. Looking at the function implementations we observe that the
+"mnt_opts" parameter is not changing.
 
-Mark the "sb" parameter of LSM hook security_sb_remount() as "const"
-since it will not be changing in the LSM hook.
+Mark the "mnt_opts" parameter of LSM hook security_free_mnt_opts() as
+"const" since it will not be changing in the LSM hook.
 
 Signed-off-by: Khadija Kamran <kamrankhadijadj@gmail.com>
 ---
  include/linux/lsm_hook_defs.h | 2 +-
  include/linux/security.h      | 2 +-
- security/landlock/fs.c        | 2 +-
  security/security.c           | 2 +-
  security/selinux/hooks.c      | 2 +-
+ security/smack/smack_lsm.c    | 2 +-
  5 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 6bb55e61e8e8..dca689c9ac04 100644
+index 6bb55e61e8e8..7b193349db89 100644
 --- a/include/linux/lsm_hook_defs.h
 +++ b/include/linux/lsm_hook_defs.h
-@@ -64,7 +64,7 @@ LSM_HOOK(void, LSM_RET_VOID, sb_free_security, struct super_block *sb)
- LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, void *mnt_opts)
+@@ -61,7 +61,7 @@ LSM_HOOK(int, -ENOPARAM, fs_context_parse_param, struct fs_context *fc,
+ LSM_HOOK(int, 0, sb_alloc_security, struct super_block *sb)
+ LSM_HOOK(void, LSM_RET_VOID, sb_delete, struct super_block *sb)
+ LSM_HOOK(void, LSM_RET_VOID, sb_free_security, struct super_block *sb)
+-LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, void *mnt_opts)
++LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, const void *mnt_opts)
  LSM_HOOK(int, 0, sb_eat_lsm_opts, char *orig, void **mnt_opts)
  LSM_HOOK(int, 0, sb_mnt_opts_compat, struct super_block *sb, void *mnt_opts)
--LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
-+LSM_HOOK(int, 0, sb_remount, const struct super_block *sb, void *mnt_opts)
- LSM_HOOK(int, 0, sb_kern_mount, struct super_block *sb)
- LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
- LSM_HOOK(int, 0, sb_statfs, struct dentry *dentry)
+ LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
 diff --git a/include/linux/security.h b/include/linux/security.h
-index e2734e9e44d5..ce08ed7d5437 100644
+index e2734e9e44d5..acdd1eccf2d3 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -301,7 +301,7 @@ void security_sb_free(struct super_block *sb);
- void security_free_mnt_opts(void **mnt_opts);
+@@ -298,7 +298,7 @@ int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *
+ int security_sb_alloc(struct super_block *sb);
+ void security_sb_delete(struct super_block *sb);
+ void security_sb_free(struct super_block *sb);
+-void security_free_mnt_opts(void **mnt_opts);
++void security_free_mnt_opts(const void **mnt_opts);
  int security_sb_eat_lsm_opts(char *options, void **mnt_opts);
  int security_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts);
--int security_sb_remount(struct super_block *sb, void *mnt_opts);
-+int security_sb_remount(const struct super_block *sb, void *mnt_opts);
- int security_sb_kern_mount(struct super_block *sb);
- int security_sb_show_options(struct seq_file *m, struct super_block *sb);
- int security_sb_statfs(struct dentry *dentry);
-diff --git a/security/landlock/fs.c b/security/landlock/fs.c
-index 1c0c198f6fdb..fabe324922ec 100644
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -1074,7 +1074,7 @@ static int hook_sb_umount(struct vfsmount *const mnt, const int flags)
- 	return -EPERM;
- }
- 
--static int hook_sb_remount(struct super_block *const sb, void *const mnt_opts)
-+static int hook_sb_remount(const struct super_block *const sb, void *const mnt_opts)
- {
- 	if (!landlock_get_current_domain())
- 		return 0;
+ int security_sb_remount(struct super_block *sb, void *mnt_opts);
 diff --git a/security/security.c b/security/security.c
-index d5ff7ff45b77..acc8a92ba857 100644
+index d5ff7ff45b77..8386d764d9fc 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -1289,7 +1289,7 @@ EXPORT_SYMBOL(security_sb_mnt_opts_compat);
+@@ -1238,7 +1238,7 @@ void security_sb_free(struct super_block *sb)
   *
-  * Return: Returns 0 if permission is granted.
+  * Free memory associated with @mnt_ops.
   */
--int security_sb_remount(struct super_block *sb,
-+int security_sb_remount(const struct super_block *sb,
- 			void *mnt_opts)
+-void security_free_mnt_opts(void **mnt_opts)
++void security_free_mnt_opts(const void **mnt_opts)
  {
- 	return call_int_hook(sb_remount, 0, sb, mnt_opts);
+ 	if (!*mnt_opts)
+ 		return;
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79b4890e9936..e4de42150b87 100644
+index 79b4890e9936..225b76839c95 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2628,7 +2628,7 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- 	return 0;
- }
+@@ -342,7 +342,7 @@ struct selinux_mnt_opts {
+ 	u32 defcontext_sid;
+ };
  
--static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
-+static int selinux_sb_remount(const struct super_block *sb, void *mnt_opts)
+-static void selinux_free_mnt_opts(void *mnt_opts)
++static void selinux_free_mnt_opts(const void *mnt_opts)
  {
- 	struct selinux_mnt_opts *opts = mnt_opts;
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	kfree(mnt_opts);
+ }
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 7a3e9ab137d8..290593dcd852 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -557,7 +557,7 @@ struct smack_mnt_opts {
+ 	const char *fstransmute;
+ };
+ 
+-static void smack_free_mnt_opts(void *mnt_opts)
++static void smack_free_mnt_opts(const void *mnt_opts)
+ {
+ 	kfree(mnt_opts);
+ }
 -- 
 2.34.1
 
