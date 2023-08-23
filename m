@@ -2,77 +2,154 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 362CEEE49A0
-	for <selinux@archiver.kernel.org>; Wed, 23 Aug 2023 04:32:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B34D2EE49AB
+	for <selinux@archiver.kernel.org>; Wed, 23 Aug 2023 06:44:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232566AbjHWEcF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Aug 2023 00:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38932 "EHLO
+        id S232986AbjHWGou (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Aug 2023 02:44:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231565AbjHWEcE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Aug 2023 00:32:04 -0400
-Received: from symantec4.comsats.net.pk (symantec4.comsats.net.pk [203.124.41.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C99E57
-        for <selinux@vger.kernel.org>; Tue, 22 Aug 2023 21:31:58 -0700 (PDT)
-X-AuditID: cb7c291e-06dff70000002aeb-cd-64e576d41470
-Received: from iesco.comsatshosting.com (iesco.comsatshosting.com [210.56.28.11])
-        (using TLS with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        by symantec4.comsats.net.pk (Symantec Messaging Gateway) with SMTP id B3.E8.10987.5D675E46; Wed, 23 Aug 2023 08:02:45 +0500 (PKT)
-DomainKey-Signature: a=rsa-sha1; c=nofws; q=dns;
-        d=iesco.com.pk; s=default;
-        h=received:content-type:mime-version:content-transfer-encoding
-          :content-description:subject:to:from:date:reply-to;
-        b=OgJ5NDzELxxnJHsewRCSwRqlI9hDtwunxMuT8Y9g62DWG5AKX73IZJEQJ2pGYx3yy
-          l8pGIcpqMB8bOmRYe8Bj7J2Wz3/n2FvrgtosT2Lkhv1P8Qb6rtzTapvxvXYj/tM7v
-          yRr0/a2yc70l8jFlGCqj91Nwwpb53M/9JLVf3S5kI=
+        with ESMTP id S232656AbjHWGot (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Aug 2023 02:44:49 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E5AE46;
+        Tue, 22 Aug 2023 23:44:47 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-3fee51329feso23372295e9.0;
+        Tue, 22 Aug 2023 23:44:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=iesco.com.pk; s=default;
-        h=reply-to:date:from:to:subject:content-description
-          :content-transfer-encoding:mime-version:content-type;
-        bh=GMzYzcyTxDsE6wX/XHG6MHqAdAiHrhqbmmLQ/TZ1QnQ=;
-        b=d9AK8P7EiqfrPDXeMob+vtuzdz0BTPFSFXPYz8JeEsqjekottvuVfnTuPw5NecXuj
-          k+Y5Z9Cx8utcW8tndKjoURWdgXEKS09XA2jBcUD5p8/OEQArfcbbYdUae1l7SbAXa
-          rIB6pLnEIm/f+n94tiH43GubkvFcG2jtYSdkMnl90=
-Received: from [94.156.6.90] (UnknownHost [94.156.6.90]) by iesco.comsatshosting.com with SMTP;
-   Wed, 23 Aug 2023 07:01:39 +0500
-Message-ID: <B3.E8.10987.5D675E46@symantec4.comsats.net.pk>
-Content-Type: text/plain; charset="iso-8859-1"
+        d=gmail.com; s=20221208; t=1692773086; x=1693377886;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=2h2lr/08wRAzvYuPaGRiGBkl2WzgYmq6pFayFTNRKXs=;
+        b=YCldIJYGiowEN1ktPV0XNIzDcd4QvmSOQP43EDDuQz5EJcI27ScKX0sJk8mkMZv7l8
+         KfvN+qRVpTS36FwOf1fcDDj/H6iCC7tOuzPf9fh6OPzGwZk3ND3HvcHGkORrlBrfgGaT
+         lFuJvs4QChAVXHsyFTegfnBxBie1JIpXHRnxLuuvLo4xUEFEqaQ2QYwpJuuxJshK2VtG
+         Zg9GhkRxwsCDJAK3KmsT4nZST3UlHMdDHAaJJrIkxO7uKADgBdUgCEocTuQcTfl+rs8H
+         7fciZXWrYJEm90Q0kPMyFJtx4OjmA6Xv75Q+4ZqAY5mkspFCMXcM5K0DjA67myDUu2km
+         SSPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692773086; x=1693377886;
+        h=content-disposition:mime-version:message-id:subject:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2h2lr/08wRAzvYuPaGRiGBkl2WzgYmq6pFayFTNRKXs=;
+        b=gNRh2/d35ela9b4eAVzJBEQJiSwL+SbkuzX1tm1uNnroWwgv7x5mQuALchtulBBGnr
+         rGirMnuYC1PnlJxl4xWqqkbexnVZzCkEql4jW28yqt16MrmrVNFt8eVIdlGW+XCuL54h
+         TROuPbBO47WC9imyr+3IWw8WU/5ZfBZ4VNuxKSFOdFEieVbEvxODdmZc++fQb354SJx8
+         4HifWwVaUbmyHfomsJeF1bm/TCpY4IpT6FzgFS84l2HOgB8uJl7Y6Ai7QepkU1jwFv0U
+         WlfJiyfbvLClfY84SOjxgiHSraHh4eYzoZvXF+NTFPtreqT/yK6ZCPpi3plsSCI+94V6
+         rsfw==
+X-Gm-Message-State: AOJu0Yx98OqzTM5f74YUhygIYL1AHw4kCkDctb8kfOBhm7wYik0HKxiA
+        CaKu+DU3CvjXZ801NgOZIJOPkQEhdyV7tYcLWAY=
+X-Google-Smtp-Source: AGHT+IENrgjkvPL+4cUPqfqOAcYackdWmRWn5U+gHOvzc0QIp12DaxuLFMaNdpqyelGUnj7lCnMVHg==
+X-Received: by 2002:a05:600c:448a:b0:3fa:955a:9291 with SMTP id e10-20020a05600c448a00b003fa955a9291mr8953524wmo.9.1692773085945;
+        Tue, 22 Aug 2023 23:44:45 -0700 (PDT)
+Received: from khadija-virtual-machine ([124.29.208.67])
+        by smtp.gmail.com with ESMTPSA id p21-20020a1c7415000000b003feef5b0baesm9801527wmc.26.2023.08.22.23.44.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Aug 2023 23:44:45 -0700 (PDT)
+Date:   Wed, 23 Aug 2023 11:44:41 +0500
+From:   Khadija Kamran <kamrankhadijadj@gmail.com>
+To:     linux-kernel@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        ztarkhani@microsoft.com, alison.schofield@intel.com
+Subject: [PATCH] lsm: constify 'sb' parameter in security_quotactl()
+Message-ID: <ZOWq2d5c7MpLl5A4@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Re; Interest,
-To:     selinux@vger.kernel.org
-From:   "Chen Yun" <pso.chairmanbod@iesco.com.pk>
-Date:   Tue, 22 Aug 2023 19:01:53 -0700
-Reply-To: chnyne@gmail.com
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrLLMWRmVeSWpSXmKPExsVyyUKGW/dq2dMUg987uC3OHz/G7sDo8XmT
-        XABjFJdNSmpOZllqkb5dAlfGknUXWAp2M1e09S9iaWB8zNTFyMkhIWAicWXGSdYuRi4OIYE9
-        TBKb1uxgAXFYBFYzS6zt+c4E4Txkllg2ax8jRFkzo8T1F/2sIP28AtYSO69dYgGxmQX0JG5M
-        ncIGEReUODnzCVRcW2LZwtfMXYwcQLaaxNeuEpCwsICYxKdpy9hBbBEBaYmnh1Yxg9hsAvoS
-        K742M4LYLAKqErtfHgGLCwlISWy8sp5tAiP/LCTbZiHZNgvJtlkI2xYwsqxilCiuzE0EBluy
-        iV5yfm5xYkmxXl5qiV5B9iZGYCCertGU28G49FLiIUYBDkYlHt6f656kCLEmlgF1HWKU4GBW
-        EuGV/v4wRYg3JbGyKrUoP76oNCe1+BCjNAeLkjivrdCzZCGB9MSS1OzU1ILUIpgsEwenVAOj
-        n97xhIxtodPu7u3e28p14/U8gxjX7elvo8oTvGevWeh/XMwq6zqrRs2fhGqzKe9juu4m1+38
-        k/n6Y1Zv1/Ifb/t9zx3Xml1yfNOpO8r9Gk+6hKLqOMsTd//zr7B6zP9w5YdNrWssnIqNT+5f
-        G6d6iWd9Ydo0/T0Wmy60MRw90By2S9ruyBUTJZbijERDLeai4kQA2QYBL0ACAAA=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Re; Interest,
+SELinux registers the implementation for the "quotactl" hook. Looking at
+the function implementation we observe that the parameter "sb" is not
+changing.
 
-I am interested in discussing the Investment proposal as I explained
-in my previous mail. May you let me know your interest and the
-possibility of a cooperation aimed for mutual interest.
+Mark the "sb" parameter of LSM hook security_quotactl() as "const" since
+it will not be changing in the LSM hook.
 
-Looking forward to your mail for further discussion.
+Signed-off-by: Khadija Kamran <kamrankhadijadj@gmail.com>
+---
+ include/linux/lsm_hook_defs.h | 2 +-
+ include/linux/security.h      | 4 ++--
+ security/security.c           | 2 +-
+ security/selinux/hooks.c      | 4 ++--
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-Regards
-
-------
-Chen Yun - Chairman of CREC
-China Railway Engineering Corporation - CRECG
-China Railway Plaza, No.69 Fuxing Road, Haidian District, Beijing, P.R.
-China
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 6bb55e61e8e8..b63672ef6f11 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -43,7 +43,7 @@ LSM_HOOK(int, 0, capset, struct cred *new, const struct cred *old,
+ 	 const kernel_cap_t *permitted)
+ LSM_HOOK(int, 0, capable, const struct cred *cred, struct user_namespace *ns,
+ 	 int cap, unsigned int opts)
+-LSM_HOOK(int, 0, quotactl, int cmds, int type, int id, struct super_block *sb)
++LSM_HOOK(int, 0, quotactl, int cmds, int type, int id, const struct super_block *sb)
+ LSM_HOOK(int, 0, quota_on, struct dentry *dentry)
+ LSM_HOOK(int, 0, syslog, int type)
+ LSM_HOOK(int, 0, settime, const struct timespec64 *ts,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index e2734e9e44d5..b4d1e160bd76 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -283,7 +283,7 @@ int security_capable(const struct cred *cred,
+ 		       struct user_namespace *ns,
+ 		       int cap,
+ 		       unsigned int opts);
+-int security_quotactl(int cmds, int type, int id, struct super_block *sb);
++int security_quotactl(int cmds, int type, int id, const struct super_block *sb);
+ int security_quota_on(struct dentry *dentry);
+ int security_syslog(int type);
+ int security_settime64(const struct timespec64 *ts, const struct timezone *tz);
+@@ -579,7 +579,7 @@ static inline int security_capable(const struct cred *cred,
+ }
+ 
+ static inline int security_quotactl(int cmds, int type, int id,
+-				     struct super_block *sb)
++				     const struct super_block *sb)
+ {
+ 	return 0;
+ }
+diff --git a/security/security.c b/security/security.c
+index d5ff7ff45b77..1844b8ab3317 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -956,7 +956,7 @@ int security_capable(const struct cred *cred,
+  *
+  * Return: Returns 0 if permission is granted.
+  */
+-int security_quotactl(int cmds, int type, int id, struct super_block *sb)
++int security_quotactl(int cmds, int type, int id, const struct super_block *sb)
+ {
+ 	return call_int_hook(quotactl, 0, cmds, type, id, sb);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 79b4890e9936..8d4611ac5ec3 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1886,7 +1886,7 @@ static inline int may_rename(struct inode *old_dir,
+ 
+ /* Check whether a task can perform a filesystem operation. */
+ static int superblock_has_perm(const struct cred *cred,
+-			       struct super_block *sb,
++			       const struct super_block *sb,
+ 			       u32 perms,
+ 			       struct common_audit_data *ad)
+ {
+@@ -2088,7 +2088,7 @@ static int selinux_capable(const struct cred *cred, struct user_namespace *ns,
+ 	return cred_has_capability(cred, cap, opts, ns == &init_user_ns);
+ }
+ 
+-static int selinux_quotactl(int cmds, int type, int id, struct super_block *sb)
++static int selinux_quotactl(int cmds, int type, int id, const struct super_block *sb)
+ {
+ 	const struct cred *cred = current_cred();
+ 	int rc = 0;
+-- 
+2.34.1
 
