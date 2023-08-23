@@ -2,145 +2,62 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35FC1EE49A0
-	for <selinux@archiver.kernel.org>; Wed, 23 Aug 2023 09:10:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47A69EE49B0
+	for <selinux@archiver.kernel.org>; Wed, 23 Aug 2023 12:08:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229824AbjHWJJx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Aug 2023 05:09:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43786 "EHLO
+        id S234478AbjHWMIP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Aug 2023 08:08:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235127AbjHWJHV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Aug 2023 05:07:21 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C6723C38;
-        Wed, 23 Aug 2023 02:01:33 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-3fe24dd8898so50769865e9.2;
-        Wed, 23 Aug 2023 02:01:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692781291; x=1693386091;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=yLx9XDCNsbFYXBmD+uBtB7HRdyTRS+WlWpDKsyMdL1E=;
-        b=DpwWqSFb0bQw+2R5W+Uew/uVxwByp+AqpC3gGsgIVhQg5c2+qq/KK8OUgCtDg7NWCq
-         1yJduA40xzLq3JW3WkE2gJebJjrKhrP6r/W+veFQNFCJwOSwUPjcRCMHAtS+DERRE/BR
-         eEIst91qxpgIu/0cpd7C5PqYmSSsw1Fbpsbmo3tWNDCRzdCgSMoBxYMgF7B1Lki9ehYC
-         BOaFLQMjq0jTuemRiXSbkJF7fGws0ucTvbwp+fL5m3qGZTlVFck8eUIJGIBYXrE9GsHE
-         8mH3hOOppj0CzpLbYZCNW7jV1tMbuNdMr079YscZ4/RaonQA+KiQ2CBVGnxMd/Ak/emv
-         QVKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692781291; x=1693386091;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yLx9XDCNsbFYXBmD+uBtB7HRdyTRS+WlWpDKsyMdL1E=;
-        b=Ib7Wcfnrr/qDkBFmv53m1CZisIyoXBcxJrAjnV+Btkw6+PCq5e7mBa3hiVAEcU0OEl
-         yhl6w1D3Uvthfgy/BARy5sf8c27pQu+Y9BOl9LIW1pd4m72vWcTyOJY4VjQRQCIKhCrO
-         qxL+L5HZSUQvj3SnxJMQsjr75CAAqJWuzbFu6FMZ/ATyPk1xcSWuhXNhEoW0DIJ5l2BD
-         RqOKmS182kuV+c2TfLexQlCRXITrJm26X1R1Eso5QdFUP/Oj3Hb7ybbG61jcHjCiWHDO
-         1Af9GVrLiB2My79EYFfzUpuaUoleFsNejlOPGmCs3uluVGCyDB3PtvW9A99vAskc6c7s
-         RgtA==
-X-Gm-Message-State: AOJu0Yxza/++iQPdWfdXx4qtvSxshp0dDyXEwuuHqushrE4Kt2TNnbuT
-        e+IwZRuSShngTOiBc1mGHCA=
-X-Google-Smtp-Source: AGHT+IGhBKF2fmiTeu/Au6Wa/EzH9tRes18Uz+k3DqagOIXozC1iGux44PZGoaHIvoa0H4+6MkuePA==
-X-Received: by 2002:a7b:c7d4:0:b0:3fa:93b0:a69c with SMTP id z20-20020a7bc7d4000000b003fa93b0a69cmr9070579wmk.24.1692781291197;
-        Wed, 23 Aug 2023 02:01:31 -0700 (PDT)
-Received: from khadija-virtual-machine ([124.29.208.67])
-        by smtp.gmail.com with ESMTPSA id p6-20020a5d68c6000000b00317f70240afsm18541644wrw.27.2023.08.23.02.01.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Aug 2023 02:01:30 -0700 (PDT)
-Date:   Wed, 23 Aug 2023 14:01:28 +0500
-From:   Khadija Kamran <kamrankhadijadj@gmail.com>
-To:     Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
+        with ESMTP id S234618AbjHWMIO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Aug 2023 08:08:14 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B649171A;
+        Wed, 23 Aug 2023 05:07:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=Ysaf8/wElHvFH5MgVZnFnGtYChLdMb1DwC+nYrsJpbg=; b=gaIJgvP/yCQGTdYQZzy6fhCJK2
+        MeBwI4GHNIHtWrK2t4mZcMxICZHFs+dwhMye+S0PrUeB6fmVAN7lV+YmK6f3zoKBVi/shqwFXbpY0
+        FONGKBVfQrdtG8JGpqBhBW1/9z6av0A5S73ch2VkqXt6IiQpDXc3W9mo5IG8FMusYRSdzwcp6pK9f
+        /xxc3EE3PPX2zS0/Li0tGnH9+hgOfXNqMFYikBSf4jL+Bs/ugXladR29PyFb6ExFL8p/hmzH8iinG
+        3izepVNtBs7NTYdh8ajJOfAuBBf1rBnqrAPZyTebI4KQgSbFPc3e4fULbmV25cFDYD7sYNdKwZQgD
+        5b2EBAJQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1qYmdQ-004iOg-J5; Wed, 23 Aug 2023 12:06:52 +0000
+Date:   Wed, 23 Aug 2023 13:06:52 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Khadija Kamran <kamrankhadijadj@gmail.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        Serge Hallyn <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
         linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
         ztarkhani@microsoft.com, alison.schofield@intel.com
-Subject: [PATCH] lsm: constify 'sb' parameter in security_sb_kern_mount()
-Message-ID: <ZOXK6MywWFIdUTsr@gmail.com>
+Subject: Re: [PATCH] lsm: constify the 'mm' parameter in
+ security_vm_enough_memory_mm()
+Message-ID: <ZOX2XDdrfk8rO9+t@casper.infradead.org>
+References: <ZOWtBTKkfcc8sKkY@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <ZOWtBTKkfcc8sKkY@gmail.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The "sb_kern_mount" hook has implementation registered in SELinux.
-Looking at the function implementation we observe that the "sb"
-parameter is not changing.
+On Wed, Aug 23, 2023 at 11:53:57AM +0500, Khadija Kamran wrote:
+> +++ b/include/linux/mm.h
+> @@ -3064,7 +3064,7 @@ void anon_vma_interval_tree_verify(struct anon_vma_chain *node);
+>  	     avc; avc = anon_vma_interval_tree_iter_next(avc, start, last))
+>  
+>  /* mmap.c */
+> -extern int __vm_enough_memory(struct mm_struct *mm, long pages, int cap_sys_admin);
+> +extern int __vm_enough_memory(const struct mm_struct *mm, long pages, int cap_sys_admin);
 
-Mark the "sb" parameter of LSM hook security_sb_kern_mount() as "const"
-since it will not be changing in the LSM hook.
-
-Signed-off-by: Khadija Kamran <kamrankhadijadj@gmail.com>
----
- include/linux/lsm_hook_defs.h | 2 +-
- include/linux/security.h      | 2 +-
- security/security.c           | 2 +-
- security/selinux/hooks.c      | 4 ++--
- 4 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 6bb55e61e8e8..f38491b77616 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -65,7 +65,7 @@ LSM_HOOK(void, LSM_RET_VOID, sb_free_mnt_opts, void *mnt_opts)
- LSM_HOOK(int, 0, sb_eat_lsm_opts, char *orig, void **mnt_opts)
- LSM_HOOK(int, 0, sb_mnt_opts_compat, struct super_block *sb, void *mnt_opts)
- LSM_HOOK(int, 0, sb_remount, struct super_block *sb, void *mnt_opts)
--LSM_HOOK(int, 0, sb_kern_mount, struct super_block *sb)
-+LSM_HOOK(int, 0, sb_kern_mount, const struct super_block *sb)
- LSM_HOOK(int, 0, sb_show_options, struct seq_file *m, struct super_block *sb)
- LSM_HOOK(int, 0, sb_statfs, struct dentry *dentry)
- LSM_HOOK(int, 0, sb_mount, const char *dev_name, const struct path *path,
-diff --git a/include/linux/security.h b/include/linux/security.h
-index e2734e9e44d5..38f3ae6f25c2 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -302,7 +302,7 @@ void security_free_mnt_opts(void **mnt_opts);
- int security_sb_eat_lsm_opts(char *options, void **mnt_opts);
- int security_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts);
- int security_sb_remount(struct super_block *sb, void *mnt_opts);
--int security_sb_kern_mount(struct super_block *sb);
-+int security_sb_kern_mount(const struct super_block *sb);
- int security_sb_show_options(struct seq_file *m, struct super_block *sb);
- int security_sb_statfs(struct dentry *dentry);
- int security_sb_mount(const char *dev_name, const struct path *path,
-diff --git a/security/security.c b/security/security.c
-index d5ff7ff45b77..5b21b4c61acb 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1304,7 +1304,7 @@ EXPORT_SYMBOL(security_sb_remount);
-  *
-  * Return: Returns 0 if permission is granted.
-  */
--int security_sb_kern_mount(struct super_block *sb)
-+int security_sb_kern_mount(const struct super_block *sb)
- {
- 	return call_int_hook(sb_kern_mount, 0, sb);
- }
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79b4890e9936..2708c5b5ecd7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1886,7 +1886,7 @@ static inline int may_rename(struct inode *old_dir,
- 
- /* Check whether a task can perform a filesystem operation. */
- static int superblock_has_perm(const struct cred *cred,
--			       struct super_block *sb,
-+			       const struct super_block *sb,
- 			       u32 perms,
- 			       struct common_audit_data *ad)
- {
-@@ -2670,7 +2670,7 @@ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- 	return -EINVAL;
- }
- 
--static int selinux_sb_kern_mount(struct super_block *sb)
-+static int selinux_sb_kern_mount(const struct super_block *sb)
- {
- 	const struct cred *cred = current_cred();
- 	struct common_audit_data ad;
--- 
-2.34.1
+Could you remove the 'extern' when you touch a function prototype?
 
