@@ -2,106 +2,99 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23DC3C83F10
-	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 09:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7294DC83F32
+	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 10:20:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbjHaJUH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Aug 2023 05:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58908 "EHLO
+        id S235309AbjHaKUp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Aug 2023 06:20:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237466AbjHaJUG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 05:20:06 -0400
-Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA86510EF
-        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 02:19:43 -0700 (PDT)
-Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-58d70c441d5so7128517b3.2
-        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 02:19:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1693473573; x=1694078373; darn=vger.kernel.org;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4Cbrhq38paxu0xySM9f3IPWoiWkUTnk9D5gKI2jM47E=;
-        b=6ChA0ZmY6HfHM/+kUAZQ2L9jhyeL9HY0g46tbWHzDMypPE4knP9/Vr94oMZYfpccMn
-         1IZT8hYX4W0tHYbMSh8EsALxNpqEABKlS5nMdPNVKY8W4sJA8JS7mwvoBrd5kFB++6+N
-         E8Ji7eUFqzs7vIuvSh52NkP/yfVWn0qDUGaWmdkmF13K6E0OU9tWQZ0zpcTy1+Z6ZDrL
-         9iVE4vOg+VSqzZLN5Dr6jl/QAk2yLp+e4V0ReqCKpdL38Hyiy61zlGkADa+m7JBkwblp
-         zPnmZqHgEtq0bMX3IvYLAGCzyqqCFQ+Y1w2Bzy2gtBfL4ddJUzfcX3FbJqem5/uGzms4
-         GhRQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693473573; x=1694078373;
-        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4Cbrhq38paxu0xySM9f3IPWoiWkUTnk9D5gKI2jM47E=;
-        b=I75LCNkT6iDMeC0eWdCJM4wTU7kbbcBzFYAbgnBpHhr4l3TukFXnCEGDZ0XGqdweKj
-         sZ7JvCxdJOHXgwQs7UxAmssDKccXxBPuJBV98Hks5ql84r7lZqcKgA+TUxk4CuzsqT3a
-         dGws1XVSrzgczsxtoE0dxcLyDc+Arw4LVRwRm129KPuVtaLd8yf2SQ18qDfnwDE9Ph1C
-         PG6swaJqhsfmOZAqTDHP83r5jaMsJzavk1lcy3ryNQqSTliTbPHiLXhFQVb9ISiMLcAv
-         fjt/K8IoP+ZewxxlBOuBD2r7iyhUf+vO3arC2bEVxlg/k1MJTbl2rkFFcbtadl/fIYI0
-         puaQ==
-X-Gm-Message-State: AOJu0YyRmh3fBesAUvyEwxNOBL2Y2HZYpQ4p28fN1yn+8PuHJ2HziWld
-        9dAiG6Gg/oyK/ehwAYA4FiTCJg==
-X-Google-Smtp-Source: AGHT+IFThEVwm5PdQ/QiEIcAo8WglpblQRWl0MFWrXvjJuNLD0Kr5QEj6RbRV7hyCCkRaORZMOKarA==
-X-Received: by 2002:a0d:c483:0:b0:592:9236:9460 with SMTP id g125-20020a0dc483000000b0059292369460mr4914737ywd.31.1693473572920;
-        Thu, 31 Aug 2023 02:19:32 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id i185-20020a8191c2000000b00583e52232f1sm293607ywg.112.2023.08.31.02.19.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Aug 2023 02:19:32 -0700 (PDT)
-Date:   Thu, 31 Aug 2023 02:19:20 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.attlocal.net
-To:     Paul Moore <paul@paul-moore.com>
-cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        linux-mm@kvack.org, linux-integrity@vger.kernel.org
-Subject: Re: LSM hook ordering in shmem_mknod() and shmem_tmpfile()?
-In-Reply-To: <CAHC9VhQr2cpes2W0oWa8OENPFAgFKyGZQu3_m7-hjEdib_3s3Q@mail.gmail.com>
-Message-ID: <f75539a8-adf0-159b-15b9-4cc4a674e623@google.com>
-References: <CAHC9VhQr2cpes2W0oWa8OENPFAgFKyGZQu3_m7-hjEdib_3s3Q@mail.gmail.com>
+        with ESMTP id S230124AbjHaKUo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 06:20:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E92FCEE;
+        Thu, 31 Aug 2023 03:20:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B877F624DA;
+        Thu, 31 Aug 2023 10:20:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1943C433C7;
+        Thu, 31 Aug 2023 10:20:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1693477232;
+        bh=SiDmbWzbEV78bSnqLoerIwfDyM53DisVmFwX+qnWIZE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z9TMIBlrFuxs69JgcZqbBEIqn3C3tj1i3yiCkQ25KbRRQmut6sD9xHPNvNFHD+FDp
+         ztetXAzCXPYlAfajc26xgUsJ2Cy6v3NdFqOQyLvzgNrt5SdSRZD3SefRrM9QhcsmrG
+         iV2+7PLqHacG9iKdhGr6av5xTPXvMhLEFUBe3/SOtv8XAxJKw+M2111h4PqkxR0n5N
+         V/rFCA8wA64laVb/wB61w9JKFqX83sRyhvhxczhr32tOzvaVk+hB8ilztFeAEmEl52
+         uroNkviluTX7Id7ZyWENqQsTJwzflHFW+vkAT/WlQ3g+qDuLuFX+Ahy9XJIiTeS08K
+         5HubNX8VOF7Yw==
+Date:   Thu, 31 Aug 2023 12:20:27 +0200
+From:   Christian Brauner <brauner@kernel.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, linux-s390@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: sb->s_fs_info freeing fixes
+Message-ID: <20230831-dazulernen-gepflanzt-8a64056bf362@brauner>
+References: <20230831053157.256319-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20230831053157.256319-1-hch@lst.de>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 30 Aug 2023, Paul Moore wrote:
+On Thu, Aug 31, 2023 at 07:31:53AM +0200, Christoph Hellwig wrote:
+> sb->s_fs_info should only be freed after the superblock has been marked
+> inactive in generic_shutdown_super, which means either in ->put_super or
+> in ->kill_sb after generic_shutdown_super has returned.  Fix the
+> instances where that is not the case.
 
-> Hello all,
-> 
-> While looking at some recent changes in mm/shmem.c I noticed that the
-> ordering between simple_acl_create() and
-> security_inode_init_security() is different between shmem_mknod() and
-> shmem_tmpfile().  In shmem_mknod() the ACL call comes before the LSM
-> hook, and in shmem_tmpfile() the LSM call comes before the ACL call.
-> 
-> Perhaps this is correct, but it seemed a little odd to me so I wanted
-> to check with all of you to make sure there is a good reason for the
-> difference between the two functions.  Looking back to when
-> shmem_tmpfile() was created ~2013 I don't see any explicit mention as
-> to why the ordering is different so I'm looking for a bit of a sanity
-> check to see if I'm missing something obvious.
-> 
-> My initial thinking this morning is that the
-> security_inode_init_security() call should come before
-> simple_acl_create() in both cases, but I'm open to different opinions
-> on this.
+Funny, I had looked at all those filesystems a while back to
+double-check that things are sane and that's why I didn't change them.
 
-Good eye.  The crucial commit here appears to be Mimi's 3.11 commit
-37ec43cdc4c7 "evm: calculate HMAC after initializing posix acl on tmpfs"
-which intentionally moved shmem_mknod()'s generic_acl_init() up before
-the security_inode_init_security(), around the same time as Al was
-copying shmem_mknod() to introduce shmem_tmpfile().
+>  arch/s390/hypfs/inode.c      |    3 +--
 
-I'd have agreed with you, Paul, until reading Mimi's commit:
-now it looks more like shmem_tmpfile() is the one to be changed,
-except (I'm out of my depth) maybe it's irrelevant on tmpfiles.
+get_tree_single() -> single instance
+=> doesn't match on sb->s_fs_info
 
-Anyway, I think it's a question better answered by Mimi and Al.
+>  fs/devpts/inode.c            |    2 +-
 
-Thanks,
-Hugh
+get_tree_nodev() -> each mount is a new instance
+=> We don't match on sb->s_fs_info
+
+>  fs/ramfs/inode.c             |    2 +-
+
+get_tree_nodev() -> each mount is a new instance
+=> We don't match on sb->s_fs_info
+
+>  security/selinux/selinuxfs.c |    5 +----
+
+get_tree_single() -> single instance
+=> doesn't match on sb->s_fs_info
+
+Al roughly said the same thing afaict.
+
+I still think that there's no need to deviate from the basic logic:
+
+(1) call generic kill_*() helper
+(2) wipe sb->s_fs_info
+
+So I think that's a cleanup we should do. Just change the rationale to
+say that this deviation is pointless and just means the reader of the
+code has to sanity check against the superblock helper that's used.
+
+This btw, has confused me before too and I basically had a version of
+the exchange we're now having:
+
+https://lore.kernel.org/all/YvzUS%2F7bd1mm6c%2FV@kroah.com/T/#mee634e46448d6c88244c0c5d33f935ffdb60cb12
