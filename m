@@ -2,63 +2,106 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E3E2C83F2E
-	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 06:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23DC3C83F10
+	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 09:20:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239746AbjHaGhd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Aug 2023 02:37:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42934 "EHLO
+        id S229645AbjHaJUH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Aug 2023 05:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346104AbjHaGhZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 02:37:25 -0400
-Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988B8B4;
-        Wed, 30 Aug 2023 23:37:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=StCt6YBb7i1NCyKxwkQD7nTyORJ+B47XG+LIL5Hkia0=; b=nd7vzvZeEd68QgDJRKtnYoJGKS
-        WIfnyqnu9CX728xmHLqlCcA5R88g2kDzwCTpcZNswGM0ly018v5mtT2siHjwsWelBPS90aj/qwwsa
-        U0Ouz24fYw+zV16sy/kefkAsOfCUtL5t2oqZhIezzXVHN+LVNoIiTHcAO3UQMIhb1/mPIdowikqLX
-        unApY75eE+Z4iXxmVvjryzCoLo8lh+Quo1nHKICnHcM3zsSz/9vd9/ghO2ZvAmDmGDVw93lgv/tfy
-        lsYbPJPN3xZnDTE3BKXLTWGe1Nb/JmEHeafybDDaNOb/h2Sq5/AfdXDxTCbfrZm2M65oKfV6IWBl9
-        ulbUDXow==;
-Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
-        id 1qbbIk-002H3j-2o;
-        Thu, 31 Aug 2023 06:37:11 +0000
-Date:   Thu, 31 Aug 2023 07:37:10 +0100
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 4/4] hypfs: free sb->s_fs_info after shutting down the
- super block
-Message-ID: <20230831063710.GG3390869@ZenIV>
-References: <20230831053157.256319-1-hch@lst.de>
- <20230831053157.256319-5-hch@lst.de>
+        with ESMTP id S237466AbjHaJUG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 05:20:06 -0400
+Received: from mail-yw1-x1132.google.com (mail-yw1-x1132.google.com [IPv6:2607:f8b0:4864:20::1132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA86510EF
+        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 02:19:43 -0700 (PDT)
+Received: by mail-yw1-x1132.google.com with SMTP id 00721157ae682-58d70c441d5so7128517b3.2
+        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 02:19:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20221208; t=1693473573; x=1694078373; darn=vger.kernel.org;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4Cbrhq38paxu0xySM9f3IPWoiWkUTnk9D5gKI2jM47E=;
+        b=6ChA0ZmY6HfHM/+kUAZQ2L9jhyeL9HY0g46tbWHzDMypPE4knP9/Vr94oMZYfpccMn
+         1IZT8hYX4W0tHYbMSh8EsALxNpqEABKlS5nMdPNVKY8W4sJA8JS7mwvoBrd5kFB++6+N
+         E8Ji7eUFqzs7vIuvSh52NkP/yfVWn0qDUGaWmdkmF13K6E0OU9tWQZ0zpcTy1+Z6ZDrL
+         9iVE4vOg+VSqzZLN5Dr6jl/QAk2yLp+e4V0ReqCKpdL38Hyiy61zlGkADa+m7JBkwblp
+         zPnmZqHgEtq0bMX3IvYLAGCzyqqCFQ+Y1w2Bzy2gtBfL4ddJUzfcX3FbJqem5/uGzms4
+         GhRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1693473573; x=1694078373;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4Cbrhq38paxu0xySM9f3IPWoiWkUTnk9D5gKI2jM47E=;
+        b=I75LCNkT6iDMeC0eWdCJM4wTU7kbbcBzFYAbgnBpHhr4l3TukFXnCEGDZ0XGqdweKj
+         sZ7JvCxdJOHXgwQs7UxAmssDKccXxBPuJBV98Hks5ql84r7lZqcKgA+TUxk4CuzsqT3a
+         dGws1XVSrzgczsxtoE0dxcLyDc+Arw4LVRwRm129KPuVtaLd8yf2SQ18qDfnwDE9Ph1C
+         PG6swaJqhsfmOZAqTDHP83r5jaMsJzavk1lcy3ryNQqSTliTbPHiLXhFQVb9ISiMLcAv
+         fjt/K8IoP+ZewxxlBOuBD2r7iyhUf+vO3arC2bEVxlg/k1MJTbl2rkFFcbtadl/fIYI0
+         puaQ==
+X-Gm-Message-State: AOJu0YyRmh3fBesAUvyEwxNOBL2Y2HZYpQ4p28fN1yn+8PuHJ2HziWld
+        9dAiG6Gg/oyK/ehwAYA4FiTCJg==
+X-Google-Smtp-Source: AGHT+IFThEVwm5PdQ/QiEIcAo8WglpblQRWl0MFWrXvjJuNLD0Kr5QEj6RbRV7hyCCkRaORZMOKarA==
+X-Received: by 2002:a0d:c483:0:b0:592:9236:9460 with SMTP id g125-20020a0dc483000000b0059292369460mr4914737ywd.31.1693473572920;
+        Thu, 31 Aug 2023 02:19:32 -0700 (PDT)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id i185-20020a8191c2000000b00583e52232f1sm293607ywg.112.2023.08.31.02.19.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Aug 2023 02:19:32 -0700 (PDT)
+Date:   Thu, 31 Aug 2023 02:19:20 -0700 (PDT)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.attlocal.net
+To:     Paul Moore <paul@paul-moore.com>
+cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
+        linux-mm@kvack.org, linux-integrity@vger.kernel.org
+Subject: Re: LSM hook ordering in shmem_mknod() and shmem_tmpfile()?
+In-Reply-To: <CAHC9VhQr2cpes2W0oWa8OENPFAgFKyGZQu3_m7-hjEdib_3s3Q@mail.gmail.com>
+Message-ID: <f75539a8-adf0-159b-15b9-4cc4a674e623@google.com>
+References: <CAHC9VhQr2cpes2W0oWa8OENPFAgFKyGZQu3_m7-hjEdib_3s3Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230831053157.256319-5-hch@lst.de>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 31, 2023 at 07:31:57AM +0200, Christoph Hellwig wrote:
-> sb->s_fs_info can only be safely freed after generic_shutdown_super was
-> called and all access to the super_block has stopped.
-> 
-> Thus only free the private data after calling kill_litter_super, which
-> calls generic_shutdown_super internally.
+On Wed, 30 Aug 2023, Paul Moore wrote:
 
-Same as for ramfs.  We *do* use ->s_fs_info there, but only for
-operations that require an active reference.  They can't overlap
-with ->kill_sb().
+> Hello all,
+> 
+> While looking at some recent changes in mm/shmem.c I noticed that the
+> ordering between simple_acl_create() and
+> security_inode_init_security() is different between shmem_mknod() and
+> shmem_tmpfile().  In shmem_mknod() the ACL call comes before the LSM
+> hook, and in shmem_tmpfile() the LSM call comes before the ACL call.
+> 
+> Perhaps this is correct, but it seemed a little odd to me so I wanted
+> to check with all of you to make sure there is a good reason for the
+> difference between the two functions.  Looking back to when
+> shmem_tmpfile() was created ~2013 I don't see any explicit mention as
+> to why the ordering is different so I'm looking for a bit of a sanity
+> check to see if I'm missing something obvious.
+> 
+> My initial thinking this morning is that the
+> security_inode_init_security() call should come before
+> simple_acl_create() in both cases, but I'm open to different opinions
+> on this.
+
+Good eye.  The crucial commit here appears to be Mimi's 3.11 commit
+37ec43cdc4c7 "evm: calculate HMAC after initializing posix acl on tmpfs"
+which intentionally moved shmem_mknod()'s generic_acl_init() up before
+the security_inode_init_security(), around the same time as Al was
+copying shmem_mknod() to introduce shmem_tmpfile().
+
+I'd have agreed with you, Paul, until reading Mimi's commit:
+now it looks more like shmem_tmpfile() is the one to be changed,
+except (I'm out of my depth) maybe it's irrelevant on tmpfiles.
+
+Anyway, I think it's a question better answered by Mimi and Al.
+
+Thanks,
+Hugh
