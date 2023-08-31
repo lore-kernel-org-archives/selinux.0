@@ -2,99 +2,167 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 900AFC83F10
-	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 14:49:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 119FDC83F10
+	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 15:13:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346382AbjHaOtu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Aug 2023 10:49:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46758 "EHLO
+        id S1346499AbjHaPNd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Aug 2023 11:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236294AbjHaOtt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 10:49:49 -0400
-Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9526CD6
-        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 07:49:45 -0700 (PDT)
-Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-5921a962adfso10500277b3.1
-        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 07:49:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1693493385; x=1694098185; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4/APbOv9kn/U7e/ns21d/zj9IRn9BxSLxyOC3Vac5jA=;
-        b=Vfz0ZFK/PLoBG8Ua4HRwpeqPHR9nJCpDvOdN5aCNcjoZg34oZODvP8he1wMWrYYQp1
-         IKvvq3iIqlpgsCjbDPRzoaOxFkO71T4o/WQdb/al2nq6wxvHyXPjwD5pdOkg7C1y2796
-         y7xW3e6L/7asru9qiy5oZrkKoqq8zBRLe16fjrUsVSbGt8UqhweloxOz0GEqioxotiAR
-         blsaKRVeV2+/pplVzCbiGZzqntp+cJIw7BGmcLYx3AH2UZgdOwhmkUXzupbIKFli9xIv
-         Bsc8S2ng3Nnp0JgL1NKC90fVtmOqXiPs99hiOY/h3CfotODKATLhtqGIesWlArW3AJrE
-         AXNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693493385; x=1694098185;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4/APbOv9kn/U7e/ns21d/zj9IRn9BxSLxyOC3Vac5jA=;
-        b=g7wtnagAeUWiaTfjoTk/oNgjEKGkUz1peHJUcXSuMmDwrIOSF2VVajw1GmXBoslHvs
-         vE3U0/1ww9u8IZL+x4Vz9eh8w5jFvX+r1XvVHqYJRS7IRuRDwahP91KBj5ULZ7ZbzSmw
-         qxjD/z9No0B6cKx6iKrSVKPc1W1Wni0KI7zFEz65Nb5Wn7GiJ0t/dJMn2WESODyhY0K/
-         g4Z6tZlSIZW45+Apo1UVXzT9hBHd9C3K7Cw3gBFcHcf0LxTRKwATLpQebJwXPqdzPuTt
-         6hFXGEK3OJl5iy4rZ3iAXm9Cu1qqRMPnBFjv8I0onH0SwRl3waSjKif3R5IKTbfYZLXT
-         DjNA==
-X-Gm-Message-State: AOJu0YxaGIPMac7K5oLvn9yj2D3c+85KSdflW5oavTuedv+u4KGrVW+K
-        d1BrWUiZ5TrFo/NsDvwHcRWGZfROFWnULAR5CRz1
-X-Google-Smtp-Source: AGHT+IE/2fXLwQ9H7wEmtmgLdkuJ4AeHMRse2N+C6r3s29gq3FRpbwQgKSdFooDdXmNPdgn6h1+zBKFcbTffYssmlJI=
-X-Received: by 2002:a81:a153:0:b0:57a:6bf0:2100 with SMTP id
- y80-20020a81a153000000b0057a6bf02100mr5764469ywg.1.1693493385129; Thu, 31 Aug
- 2023 07:49:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230831053157.256319-1-hch@lst.de> <20230831-dazulernen-gepflanzt-8a64056bf362@brauner>
- <20230831-tiefbau-freuden-3e8225acc81d@brauner> <20230831123619.GB11156@lst.de>
- <20230831-wohlig-lehrveranstaltung-7c27e05dc9ae@brauner> <CAHC9VhQOpy=rLNmirT7afkEdf5_PRnLVsdPJQvxqaF0G4JrCgQ@mail.gmail.com>
- <20230831143947.GA16365@lst.de>
-In-Reply-To: <20230831143947.GA16365@lst.de>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 31 Aug 2023 10:49:34 -0400
-Message-ID: <CAHC9VhSn7Vt7KgNE9UZvfNSD2y8_HVXy96sco=jET+7LhxQUfg@mail.gmail.com>
-Subject: Re: sb->s_fs_info freeing fixes
-To:     Christoph Hellwig <hch@lst.de>,
-        Christian Brauner <brauner@kernel.org>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, linux-s390@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S241208AbjHaPNc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 11:13:32 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A126CE59;
+        Thu, 31 Aug 2023 08:13:27 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37VFApXQ025576;
+        Thu, 31 Aug 2023 15:13:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=9RvTIMXhjg+qCqq55rO5Im9gWOH18IqnefVeYQcqlpw=;
+ b=sUKzuSaLWqVaK7xzlZZKc/neNRUMtC96rpENhfE9ftLEChfAO8G1/jGU5Xlo/HAb+Eb1
+ S1pIInrtkMOt9rm2u5G4quxpgoMbf2H8G4RIv9joUHgvXnaIIMzfY2nJf03PURlf3NkW
+ mehkbsI4WLaD2Q2CrJAC1c3FYxD/2iQUdg/oHlt4YNqdTVBe+ZTAESt5NcNrC3oUJsOv
+ GQyHluIPNgvePTlXbG9b6tMRU3O+7dkYCTq+IRzj60conEFv6u5JUohaIsASNSk1cpKj
+ rqUByt7uGkdz3/mfKHEiSteQNaT/uo2SeBwlPURrmCpNPkoXWaHeo0l7PyUD/LnMF4aa wg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3stvcu9prc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 31 Aug 2023 15:13:19 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 37VFCre6004922;
+        Thu, 31 Aug 2023 15:13:18 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3stvcu9pr0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 31 Aug 2023 15:13:18 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 37VDeZm0020344;
+        Thu, 31 Aug 2023 15:13:17 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3sqv3ywm34-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 31 Aug 2023 15:13:17 +0000
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+        by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 37VFDHU665863978
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 31 Aug 2023 15:13:17 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 388E0582B8;
+        Thu, 31 Aug 2023 15:13:17 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2E4FA582B7;
+        Thu, 31 Aug 2023 15:13:16 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.58.247])
+        by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 31 Aug 2023 15:13:16 +0000 (GMT)
+Message-ID: <cd76e05c82d294a9d0965a2d98b8e51782489b5f.camel@linux.ibm.com>
+Subject: Re: LSM hook ordering in shmem_mknod() and shmem_tmpfile()?
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Christian Brauner <brauner@kernel.org>,
+        Hugh Dickins <hughd@google.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
+        linux-mm@kvack.org, linux-integrity@vger.kernel.org
+Date:   Thu, 31 Aug 2023 11:13:15 -0400
+In-Reply-To: <20230831-nachverfolgen-meditation-dcde56b10df7@brauner>
+References: <CAHC9VhQr2cpes2W0oWa8OENPFAgFKyGZQu3_m7-hjEdib_3s3Q@mail.gmail.com>
+         <f75539a8-adf0-159b-15b9-4cc4a674e623@google.com>
+         <20230831-nachverfolgen-meditation-dcde56b10df7@brauner>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: usbwRtpZUpkBHG1yUJFauP0_n1EYK3rs
+X-Proofpoint-GUID: X0Ta0lRbupOh8WdDS0J7wA2c2Tdi1No1
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-08-31_13,2023-08-31_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ clxscore=1011 malwarescore=0 mlxlogscore=999 impostorscore=0 spamscore=0
+ mlxscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0 adultscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2308310135
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 31, 2023 at 10:39=E2=80=AFAM Christoph Hellwig <hch@lst.de> wro=
-te:
-> On Thu, Aug 31, 2023 at 10:38:09AM -0400, Paul Moore wrote:
-> > No need to change anything in this case, but in the future if there
-> > are no patch dependency or ordering issues can you let me take the
-> > SELinux patches via the SELinux tree?  It helps prevent merge
-> > conflicts during the next merge window and quiets the daily automated
-> > checks I have in place to detect SELinux changes outside of the
-> > SELinux tree.
->
-> Even if this goes into the next merge window we'd need it in the vfs
-> tree as it is preparation for other work on VFS interfaces.
+On Thu, 2023-08-31 at 14:36 +0200, Christian Brauner wrote:
+> On Thu, Aug 31, 2023 at 02:19:20AM -0700, Hugh Dickins wrote:
+> > On Wed, 30 Aug 2023, Paul Moore wrote:
+> > 
+> > > Hello all,
+> > > 
+> > > While looking at some recent changes in mm/shmem.c I noticed that the
+> > > ordering between simple_acl_create() and
+> > > security_inode_init_security() is different between shmem_mknod() and
+> > > shmem_tmpfile().  In shmem_mknod() the ACL call comes before the LSM
+> > > hook, and in shmem_tmpfile() the LSM call comes before the ACL call.
+> > > 
+> > > Perhaps this is correct, but it seemed a little odd to me so I wanted
+> > > to check with all of you to make sure there is a good reason for the
+> > > difference between the two functions.  Looking back to when
+> > > shmem_tmpfile() was created ~2013 I don't see any explicit mention as
+> > > to why the ordering is different so I'm looking for a bit of a sanity
+> > > check to see if I'm missing something obvious.
+> > > 
+> > > My initial thinking this morning is that the
+> > > security_inode_init_security() call should come before
+> > > simple_acl_create() in both cases, but I'm open to different opinions
+> > > on this.
+> > 
+> > Good eye.  The crucial commit here appears to be Mimi's 3.11 commit
+> > 37ec43cdc4c7 "evm: calculate HMAC after initializing posix acl on tmpfs"
+> > which intentionally moved shmem_mknod()'s generic_acl_init() up before
+> > the security_inode_init_security(), around the same time as Al was
+> > copying shmem_mknod() to introduce shmem_tmpfile().
+> > 
+> > I'd have agreed with you, Paul, until reading Mimi's commit:
+> > now it looks more like shmem_tmpfile() is the one to be changed,
+> > except (I'm out of my depth) maybe it's irrelevant on tmpfiles.
+> 
+> POSIX ACLs generally need to be set first as they are may change inode
+> properties that security_inode_init_security() may rely on to be stable.
+> That specifically incudes inode->i_mode:
+> 
+> * If the filesystem doesn't support POSIX ACLs then the umask is
+>   stripped in the VFS before it ever gets to the filesystems. For such
+>   cases the order of *_init_security() and setting POSIX ACLs doesn't
+>   matter.
+> * If the filesystem does support POSIX ACLs and the directory of the
+>   resulting file does have default POSIX ACLs with mode settings then
+>   the inode->i_mode will be updated.
+> * If the filesystem does support POSIX ACLs but the directory doesn't
+>   have default POSIX ACLs the umask will be stripped.
+> 
+> (roughly from memory)
+> 
+> If tmpfs is compiled with POSIX ACL support the mode might change and if
+> anything in *_init_security() relies on inode->i_mode being stable it
+> needs to be called after they have been set.
+> 
+> EVM hashes do use the mode and the hash gets updated when POSIX ACLs are
+> changed - which caused me immense pain when I redid these codepaths last
+> year.
+> 
+> IMHO, the easiest fix really is to lump all this together for all
+> creation paths. This is what most filesystems do. For examples, see
+> 
+> xfs_generic_create()
+> -> posix_acl_create(&mode)
+> -> xfs_create{_tmpfile}(mode)
+> -> xfs_inode_init_security()
+> 
+> or
+> 
+> __ext4_new_inode()
+> -> ext4_init_acl()
+> -> ext4_init_security()
 
-That's fine, I would consider that part of the "patch dependency" case
-I mentioned above.
+Agreed.  Thanks, Hugh, Christian for the clear explanation.
 
-My motivation for commenting on this is that I've seen a few recent
-cases where some other subsystems have been quick to merge SELinux,
-etc. patches and I just wanted to ask that some consideration be made
-as it causes us (me) some level of pain.  If there is a good reason
-for it, that's fine, being a maintainer is a life of pain ;) but if it
-is simply to just get the patch merged into an upstream tree a day or
-two earlier I would please ask you to exercise patience and let it be
-merged via the appropriate tree.
-
---=20
-paul-moore.com
