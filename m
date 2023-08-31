@@ -2,168 +2,183 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA975C83F01
-	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 15:27:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC45FEE49B8
+	for <selinux@archiver.kernel.org>; Thu, 31 Aug 2023 22:29:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346595AbjHaP1O (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Aug 2023 11:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
+        id S1344727AbjHaW3G (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Aug 2023 18:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242293AbjHaP1N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 11:27:13 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF5D8F
-        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 08:27:09 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-58fae4a5285so11250097b3.0
-        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 08:27:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1693495629; x=1694100429; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3p4KVcplnkmAq97aJFuRfPluC00MQY2jsCtIut4Z1Gw=;
-        b=DQBGsuogfAfIuaqpGxsVAGXkchKMaZDVSLGUmnqMpHQ9GBbEDh8NoGsYinCnTMy+o8
-         WkEP0ZrBdyEctGnC1R39gRkr9G4WgQvt3TCWXr5QN065qOvUP2noBYmO46C5AZCZKbSK
-         cK8CeOzgsEI7RbisvKeCT+41AS7Aiwl6bv5ikWmep8+9tLb/7ZcN/XraE02UOq8rj3mq
-         Qjxtyz0LMkf93mneJc+vbZg4CA4TqSIJPvkBYzWuGC5d+rUMabPVvlKn4JEcBeMUseK4
-         4ZMc843c7Vtc/ObMtSZVMRS2eV7Yme+5X4fIgTGPF16Tv4lQ37qwaIUSBE0s4H6Z9adc
-         V0Gg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693495629; x=1694100429;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3p4KVcplnkmAq97aJFuRfPluC00MQY2jsCtIut4Z1Gw=;
-        b=XQ1ktwUbWEHnBsltOWm15Goha+qsv61hurBN9xlI36BrkDBi3KXzgWfdMeTs1D4pIM
-         q1OmlLopM+VZuZfA7rI9Q8iIkjUhRzixpGOl58kfPxS6z+F49fsIPArGA8Vck7FnXEaC
-         cZo7bu/8wMZMtBNlAgUhN8WDymYQjlosXnfQA8nl65oahQ9djofYsWdQ6HnoE62PQ96n
-         /BOtFyJbjDq2485T9xypL82ca977RBFGDuCP5DQiS+Cl49BOkG1qya66GkxRum9LMBwi
-         0Kg2HHtEJkqhYh50S7uqxayBIJ+sbiY+zRHgOkbVmYXIzr+ezH5SKH9g5qj74pDxB2Ly
-         nEVQ==
-X-Gm-Message-State: AOJu0YwBu4a0pGjTv+HiB5+TyrV7Lm93yiICSkxlmsdD4SGE6HYXvK+z
-        H8UsDxiLdENktgz6/pI78wEtFIK1FXkfJakrXzKM2VMWltv66Do=
-X-Google-Smtp-Source: AGHT+IEbAPJPHeshhRY/Lhxcw/6oRYRPRw32NnYy3eYgXlznsnIjt+TNPp9z+bpcymHvBZK/BtkQ6Ltb5kMj49p25ig=
-X-Received: by 2002:a81:6cd8:0:b0:58f:a19f:2b79 with SMTP id
- h207-20020a816cd8000000b0058fa19f2b79mr6137570ywc.9.1693495629007; Thu, 31
- Aug 2023 08:27:09 -0700 (PDT)
+        with ESMTP id S232806AbjHaW3G (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Aug 2023 18:29:06 -0400
+Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DB7E67
+        for <selinux@vger.kernel.org>; Thu, 31 Aug 2023 15:29:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1693520942; bh=v6K6x6pP5pq2t8foyzYb/b3yS47OHliT7nnAWOYQZK4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=H/6BZuBa6IS1rMFu3lNxuwtn4aOnx9SCHth4DH0AW1bBljHZJtl6GxvSd+qwfiROjMlsUrbP+JGoZfHnYL6j/iAynL7lziAYJMGjo3KnbYceZneM8ymMcrl8ES/31CsbMzP5xVNXmroOO1TfxgaGZshvAdjQZdv/JAwpHef+5DctpgYUYam2HzjTFtRO3zfxukQawRk8iVK5o0v0QkoLVxqQE9CCxDRqgvXXi/XpVHNXEmAl0ESb8clYGLxgcUD5Is1wkbjVqfZAxShuyjLhScEdboDQov6JzOk4n76XHpqyb2veRWVsNI8fYG2CT4fFTpPsGaYsXW7je4EQhr8v6A==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1693520942; bh=LmnGU5ZBvK7PZ/p4LDcGtHBehYaGrUjrIRcDXkuk5Y0=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=iQxJWO6kmPZKd31AMamlpPD16Ep8ypo/r+EEe0/5ZkpbZRDSTvar9g6PNFbNkH2XbCNG4jqqjZfBmO9y39rjxixhjX6ZCtufBuQvOxZNhO2BLo+yhbLfrk+KgftlO8KjJVQzdKzO3WRfY2dfTqAEoE3DN514mIW818tPvEcWMd/5bgjNHJ1l0ABiFQv7CHNCOoUP4dzdLdY6X181+dJA2utMpmy3+R5wUUgeg6wKgfw/lNwOPZzq6sGFupNnIxNM3PfQ1OM4bQf/JuoFoSNzAjpJ1x4OtykGxa1Xm3axGoG7w7OGWN31cM8STXdPp7WIseZfzYD8YKx3fm9zK2puog==
+X-YMail-OSG: N73QA7gVM1kWM3D46sz.ItHF7ABxFA.xnYwxa7Nv_Ht2B6LeMAAtJU936IhSeR6
+ A_tOmplW2DGHS2y.JBe1s4fLk_.._XGaTuoI.mpTnQiI6BgdnSihypxgA617bLjgTFCDzUcn.HMm
+ ca8hMizqgrqqU4xJ9YaI2_Q7k2jTCv1CWSBYJZQeXwEpUlUX52igaFm0tnhvkiux8v6xRpr8sQIP
+ GqQohBp0gQiQ6GfL8rKbND4E8x5YDQb8htn68FxWhhw1jzRksXwNAM335pEyU7HS3nUrABhH5GCD
+ tYAOLC7FsYy_hdTHx0kpFfqd3tVv33PAY6JtQck.SWhftgFttzvmVpxinJ3qH_s1LQsZcMMq5LDi
+ 0FwVRQ5GvJLpVd6NXSrohHOObgnudKS7.ZZffquOH3NKtIE8JjPVDVkHi8mKqEicgNWZ2eVKIDCm
+ _iNjj68MZPrySVQqsH1r7tKwevO4jvfLb0QPm4FKDOaZa3qUE_d6vmBFxMhko2jSzNp61noY7oAr
+ E.k30Q8.mX4swJv7ysYJla9QOFbHtUQBBcyW59Jda25kQuT4EMlJHJBWOJOzXiHaHbab0AM7Duqr
+ gOm0leLAmv.o6Rg1.CIY0WGpHq2ze9KD3Y2_vClQAWXQIyMGQELk_OH2lvvKj7TuLpBeveBRvIPe
+ bMhaOdWuIToTUhFFtKLcTddO1UUwZfqGGbk_XIJb9xnv_u2hlVQr7XnxF5XKya0n_LqwfKuxuASo
+ Mbkeij9xxaLOYsXNtb3WbG2LI0zvZUU56X2HO2qQlPQtaIlB6ShOUutKP1ck0W_DMQGSmgThQ1bk
+ 2x.Ga0RyyGk0.Sg0qHK.5lMxQ16cYWifbJwDrE7cX_lcoKn7_Ckou_WIJlC6LodtaMqqEx5hozBc
+ DHFFecu2AgKiskIwqjmgeSWNdZpBP6y.USl6O6_8hQ2Y_B1KcVFRKy.wORp6tgiDxEarU2s6wRKd
+ PgonU4JLtc7WZ8vW0G3sb9Fga04a7xLhID1.Qf0n2sQWZe.FQ4HyDnyj88J2s.iN5Rt.FDt_YIp9
+ TlojaG2zMF8EOH_yZVnCIUDyH0BH_SEokxWw6.RB8NAm72trj_dprYFPCVYMQOviTjDtSULLKbuW
+ p5FqQo7gmStkrKty4P60J6EXrHlqO7sj4a.WXOE9EHHEakOCHWm8HEi4Uzo6r8eGXQ03yZP7etzW
+ 3jeTrLRTARylIkG1CbVRryHcxvSNnMiUhw6wk8NCdKXc0AxN3zh2QBuV_1psA25EL85O4cYRVFNG
+ R2HaF1y9xrEIL_TiPU5rf9xkcw.qZKhvjOxi_bvQ06E_LhCoRhrtgtGoX1p.3xFSWiNhj9yFeWmm
+ UzkQnLf5QhvKL9tj4hibNsWF_ehSXSzGZjyWqTeu8uM1irwW8lEDjadunWLR9nIcpfmQdOT9VBXI
+ 1JupBmYiFgVj1s0NDnwUtlz_G3MapE5U6._zoIMpOkGxmju3QGX0xCN9jLKRqoY9DBsnka3K4ml2
+ vBsbuRdQePlSK6_Y2lKAa1GSHBWeWZc_ygbFlq0ngXbW8HgHrm11PqNptub4Mp4MG68e2GcJ5Aml
+ Y1R8SCUG707U9thtOSkMkkhjKuEJIyoGYXDZYPlXzax_EAda84Om8IO_6VuLC6KNDN4xXDzQve27
+ HZOtjFheehhbUCsGTl4gRuM7k_qJiJKoI6r6tG3iH1T.q4ng13k7B9yFi_pD.zqzCeldN487J00Q
+ th9tSPCLgDuhW_JqT.eLvTqLq7G3JMKwtNRarwxTIveZvUR69tlObCaXh0RLRzHPA8OyxRkizesT
+ Ulfnk_5mmuQSJ7t3gFv8A.y7MJ68Zc72P_mSXGGQkbPY5sH7ziza5vh9F_Au3tH.q_1g_59zdDgT
+ 5aDSrvJoOaoT9EhHfK28eGBpJA4n5j1lkSKEefXWuCvdtrbMp7WSSvbK7oSq9AtR8pEf3P0WdQVZ
+ GI4LmjcF0f1z4BdMT8V13l20sw47mhKdyjYSdoZ0dH0DqQ0yfijjN8V_nqBBNvw.ADK2YLh26AYr
+ KR92JjMdCeXSYHdC9BnvUEQ16CI1_km1PP1qtqdbyVrUOXRMYWWnxWKurA6m7Bx6a0kKItyR62hT
+ swdDYatH_ZUO1hdmQp6Qqyj5Ce0Pzg.iMFwTINLfHclj_Gqf9rvRzts.mF.NjN.BrgOCFuLLg9mX
+ Zy2GQ2AJF1zA9c2U7eTb.TOYd5EJwl4zPBhwSdia8ieDPmoR3qQyVTkBdGW1DQQE5jlL_8FY8UmE
+ LI6Y1TL6N9IvQFCAvGDqyaVShtFZsb5rSe9y9DmZ21MbT3VHm.U2C8.u8HV0V2vFY
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: c31f14af-8255-4d6a-9539-64505abd1b35
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 31 Aug 2023 22:29:02 +0000
+Received: by hermes--production-bf1-865889d799-cgv22 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 7bed110bc26c66b842d85614bd6f1485;
+          Thu, 31 Aug 2023 22:29:00 +0000 (UTC)
+Message-ID: <473b1279-5b29-9bf7-3609-6da2bd44c84b@schaufler-ca.com>
+Date:   Thu, 31 Aug 2023 15:28:55 -0700
 MIME-Version: 1.0
-References: <CAHC9VhQr2cpes2W0oWa8OENPFAgFKyGZQu3_m7-hjEdib_3s3Q@mail.gmail.com>
- <f75539a8-adf0-159b-15b9-4cc4a674e623@google.com> <20230831-nachverfolgen-meditation-dcde56b10df7@brauner>
- <cd76e05c82d294a9d0965a2d98b8e51782489b5f.camel@linux.ibm.com>
-In-Reply-To: <cd76e05c82d294a9d0965a2d98b8e51782489b5f.camel@linux.ibm.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 31 Aug 2023 11:26:58 -0400
-Message-ID: <CAHC9VhRLJ+WLBAq_2mDWEC06Umx3Fj-z-2Qem_50izZHYF-vJQ@mail.gmail.com>
-Subject: Re: LSM hook ordering in shmem_mknod() and shmem_tmpfile()?
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        linux-mm@kvack.org, linux-integrity@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH v2 12/25] security: Introduce inode_post_setattr hook
+Content-Language: en-US
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20230831104136.903180-1-roberto.sassu@huaweicloud.com>
+ <20230831104136.903180-13-roberto.sassu@huaweicloud.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20230831104136.903180-13-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21763 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 31, 2023 at 11:13=E2=80=AFAM Mimi Zohar <zohar@linux.ibm.com> w=
-rote:
-> On Thu, 2023-08-31 at 14:36 +0200, Christian Brauner wrote:
-> > On Thu, Aug 31, 2023 at 02:19:20AM -0700, Hugh Dickins wrote:
-> > > On Wed, 30 Aug 2023, Paul Moore wrote:
-> > >
-> > > > Hello all,
-> > > >
-> > > > While looking at some recent changes in mm/shmem.c I noticed that t=
-he
-> > > > ordering between simple_acl_create() and
-> > > > security_inode_init_security() is different between shmem_mknod() a=
-nd
-> > > > shmem_tmpfile().  In shmem_mknod() the ACL call comes before the LS=
-M
-> > > > hook, and in shmem_tmpfile() the LSM call comes before the ACL call=
-.
-> > > >
-> > > > Perhaps this is correct, but it seemed a little odd to me so I want=
-ed
-> > > > to check with all of you to make sure there is a good reason for th=
-e
-> > > > difference between the two functions.  Looking back to when
-> > > > shmem_tmpfile() was created ~2013 I don't see any explicit mention =
-as
-> > > > to why the ordering is different so I'm looking for a bit of a sani=
-ty
-> > > > check to see if I'm missing something obvious.
-> > > >
-> > > > My initial thinking this morning is that the
-> > > > security_inode_init_security() call should come before
-> > > > simple_acl_create() in both cases, but I'm open to different opinio=
-ns
-> > > > on this.
-> > >
-> > > Good eye.  The crucial commit here appears to be Mimi's 3.11 commit
-> > > 37ec43cdc4c7 "evm: calculate HMAC after initializing posix acl on tmp=
-fs"
-> > > which intentionally moved shmem_mknod()'s generic_acl_init() up befor=
-e
-> > > the security_inode_init_security(), around the same time as Al was
-> > > copying shmem_mknod() to introduce shmem_tmpfile().
-> > >
-> > > I'd have agreed with you, Paul, until reading Mimi's commit:
-> > > now it looks more like shmem_tmpfile() is the one to be changed,
-> > > except (I'm out of my depth) maybe it's irrelevant on tmpfiles.
-> >
-> > POSIX ACLs generally need to be set first as they are may change inode
-> > properties that security_inode_init_security() may rely on to be stable=
-.
-> > That specifically incudes inode->i_mode:
-> >
-> > * If the filesystem doesn't support POSIX ACLs then the umask is
-> >   stripped in the VFS before it ever gets to the filesystems. For such
-> >   cases the order of *_init_security() and setting POSIX ACLs doesn't
-> >   matter.
-> > * If the filesystem does support POSIX ACLs and the directory of the
-> >   resulting file does have default POSIX ACLs with mode settings then
-> >   the inode->i_mode will be updated.
-> > * If the filesystem does support POSIX ACLs but the directory doesn't
-> >   have default POSIX ACLs the umask will be stripped.
-> >
-> > (roughly from memory)
-> >
-> > If tmpfs is compiled with POSIX ACL support the mode might change and i=
-f
-> > anything in *_init_security() relies on inode->i_mode being stable it
-> > needs to be called after they have been set.
-> >
-> > EVM hashes do use the mode and the hash gets updated when POSIX ACLs ar=
-e
-> > changed - which caused me immense pain when I redid these codepaths las=
-t
-> > year.
-> >
-> > IMHO, the easiest fix really is to lump all this together for all
-> > creation paths. This is what most filesystems do. For examples, see
-> >
-> > xfs_generic_create()
-> > -> posix_acl_create(&mode)
-> > -> xfs_create{_tmpfile}(mode)
-> > -> xfs_inode_init_security()
-> >
-> > or
-> >
-> > __ext4_new_inode()
-> > -> ext4_init_acl()
-> > -> ext4_init_security()
+On 8/31/2023 3:41 AM, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 >
-> Agreed.  Thanks, Hugh, Christian for the clear explanation.
+> In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> the inode_post_setattr hook.
 
-Yes, thanks all.  I figured something was a little wonky but wasn't
-smart enough to know the correct fix.
+Would you please include some explanation of how an LSM would use this hook?
+You might start with a description of how it is used in IMA/EVM, and why that
+could be generally useful.
 
-So .... who wants to submit a patch?
-
---=20
-paul-moore.com
+>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> ---
+>  fs/attr.c                     |  1 +
+>  include/linux/lsm_hook_defs.h |  2 ++
+>  include/linux/security.h      |  7 +++++++
+>  security/security.c           | 16 ++++++++++++++++
+>  4 files changed, 26 insertions(+)
+>
+> diff --git a/fs/attr.c b/fs/attr.c
+> index 431f667726c7..3c309eb456c6 100644
+> --- a/fs/attr.c
+> +++ b/fs/attr.c
+> @@ -486,6 +486,7 @@ int notify_change(struct mnt_idmap *idmap, struct dentry *dentry,
+>  
+>  	if (!error) {
+>  		fsnotify_change(dentry, ia_valid);
+> +		security_inode_post_setattr(idmap, dentry, ia_valid);
+>  		ima_inode_post_setattr(idmap, dentry, ia_valid);
+>  		evm_inode_post_setattr(idmap, dentry, ia_valid);
+>  	}
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index fdf075a6b1bb..995d30336cfa 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -136,6 +136,8 @@ LSM_HOOK(int, 0, inode_follow_link, struct dentry *dentry, struct inode *inode,
+>  LSM_HOOK(int, 0, inode_permission, struct inode *inode, int mask)
+>  LSM_HOOK(int, 0, inode_setattr, struct mnt_idmap *idmap, struct dentry *dentry,
+>  	 struct iattr *attr)
+> +LSM_HOOK(void, LSM_RET_VOID, inode_post_setattr, struct mnt_idmap *idmap,
+> +	 struct dentry *dentry, int ia_valid)
+>  LSM_HOOK(int, 0, inode_getattr, const struct path *path)
+>  LSM_HOOK(int, 0, inode_setxattr, struct mnt_idmap *idmap,
+>  	 struct dentry *dentry, const char *name, const void *value,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index dcb3604ffab8..820899db5276 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -355,6 +355,8 @@ int security_inode_follow_link(struct dentry *dentry, struct inode *inode,
+>  int security_inode_permission(struct inode *inode, int mask);
+>  int security_inode_setattr(struct mnt_idmap *idmap,
+>  			   struct dentry *dentry, struct iattr *attr);
+> +void security_inode_post_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+> +				 int ia_valid);
+>  int security_inode_getattr(const struct path *path);
+>  int security_inode_setxattr(struct mnt_idmap *idmap,
+>  			    struct dentry *dentry, const char *name,
+> @@ -856,6 +858,11 @@ static inline int security_inode_setattr(struct mnt_idmap *idmap,
+>  	return 0;
+>  }
+>  
+> +static inline void
+> +security_inode_post_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+> +			    int ia_valid)
+> +{ }
+> +
+>  static inline int security_inode_getattr(const struct path *path)
+>  {
+>  	return 0;
+> diff --git a/security/security.c b/security/security.c
+> index 2b24d01cf181..764a6f28b3b9 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2124,6 +2124,22 @@ int security_inode_setattr(struct mnt_idmap *idmap,
+>  }
+>  EXPORT_SYMBOL_GPL(security_inode_setattr);
+>  
+> +/**
+> + * security_inode_post_setattr() - Update the inode after a setattr operation
+> + * @idmap: idmap of the mount
+> + * @dentry: file
+> + * @ia_valid: file attributes set
+> + *
+> + * Update inode security field after successful setting file attributes.
+> + */
+> +void security_inode_post_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+> +				 int ia_valid)
+> +{
+> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> +		return;
+> +	call_void_hook(inode_post_setattr, idmap, dentry, ia_valid);
+> +}
+> +
+>  /**
+>   * security_inode_getattr() - Check if getting file attributes is allowed
+>   * @path: file
