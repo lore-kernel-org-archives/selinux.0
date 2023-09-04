@@ -2,264 +2,175 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75CE1CA0FF3
-	for <selinux@archiver.kernel.org>; Mon,  4 Sep 2023 13:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 015DBCA0FF8
+	for <selinux@archiver.kernel.org>; Mon,  4 Sep 2023 18:11:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352767AbjIDNnO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Sep 2023 09:43:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59522 "EHLO
+        id S1353498AbjIDSLb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Sep 2023 14:11:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241768AbjIDNnI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Sep 2023 09:43:08 -0400
-Received: from frasgout12.his.huawei.com (unknown [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36D15E5D;
-        Mon,  4 Sep 2023 06:42:41 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.18.147.227])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4RfTwZ0209z9xHM3;
-        Mon,  4 Sep 2023 21:28:14 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwCXSblt3vVkorkeAg--.30599S7;
-        Mon, 04 Sep 2023 14:42:13 +0100 (CET)
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     viro@zeniv.linux.org.uk, brauner@kernel.org,
-        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
-        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Subject: [PATCH v3 25/25] integrity: Switch from rbtree to LSM-managed blob for integrity_iint_cache
-Date:   Mon,  4 Sep 2023 15:40:49 +0200
-Message-Id: <20230904134049.1802006-6-roberto.sassu@huaweicloud.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
-References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
+        with ESMTP id S1353418AbjIDSLP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Sep 2023 14:11:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F9613E;
+        Mon,  4 Sep 2023 11:11:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87420B80EF3;
+        Mon,  4 Sep 2023 18:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 22283C433B8;
+        Mon,  4 Sep 2023 18:11:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1693851069;
+        bh=XLoa47KxRcps38wwidPhLGQHNoTClCg5nlSU2UvnxSI=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=XZUD/xT7QAeS9CwkDxlRqT/gRWQx0TmxhnpK0eSpl5TdmWje1tq2yvGH+3vZ2+BCT
+         jCeZ3PliMwtj4PI/YG14pbxznaZzZiLpm9dwOITxs9QimCVLsdgcY+tXdL8VHHo6Xo
+         yN1Gfw9YZmIyD8m43UuRL17+XTyHWk7a5WXn6oF5ggWXw6RS9S101xrDjQsPd+ZkCx
+         1CnWWAtQSCxTFtksNwHsJ+bzmvgeWVNV2ZHBFMah4WlUviOzbSHDkb9JT06sfaty1l
+         sU4YI09Bt9xI2xASG0RHXL6Mglihp9xk051QekITKNbwSi+f4qbVFzWkXoKrsHAJfp
+         TL/wsjYXrOQBg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C90EDC2BBD7;
+        Mon,  4 Sep 2023 18:11:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: LxC2BwCXSblt3vVkorkeAg--.30599S7
-X-Coremail-Antispam: 1UD129KBjvJXoWxKryfGFy8XFyDtr1UAFWDurg_yoWxGrWUpF
-        42gayUJws8ZFWj9F4vyF98ur4fKFyjqFZ7W34Ykw1kAFyvvr1jqFs8AryUZF15GrW5t34I
-        qrn0kr4UZF1qyrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
-        Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
-        rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
-        AKxVWxJr0_GcWl84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAF
-        wI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7
-        xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Y
-        z7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2
-        Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
-        6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0x
-        vE2Ix0cI8IcVAFwI0_Xr0_Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4UJVW0owCI42IY
-        6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aV
-        CY1x0267AKxVWxJr0_GcJvcSsGvfC2KfnxnUUI43ZEXa7IUbGXdUUUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAKBF1jj5OBggAAsu
-X-CFilter-Loop: Reflected
+Subject: Re: [f2fs-dev] [PATCH v2 00/89] fs: new accessors for inode->i_ctime
+From:   patchwork-bot+f2fs@kernel.org
+Message-Id: <169385106881.19669.3510550425397118597.git-patchwork-notify@kernel.org>
+Date:   Mon, 04 Sep 2023 18:11:08 +0000
+References: <20230705185812.579118-1-jlayton@kernel.org>
+In-Reply-To: <20230705185812.579118-1-jlayton@kernel.org>
+To:     Jeff Layton <jlayton@kernel.org>
+Cc:     jk@ozlabs.org, arnd@arndb.de, mpe@ellerman.id.au,
+        npiggin@gmail.com, christophe.leroy@csgroup.eu, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
+        cmllamas@google.com, surenb@google.com,
+        dennis.dalessandro@cornelisnetworks.com, jgg@ziepe.ca,
+        leon@kernel.org, bwarrum@linux.ibm.com, rituagar@linux.ibm.com,
+        ericvh@kernel.org, lucho@ionkov.net, asmadeus@codewreck.org,
+        linux_oss@crudebyte.com, dsterba@suse.com, dhowells@redhat.com,
+        marc.dionne@auristor.com, viro@zeniv.linux.org.uk,
+        raven@themaw.net, luisbg@kernel.org, salah.triki@gmail.com,
+        aivazian.tigran@gmail.com, ebiederm@xmission.com,
+        keescook@chromium.org, clm@fb.com, josef@toxicpanda.com,
+        xiubli@redhat.com, idryomov@gmail.com, jaharkes@cs.cmu.edu,
+        coda@cs.cmu.edu, jlbec@evilplan.org, hch@lst.de, nico@fluxnic.net,
+        rafael@kernel.org, code@tyhicks.com, ardb@kernel.org,
+        xiang@kernel.org, chao@kernel.org, huyue2@coolpad.com,
+        jefflexu@linux.alibaba.com, linkinjeon@kernel.org,
+        sj1557.seo@samsung.com, jack@suse.com, tytso@mit.edu,
+        adilger.kernel@dilger.ca, jaegeuk@kernel.org,
+        hirofumi@mail.parknet.co.jp, miklos@szeredi.hu,
+        rpeterso@redhat.com, agruenba@redhat.com, richard@nod.at,
+        anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+        mikulas@artax.karlin.mff.cuni.cz, mike.kravetz@oracle.com,
+        muchun.song@linux.dev, dwmw2@infradead.org, shaggy@kernel.org,
+        tj@kernel.org, trond.myklebust@hammerspace.com, anna@kernel.org,
+        chuck.lever@oracle.com, neilb@suse.de, kolga@netapp.com,
+        Dai.Ngo@oracle.com, tom@talpey.com, konishi.ryusuke@gmail.com,
+        anton@tuxera.com, almaz.alexandrovich@paragon-software.com,
+        mark@fasheh.com, joseph.qi@linux.alibaba.com, me@bobcopeland.com,
+        hubcap@omnibond.com, martin@omnibond.com, amir73il@gmail.com,
+        mcgrof@kernel.org, yzaikin@google.com, tony.luck@intel.com,
+        gpiccoli@igalia.com, al@alarsen.net, sfrench@samba.org,
+        pc@manguebit.com, lsahlber@redhat.com, sprasad@microsoft.com,
+        senozhatsky@chromium.org, phillip@squashfs.org.uk,
+        rostedt@goodmis.org, mhiramat@kernel.org, dushistov@mail.ru,
+        hdegoede@redhat.com, djwong@kernel.org, dlemoal@kernel.org,
+        naohiro.aota@wdc.com, jth@kernel.org, ast@kernel.org,
+        daniel@iogearbox.net, andrii@kernel.org, martin.lau@linux.dev,
+        song@kernel.org, yhs@fb.com, john.fastabend@gmail.com,
+        kpsingh@kernel.org, sdf@google.com, haoluo@google.com,
+        jolsa@kernel.org, hughd@google.com, akpm@linux-foundation.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, john.johansen@canonical.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        jgross@suse.com, stern@rowland.harvard.edu, lrh2000@pku.edu.cn,
+        sebastian.reichel@collabora.com, wsa+renesas@sang-engineering.com,
+        quic_ugoswami@quicinc.com, quic_linyyuan@quicinc.com,
+        john@keeping.me.uk, error27@gmail.com, quic_uaggarwa@quicinc.com,
+        hayama@lineo.co.jp, jomajm@gmail.com, axboe@kernel.dk,
+        dhavale@google.com, dchinner@redhat.com, hannes@cmpxchg.org,
+        zhangpeng362@huawei.com, slava@dubeyko.com, gargaditya08@live.com,
+        penguin-kernel@I-love.SAKURA.ne.jp, yifeliu@cs.stonybrook.edu,
+        madkar@cs.stonybrook.edu, ezk@cs.stonybrook.edu,
+        yuzhe@nfschina.com, willy@infradead.org, okanatov@gmail.com,
+        jeffxu@chromium.org, linux@treblig.org, mirimmad17@gmail.com,
+        yijiangshan@kylinos.cn, yang.yang29@zte.com.cn,
+        xu.xin16@zte.com.cn, chengzhihao1@huawei.com, shr@devkernel.io,
+        Liam.Howlett@Oracle.com, adobriyan@gmail.com,
+        chi.minghao@zte.com.cn, roberto.sassu@huawei.com,
+        linuszeng@tencent.com, bvanassche@acm.org, zohar@linux.ibm.com,
+        yi.zhang@huawei.com, trix@redhat.com, fmdefrancesco@gmail.com,
+        ebiggers@google.com, princekumarmaurya06@gmail.com,
+        chenzhongjin@huawei.com, riel@surriel.com,
+        shaozhengchao@huawei.com, jingyuwang_vip@163.com,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
+        linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
+        autofs@vger.kernel.org, linux-mm@kvack.org,
+        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        codalist@coda.cs.cmu.edu, ecryptfs@vger.kernel.org,
+        linux-efi@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        cluster-devel@redhat.com, linux-um@lists.infradead.org,
+        linux-mtd@lists.infradead.org,
+        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
+        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
+        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org,
+        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+Hello:
 
-Before the security field of kernel objects could be shared among LSMs with
-the LSM stacking feature, IMA and EVM had to rely on an alternative storage
-of inode metadata. The association between inode metadata and inode is
-maintained through an rbtree.
+This series was applied to jaegeuk/f2fs.git (dev)
+by Christian Brauner <brauner@kernel.org>:
 
-With the reservation mechanism offered by the LSM infrastructure, the
-rbtree is no longer necessary, as each LSM could reserve a space in the
-security blob for each inode. Thus, request from the 'integrity' LSM a
-space in the security blob for the pointer of inode metadata
-(integrity_iint_cache structure).
+On Wed,  5 Jul 2023 14:58:09 -0400 you wrote:
+> v2:
+> - prepend patches to add missing ctime updates
+> - add simple_rename_timestamp helper function
+> - rename ctime accessor functions as inode_get_ctime/inode_set_ctime_*
+> - drop individual inode_ctime_set_{sec,nsec} helpers
+> 
+> I've been working on a patchset to change how the inode->i_ctime is
+> accessed in order to give us conditional, high-res timestamps for the
+> ctime and mtime. struct timespec64 has unused bits in it that we can use
+> to implement this. In order to do that however, we need to wrap all
+> accesses of inode->i_ctime to ensure that bits used as flags are
+> appropriately handled.
+> 
+> [...]
 
-Prefer this to allocating the integrity_iint_cache structure directly, as
-IMA would require it only for a subset of inodes. Always allocating it
-would cause a waste of memory.
+Here is the summary with links:
+  - [f2fs-dev,v2,07/92] fs: add ctime accessors infrastructure
+    https://git.kernel.org/jaegeuk/f2fs/c/9b6304c1d537
+  - [f2fs-dev,v2,08/92] fs: new helper: simple_rename_timestamp
+    https://git.kernel.org/jaegeuk/f2fs/c/0c4767923ed6
+  - [f2fs-dev,v2,92/92] fs: rename i_ctime field to __i_ctime
+    https://git.kernel.org/jaegeuk/f2fs/c/13bc24457850
 
-Introduce two primitives for getting and setting the pointer of
-integrity_iint_cache in the security blob, respectively
-integrity_inode_get_iint() and integrity_inode_set_iint(). This would make
-the code more understandable, as they directly replace rbtree operations.
-
-Locking is not needed, as access to inode metadata is not shared, it is per
-inode.
-
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/integrity/iint.c      | 67 +++-------------------------------
- security/integrity/integrity.h | 19 +++++++++-
- 2 files changed, 24 insertions(+), 62 deletions(-)
-
-diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-index 70ee803a33ea..c2fba8afbbdb 100644
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -14,56 +14,25 @@
- #include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/spinlock.h>
--#include <linux/rbtree.h>
- #include <linux/file.h>
- #include <linux/uaccess.h>
- #include <linux/security.h>
- #include <linux/lsm_hooks.h>
- #include "integrity.h"
- 
--static struct rb_root integrity_iint_tree = RB_ROOT;
--static DEFINE_RWLOCK(integrity_iint_lock);
- static struct kmem_cache *iint_cache __read_mostly;
- 
- struct dentry *integrity_dir;
- 
--/*
-- * __integrity_iint_find - return the iint associated with an inode
-- */
--static struct integrity_iint_cache *__integrity_iint_find(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--	struct rb_node *n = integrity_iint_tree.rb_node;
--
--	while (n) {
--		iint = rb_entry(n, struct integrity_iint_cache, rb_node);
--
--		if (inode < iint->inode)
--			n = n->rb_left;
--		else if (inode > iint->inode)
--			n = n->rb_right;
--		else
--			return iint;
--	}
--
--	return NULL;
--}
--
- /*
-  * integrity_iint_find - return the iint associated with an inode
-  */
- struct integrity_iint_cache *integrity_iint_find(struct inode *inode)
- {
--	struct integrity_iint_cache *iint;
--
- 	if (!IS_IMA(inode))
- 		return NULL;
- 
--	read_lock(&integrity_iint_lock);
--	iint = __integrity_iint_find(inode);
--	read_unlock(&integrity_iint_lock);
--
--	return iint;
-+	return integrity_inode_get_iint(inode);
- }
- 
- static void iint_free(struct integrity_iint_cache *iint)
-@@ -92,9 +61,7 @@ static void iint_free(struct integrity_iint_cache *iint)
-  */
- struct integrity_iint_cache *integrity_inode_get(struct inode *inode)
- {
--	struct rb_node **p;
--	struct rb_node *node, *parent = NULL;
--	struct integrity_iint_cache *iint, *test_iint;
-+	struct integrity_iint_cache *iint;
- 
- 	iint = integrity_iint_find(inode);
- 	if (iint)
-@@ -104,31 +71,10 @@ struct integrity_iint_cache *integrity_inode_get(struct inode *inode)
- 	if (!iint)
- 		return NULL;
- 
--	write_lock(&integrity_iint_lock);
--
--	p = &integrity_iint_tree.rb_node;
--	while (*p) {
--		parent = *p;
--		test_iint = rb_entry(parent, struct integrity_iint_cache,
--				     rb_node);
--		if (inode < test_iint->inode) {
--			p = &(*p)->rb_left;
--		} else if (inode > test_iint->inode) {
--			p = &(*p)->rb_right;
--		} else {
--			write_unlock(&integrity_iint_lock);
--			kmem_cache_free(iint_cache, iint);
--			return test_iint;
--		}
--	}
--
- 	iint->inode = inode;
--	node = &iint->rb_node;
- 	inode->i_flags |= S_IMA;
--	rb_link_node(node, parent, p);
--	rb_insert_color(node, &integrity_iint_tree);
-+	integrity_inode_set_iint(inode, iint);
- 
--	write_unlock(&integrity_iint_lock);
- 	return iint;
- }
- 
-@@ -145,10 +91,8 @@ static void integrity_inode_free(struct inode *inode)
- 	if (!IS_IMA(inode))
- 		return;
- 
--	write_lock(&integrity_iint_lock);
--	iint = __integrity_iint_find(inode);
--	rb_erase(&iint->rb_node, &integrity_iint_tree);
--	write_unlock(&integrity_iint_lock);
-+	iint = integrity_iint_find(inode);
-+	integrity_inode_set_iint(inode, NULL);
- 
- 	iint_free(iint);
- }
-@@ -188,6 +132,7 @@ static int __init integrity_lsm_init(void)
- }
- 
- struct lsm_blob_sizes integrity_blob_sizes __ro_after_init = {
-+	.lbs_inode = sizeof(struct integrity_iint_cache *),
- 	.lbs_xattr_count = 1,
- };
- 
-diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
-index e020c365997b..24de4ad4a37e 100644
---- a/security/integrity/integrity.h
-+++ b/security/integrity/integrity.h
-@@ -158,7 +158,6 @@ struct ima_file_id {
- 
- /* integrity data associated with an inode */
- struct integrity_iint_cache {
--	struct rb_node rb_node;	/* rooted in integrity_iint_tree */
- 	struct mutex mutex;	/* protects: version, flags, digest */
- 	struct inode *inode;	/* back pointer to inode in question */
- 	u64 version;		/* track inode changes */
-@@ -192,6 +191,24 @@ int integrity_kernel_read(struct file *file, loff_t offset,
- extern struct dentry *integrity_dir;
- extern struct lsm_blob_sizes integrity_blob_sizes;
- 
-+static inline struct integrity_iint_cache *
-+integrity_inode_get_iint(const struct inode *inode)
-+{
-+	struct integrity_iint_cache **iint_sec;
-+
-+	iint_sec = inode->i_security + integrity_blob_sizes.lbs_inode;
-+	return *iint_sec;
-+}
-+
-+static inline void integrity_inode_set_iint(const struct inode *inode,
-+					    struct integrity_iint_cache *iint)
-+{
-+	struct integrity_iint_cache **iint_sec;
-+
-+	iint_sec = inode->i_security + integrity_blob_sizes.lbs_inode;
-+	*iint_sec = iint;
-+}
-+
- struct modsig;
- 
- #ifdef CONFIG_IMA
+You are awesome, thank you!
 -- 
-2.34.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
