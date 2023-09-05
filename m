@@ -2,186 +2,210 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87DD1CA0FF3
-	for <selinux@archiver.kernel.org>; Tue,  5 Sep 2023 16:26:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F735CA0FFC
+	for <selinux@archiver.kernel.org>; Tue,  5 Sep 2023 18:00:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351662AbjIEQ0L convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Tue, 5 Sep 2023 12:26:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
+        id S230323AbjIESA7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Sep 2023 14:00:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353608AbjIEGwR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Sep 2023 02:52:17 -0400
-Received: from frasgout13.his.huawei.com (unknown [14.137.139.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A52DA1B4;
-        Mon,  4 Sep 2023 23:52:13 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4Rfwq91PZtz9v7ZP;
-        Tue,  5 Sep 2023 14:40:05 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-        by APP2 (Coremail) with SMTP id GxC2BwDX1+_yz_ZkocAiAg--.8435S2;
-        Tue, 05 Sep 2023 07:51:44 +0100 (CET)
-Message-ID: <b4bc9dbb2417dc8afe0bf0a50233d4c2968bfb7a.camel@huaweicloud.com>
-Subject: Re: [PATCH v2 13/25] security: Introduce inode_post_removexattr hook
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Jarkko Sakkinen <jarkko@kernel.org>, viro@zeniv.linux.org.uk,
-        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
-        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
-        tom@talpey.com, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        with ESMTP id S233812AbjIESAE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Sep 2023 14:00:04 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA10769C;
+        Tue,  5 Sep 2023 10:57:08 -0700 (PDT)
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 385Hrnxm015843;
+        Tue, 5 Sep 2023 17:55:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=kT06frDQt3xylLC8EbArkQbk0wDCQ4MMKDzf+HhXt80=;
+ b=loQfl1WabIEqQqg+xWr/7/LLgrRN1xh0xMOWQk9dggAsqvDv6itAciwOuybdehyxzwrH
+ 8bb0BvPgsVAeEjuk1s1yI21UXhxp3M01ZjgMWZv+jbgPY02QJjFi9O57c363eWvWyXIP
+ QWTXLJYX54boQ74EiHUSSC9tftwHTpqe0MRarigCxK+s7x4/b7V5VyKabMzz7ANK6K85
+ uwVvRWdRqAwk5m4fw9Bgc+asHJozidmRhvaL3bWFrUMypXWbC3LeCvu3DkV8x+PtACc/
+ 3AwaeS4QrqfrLB1Yzsqy/jNfRZ13XKvCK01Ro6e2HZJ8uCxpCnTLxOCJHOSJG25RH81A Tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sx8pg109s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Sep 2023 17:55:41 +0000
+Received: from m0353727.ppops.net (m0353727.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 385HrxJE016927;
+        Tue, 5 Sep 2023 17:55:41 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3sx8pg1099-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Sep 2023 17:55:41 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 385GJCvu021478;
+        Tue, 5 Sep 2023 17:55:39 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+        by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3svfrycwqv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Sep 2023 17:55:39 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+        by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 385HtcSD1180304
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 5 Sep 2023 17:55:39 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C143B58061;
+        Tue,  5 Sep 2023 17:55:38 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D901D5806A;
+        Tue,  5 Sep 2023 17:55:36 +0000 (GMT)
+Received: from [9.47.158.152] (unknown [9.47.158.152])
+        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue,  5 Sep 2023 17:55:36 +0000 (GMT)
+Message-ID: <bfed43cd-029b-be93-8b0b-9e901eb57a5e@linux.ibm.com>
+Date:   Tue, 5 Sep 2023 13:55:35 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v3 13/25] security: Introduce inode_post_removexattr hook
+Content-Language: en-US
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
         paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        dhowells@redhat.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
         linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>
-Date:   Tue, 05 Sep 2023 08:51:26 +0200
-In-Reply-To: <CVAFXF2BQ14B.19BO7F9P62WGT@suppilovahvero>
-References: <20230831104136.903180-1-roberto.sassu@huaweicloud.com>
-         <20230831104136.903180-14-roberto.sassu@huaweicloud.com>
-         <CVAFXF2BQ14B.19BO7F9P62WGT@suppilovahvero>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4-0ubuntu2 
-MIME-Version: 1.0
-X-CM-TRANSID: GxC2BwDX1+_yz_ZkocAiAg--.8435S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxWr4DAry7AF1kXr4xCFWfZrb_yoWruF47pF
-        s8t3W5Cr4rJFy7WFy8tF17uw4I9ayFgry7A3y2gw12yFn2yrn2qrZxCF1UCryrJr40gFyv
-        qFnFkrs5Cr13J3JanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQALBF1jj5OFhQACsu
-X-CFilter-Loop: Reflected
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
+ <20230904133415.1799503-14-roberto.sassu@huaweicloud.com>
+From:   Stefan Berger <stefanb@linux.ibm.com>
+In-Reply-To: <20230904133415.1799503-14-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: uP63RghdXrVrrOQzg33fDaoggNWa6l_9
+X-Proofpoint-GUID: sxq69O-4b-DSCGXrVqQCGnCssxGsJcny
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-05_10,2023-09-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 adultscore=0
+ malwarescore=0 bulkscore=0 spamscore=0 impostorscore=0 phishscore=0
+ mlxlogscore=999 clxscore=1015 mlxscore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309050152
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2023-09-05 at 00:11 +0300, Jarkko Sakkinen wrote:
-> On Thu Aug 31, 2023 at 1:41 PM EEST, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > In preparation for moving IMA and EVM to the LSM infrastructure, introduce
-> > the inode_post_removexattr hook.
-> > 
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-> > ---
-> >  fs/xattr.c                    |  9 +++++----
-> >  include/linux/lsm_hook_defs.h |  2 ++
-> >  include/linux/security.h      |  5 +++++
-> >  security/security.c           | 14 ++++++++++++++
-> >  4 files changed, 26 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/xattr.c b/fs/xattr.c
-> > index e7bbb7f57557..4a0280295686 100644
-> > --- a/fs/xattr.c
-> > +++ b/fs/xattr.c
-> > @@ -552,11 +552,12 @@ __vfs_removexattr_locked(struct mnt_idmap *idmap,
-> >  		goto out;
-> >  
-> >  	error = __vfs_removexattr(idmap, dentry, name);
-> > +	if (error)
-> > +		goto out;
-> >  
-> > -	if (!error) {
-> > -		fsnotify_xattr(dentry);
-> > -		evm_inode_post_removexattr(dentry, name);
-> > -	}
-> > +	fsnotify_xattr(dentry);
-> > +	security_inode_post_removexattr(dentry, name);
-> > +	evm_inode_post_removexattr(dentry, name);
-> >  
-> >  out:
-> >  	return error;
-> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> > index 995d30336cfa..1153e7163b8b 100644
-> > --- a/include/linux/lsm_hook_defs.h
-> > +++ b/include/linux/lsm_hook_defs.h
-> > @@ -148,6 +148,8 @@ LSM_HOOK(int, 0, inode_getxattr, struct dentry *dentry, const char *name)
-> >  LSM_HOOK(int, 0, inode_listxattr, struct dentry *dentry)
-> >  LSM_HOOK(int, 0, inode_removexattr, struct mnt_idmap *idmap,
-> >  	 struct dentry *dentry, const char *name)
-> > +LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
-> > +	 const char *name)
-> >  LSM_HOOK(int, 0, inode_set_acl, struct mnt_idmap *idmap,
-> >  	 struct dentry *dentry, const char *acl_name, struct posix_acl *kacl)
-> >  LSM_HOOK(int, 0, inode_get_acl, struct mnt_idmap *idmap,
-> > diff --git a/include/linux/security.h b/include/linux/security.h
-> > index 820899db5276..665bba3e0081 100644
-> > --- a/include/linux/security.h
-> > +++ b/include/linux/security.h
-> > @@ -374,6 +374,7 @@ int security_inode_getxattr(struct dentry *dentry, const char *name);
-> >  int security_inode_listxattr(struct dentry *dentry);
-> >  int security_inode_removexattr(struct mnt_idmap *idmap,
-> >  			       struct dentry *dentry, const char *name);
-> > +void security_inode_post_removexattr(struct dentry *dentry, const char *name);
-> >  int security_inode_need_killpriv(struct dentry *dentry);
-> >  int security_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
-> >  int security_inode_getsecurity(struct mnt_idmap *idmap,
-> > @@ -919,6 +920,10 @@ static inline int security_inode_removexattr(struct mnt_idmap *idmap,
-> >  	return cap_inode_removexattr(idmap, dentry, name);
-> >  }
-> >  
-> > +static inline void security_inode_post_removexattr(struct dentry *dentry,
-> > +						   const char *name)
-> > +{ }
-> 
-> static inline void security_inode_post_removexattr(struct dentry *dentry, const char *name)
-> {
-> }
-> 
-> > +
-> >  static inline int security_inode_need_killpriv(struct dentry *dentry)
-> >  {
-> >  	return cap_inode_need_killpriv(dentry);
-> > diff --git a/security/security.c b/security/security.c
-> > index 764a6f28b3b9..3947159ba5e9 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -2354,6 +2354,20 @@ int security_inode_removexattr(struct mnt_idmap *idmap,
-> >  	return evm_inode_removexattr(idmap, dentry, name);
-> >  }
-> >  
-> > +/**
-> > + * security_inode_post_removexattr() - Update the inode after a removexattr op
-> > + * @dentry: file
-> > + * @name: xattr name
-> > + *
-> > + * Update the inode after a successful removexattr operation.
-> > + */
-> > +void security_inode_post_removexattr(struct dentry *dentry, const char *name)
-> > +{
-> > +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
-> > +		return;
-> > +	call_void_hook(inode_post_removexattr, dentry, name);
-> > +}
-> > +
-> >  /**
-> >   * security_inode_need_killpriv() - Check if security_inode_killpriv() required
-> >   * @dentry: associated dentry
-> > -- 
-> > 2.34.1
-> 
-> 
-> These odd splits are everywhere in the patch set. Just (nit)picking some.
-> 
-> It is huge patch set so I don't really get for addign extra lines for no
-> good reason.
+On 9/4/23 09:34, Roberto Sassu wrote:
 
-Thanks for the review, Jarkko.
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+>
+> In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> the inode_post_removexattr hook.
+>
+> It is useful for EVM to recalculate the HMAC on the remaining file xattrs,
+> and other file metadata, after it verified the HMAC of current file
+> metadata with the inode_removexattr hook.
+>
+> LSMs should use the new hook instead of inode_removexattr, when they need
+> to know that the operation was done successfully (not known in
+> inode_removexattr). The new hook cannot return an error and cannot cause
+> the operation to be reverted.
+>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>   fs/xattr.c                    |  9 +++++----
+>   include/linux/lsm_hook_defs.h |  2 ++
+>   include/linux/security.h      |  5 +++++
+>   security/security.c           | 14 ++++++++++++++
+>   4 files changed, 26 insertions(+), 4 deletions(-)
+>
+> diff --git a/fs/xattr.c b/fs/xattr.c
+> index e7bbb7f57557..4a0280295686 100644
+> --- a/fs/xattr.c
+> +++ b/fs/xattr.c
+> @@ -552,11 +552,12 @@ __vfs_removexattr_locked(struct mnt_idmap *idmap,
+>   		goto out;
+>   
+>   	error = __vfs_removexattr(idmap, dentry, name);
+> +	if (error)
+> +		goto out;
+>   
+> -	if (!error) {
+> -		fsnotify_xattr(dentry);
+> -		evm_inode_post_removexattr(dentry, name);
+> -	}
+> +	fsnotify_xattr(dentry);
+> +	security_inode_post_removexattr(dentry, name);
+> +	evm_inode_post_removexattr(dentry, name);
+>   
+>   out:
+>   	return error;
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 995d30336cfa..1153e7163b8b 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -148,6 +148,8 @@ LSM_HOOK(int, 0, inode_getxattr, struct dentry *dentry, const char *name)
+>   LSM_HOOK(int, 0, inode_listxattr, struct dentry *dentry)
+>   LSM_HOOK(int, 0, inode_removexattr, struct mnt_idmap *idmap,
+>   	 struct dentry *dentry, const char *name)
+> +LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
+> +	 const char *name)
+>   LSM_HOOK(int, 0, inode_set_acl, struct mnt_idmap *idmap,
+>   	 struct dentry *dentry, const char *acl_name, struct posix_acl *kacl)
+>   LSM_HOOK(int, 0, inode_get_acl, struct mnt_idmap *idmap,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 820899db5276..665bba3e0081 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -374,6 +374,7 @@ int security_inode_getxattr(struct dentry *dentry, const char *name);
+>   int security_inode_listxattr(struct dentry *dentry);
+>   int security_inode_removexattr(struct mnt_idmap *idmap,
+>   			       struct dentry *dentry, const char *name);
+> +void security_inode_post_removexattr(struct dentry *dentry, const char *name);
+>   int security_inode_need_killpriv(struct dentry *dentry);
+>   int security_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
+>   int security_inode_getsecurity(struct mnt_idmap *idmap,
+> @@ -919,6 +920,10 @@ static inline int security_inode_removexattr(struct mnt_idmap *idmap,
+>   	return cap_inode_removexattr(idmap, dentry, name);
+>   }
+>   
+> +static inline void security_inode_post_removexattr(struct dentry *dentry,
+> +						   const char *name)
+> +{ }
+> +
+>   static inline int security_inode_need_killpriv(struct dentry *dentry)
+>   {
+>   	return cap_inode_need_killpriv(dentry);
+> diff --git a/security/security.c b/security/security.c
+> index 764a6f28b3b9..3947159ba5e9 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2354,6 +2354,20 @@ int security_inode_removexattr(struct mnt_idmap *idmap,
+>   	return evm_inode_removexattr(idmap, dentry, name);
+>   }
+>   
+> +/**
+> + * security_inode_post_removexattr() - Update the inode after a removexattr op
+> + * @dentry: file
+> + * @name: xattr name
+> + *
+> + * Update the inode after a successful removexattr operation.
+> + */
+> +void security_inode_post_removexattr(struct dentry *dentry, const char *name)
+> +{
+> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> +		return;
+> +	call_void_hook(inode_post_removexattr, dentry, name);
+> +}
+> +
+>   /**
+>    * security_inode_need_killpriv() - Check if security_inode_killpriv() required
+>    * @dentry: associated dentry
 
-I don't know... to be honest I still prefer to stay within 80
-characters.
 
-Roberto
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+
 
