@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2E9DEE14BB
-	for <selinux@archiver.kernel.org>; Wed,  6 Sep 2023 17:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18C67EE14B9
+	for <selinux@archiver.kernel.org>; Wed,  6 Sep 2023 17:18:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243017AbjIFRRR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Sep 2023 13:17:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54650 "EHLO
+        id S241087AbjIFRSp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Sep 2023 13:18:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230087AbjIFRRQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Sep 2023 13:17:16 -0400
-Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32492199F
-        for <selinux@vger.kernel.org>; Wed,  6 Sep 2023 10:17:13 -0700 (PDT)
-Received: by mail-ot1-x32d.google.com with SMTP id 46e09a7af769-6c0822f46a1so102230a34.0
-        for <selinux@vger.kernel.org>; Wed, 06 Sep 2023 10:17:13 -0700 (PDT)
+        with ESMTP id S237335AbjIFRSo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Sep 2023 13:18:44 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C7EC10F6
+        for <selinux@vger.kernel.org>; Wed,  6 Sep 2023 10:18:41 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id 46e09a7af769-6befdad890eso85328a34.3
+        for <selinux@vger.kernel.org>; Wed, 06 Sep 2023 10:18:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694020632; x=1694625432; darn=vger.kernel.org;
+        d=gmail.com; s=20221208; t=1694020720; x=1694625520; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IZ4/U5uiSXIkyLxh5D56qYxOziG9M6zHYC/vFiF2QG0=;
-        b=dNDkRHla/nHOUrIJ1b2YRfSNhRvlbb/dGwjqKK+RuZfDt8S/Ao9Zuxm9+18h+5L3+2
-         tNbvTtphzCzC9ZFMTeaAWtataU4zrS4LGoztnOKut4Iv2hsXLg7aoqgWwZPb4vdWsS8s
-         f0xlGdx3aVqnCCYu74h8E03tb1flRSXMRp2Q64DzVzeZNi8AmAc/qyNixyKgtJDL3wkE
-         Jaxiyp+6KgjZILdSCClEaZfhcNEc7ciTk1Raj6FW3SxvsOaUyRVnQdbZXtjPBHFnyieB
-         r5m1qSbjDOWPKgkKg74LvVy2Y2TZrGMskfkMYz/+QCdLRP979R3Slu5Us5N6GwSKuuIl
-         zFdA==
+        bh=QMcHqIcaqJ1ueWcchKt99zGSC/qbCR3zDhNPQ6bIGps=;
+        b=g/+BifaykG9zZaVBnP6JnllHafL+OMWmYQHJuApfrnOfbE6+9FIH31meWzmSj6n0Aa
+         9JA0TArfQBlYYIEj4avvnGpLZsrALbcrfyMLcU1sDXNtM0hQdigHKL0kxKz+BRaoSb6s
+         S0ZDtYwBPetqNc5/nvN3Pz5p9q41u1tCw7u8epWZ6K9UD2HMrJbCMw+UvGiayTYCR/O/
+         IC1W3VBw5smMJ4aEfmriC/xNSh72vmnx4LokU3FzmTFCy92Ac7TGzExsTnA0anAN8LGs
+         b2uGEbkLjFJeHlX/+ThRhIB5Uwds/dGLl1k3CQSWys4P2mNy2+pocqmf+4fegBDFSmdU
+         8fzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1694020632; x=1694625432;
+        d=1e100.net; s=20221208; t=1694020720; x=1694625520;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IZ4/U5uiSXIkyLxh5D56qYxOziG9M6zHYC/vFiF2QG0=;
-        b=kaIP/fyfharQga2hKvlPGd8eALM5q33D4ugIO+oCqnBu92VH9i3ZqhOHPdFolZAyt+
-         zx6GfhboSnmNKQsd2zlRDVp7jd73mD8iLGjlS0+WB+f1DzuF1TumGYaHD3r2+G7xNwpN
-         KAtE4OM/nr18qdWnSOTFtPEh8pDAIrSWHb7FFmjd9gGyGynZ9cX+lybhOCAYVNYY1B5X
-         iD8PhTHtGPkGNWIX9omQNKkVqauaoDNhQYXKVBGRidpetdsFHWiMP5XMahWdPDg8ahrT
-         6kq8heU80h8oEKsfe+DijD/+3IAwxM8NnCrP6hqQahiKfs9BnUThWBJtqTigvQ4pfLL7
-         QJ9A==
-X-Gm-Message-State: AOJu0YyGcA/rcYk4w7eahclJFhF4ONebYf01difzlTxugM+Z8ScXbAck
-        J4fdeROJVjD/Q7bZuN+8HHFjvQU8DGmrPdOuo8w=
-X-Google-Smtp-Source: AGHT+IFiKSn7VbVlN7+FOAGLqGxaxGmo8pircfzj26bUXTezcGWtO7Mwd54VxC/czwoZcS77iE0ahapMsxJLZpAhUI4=
-X-Received: by 2002:a05:6830:32ab:b0:6bd:d14:147a with SMTP id
- m43-20020a05683032ab00b006bd0d14147amr18240428ott.21.1694020632541; Wed, 06
- Sep 2023 10:17:12 -0700 (PDT)
+        bh=QMcHqIcaqJ1ueWcchKt99zGSC/qbCR3zDhNPQ6bIGps=;
+        b=H1WvaO1iCbIvaQ5phjHXVYuzHkRAg839d/2D1qPJS5UObjKr1abT4y4u83nNe6g4tM
+         u4I7wPlEPHIizr6yhIMECUWVm3UOWRC0wXR+saiW5SyWcEzKtShBJhTqB4lYde0CMAXa
+         0aTeg7mXCdQAlQGoc9Cdx55IVeiwnlmlLz1qJfsHIxLpo0DWx28BI4aBThti+f265T/d
+         n8IXT7kuSwm8KHLG6WUkSsfL18G7N1sJfa/vVu6AxiDSNTZNzUoWXt12BsDKr58kdxkq
+         8PSPowbpeKxkJ8xmsC1NxJKBeWnXNy9LVdcs5P23Zfppl6QD0EtT1vuiqKZBPe3L4EzX
+         5AAg==
+X-Gm-Message-State: AOJu0YzeJ5eGpPJX3Dm3e/t/WPNbPyxqH2yyF3Kr7iIuCOaIA6vNhwQ1
+        CLHRJDAK/CuwDgnBFccPvdjfSk0FYDXX04phcwOEu1zgRJA=
+X-Google-Smtp-Source: AGHT+IFqRHzVxhMYdX44Z0z6yfzPQsQ1C0TbKhWRwRTx8v4X5DljBktbWJxJHX+JjYJv2acylBHvSU2mQBjIkzlVDBg=
+X-Received: by 2002:a9d:7d04:0:b0:6b9:6aee:32b2 with SMTP id
+ v4-20020a9d7d04000000b006b96aee32b2mr18905802otn.6.1694020720676; Wed, 06 Sep
+ 2023 10:18:40 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230906154611.31762-1-jsatterfield.linux@gmail.com> <20230906154611.31762-3-jsatterfield.linux@gmail.com>
-In-Reply-To: <20230906154611.31762-3-jsatterfield.linux@gmail.com>
+References: <20230906154611.31762-1-jsatterfield.linux@gmail.com> <20230906154611.31762-4-jsatterfield.linux@gmail.com>
+In-Reply-To: <20230906154611.31762-4-jsatterfield.linux@gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 6 Sep 2023 13:17:01 -0400
-Message-ID: <CAEjxPJ61V=OZcAibfbbbV-_PD-0R08JASCED0xB42_Y99rh5wQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] selinux: shrink conditional avtab node array
+Date:   Wed, 6 Sep 2023 13:18:29 -0400
+Message-ID: <CAEjxPJ5EP4bC4KN+kfOuZedi+CQsLX_MUpSx5EEFS2J2OO9o3A@mail.gmail.com>
+Subject: Re: [PATCH 3/3] selinux: hweight optimization in avtab_read_item
 To:     Jacob Satterfield <jsatterfield.linux@gmail.com>
 Cc:     selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
@@ -61,38 +61,28 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 6, 2023 at 11:46=E2=80=AFAM Jacob Satterfield
+On Wed, Sep 6, 2023 at 11:47=E2=80=AFAM Jacob Satterfield
 <jsatterfield.linux@gmail.com> wrote:
 >
-> Due to how conditional rules are written in the binary policy, the
-> code responsible for loading does not know how many conditional rules
-> there are before creating the avtab structure. Instead, it uses the
-> number of elements in the non-conditional avtab as a hint and allocates
-> the hash table based on it. Therefore, pre-allocating an array of nodes
-> based on this hint over-allocates at best and under-allocates at worst.
+> avtab_read_item() is a hot function called when reading each rule in a
+> binary policydb. With the current Fedora policy and refpolicy, this
+> function is called nearly 100,000 times per policy load.
 >
-> This patch includes two functions, avtab_grow_nodes and
-> avtab_shrink_nodes, which help manage the size of the nodes array in the
-> unlikely case when there are more conditional rules than non-conditional
-> and in the likely case when there are more non-conditional rules than
-> conditional rules respectively.
+> A single avtab node is only permitted to have a single specifier to
+> describe the data it holds. As such, a check is performed to make sure
+> only one specifier is set. Previously this was done via a for-loop.
+> However, there is already an optimal function for finding the number of
+> bits set (hamming weight) and on some architectures, dedicated
+> instructions (popcount) which can be executed much more efficiently.
 >
-> This patch required struct cond_av_list to become an array of indices
-> instead of pointers so that the nodes array can be copied and moved.
-> This coveniently results in a reduction of memory usage on 64-bit archs
-> as pointers become u32 integers.
->
-> Future improvements to the binary policy to provide the correct hint to
-> the loader code will make these functions obsolete. But as this would be
-> a breaking change to the format, it is not a part of this patch series.
+> Even when using -mcpu=3Dgeneric on a x86-64 Fedora 38 VM, this commit
+> results in a modest 2-4% speedup for policy loading due to a substantial
+> reduction in the number of instructions executed.
 >
 > Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
 
 Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  security/selinux/ss/avtab.c       | 61 +++++++++++++++++++++++++------
->  security/selinux/ss/avtab.h       |  8 ++--
->  security/selinux/ss/conditional.c | 46 ++++++++++++++---------
->  security/selinux/ss/conditional.h |  2 +-
->  4 files changed, 84 insertions(+), 33 deletions(-)
+>  security/selinux/ss/avtab.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
