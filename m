@@ -2,118 +2,98 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D79ABEB8FB7
-	for <selinux@archiver.kernel.org>; Wed,  6 Sep 2023 11:59:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2E9DEE14A5
+	for <selinux@archiver.kernel.org>; Wed,  6 Sep 2023 15:46:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240358AbjIFL7t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Sep 2023 07:59:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57896 "EHLO
+        id S231320AbjIFPq5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Sep 2023 11:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbjIFL7s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Sep 2023 07:59:48 -0400
-Received: from mail-wm1-x349.google.com (mail-wm1-x349.google.com [IPv6:2a00:1450:4864:20::349])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B464CF2
-        for <selinux@vger.kernel.org>; Wed,  6 Sep 2023 04:59:44 -0700 (PDT)
-Received: by mail-wm1-x349.google.com with SMTP id 5b1f17b1804b1-4011f56165eso3757465e9.0
-        for <selinux@vger.kernel.org>; Wed, 06 Sep 2023 04:59:44 -0700 (PDT)
+        with ESMTP id S230271AbjIFPq4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Sep 2023 11:46:56 -0400
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87CEBC
+        for <selinux@vger.kernel.org>; Wed,  6 Sep 2023 08:46:52 -0700 (PDT)
+Received: by mail-ot1-x332.google.com with SMTP id 46e09a7af769-6c0a3a2cc20so29141a34.0
+        for <selinux@vger.kernel.org>; Wed, 06 Sep 2023 08:46:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1694001582; x=1694606382; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qZ45QK6IZz6Y3HlhiHmijDorqTKf0Kc5k/F4bqv8ZPU=;
-        b=V9xQgZhC51/IccpfbhWJFiRXRLjcFHgbXvObSd82yob283xHadPHcY2wwOFJcntXUr
-         XA3exGZo7sE8GWCWESMw6Luo5+bMYY0svdAD3ue3w+e+06HybXIv59Sr3cFvff1/8tC7
-         gN8Hy/+nMKo4a+gvDn6h+Ghjias3hw70v2rOPzU1/7Q77TS7KdJPQHGcnK+ECCJJ5Y+L
-         TMSPVVHtePhXH15mc4XUQBv4wASg9iKqieB5aBKNx6PNYjWqH5VguAd4E25pnzWeGW9F
-         Jq5BWvc2VHe36DlbaRlhbAh1yMdOdaO+TwArejpAC5zs34kJeE66l6yKbqQlRjlK7SV1
-         251g==
+        d=gmail.com; s=20221208; t=1694015212; x=1694620012; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+/byxSrO8DRvXgUu7WdXnmFYSOYmBOV9Mq9BcIyeqpw=;
+        b=VVqfSbLd48MzppdwP7lKoOKxVVASQkJh7iJGTMN8gtaluE6t7nzQOMeZy+7YBlTgnC
+         ixa8paRYec0DPLAgFw+NSKrx2frE/YJ3qHyqNLIRlwe6sm+VBas/gdiarIDOTXRDPsns
+         wAVHsL4mThRkPdfYZhdEjtGlCdoELTw+zbmQDDHosHF0fxXru3hI9JENMujmh/A/ALNG
+         ZQhzRG20Oqsf4riSEECq2ysk7PISgjFcPhDgam8bo9nKtUTYnnEuShDYpGgZDS3Vb2et
+         mhDNQGCoZUAMDjqSP+RUsqHQ/ypVJgZdqqxZcKJuotS4uB0L55dvjRK7Q4MBzDuvId70
+         Yteg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1694001582; x=1694606382;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qZ45QK6IZz6Y3HlhiHmijDorqTKf0Kc5k/F4bqv8ZPU=;
-        b=UGwNCrF92Y7nhTgFV1W7S+OX9h+wr4LNZDlZHn5KZv3qpNY74KjJkb4OsEKlN4CPhG
-         a9CJQpAWdIh2RYUP7iRpfS8mzA8D8QSioyLw0TvWmKWGsXcQfzv+G2JO9bJXk/jWrsqF
-         O6fy0hu5xeCcRrmJy1leQ1Ato59xGOXdgtjCefcuFUZ317piA4paAWDG6/bMPQ5V4WsU
-         QxweNZ8EeLQo+5QfI2KcSglsKDCjG0hs1BW6zXpDL3Qgq+Mec+78uuzjvvWYv7Ow/r7G
-         IVg/K0JT+3F1/4oUIWNCdGCiawtCXU03wmWGgD+aQi7+ccIx0gFX9Om88q8uo93JStal
-         VbqA==
-X-Gm-Message-State: AOJu0YxOFjT6nHESiyHEQFpldCjR/ot4c0+wqEH7hEQMQJnvV6kIuOUE
-        S+uYmjlE0IaAl0AvoyqGwzl3kDKxbw==
-X-Google-Smtp-Source: AGHT+IHyrWV8acPN9HP3oz5oz/0VQKRUGYP/4SMuhpP6WbUylN5q+J5bASQWA2/S0MVnVxpukdeBqvYYJQ==
-X-Received: from alpic.c.googlers.com ([fda3:e722:ac3:cc00:28:9cb1:c0a8:1bf2])
- (user=alpic job=sendgmr) by 2002:adf:e195:0:b0:31a:d852:b6b2 with SMTP id
- az21-20020adfe195000000b0031ad852b6b2mr50983wrb.0.1694001582575; Wed, 06 Sep
- 2023 04:59:42 -0700 (PDT)
-Date:   Wed,  6 Sep 2023 13:59:27 +0200
-In-Reply-To: <20230906102557.3432236-1-alpic@google.com>
-Mime-Version: 1.0
-References: <20230906102557.3432236-1-alpic@google.com>
-X-Mailer: git-send-email 2.42.0.283.g2d96d420d3-goog
-Message-ID: <20230906115928.3749928-1-alpic@google.com>
-Subject: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-From:   Alfred Piccioni <alpic@google.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     stable@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Alfred Piccioni <alpic@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        d=1e100.net; s=20221208; t=1694015212; x=1694620012;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+/byxSrO8DRvXgUu7WdXnmFYSOYmBOV9Mq9BcIyeqpw=;
+        b=XimcqTbr5UVQE95LYwWhstUPjjFJSIGB4a2lm51EWvX2Ch6nWiBaspxpnAiVOr6NG6
+         5HBx8Cl3R5pTchS11lk2Kt56DPVKdlH4/Is7dwWJUnfq3aAV3GtuhJBbz+E+wevTy1jL
+         RQbPSSTa1FgRyWSHkrdLeHkUdVo27M32uyJUDej+V4OO5BX8eMFLk4IjgSOxS0MuCLZv
+         xLlC7VGGynFnDGQe+lZ8dY7yObRcfE17MqzQit24Smv4dl/0dEso2UOpd/8bPWa1xPcB
+         l68/eWG305/zJVF4fzxH1Wv3zz8FHIDc4mpMhwGfDEhYkQTYn3+f8nfFVmUqpltEde2P
+         HLVA==
+X-Gm-Message-State: AOJu0YymIWcxPNSDJOFlg0E/YDEDl2WAn5cuMNxhQdXh+E1ozPNVn6ng
+        fm12rRP8msnZCWyNl9gEf16PBgzbhjg=
+X-Google-Smtp-Source: AGHT+IHABjebt/fyDV+s13Ixsu6S3NSKDsl4fHwz/AvWa2X3ZbGrBvakyOyLUWMiy1dYSP7r9e3n9g==
+X-Received: by 2002:a05:6358:41a7:b0:139:cf80:1845 with SMTP id w39-20020a05635841a700b00139cf801845mr4806537rwc.12.1694015211721;
+        Wed, 06 Sep 2023 08:46:51 -0700 (PDT)
+Received: from 5bc235456ce7.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id g25-20020a0caad9000000b0064f778c8165sm5518835qvb.64.2023.09.06.08.46.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Sep 2023 08:46:51 -0700 (PDT)
+From:   Jacob Satterfield <jsatterfield.linux@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     Jacob Satterfield <jsatterfield.linux@gmail.com>,
+        stephen.smalley.work@gmail.com, paul@paul-moore.com,
+        omosnace@redhat.com
+Subject: [PATCH 0/3] avtab hotspot optimizations
+Date:   Wed,  6 Sep 2023 15:46:03 +0000
+Message-ID: <20230906154611.31762-1-jsatterfield.linux@gmail.com>
+X-Mailer: git-send-email 2.41.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Some ioctl commands do not require ioctl permission, but are routed to
-other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
-done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+As the refpolicy and the default Fedora policy continue to grow in
+size, especially with regard to rules / access vectors, the memory
+usage of the policydb and runtime to search through it increases.
+Looking at /proc/slabinfo indicates that the avtab_node_cachep
+kmem_cache is significantly responsible for overall memory usage and
+was a good target for optimizations. Running "perf record" on the
+"load_policy" command shows that a majority of time is spent adding
+rules into the avtab.
 
-However, if a 32-bit process is running on a 64-bit kernel, it emits
-32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
-being checked erroneously, which leads to these ioctl operations being
-routed to the ioctl permission, rather than the correct file permissions.
+This patch series is a first attempt at optimizing these hot spots
+within the security server implementation to help it scale with 
+additional rules in the future.
 
-Two possible solutions exist:
+Patches 1-2 deal specifically with the hashtable implementation within
+avtab and how memory is allocated for individual nodes.
 
-- Trim parameter "cmd" to a u16 so that only the last two bytes are
-  checked in the case statement.
+Patch 3 is a runtime optimization discovered through profiling the
+"load_policy".
 
-- Explicitly add the FS_IOC32_* codes to the case statement.
+Jacob Satterfield (3):
+  selinux: use arrays for avtab hashtable nodes
+  selinux: shrink conditional avtab node array
+  selinux: hweight optimization in avtab_read_item
 
-Solution 2 was chosen because it is a minimal explicit change. Solution
-1 is a more elegant change, but is less explicit, as the switch
-statement appears to only check the FS_IOC_* codes upon first reading.
+ security/selinux/ss/avtab.c       | 143 ++++++++++++++++++------------
+ security/selinux/ss/avtab.h       |  36 ++++++--
+ security/selinux/ss/conditional.c |  57 +++++++-----
+ security/selinux/ss/conditional.h |   2 +-
+ security/selinux/ss/services.c    |  20 +++--
+ 5 files changed, 166 insertions(+), 92 deletions(-)
 
-Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
-Signed-off-by: Alfred Piccioni <alpic@google.com>
-Cc: stable@vger.kernel.org
----
-V1->V2: Cleaned up some typos and added tag for -stable tree inclusion.
-
- security/selinux/hooks.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d06e350fedee..bba83f437a1d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3644,11 +3644,15 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
- 	case FIGETBSZ:
- 	case FS_IOC_GETFLAGS:
- 	case FS_IOC_GETVERSION:
-+	case FS_IOC32_GETFLAGS:
-+	case FS_IOC32_GETVERSION:
- 		error = file_has_perm(cred, file, FILE__GETATTR);
- 		break;
- 
- 	case FS_IOC_SETFLAGS:
- 	case FS_IOC_SETVERSION:
-+	case FS_IOC32_SETFLAGS:
-+	case FS_IOC32_SETVERSION:
- 		error = file_has_perm(cred, file, FILE__SETATTR);
- 		break;
- 
-
-base-commit: 50a510a78287c15cee644f345ef8bac8977986a7
 -- 
-2.42.0.283.g2d96d420d3-goog
+2.41.0
 
