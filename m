@@ -2,98 +2,103 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9583EE14C0
-	for <selinux@archiver.kernel.org>; Wed,  6 Sep 2023 17:50:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3588DEC8742
+	for <selinux@archiver.kernel.org>; Thu,  7 Sep 2023 17:42:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243296AbjIFRuI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Sep 2023 13:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35146 "EHLO
+        id S240782AbjIGRm4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Sep 2023 13:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242614AbjIFRuI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Sep 2023 13:50:08 -0400
-Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00291E59;
-        Wed,  6 Sep 2023 10:49:35 -0700 (PDT)
-Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-1c26bb27feeso94445fac.0;
-        Wed, 06 Sep 2023 10:49:35 -0700 (PDT)
+        with ESMTP id S245439AbjIGRmy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Sep 2023 13:42:54 -0400
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AACE1FE2;
+        Thu,  7 Sep 2023 10:42:32 -0700 (PDT)
+Received: by mail-ot1-x32b.google.com with SMTP id 46e09a7af769-6bb07d274feso841148a34.0;
+        Thu, 07 Sep 2023 10:42:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694022565; x=1694627365; darn=vger.kernel.org;
+        d=gmail.com; s=20221208; t=1694108538; x=1694713338; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0OckE9XR7XqLavE1NTvHSJ96NXkQ2QIgEye4jTfkAdg=;
-        b=hJtEV2yJVYq7K/Lu8g2Cn4pNDMcsdH9cXp5cncBsNb4KqrwxAbl3Dc/We7FzNWOVeq
-         XJUTS1qdzyO0m0wiBMlbUWUUIhuJVTziXyGgT988QVVsHEmN3xNbR6xUD1u4XKTsKNrx
-         0eQ1XOTzaeEYA5QJsDt9IYmjPOTvc7w6A3cQuBEQUQObfNSZFnfh65lRJiXhQl3Ky8YI
-         J5Kj1R7pgNEdVaL/EeZkJHUzIcVlYT98uk2/c/b1d3J9WRypb8kjt45PXnnfSX6iulPL
-         RMv/W+pF7z9+WLm3r4GNRH7kPO+ZR13tpnEYCA/23ckYbxhVltXw5fOmZXiXZMRHfyeM
-         zdnw==
+        bh=yI6bGEdU/7x6FXH5RWf2k+HtyEHZh0STqI6FnUAdGU8=;
+        b=GGLwGV6ChzRJsT5wSoIpraPeOS5ophPAHpEe4RVmRmqzuQpHREhRErSWUV6LKwNjsn
+         w+TsPIneDrslpVSN3SzD7RZntBaIW9wrolAxcaTrcy5NKi+YoHbfDlWWTCaJMAWVLjXb
+         35L8s6aI4DMr61ecwHSkwkD6mBYqm8qzz7tGu2CrYJ97Wp4q6GvdilAqbLJUs7MBvTju
+         z11fIGZ3C7UEIjb9sqYx5cSIqiLS9BPOCOIVPLKONpsMcORWUledZjhDMfto+ELXmOTR
+         3ooJB2EpCEXWX22Qm0jShg8dax4z5pciA+UDK9cMsDpauqr/6JF726BO0wo4KmUs6+ST
+         1fzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1694022565; x=1694627365;
+        d=1e100.net; s=20230601; t=1694108538; x=1694713338;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0OckE9XR7XqLavE1NTvHSJ96NXkQ2QIgEye4jTfkAdg=;
-        b=Ws//R61ALVbEKi1N+NhgsHlqlutCwbbfWllSQwiWxSnYpZMF/Q14+8U+s0addZF5Vi
-         +3FXZUKcq0V2dyouwYgyL/YclCzTWSl1xfVEiWJgNbAwMbKUH9KHQRbfWtbGAO4ISk52
-         bpoue7KMjWXoGkPuTZ3rVu1ZTAQIVGAdu/VaoaSv+yu/9DT5d23GCj2t5fo6GnF8J3Cw
-         v6uVQ7rpLhK0Ej9uYU6o8g+TnprNjU6WZgvyovbyGmxWaihhZ5wVutNbHIHBF3nnrA8L
-         p7xQ0fHQCAbmRBbGLUg8FmAD3XDT1w6OPYW0UHATDEPQuFJa4LX0qyIjokpV5PGRPYV9
-         kQ1A==
-X-Gm-Message-State: AOJu0YxLE0O32oRfqYon9TrBNXBRxGGlZPgU2/+BZcoZ73iiH9amzXB8
-        5phKUxonQQoXY0SkQ31InqK2h3TYcT+WeUVY1Cw=
-X-Google-Smtp-Source: AGHT+IH9425uguIPlZWIuuKXrAiVTNUvU96FSm7pht9qHJYP0oafzxBFwJjkkOT7Wg95M0jvIp6eTzknNatrc9ZNSUM=
-X-Received: by 2002:a05:6870:5488:b0:1b0:5290:c95e with SMTP id
- f8-20020a056870548800b001b05290c95emr18777117oan.42.1694022564983; Wed, 06
- Sep 2023 10:49:24 -0700 (PDT)
+        bh=yI6bGEdU/7x6FXH5RWf2k+HtyEHZh0STqI6FnUAdGU8=;
+        b=f8JM0XPiaxM5kbZZRW9PlFKj++o2Qnh9pqDH/Agewq1UB2M/LknqCli2Fdb+FfE0nV
+         WlRK01OhwsbEUo6DrRDYQDEBfJOPRcP+Tgd1meD7IOBplKxXyuFGBtgFlYi1uuWH3XoV
+         sqi/f+Xj1o1O/F5/Hj7LSEvoMxSV3KDoAwZC0QjdAVXLuST2FhzcKHSHwGbdRspp+J/T
+         h0AIFWISlL1ZBBpv3LuFuILfY4bOLpDlFFp307LkPVxWpJppuXr7DjDxeiUgIGaOoBYl
+         A1md0H9NlWLyJT9w+15GAqAeyUQpaxMso5tuElYdvB7hgIwBAA3DwzGPCy/L4QeolLw8
+         g5/g==
+X-Gm-Message-State: AOJu0Yy8Q8BpixIs4gKi/ulGq09uKLEBjY3A1kMOlkbq3GTWGsBMc0WH
+        aRbjsxKF8kadDdz67LCzxBNnohEAkNwB33K6G7M=
+X-Google-Smtp-Source: AGHT+IE6IGtum/AwRPjnxZ2uffFk4G9yGs+eQHjwqZ2TxmDAqu3G9WM8k/hltt7G8S9/19+IVst4E9VfwhQNhhd1WPY=
+X-Received: by 2002:a05:6830:32aa:b0:6b8:90cd:47b5 with SMTP id
+ m42-20020a05683032aa00b006b890cd47b5mr58200ott.7.1694108537998; Thu, 07 Sep
+ 2023 10:42:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230906102557.3432236-1-alpic@google.com> <20230906115928.3749928-1-alpic@google.com>
-In-Reply-To: <20230906115928.3749928-1-alpic@google.com>
+References: <20230818151220.166215-1-cgzones@googlemail.com>
+In-Reply-To: <20230818151220.166215-1-cgzones@googlemail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 6 Sep 2023 13:49:14 -0400
-Message-ID: <CAEjxPJ7bu7tC3-xYN9mnh8jGtH6EOP0e5SC+LNR_uhK18dM+cQ@mail.gmail.com>
-Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-To:     Alfred Piccioni <alpic@google.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, stable@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Thu, 7 Sep 2023 13:42:07 -0400
+Message-ID: <CAEjxPJ7_CMFvRHFp1HVV+ppZEXPkWG6oH1MMEbjFESH44wZukg@mail.gmail.com>
+Subject: Re: [PATCH 2/6] selinux: dump statistics for more hash tables
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 6, 2023 at 7:59=E2=80=AFAM Alfred Piccioni <alpic@google.com> w=
-rote:
+On Fri, Aug 18, 2023 at 11:12=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Some ioctl commands do not require ioctl permission, but are routed to
-> other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
-> done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+> Dump in the SELinux debug configuration the statistics for the
+> conditional rules avtab, the role transition, and class and common
+> permission hash tables.
 >
-> However, if a 32-bit process is running on a 64-bit kernel, it emits
-> 32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
-> being checked erroneously, which leads to these ioctl operations being
-> routed to the ioctl permission, rather than the correct file permissions.
->
-> Two possible solutions exist:
->
-> - Trim parameter "cmd" to a u16 so that only the last two bytes are
->   checked in the case statement.
->
-> - Explicitly add the FS_IOC32_* codes to the case statement.
->
-> Solution 2 was chosen because it is a minimal explicit change. Solution
-> 1 is a more elegant change, but is less explicit, as the switch
-> statement appears to only check the FS_IOC_* codes upon first reading.
->
-> Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
-> Signed-off-by: Alfred Piccioni <alpic@google.com>
-> Cc: stable@vger.kernel.org
-
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > ---
-> V1->V2: Cleaned up some typos and added tag for -stable tree inclusion.
+
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
+b.c
+> index 84f02d4f8093..932e383bcad6 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1158,6 +1158,8 @@ static int common_read(struct policydb *p, struct s=
+ymtab *s, void *fp)
+>                         goto bad;
+>         }
 >
->  security/selinux/hooks.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> +       hash_eval(&comdatum->permissions.table, "common_permissions");
+> +
+>         rc =3D symtab_insert(s, key, comdatum);
+>         if (rc)
+>                 goto bad;
+> @@ -1339,6 +1341,8 @@ static int class_read(struct policydb *p, struct sy=
+mtab *s, void *fp)
+>                         goto bad;
+>         }
+>
+> +       hash_eval(&cladatum->permissions.table, "class_permissions");
+> +
+>         rc =3D read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
+>         if (rc)
+>                 goto bad;
+
+Do we want to embed the actual common and class keys in the output to
+distinguish among the multiple common and class permissions tables?
