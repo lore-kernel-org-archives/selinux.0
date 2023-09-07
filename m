@@ -2,154 +2,50 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EA59EC8726
-	for <selinux@archiver.kernel.org>; Thu,  7 Sep 2023 17:44:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC3F6EC874B
+	for <selinux@archiver.kernel.org>; Thu,  7 Sep 2023 19:06:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243847AbjIGRoj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Sep 2023 13:44:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57284 "EHLO
+        id S231670AbjIGTGS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Sep 2023 15:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243159AbjIGRoj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 Sep 2023 13:44:39 -0400
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63BF10F1;
-        Thu,  7 Sep 2023 10:44:15 -0700 (PDT)
-Received: by mail-ot1-x335.google.com with SMTP id 46e09a7af769-6bf58009a8dso861555a34.1;
-        Thu, 07 Sep 2023 10:44:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694108655; x=1694713455; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iMuPz+Z8VHaiaFn2Ii58q0kIyXx2k0/qmeW5JC5oah4=;
-        b=rLRW/VH1E9LSa0IuTq6+rkh4aLupgvqHqXuLnG1ibYTBlJzQQCoLb5QgtTnYnOY8Fj
-         FR/yVerUsuJzfC9tCeymEsxetKaP8fN7aL9NmT6dRHjQg6ecAEs6FkJ3lk4wyJZLg/x2
-         JWFvDPlzE0lj4nxwM1mtmNGqUwcCHVvrbLjBjGYKlFKWUDaUZ5Oe4lv9eVgszH28QIgS
-         qlEycxYeKW01ayCxTq9wljNM57+0MhIuwjIDasdQTe/P2d1++UmkRTo2aF/lN8XkBAd1
-         MfzWWb/9ILpRpPQQ6018HuBMSJxBPZR2elLusjSf05ALkjOvAcLs8wBFZQL+oRZPxXD/
-         Uh1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694108655; x=1694713455;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iMuPz+Z8VHaiaFn2Ii58q0kIyXx2k0/qmeW5JC5oah4=;
-        b=toGfHz8Nx0KDI+MyWu6FpMHbAT/OLGJxkTXkYTzxLKfxTjHAwpAFGTO0vpCmZTYMeg
-         k5UUUNjZr7oc6FQAYY5z5Eoj62r8IAJS1MTt2lr0+N3biLVRKNhkk7DX00E7hO2pe0wn
-         8Al37zLkeqxMp4leF36d0WrtZwuL3mOo7I5E2DtM0T23ixKBsycWmHWzl1A456/7Drcs
-         TZta1mX4pjvOYBmcj22xS9TZhUzLS6w170l7ln2KLmB3p+FcCnbzAUuLGAou5335O7mu
-         fI+jFsrujA1gcSL45RjVjGyL1SX7RNQJ5ZRZs1NkCoUlVX50xQ5OCacMXprl1wHVIWJP
-         e/Kw==
-X-Gm-Message-State: AOJu0Yw8+0BwcQkScW1Zio2sEFW4XhHgfI5RItVVyKr7Ei71gK3Yd9ob
-        s9dLqG1yNEgHaQOoPmlZPWhpb+eJoNXJ0+u2PSA=
-X-Google-Smtp-Source: AGHT+IEBqq0QGfiPYyYpcjuaYCPDOLD0ITz5tjyOTf4pd5s1iNr18iYFJk4aLMaGin9WQSfJK7HXm9buQbypUXECVtY=
-X-Received: by 2002:a9d:7b57:0:b0:6bd:b0c9:a89 with SMTP id
- f23-20020a9d7b57000000b006bdb0c90a89mr57776oto.2.1694108654848; Thu, 07 Sep
- 2023 10:44:14 -0700 (PDT)
+        with ESMTP id S231301AbjIGTGS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Sep 2023 15:06:18 -0400
+X-Greylist: delayed 4190 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 07 Sep 2023 12:06:12 PDT
+Received: from mail.leachkin.pl (mail.leachkin.pl [217.61.97.203])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DA3A1
+        for <selinux@vger.kernel.org>; Thu,  7 Sep 2023 12:06:12 -0700 (PDT)
+Received: by mail.leachkin.pl (Postfix, from userid 1001)
+        id 3347783C47; Thu,  7 Sep 2023 08:46:17 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=leachkin.pl; s=mail;
+        t=1694072799; bh=elHzctRz/z3PfTIhGYJKd0TeBTmca98Y+JNgX4gfsPI=;
+        h=Date:From:To:Subject:From;
+        b=ZTNUyCfWYM7bvg37XuHMJXtIY9MxhusmFwUo8j0+mYpvk9MoPOhJtFjmVVSAfnnvK
+         D7AWaAPPasOWlnb8mYbT9/WStc65n+ZWrI9U9Rp2owZpskegU3l0D7yN4KHVrqjrhe
+         qrIzEBtzl3n8E6SqShdKYiaa8bQLdbuRJpH7J3r5xTSjm8sEo7ttgpQ3OTalvoNmpL
+         xl404HdAdE2bBqe34ECcbMoRz7Mld+LZL7N9qF4wJjuIqOefnMRjXPzf6eVtu/BVZE
+         Ts6Yc2S0BMUfDgnv2NWVpHQjwTem+Np6JRoE1id6770I63EJKbY64NsgubeZ4zukMF
+         4iG1zLQ52eyZQ==
+Received: by mail.leachkin.pl for <selinux@vger.kernel.org>; Thu,  7 Sep 2023 07:45:30 GMT
+Message-ID: <20230907074501-0.1.59.hany.0.vhmk0xau59@leachkin.pl>
+Date:   Thu,  7 Sep 2023 07:45:30 GMT
+From:   "Jakub Lemczak" <jakub.lemczak@leachkin.pl>
+To:     <selinux@vger.kernel.org>
+Subject: =?UTF-8?Q?Pytanie_o_samoch=C3=B3d?=
+X-Mailer: mail.leachkin.pl
 MIME-Version: 1.0
-References: <20230818151220.166215-1-cgzones@googlemail.com> <20230818151220.166215-5-cgzones@googlemail.com>
-In-Reply-To: <20230818151220.166215-5-cgzones@googlemail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 7 Sep 2023 13:44:04 -0400
-Message-ID: <CAEjxPJ53LiT79=0L81QVgmfW+yKC6Fyq=sd0o1xF8ginCQjSew@mail.gmail.com>
-Subject: Re: [PATCH 6/6] selinux: improve symtab string hashing
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 18, 2023 at 11:12=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The number of buckets is calculated by performing a binary AND against
-> the mask of the hash table, which is one less than its size (which is a
-> power of two).  This leads to all top bits being discarded, requiring
-> for short or similar inputs a hash function with a good avalanche
-> effect.
->
-> Use djb2a:
->
->     # current
->     common prefixes:  7 entries and 5/8 buckets used, longest chain lengt=
-h 2, sum of chain length^2 11
->     classes:  134 entries and 100/256 buckets used, longest chain length =
-5, sum of chain length^2 234
->     roles:  15 entries and 6/16 buckets used, longest chain length 5, sum=
- of chain length^2 57
->     types:  4448 entries and 3016/8192 buckets used, longest chain length=
- 41, sum of chain length^2 14922
->     users:  7 entries and 3/8 buckets used, longest chain length 3, sum o=
-f chain length^2 17
->     bools:  306 entries and 221/512 buckets used, longest chain length 4,=
- sum of chain length^2 524
->     levels:  1 entries and 1/1 buckets used, longest chain length 1, sum =
-of chain length^2 1
->     categories:  1024 entries and 400/1024 buckets used, longest chain le=
-ngth 4, sum of chain length^2 2740
->
->     # patch
->     common prefixes:  7 entries and 5/8 buckets used, longest chain lengt=
-h 2, sum of chain length^2 11
->     classes:  134 entries and 101/256 buckets used, longest chain length =
-3, sum of chain length^2 210
->     roles:  15 entries and 9/16 buckets used, longest chain length 3, sum=
- of chain length^2 31
->     types:  4448 entries and 3459/8192 buckets used, longest chain length=
- 5, sum of chain length^2 6778
->     users:  7 entries and 5/8 buckets used, longest chain length 3, sum o=
-f chain length^2 13
->     bools:  306 entries and 236/512 buckets used, longest chain length 5,=
- sum of chain length^2 470
->     levels:  1 entries and 1/1 buckets used, longest chain length 1, sum =
-of chain length^2 1
->     categories:  1024 entries and 518/1024 buckets used, longest chain le=
-ngth 7, sum of chain length^2 2992
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  security/selinux/ss/symtab.c | 18 ++++++++----------
->  1 file changed, 8 insertions(+), 10 deletions(-)
->
-> diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
-> index 43d7f0319ccd..b6761b96eee4 100644
-> --- a/security/selinux/ss/symtab.c
-> +++ b/security/selinux/ss/symtab.c
-> @@ -11,16 +11,14 @@
->
->  static unsigned int symhash(const void *key)
->  {
-> -       const char *p, *keyp;
-> -       unsigned int size;
-> -       unsigned int val;
-> -
-> -       val =3D 0;
-> -       keyp =3D key;
-> -       size =3D strlen(keyp);
-> -       for (p =3D keyp; (p - keyp) < size; p++)
-> -               val =3D (val << 4 | (val >> (8*sizeof(unsigned int)-4))) =
-^ (*p);
-> -       return val;
-> +       /* djb2a */
+Dzie=C5=84 dobry,
 
-Do we need/want something that specifies the author/license (I assume
-public domain) of this code?
+Czy interesuje Pa=C5=84stwa rozwi=C4=85zanie umo=C5=BCliwiaj=C4=85ce moni=
+torowanie samochod=C3=B3w firmowych oraz optymalizacj=C4=99 koszt=C3=B3w =
+ich utrzymania?=20
 
-> +       unsigned int hash =3D 5381;
-> +       unsigned char c;
-> +
-> +       while ((c =3D *(const unsigned char *)key++))
-> +               hash =3D ((hash << 5) + hash) ^ c;
-> +
-> +       return hash;
->  }
->
->  static int symcmp(const void *key1, const void *key2)
-> --
-> 2.40.1
->
+
+Pozdrawiam,
+Jakub Lemczak
