@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8777FEEB560
-	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 18:46:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD27DEEB566
+	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 18:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237031AbjIHSqa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Sep 2023 14:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36482 "EHLO
+        id S239451AbjIHStj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Sep 2023 14:49:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239057AbjIHSqa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 14:46:30 -0400
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6698B1BD3;
-        Fri,  8 Sep 2023 11:45:53 -0700 (PDT)
-Received: by mail-ot1-x32b.google.com with SMTP id 46e09a7af769-6bf01bcb1aeso1771980a34.3;
-        Fri, 08 Sep 2023 11:45:53 -0700 (PDT)
+        with ESMTP id S239298AbjIHSti (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 14:49:38 -0400
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB39A1BF9;
+        Fri,  8 Sep 2023 11:48:59 -0700 (PDT)
+Received: by mail-ot1-x32a.google.com with SMTP id 46e09a7af769-6c09d760cb9so1642238a34.2;
+        Fri, 08 Sep 2023 11:48:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694198687; x=1694803487; darn=vger.kernel.org;
+        d=gmail.com; s=20221208; t=1694198880; x=1694803680; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UK+qTZg63UeRXq6H+6hjsRVwDxx7PLtIZ61jN3+rKNo=;
-        b=dFAn8hHPQTHgpaGUJw9tV0tMUu5cD0nn6qV0178n30RenD1/stNNZBjMKX9caicr5l
-         cUAo2gIxqCb0/o9u9RVG58XkBkyxgkA8br2C2Urth42+ae7DXSoVAVA1gnntlJWECo8z
-         MnkghCKA2FBMukAlbtGEkp1yLJJ9/DZLEVGifLpZh3gexKPhdDbLwn23hsEJa2Yu7xSZ
-         aWR+y5fL6IZefA44zdBMZzh6bw4dNyKPb02xx3aEBBdGgmnma8ylnAJ5HU/ZRlIsQdYh
-         3yKvpiG9MNgB/odQe5KeuWmrO8ANLzOFQjlVGcSlbgDga4dd4/4+sZXvYqMWPljtnCoT
-         EYMw==
+        bh=6OhdGfaSAosi+Jeg13gZjnmBKkNLiGPRHNdQ81D0fCU=;
+        b=bCj/BXJvKeh/uvJnFNwDA2tdm1fLT04OVeEs7+JE6BKxhY1C5fp6MmWpvL+cndRUac
+         pdAOq/OR0lmW1eJjA05O0FHmSirLvtPJwQf4cROnVRuWNa0hXD6wZFMAg9AhGR3RtbZp
+         oOQSFZ/d6o7o0bddb+Cc+0ByciLMBbckOctgABvr2Fn0Ks9rCbOOJOv2hXVCfcJvh5Y/
+         u0MgFGHqdLI0fur2/X0rQemsxF4/JicUQlX9kCdJJ2iWatHhPNABI4Q8MzCDBoI+Fwt1
+         4/ZR1wUokCtz2cXBHLXwgoTrgelf5ICk/7q5U0IkHTfXiXfaEi5J/W9yLSKnQ0S1IKuI
+         mG9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694198687; x=1694803487;
+        d=1e100.net; s=20230601; t=1694198880; x=1694803680;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UK+qTZg63UeRXq6H+6hjsRVwDxx7PLtIZ61jN3+rKNo=;
-        b=ZT0Mdp/H/I71iP5wBCjW3Jyn2kBi4Fd2sMaUSE4eEAwTin7tD7jddvbPTlYf8AgnRG
-         F1vdDoVn/uaVUdHov9dZUN+XlVlCgHg0yFtRR45YRorMPlGaFNwGPUNBc1RCd/Dsq4Kl
-         AT0bZoh1FF8UIw6BwBZuDs0f6w9KDKxc046/kp9GamgznlV0iElhZ9oCMjAtLbGbSW5G
-         cKeKJryT6hRO0NRGMrV/jByB3v+WL3ndAF5maqpK2k5t2krfbfmVWc6s2uHoRYiJcO0j
-         f6i3VaNzmTdvivSeqBWUgorpa6WQ/3NBs7EeeuVBnBEjMR0+akFon31haRXzRhksRUdj
-         7gbw==
-X-Gm-Message-State: AOJu0YzAtHDFi2/wkR8cUQaOZKaNaR9kS/2KTl6kPTrb1Yx9hM+OJRqD
-        fnHrjFNdzmaLzhUcm8t81aEBqHfGWxh682cpLh+H66ms
-X-Google-Smtp-Source: AGHT+IE7Hf6pI9i2oR/fInpOPqa1zyFn18b1m/6jy6kYRYF8gmlCNbUbSxm2BUrf+7OcT2RdgNeQVa3NyCOiv2gcjJc=
-X-Received: by 2002:a05:6830:1117:b0:6bd:bba9:2d63 with SMTP id
- w23-20020a056830111700b006bdbba92d63mr3131811otq.9.1694198686805; Fri, 08 Sep
- 2023 11:44:46 -0700 (PDT)
+        bh=6OhdGfaSAosi+Jeg13gZjnmBKkNLiGPRHNdQ81D0fCU=;
+        b=beZgezjP+OAdqwq8Qx95DXYEUzIvyWbxX0zupYyamVcVCsau/XxjHrYzEUap234a/b
+         LJPOSCxEe6YKS+Lfw8sdbNMz8OvCCts7wAphZdAEAZPU4thxDEbKMvurwT3OZwBvvrri
+         KYokK4D9iWr0jAgoXqRR18oF7O8AAA1Xi+jZwWj5JsUmjiiJbiLjXIfULei4kVXzuQJU
+         R98iyA1F3qAJ3hzF5eIgWzAFQ3pXgZbF0WpD6q3YwaV9Juqb5pncOgYoSGNQ3L/SGUbi
+         PwV36qoWZEEwABTajCILXJrcuZcmdb55v7z0mZ241J5hWpdSbtz9McLSJiqhbDmdiZRQ
+         8yhQ==
+X-Gm-Message-State: AOJu0YyOhJaIa6YnRVnUD6McJdprTCPyDm2gnSPNrQs50wcwMuGBr96T
+        y0lIaVUquutD4Ia87AyI1HipgfQAs7e9W5OPF3A=
+X-Google-Smtp-Source: AGHT+IEg6RV0F3LkR7tYzZNIDqTKUnETmSSAcrJmG1OW0s1Y6p2JOGEwiXkziDx5UjsQoex1JZWFpEVrukeI0eFPXyc=
+X-Received: by 2002:a9d:7999:0:b0:6bd:b29:85d3 with SMTP id
+ h25-20020a9d7999000000b006bd0b2985d3mr3588136otm.24.1694198880366; Fri, 08
+ Sep 2023 11:48:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230818151220.166215-1-cgzones@googlemail.com> <20230818151220.166215-3-cgzones@googlemail.com>
-In-Reply-To: <20230818151220.166215-3-cgzones@googlemail.com>
+References: <20230818151220.166215-1-cgzones@googlemail.com> <20230818151220.166215-6-cgzones@googlemail.com>
+In-Reply-To: <20230818151220.166215-6-cgzones@googlemail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 8 Sep 2023 14:44:35 -0400
-Message-ID: <CAEjxPJ7YwHVjkOerYcDuSWLEFrxv01V4C9osvDt-1AXR+as+3g@mail.gmail.com>
-Subject: Re: [PATCH 4/6] selinux: simplify avtab slot calculation
+Date:   Fri, 8 Sep 2023 14:47:49 -0400
+Message-ID: <CAEjxPJ52-gr+7EswzgJW14Q8VkFazE2RJ-9uGTTG4m4CB9Ck4A@mail.gmail.com>
+Subject: Re: [PATCH 1/6] selinux: print sum of chain lengths^2 for hash tables
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
@@ -67,12 +67,11 @@ X-Mailing-List: selinux@vger.kernel.org
 On Fri, Aug 18, 2023 at 11:12=E2=80=AFAM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Instead of dividing by 8 and then performing log2 by hand, use a more
-> readable calculation.
+> Print the sum of chain lengths squared as a metric for hash tables to
+> provide more insights, similar to avtabs.
 >
-> The behavior of rounddown_pow_of_two() for an input of 0 is undefined,
-> so handle that case and small values manually to achieve the same
-> results.
+> While on it add a comma in the avtab message to improve readability of
+> the output.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
