@@ -2,57 +2,79 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5397EEC8758
-	for <selinux@archiver.kernel.org>; Thu,  7 Sep 2023 19:30:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3605EE8019
+	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 16:08:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230034AbjIGTay (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Sep 2023 15:30:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
+        id S244918AbjIHQI0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Sep 2023 12:08:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229562AbjIGTax (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 Sep 2023 15:30:53 -0400
-X-Greylist: delayed 4200 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 07 Sep 2023 12:30:47 PDT
-Received: from mail.svorkabrattegg.com (mail.svorkabrattegg.com [51.38.115.213])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D2FCE9
-        for <selinux@vger.kernel.org>; Thu,  7 Sep 2023 12:30:47 -0700 (PDT)
-Received: by mail.svorkabrattegg.com (Postfix, from userid 1002)
-        id 51A74A488D; Thu,  7 Sep 2023 08:06:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=svorkabrattegg.com;
-        s=mail; t=1694073992;
-        bh=/k89xfPLk1d0qR/RHuj9ICbI68AhaQrvzSmPJgcc5mA=;
-        h=Date:From:To:Subject:From;
-        b=ibPwdAQOkWRI0oDyeRDu27oUvY5gxZWEld3mWYHicpbPgjlDlrSYD8zR29XnPdpjo
-         dr6s929Z4Ftu1q8wJFDyp/SxNHtZZjyjycqWSq3ipiOjSDd79o4ABGKU7g+9GMLe5b
-         /ZZ9TCdStM3H1HVcZyltI5eyKbAflA+MB+XuWpN1OyIZPfayFw8IfgLlJriIvcynR4
-         vZIIYHCcDSNrm5EVbNQVnx6CTuZLJNcDJQsLnmnwe1+fh9hrT7l0WxSwxHf84YL60e
-         M02ld2L3Fm91sfHr8t4EZnh2BgPLduOgTNkHf+r6pPnnRD08vCQqPH0sahs+VugD/r
-         NBT5RkcTc0bUg==
-Received: by mail.svorkabrattegg.com for <selinux@vger.kernel.org>; Thu,  7 Sep 2023 08:06:09 GMT
-Message-ID: <20230907064500-0.1.cx.sknu.0.n4q8tde68f@svorkabrattegg.com>
-Date:   Thu,  7 Sep 2023 08:06:09 GMT
-From:   "Hubert Kowalczyk" <hubert.kowalczyk@svorkabrattegg.com>
-To:     <selinux@vger.kernel.org>
-Subject: =?UTF-8?Q?Prosz=C4=99_o_kontakt?=
-X-Mailer: mail.svorkabrattegg.com
+        with ESMTP id S244919AbjIHQIZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 12:08:25 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE721BF8;
+        Fri,  8 Sep 2023 09:08:20 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id 46e09a7af769-6bcb5df95c5so1662037a34.1;
+        Fri, 08 Sep 2023 09:08:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1694189300; x=1694794100; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ioMBA312u8rZ2G3SfmQl4tBGa0wJ5xDvWGQvYcgDxIQ=;
+        b=lr1mckZPOWgasJVMxpu307nE8ekmLHXLWqHlhKhnYnjH6vhM5fbfNRXU5+eKP8iw4k
+         PNEHJ0ioyfL0pRIZnEtITkNMgrsq7XogiAKQym1l2ofpW0vtHcsWbz9Nd9zHM7x4k24X
+         H1i1mcY/FHapQm8aEpeand/BuDPt7E6/8Fk+hCl6LgG+EQc0LAZDGyW+t9mFeKvY4gEs
+         3KsSolNlFeP9pdL1XZqa2hAeMb5RhNf4+vzpNa6H/A1L01fopOX9T28aqJn0LV71QIFx
+         Xp7rC8U3qxkCgZDksa/QF7OjDhavAA01XwF4O3KngKkFn631LmpQD1bClouMzeoXJ/0N
+         Gw3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1694189300; x=1694794100;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ioMBA312u8rZ2G3SfmQl4tBGa0wJ5xDvWGQvYcgDxIQ=;
+        b=IOeyvB3LSvsSuX+9z8GxYYXDQSREjiENxR7fsqJ6S2VMIWjkbOLHGdEb7KlPqN6fGm
+         J3kELPPwKzgahtX5n8zERaKbCmuAB8Grb8wlYXtKwuOSVtmd7VZLpKXS52P7PTQwQ81k
+         kEm47XsvwocYrk5mpUCTe+V9hjqrqv5TSb+ezNTWOw8iNjpl8pCicyLgzeNHeHPeXYng
+         0eM9iMpVZIb3LqLxr0yTaZjkbwcntsWF0mq3A/+nZSk4bgbCD66UbTyj/trOx+z9YZK0
+         d0NrHOy6dKW3dwp2cDGwRMPI/ZgE5VfX2TQXaekKBArGYbgRwkQNQxYBjprctTNlhAiK
+         MRGQ==
+X-Gm-Message-State: AOJu0YwX+YKNz2bDKjb+agfmqVQRPbsqqYSdsWV6HawQ9jYWpAH/M0gY
+        Er7I9Je/7FnS1W1s8A/rQA6i/oVaJxhxtFAx3yKQ8fkn
+X-Google-Smtp-Source: AGHT+IGNyRVazOPyK6gK4oWPvpz+W6lfMswY1fJ6C5Cd1rq4LuwlUm/SL3kAC7JfD+S263w6cEFnHHlOYx4fNZmNOKQ=
+X-Received: by 2002:a05:6830:22e4:b0:6bd:7b8:8646 with SMTP id
+ t4-20020a05683022e400b006bd07b88646mr2792504otc.5.1694189299911; Fri, 08 Sep
+ 2023 09:08:19 -0700 (PDT)
 MIME-Version: 1.0
+References: <20230818151220.166215-1-cgzones@googlemail.com> <20230818151220.166215-2-cgzones@googlemail.com>
+In-Reply-To: <20230818151220.166215-2-cgzones@googlemail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 8 Sep 2023 12:08:06 -0400
+Message-ID: <CAEjxPJ6wXDu3DJEVCGNkKJCBSnhz=xc+s1Bb3BkvUjNq0dGkng@mail.gmail.com>
+Subject: Re: [PATCH 3/6] selinux: improve debug configuration
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Fri, Aug 18, 2023 at 11:12=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> If the SELinux debug configuration is enabled define the macro DEBUG
+> such that pr_debug() calls are always enabled, regardless of
+> CONFIG_DYNAMIC_DEBUG, since those message are the main reason for this
+> configuration in the first place.
+>
+> Mention example usage in case CONFIG_DYNAMIC_DEBUG is enabled in the
+> help section of the configuration.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Czy jest mo=C5=BCliwo=C5=9B=C4=87 nawi=C4=85zania wsp=C3=B3=C5=82pracy z =
-Pa=C5=84stwem?
-
-Z ch=C4=99ci=C4=85 porozmawiam z osob=C4=85 zajmuj=C4=85c=C4=85 si=C4=99 =
-dzia=C5=82aniami zwi=C4=85zanymi ze sprzeda=C5=BC=C4=85.
-
-Pomagamy skutecznie pozyskiwa=C4=87 nowych klient=C3=B3w.
-
-Zapraszam do kontaktu.
-
-
-Z pozdrowieniami
-Hubert Kowalczyk
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
