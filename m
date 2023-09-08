@@ -2,76 +2,169 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FF84EEB562
-	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 19:04:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90986EEB56E
+	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 22:54:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243160AbjIHTFA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Sep 2023 15:05:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50004 "EHLO
+        id S238807AbjIHWym (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Sep 2023 18:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240371AbjIHTE7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 15:04:59 -0400
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD281186;
-        Fri,  8 Sep 2023 12:04:53 -0700 (PDT)
-Received: by mail-ot1-x32c.google.com with SMTP id 46e09a7af769-6c07e122a78so1651503a34.2;
-        Fri, 08 Sep 2023 12:04:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694199893; x=1694804693; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UgzEk2qkub3asCAutUtOqbBvRUsJGSuCfeMNtvAIVwM=;
-        b=FJOGCGCB1rWwgLejy1eJSrAKT7oaDlakCb7nrgR8fCQpE8Oj+FidKK8wWtkx8v3ckj
-         0Apz6lAqgf850DPPoPgDYz0ZPjV7jaRBeQ7f4tEH0xPG0Z3BMybgsLkL5bj0O4PZnlJw
-         goh55l+yx3/+O1fRRYg9SntvS1GF226cRbaJd5n7XauW8SqzakvR/K259dP8PqYV3QmA
-         Ya2rJ3dQejPQibZIkX0xRiqlSNVne3AuXsMYrXbenVT5DWM2GAbZX9mOlcqSIdp/UzZI
-         rPhULOdas/7Mrja7O5i2X79EUBm5mciX3pzPNEaK3619/J+pAyG5zXabyxy77UgXPjtY
-         ipGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694199893; x=1694804693;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UgzEk2qkub3asCAutUtOqbBvRUsJGSuCfeMNtvAIVwM=;
-        b=JwvET/DCgGcANtoGZaUP3F1uDxT47S2ENtDtBLMRlQ6SHMqGqza7hi5kP9S2Qzu3Ta
-         1Q4TSToy3FpJxHO9N114cPPUD6Eed+y0bXXiImHvJ/2vQJoAoG2uY7XR5513+8lMHSTP
-         XcPaK5UTyVRZA1LEeav+wzMqpq9s+VdBS2yAWYK/gjn84XZ/GN/joO1zb3R4dMS26sZT
-         iO2V0VQv7imueCDBkIrsEwMUQiB7C1EVGSHl1ILZj3/rOGVMNCFbyy0wujxdxzfrvzP3
-         hi+2K9C5hC1PkEGePQtZwScbnYKdzoX6Rwdz5C7gBzAptjDOBq73okMl3maPDthSN6GH
-         Nj2Q==
-X-Gm-Message-State: AOJu0YyWo5m9mkbJZVlmzd4Y/i1ObEkmyqCCws6EfMp/CapW3DHfsduH
-        ZZDp0VOSfyBRaiPrOZevHE/V/qSt98QIr8eNH4g=
-X-Google-Smtp-Source: AGHT+IEdu4UP7K8lWbLtvXhmHQxq55TJqdSAd8r/tdJ+ykZfzJ0WakRKnEo55G5CrGkVndvSpChRcFsGuP/Bjk6j0vk=
-X-Received: by 2002:a05:6830:10da:b0:6b9:2989:c261 with SMTP id
- z26-20020a05683010da00b006b92989c261mr3252569oto.21.1694199892969; Fri, 08
- Sep 2023 12:04:52 -0700 (PDT)
+        with ESMTP id S237827AbjIHWyl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 18:54:41 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71B711FEB;
+        Fri,  8 Sep 2023 15:54:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1694213677; x=1725749677;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=eUm4yl2BAMHBo03g5Rb/N9p2aZICoAAK9LpFQ7u8z4s=;
+  b=nvQumfgrSPipWhhM71C8qAHiBqZ8fptuv/w2RFau6bt807L8Pkp9PNrC
+   sn8xK/V1KdLU3M9jox/EhCEsirNNESOIlBP3FtiV1Xz74qCmR/TQn0vco
+   D2M6dtf9aCyBqruUXy1GN1N+ZvAkBjm0HBNtdEyGdzhreiJUxZ/i08iML
+   4erdnxYM80SDPU5qsO7RgyxopWvjx0YDtX68kOLba+amj8Gy4SQAYcUSW
+   28LrxPOH5Sl+AekVf3OfkQrVyZNrmcQb6JUbaCtv69Y9n4AsQpXvqGW2u
+   TT0wulhcDCuh5bo9kNADBDTcUKb5wwW1tJEjFPih3zJb3F240+Eu7DbsP
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10827"; a="358066923"
+X-IronPort-AV: E=Sophos;i="6.02,238,1688454000"; 
+   d="scan'208";a="358066923"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2023 15:54:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10827"; a="742667451"
+X-IronPort-AV: E=Sophos;i="6.02,238,1688454000"; 
+   d="scan'208";a="742667451"
+Received: from lkp-server01.sh.intel.com (HELO 59b3c6e06877) ([10.239.97.150])
+  by orsmga002.jf.intel.com with ESMTP; 08 Sep 2023 15:54:34 -0700
+Received: from kbuild by 59b3c6e06877 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qekMy-0002hP-0h;
+        Fri, 08 Sep 2023 22:54:32 +0000
+Date:   Sat, 9 Sep 2023 06:54:07 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Alfred Piccioni <alpic@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     oe-kbuild-all@lists.linux.dev, stable@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Alfred Piccioni <alpic@google.com>
+Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
+Message-ID: <202309090600.NSyo7d2q-lkp@intel.com>
+References: <20230906115928.3749928-1-alpic@google.com>
 MIME-Version: 1.0
-References: <20230818152910.176044-1-cgzones@googlemail.com>
-In-Reply-To: <20230818152910.176044-1-cgzones@googlemail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 8 Sep 2023 15:04:42 -0400
-Message-ID: <CAEjxPJ650OQ0VirNwhOiFnbNMR+w8kaxLF4wjY2QGLZ=1Ufgdg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: reject invalid ebitmaps
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230906115928.3749928-1-alpic@google.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 18, 2023 at 11:29=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Reject ebitmaps with a node containing an empty map or with an incorrect
-> highbit.  Both checks are already performed by userspace, the former
-> since 2008 (patch 13cd4c896068 ("initial import from svn trunk revision
-> 2950")), the latter since v2.7 in 2017 (patch 75b14a5de10a ("libsepol:
-> ebitmap: reject loading bitmaps with incorrect high bit")).
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Hi Alfred,
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on 50a510a78287c15cee644f345ef8bac8977986a7]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Alfred-Piccioni/SELinux-Check-correct-permissions-for-FS_IOC32_/20230906-200131
+base:   50a510a78287c15cee644f345ef8bac8977986a7
+patch link:    https://lore.kernel.org/r/20230906115928.3749928-1-alpic%40google.com
+patch subject: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
+config: i386-debian-10.3 (https://download.01.org/0day-ci/archive/20230909/202309090600.NSyo7d2q-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230909/202309090600.NSyo7d2q-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202309090600.NSyo7d2q-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   security/selinux/hooks.c: In function 'selinux_file_ioctl':
+>> security/selinux/hooks.c:3647:9: error: duplicate case value
+    3647 |         case FS_IOC32_GETFLAGS:
+         |         ^~~~
+   security/selinux/hooks.c:3645:9: note: previously used here
+    3645 |         case FS_IOC_GETFLAGS:
+         |         ^~~~
+   security/selinux/hooks.c:3648:9: error: duplicate case value
+    3648 |         case FS_IOC32_GETVERSION:
+         |         ^~~~
+   security/selinux/hooks.c:3646:9: note: previously used here
+    3646 |         case FS_IOC_GETVERSION:
+         |         ^~~~
+   security/selinux/hooks.c:3654:9: error: duplicate case value
+    3654 |         case FS_IOC32_SETFLAGS:
+         |         ^~~~
+   security/selinux/hooks.c:3652:9: note: previously used here
+    3652 |         case FS_IOC_SETFLAGS:
+         |         ^~~~
+   security/selinux/hooks.c:3655:9: error: duplicate case value
+    3655 |         case FS_IOC32_SETVERSION:
+         |         ^~~~
+   security/selinux/hooks.c:3653:9: note: previously used here
+    3653 |         case FS_IOC_SETVERSION:
+         |         ^~~~
+
+
+vim +3647 security/selinux/hooks.c
+
+  3634	
+  3635	static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+  3636				      unsigned long arg)
+  3637	{
+  3638		const struct cred *cred = current_cred();
+  3639		int error = 0;
+  3640	
+  3641		switch (cmd) {
+  3642		case FIONREAD:
+  3643		case FIBMAP:
+  3644		case FIGETBSZ:
+  3645		case FS_IOC_GETFLAGS:
+  3646		case FS_IOC_GETVERSION:
+> 3647		case FS_IOC32_GETFLAGS:
+  3648		case FS_IOC32_GETVERSION:
+  3649			error = file_has_perm(cred, file, FILE__GETATTR);
+  3650			break;
+  3651	
+  3652		case FS_IOC_SETFLAGS:
+  3653		case FS_IOC_SETVERSION:
+  3654		case FS_IOC32_SETFLAGS:
+  3655		case FS_IOC32_SETVERSION:
+  3656			error = file_has_perm(cred, file, FILE__SETATTR);
+  3657			break;
+  3658	
+  3659		/* sys_ioctl() checks */
+  3660		case FIONBIO:
+  3661		case FIOASYNC:
+  3662			error = file_has_perm(cred, file, 0);
+  3663			break;
+  3664	
+  3665		case KDSKBENT:
+  3666		case KDSKBSENT:
+  3667			error = cred_has_capability(cred, CAP_SYS_TTY_CONFIG,
+  3668						    CAP_OPT_NONE, true);
+  3669			break;
+  3670	
+  3671		case FIOCLEX:
+  3672		case FIONCLEX:
+  3673			if (!selinux_policycap_ioctl_skip_cloexec())
+  3674				error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
+  3675			break;
+  3676	
+  3677		/* default case assumes that the command will go
+  3678		 * to the file's ioctl() function.
+  3679		 */
+  3680		default:
+  3681			error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
+  3682		}
+  3683		return error;
+  3684	}
+  3685	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
