@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61710EEB560
-	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 18:11:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8777FEEB560
+	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 18:46:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240379AbjIHSLk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Sep 2023 14:11:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53306 "EHLO
+        id S237031AbjIHSqa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Sep 2023 14:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239886AbjIHSLi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 14:11:38 -0400
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A0232682;
-        Fri,  8 Sep 2023 11:10:55 -0700 (PDT)
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-6bf01bcb1aeso1745573a34.3;
-        Fri, 08 Sep 2023 11:10:55 -0700 (PDT)
+        with ESMTP id S239057AbjIHSqa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 14:46:30 -0400
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6698B1BD3;
+        Fri,  8 Sep 2023 11:45:53 -0700 (PDT)
+Received: by mail-ot1-x32b.google.com with SMTP id 46e09a7af769-6bf01bcb1aeso1771980a34.3;
+        Fri, 08 Sep 2023 11:45:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694196241; x=1694801041; darn=vger.kernel.org;
+        d=gmail.com; s=20221208; t=1694198687; x=1694803487; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=p0BC5AdZDTmF7z5ChU/rQxu18uHOTMhJPMK4z/qlXRc=;
-        b=SsyKjVvpck/vkupkd9DFDQxGhsMK7TT313w1G45DKi/+0RDittkwrhTlvr3qJzZVXO
-         e3puttLKt94ZDeawVw4Y4t8l5YIDdG/ncsiVdFi44vs7M9tDjd3zI4GmfNGT25oi9Txa
-         dSL8QATwTk1F4rHkQS9IVcJkkRNZ3wNowsntOmbv2I/0nyzt/PFQ9ZSSv7lchm5ZOYQO
-         W9h81IHqpJfR5C40tGdMnaCGeqLM62SRI9EDU6V8bRX8Mw8K/XiacEvXL8AxLxn6TJIa
-         pds0lHXC+OVbzCpO1Q8L2m/ibDsoQNRCQzrokJyeeYz1gd6IATDxmFH8Zjc3sDOBLWeo
-         EwQg==
+        bh=UK+qTZg63UeRXq6H+6hjsRVwDxx7PLtIZ61jN3+rKNo=;
+        b=dFAn8hHPQTHgpaGUJw9tV0tMUu5cD0nn6qV0178n30RenD1/stNNZBjMKX9caicr5l
+         cUAo2gIxqCb0/o9u9RVG58XkBkyxgkA8br2C2Urth42+ae7DXSoVAVA1gnntlJWECo8z
+         MnkghCKA2FBMukAlbtGEkp1yLJJ9/DZLEVGifLpZh3gexKPhdDbLwn23hsEJa2Yu7xSZ
+         aWR+y5fL6IZefA44zdBMZzh6bw4dNyKPb02xx3aEBBdGgmnma8ylnAJ5HU/ZRlIsQdYh
+         3yKvpiG9MNgB/odQe5KeuWmrO8ANLzOFQjlVGcSlbgDga4dd4/4+sZXvYqMWPljtnCoT
+         EYMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694196241; x=1694801041;
+        d=1e100.net; s=20230601; t=1694198687; x=1694803487;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=p0BC5AdZDTmF7z5ChU/rQxu18uHOTMhJPMK4z/qlXRc=;
-        b=qigmIWO7nEFg7kezH+TaPhaNBNmh19IFyApL0IU+QrPTvtgEKvEbefXtqvQZAr6/qC
-         wt1/MnBfxjVMYjAcPFr26OWvFXZZqhdddNfLtbEtT6kfaHmWxkMLbIiGl1HcRmaxglwf
-         VvdoM3pimflSn1sg7huneAnj4G607EYoG107woi65/LsHLareGlR2StVroT/P4uUcDfD
-         ZxGEz1INOE3KZzZhQnPVm+gevvyosDJUogp3Jxb3pQsFvk2ciX8rfe7Jsdc4oPqPJrU0
-         Kr0mKGoMLku/I4cPDFcsol3FK/1F9Xxytms3ouE8du0MBBkRGzNfyJgWDL0DMeJ4ipnr
-         iVfg==
-X-Gm-Message-State: AOJu0YyRTvaB05Y+trxiH8Ora9A/F/MpsqKEmyU1bPmj9jG8oP9XoYWM
-        DPoXa+i0PWz4h0TtXKhdjUfiW5S0QyzfSpYNALM=
-X-Google-Smtp-Source: AGHT+IFBqDBipIhOiWV6eUP137vR+BsFoE2ZuAvBhhwAwCCT1ePnExRXZHTyxxFeBPe5DByYkpH6lzzFnYCGlnIYE40=
-X-Received: by 2002:a9d:6a11:0:b0:6bc:88da:af44 with SMTP id
- g17-20020a9d6a11000000b006bc88daaf44mr3518599otn.6.1694196241406; Fri, 08 Sep
- 2023 11:04:01 -0700 (PDT)
+        bh=UK+qTZg63UeRXq6H+6hjsRVwDxx7PLtIZ61jN3+rKNo=;
+        b=ZT0Mdp/H/I71iP5wBCjW3Jyn2kBi4Fd2sMaUSE4eEAwTin7tD7jddvbPTlYf8AgnRG
+         F1vdDoVn/uaVUdHov9dZUN+XlVlCgHg0yFtRR45YRorMPlGaFNwGPUNBc1RCd/Dsq4Kl
+         AT0bZoh1FF8UIw6BwBZuDs0f6w9KDKxc046/kp9GamgznlV0iElhZ9oCMjAtLbGbSW5G
+         cKeKJryT6hRO0NRGMrV/jByB3v+WL3ndAF5maqpK2k5t2krfbfmVWc6s2uHoRYiJcO0j
+         f6i3VaNzmTdvivSeqBWUgorpa6WQ/3NBs7EeeuVBnBEjMR0+akFon31haRXzRhksRUdj
+         7gbw==
+X-Gm-Message-State: AOJu0YzAtHDFi2/wkR8cUQaOZKaNaR9kS/2KTl6kPTrb1Yx9hM+OJRqD
+        fnHrjFNdzmaLzhUcm8t81aEBqHfGWxh682cpLh+H66ms
+X-Google-Smtp-Source: AGHT+IE7Hf6pI9i2oR/fInpOPqa1zyFn18b1m/6jy6kYRYF8gmlCNbUbSxm2BUrf+7OcT2RdgNeQVa3NyCOiv2gcjJc=
+X-Received: by 2002:a05:6830:1117:b0:6bd:bba9:2d63 with SMTP id
+ w23-20020a056830111700b006bdbba92d63mr3131811otq.9.1694198686805; Fri, 08 Sep
+ 2023 11:44:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230818151220.166215-1-cgzones@googlemail.com>
-In-Reply-To: <20230818151220.166215-1-cgzones@googlemail.com>
+References: <20230818151220.166215-1-cgzones@googlemail.com> <20230818151220.166215-3-cgzones@googlemail.com>
+In-Reply-To: <20230818151220.166215-3-cgzones@googlemail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 8 Sep 2023 14:03:50 -0400
-Message-ID: <CAEjxPJ4J6UpwyazPV0eouBJ8rOScF2RUh0Hw6qaL9hNeb3j8JA@mail.gmail.com>
-Subject: Re: [PATCH 2/6] selinux: dump statistics for more hash tables
+Date:   Fri, 8 Sep 2023 14:44:35 -0400
+Message-ID: <CAEjxPJ7YwHVjkOerYcDuSWLEFrxv01V4C9osvDt-1AXR+as+3g@mail.gmail.com>
+Subject: Re: [PATCH 4/6] selinux: simplify avtab slot calculation
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>,
@@ -67,11 +67,13 @@ X-Mailing-List: selinux@vger.kernel.org
 On Fri, Aug 18, 2023 at 11:12=E2=80=AFAM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> Dump in the SELinux debug configuration the statistics for the
-> conditional rules avtab, the role transition, and class and common
-> permission hash tables.
+> Instead of dividing by 8 and then performing log2 by hand, use a more
+> readable calculation.
+>
+> The behavior of rounddown_pow_of_two() for an input of 0 is undefined,
+> so handle that case and small values manually to achieve the same
+> results.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Aside from the question I asked, which I have no strong opinion about,
 Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
