@@ -2,103 +2,111 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BD34CA0ED5
-	for <selinux@archiver.kernel.org>; Mon, 11 Sep 2023 22:16:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB6DCA0EDB
+	for <selinux@archiver.kernel.org>; Mon, 11 Sep 2023 22:16:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236526AbjIKWLG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Sep 2023 18:11:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58524 "EHLO
+        id S239629AbjIKWLF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Sep 2023 18:11:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242491AbjIKPnD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Sep 2023 11:43:03 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 732DF121
-        for <selinux@vger.kernel.org>; Mon, 11 Sep 2023 08:42:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1694446928;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WtpSFKdGXqusWuYQLbDz0Gobggoda5r3236ivJvAw5A=;
-        b=Qc+EsGHkHXUu5PCZOp2CN84cqYvwZGEWi9GNhEncNP0lrBIMJjOF9XJ45pSy12YZWJc01e
-        TURmzPI1r1jdvb8Qr9lMVb4gEou7Ne5ShcR8jNo3PLiNvHgfUyyArCTT2+WaQ9QctvVSaB
-        U11ukxc71O8/nNq/QTA42hv2TpdWFBk=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-10-X97GRssjOhGdmCt1pLfBtA-1; Mon, 11 Sep 2023 11:42:06 -0400
-X-MC-Unique: X97GRssjOhGdmCt1pLfBtA-1
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-9ad73eb9668so67851266b.0
-        for <selinux@vger.kernel.org>; Mon, 11 Sep 2023 08:42:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694446925; x=1695051725;
-        h=content-transfer-encoding:subject:from:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=WtpSFKdGXqusWuYQLbDz0Gobggoda5r3236ivJvAw5A=;
-        b=gS1F/sEJ/hcCbe6xDDiGNYTH8LUiKInvwiENFQCjLYrRwX6E3/P8dULz48KVlrYoKH
-         AQL1qb+/q2glK8iLiY3NYQCtdIwpwPZBrFg40fCYzW+8r276dDg9STfkHuBTXYpuzcPL
-         9aQ1bHV7zqxDBXrg9olmqNx4jKLy2uHB753CIwnoDq4/K9Tx/m5Fe57rSZceyvKbSdEi
-         /cGY0PLbSdEkv8ZEFKYOgK8iSvwJXMiCex2Iguau6rF2w5ZrpG+kyCrU7rWh5tExl/KL
-         4uPu9p+KEyAL3hzszEiufQgXCNcfyA/XK/DW5h+Q1Z6Gm1rVyZEoxNCEeVFjDeLEk6zA
-         EnLg==
-X-Gm-Message-State: AOJu0YztHW31XMpR4INALENGtHpp1goZ0se/XUIN/UbuVwmlRcUq9uUT
-        uVBe3NoTrvfHpvgGDtIxma0r8PqgPIiFlXLN7WCICVmo9CSoRFPLeeEnO/A8xoRTcqiVp36ZbQI
-        eRyWKamIYLBBMmRZxHcgb9Bu6ynO+k/F7M1VFUSXfJCLBUA528FH+g6SkmcywB/deBR7fayowhs
-        kQ
-X-Received: by 2002:a17:907:2c62:b0:9a1:eb4f:56f with SMTP id ib2-20020a1709072c6200b009a1eb4f056fmr13492210ejc.13.1694446925350;
-        Mon, 11 Sep 2023 08:42:05 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG7MKCU1YX7YtOhyWmXVtBRlW5pPFxVsbk65eZgc50h/StFf94y0YXRbx0gDrualikazHeCDA==
-X-Received: by 2002:a17:907:2c62:b0:9a1:eb4f:56f with SMTP id ib2-20020a1709072c6200b009a1eb4f056fmr13492185ejc.13.1694446924976;
-        Mon, 11 Sep 2023 08:42:04 -0700 (PDT)
-Received: from [192.168.0.116] ([86.49.156.126])
-        by smtp.gmail.com with ESMTPSA id kt8-20020a170906aac800b00988e953a586sm5501196ejb.61.2023.09.11.08.42.04
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Sep 2023 08:42:04 -0700 (PDT)
-Message-ID: <324bb6b0-3d6c-707d-c0d1-1fdc1f43e845@redhat.com>
-Date:   Mon, 11 Sep 2023 17:42:03 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Content-Language: en-US
-To:     selinux@vger.kernel.org
-From:   Vit Mojzis <vmojzis@redhat.com>
-Subject: generating new type name using CIL macro
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S236526AbjIKKu3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Sep 2023 06:50:29 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11675E9;
+        Mon, 11 Sep 2023 03:50:25 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD08AC433C9;
+        Mon, 11 Sep 2023 10:50:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1694429424;
+        bh=5eCOHpwInPjQA6NxPDr5kZtgwrG8Hy+L9RSiIjoYzXQ=;
+        h=Date:Cc:Subject:From:To:References:In-Reply-To:From;
+        b=I63fO3Oped5CcoSGIlghzn65dDLDS3AgXMOjiToNZvSUdrhpid8dA2fwnZ3L0uvuQ
+         vRO43uNZPPKAjLBYaxKuEpPRCi/DBPQ5JahZ+/xplfXgFn+m6+K1DVaoMVszFQn7e3
+         c/7ShNyPjBTDlCTah8S2O9CnI6mNmrRR5K25WKyBtu4HXfsGlCg1Nmd2cAEeAGJtqk
+         +Xaszsx6GIBzt4dpxcFYC1VW/aJEKgOxHSFW2mvoY/oVjBtFiZDYuvh56WBy8I8ZL6
+         aLRIobdGSMWYlt8ZweMRDuHBYUhcsbpwXJ23mEyEwkNhh06xFKUyD5SbyXxtBFA6QG
+         oJalfh9jeUlHA==
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date:   Mon, 11 Sep 2023 13:50:18 +0300
+Message-Id: <CVG13KLCIT1X.1MQT6HYAYFRAU@suppilovahvero>
+Cc:     <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-nfs@vger.kernel.org>, <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <keyrings@vger.kernel.org>, <selinux@vger.kernel.org>,
+        "Roberto Sassu" <roberto.sassu@huawei.com>,
+        "Stefan Berger" <stefanb@linux.ibm.com>
+Subject: Re: [PATCH v2 11/25] security: Align inode_setattr hook definition
+ with EVM
+From:   "Jarkko Sakkinen" <jarkko@kernel.org>
+To:     "Casey Schaufler" <casey@schaufler-ca.com>,
+        "Roberto Sassu" <roberto.sassu@huaweicloud.com>,
+        <viro@zeniv.linux.org.uk>, <brauner@kernel.org>,
+        <chuck.lever@oracle.com>, <jlayton@kernel.org>, <neilb@suse.de>,
+        <kolga@netapp.com>, <Dai.Ngo@oracle.com>, <tom@talpey.com>,
+        <zohar@linux.ibm.com>, <dmitry.kasatkin@gmail.com>,
+        <paul@paul-moore.com>, <jmorris@namei.org>, <serge@hallyn.com>,
+        <dhowells@redhat.com>, <stephen.smalley.work@gmail.com>,
+        <eparis@parisplace.org>
+X-Mailer: aerc 0.14.0
+References: <20230831104136.903180-1-roberto.sassu@huaweicloud.com>
+ <20230831104136.903180-12-roberto.sassu@huaweicloud.com>
+ <CVAFV92MONCH.257Y9YQ3OEU4B@suppilovahvero>
+ <19943e35-2e7c-d27a-1a5d-189eea439dfd@schaufler-ca.com>
+In-Reply-To: <19943e35-2e7c-d27a-1a5d-189eea439dfd@schaufler-ca.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello all,
-while trying to recreate some selinux-policy templates using CIL macros 
-I got stuck on creating new type/role/attribute names.
-For example consider ssh_role_template [1], which uses its first 
-parameter to create a new type $1_ssh_agent_t.
+On Tue Sep 5, 2023 at 6:56 PM EEST, Casey Schaufler wrote:
+> On 9/4/2023 2:08 PM, Jarkko Sakkinen wrote:
+> > On Thu Aug 31, 2023 at 1:41 PM EEST, Roberto Sassu wrote:
+> >> From: Roberto Sassu <roberto.sassu@huawei.com>
+> >>
+> >> Add the idmap parameter to the definition, so that evm_inode_setattr()=
+ can
+> >> be registered as this hook implementation.
+> >>
+> >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> >> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> >> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> >> ---
+> >>  include/linux/lsm_hook_defs.h | 3 ++-
+> >>  security/security.c           | 2 +-
+> >>  security/selinux/hooks.c      | 3 ++-
+> >>  security/smack/smack_lsm.c    | 4 +++-
+> >>  4 files changed, 8 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_de=
+fs.h
+> >> index 4bdddb52a8fe..fdf075a6b1bb 100644
+> >> --- a/include/linux/lsm_hook_defs.h
+> >> +++ b/include/linux/lsm_hook_defs.h
+> >> @@ -134,7 +134,8 @@ LSM_HOOK(int, 0, inode_readlink, struct dentry *de=
+ntry)
+> >>  LSM_HOOK(int, 0, inode_follow_link, struct dentry *dentry, struct ino=
+de *inode,
+> >>  	 bool rcu)
+> >>  LSM_HOOK(int, 0, inode_permission, struct inode *inode, int mask)
+> >> -LSM_HOOK(int, 0, inode_setattr, struct dentry *dentry, struct iattr *=
+attr)
+> >> +LSM_HOOK(int, 0, inode_setattr, struct mnt_idmap *idmap, struct dentr=
+y *dentry,
+> >> +	 struct iattr *attr)
+> > LSM_HOOK(int, 0, inode_setattr, struct mnt_idmap *idmap, struct dentry =
+*dentry, struct iattr *attr)
+> >
+> > Only 99 characters, i.e. breaking into two lines is not necessary.
+>
+> We're keeping the LSM code in the ancient 80 character format.
+> Until we get some fresh, young maintainers involved who can convince
+> us that line wrapped 80 character terminals are kewl we're sticking
+> with what we know.
+>
+> 	https://lwn.net/Articles/822168/
 
-Is there a way to recreate such functionality in a CIL macro (or another 
-CIL feature)?
+Pretty artificial counter-example tbh :-) Even with Rust people tend to
+stick one character variable names for trivial integer indices.
 
-Something along the lines of:
-(macro new_type_macro ((string type_prefix))
-   (type (type_prefix)_t)
-)
-which when called (call new_type_macro ("yolo")) would produce
-(type yolo_t)
-
-I searched through CIL reference guide [2] and SELinuxProject CIL wiki 
-on github, but didn't find anything close (maybe there is a better 
-resource I don't know about).
-I'd appreciate any hints or links to other resources related to CIL macros.
-
-Thank you,
-Vit
-
-[1] - 
-https://github.com/TresysTechnology/refpolicy/blob/master/policy/modules/services/ssh.if#L301 
-
-[2] - 
-https://raw.githubusercontent.com/SELinuxProject/selinux-notebook/main/src/notebook-examples/selinux-policy/cil/CIL_Reference_Guide.pdf
-[3] - https://github.com/SELinuxProject/cil/wiki#macros
-
+BR, Jarkko
