@@ -2,169 +2,200 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90986EEB56E
-	for <selinux@archiver.kernel.org>; Fri,  8 Sep 2023 22:54:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D6ADCA0EC6
+	for <selinux@archiver.kernel.org>; Mon, 11 Sep 2023 22:15:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238807AbjIHWym (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Sep 2023 18:54:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
+        id S236917AbjIKWKv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Sep 2023 18:10:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237827AbjIHWyl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Sep 2023 18:54:41 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71B711FEB;
-        Fri,  8 Sep 2023 15:54:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1694213677; x=1725749677;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=eUm4yl2BAMHBo03g5Rb/N9p2aZICoAAK9LpFQ7u8z4s=;
-  b=nvQumfgrSPipWhhM71C8qAHiBqZ8fptuv/w2RFau6bt807L8Pkp9PNrC
-   sn8xK/V1KdLU3M9jox/EhCEsirNNESOIlBP3FtiV1Xz74qCmR/TQn0vco
-   D2M6dtf9aCyBqruUXy1GN1N+ZvAkBjm0HBNtdEyGdzhreiJUxZ/i08iML
-   4erdnxYM80SDPU5qsO7RgyxopWvjx0YDtX68kOLba+amj8Gy4SQAYcUSW
-   28LrxPOH5Sl+AekVf3OfkQrVyZNrmcQb6JUbaCtv69Y9n4AsQpXvqGW2u
-   TT0wulhcDCuh5bo9kNADBDTcUKb5wwW1tJEjFPih3zJb3F240+Eu7DbsP
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10827"; a="358066923"
-X-IronPort-AV: E=Sophos;i="6.02,238,1688454000"; 
-   d="scan'208";a="358066923"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2023 15:54:37 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10827"; a="742667451"
-X-IronPort-AV: E=Sophos;i="6.02,238,1688454000"; 
-   d="scan'208";a="742667451"
-Received: from lkp-server01.sh.intel.com (HELO 59b3c6e06877) ([10.239.97.150])
-  by orsmga002.jf.intel.com with ESMTP; 08 Sep 2023 15:54:34 -0700
-Received: from kbuild by 59b3c6e06877 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1qekMy-0002hP-0h;
-        Fri, 08 Sep 2023 22:54:32 +0000
-Date:   Sat, 9 Sep 2023 06:54:07 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Alfred Piccioni <alpic@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     oe-kbuild-all@lists.linux.dev, stable@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Alfred Piccioni <alpic@google.com>
-Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-Message-ID: <202309090600.NSyo7d2q-lkp@intel.com>
-References: <20230906115928.3749928-1-alpic@google.com>
+        with ESMTP id S237891AbjIKNTT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Sep 2023 09:19:19 -0400
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EBFEB;
+        Mon, 11 Sep 2023 06:19:14 -0700 (PDT)
+Received: by mail-ot1-x336.google.com with SMTP id 46e09a7af769-6bd8639e7e5so3288375a34.1;
+        Mon, 11 Sep 2023 06:19:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1694438354; x=1695043154; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dZAzIIMzf1qPGHHQFdp02fgFY8ovyjwDuzAUQe5+kww=;
+        b=Nd4oHenOHfHGXOPqHZ2VN4aefvLQBjoKU1RkgClvfYM54W7ADDIVhdzIZ/VJgEwdMe
+         SebwEdM1UgrzQJhJ73ljlqdq7Hrk6eVyeNHuZUG4E3ALESGq2r4QUI05F7OpYDNw3/08
+         5YojrUBHPVbnJKO3UHWcC30BMboRgj6fy8+6TzDZ47DZgMSmX2culGDDUTwBozrxYQ02
+         QLam8zpEq3R6Ny36DwE0TJT+qTVkJTpjqfu1WfT1Y5NAzt6p3Znd7GMtVJtkG1qPQ/lK
+         HWsSVrnC7Igw84jTsmZAclhpWpDYen/b+4AONJUv+3NxY4g+ZLMj7OUsyajyxGhGEKbA
+         yd0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1694438354; x=1695043154;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=dZAzIIMzf1qPGHHQFdp02fgFY8ovyjwDuzAUQe5+kww=;
+        b=QRtQk3dyzPKWGlurVUQugdjVldYRHkjtDl+P952qDSJ+Gavskgfc/2I6kWkjOS6JS9
+         tkwSyVzBVxtAPdxGyVOiKURZBMK4uU96IrPhqBsQ51QQH3Ff1870g6ZSTjFzUeRVSwop
+         h582LSdfJC9wd1xt07mQlNd9CjzCHGnpwk2DRFXK6jkQ1TSySgAhkow73x0PlLbRFucg
+         bywZJNZAiuOnHdq+RE4zmSalNC6IvvWNi/xQfVbew8ubKXyQh3ofo+cbgNxAzi/MDIMx
+         UOPfq6uTXSS6wQ2bTBvmzqImZEhD7DXljHqsNWHfdV5wd6t/toohmdurHT02qUv+ZF1P
+         uPRw==
+X-Gm-Message-State: AOJu0YycR1TbyZiUJtZ9gKg+WL+yyL2V22wkBA1LD8ZuPA8qgEizwAeO
+        Yarw+L4p/oNOnt9imINWBf3h9YzIYXGyp4mG1MM=
+X-Google-Smtp-Source: AGHT+IF8qbD6uz9otQZQEGtQsPL1DHxdrKK0dBiU8LawxxVZ1ppEHEbFpM8gS5aweNPYJmJhdCoyODSPMja4C28SAFU=
+X-Received: by 2002:a05:6830:2088:b0:6c0:b3fb:2e65 with SMTP id
+ y8-20020a056830208800b006c0b3fb2e65mr10241850otq.16.1694438354175; Mon, 11
+ Sep 2023 06:19:14 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230906115928.3749928-1-alpic@google.com>
+References: <20230906115928.3749928-1-alpic@google.com> <202309090600.NSyo7d2q-lkp@intel.com>
+In-Reply-To: <202309090600.NSyo7d2q-lkp@intel.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 11 Sep 2023 09:19:02 -0400
+Message-ID: <CAEjxPJ4GOq3E4zqXbEMKUxqewopyeU5nmUg89rL+P5YsuEBi7A@mail.gmail.com>
+Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
+To:     kernel test robot <lkp@intel.com>
+Cc:     Alfred Piccioni <alpic@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        oe-kbuild-all@lists.linux.dev, stable@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Alfred,
+On Fri, Sep 8, 2023 at 6:54=E2=80=AFPM kernel test robot <lkp@intel.com> wr=
+ote:
+>
+> Hi Alfred,
+>
+> kernel test robot noticed the following build errors:
+>
+> [auto build test ERROR on 50a510a78287c15cee644f345ef8bac8977986a7]
+>
+> url:    https://github.com/intel-lab-lkp/linux/commits/Alfred-Piccioni/SE=
+Linux-Check-correct-permissions-for-FS_IOC32_/20230906-200131
+> base:   50a510a78287c15cee644f345ef8bac8977986a7
+> patch link:    https://lore.kernel.org/r/20230906115928.3749928-1-alpic%4=
+0google.com
+> patch subject: [PATCH V2] SELinux: Check correct permissions for FS_IOC32=
+_*
+> config: i386-debian-10.3 (https://download.01.org/0day-ci/archive/2023090=
+9/202309090600.NSyo7d2q-lkp@intel.com/config)
+> compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+> reproduce (this is a W=3D1 build): (https://download.01.org/0day-ci/archi=
+ve/20230909/202309090600.NSyo7d2q-lkp@intel.com/reproduce)
+>
+> If you fix the issue in a separate patch/commit (i.e. not just a new vers=
+ion of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202309090600.NSyo7d2q-lkp=
+@intel.com/
+>
+> All errors (new ones prefixed by >>):
+>
+>    security/selinux/hooks.c: In function 'selinux_file_ioctl':
+> >> security/selinux/hooks.c:3647:9: error: duplicate case value
+>     3647 |         case FS_IOC32_GETFLAGS:
+>          |         ^~~~
+>    security/selinux/hooks.c:3645:9: note: previously used here
+>     3645 |         case FS_IOC_GETFLAGS:
+>          |         ^~~~
+>    security/selinux/hooks.c:3648:9: error: duplicate case value
+>     3648 |         case FS_IOC32_GETVERSION:
+>          |         ^~~~
+>    security/selinux/hooks.c:3646:9: note: previously used here
+>     3646 |         case FS_IOC_GETVERSION:
+>          |         ^~~~
+>    security/selinux/hooks.c:3654:9: error: duplicate case value
+>     3654 |         case FS_IOC32_SETFLAGS:
+>          |         ^~~~
+>    security/selinux/hooks.c:3652:9: note: previously used here
+>     3652 |         case FS_IOC_SETFLAGS:
+>          |         ^~~~
+>    security/selinux/hooks.c:3655:9: error: duplicate case value
+>     3655 |         case FS_IOC32_SETVERSION:
+>          |         ^~~~
+>    security/selinux/hooks.c:3653:9: note: previously used here
+>     3653 |         case FS_IOC_SETVERSION:
+>          |         ^~~~
 
-kernel test robot noticed the following build errors:
+Not sure of the right way to fix this while addressing the original
+issue that this patch was intended to fix. Looking in fs/ioctl.c, I
+see that the some FS_IOC32 values are remapped to the corresponding
+FS_IOC values by the compat ioctl syscall entrypoint. Also notice this
+comment there:
 
-[auto build test ERROR on 50a510a78287c15cee644f345ef8bac8977986a7]
+        /* RED-PEN how should LSM module know it's handling 32bit? */
+        error =3D security_file_ioctl(f.file, cmd, arg);
+        if (error)
+                goto out;
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Alfred-Piccioni/SELinux-Check-correct-permissions-for-FS_IOC32_/20230906-200131
-base:   50a510a78287c15cee644f345ef8bac8977986a7
-patch link:    https://lore.kernel.org/r/20230906115928.3749928-1-alpic%40google.com
-patch subject: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-config: i386-debian-10.3 (https://download.01.org/0day-ci/archive/20230909/202309090600.NSyo7d2q-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230909/202309090600.NSyo7d2q-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202309090600.NSyo7d2q-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   security/selinux/hooks.c: In function 'selinux_file_ioctl':
->> security/selinux/hooks.c:3647:9: error: duplicate case value
-    3647 |         case FS_IOC32_GETFLAGS:
-         |         ^~~~
-   security/selinux/hooks.c:3645:9: note: previously used here
-    3645 |         case FS_IOC_GETFLAGS:
-         |         ^~~~
-   security/selinux/hooks.c:3648:9: error: duplicate case value
-    3648 |         case FS_IOC32_GETVERSION:
-         |         ^~~~
-   security/selinux/hooks.c:3646:9: note: previously used here
-    3646 |         case FS_IOC_GETVERSION:
-         |         ^~~~
-   security/selinux/hooks.c:3654:9: error: duplicate case value
-    3654 |         case FS_IOC32_SETFLAGS:
-         |         ^~~~
-   security/selinux/hooks.c:3652:9: note: previously used here
-    3652 |         case FS_IOC_SETFLAGS:
-         |         ^~~~
-   security/selinux/hooks.c:3655:9: error: duplicate case value
-    3655 |         case FS_IOC32_SETVERSION:
-         |         ^~~~
-   security/selinux/hooks.c:3653:9: note: previously used here
-    3653 |         case FS_IOC_SETVERSION:
-         |         ^~~~
+So perhaps this is a defect in LSM that needs to be addressed?
 
 
-vim +3647 security/selinux/hooks.c
-
-  3634	
-  3635	static int selinux_file_ioctl(struct file *file, unsigned int cmd,
-  3636				      unsigned long arg)
-  3637	{
-  3638		const struct cred *cred = current_cred();
-  3639		int error = 0;
-  3640	
-  3641		switch (cmd) {
-  3642		case FIONREAD:
-  3643		case FIBMAP:
-  3644		case FIGETBSZ:
-  3645		case FS_IOC_GETFLAGS:
-  3646		case FS_IOC_GETVERSION:
-> 3647		case FS_IOC32_GETFLAGS:
-  3648		case FS_IOC32_GETVERSION:
-  3649			error = file_has_perm(cred, file, FILE__GETATTR);
-  3650			break;
-  3651	
-  3652		case FS_IOC_SETFLAGS:
-  3653		case FS_IOC_SETVERSION:
-  3654		case FS_IOC32_SETFLAGS:
-  3655		case FS_IOC32_SETVERSION:
-  3656			error = file_has_perm(cred, file, FILE__SETATTR);
-  3657			break;
-  3658	
-  3659		/* sys_ioctl() checks */
-  3660		case FIONBIO:
-  3661		case FIOASYNC:
-  3662			error = file_has_perm(cred, file, 0);
-  3663			break;
-  3664	
-  3665		case KDSKBENT:
-  3666		case KDSKBSENT:
-  3667			error = cred_has_capability(cred, CAP_SYS_TTY_CONFIG,
-  3668						    CAP_OPT_NONE, true);
-  3669			break;
-  3670	
-  3671		case FIOCLEX:
-  3672		case FIONCLEX:
-  3673			if (!selinux_policycap_ioctl_skip_cloexec())
-  3674				error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
-  3675			break;
-  3676	
-  3677		/* default case assumes that the command will go
-  3678		 * to the file's ioctl() function.
-  3679		 */
-  3680		default:
-  3681			error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
-  3682		}
-  3683		return error;
-  3684	}
-  3685	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+>
+>
+> vim +3647 security/selinux/hooks.c
+>
+>   3634
+>   3635  static int selinux_file_ioctl(struct file *file, unsigned int cmd=
+,
+>   3636                                unsigned long arg)
+>   3637  {
+>   3638          const struct cred *cred =3D current_cred();
+>   3639          int error =3D 0;
+>   3640
+>   3641          switch (cmd) {
+>   3642          case FIONREAD:
+>   3643          case FIBMAP:
+>   3644          case FIGETBSZ:
+>   3645          case FS_IOC_GETFLAGS:
+>   3646          case FS_IOC_GETVERSION:
+> > 3647          case FS_IOC32_GETFLAGS:
+>   3648          case FS_IOC32_GETVERSION:
+>   3649                  error =3D file_has_perm(cred, file, FILE__GETATTR=
+);
+>   3650                  break;
+>   3651
+>   3652          case FS_IOC_SETFLAGS:
+>   3653          case FS_IOC_SETVERSION:
+>   3654          case FS_IOC32_SETFLAGS:
+>   3655          case FS_IOC32_SETVERSION:
+>   3656                  error =3D file_has_perm(cred, file, FILE__SETATTR=
+);
+>   3657                  break;
+>   3658
+>   3659          /* sys_ioctl() checks */
+>   3660          case FIONBIO:
+>   3661          case FIOASYNC:
+>   3662                  error =3D file_has_perm(cred, file, 0);
+>   3663                  break;
+>   3664
+>   3665          case KDSKBENT:
+>   3666          case KDSKBSENT:
+>   3667                  error =3D cred_has_capability(cred, CAP_SYS_TTY_C=
+ONFIG,
+>   3668                                              CAP_OPT_NONE, true);
+>   3669                  break;
+>   3670
+>   3671          case FIOCLEX:
+>   3672          case FIONCLEX:
+>   3673                  if (!selinux_policycap_ioctl_skip_cloexec())
+>   3674                          error =3D ioctl_has_perm(cred, file, FILE=
+__IOCTL, (u16) cmd);
+>   3675                  break;
+>   3676
+>   3677          /* default case assumes that the command will go
+>   3678           * to the file's ioctl() function.
+>   3679           */
+>   3680          default:
+>   3681                  error =3D ioctl_has_perm(cred, file, FILE__IOCTL,=
+ (u16) cmd);
+>   3682          }
+>   3683          return error;
+>   3684  }
+>   3685
