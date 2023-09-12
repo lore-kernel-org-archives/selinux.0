@@ -2,188 +2,94 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65364EE3F29
-	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 20:56:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74DC8EE3F30
+	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 20:58:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbjILU4q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Sep 2023 16:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49056 "EHLO
+        id S232031AbjILU6p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Sep 2023 16:58:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229780AbjILU4p (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 16:56:45 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB4F0199
-        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 13:56:41 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-502a4f33440so6888505e87.1
-        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 13:56:41 -0700 (PDT)
+        with ESMTP id S229996AbjILU6o (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 16:58:44 -0400
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1648210D3
+        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 13:58:41 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id d75a77b69052e-41206fd9717so39326081cf.3
+        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 13:58:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1694552200; x=1695157000; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cFMJyjgd02TuKDFYe+Btib/vqSDagYWUUPz8Lml1IKE=;
-        b=HJoPGEzveliFr0tfMhY1pAtCwUpiwN54QF745WMD0+yLk71GTnWvGhe6+tgL0krI3g
-         Z+ec8mHgziljN2nS17JDj1/f/RVuQMPc27XL93FhGnFostZbtLP5vXs5NExeCN1qfNXa
-         BuagFhzzruZJCeNhYu427CFfaj+8Vjl7IRqRBISAfAXduVa8wV4qallWZAq3L1CHm+e9
-         Wpe+K2pgs76i6XUeXtHiVGJPlYxBfxBpSkDbLhqfkrk1MwZejgsSCmKrGZaCzrv3WXkp
-         pKM0ONLo/Cs1nQTZNr1TGHIl0eK8EIHWzpTwAWQ2IztUqhT8zR5KHztx0piakeujGPIH
-         LtSw==
+        d=paul-moore.com; s=google; t=1694552320; x=1695157120; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Js1sPIN4tSpqKzVh+cdl+vbQOEHreHNkNpfHbtQhoUw=;
+        b=ddmzdnpk4+27RF87GVG04p1/sQF+fXbsOhjj5QAjkWcc8LyKHgRRGVkXbQxQppXjd5
+         Lww+ruRPoQDWfrG8G6BbcGeKAmX92dMQC1eg1YBvNPGOn1e460zxX2pFO3QGchJpIula
+         1npW3aAh/ZtFYNRI+0Rc9TyGbl1qbvbn//1/be4S9NeD/MMVUbAtudCZTx3dGR1q/B5u
+         1XalBzIz9/+hUnyltup5YX1ocZ5/dNhnYI7kEgPQcBJG4AFmXl7/n+G1bkMDxLshE+SG
+         BtWymDWmUeyekkcAJIO3ARhqwxHSi1eHxQwuQL28hNfRyPyelRH1xEtqqH+HTzeqxnhc
+         98nA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694552200; x=1695157000;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cFMJyjgd02TuKDFYe+Btib/vqSDagYWUUPz8Lml1IKE=;
-        b=E3zMvm9+Ml9Prmvfraj79fb132qZzMVYnvYonwQCEVRVFZCOeHFPGDJp5hGkeApuim
-         50vmnr4cbvf87+hEy6RrpQAwasUK7IXCupSL5GCh3s8Z042F2jH0Cl0JDs7FYfTuPl2s
-         YH5QE04k3KXOQjvL1D1vQ22N616sPZSl3oVWghCe2cpExlxwmbbRUFke93S9kbloBydw
-         W/R6O6GfhaP8rAOKMv2VoBqjCcS2gTFRro1Y66TYYLupKFRLMtufss5M+EbqT1UNBzvd
-         37FAOrMXIUV4n/hV3p+mdBJvl/fVGoDgGc0wGgwyfs1xBqvLU5bTJamwdq5rxGMNywUj
-         FMiw==
-X-Gm-Message-State: AOJu0Yx3lizeH0GjkpL8hFk2VveDMnGJHW2W0vuDny2bZLzFXav2vl/R
-        wv+zpQioG9yDCh1nOMhXHBqwIKa2sOv5X5+oX3W9PnVt
-X-Google-Smtp-Source: AGHT+IH8arFIIGhXKLREtTOJCn3KDRLGxn4Gz75lUP36BQvTeaRvWVf0ReDuRwVhlzuOjlfuu99IxSFuzZtPGpAM8E8=
-X-Received: by 2002:ac2:5e77:0:b0:4fe:62f:35eb with SMTP id
- a23-20020ac25e77000000b004fe062f35ebmr589212lfr.20.1694552199725; Tue, 12 Sep
- 2023 13:56:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <324bb6b0-3d6c-707d-c0d1-1fdc1f43e845@redhat.com>
- <87pm2ouk0s.fsf@defensec.nl> <CAP+JOzR7d7RfKWPaTt_BwEbEyWxGQhdnfAQ3fx5itL+xqshTLA@mail.gmail.com>
- <e26ceee7-3c67-7cf9-1333-2650d1d2734d@redhat.com>
-In-Reply-To: <e26ceee7-3c67-7cf9-1333-2650d1d2734d@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 12 Sep 2023 16:56:28 -0400
-Message-ID: <CAP+JOzRESAiNbhETQPMzOpK1Vo0yqp9C=pasu+MdwX5y3guzYQ@mail.gmail.com>
-Subject: Re: generating new type name using CIL macro
-To:     Vit Mojzis <vmojzis@redhat.com>
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        d=1e100.net; s=20230601; t=1694552320; x=1695157120;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Js1sPIN4tSpqKzVh+cdl+vbQOEHreHNkNpfHbtQhoUw=;
+        b=DQPbCZSd2/3OADAfx/et7IxEaBLmmLG9EUkdA8hauqb0rrNXgYykDvr5CooVI1vxD3
+         14Z9mQZ3w9RrpNJDaiO4kE/KgznJvkdRPNDZFuPbpv+5X2XHANkWEgIm22sRz9vwTRRm
+         Jok0yg8tZcPMfBCZvTgdnlsJ9dkbM9rWvBDdg57jvi7K5an7gPeJLHxJqmIszCugspm3
+         gnducAqRH5mdfesL+oN2M1a1dSsnb4+f30treczLwq4N6VobwiuBKU/sf8afwBKlqv5P
+         acgqTdOUzpJCz8yNsW0Mpt5Ulh58+VLxBEZL5jPJG5sohUr53tuHppkK8bivB4ptYJN3
+         6TSQ==
+X-Gm-Message-State: AOJu0YzrICUhmgd5gr4rmXKiB/03kuhNl0xAAkL42i39GO0LFSHtgIV/
+        rZRuMrExC4t6icsIMYQemCDR
+X-Google-Smtp-Source: AGHT+IFx1FFRoXcJqvM1S2NAgyMm6l7izDLmyHVvc8gF1o9Jby+x6eU/Q7lfnMg6XgyGLr2S6gCrSw==
+X-Received: by 2002:a05:622a:3cc:b0:403:a6e5:9aad with SMTP id k12-20020a05622a03cc00b00403a6e59aadmr576960qtx.47.1694552320183;
+        Tue, 12 Sep 2023 13:58:40 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id z24-20020ac86b98000000b00414e93d940dsm3572106qts.50.2023.09.12.13.58.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Sep 2023 13:58:39 -0700 (PDT)
+Date:   Tue, 12 Sep 2023 16:58:39 -0400
+Message-ID: <c91bb958ddbfd9b9572d51d96cd857b9.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>,
+        "GONG, Ruiqi" <gongruiqi1@huawei.com>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+        linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] selinux: Annotate struct sidtab_str_cache with  __counted_by
+References: <20230817202210.never.014-kees@kernel.org>
+In-Reply-To: <20230817202210.never.014-kees@kernel.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 12, 2023 at 2:29=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> wro=
-te:
->
->
->
-> On 9/12/23 15:13, James Carter wrote:
-> > On Tue, Sep 12, 2023 at 1:19=E2=80=AFAM Dominick Grift
-> > <dominick.grift@defensec.nl> wrote:
-> >> Vit Mojzis <vmojzis@redhat.com> writes:
-> >>
-> >>> Hello all,
-> >>> while trying to recreate some selinux-policy templates using CIL
-> >>> macros I got stuck on creating new type/role/attribute names.
-> >>> For example consider ssh_role_template [1], which uses its first
-> >>> parameter to create a new type $1_ssh_agent_t.
-> >>>
-> >>> Is there a way to recreate such functionality in a CIL macro (or
-> >>> another CIL feature)?
-> > In CIL we wanted to get away from the m4 string mangling. The thought
-> > was that a higher-level language could do this if desired.
-> > CIL is very restrictive in that all the arguments in a call have to be
-> > already defined. You cannot even pass a string that will be used to
-> > declare a type--the type must already be defined.
->
-> Right, this complicates replicating interfaces even further.
->
-> BTW there is no error or warning when passing a string in an attempt to
-> define a new entity inside the macro.
-> (macro define_type ((string t))
->      (type t)
->      (allow t t (process (setcap)))
-> )
-> (call define_type (yolo))
->
-> This installs without any complaints, but the type does not get defined
-> and the rule gets silently ignored as well.
->
+On Aug 17, 2023 Kees Cook <keescook@chromium.org> wrote:
+> 
+> Prepare for the coming implementation by GCC and Clang of the __counted_by
+> attribute. Flexible array members annotated with __counted_by can have
+> their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
+> (for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
+> functions).
+> 
+> As found with Coccinelle[1], add __counted_by for struct sidtab_str_cache.
+> 
+> [1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
+> 
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: selinux@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  security/selinux/ss/sidtab.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-That is interesting. I'll have to take a look at that.
-Thanks for the report.
-Jim
+Merged into selinux/next, thanks.
 
-> >
-> > As Dominick says below, we thought that blocks and inheritance would
-> > replace the string mangling, but, as you note, this does change how
-> > the type looks.
->
-> Yes, and since that is something I cannot ignore, I'll have to create
-> some kind of simple abstraction as Dominick suggested.
->
-> Thank you both for the suggestions and explanations, you helped me a
-> great deal.
-> Vit
->
-> >
-> > Jim
-> >
-> >> CIL uses blocks for it implementation of templating. If you want to le=
-verage
-> >> native CIL then look into blocks.
-> >>
-> >> Example:
-> >>
-> >> cat > mytest.cil <<EOF
-> >> (typeattribute foo)
-> >>
-> >> (block t
-> >> (blockabstract t)
-> >> (type t)
-> >> (typeattributeset .foo t))
-> >>
-> >> (block bar
-> >> (blockinherit t))
-> >>
-> >> (block baz
-> >> (blockinherit t))
-> >>
-> >> (allow .foo .foo (process (signal)))
-> >> EOF
-> >>
-> >> sudo semodule -i mytest.cil
-> >>
-> >> seinfo -xafoo
-> >>
-> >> Type Attributes: 1
-> >>     attribute foo;
-> >>          bar.t
-> >>          baz.t
-> >>
-> >> sesearch -A -s foo -ds
-> >> allow foo foo:process signal;
-> >>
-> >>> Something along the lines of:
-> >>> (macro new_type_macro ((string type_prefix))
-> >>>    (type (type_prefix)_t)
-> >>> )
-> >>> which when called (call new_type_macro ("yolo")) would produce
-> >>> (type yolo_t)
-> >>>
-> >>> I searched through CIL reference guide [2] and SELinuxProject CIL wik=
-i
-> >>> on github, but didn't find anything close (maybe there is a better
-> >>> resource I don't know about).
-> >>> I'd appreciate any hints or links to other resources related to CIL m=
-acros.
-> >>>
-> >>> Thank you,
-> >>> Vit
-> >>>
-> >>> [1] -
-> >>> https://github.com/TresysTechnology/refpolicy/blob/master/policy/modu=
-les/services/ssh.if#L301
-> >>> [2] -
-> >>> https://raw.githubusercontent.com/SELinuxProject/selinux-notebook/mai=
-n/src/notebook-examples/selinux-policy/cil/CIL_Reference_Guide.pdf
-> >>> [3] - https://github.com/SELinuxProject/cil/wiki#macros
-> >>>
-> >> --
-> >> gpg --locate-keys dominick.grift@defensec.nl (wkd)
-> >> Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> >> Dominick Grift
-> >> Mastodon: @kcinimod@defensec.nl
->
+--
+paul-moore.com
