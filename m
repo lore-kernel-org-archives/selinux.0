@@ -2,118 +2,236 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDB4BCA0ECF
-	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 03:51:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59CFECA0ECE
+	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 09:00:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232793AbjILDvI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Sep 2023 23:51:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35670 "EHLO
+        id S233253AbjILJAc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Sep 2023 05:00:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230139AbjILDvI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Sep 2023 23:51:08 -0400
-Received: from markus.defensec.nl (markus.defensec.nl [IPv6:2a10:3781:2099::123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543A1A4
-        for <selinux@vger.kernel.org>; Mon, 11 Sep 2023 20:51:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-        s=default; t=1694490660;
-        bh=xyPPTxc5yeADXwM1e6rfR6537pwPtimYPVXA7OQkg5c=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=OMI4vcEJnZqTlq03E7ozaifLRlkPWxWLAeHOxk4aePLkM77nhce49FkWE/hSEI6cV
-         9ZPnvozoY4JzNkc4BMEauwgO6+jTqwpddP+b1Ni8BD+qU9v9gjVnoFulW7SPowxW4J
-         E0MIk1d/ik9s7QRyY4HbkyZRfX8uoExK/3xqRlU4=
-Received: from paulus (unknown [IPv6:2a10:3781:2099:0:67b:cbff:fe2b:1860])
-        by markus.defensec.nl (Postfix) with ESMTPSA id 95D2E1959;
-        Tue, 12 Sep 2023 05:51:00 +0200 (CEST)
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Vit Mojzis <vmojzis@redhat.com>
-Cc:     selinux@vger.kernel.org
-Subject: Re: generating new type name using CIL macro
-In-Reply-To: <324bb6b0-3d6c-707d-c0d1-1fdc1f43e845@redhat.com> (Vit Mojzis's
-        message of "Mon, 11 Sep 2023 17:42:03 +0200")
-References: <324bb6b0-3d6c-707d-c0d1-1fdc1f43e845@redhat.com>
-Date:   Tue, 12 Sep 2023 05:50:59 +0200
-Message-ID: <87pm2ouk0s.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+        with ESMTP id S233197AbjILJA0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 05:00:26 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408F210CB
+        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 02:00:21 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-31f853f2f3aso2109121f8f.0
+        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 02:00:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1694509220; x=1695114020; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DPuhXIrsoDRwKm2c4doZfBy6UJlqWZcuCP4pbW2cMJU=;
+        b=0eBJ92P6BYnTkFW0+cPbzrWvT42U+FZO2ZI5HfpmEOnYc6XlGdpqGiChXcjooLDxyQ
+         3OwHffrWQUUyvACncs+0v0HOoxrUUFC27rFzupl8j62NlinAHFO4C0yN2Us0U6IpsUBd
+         7TBnjsyHF2xdn/7mv0uLqOAuEEqRr1WdHGG1Mqao9y9JFRoKcozoIHAjBVObZc6FRUZs
+         lF9JUj+zrq+y7StxK+nBlzxvz6bp4qDrFsOLbXYGuAhs3mPneCzRCi028ZUZ7TMHGbk7
+         bCjhdef7Z8roSo5pjKlsBA522t3CM2konVhuFqhXAccjYehxWgSuPllKbaqp2s4AdiaL
+         svJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1694509220; x=1695114020;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DPuhXIrsoDRwKm2c4doZfBy6UJlqWZcuCP4pbW2cMJU=;
+        b=DLScPqyW2U584zrQLeFyyyE9H3q8h71g0oF8qs+FsNsxF2TpPmkLEAK0kL/j1SCtQH
+         9KBDxxesuK6C6FNgJKLLyl/FC68RE2NtgCKMhhgm5NJI2vW9CisPuQ9uNbjAU97IYp0w
+         lR3UO3yo/lpuu9UVxgjMwXNdBrZNl2SPqpOs5UYJquVEk/SSiBlagfJX3St91GoXO1ma
+         oxQtIkjtmt9RnxDnw8hOjM6baGigehTf0vNXuA7YN1zeoJIm/RQVah3Y9QeUUS6eiWXf
+         566VgDubJOlx67L740YEKxbiPtpAAymGFVxMPyGR/mOTFqPYRD26W3CtFKQuj0NO9DLP
+         Wn8Q==
+X-Gm-Message-State: AOJu0Yzj8HqCu2fkAO1xfcfcObYK+g3vAVNVYvPezVEtKiXnbv+k8hvQ
+        gBUnQI8L7qZA3367Ppm5FmOstOaev4wVPPXy4Mfdaw==
+X-Google-Smtp-Source: AGHT+IEruaY/XJBjah+iWq3HcBLI4GKyhigsTj6VWb1ntfR010vgfqEBZKHcesQHRAHWD6nSXOXZYQmhyGeyUOCjYig=
+X-Received: by 2002:a05:6000:1245:b0:319:6b14:555c with SMTP id
+ j5-20020a056000124500b003196b14555cmr1373860wrx.3.1694509220233; Tue, 12 Sep
+ 2023 02:00:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20230906115928.3749928-1-alpic@google.com> <202309090600.NSyo7d2q-lkp@intel.com>
+ <CAEjxPJ4GOq3E4zqXbEMKUxqewopyeU5nmUg89rL+P5YsuEBi7A@mail.gmail.com> <CAEjxPJ4uoqkwmbeOOmUHJwoKiK3cnfJP5P2w+hOXr4BZNtQ+JQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4uoqkwmbeOOmUHJwoKiK3cnfJP5P2w+hOXr4BZNtQ+JQ@mail.gmail.com>
+From:   Alfred Piccioni <alpic@google.com>
+Date:   Tue, 12 Sep 2023 11:00:07 +0200
+Message-ID: <CALcwBGBPaYh98d+3_3k8o+8WCbYU8cNPoOHaqhUduKZYz7Ntow@mail.gmail.com>
+Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     kernel test robot <lkp@intel.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        oe-kbuild-all@lists.linux.dev, stable@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Vit Mojzis <vmojzis@redhat.com> writes:
-
-> Hello all,
-> while trying to recreate some selinux-policy templates using CIL
-> macros I got stuck on creating new type/role/attribute names.
-> For example consider ssh_role_template [1], which uses its first
-> parameter to create a new type $1_ssh_agent_t.
+On Mon, Sep 11, 2023 at 3:49=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Is there a way to recreate such functionality in a CIL macro (or
-> another CIL feature)?
-
-CIL uses blocks for it implementation of templating. If you want to leverage
-native CIL then look into blocks.
-
-Example:
-
-cat > mytest.cil <<EOF
-(typeattribute foo)
-
-(block t
-(blockabstract t)
-(type t)
-(typeattributeset .foo t))
-
-(block bar
-(blockinherit t))
-
-(block baz
-(blockinherit t))
-
-(allow .foo .foo (process (signal)))
-EOF
-
-sudo semodule -i mytest.cil
-
-seinfo -xafoo
-
-Type Attributes: 1
-   attribute foo;
-        bar.t
-        baz.t
-
-sesearch -A -s foo -ds
-allow foo foo:process signal;
-
+> On Mon, Sep 11, 2023 at 9:19=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Fri, Sep 8, 2023 at 6:54=E2=80=AFPM kernel test robot <lkp@intel.com=
+> wrote:
+> > >
+> > > Hi Alfred,
+> > >
+> > > kernel test robot noticed the following build errors:
+> > >
+> > > [auto build test ERROR on 50a510a78287c15cee644f345ef8bac8977986a7]
+> > >
+> > > url:    https://github.com/intel-lab-lkp/linux/commits/Alfred-Piccion=
+i/SELinux-Check-correct-permissions-for-FS_IOC32_/20230906-200131
+> > > base:   50a510a78287c15cee644f345ef8bac8977986a7
+> > > patch link:    https://lore.kernel.org/r/20230906115928.3749928-1-alp=
+ic%40google.com
+> > > patch subject: [PATCH V2] SELinux: Check correct permissions for FS_I=
+OC32_*
+> > > config: i386-debian-10.3 (https://download.01.org/0day-ci/archive/202=
+30909/202309090600.NSyo7d2q-lkp@intel.com/config)
+> > > compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+> > > reproduce (this is a W=3D1 build): (https://download.01.org/0day-ci/a=
+rchive/20230909/202309090600.NSyo7d2q-lkp@intel.com/reproduce)
+> > >
+> > > If you fix the issue in a separate patch/commit (i.e. not just a new =
+version of
+> > > the same patch/commit), kindly add following tags
+> > > | Reported-by: kernel test robot <lkp@intel.com>
+> > > | Closes: https://lore.kernel.org/oe-kbuild-all/202309090600.NSyo7d2q=
+-lkp@intel.com/
+> > >
+> > > All errors (new ones prefixed by >>):
+> > >
+> > >    security/selinux/hooks.c: In function 'selinux_file_ioctl':
+> > > >> security/selinux/hooks.c:3647:9: error: duplicate case value
+> > >     3647 |         case FS_IOC32_GETFLAGS:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3645:9: note: previously used here
+> > >     3645 |         case FS_IOC_GETFLAGS:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3648:9: error: duplicate case value
+> > >     3648 |         case FS_IOC32_GETVERSION:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3646:9: note: previously used here
+> > >     3646 |         case FS_IOC_GETVERSION:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3654:9: error: duplicate case value
+> > >     3654 |         case FS_IOC32_SETFLAGS:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3652:9: note: previously used here
+> > >     3652 |         case FS_IOC_SETFLAGS:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3655:9: error: duplicate case value
+> > >     3655 |         case FS_IOC32_SETVERSION:
+> > >          |         ^~~~
+> > >    security/selinux/hooks.c:3653:9: note: previously used here
+> > >     3653 |         case FS_IOC_SETVERSION:
+> > >          |         ^~~~
+> >
+> > Not sure of the right way to fix this while addressing the original
+> > issue that this patch was intended to fix. Looking in fs/ioctl.c, I
+> > see that the some FS_IOC32 values are remapped to the corresponding
+> > FS_IOC values by the compat ioctl syscall entrypoint. Also notice this
+> > comment there:
+> >
+> >         /* RED-PEN how should LSM module know it's handling 32bit? */
+> >         error =3D security_file_ioctl(f.file, cmd, arg);
+> >         if (error)
+> >                 goto out;
+> >
+> > So perhaps this is a defect in LSM that needs to be addressed?
 >
-> Something along the lines of:
-> (macro new_type_macro ((string type_prefix))
-> =C2=A0 (type (type_prefix)_t)
-> )
-> which when called (call new_type_macro ("yolo")) would produce
-> (type yolo_t)
+> Note btw that some of the 32-bit ioctl commands are only handled in
+> the fs-specific compat_ioctl routines, e.g. ext4_compat_ioctl()
+> handles EXT4_IOC32_GETVERSION =3D=3D FS_IOC32_GETVERSION and ditto for
+> _SETVERSION.
 >
-> I searched through CIL reference guide [2] and SELinuxProject CIL wiki
-> on github, but didn't find anything close (maybe there is a better
-> resource I don't know about).
-> I'd appreciate any hints or links to other resources related to CIL macro=
-s.
->
-> Thank you,
-> Vit
->
-> [1] -
-> https://github.com/TresysTechnology/refpolicy/blob/master/policy/modules/=
-services/ssh.if#L301
-> [2] -
-> https://raw.githubusercontent.com/SELinuxProject/selinux-notebook/main/sr=
-c/notebook-examples/selinux-policy/cil/CIL_Reference_Guide.pdf
-> [3] - https://github.com/SELinuxProject/cil/wiki#macros
->
+> >
+> >
+> > >
+> > >
+> > > vim +3647 security/selinux/hooks.c
+> > >
+> > >   3634
+> > >   3635  static int selinux_file_ioctl(struct file *file, unsigned int=
+ cmd,
+> > >   3636                                unsigned long arg)
+> > >   3637  {
+> > >   3638          const struct cred *cred =3D current_cred();
+> > >   3639          int error =3D 0;
+> > >   3640
+> > >   3641          switch (cmd) {
+> > >   3642          case FIONREAD:
+> > >   3643          case FIBMAP:
+> > >   3644          case FIGETBSZ:
+> > >   3645          case FS_IOC_GETFLAGS:
+> > >   3646          case FS_IOC_GETVERSION:
+> > > > 3647          case FS_IOC32_GETFLAGS:
+> > >   3648          case FS_IOC32_GETVERSION:
+> > >   3649                  error =3D file_has_perm(cred, file, FILE__GET=
+ATTR);
+> > >   3650                  break;
+> > >   3651
+> > >   3652          case FS_IOC_SETFLAGS:
+> > >   3653          case FS_IOC_SETVERSION:
+> > >   3654          case FS_IOC32_SETFLAGS:
+> > >   3655          case FS_IOC32_SETVERSION:
+> > >   3656                  error =3D file_has_perm(cred, file, FILE__SET=
+ATTR);
+> > >   3657                  break;
+> > >   3658
+> > >   3659          /* sys_ioctl() checks */
+> > >   3660          case FIONBIO:
+> > >   3661          case FIOASYNC:
+> > >   3662                  error =3D file_has_perm(cred, file, 0);
+> > >   3663                  break;
+> > >   3664
+> > >   3665          case KDSKBENT:
+> > >   3666          case KDSKBSENT:
+> > >   3667                  error =3D cred_has_capability(cred, CAP_SYS_T=
+TY_CONFIG,
+> > >   3668                                              CAP_OPT_NONE, tru=
+e);
+> > >   3669                  break;
+> > >   3670
+> > >   3671          case FIOCLEX:
+> > >   3672          case FIONCLEX:
+> > >   3673                  if (!selinux_policycap_ioctl_skip_cloexec())
+> > >   3674                          error =3D ioctl_has_perm(cred, file, =
+FILE__IOCTL, (u16) cmd);
+> > >   3675                  break;
+> > >   3676
+> > >   3677          /* default case assumes that the command will go
+> > >   3678           * to the file's ioctl() function.
+> > >   3679           */
+> > >   3680          default:
+> > >   3681                  error =3D ioctl_has_perm(cred, file, FILE__IO=
+CTL, (u16) cmd);
+> > >   3682          }
+> > >   3683          return error;
+> > >   3684  }
+> > >   3685
 
---=20
-gpg --locate-keys dominick.grift@defensec.nl (wkd)
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-Mastodon: @kcinimod@defensec.nl
+Hey Stephen,
+
+Thanks for looking into it a bit deeper! This seems a bit of a pickle.
+I can think of a few somewhat hacky ways to fix this.
+
+I can just set the flags to check `if FS_IOC32_*; set FS_IOC_*;`,
+which is the quickest but kinda hacky.
+
+I can go with the other plan of dropping the irrelevant bytes from the
+cmd code, so all codes will be read as u16. This effectively does the
+same thing, but may be unclear.
+
+I can also look into whether this can be solved at the LSM or a higher
+level. Perhaps the filesystems setting `if FS_IOC32_*; set FS_IOC_*;`
+is a hint that something else interesting is going wrong.
+
+I'll spend a little time thinking and investigating and get back with
+a more concrete solution. I'll also need to do a bit more robust
+testing; it built on my machine!
+
+Thanks!
