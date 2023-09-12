@@ -2,236 +2,155 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59CFECA0ECE
-	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 09:00:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8DEECA0EC3
+	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 09:43:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbjILJAc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Sep 2023 05:00:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41998 "EHLO
+        id S232563AbjILJne (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Sep 2023 05:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbjILJA0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 05:00:26 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408F210CB
-        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 02:00:21 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-31f853f2f3aso2109121f8f.0
-        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 02:00:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1694509220; x=1695114020; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DPuhXIrsoDRwKm2c4doZfBy6UJlqWZcuCP4pbW2cMJU=;
-        b=0eBJ92P6BYnTkFW0+cPbzrWvT42U+FZO2ZI5HfpmEOnYc6XlGdpqGiChXcjooLDxyQ
-         3OwHffrWQUUyvACncs+0v0HOoxrUUFC27rFzupl8j62NlinAHFO4C0yN2Us0U6IpsUBd
-         7TBnjsyHF2xdn/7mv0uLqOAuEEqRr1WdHGG1Mqao9y9JFRoKcozoIHAjBVObZc6FRUZs
-         lF9JUj+zrq+y7StxK+nBlzxvz6bp4qDrFsOLbXYGuAhs3mPneCzRCi028ZUZ7TMHGbk7
-         bCjhdef7Z8roSo5pjKlsBA522t3CM2konVhuFqhXAccjYehxWgSuPllKbaqp2s4AdiaL
-         svJA==
+        with ESMTP id S229876AbjILJne (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 05:43:34 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9125C12E
+        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 02:42:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1694511767;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=cVoCYLTcjSC2jc7F8XlWo4MviAe+30+OkqwLC9JYpJg=;
+        b=VkEfp4WkVZVeVDjtd2DL2lZvJ8wEeNA2kZJEHugvASJ5woagYeEUqPew+duPorH9D0J8mn
+        XPz2iXL7ORAWiCiZfy+ysG/3Ix9oXntDUvcys9Q0XQGqpZBq9OBWR7r092aPt3jWXdiMbI
+        ehwEKo3bU4xYeKpnUd7Yz1dPBDIq69M=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-626-yAAzPs0qOMyQ3sNoMLlJ9Q-1; Tue, 12 Sep 2023 05:42:45 -0400
+X-MC-Unique: yAAzPs0qOMyQ3sNoMLlJ9Q-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-993eeb3a950so374694866b.2
+        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 02:42:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694509220; x=1695114020;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DPuhXIrsoDRwKm2c4doZfBy6UJlqWZcuCP4pbW2cMJU=;
-        b=DLScPqyW2U584zrQLeFyyyE9H3q8h71g0oF8qs+FsNsxF2TpPmkLEAK0kL/j1SCtQH
-         9KBDxxesuK6C6FNgJKLLyl/FC68RE2NtgCKMhhgm5NJI2vW9CisPuQ9uNbjAU97IYp0w
-         lR3UO3yo/lpuu9UVxgjMwXNdBrZNl2SPqpOs5UYJquVEk/SSiBlagfJX3St91GoXO1ma
-         oxQtIkjtmt9RnxDnw8hOjM6baGigehTf0vNXuA7YN1zeoJIm/RQVah3Y9QeUUS6eiWXf
-         566VgDubJOlx67L740YEKxbiPtpAAymGFVxMPyGR/mOTFqPYRD26W3CtFKQuj0NO9DLP
-         Wn8Q==
-X-Gm-Message-State: AOJu0Yzj8HqCu2fkAO1xfcfcObYK+g3vAVNVYvPezVEtKiXnbv+k8hvQ
-        gBUnQI8L7qZA3367Ppm5FmOstOaev4wVPPXy4Mfdaw==
-X-Google-Smtp-Source: AGHT+IEruaY/XJBjah+iWq3HcBLI4GKyhigsTj6VWb1ntfR010vgfqEBZKHcesQHRAHWD6nSXOXZYQmhyGeyUOCjYig=
-X-Received: by 2002:a05:6000:1245:b0:319:6b14:555c with SMTP id
- j5-20020a056000124500b003196b14555cmr1373860wrx.3.1694509220233; Tue, 12 Sep
- 2023 02:00:20 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1694511764; x=1695116564;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=cVoCYLTcjSC2jc7F8XlWo4MviAe+30+OkqwLC9JYpJg=;
+        b=W4VyGDhX46XUtAaRUsd9Pfx92JiywtnEPGk8vxKaujo3edgCZMTz6KFxGBMfyAUmfs
+         7w5rH8NKvzJAVyE4hlXFYE2mU0flMhXFU8bH6vp+kPfjjN4R7AYuDxBdx2T0b2de1RPu
+         3C9joB9Z8JbK5EfzgzJLC3SOUNFpPu+puJZakku0iyRaMyoOEQN0/dUuc61ohtxpvz7s
+         40evvd6trbNG2zS7hcuKz/lWkO37rBRhhckJpl6b9EmiU5kLVHtL3BkZi1gh+BU9gY8L
+         mE+jr5ujoQIorngq4QeQirjDTtB7j+gn8l7pbeC4+HlPrEIImwg4JxyIgODRRFVBLutk
+         hgiA==
+X-Gm-Message-State: AOJu0Yw/KR7spn62FWjzr1suoxeW4/zUbw4nXM8DC/sg+M81HxfOO9DA
+        p4NMsBDTYsF0HTo3gznNasdSJpSiSjnMNLQaVTJhq61ERyf4GyhNU4yb4vHTBAFbkQG0zF3Or/G
+        j+Sm8V0x4jmnkRTjffIoFqNq/Iw==
+X-Received: by 2002:a17:906:1db2:b0:9a2:2635:dab6 with SMTP id u18-20020a1709061db200b009a22635dab6mr11392149ejh.47.1694511764330;
+        Tue, 12 Sep 2023 02:42:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHPwgVxLVLD+LQPjJmM/1pFRmbeUrnulGbof3s1G8w8KCMzvJxdcgUDTLJupnK385ChWnqGzg==
+X-Received: by 2002:a17:906:1db2:b0:9a2:2635:dab6 with SMTP id u18-20020a1709061db200b009a22635dab6mr11392139ejh.47.1694511764014;
+        Tue, 12 Sep 2023 02:42:44 -0700 (PDT)
+Received: from [192.168.0.116] ([86.49.156.126])
+        by smtp.gmail.com with ESMTPSA id lf28-20020a170907175c00b0099bcf1c07c6sm6573961ejc.138.2023.09.12.02.42.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Sep 2023 02:42:43 -0700 (PDT)
+Message-ID: <84e73105-41b7-22b6-2030-627e0e551684@redhat.com>
+Date:   Tue, 12 Sep 2023 11:42:42 +0200
 MIME-Version: 1.0
-References: <20230906115928.3749928-1-alpic@google.com> <202309090600.NSyo7d2q-lkp@intel.com>
- <CAEjxPJ4GOq3E4zqXbEMKUxqewopyeU5nmUg89rL+P5YsuEBi7A@mail.gmail.com> <CAEjxPJ4uoqkwmbeOOmUHJwoKiK3cnfJP5P2w+hOXr4BZNtQ+JQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4uoqkwmbeOOmUHJwoKiK3cnfJP5P2w+hOXr4BZNtQ+JQ@mail.gmail.com>
-From:   Alfred Piccioni <alpic@google.com>
-Date:   Tue, 12 Sep 2023 11:00:07 +0200
-Message-ID: <CALcwBGBPaYh98d+3_3k8o+8WCbYU8cNPoOHaqhUduKZYz7Ntow@mail.gmail.com>
-Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     kernel test robot <lkp@intel.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        oe-kbuild-all@lists.linux.dev, stable@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: generating new type name using CIL macro
+Content-Language: en-US
+To:     Dominick Grift <dominick.grift@defensec.nl>
+Cc:     selinux@vger.kernel.org
+References: <324bb6b0-3d6c-707d-c0d1-1fdc1f43e845@redhat.com>
+ <87pm2ouk0s.fsf@defensec.nl>
+From:   Vit Mojzis <vmojzis@redhat.com>
+In-Reply-To: <87pm2ouk0s.fsf@defensec.nl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 11, 2023 at 3:49=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+Hi Dominick,
+thank you for the suggestion. I know about block inheritance, but it 
+produces type/role names that are not consistent with refpolicy ("." 
+separating the new block name and it's content). My goal is to create 
+new SELinux users and corresponding roles and it would be confusing for 
+users to switch between roles with different naming schemes (e.g. 
+"secadm_r" vs. "customuser.r"). Given that "typeinherit" statements 
+don't seem to be supported, I'm trying my luck with macros to replicate 
+interfaces.
+
+Thank you,
+Vit
+
+On 9/12/23 05:50, Dominick Grift wrote:
+> Vit Mojzis <vmojzis@redhat.com> writes:
 >
-> On Mon, Sep 11, 2023 at 9:19=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Fri, Sep 8, 2023 at 6:54=E2=80=AFPM kernel test robot <lkp@intel.com=
-> wrote:
-> > >
-> > > Hi Alfred,
-> > >
-> > > kernel test robot noticed the following build errors:
-> > >
-> > > [auto build test ERROR on 50a510a78287c15cee644f345ef8bac8977986a7]
-> > >
-> > > url:    https://github.com/intel-lab-lkp/linux/commits/Alfred-Piccion=
-i/SELinux-Check-correct-permissions-for-FS_IOC32_/20230906-200131
-> > > base:   50a510a78287c15cee644f345ef8bac8977986a7
-> > > patch link:    https://lore.kernel.org/r/20230906115928.3749928-1-alp=
-ic%40google.com
-> > > patch subject: [PATCH V2] SELinux: Check correct permissions for FS_I=
-OC32_*
-> > > config: i386-debian-10.3 (https://download.01.org/0day-ci/archive/202=
-30909/202309090600.NSyo7d2q-lkp@intel.com/config)
-> > > compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-> > > reproduce (this is a W=3D1 build): (https://download.01.org/0day-ci/a=
-rchive/20230909/202309090600.NSyo7d2q-lkp@intel.com/reproduce)
-> > >
-> > > If you fix the issue in a separate patch/commit (i.e. not just a new =
-version of
-> > > the same patch/commit), kindly add following tags
-> > > | Reported-by: kernel test robot <lkp@intel.com>
-> > > | Closes: https://lore.kernel.org/oe-kbuild-all/202309090600.NSyo7d2q=
--lkp@intel.com/
-> > >
-> > > All errors (new ones prefixed by >>):
-> > >
-> > >    security/selinux/hooks.c: In function 'selinux_file_ioctl':
-> > > >> security/selinux/hooks.c:3647:9: error: duplicate case value
-> > >     3647 |         case FS_IOC32_GETFLAGS:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3645:9: note: previously used here
-> > >     3645 |         case FS_IOC_GETFLAGS:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3648:9: error: duplicate case value
-> > >     3648 |         case FS_IOC32_GETVERSION:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3646:9: note: previously used here
-> > >     3646 |         case FS_IOC_GETVERSION:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3654:9: error: duplicate case value
-> > >     3654 |         case FS_IOC32_SETFLAGS:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3652:9: note: previously used here
-> > >     3652 |         case FS_IOC_SETFLAGS:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3655:9: error: duplicate case value
-> > >     3655 |         case FS_IOC32_SETVERSION:
-> > >          |         ^~~~
-> > >    security/selinux/hooks.c:3653:9: note: previously used here
-> > >     3653 |         case FS_IOC_SETVERSION:
-> > >          |         ^~~~
-> >
-> > Not sure of the right way to fix this while addressing the original
-> > issue that this patch was intended to fix. Looking in fs/ioctl.c, I
-> > see that the some FS_IOC32 values are remapped to the corresponding
-> > FS_IOC values by the compat ioctl syscall entrypoint. Also notice this
-> > comment there:
-> >
-> >         /* RED-PEN how should LSM module know it's handling 32bit? */
-> >         error =3D security_file_ioctl(f.file, cmd, arg);
-> >         if (error)
-> >                 goto out;
-> >
-> > So perhaps this is a defect in LSM that needs to be addressed?
+>> Hello all,
+>> while trying to recreate some selinux-policy templates using CIL
+>> macros I got stuck on creating new type/role/attribute names.
+>> For example consider ssh_role_template [1], which uses its first
+>> parameter to create a new type $1_ssh_agent_t.
+>>
+>> Is there a way to recreate such functionality in a CIL macro (or
+>> another CIL feature)?
+> CIL uses blocks for it implementation of templating. If you want to leverage
+> native CIL then look into blocks.
 >
-> Note btw that some of the 32-bit ioctl commands are only handled in
-> the fs-specific compat_ioctl routines, e.g. ext4_compat_ioctl()
-> handles EXT4_IOC32_GETVERSION =3D=3D FS_IOC32_GETVERSION and ditto for
-> _SETVERSION.
+> Example:
 >
-> >
-> >
-> > >
-> > >
-> > > vim +3647 security/selinux/hooks.c
-> > >
-> > >   3634
-> > >   3635  static int selinux_file_ioctl(struct file *file, unsigned int=
- cmd,
-> > >   3636                                unsigned long arg)
-> > >   3637  {
-> > >   3638          const struct cred *cred =3D current_cred();
-> > >   3639          int error =3D 0;
-> > >   3640
-> > >   3641          switch (cmd) {
-> > >   3642          case FIONREAD:
-> > >   3643          case FIBMAP:
-> > >   3644          case FIGETBSZ:
-> > >   3645          case FS_IOC_GETFLAGS:
-> > >   3646          case FS_IOC_GETVERSION:
-> > > > 3647          case FS_IOC32_GETFLAGS:
-> > >   3648          case FS_IOC32_GETVERSION:
-> > >   3649                  error =3D file_has_perm(cred, file, FILE__GET=
-ATTR);
-> > >   3650                  break;
-> > >   3651
-> > >   3652          case FS_IOC_SETFLAGS:
-> > >   3653          case FS_IOC_SETVERSION:
-> > >   3654          case FS_IOC32_SETFLAGS:
-> > >   3655          case FS_IOC32_SETVERSION:
-> > >   3656                  error =3D file_has_perm(cred, file, FILE__SET=
-ATTR);
-> > >   3657                  break;
-> > >   3658
-> > >   3659          /* sys_ioctl() checks */
-> > >   3660          case FIONBIO:
-> > >   3661          case FIOASYNC:
-> > >   3662                  error =3D file_has_perm(cred, file, 0);
-> > >   3663                  break;
-> > >   3664
-> > >   3665          case KDSKBENT:
-> > >   3666          case KDSKBSENT:
-> > >   3667                  error =3D cred_has_capability(cred, CAP_SYS_T=
-TY_CONFIG,
-> > >   3668                                              CAP_OPT_NONE, tru=
-e);
-> > >   3669                  break;
-> > >   3670
-> > >   3671          case FIOCLEX:
-> > >   3672          case FIONCLEX:
-> > >   3673                  if (!selinux_policycap_ioctl_skip_cloexec())
-> > >   3674                          error =3D ioctl_has_perm(cred, file, =
-FILE__IOCTL, (u16) cmd);
-> > >   3675                  break;
-> > >   3676
-> > >   3677          /* default case assumes that the command will go
-> > >   3678           * to the file's ioctl() function.
-> > >   3679           */
-> > >   3680          default:
-> > >   3681                  error =3D ioctl_has_perm(cred, file, FILE__IO=
-CTL, (u16) cmd);
-> > >   3682          }
-> > >   3683          return error;
-> > >   3684  }
-> > >   3685
+> cat > mytest.cil <<EOF
+> (typeattribute foo)
+>
+> (block t
+> (blockabstract t)
+> (type t)
+> (typeattributeset .foo t))
+>
+> (block bar
+> (blockinherit t))
+>
+> (block baz
+> (blockinherit t))
+>
+> (allow .foo .foo (process (signal)))
+> EOF
+>
+> sudo semodule -i mytest.cil
+>
+> seinfo -xafoo
+>
+> Type Attributes: 1
+>     attribute foo;
+>          bar.t
+>          baz.t
+>
+> sesearch -A -s foo -ds
+> allow foo foo:process signal;
+>
+>> Something along the lines of:
+>> (macro new_type_macro ((string type_prefix))
+>>    (type (type_prefix)_t)
+>> )
+>> which when called (call new_type_macro ("yolo")) would produce
+>> (type yolo_t)
+>>
+>> I searched through CIL reference guide [2] and SELinuxProject CIL wiki
+>> on github, but didn't find anything close (maybe there is a better
+>> resource I don't know about).
+>> I'd appreciate any hints or links to other resources related to CIL macros.
+>>
+>> Thank you,
+>> Vit
+>>
+>> [1] -
+>> https://github.com/TresysTechnology/refpolicy/blob/master/policy/modules/services/ssh.if#L301
+>> [2] -
+>> https://raw.githubusercontent.com/SELinuxProject/selinux-notebook/main/src/notebook-examples/selinux-policy/cil/CIL_Reference_Guide.pdf
+>> [3] - https://github.com/SELinuxProject/cil/wiki#macros
+>>
 
-Hey Stephen,
-
-Thanks for looking into it a bit deeper! This seems a bit of a pickle.
-I can think of a few somewhat hacky ways to fix this.
-
-I can just set the flags to check `if FS_IOC32_*; set FS_IOC_*;`,
-which is the quickest but kinda hacky.
-
-I can go with the other plan of dropping the irrelevant bytes from the
-cmd code, so all codes will be read as u16. This effectively does the
-same thing, but may be unclear.
-
-I can also look into whether this can be solved at the LSM or a higher
-level. Perhaps the filesystems setting `if FS_IOC32_*; set FS_IOC_*;`
-is a hint that something else interesting is going wrong.
-
-I'll spend a little time thinking and investigating and get back with
-a more concrete solution. I'll also need to do a bit more robust
-testing; it built on my machine!
-
-Thanks!
