@@ -2,229 +2,157 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23436CA0EEB
-	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 15:46:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91E35CA0EF4
+	for <selinux@archiver.kernel.org>; Tue, 12 Sep 2023 16:20:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233443AbjILPq3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Sep 2023 11:46:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51300 "EHLO
+        id S236631AbjILQUS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Sep 2023 12:20:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230510AbjILPq2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 11:46:28 -0400
-Received: from smtp-42ab.mail.infomaniak.ch (smtp-42ab.mail.infomaniak.ch [IPv6:2001:1600:3:17::42ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4188610E5
-        for <selinux@vger.kernel.org>; Tue, 12 Sep 2023 08:46:23 -0700 (PDT)
-Received: from smtp-2-0001.mail.infomaniak.ch (unknown [10.5.36.108])
-        by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4RlScF0mcwzMqlp5;
-        Tue, 12 Sep 2023 15:46:21 +0000 (UTC)
-Received: from unknown by smtp-2-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4RlScD1H0czMppKW;
-        Tue, 12 Sep 2023 17:46:20 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-        s=20191114; t=1694533580;
-        bh=PjHSJ2i24/0IRXkTVDT85ZT3QyF362F0WtU2kWoWeqI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J/pzsr6erqilAvJiPKztzm9RGP6/1+cy9HIyQ5XO5Y7i2OjMtoxq/HqEfx35a2bmY
-         fK9TggOu3DpFfPsj8545w1BkX+C83DZGM9y8NzHLKd6GH8UKvP1qk8XRzy/JuP5/fC
-         aV5Uz//B00fU0C7aA657F1q1Bdoe0bQMps7+E/2Y=
-Date:   Tue, 12 Sep 2023 17:46:16 +0200
-From:   =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Alfred Piccioni <alpic@google.com>,
-        kernel test robot <lkp@intel.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        oe-kbuild-all@lists.linux.dev, stable@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
-Subject: Re: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-Message-ID: <20230912.Vic4uMaithoh@digikod.net>
-References: <20230906115928.3749928-1-alpic@google.com>
- <202309090600.NSyo7d2q-lkp@intel.com>
- <CAEjxPJ4GOq3E4zqXbEMKUxqewopyeU5nmUg89rL+P5YsuEBi7A@mail.gmail.com>
- <CAEjxPJ4uoqkwmbeOOmUHJwoKiK3cnfJP5P2w+hOXr4BZNtQ+JQ@mail.gmail.com>
- <CALcwBGBPaYh98d+3_3k8o+8WCbYU8cNPoOHaqhUduKZYz7Ntow@mail.gmail.com>
- <CAEjxPJ6gFh7h5MnEEqTL34_dVEoAmoGfqa01eeYHnOECjkYxBg@mail.gmail.com>
+        with ESMTP id S230017AbjILQUQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Sep 2023 12:20:16 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B562310E7;
+        Tue, 12 Sep 2023 09:20:12 -0700 (PDT)
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 38CFwVEZ009758;
+        Tue, 12 Sep 2023 16:19:32 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=OU5X+ywlBGi0Cq66yvBzsLeNnGqPKL1F+bDp2X6ASbk=;
+ b=NXWb1rycbzdFsLmHjfLavD78DrP0d+b39YbLpyIxFw/dnfJfutei/3TaOw/6cQy3Sqqc
+ WukgYle17sYBMtBb9otGBPVeOLCX2WU43zeGHH8BonXTJVj7NxbosA4JowBcGY5lL6py
+ 4jNVEuS4y5yR3kFYkaA9My6rc8OECltDWVECg5vjboWf6AR2/6+42yPMcznAH229DP40
+ nmrUS2sYkHEIhtPbwcnk/ekwtczKeR5xS+mkoZ5m2pllTo4MiHaI7Cz2j/7ofv8zqqPg
+ Ruj8+oxhYtiR9cwziEjdn3774SlMSMyVjjbeIxci8t4pJAgwk+8/2gsukNcklun1v9X8 hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t2u3gs29a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Sep 2023 16:19:32 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38CFwiqq009986;
+        Tue, 12 Sep 2023 16:19:31 GMT
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t2u3gs28q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Sep 2023 16:19:31 +0000
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 38CFxncY002779;
+        Tue, 12 Sep 2023 16:19:29 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t14hkvchs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 12 Sep 2023 16:19:29 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 38CGJSBZ4522700
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Sep 2023 16:19:28 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 9E84E58056;
+        Tue, 12 Sep 2023 16:19:28 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF7265803F;
+        Tue, 12 Sep 2023 16:19:26 +0000 (GMT)
+Received: from [9.47.158.152] (unknown [9.47.158.152])
+        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTPS;
+        Tue, 12 Sep 2023 16:19:26 +0000 (GMT)
+Message-ID: <82486de4-2917-afb6-2ae3-6ea7f1346dc0@linux.ibm.com>
+Date:   Tue, 12 Sep 2023 12:19:25 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v3 25/25] integrity: Switch from rbtree to LSM-managed
+ blob for integrity_iint_cache
+Content-Language: en-US
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
+ <20230904134049.1802006-6-roberto.sassu@huaweicloud.com>
+From:   Stefan Berger <stefanb@linux.ibm.com>
+In-Reply-To: <20230904134049.1802006-6-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEjxPJ6gFh7h5MnEEqTL34_dVEoAmoGfqa01eeYHnOECjkYxBg@mail.gmail.com>
-X-Infomaniak-Routing: alpha
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: aAyehIvhZvfb09muPbWZQIe5a9y5srC6
+X-Proofpoint-ORIG-GUID: NiIkQ0Xddo7ctSZhQz6cjyAvKBZ1UWmo
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
+ definitions=2023-09-12_14,2023-09-05_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=736
+ suspectscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0
+ mlxscore=0 spamscore=0 malwarescore=0 impostorscore=0 phishscore=0
+ clxscore=1015 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2308100000 definitions=main-2309120134
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 12, 2023 at 08:00:12AM -0400, Stephen Smalley wrote:
-> On Tue, Sep 12, 2023 at 5:00 AM Alfred Piccioni <alpic@google.com> wrote:
-> >
-> > On Mon, Sep 11, 2023 at 3:49 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Mon, Sep 11, 2023 at 9:19 AM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > On Fri, Sep 8, 2023 at 6:54 PM kernel test robot <lkp@intel.com> wrote:
-> > > > >
-> > > > > Hi Alfred,
-> > > > >
-> > > > > kernel test robot noticed the following build errors:
-> > > > >
-> > > > > [auto build test ERROR on 50a510a78287c15cee644f345ef8bac8977986a7]
-> > > > >
-> > > > > url:    https://github.com/intel-lab-lkp/linux/commits/Alfred-Piccioni/SELinux-Check-correct-permissions-for-FS_IOC32_/20230906-200131
-> > > > > base:   50a510a78287c15cee644f345ef8bac8977986a7
-> > > > > patch link:    https://lore.kernel.org/r/20230906115928.3749928-1-alpic%40google.com
-> > > > > patch subject: [PATCH V2] SELinux: Check correct permissions for FS_IOC32_*
-> > > > > config: i386-debian-10.3 (https://download.01.org/0day-ci/archive/20230909/202309090600.NSyo7d2q-lkp@intel.com/config)
-> > > > > compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-> > > > > reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230909/202309090600.NSyo7d2q-lkp@intel.com/reproduce)
-> > > > >
-> > > > > If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> > > > > the same patch/commit), kindly add following tags
-> > > > > | Reported-by: kernel test robot <lkp@intel.com>
-> > > > > | Closes: https://lore.kernel.org/oe-kbuild-all/202309090600.NSyo7d2q-lkp@intel.com/
-> > > > >
-> > > > > All errors (new ones prefixed by >>):
-> > > > >
-> > > > >    security/selinux/hooks.c: In function 'selinux_file_ioctl':
-> > > > > >> security/selinux/hooks.c:3647:9: error: duplicate case value
-> > > > >     3647 |         case FS_IOC32_GETFLAGS:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3645:9: note: previously used here
-> > > > >     3645 |         case FS_IOC_GETFLAGS:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3648:9: error: duplicate case value
-> > > > >     3648 |         case FS_IOC32_GETVERSION:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3646:9: note: previously used here
-> > > > >     3646 |         case FS_IOC_GETVERSION:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3654:9: error: duplicate case value
-> > > > >     3654 |         case FS_IOC32_SETFLAGS:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3652:9: note: previously used here
-> > > > >     3652 |         case FS_IOC_SETFLAGS:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3655:9: error: duplicate case value
-> > > > >     3655 |         case FS_IOC32_SETVERSION:
-> > > > >          |         ^~~~
-> > > > >    security/selinux/hooks.c:3653:9: note: previously used here
-> > > > >     3653 |         case FS_IOC_SETVERSION:
-> > > > >          |         ^~~~
-> > > >
-> > > > Not sure of the right way to fix this while addressing the original
-> > > > issue that this patch was intended to fix. Looking in fs/ioctl.c, I
-> > > > see that the some FS_IOC32 values are remapped to the corresponding
-> > > > FS_IOC values by the compat ioctl syscall entrypoint. Also notice this
-> > > > comment there:
-> > > >
-> > > >         /* RED-PEN how should LSM module know it's handling 32bit? */
-> > > >         error = security_file_ioctl(f.file, cmd, arg);
-> > > >         if (error)
-> > > >                 goto out;
-> > > >
-> > > > So perhaps this is a defect in LSM that needs to be addressed?
-> > >
-> > > Note btw that some of the 32-bit ioctl commands are only handled in
-> > > the fs-specific compat_ioctl routines, e.g. ext4_compat_ioctl()
-> > > handles EXT4_IOC32_GETVERSION == FS_IOC32_GETVERSION and ditto for
-> > > _SETVERSION.
-> > >
-> > > >
-> > > >
-> > > > >
-> > > > >
-> > > > > vim +3647 security/selinux/hooks.c
-> > > > >
-> > > > >   3634
-> > > > >   3635  static int selinux_file_ioctl(struct file *file, unsigned int cmd,
-> > > > >   3636                                unsigned long arg)
-> > > > >   3637  {
-> > > > >   3638          const struct cred *cred = current_cred();
-> > > > >   3639          int error = 0;
-> > > > >   3640
-> > > > >   3641          switch (cmd) {
-> > > > >   3642          case FIONREAD:
-> > > > >   3643          case FIBMAP:
-> > > > >   3644          case FIGETBSZ:
-> > > > >   3645          case FS_IOC_GETFLAGS:
-> > > > >   3646          case FS_IOC_GETVERSION:
-> > > > > > 3647          case FS_IOC32_GETFLAGS:
-> > > > >   3648          case FS_IOC32_GETVERSION:
-> > > > >   3649                  error = file_has_perm(cred, file, FILE__GETATTR);
-> > > > >   3650                  break;
-> > > > >   3651
-> > > > >   3652          case FS_IOC_SETFLAGS:
-> > > > >   3653          case FS_IOC_SETVERSION:
-> > > > >   3654          case FS_IOC32_SETFLAGS:
-> > > > >   3655          case FS_IOC32_SETVERSION:
-> > > > >   3656                  error = file_has_perm(cred, file, FILE__SETATTR);
-> > > > >   3657                  break;
-> > > > >   3658
-> > > > >   3659          /* sys_ioctl() checks */
-> > > > >   3660          case FIONBIO:
-> > > > >   3661          case FIOASYNC:
-> > > > >   3662                  error = file_has_perm(cred, file, 0);
-> > > > >   3663                  break;
-> > > > >   3664
-> > > > >   3665          case KDSKBENT:
-> > > > >   3666          case KDSKBSENT:
-> > > > >   3667                  error = cred_has_capability(cred, CAP_SYS_TTY_CONFIG,
-> > > > >   3668                                              CAP_OPT_NONE, true);
-> > > > >   3669                  break;
-> > > > >   3670
-> > > > >   3671          case FIOCLEX:
-> > > > >   3672          case FIONCLEX:
-> > > > >   3673                  if (!selinux_policycap_ioctl_skip_cloexec())
-> > > > >   3674                          error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
-> > > > >   3675                  break;
-> > > > >   3676
-> > > > >   3677          /* default case assumes that the command will go
-> > > > >   3678           * to the file's ioctl() function.
-> > > > >   3679           */
-> > > > >   3680          default:
-> > > > >   3681                  error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
-> > > > >   3682          }
-> > > > >   3683          return error;
-> > > > >   3684  }
-> > > > >   3685
-> >
-> > Hey Stephen,
-> >
-> > Thanks for looking into it a bit deeper! This seems a bit of a pickle.
-> > I can think of a few somewhat hacky ways to fix this.
-> >
-> > I can just set the flags to check `if FS_IOC32_*; set FS_IOC_*;`,
-> > which is the quickest but kinda hacky.
-> >
-> > I can go with the other plan of dropping the irrelevant bytes from the
-> > cmd code, so all codes will be read as u16. This effectively does the
-> > same thing, but may be unclear.
-> >
-> > I can also look into whether this can be solved at the LSM or a higher
-> > level. Perhaps the filesystems setting `if FS_IOC32_*; set FS_IOC_*;`
-> > is a hint that something else interesting is going wrong.
-> >
-> > I'll spend a little time thinking and investigating and get back with
-> > a more concrete solution. I'll also need to do a bit more robust
-> > testing; it built on my machine!
-> 
-> Likewise for me; I don't generally try building for 32-bit systems.
-> Remapping FS_IOC32_* to FS_IOC_* in selinux_file_ioctl() seems
-> reasonable to me although optimally that would be conditional on
-> whether selinux_file_ioctl() is being called from the compat ioctl
-> syscall (e.g. adding a flag to the LSM hook to indicate this or using
-> a separate hook for it). Otherwise we might misinterpret some other
-> ioctl on 64-bit.
 
-I think adding a boolean argument to the LSM hook makes sense. LSMs
-might decide to handle it or not, at their own pace.
+On 9/4/23 09:40, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+>
+> Before the security field of kernel objects could be shared among LSMs with
+> the LSM stacking feature, IMA and EVM had to rely on an alternative storage
+> of inode metadata. The association between inode metadata and inode is
+> maintained through an rbtree.
+>
+> With the reservation mechanism offered by the LSM infrastructure, the
+> rbtree is no longer necessary, as each LSM could reserve a space in the
+> security blob for each inode. Thus, request from the 'integrity' LSM a
+> space in the security blob for the pointer of inode metadata
+> (integrity_iint_cache structure).
+>
+> Prefer this to allocating the integrity_iint_cache structure directly, as
+> IMA would require it only for a subset of inodes. Always allocating it
+> would cause a waste of memory.
+>
+> Introduce two primitives for getting and setting the pointer of
+> integrity_iint_cache in the security blob, respectively
+> integrity_inode_get_iint() and integrity_inode_set_iint(). This would make
+> the code more understandable, as they directly replace rbtree operations.
+>
+> Locking is not needed, as access to inode metadata is not shared, it is per
+> inode.
+>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>
+> @@ -145,10 +91,8 @@ static void integrity_inode_free(struct inode *inode)
+>   	if (!IS_IMA(inode))
+>   		return;
 
-> 
-> If we didn't have compatibility requirements, it would be tempting to
-> just get rid of all the special case ioctl command handling in
-> selinux_file_ioctl() and let ioctl_has_perm() handle them all with the
-> extended ioctl permissions support. But that would require a SELinux
-> policy cap to switch it on conditionally for compatibility at least
-> and not sure anyone is willing to refactor their policies accordingly.
+I think you can remove this check !IS_IMA()  as well since the next 
+function called here integrity_iint_find() already has this check:
+
+struct integrity_iint_cache *integrity_iint_find(struct inode *inode)
+{
+         if (!IS_IMA(inode))
+                 return NULL;
+
+         return integrity_inode_get_iint(inode);
+}
+
+
+>   
+> -	write_lock(&integrity_iint_lock);
+> -	iint = __integrity_iint_find(inode);
+> -	rb_erase(&iint->rb_node, &integrity_iint_tree);
+> -	write_unlock(&integrity_iint_lock);
+> +	iint = integrity_iint_find(inode);         <--------------
+> +	integrity_inode_set_iint(inode, NULL);
+>   
+>   	iint_free(iint);
+>   }
