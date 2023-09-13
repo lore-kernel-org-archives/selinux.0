@@ -2,57 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 348BCEDEC7C
-	for <selinux@archiver.kernel.org>; Wed, 13 Sep 2023 16:12:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FFF6EE01FC
+	for <selinux@archiver.kernel.org>; Wed, 13 Sep 2023 17:46:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229954AbjIMQMI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Sep 2023 12:12:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60220 "EHLO
+        id S231526AbjIMRq0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Sep 2023 13:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229638AbjIMQMH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Sep 2023 12:12:07 -0400
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9CF6B8
-        for <selinux@vger.kernel.org>; Wed, 13 Sep 2023 09:12:03 -0700 (PDT)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-59be6605e1dso1004437b3.3
-        for <selinux@vger.kernel.org>; Wed, 13 Sep 2023 09:12:03 -0700 (PDT)
+        with ESMTP id S231452AbjIMRqZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 Sep 2023 13:46:25 -0400
+Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54B819BB
+        for <selinux@vger.kernel.org>; Wed, 13 Sep 2023 10:46:21 -0700 (PDT)
+Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-5924093a9b2so888607b3.2
+        for <selinux@vger.kernel.org>; Wed, 13 Sep 2023 10:46:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1694621523; x=1695226323; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1694627181; x=1695231981; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VlCwcmUEoeklmLodotE896hz78hDOYQASBGVLSHek9M=;
-        b=QNGffN0wlDFARDvYh4sGAROCnp7YmYYpSb04UpwSCjSjomeEL9U2DY4aauveWqGUUE
-         NJG+CeuhSzEqW1DLVJOIfTFCGLBpz6j65QBIfoASIAHylxp5i+mcHkfV4wqcKbCFdnlc
-         k3DnGxpIO3Tof+YWXzA/oMPG8p2+WCBWFyQeBePpCdkAScPPPr9VPYJGsPww1JSflYH/
-         hLpB4Rit42seZRPiKbvkIio+4wkG4ZQaaIVLMBAInStvMoMZbUxYpcQoN8LER5KLQ7sE
-         HFnHAemvTqXdb2tpIwsXmtXJI9kyQoJd4VyIQNjiU3zmYsh/bfIelAV6ocaBHKLtmgz2
-         On0Q==
+        bh=0rAjF4LhtdLaI9RXtmV+TNTtCFAloczNHFo4emLf7hI=;
+        b=fLUh5y+3uCffnkGreN6T1KVxy5t1w0EmmX+Srm4dcGEjxn/EvnlYfvCLaEAZFUG2rw
+         Uoms1NfHR/UH0utNW6EUbvkihMmYDaRxjKtwqejQqSOPIgDDT6+4M5tJr0dkYIToflj8
+         7bsaNFNqptJUz9xCXxPx4GKpH6XdQJLq85QsCZIfEKKaa+uPfOn63c9+6WLEVM4LWQPn
+         NB5ZPWLNptuYtkS65t0wBtTL0Jodj7tZifkE1eZwzOLP89SNu24vCBMIzvVlYNkszFf3
+         5T50TOfoaFrFiCPIyAgzujvgwJDjZyhN6NEF2FPlnWxfhmLdQtapBn3MzFWGNS3dSEHV
+         OvvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694621523; x=1695226323;
+        d=1e100.net; s=20230601; t=1694627181; x=1695231981;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VlCwcmUEoeklmLodotE896hz78hDOYQASBGVLSHek9M=;
-        b=YXD1VCRSbTn7g+AfUfxmdaHeD0nZJ1zDSiGs0kWzPUPDtQJH2xD9V9a8DsmozMXzz5
-         CR1vFxRvIoB58yswLT4XW5m7NFI50j+K3+Yv0+0T+bG0lUYcS11uWApt7dT7MIX94s77
-         64w+AykQbG4SZoN1A3ehiEgeBhUf2KhfA7EIrtvf61FTLRzu+9Dqp1ZXX/1v1xVl1OvB
-         nj8s0iDQQQC8RJLkCbVLI1PIHSAnZgOW/PBF5I67PIK+r/6SnKSKyOiwQMgsOIa959hI
-         PUZS0wQEwN8wzcSfR1rPzlOTrC04kLSityKP7/em7wB52ZPPDl3HVEzpRktvuYQCYmvW
-         X+bA==
-X-Gm-Message-State: AOJu0YxyHXl91DQ+4p6nqOhsZ7NlQTibRwZCg/v25v+AmwBP8J7uw3Et
-        l2L1Fuzkxf3v8rcTWclMd+MYE8Ygxy5z/Tvo9PjE
-X-Google-Smtp-Source: AGHT+IFsqdaxaKGGMmOWHrFoE/O2srrxrPG26n/7AgIeYncrBB4HMhfIY0VnkHAWQR0o3vt9mSH6r8Dj+ssy2XibnX4=
-X-Received: by 2002:a0d:c9c1:0:b0:59b:49a0:eec0 with SMTP id
- l184-20020a0dc9c1000000b0059b49a0eec0mr3538227ywd.12.1694621523053; Wed, 13
- Sep 2023 09:12:03 -0700 (PDT)
+        bh=0rAjF4LhtdLaI9RXtmV+TNTtCFAloczNHFo4emLf7hI=;
+        b=BrcP/yXtZ2uf7fqX7CiAdBUhneHa8jiyT8nydRaMDjwGz+DgSADMrP2qXMu7NLRjEp
+         SQUeBa1SF+P3domM6iuB+uCp9RlWsLWCJDTo6wypZgzeLO1bgiuwxhfohgVR8F1Q2++4
+         Ho+F8v/rFcuplX9/LOdvwcFsBY2n4XHIHWJ82O/SDhkP0cc4DZ/uaSnHcH2VnLO67cmC
+         IbTKXR0PzkZUC+vMgtuxPFAzJcNayNh0uxz0MEwqcu19tBAgsofsjr6eyv/nXP4ktMVY
+         QJmynNJnw7FYyns/U3QNy17GQCR92sJ1l/amE3eZMSm3KlN9OwOolrUeiAm8JSp3wUEA
+         maag==
+X-Gm-Message-State: AOJu0YzwgbRN2QQJ3NspnUnGkQbTjpubRItIXMTVUsKMqL/kmHzU6JgS
+        MVOVpXQcGlJfE5TFoYhQuQzb2Kw9roLqR8USCbai
+X-Google-Smtp-Source: AGHT+IEcQ7YUx53xPdhufgWCS1R0Jw297fj8GL2vljjt3scAQXKeaKl1n1oJzB2Gh90UjFE04WZhp0Hy0kARe4yEB3w=
+X-Received: by 2002:a0d:d456:0:b0:59b:52d6:9a34 with SMTP id
+ w83-20020a0dd456000000b0059b52d69a34mr3109595ywd.11.1694627181097; Wed, 13
+ Sep 2023 10:46:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230818151220.166215-1-cgzones@googlemail.com> <CAEjxPJ7_CMFvRHFp1HVV+ppZEXPkWG6oH1MMEbjFESH44wZukg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7_CMFvRHFp1HVV+ppZEXPkWG6oH1MMEbjFESH44wZukg@mail.gmail.com>
+References: <20230818151220.166215-1-cgzones@googlemail.com>
+ <20230818151220.166215-5-cgzones@googlemail.com> <CAEjxPJ53LiT79=0L81QVgmfW+yKC6Fyq=sd0o1xF8ginCQjSew@mail.gmail.com>
+In-Reply-To: <CAEjxPJ53LiT79=0L81QVgmfW+yKC6Fyq=sd0o1xF8ginCQjSew@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 13 Sep 2023 12:11:52 -0400
-Message-ID: <CAHC9VhTiuZRCm2E3DkB=zD8R1OZccSCpsbr2mB=aOPGXkjUhhw@mail.gmail.com>
-Subject: Re: [PATCH 2/6] selinux: dump statistics for more hash tables
+Date:   Wed, 13 Sep 2023 13:46:10 -0400
+Message-ID: <CAHC9VhRskKj7LyPDv99zvwmuWYhNqKmTsNYsMyi38mX3zgm+Cw@mail.gmail.com>
+Subject: Re: [PATCH 6/6] selinux: improve symtab string hashing
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
         selinux@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
@@ -64,50 +65,109 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 7, 2023 at 1:42=E2=80=AFPM Stephen Smalley
+On Thu, Sep 7, 2023 at 1:44=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 > On Fri, Aug 18, 2023 at 11:12=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > Dump in the SELinux debug configuration the statistics for the
-> > conditional rules avtab, the role transition, and class and common
-> > permission hash tables.
+> > The number of buckets is calculated by performing a binary AND against
+> > the mask of the hash table, which is one less than its size (which is a
+> > power of two).  This leads to all top bits being discarded, requiring
+> > for short or similar inputs a hash function with a good avalanche
+> > effect.
+> >
+> > Use djb2a:
+> >
+> >     # current
+> >     common prefixes:  7 entries and 5/8 buckets used, longest chain len=
+gth 2, sum of chain length^2 11
+> >     classes:  134 entries and 100/256 buckets used, longest chain lengt=
+h 5, sum of chain length^2 234
+> >     roles:  15 entries and 6/16 buckets used, longest chain length 5, s=
+um of chain length^2 57
+> >     types:  4448 entries and 3016/8192 buckets used, longest chain leng=
+th 41, sum of chain length^2 14922
+> >     users:  7 entries and 3/8 buckets used, longest chain length 3, sum=
+ of chain length^2 17
+> >     bools:  306 entries and 221/512 buckets used, longest chain length =
+4, sum of chain length^2 524
+> >     levels:  1 entries and 1/1 buckets used, longest chain length 1, su=
+m of chain length^2 1
+> >     categories:  1024 entries and 400/1024 buckets used, longest chain =
+length 4, sum of chain length^2 2740
+> >
+> >     # patch
+> >     common prefixes:  7 entries and 5/8 buckets used, longest chain len=
+gth 2, sum of chain length^2 11
+> >     classes:  134 entries and 101/256 buckets used, longest chain lengt=
+h 3, sum of chain length^2 210
+> >     roles:  15 entries and 9/16 buckets used, longest chain length 3, s=
+um of chain length^2 31
+> >     types:  4448 entries and 3459/8192 buckets used, longest chain leng=
+th 5, sum of chain length^2 6778
+> >     users:  7 entries and 5/8 buckets used, longest chain length 3, sum=
+ of chain length^2 13
+> >     bools:  306 entries and 236/512 buckets used, longest chain length =
+5, sum of chain length^2 470
+> >     levels:  1 entries and 1/1 buckets used, longest chain length 1, su=
+m of chain length^2 1
+> >     categories:  1024 entries and 518/1024 buckets used, longest chain =
+length 7, sum of chain length^2 2992
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > > ---
->
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/polic=
-ydb.c
-> > index 84f02d4f8093..932e383bcad6 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -1158,6 +1158,8 @@ static int common_read(struct policydb *p, struct=
- symtab *s, void *fp)
-> >                         goto bad;
-> >         }
+> >  security/selinux/ss/symtab.c | 18 ++++++++----------
+> >  1 file changed, 8 insertions(+), 10 deletions(-)
 > >
-> > +       hash_eval(&comdatum->permissions.table, "common_permissions");
-> > +
-> >         rc =3D symtab_insert(s, key, comdatum);
-> >         if (rc)
-> >                 goto bad;
-> > @@ -1339,6 +1341,8 @@ static int class_read(struct policydb *p, struct =
-symtab *s, void *fp)
-> >                         goto bad;
-> >         }
+> > diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.=
+c
+> > index 43d7f0319ccd..b6761b96eee4 100644
+> > --- a/security/selinux/ss/symtab.c
+> > +++ b/security/selinux/ss/symtab.c
+> > @@ -11,16 +11,14 @@
 > >
-> > +       hash_eval(&cladatum->permissions.table, "class_permissions");
-> > +
-> >         rc =3D read_cons_helper(p, &cladatum->constraints, ncons, 0, fp=
-);
-> >         if (rc)
-> >                 goto bad;
+> >  static unsigned int symhash(const void *key)
+> >  {
+> > -       const char *p, *keyp;
+> > -       unsigned int size;
+> > -       unsigned int val;
+> > -
+> > -       val =3D 0;
+> > -       keyp =3D key;
+> > -       size =3D strlen(keyp);
+> > -       for (p =3D keyp; (p - keyp) < size; p++)
+> > -               val =3D (val << 4 | (val >> (8*sizeof(unsigned int)-4))=
+) ^ (*p);
+> > -       return val;
+> > +       /* djb2a */
 >
-> Do we want to embed the actual common and class keys in the output to
-> distinguish among the multiple common and class permissions tables?
+> Do we need/want something that specifies the author/license (I assume
+> public domain) of this code?
 
-That seems reasonable, were you thinking of just adding it to the
-hash_eval()'s hash name string, e.g. "common_permissions[XXX]"?
+It would be a good idea, yes.  I spent some time looking around, and
+while there are many references to djb2 (and the djb2a xor version), I
+had a hard time finding an explicit license statement from DJB.
+However, in the cdb v0.75 release there is a source file, cdb_hash.c,
+which has effectively the same hash (same algorithm, different
+implementation) with a "/* Public domain. */" statement at the top.
+IANAL, but I think that is good enough.
+
+Christian, can you update this patch comments with this info?
+
+http://cr.yp.to/cdb.html
+
+> > +       unsigned int hash =3D 5381;
+> > +       unsigned char c;
+> > +
+> > +       while ((c =3D *(const unsigned char *)key++))
+> > +               hash =3D ((hash << 5) + hash) ^ c;
+> > +
+> > +       return hash;
+> >  }
+> >
+> >  static int symcmp(const void *key1, const void *key2)
+> > --
+> > 2.40.1
 
 --=20
 paul-moore.com
