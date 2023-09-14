@@ -2,141 +2,97 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C43EEE020F
-	for <selinux@archiver.kernel.org>; Wed, 13 Sep 2023 22:19:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1558AEEAA65
+	for <selinux@archiver.kernel.org>; Thu, 14 Sep 2023 19:00:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232969AbjIMWTJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Sep 2023 18:19:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38164 "EHLO
+        id S241926AbjINTAx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Sep 2023 15:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232902AbjIMWTI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Sep 2023 18:19:08 -0400
-Received: from mail-yw1-x112e.google.com (mail-yw1-x112e.google.com [IPv6:2607:f8b0:4864:20::112e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF1B1996
-        for <selinux@vger.kernel.org>; Wed, 13 Sep 2023 15:19:04 -0700 (PDT)
-Received: by mail-yw1-x112e.google.com with SMTP id 00721157ae682-58dfe2d5b9aso5186317b3.1
-        for <selinux@vger.kernel.org>; Wed, 13 Sep 2023 15:19:04 -0700 (PDT)
+        with ESMTP id S241310AbjINTAo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Sep 2023 15:00:44 -0400
+Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319042D64
+        for <selinux@vger.kernel.org>; Thu, 14 Sep 2023 11:42:55 -0700 (PDT)
+Received: by mail-oo1-xc32.google.com with SMTP id 006d021491bc7-573449a364fso762554eaf.1
+        for <selinux@vger.kernel.org>; Thu, 14 Sep 2023 11:42:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1694643543; x=1695248343; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5pve2evvQG8Wu6dcM6eIRAvQq/3oe/203mcy+b19gA8=;
-        b=JXbUn+C9hYr/UbHJPlAGR8ydV8unkggCBmeHKJrtstvUXX5xlvGSLHbVR2PGqqqga3
-         RBNAKTCLk18m6fy1aCkgJUriHC4Br0AtOieTzKtoq2N7PcBka1sfSi8LLyFUU/w+b6A6
-         JZmuQRxhom7rrHmoxkNnvNXVnUp1TogQlszyEjF/K6Lkr7EnUpMi3HOZ80v78mnKIaeE
-         VtcW9ptQ83XitvjCAUe4LB4G2KQvkoU39Ww5BdMUpr84JMNjcm4gStsOsMcxtYyu75yx
-         Hua1TEXEyX2C7P+AzlNzDA0njmcKZ89FJoB8khjZokXn8YeLtzB9vM0nW6TiuO6R8+bG
-         wIUA==
+        d=paul-moore.com; s=google; t=1694716974; x=1695321774; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=wW6Cg1zJm3pIpAsBkeDcyTsYyw/bFmOedVjHRUmaqB0=;
+        b=aV2KMBDNvU9cOBjNOdThSdUR+SVqEaYaJ0clxmkIM7M3VUj9sIMj4IOw3QU3YhncmL
+         56yStPR7MO0vmEQNnp52TcxgruWCD+2WJYGtitOsY6HIUdzz9dqqC/SZFpQNvfMltBfE
+         VmIwHxmNxX8JvrovDafsRCOMZNKRelZwi2cj2l56nljvlSpqJ7uZsCnyvPH/DMET2dXa
+         VFfehfwJJ+yr8qtcLVRmnJF1+lA+i5JVirwRGeRA5GPKuNqI6CFVubTrc3jZiBZDc4SW
+         g2y4DvJjmFTjcDBThbEUGoBs9FD5fpWaRn6nt41ubZgqjDR+mIYtMsKGAV6h7Q8g73Uy
+         7zLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694643543; x=1695248343;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5pve2evvQG8Wu6dcM6eIRAvQq/3oe/203mcy+b19gA8=;
-        b=C9Y9LZefVZCXBQ5BG50ApEZzpqv+bAXTKsWGtsk7y7/uVvIgSRp4RJxixQLhRhSDcv
-         u4W1ekJSvS39YV0qYbQfp0oMuqC+L6aAmxiiQNZZ+8hDGYiQSuLNBZERX0TxkoSTjb8x
-         6YS8FeI1P1kmdtKvdDh554YnAQprL8QMuDxaqkQP5kxTd38zwjpeUaVGC8mzmtFwPWlu
-         B1OtbicovJotvDpm4oJaNIKXJ28/1KnWv83yIOTTTE7yhYqtTKqB8mkEKwAL4S807FTh
-         Jfkxqd6v1PFz4cfkg+4TyUkhqs13r2eUX7AIfgQL2B2XP6iRuEvVl1Pd5LjXNpp7FxCl
-         1wug==
-X-Gm-Message-State: AOJu0YzAl4r+45AEz+oGrSdGPJuxklKq95cUyXwhsAwKB6tWQHMM9NPg
-        wPhFk0sJ5P0BQEW9Jz/FO2skEWADwsXfrRRdwL0z
-X-Google-Smtp-Source: AGHT+IHd6f6RECjVcqmCL7A7894346dihNwE1aPIds0EMQzgoG2VHb2Uwc+wEHwTPX1DhNcQCvdHYBRnbGkUN+jxvow=
-X-Received: by 2002:a81:91d3:0:b0:59b:52c2:5f15 with SMTP id
- i202-20020a8191d3000000b0059b52c25f15mr19342ywg.25.1694643543316; Wed, 13 Sep
- 2023 15:19:03 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1694716974; x=1695321774;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=wW6Cg1zJm3pIpAsBkeDcyTsYyw/bFmOedVjHRUmaqB0=;
+        b=tYmKPxrFQn3NCQggOmtsi8m4xIh5RutWnD+9CX7QhlzcyEmPTKDK4BSjiRjxIrDLVR
+         WmyYt5172kXkraNIbPBzAUyRZvFfyyf/0ecTgMRx5EWSZlUYfCuck6YXHfWhj1ODJgQ3
+         LNBwhPibDIQXdoFPHz+RmoIrXUSLm/i8j7LqidG//BkZP4aOADThscdU5ub9lFRAjpW/
+         /Z4EraNCeecIgbPORbUB/4XQJ/Tg7zn7BICd86VcMuMuJoQ+IDZ7Aejm1HiAimmqmYFp
+         u0OmlmfIZ0gcmTkJY396Pk9rRu1u2UrLfhx3/7SjR5EyvUMXLbkhc1+pA3zha4F0kQCG
+         +egg==
+X-Gm-Message-State: AOJu0Yy4sQLNTv/zKtNTdZHZjfeGAs7MWBOJVfKrqAe9av4KDH6dLMfi
+        Z9Iin46QiQbfcSsaY7Y1MNrAt2TKFHC2kmVmTvHl
+X-Google-Smtp-Source: AGHT+IGPNy8EbKLj4XJ8pXuM3HonrcFslH5yiD8vr8y0o+cR6/0HT4xmd/jBQVZX5t3JRdCy/vsL1H3t0hcRku9emNs=
+X-Received: by 2002:a05:6870:6393:b0:1c8:bae6:527d with SMTP id
+ t19-20020a056870639300b001c8bae6527dmr7958709oap.55.1694716974516; Thu, 14
+ Sep 2023 11:42:54 -0700 (PDT)
 MIME-Version: 1.0
-References: <ZOXG/VVC1XRc7TtI@gmail.com> <202308240128.Gsn0b0Fv-lkp@intel.com>
-In-Reply-To: <202308240128.Gsn0b0Fv-lkp@intel.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 13 Sep 2023 18:18:52 -0400
-Message-ID: <CAHC9VhS2Smf9V0xJoBeuVfpMP2fhUnn8za_rLzJCmLB_-wBVLA@mail.gmail.com>
-Subject: Re: [PATCH] lsm: constify 'mnt_opts' parameter in security_free_mnt_opts()
-To:     Khadija Kamran <kamrankhadijadj@gmail.com>
-Cc:     kernel test robot <lkp@intel.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, ztarkhani@microsoft.com,
-        alison.schofield@intel.com, llvm@lists.linux.dev,
-        oe-kbuild-all@lists.linux.dev
+Date:   Thu, 14 Sep 2023 14:42:43 -0400
+Message-ID: <CAHC9VhT4yfGtBf3ECh9gMEQg9Tx4=ZjHDj_uEDPVqR=ihWph4A@mail.gmail.com>
+Subject: [GIT PULL] SELinux fixes for v6.6 (#1)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 23, 2023 at 1:22=E2=80=AFPM kernel test robot <lkp@intel.com> w=
-rote:
->
-> Hi Khadija,
->
-> kernel test robot noticed the following build errors:
->
-> [auto build test ERROR on pcmoore-selinux/next]
-> [also build test ERROR on pcmoore-audit/next linus/master v6.5-rc7 next-2=
-0230823]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
->
-> url:    https://github.com/intel-lab-lkp/linux/commits/Khadija-Kamran/lsm=
--constify-mnt_opts-parameter-in-security_free_mnt_opts/20230823-170310
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.g=
-it next
-> patch link:    https://lore.kernel.org/r/ZOXG%2FVVC1XRc7TtI%40gmail.com
-> patch subject: [PATCH] lsm: constify 'mnt_opts' parameter in security_fre=
-e_mnt_opts()
-> config: riscv-randconfig-001-20230823 (https://download.01.org/0day-ci/ar=
-chive/20230824/202308240128.Gsn0b0Fv-lkp@intel.com/config)
-> compiler: clang version 14.0.6 (https://github.com/llvm/llvm-project.git =
-f28c006a5895fc0e329fe15fead81e37457cb1d1)
-> reproduce: (https://download.01.org/0day-ci/archive/20230824/202308240128=
-.Gsn0b0Fv-lkp@intel.com/reproduce)
->
-> If you fix the issue in a separate patch/commit (i.e. not just a new vers=
-ion of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202308240128.Gsn0b0Fv-lkp=
-@intel.com/
->
-> All errors (new ones prefixed by >>):
->
-> >> fs/btrfs/super.c:1523:25: error: passing 'void **' to parameter of typ=
-e 'const void **' discards qualifiers in nested pointer types [-Werror,-Win=
-compatible-pointer-types-discards-qualifiers]
->            security_free_mnt_opts(&new_sec_opts);
->                                   ^~~~~~~~~~~~~
->    include/linux/security.h:301:42: note: passing argument to parameter '=
-mnt_opts' here
->    void security_free_mnt_opts(const void **mnt_opts);
->                                             ^
->    fs/btrfs/super.c:1536:25: error: passing 'void **' to parameter of typ=
-e 'const void **' discards qualifiers in nested pointer types [-Werror,-Win=
-compatible-pointer-types-discards-qualifiers]
->            security_free_mnt_opts(&new_sec_opts);
->                                   ^~~~~~~~~~~~~
->    include/linux/security.h:301:42: note: passing argument to parameter '=
-mnt_opts' here
->    void security_free_mnt_opts(const void **mnt_opts);
->                                             ^
->    fs/btrfs/super.c:1699:26: error: passing 'void **' to parameter of typ=
-e 'const void **' discards qualifiers in nested pointer types [-Werror,-Win=
-compatible-pointer-types-discards-qualifiers]
->                    security_free_mnt_opts(&new_sec_opts);
->                                           ^~~~~~~~~~~~~
->    include/linux/security.h:301:42: note: passing argument to parameter '=
-mnt_opts' here
->    void security_free_mnt_opts(const void **mnt_opts);
->                                             ^
->    3 errors generated.
+Hi Linus,
 
-Hi Khadija, can you check to see if these errors can be resolved?
+A relatively small SELinux patch to fix an issue with a
+vfs/LSM/SELinux patch that went upstream during the recent merge
+window.  The short version is that the original patch changed how we
+initialized mount options to resolve a NFS issue and we inadvertently
+broke a use case due to the changed behavior; the fix in this pull
+request restores this behavior for the cases that require it while
+keeping the original NFS fix in place.  Please merge.
 
---=20
+Thanks,
+-Paul
+--
+The following changes since commit 0bb80ecc33a8fb5a682236443c1e740d5c917d1d:
+
+ Linux 6.6-rc1 (2023-09-10 16:28:41 -0700)
+
+are available in the Git repository at:
+
+ https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20230914
+
+for you to fetch changes up to ccf1dab96be4caed7c5235b1cfdb606ac161b996:
+
+ selinux: fix handling of empty opts in selinux_fs_context_submount()
+   (2023-09-12 17:31:08 -0400)
+
+----------------------------------------------------------------
+selinux/stable-6.6 PR 20230914
+
+----------------------------------------------------------------
+Ondrej Mosnacek (1):
+     selinux: fix handling of empty opts in selinux_fs_context_submount()
+
+security/selinux/hooks.c | 10 ++++++++--
+1 file changed, 8 insertions(+), 2 deletions(-)
+
+-- 
 paul-moore.com
