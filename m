@@ -2,44 +2,72 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DDAEE7F156
-	for <selinux@archiver.kernel.org>; Thu, 28 Sep 2023 17:41:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D4AECE7AFC
+	for <selinux@archiver.kernel.org>; Thu, 28 Sep 2023 17:42:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231935AbjI1RlV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Sep 2023 13:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54518 "EHLO
+        id S232039AbjI1RmT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Sep 2023 13:42:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbjI1RlO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Sep 2023 13:41:14 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D1719E;
-        Thu, 28 Sep 2023 10:41:11 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D74F5C433C7;
-        Thu, 28 Sep 2023 17:40:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695922871;
-        bh=q4Y+iRhQNw28trXDtNOjgA21Uv+IbPAACk59LAWJmZQ=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=Pt2knsyPVF5IN2LrEHFDhKXAMR+bUOcTlyAAG093ma8ffe9kH/u7HXG2g+Td0GQbU
-         dj6xCSvBaMeN3dkuuuxcxsY6aAAFekfxMF19xWrooSEMrmsfY/FrKOmIr30Ef9iwhy
-         6QfDCUZqE6k5rEywc5Ze8K4/SAUL1W/1QDmSbwueKYxqX2aaIVxDcPqg/lhskw8rFh
-         jOw/ARPQHq26NmwE3QZN+kwE0QI6+60XvzrrVfZo0ayZcNh/tBcZ410YuqL9+lmQQb
-         qZZexkDUvIABncMcV2ChnF/ASLiH8NqVr7NTUG7D+At/G4u0PnSWIbaDK60vBHhtw8
-         vViGtl0HWhtVQ==
-Message-ID: <6a6f37d16b55a3003af3f3dbb7778a367f68cd8d.camel@kernel.org>
-Subject: Re: [PATCH 86/87] fs: switch timespec64 fields in inode to discrete
- integers
-From:   Jeff Layton <jlayton@kernel.org>
-To:     "Darrick J. Wong" <djwong@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
+        with ESMTP id S231954AbjI1RmR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Sep 2023 13:42:17 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 893681A1
+        for <selinux@vger.kernel.org>; Thu, 28 Sep 2023 10:42:15 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-5046bf37daeso11933315e87.1
+        for <selinux@vger.kernel.org>; Thu, 28 Sep 2023 10:42:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1695922934; x=1696527734; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=UoV8bp+GLn88RdeFyi+3G/jZGwWmlguHsi2KfbyyFTc=;
+        b=Jf/g5vfLj+2IoPXfIUha67JJcZG+gntKrcOcazPDzW+M5gl4I6u1WnZwXk8ijDAJVF
+         MiSn7qnUds4A5Fx3Ndn1g94G7ZYWERVaP+8JIkKIZRqMHyjzvJAAcnHKagpDlmDpaUVZ
+         7hsvHkT8adXRjqM0N/NsJHscYHx8TKwSg05hM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695922934; x=1696527734;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UoV8bp+GLn88RdeFyi+3G/jZGwWmlguHsi2KfbyyFTc=;
+        b=S+9nZt4OKv7ipkco5tFmFkIa8mtw99R3AncKmmDYc04zKsrW2Ib5X4vZuVgvjD/KPx
+         NwFJBTN0739QogS8YMJJq7YWZUFdjl9q1KqPKhl7CvyeH4TlYc1+cKGeAw2n21tuKnbj
+         FN9CjfzT3dMGLFfCNqTnDlbT2ff2gGo1PjnnGPD2P376b0A5qxCurC1dXQwUm2PXJaz7
+         rd8wzQVmunbSppjFOI2Bg0XxnscVMLnv6TdspNiufciLZ8wl4cJxHqVdeWhliLaIO+p5
+         z1AzL9nk+GBp6qhsd99L9ggv+oD71Pl72yGmVhqANmRp9C+3nbcoPJ8JmMwEwgpstPJZ
+         d3SA==
+X-Gm-Message-State: AOJu0Yyqowx9L+1xCdK7KY0Y1Z6/yQMlsoFIfGt9ZwKz/46yRBOh9iEq
+        9PpGAIJul46mo3FR5sVBOxXUFbdVSvQJp1okZ5uEIkJ/
+X-Google-Smtp-Source: AGHT+IH26Mi8wlKDCQB3R0utjyO3Nc3ldOMWU8qI5penUVEY71LsEjr89olTqotZJMifoRcmQA80hA==
+X-Received: by 2002:ac2:5f54:0:b0:4f8:7772:3dfd with SMTP id 20-20020ac25f54000000b004f877723dfdmr1544682lfz.11.1695922933827;
+        Thu, 28 Sep 2023 10:42:13 -0700 (PDT)
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com. [209.85.208.174])
+        by smtp.gmail.com with ESMTPSA id u26-20020ac248ba000000b004fbb011c9bcsm3166200lfg.161.2023.09.28.10.42.13
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Sep 2023 10:42:13 -0700 (PDT)
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-2c038a1e2e6so205951121fa.2
+        for <selinux@vger.kernel.org>; Thu, 28 Sep 2023 10:42:13 -0700 (PDT)
+X-Received: by 2002:aa7:d899:0:b0:52f:c073:9c77 with SMTP id
+ u25-20020aa7d899000000b0052fc0739c77mr1748627edq.35.1695922912868; Thu, 28
+ Sep 2023 10:41:52 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230928110554.34758-1-jlayton@kernel.org> <20230928110554.34758-3-jlayton@kernel.org>
+In-Reply-To: <20230928110554.34758-3-jlayton@kernel.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 28 Sep 2023 10:41:34 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wij_42Q9WHY898r-gugmT5c-1JJKRh3C+nTUd1hc1aeqQ@mail.gmail.com>
+Message-ID: <CAHk-=wij_42Q9WHY898r-gugmT5c-1JJKRh3C+nTUd1hc1aeqQ@mail.gmail.com>
+Subject: Re: [PATCH 87/87] fs: move i_blocks up a few places in struct inode
+To:     Jeff Layton <jlayton@kernel.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Christian Brauner <brauner@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
         David Sterba <dsterba@suse.cz>,
         Amir Goldstein <amir73il@gmail.com>,
-        Theodore Ts'o <tytso@mit.edu>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        Eric Biederman <ebiederm@xmission.com>,
         Kees Cook <keescook@chromium.org>, Jeremy Kerr <jk@ozlabs.org>,
+        Arnd Bergmann <arnd@arndb.de>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Nicholas Piggin <npiggin@gmail.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
@@ -49,7 +77,7 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arve =?ISO-8859-1?Q?Hj=F8nnev=E5g?= <arve@android.com>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
         Todd Kjos <tkjos@android.com>,
         Martijn Coenen <maco@android.com>,
         Joel Fernandes <joel@joelfernandes.org>,
@@ -62,7 +90,7 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         Brad Warrum <bwarrum@linux.ibm.com>,
         Ritu Agarwal <rituagar@linux.ibm.com>,
         Hans de Goede <hdegoede@redhat.com>,
-        Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         Mark Gross <markgross@kernel.org>,
         Jiri Slaby <jirislaby@kernel.org>,
         Eric Van Hensbergen <ericvh@kernel.org>,
@@ -83,7 +111,7 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         Joel Becker <jlbec@evilplan.org>,
         Christoph Hellwig <hch@lst.de>,
         Nicolas Pitre <nico@fluxnic.net>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
         Ard Biesheuvel <ardb@kernel.org>, Gao Xiang <xiang@kernel.org>,
         Chao Yu <chao@kernel.org>, Yue Hu <huyue2@coolpad.com>,
         Jeffle Xu <jefflexu@linux.alibaba.com>,
@@ -134,6 +162,7 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         Masami Hiramatsu <mhiramat@kernel.org>,
         Evgeniy Dushistov <dushistov@mail.ru>,
         Chandan Babu R <chandan.babu@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
         Damien Le Moal <dlemoal@kernel.org>,
         Naohiro Aota <naohiro.aota@wdc.com>,
         Johannes Thumshirn <jth@kernel.org>,
@@ -149,7 +178,7 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
         Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        "David S . Miller" <davem@davemloft.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Paolo Abeni <pabeni@redhat.com>,
@@ -178,75 +207,33 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
         samba-technical@lists.samba.org,
         linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
-        bpf@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+        bpf@vger.kernel.org, netdev@vger.kernel.org,
         apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
-Date:   Thu, 28 Sep 2023 13:40:55 -0400
-In-Reply-To: <20230928171943.GK11439@frogsfrogsfrogs>
-References: <20230928110554.34758-1-jlayton@kernel.org>
-         <20230928110554.34758-2-jlayton@kernel.org>
-         <6020d6e7-b187-4abb-bf38-dc09d8bd0f6d@app.fastmail.com>
-         <af047e4a1c6947c59d4a13d4ae221c784a5386b4.camel@kernel.org>
-         <20230928171943.GK11439@frogsfrogsfrogs>
-Content-Type: text/plain; charset="ISO-8859-15"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 (3.48.4-1.fc38) 
-MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-09-28 at 10:19 -0700, Darrick J. Wong wrote:
-> On Thu, Sep 28, 2023 at 01:06:03PM -0400, Jeff Layton wrote:
-> > On Thu, 2023-09-28 at 11:48 -0400, Arnd Bergmann wrote:
-> > > On Thu, Sep 28, 2023, at 07:05, Jeff Layton wrote:
-> > > > This shaves 8 bytes off struct inode, according to pahole.
-> > > >=20
-> > > > Signed-off-by: Jeff Layton <jlayton@kernel.org>
-> > >=20
-> > > FWIW, this is similar to the approach that Deepa suggested
-> > > back in 2016:
-> > >=20
-> > > https://lore.kernel.org/lkml/1452144972-15802-3-git-send-email-deepa.=
-kernel@gmail.com/
-> > >=20
-> > > It was NaKed at the time because of the added complexity,
-> > > though it would have been much easier to do it then,
-> > > as we had to touch all the timespec references anyway.
-> > >=20
-> > > The approach still seems ok to me, but I'm not sure it's worth
-> > > doing it now if we didn't do it then.
-> > >=20
-> >=20
-> > I remember seeing those patches go by. I don't remember that change
-> > being NaK'ed, but I wasn't paying close attention at the time=20
-> >=20
-> > Looking at it objectively now, I think it's worth it to recover 8 bytes
-> > per inode and open a 4 byte hole that Amir can use to grow the
-> > i_fsnotify_mask. We might even able to shave off another 12 bytes
-> > eventually if we can move to a single 64-bit word per timestamp.=20
->=20
-> I don't think you can, since btrfs timestamps utilize s64 seconds
-> counting in both directions from the Unix epoch.  They also support ns
-> resolution:
->=20
-> 	struct btrfs_timespec {
-> 		__le64 sec;
-> 		__le32 nsec;
-> 	} __attribute__ ((__packed__));
->=20
+On Thu, 28 Sept 2023 at 04:06, Jeff Layton <jlayton@kernel.org> wrote:
+>
+> Move i_blocks up above the i_lock, which moves the new 4 byte hole to
+> just after the timestamps, without changing the size of the structure.
 
-Correct. We'd lose some fidelity in currently stored timestamps, but as
-Linus and Ted pointed out, anything below ~100ns granularity is
-effectively just noise, as that's the floor overhead for calling into
-the kernel. It's hard to argue that any application needs that sort of
-timestamp resolution, at least with contemporary hardware.=20
+I'm sure others have mentioned this, but 'struct inode' is marked with
+__randomize_layout, so the actual layout may end up being very
+different.
 
-Doing that would mean that tests that store specific values in the
-atime/mtime and expect to be able to fetch exactly that value back would
-break though, so we'd have to be OK with that if we want to try it. The
-good news is that it's relatively easy to experiment with new ways to
-store timestamps with these wrappers in place.
+I'm personally not convinced the whole structure randomization is
+worth it - it's easy enough to figure out for any distro kernel since
+the seed has to be the same across machines for modules to work, so
+even if the seed isn't "public", any layout is bound to be fairly
+easily discoverable.
 
---=20
-Jeff Layton <jlayton@kernel.org>
+So the whole randomization only really works for private kernel
+builds, and it adds this kind of pain where "optimizing" the structure
+layout is kind of pointless depending on various options.
+
+I certainly *hope* no distro enables that pointless thing, but it's a worry.
+
+               Linus
