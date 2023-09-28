@@ -2,116 +2,237 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08F35E743C0
-	for <selinux@archiver.kernel.org>; Thu, 28 Sep 2023 20:25:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA115E743C2
+	for <selinux@archiver.kernel.org>; Thu, 28 Sep 2023 21:28:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231310AbjI1UZP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Sep 2023 16:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49608 "EHLO
+        id S232547AbjI1V2K (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Sep 2023 17:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230251AbjI1UZP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Sep 2023 16:25:15 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C69C180
-        for <selinux@vger.kernel.org>; Thu, 28 Sep 2023 13:25:13 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-50307acd445so21070596e87.0
-        for <selinux@vger.kernel.org>; Thu, 28 Sep 2023 13:25:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695932711; x=1696537511; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+7oH8EzYca2UU+MMT4KDSdXWC74nGyzA/1SAID8jdvU=;
-        b=H67UJ+YxNb9qforUOES2wF5cpgxxqiEJGjmOlnKWTWp71MIyT4L0KwIVYaHQJPgVy5
-         3H6yaqyHGkIUDa2+lo0YFUxEgboNptuBGXqo7SPgY59OqVEqQWlzx2mrgeHlSUMb5teo
-         35Nl2WV9QUvhKXiYwWjoguBLFW76en2G4hf4wQZAUUGYbnEQmsKbmvDetlRqZR5eQLG/
-         jLUzQlRA/H8smCoM+NwJlpoV0CSHGC1ROr+oloeKqgYnqnpZv7Z3EAB5UqbCYzSfiGT7
-         dxy8J9Iw6+xiYeV0UtCEX7Dqn6N6PPO7eNu/j2WOt7LMDHQwpLbpNFrkRtSbu7v1kwhZ
-         FATg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695932711; x=1696537511;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+7oH8EzYca2UU+MMT4KDSdXWC74nGyzA/1SAID8jdvU=;
-        b=rSPvzp5t0ImW9WFeBasSVV1+EtXmJR/YyyxrUxAHgm70kj0EbL5NdEMKQOaSBWJWXC
-         Cm9uo0O0c5mVRRGgEgRmNT7PVn61ol3YeFt7k8MRRZnfv/1w9UeSMTzjEa8ggzmmw7ir
-         G/ZVr03FfGhjv/zPet+wpRCnMsj7O0PGjdMGBbC0gWyKxSA2UpbL6DAH+CeXGQNswphX
-         lLBgmy/s9+iLAHoPxY/XDTh05avASN6I7I7hwTAAC70ZgWWz5gXmjsoOdsKp6CxjyNAS
-         zRv0d7p0bXU8E2jWbN72WPOzbNAUyTO1dM07knidWynR1r4GVEDyeLwQ7ZL5uiPBp28H
-         jGRA==
-X-Gm-Message-State: AOJu0YwwrrBRkeFnk1JPSm62xoN41P74ACYp8Ep+VN161fk2aDGPUqHm
-        sYLwdKgUeZust/D9YwYEhpYdXzFdxrJdp+I9wlQYsRKCk7o=
-X-Google-Smtp-Source: AGHT+IGkozM/4Rpg5ag+qkufiRxJQcPjEm3ueb4JR21z6Al2xZQTNpNG9AMcO+03SXfpnPcMJwUdmMWstjEgHMqlz+Y=
-X-Received: by 2002:a05:6512:5d6:b0:503:26ab:9ac9 with SMTP id
- o22-20020a05651205d600b0050326ab9ac9mr1767294lfo.48.1695932711072; Thu, 28
- Sep 2023 13:25:11 -0700 (PDT)
+        with ESMTP id S232558AbjI1V2H (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Sep 2023 17:28:07 -0400
+Received: from outgoing.mit.edu (outgoing-auth-1.mit.edu [18.9.28.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D585A1A2
+        for <selinux@vger.kernel.org>; Thu, 28 Sep 2023 14:28:04 -0700 (PDT)
+Received: from cwcc.thunk.org (pool-173-48-111-87.bstnma.fios.verizon.net [173.48.111.87])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 38SLQvsp021536
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 28 Sep 2023 17:26:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mit.edu; s=outgoing;
+        t=1695936425; bh=w4hql40FuyyfsTNK9D530X9ExV2y5b7TU7/1a0HHsnU=;
+        h=Date:From:Subject:Message-ID:MIME-Version:Content-Type;
+        b=NGPOVv6aP7Wgx4/k9ruqGjDYWmjUQVAfEL5fppG6yE2RNxUM6uiyoWrXBZfGmZyL2
+         gb1zEZjWcSSCFd+NWg1/BYhZ5jeEptXNin1ZAM6seg38Angccj8YOPtyzxOx/hDFrb
+         Q+ePr/t98/fHq2BcSzJCThnFTNb50fVmlIrGfb3oMvB11ToZpH+p8R2mhaDk4/44dl
+         uEHGVh6Q6Ih5iyFuN8+PasXijpXT1PXJm+5Rkla8PX5Glna1OAsFe3wre6CQl62oa4
+         RAr1Z2b44rKF067M11yaRPI56z2wMDur4vLyEnjrhgmaYzW5D9XQ8I+PJlbP887wDq
+         NXSNNWLPWiTbQ==
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 06AD715C0266; Thu, 28 Sep 2023 17:26:57 -0400 (EDT)
+Date:   Thu, 28 Sep 2023 17:26:56 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Jeff Layton <jlayton@kernel.org>
+Cc:     "Darrick J. Wong" <djwong@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        David Sterba <dsterba@suse.cz>,
+        Amir Goldstein <amir73il@gmail.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>, Jeremy Kerr <jk@ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        Todd Kjos <tkjos@android.com>,
+        Martijn Coenen <maco@android.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Carlos Llamas <cmllamas@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Mattia Dongili <malattia@linux.it>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Leon Romanovsky <leon@kernel.org>,
+        Brad Warrum <bwarrum@linux.ibm.com>,
+        Ritu Agarwal <rituagar@linux.ibm.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Mark Gross <markgross@kernel.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Eric Van Hensbergen <ericvh@kernel.org>,
+        Latchesar Ionkov <lucho@ionkov.net>,
+        Dominique Martinet <asmadeus@codewreck.org>,
+        Christian Schoenebeck <linux_oss@crudebyte.com>,
+        David Sterba <dsterba@suse.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        Ian Kent <raven@themaw.net>,
+        Luis de Bethencourt <luisbg@kernel.org>,
+        Salah Triki <salah.triki@gmail.com>,
+        "Tigran A. Aivazian" <aivazian.tigran@gmail.com>,
+        Chris Mason <clm@fb.com>, Josef Bacik <josef@toxicpanda.com>,
+        Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
+        Joel Becker <jlbec@evilplan.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>, Gao Xiang <xiang@kernel.org>,
+        Chao Yu <chao@kernel.org>,
+        Yue Hu <huyue2@gl0jj8bn.sched.sma.tdnsstic1.cn>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Jan Kara <jack@suse.com>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Christoph Hellwig <hch@infradead.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Muchun Song <muchun.song@linux.dev>, Jan Kara <jack@suse.cz>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Dave Kleikamp <shaggy@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna@kernel.org>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Neil Brown <neilb@suse.de>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Bob Copeland <me@bobcopeland.com>,
+        Mike Marshall <hubcap@omnibond.com>,
+        Martin Brandenburg <martin@omnibond.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        Tony Luck <tony.luck@intel.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Anders Larsen <al@alarsen.net>,
+        Steve French <sfrench@samba.org>,
+        Paulo Alcantara <pc@manguebit.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Evgeniy Dushistov <dushistov@mail.ru>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        Damien Le Moal <dlemoal@kernel.org>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        Johannes Thumshirn <jth@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Song Liu <song@kernel.org>,
+        Yonghong Song <yonghong.song@linux.dev>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Stanislav Fomichev <sdf@google.com>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Paul Moore <paul@paul-moore.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-rdma@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org, v9fs@lists.linux.dev,
+        linux-afs@lists.infradead.org, autofs@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, ceph-devel@vger.kernel.org,
+        codalist@telemann.coda.cs.cmu.edu, linux-efi@vger.kernel.org,
+        linux-erofs@lists.ozlabs.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, gfs2@lists.linux.dev,
+        linux-um@lists.infradead.org, linux-mtd@lists.infradead.org,
+        jfs-discussion@lists.sourceforge.net, linux-nfs@vger.kernel.org,
+        linux-nilfs@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+        ntfs3@lists.linux.dev, ocfs2-devel@lists.linux.dev,
+        linux-karma-devel@lists.sourceforge.net, devel@lists.orangefs.org,
+        linux-unionfs@vger.kernel.org, linux-hardening@vger.kernel.org,
+        reiserfs-devel@vger.kernel.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org,
+        linux-trace-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        bpf@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH 86/87] fs: switch timespec64 fields in inode to discrete
+ integers
+Message-ID: <20230928212656.GC189345@mit.edu>
+References: <20230928110554.34758-1-jlayton@kernel.org>
+ <20230928110554.34758-2-jlayton@kernel.org>
+ <6020d6e7-b187-4abb-bf38-dc09d8bd0f6d@app.fastmail.com>
+ <af047e4a1c6947c59d4a13d4ae221c784a5386b4.camel@kernel.org>
+ <20230928171943.GK11439@frogsfrogsfrogs>
+ <6a6f37d16b55a3003af3f3dbb7778a367f68cd8d.camel@kernel.org>
 MIME-Version: 1.0
-References: <260cd39c55ff2d13f5ac916b508f023bedecfce9.1692025627.git.mirai@makinata.eu>
-In-Reply-To: <260cd39c55ff2d13f5ac916b508f023bedecfce9.1692025627.git.mirai@makinata.eu>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 28 Sep 2023 16:24:59 -0400
-Message-ID: <CAP+JOzQPWZe45H8HrXZtOh9FLo37fSrZdLVxZeNJQ6v_ey_h-g@mail.gmail.com>
-Subject: Re: [PATCH] secilc: Use versioned DocBook public identifier.
-To:     Bruno Victal <mirai@makinata.eu>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6a6f37d16b55a3003af3f3dbb7778a367f68cd8d.camel@kernel.org>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 14, 2023 at 11:53=E2=80=AFAM Bruno Victal <mirai@makinata.eu> w=
-rote:
->
-> Fix xml validation issues that often crop up since the XML catalogs
-> for DocBook often only contain versioned public identifiers.
->
-> Signed-off-by: Bruno Victal <mirai@makinata.eu>
+On Thu, Sep 28, 2023 at 01:40:55PM -0400, Jeff Layton wrote:
+> 
+> Correct. We'd lose some fidelity in currently stored timestamps, but as
+> Linus and Ted pointed out, anything below ~100ns granularity is
+> effectively just noise, as that's the floor overhead for calling into
+> the kernel. It's hard to argue that any application needs that sort of
+> timestamp resolution, at least with contemporary hardware. 
+> 
+> Doing that would mean that tests that store specific values in the
+> atime/mtime and expect to be able to fetch exactly that value back would
+> break though, so we'd have to be OK with that if we want to try it. The
+> good news is that it's relatively easy to experiment with new ways to
+> store timestamps with these wrappers in place.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+The reason why we store 1ns granularity in ext4's on-disk format (and
+accept that we only support times only a couple of centuries into the
+future, as opposed shooting for an on-disk format good for several
+millennia :-), was in case there was userspace that might try to store
+a very fine-grained timestamp and want to be able to get it back
+bit-for-bit identical.
 
-> ---
->  secilc/secil2conf.8.xml | 2 +-
->  secilc/secil2tree.8.xml | 2 +-
->  secilc/secilc.8.xml     | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/secilc/secil2conf.8.xml b/secilc/secil2conf.8.xml
-> index 33646f97..330b6a07 100644
-> --- a/secilc/secil2conf.8.xml
-> +++ b/secilc/secil2conf.8.xml
-> @@ -1,5 +1,5 @@
->  <?xml version=3D"1.0" encoding=3D"UTF-8"?>
-> -<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML//EN"
-> +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
->                 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
->
->  <refentry>
-> diff --git a/secilc/secil2tree.8.xml b/secilc/secil2tree.8.xml
-> index e95a8947..d7bb177e 100644
-> --- a/secilc/secil2tree.8.xml
-> +++ b/secilc/secil2tree.8.xml
-> @@ -1,5 +1,5 @@
->  <?xml version=3D"1.0" encoding=3D"UTF-8"?>
-> -<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML//EN"
-> +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
->                 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
->
->  <refentry>
-> diff --git a/secilc/secilc.8.xml b/secilc/secilc.8.xml
-> index e9a121e2..5c0680a8 100644
-> --- a/secilc/secilc.8.xml
-> +++ b/secilc/secilc.8.xml
-> @@ -1,5 +1,5 @@
->  <?xml version=3D"1.0" encoding=3D"UTF-8"?>
-> -<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML//EN"
-> +<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
->                 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
->
->  <refentry>
->
-> base-commit: f6dc6acfa00707ce25c6357169111937f12512dd
-> --
-> 2.40.1
->
+For example, what if someone was trying to implement some kind of
+steganographic scheme where they going store a secret message (or more
+likely, a 256-bit AES key) in the nanosecond fields of the file's
+{c,m,a,cr}time timestamps, "hiding in plain sight".  Not that I think
+that we have to support something like that, since the field is for
+*timestamps* not cryptographic bits, so if we break someone who is
+doing that, do we care?
+
+I don't think anyone will complain about breaking the userspace API
+--- especially since if, say, the CIA was using this for their spies'
+drop boxes, they probably wouldn't want to admit it.  :-)
+
+       	    	     	      	      	    - Ted
