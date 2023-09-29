@@ -2,61 +2,61 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA837E728E4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BD38E728E2
 	for <selinux@archiver.kernel.org>; Fri, 29 Sep 2023 19:56:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233233AbjI2T4q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S233208AbjI2T4q (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 29 Sep 2023 15:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60880 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233310AbjI2T4p (ORCPT
+        with ESMTP id S233233AbjI2T4p (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 29 Sep 2023 15:56:45 -0400
-Received: from mail-qk1-x733.google.com (mail-qk1-x733.google.com [IPv6:2607:f8b0:4864:20::733])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53CE81A7
-        for <selinux@vger.kernel.org>; Fri, 29 Sep 2023 12:56:41 -0700 (PDT)
-Received: by mail-qk1-x733.google.com with SMTP id af79cd13be357-77421a47db6so739642585a.0
-        for <selinux@vger.kernel.org>; Fri, 29 Sep 2023 12:56:41 -0700 (PDT)
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45068B4
+        for <selinux@vger.kernel.org>; Fri, 29 Sep 2023 12:56:43 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id af79cd13be357-774141bb415so822769485a.3
+        for <selinux@vger.kernel.org>; Fri, 29 Sep 2023 12:56:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696017400; x=1696622200; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1696017402; x=1696622202; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=35CJJpDoVj/GETigOLPSGUH+BDkgMwBAtDEZtn70ROg=;
-        b=NqyvoXHsLp54/XtevMWqgUq1QFPYcRh1CQHt5k/w84QfI2QSgkPhuTryzDBYjJUktt
-         wWdW/45MKwku6D4dO41ycoskxEzFWErvzxTrQjRXAqo/hB9P7Qmr6LCLkEI7u6RvuT10
-         9h/KomjwHwkd8MVAUr29/rQdx0G1hlpAFFLrTBJzSptw/Iox9kBkAUYgOOFwlyn0mE/y
-         O62nstGyG37VH+waQGM+tJq1luri+RqpXyzyjBTS26z7tT1u9PYtL/F7VjeJuc2RJmgj
-         7NWtCnz6BR559U/bWfrmz81wKvR3KhR2ffabOCrRAk0gVBnWElnytlwK3DMTfz01v8vM
-         9xZw==
+        bh=ODNXzeNNHF/CByGHAciz5iR0U8C1f17a+mgg9DaKACY=;
+        b=QZ3SksYndFEKKhhEbQOfa/mCbCCAqgV95M3h7RGvBbd8D5DMSE3j62H3pUUpJwpRI6
+         a1QIyinV3nv5LPpANNXxDLlfBnYB8rubwg0wf3LkMaEYzcZ2uwfoEwVbMbdSTPJvkW91
+         29/X+6Dzb59JeYE0x529Wwd48AfaG+olDcrR+z3jBK0ZC5ctUTd3OPlzTAIPiHPZy2JM
+         tX562/XAtxTtIgycK5D1zQaF+1BPO6P5E6tvR2mOcy28WDmyuSKZUj0utcRYPuMnMZAN
+         Rqam1ABBz4tHuFSfCbm0wEAOtlJzXwtSVrFexHX5ybZKoTdn6kUo/n+fzAPMzEZZZ2qA
+         rxIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696017400; x=1696622200;
+        d=1e100.net; s=20230601; t=1696017402; x=1696622202;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=35CJJpDoVj/GETigOLPSGUH+BDkgMwBAtDEZtn70ROg=;
-        b=nVSoBMdJCiEWq3L0WJPfn1KsJNQwC0wlp8nyHiUtNTLGQEKngvPWWD1/3l0cbQJTed
-         1WQEQtG76eqZkQjNkM+kd4QjrP5MSb8sw6hdW2L0DNKGMYWiJm7kSH75BJVjTkKt52cr
-         sRVmYkCSmQLQwxbSBt5lj4HU2d31VinMuTZW9d3KMhU2NpSw6UD9ZgWuo/uZfkFcVvV8
-         sAliAoSX3nfBd5XZ96OB/wL80ZrTwajkMffif+58SHWnuVfFksHEnRGVfiKFpfhZ2BkW
-         RtfPLW/VeqfdbEcGRxYQqv+en67Ly4Bjqi4A6seO63wkA/TekbGzCU8PVfPC+gOin5Xe
-         n/EA==
-X-Gm-Message-State: AOJu0Yydhrfb6qq9dNkdcz43F3yDLLiAkVqhSLCZuWEqZeJWmEr84O4c
-        xpc8QcMpM6FfomyEIq/DkldnMuwAXHM=
-X-Google-Smtp-Source: AGHT+IHirwBco23cWVslM0wUDTLTxAlzXettjx0I43DiAbWrxxpAd8z9l84jJ5KeysYI5xXD0DJ+Nw==
-X-Received: by 2002:a05:620a:40c4:b0:76f:1318:d7d1 with SMTP id g4-20020a05620a40c400b0076f1318d7d1mr6565004qko.75.1696017400008;
-        Fri, 29 Sep 2023 12:56:40 -0700 (PDT)
+        bh=ODNXzeNNHF/CByGHAciz5iR0U8C1f17a+mgg9DaKACY=;
+        b=tZoy3SAw+qCkcL9jrXe4w7MDqKXtef4ww2yPBTdC7weAO20yaGV8v/7cYDWreVkN1G
+         JJlSh+3ilmVL3CFekrWe3vdLY8b7w4cHzDx5+7LsMC3zlYunEpvhYGAu0Mwk+HSQ3H01
+         Fb5ZLgIIYs8TiyO5DjOKb/wlbCxd6H1oh5pD14fmFhC6qOpQqLh2VzsWG5R+l418PvHG
+         DCFv9JkyzOdWgDAXK3khbdCLR/hqe4wONaKrKthb/hvnMRu47oXgJBNImfPqCYJx2MVi
+         tvmfmJMpvldZzz75rXmv7cVeBTZxSQTALh+V3BYL2a0E2s4+vIfTdNFmIb8uddKcE3Rw
+         Jz0w==
+X-Gm-Message-State: AOJu0YyJX2fBmPYOefX91EGNJb+HYgmozObRjxVBPTIys6kYA7YzQ8HF
+        ECJUHx7diOz1GhcZbHhTIYWYGlPR81E=
+X-Google-Smtp-Source: AGHT+IElLdGVnUC6cpBsO1/E6lUB+yAzM+ix1AHWHVZCpbodHBPAUxjxsb3JBnjAesGM2gJmBmeT+A==
+X-Received: by 2002:a05:620a:470c:b0:773:ad9b:4c81 with SMTP id bs12-20020a05620a470c00b00773ad9b4c81mr6248576qkb.23.1696017401939;
+        Fri, 29 Sep 2023 12:56:41 -0700 (PDT)
 Received: from 5bc235456ce7.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id t6-20020a05620a034600b00767e98535b7sm5795291qkm.67.2023.09.29.12.56.39
+        by smtp.gmail.com with ESMTPSA id t6-20020a05620a034600b00767e98535b7sm5795291qkm.67.2023.09.29.12.56.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Sep 2023 12:56:39 -0700 (PDT)
+        Fri, 29 Sep 2023 12:56:41 -0700 (PDT)
 From:   Jacob Satterfield <jsatterfield.linux@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     Jacob Satterfield <jsatterfield.linux@gmail.com>,
         stephen.smalley.work@gmail.com, paul@paul-moore.com,
         omosnace@redhat.com
-Subject: [PATCH 1/4] selinux: simplify avtab_insert_node() prototype
-Date:   Fri, 29 Sep 2023 19:56:12 +0000
-Message-ID: <20230929195617.65120-2-jsatterfield.linux@gmail.com>
+Subject: [PATCH 3/4] selinux: avtab iteration macros
+Date:   Fri, 29 Sep 2023 19:56:14 +0000
+Message-ID: <20230929195617.65120-4-jsatterfield.linux@gmail.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230929195617.65120-1-jsatterfield.linux@gmail.com>
 References: <20230929195617.65120-1-jsatterfield.linux@gmail.com>
@@ -66,67 +66,123 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-__hashtab_insert() in hashtab.h has a cleaner interface that allows the
-caller to specify the chain node location that the new node is being
-inserted into so that it can update the node that currently occupies it.
+Similar to the list_for_each macros in list.h, this patch adds two
+macros that iterates an avtab_node linked list (avtab_chain_for_each and
+avtab_chain_for_each_prev). This has two benefits: it reduces the amount
+of duplicative code for iteration and it makes changes to the underlying
+hashtable data structure easier as there are fewer places to update.
 
 Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
 ---
- security/selinux/ss/avtab.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ security/selinux/ss/avtab.c | 40 ++++++++++++++++---------------------
+ 1 file changed, 17 insertions(+), 23 deletions(-)
 
 diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 095b8cd24806..8751a602ead2 100644
+index 1cd4fed30bf7..e8046eda7140 100644
 --- a/security/selinux/ss/avtab.c
 +++ b/security/selinux/ss/avtab.c
-@@ -67,8 +67,7 @@ static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
- }
+@@ -27,6 +27,13 @@
+ static struct kmem_cache *avtab_node_cachep __ro_after_init;
+ static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
  
- static struct avtab_node*
--avtab_insert_node(struct avtab *h, u32 hvalue,
--		  struct avtab_node *prev,
-+avtab_insert_node(struct avtab *h, struct avtab_node **dst,
- 		  const struct avtab_key *key, const struct avtab_datum *datum)
++#define avtab_chain_for_each(pos, tab, slot) \
++	for (pos = (tab)->htable[slot]; pos; pos = pos->next)
++
++#define avtab_chain_for_each_prev(pos, prev, tab, slot) \
++	for (prev = NULL, pos = (tab)->htable[slot]; pos; \
++	prev = pos, pos = pos->next)
++
+ /* Based on MurmurHash3, written by Austin Appleby and placed in the
+  * public domain.
+  */
+@@ -129,9 +136,7 @@ static int avtab_insert(struct avtab *h, const struct avtab_key *key,
+ 		return -EINVAL;
+ 
+ 	hvalue = avtab_hash(key, h->mask);
+-	for (prev = NULL, cur = h->htable[hvalue];
+-	     cur;
+-	     prev = cur, cur = cur->next) {
++	avtab_chain_for_each_prev(cur, prev, h, hvalue) {
+ 		cmp = avtab_node_cmp(key, &cur->key);
+ 		/* extended perms may not be unique */
+ 		if (unlikely(cmp == 0 && !(key->specified & AVTAB_XPERMS)))
+@@ -163,9 +168,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 	if (!h || !h->nslot || h->nel == U32_MAX)
+ 		return NULL;
+ 	hvalue = avtab_hash(key, h->mask);
+-	for (prev = NULL, cur = h->htable[hvalue];
+-	     cur;
+-	     prev = cur, cur = cur->next) {
++	avtab_chain_for_each_prev(cur, prev, h, hvalue) {
+ 		cmp = avtab_node_cmp(key, &cur->key);
+ 		if (cmp <= 0)
+ 			break;
+@@ -180,16 +183,13 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ struct avtab_node *avtab_search_node(struct avtab *h,
+ 				     const struct avtab_key *key)
  {
- 	struct avtab_node *newnode;
-@@ -90,15 +89,8 @@ avtab_insert_node(struct avtab *h, u32 hvalue,
- 		newnode->datum.u.data = datum->u.data;
+-	u32 hvalue;
+ 	struct avtab_node *cur;
+ 	int cmp;
+ 
+ 	if (!h || !h->nslot)
+ 		return NULL;
+ 
+-	hvalue = avtab_hash(key, h->mask);
+-	for (cur = h->htable[hvalue]; cur;
+-	     cur = cur->next) {
++	avtab_chain_for_each(cur, h, avtab_hash(key, h->mask)) {
+ 		cmp = avtab_node_cmp(key, &cur->key);
+ 		if (cmp == 0)
+ 			return cur;
+@@ -223,20 +223,17 @@ avtab_search_node_next(struct avtab_node *node, u16 specified)
+ void avtab_destroy(struct avtab *h)
+ {
+ 	u32 i;
+-	struct avtab_node *cur, *temp;
++	struct avtab_node *cur;
+ 
+ 	if (!h)
+ 		return;
+ 
+ 	for (i = 0; i < h->nslot; i++) {
+-		cur = h->htable[i];
+-		while (cur) {
+-			temp = cur;
+-			cur = cur->next;
+-			if (temp->key.specified & AVTAB_XPERMS)
++		avtab_chain_for_each(cur, h, i) {
++			if (cur->key.specified & AVTAB_XPERMS)
+ 				kmem_cache_free(avtab_xperms_cachep,
+-						temp->datum.u.xperms);
+-			kmem_cache_free(avtab_node_cachep, temp);
++						cur->datum.u.xperms);
++			kmem_cache_free(avtab_node_cachep, cur);
+ 		}
  	}
+ 	kvfree(h->htable);
+@@ -307,10 +304,8 @@ void avtab_hash_eval(struct avtab *h, const char *tag)
+ 		if (cur) {
+ 			slots_used++;
+ 			chain_len = 0;
+-			while (cur) {
++			avtab_chain_for_each(cur, h, i)
+ 				chain_len++;
+-				cur = cur->next;
+-			}
  
--	if (prev) {
--		newnode->next = prev->next;
--		prev->next = newnode;
--	} else {
--		struct avtab_node **n = &h->htable[hvalue];
--
--		newnode->next = *n;
--		*n = newnode;
--	}
-+	newnode->next = *dst;
-+	*dst = newnode;
+ 			if (chain_len > max_chain_len)
+ 				max_chain_len = chain_len;
+@@ -593,8 +588,7 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
+ 		return rc;
  
- 	h->nel++;
- 	return newnode;
-@@ -138,7 +130,8 @@ static int avtab_insert(struct avtab *h, const struct avtab_key *key,
- 			break;
- 	}
- 
--	newnode = avtab_insert_node(h, hvalue, prev, key, datum);
-+	newnode = avtab_insert_node(h, prev ? &prev->next : &h->htable[hvalue],
-+				    key, datum);
- 	if (!newnode)
- 		return -ENOMEM;
- 
-@@ -178,7 +171,8 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
- 		    key->target_class < cur->key.target_class)
- 			break;
- 	}
--	return avtab_insert_node(h, hvalue, prev, key, datum);
-+	return avtab_insert_node(h, prev ? &prev->next : &h->htable[hvalue],
-+				 key, datum);
- }
- 
- /* This search function returns a node pointer, and can be used in
+ 	for (i = 0; i < a->nslot; i++) {
+-		for (cur = a->htable[i]; cur;
+-		     cur = cur->next) {
++		avtab_chain_for_each(cur, a, i) {
+ 			rc = avtab_write_item(p, cur, fp);
+ 			if (rc)
+ 				return rc;
 -- 
 2.41.0
 
