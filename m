@@ -2,76 +2,116 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5203EE784BF
-	for <selinux@archiver.kernel.org>; Mon,  2 Oct 2023 16:06:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A925E784B0
+	for <selinux@archiver.kernel.org>; Mon,  2 Oct 2023 17:13:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237910AbjJBQGB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Oct 2023 12:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
+        id S238669AbjJBRNn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Oct 2023 13:13:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbjJBQGA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Oct 2023 12:06:00 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D56693
-        for <selinux@vger.kernel.org>; Mon,  2 Oct 2023 09:05:57 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id 46e09a7af769-6c4b9e09521so9300557a34.3
-        for <selinux@vger.kernel.org>; Mon, 02 Oct 2023 09:05:57 -0700 (PDT)
+        with ESMTP id S229484AbjJBRNn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Oct 2023 13:13:43 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46357AD
+        for <selinux@vger.kernel.org>; Mon,  2 Oct 2023 10:13:40 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-504a7f9204eso7307924e87.3
+        for <selinux@vger.kernel.org>; Mon, 02 Oct 2023 10:13:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696262756; x=1696867556; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1696266818; x=1696871618; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HgqGq/Qef2sQHfvhvtCu0UAQbcYPEnyE0cXOqIwV/+4=;
-        b=RZM60Ld7LGtSe/naexYpVqUy+w7WJO6FiD+saJMb9mnInxtbiIxlSNzNwi6uCTR55J
-         cY6ET8uW0HQNmoB6IoQfbQpsxjFi6kq4FR1O4MYyYfkDHqeKcwniBNFpRznz2cgfuztH
-         yixTPbEAc3yxqW8WjDFHll4Yb2erHhgQuKsu8qHdnxviePmCwPSE0wckGW2qUb+eu+eP
-         LdCRzBLFNBOvwcCOHTXgMKVmvIlU8w8Np9NYd+vHsLfB4w0DmFvdmYJ5awYYQRjCSgW4
-         /zXk8O3fvKhV6OBBNU1MSepxZ36iJygBPcS1T+t09H+qvXIK2hHgclytyupIoLKIThSu
-         4d4Q==
+        bh=ll5WjUdAOSwF1306vF1qyxK/rdi3UAvivvM9Vc0LuJc=;
+        b=NPv9IQ5Bm8kkBoDDqKN056M8GwT/sfGIZwEvIcOFPKDzzpKhyc+fuoX6XbApojZ3fH
+         QQq3ioC50/+e36Ka+OMOMenFG/SXbh+LIlOmadFevqFGhmnxebrSkA34TgM/Bku6qPD1
+         4kv5Oi/lRQF7l0RZs3OIqGTOjrsqdOQwIbIx+zZbRMDhGeEzJE7Oj5vkxVQiaOftRWAR
+         Z8f6GXbce2sQsNn5qFsbYdeJy5mmxVE9AeclfYqJxTTvdGCeyE9QJ/8eMCFEQ0NgqqHV
+         mcgYaUDnUdwOnJemWHjafTwuTs54A0gJ7f853frdrcv07SHDDeeqW/xY6PZfqyPMDFj9
+         LyAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696262756; x=1696867556;
+        d=1e100.net; s=20230601; t=1696266818; x=1696871618;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HgqGq/Qef2sQHfvhvtCu0UAQbcYPEnyE0cXOqIwV/+4=;
-        b=jpuF7XmMRGca0zq3COSvrC+dacVjKH37XO060xCHp5d+Ruh7uVv6sUNTAgf3XSTqB4
-         CQwhm+2IUXjNO37ufd1xV9Im9nZmaGfElspjZLJAkBNLoISUcIypLW21hmpU1tU1+lAu
-         3d9Iwt0dqRrf/oh8wPMB8UQJ+AEfCbQwIXOFm3oGWBC91rL/A1vnXBtinRh8cFn95H6b
-         FJ5ZrIQnj/r5gblSlr3sVFoyKciPXVecsIUAVJXT4b/9Or/FAzFAzkSfjEA+kZAHh96T
-         Ckom9Ilo3wgMRlDYEg9hNFV7T1umoAGXavJRzRWJNKkIefGmiUthikqFJqsqsMJRW6K8
-         OP7Q==
-X-Gm-Message-State: AOJu0YzLAL2bjk3tg7wTW4pyI6iTAlV7tbqSSSCQei80gMwjd+PeTtWs
-        P/3mBeHQOFYOeYxDOZWsCiaamE580rALShDRPXfqazd3NiU=
-X-Google-Smtp-Source: AGHT+IGcbSpgzOzDhgswI+XPCEsgo3/fc5YaRvClnHVfubBoAPc6n2D7YxxEHwj2FLmOHLUeocN51inWsD85R0RG6MM=
-X-Received: by 2002:a05:6830:3d17:b0:6c4:cdce:5de8 with SMTP id
- eu23-20020a0568303d1700b006c4cdce5de8mr11766925otb.26.1696262756304; Mon, 02
- Oct 2023 09:05:56 -0700 (PDT)
+        bh=ll5WjUdAOSwF1306vF1qyxK/rdi3UAvivvM9Vc0LuJc=;
+        b=bI2uSaoNLocVJ5ZrK4yeV4UwAor9EBxt5AqST6RDVr7SBgujMdLDCOGnGvlizklnRl
+         zAvDOm5VNM2APoSi3h1HI2+X86gO5NVthFPHR7Zj79DjEQKH9fDpnOIe6re19D5PgDZW
+         X8k6FtfEOxtdjFNAyysW4wuQ8NBoX9YbLycnAwbmi99XyYdK1SohmrCc71sVAIeN648e
+         BMHAkJuZeNa2GsKWOlGy1PFzREVnHvlpznj5lqkMuuDH2MB21OxvkftyshrzaPqAg62R
+         D2p1c6ZKetO0kOBDqKBWxMURsSHnBeDMeHGYLN/R0RMrEOipx3w9SZ7I/4NsTBHjjUG+
+         js7Q==
+X-Gm-Message-State: AOJu0Yw1VrZVWi9fIx67Q+yuTr4fkywoN03B5tPgT/F04QQYxp06wMzK
+        H+as6IBd9Yv8+C00GvH0qKvZu1Xmk2ft8kzwOoGHGPF0ctY=
+X-Google-Smtp-Source: AGHT+IFbn4Bs7/fnRpqOJTZvlhQbPxCdwadidgwfOTm0wnnLJAlBbBW5CHDuahIYlpqSDSOLiM5LalIJr50pERqkwi0=
+X-Received: by 2002:a05:6512:4011:b0:500:9d6c:913e with SMTP id
+ br17-20020a056512401100b005009d6c913emr11795014lfb.52.1696266818232; Mon, 02
+ Oct 2023 10:13:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230929195617.65120-1-jsatterfield.linux@gmail.com> <20230929195617.65120-3-jsatterfield.linux@gmail.com>
-In-Reply-To: <20230929195617.65120-3-jsatterfield.linux@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 2 Oct 2023 12:05:45 -0400
-Message-ID: <CAEjxPJ5d=w_AcADCJJgKcHoQiDc3KWmSHmdJb9dmniJgGVsHDw@mail.gmail.com>
-Subject: Re: [PATCH 2/4] selinux: refactor avtab_node comparisons
-To:     Jacob Satterfield <jsatterfield.linux@gmail.com>
-Cc:     selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
+References: <20230814132025.45364-1-cgzones@googlemail.com> <20230814132025.45364-2-cgzones@googlemail.com>
+In-Reply-To: <20230814132025.45364-2-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 2 Oct 2023 13:13:26 -0400
+Message-ID: <CAP+JOzTD6muhUFDoaMOP=bqbL76pPq_doWvZekW_v7QJeWEiNw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 01/27] libselinux/utils: update selabel_partial_match
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 29, 2023 at 3:56=E2=80=AFPM Jacob Satterfield
-<jsatterfield.linux@gmail.com> wrote:
+On Mon, Aug 14, 2023 at 9:41=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> In four separate functions within avtab, the same comparison logic is
-> used. The only difference is how the result is handled or whether there
-> is a unique specifier value to be checked for or used.
+> Print usage information and exit if required path option is not given
+> or superfluous arguments are given.
 >
-> Extracting this functionality into the avtab_node_cmp() function unifies
-> the comparison logic between searching and insertion and gets rid of
-> duplicative code so that the implementation is easier to maintain.
+> Constify read-only variables assigned command line arguments.
 >
-> Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
+> Simplify bool evaluation.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libselinux/utils/selabel_partial_match.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/libselinux/utils/selabel_partial_match.c b/libselinux/utils/=
+selabel_partial_match.c
+> index 7bbd5777..0df2627a 100644
+> --- a/libselinux/utils/selabel_partial_match.c
+> +++ b/libselinux/utils/selabel_partial_match.c
+> @@ -28,7 +28,7 @@ int main(int argc, char **argv)
+>  {
+>         int opt;
+>         bool partial_match;
+> -       char *validate =3D NULL, *path =3D NULL, *file =3D NULL;
+> +       const char *validate =3D NULL, *path =3D NULL, *file =3D NULL;
+>
+>         struct selabel_handle *hnd;
+>         struct selinux_opt selabel_option[] =3D {
+> @@ -55,6 +55,9 @@ int main(int argc, char **argv)
+>                 }
+>         }
+>
+> +       if (!path || optind !=3D argc)
+> +               usage(argv[0]);
+> +
+>         selabel_option[0].value =3D file;
+>         selabel_option[1].value =3D validate;
+>
+> @@ -69,7 +72,7 @@ int main(int argc, char **argv)
+>         partial_match =3D selabel_partial_match(hnd, path);
+>
+>         printf("Match or Partial match: %s\n",
+> -                   partial_match =3D=3D 1 ? "TRUE" : "FALSE");
+> +                   partial_match ? "TRUE" : "FALSE");
+>
+>         selabel_close(hnd);
+>         return partial_match;
+> --
+> 2.40.1
+>
