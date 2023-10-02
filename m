@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 106F9E784AB
-	for <selinux@archiver.kernel.org>; Mon,  2 Oct 2023 17:14:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 994D5E784B0
+	for <selinux@archiver.kernel.org>; Mon,  2 Oct 2023 17:15:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238673AbjJBROi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Oct 2023 13:14:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40412 "EHLO
+        id S238676AbjJBRPJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Oct 2023 13:15:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238698AbjJBROh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Oct 2023 13:14:37 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D083C4
-        for <selinux@vger.kernel.org>; Mon,  2 Oct 2023 10:14:32 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-5041cc983f9so25577741e87.3
-        for <selinux@vger.kernel.org>; Mon, 02 Oct 2023 10:14:32 -0700 (PDT)
+        with ESMTP id S238683AbjJBRPI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Oct 2023 13:15:08 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68F62AD
+        for <selinux@vger.kernel.org>; Mon,  2 Oct 2023 10:15:04 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id 38308e7fff4ca-2c124adf469so262168001fa.0
+        for <selinux@vger.kernel.org>; Mon, 02 Oct 2023 10:15:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696266871; x=1696871671; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1696266902; x=1696871702; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UQunpasKycudthciWUUdabdShyfKCv0rGOglnSvwVac=;
-        b=HcElIYw2lebTbeaqByS1nTTH/j57uwXVyeIeBjCwKR3+Am4ycyowZepRXindJdaO7R
-         bhvtJg8M0GETZlBpWUOPzOcH2CgHko2V83Ie/x2u8/cNo4ZvEyY1RNFITNwGSPD1dFCo
-         KG1NNZMuVnpf/ehwKly7eP2NPeatBOgfJP4obK3tQe4Taj8GiU8YexiLBkylAZxMh6GI
-         V3mQ0Ehl8eG5AaSePidZ8bzMHC7Wwwb8a5wCD/hskIq+mNHPCav+GTwpG/hFi4Ui3czL
-         lOqo/7uMQYUCKv3rG+c3xUp2326RTfu5IogkUeh2rgprH6HPQejfI3xqYTOfVZ8K56Dt
-         CY+g==
+        bh=eg3lx2sUVPOpsVOqy60VAs1QLPHprXXg3C2sqtKGneA=;
+        b=AUgT3298H4dJpspL1VAzjCFXYD4TO99U3v4bOW3zokiNGHG+CrRM2IfNMHLW/NmLMB
+         SLyGEHZKZRDNJYg9EjTNrG19V0cgOI1WXccHqVg+PgM9tZeSPbjjtEiZxBdgNJo8oSwY
+         XRhMXKKRtQUXhTBhnQwJ3d7yICskIP71/sfLn8K4Lq2l8P3w7fgJI/POiv3A4gqiRWOS
+         ZKKruMUB5ggbtAwZlqvGkgqDLMufV3szF9wMPIfTuueR+ZGP7UpeD4SWg1xlCo2VsUsj
+         LR0yl6HgiLgx/0PGQvvxEBokfCtpKVcFF7coVb9WC3JKgIDsjfNvPfWx02zIhDUrICzs
+         9nnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696266871; x=1696871671;
+        d=1e100.net; s=20230601; t=1696266902; x=1696871702;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UQunpasKycudthciWUUdabdShyfKCv0rGOglnSvwVac=;
-        b=OoGrz1vddtgxYm6jomce0aFaL0rJn8qTLJ93gY+b8d3bpP0B4tphErw/Z72EsbisFM
-         q2D4HiPndNZbbqMIw6gAL0MlrAZ6N5OxfGaWKhJtPUYRDW95W9Vynf1oUhqYIApPNon2
-         fxm9pcK602nEMO9PPP50zopk45hdwfd9V13RCh2IteFbKdrRG3aFam6FV4uYq+5ygVmm
-         td0zc++oTGYxmSXnP2L671rw2sqGLaxQyIEFWwMjyl7oQe1v3B050jlFMHDs695Ez4bV
-         +EGgPDAN+Yd12QayhGLpoAMoS8nUkJCQek8kZl0Dm5EPm0LiWinMQOvCD1uN6gXJJ8P1
-         iLkw==
-X-Gm-Message-State: AOJu0Yx9jImD+xwSseHN/nfoDdRYrE4HlHeDCmU8fCUcv4qU56hhgrfQ
-        IxO+NKqLnU1Xn5bHy0HobJRHiqclYYR52fXmidDZ9Q42JBY=
-X-Google-Smtp-Source: AGHT+IEy342k3ypRZt6UI/fL1jZKyixk43x9JDqCr9z8XAnDEXFNFJaPi0hA8r5CRlO7gSfghVJiFTN+WmxnPp84/sU=
-X-Received: by 2002:a05:6512:1189:b0:502:a46e:257a with SMTP id
- g9-20020a056512118900b00502a46e257amr10304596lfr.56.1696266870538; Mon, 02
- Oct 2023 10:14:30 -0700 (PDT)
+        bh=eg3lx2sUVPOpsVOqy60VAs1QLPHprXXg3C2sqtKGneA=;
+        b=h9FataG+Pxtce3DtrLHdmppHiX04JcbaCEi6RKSsZ508I1kVfe3+4QjmuMeFBHxtbX
+         Aa9o4U3oSdzRYknyOLr1J4w+4axQSA8WneAYalNqBbm/8SBGHZbgwh3y3IUHs90iYHOz
+         MrpT0C93gbVKfG9Sn2hKBkFxABAjDbHDiR6n0OBVtNyWQjh06/2EV1VDqMrAmZj+Q49S
+         FzIZb577stbDM1kbB6XAVjuG8/AksU93fo2evFrnkVvBu47ZjGSMo5MepR9zn9x/az8h
+         caGi1R51mhXT1CUozejDkaA8svdvNK/CNcNC+jW5E8fgZvrOqJqjFg0zzaSLwMYW/7wu
+         jV6w==
+X-Gm-Message-State: AOJu0Yyf50UEXzM1eDTY6ylfMVq1CvLed4jT8wyzGEGqen7YnfuOM6EN
+        woPuaacNeWDSGm/s2KOWZs8e1V8Oa+dYQlJG1RZKXDc4Kh4=
+X-Google-Smtp-Source: AGHT+IFKtIMd+WU73RINf0BQ+rZsmsErvFkFYznXuo5qIE/e6OU7Wiww0WQa8xfaTqGMW/zz1BRkUEkAiNgn9oH+YAc=
+X-Received: by 2002:ac2:434c:0:b0:4fe:94a1:da84 with SMTP id
+ o12-20020ac2434c000000b004fe94a1da84mr10185812lfl.5.1696266902398; Mon, 02
+ Oct 2023 10:15:02 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230814132025.45364-1-cgzones@googlemail.com> <20230814132025.45364-4-cgzones@googlemail.com>
-In-Reply-To: <20230814132025.45364-4-cgzones@googlemail.com>
+References: <20230814132025.45364-1-cgzones@googlemail.com> <20230814132025.45364-5-cgzones@googlemail.com>
+In-Reply-To: <20230814132025.45364-5-cgzones@googlemail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 2 Oct 2023 13:14:19 -0400
-Message-ID: <CAP+JOzQvz1C6JGuzU4TgKvbsieRuPV6W4NEZbgLCj4XVQ33vrQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 03/27] libselinux: drop obsolete optimization flag
+Date:   Mon, 2 Oct 2023 13:14:51 -0400
+Message-ID: <CAP+JOzS_2HoqWcH1kcrz=6=AxO7-SrxgKGcVk5917KWumQE+8Q@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 04/27] libselinux: drop unnecessary warning overrides
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,42 +61,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 14, 2023 at 9:42=E2=80=AFAM Christian G=C3=B6ttsche
+On Mon, Aug 14, 2023 at 9:41=E2=80=AFAM Christian G=C3=B6ttsche
 <cgzones@googlemail.com> wrote:
 >
-> The flag -fipa-pure-const is enabled by default in GCC at -O0 and above.
->
-> The flag is not supported by Clang, which might result in issues if a
-> compilation database was created via GCC.
+> Drop overrides of warning flags which are not triggered by any code.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
-> v2: add missing signed-off
-> ---
->  libselinux/src/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libselinux/src/Makefile | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 >
 > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index f9a1e5f5..b1620113 100644
+> index b1620113..20d79312 100644
 > --- a/libselinux/src/Makefile
 > +++ b/libselinux/src/Makefile
-> @@ -61,7 +61,7 @@ SRCS=3D $(filter-out $(GENERATED) audit2why.c, $(sort $=
-(wildcard *.c)))
->  MAX_STACK_SIZE=3D32768
+> @@ -83,11 +83,10 @@ CFLAGS ?=3D -O -Wall -W -Wundef -Wformat-y2k -Wformat=
+-security -Winit-self -Wmissi
+>            -Wdeprecated-declarations -Wdiv-by-zero -Wdouble-promotion -We=
+ndif-labels -Wextra \
+>            -Wformat-extra-args -Wformat-zero-length -Wformat=3D2 -Wmultic=
+har \
+>            -Woverflow -Wpointer-to-int-cast -Wpragmas \
+> -          -Wno-missing-field-initializers -Wno-sign-compare \
+> -          -Wno-format-nonliteral -Wframe-larger-than=3D$(MAX_STACK_SIZE)=
+ \
+> +          -Wframe-larger-than=3D$(MAX_STACK_SIZE) \
+>            -fstack-protector-all --param=3Dssp-buffer-size=3D4 -fexceptio=
+ns \
+>            -fasynchronous-unwind-tables -fdiagnostics-show-option \
+> -          -Werror -Wno-aggregate-return -Wno-redundant-decls \
+> +          -Werror -Wno-aggregate-return \
+>            $(EXTRA_CFLAGS)
 >
->  ifeq ($(COMPILER), gcc)
-> -EXTRA_CFLAGS =3D -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat =
--Wsync-nand \
-> +EXTRA_CFLAGS =3D -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand \
->         -Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=3Dnf=
-c -Wsuggest-attribute=3Dconst \
->         -Wsuggest-attribute=3Dnoreturn -Wsuggest-attribute=3Dpure -Wtramp=
-olines -Wjump-misses-init \
->         -Wno-suggest-attribute=3Dpure -Wno-suggest-attribute=3Dconst -U_F=
-ORTIFY_SOURCE -D_FORTIFY_SOURCE=3D2 \
+>  LD_SONAME_FLAGS=3D-soname,$(LIBSO),--version-script=3Dlibselinux.map,-z,=
+defs,-z,relro
 > --
 > 2.40.1
 >
