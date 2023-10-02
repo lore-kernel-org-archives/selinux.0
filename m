@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE28E743C3
-	for <selinux@archiver.kernel.org>; Mon,  2 Oct 2023 16:05:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5203EE784BF
+	for <selinux@archiver.kernel.org>; Mon,  2 Oct 2023 16:06:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237923AbjJBQFV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Oct 2023 12:05:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54790 "EHLO
+        id S237910AbjJBQGB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Oct 2023 12:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbjJBQFU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Oct 2023 12:05:20 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8CB8E
-        for <selinux@vger.kernel.org>; Mon,  2 Oct 2023 09:05:18 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id 46e09a7af769-6c4a25f6390so9734364a34.2
-        for <selinux@vger.kernel.org>; Mon, 02 Oct 2023 09:05:18 -0700 (PDT)
+        with ESMTP id S232151AbjJBQGA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Oct 2023 12:06:00 -0400
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D56693
+        for <selinux@vger.kernel.org>; Mon,  2 Oct 2023 09:05:57 -0700 (PDT)
+Received: by mail-ot1-x32a.google.com with SMTP id 46e09a7af769-6c4b9e09521so9300557a34.3
+        for <selinux@vger.kernel.org>; Mon, 02 Oct 2023 09:05:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696262718; x=1696867518; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1696262756; x=1696867556; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AT3yPArnqljknYomrGyRnrNut0OXy3hVY9z4XZJjBlI=;
-        b=WVDuIsH24lxFZh8MqmKek28THrjLASPWs726zxDqRz2KZqu/TAR369Cm3JtBPZ5IJx
-         IofbN2Dod2jyM78hPO++9QEB3xC5S9G2g4E96By2gC9uXeZqN8FDtmxlS3iNC6MH/Aq4
-         SylOjIkaZ/veK8nlPoC6V67XEsepqFN6pufWkm1NOxauYNR+dALlp9FXG1Pd/s+YvUQI
-         f88i8W5vzMXrtyDKekJJa5zEGmMnzQsRdzGRi1KIdFgYCAdh/hoFqRoSxMoi3w6LyPf8
-         AkLDtpROHwb312msTbo8UNm278IU80BE/4+6YH7DGwSOucGoZBnJVo6ydrYXmHGxYpwX
-         JKxQ==
+        bh=HgqGq/Qef2sQHfvhvtCu0UAQbcYPEnyE0cXOqIwV/+4=;
+        b=RZM60Ld7LGtSe/naexYpVqUy+w7WJO6FiD+saJMb9mnInxtbiIxlSNzNwi6uCTR55J
+         cY6ET8uW0HQNmoB6IoQfbQpsxjFi6kq4FR1O4MYyYfkDHqeKcwniBNFpRznz2cgfuztH
+         yixTPbEAc3yxqW8WjDFHll4Yb2erHhgQuKsu8qHdnxviePmCwPSE0wckGW2qUb+eu+eP
+         LdCRzBLFNBOvwcCOHTXgMKVmvIlU8w8Np9NYd+vHsLfB4w0DmFvdmYJ5awYYQRjCSgW4
+         /zXk8O3fvKhV6OBBNU1MSepxZ36iJygBPcS1T+t09H+qvXIK2hHgclytyupIoLKIThSu
+         4d4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696262718; x=1696867518;
+        d=1e100.net; s=20230601; t=1696262756; x=1696867556;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AT3yPArnqljknYomrGyRnrNut0OXy3hVY9z4XZJjBlI=;
-        b=HRR5DrX/jOaJiiylIF3Larkj4mT7im+cgCUauX+BzBPSsrNJF6R5udqjt6MgkjT7Bs
-         RzYRUBHMK2PV9JpYNvlODJjev17yqNxp7ogEqTYs/9fHiG7DmKoy6whL71eYe0Wx0a0l
-         zH6rtfV2bfAjdEKW+oxa7sTOb0cZqk2TAOo5fpB5mRdGWkP9YUcK8+c2QypVcM7K3pKj
-         DqW4/yfmn3FFQomIzvcNu/FpRSaa95tS5sl9DvXUf+rfZQ7uldmewlhHMAmNwi60mLMO
-         apwxpe471DNIentsfRk4MssCP2O+Qof8CS2eG191haUOQe6UnQN+R1mrzYKCMGUK/kyp
-         0rbw==
-X-Gm-Message-State: AOJu0YxNi/xC43GTDnlibbaplfwWzDP60ueXzCoqVCP22mVqzsPhFQ8p
-        PKElaq/ID6X9Yqq7OQroUryvYiGpya64a5hEcmJqtDW7
-X-Google-Smtp-Source: AGHT+IEeFEFXCVTgehJoAzyK7synx/HDAjUDtuiuhLsFD4W+MkQcNxEj6dAdnf66v4wunucIDJx400TukZ2S6nET0II=
-X-Received: by 2002:a05:6830:1259:b0:6c4:fc6d:88fb with SMTP id
- s25-20020a056830125900b006c4fc6d88fbmr12223683otp.33.1696262717726; Mon, 02
- Oct 2023 09:05:17 -0700 (PDT)
+        bh=HgqGq/Qef2sQHfvhvtCu0UAQbcYPEnyE0cXOqIwV/+4=;
+        b=jpuF7XmMRGca0zq3COSvrC+dacVjKH37XO060xCHp5d+Ruh7uVv6sUNTAgf3XSTqB4
+         CQwhm+2IUXjNO37ufd1xV9Im9nZmaGfElspjZLJAkBNLoISUcIypLW21hmpU1tU1+lAu
+         3d9Iwt0dqRrf/oh8wPMB8UQJ+AEfCbQwIXOFm3oGWBC91rL/A1vnXBtinRh8cFn95H6b
+         FJ5ZrIQnj/r5gblSlr3sVFoyKciPXVecsIUAVJXT4b/9Or/FAzFAzkSfjEA+kZAHh96T
+         Ckom9Ilo3wgMRlDYEg9hNFV7T1umoAGXavJRzRWJNKkIefGmiUthikqFJqsqsMJRW6K8
+         OP7Q==
+X-Gm-Message-State: AOJu0YzLAL2bjk3tg7wTW4pyI6iTAlV7tbqSSSCQei80gMwjd+PeTtWs
+        P/3mBeHQOFYOeYxDOZWsCiaamE580rALShDRPXfqazd3NiU=
+X-Google-Smtp-Source: AGHT+IGcbSpgzOzDhgswI+XPCEsgo3/fc5YaRvClnHVfubBoAPc6n2D7YxxEHwj2FLmOHLUeocN51inWsD85R0RG6MM=
+X-Received: by 2002:a05:6830:3d17:b0:6c4:cdce:5de8 with SMTP id
+ eu23-20020a0568303d1700b006c4cdce5de8mr11766925otb.26.1696262756304; Mon, 02
+ Oct 2023 09:05:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230929195617.65120-1-jsatterfield.linux@gmail.com> <20230929195617.65120-2-jsatterfield.linux@gmail.com>
-In-Reply-To: <20230929195617.65120-2-jsatterfield.linux@gmail.com>
+References: <20230929195617.65120-1-jsatterfield.linux@gmail.com> <20230929195617.65120-3-jsatterfield.linux@gmail.com>
+In-Reply-To: <20230929195617.65120-3-jsatterfield.linux@gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 2 Oct 2023 12:05:06 -0400
-Message-ID: <CAEjxPJ7fZFN+MMnF9pbz7+cXcJKR8J9W60T8MceR=PQW=kzAVg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] selinux: simplify avtab_insert_node() prototype
+Date:   Mon, 2 Oct 2023 12:05:45 -0400
+Message-ID: <CAEjxPJ5d=w_AcADCJJgKcHoQiDc3KWmSHmdJb9dmniJgGVsHDw@mail.gmail.com>
+Subject: Re: [PATCH 2/4] selinux: refactor avtab_node comparisons
 To:     Jacob Satterfield <jsatterfield.linux@gmail.com>
 Cc:     selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
@@ -64,9 +64,13 @@ X-Mailing-List: selinux@vger.kernel.org
 On Fri, Sep 29, 2023 at 3:56=E2=80=AFPM Jacob Satterfield
 <jsatterfield.linux@gmail.com> wrote:
 >
-> __hashtab_insert() in hashtab.h has a cleaner interface that allows the
-> caller to specify the chain node location that the new node is being
-> inserted into so that it can update the node that currently occupies it.
+> In four separate functions within avtab, the same comparison logic is
+> used. The only difference is how the result is handled or whether there
+> is a unique specifier value to be checked for or used.
+>
+> Extracting this functionality into the avtab_node_cmp() function unifies
+> the comparison logic between searching and insertion and gets rid of
+> duplicative code so that the implementation is easier to maintain.
 >
 > Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
 
