@@ -2,84 +2,180 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38407CD6E72
-	for <selinux@archiver.kernel.org>; Wed, 11 Oct 2023 14:05:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EBACCD6E7C
+	for <selinux@archiver.kernel.org>; Wed, 11 Oct 2023 14:27:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235057AbjJKOFC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Oct 2023 10:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50538 "EHLO
+        id S1346934AbjJKO1V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Oct 2023 10:27:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235070AbjJKOFA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Oct 2023 10:05:00 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FA9B7
-        for <selinux@vger.kernel.org>; Wed, 11 Oct 2023 07:04:55 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id 3f1490d57ef6-d9a7a3e17d1so1547770276.2
-        for <selinux@vger.kernel.org>; Wed, 11 Oct 2023 07:04:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1697033094; x=1697637894; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=onL9d3d7dl4Bu91unuN/0efPNRFRtaLFe4aDSmoBdaY=;
-        b=B+9V3fDOdV4IBr2mABH1+4Y2Z7Pi3QuTcLMRTUHzI4eNb4nm0ApfQdqq1NW78ExVNL
-         X1BiRdcjYT6+BjEKwCSouOakNptvvpYfNwhzhCsJyZn3xkPt6TyhWbYzHYyEVf05/+Jb
-         ZgHFtAtF/iz9yDPFuHRletRpmRlmLBdvyGDOE9p+aggijH8+RbToQAL69I9f43OrReoX
-         zzDKctMxdzQdffqc/HVH+lVw5EL7Q/rxnQHPi5orRNX7EXVygHoVsg4KwD6DfXRaGy31
-         EG2al/Klr3/3JZGSK/ta04Lu4lejw6uIgAZ1Wn/f1gHTmZ9USuPg9h5uxmhM4V7vhW4s
-         N3bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697033094; x=1697637894;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=onL9d3d7dl4Bu91unuN/0efPNRFRtaLFe4aDSmoBdaY=;
-        b=V04+MSmOmFP/xAyXuvF/tq6bcfqMrsFPBvtMGZb2H/THBD/LOdMwKnSzVTNRpk7tXg
-         +eLixGgWfkeH3N73FrS5VQEMoy4qqOf2X6Et95EbF3CsnyjodlQXohlyIc45WazQVjhZ
-         evntzBcx0qVyO+vFYrRl12FxcxavYAjnm4Pyzq1XNfFoFemRleuTGX3UpHNhTdmgLnGL
-         KBdstbVNqA1QRBW+BjY6eFp+x5R2Llq1gyTr/xc7M0Tqr1zrpMOQFogydzIExWaM4Lrc
-         q4O4l3NylAA/sfT1ZAeDYFjPb+ngvtE17BxeW1C7uBZY6wIbhMpE9JuhmjKUNiOcYQYC
-         N7kg==
-X-Gm-Message-State: AOJu0YyYOrpAc6E0SdeItIlziAy2tEindVooY9uhg8xa94ywbSPbT/4u
-        w9FwvqXTnKnOAIPDkCKNaDjnc4+oUoH6LVlf1cnZ4eepq31oFx8=
-X-Google-Smtp-Source: AGHT+IH3bi8hKmmr81SmfAoT/XYqtXY431jBMlnbkwZKG8PylWa7cZtLh33SBJdkT44i4wg4E1uRiw4mq9XsbusOwsY=
-X-Received: by 2002:a25:9012:0:b0:d9a:5f25:d0df with SMTP id
- s18-20020a259012000000b00d9a5f25d0dfmr4537864ybl.57.1697033094701; Wed, 11
- Oct 2023 07:04:54 -0700 (PDT)
-MIME-Version: 1.0
-References: <ZSZMGtFFycCLmjNb@dhcp-0-146.brq.redhat.com>
-In-Reply-To: <ZSZMGtFFycCLmjNb@dhcp-0-146.brq.redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 11 Oct 2023 10:04:43 -0400
-Message-ID: <CAHC9VhSC9BeD+mCPSoDp1fphV4BMAxmBVp2pL+wVoFsmYC121w@mail.gmail.com>
-Subject: Re: An X.509 certificate for selinuxproject.org web server has expired
-To:     Petr Pisar <ppisar@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S235069AbjJKO1U (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Oct 2023 10:27:20 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F0C0B6;
+        Wed, 11 Oct 2023 07:27:18 -0700 (PDT)
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39BEKJgZ026056;
+        Wed, 11 Oct 2023 14:26:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=hwv9Ln5vwUJ6RTl5oYfvcx3p5aoxxW+VLSzODqPcTGI=;
+ b=kNh1IE6/AIonVhJ3NCWkxse1DrFFdg9H2SIIDT0wD5L34gedEFjLcq5xQuuyRN3HvbIe
+ tf/n/SVSv0/yCMxa1SfbrYd0Rxd7KoXtilfS5knyDmocKIVnYAQO++PUIMmMMTVNeMrz
+ 6iLn6K+iDQYkNuqsEs6tdYZ7pTKGijxGrfB0Ijrd9efrHf3yAdRWnwXrScKgEFLAaA27
+ 48x6JtzwPZd/cnaUR7o8QX5l/8s+Ton/qklkSwip7VmHnAe0nFrdNdGq5qPTf0csW1jV
+ cRPO4ZyPhP7EhDlkKOIyWn6GYE9xIBy3Me+t4Z2mL3iYm6jpJ06cpbj6NEmr8W1r20F7 eg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnwcng7ek-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 14:26:30 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39BELEdB029444;
+        Wed, 11 Oct 2023 14:26:29 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tnwcng7e5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 14:26:29 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39BE3NVc025863;
+        Wed, 11 Oct 2023 14:26:28 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnngkm5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 11 Oct 2023 14:26:28 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+        by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39BEQSHP27001392
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 11 Oct 2023 14:26:28 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0038B5803F;
+        Wed, 11 Oct 2023 14:26:28 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AAC4558056;
+        Wed, 11 Oct 2023 14:26:26 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.67.198])
+        by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Wed, 11 Oct 2023 14:26:26 +0000 (GMT)
+Message-ID: <e9c402eac882ada620b9bf9aadd507ae51bd4a7f.camel@linux.ibm.com>
+Subject: Re: [PATCH v3 01/25] ima: Align ima_inode_post_setattr() definition
+ with LSM infrastructure
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>
+Date:   Wed, 11 Oct 2023 10:26:26 -0400
+In-Reply-To: <20230904133415.1799503-2-roberto.sassu@huaweicloud.com>
+References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
+         <20230904133415.1799503-2-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: t0qch1x91VHPl_IFUTpYzTcwiC6OKrX2
+X-Proofpoint-GUID: Pm1mNEanTYeYNl1mS2QD2BQ4BS1Re_WB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-11_09,2023-10-11_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
+ priorityscore=1501 malwarescore=0 adultscore=0 clxscore=1011
+ suspectscore=0 mlxscore=0 mlxlogscore=999 lowpriorityscore=0 spamscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310110126
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 3:18=E2=80=AFAM Petr Pisar <ppisar@redhat.com> wrot=
-e:
->
-> A TLS certificate for <https://selinuxproject.org/> has expired:
->
-> $ gnutls-cli --port https selinuxproject.org
-> Processed 367 CA certificate(s).
-> Resolving 'selinuxproject.org:https'...
-> Connecting to '207.210.245.134:443'...
-> - Certificate type: X.509
-> - Got a certificate list of 3 certificates.
-> - Certificate[0] info:
->  - subject `CN=3Dselinuxproject.org', issuer `CN=3DR3,O=3DLet's Encrypt,C=
-=3DUS', serial 0x04ef96d84dee2bf82c3fd430379377422cc5, RSA key 2048 bits, s=
-igned using RSA-SHA256, activated `2023-07-12 19:10:38 UTC', expires `2023-=
-10-10 19:10:37 UTC', pin-sha256=3D"MrgWqS/CGL+3idYpvJbFP3KfXfWmDboEKJTsCXFm=
-c28=3D"
+On Mon, 2023-09-04 at 15:33 +0200, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+> 
+> Change ima_inode_post_setattr() definition, so that it can be registered as
+> implementation of the inode_post_setattr hook.
 
-Thanks for the heads-up, I'll contact the sysadmin and let them know.
+Please indicate inode_post_settattr() is a new hook.  In general it
+should be stated on first usage.  In 02/25 the wording "(to be
+introduced)" is used, but not on first usage.  Please add "(to be
+introduced)" after inode_post_setattr.
 
---=20
-paul-moore.com
+Adding a new security hook argument would be to support both IMA and
+EVM, which have different options.
+
+Mimi
+
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> ---
+>  fs/attr.c                             | 2 +-
+>  include/linux/ima.h                   | 4 ++--
+>  security/integrity/ima/ima_appraise.c | 3 ++-
+>  3 files changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/fs/attr.c b/fs/attr.c
+> index d60dc1edb526..7d4553c1208d 100644
+> --- a/fs/attr.c
+> +++ b/fs/attr.c
+> @@ -486,7 +486,7 @@ int notify_change(struct mnt_idmap *idmap, struct dentry *dentry,
+>  
+>  	if (!error) {
+>  		fsnotify_change(dentry, ia_valid);
+> -		ima_inode_post_setattr(idmap, dentry);
+> +		ima_inode_post_setattr(idmap, dentry, ia_valid);
+>  		evm_inode_post_setattr(dentry, ia_valid);
+>  	}
+>  
+> diff --git a/include/linux/ima.h b/include/linux/ima.h
+> index 86b57757c7b1..910a2f11a906 100644
+> --- a/include/linux/ima.h
+> +++ b/include/linux/ima.h
+> @@ -186,7 +186,7 @@ static inline void ima_post_key_create_or_update(struct key *keyring,
+>  #ifdef CONFIG_IMA_APPRAISE
+>  extern bool is_ima_appraise_enabled(void);
+>  extern void ima_inode_post_setattr(struct mnt_idmap *idmap,
+> -				   struct dentry *dentry);
+> +				   struct dentry *dentry, int ia_valid);
+>  extern int ima_inode_setxattr(struct dentry *dentry, const char *xattr_name,
+>  		       const void *xattr_value, size_t xattr_value_len);
+>  extern int ima_inode_set_acl(struct mnt_idmap *idmap,
+> @@ -206,7 +206,7 @@ static inline bool is_ima_appraise_enabled(void)
+>  }
+>  h
+>  static inline void ima_inode_post_setattr(struct mnt_idmap *idmap,
+> -					  struct dentry *dentry)
+> +					  struct dentry *dentry, int ia_valid)
+>  {
+>  	return;
+>  }
+> diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+> index 491c1aca0b1c..6b032bce4fe7 100644
+> --- a/security/integrity/ima/ima_appraise.c
+> +++ b/security/integrity/ima/ima_appraise.c
+> @@ -627,6 +627,7 @@ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file)
+>   * ima_inode_post_setattr - reflect file metadata changes
+>   * @idmap:  idmap of the mount the inode was found from
+>   * @dentry: pointer to the affected dentry
+> + * @ia_valid: for the UID and GID status
+>   *
+>   * Changes to a dentry's metadata might result in needing to appraise.
+>   *
+> @@ -634,7 +635,7 @@ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file)
+>   * to lock the inode's i_mutex.
+>   */
+>  void ima_inode_post_setattr(struct mnt_idmap *idmap,
+> -			    struct dentry *dentry)
+> +			    struct dentry *dentry, int ia_valid)
+>  {
+>  	struct inode *inode = d_backing_inode(dentry);
+>  	struct integrity_iint_cache *iint;
+
+
