@@ -2,198 +2,224 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41BC3CD98EE
-	for <selinux@archiver.kernel.org>; Wed, 11 Oct 2023 16:03:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57F7ECDB475
+	for <selinux@archiver.kernel.org>; Wed, 11 Oct 2023 18:49:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232345AbjJKQC6 convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Oct 2023 12:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36320 "EHLO
+        id S232997AbjJKSsw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Oct 2023 14:48:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235033AbjJKQC4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Oct 2023 12:02:56 -0400
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BBA5B7;
-        Wed, 11 Oct 2023 09:02:53 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.18.147.227])
-        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4S5HG14sGQz9y5C7;
-        Wed, 11 Oct 2023 23:47:21 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-        by APP2 (Coremail) with SMTP id GxC2BwC3WrYCxyZlgBb+AQ--.32343S2;
-        Wed, 11 Oct 2023 17:02:24 +0100 (CET)
-Message-ID: <b51baf7741de1fdee8b36a87bd2dde71184d47a8.camel@huaweicloud.com>
-Subject: Re: [PATCH v3 02/25] ima: Align ima_post_path_mknod() definition
- with LSM infrastructure
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, viro@zeniv.linux.org.uk,
-        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
-        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
-        tom@talpey.com, dmitry.kasatkin@gmail.com, paul@paul-moore.com,
-        jmorris@namei.org, serge@hallyn.com, dhowells@redhat.com,
-        jarkko@kernel.org, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Wed, 11 Oct 2023 18:02:07 +0200
-In-Reply-To: <a733fe780a3197150067ad35ed280bf85e11fa97.camel@linux.ibm.com>
-References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
-         <20230904133415.1799503-3-roberto.sassu@huaweicloud.com>
-         <a733fe780a3197150067ad35ed280bf85e11fa97.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4-0ubuntu2 
+        with ESMTP id S232519AbjJKSsv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Oct 2023 14:48:51 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1457F90
+        for <selinux@vger.kernel.org>; Wed, 11 Oct 2023 11:48:48 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-50337b43ee6so247215e87.3
+        for <selinux@vger.kernel.org>; Wed, 11 Oct 2023 11:48:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697050126; x=1697654926; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wWH9Ut9e56tmjlhtYxqDarymrHEfdhur/qACkuLlbxc=;
+        b=WiU16LJ8agqcdV+pyhU3IJfNlVFaeAtlrmfxDfCQlkO2baJAtJvxmLi7P5sqhqICf6
+         r1xs7b10VGsKvrjfIMO8ozJjYYU38ZaSb7KQFRNIfOWf2ExmDNOpOJ5RKK8ZiZS/VCOo
+         Mq37rIVdvoyaBywUfBWyN0Ejy/3yQ3yGkK5wBEHMgNLojT6rY7vImbRdv0Oj2057b04/
+         J3exjymIpW0fl3/VUAuhgXhPIuxxJL1VF6uRe0QioeJcOh0nKNadLfOxa22YmqiAMd+Z
+         64aieAFNTVdey6BCRDXotKqi1nkgCK9/g4/3sRlZlk7Sh5ts68YzTnBSe1q8UpDt5SNS
+         yqAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697050126; x=1697654926;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wWH9Ut9e56tmjlhtYxqDarymrHEfdhur/qACkuLlbxc=;
+        b=Mt3WbT0oAOfwmTx1fmOYOTlUiV1+ET9esbHWvGRZKh6SXf8143gIQK/2spvMXGYAu9
+         HRTWQijNDxpvXElyLI4triEfY79tGx5IlAcOVfeoR+FxAoTLnxRIHD7B2Yi9FFAGXGzU
+         x8mhvJ7fssig4xx31N8icguQVEyh6gXG4pVWRSDTZbYKRbid6jV/X1JxG9pbTSMjRNuZ
+         Vg7gwrmdNBVIbiNqzZOdqw+6t6IAe46wv1yf3nwTWNXeTUepCaEb4vy7t6vSl6n7HQ7e
+         xDjfEEtszZpzkTnb5zvWSFOdhDHz5i3Ldo2v8XyAsrSJ+3N5/ZhgyQVxTpD5TH86zAYq
+         aDBA==
+X-Gm-Message-State: AOJu0YwcGxJyLL1s5iTlTvlgGskHwaOZdI/Dp3QXko5F093Zg8H2T3F0
+        bnAwkue6hTb2HqS2Q3uxdyBDfHGEAW+yANQf1EfKK53995s=
+X-Google-Smtp-Source: AGHT+IG4770sM9YOpm54K1V9ugRKttSUOAN1BiXxYGUj8t8VzWveoOspm4JooKcjYZuhI4jqNAzSetGnlHznAUxzKsg=
+X-Received: by 2002:a05:6512:304b:b0:500:9969:60bf with SMTP id
+ b11-20020a056512304b00b00500996960bfmr20087161lfb.68.1697050125922; Wed, 11
+ Oct 2023 11:48:45 -0700 (PDT)
 MIME-Version: 1.0
-X-CM-TRANSID: GxC2BwC3WrYCxyZlgBb+AQ--.32343S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxAF1ftrykJw1fCrWfGw1UGFg_yoW7JrWxpF
-        Wkt3WDG395Ary7uF10vFW5Aa4Fv392qF45GFZag3WSyF9Igrn0gFsa9F4Y9ryrKFWvkryx
-        XF15tr98uw4jyFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUk0b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv
-        6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFYFCUUUUU
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAHBF1jj5TqOgAAs3
-X-CFilter-Loop: Reflected
+References: <20230814132025.45364-1-cgzones@googlemail.com> <20230814132025.45364-21-cgzones@googlemail.com>
+In-Reply-To: <20230814132025.45364-21-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 11 Oct 2023 14:48:34 -0400
+Message-ID: <CAP+JOzR+5ukWPRBfs0QaNBcWZ3TNpKg1r60sUf-rLgsi60ZjCQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 20/27] libselinux: check for stream rewind failures
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2023-10-11 at 10:38 -0400, Mimi Zohar wrote:
-> On Mon, 2023-09-04 at 15:33 +0200, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > 
-> > Change ima_post_path_mknod() definition, so that it can be registered as
-> > implementation of the path_post_mknod hook. Since LSMs see a umask-stripped
-> > mode from security_path_mknod(), pass the same to ima_post_path_mknod() as
-> > well.
-> > Also, make sure that ima_post_path_mknod() is executed only if
-> > (mode & S_IFMT) is equal to zero or S_IFREG.
-> > 
-> > Add this check to take into account the different placement of the
-> > path_post_mknod hook (to be introduced) in do_mknodat().
-> 
-> Move "(to be introduced)" to when it is first mentioned.
-> 
-> > Since the new hook
-> > will be placed after the switch(), the check ensures that
-> > ima_post_path_mknod() is invoked as originally intended when it is
-> > registered as implementation of path_post_mknod.
-> > 
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > ---
-> >  fs/namei.c                        |  9 ++++++---
-> >  include/linux/ima.h               |  7 +++++--
-> >  security/integrity/ima/ima_main.c | 10 +++++++++-
-> >  3 files changed, 20 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/fs/namei.c b/fs/namei.c
-> > index e56ff39a79bc..c5e96f716f98 100644
-> > --- a/fs/namei.c
-> > +++ b/fs/namei.c
-> > @@ -4024,6 +4024,7 @@ static int do_mknodat(int dfd, struct filename *name, umode_t mode,
-> >  	struct path path;
-> >  	int error;
-> >  	unsigned int lookup_flags = 0;
-> > +	umode_t mode_stripped;
-> >  
-> >  	error = may_mknod(mode);
-> >  	if (error)
-> > @@ -4034,8 +4035,9 @@ static int do_mknodat(int dfd, struct filename *name, umode_t mode,
-> >  	if (IS_ERR(dentry))
-> >  		goto out1;
-> >  
-> > -	error = security_path_mknod(&path, dentry,
-> > -			mode_strip_umask(path.dentry->d_inode, mode), dev);
-> > +	mode_stripped = mode_strip_umask(path.dentry->d_inode, mode);
-> > +
-> > +	error = security_path_mknod(&path, dentry, mode_stripped, dev);
-> >  	if (error)
-> >  		goto out2;
-> >  
-> > @@ -4045,7 +4047,8 @@ static int do_mknodat(int dfd, struct filename *name, umode_t mode,
-> >  			error = vfs_create(idmap, path.dentry->d_inode,
-> >  					   dentry, mode, true);
-> >  			if (!error)
-> > -				ima_post_path_mknod(idmap, dentry);
-> > +				ima_post_path_mknod(idmap, &path, dentry,
-> > +						    mode_stripped, dev);
-> >  			break;
-> >  		case S_IFCHR: case S_IFBLK:
-> >  			error = vfs_mknod(idmap, path.dentry->d_inode,
-> > diff --git a/include/linux/ima.h b/include/linux/ima.h
-> > index 910a2f11a906..179ce52013b2 100644
-> > --- a/include/linux/ima.h
-> > +++ b/include/linux/ima.h
-> > @@ -32,7 +32,8 @@ extern int ima_read_file(struct file *file, enum kernel_read_file_id id,
-> >  extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
-> >  			      enum kernel_read_file_id id);
-> >  extern void ima_post_path_mknod(struct mnt_idmap *idmap,
-> > -				struct dentry *dentry);
-> > +				const struct path *dir, struct dentry *dentry,
-> > +				umode_t mode, unsigned int dev);
-> >  extern int ima_file_hash(struct file *file, char *buf, size_t buf_size);
-> >  extern int ima_inode_hash(struct inode *inode, char *buf, size_t buf_size);
-> >  extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
-> > @@ -114,7 +115,9 @@ static inline int ima_post_read_file(struct file *file, void *buf, loff_t size,
-> >  }
-> >  
-> >  static inline void ima_post_path_mknod(struct mnt_idmap *idmap,
-> > -				       struct dentry *dentry)
-> > +				       const struct path *dir,
-> > +				       struct dentry *dentry,
-> > +				       umode_t mode, unsigned int dev)
-> >  {
-> >  	return;
-> >  }
-> > diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-> > index 365db0e43d7c..76eba92d7f10 100644
-> > --- a/security/integrity/ima/ima_main.c
-> > +++ b/security/integrity/ima/ima_main.c
-> > @@ -696,18 +696,26 @@ void ima_post_create_tmpfile(struct mnt_idmap *idmap,
-> >  /**
-> >   * ima_post_path_mknod - mark as a new inode
-> >   * @idmap: idmap of the mount the inode was found from
-> > + * @dir: path structure of parent of the new file
-> >   * @dentry: newly created dentry
-> > + * @mode: mode of the new file
-> > + * @dev: undecoded device number
-> >   *
-> >   * Mark files created via the mknodat syscall as new, so that the
-> >   * file data can be written later.
-> >   */
-> >  void ima_post_path_mknod(struct mnt_idmap *idmap,
-> > -			 struct dentry *dentry)
-> > +			 const struct path *dir, struct dentry *dentry,
-> > +			 umode_t mode, unsigned int dev)
-> >  {
-> >  	struct integrity_iint_cache *iint;
-> >  	struct inode *inode = dentry->d_inode;
-> >  	int must_appraise;
-> >  
-> > +	/* See do_mknodat(), IMA is executed for case 0: and case S_IFREG: */
-> > +	if ((mode & S_IFMT) != 0 && (mode & S_IFMT) != S_IFREG)
-> > +		return;
-> > +
-> 
-> There's already a check below to make sure that this is a regular file.
-> Are both needed?
+On Mon, Aug 14, 2023 at 9:41=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Use fseek(3) instead of rewind(3) to detect failures.
+>
+> Drop the final rewind in digest_add_specfile(), since all callers are
+> going to close the stream without any further action.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-You are right, I can remove the first check.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Thanks
-
-Roberto
-
-> >  	if (!ima_policy_flag || !S_ISREG(inode->i_mode))
-> >  		return;
-> >  
-
+> ---
+>  libselinux/src/is_customizable_type.c   |  7 ++++++-
+>  libselinux/src/label_backends_android.c |  5 ++++-
+>  libselinux/src/label_file.c             | 16 +++++++++++++---
+>  libselinux/src/label_media.c            |  5 ++++-
+>  libselinux/src/label_support.c          |  5 +++--
+>  libselinux/src/label_x.c                |  5 ++++-
+>  6 files changed, 34 insertions(+), 9 deletions(-)
+>
+> diff --git a/libselinux/src/is_customizable_type.c b/libselinux/src/is_cu=
+stomizable_type.c
+> index f83e1e83..9be50174 100644
+> --- a/libselinux/src/is_customizable_type.c
+> +++ b/libselinux/src/is_customizable_type.c
+> @@ -31,7 +31,12 @@ static void customizable_init(void)
+>         while (fgets_unlocked(buf, selinux_page_size, fp) && ctr < UINT_M=
+AX) {
+>                 ctr++;
+>         }
+> -       rewind(fp);
+> +
+> +       if (fseek(fp, 0L, SEEK_SET) =3D=3D -1) {
+> +               fclose(fp);
+> +               return;
+> +       }
+> +
+>         if (ctr) {
+>                 list =3D
+>                     (char **) calloc(sizeof(char *),
+> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/lab=
+el_backends_android.c
+> index c2d78360..6494f3cd 100644
+> --- a/libselinux/src/label_backends_android.c
+> +++ b/libselinux/src/label_backends_android.c
+> @@ -208,7 +208,10 @@ static int init(struct selabel_handle *rec, const st=
+ruct selinux_opt *opts,
+>                                 goto finish;
+>
+>                         maxnspec =3D data->nspec;
+> -                       rewind(fp);
+> +
+> +                       status =3D fseek(fp, 0L, SEEK_SET);
+> +                       if (status =3D=3D -1)
+> +                               goto finish;
+>                 }
+>         }
+>
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 471fd56b..a5677411 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -519,12 +519,16 @@ static char *rolling_append(char *current, const ch=
+ar *suffix, size_t max)
+>         return current;
+>  }
+>
+> -static bool fcontext_is_binary(FILE *fp)
+> +static int fcontext_is_binary(FILE *fp)
+>  {
+>         uint32_t magic;
+> +       int rc;
+>
+>         size_t len =3D fread(&magic, sizeof(magic), 1, fp);
+> -       rewind(fp);
+> +
+> +       rc =3D fseek(fp, 0L, SEEK_SET);
+> +       if (rc =3D=3D -1)
+> +               return -1;
+>
+>         return (len && (magic =3D=3D SELINUX_MAGIC_COMPILED_FCONTEXT));
+>  }
+> @@ -622,7 +626,13 @@ static int process_file(const char *path, const char=
+ *suffix,
+>                 if (fp =3D=3D NULL)
+>                         return -1;
+>
+> -               rc =3D fcontext_is_binary(fp) ?
+> +               rc =3D fcontext_is_binary(fp);
+> +               if (rc < 0) {
+> +                       (void) fclose(fp);
+> +                       return -1;
+> +               }
+> +
+> +               rc =3D rc ?
+>                                 load_mmap(fp, sb.st_size, rec, found_path=
+) :
+>                                 process_text_file(fp, rec, found_path);
+>                 if (!rc)
+> diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+> index f09461ab..b3443b47 100644
+> --- a/libselinux/src/label_media.c
+> +++ b/libselinux/src/label_media.c
+> @@ -130,7 +130,10 @@ static int init(struct selabel_handle *rec, const st=
+ruct selinux_opt *opts,
+>                                 goto finish;
+>                         memset(data->spec_arr, 0, sizeof(spec_t)*data->ns=
+pec);
+>                         maxnspec =3D data->nspec;
+> -                       rewind(fp);
+> +
+> +                       status =3D fseek(fp, 0L, SEEK_SET);
+> +                       if (status =3D=3D -1)
+> +                               goto finish;
+>                 }
+>         }
+>         free(line_buf);
+> diff --git a/libselinux/src/label_support.c b/libselinux/src/label_suppor=
+t.c
+> index 94fb6697..f7ab9292 100644
+> --- a/libselinux/src/label_support.c
+> +++ b/libselinux/src/label_support.c
+> @@ -174,12 +174,13 @@ int  digest_add_specfile(struct selabel_digest *dig=
+est, FILE *fp,
+>         digest->hashbuf =3D tmp_buf;
+>
+>         if (fp) {
+> -               rewind(fp);
+> +               if (fseek(fp, 0L, SEEK_SET) =3D=3D -1)
+> +                       return -1;
+> +
+>                 if (fread(digest->hashbuf + (digest->hashbuf_size - buf_l=
+en),
+>                                             1, buf_len, fp) !=3D buf_len)
+>                         return -1;
+>
+> -               rewind(fp);
+>         } else if (from_addr) {
+>                 tmp_buf =3D memcpy(digest->hashbuf +
+>                                     (digest->hashbuf_size - buf_len),
+> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+> index e80bf107..e15190ca 100644
+> --- a/libselinux/src/label_x.c
+> +++ b/libselinux/src/label_x.c
+> @@ -157,7 +157,10 @@ static int init(struct selabel_handle *rec, const st=
+ruct selinux_opt *opts,
+>                                 goto finish;
+>                         memset(data->spec_arr, 0, sizeof(spec_t)*data->ns=
+pec);
+>                         maxnspec =3D data->nspec;
+> -                       rewind(fp);
+> +
+> +                       status =3D fseek(fp, 0L, SEEK_SET);
+> +                       if (status =3D=3D -1)
+> +                               goto finish;
+>                 }
+>         }
+>         free(line_buf);
+> --
+> 2.40.1
+>
