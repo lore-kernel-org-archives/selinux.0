@@ -2,106 +2,138 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9052ECDB47E
-	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 08:03:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73BF7C41513
+	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 11:44:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347237AbjJLIDe convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Oct 2023 04:03:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43900 "EHLO
+        id S1343857AbjJLLob (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Oct 2023 07:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347243AbjJLIDc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 04:03:32 -0400
-X-Greylist: delayed 1181 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Oct 2023 01:03:27 PDT
-Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C9290;
-        Thu, 12 Oct 2023 01:03:27 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4S5hBk5V4Sz9yrH2;
-        Thu, 12 Oct 2023 15:30:54 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwBnwJGGoydlzkoQAg--.30762S2;
-        Thu, 12 Oct 2023 08:43:16 +0100 (CET)
-Message-ID: <80e4a1ea172edb2d4d441b70dcd93bfa1654a5b7.camel@huaweicloud.com>
+        with ESMTP id S232490AbjJLLoa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 07:44:30 -0400
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098DA94;
+        Thu, 12 Oct 2023 04:44:27 -0700 (PDT)
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39CBduDp001318;
+        Thu, 12 Oct 2023 11:43:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=GNP2HRT0gAKlMcfakYjbZFco/Zl8oaazBkcPChReGHQ=;
+ b=WFCtacQLMNv5wEEpzBluoVkcEszDJnI9JxyAVzZY0M6RCZtLO5ERkqqyhDeU+QmHDwY2
+ dUvZrkCKKi/qFYD3RjsMZvbsqqjkZWqwXUbvXW67H/ILfZHzyh6J4mXcOagCfagrap02
+ 36y/C+rVsBV0UYsrbytqIt3nTTGrQ0iJfVStYiuNFhzjffsuObvZF45MbpJTWkFHg7nG
+ ks84iifvgugT5jQwme2o5r3Gh02VrPBSebKVvAyw8S3N2dcrNzM3IXUHT1mewWxUeIeW
+ 5zCqsAOVp0KA832uNWbxln9ONG0+KzYAsntVecYERoX0QMoOVHEuZTxX8RI7kwoz7WFb LA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpg49g2ng-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 11:43:43 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39CBdvmK001335;
+        Thu, 12 Oct 2023 11:43:42 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tpg49g2j9-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 11:43:42 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39C9uQ69025891;
+        Thu, 12 Oct 2023 11:43:39 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnnq6cr-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 12 Oct 2023 11:43:39 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+        by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39CBhcqj20710036
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 12 Oct 2023 11:43:39 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BF43F58057;
+        Thu, 12 Oct 2023 11:43:38 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 20C9C58061;
+        Thu, 12 Oct 2023 11:43:37 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.11.225])
+        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+        Thu, 12 Oct 2023 11:43:37 +0000 (GMT)
+Message-ID: <b295d1aae72d8122178dc93c9aac21217bde682a.camel@linux.ibm.com>
 Subject: Re: [PATCH v3 12/25] security: Introduce inode_post_setattr hook
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, viro@zeniv.linux.org.uk,
-        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
-        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
-        tom@talpey.com, dmitry.kasatkin@gmail.com, paul@paul-moore.com,
-        jmorris@namei.org, serge@hallyn.com, dhowells@redhat.com,
-        jarkko@kernel.org, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com
 Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
         linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
         selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Thu, 12 Oct 2023 09:42:58 +0200
-In-Reply-To: <22761c3d88c2c4dbac747cc7ddca3d743c6d88d9.camel@linux.ibm.com>
+Date:   Thu, 12 Oct 2023 07:43:36 -0400
+In-Reply-To: <80e4a1ea172edb2d4d441b70dcd93bfa1654a5b7.camel@huaweicloud.com>
 References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
          <20230904133415.1799503-13-roberto.sassu@huaweicloud.com>
          <22761c3d88c2c4dbac747cc7ddca3d743c6d88d9.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4-0ubuntu2 
-MIME-Version: 1.0
-X-CM-TRANSID: LxC2BwBnwJGGoydlzkoQAg--.30762S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Zw1fKrykCF43XF13tw1rtFb_yoW8JFyxpF
-        W8Ga1DKr98Kry7C3s3tF48ZayFvayfKw4UXrZrJryxAFsrWw13Kan7Gay8ua4DGrWUGr1Y
-        qry2gasrXa4DZa7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv6xkF7I
-        0E14v26r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-        6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
-        7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
-        Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
-        6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcV
-        CF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2
-        jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UQZ2-UUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAIBF1jj5DumAAAsZ
-X-CFilter-Loop: Reflected
+         <80e4a1ea172edb2d4d441b70dcd93bfa1654a5b7.camel@huaweicloud.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: rZqxV2raaNky2t0Y2n1yXeJjRecmiZQx
+X-Proofpoint-GUID: RCCxgB8C4pZpo8TpW59RDhMvmyn-xMBX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-10-12_05,2023-10-12_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
+ mlxlogscore=999 spamscore=0 mlxscore=0 adultscore=0 clxscore=1015
+ impostorscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2309180000 definitions=main-2310120095
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2023-10-11 at 20:08 -0400, Mimi Zohar wrote:
-> gOn Mon, 2023-09-04 at 15:34 +0200, Roberto Sassu wrote:
-> > From: Roberto Sassu <roberto.sassu@huawei.com>
+On Thu, 2023-10-12 at 09:42 +0200, Roberto Sassu wrote:
+> On Wed, 2023-10-11 at 20:08 -0400, Mimi Zohar wrote:
+> > gOn Mon, 2023-09-04 at 15:34 +0200, Roberto Sassu wrote:
+> > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > 
+> > > In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> > > the inode_post_setattr hook.
+> > > 
+> > > It is useful for EVM to recalculate the HMAC on modified file attributes
+> > > and other file metadata, after it verified the HMAC of current file
+> > > metadata with the inode_setattr hook.
 > > 
-> > In preparation for moving IMA and EVM to the LSM infrastructure, introduce
-> > the inode_post_setattr hook.
+> > "useful"?  
 > > 
-> > It is useful for EVM to recalculate the HMAC on modified file attributes
-> > and other file metadata, after it verified the HMAC of current file
-> > metadata with the inode_setattr hook.
-> 
-> "useful"?  
-> 
-> At inode_setattr hook, EVM verifies the file's existing HMAC value.  At
-> inode_post_setattr, EVM re-calculates the file's HMAC based on the
-> modified file attributes and other file metadata.
-> 
+> > At inode_setattr hook, EVM verifies the file's existing HMAC value.  At
+> > inode_post_setattr, EVM re-calculates the file's HMAC based on the
+> > modified file attributes and other file metadata.
 > > 
-> > LSMs should use the new hook instead of inode_setattr, when they need to
-> > know that the operation was done successfully (not known in inode_setattr).
-> > The new hook cannot return an error and cannot cause the operation to be
-> > reverted.
-> 
-> Other LSMs could similarly update security xattrs or ...
-
-I added your sentence. The one above is to satisfy Casey's request to
-justify the addition of the new hook, and to explain why inode_setattr
-is not sufficient.
-
-Thanks
-
-Roberto
-
+> > > 
+> > > LSMs should use the new hook instead of inode_setattr, when they need to
+> > > know that the operation was done successfully (not known in inode_setattr).
+> > > The new hook cannot return an error and cannot cause the operation to be
+> > > reverted.
 > > 
-> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > Other LSMs could similarly update security xattrs or ...
 > 
-> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> I added your sentence. The one above is to satisfy Casey's request to
+> justify the addition of the new hook, and to explain why inode_setattr
+> is not sufficient.
+
+I was suggesting simplifying the wording.  Perhaps something like:
+
+Other LSMs could similarly take some action after successful file attri
+bute change.
+
+-- 
+thanks,
+
+Mimi
 
