@@ -2,160 +2,202 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8A3BCDB47E
-	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 13:50:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88511C41513
+	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 15:44:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379046AbjJLNuI convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Oct 2023 09:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42994 "EHLO
+        id S1379487AbjJLPoh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Oct 2023 11:44:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347272AbjJLNuH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 09:50:07 -0400
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BED791;
-        Thu, 12 Oct 2023 06:50:04 -0700 (PDT)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4S5rKL74bYz9xyNK;
-        Thu, 12 Oct 2023 21:37:10 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwDnPpBh+Sdls2kUAg--.18225S2;
-        Thu, 12 Oct 2023 14:49:35 +0100 (CET)
-Message-ID: <fc2fab2a1d3bbf3229374458b9d52d6766c19a21.camel@huaweicloud.com>
-Subject: Re: [PATCH v3 14/25] security: Introduce file_post_open hook
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>, viro@zeniv.linux.org.uk,
-        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
-        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
-        tom@talpey.com, dmitry.kasatkin@gmail.com, paul@paul-moore.com,
-        jmorris@namei.org, serge@hallyn.com, dhowells@redhat.com,
-        jarkko@kernel.org, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, casey@schaufler-ca.com
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Thu, 12 Oct 2023 15:49:18 +0200
-In-Reply-To: <4c11613696d2ffd92a652c1a734d4abfc489ff40.camel@linux.ibm.com>
-References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
-         <20230904133415.1799503-15-roberto.sassu@huaweicloud.com>
-         <2026a46459563d8f5d132a099f402ddad8f06fae.camel@linux.ibm.com>
-         <e6f0e7929abda6fa6ae7ef450b6e155b420a5f5b.camel@huaweicloud.com>
-         <4c11613696d2ffd92a652c1a734d4abfc489ff40.camel@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4-0ubuntu2 
+        with ESMTP id S1379491AbjJLPof (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 11:44:35 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B332C6
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 08:44:33 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-50305abe5f0so1570720e87.2
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 08:44:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697125471; x=1697730271; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EDBIpNkc9B2jkI01C/vWsUHuIM+u/pS6iEpruDTJSgk=;
+        b=acqisB2TJjCcWFcNPoXmKRuS74mulN54DupUeBJu8NlShYCPGc72Rdy50nPlug5zjv
+         cW0cwSi6S0p15YXUvNYzGJ2GpmnYG/Ywbp+7rycN1sZn7GGehbUCQ8pvXIgjXkJL1AzM
+         wa10Kg+XcbnAK9wJRnLFfvZeMtC7bWLUxseFHaTSCXzXKC+UecaS4SPujpm+ZvoZf1Nn
+         NNKUSN1NsmIShUx9BxX7cCJL3tGaBA4hOAzjXJIjeZCb9n5zjiMu4ZNWXTHR1Nkgrqac
+         v2yypQBhoAPzacNlnLH4CkkIGSJbHMLr8YD2lwF0m3TwrJ9K5rx3jTcs4FUXwlC41LhJ
+         WZ4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697125471; x=1697730271;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EDBIpNkc9B2jkI01C/vWsUHuIM+u/pS6iEpruDTJSgk=;
+        b=FUiQ3TxXvweaS9qI8p3VkqaoxfvZSLzwWuz0QwRTjOHKL3MUm+5pDVY33j0tVKlohU
+         W+/gkZcIyowqfByBCR83T4O1hakEBgsS6mpEwbd+hDJXiAgNQiQDzhhrSprLeYmZbj3a
+         M/0J5/HP6eV7s7CPz0u9fZR9EtmjfZRgR0cByxv5tZKqoNiMpA/rBSS3VG7aIF09PaT0
+         xe26VgpdqJ+K/Xe+OOYRESNHAiSD2A+T8nOandR9PkTIBADPHb5MTorY5lcZ7qKgn0YI
+         U/nmqt7QnfswBFO1tgrH1FFOotuVQOubpM7TMS3I4qIuAx3ABiW7uuS8Rc+WstdylWhM
+         L3pg==
+X-Gm-Message-State: AOJu0Yxo6kBPAN2ac8nROmdfljANOgQXSJEDVxQIHYXWHUVS+SOnvSkO
+        XRXq4S+6ewDSUd5h4jfYeGwMtpfr6pbUx7OAUTXZ2NSr
+X-Google-Smtp-Source: AGHT+IFFBB/zqgnEi70FDQqgl68ixfl6cejUocsFJX7KH3sLZoIM5Rhv1PeyYcJo4jiJftmGPl60BttGtWXYuehoNmU=
+X-Received: by 2002:ac2:5930:0:b0:507:9618:dc1f with SMTP id
+ v16-20020ac25930000000b005079618dc1fmr952640lfi.69.1697125471036; Thu, 12 Oct
+ 2023 08:44:31 -0700 (PDT)
 MIME-Version: 1.0
-X-CM-TRANSID: LxC2BwDnPpBh+Sdls2kUAg--.18225S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxGF4xAF4rZw4kZr1rZF1DJrb_yoW5ZFy7pF
-        WYkF47GF4Dtr17Aw10va13XF4SgrZ3tr4UXr9YqryUZrnYvr1kWF42qr4F9FWUJrn5A34j
-        vF17Gr9rur98AaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
-        7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
-        Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
-        6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
-        AIw20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280
-        aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAIBF1jj5DzlwAAsL
-X-CFilter-Loop: Reflected
+References: <CAHC9VhRw9hfx8rBRj4R1e-EELAW2eB8GtkpTzbjqoKGF0Zu20g@mail.gmail.com>
+In-Reply-To: <CAHC9VhRw9hfx8rBRj4R1e-EELAW2eB8GtkpTzbjqoKGF0Zu20g@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Thu, 12 Oct 2023 11:44:19 -0400
+Message-ID: <CAP+JOzQiEt=SF_gvr9WwCSUM73TjYw8O5sGPZ+nLeY0TU+cUBQ@mail.gmail.com>
+Subject: Re: RFC: thoughts on SELinux namespacing
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2023-10-12 at 09:35 -0400, Mimi Zohar wrote:
-> On Thu, 2023-10-12 at 14:45 +0200, Roberto Sassu wrote:
-> > On Thu, 2023-10-12 at 08:36 -0400, Mimi Zohar wrote:
-> > > On Mon, 2023-09-04 at 15:34 +0200, Roberto Sassu wrote:
-> > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > 
-> > > > In preparation to move IMA and EVM to the LSM infrastructure, introduce the
-> > > > file_post_open hook. Also, export security_file_post_open() for NFS.
-> > > > 
-> > > > It is useful for IMA to calculate the dhigest of the file content, and to
-> > > > decide based on that digest whether the file should be made accessible to
-> > > > the requesting process.
-> > > 
-> > > Please remove "It is usefile for".   Perhaps something along the lines:
-> > > 
-> > > 
-> > > Based on policy, IMA calculates the digest of the file content and
-> > > decides ...
-> > 
-> > Ok.
-> > 
-> > > > 
-> > > > LSMs should use this hook instead of file_open, if they need to make their
-> > > > decision based on an opened file (for example by inspecting the file
-> > > > content). The file is not open yet in the file_open hook.
-> 
-> Needing to inspect the file contents is a good example.
-> 
-> >  
-> > > The security hooks were originally defined for enforcing access
-> > > control.  As a result the hooks were placed before the action.  The
-> > > usage of the LSM hooks is not limited to just enforcing access control
-> > > these days.  For IMA/EVM to become full LSMs additional hooks are
-> > > needed post action.  Other LSMs, probably non-access control ones,
-> > > could similarly take some action post action, in this case successful
-> > > file open.
-> > 
-> > I don't know, I would not exclude LSMs to enforce access control. The
-> > post action can be used to update the state, which can be used to check
-> > next accesses (exactly what happens for EVM).
-> > 
-> > > Having to justify the new LSM post hooks in terms of the existing LSMs,
-> > > which enforce access control, is really annoying and makes no sense. 
-> > > Please don't.
-> > 
-> > Well, there is a relationship between the pre and post. But if you
-> > prefer, I remove this comparison.
-> 
-> My comments, above, were a result of the wording of the hook
-> definition, below.
+On Wed, Oct 11, 2023 at 6:55=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> Hello all,
+>
+> The SELinux namespace effort has been stuck for several years as we
+> try to solve the problem of managing individual file labels across
+> multiple namespaces. Our only solution thus far, adding namespace
+> specific xattrs to each file, is relatively simple but doesn't scale,
+> and has the potential to become a management problem as a namespace
+> specific identifier needs to be encoded in the xattr name.  Having
+> continued to think about this problem, I believe I have an idea which
+> might allow us to move past this problem and start making progress on
+> SELinux namespaces.  I'd like to get everyone's thoughts on the
+> proposal below ...
+>
+> THE IDEA
+>
+> With the understanding that we only have one persistent label
+> per-file, we need to get a little creative with how we represent a
+> single entity's label in both the parent and child namespaces.  Since
+> our existing approach towards SELinux policy for containers and VMs
+> (sVirt) is to treat the container/VM as a single security domain,
+> let's continue this philosophy to a SELinux namespace: a child
+> namespace will appear as a single SELinux domain/type in the parent
+> namespace, with newly created processes and objects all appearing to
+> have the same type from the parent's point of view.  From the child
+> namespace's perspective, everything will behave as they would
+> normally: processes would run in multiple domains as determined by the
+> namespace's policy, with files labeled according to the labeling rules
+> defined in the namespace's policy (e.g. xattrs, context mounts, etc.).
 
-Oh, ok. Actually there is a fundamental difference between this post
-and the other post: this one can be reverted and can be effectively
-used for access control.
+I like this idea.
 
-Thanks
+> The one exception to this would be existing mounted filesystems that
+> are shared between parent and child namespaces: shared filesytems
+> would be labeled according to the namespace which mounted the
+> filesystem originally (the parent, grandparent, etc.), and those file
+> labels would be shared across all namespace boundaries.  If a
+> particular namespace does not have the necessary labels defined in its
+> policy for a shared filesystem, those undefined labels will be
+> represented just as bogus labels are represented today
+> ("unlabeled_t").  For this to work well there must be shared
+> understanding/types between the parent and child namespace SELinux
+> policies, but if the namespaces are already sharing a filesystem this
+> seems like a reasonable requirement.
+>
 
-Roberto
+I like this idea in general.
 
-> > > > +/**
-> > > > + * security_file_post_open() - Recheck access to a file after it has been opened
-> > > 
-> > > The LSM post hooks aren't needed to enforce access control.   Probably
-> > > better to say something along the lines of "take some action after
-> > > successful file open".
-> > > 
-> > > > + * @file: the file
-> > > > + * @mask: access mask
-> > > > + *
-> > > > + * Recheck access with mask after the file has been opened. The hook is useful
-> > > > + * for LSMs that require the file content to be available in order to make
-> > > > + * decisions.
-> > > 
-> > > And reword the above accordingly.
-> > > 
-> > > > + *
-> > > > + * Return: Returns 0 if permission is granted.
-> > > > + */
-> > > > +int security_file_post_open(struct file *file, int mask)
-> > > > +{
-> > > > +	return call_int_hook(file_post_open, 0, file, mask);
-> > > > +}
-> > > > +EXPORT_SYMBOL_GPL(security_file_post_open);
-> > > > +
-> > > >  /**
-> > > >   * security_file_truncate() - Check if truncating a file is allowed
-> > > >   * @file: file
-> > > 
-> > 
-> 
+If a child namespace is sharing a filesystem, can it change labels? It
+seems like allowing that could cause problems. At the very least, it
+seems like we would want the option to be able to restrict the child
+from changing labels.
 
+This might be over-engineering things, but in general it seems like we
+want to specify which namespace owns the labels on a filesystem and
+whether parent or child namespaces see one label for the whole
+filesystem or all the labels (and whether or not they can change
+them).
+
+> I'll leave this as an exercise for the reader, but this approach
+> should also support arbitrary nesting.
+>
+> THOUGHTS ON MAKING IT WORK
+>
+> One of the bigger challenges here is how to handle the case of the
+> parent mounting a filesystem for full use by the child namespace
+> (per-file labeling, etc.).  Above I talked about how filesystems would
+> be labeled according to the mounting namespace, so if we want to
+> delegate labeling of the filesystem to a child namespace (without
+> allowing the child to perform the mount) we need to have a mechanism
+> to indicate that the mounting namespace is deferring labeling to a
+> different namespace.  I think the obvious solution to that would be to
+> add two new mount options: "selinuxns_outer=3D<label>" and
+> "selinuxns_owner=3D<label>".  The "selinuxns_outer" option would
+> accomplish two things: mark the filesystem for deferred labeling by
+> another namespace,
+
+This seems different from what you described above. Above it seems to
+say that if a parent mounted a filesystem and shared it with a child,
+the child would see the labels. But here it looks like the parent can
+mount a filesystem while specifying that it is the child that controls
+the labels and the parent sees just one label. I think this is the
+right approach.
+
+> and establish a single label, similar to a context
+> mount, that the mounting namespace would see instead of whatever
+> labeling the filesystem would normally support.  The "selinuxns_owner"
+> option would specify the domain label of the child namespace, granting
+> that domain control over whatever labeling is supported by the
+> filesystem.
+
+This implies the immediate child. Thinking theoretically (I don't know
+why you would do this) if you were planning on having four nested
+SELinux namespaces, but wanted the very bottom child to control a
+particular filesystem, its immediate parent would have to set it up.
+That seems reasonable to me.
+
+> In most normal use cases where the child namespace runs
+> with a single domain/type from the parent's perspective I would expect
+> "selinuxns_outer" and "selinuxns_owner" to be set to the same value,
+> although that is not a requirement.
+>
+> Triggering the creation of a child SELinux namespace, the userspace
+> API in general, and the implementation work needed to support multiple
+> views of the same kernel entities is all still very TBD/hand-wavy.  I
+> wanted to make sure the approach described here made sense first.
+>
+> THOUGHTS ON POLICY
+>
+> This is an area where I think the single-label parent view makes it
+> much easier to develop policy for containing child namespaces.  Since
+> we want the parent namespace to effectively bound the access of the
+> child namespace, treating the namespace as a single domain allows the
+> parent to develop policy independent of what the child's types and
+> behaviors; the parent simply describes the allowed interactions and
+> let's the child manage it's own policy and labeling.
+>
+> Filesystems shared across policy boundaries are somewhat interesting
+> in that for it to be fully usable it requires every participating
+> namespace to have the filesystem labels defined in their own policy,
+
+Unless there is a way to share a filesystem, but with a single label.
+
+> but it does not require each namespace to treat the files in the same
+> manner.  However, it is important to note that regardless of what a
+> child namespace might allow in a shared filesystem, it is still
+> subject to the policy rules of any parent namespaces.
+
+I think that this approach has merit. The devil is in the details of
+course. I am curious to hear what others think.
+
+Thanks,
+Jim
+
+
+>
+> --
+> paul-moore.com
