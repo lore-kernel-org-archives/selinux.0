@@ -2,58 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1F74C41513
-	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 17:57:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8879DCDB46E
+	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 19:00:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347392AbjJLR5r (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Oct 2023 13:57:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35794 "EHLO
+        id S1344140AbjJLTAy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Oct 2023 15:00:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347384AbjJLR5h (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 13:57:37 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA1BFF
-        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 10:57:30 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-5042bfb4fe9so1671295e87.1
-        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 10:57:30 -0700 (PDT)
+        with ESMTP id S1347370AbjJLTAx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 15:00:53 -0400
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE81ECC
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 12:00:51 -0700 (PDT)
+Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-50307acd445so1691631e87.0
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 12:00:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697133448; x=1697738248; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1697137250; x=1697742050; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tXRrirR6oZW20BQ+kLYPQ8hYITiLdG+6fzLZNZO/+DA=;
-        b=jPNXIsjUV8zyB+LZ0i1gqSSQdwV3XPijeRo9o6/Wz8MvrxCZrk2Rb9aoSW7zTNyST1
-         phk8g40wa7ugTVaa6tIpRKXO2GLoJ1Tz5MZ4L8TKPZ5I2RglXdxRpPNN16yjKnHlFkpl
-         yQ6toLUZtpBTHRKlMwB2ahDD/+Mn/RSEkBeCSoOEMoUNXG6BKNIhWAam1BQwPSjyBOst
-         Vxa9LRoXsNLaBAoH61KcrPD8PAw+ZAcv1fpVJ1mfg2onfF+zj07mBaRO1ESkzgmg9LH2
-         6dyzvW7gruMHJG7JXNyZHN5zOqqHfs4PqQk3++WUzRAVU81EKFafHbhpMIBhXLGiSq11
-         bnrw==
+        bh=+xup227C78mCGL8k0FNTDnmxabuoytsAlQ6fbiCcaqM=;
+        b=NWdBHuWF55i2c0LvxF5ZqRKzslLgdWaVbpVKSsDaa8lba7wIOBIOX9Pd9oX7jPPh6o
+         BOiupWlAwZa3k5d3PKzoaSm/EuD3RlqL7hafirCn/4MpdGJUfDoe3gKw9G5+Lg32SJYW
+         ymaObB+J5HLPyLv0gfh4oxCSUg9lUPNgDa2Y3filIcPigSHi7+VNVF7SLER11i5i1YiQ
+         buHE2V+tdK19iJm7YhGv7LPfMmSTSG/oQVLJolNgDPte/rN/wCxw6ikZFmIxlnqwKvBp
+         eQBZII6A64V8X7bFpXGd5NuoEIryvtYVGApIFGtFblQ2ukf3g1IIQ5z+eYFkuMEPjUfJ
+         JyFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697133448; x=1697738248;
+        d=1e100.net; s=20230601; t=1697137250; x=1697742050;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tXRrirR6oZW20BQ+kLYPQ8hYITiLdG+6fzLZNZO/+DA=;
-        b=dny5/3A4ZBmz0wepIO2A55koojbPKd7RkP0352X/IkHO2rqoNRTq1nYcYCeCVp1YpB
-         INedDsOxzpxJF5+PZa3iiOtQWNO/mj+9fu52RaRbmK7PHY8gBozMvM4zZbbBVYAR/N8l
-         FgVbqn2SCRGrC1+IWjPl1op0UbbKKgT4LPufd6JmUhzF1zvAl60dYOmnEWkDf3/pyh8V
-         YiYUwNATG/ofDlqN6cPtyS7tXkk0BAyEHcfzMQq2GAEnCfAUzMNHRCDn7jrg0LlbL6Pp
-         fbvpNQurM0oTdwQv8hkLyEMAmfsrxUlYawFTQc9E+lgagHQnTnNclKUNlzU9edDnNW6G
-         oBNQ==
-X-Gm-Message-State: AOJu0YwUhk7KSfEQ4hyQCNVkzZccbvAsoOP8tKHkSGgtrtuo91LYrVJw
-        ZDxFpV0telHDrwqGsuwoDECrMVRuLVAetI09/cc=
-X-Google-Smtp-Source: AGHT+IHvyVpkhprdt3dqhzQ+uNn2uAy/1UglV0qEOVFFpjQbglU1jHVG1ZFpxR0034qly3xGx+XMt5FABmO288Oxk1c=
-X-Received: by 2002:ac2:5f0a:0:b0:503:905:c5a3 with SMTP id
- 10-20020ac25f0a000000b005030905c5a3mr17617644lfq.35.1697133448137; Thu, 12
- Oct 2023 10:57:28 -0700 (PDT)
+        bh=+xup227C78mCGL8k0FNTDnmxabuoytsAlQ6fbiCcaqM=;
+        b=CYHuNFbcMwPypt36KtqFPQZTbweRKAYVGTpvnKJEliNu4SoxNxBUtLa3i9oM0wy6BN
+         jdXgZO1ch5Ua5v4JEsDBMlFzO/6xz8lCLgI4yqsoFg7CXUcVamAynlJAKTjxRRLeDFNm
+         iYdagyBdHKKwKWwbxh6dyg0x4uubhFxONt0ItNEaCGkP3EpMcN3quVOqVw0gCqDd5+K4
+         xJ/LGhge5BNPoqeeQ5EG43edpes3JO0jo8SYUeh5A7BqqLjlgaSBryN0x73vS9Z6rY93
+         a7gz/OOuYI+yrPbOuh9OueTjlLK6BBL6cRFRXMpXBxesMkPaOY5Y81KU2Df34X29naU4
+         bhnA==
+X-Gm-Message-State: AOJu0YzR/sNsjgeKeDeiRR4379lKSHeq7MebaTIP2psBQEMc43l7kgqe
+        sFN3ZaQCYnitX87oiu3TKoZ13d79RnljVTjk8cdB+tOg
+X-Google-Smtp-Source: AGHT+IH7Joz2UA1bfv0S99krFseaR+fU4AFTFCy2no1G2dZd2k3mFsdVL/weYAN64i9if0p9XWhz9N6NqRqRChQQyeU=
+X-Received: by 2002:a05:6512:280d:b0:501:bee7:487b with SMTP id
+ cf13-20020a056512280d00b00501bee7487bmr23894874lfb.11.1697137249708; Thu, 12
+ Oct 2023 12:00:49 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230814132025.45364-1-cgzones@googlemail.com>
- <20230814132025.45364-25-cgzones@googlemail.com> <CAP+JOzQqBMVBdtcyZmci2DFgdtHkhKfXBpnpgPqLXGhWbRrDPA@mail.gmail.com>
-In-Reply-To: <CAP+JOzQqBMVBdtcyZmci2DFgdtHkhKfXBpnpgPqLXGhWbRrDPA@mail.gmail.com>
+ <20230814132025.45364-23-cgzones@googlemail.com> <CAP+JOzRTxy+feD3cX6e-r+k4XM1X+4UOhB71Q8jrYywWOhOBtw@mail.gmail.com>
+In-Reply-To: <CAP+JOzRTxy+feD3cX6e-r+k4XM1X+4UOhB71Q8jrYywWOhOBtw@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 12 Oct 2023 13:57:17 -0400
-Message-ID: <CAP+JOzRF3qX86VOQczAuWDV4hRm-XHuRXK_F7BFqQRTEcSuuBg@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 24/27] libselinux: set errno on label lookup failure
+Date:   Thu, 12 Oct 2023 15:00:37 -0400
+Message-ID: <CAP+JOzQ_Ao5E+4=ccxGGviEB_EhUFt8tJQKWJA5XfM1qU_-w-w@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 22/27] libselinux/utils: drop include of internal
+ header file
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -62,16 +63,15 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 2:50=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Wed, Oct 11, 2023 at 2:49=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
 > On Mon, Aug 14, 2023 at 9:42=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > selabel_lookup(3) is expected to set errno on lookup failure, i.e. when
-> > it returns NULL.  Set errno if a regular expression failed to compile i=
-n
-> > compile_regex().
+> > selabel_get_digest_all_partial_matches is dynamically linked against
+> > libselinux, so it should not depend on any internals and thus do not
+> > make use of an internal header file
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
@@ -81,25 +81,25 @@ Merged.
 Thanks,
 Jim
 
+
 > > ---
-> > v2: add patch
-> > ---
-> >  libselinux/src/label_file.h | 1 +
-> >  1 file changed, 1 insertion(+)
+> >  libselinux/utils/selabel_get_digests_all_partial_matches.c | 2 --
+> >  1 file changed, 2 deletions(-)
 > >
-> > diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> > index 3827b5c0..5365086b 100644
-> > --- a/libselinux/src/label_file.h
-> > +++ b/libselinux/src/label_file.h
-> > @@ -407,6 +407,7 @@ static inline int compile_regex(struct spec *spec, =
-const char **errbuf)
-> >                         *errbuf =3D &regex_error_format_buffer[0];
-> >                 }
-> >                 __pthread_mutex_unlock(&spec->regex_lock);
-> > +               errno =3D EINVAL;
-> >                 return -1;
-> >         }
+> > diff --git a/libselinux/utils/selabel_get_digests_all_partial_matches.c=
+ b/libselinux/utils/selabel_get_digests_all_partial_matches.c
+> > index c4e0f836..e2733b41 100644
+> > --- a/libselinux/utils/selabel_get_digests_all_partial_matches.c
+> > +++ b/libselinux/utils/selabel_get_digests_all_partial_matches.c
+> > @@ -8,8 +8,6 @@
+> >  #include <selinux/selinux.h>
+> >  #include <selinux/label.h>
 > >
+> > -#include "../src/label_file.h"
+> > -
+> >  static __attribute__ ((__noreturn__)) void usage(const char *progname)
+> >  {
+> >         fprintf(stderr,
 > > --
 > > 2.40.1
 > >
