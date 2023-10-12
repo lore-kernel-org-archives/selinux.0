@@ -2,58 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 027FDCDB46E
-	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 17:53:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9227ECDB46E
+	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 17:54:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1441905AbjJLRx7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Oct 2023 13:53:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
+        id S1441911AbjJLRyM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Oct 2023 13:54:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442006AbjJLRx5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 13:53:57 -0400
+        with ESMTP id S1441906AbjJLRyL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 13:54:11 -0400
 Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F592BB
-        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 10:53:55 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-50305abe5f0so1739540e87.2
-        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 10:53:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57260B8
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 10:54:10 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-5041bb9ce51so1662620e87.1
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 10:54:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697133233; x=1697738033; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1697133248; x=1697738048; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9cLcFDQrk0vGi73rtt0e5bABl3iDa4K/CvBoXvqfdLw=;
-        b=DzJqeFyp+k3b5x/mLTeQ/uZXRKhFZgX3whChPTc+aNGX4JgBE6KiTul2PGWaiLZS96
-         pMHus8zWD+ikA9+dtMnnGUXFG6xKdVsi4Gm1YC+QbeUr/JZlUCUwPGs+lepO4wlp8Dj2
-         Wu4NaLwPYXEBXfVnHbJX26MSxdE0neiMsD0ENYPPERXuAlNcjfeI+U9x/7Fw6rIpx0K2
-         C2l6v+fBEH5iCk8/6TqXhg2PwCVwbf7PC4AJznfT/koNEoVYj+eEkaykqpbTsZWyJInI
-         gaHXqvRhGeVPDFIctE//StL2hkgLXCo4jRHQWK6HlR1BvzDhCC2DQ07zHFThmOtYA2jX
-         Op6A==
+        bh=/8S9rmm28TnDGhMiYmAlblOp4d1Wp1/ZXRFAdcReVTo=;
+        b=fSe7rWeD6hTM4foASsv66b4so77rNqw3diVV/Ag/F6jF0jc1e8LQkpc5S2bVXBrWJj
+         60wY3+D9hYjvcYuFWy/5BNQHlTikhqDHu0nsHu0cXNh8yfSfoI6A85PVeWrM3rXSkt3A
+         75a8376pfdXjpc+PV8z6KE5LywRo7Y0qS6C6cWJH3H9QkAHi+NHTfZ09WIktmNPBCuae
+         VRKRN28ghTcL7XZB4d6ZI3z6BZZ/+k5B+0efLV/dQuL9Zl8FefHBn/8Lh/rkLaevIrph
+         1feUNJO4YJfQtHYB7v5G+cu6I5xA+0r7fAkTqVA9DovTGWAYH6Nm8r+2T3EX2cHLeh4j
+         5flA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697133233; x=1697738033;
+        d=1e100.net; s=20230601; t=1697133248; x=1697738048;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9cLcFDQrk0vGi73rtt0e5bABl3iDa4K/CvBoXvqfdLw=;
-        b=XIEyXbdcudg5Ah+46AnZk5pKCNQrdEn7atnTxOQZhnxsa7oq5U4Dry9qQl1yBfkR74
-         nzQN5RbOFkSHoiMphc66Qsx3Y5VFngExtKoLy1c5p62OJ3CeO6PWMvB9YcT1AJ7VKeQ7
-         Po72h0z5FRBoNPT4X4bGTflyjKpFHqw8kQZhJgdkQKCN4nBSpsTQxxc0sUKoUGZKoYcQ
-         mL4oklL/Qb8eMxp31tsZ6PvhzU+wUytPhLmrQCn6BbOTe/RCwPgcsTOr2sTDei4arQfb
-         tzwXMVXHa/qPdCi1BUrORPCyc9ftAoG9IjQ6B+mDHGLMHBGpa99F4B0bOQ4avOxO9teA
-         6LkA==
-X-Gm-Message-State: AOJu0YyiXI7yxUdNYw9XqPTWCwp9QwZsftOxT0YMLvWFtOwk2BjFa3T+
-        CKKfcjmr+gF1zldHDA8yabnb4CVl/aULV7+AkOBvGfvHQkQ=
-X-Google-Smtp-Source: AGHT+IEFuXuPsY6iKwmFaeDeMbadHff3O6ALW0Tt4WjSEHLFy2qTQr+jCT4Am4t6n4ol5YrS24ZZKHwv64coqUI9qmk=
-X-Received: by 2002:a05:6512:3488:b0:4fd:fd97:a77b with SMTP id
- v8-20020a056512348800b004fdfd97a77bmr17755324lfr.50.1697133233236; Thu, 12
- Oct 2023 10:53:53 -0700 (PDT)
+        bh=/8S9rmm28TnDGhMiYmAlblOp4d1Wp1/ZXRFAdcReVTo=;
+        b=nj5/IU4WZOzppK0uszWxC+o3I/IIjgGe/PGxrJMYVHRWRdVjAxo3JpPrL6yz8hhqq/
+         1+wjxTzSGNTrrzNZ6EyZ2/3wu9iSS2PYbjT1XSE3yDJ738FFFg2r6G4fJlpzzgMDao68
+         Apgquaj3x9emi/wCIGso8q2jq2CMMkhMmxna+SXWtO0EwIPAkVtKoX6ribpAY3Ha9huE
+         TVW0Aue9Nq/AEgBzHESNb+FF5yiB95b7BttC8hIAUBlrdbMRJwJ+oMl2ciOgsIeyOOqk
+         uIARmfhGdxwCwoqyc0Mpl9dR7/dw9/RTFfkeFuGUUXClb/+LORQ7a+1PJubq2CgW36ME
+         F/7g==
+X-Gm-Message-State: AOJu0Yz0ZfeBzGcxva07fuv2rISammOk+3r159hmTYzABO1d6QFupXP9
+        1+X8XcsSsedW9OrpB/vx+Eyc0IevfqXuzCBp79w=
+X-Google-Smtp-Source: AGHT+IGxTyiEeNWevIAYe7Lcq4gRIZ8yedMUrQ3EJuBnEtO716y8keZsu/eq4fQD0eGDwAbRADBdr62b9VmNqLXYxCU=
+X-Received: by 2002:a05:6512:3d29:b0:502:fd08:69f7 with SMTP id
+ d41-20020a0565123d2900b00502fd0869f7mr2024515lfv.28.1697133248600; Thu, 12
+ Oct 2023 10:54:08 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230814132025.45364-1-cgzones@googlemail.com>
- <20230814132025.45364-8-cgzones@googlemail.com> <CAP+JOzSrYQuSVKxu6dFGBOA2ZCESgbwos0_wPxjORZ7ZAqT1Gw@mail.gmail.com>
-In-Reply-To: <CAP+JOzSrYQuSVKxu6dFGBOA2ZCESgbwos0_wPxjORZ7ZAqT1Gw@mail.gmail.com>
+ <20230814132025.45364-10-cgzones@googlemail.com> <CAP+JOzRgAN+rGpchidjvMR=pXdPTzv5nbCvCU_8v-rmGAt7BOg@mail.gmail.com>
+In-Reply-To: <CAP+JOzRgAN+rGpchidjvMR=pXdPTzv5nbCvCU_8v-rmGAt7BOg@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 12 Oct 2023 13:53:42 -0400
-Message-ID: <CAP+JOzSmY5wFFV9vAPZueVuYN4orDHBe1d1pon3ag-=9vokGug@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 07/27] libselinux: constify selabel_cmp(3) parameters
+Date:   Thu, 12 Oct 2023 13:53:57 -0400
+Message-ID: <CAP+JOzQX9Kvw_C5ictL62vVVQFBvf6g876PnHFo6d0wrxv_Fzw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 09/27] libselinux: simplify zeroing allocation
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -62,14 +62,13 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 2, 2023 at 2:11=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+On Mon, Oct 2, 2023 at 4:36=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
 te:
 >
-> On Mon, Aug 14, 2023 at 9:42=E2=80=AFAM Christian G=C3=B6ttsche
+> On Mon, Aug 14, 2023 at 9:41=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > Comparing two selabel handles should (and currently does) not modify
-> > them.
+> > Merge malloc(3) plus memset(3) call into calloc(3).
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
@@ -80,137 +79,39 @@ Thanks,
 Jim
 
 > > ---
-> >  libselinux/include/selinux/label.h |  4 ++--
-> >  libselinux/src/label.c             |  4 ++--
-> >  libselinux/src/label_file.c        | 22 +++++++++++-----------
-> >  libselinux/src/label_internal.h    |  4 ++--
-> >  4 files changed, 17 insertions(+), 17 deletions(-)
+> >  libselinux/src/label_file.c | 6 ++----
+> >  1 file changed, 2 insertions(+), 4 deletions(-)
 > >
-> > diff --git a/libselinux/include/selinux/label.h b/libselinux/include/se=
-linux/label.h
-> > index e8983606..ce189a3a 100644
-> > --- a/libselinux/include/selinux/label.h
-> > +++ b/libselinux/include/selinux/label.h
-> > @@ -153,8 +153,8 @@ enum selabel_cmp_result {
-> >   * if @h1 is identical to @h2, %SELABEL_SUPERSET if @h1 is a superset
-> >   * of @h2, and %SELABEL_INCOMPARABLE if @h1 and @h2 are incomparable.
-> >   */
-> > -extern enum selabel_cmp_result selabel_cmp(struct selabel_handle *h1,
-> > -                                          struct selabel_handle *h2);
-> > +extern enum selabel_cmp_result selabel_cmp(const struct selabel_handle=
- *h1,
-> > +                                          const struct selabel_handle =
-*h2);
-> >
-> >  /**
-> >   * selabel_stats - log labeling operation statistics.
-> > diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> > index a2efa99c..c0f586a2 100644
-> > --- a/libselinux/src/label.c
-> > +++ b/libselinux/src/label.c
-> > @@ -333,8 +333,8 @@ int selabel_lookup_best_match_raw(struct selabel_ha=
-ndle *rec, char **con,
-> >         return *con ? 0 : -1;
-> >  }
-> >
-> > -enum selabel_cmp_result selabel_cmp(struct selabel_handle *h1,
-> > -                                   struct selabel_handle *h2)
-> > +enum selabel_cmp_result selabel_cmp(const struct selabel_handle *h1,
-> > +                                   const struct selabel_handle *h2)
-> >  {
-> >         if (!h1->func_cmp || h1->func_cmp !=3D h2->func_cmp)
-> >                 return SELABEL_INCOMPARABLE;
 > > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> > index 461abc61..5ac23e1f 100644
+> > index 5ac23e1f..b9be1c9d 100644
 > > --- a/libselinux/src/label_file.c
 > > +++ b/libselinux/src/label_file.c
-> > @@ -1237,7 +1237,7 @@ out:
-> >         return lr;
-> >  }
+> > @@ -716,10 +716,9 @@ static int selabel_subs_init(const char *path, str=
+uct selabel_digest *digest,
+> >                 if (! *dst)
+> >                         continue;
 > >
-> > -static enum selabel_cmp_result incomp(struct spec *spec1, struct spec =
-*spec2, const char *reason, int i, int j)
-> > +static enum selabel_cmp_result incomp(const struct spec *spec1, const =
-struct spec *spec2, const char *reason, int i, int j)
+> > -               sub =3D malloc(sizeof(*sub));
+> > +               sub =3D calloc(1, sizeof(*sub));
+> >                 if (! sub)
+> >                         goto err;
+> > -               memset(sub, 0, sizeof(*sub));
+> >
+> >                 sub->src =3D strdup(src);
+> >                 if (! sub->src)
+> > @@ -1357,10 +1356,9 @@ int selabel_file_init(struct selabel_handle *rec=
+,
 > >  {
-> >         selinux_log(SELINUX_INFO,
-> >                     "selabel_cmp: mismatched %s on entry %d: (%s, %x, %=
-s) vs entry %d: (%s, %x, %s)\n",
-> > @@ -1247,21 +1247,21 @@ static enum selabel_cmp_result incomp(struct sp=
-ec *spec1, struct spec *spec2, co
-> >         return SELABEL_INCOMPARABLE;
-> >  }
+> >         struct saved_data *data;
 > >
-> > -static enum selabel_cmp_result cmp(struct selabel_handle *h1,
-> > -                                  struct selabel_handle *h2)
-> > +static enum selabel_cmp_result cmp(const struct selabel_handle *h1,
-> > +                                  const struct selabel_handle *h2)
-> >  {
-> > -       struct saved_data *data1 =3D (struct saved_data *)h1->data;
-> > -       struct saved_data *data2 =3D (struct saved_data *)h2->data;
-> > +       const struct saved_data *data1 =3D (const struct saved_data *)h=
-1->data;
-> > +       const struct saved_data *data2 =3D (const struct saved_data *)h=
-2->data;
-> >         unsigned int i, nspec1 =3D data1->nspec, j, nspec2 =3D data2->n=
-spec;
-> > -       struct spec *spec_arr1 =3D data1->spec_arr, *spec_arr2 =3D data=
-2->spec_arr;
-> > -       struct stem *stem_arr1 =3D data1->stem_arr, *stem_arr2 =3D data=
-2->stem_arr;
-> > +       const struct spec *spec_arr1 =3D data1->spec_arr, *spec_arr2 =
-=3D data2->spec_arr;
-> > +       const struct stem *stem_arr1 =3D data1->stem_arr, *stem_arr2 =
-=3D data2->stem_arr;
-> >         bool skipped1 =3D false, skipped2 =3D false;
+> > -       data =3D (struct saved_data *)malloc(sizeof(*data));
+> > +       data =3D (struct saved_data *)calloc(1, sizeof(*data));
+> >         if (!data)
+> >                 return -1;
+> > -       memset(data, 0, sizeof(*data));
 > >
-> >         i =3D 0;
-> >         j =3D 0;
-> >         while (i < nspec1 && j < nspec2) {
-> > -               struct spec *spec1 =3D &spec_arr1[i];
-> > -               struct spec *spec2 =3D &spec_arr2[j];
-> > +               const struct spec *spec1 =3D &spec_arr1[i];
-> > +               const struct spec *spec2 =3D &spec_arr2[j];
-> >
-> >                 /*
-> >                  * Because sort_specs() moves exact pathnames to the
-> > @@ -1297,8 +1297,8 @@ static enum selabel_cmp_result cmp(struct selabel=
-_handle *h1,
-> >                 if (spec2->stem_id =3D=3D -1 && spec1->stem_id !=3D -1)
-> >                         return incomp(spec1, spec2, "stem_id", i, j);
-> >                 if (spec1->stem_id !=3D -1 && spec2->stem_id !=3D -1) {
-> > -                       struct stem *stem1 =3D &stem_arr1[spec1->stem_i=
-d];
-> > -                       struct stem *stem2 =3D &stem_arr2[spec2->stem_i=
-d];
-> > +                       const struct stem *stem1 =3D &stem_arr1[spec1->=
-stem_id];
-> > +                       const struct stem *stem2 =3D &stem_arr2[spec2->=
-stem_id];
-> >                         if (stem1->len !=3D stem2->len ||
-> >                             strncmp(stem1->buf, stem2->buf, stem1->len)=
-)
-> >                                 return incomp(spec1, spec2, "stem", i, =
-j);
-> > diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_int=
-ernal.h
-> > index 273a630a..bc5a6928 100644
-> > --- a/libselinux/src/label_internal.h
-> > +++ b/libselinux/src/label_internal.h
-> > @@ -98,8 +98,8 @@ struct selabel_handle {
-> >                                                     const char *key,
-> >                                                     const char **aliase=
-s,
-> >                                                     int type);
-> > -       enum selabel_cmp_result (*func_cmp)(struct selabel_handle *h1,
-> > -                                           struct selabel_handle *h2);
-> > +       enum selabel_cmp_result (*func_cmp)(const struct selabel_handle=
- *h1,
-> > +                                           const struct selabel_handle=
- *h2);
-> >
-> >         /* supports backend-specific state information */
-> >         void *data;
+> >         rec->data =3D data;
+> >         rec->func_close =3D &closef;
 > > --
 > > 2.40.1
 > >
