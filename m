@@ -2,59 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C45CCDB474
-	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 21:48:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D7BCCDB474
+	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 23:19:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442931AbjJLVsq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Oct 2023 17:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54296 "EHLO
+        id S1443053AbjJLXTF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Oct 2023 19:19:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442911AbjJLVsp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 17:48:45 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2187DB7;
-        Thu, 12 Oct 2023 14:48:43 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-53dd752685fso2582513a12.3;
-        Thu, 12 Oct 2023 14:48:43 -0700 (PDT)
+        with ESMTP id S1443006AbjJLXTE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 19:19:04 -0400
+Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3407AC0
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 16:19:02 -0700 (PDT)
+Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-5a81ab75f21so2266397b3.2
+        for <selinux@vger.kernel.org>; Thu, 12 Oct 2023 16:19:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697147321; x=1697752121; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1697152741; x=1697757541; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5f34d/54d+kiM5sXpTVq+9nnyF4hihBFGEFclSCpah0=;
-        b=MHPbQ4Fb+OA4NErnPIgIdO+O9IcRvXwXYRZCioYyWSWi4DGVlHIfRb4r8woM6ANwXS
-         oinFpjt9KT849E1QucPeVXz4uIfb18oVSZf7/sBztGTf57491bf/BCfxbG3cZUtuj2m2
-         U9rZDzqdWVP1Pyk7JJr9en2Dc2RLw2JZdt+5ZlyIM9QPig52H0Qnj2Q45h9EoQLfTCfl
-         BT0G3gwmyJfIpWOD0dU/1mnVDhwmUXXrkGVSJTynzKmOIAq6EdQecgeB0ZSsbgUBoPhR
-         i5CWuKSazpsp+AMHsipPvk0I5W+rtV8GbqvT/nQxsfslgwSqmDvr/rVPpoTxbsR9ymM/
-         l+JA==
+        bh=h2qw39u1Yn4D/d5l2RsyhEa0ze5OuzL085CAQjenvoQ=;
+        b=Z/wBZtkNY2YNoTtnnpn3TYQYItNKG+jHMNlvJuN7XCIDwZy2bhfVCzf077CrRE3WMO
+         oa9knqgmqzt41F/bgihd6gvERgeHic+g9tTVNosv2DQ4C1YBAw0ubF0oD7CA7Ct0T5Rl
+         lJK+53euLZ3dFdzV43MSAXaiIn+MtBhZ62ATVWi8Ys9XsJkp5QfM/5gy40ucRsUi9gmH
+         dZ4VT7+mp+0rGvykzPwgr9LBkT4dx9RAhP0uxbHFvZz7iBMDfIdzPSE1vAGbDOVkJIMf
+         cC8oJ3JibV5qq2ddOuIOy9wgjPNVkeQDrU2ytkRUVbVKp2aLGKSGxmxsyPXERESYpvBa
+         jcTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697147321; x=1697752121;
+        d=1e100.net; s=20230601; t=1697152741; x=1697757541;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5f34d/54d+kiM5sXpTVq+9nnyF4hihBFGEFclSCpah0=;
-        b=WVjqwSxlbRpUcFYKlxGFufHx2NgK4V6FrTHYw/FF4aElc+7AdiLcizd88gxnMD7V92
-         adS2fZSKtisc5z00Y2CCaqh23FJ8MZd1HTjGqRKxfbmXW7pEsIq7y3Xfrli6YB/yqnnC
-         7M6tLiR+1OFUYt9asj7etLZGKT9lHRMzr113wCkCoXMqmLIFtIrAI8LTOJNz5+prrSfi
-         XDWgs+g+Fupctivp/BsPz7IAFEUftelIuXTooE6cNUh9ctCnhCFvecHpc4ph3AFTc9Jh
-         4XUYdxaYDKwbTpDNbQ6RnXZPs0It3oJUo+5658KmTA6uTuR8Edt5MxvjxXAQMcWvXTRE
-         EjNA==
-X-Gm-Message-State: AOJu0YyRPhDBVIpinEOWlw0c+aG5vhZjb045R6FVZMkSbmdSi7RLGgoq
-        3N71SP+sbSU83/K4hvilot9U/0svpPgxQsDiWbA7Zkrx
-X-Google-Smtp-Source: AGHT+IFhrxpcs90I38dMC7XmHNykLCWnRf3serdBt6dQCxQldGiTVFkxGn+USEBYpzhaL/+fX796IMRqW2QQi/00FGo=
-X-Received: by 2002:aa7:cf87:0:b0:525:570c:566b with SMTP id
- z7-20020aa7cf87000000b00525570c566bmr20998366edx.22.1697147321311; Thu, 12
- Oct 2023 14:48:41 -0700 (PDT)
+        bh=h2qw39u1Yn4D/d5l2RsyhEa0ze5OuzL085CAQjenvoQ=;
+        b=qyCgM4PK9ndh1knVzq+KouXCzOYQRIZ4HPNPWZFxH5haQo4tTU7AIt+Pkd5tJHfjwV
+         8oD/mqH9rHw1gWq2pTo5tuQeowVeTceMhdNTzTScmGQGh69jmQASZbGTTW0KRzyKppRj
+         BFdFuECVFQ/FG7UTM0JMZOGzye7GLBZwFf+9XUF9w5MzYuduvBOW7iKn9phFpcjCT3ig
+         3WVRQJK497/pjSywUazy61qt/8dORNYJQiCc2e5Po7qAyGWZIFHcchbCfLMa79AwCsPy
+         DjhMplwClqmlXIaTW5eZ3I2snmvfgFz5N8aaacH2xlp5NFf0lSi8REyMWbI/W86I3Onu
+         BVUA==
+X-Gm-Message-State: AOJu0YxiiqfK9i96Tn8+8cb9P+8BNALqhp4fIfEIrc8XnVgQ2FYsEsrv
+        WL75yUjTZjDSqXIbFgwhA2NjCm4QKQixndYEhInf
+X-Google-Smtp-Source: AGHT+IGFtjcQG2cujUd6AWZ9apk9ieqbPu0TiUinRufDQUbRDIDOSTfcPWY8e9fnHu9CZxr3xUwUmCD9EE8dmSCgHCk=
+X-Received: by 2002:a25:b203:0:b0:d9a:61d1:3a85 with SMTP id
+ i3-20020a25b203000000b00d9a61d13a85mr8856480ybj.0.1697152741246; Thu, 12 Oct
+ 2023 16:19:01 -0700 (PDT)
 MIME-Version: 1.0
 References: <20230927225809.2049655-4-andrii@kernel.org> <53183ab045f8154ef94070039d53bbab.paul@paul-moore.com>
  <CAEf4BzaTZ_EY4JVZ3ozGzed1PeD+HNGgkDw6jGpWYD_K9c8RFw@mail.gmail.com>
 In-Reply-To: <CAEf4BzaTZ_EY4JVZ3ozGzed1PeD+HNGgkDw6jGpWYD_K9c8RFw@mail.gmail.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Thu, 12 Oct 2023 14:48:29 -0700
-Message-ID: <CAEf4BzYa9V5FWLqq5wmdTJdtD3yHE-FdvBN7E33bb7+r2eGYBg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 12 Oct 2023 19:18:50 -0400
+Message-ID: <CAHC9VhSG4T0LMEuFOqOdmS1KdSy2N9DsrypZL6dTAuDf-pZhZw@mail.gmail.com>
 Subject: Re: [PATCH v6 3/13] bpf: introduce BPF token object
-To:     Paul Moore <paul@paul-moore.com>
+To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>
 Cc:     Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
         netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, keescook@chromium.org,
@@ -66,12 +66,10 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 11, 2023 at 5:31=E2=80=AFPM Andrii Nakryiko
+On Wed, Oct 11, 2023 at 8:31=E2=80=AFPM Andrii Nakryiko
 <andrii.nakryiko@gmail.com> wrote:
->
 > On Tue, Oct 10, 2023 at 6:17=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
 wrote:
-> >
 > > On Sep 27, 2023 Andrii Nakryiko <andrii@kernel.org> wrote:
 > > >
 > > > Add new kind of BPF kernel object, BPF token. BPF token is meant to
@@ -176,39 +174,19 @@ This
 > > We'll also need a 'void *security' field to go along with the BPF token
 > > allocation/creation/free hooks, see my comments below.  This is similar
 > > to what we do for other kernel objects.
-> >
 >
 > ok, I'm thinking of adding a dedicated patch for all the
 > security-related stuff and refactoring of existing LSM hook(s).
->
-> > > +};
-> > > +
-> >
-> > ...
-> >
-> > > diff --git a/kernel/bpf/token.c b/kernel/bpf/token.c
-> > > new file mode 100644
-> > > index 000000000000..779aad5007a3
-> > > --- /dev/null
-> > > +++ b/kernel/bpf/token.c
-> > > @@ -0,0 +1,197 @@
-> > > +#include <linux/bpf.h>
-> > > +#include <linux/vmalloc.h>
-> > > +#include <linux/anon_inodes.h>
-> >
-> > Probably don't need the anon_inode.h include anymore.
->
-> yep, dropped
->
-> >
-> > > +#include <linux/fdtable.h>
-> > > +#include <linux/file.h>
-> > > +#include <linux/fs.h>
-> > > +#include <linux/kernel.h>
-> > > +#include <linux/idr.h>
-> > > +#include <linux/namei.h>
-> > > +#include <linux/user_namespace.h>
-> > > +
+
+No objection here.  My main concern is that we get the LSM stuff in
+the same patchset as the rest of the BPF token patches; if all of the
+LSM bits are in a separate patch I'm not bothered.
+
+Once we settle on the LSM hooks I'll draft a SELinux implementation of
+the hooks which I'll hand off to you for inclusion in the patchset as
+well.  I'd encourage the other LSMs that are interested to do the
+same.
+
 > > > +bool bpf_token_capable(const struct bpf_token *token, int cap)
 > > > +{
 > > > +     /* BPF token allows ns_capable() level of capabilities */
@@ -231,41 +209,12 @@ This
 > BPF token only if you have CAP_BPF **within the userns**, so any
 > process not granted CAP_BPF within namespace ("container") is
 > guaranteed to not be able to do anything with BPF token.
->
-> >
-> > > +             if (ns_capable(token->userns, cap))
-> > > +                     return true;
-> > > +             if (cap !=3D CAP_SYS_ADMIN && ns_capable(token->userns,=
- CAP_SYS_ADMIN))
-> > > +                     return true;
-> > > +     }
-> > > +     /* otherwise fallback to capable() checks */
-> > > +     return capable(cap) || (cap !=3D CAP_SYS_ADMIN && capable(CAP_S=
-YS_ADMIN));
-> > > +}
-> > > +
-> > > +void bpf_token_inc(struct bpf_token *token)
-> > > +{
-> > > +     atomic64_inc(&token->refcnt);
-> > > +}
-> > > +
-> > > +static void bpf_token_free(struct bpf_token *token)
-> > > +{
-> >
-> > We should have a LSM hook here to handle freeing the LSM state
-> > associated with the token.
-> >
-> >   security_bpf_token_free(token);
-> >
->
-> yep
->
-> > > +     put_user_ns(token->userns);
-> > > +     kvfree(token);
-> > > +}
-> >
-> > ...
-> >
+
+I don't recall seeing any capability checks guarding BPF_TOKEN_CREATE
+in this revision so I don't think you're weakening the restrictions
+any, and the logic above seems reasonable: if you don't have CAP_BPF
+you shouldn't be creating a token.
+
 > > > +static struct bpf_token *bpf_token_alloc(void)
 > > > +{
 > > > +     struct bpf_token *token;
@@ -294,8 +243,15 @@ YS_ADMIN));
 > the token be useful (seems so if we treat bpf_token_alloc as generic
 > LSM hook). If yes, I'll add security_bpf_token_alloc() after all that
 > is filled out, right before we try to get unused fd. WDYT?
->
->
+
+The security_bpf_token_alloc() hook isn't intended to do any access
+control, it's just there so that the LSMs which need to allocate state
+for the token object can do so at the same time the token is
+allocated.  It has been my experience that allocating and releasing
+the LSM state at the same time as the primary object's state is much
+less fragile than disconnecting the two lifetimes and allocating the
+LSM state later.
+
 > > > +int bpf_token_create(union bpf_attr *attr)
 > > > +{
 > > > +     struct bpf_mount_opts *mnt_opts;
@@ -366,12 +322,37 @@ E, O_RDWR, &bpf_token_fops);
 > two? Or is it that the security_bpf_token_alloc() is supposed to be
 > only used to create those `void *security` context pieces, while
 > security_bpf_token_create() is actually going to be used for
-> enforcement? For my own education, is there some explicit flag or some
+> enforcement?
+
+I tried to explain a bit in my comment above, but the alloc hook
+basically just does the LSM state allocation whereas the token_create
+hook does the access control and setting of the LSM state associated
+with the token.
+
+If you want to get rid of the bpf_token_alloc() function and fold it
+into the bpf_token_create() function then we can go down to one LSM
+hook that covers state allocation, initialization, and access control.
+However, if it remains possible to allocate a token object outside of
+bpf_token_create() I think it is a good idea to keep the dedicated LSM
+allocation hooks.
+
+You can apply the same logic to the LSM token state destructor hook.
+
+> For my own education, is there some explicit flag or some
 > other sort of mark between LSM hooks for setting up security vs
 > enforcement? Or is it mostly based on convention and implicitly
 > following the split?
->
-> >
+
+Generally convention based around trying to match the LSM state
+lifetime with the lifetime of the associated object; as I mentioned
+earlier, we've had problems in the past when the two differ.  If you
+look at all of the LSM hooks you'll see a number of
+"security_XXXX_alloc()" hooks for things like superblocks, inodes,
+files, task structs, creds, and the like; we're just doing the same
+things here with BPF tokens.  If you're still not convinced, it may be
+worth noting that we currently have security_bpf_map_alloc() and
+security_bpf_prog_alloc() hooks.
+
 > > > +     fd =3D get_unused_fd_flags(O_CLOEXEC);
 > > > +     if (fd < 0) {
 > > > +             err =3D fd;
@@ -413,30 +394,28 @@ E, O_RDWR, &bpf_token_fops);
 >
 > ok, so I guess I'll have to add all four variants:
 > security_bpf_token_{cmd,map_type,prog_type,attach_type}, right?
->
 
-Thinking a bit more about this, I think this is unnecessary. All these
-allow checks to control other BPF commands (BPF map creation, BPF
-program load, bpf() syscall command, etc). We have dedicated LSM hooks
-for each such operation, most importantly security_bpf_prog_load() and
-security_bpf_map_create(). I'm extending both of those to be
-token-aware, and struct bpf_token is one of the input arguments, so if
-LSM need to override BPF token allow_* checks, they can do in
-respective more specialized hooks.
+Not necessarily.  Currently only SELinux provides a set of LSM BPF
+access controls, and it only concerns itself with BPF maps and
+programs.  From a map perspective it comes down to controlling which
+applications can create a map, or use a map created elsewhere (we
+label BPF map objects just as we would any other kernel object).  From
+a program perspective, it is about loading programs and executing
+them.  While not BPF specific, SELinux also provides controls that
+restrict the ability to exercise capabilities.
 
-Adding so many token hooks, one for each different allow mask (or any
-other sort of "allow something" parameter) seems to be excessive. It
-will both add too many super-detailed LSM hooks and will unnecessarily
-tie BPF token implementation details to LSM hook implementations, IMO.
-I'll send v7 with just security_bpf_token_{create,free}(), please take
-a look and let me know if you are still not convinced.
+Keeping the above access controls in mind, I'm hopeful you can better
+understand the reasoning behind the hooks I'm proposing.  The
+security_bpf_token_cmd() hook is there so that we can control a
+token's ability to authorize BPF_MAP_CREATE and BPF_PROG_LOAD.  The
+security_bpf_token_capable() hook is there so that we can control a
+token's ability to authorize the BPF-related capabilities.  While I
+guess it's possible someone might develop a security model for BPF
+that would require the other LSM hooks you've mentioned above, but I
+see no need for that now, and to be honest I don't see any need on the
+visible horizon either.
 
->
->
-> >     return false;
-> >   }
-> >
-> > > +}
-> >
-> > --
-> > paul-moore.com
+Does that make sense?
+
+--
+paul-moore.com
