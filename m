@@ -2,165 +2,119 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57A2DCDB474
-	for <selinux@archiver.kernel.org>; Thu, 12 Oct 2023 23:52:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25048CDB482
+	for <selinux@archiver.kernel.org>; Fri, 13 Oct 2023 07:39:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229511AbjJLXwH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Oct 2023 19:52:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39412 "EHLO
+        id S229901AbjJMHjH convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 Oct 2023 03:39:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233273AbjJLXwF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Oct 2023 19:52:05 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304ACCC;
-        Thu, 12 Oct 2023 16:52:03 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-53de8fc1ad8so2669859a12.0;
-        Thu, 12 Oct 2023 16:52:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697154721; x=1697759521; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZrpCiUJ4JqBu9o+NEI2JRUxMkcVvZpog0cH6f0L59+c=;
-        b=VSGOKFSi5tN+WR7suNkiWWvvE+jvzG92pk+5TmRSl4mUTSrJrNJ5W7TiiwrPO2KMW7
-         PrqXtE7A2py5kycEMPzhk3RZkSp+9OzvH28owz7UYn2zxWRDCLX+/ICzBx1w88aAAB4l
-         11Fesi8s53HS9sCDiy48VBJxU9K6ZNbkzEy3+67WHYTZR+BIqjC/W6BeBoPzAgjffx6H
-         yyqBLFlsTDl6kw4Y4lUHfJ9AfA8uIcVXpf7VYt0gqwVOhCkbo4tVWgAjbA3GtFPgJpir
-         lifrbVfzgHw1fzqD8rO+0RV1PlTuafz0Hqe5t7iU24/2y1ukn8elEZ6gCF8mT8mBWcI/
-         yeOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697154721; x=1697759521;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZrpCiUJ4JqBu9o+NEI2JRUxMkcVvZpog0cH6f0L59+c=;
-        b=Zbb99Pip9zWedtUD2BcRY6TyoZRaGtntIV1GsY0DkR38CqtGz71+/c0Ubv1mMclHEQ
-         /6WEeYRhY5uI0Jr40rdLVVocsP1ABc0Gy1J8/+Kl4J1OM/Cmtj+KVeBczqAZbCNruHre
-         VXKBPUlHanAdEhXaOdfPEiosYU7Ovn6pQXTMRdp3HCKlA3+uKLQ1vERWAZ68Xgp6ClQe
-         1rjCVmTjWy3QrIF9jUJE3WQ3dnTp1n2mHxQcZixY5r/6Pgzm1TaaXxUqyESKhDll/HKo
-         F4EzKZL4+43qz/w7iF6HXV74oXk/MubnZ4ORoYCes4jqGK78tED4GldYc6209IYppqYn
-         TlVg==
-X-Gm-Message-State: AOJu0YxiOBEaBRIqe8/4XRE4ZVSrffRqbv+AcLBbZHOSlPtHNyBqA7+a
-        X8irqbpmY9f+jixSE4KXi7ammgRwuCXfK2ntP3s=
-X-Google-Smtp-Source: AGHT+IHv3VDK3DVm3XB3NfwJ0Jfb2RMkvo5rJNSsJXlbOXLNihpGlJ//0wCQcAkxKT+WnoCJ7Haihua4z6j4WqE2jwA=
-X-Received: by 2002:aa7:da84:0:b0:536:2b33:83ed with SMTP id
- q4-20020aa7da84000000b005362b3383edmr25843419eds.24.1697154721408; Thu, 12
- Oct 2023 16:52:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230927225809.2049655-4-andrii@kernel.org> <53183ab045f8154ef94070039d53bbab.paul@paul-moore.com>
- <CAEf4BzaTZ_EY4JVZ3ozGzed1PeD+HNGgkDw6jGpWYD_K9c8RFw@mail.gmail.com>
- <CAEf4BzYa9V5FWLqq5wmdTJdtD3yHE-FdvBN7E33bb7+r2eGYBg@mail.gmail.com> <CAHC9VhQuoPUwctgUFNEkXZmutweEpGMVBAx5NmE7PvbE7oeR=g@mail.gmail.com>
-In-Reply-To: <CAHC9VhQuoPUwctgUFNEkXZmutweEpGMVBAx5NmE7PvbE7oeR=g@mail.gmail.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Thu, 12 Oct 2023 16:51:49 -0700
-Message-ID: <CAEf4BzZaOQ+pJw+WN7KrtCxzKHSjvvRJKOue_sfpNVccoBqh6Q@mail.gmail.com>
-Subject: Re: [PATCH v6 3/13] bpf: introduce BPF token object
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Andrii Nakryiko <andrii@kernel.org>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keescook@chromium.org,
-        brauner@kernel.org, lennart@poettering.net, kernel-team@meta.com,
-        sargun@sargun.me, selinux@vger.kernel.org
+        with ESMTP id S229688AbjJMHjF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 Oct 2023 03:39:05 -0400
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F2EB8;
+        Fri, 13 Oct 2023 00:39:01 -0700 (PDT)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4S6J2l2TKpz9xrtb;
+        Fri, 13 Oct 2023 15:26:07 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwA3Q5Tr8yhlfkQgAg--.14800S2;
+        Fri, 13 Oct 2023 08:38:32 +0100 (CET)
+Message-ID: <893bc5837fea4395bfb19e35097810ec7e425917.camel@huaweicloud.com>
+Subject: Re: [PATCH v3 02/25] ima: Align ima_post_path_mknod() definition
+ with LSM infrastructure
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>, viro@zeniv.linux.org.uk,
+        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
+        tom@talpey.com, dmitry.kasatkin@gmail.com, paul@paul-moore.com,
+        jmorris@namei.org, serge@hallyn.com, dhowells@redhat.com,
+        jarkko@kernel.org, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Fri, 13 Oct 2023 09:38:16 +0200
+In-Reply-To: <102b06b30518ac6595022e079de92717c92f3b8e.camel@linux.ibm.com>
+References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
+         <20230904133415.1799503-3-roberto.sassu@huaweicloud.com>
+         <a733fe780a3197150067ad35ed280bf85e11fa97.camel@linux.ibm.com>
+         <b51baf7741de1fdee8b36a87bd2dde71184d47a8.camel@huaweicloud.com>
+         <8646e30b0074a2932076b5a0a792b14be034de98.camel@linux.ibm.com>
+         <16c8c95f2e63ab9a2fba8cba919bf129d0541b61.camel@huaweicloud.com>
+         <c16551704db68c6e0ba89c729c892e9401f05dfc.camel@linux.ibm.com>
+         <2336abd6ae195eda221d54e3c2349a4760afaff2.camel@huaweicloud.com>
+         <84cfe4d93cb5b02591f4bd921b828eb6f3e95faa.camel@linux.ibm.com>
+         <4866a6ef46deebf9a9afdeb7efd600edb589da93.camel@huaweicloud.com>
+         <102b06b30518ac6595022e079de92717c92f3b8e.camel@linux.ibm.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4-0ubuntu2 
+MIME-Version: 1.0
+X-CM-TRANSID: LxC2BwA3Q5Tr8yhlfkQgAg--.14800S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxJr45AFW8ZFyDGF45GrWxZwb_yoW8GF4kpr
+        W09a47KwsrJr15ur10va1Fqr4Fka13JFW5XrWrtr17A34qkryFqF4jkr1Yka1kGrW8G3Wa
+        vF4UJ3s7Wr15ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAJBF1jj5D5TgABsY
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 12, 2023 at 4:43=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Thu, Oct 12, 2023 at 5:48=E2=80=AFPM Andrii Nakryiko
-> <andrii.nakryiko@gmail.com> wrote:
-> > On Wed, Oct 11, 2023 at 5:31=E2=80=AFPM Andrii Nakryiko
-> > <andrii.nakryiko@gmail.com> wrote:
-> > >
-> > > ok, so I guess I'll have to add all four variants:
-> > > security_bpf_token_{cmd,map_type,prog_type,attach_type}, right?
-> > >
-> >
-> > Thinking a bit more about this, I think this is unnecessary. All these
-> > allow checks to control other BPF commands (BPF map creation, BPF
-> > program load, bpf() syscall command, etc). We have dedicated LSM hooks
-> > for each such operation, most importantly security_bpf_prog_load() and
-> > security_bpf_map_create(). I'm extending both of those to be
-> > token-aware, and struct bpf_token is one of the input arguments, so if
-> > LSM need to override BPF token allow_* checks, they can do in
-> > respective more specialized hooks.
-> >
-> > Adding so many token hooks, one for each different allow mask (or any
-> > other sort of "allow something" parameter) seems to be excessive. It
-> > will both add too many super-detailed LSM hooks and will unnecessarily
-> > tie BPF token implementation details to LSM hook implementations, IMO.
-> > I'll send v7 with just security_bpf_token_{create,free}(), please take
-> > a look and let me know if you are still not convinced.
->
-> I'm hoping my last email better explains why we only really need
-> security_bpf_token_cmd() and security_bpf_token_capable() as opposed
-> to the full list of security_bpf_token_XXX().  If not, please let me
-> know and I'll try to do a better job explaining my reasoning :)
->
-> One thing I didn't discuss in my last email was why there is value in
-> having both security_bpf_token_{cmd,capable}() as well as
-> security_bpf_prog_load(); I'll try to do that below.
->
-> As we talked about previously, the reason for having
-> security_bpf_prog_load() is to provide a token-aware version of
-> security_bpf().  Currently the LSMs enforce their access controls
-> around BPF commands using the security_bpf() hook which is
-> unfortunately well before we have access to the BPF token.  If we want
-> to be able to take the BPF token into account we need to have a hook
-> placed after the token is retrieved and validated, hence the
-> security_bpf_prog_load() hook.  In a kernel that provides BPF tokens,
-> I would expect that LSMs would use security_bpf() to control access to
-> BPF operations where a token is not a concern, and new token-aware
-> security_bpf_OPERATION() hooks when the LSM needs to consider the BPF
-> token.
->
-> With the understanding that security_bpf_prog_load() is essentially a
-> token-aware version of security_bpf(), I'm hopeful that you can begin
-> to understand that it  serves a different purpose than
-> security_bpf_token_{cmd,capable}().  The simple answer is that
-> security_bpf_token_cmd() applies to more than just BPF_PROG_LOAD, but
-> the better answer is that it has the ability to impact more than just
-> the LSM authorization decision.  Hooking the LSM into the
-> bpf_token_allow_cmd() function allows the LSM to authorize the
-> individual command overrides independent of the command specific LSM
-> hook, if one exists.  The security_bpf_token_cmd() hook can allow or
-> disallow the use of a token for all aspects of a specific BPF
-> operation including all of the token related logic outside of the LSM,
-> something the security_bpf_prog_load() hook could never do.
->
-> I'm hoping that makes sense :)
+On Thu, 2023-10-12 at 13:10 -0400, Mimi Zohar wrote:
+> > > > > > We need to make sure that ima_post_path_mknod() has the
+> > > > > > same parameters
+> > > > > > as the LSM hook at the time we register it to the LSM
+> > > > > > infrastructure.
+> > > > > 
+> > > > > I'm trying to understand why the pre hook parameters and the
+> > > > > missing
+> > > > > IMA parameter are used, as opposed to just defining the new
+> > > > > post_path_mknod hook like IMA.
+> > > > 
+> > > > As an empyrical rule, I pass the same parameters as the
+> > > > corresponding
+> > > > pre hook (plus idmap, in this case). This is similar to the
+> > > > inode_setxattr hook. But I can be wrong, if desired I can
+> > > > reduce.
+> > > 
+> > > The inode_setxattr hook change example is legitimate, as EVM
+> > > includes
+> > > idmap, while IMA doesn't. 
+> > > 
+> > > Unless there is a good reason for the additional parameters, I'm
+> > > not
+> > > sure that adding them makes sense.  Not modifying the parameter
+> > > list
+> > > will reduce the size of this patch set.
+> > 
+> > The hook is going to be used by any LSM. Without knowing all the
+> > possible use cases, maybe it is better to include more information
+> > now,
+> > than modifying the hook and respective implementations later.
+> > 
+> > (again, no problem to reduce)
+> 
+> Unless there is a known use case for a specific parameter, please
+> minimize them.   Additional parameters can be added later as needed. 
 
-Yes, I think I understand what you are trying to do, but I need to
-clarify something about the bpf_token_allow_cmd() check. It's
-meaningless for any command besides BPF_PROG_LOAD, BPF_MAP_CREATE, and
-BPF_BTF_LOAD. For any other command you cannot even specify token_fd.
-So even if you create a token allowing, say, BPF_MAP_LOOKUP_ELEM, it
-has no effect, because BPF_MAP_LOOKUP_ELEM is doing its own checks
-based on the provided BPF map FD.
+Ok. I did the same for inode_post_create_tmpfile.
 
-So only if the command is token-aware itself, this allowed_cmd makes
-any difference. And in such a case we'll most probably have and/or
-want to have an LSM hook for that specific command that accepts struct
-bpf_token as an argument. Which is what I did for
-security_bpf_prog_load and security_bpf_map_create.
+Thanks
 
-Granted, we don't have any LSM hooks for BPF_BTF_LOAD, mostly because
-BTF is just a blob of type info data, and I guess no one bothered to
-control the ability to load that. But we can add that easily, if you
-think it's important.
+Roberto
 
-So taking everything you said, I still think we don't want a
-bpf_token_capable hook, and we'll just be getting targeted LSM hooks
-if we need them for some new or existing BPF commands.
-
-Basically, bpf_token's allow_cmd doesn't give you a bypass for
-non-token checks we are already doing. So security_bpf() for
-everything besides BPF_PROG_LOAD/BPF_MAP_CREATE/BPF_BTF_LOAD is a
-completely valid way to restrict everything. You won't miss anything.
-
->
-> --
-> paul-moore.com
