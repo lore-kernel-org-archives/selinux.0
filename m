@@ -2,146 +2,335 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91AC1CDB482
-	for <selinux@archiver.kernel.org>; Fri, 13 Oct 2023 19:46:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AAFC4CDB474
+	for <selinux@archiver.kernel.org>; Mon, 16 Oct 2023 22:08:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231534AbjJMTqD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 Oct 2023 15:46:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45100 "EHLO
+        id S233574AbjJPWIm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Oct 2023 18:08:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229830AbjJMTqB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 Oct 2023 15:46:01 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B8DAD;
-        Fri, 13 Oct 2023 12:46:00 -0700 (PDT)
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 39DJgHCq011983;
-        Fri, 13 Oct 2023 19:45:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=Pc0KhaMZjt1JJ8BTzzbAY2PLqOgVWSZXPMggq2UpqC4=;
- b=oNakhZdhqyiBB1xeneH9eObxYi6grzwt2PDYW492vVwRxRHgvoQ4Syn9r9QPmjAYIaTP
- 6aKFPreFl3Yp9g31WJWZvNEcbbD4/UuZ238sO1vfk6vrhXcrc7ds24k3ugEI1rGJrgIZ
- KPrd7F0Vljj/fqcs80mDqn6AHRCyivlWACao6vOPeXQjaf8OXIoG3LlbGWw6i1nEDfVV
- 7tGi264DEu0LvW8MdjleOwBT44b+/tIluYg2nsH2wmZvDndITs0RoqvP9z+mK+rJD81O
- Y/Ww8GD1Twmteqk/oZTZ8T4kZFtlTRyhnJ6+naZx+yLRRvKo/g5SgJmy6fK3rOUAbsmF pg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tqc9gr3q0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Oct 2023 19:45:19 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39DJhCV3014636;
-        Fri, 13 Oct 2023 19:45:19 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tqc9gr3ja-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Oct 2023 19:45:18 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 39DJHpjQ008837;
-        Fri, 13 Oct 2023 19:45:13 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-        by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tpt57p9ef-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 13 Oct 2023 19:45:13 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 39DJjDH564029094
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 13 Oct 2023 19:45:13 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1013E58061;
-        Fri, 13 Oct 2023 19:45:13 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 5C56A58057;
-        Fri, 13 Oct 2023 19:45:11 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.129.99])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 13 Oct 2023 19:45:11 +0000 (GMT)
-Message-ID: <ea1de829cec76d7e20efa305df0b0758fc986aac.camel@linux.ibm.com>
-Subject: Re: [PATCH v3 00/25] security: Move IMA and EVM to the LSM
- infrastructure
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        viro@zeniv.linux.org.uk, brauner@kernel.org,
-        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
-        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
-        dmitry.kasatkin@gmail.com, paul@paul-moore.com, jmorris@namei.org,
-        serge@hallyn.com, dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Fri, 13 Oct 2023 15:45:10 -0400
-In-Reply-To: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
-References: <20230904133415.1799503-1-roberto.sassu@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: vFTp2Ee0JeBQOP1vrgvHIBWFlp1Y_sdO
-X-Proofpoint-ORIG-GUID: iQnGzuzPyAealHWZ8tc09AvVLAvGFvSP
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-13_11,2023-10-12_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 spamscore=0 suspectscore=0 mlxlogscore=999 clxscore=1015
- mlxscore=0 adultscore=0 priorityscore=1501 bulkscore=0 phishscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310130170
+        with ESMTP id S232365AbjJPWIl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Oct 2023 18:08:41 -0400
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02F7A2;
+        Mon, 16 Oct 2023 15:08:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=linux.org.uk; s=zeniv-20220401; h=Sender:Content-Type:MIME-Version:
+        Message-ID:Subject:Cc:To:From:Date:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=G1EUxetWjs0qOtiUH5tq0mLBZ10VZFvJHINvC7djz08=; b=AP798oGVcQFaoR+bfW9MbfgGz1
+        zelAD9u35kqPo1eM3njrtfroxaF4lOY4JYIHcduw2vfFS+HwW1RO7V9wH0pEuJhSZGAzGXG2I12La
+        P4i27v//FxpHatdl2vHmNRJZruJ829xkgC6ClzEWmOksLiSMr8sAtTva6cEgzxQNcNk8us9mncOOe
+        E5wD+aY3lQ0hhszKritoyXhdpRQRAppXXLSEdjhP/9qu/3zpI+pOiGrjitbHW/OlxAl0gOI1oMUaS
+        9jpjqdo0RWT3WdF+XotVMT2UmqFjxSs+E7+1T8DaR40CZIbQ4+yf7nX4cQePLvYrszHxV6+bOPaeL
+        1rH83buQ==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+        id 1qsVlL-001rfB-2f;
+        Mon, 16 Oct 2023 22:08:36 +0000
+Date:   Mon, 16 Oct 2023 23:08:35 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     selinux@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Christian Brauner <brauner@kernel.org>
+Subject: [PATCH][RFC] selinuxfs: saner handling of policy reloads
+Message-ID: <20231016220835.GH800259@ZenIV>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2023-09-04 at 15:33 +0200, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
-> 
-> IMA and EVM are not effectively LSMs, especially due the fact that in the
-> past they could not provide a security blob while there is another LSM
-> active.
-> 
-> That changed in the recent years, the LSM stacking feature now makes it
-> possible to stack together multiple LSMs, and allows them to provide a
-> security blob for most kernel objects. While the LSM stacking feature has
-> some limitations being worked out, it is already suitable to make IMA and
-> EVM as LSMs.
-> 
-> In short, while this patch set is big, it does not make any functional
-> change to IMA and EVM. IMA and EVM functions are called by the LSM
-> infrastructure in the same places as before (except ima_post_path_mknod()),
-> rather being hardcoded calls, and the inode metadata pointer is directly
-> stored in the inode security blob rather than in a separate rbtree.
-> 
-> More specifically, patches 1-11 make IMA and EVM functions suitable to
-> be registered to the LSM infrastructure, by aligning function parameters.
-> 
-> Patches 12-20 add new LSM hooks in the same places where IMA and EVM
-> functions are called, if there is no LSM hook already.
-> 
-> Patches 21-24 do the bulk of the work, remove hardcoded calls to IMA, EVM
-> and integrity functions, register those functions in the LSM
-> infrastructure, and let the latter call them. In addition, they also
-> reserve one slot for EVM to supply an xattr with the inode_init_security
-> hook.
-> 
-> Finally, patch 25 removes the rbtree used to bind metadata to the inodes,
-> and instead reserves a space in the inode security blob to store the
-> pointer to metadata. This also brings performance improvements due to
-> retrieving metadata in constant time, as opposed to logarithmic.
-> 
-> The patch set applies on top of lsm/next, commit 8e4672d6f902 ("lsm:
-> constify the 'file' parameter in security_binder_transfer_file()")
+[
+That thing sits in viro/vfs.git#work.selinuxfs; I have
+lock_rename()-related followups in another branch, so a pull would be more
+convenient for me than cherry-pick.  NOTE: testing and comments would
+be very welcome - as it is, the patch is pretty much untested beyond
+"it builds".
+]
 
-Thanks, Roberto!   There were just a few suggestions/changes, which
-though minor, will result in some patch churn.   Other than that, there
-were some suggestions patch description suggestions.
+On policy reload selinuxfs replaces two subdirectories (/booleans
+and /class) with new variants.  Unfortunately, that's done with
+serious abuses of directory locking.
 
--- 
-thanks,
+1) lock_rename() should be done to parents, not to objects being
+exchanged
 
-Mimi
+2) there's a bunch of reasons why it should not be done for directories
+that do not have a common ancestor; most of those do not apply to
+selinuxfs, but even in the best case the proof is subtle and brittle.
 
+3) failure halfway through the creation of /class will leak
+names and values arrays.
 
+4) use of d_genocide() is also rather brittle; it's probably not much of
+a bug per se, but e.g. an overmount of /sys/fs/selinuxfs/classes/shm/index
+with any regular file will end up with leaked mount on policy reload.
+Sure, don't do it, but...
 
+Let's stop messing with disconnected directories; just create
+a temporary (/.swapover) with no permissions for anyone (on the
+level of ->permission() returing -EPERM, no matter who's calling
+it) and build the new /booleans and /class in there; then
+lock_rename on root and that temporary directory and d_exchange()
+old and new both for class and booleans.  Then unlock and use
+simple_recursive_removal() to take the temporary out; it's much
+more robust.
+
+And instead of bothering with separate pathways for freeing
+new (on failure halfway through) and old (on success) names/values,
+do all freeing in one place.  With temporaries swapped with the
+old ones when we are past all possible failures.
+
+The only user-visible difference is that /.swapover shows up
+(but isn't possible to open, look up into, etc.) for the
+duration of policy reload.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 6fa640263216..ab4beb1cdf20 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -336,12 +336,9 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+ 			unsigned long *ino);
+ 
+ /* declaration for sel_make_policy_nodes */
+-static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
++static struct dentry *sel_make_swapover_dir(struct super_block *sb,
+ 						unsigned long *ino);
+ 
+-/* declaration for sel_make_policy_nodes */
+-static void sel_remove_entries(struct dentry *de);
+-
+ static ssize_t sel_read_mls(struct file *filp, char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+@@ -508,13 +505,13 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 				struct selinux_policy *newpolicy)
+ {
+ 	int ret = 0;
+-	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir, *old_dentry;
+-	unsigned int tmp_bool_num, old_bool_num;
+-	char **tmp_bool_names, **old_bool_names;
+-	int *tmp_bool_values, *old_bool_values;
++	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir;
++	unsigned int bool_num = 0;
++	char **bool_names = NULL;
++	int *bool_values = NULL;
+ 	unsigned long tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
+ 
+-	tmp_parent = sel_make_disconnected_dir(fsi->sb, &tmp_ino);
++	tmp_parent = sel_make_swapover_dir(fsi->sb, &tmp_ino);
+ 	if (IS_ERR(tmp_parent))
+ 		return PTR_ERR(tmp_parent);
+ 
+@@ -532,8 +529,8 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 		goto out;
+ 	}
+ 
+-	ret = sel_make_bools(newpolicy, tmp_bool_dir, &tmp_bool_num,
+-			     &tmp_bool_names, &tmp_bool_values);
++	ret = sel_make_bools(newpolicy, tmp_bool_dir, &bool_num,
++			     &bool_names, &bool_values);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -542,38 +539,30 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
+ 	if (ret)
+ 		goto out;
+ 
++	lock_rename(tmp_parent, fsi->sb->s_root);
++
+ 	/* booleans */
+-	old_dentry = fsi->bool_dir;
+-	lock_rename(tmp_bool_dir, old_dentry);
+ 	d_exchange(tmp_bool_dir, fsi->bool_dir);
+ 
+-	old_bool_num = fsi->bool_num;
+-	old_bool_names = fsi->bool_pending_names;
+-	old_bool_values = fsi->bool_pending_values;
+-
+-	fsi->bool_num = tmp_bool_num;
+-	fsi->bool_pending_names = tmp_bool_names;
+-	fsi->bool_pending_values = tmp_bool_values;
+-
+-	sel_remove_old_bool_data(old_bool_num, old_bool_names, old_bool_values);
++	swap(fsi->bool_num, bool_num);
++	swap(fsi->bool_pending_names, bool_names);
++	swap(fsi->bool_pending_values, bool_values);
+ 
+ 	fsi->bool_dir = tmp_bool_dir;
+-	unlock_rename(tmp_bool_dir, old_dentry);
+ 
+ 	/* classes */
+-	old_dentry = fsi->class_dir;
+-	lock_rename(tmp_class_dir, old_dentry);
+ 	d_exchange(tmp_class_dir, fsi->class_dir);
+ 	fsi->class_dir = tmp_class_dir;
+-	unlock_rename(tmp_class_dir, old_dentry);
++
++	unlock_rename(tmp_parent, fsi->sb->s_root);
+ 
+ out:
++	sel_remove_old_bool_data(bool_num, bool_names, bool_values);
+ 	/* Since the other temporary dirs are children of tmp_parent
+ 	 * this will handle all the cleanup in the case of a failure before
+ 	 * the swapover
+ 	 */
+-	sel_remove_entries(tmp_parent);
+-	dput(tmp_parent); /* d_genocide() only handles the children */
++	simple_recursive_removal(tmp_parent, NULL);
+ 
+ 	return ret;
+ }
+@@ -1351,54 +1340,48 @@ static const struct file_operations sel_commit_bools_ops = {
+ 	.llseek		= generic_file_llseek,
+ };
+ 
+-static void sel_remove_entries(struct dentry *de)
+-{
+-	d_genocide(de);
+-	shrink_dcache_parent(de);
+-}
+-
+ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
+ 			  unsigned int *bool_num, char ***bool_pending_names,
+ 			  int **bool_pending_values)
+ {
+ 	int ret;
+-	ssize_t len;
+-	struct dentry *dentry = NULL;
+-	struct inode *inode = NULL;
+-	struct inode_security_struct *isec;
+-	char **names = NULL, *page;
++	char **names, *page;
+ 	u32 i, num;
+-	int *values = NULL;
+-	u32 sid;
+ 
+-	ret = -ENOMEM;
+ 	page = (char *)get_zeroed_page(GFP_KERNEL);
+ 	if (!page)
+-		goto out;
++		return -ENOMEM;
+ 
+-	ret = security_get_bools(newpolicy, &num, &names, &values);
++	ret = security_get_bools(newpolicy, &num, &names, bool_pending_values);
+ 	if (ret)
+ 		goto out;
+ 
++	*bool_num = num;
++	*bool_pending_names = names;
++
+ 	for (i = 0; i < num; i++) {
+-		ret = -ENOMEM;
++		struct dentry *dentry;
++		struct inode *inode;
++		struct inode_security_struct *isec;
++		ssize_t len;
++		u32 sid;
++
++		len = snprintf(page, PAGE_SIZE, "/%s/%s", BOOL_DIR_NAME, names[i]);
++		if (len >= PAGE_SIZE) {
++			ret = -ENAMETOOLONG;
++			break;
++		}
+ 		dentry = d_alloc_name(bool_dir, names[i]);
+-		if (!dentry)
+-			goto out;
++		if (!dentry) {
++			ret = -ENOMEM;
++			break;
++		}
+ 
+-		ret = -ENOMEM;
+ 		inode = sel_make_inode(bool_dir->d_sb, S_IFREG | S_IRUGO | S_IWUSR);
+ 		if (!inode) {
+ 			dput(dentry);
+-			goto out;
+-		}
+-
+-		ret = -ENAMETOOLONG;
+-		len = snprintf(page, PAGE_SIZE, "/%s/%s", BOOL_DIR_NAME, names[i]);
+-		if (len >= PAGE_SIZE) {
+-			dput(dentry);
+-			iput(inode);
+-			goto out;
++			ret = -ENOMEM;
++			break;
+ 		}
+ 
+ 		isec = selinux_inode(inode);
+@@ -1416,23 +1399,8 @@ static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_
+ 		inode->i_ino = i|SEL_BOOL_INO_OFFSET;
+ 		d_add(dentry, inode);
+ 	}
+-	*bool_num = num;
+-	*bool_pending_names = names;
+-	*bool_pending_values = values;
+-
+-	free_page((unsigned long)page);
+-	return 0;
+ out:
+ 	free_page((unsigned long)page);
+-
+-	if (names) {
+-		for (i = 0; i < num; i++)
+-			kfree(names[i]);
+-		kfree(names);
+-	}
+-	kfree(values);
+-	sel_remove_entries(bool_dir);
+-
+ 	return ret;
+ }
+ 
+@@ -1961,20 +1929,39 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+ 	return dentry;
+ }
+ 
+-static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
++static int reject_all(struct mnt_idmap *idmap, struct inode *inode, int mask)
++{
++	return -EPERM;	// no access for anyone, root or no root.
++}
++
++static const struct inode_operations swapover_dir_inode_operations = {
++	.lookup		= simple_lookup,
++	.permission	= reject_all,
++};
++
++static struct dentry *sel_make_swapover_dir(struct super_block *sb,
+ 						unsigned long *ino)
+ {
+-	struct inode *inode = sel_make_inode(sb, S_IFDIR | S_IRUGO | S_IXUGO);
++	struct dentry *dentry = d_alloc_name(sb->s_root, ".swapover");
++	struct inode *inode;
+ 
+-	if (!inode)
++	if (!dentry)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	inode->i_op = &simple_dir_inode_operations;
+-	inode->i_fop = &simple_dir_operations;
++	inode = sel_make_inode(sb, S_IFDIR);
++	if (!inode) {
++		dput(dentry);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	inode->i_op = &swapover_dir_inode_operations;
+ 	inode->i_ino = ++(*ino);
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inc_nlink(inode);
+-	return d_obtain_alias(inode);
++	inode_lock(sb->s_root->d_inode);
++	d_add(dentry, inode);
++	inode_unlock(sb->s_root->d_inode);
++	return dentry;
+ }
+ 
+ #define NULL_FILE_NAME "null"
