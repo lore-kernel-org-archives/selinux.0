@@ -2,111 +2,129 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37350CDB482
-	for <selinux@archiver.kernel.org>; Wed, 18 Oct 2023 10:08:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA8FACDB47E
+	for <selinux@archiver.kernel.org>; Wed, 18 Oct 2023 17:59:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbjJRKI3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Oct 2023 06:08:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53502 "EHLO
+        id S229853AbjJRR7L (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Oct 2023 13:59:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbjJRKI2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Oct 2023 06:08:28 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE20D95;
-        Wed, 18 Oct 2023 03:08:26 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 0A44B21AC5;
-        Wed, 18 Oct 2023 10:08:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1697623705; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=Ebeu1CZw7f/xdwBs2G1M4yI3NEq7u+QmjV02kBazjyo=;
-        b=Y5pMK/z30ki9SW6ywI4ydoItHoDQSnQrIccvoMfqRSw9VWAGQ6KF1ART/EDkNpKZo8M9NE
-        MhHNSE3rB1HN5czic98xSDLV9THSWlkdIiSQEIpIv08ftqQF3IhyOwXBieFZhv3nr93nsh
-        GCp9lfi+ubV8tZNSOGGDdKFzUUYfI6c=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1697623705;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=Ebeu1CZw7f/xdwBs2G1M4yI3NEq7u+QmjV02kBazjyo=;
-        b=HnAHfapXiN9Mon0mqRsfneN92uAtTVIpjEQ87HwwyUa0YRqVXo+RC/b4NW1AW2bOuz4rmh
-        Vj4aXO8SjhS7qODQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id DDE1B13780;
-        Wed, 18 Oct 2023 10:08:24 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id DQ7SNJiuL2UnQwAAMHmgww
-        (envelope-from <ddiss@suse.de>); Wed, 18 Oct 2023 10:08:24 +0000
-From:   David Disseldorp <ddiss@suse.de>
+        with ESMTP id S1344909AbjJRR65 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Oct 2023 13:58:57 -0400
+Received: from mail-qv1-xf30.google.com (mail-qv1-xf30.google.com [IPv6:2607:f8b0:4864:20::f30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8941713
+        for <selinux@vger.kernel.org>; Wed, 18 Oct 2023 10:58:33 -0700 (PDT)
+Received: by mail-qv1-xf30.google.com with SMTP id 6a1803df08f44-66d0ea3e5b8so45514666d6.0
+        for <selinux@vger.kernel.org>; Wed, 18 Oct 2023 10:58:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1697651912; x=1698256712; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=XeRHgOrmEPGzik32gSn3xxnEIZX/DsTK1wkMv66YWlc=;
+        b=b28Ske5fRH9A1pDa798qp4JAruLtTU57O1iLJdhuwsdD7pxmHWNxLaIleGVFwhkTHY
+         Qc3krKKiBSFazdnFOzsGP6c7+JUXzyF41jlP1Pza0rZJAp/HiyeORFORBLyly/ZLi2yF
+         q3CijWWpyz4JuoyrkLjHvy4oOcGZJLxAhGtN/6g4QDlcLU6YF1Dc+a31vAfAjbHYUgrN
+         L6h0WRBas2kCwEAJDpA2gzoHOZ9lzHctzl4QdMapgIC9zLO0HVmZVfLqOTQXH8rU0Zl3
+         iVz/MuTn1CZ0AVOYdzKjQdANKZu9lmdxTMoxRs7EXsktEdJ+RW7lskLbrWjdRyyta3I4
+         /X0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1697651912; x=1698256712;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XeRHgOrmEPGzik32gSn3xxnEIZX/DsTK1wkMv66YWlc=;
+        b=W1FnEb3aXrJAb+mrljbLqzuf1+yVwYUElfTfTIw+gmTted5WV+6inQ+RCiZFVwjBTZ
+         9yubLlaOkCDQqMPCUC+UzShQj4LUHq13XXrNDD+xlk051qrA8Wz4X8NgK9RHLindJfjC
+         1Q6Te/QoDxjXHmpMjo/OqnWih0eb0gcdRegqEI2cgDAfCmYAjdCW+77DxC51NKH08r+j
+         4xVSgDdHo6RvbxdIo1Ox5xHoFuIhmb+lEmzltoXQkQXLwDqh6ae1AXPTYcXlctKOj6ij
+         Hm/TqtzPZML/voERZWdzwV98Bhyn0wlodBLJhUDRJaTU6qyUNYBFjtiy3aT1QBRHa9E9
+         2yOw==
+X-Gm-Message-State: AOJu0Yzw70KzOPRUAimSK9Op83LZA9LxMajYcymUGJuJA5i97hpvnwno
+        mwEEwtcSGxjQbfHE3Tn2ZupipMREhOA=
+X-Google-Smtp-Source: AGHT+IEbspyi0Xok6SsRte/72WOc/DCOSbq+voDkbqu93xHo2c07i4dP1P5zANMgpk2EA70dOINvhg==
+X-Received: by 2002:a05:6214:c4d:b0:66d:3a89:8133 with SMTP id r13-20020a0562140c4d00b0066d3a898133mr5932667qvj.64.1697651911762;
+        Wed, 18 Oct 2023 10:58:31 -0700 (PDT)
+Received: from 5bc235456ce7.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id k15-20020a0cfa4f000000b00655d711180dsm133289qvo.17.2023.10.18.10.58.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Oct 2023 10:58:30 -0700 (PDT)
+From:   Jacob Satterfield <jsatterfield.linux@gmail.com>
 To:     selinux@vger.kernel.org
-Cc:     linux-unionfs@vger.kernel.org, David Disseldorp <ddiss@suse.de>
-Subject: [PATCH] RFC: selinux: don't filter copy-up xattrs while uninitialized
-Date:   Wed, 18 Oct 2023 12:08:15 +0200
-Message-Id: <20231018100815.26278-1-ddiss@suse.de>
-X-Mailer: git-send-email 2.35.3
+Cc:     Jacob Satterfield <jsatterfield.linux@gmail.com>,
+        stephen.smalley.work@gmail.com, paul@paul-moore.com,
+        omosnace@redhat.com
+Subject: [PATCH v3 0/3] selinux: avtab arrays and refactors
+Date:   Wed, 18 Oct 2023 17:57:33 +0000
+Message-ID: <20231018175744.39667-1-jsatterfield.linux@gmail.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Authentication-Results: smtp-out1.suse.de;
-        none
-X-Spamd-Result: default: False [0.90 / 50.00];
-         ARC_NA(0.00)[];
-         RCVD_VIA_SMTP_AUTH(0.00)[];
-         FROM_HAS_DN(0.00)[];
-         RCPT_COUNT_THREE(0.00)[3];
-         TO_DN_SOME(0.00)[];
-         TO_MATCH_ENVRCPT_ALL(0.00)[];
-         MIME_GOOD(-0.10)[text/plain];
-         R_MISSING_CHARSET(2.50)[];
-         BROKEN_CONTENT_TYPE(1.50)[];
-         NEURAL_HAM_LONG(-3.00)[-1.000];
-         DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-         NEURAL_HAM_SHORT(-1.00)[-1.000];
-         MID_CONTAINS_FROM(1.00)[];
-         FROM_EQ_ENVFROM(0.00)[];
-         MIME_TRACE(0.00)[0:+];
-         RCVD_COUNT_TWO(0.00)[2];
-         RCVD_TLS_ALL(0.00)[];
-         BAYES_HAM(-0.00)[36.05%]
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Extended attribute copy-up functionality added via 19472b69d639d
-("selinux: Implementation for inode_copy_up_xattr() hook") sees
-"security.selinux" contexts dropped, instead relying on contexts
-applied via the inode_copy_up() hook.
+As the refpolicy and the default Fedora policy continue to grow in
+size, especially with regard to rules / access vectors, the memory
+usage of the policydb and runtime to search through it increases.
+Looking at /proc/slabinfo indicates that the avtab_node_cachep
+kmem_cache is significantly responsible for overall memory usage and
+was a good target for optimizations. Running "perf stat" on the
+"load_policy" command shows that a majority of time is spent adding
+rules into the avtab.
 
-When copy-up takes place during early boot, prior to selinux
-initialization / policy load, the context stripping can be unwanted
-and unexpected. Make filtering dependent on selinux_initialized().
+This patch series is an attempt at optimizing these hot spots within
+the security server implementation to help it scale with  additional
+rules in the future.
 
-RFC: This changes user behaviour so is likely unacceptable. Still,
-I'd be interested in hearing other suggestions for how this could be
-addressed.
----
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+All patches are independent of each other.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2aa0e219d7217..fb3e53bb7e90c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3527,7 +3527,7 @@ static int selinux_inode_copy_up_xattr(const char *name)
- 	 * don't then want to overwrite it by blindly copying all the lower
- 	 * xattrs up.  Instead, we have to filter out SELinux-related xattrs.
- 	 */
--	if (strcmp(name, XATTR_NAME_SELINUX) == 0)
-+	if (selinux_initialized() && strcmp(name, XATTR_NAME_SELINUX) == 0)
- 		return 1; /* Discard */
- 	/*
- 	 * Any other attribute apart from SELINUX is not claimed, supported
+Patches 1-2 are refactors of the internal avtab.c interfaces and code
+paths with no logic changes. It removes duplicative code and
+homogenizes access patterns.
+
+Patch 3 changes avtab to use arrays instead of a kmem_cache for the
+individual nodes of the hashtable.
+
+Changelog:
+
+v3:
+- selinux: simplify avtab_insert_node() prototype
+  - dropped, already merged
+- selinux: avtab iteration macros
+  - reverted changes to avtab_destroy() which created a UAF bug
+- selinux: refactor avtab_node comparisons
+  - fixed indent issues in avtab_node_cmp()
+  - removed unlikely() macro in avtab_insert()
+
+v2:
+- selinux: use arrays for avtab hashtable nodes
+  - rewritten to use pointers instead of indices
+  - NULL_NODE_IDX and NODES_ARRAY_IDX macros removed
+  - getter functions removed
+  - two-pass algorithm used to compute cond. table size prior to
+    allocating the array
+- selinux: hweight optimization in avtab_read_item
+  - dropped, already merged
+- selinux: shrink conditional avtab node array
+  - dropped, not needed due to new allocation approach
+- selinux: refactor avtab_node comparisons
+  - newly added
+- selinux: avtab iteration macros
+  - newly added
+- selinux: simplify avtab_insert_node() prototype
+  - newly added
+
+Jacob Satterfield (3):
+  selinux: refactor avtab_node comparisons
+  selinux: avtab iteration macros
+  selinux: use arrays for avtab hashtable nodes
+
+ security/selinux/ss/avtab.c       | 176 ++++++++++++++----------------
+ security/selinux/ss/avtab.h       |   4 +-
+ security/selinux/ss/conditional.c |  37 +++++--
+ security/selinux/ss/conditional.h |   2 +-
+ 4 files changed, 112 insertions(+), 107 deletions(-)
+
 -- 
-2.35.3
+2.41.0
 
