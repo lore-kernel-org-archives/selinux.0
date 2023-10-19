@@ -2,122 +2,117 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9949CDB47E
-	for <selinux@archiver.kernel.org>; Wed, 18 Oct 2023 20:13:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70083CDB483
+	for <selinux@archiver.kernel.org>; Thu, 19 Oct 2023 01:39:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229605AbjJRUNG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Oct 2023 16:13:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58300 "EHLO
+        id S229632AbjJSBj1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Oct 2023 21:39:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbjJRUNG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Oct 2023 16:13:06 -0400
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE9F9F
-        for <selinux@vger.kernel.org>; Wed, 18 Oct 2023 13:13:04 -0700 (PDT)
-Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-d9b9adaf291so4584254276.1
-        for <selinux@vger.kernel.org>; Wed, 18 Oct 2023 13:13:04 -0700 (PDT)
+        with ESMTP id S229726AbjJSBj0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Oct 2023 21:39:26 -0400
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1615FA
+        for <selinux@vger.kernel.org>; Wed, 18 Oct 2023 18:39:21 -0700 (PDT)
+Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-d9ace5370a0so7477960276.0
+        for <selinux@vger.kernel.org>; Wed, 18 Oct 2023 18:39:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1697659983; x=1698264783; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1697679561; x=1698284361; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=E9HzmT/G+1Xafe4wdIjE0N43tneqPtZxMFgQYY/Pd0Y=;
-        b=LtMRVJdKIOswQHKvZhn6Qr8eZA3XxDk7xk6kN8pJSp2c34lnOO4VdXAySj/06EoZCf
-         gSUV8xFk8/8UUVkY4Ve2UfhtOBUV3q3M2TccAmpmvTHsdAHdlcgZuF6OQucvnA+/UZOP
-         Io8ea2CInMxd7fSvhEfv0VLcZSIMhj4xrXKUcQbBKSpf26naZIKuF6HahgxRQ/JjVmOG
-         scymO4pBje1muini0TOAgEH52XtOpFKmnAS7us9RaZHCmD5TOE5cTcAqjBmef4or9Q2n
-         JgIOzfj0vCCwRWWEFBKPcQY4o37xqUrNJkniRkcnEFHMNurrBX2D/GnnOZ+cqxnMOdDz
-         cLpQ==
+        bh=vX68/OE0qLrF3A1/NDlCjZF1ajE8ZMP/wy8PcFgCC1k=;
+        b=B/hriZb/a5usUFTona5xSSGqFGx7M7E+IQoS3ZNjotoDDqZoV2dWm77wY8kONdLpMi
+         N1XfykBCX1djn41p8RS7XMmDUowa3OP5AGT0mp4MQbIQZ6RRVQgB8apci73hwTR4ETbG
+         p0fUcSOar50eWTrlnQjWQmv+TuMa8nhx/RAoIK9QlbtHYk8066iD5kEeRtTJXtijmwLn
+         2TnHslHatbWcO+iatBIhBDSXlPgZbIA10sVt6AgKHuk4YlXxeRSCceqeBiDHOdMUvbxP
+         zAKAJNby7R85c1iq1QJtEkEGUMIsh3vYjRTAfnoYpeUj4DgnNMDe2dL1SQvgapZKCN7k
+         zWYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697659983; x=1698264783;
+        d=1e100.net; s=20230601; t=1697679561; x=1698284361;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=E9HzmT/G+1Xafe4wdIjE0N43tneqPtZxMFgQYY/Pd0Y=;
-        b=Df4fWlVHn36JAA+7vPHtji+kD6n9wk1shmjMPFiQfQB0HcGCuXed+VfbKI67iSh37U
-         w7gwoPUqN531w0bSIuVidPRX2Tk4xJzh/U+aikJAUGtUM1uKAMt9oRfHpJykBfPAro0v
-         tHHE7Jryyy81SQrRmI0WqcZWRZ5RjdyVN43sfGlma8X8cIlgA1UuGT5wHF3Jk89xiJJv
-         C0mB5ifWq5/ftURipl3O8nO7pxyyYCV69OmbV9030ZjuxqoYUgyYibJPjAlhDj1Ytkk7
-         mt6818yo4Wbw/rA4NZDxnHAIu7KZPrZHhm2vwbVFFL9DLxFTIqqHsmewPtTB6MR/Cn8D
-         64IQ==
-X-Gm-Message-State: AOJu0YzAGUed3G2wIFgD4Yz3Srtxz1ebpaZ2PZyhoA1lkLzQ1EVlzLqL
-        ppUD7CuDqzThO8P/IyC6Wqvj2sOeSXG3/t0ZwTcoSz6oBPzdbY8=
-X-Google-Smtp-Source: AGHT+IGqEXTQaKnRRoUPwmZhNBio9ohnWXSw7jO2U89AsGXIPeIURmfwgOSXSWYl0s2kUh/DMak2WyjlvUulDkPBJyk=
-X-Received: by 2002:a5b:24a:0:b0:d9a:6c74:49b with SMTP id g10-20020a5b024a000000b00d9a6c74049bmr406107ybp.2.1697659983412;
- Wed, 18 Oct 2023 13:13:03 -0700 (PDT)
+        bh=vX68/OE0qLrF3A1/NDlCjZF1ajE8ZMP/wy8PcFgCC1k=;
+        b=im69B78pQ5EH5aw4kX35U09cIGa0qfQUZjGVc4WK/K9t1gDIauN8eXuWi/4LYK5fSY
+         CjyXbrJZzl7opZv3ZOVXBp36xUpuBM7pCAMwLPPphuFdhfMbxZY7oblOt15U9x5gOlaV
+         z3fpZLjUobCRNxS+TCottstofhydtPCBAMjXC6E3XVTyg2pi7Uk/m56o6X+xno5xTTBX
+         wE8+8iRwO7CPkR6bZolFpQMS9PL515XASSKU25WlQD9rULRlg7sSXRe6Hez4mnXISf9C
+         BBRWL/tmrE+fSLOV00BV7lOlu98c4G9VzwvXtrHvwf9L1Ya2MJrMz6n/NPb49Y6uAGEf
+         gMrQ==
+X-Gm-Message-State: AOJu0YxjeGwF2nXxpjvU+AvdFlHgUeGdNWAnjI/lJUiSHYo/LI0nU310
+        duTRCIbpHF9tPCNqNamQJ+UUSZjfqwvIcGNU7RawNwwjYKSDW3M=
+X-Google-Smtp-Source: AGHT+IHhIoDNFAW1nx6xHUnFoODV7tpJlxCRuJvySLom8kFciPpNz1TSp3WvEUHvnPNxYR6g8vN0WkWsdcb6Dfh3VC4=
+X-Received: by 2002:a25:ada4:0:b0:d9a:4da4:b793 with SMTP id
+ z36-20020a25ada4000000b00d9a4da4b793mr1172039ybi.62.1697679561081; Wed, 18
+ Oct 2023 18:39:21 -0700 (PDT)
 MIME-Version: 1.0
-References: <20230612090145.1059245-1-omosnace@redhat.com>
-In-Reply-To: <20230612090145.1059245-1-omosnace@redhat.com>
+References: <20231016220835.GH800259@ZenIV> <CAHC9VhTToc-rELe0EyOV4kRtOJuAmPzPB_QNn8Lw_EfMg+Edzw@mail.gmail.com>
+ <20231018043532.GS800259@ZenIV>
+In-Reply-To: <20231018043532.GS800259@ZenIV>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 18 Oct 2023 16:13:02 -0400
-Message-ID: <CAHC9VhSyN-0QYmNRKn0qSUC_1sRp5zih6=f8hc=jf-Sdw9b2fA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: introduce an initial SID for early boot processes
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, scodar@microsoft.com
+Date:   Wed, 18 Oct 2023 21:39:10 -0400
+Message-ID: <CAHC9VhSx0UiHyQYR-=va4X0r3XpEFz9n9f96DkQ9bhbB97RnnQ@mail.gmail.com>
+Subject: Re: [PATCH][RFC] selinuxfs: saner handling of policy reloads
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     selinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Christian Brauner <brauner@kernel.org>,
+        selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 12, 2023 at 5:01=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
+On Wed, Oct 18, 2023 at 12:35=E2=80=AFAM Al Viro <viro@zeniv.linux.org.uk> =
+wrote:
+> On Tue, Oct 17, 2023 at 04:28:53PM -0400, Paul Moore wrote:
+> > Thanks Al.
+> >
+> > Giving this a very quick look, I like the code simplifications that
+> > come out of this change and I'll trust you on the idea that this
+> > approach is better from a VFS perspective.
+> >
+> > While the reject_all() permission hammer is good, I do want to make
+> > sure we are covered from a file labeling perspective; even though the
+> > DAC/reject_all() check hits first and avoids the LSM inode permission
+> > hook, we still want to make sure the files are labeled properly.  It
+> > looks like given the current SELinux Reference Policy this shouldn't
+> > be a problem, it will be labeled like most everything else in
+> > selinuxfs via genfscon (SELinux policy construct).  I expect those
+> > with custom SELinux policies will have something similar in place with
+> > a sane default that would cover the /sys/fs/selinux/.swapover
+> > directory but I did add the selinux-refpol list to the CC line just in
+> > case I'm being dumb and forgetting something important with respect to
+> > policy.
+> >
+> > The next step is to actually boot up a kernel with this patch and make
+> > sure it doesn't break anything.  Simply booting up a SELinux system
+> > and running 'load_policy' a handful of times should exercise the
+> > policy (re)load path, and if you want a (relatively) simple SELinux
+> > test suite you can find one here:
+> >
+> > * https://github.com/SELinuxProject/selinux-testsuite
+> >
+> > The README.md should have the instructions necessary to get it
+> > running.  If you can't do that, and no one else on the mailing list is
+> > able to test this out, I'll give it a go but expect it to take a while
+> > as I'm currently swamped with reviews and other stuff.
 >
-> Currently, SELinux doesn't allow distinguishing between kernel threads
-> and userspace processes that are started before the policy is first
-> loaded - both get the label corresponding to the kernel SID. The only
-> way a process that persists from early boot can get a meaningful label
-> is by doing a voluntary dyntransition or re-executing itself.
->
-> Reusing the kernel label for userspace processes is problematic for
-> several reasons:
-> 1. The kernel is considered to be a privileged domain and generally
->    needs to have a wide range of permissions allowed to work correctly,
->    which prevents the policy writer from effectively hardening against
->    early boot processes that might remain running unintentionally after
->    the policy is loaded (they represent a potential extra attack surface
->    that should be mitigated).
-> 2. Despite the kernel being treated as a privileged domain, the policy
->    writer may want to impose certain special limitations on kernel
->    threads that may conflict with the requirements of intentional early
->    boot processes. For example, it is a good hardening practice to limit
->    what executables the kernel can execute as usermode helpers and to
->    confine the resulting usermode helper processes. However, a
->    (legitimate) process surviving from early boot may need to execute a
->    different set of executables.
-> 3. As currently implemented, overlayfs remembers the security context of
->    the process that created an overlayfs mount and uses it to bound
->    subsequent operations on files using this context. If an overlayfs
->    mount is created before the SELinux policy is loaded, these "mounter"
->    checks are made against the kernel context, which may clash with
->    restrictions on the kernel domain (see 2.).
->
-> To resolve this, introduce a new initial SID (reusing the slot of the
-> former "init" initial SID) that will be assigned to any userspace
-> process started before the policy is first loaded. This is easy to do,
-> as we can simply label any process that goes through the
-> bprm_creds_for_exec LSM hook with the new init-SID instead of
-> propagating the kernel SID from the parent.
->
-> To provide backwards compatibility for existing policies that are
-> unaware of this new semantic of the "init" initial SID, introduce a new
-> policy capability "userspace_initial_context" and set the "init" SID to
-> the same context as the "kernel" SID unless this capability is set by
-> the policy.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/hooks.c                      | 27 +++++++++++++++++++
->  .../selinux/include/initial_sid_to_string.h   |  2 +-
->  security/selinux/include/policycap.h          |  1 +
->  security/selinux/include/policycap_names.h    |  3 ++-
->  security/selinux/include/security.h           |  7 +++++
->  security/selinux/ss/policydb.c                | 27 +++++++++++++++++++
->  6 files changed, 65 insertions(+), 2 deletions(-)
+> It does survive repeated load_policy (as well as semodule -d/semodule -e,
+> with expected effect on /booleans, AFAICS).  As for the testsuite...
+> No regressions compared to clean -rc5, but then there are (identical)
+> failures on both - "Failed 8/76 test programs. 88/1046 subtests failed."
+> Incomplete defconfig, at a guess...
 
-Unfortunately we had to revert this due to compatibility issues, but I
-was hoping there might be a new, fixed version by now; any updates
-Ondrej?
+Thanks for the smoke testing, the tests should run clean, but if you
+didn't adjust the Kconfig you're likely correct that it is the source
+of the failures.  I'll build a kernel with the patch and give it a
+test.
+
+From what I can see, it doesn't look like this is a candidate for
+stable, correct?
 
 --=20
 paul-moore.com
