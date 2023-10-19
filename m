@@ -2,111 +2,176 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AB89C46CA1
-	for <selinux@archiver.kernel.org>; Thu, 19 Oct 2023 13:10:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A782CDB465
+	for <selinux@archiver.kernel.org>; Thu, 19 Oct 2023 20:27:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235374AbjJSNKs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Oct 2023 09:10:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
+        id S1346549AbjJSU14 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Oct 2023 16:27:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235369AbjJSNKq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Oct 2023 09:10:46 -0400
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90DF106;
-        Thu, 19 Oct 2023 06:10:42 -0700 (PDT)
-Received: by mail-ot1-x32f.google.com with SMTP id 46e09a7af769-6ce2bcb131fso278987a34.1;
-        Thu, 19 Oct 2023 06:10:42 -0700 (PDT)
+        with ESMTP id S1346466AbjJSU1z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Oct 2023 16:27:55 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D3C131
+        for <selinux@vger.kernel.org>; Thu, 19 Oct 2023 13:27:52 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id a640c23a62f3a-9b95622c620so19042366b.0
+        for <selinux@vger.kernel.org>; Thu, 19 Oct 2023 13:27:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1697721042; x=1698325842; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1697747271; x=1698352071; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ye6vMdiBk6fCMdBWCFZSgU3VdZTZqteq+5mpIGl0jX0=;
-        b=GJMDnDkRA3X+lbF/YFuSc90319T3zD8e2x4zLjyrbCeSZOGZds6lXBIv1LNe7hZcFY
-         o7xcjEa4EUFHNrfw3gs7M8ad5IPiNrJ6zg4Ch1GrcdiX8tJRarTQZwKferBJFvREX9Z2
-         HtXHpbV7VXKHw/9le78JMkWXqwpdSudeOk6AVK2/xLtDwnN5ZOGdpROJcbjzPeoVQ8gb
-         LS4DDLR1b7VWA2Z0yBH5mLxxnYc+E+nKZpFXlQTTBixjHDh9kT2Deo75NkV3jbkz3nmm
-         d6U6aoYhSKlJ0p/JcEFbuW7CPeaZTnaiqCoaIE/bAvshqK68QQFZc59yJYQj1IRsK9Y6
-         0AHQ==
+        bh=IXMBydNWgfKvIQZzfKmzDyoM2wdQL8a1Zud7MgoomgA=;
+        b=Z6B6pF7kxr+QNK7KqpG73DdoLMXveI7V1w0G+xhFqdcLMOd8awbRzSyTuoni2Jni9d
+         tPGDLi/EpCoJMRSTw2Hg4oSTqG+FAZBOyNGO6FqFQ0W32gjiv+sljahZVcmFBZdde/g+
+         Xfrmw6slhm9YZkLLtLtlyPb8+AJjYwoQgilm7JIeIS3BwI1I0u1qKJvNX1G3Yh95PKrM
+         ii+FRUR4FVig8AeTiWTBU8+VWIqEkMcT9BA5MwT0qVNxCgwYssQT8r1/oXrG94zDueb1
+         vGTGmL/6V17lrKSJ0aGYlWOsr1BMF0gRe79klMyrIEK4rER5Sh/7kh5bEFhaBo61/C2Z
+         Gamg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697721042; x=1698325842;
+        d=1e100.net; s=20230601; t=1697747271; x=1698352071;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ye6vMdiBk6fCMdBWCFZSgU3VdZTZqteq+5mpIGl0jX0=;
-        b=q9tx9/Fyptyxf0tDuFe868wp4a3k6IAcqX6UVXH3qUKWNJL0Bn9KyrOOkW3J2lae3G
-         4iVaj04lzpJkeevhe9sorkD/EXrGlM7WtPhUgXxEltwydC45oL77z+AiIAL7E0R/D6Gw
-         wgQ3/YcIY/aULh0sysOn49WL+kshpPYRLQWwGir+octQAORJq4N7k4WfgruXmwoM04Ma
-         dGanl0O65etF3sFcQ6gm7/hI/wj3PCTVGYMetOq5+DbQY/gddhkfOele6iD1KqWFL7f2
-         2ZCPPp6uWdBxQA1uTPd54qHsgPylMTpc89PYY6QINcmX/inXyt7m2UWkwp3GMoCZ10Ym
-         JrUQ==
-X-Gm-Message-State: AOJu0YzEZ3ptHYOtZKUQIKwt124wZ3aiWZcOqaU8DP6SR6qPrjGhxCVt
-        txQnyaLARA4rFN22Oe8rL+G6WuICehOMRJoGGxuVoQsc
-X-Google-Smtp-Source: AGHT+IE430VZdkDsbpKvKxWDhEVGR82dqG4XagbT+n0EzWQMp9t2bf8FhO6KPFmDelhSMtZKIw7J4E0XfoJ7Lbza4KM=
-X-Received: by 2002:a05:6830:1d43:b0:6bc:fdbd:ccb8 with SMTP id
- p3-20020a0568301d4300b006bcfdbdccb8mr2267424oth.13.1697721041742; Thu, 19 Oct
- 2023 06:10:41 -0700 (PDT)
+        bh=IXMBydNWgfKvIQZzfKmzDyoM2wdQL8a1Zud7MgoomgA=;
+        b=WeJMXWg/ZoK7fWLSbdjomdBlc6yI0W2UlHphhkNXnM+sfwMNYKtLIsYJbSra+jFtZc
+         ao3XDNk02Me3luy8j8g4Mrg3JiCBD7hjozIbw7GHF5jokxiNRm/j9vkLWlAQ19UmyIaS
+         YyyZh/qdbTCyff2Yq8sQqIz9BtwNwR4VRSWyumil1/DtWeT+x0CPb+kwfPAB5jQnEw3C
+         ePGmK84A4VP7wfTiyYXu4W0Dy7vIZuaQ+WIW5a663GCbnh7JgXdxK6r4lO13QoiS7L9d
+         FM3MVMmMDWmUK/zqibHh7xoGshenX5PbyxuPD/yWUKxbFp00FO5wyTRT0CQJha8Hab/B
+         xNSg==
+X-Gm-Message-State: AOJu0YzqP03l1dYt4Ao8XyEv9uObdfWfFAkRCXr/XhJCJjlpB8Nmrdnc
+        u58uKW31r8KeYey9B3ntAhxcfsQWkHRfdLVbnGX1v0Ia
+X-Google-Smtp-Source: AGHT+IF8ge/AWv4rkcZTDBYsY7nHr0AGy1o2Yy4ZD+2nsyiRdPXMeeTB2rj3Z0ZHaLVNl18Z4OwcZMmYbC5UdvZvUP8=
+X-Received: by 2002:a17:907:7254:b0:9be:ca44:87b6 with SMTP id
+ ds20-20020a170907725400b009beca4487b6mr2576175ejc.3.1697747270791; Thu, 19
+ Oct 2023 13:27:50 -0700 (PDT)
 MIME-Version: 1.0
-References: <20231016220835.GH800259@ZenIV> <CAHC9VhTToc-rELe0EyOV4kRtOJuAmPzPB_QNn8Lw_EfMg+Edzw@mail.gmail.com>
- <20231018043532.GS800259@ZenIV>
-In-Reply-To: <20231018043532.GS800259@ZenIV>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 19 Oct 2023 09:10:30 -0400
-Message-ID: <CAEjxPJ6W8170OtXxyxM2VH+hChtey6Ny814wzpd2Cda+Cmepew@mail.gmail.com>
-Subject: Re: [PATCH][RFC] selinuxfs: saner handling of policy reloads
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christian Brauner <brauner@kernel.org>,
-        selinux-refpolicy@vger.kernel.org
+References: <20231018175744.39667-1-jsatterfield.linux@gmail.com> <20231018175744.39667-3-jsatterfield.linux@gmail.com>
+In-Reply-To: <20231018175744.39667-3-jsatterfield.linux@gmail.com>
+From:   Jacob Satterfield <jsatterfield.linux@gmail.com>
+Date:   Thu, 19 Oct 2023 16:27:39 -0400
+Message-ID: <CALMFceuHTg9hDYd9RgB5y3cUM3wewRppMW1twbeyWLa0gp2UMw@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] selinux: avtab iteration macros
+To:     selinux@vger.kernel.org
+Cc:     stephen.smalley.work@gmail.com, paul@paul-moore.com,
+        omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 18, 2023 at 12:35=E2=80=AFAM Al Viro <viro@zeniv.linux.org.uk> =
-wrote:
+On Wed, Oct 18, 2023 at 1:58=E2=80=AFPM Jacob Satterfield
+<jsatterfield.linux@gmail.com> wrote:
 >
-> On Tue, Oct 17, 2023 at 04:28:53PM -0400, Paul Moore wrote:
-> > Thanks Al.
-> >
-> > Giving this a very quick look, I like the code simplifications that
-> > come out of this change and I'll trust you on the idea that this
-> > approach is better from a VFS perspective.
-> >
-> > While the reject_all() permission hammer is good, I do want to make
-> > sure we are covered from a file labeling perspective; even though the
-> > DAC/reject_all() check hits first and avoids the LSM inode permission
-> > hook, we still want to make sure the files are labeled properly.  It
-> > looks like given the current SELinux Reference Policy this shouldn't
-> > be a problem, it will be labeled like most everything else in
-> > selinuxfs via genfscon (SELinux policy construct).  I expect those
-> > with custom SELinux policies will have something similar in place with
-> > a sane default that would cover the /sys/fs/selinux/.swapover
-> > directory but I did add the selinux-refpol list to the CC line just in
-> > case I'm being dumb and forgetting something important with respect to
-> > policy.
-> >
-> > The next step is to actually boot up a kernel with this patch and make
-> > sure it doesn't break anything.  Simply booting up a SELinux system
-> > and running 'load_policy' a handful of times should exercise the
-> > policy (re)load path, and if you want a (relatively) simple SELinux
-> > test suite you can find one here:
-> >
-> > * https://github.com/SELinuxProject/selinux-testsuite
-> >
-> > The README.md should have the instructions necessary to get it
-> > running.  If you can't do that, and no one else on the mailing list is
-> > able to test this out, I'll give it a go but expect it to take a while
-> > as I'm currently swamped with reviews and other stuff.
+> Similar to the list_for_each macros in list.h, this patch adds two
+> macros that iterates an avtab_node linked list (avtab_chain_for_each and
+> avtab_chain_for_each_prev). This has two benefits: it reduces the amount
+> of duplicative code for iteration and it makes changes to the underlying
+> hashtable data structure easier as there are fewer places to update.
 >
-> It does survive repeated load_policy (as well as semodule -d/semodule -e,
-> with expected effect on /booleans, AFAICS).  As for the testsuite...
-> No regressions compared to clean -rc5, but then there are (identical)
-> failures on both - "Failed 8/76 test programs. 88/1046 subtests failed."
-> Incomplete defconfig, at a guess...
+> Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
+> ---
+>  security/selinux/ss/avtab.c | 28 ++++++++++++----------------
+>  1 file changed, 12 insertions(+), 16 deletions(-)
+>
+> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+> index 697eb4352439..f0d448e7807a 100644
+> --- a/security/selinux/ss/avtab.c
+> +++ b/security/selinux/ss/avtab.c
+> @@ -27,6 +27,13 @@
+>  static struct kmem_cache *avtab_node_cachep __ro_after_init;
+>  static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
+>
+> +#define avtab_chain_for_each(pos, tab, slot) \
+> +       for (pos =3D (tab)->htable[slot]; pos; pos =3D pos->next)
+> +
+> +#define avtab_chain_for_each_prev(pos, prev, tab, slot) \
+> +       for (prev =3D NULL, pos =3D (tab)->htable[slot]; pos; \
+> +       prev =3D pos, pos =3D pos->next)
+> +
+>  /* Based on MurmurHash3, written by Austin Appleby and placed in the
+>   * public domain.
+>   */
+> @@ -129,9 +136,7 @@ static int avtab_insert(struct avtab *h, const struct=
+ avtab_key *key,
+>                 return -EINVAL;
+>
+>         hvalue =3D avtab_hash(key, h->mask);
+> -       for (prev =3D NULL, cur =3D h->htable[hvalue];
+> -            cur;
+> -            prev =3D cur, cur =3D cur->next) {
+> +       avtab_chain_for_each_prev(cur, prev, h, hvalue) {
+>                 cmp =3D avtab_node_cmp(key, &cur->key);
+>                 /* extended perms may not be unique */
+>                 if (cmp =3D=3D 0 && !(key->specified & AVTAB_XPERMS))
+> @@ -163,9 +168,7 @@ struct avtab_node *avtab_insert_nonunique(struct avta=
+b *h,
+>         if (!h || !h->nslot || h->nel =3D=3D U32_MAX)
+>                 return NULL;
+>         hvalue =3D avtab_hash(key, h->mask);
+> -       for (prev =3D NULL, cur =3D h->htable[hvalue];
+> -            cur;
+> -            prev =3D cur, cur =3D cur->next) {
+> +       avtab_chain_for_each_prev(cur, prev, h, hvalue) {
+>                 cmp =3D avtab_node_cmp(key, &cur->key);
+>                 if (cmp <=3D 0)
+>                         break;
+> @@ -180,16 +183,13 @@ struct avtab_node *avtab_insert_nonunique(struct av=
+tab *h,
+>  struct avtab_node *avtab_search_node(struct avtab *h,
+>                                      const struct avtab_key *key)
+>  {
+> -       u32 hvalue;
+>         struct avtab_node *cur;
+>         int cmp;
+>
+>         if (!h || !h->nslot)
+>                 return NULL;
+>
+> -       hvalue =3D avtab_hash(key, h->mask);
+> -       for (cur =3D h->htable[hvalue]; cur;
+> -            cur =3D cur->next) {
+> +       avtab_chain_for_each(cur, h, avtab_hash(key, h->mask)) {
+>                 cmp =3D avtab_node_cmp(key, &cur->key);
+>                 if (cmp =3D=3D 0)
+>                         return cur;
+> @@ -229,7 +229,6 @@ void avtab_destroy(struct avtab *h)
+>                 return;
+>
+>         for (i =3D 0; i < h->nslot; i++) {
+> -               cur =3D h->htable[i];
 
-All tests passed for me using the defconfig fragment from the selinux-tests=
-uite.
+This line can't be deleted. It will be restored in the next spin.
+
+>                 while (cur) {
+>                         temp =3D cur;
+>                         cur =3D cur->next;
+> @@ -307,10 +306,8 @@ void avtab_hash_eval(struct avtab *h, const char *ta=
+g)
+>                 if (cur) {
+>                         slots_used++;
+>                         chain_len =3D 0;
+> -                       while (cur) {
+> +                       avtab_chain_for_each(cur, h, i)
+>                                 chain_len++;
+> -                               cur =3D cur->next;
+> -                       }
+>
+>                         if (chain_len > max_chain_len)
+>                                 max_chain_len =3D chain_len;
+> @@ -593,8 +590,7 @@ int avtab_write(struct policydb *p, struct avtab *a, =
+void *fp)
+>                 return rc;
+>
+>         for (i =3D 0; i < a->nslot; i++) {
+> -               for (cur =3D a->htable[i]; cur;
+> -                    cur =3D cur->next) {
+> +               avtab_chain_for_each(cur, a, i) {
+>                         rc =3D avtab_write_item(p, cur, fp);
+>                         if (rc)
+>                                 return rc;
+> --
+> 2.41.0
+>
