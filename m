@@ -2,42 +2,41 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A08BC00A98
-	for <selinux@archiver.kernel.org>; Fri, 20 Oct 2023 15:59:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ED57C25B40
+	for <selinux@archiver.kernel.org>; Fri, 20 Oct 2023 16:00:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377830AbjJTP7Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Oct 2023 11:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38152 "EHLO
+        id S1377862AbjJTQAR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Oct 2023 12:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377790AbjJTP7Y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Oct 2023 11:59:24 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1615E124
-        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 08:58:41 -0700 (PDT)
+        with ESMTP id S1377853AbjJTQAO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Oct 2023 12:00:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D61D61
+        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 08:58:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1697817520;
+        s=mimecast20190719; t=1697817523;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PrVd5hNLS1wjnMKJG4uMD0VRG9l+SsuhqjwmjWwDMM4=;
-        b=IJuFp/Fx6ueSuAXkSsCQKYqbAKCc+kvqPmug7M88Jlut33ubCiktGYlRLc9gsKlihBPILm
-        CiLohKWjDZ3GiA4DTjIrwb6/cl57t7f1Uxn1OPEIEUmG7D++3tm0wM/m03YWNwFcoxjhTc
-        dDvJKlxWo7SiNAQxuNkLBUlx6Oq6mX0=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-609-oJ_RXLPwNCCswWlW3aS1YA-1; Fri, 20 Oct 2023 11:58:33 -0400
-X-MC-Unique: oJ_RXLPwNCCswWlW3aS1YA-1
+        bh=/YaH8GqSCmsbSQK65aeluJxBiMUQ9PtkPz8wZaXPjys=;
+        b=c/Gnpb2qABMhWmGPOGNosn8CVEAMwcDUV5f0c4OPYCuVZBcRWz5Pn4LfcXyngQC/E42twk
+        PtOnKBpKaTTxlVvizWsgOOx0aNM5T6YGKWA68PGaAyFuH8mn+bYkJicKroisXFfg/R3niC
+        zAhHcM9+Dd3+cubLQVIGk2p4b1mgSj0=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-648-GcMYqtHEOs6LTSLRuNoADw-1; Fri, 20 Oct 2023 11:58:39 -0400
+X-MC-Unique: GcMYqtHEOs6LTSLRuNoADw-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6CED2857D07;
-        Fri, 20 Oct 2023 15:58:32 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2F7E33C28647;
+        Fri, 20 Oct 2023 15:58:39 +0000 (UTC)
 Received: from max-p1.redhat.com (unknown [10.39.208.31])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 61637503B;
-        Fri, 20 Oct 2023 15:58:29 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 219DB10828;
+        Fri, 20 Oct 2023 15:58:35 +0000 (UTC)
 From:   Maxime Coquelin <maxime.coquelin@redhat.com>
 To:     mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
         paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
@@ -47,9 +46,9 @@ To:     mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         david.marchand@redhat.com, lulu@redhat.com
 Cc:     Maxime Coquelin <maxime.coquelin@redhat.com>
-Subject: [PATCH v4 1/4] vduse: validate block features only with block devices
-Date:   Fri, 20 Oct 2023 17:58:16 +0200
-Message-ID: <20231020155819.24000-2-maxime.coquelin@redhat.com>
+Subject: [PATCH v4 3/4] vduse: Temporarily disable control queue features
+Date:   Fri, 20 Oct 2023 17:58:18 +0200
+Message-ID: <20231020155819.24000-4-maxime.coquelin@redhat.com>
 In-Reply-To: <20231020155819.24000-1-maxime.coquelin@redhat.com>
 References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
 MIME-Version: 1.0
@@ -59,51 +58,90 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch is preliminary work to enable network device
-type support to VDUSE.
+Virtio-net driver control queue implementation is not safe
+when used with VDUSE. If the VDUSE application does not
+reply to control queue messages, it currently ends up
+hanging the kernel thread sending this command.
 
-As VIRTIO_BLK_F_CONFIG_WCE shares the same value as
-VIRTIO_NET_F_HOST_TSO4, we need to restrict its check
-to Virtio-blk device type.
+Some work is on-going to make the control queue
+implementation robust with VDUSE. Until it is completed,
+let's disable control virtqueue and features that depend on
+it.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
 Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/vdpa/vdpa_user/vduse_dev.c | 37 ++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
 diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index df7869537ef1..5b3879976b3d 100644
+index 73ad3b7efd8e..0243dee9cf0e 100644
 --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1662,13 +1662,14 @@ static bool device_is_allowed(u32 device_id)
- 	return false;
- }
+@@ -28,6 +28,7 @@
+ #include <uapi/linux/virtio_config.h>
+ #include <uapi/linux/virtio_ids.h>
+ #include <uapi/linux/virtio_blk.h>
++#include <uapi/linux/virtio_ring.h>
+ #include <linux/mod_devicetable.h>
  
--static bool features_is_valid(u64 features)
-+static bool features_is_valid(struct vduse_dev_config *config)
+ #include "iova_domain.h"
+@@ -46,6 +47,30 @@
+ 
+ #define IRQ_UNBOUND -1
+ 
++#define VDUSE_NET_VALID_FEATURES_MASK           \
++	(BIT_ULL(VIRTIO_NET_F_CSUM) |           \
++	 BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |     \
++	 BIT_ULL(VIRTIO_NET_F_MTU) |            \
++	 BIT_ULL(VIRTIO_NET_F_MAC) |            \
++	 BIT_ULL(VIRTIO_NET_F_GUEST_TSO4) |     \
++	 BIT_ULL(VIRTIO_NET_F_GUEST_TSO6) |     \
++	 BIT_ULL(VIRTIO_NET_F_GUEST_ECN) |      \
++	 BIT_ULL(VIRTIO_NET_F_GUEST_UFO) |      \
++	 BIT_ULL(VIRTIO_NET_F_HOST_TSO4) |      \
++	 BIT_ULL(VIRTIO_NET_F_HOST_TSO6) |      \
++	 BIT_ULL(VIRTIO_NET_F_HOST_ECN) |       \
++	 BIT_ULL(VIRTIO_NET_F_HOST_UFO) |       \
++	 BIT_ULL(VIRTIO_NET_F_MRG_RXBUF) |      \
++	 BIT_ULL(VIRTIO_NET_F_STATUS) |         \
++	 BIT_ULL(VIRTIO_NET_F_HOST_USO) |       \
++	 BIT_ULL(VIRTIO_F_ANY_LAYOUT) |         \
++	 BIT_ULL(VIRTIO_RING_F_INDIRECT_DESC) | \
++	 BIT_ULL(VIRTIO_RING_F_EVENT_IDX) |          \
++	 BIT_ULL(VIRTIO_F_VERSION_1) |          \
++	 BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) |     \
++	 BIT_ULL(VIRTIO_F_RING_PACKED) |        \
++	 BIT_ULL(VIRTIO_F_IN_ORDER))
++
+ struct vduse_virtqueue {
+ 	u16 index;
+ 	u16 num_max;
+@@ -1778,6 +1803,16 @@ static struct attribute *vduse_dev_attrs[] = {
+ 
+ ATTRIBUTE_GROUPS(vduse_dev);
+ 
++static void vduse_dev_features_filter(struct vduse_dev_config *config)
++{
++	/*
++	 * Temporarily filter out virtio-net's control virtqueue and features
++	 * that depend on it while CVQ is being made more robust for VDUSE.
++	 */
++	if (config->device_id == VIRTIO_ID_NET)
++		config->features &= VDUSE_NET_VALID_FEATURES_MASK;
++}
++
+ static int vduse_create_dev(struct vduse_dev_config *config,
+ 			    void *config_buf, u64 api_version)
  {
--	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
-+	if (!(config->features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
- 		return false;
+@@ -1793,6 +1828,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+ 	if (!dev)
+ 		goto err;
  
- 	/* Now we only support read-only configuration space */
--	if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
-+	if ((config->device_id == VIRTIO_ID_BLOCK) &&
-+			(config->features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE)))
- 		return false;
- 
- 	return true;
-@@ -1695,7 +1696,7 @@ static bool vduse_validate_config(struct vduse_dev_config *config)
- 	if (!device_is_allowed(config->device_id))
- 		return false;
- 
--	if (!features_is_valid(config->features))
-+	if (!features_is_valid(config))
- 		return false;
- 
- 	return true;
++	vduse_dev_features_filter(config);
++
+ 	dev->api_version = api_version;
+ 	dev->device_features = config->features;
+ 	dev->device_id = config->device_id;
 -- 
 2.41.0
 
