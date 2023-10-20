@@ -2,316 +2,178 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AF0ACDB474
-	for <selinux@archiver.kernel.org>; Fri, 20 Oct 2023 16:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18C85C0032E
+	for <selinux@archiver.kernel.org>; Fri, 20 Oct 2023 16:16:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377839AbjJTQAQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Oct 2023 12:00:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
+        id S229881AbjJTQQn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Oct 2023 12:16:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377854AbjJTQAO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Oct 2023 12:00:14 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09418D6E
-        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 08:58:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1697817527;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JMYHGo5Ykl6Wn0M8yf0bZNH2F3mIqZDULBM08KnlTxM=;
-        b=DEnqxbFL3fn47ltofID7PhrZbHBT85peFvHjN/SEZDre4Yzz722WQWYsndVmp1xhrxi+20
-        Jg6yLptAcmp3ZfXz7t3OZb8sxbXGbFgayJK8Awn6CaLwhlK+2onTPV3FY+cXNgasU9VuyQ
-        L/qJZdsz5LNUjzfLMneHEU+BF3JTQHg=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-169-9ZumjUbuNZaU9A4VhoVF5g-1; Fri, 20 Oct 2023 11:58:43 -0400
-X-MC-Unique: 9ZumjUbuNZaU9A4VhoVF5g-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 89CBB29AA2CE;
-        Fri, 20 Oct 2023 15:58:42 +0000 (UTC)
-Received: from max-p1.redhat.com (unknown [10.39.208.31])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7D33710828;
-        Fri, 20 Oct 2023 15:58:39 +0000 (UTC)
-From:   Maxime Coquelin <maxime.coquelin@redhat.com>
-To:     mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        david.marchand@redhat.com, lulu@redhat.com
-Cc:     Maxime Coquelin <maxime.coquelin@redhat.com>
-Subject: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
-Date:   Fri, 20 Oct 2023 17:58:19 +0200
-Message-ID: <20231020155819.24000-5-maxime.coquelin@redhat.com>
-In-Reply-To: <20231020155819.24000-1-maxime.coquelin@redhat.com>
-References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
+        with ESMTP id S235664AbjJTQQ3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Oct 2023 12:16:29 -0400
+Received: from sonic302-27.consmr.mail.ne1.yahoo.com (sonic302-27.consmr.mail.ne1.yahoo.com [66.163.186.153])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92E610DD
+        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 09:16:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1697818584; bh=H21H4uwkMTARAp98exTgf+26C8gWlEUhtZdEid8aKIY=; h=Date:Subject:To:References:Cc:From:In-Reply-To:From:Subject:Reply-To; b=jp3oIr2hHKcJo1OaVLnDeM+7dySNDHB0dNjCYJgSH3pWya7VHksIDDmhOFxM7v4jXfaGcyxZ6683DYKaavQ/4Bhz6b5cHF+4OFwBRHeYnxiJVXS+IJgyEa5oOhKApa6yIEKIpVztb7oKO4YhgQ3fddmFzxBu6p+yvD+hsV/u2le85DDK+ujGBRTFvwsPHYigro9Iz/OM4ganC3g4Jh2ejJhRR7OaXXCglnvIb48ywghksKmxyIW9OdTzQ963UlR/zwcWigh2HS95mffVGPalLFHvjKWOZ7oiOwWSOvtMvFDIpWwy9J1uYd5RnY1BqZ4U/n5LV552UVyZQg47hkQfiA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1697818584; bh=IuE5j8FiUrSG4t22GGm4wENFa9gD8TDlW2lg6jJKDg2=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=IRJfVKDSGip2tLAr1taBbsDRvdsEnKJimzCDfwJZn1a2Y4MdDSI3+ac7g6IHiSl6R2CBG5zpsAjfmlVt7Amtwkw0gfvVSAvsC5KynDDdXYk7v/rJBGRgUVaVPHMdNxz4WDK9D+UxgYdxzAinFPPPemVW0QOpoNKODoDpnmVevdePav7vuu91V9jtpsDFSuNLr9Ta+JjvFT/iVQrq1n2/PWJMTPSqFGu2wGTqr3FSYuVe5KMQGdWLeOWSN6yvwukIGDUAUv2XI11j1jk8rv+oDiC15dDkle1rq9yiR1GDHGcIDY7A0AD/DlNuyOakhneJwO2VtszXgN+HYHLJAtvQhQ==
+X-YMail-OSG: Qk3Hd.0VM1nQ8920vhFuJbju7gxyK0gwSbx4QAVa_hvpmqUPVd5DRoyTjqgfKwm
+ DP1qB8utwSnBGIFvzh_v6QBLnegJtXtvO8BR99PpthNAqndLoCpYIDzh26MSTerx4EiGzIIenXjv
+ TM25z8nh3_TMRCuSYXvYBCH1GlygRMrYyzrlb5tiymBVzUYVfO59RXfluj2RHQ4b46ZFENYZnBMx
+ YU.plSmZt4fKrX2YXHnxVtuqeXjoilQdt3YsAR1NantbtKXah3LJhiRkDB6MKf7n8njG6KAdWImX
+ IiVW2L7fTS7bKu1cwTxVtmjkqYKtcS5UQmxo_sz9hG5Wn41Vj.LEnDfDFgsHIyKmYN4XtEIMZiWV
+ RY17lgM3VmehU9030VaoigguCWRy9lCSTMcmOBjo.VMIW7xINoMEY0WpXfQdGID5KSQdBes6EIGR
+ .MpsyPjHrxXXEJTVjXSW7SSXiSttcdn1twiFJh1_L4Wk7dWD3d8v5w9cUF_Qac0JBGmoxmLBn8KF
+ b.301x01k2z1YarLzyGFRCjc8.nB_OZ9qZe_vFrigAIMVhPwFYt2lpqErmgZdsDpmS4YVxI1YNyu
+ abbcd9AbOTxIvmFRh0EhAn.oIIaiGsR397NXiXVHmcs32lK9CJnuyTQbiD709BXtTIbenfIJCDzp
+ gOPLo0_NE_X_UEW9CglIgi76gOpbtRHN1vI3AV4lSlTFXYJGNbKgvcH5FsKJxuiatNq7bJRvYPWw
+ tbg8Ay9iWkeP8ux6jBe9SUKb5IZax9IiPCKBJq08hIHhPMQDyy4tTDrrd2xJxxW7HgFxWbQ0Y.hD
+ Qkx6kmUWxXdeJMLJATqw6paalbdwLDIaoCH6WqFnIpmYbOdBxr9iMsqTT_WPmOnXI5AebwLgwV4i
+ HGhICWDkKLl2tfp5iH0ebPfokDIr5r.wJlS7_VkkVBSepL_GtX3cYM4rAdU6rcq39y0MEbWPuXHV
+ DgNapZF7UGsYw4jf.5nd5zcASvrWGy2NF2kDeUNUqrScnXWOAitI9Iu3HOLtZWQmWvuOBV.ipuzN
+ kBtLyDJUVfPt8Pm8Ff.8DXajR9dGA_TLDRJFbSYBb9EL9vFdFQB735wSNfbrjJ_X3doCCgUMVNiA
+ 9j9rXQwt.QIFBYI_pGUnY3OtHjCgKt8WtU7TI_VY.00Ur4L0ikxtu.N9ZrEyav3.m_fG4eaXKC6z
+ _2zeP7a0uNeJqwzMynd9rW.C4IwWyxwJqKPVxU.CpVbYsC7.4NKFV1huuy73u7wJ3T5a7sQkVkT5
+ mz_xVWwrEtypnhJ7iPglBo4TDyva9g0JyGJLDG5T5lWEH0E_wsJtbhFSQwqKrUtHrHwrpf42jIpb
+ _0CmNnQANhRfM5pVv9GfV7LBRHQ4v7sgw445qazc5cTtfrLkhngM_1NxE2lM2MSg_Rv_HZ4vk_8q
+ aPJOs0w2Lpv056COdJJstMdMLVjJFaBnXbB7eBxkEuq7V6dGGvLZGErutPJRL.QdMu0O2JfIJC6O
+ LMR9Y9iSHTlCvJQshz_ggxH__mRRIeUcJ5uTrJ6E76JqQX9HsKMZNrc5ZsVGl8djRe.pSj1P0.5n
+ v0GgY3p6yb.TaPChfOEfot3vplHhXOtnoI2hkq2MSnFhRejdO5DDYRUubQeyC1OP9bNeswfyo0.N
+ FhDQccx6qkrSq6d_eajB.zFyMalFmO52Ehkok7Fjwy98_4ynu77bRDl5IyGGhE2rQfFTYIB04cdE
+ LahFRb6.pSczL6wBnzp6YR1s7s5gzBZb53YiCkhL_SAuznmI.sEzOM_7kN19EIT6DcketeGd2DZ6
+ SXh1LQ7w3tg2RQiQlhb4HCIuuhGSdCFForQvicMoG1jSwDW765tz8re4zkZsoOcP.F2lT8b35rbZ
+ G3sv_H7peQLoBQy5J2tqyMnPi9Of2onAVOyqZHO9LUY9nZOuep.etIThlepNLDrltEmjU1mwpvlb
+ YQ3bRTRhAdYq0EMlSKuDh9OdBhGb77N_G.tyzyDT2Nn2YEG0.sg8qGPXCkQD2bmTJeOZ8UYAdv6d
+ IyFNc9_blhdSpgKrcCSCld17.2e73Vjwa2pXrKtW4zy17JGV4qWhf3oQsHSYrvbw_.1hVMypmixg
+ galbzoTjaK.Aq34vqwFUwOtsIrmVBOQXV97KEm3a5aXfY76Id6bixqq8zKOK1Hsm5EcjbMFtt7CJ
+ Q6cMsYMGn2lZxwVK5471FACYPcbtWTyhWb3XK8hFUdUrC02EJ7Yb9fMOjDcxm4p1RqGt4NtbtCKO
+ HofKp5mwA8SD53FBysSvjTc40fb7Amv2Dk6d_7GzApXOgW66muvqratTJmVYHxy5PayK1WjksKz4
+ -
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: fb1a1a6c-b608-4479-8a18-06eb92c20e6e
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Fri, 20 Oct 2023 16:16:24 +0000
+Received: by hermes--production-ne1-68668bc7f7-bjk24 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 1462bd0fa1921a782df01db58e9cdebe;
+          Fri, 20 Oct 2023 16:16:24 +0000 (UTC)
+Message-ID: <051cde5d-c6ef-4b44-ba0f-ebad382fa656@schaufler-ca.com>
+Date:   Fri, 20 Oct 2023 09:16:21 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+User-Agent: Mozilla Thunderbird
+Subject: Re: RFC: thoughts on SELinux namespacing
+To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+References: <CAHC9VhRw9hfx8rBRj4R1e-EELAW2eB8GtkpTzbjqoKGF0Zu20g@mail.gmail.com>
+Content-Language: en-US
+Cc:     Casey Schaufler <casey@schaufler-ca.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAHC9VhRw9hfx8rBRj4R1e-EELAW2eB8GtkpTzbjqoKGF0Zu20g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21797 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch introduces LSM hooks for devices creation,
-destruction and opening operations, checking the
-application is allowed to perform these operations for
-the Virtio device type.
+On 10/11/2023 3:54 PM, Paul Moore wrote:
+> Hello all,
+>
+> The SELinux namespace effort has been stuck for several years as we
+> try to solve the problem of managing individual file labels across
+> multiple namespaces. Our only solution thus far, adding namespace
+> specific xattrs to each file, is relatively simple but doesn't scale,
+> and has the potential to become a management problem as a namespace
+> specific identifier needs to be encoded in the xattr name.  Having
+> continued to think about this problem, I believe I have an idea which
+> might allow us to move past this problem and start making progress on
+> SELinux namespaces.  I'd like to get everyone's thoughts on the
+> proposal below ...
+>
+> THE IDEA
+>
+> With the understanding that we only have one persistent label
+> per-file, we need to get a little creative with how we represent a
+> single entity's label in both the parent and child namespaces.  Since
+> our existing approach towards SELinux policy for containers and VMs
+> (sVirt) is to treat the container/VM as a single security domain,
+> let's continue this philosophy to a SELinux namespace: a child
+> namespace will appear as a single SELinux domain/type in the parent
+> namespace, with newly created processes and objects all appearing to
+> have the same type from the parent's point of view.  From the child
+> namespace's perspective, everything will behave as they would
+> normally: processes would run in multiple domains as determined by the
+> namespace's policy, with files labeled according to the labeling rules
+> defined in the namespace's policy (e.g. xattrs, context mounts, etc.).
+> The one exception to this would be existing mounted filesystems that
+> are shared between parent and child namespaces: shared filesytems
+> would be labeled according to the namespace which mounted the
+> filesystem originally (the parent, grandparent, etc.), and those file
+> labels would be shared across all namespace boundaries.  If a
+> particular namespace does not have the necessary labels defined in its
+> policy for a shared filesystem, those undefined labels will be
+> represented just as bogus labels are represented today
+> ("unlabeled_t").  For this to work well there must be shared
+> understanding/types between the parent and child namespace SELinux
+> policies, but if the namespaces are already sharing a filesystem this
+> seems like a reasonable requirement.
+>
+> I'll leave this as an exercise for the reader, but this approach
+> should also support arbitrary nesting.
 
-Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c  | 12 +++++++
- include/linux/lsm_hook_defs.h       |  4 +++
- include/linux/security.h            | 15 ++++++++
- security/security.c                 | 42 ++++++++++++++++++++++
- security/selinux/hooks.c            | 55 +++++++++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 ++
- 6 files changed, 130 insertions(+)
+An SELinux label is currently made up of several components. You
+could add a new "subdomain" component. The subdomain component would
+be ignored unless the process is in a namespace, in which case it
+would be treated as an additional restriction. All processes in the
+namespace could have the same domain as far as the host in concerned.
+The subdomain would be propagated in the namespace according to normal
+rules. The rules for propagating subdomains on the host could be simple
+(e.g. don't do it) or as complex as you like.
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 0243dee9cf0e..ca64eac11ddb 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -8,6 +8,7 @@
-  *
-  */
- 
-+#include "linux/security.h"
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/cdev.h>
-@@ -1443,6 +1444,10 @@ static int vduse_dev_open(struct inode *inode, struct file *file)
- 	if (dev->connected)
- 		goto unlock;
- 
-+	ret = -EPERM;
-+	if (security_vduse_dev_open(dev->device_id))
-+		goto unlock;
-+
- 	ret = 0;
- 	dev->connected = true;
- 	file->private_data = dev;
-@@ -1655,6 +1660,9 @@ static int vduse_destroy_dev(char *name)
- 	if (!dev)
- 		return -EINVAL;
- 
-+	if (security_vduse_dev_destroy(dev->device_id))
-+		return -EPERM;
-+
- 	mutex_lock(&dev->lock);
- 	if (dev->vdev || dev->connected) {
- 		mutex_unlock(&dev->lock);
-@@ -1819,6 +1827,10 @@ static int vduse_create_dev(struct vduse_dev_config *config,
- 	int ret;
- 	struct vduse_dev *dev;
- 
-+	ret = -EPERM;
-+	if (security_vduse_dev_create(config->device_id))
-+		goto err;
-+
- 	ret = -EEXIST;
- 	if (vduse_find_dev(config->name))
- 		goto err;
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index ac962c4cb44b..0b3999ab3264 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -419,3 +419,7 @@ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
- LSM_HOOK(int, 0, uring_sqpoll, void)
- LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
- #endif /* CONFIG_IO_URING */
-+
-+LSM_HOOK(int, 0, vduse_dev_create, u32 device_id)
-+LSM_HOOK(int, 0, vduse_dev_destroy, u32 device_id)
-+LSM_HOOK(int, 0, vduse_dev_open, u32 device_id)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 5f16eecde00b..a650c500f841 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -484,6 +484,9 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
- int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
- int security_locked_down(enum lockdown_reason what);
-+int security_vduse_dev_create(u32 device_id);
-+int security_vduse_dev_destroy(u32 device_id);
-+int security_vduse_dev_open(u32 device_id);
- #else /* CONFIG_SECURITY */
- 
- static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-@@ -1395,6 +1398,18 @@ static inline int security_locked_down(enum lockdown_reason what)
- {
- 	return 0;
- }
-+static inline int security_vduse_dev_create(u32 device_id)
-+{
-+	return 0;
-+}
-+static inline int security_vduse_dev_destroy(u32 device_id)
-+{
-+	return 0;
-+}
-+static inline int security_vduse_dev_open(u32 device_id)
-+{
-+	return 0;
-+}
- #endif	/* CONFIG_SECURITY */
- 
- #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
-diff --git a/security/security.c b/security/security.c
-index 23b129d482a7..8d7d4d2eca0b 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -5337,3 +5337,45 @@ int security_uring_cmd(struct io_uring_cmd *ioucmd)
- 	return call_int_hook(uring_cmd, 0, ioucmd);
- }
- #endif /* CONFIG_IO_URING */
-+
-+/**
-+ * security_vduse_dev_create() - Check if a VDUSE device type creation is allowed
-+ * @device_id: the Virtio device ID
-+ *
-+ * Check whether the Virtio device creation is allowed
-+ *
-+ * Return: Returns 0 if permission is granted.
-+ */
-+int security_vduse_dev_create(u32 device_id)
-+{
-+	return call_int_hook(vduse_dev_create, 0, device_id);
-+}
-+EXPORT_SYMBOL(security_vduse_dev_create);
-+
-+/**
-+ * security_vduse_dev_destroy() - Check if a VDUSE device type destruction is allowed
-+ * @device_id: the Virtio device ID
-+ *
-+ * Check whether the Virtio device destruction is allowed
-+ *
-+ * Return: Returns 0 if permission is granted.
-+ */
-+int security_vduse_dev_destroy(u32 device_id)
-+{
-+	return call_int_hook(vduse_dev_destroy, 0, device_id);
-+}
-+EXPORT_SYMBOL(security_vduse_dev_destroy);
-+
-+/**
-+ * security_vduse_dev_open() - Check if a VDUSE device type opening is allowed
-+ * @device_id: the Virtio device ID
-+ *
-+ * Check whether the Virtio device opening is allowed
-+ *
-+ * Return: Returns 0 if permission is granted.
-+ */
-+int security_vduse_dev_open(u32 device_id)
-+{
-+	return call_int_hook(vduse_dev_open, 0, device_id);
-+}
-+EXPORT_SYMBOL(security_vduse_dev_open);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2aa0e219d721..65d9262a37f7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -21,6 +21,7 @@
-  *  Copyright (C) 2016 Mellanox Technologies
-  */
- 
-+#include "av_permissions.h"
- #include <linux/init.h>
- #include <linux/kd.h>
- #include <linux/kernel.h>
-@@ -92,6 +93,7 @@
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
- #include <linux/io_uring.h>
-+#include <uapi/linux/virtio_ids.h>
- 
- #include "avc.h"
- #include "objsec.h"
-@@ -6950,6 +6952,56 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
- }
- #endif /* CONFIG_IO_URING */
- 
-+static int vduse_check_device_type(u32 sid, u32 device_id)
-+{
-+	u32 requested;
-+
-+	if (device_id == VIRTIO_ID_NET)
-+		requested = VDUSE__NET;
-+	else if (device_id == VIRTIO_ID_BLOCK)
-+		requested = VDUSE__BLOCK;
-+	else
-+		return -EINVAL;
-+
-+	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested, NULL);
-+}
-+
-+static int selinux_vduse_dev_create(u32 device_id)
-+{
-+	u32 sid = current_sid();
-+	int ret;
-+
-+	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVCREATE, NULL);
-+	if (ret)
-+		return ret;
-+
-+	return vduse_check_device_type(sid, device_id);
-+}
-+
-+static int selinux_vduse_dev_destroy(u32 device_id)
-+{
-+	u32 sid = current_sid();
-+	int ret;
-+
-+	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVDESTROY, NULL);
-+	if (ret)
-+		return ret;
-+
-+	return vduse_check_device_type(sid, device_id);
-+}
-+
-+static int selinux_vduse_dev_open(u32 device_id)
-+{
-+	u32 sid = current_sid();
-+	int ret;
-+
-+	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVOPEN, NULL);
-+	if (ret)
-+		return ret;
-+
-+	return vduse_check_device_type(sid, device_id);
-+}
-+
- /*
-  * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
-  * 1. any hooks that don't belong to (2.) or (3.) below,
-@@ -7243,6 +7295,9 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- #ifdef CONFIG_PERF_EVENTS
- 	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
- #endif
-+	LSM_HOOK_INIT(vduse_dev_create, selinux_vduse_dev_create),
-+	LSM_HOOK_INIT(vduse_dev_destroy, selinux_vduse_dev_destroy),
-+	LSM_HOOK_INIT(vduse_dev_open, selinux_vduse_dev_open),
- };
- 
- static __init int selinux_init(void)
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index a3c380775d41..d3dc37fb03d4 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
- 	  { "override_creds", "sqpoll", "cmd", NULL } },
- 	{ "user_namespace",
- 	  { "create", NULL } },
-+	{ "vduse",
-+	  { "devcreate", "devdestroy", "devopen", "net", "block", NULL} },
- 	{ NULL }
-   };
- 
--- 
-2.41.0
+It wouldn't be backward compatible, unless there's already mechanism
+for ignoring label components that aren't being used.
 
+Just a thought. 
+
+>
+> THOUGHTS ON MAKING IT WORK
+>
+> One of the bigger challenges here is how to handle the case of the
+> parent mounting a filesystem for full use by the child namespace
+> (per-file labeling, etc.).  Above I talked about how filesystems would
+> be labeled according to the mounting namespace, so if we want to
+> delegate labeling of the filesystem to a child namespace (without
+> allowing the child to perform the mount) we need to have a mechanism
+> to indicate that the mounting namespace is deferring labeling to a
+> different namespace.  I think the obvious solution to that would be to
+> add two new mount options: "selinuxns_outer=<label>" and
+> "selinuxns_owner=<label>".  The "selinuxns_outer" option would
+> accomplish two things: mark the filesystem for deferred labeling by
+> another namespace, and establish a single label, similar to a context
+> mount, that the mounting namespace would see instead of whatever
+> labeling the filesystem would normally support.  The "selinuxns_owner"
+> option would specify the domain label of the child namespace, granting
+> that domain control over whatever labeling is supported by the
+> filesystem.  In most normal use cases where the child namespace runs
+> with a single domain/type from the parent's perspective I would expect
+> "selinuxns_outer" and "selinuxns_owner" to be set to the same value,
+> although that is not a requirement.
+>
+> Triggering the creation of a child SELinux namespace, the userspace
+> API in general, and the implementation work needed to support multiple
+> views of the same kernel entities is all still very TBD/hand-wavy.  I
+> wanted to make sure the approach described here made sense first.
+>
+> THOUGHTS ON POLICY
+>
+> This is an area where I think the single-label parent view makes it
+> much easier to develop policy for containing child namespaces.  Since
+> we want the parent namespace to effectively bound the access of the
+> child namespace, treating the namespace as a single domain allows the
+> parent to develop policy independent of what the child's types and
+> behaviors; the parent simply describes the allowed interactions and
+> let's the child manage it's own policy and labeling.
+>
+> Filesystems shared across policy boundaries are somewhat interesting
+> in that for it to be fully usable it requires every participating
+> namespace to have the filesystem labels defined in their own policy,
+> but it does not require each namespace to treat the files in the same
+> manner.  However, it is important to note that regardless of what a
+> child namespace might allow in a shared filesystem, it is still
+> subject to the policy rules of any parent namespaces.
+>
