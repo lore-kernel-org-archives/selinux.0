@@ -2,105 +2,109 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB4AC00A98
-	for <selinux@archiver.kernel.org>; Fri, 20 Oct 2023 15:55:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DAE9BCDB474
+	for <selinux@archiver.kernel.org>; Fri, 20 Oct 2023 15:59:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377810AbjJTPzw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Oct 2023 11:55:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
+        id S1377814AbjJTP7Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Oct 2023 11:59:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377817AbjJTPzs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Oct 2023 11:55:48 -0400
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89432D7E
-        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 08:55:43 -0700 (PDT)
-Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-d865854ef96so988633276.2
-        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 08:55:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1697817343; x=1698422143; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6jx6nmfVDVS7bEGtXAZMajM3M9rkxXzo/xcGgXWsu8k=;
-        b=CpGF5/O4ht0GTWriuqr7mQichvsxJEWxXJ0rWRypqhKyHJAE2WeBYLAMVsvskWcmln
-         hWT9xcEHLjOhTzgCVY8I2X4pQhvvQ9MYeKp44FtLsz6VzNLBdkZxjUN5PyI65s6gFF47
-         ihvnjyjzcUHlZOVLrt6deczRhgYuGUgdxKsJ5P5KzcqEt2xXJTDZrPccIWHu960jCHil
-         c2maU5n3VfJqTxFWgk/0avrJj19u+1qk7fnPr/9eCTHjUeIC/nnmxnmKfGGsv2aVPxm7
-         D2t5lsV6IPJBXXS7mnqUEka4jVwxVEhEpX6jve5LR4vEy9Zje+zChEludnYSC5sPTY1y
-         rY2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697817343; x=1698422143;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6jx6nmfVDVS7bEGtXAZMajM3M9rkxXzo/xcGgXWsu8k=;
-        b=a9dmSVXt9F2HLjQv5HGH0d4BY/m0O/8LLEJpBe3JKV26ZLegu6LBOIskEFy8hrxHze
-         E8m+5CbgUrotyZvHCKFhlZLtVaKtzXF1VNOj7MxVc1xJaQ8tOqMksOBP+dpUFGyuKI4z
-         F5m2W0QEhdPHRi+bqzzQFL4SDccmLtXHTa9XN2j2Swve4vh23fLrtS9QSLPVQfmljDA1
-         6O9J+R8Ka2Ma+1cJ+aVWv2GpS1kKL/33gbKOxozHFfOcHpNXEb/1sAXJR9lsGDzn05J8
-         dkq4Zi41DnqAeunDRQfOjmnSBakvEcEUu9gfrkAn8py0IV8iBX7kawKjJPI1LsknQdab
-         UhCg==
-X-Gm-Message-State: AOJu0Yzs+aZFE1v87i4TA77sosKEAAXaKTaj7F6c6CrXsuKmDGJT6Gbh
-        p+3S2FP1xobJ118nTDfcV9POoyE1ISD2LdbQCXH3d8od1ZhwAUc=
-X-Google-Smtp-Source: AGHT+IE5ZLkKJYE3pr3/TThqNMJBVHfWrf0AG7jYWMNjBA3VlMzdcyn+XyBtKAsrMaOq9/usHh0vSGgR/0A28Da9sjY=
-X-Received: by 2002:a25:2fcf:0:b0:d9a:3ba9:b884 with SMTP id
- v198-20020a252fcf000000b00d9a3ba9b884mr2162345ybv.3.1697817342704; Fri, 20
- Oct 2023 08:55:42 -0700 (PDT)
+        with ESMTP id S1377676AbjJTP7Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Oct 2023 11:59:24 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF4A2112
+        for <selinux@vger.kernel.org>; Fri, 20 Oct 2023 08:58:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1697817518;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=umrr8klAQ5M6VrOQW9RqPBZxb5qUD5G43p73Sx5jNAU=;
+        b=Vl2NASMTjG/JnN9/ixQLHJQUQxGPjd95WSIa2IoIBOKjzA+jtE4oNK9jgamAdFAmGy37VT
+        x8EiYJwLLa2Iep4Hj7p/VuZWKbl8LJVdCf1umJH+VHHGTFSpf7qGgXbh0lgwlw3HfeUQ4C
+        NCZ/0/MvE9Wi2GFIC3jHZkX414yWrfU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-284-uMYW_5-WPJydi6sEzSiaKA-1; Fri, 20 Oct 2023 11:58:29 -0400
+X-MC-Unique: uMYW_5-WPJydi6sEzSiaKA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 13A5988B773;
+        Fri, 20 Oct 2023 15:58:29 +0000 (UTC)
+Received: from max-p1.redhat.com (unknown [10.39.208.31])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A9B3C503B;
+        Fri, 20 Oct 2023 15:58:25 +0000 (UTC)
+From:   Maxime Coquelin <maxime.coquelin@redhat.com>
+To:     mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        david.marchand@redhat.com, lulu@redhat.com
+Cc:     Maxime Coquelin <maxime.coquelin@redhat.com>
+Subject: [PATCH v4 0/4] vduse: add support for networking devices
+Date:   Fri, 20 Oct 2023 17:58:15 +0200
+Message-ID: <20231020155819.24000-1-maxime.coquelin@redhat.com>
 MIME-Version: 1.0
-References: <20231018100815.26278-1-ddiss@suse.de> <CAEjxPJ6o8T=K+FHEHdWxn1PQN=Ew+KjooXL=coS0gx4YLuEFhw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6o8T=K+FHEHdWxn1PQN=Ew+KjooXL=coS0gx4YLuEFhw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 20 Oct 2023 11:55:31 -0400
-Message-ID: <CAHC9VhTLjcQXNoc8L3Uw=TRRghLuA_TnQbRkGtwnCu4kxVXE0g@mail.gmail.com>
-Subject: Re: [PATCH] RFC: selinux: don't filter copy-up xattrs while uninitialized
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     David Disseldorp <ddiss@suse.de>, selinux@vger.kernel.org,
-        linux-unionfs@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 20, 2023 at 8:21=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Oct 18, 2023 at 6:08=E2=80=AFAM David Disseldorp <ddiss@suse.de> =
-wrote:
-> >
-> > Extended attribute copy-up functionality added via 19472b69d639d
-> > ("selinux: Implementation for inode_copy_up_xattr() hook") sees
-> > "security.selinux" contexts dropped, instead relying on contexts
-> > applied via the inode_copy_up() hook.
-> >
-> > When copy-up takes place during early boot, prior to selinux
-> > initialization / policy load, the context stripping can be unwanted
-> > and unexpected. Make filtering dependent on selinux_initialized().
-> >
-> > RFC: This changes user behaviour so is likely unacceptable. Still,
-> > I'd be interested in hearing other suggestions for how this could be
-> > addressed.
->
-> IMHO, this is fixing a bug, only affects early userspace (pre policy
-> load), and is likely acceptable.
-> But Paul will make the final call. We can't introduce and use a new
-> policy capability here because this is before policy has been loaded.
+This small series enables virtio-net device type in VDUSE.
+With it, basic operation have been tested, both with
+virtio-vdpa and vhost-vdpa using DPDK Vhost library series
+adding VDUSE support using split rings layout (merged in
+DPDK v23.07-rc1).
 
-I agree with Stephen, this is a bug fix so I wouldn't worry too much
-about user visible behavior.  For better or worse, the
-SELinux-enabled-but-no-policy-loaded case has always been a bit
-awkward and has required multiple patches over the years to correct
-unwanted behaviors.
+Control queue support (and so multiqueue) has also been
+tested, but requires a Kernel series from Jason Wang
+relaxing control queue polling [1] to function reliably,
+so while Jason rework is done, a patch is added to disable
+CVQ and features that depend on it (tested also with DPDK
+v23.07-rc1).
 
-I'm open to comments on this, but I don't believe this is something we
-want to see backported to the stable kernels, and considering we are
-currently at v6.6-rc6, this isn't really a candidate for the upcoming
-merge window.  This means we have a few more weeks to comment, test,
-etc. and one of the things I would like to see is a better description
-of before-and-after labeling in the commit description.  This helps
-people who trip over this change, identify what changed, and helps
-them resolve the problem on their systems.
+In this v4, LSM hooks are added to allow/deny application
+to create/destroy/open devices based on their type (Net,
+Block).
 
-Does that sound good?
+[1]: https://lore.kernel.org/lkml/CACGkMEtgrxN3PPwsDo4oOsnsSLJfEmBEZ0WvjGRr3whU+QasUg@mail.gmail.com/T/
 
---=20
-paul-moore.com
+v3->v4 changes:
+===============
+- Add LSM hooks (Michael)
+- Rebase
+
+v2 -> v3 changes:
+=================
+- Use allow list instead of deny list (Michael)
+
+v1 -> v2 changes:
+=================
+- Add a patch to disable CVQ (Michael)
+
+RFC -> v1 changes:
+==================
+- Fail device init if it does not support VERSION_1 (Jason)
+
+Maxime Coquelin (4):
+  vduse: validate block features only with block devices
+  vduse: enable Virtio-net device type
+  vduse: Temporarily disable control queue features
+  vduse: Add LSM hooks to check Virtio device type
+
+ drivers/vdpa/vdpa_user/vduse_dev.c  | 64 +++++++++++++++++++++++++++--
+ include/linux/lsm_hook_defs.h       |  4 ++
+ include/linux/security.h            | 15 +++++++
+ security/security.c                 | 42 +++++++++++++++++++
+ security/selinux/hooks.c            | 55 +++++++++++++++++++++++++
+ security/selinux/include/classmap.h |  2 +
+ 6 files changed, 178 insertions(+), 4 deletions(-)
+
+-- 
+2.41.0
+
