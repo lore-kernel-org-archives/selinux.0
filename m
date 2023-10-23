@@ -2,46 +2,47 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF93EC25B41
-	for <selinux@archiver.kernel.org>; Mon, 23 Oct 2023 07:29:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0AFFCDB474
+	for <selinux@archiver.kernel.org>; Mon, 23 Oct 2023 07:36:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229818AbjJWH37 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Oct 2023 03:29:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51362 "EHLO
+        id S233483AbjJWHgY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Oct 2023 03:36:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbjJWH34 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Oct 2023 03:29:56 -0400
+        with ESMTP id S229450AbjJWHgX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Oct 2023 03:36:23 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC6CD60
-        for <selinux@vger.kernel.org>; Mon, 23 Oct 2023 00:29:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49D20D6E
+        for <selinux@vger.kernel.org>; Mon, 23 Oct 2023 00:35:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1698046146;
+        s=mimecast20190719; t=1698046534;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=apWD1/Zyp7DIITJ5upQ0rpbEXd3C5IkVNMzYkTTehzg=;
-        b=UlOS7NcO1nSkZ7XIcOOq1NvaKC9c01jwSAQNRzJrRLtSjosLJvA24iwyex2AJG0HjNnF6h
-        uaVp5nIVTbcBMIl4Hv6HrZPCCDG2mb6gKtqjhPAhUuamptz2N5h0DtVma/918L9rsDFXhX
-        7zjpQtMUZHtFtOoiH4XNJccJZVey9l0=
+        bh=gCvqpOQdF+5gxTxit3nhJ+3DoMqApvSza5DK6qieuOY=;
+        b=ht+7yiVb1qIeBoBsbGpRFBjMiapjTVFUNs2LHmxidyQqv6mcRQmSRYLY96KFOmBmtkvOyU
+        dGyOx8vBQjbS9gItAGpexBuUl2kNDkHGQm/w8gZp/1y9WQ+Uy2BRQKY2209sLEFrmGd5A3
+        3Z0DZMXY0e3wgqqtKjUjz70rdAXU9Ww=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-343-D_tBb5ZPNhiaCklXsRYJZA-1; Mon, 23 Oct 2023 03:29:03 -0400
-X-MC-Unique: D_tBb5ZPNhiaCklXsRYJZA-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+ us-mta-627-VcvqjrNzMDmHKL0BqsVrOw-1; Mon, 23 Oct 2023 03:35:30 -0400
+X-MC-Unique: VcvqjrNzMDmHKL0BqsVrOw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 653FE3C14918;
-        Mon, 23 Oct 2023 07:29:02 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4D38E3C176E1;
+        Mon, 23 Oct 2023 07:35:30 +0000 (UTC)
 Received: from [10.39.208.17] (unknown [10.39.208.17])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1315D492BD9;
-        Mon, 23 Oct 2023 07:28:58 +0000 (UTC)
-Message-ID: <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
-Date:   Mon, 23 Oct 2023 09:28:57 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 25DD8C15BB8;
+        Mon, 23 Oct 2023 07:35:25 +0000 (UTC)
+Message-ID: <b7efba7a-0948-4b54-93cf-d676f9d5ea30@redhat.com>
+Date:   Mon, 23 Oct 2023 09:35:24 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Subject: Re: [PATCH v4 1/4] vduse: validate block features only with block
+ devices
 Content-Language: en-US
 To:     Casey Schaufler <casey@schaufler-ca.com>, mst@redhat.com,
         jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
@@ -52,8 +53,8 @@ To:     Casey Schaufler <casey@schaufler-ca.com>, mst@redhat.com,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         david.marchand@redhat.com, lulu@redhat.com
 References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
- <20231020155819.24000-5-maxime.coquelin@redhat.com>
- <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <20231020155819.24000-2-maxime.coquelin@redhat.com>
+ <499aa925-f1fc-43de-ad5c-2fab28fb38e7@schaufler-ca.com>
 From:   Maxime Coquelin <maxime.coquelin@redhat.com>
 Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
  xsFNBFOEQQIBEADjNLYZZqghYuWv1nlLisptPJp+TSxE/KuP7x47e1Gr5/oMDJ1OKNG8rlNg
@@ -98,38 +99,71 @@ Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
  fxjSxjSO6rj4/MeenmlJw1yebzkX8ZmaSi8BHe+n6jTGEFNrbiOdWpJgc5yHIZZnwXaW54QT
  UhhSjDL1rV2B4F28w30jYmlRmm2RdN7iCZfbyP3dvFQTzQ4ySquuPkIGcOOHrvZzxbRjzMx1
  Mwqu3GQ=
-In-Reply-To: <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+In-Reply-To: <499aa925-f1fc-43de-ad5c-2fab28fb38e7@schaufler-ca.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
 
-On 10/21/23 00:20, Casey Schaufler wrote:
+On 10/21/23 00:07, Casey Schaufler wrote:
 > On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
->> This patch introduces LSM hooks for devices creation,
->> destruction and opening operations, checking the
->> application is allowed to perform these operations for
->> the Virtio device type.
+>> This patch is preliminary work to enable network device
+>> type support to VDUSE.
+>>
+>> As VIRTIO_BLK_F_CONFIG_WCE shares the same value as
+>> VIRTIO_NET_F_HOST_TSO4, we need to restrict its check
+>> to Virtio-blk device type.
+>>
+>> Acked-by: Jason Wang <jasowang@redhat.com>
+>> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+>> ---
+>>   drivers/vdpa/vdpa_user/vduse_dev.c | 9 +++++----
+>>   1 file changed, 5 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+>> index df7869537ef1..5b3879976b3d 100644
+>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+>> @@ -1662,13 +1662,14 @@ static bool device_is_allowed(u32 device_id)
+>>   	return false;
+>>   }
+>>   
+>> -static bool features_is_valid(u64 features)
+>> +static bool features_is_valid(struct vduse_dev_config *config)
 > 
-> Why do you think that there needs to be a special LSM check for virtio
-> devices? What can't existing device attributes be used?
+> This should either be features_are_valid() or feature_is_valid().
+> Correct pluralization is important in the English language.
 
-Michael asked for a way for SELinux to allow/prevent the creation of
-some types of devices [0].
-
-A device is created using ioctl() on VDUSE control chardev. Its type is
-specified via a field in the structure passed in argument.
-
-I didn't see other way than adding dedicated LSM hooks to achieve this,
-but it is possible that their is a better way to do it?
+Indeed, I will change to features_are_valid() in next revision.
 
 Thanks,
 Maxime
 
-[0]: 
-https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>   {
+>> -	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+>> +	if (!(config->features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+>>   		return false;
+>>   
+>>   	/* Now we only support read-only configuration space */
+>> -	if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
+>> +	if ((config->device_id == VIRTIO_ID_BLOCK) &&
+>> +			(config->features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE)))
+>>   		return false;
+>>   
+>>   	return true;
+>> @@ -1695,7 +1696,7 @@ static bool vduse_validate_config(struct vduse_dev_config *config)
+>>   	if (!device_is_allowed(config->device_id))
+>>   		return false;
+>>   
+>> -	if (!features_is_valid(config->features))
+>> +	if (!features_is_valid(config))
+>>   		return false;
+>>   
+>>   	return true;
+> 
 
