@@ -2,214 +2,123 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CF58CDB474
-	for <selinux@archiver.kernel.org>; Mon, 23 Oct 2023 07:44:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A152C004C0
+	for <selinux@archiver.kernel.org>; Mon, 23 Oct 2023 15:13:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233423AbjJWHoL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 23 Oct 2023 03:44:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46810 "EHLO
+        id S231449AbjJWPNq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Oct 2023 11:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233406AbjJWHoJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 23 Oct 2023 03:44:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72F56A6
-        for <selinux@vger.kernel.org>; Mon, 23 Oct 2023 00:43:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1698046999;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=n4pnr/01geKklbuZTPmDUDub+KmFboZIfKOWl4pyxfw=;
-        b=UVDYDtL8jxDnF5yRPDIHmSmFfE51JCgYMwDPW7pW+S5PExc6pDMgukVJwYNtjvWXSf4a4l
-        B2FUBGpA3GmIadl0X1XmDIy9Po6FiICHYp84okGXyQjrKT9FoZtKnA7wNb1c2DpCVo/0gO
-        DVKlbwaCCjvK28/YAP7/kO/RgJN4zlA=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-596-13mRTdf7PIKXi3XcFY6UZQ-1; Mon, 23 Oct 2023 03:43:16 -0400
-X-MC-Unique: 13mRTdf7PIKXi3XcFY6UZQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7A07A3C1043C;
-        Mon, 23 Oct 2023 07:43:15 +0000 (UTC)
-Received: from [10.39.208.17] (unknown [10.39.208.17])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1A6651C060AE;
-        Mon, 23 Oct 2023 07:43:11 +0000 (UTC)
-Message-ID: <86532026-d1bc-491e-8fae-765ce493b7c2@redhat.com>
-Date:   Mon, 23 Oct 2023 09:43:10 +0200
+        with ESMTP id S229807AbjJWPNp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Oct 2023 11:13:45 -0400
+Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DACEAFD
+        for <selinux@vger.kernel.org>; Mon, 23 Oct 2023 08:13:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1698074023; bh=5qhVm0qgr8MH691SK66XJk00Hxsjalx43/T/nxE11RE=; h=Date:Subject:To:References:From:In-Reply-To:From:Subject:Reply-To; b=eIMVqvXCK0N6enOdR3XYdaij+4lApowWtvpfSolkqo6niG1w3GuRDrnZXRYu2EmyosncbxXJONkYIrI8CGTLxPunP07yBauVcuKHYwYzaAH60XH7B5xgmGY/fZiXrJ7aW9ylgD4aA/+3Iz4vdYyUutrtnrozf/Jgky63arzVmd7DUdil4F5BG4vwmdoFvfowWXorMaicn8IF22xeoIuMsDnDb0WY+NWhX3eXqERM3TyWQbwSy4nOwnzHHx2ZSt6RlRT9DnRK+duKMIIMTEEHCOcP87YJIrN8n69Q8aUrYpWWeOnkDYY7A2sQi5wCoIoGxuOiuS3+TLzIqputSDIgdQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1698074023; bh=OaJlbcPRdhgb16Vxj8vBgx/z56oKzG59epzMgdrnPPK=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=ZS5lJatzliNW+xOxGVTQVU3VNWMMrOjl30HLcBo4zgU/K5JWHSesSDUUv7JSnFoCIuPLTD7bJkOyuTMHYel0cyhF90dmqA/bz0fVC7w8V8d3jmxU+AplBL8WPEqUxbnThMagTY1R6Tz4lOw4IgoCu92b3OiyTmbELtztHXrUwa59nwBNhFWvk3UgMZ7H0dM8LSg6KVos+3oQxx/mmFa5iIHg9SjTQfVtgeegr56ONLEoC+0bwZ6s8aHfBh5426h5xz+/lsOhcX0RjT2/RlakjjY2GUZqzHjkCoQjiNUedBdQjBMMdDSUHtrLpY3nbjHkkOCtjkKAL0LZzi9ozN9DbQ==
+X-YMail-OSG: CWBLw44VM1nf33uQEfb5bmH6sn7LKTfUX_Zz6p2tdKu2BCeBfDnhjEtyXFu9tTZ
+ INuvp51.xhDXrHRjZ8zS7rHCdZaZ9f4U9mRO543iHR9gDkzsbijT1aoNuFprr38ne5yWz9b8GPUp
+ G6RB0SiByS9A4wcCvplNnVcb_xyQDcDjfUKdpJJlnjUnu2ONjembyT1z5xea4l1UNbyq0g8Ipcvi
+ 7qtVDQTuYT3yOztcsd95uhxdmp40iY1Jovtzy7LsILZkFL4aILM1RFKD4ESs9df4Rg.V2QyrjNRX
+ vVlS2eRZYvt8AvsT0yXGfT.PMuGRff3NAxLKLKQ.XztolTXTs0F2hpQoC9.1eD3ujRV8vIVx5WyJ
+ 3zHGzJONe42UhKC8p0A3YJQjrpGnjxXUi_4_G2RS6jHFixHva_Cjo383j9N84tYzhaYvl5LF5y6I
+ tcGopQq1NKZTKwi8g.YCxcnK2HTV4V5vHpbcDXeb0cOmMRIAf_QOK_c1bfDmW2n8TzRZJEA_zcLO
+ J_iCJWZk7IZ0GZMVpP5yFIARWA.vNu4J9F.fimHvVX4fgrwAwjtl9RHtcZQnGATeuxO4HKe_gH0w
+ cNO4mpcSjXCIahpC84IA0RbRGBih_Y8L71uF3.I5Wrq_wCHkIaZkPK7Q_2wK3ZrW0beGvyJPPTKZ
+ Z3PgtyCFRuHj6Swu4bzOYSkaRWcLMvY1e9WQKQS8IGPEPsvM7EGJWoMPHIqdHD4VhifdAecVokec
+ Js8hkbSu3EdsGse94rg1o5Uz0Lj.mjS0eKD991Q807VGmgDPZk6RzPxsXqTWLiVCOebBgUpmGXt9
+ Vp7xSp7aQyuZQ4QMfiX8gpFygfV4c43OMGmmST9TLFCXKJITSt3sqig5KE4rs1JwzmKBKt52ktO4
+ i_qGAf6DLrEvybANwnQsLtk6TQKejF9yrajdgX7sZQVHRajuhg2mImI.21WFAbxWnklckFYLl9Ck
+ J2X0OxzmTAKb8GiFkxqjjy5zY0yWGaKTpcDW2o.LMA76xh5ZF2E8.8XYgLNtwZuOIdeeN.8jZW_X
+ A_GQkgzaI7qexP2WaynyyqhY3R1w9iTuCMaP0n8IiNSTbvCu9wPvBtO2bXd4r9kIXj9nHxwwc.GT
+ EhTsT.D.HGL8f2z56LWSfzh5NRmHBSbRXTGGAeGenrxtMbPeAPQXnQHVftkWfA7g0.XiWFrtg7S3
+ 1HRLBVsQNVi2iPNgAcOPa4m8aIGZmSrUgkRFFxzxHL28EisTRC2utWp.zTIVUH4EYvNP3fHUCizL
+ m8H5TnMFhBP.4gvpr2z9JsDLZ.Hpiy4MrhMzi.K1Z5da7ZqZgWBBMECHSpAaJxdakU2f6Zr2ug37
+ iR2HsGf8cxj.EwW.GznGZIiSIwBDzxFo3vCeYMRBl50pVRCEOYE2hzn0_aSOYu7C1dND4Tb4hjgE
+ AgA0O4FBQLg993a0h0pzkwEpT_HetVvbZ5qC_d7zPfutzEitaM3r_AG04vta45CxtUIFm99rJNyt
+ 2i2gCIy8wreoLz3R4OUfFBF.X1aBOdXqnjw_zMrfCfvEcEY99GomnsKokrTLjWHCMxOfcwZh2nz3
+ JNCh_JLDpgakNH3lyoH_xeU0fAWJe_dg4U2tZhI.28OQAOX5iIBsuc3HVjB8m_nICk6N_qpGKhOL
+ 4._AZ7JfdKEwP5D19M7Tp8BL19Ni7uxNDQ.ayKgN9dI1S0wWGAfVFbr03tQ8CBH2ZxVlJljDlu8g
+ ChM8zzKaTcP4gELWwEwJoKQu9HRPyvMr4.lTT572rcixr6ggO87byZPy4_fjesStsn4ykb1IqNlw
+ gYl.z9m7rV2sxAWp.NVvYFEqMHMO57vt26qZn1Ce3LmLsJnEN5l89byUMhbKK_grfrr61FPUZWly
+ ViSzc08YI_4tyDDizDfjpj32H7cwzL18am8syU63aZnS72_4L8XUgzlUlNpWIBNhtpA3tx5lEdgu
+ PJ_CM81tRGX0EI6tjlT3ne1jINNqOZwTGuUuopImu3vBwZPp.xAENw3hPTPZV9EdHPJ4K3TlVkUx
+ eAkzYrni9qXD4KIG3W.WHH2mMTIpgZNrSxV1bX.D4AeAKvRWXP4J49i.0uytCyhYYyXJ_LED1W4b
+ 1EfZPNtyGwxy7DDjdgi2uf.Pi5t1VmPVYIHMLWUv6f6WC5p9TWr71ADWb7mckh9BNOXhG6I1_w0i
+ zOcp5n0byV7u_FNC5jARO.JzXbCTcXVdbBSnFdjpLkLToNKYkitIgtI571xRkNn5qwLAa8i7bn29
+ 89.PcdiEqIotFuLewpOhulTmoTJUCs13s1pdK5qFpJyyQhWZwMU9_JbspwhR0mFZxwPVqfI5RPUc
+ CknMKcw--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 5c4d3800-39da-4bf1-8665-b40081fd39d8
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 23 Oct 2023 15:13:43 +0000
+Received: by hermes--production-ne1-68668bc7f7-pg4xv (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 6749c8cefbdd6387e1e81113019a3174;
+          Mon, 23 Oct 2023 15:13:38 +0000 (UTC)
+Message-ID: <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
+Date:   Mon, 23 Oct 2023 08:13:35 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 3/4] vduse: Temporarily disable control queue features
+Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
 Content-Language: en-US
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
-        jmorris@namei.org, serge@hallyn.com,
+To:     Maxime Coquelin <maxime.coquelin@redhat.com>, mst@redhat.com,
+        jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
         xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
         linux-kernel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        david.marchand@redhat.com, lulu@redhat.com
+        david.marchand@redhat.com, lulu@redhat.com,
+        Casey Schaufler <casey@schaufler-ca.com>
 References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
- <20231020155819.24000-4-maxime.coquelin@redhat.com>
- <CACGkMEsKvLTQNPp3JE9V4MBEuv5LVC+tRXgYYijgb9N0DNtGZw@mail.gmail.com>
-From:   Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <CACGkMEsKvLTQNPp3JE9V4MBEuv5LVC+tRXgYYijgb9N0DNtGZw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.7
+ <20231020155819.24000-5-maxime.coquelin@redhat.com>
+ <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21797 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
+>
+>
+> On 10/21/23 00:20, Casey Schaufler wrote:
+>> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
+>>> This patch introduces LSM hooks for devices creation,
+>>> destruction and opening operations, checking the
+>>> application is allowed to perform these operations for
+>>> the Virtio device type.
+>>
+>> Why do you think that there needs to be a special LSM check for virtio
+>> devices? What can't existing device attributes be used?
+>
+> Michael asked for a way for SELinux to allow/prevent the creation of
+> some types of devices [0].
+>
+> A device is created using ioctl() on VDUSE control chardev. Its type is
+> specified via a field in the structure passed in argument.
+>
+> I didn't see other way than adding dedicated LSM hooks to achieve this,
+> but it is possible that their is a better way to do it?
+
+At the very least the hook should be made more general, and I'd have to
+see a proposal before commenting on that. security_dev_destroy(dev) might
+be a better approach. If there's reason to control destruction of vduse
+devices it's reasonable to assume that there are other devices with the
+same or similar properties.
+
+Since SELinux is your target use case, can you explain why you can't
+create SELinux policy to enforce the restrictions you're after? I believe
+(but can be proven wrong, of course) that SELinux has mechanism for dealing
+with controls on ioctls.
 
 
-On 10/23/23 05:08, Jason Wang wrote:
-> On Fri, Oct 20, 2023 at 11:58 PM Maxime Coquelin
-> <maxime.coquelin@redhat.com> wrote:
->>
->> Virtio-net driver control queue implementation is not safe
->> when used with VDUSE. If the VDUSE application does not
->> reply to control queue messages, it currently ends up
->> hanging the kernel thread sending this command.
->>
->> Some work is on-going to make the control queue
->> implementation robust with VDUSE. Until it is completed,
->> let's disable control virtqueue and features that depend on
->> it.
->>
->> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> 
-> I wonder if it's better to do this with patch 2 or before patch 2 to
-> unbreak the bisection?
-
-I think it would be better to keep it in a dedicated patch to ease the
-revert later when your work will have been accepted, so before patch 2.
-
-Thanks,
-Maxime
-
-> Thanks
-> 
->> ---
->>   drivers/vdpa/vdpa_user/vduse_dev.c | 37 ++++++++++++++++++++++++++++++
->>   1 file changed, 37 insertions(+)
->>
->> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
->> index 73ad3b7efd8e..0243dee9cf0e 100644
->> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
->> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
->> @@ -28,6 +28,7 @@
->>   #include <uapi/linux/virtio_config.h>
->>   #include <uapi/linux/virtio_ids.h>
->>   #include <uapi/linux/virtio_blk.h>
->> +#include <uapi/linux/virtio_ring.h>
->>   #include <linux/mod_devicetable.h>
->>
->>   #include "iova_domain.h"
->> @@ -46,6 +47,30 @@
->>
->>   #define IRQ_UNBOUND -1
->>
->> +#define VDUSE_NET_VALID_FEATURES_MASK           \
->> +       (BIT_ULL(VIRTIO_NET_F_CSUM) |           \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |     \
->> +        BIT_ULL(VIRTIO_NET_F_MTU) |            \
->> +        BIT_ULL(VIRTIO_NET_F_MAC) |            \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_TSO4) |     \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_TSO6) |     \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_ECN) |      \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_UFO) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_TSO4) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_TSO6) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_ECN) |       \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_UFO) |       \
->> +        BIT_ULL(VIRTIO_NET_F_MRG_RXBUF) |      \
->> +        BIT_ULL(VIRTIO_NET_F_STATUS) |         \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_USO) |       \
->> +        BIT_ULL(VIRTIO_F_ANY_LAYOUT) |         \
->> +        BIT_ULL(VIRTIO_RING_F_INDIRECT_DESC) | \
->> +        BIT_ULL(VIRTIO_RING_F_EVENT_IDX) |          \
->> +        BIT_ULL(VIRTIO_F_VERSION_1) |          \
->> +        BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) |     \
->> +        BIT_ULL(VIRTIO_F_RING_PACKED) |        \
->> +        BIT_ULL(VIRTIO_F_IN_ORDER))
->> +
->>   struct vduse_virtqueue {
->>          u16 index;
->>          u16 num_max;
->> @@ -1778,6 +1803,16 @@ static struct attribute *vduse_dev_attrs[] = {
->>
->>   ATTRIBUTE_GROUPS(vduse_dev);
->>
->> +static void vduse_dev_features_filter(struct vduse_dev_config *config)
->> +{
->> +       /*
->> +        * Temporarily filter out virtio-net's control virtqueue and features
->> +        * that depend on it while CVQ is being made more robust for VDUSE.
->> +        */
->> +       if (config->device_id == VIRTIO_ID_NET)
->> +               config->features &= VDUSE_NET_VALID_FEATURES_MASK;
->> +}
->> +
->>   static int vduse_create_dev(struct vduse_dev_config *config,
->>                              void *config_buf, u64 api_version)
->>   {
->> @@ -1793,6 +1828,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->>          if (!dev)
->>                  goto err;
->>
->> +       vduse_dev_features_filter(config);
->> +
->>          dev->api_version = api_version;
->>          dev->device_features = config->features;
->>          dev->device_id = config->device_id;
->> --
->> 2.41.0
->>
-> 
-
+>
+> Thanks,
+> Maxime
+>
+> [0]:
+> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>
