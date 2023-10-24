@@ -2,333 +2,108 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89AB8C07545
-	for <selinux@archiver.kernel.org>; Tue, 24 Oct 2023 21:39:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFBFBC07545
+	for <selinux@archiver.kernel.org>; Tue, 24 Oct 2023 22:23:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344393AbjJXVjb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Oct 2023 17:39:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53364 "EHLO
+        id S234970AbjJXWXR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Oct 2023 18:23:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344406AbjJXVjZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Oct 2023 17:39:25 -0400
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1020A3
-        for <selinux@vger.kernel.org>; Tue, 24 Oct 2023 14:39:23 -0700 (PDT)
-Received: by mail-qk1-x72b.google.com with SMTP id af79cd13be357-773ac11de71so332489785a.2
-        for <selinux@vger.kernel.org>; Tue, 24 Oct 2023 14:39:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1698183562; x=1698788362; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TV6wd0akEm8D1jwc3OAbX/cpERi3WI4MnifvYq0Bh4c=;
-        b=FMAsIZe1yJKuxSHNmSkDG8rpuK8fPoyrDmDUiBUCda8DHSgEv+y0zKfZGn9fyRcG+S
-         lMQ699NbZBEphkXe5KLSRB8lf+xtvU8PCG+PFy0wnm1b78tPQpdbsZLSvWGE6Jn8EBpr
-         L41unPiRGZLQCjkDMhrszDB6M1716IBkwjDR0gkMVakxrdsLJ87pw2jg8nj1xcoiKV2L
-         eZyzUVXaVCijccLzAsh2ipaQ/EJ0d9DePKilbueTC1fO61rqR5Q0PoRW2C2wD3Saussg
-         TO5WKQy0BGWTWXuxumVU80x+Vrctl2PNfclKob6z9LonISiz6GZ4laOlPlf6detj9x8f
-         aBnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698183562; x=1698788362;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TV6wd0akEm8D1jwc3OAbX/cpERi3WI4MnifvYq0Bh4c=;
-        b=J6SOur/sB/090/XmUjbabnXa+9L+5FyNHJpa92gp1XOxO0qG3FONUScMWFGWl0QdUx
-         B90cqxzKh7aXm8RUI8RuOOyK+H9fTjZOt3bImN2hERhL2IivpWb3u9drXbKHNuqLJVpL
-         b1SMQ0o/+OtJYpYArhdu3STpA244EJZYU+284LNx1GF2c0kxvgQK+HZNWiEipvt9mnvB
-         qzBEfSdQ/GDDC09r4+W/vBJbdn2cTPeMSg+lvCLCFrna0yGPoyTY3ioFPNyBin5P10Zx
-         P68XlIXrL0QE1Lzx2IfBvrG/T6VHaVuKqjuCQIlYXIkEFQJudigYJxFAfVK9S1KcYugX
-         Vwrw==
-X-Gm-Message-State: AOJu0YxuSfr9WDMHs5KmY4zv9Ifb6pihfZLVEsJLfadsgHpUnM0/A58G
-        nWKDfrtodd80ApMNnFUE2Qd1
-X-Google-Smtp-Source: AGHT+IFZ4qQcNPvt/gJomhwy6hlaiFRx1+Y2XD0yA4YA5YbFoXG9urH7AUzsZDrlyOkCa8LtqMejVQ==
-X-Received: by 2002:a05:620a:4088:b0:779:e90c:f203 with SMTP id f8-20020a05620a408800b00779e90cf203mr4127984qko.9.1698183562605;
-        Tue, 24 Oct 2023 14:39:22 -0700 (PDT)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id x3-20020a05620a0b4300b0076db1caab16sm3714554qkg.22.2023.10.24.14.39.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Oct 2023 14:39:22 -0700 (PDT)
-From:   Paul Moore <paul@paul-moore.com>
-To:     linux-security-module@vger.kernel.org
-Cc:     selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
-        John Johansen <john.johansen@canonical.com>,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-Subject: [RFC PATCH 3/3] lsm: consolidate buffer size handling into lsm_fill_user_ctx()
-Date:   Tue, 24 Oct 2023 17:35:29 -0400
-Message-ID: <20231024213525.361332-7-paul@paul-moore.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231024213525.361332-4-paul@paul-moore.com>
-References: <20231024213525.361332-4-paul@paul-moore.com>
+        with ESMTP id S234812AbjJXWXR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Oct 2023 18:23:17 -0400
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E27FF10C6
+        for <selinux@vger.kernel.org>; Tue, 24 Oct 2023 15:23:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1698186194; bh=bfzOxzqXj8l8QozDEHqejY92xrxkUYQ/rJCqn78kaeM=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=uIY4lTDb9iPLZS26tbpZl5hNuVLLViAs6Jx+67ihKz802ftJWo/aORUzBRFzpk+5o/rvlM845JxCmqdhKCqDSIyQC1YY3+ipn/fZ0QMhZawmi22m9AFOHMOtebkwAnmMOJCJ+kHpZnz8UW+GEZgMVI0zIfxYEmU9D0Jpt9QQuMFDCB1R5qx8ZHgBU13XIVENabaKtLp6rTlqg4QzEkAO+cYXc16JDSZ1eQ10SChbY2XvnYThjPS4xsXonwxQuJmBoQrr2jEs2vGbxFbTyHxvZfV32m2n6JY2EQGxUcTdcwSXK48Q7iiUJOE5vEEvNlwWILLbM35q+po32wFkB/nRMQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1698186194; bh=sRIgVF3RzmB04/q73fpNCOER/HjMyww6tHxScvRdx3+=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=OV9Jlq+/FDGXYJXClkcQ4dDjeuhyHnO0Go48qf3gR4cdlf++75K7M47TLfmJL5YXDbpfDakeoGL73aK27oDXiiBBnqW8PRohgWGGqU1PbSB7B0O8hPIoc794zEzJqWLBgjLp4i10kBbHvpnHveXE1mcGEY+OAwuFLODpuUkTEbhb/CjCF49Q+Pzq2BR4it28nkFx7Q++VZoN3UKEnAXQqtyUUA3lgueMMc4n4d3l1FTUrxHoL7CDRqOwruMqAgvASaxhQMu0u7uZPfXKelBRFEFTmCEhsGp3vg++4lpmdFvMK4AeEIsoyymxC9GCWQxuEWh+m3t7CuBhOmj9UYwHhQ==
+X-YMail-OSG: W9AyJd0VM1k1_aaluPVIsC2gzVi0qQhLV3_9GPbsgUtLlKB1HiaaJrpLYRtuYk3
+ YJeVBGFK_e54IkflwWos5RjErNgv1EPkpjHdBoNp6hpa3V2XNW_Vy1BgxWxI8QmmWwNHKIIH25Bh
+ AE.m3k3xmEGpxVVondJilbgd5jRrWxaMGF4NI5XonSjFJg.po.w0bFgfT9nzeg8NWVGHZAto7pB5
+ TzARfwUqrUOXIWEUzprTQdPjywLWH3eqhAR2fmbFnwPnUwaW8Dgy8TJyeSNt9fzyBawBkYSOErnL
+ XNS6FM4e7bhbYGNxELen6de4xKfTNxq1XU02GQAe0KabMS0tzS0BLN8KKiWnU.qpI.7IPSnhYjj3
+ 2NRTvS5jciQz7.8KxMcRCFqnzEejEbkp1hcyygVh9uOM69.xUSHd_XXm9wb0Fi.kr4N8fK0iIdfa
+ RYE69AXXRVqJ8ld1cXFRkmv8aL5V4vzo3Sxck8KvxWe9rhmWq1fpXLaOBTqU8Fn_CH2d3xPMwpgP
+ 0vLdJiXXLx_wUSIZGHuA_GuKVF4Lf_G8..PyCGmrH1mkdfeOHOcdwGrRSGT9ojlKqkmjy6W5oDZL
+ 4PJdAjDFC4EevHkAis4wu43sxK0O_uH2ZycUnMaeB1.NRV.0K12YCulna0UqH7DxvxB6wNNc93M8
+ Zxdvf5F0vzGWC2bkWpDRZD9eNrwWEYMmrA2dsYLl9At4JHn5LTCBqRnZwHhuaJV5tVxr_CnHLbkQ
+ 1zrXze8jIpC4SKN_dsPiCFncGl7klV1OHVpuSguku4QMEmpJ14YPa66xkwkeJXXWeU2bDIoJHmTK
+ Gwolee1IsJFh4aQNgeQagZ7tHn4MKsl8kFzNq05pKUuf7TGvygBmxlo3UPkX3RarUdv6WyZojlJs
+ FvkFjBKNW_t3AU4WjzV_6qOlof52CUbx9iMMe0hwwtwcqaafx8UC976S6wMP8e4JyNTKxz1ilV.k
+ oR2KbcInHy4xgTio6koF1jMP4hlOrwInwg1Sao5PCRDFa1rEoF3BxifXGzwL4GCDnIaZNxjz3xR_
+ p0NWXMaZkdDRZxlqChDDXgzCrEcbjaYryruo.2ZC4iGF.jHC1ku1zgLvjk3hs.kQG1Aepte5sUah
+ z_LXk0Cx20HplyAjfSJtNXz.XUoH6d3coTSJhw2zT_2Z7ufa0CSboJNmy4E5O5xyQgMiwsGsVBA7
+ .xmRhe2eeYXhcfnpXVuLQkSD_YHTG3XIMH9.yjiLrIBnn7Ad6Ka2S5FnZNwCPlvze9azAeSEHE9B
+ gWD2SQr6Vhxb5LNMxK_RuVjtOF8Ugj2k51eqRMKfL4i6gZ7xalNsEv8MmzS6VwdCL5lbNIbcrirT
+ 2GixJZlxDDehxcxp9cUzGgwbLeJNvyQEqwGAOMUIgfxe9h6HaYbR9BYTLFjoLHiNlMExXRNBa0VJ
+ Ctt_.wz8pt0rg6.VUVrLZPdg.kBlyz6qKvXiMhG3o8xFVCoFeEb61ziBeitS4gdc82iLoAnkMcxv
+ kZVXXnHIh.cN1_uub9U39IWEclZ_xIUCJ5CrUfm8LQIn1_vtsk5moHrFGQJCqt0b1CryLZFQcn9a
+ A7Jzdh7WJxPYNXFFAPX8F5Qfc86U77PApurSEAhM9uflnQw7afKBXNI.GPGG2ROMtMWgLj6LNSis
+ n2d4bGjWKFhdPlfxYTrtLDEPDgixPLTawvKT86KZlGk85YWzBW.11wuSGmuSFGcY.kRQRPSg3eTc
+ VGkeLo48zYw2Zdl1_SKqkcTZtVthe.V5QgYwsMFdUSv0OyzvWgWngoPvHOkCxXbCxabb..ZiBUw8
+ Bxl567RScqGhHySjbF_5HOf54XHIQUi6E80laP640i2mWdkmHiN70C7p7OP5Qdc3hn1PIOuTxFx1
+ 3rZjx3iFn6pRgIC8rWCPVsKm4TZ03UZYB_Ma0BSb5HCEk3hCIsai.8JW67h1yD_MenP4GEw1OaHg
+ q.0MeMGooHsOVokRL.1NeoYwe0WCwXNuXHag.gmk7a_5bzSomdEJRJRTwlBOjYVyILixeUMKfy3L
+ mnw752vu4666Ow7VJ30iDUaLJ9x5Bx48dHB72ir8dp.ALxBXiw6dt32iA7LW38YLbcEaK8vS0br.
+ 0LzCHe7Np3SwJKkPNrLutSjRSNEQno3_1Po46waMhmjRfTDq5JnjolZfJawxF4XUESl6DSpggeJY
+ hiIYJZNhuR0lgZWxD9W53cYZTs9paMQYuXXRONwVUXsfS0dmOJxqeqp8aUZvbopSPRUDAiq7hAXj
+ 8IA2RMSOOoW4LRaUjd5VoFOpL.jK_tzU0AoKSt1ymUbNJPcSBqQbuCw4GFqB.wYgiuvyqQnop9kM
+ ZnoGBwAB8eCYj_GOX
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: e6c38e10-a354-43eb-9a13-252793ebcf62
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 24 Oct 2023 22:23:14 +0000
+Received: by hermes--production-ne1-68668bc7f7-bhhrm (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 4cda45f06afe0ef13ddd6e99c03d7c6a;
+          Tue, 24 Oct 2023 22:23:09 +0000 (UTC)
+Message-ID: <8fcaab11-6340-4056-b9e0-4650be05b270@schaufler-ca.com>
+Date:   Tue, 24 Oct 2023 15:23:07 -0700
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=8479; i=paul@paul-moore.com; h=from:subject; bh=h/lckAfTZWGlyy8p82g+1YRIL1yzLy457ahSA/PaVv8=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlODip9GBf2e12iuV9/BlpReC0qCAIZkwCw9KHV HTih10RgwGJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZTg4qQAKCRDqIPLalzeJ c/p9EADaGs2B9RwQNY4hy4xuL1s0GOiXnxTNO26gq8/jSFHi0iKUWO9t53GYKuMwa858/E0SIkp Z79MUfelwSKEDlTd79bbzKc8Q3uR1sKo8nsTHp4SDMilzM3mKW0UjaYWH99G526jzg1+cwlK3ZU GwaONylO5S16HO1fqNH7zovkWC9m1SaqCu8paLbczURfcljynRGoUBdFc9U7KILHS0bZFUvHwbG aGeCjMRORvp4NL4PcQ85VaObGGhWFCHkcnEcsiDHpkAkx3xM6mSHrMvj4+rhVseoRgfUWYwEVP7 lPhGsMVmJh7k/75MWhj3mIW4s9AzZLrq3OfZgzYnPAuVjxXcUAo1ocKs65flYWdvCR3nL/mvmqu rYVCM/zbebJC31Uy5r8+c4eq66CQQuwV7HJtohxTlS3t/RHAD4Vi43C4j4HD7Uf1MdT9uIFtfJL X2XU3/BcIyN1PQ2DOCm90LIt9au96mCOe60QG2P4a9VvhetGTQQiQ5eRXJHjxULcw/phprkAEBi ccYAIyLrypzvDCi2BFrAQGeDKtMVakAZn42aoFoM+ApCSQLNyGFHZsJA8zOzsICL4d81wnLzycF ECv7+wSSlhfjDOD2FZBUdMbhosjktZDLgZkdbbxFjCbYQMud335zTRvyE5JuWcSRUkTTDUyzyDL 7mhT8S5DWw9kiPw==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 1/3] lsm: cleanup the size counters in
+ security_getselfattr()
+Content-Language: en-US
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org
+Cc:     selinux@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20231024213525.361332-4-paul@paul-moore.com>
+ <20231024213525.361332-5-paul@paul-moore.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20231024213525.361332-5-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21797 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-While we have a lsm_fill_user_ctx() helper function designed to make
-life easier for LSMs which return lsm_ctx structs to userspace, we
-didn't include all of the buffer length safety checks and buffer
-padding adjustments in the helper.  This led to code duplication
-across the different LSMs and the possibility for mistakes across the
-different LSM subsystems.  In order to reduce code duplication and
-decrease the chances of silly mistakes, we're consolidating all of
-this code into the lsm_fill_user_ctx() helper.
+On 10/24/2023 2:35 PM, Paul Moore wrote:
+> Zero out all of the size counters in the -E2BIG case (buffer too
+> small) to help make the current code a bit more robust in the face of
+> future code changes.
 
-The buffer padding is also modified from a fixed 8-byte alignment to
-an alignment that matches the word length of the machine
-(BITS_PER_LONG / 8).
+I don't see how this change would have the described effect.
+What it looks like it would do is change the return from -E2BIG
+to 0, which would not have the desired result.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- include/linux/security.h   |  9 ++++---
- security/apparmor/lsm.c    | 15 +++--------
- security/security.c        | 55 +++++++++++++++++++++-----------------
- security/selinux/hooks.c   | 42 +++++++++++++++--------------
- security/smack/smack_lsm.c | 23 +++++-----------
- 5 files changed, 67 insertions(+), 77 deletions(-)
-
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 334f75aa7289..750130a7b9dd 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -492,8 +492,8 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
- int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
- int security_locked_down(enum lockdown_reason what);
--int lsm_fill_user_ctx(struct lsm_ctx __user *ctx, void *context,
--		      size_t context_size, u64 id, u64 flags);
-+int lsm_fill_user_ctx(struct lsm_ctx __user *uctx, size_t *uctx_len,
-+		      void *val, size_t val_len, u64 id, u64 flags);
- #else /* CONFIG_SECURITY */
- 
- static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-@@ -1424,8 +1424,9 @@ static inline int security_locked_down(enum lockdown_reason what)
- {
- 	return 0;
- }
--static inline int lsm_fill_user_ctx(struct lsm_ctx __user *ctx, void *context,
--				    size_t context_size, u64 id, u64 flags)
-+static inline int lsm_fill_user_ctx(struct lsm_ctx __user *uctx,
-+				    size_t *uctx_len, void *val, size_t val_len,
-+				    u64 id, u64 flags)
- {
- 	return -EOPNOTSUPP;
- }
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 5e16c03936b9..6df97eb6e7d9 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -636,7 +636,6 @@ static int apparmor_getselfattr(unsigned int attr, struct lsm_ctx __user *lx,
- 	int error = -ENOENT;
- 	struct aa_task_ctx *ctx = task_ctx(current);
- 	struct aa_label *label = NULL;
--	size_t total_len = 0;
- 	char *value;
- 
- 	switch (attr) {
-@@ -658,22 +657,14 @@ static int apparmor_getselfattr(unsigned int attr, struct lsm_ctx __user *lx,
- 
- 	if (label) {
- 		error = aa_getprocattr(label, &value, false);
--		if (error > 0) {
--			total_len = ALIGN(struct_size(lx, ctx, error), 8);
--			if (total_len > *size)
--				error = -E2BIG;
--			else if (lx)
--				error = lsm_fill_user_ctx(lx, value, error,
--							  LSM_ID_APPARMOR, 0);
--			else
--				error = 1;
--		}
-+		if (error > 0)
-+			error = lsm_fill_user_ctx(lx, size, value, error,
-+						  LSM_ID_APPARMOR, 0);
- 		kfree(value);
- 	}
- 
- 	aa_put_label(label);
- 
--	*size = total_len;
- 	if (error < 0)
- 		return error;
- 	return 1;
-diff --git a/security/security.c b/security/security.c
-index 67ded406a5ea..45c4f5440c95 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -773,42 +773,49 @@ static int lsm_superblock_alloc(struct super_block *sb)
- 
- /**
-  * lsm_fill_user_ctx - Fill a user space lsm_ctx structure
-- * @ctx: an LSM context to be filled
-- * @context: the new context value
-- * @context_size: the size of the new context value
-+ * @uctx: a userspace LSM context to be filled
-+ * @uctx_len: available uctx size (input), used uctx size (output)
-+ * @val: the new LSM context value
-+ * @val_len: the size of the new LSM context value
-  * @id: LSM id
-  * @flags: LSM defined flags
-  *
-- * Fill all of the fields in a user space lsm_ctx structure.
-- * Caller is assumed to have verified that @ctx has enough space
-- * for @context.
-+ * Fill all of the fields in a userspace lsm_ctx structure.
-  *
-- * Returns 0 on success, -EFAULT on a copyout error, -ENOMEM
-- * if memory can't be allocated.
-+ * Returns 0 on success, -E2BIG if userspace buffer is not large enough,
-+ * -EFAULT on a copyout error, -ENOMEM if memory can't be allocated.
-  */
--int lsm_fill_user_ctx(struct lsm_ctx __user *ctx, void *context,
--		      size_t context_size, u64 id, u64 flags)
-+int lsm_fill_user_ctx(struct lsm_ctx __user *uctx, size_t *uctx_len,
-+		      void *val, size_t val_len,
-+		      u64 id, u64 flags)
- {
--	struct lsm_ctx *lctx;
--	size_t locallen = struct_size(lctx, ctx, context_size);
-+	struct lsm_ctx *nctx = NULL;
-+	size_t nctx_len;
- 	int rc = 0;
- 
--	lctx = kzalloc(locallen, GFP_KERNEL);
--	if (lctx == NULL)
--		return -ENOMEM;
-+	nctx_len = ALIGN(struct_size(nctx, ctx, val_len), BITS_PER_LONG / 8);
-+	if (nctx_len > *uctx_len) {
-+		rc = -E2BIG;
-+		goto out;
-+	}
- 
--	lctx->id = id;
--	lctx->flags = flags;
--	lctx->ctx_len = context_size;
--	lctx->len = locallen;
-+	nctx = kzalloc(nctx_len, GFP_KERNEL);
-+	if (nctx == NULL) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+	nctx->id = id;
-+	nctx->flags = flags;
-+	nctx->len = nctx_len;
-+	nctx->ctx_len = val_len;
-+	memcpy(nctx->ctx, val, val_len);
- 
--	memcpy(lctx->ctx, context, context_size);
--
--	if (copy_to_user(ctx, lctx, locallen))
-+	if (copy_to_user(uctx, nctx, nctx_len))
- 		rc = -EFAULT;
- 
--	kfree(lctx);
--
-+out:
-+	kfree(nctx);
-+	*uctx_len = nctx_len;
- 	return rc;
- }
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1fe30e635923..c32794979aab 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6480,30 +6480,32 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
- 	return error;
- }
- 
-+/**
-+ * selinux_getselfattr - Get SELinux current task attributes
-+ * @attr: the requested attribute
-+ * @ctx: buffer to receive the result
-+ * @size: buffer size (input), buffer size used (output)
-+ * @flags: unused
-+ *
-+ * Fill the passed user space @ctx with the details of the requested
-+ * attribute.
-+ *
-+ * Returns the number of attributes on success, an error code otherwise.
-+ * There will only ever be one attribute.
-+ */
- static int selinux_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
- 			       size_t *size, u32 flags)
- {
--	char *value;
--	size_t total_len;
--	int len;
--	int rc = 0;
-+	int rc;
-+	char *val;
-+	int val_len;
- 
--	len = selinux_lsm_getattr(attr, current, &value);
--	if (len < 0)
--		return len;
--
--	total_len = ALIGN(struct_size(ctx, ctx, len), 8);
--
--	if (total_len > *size)
--		rc = -E2BIG;
--	else if (ctx)
--		rc = lsm_fill_user_ctx(ctx, value, len, LSM_ID_SELINUX, 0);
--
--	kfree(value);
--	*size = total_len;
--	if (rc < 0)
--		return rc;
--	return 1;
-+	val_len = selinux_lsm_getattr(attr, current, &val);
-+	if (val_len < 0)
-+		return val_len;
-+	rc = lsm_fill_user_ctx(ctx, size, val, val_len, LSM_ID_SELINUX, 0);
-+	kfree(val);
-+	return (!rc ? 1 : rc);
- }
- 
- static int selinux_setselfattr(unsigned int attr, struct lsm_ctx *ctx,
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 12160d060cc1..99664c8cf867 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -3642,28 +3642,17 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
- static int smack_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
- 			     size_t *size, u32 flags)
- {
--	struct smack_known *skp = smk_of_current();
--	int total;
--	int slen;
- 	int rc;
-+	struct smack_known *skp;
- 
- 	if (attr != LSM_ATTR_CURRENT)
- 		return -EOPNOTSUPP;
- 
--	slen = strlen(skp->smk_known) + 1;
--	total = ALIGN(slen + sizeof(*ctx), 8);
--	if (total > *size)
--		rc = -E2BIG;
--	else if (ctx)
--		rc = lsm_fill_user_ctx(ctx, skp->smk_known, slen, LSM_ID_SMACK,
--				       0);
--	else
--		rc = 1;
--
--	*size = total;
--	if (rc >= 0)
--		return 1;
--	return rc;
-+	skp = smk_of_current();
-+	rc = lsm_fill_user_ctx(ctx, size,
-+			       skp->smk_known, strlen(skp->smk_known) + 1,
-+			       LSM_ID_SMACK, 0);
-+	return (!rc ? 1 : rc);
- }
- 
- /**
--- 
-2.42.0
-
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/security.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/security/security.c b/security/security.c
+> index 988483fcf153..9c63acded4ee 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -3951,8 +3951,9 @@ int security_getselfattr(unsigned int attr, struct lsm_ctx __user *uctx,
+>  			continue;
+>  		}
+>  		if (rc == -E2BIG) {
+> -			toobig = true;
+> +			rc = 0;
+>  			left = 0;
+> +			toobig = true;
+>  		} else if (rc < 0)
+>  			return rc;
+>  		else
