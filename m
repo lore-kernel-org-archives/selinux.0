@@ -2,115 +2,108 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C70EC07545
-	for <selinux@archiver.kernel.org>; Wed, 25 Oct 2023 01:43:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B566C25B47
+	for <selinux@archiver.kernel.org>; Wed, 25 Oct 2023 09:50:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229441AbjJYBnm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Oct 2023 21:43:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36376 "EHLO
+        id S233496AbjJYJuC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Oct 2023 05:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbjJYBnl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Oct 2023 21:43:41 -0400
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCDA01B3
-        for <selinux@vger.kernel.org>; Tue, 24 Oct 2023 18:43:37 -0700 (PDT)
-Received: by mail-oi1-x232.google.com with SMTP id 5614622812f47-3b3f6f330d4so2879834b6e.2
-        for <selinux@vger.kernel.org>; Tue, 24 Oct 2023 18:43:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1698198217; x=1698803017; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GWtuDj+dMYEuR0jO7fp22plYarFYfYohR8mIhmBTCiU=;
-        b=U0INWITUlPl9AZeiQ4uu19QC5xtLGsi7vRDhfZxoHw6I1TgQrrcGH8pZJtRSt9fVs1
-         Kq6j2/XH269ubLxcTDTO0H9oGAvdHKBQyzodV811mFWsCaQ34SBVyBUbQ4lDw8OEePoe
-         R+c8Kyp2xupH9O8ITZma4vp8HQDex+5DpuuO1szFYbT4UURMBA7ffnHfN+OrI62LFQbk
-         A0gGINENzYHrtOo+ielpw2L5S7W7ETqNUv034d1Dbe/lIvGclGhLG6oJLPpj5FPeyTQU
-         AlylC60DiOPavpssTN0NXLRYweLrrekkqPk2Lz0zxjfpcLXyB8rxXbFyG5jp9o5I5cPZ
-         KN1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698198217; x=1698803017;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GWtuDj+dMYEuR0jO7fp22plYarFYfYohR8mIhmBTCiU=;
-        b=g3ZOA/a+280W6HzIEkdEzmaCpQ7XSdlV7cBA6P/Vg5O9utMJEpJtiNGXRLscQEqmQo
-         is+ZBIHGG1tEdxwXs53e0IQ683dA06y3nTbepfWnHUTZFzZTOxKWadlJZ2rlp9Y8VxIp
-         IyfaZNmDRXArJyIef0I8psUGzJAspAy0Gr0w4jd8Zc+SkRZe5W8qovLlulvzgy7lOWfQ
-         OGSsOdCrF/NJAxzrQSAsa1HFnVgcgIjt08fcYUNdRxZtHOLCgk1RWfojb/xy82+8mb3d
-         2f9C5bgs2f9VuMe3g2yHlC8n16ExtaAAFVVQ8QegDYC7h4qKH8KI2OcV6dSns0HJ0lBy
-         qpTw==
-X-Gm-Message-State: AOJu0YxE0Uz0j/DUB7rmGejkLZbGnNf9kxgOHef4/JN81CMe7EE0zX3t
-        JNC2dW1RAg16dNuslJc3KIVp4hsR/bs2a33uKqoqmvIgD1nv8VFaQ8zJ
-X-Google-Smtp-Source: AGHT+IFHuiLVHYnPlMkFE/exb9ahyrfxEZzvscztHHLfxhHk6O+UTMOPvfRGkZT0z+1SnsWl6X7ZF5/6g8g7QgY8NmU=
-X-Received: by 2002:a05:6808:90:b0:3b2:f54b:8b3a with SMTP id
- s16-20020a056808009000b003b2f54b8b3amr15140460oic.27.1698198217069; Tue, 24
- Oct 2023 18:43:37 -0700 (PDT)
+        with ESMTP id S234088AbjJYJuB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Oct 2023 05:50:01 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8428ECE
+        for <selinux@vger.kernel.org>; Wed, 25 Oct 2023 02:49:57 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id B23EF21D93;
+        Wed, 25 Oct 2023 09:49:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1698227395; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=EeSSQ7yrsJpMdwDrrdBndyT566cl836obOjvUslRkIc=;
+        b=LxAgonD9VIPfH8d3XtfQ3WnxgfCKKiQDMlqGtBs6bcT1zYlZ8FvK0nrDMzyvPYbRTmeC4t
+        OBImoC41dCZIivQnv6VYuoiVWIFworwhjuatDMHM5Jwnyai/WHNR16WwFDue+AScYdTM1y
+        KmFJNB0e7g/C8gMt2mI4yf8uPlJFJxQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1698227395;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=EeSSQ7yrsJpMdwDrrdBndyT566cl836obOjvUslRkIc=;
+        b=A16XWtUkE0vRdaonggJTQrua1CL6lU5er2sFLqzDKcL/e0Red8DDBP85MFXe4+y5kdw8L9
+        1TEBuqgqAm1NgiCQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 97309138E9;
+        Wed, 25 Oct 2023 09:49:55 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id tbvUI8PkOGX1JwAAMHmgww
+        (envelope-from <cahu@suse.de>); Wed, 25 Oct 2023 09:49:55 +0000
+From:   Cathy Hu <cahu@suse.de>
+To:     selinux@vger.kernel.org
+Cc:     selinux@suse.de, Cathy Hu <cahu@suse.de>
+Subject: [PATCH] sepolicy/manpage.py: make output deterministic
+Date:   Wed, 25 Oct 2023 11:49:23 +0200
+Message-ID: <20231025094923.248941-1-cahu@suse.de>
+X-Mailer: git-send-email 2.42.0
 MIME-Version: 1.0
-References: <20231024213525.361332-4-paul@paul-moore.com> <20231024213525.361332-5-paul@paul-moore.com>
- <8fcaab11-6340-4056-b9e0-4650be05b270@schaufler-ca.com>
-In-Reply-To: <8fcaab11-6340-4056-b9e0-4650be05b270@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 24 Oct 2023 21:43:26 -0400
-Message-ID: <CAHC9VhR_Mm0aZKafhhaQHnasU_30Uvy9zUvEMs9COzh22QSNWw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/3] lsm: cleanup the size counters in security_getselfattr()
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Authentication-Results: smtp-out1.suse.de;
+        none
+X-Spamd-Result: default: False [0.82 / 50.00];
+         ARC_NA(0.00)[];
+         RCVD_VIA_SMTP_AUTH(0.00)[];
+         FROM_HAS_DN(0.00)[];
+         RCPT_COUNT_THREE(0.00)[3];
+         TO_DN_SOME(0.00)[];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         MIME_GOOD(-0.10)[text/plain];
+         R_MISSING_CHARSET(2.50)[];
+         BROKEN_CONTENT_TYPE(1.50)[];
+         NEURAL_HAM_LONG(-3.00)[-1.000];
+         DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+         NEURAL_HAM_SHORT(-1.00)[-1.000];
+         MID_CONTAINS_FROM(1.00)[];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         RCVD_COUNT_TWO(0.00)[2];
+         RCVD_TLS_ALL(0.00)[];
+         BAYES_HAM(-0.08)[63.81%]
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 24, 2023 at 6:23=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
-> On 10/24/2023 2:35 PM, Paul Moore wrote:
-> > Zero out all of the size counters in the -E2BIG case (buffer too
-> > small) to help make the current code a bit more robust in the face of
-> > future code changes.
->
-> I don't see how this change would have the described effect.
-> What it looks like it would do is change the return from -E2BIG
-> to 0, which would not have the desired result.
+The list entries in the alphabetically grouped dict are
+not sorted, which results in non-deterministic output for
+index.html.
 
-When @toobig is true, which it will be when one of the individual LSMs
-return -E2BIG, the return value of security_getselfattr() is fixed to
--E2BIG (check the if-statements at the end of the function).  Setting
-@rc to zero as in this patch simply preserves some sanity in the
-@count variable as we are no longer subtracting the E2BIG errno from
-the @count value.  Granted, in the @toobig case, @count doesn't do
-anything meaningful, but I believe this does harden the code against
-future changes.
+Sort entries of those lists to make the output deterministic
+to be able to have reproducible builds.
 
-Look at the discussion between Micka=C3=ABl and I in the v15 04/11 patch
-for more background.
+See https://reproducible-builds.org/ for reasoning.
+This patch was done while working on reproducible builds for openSUSE.
+---
+ python/sepolicy/sepolicy/manpage.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-https://lore.kernel.org/linux-security-module/20230912205658.3432-5-casey@s=
-chaufler-ca.com
+diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
+index a488dcbf..62999019 100755
+--- a/python/sepolicy/sepolicy/manpage.py
++++ b/python/sepolicy/sepolicy/manpage.py
+@@ -156,7 +156,7 @@ def get_alphabet_manpages(manpage_list):
+             if j.split("/")[-1][0] == i:
+                 temp.append(j.split("/")[-1])
+ 
+-        alphabet_manpages[i] = temp
++        alphabet_manpages[i] = sorted(temp)
+ 
+     return alphabet_manpages
+ 
+-- 
+2.42.0
 
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  security/security.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/security/security.c b/security/security.c
-> > index 988483fcf153..9c63acded4ee 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -3951,8 +3951,9 @@ int security_getselfattr(unsigned int attr, struc=
-t lsm_ctx __user *uctx,
-> >                       continue;
-> >               }
-> >               if (rc =3D=3D -E2BIG) {
-> > -                     toobig =3D true;
-> > +                     rc =3D 0;
-> >                       left =3D 0;
-> > +                     toobig =3D true;
-> >               } else if (rc < 0)
-> >                       return rc;
-> >               else
-
---=20
-paul-moore.com
