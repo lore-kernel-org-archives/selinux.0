@@ -2,37 +2,37 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AB34C4332F
-	for <selinux@archiver.kernel.org>; Mon, 30 Oct 2023 08:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66DC8C4332F
+	for <selinux@archiver.kernel.org>; Mon, 30 Oct 2023 09:36:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231789AbjJ3Iaz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Oct 2023 04:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43734 "EHLO
+        id S229537AbjJ3Jgl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Oct 2023 05:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229517AbjJ3Iay (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Oct 2023 04:30:54 -0400
-Received: from mail.projectinc.pl (mail.projectinc.pl [151.236.21.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5FFAF
-        for <selinux@vger.kernel.org>; Mon, 30 Oct 2023 01:30:49 -0700 (PDT)
-Received: by mail.projectinc.pl (Postfix, from userid 1001)
-        id 631493C804; Mon, 30 Oct 2023 09:30:41 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=projectinc.pl;
-        s=mail; t=1698654647;
-        bh=lIHTK8URpqixZz6NHWxMXvKMyyZ1ujcgjAp/F0bQcns=;
+        with ESMTP id S232240AbjJ3Jgl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Oct 2023 05:36:41 -0400
+Received: from mail.svorkabrattegg.com (mail.svorkabrattegg.com [51.38.115.213])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C08C2
+        for <selinux@vger.kernel.org>; Mon, 30 Oct 2023 02:36:37 -0700 (PDT)
+Received: by mail.svorkabrattegg.com (Postfix, from userid 1002)
+        id 2DF18A2E77; Mon, 30 Oct 2023 09:33:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=svorkabrattegg.com;
+        s=mail; t=1698658595;
+        bh=/k89xfPLk1d0qR/RHuj9ICbI68AhaQrvzSmPJgcc5mA=;
         h=Date:From:To:Subject:From;
-        b=aLE2uueBdtSuRBSmyS8Z6nnNLcZHYJUl50DPXtVNqjn6pLY2pWYL4nPEvcEj9mimh
-         9HSCfMoav7tBoDzubAwGkKrDMVKI136556e2zPZeu4LuuBWwuU2It1L03jRt74Oxmf
-         8JRckYQhAalehCguSi8gSaDEay2PGXt3GF9nyELuaCIddiOmH6AduO8UIQ0I60YZmo
-         yAmymRg+UieTvH2RRhMX3r3gwp3KmqLd03BWMdbUZhnSV05aFbMqwpBot3IueogPCH
-         TmaYoPazcJ9LnIbPyevXDHZmjPYzvAjBFoXSHe6/fvTPQe+SfkUp/VEXWEBWpGQd8T
-         5zXSh4uEFiOvA==
-Received: by mail.projectinc.pl for <selinux@vger.kernel.org>; Mon, 30 Oct 2023 08:30:35 GMT
-Message-ID: <20231030084500-0.1.bx.3cnem.0.09zrqlc0y5@projectinc.pl>
-Date:   Mon, 30 Oct 2023 08:30:35 GMT
-From:   =?UTF-8?Q? "Jakub_Wr=C3=B3bel" ?= <jakub.wrobel@projectinc.pl>
+        b=K9eS6CJyBrz0XCdnCB0k4+8YG3n9UPJk2XPAC4xcws7RucByNXzmCD58uzzFgPy5W
+         bMHjHR2Mgzm4ZBlzFP43UP1xh/6KuXfDbPz6LM4E3q2Qq7rBj49BRyqzYXsUjMCXAf
+         RyQruFi+scEuPEVtMNpGxkpjHjGVi8EDItdmIC2/O0IcpYLeheRZlVIyzT+7wC+VWB
+         FLqSDh2kQvCoNtyJoUhLDQ3TXbO4lk6kM01LYSMD9PqgpVhnXMFeIlQ9z5yYUWeN7g
+         LynbKgB8Q2ecO6rE4NcqypoQKZy7Q66D9CVwieDy3WtMtSxm+8VjoSX6hLIZ5PpaJ+
+         9gkzzdpqiSnBg==
+Received: by mail.svorkabrattegg.com for <selinux@vger.kernel.org>; Mon, 30 Oct 2023 09:33:28 GMT
+Message-ID: <20231030093001-0.1.dx.uzcg.0.498cnauemp@svorkabrattegg.com>
+Date:   Mon, 30 Oct 2023 09:33:28 GMT
+From:   "Hubert Kowalczyk" <hubert.kowalczyk@svorkabrattegg.com>
 To:     <selinux@vger.kernel.org>
-Subject: Pozycjonowanie- informacja
-X-Mailer: mail.projectinc.pl
+Subject: =?UTF-8?Q?Prosz=C4=99_o_kontakt?=
+X-Mailer: mail.svorkabrattegg.com
 MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -40,22 +40,18 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dzie=C5=84 dobry,=20
+Dzie=C5=84 dobry,
 
-jaki=C5=9B czas temu zg=C5=82osi=C5=82a si=C4=99 do nas firma, kt=C3=B3re=
-j strona internetowa nie pozycjonowa=C5=82a si=C4=99 wysoko w wyszukiwarc=
-e Google.=20
+Czy jest mo=C5=BCliwo=C5=9B=C4=87 nawi=C4=85zania wsp=C3=B3=C5=82pracy z =
+Pa=C5=84stwem?
 
-Na podstawie wykonanego przez nas audytu SEO zoptymalizowali=C5=9Bmy tre=C5=
-=9Bci na stronie pod k=C4=85tem wcze=C5=9Bniej opracowanych s=C5=82=C3=B3=
-w kluczowych. Nasz wewn=C4=99trzny system codziennie analizuje prawid=C5=82=
-owe dzia=C5=82anie witryny.  Dzi=C4=99ki indywidualnej strategii, firma z=
-dobywa coraz wi=C4=99cej Klient=C3=B3w. =20
+Z ch=C4=99ci=C4=85 porozmawiam z osob=C4=85 zajmuj=C4=85c=C4=85 si=C4=99 =
+dzia=C5=82aniami zwi=C4=85zanymi ze sprzeda=C5=BC=C4=85.
 
-Czy chcieliby Pa=C5=84stwo zwi=C4=99kszy=C4=87 liczb=C4=99 os=C3=B3b odwi=
-edzaj=C4=85cych stron=C4=99 internetow=C4=85 firmy? M=C3=B3g=C5=82bym prz=
-edstawi=C4=87 ofert=C4=99?
+Pomagamy skutecznie pozyskiwa=C4=87 nowych klient=C3=B3w.
+
+Zapraszam do kontaktu.
 
 
-Pozdrawiam serdecznie,
-Jakub Wr=C3=B3bel
+Z pozdrowieniami
+Hubert Kowalczyk
