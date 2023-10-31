@@ -2,63 +2,89 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06665C4167D
-	for <selinux@archiver.kernel.org>; Tue, 31 Oct 2023 06:31:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F70C4332F
+	for <selinux@archiver.kernel.org>; Tue, 31 Oct 2023 10:12:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbjJaGb0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 31 Oct 2023 02:31:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46424 "EHLO
+        id S236142AbjJaKME (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 31 Oct 2023 06:12:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235240AbjJaGbZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 31 Oct 2023 02:31:25 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39128C0;
-        Mon, 30 Oct 2023 23:31:23 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DA4B5C433CB;
-        Tue, 31 Oct 2023 06:31:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1698733882;
-        bh=zcVraLAJJOWSQH0Yfzw+xpDWVjcaiSIuyzoUZeAQhYo=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=uXxhaJXS0901z59SGEYXRFhBWDbhaoIbvlK0nethmhH8QLKbTSUIJGxekCBqwd8NZ
-         A1RqxUn2c4gO4HnL1MX22y0j/4/Jcf/2I4YCSfvZzKNvU2oipuR9i7bXTb2JSokAMT
-         QzO3/fy+wtaUEnu46fOgWqiUd0FMYTIWKDTaxrcmez2TrqO1IIY3iHr5llXBWsu506
-         wNFknn2fEeNlV6pLWS1i+JKZ6tPwOnFANkKaNQq4hr6+b0YflsjgWw80Rez+H+VZBE
-         4gKW31lwmku7ZEQ4gEvlST4wz20NseCSqorlmUDbh3iuUJs2fNb8PDhzmf52dgnZnS
-         GcigWK5e61FtQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C6496C4316B;
-        Tue, 31 Oct 2023 06:31:22 +0000 (UTC)
-Subject: Re: [GIT PULL] selinux/selinux-pr-20231030
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <78932582fa556fd5fd6e8886e80e993f.paul@paul-moore.com>
-References: <78932582fa556fd5fd6e8886e80e993f.paul@paul-moore.com>
-X-PR-Tracked-List-Id: <linux-security-module.vger.kernel.org>
-X-PR-Tracked-Message-Id: <78932582fa556fd5fd6e8886e80e993f.paul@paul-moore.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20231030
-X-PR-Tracked-Commit-Id: 19c1c9916dbf9b05157a0c4970f61f952c0cb86a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: f5fc9e4a117d4c118c95abb37e9d34d52b748c99
-Message-Id: <169873388280.12768.6660207845149952813.pr-tracker-bot@kernel.org>
-Date:   Tue, 31 Oct 2023 06:31:22 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        with ESMTP id S236140AbjJaKMD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 31 Oct 2023 06:12:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965B383
+        for <selinux@vger.kernel.org>; Tue, 31 Oct 2023 03:11:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698747079;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=q7pU6gRMWWss40bsP0tytUBoPjR2GexGH6sA0SdvX4g=;
+        b=RXINUOmlr51fdb7KOgu4/mUGdiZV+NnceWZQK2gsJ07Qt33J0ELlDxHnA9p1fbLnYM9GZi
+        IIygyUIPI2+GhHDUwr3E6lTo5Ks1Dz3mT2ji+afGTMGUNiVOyyFHkDdjn2CH8pdS6FnH50
+        v6hXwt1JsVwR2g4SYWcJcAbVQlZpyzA=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-183-UnE5WCWQPbuvxJJL8so-Ug-1; Tue, 31 Oct 2023 06:11:18 -0400
+X-MC-Unique: UnE5WCWQPbuvxJJL8so-Ug-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CC97E81D8A8;
+        Tue, 31 Oct 2023 10:11:17 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.33])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8CB0E492BE0;
+        Tue, 31 Oct 2023 10:11:17 +0000 (UTC)
+From:   Petr Lautrbach <lautrbach@redhat.com>
+To:     Cathy Hu <cahu@suse.de>, selinux@vger.kernel.org
+Cc:     selinux@suse.de, Cathy Hu <cahu@suse.de>
+Subject: Re: [PATCH v2] sepolicy/manpage.py: make output deterministic
+In-Reply-To: <20231025131903.12044-1-cahu@suse.de>
+References: <8734xzhtvh.fsf@redhat.com> <20231025131903.12044-1-cahu@suse.de>
+Date:   Tue, 31 Oct 2023 11:11:16 +0100
+Message-ID: <87pm0vgkzf.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Mon, 30 Oct 2023 22:16:31 -0400:
+Cathy Hu <cahu@suse.de> writes:
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20231030
+> The list entries in the alphabetically grouped dict are
+> not sorted, which results in non-deterministic output for
+> index.html.
+>
+> Sort entries of those lists to make the output deterministic
+> to be able to have reproducible builds.
+>
+> See https://reproducible-builds.org/ for reasoning.
+> This patch was done while working on reproducible builds for openSUSE.
+>
+> Signed-off-by: Cathy Hu <cahu@suse.de>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/f5fc9e4a117d4c118c95abb37e9d34d52b748c99
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
 
-Thank you!
+> ---
+>  python/sepolicy/sepolicy/manpage.py | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
+> index a488dcbf..62999019 100755
+> --- a/python/sepolicy/sepolicy/manpage.py
+> +++ b/python/sepolicy/sepolicy/manpage.py
+> @@ -156,7 +156,7 @@ def get_alphabet_manpages(manpage_list):
+>              if j.split("/")[-1][0] == i:
+>                  temp.append(j.split("/")[-1])
+>  
+> -        alphabet_manpages[i] = temp
+> +        alphabet_manpages[i] = sorted(temp)
+>  
+>      return alphabet_manpages
+>  
+> -- 
+> 2.42.0
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
