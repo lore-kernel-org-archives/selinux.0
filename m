@@ -2,62 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1404CC4332F
-	for <selinux@archiver.kernel.org>; Wed,  1 Nov 2023 16:39:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D91A6C4167B
+	for <selinux@archiver.kernel.org>; Wed,  1 Nov 2023 16:39:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbjKAQjV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Nov 2023 12:39:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38860 "EHLO
+        id S233837AbjKAQjY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Nov 2023 12:39:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbjKAQjU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Nov 2023 12:39:20 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824E8123
+        with ESMTP id S232819AbjKAQjX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Nov 2023 12:39:23 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D55115
         for <selinux@vger.kernel.org>; Wed,  1 Nov 2023 09:39:17 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id a640c23a62f3a-9d2e7726d5bso1185366b.0
+Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-9d10972e63eso705389366b.2
         for <selinux@vger.kernel.org>; Wed, 01 Nov 2023 09:39:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1698856756; x=1699461556; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=eAlBVvkI2I5E+pK3aaQGYi3UgGWdj02dTU8aSSoMiHA=;
-        b=dF8EhrdPqvUQ8/ibpnxyx2pe9fYsEAkhz8oVCSzyr3m6xVEpoREkycGoSKCyJtayPh
-         x41lQVU9biZaPV16Z8HwF7PxYKWDioYVMnxQEOKqCqMlsUKSuk/X6p5E6BTvkXGZm3kJ
-         vK2FI87UG68lsUl8nGTMDbXUcpAZ+0js1b+JPArye787ZzBqtJucU0hU/Kw4aZWCEbGs
-         CgJAwsllXfGl7GfhF68khbOP2wI9K7+SmT5xNLFlcYfsSHE1Xxom0+0XwsgJTb99ZigX
-         pTPpsEyO8AOuaN79STn/r6omzJeHQ2707M3QKDmP4C9imQEaBbJSNLntqjIwkAU1ocBe
-         vEyQ==
+        d=googlemail.com; s=20230601; t=1698856755; x=1699461555; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=RKVMCIRV/AuXnz+tVgEzna5dSXNCWDnPusenuvAQ9s8=;
+        b=Oz3I8V0ahCa1VqVgQ9x6Ba4coA5PB0dnajoGUay/SnDvD/TTSFIhuZ6kxohTxPonwS
+         lkIYnIRJyR6CQ5tz6kZDxEDUzrpvmmy5psBp7OGO7OfAhkmYu9cWHE1rZhCOqH1uRCsg
+         t78YcGmoImP9jUZ8a5BO5Dl6hGtteGwavy1uKlYnPfZx30vHrjXp7i9X2IJGtJ6XVLlV
+         MyWESzj17d9bLsMzt5NKI1O0zii4ZVD+hltff6q3rYN6yv44ZczfuBvXykNrBXO4BffB
+         QTG72ZHyjqZeLsFjS1EdR5Y2PpC/Uovv/mYuu/eIcM2+4FGRypjBcf/lf18q3WZNtj8H
+         U/MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698856756; x=1699461556;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=eAlBVvkI2I5E+pK3aaQGYi3UgGWdj02dTU8aSSoMiHA=;
-        b=Wsa4d9AVIRwNS/BubDGdEFLKvXpziFo2OCj1jQVAhsKS1cwHHlSWsAk3MlASEF9dJh
-         pFFUrleSBhsTyIUAVYX5OJ30qlaitxfGNQgm84i1gs+8hCrtRYnsFwRrbvgCq8iYndwA
-         meGy5y2n1mZwz/A15Y5EQioXIZRTre7CsfH8bxCBeEMMxPlzQeLP7cbD9ZgjMR0mAqpQ
-         lL21jHOmaKqe1OVIwi0RIlV+3FvfUXtIG4FmonK/XH0tNxxQWrhe8uWFjUdZojeer2LT
-         jpFewB1N255d+LRUSI5R/tbONpZFQr3HaVg7jyGiV1c2l5isYzxDxi9tkOp9N719TFZG
-         cWPQ==
-X-Gm-Message-State: AOJu0Yz5WfQYYLI01zre/n+hy7Fd9nAUteRdckwp/YT/K8s7PMCmxZ60
-        zkK2J3T/u95qQdpsPUJMEgEoMio+Oso=
-X-Google-Smtp-Source: AGHT+IEYo8M6ceIjkIN4xN2vga7/2yac7853sv8/QJlps2qpCi4+d163GKwPkq0wGSij37XcRaAAtQ==
-X-Received: by 2002:a17:907:2da3:b0:9bd:c592:e0ce with SMTP id gt35-20020a1709072da300b009bdc592e0cemr2127753ejc.51.1698856755798;
+        d=1e100.net; s=20230601; t=1698856755; x=1699461555;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RKVMCIRV/AuXnz+tVgEzna5dSXNCWDnPusenuvAQ9s8=;
+        b=wp6fZocx8b+0ugzcohsztkGlew+KvW3bwMVcjsjGq3t9M4HLiB3a6z86cEad3cb96m
+         q8wW++wyCQxsm6gjZwl9hfk+7gMvEnhAMfvah+cjkWEIzTneFDSn7McGhNb/7RvpxoWt
+         sw8tNj4upliTbo4FZJESl5viY3/DJgCwXLGJ6AzL4bl0KCqKb4m4NlXIJGegcla7/Baa
+         B3cKDeELTgkarJhQC3VX/cZkg69FcfRGQjHAjx50Om8lJ7khtyI7onfWFfL+Fkl2G1CX
+         2zn+uGUVU2+rAYYjJlGVeRuOhKgpMlXIsLrF+FbWGINqUnmYdPl6/aftNvcrkeuiqDLB
+         p6YQ==
+X-Gm-Message-State: AOJu0YyJOwWS+jTX9PT5gg47t7N7gO0dx0tNLsAyG88LZqcA6BfX04jg
+        CP7sCvpycX73vrWhAAnO5l0EnYH0j8g=
+X-Google-Smtp-Source: AGHT+IHK2JAR8FfZoexwKb+Um4oF08nf5cXBnBJTJKqLvYcLAlloUH1WGZh8dgCsQ6bfAByS7jcQ2Q==
+X-Received: by 2002:a17:907:934c:b0:9d3:8d1e:ced with SMTP id bv12-20020a170907934c00b009d38d1e0cedmr2769518ejc.34.1698856755274;
         Wed, 01 Nov 2023 09:39:15 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-163-023.95.116.pool.telefonica.de. [95.116.163.23])
-        by smtp.gmail.com with ESMTPSA id jx3-20020a170906ca4300b009ae3d711fd9sm122954ejb.69.2023.11.01.09.39.15
+        by smtp.gmail.com with ESMTPSA id jx3-20020a170906ca4300b009ae3d711fd9sm122954ejb.69.2023.11.01.09.39.14
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Nov 2023 09:39:15 -0700 (PDT)
+        Wed, 01 Nov 2023 09:39:14 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 2/2] libsepol: rework saturation check
-Date:   Wed,  1 Nov 2023 17:39:11 +0100
-Message-ID: <20231101163911.178218-2-cgzones@googlemail.com>
+Subject: [PATCH 1/2] libsepol: use str_read() where appropriate
+Date:   Wed,  1 Nov 2023 17:39:10 +0100
+Message-ID: <20231101163911.178218-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231101163911.178218-1-cgzones@googlemail.com>
-References: <20231101163911.178218-1-cgzones@googlemail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -65,194 +61,424 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Several values while parsing kernel policies, like symtab sizes or
-string lengths, are checked for saturation.  They may not be set to the
-maximum value, to avoid overflows or occupying a reserved value, and
-many of those sizes must not be 0.  This is currently handled via the
-two macros is_saturated() and zero_or_saturated().
-
-Both macros are tweaked for the fuzzer, because the fuzzer can create
-input with huge sizes.  While there is no subsequent data to provide
-the announced sizes, which will be caught later, memory of the requested
-size is allocated, which would lead to OOM reports.  Thus the sizes for
-the fuzzer are limited to 2^16.  This has the drawback of the fuzzer
-not checking the complete input space.
-
-Rework the saturation checks to actually check if there is enough data
-available for the announced size before allocating actual memory.
-This only works for input via mapped memory, since the remaining size
-for streams is not easily available.
-
-Application like setools do currently not benefit from this change,
-since they load the policy via a stream.  There are currently multiple
-interfaces to load a policy, so reworking them to use mapped memory by
-default might be subject for future work.
+Use the internal helper str_read() in more places while reading strings
+from a binary policy.  This improves readability and helps adjusting
+future sanity checks on inputs in fewer places.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/avtab.c         |  2 +-
- libsepol/src/context.c       |  2 +-
- libsepol/src/module_to_cil.c |  2 +-
- libsepol/src/policydb.c      | 16 ++++++++--------
- libsepol/src/private.h       | 22 ++++++++++++++++------
- libsepol/src/services.c      |  2 +-
- 6 files changed, 28 insertions(+), 18 deletions(-)
+ libsepol/src/policydb.c | 199 +++++++++-------------------------------
+ 1 file changed, 41 insertions(+), 158 deletions(-)
 
-diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index 6ab49c5e..f379d8d8 100644
---- a/libsepol/src/avtab.c
-+++ b/libsepol/src/avtab.c
-@@ -601,7 +601,7 @@ int avtab_read(avtab_t * a, struct policy_file *fp, uint32_t vers)
- 		goto bad;
- 	}
- 	nel = le32_to_cpu(buf[0]);
--	if (!nel) {
-+	if (zero_or_saturated(nel, fp, sizeof(uint32_t) * 3)) {
- 		ERR(fp->handle, "table is empty");
- 		goto bad;
- 	}
-diff --git a/libsepol/src/context.c b/libsepol/src/context.c
-index 5cc90afb..5ee21724 100644
---- a/libsepol/src/context.c
-+++ b/libsepol/src/context.c
-@@ -297,7 +297,7 @@ int context_from_string(sepol_handle_t * handle,
- 	char *con_cpy = NULL;
- 	sepol_context_t *ctx_record = NULL;
- 
--	if (zero_or_saturated(con_str_len)) {
-+	if (con_str_len == 0 || con_str_len == SIZE_MAX) {
- 		ERR(handle, "Invalid context length");
- 		goto err;
- 	}
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index d2868019..1d0a507c 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -122,7 +122,7 @@ static int get_line(char **start, char *end, char **line)
- 
- 	for (len = 0; p < end && *p != '\n' && *p != '\0'; p++, len++);
- 
--	if (zero_or_saturated(len)) {
-+	if (len == 0 || len == SIZE_MAX) {
- 		rc = 0;
- 		goto exit;
- 	}
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index f608aba4..00a986e8 100644
+index f9537caa..f608aba4 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
-@@ -2854,7 +2854,7 @@ static int ocontext_read_xen(const struct policydb_compat_info *info,
- 				if (rc < 0)
- 					return -1;
- 				c->sid[0] = le32_to_cpu(buf[0]);
--				if (is_saturated(c->sid[0]))
-+				if (c->sid[0] > 127)
- 					return -1;
- 				if (context_read_and_validate
- 				    (&c->context[0], p, fp))
-@@ -2960,7 +2960,7 @@ static int ocontext_read_selinux(const struct policydb_compat_info *info,
- 				if (rc < 0)
- 					return -1;
- 				c->sid[0] = le32_to_cpu(buf[0]);
--				if (is_saturated(c->sid[0]))
-+				if (c->sid[0] > 127)
- 					return -1;
- 				if (context_read_and_validate
- 				    (&c->context[0], p, fp))
-@@ -3857,7 +3857,7 @@ static int scope_index_read(scope_index_t * scope_index,
- 	if (rc < 0)
- 		return -1;
- 	scope_index->class_perms_len = le32_to_cpu(buf[0]);
--	if (is_saturated(scope_index->class_perms_len))
-+	if (is_saturated(scope_index->class_perms_len, fp, sizeof(uint32_t) * 3))
- 		return -1;
- 	if (scope_index->class_perms_len == 0) {
- 		scope_index->class_perms_map = NULL;
-@@ -3913,7 +3913,7 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
- 		if (rc < 0) 
- 			return -1;
- 		nprim = le32_to_cpu(buf[0]);
--		if (is_saturated(nprim))
-+		if (nprim == UINT32_MAX)
- 			return -1;
- 		nel = le32_to_cpu(buf[1]);
- 		for (j = 0; j < nel; j++) {
-@@ -4036,7 +4036,7 @@ static int scope_read(policydb_t * p, int symnum, struct policy_file *fp)
- 		goto cleanup;
- 	scope->scope = le32_to_cpu(buf[0]);
- 	scope->decl_ids_len = le32_to_cpu(buf[1]);
--	if (zero_or_saturated(scope->decl_ids_len)) {
-+	if (zero_or_saturated(scope->decl_ids_len, fp, sizeof(uint32_t))) {
- 		ERR(fp->handle, "invalid scope with no declaration");
- 		goto cleanup;
- 	}
-@@ -4120,8 +4120,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- {
+@@ -2108,7 +2108,8 @@ static int common_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		goto bad;
  
- 	unsigned int i, j, r_policyvers;
--	uint32_t buf[5];
--	size_t len, nprim, nel;
-+	uint32_t buf[5], nprim;
-+	size_t len, nel;
- 	char *policydb_str;
- 	const struct policydb_compat_info *info;
- 	unsigned int policy_type, bufindex;
-@@ -4315,7 +4315,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
++	rc = str_read(&key, fp, len);
++	if (rc < 0)
+ 		goto bad;
+ 
+ 	comdatum->s.value = le32_to_cpu(buf[1]);
+@@ -2120,14 +2121,6 @@ static int common_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		goto bad;
+ 	nel = le32_to_cpu(buf[3]);
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
+-	if (rc < 0)
+-		goto bad;
+-	key[len] = 0;
+-
+ 	for (i = 0; i < nel; i++) {
+ 		if (perm_read(p, comdatum->permissions.table, fp, comdatum->permissions.nprim))
+ 			goto bad;
+@@ -2256,11 +2249,11 @@ static int class_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
++	rc = str_read(&key, fp, len);
++	if (rc < 0)
+ 		goto bad;
++
+ 	len2 = le32_to_cpu(buf[1]);
+-	if (is_saturated(len2))
+-		goto bad;
+ 	cladatum->s.value = le32_to_cpu(buf[2]);
+ 
+ 	if (symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE))
+@@ -2272,22 +2265,10 @@ static int class_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 
+ 	ncons = le32_to_cpu(buf[5]);
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
+-	if (rc < 0)
+-		goto bad;
+-	key[len] = 0;
+-
+ 	if (len2) {
+-		cladatum->comkey = malloc(len2 + 1);
+-		if (!cladatum->comkey)
+-			goto bad;
+-		rc = next_entry(cladatum->comkey, fp, len2);
++		rc = str_read(&cladatum->comkey, fp, len2);
  		if (rc < 0)
  			goto bad;
- 		nprim = le32_to_cpu(buf[0]);
--		if (is_saturated(nprim))
-+		if (is_saturated(nprim, fp, sizeof(uint32_t) * 3))
+-		cladatum->comkey[len2] = 0;
+ 
+ 		cladatum->comdatum = hashtab_search(p->p_commons.table,
+ 						    cladatum->comkey);
+@@ -2369,21 +2350,14 @@ static int role_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
++	rc = str_read(&key, fp, len);
++	if (rc < 0)
+ 		goto bad;
+ 
+ 	role->s.value = le32_to_cpu(buf[1]);
+ 	if (policydb_has_boundary_feature(p))
+ 		role->bounds = le32_to_cpu(buf[2]);
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
+-	if (rc < 0)
+-		goto bad;
+-	key[len] = 0;
+-
+ 	if (ebitmap_read(&role->dominates, fp))
+ 		goto bad;
+ 
+@@ -2460,9 +2434,6 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[pos]);
+-	if (zero_or_saturated(len))
+-		goto bad;
+-
+ 	typdatum->s.value = le32_to_cpu(buf[++pos]);
+ 	if (policydb_has_boundary_feature(p)) {
+ 		uint32_t properties;
+@@ -2503,13 +2474,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
  			goto bad;
- 		nel = le32_to_cpu(buf[1]);
- 		if (nel && !nprim) {
-diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-index 1833b497..d1fe66b6 100644
---- a/libsepol/src/private.h
-+++ b/libsepol/src/private.h
-@@ -44,13 +44,23 @@
- 
- #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
- 
--#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
--# define is_saturated(x) (x == (typeof(x))-1 || (x) > (1U << 16))
--#else
--# define is_saturated(x) (x == (typeof(x))-1)
--#endif
-+static inline int exceeds_available_bytes(size_t x, const struct policy_file *fp, size_t req_elem_size)
-+{
-+	size_t req_size;
-+
-+	/* Remaining input size is only available for mmap'ed memory */
-+	if (fp->type != PF_USE_MEMORY)
-+		return 0;
-+
-+	if (__builtin_mul_overflow(x, req_elem_size, &req_size))
-+		return 1;
-+
-+	return req_size > fp->len;
-+}
-+
-+#define is_saturated(x, fp, req_elem_size) ((x) == (typeof(x))-1 || exceeds_available_bytes(x, fp, req_elem_size))
- 
--#define zero_or_saturated(x) ((x == 0) || is_saturated(x))
-+#define zero_or_saturated(x, fp, req_elem_size) ((x) == 0 || is_saturated(x, fp, req_elem_size))
- 
- #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
- 
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 51bd56a0..f9280d89 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -1748,7 +1748,7 @@ int str_read(char **strp, struct policy_file *fp, size_t len)
- 	int rc;
- 	char *str;
- 
--	if (zero_or_saturated(len)) {
-+	if (zero_or_saturated(len, fp, sizeof(char))) {
- 		errno = EINVAL;
- 		return -1;
  	}
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc < 0)
+ 		goto bad;
+-	key[len] = 0;
+ 
+ 	if (hashtab_insert(h, key, typdatum))
+ 		goto bad;
+@@ -2681,14 +2648,8 @@ static int filename_trans_read_one_compat(policydb_t *p, struct policy_file *fp)
+ 	if (rc < 0)
+ 		return -1;
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
+-		return -1;
+-
+-	name = calloc(len + 1, sizeof(*name));
+-	if (!name)
+-		return -1;
+ 
+-	rc = next_entry(name, fp, len);
++	rc = str_read(&name, fp, len);
+ 	if (rc < 0)
+ 		goto err;
+ 
+@@ -2766,14 +2727,8 @@ static int filename_trans_read_one(policydb_t *p, struct policy_file *fp)
+ 	if (rc < 0)
+ 		return -1;
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
+-		return -1;
+-
+-	name = calloc(len + 1, sizeof(*name));
+-	if (!name)
+-		return -1;
+ 
+-	rc = next_entry(name, fp, len);
++	rc = str_read(&name, fp, len);
+ 	if (rc < 0)
+ 		goto err;
+ 
+@@ -2957,16 +2912,9 @@ static int ocontext_read_xen(const struct policydb_compat_info *info,
+ 				if (rc < 0)
+ 					return -1;
+ 				len = le32_to_cpu(buf[0]);
+-				if (zero_or_saturated(len))
+-					return -1;
+-
+-				c->u.name = malloc(len + 1);
+-				if (!c->u.name)
+-					return -1;
+-				rc = next_entry(c->u.name, fp, len);
++				rc = str_read(&c->u.name, fp, len);
+ 				if (rc < 0)
+ 					return -1;
+-				c->u.name[len] = 0;
+ 				if (context_read_and_validate
+ 				    (&c->context[0], p, fp))
+ 					return -1;
+@@ -3024,15 +2972,13 @@ static int ocontext_read_selinux(const struct policydb_compat_info *info,
+ 				if (rc < 0)
+ 					return -1;
+ 				len = le32_to_cpu(buf[0]);
+-				if (zero_or_saturated(len) || len > 63)
++				if (len > 63)
+ 					return -1;
+-				c->u.name = malloc(len + 1);
+-				if (!c->u.name)
+-					return -1;
+-				rc = next_entry(c->u.name, fp, len);
++
++				rc = str_read(&c->u.name, fp, len);
+ 				if (rc < 0)
+ 					return -1;
+-				c->u.name[len] = 0;
++
+ 				if (context_read_and_validate
+ 				    (&c->context[0], p, fp))
+ 					return -1;
+@@ -3080,13 +3026,10 @@ static int ocontext_read_selinux(const struct policydb_compat_info *info,
+ 				if (port > UINT8_MAX || port == 0)
+ 					return -1;
+ 
+-				c->u.ibendport.dev_name = malloc(len + 1);
+-				if (!c->u.ibendport.dev_name)
+-					return -1;
+-				rc = next_entry(c->u.ibendport.dev_name, fp, len);
++				rc = str_read(&c->u.ibendport.dev_name, fp, len);
+ 				if (rc < 0)
+ 					return -1;
+-				c->u.ibendport.dev_name[len] = 0;
++
+ 				c->u.ibendport.port = port;
+ 				if (context_read_and_validate
+ 				    (&c->context[0], p, fp))
+@@ -3120,15 +3063,11 @@ static int ocontext_read_selinux(const struct policydb_compat_info *info,
+ 					return -1;
+ 				c->v.behavior = le32_to_cpu(buf[0]);
+ 				len = le32_to_cpu(buf[1]);
+-				if (zero_or_saturated(len))
+-					return -1;
+-				c->u.name = malloc(len + 1);
+-				if (!c->u.name)
+-					return -1;
+-				rc = next_entry(c->u.name, fp, len);
++
++				rc = str_read(&c->u.name, fp, len);
+ 				if (rc < 0)
+ 					return -1;
+-				c->u.name[len] = 0;
++
+ 				if (context_read_and_validate
+ 				    (&c->context[0], p, fp))
+ 					return -1;
+@@ -3196,23 +3135,17 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
+ 		if (rc < 0)
+ 			goto bad;
+ 		len = le32_to_cpu(buf[0]);
+-		if (zero_or_saturated(len))
+-			goto bad;
+ 		newgenfs = calloc(1, sizeof(genfs_t));
+ 		if (!newgenfs)
+ 			goto bad;
+-		newgenfs->fstype = malloc(len + 1);
+-		if (!newgenfs->fstype) {
+-			free(newgenfs);
+-			goto bad;
+-		}
+-		rc = next_entry(newgenfs->fstype, fp, len);
++
++		rc = str_read(&newgenfs->fstype, fp, len);
+ 		if (rc < 0) {
+ 			free(newgenfs->fstype);
+ 			free(newgenfs);
+ 			goto bad;
+ 		}
+-		newgenfs->fstype[len] = 0;
++
+ 		for (genfs_p = NULL, genfs = p->genfs; genfs;
+ 		     genfs_p = genfs, genfs = genfs->next) {
+ 			if (strcmp(newgenfs->fstype, genfs->fstype) == 0) {
+@@ -3243,16 +3176,10 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
+ 			if (rc < 0)
+ 				goto bad;
+ 			len = le32_to_cpu(buf[0]);
+-			if (zero_or_saturated(len))
+-				goto bad;
+-			newc->u.name = malloc(len + 1);
+-			if (!newc->u.name) {
+-				goto bad;
+-			}
+-			rc = next_entry(newc->u.name, fp, len);
++			rc = str_read(&newc->u.name, fp, len);
+ 			if (rc < 0)
+ 				goto bad;
+-			newc->u.name[len] = 0;
++
+ 			rc = next_entry(buf, fp, sizeof(uint32_t));
+ 			if (rc < 0)
+ 				goto bad;
+@@ -3344,21 +3271,14 @@ static int user_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
++	rc = str_read(&key, fp, len);
++	if (rc < 0)
+ 		goto bad;
+ 
+ 	usrdatum->s.value = le32_to_cpu(buf[1]);
+ 	if (policydb_has_boundary_feature(p))
+ 		usrdatum->bounds = le32_to_cpu(buf[2]);
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
+-	if (rc < 0)
+-		goto bad;
+-	key[len] = 0;
+-
+ 	if (p->policy_type == POLICY_KERN) {
+ 		if (ebitmap_read(&usrdatum->roles.roles, fp))
+ 			goto bad;
+@@ -3430,19 +3350,12 @@ static int sens_read(policydb_t * p
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(len))
++	rc = str_read(&key, fp, len);
++	if (rc < 0)
+ 		goto bad;
+ 
+ 	levdatum->isalias = le32_to_cpu(buf[1]);
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
+-	if (rc < 0)
+-		goto bad;
+-	key[len] = 0;
+-
+ 	levdatum->level = malloc(sizeof(mls_level_t));
+ 	if (!levdatum->level || mls_read_level(levdatum->level, fp))
+ 		goto bad;
+@@ -3476,20 +3389,13 @@ static int cat_read(policydb_t * p
+ 		goto bad;
+ 
+ 	len = le32_to_cpu(buf[0]);
+-	if(zero_or_saturated(len))
++	rc = str_read(&key, fp, len);
++	if (rc < 0)
+ 		goto bad;
+ 
+ 	catdatum->s.value = le32_to_cpu(buf[1]);
+ 	catdatum->isalias = le32_to_cpu(buf[2]);
+ 
+-	key = malloc(len + 1);
+-	if (!key)
+-		goto bad;
+-	rc = next_entry(key, fp, len);
+-	if (rc < 0)
+-		goto bad;
+-	key[len] = 0;
+-
+ 	if (hashtab_insert(h, key, catdatum))
+ 		goto bad;
+ 
+@@ -3865,17 +3771,10 @@ static int filename_trans_rule_read(policydb_t *p, filename_trans_rule_t **r,
+ 			return -1;
+ 
+ 		len = le32_to_cpu(buf[0]);
+-		if (zero_or_saturated(len))
+-			return -1;
+ 
+-		ftr->name = malloc(len + 1);
+-		if (!ftr->name)
+-			return -1;
+-
+-		rc = next_entry(ftr->name, fp, len);
+-		if (rc)
++		rc = str_read(&ftr->name, fp, len);
++		if (rc < 0)
+ 			return -1;
+-		ftr->name[len] = 0;
+ 
+ 		if (type_set_read(&ftr->stypes, fp))
+ 			return -1;
+@@ -4119,15 +4018,10 @@ static int scope_read(policydb_t * p, int symnum, struct policy_file *fp)
+ 	if (rc < 0)
+ 		goto cleanup;
+ 	key_len = le32_to_cpu(buf[0]);
+-	if (zero_or_saturated(key_len))
+-		goto cleanup;
+-	key = malloc(key_len + 1);
+-	if (!key)
+-		goto cleanup;
+-	rc = next_entry(key, fp, key_len);
++
++	rc = str_read(&key, fp, key_len);
+ 	if (rc < 0)
+ 		goto cleanup;
+-	key[key_len] = '\0';
+ 
+ 	/* ensure that there already exists a symbol with this key */
+ 	if (hashtab_search(p->symtab[symnum].table, key) == NULL) {
+@@ -4387,28 +4281,17 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 			goto bad;
+ 		}
+ 		len = le32_to_cpu(buf[0]);
+-		if (zero_or_saturated(len))
+-			goto bad;
+-		if ((p->name = malloc(len + 1)) == NULL) {
+-			goto bad;
+-		}
+-		if ((rc = next_entry(p->name, fp, len)) < 0) {
++		rc = str_read(&p->name, fp, len);
++		if (rc < 0)
+ 			goto bad;
+-		}
+-		p->name[len] = '\0';
++
+ 		if ((rc = next_entry(buf, fp, sizeof(uint32_t))) < 0) {
+ 			goto bad;
+ 		}
+ 		len = le32_to_cpu(buf[0]);
+-		if (zero_or_saturated(len))
+-			goto bad;
+-		if ((p->version = malloc(len + 1)) == NULL) {
+-			goto bad;
+-		}
+-		if ((rc = next_entry(p->version, fp, len)) < 0) {
++		rc = str_read(&p->version, fp, len);
++		if (rc < 0)
+ 			goto bad;
+-		}
+-		p->version[len] = '\0';
+ 	}
+ 
+ 	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
 -- 
 2.42.0
 
