@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEC1AC4332F
-	for <selinux@archiver.kernel.org>; Wed,  1 Nov 2023 16:37:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43976C4332F
+	for <selinux@archiver.kernel.org>; Wed,  1 Nov 2023 16:38:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231907AbjKAQhv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 1 Nov 2023 12:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
+        id S231760AbjKAQiJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Nov 2023 12:38:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231345AbjKAQhv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 1 Nov 2023 12:37:51 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CFF210F
-        for <selinux@vger.kernel.org>; Wed,  1 Nov 2023 09:37:44 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id 4fb4d7f45d1cf-540c54944c4so2193778a12.1
-        for <selinux@vger.kernel.org>; Wed, 01 Nov 2023 09:37:44 -0700 (PDT)
+        with ESMTP id S231345AbjKAQiJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Nov 2023 12:38:09 -0400
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D89E10C
+        for <selinux@vger.kernel.org>; Wed,  1 Nov 2023 09:38:01 -0700 (PDT)
+Received: by mail-ej1-x632.google.com with SMTP id a640c23a62f3a-9cf83c044b7so978574866b.1
+        for <selinux@vger.kernel.org>; Wed, 01 Nov 2023 09:38:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1698856662; x=1699461462; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1698856680; x=1699461480; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=e3CyZF/Yqm+Ug/c3vzKpkTYLHgr+AkOoKmF0nAdqqBI=;
-        b=h7Ycq4Qtz8xqkEFlfR3PNCvM5kv8CVPv4xTizW52NXJAa9CwJ1IpLn02fVZvTg2MhQ
-         ZtXodoH0PXiSASv0GeGdz0qJJCM3ZVB71+QmX1wZKHtkOgsDW2tXiiN/wRPw4FHqVnEY
-         6KMSJHU2hiESKgm3SP5XNUw5/ZpwPSXNGqyKLH+r/G8z188ns7k1SSg1+OQHDO9AZzfK
-         49Ic65No7TKAeGvtKqHnz8gi+j4XpL52T2RrtB+WYJajgdscjBKlT3dIW9HMBOaWPpKB
-         NyDXARoSJxAIv5UKIHRMDleVOOO5/5VSuequuFLYYWEfxaroDZfAZ6XMSLMfsI+5OMMA
-         iUYg==
+        bh=0NrVX1rT/+N1kltIEl1Aly/v2iMzXV2g51rU9ugrCuE=;
+        b=Q0imGyr4vNbwGPp9sUqjIE12z45x+wcOHxbTcczuntbIv/QtqGjRvt9ceSRYQZQerk
+         pTaRYWNQLO2okUQ/f2AhhguPcWZemrRx5HXwhN2OSfHoV1yNh0GQL4r3T9km/49imnun
+         kgIJrKpSoDT4sheoCTiPWp+ClyifNVY6ljSS48Mb2wM+mSrFO9rxYz6I65vaMeMq6lNF
+         i65rKT+C8vnzCErV+rspA/Jt6mGxAV0DeCCi/iZHJoWSq/o63VrNlIbe6tcB9G+Yvd4u
+         7P3lH/gfqiiWqAtJieObGH5VyM26AdCM+w1lHouO6Mo2lV78veL5gqAeb5P7v/4wxVPH
+         +gyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698856662; x=1699461462;
+        d=1e100.net; s=20230601; t=1698856680; x=1699461480;
         h=content-transfer-encoding:mime-version:message-id:date:subject:to
          :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=e3CyZF/Yqm+Ug/c3vzKpkTYLHgr+AkOoKmF0nAdqqBI=;
-        b=utPHeiEL1hHXLdtN0jLHwJF4FnATnX0vWp1yk6qvekFoWgqZr5vfY1E69G+NV5Lr20
-         4SUzICSIT5k7Y8KUgroRolCProLn/895zPjIhbPee2eYhDCjNma5N/FDwjZhebjtgODj
-         Z8XACbdvRZx8yn72RSR5UIPLkU8j26MFR0Cg9AWTeUNfkRZfioEkK4CNK8cZ1UhePEQH
-         KXTQ+dj4+bf8q4y9yeljWFuS8FvmUIccLy8xuNw9iLHUALotV1rmWLeYyDzUpcq63DcS
-         Clur7949BlLBG3JJVAMLYl8gfmM10EnqkoHSHGZ6g1FzobJzJVOW2ZOvHgwrBs0JFEJP
-         whRQ==
-X-Gm-Message-State: AOJu0YxKltUpFO7G9rdgT2qR4lHjq0bUIjMI90zw7SyrlMUjFV4tDFne
-        WCTc9NFSaZ7wzbNpuinXr+3p9V6oKKM=
-X-Google-Smtp-Source: AGHT+IHzeGR2rYi33EPhUhvVdFoukupVsxiG2pUzJsHcBjq2tsm0VWyhaV8KlWrqfuXRaFkVRRAc1g==
-X-Received: by 2002:a05:6402:2692:b0:53e:5c4d:ba15 with SMTP id w18-20020a056402269200b0053e5c4dba15mr3276363edd.8.1698856662364;
-        Wed, 01 Nov 2023 09:37:42 -0700 (PDT)
+        bh=0NrVX1rT/+N1kltIEl1Aly/v2iMzXV2g51rU9ugrCuE=;
+        b=CuGRRTsu0gxsVYYF77TH2mqy7xWuLuy4l2luDQuNdwz2l/Sl2s7zDdqiQnu7DjaOPv
+         ntUQkk2m7sFWK7v0ccOT1vE0IqfEqV3kkpCdkXcKErh13Y1MYPcw+GeMj2Sfcz2F37+P
+         yYDJtfxeKYhTExv5D8tPIEuldTg1HL0/UI+x/SN7SumoemZozJ3EMGDKrH3d4duHg1ZE
+         /CtNTkb7aYaabNQN4ydmMlQlono9vRM/eNspvoM2YKpKJa5EA7q7lc3p2G33ZvOTdSWN
+         9s7rv/XcdJtc+OaIu+FBu7yIakwc7Zm17eezx2H6JsUm3eAigrAZ/RpCKYtHycVd9u96
+         QhTQ==
+X-Gm-Message-State: AOJu0Yw+WtXJNKMe1ETUuR7j7hHAWxR3Ga7McQeq7DtNWEcpVot9YQYz
+        XQGLbuE2om/BC9zaBUb6/GB9IPi+nyA=
+X-Google-Smtp-Source: AGHT+IHoTaeQIBu8zjS+T87M/f1r8thjeNdzdEo7ZLRjd12KA20SPLe77yGkXbRWtUWSmKNx1JDrmw==
+X-Received: by 2002:a17:907:3181:b0:9d2:b968:9ddf with SMTP id xe1-20020a170907318100b009d2b9689ddfmr2524209ejb.25.1698856679927;
+        Wed, 01 Nov 2023 09:37:59 -0700 (PDT)
 Received: from debian_development.DebianHome (dynamic-095-116-163-023.95.116.pool.telefonica.de. [95.116.163.23])
-        by smtp.gmail.com with ESMTPSA id 30-20020a50875e000000b0053e07fe8d98sm1275154edv.79.2023.11.01.09.37.41
+        by smtp.gmail.com with ESMTPSA id a8-20020a170906684800b00993a37aebc5sm121531ejs.50.2023.11.01.09.37.59
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Nov 2023 09:37:42 -0700 (PDT)
+        Wed, 01 Nov 2023 09:37:59 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2 1/2] libsepol: reject avtab entries with invalid specifier
-Date:   Wed,  1 Nov 2023 17:37:24 +0100
-Message-ID: <20231101163725.177237-1-cgzones@googlemail.com>
+Subject: [PATCH] libselinux/utils: update getdefaultcon
+Date:   Wed,  1 Nov 2023 17:37:54 +0100
+Message-ID: <20231101163754.177452-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.42.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,56 +61,86 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Neverallow avtab entries are not supported (normal and extended). Reject
-them to avoid lookup confusions via avtab_search(), e.g. when searching
-for a invalid key of AVTAB_TRANSITION|AVTAB_NEVERALLOW and the result of
-only AVTAB_NEVERALLOW has no transition value.
+* mention -r <role> and -v command line options in usage string
+* use distinct error messages on getseuser(3) and
+  get_default_context_with_[role]level(3) failure
+* always print program name on error
+* drop unnecessary double parenthesis
 
-Simplify the check for the number of specifiers by using the compiler
-popcount builtin (already used in libsepol).
-
-Reported-by: oss-fuzz (issue 60568), caused at the time by the filetrans
-             prefix proposal
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v2:
-   rebase after revert of filename prefix proposal
----
- libsepol/src/avtab.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ libselinux/utils/getdefaultcon.c | 40 ++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 17 deletions(-)
 
-diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index 6ab49c5e..1ef5ee00 100644
---- a/libsepol/src/avtab.c
-+++ b/libsepol/src/avtab.c
-@@ -441,7 +441,6 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
- 	avtab_key_t key;
- 	avtab_datum_t datum;
- 	avtab_extended_perms_t xperms;
--	unsigned set;
- 	unsigned int i;
- 	int rc;
+diff --git a/libselinux/utils/getdefaultcon.c b/libselinux/utils/getdefaultcon.c
+index 93102e5e..50f1ea91 100644
+--- a/libselinux/utils/getdefaultcon.c
++++ b/libselinux/utils/getdefaultcon.c
+@@ -11,7 +11,7 @@
  
-@@ -535,13 +534,13 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
- 	key.target_class = le16_to_cpu(buf16[items++]);
- 	key.specified = le16_to_cpu(buf16[items++]);
+ static __attribute__ ((__noreturn__)) void usage(const char *name, const char *detail, int rc)
+ {
+-	fprintf(stderr, "usage:  %s [-l level] [-s service] user [fromcon]\n", name);
++	fprintf(stderr, "usage:  %s [-r role] [-l level] [-s service] [-v] user [fromcon]\n", name);
+ 	if (detail)
+ 		fprintf(stderr, "%s:  %s\n", name, detail);
+ 	exit(rc);
+@@ -60,9 +60,9 @@ int main(int argc, char **argv)
+ 	user = argv[optind];
  
--	set = 0;
--	for (i = 0; i < ARRAY_SIZE(spec_order); i++) {
--		if (key.specified & spec_order[i])
--			set++;
-+	if (key.specified & ~(AVTAB_AV | AVTAB_TYPE | AVTAB_XPERMS | AVTAB_ENABLED)) {
-+		ERR(fp->handle, "invalid specifier");
-+		return -1;
+ 	/* If a context wasn't passed, use the current context. */
+-	if (((argc - optind) < 2)) {
++	if ((argc - optind) < 2) {
+ 		if (getcon(&cur_context) < 0) {
+-			fprintf(stderr, "Couldn't get current context:  %s\n", strerror(errno));
++			fprintf(stderr, "%s:  couldn't get current context:  %s\n", argv[0], strerror(errno));
+ 			return 2;
+ 		}
+ 	} else
+@@ -73,23 +73,29 @@ int main(int argc, char **argv)
+ 		return 3;
  	}
--	if (!set || set > 1) {
--		ERR(fp->handle, "more than one specifier");
+ 
+-	if ((ret = getseuser(user, service, &seuser, &dlevel)) == 0) {
+-		if (! level) level=dlevel;
+-		if (role != NULL && role[0]) 
+-			ret=get_default_context_with_rolelevel(seuser, role, level,cur_context,&usercon);
+-		else
+-			ret=get_default_context_with_level(seuser, level, cur_context,&usercon);
++	ret = getseuser(user, service, &seuser, &dlevel);
++	if (ret) {
++		fprintf(stderr, "%s:  failed to get seuser:  %s\n", argv[0], strerror(errno));
++		goto out;
+ 	}
+-	if (ret < 0)
+-		perror(argv[0]);
+-	else {
+-		if (verbose) {
+-			printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context, seuser, role, level, usercon);
+-		} else {
+-			printf("%s\n", usercon);
+-		}
 +
-+	if (__builtin_popcount(key.specified & ~AVTAB_ENABLED) != 1) {
-+		ERR(fp->handle, "not exactly one specifier");
- 		return -1;
++	if (! level) level=dlevel;
++	if (role != NULL && role[0])
++		ret = get_default_context_with_rolelevel(seuser, role, level, cur_context, &usercon);
++	else
++		ret = get_default_context_with_level(seuser, level, cur_context, &usercon);
++	if (ret) {
++		fprintf(stderr, "%s:  failed to get default context:  %s\n", argv[0], strerror(errno));
++		goto out;
++	}
++
++	if (verbose) {
++		printf("%s: %s from %s %s %s %s -> %s\n", argv[0], user, cur_context, seuser, role, level, usercon);
++	} else {
++		printf("%s\n", usercon);
  	}
  
++out:
+ 	free(role);
+ 	free(seuser);
+ 	if (level != dlevel) free(level);
 -- 
 2.42.0
 
