@@ -2,95 +2,201 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FB5CC4332F
-	for <selinux@archiver.kernel.org>; Thu,  2 Nov 2023 17:34:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9601EC4167B
+	for <selinux@archiver.kernel.org>; Thu,  2 Nov 2023 17:58:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbjKBReW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Nov 2023 13:34:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45918 "EHLO
+        id S1344842AbjKBR6C (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Nov 2023 13:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjKBReV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 2 Nov 2023 13:34:21 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76E018C
-        for <selinux@vger.kernel.org>; Thu,  2 Nov 2023 10:34:17 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id 98e67ed59e1d1-280351c32afso1122413a91.1
-        for <selinux@vger.kernel.org>; Thu, 02 Nov 2023 10:34:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1698946457; x=1699551257; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wfAqKr0veWqngPAu/0To83vJNijTViugzS3exw2YRB4=;
-        b=DE+JemQp82gfrcIq5q55vYtnUt3qRN/sOeDonny8/PlFaFOqKII4SSD+4/H9hMeItX
-         83SluTxiwYNMhxj/G29edQZsNcro+vQCL0+nemyS9LHw9d+3PTJV5pd3z6lRu6YCl7J3
-         kWeCVlAsznZLBPmRt32xBGN/d/aSX+Bi2I0CmG5YxGSsMAujdZQrwIxVeCUNz7sNI0TH
-         ZTStWZOuVV2cMLA8StxQkEkTSl1kITSNVLVGoBX/I33UkudHNgeQk0gFQux0kM0WAW1q
-         yA755nGNG0UK4MbrykRwHJFJYG1NsCTasYM0ywFFnAR/Ltsy0XEkF4/25/+Tpsu6P6fV
-         cHDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698946457; x=1699551257;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wfAqKr0veWqngPAu/0To83vJNijTViugzS3exw2YRB4=;
-        b=eWCEG+nIG9DoJN5PF0FjPCwozpYmgw3gfyW4LGUK+kQAZ7IsCY6bv1lvwsusPnradE
-         A+/mrLlDdAADKi8SMzGL/wcc8oWXWyTFWBrgx9HBbeEqkynzl+afuE94Hofa+KlgIlEr
-         YggNAdiNfVCbQbvaljPrNOcvXEf7l3ZmqpBHvD5ejYlmgaFpbDYj4Y2FNAP1X2kNIf/w
-         sf0xLuP1AAfaeHxeV59f9DHChWFm++XilybksvMoBgBwFm7cEeOuGZ5lOgTM/cYA3ydq
-         yQoT35B8rmVGjIyVrUxA/wCB86PLuQfRQbrMv+wh1B+rsGvU2uEzOXrSqDyfrwuI1pIV
-         xNlA==
-X-Gm-Message-State: AOJu0YwI7laNYoxhI0FZNPW76fCWbOADi9x9FRL2AXKgTyoHAgehA8pa
-        EGaC8ot9FarrhGGqfAMjyY1VGLNnpYKzIn9UpgI=
-X-Google-Smtp-Source: AGHT+IFOBybLr+PhK1YDzu7/+OFrjk2OWTjGF1chXeYJTiKEOhmi1jCthMVo+wrQ+DpyGJTJbitnmagE42YB/VJqrks=
-X-Received: by 2002:a17:90a:1996:b0:27d:2054:9641 with SMTP id
- 22-20020a17090a199600b0027d20549641mr18471597pji.36.1698946457036; Thu, 02
- Nov 2023 10:34:17 -0700 (PDT)
+        with ESMTP id S1344655AbjKBR6C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 2 Nov 2023 13:58:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 143E813E
+        for <selinux@vger.kernel.org>; Thu,  2 Nov 2023 10:57:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698947829;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=tp8izf7QPwpHFaPqaZVcwUXFrUe8L7A/9WJXpfj40As=;
+        b=jQ3tnucv0clKthMfvijf9lMrUQvjE+1JwkwuM8Vg3Lwp3xcAv8TqVE4TCbEivZYdse+H/P
+        5oUwKlIx7uhDEvEuNpLV3x7XHX8ANMogkU0K0/J1Wm5PTLpjwq9aZx8t5TgrIHWhqn+yKm
+        7Xrd6JWJaBpl5ix9M5rFMeOqbFvKGzY=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-173-OqV3xzT6OW6kFOqF9arXhQ-1; Thu,
+ 02 Nov 2023 13:57:06 -0400
+X-MC-Unique: OqV3xzT6OW6kFOqF9arXhQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 60F7B1C29EB6;
+        Thu,  2 Nov 2023 17:57:04 +0000 (UTC)
+Received: from [10.39.208.33] (unknown [10.39.208.33])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6D3ED492BFC;
+        Thu,  2 Nov 2023 17:57:00 +0000 (UTC)
+Message-ID: <76572500-5f90-46fe-9bf2-b090bf1b616b@redhat.com>
+Date:   Thu, 2 Nov 2023 18:56:59 +0100
 MIME-Version: 1.0
-References: <20231102154524.12006-1-jsatterfield.linux@gmail.com> <20231102154524.12006-4-jsatterfield.linux@gmail.com>
-In-Reply-To: <20231102154524.12006-4-jsatterfield.linux@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 2 Nov 2023 13:34:05 -0400
-Message-ID: <CAEjxPJ7yHH1BPa4eowNu3pS_RXM22CKFziJug_FpkRofzUjxiQ@mail.gmail.com>
-Subject: Re: [PATCH v4 3/3] selinux: use arrays for avtab hashtable nodes
-To:     Jacob Satterfield <jsatterfield.linux@gmail.com>
-Cc:     selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Content-Language: en-US
+To:     Casey Schaufler <casey@schaufler-ca.com>, mst@redhat.com,
+        jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        david.marchand@redhat.com, lulu@redhat.com
+References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
+ <20231020155819.24000-5-maxime.coquelin@redhat.com>
+ <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+ <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
+ <7524dee3-7c48-4864-8182-1b166b0f6faa@redhat.com>
+ <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+From:   Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 2, 2023 at 11:45=E2=80=AFAM Jacob Satterfield
-<jsatterfield.linux@gmail.com> wrote:
->
-> The current avtab hashtable employs a separate chaining collision
-> resolution strategy where each bucket/chain holds an ordered linked list
-> of pointers to kmem_cache allocated avtab_node elements.
->
-> On Fedora 38 (x86_64) using the default policy, avtab_node_cachep
-> uses 573 slabs each containing 170 objects totaling 2,337,840 bytes.
-> A call to kmem_cache_zalloc() is required for every single rule, which
-> in the default policy is currently 96,730 and continually rising.
->
-> When both sets of avtab_node (regular and cond.) are turned into arrays
-> with the hash table chain heads pointing into it, this results in only
-> two additional kvcalloc() calls and the complete removal of the
-> kmem_cache itself and its memory and runtime overheads.
->
-> Running "perf stat -r 100 -d load_policy" has shown a runtime reduction
-> of around 10% on a Fedora 38 x86_64 VM with this single patch. Future
-> patches focused on improving the hash table's collision resolution
-> strategy and array layout (struct-of-arrays vs. array-of-structs) may
-> elicit even more caching and therefore runtime performance improvements.
->
-> To prevent the conditional table from under-allocating the avtab_node
-> array, which creates a heap-overflow bug, the two-pass algorithm in the
-> patch "selinux: fix conditional avtab slot hint" is required.
->
-> Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
-> ---
 
-This patch doesn't apply cleanly via git am; it will apply manually
-with fuzz via patch but that suggests you sent the wrong version of
-the patch rather than one based on the latest series.
+
+On 10/24/23 17:30, Casey Schaufler wrote:
+> On 10/24/2023 2:49 AM, Maxime Coquelin wrote:
+>>
+>>
+>> On 10/23/23 17:13, Casey Schaufler wrote:
+>>> On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
+>>>>
+>>>>
+>>>> On 10/21/23 00:20, Casey Schaufler wrote:
+>>>>> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
+>>>>>> This patch introduces LSM hooks for devices creation,
+>>>>>> destruction and opening operations, checking the
+>>>>>> application is allowed to perform these operations for
+>>>>>> the Virtio device type.
+>>>>>
+>>>>> Why do you think that there needs to be a special LSM check for virtio
+>>>>> devices? What can't existing device attributes be used?
+>>>>
+>>>> Michael asked for a way for SELinux to allow/prevent the creation of
+>>>> some types of devices [0].
+>>>>
+>>>> A device is created using ioctl() on VDUSE control chardev. Its type is
+>>>> specified via a field in the structure passed in argument.
+>>>>
+>>>> I didn't see other way than adding dedicated LSM hooks to achieve this,
+>>>> but it is possible that their is a better way to do it?
+>>>
+>>> At the very least the hook should be made more general, and I'd have to
+>>> see a proposal before commenting on that. security_dev_destroy(dev)
+>>> might
+>>> be a better approach. If there's reason to control destruction of vduse
+>>> devices it's reasonable to assume that there are other devices with the
+>>> same or similar properties.
+>>
+>> VDUSE is different from other devices as the device is actually
+>> implemented by the user-space application, so this is very specific in
+>> my opinion.
+> 
+> This is hardly unique. If you're implementing the device
+> in user-space you may well be able to implement the desired
+> controls there.
+> 
+>>
+>>>
+>>> Since SELinux is your target use case, can you explain why you can't
+>>> create SELinux policy to enforce the restrictions you're after? I
+>>> believe
+>>> (but can be proven wrong, of course) that SELinux has mechanism for
+>>> dealing
+>>> with controls on ioctls.
+>>>
+>>
+>> I am not aware of such mechanism to deal with ioctl(), if you have a
+>> pointer that would be welcome.
+> 
+> security/selinux/hooks.c
+
+We might be able to extend selinux_file_ioctl(), but that will only
+covers the ioctl for the control file, this patch also adds hook for the
+device file opening that would need dedicated hook as the device type
+information is stored in the device's private data.
+
+Michael, before going further, I would be interested in your feedback.
+Was this patch what you had in mind when requesting for a way to
+allow/deny devices types for a given application?
+
+Regards,
+Maxime
+
+> 
+>>
+>> Thanks,
+>> Maxime
+>>
+>>>
+>>>>
+>>>> Thanks,
+>>>> Maxime
+>>>>
+>>>> [0]:
+>>>> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>>>
+>>>>
+>>>
+>>
+> 
+
