@@ -2,61 +2,61 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A56A9C4167B
-	for <selinux@archiver.kernel.org>; Thu,  2 Nov 2023 15:45:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE819C0018A
+	for <selinux@archiver.kernel.org>; Thu,  2 Nov 2023 15:46:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376817AbjKBPp4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Nov 2023 11:45:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48488 "EHLO
+        id S1376854AbjKBPqE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Nov 2023 11:46:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376904AbjKBPpw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 2 Nov 2023 11:45:52 -0400
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B991F194
-        for <selinux@vger.kernel.org>; Thu,  2 Nov 2023 08:45:49 -0700 (PDT)
-Received: by mail-qk1-x736.google.com with SMTP id af79cd13be357-7788f513872so61033885a.1
-        for <selinux@vger.kernel.org>; Thu, 02 Nov 2023 08:45:49 -0700 (PDT)
+        with ESMTP id S1376921AbjKBPp4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 2 Nov 2023 11:45:56 -0400
+Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34A74FB
+        for <selinux@vger.kernel.org>; Thu,  2 Nov 2023 08:45:53 -0700 (PDT)
+Received: by mail-qk1-x734.google.com with SMTP id af79cd13be357-778927f2dd3so57474785a.2
+        for <selinux@vger.kernel.org>; Thu, 02 Nov 2023 08:45:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1698939948; x=1699544748; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1698939951; x=1699544751; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U+Tf7YOVEaioUlZTtEbyy/ibpAZAp8IZ6GoymbM+hIk=;
-        b=H0UlDpp1+yCP9kJgpb/SNq9mKqYds9P2709Umi/JJP6+0wnCcbTB2oLrVnmCRD9XdY
-         dO14Zc5FgXOMI8Fb3HuS5D68J2WxMF9tmuLAlhnWz8yPROfoDdDoOT3FqmYiIOAGy6rJ
-         QivEJOSPoWm611P44JTe3EL+tT5BPZyIyN8I+q+hle2XSy2cPYKiZMgg03pw7HwJafku
-         PkfOy3W57aVMILEwVG+QLzcZNgFYBmgl++ZHeG84pmc/XUo+Nrje9irI9XyY/t+lzNKg
-         a5yFXc/zENfa7ZLhVA2b/ReUlQz5W6HydDU/3e2jMHOIIqyyNIDQXvJlfTnOfcGIRj8H
-         AqAg==
+        bh=xZcs9v+NlAPWID8sUF9D2iOwEy3ifPGCjskfmBqX9Jk=;
+        b=FmfPDo1wLh/qDT0Qf1CaFikYD+PK6f1Sz75HjAsTZ4A3Lzs4PzWmTz/kFO4Z1tEVtP
+         6AjLWeI5UhJ1lSohJjBVNeMrsR4CJLdEPNP21vi8EW4sNYHUbRw6GQ8OxeGxL7Zn+yTA
+         /6EBc6bS5+pgeID+LMAXwLQSy3L6hCfuTY2Ik/gRczJpVmKpYuiPMjY7Qi9awJrhuLYf
+         3KaJA1P/TPKN8PIKZOVLFfw0pSMovt4ec4I6xt1R3KxJuWVf5InUK8rdbERnIHjliSoG
+         kdpP6gV2/xCniafluUeuNndncQbgUt5JDKnoKCM9+JgCv6s4obXnUwO8NLSOYPoAhrz9
+         ggeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698939948; x=1699544748;
+        d=1e100.net; s=20230601; t=1698939951; x=1699544751;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U+Tf7YOVEaioUlZTtEbyy/ibpAZAp8IZ6GoymbM+hIk=;
-        b=PIfASuzA4sj3ou07F4v38XRV1f4VdQKGPjoWgnLHy9DQcJv6S3APz/4YDPIpKB1KX6
-         n4ATGC6d4sszWsdYKlW9KE6OZhF+Ltr69OVGoVPeq7NtEyKK75Yb705FtFsCohXSnxEV
-         V0xNiGFJ19U7kg9RROa3fZb89aFDpfIp+RSKJvpS7kWboa0HzKI6+hYpoJX/KxpFfWnv
-         AYePLVTlQ/F3VEoZR7eNO2j4EwOQ7oujYsHq0CXTgMm6HOosxa+VUV72wmutuhJkIhDR
-         jRpn4nUW45kEVRA4ydERknbstRYVsQMI1r8xE0EfsA7ASFBek4K0yUcL++qH4Gt7qA9f
-         X1kg==
-X-Gm-Message-State: AOJu0YyFBknoQegUhhkYTW9RXKqovZ8KIH6fDSogiVFm4MCQTaJc19r/
-        ++3H7RHWSysvXePUSJC1HSSmaY0ICCA=
-X-Google-Smtp-Source: AGHT+IGcgWQD1ZQjZLnJ7WpktGLYXb75msW66mWDD/uf4ZUxe49IUjNa9A67SOT12UEA8CKjlZogsg==
-X-Received: by 2002:a05:620a:44c1:b0:778:920a:7a70 with SMTP id y1-20020a05620a44c100b00778920a7a70mr20193548qkp.66.1698939948014;
-        Thu, 02 Nov 2023 08:45:48 -0700 (PDT)
+        bh=xZcs9v+NlAPWID8sUF9D2iOwEy3ifPGCjskfmBqX9Jk=;
+        b=Zzsvrmv9KIIY/7l9aho2ANovT41xJHwEzaCp4gSi3sO+sacr5gDfQnfliuEcvgr7q+
+         zRdnw5cH+/VGFTobWlAylRAig4QL20AG0dNa7eKiwnn/DtRsYkAPASt9jXuWdg5Nw5G+
+         dmmW7S/vHjHP/LlxlYr+SZaXcyDWuODFTB3G2lJqKevC++gBtbBOMvyCgaczrrMGP127
+         ximuwfAwIQkD2bEtJXT0Eg4pu5IXW1R2tZaZTjZLZgIYxi9gO8qWAVuEmjZX/Gggyv2T
+         P65J1stMz52o0HKu3UFfbTTmIX88JfvvhFI/DlYcmZG0EO91aUe5j5k4NnaL5pBJkbAs
+         fv1w==
+X-Gm-Message-State: AOJu0YzwWMCsSqy/yjo/89EFQuH/7e3IcQepCzae3cbuCIuqHZ96gqBc
+        /KXsnNSfVtQlJJY4mPNGDKl55TroHRA=
+X-Google-Smtp-Source: AGHT+IGywy4sGt475/V9Yz0SC4y4w0Iziy5JzNiAnIYgepY8oKMHrGlPXnWXpav54fYZ9W1HLYptVA==
+X-Received: by 2002:a05:620a:3cf:b0:775:be7b:d9db with SMTP id r15-20020a05620a03cf00b00775be7bd9dbmr17122859qkm.37.1698939951493;
+        Thu, 02 Nov 2023 08:45:51 -0700 (PDT)
 Received: from ip-10-113-85-151.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id l1-20020a05620a210100b0076e1e2d6496sm37691qkl.104.2023.11.02.08.45.47
+        by smtp.gmail.com with ESMTPSA id l1-20020a05620a210100b0076e1e2d6496sm37691qkl.104.2023.11.02.08.45.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Nov 2023 08:45:47 -0700 (PDT)
+        Thu, 02 Nov 2023 08:45:49 -0700 (PDT)
 From:   Jacob Satterfield <jsatterfield.linux@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     Jacob Satterfield <jsatterfield.linux@gmail.com>,
         stephen.smalley.work@gmail.com, paul@paul-moore.com,
         omosnace@redhat.com
-Subject: [PATCH v4 1/3] selinux: refactor avtab_node comparisons
-Date:   Thu,  2 Nov 2023 15:45:22 +0000
-Message-Id: <20231102154524.12006-2-jsatterfield.linux@gmail.com>
+Subject: [PATCH v4 3/3] selinux: use arrays for avtab hashtable nodes
+Date:   Thu,  2 Nov 2023 15:45:24 +0000
+Message-Id: <20231102154524.12006-4-jsatterfield.linux@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20231102154524.12006-1-jsatterfield.linux@gmail.com>
 References: <20231102154524.12006-1-jsatterfield.linux@gmail.com>
@@ -66,187 +66,166 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In four separate functions within avtab, the same comparison logic is
-used. The only difference is how the result is handled or whether there
-is a unique specifier value to be checked for or used.
+The current avtab hashtable employs a separate chaining collision
+resolution strategy where each bucket/chain holds an ordered linked list
+of pointers to kmem_cache allocated avtab_node elements.
 
-Extracting this functionality into the avtab_node_cmp() function unifies
-the comparison logic between searching and insertion and gets rid of
-duplicative code so that the implementation is easier to maintain.
+On Fedora 38 (x86_64) using the default policy, avtab_node_cachep
+uses 573 slabs each containing 170 objects totaling 2,337,840 bytes.
+A call to kmem_cache_zalloc() is required for every single rule, which
+in the default policy is currently 96,730 and continually rising.
+
+When both sets of avtab_node (regular and cond.) are turned into arrays
+with the hash table chain heads pointing into it, this results in only
+two additional kvcalloc() calls and the complete removal of the
+kmem_cache itself and its memory and runtime overheads.
+
+Running "perf stat -r 100 -d load_policy" has shown a runtime reduction
+of around 10% on a Fedora 38 x86_64 VM with this single patch. Future
+patches focused on improving the hash table's collision resolution
+strategy and array layout (struct-of-arrays vs. array-of-structs) may
+elicit even more caching and therefore runtime performance improvements.
+
+To prevent the conditional table from under-allocating the avtab_node
+array, which creates a heap-overflow bug, the two-pass algorithm in the
+patch "selinux: fix conditional avtab slot hint" is required.
 
 Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/ss/avtab.c | 101 +++++++++++++++---------------------
- 1 file changed, 41 insertions(+), 60 deletions(-)
+ security/selinux/ss/avtab.c | 36 ++++++++++++++++++++----------------
+ security/selinux/ss/avtab.h |  2 ++
+ 2 files changed, 22 insertions(+), 16 deletions(-)
 
 diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 8751a602ead2..697eb4352439 100644
+index f437bd588b04..50c8db8eb511 100644
 --- a/security/selinux/ss/avtab.c
 +++ b/security/selinux/ss/avtab.c
-@@ -96,12 +96,34 @@ avtab_insert_node(struct avtab *h, struct avtab_node **dst,
- 	return newnode;
+@@ -24,7 +24,6 @@
+ #include "avtab.h"
+ #include "policydb.h"
+ 
+-static struct kmem_cache *avtab_node_cachep __ro_after_init;
+ static struct kmem_cache *avtab_xperms_cachep __ro_after_init;
+ 
+ #define avtab_chain_for_each(pos, tab, slot) \
+@@ -79,17 +78,15 @@ avtab_insert_node(struct avtab *h, struct avtab_node **dst,
+ {
+ 	struct avtab_node *newnode;
+ 	struct avtab_extended_perms *xperms;
+-	newnode = kmem_cache_zalloc(avtab_node_cachep, GFP_KERNEL);
+-	if (newnode == NULL)
++	if (h->nel == h->nnodes)
+ 		return NULL;
++	newnode = &h->nodes[h->nel];
+ 	newnode->key = *key;
+ 
+ 	if (key->specified & AVTAB_XPERMS) {
+ 		xperms = kmem_cache_zalloc(avtab_xperms_cachep, GFP_KERNEL);
+-		if (xperms == NULL) {
+-			kmem_cache_free(avtab_node_cachep, newnode);
++		if (xperms == NULL)
+ 			return NULL;
+-		}
+ 		*xperms = *(datum->u.xperms);
+ 		newnode->datum.u.xperms = xperms;
+ 	} else {
+@@ -225,7 +222,7 @@ void avtab_destroy(struct avtab *h)
+ 	u32 i;
+ 	struct avtab_node *cur, *temp;
+ 
+-	if (!h)
++	if (!h || !h->htable)
+ 		return;
+ 
+ 	for (i = 0; i < h->nslot; i++) {
+@@ -236,11 +233,13 @@ void avtab_destroy(struct avtab *h)
+ 			if (temp->key.specified & AVTAB_XPERMS)
+ 				kmem_cache_free(avtab_xperms_cachep,
+ 						temp->datum.u.xperms);
+-			kmem_cache_free(avtab_node_cachep, temp);
+ 		}
+ 	}
+ 	kvfree(h->htable);
++	kvfree(h->nodes);
+ 	h->htable = NULL;
++	h->nodes = NULL;
++	h->nnodes = 0;
+ 	h->nel = 0;
+ 	h->nslot = 0;
+ 	h->mask = 0;
+@@ -249,20 +248,28 @@ void avtab_destroy(struct avtab *h)
+ void avtab_init(struct avtab *h)
+ {
+ 	h->htable = NULL;
++	h->nodes = NULL;
++	h->nnodes = 0;
+ 	h->nel = 0;
+ 	h->nslot = 0;
+ 	h->mask = 0;
  }
  
-+static int avtab_node_cmp(const struct avtab_key *key1,
-+			  const struct avtab_key *key2)
-+{
-+	u16 specified = key1->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
-+
-+	if (key1->source_type == key2->source_type &&
-+	    key1->target_type == key2->target_type &&
-+	    key1->target_class == key2->target_class &&
-+	    (specified & key2->specified))
-+		return 0;
-+	if (key1->source_type < key2->source_type)
-+		return -1;
-+	if (key1->source_type == key2->source_type &&
-+	    key1->target_type < key2->target_type)
-+		return -1;
-+	if (key1->source_type == key2->source_type &&
-+	    key1->target_type == key2->target_type &&
-+	    key1->target_class < key2->target_class)
-+		return -1;
-+	return 1;
-+}
-+
- static int avtab_insert(struct avtab *h, const struct avtab_key *key,
- 			const struct avtab_datum *datum)
+-static int avtab_alloc_common(struct avtab *h, u32 nslot)
++static int avtab_alloc_common(struct avtab *h, u32 nslot, u32 nrules)
  {
- 	u32 hvalue;
- 	struct avtab_node *prev, *cur, *newnode;
--	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
-+	int cmp;
+ 	if (!nslot)
+ 		return 0;
  
- 	if (!h || !h->nslot || h->nel == U32_MAX)
- 		return -EINVAL;
-@@ -110,23 +132,11 @@ static int avtab_insert(struct avtab *h, const struct avtab_key *key,
- 	for (prev = NULL, cur = h->htable[hvalue];
- 	     cur;
- 	     prev = cur, cur = cur->next) {
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class == cur->key.target_class &&
--		    (specified & cur->key.specified)) {
--			/* extended perms may not be unique */
--			if (specified & AVTAB_XPERMS)
--				break;
-+		cmp = avtab_node_cmp(key, &cur->key);
-+		/* extended perms may not be unique */
-+		if (cmp == 0 && !(key->specified & AVTAB_XPERMS))
- 			return -EEXIST;
--		}
--		if (key->source_type < cur->key.source_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type < cur->key.target_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class < cur->key.target_class)
-+		if (cmp <= 0)
- 			break;
- 	}
- 
-@@ -148,7 +158,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
- {
- 	u32 hvalue;
- 	struct avtab_node *prev, *cur;
--	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
-+	int cmp;
- 
- 	if (!h || !h->nslot || h->nel == U32_MAX)
- 		return NULL;
-@@ -156,19 +166,8 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
- 	for (prev = NULL, cur = h->htable[hvalue];
- 	     cur;
- 	     prev = cur, cur = cur->next) {
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class == cur->key.target_class &&
--		    (specified & cur->key.specified))
--			break;
--		if (key->source_type < cur->key.source_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type < cur->key.target_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class < cur->key.target_class)
-+		cmp = avtab_node_cmp(key, &cur->key);
-+		if (cmp <= 0)
- 			break;
- 	}
- 	return avtab_insert_node(h, prev ? &prev->next : &h->htable[hvalue],
-@@ -183,7 +182,7 @@ struct avtab_node *avtab_search_node(struct avtab *h,
- {
- 	u32 hvalue;
- 	struct avtab_node *cur;
--	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
-+	int cmp;
- 
- 	if (!h || !h->nslot)
- 		return NULL;
-@@ -191,20 +190,10 @@ struct avtab_node *avtab_search_node(struct avtab *h,
- 	hvalue = avtab_hash(key, h->mask);
- 	for (cur = h->htable[hvalue]; cur;
- 	     cur = cur->next) {
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class == cur->key.target_class &&
--		    (specified & cur->key.specified))
-+		cmp = avtab_node_cmp(key, &cur->key);
-+		if (cmp == 0)
- 			return cur;
+-	h->htable = kvcalloc(nslot, sizeof(void *), GFP_KERNEL);
++	h->htable = kvcalloc(nslot, sizeof(*h->htable), GFP_KERNEL);
+ 	if (!h->htable)
+ 		return -ENOMEM;
 -
--		if (key->source_type < cur->key.source_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type < cur->key.target_type)
--			break;
--		if (key->source_type == cur->key.source_type &&
--		    key->target_type == cur->key.target_type &&
--		    key->target_class < cur->key.target_class)
-+		if (cmp < 0)
- 			break;
- 	}
- 	return NULL;
-@@ -213,27 +202,19 @@ struct avtab_node *avtab_search_node(struct avtab *h,
- struct avtab_node*
- avtab_search_node_next(struct avtab_node *node, u16 specified)
- {
-+	struct avtab_key tmp_key;
- 	struct avtab_node *cur;
-+	int cmp;
++	h->nodes = kvcalloc(nrules, sizeof(*h->nodes), GFP_KERNEL);
++	if (!h->nodes) {
++		kvfree(h->htable);
++		h->htable = NULL;
++		return -ENOMEM;
++	}
++	h->nnodes = nrules;
+ 	h->nslot = nslot;
+ 	h->mask = nslot - 1;
+ 	return 0;
+@@ -278,7 +285,7 @@ int avtab_alloc(struct avtab *h, u32 nrules)
+ 		if (nslot > MAX_AVTAB_HASH_BUCKETS)
+ 			nslot = MAX_AVTAB_HASH_BUCKETS;
  
- 	if (!node)
- 		return NULL;
--
--	specified &= ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
-+	tmp_key = node->key;
-+	tmp_key.specified = specified;
- 	for (cur = node->next; cur; cur = cur->next) {
--		if (node->key.source_type == cur->key.source_type &&
--		    node->key.target_type == cur->key.target_type &&
--		    node->key.target_class == cur->key.target_class &&
--		    (specified & cur->key.specified))
-+		cmp = avtab_node_cmp(&tmp_key, &cur->key);
-+		if (cmp == 0)
- 			return cur;
--
--		if (node->key.source_type < cur->key.source_type)
--			break;
--		if (node->key.source_type == cur->key.source_type &&
--		    node->key.target_type < cur->key.target_type)
--			break;
--		if (node->key.source_type == cur->key.source_type &&
--		    node->key.target_type == cur->key.target_type &&
--		    node->key.target_class < cur->key.target_class)
-+		if (cmp < 0)
- 			break;
+-		rc = avtab_alloc_common(h, nslot);
++		rc = avtab_alloc_common(h, nslot, nrules);
+ 		if (rc)
+ 			return rc;
  	}
- 	return NULL;
+@@ -289,7 +296,7 @@ int avtab_alloc(struct avtab *h, u32 nrules)
+ 
+ int avtab_alloc_dup(struct avtab *new, const struct avtab *orig)
+ {
+-	return avtab_alloc_common(new, orig->nslot);
++	return avtab_alloc_common(new, orig->nslot, orig->nel);
+ }
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_DEBUG
+@@ -614,9 +621,6 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
+ 
+ void __init avtab_cache_init(void)
+ {
+-	avtab_node_cachep = kmem_cache_create("avtab_node",
+-					      sizeof(struct avtab_node),
+-					      0, SLAB_PANIC, NULL);
+ 	avtab_xperms_cachep = kmem_cache_create("avtab_extended_perms",
+ 						sizeof(struct avtab_extended_perms),
+ 						0, SLAB_PANIC, NULL);
+diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+index 86fb6f793eec..5e465be6f057 100644
+--- a/security/selinux/ss/avtab.h
++++ b/security/selinux/ss/avtab.h
+@@ -82,6 +82,8 @@ struct avtab_node {
+ 
+ struct avtab {
+ 	struct avtab_node **htable;
++	struct avtab_node *nodes;
++	u32 nnodes;	/* number of nodes */
+ 	u32 nel;	/* number of elements */
+ 	u32 nslot;      /* number of hash slots */
+ 	u32 mask;       /* mask to compute hash func */
 -- 
 2.34.1
 
