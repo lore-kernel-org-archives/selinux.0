@@ -2,84 +2,232 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F472C4167D
-	for <selinux@archiver.kernel.org>; Fri,  3 Nov 2023 03:24:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5710BC4332F
+	for <selinux@archiver.kernel.org>; Fri,  3 Nov 2023 07:56:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229552AbjKCDYO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Nov 2023 23:24:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43976 "EHLO
+        id S1346289AbjKCH4P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 3 Nov 2023 03:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229459AbjKCDYN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 2 Nov 2023 23:24:13 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7424ECE
-        for <selinux@vger.kernel.org>; Thu,  2 Nov 2023 20:24:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1698981847; x=1730517847;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=qevbOORYaNKMMtHMZyeUuKR8VSssz2nTvoos7xUtnk8=;
-  b=ek16CDddi88j3ngj+Kjf+kEspDiZMQpx9Bz8zDmmZt/5g8eQlqmrmi0H
-   MF+CXIFhKs0b1wiyWzUJILbMtZ6yz0itVZk9tcU52OVZ2uIVznNwXg2Mb
-   eYdK8R2DU+XnNoqgQ2w2klnkGAdtCX7S6PY32VwbRBJ601gw9qf9cq0nz
-   xNHRu7iHo0uOHpuguU62oQ/uCmf/bGSypiudovug1P8pL3rEtdfIug5bp
-   1O4YhIW8E8Lj1Jp0UuQS1afmpk61afhEWopiVMjLn2C6CmRBh7SufSFx3
-   nPFDpHEcZKXx1VzHm+fcJmczHYk7TTRQMGYeQckj9De2n8lgiR7FbJTk9
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10882"; a="373910047"
-X-IronPort-AV: E=Sophos;i="6.03,273,1694761200"; 
-   d="scan'208";a="373910047"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Nov 2023 20:24:07 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10882"; a="796496474"
-X-IronPort-AV: E=Sophos;i="6.03,273,1694761200"; 
-   d="scan'208";a="796496474"
-Received: from lkp-server01.sh.intel.com (HELO 17d9e85e5079) ([10.239.97.150])
-  by orsmga001.jf.intel.com with ESMTP; 02 Nov 2023 20:24:05 -0700
-Received: from kbuild by 17d9e85e5079 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1qykmw-00029Y-35;
-        Fri, 03 Nov 2023 03:24:03 +0000
-Date:   Fri, 3 Nov 2023 11:22:58 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     oe-kbuild-all@lists.linux.dev, selinux@vger.kernel.org
-Subject: [pcmoore-selinux:main 1/1] README.orig: warning: ignored by one of
- the .gitignore files
-Message-ID: <202311031110.Q4t4JjhA-lkp@intel.com>
+        with ESMTP id S1346272AbjKCH4N (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 3 Nov 2023 03:56:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3038E1BF
+        for <selinux@vger.kernel.org>; Fri,  3 Nov 2023 00:55:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1698998128;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=FOUy5i+ta8kHEotWXp1Hvd/Nqwn03M9SEkKRkyJzmFc=;
+        b=e9D5e9UA5DXT9jtyVvctkI7qCJHra1W32ar+Rjo8smXeEgLey8fHIjpiKphG7LAUKrqRV8
+        qK/lDMs4FbWCY2W91b2DYk8k23vYEYRP1Ght5dZquZcqaRTP3KPvS8wDwE2Yo2EnU6KK+c
+        IGqbxOG14sG5Gkik2ZD398qMbgTkdVI=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-219-k2EqLvLfMKWRusGMt0IEPQ-1; Fri,
+ 03 Nov 2023 03:55:26 -0400
+X-MC-Unique: k2EqLvLfMKWRusGMt0IEPQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B131F1C06EC3;
+        Fri,  3 Nov 2023 07:55:25 +0000 (UTC)
+Received: from [10.39.208.33] (unknown [10.39.208.33])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 57B2C492BFA;
+        Fri,  3 Nov 2023 07:55:21 +0000 (UTC)
+Message-ID: <598eb8df-0f5f-4f21-8c34-f54ecbbcaca2@redhat.com>
+Date:   Fri, 3 Nov 2023 08:55:19 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Content-Language: en-US
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>, jasowang@redhat.com,
+        xuanzhuo@linux.alibaba.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, xieyongji@bytedance.com,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        david.marchand@redhat.com, lulu@redhat.com
+References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
+ <20231020155819.24000-5-maxime.coquelin@redhat.com>
+ <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+ <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
+ <7524dee3-7c48-4864-8182-1b166b0f6faa@redhat.com>
+ <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+ <76572500-5f90-46fe-9bf2-b090bf1b616b@redhat.com>
+ <20231102145932-mutt-send-email-mst@kernel.org>
+From:   Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <20231102145932-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git main
-head:   2a72d54d4f2843e438b411d33442cc98485c63bb
-commit: 2a72d54d4f2843e438b411d33442cc98485c63bb [1/1] selinux: add a SELinux specific README.md and SECURITY.md
-config: i386-allnoconfig (https://download.01.org/0day-ci/archive/20231103/202311031110.Q4t4JjhA-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231103/202311031110.Q4t4JjhA-lkp@intel.com/reproduce)
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202311031110.Q4t4JjhA-lkp@intel.com/
 
-All warnings (new ones prefixed by >>):
+On 11/2/23 19:59, Michael S. Tsirkin wrote:
+> On Thu, Nov 02, 2023 at 06:56:59PM +0100, Maxime Coquelin wrote:
+>>
+>>
+>> On 10/24/23 17:30, Casey Schaufler wrote:
+>>> On 10/24/2023 2:49 AM, Maxime Coquelin wrote:
+>>>>
+>>>>
+>>>> On 10/23/23 17:13, Casey Schaufler wrote:
+>>>>> On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 10/21/23 00:20, Casey Schaufler wrote:
+>>>>>>> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
+>>>>>>>> This patch introduces LSM hooks for devices creation,
+>>>>>>>> destruction and opening operations, checking the
+>>>>>>>> application is allowed to perform these operations for
+>>>>>>>> the Virtio device type.
+>>>>>>>
+>>>>>>> Why do you think that there needs to be a special LSM check for virtio
+>>>>>>> devices? What can't existing device attributes be used?
+>>>>>>
+>>>>>> Michael asked for a way for SELinux to allow/prevent the creation of
+>>>>>> some types of devices [0].
+>>>>>>
+>>>>>> A device is created using ioctl() on VDUSE control chardev. Its type is
+>>>>>> specified via a field in the structure passed in argument.
+>>>>>>
+>>>>>> I didn't see other way than adding dedicated LSM hooks to achieve this,
+>>>>>> but it is possible that their is a better way to do it?
+>>>>>
+>>>>> At the very least the hook should be made more general, and I'd have to
+>>>>> see a proposal before commenting on that. security_dev_destroy(dev)
+>>>>> might
+>>>>> be a better approach. If there's reason to control destruction of vduse
+>>>>> devices it's reasonable to assume that there are other devices with the
+>>>>> same or similar properties.
+>>>>
+>>>> VDUSE is different from other devices as the device is actually
+>>>> implemented by the user-space application, so this is very specific in
+>>>> my opinion.
+>>>
+>>> This is hardly unique. If you're implementing the device
+>>> in user-space you may well be able to implement the desired
+>>> controls there.
+>>>
+>>>>
+>>>>>
+>>>>> Since SELinux is your target use case, can you explain why you can't
+>>>>> create SELinux policy to enforce the restrictions you're after? I
+>>>>> believe
+>>>>> (but can be proven wrong, of course) that SELinux has mechanism for
+>>>>> dealing
+>>>>> with controls on ioctls.
+>>>>>
+>>>>
+>>>> I am not aware of such mechanism to deal with ioctl(), if you have a
+>>>> pointer that would be welcome.
+>>>
+>>> security/selinux/hooks.c
+>>
+>> We might be able to extend selinux_file_ioctl(), but that will only
+>> covers the ioctl for the control file, this patch also adds hook for the
+>> device file opening that would need dedicated hook as the device type
+>> information is stored in the device's private data.
+>>
+>> Michael, before going further, I would be interested in your feedback.
+>> Was this patch what you had in mind when requesting for a way to
+>> allow/deny devices types for a given application?
+>>
+>> Regards,
+>> Maxime
+> 
+> 
+> Yes, this is more or less what I had in mind.
 
->> README.orig: warning: ignored by one of the .gitignore files
-   tools/perf/util/bpf_skel/vmlinux/vmlinux.h: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/arm64/tags/.gitignore: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/arm64/tags/Makefile: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/arm64/tags/run_tags_test.sh: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/arm64/tags/tags_test.c: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/kvm/.gitignore: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/kvm/Makefile: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/kvm/config: warning: ignored by one of the .gitignore files
-   tools/testing/selftests/kvm/settings: warning: ignored by one of the .gitignore files
+Great.
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Do you think we need to cover both ioctl() on the control file and
+open() on the device file, or only ioctl() is enough?
+
+If the former, we will need VDUSE-specific hooks. I may be able to
+improve my patch to have a single hook instead of 3 by passing the type
+of operation as an extra argument (create/destroy/open).
+
+If the latter, we may be able to extend the generic ioctl hook.
+
+Personally, I think it would make sense to also ensure a given
+application can only open existing VDUSE devices it supports. For
+example, openvswitch should only be allowed to open networking VDUSE
+devices.
+
+Thanks,
+Maxime
+
+> 
+>>>
+>>>>
+>>>> Thanks,
+>>>> Maxime
+>>>>
+>>>>>
+>>>>>>
+>>>>>> Thanks,
+>>>>>> Maxime
+>>>>>>
+>>>>>> [0]:
+>>>>>> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+> 
+
