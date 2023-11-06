@@ -2,58 +2,58 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B17BC4332F
-	for <selinux@archiver.kernel.org>; Mon,  6 Nov 2023 18:28:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19701C4332F
+	for <selinux@archiver.kernel.org>; Mon,  6 Nov 2023 19:19:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231773AbjKFS24 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Nov 2023 13:28:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33714 "EHLO
+        id S232001AbjKFTTB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Nov 2023 14:19:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232353AbjKFS2w (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Nov 2023 13:28:52 -0500
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F57D57
-        for <selinux@vger.kernel.org>; Mon,  6 Nov 2023 10:28:49 -0800 (PST)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-507973f3b65so6413047e87.3
-        for <selinux@vger.kernel.org>; Mon, 06 Nov 2023 10:28:49 -0800 (PST)
+        with ESMTP id S231801AbjKFTTA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Nov 2023 14:19:00 -0500
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F87DBF
+        for <selinux@vger.kernel.org>; Mon,  6 Nov 2023 11:18:57 -0800 (PST)
+Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-507b96095abso6150581e87.3
+        for <selinux@vger.kernel.org>; Mon, 06 Nov 2023 11:18:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699295328; x=1699900128; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1699298336; x=1699903136; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9YqVyUsuaSYFFdWm3THPkGwSpaiK12XVocL4WW/Rq6A=;
-        b=HMz8YKii2LA0b8u2G9K2fNhcvsqFmGIEdjI4UG9DPfISgaFwbSfYBginsTp9j5EuvV
-         WVZPjuu0OUa1451y7MqbEMbFvqwtVs1nYT0kLCVd4eQLxvrov/QgCc5fg5upol/54sou
-         EjzOSLnSmjvUVLL6xUHeiW1+kPkDyJV0XBFTHItRy2RoQAtaKzGvH9wf5K/0IVyUpA7f
-         54Vm1CUutJndNe82bXDhx+jQLxCGp3w3kAA6QeUNkmVIMR4WdLTGmrXuxHizqzkyFIpW
-         uBpZZxAWsr/3CAxyHVuzSfAMWEHf82X7jGMYNaz5xvMB3Fr8zJ/TPyvi5TvIQ6n47mnb
-         9jAQ==
+        bh=kA/vtV74eLldZGHuWcmvAF5xkAnM1+IA4n8ySuq5waQ=;
+        b=HjwZcFhwpeqJTNmqcpT0gtCc+i0p29CqKVGutv5DIyHLK+WbPDSCb66YD+e5uFLP+J
+         3qdLH1gwvw0q3eCkounO0zgGacr2CPdauRMZspdsUvIkOJJK8DmymyXP9eQPJupJpmN6
+         PCE3YQojZp4jcnN0syWp0xRdK17uaIAhFwQxhRBvhf22FE7fO4zEMr0HKMD3j4rwDfRd
+         YR9wfIi5HLM7DyJ/nX3EoNYbSczfIUY3MGuJ1/bKuZ8AGfgE2Nve+mqfkMwRQcFtJtek
+         F0O5sz3i2kXwSM0N8gbw8JoFLzeAIhXfplRtP0k+g+1HlaAsNI8vSDSiPjOSpelLpUY8
+         YrXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699295328; x=1699900128;
+        d=1e100.net; s=20230601; t=1699298336; x=1699903136;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9YqVyUsuaSYFFdWm3THPkGwSpaiK12XVocL4WW/Rq6A=;
-        b=mtgxJwnTJyyh1ewyPo9tpgx/ETad6ZxzCXNDGWasqP1YwIedHrPGkJRJcA8iw4CcX8
-         rPADw0NsEn1kkmZwPEoZRYnfunpCC0ou2EQeeF7PekrT8E2f/rRxcz/dDn2uWi5cYDLG
-         U/3cNfrMsglpUcRWpGXwmwJZ9Q8stv8fZfA1Uy/HBBsKEgKP2AXPkeTcy28DJWjLI1Is
-         nsUapVV/ND6dIGuVBDfwgsqByAmuLuQp172561POIIcxQ7yy0RiFkv35w+olN4AVhQvW
-         FmDFiDp5Vl4vRCqExTW5aC/LsReTHEX6u4oLkY1ve/Yy64FsBPjea1jc71IF351yD+/h
-         KM7w==
-X-Gm-Message-State: AOJu0YyIfKVsEM8sJiIVgBtO0Kiap5YmJr1JlmCcP7T9YGs8bQ2t0qO2
-        9gkVUzwd0UEhIY09v78zyk0ySxRm4fUtPLsk93g0GOpzRdE=
-X-Google-Smtp-Source: AGHT+IHirF6I484CPM/DOjRGyLvGGSp7Nnrh42WPg/Qke4zRO338Slm+QMJKr6QxcVv7apfkS/0ZObkOUYT9l7JkW54=
-X-Received: by 2002:a05:6512:11ec:b0:509:4655:d8da with SMTP id
- p12-20020a05651211ec00b005094655d8damr9528626lfs.53.1699295327762; Mon, 06
- Nov 2023 10:28:47 -0800 (PST)
+        bh=kA/vtV74eLldZGHuWcmvAF5xkAnM1+IA4n8ySuq5waQ=;
+        b=aYv0o4nj8oHghikFH055rEK+uXYV5LtfhJuBfamjaoC3YsNHx9u8rR/okbbH5YzaJm
+         fsqLp+gXqwndwQLtlIhWkExYdZKY8zslcnolzZNeIjEXU5JJ2Z1p9CjfstFiqom4nzjK
+         g8NgKLd7LTQccjKVczYeAO/8Tc45AusCkZ1rEQCUJhbZA3maMh6fdkr6QBqdTwBYdksS
+         MgadXgtRqOtmFt7rPEEme6PIKGZqDnqhTs4dmi/VPd41aGsEUe4RyiHf6sWf8aAFJllc
+         28WEA4zJzsikGkOAFMkQ7QTSbu5LqbvyyAuEz+T6dw5aze62sJSLy5F2jyeldwTF9R9f
+         1A2A==
+X-Gm-Message-State: AOJu0YykxdV35XPGAHl8VQI749za2+uVRjykfLDKUnIdjU8uLhUzABHz
+        Dsfqsh67lI0NziF/yvFsc0u/6LxwjdZWRQ9PkKgKqCRlK08=
+X-Google-Smtp-Source: AGHT+IHHiZ1uSq8sf2tVSzJcET5Wjv6nli5X/BLDw52sK/ZbcWaYfkBryQDNNTuA3emjVPJgwwSKNmqTWNJN6Ec3MmU=
+X-Received: by 2002:ac2:5a11:0:b0:507:b19e:90cc with SMTP id
+ q17-20020ac25a11000000b00507b19e90ccmr22128365lfn.40.1699298335516; Mon, 06
+ Nov 2023 11:18:55 -0800 (PST)
 MIME-Version: 1.0
-References: <20231101165636.184983-1-cgzones@googlemail.com> <20231101165636.184983-2-cgzones@googlemail.com>
-In-Reply-To: <20231101165636.184983-2-cgzones@googlemail.com>
+References: <20231106172857.233804-2-lautrbach@redhat.com>
+In-Reply-To: <20231106172857.233804-2-lautrbach@redhat.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 6 Nov 2023 13:28:35 -0500
-Message-ID: <CAP+JOzQ9eXn_eW20j6eZMxtdC3OP2zV9Eaym4AV745eNiE=j1Q@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] libselinux: introduce reallocarray(3)
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Mon, 6 Nov 2023 14:18:43 -0500
+Message-ID: <CAP+JOzSBbwqcZVoNtOGFt4UYzZ1iR1Thktu4n5v24gPkKQ0y6w@mail.gmail.com>
+Subject: Re: [PATCH] Update translations
+To:     Petr Lautrbach <lautrbach@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
@@ -61,154 +61,137 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 1, 2023 at 12:57=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Mon, Nov 6, 2023 at 12:31=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
 >
-> Introduce reallocarray(3), a realloc(3) wrapper incorporating a
-> multiplication overflow check.
+> Source: https://translate.fedoraproject.org/projects/selinux/
 >
-> Add private implementation in case the function is not provided by the
-> standard C library.
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
-> Use in appropriate locations.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
+> The patch is too big and is available at https://github.com/SELinuxProjec=
+t/selinux/pull/413
 > ---
-> v3:
->   - use SIZE_MAX and NULL instead of -1 and 0
->   - fix indentation
->   - drop RFC and split from original patch set
-> ---
->  libselinux/src/Makefile             |  6 ++++++
->  libselinux/src/get_context_list.c   |  2 +-
->  libselinux/src/matchpathcon.c       |  4 ++--
->  libselinux/src/selinux_internal.c   | 16 ++++++++++++++++
->  libselinux/src/selinux_internal.h   |  4 ++++
->  libselinux/src/selinux_restorecon.c |  3 +--
->  6 files changed, 30 insertions(+), 5 deletions(-)
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index cf830046..7aadb822 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -108,6 +108,12 @@ ifeq (yes,$(shell printf '${H}include <string.h>\nin=
-t main(void){char*d,*s;strlc
->  override CFLAGS +=3D -DHAVE_STRLCPY
->  endif
->
-> +# check for reallocarray(3) availability
-> +H :=3D \#
-> +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){realloc=
-array(NULL, 0, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 &=
-& echo yes))
-> +override CFLAGS +=3D -DHAVE_REALLOCARRAY
-> +endif
-> +
->  SWIG_CFLAGS +=3D -Wno-error -Wno-unused-variable -Wno-unused-but-set-var=
-iable -Wno-unused-parameter \
->                 -Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -W=
-no-missing-declarations \
->                 -Wno-deprecated-declarations
-> diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_conte=
-xt_list.c
-> index 0342823c..9dafa519 100644
-> --- a/libselinux/src/get_context_list.c
-> +++ b/libselinux/src/get_context_list.c
-> @@ -272,7 +272,7 @@ static int get_context_user(FILE * fp,
->                         continue;
->                 }
->                 if (security_check_context(usercon_str2) =3D=3D 0) {
-> -                       new_reachable =3D realloc(*reachable, (*nreachabl=
-e + 2) * sizeof(char *));
-> +                       new_reachable =3D reallocarray(*reachable, *nreac=
-hable + 2, sizeof(char *));
->                         if (!new_reachable) {
->                                 context_free(usercon);
->                                 rc =3D -1;
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
-c
-> index b98849d9..e44734c3 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -96,8 +96,8 @@ static int add_array_elt(char *con)
->         if (con_array_size) {
->                 while (con_array_used >=3D con_array_size) {
->                         con_array_size *=3D 2;
-> -                       tmp =3D (char **)realloc(con_array, sizeof(char*)=
- *
-> -                                                    con_array_size);
-> +                       tmp =3D (char **)reallocarray(con_array, con_arra=
-y_size,
-> +                                                   sizeof(char*));
->                         if (!tmp) {
->                                 free_array_elts();
->                                 return -1;
-> diff --git a/libselinux/src/selinux_internal.c b/libselinux/src/selinux_i=
-nternal.c
-> index c2be7c0a..678bd99c 100644
-> --- a/libselinux/src/selinux_internal.c
-> +++ b/libselinux/src/selinux_internal.c
-> @@ -1,5 +1,7 @@
->  #include "selinux_internal.h"
->
-> +#include <errno.h>
-> +#include <stdlib.h>
->  #include <string.h>
->
->
-> @@ -16,3 +18,17 @@ size_t strlcpy(char *dest, const char *src, size_t siz=
-e)
->         return ret;
->  }
->  #endif /* HAVE_STRLCPY */
-> +
-> +#ifndef HAVE_REALLOCARRAY
-> +void *reallocarray(void *ptr, size_t nmemb, size_t size)
-> +{
-> +
-> +       if (size && nmemb > SIZE_MAX / size) {
-> +               errno =3D ENOMEM;
-> +               return NULL;
-> +       }
-> +
-> +       return realloc(ptr, nmemb * size);
-> +
-> +}
-> +#endif /* HAVE_REALLOCARRAY */
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_i=
-nternal.h
-> index 06f2c038..af69ff04 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -98,4 +98,8 @@ extern int has_selinux_config ;
->  size_t strlcpy(char *dest, const char *src, size_t size);
->  #endif
->
-> +#ifndef HAVE_REALLOCARRAY
-> +void *reallocarray(void *ptr, size_t nmemb, size_t size);
-> +#endif
-> +
->  #endif /* SELINUX_INTERNAL_H_ */
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index 7ef2d45d..38f10f1c 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -175,8 +175,7 @@ static int add_exclude(const char *directory, bool wh=
-o)
->                 return -1;
->         }
->
-> -       tmp_list =3D realloc(exclude_lst,
-> -                          sizeof(struct edir) * (exclude_count + 1));
-> +       tmp_list =3D reallocarray(exclude_lst, exclude_count + 1, sizeof(=
-struct edir));
->         if (!tmp_list)
->                 goto oom;
->
-> --
-> 2.42.0
+>  gui/po/de.po                |   14 +-
+>  gui/po/en_GB.po             |  117 ++--
+>  gui/po/fr.po                |    8 +-
+>  gui/po/gui.pot              |   32 +-
+>  gui/po/he.po                |   18 +-
+>  gui/po/hu.po                |   19 +-
+>  gui/po/ja.po                |    8 +-
+>  gui/po/ko.po                |   12 +-
+>  gui/po/sl.po                |  400 ++++++-----
+>  gui/po/zh_CN.po             |   12 +-
+>  gui/po/zh_TW.po             |   94 ++-
+>  policycoreutils/po/en_GB.po |   25 +-
+>  policycoreutils/po/es.po    |   17 +-
+>  policycoreutils/po/it.po    |   15 +-
+>  policycoreutils/po/ka.po    |   12 +-
+>  policycoreutils/po/pt_BR.po |   15 +-
+>  policycoreutils/po/ro.po    |  140 ++--
+>  policycoreutils/po/ru.po    |   17 +-
+>  policycoreutils/po/zh_TW.po |   15 +-
+>  python/po/af.po             |  963 +++++++++++++--------------
+>  python/po/am.po             |  963 +++++++++++++--------------
+>  python/po/ar.po             | 1078 ++++++++++++++++--------------
+>  python/po/as.po             | 1078 ++++++++++++++++--------------
+>  python/po/ast.po            |  963 +++++++++++++--------------
+>  python/po/bal.po            |  963 +++++++++++++--------------
+>  python/po/be.po             |  967 +++++++++++++--------------
+>  python/po/bg.po             | 1077 ++++++++++++++++--------------
+>  python/po/bn.po             |  963 +++++++++++++--------------
+>  python/po/bn_IN.po          | 1078 ++++++++++++++++--------------
+>  python/po/br.po             |  963 +++++++++++++--------------
+>  python/po/brx.po            |  963 +++++++++++++--------------
+>  python/po/bs.po             | 1073 ++++++++++++++++--------------
+>  python/po/ca.po             | 1077 ++++++++++++++++--------------
+>  python/po/cs.po             | 1097 +++++++++++++++++--------------
+>  python/po/cy.po             |  963 +++++++++++++--------------
+>  python/po/da.po             | 1108 +++++++++++++++++--------------
+>  python/po/de.po             | 1112 +++++++++++++++++--------------
+>  python/po/de_CH.po          |  963 +++++++++++++--------------
+>  python/po/el.po             | 1005 ++++++++++++++--------------
+>  python/po/en_GB.po          | 1105 ++++++++++++++++---------------
+>  python/po/eo.po             |  963 +++++++++++++--------------
+>  python/po/es.po             | 1106 +++++++++++++++++--------------
+>  python/po/et.po             |  963 +++++++++++++--------------
+>  python/po/eu.po             |  977 +++++++++++++--------------
+>  python/po/fa.po             |  963 +++++++++++++--------------
+>  python/po/fi.po             | 1179 +++++++++++++++++----------------
+>  python/po/fil.po            |  963 +++++++++++++--------------
+>  python/po/fr.po             | 1193 +++++++++++++++++----------------
+>  python/po/fur.po            |  963 +++++++++++++--------------
+>  python/po/ga.po             |  963 +++++++++++++--------------
+>  python/po/gl.po             |  963 +++++++++++++--------------
+>  python/po/gu.po             | 1078 ++++++++++++++++--------------
+>  python/po/he.po             |  963 +++++++++++++--------------
+>  python/po/hi.po             | 1078 ++++++++++++++++--------------
+>  python/po/hr.po             | 1084 ++++++++++++++++--------------
+>  python/po/hu.po             | 1107 ++++++++++++++++---------------
+>  python/po/ia.po             |  963 +++++++++++++--------------
+>  python/po/id.po             |  963 +++++++++++++--------------
+>  python/po/ilo.po            |  963 +++++++++++++--------------
+>  python/po/is.po             |  963 +++++++++++++--------------
+>  python/po/it.po             | 1224 +++++++++++++++++-----------------
+>  python/po/ja.po             | 1181 +++++++++++++++++----------------
+>  python/po/ka.po             | 1006 ++++++++++++++--------------
+>  python/po/kk.po             |  978 +++++++++++++--------------
+>  python/po/km.po             |  963 +++++++++++++--------------
+>  python/po/kn.po             | 1078 ++++++++++++++++--------------
+>  python/po/ko.po             | 1239 ++++++++++++++++++-----------------
+>  python/po/ky.po             |  963 +++++++++++++--------------
+>  python/po/lt.po             |  967 +++++++++++++--------------
+>  python/po/lv.po             |  963 +++++++++++++--------------
+>  python/po/mai.po            | 1077 ++++++++++++++++--------------
+>  python/po/mk.po             | 1069 ++++++++++++++++--------------
+>  python/po/ml.po             | 1106 ++++++++++++++++---------------
+>  python/po/mn.po             |  963 +++++++++++++--------------
+>  python/po/mr.po             | 1078 ++++++++++++++++--------------
+>  python/po/ms.po             | 1058 ++++++++++++++++--------------
+>  python/po/my.po             |  963 +++++++++++++--------------
+>  python/po/nb.po             |  975 +++++++++++++--------------
+>  python/po/nds.po            |  963 +++++++++++++--------------
+>  python/po/ne.po             |  963 +++++++++++++--------------
+>  python/po/nl.po             | 1111 +++++++++++++++++--------------
+>  python/po/nn.po             |  963 +++++++++++++--------------
+>  python/po/nso.po            |  963 +++++++++++++--------------
+>  python/po/or.po             | 1078 ++++++++++++++++--------------
+>  python/po/pa.po             | 1078 ++++++++++++++++--------------
+>  python/po/pl.po             | 1175 +++++++++++++++++----------------
+>  python/po/pt.po             | 1078 ++++++++++++++++--------------
+>  python/po/pt_BR.po          | 1122 ++++++++++++++++---------------
+>  python/po/ro.po             |  963 +++++++++++++--------------
+>  python/po/ru.po             | 1123 ++++++++++++++++---------------
+>  python/po/si.po             |  963 +++++++++++++--------------
+>  python/po/sk.po             | 1069 ++++++++++++++++--------------
+>  python/po/sl.po             | 1018 ++++++++++++++--------------
+>  python/po/sq.po             |  963 +++++++++++++--------------
+>  python/po/sr.po             | 1082 ++++++++++++++++--------------
+>  python/po/sr@latin.po       | 1082 ++++++++++++++++--------------
+>  python/po/sv.po             | 1167 +++++++++++++++++----------------
+>  python/po/ta.po             | 1082 ++++++++++++++++--------------
+>  python/po/te.po             | 1078 ++++++++++++++++--------------
+>  python/po/tg.po             |  963 +++++++++++++--------------
+>  python/po/th.po             |  963 +++++++++++++--------------
+>  python/po/tr.po             | 1008 ++++++++++++++--------------
+>  python/po/uk.po             | 1172 +++++++++++++++++----------------
+>  python/po/ur.po             |  963 +++++++++++++--------------
+>  python/po/vi.po             |  963 +++++++++++++--------------
+>  python/po/zh_CN.po          | 1156 ++++++++++++++++----------------
+>  python/po/zh_HK.po          |  963 +++++++++++++--------------
+>  python/po/zh_TW.po          | 1102 +++++++++++++++++--------------
+>  python/po/zu.po             |  963 +++++++++++++--------------
+>  sandbox/po/de.po            |   12 +-
+>  sandbox/po/it.po            |   52 +-
+>  sandbox/po/ja.po            |    5 +-
+>  sandbox/po/ka.po            |    5 +-
+>  sandbox/po/ko.po            |   10 +-
+>  sandbox/po/sv.po            |   16 +-
+>  sandbox/po/tr.po            |   14 +-
+>  sandbox/po/uk.po            |    6 +-
+>  sandbox/po/zh_CN.po         |    6 +-
+>  sandbox/po/zh_TW.po         |   17 +-
+>  119 files changed, 48906 insertions(+), 45258 deletions(-)
 >
