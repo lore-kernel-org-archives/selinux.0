@@ -2,103 +2,137 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D825FC4332F
-	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 21:40:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12A6BC4332F
+	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 21:41:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbjKGVk3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Nov 2023 16:40:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
+        id S235321AbjKGVlt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Nov 2023 16:41:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233982AbjKGVk2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 16:40:28 -0500
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63CE010E5
-        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 13:40:26 -0800 (PST)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-507cee17b00so7992715e87.2
-        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 13:40:26 -0800 (PST)
+        with ESMTP id S233982AbjKGVls (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 16:41:48 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959D710E4
+        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 13:41:45 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-32deb2809daso3652399f8f.3
+        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 13:41:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699393224; x=1699998024; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1699393304; x=1699998104; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+/Jw8FmuFfIpjTPJav2NUcDoZuMdVsQa8L1d/u17PD4=;
-        b=E3iH3hVSFOvfi8tvhv+FSUcM9W9AS8fdE41u2dP/QT0yTI+ZkB2el0T+Tf4WGYbkjD
-         DjhpuZ4VU0+m3/H3ZcmRynjWagYX/SdmYjWAQSDJM/vbY7hzWKuL5SRGJvcqgvXPGoAz
-         +eK5X0jUnZco8M8jACz6AaIbBnVcgfFXwu1CVBWM1w5zz0C/xnBN0mIInXLYU29eUUnA
-         lw+h7rDI0zC/JPx+bYJfd16Dh8sy/GTRr9IuzArQl8X40nfHux2tyXnLi29m3btqEx/w
-         jIE2LKkJfIcLmky5BlaOqORPUlpYnY7lXb6mzFedkRTKGdjq/3pEbCjwVUlIJONVNFDT
-         ngLA==
+        bh=X93vMyDbY1x3FTqx7bHy1Th4Qi3W4j+1MqkqZTPeTWg=;
+        b=HPYYadIanLYb+wGUzLTF+erLY6MtA/rerJRSn6a5txqzsI5cJgpItT8K6BKzSQwot1
+         tPWTfkWaFN2xSO2nNxShw+pNgP6zedPaVFRLjx+Ddaghkr1qbRx+BdCJM5u4UZ4Zx6N9
+         sa1p2enH7ozXBYqwuOcUB+gPm4Ng+E+oRAJfv5U+fM7nbDEH+jLj6oDZdOXZBbFiMzde
+         caYQuPMdErqdn0L4yeAGulJSwcqKDQbSoqygxbS71Gr3wY5xGVkkDkkmKi3DioSXQIfy
+         lc2Tw0YYmyAzMmOQuJhrw+RSJQTiaCk3T2rWT/DsUzBQrZoZc1hi5wIffjDalpYdMwLt
+         7h8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699393224; x=1699998024;
+        d=1e100.net; s=20230601; t=1699393304; x=1699998104;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+/Jw8FmuFfIpjTPJav2NUcDoZuMdVsQa8L1d/u17PD4=;
-        b=MTJXU1dbppcZ9EgkDHS6f5guolrzEh7x1ZsB31EGNkGBWLNgyR7ky2zJCfv4jNG12t
-         jowizBQXcjq4wpM5H9/yLOZOp5IRuYyUhdIiSNJaajeTHwtsPmNTcGQMdby2s/UUXxmc
-         vJkOr8tAaaPL6kr9P6pKzo+RgGOgyBN/+QFvonrhbV2Recv/en1p+1vv8/gROvwEFfqX
-         vhlAWAKEk8MPrToHIMa9PipZjAFyCHOy9+qFEuN6z/EO/CUJqD880PRUzvEjOUXfe7uE
-         vPm7np80kJwuGdvt8+VcO88lvCCa05cOtQYBP31S0XWNwykpSmU+p6ihziGzdv/FKe3Y
-         tUxA==
-X-Gm-Message-State: AOJu0YwJSkwqcOZDxhcNSYKz49MbpNDZHQQJ/+FaSrdCM7DiOAImn3Ba
-        UhpQMqv2l8gpVrD25RASLAQ8VdhmbZT+FOdpeUE=
-X-Google-Smtp-Source: AGHT+IFlcKIcojheSJ/j/oBKIhKlMYPRQvB1VjG3uSZpKnD3g8/SgAD8Ag8lNON0OC6GGwxj3OOKkxdz9TUxkB4gJAE=
-X-Received: by 2002:a05:6512:b24:b0:509:471c:7fd2 with SMTP id
- w36-20020a0565120b2400b00509471c7fd2mr14542522lfu.42.1699393224434; Tue, 07
- Nov 2023 13:40:24 -0800 (PST)
+        bh=X93vMyDbY1x3FTqx7bHy1Th4Qi3W4j+1MqkqZTPeTWg=;
+        b=LvH4/C07/0K0hfsipXWm07QmwJrHpEuRV3OapMlLHismvEW90gUwB4o3A6h5ZyrUJg
+         i1lDfwZgpzks1J7TirU+xxJYuo/qWryi2SJAQxMfd+aWXe7UNcW/OuPOfUc5+1pIeSR5
+         3/8ezWvmBvF+2+akhYCN68q5YGy0CLGtxyukofMZg4On5vvQ0SlRDQ8jRlxYu5jCU/Jc
+         XMj0tPhcE6CymyZ1YOMmjwtO7Vg/D1oqVsN5fq3DjZ0xL4fGLwRYtLZ/In6n8PB168+d
+         yI7C2L7SudCR4jpPzbsn4QGdLfciXS3g/YYYcRk8mLVOMz8EaKLPhNYKLPfDsYQQx9ku
+         GtgA==
+X-Gm-Message-State: AOJu0Yx5D1BvCb8VmsOX5au99AUf6VSXcE4pOFHxlSZ67KKmKS8T4Yk7
+        UgBmVb+yXWlcCyy+noOuJjEMli8FKzHmrRbAIRNyAZNR
+X-Google-Smtp-Source: AGHT+IGsY4J+HZ7vrRCFCAokmQP4FvaYF2hYYi/S27OLGOgZUTnSQhaHsHZLRWnndxxsy3Pgt6UqZ+s198HAcubYsT8=
+X-Received: by 2002:ac2:4846:0:b0:507:aaa4:e3b3 with SMTP id
+ 6-20020ac24846000000b00507aaa4e3b3mr22140694lfy.50.1699393283168; Tue, 07 Nov
+ 2023 13:41:23 -0800 (PST)
 MIME-Version: 1.0
-References: <20230818181905.560882-1-dominick.grift@defensec.nl> <87il6mhct7.fsf@redhat.com>
-In-Reply-To: <87il6mhct7.fsf@redhat.com>
+References: <20231101163725.177237-1-cgzones@googlemail.com> <CAP+JOzRUv4x1f6qTpREzDE9Edr+c-tx17EnAcnqZ12oJEC5TzQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzRUv4x1f6qTpREzDE9Edr+c-tx17EnAcnqZ12oJEC5TzQ@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 7 Nov 2023 16:40:13 -0500
-Message-ID: <CAP+JOzSpbXopU8pH5YfVF2wGcCsfA=vFDRY18ScmcM=jv0K1mA@mail.gmail.com>
-Subject: Re: [PATCH] secilc/docs: fixes filecon example
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        selinux@vger.kernel.org
+Date:   Tue, 7 Nov 2023 16:41:12 -0500
+Message-ID: <CAP+JOzR2OerekWG_EsDQPDmL+ETYKzMH5P6933p857JZ_S_cuw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] libsepol: reject avtab entries with invalid specifier
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 31, 2023 at 2:23=E2=80=AFPM Petr Lautrbach <plautrba@redhat.com=
-> wrote:
+On Thu, Nov 2, 2023 at 11:17=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> Dominick Grift <dominick.grift@defensec.nl> writes:
+> On Wed, Nov 1, 2023 at 12:38=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Neverallow avtab entries are not supported (normal and extended). Rejec=
+t
+> > them to avoid lookup confusions via avtab_search(), e.g. when searching
+> > for a invalid key of AVTAB_TRANSITION|AVTAB_NEVERALLOW and the result o=
+f
+> > only AVTAB_NEVERALLOW has no transition value.
+> >
+> > Simplify the check for the number of specifiers by using the compiler
+> > popcount builtin (already used in libsepol).
+> >
+> > Reported-by: oss-fuzz (issue 60568), caused at the time by the filetran=
+s
+> >              prefix proposal
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
->
-> Acked-by: Petr Lautrbach <lautrbach@redhat.com>
->
+> For these two patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged.
+These two patches have been merged.
 Thanks,
 Jim
 
->
 > > ---
-> >  secilc/docs/cil_file_labeling_statements.md | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > v2:
+> >    rebase after revert of filename prefix proposal
+> > ---
+> >  libsepol/src/avtab.c | 13 ++++++-------
+> >  1 file changed, 6 insertions(+), 7 deletions(-)
 > >
-> > diff --git a/secilc/docs/cil_file_labeling_statements.md b/secilc/docs/=
-cil_file_labeling_statements.md
-> > index 73f73885..9e4e877d 100644
-> > --- a/secilc/docs/cil_file_labeling_statements.md
-> > +++ b/secilc/docs/cil_file_labeling_statements.md
-> > @@ -97,7 +97,7 @@ These examples use one named, one anonymous and one e=
-mpty context definition:
-> >      (context runas_exec_context (u object_r exec low_low))
+> > diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+> > index 6ab49c5e..1ef5ee00 100644
+> > --- a/libsepol/src/avtab.c
+> > +++ b/libsepol/src/avtab.c
+> > @@ -441,7 +441,6 @@ int avtab_read_item(struct policy_file *fp, uint32_=
+t vers, avtab_t * a,
+> >         avtab_key_t key;
+> >         avtab_datum_t datum;
+> >         avtab_extended_perms_t xperms;
+> > -       unsigned set;
+> >         unsigned int i;
+> >         int rc;
 > >
-> >      (filecon "/system/bin/run-as" file runas_exec_context)
-> > -    (filecon "/dev/socket/wpa_wlan[0-9]" any u:object_r:wpa.socket:s0-=
-s0)
-> > +    (filecon "/dev/socket/wpa_wlan[0-9]" any (u object_r wpa.socket ((=
-s0)(s0))))
-> >      (filecon "/data/local/mine" dir ())
-> >  ```
+> > @@ -535,13 +534,13 @@ int avtab_read_item(struct policy_file *fp, uint3=
+2_t vers, avtab_t * a,
+> >         key.target_class =3D le16_to_cpu(buf16[items++]);
+> >         key.specified =3D le16_to_cpu(buf16[items++]);
+> >
+> > -       set =3D 0;
+> > -       for (i =3D 0; i < ARRAY_SIZE(spec_order); i++) {
+> > -               if (key.specified & spec_order[i])
+> > -                       set++;
+> > +       if (key.specified & ~(AVTAB_AV | AVTAB_TYPE | AVTAB_XPERMS | AV=
+TAB_ENABLED)) {
+> > +               ERR(fp->handle, "invalid specifier");
+> > +               return -1;
+> >         }
+> > -       if (!set || set > 1) {
+> > -               ERR(fp->handle, "more than one specifier");
+> > +
+> > +       if (__builtin_popcount(key.specified & ~AVTAB_ENABLED) !=3D 1) =
+{
+> > +               ERR(fp->handle, "not exactly one specifier");
+> >                 return -1;
+> >         }
 > >
 > > --
-> > 2.40.1
->
+> > 2.42.0
+> >
