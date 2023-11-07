@@ -2,196 +2,231 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19701C4332F
-	for <selinux@archiver.kernel.org>; Mon,  6 Nov 2023 19:19:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85319C4332F
+	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 13:41:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232001AbjKFTTB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Nov 2023 14:19:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
+        id S232686AbjKGNll (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Nov 2023 08:41:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231801AbjKFTTA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Nov 2023 14:19:00 -0500
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F87DBF
-        for <selinux@vger.kernel.org>; Mon,  6 Nov 2023 11:18:57 -0800 (PST)
-Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-507b96095abso6150581e87.3
-        for <selinux@vger.kernel.org>; Mon, 06 Nov 2023 11:18:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699298336; x=1699903136; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kA/vtV74eLldZGHuWcmvAF5xkAnM1+IA4n8ySuq5waQ=;
-        b=HjwZcFhwpeqJTNmqcpT0gtCc+i0p29CqKVGutv5DIyHLK+WbPDSCb66YD+e5uFLP+J
-         3qdLH1gwvw0q3eCkounO0zgGacr2CPdauRMZspdsUvIkOJJK8DmymyXP9eQPJupJpmN6
-         PCE3YQojZp4jcnN0syWp0xRdK17uaIAhFwQxhRBvhf22FE7fO4zEMr0HKMD3j4rwDfRd
-         YR9wfIi5HLM7DyJ/nX3EoNYbSczfIUY3MGuJ1/bKuZ8AGfgE2Nve+mqfkMwRQcFtJtek
-         F0O5sz3i2kXwSM0N8gbw8JoFLzeAIhXfplRtP0k+g+1HlaAsNI8vSDSiPjOSpelLpUY8
-         YrXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699298336; x=1699903136;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kA/vtV74eLldZGHuWcmvAF5xkAnM1+IA4n8ySuq5waQ=;
-        b=aYv0o4nj8oHghikFH055rEK+uXYV5LtfhJuBfamjaoC3YsNHx9u8rR/okbbH5YzaJm
-         fsqLp+gXqwndwQLtlIhWkExYdZKY8zslcnolzZNeIjEXU5JJ2Z1p9CjfstFiqom4nzjK
-         g8NgKLd7LTQccjKVczYeAO/8Tc45AusCkZ1rEQCUJhbZA3maMh6fdkr6QBqdTwBYdksS
-         MgadXgtRqOtmFt7rPEEme6PIKGZqDnqhTs4dmi/VPd41aGsEUe4RyiHf6sWf8aAFJllc
-         28WEA4zJzsikGkOAFMkQ7QTSbu5LqbvyyAuEz+T6dw5aze62sJSLy5F2jyeldwTF9R9f
-         1A2A==
-X-Gm-Message-State: AOJu0YykxdV35XPGAHl8VQI749za2+uVRjykfLDKUnIdjU8uLhUzABHz
-        Dsfqsh67lI0NziF/yvFsc0u/6LxwjdZWRQ9PkKgKqCRlK08=
-X-Google-Smtp-Source: AGHT+IHHiZ1uSq8sf2tVSzJcET5Wjv6nli5X/BLDw52sK/ZbcWaYfkBryQDNNTuA3emjVPJgwwSKNmqTWNJN6Ec3MmU=
-X-Received: by 2002:ac2:5a11:0:b0:507:b19e:90cc with SMTP id
- q17-20020ac25a11000000b00507b19e90ccmr22128365lfn.40.1699298335516; Mon, 06
- Nov 2023 11:18:55 -0800 (PST)
+        with ESMTP id S229782AbjKGNlk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 08:41:40 -0500
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F7FEA3;
+        Tue,  7 Nov 2023 05:41:37 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4SPpqf6mNsz9v7HG;
+        Tue,  7 Nov 2023 21:25:18 +0800 (CST)
+Received: from huaweicloud.com (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwDHdmBmPkplW202AA--.56782S2;
+        Tue, 07 Nov 2023 14:41:08 +0100 (CET)
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com, mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Subject: [PATCH v5 00/23] security: Move IMA and EVM to the LSM infrastructure
+Date:   Tue,  7 Nov 2023 14:39:49 +0100
+Message-Id: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20231106172857.233804-2-lautrbach@redhat.com>
-In-Reply-To: <20231106172857.233804-2-lautrbach@redhat.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Mon, 6 Nov 2023 14:18:43 -0500
-Message-ID: <CAP+JOzSBbwqcZVoNtOGFt4UYzZ1iR1Thktu4n5v24gPkKQ0y6w@mail.gmail.com>
-Subject: Re: [PATCH] Update translations
-To:     Petr Lautrbach <lautrbach@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: GxC2BwDHdmBmPkplW202AA--.56782S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxKF4xKr18uw15CrWrAr47Arb_yoW3AF4DpF
+        saga15A34DJFy7KrWfAF4xua1SgFZ5WrWUXrZxGry8A3Z0yr1FqFWYkryrury5GFWrXr10
+        q3ZFv3s8ur1qyaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUk2b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IY
+        c2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s
+        026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF
+        0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0x
+        vE42xK8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E
+        87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFYFCUUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAOBF1jj5IbLQABsc
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 6, 2023 at 12:31=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
->
-> Source: https://translate.fedoraproject.org/projects/selinux/
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
->
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+IMA and EVM are not effectively LSMs, especially due to the fact that in
+the past they could not provide a security blob while there is another LSM
+active.
 
-> The patch is too big and is available at https://github.com/SELinuxProjec=
-t/selinux/pull/413
-> ---
->  gui/po/de.po                |   14 +-
->  gui/po/en_GB.po             |  117 ++--
->  gui/po/fr.po                |    8 +-
->  gui/po/gui.pot              |   32 +-
->  gui/po/he.po                |   18 +-
->  gui/po/hu.po                |   19 +-
->  gui/po/ja.po                |    8 +-
->  gui/po/ko.po                |   12 +-
->  gui/po/sl.po                |  400 ++++++-----
->  gui/po/zh_CN.po             |   12 +-
->  gui/po/zh_TW.po             |   94 ++-
->  policycoreutils/po/en_GB.po |   25 +-
->  policycoreutils/po/es.po    |   17 +-
->  policycoreutils/po/it.po    |   15 +-
->  policycoreutils/po/ka.po    |   12 +-
->  policycoreutils/po/pt_BR.po |   15 +-
->  policycoreutils/po/ro.po    |  140 ++--
->  policycoreutils/po/ru.po    |   17 +-
->  policycoreutils/po/zh_TW.po |   15 +-
->  python/po/af.po             |  963 +++++++++++++--------------
->  python/po/am.po             |  963 +++++++++++++--------------
->  python/po/ar.po             | 1078 ++++++++++++++++--------------
->  python/po/as.po             | 1078 ++++++++++++++++--------------
->  python/po/ast.po            |  963 +++++++++++++--------------
->  python/po/bal.po            |  963 +++++++++++++--------------
->  python/po/be.po             |  967 +++++++++++++--------------
->  python/po/bg.po             | 1077 ++++++++++++++++--------------
->  python/po/bn.po             |  963 +++++++++++++--------------
->  python/po/bn_IN.po          | 1078 ++++++++++++++++--------------
->  python/po/br.po             |  963 +++++++++++++--------------
->  python/po/brx.po            |  963 +++++++++++++--------------
->  python/po/bs.po             | 1073 ++++++++++++++++--------------
->  python/po/ca.po             | 1077 ++++++++++++++++--------------
->  python/po/cs.po             | 1097 +++++++++++++++++--------------
->  python/po/cy.po             |  963 +++++++++++++--------------
->  python/po/da.po             | 1108 +++++++++++++++++--------------
->  python/po/de.po             | 1112 +++++++++++++++++--------------
->  python/po/de_CH.po          |  963 +++++++++++++--------------
->  python/po/el.po             | 1005 ++++++++++++++--------------
->  python/po/en_GB.po          | 1105 ++++++++++++++++---------------
->  python/po/eo.po             |  963 +++++++++++++--------------
->  python/po/es.po             | 1106 +++++++++++++++++--------------
->  python/po/et.po             |  963 +++++++++++++--------------
->  python/po/eu.po             |  977 +++++++++++++--------------
->  python/po/fa.po             |  963 +++++++++++++--------------
->  python/po/fi.po             | 1179 +++++++++++++++++----------------
->  python/po/fil.po            |  963 +++++++++++++--------------
->  python/po/fr.po             | 1193 +++++++++++++++++----------------
->  python/po/fur.po            |  963 +++++++++++++--------------
->  python/po/ga.po             |  963 +++++++++++++--------------
->  python/po/gl.po             |  963 +++++++++++++--------------
->  python/po/gu.po             | 1078 ++++++++++++++++--------------
->  python/po/he.po             |  963 +++++++++++++--------------
->  python/po/hi.po             | 1078 ++++++++++++++++--------------
->  python/po/hr.po             | 1084 ++++++++++++++++--------------
->  python/po/hu.po             | 1107 ++++++++++++++++---------------
->  python/po/ia.po             |  963 +++++++++++++--------------
->  python/po/id.po             |  963 +++++++++++++--------------
->  python/po/ilo.po            |  963 +++++++++++++--------------
->  python/po/is.po             |  963 +++++++++++++--------------
->  python/po/it.po             | 1224 +++++++++++++++++-----------------
->  python/po/ja.po             | 1181 +++++++++++++++++----------------
->  python/po/ka.po             | 1006 ++++++++++++++--------------
->  python/po/kk.po             |  978 +++++++++++++--------------
->  python/po/km.po             |  963 +++++++++++++--------------
->  python/po/kn.po             | 1078 ++++++++++++++++--------------
->  python/po/ko.po             | 1239 ++++++++++++++++++-----------------
->  python/po/ky.po             |  963 +++++++++++++--------------
->  python/po/lt.po             |  967 +++++++++++++--------------
->  python/po/lv.po             |  963 +++++++++++++--------------
->  python/po/mai.po            | 1077 ++++++++++++++++--------------
->  python/po/mk.po             | 1069 ++++++++++++++++--------------
->  python/po/ml.po             | 1106 ++++++++++++++++---------------
->  python/po/mn.po             |  963 +++++++++++++--------------
->  python/po/mr.po             | 1078 ++++++++++++++++--------------
->  python/po/ms.po             | 1058 ++++++++++++++++--------------
->  python/po/my.po             |  963 +++++++++++++--------------
->  python/po/nb.po             |  975 +++++++++++++--------------
->  python/po/nds.po            |  963 +++++++++++++--------------
->  python/po/ne.po             |  963 +++++++++++++--------------
->  python/po/nl.po             | 1111 +++++++++++++++++--------------
->  python/po/nn.po             |  963 +++++++++++++--------------
->  python/po/nso.po            |  963 +++++++++++++--------------
->  python/po/or.po             | 1078 ++++++++++++++++--------------
->  python/po/pa.po             | 1078 ++++++++++++++++--------------
->  python/po/pl.po             | 1175 +++++++++++++++++----------------
->  python/po/pt.po             | 1078 ++++++++++++++++--------------
->  python/po/pt_BR.po          | 1122 ++++++++++++++++---------------
->  python/po/ro.po             |  963 +++++++++++++--------------
->  python/po/ru.po             | 1123 ++++++++++++++++---------------
->  python/po/si.po             |  963 +++++++++++++--------------
->  python/po/sk.po             | 1069 ++++++++++++++++--------------
->  python/po/sl.po             | 1018 ++++++++++++++--------------
->  python/po/sq.po             |  963 +++++++++++++--------------
->  python/po/sr.po             | 1082 ++++++++++++++++--------------
->  python/po/sr@latin.po       | 1082 ++++++++++++++++--------------
->  python/po/sv.po             | 1167 +++++++++++++++++----------------
->  python/po/ta.po             | 1082 ++++++++++++++++--------------
->  python/po/te.po             | 1078 ++++++++++++++++--------------
->  python/po/tg.po             |  963 +++++++++++++--------------
->  python/po/th.po             |  963 +++++++++++++--------------
->  python/po/tr.po             | 1008 ++++++++++++++--------------
->  python/po/uk.po             | 1172 +++++++++++++++++----------------
->  python/po/ur.po             |  963 +++++++++++++--------------
->  python/po/vi.po             |  963 +++++++++++++--------------
->  python/po/zh_CN.po          | 1156 ++++++++++++++++----------------
->  python/po/zh_HK.po          |  963 +++++++++++++--------------
->  python/po/zh_TW.po          | 1102 +++++++++++++++++--------------
->  python/po/zu.po             |  963 +++++++++++++--------------
->  sandbox/po/de.po            |   12 +-
->  sandbox/po/it.po            |   52 +-
->  sandbox/po/ja.po            |    5 +-
->  sandbox/po/ka.po            |    5 +-
->  sandbox/po/ko.po            |   10 +-
->  sandbox/po/sv.po            |   16 +-
->  sandbox/po/tr.po            |   14 +-
->  sandbox/po/uk.po            |    6 +-
->  sandbox/po/zh_CN.po         |    6 +-
->  sandbox/po/zh_TW.po         |   17 +-
->  119 files changed, 48906 insertions(+), 45258 deletions(-)
->
+That changed in the recent years, the LSM stacking feature now makes it
+possible to stack together multiple LSMs, and allows them to provide a
+security blob for most kernel objects. While the LSM stacking feature has
+some limitations being worked out, it is already suitable to make IMA and
+EVM as LSMs.
+
+In short, while this patch set is big, it does not make any functional
+change to IMA and EVM. IMA and EVM functions are called by the LSM
+infrastructure in the same places as before (except ima_post_path_mknod()),
+rather being hardcoded calls, and the inode metadata pointer is directly
+stored in the inode security blob rather than in a separate rbtree.
+
+To avoid functional changes, it was necessary to keep the 'integrity' LSM
+in addition to the newly introduced 'ima' and 'evm' LSMs, despite there is
+no LSM ID assigned to it. There are two reasons: first, IMA and EVM still
+share the same inode metadata, and thus cannot directly reserve space in
+the security blob for it; second, someone needs to initialize 'ima' and
+'evm' exactly in this order, as the LSM infrastructure cannot guarantee
+that.
+
+The patch set is organized as follows.
+
+Patches 1-9 make IMA and EVM functions suitable to be registered to the LSM
+infrastructure, by aligning function parameters.
+
+Patches 10-18 add new LSM hooks in the same places where IMA and EVM
+functions are called, if there is no LSM hook already.
+
+Patches 19-22 do the bulk of the work, introduce the new LSMs 'ima' and
+'evm', and move hardcoded calls to IMA, EVM and integrity functions to
+those LSMs. In addition, they reserve one slot for the 'evm' LSM to supply
+an xattr with the inode_init_security hook.
+
+Finally, patch 23 removes the rbtree used to bind integrity metadata to the
+inodes, and instead reserves a space in the inode security blob to store
+the pointer to that metadata. This also brings performance improvements due
+to retrieving metadata in constant time, as opposed to logarithmic.
+
+The patch set applies on top of lsm/dev-staging, commit ba7ce019d3e9 ("lsm:
+convert security_setselfattr() to use memdup_user()"). No need to merge
+linux-integrity/next-integrity-testing.
+
+Changelog:
+
+v4:
+ - Improve short and long description of
+   security_inode_post_create_tmpfile(), security_inode_post_set_acl(),
+   security_inode_post_remove_acl() and security_file_post_open()
+   (suggested by Mimi)
+ - Improve commit message of 'ima: Move to LSM infrastructure' (suggested
+   by Mimi)
+
+v3:
+ - Drop 'ima: Align ima_post_path_mknod() definition with LSM
+   infrastructure' and 'ima: Align ima_post_create_tmpfile() definition
+   with LSM infrastructure', define the new LSM hooks with the same
+   IMA parameters instead (suggested by Mimi)
+ - Do IS_PRIVATE() check in security_path_post_mknod() and
+   security_inode_post_create_tmpfile() on the new inode rather than the
+   parent directory (in the post method it is available)
+ - Don't export ima_file_check() (suggested by Stefan)
+ - Remove redundant check of file mode in ima_post_path_mknod() (suggested
+   by Mimi)
+ - Mention that ima_post_path_mknod() is now conditionally invoked when
+   CONFIG_SECURITY_PATH=y (suggested by Mimi)
+ - Mention when a LSM hook will be introduced in the IMA/EVM alignment
+   patches (suggested by Mimi)
+ - Simplify the commit messages when introducing a new LSM hook
+ - Still keep the 'extern' in the function declaration, until the
+   declaration is removed (suggested by Mimi)
+ - Improve documentation of security_file_pre_free()
+ - Register 'ima' and 'evm' as standalone LSMs (suggested by Paul)
+ - Initialize the 'ima' and 'evm' LSMs from 'integrity', to keep the
+   original ordering of IMA and EVM functions as when they were hardcoded
+ - Return the IMA and EVM LSM IDs to 'integrity' for registration of the
+   integrity-specific hooks
+ - Reserve an xattr slot from the 'evm' LSM instead of 'integrity'
+ - Pass the LSM ID to init_ima_appraise_lsm()
+
+v2:
+ - Add description for newly introduced LSM hooks (suggested by Casey)
+ - Clarify in the description of security_file_pre_free() that actions can
+   be performed while the file is still open
+
+v1:
+ - Drop 'evm: Complete description of evm_inode_setattr()', 'fs: Fix
+   description of vfs_tmpfile()' and 'security: Introduce LSM_ORDER_LAST',
+   they were sent separately (suggested by Christian Brauner)
+ - Replace dentry with file descriptor parameter for
+   security_inode_post_create_tmpfile()
+ - Introduce mode_stripped and pass it as mode argument to
+   security_path_mknod() and security_path_post_mknod()
+ - Use goto in do_mknodat() and __vfs_removexattr_locked() (suggested by
+   Mimi)
+ - Replace __lsm_ro_after_init with __ro_after_init
+ - Modify short description of security_inode_post_create_tmpfile() and
+   security_inode_post_set_acl() (suggested by Stefan)
+ - Move security_inode_post_setattr() just after security_inode_setattr()
+   (suggested by Mimi)
+ - Modify short description of security_key_post_create_or_update()
+   (suggested by Mimi)
+ - Add back exported functions ima_file_check() and
+   evm_inode_init_security() respectively to ima.h and evm.h (reported by
+   kernel robot)
+ - Remove extern from prototype declarations and fix style issues
+ - Remove unnecessary include of linux/lsm_hooks.h in ima_main.c and
+   ima_appraise.c
+
+Roberto Sassu (23):
+  ima: Align ima_inode_post_setattr() definition with LSM infrastructure
+  ima: Align ima_file_mprotect() definition with LSM infrastructure
+  ima: Align ima_inode_setxattr() definition with LSM infrastructure
+  ima: Align ima_inode_removexattr() definition with LSM infrastructure
+  ima: Align ima_post_read_file() definition with LSM infrastructure
+  evm: Align evm_inode_post_setattr() definition with LSM infrastructure
+  evm: Align evm_inode_setxattr() definition with LSM infrastructure
+  evm: Align evm_inode_post_setxattr() definition with LSM
+    infrastructure
+  security: Align inode_setattr hook definition with EVM
+  security: Introduce inode_post_setattr hook
+  security: Introduce inode_post_removexattr hook
+  security: Introduce file_post_open hook
+  security: Introduce file_pre_free_security hook
+  security: Introduce path_post_mknod hook
+  security: Introduce inode_post_create_tmpfile hook
+  security: Introduce inode_post_set_acl hook
+  security: Introduce inode_post_remove_acl hook
+  security: Introduce key_post_create_or_update hook
+  ima: Move to LSM infrastructure
+  ima: Move IMA-Appraisal to LSM infrastructure
+  evm: Move to LSM infrastructure
+  integrity: Move integrity functions to the LSM infrastructure
+  integrity: Switch from rbtree to LSM-managed blob for
+    integrity_iint_cache
+
+ fs/attr.c                             |   5 +-
+ fs/file_table.c                       |   3 +-
+ fs/namei.c                            |  12 +-
+ fs/nfsd/vfs.c                         |   3 +-
+ fs/open.c                             |   1 -
+ fs/posix_acl.c                        |   5 +-
+ fs/xattr.c                            |   9 +-
+ include/linux/evm.h                   | 103 ----------
+ include/linux/ima.h                   | 142 --------------
+ include/linux/integrity.h             |  26 ---
+ include/linux/lsm_hook_defs.h         |  20 +-
+ include/linux/security.h              |  59 ++++++
+ include/uapi/linux/lsm.h              |   2 +
+ security/integrity/evm/evm_main.c     | 138 ++++++++++++--
+ security/integrity/iint.c             | 113 +++++------
+ security/integrity/ima/ima.h          |  11 ++
+ security/integrity/ima/ima_appraise.c |  37 +++-
+ security/integrity/ima/ima_main.c     |  96 ++++++++--
+ security/integrity/integrity.h        |  58 +++++-
+ security/keys/key.c                   |  10 +-
+ security/security.c                   | 261 ++++++++++++++++----------
+ security/selinux/hooks.c              |   3 +-
+ security/smack/smack_lsm.c            |   4 +-
+ 23 files changed, 614 insertions(+), 507 deletions(-)
+
+-- 
+2.34.1
+
