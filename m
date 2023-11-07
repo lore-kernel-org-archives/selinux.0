@@ -2,107 +2,107 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 807ABC4332F
-	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 19:38:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFCE5C4167B
+	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 21:39:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234754AbjKGTiM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Nov 2023 14:38:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
+        id S235256AbjKGVjk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Nov 2023 16:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230523AbjKGTiL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 14:38:11 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95662184;
-        Tue,  7 Nov 2023 11:38:09 -0800 (PST)
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7JbP1P022507;
-        Tue, 7 Nov 2023 19:37:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=14T72CPVR285oFFtZ+8xzxRw9J5zB2JeOmh7d67ZjHo=;
- b=h4fPC9GYJfS1DQ7Kl8LrgWtkQcl2J64BQzEpoef7J5sjfpC01yrZppXvR8+JyweIinGs
- lpiQdZ9DiXAAFeuzA/Q5oh2bbhvCqpsCPy3QxI4nNH5NLe/HfJcCVTC56O+z3C3IUtmd
- m4VuYRyZG0nyLI4rsUoANo6t+0beK4T37hpUKTgCKSXpt5XRGN1eMwcEqq+3enUOoUkZ
- CAXpmBNHMOAcIsWfD+bTbCX5c/JKDlLv1OnGgZKt0k7jALd85MnfXKZ3beB9/dGuPurn
- MiwTnA+OQVfK90UnCajJPmmjWFP4ozzS+JzJtS0P6Q6o4C7lRC62eoBGuR0hou50DQgk yg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7uj6r031-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 19:37:31 +0000
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A7JbU4d022644;
-        Tue, 7 Nov 2023 19:37:30 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3u7uj6r01x-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 19:37:30 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3A7HVCn8025666;
-        Tue, 7 Nov 2023 19:37:29 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3u619nk3xa-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 07 Nov 2023 19:37:29 +0000
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-        by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3A7JbSH319661386
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 7 Nov 2023 19:37:28 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6EE1758059;
-        Tue,  7 Nov 2023 19:37:28 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7275258057;
-        Tue,  7 Nov 2023 19:37:26 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.112.185])
-        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-        Tue,  7 Nov 2023 19:37:26 +0000 (GMT)
-Message-ID: <c68a9acb758eb6989defc92beb66af9977dacfcc.camel@linux.ibm.com>
-Subject: Re: [PATCH v5 00/23] security: Move IMA and EVM to the LSM
- infrastructure
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        viro@zeniv.linux.org.uk, brauner@kernel.org,
-        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
-        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, mic@digikod.net
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Tue, 07 Nov 2023 14:37:26 -0500
-In-Reply-To: <563820b8fd57deb99e6247b6cdb416c4c3af3091.camel@huaweicloud.com>
-References: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
-         <563820b8fd57deb99e6247b6cdb416c4c3af3091.camel@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: EAIzReFHRB0QO2SoXvZVSA00XKjUT0GT
-X-Proofpoint-GUID: 5KCl5XEErNXAt7C3086k7spDcOH8Pl_o
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-07_10,2023-11-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- spamscore=0 lowpriorityscore=0 bulkscore=0 impostorscore=0 suspectscore=0
- malwarescore=0 mlxlogscore=745 mlxscore=0 phishscore=0 clxscore=1015
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2311070162
+        with ESMTP id S234324AbjKGVjk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 16:39:40 -0500
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD76110E4
+        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 13:39:37 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-507a98517f3so7699218e87.0
+        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 13:39:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1699393176; x=1699997976; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nM+focZ6hNq1M+DwrGIG8kg83hVbon92X8udPuYIBVg=;
+        b=BlVKQtwuO3ZbAqTudZ1SA7ZRePKbUEk1oNchgou5mM+DYksmF9NH3Z9eua/5mHE1i9
+         DODZNSxWbryo1nNRrWO/RWHP44mYTK0/3S2SdPcpmc50AYLPitsM8hRBjduV59WL8Ksz
+         AvBZ9WPfbShVwlb2rX8f8lO7WTKK+4j2IK5+jwX4j0TtoN01QFmPrUi0OK7apkEsuCdI
+         m4ZofTpkUn+wE+noIPbQYS/PT5AxbV2u/KITBp7mj701bSP2Rrml3zKB15Y79KW3ogUX
+         Ml8tsXreDBQmpf7R2x++0kuy+BbmQiL5TDWhHaO33Ru94d7dQBiZw+ZOHKtwcbRAxKr9
+         89Ig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699393176; x=1699997976;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nM+focZ6hNq1M+DwrGIG8kg83hVbon92X8udPuYIBVg=;
+        b=POA+GB5oMVLvUrhRZgQAPr/0kS0wTWwM0yXUC4+/c5WqHtaN3bk9SmqAGsyTk6KPKL
+         XSOJRiVbjmCt75VQbJa9rsFQHps/4Kis3OIr9AWEajs15Y6gbOYKs2S6TBWZm1+xVbT4
+         CB3Efx+BHOpIY4W+Q8OxgIR8FtQKN19gO5Jsi2AAtgLBOGEzVlw+q6o9xU3OBnsKiI5z
+         aSGxpfpuzN3kolsZkhppFjyqsEQuoDbnGIs2MNPL+sRdfRYdN09TPPKJSZ4bosiut/nT
+         4utPgAQmAkAaOGz5/m4DALM+qhVkT0tgsuYdk8u+ggbgwxdrVe8GRX9xBjI4mzkCxC0b
+         UWJw==
+X-Gm-Message-State: AOJu0YwI6QOjFIERHCWpmpTUElw6IeXBXfCQWN6mCK6lDxUQ1OevS3KZ
+        ltMUcAqu0U1D7wjy0WbTKTKS0upVMGsrVVA6+YWQOaKC
+X-Google-Smtp-Source: AGHT+IEQ6a9l6snIKz/Fc1nwksl1CsN7msTiDKdPmCctApreHRiBBKWfPhlh2pdua82QsXmiZGziK4gVQjhig+GXTEA=
+X-Received: by 2002:a05:6512:ad5:b0:509:11fa:a208 with SMTP id
+ n21-20020a0565120ad500b0050911faa208mr28016983lfu.43.1699393175839; Tue, 07
+ Nov 2023 13:39:35 -0800 (PST)
+MIME-Version: 1.0
+References: <8734xzhtvh.fsf@redhat.com> <20231025131903.12044-1-cahu@suse.de> <87pm0vgkzf.fsf@redhat.com>
+In-Reply-To: <87pm0vgkzf.fsf@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 7 Nov 2023 16:39:24 -0500
+Message-ID: <CAP+JOzQD4SQ8amDWz4SoAEyRT4L4g0BfS60=32HuZMNkHznETw@mail.gmail.com>
+Subject: Re: [PATCH v2] sepolicy/manpage.py: make output deterministic
+To:     Petr Lautrbach <lautrbach@redhat.com>
+Cc:     Cathy Hu <cahu@suse.de>, selinux@vger.kernel.org, selinux@suse.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2023-11-07 at 15:05 +0100, Roberto Sassu wrote:
-> I kindly ask your support to add the missing reviewed-by/acked-by. I
-> summarize what is missing below:
-> 
-> - @Mimi: patches 1, 2, 4, 5, 6, 19, 21, 22, 23 (IMA/EVM-specific
->          patches)
+On Tue, Oct 31, 2023 at 6:12=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
+>
+> Cathy Hu <cahu@suse.de> writes:
+>
+> > The list entries in the alphabetically grouped dict are
+> > not sorted, which results in non-deterministic output for
+> > index.html.
+> >
+> > Sort entries of those lists to make the output deterministic
+> > to be able to have reproducible builds.
+> >
+> > See https://reproducible-builds.org/ for reasoning.
+> > This patch was done while working on reproducible builds for openSUSE.
+> >
+> > Signed-off-by: Cathy Hu <cahu@suse.de>
+>
+> Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+>
 
-Thanks, Roberto.  I reviewed and commented on the entire patch set.
-	Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>h
+Merged.
+Thanks,
+Jim
 
+> > ---
+> >  python/sepolicy/sepolicy/manpage.py | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepo=
+licy/manpage.py
+> > index a488dcbf..62999019 100755
+> > --- a/python/sepolicy/sepolicy/manpage.py
+> > +++ b/python/sepolicy/sepolicy/manpage.py
+> > @@ -156,7 +156,7 @@ def get_alphabet_manpages(manpage_list):
+> >              if j.split("/")[-1][0] =3D=3D i:
+> >                  temp.append(j.split("/")[-1])
+> >
+> > -        alphabet_manpages[i] =3D temp
+> > +        alphabet_manpages[i] =3D sorted(temp)
+> >
+> >      return alphabet_manpages
+> >
+> > --
+> > 2.42.0
+>
