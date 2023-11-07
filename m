@@ -2,316 +2,159 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCA6BC4332F
-	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 16:19:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9644BC4167B
+	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 17:21:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235022AbjKGQTo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Nov 2023 11:19:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51762 "EHLO
+        id S234772AbjKGRVT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Nov 2023 12:21:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344492AbjKGQTD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 11:19:03 -0500
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 504A58FA5
-        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 08:12:06 -0800 (PST)
-Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-5079f9ec8d9so6309151e87.0
-        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 08:12:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699373524; x=1699978324; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iCA+3pMVfrPOTyxVjEZzvQ8q8Ssff/31TVwayT9wPnE=;
-        b=HSm+SFa/qfz2MUNApT6tttzu3Yre2kAI+7mtFPR0x+IDozzbmkJl3n5W+mE4pl68Wn
-         kuRPPtl7mX6Ha2TG0eJZD9LxeJMjeZ47BDSxCbIBf5c3XUsklD8fajlSamODbFynyedW
-         nX/xBkigVcaZiVBJILZQiwd09v4MDQmafNiGh17v4FD6uLAOGdE6KWHIHyIY/Hbuys/S
-         S7kCu4pAvdKhmJiYWpeG/SBLmKlTAGm6XuAqiRgEYk0DmuCOYe1jG0Xfv1QcakyToXrT
-         g8a2/kVcbmhcOar4kOrnBHm89PP0Dm1KxZHIpdAhEhvE8XMmZHmMWO52i7W00hOSRrGA
-         /9sQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699373524; x=1699978324;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iCA+3pMVfrPOTyxVjEZzvQ8q8Ssff/31TVwayT9wPnE=;
-        b=QmRFoaQzPu97wgvKlb0yqGkbflLp4PxcAClPeexQIDHqOSG5x64OA4d5ml9P4Z2RKA
-         YqJnPX9xT+Kk7TVOHoiajgiPEP0++87rZfatY/X8lneHLzpBG9nN2YMv4zfqJK8UhM9r
-         lIIWgrFUmwBZZ1Aeigx9b2qhGwSX1ZtAY7ywk6w6uGhhSft6HtOXOiIWYy+VkX9ydFBK
-         Qnam8AYjXTkOUTzvZsseoaJRJPHvK4AlY9gAvwuchD3SKaycfkvUd4ve85giZGHn1Wqs
-         3Ql6QPnqNdpAyKJgEYn1WuJgYIezs1LTUgKcbImelOw+VOyBvwoMGOIqs6FARQ2YKYeD
-         +tNA==
-X-Gm-Message-State: AOJu0YzMhCzg6HTEunTWzVA4iGMmn2UupIBbbdi/lqepRFQA1SJCOget
-        g9WsUxHYZaKNzfoyOljzLj/UneoxydaTgQG8bH9vW75TKiI=
-X-Google-Smtp-Source: AGHT+IHPpjaxYkd5yShcemxgw2/5koCiVACGIV82S+38x5MhsYnlBBc9UHP1F/n4GkbeEoa2C9fVAW94ymiAapeUdpw=
-X-Received: by 2002:a05:6512:1382:b0:500:7aba:4d07 with SMTP id
- fc2-20020a056512138200b005007aba4d07mr1251595lfb.22.1699373524077; Tue, 07
- Nov 2023 08:12:04 -0800 (PST)
+        with ESMTP id S234679AbjKGRVS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 12:21:18 -0500
+Received: from sonic315-26.consmr.mail.ne1.yahoo.com (sonic315-26.consmr.mail.ne1.yahoo.com [66.163.190.152])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EAF2116
+        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 09:21:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1699377675; bh=CXHZIHWdNJZXYMl10DVOLUHbXZecyt6CAnXGFaZunZs=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=esTqaRxWxDnW3Rl5m/M8J0UIboibBiWjJw9ZniKeogjgqOHpHQDi1NbrOV5T3hOB35Qy6EFLiBi0WFNJ63CnaelLBtaGETpqn+poKfTZZzsqLs4vasZ8hyIvRi2VBM0KuXN6JH5vv6TEX2bON90TxQnOWmM6vhyZVUNNSfnIM/Nkl5Ehiuj/PvgLfqmqvcIb9PcSZzjq1SN2WwwchS+Qg7ytId1o0esO5tI/XrJF7poq/5RSkXLzAS0cTbnZhE47suc8O8xv3eCPYSKdLkrxAGE8PXMzXdNl76vDWHzomTC18CXRxrz4l3R3ZqQTDzfbnNinCDy25U96ovqPCchP4w==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1699377675; bh=YetT6LjqfgNnM6/JTaxIqoj7XtEGdAvyP+MYQXhLTpv=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=TeQY0y7L6REcid8+qdZvetg0MMJB3ZF5/N7JO85jHUtLpdzRGfTCB9KeyL/iyuFLc8VeeHI/Fa3ycdo9TpALcnIbcSp1lIjMz4UqYN/Vx4xTMv9nWzfu8ik8mrmSo7IVZMrqChgH0X4kQC/4z+Nryq68OaYdo1SkV0irImBOuSDF+AKRtnzk8W2VtMGYz5DN7jcrjmNlzBA0pjs2BCd1pRgPuudtDw/EChCHx05ho/pQoUdaNBu0t++T0mTu+Acm/4mZtwnukss+ZbolWJY51Q6CXnxn1lBDFd+4YlrQMuv0ovOkfS/553uu/XJ3347xCR+WzH1fdbKWh38rUo0aiA==
+X-YMail-OSG: PD8nixQVM1ngEQDjHe9kRBTVUL9k8gOFV5Y5SVY3UYLz8DScCfJMbrwrjkMyAng
+ 4cz3JgZOmMsXAY2XN_nFMHjz_wWYjUGgR_U9MoVmAHMb5mMdNMTyzF_1sMp7RLoIfTOHYQHgkYyg
+ jicdKyhVKSvrgv_Xqhjh3y.ufGjgSexPyD7BPtLAfwYiNgZPBqt2m8KGsu_qPNz7Xgqemdj2_4lL
+ JFfTVB5O55RnkWC3NcNrcUoxZ_xviAfYiiERvpQkQnmNGuAt2aPnkeFnpL5gqJe0xiy8ctH5f7T_
+ 5dzLggIqqgp556S1SazZpHKEg8bQ22VGq7Y3aqoQ.NQnRY38EHBx.cFR8afOb3HQAnM0dgLJGpiS
+ 2VHAry64i_Z4WP7amwPgO_8is7oOBpdxI_F83Go28t54q4FmhvPDffIcLdi2vHgZzwIEUsGFzOtX
+ KEI7lR7Dc5kyn2PHpPB9LBLTBgNgduNk6Ugi3BsCRBxUd8.DtB0Lr807zOc1UWhJILduLWRQ2Rpi
+ y2U_c8XCFQyX4SNHsaB_BhqQDD70whdxTqSlEeVRVPI7r3Ea24jh25r.AAUeYHF8MegVFLR_eAFb
+ h_fVGgYX3N.WkF4edlZtkTmpepXftSOL6AA83BTzIeTpx4e3HBG_In4jqGgT2Wi8B5j8hq7Y20zD
+ 7bPOh9Nuqq407zcVa8wBHoGdvRT3Db9_RZIOkDYBxuZH4zCHCPuIteTTYHiRkhIuHdlXArK6Dueg
+ Vm.K0qxiBLTmTKMJ0ahvgrXsMUT4znMl3z3i4Qow5jJnT1cq2QCIlBAqKz6CXMiRtzDdu3Afa.Xq
+ erRbihM1CagXXni51Ns_H6._Ph5pEHQ2SwqwZVxthN0v6.LNxERHXl5eiPqroITnxviQfIbAbP54
+ bdxdCDucxsHiRZI5dVJhB4z7NPTp1L00PjD815VVBA2OC_uCZgczEeRM2j.kGx33mQVbWfM3GIeJ
+ EenALfKqZzG.y9id0_57ZuieVJVO1nr00GWlghRlZ0wm3BmlsoWDGucw0OEkQXuCMYaPvNeRRnuq
+ xODE4ah6MtZaDWoTNHBQdPqjPTYH7SloRRqKxokMesRy4LTp738HnKjsGF5VasOy2iTgQmg1kVzh
+ lg2F.mNaeknf_9EnGmgQFp3uqg9Y7fV8eZJubajColvAggHNhQKF34oUThFNjE42qETRp3GkgWTB
+ UmziDhSI8SIL08e6BloE5RKE9.ITkD_wC43c8_UtZ_O3m9MkeqZDZsgMvzSKn.QEs0unzGPId9Zi
+ 0uQSvvccjX1Ent7FqanlRfauw32mTsfSpoUndflerrEGVMRwx5IO_L8XU5EOrP79OhOiNEAlRjT5
+ RWoR2MN9dth2nUC32fX5MUHkGRRK6iTMgEoHlPUp7_lgY3iJjI4XsW9AC94yEhJQNSLALG170Xsq
+ VVpvbEVvwCHkkWITeiBgm01NTx_kZ4HqsGWhDg63FV.rfebjlW7AxXrcKRGtYeepUTQrqMb.EjfL
+ xUCB4kW5MmDYRz37_LH8Wm1qEoKkUZ0XUQczc_mzkNb2HTgbALrAk6ThKLHQRVOPUCXMUZp9rITK
+ Uz3_d5E_a6KlUAUm6NSxknYqu1SdOZ4X4XllV6imv.fJCxFMSMS0Ogrpr85b7X2BMyNJG_cCkV3S
+ PRSp9wpjIinn8xEIDA3aiMKAiFV6hKs80cOzTotXJuU7e4ZINvgokxuBWhOVi.SOrczkqMn4_bJK
+ F3IoObOIcCKZd69uuCEQzk8tpxPmpLMI.pr8rE6lfWt2UL6RiXepM1Xk38OwFDsYoJdw2rKc2s6Q
+ ce4_iJuONjG7h9PNRUSrhKEXjBWUIhHqemhKeOrHnl4rtmzCVGbTPHRPFlmUMYZF_PLl6RSRl4C5
+ 23nS.SjYlpMeiJ8hOar_kNnsY5NjqEBKO3J5Crqksce72sCG0Y3bKPQCMUJ1NUqSCuQqUBF28lMO
+ _8PeLQlDRsLySU6qAUTSqRMOLWwz.dGGkCNfKZhLcmvvxcfXu6ShwP7sdESCzFdS2D1umarWjINb
+ B6mImHBOcbdzNZ4peRYTA9ncGIIjPorfub_RmUpRtXYSGUCWG6BfSPUHO08jGsGjRJ7HmMrOF92p
+ gBaI3dPZFkcBD6yWcFvq0iuWMu1Np5CvgCa8eU_633zWLZms0FkU3HTFpFMFu_QEuviKCVDSF6Lc
+ XuzIlTERpcZuKb2GwtaTaAzfBvmxLg_M4syduchXVsnnxWxY1ZDRHjJhAd0qfi79Y4KbyvfZyrce
+ RGbmk6AqZnJanIP06I8GFpeebOeAJOkWIy0lF7vB4tHR7HaV8Xbq2yEE-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 8631e5e9-50ce-4889-82e7-b4815c2fd28e
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Tue, 7 Nov 2023 17:21:15 +0000
+Received: by hermes--production-ne1-56df75844-jh4w4 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID ff49ad4e0dbb34301238ed939325073f;
+          Tue, 07 Nov 2023 17:21:10 +0000 (UTC)
+Message-ID: <765e5d26-973a-442b-86ed-81b5088237f9@schaufler-ca.com>
+Date:   Tue, 7 Nov 2023 09:21:09 -0800
 MIME-Version: 1.0
-References: <20231101163911.178218-1-cgzones@googlemail.com> <20231101163911.178218-2-cgzones@googlemail.com>
-In-Reply-To: <20231101163911.178218-2-cgzones@googlemail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 7 Nov 2023 11:11:52 -0500
-Message-ID: <CAP+JOzT_i9nkghx-9NWhfmz0NOYh=c+9VDS1U4=q0F--sgn=eQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libsepol: rework saturation check
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 01/23] ima: Align ima_inode_post_setattr() definition
+ with LSM infrastructure
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
+ <20231107134012.682009-2-roberto.sassu@huaweicloud.com>
+Content-Language: en-US
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20231107134012.682009-2-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21896 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 1, 2023 at 12:39=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On 11/7/2023 5:39 AM, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 >
-> Several values while parsing kernel policies, like symtab sizes or
-> string lengths, are checked for saturation.  They may not be set to the
-> maximum value, to avoid overflows or occupying a reserved value, and
-> many of those sizes must not be 0.  This is currently handled via the
-> two macros is_saturated() and zero_or_saturated().
+> Change ima_inode_post_setattr() definition, so that it can be registered as
+> implementation of the inode_post_setattr hook (to be introduced).
 >
-> Both macros are tweaked for the fuzzer, because the fuzzer can create
-> input with huge sizes.  While there is no subsequent data to provide
-> the announced sizes, which will be caught later, memory of the requested
-> size is allocated, which would lead to OOM reports.  Thus the sizes for
-> the fuzzer are limited to 2^16.  This has the drawback of the fuzzer
-> not checking the complete input space.
->
-> Rework the saturation checks to actually check if there is enough data
-> available for the announced size before allocating actual memory.
-> This only works for input via mapped memory, since the remaining size
-> for streams is not easily available.
->
-> Application like setools do currently not benefit from this change,
-> since they load the policy via a stream.  There are currently multiple
-> interfaces to load a policy, so reworking them to use mapped memory by
-> default might be subject for future work.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+
+Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+
 > ---
->  libsepol/src/avtab.c         |  2 +-
->  libsepol/src/context.c       |  2 +-
->  libsepol/src/module_to_cil.c |  2 +-
->  libsepol/src/policydb.c      | 16 ++++++++--------
->  libsepol/src/private.h       | 22 ++++++++++++++++------
->  libsepol/src/services.c      |  2 +-
->  6 files changed, 28 insertions(+), 18 deletions(-)
+>  fs/attr.c                             | 2 +-
+>  include/linux/ima.h                   | 4 ++--
+>  security/integrity/ima/ima_appraise.c | 3 ++-
+>  3 files changed, 5 insertions(+), 4 deletions(-)
 >
-> diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-> index 6ab49c5e..f379d8d8 100644
-> --- a/libsepol/src/avtab.c
-> +++ b/libsepol/src/avtab.c
-> @@ -601,7 +601,7 @@ int avtab_read(avtab_t * a, struct policy_file *fp, u=
-int32_t vers)
->                 goto bad;
->         }
->         nel =3D le32_to_cpu(buf[0]);
-> -       if (!nel) {
-> +       if (zero_or_saturated(nel, fp, sizeof(uint32_t) * 3)) {
-
-I think that I would prefer zero_or_staturated() and is_saturated() to
-be left alone and just add the additional check where it can be used.
-
-Like:
-if (zero_or_saturated(nel) || exceeds_available_bytes(nel, fp,
-sizeof(unit32_t)*3))) {
-
-
->                 ERR(fp->handle, "table is empty");
->                 goto bad;
->         }
-> diff --git a/libsepol/src/context.c b/libsepol/src/context.c
-> index 5cc90afb..5ee21724 100644
-> --- a/libsepol/src/context.c
-> +++ b/libsepol/src/context.c
-> @@ -297,7 +297,7 @@ int context_from_string(sepol_handle_t * handle,
->         char *con_cpy =3D NULL;
->         sepol_context_t *ctx_record =3D NULL;
->
-> -       if (zero_or_saturated(con_str_len)) {
-> +       if (con_str_len =3D=3D 0 || con_str_len =3D=3D SIZE_MAX) {
-
-This doesn't need to change if my suggestion above is followed.
-
->                 ERR(handle, "Invalid context length");
->                 goto err;
->         }
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index d2868019..1d0a507c 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -122,7 +122,7 @@ static int get_line(char **start, char *end, char **l=
-ine)
->
->         for (len =3D 0; p < end && *p !=3D '\n' && *p !=3D '\0'; p++, len=
-++);
->
-> -       if (zero_or_saturated(len)) {
-> +       if (len =3D=3D 0 || len =3D=3D SIZE_MAX) {
-
-This wouldn't have to change either.
-
->                 rc =3D 0;
->                 goto exit;
->         }
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index f608aba4..00a986e8 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -2854,7 +2854,7 @@ static int ocontext_read_xen(const struct policydb_=
-compat_info *info,
->                                 if (rc < 0)
->                                         return -1;
->                                 c->sid[0] =3D le32_to_cpu(buf[0]);
-> -                               if (is_saturated(c->sid[0]))
-> +                               if (c->sid[0] > 127)
-
-Where does the 127 come from? Practically, 127 is way more than we
-would probably ever have, but I don't think there is a limit.
-
-There might be a case to be made that we should set some reasonable
-limits for things like initial sids.
-
->                                         return -1;
->                                 if (context_read_and_validate
->                                     (&c->context[0], p, fp))
-> @@ -2960,7 +2960,7 @@ static int ocontext_read_selinux(const struct polic=
-ydb_compat_info *info,
->                                 if (rc < 0)
->                                         return -1;
->                                 c->sid[0] =3D le32_to_cpu(buf[0]);
-> -                               if (is_saturated(c->sid[0]))
-> +                               if (c->sid[0] > 127)
-
-Same comment here.
-
->                                         return -1;
->                                 if (context_read_and_validate
->                                     (&c->context[0], p, fp))
-> @@ -3857,7 +3857,7 @@ static int scope_index_read(scope_index_t * scope_i=
-ndex,
->         if (rc < 0)
->                 return -1;
->         scope_index->class_perms_len =3D le32_to_cpu(buf[0]);
-> -       if (is_saturated(scope_index->class_perms_len))
-> +       if (is_saturated(scope_index->class_perms_len, fp, sizeof(uint32_=
-t) * 3))
-
-So:
-if (is_saturated(scope_index->class_perms_len) ||
-exceeds_available_bytes(scope_index->class_perms_len, fp,
-sizeof(uint32_t) * 3)) {
-
->                 return -1;
->         if (scope_index->class_perms_len =3D=3D 0) {
->                 scope_index->class_perms_map =3D NULL;
-> @@ -3913,7 +3913,7 @@ static int avrule_decl_read(policydb_t * p, avrule_=
-decl_t * decl,
->                 if (rc < 0)
->                         return -1;
->                 nprim =3D le32_to_cpu(buf[0]);
-> -               if (is_saturated(nprim))
-> +               if (nprim =3D=3D UINT32_MAX)
-
-This can then be unchanged.
-
->                         return -1;
->                 nel =3D le32_to_cpu(buf[1]);
->                 for (j =3D 0; j < nel; j++) {
-> @@ -4036,7 +4036,7 @@ static int scope_read(policydb_t * p, int symnum, s=
-truct policy_file *fp)
->                 goto cleanup;
->         scope->scope =3D le32_to_cpu(buf[0]);
->         scope->decl_ids_len =3D le32_to_cpu(buf[1]);
-> -       if (zero_or_saturated(scope->decl_ids_len)) {
-> +       if (zero_or_saturated(scope->decl_ids_len, fp, sizeof(uint32_t)))=
- {
-
-Again:
-if (zero_or_staturated(...) || exceeds_available_bytes()) {
-
-And so on below.
-
-Thanks,
-Jim
-
-
->                 ERR(fp->handle, "invalid scope with no declaration");
->                 goto cleanup;
->         }
-> @@ -4120,8 +4120,8 @@ int policydb_read(policydb_t * p, struct policy_fil=
-e *fp, unsigned verbose)
+> diff --git a/fs/attr.c b/fs/attr.c
+> index bdf5deb06ea9..9bddc0a6352c 100644
+> --- a/fs/attr.c
+> +++ b/fs/attr.c
+> @@ -502,7 +502,7 @@ int notify_change(struct mnt_idmap *idmap, struct dentry *dentry,
+>  
+>  	if (!error) {
+>  		fsnotify_change(dentry, ia_valid);
+> -		ima_inode_post_setattr(idmap, dentry);
+> +		ima_inode_post_setattr(idmap, dentry, ia_valid);
+>  		evm_inode_post_setattr(dentry, ia_valid);
+>  	}
+>  
+> diff --git a/include/linux/ima.h b/include/linux/ima.h
+> index 86b57757c7b1..910a2f11a906 100644
+> --- a/include/linux/ima.h
+> +++ b/include/linux/ima.h
+> @@ -186,7 +186,7 @@ static inline void ima_post_key_create_or_update(struct key *keyring,
+>  #ifdef CONFIG_IMA_APPRAISE
+>  extern bool is_ima_appraise_enabled(void);
+>  extern void ima_inode_post_setattr(struct mnt_idmap *idmap,
+> -				   struct dentry *dentry);
+> +				   struct dentry *dentry, int ia_valid);
+>  extern int ima_inode_setxattr(struct dentry *dentry, const char *xattr_name,
+>  		       const void *xattr_value, size_t xattr_value_len);
+>  extern int ima_inode_set_acl(struct mnt_idmap *idmap,
+> @@ -206,7 +206,7 @@ static inline bool is_ima_appraise_enabled(void)
+>  }
+>  
+>  static inline void ima_inode_post_setattr(struct mnt_idmap *idmap,
+> -					  struct dentry *dentry)
+> +					  struct dentry *dentry, int ia_valid)
 >  {
->
->         unsigned int i, j, r_policyvers;
-> -       uint32_t buf[5];
-> -       size_t len, nprim, nel;
-> +       uint32_t buf[5], nprim;
-> +       size_t len, nel;
->         char *policydb_str;
->         const struct policydb_compat_info *info;
->         unsigned int policy_type, bufindex;
-> @@ -4315,7 +4315,7 @@ int policydb_read(policydb_t * p, struct policy_fil=
-e *fp, unsigned verbose)
->                 if (rc < 0)
->                         goto bad;
->                 nprim =3D le32_to_cpu(buf[0]);
-> -               if (is_saturated(nprim))
-> +               if (is_saturated(nprim, fp, sizeof(uint32_t) * 3))
->                         goto bad;
->                 nel =3D le32_to_cpu(buf[1]);
->                 if (nel && !nprim) {
-> diff --git a/libsepol/src/private.h b/libsepol/src/private.h
-> index 1833b497..d1fe66b6 100644
-> --- a/libsepol/src/private.h
-> +++ b/libsepol/src/private.h
-> @@ -44,13 +44,23 @@
->
->  #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
->
-> -#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-> -# define is_saturated(x) (x =3D=3D (typeof(x))-1 || (x) > (1U << 16))
-> -#else
-> -# define is_saturated(x) (x =3D=3D (typeof(x))-1)
-> -#endif
-> +static inline int exceeds_available_bytes(size_t x, const struct policy_=
-file *fp, size_t req_elem_size)
-> +{
-> +       size_t req_size;
-> +
-> +       /* Remaining input size is only available for mmap'ed memory */
-> +       if (fp->type !=3D PF_USE_MEMORY)
-> +               return 0;
-> +
-> +       if (__builtin_mul_overflow(x, req_elem_size, &req_size))
-> +               return 1;
-> +
-> +       return req_size > fp->len;
-> +}
-> +
-> +#define is_saturated(x, fp, req_elem_size) ((x) =3D=3D (typeof(x))-1 || =
-exceeds_available_bytes(x, fp, req_elem_size))
->
-> -#define zero_or_saturated(x) ((x =3D=3D 0) || is_saturated(x))
-> +#define zero_or_saturated(x, fp, req_elem_size) ((x) =3D=3D 0 || is_satu=
-rated(x, fp, req_elem_size))
->
->  #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
->
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index 51bd56a0..f9280d89 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -1748,7 +1748,7 @@ int str_read(char **strp, struct policy_file *fp, s=
-ize_t len)
->         int rc;
->         char *str;
->
-> -       if (zero_or_saturated(len)) {
-> +       if (zero_or_saturated(len, fp, sizeof(char))) {
->                 errno =3D EINVAL;
->                 return -1;
->         }
-> --
-> 2.42.0
->
+>  	return;
+>  }
+> diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+> index 870dde67707b..36c2938a5c69 100644
+> --- a/security/integrity/ima/ima_appraise.c
+> +++ b/security/integrity/ima/ima_appraise.c
+> @@ -629,6 +629,7 @@ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file)
+>   * ima_inode_post_setattr - reflect file metadata changes
+>   * @idmap:  idmap of the mount the inode was found from
+>   * @dentry: pointer to the affected dentry
+> + * @ia_valid: for the UID and GID status
+>   *
+>   * Changes to a dentry's metadata might result in needing to appraise.
+>   *
+> @@ -636,7 +637,7 @@ void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file)
+>   * to lock the inode's i_mutex.
+>   */
+>  void ima_inode_post_setattr(struct mnt_idmap *idmap,
+> -			    struct dentry *dentry)
+> +			    struct dentry *dentry, int ia_valid)
+>  {
+>  	struct inode *inode = d_backing_inode(dentry);
+>  	struct integrity_iint_cache *iint;
