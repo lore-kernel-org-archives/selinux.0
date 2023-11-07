@@ -2,286 +2,316 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 428EBC4167B
-	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 14:06:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCA6BC4332F
+	for <selinux@archiver.kernel.org>; Tue,  7 Nov 2023 16:19:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbjKGOGf convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Tue, 7 Nov 2023 09:06:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48806 "EHLO
+        id S235022AbjKGQTo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Nov 2023 11:19:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229643AbjKGOGe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 09:06:34 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A5EFFA;
-        Tue,  7 Nov 2023 06:06:31 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4SPqRl5HJjz9xrp2;
-        Tue,  7 Nov 2023 21:53:07 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwAXBXU7REpltbY3AA--.54899S2;
-        Tue, 07 Nov 2023 15:06:02 +0100 (CET)
-Message-ID: <563820b8fd57deb99e6247b6cdb416c4c3af3091.camel@huaweicloud.com>
-Subject: Re: [PATCH v5 00/23] security: Move IMA and EVM to the LSM
- infrastructure
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     viro@zeniv.linux.org.uk, brauner@kernel.org,
-        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
-        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, mic@digikod.net
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
-Date:   Tue, 07 Nov 2023 15:05:44 +0100
-In-Reply-To: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
-References: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4-0ubuntu2 
+        with ESMTP id S1344492AbjKGQTD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 11:19:03 -0500
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 504A58FA5
+        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 08:12:06 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-5079f9ec8d9so6309151e87.0
+        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 08:12:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1699373524; x=1699978324; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iCA+3pMVfrPOTyxVjEZzvQ8q8Ssff/31TVwayT9wPnE=;
+        b=HSm+SFa/qfz2MUNApT6tttzu3Yre2kAI+7mtFPR0x+IDozzbmkJl3n5W+mE4pl68Wn
+         kuRPPtl7mX6Ha2TG0eJZD9LxeJMjeZ47BDSxCbIBf5c3XUsklD8fajlSamODbFynyedW
+         nX/xBkigVcaZiVBJILZQiwd09v4MDQmafNiGh17v4FD6uLAOGdE6KWHIHyIY/Hbuys/S
+         S7kCu4pAvdKhmJiYWpeG/SBLmKlTAGm6XuAqiRgEYk0DmuCOYe1jG0Xfv1QcakyToXrT
+         g8a2/kVcbmhcOar4kOrnBHm89PP0Dm1KxZHIpdAhEhvE8XMmZHmMWO52i7W00hOSRrGA
+         /9sQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699373524; x=1699978324;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iCA+3pMVfrPOTyxVjEZzvQ8q8Ssff/31TVwayT9wPnE=;
+        b=QmRFoaQzPu97wgvKlb0yqGkbflLp4PxcAClPeexQIDHqOSG5x64OA4d5ml9P4Z2RKA
+         YqJnPX9xT+Kk7TVOHoiajgiPEP0++87rZfatY/X8lneHLzpBG9nN2YMv4zfqJK8UhM9r
+         lIIWgrFUmwBZZ1Aeigx9b2qhGwSX1ZtAY7ywk6w6uGhhSft6HtOXOiIWYy+VkX9ydFBK
+         Qnam8AYjXTkOUTzvZsseoaJRJPHvK4AlY9gAvwuchD3SKaycfkvUd4ve85giZGHn1Wqs
+         3Ql6QPnqNdpAyKJgEYn1WuJgYIezs1LTUgKcbImelOw+VOyBvwoMGOIqs6FARQ2YKYeD
+         +tNA==
+X-Gm-Message-State: AOJu0YzMhCzg6HTEunTWzVA4iGMmn2UupIBbbdi/lqepRFQA1SJCOget
+        g9WsUxHYZaKNzfoyOljzLj/UneoxydaTgQG8bH9vW75TKiI=
+X-Google-Smtp-Source: AGHT+IHPpjaxYkd5yShcemxgw2/5koCiVACGIV82S+38x5MhsYnlBBc9UHP1F/n4GkbeEoa2C9fVAW94ymiAapeUdpw=
+X-Received: by 2002:a05:6512:1382:b0:500:7aba:4d07 with SMTP id
+ fc2-20020a056512138200b005007aba4d07mr1251595lfb.22.1699373524077; Tue, 07
+ Nov 2023 08:12:04 -0800 (PST)
 MIME-Version: 1.0
-X-CM-TRANSID: LxC2BwAXBXU7REpltbY3AA--.54899S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3Jr43Aw43trWkGFWrAFWUurg_yoWDJFWrpF
-        4kKa15A34kJFy2k393AF4xua1S9ayrWrWUXr9xKry8Z3W5tr1FqFWSkrWY9ry5GrWrXw1I
-        q3ZFy3s8ur1qyFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUk0b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv
-        6xkF7I0E14v26F4UJVW0obIYCTnIWIevJa73UjIFyTuYvjxUFYFCUUUUU
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAOBF1jj5YblQABsj
-X-CFilter-Loop: Reflected
+References: <20231101163911.178218-1-cgzones@googlemail.com> <20231101163911.178218-2-cgzones@googlemail.com>
+In-Reply-To: <20231101163911.178218-2-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 7 Nov 2023 11:11:52 -0500
+Message-ID: <CAP+JOzT_i9nkghx-9NWhfmz0NOYh=c+9VDS1U4=q0F--sgn=eQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libsepol: rework saturation check
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2023-11-07 at 14:39 +0100, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
+On Wed, Nov 1, 2023 at 12:39=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Several values while parsing kernel policies, like symtab sizes or
+> string lengths, are checked for saturation.  They may not be set to the
+> maximum value, to avoid overflows or occupying a reserved value, and
+> many of those sizes must not be 0.  This is currently handled via the
+> two macros is_saturated() and zero_or_saturated().
+>
+> Both macros are tweaked for the fuzzer, because the fuzzer can create
+> input with huge sizes.  While there is no subsequent data to provide
+> the announced sizes, which will be caught later, memory of the requested
+> size is allocated, which would lead to OOM reports.  Thus the sizes for
+> the fuzzer are limited to 2^16.  This has the drawback of the fuzzer
+> not checking the complete input space.
+>
+> Rework the saturation checks to actually check if there is enough data
+> available for the announced size before allocating actual memory.
+> This only works for input via mapped memory, since the remaining size
+> for streams is not easily available.
+>
+> Application like setools do currently not benefit from this change,
+> since they load the policy via a stream.  There are currently multiple
+> interfaces to load a policy, so reworking them to use mapped memory by
+> default might be subject for future work.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libsepol/src/avtab.c         |  2 +-
+>  libsepol/src/context.c       |  2 +-
+>  libsepol/src/module_to_cil.c |  2 +-
+>  libsepol/src/policydb.c      | 16 ++++++++--------
+>  libsepol/src/private.h       | 22 ++++++++++++++++------
+>  libsepol/src/services.c      |  2 +-
+>  6 files changed, 28 insertions(+), 18 deletions(-)
+>
+> diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+> index 6ab49c5e..f379d8d8 100644
+> --- a/libsepol/src/avtab.c
+> +++ b/libsepol/src/avtab.c
+> @@ -601,7 +601,7 @@ int avtab_read(avtab_t * a, struct policy_file *fp, u=
+int32_t vers)
+>                 goto bad;
+>         }
+>         nel =3D le32_to_cpu(buf[0]);
+> -       if (!nel) {
+> +       if (zero_or_saturated(nel, fp, sizeof(uint32_t) * 3)) {
 
-Hi everyone
+I think that I would prefer zero_or_staturated() and is_saturated() to
+be left alone and just add the additional check where it can be used.
 
-I kindly ask your support to add the missing reviewed-by/acked-by. I
-summarize what is missing below:
+Like:
+if (zero_or_saturated(nel) || exceeds_available_bytes(nel, fp,
+sizeof(unit32_t)*3))) {
 
-- @Mimi: patches 1, 2, 4, 5, 6, 19, 21, 22, 23 (IMA/EVM-specific
-         patches)
-- @Al/@Christian: patches 10-17 (VFS-specific patches)
-- @Paul: patches 10-23 (VFS-specific patches/new LSM hooks/new LSMs)
-- @David Howells/@Jarkko: patch 18 (new LSM hook in the key subsystem)
-- @Chuck Lever: patch 12 (new LSM hook in nfsd/vfs.c)
 
-Paul, as I mentioned I currently based the patch set on lsm/dev-
-staging, which include the following dependencies:
+>                 ERR(fp->handle, "table is empty");
+>                 goto bad;
+>         }
+> diff --git a/libsepol/src/context.c b/libsepol/src/context.c
+> index 5cc90afb..5ee21724 100644
+> --- a/libsepol/src/context.c
+> +++ b/libsepol/src/context.c
+> @@ -297,7 +297,7 @@ int context_from_string(sepol_handle_t * handle,
+>         char *con_cpy =3D NULL;
+>         sepol_context_t *ctx_record =3D NULL;
+>
+> -       if (zero_or_saturated(con_str_len)) {
+> +       if (con_str_len =3D=3D 0 || con_str_len =3D=3D SIZE_MAX) {
 
-8f79e425c140 lsm: don't yet account for IMA in LSM_CONFIG_COUNT calculation
-3c91a124f23d lsm: drop LSM_ID_IMA
+This doesn't need to change if my suggestion above is followed.
 
-I know you wanted to wait until at least rc1 to make lsm/dev. I will
-help for rebasing my patch set, if needed.
+>                 ERR(handle, "Invalid context length");
+>                 goto err;
+>         }
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index d2868019..1d0a507c 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -122,7 +122,7 @@ static int get_line(char **start, char *end, char **l=
+ine)
+>
+>         for (len =3D 0; p < end && *p !=3D '\n' && *p !=3D '\0'; p++, len=
+++);
+>
+> -       if (zero_or_saturated(len)) {
+> +       if (len =3D=3D 0 || len =3D=3D SIZE_MAX) {
 
-Chuck, Mimi, there were two conflicts during the latest rebase:
+This wouldn't have to change either.
 
-d59b3515ab021 - nfsd: Handle EOPENSTALE correctly in the filecache
-68279f9c9f59 - treewide: mark stuff as __ro_after_init
+>                 rc =3D 0;
+>                 goto exit;
+>         }
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index f608aba4..00a986e8 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -2854,7 +2854,7 @@ static int ocontext_read_xen(const struct policydb_=
+compat_info *info,
+>                                 if (rc < 0)
+>                                         return -1;
+>                                 c->sid[0] =3D le32_to_cpu(buf[0]);
+> -                               if (is_saturated(c->sid[0]))
+> +                               if (c->sid[0] > 127)
 
-The first one required to change from 'goto out_nfserr' to 'goto out'
-in the error path of patch 12.
+Where does the 127 come from? Practically, 127 is way more than we
+would probably ever have, but I don't think there is a limit.
 
-The second one was automatically solved by kdiff3. It was because of
-this change:
+There might be a case to be made that we should set some reasonable
+limits for things like initial sids.
 
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -23,7 +23,7 @@
- 
- static struct rb_root integrity_iint_tree = RB_ROOT;
- static DEFINE_RWLOCK(integrity_iint_lock);
--static struct kmem_cache *iint_cache __read_mostly;
-+static struct kmem_cache *iint_cache __ro_after_init;
+>                                         return -1;
+>                                 if (context_read_and_validate
+>                                     (&c->context[0], p, fp))
+> @@ -2960,7 +2960,7 @@ static int ocontext_read_selinux(const struct polic=
+ydb_compat_info *info,
+>                                 if (rc < 0)
+>                                         return -1;
+>                                 c->sid[0] =3D le32_to_cpu(buf[0]);
+> -                               if (is_saturated(c->sid[0]))
+> +                               if (c->sid[0] > 127)
 
-I'm running the IMA tests for every patch set version. So far, no
-issues detected:
+Same comment here.
 
-https://github.com/robertosassu/ima-evm-utils/actions/runs/6774439916
+>                                         return -1;
+>                                 if (context_read_and_validate
+>                                     (&c->context[0], p, fp))
+> @@ -3857,7 +3857,7 @@ static int scope_index_read(scope_index_t * scope_i=
+ndex,
+>         if (rc < 0)
+>                 return -1;
+>         scope_index->class_perms_len =3D le32_to_cpu(buf[0]);
+> -       if (is_saturated(scope_index->class_perms_len))
+> +       if (is_saturated(scope_index->class_perms_len, fp, sizeof(uint32_=
+t) * 3))
 
-Please let me know if I can help with the process.
+So:
+if (is_saturated(scope_index->class_perms_len) ||
+exceeds_available_bytes(scope_index->class_perms_len, fp,
+sizeof(uint32_t) * 3)) {
 
-Thanks
+>                 return -1;
+>         if (scope_index->class_perms_len =3D=3D 0) {
+>                 scope_index->class_perms_map =3D NULL;
+> @@ -3913,7 +3913,7 @@ static int avrule_decl_read(policydb_t * p, avrule_=
+decl_t * decl,
+>                 if (rc < 0)
+>                         return -1;
+>                 nprim =3D le32_to_cpu(buf[0]);
+> -               if (is_saturated(nprim))
+> +               if (nprim =3D=3D UINT32_MAX)
 
-Roberto
+This can then be unchanged.
 
-> IMA and EVM are not effectively LSMs, especially due to the fact that in
-> the past they could not provide a security blob while there is another LSM
-> active.
-> 
-> That changed in the recent years, the LSM stacking feature now makes it
-> possible to stack together multiple LSMs, and allows them to provide a
-> security blob for most kernel objects. While the LSM stacking feature has
-> some limitations being worked out, it is already suitable to make IMA and
-> EVM as LSMs.
-> 
-> In short, while this patch set is big, it does not make any functional
-> change to IMA and EVM. IMA and EVM functions are called by the LSM
-> infrastructure in the same places as before (except ima_post_path_mknod()),
-> rather being hardcoded calls, and the inode metadata pointer is directly
-> stored in the inode security blob rather than in a separate rbtree.
-> 
-> To avoid functional changes, it was necessary to keep the 'integrity' LSM
-> in addition to the newly introduced 'ima' and 'evm' LSMs, despite there is
-> no LSM ID assigned to it. There are two reasons: first, IMA and EVM still
-> share the same inode metadata, and thus cannot directly reserve space in
-> the security blob for it; second, someone needs to initialize 'ima' and
-> 'evm' exactly in this order, as the LSM infrastructure cannot guarantee
-> that.
-> 
-> The patch set is organized as follows.
-> 
-> Patches 1-9 make IMA and EVM functions suitable to be registered to the LSM
-> infrastructure, by aligning function parameters.
-> 
-> Patches 10-18 add new LSM hooks in the same places where IMA and EVM
-> functions are called, if there is no LSM hook already.
-> 
-> Patches 19-22 do the bulk of the work, introduce the new LSMs 'ima' and
-> 'evm', and move hardcoded calls to IMA, EVM and integrity functions to
-> those LSMs. In addition, they reserve one slot for the 'evm' LSM to supply
-> an xattr with the inode_init_security hook.
-> 
-> Finally, patch 23 removes the rbtree used to bind integrity metadata to the
-> inodes, and instead reserves a space in the inode security blob to store
-> the pointer to that metadata. This also brings performance improvements due
-> to retrieving metadata in constant time, as opposed to logarithmic.
-> 
-> The patch set applies on top of lsm/dev-staging, commit ba7ce019d3e9 ("lsm:
-> convert security_setselfattr() to use memdup_user()"). No need to merge
-> linux-integrity/next-integrity-testing.
-> 
-> Changelog:
-> 
-> v4:
->  - Improve short and long description of
->    security_inode_post_create_tmpfile(), security_inode_post_set_acl(),
->    security_inode_post_remove_acl() and security_file_post_open()
->    (suggested by Mimi)
->  - Improve commit message of 'ima: Move to LSM infrastructure' (suggested
->    by Mimi)
-> 
-> v3:
->  - Drop 'ima: Align ima_post_path_mknod() definition with LSM
->    infrastructure' and 'ima: Align ima_post_create_tmpfile() definition
->    with LSM infrastructure', define the new LSM hooks with the same
->    IMA parameters instead (suggested by Mimi)
->  - Do IS_PRIVATE() check in security_path_post_mknod() and
->    security_inode_post_create_tmpfile() on the new inode rather than the
->    parent directory (in the post method it is available)
->  - Don't export ima_file_check() (suggested by Stefan)
->  - Remove redundant check of file mode in ima_post_path_mknod() (suggested
->    by Mimi)
->  - Mention that ima_post_path_mknod() is now conditionally invoked when
->    CONFIG_SECURITY_PATH=y (suggested by Mimi)
->  - Mention when a LSM hook will be introduced in the IMA/EVM alignment
->    patches (suggested by Mimi)
->  - Simplify the commit messages when introducing a new LSM hook
->  - Still keep the 'extern' in the function declaration, until the
->    declaration is removed (suggested by Mimi)
->  - Improve documentation of security_file_pre_free()
->  - Register 'ima' and 'evm' as standalone LSMs (suggested by Paul)
->  - Initialize the 'ima' and 'evm' LSMs from 'integrity', to keep the
->    original ordering of IMA and EVM functions as when they were hardcoded
->  - Return the IMA and EVM LSM IDs to 'integrity' for registration of the
->    integrity-specific hooks
->  - Reserve an xattr slot from the 'evm' LSM instead of 'integrity'
->  - Pass the LSM ID to init_ima_appraise_lsm()
-> 
-> v2:
->  - Add description for newly introduced LSM hooks (suggested by Casey)
->  - Clarify in the description of security_file_pre_free() that actions can
->    be performed while the file is still open
-> 
-> v1:
->  - Drop 'evm: Complete description of evm_inode_setattr()', 'fs: Fix
->    description of vfs_tmpfile()' and 'security: Introduce LSM_ORDER_LAST',
->    they were sent separately (suggested by Christian Brauner)
->  - Replace dentry with file descriptor parameter for
->    security_inode_post_create_tmpfile()
->  - Introduce mode_stripped and pass it as mode argument to
->    security_path_mknod() and security_path_post_mknod()
->  - Use goto in do_mknodat() and __vfs_removexattr_locked() (suggested by
->    Mimi)
->  - Replace __lsm_ro_after_init with __ro_after_init
->  - Modify short description of security_inode_post_create_tmpfile() and
->    security_inode_post_set_acl() (suggested by Stefan)
->  - Move security_inode_post_setattr() just after security_inode_setattr()
->    (suggested by Mimi)
->  - Modify short description of security_key_post_create_or_update()
->    (suggested by Mimi)
->  - Add back exported functions ima_file_check() and
->    evm_inode_init_security() respectively to ima.h and evm.h (reported by
->    kernel robot)
->  - Remove extern from prototype declarations and fix style issues
->  - Remove unnecessary include of linux/lsm_hooks.h in ima_main.c and
->    ima_appraise.c
-> 
-> Roberto Sassu (23):
->   ima: Align ima_inode_post_setattr() definition with LSM infrastructure
->   ima: Align ima_file_mprotect() definition with LSM infrastructure
->   ima: Align ima_inode_setxattr() definition with LSM infrastructure
->   ima: Align ima_inode_removexattr() definition with LSM infrastructure
->   ima: Align ima_post_read_file() definition with LSM infrastructure
->   evm: Align evm_inode_post_setattr() definition with LSM infrastructure
->   evm: Align evm_inode_setxattr() definition with LSM infrastructure
->   evm: Align evm_inode_post_setxattr() definition with LSM
->     infrastructure
->   security: Align inode_setattr hook definition with EVM
->   security: Introduce inode_post_setattr hook
->   security: Introduce inode_post_removexattr hook
->   security: Introduce file_post_open hook
->   security: Introduce file_pre_free_security hook
->   security: Introduce path_post_mknod hook
->   security: Introduce inode_post_create_tmpfile hook
->   security: Introduce inode_post_set_acl hook
->   security: Introduce inode_post_remove_acl hook
->   security: Introduce key_post_create_or_update hook
->   ima: Move to LSM infrastructure
->   ima: Move IMA-Appraisal to LSM infrastructure
->   evm: Move to LSM infrastructure
->   integrity: Move integrity functions to the LSM infrastructure
->   integrity: Switch from rbtree to LSM-managed blob for
->     integrity_iint_cache
-> 
->  fs/attr.c                             |   5 +-
->  fs/file_table.c                       |   3 +-
->  fs/namei.c                            |  12 +-
->  fs/nfsd/vfs.c                         |   3 +-
->  fs/open.c                             |   1 -
->  fs/posix_acl.c                        |   5 +-
->  fs/xattr.c                            |   9 +-
->  include/linux/evm.h                   | 103 ----------
->  include/linux/ima.h                   | 142 --------------
->  include/linux/integrity.h             |  26 ---
->  include/linux/lsm_hook_defs.h         |  20 +-
->  include/linux/security.h              |  59 ++++++
->  include/uapi/linux/lsm.h              |   2 +
->  security/integrity/evm/evm_main.c     | 138 ++++++++++++--
->  security/integrity/iint.c             | 113 +++++------
->  security/integrity/ima/ima.h          |  11 ++
->  security/integrity/ima/ima_appraise.c |  37 +++-
->  security/integrity/ima/ima_main.c     |  96 ++++++++--
->  security/integrity/integrity.h        |  58 +++++-
->  security/keys/key.c                   |  10 +-
->  security/security.c                   | 261 ++++++++++++++++----------
->  security/selinux/hooks.c              |   3 +-
->  security/smack/smack_lsm.c            |   4 +-
->  23 files changed, 614 insertions(+), 507 deletions(-)
-> 
+>                         return -1;
+>                 nel =3D le32_to_cpu(buf[1]);
+>                 for (j =3D 0; j < nel; j++) {
+> @@ -4036,7 +4036,7 @@ static int scope_read(policydb_t * p, int symnum, s=
+truct policy_file *fp)
+>                 goto cleanup;
+>         scope->scope =3D le32_to_cpu(buf[0]);
+>         scope->decl_ids_len =3D le32_to_cpu(buf[1]);
+> -       if (zero_or_saturated(scope->decl_ids_len)) {
+> +       if (zero_or_saturated(scope->decl_ids_len, fp, sizeof(uint32_t)))=
+ {
 
+Again:
+if (zero_or_staturated(...) || exceeds_available_bytes()) {
+
+And so on below.
+
+Thanks,
+Jim
+
+
+>                 ERR(fp->handle, "invalid scope with no declaration");
+>                 goto cleanup;
+>         }
+> @@ -4120,8 +4120,8 @@ int policydb_read(policydb_t * p, struct policy_fil=
+e *fp, unsigned verbose)
+>  {
+>
+>         unsigned int i, j, r_policyvers;
+> -       uint32_t buf[5];
+> -       size_t len, nprim, nel;
+> +       uint32_t buf[5], nprim;
+> +       size_t len, nel;
+>         char *policydb_str;
+>         const struct policydb_compat_info *info;
+>         unsigned int policy_type, bufindex;
+> @@ -4315,7 +4315,7 @@ int policydb_read(policydb_t * p, struct policy_fil=
+e *fp, unsigned verbose)
+>                 if (rc < 0)
+>                         goto bad;
+>                 nprim =3D le32_to_cpu(buf[0]);
+> -               if (is_saturated(nprim))
+> +               if (is_saturated(nprim, fp, sizeof(uint32_t) * 3))
+>                         goto bad;
+>                 nel =3D le32_to_cpu(buf[1]);
+>                 if (nel && !nprim) {
+> diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+> index 1833b497..d1fe66b6 100644
+> --- a/libsepol/src/private.h
+> +++ b/libsepol/src/private.h
+> @@ -44,13 +44,23 @@
+>
+>  #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+>
+> -#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+> -# define is_saturated(x) (x =3D=3D (typeof(x))-1 || (x) > (1U << 16))
+> -#else
+> -# define is_saturated(x) (x =3D=3D (typeof(x))-1)
+> -#endif
+> +static inline int exceeds_available_bytes(size_t x, const struct policy_=
+file *fp, size_t req_elem_size)
+> +{
+> +       size_t req_size;
+> +
+> +       /* Remaining input size is only available for mmap'ed memory */
+> +       if (fp->type !=3D PF_USE_MEMORY)
+> +               return 0;
+> +
+> +       if (__builtin_mul_overflow(x, req_elem_size, &req_size))
+> +               return 1;
+> +
+> +       return req_size > fp->len;
+> +}
+> +
+> +#define is_saturated(x, fp, req_elem_size) ((x) =3D=3D (typeof(x))-1 || =
+exceeds_available_bytes(x, fp, req_elem_size))
+>
+> -#define zero_or_saturated(x) ((x =3D=3D 0) || is_saturated(x))
+> +#define zero_or_saturated(x, fp, req_elem_size) ((x) =3D=3D 0 || is_satu=
+rated(x, fp, req_elem_size))
+>
+>  #define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
+>
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index 51bd56a0..f9280d89 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -1748,7 +1748,7 @@ int str_read(char **strp, struct policy_file *fp, s=
+ize_t len)
+>         int rc;
+>         char *str;
+>
+> -       if (zero_or_saturated(len)) {
+> +       if (zero_or_saturated(len, fp, sizeof(char))) {
+>                 errno =3D EINVAL;
+>                 return -1;
+>         }
+> --
+> 2.42.0
+>
