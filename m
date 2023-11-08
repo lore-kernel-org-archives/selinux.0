@@ -2,223 +2,104 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42E5DC4167D
-	for <selinux@archiver.kernel.org>; Wed,  8 Nov 2023 02:31:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6F38C4167D
+	for <selinux@archiver.kernel.org>; Wed,  8 Nov 2023 03:14:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbjKHCbb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Nov 2023 21:31:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36998 "EHLO
+        id S234529AbjKHDOh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Nov 2023 22:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbjKHCba (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 21:31:30 -0500
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23243193
-        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 18:31:28 -0800 (PST)
-Received: by mail-qv1-xf2d.google.com with SMTP id 6a1803df08f44-66d0760cd20so3370086d6.0
-        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 18:31:28 -0800 (PST)
+        with ESMTP id S229581AbjKHDOg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Nov 2023 22:14:36 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2A9D19A
+        for <selinux@vger.kernel.org>; Tue,  7 Nov 2023 19:14:34 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id 3f1490d57ef6-d84c24a810dso6619208276.2
+        for <selinux@vger.kernel.org>; Tue, 07 Nov 2023 19:14:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1699410687; x=1700015487; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=ZbkEkmaPK3/ui+Xn8VLbQvKYhD+dtLCrbQNgJWW9Ttg=;
-        b=LxhvSUCZhnOYe4al9vU9nZT/XFft3qyhdedcJE2ikW68nA4I10jWpCEu5i0Sb/5VbM
-         q7z5/VZBF1kvPWWhF2vcUHMtohr9RtujrDQKv0bsWKyQ47jD9aQO9xDWM2OQC2PD+Gj8
-         k4LbOORnT4SdzMUHXB38Ns+Y4tiFMDkVWqb2OXcgzRjpATF2t/wSczWHNBU1rBzXE33R
-         4Q1TxGHe64FuLNjM+OcLamxCHHH+XmdoW+8JE+ho0D5v1VU4st7kASzDoVGbgx86uYxe
-         2uagRDMfBDuRIAuZ+k0ow3aEs3y9g1jyHdzQETZ0Z+57qTvlU4Um2sIXYZYjegoK9wQI
-         3WBg==
+        d=paul-moore.com; s=google; t=1699413274; x=1700018074; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=B5vx1SuH10I5MRrYLP20KitGIgEW4Afe0xq877n9y14=;
+        b=CjlSIiQQuOE3VfMJb6D4Vo36nueAem9Rbb01GWWcXrlRqwHLcWpjjXuMeIbOWPRyhG
+         H2/yuzBQxt6xla58bQUxpW9dJiUUuQH1uZh2jB/Nw9DwilvMqzko5Pbln09PRGVUcHzJ
+         cC1I/zqOwxC+W4DCYVT+w9iGSXbRbzmVMHKFEm0TDZURchgkWVE7KuJPSR5eIOoDNxe2
+         DRzYmfmlG7zup3vE+oQk/4h096IC5Cqox/VAgKgQwp9lpMLAFrN3IPphaVDMW+1AZY5p
+         PpHtdmgJhyGihHUA8LYlHK8duyBPk4GEwKzA875M6hxBEKhqdSkv+qLwNJ8vQJP3R4dq
+         d/8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699410687; x=1700015487;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZbkEkmaPK3/ui+Xn8VLbQvKYhD+dtLCrbQNgJWW9Ttg=;
-        b=M9phE2AiPSGjK3WhUFN2fH+XBRwsW5qDdS9tH9bOFtwGdnQDG52fwlAczg3o/1IXyA
-         48Ji3/iicW1oa9PGVX6x4LeSKjqOyT/K3W0hz2i/i3N62ciixX7YTWERcI4fYrPfgy/e
-         9+KOb6VYT6h57Lz9YEbUq+dxNDv/S2X7LNGnNa5MBgQ+U6Pw6ZNtKgjxlgRZG2Dw3jQB
-         cUeKNfUQe43MixanNYmjvDnPPSZYmatY93d/89E0irOLx3yukXMI/RzSK3+bfmsc0LCx
-         NYk+6Q4icJKtWVWEh7fXoFHT5LYod57fSl+m5k3ibRXe13jOWMAp6eocjnY2H9MVWfHK
-         uJDQ==
-X-Gm-Message-State: AOJu0YzjCFzWIPIUjlmdBC0jM/UQwO/jQhCXf8LApI+GIYsRZMQMNpQV
-        cT6RC4nf3bb7hS+nHjzscx5u
-X-Google-Smtp-Source: AGHT+IHTQ17LSA0ZChaX7vVfOq7M+l/b0UClJGf/WWYEXhjE85AkbiAYBvrrWJaZNK86n6MyC7kFYg==
-X-Received: by 2002:a05:6214:b26:b0:66f:ac87:73b7 with SMTP id w6-20020a0562140b2600b0066fac8773b7mr6056996qvj.15.1699410687064;
-        Tue, 07 Nov 2023 18:31:27 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id m13-20020ad4504d000000b0064f3b0d0143sm548809qvq.142.2023.11.07.18.31.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Nov 2023 18:31:26 -0800 (PST)
-Date:   Tue, 07 Nov 2023 21:31:26 -0500
-Message-ID: <2b8269b7c58ebf9b260b4e2a0676bc22.paul@paul-moore.com>
+        d=1e100.net; s=20230601; t=1699413274; x=1700018074;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=B5vx1SuH10I5MRrYLP20KitGIgEW4Afe0xq877n9y14=;
+        b=ELUiQ5tavuv/w4UCeQ8ZCgfqXqoEUgqnrxhc2IXhXOkQlJxr/QjYWjxj1FT3bU9glm
+         DFK2pjTbJ1xL8MSkHMtQ06k/+63zR5KmNYUwWsrhhdwRCCrrDY8vIIbX0wUsWm/4NZ7R
+         fSO6imxbyQ5IJv9KBrAzH6Fn4+9jXg4VMuriOK21LPTasAjP2M9MV9UtcOs4mjyziiQw
+         xgN2d7Syw3vI/+fRfZ7j0PIor2T/zA7k/uddGo4kUOoMgKmz7wijUtRFXljg1/MM2M24
+         8HNRZd0AHl5FVa4D0nCaUnivaP4Y3NlJ/xh6R15MrxG1ZBvo+/kA78hiSlTXCuRJ+W8X
+         6hzA==
+X-Gm-Message-State: AOJu0Yz8aKFoL1riSgmV2FWnnedLp37kNT5FP51XMhrRxwHfl7k9MPAO
+        ArG6f7EsAVy8XhnfodYHk+bqBYgBd97YUQdUcbrT
+X-Google-Smtp-Source: AGHT+IHRgz90UgPoCYkWlS/aMw9sFfxqMSEFQczpq2CHZMN0KkBg+tCoSKeeUm0SHGN1yPZnqOEZ5u4F1SzXp1qhhSI=
+X-Received: by 2002:a25:c00f:0:b0:da0:400e:750c with SMTP id
+ c15-20020a25c00f000000b00da0400e750cmr643211ybf.27.1699413274027; Tue, 07 Nov
+ 2023 19:14:34 -0800 (PST)
+MIME-Version: 1.0
+References: <20231107134012.682009-1-roberto.sassu@huaweicloud.com> <563820b8fd57deb99e6247b6cdb416c4c3af3091.camel@huaweicloud.com>
+In-Reply-To: <563820b8fd57deb99e6247b6cdb416c4c3af3091.camel@huaweicloud.com>
 From:   Paul Moore <paul@paul-moore.com>
-To:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Maxime Coquelin <maxime.coquelin@redhat.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>, jasowang@redhat.com,
-        xuanzhuo@linux.alibaba.com, jmorris@namei.org, serge@hallyn.com,
+Date:   Tue, 7 Nov 2023 22:14:23 -0500
+Message-ID: <CAHC9VhQ8otggx3uvwsdK=d6CJ167DHRuqPqihibJ37uCQ=_HbA@mail.gmail.com>
+Subject: Re: [PATCH v5 00/23] security: Move IMA and EVM to the LSM infrastructure
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc:     viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
         stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        david.marchand@redhat.com, lulu@redhat.com
-Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
-References: <20231020155819.24000-5-maxime.coquelin@redhat.com>
-In-Reply-To: <20231020155819.24000-5-maxime.coquelin@redhat.com>
+        casey@schaufler-ca.com, mic@digikod.net,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Oct 20, 2023 "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> This patch introduces LSM hooks for devices creation,
-> destruction and opening operations, checking the
-> application is allowed to perform these operations for
-> the Virtio device type.
-> 
-> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c  | 12 +++++++
->  include/linux/lsm_hook_defs.h       |  4 +++
->  include/linux/security.h            | 15 ++++++++
->  security/security.c                 | 42 ++++++++++++++++++++++
->  security/selinux/hooks.c            | 55 +++++++++++++++++++++++++++++
->  security/selinux/include/classmap.h |  2 ++
->  6 files changed, 130 insertions(+)
+On Tue, Nov 7, 2023 at 9:06=E2=80=AFAM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
+> Hi everyone
+>
+> I kindly ask your support to add the missing reviewed-by/acked-by. I
+> summarize what is missing below:
+>
+> - @Mimi: patches 1, 2, 4, 5, 6, 19, 21, 22, 23 (IMA/EVM-specific
+>          patches)
+> - @Al/@Christian: patches 10-17 (VFS-specific patches)
+> - @Paul: patches 10-23 (VFS-specific patches/new LSM hooks/new LSMs)
 
-My apologies for the late reply, I've been trying to work my way through
-the review backlog but it has been taking longer than expected; comments
-below ...
+This patchset is next in my review queue :)
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 2aa0e219d721..65d9262a37f7 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -21,6 +21,7 @@
->   *  Copyright (C) 2016 Mellanox Technologies
->   */
->  
-> +#include "av_permissions.h"
->  #include <linux/init.h>
->  #include <linux/kd.h>
->  #include <linux/kernel.h>
-> @@ -92,6 +93,7 @@
->  #include <linux/fsnotify.h>
->  #include <linux/fanotify.h>
->  #include <linux/io_uring.h>
-> +#include <uapi/linux/virtio_ids.h>
->  
->  #include "avc.h"
->  #include "objsec.h"
-> @@ -6950,6 +6952,56 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
->  }
->  #endif /* CONFIG_IO_URING */
->  
-> +static int vduse_check_device_type(u32 sid, u32 device_id)
-> +{
-> +	u32 requested;
-> +
-> +	if (device_id == VIRTIO_ID_NET)
-> +		requested = VDUSE__NET;
-> +	else if (device_id == VIRTIO_ID_BLOCK)
-> +		requested = VDUSE__BLOCK;
-> +	else
-> +		return -EINVAL;
-> +
-> +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested, NULL);
-> +}
-> +
-> +static int selinux_vduse_dev_create(u32 device_id)
-> +{
-> +	u32 sid = current_sid();
-> +	int ret;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVCREATE, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return vduse_check_device_type(sid, device_id);
-> +}
+> - @David Howells/@Jarkko: patch 18 (new LSM hook in the key subsystem)
+> - @Chuck Lever: patch 12 (new LSM hook in nfsd/vfs.c)
+>
+> Paul, as I mentioned I currently based the patch set on lsm/dev-
+> staging, which include the following dependencies:
+>
+> 8f79e425c140 lsm: don't yet account for IMA in LSM_CONFIG_COUNT calculati=
+on
+> 3c91a124f23d lsm: drop LSM_ID_IMA
+>
+> I know you wanted to wait until at least rc1 to make lsm/dev. I will
+> help for rebasing my patch set, if needed.
 
-I see there has been some discussion about the need for a dedicated
-create hook as opposed to using the existing ioctl controls.  I think
-one important point that has been missing from the discussion is the
-idea of labeling the newly created device.  Unfortunately prior to a
-few minutes ago I hadn't ever looked at VDUSE so please correct me if
-I get some things wrong :)
+No, it should be fine for right now.  Thanks for your patience and
+help with all of this.
 
-From what I can see userspace creates a new VDUSE device with
-ioctl(VDUSE_CREATE_DEV), which trigger the creation of a new
-/dev/vduse/XXX device which will be labeled according to the udev
-and SELinux configuration, likely with a generic udev label.  My
-question is if we want to be able to uniquely label each VDUSE
-device based on the process that initiates the device creation
-with the call to ioctl()?  If that is the case, we would need a
-create hook not only to control the creation of the device, but to
-record the triggering process' label in the new device; this label
-would then be used in subsequent VDUSE open and destroy operations.
-The normal device file I/O operations would still be subject to the
-standard SELinux file I/O permissions using the device file label
-assigned by systemd/udev when the device was created.
-
-> +static int selinux_vduse_dev_destroy(u32 device_id)
-> +{
-> +	u32 sid = current_sid();
-> +	int ret;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVDESTROY, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return vduse_check_device_type(sid, device_id);
-> +}
-> +
-> +static int selinux_vduse_dev_open(u32 device_id)
-> +{
-> +	u32 sid = current_sid();
-> +	int ret;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVOPEN, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return vduse_check_device_type(sid, device_id);
-> +}
-> +
->  /*
->   * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
->   * 1. any hooks that don't belong to (2.) or (3.) below,
-> @@ -7243,6 +7295,9 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->  #ifdef CONFIG_PERF_EVENTS
->  	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
->  #endif
-> +	LSM_HOOK_INIT(vduse_dev_create, selinux_vduse_dev_create),
-> +	LSM_HOOK_INIT(vduse_dev_destroy, selinux_vduse_dev_destroy),
-> +	LSM_HOOK_INIT(vduse_dev_open, selinux_vduse_dev_open),
->  };
->  
->  static __init int selinux_init(void)
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index a3c380775d41..d3dc37fb03d4 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
->  	  { "override_creds", "sqpoll", "cmd", NULL } },
->  	{ "user_namespace",
->  	  { "create", NULL } },
-> +	{ "vduse",
-> +	  { "devcreate", "devdestroy", "devopen", "net", "block", NULL} },
-
-I think we can just call the permissions "create", "open", and "destroy"
-since the "dev" prefix is somewhat implied by this being a dedicated
-VDUSE object class.
-
-I don't see where you are using the "net" and "block" permissions above,
-is this a leftover from a prior draft of this patch or are you planning
-to do something with these permissions?
-
->  	{ NULL }
->    };
->  
-> -- 
-> 2.41.0
-
---
+--=20
 paul-moore.com
