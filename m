@@ -2,302 +2,199 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A25FC4167B
-	for <selinux@archiver.kernel.org>; Wed,  8 Nov 2023 16:58:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1376C4332F
+	for <selinux@archiver.kernel.org>; Wed,  8 Nov 2023 21:30:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231485AbjKHQ6D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Nov 2023 11:58:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49074 "EHLO
+        id S230380AbjKHVaN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Nov 2023 16:30:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229581AbjKHQ6C (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Nov 2023 11:58:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79541719
-        for <selinux@vger.kernel.org>; Wed,  8 Nov 2023 08:57:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1699462634;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=5uQuvXg5U6G/ebaTjutrbFErzAjjR7TeB9Oi7xAfyYA=;
-        b=Lw8hwzvorijkdsXekvEmzypRKlVV/FHzyvtRvDnXjiSNPFBpsRCgtnwXCOcnc16YTvXZhF
-        cK8a0PiGAyUibVa6LR1Fmwx41eemNP7VoxbiIB6zTrZgU9G9grdRXAwFzjE9ewCTuijO0E
-        TLhOvWOCekCEB/JQmclSSkp5G2ymuTc=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-369-H5Jo59tKMZaNjZS9GrpHLw-1; Wed, 08 Nov 2023 11:57:13 -0500
-X-MC-Unique: H5Jo59tKMZaNjZS9GrpHLw-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4DDF0185A788
-        for <selinux@vger.kernel.org>; Wed,  8 Nov 2023 16:57:13 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.96])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E035492BE8
-        for <selinux@vger.kernel.org>; Wed,  8 Nov 2023 16:57:12 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: ANN: SELinux userspace 3.6-rc1 release 
-Date:   Wed, 08 Nov 2023 17:57:12 +0100
-Message-ID: <87edh0uqs7.fsf@redhat.com>
+        with ESMTP id S230375AbjKHVaK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Nov 2023 16:30:10 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 283FD1BE2
+        for <selinux@vger.kernel.org>; Wed,  8 Nov 2023 13:30:08 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id 41be03b00d2f7-5b8f68ba4e5so125891a12.1
+        for <selinux@vger.kernel.org>; Wed, 08 Nov 2023 13:30:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1699479007; x=1700083807; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eW8K4lNeJKtY3nXZ8AkuKbjFaExeHIgVAOOPVYtT94c=;
+        b=M+gWHVh0abtZFsqx3fDU1N91uBDvWEgDrUlu0/MApJ3VxRugWQ8W4pgSatvxnyabg8
+         e9UMo//xD089E3bMRA4I8JrDmDhrAmnNxX9+u9R6rM2lrMh2K7SDTs9N53xz9EmzoZ8X
+         +1XFCleTHf/ZgIEkg2vA3ixLv1qV3kdovOjtKkKdfxB/K0K5kbnF0JlzPa/uQSsVbuje
+         Ri04bYyk4zD3lLnShmctzD/BAgZHg8jtqXxGh+bL0zd5WRta+69RBYHvad33Lon0IDld
+         ICSDRIhg1/t8eEhiVDW7Ug+Sznr0T69N6mH3vUs+7i1a5QWbhNkeKyiRAv/KtCnZFGGA
+         wmYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699479007; x=1700083807;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eW8K4lNeJKtY3nXZ8AkuKbjFaExeHIgVAOOPVYtT94c=;
+        b=c+g9F7vulJTG62IXo7/5VCB524r3wAbgLtZD0ieQ+kaTR0vL4PPobeZ5rwrKtXA+ui
+         UxJXKBHFLfwMtDgiKHFlPmKN+QP0O2StyDZ6rWxj0u6VvtWl+nKTGMyFP6K7is1fiMCY
+         +VVeEv5RWkeT9qM7qTHxrTiX1t09/APotfYOrQ+hY0MqejZ0KvQcn5UKooI8VAxVr0ZG
+         ejBGgC4PUIFujkuGAoU/h9zDebfN926Kf3KeW+F9wO946R7aZa8wH6DsEDrZ4zfuNvxa
+         f7LdLhTcQxpyL3m+EXxO5dQOILJ9ywMxiz35ax1IXGqAOL0njxReEWKCyJpKyNr2YsL+
+         fGEw==
+X-Gm-Message-State: AOJu0YyVA/ebvL1ZfveOZZRQre4pdDvbDFSVZmP0l/QkvMj5T4SVv57s
+        dlkZGbb8OqU2ewCAmxuAYPspeRGw4bHTlnX8TP8=
+X-Google-Smtp-Source: AGHT+IFAlQFnFpMLsMe3d1G5hxV81X4jTaN6KRZOtAShJauSHQhVdx57wXvdrI6ldxoMRf8GQevz7NauRXhFaZoCUFk=
+X-Received: by 2002:a17:90a:bf11:b0:27d:375a:e322 with SMTP id
+ c17-20020a17090abf1100b0027d375ae322mr3064750pjs.31.1699479007449; Wed, 08
+ Nov 2023 13:30:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20231108101427.3514509-1-juraj@jurajmarcin.com>
+In-Reply-To: <20231108101427.3514509-1-juraj@jurajmarcin.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 8 Nov 2023 16:29:56 -0500
+Message-ID: <CAEjxPJ51mR-Qb0t_gWO-mW0-5pageAyORUEgJJ1HsX2Fd8dBsA@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: add prefix/suffix matching to filename type transitions
+To:     Juraj Marcin <juraj@jurajmarcin.com>
+Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello!
+On Wed, Nov 8, 2023 at 5:15=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin.com>=
+ wrote:
+>
+> Currently, filename transitions are stored separately from other type
+> enforcement rules and only support exact name matching. However, in
+> practice, the names contain variable parts. This leads to many
+> duplicated rules in the policy that differ only in the part of the name,
+> or it is even impossible to cover all possible combinations.
+>
+> This patch changes the filename transition table in the policydb
+> structure into an array of three tables, where the index determines the
+> match type for the rules contained (extract, prefix, and suffix match).
+> Then the patch extends the functions that access the table through the
+> policydb structure to accompany this change while reusing the majority
+> of the old filename transitions code.
+>
+> This patch also updates the code responsible for finding the right
+> filename transition based on the context and the name. The rules have
+> the following order of prioriy, if no matching rule is found, the code
+> moves on to the next category:
+> - exact filename transitions,
+> - prefix filename transitions in the order of the longest prefix match,
+> - suffix filename transitions in the order of the longest suffix match.
+> This ensures the compatibility with older policies.
+>
+> Without prefix/suffix rules in the policy, this patch has no impact on
+> performance or policy loading times. Moreover, with prefix/suffix rules,
+> the overall number of filename transitions can be reduced, which results
+> in smaller binary policy size and therefore also slightly lower load
+> time and memory usage.
+>
+> Performance tests:
+>
+> 1: Reference kernel (f5bbdeda34c63), Fedora policy (format v33)
+> 2: This patch, Fedora policy (format v33)
+> 3: This patch, Fedora policy without prefix/suffix rules (format v34)
+> 4: This patch, Fefora policy with prefix rules (format v35)
+>
+>    | Mem    | Binary | Policy  | Create tty [1]       | osbench [2]
+>    | Usage  | policy | load    |                      | create
+>    |        | size   | time    | (ms/file)            | files
+>    | (MiB)  | (KiB)  | (ms)    | real     | kernel    | (us/file)
+> ---+--------+--------+---------+----------+-----------+-----------
+>  1 |  298.7 |   3682 |  58.626 |   1.0228 |    0.6793 |    8.4916
+>    | sd=3D4.1 |        | sd=3D0.47 | sd=3D0.058 | sd=3D0.0497 |  sd=3D0.1=
+31
+>  2 |  296.3 |   3682 |  58.915 |   1.0209 |    0.6752 |    8.5728
+>    | sd=3D3.9 |        | sd=3D0.28 | sd=3D0.021 | sd=3D0.0244 |  sd=3D0.1=
+56
+>  3 |  295.7 |   3682 |  56.374 |   1.0160 |    0.6616 |    8.7467
+>    | sd=3D2.6 |        | sd=3D0.44 | sd=3D0.008 | sd=3D0.0141 |  sd=3D0.1=
+26
+>  4 |  296.2 |   2585 |  51.434 |   1.0116 |    0.6699 |    8.7467
+>    | sd=3D4.1 |        | sd=3D0.39 | sd=3D0.012 | sd=3D0.0115 |  sd=3D0.1=
+26
+>
+> [1] Create test_tty benchmark:
+>
+>     mknod /dev/test_tty c 4 1
+>     time for i in `seq 1 10000`; do
+>         mknod /dev/test_tty$i c 4 1
+>     done
+>
+> This benchmark should simulate the worst case scenario as many filename
+> transitions affect files created in the /dev directory.
+>
+> [2] https://github.com/mbitsnbites/osbench
+>
+> Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Signed-off-by: Juraj Marcin <juraj@jurajmarcin.com>
+> ---
 
-The 3.6-rc1 release for the SELinux userspace is now available at:
+As with the previous patch, seeing these warnings due to performing
+blocking allocation when atomic is required.
 
-https://github.com/SELinuxProject/selinux/wiki/Releases
-
-Thanks to all the contributors, reviewers, testers and reporters!
-
-If you miss something important not mentioned bellow, please let me know.
-
-User-visible changes
---------------------
-
-* Add not self support for neverallow rules
-
-* dispol: Add the ability to show booleans, classes, roles, types and type =
-attributes of policies
-
-* Improve man pages
-
-* libselinux: performance optimization for duplicate detection
-
-* dismod: add options: --actions ACTIONS, --help
-
-* dispol: add options: --actions ACTIONS, --help
-
-* checkpolicy: Add the command line argument -N, --disable-neverallow
-
-* Introduce getpolicyload - a helper binary to print the number of policy r=
-eloads on the running system
-
-* man pages: Remove the Russian translations
-
-* Add notself and other support to CIL
-
-* Add support for deny rules
-
-* Translations updated from
-  https://translate.fedoraproject.org/projects/selinux/
-
-* Bug fixes
-
-
-Shortlog of the changes since 3.5 release
------------------------------------------
-Bruno Victal (1):
-      secilc: Use versioned DocBook public identifier.
-
-Cathy Hu (1):
-      sepolicy/manpage.py: make output deterministic
-
-Christian G=C3=B6ttsche (74):
-      libsepol: Add not self support for neverallow rules
-      checkpolicy: add not-self neverallow support
-      libsepol/tests: add tests for not self neverallow rules
-      libsepol/tests: add tests for minus self neverallow rules
-      libsepol: rename struct member
-      checkpolicy: update cond_expr_t struct member name
-      libsepol/tests: rename bool indentifiers
-      checkpolicy: rename bool identifiers
-      libsepol: rename bool identifiers
-      libsemanage/tests: rename bool identifiers
-      libsemanage: fix memory leak in semanage_user_roles
-      checkpolicy/dispol: add output functions
-      libselinux: set CFLAGS for pip installation
-      checkpolicy: drop unused token CLONE
-      checkpolicy: reject condition with bool and tunable in expression
-      checkpolicy: only set declared permission bits for wildcards
-      libsepol: dump non-mls validatetrans rules as such
-      libsepol: validate some object contexts
-      libsepol: validate old style range trans classes
-      libsepol: validate: check low category is not bigger than high
-      libsepol: validate: reject XEN policy with xperm rules
-      libsepol: expand: skip invalid cat
-      libsepol: drop message for uncommon error cases
-      libsepol: drop duplicate newline in sepol_log_err() calls
-      libsepol: replace sepol_log_err() by ERR()
-      libsepol: replace log_err() by ERR()
-      checkpolicy: add option to skip checking neverallow rules
-      checkpolicy/dismod: misc improvements
-      libsepol: free initial sid names
-      libsepol: check for overflow in put_entry()
-      libsepol/fuzz: more strict fuzzing of binary policies
-      setsebool: improve bash-completion script
-      setsebool: drop unnecessary linking against libsepol
-      semodule_expand: update
-      semodule_link: update
-      semodule_package: update
-      semodule_unpackage: update
-      libselinux/utils: introduce getpolicyload
-      libsepol: validate: use fixed sized integers
-      hashtab: update
-      libsepol: expand: use identical type to avoid implicit conversion
-      libsepol: expand: check for memory allocation failure
-      libsepol: ebitmap: avoid branches for iteration
-      libsemanage/tests: use strict prototypes
-      libsepol: update CIL generation for trivial not-self rules
-      libselinux/utils: update selabel_partial_match
-      libselinux: misc label cleanup
-      libselinux: drop obsolete optimization flag
-      libselinux: drop unnecessary warning overrides
-      setfiles: do not issue AUDIT_FS_RELABEL on dry run
-      libselinux: constify selabel_cmp(3) parameters
-      libselinux: simplify zeroing allocation
-      libselinux/utils: use type safe union assignment
-      libselinux: avoid regex serialization truncations
-      libselinux: parameter simplifications
-      libselinux/utils: use correct type for backend argument
-      libselinux: update string_to_mode()
-      libselinux: fix logic for building android backend
-      libselinux: avoid unused function
-      libselinux: check for stream rewind failures
-      libselinux: simplify internal selabel_validate prototype
-      libselinux/utils: drop include of internal header file
-      libselinux: free elements on read_spec_entries() failure
-      libselinux: set errno on label lookup failure
-      libsepol: reject avtab entries with invalid specifier
-      libsepol: avtab: check read counts for saturation
-      checkpolicy: add round-trip tests
-      libselinux/utils: update getdefaultcon
-      libselinux: cast to unsigned char for character handling function
-      libselinux: introduce reallocarray(3)
-      libsepol: validate default type of transition is not an attribute
-      libsepol: validate constraint depth
-      libsepol: more strict validation
-      libsepol: reject unsupported policy capabilities
-
-Dominick Grift (1):
-      secilc/docs: fixes filecon example
-
-Huaxin Lu (3):
-      libselinux: add check for calloc in check_booleans
-      restorecond: add check for strdup in strings_list_add
-      secilc: add check for malloc in secilc
-
-Huizhao Wang (1):
-      restorecond: compatible with the use of EUID
-
-James Carter (41):
-      Revert "libsepol/cil: add support for prefix/suffix filename transtio=
-ns to CIL"
-      Revert "checkpolicy,libsepol: add prefix/suffix support to module pol=
-icy"
-      Revert "checkpolicy,libsepol: add prefix/suffix support to kernel pol=
-icy"
-      Revert "libsepol: implement new module binary format of avrule"
-      Revert "libsepol: implement new kernel binary format for avtab"
-      Revert "checkpolicy,libsepol: move filename transition rules to avrul=
-e"
-      Revert "checkpolicy,libsepol: move filename transitions to avtab"
-      Revert "checkpolicy,libsepol: move transition to separate structure i=
-n avtab"
-      libsepol/cil: Fix class permission verification in CIL
-      python: Use isinstance() instead of type()
-      checkpolicy: Remove the Russian translations
-      gui: Remove the Russian translations
-      libselinux: Remove the Russian translations
-      libselinux: Remove the Russian translations
-      libsemanage: Remove the Russian translations
-      libsepol: Remove the Russian translations
-      mcstrans: Remove the Russian translations
-      policycoreutils: Remove the Russian translations
-      python: Remove the Russian translations
-      python: Remove the Russian translations
-      restorecond: Remove the Russian translations
-      sandbox: Remove the Russian translations
-      semodule-utils: Remove the Russian translations
-      Do not automatically install Russian translations
-      libsepol: Changes to ebitmap.h to fix compiler warnings
-      libsepol/cil: Do not call ebitmap_init twice for an ebitmap
-      libsepol/cil: Add notself and other support to CIL
-      libsepol: Use ERR() instead of log_err()
-      secilc/docs: Add notself and other keywords to CIL documentation
-      secilc/test: Add notself and other tests
-      libsepol/cil: Parse and add deny rule to AST, but do not process
-      libsepol/cil: Add cil_list_is_empty macro
-      libsepol/cil: Add cil_tree_node_remove function
-      libsepol/cil: Process deny rules
-      libsepol/cil: Add cil_write_post_ast function
-      libsepol: Export the cil_write_post_ast function
-      secilc/secil2tree: Add option to write CIL AST after post processing
-      secilc/test: Add deny rule tests
-      secilc/docs: Add deny rule to CIL documentation
-      checkpolicy: Remove support for role dominance rules
-      libsepol: Fix the version number for the latest exported function
-
-Jeffery To (1):
-      python/sepolicy: Fix get_os_version except clause
-
-Juraj Marcin (8):
-      checkpolicy,libsepol: move transition to separate structure in avtab
-      checkpolicy,libsepol: move filename transitions to avtab
-      checkpolicy,libsepol: move filename transition rules to avrule
-      libsepol: implement new kernel binary format for avtab
-      libsepol: implement new module binary format of avrule
-      checkpolicy,libsepol: add prefix/suffix support to kernel policy
-      checkpolicy,libsepol: add prefix/suffix support to module policy
-      libsepol/cil: add support for prefix/suffix filename transtions to CIL
-
-Masatake YAMATO (10):
-      dismod: add --help option
-      dismod: delete an unnecessary empty line
-      dismod: handle EOF in user interaction
-      dismod: add --actions option for non-interactive use
-      dispol: add --help option
-      dispol: delete an unnecessary empty line
-      dispol: handle EOF in user interaction
-      dispol: add --actions option for non-interactive use
-      dismod: print the policy version only in interactive mode
-      dismod, dispol: reduce the messages in batch mode
-
-Ondrej Mosnacek (4):
-      libsemanage: include more parameters in the module checksum
-      scripts/ci: install rdma-core-devel for selinux-testsuite
-      libsepol: stop translating deprecated intial SIDs to strings
-      libsepol: add support for the new "init" initial SID
-
-Petr Lautrbach (6):
-      python: improve format strings for proper localization
-      python: Drop hard formating from localized strings
-      semanage: Drop unnecessary import from seobject
-      python: update python.pot
-      Update translations
-      Update VERSIONs to 3.6-rc1 for release.
-
-Stephen Smalley (2):
-      libselinux,policycoreutils,python,semodule-utils: de-brand SELinux
-      checkpolicy,libselinux,libsepol,policycoreutils,semodule-utils: updat=
-e my email
-
-Topi Miettinen (1):
-      sepolicy: clarify manual page of sepolicy interface
-
-Vit Mojzis (11):
-      python/chcat: Improve man pages
-      python/audit2allow: Add missing options to man page
-      python/semanage: Improve man pages
-      python/audit2allow: Remove unused "debug" option
-      policycoreutils: Add examples to man pages
-      python/sepolicy: Improve man pages
-      sandbox: Add examples to man pages
-      checkpolicy: Add examples to man pages
-      libselinux: Add examples to man pages
-      python/sepolicy: Fix template for confined user policy modules
-      python/sepolicy: Add/remove user even when SELinux is disabled
-
-wanghuizhao (3):
-      libselinux: migrating hashtab from policycoreutils
-      libselinux: adapting hashtab to libselinux
-      libselinux: performance optimization for duplicate detection
-
+[ 2186.277242] BUG: sleeping function called from invalid context at
+include/linux/sched/mm.h:306
+[ 2186.277250] in_atomic(): 0, irqs_disabled(): 0, non_block: 0, pid:
+10017, name: mkdir
+[ 2186.277256] preempt_count: 0, expected: 0
+[ 2186.277260] RCU nest depth: 1, expected: 0
+[ 2186.277263] INFO: lockdep is turned off.
+[ 2186.277268] CPU: 0 PID: 10017 Comm: mkdir Tainted: G    B   W  OE
+   6.6.0-rc1+ #66
+[ 2186.277280] Call Trace:
+[ 2186.277284]  <TASK>
+[ 2186.277288]  dump_stack_lvl+0x75/0x90
+[ 2186.277300]  __might_resched+0x1e1/0x310
+[ 2186.277311]  __kmem_cache_alloc_node+0x343/0x380
+[ 2186.277320]  ? security_compute_sid.part.0+0xa60/0xe90
+[ 2186.277332]  ? security_compute_sid.part.0+0xa60/0xe90
+[ 2186.277341]  __kmalloc_node_track_caller+0x55/0x160
+[ 2186.277356]  kstrdup+0x34/0x60
+[ 2186.277364]  security_compute_sid.part.0+0xa60/0xe90
+[ 2186.277379]  ? lock_acquire+0xb5/0x390
+[ 2186.277388]  ? __pfx_security_compute_sid.part.0+0x10/0x10
+[ 2186.277397]  ? rcu_is_watching+0x23/0x50
+[ 2186.277407]  ? lock_acquire+0xb5/0x390
+[ 2186.277414]  ? rcu_is_watching+0x23/0x50
+[ 2186.277423]  ? lock_release+0xa0/0x380
+[ 2186.277429]  ? avc_has_perm_noaudit+0xb4/0x250
+[ 2186.277437]  ? __pfx_lock_release+0x10/0x10
+[ 2186.277446]  ? avc_has_perm_noaudit+0xcc/0x250
+[ 2186.277455]  ? avc_has_perm_noaudit+0xcc/0x250
+[ 2186.277471]  security_transition_sid+0x63/0xa0
+[ 2186.277483]  may_create+0x16a/0x1c0
+[ 2186.277493]  ? __pfx_may_create+0x10/0x10
+[ 2186.277501]  ? selinux_inode_permission+0x1c6/0x290
+[ 2186.277510]  ? __pfx_selinux_inode_permission+0x10/0x10
+[ 2186.277525]  security_inode_mkdir+0x61/0x80
+[ 2186.277534]  vfs_mkdir+0x226/0x380
+[ 2186.277547]  do_mkdirat+0x1a8/0x1d0
+[ 2186.277557]  ? __pfx_do_mkdirat+0x10/0x10
+[ 2186.277567]  ? getname_flags.part.0+0xc6/0x250
+[ 2186.277573]  ? __pfx___x64_sys_chdir+0x10/0x10
+[ 2186.277583]  __x64_sys_mkdir+0x78/0xa0
+[ 2186.277592]  do_syscall_64+0x3c/0x90
+[ 2186.277602]  entry_SYSCALL_64_after_hwframe+0x6e/0xd8
+[ 2186.277611] RIP: 0033:0x7f2cb7788d5b
+[ 2186.277637] Code: 8b 05 b1 30 0d 00 bb ff ff ff ff 64 c7 00 16 00
+00 00 e9 62 ff ff ff e8 e3 1b 02 00 0f 1f 00 f3 0f 1e fa b8 53 00 00
+00 0f 05 <48> 3d 00 f0 ff ff 77 05 c3 0f 1f 40 00 48 8b 15 79 30 0d 00
+f7 d8
+[ 2186.277645] RSP: 002b:00007ffe4833a5d8 EFLAGS: 00000246 ORIG_RAX:
+0000000000000053
+[ 2186.277653] RAX: ffffffffffffffda RBX: 00007ffe4833a840 RCX: 00007f2cb77=
+88d5b
+[ 2186.277658] RDX: 00007ffe4833a840 RSI: 00000000000001ff RDI: 00007ffe483=
+3c310
+[ 2186.277663] RBP: 00007ffe4833a660 R08: 00000000000001ff R09: 00000000000=
+00001
+[ 2186.277668] R10: 000055776dfb5252 R11: 0000000000000246 R12: 00007ffe483=
+3c310
+[ 2186.277673] R13: 00007ffe4833c2dc R14: 00007ffe4833c319 R15: 00007ffe483=
+3c318
+[ 2186.277688]  </TASK>
