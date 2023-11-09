@@ -2,49 +2,49 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B9D5C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F04B3C4167D
 	for <selinux@archiver.kernel.org>; Thu,  9 Nov 2023 13:51:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234055AbjKINv7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Nov 2023 08:51:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60606 "EHLO
+        id S234117AbjKINwA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Nov 2023 08:52:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232193AbjKINv7 (ORCPT
+        with ESMTP id S232285AbjKINv7 (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 9 Nov 2023 08:51:59 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7622C272C
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B96972D65
         for <selinux@vger.kernel.org>; Thu,  9 Nov 2023 05:51:56 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-53db360294fso1473649a12.3
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-9e4675c7a5fso145375166b.0
         for <selinux@vger.kernel.org>; Thu, 09 Nov 2023 05:51:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20230601; t=1699537915; x=1700142715; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=OhTNOT9uR3yFuAxbYBtYVd1YZwmOtvhqXykEha1zcbg=;
-        b=fp9iClX2a3FETDfwoc2IO5pgun0cOLpDkE9LX3QAwpd++qK7yJVbuTi9DkjULz03CY
-         yPNjHdlNbJWYVP3BC8GZEcmHGZeyWikFUttMh4id8vNSGCFONDpbgBQ0UjdC6gRQk130
-         7uIS59hBzrtUIE/2mZaVjnCT8igXAcOE97WebJJ7vNXc9dkf9P9p0szQl0DoPOm/ccCZ
-         SSqMgzGPpX8UhYipbLVvwQm3im5AZQgtv+4F774wXjF7tNR1jQYBx0j1lND4KhPvpYMU
-         ZSq5l38Hzf12vfGbvIjbJ0K7scvAoFsSMl3HTaD7zYM3BqJDSQ6bH8OmBmba07hwHuES
-         zpDw==
+        bh=mwl/NzKvWF+/H0UbRljLtffsgM4aCSAtClSqlqfjdFk=;
+        b=UfypZBKAiA1SgRUIgmTQTKtalAC0smGMbOwE54HjkmhNqqnw6iCR5KBdE1Z6LwqQnu
+         NaeOwTae9Bp+BCDEO1u3HOQucn/JfyfZZ3cSEM8UBxFtXaKWP3oD/hkQXU0BPUcCxpEi
+         pXxPqBpgVxvcsxkZvaFXcPWDLE1aob0fxOdSotByvWi0wZ4ICyRWGFMTMf7Bx+kD9HRW
+         mLjlQKU5pG0sax7ChsbyztyHIAXY/GMPr9YmGUk/lN7WqLTJMwQGOwAPrLLH4alxs+vV
+         axKmKSfD2f1YgpQvkRm9CFfSTQMIILUaxlG9Lz0lrwhnOIb9sbplm1ZoOv8R5w2dLzZV
+         L19Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1699537915; x=1700142715;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OhTNOT9uR3yFuAxbYBtYVd1YZwmOtvhqXykEha1zcbg=;
-        b=tcfdgghV9YagepO6LXiaZM6yFmpnMmwJdg8Baweq64NIA/LwIy2lVxJLO4bIUPZuzO
-         iCmxWCAls5+WOIpgcTqFjL9MvQKU8qsK67P8H9Ru5FrxvgfFZNChyVk6gx+JmSpus7Tp
-         8dOF8JbJChTXnHiHN6taQKh+5gGt5Z9j47yGYrRMvHs7eEAb596DiQ3YHUep6MU596GA
-         XBo/MQaxU+Dk4qrvsG2Ve02ennlO05dc5O4UQaJtFJ2qsxLmIR7OKRRjAbIyfX2SOlcH
-         MzWz/LmmjtjGm7qKD4YeWTQc7tyXkpwrdA54AkWxhy+G+oCpR1cMcmNKeqv4IR3+x93o
-         lPjQ==
-X-Gm-Message-State: AOJu0Yy8R+LOf+db1VtWr6PcUxSIriVtvvdn+WLOowBi4kbZ7RfYohpm
-        rNGenf0EW5soWZq0QYe4fHNVVnKhO5g=
-X-Google-Smtp-Source: AGHT+IFPUO/h1pR0T8zsqEO4skNpcrTJ9OzRgRb2vHduLj5NGWshEH7PoB0VFnkNr1UEmzkRDzHT3w==
-X-Received: by 2002:a17:906:d553:b0:9be:45b3:3116 with SMTP id cr19-20020a170906d55300b009be45b33116mr4785848ejc.71.1699537914696;
-        Thu, 09 Nov 2023 05:51:54 -0800 (PST)
+        bh=mwl/NzKvWF+/H0UbRljLtffsgM4aCSAtClSqlqfjdFk=;
+        b=QusQY0JQ8RdAAKWsBLYEKKAM/h3kQc0TcUPQOFeTjPDsgEigepDEKHK7ByEFmCgsF8
+         +/DSPGhs6ViPu49le77yD3pNo7/lFuamOKT1QlDoUzcteD2rC9/u3cvf1fer5PUOY8oS
+         RTKcJnHy03mqYq8bGr6+UHZKTSRSJNREZKSvo0+YyZJboTVX5nsKtN2BhOOQzE1z98U3
+         27n1o1TTRaJuLnzisLF2YAxsTETTRFfzSHknngisWgJ0fvOsaAKJqMUSRA31FWst/FEh
+         Bgmr9pNkvRb8wJKigL2oVTkymirDT5FX+5wKR4QC5HWeJupSrg49sCcDNoovYWOIEapE
+         q5Dw==
+X-Gm-Message-State: AOJu0Ywx2EIiur3SZANwrw4EglyzCy9igwLr7GrDTHcOnBdLLKY9JOEl
+        EY9tnLa7gg5gcmzo7sYn4+Zmz+fhh2o=
+X-Google-Smtp-Source: AGHT+IFjSPLQUwEFjoPB5lH1hu2IiCpkmA1CMm2Oq81ZwOj1iextoYj+jBG308lCvbIi9zTgERe6yw==
+X-Received: by 2002:a17:907:7fac:b0:9bf:6200:fe33 with SMTP id qk44-20020a1709077fac00b009bf6200fe33mr4851723ejc.16.1699537915144;
+        Thu, 09 Nov 2023 05:51:55 -0800 (PST)
 Received: from debian_development.DebianHome (dynamic-077-000-043-071.77.0.pool.telefonica.de. [77.0.43.71])
         by smtp.gmail.com with ESMTPSA id bv15-20020a170906b1cf00b009829d2e892csm2623563ejb.15.2023.11.09.05.51.54
         for <selinux@vger.kernel.org>
@@ -52,9 +52,9 @@ Received: from debian_development.DebianHome (dynamic-077-000-043-071.77.0.pool.
         Thu, 09 Nov 2023 05:51:54 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 4/7] ci: bump Fedora to version 39
-Date:   Thu,  9 Nov 2023 14:51:45 +0100
-Message-ID: <20231109135148.42688-4-cgzones@googlemail.com>
+Subject: [PATCH 5/7] libselinux: update Python binding
+Date:   Thu,  9 Nov 2023 14:51:46 +0100
+Message-ID: <20231109135148.42688-5-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.42.0
 In-Reply-To: <20231109135148.42688-1-cgzones@googlemail.com>
 References: <20231109135148.42688-1-cgzones@googlemail.com>
@@ -65,37 +65,40 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Currently the GitHub Action vm_testsuite fails:
-
-    The requested URL returned error: 404
+Update for commit 494eb683f3d1 ("libselinux: add getpidprevcon").
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- scripts/ci/Vagrantfile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ libselinux/src/selinuxswig_python_exception.i | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/scripts/ci/Vagrantfile b/scripts/ci/Vagrantfile
-index b6023367..f3c90b71 100644
---- a/scripts/ci/Vagrantfile
-+++ b/scripts/ci/Vagrantfile
-@@ -2,7 +2,7 @@
- # vi: set ft=ruby :
- # Vagrant configuration file which creates a virtual machine that can run the
- # test suite using fedora-test-runner.sh, in an environment similar to the one
--# used for automated continuous integration tests (Travis-CI)
-+# used for automated continuous integration tests (GitHub Actions)
- #
- # To create a new virtual machine:
- #
-@@ -34,7 +34,7 @@ SCRIPT
- # backwards compatibility). Please don't change it unless you know what
- # you're doing.
- Vagrant.configure("2") do |config|
--  config.vm.box = "fedora/36-cloud-base"
-+  config.vm.box = "fedora/39-cloud-base"
-   config.vm.synced_folder "../..", "/root/selinux"
+diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
+index a02f4923..e5e55a79 100644
+--- a/libselinux/src/selinuxswig_python_exception.i
++++ b/libselinux/src/selinuxswig_python_exception.i
+@@ -79,6 +79,22 @@
+   }
+ }
  
-   config.vm.provider "virtualbox" do |v|
++%exception getpidprevcon {
++  $action
++  if (result < 0) {
++     PyErr_SetFromErrno(PyExc_OSError);
++     SWIG_fail;
++  }
++}
++
++%exception getpidprevcon_raw {
++  $action
++  if (result < 0) {
++     PyErr_SetFromErrno(PyExc_OSError);
++     SWIG_fail;
++  }
++}
++
+ %exception getexeccon {
+   $action
+   if (result < 0) {
 -- 
 2.42.0
 
