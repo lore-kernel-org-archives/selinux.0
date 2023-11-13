@@ -2,38 +2,38 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36014C4332F
-	for <selinux@archiver.kernel.org>; Tue, 14 Nov 2023 01:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78D0BC4332F
+	for <selinux@archiver.kernel.org>; Tue, 14 Nov 2023 01:59:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbjKNBwL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Nov 2023 20:52:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47012 "EHLO
+        id S229659AbjKNB7s (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Nov 2023 20:59:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229580AbjKNBwL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Nov 2023 20:52:11 -0500
+        with ESMTP id S229580AbjKNB7r (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Nov 2023 20:59:47 -0500
 Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1E0D43
-        for <selinux@vger.kernel.org>; Mon, 13 Nov 2023 17:52:07 -0800 (PST)
-Received: from kwepemm000010.china.huawei.com (unknown [172.30.72.54])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4STq2l5L5Hz1P8Gx
-        for <selinux@vger.kernel.org>; Tue, 14 Nov 2023 09:48:47 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BFCD46
+        for <selinux@vger.kernel.org>; Mon, 13 Nov 2023 17:59:44 -0800 (PST)
+Received: from kwepemm000010.china.huawei.com (unknown [172.30.72.56])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4STqCX4GlHz1P88y
+        for <selinux@vger.kernel.org>; Tue, 14 Nov 2023 09:56:24 +0800 (CST)
 Received: from localhost.localdomain (10.175.104.170) by
  kwepemm000010.china.huawei.com (7.193.23.169) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Tue, 14 Nov 2023 09:52:05 +0800
-From:   l00564439 <luhuaxin1@huawei.com>
+ 15.1.2507.31; Tue, 14 Nov 2023 09:59:41 +0800
+From:   <luhuaxin1@huawei.com>
 To:     <selinux@vger.kernel.org>
 CC:     <fangxiuning@huawei.com>, <zhujianwei7@huawei.com>,
         <shenyining@huawei.com>, Huaxin Lu <luhuaxin1@huawei.com>
-Subject: [PATCH] libsepol: add check for category value before printing
-Date:   Tue, 14 Nov 2023 07:20:14 +0800
-Message-ID: <20231113232014.48621-1-luhuaxin1@huawei.com>
+Subject: [PATCH v1] libsepol: add check for category value before printing
+Date:   Tue, 14 Nov 2023 07:27:50 +0800
+Message-ID: <20231113232750.48706-1-luhuaxin1@huawei.com>
 X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [10.175.104.170]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
  kwepemm000010.china.huawei.com (7.193.23.169)
 X-CFilter-Loop: Reflected
 Precedence: bulk
