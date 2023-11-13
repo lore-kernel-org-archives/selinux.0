@@ -2,88 +2,95 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB255C4332F
-	for <selinux@archiver.kernel.org>; Mon, 13 Nov 2023 19:26:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E2E4C4332F
+	for <selinux@archiver.kernel.org>; Mon, 13 Nov 2023 20:12:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229610AbjKMT0o (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Nov 2023 14:26:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53984 "EHLO
+        id S229839AbjKMUMj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Nov 2023 15:12:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbjKMT0n (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Nov 2023 14:26:43 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8801DD6E
-        for <selinux@vger.kernel.org>; Mon, 13 Nov 2023 11:26:40 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-53dfc28a2afso7322682a12.1
-        for <selinux@vger.kernel.org>; Mon, 13 Nov 2023 11:26:40 -0800 (PST)
+        with ESMTP id S229511AbjKMUMi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Nov 2023 15:12:38 -0500
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B1FD5D
+        for <selinux@vger.kernel.org>; Mon, 13 Nov 2023 12:12:35 -0800 (PST)
+Received: by mail-lf1-x130.google.com with SMTP id 2adb3069b0e04-5079f9ec8d9so5305525e87.0
+        for <selinux@vger.kernel.org>; Mon, 13 Nov 2023 12:12:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1699903599; x=1700508399; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=+NcfwGpH6HPjmS3W9NIdhcymoGyWVFv3w6k10CuCa3E=;
-        b=WF7loyy8kvbTxNzDe9bm9kzwZan3t6zXCMItmqofec/+na3Bzy36LZTHIwsgUO4Xf1
-         /bm9KfQT1CqALAdSeYTZyqB6o7FMsv0QbcCL7KRjQjA1VefwbrkeeKiOc4VKzZMhdxJV
-         d9tmbojqfanWHLiL112GR5trlkVEldjlzvmIlDsdo/rJj1dvL/fLq3uYo7JxNMjAaKOP
-         g3f7iL6XMT24AqLaxPs9SagqrWDprk9U5BYa0XX4nrrHe9layCGRtz86GbfY3ol3mRvV
-         aX1ViieGj2HO5WT1GxKOP/rXYX77fWNlE2/fJI7F1x7q4ZMAx+MSiAkL+VTG6JNAgXEU
-         /0aQ==
+        d=gmail.com; s=20230601; t=1699906353; x=1700511153; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KRw1OPDakdWoLquYOeBBM4l2jy0sozjOonWM+JbgdR0=;
+        b=K01uhNJ6+m5fyU5yx0ImQtGdkQ0I/XiID0gDow1PuzVk6zzeMklkhA0KzfuQXpxTIw
+         hH8ibydwk3ClmIrOSwBnEz0lur8XoU1YglVJfPpTncB7iP9ZpPgTddkTiMTIH66BzKwE
+         Tz0ynKovdJ7CwzbtHGeA5AYtqIeDoa1eb+Yc7eXNtOIF53Mi7nNgjfsqmi0DU6bFIXTe
+         VUpYpwKYvNb48FP8GO7Y67TOmzcVxCY41VQIsdf8moKx+uE3rFg1N07mHjihCo5N4PGj
+         t6SOTWjraM1ieR0rmfeyaWVbW0FN4FnaYSVoOXVtLc8f239UxRfl4FhJHTbuTLc6JDXT
+         f9Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699903599; x=1700508399;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+NcfwGpH6HPjmS3W9NIdhcymoGyWVFv3w6k10CuCa3E=;
-        b=qG+hU6hXk6x0z8JyfUAvxTA8CCE6c1XQUrXhG2KYiUzGUj7WDqKi5QHk1c9HKvloEU
-         qCU3dYp1PkrnXEsHqVehjlaLckyxbZY2ofciBed4UJYlSHS8wfCzN99zT/RddhUZRi+z
-         aYbj1BYNhLTRfwzfJuqwQ7sO6K0uhX+SJm7cwC37x0bbSduaF7kWmbH4zPy+7Djsz5o7
-         PZp/CPFW7AbMvZm/He46+juQLpJTpDt8MGd3Me7BE7VoK8p3epE/VKe+pcG3fiXChANn
-         XUlcv2QifU4foE1dkS2UO2gl0aA9scUTTC1iIdN1co9Px2R9ZniWFqcTrEZj25KATIDp
-         deEg==
-X-Gm-Message-State: AOJu0YwrBLsG9S/uYqgM9kT9OQppBbTiGunLp4h40Eqdhcuk/WHEBQXT
-        IcOoLIXW7k5Zn9YvbUrYDshOmEkGKlA=
-X-Google-Smtp-Source: AGHT+IGc00mYFPwZ1hFlpPHfBpOB2y0zYuGQ+nhdQYhb3/6oJGd31WW7T/u0NTE6qq5XL5A4KgGQ/Q==
-X-Received: by 2002:a17:906:f115:b0:9b8:7709:6360 with SMTP id gv21-20020a170906f11500b009b877096360mr5940475ejb.40.1699903598800;
-        Mon, 13 Nov 2023 11:26:38 -0800 (PST)
-Received: from debian_development.DebianHome (dynamic-095-116-141-033.95.116.pool.telefonica.de. [95.116.141.33])
-        by smtp.gmail.com with ESMTPSA id lw27-20020a170906bcdb00b009de11bcbbcasm4523568ejb.175.2023.11.13.11.26.38
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Nov 2023 11:26:38 -0800 (PST)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: validate common classes have at least one permissions
-Date:   Mon, 13 Nov 2023 20:26:32 +0100
-Message-ID: <20231113192632.22509-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.42.0
+        d=1e100.net; s=20230601; t=1699906353; x=1700511153;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KRw1OPDakdWoLquYOeBBM4l2jy0sozjOonWM+JbgdR0=;
+        b=DvZpE7LAyLgYWTlgL9I0LHrReCQhgCX0xvGGNYwkSCG433sFVE4bSpSI/9ii8rxxfF
+         CBj7W6JiuV+67JHzjKl6XilSW+9XBPfbZOWD3d747Zuktvf2BP2qYV76e8KnbOsY5BUw
+         b3wfCblkWenXygW4RNdAgMP4xJ6+/anSaEqpF8WvnuQFa9VGjCwfMyIhEV980JLsQjS3
+         58i0jHfiWuLoUYZiWtCnyYQw5nRw2y99ZBH1e+HgRhtDei8hVdjYGHAAj/Azcoomfe/0
+         w3sAgYmm/n/8+UdEec1czyyINMMVMs9ggF0dLtrn4dBtKGiVNeDSTIZn5tMl7OZ7TvuP
+         sMDA==
+X-Gm-Message-State: AOJu0Yxw55sXbkA5pwx7MygPOSlBTibTKpLI5lWOmfaxqvx1xICU7167
+        weVMgDHFDrLGj2wC52vDcjiVuF1VcrBKnCxNn2I=
+X-Google-Smtp-Source: AGHT+IHp5r96SMah7t/Z/aWehO3uD4YP/MimH5G+gl9R/ggawP9a6oX2grVP+mOSZ00rgHZLBR5MsB3RtOC6mtJl6W4=
+X-Received: by 2002:a05:6512:234e:b0:509:30de:414a with SMTP id
+ p14-20020a056512234e00b0050930de414amr203797lfu.28.1699906353318; Mon, 13 Nov
+ 2023 12:12:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20231109135148.42688-1-cgzones@googlemail.com>
+In-Reply-To: <20231109135148.42688-1-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 13 Nov 2023 15:12:21 -0500
+Message-ID: <CAP+JOzTqSdFv+Cz9H3wZH=gaRmSpJM_CMeBd_DwR6_r6JGtswQ@mail.gmail.com>
+Subject: Re: [PATCH 1/7] Drop LGTM.com configuration
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The traditional language and CIL permit common classes only to be
-defined with at least one permission.  Thus writing a common class
-without one will fail.
+On Thu, Nov 9, 2023 at 8:51=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> LGTM.com has been discontinued in 2022 and replaced by GitHub code
+> scanning[1].
+>
+> [1]: https://github.blog/2022-08-15-the-next-step-for-lgtm-com-github-cod=
+e-scanning/
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Reported-by: oss-fuzz (issue 64059)
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/policydb_validate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+For these seven patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 016ab655..1121c8bb 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -369,7 +369,7 @@ static int validate_common_datum(sepol_handle_t *handle, const common_datum_t *c
- {
- 	if (validate_value(common->s.value, &flavors[SYM_COMMONS]))
- 		goto bad;
--	if (common->permissions.nprim > PERM_SYMTAB_SIZE)
-+	if (common->permissions.table->nel == 0 || common->permissions.nprim > PERM_SYMTAB_SIZE)
- 		goto bad;
- 
- 	return 0;
--- 
-2.42.0
-
+> ---
+>  lgtm.yml | 5 -----
+>  1 file changed, 5 deletions(-)
+>  delete mode 100644 lgtm.yml
+>
+> diff --git a/lgtm.yml b/lgtm.yml
+> deleted file mode 100644
+> index f80bf146..00000000
+> --- a/lgtm.yml
+> +++ /dev/null
+> @@ -1,5 +0,0 @@
+> -extraction:
+> -  cpp:
+> -    index:
+> -      build_command:
+> -        - make DESTDIR=3D"$LGTM_WORKSPACE/destdir" install
+> --
+> 2.42.0
+>
