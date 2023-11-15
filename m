@@ -2,115 +2,104 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DDD8C48BFA
-	for <selinux@archiver.kernel.org>; Wed, 15 Nov 2023 13:36:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16CB1C2BB3F
+	for <selinux@archiver.kernel.org>; Wed, 15 Nov 2023 17:04:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343943AbjKONgT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Nov 2023 08:36:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
+        id S230106AbjKORER (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Nov 2023 12:04:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343953AbjKONfy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Nov 2023 08:35:54 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B441AB;
-        Wed, 15 Nov 2023 05:35:49 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id 98e67ed59e1d1-2809b4d648bso436107a91.2;
-        Wed, 15 Nov 2023 05:35:49 -0800 (PST)
+        with ESMTP id S232109AbjKORER (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Nov 2023 12:04:17 -0500
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6500E196
+        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 09:04:13 -0800 (PST)
+Received: by mail-qk1-x735.google.com with SMTP id af79cd13be357-778a20df8c3so455486685a.3
+        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 09:04:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700055349; x=1700660149; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9WKLA67sckG/YxYt7nxdmB+FITyFUdNI9L+yvzeaUZ4=;
-        b=SUDSUGT0aKJe/EmIsf3ZebP4ZipQ5aqjTUt9tP2hs67ED/FWpDYL8fXOcuihO7svSl
-         nOZB2rmi6Zg55KmbL8Rm3o8dd7VuNhQWLtK3Y05xQxoY7GC10ndaxA6FGgucqjk9Lc1E
-         ycnnK/7LaMmnrG2F/m6ZjKCJyJUB76N4sKTUyE820IsfOhsqWhJIcNAU7j274Cs9nEvk
-         7UqsqyCS2QAIdn2PtAU/CIczfSGLd+0NTh1xISWKYdvBENe+t0PYbT+7Hr5Mvh98a+hv
-         bdA83hp8N2T7VmPYfmyszPhVO6dx5xbCGVGLZ79/KqVJ2qcq3r3Yeet7xYyzEY1BxiaC
-         BROg==
+        d=paul-moore.com; s=google; t=1700067852; x=1700672652; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=t7PpWKUKX02cwyE97zmsKXOXHDKK115oQwGRXsjroFw=;
+        b=IBfpLJAgTd5Ysd7lqUy53I9pEaWT3qbI9o597szWz8eRBOjhH0eoYznvkBOYrFD6le
+         A3LG35Gmc4NoOFsHqUhCnf6DXZwluk9X1Zub2ETtcQB3WHLCnQZq+FLwv7fuUg5dldqU
+         /BMRN0HWBH4oHvvRQx4ynlpZpOxNg2dMy5o7JQB2irqs3KZXHN52uNJLCWpID85OsQVt
+         FfP4oTX0jK2UMDV0FggILu9deiBj3tQy+jUOQdoN4Zt2HCkYLklX4idJtDSAee+oghEJ
+         UkPqMz2v70OgDBj2DNX8V5znvP8L4AC01aCZ+Hseqx22UN+Y8NlFrAMkPLiGR+xxyxDz
+         ANCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700055349; x=1700660149;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9WKLA67sckG/YxYt7nxdmB+FITyFUdNI9L+yvzeaUZ4=;
-        b=XorpKxbI5sd2rTP8ZsFz/HJTmIzmc0TF0PaQr79wOxxKUXOin5sxYDQrAwlWzOARD2
-         IhIFOvihgbTjku/KewyuaW/XRPjAgOvMy75l+l52AmbHMs4gGkjhoISN9QSpqWK+gAuZ
-         s+OfUWQ5YwS/0/0es6D4IxpIgVLKmrsu8c2DDeSfr9EWFvZ3HqlaHkCkPhuCvbS+TEo6
-         z5aaWBj9F2IDRtsLlVfTOqXEI4yD2BFuFCsR1P8eGl7w9E9kY65w58aXzmnsUNc1AJj5
-         KNJv6E9LfJV1Dkp+dwrvFw2G6Ae2I1S7KX+OcTqVC2nxHJozBMQPzCLlvTBOs5orKctz
-         Tqug==
-X-Gm-Message-State: AOJu0YzkLyisCdkyxCLRwYe6AuRjM/knbGl9nSG5nAGx4y1ydZkWOMBC
-        NQk4ri9zgbQUeUvhFpL5tlj2kmygMCIO8+haBJbUuD6p
-X-Google-Smtp-Source: AGHT+IHsW/+/RQcJaPtz9YmStyH1m3JrokCYGV97FpHsXKKuIJTXz+RKtv3usxVyKuYVKymTl5DGitQMEAnLIh4Nvzk=
-X-Received: by 2002:a17:90b:4ad1:b0:27d:375a:e322 with SMTP id
- mh17-20020a17090b4ad100b0027d375ae322mr10972703pjb.31.1700055349133; Wed, 15
- Nov 2023 05:35:49 -0800 (PST)
+        d=1e100.net; s=20230601; t=1700067852; x=1700672652;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=t7PpWKUKX02cwyE97zmsKXOXHDKK115oQwGRXsjroFw=;
+        b=sMO3QMmB0tc02BdWeGclUVbu7vgHaqn96ZvGPxF60Z8ACWyrEEPDgRwhw0jOCHamHb
+         s47GcoCr4p5mLIIlgUhvhjR3S5LgM1a0jKweawIzugfBzdW+sePRVGyIsP3YdamRFhWT
+         aWePtUVXEn0ZvZM4H1qH3EaCMAJfUH4Q4KHSh4Hof57go70rc+e8UzVBRy2Wi6CFotIA
+         yrQWvspKzWrRQ4hRShl67zTOiYmS3FKhaM9EzQBIk1S+TDsx13nXM+g5bpvsE399YHZO
+         u+8wGawSybGVQ/VnTQHQk5q3A9kr0til5p/Qu8y7KUzyg3qCg4MDutT1HFRssGBAobE+
+         ndIg==
+X-Gm-Message-State: AOJu0YwydYtlg8yYqDMMiZ0NIZ4bvRPAE2jXL2+AQ755j8Kk4DUJGjzN
+        vzI0abnGuKIJ2H8BVpfnHtBuML5BvdwezWVmhw==
+X-Google-Smtp-Source: AGHT+IH4n2Ti8bY48zbLY4xkY93dIDk4nAzI/ehOfEEGEAlKH+L3fQiuaHTRo1nk75s7Wk6OjQbOjA==
+X-Received: by 2002:ae9:ea0b:0:b0:77b:9a8c:b0bc with SMTP id f11-20020ae9ea0b000000b0077b9a8cb0bcmr4662954qkg.44.1700067852315;
+        Wed, 15 Nov 2023 09:04:12 -0800 (PST)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id bp39-20020a05620a45a700b0076ef004f659sm3604178qkb.1.2023.11.15.09.04.11
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Nov 2023 09:04:12 -0800 (PST)
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] MAINTAINERS: update the SELinux entry
+Date:   Wed, 15 Nov 2023 12:04:06 -0500
+Message-ID: <20231115170405.113117-2-paul@paul-moore.com>
+X-Mailer: git-send-email 2.42.1
 MIME-Version: 1.0
-References: <20231016220835.GH800259@ZenIV> <CAHC9VhTzEiKixwpKuit0CBq3S5F-CX3bT1raWdK8UPuN3xS-Bw@mail.gmail.com>
- <CAEjxPJ4FD4m7wEO+FcH+=LyH2inTZqxi1OT5FkUH485s+cqM2Q@mail.gmail.com> <CAHC9VhQQ-xbV-dVvTm26LaQ8F+0iW+Z0SMXdZ9MeDBJ7z2x4xg@mail.gmail.com>
-In-Reply-To: <CAHC9VhQQ-xbV-dVvTm26LaQ8F+0iW+Z0SMXdZ9MeDBJ7z2x4xg@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 15 Nov 2023 08:35:37 -0500
-Message-ID: <CAEjxPJ5YiW62qQEfpEDfSrav_43J7SeYYbBqV8YPRdpqBizAQw@mail.gmail.com>
-Subject: Re: [PATCH][RFC] selinuxfs: saner handling of policy reloads
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Christian Brauner <brauner@kernel.org>,
-        selinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1596; i=paul@paul-moore.com; h=from:subject; bh=4mLsqH954iz0FGH1aX+2Fkr6DzcnDDAScNdM7o19nCY=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlVPoFT9bI4VW5ML9USkpdwwUjw5FPlY57+FuYY /I0003qkyiJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZVT6BQAKCRDqIPLalzeJ c3uyD/0Qtx/43Y2fm748mzlHC6XK5IVlZHCz49bY7EKvzNPuJwZ+Bik3Zxs3u4ocX2ENkQCjC+g 07/qgFDRAry/RPtd6QIdzFxg/ip/X9RQnUpEj6nOELBK0EqA55llxRPGhIT5dDvooeduh7aDxcR 4NmBigmp8RjFeWMCkedyFQ0mR8sKE7x+ZabPZPi9lFfXAGuOAqU9qgrRSUGmU3WoE380ZORKLNk 3LsRMAu2euWSl8P1saNOkajhpKjl7OyecqlNebpfYNt+m8oKekV3Pg31R9a9V7D+F/+ICrbj31E 6rgVz7l5MoLLWQAFTOvELhozlfiscfdLJdaNXNGgRXk/negzPLq7ITazM5vtoSg18G54zCM226a kOyEsogDvmIrFsIIb9iQGbNg60kUL8cV7YzhOOcEWraY/Y77KSctXBGSWOkrYHhF5H3ajHV7iKO Jk8EbWSGLlx9CLqdwbMr66JiPMhANkcGIW//pq89PgmvmM9l2eqSBz+8qqPB+2t04EC2NXpVCR9 0UH0YaKXnttuhqBIUgkK3mvCtZnZC51byBANVKIWWDBShkxBLMOEHbB5oXRyjEOBLJ2FQ6PSW8o stdZwLd4xPO73ZY1/NENc16VfaxqUjH7kw61gOy/vsGgE7zNinegw+07uoO9zz4Ll/jh9YeAj58 +6IyAHvXd2+p0yw==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 14, 2023 at 5:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Tue, Nov 14, 2023 at 3:57=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Mon, Nov 13, 2023 at 11:19=E2=80=AFAM Paul Moore <paul@paul-moore.co=
-m> wrote:
-> > > On Mon, Oct 16, 2023 at 6:08=E2=80=AFPM Al Viro <viro@zeniv.linux.org=
-.uk> wrote:
-> > > >
-> > > > [
-> > > > That thing sits in viro/vfs.git#work.selinuxfs; I have
-> > > > lock_rename()-related followups in another branch, so a pull would =
-be more
-> > > > convenient for me than cherry-pick.  NOTE: testing and comments wou=
-ld
-> > > > be very welcome - as it is, the patch is pretty much untested beyon=
-d
-> > > > "it builds".
-> > > > ]
-> > >
-> > > Hi Al,
-> > >
-> > > I will admit to glossing over the comment above when I merged this
-> > > into the selinux/dev branch last night.  As it's been a few weeks, I'=
-m
-> > > not sure if the comment above still applies, but if it does let me
-> > > know and I can yank/revert the patch in favor of a larger pull.  Let
-> > > me know what you'd like to do.
-> >
-> > Seeing this during testsuite runs:
-> >
-> > [ 3550.206423] SELinux:  Converting 1152 SID table entries...
-> > [ 3550.666195] ------------[ cut here ]------------
-> > [ 3550.666201] WARNING: CPU: 3 PID: 12300 at fs/inode.c:330 drop_nlink+=
-0x57/0x70
->
-> How are you running the test suite Stephen?  I haven't hit this in my
-> automated testing and I did another test run manually to make sure I
-> wasn't missing it and everything ran clean.
->
-> I'm running the latest selinux-testsuite on a current Rawhide system
-> with kernel 6.7.0-0.rc1.20231114git9bacdd89.17.1.secnext.fc40 (current
-> Rawhide kernel + the LSM, SELinux, and audit dev trees).
+Bring the SELinux entry up to date with the following changes:
 
-Technically this was with a kernel built from your dev branch plus
-Ondrej's selinux: introduce an initial SID for early boot processes
-patch, but I don't see how the latter could introduce such a bug. Will
-retry without it.
+* Remove the selinuxproject.org link.  The wiki located there is in
+read-only mode and exists primarily for historical reasons.
+
+* Add our patchwork link.  I'm not sure this is of much use for
+anyone but the maintainer, but there is a provision for including it
+here so we might as well include it.
+
+* Add a bug report URI.  I suspect most everyone knows to send mail
+to the mailing list if they hit a bug, but let's make it official.
+
+* Add a link to the SELinux tree process/management documentation.
+While the doc exists both in the canonical kernel.org location and
+the GitHub mirror, provide a link to the mirror as GitHub does a
+better job rendering the Markdown.
+
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ MAINTAINERS | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 97f51d5ec1cf..e5d289eaba83 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19520,8 +19520,10 @@ M:	Stephen Smalley <stephen.smalley.work@gmail.com>
+ M:	Eric Paris <eparis@parisplace.org>
+ L:	selinux@vger.kernel.org
+ S:	Supported
+-W:	https://selinuxproject.org
+ W:	https://github.com/SELinuxProject
++Q:	https://patchwork.kernel.org/project/selinux/list
++B:	mailto:selinux@vger.kernel.org
++P:	https://github.com/SELinuxProject/selinux-kernel/blob/main/README.md
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+ F:	Documentation/ABI/removed/sysfs-selinux-checkreqprot
+ F:	Documentation/ABI/removed/sysfs-selinux-disable
+-- 
+2.42.1
+
