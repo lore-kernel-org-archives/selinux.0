@@ -2,57 +2,57 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8F4AC197A0
-	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 14:56:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32877C197A0
+	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 14:57:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235442AbjKPO4U (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Nov 2023 09:56:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35710 "EHLO
+        id S229785AbjKPO5D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Nov 2023 09:57:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235428AbjKPO4U (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 09:56:20 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A0619D
-        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:56:16 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-507973f3b65so1274091e87.3
-        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:56:16 -0800 (PST)
+        with ESMTP id S235331AbjKPO5C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 09:57:02 -0500
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396C193
+        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:56:59 -0800 (PST)
+Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-507975d34e8so1266366e87.1
+        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:56:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700146575; x=1700751375; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700146617; x=1700751417; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=NWQ9E1g8dFn3m9OZe/t8ev1q+SL0rRcBi1OLqXCWYuY=;
-        b=lBILIFaiiQKZ8uF8mvZ3/06vCiPFt81+oG0sJjylCBPbqEB24w2iEoYwPBr1Mdz03O
-         l7tpGRx2jK7vvnM+jDVgwmPQp6lA/XboyrwgKdvnc9/vubv2ZQgx7/BpH2dedZGLaZf0
-         cEYyPkoPdRk70zkbQqf4AyVsZrNOqk7ec0vINwwgeFx9kUnLT+L93KZhkhYCo1INU11L
-         7opVoUL6df7OsjYzqB541scrPVuzmXhBWpnMNPsq3SpUqMS5RaUnDTz9fhI7tOsVvmDe
-         6ZK3Mm9J/r9++35lt+laOf9aQ62PEmUfXhGFkJYcMvz6+Dy0/gqmsyE9B+JnHCGT1CXW
-         7TkA==
+        bh=dznCtozSizrnMwBv+mkyD7mNLFulylYQnyDBQXGl8uU=;
+        b=knIY7eSvnPSMjXUXucMfKeziPW3M89IoiVXmNObVlgsgpDAfbpHLSTTEloASj9Qq+X
+         12ejOTmPhsKoUWEyPMv/5BW9NMf3Arfh9HjWr1BUF1dcRLQtaUOlqR8BHemVCz4JYXLs
+         GaZuQuttMPJdRbPaPyrQUej5eCuyosunfEreNY6TEESerIBk6ndJwmNEQPVtBgFliWds
+         yIsp99+0KvGUDq+AeRTr21/xgwm1a0aRoSmWIOCu2brtRepn+x0dxs8VJLfUkkVcxSHC
+         J4e5ryzX638wY+oQkS1aKGyKMHFuVil5gIvtnJdHmnNs85B31yqLOuLj8EBcI1B5Ybt/
+         xqPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700146575; x=1700751375;
+        d=1e100.net; s=20230601; t=1700146617; x=1700751417;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=NWQ9E1g8dFn3m9OZe/t8ev1q+SL0rRcBi1OLqXCWYuY=;
-        b=ZnsICoqMTPIyOiDfL8xMnX8ZU4f9DxekmAkqof0gYmQwSW7tkPPWBjqdebtdYiEnak
-         kUbdo1duB4VYKJc2c7Ht7nxhXQJ535j0fwdQQnvzcg1iQdGiPeIe4IWW5XGIkNwenvc+
-         FTcCFbJOoOHwZoYdHgI7Tj1lORsvgATrcrAVBzi4CeGQhb8jemIFQLigmoGLPwjOP1Ti
-         fzu/tXmZs1mQBLayl7SU3pBGMr9pvKhglNbgyi2S470vMIjmSiWbTTtTdg7vIiMwg0ZX
-         OmSz9U/P57SzzrxnDNk+yAcv6TD4mdwUx2p4CioW23mOri9dy69R0yZhqKTXPp3Jju4c
-         phkQ==
-X-Gm-Message-State: AOJu0YzzznIi/RXlRgCdQupdUiEibHjyT5yEBr3wa/Cl8S2ra2DgvRy7
-        9tR8Tqn6+YpemssvNaWMiLjiag9ZofklfzLIJ5iSNo8K
-X-Google-Smtp-Source: AGHT+IGuosBPe8qK7QqUrp1w5h+Qm6wPFkkNy1CGZ1OIKciQbGNw1nQixZ+pBACFeREbIS3FWf10g1Iv3nHu6eXSuK8=
-X-Received: by 2002:ac2:4c38:0:b0:4f3:9136:9cd0 with SMTP id
- u24-20020ac24c38000000b004f391369cd0mr10886965lfq.44.1700146574558; Thu, 16
- Nov 2023 06:56:14 -0800 (PST)
+        bh=dznCtozSizrnMwBv+mkyD7mNLFulylYQnyDBQXGl8uU=;
+        b=eVwF46vTsaCvO44egctditoNk/Ob0Hp6aEvaCimv9IVb+n3OsFyCMWlg4mrFTu37VA
+         XZF3ITkMthbc5/ekNJvh28e98z7X3b4YKr9v97OtKAiZQtJdy5al5dUXYZ4k8Seaj6Bx
+         /zpID64PlNYjRGrEZeJVL1oiZpEKVxZ7WOyh1JtzXmpD+9lc0aAoJ/784h10N8EtzuX2
+         X5LnR5pTRfxP+cXyhowR42MTBPnJodlMoJxEMiAyZi/bEiUHYyx2m/E6cAQUvpMWi3rY
+         4PlQPpTnbdoz9q30ThTRX/Odr/KBYNf3bM2JwVx//6LVTJ8tfB7wIZHz5Fe3htdx3/KH
+         nb1Q==
+X-Gm-Message-State: AOJu0YzrvavjOwSp+JZJpcGM4CEkwSvitZAqcKOBBNV5sqspB0EBJn/X
+        SIXXsmd+Hqx7nE0JcducprGBnGtn5IsyviJCW5I=
+X-Google-Smtp-Source: AGHT+IHpkE5lu24MJnk2tO125ACwmnSUONW/msTiFEMbb++VCeLTzkU2e1zwCWuOroDUNOwvDiZK5UaIPWrDMVIjBpA=
+X-Received: by 2002:ac2:5302:0:b0:507:aa44:28fa with SMTP id
+ c2-20020ac25302000000b00507aa4428famr10757551lfh.26.1700146617181; Thu, 16
+ Nov 2023 06:56:57 -0800 (PST)
 MIME-Version: 1.0
-References: <20231109135148.42688-1-cgzones@googlemail.com> <CAP+JOzTqSdFv+Cz9H3wZH=gaRmSpJM_CMeBd_DwR6_r6JGtswQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzTqSdFv+Cz9H3wZH=gaRmSpJM_CMeBd_DwR6_r6JGtswQ@mail.gmail.com>
+References: <20231109135315.44095-1-cgzones@googlemail.com> <CAP+JOzRd6GbNJXykF-0jCscXyvxntBvZpF-sE1wiKwSt3paZRw@mail.gmail.com>
+In-Reply-To: <CAP+JOzRd6GbNJXykF-0jCscXyvxntBvZpF-sE1wiKwSt3paZRw@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 16 Nov 2023 09:56:03 -0500
-Message-ID: <CAP+JOzTnZHWjGqRJ+vRhCj-nC05-pXOwFyZqY=OMCMj414otAQ@mail.gmail.com>
-Subject: Re: [PATCH 1/7] Drop LGTM.com configuration
+Date:   Thu, 16 Nov 2023 09:56:45 -0500
+Message-ID: <CAP+JOzSZXP-4HbwSe=k9ixnVk0f1JV6dob-AWtcpaeGNFUKX_A@mail.gmail.com>
+Subject: Re: [PATCH 1/5] semodule_link: avoid NULL dereference on OOM
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,44 +61,59 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 13, 2023 at 3:12=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Mon, Nov 13, 2023 at 4:43=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Thu, Nov 9, 2023 at 8:51=E2=80=AFAM Christian G=C3=B6ttsche
+> On Thu, Nov 9, 2023 at 8:53=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > LGTM.com has been discontinued in 2022 and replaced by GitHub code
-> > scanning[1].
+> > In case the initial calloc(3) call fails the variable mods is still NUL=
+L
+> > while its size hint num_mods is set.
 > >
-> > [1]: https://github.blog/2022-08-15-the-next-step-for-lgtm-com-github-c=
-ode-scanning/
+> > Reported by Clang Analyzer:
+> >
+> >     semodule_link.c:182:29: warning: Array access (from variable 'mods'=
+) results in a null pointer dereference [core.NullDereference]
+> >       182 |                 sepol_module_package_free(mods[i]);
+> >           |                                           ^~~~~~~
+> >
+> > Fixes: 63e798a2034a ("semodule_link: update")
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these seven patches:
+> For these five patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These seven patches have been merged.
+These five patches have been merged.
 Thanks,
 Jim
 
 > > ---
-> >  lgtm.yml | 5 -----
-> >  1 file changed, 5 deletions(-)
-> >  delete mode 100644 lgtm.yml
+> >  semodule-utils/semodule_link/semodule_link.c | 8 +++++---
+> >  1 file changed, 5 insertions(+), 3 deletions(-)
 > >
-> > diff --git a/lgtm.yml b/lgtm.yml
-> > deleted file mode 100644
-> > index f80bf146..00000000
-> > --- a/lgtm.yml
-> > +++ /dev/null
-> > @@ -1,5 +0,0 @@
-> > -extraction:
-> > -  cpp:
-> > -    index:
-> > -      build_command:
-> > -        - make DESTDIR=3D"$LGTM_WORKSPACE/destdir" install
+> > diff --git a/semodule-utils/semodule_link/semodule_link.c b/semodule-ut=
+ils/semodule_link/semodule_link.c
+> > index 0f157bd9..58fca34d 100644
+> > --- a/semodule-utils/semodule_link/semodule_link.c
+> > +++ b/semodule-utils/semodule_link/semodule_link.c
+> > @@ -178,9 +178,11 @@ failure:
+> >         ret =3D EXIT_FAILURE;
+> >
+> >  cleanup:
+> > -       for (i =3D 0; i < num_mods; i++)
+> > -               sepol_module_package_free(mods[i]);
+> > -       free(mods);
+> > +       if (mods) {
+> > +               for (i =3D 0; i < num_mods; i++)
+> > +                       sepol_module_package_free(mods[i]);
+> > +               free(mods);
+> > +       }
+> >         sepol_module_package_free(base);
+> >
+> >         return ret;
 > > --
 > > 2.42.0
 > >
