@@ -2,114 +2,152 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88E3AC47071
-	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 04:45:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82AFBC47071
+	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 09:44:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbjKPEpu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Nov 2023 23:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39930 "EHLO
+        id S235656AbjKPJoM convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Nov 2023 04:44:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229786AbjKPEpt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Nov 2023 23:45:49 -0500
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8315719D
-        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 20:45:45 -0800 (PST)
-Received: by mail-yb1-xb32.google.com with SMTP id 3f1490d57ef6-d9b9adaf291so366978276.1
-        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 20:45:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1700109944; x=1700714744; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=T5NQZRzhd8QMbuaaiYzohTnfVf0XJkKfZNL+MfVhwfA=;
-        b=AP60ARjiCq1Ekiu7SnErfzFRTcqvDVJimmVbcn1Cog8HOZroavdvVTW8VWEL/zGGPT
-         dUza7RplBTXFCDtcZT0Ho8FVZPz6M7DxzcCmJ4vJl9sPhDpkIC08RSuROk9HuBj12GpS
-         gTJKV6Lj5P/qF6Hlkc0U62ilhpiTF8eisDjhLAM2VfawGFOTVOpGBwgHdNz8yAuU7ZBu
-         qj+I5QQ3CJ+CAwhS31bbcASiJ/2HxGTZ/2LWzK57EaB1hnK4rToHkk5+gKVW4annYgun
-         7mfJhH8QZjLEJ+U0C7jIg+gAdYdKrE3i5y04DqifVN1UKX5vbJ+6S2sWwXpn/+oxniru
-         ua6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700109944; x=1700714744;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=T5NQZRzhd8QMbuaaiYzohTnfVf0XJkKfZNL+MfVhwfA=;
-        b=rOZmoq2chmnoZKL9V4lcx9NfuRbqxbYF/5dixMQFMXMMEJhnTn2DF/yMwSOGI0bEps
-         wzJmFCPowFuKYaVQ2d7KYTzIbhR+t1HrQYy2f3BjAsZwmsD+Eh1Sp/2mA7Jwqps5GDAl
-         zYqC8fMKzdbknWDY83nH0OB5Ulm4+TXHgNTebcF+uQtuinwNmUJStglPpErA2Km/5p+t
-         HMcngpP1P7iCM48hBqLdh4Q9ALZnJKk8GVrcdy2TmNDWWNcVq6WOy9V1L8DLfaR2H4yI
-         9g7r2wA0J/lDIFr1FzgiTNbnnw2gnct6ZVGK/reO4gx/FMjyHq4CM/UrsZaOqxLb88st
-         N87A==
-X-Gm-Message-State: AOJu0YzU6ffWPbTJex5vmxtFY/uriMAlkIybpJqjVQGol49yMgzXFUiy
-        9BJySPYMrGUnj6Z+mQQXDSJ+P3X0gptKdqdgFW3HeTUr95atgJE=
-X-Google-Smtp-Source: AGHT+IETTNS48zUlZZe2PWhvR+pKQarV0fxyNCnSK/ooaDTUs26hdOM2hmGpMXxToZRQTEWF5RqR1fiWJNGTI0U/JN4=
-X-Received: by 2002:a25:1844:0:b0:db0:366a:73ab with SMTP id
- 65-20020a251844000000b00db0366a73abmr3329258yby.57.1700109942854; Wed, 15 Nov
- 2023 20:45:42 -0800 (PST)
-MIME-Version: 1.0
-References: <20231115170405.113117-2-paul@paul-moore.com> <CAHC9VhSnpjTBdDvJuF9cH6_s+AtOYStrvqaXTRpbDBSPSpvAyQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSnpjTBdDvJuF9cH6_s+AtOYStrvqaXTRpbDBSPSpvAyQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 15 Nov 2023 23:45:32 -0500
-Message-ID: <CAHC9VhT+qMazD2B4b4ZTZ41wQ3x1o3yYf-XHbVbZxUw4zqODCQ@mail.gmail.com>
-Subject: Re: [PATCH] MAINTAINERS: update the SELinux entry
-To:     selinux@vger.kernel.org
+        with ESMTP id S230254AbjKPJoL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 04:44:11 -0500
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A15187;
+        Thu, 16 Nov 2023 01:44:06 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4SWFBc0RMwz9yTL7;
+        Thu, 16 Nov 2023 17:30:32 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwD35HQ65FVl8FXFAA--.37511S2;
+        Thu, 16 Nov 2023 10:43:37 +0100 (CET)
+Message-ID: <b0f6ece6579a5016243cca5c313d1a58cae6eff2.camel@huaweicloud.com>
+Subject: Re: [PATCH v5 10/23] security: Introduce inode_post_setattr hook
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>, viro@zeniv.linux.org.uk,
+        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
+        tom@talpey.com, jmorris@namei.org, serge@hallyn.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com, mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>
+Date:   Thu, 16 Nov 2023 10:43:18 +0100
+In-Reply-To: <231ff26ec85f437261753faf03b384e6.paul@paul-moore.com>
+References: <20231107134012.682009-11-roberto.sassu@huaweicloud.com>
+         <231ff26ec85f437261753faf03b384e6.paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4-0ubuntu2 
+MIME-Version: 1.0
+X-CM-TRANSID: LxC2BwD35HQ65FVl8FXFAA--.37511S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGFy3tF1ftF4kGF13Cw4rXwb_yoW5Wry7pF
+        WrK3WYkwn5GFy7Wr93tF43uayS9ayrWr1UXrZIqr1jyFn8Kw13tF92kw1YkrW3Cr48G34F
+        qw129Fsxur98ArDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUk0b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv
+        6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFYFCUUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQADBF1jj5aFLwADsI
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 15, 2023 at 12:21=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> On Wed, Nov 15, 2023 at 12:04=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
- wrote:
-> >
-> > Bring the SELinux entry up to date with the following changes:
-> >
-> > * Remove the selinuxproject.org link.  The wiki located there is in
-> > read-only mode and exists primarily for historical reasons.
-> >
-> > * Add our patchwork link.  I'm not sure this is of much use for
-> > anyone but the maintainer, but there is a provision for including it
-> > here so we might as well include it.
-> >
-> > * Add a bug report URI.  I suspect most everyone knows to send mail
-> > to the mailing list if they hit a bug, but let's make it official.
-> >
-> > * Add a link to the SELinux tree process/management documentation.
-> > While the doc exists both in the canonical kernel.org location and
-> > the GitHub mirror, provide a link to the mirror as GitHub does a
-> > better job rendering the Markdown.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Wed, 2023-11-15 at 23:33 -0500, Paul Moore wrote:
+> On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
+> > 
+> > In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> > the inode_post_setattr hook.
+> > 
+> > At inode_setattr hook, EVM verifies the file's existing HMAC value. At
+> > inode_post_setattr, EVM re-calculates the file's HMAC based on the modified
+> > file attributes and other file metadata.
+> > 
+> > Other LSMs could similarly take some action after successful file attribute
+> > change.
+> > 
+> > The new hook cannot return an error and cannot cause the operation to be
+> > reverted.
+> > 
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 > > ---
-> >  MAINTAINERS | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/MAINTAINERS b/MAINTAINERS
-> > index 97f51d5ec1cf..e5d289eaba83 100644
-> > --- a/MAINTAINERS
-> > +++ b/MAINTAINERS
-> > @@ -19520,8 +19520,10 @@ M:     Stephen Smalley <stephen.smalley.work@g=
-mail.com>
-> >  M:     Eric Paris <eparis@parisplace.org>
-> >  L:     selinux@vger.kernel.org
-> >  S:     Supported
-> > -W:     https://selinuxproject.org
-> >  W:     https://github.com/SELinuxProject
-> > +Q:     https://patchwork.kernel.org/project/selinux/list
-> > +B:     mailto:selinux@vger.kernel.org
-> > +P:     https://github.com/SELinuxProject/selinux-kernel/blob/main/READ=
-ME.md
-> >  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selin=
-ux.git
->
-> Unfortunately I didn't realize this until the patch hit my inbox, but
-> I should also update the tree location to use https instead of git.
-> I'll fix that when I merge the patch.
+> >  fs/attr.c                     |  1 +
+> >  include/linux/lsm_hook_defs.h |  2 ++
+> >  include/linux/security.h      |  7 +++++++
+> >  security/security.c           | 16 ++++++++++++++++
+> >  4 files changed, 26 insertions(+)
+> 
+> ...
+> 
+> > diff --git a/security/security.c b/security/security.c
+> > index 7935d11d58b5..ce3bc7642e18 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -2222,6 +2222,22 @@ int security_inode_setattr(struct mnt_idmap *idmap,
+> >  }
+> >  EXPORT_SYMBOL_GPL(security_inode_setattr);
+> >  
+> > +/**
+> > + * security_inode_post_setattr() - Update the inode after a setattr operation
+> > + * @idmap: idmap of the mount
+> > + * @dentry: file
+> > + * @ia_valid: file attributes set
+> > + *
+> > + * Update inode security field after successful setting file attributes.
+> > + */
+> > +void security_inode_post_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+> > +				 int ia_valid)
+> > +{
+> > +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> > +		return;
+> 
+> I may be missing it, but I don't see the S_PRIVATE flag check in the
+> existing IMA or EVM hooks so I'm curious as to why it is added here?
+> Please don't misunderstand me, I think it makes sense to return early
+> on private dentrys/inodes, but why aren't we doing that now?
 
-Merged into selinux/dev.
+My first motivation was that it is in the pre hooks, so it should be in
+the post hook as well.
 
---=20
-paul-moore.com
+Thinking more about it, suppose that the post don't have the check,
+private inodes would gain an HMAC without checking the validity of the
+current HMAC first (done in the pre hooks), which would be even worse.
+
+So, my idea about this is that at least we are consistent.
+
+If IMA and EVM should look at private inodes is a different question,
+which would require a discussion.
+
+Thanks
+
+Roberto
+
+> > +	call_void_hook(inode_post_setattr, idmap, dentry, ia_valid);
+> > +}
+> > +
+> >  /**
+> >   * security_inode_getattr() - Check if getting file attributes is allowed
+> >   * @path: file
+> > -- 
+> > 2.34.1
+> 
+> --
+> paul-moore.com
+
