@@ -2,57 +2,56 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32877C197A0
-	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 14:57:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04B7CC54FB9
+	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 14:57:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbjKPO5D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Nov 2023 09:57:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39060 "EHLO
+        id S235331AbjKPO5e (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Nov 2023 09:57:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235331AbjKPO5C (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 09:57:02 -0500
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396C193
-        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:56:59 -0800 (PST)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-507975d34e8so1266366e87.1
-        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:56:59 -0800 (PST)
+        with ESMTP id S229841AbjKPO5d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 09:57:33 -0500
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C67E093
+        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:57:29 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-507a98517f3so1211669e87.0
+        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 06:57:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700146617; x=1700751417; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700146648; x=1700751448; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=dznCtozSizrnMwBv+mkyD7mNLFulylYQnyDBQXGl8uU=;
-        b=knIY7eSvnPSMjXUXucMfKeziPW3M89IoiVXmNObVlgsgpDAfbpHLSTTEloASj9Qq+X
-         12ejOTmPhsKoUWEyPMv/5BW9NMf3Arfh9HjWr1BUF1dcRLQtaUOlqR8BHemVCz4JYXLs
-         GaZuQuttMPJdRbPaPyrQUej5eCuyosunfEreNY6TEESerIBk6ndJwmNEQPVtBgFliWds
-         yIsp99+0KvGUDq+AeRTr21/xgwm1a0aRoSmWIOCu2brtRepn+x0dxs8VJLfUkkVcxSHC
-         J4e5ryzX638wY+oQkS1aKGyKMHFuVil5gIvtnJdHmnNs85B31yqLOuLj8EBcI1B5Ybt/
-         xqPw==
+        bh=U2qm6+TcZATgQarLkFPr2m70njnzL9o/f7Hp6WMIMx4=;
+        b=LpNhPV8XgZJEBU1fsL1JKZk8Pcc9bHWXPFANIxirGhXREZOnwCpLqNH690Be8I3VR0
+         zE5j3R510vHKhyM2LcbE7btNjpvsySiY7icNFG1qITLiCCiq5voBzmT4TZVqB3w2LVU8
+         PEdPPM27eqEL28PArLZn+VWmRv0w7zdq/2kZWKNR4jmiwG+71t8TpkTNyITpLW/HcDB5
+         ujwfE4xjva3U00rwEilZHGETPaWnLjR005W8fTctHLix0+VUvJcV5GfxHma9fTMhTvmz
+         c/Mb0dDWO03Swx7MFspr6kS2lzw2tUzzp/e7Ev1jB+k1L9bsXsMchPWGwk9D7TO3wMfE
+         d/Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700146617; x=1700751417;
+        d=1e100.net; s=20230601; t=1700146648; x=1700751448;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=dznCtozSizrnMwBv+mkyD7mNLFulylYQnyDBQXGl8uU=;
-        b=eVwF46vTsaCvO44egctditoNk/Ob0Hp6aEvaCimv9IVb+n3OsFyCMWlg4mrFTu37VA
-         XZF3ITkMthbc5/ekNJvh28e98z7X3b4YKr9v97OtKAiZQtJdy5al5dUXYZ4k8Seaj6Bx
-         /zpID64PlNYjRGrEZeJVL1oiZpEKVxZ7WOyh1JtzXmpD+9lc0aAoJ/784h10N8EtzuX2
-         X5LnR5pTRfxP+cXyhowR42MTBPnJodlMoJxEMiAyZi/bEiUHYyx2m/E6cAQUvpMWi3rY
-         4PlQPpTnbdoz9q30ThTRX/Odr/KBYNf3bM2JwVx//6LVTJ8tfB7wIZHz5Fe3htdx3/KH
-         nb1Q==
-X-Gm-Message-State: AOJu0YzrvavjOwSp+JZJpcGM4CEkwSvitZAqcKOBBNV5sqspB0EBJn/X
-        SIXXsmd+Hqx7nE0JcducprGBnGtn5IsyviJCW5I=
-X-Google-Smtp-Source: AGHT+IHpkE5lu24MJnk2tO125ACwmnSUONW/msTiFEMbb++VCeLTzkU2e1zwCWuOroDUNOwvDiZK5UaIPWrDMVIjBpA=
-X-Received: by 2002:ac2:5302:0:b0:507:aa44:28fa with SMTP id
- c2-20020ac25302000000b00507aa4428famr10757551lfh.26.1700146617181; Thu, 16
- Nov 2023 06:56:57 -0800 (PST)
+        bh=U2qm6+TcZATgQarLkFPr2m70njnzL9o/f7Hp6WMIMx4=;
+        b=l0365uw456U/KPDbNBB9ErwbMSUF0sPC0synEe6DjQdHsUzbol4jdXj/+Me9FYPHJT
+         7n0s70ML0g8PK9C7dn8ibLHkAgyutq/0lQHWfH2geicJ0uLy4mQweTbjf+/CXRq1WfbY
+         LXOMQDCqHO0TJHVfHyooRqNKZQVv3tIgPkGJaJ64FYlIIhg2MAWJjLSq4xpugrzbpi1B
+         zqdbzYG/gHCSH27GjKHF2CD3dlitSxxXVkMRgdR9zWgF6+VvtOXa4VlIwjix0qa60bY8
+         xcRW1Qu+lUVMHdOHqYiIagRgR51gJzOa2ZB9CF846wUt8yC2RgF9yRMDIQNrAJyV5uWh
+         O7rg==
+X-Gm-Message-State: AOJu0YytSJsHgZDyRjn8sjT2CwFUuEEXhahKitS4rAy0kjo7DpXD2vyN
+        tjus7N1cu6/clqkEq+A5CjXdRvxRfj7SKwPFzERb2PgI
+X-Google-Smtp-Source: AGHT+IESK8gLMdElw5YxYD9aKTP1XMBTjsDFw2UKoB/kObxIIHH/IDqxOtcRRLOAe+bqPD0j6IoZ4ip9caNt+u1fNgg=
+X-Received: by 2002:ac2:546f:0:b0:509:f68:ed8 with SMTP id e15-20020ac2546f000000b005090f680ed8mr9851890lfn.61.1700146647811;
+ Thu, 16 Nov 2023 06:57:27 -0800 (PST)
 MIME-Version: 1.0
-References: <20231109135315.44095-1-cgzones@googlemail.com> <CAP+JOzRd6GbNJXykF-0jCscXyvxntBvZpF-sE1wiKwSt3paZRw@mail.gmail.com>
-In-Reply-To: <CAP+JOzRd6GbNJXykF-0jCscXyvxntBvZpF-sE1wiKwSt3paZRw@mail.gmail.com>
+References: <20231113192632.22509-1-cgzones@googlemail.com> <CAP+JOzRbkFiQWLpxFi+VgRU3gxDSZNuXx2W1Hnk8r01NKjCOfg@mail.gmail.com>
+In-Reply-To: <CAP+JOzRbkFiQWLpxFi+VgRU3gxDSZNuXx2W1Hnk8r01NKjCOfg@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 16 Nov 2023 09:56:45 -0500
-Message-ID: <CAP+JOzSZXP-4HbwSe=k9ixnVk0f1JV6dob-AWtcpaeGNFUKX_A@mail.gmail.com>
-Subject: Re: [PATCH 1/5] semodule_link: avoid NULL dereference on OOM
+Date:   Thu, 16 Nov 2023 09:57:16 -0500
+Message-ID: <CAP+JOzSG6-G6vfoJgzarjCpoRgKW0im+Q47UCGFYcuHG_6Z8Og@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: validate common classes have at least one permissions
 To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -61,59 +60,46 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 13, 2023 at 4:43=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Tue, Nov 14, 2023 at 3:40=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Thu, Nov 9, 2023 at 8:53=E2=80=AFAM Christian G=C3=B6ttsche
+> On Mon, Nov 13, 2023 at 2:26=E2=80=AFPM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > In case the initial calloc(3) call fails the variable mods is still NUL=
-L
-> > while its size hint num_mods is set.
+> > The traditional language and CIL permit common classes only to be
+> > defined with at least one permission.  Thus writing a common class
+> > without one will fail.
 > >
-> > Reported by Clang Analyzer:
-> >
-> >     semodule_link.c:182:29: warning: Array access (from variable 'mods'=
-) results in a null pointer dereference [core.NullDereference]
-> >       182 |                 sepol_module_package_free(mods[i]);
-> >           |                                           ^~~~~~~
-> >
-> > Fixes: 63e798a2034a ("semodule_link: update")
-> >
+> > Reported-by: oss-fuzz (issue 64059)
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these five patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These five patches have been merged.
+This patch has been merged.
 Thanks,
 Jim
 
 > > ---
-> >  semodule-utils/semodule_link/semodule_link.c | 8 +++++---
-> >  1 file changed, 5 insertions(+), 3 deletions(-)
+> >  libsepol/src/policydb_validate.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> > diff --git a/semodule-utils/semodule_link/semodule_link.c b/semodule-ut=
-ils/semodule_link/semodule_link.c
-> > index 0f157bd9..58fca34d 100644
-> > --- a/semodule-utils/semodule_link/semodule_link.c
-> > +++ b/semodule-utils/semodule_link/semodule_link.c
-> > @@ -178,9 +178,11 @@ failure:
-> >         ret =3D EXIT_FAILURE;
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index 016ab655..1121c8bb 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -369,7 +369,7 @@ static int validate_common_datum(sepol_handle_t *ha=
+ndle, const common_datum_t *c
+> >  {
+> >         if (validate_value(common->s.value, &flavors[SYM_COMMONS]))
+> >                 goto bad;
+> > -       if (common->permissions.nprim > PERM_SYMTAB_SIZE)
+> > +       if (common->permissions.table->nel =3D=3D 0 || common->permissi=
+ons.nprim > PERM_SYMTAB_SIZE)
+> >                 goto bad;
 > >
-> >  cleanup:
-> > -       for (i =3D 0; i < num_mods; i++)
-> > -               sepol_module_package_free(mods[i]);
-> > -       free(mods);
-> > +       if (mods) {
-> > +               for (i =3D 0; i < num_mods; i++)
-> > +                       sepol_module_package_free(mods[i]);
-> > +               free(mods);
-> > +       }
-> >         sepol_module_package_free(base);
-> >
-> >         return ret;
+> >         return 0;
 > > --
 > > 2.42.0
 > >
