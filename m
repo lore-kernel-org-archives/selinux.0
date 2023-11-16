@@ -2,58 +2,59 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8667CC54FB9
-	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 13:16:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 173DEC197A0
+	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 14:31:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230340AbjKPNQw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Nov 2023 08:16:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40862 "EHLO
+        id S230030AbjKPObI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Nov 2023 09:31:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230182AbjKPNQv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 08:16:51 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CFBE101;
-        Thu, 16 Nov 2023 05:16:48 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id 98e67ed59e1d1-2802e5ae23bso633815a91.2;
-        Thu, 16 Nov 2023 05:16:48 -0800 (PST)
+        with ESMTP id S229562AbjKPObH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Nov 2023 09:31:07 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25622182;
+        Thu, 16 Nov 2023 06:31:03 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id 41be03b00d2f7-5bdb0be3591so695061a12.2;
+        Thu, 16 Nov 2023 06:31:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700140608; x=1700745408; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700145062; x=1700749862; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=R5ggOw6GphawqhPawDLfaVpMxqhsYWi11Z2Wl02CIa8=;
-        b=WxzDmLYdjT0lKwAU054gov4uKLyGYaETzJnqaT/cOYEdrWYfqyX0IyLKZLcJYpB1dp
-         0GvBNaozeAO16EtRbUSMQ5mQ72/w4FEAPiHaRegjiaPNT9McN6nqrkacF4jG3pQ7+ReB
-         ejwJY4T/pIZsv/sTdWnLj83S34fNf6iLFiNo50we7lYMMZdiuR1Gi6G7LbtqZDh9xbSo
-         jQrv275HIr6iVr/qaWqkkqSw4cTLiDUNRzvgGs5/4mRUaYPUJ5StxTEvjQGLYoDw8EHR
-         WDezX3r3x7LBsgM3q90R4iLHtsaIseA+MGIcmYPLvF5eHNjdDlnmhzASTd/58u+zKt2S
-         dC+Q==
+        bh=yZrBdEfRtcMzg4FNBtXal6+L9u7KqK/1Zsh9vyn/+eI=;
+        b=ku/Uqn79wWU/BsTQXyKyCk6za48oSUKBl+DV3BnTGs7QHlSROLklPxX8tx2yRE9dTk
+         Qg/90xC0rnz8Z/1vKkqJUghXCoKk49AWOoNAK31G1UmK1XfURFULk6OPmZocXX77Zqad
+         UIO7LEYDs564In5keFGUZrpl+SDWp0kKQDa/wkVOO8jDQON08p52i6GmkbQb+g4P+naG
+         fMnJbvUJCXbltpdAGg8t1yhuIWUH8VcnNZg9t4muS6NmUyKqj47LPCet8vBPXKYMaY+S
+         6LXPYtdR69xWZ/7HfqMWjkrJtxzK4a1Am5S3zrD/aYfb384mRHPsxCqAwwLCV7OzuVX7
+         KJCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700140608; x=1700745408;
+        d=1e100.net; s=20230601; t=1700145062; x=1700749862;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=R5ggOw6GphawqhPawDLfaVpMxqhsYWi11Z2Wl02CIa8=;
-        b=qn6x17zChyFyPGjnXhMD7gropqaGDutfNPve9Xbeubbn13PXkfx3UFkkgjrcSTXL6N
-         z3TcNY8UH0nJBTXuNn43yBosm+h2HJRPl8kETD7KKT4R77eMa3EJNpbRkV1E3cSwoi3L
-         uDki1562UtkuE4IKTHyEmiK+2DA5d0oQiiIhoxWFYvA/JjyKR/9lE4gXE8lUE/4goiN0
-         uFHsgGslkCH5l2pmn+oq79U+AZ7LH50Ib8lPlpFW4jrbkxQGVetkc8VulLTAkKrYlYMD
-         sEA2njmRNdg2hePSu/cRJ12e02jrQtK1+70Bb0uZdI/1YoEauznrbux5/9y/pMdmfF+E
-         mFiQ==
-X-Gm-Message-State: AOJu0YwX0viE1SexaJgTmZJY31Z8svnTzCFmSrGQdx0Qunh06kL/u02v
-        wt03SJ+DTwhv1slPha5Dxwg7ykGmmiN5RDHAk1pVSBtqeZ4=
-X-Google-Smtp-Source: AGHT+IGqivqvVPmL2XcTnTwJLoejNk0zciTCT4/8v3XCyGNCMUUjSr5ckV85JSTcrMj2Ni2BG/gcK3jgMPkZk3Gl1eg=
-X-Received: by 2002:a17:90b:3910:b0:280:c4be:3c8e with SMTP id
- ob16-20020a17090b391000b00280c4be3c8emr14931208pjb.48.1700140607921; Thu, 16
- Nov 2023 05:16:47 -0800 (PST)
+        bh=yZrBdEfRtcMzg4FNBtXal6+L9u7KqK/1Zsh9vyn/+eI=;
+        b=X/0vrzwaUANlTOKsnrOpjmFpn+Pq4ZFYfhPdO5gfGqvyCSX157KkiuUx0gw2UA910P
+         KSKPn+4SOV8z/rLJD8+Cv2i5p8gQ+uJ7NahnJqV/Xoi1lDezLpMGxmT0FmKYWcrxqM5X
+         jVGdAjIM4HuHWZnIcj1H8B1R8xwOIwzeRyWlgA+GmdAdRyZ9CdEnCrnPj4vSuzO9XoPl
+         Hm0rVHRB+hbfkdYjeUemkVM2Hp0esgKChwTlW9EI9gsET4cDH/umweX9VPNfvqx9h3ou
+         ecBzq7jsfBkSvw038Edr0LmqZm8zbbWSrQI9omCF4EPTGgCSFKQ7KYgin51qEIgEarl0
+         4YWw==
+X-Gm-Message-State: AOJu0YzRzpmHvuhtJ9u4UdkWLDSj1A+8TOB8OSndPp9cc+e2TkkHkDIq
+        wtUWRq6nHdbwpeqkgXEbHl2V4f3OLDFNbC1rm9Q=
+X-Google-Smtp-Source: AGHT+IGk07vXIuijIon4E9WyjJOCuPdifH9cDKGcddyeaaqIcZqem5qgbH9FT3y1BQLddOMx3Qzd4v6kspbE8GYB6FE=
+X-Received: by 2002:a17:90b:4a0e:b0:280:46ac:be71 with SMTP id
+ kk14-20020a17090b4a0e00b0028046acbe71mr18416376pjb.15.1700145061930; Thu, 16
+ Nov 2023 06:31:01 -0800 (PST)
 MIME-Version: 1.0
 References: <20231016220835.GH800259@ZenIV> <CAHC9VhTzEiKixwpKuit0CBq3S5F-CX3bT1raWdK8UPuN3xS-Bw@mail.gmail.com>
  <CAEjxPJ4FD4m7wEO+FcH+=LyH2inTZqxi1OT5FkUH485s+cqM2Q@mail.gmail.com>
- <CAHC9VhQQ-xbV-dVvTm26LaQ8F+0iW+Z0SMXdZ9MeDBJ7z2x4xg@mail.gmail.com> <CAEjxPJ5YiW62qQEfpEDfSrav_43J7SeYYbBqV8YPRdpqBizAQw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5YiW62qQEfpEDfSrav_43J7SeYYbBqV8YPRdpqBizAQw@mail.gmail.com>
+ <CAHC9VhQQ-xbV-dVvTm26LaQ8F+0iW+Z0SMXdZ9MeDBJ7z2x4xg@mail.gmail.com>
+ <CAEjxPJ5YiW62qQEfpEDfSrav_43J7SeYYbBqV8YPRdpqBizAQw@mail.gmail.com> <CAEjxPJ5rL9aYxZq8nbB-gBfmNUM_s6+h8Q7C2jYYyP5M9O6z3Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5rL9aYxZq8nbB-gBfmNUM_s6+h8Q7C2jYYyP5M9O6z3Q@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 16 Nov 2023 08:16:36 -0500
-Message-ID: <CAEjxPJ5rL9aYxZq8nbB-gBfmNUM_s6+h8Q7C2jYYyP5M9O6z3Q@mail.gmail.com>
+Date:   Thu, 16 Nov 2023 09:30:50 -0500
+Message-ID: <CAEjxPJ7-YtZSpiN63Gjc_zmnSh8yzH-iW_YkOnwbYNF0uNLPCA@mail.gmail.com>
 Subject: Re: [PATCH][RFC] selinuxfs: saner handling of policy reloads
 To:     Paul Moore <paul@paul-moore.com>
 Cc:     Al Viro <viro@zeniv.linux.org.uk>,
@@ -66,65 +67,90 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 15, 2023 at 8:35=E2=80=AFAM Stephen Smalley
+On Thu, Nov 16, 2023 at 8:16=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, Nov 14, 2023 at 5:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
+> On Wed, Nov 15, 2023 at 8:35=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > On Tue, Nov 14, 2023 at 3:57=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Mon, Nov 13, 2023 at 11:19=E2=80=AFAM Paul Moore <paul@paul-moore.=
-com> wrote:
-> > > > On Mon, Oct 16, 2023 at 6:08=E2=80=AFPM Al Viro <viro@zeniv.linux.o=
-rg.uk> wrote:
+> > On Tue, Nov 14, 2023 at 5:24=E2=80=AFPM Paul Moore <paul@paul-moore.com=
+> wrote:
+> > >
+> > > On Tue, Nov 14, 2023 at 3:57=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > > On Mon, Nov 13, 2023 at 11:19=E2=80=AFAM Paul Moore <paul@paul-moor=
+e.com> wrote:
+> > > > > On Mon, Oct 16, 2023 at 6:08=E2=80=AFPM Al Viro <viro@zeniv.linux=
+.org.uk> wrote:
+> > > > > >
+> > > > > > [
+> > > > > > That thing sits in viro/vfs.git#work.selinuxfs; I have
+> > > > > > lock_rename()-related followups in another branch, so a pull wo=
+uld be more
+> > > > > > convenient for me than cherry-pick.  NOTE: testing and comments=
+ would
+> > > > > > be very welcome - as it is, the patch is pretty much untested b=
+eyond
+> > > > > > "it builds".
+> > > > > > ]
 > > > > >
-> > > > > [
-> > > > > That thing sits in viro/vfs.git#work.selinuxfs; I have
-> > > > > lock_rename()-related followups in another branch, so a pull woul=
-d be more
-> > > > > convenient for me than cherry-pick.  NOTE: testing and comments w=
-ould
-> > > > > be very welcome - as it is, the patch is pretty much untested bey=
-ond
-> > > > > "it builds".
-> > > > > ]
+> > > > > Hi Al,
+> > > > >
+> > > > > I will admit to glossing over the comment above when I merged thi=
+s
+> > > > > into the selinux/dev branch last night.  As it's been a few weeks=
+, I'm
+> > > > > not sure if the comment above still applies, but if it does let m=
+e
+> > > > > know and I can yank/revert the patch in favor of a larger pull.  =
+Let
+> > > > > me know what you'd like to do.
 > > > >
-> > > > Hi Al,
+> > > > Seeing this during testsuite runs:
 > > > >
-> > > > I will admit to glossing over the comment above when I merged this
-> > > > into the selinux/dev branch last night.  As it's been a few weeks, =
-I'm
-> > > > not sure if the comment above still applies, but if it does let me
-> > > > know and I can yank/revert the patch in favor of a larger pull.  Le=
+> > > > [ 3550.206423] SELinux:  Converting 1152 SID table entries...
+> > > > [ 3550.666195] ------------[ cut here ]------------
+> > > > [ 3550.666201] WARNING: CPU: 3 PID: 12300 at fs/inode.c:330 drop_nl=
+ink+0x57/0x70
+> > >
+> > > How are you running the test suite Stephen?  I haven't hit this in my
+> > > automated testing and I did another test run manually to make sure I
+> > > wasn't missing it and everything ran clean.
+> > >
+> > > I'm running the latest selinux-testsuite on a current Rawhide system
+> > > with kernel 6.7.0-0.rc1.20231114git9bacdd89.17.1.secnext.fc40 (curren=
 t
-> > > > me know what you'd like to do.
-> > >
-> > > Seeing this during testsuite runs:
-> > >
-> > > [ 3550.206423] SELinux:  Converting 1152 SID table entries...
-> > > [ 3550.666195] ------------[ cut here ]------------
-> > > [ 3550.666201] WARNING: CPU: 3 PID: 12300 at fs/inode.c:330 drop_nlin=
-k+0x57/0x70
+> > > Rawhide kernel + the LSM, SELinux, and audit dev trees).
 > >
-> > How are you running the test suite Stephen?  I haven't hit this in my
-> > automated testing and I did another test run manually to make sure I
-> > wasn't missing it and everything ran clean.
-> >
-> > I'm running the latest selinux-testsuite on a current Rawhide system
-> > with kernel 6.7.0-0.rc1.20231114git9bacdd89.17.1.secnext.fc40 (current
-> > Rawhide kernel + the LSM, SELinux, and audit dev trees).
+> > Technically this was with a kernel built from your dev branch plus
+> > Ondrej's selinux: introduce an initial SID for early boot processes
+> > patch, but I don't see how the latter could introduce such a bug. Will
+> > retry without it.
 >
-> Technically this was with a kernel built from your dev branch plus
-> Ondrej's selinux: introduce an initial SID for early boot processes
-> patch, but I don't see how the latter could introduce such a bug. Will
-> retry without it.
+> Reproduced without Ondrej's patch; the trick seems to be accessing
+> selinuxfs files during the testsuite run (likely interleaving with
+> policy reloads).
+> while true; do cat /sys/fs/selinux/initial_contexts/kernel ; done &
+> while running the testsuite seems to trigger.
+> Could also try while true; do sudo load_policy; done & in parallel
+> with the above loop.
+> In any event, will retry with Al's updated branch with the fix he propose=
+d.
 
-Reproduced without Ondrej's patch; the trick seems to be accessing
-selinuxfs files during the testsuite run (likely interleaving with
-policy reloads).
-while true; do cat /sys/fs/selinux/initial_contexts/kernel ; done &
-while running the testsuite seems to trigger.
-Could also try while true; do sudo load_policy; done & in parallel
-with the above loop.
-In any event, will retry with Al's updated branch with the fix he proposed.
+So far not showing up with Al's updated for-selinux branch. Difference
+between that and your dev branch for selinuxfs is what he showed
+earlier in the thread (pardon the whitespace damage):
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 36dc656a642a..0619a1cbbfbe 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1960,6 +1960,7 @@ static struct dentry *sel_make_swapover_dir(struct su=
+per_b
+lock *sb,
+        inc_nlink(inode);
+        inode_lock(sb->s_root->d_inode);
+        d_add(dentry, inode);
++       inc_nlink(sb->s_root->d_inode);
+        inode_unlock(sb->s_root->d_inode);
+        return dentry;
+ }
