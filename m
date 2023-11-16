@@ -2,70 +2,137 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F0DEC072A2
-	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 02:04:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11D1CC197A0
+	for <selinux@archiver.kernel.org>; Thu, 16 Nov 2023 04:33:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230259AbjKPCEJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Nov 2023 21:04:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56684 "EHLO
+        id S233593AbjKPEdy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Nov 2023 23:33:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbjKPCEI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Nov 2023 21:04:08 -0500
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3AFC19E
-        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 18:04:04 -0800 (PST)
-Received: from kwepemm000010.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4SW3B53pY7zMn0r
-        for <selinux@vger.kernel.org>; Thu, 16 Nov 2023 09:59:25 +0800 (CST)
-Received: from localhost.localdomain (10.175.104.170) by
- kwepemm000010.china.huawei.com (7.193.23.169) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Thu, 16 Nov 2023 10:04:01 +0800
-From:   <luhuaxin1@huawei.com>
-To:     <selinux@vger.kernel.org>
-CC:     <fangxiuning@huawei.com>, <zhujianwei7@huawei.com>,
-        <shenyining@huawei.com>, Huaxin Lu <luhuaxin1@huawei.com>
-Subject: [PATCH v2] libsepol: add check for category value before printing
-Date:   Thu, 16 Nov 2023 07:32:07 +0800
-Message-ID: <20231115233207.51845-1-luhuaxin1@huawei.com>
-X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.104.170]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemm000010.china.huawei.com (7.193.23.169)
-X-CFilter-Loop: Reflected
+        with ESMTP id S229908AbjKPEdw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Nov 2023 23:33:52 -0500
+Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53EF5193
+        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 20:33:47 -0800 (PST)
+Received: by mail-qk1-x72a.google.com with SMTP id af79cd13be357-7789cb322deso20042585a.3
+        for <selinux@vger.kernel.org>; Wed, 15 Nov 2023 20:33:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1700109226; x=1700714026; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=HOfDZdWy3FlMMU3byFQ5fyH9fZQUeVFWx7pZHVOBZ9I=;
+        b=cUShdtqX6NpRR3sTAX0J50EPelbnHmQNFwtWvwzNOaB5PsWSbAaumzdhhDAezZ/KVs
+         4uAi6bZhs7kWxiaREbmBkx5XOlv0YLLmHnOuaHpkfianch+ql9QBTSLz8ULbt4MoRQhP
+         HS49Y2z6QZAsdUpvur/XvuVba1Prftyd00XHMiGESmfqTkMiO89y110AJ5j6llyg0rd4
+         YD7CtJVPc4kiEp6m1LVvXvZuFGfh6vW8fiOQfNuQXj/6O7yuLxQdstH2aL6JGF64QybS
+         i3RTojbP3mpDQJCYFP1Xh4eVjB/pRvLS5ma7lWrP4rC9H6MczSvb/71xmqO9qtnNDdKN
+         yiyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700109226; x=1700714026;
+        h=in-reply-to:references:subject:cc:to:from:message-id:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=HOfDZdWy3FlMMU3byFQ5fyH9fZQUeVFWx7pZHVOBZ9I=;
+        b=gfpyLv3xsJcFDDW3Fk3xosBnAyVZGyJ/2EYM7yKvJ4QEyiA1OFwXO6HSGh0giVFbHI
+         +Zqmm8mXyvJ67w5D7IUun4LxqK9pBB7y3F7W2gU0BcodGA2v3ewW8oV/vVnFB+XgR3/W
+         u8Lw1Pf/OTzA42A8/sfQgjb0OZfsxy7FXMRLjz0eQwEs2zRw20Eb7qmqY38yzS3RZqFH
+         PhFx0sXp44nvHtoPtEu31HEl+JpJcnJNM83sVgehjD9qcNdb2/6XEtGcMOa/7F52EpNF
+         chpRWoUg/5AgC/5NhmHzuG8p7wr0yu+2I11Oi2qvmE2Bg3yvnKy6ZT7UCPuaPOpR0OXg
+         ymog==
+X-Gm-Message-State: AOJu0YzXVcfewR/FPTNid3zGgJL051sDGGInhSAjHaJGnrWvDi0pwun8
+        PSQiVfQrRXWYBPzoedFdpZUT
+X-Google-Smtp-Source: AGHT+IER1laoQSGviRJQuTFe6S8/gip4gdebLlsXd5eO0S7LgScOwZM8Bh3pBl2l/YUS5yGMypAquA==
+X-Received: by 2002:a05:620a:201c:b0:778:920a:7a70 with SMTP id c28-20020a05620a201c00b00778920a7a70mr8484989qka.66.1700109226313;
+        Wed, 15 Nov 2023 20:33:46 -0800 (PST)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id qc3-20020a05620a654300b0076d25b11b62sm4033067qkn.38.2023.11.15.20.33.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Nov 2023 20:33:45 -0800 (PST)
+Date:   Wed, 15 Nov 2023 23:33:45 -0500
+Message-ID: <231ff26ec85f437261753faf03b384e6.paul@paul-moore.com>
+From:   Paul Moore <paul@paul-moore.com>
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        casey@schaufler-ca.com, mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>
+Subject: Re: [PATCH v5 10/23] security: Introduce inode_post_setattr hook
+References: <20231107134012.682009-11-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20231107134012.682009-11-roberto.sassu@huaweicloud.com>
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Huaxin Lu <luhuaxin1@huawei.com>
+On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
+> 
+> In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> the inode_post_setattr hook.
+> 
+> At inode_setattr hook, EVM verifies the file's existing HMAC value. At
+> inode_post_setattr, EVM re-calculates the file's HMAC based on the modified
+> file attributes and other file metadata.
+> 
+> Other LSMs could similarly take some action after successful file attribute
+> change.
+> 
+> The new hook cannot return an error and cannot cause the operation to be
+> reverted.
+> 
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  fs/attr.c                     |  1 +
+>  include/linux/lsm_hook_defs.h |  2 ++
+>  include/linux/security.h      |  7 +++++++
+>  security/security.c           | 16 ++++++++++++++++
+>  4 files changed, 26 insertions(+)
 
-In mls_semantic_level_expand(), there is a explicitly determine
-whether category is 0, which may cause an potential integer
-overflow in error branch.
+...
 
-Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
----
- libsepol/src/expand.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> diff --git a/security/security.c b/security/security.c
+> index 7935d11d58b5..ce3bc7642e18 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2222,6 +2222,22 @@ int security_inode_setattr(struct mnt_idmap *idmap,
+>  }
+>  EXPORT_SYMBOL_GPL(security_inode_setattr);
+>  
+> +/**
+> + * security_inode_post_setattr() - Update the inode after a setattr operation
+> + * @idmap: idmap of the mount
+> + * @dentry: file
+> + * @ia_valid: file attributes set
+> + *
+> + * Update inode security field after successful setting file attributes.
+> + */
+> +void security_inode_post_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
+> +				 int ia_valid)
+> +{
+> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> +		return;
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index ee5f9185..9ed22bfd 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -945,8 +945,8 @@ int mls_semantic_level_expand(mls_semantic_level_t * sl, mls_level_t * l,
- 	for (cat = sl->cat; cat; cat = cat->next) {
- 		if (!cat->low || cat->low > cat->high) {
- 			ERR(h, "Category range is not valid %s.%s",
--			    p->p_cat_val_to_name[cat->low - 1],
--			    p->p_cat_val_to_name[cat->high - 1]);
-+			    cat->low > 0 ? p->p_cat_val_to_name[cat->low - 1] : "Invalid",
-+			    cat->high > 0 ? p->p_cat_val_to_name[cat->high - 1] : "Invalid");
- 			return -1;
- 		}
- 		for (i = cat->low - 1; i < cat->high; i++) {
--- 
-2.33.0
+I may be missing it, but I don't see the S_PRIVATE flag check in the
+existing IMA or EVM hooks so I'm curious as to why it is added here?
+Please don't misunderstand me, I think it makes sense to return early
+on private dentrys/inodes, but why aren't we doing that now?
 
+> +	call_void_hook(inode_post_setattr, idmap, dentry, ia_valid);
+> +}
+> +
+>  /**
+>   * security_inode_getattr() - Check if getting file attributes is allowed
+>   * @path: file
+> -- 
+> 2.34.1
+
+--
+paul-moore.com
