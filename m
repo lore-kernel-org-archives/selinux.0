@@ -2,130 +2,188 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87E39C5AD4C
-	for <selinux@archiver.kernel.org>; Mon, 20 Nov 2023 16:06:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D256C2BB3F
+	for <selinux@archiver.kernel.org>; Mon, 20 Nov 2023 17:32:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233171AbjKTQGE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Nov 2023 11:06:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52916 "EHLO
+        id S233568AbjKTRca convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Nov 2023 12:32:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbjKTQGA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 11:06:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6552BF4
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 08:05:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1700496355;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=z8R5RUPNiaYQOwD0fz+h+99qfNvmwoDB5Tdy4ixrKeQ=;
-        b=J5RM2811VuYYxtODbnm0lH46wwt1lyildjY/mjFmn3IRgLk6G1+2/vUvTdtohpQWwiatWh
-        Iwa9sB+dGhenq2KacpVzog5smwi7zYuCzRc8TIMc43mFpozKf14IkIyTsUyNkGfzHEz6aI
-        ZjH+1zB2Ixh6hoLQuruZ8A8BZiJVRfM=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-263-NRXfcJEcMGCoojGF_oEpEg-1; Mon, 20 Nov 2023 11:05:53 -0500
-X-MC-Unique: NRXfcJEcMGCoojGF_oEpEg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8150B101A53B
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 16:05:53 +0000 (UTC)
-Received: from P1.redhat.com (unknown [10.45.226.163])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 00DC5492BE0;
-        Mon, 20 Nov 2023 16:05:52 +0000 (UTC)
-From:   Petr Lautrbach <lautrbach@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] sepolicy: port to dnf4 python API
-Date:   Mon, 20 Nov 2023 17:05:48 +0100
-Message-ID: <20231120160548.2341315-1-lautrbach@redhat.com>
+        with ESMTP id S233710AbjKTRc2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 12:32:28 -0500
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99DDABA;
+        Mon, 20 Nov 2023 09:32:24 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.227])
+        by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4SYvKW1Jf5z9xvrJ;
+        Tue, 21 Nov 2023 01:15:43 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+        by APP2 (Coremail) with SMTP id GxC2BwDHxV_8l1tllXsHAQ--.3416S2;
+        Mon, 20 Nov 2023 18:31:55 +0100 (CET)
+Message-ID: <1999ed6f77100d9d2adc613c9748f15ab8fcf432.camel@huaweicloud.com>
+Subject: Re: [PATCH v5 11/23] security: Introduce inode_post_removexattr hook
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>, viro@zeniv.linux.org.uk,
+        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
+        tom@talpey.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>
+Date:   Mon, 20 Nov 2023 18:31:37 +0100
+In-Reply-To: <85c5dda2-5a2f-4c73-82ae-8a333b69b4a7@schaufler-ca.com>
+References: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
+         <20231107134012.682009-12-roberto.sassu@huaweicloud.com>
+         <85c5dda2-5a2f-4c73-82ae-8a333b69b4a7@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4-0ubuntu2 
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+X-CM-TRANSID: GxC2BwDHxV_8l1tllXsHAQ--.3416S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxCryfur1DZr4xWrW7XF48Crg_yoWrKFyfpF
+        s8K3Z0kr4rJFy7Wry8tF1UCw4I9ayFgry7A3y2gw12vFn2yr1IqrWakF15C34rJrWjgF1q
+        q3ZFkrs5Cr15Ja7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUk2b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x
+        0267AKxVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02
+        F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4I
+        kC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IY
+        c2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s
+        026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF
+        0xvE2Ix0cI8IcVAFwI0_Xr0_Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIx
+        AIcVCF04k26cxKx2IYs7xG6r1I6r4UMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2
+        jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjxUrfOzDUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAHBF1jj5apagAAsm
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-yum module is not available since RHEL 7.
+On Tue, 2023-11-07 at 09:33 -0800, Casey Schaufler wrote:
+> On 11/7/2023 5:40 AM, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> > the inode_post_removexattr hook.
+> > 
+> > At inode_removexattr hook, EVM verifies the file's existing HMAC value. At
+> > inode_post_removexattr, EVM re-calculates the file's HMAC with the passed
+> > xattr removed and other file metadata.
+> > 
+> > Other LSMs could similarly take some action after successful xattr removal.
+> > 
+> > The new hook cannot return an error and cannot cause the operation to be
+> > reverted.
+> > 
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> > ---
+> >  fs/xattr.c                    |  9 +++++----
+> >  include/linux/lsm_hook_defs.h |  2 ++
+> >  include/linux/security.h      |  5 +++++
+> >  security/security.c           | 14 ++++++++++++++
+> >  4 files changed, 26 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/fs/xattr.c b/fs/xattr.c
+> > index 09d927603433..84a4aa566c02 100644
+> > --- a/fs/xattr.c
+> > +++ b/fs/xattr.c
+> > @@ -552,11 +552,12 @@ __vfs_removexattr_locked(struct mnt_idmap *idmap,
+> >  		goto out;
+> >  
+> >  	error = __vfs_removexattr(idmap, dentry, name);
+> > +	if (error)
+> > +		goto out;
+> 
+> Shouldn't this be simply "return error" rather than a goto to nothing
+> but "return error"?
 
-Drop -systemd related code as it's obsoleted these days - only 2
-packages ship their .service in -systemd subpackage
+I got a review from Andrew Morton. His argument seems convincing, that
+having less return places makes the code easier to handle.
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
- python/sepolicy/sepolicy/generate.py | 38 ++++++++++++----------------
- 1 file changed, 16 insertions(+), 22 deletions(-)
+Thanks
 
-diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-index b6df3e91160b..5aa71357f6a9 100644
---- a/python/sepolicy/sepolicy/generate.py
-+++ b/python/sepolicy/sepolicy/generate.py
-@@ -1262,13 +1262,20 @@ allow %s_t %s_t:%s_socket name_%s;
-         return fcfile
- 
-     def __extract_rpms(self):
--        import yum
--        yb = yum.YumBase()
--        yb.setCacheDir()
-+        import dnf
- 
--        for pkg in yb.rpmdb.searchProvides(self.program):
-+        base = dnf.Base()
-+        base.read_all_repos()
-+        base.fill_sack(load_system_repo=True)
-+
-+        query = base.sack.query()
-+
-+        pq = query.available()
-+        pq = pq.filter(file=self.program)
-+
-+        for pkg in pq:
-             self.rpms.append(pkg.name)
--            for fname in pkg.dirlist + pkg.filelist + pkg.ghostlist:
-+            for fname in pkg.files:
-                 for b in self.DEFAULT_DIRS:
-                     if b == "/etc":
-                         continue
-@@ -1277,9 +1284,10 @@ allow %s_t %s_t:%s_socket name_%s;
-                             self.add_file(fname)
-                         else:
-                             self.add_dir(fname)
--
--            for bpkg in yb.rpmdb.searchNames([pkg.base_package_name]):
--                for fname in bpkg.dirlist + bpkg.filelist + bpkg.ghostlist:
-+            sq = query.available()
-+            sq = sq.filter(provides=pkg.source_name)
-+            for bpkg in sq:
-+                for fname in bpkg.files:
-                     for b in self.DEFAULT_DIRS:
-                         if b == "/etc":
-                             continue
-@@ -1289,20 +1297,6 @@ allow %s_t %s_t:%s_socket name_%s;
-                             else:
-                                 self.add_dir(fname)
- 
--        # some packages have own systemd subpackage
--        # tor-systemd for example
--        binary_name = self.program.split("/")[-1]
--        for bpkg in yb.rpmdb.searchNames(["%s-systemd" % binary_name]):
--            for fname in bpkg.filelist + bpkg.ghostlist + bpkg.dirlist:
--                for b in self.DEFAULT_DIRS:
--                    if b == "/etc":
--                        continue
--                    if fname.startswith(b):
--                        if os.path.isfile(fname):
--                            self.add_file(fname)
--                        else:
--                            self.add_dir(fname)
--
-     def gen_writeable(self):
-         try:
-             self.__extract_rpms()
--- 
-2.41.0
+Roberto
+
+> > -	if (!error) {
+> > -		fsnotify_xattr(dentry);
+> > -		evm_inode_post_removexattr(dentry, name);
+> > -	}
+> > +	fsnotify_xattr(dentry);
+> > +	security_inode_post_removexattr(dentry, name);
+> > +	evm_inode_post_removexattr(dentry, name);
+> >  
+> >  out:
+> >  	return error;
+> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> > index 67410e085205..88452e45025c 100644
+> > --- a/include/linux/lsm_hook_defs.h
+> > +++ b/include/linux/lsm_hook_defs.h
+> > @@ -149,6 +149,8 @@ LSM_HOOK(int, 0, inode_getxattr, struct dentry *dentry, const char *name)
+> >  LSM_HOOK(int, 0, inode_listxattr, struct dentry *dentry)
+> >  LSM_HOOK(int, 0, inode_removexattr, struct mnt_idmap *idmap,
+> >  	 struct dentry *dentry, const char *name)
+> > +LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
+> > +	 const char *name)
+> >  LSM_HOOK(int, 0, inode_set_acl, struct mnt_idmap *idmap,
+> >  	 struct dentry *dentry, const char *acl_name, struct posix_acl *kacl)
+> >  LSM_HOOK(int, 0, inode_get_acl, struct mnt_idmap *idmap,
+> > diff --git a/include/linux/security.h b/include/linux/security.h
+> > index 664df46b22a9..922ea7709bae 100644
+> > --- a/include/linux/security.h
+> > +++ b/include/linux/security.h
+> > @@ -380,6 +380,7 @@ int security_inode_getxattr(struct dentry *dentry, const char *name);
+> >  int security_inode_listxattr(struct dentry *dentry);
+> >  int security_inode_removexattr(struct mnt_idmap *idmap,
+> >  			       struct dentry *dentry, const char *name);
+> > +void security_inode_post_removexattr(struct dentry *dentry, const char *name);
+> >  int security_inode_need_killpriv(struct dentry *dentry);
+> >  int security_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
+> >  int security_inode_getsecurity(struct mnt_idmap *idmap,
+> > @@ -940,6 +941,10 @@ static inline int security_inode_removexattr(struct mnt_idmap *idmap,
+> >  	return cap_inode_removexattr(idmap, dentry, name);
+> >  }
+> >  
+> > +static inline void security_inode_post_removexattr(struct dentry *dentry,
+> > +						   const char *name)
+> > +{ }
+> > +
+> >  static inline int security_inode_need_killpriv(struct dentry *dentry)
+> >  {
+> >  	return cap_inode_need_killpriv(dentry);
+> > diff --git a/security/security.c b/security/security.c
+> > index ce3bc7642e18..8aa6e9f316dd 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -2452,6 +2452,20 @@ int security_inode_removexattr(struct mnt_idmap *idmap,
+> >  	return evm_inode_removexattr(idmap, dentry, name);
+> >  }
+> >  
+> > +/**
+> > + * security_inode_post_removexattr() - Update the inode after a removexattr op
+> > + * @dentry: file
+> > + * @name: xattr name
+> > + *
+> > + * Update the inode after a successful removexattr operation.
+> > + */
+> > +void security_inode_post_removexattr(struct dentry *dentry, const char *name)
+> > +{
+> > +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> > +		return;
+> > +	call_void_hook(inode_post_removexattr, dentry, name);
+> > +}
+> > +
+> >  /**
+> >   * security_inode_need_killpriv() - Check if security_inode_killpriv() required
+> >   * @dentry: associated dentry
 
