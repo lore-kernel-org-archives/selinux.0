@@ -2,208 +2,346 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D88A4C2BB3F
-	for <selinux@archiver.kernel.org>; Mon, 20 Nov 2023 18:04:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 466DCC197A0
+	for <selinux@archiver.kernel.org>; Mon, 20 Nov 2023 18:12:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbjKTSEX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Nov 2023 13:04:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57326 "EHLO
+        id S229754AbjKTSMY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Nov 2023 13:12:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234174AbjKTSEQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 13:04:16 -0500
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E746C1
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 10:04:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1700503449; bh=YsSUzOehopsOuurjoEtRppweQH73o8CvXnhYaHqSYNA=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Y48fR4a1Ue5dN+gcENJyMBe/drjiV2JVr9TJ5W51EETAC7PSyTDXh7nPOXBjXPWG4rVP3l5pMVcBO/+1zfjuvOPVOVZsPvTI5tAKoONrUA4jWZUQyGjsPMMRXKJV0BGgelmBZZa0AXZ5V7zqDg1o7m1mJvDOqFcmP0Td/g0ZrxPAhMlmNaBN4KPB/L/Vo55J/o4glEvtoPlpc8rAyLCSzO/1A8XQh+BMzVRe7M5OlREipzuSeWmtjEDM4Nn+xnrkSkLpKtFIIaisOEnr/aVtxp6PlkpLq6ydLg/t24Gstl+0RQkDIUyoTHT6R5l7MTizf3kkbUaM0px2CWGmH1yz6A==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1700503449; bh=0Cajj7CWL5u42Ymw4ZXt7+/Jl0xbYZhm0bGq/aHkHp+=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=ill12XfQwbk6r1F8Imm5oSABKvBwfq2pzy1CylQ+REizhYulRW/zYRw5WwKjeau1on11YwjCFAiuuAgMvsjccp40yXF+cdBwCO/lgJb2+8aGBSswo5j9//frT41VoBezYkXPp5r2VZJpzfp9ky8j022rB97v/XqBCMTLhx+7UCW7s5b/sO9GO1jv6mt+ND/fRrE3qlpreChqLx5CC2E18LmzUg/dB8Xo5lsXrc2wZQPvcDIaQmZ+EenTB2DYT1SFWCurM0304+lIshyjcDYl+4xohjQf6oaZEF31KvvhqrsMv9jqyFw+lUQiscbKegJ/qN7M1UPAGtim7O1j8uXH1A==
-X-YMail-OSG: i3xlU9UVM1mvC3IPjn2QuideRSRibsfGRbWKrfJrAHBGD2jEboFXXaDDltovQfu
- EpOwZX5a.510h0YvsThKiaI5bvE0ZTuRm5upUnxOAgDisdXW53tUhdqckw_sWYPnvKTm0aBi8LVR
- WWZgJBH0Rhl9A9j1sIrIkxsPc.dHkxVip09lgKSMG6kNrD9PNgwpC8gzIZPqE8tApawhAPnz1hV0
- 9xs6hwBd0fNCgKoz7x9meXABK6k2JXidT2oqqpHRFarvL4OP3qvEVI8aFDc6nCQS9z7PaMiafRYU
- nCIDj3wqduW48ROIjTH.LYgUvf2cIvIxDmxCkGlfv5fmPfP98Q1f_bJM6FF1b92FrrM.z9kcu2oC
- uWSOnDjkHrnbjU80I_yaWjZ0fZS0dRIQWfiMWHoXftxYoqm5eH.ssr3cxcOAH9G4sJzDVi3khv0v
- pOcAcX5c8G63M.s.Xqea15NNBXVuvDYZ0rEzmMFQLaf0qbpwBmxSDeURozhuOHP.ofxnz6GCjB3k
- Q1Eaiu4tJ.zwMW.DYdMqhk9W2LF96ZBQYMBQY_z.TAYUUTTuluznc902_tR6zv3oyfGzLbzKYCiX
- Fho2NlqZwNkr2knvtAcyi_8a8nPYjKsLjHibEA9_SPj4MhPHdq0apCfiqLJytcJ4L8GqqdahMNRl
- Ls4UljVUAzELNncmxF2pISJZ5jo6cqRjIaT8NwgMyt0teWSJpd1LJ0UV.hULzlWKKnAByIjp9dDQ
- JTrpdNJLKh5zulxcBv.b5hGhgBzjJcdiUJL0WCRmCtP.OFIUZcUZrm5M7N3wjWjiPBjhQ7qCunOk
- IUHrcyDhFBrhYCxG3_IsFHjMaTA.4OPCTa8D8Rnsh6VqimJJhoM3oSJADi0kKmWYlQROpqz3KvGs
- blpJhcA.1JX8b79LAz4B2CimFpbMZgHKOftPVwSdps2WW.5sMSH31DRs03ojI29Wpvayd5q2Tacl
- v.hB6qFizEAYziT2_Xr2_F2RmysJahAqPv1yXc1ukzujjFLk_iXY0h5PG3qbDcS0CxzoUXmUJ.Mo
- RnqKUXQqEtPbJ4OAfYB3X_RNW.T3w0rVbavYE3gyTEQFzy8IgltoOWjbwDUSrmFPxdlUTbdT_vwW
- Sxv3g9dhf3alBXPAQPQhvISxi6IKd0v4ns4j8s3CjRG6E_hk.tjXnMvkgSSVKMDeDg6Va63w.ma8
- Gl76lnmm6uOOEdNy2qQodCZFvfO5i9xiIIdl1_APuhP2GH4DwGo4aei0V4TK9FGKbrU17kaDJ636
- Z.Vc41DMUEQfFDXPBCU6y4FGH3FP1F.z99_NMWQp_izS4WGIlwob.4zIvj6qkuzPccqJY3A51hqY
- UgsDDsH9HE2SN54YV5AB45WkRsrcH3V0mI9yeA_aaT0Up.JK0KGh_newgHMdL4uZRqzdY5S6lKFU
- z_hgar7oUZSO6uYuhv80yFCabJ.OGEyjO2SEk4kKe25vGUDVecYpLp1v9y7gy1pZjiH0qJe2Ghad
- oUa98D_BU2yZ5HzGwdI_H8tfG_ezIiruxwJzRoGpYwN_ghRmy8_xenf7pOe28fu6oqMpcKWvVL7T
- HkV.3nHiCFzreDyPGWCUikMR78K4kbayCD6144swLw.PNSMd9wHGbpR5Yp4kPjeM3Qsf8xXaE8j7
- C2v1Aavmt375OukEg_qgEJsxsgI9AQor5cNTuSdYVNK8zqgAKErEkpbMs3GTnEoSc.SDq.9UAgbN
- nCXCAGBWBZuOKIaINNqkkDx__wIXJ14Ja3OYAufxTyMZQthDZgQSIzER7FbHsxBW06hZCRdo8BPe
- di6zGpvuhtr3MUlavnRqk30srdTXG8QoU17XHorezj51il4SLyc0_D3fJ5Cx2xat4AB4718WvEjy
- euMmv64bEWu8dEH01pt9gVLJVA.3uiwrBy8RZUOyZ_IJ3smPS3GJYFO_lIpaH5dCwrRIhaFnL092
- 9N2UQYbObF4hSQ46S3C9usRGtl2DjRJTcJTs_cB4_xRnguzEeLxWkahUhmHxW0jsZQvykUV9khza
- 6T6hul82P3HOoDwB07xYfUk6fThuz9QyWZhhOzPgMB4QY19.nSvOB1bODOp1_042Xk6dVVleKi4d
- VI6PiM9JU6.ogNdKh_mZIXPWY76vjNPor2S5eDKim4mmYdOSEzRIyjIzC.PCGfTgmSiVZityE.nZ
- 48kLWF4tkgfJuUKZsV2qi5GLAJRT4J36i9GSF1lARncqN58niNRFfODfEhO57Fkl3EUhp8DGbUmj
- dXuW6Azo2b2uNTS_nOd4T4xhigGpInOwTDbLR3.d6DkR92tplk0EBv2po
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: b514ae89-a91e-4c32-9d1c-c882b7e7008c
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Mon, 20 Nov 2023 18:04:09 +0000
-Received: by hermes--production-gq1-59b5df67b6-hs7p7 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 3916744e962c63c3de3d31fc01bce0cd;
-          Mon, 20 Nov 2023 18:04:02 +0000 (UTC)
-Message-ID: <13f7542f-4039-47a8-abde-45a702b85718@schaufler-ca.com>
-Date:   Mon, 20 Nov 2023 10:03:59 -0800
+        with ESMTP id S229570AbjKTSMX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 13:12:23 -0500
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DADFBA
+        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 10:12:19 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-50930f126b1so6048024e87.3
+        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 10:12:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1700503937; x=1701108737; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=o2AOAuSgAF6ykSPOrgrvW/imlQ1EOpeTeWmLMAJIGVE=;
+        b=WtHBPIXKOEgLx/1Zgf1aQTkns9JUUkA/mQQRm60tAogiXMWLb4O/j5oAyC09L2KLCr
+         /2o0IdiefPNzNEaZHb+05Pysc8knR27oIs1yckFwUvJNmD6mOeyqN42PCV1PxuSSa6ml
+         OREyvNBhqToRyRmhY7DKEQnv7JuAn/nd/I2C5fYXFSVDkrwrgmv2M7vjR2vcYbUzPPtR
+         3o77OxWoTC8dU6EzSSnAx+GyaNFwMCxARr9i5zd5U0OjyG5T6esKSoFT7LIwfQL/gPPD
+         lso4A00wOf6uktSsIYd9gSaCDEwwqrBDZgDC60zB3SWuc/aPZcVFQ0l8mWmg1KLF/gJw
+         gCMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700503937; x=1701108737;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=o2AOAuSgAF6ykSPOrgrvW/imlQ1EOpeTeWmLMAJIGVE=;
+        b=IR3lQ3cex/4O9nvw9UeevTX/xIPVnGDuEGigThrYqJt6HJHfDkV9/3FMmbNsS2Q+cp
+         YrbLkwUzObP1QGrodOyvSYub0b3OAsN7uU2u60T952z27QfBBcLbSm8ypEPyaJUwK2aT
+         nrB/dOpHFhuD99gqLrPuoG+sVakzSC66mF56oX/AEmQBrVLF/i9u3Z4RipPl4xQ4tVNi
+         GVt1QnDXSig23eK2cz6IE52XN9bcHkvjgoWzBBvO5D1/811wswOwOT/IzAkZCqFpkn1M
+         1MWZXO/pIjE21YSD62dgEPIPu5hirPoLQwFWP2gHhSkxAnnCxhUR2eKHvySMIbhMuPGc
+         Imbg==
+X-Gm-Message-State: AOJu0YzJUqwbqMzmQ/o2C98mHGWfvl+uxCFEErnN53UT+WCOxxsqm7Pl
+        WeR5cy35Hnc+HdJvXtDPXZTQynsjreZD0hwIeqO0R7DPiUc=
+X-Google-Smtp-Source: AGHT+IFzwrjJ+/7f9RokPlCqm5S7k7b0njbC07tpkOJ3HDywspbT8NtWprE4hlfm2pGrGRUS/Lw1gwyuLqD3uzxM1xw=
+X-Received: by 2002:ac2:4c81:0:b0:4fb:7559:aea3 with SMTP id
+ d1-20020ac24c81000000b004fb7559aea3mr4982497lfl.39.1700503937153; Mon, 20 Nov
+ 2023 10:12:17 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 11/23] security: Introduce inode_post_removexattr hook
-To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        viro@zeniv.linux.org.uk, brauner@kernel.org,
-        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
-        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
-        dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        mic@digikod.net
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20231107134012.682009-1-roberto.sassu@huaweicloud.com>
- <20231107134012.682009-12-roberto.sassu@huaweicloud.com>
- <85c5dda2-5a2f-4c73-82ae-8a333b69b4a7@schaufler-ca.com>
- <1999ed6f77100d9d2adc613c9748f15ab8fcf432.camel@huaweicloud.com>
-Content-Language: en-US
-From:   Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <1999ed6f77100d9d2adc613c9748f15ab8fcf432.camel@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21896 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20231120154735.450915-1-cgzones@googlemail.com> <20231120154735.450915-2-cgzones@googlemail.com>
+In-Reply-To: <20231120154735.450915-2-cgzones@googlemail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 20 Nov 2023 13:12:05 -0500
+Message-ID: <CAP+JOzRVwnMBHw6B8_0L-E7EJi5OobHBwLYYVhf5kTaB_1OA3Q@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] libsepol: avoid fixed sized format buffer for xperms
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/20/2023 9:31 AM, Roberto Sassu wrote:
-> On Tue, 2023-11-07 at 09:33 -0800, Casey Schaufler wrote:
->> On 11/7/2023 5:40 AM, Roberto Sassu wrote:
->>> From: Roberto Sassu <roberto.sassu@huawei.com>
->>>
->>> In preparation for moving IMA and EVM to the LSM infrastructure, introduce
->>> the inode_post_removexattr hook.
->>>
->>> At inode_removexattr hook, EVM verifies the file's existing HMAC value. At
->>> inode_post_removexattr, EVM re-calculates the file's HMAC with the passed
->>> xattr removed and other file metadata.
->>>
->>> Other LSMs could similarly take some action after successful xattr removal.
->>>
->>> The new hook cannot return an error and cannot cause the operation to be
->>> reverted.
->>>
->>> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
->>> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
->>> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
->>> ---
->>>  fs/xattr.c                    |  9 +++++----
->>>  include/linux/lsm_hook_defs.h |  2 ++
->>>  include/linux/security.h      |  5 +++++
->>>  security/security.c           | 14 ++++++++++++++
->>>  4 files changed, 26 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/fs/xattr.c b/fs/xattr.c
->>> index 09d927603433..84a4aa566c02 100644
->>> --- a/fs/xattr.c
->>> +++ b/fs/xattr.c
->>> @@ -552,11 +552,12 @@ __vfs_removexattr_locked(struct mnt_idmap *idmap,
->>>  		goto out;
->>>  
->>>  	error = __vfs_removexattr(idmap, dentry, name);
->>> +	if (error)
->>> +		goto out;
->> Shouldn't this be simply "return error" rather than a goto to nothing
->> but "return error"?
-> I got a review from Andrew Morton. His argument seems convincing, that
-> having less return places makes the code easier to handle.
+On Mon, Nov 20, 2023 at 10:48=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> An extended access vector rule can consist of many individual ranges of
+> permissions.  Use a dynamically growing sized buffer for formatting such
+> rules instead of a static buffer to avoid write failures due to
+> truncations.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-That was in a case where you did more than just "return". Nonetheless,
-I think it's a matter of style that's not worth debating. Do as you will.
+For these two patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
+> ---
+> v2:
+>    reset in_range on retry
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  checkpolicy/test/dismod.c     |  9 +++++-
+>  checkpolicy/test/dispol.c     | 10 +++++-
+>  libsepol/src/assertion.c      |  7 ++++-
+>  libsepol/src/kernel_to_conf.c |  9 +++---
+>  libsepol/src/util.c           | 57 +++++++++++++++++++++++------------
+>  5 files changed, 66 insertions(+), 26 deletions(-)
 >
-> Thanks
+> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+> index fa7117f5..9f4a669b 100644
+> --- a/checkpolicy/test/dismod.c
+> +++ b/checkpolicy/test/dismod.c
+> @@ -347,6 +347,7 @@ static int display_avrule(avrule_t * avrule, policydb=
+_t * policy,
+>                 display_id(policy, fp, SYM_TYPES, avrule->perms->data - 1=
+, "");
+>         } else if (avrule->specified & AVRULE_XPERMS) {
+>                 avtab_extended_perms_t xperms;
+> +               char *perms;
+>                 int i;
 >
-> Roberto
+>                 if (avrule->xperms->specified =3D=3D AVRULE_XPERMS_IOCTLF=
+UNCTION)
+> @@ -362,7 +363,13 @@ static int display_avrule(avrule_t * avrule, policyd=
+b_t * policy,
+>                 for (i =3D 0; i < EXTENDED_PERMS_LEN; i++)
+>                         xperms.perms[i] =3D avrule->xperms->perms[i];
 >
->>> -	if (!error) {
->>> -		fsnotify_xattr(dentry);
->>> -		evm_inode_post_removexattr(dentry, name);
->>> -	}
->>> +	fsnotify_xattr(dentry);
->>> +	security_inode_post_removexattr(dentry, name);
->>> +	evm_inode_post_removexattr(dentry, name);
->>>  
->>>  out:
->>>  	return error;
->>> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
->>> index 67410e085205..88452e45025c 100644
->>> --- a/include/linux/lsm_hook_defs.h
->>> +++ b/include/linux/lsm_hook_defs.h
->>> @@ -149,6 +149,8 @@ LSM_HOOK(int, 0, inode_getxattr, struct dentry *dentry, const char *name)
->>>  LSM_HOOK(int, 0, inode_listxattr, struct dentry *dentry)
->>>  LSM_HOOK(int, 0, inode_removexattr, struct mnt_idmap *idmap,
->>>  	 struct dentry *dentry, const char *name)
->>> +LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
->>> +	 const char *name)
->>>  LSM_HOOK(int, 0, inode_set_acl, struct mnt_idmap *idmap,
->>>  	 struct dentry *dentry, const char *acl_name, struct posix_acl *kacl)
->>>  LSM_HOOK(int, 0, inode_get_acl, struct mnt_idmap *idmap,
->>> diff --git a/include/linux/security.h b/include/linux/security.h
->>> index 664df46b22a9..922ea7709bae 100644
->>> --- a/include/linux/security.h
->>> +++ b/include/linux/security.h
->>> @@ -380,6 +380,7 @@ int security_inode_getxattr(struct dentry *dentry, const char *name);
->>>  int security_inode_listxattr(struct dentry *dentry);
->>>  int security_inode_removexattr(struct mnt_idmap *idmap,
->>>  			       struct dentry *dentry, const char *name);
->>> +void security_inode_post_removexattr(struct dentry *dentry, const char *name);
->>>  int security_inode_need_killpriv(struct dentry *dentry);
->>>  int security_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
->>>  int security_inode_getsecurity(struct mnt_idmap *idmap,
->>> @@ -940,6 +941,10 @@ static inline int security_inode_removexattr(struct mnt_idmap *idmap,
->>>  	return cap_inode_removexattr(idmap, dentry, name);
->>>  }
->>>  
->>> +static inline void security_inode_post_removexattr(struct dentry *dentry,
->>> +						   const char *name)
->>> +{ }
->>> +
->>>  static inline int security_inode_need_killpriv(struct dentry *dentry)
->>>  {
->>>  	return cap_inode_need_killpriv(dentry);
->>> diff --git a/security/security.c b/security/security.c
->>> index ce3bc7642e18..8aa6e9f316dd 100644
->>> --- a/security/security.c
->>> +++ b/security/security.c
->>> @@ -2452,6 +2452,20 @@ int security_inode_removexattr(struct mnt_idmap *idmap,
->>>  	return evm_inode_removexattr(idmap, dentry, name);
->>>  }
->>>  
->>> +/**
->>> + * security_inode_post_removexattr() - Update the inode after a removexattr op
->>> + * @dentry: file
->>> + * @name: xattr name
->>> + *
->>> + * Update the inode after a successful removexattr operation.
->>> + */
->>> +void security_inode_post_removexattr(struct dentry *dentry, const char *name)
->>> +{
->>> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
->>> +		return;
->>> +	call_void_hook(inode_post_removexattr, dentry, name);
->>> +}
->>> +
->>>  /**
->>>   * security_inode_need_killpriv() - Check if security_inode_killpriv() required
->>>   * @dentry: associated dentry
+> -               fprintf(fp, "%s", sepol_extended_perms_to_string(&xperms)=
+);
+> +               perms =3D sepol_extended_perms_to_string(&xperms);
+> +               if (!perms) {
+> +                       fprintf(fp, "     ERROR: failed to format xperms\=
+n");
+> +                       return -1;
+> +               }
+> +               fprintf(fp, "%s", perms);
+> +               free(perms);
+>         }
+>
+>         fprintf(fp, ";\n");
+> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> index b567ce77..944ef7ec 100644
+> --- a/checkpolicy/test/dispol.c
+> +++ b/checkpolicy/test/dispol.c
+> @@ -196,6 +196,8 @@ static int render_av_rule(avtab_key_t * key, avtab_da=
+tum_t * datum, uint32_t wha
+>                         fprintf(fp, ";\n");
+>                 }
+>         } else if (key->specified & AVTAB_XPERMS) {
+> +               char *perms;
+> +
+>                 if (key->specified & AVTAB_XPERMS_ALLOWED)
+>                         fprintf(fp, "allowxperm ");
+>                 else if (key->specified & AVTAB_XPERMS_AUDITALLOW)
+> @@ -203,7 +205,13 @@ static int render_av_rule(avtab_key_t * key, avtab_d=
+atum_t * datum, uint32_t wha
+>                 else if (key->specified & AVTAB_XPERMS_DONTAUDIT)
+>                         fprintf(fp, "dontauditxperm ");
+>                 render_key(key, p, fp);
+> -               fprintf(fp, "%s;\n", sepol_extended_perms_to_string(datum=
+->xperms));
+> +               perms =3D sepol_extended_perms_to_string(datum->xperms);
+> +               if (!perms) {
+> +                       fprintf(fp, "     ERROR: failed to format xperms\=
+n");
+> +                       return -1;
+> +               }
+> +               fprintf(fp, "%s;\n", perms);
+> +               free(perms);
+>         } else {
+>                 fprintf(fp, "     ERROR: no valid rule type specified\n")=
+;
+>                 return -1;
+> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> index b6ac4cfe..6de7d031 100644
+> --- a/libsepol/src/assertion.c
+> +++ b/libsepol/src/assertion.c
+> @@ -178,15 +178,20 @@ static int report_assertion_extended_permissions(se=
+pol_handle_t *handle,
+>                                 rc =3D check_extended_permissions(avrule-=
+>xperms, xperms);
+>                                 /* failure on the extended permission che=
+ck_extended_permissions */
+>                                 if (rc) {
+> +                                       char *permstring;
+> +
+>                                         extended_permissions_violated(&er=
+ror, avrule->xperms, xperms);
+> +                                       permstring =3D sepol_extended_per=
+ms_to_string(&error);
+> +
+>                                         ERR(handle, "neverallowxperm on l=
+ine %lu of %s (or line %lu of %s) violated by\n"
+>                                                         "allowxperm %s %s=
+:%s %s;",
+>                                                         avrule->source_li=
+ne, avrule->source_filename, avrule->line, policy_name(p),
+>                                                         p->p_type_val_to_=
+name[i],
+>                                                         p->p_type_val_to_=
+name[j],
+>                                                         p->p_class_val_to=
+_name[curperm->tclass - 1],
+> -                                                       sepol_extended_pe=
+rms_to_string(&error));
+> +                                                       permstring ?: "<f=
+ormat-failure>");
+>
+> +                                       free(permstring);
+>                                         errors++;
+>                                 }
+>                         }
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index b0ae16d9..b5b530d6 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -1683,7 +1683,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
+, avtab_key_t *key, avtab_dat
+>         uint32_t data =3D datum->data;
+>         type_datum_t *type;
+>         const char *flavor, *src, *tgt, *class, *perms, *new;
+> -       char *rule =3D NULL;
+> +       char *rule =3D NULL, *permstring;
+>
+>         switch (0xFFF & key->specified) {
+>         case AVTAB_ALLOWED:
+> @@ -1738,13 +1738,14 @@ static char *avtab_node_to_str(struct policydb *p=
+db, avtab_key_t *key, avtab_dat
+>                 rule =3D create_str("%s %s %s:%s { %s };", 5,
+>                                   flavor, src, tgt, class, perms+1);
+>         } else if (key->specified & AVTAB_XPERMS) {
+> -               perms =3D sepol_extended_perms_to_string(datum->xperms);
+> -               if (perms =3D=3D NULL) {
+> +               permstring =3D sepol_extended_perms_to_string(datum->xper=
+ms);
+> +               if (permstring =3D=3D NULL) {
+>                         ERR(NULL, "Failed to generate extended permission=
+ string");
+>                         goto exit;
+>                 }
+>
+> -               rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, tg=
+t, class, perms);
+> +               rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, tg=
+t, class, permstring);
+> +               free(permstring);
+>         } else {
+>                 new =3D pdb->p_type_val_to_name[data - 1];
+>
+> diff --git a/libsepol/src/util.c b/libsepol/src/util.c
+> index 0a2edc85..2f877920 100644
+> --- a/libsepol/src/util.c
+> +++ b/libsepol/src/util.c
+> @@ -132,21 +132,32 @@ char *sepol_extended_perms_to_string(avtab_extended=
+_perms_t *xperms)
+>         uint16_t low_bit;
+>         uint16_t low_value;
+>         unsigned int bit;
+> -       unsigned int in_range =3D 0;
+> -       static char xpermsbuf[2048];
+> -       char *p;
+> -       int len, xpermslen =3D 0;
+> -       xpermsbuf[0] =3D '\0';
+> -       p =3D xpermsbuf;
+> +       unsigned int in_range;
+> +       char *buffer =3D NULL, *p;
+> +       int len;
+> +       size_t remaining, size =3D 128;
+>
+>         if ((xperms->specified !=3D AVTAB_XPERMS_IOCTLFUNCTION)
+>                 && (xperms->specified !=3D AVTAB_XPERMS_IOCTLDRIVER))
+>                 return NULL;
+>
+> -       len =3D snprintf(p, sizeof(xpermsbuf) - xpermslen, "ioctl { ");
+> +retry:
+> +       size *=3D 2;
+> +       if (size =3D=3D 0)
+> +               goto err;
+> +       p =3D realloc(buffer, size);
+> +       if (!p)
+> +               goto err;
+> +       buffer =3D p;
+> +       remaining =3D size;
+> +
+> +       len =3D snprintf(p, remaining, "ioctl { ");
+> +       if (len < 0 || (size_t)len >=3D remaining)
+> +               goto err;
+>         p +=3D len;
+> -       xpermslen +=3D len;
+> +       remaining -=3D len;
+>
+> +       in_range =3D 0;
+>         for (bit =3D 0; bit < sizeof(xperms->perms)*8; bit++) {
+>                 if (!xperm_test(bit, xperms->perms))
+>                         continue;
+> @@ -165,35 +176,43 @@ char *sepol_extended_perms_to_string(avtab_extended=
+_perms_t *xperms)
+>                         value =3D xperms->driver<<8 | bit;
+>                         if (in_range) {
+>                                 low_value =3D xperms->driver<<8 | low_bit=
+;
+> -                               len =3D snprintf(p, sizeof(xpermsbuf) - x=
+permslen, "0x%hx-0x%hx ", low_value, value);
+> +                               len =3D snprintf(p, remaining, "0x%hx-0x%=
+hx ", low_value, value);
+>                         } else {
+> -                               len =3D snprintf(p, sizeof(xpermsbuf) - x=
+permslen, "0x%hx ", value);
+> +                               len =3D snprintf(p, remaining, "0x%hx ", =
+value);
+>                         }
+>                 } else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) =
+{
+>                         value =3D bit << 8;
+>                         if (in_range) {
+>                                 low_value =3D low_bit << 8;
+> -                               len =3D snprintf(p, sizeof(xpermsbuf) - x=
+permslen, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
+> +                               len =3D snprintf(p, remaining, "0x%hx-0x%=
+hx ", low_value, (uint16_t) (value|0xff));
+>                         } else {
+> -                               len =3D snprintf(p, sizeof(xpermsbuf) - x=
+permslen, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
+> +                               len =3D snprintf(p, remaining, "0x%hx-0x%=
+hx ", value, (uint16_t) (value|0xff));
+>                         }
+>
+>                 }
+>
+> -               if (len < 0 || (size_t) len >=3D (sizeof(xpermsbuf) - xpe=
+rmslen))
+> -                       return NULL;
+> +               if (len < 0)
+> +                       goto err;
+> +               if ((size_t) len >=3D remaining)
+> +                       goto retry;
+>
+>                 p +=3D len;
+> -               xpermslen +=3D len;
+> +               remaining -=3D len;
+>                 if (in_range)
+>                         in_range =3D 0;
+>         }
+>
+> -       len =3D snprintf(p, sizeof(xpermsbuf) - xpermslen, "}");
+> -       if (len < 0 || (size_t) len >=3D (sizeof(xpermsbuf) - xpermslen))
+> -               return NULL;
+> +       len =3D snprintf(p, remaining, "}");
+> +       if (len < 0)
+> +               goto err;
+> +       if ((size_t) len >=3D remaining)
+> +               goto retry;
+> +
+> +       return buffer;
+>
+> -       return xpermsbuf;
+> +err:
+> +       free(buffer);
+> +       return NULL;
+>  }
+>
+>  /*
+> --
+> 2.42.0
+>
