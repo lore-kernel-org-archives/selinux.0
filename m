@@ -2,123 +2,164 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 892F0C2BB3F
-	for <selinux@archiver.kernel.org>; Mon, 20 Nov 2023 23:03:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 304E8C61D88
+	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 00:51:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbjKTXDY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Nov 2023 18:03:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57254 "EHLO
+        id S232749AbjKUAvL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Nov 2023 19:51:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbjKTXDY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 18:03:24 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF23A9F
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 15:03:19 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id 3f1490d57ef6-d9beb865a40so4636310276.1
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 15:03:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1700521399; x=1701126199; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lcx1O4WZkW9lPEGbS1WuKh9uKwQmfhNTK/5zQiqlRjM=;
-        b=XjiUeyqLN45Ith9i1sl9lpw3NhEIaYMXdFn+Qd4VwL5PoivCVxWuYveMsOG+Io09SI
-         lEQ3eTXh3fPrEjLL+xngRjjAPSd/FcHv1MRGWtXTJh8VHquVqMP2QKtk2NDqVoLhYq/Q
-         UZjRRn1ofQ93T1gLxAVoSPdv7ohLEgv8h7y2FRq9/cRvvdUeK2t07HtG+dNuMlLttE4w
-         ShlzyxTkxlN+R7jtLboV3HpSL7A4G0Ccjl0we+2d7du84TkYKJhhSFkdS/CaG62nqRGI
-         IY4eYLOJq2nGT0PqOdg7qfcqKPcq4Dq4zbzixTgs7+6GnQ7QBmvLHcMAYOkuiBRv8nDl
-         NZnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700521399; x=1701126199;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lcx1O4WZkW9lPEGbS1WuKh9uKwQmfhNTK/5zQiqlRjM=;
-        b=odENdct0krFokRmIRiRpNULmkdcm2wC9txNVRi8bMvrqyCZqGWMO3GTaw+PQdoOgs1
-         5ZjU6yEVQvKJmRvueYFjXR5GkDr7A+JwRRisyVNmGlJScclDbxr7KBOU86x4TJwSKKAt
-         S96eL3o69Iu2OtQeZn7Fh0lpucj7/7Y5kwOossKqIbu337MMRI8MRNjTZ6dd4a8vi5Cb
-         mDGd5GLaEzJmJnu49JmWgXbXzdjEmHX1j1A/8P1jBjRkKsULNRGdZtaFf3sDQz3FwgKO
-         HLv6Nnv23LESyHLj+cgZ4IXRz9GaxarViwd/A3Ve+Nf6PfjPibw1a97IP/+cbYjVuM4A
-         +FVA==
-X-Gm-Message-State: AOJu0YzhB66vdrOOXIP732aWsPZ1U9DXveAqy0YC2GziTLpiDka62rKq
-        ggXE4VP5swjCL2SNntHJ2evIJ/W9bCK8lvvY+xXO
-X-Google-Smtp-Source: AGHT+IEj/EkYlF2Cfty/fg0eKdElXPWPH5PHzzR4nbrd5O5pXcFkWDSd0Gz1dQZM82iONs/wFeJ0H0cTf0AW1mJ1DjQ=
-X-Received: by 2002:a25:ab30:0:b0:da0:66ed:ea1e with SMTP id
- u45-20020a25ab30000000b00da066edea1emr8782208ybi.11.1700521399032; Mon, 20
- Nov 2023 15:03:19 -0800 (PST)
+        with ESMTP id S229757AbjKUAvK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 19:51:10 -0500
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C839CD
+        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 16:51:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1700527863; bh=X6NNrh2o9TkByhBWiubp9qwlQAP2OzbbUw3CuaiiYt4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=gE696MN7CmATorwHr2JjXJaoQNL40hRgJ+cYESBnbzVDtVPmqT3VJc9V2qrJlzMI4lp7zBAPQ5PBVe/UAYPz4HqXD6khLzSwEwLx5eMXMNBUpIGJoWKiznMiTzu7C+UZIgI0CEOqp3HQOhXMnydGk5GmjBfNK+XyGvSUIsNQfOWYdO28Je6bttyedLshlF+6o3qfh8IflG+l6elX5or3Mue5rqMWugAKQBA0RyBtL6St/tV0XTgzEjcy2FRzWhHbD+AAgpkEjiRMo0FR5eFZCYxa7Ve71L+uwLRV31RWgutMHcVWg87MmzfOwrX6Rq+PfsLntxI5RNtF6lu3TxX7gA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1700527863; bh=kmDhWoqSbEAqPNzl2xg7xH/nF3Vp1fYXhkvFIclEdTW=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=gKB5VX19b9sjmgbIYKG13TCGWgcBtI/3SjHk4aGtPuetlKBKyT0qrhsUTA/daOmb5UpBtYklivT6DyKd78c7Ndgdp9S8wu7vLN+poEOcw1gZ4vV9JmyVV0gQf7w/Npi0MLLoU4UrQ7MBnRIPyyHGOIpmGbZ7jPZhdkP3RZldcBGU/p5YpkI+BVdGZZ1K3hPz272zNp/d7+4i6n41pb+7UaqHGJt2zkZE1jbv+++Lcq2mFn51phJ5S2fbrczTWHfaMSq2FHfWCGZRfXdMINfzdu4GeTggcEu3PkAvZNbOsY999JmUwI0UfepDQkI4jkCSONSK+ZrwwgjDkvzFnbR+wg==
+X-YMail-OSG: ylTlCfAVM1mNJDd8QjJ0ZLL.iLXAIZPAxbCtvzHeK8uGpJxFlIS4KnTw4dErzhw
+ fqwYAvTC2PxROLx4IPUjI.lG_3ni32g5.kRQXWgD28KXfH0lxU4PNQySgyZywT9RtshfuWR3HFRP
+ YWCfqhF2lO22bB4buWxosIa3.RJV18t9EyF3kC3b4R5lZYdgAHwqWDhoKzZ_iyUxV09ZjApUuFMG
+ DzNb8mb5_vxaSiyZfJT4.62rHnfMVPjaK82kUNEthikwKQ_lLzGiuoC6p3TXNf6LhVHqlb1tX70A
+ GA7gRZxJ08.sjsA79C5PQK2fPRX8vTejKAwkJdAEgwu6chRf03aOAS9LuPtf8WY9kVD9CChGKSyv
+ lwCDRt2wK.3BzElbggPPGp8jVBMmEYOGlmTjzP7n9YvVCJtKxB3bjmugxkSmJfNIY5l0w8gyWxxt
+ iycZSgqieeQwWd00tLd8m8K0ISiqys_DXcRubnHOVCJT2mPtOfMBl_uI6wwFra9tGPHv9BpW2eZw
+ Ja1TghgzisgEx5sCxwM7O990YaaY0IOKWTPWj9y_mgJGCNzCWxoEaMXhwht4oQ.dxbRFkfansHOk
+ FMiFv2GzRvzj0rW55PKVKGgrQVUk3tLQnSjNXZ74shCGHmLBg6_58K1B9YkQJKg538__08pC9nBs
+ cbMW_k0ZBilAzNjfqcG0mfywGZany6RT8L_R5h99Po4yj4vYTAiGLyeFnej8.J_xECkXaYxkMQgG
+ NM.B3jbJxk9UP7ZCwbKmxF.XVj7QSYVfRDQIQmOyaB2GUqKvrj99uM6ztjsyzmj61ngKDKfswbDl
+ eoniJYtrGwVubTE_HlyenAiks5V2EQio._WN2YNW89824ceg7nMRXz6MOrAFJ.hA7SH2NdjmdX0B
+ PKiOKPrhe7duwWa42yKcwKlVSpuY56jcIQ79R_vvgKYND9FGFnfMsbLJBI_f5rTyL7t3m0B6sY.q
+ DtKSbLRM4ZcpOM9CpvmQP9Am3BgYm4kQYXAOY5NZL3P42Is8r1aEQXI7Wi35GuJck5bUo6uYB4Wf
+ SsL1_.ZX5BkpciZZCAF.LfpFm.xmDRo9T.Ywmjpl57YQllo201amuihrxGHPvxNcX32uu8Cy2A47
+ mR4FaHMNjL8Gf8S0YFXIXa64_fmk4w9IJrMpkVMyW96vffn1s2xTia.uf.XDSxEDEbVCpsO5s8_6
+ 4c.yejFWarQ8Ga3kdYP_8ksYFuEl2THKuE7GEzQydMlBc4vxtZwIfADIqMcWyIENCj0vPJWV6Frx
+ PdaHBsnwzlhjfE12thBW7GT1xUYLq0r3xz0rvyVSQw5fuyjI2jvbErd6sJ8iry2jxpzQ2Q.pgW1I
+ fix5Y2CAAHQjUVBvoTDqHl90oj2mHj36sFL6n.mJue1_yDegNZs452ptcwSowzZEygAs2k9xXiP7
+ .5ufFmeOzMMo2A54yz3wKMHSMEgS82WSNs6AbAvLu2A_WY23BjZ.0UP_rbEOQqRQDpL7VB3UpAxX
+ pwdLS3vLCrjN8cCzG5bT_jgEV3_QJkZtv_bkXnyTzHiMsUskqkeE2XZ6woPjvgfqlg1hWb7ln1p5
+ j2GUVmQ_Gx6XlmuwEXLQsf7AMF73_Ok57brHY3Xt6cOdswIAhSus3OmxEEDGnYL7m9Jo2hSerSk4
+ Epg5WiRmr0HW8znp70EVs3bSazyo1umQQL0XYKjlZO20oXov4NbzcXu3WANxKd8XKpvJ3kjwIRxN
+ tbffOz2PAWhFHfUCLzAP6bEt2p5eRHIyl4AMZiBTpwkSrkH4FXRsh7JYeNa.lUz0is.NEuDCvwGT
+ rWEmyTBz.QuX4zfcb3of9K3MqxtFxnFkhRypxRtIVceGZ.90e2EjhKYAB7NKo2NgTwRCU3CtsdWy
+ VoxOkCKsQmuRVPB2bA_pR0q.uQ0irqnqVaSglF34Rr9gqt6BRG9yfGuGxYgaWi5IOoA_HczUUju3
+ Oic.VSBN6XOTK6i8t64CD4QDJ9NySXsSiigtd7Kup159H_fEpURwt5YWTSr2TlpPaTXm_N4tuKQF
+ CSGbhm2b3MltMqC6NH24K1Uq6oQuWo4RUUTv8IQdh0eT2v2SuDHoU2z6xT84PuYN6go.8Iy0Lqso
+ Sz6z50fJkrFL2Qr4BiwS.wjMRLegBLOMn0k7alzJ42FNFQLQKFiBnvVD0HYJzu6hxV6eRYV5D60T
+ JI6GQcFKuBff9M2of1AmMnF.04IM6QepkjvrV32hzYu_lYhPgey35wRsgGs0qJAGR21OLjpC861w
+ e.TyXO5Z1JN5t98T65VHw3ooV.unQIe.7JCc1He.U_MqFzcAoTS94yyvsV2sNMLduwEM-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 8d70e5ed-64ab-4e7f-8a95-7b16a6fffe37
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 21 Nov 2023 00:51:03 +0000
+Received: by hermes--production-gq1-6775bfb8fc-ljztx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 4e636f04e136106655e334c750e19110;
+          Tue, 21 Nov 2023 00:50:58 +0000 (UTC)
+Message-ID: <24a9f95d-6a28-47d3-a0cf-48e1698e2445@schaufler-ca.com>
+Date:   Mon, 20 Nov 2023 16:50:56 -0800
 MIME-Version: 1.0
-References: <20231018100815.26278-1-ddiss@suse.de> <CAEjxPJ6o8T=K+FHEHdWxn1PQN=Ew+KjooXL=coS0gx4YLuEFhw@mail.gmail.com>
- <CAHC9VhTLjcQXNoc8L3Uw=TRRghLuA_TnQbRkGtwnCu4kxVXE0g@mail.gmail.com> <20231020223327.09a6a12b@echidna.fritz.box>
-In-Reply-To: <20231020223327.09a6a12b@echidna.fritz.box>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 20 Nov 2023 18:03:08 -0500
-Message-ID: <CAHC9VhTh-2TfE+0Kb551E=Ld0TwER=-N+mkr2R=122TbNvcHRw@mail.gmail.com>
-Subject: Re: [PATCH] RFC: selinux: don't filter copy-up xattrs while uninitialized
-To:     David Disseldorp <ddiss@suse.de>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org, linux-unionfs@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 25/25] security: Enforce ordering of 'ima' and 'evm'
+ LSMs
+Content-Language: en-US
+To:     Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        viro@zeniv.linux.org.uk, brauner@kernel.org,
+        chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de,
+        kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20231120173318.1132868-1-roberto.sassu@huaweicloud.com>
+ <20231120173318.1132868-26-roberto.sassu@huaweicloud.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20231120173318.1132868-26-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21896 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 20, 2023 at 4:33=E2=80=AFPM David Disseldorp <ddiss@suse.de> wr=
-ote:
+On 11/20/2023 9:33 AM, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
 >
-> Hi Paul and Stephen,
+> The ordering of LSM_ORDER_LAST LSMs depends on how they are placed in the
+> .lsm_info.init section of the kernel image.
 >
-> On Fri, 20 Oct 2023 11:55:31 -0400, Paul Moore wrote:
+> Without making any assumption on the LSM ordering based on how they are
+> compiled, enforce that ordering at LSM infrastructure level.
 >
-> > On Fri, Oct 20, 2023 at 8:21=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Wed, Oct 18, 2023 at 6:08=E2=80=AFAM David Disseldorp <ddiss@suse.=
-de> wrote:
-> > > >
-> > > > Extended attribute copy-up functionality added via 19472b69d639d
-> > > > ("selinux: Implementation for inode_copy_up_xattr() hook") sees
-> > > > "security.selinux" contexts dropped, instead relying on contexts
-> > > > applied via the inode_copy_up() hook.
-> > > >
-> > > > When copy-up takes place during early boot, prior to selinux
-> > > > initialization / policy load, the context stripping can be unwanted
-> > > > and unexpected. Make filtering dependent on selinux_initialized().
-> > > >
-> > > > RFC: This changes user behaviour so is likely unacceptable. Still,
-> > > > I'd be interested in hearing other suggestions for how this could b=
-e
-> > > > addressed.
-> > >
-> > > IMHO, this is fixing a bug, only affects early userspace (pre policy
-> > > load), and is likely acceptable.
-> > > But Paul will make the final call. We can't introduce and use a new
-> > > policy capability here because this is before policy has been loaded.
-> >
-> > I agree with Stephen, this is a bug fix so I wouldn't worry too much
-> > about user visible behavior.  For better or worse, the
-> > SELinux-enabled-but-no-policy-loaded case has always been a bit
-> > awkward and has required multiple patches over the years to correct
-> > unwanted behaviors.
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> ---
+>  security/security.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 >
-> Understood.
->
-> > I'm open to comments on this, but I don't believe this is something we
-> > want to see backported to the stable kernels, and considering we are
-> > currently at v6.6-rc6, this isn't really a candidate for the upcoming
-> > merge window.  This means we have a few more weeks to comment, test,
-> > etc. and one of the things I would like to see is a better description
-> > of before-and-after labeling in the commit description.  This helps
-> > people who trip over this change, identify what changed, and helps
-> > them resolve the problem on their systems.
-> >
-> > Does that sound good?
->
-> That sounds good to me. I'll rework the commit description (and comment
-> above this change), do some further testing and then submit a v2.
+> diff --git a/security/security.c b/security/security.c
+> index 351a124b771c..b98db79ca500 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -263,6 +263,18 @@ static void __init initialize_lsm(struct lsm_info *lsm)
+>  	}
+>  }
+>  
+> +/* Find an LSM with a given name. */
+> +static struct lsm_info __init *find_lsm(const char *name)
+> +{
+> +	struct lsm_info *lsm;
+> +
+> +	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++)
+> +		if (!strcmp(lsm->name, name))
+> +			return lsm;
+> +
+> +	return NULL;
+> +}
+> +
+>  /*
+>   * Current index to use while initializing the lsm id list.
+>   */
+> @@ -333,10 +345,23 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+>  
+>  	/* LSM_ORDER_LAST is always last. */
+>  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+> +		/* Do it later, to enforce the expected ordering. */
+> +		if (!strcmp(lsm->name, "ima") || !strcmp(lsm->name, "evm"))
+> +			continue;
+> +
 
-Hi David,
+Hard coding the ordering of LSMs is incredibly ugly and unlikely to scale.
+Not to mention perplexing the next time someone creates an LSM that "has to be last".
 
-No rush, I just wanted to check in on this and see how things were going?
+Why isn't LSM_ORDER_LAST sufficient? If it really isn't, how about adding
+and using LSM_ORDER_LAST_I_REALLY_MEAN_IT* ?
 
---=20
-paul-moore.com
+Alternatively, a declaration of ordering requirements with regard to other
+LSMs in lsm_info. You probably don't care where ima is relative to Yama,
+but you need to be after SELinux and before evm. lsm_info could have 
+must_precede and must_follow lists. Maybe a must_not_combine list, too,
+although I'm hoping to make that unnecessary. 
+
+And you should be using LSM_ID values instead of LSM names.
+
+---
+* Naming subject to Paul's sensibilities, of course.
+
+>  		if (lsm->order == LSM_ORDER_LAST)
+>  			append_ordered_lsm(lsm, "   last");
+>  	}
+>  
+> +	/* Ensure that the 'ima' and 'evm' LSMs are last and in this order. */
+> +	lsm = find_lsm("ima");
+> +	if (lsm)
+> +		append_ordered_lsm(lsm, "   last");
+> +
+> +	lsm = find_lsm("evm");
+> +	if (lsm)
+> +		append_ordered_lsm(lsm, "   last");
+> +
+>  	/* Disable all LSMs not in the ordered list. */
+>  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+>  		if (exists_ordered_lsm(lsm))
