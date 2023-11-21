@@ -2,135 +2,160 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E30AC61D92
-	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 14:10:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09018C61D92
+	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 14:12:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234040AbjKUOKi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Nov 2023 09:10:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
+        id S234022AbjKUOMM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Nov 2023 09:12:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234127AbjKUOKh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 09:10:37 -0500
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF82C10DE
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:10:32 -0800 (PST)
-Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-507962561adso8160461e87.0
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:10:32 -0800 (PST)
+        with ESMTP id S234018AbjKUOML (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 09:12:11 -0500
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B71410C8
+        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:12:08 -0800 (PST)
+Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-50797cf5b69so7607043e87.2
+        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:12:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700575831; x=1701180631; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=gmail.com; s=20230601; t=1700575926; x=1701180726; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CG9D2a9D5/GMt0cOL8nRiDtygBtF9JpnHne+17QFuts=;
-        b=DjOX6/u0ev4QRgSFtcUxsoDQ/6rY3+X2m8LqBl95gdqhYs4cMJVr5h5y5aT/eEIVeQ
-         8Il+kDKG1OSncVXVZCOjG+kJ1OQsoqoqqS2sWFsfZBnpt9T8VcWL813tlP8FiKvv+OMg
-         ZzpynmVvwuiS8P6r9PmVLMixWOkcUzZxgRYeq6PZURKQC8x88uCp2H2V/21GCQbHbPLb
-         9PLmyrZEJ8rCWRn22yCFTV6njXf4DYISwFbrFzKOYwAIDsioT06lKSurJ1HsR2gDDDx2
-         1CXQJCDKUvCPbfObzlG3riRvT1QYj8anC5QN41RTPkJFzLrAYbdIWpxyk02eMUsfSjju
-         jZvw==
+        bh=z0YABw48qAFQHd8yHwWjtw2FFdUhrE+RrQFZbZ5LdG8=;
+        b=dv9Jx2gVfuSi39O4R3yOQcfVcbIfDwsbIdjIBTZG2RMCjaJsUS07K/BBPO5bjUg5os
+         qEwNl4KQpmdAtrGjbRGwhGfdvbZL7FBxONtXkpzR9cudiPgLJTBtuhWaF6LDPN/JE5XJ
+         hIDhxEXwUBnJPc1EUHB6Bn5ihFr0OgfF8Ujpkbw6lF6oy0zvM+zFS21wpRmlSHqkSZZY
+         3GEuU+M+5TJXypgsdD9wGzF8WdCYMGJqOZB7eBuWn7uDPg/WQuH5Nnj5d4UQd6Pcz7TG
+         yuWZw7cpjtHLZUAQX1u1q+tvlfTpdU66wFXzEOFzZnx6lG81F0VJzNSpyZ/WRxjTMxHb
+         G9hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700575831; x=1701180631;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1700575926; x=1701180726;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CG9D2a9D5/GMt0cOL8nRiDtygBtF9JpnHne+17QFuts=;
-        b=nehxf6pYPNA3U4ifO0r/F56Nb2rsaJc26EF61ngM0q3hFBblzfmv4hkkETLnQD3uXS
-         bGu8bMbwfi5p8NZEkQA0GZOuGLZv0UZvJjsenQ5Mt0K/0qr0fIiU5HbN3SiWm/4kOxnp
-         rPS+R9dY/bizkYMwwqvhSXRN98OXeOrd7OXsv5JhMyI73lNqx6Gbig/1dnmLHcGhVaL7
-         V37DRWcx27X5fUG4Fg1oQumhqxdSdCCc8VFH45VFX4ddGqo8DuXIRh//mQG39kJcbCo6
-         7TCCJtP4Tb1jhizUrlwmrkTpm375J4TUs+H77MsTTi1EiSEucgB+S0UL0hpkgsdAKL8n
-         2OsA==
-X-Gm-Message-State: AOJu0YzUcHWlTZrk0L/QyZuD8RZv7LRQYibsM8W2DnNeWpGg2BRn6Lii
-        U5lHpoUglYVgkakQ+8ecdbXGHPmYbqSwIRZxgG6P1a9p
-X-Google-Smtp-Source: AGHT+IEYFpp7mXrzS4ZAkKugdXhFq1YRsbd1+fJtWai15hPpUnx7tSa6yhvY9XuwILL9Ry/0Wu+tNkRivrJXE01Y78c=
-X-Received: by 2002:a05:6512:485b:b0:4fe:1681:9377 with SMTP id
- ep27-20020a056512485b00b004fe16819377mr7599853lfb.44.1700575830630; Tue, 21
- Nov 2023 06:10:30 -0800 (PST)
+        bh=z0YABw48qAFQHd8yHwWjtw2FFdUhrE+RrQFZbZ5LdG8=;
+        b=P1tQRXaIMQAfZNYn70MJRzq1uF5ZN1JLbeOrGvAF8ogAwZQMTq9XBdjuGekkJMSXNc
+         rbgnCWKslNunOnWQDysh+sabg6y7mzK5xMQUIJ70nmh7f3kiTgdMWTvJL7QNHEXND50R
+         9LwIRhc3ghhFHBuNigdGbby+3mlGNXVh5D5vd+OxwK2xaPqB0RPt+z87xknVsh4FDUnE
+         5loridfWWNry6vQHX+uL9+bX29/6+JBuhxM1dcLgpd/iILNyoO2JH/zlAtdd2o3ElwX/
+         RzgVgakBhe6KUaRhc1y2G5g2x0jG6bLgfq4utBHhW9ApaHHkohFiGnsM/ybS7Z4VWwus
+         8nIg==
+X-Gm-Message-State: AOJu0YzQ8k0qf6tjI8UY73a3OzxkeOqgsdrCeLBuj5WG3yAeGMwKL+kV
+        uFzs6WCMGkp2+xvZfNFlaxzWK8uMbDdC5S06wrhhLtut
+X-Google-Smtp-Source: AGHT+IFIseymFP/P9cgAdlgH4B6EFk/05h9xoAOFM6keU3PXNrxn1p2c7COm65MzYNnpVLZoiAPzhM4VnwiwSLovyFc=
+X-Received: by 2002:ac2:5296:0:b0:507:ceba:a94d with SMTP id
+ q22-20020ac25296000000b00507cebaa94dmr7920260lfm.14.1700575925780; Tue, 21
+ Nov 2023 06:12:05 -0800 (PST)
 MIME-Version: 1.0
-References: <20230927190021.1164278-1-jwcart2@gmail.com> <20230927190021.1164278-2-jwcart2@gmail.com>
- <4b23ff1b-6b93-f21b-26f4-193efcd9db93@linux.microsoft.com>
- <CAP+JOzQA64fXdpow02ZDy9rcDx48v3jq2VGiSuG4akNVDn3xvQ@mail.gmail.com>
- <2c0b5552-84b8-fe63-6d4c-0a42c7b8a753@linux.microsoft.com>
- <87a5rxhknz.fsf@redhat.com> <CAP+JOzTSnP3xDK5uA2Cy0R2FSWbyb_H9UeNMsKtUKaVXwxL33w@mail.gmail.com>
-In-Reply-To: <CAP+JOzTSnP3xDK5uA2Cy0R2FSWbyb_H9UeNMsKtUKaVXwxL33w@mail.gmail.com>
+References: <20231013135207.1462729-1-jwcart2@gmail.com> <CAP+JOzTTa_BnpocHZ5_AAJO99z3gF2FbtBj7L=_iOU93LYPVKg@mail.gmail.com>
+In-Reply-To: <CAP+JOzTTa_BnpocHZ5_AAJO99z3gF2FbtBj7L=_iOU93LYPVKg@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 21 Nov 2023 09:10:19 -0500
-Message-ID: <CAP+JOzTq3iSJ_bN6SfPGJsx+=9y+3V91BPBFer53CNEUoD6A1A@mail.gmail.com>
-Subject: Re: [PATCH 1/9] libsepol/cil: Use struct cil_db * instead of void *
-To:     Petr Lautrbach <lautrbach@redhat.com>
-Cc:     Daniel Burgener <dburgener@linux.microsoft.com>,
-        selinux@vger.kernel.org
+Date:   Tue, 21 Nov 2023 09:11:54 -0500
+Message-ID: <CAP+JOzQuQd=rjPZQ2fQx+9+Wo3=0yLvK4f6vg_Rch5guvOOPOw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Do not allow classpermissionset to use
+ anonymous classpermission
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 17, 2023 at 10:29=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+On Fri, Nov 17, 2023 at 10:31=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
 rote:
 >
-> On Wed, Nov 1, 2023 at 5:45=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.c=
-om> wrote:
+> On Fri, Oct 13, 2023 at 9:52=E2=80=AFAM James Carter <jwcart2@gmail.com> =
+wrote:
 > >
-> > Daniel Burgener <dburgener@linux.microsoft.com> writes:
+> > Macros can use classpermission arguments. These are used in two
+> > different ways. Either a named classpermission is passed (which is
+> > declared using a classpermisison rule) or an anonymous classpermission
+> > is passed (something like "(CLASS (PERM))").
 > >
-> > > On 9/27/2023 4:41 PM, James Carter wrote:
-> > >> On Wed, Sep 27, 2023 at 3:27=E2=80=AFPM Daniel Burgener
-> > >> <dburgener@linux.microsoft.com> wrote:
-> > >>>
-> > >>>> @@ -3661,21 +3615,17 @@ static int cil_check_for_bad_inheritance(s=
-truct cil_tree_node *node)
-> > >>>>        return rc;
-> > >>>>    }
-> > >>>>
-> > >>>> -static int __cil_resolve_ast_node(struct cil_tree_node *node, voi=
-d *extra_args)
-> > >>>> +static int __cil_resolve_ast_node(struct cil_tree_node *node, str=
-uct cil_args_resolve *args)
-> > >>>>    {
-> > >>>>        int rc =3D SEPOL_OK;
-> > >>>> -     struct cil_args_resolve *args =3D extra_args;
-> > >>>> +     struct cil_db *db =3D args->db;
-> > >>>>        enum cil_pass pass =3D 0;
-> > >>>>
-> > >>>> -     if (node =3D=3D NULL || args =3D=3D NULL) {
-> > >>>> -             goto exit;
-> > >>>> -     }
-> > >>>> -
-> > >>>
-> > >>> Is deleting the "node =3D=3D NULL" part of this check intended here=
-?  It
-> > >>> seems unrelated to the rest of the commit, and it's not locally obv=
-ious
-> > >>> that it's safe.
-> > >>
-> > >> You are right. It is not related to the rest of the commit. There ar=
-e
-> > >> a bunch of these sorts of checks that are useless and really annoy m=
-e.
-> > >> The function __cil_resolve_ast_node() is called once from
-> > >> __cil_resolve_ast_node_helper() and neither node nor args can be NUL=
-L.
-> > >> Since I was changing something nearby, I guess I couldn't resist. I
-> > >> can leave it in, if people prefer. It doesn't cause any harm, other
-> > >> than annoying me.
-> > >>
-> > >
-> > > As is is fine by me.  Your explanation makes sense.  I mostly wanted =
-to
-> > > make sure it was reasoned out rather than an accidental drop, but now
-> > > that you point it out, it does look impossible for this to be NULL.
-> > >
-> > > Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
+> > Usually this will look like either of the following:
+> > Ex1/
+> > (classpermission cp1)
+> > (classpermisisonset cp1 (CLASS (PERM)))
+> > (macro m1 ((classpermisison ARG1))
+> >   (allow t1 self ARG1)
+> > )
+> > (call m1 (cp1))
+> > or
+> > Ex2/
+> > (macro m2 ((classpermission ARG2))
+> >   (allow t2 self ARG2)
+> > )
+> > (call m2 ((CLASS (PERM))))
 > >
-> > Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+> > The following would also be valid:
+> > Ex3/
+> > (classpermission cp3)
+> > (macro m3 ((classpermission ARG3))
+> >   (classpermissionset ARG3 (CLASS (PERM)))
+> >   (allow t3 self ARG3)
+> > )
+> > (call m3 (cp3))
 > >
+> > The oss-fuzzer did the equivalent of the following:
 > >
-> > Petr
+> > (classpermission cp4)
+> > (macro m4 ((classpermission ARG4))
+> >   (classpermissionset ARG4 (CLASS (PERM1)))
+> >   (allow t4 self ARG4)
+> > )
+> > (call m4 (CLASS (PERM2)))
 > >
+> > It passed an anonymous classpermission into a macro where there
+> > was a classpermissionset rule. Suprisingly, everything worked well
+> > until it was time to destroy the AST. There is no way to distinguish
+> > between the anonymous classpermission being passed in which needs
+> > to be destroyed and the classpermission in the classpermissionset
+> > rule which is destroyed when the classpermissionset rule is
+> > destroyed. This led to CIL trying to destroy the classpermission
+> > in the classpermissionset rule twice.
+> >
+> > To fix this, when resolving the classpermission name in the
+> > classpermissionset rule, check if the datum returned is for
+> > an anonymous classpermission (it has no name) and return an
+> > error if it is.
+> >
+> > This fixes oss-fuzz issue 60670.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
-> I plan on merging this series next week, unless someone objects.
+> This patch could use a review. I would like to get it in the upcoming rel=
+ease.
 > Jim
+>
 
-These nine patches have been merged.
+This patch has been merged.
 Jim
+
+> > ---
+> >  libsepol/cil/src/cil_resolve_ast.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_=
+resolve_ast.c
+> > index 33b9d321..49de8618 100644
+> > --- a/libsepol/cil/src/cil_resolve_ast.c
+> > +++ b/libsepol/cil/src/cil_resolve_ast.c
+> > @@ -254,6 +254,12 @@ int cil_resolve_classpermissionset(struct cil_tree=
+_node *current, struct cil_cla
+> >                 goto exit;
+> >         }
+> >
+> > +       if (!datum->fqn) {
+> > +               cil_tree_log(current, CIL_ERR, "Anonymous classpermissi=
+on used in a classpermissionset");
+> > +               rc =3D SEPOL_ERR;
+> > +               goto exit;
+> > +       }
+> > +
+> >         rc =3D cil_resolve_classperms_list(current, cps->classperms, ex=
+tra_args);
+> >         if (rc !=3D SEPOL_OK) {
+> >                 goto exit;
+> > --
+> > 2.41.0
+> >
