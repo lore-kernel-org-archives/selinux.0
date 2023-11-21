@@ -2,98 +2,164 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AD72C5ACB3
-	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 06:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D00BC61D90
+	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 07:58:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230207AbjKUGQr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Nov 2023 01:16:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37412 "EHLO
+        id S229626AbjKUH6u convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Nov 2023 02:58:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229908AbjKUGQq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 01:16:46 -0500
-Received: from mx08.samokat.ru (mx08.samokat.ru [45.90.244.230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE91BAA
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 22:16:40 -0800 (PST)
-Received: from os-081902002.samokat.io (localhost.localdomain [127.0.0.1])
-        by mx08.samokat.ru (Proxmox) with ESMTP id D7F24EE3B3
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 05:23:49 +0300 (MSK)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samokat.ru; h=cc
-        :content-description:content-transfer-encoding:content-type
-        :content-type:date:from:from:mime-version:reply-to:reply-to
-        :subject:subject:to:to; s=mx08; bh=Y6pD9fRLODwrM9h1xLnuG9W/s5Zzx
-        soItNuqaC1FKq0=; b=ZV460V2O9XjLkPnkIeGZB9efM3lcOuPFKgiQ9VhMyhhQG
-        Euavr9caWWOO/5yvd9snXJ8gx8RBi5QOSvumcyt6h5PEY9tJfRIt/NR1Ieu68K0a
-        p7taGEs2p2g7rclzn542N1vmZEI5H5TjNsZLv1ITskJoBBCcJk6kBs1GpZYW7UOV
-        WeeExv0PXDQmc32g9WP1PZVnflp5l4NFba98fhGu9jEi6TDEJ5XsTnve8zp/62E3
-        HimEeLIgJhYLcWBL5MmIqr/BKagooRf3R9tiLKehhXDUeOUpSDDfOZrTqmpNqih1
-        F/QIuQ08bAMZQuulA4D8DdRSsSSqYGWpvZPZH+AFA==
-Received: from ksmg-08.samokat.ru (os-081902003.samokat.io [10.18.145.3])
-        by mx08.samokat.ru (Proxmox) with ESMTPS id 3845117F907
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 05:08:39 +0300 (MSK)
-Received: from os-081902003.samokat.io (localhost [127.0.0.1])
-        by ksmg-08.samokat.ru (Postfix) with ESMTP id 1FBFA1A000C
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 05:08:39 +0300 (MSK)
-Received: from [85.195.105.114] (os-081144001.samokat.io [10.18.144.1])
-        by ksmg-08.samokat.ru (Postfix) with ESMTP
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 05:08:38 +0300 (MSK)
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S229522AbjKUH6s (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 02:58:48 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A090CC3;
+        Mon, 20 Nov 2023 23:58:43 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.228])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4SZGcc6rRPz9y5Z0;
+        Tue, 21 Nov 2023 15:45:04 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwD35HQHY1xldiUUAQ--.11542S2;
+        Tue, 21 Nov 2023 08:58:13 +0100 (CET)
+Message-ID: <884eb5167283c7ce0604b3dae9807d99b661eff8.camel@huaweicloud.com>
+Subject: Re: [PATCH v6 25/25] security: Enforce ordering of 'ima' and 'evm'
+ LSMs
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>, viro@zeniv.linux.org.uk,
+        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
+        tom@talpey.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com,
+        dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        mic@digikod.net
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Date:   Tue, 21 Nov 2023 08:57:56 +0100
+In-Reply-To: <24a9f95d-6a28-47d3-a0cf-48e1698e2445@schaufler-ca.com>
+References: <20231120173318.1132868-1-roberto.sassu@huaweicloud.com>
+         <20231120173318.1132868-26-roberto.sassu@huaweicloud.com>
+         <24a9f95d-6a28-47d3-a0cf-48e1698e2445@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.44.4-0ubuntu2 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Heartfelt 
-To:     selinux@vger.kernel.org
-From:   "Anna Pechorin" <ap@samokat.ru>
-Date:   Mon, 20 Nov 2023 18:08:38 -0800
-Reply-To: dealings100@hotmail.com
-X-KSMG-Rule-ID: 1
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181488 [Nov 20 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: ap@samokat.ru
-X-KSMG-AntiSpam-Rate: 60
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 543 543 1e3516af5cdd92079dfeb0e292c8747a62cb1ee4, {Prob_reply_not_match_from}, {Prob_msgid_missed_1b}, {Tracking_cluster_exceptions, from}, {Tracking_free_reply_not_from}, {Tracking_cnf_strong}, {Tracking_dating_nourl, reply1}, {Tracking_dating_reply, mail_free}, {Tracking_from_domain_doesnt_match_to}, d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;samokat.ru:7.1.1;127.0.0.199:7.1.2;hotmail.com:5.0.1,7.1.1, FromAlignment: s
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/21 00:12:00 #22490067
-X-KSMG-AntiVirus-Status: Clean, skipped
-Message-Id: <20231121022349.D7F24EE3B3@mx08.samokat.ru>
+X-CM-TRANSID: LxC2BwD35HQHY1xldiUUAQ--.11542S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxAr1DtFW5WFWfuFW3ZFWrXwb_yoW5CF18pa
+        yqqFWfKF4kAryIgwn3Xay3WF1S93ykCF15Ar9xJw1UJ3yqvr1vkr4xtrWfuFyDJr1DCa4I
+        vr42gw1fGws0yaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAIBF1jj5atPwAAs4
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello
+On Mon, 2023-11-20 at 16:50 -0800, Casey Schaufler wrote:
+> On 11/20/2023 9:33 AM, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > The ordering of LSM_ORDER_LAST LSMs depends on how they are placed in the
+> > .lsm_info.init section of the kernel image.
+> > 
+> > Without making any assumption on the LSM ordering based on how they are
+> > compiled, enforce that ordering at LSM infrastructure level.
+> > 
+> > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > ---
+> >  security/security.c | 25 +++++++++++++++++++++++++
+> >  1 file changed, 25 insertions(+)
+> > 
+> > diff --git a/security/security.c b/security/security.c
+> > index 351a124b771c..b98db79ca500 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -263,6 +263,18 @@ static void __init initialize_lsm(struct lsm_info *lsm)
+> >  	}
+> >  }
+> >  
+> > +/* Find an LSM with a given name. */
+> > +static struct lsm_info __init *find_lsm(const char *name)
+> > +{
+> > +	struct lsm_info *lsm;
+> > +
+> > +	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++)
+> > +		if (!strcmp(lsm->name, name))
+> > +			return lsm;
+> > +
+> > +	return NULL;
+> > +}
+> > +
+> >  /*
+> >   * Current index to use while initializing the lsm id list.
+> >   */
+> > @@ -333,10 +345,23 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+> >  
+> >  	/* LSM_ORDER_LAST is always last. */
+> >  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+> > +		/* Do it later, to enforce the expected ordering. */
+> > +		if (!strcmp(lsm->name, "ima") || !strcmp(lsm->name, "evm"))
+> > +			continue;
+> > +
+> 
+> Hard coding the ordering of LSMs is incredibly ugly and unlikely to scale.
+> Not to mention perplexing the next time someone creates an LSM that "has to be last".
 
-How are you, I hope this email finds you in good health and spirit? Before =
-I continue let me humbly apologize for coming into your space unsolicited. =
-Nonetheless, I take solace in the fact that it is with the best intention a=
-nd for our mutual benefit.
+Uhm, yes, not the best solution.
 
-I chose you among other contacts I came across in my search for someone who=
- can be of help.  It took a great deal of brain storming to arrive at my de=
-cision I must say, with the hope that my contact with you will be private a=
-nd confidential.
+> Why isn't LSM_ORDER_LAST sufficient? If it really isn't, how about adding
+> and using LSM_ORDER_LAST_I_REALLY_MEAN_IT* ?
 
-The business idea that I have is to partner with you by investing in your c=
-ountry and you becoming my fund manager. This whole idea is borne out of th=
-e fact that presently I am totally indisposed to carry out any financial tr=
-ansaction owing to restrictions relating to the Russia /Ukraine war and the=
- suspicious death of my husband, Ivan Pechorin in the hand of our President=
- Vladimir Putin. =
+I don't know if the order at run-time reflects the order in the
+Makefile (EVM is compiled after IMA). If it does, there is no need for
+this patch.
 
+> Alternatively, a declaration of ordering requirements with regard to other
+> LSMs in lsm_info. You probably don't care where ima is relative to Yama,
+> but you need to be after SELinux and before evm. lsm_info could have 
+> must_precede and must_follow lists. Maybe a must_not_combine list, too,
+> although I'm hoping to make that unnecessary. 
 
-It will be an absolute pleasure, if you would have the wherewithal to handl=
-e this project to my satisfaction. Every detail concerning this project wou=
-ld be laid bare to you upon indication of your interest. =
+Uhm, I agree. Will think about how to make it more straightforward.
 
+> And you should be using LSM_ID values instead of LSM names.
 
-Strictly respond to: dealings100@hotmail.com
+Ok.
 
-Best regards
+Thanks
 
-Anna Pechorin.
+Roberto
+
+> ---
+> * Naming subject to Paul's sensibilities, of course.
+> 
+> >  		if (lsm->order == LSM_ORDER_LAST)
+> >  			append_ordered_lsm(lsm, "   last");
+> >  	}
+> >  
+> > +	/* Ensure that the 'ima' and 'evm' LSMs are last and in this order. */
+> > +	lsm = find_lsm("ima");
+> > +	if (lsm)
+> > +		append_ordered_lsm(lsm, "   last");
+> > +
+> > +	lsm = find_lsm("evm");
+> > +	if (lsm)
+> > +		append_ordered_lsm(lsm, "   last");
+> > +
+> >  	/* Disable all LSMs not in the ordered list. */
+> >  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+> >  		if (exists_ordered_lsm(lsm))
 
