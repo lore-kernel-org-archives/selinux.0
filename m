@@ -2,162 +2,359 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 914A9C61D85
-	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 14:00:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D0A4C61D92
+	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 14:09:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234014AbjKUOAz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Nov 2023 09:00:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60796 "EHLO
+        id S234018AbjKUOJb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Nov 2023 09:09:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234006AbjKUOAx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 09:00:53 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35233D70
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:00:50 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id 98e67ed59e1d1-280260db156so4482211a91.2
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:00:50 -0800 (PST)
+        with ESMTP id S234076AbjKUOJa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 09:09:30 -0500
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6F6710C8
+        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:09:25 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-507bd64814fso7855537e87.1
+        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:09:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700575249; x=1701180049; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700575764; x=1701180564; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=e5CRSE/zac5cER39qB2lrYfhsEfAjcugqxCHpKOVXKk=;
-        b=eHESxLSaeQa0qJkMKYg0+2ijaLXbo4ytpZCXlSse5Zi8APJ3mhe0WLr8+0lHr5UNN0
-         UXnw2OBjpT17IZcxLWJCBvYA/5YvDu9EkX6ZD7zczwxkhlTEg8g9NLZQr+Eflp31sNqU
-         GE1eIBmNmSM7D2MpUy2oyRGAQh1eTw9KCplXa0DCW/btOqeMqowuu1Y+aAyxhLJXu1fB
-         zGd6mLB/s6C10fuSX/fbgwDo/c1toBnxcn/yzutsRMConXCxLcqhFkTescpbJ3602BO6
-         A6uJZSKPHri0w6QjafI7WHak+Z77ywbTFHmnlDkGvu0LeadrFsFxw/1Jvuxa5SQeNMKH
-         aT1Q==
+        bh=+oTCmONU53Tiq0c22LiScTakm4TzFnX4WFZfz+sP6Ow=;
+        b=RclaB7EEl1F8uoN8dfa6PEJHO16bVYduP9WLi+rlz7A2fGPB18d3eYZovhYcMvNO1q
+         irp17BK27KYURmE1MKsDmIt/CNFj7cvCOHsNbQurlmMMzYTxCym2rjI5WrvX9lVEwUVh
+         zwESYSNm9TLq+ngLnsOJezzAbofnelRmarX3LqHCNiKeDirTDo6NsUt0Xd4uXSPQhaEO
+         VN4IWwNBA1Dm46lk5sEIiPFB2bfrDqAV6zn9zm8fQkjAWvFd9PQ7IjUWLq50501+cW67
+         H3Dz9KzfMLjUpy2MNIoPK7Bfm6qJUZgAIKw3yYDXdcskI05uZm+L7hPJvmoTBnbt1JMI
+         5dDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700575249; x=1701180049;
+        d=1e100.net; s=20230601; t=1700575764; x=1701180564;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=e5CRSE/zac5cER39qB2lrYfhsEfAjcugqxCHpKOVXKk=;
-        b=C9yYtFFK1c+DXQLh54egr3QS4+J7ze9sF7XrIOOo4mqsNoHb1kbd5No5BVxi2KzYpp
-         XaVS0KFnPKVsYbfz9csQ3aNYX/djwMtiZ/GwjHKLQmv1YAFghyaNRZkfJ4B7xyLyWPZx
-         jKV48YNCExjhE9ENGiAFWPNsY1C8R95kpHmxjXEg1gqsq5biaBHzRqSrXmXXoSJzZXO9
-         HIeJUXv2PoMKtw/vxmjP3b55Y7Hbny0y6S2c06Apw1NbqFlz7eSfEwiW58QIQmIXsDU8
-         9hDIPx+xZGrdCIeQAjYJmt1Pd0iC5RBkQ6fKTZtVhZHe5yMAlaSj9fVgvIYst/NBDuEt
-         xmuQ==
-X-Gm-Message-State: AOJu0Yx8zzJ+A9LjRUN5D54ZlBLQ2p0hbOUmetYS/++kLITnmfj/LTZH
-        BHCdJa+xs990A64h6/ZUjStorHdh7vFEDqniutg=
-X-Google-Smtp-Source: AGHT+IF/g+mWXvTvQffqrMJZVmu6jy1uGMqRqnQP9SFJEDvbZqtHww4StaCLsg/XO375y6g4K/jxNGoCHPg3LFzRcI0=
-X-Received: by 2002:a17:90b:38c8:b0:283:2873:8882 with SMTP id
- nn8-20020a17090b38c800b0028328738882mr10148659pjb.10.1700575249266; Tue, 21
- Nov 2023 06:00:49 -0800 (PST)
+        bh=+oTCmONU53Tiq0c22LiScTakm4TzFnX4WFZfz+sP6Ow=;
+        b=Qq/7OAzS6FBl0I6EQnQzglH/0Lvt/NkMzcn8M3A4QVPgh2sghxEfVfHM6bEbTjj4ma
+         GLVvIrRaG5zlSip0mLA2lVURtRtOrJJMY1UVjoe3ZP6yYVH8LB8SQdJvaocWUT7iIyJt
+         4Aa+JeiTI7YOCzVK5DgTOE53TkIgd5tkvmNfsB+6uJZYYagytsjl+kOD1sjETDwLvBCo
+         MAvG0ObmZOmpXReun9N1l+SCRbFTZdN9uBfqNhpDBB6iIBh7iiD7sQCbJ3wHkwsxlgYu
+         62ljIhNHy3cLWByReVt3XI2yGmO3bbEH0bRt4dZUJd6/b5mhMiVZ56zjLE7MyfoFvbI6
+         Y57w==
+X-Gm-Message-State: AOJu0YyqHHqt4yXlF5ht6qJw+4Pvwc666gBGA2iFU5jnnai2QHNLU292
+        OxIune9WAa20bzqFIfuls2jhJROlhlrVXNOFaZIc+6by
+X-Google-Smtp-Source: AGHT+IH+KUf346krbOZd9vx4BlZpjXcHzjIZLGy5mHoZFRygYWqtXt9iFWu96eEiuEjzH8tD2wa9oAqKxMXLJ11MWA8=
+X-Received: by 2002:a19:ae15:0:b0:509:8e7f:b46c with SMTP id
+ f21-20020a19ae15000000b005098e7fb46cmr6940223lfc.56.1700575763813; Tue, 21
+ Nov 2023 06:09:23 -0800 (PST)
 MIME-Version: 1.0
-References: <20231114155116.462883-1-omosnace@redhat.com>
-In-Reply-To: <20231114155116.462883-1-omosnace@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 21 Nov 2023 09:00:37 -0500
-Message-ID: <CAEjxPJ4bSxh0wTar4otZu+PYkb6Aa=tKR_OpF0pBAS-vJf_rTQ@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: introduce an initial SID for early boot processes
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
+References: <20231120154735.450915-1-cgzones@googlemail.com>
+ <20231120154735.450915-2-cgzones@googlemail.com> <CAP+JOzRVwnMBHw6B8_0L-E7EJi5OobHBwLYYVhf5kTaB_1OA3Q@mail.gmail.com>
+In-Reply-To: <CAP+JOzRVwnMBHw6B8_0L-E7EJi5OobHBwLYYVhf5kTaB_1OA3Q@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 21 Nov 2023 09:09:11 -0500
+Message-ID: <CAP+JOzRhog1RompXD7RVDzViQ4wBz00pq=R-gsCZJWQ8RTsvow@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] libsepol: avoid fixed sized format buffer for xperms
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 14, 2023 at 10:51=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
-om> wrote:
+On Mon, Nov 20, 2023 at 1:12=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> Currently, SELinux doesn't allow distinguishing between kernel threads
-> and userspace processes that are started before the policy is first
-> loaded - both get the label corresponding to the kernel SID. The only
-> way a process that persists from early boot can get a meaningful label
-> is by doing a voluntary dyntransition or re-executing itself.
+> On Mon, Nov 20, 2023 at 10:48=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > An extended access vector rule can consist of many individual ranges of
+> > permissions.  Use a dynamically growing sized buffer for formatting suc=
+h
+> > rules instead of a static buffer to avoid write failures due to
+> > truncations.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Reusing the kernel label for userspace processes is problematic for
-> several reasons:
-> 1. The kernel is considered to be a privileged domain and generally
->    needs to have a wide range of permissions allowed to work correctly,
->    which prevents the policy writer from effectively hardening against
->    early boot processes that might remain running unintentionally after
->    the policy is loaded (they represent a potential extra attack surface
->    that should be mitigated).
-> 2. Despite the kernel being treated as a privileged domain, the policy
->    writer may want to impose certain special limitations on kernel
->    threads that may conflict with the requirements of intentional early
->    boot processes. For example, it is a good hardening practice to limit
->    what executables the kernel can execute as usermode helpers and to
->    confine the resulting usermode helper processes. However, a
->    (legitimate) process surviving from early boot may need to execute a
->    different set of executables.
-> 3. As currently implemented, overlayfs remembers the security context of
->    the process that created an overlayfs mount and uses it to bound
->    subsequent operations on files using this context. If an overlayfs
->    mount is created before the SELinux policy is loaded, these "mounter"
->    checks are made against the kernel context, which may clash with
->    restrictions on the kernel domain (see 2.).
+> For these two patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
-> To resolve this, introduce a new initial SID (reusing the slot of the
-> former "init" initial SID) that will be assigned to any userspace
-> process started before the policy is first loaded. This is easy to do,
-> as we can simply label any process that goes through the
-> bprm_creds_for_exec LSM hook with the new init-SID instead of
-> propagating the kernel SID from the parent.
->
-> To provide backwards compatibility for existing policies that are
-> unaware of this new semantic of the "init" initial SID, introduce a new
-> policy capability "userspace_initial_context" and set the "init" SID to
-> the same context as the "kernel" SID unless this capability is set by
-> the policy.
->
-> Another small backwards compatibility measure is needed in
-> security_sid_to_context_core() for before the initial SELinux policy
-> load - see the code comment for explanation.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
 
+These two patches have been merged.
+Thanks,
+Jim
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index 1eeffc66ea7d7..344c598fc1e74 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1322,8 +1322,19 @@ static int security_sid_to_context_core(u32 sid, c=
-har **scontext,
->         if (!selinux_initialized()) {
->                 if (sid <=3D SECINITSID_NUM) {
->                         char *scontextp;
-> -                       const char *s =3D initial_sid_to_string[sid];
-> +                       const char *s;
->
-> +                       /*
-> +                        * Before the policy is loaded, translate
-> +                        * SECINITSID_INIT to "kernel", because systemd a=
-nd
-> +                        * libselinux < 2.6 take getcon_raw() !=3D "kerne=
-l" to
-
-Don't you mean getcon_raw() =3D=3D "kernel"?
-The old test for SELinux-disabled was to check whether policy was not
-loaded by checking that we get "kernel" when reading
-/proc/thread-self/attr/current.
-
-Other than that,
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-And I did test the SELINUX=3Ddisabled case.
-
-> +                        * mean than SELinux is not enabled as the major =
-LSM
-> +                        * and thus returning "init" would make them misb=
-ehave.
-> +                        */
-> +                       if (sid =3D=3D SECINITSID_INIT)
-> +                               sid =3D SECINITSID_KERNEL;
-> +
-> +                       s =3D initial_sid_to_string[sid];
->                         if (!s)
->                                 return -EINVAL;
->                         *scontext_len =3D strlen(s) + 1;
-> --
-> 2.41.0
->
+> > ---
+> > v2:
+> >    reset in_range on retry
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  checkpolicy/test/dismod.c     |  9 +++++-
+> >  checkpolicy/test/dispol.c     | 10 +++++-
+> >  libsepol/src/assertion.c      |  7 ++++-
+> >  libsepol/src/kernel_to_conf.c |  9 +++---
+> >  libsepol/src/util.c           | 57 +++++++++++++++++++++++------------
+> >  5 files changed, 66 insertions(+), 26 deletions(-)
+> >
+> > diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+> > index fa7117f5..9f4a669b 100644
+> > --- a/checkpolicy/test/dismod.c
+> > +++ b/checkpolicy/test/dismod.c
+> > @@ -347,6 +347,7 @@ static int display_avrule(avrule_t * avrule, policy=
+db_t * policy,
+> >                 display_id(policy, fp, SYM_TYPES, avrule->perms->data -=
+ 1, "");
+> >         } else if (avrule->specified & AVRULE_XPERMS) {
+> >                 avtab_extended_perms_t xperms;
+> > +               char *perms;
+> >                 int i;
+> >
+> >                 if (avrule->xperms->specified =3D=3D AVRULE_XPERMS_IOCT=
+LFUNCTION)
+> > @@ -362,7 +363,13 @@ static int display_avrule(avrule_t * avrule, polic=
+ydb_t * policy,
+> >                 for (i =3D 0; i < EXTENDED_PERMS_LEN; i++)
+> >                         xperms.perms[i] =3D avrule->xperms->perms[i];
+> >
+> > -               fprintf(fp, "%s", sepol_extended_perms_to_string(&xperm=
+s));
+> > +               perms =3D sepol_extended_perms_to_string(&xperms);
+> > +               if (!perms) {
+> > +                       fprintf(fp, "     ERROR: failed to format xperm=
+s\n");
+> > +                       return -1;
+> > +               }
+> > +               fprintf(fp, "%s", perms);
+> > +               free(perms);
+> >         }
+> >
+> >         fprintf(fp, ";\n");
+> > diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> > index b567ce77..944ef7ec 100644
+> > --- a/checkpolicy/test/dispol.c
+> > +++ b/checkpolicy/test/dispol.c
+> > @@ -196,6 +196,8 @@ static int render_av_rule(avtab_key_t * key, avtab_=
+datum_t * datum, uint32_t wha
+> >                         fprintf(fp, ";\n");
+> >                 }
+> >         } else if (key->specified & AVTAB_XPERMS) {
+> > +               char *perms;
+> > +
+> >                 if (key->specified & AVTAB_XPERMS_ALLOWED)
+> >                         fprintf(fp, "allowxperm ");
+> >                 else if (key->specified & AVTAB_XPERMS_AUDITALLOW)
+> > @@ -203,7 +205,13 @@ static int render_av_rule(avtab_key_t * key, avtab=
+_datum_t * datum, uint32_t wha
+> >                 else if (key->specified & AVTAB_XPERMS_DONTAUDIT)
+> >                         fprintf(fp, "dontauditxperm ");
+> >                 render_key(key, p, fp);
+> > -               fprintf(fp, "%s;\n", sepol_extended_perms_to_string(dat=
+um->xperms));
+> > +               perms =3D sepol_extended_perms_to_string(datum->xperms)=
+;
+> > +               if (!perms) {
+> > +                       fprintf(fp, "     ERROR: failed to format xperm=
+s\n");
+> > +                       return -1;
+> > +               }
+> > +               fprintf(fp, "%s;\n", perms);
+> > +               free(perms);
+> >         } else {
+> >                 fprintf(fp, "     ERROR: no valid rule type specified\n=
+");
+> >                 return -1;
+> > diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> > index b6ac4cfe..6de7d031 100644
+> > --- a/libsepol/src/assertion.c
+> > +++ b/libsepol/src/assertion.c
+> > @@ -178,15 +178,20 @@ static int report_assertion_extended_permissions(=
+sepol_handle_t *handle,
+> >                                 rc =3D check_extended_permissions(avrul=
+e->xperms, xperms);
+> >                                 /* failure on the extended permission c=
+heck_extended_permissions */
+> >                                 if (rc) {
+> > +                                       char *permstring;
+> > +
+> >                                         extended_permissions_violated(&=
+error, avrule->xperms, xperms);
+> > +                                       permstring =3D sepol_extended_p=
+erms_to_string(&error);
+> > +
+> >                                         ERR(handle, "neverallowxperm on=
+ line %lu of %s (or line %lu of %s) violated by\n"
+> >                                                         "allowxperm %s =
+%s:%s %s;",
+> >                                                         avrule->source_=
+line, avrule->source_filename, avrule->line, policy_name(p),
+> >                                                         p->p_type_val_t=
+o_name[i],
+> >                                                         p->p_type_val_t=
+o_name[j],
+> >                                                         p->p_class_val_=
+to_name[curperm->tclass - 1],
+> > -                                                       sepol_extended_=
+perms_to_string(&error));
+> > +                                                       permstring ?: "=
+<format-failure>");
+> >
+> > +                                       free(permstring);
+> >                                         errors++;
+> >                                 }
+> >                         }
+> > diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_con=
+f.c
+> > index b0ae16d9..b5b530d6 100644
+> > --- a/libsepol/src/kernel_to_conf.c
+> > +++ b/libsepol/src/kernel_to_conf.c
+> > @@ -1683,7 +1683,7 @@ static char *avtab_node_to_str(struct policydb *p=
+db, avtab_key_t *key, avtab_dat
+> >         uint32_t data =3D datum->data;
+> >         type_datum_t *type;
+> >         const char *flavor, *src, *tgt, *class, *perms, *new;
+> > -       char *rule =3D NULL;
+> > +       char *rule =3D NULL, *permstring;
+> >
+> >         switch (0xFFF & key->specified) {
+> >         case AVTAB_ALLOWED:
+> > @@ -1738,13 +1738,14 @@ static char *avtab_node_to_str(struct policydb =
+*pdb, avtab_key_t *key, avtab_dat
+> >                 rule =3D create_str("%s %s %s:%s { %s };", 5,
+> >                                   flavor, src, tgt, class, perms+1);
+> >         } else if (key->specified & AVTAB_XPERMS) {
+> > -               perms =3D sepol_extended_perms_to_string(datum->xperms)=
+;
+> > -               if (perms =3D=3D NULL) {
+> > +               permstring =3D sepol_extended_perms_to_string(datum->xp=
+erms);
+> > +               if (permstring =3D=3D NULL) {
+> >                         ERR(NULL, "Failed to generate extended permissi=
+on string");
+> >                         goto exit;
+> >                 }
+> >
+> > -               rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, =
+tgt, class, perms);
+> > +               rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, =
+tgt, class, permstring);
+> > +               free(permstring);
+> >         } else {
+> >                 new =3D pdb->p_type_val_to_name[data - 1];
+> >
+> > diff --git a/libsepol/src/util.c b/libsepol/src/util.c
+> > index 0a2edc85..2f877920 100644
+> > --- a/libsepol/src/util.c
+> > +++ b/libsepol/src/util.c
+> > @@ -132,21 +132,32 @@ char *sepol_extended_perms_to_string(avtab_extend=
+ed_perms_t *xperms)
+> >         uint16_t low_bit;
+> >         uint16_t low_value;
+> >         unsigned int bit;
+> > -       unsigned int in_range =3D 0;
+> > -       static char xpermsbuf[2048];
+> > -       char *p;
+> > -       int len, xpermslen =3D 0;
+> > -       xpermsbuf[0] =3D '\0';
+> > -       p =3D xpermsbuf;
+> > +       unsigned int in_range;
+> > +       char *buffer =3D NULL, *p;
+> > +       int len;
+> > +       size_t remaining, size =3D 128;
+> >
+> >         if ((xperms->specified !=3D AVTAB_XPERMS_IOCTLFUNCTION)
+> >                 && (xperms->specified !=3D AVTAB_XPERMS_IOCTLDRIVER))
+> >                 return NULL;
+> >
+> > -       len =3D snprintf(p, sizeof(xpermsbuf) - xpermslen, "ioctl { ");
+> > +retry:
+> > +       size *=3D 2;
+> > +       if (size =3D=3D 0)
+> > +               goto err;
+> > +       p =3D realloc(buffer, size);
+> > +       if (!p)
+> > +               goto err;
+> > +       buffer =3D p;
+> > +       remaining =3D size;
+> > +
+> > +       len =3D snprintf(p, remaining, "ioctl { ");
+> > +       if (len < 0 || (size_t)len >=3D remaining)
+> > +               goto err;
+> >         p +=3D len;
+> > -       xpermslen +=3D len;
+> > +       remaining -=3D len;
+> >
+> > +       in_range =3D 0;
+> >         for (bit =3D 0; bit < sizeof(xperms->perms)*8; bit++) {
+> >                 if (!xperm_test(bit, xperms->perms))
+> >                         continue;
+> > @@ -165,35 +176,43 @@ char *sepol_extended_perms_to_string(avtab_extend=
+ed_perms_t *xperms)
+> >                         value =3D xperms->driver<<8 | bit;
+> >                         if (in_range) {
+> >                                 low_value =3D xperms->driver<<8 | low_b=
+it;
+> > -                               len =3D snprintf(p, sizeof(xpermsbuf) -=
+ xpermslen, "0x%hx-0x%hx ", low_value, value);
+> > +                               len =3D snprintf(p, remaining, "0x%hx-0=
+x%hx ", low_value, value);
+> >                         } else {
+> > -                               len =3D snprintf(p, sizeof(xpermsbuf) -=
+ xpermslen, "0x%hx ", value);
+> > +                               len =3D snprintf(p, remaining, "0x%hx "=
+, value);
+> >                         }
+> >                 } else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER=
+) {
+> >                         value =3D bit << 8;
+> >                         if (in_range) {
+> >                                 low_value =3D low_bit << 8;
+> > -                               len =3D snprintf(p, sizeof(xpermsbuf) -=
+ xpermslen, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
+> > +                               len =3D snprintf(p, remaining, "0x%hx-0=
+x%hx ", low_value, (uint16_t) (value|0xff));
+> >                         } else {
+> > -                               len =3D snprintf(p, sizeof(xpermsbuf) -=
+ xpermslen, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
+> > +                               len =3D snprintf(p, remaining, "0x%hx-0=
+x%hx ", value, (uint16_t) (value|0xff));
+> >                         }
+> >
+> >                 }
+> >
+> > -               if (len < 0 || (size_t) len >=3D (sizeof(xpermsbuf) - x=
+permslen))
+> > -                       return NULL;
+> > +               if (len < 0)
+> > +                       goto err;
+> > +               if ((size_t) len >=3D remaining)
+> > +                       goto retry;
+> >
+> >                 p +=3D len;
+> > -               xpermslen +=3D len;
+> > +               remaining -=3D len;
+> >                 if (in_range)
+> >                         in_range =3D 0;
+> >         }
+> >
+> > -       len =3D snprintf(p, sizeof(xpermsbuf) - xpermslen, "}");
+> > -       if (len < 0 || (size_t) len >=3D (sizeof(xpermsbuf) - xpermslen=
+))
+> > -               return NULL;
+> > +       len =3D snprintf(p, remaining, "}");
+> > +       if (len < 0)
+> > +               goto err;
+> > +       if ((size_t) len >=3D remaining)
+> > +               goto retry;
+> > +
+> > +       return buffer;
+> >
+> > -       return xpermsbuf;
+> > +err:
+> > +       free(buffer);
+> > +       return NULL;
+> >  }
+> >
+> >  /*
+> > --
+> > 2.42.0
+> >
