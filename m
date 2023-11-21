@@ -2,108 +2,135 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCDBC61D92
-	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 14:10:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E30AC61D92
+	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 14:10:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234049AbjKUOKH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Nov 2023 09:10:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36942 "EHLO
+        id S234040AbjKUOKi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Nov 2023 09:10:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234040AbjKUOKF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 09:10:05 -0500
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795F1D79
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:10:02 -0800 (PST)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-507bd19eac8so7329229e87.0
-        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:10:02 -0800 (PST)
+        with ESMTP id S234127AbjKUOKh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Nov 2023 09:10:37 -0500
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF82C10DE
+        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:10:32 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-507962561adso8160461e87.0
+        for <selinux@vger.kernel.org>; Tue, 21 Nov 2023 06:10:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700575801; x=1701180601; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700575831; x=1701180631; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sgGfmrg2Yq6wlq7Bd5/MlFhtoGVXUcWXVRuoSId1oHs=;
-        b=QKEbdf0JeGCmof7o54oBtY/U0Vymos7T3+qvQ5mjajY6dJyFJ1OLwQUGoQ7yfy0+wu
-         Kpj/q9uGSiPQUP6ySiXguVckEUdsZEinscZ94kPJsHHV1/JFW17E4G5lQV7s1THm484x
-         8izods2nPmKrnwNhoFIVi8tJYf+8lp805tFmRetfUBDM0XZk/K4yjOCGzk2w9V72wioS
-         x3fzcfJ+8DSz5GqxpUz6sxNnBMOL35N22rpctctnbfaC7ogfFFW7AykZQqRGjn/xq3lM
-         OoSh7OJ/OED1SJ3kIbgzkU0S7ao/VC44QETC2uvWHrjkKnEC1AXQiF+fsoUdgI1r/Ngc
-         zjKg==
+        bh=CG9D2a9D5/GMt0cOL8nRiDtygBtF9JpnHne+17QFuts=;
+        b=DjOX6/u0ev4QRgSFtcUxsoDQ/6rY3+X2m8LqBl95gdqhYs4cMJVr5h5y5aT/eEIVeQ
+         8Il+kDKG1OSncVXVZCOjG+kJ1OQsoqoqqS2sWFsfZBnpt9T8VcWL813tlP8FiKvv+OMg
+         ZzpynmVvwuiS8P6r9PmVLMixWOkcUzZxgRYeq6PZURKQC8x88uCp2H2V/21GCQbHbPLb
+         9PLmyrZEJ8rCWRn22yCFTV6njXf4DYISwFbrFzKOYwAIDsioT06lKSurJ1HsR2gDDDx2
+         1CXQJCDKUvCPbfObzlG3riRvT1QYj8anC5QN41RTPkJFzLrAYbdIWpxyk02eMUsfSjju
+         jZvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700575801; x=1701180601;
+        d=1e100.net; s=20230601; t=1700575831; x=1701180631;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=sgGfmrg2Yq6wlq7Bd5/MlFhtoGVXUcWXVRuoSId1oHs=;
-        b=R3eB72kWtE8FUzyMQChs0Xls+jeNH5+E64yh12BoEDvbTz45iB8mt/iNx7Ya8CIwwi
-         jHeoFTRIOLFyt8rO2fW0ZvKMWdF74IYdBCC4HPSEoeyrCT/jvO8TYUtFxcpW3kx+fOhu
-         kPxdoXaIkuzKtjEQUWHDiIPnpN2dUjGHtJs2eyNZP1E2PqfmLvUa3Kp3N5fKfr0n4uGy
-         P8zf4zdCD7yx9uH6kyfdaeb7inixKsoBdWEVyiig2/9crRSKMy3Vo4+yu0iYpuSOat+L
-         jJI5WN/m1MEW60aTLOkVMFqnc3zrbCnpNr5Y6PLV8g584mDPnr/ACA6NUpmrmZvYMr6d
-         fN7A==
-X-Gm-Message-State: AOJu0Yw1GnzkYTUGdAVilKhaSHSsY7aXuVwZX1RWjR2vfYvsjFif4+6q
-        yK1BuxYhxMaHXARN3WoLHYvKNNgtNU1L0CFUo/s=
-X-Google-Smtp-Source: AGHT+IHApOCYZSH7tdnLE6WN68iy7+ogr6SPiVPr7UIvj/e6MEFHwZj8ymQt/5iVOlqj+sqt9aVeSzOAMTll8+QxaRI=
-X-Received: by 2002:a19:7019:0:b0:508:1975:5b1d with SMTP id
- h25-20020a197019000000b0050819755b1dmr7227138lfc.3.1700575800450; Tue, 21 Nov
- 2023 06:10:00 -0800 (PST)
+        bh=CG9D2a9D5/GMt0cOL8nRiDtygBtF9JpnHne+17QFuts=;
+        b=nehxf6pYPNA3U4ifO0r/F56Nb2rsaJc26EF61ngM0q3hFBblzfmv4hkkETLnQD3uXS
+         bGu8bMbwfi5p8NZEkQA0GZOuGLZv0UZvJjsenQ5Mt0K/0qr0fIiU5HbN3SiWm/4kOxnp
+         rPS+R9dY/bizkYMwwqvhSXRN98OXeOrd7OXsv5JhMyI73lNqx6Gbig/1dnmLHcGhVaL7
+         V37DRWcx27X5fUG4Fg1oQumhqxdSdCCc8VFH45VFX4ddGqo8DuXIRh//mQG39kJcbCo6
+         7TCCJtP4Tb1jhizUrlwmrkTpm375J4TUs+H77MsTTi1EiSEucgB+S0UL0hpkgsdAKL8n
+         2OsA==
+X-Gm-Message-State: AOJu0YzUcHWlTZrk0L/QyZuD8RZv7LRQYibsM8W2DnNeWpGg2BRn6Lii
+        U5lHpoUglYVgkakQ+8ecdbXGHPmYbqSwIRZxgG6P1a9p
+X-Google-Smtp-Source: AGHT+IEYFpp7mXrzS4ZAkKugdXhFq1YRsbd1+fJtWai15hPpUnx7tSa6yhvY9XuwILL9Ry/0Wu+tNkRivrJXE01Y78c=
+X-Received: by 2002:a05:6512:485b:b0:4fe:1681:9377 with SMTP id
+ ep27-20020a056512485b00b004fe16819377mr7599853lfb.44.1700575830630; Tue, 21
+ Nov 2023 06:10:30 -0800 (PST)
 MIME-Version: 1.0
-References: <20231115233207.51845-1-luhuaxin1@huawei.com> <CAP+JOzQUYrXWZjRKxBCdQdVZYsA9kCaXGUwhBCAoCfMfig6dQw@mail.gmail.com>
-In-Reply-To: <CAP+JOzQUYrXWZjRKxBCdQdVZYsA9kCaXGUwhBCAoCfMfig6dQw@mail.gmail.com>
+References: <20230927190021.1164278-1-jwcart2@gmail.com> <20230927190021.1164278-2-jwcart2@gmail.com>
+ <4b23ff1b-6b93-f21b-26f4-193efcd9db93@linux.microsoft.com>
+ <CAP+JOzQA64fXdpow02ZDy9rcDx48v3jq2VGiSuG4akNVDn3xvQ@mail.gmail.com>
+ <2c0b5552-84b8-fe63-6d4c-0a42c7b8a753@linux.microsoft.com>
+ <87a5rxhknz.fsf@redhat.com> <CAP+JOzTSnP3xDK5uA2Cy0R2FSWbyb_H9UeNMsKtUKaVXwxL33w@mail.gmail.com>
+In-Reply-To: <CAP+JOzTSnP3xDK5uA2Cy0R2FSWbyb_H9UeNMsKtUKaVXwxL33w@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 21 Nov 2023 09:09:49 -0500
-Message-ID: <CAP+JOzQB-Va8nrdpuA1vhWUS+d7Di-aby1Lo1NwDnNOUFCQCXQ@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol: add check for category value before printing
-To:     luhuaxin1@huawei.com
-Cc:     selinux@vger.kernel.org, fangxiuning@huawei.com,
-        zhujianwei7@huawei.com, shenyining@huawei.com
+Date:   Tue, 21 Nov 2023 09:10:19 -0500
+Message-ID: <CAP+JOzTq3iSJ_bN6SfPGJsx+=9y+3V91BPBFer53CNEUoD6A1A@mail.gmail.com>
+Subject: Re: [PATCH 1/9] libsepol/cil: Use struct cil_db * instead of void *
+To:     Petr Lautrbach <lautrbach@redhat.com>
+Cc:     Daniel Burgener <dburgener@linux.microsoft.com>,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 16, 2023 at 12:56=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+On Fri, Nov 17, 2023 at 10:29=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
 rote:
 >
-> On Wed, Nov 15, 2023 at 9:04=E2=80=AFPM <luhuaxin1@huawei.com> wrote:
+> On Wed, Nov 1, 2023 at 5:45=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.c=
+om> wrote:
 > >
-> > From: Huaxin Lu <luhuaxin1@huawei.com>
+> > Daniel Burgener <dburgener@linux.microsoft.com> writes:
 > >
-> > In mls_semantic_level_expand(), there is a explicitly determine
-> > whether category is 0, which may cause an potential integer
-> > overflow in error branch.
+> > > On 9/27/2023 4:41 PM, James Carter wrote:
+> > >> On Wed, Sep 27, 2023 at 3:27=E2=80=AFPM Daniel Burgener
+> > >> <dburgener@linux.microsoft.com> wrote:
+> > >>>
+> > >>>> @@ -3661,21 +3615,17 @@ static int cil_check_for_bad_inheritance(s=
+truct cil_tree_node *node)
+> > >>>>        return rc;
+> > >>>>    }
+> > >>>>
+> > >>>> -static int __cil_resolve_ast_node(struct cil_tree_node *node, voi=
+d *extra_args)
+> > >>>> +static int __cil_resolve_ast_node(struct cil_tree_node *node, str=
+uct cil_args_resolve *args)
+> > >>>>    {
+> > >>>>        int rc =3D SEPOL_OK;
+> > >>>> -     struct cil_args_resolve *args =3D extra_args;
+> > >>>> +     struct cil_db *db =3D args->db;
+> > >>>>        enum cil_pass pass =3D 0;
+> > >>>>
+> > >>>> -     if (node =3D=3D NULL || args =3D=3D NULL) {
+> > >>>> -             goto exit;
+> > >>>> -     }
+> > >>>> -
+> > >>>
+> > >>> Is deleting the "node =3D=3D NULL" part of this check intended here=
+?  It
+> > >>> seems unrelated to the rest of the commit, and it's not locally obv=
+ious
+> > >>> that it's safe.
+> > >>
+> > >> You are right. It is not related to the rest of the commit. There ar=
+e
+> > >> a bunch of these sorts of checks that are useless and really annoy m=
+e.
+> > >> The function __cil_resolve_ast_node() is called once from
+> > >> __cil_resolve_ast_node_helper() and neither node nor args can be NUL=
+L.
+> > >> Since I was changing something nearby, I guess I couldn't resist. I
+> > >> can leave it in, if people prefer. It doesn't cause any harm, other
+> > >> than annoying me.
+> > >>
+> > >
+> > > As is is fine by me.  Your explanation makes sense.  I mostly wanted =
+to
+> > > make sure it was reasoned out rather than an accidental drop, but now
+> > > that you point it out, it does look impossible for this to be NULL.
+> > >
+> > > Reviewed-by: Daniel Burgener <dburgener@linux.microsoft.com>
 > >
-> > Signed-off-by: Huaxin Lu <luhuaxin1@huawei.com>
+> > Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+> >
+> >
+> > Petr
+> >
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+> I plan on merging this series next week, unless someone objects.
+> Jim
 
-Merged.
-Thanks,
+These nine patches have been merged.
 Jim
-
-> > ---
-> >  libsepol/src/expand.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> > index ee5f9185..9ed22bfd 100644
-> > --- a/libsepol/src/expand.c
-> > +++ b/libsepol/src/expand.c
-> > @@ -945,8 +945,8 @@ int mls_semantic_level_expand(mls_semantic_level_t =
-* sl, mls_level_t * l,
-> >         for (cat =3D sl->cat; cat; cat =3D cat->next) {
-> >                 if (!cat->low || cat->low > cat->high) {
-> >                         ERR(h, "Category range is not valid %s.%s",
-> > -                           p->p_cat_val_to_name[cat->low - 1],
-> > -                           p->p_cat_val_to_name[cat->high - 1]);
-> > +                           cat->low > 0 ? p->p_cat_val_to_name[cat->lo=
-w - 1] : "Invalid",
-> > +                           cat->high > 0 ? p->p_cat_val_to_name[cat->h=
-igh - 1] : "Invalid");
-> >                         return -1;
-> >                 }
-> >                 for (i =3D cat->low - 1; i < cat->high; i++) {
-> > --
-> > 2.33.0
-> >
