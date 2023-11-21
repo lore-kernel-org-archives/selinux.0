@@ -2,140 +2,154 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 724E7C61D90
-	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 01:29:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 653D7C61D88
+	for <selinux@archiver.kernel.org>; Tue, 21 Nov 2023 01:35:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbjKUBaB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Nov 2023 20:30:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56114 "EHLO
+        id S229679AbjKUBf7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Nov 2023 20:35:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229954AbjKUBaA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 20:30:00 -0500
-Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF879E3
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 17:29:56 -0800 (PST)
-Received: by mail-yb1-xb32.google.com with SMTP id 3f1490d57ef6-da3b4b7c6bdso4860036276.2
-        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 17:29:56 -0800 (PST)
+        with ESMTP id S229490AbjKUBf6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Nov 2023 20:35:58 -0500
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D09BBC
+        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 17:35:54 -0800 (PST)
+Received: by mail-yb1-xb2e.google.com with SMTP id 3f1490d57ef6-dae0ab8ac3eso4623212276.0
+        for <selinux@vger.kernel.org>; Mon, 20 Nov 2023 17:35:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1700530196; x=1701134996; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=CN2C4JUqZ3eJU9QGa9mEPtzEL1EjkKnlBKdDX7+rhwg=;
-        b=MbeBwLJc8xg3wjWdrMl6SB3QOLfFxO0ytOTZATnnjxrmJiktNRi+fvqD00RvbBk5pZ
-         RPt9T30v0fmG7URJ7TVz7xzUr5vt0H5B7JwMqpGP2yAlurm/phBBjNSFOzB703sTV7pN
-         iUFdjWHn3hlYFEMlp1a7sXkRumZZusNBEYNZK2paYxbeAkjlZuXMg1XOmo6v7VEjd5ab
-         sogEGvBu+8oRcvIdt+wWrWwkkRLeL8aPFM/4B4qeork+gElT4zrehriQ4GZGBssL0LD1
-         w0Xffp1msRQUKgXhYrErgyQG3ql9QlQZnpNLhNQuN7Gb1ooGum9y5Re4SQUeS191Pf4J
-         i6kg==
+        d=paul-moore.com; s=google; t=1700530553; x=1701135353; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=I1RxUEjkil3TwuSEOXIqrbla3JNIOI3lPEhx5cHI+eE=;
+        b=XXsCjcHWWLq57yJDoftKl2UPbsmkbJusKfjbYoUwqsO90bHxt2ki2t1UfmoUTZ7cxc
+         pW4OzoEQebFIsFAOx+FN8AJ9293UacPzEBEFnmr/bVXIT3hsKFthvUOLzGj2Fe/Q9AuH
+         4dut2I7ywAZeDHCEVFGx65gPzdOtI9FYSwKt2tJOnM7+JoYGC4uDKdKImq3wipwVRPdh
+         +r2CIxNZUavcnRFo4B+V7GwSsDSM8ivG9k6DcRWPySS4LNNqezAjGwZEf/2KCsPvknc5
+         +eFCtH4BP+3vRzGGOnoUpKTyPrXXMzaEgIFTZSMtrUoqpb7FbU6flzR0l/Uc21YfCha0
+         Fj/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700530196; x=1701134996;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CN2C4JUqZ3eJU9QGa9mEPtzEL1EjkKnlBKdDX7+rhwg=;
-        b=uhPg9ajnbvRmghgHoMJWliPGTpfCV2YFXZAkQ3cDdhjPlIyn9I5nBGWD/VIZjzdSgg
-         h+YE7khc3fylE3Raesz5+HndZjlq+UTUksb1BWhkQ5+JlpS5B0FHGn2kEd+aCXQxTv+k
-         aF2RA+bQZerclynBqxD4XEt1NCGeYWW2bQsj8F+Dw6nTvRPdEl9Ph2CIbOF0kNhy1J/W
-         G++Ijp1Cue6wjKwwlzjogBStAK1HXXNZuqLoUEjE33zIO/VxyGnsDviu9FmpHMbhacFA
-         D0Ea9vvG0UgI7caUoQ9VPespOAFeZeMtWE6srIEpSCxiZU+vt5avDKij+i8I2gwT8wAy
-         H11g==
-X-Gm-Message-State: AOJu0Yxv4DXRxAJ1dxq65DePXFgD+s3ctj1X95+XDbbX7eSi6uc/LiJ7
-        icMazijAmLMR4ACfZ1Hs++ya
-X-Google-Smtp-Source: AGHT+IEGgcAaM306WEPv9nMcoX+SXbiZlG5msJshBMJuK3nR8wLdcb6TDxsgWEo/WzSnT5OM0WliMw==
-X-Received: by 2002:a81:8b4b:0:b0:5ca:ae76:1dfb with SMTP id e11-20020a818b4b000000b005caae761dfbmr4095652ywk.20.1700530196056;
-        Mon, 20 Nov 2023 17:29:56 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id f4-20020ad45404000000b0066d0ab215b5sm3522693qvt.13.2023.11.20.17.29.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Nov 2023 17:29:55 -0800 (PST)
-Date:   Mon, 20 Nov 2023 20:29:54 -0500
-Message-ID: <d419ff729567246c50cf52b885e76903.paul@paul-moore.com>
+        d=1e100.net; s=20230601; t=1700530553; x=1701135353;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=I1RxUEjkil3TwuSEOXIqrbla3JNIOI3lPEhx5cHI+eE=;
+        b=EGoYCW5lEIWqatEEzVjWSWMFXf2SgTHr3DjDT25V9olsPuLTUadVkLNziqWjTWwwC1
+         4e3CZ26QUOPHxozwHhQ6njBibnsjQlOGoqlGhCbGg/Z85cGV3dFMC4qLYwHBAs4buM3e
+         fLtepObMzx/LVG+2/ZtjjVB878UbON+Vk0c+2X2fcHGMXZUQjPOsFSeqBthOqHSTEenN
+         N9DZUASENUozaXqVQjn7j8up79zjO1u/GAn+wc7Om8ymOwcv18KwRoDXoRyG/0SiRzm4
+         YAK20yCVJpA0QGJX9q2c3+LQZ0PUjh3c5bgY3hNAlctDoOATXAHQWcDPyV5GIJnnZR3X
+         ik7w==
+X-Gm-Message-State: AOJu0YyAaQzy7EW4bYuutvMPPBgZBUm8pvhPFoprP350ZR9Mb3i020Fs
+        k3+L9Iu1MzCQ7R+6nGT2YVbJgDXdbeEquqP9DoNr
+X-Google-Smtp-Source: AGHT+IGG3cAHAdXACH5yofGcnZoa2SUX0MapBvfd+UU/KJHnqyRWg4oN50ET712DRi3L0PeQCQCX5/VStM43KaLJICo=
+X-Received: by 2002:a25:ab31:0:b0:da0:3ffd:8026 with SMTP id
+ u46-20020a25ab31000000b00da03ffd8026mr8949005ybi.19.1700530553379; Mon, 20
+ Nov 2023 17:35:53 -0800 (PST)
+MIME-Version: 1.0
+References: <20231114155116.462883-1-omosnace@redhat.com>
+In-Reply-To: <20231114155116.462883-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-To:     Jacob Satterfield <jsatterfield.linux@gmail.com>,
-        selinux@vger.kernel.org
-Cc:     Jacob Satterfield <jsatterfield.linux@gmail.com>,
-        stephen.smalley.work@gmail.com, omosnace@redhat.com
-Subject: Re: [PATCH v5 2/3] selinux: fix conditional avtab slot hint
-References: <20231103172953.24667-3-jsatterfield.linux@gmail.com>
-In-Reply-To: <20231103172953.24667-3-jsatterfield.linux@gmail.com>
+Date:   Mon, 20 Nov 2023 20:35:42 -0500
+Message-ID: <CAHC9VhTWYeMzr99HPOp43Q_gVrQg6JSPNWH5y11irqZB89X6eg@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: introduce an initial SID for early boot processes
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Nov  3, 2023 Jacob Satterfield <jsatterfield.linux@gmail.com> wrote:
-> 
-> Due to how conditional rules are written in the binary policy, the
-> code responsible for loading does not know how many conditional rules
-> there are before creating the avtab structure. Instead, it uses the
-> number of elements in the non-conditional avtab as a hint and allocates
-> the hash table based on it. In the refpolicy and default Fedora policy,
-> the actual sizes of these tables are not similar (~85k vs ~10k) thereby
-> creating more slots than needed and resulting in wasted memory.
-> 
-> This patch introduces a two-pass algorithm to calculate the conditional
-> rule count before allocating the avtab nodes array. Albeit with a slight
-> performance penalty in reading a portion of the binary policy twice,
-> this causes the number of hash slots for the conditional array to become
-> 4096 instead of 32768. At 8-bytes per slot on 64-bit architectures, this
-> results in a net savings of 224 KB of heap memory.
-> 
-> Signed-off-by: Jacob Satterfield <jsatterfield.linux@gmail.com>
-> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Tue, Nov 14, 2023 at 10:51=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
+om> wrote:
+>
+> Currently, SELinux doesn't allow distinguishing between kernel threads
+> and userspace processes that are started before the policy is first
+> loaded - both get the label corresponding to the kernel SID. The only
+> way a process that persists from early boot can get a meaningful label
+> is by doing a voluntary dyntransition or re-executing itself.
+>
+> Reusing the kernel label for userspace processes is problematic for
+> several reasons:
+> 1. The kernel is considered to be a privileged domain and generally
+>    needs to have a wide range of permissions allowed to work correctly,
+>    which prevents the policy writer from effectively hardening against
+>    early boot processes that might remain running unintentionally after
+>    the policy is loaded (they represent a potential extra attack surface
+>    that should be mitigated).
+> 2. Despite the kernel being treated as a privileged domain, the policy
+>    writer may want to impose certain special limitations on kernel
+>    threads that may conflict with the requirements of intentional early
+>    boot processes. For example, it is a good hardening practice to limit
+>    what executables the kernel can execute as usermode helpers and to
+>    confine the resulting usermode helper processes. However, a
+>    (legitimate) process surviving from early boot may need to execute a
+>    different set of executables.
+> 3. As currently implemented, overlayfs remembers the security context of
+>    the process that created an overlayfs mount and uses it to bound
+>    subsequent operations on files using this context. If an overlayfs
+>    mount is created before the SELinux policy is loaded, these "mounter"
+>    checks are made against the kernel context, which may clash with
+>    restrictions on the kernel domain (see 2.).
+>
+> To resolve this, introduce a new initial SID (reusing the slot of the
+> former "init" initial SID) that will be assigned to any userspace
+> process started before the policy is first loaded. This is easy to do,
+> as we can simply label any process that goes through the
+> bprm_creds_for_exec LSM hook with the new init-SID instead of
+> propagating the kernel SID from the parent.
+>
+> To provide backwards compatibility for existing policies that are
+> unaware of this new semantic of the "init" initial SID, introduce a new
+> policy capability "userspace_initial_context" and set the "init" SID to
+> the same context as the "kernel" SID unless this capability is set by
+> the policy.
+>
+> Another small backwards compatibility measure is needed in
+> security_sid_to_context_core() for before the initial SELinux policy
+> load - see the code comment for explanation.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  security/selinux/ss/avtab.c       | 15 ++++++++++--
->  security/selinux/ss/avtab.h       |  2 +-
->  security/selinux/ss/conditional.c | 38 ++++++++++++++++++++-----------
->  security/selinux/ss/conditional.h |  2 +-
->  4 files changed, 40 insertions(+), 17 deletions(-)
+>
+> The last version of this patch has been applied [1] and then reverted
+> [2] because of a regression breaking userspace before the policy is
+> loaded [3]. This version fixes it using Christian's suggestion [4].
+>
+> Paul's suggestion from [5] isn't really viable because both existing
+> users of security_get_initial_sid_context() need the current behavior.
+>
+> As for security_context_to_sid_core(), it doesn't seem desirable to
+> remove the ability to e.g. write "init" to /proc/self/attr/exec to
+> get the exec_sid to SECINITSID_INIT as that shouldn't affect backwards
+> compatibility. However, the caveat is that after setting something to
+> SECINITSID_INIT via "init", a query for the string form of the context
+> will return the "fake" value "kernel" instead of the expected "init".
+>
+> [1] 5b0eea835d4e ("selinux: introduce an initial SID for early boot proce=
+sses")
+> [2] 817199e006e5 ("selinux: revert SECINITSID_INIT support")
+> [3] https://lore.kernel.org/selinux/87edkseqf8.fsf@mail.lhotse/
+> [4] https://lore.kernel.org/selinux/CAJ2a_DdZHFTHiRu5+ZENAwUq1Cor-jVoE9qd=
+hb2x5uSej-MaRA@mail.gmail.com/
+> [5] https://lore.kernel.org/selinux/CAHC9VhQVQv78Xr1bDoJcuT5s441Lvc8AanMv=
+Mh8KXG-PuPTVAQ@mail.gmail.com/
+>
+>  security/selinux/hooks.c                      | 28 +++++++++++++++++++
+>  .../selinux/include/initial_sid_to_string.h   |  2 +-
+>  security/selinux/include/policycap.h          |  1 +
+>  security/selinux/include/policycap_names.h    |  1 +
+>  security/selinux/include/security.h           |  6 ++++
+>  security/selinux/ss/policydb.c                | 27 ++++++++++++++++++
+>  security/selinux/ss/services.c                | 13 ++++++++-
+>  7 files changed, 76 insertions(+), 2 deletions(-)
 
-...
+Ondrej or Michael, can either of you confirm that the regression found
+in previous revisions of this patch have been resolved in v3?
 
-> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index 81ff676f209a..810319bf0e60 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -407,16 +408,17 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
->  			return -EINVAL;
->  	}
->  
-> -	rc = cond_read_av_list(p, fp, &node->true_list, NULL);
-> +	rc = cond_read_av_list(p, fp, &node->true_list, NULL, nrules);
->  	if (rc)
->  		return rc;
-> -	return cond_read_av_list(p, fp, &node->false_list, &node->true_list);
-> +	return cond_read_av_list(p, fp, &node->false_list, &node->true_list, nrules);
->  }
->  
-> -int cond_read_list(struct policydb *p, void *fp)
-> +int cond_read_list(struct policydb *p, struct policy_file *fp)
->  {
->  	__le32 buf[1];
-> -	u32 i, len;
-> +	struct policy_file tmp_fp;
-> +	u32 i, len, nrules;
->  	int rc;
->  
->  	rc = next_entry(buf, fp, sizeof(buf));
-> @@ -428,15 +430,25 @@ int cond_read_list(struct policydb *p, void *fp)
->  	p->cond_list = kcalloc(len, sizeof(*p->cond_list), GFP_KERNEL);
->  	if (!p->cond_list)
->  		return -ENOMEM;
-> +	p->cond_list_len = len;
-> +
-> +	/* first pass to only calculate the avrule count */
-> +	tmp_fp = *fp;
-> +	nrules = 0;
-> +	for (i = 0; i < p->cond_list_len; i++) {
-> +		rc = cond_read_node(p, &p->cond_list[i], &tmp_fp, &nrules);
-> +		if (rc)
-> +			goto err;
-> +		cond_node_destroy(&p->cond_list[i]);
-> +	}
-
-I'm a concerned about all the work we have to do just to count the
-conditional rules.  Other than not working with existing binary
-policies, have you looked at bumping the policy version and introducing
-a binary format change that would include the number of conditional
-rules?
-
---
+--=20
 paul-moore.com
