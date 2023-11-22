@@ -2,125 +2,107 @@ Return-Path: <selinux-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E90ACC61D97
-	for <selinux@archiver.kernel.org>; Wed, 22 Nov 2023 18:15:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BEC3C61D9B
+	for <selinux@archiver.kernel.org>; Wed, 22 Nov 2023 18:33:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343980AbjKVSPF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 Nov 2023 13:15:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58880 "EHLO
+        id S231478AbjKVSdN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Nov 2023 13:33:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344034AbjKVSPE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 Nov 2023 13:15:04 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACBFD4A
-        for <selinux@vger.kernel.org>; Wed, 22 Nov 2023 10:15:00 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id 3f1490d57ef6-db406b5ceddso84471276.0
-        for <selinux@vger.kernel.org>; Wed, 22 Nov 2023 10:15:00 -0800 (PST)
+        with ESMTP id S230513AbjKVSdM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Nov 2023 13:33:12 -0500
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5701B3
+        for <selinux@vger.kernel.org>; Wed, 22 Nov 2023 10:33:08 -0800 (PST)
+Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-507a62d4788so22793e87.0
+        for <selinux@vger.kernel.org>; Wed, 22 Nov 2023 10:33:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1700676899; x=1701281699; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700677987; x=1701282787; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/xsKojepMstQykpndCpLRWISd1f4HeAHfNp14TvqpkM=;
-        b=ZyHag/58nHwdKsmXQvWdMcakiXshtvosw++B7FEn3xPEX/PuwJItEcP8hD+3e2JaMb
-         XJ3ScXSbJwt4Zt/TF7lexWiANP/MKUbCYkdMV1A9fRwntZPJjSb6T80G9fD+7hp7wRnk
-         fjOtTvr2NRPcbdtnl6A6TEmYHZnl3PL6yt5ZrD/SyijOQfyDwPR5ahtHRpIKtsNsEMr2
-         JFDbmOk4iZNlCOsLH7V9+SWtWbS1sposC7XEOi3IfsL+smEAH6jrSizCNup7mJhwPQF+
-         9oIIx4qSPtJWWf+mIK6PyqTuXEBm5Xj6dDC1TJKQgHbeHtKE1xv7SuJ+bAH8j+kaBO9u
-         sg2w==
+        bh=/JeWgKqI36TS32i0ulxUweYl8let659yrZtojetoKxM=;
+        b=VCcyNkHVEootNKzSQx2q2vAojAtFTzfuJZ1Hm12mro0H0TFmzRJv3yVJFa5N7+yBt8
+         GCJuC5+rlPxhFznYEov0rPxsaVhv1mYrH7ssOSI8seNbVMZZTw3dzfUxvktaNHTp7ou9
+         mezVX9ZdbiRFtf1JbgoyxhxFFeaEqF0XxS+rLKU/XpwrVwBisOhFOIPYHIXcdZH7wINg
+         z1vTH/rETOUs6o5bZtUXkJ+HgYTp3dwZ1xOvyuLEFs4PXDu8nFTAEMQlB52isjOPSwdl
+         5S12Rro3RjK7+44ZHru8IUlqfiATr5bO12Il4Xi9OaFZKYrZRJYLoOJAb52btedRhHaF
+         BtzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700676899; x=1701281699;
+        d=1e100.net; s=20230601; t=1700677987; x=1701282787;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/xsKojepMstQykpndCpLRWISd1f4HeAHfNp14TvqpkM=;
-        b=pqIia1YdyPm/nfKQg6XqU/PGNXzl1fZi99gOXXClfXNwmC27YF/vok09wY0g/Krnv9
-         cT86L9ZEvmlGsXKTBkXKJY5bCaAxaG4X7ifghvOdCDWMcWQOhEoys62hO4z6Egax6IAr
-         eelOJoGJhsnux3VQFSBTbxFkIn8DX1bWVlYbllsSva84znU4vRl4U/8IDpn53drAdofX
-         /FR5xLp3Rmyxk8loujOSmoc3YxMQayQ8N8j1iS7CMrdYTqKB3MOAM7VjomjUWL+7nQ6g
-         UDu9g2ButfclT0OprErXblJTpKQjazis+J27H13U06obSuR3xTw68MYdvfmZjacaM1DM
-         7Z3g==
-X-Gm-Message-State: AOJu0YxKll164VDsyHL6SMYIvTvj0J32lz6bSkeuE7MSWyvHw7Pj+S8M
-        gb2G5Mr4C8U46mTEotT2kuevZWTNNQaV0qQG+kbnAiobH6iwFpY=
-X-Google-Smtp-Source: AGHT+IEoRvlLNDPKpIhMN00eY/EVxoF3O9ejgPktZLhe4eL0+NelTUL3bqMhzYAvZLWdeYc2BBJ3J2rGpiHQ4urOePo=
-X-Received: by 2002:a25:8d8b:0:b0:dae:b67e:7cd4 with SMTP id
- o11-20020a258d8b000000b00daeb67e7cd4mr2652370ybl.46.1700676899570; Wed, 22
- Nov 2023 10:14:59 -0800 (PST)
+        bh=/JeWgKqI36TS32i0ulxUweYl8let659yrZtojetoKxM=;
+        b=vmaeZc6fZVpWBBNJhvmsvNy3gtyJK5OTnO8YdB6HoPsT3uzQxjdObsrlaja/Io1teZ
+         YyAuQasHJhL2xzM/UV9kE3GS+YVk4xy3LLAq+fnZr6Yw1ptmWnM9DyddJsTVBe+gqKKg
+         wDhfBPglVj6rs0m/9UzUA6LJ2ChyePGkXM39NwCHSE+4vnBIiAPvhbS+i8mGvsBMCSBM
+         dpJGagPJ05aELef35AOQe57wkmUgWv8KG629b87ID22mp/Gek6Ngt9if5iO2HDORZ+rp
+         Gb3h+mC0h+nYmN0cxwc5h5eO9P4hjfNkypaSGv73G0TIkirUnjYFe0OSuNs9A8p+5NXz
+         hhPA==
+X-Gm-Message-State: AOJu0Yyfv9A8pYKmN3BcX/9ua08GYkgjmE8BZUkshw0ssBcwnpShRamg
+        m4yzRG1bLyMy3ZRq9WQzimi3tc/w7uIempAWmsSIKxgz3+8=
+X-Google-Smtp-Source: AGHT+IHO1F7A6irZglnUznlfsaauHzu/0GTsg0MmxRpjQR4tcJJKD5tflTFRzRp0KnRgKo95YgHI6x95V0XDwjwni4g=
+X-Received: by 2002:a05:6512:3daa:b0:509:43c8:f5d9 with SMTP id
+ k42-20020a0565123daa00b0050943c8f5d9mr3183541lfv.49.1700677986706; Wed, 22
+ Nov 2023 10:33:06 -0800 (PST)
 MIME-Version: 1.0
-References: <20231103172953.24667-3-jsatterfield.linux@gmail.com>
- <d419ff729567246c50cf52b885e76903.paul@paul-moore.com> <CALMFcesyueiXg_8Z=LVhKjy7eYnE=3vJS0daTEC7+Z5GKxa4Cg@mail.gmail.com>
-In-Reply-To: <CALMFcesyueiXg_8Z=LVhKjy7eYnE=3vJS0daTEC7+Z5GKxa4Cg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 22 Nov 2023 13:14:48 -0500
-Message-ID: <CAHC9VhR6xJmFGqBUyr7QkC3vOArL2e6iysL7P-9SV1Pv=1TYVA@mail.gmail.com>
-Subject: Re: [PATCH v5 2/3] selinux: fix conditional avtab slot hint
-To:     Jacob Satterfield <jsatterfield.linux@gmail.com>
-Cc:     selinux@vger.kernel.org, stephen.smalley.work@gmail.com,
-        omosnace@redhat.com
+References: <87o7fmua12.fsf@redhat.com>
+In-Reply-To: <87o7fmua12.fsf@redhat.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Wed, 22 Nov 2023 12:32:55 -0600
+Message-ID: <CAFftDdrGO=pq-yrZ1bexcxssAA=+P_wYO7DEZ-VUm0EiZbztog@mail.gmail.com>
+Subject: Re: getpolicyload returns 0, 2, 3, 4, ...
+To:     Petr Lautrbach <lautrbach@redhat.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 22, 2023 at 12:35=E2=80=AFPM Jacob Satterfield
-<jsatterfield.linux@gmail.com> wrote:
-> On Mon, Nov 20, 2023 at 8:29=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > I'm a concerned about all the work we have to do just to count the
-> > conditional rules.  Other than not working with existing binary
-> > policies, have you looked at bumping the policy version and introducing
-> > a binary format change that would include the number of conditional
-> > rules?
+On Tue, Nov 21, 2023 at 2:27=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
 >
-> Thanks for raising the issue. I had considered adding the total size
-> of the conditional table to the binary policy, but I wasn't sure if it
-> would be substantive enough to warrant bumping the policy version.
+> Hi,
+>
+> Milos Malik noticed [0] that getpolicyload "skippes" 1 after first
+> `semodule -R`:
+>
+>
+> [root@fedora ~]# getpolicyload
+> 0
+> [root@fedora ~]# semodule -R
+> [root@fedora ~]# getpolicyload
+> 2
+> [root@fedora ~]# semodule -R
+> [root@fedora ~]# getpolicyload
+> 3
+> [root@fedora ~]# semodule -R
+> [root@fedora ~]# getpolicyload
+> 4
+>
+> why it's like that?
+>
+> It looks like increased sequence is not propagated after first
+> policyload and it's propagated to the status after the second
+> policyload.
+>
+>
+> [0] https://src.fedoraproject.org/tests/selinux/pull-request/451#comment-=
+168398
+>
 
-I appreciate the thoughtfulness, but the version field in the policy
-is 32-bits and we are currently up to policy format v33 so we've still
-got a few version numbers to play with :)
+it may not be one, but never zero, so its ok to skip 1 per this comment:
+  - https://elixir.bootlin.com/linux/latest/source/security/selinux/status.=
+c#L57
 
-> As
-> you point out, the counting work will be needed for existing binary
-> policies making this patch necessary for the default case, but if you
-> are concerned about the performance penalty this patch brings (which
-> is less than the gain provided by the avtab array patch), then there
-> are two threads to possibly be worked on.
+On the creation of the page, the policyload is set to 0, on updates,
+the seqno is used:
+  - https://elixir.bootlin.com/linux/latest/source/security/selinux/status.=
+c#L104
 
-To be clear, I'm not thinking about supporting this for existing
-policies, just the new policy format; the existing policy versions
-would behave as they do now ... although if we do the array conversion
-we will likely need to do some type of realloc()/retry or something, I
-dunno, I'll leave that to you to brainstorm ;)
+Definitely odd behavior, but seems expected. I just don't know why
+seqno isn't used on page creation.
 
-> One is to rework this patch to include more invasive changes to count
-> rules without actually reading and destroying nodes thus saving cycles
-> but requiring more lines of code. Because policy parsing is not
-> handled separately from the construction of the policydb structure
-> (they are deeply intertwined), I was reluctant to add more complexity
-> just to have a parse-only code path. Would you prefer speed or simpler
-> logic for older policies?
-
-That's the problem we have right now.  We have to do a lot of work
-(allocations, etc.) that we throw away in the case where we are
-counting, not to mention that bolting on the count-only functionality
-is kinda hacky/ugly (not your fault, that is just the way the code is
-right now).  As you mention, the alternative is to significantly
-rework how we parse/load the policy, and that isn't a very exciting
-prospect as far as I'm concerned.
-
-I'm not sure if moving over to flex array is a win, I suspect that
-whatever we gain in memory savings we lose in not having direct
-access.  I dunno, maybe it wouldn't be too bad.
-
-I'm open to ideas here ... I'm looking for something that would
-support the improvements for a new policy with an explicit count,
-while still falling back to something that works "reasonably well" in
-the current case where we have to guess.  In this case "reasonably
-well" means no worse than current in terms of performance and memory
-use while not over complicating the code.
-
---=20
-paul-moore.com
+Bill
