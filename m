@@ -1,94 +1,202 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Egc0n0R1"
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F5769D
-	for <selinux@vger.kernel.org>; Tue, 28 Nov 2023 10:23:44 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-50bc2e7f1e4so202421e87.1
-        for <selinux@vger.kernel.org>; Tue, 28 Nov 2023 10:23:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1701195822; x=1701800622; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wbuVTEiIzJiwIo7dN8hiU8dK38A8G5i3SvER6EcQWBI=;
-        b=Egc0n0R1iXSpDI+IS3WNRc6kON+PDRsyt0/1E01KYONwkP5VFe95G7wXD75pB2P1Vt
-         Mj1NvWp7ZMPFIVrFoBTccxn4qH3TNbgVPlBb8eM4MrN6JkAqgk+wjJAL/4R6XIf2fbFw
-         gOqayUc7EUro29uVnTHQl3f45/08lrRvbxVyXdlklKIiIilU09UhX4IwAJpUAwYUhPYR
-         g620pOjX0/NY4R9pldh7VVMBYYVqLBDUr60mh1mCZ3pQcGx03yoTFXuMPEKZSYGSlybn
-         NDEHZUIAk3FUp4u9WJtisMsvzUr1HgQ1TCu3MKyraq2T5TUTxWHcrpXkWZx44Q3YQGOv
-         4MFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701195822; x=1701800622;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wbuVTEiIzJiwIo7dN8hiU8dK38A8G5i3SvER6EcQWBI=;
-        b=oi+fd4xXpe/RAYQVX7EF59Mx2ZfRHJJHJ2Ke2fLX6T9FR5itJxXFHV2jhI3Jg2UJ79
-         grpqL7XWhNvHEKIJxf2hFXcr17YeDRmPlYbOh6vFLkdI52z5IEy1BI/un/pqaLpGB0N5
-         xvDfJD4r5heAioV+nSOKZ7pIp0J6QnxQ8Guj7qara8oz20OiipfjXzzkGC2rF6eK/dpW
-         ETr1NWYmgsfygs/VQ+3qFIlUKz9oltbUv/LknRmkACkew07CtforgjtPo7cz9GCUPrvK
-         AI0IzcbnW/H/KHUHzDWKeYJBLEdy8YlD2yUPOdHTWtFt0sq+9ONvBN0Hoh1mEGWcqwBW
-         Ptow==
-X-Gm-Message-State: AOJu0YxDIhbWQMYi40npxIXI7vuU/HVblFPTMc/jGKFcj0s1tvy6z+uS
-	51UAF9SixDPJ6u0YraoedtYr+FlrHEs=
-X-Google-Smtp-Source: AGHT+IHn9s0tYS0o110lIjAX5BWvqeIwKvS/WJs5zpprXD93P3k85yjzW1pvD+z5iSPu1rPKF3XZvA==
-X-Received: by 2002:a05:6512:280d:b0:509:e5a4:2b03 with SMTP id cf13-20020a056512280d00b00509e5a42b03mr15449229lfb.13.1701195822564;
-        Tue, 28 Nov 2023 10:23:42 -0800 (PST)
-Received: from debian_development.DebianHome (dynamic-077-003-184-154.77.3.pool.telefonica.de. [77.3.184.154])
-        by smtp.gmail.com with ESMTPSA id v11-20020a1709067d8b00b009dddec5a96fsm7122024ejo.170.2023.11.28.10.23.42
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Nov 2023 10:23:42 -0800 (PST)
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH 7/7] libsepol: reject linking modules with no avrules
-Date: Tue, 28 Nov 2023 19:23:34 +0100
-Message-ID: <20231128182334.57740-7-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231128182334.57740-1-cgzones@googlemail.com>
-References: <20231128182334.57740-1-cgzones@googlemail.com>
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6B31707;
+	Wed, 29 Nov 2023 04:28:19 -0800 (PST)
+Received: from mail.maildlp.com (unknown [172.18.186.29])
+	by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4SgJCq3X9czB01N3;
+	Wed, 29 Nov 2023 20:14:31 +0800 (CST)
+Received: from mail02.huawei.com (unknown [7.182.16.47])
+	by mail.maildlp.com (Postfix) with ESMTP id 6AE2C1400CA;
+	Wed, 29 Nov 2023 20:28:15 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+	by APP1 (Coremail) with SMTP id LxC2BwAXBXVKLmdlCSKXAQ--.11947S2;
+	Wed, 29 Nov 2023 13:28:14 +0100 (CET)
+Message-ID: <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com>
+Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
+ blob for integrity_iint_cache
+From: Roberto Sassu <roberto.sassu@huaweicloud.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com, 
+ jlayton@kernel.org, neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, 
+ tom@talpey.com, jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com, 
+ dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org, 
+ stephen.smalley.work@gmail.com, eparis@parisplace.org,
+ casey@schaufler-ca.com,  mic@digikod.net, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org,  linux-nfs@vger.kernel.org,
+ linux-security-module@vger.kernel.org,  linux-integrity@vger.kernel.org,
+ keyrings@vger.kernel.org,  selinux@vger.kernel.org, Roberto Sassu
+ <roberto.sassu@huawei.com>
+Date: Wed, 29 Nov 2023 13:27:51 +0100
+In-Reply-To: <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
+References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
+	 <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
+	 <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com>
+	 <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:LxC2BwAXBXVKLmdlCSKXAQ--.11947S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxKryfJr4xZFy7JF1rCr17ZFb_yoW7Aw4rpF
+	W3KayxGw1kAry29rn2vF45urWfKrW8WFyUWrn8Cr1kAas0vr10qr4UCryUuFyUGrWDJw1j
+	qF1a9ry7u3Wqy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+	AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+	64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+	8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+	2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+	xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+	c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAQBF1jj5cNmwAFsg
 
-Standard policy modules generated by compilers have at least one global
-av rule.  Reject modules otherwise, e.g. generated by a fuzzer.
+On Mon, 2023-11-20 at 16:06 -0500, Paul Moore wrote:
+> On Mon, Nov 20, 2023 at 3:16=E2=80=AFAM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > On Fri, 2023-11-17 at 15:57 -0500, Paul Moore wrote:
+> > > On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
+> > > >=20
+> > > > Before the security field of kernel objects could be shared among L=
+SMs with
+> > > > the LSM stacking feature, IMA and EVM had to rely on an alternative=
+ storage
+> > > > of inode metadata. The association between inode metadata and inode=
+ is
+> > > > maintained through an rbtree.
+> > > >=20
+> > > > Because of this alternative storage mechanism, there was no need to=
+ use
+> > > > disjoint inode metadata, so IMA and EVM today still share them.
+> > > >=20
+> > > > With the reservation mechanism offered by the LSM infrastructure, t=
+he
+> > > > rbtree is no longer necessary, as each LSM could reserve a space in=
+ the
+> > > > security blob for each inode. However, since IMA and EVM share the
+> > > > inode metadata, they cannot directly reserve the space for them.
+> > > >=20
+> > > > Instead, request from the 'integrity' LSM a space in the security b=
+lob for
+> > > > the pointer of inode metadata (integrity_iint_cache structure). The=
+ other
+> > > > reason for keeping the 'integrity' LSM is to preserve the original =
+ordering
+> > > > of IMA and EVM functions as when they were hardcoded.
+> > > >=20
+> > > > Prefer reserving space for a pointer to allocating the integrity_ii=
+nt_cache
+> > > > structure directly, as IMA would require it only for a subset of in=
+odes.
+> > > > Always allocating it would cause a waste of memory.
+> > > >=20
+> > > > Introduce two primitives for getting and setting the pointer of
+> > > > integrity_iint_cache in the security blob, respectively
+> > > > integrity_inode_get_iint() and integrity_inode_set_iint(). This wou=
+ld make
+> > > > the code more understandable, as they directly replace rbtree opera=
+tions.
+> > > >=20
+> > > > Locking is not needed, as access to inode metadata is not shared, i=
+t is per
+> > > > inode.
+> > > >=20
+> > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> > > > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> > > > ---
+> > > >  security/integrity/iint.c      | 71 +++++-------------------------=
+----
+> > > >  security/integrity/integrity.h | 20 +++++++++-
+> > > >  2 files changed, 29 insertions(+), 62 deletions(-)
+> > > >=20
+> > > > diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+> > > > index 882fde2a2607..a5edd3c70784 100644
+> > > > --- a/security/integrity/iint.c
+> > > > +++ b/security/integrity/iint.c
+> > > > @@ -231,6 +175,10 @@ static int __init integrity_lsm_init(void)
+> > > >     return 0;
+> > > >  }
+> > > >=20
+> > > > +struct lsm_blob_sizes integrity_blob_sizes __ro_after_init =3D {
+> > > > +   .lbs_inode =3D sizeof(struct integrity_iint_cache *),
+> > > > +};
+> > >=20
+> > > I'll admit that I'm likely missing an important detail, but is there
+> > > a reason why you couldn't stash the integrity_iint_cache struct
+> > > directly in the inode's security blob instead of the pointer?  For
+> > > example:
+> > >=20
+> > >   struct lsm_blob_sizes ... =3D {
+> > >     .lbs_inode =3D sizeof(struct integrity_iint_cache),
+> > >   };
+> > >=20
+> > >   struct integrity_iint_cache *integrity_inode_get(inode)
+> > >   {
+> > >     if (unlikely(!inode->isecurity))
+> > >       return NULL;
+> > >     return inode->i_security + integrity_blob_sizes.lbs_inode;
+> > >   }
+> >=20
+> > It would increase memory occupation. Sometimes the IMA policy
+> > encompasses a small subset of the inodes. Allocating the full
+> > integrity_iint_cache would be a waste of memory, I guess?
+>=20
+> Perhaps, but if it allows us to remove another layer of dynamic memory
+> I would argue that it may be worth the cost.  It's also worth
+> considering the size of integrity_iint_cache, while it isn't small, it
+> isn't exactly huge either.
+>=20
+> > On the other hand... (did not think fully about that) if we embed the
+> > full structure in the security blob, we already have a mutex available
+> > to use, and we don't need to take the inode lock (?).
+>=20
+> That would be excellent, getting rid of a layer of locking would be signi=
+ficant.
+>=20
+> > I'm fully convinced that we can improve the implementation
+> > significantly. I just was really hoping to go step by step and not
+> > accumulating improvements as dependency for moving IMA and EVM to the
+> > LSM infrastructure.
+>=20
+> I understand, and I agree that an iterative approach is a good idea, I
+> just want to make sure we keep things tidy from a user perspective,
+> i.e. not exposing the "integrity" LSM when it isn't required.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/src/link.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Ok, I went back to it again.
 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index 3b7742bc..b8272308 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -2019,7 +2019,7 @@ static int debug_requirements(link_state_t * state, policydb_t * p)
- 	memset(&req, 0, sizeof(req));
- 
- 	for (cur = p->global; cur != NULL; cur = cur->next) {
--		if (cur->enabled != NULL)
-+		if (cur->enabled != NULL || cur->branch_list == NULL)
- 			continue;
- 
- 		ret = is_decl_requires_met(state, cur->branch_list, &req);
-@@ -2142,6 +2142,11 @@ static int enable_avrules(link_state_t * state, policydb_t * pol)
- 	/* 1) enable all of the non-else blocks */
- 	for (block = pol->global; block != NULL; block = block->next) {
- 		block->enabled = block->branch_list;
-+		if (!block->enabled) {
-+			ERR(state->handle, "Global block has no avrules!");
-+			ret = SEPOL_ERR;
-+			goto out;
-+		}
- 		block->enabled->enabled = 1;
- 		for (decl = block->branch_list->next; decl != NULL;
- 		     decl = decl->next)
--- 
-2.43.0
+I think trying to separate integrity metadata is premature now, too
+many things at the same time.
+
+I started to think, does EVM really need integrity metadata or it can
+work without?
+
+The fact is that CONFIG_IMA=3Dn and CONFIG_EVM=3Dy is allowed, so we have
+the same problem now. What if we make IMA the one that manages
+integrity metadata, so that we can remove the 'integrity' LSM?
+
+So, no embedding the full structure in the security blob now, move
+integrity_inode_free() and integrity_kernel_module_request() to IMA,
+call integrity_iintcache_init() from IMA.
+
+EVM verification of new files would fail without IMA, but it would be
+the same now.
+
+Also, evm_verifyxattr() would only work with IMA, as it assumes that
+the latter creates integrity metadata and passes them as argument.
+
+Regarding the LSM order, I would take Casey's suggestion of introducing
+LSM_ORDER_REALLY_LAST, for EVM.
+
+Thanks
+
+Roberto
 
