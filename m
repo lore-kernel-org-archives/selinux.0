@@ -1,40 +1,40 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PZ5jLWuT"
-Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B986710D0
-	for <selinux@vger.kernel.org>; Thu, 30 Nov 2023 08:34:27 -0800 (PST)
-Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-5cece20f006so12780127b3.3
-        for <selinux@vger.kernel.org>; Thu, 30 Nov 2023 08:34:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XBD3WWY8"
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6061D10DB
+	for <selinux@vger.kernel.org>; Thu, 30 Nov 2023 08:59:31 -0800 (PST)
+Received: by mail-yb1-xb2c.google.com with SMTP id 3f1490d57ef6-dafe04717baso1052918276.1
+        for <selinux@vger.kernel.org>; Thu, 30 Nov 2023 08:59:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1701362067; x=1701966867; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1701363570; x=1701968370; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UtFno+LwQ2GzDnhBeUDiSKJsjmjd4ts8+ULAaW82MMY=;
-        b=PZ5jLWuTODNkPYXVwRoLdgCgs1RiXX0CB+ozc2Zis6xwGi6Avw+oKhPD/zvoxOU5CT
-         InOMJrWqPHMWGf9AyKnk822BxpH77SdKVepUZQilsxzmIKeKLKusqgZRBHlB9pwdahCc
-         FcwGgvoVMSl172uYRwCmkufUZl1E4tzH2rQbVzH9gHcv3+pNlSczMmFsY+2JnCyZHwkR
-         3VK14HibDOdwrVgkvSQ9cytJ+mmOziLMMT5tm/recPgdqTWot++t6Qocds1dstZA0I9F
-         0XVm+tV13w6Uq87Lx6N0Prfq85+SVpBM38edUKIdMlPsNxJGTCxR2kUbvqPjL7Iixn46
-         2RZw==
+        bh=KC+YVAHwKs2kkAU34IYOVVTovQR04OMhKsJNMkFTFrA=;
+        b=XBD3WWY8IJSAStE1FQ8v8QeGtkTywkRiNNMMP5q9awnNXYeghZAfOB7ojMuBO9spjw
+         m4mLJ6G5vY03eH0VF1kwgEhQw1fQLPpYCs1xBDaCecI+/AcxI5OKCTB5vTjYU8g1yyR+
+         hBk3h3jJnp8kwKY1Yf2n/tF+DJJx88OaR0E2vXRabM/Aa2p7r2nTH2l7j2usbBFcyJYC
+         OuyMoARJPHpPYisjarNftLXrZ+/bSInY0EgbtJnfhv0m/6yAduXEkzksSVCDEUtyrdGA
+         rAy3TQuRs7d+FrTJC873C90ZPCNTlwi3pKycdFCHEK7TGJbG2NieBz2fhijCFRZS0u1y
+         fyMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701362067; x=1701966867;
+        d=1e100.net; s=20230601; t=1701363570; x=1701968370;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UtFno+LwQ2GzDnhBeUDiSKJsjmjd4ts8+ULAaW82MMY=;
-        b=apLYWwGCVFGDhrULj28pD+RTAQ8FJwE612hiYHhi4hErlMT18rMHlWNuiEjss8b+cf
-         bnet9JXO4Wl4Ma1rtvAiXSjyn9f4IJXQ4vNEc3tTTxLGXCOIYn3dip4QymWt6ifrx4OK
-         gsMj2YSrfKGCYkAKV6kBcguulpmLA9auNIAHnye3ISmyBZmT6RD5hd7iWlbPToDa/Smk
-         yFA1sRi80N5QSZRhiNGyctxyyQj5vPBfPqXQ8f8x1bX1cTBpOxOHffpfLqrDWNU9D7e6
-         WfRDBDkwXu83Hg/zig3ghUZbE5t31typU7YmWd1BM+KytFUmniqjw1EvmQx/4SLzdclx
-         aixg==
-X-Gm-Message-State: AOJu0YyFQmD+52O7cmC9fQY2WwPSAPFSadT9SNxecxYWXMyy5fYhALwz
-	AHKKErBZ9uAgwSW+9up52dhzn/aXIDgk6eB2sqV3
-X-Google-Smtp-Source: AGHT+IHeHdpK2ZUS6oWXFVUCJZ09doGArKmA7HaDqW1eGm3Lnoqt9TFrtxWh2usWvQXHN2dvVLQzpflDEM/jaG+E5BI=
+        bh=KC+YVAHwKs2kkAU34IYOVVTovQR04OMhKsJNMkFTFrA=;
+        b=kh45hJWqaHBzxF5Jw4JzbZ8eg6/7oQwZlY8JzCRSJE1vOFZtJxXD2ApfEIO6CZjZCJ
+         DL96qsyORA898+HFJlN2gUt3Vj7d5EpoNHNRo9MG1cQTAiWlR86akJsDExsNDh5owkFO
+         hWUlcFkynbrS0Av1k/pnDAYiuC5WJE4EPsUPFH/KEmfZ37EsBQx2fvEcMzRsefvuG7JW
+         rCOYkK0tIc9L8kyUMsIKt7LguTdc7FDBpfI92QSv+m8dbsrtC27UJWFFZZ+bRwaH2PbJ
+         7Kfqi9moFmv9yqtH0OjvMQbwQAOJJOoqQ2Cg1iyGstIh5nxnltZaAcD8+lgN3zkvet42
+         0Zrw==
+X-Gm-Message-State: AOJu0YzZb7XUzQg0s9fHGA1z+mJ/g8Dwdd6b4o1sFTg46dhZbxcoU7By
+	SN1eLOLX+8Kz6FLC3gOPsPAWepFHwaVx+MIqRnhj
+X-Google-Smtp-Source: AGHT+IERQwY73BfKyowLaBkWCwON5Z7fm/5peh0ErEUfe9ZiF54XUdUJecnVn1oRjqpirYk/CaQQxBixoUm8GSxjd0s=
 X-Received: by 2002:a25:8d0b:0:b0:da0:cbff:4e20 with SMTP id
- n11-20020a258d0b000000b00da0cbff4e20mr20087394ybl.56.1701362066812; Thu, 30
- Nov 2023 08:34:26 -0800 (PST)
+ n11-20020a258d0b000000b00da0cbff4e20mr20156386ybl.56.1701363570522; Thu, 30
+ Nov 2023 08:59:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -45,255 +45,106 @@ References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
  <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com> <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com>
  <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
  <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com>
- <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com> <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com>
-In-Reply-To: <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com>
+ <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com>
+ <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com> <7cb732ea42a221b4b8bbfad941d9dec41a3a35fa.camel@linux.ibm.com>
+In-Reply-To: <7cb732ea42a221b4b8bbfad941d9dec41a3a35fa.camel@linux.ibm.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 30 Nov 2023 11:34:16 -0500
-Message-ID: <CAHC9VhROnfBoaOy2MurdSpcE_poo_6Qy9d2U3g6m2NRRHaqz4Q@mail.gmail.com>
+Date: Thu, 30 Nov 2023 11:59:19 -0500
+Message-ID: <CAHC9VhS28XuVjNX73H9qWZibObCxKCx_M3omQu9+5EdourUc+w@mail.gmail.com>
 Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
  blob for integrity_iint_cache
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>
-Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com, 
-	jlayton@kernel.org, neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, 
-	tom@talpey.com, jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com, 
-	dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org, 
-	stephen.smalley.work@gmail.com, eparis@parisplace.org, casey@schaufler-ca.com, 
-	mic@digikod.net, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, keyrings@vger.kernel.org, 
-	selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+To: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk, 
+	brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de, 
+	kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com, jmorris@namei.org, 
+	serge@hallyn.com, dmitry.kasatkin@gmail.com, dhowells@redhat.com, 
+	jarkko@kernel.org, stephen.smalley.work@gmail.com, eparis@parisplace.org, 
+	casey@schaufler-ca.com, mic@digikod.net, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	keyrings@vger.kernel.org, selinux@vger.kernel.org, 
+	Roberto Sassu <roberto.sassu@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 29, 2023 at 1:47=E2=80=AFPM Roberto Sassu
-<roberto.sassu@huaweicloud.com> wrote:
-> On 11/29/2023 6:22 PM, Paul Moore wrote:
-> > On Wed, Nov 29, 2023 at 7:28=E2=80=AFAM Roberto Sassu
-> > <roberto.sassu@huaweicloud.com> wrote:
-> >>
-> >> On Mon, 2023-11-20 at 16:06 -0500, Paul Moore wrote:
-> >>> On Mon, Nov 20, 2023 at 3:16=E2=80=AFAM Roberto Sassu
-> >>> <roberto.sassu@huaweicloud.com> wrote:
-> >>>> On Fri, 2023-11-17 at 15:57 -0500, Paul Moore wrote:
-> >>>>> On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote=
-:
-> >>>>>>
-> >>>>>> Before the security field of kernel objects could be shared among =
-LSMs with
-> >>>>>> the LSM stacking feature, IMA and EVM had to rely on an alternativ=
-e storage
-> >>>>>> of inode metadata. The association between inode metadata and inod=
-e is
-> >>>>>> maintained through an rbtree.
-> >>>>>>
-> >>>>>> Because of this alternative storage mechanism, there was no need t=
-o use
-> >>>>>> disjoint inode metadata, so IMA and EVM today still share them.
-> >>>>>>
-> >>>>>> With the reservation mechanism offered by the LSM infrastructure, =
-the
-> >>>>>> rbtree is no longer necessary, as each LSM could reserve a space i=
-n the
-> >>>>>> security blob for each inode. However, since IMA and EVM share the
-> >>>>>> inode metadata, they cannot directly reserve the space for them.
-> >>>>>>
-> >>>>>> Instead, request from the 'integrity' LSM a space in the security =
-blob for
-> >>>>>> the pointer of inode metadata (integrity_iint_cache structure). Th=
-e other
-> >>>>>> reason for keeping the 'integrity' LSM is to preserve the original=
- ordering
-> >>>>>> of IMA and EVM functions as when they were hardcoded.
-> >>>>>>
-> >>>>>> Prefer reserving space for a pointer to allocating the integrity_i=
-int_cache
-> >>>>>> structure directly, as IMA would require it only for a subset of i=
-nodes.
-> >>>>>> Always allocating it would cause a waste of memory.
-> >>>>>>
-> >>>>>> Introduce two primitives for getting and setting the pointer of
-> >>>>>> integrity_iint_cache in the security blob, respectively
-> >>>>>> integrity_inode_get_iint() and integrity_inode_set_iint(). This wo=
-uld make
-> >>>>>> the code more understandable, as they directly replace rbtree oper=
-ations.
-> >>>>>>
-> >>>>>> Locking is not needed, as access to inode metadata is not shared, =
-it is per
-> >>>>>> inode.
-> >>>>>>
-> >>>>>> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> >>>>>> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> >>>>>> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-> >>>>>> ---
-> >>>>>>   security/integrity/iint.c      | 71 +++++-----------------------=
-------
-> >>>>>>   security/integrity/integrity.h | 20 +++++++++-
-> >>>>>>   2 files changed, 29 insertions(+), 62 deletions(-)
-> >>>>>>
-> >>>>>> diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-> >>>>>> index 882fde2a2607..a5edd3c70784 100644
-> >>>>>> --- a/security/integrity/iint.c
-> >>>>>> +++ b/security/integrity/iint.c
-> >>>>>> @@ -231,6 +175,10 @@ static int __init integrity_lsm_init(void)
-> >>>>>>      return 0;
-> >>>>>>   }
-> >>>>>>
-> >>>>>> +struct lsm_blob_sizes integrity_blob_sizes __ro_after_init =3D {
-> >>>>>> +   .lbs_inode =3D sizeof(struct integrity_iint_cache *),
-> >>>>>> +};
-> >>>>>
-> >>>>> I'll admit that I'm likely missing an important detail, but is ther=
-e
-> >>>>> a reason why you couldn't stash the integrity_iint_cache struct
-> >>>>> directly in the inode's security blob instead of the pointer?  For
-> >>>>> example:
-> >>>>>
-> >>>>>    struct lsm_blob_sizes ... =3D {
-> >>>>>      .lbs_inode =3D sizeof(struct integrity_iint_cache),
-> >>>>>    };
-> >>>>>
-> >>>>>    struct integrity_iint_cache *integrity_inode_get(inode)
-> >>>>>    {
-> >>>>>      if (unlikely(!inode->isecurity))
-> >>>>>        return NULL;
-> >>>>>      return inode->i_security + integrity_blob_sizes.lbs_inode;
-> >>>>>    }
-> >>>>
-> >>>> It would increase memory occupation. Sometimes the IMA policy
-> >>>> encompasses a small subset of the inodes. Allocating the full
-> >>>> integrity_iint_cache would be a waste of memory, I guess?
-> >>>
-> >>> Perhaps, but if it allows us to remove another layer of dynamic memor=
-y
-> >>> I would argue that it may be worth the cost.  It's also worth
-> >>> considering the size of integrity_iint_cache, while it isn't small, i=
+On Thu, Nov 30, 2023 at 6:13=E2=80=AFAM Mimi Zohar <zohar@linux.ibm.com> wr=
+ote:
+> On Wed, 2023-11-29 at 19:46 +0100, Roberto Sassu wrote:
+> > On 11/29/2023 6:22 PM, Paul Moore wrote:
+> > > On Wed, Nov 29, 2023 at 7:28=E2=80=AFAM Roberto Sassu wrote:
+> > >> On Mon, 2023-11-20 at 16:06 -0500, Paul Moore wrote:
+> > >>> On Mon, Nov 20, 2023 at 3:16=E2=80=AFAM Roberto Sassu wrote:
+> > >>>> On Fri, 2023-11-17 at 15:57 -0500, Paul Moore wrote:
+> > >>>>> On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wro=
+te:
+
+...
+
+> First you suggested lumping IMA and EVM together, dropping EVM
+> entirely.  Now you're suggesting making EVM dependent on IMA.  Please
+> stop.
+
+Welcome to design discussions and brainstorming where changing
+opinions and unexpected suggestions are part of the process.  When we
+are faced with difficult problems I want everyone to think creatively
+and not be afraid to adjust their thinking based on their changing
+understanding and the ongoing discussion.
+
+Asking people to stop thinking outside the status quo is not a good
+way to solve challenging problems.
+
+> EVM and IMA should remain independent of each other.
+
+A few posts back that was the goal, then Roberto mentioned EVM
+breakage when IMA was disabled so I simply asked if it was worth
+"revisit the basic idea of if it even makes sense to enable EVM
+without IMA?".  A bad answer to that question is what you provided
+above (and to be fair, we are all guilty of that at times), a good
+answer is to explain why IMA and EVM need to remain independent with
+bonus points awarded for realistic use cases that support the
+assertion of independence.
+
+> > >> Regarding the LSM order, I would take Casey's suggestion of introduc=
+ing
+> > >> LSM_ORDER_REALLY_LAST, for EVM.
+> > >
+> > > Please understand that I really dislike that we have imposed ordering
+> > > constraints at the LSM layer, but I do understand the necessity (the
+> > > BPF LSM ordering upsets me the most).  I really don't want to see us
+> > > make things worse by adding yet another ordering bucket, I would
+> > > rather that we document it well and leave it alone ... basically trea=
 t
-> >>> isn't exactly huge either.
-> >>>
-> >>>> On the other hand... (did not think fully about that) if we embed th=
-e
-> >>>> full structure in the security blob, we already have a mutex availab=
-le
-> >>>> to use, and we don't need to take the inode lock (?).
-> >>>
-> >>> That would be excellent, getting rid of a layer of locking would be s=
-ignificant.
-> >>>
-> >>>> I'm fully convinced that we can improve the implementation
-> >>>> significantly. I just was really hoping to go step by step and not
-> >>>> accumulating improvements as dependency for moving IMA and EVM to th=
-e
-> >>>> LSM infrastructure.
-> >>>
-> >>> I understand, and I agree that an iterative approach is a good idea, =
-I
-> >>> just want to make sure we keep things tidy from a user perspective,
-> >>> i.e. not exposing the "integrity" LSM when it isn't required.
-> >>
-> >> Ok, I went back to it again.
-> >>
-> >> I think trying to separate integrity metadata is premature now, too
-> >> many things at the same time.
+> > > it like the BPF LSM (grrrrrr).
 > >
-> > I'm not bothered by the size of the patchset, it is more important
-> > that we do The Right Thing.  I would like to hear in more detail why
-> > you don't think this will work, I'm not interested in hearing about
-> > difficult it may be, I'm interested in hearing about what challenges
-> > we need to solve to do this properly.
+> > Uhm, that would not be possible right away (the BPF LSM is mutable),
+> > remember that we defined LSM_ORDER_LAST so that an LSM can be always
+> > enable and placed as last (requested by Mimi)?
 >
-> The right thing in my opinion is to achieve the goal with the minimal
-> set of changes, in the most intuitive way.
+> Making EVM a full fledged LSM was contingent on two things - EVM always
+> being enabled if configured and being the last LSM.  Using capability
+> as a precedent for ordering requirement, Micka=C3=ABl suggested defining
+> LSM_ORDER_LAST, which you agreed to.   It sounds like you're
+> backtracking on an agreement.
 
-Once again, I want to stress that I don't care about the size of the
-change, the number of patches in a patchset, etc.  While it's always
-nice to be able to minimize the number of changes in a patch/patchset,
-that is secondary to making sure we are doing the right thing over the
-long term.  This is especially important when we are talking about
-things that are user visible.
+I not only agreed to LSM_ORDER_LAST, I merged the code and it is
+currently in Linus' tree.  See my last reply to Roberto; I see no
+reason to change that.  I never would have merged that code or sent it
+to Linus if I didn't feel it was necessary.
 
-> Until now, there was no solution that could achieve the primary goal of
-> this patch set (moving IMA and EVM to the LSM infrastructure) and, at
-> the same time, achieve the additional goal you set of removing the
-> 'integrity' LSM.
+I'm guessing that you misread my reply above (perhaps you missed the
+"another" in "... I really don't want to see us make things worse by
+adding yet another ordering bucket ..."), but regardless of that, I
+want to deal with your "backtracking" comment.  Similar to my comments
+above about brainstorming, I don't want people to feel that they can't
+change their mind about something.  Call it backtracking if you want
+(although that has a negative connotation for many), but I want people
+to feel free to adjust their opinions as they learn more about
+something or as the conversation evolves.  I believe this is the
+primary (only?) way for us to reach consensus on challenging problems.
 
-We need to stop thinking about the "integrity" code as a LSM, it isn't
-a LSM.  It's a vestigial implementation detail that was necessary back
-when there could only be one LSM active at a time and there was a
-desire to have IMA/EVM active in conjunction with one of the LSMs,
-i.e. Smack, SELinux, etc.
-
-IMA and EVM are (or will be) LSMs, "integrity" is not.  I recognize
-that eliminating the need for the "integrity" code is a relatively new
-addition to this effort, but that is only because I didn't properly
-understand the relationship between IMA, EVM, and the "integrity" code
-until recently.  The elimination of the shared "integrity" code is
-consistent with promoting IMA and EVM as full LSMs, if there is core
-functionality that cannot be split up into the IMA and/or EVM LSMs
-then we need to look at how to support that without exposing that
-implementation detail/hack to userspace.  Maybe that means direct
-calls between IMA and EVM, maybe that means preserving some of the
-common integrity code hidden from userspace, maybe that means adding
-functionality to the LSM layer, maybe that means something else?
-Let's think on this to come up with something that we can all accept
-as a long term solution instead of just doing the quick and easy
-option.
-
-> If you see the diff, the changes compared to v5 that was already
-> accepted by Mimi are very straightforward. If the assumption I made that
-> in the end the 'ima' LSM could take over the role of the 'integrity'
-> LSM, that for me is the preferable option.
-
-I looked at it quickly, but my workflow isn't well suited for patches
-as attachments; inline patches (the kernel standard) is preferable.
-
-> Given that the patch set is not doing any design change, but merely
-> moving calls and storing pointers elsewhere, that leaves us with the
-> option of thinking better what to do next, including like you suggested
-> to make IMA and EVM use disjoint metadata.
->
-> >> I started to think, does EVM really need integrity metadata or it can
-> >> work without?
-> >>
-> >> The fact is that CONFIG_IMA=3Dn and CONFIG_EVM=3Dy is allowed, so we h=
-ave
-> >> the same problem now. What if we make IMA the one that manages
-> >> integrity metadata, so that we can remove the 'integrity' LSM?
-> >
-> > I guess we should probably revisit the basic idea of if it even makes
-> > sense to enable EVM without IMA?  Should we update the Kconfig to
-> > require IMA when EVM is enabled?
->
-> That would be up to Mimi. Also this does not seem the main focus of the
-> patch set.
-
-Yes, it is not part of the original main focus, but it is definitely
-relevant to the discussion we are having now.  Once again, the most
-important thing to me is that we do The Right Thing for the long term
-maintenance of the code base; if that means scope creep, I've got no
-problem with that.
-
-> >> Regarding the LSM order, I would take Casey's suggestion of introducin=
-g
-> >> LSM_ORDER_REALLY_LAST, for EVM.
-> >
-> > Please understand that I really dislike that we have imposed ordering
-> > constraints at the LSM layer, but I do understand the necessity (the
-> > BPF LSM ordering upsets me the most).  I really don't want to see us
-> > make things worse by adding yet another ordering bucket, I would
-> > rather that we document it well and leave it alone ... basically treat
-> > it like the BPF LSM (grrrrrr).
->
-> Uhm, that would not be possible right away (the BPF LSM is mutable),
-> remember that we defined LSM_ORDER_LAST so that an LSM can be always
-> enable and placed as last (requested by Mimi)?
-
-To be clear, I can both dislike the bpf-always-last and LSM_ORDER_LAST
-concepts while accepting them as necessary evils.  I'm willing to
-tolerate LSM_ORDER_LAST, but I'm not currently willing to tolerate
-LSM_ORDER_REALLY_LAST; that is one step too far right now.  I brought
-up the BPF LSM simply as an example of ordering that is not enforced
-by code, but rather by documentation and convention.
+If you are uncomfortable with new, different, and changing ideas this
+may not be the right place for you.  I might suggest a career in
+politics as an alternative.
 
 --=20
 paul-moore.com
