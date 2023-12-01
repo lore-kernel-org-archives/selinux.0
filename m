@@ -1,807 +1,112 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EG5MIVP/"
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E429A
-	for <selinux@vger.kernel.org>; Fri,  1 Dec 2023 10:22:39 -0800 (PST)
-Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50bba815f30so3384358e87.2
-        for <selinux@vger.kernel.org>; Fri, 01 Dec 2023 10:22:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701454958; x=1702059758; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B1kn6C1pzlGhK7EHOdFgPgNmojNxPZea/r4tlCBQg7Y=;
-        b=EG5MIVP/e+9CwSpVFNORGRm4frAmx9SrYmxzd+PV4kJ8BzPQjfybCTHql69BBfnvak
-         ChNypiESr/l5wqdupb6JzQB9P9WoaS0aalK/sQMWG5NEQ6Rk/tuNARXNRkCRfImtCHfp
-         2dgpgqSN9m6Xvjzz46t3kCZi11Bh63lbCo6XiljJZBxmWZ8PCJQom/x2EqzPYTS4bUdj
-         4Ju4t5QTE1R/Wtce7CPuN0npqw7wjK/KZ74Hv4Ib15nd/AHcc3U1GNTomk9I/ag79pjC
-         uBg8xdFD7QS/+9ZHy5gfSscqU+/RA0t86i/GQpNO62hCqGBTE9vMiTSoZ01c2itCLxza
-         uBfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701454958; x=1702059758;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=B1kn6C1pzlGhK7EHOdFgPgNmojNxPZea/r4tlCBQg7Y=;
-        b=vM6S6V9zCUmGDwDl2Bl6UBCvuddjcjQ3AiEIByIPoqwj1g20T3m8CEBvCM9w/XsvuN
-         numRzLfMf6/EoAn81Z+Lh5CpOd3wjPvY53yQWZch7XcmZK8/n7TW9bVFBjsMvIq9wIam
-         ftFeLGcFfzk/g9NZhUAAySm1DB0l9hQrOgWZ0aiiww6mtwSgUKXApIBYiHNsjH9Yg9Ih
-         t9W5rExmrQrzos9wqECgyMDXNMXGyvn8gaINtEZJlFJPLumGw2ctcgoh7EN9UCRyseQi
-         8dTsBcrbqqJzuWnUs1ZxxnAmjJRrr96/Zjrg/yyLjZNYdmYi0J/L0KSNHPCW21Ls7y65
-         1LFw==
-X-Gm-Message-State: AOJu0Yz0FNARn1etmVoN7G3p8rV7t9oIEgeBhneTNUszw/veIzZoHvS9
-	04ORFW04mAU3FnYEmXKCnhDDswCJonBo+2/ymA6kMZKW1Q0=
-X-Google-Smtp-Source: AGHT+IEDwz5yPEo6ahjMCC8huFvwsUh9L+l+u0p2DVq12UaRX87hYIx7TdMuc/cDfrD0mlXUR4f6ow9G1O4Lott4yAk=
-X-Received: by 2002:a05:6512:1116:b0:50b:c208:720b with SMTP id
- l22-20020a056512111600b0050bc208720bmr551535lfg.60.1701454957271; Fri, 01 Dec
- 2023 10:22:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Q8uwrgZS"
+Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F7F10E4
+	for <selinux@vger.kernel.org>; Fri,  1 Dec 2023 10:55:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1701456899; bh=e1c5H6gQ9lDwVbTGoBiWnnHvVQC0hMQZF4WAzuShOY4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Q8uwrgZSIiTj/GnbpzgGOT5uJKwzSSxQNWUTboIPGtBPnrZVPQ8rg8dle1np6pzFvGPeqvMTrAzCotdq6AXl2wB92GkwNNy/LJfzNqhkte2fChlMEF8G18LzrHyfRb7JHFKoyz3RbaupSaTxel+rB5/ppuRapa7wNRgXM9HtxgR7gtd1rekCWuheruh1GBk5qbHBaR87rCQHYAkH5xpe6fP5ql8MBjNITMzd4bjmPzau0MUgA4/Zzc3Ssl7EFUU2bvSVEpxZGJ64eiSYSfMPrDA1Rg8UBWFJa47KPh54op/v3p4zY4zbQWSIz57VcmTypuaCYI/T+jPq6+SGyRWOOg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1701456899; bh=VGgq8ROJyVarPFZTyr/AaJIbB1K5YpSR5K9JojLZtvr=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=NO6uIAnDa0lugLaUXY1M6sUjST/EEyJ4PgNGXwI328OuDs4rA8nUjIPnXNQ7lgXRvLC4fkPwVsc24YPIXGOOfPf+bJqcV4drwIiHlxbGNEpBl0GOaiDQLPYv20G7tD1i38Z6rQCcqUdQuvjnsU2S+E10mMGq3jAyNN6h69RPMfjQKOj+Ezn6X0wlToIu5TutS2soGzeBbPcuHAIgYKKkdC3ZoLpaXYtcWeVLlkOWl15QT0Gj9rmlxWA0YwBGj2qP1KEYp8572wCEAFNVIy4g3N8JJkQ6Bbja6X+Ac1t6ASVCJjS9SoXWKLjyWi3EUQ4U7CUR5/42md1FRgeSuWfRLg==
+X-YMail-OSG: _feEPkkVM1nVTU50MPOVJ73Gnma0deiW437hg6rFj_57AKjMX7rH13qcJzcOyNI
+ fZ_5MvBMsaLjOErJKvZcRRg8s_VLV0iCiwA8k_NFM0rsWk02.PYhpL6APjeBLWcBk8UE2b86FM3L
+ aL_qGbXvaGkqobOhoQdMVs3EW7u7hBMW4BBlIplIR10SrI3fmB4v6MHcZa_3T7JSp1afVHS52gve
+ m.ZnSuzSuI7sCqA6qCw.OAEKwweq3DM4Wf.TtC6aZFIUFrDq6dGLj1H6cDk5Om13p8JXlh86rk4V
+ GlYFkiSMAT072JOyjGXeNTmb7DqkXsggw1de7eFeghygG3rJkvL9ELuiZ0vc5j4j6JOPV.PTzp9z
+ t_s7Kf37Mxtsn2AfeVNhY3qjF8fnE6Gqgp1.AqA5.duAvrWZ1HbPWlq7h_pTFB3pWaQQTyhKuWoZ
+ TI0YjcOuFPBY0eT_KrJkntBNj2oQUyO.x8ZRozgs4VUug6ng2DrjN8dLlSbWkE1CjH45VF5puTVg
+ srEsk1y.8i._GkTNt2QJuErmlKKCpZ1jK.EnpnYOwE7_4kyM3bsqEaMPy6DWm8dZWtQqzN.XZJLZ
+ gUgeAlAEO._6LtRkYUJqKzknmfOyqs8BucRUg4F3AXE6lHNdE_cE2u6ALMKxs2WGftHJ94T3jPRD
+ 7duZWF6V0G7ObYuQyDEy2unZcdBJf0nqRJi9_E42jA.7osqFSAUqdOjqkDtGhhvHxq29fVRm_dGN
+ 4pzXC0z4ydEnkR99ENQQyRByizan.w9MvR4IJpExbTVb0z9LaBS_79HXD9pnz.N6ILams2rHuzZa
+ EERTwYAIERuX3cVOgspWhMtkkUJRKaIMzQ.1AvKaw.dOsHB70jVJ7I2TK10KixF7He6jZO2DEOYD
+ 3q8tY3wJiJTHn_nwwO4k3wSjjczu_ZvC73V7t9HHlASf5TxfRcaHHhDgvRGjh3ZY1X9oNNp7GqGQ
+ 9X2.Vx7Gec7xwdxD_xtqX9LBGUWs6lE0W1s0DlqTpiGY8JIcwDZLfxwFunT6pR43BG2XliQWOT7h
+ _Ink6KXO6cMHvE_lQTBezen3k.ouK2K6vFgMxnHWbLzGwe08P0hB0ZSZ5rifXsTJvT3ryFImp_y8
+ .WgdU_9QBMtXnOCR8zEu8MThpJxpyfQXKsV.yIgKAk1JOM_myGH.gns5y59l17k.iAumyqX0jHoq
+ cbJvvd7yP.8zBh2nOM4hzbyDxJhPl.Het7_iL57uk5WViG8azcOR7oHIS3nAO0P3O27U2tBXuVrE
+ rA6CpM6GH49EGvcY59kXM8jb.hBCmu0haimLa5vUiFq7RwU6V1_HIncN78iENnWxiqfPtSRylghn
+ 70JNAzaeJXmOBwBJrsS9b4WvqM84CsQGvAcnrnMpaze8n6g9h3v_ciJnTZc_afdBAclpLLn68a4o
+ by5fwgPP_m09uwE_vrw8pYlS6rqahtIQoLRE7aRShrd0Bp6HdqBv5TPnO4xf3ELpWhJqPGgjxkEf
+ W0TIx0QZhvOoFpm7Q75GQ1o0NDEIomQ1drERpDZrnP9wyYxHfFcVLJB40INuQnm28fHXhx8qq8Hm
+ RljS_vVQxAdwLq.d3QYZHzNs3FKEVTEFJATfNe8xjZipd9_TnIW_g4GALqLTTX._.6GLSPgSHOLk
+ 0WxffKLXVORp59vnFozukBAZejXiMLim3Tkghj1G7iqW_dNRlMGbfXe1phlXUkghRU3VYiMXMMIW
+ f4x_1c2kxyyIgX9VfADmEg_LCsYMRLVHh.vSc7kBmjlSwV.Rt35sKLXdPJ37bLVN8cxkQd7fWQc2
+ AyLccHVy97S8pGacyEzFtV_SrR8iaOI1cblR8M9zMlg5Qv9bacEi1a1xa.Fs7uGuk6qjglYiT7mt
+ 8DcCQNrD9cPPVNx7oP8T6JJQqEWt8ONImNZPPkZxbOm.OaEJmFntjXilaxuNjzXrHNE4fSdze720
+ enP_bp3S0BYP_wvbjdarBIhVKvh2_ma6oJoZZAO.yS5ap9XlR3gwi6LROoXch.01v9HiGm633hCw
+ 0Rbtbwmp2u6gXTQwAVaS7LZ3_X1uHj.jgnzX9JD_kfwohR_sMV6rcJyRjGbUBGayNbfxzN5dBkh4
+ WM6NKAE9FCUY294JuTs2ldOs2nAm1qhYQCz4Kpe587f4ChLNYS_sssW2mqoreMvjpESbGHVfSMmi
+ sK5GlwFH2fsE1za2AyaclrHPvAyodvWir3nu758PnH5GJOrMPL8bAdqVPH2cfNOBEJvkip_ptEUH
+ riVHrC5zoV4rtwwEdC3OYwIYbnrDJEOnZBrS4U3K7rviz5l3vwlpiUd1gZJ4-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 314df4d2-9588-42e4-9861-1d5e2ca2691f
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Fri, 1 Dec 2023 18:54:59 +0000
+Received: by hermes--production-gq1-5cf8f76c44-z2sg6 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 74d77983c061dd50f267fe5c917be7ff;
+          Fri, 01 Dec 2023 18:54:57 +0000 (UTC)
+Message-ID: <660e8516-ec1b-41b4-9e04-2b9fabbe59ca@schaufler-ca.com>
+Date: Fri, 1 Dec 2023 10:54:54 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231128182152.57198-1-cgzones@googlemail.com>
-In-Reply-To: <20231128182152.57198-1-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 1 Dec 2023 13:22:25 -0500
-Message-ID: <CAP+JOzQxkgxomT-rEy=vPmpqhh+W0Xvsjbm1=UhD+nHbDC4DjA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: simplify string formatting
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
+ blob for integrity_iint_cache
+Content-Language: en-US
+To: "Dr. Greg" <greg@enjellic.com>,
+ Roberto Sassu <roberto.sassu@huaweicloud.com>
+Cc: Paul Moore <paul@paul-moore.com>, viro@zeniv.linux.org.uk,
+ brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+ neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+ jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
+ dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
+ stephen.smalley.work@gmail.com, eparis@parisplace.org, mic@digikod.net,
+ linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+ selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
+ <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
+ <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com>
+ <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
+ <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com>
+ <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com>
+ <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com>
+ <20231201010549.GA8923@wind.enjellic.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20231201010549.GA8923@wind.enjellic.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21896 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Tue, Nov 28, 2023 at 1:22=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On 11/30/2023 5:05 PM, Dr. Greg wrote:
+> A suggestion has been made in this thread that there needs to be broad
+> thinking on this issue, and by extension, other tough problems.  On
+> that note, we would be interested in any thoughts regarding the notion
+> of a long term solution for this issue being the migration of EVM to a
+> BPF based implementation?
 >
-> Simplify the string formatting helpers create_str() and
-> strs_create_and_add() by calling the GNU extension vasprintf(3), already
-> used in libsepol/cil/.  This allows to drop a redundant parameter from
-> both functions.
+> There appears to be consensus that the BPF LSM will always go last, a
+> BPF implementation would seem to address the EVM ordering issue.
 >
+> In a larger context, there have been suggestions in other LSM threads
+> that BPF is the future for doing LSM's.  Coincident with that has come
+> some disagreement about whether or not BPF embodies sufficient
+> functionality for this role.
+>
+> The EVM codebase is reasonably modest with a very limited footprint of
+> hooks that it handles.  A BPF implementation on this scale would seem
+> to go a long ways in placing BPF sufficiency concerns to rest.
+>
+> Thoughts/issues?
 
-The last line is missing a word. When I merge it, I am going to change
-it to "This allows a redundant parameter from both functions to be
-dropped."
+Converting EVM to BPF looks like a 5 to 10 year process. Creating a
+EVM design description to work from, building all the support functions
+required, then getting sufficient reviews and testing isn't going to be
+a walk in the park. That leaves out the issue of distribution of the
+EVM-BPF programs. Consider how the rush to convert kernel internals to
+Rust is progressing. EVM isn't huge, but it isn't trivial, either. Tetsuo
+had a good hard look at converting TOMOYO to BPF, and concluded that it
+wasn't practical. TOMOYO is considerably less complicated than EVM.
 
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
-> ---
->  libsepol/src/kernel_to_cil.c    | 56 ++++++++++++++---------------
->  libsepol/src/kernel_to_common.c | 62 +++++++--------------------------
->  libsepol/src/kernel_to_common.h |  8 ++---
->  libsepol/src/kernel_to_conf.c   | 60 +++++++++++++++----------------
->  4 files changed, 74 insertions(+), 112 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index 8ec79749..bcb58eee 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -45,7 +45,7 @@ static char *cond_expr_to_str(struct policydb *pdb, str=
-uct cond_expr *expr)
->         for (curr =3D expr; curr !=3D NULL; curr =3D curr->next) {
->                 if (curr->expr_type =3D=3D COND_BOOL) {
->                         char *val1 =3D pdb->p_bool_val_to_name[curr->bool=
-ean - 1];
-> -                       new_val =3D create_str("%s", 1, val1);
-> +                       new_val =3D create_str("%s", val1);
->                 } else {
->                         const char *op;
->                         uint32_t num_params;
-> @@ -79,10 +79,10 @@ static char *cond_expr_to_str(struct policydb *pdb, s=
-truct cond_expr *expr)
->                                 goto exit;
->                         }
->                         if (num_params =3D=3D 2) {
-> -                               new_val =3D create_str("(%s %s %s)", 3, o=
-p, val1, val2);
-> +                               new_val =3D create_str("(%s %s %s)", op, =
-val1, val2);
->                                 free(val2);
->                         } else {
-> -                               new_val =3D create_str("(%s %s)", 2, op, =
-val1);
-> +                               new_val =3D create_str("(%s %s)", op, val=
-1);
->                         }
->                         free(val1);
->                 }
-> @@ -178,7 +178,7 @@ static char *constraint_expr_to_str(struct policydb *=
-pdb, struct constraint_expr
->                         }
->
->                         if (curr->expr_type =3D=3D CEXPR_ATTR) {
-> -                               new_val =3D create_str("(%s %s %s)", 3, o=
-p, attr1, attr2);
-> +                               new_val =3D create_str("(%s %s %s)", op, =
-attr1, attr2);
->                         } else {
->                                 char *names =3D NULL;
->                                 if (curr->attr & CEXPR_TYPE) {
-> @@ -197,9 +197,9 @@ static char *constraint_expr_to_str(struct policydb *=
-pdb, struct constraint_expr
->                                         }
->                                 }
->                                 if (strchr(names, ' ')) {
-> -                                       new_val =3D create_str("(%s %s (%=
-s))", 3, op, attr1, names);
-> +                                       new_val =3D create_str("(%s %s (%=
-s))", op, attr1, names);
->                                 } else {
-> -                                       new_val =3D create_str("(%s %s %s=
-)", 3, op, attr1, names);
-> +                                       new_val =3D create_str("(%s %s %s=
-)", op, attr1, names);
->                                 }
->                                 free(names);
->                         }
-> @@ -232,10 +232,10 @@ static char *constraint_expr_to_str(struct policydb=
- *pdb, struct constraint_expr
->                         }
->
->                         if (num_params =3D=3D 2) {
-> -                               new_val =3D create_str("(%s %s %s)", 3, o=
-p, val1, val2);
-> +                               new_val =3D create_str("(%s %s %s)", op, =
-val1, val2);
->                                 free(val2);
->                         } else {
-> -                               new_val =3D create_str("(%s %s)", 2, op, =
-val1);
-> +                               new_val =3D create_str("(%s %s)", op, val=
-1);
->                         }
->                         free(val1);
->                 }
-> @@ -306,7 +306,7 @@ static int class_constraint_rules_to_strs(struct poli=
-cydb *pdb, char *classkey,
->                         strs =3D non_mls_list;
->                 }
->
-> -               rc =3D strs_create_and_add(strs, "(%s (%s (%s)) %s)", 4, =
-key_word, classkey, perms+1, expr);
-> +               rc =3D strs_create_and_add(strs, "(%s (%s (%s)) %s)", key=
-_word, classkey, perms+1, expr);
->                 free(expr);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -346,7 +346,7 @@ static int class_validatetrans_rules_to_strs(struct p=
-olicydb *pdb, char *classke
->                         strs =3D non_mls_list;
->                 }
->
-> -               rc =3D strs_create_and_add(strs, "(%s %s %s)", 3, key_wor=
-d, classkey, expr);
-> +               rc =3D strs_create_and_add(strs, "(%s %s %s)", key_word, =
-classkey, expr);
->                 free(expr);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -1203,7 +1203,7 @@ static int write_polcap_rules_to_cil(FILE *out, str=
-uct policydb *pdb)
->                         goto exit;
->                 }
->
-> -               rc =3D strs_create_and_add(strs, "(policycap %s)", 1, nam=
-e);
-> +               rc =3D strs_create_and_add(strs, "(policycap %s)", name);
->                 if (rc !=3D 0) {
->                         goto exit;
->                 }
-> @@ -1321,7 +1321,7 @@ static int map_boolean_to_strs(char *key, void *dat=
-a, void *args)
->
->         value =3D boolean->state ? "true" : "false";
->
-> -       return strs_create_and_add(strs, "(boolean %s %s)", 2, key, value=
-);
-> +       return strs_create_and_add(strs, "(boolean %s %s)", key, value);
->  }
->
->  static int write_boolean_decl_rules_to_cil(FILE *out, struct policydb *p=
-db)
-> @@ -1562,7 +1562,7 @@ static int write_type_attribute_sets_to_cil(FILE *o=
-ut, struct policydb *pdb)
->                 }
->
->                 rc =3D strs_create_and_add(strs, "(typeattributeset %s (%=
-s))",
-> -                                        2, name, types);
-> +                                        name, types);
->                 free(types);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -1770,7 +1770,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
-, avtab_key_t *key, avtab_dat
->                         ERR(NULL, "Failed to generate permission string")=
-;
->                         goto exit;
->                 }
-> -               rule =3D create_str("(%s %s %s (%s (%s)))", 5,
-> +               rule =3D create_str("(%s %s %s (%s (%s)))",
->                                   flavor, src, tgt, class, perms+1);
->         } else if (key->specified & AVTAB_XPERMS) {
->                 perms =3D xperms_to_str(datum->xperms);
-> @@ -1779,13 +1779,13 @@ static char *avtab_node_to_str(struct policydb *p=
-db, avtab_key_t *key, avtab_dat
->                         goto exit;
->                 }
->
-> -               rule =3D create_str("(%s %s %s (%s %s (%s)))", 6,
-> +               rule =3D create_str("(%s %s %s (%s %s (%s)))",
->                                   flavor, src, tgt, "ioctl", class, perms=
-);
->                 free(perms);
->         } else {
->                 new =3D pdb->p_type_val_to_name[data - 1];
->
-> -               rule =3D create_str("(%s %s %s %s %s)", 5, flavor, src, t=
-gt, class, new);
-> +               rule =3D create_str("(%s %s %s %s %s)", flavor, src, tgt,=
- class, new);
->         }
->
->         if (!rule) {
-> @@ -1907,7 +1907,7 @@ static int map_filename_trans_to_str(hashtab_key_t =
-key, void *data, void *arg)
->                         src =3D pdb->p_type_val_to_name[bit];
->                         rc =3D strs_create_and_add(strs,
->                                                  "(typetransition %s %s %=
-s \"%s\" %s)",
-> -                                                5, src, tgt, class, file=
-name, new);
-> +                                                src, tgt, class, filenam=
-e, new);
->                         if (rc)
->                                 return rc;
->                 }
-> @@ -1960,10 +1960,10 @@ static char *level_to_str(struct policydb *pdb, s=
-truct mls_level *level)
->
->         if (!ebitmap_is_empty(cats)) {
->                 cats_str =3D cats_ebitmap_to_str(cats, pdb->p_cat_val_to_=
-name);
-> -               level_str =3D create_str("(%s %s)", 2, sens_str, cats_str=
-);
-> +               level_str =3D create_str("(%s %s)", sens_str, cats_str);
->                 free(cats_str);
->         } else {
-> -               level_str =3D create_str("(%s)", 1, sens_str);
-> +               level_str =3D create_str("(%s)", sens_str);
->         }
->
->         return level_str;
-> @@ -1985,7 +1985,7 @@ static char *range_to_str(struct policydb *pdb, mls=
-_range_t *range)
->                 goto exit;
->         }
->
-> -       range_str =3D create_str("(%s %s)", 2, low, high);
-> +       range_str =3D create_str("(%s %s)", low, high);
->
->  exit:
->         free(low);
-> @@ -2018,7 +2018,7 @@ static int map_range_trans_to_str(hashtab_key_t key=
-, void *data, void *arg)
->                 goto exit;
->         }
->
-> -       rc =3D strs_create_and_add(strs, "(rangetransition %s %s %s %s)",=
- 4,
-> +       rc =3D strs_create_and_add(strs, "(rangetransition %s %s %s %s)",
->                                  src, tgt, class, range);
->         free(range);
->         if (rc !=3D 0) {
-> @@ -2345,7 +2345,7 @@ static int write_role_transition_rules_to_cil(FILE =
-*out, struct policydb *pdb)
->                 class =3D pdb->p_class_val_to_name[curr->tclass - 1];
->                 new =3D pdb->p_role_val_to_name[curr->new_role - 1];
->
-> -               rc =3D strs_create_and_add(strs, "(roletransition %s %s %=
-s %s)", 4,
-> +               rc =3D strs_create_and_add(strs, "(roletransition %s %s %=
-s %s)",
->                                          role, type, class, new);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -2384,7 +2384,7 @@ static int write_role_allow_rules_to_cil(FILE *out,=
- struct policydb *pdb)
->                 role =3D pdb->p_role_val_to_name[curr->role - 1];
->                 new =3D  pdb->p_role_val_to_name[curr->new_role - 1];
->
-> -               rc =3D strs_create_and_add(strs, "(roleallow %s %s)", 2, =
-role, new);
-> +               rc =3D strs_create_and_add(strs, "(roleallow %s %s)", rol=
-e, new);
->                 if (rc !=3D 0) {
->                         goto exit;
->                 }
-> @@ -2559,13 +2559,13 @@ static char *context_to_str(struct policydb *pdb,=
- struct context_struct *con)
->         if (pdb->mls) {
->                 range =3D range_to_str(pdb, &con->range);
->         } else {
-> -               range =3D create_str("(%s %s)", 2, DEFAULT_LEVEL, DEFAULT=
-_LEVEL);
-> +               range =3D create_str("(%s %s)", DEFAULT_LEVEL, DEFAULT_LE=
-VEL);
->         }
->         if (!range) {
->                 goto exit;
->         }
->
-> -       ctx =3D create_str("(%s %s %s %s)", 4, user, role, type, range);
-> +       ctx =3D create_str("(%s %s %s %s)", user, role, type, range);
->         free(range);
->
->  exit:
-> @@ -2602,7 +2602,7 @@ static int write_sid_context_rules_to_cil(FILE *out=
-, struct policydb *pdb, const
->                         goto exit;
->                 }
->
-> -               rule =3D create_str("(sidcontext %s %s)", 2, sid, ctx);
-> +               rule =3D create_str("(sidcontext %s %s)", sid, ctx);
->                 free(ctx);
->                 if (!rule) {
->                         rc =3D -1;
-> @@ -2724,10 +2724,10 @@ static int write_genfscon_rules_to_cil(FILE *out,=
- struct policydb *pdb)
->                         }
->
->                         if (file_type) {
-> -                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%s\" %s %s)", 4,
-> +                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%s\" %s %s)",
->                                                                          =
-        fstype, name, file_type, ctx);
->                         } else {
-> -                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%s\" %s)", 3,
-> +                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%s\" %s)",
->                                                                          =
-        fstype, name, ctx);
->                         }
->                         free(ctx);
-> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
-mon.c
-> index 09c08b3d..4612eef3 100644
-> --- a/libsepol/src/kernel_to_common.c
-> +++ b/libsepol/src/kernel_to_common.c
-> @@ -40,55 +40,19 @@ void sepol_printf(FILE *out, const char *fmt, ...)
->         va_end(argptr);
->  }
->
-> -__attribute__ ((format(printf, 1, 0)))
-> -static char *create_str_helper(const char *fmt, int num, va_list vargs)
-> +char *create_str(const char *fmt, ...)
->  {
-> -       va_list vargs2;
-> -       char *str =3D NULL;
-> -       char *s;
-> -       size_t len, s_len;
-> -       int i, rc;
-> -
-> -       va_copy(vargs2, vargs);
-> -
-> -       len =3D strlen(fmt) + 1; /* +1 for '\0' */
-> -
-> -       for (i=3D0; i<num; i++) {
-> -               s =3D va_arg(vargs, char *);
-> -               s_len =3D strlen(s);
-> -               len +=3D s_len > 1 ? s_len - 2 : 0; /* -2 for each %s in =
-fmt */
-> -       }
-> -
-> -       str =3D malloc(len);
-> -       if (!str) {
-> -               ERR(NULL, "Out of memory");
-> -               goto exit;
-> -       }
-> -
-> -       rc =3D vsnprintf(str, len, fmt, vargs2);
-> -       if (rc < 0 || rc >=3D (int)len) {
-> -               goto exit;
-> -       }
-> -
-> -       va_end(vargs2);
-> -
-> -       return str;
-> -
-> -exit:
-> -       free(str);
-> -       va_end(vargs2);
-> -       return NULL;
-> -}
-> -
-> -char *create_str(const char *fmt, int num, ...)
-> -{
-> -       char *str =3D NULL;
-> +       char *str;
->         va_list vargs;
-> +       int rc;
->
-> -       va_start(vargs, num);
-> -       str =3D create_str_helper(fmt, num, vargs);
-> +       va_start(vargs, fmt);
-> +       rc =3D vasprintf(&str, fmt, vargs);
->         va_end(vargs);
->
-> +       if (rc =3D=3D -1)
-> +               return NULL;
-> +
->         return str;
->  }
->
-> @@ -170,20 +134,18 @@ int strs_add(struct strs *strs, char *s)
->         return 0;
->  }
->
-> -int strs_create_and_add(struct strs *strs, const char *fmt, int num, ...=
-)
-> +int strs_create_and_add(struct strs *strs, const char *fmt, ...)
->  {
->         char *str;
->         va_list vargs;
->         int rc;
->
-> -       va_start(vargs, num);
-> -       str =3D create_str_helper(fmt, num, vargs);
-> +       va_start(vargs, fmt);
-> +       rc =3D vasprintf(&str, fmt, vargs);
->         va_end(vargs);
->
-> -       if (!str) {
-> -               rc =3D -1;
-> +       if (rc =3D=3D -1)
->                 goto exit;
-> -       }
->
->         rc =3D strs_add(strs, str);
->         if (rc !=3D 0) {
-> diff --git a/libsepol/src/kernel_to_common.h b/libsepol/src/kernel_to_com=
-mon.h
-> index 9e567eb8..3ba97dfc 100644
-> --- a/libsepol/src/kernel_to_common.h
-> +++ b/libsepol/src/kernel_to_common.h
-> @@ -87,15 +87,15 @@ void sepol_indent(FILE *out, int indent);
->  __attribute__ ((format(printf, 2, 3)))
->  void sepol_printf(FILE *out, const char *fmt, ...);
->
-> -__attribute__ ((format(printf, 1, 3)))
-> -char *create_str(const char *fmt, int num, ...);
-> +__attribute__ ((format(printf, 1, 2)))
-> +char *create_str(const char *fmt, ...);
->
->  int strs_init(struct strs **strs, size_t size);
->  void strs_destroy(struct strs **strs);
->  void strs_free_all(struct strs *strs);
->  int strs_add(struct strs *strs, char *s);
-> -__attribute__ ((format(printf, 2, 4)))
-> -int strs_create_and_add(struct strs *strs, const char *fmt, int num, ...=
-);
-> +__attribute__ ((format(printf, 2, 3)))
-> +int strs_create_and_add(struct strs *strs, const char *fmt, ...);
->  char *strs_remove_last(struct strs *strs);
->  int strs_add_at_index(struct strs *strs, char *s, size_t index);
->  char *strs_read_at_index(struct strs *strs, size_t index);
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index b5b530d6..83f46e0f 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -44,7 +44,7 @@ static char *cond_expr_to_str(struct policydb *pdb, str=
-uct cond_expr *expr)
->         for (curr =3D expr; curr !=3D NULL; curr =3D curr->next) {
->                 if (curr->expr_type =3D=3D COND_BOOL) {
->                         char *val1 =3D pdb->p_bool_val_to_name[curr->bool=
-ean - 1];
-> -                       new_val =3D create_str("%s", 1, val1);
-> +                       new_val =3D create_str("%s", val1);
->                 } else {
->                         const char *op;
->                         uint32_t num_params;
-> @@ -77,10 +77,10 @@ static char *cond_expr_to_str(struct policydb *pdb, s=
-truct cond_expr *expr)
->                                 goto exit;
->                         }
->                         if (num_params =3D=3D 2) {
-> -                               new_val =3D create_str("(%s %s %s)", 3, v=
-al1, op, val2);
-> +                               new_val =3D create_str("(%s %s %s)", val1=
-, op, val2);
->                                 free(val2);
->                         } else {
-> -                               new_val =3D create_str("%s %s", 2, op, va=
-l1);
-> +                               new_val =3D create_str("%s %s", op, val1)=
-;
->                         }
->                         free(val1);
->                 }
-> @@ -175,7 +175,7 @@ static char *constraint_expr_to_str(struct policydb *=
-pdb, struct constraint_expr
->                         }
->
->                         if (curr->expr_type =3D=3D CEXPR_ATTR) {
-> -                               new_val =3D create_str("%s %s %s", 3, att=
-r1, op, attr2);
-> +                               new_val =3D create_str("%s %s %s", attr1,=
- op, attr2);
->                         } else {
->                                 char *names =3D NULL;
->                                 if (curr->attr & CEXPR_TYPE) {
-> @@ -194,9 +194,9 @@ static char *constraint_expr_to_str(struct policydb *=
-pdb, struct constraint_expr
->                                         }
->                                 }
->                                 if (strchr(names, ' ')) {
-> -                                       new_val =3D create_str("%s %s { %=
-s }", 3, attr1, op, names);
-> +                                       new_val =3D create_str("%s %s { %=
-s }", attr1, op, names);
->                                 } else {
-> -                                       new_val =3D create_str("%s %s %s"=
-, 3, attr1, op, names);
-> +                                       new_val =3D create_str("%s %s %s"=
-, attr1, op, names);
->                                 }
->                                 free(names);
->                         }
-> @@ -228,10 +228,10 @@ static char *constraint_expr_to_str(struct policydb=
- *pdb, struct constraint_expr
->                         }
->
->                         if (num_params =3D=3D 2) {
-> -                               new_val =3D create_str("(%s %s %s)", 3, v=
-al1, op, val2);
-> +                               new_val =3D create_str("(%s %s %s)", val1=
-, op, val2);
->                                 free(val2);
->                         } else {
-> -                               new_val =3D create_str("%s (%s)", 2, op, =
-val1);
-> +                               new_val =3D create_str("%s (%s)", op, val=
-1);
->                         }
->                         free(val1);
->                 }
-> @@ -307,7 +307,7 @@ static int class_constraint_rules_to_strs(struct poli=
-cydb *pdb, char *classkey,
->                         strs =3D non_mls_list;
->                 }
->
-> -               rc =3D strs_create_and_add(strs, "%s %s %s%s%s %s;", 6,
-> +               rc =3D strs_create_and_add(strs, "%s %s %s%s%s %s;",
->                                          flavor, classkey,
->                                          perm_prefix, perms+1, perm_suffi=
-x,
->                                          expr);
-> @@ -350,7 +350,7 @@ static int class_validatetrans_rules_to_strs(struct p=
-olicydb *pdb, char *classke
->                         strs =3D non_mls_list;
->                 }
->
-> -               rc =3D strs_create_and_add(strs, "%s %s %s;", 3, flavor, =
-classkey, expr);
-> +               rc =3D strs_create_and_add(strs, "%s %s %s;", flavor, cla=
-sskey, expr);
->                 free(expr);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -834,7 +834,7 @@ static int write_sensitivity_rules_to_conf(FILE *out,=
- struct policydb *pdb)
->                                 }
->                         } else {
->                                 alias =3D sens_alias_map[j];
-> -                               sens_alias_map[j] =3D create_str("%s %s",=
- 2, alias, name);
-> +                               sens_alias_map[j] =3D create_str("%s %s",=
- alias, name);
->                                 free(alias);
->                                 if (!sens_alias_map[j]) {
->                                         rc =3D -1;
-> @@ -965,7 +965,7 @@ static int write_category_rules_to_conf(FILE *out, st=
-ruct policydb *pdb)
->                                 }
->                         } else {
->                                 alias =3D cat_alias_map[j];
-> -                               cat_alias_map[j] =3D create_str("%s %s", =
-2, alias, name);
-> +                               cat_alias_map[j] =3D create_str("%s %s", =
-alias, name);
->                                 free(alias);
->                                 if (!cat_alias_map[j]) {
->                                         rc =3D -1;
-> @@ -1186,7 +1186,7 @@ static int write_polcap_rules_to_conf(FILE *out, st=
-ruct policydb *pdb)
->                         goto exit;
->                 }
->
-> -               rc =3D strs_create_and_add(strs, "policycap %s;", 1, name=
-);
-> +               rc =3D strs_create_and_add(strs, "policycap %s;", name);
->                 if (rc !=3D 0) {
->                         goto exit;
->                 }
-> @@ -1304,7 +1304,7 @@ static int map_boolean_to_strs(char *key, void *dat=
-a, void *args)
->
->         value =3D boolean->state ? "true" : "false";
->
-> -       return strs_create_and_add(strs, "bool %s %s;", 2, key, value);
-> +       return strs_create_and_add(strs, "bool %s %s;", key, value);
->  }
->
->  static int write_boolean_decl_rules_to_conf(FILE *out, struct policydb *=
-pdb)
-> @@ -1615,7 +1615,7 @@ static int write_type_attribute_sets_to_conf(FILE *=
-out, struct policydb *pdb)
->                 }
->
->                 rc =3D strs_create_and_add(strs, "typeattribute %s %s;",
-> -                                        2, name, attrs);
-> +                                        name, attrs);
->                 free(attrs);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -1735,7 +1735,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
-, avtab_key_t *key, avtab_dat
->                         ERR(NULL, "Failed to generate permission string")=
-;
->                         goto exit;
->                 }
-> -               rule =3D create_str("%s %s %s:%s { %s };", 5,
-> +               rule =3D create_str("%s %s %s:%s { %s };",
->                                   flavor, src, tgt, class, perms+1);
->         } else if (key->specified & AVTAB_XPERMS) {
->                 permstring =3D sepol_extended_perms_to_string(datum->xper=
-ms);
-> @@ -1744,12 +1744,12 @@ static char *avtab_node_to_str(struct policydb *p=
-db, avtab_key_t *key, avtab_dat
->                         goto exit;
->                 }
->
-> -               rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, tg=
-t, class, permstring);
-> +               rule =3D create_str("%s %s %s:%s %s;", flavor, src, tgt, =
-class, permstring);
->                 free(permstring);
->         } else {
->                 new =3D pdb->p_type_val_to_name[data - 1];
->
-> -               rule =3D create_str("%s %s %s:%s %s;", 5, flavor, src, tg=
-t, class, new);
-> +               rule =3D create_str("%s %s %s:%s %s;", flavor, src, tgt, =
-class, new);
->         }
->
->         if (!rule) {
-> @@ -1871,7 +1871,7 @@ static int map_filename_trans_to_str(hashtab_key_t =
-key, void *data, void *arg)
->                         src =3D pdb->p_type_val_to_name[bit];
->                         rc =3D strs_create_and_add(strs,
->                                                  "type_transition %s %s:%=
-s %s \"%s\";",
-> -                                                5, src, tgt, class, new,=
- filename);
-> +                                                src, tgt, class, new, fi=
-lename);
->                         if (rc)
->                                 return rc;
->                 }
-> @@ -1924,10 +1924,10 @@ static char *level_to_str(struct policydb *pdb, s=
-truct mls_level *level)
->
->         if (!ebitmap_is_empty(cats)) {
->                 cats_str =3D cats_ebitmap_to_str(cats, pdb->p_cat_val_to_=
-name);
-> -               level_str =3D create_str("%s:%s", 2, sens_str, cats_str);
-> +               level_str =3D create_str("%s:%s", sens_str, cats_str);
->                 free(cats_str);
->         } else {
-> -               level_str =3D create_str("%s", 1, sens_str);
-> +               level_str =3D create_str("%s", sens_str);
->         }
->
->         return level_str;
-> @@ -1949,7 +1949,7 @@ static char *range_to_str(struct policydb *pdb, mls=
-_range_t *range)
->                 goto exit;
->         }
->
-> -       range_str =3D create_str("%s - %s", 2, low, high);
-> +       range_str =3D create_str("%s - %s", low, high);
->
->  exit:
->         free(low);
-> @@ -1982,7 +1982,7 @@ static int map_range_trans_to_str(hashtab_key_t key=
-, void *data, void *arg)
->                 goto exit;
->         }
->
-> -       rc =3D strs_create_and_add(strs, "range_transition %s %s:%s %s;",=
- 4,
-> +       rc =3D strs_create_and_add(strs, "range_transition %s %s:%s %s;",
->                                  src, tgt, class, range);
->         free(range);
->         if (rc !=3D 0) {
-> @@ -2264,7 +2264,7 @@ static int write_role_transition_rules_to_conf(FILE=
- *out, struct policydb *pdb)
->                 class =3D pdb->p_class_val_to_name[curr->tclass - 1];
->                 new =3D pdb->p_role_val_to_name[curr->new_role - 1];
->
-> -               rc =3D strs_create_and_add(strs, "role_transition %s %s:%=
-s %s;", 4,
-> +               rc =3D strs_create_and_add(strs, "role_transition %s %s:%=
-s %s;",
->                                          role, type, class, new);
->                 if (rc !=3D 0) {
->                         goto exit;
-> @@ -2303,7 +2303,7 @@ static int write_role_allow_rules_to_conf(FILE *out=
-, struct policydb *pdb)
->                 role =3D pdb->p_role_val_to_name[curr->role - 1];
->                 new =3D  pdb->p_role_val_to_name[curr->new_role - 1];
->
-> -               rc =3D strs_create_and_add(strs, "allow %s %s;", 2, role,=
- new);
-> +               rc =3D strs_create_and_add(strs, "allow %s %s;", role, ne=
-w);
->                 if (rc !=3D 0) {
->                         goto exit;
->                 }
-> @@ -2419,10 +2419,10 @@ static char *context_to_str(struct policydb *pdb,=
- struct context_struct *con)
->
->         if (pdb->mls) {
->                 range =3D range_to_str(pdb, &con->range);
-> -               ctx =3D create_str("%s:%s:%s:%s", 4, user, role, type, ra=
-nge);
-> +               ctx =3D create_str("%s:%s:%s:%s", user, role, type, range=
-);
->                 free(range);
->         } else {
-> -               ctx =3D create_str("%s:%s:%s", 3, user, role, type);
-> +               ctx =3D create_str("%s:%s:%s", user, role, type);
->         }
->
->         return ctx;
-> @@ -2458,7 +2458,7 @@ static int write_sid_context_rules_to_conf(FILE *ou=
-t, struct policydb *pdb, cons
->                         goto exit;
->                 }
->
-> -               rule =3D create_str("sid %s %s", 2, sid, ctx);
-> +               rule =3D create_str("sid %s %s", sid, ctx);
->                 free(ctx);
->                 if (!rule) {
->                         rc =3D -1;
-> @@ -2580,10 +2580,10 @@ static int write_genfscon_rules_to_conf(FILE *out=
-, struct policydb *pdb)
->                         }
->
->                         if (file_type) {
-> -                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%s\" %s %s", 4,
-> +                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%s\" %s %s",
->                                                                          =
-        fstype, name, file_type, ctx);
->                         } else {
-> -                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%s\" %s", 3,
-> +                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%s\" %s",
->                                                                          =
-        fstype, name, ctx);
->                         }
->                         free(ctx);
-> --
-> 2.43.0
->
->
