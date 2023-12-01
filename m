@@ -1,112 +1,256 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Q8uwrgZS"
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F7F10E4
-	for <selinux@vger.kernel.org>; Fri,  1 Dec 2023 10:55:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1701456899; bh=e1c5H6gQ9lDwVbTGoBiWnnHvVQC0hMQZF4WAzuShOY4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Q8uwrgZSIiTj/GnbpzgGOT5uJKwzSSxQNWUTboIPGtBPnrZVPQ8rg8dle1np6pzFvGPeqvMTrAzCotdq6AXl2wB92GkwNNy/LJfzNqhkte2fChlMEF8G18LzrHyfRb7JHFKoyz3RbaupSaTxel+rB5/ppuRapa7wNRgXM9HtxgR7gtd1rekCWuheruh1GBk5qbHBaR87rCQHYAkH5xpe6fP5ql8MBjNITMzd4bjmPzau0MUgA4/Zzc3Ssl7EFUU2bvSVEpxZGJ64eiSYSfMPrDA1Rg8UBWFJa47KPh54op/v3p4zY4zbQWSIz57VcmTypuaCYI/T+jPq6+SGyRWOOg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1701456899; bh=VGgq8ROJyVarPFZTyr/AaJIbB1K5YpSR5K9JojLZtvr=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=NO6uIAnDa0lugLaUXY1M6sUjST/EEyJ4PgNGXwI328OuDs4rA8nUjIPnXNQ7lgXRvLC4fkPwVsc24YPIXGOOfPf+bJqcV4drwIiHlxbGNEpBl0GOaiDQLPYv20G7tD1i38Z6rQCcqUdQuvjnsU2S+E10mMGq3jAyNN6h69RPMfjQKOj+Ezn6X0wlToIu5TutS2soGzeBbPcuHAIgYKKkdC3ZoLpaXYtcWeVLlkOWl15QT0Gj9rmlxWA0YwBGj2qP1KEYp8572wCEAFNVIy4g3N8JJkQ6Bbja6X+Ac1t6ASVCJjS9SoXWKLjyWi3EUQ4U7CUR5/42md1FRgeSuWfRLg==
-X-YMail-OSG: _feEPkkVM1nVTU50MPOVJ73Gnma0deiW437hg6rFj_57AKjMX7rH13qcJzcOyNI
- fZ_5MvBMsaLjOErJKvZcRRg8s_VLV0iCiwA8k_NFM0rsWk02.PYhpL6APjeBLWcBk8UE2b86FM3L
- aL_qGbXvaGkqobOhoQdMVs3EW7u7hBMW4BBlIplIR10SrI3fmB4v6MHcZa_3T7JSp1afVHS52gve
- m.ZnSuzSuI7sCqA6qCw.OAEKwweq3DM4Wf.TtC6aZFIUFrDq6dGLj1H6cDk5Om13p8JXlh86rk4V
- GlYFkiSMAT072JOyjGXeNTmb7DqkXsggw1de7eFeghygG3rJkvL9ELuiZ0vc5j4j6JOPV.PTzp9z
- t_s7Kf37Mxtsn2AfeVNhY3qjF8fnE6Gqgp1.AqA5.duAvrWZ1HbPWlq7h_pTFB3pWaQQTyhKuWoZ
- TI0YjcOuFPBY0eT_KrJkntBNj2oQUyO.x8ZRozgs4VUug6ng2DrjN8dLlSbWkE1CjH45VF5puTVg
- srEsk1y.8i._GkTNt2QJuErmlKKCpZ1jK.EnpnYOwE7_4kyM3bsqEaMPy6DWm8dZWtQqzN.XZJLZ
- gUgeAlAEO._6LtRkYUJqKzknmfOyqs8BucRUg4F3AXE6lHNdE_cE2u6ALMKxs2WGftHJ94T3jPRD
- 7duZWF6V0G7ObYuQyDEy2unZcdBJf0nqRJi9_E42jA.7osqFSAUqdOjqkDtGhhvHxq29fVRm_dGN
- 4pzXC0z4ydEnkR99ENQQyRByizan.w9MvR4IJpExbTVb0z9LaBS_79HXD9pnz.N6ILams2rHuzZa
- EERTwYAIERuX3cVOgspWhMtkkUJRKaIMzQ.1AvKaw.dOsHB70jVJ7I2TK10KixF7He6jZO2DEOYD
- 3q8tY3wJiJTHn_nwwO4k3wSjjczu_ZvC73V7t9HHlASf5TxfRcaHHhDgvRGjh3ZY1X9oNNp7GqGQ
- 9X2.Vx7Gec7xwdxD_xtqX9LBGUWs6lE0W1s0DlqTpiGY8JIcwDZLfxwFunT6pR43BG2XliQWOT7h
- _Ink6KXO6cMHvE_lQTBezen3k.ouK2K6vFgMxnHWbLzGwe08P0hB0ZSZ5rifXsTJvT3ryFImp_y8
- .WgdU_9QBMtXnOCR8zEu8MThpJxpyfQXKsV.yIgKAk1JOM_myGH.gns5y59l17k.iAumyqX0jHoq
- cbJvvd7yP.8zBh2nOM4hzbyDxJhPl.Het7_iL57uk5WViG8azcOR7oHIS3nAO0P3O27U2tBXuVrE
- rA6CpM6GH49EGvcY59kXM8jb.hBCmu0haimLa5vUiFq7RwU6V1_HIncN78iENnWxiqfPtSRylghn
- 70JNAzaeJXmOBwBJrsS9b4WvqM84CsQGvAcnrnMpaze8n6g9h3v_ciJnTZc_afdBAclpLLn68a4o
- by5fwgPP_m09uwE_vrw8pYlS6rqahtIQoLRE7aRShrd0Bp6HdqBv5TPnO4xf3ELpWhJqPGgjxkEf
- W0TIx0QZhvOoFpm7Q75GQ1o0NDEIomQ1drERpDZrnP9wyYxHfFcVLJB40INuQnm28fHXhx8qq8Hm
- RljS_vVQxAdwLq.d3QYZHzNs3FKEVTEFJATfNe8xjZipd9_TnIW_g4GALqLTTX._.6GLSPgSHOLk
- 0WxffKLXVORp59vnFozukBAZejXiMLim3Tkghj1G7iqW_dNRlMGbfXe1phlXUkghRU3VYiMXMMIW
- f4x_1c2kxyyIgX9VfADmEg_LCsYMRLVHh.vSc7kBmjlSwV.Rt35sKLXdPJ37bLVN8cxkQd7fWQc2
- AyLccHVy97S8pGacyEzFtV_SrR8iaOI1cblR8M9zMlg5Qv9bacEi1a1xa.Fs7uGuk6qjglYiT7mt
- 8DcCQNrD9cPPVNx7oP8T6JJQqEWt8ONImNZPPkZxbOm.OaEJmFntjXilaxuNjzXrHNE4fSdze720
- enP_bp3S0BYP_wvbjdarBIhVKvh2_ma6oJoZZAO.yS5ap9XlR3gwi6LROoXch.01v9HiGm633hCw
- 0Rbtbwmp2u6gXTQwAVaS7LZ3_X1uHj.jgnzX9JD_kfwohR_sMV6rcJyRjGbUBGayNbfxzN5dBkh4
- WM6NKAE9FCUY294JuTs2ldOs2nAm1qhYQCz4Kpe587f4ChLNYS_sssW2mqoreMvjpESbGHVfSMmi
- sK5GlwFH2fsE1za2AyaclrHPvAyodvWir3nu758PnH5GJOrMPL8bAdqVPH2cfNOBEJvkip_ptEUH
- riVHrC5zoV4rtwwEdC3OYwIYbnrDJEOnZBrS4U3K7rviz5l3vwlpiUd1gZJ4-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 314df4d2-9588-42e4-9861-1d5e2ca2691f
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Fri, 1 Dec 2023 18:54:59 +0000
-Received: by hermes--production-gq1-5cf8f76c44-z2sg6 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 74d77983c061dd50f267fe5c917be7ff;
-          Fri, 01 Dec 2023 18:54:57 +0000 (UTC)
-Message-ID: <660e8516-ec1b-41b4-9e04-2b9fabbe59ca@schaufler-ca.com>
-Date: Fri, 1 Dec 2023 10:54:54 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F0KZq7If"
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5554D6C
+	for <selinux@vger.kernel.org>; Fri,  1 Dec 2023 11:52:31 -0800 (PST)
+Received: by mail-lf1-x12d.google.com with SMTP id 2adb3069b0e04-50bd4fcbde1so2373243e87.1
+        for <selinux@vger.kernel.org>; Fri, 01 Dec 2023 11:52:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1701460350; x=1702065150; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=woeD0Ey2nNjk0otcADO9sJIgc1KsQcPfQYdY/xOg0Zg=;
+        b=F0KZq7IfEmLyDkSpSDryHPkY7Y426Kj2fv6Z216Y7ykJmPwbF+V8kGv+vI/KJ3fPvs
+         IizyqN/0OzQv9Ipf5OxHt8sq1PPfJBTBG805qGvb//MbkgHTsAz47r71c+AYGm5O3maR
+         guyC/xRoy1LabBMCmjKsJV3D1xkniuB0U1SumMF8tFAifmxRXWgBzkHWok+UyV+qW2Bn
+         nc5DuGe/3HlsAQLDRJD8CFPmUCeOfqbpLtVtd52ntqXERXiWy5Cxx9PV4feONpDVgkr9
+         T6uo+3Suj5I22V6WpNKgJoKS7YCGBTif5UZswYh+160L0DStPB7cY4BxaJ8gWXLAaJBW
+         tHlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701460350; x=1702065150;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=woeD0Ey2nNjk0otcADO9sJIgc1KsQcPfQYdY/xOg0Zg=;
+        b=Ur7mCvSRuzbyPmZN/w8jipnR9npxok2c62dYWuwOLbBmxvM9IFalB3c2izf+5K+V3y
+         +zZXX/T2hMIWtXmdaLyAd6bDceFbhAH8yC3ieeK0s9X31BYSjFJd4FtY9wn2PkVCeDpM
+         F8durXUfVFA+aXjacBXPpsiXa2Jw+BVkE/dqJ4Oxio9FmUwdCLhWoir8eCQ97nwFTp5n
+         HuKxDdcZVCoCwN7U1oyWmayJrqB5MOV+MuF9N6NUXPC8IKl8tpu8D+z7l8MO912sqnbP
+         OuLOG5suY+cqQ7F/BFon6Sf9V70UEjUEKUIHDEFsmYRoTwKinlpc6kC1hFlx6UmV9Q5G
+         hUww==
+X-Gm-Message-State: AOJu0YwAgiiDNYeeKMIJo3ni+1xl0ZiyfmdcDPS2wcJV+F0IxPsSQSci
+	7eg9mr6aRiCkZKTJX7hmxaVciSfkoGLzogFWMFg=
+X-Google-Smtp-Source: AGHT+IHCjOU+q994QCbZZMPDT6p8ksZjWvVWbT+dG9ZVEX0WhT+nsRTc/1O5CAZwEmzqISwcZwwe3OzmYV7hx4yhfrk=
+X-Received: by 2002:ac2:5589:0:b0:50b:bb8f:eb77 with SMTP id
+ v9-20020ac25589000000b0050bbb8feb77mr991617lfg.45.1701460349728; Fri, 01 Dec
+ 2023 11:52:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
- blob for integrity_iint_cache
-Content-Language: en-US
-To: "Dr. Greg" <greg@enjellic.com>,
- Roberto Sassu <roberto.sassu@huaweicloud.com>
-Cc: Paul Moore <paul@paul-moore.com>, viro@zeniv.linux.org.uk,
- brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
- neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
- jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
- dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
- stephen.smalley.work@gmail.com, eparis@parisplace.org, mic@digikod.net,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
- selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
- <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
- <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com>
- <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
- <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com>
- <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com>
- <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com>
- <20231201010549.GA8923@wind.enjellic.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20231201010549.GA8923@wind.enjellic.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21896 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20231128182334.57740-1-cgzones@googlemail.com> <20231128182334.57740-4-cgzones@googlemail.com>
+In-Reply-To: <20231128182334.57740-4-cgzones@googlemail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 1 Dec 2023 14:52:18 -0500
+Message-ID: <CAP+JOzTieqd0d=PO3xV6DPv8W-r+2Kg5bh48mneHyziTveNNYw@mail.gmail.com>
+Subject: Re: [PATCH 4/7] checkpolicy/dispol: misc updates
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 11/30/2023 5:05 PM, Dr. Greg wrote:
-> A suggestion has been made in this thread that there needs to be broad
-> thinking on this issue, and by extension, other tough problems.  On
-> that note, we would be interested in any thoughts regarding the notion
-> of a long term solution for this issue being the migration of EVM to a
-> BPF based implementation?
+On Tue, Nov 28, 2023 at 1:23=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> There appears to be consensus that the BPF LSM will always go last, a
-> BPF implementation would seem to address the EVM ordering issue.
+> * add option to display users
+> * drop duplicate option to display booleans
+> * show number of entries before listing them
+> * drop global variable
 >
-> In a larger context, there have been suggestions in other LSM threads
-> that BPF is the future for doing LSM's.  Coincident with that has come
-> some disagreement about whether or not BPF embodies sufficient
-> functionality for this role.
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  checkpolicy/test/dispol.c | 53 +++++++++++++++++++++------------------
+>  1 file changed, 28 insertions(+), 25 deletions(-)
 >
-> The EVM codebase is reasonably modest with a very limited footprint of
-> hooks that it handles.  A BPF implementation on this scale would seem
-> to go a long ways in placing BPF sufficiency concerns to rest.
+> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> index 944ef7ec..02cb9499 100644
+> --- a/checkpolicy/test/dispol.c
+> +++ b/checkpolicy/test/dispol.c
+> @@ -33,9 +33,7 @@
+>  #include <stdio.h>
+>  #include <fcntl.h>
 >
-> Thoughts/issues?
+> -static policydb_t policydb;
+> -
+> -static struct command {
+> +static const struct command {
+>         enum {
+>                 EOL    =3D 0,
+>                 HEADER =3D 1,
+> @@ -50,7 +48,6 @@ static struct command {
+>         {CMD,       '2',  "display conditional AVTAB (entirely)"},
+>         {CMD,       '3',  "display conditional AVTAB (only ENABLED rules)=
+"},
+>         {CMD,       '4',  "display conditional AVTAB (only DISABLED rules=
+)"},
+> -       {CMD,       '5',  "display conditional bools"},
 
-Converting EVM to BPF looks like a 5 to 10 year process. Creating a
-EVM design description to work from, building all the support functions
-required, then getting sufficient reviews and testing isn't going to be
-a walk in the park. That leaves out the issue of distribution of the
-EVM-BPF programs. Consider how the rush to convert kernel internals to
-Rust is progressing. EVM isn't huge, but it isn't trivial, either. Tetsuo
-had a good hard look at converting TOMOYO to BPF, and concluded that it
-wasn't practical. TOMOYO is considerably less complicated than EVM.
+This command is older than 'b'.
+I would like to keep it, but with it saying "display booleans" like
+below and calling the display_booleans() function like below.
+If there is something else that would use '5', that would be fine. It
+just seems weird to skip a number.
 
+Thanks,
+Jim
+
+>         {CMD,       '6',  "display conditional expressions"},
+>         {CMD|NOOPT, '7',  "change a boolean value"},
+>         {CMD,       '8',  "display role transitions"},
+> @@ -58,11 +55,12 @@ static struct command {
+>         {CMD,       'c',  "display policy capabilities"},
+>         {CMD,       'b',  "display booleans"},
+>         {CMD,       'C',  "display classes"},
+> +       {CMD,       'u',  "display users"},
+>         {CMD,       'r',  "display roles"},
+>         {CMD,       't',  "display types"},
+>         {CMD,       'a',  "display type attributes"},
+>         {CMD,       'p',  "display the list of permissive types"},
+> -       {CMD,       'u',  "display unknown handling setting"},
+> +       {CMD,       'U',  "display unknown handling setting"},
+>         {CMD,       'F',  "display filename_trans rules"},
+>         {HEADER, 0, ""},
+>         {CMD|NOOPT, 'f',  "set output file"},
+> @@ -234,17 +232,6 @@ static int display_avtab(avtab_t * a, uint32_t what,=
+ policydb_t * p, FILE * fp)
+>         return 0;
+>  }
+>
+> -static int display_bools(policydb_t * p, FILE * fp)
+> -{
+> -       unsigned int i;
+> -
+> -       for (i =3D 0; i < p->p_bools.nprim; i++) {
+> -               fprintf(fp, "%s : %d\n", p->p_bool_val_to_name[i],
+> -                       p->bool_val_to_struct[i]->state);
+> -       }
+> -       return 0;
+> -}
+> -
+>  static void display_expr(policydb_t * p, cond_expr_t * exp, FILE * fp)
+>  {
+>
+> @@ -313,6 +300,8 @@ static int display_handle_unknown(policydb_t * p, FIL=
+E * out_fp)
+>                 fprintf(out_fp, "Deny unknown classes and permissions\n")=
+;
+>         else if (p->handle_unknown =3D=3D REJECT_UNKNOWN)
+>                 fprintf(out_fp, "Reject unknown classes and permissions\n=
+");
+> +       else
+> +               fprintf(out_fp, "<INVALID SETTING!>\n");
+>         return 0;
+>  }
+>
+> @@ -334,7 +323,7 @@ static int display_booleans(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "booleans:\n");
+> +       fprintf(fp, "booleans (#%u):\n", p->p_bools.table->nel);
+>         for (i =3D 0; i < p->p_bools.nprim; i++) {
+>                 fprintf(fp, "\t%s : %d\n", p->p_bool_val_to_name[i],
+>                         p->bool_val_to_struct[i]->state);
+> @@ -364,7 +353,7 @@ static int display_classes(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "classes:\n");
+> +       fprintf(fp, "classes (#%u):\n", p->p_classes.table->nel);
+>         for (i =3D 0; i < p->p_classes.nprim; i++) {
+>                 if (!p->p_class_val_to_name[i])
+>                         continue;
+> @@ -386,7 +375,7 @@ static void display_permissive(policydb_t *p, FILE *f=
+p)
+>         ebitmap_node_t *node;
+>         unsigned int i;
+>
+> -       fprintf(fp, "permissive sids:\n");
+> +       fprintf(fp, "permissive sids (#%u):\n", ebitmap_cardinality(&p->p=
+ermissive_map));
+>         ebitmap_for_each_positive_bit(&p->permissive_map, node, i) {
+>                 fprintf(fp, "\t");
+>                 display_id(p, fp, SYM_TYPES, i - 1, "");
+> @@ -394,11 +383,25 @@ static void display_permissive(policydb_t *p, FILE =
+*fp)
+>         }
+>  }
+>
+> +static int display_users(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "users (#%u):\n", p->p_users.table->nel);
+> +       for (i =3D 0; i < p->p_users.nprim; i++) {
+> +               if (!p->p_user_val_to_name[i])
+> +                       continue;
+> +
+> +               fprintf(fp, "\t%s\n", p->p_user_val_to_name[i]);
+> +       }
+> +       return 0;
+> +}
+> +
+>  static int display_roles(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "roles:\n");
+> +       fprintf(fp, "roles (#%u):\n", p->p_roles.table->nel);
+>         for (i =3D 0; i < p->p_roles.nprim; i++) {
+>                 if (!p->p_role_val_to_name[i])
+>                         continue;
+> @@ -412,7 +415,7 @@ static int display_types(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "types:\n");
+> +       fprintf(fp, "types (out of #%u):\n", p->p_types.table->nel);
+>         for (i =3D 0; i < p->p_types.nprim; i++) {
+>                 if (!p->p_type_val_to_name[i])
+>                         continue;
+> @@ -429,7 +432,7 @@ static int display_attributes(policydb_t * p, FILE *f=
+p)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "attributes:\n");
+> +       fprintf(fp, "attributes (out of #%u):\n", p->p_types.table->nel);
+>         for (i =3D 0; i < p->p_types.nprim; i++) {
+>                 if (!p->p_type_val_to_name[i])
+>                         continue;
+> @@ -522,6 +525,7 @@ int main(int argc, char **argv)
+>         char *name;
+>         int state;
+>         struct policy_file pf;
+> +       policydb_t policydb;
+>
+>         if (argc < 2 || strcmp(argv[1], "-h") =3D=3D 0 || strcmp(argv[1],=
+ "--help") =3D=3D 0)
+>                 usage(argv[0]);
+> @@ -616,9 +620,6 @@ int main(int argc, char **argv)
+>                         display_avtab(&policydb.te_cond_avtab, RENDER_DIS=
+ABLED,
+>                                       &policydb, out_fp);
+>                         break;
+> -               case '5':
+> -                       display_bools(&policydb, out_fp);
+> -                       break;
+>                 case '6':
+>                         display_cond_expressions(&policydb, out_fp);
+>                         break;
+> @@ -678,6 +679,8 @@ int main(int argc, char **argv)
+>                         display_types(&policydb, out_fp);
+>                         break;
+>                 case 'u':
+> +                       display_users(&policydb, out_fp);
+> +                       break;
+>                 case 'U':
+>                         display_handle_unknown(&policydb, out_fp);
+>                         break;
+> --
+> 2.43.0
+>
+>
