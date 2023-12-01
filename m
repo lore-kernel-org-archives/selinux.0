@@ -1,112 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DqPk25TI"
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D76F10C2
-	for <selinux@vger.kernel.org>; Fri,  1 Dec 2023 11:53:11 -0800 (PST)
-Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50bc501081fso3733718e87.1
-        for <selinux@vger.kernel.org>; Fri, 01 Dec 2023 11:53:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701460389; x=1702065189; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=n+8FeZzXeBazpSVRAdPhvvU2U5XJa5OZkBDnxgtiTpU=;
-        b=DqPk25TIIgbt44UE0r015Fzv5S7G18lA9X1JfhhN2zWGA0LgQLOLb/fr2CE5aIPHKP
-         qyi1aIurXYrX4AsR2YBJkZH6SxkPZ0SStYPRXSnmFAw1AseZXZ4Dv7mICpygSCkS+zlq
-         iaM0v32okdIQBQrxCA3SP4gV2ai//v9TwOxSOwapqerIJdesHsIuhaU/peGONAl72ikR
-         9GN0MQjjhl38lbjiVT/KMiK8XqavsFejXamWfO3Vzkk4M8fBD53yd0NIDJQYt+ep91uq
-         tGpcvIoAaSO/RxG5QX64e0MFSQFGpEAPMdzhgq3xFhUS3wcSYCIVBd+6nfRD2k/rqSO6
-         cGTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701460389; x=1702065189;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n+8FeZzXeBazpSVRAdPhvvU2U5XJa5OZkBDnxgtiTpU=;
-        b=ccLPkS67BM51ALApqdBQJVwrRWIzTSZpbqzWHGcs+D4gzI3QGbpJY76Nz2EY0WkQgy
-         s1frsT7FwpcAfZIvrWUqstZWPhimtdYEDnEkxdpISsg1GlcZQ160STmmU5TfSmgi+an3
-         MYgpWdT5gEqMC0B7RX0sUSzqeeC4c5T46mBiMKl36+nWJTlru/+wqcaVRnFxmtYe69Rf
-         r+16uOHX2SuTSWZfDuY4TPBX4EWRwhIFTFbv1CTYgeLCnr6zO+jdrBnq4RRj+FFBKp/s
-         /ypWUJby9kT/129uorUTiRwS1TbyqJvaEt0XNzpAkhHIYbFk8dpzPe+B5bMJ7KdgTpQI
-         cq+g==
-X-Gm-Message-State: AOJu0YyoKJZGa3tMITHchwFURrH+fPLEpov9UI52HBdB5MX2/dwEHcia
-	Fx1JpJTg4TeNXE7tNerQJZWq59RMR76rHwh3wf1bjW4UUeA=
-X-Google-Smtp-Source: AGHT+IFj1wHauzx1OdzD4uFH1O0w8Jrc1OCDDqPAhOzcPVewZXgb9/17sHVYxcAwixfdCZRYPt4Uyg+OX/9m+g9rQzE=
-X-Received: by 2002:a19:7016:0:b0:50b:d763:fe49 with SMTP id
- h22-20020a197016000000b0050bd763fe49mr1140509lfc.100.1701460389151; Fri, 01
- Dec 2023 11:53:09 -0800 (PST)
+Received: from wind.enjellic.com (wind.enjellic.com [76.10.64.91])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTP id A186B9A;
+	Fri,  1 Dec 2023 15:54:50 -0800 (PST)
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+	by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id 3B1NrZqS019545;
+	Fri, 1 Dec 2023 17:53:35 -0600
+Received: (from greg@localhost)
+	by wind.enjellic.com (8.15.2/8.15.2/Submit) id 3B1NrW9C019544;
+	Fri, 1 Dec 2023 17:53:32 -0600
+Date: Fri, 1 Dec 2023 17:53:32 -0600
+From: "Dr. Greg" <greg@enjellic.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        Paul Moore <paul@paul-moore.com>, viro@zeniv.linux.org.uk,
+        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+        jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
+        dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org, mic@digikod.net,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed blob for integrity_iint_cache
+Message-ID: <20231201235332.GA19345@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com> <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com> <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com> <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com> <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com> <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com> <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com> <20231201010549.GA8923@wind.enjellic.com> <660e8516-ec1b-41b4-9e04-2b9fabbe59ca@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20231128182334.57740-1-cgzones@googlemail.com>
-In-Reply-To: <20231128182334.57740-1-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 1 Dec 2023 14:52:57 -0500
-Message-ID: <CAP+JOzTv8z-KNJ28iqNddSp3rajQi8X8RmLoO-2by+Xv=_RvUQ@mail.gmail.com>
-Subject: Re: [PATCH 1/7] libsepol: validate conditional type rules have a
- simple default type
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <660e8516-ec1b-41b4-9e04-2b9fabbe59ca@schaufler-ca.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Fri, 01 Dec 2023 17:53:35 -0600 (CST)
 
-On Tue, Nov 28, 2023 at 1:23=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Similar to unconditional avtab keys check the default type of type av
-> rules are a simple type, not an attribute.
-> Since extended permission rules are not allowed in conditional policies
-> this check does not need to be performed.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On Fri, Dec 01, 2023 at 10:54:54AM -0800, Casey Schaufler wrote:
 
-For every patch except for patch 4.
-Acked-by: James Carter <jwcart2@gmail.com>
+Good evening Casey, thanks for taking the time to respond.
 
-> ---
->  libsepol/src/policydb_validate.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index 8b87675f..c2f19fa0 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -885,14 +885,21 @@ static int validate_cond_av_list(sepol_handle_t *ha=
-ndle, const cond_av_list_t *c
->
->         for (; cond_av; cond_av =3D cond_av->next) {
->                 for (avtab_ptr =3D cond_av->node; avtab_ptr; avtab_ptr =
-=3D avtab_ptr->next) {
-> -                       if (validate_avtab_key(&avtab_ptr->key, 1, p, fla=
-vors)) {
-> -                               ERR(handle, "Invalid cond av list");
-> -                               return -1;
-> -                       }
-> +                       const avtab_key_t *key =3D &avtab_ptr->key;
-> +                       const avtab_datum_t *datum =3D &avtab_ptr->datum;
-> +
-> +                       if (validate_avtab_key(key, 1, p, flavors))
-> +                               goto bad;
-> +                       if ((key->specified & AVTAB_TYPE) && validate_sim=
-pletype(datum->data, p, flavors))
-> +                               goto bad;
->                 }
->         }
->
->         return 0;
-> +
-> +bad:
-> +       ERR(handle, "Invalid cond av list");
-> +       return -1;
->  }
->
->  static int validate_avrules(sepol_handle_t *handle, const avrule_t *avru=
-le, int conditional, const policydb_t *p, validate_t flavors[])
-> --
-> 2.43.0
->
->
+> On 11/30/2023 5:05 PM, Dr. Greg wrote:
+> > A suggestion has been made in this thread that there needs to be broad
+> > thinking on this issue, and by extension, other tough problems.  On
+> > that note, we would be interested in any thoughts regarding the notion
+> > of a long term solution for this issue being the migration of EVM to a
+> > BPF based implementation?
+> >
+> > There appears to be consensus that the BPF LSM will always go last, a
+> > BPF implementation would seem to address the EVM ordering issue.
+> >
+> > In a larger context, there have been suggestions in other LSM threads
+> > that BPF is the future for doing LSM's.  Coincident with that has come
+> > some disagreement about whether or not BPF embodies sufficient
+> > functionality for this role.
+> >
+> > The EVM codebase is reasonably modest with a very limited footprint of
+> > hooks that it handles.  A BPF implementation on this scale would seem
+> > to go a long ways in placing BPF sufficiency concerns to rest.
+> >
+> > Thoughts/issues?
+
+> Converting EVM to BPF looks like a 5 to 10 year process. Creating a
+> EVM design description to work from, building all the support functions
+> required, then getting sufficient reviews and testing isn't going to be
+> a walk in the park. That leaves out the issue of distribution of the
+> EVM-BPF programs. Consider how the rush to convert kernel internals to
+> Rust is progressing. EVM isn't huge, but it isn't trivial, either. Tetsuo
+> had a good hard look at converting TOMOYO to BPF, and concluded that it
+> wasn't practical. TOMOYO is considerably less complicated than EVM.
+
+Interesting, thanks for the reflections.
+
+On a functional line basis, EVM is 14% of the TOMOYO codebase, not
+counting the IMA code.
+
+Given your observations, one would than presume around a decade of
+development effort to deliver a full featured LSM, ie. SELINUX, SMACK,
+APPARMOR, TOMOYO in BPF form.
+
+Very useful information, we can now return the thread to what appears
+is going to be the vexing implementation of:
+
+lsm_set_order(LSM_ORDER_FU_I_REALLY_AM_GOING_TO_BE_THE_LAST_ONE_TO_RUN);
+
+:-)
+
+Have a good weekend.
+
+As always,
+Dr. Greg
+
+The Quixote Project - Flailing at the Travails of Cybersecurity
