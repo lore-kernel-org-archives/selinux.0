@@ -1,189 +1,193 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="uk1c/sx4"
-Received: from sonic315-27.consmr.mail.ne1.yahoo.com (sonic315-27.consmr.mail.ne1.yahoo.com [66.163.190.153])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F168196
-	for <selinux@vger.kernel.org>; Thu, 30 Nov 2023 16:12:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1701389542; bh=xhpnZHCnAPwebcdq5u2/z1zNCyM218vVIFWrLGdQofo=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=uk1c/sx4nYvNXQT6GNvumrPi1VUpwwwI64fUy0PFA7x0Z+as2UOYOTFtqFm4OIQUEHhlA/6va5Fkjsz+OBtBQGKHVG3wgsnlI2b+mUx//AoKbvN8WUtZDEMLTpDTKVaQtLgbWJX5cc2Vnqa0qVBvdDHK/sJelQ0gzAd338U8EYzk/Hu9Th/jKuWaurtem2faCYW3CrxVIkClp/U/uM8QK/x6LhFFdz3gUxvPSL399smsy5j9s4vVloHBd2z10+4J8HzgFndFVRKDyXhsIfKErFItwRzVKrnUllWlBcEJSXq5nw/Yg32Feyi0dXzE5t0cDf0ZgMYxlfelAbTDNDV3ew==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1701389542; bh=yZxo7Q5UvMeSZ2QpjVAvCN5ts3XebtrTdq+s0IjXmVm=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Z8DVEiY8jMr3d/h24e6mhgq7+L0O2HP1Osp+42SSXKu21xe1hukgqKIJjm2L0DN13UX0U1rXU1L5n5iZX8O0Yv5DLxyRQrZhYOK0MMdxqvXZTxb5uMq/daw2w1Tp/qfVKV5D8FZByX6OpzkfAr6lHPxu2psQlWaaZAmgCpZRgJrjDVQJyeDaDl7ftNhNLKBeNmFdAck954C8tu5RudIJ62JuU1oZRsgnl430NySYfsIySiWeY4y8+Q76hLPi2Y40s5fGYKv7SWKwCB2W1trJhsSC8AAhIIGN+oxdiKq+TsiexN86i1cizUWi5LeyhtDE+jQYpNBOBtubLrdBbSYwDw==
-X-YMail-OSG: RDNnMhQVM1kOan0f0_bwS9_dJOExj1MVrvJF2PHokCd8Os9fgxQ9AqkXr6YG3L8
- yNrMjyay7fRiC96wvOU1kE1ZqnXx_jpAYgBWpoco_c6LMShWz_nADO.4g_5hWZVuYFUfnCkznQ3h
- hcuhbNlrshJ64cp0lKUy.q4xrng0AJfvEjwZjQf3YDjsQ.lANUAOHwRqJtxQ_PAaPe.4LoVzWUzQ
- HW6tivEruOaWiNX6qIXh54d9b_NVEhazQCWcFGaash7lRV78_awbdYVzBL6qD9N.PMgX0mf73YVC
- gmiTmFtswxwIIDyMzFYyMN4KJfB1L8ERhQY5.QpedR6O7Ato35mbqD7wWYSSTuuIOYyVEDG3keJV
- uaxP74RQ_FEImlZsY4r6Mexh7hLeOTF_B1C4fBjpiAxm8kbe5kVIszKeIOHFh1fb1nHFGWXzu3ZE
- ExAIvqdySSWYH97Qdrditzmj6RsLYPzr5dK9zqJ6vXM8TAyjOVInce6ZOyWH6wswtBg9Qfo2nONM
- gfLdFXlYFq3u5yTB.ErO3YhJB1T4NmRYUTwNxHedsVTzCZ5DEO98.ybDA71cdTVFkVvrpTIqDWN_
- 1aZRTSWhcmlRYUdlCVz3gQ2252THI5ymCtLwdyNyLtv4X7BfmAME99cPq6BUJQsNRaYJ0ozElPBA
- Z5wgIViAvQlG7KPn_PGv4Whlw_iKNyzp.HZ4b.rmiNZH95xmDTP56No.aZhu2vklG1eYxmYr_5ed
- ik6YTWLQQNg7_Cj6JNKqwnG.2dqZShteBVjrAbjh9Y1dIRaykp4Jzj5T9gDa6wOjKNMRyrcpvnIM
- J5CbUs20m2wbqUtk2LjmgHg7eOLRpIF0qnIZ_SQwY4jcShY3SckM3Dd3_J1m4flemsOaKELX.xBP
- dQUh3SPgJhjxVyyhQPp81aC0QrPcZgIQqyZUtmpoQAtq7qhClurYrAuFmqmeamAmouALop6aoFup
- 02ukniS8lzmUJQIZgyjFcCCh7D4N65lFsDw61aOn0341UvSyTw4fukYL42FiopAiz0.wcEFoSo_0
- .gUCeeWirzU8WD.2FuSlXscAAIcnU48zicqMsHqqijDAAOBrKd01DsIjauMHofnjrLn4tjIoGYE9
- ._XNSvOZS7vgpVpWRAfH0PUAlPo5kOlPXVwYg88oP2fZPVyqvNmy3A6iesfLnQBFa8Bu6BGCFAw.
- eBYdjKdacsqhnHf5O9huiK2JSgjmj.N7FqDu9HZVYCiyStgQaPm5.UIeU5D2oZ2oCQC9Z.32mWVU
- wsqb.8U5lSnhXR_1Uf4IEZi_9sI9EfCBosL3unRYhUgIi2nkQcQfhWKi4cl4AY0lBULaAJSS.Ko5
- LGblzX7dSK09mq_.Qulh2sQ11NhCZVW3ruiznhSHsAGu2KgtH9xj1455AmS99YcKCiYhQftqbmY8
- OjnNxmNuycbZEIGJWeS.On2Z7maNr.RYL1cIATSVomSDlSlrw6wfE.9hxEy6iPbYE5gocRt_If62
- jkPaALgM3G8w1JKo9hSVfpTCReqHtYAIVcT947CNo3zXgaMN5Mwq.Cy378IpkmO3TY8PuvNoFQen
- _PGUbKkB..BCsDgboOZDHMU34RytHOcgZCOyy23Tny.U8JZuNL6orVU3zStNctkbhi4CF1CAsNUV
- ZjowYACzvh3RYckGV5T8_2xzzBTvTknVLanttXRhOjcd.vxKjWQkVer15zLgwsPJxkfrypq5eZjZ
- JuxEfLj8RQH58NRqA2SvcEugAKFTN7tTS4HVzBolgrwbTlHeMfApFMES3sZbqh6yFR_h6ltAU90d
- amqK3vosafLlj4VYvSOpFh4Oc7a.WaZXCTStBI8.8Yqyd12awBZWYqxmAnHDzNMFn2CKrbakmkK.
- OaEHpfueWybbKDGSJvai5jFmnzYWcbiLkOOXQEkGmRbbpm378tlXwTEn4MbK6mjuB85MFUV_YHRo
- 1Bv_ECzgSFFkvbm0IZN3ZrdfFqd6c5nI5SIDStagTpwFAu1TSZ7uw_.U4tuJ1HNXkKuPctPcfyF9
- 73fSDb67YGetWpk3YNyYixaQkXuHtY50xGBocX5hlNbEznoOCzU4Y1N3CTLkC5rqfMlcT8W9RYgv
- hF06w_UGAXim16IMzgMUzP077ezkbAC3xwtT.XtNAN2uDDCoTCFLS8S.tF2_udZnTVWYDru2MGs.
- h3X8HxrxgxYvPNwiUN3z_nVKCxTEHiPXU09Sfjycu9ctTw5moq9rCpf6NB_V9Oy0p2O8oFhAciG5
- 6WPnNkiwm3AluUvkPEfJcqofs7vqEFx3QifctpH0ZQg1cex3QfgReiXcY3enQD3_fgq1F
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: bb1eb27d-23d0-4784-a7ba-7380087a1cd6
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Fri, 1 Dec 2023 00:12:22 +0000
-Received: by hermes--production-gq1-5cf8f76c44-ghgt9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8e72cabee57e1ff435827461e65197e2;
-          Fri, 01 Dec 2023 00:12:21 +0000 (UTC)
-Message-ID: <57ffb3ab-c877-4898-b01f-d146d6314b22@schaufler-ca.com>
-Date: Thu, 30 Nov 2023 16:12:18 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CZ5WmVb6"
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3002B171D;
+	Thu, 30 Nov 2023 16:59:32 -0800 (PST)
+Received: by mail-lj1-x22e.google.com with SMTP id 38308e7fff4ca-2c9d4740e1cso12074731fa.1;
+        Thu, 30 Nov 2023 16:59:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1701392370; x=1701997170; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QmhVSg59KnuTjEpkqtsVamEUiD5Q79qxS4NrNhYjt80=;
+        b=CZ5WmVb62J6aZEAHXVY1ikaAD8eaFaKbc/4H+vST/9XGDPzCeNGb/aChpx+YPWfHDC
+         Xj0+EAZ3uKwe3GvQjcJjCqzbbe1+MiZZhPMyW0g9CjbDMWRSE7NO0G+BykDvysvJKIVE
+         91iwAC/2PCz4MgTmzc6JsJQTmftnF/DRBMUmOJW7z7tqPXA15MUcehd9RAzvHi1uPqby
+         PmPfFGkbxZi8pZJM3qypt5Z8bixDY1QvxkN78aRchjxwuHrzJqjT7s2oMBMfTirBeu7c
+         dh55yUms4PecAnoBGoTM8zE0jZDaUyAD+uBa3+bo8H3HuVBtU8uC5rVhW8WzZ7LuWXhF
+         e4FA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701392370; x=1701997170;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QmhVSg59KnuTjEpkqtsVamEUiD5Q79qxS4NrNhYjt80=;
+        b=kmQ6IJOLXvRw3EJsMV0mDldnQww+sYl0cwwJkBo1QvY9fPPe8c8zf9nDqPn4+FhpA/
+         vVJcTeZg/5YqUJmJZOlQSz7OaXCgrloIZ1bol9JDnD7zYlFOJiYU8YCwjkLxu18s1mtV
+         1d3JRm4XIw7KfjssT3wAh5YzTUPJAF/G6qFF7+xqC6zrrfMKQV5wV6nRtKXytkZPVcQq
+         zGnzWKa3Dxis/jYi5Ie3498Z4Jub7Pb1SseRACkx5VaTXGYOBtmOBthQkvE0eRGG81ck
+         w+benhP6kOH/OcM70P78HPpU4BaDybXzVRdZy4g1u8qDya0qKYNurGC9f/oFXZqabo3L
+         XLJA==
+X-Gm-Message-State: AOJu0Yw6maDPCGuXt4CbFe+w+BTcR0W5E0Adwl85AztYFsHZUeai61Ac
+	3ndGbMy+fUlspIOxGFgn15ZXDv+YkDY=
+X-Google-Smtp-Source: AGHT+IFhwTksU6dn/WHUnR2RoFhnlXair9hraJjUZcVNlXwb44nFIKJF0plmfx4cVZ1n9AGHLTjlrg==
+X-Received: by 2002:a2e:360a:0:b0:2c9:dae6:4446 with SMTP id d10-20020a2e360a000000b002c9dae64446mr78866lja.200.1701392369793;
+        Thu, 30 Nov 2023 16:59:29 -0800 (PST)
+Received: from 127.0.0.1localhost ([185.69.145.191])
+        by smtp.gmail.com with ESMTPSA id ks19-20020a170906f85300b00a11b2677acbsm1250511ejb.163.2023.11.30.16.59.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Nov 2023 16:59:29 -0800 (PST)
+From: Pavel Begunkov <asml.silence@gmail.com>
+To: io-uring@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>,
+	asml.silence@gmail.com,
+	linux-block@vger.kernel.org,
+	ming.lei@redhat.com,
+	joshi.k@samsung.com,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	Paul Moore <paul@paul-moore.com>
+Subject: [PATCH v2 2/3] io_uring/cmd: inline io_uring_cmd_do_in_task_lazy
+Date: Fri,  1 Dec 2023 00:57:36 +0000
+Message-ID: <2ec9fb31dd192d1c5cf26d0a2dec5657d88a8e48.1701391955.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1701391955.git.asml.silence@gmail.com>
+References: <cover.1701391955.git.asml.silence@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
- blob for integrity_iint_cache
-Content-Language: en-US
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>,
- Petr Tesarik <petrtesarik@huaweicloud.com>, Paul Moore <paul@paul-moore.com>
-Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com,
- jlayton@kernel.org, neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com,
- tom@talpey.com, jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
- dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
- stephen.smalley.work@gmail.com, eparis@parisplace.org, mic@digikod.net,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
- selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
- <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
- <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com>
- <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
- <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com>
- <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com>
- <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com>
- <366a6e5f-d43d-4266-8421-a8a05938a8fd@schaufler-ca.com>
- <66ec6876-483a-4403-9baa-487ebad053f2@huaweicloud.com>
- <a121c359-03c9-42b1-aa19-1e9e34f6a386@schaufler-ca.com>
- <9297638a-8dab-42ba-8b60-82c03497c9cd@huaweicloud.com>
- <018438d4-44b9-4734-9c0c-8a65f9c605a4@schaufler-ca.com>
- <9c7860ed-b761-417b-a9ad-bd680f2c8d16@huaweicloud.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <9c7860ed-b761-417b-a9ad-bd680f2c8d16@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.21896 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 11/30/2023 3:43 PM, Roberto Sassu wrote:
-> On 12/1/2023 12:31 AM, Casey Schaufler wrote:
->> On 11/30/2023 1:34 PM, Roberto Sassu wrote:
->>> On 11/30/2023 5:15 PM, Casey Schaufler wrote:
->>>> On 11/30/2023 12:30 AM, Petr Tesarik wrote:
->>>>> Hi all,
->>>>>
->>>>> On 11/30/2023 1:41 AM, Casey Schaufler wrote:
->>>>>> ...
->>>>>> It would be nice if the solution directly addresses the problem.
->>>>>> EVM needs to be after the LSMs that use xattrs, not after all LSMs.
->>>>>> I suggested LSM_ORDER_REALLY_LAST in part to identify the notion as
->>>>>> unattractive.
->>>>> Excuse me to chime in, but do we really need the ordering in code?
->>>>
->>>> tl;dr - Yes.
->>>>
->>>>>    FWIW
->>>>> the linker guarantees that objects appear in the order they are seen
->>>>> during the link (unless --sort-section overrides that default, but
->>>>> this
->>>>> option is not used in the kernel). Since *.a archive files are
->>>>> used in
->>>>> kbuild, I have also verified that their use does not break the
->>>>> assumption; they are always created from scratch.
->>>>>
->>>>> In short, to enforce an ordering, you can simply list the
->>>>> corresponding
->>>>> object files in that order in the Makefile. Of course, add a big fat
->>>>> warning comment, so people understand the order is not arbitrary.
->>>>
->>>> Not everyone builds custom kernels.
->>>
->>> Sorry, I didn't understand your comment.
->>
->> Most people run a disto supplied kernel. If the LSM ordering were
->> determined
->> only at compile time you could never run a kernel that omitted an LSM.
->
-> Ah, ok. We are talking about the LSMs with order LSM_ORDER_LAST which
-> are always enabled and the last.
->
-> This is the code in security.c to handle them:
->
->         /* LSM_ORDER_LAST is always last. */
->         for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
->                 if (lsm->order == LSM_ORDER_LAST)
->                         append_ordered_lsm(lsm, "   last");
->         }
->
-> Those LSMs are not affected by lsm= in the kernel command line, or the
-> order in the kernel configuration (those are the mutable LSMs).
->
-> In this case, clearly, what matters is how LSMs are stored in the
-> .lsm_info.init section. See the DEFINE_LSM() macro:
->
-> #define DEFINE_LSM(lsm)                                                \
->         static struct lsm_info __lsm_##lsm                             \
->                 __used __section(".lsm_info.init")                     \
->                 __aligned(sizeof(unsigned long))
->
-> With Petr, we started to wonder if somehow the order in which LSMs are
-> placed in this section is deterministic. I empirically tried to swap
-> the order in which IMA and EVM are compiled in the Makefile, and that
-> led to 'evm' being placed in the LSM list before 'ima'.
->
-> The question is if this behavior is deterministic, or there is a case
-> where 'evm' is before 'ima', despite they are in the inverse order in
-> the Makefile.
->
-> Petr looked at the kernel linking process, which is relevant for the
-> order of LSMs in the .lsm_info.init section, and he found that the
-> order in the section always corresponds to the order in the Makefile.
+Now as we can easily include io_uring_types.h, move IOU_F_TWQ_LAZY_WAKE
+and inline io_uring_cmd_do_in_task_lazy().
 
-OK, that's staring to make sense. My recollection is that there wasn't
-an expectation for multiple LSM_ORDER_FIRST or LSM_ORDER_LAST entries
-in the beginning. They were supposed to be special cases, not general
-features.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ include/linux/io_uring/cmd.h   | 31 ++++++++++++++++---------------
+ include/linux/io_uring_types.h | 11 +++++++++++
+ io_uring/io_uring.h            | 10 ----------
+ io_uring/uring_cmd.c           |  7 -------
+ 4 files changed, 27 insertions(+), 32 deletions(-)
 
->
-> Thanks
->
-> Roberto
->>> Everyone builds the kernel, also Linux distros. What Petr was
->>> suggesting was that it does not matter how you build the kernel, the
->>> linker will place the LSMs in the order they appear in the Makefile.
->>> And for this particular case, we have:
->>>
->>> obj-$(CONFIG_IMA)                       += ima/
->>> obj-$(CONFIG_EVM)                       += evm/
->>>
->>> In the past, I also verified that swapping these two resulted in the
->>> swapped order of LSMs. Petr confirmed that it would always happen.
->>
->> LSM execution order is not based on compilation order. It is specified
->> by CONFIG_LSM, and may be modified by the LSM_ORDER value. I don't
->> understand why the linker is even being brought into the discussion.
->>
->>>
->>> Thanks
->>>
->>> Roberto
->
+diff --git a/include/linux/io_uring/cmd.h b/include/linux/io_uring/cmd.h
+index 62fcfaf6fcc9..ee9b3bc3a4af 100644
+--- a/include/linux/io_uring/cmd.h
++++ b/include/linux/io_uring/cmd.h
+@@ -36,15 +36,6 @@ void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret, ssize_t res2,
+ void __io_uring_cmd_do_in_task(struct io_uring_cmd *ioucmd,
+ 			    void (*task_work_cb)(struct io_uring_cmd *, unsigned),
+ 			    unsigned flags);
+-/* users should follow semantics of IOU_F_TWQ_LAZY_WAKE */
+-void io_uring_cmd_do_in_task_lazy(struct io_uring_cmd *ioucmd,
+-			void (*task_work_cb)(struct io_uring_cmd *, unsigned));
+-
+-static inline void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
+-			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
+-{
+-	__io_uring_cmd_do_in_task(ioucmd, task_work_cb, 0);
+-}
+ 
+ void io_uring_cmd_mark_cancelable(struct io_uring_cmd *cmd,
+ 		unsigned int issue_flags);
+@@ -60,12 +51,9 @@ static inline void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret,
+ 		ssize_t ret2, unsigned issue_flags)
+ {
+ }
+-static inline void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
+-			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
+-{
+-}
+-static inline void io_uring_cmd_do_in_task_lazy(struct io_uring_cmd *ioucmd,
+-			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
++static inline void __io_uring_cmd_do_in_task(struct io_uring_cmd *ioucmd,
++			    void (*task_work_cb)(struct io_uring_cmd *, unsigned),
++			    unsigned flags)
+ {
+ }
+ static inline void io_uring_cmd_mark_cancelable(struct io_uring_cmd *cmd,
+@@ -78,4 +66,17 @@ static inline struct task_struct *io_uring_cmd_get_task(struct io_uring_cmd *cmd
+ }
+ #endif
+ 
++/* users must follow the IOU_F_TWQ_LAZY_WAKE semantics */
++static inline void io_uring_cmd_do_in_task_lazy(struct io_uring_cmd *ioucmd,
++			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
++{
++	__io_uring_cmd_do_in_task(ioucmd, task_work_cb, IOU_F_TWQ_LAZY_WAKE);
++}
++
++static inline void io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
++			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
++{
++	__io_uring_cmd_do_in_task(ioucmd, task_work_cb, 0);
++}
++
+ #endif /* _LINUX_IO_URING_CMD_H */
+diff --git a/include/linux/io_uring_types.h b/include/linux/io_uring_types.h
+index 0bcecb734af3..8ff4642dc6e3 100644
+--- a/include/linux/io_uring_types.h
++++ b/include/linux/io_uring_types.h
+@@ -7,6 +7,17 @@
+ #include <linux/llist.h>
+ #include <uapi/linux/io_uring.h>
+ 
++enum {
++	/*
++	 * A hint to not wake right away but delay until there are enough of
++	 * tw's queued to match the number of CQEs the task is waiting for.
++	 *
++	 * Must not be used wirh requests generating more than one CQE.
++	 * It's also ignored unless IORING_SETUP_DEFER_TASKRUN is set.
++	 */
++	IOU_F_TWQ_LAZY_WAKE			= 1,
++};
++
+ enum io_uring_cmd_flags {
+ 	IO_URING_F_COMPLETE_DEFER	= 1,
+ 	IO_URING_F_UNLOCKED		= 2,
+diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
+index dc6d779b452b..48ffdb156f73 100644
+--- a/io_uring/io_uring.h
++++ b/io_uring/io_uring.h
+@@ -15,16 +15,6 @@
+ #include <trace/events/io_uring.h>
+ #endif
+ 
+-enum {
+-	/*
+-	 * A hint to not wake right away but delay until there are enough of
+-	 * tw's queued to match the number of CQEs the task is waiting for.
+-	 *
+-	 * Must not be used wirh requests generating more than one CQE.
+-	 * It's also ignored unless IORING_SETUP_DEFER_TASKRUN is set.
+-	 */
+-	IOU_F_TWQ_LAZY_WAKE			= 1,
+-};
+ 
+ enum {
+ 	IOU_OK			= 0,
+diff --git a/io_uring/uring_cmd.c b/io_uring/uring_cmd.c
+index 4ed0c66e3aae..94e9de1c24aa 100644
+--- a/io_uring/uring_cmd.c
++++ b/io_uring/uring_cmd.c
+@@ -78,13 +78,6 @@ void __io_uring_cmd_do_in_task(struct io_uring_cmd *ioucmd,
+ }
+ EXPORT_SYMBOL_GPL(__io_uring_cmd_do_in_task);
+ 
+-void io_uring_cmd_do_in_task_lazy(struct io_uring_cmd *ioucmd,
+-			void (*task_work_cb)(struct io_uring_cmd *, unsigned))
+-{
+-	__io_uring_cmd_do_in_task(ioucmd, task_work_cb, IOU_F_TWQ_LAZY_WAKE);
+-}
+-EXPORT_SYMBOL_GPL(io_uring_cmd_do_in_task_lazy);
+-
+ static inline void io_req_set_cqe32_extra(struct io_kiocb *req,
+ 					  u64 extra1, u64 extra2)
+ {
+-- 
+2.43.0
+
