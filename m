@@ -1,344 +1,188 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b4JVwAcj"
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98566B0
-	for <selinux@vger.kernel.org>; Mon,  4 Dec 2023 08:50:17 -0800 (PST)
-Received: by mail-qt1-x82a.google.com with SMTP id d75a77b69052e-423e77aa09cso37771141cf.1
-        for <selinux@vger.kernel.org>; Mon, 04 Dec 2023 08:50:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XXD5Cs3i"
+Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CFBAD2
+	for <selinux@vger.kernel.org>; Mon,  4 Dec 2023 10:20:06 -0800 (PST)
+Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-5cd81e76164so52708597b3.1
+        for <selinux@vger.kernel.org>; Mon, 04 Dec 2023 10:20:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701708617; x=1702313417; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1701714005; x=1702318805; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Cz+UoYhaLS++OsH42BKY3voi9A9T41pSlNIlgtxfEtA=;
-        b=b4JVwAcjAOKVicJU2PB8V9ZXTpiluuMSiMwFkizWR9KERZmn8XG8BFOcF2dEtbvxnh
-         O9T6R27Lq05gsYbqk8bcrVwkGhI4zBFM8Sah0MR7IS8HpT8jy0tHyFd78YZAtpKKUgrs
-         MiQON9GgaRu2Y3y2jQ6HBsicVIkQzQP63tlF4I1f9w6dZARZxQiIYfcjxckNjgQWu7PN
-         vVPySaGaOGbBcFG8Q/VNPHcLU2ESmX1UGVeAJ3UCkJeofLTIVoL5RREP6Xbjn8fKscXb
-         4Xhaiuad7XCi0yK8EE0x2wWC0MNfXMA5HfDl6yfC7ilcqU0n9lsYhOTkGzKbwcuZVKM8
-         yYpg==
+        bh=q0Z7dyf32+dxdF0n4IfDeA9DzaU8/5fvh6xVJVxK3oY=;
+        b=XXD5Cs3iqdmBcmxin25Itt8PapWGhTxaBU1GA7zxiFRO9H87oSszOSsrV/0S4XB4yJ
+         gAdlE5aWQCkmSslHNLmhsk7uxSxmo71bOUUpVJcxMqC3Lai94inwkhB8ZDhxnvwh3KXr
+         LGEGLZPa2PzcXnlANbQCd/ItEbFndinSA3mXUXEm5vH5AvLFPOo1UGDW8g+aNJcDYKC2
+         iB2C2dBh6aKvUiwi4qKOT+wrDmSOJrM2Oh/LzSoUECmGRTFBMiUlznTmIcMF4K61eT7z
+         P2vb4C6XMAFU1jCnEiTgKj4Ufdr+3oUMHMx2k+80wuDBt0M49JJiquu9pDugasNtDoLO
+         1Baw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701708617; x=1702313417;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1701714005; x=1702318805;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Cz+UoYhaLS++OsH42BKY3voi9A9T41pSlNIlgtxfEtA=;
-        b=UWDXGX7MCFys34DUImusuD6MqmPtA/3V3VmKFjjB2/4eXRIyflFD1l+PB9rmbZyYZE
-         PPmGBPjbYwSZofbngNKvEGkAPj7Zp3QBxH8+HhtMkiFbbQ7geQeJljZfxNFMqI3RRcj8
-         7NVfy+c51hdPgrygwVihuKNBcrRV9kRWUHjztBmK0YuyhU0vgfwkRqS9PRl49n9rD2yN
-         /wt84jaiYwZiRfyOPPh6wOMAuvjD6FOZMv20OUcsYPZOoxzXazYvNeQkFeGPW1KiProi
-         4Kh1SK0lnyWI+gmkWQ3wBdx/auusrPxWP8nm9W3gvzewLmwPfl3d00QttSZuqE7nDWbZ
-         j7rw==
-X-Gm-Message-State: AOJu0YxdImkL6Q5ALn8v4icwrQptbHgpISMT6muCjFBBlrX+RnPKrTgq
-	kFX6/o42vvi/xiLB+9sFzvU=
-X-Google-Smtp-Source: AGHT+IEpddpmFFaT6IlVPlKKM1Rq6Unh3K1UX8FX2L96lpv2EtTfa0s5bs8J0uDXrwComQgI7q+j0A==
-X-Received: by 2002:a05:622a:56:b0:421:bcc0:d6c6 with SMTP id y22-20020a05622a005600b00421bcc0d6c6mr8351365qtw.28.1701708616590;
-        Mon, 04 Dec 2023 08:50:16 -0800 (PST)
-Received: from fed39-vm.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id hj2-20020a05622a620200b0042545901450sm2337900qtb.72.2023.12.04.08.50.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Dec 2023 08:50:16 -0800 (PST)
-From: Cameron Williams <ckwilliams.work@gmail.com>
-To: jwcart2@gmail.com
-Cc: chungsheng@google.com,
-	selinux@vger.kernel.org,
-	Cameron Williams <ckwilliams.work@gmail.com>
-Subject: [PATCH] [userspace] Add CPPFLAGS to Makefiles
-Date: Mon,  4 Dec 2023 11:49:54 -0500
-Message-ID: <20231204164954.3735-1-ckwilliams.work@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CAP+JOzQvaZK8yYx==xjYwtpJwr6pUYnWLO+X=z2Ti_YgpQdPiQ@mail.gmail.com>
-References: <CAP+JOzQvaZK8yYx==xjYwtpJwr6pUYnWLO+X=z2Ti_YgpQdPiQ@mail.gmail.com>
+        bh=q0Z7dyf32+dxdF0n4IfDeA9DzaU8/5fvh6xVJVxK3oY=;
+        b=Re7t3VuZbQ8P71Cm5R5wjpzkOGRJ2+hSOCC604czH/31U9AAwhTDWufH5Oi4zsk15t
+         Ni8FSarOT9y23OoAXD9Ghz1aHApv/SrCnWmKOWxoznH5sfGPtINOlc9Zfw4EnseUwdNr
+         cLP/WvNlj+ShtApaBp6rNF3qOsVxBAg+2JJ+kvW5kq8/TlOQoOMhGmx1wOP6SiDi3tj6
+         RTPX0CHmNZsDNPSzjCX3P7MjNDdgqTHI3Z58MBeLom7ukInXySxf+BgMeU0RUPb0PDM4
+         8fad9kIrvDoah8UfqNDFDNYlop06wnS1IN5WPyl8NlUrj4CFnh4LdffDxlzTcKsSTJfH
+         IpPQ==
+X-Gm-Message-State: AOJu0YxAnx6LK0xekaviD1n7xPpQuMtUIB7ifhc608ePQdKmT5CSD7uW
+	286EINaAuDTO9MaCXmYmut989K3PcP1XXwdOKaI=
+X-Google-Smtp-Source: AGHT+IGr6FWafm9b8SqNEBV0M5JcGS1xYOzTzNl5YPVL5bSzeU8DBGv0gSk65wDb6dUKBbDFeChGvwqIqxpEf1UPSgs=
+X-Received: by 2002:a81:d206:0:b0:5d7:6089:9617 with SMTP id
+ x6-20020a81d206000000b005d760899617mr2836623ywi.24.1701714005239; Mon, 04 Dec
+ 2023 10:20:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <877cluszxo.fsf@redhat.com> <20231204164558.43667-1-lautrbach@redhat.com>
+In-Reply-To: <20231204164558.43667-1-lautrbach@redhat.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 4 Dec 2023 13:19:52 -0500
+Message-ID: <CAP+JOzSK+p9Fm49ApqA+_V2ro6DADJH9Y0onjwpX7W01+8mgOA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] Revert "libsepol/tests: rename bool indentifiers"
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This patch adds CPPFLAGS to all of the Makefiles as suggested.
+On Mon, Dec 4, 2023 at 11:46=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
+>
+> This reverts commit 893b50c6ce661f3ee339145e76a0bbfa199671c3.
+>
+> 61f21385004 ("libsepol: rename struct member") broke build of SETools:
+>
+> setools/policyrep.c: In function =E2=80=98__pyx_pf_7setools_9policyrep_23=
+ConditionalExprIterator___next__=E2=80=99:
+> setools/policyrep.c:27857:138: error: =E2=80=98cond_expr_t=E2=80=99 {aka =
+=E2=80=98struct cond_expr=E2=80=99} has no member named =E2=80=98bool=E2=80=
+=99; did you mean =E2=80=98boolean=E2=80=99?
+> 27857 |     __pyx_t_3 =3D __pyx_f_7setools_9policyrep_13SELinuxPolicy_boo=
+lean_value_to_datum(__pyx_v_self->__pyx_base.policy, (__pyx_v_self->curr->b=
+ool - 1)); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 336, __pyx_L1_error=
+)
+>       |                                                                  =
+                                                                        ^~~=
+~
+>       |
+>
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 
-Signed-off-by: Cameron Williams <ckwilliams.work@gmail.com>
----
- checkpolicy/Makefile            | 10 +++++-----
- checkpolicy/test/Makefile       |  4 ++--
- libselinux/src/Makefile         | 14 +++++++-------
- libsemanage/src/Makefile        | 22 +++++++++++-----------
- libsepol/src/Makefile           | 10 +++++-----
- mcstrans/src/Makefile           |  2 +-
- mcstrans/utils/Makefile         |  2 +-
- policycoreutils/hll/pp/Makefile |  2 +-
- secilc/Makefile                 |  6 +++---
- 9 files changed, 36 insertions(+), 36 deletions(-)
+Also need to revert 513fc1570c16924080740b23fa34343ef64a90c0
+Plus there is a couple of new uses in policy_validate.c and one in
+checkpolicy/policy_define.c that need to be corrected.
 
-diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-index 281d15be..036ab905 100644
---- a/checkpolicy/Makefile
-+++ b/checkpolicy/Makefile
-@@ -30,19 +30,19 @@ all:  $(TARGETS)
- 	$(MAKE) -C test
- 
- checkpolicy: $(CHECKPOLOBJS) $(LIBSEPOLA)
--	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
- 
- checkmodule: $(CHECKMODOBJS) $(LIBSEPOLA)
--	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
- 
- %.o: %.c 
--	$(CC) $(CFLAGS) -o $@ -c $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
- 
- y.tab.o: y.tab.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -o $@ -c $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -o $@ -c $<
- 
- lex.yy.o: lex.yy.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -o $@ -c $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -o $@ -c $<
- 
- y.tab.c: policy_parse.y
- 	$(YACC) -d policy_parse.y
-diff --git a/checkpolicy/test/Makefile b/checkpolicy/test/Makefile
-index 8e5d16b3..7f2f431c 100644
---- a/checkpolicy/test/Makefile
-+++ b/checkpolicy/test/Makefile
-@@ -13,10 +13,10 @@ endif
- all: dispol dismod
- 
- dispol: dispol.o $(LIBSEPOLA)
--	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
- 
- dismod: dismod.o $(LIBSEPOLA)
--	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
- 
- clean:
- 	-rm -f dispol dismod *.o 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 7aadb822..d3b981fc 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -148,22 +148,22 @@ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_FLAGS)
- all: $(LIBA) $(LIBSO) $(LIBPC)
- 
- pywrap: all selinuxswig_python_exception.i
--	CFLAGS="$(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext
-+	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext
- 
- rubywrap: all $(SWIGRUBYSO)
- 
- $(SWIGRUBYLOBJ): $(SWIGRUBYCOUT)
--	$(CC) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
--	$(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(RUBYLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(RUBYLIBS)
- 
- $(LIBA): $(OBJS)
- 	$(AR) rcs $@ $^
- 	$(RANLIB) $@
- 
- $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ $(PCRE_LDLIBS) $(FTS_LDLIBS) -ldl -Wl,$(LD_SONAME_FLAGS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ $(PCRE_LDLIBS) $(FTS_LDLIBS) -ldl -Wl,$(LD_SONAME_FLAGS)
- 	ln -sf $@ $(TARGET)
- 
- $(LIBPC): $(LIBPC).in ../VERSION
-@@ -173,10 +173,10 @@ selinuxswig_python_exception.i: exception.sh ../include/selinux/selinux.h
- 	bash -e exception.sh > $@ || (rm -f $@ ; false)
- 
- %.o:  %.c policy.h
--	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
- 
- %.lo:  %.c policy.h
--	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGRUBYCOUT): $(SWIGRUBYIF)
- 	$(SWIGRUBY) $<
-@@ -191,7 +191,7 @@ install: all
- 	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
- 
- install-pywrap: pywrap
--	CFLAGS="$(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
-+	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
- 	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
- 	ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
- 
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index 589e4a70..d5259967 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -74,23 +74,23 @@ pywrap: all $(SWIGSO)
- rubywrap: all $(SWIGRUBYSO)
- 
- $(SWIGLOBJ): $(SWIGCOUT)
--	$(CC) $(CFLAGS) $(SWIG_CFLAGS) $(PYINC) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS) $(PYINC) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGRUBYLOBJ): $(SWIGRUBYCOUT)
--	$(CC) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGSO): $(SWIGLOBJ)
--	$(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $< -lsemanage $(PYLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $< -lsemanage $(PYLIBS)
- 
- $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
--	$(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lsemanage $(RUBYLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lsemanage $(RUBYLIBS)
- 
- $(LIBA): $(OBJS)
- 	$(AR) rcs $@ $^
- 	$(RANLIB) $@
- 
- $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
- 	ln -sf $@ $(TARGET)
- 
- $(LIBPC): $(LIBPC).in ../VERSION
-@@ -108,22 +108,22 @@ conf-parse.c: conf-parse.y
- conf-parse.h: conf-parse.c
- 
- %.o:  %.c 
--	$(CC) $(CFLAGS) -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
- 
- %.lo:  %.c
--	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
- 
- conf-parse.o:  conf-parse.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -c -o $@ $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -c -o $@ $<
- 
- conf-parse.lo:  conf-parse.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
- 
- conf-scan.o:  conf-scan.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -c -o $@ $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -c -o $@ $<
- 
- conf-scan.lo:  conf-scan.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
- 
- $(SWIGCOUT): $(SWIGIF)
- 	$(SWIG) $<
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index 13410c67..d80a941f 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -53,7 +53,7 @@ $(LIBA):  $(OBJS)
- 	$(RANLIB) $@
- 
- $(LIBSO): $(LOBJS) $(LIBMAP)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,$(LD_SONAME_FLAGS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,$(LD_SONAME_FLAGS)
- 	ln -sf $@ $(TARGET) 
- 
- $(LIBPC): $(LIBPC).in ../VERSION
-@@ -68,10 +68,10 @@ endif
- 
- ifneq ($(DISABLE_CIL),y)
- $(CILDIR)/src/cil_lexer.o: $(CILDIR)/src/cil_lexer.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -c -o $@ $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -fPIC -c -o $@ $<
- 
- $(CILDIR)/src/cil_lexer.lo: $(CILDIR)/src/cil_lexer.c
--	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(filter-out -Werror, $(CPPFLAGS) $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
- 
- $(CILDIR)/src/cil_lexer.c: $(CILDIR)/src/cil_lexer.l
- 	$(LEX) -o $@ $<
-@@ -79,10 +79,10 @@ $(CILDIR)/src/cil_lexer.c: $(CILDIR)/src/cil_lexer.l
- endif
- 
- %.o:  %.c 
--	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -c -o $@ $<
- 
- %.lo:  %.c
--	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
- 
- install: all
- 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
-diff --git a/mcstrans/src/Makefile b/mcstrans/src/Makefile
-index ef518625..89dbac16 100644
---- a/mcstrans/src/Makefile
-+++ b/mcstrans/src/Makefile
-@@ -23,7 +23,7 @@ $(PROG): $(PROG_OBJS) $(LIBSEPOLA)
- 	$(CC) $(LDFLAGS) -pie -o $@ $^ -lselinux -lcap $(PCRE_LDLIBS) $(LDLIBS_LIBSEPOLA)
- 
- %.o:  %.c 
--	$(CC) $(CFLAGS) $(PCRE_CFLAGS) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -fPIE -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(PCRE_CFLAGS) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -fPIE -c -o $@ $<
- 
- install: all
- 	test -d $(DESTDIR)$(SBINDIR) || install -m 755 -d $(DESTDIR)$(SBINDIR)
-diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
-index a48f4e72..eec714f1 100644
---- a/mcstrans/utils/Makefile
-+++ b/mcstrans/utils/Makefile
-@@ -20,7 +20,7 @@ untranscon: untranscon.o ../src/mcstrans.o ../src/mls_level.o $(LIBSEPOLA)
- 	$(CC) $(LDFLAGS) -o $@ $^ $(PCRE_LDLIBS) -lselinux $(LDLIBS_LIBSEPOLA)
- 
- %.o:  %.c 
--	$(CC) $(CFLAGS) $(PCRE_CFLAGS) -D_GNU_SOURCE -I../src -fPIE -c -o $@ $<
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(PCRE_CFLAGS) -D_GNU_SOURCE -I../src -fPIE -c -o $@ $<
- 
- install: all
- 	-mkdir -p $(DESTDIR)$(SBINDIR)
-diff --git a/policycoreutils/hll/pp/Makefile b/policycoreutils/hll/pp/Makefile
-index fc8d3c4a..3c9b0efc 100644
---- a/policycoreutils/hll/pp/Makefile
-+++ b/policycoreutils/hll/pp/Makefile
-@@ -15,7 +15,7 @@ pp: $(PP_OBJS)
- 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- %.o: %.c
--	$(CC) $(CFLAGS) -c -o $@ $^
-+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $^
- 
- install: all
- 	-mkdir -p $(DESTDIR)$(HLLDIR)
-diff --git a/secilc/Makefile b/secilc/Makefile
-index 94be0481..ef7bc8cd 100644
---- a/secilc/Makefile
-+++ b/secilc/Makefile
-@@ -31,7 +31,7 @@ override LDLIBS += -lsepol
- all: $(SECILC) $(SECIL2CONF) $(SECIL2TREE) man
- 
- $(SECILC): $(SECILC_OBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- test: $(SECILC)
- 	./$(SECILC) test/policy.cil
-@@ -40,10 +40,10 @@ test: $(SECILC)
- 	$(DIFF) test/opt-expected.cil opt-actual.cil
- 
- $(SECIL2CONF): $(SECIL2CONF_OBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- $(SECIL2TREE): $(SECIL2TREE_OBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
- man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE) $(SECIL2TREE_MANPAGE)
- 
+Thanks,
+Jim
 
-base-commit: 0f5a8dd3ac8226264dc01df6bd0eca8ae7443db6
--- 
-2.43.0
-
+> ---
+>  libsepol/tests/test-linker-cond-map.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+>
+> diff --git a/libsepol/tests/test-linker-cond-map.c b/libsepol/tests/test-=
+linker-cond-map.c
+> index 142066669c0c..6ea0e4c2ac6b 100644
+> --- a/libsepol/tests/test-linker-cond-map.c
+> +++ b/libsepol/tests/test-linker-cond-map.c
+> @@ -51,7 +51,7 @@
+>   */
+>
+>  typedef struct test_cond_expr {
+> -       const char *boolean;
+> +       const char *bool;
+>         uint32_t expr_type;
+>  } test_cond_expr_t;
+>
+> @@ -69,18 +69,18 @@ static void test_cond_expr_mapping(policydb_t * p, av=
+rule_decl_t * d, test_cond_
+>                 CU_ASSERT_FATAL(expr !=3D NULL);
+>
+>                 CU_ASSERT(expr->expr_type =3D=3D bools[i].expr_type);
+> -               if (bools[i].boolean) {
+> -                       CU_ASSERT(strcmp(p->sym_val_to_name[SYM_BOOLS][ex=
+pr->boolean - 1], bools[i].boolean) =3D=3D 0);
+> +               if (bools[i].bool) {
+> +                       CU_ASSERT(strcmp(p->sym_val_to_name[SYM_BOOLS][ex=
+pr->boolean - 1], bools[i].bool) =3D=3D 0);
+>                 }
+>                 expr =3D expr->next;
+>         }
+>  }
+>
+> -static void test_bool_state(policydb_t * p, const char *boolean, int sta=
+te)
+> +static void test_bool_state(policydb_t * p, const char *bool, int state)
+>  {
+>         cond_bool_datum_t *b;
+>
+> -       b =3D hashtab_search(p->p_bools.table, boolean);
+> +       b =3D hashtab_search(p->p_bools.table, bool);
+>         CU_ASSERT_FATAL(b !=3D NULL);
+>         CU_ASSERT(b->state =3D=3D state);
+>  }
+> @@ -100,7 +100,7 @@ void base_cond_tests(policydb_t * base)
+>         test_sym_presence(base, "g_b_bool_1", SYM_BOOLS, SCOPE_DECL, decl=
+s, 1);
+>         test_bool_state(base, "g_b_bool_1", 0);
+>         /* conditional expression mapped correctly */
+> -       bools[0].boolean =3D "g_b_bool_1";
+> +       bools[0].bool =3D "g_b_bool_1";
+>         bools[0].expr_type =3D COND_BOOL;
+>         test_cond_expr_mapping(base, d, bools, 1);
+>
+> @@ -110,7 +110,7 @@ void base_cond_tests(policydb_t * base)
+>         test_sym_presence(base, "o1_b_bool_1", SYM_BOOLS, SCOPE_DECL, dec=
+ls, 1);
+>         test_bool_state(base, "o1_b_bool_1", 1);
+>         /* conditional expression mapped correctly */
+> -       bools[0].boolean =3D "o1_b_bool_1";
+> +       bools[0].bool =3D "o1_b_bool_1";
+>         bools[0].expr_type =3D COND_BOOL;
+>         test_cond_expr_mapping(base, d, bools, 1);
+>
+> @@ -128,7 +128,7 @@ void module_cond_tests(policydb_t * base)
+>         test_sym_presence(base, "g_m1_bool_1", SYM_BOOLS, SCOPE_DECL, dec=
+ls, 1);
+>         test_bool_state(base, "g_m1_bool_1", 1);
+>         /* conditional expression mapped correctly */
+> -       bools[0].boolean =3D "g_m1_bool_1";
+> +       bools[0].bool =3D "g_m1_bool_1";
+>         bools[0].expr_type =3D COND_BOOL;
+>         test_cond_expr_mapping(base, d, bools, 1);
+>
+> @@ -138,7 +138,7 @@ void module_cond_tests(policydb_t * base)
+>         test_sym_presence(base, "o1_m1_bool_1", SYM_BOOLS, SCOPE_DECL, de=
+cls, 1);
+>         test_bool_state(base, "o1_m1_bool_1", 0);
+>         /* conditional expression mapped correctly */
+> -       bools[0].boolean =3D "o1_m1_bool_1";
+> +       bools[0].bool =3D "o1_m1_bool_1";
+>         bools[0].expr_type =3D COND_BOOL;
+>         test_cond_expr_mapping(base, d, bools, 1);
+>
+> @@ -150,11 +150,11 @@ void module_cond_tests(policydb_t * base)
+>         test_bool_state(base, "g_m2_bool_1", 1);
+>         test_bool_state(base, "g_m2_bool_2", 0);
+>         /* conditional expression mapped correctly */
+> -       bools[0].boolean =3D "g_m2_bool_1";
+> +       bools[0].bool =3D "g_m2_bool_1";
+>         bools[0].expr_type =3D COND_BOOL;
+> -       bools[1].boolean =3D "g_m2_bool_2";
+> +       bools[1].bool =3D "g_m2_bool_2";
+>         bools[1].expr_type =3D COND_BOOL;
+> -       bools[2].boolean =3D NULL;
+> +       bools[2].bool =3D NULL;
+>         bools[2].expr_type =3D COND_AND;
+>         test_cond_expr_mapping(base, d, bools, 3);
+>  }
+> --
+> 2.41.0
+>
+>
