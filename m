@@ -1,92 +1,61 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qeg1Ue1p"
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3581B0
-	for <selinux@vger.kernel.org>; Mon,  4 Dec 2023 08:16:59 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-40838915cecso47307795e9.2
-        for <selinux@vger.kernel.org>; Mon, 04 Dec 2023 08:16:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701706618; x=1702311418; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=pGkB7N2M3XF3Wpiw933wcn4pnUQOl5+QTxSO+fWlDeI=;
-        b=Qeg1Ue1paS7cNWa7ibWjHXVuNtkOPcKMUPQzJ6HLH2rN/psHBDIz9zlqWZSgLZ6kjM
-         YoaQTQcx6LsLBllrUahzhqwWTtUAoAXQFPdCcwZ+HaVqncYaIhq/iKtgrcyLeGbBC/VE
-         Zd2FJSDKTylS5y+hKaUxeBUEN//boKb/uN9+/iiqAMOVhKk7TQ6XggtwGqaOKNEJ/igI
-         jw6PXJenA+iuB5cq4/Ofy9R380pnJD2WRJwYtpPuSosfE77l308WtGB0rkH1rEStkWO1
-         YFZ/Ym3cnQtHDvLK5BrFHZshec6G8Uob4zHZ0Of4JD1zSWiUwsWI5AVYIZFzRIW8ETlX
-         MEEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701706618; x=1702311418;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=pGkB7N2M3XF3Wpiw933wcn4pnUQOl5+QTxSO+fWlDeI=;
-        b=WdM4ZtZEq/ND48i1IP6XP6niCKHQyxdT1S1wF06x08H3RbDhb4fn+FNUMT+stHr4gx
-         nsCEGu/3keGwsCfS7FdeJBRs5YiLg5qK02pp2PQbd4FBd+75NntBPhI9QGiytrb/QZB9
-         BJpxmuqkBn07/fKUW7bMxlIMPqAe8l+LxoZYfckknHEz15YiE4xu8ml4JzJ+HHs9524Q
-         KYcdTgvFAksQz650vSP4UMGN8EHykYPjx7tVbTt636ElTISQ0JE8wZD8xtOqqm+iVbPA
-         i9bVsB3jo6EpWfDxx0eVtyCSGhNX1fPH4K2KVYv4+GoGhbhsayVzyLG7lMMLOcEeEJL/
-         9Jnw==
-X-Gm-Message-State: AOJu0YwcYWFlkOoxb1ya79ngAn/TQaM7FN+F04TnAcZmVa0HHI0XjAnj
-	x50RiwIarUwk4R/2nBd2vq2lNGPe/Ug=
-X-Google-Smtp-Source: AGHT+IH3aLgRDh22tN4fDdKpjPg7f1gu5wY3Y6qg89ApDq1w+CItxPEwUr6V6p/iWLweyKzt2Sqfbg==
-X-Received: by 2002:a05:600c:474a:b0:40b:5e1c:af31 with SMTP id w10-20020a05600c474a00b0040b5e1caf31mr2676783wmo.55.1701706617924;
-        Mon, 04 Dec 2023 08:16:57 -0800 (PST)
-Received: from nz.home (host86-139-202-110.range86-139.btcentralplus.com. [86.139.202.110])
-        by smtp.gmail.com with ESMTPSA id x13-20020a5d490d000000b0033333ebd106sm8834892wrq.75.2023.12.04.08.16.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Dec 2023 08:16:57 -0800 (PST)
-Received: by nz.home (Postfix, from userid 1000)
-	id E372D13803FE12; Mon,  4 Dec 2023 16:16:56 +0000 (GMT)
-From: Sergei Trofimovich <slyich@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gdrWr3wC"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19AE595
+	for <selinux@vger.kernel.org>; Mon,  4 Dec 2023 08:19:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701706775;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=BjELNtUM/9d+2VNJMXif7VxRs4nOqX5QVTBtULuJJmM=;
+	b=gdrWr3wCpPBdsnIv4Yhf443y9+/VW6ZjcgrOQSmmhlapxrYdabHuFYXwvFqxZojr7mqfhQ
+	4b3ippucfU1L2ARDcj2oeBErIOmCxOB+Evs1AyC7g7KPuTaNtlXO3hRggfIYzi4bybcuvE
+	WO7EB4E3E+Y5W0DyCuThkbH0d+BDKAM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-473-rtQs5Rl8MlGB6BwyzgAYZA-1; Mon, 04 Dec 2023 11:19:33 -0500
+X-MC-Unique: rtQs5Rl8MlGB6BwyzgAYZA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A891A892244
+	for <selinux@vger.kernel.org>; Mon,  4 Dec 2023 16:19:32 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.166])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 6B87010F44
+	for <selinux@vger.kernel.org>; Mon,  4 Dec 2023 16:19:32 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
 To: selinux@vger.kernel.org
-Cc: Sergei Trofimovich <slyich@gmail.com>
-Subject: [PATCH] libsemanage: fix src/genhomedircon.c build on `gcc-14` (`-Werror=alloc-size`)
-Date: Mon,  4 Dec 2023 16:16:55 +0000
-Message-ID: <20231204161655.1349063-1-slyich@gmail.com>
-X-Mailer: git-send-email 2.42.0
+Subject: setools build is broken by 61f21385004 ("libsepol: rename struct
+ member"), revert?
+Date: Mon, 04 Dec 2023 17:19:31 +0100
+Message-ID: <877cluszxo.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
-`gcc-14` added a new `-Walloc-size` warning that makes sure that size of
-an individual element matches size of a pointed type:
+Hi,
 
-    https://gcc.gnu.org/PR71219
+it's reported at https://github.com/SELinuxProject/setools/issues/110
 
-`libsemanage` triggers it on `calloc()` calls where member size is used
-as `1` (instead of member count):
+While the API change is described in the commit message, SETools is not
+ready for this.
 
-    genhomedircon.c: In function 'ignore_setup':
-    genhomedircon.c:152:21:
-      error: allocation of insufficient size '1' for type 'ignoredir_t'
-        {aka 'struct IgnoreDir'} with size '16' [-Werror=alloc-size]
-      152 |                 ptr = calloc(sizeof(ignoredir_t),1);
-          |                     ^
+I haven't found a way how to use COND_EXPR_T_RENAME_BOOL_BOOLEAN in
+Cython code so that SETools could be built with 3.6 and with older
+releases.
 
-Signed-off-by: Sergei Trofimovich <slyich@gmail.com>
----
- libsemanage/src/genhomedircon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I consider this as a blocker for 3.6 release and therefore I propose to
+revert this change and leave it for the next release together with the
+proper (if possible) fix of SETools.
 
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 8f8774d3..66585987 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -149,7 +149,7 @@ static int ignore_setup(char *ignoredirs) {
- 
- 	tok = strtok(ignoredirs, ";");
- 	while(tok) {
--		ptr = calloc(sizeof(ignoredir_t),1);
-+		ptr = calloc(1, sizeof(ignoredir_t));
- 		if (!ptr)
- 			goto err;
- 		ptr->dir = strdup(tok);
--- 
-2.42.0
+Objections?
+
+Petr
 
