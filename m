@@ -1,144 +1,177 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="LozqL9Kh"
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1750E135
-	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 12:47:24 -0800 (PST)
-Received: by mail-yb1-xb2a.google.com with SMTP id 3f1490d57ef6-db537948ea0so247954276.2
-        for <selinux@vger.kernel.org>; Wed, 06 Dec 2023 12:47:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FddOvhgz"
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABCCDD47
+	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 12:55:52 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-50be24167efso271567e87.3
+        for <selinux@vger.kernel.org>; Wed, 06 Dec 2023 12:55:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1701895643; x=1702500443; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1701896151; x=1702500951; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=03m9Q/bw886YTDz9qjzlgtiRQh+DJJBl0Kee3WcgMyc=;
-        b=LozqL9Kh65xdtbv89FdR2sNKRTQMib41XW/yHcBgTz0M/YYbEloDBGqUYxJh23oG3b
-         ed0dBbX/afj/nCYV4JSyhsCzRCqoF5WxBYcNDby8VTCq/rgOsPsq3NZfiA2V4Fu+uigX
-         Y4ZFCxY6/KpotInE2ZP6YUJQiLEZ3IZ9Qi7K4oQLDykzW5mC1dTwnTv1AfUFzjKI+zfv
-         VorT02rtBgf1Zt7hXDMhZ3uiwttKOzx1z/NzxliEdSZO0tsStct/m9KnYKnRgfzJkmIu
-         vZNv41O1xGueqA7uldJrI1KNi+JOrzSqkvGeE7+Pg9HySBD6jKsD4X5EwXN02JkOyH3U
-         7YgQ==
+        bh=iAnOJ16q0/oVJHr/0J1BsAZqYAsStKduMFJqBLIZNrM=;
+        b=FddOvhgzByhzPVlQXx9UVYqhGvOPj9mtt7ZCQLnMPLOUuSV8bzHh68oVZVgCZfZ1II
+         BLmAPap/zxr3sRsLjj0f1NTl/uJHlsQzSeOkAsrcT9er32DZnB9UuU9Y1weh7E12VbGj
+         e0Ctm99uZ5n4pmnXxFYjn+1OG3wNzJCdg2u3WAkl+BiIbiWfTFDkDavLpLnqf4h0CSpO
+         vhj3smu6GWo0pWA3+F9S8FmMz+5ow5DbtnPyPLMFMSCZvmRipKUs1SOQ1kGRK0z+hL4V
+         02RfS+mcj6VP4siFSfjBSbJcA0R/GPDtKzd7ykhKX+b2LeXo3MLLdan5xL1ljp2dZyw7
+         kZfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701895643; x=1702500443;
+        d=1e100.net; s=20230601; t=1701896151; x=1702500951;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=03m9Q/bw886YTDz9qjzlgtiRQh+DJJBl0Kee3WcgMyc=;
-        b=gVd2b82cJMGwWhGZ0BWyatDfHZ0wfg7p9AYqJ5eAcoc6mGR2ZeqcAYL5IBVDa0o55c
-         sJkITidJiEJedW83FR3mvFByO3kuo0bpQ3eZrmrFLh7FGIWqHVcOnhRgai2IpTbW3rhX
-         HMZMtMXG3LB3qkZP4VJhqTq5OHhnyKW+EQ0nUSmhq6OopMMEMsweKNtCKxZcTiu51WN8
-         FlCsfuNbgpk+8+d3tmnOBNVS2cOqP/TRw5idwGyRN5oIllo9A7kw55Z12et1ddc98cY1
-         DSqlgoZ1NY7/tvq9Mn8Lf9iuKViDyBYGoPtPdyUI8nfwwZ0GhOAnFkFq92qm5IjZCBg+
-         1yzg==
-X-Gm-Message-State: AOJu0Yzx6dEWDq2d2feQ9ZABr/A6l1Bs6QYGN/RZ0CqKUiEMxVBNSRvN
-	ww5+mpB0qr9dnukO7qmBeNXdyJElpxpYyNZpyvJ6
-X-Google-Smtp-Source: AGHT+IELdineb8nV+rdBDWW20nkuyyqa6PVAuAq/4Di/FEXsDjy4VsrK+EqH8adItqywpLZ8SrW2ODMTgaG4l5FXB2o=
-X-Received: by 2002:a25:1657:0:b0:db7:dacf:59fe with SMTP id
- 84-20020a251657000000b00db7dacf59femr1189834ybw.114.1701895643131; Wed, 06
- Dec 2023 12:47:23 -0800 (PST)
+        bh=iAnOJ16q0/oVJHr/0J1BsAZqYAsStKduMFJqBLIZNrM=;
+        b=Q39OMRicwuKTKozIDn2pOaqj8XdZsASzzC6qUNczwOtJLWrNlJqv56z2tmEDOWfkcL
+         wirWH1UW+0bzjR9k/4LKzFmwP37mEUfYjMBGeCPJFo5hAUwjkjcVOrUJLbNVNPHEd6mX
+         NjnxRMu9Ijlf//yJu+1e33TXbtFDd0IcP4p+ByP0xC3LzKdCWRbBLcPK2MTbLAoV17xF
+         gJUpeavkBiuH2IE0ua7YqeLZhn/b2ET8PhYjDYcabP7xynAWM3KI5jYUR6rxs+6DfRZl
+         IzFGlSCscY0n99d2epLHguvUBOZv++5v8+rZ8O/3CcqiLaPH+yncERG0oXcJVCskFL6Q
+         mAYA==
+X-Gm-Message-State: AOJu0Yy5iNHdbjkCj8pFPWc1oCm20Et7Bji1PShXYOX9VpGTrM4ZlpX1
+	Q5UIxVXl3FWWjrOFFzJp7R03MnIqsyhkGQh3LHxMrVZ8
+X-Google-Smtp-Source: AGHT+IE3bwe+oCWViWLLs+y1jxSW9OMkHrM5lOXXNsPG0WvCSNo0KtvQMCoWhLZVGTpoDQRNiDpvzvuw1ciRMxbi91U=
+X-Received: by 2002:a05:6512:4014:b0:50b:fb82:358a with SMTP id
+ br20-20020a056512401400b0050bfb82358amr568488lfb.272.1701896150556; Wed, 06
+ Dec 2023 12:55:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20230728050043.59880-1-wangkefeng.wang@huawei.com>
- <20230728050043.59880-4-wangkefeng.wang@huawei.com> <CAEjxPJ5ZuBGVDah0f3g0-7t2v1uSXTmp_cTT3g_MSP3J9QtoeA@mail.gmail.com>
- <CAHC9VhR_Tzbs=fE+D6VrP1boe7O_uHPu9yd7kfVppnB2vtPLOA@mail.gmail.com>
- <CAEjxPJ6iFRZUetSvMgZvq_327U_JZ_w9s=gFccKgJhfCt8bqNg@mail.gmail.com>
- <CAHC9VhRB1uVVWFUgnMZ1iwCD_A0mEX2Xhn79qTxuNKTzisWULg@mail.gmail.com> <CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com>
-In-Reply-To: <CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 6 Dec 2023 15:47:12 -0500
-Message-ID: <CAHC9VhSzrYOUAkM5-smu0rAZ7gWwPvR+TARWN9ojfaVACtYRew@mail.gmail.com>
-Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and vma_is_initial_heap()
+References: <CAFqZXNt1vLh5YEM98UKqOQSxNP0=b7kBVA14921qk8n=J9HtYg@mail.gmail.com>
+ <20231122112942.2832586-2-lautrbach@redhat.com> <CAFqZXNtbOW6n_UptZXNLS1LUwPuHd7ezMTnJO-ysbJHDz-pAXg@mail.gmail.com>
+In-Reply-To: <CAFqZXNtbOW6n_UptZXNLS1LUwPuHd7ezMTnJO-ysbJHDz-pAXg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 6 Dec 2023 15:55:39 -0500
+Message-ID: <CAP+JOzTYDgrF-5BcxBNaRGpGykpkdX8WRi0JroqksCG9+vpdAg@mail.gmail.com>
+Subject: Re: [PATCH v2] sepolicy: port to dnf4 python API
 To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, SElinux list <selinux@vger.kernel.org>, 
-	"open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, Kefeng Wang <wangkefeng.wang@huawei.com>, 
-	David Hildenbrand <david@redhat.com>, peterz@infradead.org, 
-	Andrew Morton <akpm@linux-foundation.org>
+Cc: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 6, 2023 at 9:22=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
-> wrote:
+On Tue, Nov 28, 2023 at 10:02=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
+om> wrote:
 >
-> (Restoring part of the Cc list to include more relevant lists &
-> people... If you are lost, the original email is here:
-> https://lore.kernel.org/selinux/20230728050043.59880-4-wangkefeng.wang@hu=
-awei.com/)
->
-> On Tue, Aug 1, 2023 at 1:08=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
-> > On Mon, Jul 31, 2023 at 4:02=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Mon, Jul 31, 2023 at 12:19=E2=80=AFPM Paul Moore <paul@paul-moore.=
-com> wrote:
-> > > >
-> > > > On Mon, Jul 31, 2023 at 10:26=E2=80=AFAM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > I believe this patch yields a semantic change in the SELinux exec=
-heap
-> > > > > permission check. That said, I think the change is for the better=
-.
-> > > >
-> > > > Agreed.  I'm also in favor of using a helper which is maintained by
-> > > > the VM folks over open coded logic in the SELinux code.
-> > >
-> > > Yes, only caveat is in theory it could trigger new execheap denials
-> > > under existing policies.
-> > > Trying to construct an example based on the
-> > > selinux-testsuite/tests/mmap/mprot_heap.c example but coming up empty
-> > > so far on something that both works and yields different results
-> > > before and after this patch.
+> On Wed, Nov 22, 2023 at 12:31=E2=80=AFPM Petr Lautrbach <lautrbach@redhat=
+.com> wrote:
 > >
-> > My gut feeling is that this will not be an issue, but I could very
-> > well be wrong.  If it becomes a significant issue we can revert the
-> > SELinux portion of the patch.
+> > yum module is not available since RHEL 7.
 > >
-> > Of course, if you have any luck demonstrating this with reasonable
-> > code, that would be good input too.
+> > Drop -systemd related code as it's obsoleted these days - only 2
+> > packages ship their .service in -systemd subpackage
+> >
+> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> > ---
+> >
+> > v2: use with dnf.Base() as base:  suggested by Ondrej Mosnacek <omosnac=
+e@redhat.com>
 >
-> So, it turns out this does affect actual code. Thus far, we know about
-> gcl [1] and wine [2]. The gcl case is easy to reproduce (just install
-> gcl on Fedora and run gcl without arguments), so I was able to dig a
-> bit deeper.
+> For the fix:
 >
-> gcl has the following relevant memory mappings as captured by gdb:
-> Start Addr           End Addr       Size     Offset  Perms  objfile
->   0x413000           0xf75000   0xb62000   0x3fa000  rw-p
-> /usr/lib/gcl-2.6.14/unixport/saved_ansi_gcl
->   0xf75000           0xf79000     0x4000        0x0  rwxp   [heap]
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> It tries to call mprotect(0x883000, 7282688,
-> PROT_READ|PROT_WRITE|PROT_EXEC), i.e. it tries to make the region
-> 0x883000 - 0xf75000 executable. Before this patch it was allowed,
-> whereas now it triggers an execheap SELinux denial. But this seems
-> wrong - the affected region is merely adjacent to the [heap] region,
-> it does not actually overlap with it. So even if we accept that the
-> correct semantics is to catch any region that overlaps with the heap
-> (before only subregions of the heap were subject to the execheap
-> check), this corner case doesn't seem to be handled correctly by the
-> new check (and the same bug seems to have been in fs/proc/task_mmu.c
-> before commit 11250fd12eb8 ("mm: factor out VMA stack and heap
-> checks")).
+> (I didn't review the full patch, but Jim's v1 ack should still apply
+> to the rest.)
 >
-> I didn't analyze the wine case ([2]), but it may be the same situation.
->
-> Unless I'm mistaken, those <=3D & >=3D in should in fact be just < & >.
-> And the expression in vma_is_initial_stack() is also suspicious (but
-> I'm not going to make any assumption on what is the intended semantics
-> there...)
->
-> [1] https://bugzilla.redhat.com/show_bug.cgi?id=3D2252391
-> [2] https://bugzilla.redhat.com/show_bug.cgi?id=3D2247299
 
-Thanks Ondrej.
+This has now been merged.
+Thanks,
+Jim
 
-I'm hoping the mm folks will comment on this as it looks like this is
-an issue with the helper functions, but just in case I'm going to prep
-a revert for just the SELinux changes.  If we don't hear anything in
-the next couple of days I'll send the revert up to Linus with the idea
-that we can eventually shift back to the helpers when this is sorted.
-
---=20
-paul-moore.com
+> >
+> >  python/sepolicy/sepolicy/generate.py | 56 +++++++++++++---------------
+> >  1 file changed, 25 insertions(+), 31 deletions(-)
+> >
+> > diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sep=
+olicy/generate.py
+> > index b6df3e91160b..adf65f27a822 100644
+> > --- a/python/sepolicy/sepolicy/generate.py
+> > +++ b/python/sepolicy/sepolicy/generate.py
+> > @@ -1262,24 +1262,20 @@ allow %s_t %s_t:%s_socket name_%s;
+> >          return fcfile
+> >
+> >      def __extract_rpms(self):
+> > -        import yum
+> > -        yb =3D yum.YumBase()
+> > -        yb.setCacheDir()
+> > -
+> > -        for pkg in yb.rpmdb.searchProvides(self.program):
+> > -            self.rpms.append(pkg.name)
+> > -            for fname in pkg.dirlist + pkg.filelist + pkg.ghostlist:
+> > -                for b in self.DEFAULT_DIRS:
+> > -                    if b =3D=3D "/etc":
+> > -                        continue
+> > -                    if fname.startswith(b):
+> > -                        if os.path.isfile(fname):
+> > -                            self.add_file(fname)
+> > -                        else:
+> > -                            self.add_dir(fname)
+> > +        import dnf
+> > +
+> > +        with dnf.Base() as base:
+> > +            base.read_all_repos()
+> > +            base.fill_sack(load_system_repo=3DTrue)
+> > +
+> > +            query =3D base.sack.query()
+> >
+> > -            for bpkg in yb.rpmdb.searchNames([pkg.base_package_name]):
+> > -                for fname in bpkg.dirlist + bpkg.filelist + bpkg.ghost=
+list:
+> > +            pq =3D query.available()
+> > +            pq =3D pq.filter(file=3Dself.program)
+> > +
+> > +            for pkg in pq:
+> > +                self.rpms.append(pkg.name)
+> > +                for fname in pkg.files:
+> >                      for b in self.DEFAULT_DIRS:
+> >                          if b =3D=3D "/etc":
+> >                              continue
+> > @@ -1288,20 +1284,18 @@ allow %s_t %s_t:%s_socket name_%s;
+> >                                  self.add_file(fname)
+> >                              else:
+> >                                  self.add_dir(fname)
+> > -
+> > -        # some packages have own systemd subpackage
+> > -        # tor-systemd for example
+> > -        binary_name =3D self.program.split("/")[-1]
+> > -        for bpkg in yb.rpmdb.searchNames(["%s-systemd" % binary_name])=
+:
+> > -            for fname in bpkg.filelist + bpkg.ghostlist + bpkg.dirlist=
+:
+> > -                for b in self.DEFAULT_DIRS:
+> > -                    if b =3D=3D "/etc":
+> > -                        continue
+> > -                    if fname.startswith(b):
+> > -                        if os.path.isfile(fname):
+> > -                            self.add_file(fname)
+> > -                        else:
+> > -                            self.add_dir(fname)
+> > +                sq =3D query.available()
+> > +                sq =3D sq.filter(provides=3Dpkg.source_name)
+> > +                for bpkg in sq:
+> > +                    for fname in bpkg.files:
+> > +                        for b in self.DEFAULT_DIRS:
+> > +                            if b =3D=3D "/etc":
+> > +                                continue
+> > +                            if fname.startswith(b):
+> > +                                if os.path.isfile(fname):
+> > +                                    self.add_file(fname)
+> > +                                else:
+> > +                                    self.add_dir(fname)
+> >
+> >      def gen_writeable(self):
+> >          try:
+> > --
+> > 2.41.0
+> >
+>
+> --
+> Ondrej Mosnacek
+> Senior Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+>
+>
