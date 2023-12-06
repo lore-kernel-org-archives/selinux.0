@@ -1,51 +1,51 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="nLK+P+X6"
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2D1D71
+	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="OkeXp78t"
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7C310C1
 	for <selinux@vger.kernel.org>; Tue,  5 Dec 2023 22:06:38 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-1d0c4d84bf6so11397215ad.1
+Received: by mail-pg1-x531.google.com with SMTP id 41be03b00d2f7-5c66bbb3d77so2105877a12.0
         for <selinux@vger.kernel.org>; Tue, 05 Dec 2023 22:06:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1701842797; x=1702447597; darn=vger.kernel.org;
+        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1701842798; x=1702447598; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6abx9zF8o8O5TeS/ywwBDTAT+8QpF2rP4pNJ9ZpbgvE=;
-        b=nLK+P+X6MBvI4uK779aodJifGNiro1QhuSp848soYZsUF7Y8tiAietL/WwwiSPgS84
-         s7NwROAcdxsuYb9dXJgkNockQQyfVQrCL9/31a3AC9N8Fn5xjzDzFeJtdh70Y4cZhoYS
-         WBkFTzhqamosXgvoln0cb3daNPiwuIsChm9CWTfw8Ds2hFVe9W1Mp0UIJPoMY13eXrr7
-         yXC1T9qugab1tcrvHcnZk2etfRIkKHeOMtJleVbg+nPbsdy3X35iqymk8zJkH0vSFR2L
-         sVS5fgP8cbUEPiteZChwcZh/ubBTAGen6Yd+G4W54CWgIpT2iTzeXaM62lcuddZ5NvGO
-         C1iw==
+        bh=5fxgjHIY+i+wILRYpSYSEatYEwrJqDdx6PzPhkDcv2Y=;
+        b=OkeXp78tTzQtRq/qF05WM5DAndaCDB8vhHKZDY0XNgg5ts5hL63JNgkkGzvDYoU598
+         +3f3XDOyYR3xtGk2x8Uo9q8hEk0xSVZ2RCpPCylqNbpaWV8x0C/MKx2BNOhTx8Defkzu
+         LBxuKcz2ucwJ8N39FMlxiLJCGjqx4V0EcqQ6VFLWFKJFodaUUU0ay9THUBRWyAtcXz3D
+         /nWPrTWAxSQByn9g2DU/P7+3BATGMUXWDrnetwZcEVSIcnFH3B0EyBNJefdx4snPcBzo
+         u2z3AOvWP5I9NzS1qDxExZIevQB2Td+6o8sYj0OGzaBpOgeCI4Zm8q+H1HFahj4TTHne
+         0Zcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701842797; x=1702447597;
+        d=1e100.net; s=20230601; t=1701842798; x=1702447598;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6abx9zF8o8O5TeS/ywwBDTAT+8QpF2rP4pNJ9ZpbgvE=;
-        b=jt89LZT9ZQBhRu7IIb9MQ25E42Uzk1n2keWk1yZ9WtCdkGX/0sRcrM03vZZHXpvRr7
-         h2EeCbOqI5y0UAZSBagSDQ9zmuS1vf5/8wVSFQUiW06Q7YzjyBSeteFtf1vTcPV27jlL
-         dkVOheFmUyH+nZ7yeUi2X3aStl2MfGaxXiNOn4k+dDsm4BFSnrpb+V9uxFIfYNNxiOWw
-         NRwPo+y4Y93S3Ml2VFXHGc8f/UQay09VZtwONqwqEv+rFO4GeMPc5XTMgXAEgWXjpE0Y
-         k04QAF2COym/Uo4XyV3VCCq7vPcLL0jGYwXGR51gYy5wHoTP3+qB6AtL3cprtVCSmkVs
-         z56A==
-X-Gm-Message-State: AOJu0YzAQ1yPi+ysywKXs6AqfglTgRhYEWBvPJB1RRcB3/Z8MGy3LWGU
-	XffRGbn9mLWuEJzrfjaa6RAnXw==
-X-Google-Smtp-Source: AGHT+IFKCj2l+HHNkskWM6wYwhN/m2VAve+sjenp2dIB6q/RGjWECFDc5vjIz5MBW7qSCJwyduhwrQ==
-X-Received: by 2002:a17:902:bc8c:b0:1d0:6ffd:f222 with SMTP id bb12-20020a170902bc8c00b001d06ffdf222mr231131plb.120.1701842797392;
+        bh=5fxgjHIY+i+wILRYpSYSEatYEwrJqDdx6PzPhkDcv2Y=;
+        b=ZO3so58AKHPSDb7+jry5vQ7T89RL4/eXK4Hxe4+S/xw8tlLrv6W9QTEWPuFXALBIQK
+         pTj7E/df8v7VdWT7E7Mfuf+QKz/Jf9OrrhqCpU+0lndVBdMmtMBYDRqvueKYMGXnWs9Q
+         THvNjO3cSJW5MGMs1EfPDl+eyy6g61sHbILg8vJeooK1Uce4O0TPcM4e9ShFkgdyay7v
+         InWSQtnMC+IDx/kUOBzAesOY+0b70fn5iiRubyFtDUKFV8myjRfOVf6JWGIphb6+ZNj1
+         EYmZ8/90fSUeSX7CvfEzXizaQiaoltSilW1QSxUv8OXD7CuoPmZ/Y0yI7DY8dGncnkAB
+         njfw==
+X-Gm-Message-State: AOJu0Yx1iz+FkmoXfCYi4zLBeIF0bPW/THNb9dy6YxbhQrsoUaIMYuqe
+	9s2pm8lMoi+NWqOgF8HCwHBzEw==
+X-Google-Smtp-Source: AGHT+IFaRusOCnlTqKyhQX2TmiINjReQS73wsX4XhW7l8zr6yWbnE5nsO3OQlJ5zjUwEdtZUgvxNGw==
+X-Received: by 2002:a05:6a20:a426:b0:18f:97c:823e with SMTP id z38-20020a056a20a42600b0018f097c823emr186921pzk.72.1701842797795;
         Tue, 05 Dec 2023 22:06:37 -0800 (PST)
 Received: from dread.disaster.area (pa49-180-125-5.pa.nsw.optusnet.com.au. [49.180.125.5])
-        by smtp.gmail.com with ESMTPSA id 13-20020a170902c10d00b001d0b4693539sm3945964pli.189.2023.12.05.22.06.34
+        by smtp.gmail.com with ESMTPSA id 13-20020a17090a08cd00b002868f5c2847sm2240355pjn.7.2023.12.05.22.06.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Tue, 05 Dec 2023 22:06:34 -0800 (PST)
 Received: from [192.168.253.23] (helo=devoid.disaster.area)
 	by dread.disaster.area with esmtp (Exim 4.96)
 	(envelope-from <dave@fromorbit.com>)
-	id 1rAl3I-004VP7-13;
+	id 1rAl3H-004VOm-3D;
 	Wed, 06 Dec 2023 17:06:31 +1100
 Received: from dave by devoid.disaster.area with local (Exim 4.97-RC0)
 	(envelope-from <dave@devoid.disaster.area>)
-	id 1rAl3H-0000000BrVf-3cUt;
+	id 1rAl3H-0000000BrVG-2K9L;
 	Wed, 06 Dec 2023 17:06:31 +1100
 From: Dave Chinner <david@fromorbit.com>
 To: linux-fsdevel@vger.kernel.org
@@ -57,9 +57,9 @@ Cc: linux-block@vger.kernel.org,
 	linux-security-module@vger.kernel.org,
 	selinux@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 09/11] hash-bl: explicitly initialise hash-bl heads
-Date: Wed,  6 Dec 2023 17:05:38 +1100
-Message-ID: <20231206060629.2827226-10-david@fromorbit.com>
+Subject: [PATCH 04/11] lib/dlock-list: Make sibling CPUs share the same linked list
+Date: Wed,  6 Dec 2023 17:05:33 +1100
+Message-ID: <20231206060629.2827226-5-david@fromorbit.com>
 X-Mailer: git-send-email 2.42.0
 In-Reply-To: <20231206060629.2827226-1-david@fromorbit.com>
 References: <20231206060629.2827226-1-david@fromorbit.com>
@@ -71,198 +71,164 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Waiman Long <longman@redhat.com>
 
-Because we are going to change how the structure is laid out to
-support RTPREEMPT and LOCKDEP, just assuming that the hash table is
-allocated as zeroed memory is no longer sufficient to initialise
-a hash-bl table.
+The dlock list needs one list for each of the CPUs available. However,
+for sibling CPUs, they are sharing the L2 and probably L1 caches
+too. As a result, there is not much to gain in term of avoiding
+cacheline contention while increasing the cacheline footprint of the
+L1/L2 caches as separate lists may need to be in the cache.
 
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
+This patch makes all the sibling CPUs share the same list, thus
+reducing the number of lists that need to be maintained in each
+dlock list without having any noticeable impact on performance. It
+also improves dlock list iteration performance as fewer lists need
+to be iterated.
+
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 ---
- fs/dcache.c           | 21 ++++++++++++++++++++-
- fs/fscache/cookie.c   |  8 ++++++++
- fs/fscache/internal.h |  6 ++++--
- fs/fscache/main.c     |  3 +++
- fs/fscache/volume.c   |  8 ++++++++
- fs/inode.c            | 19 ++++++++++++++++++-
- 6 files changed, 61 insertions(+), 4 deletions(-)
+ lib/dlock-list.c | 74 ++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 59 insertions(+), 15 deletions(-)
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index c82ae731df9a..9059b3a55370 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -3284,7 +3284,10 @@ __setup("dhash_entries=", set_dhash_entries);
- 
- static void __init dcache_init_early(void)
- {
--	/* If hashes are distributed across NUMA nodes, defer
-+	int i;
-+
-+	/*
-+	 * If hashes are distributed across NUMA nodes, defer
- 	 * hash allocation until vmalloc space is available.
- 	 */
- 	if (hashdist)
-@@ -3300,11 +3303,20 @@ static void __init dcache_init_early(void)
- 					NULL,
- 					0,
- 					0);
-+	/*
-+	 * The value returned in d_hash_shift tells us the size of the
-+	 * hash table that was allocated as a log2 value.
-+	 */
-+	for (i = 0; i < (1 << d_hash_shift); i++)
-+		INIT_HLIST_BL_HEAD(&dentry_hashtable[i]);
-+
- 	d_hash_shift = 32 - d_hash_shift;
- }
- 
- static void __init dcache_init(void)
- {
-+	int i;
-+
- 	/*
- 	 * A constructor could be added for stable state like the lists,
- 	 * but it is probably not worth it because of the cache nature
-@@ -3328,6 +3340,13 @@ static void __init dcache_init(void)
- 					NULL,
- 					0,
- 					0);
-+	/*
-+	 * The value returned in d_hash_shift tells us the size of the
-+	 * hash table that was allocated as a log2 value.
-+	 */
-+	for (i = 0; i < (1 << d_hash_shift); i++)
-+		INIT_HLIST_BL_HEAD(&dentry_hashtable[i]);
-+
- 	d_hash_shift = 32 - d_hash_shift;
- }
- 
-diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
-index bce2492186d0..21617f7c88e4 100644
---- a/fs/fscache/cookie.c
-+++ b/fs/fscache/cookie.c
-@@ -32,6 +32,14 @@ static DECLARE_WORK(fscache_cookie_lru_work, fscache_cookie_lru_worker);
- static const char fscache_cookie_states[FSCACHE_COOKIE_STATE__NR] = "-LCAIFUWRD";
- static unsigned int fscache_lru_cookie_timeout = 10 * HZ;
- 
-+void fscache_cookie_hash_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < (1 << fscache_cookie_hash_shift); i++)
-+		INIT_HLIST_BL_HEAD(&fscache_cookie_hash[i]);
-+}
-+
- void fscache_print_cookie(struct fscache_cookie *cookie, char prefix)
- {
- 	const u8 *k;
-diff --git a/fs/fscache/internal.h b/fs/fscache/internal.h
-index 1336f517e9b1..6cbe07decc11 100644
---- a/fs/fscache/internal.h
-+++ b/fs/fscache/internal.h
-@@ -61,8 +61,9 @@ extern const struct seq_operations fscache_cookies_seq_ops;
- #endif
- extern struct timer_list fscache_cookie_lru_timer;
- 
--extern void fscache_print_cookie(struct fscache_cookie *cookie, char prefix);
--extern bool fscache_begin_cookie_access(struct fscache_cookie *cookie,
-+void fscache_cookie_hash_init(void);
-+void fscache_print_cookie(struct fscache_cookie *cookie, char prefix);
-+bool fscache_begin_cookie_access(struct fscache_cookie *cookie,
- 					enum fscache_access_trace why);
- 
- static inline void fscache_see_cookie(struct fscache_cookie *cookie,
-@@ -143,6 +144,7 @@ int fscache_stats_show(struct seq_file *m, void *v);
- extern const struct seq_operations fscache_volumes_seq_ops;
- #endif
- 
-+void fscache_volume_hash_init(void);
- struct fscache_volume *fscache_get_volume(struct fscache_volume *volume,
- 					  enum fscache_volume_trace where);
- void fscache_put_volume(struct fscache_volume *volume,
-diff --git a/fs/fscache/main.c b/fs/fscache/main.c
-index dad85fd84f6f..7db2a4423315 100644
---- a/fs/fscache/main.c
-+++ b/fs/fscache/main.c
-@@ -92,6 +92,9 @@ static int __init fscache_init(void)
- 		goto error_cookie_jar;
- 	}
- 
-+	fscache_volume_hash_init();
-+	fscache_cookie_hash_init();
-+
- 	pr_notice("Loaded\n");
- 	return 0;
- 
-diff --git a/fs/fscache/volume.c b/fs/fscache/volume.c
-index cdf991bdd9de..8b029c46a3a3 100644
---- a/fs/fscache/volume.c
-+++ b/fs/fscache/volume.c
-@@ -17,6 +17,14 @@ static LIST_HEAD(fscache_volumes);
- 
- static void fscache_create_volume_work(struct work_struct *work);
- 
-+void fscache_volume_hash_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < (1 << fscache_volume_hash_shift); i++)
-+		INIT_HLIST_BL_HEAD(&fscache_volume_hash[i]);
-+}
-+
- struct fscache_volume *fscache_get_volume(struct fscache_volume *volume,
- 					  enum fscache_volume_trace where)
- {
-diff --git a/fs/inode.c b/fs/inode.c
-index 3eb9c4e5b279..57c1030ccad3 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -2353,7 +2353,10 @@ __setup("ihash_entries=", set_ihash_entries);
+diff --git a/lib/dlock-list.c b/lib/dlock-list.c
+index f64ea4cc5e79..e2860944ec9f 100644
+--- a/lib/dlock-list.c
++++ b/lib/dlock-list.c
+@@ -25,31 +25,65 @@
+  * The distributed and locked list is a distributed set of lists each of
+  * which is protected by its own spinlock, but acts like a single
+  * consolidated list to the callers. For scaling purpose, the number of
+- * lists used is equal to the number of possible CPUs in the system to
+- * minimize contention.
++ * lists used is equal to the number of possible cores in the system to
++ * minimize contention. All threads of the same CPU core will share the
++ * same list.
+  *
+- * However, it is possible that individual CPU numbers may be equal to
+- * or greater than the number of possible CPUs when there are holes in
+- * the CPU number list. As a result, we need to map the CPU number to a
+- * list index.
++ * We need to map each CPU number to a list index.
   */
- void __init inode_init_early(void)
+ static DEFINE_PER_CPU_READ_MOSTLY(int, cpu2idx);
++static int nr_dlock_lists __read_mostly;
+ 
+ /*
+- * Initialize cpu2idx mapping table
++ * Initialize cpu2idx mapping table & nr_dlock_lists.
+  *
+  * It is possible that a dlock-list can be allocated before the cpu2idx is
+  * initialized. In this case, all the cpus are mapped to the first entry
+  * before initialization.
+  *
++ * All the sibling CPUs of a sibling group will map to the same dlock list so
++ * as to reduce the number of dlock lists to be maintained while minimizing
++ * cacheline contention.
++ *
++ * As the sibling masks are set up in the core initcall phase, this function
++ * has to be done in the postcore phase to get the right data.
+  */
+ static int __init cpu2idx_init(void)
  {
--	/* If hashes are distributed across NUMA nodes, defer
-+	int i;
+ 	int idx, cpu;
++	struct cpumask *sibling_mask;
++	static struct cpumask mask __initdata;
+ 
++	cpumask_clear(&mask);
+ 	idx = 0;
+-	for_each_possible_cpu(cpu)
+-		per_cpu(cpu2idx, cpu) = idx++;
++	for_each_possible_cpu(cpu) {
++		int scpu;
++
++		if (cpumask_test_cpu(cpu, &mask))
++			continue;
++		per_cpu(cpu2idx, cpu) = idx;
++		cpumask_set_cpu(cpu, &mask);
++
++		sibling_mask = topology_sibling_cpumask(cpu);
++		if (sibling_mask) {
++			for_each_cpu(scpu, sibling_mask) {
++				per_cpu(cpu2idx, scpu) = idx;
++				cpumask_set_cpu(scpu, &mask);
++			}
++		}
++		idx++;
++	}
 +
 +	/*
-+	 * If hashes are distributed across NUMA nodes, defer
- 	 * hash allocation until vmalloc space is available.
++	 * nr_dlock_lists can only be set after cpu2idx is properly
++	 * initialized.
++	 */
++	smp_mb();
++	nr_dlock_lists = idx;
++	WARN_ON(nr_dlock_lists > nr_cpu_ids);
++
++	pr_info("dlock-list: %d head entries per dlock list.\n",
++		nr_dlock_lists);
+ 	return 0;
+ }
+ postcore_initcall(cpu2idx_init);
+@@ -67,19 +101,23 @@ postcore_initcall(cpu2idx_init);
+  *
+  * Dynamically allocated locks need to have their own special lock class
+  * to avoid lockdep warning.
++ *
++ * Since nr_dlock_lists will always be <= nr_cpu_ids, having more lists
++ * than necessary allocated is not a problem other than some wasted memory.
++ * The extra lists will not be ever used as all the cpu2idx entries will be
++ * 0 before initialization.
+  */
+ int __alloc_dlock_list_heads(struct dlock_list_heads *dlist,
+ 			     struct lock_class_key *key)
+ {
+-	int idx;
++	int idx, cnt = nr_dlock_lists ? nr_dlock_lists : nr_cpu_ids;
+ 
+-	dlist->heads = kcalloc(nr_cpu_ids, sizeof(struct dlock_list_head),
+-			       GFP_KERNEL);
++	dlist->heads = kcalloc(cnt, sizeof(struct dlock_list_head), GFP_KERNEL);
+ 
+ 	if (!dlist->heads)
+ 		return -ENOMEM;
+ 
+-	for (idx = 0; idx < nr_cpu_ids; idx++) {
++	for (idx = 0; idx < cnt; idx++) {
+ 		struct dlock_list_head *head = &dlist->heads[idx];
+ 
+ 		INIT_LIST_HEAD(&head->list);
+@@ -117,7 +155,10 @@ bool dlock_lists_empty(struct dlock_list_heads *dlist)
+ {
+ 	int idx;
+ 
+-	for (idx = 0; idx < nr_cpu_ids; idx++)
++	/* Shouldn't be called before nr_dlock_lists is initialized */
++	WARN_ON_ONCE(!nr_dlock_lists);
++
++	for (idx = 0; idx < nr_dlock_lists; idx++)
+ 		if (!list_empty(&dlist->heads[idx].list))
+ 			return false;
+ 	return true;
+@@ -199,6 +240,9 @@ struct dlock_list_node *__dlock_list_next_list(struct dlock_list_iter *iter)
+ 	struct dlock_list_node *next;
+ 	struct dlock_list_head *head;
+ 
++	/* Shouldn't be called before nr_dlock_lists is initialized */
++	WARN_ON_ONCE(!nr_dlock_lists);
++
+ restart:
+ 	if (iter->entry) {
+ 		spin_unlock(&iter->entry->lock);
+@@ -209,7 +253,7 @@ struct dlock_list_node *__dlock_list_next_list(struct dlock_list_iter *iter)
+ 	/*
+ 	 * Try next list
  	 */
- 	if (hashdist)
-@@ -2369,10 +2372,18 @@ void __init inode_init_early(void)
- 					&i_hash_mask,
- 					0,
- 					0);
-+	/*
-+	 * The value returned in i_hash_shift tells us the size of the
-+	 * hash table that was allocated as a log2 value.
-+	 */
-+	for (i = 0; i < (1 << i_hash_shift); i++)
-+		INIT_HLIST_BL_HEAD(&inode_hashtable[i]);
- }
+-	if (++iter->index >= nr_cpu_ids)
++	if (++iter->index >= nr_dlock_lists)
+ 		return NULL;	/* All the entries iterated */
  
- void __init inode_init(void)
- {
-+	int i;
-+
- 	/* inode slab cache */
- 	inode_cachep = kmem_cache_create("inode_cache",
- 					 sizeof(struct inode),
-@@ -2395,6 +2406,12 @@ void __init inode_init(void)
- 					&i_hash_mask,
- 					0,
- 					0);
-+	/*
-+	 * The value returned in i_hash_shift tells us the size of the
-+	 * hash table that was allocated as a log2 value.
-+	 */
-+	for (i = 0; i < (1 << i_hash_shift); i++)
-+		INIT_HLIST_BL_HEAD(&inode_hashtable[i]);
- }
- 
- void init_special_inode(struct inode *inode, umode_t mode, dev_t rdev)
+ 	if (list_empty(&iter->head[iter->index].list))
 -- 
 2.42.0
 
