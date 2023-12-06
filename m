@@ -1,725 +1,384 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="SvdV/jF9"
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C09110C9
-	for <selinux@vger.kernel.org>; Tue,  5 Dec 2023 22:06:39 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1d04dba2781so33260915ad.3
-        for <selinux@vger.kernel.org>; Tue, 05 Dec 2023 22:06:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1701842799; x=1702447599; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NnFiB1AOSnW5eXL0TXhVYgeL/vpsO/mdIcAfnCTORyA=;
-        b=SvdV/jF9qBeunUyMw46u+j5wYLGdMXjRoiGBMsjCKwtEQJP3jhHGWTferAhYSizaCV
-         fJpjzSUA1CkVJXuIsxI5iNPOAjJKKTL8dNF29vQGST2Xe+zzJorLUMyBenHkp9NtBc6Q
-         DxT4Z+GzKlg+CBoEsfYlvHEt+chxZlCMIqaJmhwhpIJczkV53LuHCPLxmYbtvvFhKVTz
-         JD/Gv3AJQDddoc64LIu5SNvVU/sIKB5W1FFkV2oPFQ/sKoLWVjTdrXdPRj5Bg9Vwz5wW
-         EoeG8oV/pGF4X9z1txW22KjLuaLzk3FWsSjTNfjrWMh413GY7xNEySyzFkhn1rcgz+a7
-         PAzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701842799; x=1702447599;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NnFiB1AOSnW5eXL0TXhVYgeL/vpsO/mdIcAfnCTORyA=;
-        b=qvOUTcRGB3ep+XRB0Lm+x+EEyFgwErEXGZYjdcKKL0ybMosJ0j1HIYy+8houemoTmP
-         tWYZ4WFS7mwcp9PsRtZrPTrnqaA8ljMWimiVxdd56U8eLWcyqcsuRNtM2A6ej1N80q1C
-         gA5UuXfn/o4ywekKCE4k4VBQSJk+XeEW0pMcImC0USgRl+bTbt11NC3tVnTuWeed+RrG
-         1MFl3DdswfpcS86aRJIVdzLElWIFVVC26O8c96Rz78gwQB1LCzlroatt7/Dk0EWgIN7u
-         Opa4PiixetThGu+rbthmRfM+w2BkaKHMtq0/5qadf0OabgAkrF8l840529OLbADb6muv
-         HR6w==
-X-Gm-Message-State: AOJu0YyXr6gEtCR7amfne/ZDQqELkEiec07X6y5MJ9lnkaliuxwWR7O9
-	6yojUMZO3n/wFcyw/xuWYebP9jiiLAgcQd+5bDI=
-X-Google-Smtp-Source: AGHT+IHnOknw8OjWrnQAs5nfw1dZTQS0ZMfwHkjinURX0IvbbckhfMQRoU6wqY+9qjtNVe9wFLMfWg==
-X-Received: by 2002:a17:902:b28c:b0:1d0:6ffe:1e89 with SMTP id u12-20020a170902b28c00b001d06ffe1e89mr238281plr.108.1701842798702;
-        Tue, 05 Dec 2023 22:06:38 -0800 (PST)
-Received: from dread.disaster.area (pa49-180-125-5.pa.nsw.optusnet.com.au. [49.180.125.5])
-        by smtp.gmail.com with ESMTPSA id i4-20020a17090332c400b001d071d58e85sm7382209plr.98.2023.12.05.22.06.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Dec 2023 22:06:35 -0800 (PST)
-Received: from [192.168.253.23] (helo=devoid.disaster.area)
-	by dread.disaster.area with esmtp (Exim 4.96)
-	(envelope-from <dave@fromorbit.com>)
-	id 1rAl3H-004VOj-33;
-	Wed, 06 Dec 2023 17:06:31 +1100
-Received: from dave by devoid.disaster.area with local (Exim 4.97-RC0)
-	(envelope-from <dave@devoid.disaster.area>)
-	id 1rAl3H-0000000BrVB-27ej;
-	Wed, 06 Dec 2023 17:06:31 +1100
-From: Dave Chinner <david@fromorbit.com>
-To: linux-fsdevel@vger.kernel.org
-Cc: linux-block@vger.kernel.org,
-	linux-cachefs@redhat.com,
-	dhowells@redhat.com,
-	gfs2@lists.linux.dev,
-	dm-devel@lists.linux.dev,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 03/11] vfs: Use dlock list for superblock's inode list
-Date: Wed,  6 Dec 2023 17:05:32 +1100
-Message-ID: <20231206060629.2827226-4-david@fromorbit.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231206060629.2827226-1-david@fromorbit.com>
-References: <20231206060629.2827226-1-david@fromorbit.com>
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F0E2122;
+	Wed,  6 Dec 2023 05:10:46 -0800 (PST)
+Received: from mail.maildlp.com (unknown [172.18.186.51])
+	by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4Slclh2pLGz9yfLt;
+	Wed,  6 Dec 2023 20:53:36 +0800 (CST)
+Received: from mail02.huawei.com (unknown [7.182.16.47])
+	by mail.maildlp.com (Postfix) with ESMTP id 3837D14064D;
+	Wed,  6 Dec 2023 21:10:42 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+	by APP1 (Coremail) with SMTP id LxC2BwD35HTDcnBl9n0HAg--.2463S2;
+	Wed, 06 Dec 2023 14:10:41 +0100 (CET)
+Message-ID: <d608edb80efe03b62698ab33cbee1eea856a0422.camel@huaweicloud.com>
+Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
+ blob for integrity_iint_cache
+From: Roberto Sassu <roberto.sassu@huaweicloud.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com, 
+ jlayton@kernel.org, neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, 
+ tom@talpey.com, jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com, 
+ dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org, 
+ stephen.smalley.work@gmail.com, eparis@parisplace.org,
+ casey@schaufler-ca.com,  mic@digikod.net, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org,  linux-nfs@vger.kernel.org,
+ linux-security-module@vger.kernel.org,  linux-integrity@vger.kernel.org,
+ keyrings@vger.kernel.org,  selinux@vger.kernel.org, Roberto Sassu
+ <roberto.sassu@huawei.com>
+Date: Wed, 06 Dec 2023 14:10:24 +0100
+In-Reply-To: <5f441267b6468b98e51a08d247a7ae066a60ff0c.camel@huaweicloud.com>
+References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
+	 <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
+	 <2084adba3c27a606cbc5ed7b3214f61427a829dd.camel@huaweicloud.com>
+	 <CAHC9VhTTKac1o=RnQadu2xqdeKH8C_F+Wh4sY=HkGbCArwc8JQ@mail.gmail.com>
+	 <b6c51351be3913be197492469a13980ab379e412.camel@huaweicloud.com>
+	 <CAHC9VhSAryQSeFy0ZMexOiwBG-YdVGRzvh58=heH916DftcmWA@mail.gmail.com>
+	 <90eb8e9d-c63e-42d6-b951-f856f31590db@huaweicloud.com>
+	 <CAHC9VhROnfBoaOy2MurdSpcE_poo_6Qy9d2U3g6m2NRRHaqz4Q@mail.gmail.com>
+	 <5f441267b6468b98e51a08d247a7ae066a60ff0c.camel@huaweicloud.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:LxC2BwD35HTDcnBl9n0HAg--.2463S2
+X-Coremail-Antispam: 1UD129KBjvAXoWfJF1rAw4rWF17uFW7Zr1kKrg_yoW8JF4fGo
+	WfAwsrJw48Kr15Aa1jka4xXFyrCw1rWry3Jryjqw4UGFn0q3WUC348G3WrJFW3Jr48Kw4D
+	J34UXay5AFZrtF97n29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73VFW2AGmfu7bjvjm3
+	AaLaJ3UjIYCTnIWjp_UUUYU7kC6x804xWl14x267AKxVWrJVCq3wAFc2x0x2IEx4CE42xK
+	8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4
+	AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF
+	7I0E14v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I
+	0E14v26r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
+	7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
+	Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
+	6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
+	AIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv
+	6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFYFCUUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgADBF1jj5NPigAAsi
 
-From: Waiman Long <longman@redhat.com>
+On Mon, 2023-12-04 at 14:26 +0100, Roberto Sassu wrote:
+> On Thu, 2023-11-30 at 11:34 -0500, Paul Moore wrote:
+> > On Wed, Nov 29, 2023 at 1:47=E2=80=AFPM Roberto Sassu
+> > <roberto.sassu@huaweicloud.com> wrote:
+> > > On 11/29/2023 6:22 PM, Paul Moore wrote:
+> > > > On Wed, Nov 29, 2023 at 7:28=E2=80=AFAM Roberto Sassu
+> > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > >=20
+> > > > > On Mon, 2023-11-20 at 16:06 -0500, Paul Moore wrote:
+> > > > > > On Mon, Nov 20, 2023 at 3:16=E2=80=AFAM Roberto Sassu
+> > > > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > > > On Fri, 2023-11-17 at 15:57 -0500, Paul Moore wrote:
+> > > > > > > > On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.co=
+m> wrote:
+> > > > > > > > >=20
+> > > > > > > > > Before the security field of kernel objects could be shar=
+ed among LSMs with
+> > > > > > > > > the LSM stacking feature, IMA and EVM had to rely on an a=
+lternative storage
+> > > > > > > > > of inode metadata. The association between inode metadata=
+ and inode is
+> > > > > > > > > maintained through an rbtree.
+> > > > > > > > >=20
+> > > > > > > > > Because of this alternative storage mechanism, there was =
+no need to use
+> > > > > > > > > disjoint inode metadata, so IMA and EVM today still share=
+ them.
+> > > > > > > > >=20
+> > > > > > > > > With the reservation mechanism offered by the LSM infrast=
+ructure, the
+> > > > > > > > > rbtree is no longer necessary, as each LSM could reserve =
+a space in the
+> > > > > > > > > security blob for each inode. However, since IMA and EVM =
+share the
+> > > > > > > > > inode metadata, they cannot directly reserve the space fo=
+r them.
+> > > > > > > > >=20
+> > > > > > > > > Instead, request from the 'integrity' LSM a space in the =
+security blob for
+> > > > > > > > > the pointer of inode metadata (integrity_iint_cache struc=
+ture). The other
+> > > > > > > > > reason for keeping the 'integrity' LSM is to preserve the=
+ original ordering
+> > > > > > > > > of IMA and EVM functions as when they were hardcoded.
+> > > > > > > > >=20
+> > > > > > > > > Prefer reserving space for a pointer to allocating the in=
+tegrity_iint_cache
+> > > > > > > > > structure directly, as IMA would require it only for a su=
+bset of inodes.
+> > > > > > > > > Always allocating it would cause a waste of memory.
+> > > > > > > > >=20
+> > > > > > > > > Introduce two primitives for getting and setting the poin=
+ter of
+> > > > > > > > > integrity_iint_cache in the security blob, respectively
+> > > > > > > > > integrity_inode_get_iint() and integrity_inode_set_iint()=
+. This would make
+> > > > > > > > > the code more understandable, as they directly replace rb=
+tree operations.
+> > > > > > > > >=20
+> > > > > > > > > Locking is not needed, as access to inode metadata is not=
+ shared, it is per
+> > > > > > > > > inode.
+> > > > > > > > >=20
+> > > > > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > > > > Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> > > > > > > > > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> > > > > > > > > ---
+> > > > > > > > >   security/integrity/iint.c      | 71 +++++--------------=
+---------------
+> > > > > > > > >   security/integrity/integrity.h | 20 +++++++++-
+> > > > > > > > >   2 files changed, 29 insertions(+), 62 deletions(-)
+> > > > > > > > >=20
+> > > > > > > > > diff --git a/security/integrity/iint.c b/security/integri=
+ty/iint.c
+> > > > > > > > > index 882fde2a2607..a5edd3c70784 100644
+> > > > > > > > > --- a/security/integrity/iint.c
+> > > > > > > > > +++ b/security/integrity/iint.c
+> > > > > > > > > @@ -231,6 +175,10 @@ static int __init integrity_lsm_init=
+(void)
+> > > > > > > > >      return 0;
+> > > > > > > > >   }
+> > > > > > > > >=20
+> > > > > > > > > +struct lsm_blob_sizes integrity_blob_sizes __ro_after_in=
+it =3D {
+> > > > > > > > > +   .lbs_inode =3D sizeof(struct integrity_iint_cache *),
+> > > > > > > > > +};
+> > > > > > > >=20
+> > > > > > > > I'll admit that I'm likely missing an important detail, but=
+ is there
+> > > > > > > > a reason why you couldn't stash the integrity_iint_cache st=
+ruct
+> > > > > > > > directly in the inode's security blob instead of the pointe=
+r?  For
+> > > > > > > > example:
+> > > > > > > >=20
+> > > > > > > >    struct lsm_blob_sizes ... =3D {
+> > > > > > > >      .lbs_inode =3D sizeof(struct integrity_iint_cache),
+> > > > > > > >    };
+> > > > > > > >=20
+> > > > > > > >    struct integrity_iint_cache *integrity_inode_get(inode)
+> > > > > > > >    {
+> > > > > > > >      if (unlikely(!inode->isecurity))
+> > > > > > > >        return NULL;
+> > > > > > > >      return inode->i_security + integrity_blob_sizes.lbs_in=
+ode;
+> > > > > > > >    }
+> > > > > > >=20
+> > > > > > > It would increase memory occupation. Sometimes the IMA policy
+> > > > > > > encompasses a small subset of the inodes. Allocating the full
+> > > > > > > integrity_iint_cache would be a waste of memory, I guess?
+> > > > > >=20
+> > > > > > Perhaps, but if it allows us to remove another layer of dynamic=
+ memory
+> > > > > > I would argue that it may be worth the cost.  It's also worth
+> > > > > > considering the size of integrity_iint_cache, while it isn't sm=
+all, it
+> > > > > > isn't exactly huge either.
+> > > > > >=20
+> > > > > > > On the other hand... (did not think fully about that) if we e=
+mbed the
+> > > > > > > full structure in the security blob, we already have a mutex =
+available
+> > > > > > > to use, and we don't need to take the inode lock (?).
+> > > > > >=20
+> > > > > > That would be excellent, getting rid of a layer of locking woul=
+d be significant.
+> > > > > >=20
+> > > > > > > I'm fully convinced that we can improve the implementation
+> > > > > > > significantly. I just was really hoping to go step by step an=
+d not
+> > > > > > > accumulating improvements as dependency for moving IMA and EV=
+M to the
+> > > > > > > LSM infrastructure.
+> > > > > >=20
+> > > > > > I understand, and I agree that an iterative approach is a good =
+idea, I
+> > > > > > just want to make sure we keep things tidy from a user perspect=
+ive,
+> > > > > > i.e. not exposing the "integrity" LSM when it isn't required.
+> > > > >=20
+> > > > > Ok, I went back to it again.
+> > > > >=20
+> > > > > I think trying to separate integrity metadata is premature now, t=
+oo
+> > > > > many things at the same time.
+> > > >=20
+> > > > I'm not bothered by the size of the patchset, it is more important
+> > > > that we do The Right Thing.  I would like to hear in more detail wh=
+y
+> > > > you don't think this will work, I'm not interested in hearing about
+> > > > difficult it may be, I'm interested in hearing about what challenge=
+s
+> > > > we need to solve to do this properly.
+> > >=20
+> > > The right thing in my opinion is to achieve the goal with the minimal
+> > > set of changes, in the most intuitive way.
+> >=20
+> > Once again, I want to stress that I don't care about the size of the
+> > change, the number of patches in a patchset, etc.  While it's always
+> > nice to be able to minimize the number of changes in a patch/patchset,
+> > that is secondary to making sure we are doing the right thing over the
+> > long term.  This is especially important when we are talking about
+> > things that are user visible.
+> >=20
+> > > Until now, there was no solution that could achieve the primary goal =
+of
+> > > this patch set (moving IMA and EVM to the LSM infrastructure) and, at
+> > > the same time, achieve the additional goal you set of removing the
+> > > 'integrity' LSM.
+> >=20
+> > We need to stop thinking about the "integrity" code as a LSM, it isn't
+> > a LSM.  It's a vestigial implementation detail that was necessary back
+> > when there could only be one LSM active at a time and there was a
+> > desire to have IMA/EVM active in conjunction with one of the LSMs,
+> > i.e. Smack, SELinux, etc.
+> >=20
+> > IMA and EVM are (or will be) LSMs, "integrity" is not.  I recognize
+> > that eliminating the need for the "integrity" code is a relatively new
+> > addition to this effort, but that is only because I didn't properly
+> > understand the relationship between IMA, EVM, and the "integrity" code
+> > until recently.  The elimination of the shared "integrity" code is
+> > consistent with promoting IMA and EVM as full LSMs, if there is core
+> > functionality that cannot be split up into the IMA and/or EVM LSMs
+> > then we need to look at how to support that without exposing that
+> > implementation detail/hack to userspace.  Maybe that means direct
+> > calls between IMA and EVM, maybe that means preserving some of the
+> > common integrity code hidden from userspace, maybe that means adding
+> > functionality to the LSM layer, maybe that means something else?
+> > Let's think on this to come up with something that we can all accept
+> > as a long term solution instead of just doing the quick and easy
+> > option.
+>=20
+> If the result of this patch set should be that IMA and EVM become
+> proper LSMs without the shared integrity layer, instead of collapsing
+> all changes in this patch set, I think we should first verify if IMA
+> and EVM can be really independent. Once we guarantee that, we can
+> proceed making the proper LSMs.
+>=20
+> These are the changes I have in mind:
+>=20
+> 1) Fix evm_verifyxattr(), and make it work without integrity_iint_cache
+> 2) Remove the integrity_iint_cache parameter from evm_verifyxattr(),
+>    since the other callers are not going to use it
 
-[dchinner: original commit message preserved]
+Ehm, I checked better.
 
-When many threads are trying to add or delete inode to or from
-a superblock's s_inodes list, spinlock contention on the list can
-become a performance bottleneck.
+integrity_inode_get() is public too (although it is not exported). So,
+a caller (not IMA) could do:
 
-This patch changes the s_inodes field to become a dlock list which
-is a distributed set of lists with per-list spinlocks.  As a result,
-the following superblock inode list (sb->s_inodes) iteration functions
-in vfs are also being modified:
+iint =3D integrity_inode_get(inode);
+status =3D evm_verifyxattr(..., iint);
 
- 1. iterate_bdevs()
- 2. drop_pagecache_sb()
- 3. evict_inodes()
- 4. invalidate_inodes()
- 5. fsnotify_unmount_inodes()
- 6. add_dquot_ref()
- 7. remove_dquot_ref()
+However, it should not call integrity_inode_free(), which is also in
+include/linux/integrity.h, since this is going to be called by
+security_inode_free() (currently).
 
-With an exit microbenchmark that creates a large number of threads,
-attachs many inodes to them in procfs and then exits. The runtimes of
-that microbenchmark with various number of threads before and after
-the patch on a 4-socket Intel E7-8867 v3 system (64 cores, 128 threads)
-on a 4.19-rc3 based kernel were as follows:
+> 3) Create an internal function with the original parameters to be used
+>    by IMA
+> 4) Introduce evm_post_path_mknod(), which similarly to
+>    ima_post_path_mknod(), sets IMA_NEW_FILE for new files
 
-  # of threads  Elapsed/Sys Time    Elapsed/Sys Time    Speedup
-                Unpatched Kernel     Patched Kernel
-  ------------  ----------------    ----------------    -------
-      1000      59.17s/123m09.8s    18.90s/24m44.5s      3.13
-      1200      73.20s/151m24.1s    27.54s/50m05.3s      2.66
-      1400     102.04s/212m00.9s    36.75s/68m26.7s      2.78
-      1600     131.13s/272m52.4s    50.16s/94m23.7s      2.61
+I just realized that also this is changing the current behavior.
 
-[dchinner: forward port, add new inode list traversals, etc]
-[dchinner: scalability results on current TOT XFS]
+IMA would clear IMA_NEW_FILE in ima_check_last_writer(), while EVM
+wouldn't (unless we implement the file_release hook in EVM too).
 
-With 400k inodes per thread concurrent directory traversal workload,
-scalability improves at >=16 threads on 6.7-rc4 on XFS. We only test
-XFS here as it is the only filesystem that demonstrates sufficient
-internal scalability for the superblock inode list to be a
-scalability bottleneck.
+> 5) Add hardcoded call to evm_post_path_mknod() after
+>    ima_post_path_mknod() in security.c
+>=20
+> If we think that this is good enough, we proceed with the move of IMA
+> and EVM functions to the LSM infrastructure (patches v7 19-21).
+>=20
+> The next patches are going to be similar to patches v6 22-23, but
+> unlike those, their goal would be simply to split metadata, not to make
+> IMA and EVM independent, which at this point has been addressed
+> separately in the prerequisite patches.
+>=20
+> The final patch is to remove the 'integrity' LSM and the integrity
+> metadata management code, which now is not used anymore.
+>=20
+> Would that work?
 
-Table contains test runtime in seconds; perfect scalability is
-demonstrated by the runtime staying constant as thread count goes up.
+We are not making much progress, I'm going to follow any recommendation
+that would move this forward.
 
-Threads		6.4-rc7		patched
--------		-------		-------
-2		11.673		11.158
-4		 9.665		 9.444
-8		10.622		 9.275
-16		12.148		 9.508
-32		20.518		10.308
+Thanks
 
-Unpatched kernel profile at 32 threads:
+Roberto
 
-- 95.45% vfs_fstatat
-  - 95.00% vfs_statx
-     - 91.00% filename_lookup
-	- 90.90% path_lookupat
-	   - 90.40% walk_component
-	      - 89.05% lookup_slow
-		 - 88.95% __lookup_slow
-		    - 86.38% xfs_vn_lookup
-		       - 84.05% xfs_lookup
-			  - 78.82% xfs_iget
-			     - 72.58% xfs_setup_inode
-				- 72.54% inode_sb_list_add
-				   - 71.12% _raw_spin_lock
-				      - 71.09% do_raw_spin_lock
-					 - 68.85% __pv_queued_spin_lock_slowpath
-
-Patched kernel profile at 32 threads - the biggest single point of
-contention is now the dentry cache LRU via dput():
-
--   21.59%     0.25%  [kernel]              [k] dput
-   - 21.34% dput
-      - 19.93% retain_dentry
-         - d_lru_add
-            - 19.82% list_lru_add
-               - 14.62% _raw_spin_lock
-                  - 14.47% do_raw_spin_lock
-                       10.89% __pv_queued_spin_lock_slowpath
-                 1.78% __list_add_valid_or_report
-               - 0.81% _raw_spin_unlock
-                  - do_raw_spin_unlock
-                       0.77% __raw_callee_save___pv_queued_spin_unlock
-      - 0.79% _raw_spin_unlock
-         - 0.78% do_raw_spin_unlock
-              0.67% __raw_callee_save___pv_queued_spin_unlock
-
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
----
- block/bdev.c           | 24 ++++++++----------------
- fs/drop_caches.c       |  9 ++++-----
- fs/gfs2/ops_fstype.c   | 21 +++++++++++----------
- fs/inode.c             | 37 ++++++++++++++++---------------------
- fs/notify/fsnotify.c   | 12 ++++++------
- fs/quota/dquot.c       | 22 ++++++----------------
- fs/super.c             | 13 +++++++------
- include/linux/fs.h     |  8 ++++----
- security/landlock/fs.c | 25 ++++++-------------------
- 9 files changed, 68 insertions(+), 103 deletions(-)
-
-diff --git a/block/bdev.c b/block/bdev.c
-index 750aec178b6a..07135fd6fda4 100644
---- a/block/bdev.c
-+++ b/block/bdev.c
-@@ -437,11 +437,11 @@ long nr_blockdev_pages(void)
- {
- 	struct inode *inode;
- 	long ret = 0;
-+	DEFINE_DLOCK_LIST_ITER(iter, &blockdev_superblock->s_inodes);
- 
--	spin_lock(&blockdev_superblock->s_inode_list_lock);
--	list_for_each_entry(inode, &blockdev_superblock->s_inodes, i_sb_list)
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		ret += inode->i_mapping->nrpages;
--	spin_unlock(&blockdev_superblock->s_inode_list_lock);
-+	}
- 
- 	return ret;
- }
-@@ -1032,9 +1032,9 @@ EXPORT_SYMBOL_GPL(bdev_mark_dead);
- void sync_bdevs(bool wait)
- {
- 	struct inode *inode, *old_inode = NULL;
-+	DEFINE_DLOCK_LIST_ITER(iter, &blockdev_superblock->s_inodes);
- 
--	spin_lock(&blockdev_superblock->s_inode_list_lock);
--	list_for_each_entry(inode, &blockdev_superblock->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		struct address_space *mapping = inode->i_mapping;
- 		struct block_device *bdev;
- 
-@@ -1046,15 +1046,8 @@ void sync_bdevs(bool wait)
- 		}
- 		__iget(inode);
- 		spin_unlock(&inode->i_lock);
--		spin_unlock(&blockdev_superblock->s_inode_list_lock);
--		/*
--		 * We hold a reference to 'inode' so it couldn't have been
--		 * removed from s_inodes list while we dropped the
--		 * s_inode_list_lock  We cannot iput the inode now as we can
--		 * be holding the last reference and we cannot iput it under
--		 * s_inode_list_lock. So we keep the reference and iput it
--		 * later.
--		 */
-+		dlock_list_unlock(&iter);
-+
- 		iput(old_inode);
- 		old_inode = inode;
- 		bdev = I_BDEV(inode);
-@@ -1075,9 +1068,8 @@ void sync_bdevs(bool wait)
- 		}
- 		mutex_unlock(&bdev->bd_disk->open_mutex);
- 
--		spin_lock(&blockdev_superblock->s_inode_list_lock);
-+		dlock_list_relock(&iter);
- 	}
--	spin_unlock(&blockdev_superblock->s_inode_list_lock);
- 	iput(old_inode);
- }
- 
-diff --git a/fs/drop_caches.c b/fs/drop_caches.c
-index b9575957a7c2..3596d0a7c0da 100644
---- a/fs/drop_caches.c
-+++ b/fs/drop_caches.c
-@@ -19,9 +19,9 @@ int sysctl_drop_caches;
- static void drop_pagecache_sb(struct super_block *sb, void *unused)
- {
- 	struct inode *inode, *toput_inode = NULL;
-+	DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- 
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		spin_lock(&inode->i_lock);
- 		/*
- 		 * We must skip inodes in unusual state. We may also skip
-@@ -35,16 +35,15 @@ static void drop_pagecache_sb(struct super_block *sb, void *unused)
- 		}
- 		__iget(inode);
- 		spin_unlock(&inode->i_lock);
--		spin_unlock(&sb->s_inode_list_lock);
-+		dlock_list_unlock(&iter);
- 
- 		invalidate_mapping_pages(inode->i_mapping, 0, -1);
- 		iput(toput_inode);
- 		toput_inode = inode;
- 
- 		cond_resched();
--		spin_lock(&sb->s_inode_list_lock);
-+		dlock_list_relock(&iter);
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 	iput(toput_inode);
- }
- 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index b108c5d26839..1105710482e7 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -1738,22 +1738,24 @@ static int gfs2_meta_init_fs_context(struct fs_context *fc)
-  * attempt will time out.  Since inodes are evicted sequentially, this can add
-  * up quickly.
-  *
-- * Function evict_inodes() tries to keep the s_inode_list_lock list locked over
-- * a long time, which prevents other inodes from being evicted concurrently.
-- * This precludes the cooperative behavior we are looking for.  This special
-- * version of evict_inodes() avoids that.
-- *
-  * Modeled after drop_pagecache_sb().
-+ *
-+ * XXX(dgc): this is particularly awful. With the dlist for inodes, concurrent
-+ * access to the inode list can occur and evict_inodes() will drop the per-cpu
-+ * list lock if the CPU needs rescheduling. Hence if this exists just because
-+ * evict_inodes() holds the s_inode_list_lock for long periods preventing
-+ * concurrent inode eviction work from being done, this can probably go away
-+ * entirely now.
-  */
- static void gfs2_evict_inodes(struct super_block *sb)
- {
- 	struct inode *inode, *toput_inode = NULL;
- 	struct gfs2_sbd *sdp = sb->s_fs_info;
-+	DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- 
- 	set_bit(SDF_EVICTING, &sdp->sd_flags);
- 
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		spin_lock(&inode->i_lock);
- 		if ((inode->i_state & (I_FREEING|I_WILL_FREE|I_NEW)) &&
- 		    !need_resched()) {
-@@ -1762,15 +1764,14 @@ static void gfs2_evict_inodes(struct super_block *sb)
- 		}
- 		atomic_inc(&inode->i_count);
- 		spin_unlock(&inode->i_lock);
--		spin_unlock(&sb->s_inode_list_lock);
-+		dlock_list_unlock(&iter);
- 
- 		iput(toput_inode);
- 		toput_inode = inode;
- 
- 		cond_resched();
--		spin_lock(&sb->s_inode_list_lock);
-+		dlock_list_relock(&iter);
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 	iput(toput_inode);
- }
- 
-diff --git a/fs/inode.c b/fs/inode.c
-index 17c50a75514f..3426691fa305 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -30,7 +30,7 @@
-  *   inode->i_state, inode->i_hash, __iget(), inode->i_io_list
-  * Inode LRU list locks protect:
-  *   inode->i_sb->s_inode_lru, inode->i_lru
-- * inode->i_sb->s_inode_list_lock protects:
-+ * inode->i_sb->s_inodes->head->lock protects:
-  *   inode->i_sb->s_inodes, inode->i_sb_list
-  * bdi->wb.list_lock protects:
-  *   bdi->wb.b_{dirty,io,more_io,dirty_time}, inode->i_io_list
-@@ -39,7 +39,7 @@
-  *
-  * Lock ordering:
-  *
-- * inode->i_sb->s_inode_list_lock
-+ * inode->i_sb->s_inodes->head->lock
-  *   inode->i_lock
-  *     Inode LRU list locks
-  *
-@@ -47,7 +47,7 @@
-  *   inode->i_lock
-  *
-  * inode_hash_lock
-- *   inode->i_sb->s_inode_list_lock
-+ *   inode->i_sb->s_inodes->head->lock
-  *   inode->i_lock
-  *
-  * iunique_lock
-@@ -423,7 +423,7 @@ void inode_init_once(struct inode *inode)
- 	INIT_LIST_HEAD(&inode->i_io_list);
- 	INIT_LIST_HEAD(&inode->i_wb_list);
- 	INIT_LIST_HEAD(&inode->i_lru);
--	INIT_LIST_HEAD(&inode->i_sb_list);
-+	init_dlock_list_node(&inode->i_sb_list);
- 	__address_space_init_once(&inode->i_data);
- 	i_size_ordered_init(inode);
- }
-@@ -492,19 +492,14 @@ static void inode_lru_list_del(struct inode *inode)
-  */
- void inode_sb_list_add(struct inode *inode)
- {
--	spin_lock(&inode->i_sb->s_inode_list_lock);
--	list_add(&inode->i_sb_list, &inode->i_sb->s_inodes);
--	spin_unlock(&inode->i_sb->s_inode_list_lock);
-+	dlock_lists_add(&inode->i_sb_list, &inode->i_sb->s_inodes);
- }
- EXPORT_SYMBOL_GPL(inode_sb_list_add);
- 
- static inline void inode_sb_list_del(struct inode *inode)
- {
--	if (!list_empty(&inode->i_sb_list)) {
--		spin_lock(&inode->i_sb->s_inode_list_lock);
--		list_del_init(&inode->i_sb_list);
--		spin_unlock(&inode->i_sb->s_inode_list_lock);
--	}
-+	if (!list_empty(&inode->i_sb_list.list))
-+		dlock_lists_del(&inode->i_sb_list);
- }
- 
- static unsigned long hash(struct super_block *sb, unsigned long hashval)
-@@ -713,11 +708,12 @@ static void dispose_list(struct list_head *head)
- void evict_inodes(struct super_block *sb)
- {
- 	struct inode *inode;
-+	struct dlock_list_iter iter;
- 	LIST_HEAD(dispose);
- 
- again:
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	init_dlock_list_iter(&iter, &sb->s_inodes);
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		if (atomic_read(&inode->i_count))
- 			continue;
- 
-@@ -738,13 +734,12 @@ void evict_inodes(struct super_block *sb)
- 		 * bit so we don't livelock.
- 		 */
- 		if (need_resched()) {
--			spin_unlock(&sb->s_inode_list_lock);
-+			dlock_list_unlock(&iter);
- 			cond_resched();
- 			dispose_list(&dispose);
- 			goto again;
- 		}
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 
- 	dispose_list(&dispose);
- }
-@@ -759,11 +754,12 @@ EXPORT_SYMBOL_GPL(evict_inodes);
- void invalidate_inodes(struct super_block *sb)
- {
- 	struct inode *inode;
-+	struct dlock_list_iter iter;
- 	LIST_HEAD(dispose);
- 
- again:
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	init_dlock_list_iter(&iter, &sb->s_inodes);
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		spin_lock(&inode->i_lock);
- 		if (inode->i_state & (I_NEW | I_FREEING | I_WILL_FREE)) {
- 			spin_unlock(&inode->i_lock);
-@@ -779,13 +775,12 @@ void invalidate_inodes(struct super_block *sb)
- 		spin_unlock(&inode->i_lock);
- 		list_add(&inode->i_lru, &dispose);
- 		if (need_resched()) {
--			spin_unlock(&sb->s_inode_list_lock);
-+			dlock_list_unlock(&iter);
- 			cond_resched();
- 			dispose_list(&dispose);
- 			goto again;
- 		}
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 
- 	dispose_list(&dispose);
- }
-@@ -1232,7 +1227,7 @@ struct inode *inode_insert5(struct inode *inode, unsigned long hashval,
- 	 * Add inode to the sb list if it's not already. It has I_NEW at this
- 	 * point, so it should be safe to test i_sb_list locklessly.
- 	 */
--	if (list_empty(&inode->i_sb_list))
-+	if (list_empty(&inode->i_sb_list.list))
- 		inode_sb_list_add(inode);
- unlock:
- 	spin_unlock(&inode_hash_lock);
-diff --git a/fs/notify/fsnotify.c b/fs/notify/fsnotify.c
-index 7974e91ffe13..15e3769e76f5 100644
---- a/fs/notify/fsnotify.c
-+++ b/fs/notify/fsnotify.c
-@@ -33,14 +33,15 @@ void __fsnotify_vfsmount_delete(struct vfsmount *mnt)
-  * @sb: superblock being unmounted.
-  *
-  * Called during unmount with no locks held, so needs to be safe against
-- * concurrent modifiers. We temporarily drop sb->s_inode_list_lock and CAN block.
-+ * concurrent modifiers. We temporarily drop sb->s_inodes list lock and CAN
-+ * block.
-  */
- static void fsnotify_unmount_inodes(struct super_block *sb)
- {
- 	struct inode *inode, *iput_inode = NULL;
-+	DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- 
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		/*
- 		 * We cannot __iget() an inode in state I_FREEING,
- 		 * I_WILL_FREE, or I_NEW which is fine because by that point
-@@ -68,7 +69,7 @@ static void fsnotify_unmount_inodes(struct super_block *sb)
- 
- 		__iget(inode);
- 		spin_unlock(&inode->i_lock);
--		spin_unlock(&sb->s_inode_list_lock);
-+		dlock_list_unlock(&iter);
- 
- 		iput(iput_inode);
- 
-@@ -80,9 +81,8 @@ static void fsnotify_unmount_inodes(struct super_block *sb)
- 		iput_inode = inode;
- 
- 		cond_resched();
--		spin_lock(&sb->s_inode_list_lock);
-+		dlock_list_relock(&iter);
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 
- 	iput(iput_inode);
- }
-diff --git a/fs/quota/dquot.c b/fs/quota/dquot.c
-index 58b5de081b57..e873dcbe6feb 100644
---- a/fs/quota/dquot.c
-+++ b/fs/quota/dquot.c
-@@ -1024,13 +1024,13 @@ static int dqinit_needed(struct inode *inode, int type)
- static int add_dquot_ref(struct super_block *sb, int type)
- {
- 	struct inode *inode, *old_inode = NULL;
-+	DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- #ifdef CONFIG_QUOTA_DEBUG
- 	int reserved = 0;
- #endif
- 	int err = 0;
- 
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		spin_lock(&inode->i_lock);
- 		if ((inode->i_state & (I_FREEING|I_WILL_FREE|I_NEW)) ||
- 		    !atomic_read(&inode->i_writecount) ||
-@@ -1040,7 +1040,7 @@ static int add_dquot_ref(struct super_block *sb, int type)
- 		}
- 		__iget(inode);
- 		spin_unlock(&inode->i_lock);
--		spin_unlock(&sb->s_inode_list_lock);
-+		dlock_list_unlock(&iter);
- 
- #ifdef CONFIG_QUOTA_DEBUG
- 		if (unlikely(inode_get_rsv_space(inode) > 0))
-@@ -1053,19 +1053,10 @@ static int add_dquot_ref(struct super_block *sb, int type)
- 			goto out;
- 		}
- 
--		/*
--		 * We hold a reference to 'inode' so it couldn't have been
--		 * removed from s_inodes list while we dropped the
--		 * s_inode_list_lock. We cannot iput the inode now as we can be
--		 * holding the last reference and we cannot iput it under
--		 * s_inode_list_lock. So we keep the reference and iput it
--		 * later.
--		 */
- 		old_inode = inode;
- 		cond_resched();
--		spin_lock(&sb->s_inode_list_lock);
-+		dlock_list_relock(&iter);
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 	iput(old_inode);
- out:
- #ifdef CONFIG_QUOTA_DEBUG
-@@ -1081,12 +1072,12 @@ static int add_dquot_ref(struct super_block *sb, int type)
- static void remove_dquot_ref(struct super_block *sb, int type)
- {
- 	struct inode *inode;
-+	DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- #ifdef CONFIG_QUOTA_DEBUG
- 	int reserved = 0;
- #endif
- 
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		/*
- 		 *  We have to scan also I_NEW inodes because they can already
- 		 *  have quota pointer initialized. Luckily, we need to touch
-@@ -1108,7 +1099,6 @@ static void remove_dquot_ref(struct super_block *sb, int type)
- 		}
- 		spin_unlock(&dq_data_lock);
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- #ifdef CONFIG_QUOTA_DEBUG
- 	if (reserved) {
- 		printk(KERN_WARNING "VFS (%s): Writes happened after quota"
-diff --git a/fs/super.c b/fs/super.c
-index 076392396e72..61c19e3f06d8 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -303,6 +303,7 @@ static void destroy_unused_super(struct super_block *s)
- 	super_unlock_excl(s);
- 	list_lru_destroy(&s->s_dentry_lru);
- 	list_lru_destroy(&s->s_inode_lru);
-+	free_dlock_list_heads(&s->s_inodes);
- 	security_sb_free(s);
- 	put_user_ns(s->s_user_ns);
- 	kfree(s->s_subtype);
-@@ -367,8 +368,6 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags,
- 	INIT_HLIST_NODE(&s->s_instances);
- 	INIT_HLIST_BL_HEAD(&s->s_roots);
- 	mutex_init(&s->s_sync_lock);
--	INIT_LIST_HEAD(&s->s_inodes);
--	spin_lock_init(&s->s_inode_list_lock);
- 	INIT_LIST_HEAD(&s->s_inodes_wb);
- 	spin_lock_init(&s->s_inode_wblist_lock);
- 
-@@ -383,6 +382,9 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags,
- 	s->s_time_min = TIME64_MIN;
- 	s->s_time_max = TIME64_MAX;
- 
-+	if (alloc_dlock_list_heads(&s->s_inodes))
-+		goto fail;
-+
- 	s->s_shrink = shrinker_alloc(SHRINKER_NUMA_AWARE | SHRINKER_MEMCG_AWARE,
- 				     "sb-%s", type->name);
- 	if (!s->s_shrink)
-@@ -695,7 +697,7 @@ void generic_shutdown_super(struct super_block *sb)
- 		if (sop->put_super)
- 			sop->put_super(sb);
- 
--		if (CHECK_DATA_CORRUPTION(!list_empty(&sb->s_inodes),
-+		if (CHECK_DATA_CORRUPTION(!dlock_lists_empty(&sb->s_inodes),
- 				"VFS: Busy inodes after unmount of %s (%s)",
- 				sb->s_id, sb->s_type->name)) {
- 			/*
-@@ -704,14 +706,13 @@ void generic_shutdown_super(struct super_block *sb)
- 			 * iput_final() or such crashes cleanly.
- 			 */
- 			struct inode *inode;
-+			DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- 
--			spin_lock(&sb->s_inode_list_lock);
--			list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+			dlist_for_each_entry(inode, &iter, i_sb_list) {
- 				inode->i_op = VFS_PTR_POISON;
- 				inode->i_sb = VFS_PTR_POISON;
- 				inode->i_mapping = VFS_PTR_POISON;
- 			}
--			spin_unlock(&sb->s_inode_list_lock);
- 		}
- 	}
- 	/*
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 98b7a7a8c42e..bb35591733f1 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -43,6 +43,7 @@
- #include <linux/cred.h>
- #include <linux/mnt_idmapping.h>
- #include <linux/slab.h>
-+#include <linux/dlock-list.h>
- 
- #include <asm/byteorder.h>
- #include <uapi/linux/fs.h>
-@@ -702,7 +703,7 @@ struct inode {
- 	u16			i_wb_frn_history;
- #endif
- 	struct list_head	i_lru;		/* inode LRU list */
--	struct list_head	i_sb_list;
-+	struct dlock_list_node	i_sb_list;
- 	struct list_head	i_wb_list;	/* backing dev writeback list */
- 	union {
- 		struct hlist_head	i_dentry;
-@@ -1315,9 +1316,8 @@ struct super_block {
- 	 */
- 	int s_stack_depth;
- 
--	/* s_inode_list_lock protects s_inodes */
--	spinlock_t		s_inode_list_lock ____cacheline_aligned_in_smp;
--	struct list_head	s_inodes;	/* all inodes */
-+	/* The internal per-list locks protect s_inodes */
-+	struct dlock_list_heads s_inodes;	/* all inodes */
- 
- 	spinlock_t		s_inode_wblist_lock;
- 	struct list_head	s_inodes_wb;	/* writeback inodes */
-diff --git a/security/landlock/fs.c b/security/landlock/fs.c
-index bc7c126deea2..4269d9938c09 100644
---- a/security/landlock/fs.c
-+++ b/security/landlock/fs.c
-@@ -844,12 +844,12 @@ static void hook_inode_free_security(struct inode *const inode)
- static void hook_sb_delete(struct super_block *const sb)
- {
- 	struct inode *inode, *prev_inode = NULL;
-+	DEFINE_DLOCK_LIST_ITER(iter, &sb->s_inodes);
- 
- 	if (!landlock_initialized)
- 		return;
- 
--	spin_lock(&sb->s_inode_list_lock);
--	list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
-+	dlist_for_each_entry(inode, &iter, i_sb_list) {
- 		struct landlock_object *object;
- 
- 		/* Only handles referenced inodes. */
-@@ -883,6 +883,7 @@ static void hook_sb_delete(struct super_block *const sb)
- 		/* Keeps a reference to this inode until the next loop walk. */
- 		__iget(inode);
- 		spin_unlock(&inode->i_lock);
-+		dlock_list_unlock(&iter);
- 
- 		/*
- 		 * If there is no concurrent release_inode() ongoing, then we
-@@ -917,25 +918,11 @@ static void hook_sb_delete(struct super_block *const sb)
- 			rcu_read_unlock();
- 		}
- 
--		if (prev_inode) {
--			/*
--			 * At this point, we still own the __iget() reference
--			 * that we just set in this loop walk.  Therefore we
--			 * can drop the list lock and know that the inode won't
--			 * disappear from under us until the next loop walk.
--			 */
--			spin_unlock(&sb->s_inode_list_lock);
--			/*
--			 * We can now actually put the inode reference from the
--			 * previous loop walk, which is not needed anymore.
--			 */
--			iput(prev_inode);
--			cond_resched();
--			spin_lock(&sb->s_inode_list_lock);
--		}
-+		iput(prev_inode);
- 		prev_inode = inode;
-+		cond_resched();
-+		dlock_list_relock(&iter);
- 	}
--	spin_unlock(&sb->s_inode_list_lock);
- 
- 	/* Puts the inode reference from the last loop walk, if any. */
- 	if (prev_inode)
--- 
-2.42.0
+> Thanks
+>=20
+> Roberto
+>=20
+> > > If you see the diff, the changes compared to v5 that was already
+> > > accepted by Mimi are very straightforward. If the assumption I made t=
+hat
+> > > in the end the 'ima' LSM could take over the role of the 'integrity'
+> > > LSM, that for me is the preferable option.
+> >=20
+> > I looked at it quickly, but my workflow isn't well suited for patches
+> > as attachments; inline patches (the kernel standard) is preferable.
+> >=20
+> > > Given that the patch set is not doing any design change, but merely
+> > > moving calls and storing pointers elsewhere, that leaves us with the
+> > > option of thinking better what to do next, including like you suggest=
+ed
+> > > to make IMA and EVM use disjoint metadata.
+> > >=20
+> > > > > I started to think, does EVM really need integrity metadata or it=
+ can
+> > > > > work without?
+> > > > >=20
+> > > > > The fact is that CONFIG_IMA=3Dn and CONFIG_EVM=3Dy is allowed, so=
+ we have
+> > > > > the same problem now. What if we make IMA the one that manages
+> > > > > integrity metadata, so that we can remove the 'integrity' LSM?
+> > > >=20
+> > > > I guess we should probably revisit the basic idea of if it even mak=
+es
+> > > > sense to enable EVM without IMA?  Should we update the Kconfig to
+> > > > require IMA when EVM is enabled?
+> > >=20
+> > > That would be up to Mimi. Also this does not seem the main focus of t=
+he
+> > > patch set.
+> >=20
+> > Yes, it is not part of the original main focus, but it is definitely
+> > relevant to the discussion we are having now.  Once again, the most
+> > important thing to me is that we do The Right Thing for the long term
+> > maintenance of the code base; if that means scope creep, I've got no
+> > problem with that.
+> >=20
+> > > > > Regarding the LSM order, I would take Casey's suggestion of intro=
+ducing
+> > > > > LSM_ORDER_REALLY_LAST, for EVM.
+> > > >=20
+> > > > Please understand that I really dislike that we have imposed orderi=
+ng
+> > > > constraints at the LSM layer, but I do understand the necessity (th=
+e
+> > > > BPF LSM ordering upsets me the most).  I really don't want to see u=
+s
+> > > > make things worse by adding yet another ordering bucket, I would
+> > > > rather that we document it well and leave it alone ... basically tr=
+eat
+> > > > it like the BPF LSM (grrrrrr).
+> > >=20
+> > > Uhm, that would not be possible right away (the BPF LSM is mutable),
+> > > remember that we defined LSM_ORDER_LAST so that an LSM can be always
+> > > enable and placed as last (requested by Mimi)?
+> >=20
+> > To be clear, I can both dislike the bpf-always-last and LSM_ORDER_LAST
+> > concepts while accepting them as necessary evils.  I'm willing to
+> > tolerate LSM_ORDER_LAST, but I'm not currently willing to tolerate
+> > LSM_ORDER_REALLY_LAST; that is one step too far right now.  I brought
+> > up the BPF LSM simply as an example of ordering that is not enforced
+> > by code, but rather by documentation and convention.
+> >=20
 
