@@ -1,92 +1,61 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5D8F840CE
+	for <selinux@vger.kernel.org>; Thu,  7 Dec 2023 22:16:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PNciar8/"
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87DC41709
-	for <selinux@vger.kernel.org>; Thu,  7 Dec 2023 09:46:56 -0800 (PST)
-Received: by mail-qk1-x736.google.com with SMTP id af79cd13be357-77bcbc14899so49862085a.1
-        for <selinux@vger.kernel.org>; Thu, 07 Dec 2023 09:46:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1701971215; x=1702576015; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=J03mv+l7rX8NcoLECb3l4SQ57K+9Oed1sZK/E/K4uG0=;
-        b=PNciar8/oFTaQAEga4XRQMotPgfMyk3mK7hxcoSS7GNKgF2jp5wDNFZZQlrJkRoilZ
-         2B9eMUlRxgr3vOkl98YpoQwKoY3dHB2DrtEkJXOn+qVfBupw+805eS5Cq0NfRVssG0TK
-         7rOEdierqLJQYtqAfzlVaf8uVbBk+XLWpJd4QD4x8m/ETlUx4pARcWUU4ihZo79Q0685
-         jf0ZEdM+hi+G6gwDmlF3SVv3w/LqqNH1NV6YVxvVEMChndgxiXq0gF1m5SvoCAyvOsyp
-         UhKOjbZOEpJpCXzQDL6/ZbzeTzEvhcNSEkaXRDiaKmNE+aRAEP197Kc/G33Iot5rDZuF
-         rvmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701971215; x=1702576015;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=J03mv+l7rX8NcoLECb3l4SQ57K+9Oed1sZK/E/K4uG0=;
-        b=rhfj7bBIsJ7XCRVbb7Fj6BfQ8vTwYNPJqlIAB2uOoXXz0b+b7a/VinPoKZSs6tDZY2
-         skDZMv7qZQYhpDMDBv34uBUyPxqIsgbN/gBLN8Rap84mLBkjw9Q03kcTl5mtftmiDJrf
-         w985YkKRGCWaJyMxUarChxncNv5rAVyx8z5qIa9Xo3S7jqXAAj4XNfcxc3IXWEm6pw0G
-         w/6Aaa9DUvmSM2zXOBc6Ts8CGo9l8tvWWi7ggYN8sKiociJDwikrWY53K0WvEC/3f/y7
-         OeflcWJlcegFz0MgJ1ZfgkDTQ7OZt8TN1r1lNnwZVye8Ixk/6jM7GyP67CbwmnU+eRbl
-         Vk3Q==
-X-Gm-Message-State: AOJu0Yy07aHlmivQQd5Wr0DsSzVqwGfu+EDzXRJpKFnOeZxLr065ro7D
-	BYg/Uh/U2een9cVfT8O+M45O
-X-Google-Smtp-Source: AGHT+IEIzy4DMeXKFV4xP3D+FKh13SZ1HyBHfc5MXUIxTTPGzmuMcb2576v3x6LiUk8S8iAwOO0usQ==
-X-Received: by 2002:a05:620a:5589:b0:77e:fba3:8204 with SMTP id vq9-20020a05620a558900b0077efba38204mr1496156qkn.154.1701971215636;
-        Thu, 07 Dec 2023 09:46:55 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id rb17-20020a05620a8d1100b0077da601f06csm71643qkn.10.2023.12.07.09.46.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Dec 2023 09:46:55 -0800 (PST)
-Date: Thu, 07 Dec 2023 12:46:54 -0500
-Message-ID: <41bdb9588162bc706786e2c341f01f07@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-To: Munehisa Kamata <kamatam@amazon.com>
-Cc: <kamatam@amazon.com>, <selinux@vger.kernel.org>
-Subject: Re: [PATCH v2] selinux: remove the wrong comment about multithreaded  process handling
-References: <20231207013356.20327-1-kamatam@amazon.com>
-In-Reply-To: <20231207013356.20327-1-kamatam@amazon.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="w1TmOPVt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 079EEC433C8;
+	Thu,  7 Dec 2023 22:16:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1701987374;
+	bh=x7Msa5KxC6fbX8OfKRbGiVYjEzRJe99UMLXIj//PDWA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=w1TmOPVtLT1TocjllBEAoMPYQ74MWKK1qNLt8wUzsWr+chGw+wlzMZjEOIUHXoEc2
+	 j0XkFEYhmvPO1hu1MP9vWZxn7dGwnTMMNODANMWDlzio5nbvTdYCrleum567mJqxGT
+	 V1mpKJtWGHDB3ZEDkfeCpAzjhxepJHkc1/T1LaPM=
+Date: Thu, 7 Dec 2023 14:16:13 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+ <selinux@vger.kernel.org>, <linux-mm@kvack.org>, <david@redhat.com>,
+ <peterz@infradead.org>, Ondrej Mosnacek <omosnace@redhat.com>
+Subject: Re: [PATCH] mm: fix VMA heap bounds checking
+Message-Id: <20231207141613.1d7d59d8c151729e25be53fa@linux-foundation.org>
+In-Reply-To: <20231207152525.2607420-1-wangkefeng.wang@huawei.com>
+References: <20231207152525.2607420-1-wangkefeng.wang@huawei.com>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Dec  6, 2023 Munehisa Kamata <kamatam@amazon.com> wrote:
-> 
-> Since commit d9250dea3f89 ("SELinux: add boundary support and thread
-> context assignment"), SELinux has been supporting assigning per-thread
-> security context under a constraint and the comment was updated
-> accordingly. However, seems like commit d84f4f992cbd ("CRED: Inaugurate
-> COW credentials") accidentally brought the old comment back that doesn't
-> match what the code does.
-> 
-> Considering the ease of understanding the code, this patch just removes the
-> wrong comment.
-> 
-> Fixes: d84f4f992cbd ("CRED: Inaugurate COW credentials")
-> Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
-> ---
-> 
-> v1 -> v2: just remove the comment instead of bringing back the old one as suggested by Paul
-> 
->  security/selinux/hooks.c | 1 -
->  1 file changed, 1 deletion(-)
+On Thu, 7 Dec 2023 23:25:25 +0800 Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
 
-Merged into selinux/dev, thanks!
+> After selinux converting to VMA heap check helper, the gcl triggers
+> an execheap SELinux denial, which caused by different check logical.
+> 
+> The old from selinux only check VMA range within VMA heap range, and
+> the new will check the intersects between the two ranges, but the corner
+> cases(vm_end=start_brk, brk=vm_start) doesn't be handled correctly.
+> 
+> Since commit 11250fd12eb8 ("mm: factor out VMA stack and heap checks")
+> only a function extraction, it seems that the issue introduced from
+> commit 0db0c01b53a1 ("procfs: fix /proc/<pid>/maps heap check"), let's
+> fix above corner cases, meanwhile, corrent the wrong indentation of the
+> stack and heap check helpers.
+> 
+> Reported-and-tested-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Closes: https://lore.kernel.org/selinux/CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com/
+> Fixes: 0db0c01b53a1 ("procfs: fix /proc/<pid>/maps heap check")
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 855589b64641..863ff67e7849 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6459,7 +6459,6 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
->  		if (sid == 0)
->  			goto abort_change;
->  
-> -		/* Only allow single threaded processes to change context */
->  		if (!current_is_single_threaded()) {
->  			error = security_bounded_transition(tsec->sid, sid);
->  			if (error)
-> -- 
-> 2.40.1
+I suggest this should be Fixes: 11250fd12eb8 ("mm: factor out VMA stack and
+heap checks").  Sure, 0db0c01b53a1 may have been wrong, but is there
+any point in suggesting to people that they backport this fix over 12 years
+worth of kernels?  Or is it the case that only kernels which contain
+11250fd12eb8 need this change?
 
---
-paul-moore.com
