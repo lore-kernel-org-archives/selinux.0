@@ -1,33 +1,32 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="jbA7IPBy"
-Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [IPv6:2001:41d0:203:375::b3])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA46D6D
-	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 21:03:58 -0800 (PST)
-Date: Thu, 7 Dec 2023 00:03:51 -0500
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IdnVs7Vi"
+X-Greylist: delayed 5169 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 06 Dec 2023 21:43:06 PST
+Received: from out-183.mta1.migadu.com (out-183.mta1.migadu.com [95.215.58.183])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100491A8
+	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 21:43:05 -0800 (PST)
+Date: Thu, 7 Dec 2023 00:42:59 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1701925436;
+	t=1701927784;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9+VAtdw+VBXAf4egJulQBl5F+jTniBZVDEdNWU+PevM=;
-	b=jbA7IPByemD/cql2BiX6j7iBa9QLHJMtHJVuGstf9MSlWE9JOEjKXyhrh7iLfZfKFgS3LZ
-	mfLfdxAOUw7H5nxtn4jTY/0cJJ93iah32/r7tTObyMpuDY3DgEIj4tv9duHXd5joiAaGUZ
-	/R990PcU4rYx83ds2Q+QUu0pq3QZQhI=
+	bh=RdkE7cfoCE6RprmuDTJo4aDA/cMCyuQzoGY8unYOC/U=;
+	b=IdnVs7Vi7unvKOyS8HY/3pkuIEPD03zqV1vALHaO/bpzmbBWF5D6mi0ATroyP4lR7G40fU
+	FVxOcbeNRl1GysGG11L+g0K48yHqyOypx/5PqkvLC5O7lxVC8hWpq8kMciPrzUceu2SXMQ
+	0dNkbCsaPpS4FC9MgaaiTA+IjAkT1hk=
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Kent Overstreet <kent.overstreet@linux.dev>
-To: Dave Chinner <david@fromorbit.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org,
-	linux-block@vger.kernel.org, linux-cachefs@redhat.com,
-	dhowells@redhat.com, gfs2@lists.linux.dev, dm-devel@lists.linux.dev,
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Suren Baghdasaryan <surenb@google.com>
-Subject: Re: [PATCH 03/11] vfs: Use dlock list for superblock's inode list
-Message-ID: <20231207050351.gg74kg6jumik36gs@moria.home.lan>
+To: Dave Chinner <david@fromorbit.com>, Waiman Long <longman@redhat.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-cachefs@redhat.com, dhowells@redhat.com, gfs2@lists.linux.dev,
+	dm-devel@lists.linux.dev, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH 04/11] lib/dlock-list: Make sibling CPUs share the same
+ linked list
+Message-ID: <20231207054259.gpx3cydlb6b7raax@moria.home.lan>
 References: <20231206060629.2827226-1-david@fromorbit.com>
- <20231206060629.2827226-4-david@fromorbit.com>
- <20231207024024.GU1674809@ZenIV>
- <ZXFRHo3mcbKfoC8v@dread.disaster.area>
+ <20231206060629.2827226-5-david@fromorbit.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -36,32 +35,37 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ZXFRHo3mcbKfoC8v@dread.disaster.area>
+In-Reply-To: <20231206060629.2827226-5-david@fromorbit.com>
 X-Migadu-Flow: FLOW_OUT
 
-On Thu, Dec 07, 2023 at 03:59:10PM +1100, Dave Chinner wrote:
-> On Thu, Dec 07, 2023 at 02:40:24AM +0000, Al Viro wrote:
-> > On Wed, Dec 06, 2023 at 05:05:32PM +1100, Dave Chinner wrote:
-> > 
-> > > @@ -303,6 +303,7 @@ static void destroy_unused_super(struct super_block *s)
-> > >  	super_unlock_excl(s);
-> > >  	list_lru_destroy(&s->s_dentry_lru);
-> > >  	list_lru_destroy(&s->s_inode_lru);
-> > > +	free_dlock_list_heads(&s->s_inodes);
-> > >  	security_sb_free(s);
-> > >  	put_user_ns(s->s_user_ns);
-> > >  	kfree(s->s_subtype);
-> > 
-> > Umm...  Who's going to do that on normal umount?
+On Wed, Dec 06, 2023 at 05:05:33PM +1100, Dave Chinner wrote:
+> From: Waiman Long <longman@redhat.com>
 > 
-> Huh. So neither KASAN nor kmemleak has told me that s->s-inodes was
-> being leaked.  I'm guessing a rebase sometime in the past silently
-> dropped a critical hunk from deactivate_locked_super() in the bit
-> bucket, but as nothing since whenever that happened has failed or
-> flagged a memory leak I didn't notice.
+> The dlock list needs one list for each of the CPUs available. However,
+> for sibling CPUs, they are sharing the L2 and probably L1 caches
+> too. As a result, there is not much to gain in term of avoiding
+> cacheline contention while increasing the cacheline footprint of the
+> L1/L2 caches as separate lists may need to be in the cache.
 > 
-> Such great tools we have......
+> This patch makes all the sibling CPUs share the same list, thus
+> reducing the number of lists that need to be maintained in each
+> dlock list without having any noticeable impact on performance. It
+> also improves dlock list iteration performance as fewer lists need
+> to be iterated.
 
-kmemleak has always seemed flakey to me (as one would expect, it's
-difficult code to test). If we can ever get memory allocation profiling
-merged - it won't be a direct replacement but it'll be more reliable.
+Seems Waiman was missed on the CC
+
+it looks like there's some duplication of this with list_lru
+functionality - similar list-sharded-by-node idea.
+
+list_lru does the sharding by page_to_nid() of the item, which saves a
+pointer and allows just using a list_head in the item. OTOH, it's less
+granular than what dlock-list is doing?
+
+I think some attempt ought to be made to factor out the common ideas
+hear; perhaps reworking list_lru to use this thing, and I hope someone
+has looked at the page_nid idea vs. dlock_list using the current core.
+
+But it's nice and small, and I'd like to use it elsewhere.
+
+Reviewed-by: Kent Overstreet <kent.overstreet@linux.dev>
