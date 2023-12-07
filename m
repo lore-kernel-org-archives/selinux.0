@@ -1,82 +1,68 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C086BD5E
-	for <selinux@vger.kernel.org>; Thu,  7 Dec 2023 07:25:52 -0800 (PST)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.55])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4SmHzq6JSJzShwn;
-	Thu,  7 Dec 2023 23:21:27 +0800 (CST)
-Received: from localhost.localdomain (10.175.112.125) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 7 Dec 2023 23:25:49 +0800
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-CC: <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
-	<selinux@vger.kernel.org>, <linux-mm@kvack.org>, <david@redhat.com>,
-	<peterz@infradead.org>, Kefeng Wang <wangkefeng.wang@huawei.com>, Ondrej
- Mosnacek <omosnace@redhat.com>
-Subject: [PATCH] mm: fix VMA heap bounds checking
-Date: Thu, 7 Dec 2023 23:25:25 +0800
-Message-ID: <20231207152525.2607420-1-wangkefeng.wang@huawei.com>
-X-Mailer: git-send-email 2.27.0
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="JC2gy757"
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B5910F7
+	for <selinux@vger.kernel.org>; Thu,  7 Dec 2023 08:12:39 -0800 (PST)
+Received: by mail-qv1-xf36.google.com with SMTP id 6a1803df08f44-67a948922aaso5877926d6.3
+        for <selinux@vger.kernel.org>; Thu, 07 Dec 2023 08:12:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google; t=1701965558; x=1702570358; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-language:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3CsF3Fog0X83nNvqveIuAbDrgmf5qIr7/l5gvjue31I=;
+        b=JC2gy757BtdfrlDDLcUYUs8fPxDslvjk5mAN8Ki5oDQxiRDBBNenyNyPhRAhxpcfBJ
+         ikOC8lVca24oK9SZT554QHjFXhCseZVIEqfpsJAnhzNclYygJDG3lUr+q2Fv8IYrH4Er
+         yyvrI4dG9RAPjpPYROzzUsGjBcgQ3+vsu3pWw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701965558; x=1702570358;
+        h=content-transfer-encoding:content-language:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=3CsF3Fog0X83nNvqveIuAbDrgmf5qIr7/l5gvjue31I=;
+        b=dx93/yPipTb4eya3zFn1WIf+zsbs7V05ep6u8LZ27PWVmi71sEbHFsYzAvCOEV+FLf
+         22ZKYbcNizb2JVA+OQ7v3apt9V7wQyrUcNw2BJZYm22jpG15f5ytW2d7o5ADqDjykdeF
+         5f1qqtiFoJY6xAnJfNUyQ2lv30axXcvafTgiGh5/MGlTRkjEp/ul/u5omW0cFedK5IvF
+         sSUBs7tToTSmJJZ7OH4Lr+JguduzToqwIF6CLNL1Yd09FRmiaCI1dc/mC/pVl0at5NNN
+         hcF9bnlsM+BDmc8p3oiM/ks/tBBO6RWGkuuMeEoSWpHelToCKBfse++rH+M8ourNaNAH
+         npEg==
+X-Gm-Message-State: AOJu0YwpNdDahKjJP9lwgq7FZFK2O1YAF3AZV/MqsXsfu18T/BZG1q3J
+	CUGOStVu/iclgushM4lIDhSbPEV56tnA+9AO3C8XdytVaD8RaR2vwQ/m0seT8NmSeeoNIJ02cDh
+	3araybas4Y75KJiOVtDvJn+EFVyQxtgkFOiKZn1w9a13d5Aqtx714viky0q07F+8cmHG4uBZb
+X-Google-Smtp-Source: AGHT+IH3TnShRMwEKr3MXw0Vkj0sAqjyGq4DsPlAiQMn4TqsJyMeui1+1c8QfTlsPU8sa4jI8KLzCw==
+X-Received: by 2002:a0c:f351:0:b0:67a:b9a0:4319 with SMTP id e17-20020a0cf351000000b0067ab9a04319mr2643291qvm.19.1701965558073;
+        Thu, 07 Dec 2023 08:12:38 -0800 (PST)
+Received: from ?IPV6:2601:145:c200:960:e134:41db:5cdc:b836? ([2601:145:c200:960:e134:41db:5cdc:b836])
+        by smtp.gmail.com with ESMTPSA id ec6-20020ad44e66000000b0067a24f5b432sm18427qvb.62.2023.12.07.08.12.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Dec 2023 08:12:37 -0800 (PST)
+Message-ID: <902cdaef-8e92-1fa4-a474-f3c926a138ea@ieee.org>
+Date: Thu, 7 Dec 2023 11:12:42 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm100001.china.huawei.com (7.185.36.93)
-X-CFilter-Loop: Reflected
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+From: Chris PeBenito <pebenito@ieee.org>
+Subject: ANN: SETools 4.4.4
+To: SElinux mailing list <selinux@vger.kernel.org>,
+ SELinux Reference Policy mailing list <selinux-refpolicy@vger.kernel.org>
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-After selinux converting to VMA heap check helper, the gcl triggers
-an execheap SELinux denial, which caused by different check logical.
+A new release of SETools is available:
 
-The old from selinux only check VMA range within VMA heap range, and
-the new will check the intersects between the two ranges, but the corner
-cases(vm_end=start_brk, brk=vm_start) doesn't be handled correctly.
+https://github.com/SELinuxProject/setools/releases/tag/4.4.4
 
-Since commit 11250fd12eb8 ("mm: factor out VMA stack and heap checks")
-only a function extraction, it seems that the issue introduced from
-commit 0db0c01b53a1 ("procfs: fix /proc/<pid>/maps heap check"), let's
-fix above corner cases, meanwhile, corrent the wrong indentation of the
-stack and heap check helpers.
+Changes:
 
-Reported-and-tested-by: Ondrej Mosnacek <omosnace@redhat.com>
-Closes: https://lore.kernel.org/selinux/CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com/
-Fixes: 0db0c01b53a1 ("procfs: fix /proc/<pid>/maps heap check")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
----
- include/linux/mm.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+* Update for compiling with libsepol 3.6.
+* Update apol to use fully specified PyQt enums.
+* Correct minor code lint issues.
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1be544664f92..2bea89dc0bdf 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -886,8 +886,8 @@ static inline bool vma_is_anonymous(struct vm_area_struct *vma)
-  */
- static inline bool vma_is_initial_heap(const struct vm_area_struct *vma)
- {
--       return vma->vm_start <= vma->vm_mm->brk &&
--		vma->vm_end >= vma->vm_mm->start_brk;
-+	return vma->vm_start < vma->vm_mm->brk &&
-+		vma->vm_end > vma->vm_mm->start_brk;
- }
- 
- /*
-@@ -901,8 +901,8 @@ static inline bool vma_is_initial_stack(const struct vm_area_struct *vma)
- 	 * its "stack".  It's not even well-defined for programs written
- 	 * languages like Go.
- 	 */
--       return vma->vm_start <= vma->vm_mm->start_stack &&
--	       vma->vm_end >= vma->vm_mm->start_stack;
-+	return vma->vm_start <= vma->vm_mm->start_stack &&
-+		vma->vm_end >= vma->vm_mm->start_stack;
- }
- 
- static inline bool vma_is_temporary_stack(struct vm_area_struct *vma)
 -- 
-2.27.0
-
+Chris PeBenito
