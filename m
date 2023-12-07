@@ -1,113 +1,150 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="MKoR0dcr"
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1DB8110
-	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 20:41:59 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id 98e67ed59e1d1-286ceba3f3eso569210a91.0
-        for <selinux@vger.kernel.org>; Wed, 06 Dec 2023 20:41:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1701924119; x=1702528919; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=v2QqlXWCI26gv+jGfNp5oJjKdW8trvqIMxHSQSlEVHs=;
-        b=MKoR0dcrSBRNJKZmpUwr0+k2U4NqHbxPyVIUTmDcvuDa7rgLcBAGAIx6zkdjjxunk4
-         w7HqBHmzFX3i1Bc97Y1XK7d5r1CCuRapoxS9K67ePCo0I3YjnjbM+pVs2QeX6f0T4CSC
-         X4lqcOPh54gnrmzQegKb9Mqc0LuG5JsT/yAaKm/DSPxO8xVUYxmyTvUMALt9WWpHfbhQ
-         LwxY/XWeUMurIzzvkthXsuHxsSFu+jkPhiY30F3uGKiiNuOUY13chSKWw8BvQXIL0Sen
-         zokKIhg3tUngUM+yYHxk9tZwQaVS5ZPU2H737G/uSJiPK9tws8aHT/hXEQnlJbJLEKTN
-         TPDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701924119; x=1702528919;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=v2QqlXWCI26gv+jGfNp5oJjKdW8trvqIMxHSQSlEVHs=;
-        b=HZf74Kkq5qcyWzWaHy3EQT7crXK7qf0oJrR2JETX4mi+kjAHUvF5w0Wn51C1e3Js9A
-         ou6NwbijPok/SGb8WRRQ3B117qWPtU/lr2B5H/xffvk7nXCAKP0AyvxwMIeRA9EA0e21
-         zbhWzQWWPHqTuhxA5gtUnoemjTao0xYssaQ0MTfMr8ogUF+3Fx7gDmf9BoB3MDhZtv6W
-         hZp1O83jFQ3MYhax/u44RL6VKFPZczB83MACaq8Mi9q1LoUKrFKrC3y/iIIiJxI8n+qb
-         MoostRmdJwyZ5IujHnVPhcsOtIS3vS6BrmHghgj4fQeCoRuHmU2K8OwD+s6ckUmPsekz
-         Mk1Q==
-X-Gm-Message-State: AOJu0YzGDLqqWcLU+bQpzt7BZt9J/eTaQfple8AuBv+Uo0/RlsU4DfAD
-	oxgcTza5G31IY1BhROWnepHvCg==
-X-Google-Smtp-Source: AGHT+IEKMEQI+Kt2z5Onuh0MysWMqhlDFc/G7D/Ejlz0kBFz1I/zpQGv1eC/i6etrpu5sui34F8eUg==
-X-Received: by 2002:a17:90a:ff14:b0:286:6cc1:781a with SMTP id ce20-20020a17090aff1400b002866cc1781amr1867568pjb.93.1701924119432;
-        Wed, 06 Dec 2023 20:41:59 -0800 (PST)
-Received: from dread.disaster.area (pa49-180-125-5.pa.nsw.optusnet.com.au. [49.180.125.5])
-        by smtp.gmail.com with ESMTPSA id mm22-20020a17090b359600b00286901e226bsm293341pjb.28.2023.12.06.20.41.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Dec 2023 20:41:58 -0800 (PST)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-	(envelope-from <david@fromorbit.com>)
-	id 1rB6Cy-004vYN-0Q;
-	Thu, 07 Dec 2023 15:41:56 +1100
-Date: Thu, 7 Dec 2023 15:41:56 +1100
-From: Dave Chinner <david@fromorbit.com>
-To: Kent Overstreet <kent.overstreet@linux.dev>
-Cc: linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
-	linux-cachefs@redhat.com, dhowells@redhat.com, gfs2@lists.linux.dev,
-	dm-devel@lists.linux.dev, linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/11] list_bl: don't use bit locks for PREEMPT_RT or
- lockdep
-Message-ID: <ZXFNFKai3ILLFdnR@dread.disaster.area>
-References: <20231206060629.2827226-1-david@fromorbit.com>
- <20231206060629.2827226-11-david@fromorbit.com>
- <20231207041650.3tzzmv2jfrr5vppl@moria.home.lan>
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEFD193
+	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 20:50:50 -0800 (PST)
+Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.53])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Sm1zN2BmbzYspL;
+	Thu,  7 Dec 2023 12:50:08 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Thu, 7 Dec 2023 12:50:47 +0800
+Message-ID: <79f6131f-7d69-408d-917a-f0ca6fccc5b2@huawei.com>
+Date: Thu, 7 Dec 2023 12:50:47 +0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231207041650.3tzzmv2jfrr5vppl@moria.home.lan>
+User-Agent: Mozilla Thunderbird
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and
+ vma_is_initial_heap()
+To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
+CC: Stephen Smalley <stephen.smalley.work@gmail.com>, SElinux list
+	<selinux@vger.kernel.org>, "open list:MEMORY MANAGEMENT"
+	<linux-mm@kvack.org>, David Hildenbrand <david@redhat.com>,
+	<peterz@infradead.org>, Andrew Morton <akpm@linux-foundation.org>
+References: <20230728050043.59880-1-wangkefeng.wang@huawei.com>
+ <20230728050043.59880-4-wangkefeng.wang@huawei.com>
+ <CAEjxPJ5ZuBGVDah0f3g0-7t2v1uSXTmp_cTT3g_MSP3J9QtoeA@mail.gmail.com>
+ <CAHC9VhR_Tzbs=fE+D6VrP1boe7O_uHPu9yd7kfVppnB2vtPLOA@mail.gmail.com>
+ <CAEjxPJ6iFRZUetSvMgZvq_327U_JZ_w9s=gFccKgJhfCt8bqNg@mail.gmail.com>
+ <CAHC9VhRB1uVVWFUgnMZ1iwCD_A0mEX2Xhn79qTxuNKTzisWULg@mail.gmail.com>
+ <CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com>
+ <CAHC9VhSzrYOUAkM5-smu0rAZ7gWwPvR+TARWN9ojfaVACtYRew@mail.gmail.com>
+Content-Language: en-US
+In-Reply-To: <CAHC9VhSzrYOUAkM5-smu0rAZ7gWwPvR+TARWN9ojfaVACtYRew@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ dggpemm100001.china.huawei.com (7.185.36.93)
+X-CFilter-Loop: Reflected
 
-On Wed, Dec 06, 2023 at 11:16:50PM -0500, Kent Overstreet wrote:
-> On Wed, Dec 06, 2023 at 05:05:39PM +1100, Dave Chinner wrote:
-> > From: Dave Chinner <dchinner@redhat.com>
-> > 
-> > hash-bl nests spinlocks inside the bit locks. This causes problems
-> > for CONFIG_PREEMPT_RT which converts spin locks to sleeping locks,
-> > and we're not allowed to sleep while holding a spinning lock.
-> > 
-> > Further, lockdep does not support bit locks, so we lose lockdep
-> > coverage of the inode hash table with the hash-bl conversion.
-> > 
-> > To enable these configs to work, add an external per-chain spinlock
-> > to the hlist_bl_head() and add helpers to use this instead of the
-> > bit spinlock when preempt_rt or lockdep are enabled.
-> > 
-> > This converts all users of hlist-bl to use the external spinlock in
-> > these situations, so we also gain lockdep coverage of things like
-> > the dentry cache hash table with this change.
-> > 
-> > Signed-off-by: Dave Chinner <dchinner@redhat.com>
+
+
+On 2023/12/7 4:47, Paul Moore wrote:
+> On Wed, Dec 6, 2023 at 9:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>>
+>> (Restoring part of the Cc list to include more relevant lists &
+>> people... If you are lost, the original email is here:
+>> https://lore.kernel.org/selinux/20230728050043.59880-4-wangkefeng.wang@huawei.com/)
+>>
+>> On Tue, Aug 1, 2023 at 1:08 AM Paul Moore <paul@paul-moore.com> wrote:
+>>> On Mon, Jul 31, 2023 at 4:02 PM Stephen Smalley
+>>> <stephen.smalley.work@gmail.com> wrote:
+>>>> On Mon, Jul 31, 2023 at 12:19 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>>>
+>>>>> On Mon, Jul 31, 2023 at 10:26 AM Stephen Smalley
+>>>>> <stephen.smalley.work@gmail.com> wrote:
+>>>>>> I believe this patch yields a semantic change in the SELinux execheap
+>>>>>> permission check. That said, I think the change is for the better.
+>>>>>
+>>>>> Agreed.  I'm also in favor of using a helper which is maintained by
+>>>>> the VM folks over open coded logic in the SELinux code.
+>>>>
+>>>> Yes, only caveat is in theory it could trigger new execheap denials
+>>>> under existing policies.
+>>>> Trying to construct an example based on the
+>>>> selinux-testsuite/tests/mmap/mprot_heap.c example but coming up empty
+>>>> so far on something that both works and yields different results
+>>>> before and after this patch.
+>>>
+>>> My gut feeling is that this will not be an issue, but I could very
+>>> well be wrong.  If it becomes a significant issue we can revert the
+>>> SELinux portion of the patch.
+>>>
+>>> Of course, if you have any luck demonstrating this with reasonable
+>>> code, that would be good input too.
+>>
+>> So, it turns out this does affect actual code. Thus far, we know about
+>> gcl [1] and wine [2]. The gcl case is easy to reproduce (just install
+>> gcl on Fedora and run gcl without arguments), so I was able to dig a
+>> bit deeper.
+>>
+>> gcl has the following relevant memory mappings as captured by gdb:
+>> Start Addr           End Addr       Size     Offset  Perms  objfile
+>>    0x413000           0xf75000   0xb62000   0x3fa000  rw-p
+>> /usr/lib/gcl-2.6.14/unixport/saved_ansi_gcl
+>>    0xf75000           0xf79000     0x4000        0x0  rwxp   [heap]
+>>
+>> It tries to call mprotect(0x883000, 7282688,
+>> PROT_READ|PROT_WRITE|PROT_EXEC), i.e. it tries to make the region
+>> 0x883000 - 0xf75000 executable. Before this patch it was allowed,
+>> whereas now it triggers an execheap SELinux denial. But this seems
+>> wrong - the affected region is merely adjacent to the [heap] region,
+>> it does not actually overlap with it. So even if we accept that the
+>> correct semantics is to catch any region that overlaps with the heap
+>> (before only subregions of the heap were subject to the execheap
+>> check), this corner case doesn't seem to be handled correctly by the
+>> new check (and the same bug seems to have been in fs/proc/task_mmu.c
+>> before commit 11250fd12eb8 ("mm: factor out VMA stack and heap
+>> checks")).
+
+Yes, the heap check exists for a long time,
+
+                          [start_brk        brk]
+case1:                     [vm_start,vm_end]
+case2:             [vm_start,vm_end]
+case3:                               [vm_start,vm_end]
+case4:         [vm_start,                      vm_end]
+
+case5:   [vm_start,vm_end]
+case6:                                          [vm_start,vm_end]
+
+old check:
+vma->vm_start >= vma->vm_mm->start_brk && vma->vm_end <= vma->vm_mm->brk
+
+Only include case1， vma range must be within heap
+
+new check:
+vma->vm_start <= vma->vm_mm->brk && vma->vm_end >= vma->vm_mm->start_brk
+
+Include case1~case6, but case5(vm_end=start_brk) and case6(vm_start=brk)
+are the corner cases, gcl issue matchs the case5.
+
+>>
+>> I didn't analyze the wine case ([2]), but it may be the same situation.
+>>
+>> Unless I'm mistaken, those <= & >= in should in fact be just < & >.
+
+I support this change.
+  vma->vm_start < vma->vm_mm->brk && vma->vm_end > vma->vm_mm->start_brk
+
+>> And the expression in vma_is_initial_stack() is also suspicious (but
+>> I'm not going to make any assumption on what is the intended semantics
+>> there...)
+>>
+>> [1] https://bugzilla.redhat.com/show_bug.cgi?id=2252391
+>> [2] https://bugzilla.redhat.com/show_bug.cgi?id=2247299
+
+Could you quickly verify after the above change?
 > 
-> Sleepable bit locks can be done with wait_on_bit(), is that worth
-> considering for PREEMPT_RT? Or are the other features of real locks
-> important there?
-
-I think wait_on_bit() is not scalable. It hashes down to one of 256
-shared struct wait_queue_heads which have thundering herd
-behaviours, and it requires the locker to always run
-prepare_to_wait() and finish_wait(). This means there is at least
-one spinlock_irqsave()/unlock pair needed, sometimes two, just to
-get an uncontended sleeping bit lock.
-
-So as a fast path operation that requires lock scalability, it's
-going to be better to use a straight spinlock that doesn't require
-irq safety as it's far less expensive than a sleeping bit lock.
-
-Whether CONFIG_PREEMPT_RT changes that equation at all is not at all
-clear to me, and so I'll leave that consideration to RT people if
-they see a need to address it. In the mean time, we need to use an
-external spinlock for lockdep validation so it really doesn't make
-any sense at all to add a third locking variant with completely
-different semantics just for PREEMPT_RT...
-
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+> Thanks Ondrej.
+> 
+> I'm hoping the mm folks will comment on this as it looks like this is
+> an issue with the helper functions, but just in case I'm going to prep
+> a revert for just the SELinux changes.  If we don't hear anything in
+> the next couple of days I'll send the revert up to Linus with the idea
+> that we can eventually shift back to the helpers when this is sorted.
+> 
