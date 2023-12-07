@@ -1,128 +1,88 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SPwGi2pt"
-Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BC113E
-	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 16:37:04 -0800 (PST)
-Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-dae7cc31151so430587276.3
-        for <selinux@vger.kernel.org>; Wed, 06 Dec 2023 16:37:04 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="dc8qcb7u"
+Received: from smtp-fw-9105.amazon.com (smtp-fw-9105.amazon.com [207.171.188.204])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63FD9D66
+	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 17:34:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1701909423; x=1702514223; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ku2sfUBBqRmjOusEjPPKSg3scPnZYVUEi+HsErMF7+A=;
-        b=SPwGi2ptt35RjW8bl6Bv3xg1CBoMWvUAhzx1qCZRYVa7VZCKadoKF/GnxnJRqH2j4s
-         wfQy9jtUvON7V9UMtzbf2vCyDrKW8xbfDFzbHr4DS+Cdw5g8VaBYJXJJB9q0VDAjbkQM
-         m5N3OYdKvUNzpkK0LHVKhEgiW3Ukdcv4vjNOunDGjJJAod/A+u22uJIp2LUdXxOXJn9j
-         s0FBXXoEVtSIRUwT4Gapu14HiW+ppghz+GeWt6cVuINXlBrSNi1FOZPGRvm6xCEJEqTj
-         KeWjzRYgaHQK4DJAVvrvts9I5a/QrQ7DZHbz2R5+P6K4QTjSM8TKesEoWhT2op4l6VG8
-         Pyqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701909423; x=1702514223;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ku2sfUBBqRmjOusEjPPKSg3scPnZYVUEi+HsErMF7+A=;
-        b=EayjjSpU9O+Aw4km9GtXkZGz8oL0CnylH9tFjg/hfpZQmUEgm7aMowcxgssira4S8V
-         ACk19hmGY3whdQOiZvT2kXiy8NSJR82FsA6v7d7Zo8ttBXOrw/2GReYPHjnXxwF5SVX5
-         Je0wpsU3AvAFozZcI3Zvw9vb7yEBZWV1Y8msKldtvFSEtquouf5RQ8uG7FdL9gg72IuG
-         gvU2pWyCGyQwWc/+akXvNZ/a+kWdUcIonOYy5IiBYz87y6DVT+Y1jKIx/I8yDYI52re2
-         UNiPDDPvRwQW8sJxWKDOurUHdfjjKqE3tck16M8EHZhJ+wT7UAjm7ErBGR9ePycTK4Ou
-         yl6g==
-X-Gm-Message-State: AOJu0YxvfrudpMYkLh+WSO7hxS3uGW7LpGnOguV7UgmJBVFTHPuy4tNz
-	hSodeu5NemLsh+KvIkdaGuHLMOKdx77sW/Omna5O
-X-Google-Smtp-Source: AGHT+IG1iYIFG177+3bvYtnhfemiCuwpFKgg3syUJq0tO2kQMOa+CZIi7OJOUpuM/HHKxu3GBd4bnBcpq+XxZYKLOIM=
-X-Received: by 2002:a25:7714:0:b0:db7:8141:e65b with SMTP id
- s20-20020a257714000000b00db78141e65bmr1716451ybc.64.1701909423446; Wed, 06
- Dec 2023 16:37:03 -0800 (PST)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1701912855; x=1733448855;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Yns2qTVk0FLz+VFyvP2dxfrdb0MLUDQ2BghxqHfJvcA=;
+  b=dc8qcb7uBXT2XAC9uilbQEVDC51Qd3nHfvgZl57id8kh6ct7+qceTyUX
+   kZlQYTdPxkHOSdGKjZsTM2xOHNjS25uz56GUFjfngOQR8pmrtevDFat0H
+   ak2se4d6nqD5ymhLn9k/TaOfmFHgEfLQ9fXgBLJjo7WsrWuwawiQo3lLM
+   Y=;
+X-IronPort-AV: E=Sophos;i="6.04,256,1695686400"; 
+   d="scan'208";a="689450562"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-m6i4x-47cc8a4c.us-east-1.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9105.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2023 01:34:14 +0000
+Received: from smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev (iad7-ws-svc-p70-lb3-vlan2.iad.amazon.com [10.32.235.34])
+	by email-inbound-relay-iad-1a-m6i4x-47cc8a4c.us-east-1.amazon.com (Postfix) with ESMTPS id 5103D161AE6;
+	Thu,  7 Dec 2023 01:34:11 +0000 (UTC)
+Received: from EX19MTAUWA001.ant.amazon.com [10.0.38.20:34720]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.9.210:2525] with esmtp (Farcaster)
+ id a99605e7-c406-4c5e-b7c5-4247f632481f; Thu, 7 Dec 2023 01:34:11 +0000 (UTC)
+X-Farcaster-Flow-ID: a99605e7-c406-4c5e-b7c5-4247f632481f
+Received: from EX19D010UWA004.ant.amazon.com (10.13.138.204) by
+ EX19MTAUWA001.ant.amazon.com (10.250.64.217) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Thu, 7 Dec 2023 01:34:11 +0000
+Received: from dev-dsk-kamatam-2b-b66a5860.us-west-2.amazon.com (10.169.6.191)
+ by EX19D010UWA004.ant.amazon.com (10.13.138.204) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Thu, 7 Dec 2023 01:34:11 +0000
+From: Munehisa Kamata <kamatam@amazon.com>
+To: <paul@paul-moore.com>
+CC: <kamatam@amazon.com>, <selinux@vger.kernel.org>
+Subject: [PATCH v2] selinux: remove the wrong comment about multithreaded process handling
+Date: Thu, 7 Dec 2023 01:33:56 +0000
+Message-ID: <20231207013356.20327-1-kamatam@amazon.com>
+X-Mailer: git-send-email 2.40.1
+In-Reply-To: <CAHC9VhS_WyFXN=4mqb+K92kx1YutnJcuuO8VdtRZNA1aJzziBA@mail.gmail.com>
+References: <CAHC9VhS_WyFXN=4mqb+K92kx1YutnJcuuO8VdtRZNA1aJzziBA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231206060629.2827226-1-david@fromorbit.com> <20231206060629.2827226-6-david@fromorbit.com>
- <CAHC9VhTP3hRAkmp7wOKGrEzY5OXXJpnuofTG_+KdXDku18vkeA@mail.gmail.com> <ZXD+F5N/3PPSGTya@dread.disaster.area>
-In-Reply-To: <ZXD+F5N/3PPSGTya@dread.disaster.area>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 6 Dec 2023 19:36:52 -0500
-Message-ID: <CAHC9VhRNS=DvbL_sY5Vi+7twd3uV+WhACaaeJMsBUTYmhjxjVA@mail.gmail.com>
-Subject: Re: [PATCH 05/11] selinux: use dlist for isec inode list
-To: Dave Chinner <david@fromorbit.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-cachefs@redhat.com, dhowells@redhat.com, gfs2@lists.linux.dev, 
-	dm-devel@lists.linux.dev, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D042UWA004.ant.amazon.com (10.13.139.16) To
+ EX19D010UWA004.ant.amazon.com (10.13.138.204)
 
-On Wed, Dec 6, 2023 at 6:04=E2=80=AFPM Dave Chinner <david@fromorbit.com> w=
-rote:
-> On Wed, Dec 06, 2023 at 04:52:42PM -0500, Paul Moore wrote:
-> > On Wed, Dec 6, 2023 at 1:07=E2=80=AFAM Dave Chinner <david@fromorbit.co=
-m> wrote:
-> > >
-> > > From: Dave Chinner <dchinner@redhat.com>
-> > >
-> > > Because it's a horrible point of lock contention under heavily
-> > > concurrent directory traversals...
-> > >
-> > >   - 12.14% d_instantiate
-> > >      - 12.06% security_d_instantiate
-> > >         - 12.13% selinux_d_instantiate
-> > >            - 12.16% inode_doinit_with_dentry
-> > >               - 15.45% _raw_spin_lock
-> > >                  - do_raw_spin_lock
-> > >                       14.68% __pv_queued_spin_lock_slowpath
-> > >
-> > >
-> > > Signed-off-by: Dave Chinner <dchinner@redhat.com>
-> > > ---
-> > >  include/linux/dlock-list.h        |  9 ++++
-> > >  security/selinux/hooks.c          | 72 +++++++++++++++--------------=
---
-> > >  security/selinux/include/objsec.h |  6 +--
-> > >  3 files changed, 47 insertions(+), 40 deletions(-)
-> >
-> > In the cover letter you talk about testing, but I didn't see any
-> > mention of testing with SELinux enabled.  Given the lock contention
-> > stats in the description above I'm going to assume you did test this
-> > and pass along my ACK, but if you haven't tested the changes below
-> > please do before sending this anywhere important.
->
-> AFAIA, I've been testing with selinux enabled - I'm trying to run
-> these tests in an environment as close to typical production systems
-> as possible and that means selinux needs to be enabled.
->
-> As such, all the fstests and perf testing has been done with selinux
-> in permissive mode using "-o context=3Dsystem_u:object_r:root_t:s0" as
-> the default context for the mount.
->
-> I see this sort of thing in the profiles:
->
-> - 87.13% path_lookupat
->    - 86.46% walk_component
->       - 84.20% lookup_slow
->          - 84.05% __lookup_slow
->             - 80.81% xfs_vn_lookup
->                - 77.84% xfs_lookup
-> ....
->                - 2.91% d_splice_alias
->                   - 1.52% security_d_instantiate
->                      - 1.50% selinux_d_instantiate
->                         - 1.47% inode_doinit_with_dentry
->                            - 0.83% inode_doinit_use_xattr
->                                 0.52% __vfs_getxattr
->
-> Which tells me that selinux is definitely doing -something- on every
-> inode being instantiated, so I'm pretty sure the security and
-> selinux paths are getting exercised...
+Since commit d9250dea3f89 ("SELinux: add boundary support and thread
+context assignment"), SELinux has been supporting assigning per-thread
+security context under a constraint and the comment was updated
+accordingly. However, seems like commit d84f4f992cbd ("CRED: Inaugurate
+COW credentials") accidentally brought the old comment back that doesn't
+match what the code does.
 
-That's great, thanks for the confirmation.  FWIW, for these patches it
-doesn't really matter if the system is in enforcing or permissive
-mode, or what label you use, the important bit is that you've got a
-system with SELinux enabled in the kernel and you have a reasonable
-policy loaded.
+Considering the ease of understanding the code, this patch just removes the
+wrong comment.
 
---=20
-paul-moore.com
+Fixes: d84f4f992cbd ("CRED: Inaugurate COW credentials")
+Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+---
+
+v1 -> v2: just remove the comment instead of bringing back the old one as suggested by Paul
+
+ security/selinux/hooks.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 855589b64641..863ff67e7849 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6459,7 +6459,6 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 		if (sid == 0)
+ 			goto abort_change;
+ 
+-		/* Only allow single threaded processes to change context */
+ 		if (!current_is_single_threaded()) {
+ 			error = security_bounded_transition(tsec->sid, sid);
+ 			if (error)
+-- 
+2.40.1
+
