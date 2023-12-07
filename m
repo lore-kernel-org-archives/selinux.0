@@ -1,88 +1,174 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="dc8qcb7u"
-Received: from smtp-fw-9105.amazon.com (smtp-fw-9105.amazon.com [207.171.188.204])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63FD9D66
-	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 17:34:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1701912855; x=1733448855;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Yns2qTVk0FLz+VFyvP2dxfrdb0MLUDQ2BghxqHfJvcA=;
-  b=dc8qcb7uBXT2XAC9uilbQEVDC51Qd3nHfvgZl57id8kh6ct7+qceTyUX
-   kZlQYTdPxkHOSdGKjZsTM2xOHNjS25uz56GUFjfngOQR8pmrtevDFat0H
-   ak2se4d6nqD5ymhLn9k/TaOfmFHgEfLQ9fXgBLJjo7WsrWuwawiQo3lLM
-   Y=;
-X-IronPort-AV: E=Sophos;i="6.04,256,1695686400"; 
-   d="scan'208";a="689450562"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-iad-1a-m6i4x-47cc8a4c.us-east-1.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-9105.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2023 01:34:14 +0000
-Received: from smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev (iad7-ws-svc-p70-lb3-vlan2.iad.amazon.com [10.32.235.34])
-	by email-inbound-relay-iad-1a-m6i4x-47cc8a4c.us-east-1.amazon.com (Postfix) with ESMTPS id 5103D161AE6;
-	Thu,  7 Dec 2023 01:34:11 +0000 (UTC)
-Received: from EX19MTAUWA001.ant.amazon.com [10.0.38.20:34720]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.9.210:2525] with esmtp (Farcaster)
- id a99605e7-c406-4c5e-b7c5-4247f632481f; Thu, 7 Dec 2023 01:34:11 +0000 (UTC)
-X-Farcaster-Flow-ID: a99605e7-c406-4c5e-b7c5-4247f632481f
-Received: from EX19D010UWA004.ant.amazon.com (10.13.138.204) by
- EX19MTAUWA001.ant.amazon.com (10.250.64.217) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 7 Dec 2023 01:34:11 +0000
-Received: from dev-dsk-kamatam-2b-b66a5860.us-west-2.amazon.com (10.169.6.191)
- by EX19D010UWA004.ant.amazon.com (10.13.138.204) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 7 Dec 2023 01:34:11 +0000
-From: Munehisa Kamata <kamatam@amazon.com>
-To: <paul@paul-moore.com>
-CC: <kamatam@amazon.com>, <selinux@vger.kernel.org>
-Subject: [PATCH v2] selinux: remove the wrong comment about multithreaded process handling
-Date: Thu, 7 Dec 2023 01:33:56 +0000
-Message-ID: <20231207013356.20327-1-kamatam@amazon.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <CAHC9VhS_WyFXN=4mqb+K92kx1YutnJcuuO8VdtRZNA1aJzziBA@mail.gmail.com>
-References: <CAHC9VhS_WyFXN=4mqb+K92kx1YutnJcuuO8VdtRZNA1aJzziBA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=linux.org.uk header.i=@linux.org.uk header.b="Ar1MDqmX"
+Received: from zeniv.linux.org.uk (zeniv.linux.org.uk [IPv6:2a03:a000:7:0:5054:ff:fe1c:15ff])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03294D4B;
+	Wed,  6 Dec 2023 18:24:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=linux.org.uk; s=zeniv-20220401; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=VnNxPtULTHkI7+FJBFkxvuhGf4itUHcJaix/h4kMFWk=; b=Ar1MDqmXci7Shf383eNOiYpJEG
+	Xcy3OFqNU4GSO5sHlexxo6Frj3D0bdK7t+mK8aor2Jpel1HIT2ag9M92CZVM0cOjQo9Wnom0g3UGp
+	qx76DkqvBHRVUEP1ZUJKw+GvsKnrHxL5YjJ6SUVJMaeIIsGd5JuJlFvnpM0RIYLRjuRROrME0JNen
+	Amge3ULWWLEFE2Mh5jcjAbSVWVNTsgHByvrf/xDNoMfbt62eVJXxNcbY7h2IUvONyfrwyI6Nl0SLP
+	enz2SulFtL40+bB9YOQ9gbkdJzFPm8Zup2rbNIfhNAkSwgxkLHPAQuHR2xO0Sv6mD34zqUsZTX975
+	vhdOn4gg==;
+Received: from viro by zeniv.linux.org.uk with local (Exim 4.96 #2 (Red Hat Linux))
+	id 1rB43R-00831U-1R;
+	Thu, 07 Dec 2023 02:23:57 +0000
+Date: Thu, 7 Dec 2023 02:23:57 +0000
+From: Al Viro <viro@zeniv.linux.org.uk>
+To: Dave Chinner <david@fromorbit.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-cachefs@redhat.com, dhowells@redhat.com, gfs2@lists.linux.dev,
+	dm-devel@lists.linux.dev, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/11] lib/dlock-list: Distributed and lock-protected
+ lists
+Message-ID: <20231207022357.GS1674809@ZenIV>
+References: <20231206060629.2827226-1-david@fromorbit.com>
+ <20231206060629.2827226-2-david@fromorbit.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D042UWA004.ant.amazon.com (10.13.139.16) To
- EX19D010UWA004.ant.amazon.com (10.13.138.204)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231206060629.2827226-2-david@fromorbit.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 
-Since commit d9250dea3f89 ("SELinux: add boundary support and thread
-context assignment"), SELinux has been supporting assigning per-thread
-security context under a constraint and the comment was updated
-accordingly. However, seems like commit d84f4f992cbd ("CRED: Inaugurate
-COW credentials") accidentally brought the old comment back that doesn't
-match what the code does.
+On Wed, Dec 06, 2023 at 05:05:30PM +1100, Dave Chinner wrote:
 
-Considering the ease of understanding the code, this patch just removes the
-wrong comment.
+> +static inline struct dlock_list_node *
+> +__dlock_list_next_entry(struct dlock_list_node *curr,
+> +			struct dlock_list_iter *iter)
+> +{
+> +	/*
+> +	 * Find next entry
+> +	 */
+> +	if (curr)
+> +		curr = list_next_entry(curr, list);
+> +
+> +	if (!curr || (&curr->list == &iter->entry->list)) {
 
-Fixes: d84f4f992cbd ("CRED: Inaugurate COW credentials")
-Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
----
+Hmm...  hlist, perhaps?  I mean, that way the thing becomes
+	if (curr)
+		curr = hlist_entry_safe(curr->node.next,
+					struct dlock_list_node, node);
+	if (!curr)
+		curr = __dlock_list_next_list(iter);
+	return curr;
 
-v1 -> v2: just remove the comment instead of bringing back the old one as suggested by Paul
+BTW, does anybody have objections against
 
- security/selinux/hooks.c | 1 -
- 1 file changed, 1 deletion(-)
+#define hlist_first_entry(head, type, member)
+	hlist_entry_safe((head)->first, type, member)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 855589b64641..863ff67e7849 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6459,7 +6459,6 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 		if (sid == 0)
- 			goto abort_change;
- 
--		/* Only allow single threaded processes to change context */
- 		if (!current_is_single_threaded()) {
- 			error = security_bounded_transition(tsec->sid, sid);
- 			if (error)
--- 
-2.40.1
+#define hlist_next_entry(pos, member)
+	hlist_entry_safe((pos)->member.next, typeof(*pos), member)
 
+added in list.h?
+
+> +static int __init cpu2idx_init(void)
+> +{
+> +	int idx, cpu;
+> +
+> +	idx = 0;
+> +	for_each_possible_cpu(cpu)
+> +		per_cpu(cpu2idx, cpu) = idx++;
+> +	return 0;
+> +}
+> +postcore_initcall(cpu2idx_init);
+
+Is it early enough?  Feels like that ought to be done from smp_init() or
+right after it...
+
+> +/**
+> + * dlock_lists_empty - Check if all the dlock lists are empty
+> + * @dlist: Pointer to the dlock_list_heads structure
+> + * Return: true if list is empty, false otherwise.
+> + *
+> + * This can be a pretty expensive function call. If this function is required
+> + * in a performance critical path, we may have to maintain a global count
+> + * of the list entries in the global dlock_list_heads structure instead.
+> + */
+> +bool dlock_lists_empty(struct dlock_list_heads *dlist)
+> +{
+> +	int idx;
+> +
+> +	for (idx = 0; idx < nr_cpu_ids; idx++)
+> +		if (!list_empty(&dlist->heads[idx].list))
+> +			return false;
+> +	return true;
+> +}
+
+Umm...  How would one use it, anyway?  You'd need to stop all insertions
+first, wouldn't you?
+
+> + */
+> +struct dlock_list_node *__dlock_list_next_list(struct dlock_list_iter *iter)
+> +{
+> +	struct dlock_list_node *next;
+> +	struct dlock_list_head *head;
+> +
+> +restart:
+> +	if (iter->entry) {
+> +		spin_unlock(&iter->entry->lock);
+> +		iter->entry = NULL;
+> +	}
+> +
+> +next_list:
+> +	/*
+> +	 * Try next list
+> +	 */
+> +	if (++iter->index >= nr_cpu_ids)
+> +		return NULL;	/* All the entries iterated */
+> +
+> +	if (list_empty(&iter->head[iter->index].list))
+> +		goto next_list;
+> +
+> +	head = iter->entry = &iter->head[iter->index];
+> +	spin_lock(&head->lock);
+> +	/*
+> +	 * There is a slight chance that the list may become empty just
+> +	 * before the lock is acquired. So an additional check is
+> +	 * needed to make sure that a valid node will be returned.
+> +	 */
+> +	if (list_empty(&head->list))
+> +		goto restart;
+> +
+> +	next = list_entry(head->list.next, struct dlock_list_node,
+> +			  list);
+> +	WARN_ON_ONCE(next->head != head);
+> +
+> +	return next;
+> +}
+
+Perhaps something like
+
+	if (iter->entry) {
+		spin_unlock(&iter->entry->lock);
+		iter->entry = NULL;
+	}
+	while (++iter->index < nr_cpu_ids) {
+		struct dlock_list_head *head = &iter->head[iter->index];
+
+		if (list_empty(head->list))
+			continue;
+
+		spin_lock(&head->lock);
+		// recheck under lock
+		if (unlikely(list_empty(&head->list))) {
+			spin_unlock(&head->lock);
+			continue;
+		}
+
+		iter->entry = head;
+		next = list_first_entry(&head->list,
+					struct dlock_list_node, list);
+		WARN_ON_ONCE(next->head != head);
+		return next;
+	}
+	return NULL;
