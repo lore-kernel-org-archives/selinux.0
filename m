@@ -1,150 +1,96 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAEFD193
-	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 20:50:50 -0800 (PST)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.53])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Sm1zN2BmbzYspL;
-	Thu,  7 Dec 2023 12:50:08 +0800 (CST)
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 7 Dec 2023 12:50:47 +0800
-Message-ID: <79f6131f-7d69-408d-917a-f0ca6fccc5b2@huawei.com>
-Date: Thu, 7 Dec 2023 12:50:47 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="dtxRa5HC"
+X-Greylist: delayed 2414 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 06 Dec 2023 20:58:50 PST
+Received: from out-176.mta0.migadu.com (out-176.mta0.migadu.com [91.218.175.176])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A42D53
+	for <selinux@vger.kernel.org>; Wed,  6 Dec 2023 20:58:49 -0800 (PST)
+Date: Wed, 6 Dec 2023 23:58:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1701925128;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ER/rFK8I9p5Nyi4EPWTSpp7ceXu8C84i7TakscXSgrg=;
+	b=dtxRa5HC5BjEY1vwLAImPX6PE01YgnBPYYyJqYC7IFH37NPuxd2HfUGXBpzqwqos1FqlkY
+	0bouvtRlgrvXR+xFdH2T3pfxm1sf7fUdOcZe9i0B5L3CkNFLbgRTOc6XBY8RLYr6mGXWWX
+	182ilBeK2tqvjOkOYtDQU/rBzYLw0uE=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Kent Overstreet <kent.overstreet@linux.dev>
+To: Dave Chinner <david@fromorbit.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
+	linux-cachefs@redhat.com, dhowells@redhat.com, gfs2@lists.linux.dev,
+	dm-devel@lists.linux.dev, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 08/11] vfs: inode cache conversion to hash-bl
+Message-ID: <20231207045844.u26r5vn26gtmqwe5@moria.home.lan>
+References: <20231206060629.2827226-1-david@fromorbit.com>
+ <20231206060629.2827226-9-david@fromorbit.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and
- vma_is_initial_heap()
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
-CC: Stephen Smalley <stephen.smalley.work@gmail.com>, SElinux list
-	<selinux@vger.kernel.org>, "open list:MEMORY MANAGEMENT"
-	<linux-mm@kvack.org>, David Hildenbrand <david@redhat.com>,
-	<peterz@infradead.org>, Andrew Morton <akpm@linux-foundation.org>
-References: <20230728050043.59880-1-wangkefeng.wang@huawei.com>
- <20230728050043.59880-4-wangkefeng.wang@huawei.com>
- <CAEjxPJ5ZuBGVDah0f3g0-7t2v1uSXTmp_cTT3g_MSP3J9QtoeA@mail.gmail.com>
- <CAHC9VhR_Tzbs=fE+D6VrP1boe7O_uHPu9yd7kfVppnB2vtPLOA@mail.gmail.com>
- <CAEjxPJ6iFRZUetSvMgZvq_327U_JZ_w9s=gFccKgJhfCt8bqNg@mail.gmail.com>
- <CAHC9VhRB1uVVWFUgnMZ1iwCD_A0mEX2Xhn79qTxuNKTzisWULg@mail.gmail.com>
- <CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com>
- <CAHC9VhSzrYOUAkM5-smu0rAZ7gWwPvR+TARWN9ojfaVACtYRew@mail.gmail.com>
-Content-Language: en-US
-In-Reply-To: <CAHC9VhSzrYOUAkM5-smu0rAZ7gWwPvR+TARWN9ojfaVACtYRew@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggpemm100001.china.huawei.com (7.185.36.93)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231206060629.2827226-9-david@fromorbit.com>
+X-Migadu-Flow: FLOW_OUT
 
-
-
-On 2023/12/7 4:47, Paul Moore wrote:
-> On Wed, Dec 6, 2023 at 9:22 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->>
->> (Restoring part of the Cc list to include more relevant lists &
->> people... If you are lost, the original email is here:
->> https://lore.kernel.org/selinux/20230728050043.59880-4-wangkefeng.wang@huawei.com/)
->>
->> On Tue, Aug 1, 2023 at 1:08 AM Paul Moore <paul@paul-moore.com> wrote:
->>> On Mon, Jul 31, 2023 at 4:02 PM Stephen Smalley
->>> <stephen.smalley.work@gmail.com> wrote:
->>>> On Mon, Jul 31, 2023 at 12:19 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>>
->>>>> On Mon, Jul 31, 2023 at 10:26 AM Stephen Smalley
->>>>> <stephen.smalley.work@gmail.com> wrote:
->>>>>> I believe this patch yields a semantic change in the SELinux execheap
->>>>>> permission check. That said, I think the change is for the better.
->>>>>
->>>>> Agreed.  I'm also in favor of using a helper which is maintained by
->>>>> the VM folks over open coded logic in the SELinux code.
->>>>
->>>> Yes, only caveat is in theory it could trigger new execheap denials
->>>> under existing policies.
->>>> Trying to construct an example based on the
->>>> selinux-testsuite/tests/mmap/mprot_heap.c example but coming up empty
->>>> so far on something that both works and yields different results
->>>> before and after this patch.
->>>
->>> My gut feeling is that this will not be an issue, but I could very
->>> well be wrong.  If it becomes a significant issue we can revert the
->>> SELinux portion of the patch.
->>>
->>> Of course, if you have any luck demonstrating this with reasonable
->>> code, that would be good input too.
->>
->> So, it turns out this does affect actual code. Thus far, we know about
->> gcl [1] and wine [2]. The gcl case is easy to reproduce (just install
->> gcl on Fedora and run gcl without arguments), so I was able to dig a
->> bit deeper.
->>
->> gcl has the following relevant memory mappings as captured by gdb:
->> Start Addr           End Addr       Size     Offset  Perms  objfile
->>    0x413000           0xf75000   0xb62000   0x3fa000  rw-p
->> /usr/lib/gcl-2.6.14/unixport/saved_ansi_gcl
->>    0xf75000           0xf79000     0x4000        0x0  rwxp   [heap]
->>
->> It tries to call mprotect(0x883000, 7282688,
->> PROT_READ|PROT_WRITE|PROT_EXEC), i.e. it tries to make the region
->> 0x883000 - 0xf75000 executable. Before this patch it was allowed,
->> whereas now it triggers an execheap SELinux denial. But this seems
->> wrong - the affected region is merely adjacent to the [heap] region,
->> it does not actually overlap with it. So even if we accept that the
->> correct semantics is to catch any region that overlaps with the heap
->> (before only subregions of the heap were subject to the execheap
->> check), this corner case doesn't seem to be handled correctly by the
->> new check (and the same bug seems to have been in fs/proc/task_mmu.c
->> before commit 11250fd12eb8 ("mm: factor out VMA stack and heap
->> checks")).
-
-Yes, the heap check exists for a long time,
-
-                          [start_brk        brk]
-case1:                     [vm_start,vm_end]
-case2:             [vm_start,vm_end]
-case3:                               [vm_start,vm_end]
-case4:         [vm_start,                      vm_end]
-
-case5:   [vm_start,vm_end]
-case6:                                          [vm_start,vm_end]
-
-old check:
-vma->vm_start >= vma->vm_mm->start_brk && vma->vm_end <= vma->vm_mm->brk
-
-Only include case1， vma range must be within heap
-
-new check:
-vma->vm_start <= vma->vm_mm->brk && vma->vm_end >= vma->vm_mm->start_brk
-
-Include case1~case6, but case5(vm_end=start_brk) and case6(vm_start=brk)
-are the corner cases, gcl issue matchs the case5.
-
->>
->> I didn't analyze the wine case ([2]), but it may be the same situation.
->>
->> Unless I'm mistaken, those <= & >= in should in fact be just < & >.
-
-I support this change.
-  vma->vm_start < vma->vm_mm->brk && vma->vm_end > vma->vm_mm->start_brk
-
->> And the expression in vma_is_initial_stack() is also suspicious (but
->> I'm not going to make any assumption on what is the intended semantics
->> there...)
->>
->> [1] https://bugzilla.redhat.com/show_bug.cgi?id=2252391
->> [2] https://bugzilla.redhat.com/show_bug.cgi?id=2247299
-
-Could you quickly verify after the above change?
+On Wed, Dec 06, 2023 at 05:05:37PM +1100, Dave Chinner wrote:
+> From: Dave Chinner <dchinner@redhat.com>
 > 
-> Thanks Ondrej.
+> Scalability of the global inode_hash_lock really sucks for
+> filesystems that use the vfs inode cache (i.e. everything but XFS).
+
+Ages ago, we talked about (and I attempted, but ended up swearing at
+inode lifetime rules) - conversion to rhashtable instead, which I still
+believe would be preferable since that code is fully lockless (and
+resizeable, of course). But it turned out to be a much bigger project...
+
+But IIRC the bulk of the work was going to be "clean up inode
+refcounting/lifetime rules into something sane/modern" - maybe we could
+leave some breadcrumbs/comments in fs/inode.c for what that would take,
+if/when someone else is sufficiently motivated?
+
+> threads		vanilla	 patched	vanilla	patched
+> 2		 7.923	  7.358		 8.003	 7.276
+> 4		 8.152	  7.530		 9.097	 8.506
+> 8		13.090	  7.871		11.752	10.015
+> 16		24.602	  9.540		24.614	13.989
+> 32		49.536	 19.314		49.179	25.982
+
+nice
+
+> The big wins here are at >= 8 threads, with both filesytsems now
+> being limited by internal filesystem algorithms, not the VFS inode
+> cache scalability.
 > 
-> I'm hoping the mm folks will comment on this as it looks like this is
-> an issue with the helper functions, but just in case I'm going to prep
-> a revert for just the SELinux changes.  If we don't hear anything in
-> the next couple of days I'll send the revert up to Linus with the idea
-> that we can eventually shift back to the helpers when this is sorted.
+> Ext4 contention moves to the buffer cache on directory block
+> lookups:
 > 
+> -   66.45%     0.44%  [kernel]              [k] __ext4_read_dirblock
+>    - 66.01% __ext4_read_dirblock
+>       - 66.01% ext4_bread
+>          - ext4_getblk
+>             - 64.77% bdev_getblk
+>                - 64.69% __find_get_block
+>                   - 63.01% _raw_spin_lock
+>                      - 62.96% do_raw_spin_lock
+>                           59.21% __pv_queued_spin_lock_slowpath
+> 
+> bcachefs contention moves to internal btree traversal locks.
+> 
+>  - 95.37% __lookup_slow
+>     - 93.95% bch2_lookup
+>        - 82.57% bch2_vfs_inode_get
+> 	  - 65.44% bch2_inode_find_by_inum_trans
+> 	     - 65.41% bch2_inode_peek_nowarn
+> 		- 64.60% bch2_btree_iter_peek_slot
+> 		   - 64.55% bch2_btree_path_traverse_one
+> 		      - bch2_btree_path_traverse_cached
+> 			 - 63.02% bch2_btree_path_traverse_cached_slowpath
+> 			    - 56.60% mutex_lock
+
+dlist-lock ought to be perfect for solving this one
+
+Reviewed-by: Kent Overstreet <kent.overstreet@linux.dev>
