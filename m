@@ -1,95 +1,135 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="VGZz8NCY"
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2F74F1
-	for <selinux@vger.kernel.org>; Fri,  8 Dec 2023 07:19:05 -0800 (PST)
-Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-a1ef2f5ed01so233575966b.0
-        for <selinux@vger.kernel.org>; Fri, 08 Dec 2023 07:19:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zq3aAeAb"
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9AC11985
+	for <selinux@vger.kernel.org>; Fri,  8 Dec 2023 08:06:03 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id 98e67ed59e1d1-28652d59505so1998924a91.2
+        for <selinux@vger.kernel.org>; Fri, 08 Dec 2023 08:06:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1702048744; x=1702653544; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=fVrY7lq3tcRDIPnQRte10mn0n6fHeOqmdrmYSgUOfSw=;
-        b=VGZz8NCYGc+Rqj9jUDChu/7t+l0NeyCT/YwibnHqEh5aIOhWT0Y5/KxHM2iUbv9bad
-         A+KT/d05vhixs/tMwTH+YCTs05eo86fTcPAEuRo8wodTS7JnidhpTAuOqPiJZqCQMo38
-         gUiWSUsoVDXgKf0ASQZRyUycu+MqYc+F/Ex1ENxverWGX0vlMPKvBdqOpxHYWMZBrYuN
-         yfFx5AMCdxx6g/TQKiduln9qz/tf3+onUWwdgTan2v7QQ+n99t/3CP5MCGPES5jHJZzX
-         O8SBCpQ3OlFx/ry3Boiie5j92JeFilLqdI5PICGISU2rjSxQUv6+V4FxaU2e006Hfge5
-         lBSA==
+        d=gmail.com; s=20230601; t=1702051563; x=1702656363; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tYzeWAVpCpm1+hUcLiUQOOiASYll0SPqIMbMja86sQM=;
+        b=Zq3aAeAbTWcqvu42ea653R9IjJpJXsp8Cz3vmJ/VKJn0Fz3fzxpuD4hl1erxD4pML/
+         99AJhE2PsCmAQBBl66kAtNI9cxgOT7hGMgnZwhN2KrNeu7ay0tibDTulv9ylraGqpIV3
+         hjyV3xXq4uapqNXEieVJbYN/2MoqKWyD+D/8F1YIdl2bx4heE8zBtcjjwWIuCs1YN8CE
+         YohVfrhY8H9oobq8ToqBDKwLv7TvtrS+lrHi6uxNEeFMupSC/Rq2Ksf9vnoqDRGMRm7H
+         5WCGFcENdCP0WrV1webVme8R4UQ6sHPvg7DInik4dxAGO2LLfAdgXNABG4DABPBnui1s
+         Cl1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702048744; x=1702653544;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fVrY7lq3tcRDIPnQRte10mn0n6fHeOqmdrmYSgUOfSw=;
-        b=AjGDi3jHyunZyUgbewpVgK7axk0cagqnj6+dbdE63tODuFHRe/fbjYQwChG2daq3J6
-         25MM425dJkyRkAtg1fkaQ0jvyHT4ntgiMIglCkUrMs8xN5KyNm7835gR4soyvhqxQeOy
-         k2cGWwapdfHXl4zuLYig3B9oC7noYU9F4K4oRgjkCIw1FbKPXeQtozXUUHb+F0lRQGT7
-         IMFoQ5EWUCvQxfF7hGMffGVwfjOr4qdV6q8dNBeDT7Hum6UNx59DV6F+8DmGPx52tjCF
-         6f2MzbUfxd3783EC53kcTcarEGs+B+uq3z6o1Hw3YLFna9riNKiAql2O7XpcNRikbqR6
-         gwqQ==
-X-Gm-Message-State: AOJu0YztbBfjQSeD7BF2SnR9ZQzJsg0qazP4Snmqz+7DMONFnvOcm4Bp
-	V6mp87HHD8Zk/O/0qMp/2NGAep5hShU=
-X-Google-Smtp-Source: AGHT+IEjEutkT1CjqtkKeNYxCxYbLvbCDDIU9BqZ4S3UX3+G4BPl1B+i3MOfuq3GCgkXU+gAr7SoUg==
-X-Received: by 2002:a17:906:c14c:b0:a19:a1ba:babd with SMTP id dp12-20020a170906c14c00b00a19a1bababdmr47515ejc.99.1702048744239;
-        Fri, 08 Dec 2023 07:19:04 -0800 (PST)
-Received: from debian_development.DebianHome (dynamic-077-001-160-242.77.1.pool.telefonica.de. [77.1.160.242])
-        by smtp.gmail.com with ESMTPSA id cb6-20020a170906a44600b00a1e2aa3d093sm1091667ejb.202.2023.12.08.07.19.03
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Dec 2023 07:19:04 -0800 (PST)
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] libsepol: validate common classes in scope indices
-Date: Fri,  8 Dec 2023 16:18:31 +0100
-Message-ID: <20231208151831.48343-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1702051563; x=1702656363;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tYzeWAVpCpm1+hUcLiUQOOiASYll0SPqIMbMja86sQM=;
+        b=DHNVBg6eLLhy68/l/xaRktuCEjoqHr1hvQwtCuygcOd4aZ3SfzLiuVwploj2Ups2Wd
+         l+4f+W5uXOS1FT5SyFfgjXUO6ir2XTqksQhcy9oTSRMXjd2G5GbWkCavzamA/SXS+eSV
+         BQcVEH0YJeSaPb6GuCacgDvi6XE0EGiYgSCfLgUr/m0HOXzWShRlLNX5KKcreEvVq10f
+         A5dLQTw2xlf6k5VCKIicwR8sIc/oOI2LQCvnP89beK7WTJRhdm8m4PCOmwWcMhFuUcB4
+         +lMXxItLjPPgTnbf0+4NJRazw7RelV/PRsB4JAnZW4VI1p4ncDJvFqudYtXs7cw151oO
+         Upfw==
+X-Gm-Message-State: AOJu0Yw7mBdZcWuSmALfgHmgLwsM5bvxS5jDhk70WVUr+D3EIsCLvQMP
+	Zsn4uRVswFI/TlI0OGL96m0GVOAk0YRQnNzIrDQ=
+X-Google-Smtp-Source: AGHT+IFX1TzupDLIOt7R4cPyX4JTBXd3udMw2D6UaNoQ/n7DX+KXZEbYFmt0wB8REwzwHEdrD4WnBP66aGy+b0FCO7I=
+X-Received: by 2002:a17:90a:db08:b0:286:9231:c5c1 with SMTP id
+ g8-20020a17090adb0800b002869231c5c1mr266824pjv.7.1702051563128; Fri, 08 Dec
+ 2023 08:06:03 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20231207165319.63889-1-cgzones@googlemail.com>
+In-Reply-To: <20231207165319.63889-1-cgzones@googlemail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 8 Dec 2023 11:05:51 -0500
+Message-ID: <CAEjxPJ4htnqzDyHFNR_aNJH-hrz_wbM=Z=NN7BjUQDrKBa8e9A@mail.gmail.com>
+Subject: Re: [RFC PATCH] libsepol: validate permission identifier length
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Validate common classes inside scope indices similar to all other symbol
-table types.
+On Thu, Dec 7, 2023 at 11:53=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Limit the maximum length of permission identifiers.  Otherwise
+> formatting an access vector might fail in the common used helper
+> sepol_av_to_string().
+>
+> The current longest permission within the Reference Policy is
+> x_application_data { paste_after_confirm } with a length of 19.
 
-Reported-by: oss-fuzz (issue 64849)
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-This probably also resolves issue 64854, which I could not reproduce
-locally.
----
- libsepol/include/sepol/policydb/policydb.h | 1 +
- libsepol/src/policydb_validate.c           | 2 ++
- 2 files changed, 3 insertions(+)
+Android has longer permission names. I'd rather just fix
+sepol_av_to_string() than impose some arbitrary limit here.
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 6682069e..658b25d4 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -430,6 +430,7 @@ typedef struct genfs {
-  * subtract one) into the global policydb->scope array. */
- typedef struct scope_index {
- 	ebitmap_t scope[SYM_NUM];
-+#define p_commons_scope scope[SYM_COMMONS]
- #define p_classes_scope scope[SYM_CLASSES]
- #define p_roles_scope scope[SYM_ROLES]
- #define p_types_scope scope[SYM_TYPES]
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index bd8e9f8f..4919f674 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -1344,6 +1344,8 @@ bad:
- 
- static int validate_scope_index(sepol_handle_t *handle, const scope_index_t *scope_index, validate_t flavors[])
- {
-+	if (validate_ebitmap(&scope_index->p_commons_scope, &flavors[SYM_COMMONS]))
-+		goto bad;
- 	if (validate_ebitmap(&scope_index->p_classes_scope, &flavors[SYM_CLASSES]))
- 		goto bad;
- 	if (validate_ebitmap(&scope_index->p_roles_scope, &flavors[SYM_ROLES]))
--- 
-2.43.0
-
+>
+> Reported-by: oss-fuzz (issue 64832)
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+> The oss-fuzz issue got closed by the latest fuzzer updates (due to
+> unrelated changes that invalid the current reproducer), but the issue is
+> still valid.
+> ---
+>  libsepol/src/policydb_validate.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+>
+> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
+idate.c
+> index bd8e9f8f..72681120 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -366,12 +366,30 @@ bad:
+>         return -1;
+>  }
+>
+> +static int validate_permission_wrapper(hashtab_key_t k, __attribute__((u=
+nused)) hashtab_datum_t d, void *args)
+> +{
+> +       sepol_handle_t *handle =3D args;
+> +       const char *name =3D k;
+> +       size_t len =3D strlen(name);
+> +
+> +       if (len =3D=3D 0 || len >=3D 32)
+> +               goto bad;
+> +
+> +       return 0;
+> +
+> +bad:
+> +       ERR(handle, "Invalid permission");
+> +       return -1;
+> +}
+> +
+>  static int validate_common_datum(sepol_handle_t *handle, const common_da=
+tum_t *common, validate_t flavors[])
+>  {
+>         if (validate_value(common->s.value, &flavors[SYM_COMMONS]))
+>                 goto bad;
+>         if (common->permissions.table->nel =3D=3D 0 || common->permission=
+s.nprim > PERM_SYMTAB_SIZE)
+>                 goto bad;
+> +       if (hashtab_map(common->permissions.table, validate_permission_wr=
+apper, handle))
+> +               goto bad;
+>
+>         return 0;
+>
+> @@ -395,6 +413,8 @@ static int validate_class_datum(sepol_handle_t *handl=
+e, const class_datum_t *cla
+>                 goto bad;
+>         if (class->permissions.nprim > PERM_SYMTAB_SIZE)
+>                 goto bad;
+> +       if (hashtab_map(class->permissions.table, validate_permission_wra=
+pper, handle))
+> +               goto bad;
+>         if (validate_constraint_nodes(handle, class->permissions.nprim, c=
+lass->constraints, flavors))
+>                 goto bad;
+>         if (validate_constraint_nodes(handle, 0, class->validatetrans, fl=
+avors))
+> --
+> 2.43.0
+>
+>
