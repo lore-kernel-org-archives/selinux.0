@@ -1,226 +1,261 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RYEwnzkd"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3701211D
-	for <selinux@vger.kernel.org>; Fri,  8 Dec 2023 04:59:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702040398;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=iwcJSlzpb4wQ3UWosMaGLsWyx77Ir9BIWbyTuYREUIg=;
-	b=RYEwnzkdDhAhdNJjqHtzaXmHDI6cbXJRKo/Rb6kOk9dB9SrqPpZ/MQds9yOYXnSRrVm+8J
-	H5yykMo62vyMWgldITpkKdoL1H96HhA61zxzdMmD6x6xjlRe7PamgX2snl2RRBpHoo6t71
-	KD0r0iHQQX9dbrFEihGNCLR4SAS7tpg=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-513-9_sxKRdoPtSzN5WJo2gT6A-1; Fri,
- 08 Dec 2023 07:59:54 -0500
-X-MC-Unique: 9_sxKRdoPtSzN5WJo2gT6A-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3E9783813F29;
-	Fri,  8 Dec 2023 12:59:54 +0000 (UTC)
-Received: from [10.39.208.34] (unknown [10.39.208.34])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 4C4AE40C6E38;
-	Fri,  8 Dec 2023 12:59:48 +0000 (UTC)
-Message-ID: <f539bdcd-1008-410d-95a4-92be6c851c08@redhat.com>
-Date: Fri, 8 Dec 2023 13:59:45 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UgevGAFt"
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3B5122
+	for <selinux@vger.kernel.org>; Fri,  8 Dec 2023 07:17:41 -0800 (PST)
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50bf26b677dso2124607e87.2
+        for <selinux@vger.kernel.org>; Fri, 08 Dec 2023 07:17:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1702048659; x=1702653459; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BbnPkPCGKF1wgwroqhMSvJU3ZtY7AbddCGR6sMgTlxg=;
+        b=UgevGAFtJQGEzAA72ImpRuoJxFYVSLyMFMYbvXqLpa4fRjYjQjq5vt8ZNczNRC+obt
+         f5DymK9aOyapklcoyy8y/48CD7LiWZz2yNM8b+YHbhEJ2ojPxBQOAaa3zaBbe/lvmWiu
+         +q9EIMs4pd2TbyPNRNG3hSP0e6RaX0Ak6wif68zOuZUfH0Tsl/Z5BISMvsoB/BuAu/Og
+         T1b8wzp0+Bpu7bErVdgyp1G2Y3tWZbQnuA+wtgJvvrwN/upjMDZ5zcft8op2Ei7WJ0Q2
+         u8+xUoXtL9u/lBd5NhrMMkJRgv8KX70PwbBPdSkgocwKhdCFlhOnQhxvFXwjUGU1oS4a
+         vABA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702048659; x=1702653459;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BbnPkPCGKF1wgwroqhMSvJU3ZtY7AbddCGR6sMgTlxg=;
+        b=raF+FG/ShXeoKK2l7FUqZM3aQCVfE0lxEPdb3mWIcfhFS+gIQpB4QJzFYDvyLmN1gW
+         fapTQD/mz7tUM8t6Sb4lNomL+M0zSDgcAOumtQg75RnjOsxQbZ50pMge0KMB5V7TtwS9
+         ZM+AsI9FyexXq9mviy2eQE2c3eukPRsJi2aOycgG5KYrPdql42Yb2ZtrDrIJkY+Vmo7I
+         3Djnx5qPVKjbl5oJvxnhRaSwdIW0dfSVKbnALUT6FA59AjHBv33jvtNFFcMZJ9ynZ1fY
+         Z0HBqhrggbzZbM+KpgTq1sR/EK3KGTN5tPdiqvhLifp23YV55mpcKgEYsQ6LIfuNLupL
+         dzBg==
+X-Gm-Message-State: AOJu0YzFn8b02a/h8G0BI8W2gcmF0O2vddNdSdMP6SPZrxGDknxkIItp
+	wEBSyu75wfcyxyUjc2jIQmBNREmOMrRt1b6HfYL+1peUzJ4=
+X-Google-Smtp-Source: AGHT+IFh5NfR+HQN65zPeryIXzySHksRs+7D1lpZ1HtcyxAchEQ7Ok6pNTyScEi08vpuGy4qjz2ijaX4Yh5VcaIzqMk=
+X-Received: by 2002:a05:6512:39c9:b0:50b:fe38:53fe with SMTP id
+ k9-20020a05651239c900b0050bfe3853femr28593lfu.5.1702048659230; Fri, 08 Dec
+ 2023 07:17:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>, aconole@redhat.com
-Cc: Paul Moore <paul@paul-moore.com>, Casey Schaufler
- <casey@schaufler-ca.com>, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com
-References: <20231020155819.24000-5-maxime.coquelin@redhat.com>
- <2b8269b7c58ebf9b260b4e2a0676bc22.paul@paul-moore.com>
- <8ec2ae21-603d-4ce1-944b-09e042751806@redhat.com>
- <20231208060249-mutt-send-email-mst@kernel.org>
- <a5faf263-d998-4845-952f-9c8dc1d4609f@redhat.com>
- <20231208072649-mutt-send-email-mst@kernel.org>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <20231208072649-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
+References: <20231207165336.64135-1-cgzones@googlemail.com>
+In-Reply-To: <20231207165336.64135-1-cgzones@googlemail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 8 Dec 2023 10:17:27 -0500
+Message-ID: <CAP+JOzRU61Y5xe3wDSuMHisOxgdFHoE31gh5AdieFycsKYvrOg@mail.gmail.com>
+Subject: Re: [PATCH v2] checkpolicy/dispol: misc updates
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Dec 7, 2023 at 11:53=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> * add option to display users
+> * drop duplicate option to display booleans
+> * show number of entries before listing them
+> * drop global variable
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
+Acked-by: James Carter <jwcart2@gmail.com>
 
-On 12/8/23 13:26, Michael S. Tsirkin wrote:
-> On Fri, Dec 08, 2023 at 01:23:00PM +0100, Maxime Coquelin wrote:
->>
->>
->> On 12/8/23 12:05, Michael S. Tsirkin wrote:
->>> On Fri, Dec 08, 2023 at 12:01:15PM +0100, Maxime Coquelin wrote:
->>>> Hello Paul,
->>>>
->>>> On 11/8/23 03:31, Paul Moore wrote:
->>>>> On Oct 20, 2023 "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>>>>>
->>>>>> This patch introduces LSM hooks for devices creation,
->>>>>> destruction and opening operations, checking the
->>>>>> application is allowed to perform these operations for
->>>>>> the Virtio device type.
->>>>>>
->>>>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
->>>>>> ---
->>>>>>     drivers/vdpa/vdpa_user/vduse_dev.c  | 12 +++++++
->>>>>>     include/linux/lsm_hook_defs.h       |  4 +++
->>>>>>     include/linux/security.h            | 15 ++++++++
->>>>>>     security/security.c                 | 42 ++++++++++++++++++++++
->>>>>>     security/selinux/hooks.c            | 55 +++++++++++++++++++++++++++++
->>>>>>     security/selinux/include/classmap.h |  2 ++
->>>>>>     6 files changed, 130 insertions(+)
->>>>>
->>>>> My apologies for the late reply, I've been trying to work my way through
->>>>> the review backlog but it has been taking longer than expected; comments
->>>>> below ...
->>>>
->>>> No worries, I have also been busy these days.
->>>>
->>>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>>>>> index 2aa0e219d721..65d9262a37f7 100644
->>>>>> --- a/security/selinux/hooks.c
->>>>>> +++ b/security/selinux/hooks.c
->>>>>> @@ -21,6 +21,7 @@
->>>>>>      *  Copyright (C) 2016 Mellanox Technologies
->>>>>>      */
->>>>>> +#include "av_permissions.h"
->>>>>>     #include <linux/init.h>
->>>>>>     #include <linux/kd.h>
->>>>>>     #include <linux/kernel.h>
->>>>>> @@ -92,6 +93,7 @@
->>>>>>     #include <linux/fsnotify.h>
->>>>>>     #include <linux/fanotify.h>
->>>>>>     #include <linux/io_uring.h>
->>>>>> +#include <uapi/linux/virtio_ids.h>
->>>>>>     #include "avc.h"
->>>>>>     #include "objsec.h"
->>>>>> @@ -6950,6 +6952,56 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
->>>>>>     }
->>>>>>     #endif /* CONFIG_IO_URING */
->>>>>> +static int vduse_check_device_type(u32 sid, u32 device_id)
->>>>>> +{
->>>>>> +	u32 requested;
->>>>>> +
->>>>>> +	if (device_id == VIRTIO_ID_NET)
->>>>>> +		requested = VDUSE__NET;
->>>>>> +	else if (device_id == VIRTIO_ID_BLOCK)
->>>>>> +		requested = VDUSE__BLOCK;
->>>>>> +	else
->>>>>> +		return -EINVAL;
->>>>>> +
->>>>>> +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested, NULL);
->>>>>> +}
->>>>>> +
->>>>>> +static int selinux_vduse_dev_create(u32 device_id)
->>>>>> +{
->>>>>> +	u32 sid = current_sid();
->>>>>> +	int ret;
->>>>>> +
->>>>>> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVCREATE, NULL);
->>>>>> +	if (ret)
->>>>>> +		return ret;
->>>>>> +
->>>>>> +	return vduse_check_device_type(sid, device_id);
->>>>>> +}
->>>>>
->>>>> I see there has been some discussion about the need for a dedicated
->>>>> create hook as opposed to using the existing ioctl controls.  I think
->>>>> one important point that has been missing from the discussion is the
->>>>> idea of labeling the newly created device.  Unfortunately prior to a
->>>>> few minutes ago I hadn't ever looked at VDUSE so please correct me if
->>>>> I get some things wrong :)
->>>>>
->>>>>    From what I can see userspace creates a new VDUSE device with
->>>>> ioctl(VDUSE_CREATE_DEV), which trigger the creation of a new
->>>>> /dev/vduse/XXX device which will be labeled according to the udev
->>>>> and SELinux configuration, likely with a generic udev label.  My
->>>>> question is if we want to be able to uniquely label each VDUSE
->>>>> device based on the process that initiates the device creation
->>>>> with the call to ioctl()?  If that is the case, we would need a
->>>>> create hook not only to control the creation of the device, but to
->>>>> record the triggering process' label in the new device; this label
->>>>> would then be used in subsequent VDUSE open and destroy operations.
->>>>> The normal device file I/O operations would still be subject to the
->>>>> standard SELinux file I/O permissions using the device file label
->>>>> assigned by systemd/udev when the device was created.
->>>>
->>>> I don't think we need a unique label for VDUSE devices, but maybe
->>>> Michael thinks otherwise?
->>>
->>> I don't know.
->>> All this is consumed by libvirt, you need to ask these guys.
->>
->> I think it is not consumed by libvirt, at least not in the usecases I
->> have in mind. For networking devices, it will be consumed by OVS.
->>
->> Maxime
-> 
-> OK, ovs then :)
-> 
-
-Adding Aaron, our go-to person for SELinux-related topics for OVS, but I 
-think we don't need to do relabeling for VDUSE chardevs.
-
-Aaron, do you confirm?
-
-Maxime
-
+> ---
+> v2:
+>    drop 'b' instead of '5' of duplicated boolean option
+> ---
+>  checkpolicy/test/dispol.c | 57 ++++++++++++++++++++-------------------
+>  1 file changed, 30 insertions(+), 27 deletions(-)
+>
+> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> index 944ef7ec..18829c97 100644
+> --- a/checkpolicy/test/dispol.c
+> +++ b/checkpolicy/test/dispol.c
+> @@ -33,9 +33,7 @@
+>  #include <stdio.h>
+>  #include <fcntl.h>
+>
+> -static policydb_t policydb;
+> -
+> -static struct command {
+> +static const struct command {
+>         enum {
+>                 EOL    =3D 0,
+>                 HEADER =3D 1,
+> @@ -50,19 +48,19 @@ static struct command {
+>         {CMD,       '2',  "display conditional AVTAB (entirely)"},
+>         {CMD,       '3',  "display conditional AVTAB (only ENABLED rules)=
+"},
+>         {CMD,       '4',  "display conditional AVTAB (only DISABLED rules=
+)"},
+> -       {CMD,       '5',  "display conditional bools"},
+> +       {CMD,       '5',  "display booleans"},
+>         {CMD,       '6',  "display conditional expressions"},
+>         {CMD|NOOPT, '7',  "change a boolean value"},
+>         {CMD,       '8',  "display role transitions"},
+>         {HEADER, 0, ""},
+>         {CMD,       'c',  "display policy capabilities"},
+> -       {CMD,       'b',  "display booleans"},
+>         {CMD,       'C',  "display classes"},
+> +       {CMD,       'u',  "display users"},
+>         {CMD,       'r',  "display roles"},
+>         {CMD,       't',  "display types"},
+>         {CMD,       'a',  "display type attributes"},
+>         {CMD,       'p',  "display the list of permissive types"},
+> -       {CMD,       'u',  "display unknown handling setting"},
+> +       {CMD,       'U',  "display unknown handling setting"},
+>         {CMD,       'F',  "display filename_trans rules"},
+>         {HEADER, 0, ""},
+>         {CMD|NOOPT, 'f',  "set output file"},
+> @@ -234,17 +232,6 @@ static int display_avtab(avtab_t * a, uint32_t what,=
+ policydb_t * p, FILE * fp)
+>         return 0;
+>  }
+>
+> -static int display_bools(policydb_t * p, FILE * fp)
+> -{
+> -       unsigned int i;
+> -
+> -       for (i =3D 0; i < p->p_bools.nprim; i++) {
+> -               fprintf(fp, "%s : %d\n", p->p_bool_val_to_name[i],
+> -                       p->bool_val_to_struct[i]->state);
+> -       }
+> -       return 0;
+> -}
+> -
+>  static void display_expr(policydb_t * p, cond_expr_t * exp, FILE * fp)
+>  {
+>
+> @@ -313,6 +300,8 @@ static int display_handle_unknown(policydb_t * p, FIL=
+E * out_fp)
+>                 fprintf(out_fp, "Deny unknown classes and permissions\n")=
+;
+>         else if (p->handle_unknown =3D=3D REJECT_UNKNOWN)
+>                 fprintf(out_fp, "Reject unknown classes and permissions\n=
+");
+> +       else
+> +               fprintf(out_fp, "<INVALID SETTING!>\n");
+>         return 0;
+>  }
+>
+> @@ -334,7 +323,7 @@ static int display_booleans(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "booleans:\n");
+> +       fprintf(fp, "booleans (#%u):\n", p->p_bools.table->nel);
+>         for (i =3D 0; i < p->p_bools.nprim; i++) {
+>                 fprintf(fp, "\t%s : %d\n", p->p_bool_val_to_name[i],
+>                         p->bool_val_to_struct[i]->state);
+> @@ -364,7 +353,7 @@ static int display_classes(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "classes:\n");
+> +       fprintf(fp, "classes (#%u):\n", p->p_classes.table->nel);
+>         for (i =3D 0; i < p->p_classes.nprim; i++) {
+>                 if (!p->p_class_val_to_name[i])
+>                         continue;
+> @@ -386,7 +375,7 @@ static void display_permissive(policydb_t *p, FILE *f=
+p)
+>         ebitmap_node_t *node;
+>         unsigned int i;
+>
+> -       fprintf(fp, "permissive sids:\n");
+> +       fprintf(fp, "permissive sids (#%u):\n", ebitmap_cardinality(&p->p=
+ermissive_map));
+>         ebitmap_for_each_positive_bit(&p->permissive_map, node, i) {
+>                 fprintf(fp, "\t");
+>                 display_id(p, fp, SYM_TYPES, i - 1, "");
+> @@ -394,11 +383,25 @@ static void display_permissive(policydb_t *p, FILE =
+*fp)
+>         }
+>  }
+>
+> +static int display_users(policydb_t * p, FILE *fp)
+> +{
+> +       uint32_t i;
+> +
+> +       fprintf(fp, "users (#%u):\n", p->p_users.table->nel);
+> +       for (i =3D 0; i < p->p_users.nprim; i++) {
+> +               if (!p->p_user_val_to_name[i])
+> +                       continue;
+> +
+> +               fprintf(fp, "\t%s\n", p->p_user_val_to_name[i]);
+> +       }
+> +       return 0;
+> +}
+> +
+>  static int display_roles(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "roles:\n");
+> +       fprintf(fp, "roles (#%u):\n", p->p_roles.table->nel);
+>         for (i =3D 0; i < p->p_roles.nprim; i++) {
+>                 if (!p->p_role_val_to_name[i])
+>                         continue;
+> @@ -412,7 +415,7 @@ static int display_types(policydb_t * p, FILE *fp)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "types:\n");
+> +       fprintf(fp, "types (out of #%u):\n", p->p_types.table->nel);
+>         for (i =3D 0; i < p->p_types.nprim; i++) {
+>                 if (!p->p_type_val_to_name[i])
+>                         continue;
+> @@ -429,7 +432,7 @@ static int display_attributes(policydb_t * p, FILE *f=
+p)
+>  {
+>         uint32_t i;
+>
+> -       fprintf(fp, "attributes:\n");
+> +       fprintf(fp, "attributes (out of #%u):\n", p->p_types.table->nel);
+>         for (i =3D 0; i < p->p_types.nprim; i++) {
+>                 if (!p->p_type_val_to_name[i])
+>                         continue;
+> @@ -522,6 +525,7 @@ int main(int argc, char **argv)
+>         char *name;
+>         int state;
+>         struct policy_file pf;
+> +       policydb_t policydb;
+>
+>         if (argc < 2 || strcmp(argv[1], "-h") =3D=3D 0 || strcmp(argv[1],=
+ "--help") =3D=3D 0)
+>                 usage(argv[0]);
+> @@ -617,7 +621,7 @@ int main(int argc, char **argv)
+>                                       &policydb, out_fp);
+>                         break;
+>                 case '5':
+> -                       display_bools(&policydb, out_fp);
+> +                       display_booleans(&policydb, out_fp);
+>                         break;
+>                 case '6':
+>                         display_cond_expressions(&policydb, out_fp);
+> @@ -659,9 +663,6 @@ int main(int argc, char **argv)
+>                 case 'a':
+>                         display_attributes(&policydb, out_fp);
+>                         break;
+> -               case 'b':
+> -                       display_booleans(&policydb, out_fp);
+> -                       break;
+>                 case 'c':
+>                         display_policycaps(&policydb, out_fp);
+>                         break;
+> @@ -678,6 +679,8 @@ int main(int argc, char **argv)
+>                         display_types(&policydb, out_fp);
+>                         break;
+>                 case 'u':
+> +                       display_users(&policydb, out_fp);
+> +                       break;
+>                 case 'U':
+>                         display_handle_unknown(&policydb, out_fp);
+>                         break;
+> --
+> 2.43.0
+>
+>
