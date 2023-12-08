@@ -1,40 +1,40 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fy6bWMJB"
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A215123
-	for <selinux@vger.kernel.org>; Fri,  8 Dec 2023 08:24:06 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id 98e67ed59e1d1-2886579d59fso2261446a91.1
-        for <selinux@vger.kernel.org>; Fri, 08 Dec 2023 08:24:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aDauI8GC"
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71BEE10EF
+	for <selinux@vger.kernel.org>; Fri,  8 Dec 2023 09:39:59 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-50be10acaf9so2241655e87.1
+        for <selinux@vger.kernel.org>; Fri, 08 Dec 2023 09:39:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702052646; x=1702657446; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1702057198; x=1702661998; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=8Fah9tQfE3hiL7YDJ+EihRmqhrVjTqzDPNdDHjhE6ss=;
-        b=fy6bWMJBdpZAN8ayANY6B3xD/xRDgJ18I4Ar3MGVYMQKcj8LKxI4GuD7Qod70e4cGw
-         EXqX1v0tivLsui0dvl0dNqmZi+cQnYPwVvzHZKfwrGfK5KM/s2AdbtCsDVq7+d3+RL+o
-         sn5FF0Crd9XUHboqvwZ3vAnoHImfH//NEOs1BsTCx5+4KjJpzTdb3K9ey4T0Cn+VeOEM
-         49sDu86TTokVm3qecaIXmaA/TEWrDP7oDarz/V8FSs5eMOt9bSBFuDb6V8rXO3+4/d9/
-         ioOpEpVutNRLD9raoI/BYf6XwI4+GjP8FGtWnQRl1zdjBtjB2zFtYOk2bGspZBEZvSbm
-         klyA==
+        bh=NZgWwcqY7oTUmmQ75QV6/qNPwc46N14+T10pF/1j5EU=;
+        b=aDauI8GCbV+b+5ReYrWiPEpzx+ZjDCwiGOXWGqjhrRm3F28r01ZijlfBRhx9wdy7z7
+         fYig33XjwHithLLOeK8ORngMi0kfvu0bGlvvM0hgr4ayJ4PQhNXjx4mw09oSVNEvqQWF
+         S8aRGmlRpn3m6q8jZEGNZo5XQPTdaQZXP+lAOFhFaLhsEklT5cv53w6yk0tuIyCbFyBm
+         B/FO+jacdA783kXrUyhYvmC6O2Q6rtuF7dktor3Y84hu9vzd+3QpCcK4wSjh/4au31KR
+         N2WupY28jaSq2GoQdeLBdBZlTjUljpY0SiEmHsyK8XhABxzFxIwE2qp5sxQhmRDLp9Rp
+         aSEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702052646; x=1702657446;
+        d=1e100.net; s=20230601; t=1702057198; x=1702661998;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=8Fah9tQfE3hiL7YDJ+EihRmqhrVjTqzDPNdDHjhE6ss=;
-        b=Cleze53JMqX3dibOjfhpMuXQgN6ndfWd1QfWSpHJaaXwSKnMyPdYinEh5bwW4EFm2H
-         /hke1g+AAY84QP9/5fnFWnCCPmsNIT63P/ASnbycvHkERbHEVrcqNeoZMaMFxRC81QLB
-         cYDCf9gXpUrotyyZikIXQF3fpJZuABu/4h5GqUkHDMoHv1XJFqj95dgJgRS6phJDxiL0
-         SarlI+qa++M5f5YT8B+5kefymzVGDc95hUazSdsSWEyqWkm9TF0su9vTdGqLl60GCEMR
-         Ter/mtqUtGZXNTTAuZh6idO6JZ0ryKbdOeGs9Xdsq0YajL9/cJI99FIDinafRj5kR6vl
-         4aUw==
-X-Gm-Message-State: AOJu0Yyjpi5cIKX4vorgFto16mZfciLzMmyL/xN1yHtD4XqhgfCjti4R
-	wMwtxqlR4xqi+26dYkDns5wEM8eieFp9IRcL8+CAOyk3
-X-Google-Smtp-Source: AGHT+IEvDDYcVKiGcouLwWlzjmFdOyGa5JGJfxe03LM/HFH/BPqZZ8mayS+Qv+NFcyH5wAd1n3/evcrhauTl7NT3cxg=
-X-Received: by 2002:a17:90b:ec3:b0:28a:41cb:2ffc with SMTP id
- gz3-20020a17090b0ec300b0028a41cb2ffcmr315520pjb.15.1702052645803; Fri, 08 Dec
- 2023 08:24:05 -0800 (PST)
+        bh=NZgWwcqY7oTUmmQ75QV6/qNPwc46N14+T10pF/1j5EU=;
+        b=tcDFJUOJSbxlz+YZXrzMCaDw1y1VW5pO7NvJhXJmR0CmCarbLHQUv1FQFSpSoVC3sG
+         e5mDHFJIj7eMxnAI23V5rYwLzPK86r8VWQJnrUmY2W1UzgGv4+yyz6gaXKbNRJA65+wq
+         7Z/BLjGSJFBYrnPVXX1TSLnwyXBTlhDvBf5KGpjIWEM1YGua2QbdYfq8AypEsmAngYEA
+         Gv/sP+AomaQEu8xf9VIYMeovW+Fe/+tBRx5PNiTnoNK2Wrli4XG+RwAfHQgR+zGh3In/
+         2l02sBPHrnyQZY0QJysySdP7xZT2A3x3Uch25oOuDPJfHgRCjMbra7Yfqc396Qg/zHsw
+         6Udw==
+X-Gm-Message-State: AOJu0Yw8dH00dNK9SCMkvwojH1A0kO5PnkMiK65j0oCie2+Mzh+8j5p5
+	cyH3BMuEepTZYY3zu/U1fdPOvohnnPskYYB7nJU=
+X-Google-Smtp-Source: AGHT+IGYV3buF6GQJ1X53qKid15oM1iXBjI0srGJavFkyI+MEoe23VSQG2Foz4oZdiSP20L6YBwFKziOlYvSg42pM/s=
+X-Received: by 2002:a05:6512:68c:b0:50b:f9b2:cfc with SMTP id
+ t12-20020a056512068c00b0050bf9b20cfcmr348460lfe.30.1702057197050; Fri, 08 Dec
+ 2023 09:39:57 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -43,16 +43,17 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20231207165319.63889-1-cgzones@googlemail.com> <CAEjxPJ4htnqzDyHFNR_aNJH-hrz_wbM=Z=NN7BjUQDrKBa8e9A@mail.gmail.com>
 In-Reply-To: <CAEjxPJ4htnqzDyHFNR_aNJH-hrz_wbM=Z=NN7BjUQDrKBa8e9A@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 8 Dec 2023 11:23:54 -0500
-Message-ID: <CAEjxPJ7=VvyEzd-NmDvKZokdCrQ_t41++qdNhk1=EZG0ohf5BQ@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 8 Dec 2023 12:39:45 -0500
+Message-ID: <CAP+JOzRF-HcrVjihnngqXRbuPYTn2Ra8AU6swP4NXj7S7=n7Hw@mail.gmail.com>
 Subject: Re: [RFC PATCH] libsepol: validate permission identifier length
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 8, 2023 at 11:05=E2=80=AFAM Stephen Smalley
+On Fri, Dec 8, 2023 at 11:06=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
 > On Thu, Dec 7, 2023 at 11:53=E2=80=AFAM Christian G=C3=B6ttsche
@@ -67,8 +68,84 @@ On Fri, Dec 8, 2023 at 11:05=E2=80=AFAM Stephen Smalley
 >
 > Android has longer permission names. I'd rather just fix
 > sepol_av_to_string() than impose some arbitrary limit here.
+>
 
-Looking at AOSP master, it appears that the longest permission is
-32-bytes but since we haven't imposed such a limit in the past, we
-have no way of knowing what any particular version of refpolicy, AOSP
-policy, or downstream policies might have used.
+I agree.
+
+Christian, something like your recent patch to avoid a fixed size
+format buffer for xperms would be better.
+
+Thanks for all your work.
+Jim
+
+
+> >
+> > Reported-by: oss-fuzz (issue 64832)
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> > The oss-fuzz issue got closed by the latest fuzzer updates (due to
+> > unrelated changes that invalid the current reproducer), but the issue i=
+s
+> > still valid.
+> > ---
+> >  libsepol/src/policydb_validate.c | 20 ++++++++++++++++++++
+> >  1 file changed, 20 insertions(+)
+> >
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index bd8e9f8f..72681120 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -366,12 +366,30 @@ bad:
+> >         return -1;
+> >  }
+> >
+> > +static int validate_permission_wrapper(hashtab_key_t k, __attribute__(=
+(unused)) hashtab_datum_t d, void *args)
+> > +{
+> > +       sepol_handle_t *handle =3D args;
+> > +       const char *name =3D k;
+> > +       size_t len =3D strlen(name);
+> > +
+> > +       if (len =3D=3D 0 || len >=3D 32)
+> > +               goto bad;
+> > +
+> > +       return 0;
+> > +
+> > +bad:
+> > +       ERR(handle, "Invalid permission");
+> > +       return -1;
+> > +}
+> > +
+> >  static int validate_common_datum(sepol_handle_t *handle, const common_=
+datum_t *common, validate_t flavors[])
+> >  {
+> >         if (validate_value(common->s.value, &flavors[SYM_COMMONS]))
+> >                 goto bad;
+> >         if (common->permissions.table->nel =3D=3D 0 || common->permissi=
+ons.nprim > PERM_SYMTAB_SIZE)
+> >                 goto bad;
+> > +       if (hashtab_map(common->permissions.table, validate_permission_=
+wrapper, handle))
+> > +               goto bad;
+> >
+> >         return 0;
+> >
+> > @@ -395,6 +413,8 @@ static int validate_class_datum(sepol_handle_t *han=
+dle, const class_datum_t *cla
+> >                 goto bad;
+> >         if (class->permissions.nprim > PERM_SYMTAB_SIZE)
+> >                 goto bad;
+> > +       if (hashtab_map(class->permissions.table, validate_permission_w=
+rapper, handle))
+> > +               goto bad;
+> >         if (validate_constraint_nodes(handle, class->permissions.nprim,=
+ class->constraints, flavors))
+> >                 goto bad;
+> >         if (validate_constraint_nodes(handle, 0, class->validatetrans, =
+flavors))
+> > --
+> > 2.43.0
+> >
+> >
+>
