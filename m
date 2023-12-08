@@ -1,65 +1,99 @@
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 021DD1706
-	for <selinux@vger.kernel.org>; Thu,  7 Dec 2023 17:20:29 -0800 (PST)
-Received: from dggpemm100001.china.huawei.com (unknown [172.30.72.54])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4SmYGw6HsPz14Lvb;
-	Fri,  8 Dec 2023 09:20:24 +0800 (CST)
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemm100001.china.huawei.com (7.185.36.93) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Fri, 8 Dec 2023 09:20:26 +0800
-Message-ID: <fd1c5f6f-583b-4d49-8f18-ea0c8a38305d@huawei.com>
-Date: Fri, 8 Dec 2023 09:20:25 +0800
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="Rqmqt3cb"
+Received: from smtp-fw-9106.amazon.com (smtp-fw-9106.amazon.com [207.171.188.206])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519C610DF
+	for <selinux@vger.kernel.org>; Thu,  7 Dec 2023 19:36:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1702006598; x=1733542598;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Nw0vPx6RYP/2hVuvwI8VGpJutQ3fGf7bdNmbQU4PUFI=;
+  b=Rqmqt3cbDUpOYtEpblxY6DHSKXyzUZH1eUUmyNVlT1cvEobOFaDzIr+p
+   xzXVGFm7pnOA84qvqzy4zUevQoa66YkndAdBUPc7sRz0DUcek3I7XFwaB
+   4GKFo+Zm4f03bWhpZ8gZ6t5KAyexLjoYkVPhq+Iwe6E+ySUVLsyM/MqA8
+   4=;
+X-IronPort-AV: E=Sophos;i="6.04,259,1695686400"; 
+   d="scan'208";a="689112851"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-ed19f671.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9106.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2023 03:36:37 +0000
+Received: from smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev (pdx2-ws-svc-p26-lb5-vlan3.pdx.amazon.com [10.39.38.70])
+	by email-inbound-relay-pdx-2b-m6i4x-ed19f671.us-west-2.amazon.com (Postfix) with ESMTPS id AF2DF80741;
+	Fri,  8 Dec 2023 03:36:36 +0000 (UTC)
+Received: from EX19MTAUWB001.ant.amazon.com [10.0.7.35:2823]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.14.170:2525] with esmtp (Farcaster)
+ id e1b68bfb-8e21-4226-9c2d-d391e8e41437; Fri, 8 Dec 2023 03:36:36 +0000 (UTC)
+X-Farcaster-Flow-ID: e1b68bfb-8e21-4226-9c2d-d391e8e41437
+Received: from EX19D010UWA004.ant.amazon.com (10.13.138.204) by
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Fri, 8 Dec 2023 03:36:36 +0000
+Received: from u0acfa43c8cad58.ant.amazon.com (10.106.101.36) by
+ EX19D010UWA004.ant.amazon.com (10.13.138.204) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Fri, 8 Dec 2023 03:36:34 +0000
+From: Munehisa Kamata <kamatam@amazon.com>
+To: <paul@paul-moore.com>
+CC: <kamatam@amazon.com>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH v2] selinux: remove the wrong comment about multithreaded  process handling
+Date: Thu, 7 Dec 2023 19:36:22 -0800
+Message-ID: <20231208033622.1739868-1-kamatam@amazon.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <41bdb9588162bc706786e2c341f01f07@paul-moore.com>
+References: <41bdb9588162bc706786e2c341f01f07@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] mm: fix VMA heap bounds checking
-Content-Language: en-US
-To: Andrew Morton <akpm@linux-foundation.org>
-CC: <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
-	<selinux@vger.kernel.org>, <linux-mm@kvack.org>, <david@redhat.com>,
-	<peterz@infradead.org>, Ondrej Mosnacek <omosnace@redhat.com>
-References: <20231207152525.2607420-1-wangkefeng.wang@huawei.com>
- <20231207141613.1d7d59d8c151729e25be53fa@linux-foundation.org>
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <20231207141613.1d7d59d8c151729e25be53fa@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemm100001.china.huawei.com (7.185.36.93)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D036UWC004.ant.amazon.com (10.13.139.205) To
+ EX19D010UWA004.ant.amazon.com (10.13.138.204)
 
-
-
-On 2023/12/8 6:16, Andrew Morton wrote:
-> On Thu, 7 Dec 2023 23:25:25 +0800 Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+On Thu, 2023-12-07 09:46:54 -0800, Paul Moore wrote:
+>
+> On Dec  6, 2023 Munehisa Kamata <kamatam@amazon.com> wrote:
+> > 
+> > Since commit d9250dea3f89 ("SELinux: add boundary support and thread
+> > context assignment"), SELinux has been supporting assigning per-thread
+> > security context under a constraint and the comment was updated
+> > accordingly. However, seems like commit d84f4f992cbd ("CRED: Inaugurate
+> > COW credentials") accidentally brought the old comment back that doesn't
+> > match what the code does.
+> > 
+> > Considering the ease of understanding the code, this patch just removes the
+> > wrong comment.
+> > 
+> > Fixes: d84f4f992cbd ("CRED: Inaugurate COW credentials")
+> > Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+> > ---
+> > 
+> > v1 -> v2: just remove the comment instead of bringing back the old one as suggested by Paul
+> > 
+> >  security/selinux/hooks.c | 1 -
+> >  1 file changed, 1 deletion(-)
 > 
->> After selinux converting to VMA heap check helper, the gcl triggers
->> an execheap SELinux denial, which caused by different check logical.
->>
->> The old from selinux only check VMA range within VMA heap range, and
->> the new will check the intersects between the two ranges, but the corner
->> cases(vm_end=start_brk, brk=vm_start) doesn't be handled correctly.
->>
->> Since commit 11250fd12eb8 ("mm: factor out VMA stack and heap checks")
->> only a function extraction, it seems that the issue introduced from
->> commit 0db0c01b53a1 ("procfs: fix /proc/<pid>/maps heap check"), let's
->> fix above corner cases, meanwhile, corrent the wrong indentation of the
->> stack and heap check helpers.
->>
->> Reported-and-tested-by: Ondrej Mosnacek <omosnace@redhat.com>
->> Closes: https://lore.kernel.org/selinux/CAFqZXNv0SVT0fkOK6neP9AXbj3nxJ61JAY4+zJzvxqJaeuhbFw@mail.gmail.com/
->> Fixes: 0db0c01b53a1 ("procfs: fix /proc/<pid>/maps heap check")
-> 
-> I suggest this should be Fixes: 11250fd12eb8 ("mm: factor out VMA stack and
-> heap checks").  Sure, 0db0c01b53a1 may have been wrong, but is there
-> any point in suggesting to people that they backport this fix over 12 years
-> worth of kernels?  Or is it the case that only kernels which contain
-> 11250fd12eb8 need this change?
+> Merged into selinux/dev, thanks!
 
-Fair enough, also thanks for updating the commit message.
+Thank you, too :)
+
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 855589b64641..863ff67e7849 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -6459,7 +6459,6 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+> >  		if (sid == 0)
+> >  			goto abort_change;
+> >  
+> > -		/* Only allow single threaded processes to change context */
+> >  		if (!current_is_single_threaded()) {
+> >  			error = security_bounded_transition(tsec->sid, sid);
+> >  			if (error)
+> > -- 
+> > 2.40.1
+> 
+> --
+> paul-moore.com
 > 
