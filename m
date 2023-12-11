@@ -1,84 +1,143 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="CRxEn5W1"
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B7BCF
-	for <selinux@vger.kernel.org>; Mon, 11 Dec 2023 07:00:39 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id 4fb4d7f45d1cf-54f4fa5002cso3934135a12.1
-        for <selinux@vger.kernel.org>; Mon, 11 Dec 2023 07:00:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1702306838; x=1702911638; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=y+i3fJpta+YZL7Kqt3KB1G/o84dul4fXPO2DxheMfn0=;
-        b=CRxEn5W10NOLVM7Rtwt5T/9zI2/lKyp3J4EZ9TxErh6sTWJX/yps+poJHibT9GJaWc
-         +7KphUM+Ned71ElJMdE3K1Z11ic2W5Q201ZymS5zenDmh5d5eQh7EoIuSd/mVzSAR6zF
-         pxTy++uGSr9Vp+Qfc4Dkovrux44CU0Xjo4rUnf8WEqhc6XJkmUvQ98u6crtkqu352VeD
-         Nnnfkoh9/4uHcuSyKVHu29Ztn5eTZN697j/qhFDvVOKlmp4f7uN4wJHJPLGnxXHLx1JF
-         UJXdYDhKRMbH8HfWA+wICWUibaHsERr4+1mqZT93GOTyDO7cEBtQnrA2FdrPakk18TJ4
-         yBrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702306838; x=1702911638;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y+i3fJpta+YZL7Kqt3KB1G/o84dul4fXPO2DxheMfn0=;
-        b=Rvw9E0BpXVZ9sVQ6fsOsPxkeFRejaRmopIyMcwADFpkflKZmF15SMEbKBP0KyAC0jG
-         rQSkS4m/rXvQVPOtcQ895cQQ76eWpDBMff+HMpelzdBHP1H0jR+fOgFRGj32PidKIDsQ
-         do0NDnUxD/NL4vqlxdXUat3is/ZnENccD3qJwPlPu8FjcRgaIeouuyCm0fEM5fkXEIoV
-         c/NAwlcsi3i/Q3E/ZeCaLXyfDBWgFyAmu854wx4Cjh0SQA5uHcMiDUEp4lcIrLxWieyU
-         i9J0PiD93qMBl2g5teVex+/LN9kHb4RCn1emudgOCPX+FKcEMlsLphIhWM86AJfDWqoM
-         xSag==
-X-Gm-Message-State: AOJu0YxMceI521wJvZKmSiY98Pj2QD2shPAePXohAH0VW8yP2xNyVrAs
-	sqjZIKjn6g/nIbO+FFncQWDqg5xj4Ek=
-X-Google-Smtp-Source: AGHT+IEj373zTzE8MNOslq1N1xKAThDERkMsaclPDj1sROpVTktvNmMetTdJrzd2Z7yWwX1frPnOAQ==
-X-Received: by 2002:a17:906:ac7:b0:a18:7b92:d8b9 with SMTP id z7-20020a1709060ac700b00a187b92d8b9mr2126889ejf.38.1702306837991;
-        Mon, 11 Dec 2023 07:00:37 -0800 (PST)
-Received: from debian_development.DebianHome (dynamic-077-001-173-175.77.1.pool.telefonica.de. [77.1.173.175])
-        by smtp.gmail.com with ESMTPSA id vq6-20020a170907a4c600b00a19b7362dcfsm4983559ejc.139.2023.12.11.07.00.37
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Dec 2023 07:00:37 -0800 (PST)
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH 3/3] libselinux: state setexecfilecon(3) sets errno on failure
-Date: Mon, 11 Dec 2023 16:00:31 +0100
-Message-ID: <20231211150031.127850-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231211150031.127850-1-cgzones@googlemail.com>
-References: <20231211150031.127850-1-cgzones@googlemail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Umi9cQJt";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="aU4gxg8z";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Umi9cQJt";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="aU4gxg8z"
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4067FDC
+	for <selinux@vger.kernel.org>; Mon, 11 Dec 2023 07:08:06 -0800 (PST)
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 227941F8D7;
+	Mon, 11 Dec 2023 15:08:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1702307284; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nDDfZL2siSkw3kroAIDEzCx84sVncPqD9ky7hdvh7HA=;
+	b=Umi9cQJtBakfV/TDyP5xDImxY61Ky+63vL49EMmzcuAqRFUwR8IkRAm2SGgAzYOakjbhwH
+	r/4YItzahZ3M3+yiZAoIOlZleYKGjatEFLALHuRzdmRO97HlVtb29lccy3OHiS5itlS1e/
+	HhpRpMSZ69mMN2u5vJaPNa2+8jNSTMU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1702307284;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nDDfZL2siSkw3kroAIDEzCx84sVncPqD9ky7hdvh7HA=;
+	b=aU4gxg8zpvh6tUo8XPmLZ6/5Q9rlhD/K9VRPPZdN4WxXQkaYRYtAiPbtdnoFH7lpdhj0+V
+	i9CLVqO0ZQXAidCQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1702307284; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nDDfZL2siSkw3kroAIDEzCx84sVncPqD9ky7hdvh7HA=;
+	b=Umi9cQJtBakfV/TDyP5xDImxY61Ky+63vL49EMmzcuAqRFUwR8IkRAm2SGgAzYOakjbhwH
+	r/4YItzahZ3M3+yiZAoIOlZleYKGjatEFLALHuRzdmRO97HlVtb29lccy3OHiS5itlS1e/
+	HhpRpMSZ69mMN2u5vJaPNa2+8jNSTMU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1702307284;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nDDfZL2siSkw3kroAIDEzCx84sVncPqD9ky7hdvh7HA=;
+	b=aU4gxg8zpvh6tUo8XPmLZ6/5Q9rlhD/K9VRPPZdN4WxXQkaYRYtAiPbtdnoFH7lpdhj0+V
+	i9CLVqO0ZQXAidCQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CD48C133DE;
+	Mon, 11 Dec 2023 15:08:03 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([10.150.64.162])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id LT8zLtMld2VMMgAAD6G6ig
+	(envelope-from <jsegitz@suse.de>); Mon, 11 Dec 2023 15:08:03 +0000
+Date: Mon, 11 Dec 2023 16:07:57 +0100
+From: Johannes Segitz <jsegitz@suse.de>
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: Where's 3.6-rc3 and plan with 3.6 release
+Message-ID: <ZXclzTjExZpvWrew@suse.com>
+References: <87o7ewsy7f.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="dhUqxE2azW9sQaDc"
+Content-Disposition: inline
+In-Reply-To: <87o7ewsy7f.fsf@redhat.com>
+X-Spam-Level: 
+X-Spam-Score: -4.16
+X-Spamd-Result: default: False [-4.77 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 MIME_GOOD(-0.20)[multipart/signed,text/plain];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 RCPT_COUNT_TWO(0.00)[2];
+	 SIGNED_PGP(-2.00)[];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+,1:+,2:~];
+	 RCVD_TLS_ALL(0.00)[];
+	 BAYES_HAM(-1.37)[90.70%]
+X-Spam-Flag: NO
+X-Spam-Level: 
+X-Spam-Score: -4.77
+Authentication-Results: smtp-out2.suse.de;
+	none
 
-The other functions (getexeccon(3) and setexeccon(3)) from the man page
-also set errno on failure similar to the getcon(3) function family.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libselinux/man/man3/getexeccon.3 | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+--dhUqxE2azW9sQaDc
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/libselinux/man/man3/getexeccon.3 b/libselinux/man/man3/getexeccon.3
-index 9cc24e8c..edaa6669 100644
---- a/libselinux/man/man3/getexeccon.3
-+++ b/libselinux/man/man3/getexeccon.3
-@@ -89,7 +89,9 @@ then executes the specified filename with the provided argument and
- environment arrays.
- .
- .SH "RETURN VALUE"
--On error \-1 is returned.
-+On failure, \-1 is returned and
-+.I errno
-+is  set appropriately.
- 
- On success
- .BR getexeccon (),
--- 
-2.43.0
+On Mon, Dec 11, 2023 at 01:47:16PM +0100, Petr Lautrbach wrote:
+> I consider two options now - a) to release 3.6-rc3 on this Wednesday and
+> leave 3.6 to the next year; b) to release directly 3.6 this Wednesday.
 
+I would be fine with b. In my experience there's not that much breakage and
+the chance that a rc3 will uncover something significant seems small=20
+
+Johannes
+--=20
+GPG Key                EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
+Subkey fingerprint:    250F 43F5 F7CE 6F1E 9C59  4F95 BC27 DD9D 2CC4 FD66
+SUSE Software Solutions Germany GmbH, Frankenstra=DFe 146, 90461 N=FCrnberg=
+, Germany
+Gesch=E4ftsf=FChrer: Ivo Totev, Andrew McDonald, Werner Knoblich (HRB 36809=
+, AG N=FCrnberg)
+
+--dhUqxE2azW9sQaDc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEJQ9D9ffObx6cWU+VvCfdnSzE/WYFAmV3JcwACgkQvCfdnSzE
+/WYo1BAApVa2BEg2j5f9CygCLNJEqupQT1BUMOIiWtWB6zQkW/QVD7RptabVkt7m
+JzVBLv0NaWuIo/SkacfC71TMEliPUxPEqo/oYG9zo4zZXvHhIW7HYMJGz5Fs9Dhw
+M9wxUNLKcXbX0aA81GQgFxkvUC95ewhYaoAE1+JBYBnMSXOTPDq4Qak+moAllmi2
+jmyJHzaV5nR4oqH1Gg2Iem7xNMt5loLGrcCDzxoo4mh92CchfkmLV+hQUdQNW1Da
+NRX9JPoJFGkJY4a5ntAtqGXKDE+ysDKSjiP7XTKEoAp1IW2wFbpVecQis81XirKy
+ooukHcXxgEcMiIcx2gi4Gpg4lUP9u9PdVrTtUydQgfePFyz5tZFSqUbQsvsIfP9Z
+1YqHaPCW9RBFoJTJu59cwBqkX1OrM6Nd0tZUOz69K1NbViOP0FRqCURKvogHiLk1
+2cqEznpTq+blaxYtxsvS7Dr/26h5ZysGmkgynDAcHmq+/N4ryVqH1GLXkd0keaou
+8xnEpGM6LQ/ofI6v3d4CTo3wwjvsSvX+bCBOj5uj7uay5uBnRG8C8EePTu0iqMfR
+iRLK/JYGvDcnHmo0TY7PNsP6TtO/nZpw5+AZDW0AzeOxB3GhFSbRUzFuYXZ6luS8
+idiYIM2ta+rzzdTV8qiqcEMWPPNiK0teY7igiZ+iNWlgKR33cYs=
+=IvPY
+-----END PGP SIGNATURE-----
+
+--dhUqxE2azW9sQaDc--
