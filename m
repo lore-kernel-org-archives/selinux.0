@@ -1,323 +1,272 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="o1YuTYWd"
-Received: from sonic302-27.consmr.mail.ne1.yahoo.com (sonic302-27.consmr.mail.ne1.yahoo.com [66.163.186.153])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F558CA
-	for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:33:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702398823; bh=PfzYYzAu0GcZMpn3lDDRxLehdkHTWolcz4K7BoULOl4=; h=Date:Subject:To:References:Cc:From:In-Reply-To:From:Subject:Reply-To; b=o1YuTYWdhdWnSH6lizKbRTdg4R27G/gYEA2oH22tu5Y6PpQSsccf0NUaukKbbXqDKbFjVF0jsn7j6Fxx3yFSzC0UrUTzaZqfhjsrypI4otctLR2CD5D10yIAHM1KJi9I95QLAqvTEaGB8xoy8/LyTdlktobjPWz+Y+uLeldVq7V3n32ac4UOt768VPvEd1GvOV3LvyI+qBBLkf+9/ush3FVheOylP6B1OefgNhqnLQePvcE6JdYuyw5Ibu8pvcg3npt0+HcnYcxlU8vsFsRs3s8aAX0LxFbM2uyEJPRd1xbwE4TScivJX3R6oGJTj1dJbQVhXlPkrRqen617WQQAKQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702398823; bh=VZeZmwXcz2w/s7Y+30wYdaRolvHMVp35LANf9fVni3M=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=J/96CdG8gwbfKnLhAMgXtV8HFQLNq0Tp/kX9sREySuKlFny+2KCIqj/tGSvuTrKdn7a2s8F8HaSXfkIgQPWRWkHKMpMfqwIwrnIZFfVathPFcxBFqFpp+jx4biADTH5FwtDAVXOyHRgoQUhuvgHc1v+aABuYcDYL5cHtTDbZWsBbl76x5DqSsi0l8GNI8aDVXjVMsUPGFF37QK9IPJiHTk8Jcn0op6DFoezLTVvMNaYuH1ZOvqxU1bzIsXbS0sDYnv88SErAtf7UXq92rENm7CAtro/X22Nx1ULlSyNMyziACONNbG/7XX+CBBx67bguHWHClk/pACnPGaLi3F+Vkw==
-X-YMail-OSG: GQfemjMVM1lHU9Sya1oZ3eUxSPN_FzZr.rp_yr0greAvxGJjDQ5Dv6ZHDaIwECD
- PCLxSJx0o3aih.mO64hT0GxtAGUTqVX.gA6J0mD5R4JqVdbZ_VkUaFmvW8Hvuxxjf8frs80dRS9o
- FGl2XanQZ1M4MVqqZhFKYjfOxBFEQbiny_DtwOQ.Dp0zt2mGHDp54OVsI0bPAFrHZppzLO63D.2V
- 5al6F9Nyplv7ZTFWcuVHWqXioVdDz77FgVsvdMSVrLuLF8PSEC2mw6HMvLU6K8n7PiArorX3oNVn
- YyLgrQ14WepCFsVKP_djYyUTIcd8INmpW9cbwFABQIHOXIDXpv_WirvP4vWAWU2haTSo.29hIcws
- Zvlkq52qaSpe6xRPm0O1.tXgRw9Pu7cCP8qKmae7x3n4SKUwV2o0HHRTzBcJvtFX6l6xFdMC4mv3
- 4LPkZ97B8mGrq7QSvsRDqmY4d.akKr20HW_ySUxK_Q9A.CpYlrlEY1eU2nHbCEJAbpowHd9nwVtN
- h00yaErl7_PzpcBeg7PK.YPAlE0sCfxj5ONuvQ56aUmytMEeUCeQYzOj_vQhxjIwwCTAtowy7FdS
- S1Q7OoAUb04r7KyMPPvLlS53tpX8onk1zK8o7CCCfRvQxta.d6L8I.PM4nyeHzgAkn5SLK9Ysy0O
- Sww4dYALRC7P1CIuCwHHdmidXBxbiAaB2XJuSB.Jz7m8WHCEVtEPxNnHXkF18QkDY_s_68e.VUsm
- N.7Z1vTg2oU7cSGN.ji.nckeTZa0jWkTpQ0VJTWSyuLQzT2z4zy0bR87RVgj26NRBRgWAyEpm8er
- LmzqL8VVD.Czg.n29Wb299Wty.F8yqfHjeWLouVtuFSNzoXnhqJ.bBE5BbBMFfS__AV3PDAE6ZPq
- i3CPgWjmVXc_wXuuCy_qIDH7lJzN7yKNLigbAx474lMdf7WjNdfUiW9hk9nSZwP.P7Naw3iZKn4h
- LEGmB1qVeb1kIii9BbygPLJsWp8GKV.istO8lNYRPV3eJbL7eiY2j3eJ3mlM25OjcKN93D1FZseK
- ektgZOPEKbr1V12pvSDFgXRF_f7DPb_O7hH5HwdtOQFbgYx_UKdfAQH7dz36kAm.NT9xPzCUjS0F
- cMIMEv45nxAZkPCvAsiif3Tq6h6txgr9zczDpg7ipj2Hs5RRtlyJ_Nf5naJ5W4cLGOUnQjqKO2Mb
- cJxjUgHpb6hAGPETx.UDAwb6x3UMQq_pwnGDcmR3Cc5wJEAtyPmtmoTATOAIbh_6OhDPGzW3Kfuo
- E2p0aqm.DewyQGnEPCUpc1jhqQtGik7CXsUiNKqMGEfNkqssPlnxiUu5R7B04etTv3TPlILyns.s
- 4X6mFVd75a5Tzeq5H_vS0CFe37qUWDNWROkb70ZDC1AiuJknCvqsiQ8ypXkdGVSM7UfoAQfw5qgt
- NmN40_ppASoLAiRj7iyJHoxkW6_fulJCEXW3fuQgHplG2K2J13y5tEgA2czh1iyOuFC5MecqG3jY
- iGczR0LFMqufeTOwlN8EnsyYZJ.AVURasgt93MtphtOer1R7KTgWsnNjEX_CfA5cZ_1nyEQZG9fE
- E8IhaUpRUONY8xfwU9tEOAyAWSVdk3j0r0s9H.9936nvarTsYOwoB0Paq2tKQ2YATN6QC4Aq7NDj
- MBzK8ktqh7Xz3gWVhHfaACpRaV07_0WMt1qhcSMZNxzQpQsgi7e1bffg6VkpjQAM9vi5MndOtveX
- JQQ3jyAQ2wj1LmJNYU7CHzqhVwUGffPAkZZnc8FukMEWGKwOHX4xRu0sxchY8OeQKZvKjEIwQBge
- 3Age0HPPiTZ4H57BBYGjfIxPSz0TiXuzHviDI09CDc.JE17eoLsEmgCCqx.RmkshmvFS7vIn_fpi
- sDXuDLs9lcNJ36CIBIayBGSQm4JkxCEsRyD8.72y3P9lD6cRqk9CXIoB9FXL7xKdX.Qucrd9muEU
- vD1Xo7O0tqJ_umnHTzZkvlQL7bQnO.QCcPFjHWqklmD8..Vj.Z1iKyldCJr2wiNcJqIx7qKSSKT2
- vtoXNRTC3CRk0wWMXp_fJwV5yChwdYGvvvg8LivztaYtdZ3zF0D9hYu8h8KgG_U2rQUIDNoSjXXK
- XE7rqj2w1OrEEqLvOm9.LfxX86t9QWQKDCZc_u0vEhVqDmLINmKa3RB9eSyYouGxIpdJFxxuD2SI
- r_QlX8nGCzrnQ4WwG8vjFUm8Z5zyuIg3qnPWZ1KyA7frAoXPFBJ3Z.hS1jsu2BwJM8BEv1eWiYrc
- 0eCL7A6lE6MsgZOCUHTB28mLivPbAWTd8zQZzjkfR8xAqa18JmoaxLgC1tkCXwdAjf2XS5tk8KBm
- GtCnOiGlX8cE4RLQ1yosj
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 14f5b0a1-e886-4b05-b9e8-67de0727e527
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Tue, 12 Dec 2023 16:33:43 +0000
-Received: by hermes--production-gq1-64499dfdcc-pxg8l (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 74da5172b15303642e3db225338ccf69;
-          Tue, 12 Dec 2023 16:33:41 +0000 (UTC)
-Message-ID: <c58da5f5-131f-425e-b008-260506d1bc0d@schaufler-ca.com>
-Date: Tue, 12 Dec 2023 08:33:39 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q82ZPXaS"
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887D7B0
+	for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:43:09 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-50e04354de0so1948328e87.1
+        for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:43:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1702399387; x=1703004187; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ve5VH0u4bJeG/wHb+isz+ydYNQcqLJ4gE7ckyv1JsGk=;
+        b=Q82ZPXaSHfzKnJYnM8Iwqj/TdlTbxsLU2ayXA23OEbG/zK5Prjeg7/IcH4odUHjfI+
+         P2ZCzdseg2ntp6BEo0rkho5NB2M93nmLY/Of7DCLZYZzhnGGX4yKHsZ6lk7X7uLsEEai
+         9dexOUP/wzFD1XEqlNptYoCv0nuUxV4jqUg3b5c+o3h6P/B4b2yCKdMQEJZbIiCeTB4V
+         LF2hBrQHbgHUnmLEOVH1MAkTmY+fWkocd/unlPEY2EvezEdpH+3nnuYl/uhEFELqr70P
+         nQGbiL1ynx40fO9Mm46DXoR2B2L7jHZWzlJeaZJahYHsNJYFpD+PZXiaCWoFKx8mkJot
+         blZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702399387; x=1703004187;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ve5VH0u4bJeG/wHb+isz+ydYNQcqLJ4gE7ckyv1JsGk=;
+        b=fu0MB4KRfMhUBuxCcgCOWRUHF5M/EZfsPijX/QCZ5gw/szaqXTuovrDflSSuSRstar
+         5GD455VjAJcDqrc7vKD28yaktRnsfmzo2RXMfTyxWeAUrE6InbdLrRQg4WWsF5Y8UmR6
+         KREtUPF5TlFYoLGlvRdH6ZAin4LKZdBCiY1u+CBgamZnd64kA6IlILCRkMGMZRpqIowz
+         zsvlnwDo9eCRn4xiVkDAtZxzpPwNEUrCixG0kouaXwIFxJX6u17HbYl59VpDy/imUwc5
+         a5wyIct35j2qZz3mP+3+J9Ocjxu/P5cQneTwtHjxc/TmCnloaA8TQms2HE1KDX4N2ENk
+         bjJw==
+X-Gm-Message-State: AOJu0YwdDBFLonM0aaGLvHKcUsAoUjIsi51MncmmqWhozAWSAW6CHtfx
+	G0Tn6jluIkhQ9RhgDOAjfRgm/XQhW4beNjkXu98=
+X-Google-Smtp-Source: AGHT+IHnLmeOjOMVN04Sd4EVaItlAeMC/NG7Jod72hv/LBUoulc4oSgA7NJV0Q6sMKofhflOOmclLPiPKgA6V7erjrA=
+X-Received: by 2002:ac2:4ed4:0:b0:50b:f82e:6d62 with SMTP id
+ p20-20020ac24ed4000000b0050bf82e6d62mr2802765lfr.101.1702399386876; Tue, 12
+ Dec 2023 08:43:06 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
-Content-Language: en-US
-To: Maxime Coquelin <maxime.coquelin@redhat.com>, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
- jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-5-maxime.coquelin@redhat.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20231212131712.1816324-5-maxime.coquelin@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21952 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20231207165336.64135-1-cgzones@googlemail.com> <CAP+JOzRU61Y5xe3wDSuMHisOxgdFHoE31gh5AdieFycsKYvrOg@mail.gmail.com>
+In-Reply-To: <CAP+JOzRU61Y5xe3wDSuMHisOxgdFHoE31gh5AdieFycsKYvrOg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 12 Dec 2023 11:42:55 -0500
+Message-ID: <CAP+JOzRVqTLK7MxhQQztdL6NogBVS5jms_Y=8dJRgS69=kRYeA@mail.gmail.com>
+Subject: Re: [PATCH v2] checkpolicy/dispol: misc updates
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 12/12/2023 5:17 AM, Maxime Coquelin wrote:
-> This patch introduces a LSM hook for devices creation,
-> destruction (ioctl()) and opening (open()) operations,
-> checking the application is allowed to perform these
-> operations for the Virtio device type.
-
-My earlier comments on a vduse specific LSM hook still hold.
-I would much prefer to see a device permissions hook(s) that
-are useful for devices in general. Not just vduse devices.
-I know that there are already some very special purpose LSM
-hooks, but the experience with maintaining them is why I don't
-want more of them. 
-
+On Fri, Dec 8, 2023 at 10:17=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> ---
->  MAINTAINERS                         |  1 +
->  drivers/vdpa/vdpa_user/vduse_dev.c  | 13 ++++++++++++
->  include/linux/lsm_hook_defs.h       |  2 ++
->  include/linux/security.h            |  6 ++++++
->  include/linux/vduse.h               | 14 +++++++++++++
->  security/security.c                 | 15 ++++++++++++++
->  security/selinux/hooks.c            | 32 +++++++++++++++++++++++++++++
->  security/selinux/include/classmap.h |  2 ++
->  8 files changed, 85 insertions(+)
->  create mode 100644 include/linux/vduse.h
+> On Thu, Dec 7, 2023 at 11:53=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > * add option to display users
+> > * drop duplicate option to display booleans
+> > * show number of entries before listing them
+> > * drop global variable
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index a0fb0df07b43..4e83b14358d2 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -23040,6 +23040,7 @@ F:	drivers/net/virtio_net.c
->  F:	drivers/vdpa/
->  F:	drivers/virtio/
->  F:	include/linux/vdpa.h
-> +F:	include/linux/vduse.h
->  F:	include/linux/virtio*.h
->  F:	include/linux/vringh.h
->  F:	include/uapi/linux/virtio_*.h
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index fa62825be378..59ab7eb62e20 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -8,6 +8,7 @@
->   *
->   */
->  
-> +#include "linux/security.h"
->  #include <linux/init.h>
->  #include <linux/module.h>
->  #include <linux/cdev.h>
-> @@ -30,6 +31,7 @@
->  #include <uapi/linux/virtio_blk.h>
->  #include <uapi/linux/virtio_ring.h>
->  #include <linux/mod_devicetable.h>
-> +#include <linux/vduse.h>
->  
->  #include "iova_domain.h"
->  
-> @@ -1442,6 +1444,10 @@ static int vduse_dev_open(struct inode *inode, struct file *file)
->  	if (dev->connected)
->  		goto unlock;
->  
-> +	ret = -EPERM;
-> +	if (security_vduse_perm_check(VDUSE_PERM_OPEN, dev->device_id))
-> +		goto unlock;
-> +
->  	ret = 0;
->  	dev->connected = true;
->  	file->private_data = dev;
-> @@ -1664,6 +1670,9 @@ static int vduse_destroy_dev(char *name)
->  	if (!dev)
->  		return -EINVAL;
->  
-> +	if (security_vduse_perm_check(VDUSE_PERM_DESTROY, dev->device_id))
-> +		return -EPERM;
-> +
->  	mutex_lock(&dev->lock);
->  	if (dev->vdev || dev->connected) {
->  		mutex_unlock(&dev->lock);
-> @@ -1828,6 +1837,10 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->  	int ret;
->  	struct vduse_dev *dev;
->  
-> +	ret = -EPERM;
-> +	if (security_vduse_perm_check(VDUSE_PERM_CREATE, config->device_id))
-> +		goto err;
-> +
->  	ret = -EEXIST;
->  	if (vduse_find_dev(config->name))
->  		goto err;
-> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-> index ff217a5ce552..3930ab2ae974 100644
-> --- a/include/linux/lsm_hook_defs.h
-> +++ b/include/linux/lsm_hook_defs.h
-> @@ -419,3 +419,5 @@ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
->  LSM_HOOK(int, 0, uring_sqpoll, void)
->  LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
->  #endif /* CONFIG_IO_URING */
-> +
-> +LSM_HOOK(int, 0, vduse_perm_check, enum vduse_op_perm op_perm, u32 device_id)
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 1d1df326c881..2a2054172394 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -32,6 +32,7 @@
->  #include <linux/string.h>
->  #include <linux/mm.h>
->  #include <linux/sockptr.h>
-> +#include <linux/vduse.h>
->  
->  struct linux_binprm;
->  struct cred;
-> @@ -484,6 +485,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
->  int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
->  int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
->  int security_locked_down(enum lockdown_reason what);
-> +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id);
->  #else /* CONFIG_SECURITY */
->  
->  static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-> @@ -1395,6 +1397,10 @@ static inline int security_locked_down(enum lockdown_reason what)
->  {
->  	return 0;
->  }
-> +static inline int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-> +{
-> +	return 0;
-> +}
->  #endif	/* CONFIG_SECURITY */
->  
->  #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
-> diff --git a/include/linux/vduse.h b/include/linux/vduse.h
-> new file mode 100644
-> index 000000000000..7a20dcc43997
-> --- /dev/null
-> +++ b/include/linux/vduse.h
-> @@ -0,0 +1,14 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _LINUX_VDUSE_H
-> +#define _LINUX_VDUSE_H
-> +
-> +/*
-> + * The permission required for a VDUSE device operation.
-> + */
-> +enum vduse_op_perm {
-> +	VDUSE_PERM_CREATE,
-> +	VDUSE_PERM_DESTROY,
-> +	VDUSE_PERM_OPEN,
-> +};
-> +
-> +#endif /* _LINUX_VDUSE_H */
-> diff --git a/security/security.c b/security/security.c
-> index dcb3e7014f9b..150abf85f97d 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -5337,3 +5337,18 @@ int security_uring_cmd(struct io_uring_cmd *ioucmd)
->  	return call_int_hook(uring_cmd, 0, ioucmd);
->  }
->  #endif /* CONFIG_IO_URING */
-> +
-> +/**
-> + * security_vduse_perm_check() - Check if a VDUSE device type operation is allowed
-> + * @op_perm: the operation type
-> + * @device_id: the Virtio device ID
-> + *
-> + * Check whether the Virtio device creation is allowed
-> + *
-> + * Return: Returns 0 if permission is granted.
-> + */
-> +int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-> +{
-> +	return call_int_hook(vduse_perm_check, 0, op_perm, device_id);
-> +}
-> +EXPORT_SYMBOL(security_vduse_perm_check);
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index feda711c6b7b..18845e4f682f 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -21,6 +21,8 @@
->   *  Copyright (C) 2016 Mellanox Technologies
->   */
->  
-> +#include "av_permissions.h"
-> +#include "linux/vduse.h"
->  #include <linux/init.h>
->  #include <linux/kd.h>
->  #include <linux/kernel.h>
-> @@ -92,6 +94,7 @@
->  #include <linux/fsnotify.h>
->  #include <linux/fanotify.h>
->  #include <linux/io_uring.h>
-> +#include <uapi/linux/virtio_ids.h>
->  
->  #include "avc.h"
->  #include "objsec.h"
-> @@ -6950,6 +6953,34 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
->  }
->  #endif /* CONFIG_IO_URING */
->  
-> +static int selinux_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-> +{
-> +	u32 requested_op, requested_type, sid = current_sid();
-> +	int ret;
-> +
-> +	if (op_perm == VDUSE_PERM_CREATE)
-> +		requested_op = VDUSE__CREATE;
-> +	else if (op_perm == VDUSE__DESTROY)
-> +		requested_op = VDUSE__DESTROY;
-> +	else if (op_perm == VDUSE_PERM_OPEN)
-> +		requested_op = VDUSE__OPEN;
-> +	else
-> +		return -EINVAL;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_op, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (device_id == VIRTIO_ID_NET)
-> +		requested_type = VDUSE__NET;
-> +	else if (device_id == VIRTIO_ID_BLOCK)
-> +		requested_type = VDUSE__BLOCK;
-> +	else
-> +		return -EINVAL;
-> +
-> +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_type, NULL);
-> +}
-> +
->  /*
->   * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
->   * 1. any hooks that don't belong to (2.) or (3.) below,
-> @@ -7243,6 +7274,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->  #ifdef CONFIG_PERF_EVENTS
->  	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
->  #endif
-> +	LSM_HOOK_INIT(vduse_perm_check, selinux_vduse_perm_check),
->  };
->  
->  static __init int selinux_init(void)
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index a3c380775d41..b0a358cbac1c 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
->  	  { "override_creds", "sqpoll", "cmd", NULL } },
->  	{ "user_namespace",
->  	  { "create", NULL } },
-> +	{ "vduse",
-> +	  { "create", "destroy", "open", "net", "block", NULL} },
->  	{ NULL }
->    };
->  
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
+
+Merged.
+Thanks,
+Jim
+
+> > ---
+> > v2:
+> >    drop 'b' instead of '5' of duplicated boolean option
+> > ---
+> >  checkpolicy/test/dispol.c | 57 ++++++++++++++++++++-------------------
+> >  1 file changed, 30 insertions(+), 27 deletions(-)
+> >
+> > diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> > index 944ef7ec..18829c97 100644
+> > --- a/checkpolicy/test/dispol.c
+> > +++ b/checkpolicy/test/dispol.c
+> > @@ -33,9 +33,7 @@
+> >  #include <stdio.h>
+> >  #include <fcntl.h>
+> >
+> > -static policydb_t policydb;
+> > -
+> > -static struct command {
+> > +static const struct command {
+> >         enum {
+> >                 EOL    =3D 0,
+> >                 HEADER =3D 1,
+> > @@ -50,19 +48,19 @@ static struct command {
+> >         {CMD,       '2',  "display conditional AVTAB (entirely)"},
+> >         {CMD,       '3',  "display conditional AVTAB (only ENABLED rule=
+s)"},
+> >         {CMD,       '4',  "display conditional AVTAB (only DISABLED rul=
+es)"},
+> > -       {CMD,       '5',  "display conditional bools"},
+> > +       {CMD,       '5',  "display booleans"},
+> >         {CMD,       '6',  "display conditional expressions"},
+> >         {CMD|NOOPT, '7',  "change a boolean value"},
+> >         {CMD,       '8',  "display role transitions"},
+> >         {HEADER, 0, ""},
+> >         {CMD,       'c',  "display policy capabilities"},
+> > -       {CMD,       'b',  "display booleans"},
+> >         {CMD,       'C',  "display classes"},
+> > +       {CMD,       'u',  "display users"},
+> >         {CMD,       'r',  "display roles"},
+> >         {CMD,       't',  "display types"},
+> >         {CMD,       'a',  "display type attributes"},
+> >         {CMD,       'p',  "display the list of permissive types"},
+> > -       {CMD,       'u',  "display unknown handling setting"},
+> > +       {CMD,       'U',  "display unknown handling setting"},
+> >         {CMD,       'F',  "display filename_trans rules"},
+> >         {HEADER, 0, ""},
+> >         {CMD|NOOPT, 'f',  "set output file"},
+> > @@ -234,17 +232,6 @@ static int display_avtab(avtab_t * a, uint32_t wha=
+t, policydb_t * p, FILE * fp)
+> >         return 0;
+> >  }
+> >
+> > -static int display_bools(policydb_t * p, FILE * fp)
+> > -{
+> > -       unsigned int i;
+> > -
+> > -       for (i =3D 0; i < p->p_bools.nprim; i++) {
+> > -               fprintf(fp, "%s : %d\n", p->p_bool_val_to_name[i],
+> > -                       p->bool_val_to_struct[i]->state);
+> > -       }
+> > -       return 0;
+> > -}
+> > -
+> >  static void display_expr(policydb_t * p, cond_expr_t * exp, FILE * fp)
+> >  {
+> >
+> > @@ -313,6 +300,8 @@ static int display_handle_unknown(policydb_t * p, F=
+ILE * out_fp)
+> >                 fprintf(out_fp, "Deny unknown classes and permissions\n=
+");
+> >         else if (p->handle_unknown =3D=3D REJECT_UNKNOWN)
+> >                 fprintf(out_fp, "Reject unknown classes and permissions=
+\n");
+> > +       else
+> > +               fprintf(out_fp, "<INVALID SETTING!>\n");
+> >         return 0;
+> >  }
+> >
+> > @@ -334,7 +323,7 @@ static int display_booleans(policydb_t * p, FILE *f=
+p)
+> >  {
+> >         uint32_t i;
+> >
+> > -       fprintf(fp, "booleans:\n");
+> > +       fprintf(fp, "booleans (#%u):\n", p->p_bools.table->nel);
+> >         for (i =3D 0; i < p->p_bools.nprim; i++) {
+> >                 fprintf(fp, "\t%s : %d\n", p->p_bool_val_to_name[i],
+> >                         p->bool_val_to_struct[i]->state);
+> > @@ -364,7 +353,7 @@ static int display_classes(policydb_t * p, FILE *fp=
+)
+> >  {
+> >         uint32_t i;
+> >
+> > -       fprintf(fp, "classes:\n");
+> > +       fprintf(fp, "classes (#%u):\n", p->p_classes.table->nel);
+> >         for (i =3D 0; i < p->p_classes.nprim; i++) {
+> >                 if (!p->p_class_val_to_name[i])
+> >                         continue;
+> > @@ -386,7 +375,7 @@ static void display_permissive(policydb_t *p, FILE =
+*fp)
+> >         ebitmap_node_t *node;
+> >         unsigned int i;
+> >
+> > -       fprintf(fp, "permissive sids:\n");
+> > +       fprintf(fp, "permissive sids (#%u):\n", ebitmap_cardinality(&p-=
+>permissive_map));
+> >         ebitmap_for_each_positive_bit(&p->permissive_map, node, i) {
+> >                 fprintf(fp, "\t");
+> >                 display_id(p, fp, SYM_TYPES, i - 1, "");
+> > @@ -394,11 +383,25 @@ static void display_permissive(policydb_t *p, FIL=
+E *fp)
+> >         }
+> >  }
+> >
+> > +static int display_users(policydb_t * p, FILE *fp)
+> > +{
+> > +       uint32_t i;
+> > +
+> > +       fprintf(fp, "users (#%u):\n", p->p_users.table->nel);
+> > +       for (i =3D 0; i < p->p_users.nprim; i++) {
+> > +               if (!p->p_user_val_to_name[i])
+> > +                       continue;
+> > +
+> > +               fprintf(fp, "\t%s\n", p->p_user_val_to_name[i]);
+> > +       }
+> > +       return 0;
+> > +}
+> > +
+> >  static int display_roles(policydb_t * p, FILE *fp)
+> >  {
+> >         uint32_t i;
+> >
+> > -       fprintf(fp, "roles:\n");
+> > +       fprintf(fp, "roles (#%u):\n", p->p_roles.table->nel);
+> >         for (i =3D 0; i < p->p_roles.nprim; i++) {
+> >                 if (!p->p_role_val_to_name[i])
+> >                         continue;
+> > @@ -412,7 +415,7 @@ static int display_types(policydb_t * p, FILE *fp)
+> >  {
+> >         uint32_t i;
+> >
+> > -       fprintf(fp, "types:\n");
+> > +       fprintf(fp, "types (out of #%u):\n", p->p_types.table->nel);
+> >         for (i =3D 0; i < p->p_types.nprim; i++) {
+> >                 if (!p->p_type_val_to_name[i])
+> >                         continue;
+> > @@ -429,7 +432,7 @@ static int display_attributes(policydb_t * p, FILE =
+*fp)
+> >  {
+> >         uint32_t i;
+> >
+> > -       fprintf(fp, "attributes:\n");
+> > +       fprintf(fp, "attributes (out of #%u):\n", p->p_types.table->nel=
+);
+> >         for (i =3D 0; i < p->p_types.nprim; i++) {
+> >                 if (!p->p_type_val_to_name[i])
+> >                         continue;
+> > @@ -522,6 +525,7 @@ int main(int argc, char **argv)
+> >         char *name;
+> >         int state;
+> >         struct policy_file pf;
+> > +       policydb_t policydb;
+> >
+> >         if (argc < 2 || strcmp(argv[1], "-h") =3D=3D 0 || strcmp(argv[1=
+], "--help") =3D=3D 0)
+> >                 usage(argv[0]);
+> > @@ -617,7 +621,7 @@ int main(int argc, char **argv)
+> >                                       &policydb, out_fp);
+> >                         break;
+> >                 case '5':
+> > -                       display_bools(&policydb, out_fp);
+> > +                       display_booleans(&policydb, out_fp);
+> >                         break;
+> >                 case '6':
+> >                         display_cond_expressions(&policydb, out_fp);
+> > @@ -659,9 +663,6 @@ int main(int argc, char **argv)
+> >                 case 'a':
+> >                         display_attributes(&policydb, out_fp);
+> >                         break;
+> > -               case 'b':
+> > -                       display_booleans(&policydb, out_fp);
+> > -                       break;
+> >                 case 'c':
+> >                         display_policycaps(&policydb, out_fp);
+> >                         break;
+> > @@ -678,6 +679,8 @@ int main(int argc, char **argv)
+> >                         display_types(&policydb, out_fp);
+> >                         break;
+> >                 case 'u':
+> > +                       display_users(&policydb, out_fp);
+> > +                       break;
+> >                 case 'U':
+> >                         display_handle_unknown(&policydb, out_fp);
+> >                         break;
+> > --
+> > 2.43.0
+> >
+> >
