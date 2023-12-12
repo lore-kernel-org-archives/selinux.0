@@ -1,205 +1,99 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FAc8o83t"
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACEBCA
-	for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:45:34 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-50c05ea5805so6992752e87.0
-        for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:45:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vv5CujQP"
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151EDA8
+	for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:45:58 -0800 (PST)
+Received: by mail-lf1-x131.google.com with SMTP id 2adb3069b0e04-50dfac6c0beso3348691e87.2
+        for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 08:45:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702399528; x=1703004328; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=gmail.com; s=20230601; t=1702399556; x=1703004356; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=3zUwHp/rVfQ+WhN2xsrkbjhsNyTMlKs3VKwla38OAUg=;
-        b=FAc8o83tyvYFRTgh7tH2D2el3wgSuXao5b09tBN16DQNXrqRqDRpmZwZLIldxjzz6W
-         NTcAdRiTaJ6FnF78VpD/0Jc8PEewwcjLvIzuZSzIy2393ebye23Ke+GtkrZErxj5hmKv
-         0Wxts7qhVBcAZdNR3xUb5CD+h6Y0AKhpIxvdTGR6RyloTOEECJYMU7J0P0ccoVQE8z2F
-         HLrnOgUscrOMh5q9n9JbjBdrhjYYDHjY57zwiK3XwLBGxCT8shpkRM/c882WQ8o2wNkq
-         ZSuUfxTKEVDe+NtDhqnFz2nENBuPWRzRAQK3y1msTwAbvMM0hVna+mwbCNoM2K/rOmE/
-         jjZw==
+        bh=nGxgE94VZGor4PxXE1SIXC+UHLFW7bJXIEtyE56PEgA=;
+        b=Vv5CujQPOB2Qf2rYolqU1fypgjvb5S5R6gT2Oc1GVfQxw5X+Wv17xJDpdvjuIVznMa
+         /RyghySJltruXikxDkdJkTVOleq6hdxfeSUDtJYbW1i012BKyl+fbD1a7cJMJwHXLCCz
+         Pyr53W9djBwMpjeeEQ44A/n6FOVWKkVGeoJafdzfX/cYmeCKo7vQeamHQ7njtYWKUuP1
+         1hu8fvilKY+GSwe0qc3Hb6Y9K8u62wNudAEKllm1aCOeKkGAchbIckFFktkl+IeTyzdM
+         ksemds666SepC8p05MwhaGIy7KM50AhzPpVAOhwLyuseWzzRoCNLJj/WRsR0ZczlWXUN
+         Rk7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702399528; x=1703004328;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1702399556; x=1703004356;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=3zUwHp/rVfQ+WhN2xsrkbjhsNyTMlKs3VKwla38OAUg=;
-        b=GvOj3gnz4Fz6NYd0enw6JLMAuVvXc1u6t+SKC2M8FU96jd0SJH+QNkzrWXc64tDxdv
-         2HoWT4oDtGkB9TwtjgZE+HAWo8kC2zpztelQWHdJSK2jtruzpevDbteIIVMhRJzLjXJb
-         Qh1II9lfQr7Z9T6QfCsRvMeM3UvTuqN30dORD1gOaasWlX2QL9yRDHefoM8lXsAtKJpX
-         Voi8r9LKr+ty9NIRecqStjioidNFxOnfFW+606fuxeZfryNxB8NkmF2VcYwVZt6WZmHO
-         E/3iGnHG4m7ltjYLlOqUFSQRCuY0HJnh178bkJO+PmIz1glEhwKDk7AoLwJ2FN+I7Xmh
-         c3Fg==
-X-Gm-Message-State: AOJu0Yx9qriQUrVlS6xIHUSqitIoNQ9m5YvlIET/SqeupNtQ4P6ljSPp
-	0BcCr8AKuxhQW7xZJK9EDWTp6zJW75rh130CC/M=
-X-Google-Smtp-Source: AGHT+IHm+DMEGEPzQu5Fk0SegcGhX9YWl6EstZu4EGxN5AlGaJAXJ6jUCoud/+I0nepkP5x6r76Gc5MdFL+7N0iv1Bw=
-X-Received: by 2002:a05:6512:3d9e:b0:50b:fe1f:4d35 with SMTP id
- k30-20020a0565123d9e00b0050bfe1f4d35mr3636151lfv.26.1702399528128; Tue, 12
- Dec 2023 08:45:28 -0800 (PST)
+        bh=nGxgE94VZGor4PxXE1SIXC+UHLFW7bJXIEtyE56PEgA=;
+        b=fLnXZj+FfgM5Cq1cqJMDPO0GmcdBMmEUk2Mq8ETLvP47o5Vi1NIhO44c7Avorb8+yr
+         VprlXoMev7CPd+YrhzL9JQjp6Oc7Kl+EYY8GK0IJUeWG8La/XB0CeO3CXJkChyDNND+P
+         N+bvaUbMId92iYTcUC5sRSxJ8PcPYNVrctTKJgYH3WTz5+01l6OvTIS6Z0M2GWpSvjQo
+         qybbTmy+Ww5so9uKlcsY0QR/oVIm/i7UydvbHl9OJHpbIfB1JiBr0W7CFM+u6fw4eCQ8
+         egP1U/lvWQ7IDIh9UQRRinc1gUBNqM0VSz+00uUZccviqRZLYp07iZPq/FtVXpipLIlt
+         y1iA==
+X-Gm-Message-State: AOJu0Yx1fS4Es6mi3JjZyrbiDl0moWhPYtSeW8N13aQKN/B/CqN2O+R4
+	EATN3qCZU4D1v4cqnx/BOkk66bOXhVJc1SBYYuc+jyY7
+X-Google-Smtp-Source: AGHT+IGyW1F0kWkOOTq6d8S0RN57LjMBn65cMWuJy/3IKkCF+iQB3x0qJPmMXLBklnyrv5wMeHB+hMJQ8CJSSzpqks8=
+X-Received: by 2002:a05:6512:2098:b0:50b:f2e0:4997 with SMTP id
+ t24-20020a056512209800b0050bf2e04997mr2865019lfr.103.1702399555826; Tue, 12
+ Dec 2023 08:45:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231211150031.127850-1-cgzones@googlemail.com> <CAP+JOzQ1YHRwKb1JD=sS-M=JK9xZdnkbsBdBsk90hWTAXyhJpA@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ1YHRwKb1JD=sS-M=JK9xZdnkbsBdBsk90hWTAXyhJpA@mail.gmail.com>
+References: <20231129174246.188157-1-jwcart2@gmail.com> <CAP+JOzSvpCNHPJm7Jg1xpVwiTmynddHS+k+FybVO8ywTo+cD+Q@mail.gmail.com>
+In-Reply-To: <CAP+JOzSvpCNHPJm7Jg1xpVwiTmynddHS+k+FybVO8ywTo+cD+Q@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 12 Dec 2023 11:45:16 -0500
-Message-ID: <CAP+JOzQcT81K_Yb3fkVFb89Ebq3XfU2nzFgiyM5DB2HABuj-ug@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: update const qualifier of parameters in
- man pages
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
+Date: Tue, 12 Dec 2023 11:45:44 -0500
+Message-ID: <CAP+JOzSf6KS5zUQr2HQuaQ1o+0j=w6WickmPUWEYf5JqZR=kcw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Clear AST node after destroying bad filecon rule
+To: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 12, 2023 at 9:24=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+On Tue, Dec 12, 2023 at 9:11=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Mon, Dec 11, 2023 at 10:00=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
+> On Wed, Nov 29, 2023 at 12:42=E2=80=AFPM James Carter <jwcart2@gmail.com>=
+ wrote:
 > >
-> > Add missing const qualifier to parameters in the man pages to align the=
-m
-> > with <selinux/selinux.h>.
+> > Commit fb0a4ce1 (libsepol/cil: Allow paths in filecon rules to be
+> > passed as arguments) changed when the new AST node data would be set
+> > to point to the new filecon struct when creating a filecon rule.
+> > This causes cil_destroy_filecon() to be called twice on the filecon
+> > struct if there is an error when creating the filecon rule.
 > >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > If there is an error when creating a filecon rule, call
+> > cil_clear_node() after destroying the filecon struct.
+> >
+> > Reported-by: oss-fuzz (issue 64385)
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
 >
-> For these three patches:
-> Acked-by: James Carter <jwcart2@gmail.com>
+> I plan on merging this patch soon, unless there are any objections.
+> Jim
 >
-
-These three patches have been merged.
-Thanks,
+This has been merged.
 Jim
 
 > > ---
-> >  libselinux/man/man3/getexeccon.3          |  4 +--
-> >  libselinux/man/man3/security_compute_av.3 | 32 +++++++++++------------
-> >  2 files changed, 18 insertions(+), 18 deletions(-)
+> >  libsepol/cil/src/cil_build_ast.c | 1 +
+> >  1 file changed, 1 insertion(+)
 > >
-> > diff --git a/libselinux/man/man3/getexeccon.3 b/libselinux/man/man3/get=
-execcon.3
-> > index d6222a4f..9cc24e8c 100644
-> > --- a/libselinux/man/man3/getexeccon.3
-> > +++ b/libselinux/man/man3/getexeccon.3
-> > @@ -11,9 +11,9 @@ rpm_execcon \- run a helper for rpm in an appropriate=
- security context
-> >  .sp
-> >  .BI "int getexeccon_raw(char **" context );
-> >  .sp
-> > -.BI "int setexeccon(char *" context );
-> > +.BI "int setexeccon(const char *" context );
-> >  .sp
-> > -.BI "int setexeccon_raw(char *" context );
-> > +.BI "int setexeccon_raw(const char *" context );
-> >  .sp
-> >  .BI "int setexecfilecon(const char *" filename ", const char *" fallba=
-ck_type );
-> >  .sp
-> > diff --git a/libselinux/man/man3/security_compute_av.3 b/libselinux/man=
-/man3/security_compute_av.3
-> > index efa4baf3..6c82eca5 100644
-> > --- a/libselinux/man/man3/security_compute_av.3
-> > +++ b/libselinux/man/man3/security_compute_av.3
-> > @@ -7,37 +7,37 @@ the SELinux policy database in the kernel
-> >  .SH "SYNOPSIS"
-> >  .B #include <selinux/selinux.h>
-> >  .sp
-> > -.BI "int security_compute_av(char *" scon ", char *" tcon ", security_=
-class_t "tclass ", access_vector_t "requested ", struct av_decision *" avd =
-);
-> > +.BI "int security_compute_av(const char *" scon ", const char *" tcon =
-", security_class_t "tclass ", access_vector_t "requested ", struct av_deci=
-sion *" avd );
-> >  .sp
-> > -.BI "int security_compute_av_raw(char *" scon ", char *" tcon ", secur=
-ity_class_t "tclass ", access_vector_t "requested ", struct av_decision *" =
-avd );
-> > +.BI "int security_compute_av_raw(const char *" scon ", const char *" t=
-con ", security_class_t "tclass ", access_vector_t "requested ", struct av_=
-decision *" avd );
-> >  .sp
-> > -.BI "int security_compute_av_flags(char *" scon ", char *" tcon ", sec=
-urity_class_t "tclass ", access_vector_t "requested ", struct av_decision *=
-" avd );
-> > +.BI "int security_compute_av_flags(const char *" scon ", const char *"=
- tcon ", security_class_t "tclass ", access_vector_t "requested ", struct a=
-v_decision *" avd );
-> >  .sp
-> > -.BI "int security_compute_av_flags_raw(char *" scon ", char *" tcon ",=
- security_class_t "tclass ", access_vector_t "requested ", struct av_decisi=
-on *" avd );
-> > +.BI "int security_compute_av_flags_raw(const char *" scon ", const cha=
-r *" tcon ", security_class_t "tclass ", access_vector_t "requested ", stru=
-ct av_decision *" avd );
-> >  .sp
-> > -.BI "int security_compute_create(char *" scon ", char *" tcon ", secur=
-ity_class_t "tclass ", char **" newcon );
-> > +.BI "int security_compute_create(const char *" scon ", const char *" t=
-con ", security_class_t "tclass ", char **" newcon );
-> >  .sp
-> > -.BI "int security_compute_create_raw(char *" scon ", char *" tcon ", s=
-ecurity_class_t "tclass ", char **" newcon );
-> > +.BI "int security_compute_create_raw(const char *" scon ", const char =
-*" tcon ", security_class_t "tclass ", char **" newcon );
-> >  .sp
-> > -.BI "int security_compute_create_name(char *" scon ", char *" tcon ", =
-security_class_t "tclass ", const char *" objname ", char **" newcon );
-> > +.BI "int security_compute_create_name(const char *" scon ", const char=
- *" tcon ", security_class_t "tclass ", const char *" objname ", char **" n=
-ewcon );
-> >  .sp
-> > -.BI "int security_compute_create_name_raw(char *" scon ", char *" tcon=
- ", security_class_t "tclass ", const char *" objname ", char **" newcon );
-> > +.BI "int security_compute_create_name_raw(const char *" scon ", const =
-char *" tcon ", security_class_t "tclass ", const char *" objname ", char *=
-*" newcon );
-> >  .sp
-> > -.BI "int security_compute_relabel(char *" scon ", char *" tcon ", secu=
-rity_class_t "tclass ", char **" newcon );
-> > +.BI "int security_compute_relabel(const char *" scon ", const char *" =
-tcon ", security_class_t "tclass ", char **" newcon );
-> >  .sp
-> > -.BI "int security_compute_relabel_raw(char *" scon ", char *" tcon ", =
-security_class_t "tclass ", char **" newcon );
-> > +.BI "int security_compute_relabel_raw(const char *" scon ", const char=
- *" tcon ", security_class_t "tclass ", char **" newcon );
-> >  .sp
-> > -.BI "int security_compute_member(char *" scon ", char *" tcon ", secur=
-ity_class_t "tclass ", char **" newcon );
-> > +.BI "int security_compute_member(const char *" scon ", const char *" t=
-con ", security_class_t "tclass ", char **" newcon );
-> >  .sp
-> > -.BI "int security_compute_member_raw(char *" scon ", char *" tcon ", s=
-ecurity_class_t "tclass ", char **" newcon );
-> > +.BI "int security_compute_member_raw(const char *" scon ", const char =
-*" tcon ", security_class_t "tclass ", char **" newcon );
-> >  .sp
-> > -.BI "int security_compute_user(char *" scon ", const char *" username =
-", char ***" con );
-> > +.BI "int security_compute_user(const char *" scon ", const char *" use=
-rname ", char ***" con );
-> >  .sp
-> > -.BI "int security_compute_user_raw(char *" scon ", const char *" usern=
-ame ", char ***" con );
-> > +.BI "int security_compute_user_raw(const char *" scon ", const char *"=
- username ", char ***" con );
-> >  .sp
-> > -.BI "int security_validatetrans(char *" scon ", const char *" tcon ", =
-security_class_t "tclass ", char *" newcon );
-> > +.BI "int security_validatetrans(const char *" scon ", const char *" tc=
-on ", security_class_t "tclass ", const char *" newcon );
-> >  .sp
-> > -.BI "int security_validatetrans_raw(char *" scon ", const char *" tcon=
- ", security_class_t "tclass ", char *" newcon );
-> > +.BI "int security_validatetrans_raw(const char *" scon ", const char *=
-" tcon ", security_class_t "tclass ", const char *" newcon );
-> >  .sp
-> >  .BI "int security_get_initial_context(const char *" name ", char **" c=
-on );
-> >  .sp
+> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bu=
+ild_ast.c
+> > index be260a31..56dac891 100644
+> > --- a/libsepol/cil/src/cil_build_ast.c
+> > +++ b/libsepol/cil/src/cil_build_ast.c
+> > @@ -4197,6 +4197,7 @@ int cil_gen_filecon(struct cil_db *db, struct cil=
+_tree_node *parse_current, stru
+> >  exit:
+> >         cil_tree_log(parse_current, CIL_ERR, "Bad filecon declaration")=
+;
+> >         cil_destroy_filecon(filecon);
+> > +       cil_clear_node(ast_node);
+> >         return rc;
+> >  }
+> >
 > > --
 > > 2.43.0
-> >
 > >
