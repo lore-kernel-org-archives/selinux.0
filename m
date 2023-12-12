@@ -1,307 +1,155 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gkdv8ilT"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408D41BC
-	for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 05:17:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702387056;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=I+u1S2AY/jEGnaBOw0WBoMATED3t5u4RyQxPWcyrfwg=;
-	b=Gkdv8ilTxuINbtPAgfLIYsTloVAp6hDjB1QXfzbLvY2nAjbOA5skIdLr+bnWVi5PTQQETk
-	PzXA/eVA+KDpnoggsuIm0+9PaMx0XqV4nV1VsDv3GZs9Ofb2C9WuR2RVSv5c2Av08iPO8A
-	BUR2Apag0WB10wHNJGrSBT7ZWPCaDjM=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-673-4GXjYFpzO-GvKEOSKHlLSA-1; Tue, 12 Dec 2023 08:17:34 -0500
-X-MC-Unique: 4GXjYFpzO-GvKEOSKHlLSA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 576E984A298;
-	Tue, 12 Dec 2023 13:17:33 +0000 (UTC)
-Received: from max-p1.redhat.com (unknown [10.39.208.4])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 39C001121312;
-	Tue, 12 Dec 2023 13:17:30 +0000 (UTC)
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	paul@paul-moore.com,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	stephen.smalley.work@gmail.com,
-	eparis@parisplace.org,
-	xieyongji@bytedance.com,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	david.marchand@redhat.com,
-	lulu@redhat.com,
-	casey@schaufler-ca.com
-Cc: Maxime Coquelin <maxime.coquelin@redhat.com>
-Subject: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
-Date: Tue, 12 Dec 2023 14:17:12 +0100
-Message-ID: <20231212131712.1816324-5-maxime.coquelin@redhat.com>
-In-Reply-To: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ickq9luJ"
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D295C100
+	for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 06:10:53 -0800 (PST)
+Received: by mail-lf1-x12a.google.com with SMTP id 2adb3069b0e04-50dfac6c0beso3118563e87.2
+        for <selinux@vger.kernel.org>; Tue, 12 Dec 2023 06:10:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1702390252; x=1702995052; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qSW2kHl3TpRbVXq+inxb4pqJeHtLl6kCSBuWVP9ECMI=;
+        b=Ickq9luJO/jMNsEbaDmS2eE5VinJcpnZ5vYF+3c789exKsShXvfDMfmNhEJmIm9/eo
+         MEG1de/MmJR9XDQlJvOs2kgLqXcEY9CiQ2z2R7grz8AIiAgzsxEvY3XoPgQr8gQzb7MU
+         SGvMw2NdnWentxRZ7bzwsU3DmCXVBv3UZCT3uWTNrudHNE08YqdMaE2nD3jfgJ+mTcTA
+         tPKdvrkjN9yM2N0x5hg4093QdclUszsW+9Iw6IBtV37IzzEU5t7Nl6YGtqv7c3Pi9cH1
+         K5I9yGmJogVFHmpFMH/lVvi1Dnna+DTh6BqOeYLNTmD0CC+MXQy44f2r1979p97KFCnR
+         NXeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702390252; x=1702995052;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qSW2kHl3TpRbVXq+inxb4pqJeHtLl6kCSBuWVP9ECMI=;
+        b=OEJHiBDhDIMjuJzoW1X8RC6+8TWjIpwyAdYJAclsnrdmD7PW3rND7oxrNuhl04VNO9
+         w+F1ow8uQkVpHiQSHai/6CeCxpJsqN0GmuLOcSeU/tLoNHyifjCy4qeQacOeuvBEQcaG
+         yNCOQyvgpoHkmhAHo19Z0rfE7zAmXoJo/+0t76ubwlajgVrfOLvujJrK5gkC5XUByRkz
+         bngRTq20t3c48yPDxVHaGtG5c4nMQS2Rn4mo+8v02/66GyPQ4ZdohxKfOQ81GXibHEeD
+         u+UVA0oWZ9OQzoIPaLTf/4j1T5IwMAKMR1fpkZXiwqIqtcOYaVaOwm81+BBKmv7meMAU
+         9aQA==
+X-Gm-Message-State: AOJu0YwOKQoigPblUtWe5qx5DJt7grdrfhP2GHbeYwLupJr5SlJsi1Aq
+	BJD9WFzV4kYpeN3Q1bPLaI+92q8v7uh0xThUGV8=
+X-Google-Smtp-Source: AGHT+IHHVo/39KbLW3COLNbXpw9RjasvA9g7QVp95eKhj030M2cnx1qENDE/W9oHyv1Di66aij6ABmcF/yQRCMvAFx8=
+X-Received: by 2002:ac2:5399:0:b0:50b:f8da:23f2 with SMTP id
+ g25-20020ac25399000000b0050bf8da23f2mr3180774lfh.135.1702390251659; Tue, 12
+ Dec 2023 06:10:51 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+References: <20231206143151.1047189-1-vmojzis@redhat.com>
+In-Reply-To: <20231206143151.1047189-1-vmojzis@redhat.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 12 Dec 2023 09:10:40 -0500
+Message-ID: <CAP+JOzTYN1izhZz-S9V-aRPsnSbgPj-jEjvcEFSY76yQTKFgKg@mail.gmail.com>
+Subject: Re: [PATCH] python: Harden more tools agains "rogue" modules
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This patch introduces a LSM hook for devices creation,
-destruction (ioctl()) and opening (open()) operations,
-checking the application is allowed to perform these
-operations for the Virtio device type.
+On Wed, Dec 6, 2023 at 9:33=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wrot=
+e:
+>
+> Python scripts present in the same directory as the tool
+> override regular modules.
+>
+> Fixes:
+>       #cat > /usr/bin/signal.py <<EOF
+>       import sys
+>       print("BAD GUY!", file=3Dsys.stderr)
+>       sys.exit(1)
+>       EOF
+>       #sandbox date
+>       BAD GUY!
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
----
- MAINTAINERS                         |  1 +
- drivers/vdpa/vdpa_user/vduse_dev.c  | 13 ++++++++++++
- include/linux/lsm_hook_defs.h       |  2 ++
- include/linux/security.h            |  6 ++++++
- include/linux/vduse.h               | 14 +++++++++++++
- security/security.c                 | 15 ++++++++++++++
- security/selinux/hooks.c            | 32 +++++++++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 ++
- 8 files changed, 85 insertions(+)
- create mode 100644 include/linux/vduse.h
+Acked-by: James Carter <jwcart2@gmail.com>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a0fb0df07b43..4e83b14358d2 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -23040,6 +23040,7 @@ F:	drivers/net/virtio_net.c
- F:	drivers/vdpa/
- F:	drivers/virtio/
- F:	include/linux/vdpa.h
-+F:	include/linux/vduse.h
- F:	include/linux/virtio*.h
- F:	include/linux/vringh.h
- F:	include/uapi/linux/virtio_*.h
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index fa62825be378..59ab7eb62e20 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -8,6 +8,7 @@
-  *
-  */
- 
-+#include "linux/security.h"
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/cdev.h>
-@@ -30,6 +31,7 @@
- #include <uapi/linux/virtio_blk.h>
- #include <uapi/linux/virtio_ring.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/vduse.h>
- 
- #include "iova_domain.h"
- 
-@@ -1442,6 +1444,10 @@ static int vduse_dev_open(struct inode *inode, struct file *file)
- 	if (dev->connected)
- 		goto unlock;
- 
-+	ret = -EPERM;
-+	if (security_vduse_perm_check(VDUSE_PERM_OPEN, dev->device_id))
-+		goto unlock;
-+
- 	ret = 0;
- 	dev->connected = true;
- 	file->private_data = dev;
-@@ -1664,6 +1670,9 @@ static int vduse_destroy_dev(char *name)
- 	if (!dev)
- 		return -EINVAL;
- 
-+	if (security_vduse_perm_check(VDUSE_PERM_DESTROY, dev->device_id))
-+		return -EPERM;
-+
- 	mutex_lock(&dev->lock);
- 	if (dev->vdev || dev->connected) {
- 		mutex_unlock(&dev->lock);
-@@ -1828,6 +1837,10 @@ static int vduse_create_dev(struct vduse_dev_config *config,
- 	int ret;
- 	struct vduse_dev *dev;
- 
-+	ret = -EPERM;
-+	if (security_vduse_perm_check(VDUSE_PERM_CREATE, config->device_id))
-+		goto err;
-+
- 	ret = -EEXIST;
- 	if (vduse_find_dev(config->name))
- 		goto err;
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index ff217a5ce552..3930ab2ae974 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -419,3 +419,5 @@ LSM_HOOK(int, 0, uring_override_creds, const struct cred *new)
- LSM_HOOK(int, 0, uring_sqpoll, void)
- LSM_HOOK(int, 0, uring_cmd, struct io_uring_cmd *ioucmd)
- #endif /* CONFIG_IO_URING */
-+
-+LSM_HOOK(int, 0, vduse_perm_check, enum vduse_op_perm op_perm, u32 device_id)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 1d1df326c881..2a2054172394 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -32,6 +32,7 @@
- #include <linux/string.h>
- #include <linux/mm.h>
- #include <linux/sockptr.h>
-+#include <linux/vduse.h>
- 
- struct linux_binprm;
- struct cred;
-@@ -484,6 +485,7 @@ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
- int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
- int security_locked_down(enum lockdown_reason what);
-+int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id);
- #else /* CONFIG_SECURITY */
- 
- static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
-@@ -1395,6 +1397,10 @@ static inline int security_locked_down(enum lockdown_reason what)
- {
- 	return 0;
- }
-+static inline int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-+{
-+	return 0;
-+}
- #endif	/* CONFIG_SECURITY */
- 
- #if defined(CONFIG_SECURITY) && defined(CONFIG_WATCH_QUEUE)
-diff --git a/include/linux/vduse.h b/include/linux/vduse.h
-new file mode 100644
-index 000000000000..7a20dcc43997
---- /dev/null
-+++ b/include/linux/vduse.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_VDUSE_H
-+#define _LINUX_VDUSE_H
-+
-+/*
-+ * The permission required for a VDUSE device operation.
-+ */
-+enum vduse_op_perm {
-+	VDUSE_PERM_CREATE,
-+	VDUSE_PERM_DESTROY,
-+	VDUSE_PERM_OPEN,
-+};
-+
-+#endif /* _LINUX_VDUSE_H */
-diff --git a/security/security.c b/security/security.c
-index dcb3e7014f9b..150abf85f97d 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -5337,3 +5337,18 @@ int security_uring_cmd(struct io_uring_cmd *ioucmd)
- 	return call_int_hook(uring_cmd, 0, ioucmd);
- }
- #endif /* CONFIG_IO_URING */
-+
-+/**
-+ * security_vduse_perm_check() - Check if a VDUSE device type operation is allowed
-+ * @op_perm: the operation type
-+ * @device_id: the Virtio device ID
-+ *
-+ * Check whether the Virtio device creation is allowed
-+ *
-+ * Return: Returns 0 if permission is granted.
-+ */
-+int security_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-+{
-+	return call_int_hook(vduse_perm_check, 0, op_perm, device_id);
-+}
-+EXPORT_SYMBOL(security_vduse_perm_check);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index feda711c6b7b..18845e4f682f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -21,6 +21,8 @@
-  *  Copyright (C) 2016 Mellanox Technologies
-  */
- 
-+#include "av_permissions.h"
-+#include "linux/vduse.h"
- #include <linux/init.h>
- #include <linux/kd.h>
- #include <linux/kernel.h>
-@@ -92,6 +94,7 @@
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
- #include <linux/io_uring.h>
-+#include <uapi/linux/virtio_ids.h>
- 
- #include "avc.h"
- #include "objsec.h"
-@@ -6950,6 +6953,34 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
- }
- #endif /* CONFIG_IO_URING */
- 
-+static int selinux_vduse_perm_check(enum vduse_op_perm op_perm, u32 device_id)
-+{
-+	u32 requested_op, requested_type, sid = current_sid();
-+	int ret;
-+
-+	if (op_perm == VDUSE_PERM_CREATE)
-+		requested_op = VDUSE__CREATE;
-+	else if (op_perm == VDUSE__DESTROY)
-+		requested_op = VDUSE__DESTROY;
-+	else if (op_perm == VDUSE_PERM_OPEN)
-+		requested_op = VDUSE__OPEN;
-+	else
-+		return -EINVAL;
-+
-+	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_op, NULL);
-+	if (ret)
-+		return ret;
-+
-+	if (device_id == VIRTIO_ID_NET)
-+		requested_type = VDUSE__NET;
-+	else if (device_id == VIRTIO_ID_BLOCK)
-+		requested_type = VDUSE__BLOCK;
-+	else
-+		return -EINVAL;
-+
-+	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested_type, NULL);
-+}
-+
- /*
-  * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
-  * 1. any hooks that don't belong to (2.) or (3.) below,
-@@ -7243,6 +7274,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- #ifdef CONFIG_PERF_EVENTS
- 	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
- #endif
-+	LSM_HOOK_INIT(vduse_perm_check, selinux_vduse_perm_check),
- };
- 
- static __init int selinux_init(void)
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index a3c380775d41..b0a358cbac1c 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
- 	  { "override_creds", "sqpoll", "cmd", NULL } },
- 	{ "user_namespace",
- 	  { "create", NULL } },
-+	{ "vduse",
-+	  { "create", "destroy", "open", "net", "block", NULL} },
- 	{ NULL }
-   };
- 
--- 
-2.43.0
-
+> ---
+>  dbus/selinux_server.py       | 2 +-
+>  gui/polgengui.py             | 2 +-
+>  gui/system-config-selinux.py | 6 +++---
+>  sandbox/sandbox              | 2 +-
+>  sandbox/start                | 2 +-
+>  5 files changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/dbus/selinux_server.py b/dbus/selinux_server.py
+> index a969f226..469c526f 100644
+> --- a/dbus/selinux_server.py
+> +++ b/dbus/selinux_server.py
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python3
+> +#!/usr/bin/python3 -EsI
+>
+>  import dbus
+>  import dbus.service
+> diff --git a/gui/polgengui.py b/gui/polgengui.py
+> index 16116ba6..9c151a11 100644
+> --- a/gui/polgengui.py
+> +++ b/gui/polgengui.py
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python3 -Es
+> +#!/usr/bin/python3 -EsI
+>  #
+>  # polgengui.py - GUI for SELinux Config tool in system-config-selinux
+>  #
+> diff --git a/gui/system-config-selinux.py b/gui/system-config-selinux.py
+> index 9f53b7fe..0b6ba4b5 100644
+> --- a/gui/system-config-selinux.py
+> +++ b/gui/system-config-selinux.py
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python3 -Es
+> +#!/usr/bin/python3 -EsI
+>  #
+>  # system-config-selinux.py - GUI for SELinux Config tool in system-confi=
+g-selinux
+>  #
+> @@ -32,6 +32,8 @@ except RuntimeError as e:
+>      print("This is a graphical application and requires DISPLAY to be se=
+t.")
+>      sys.exit(1)
+>
+> +sys.path.append('/usr/share/system-config-selinux')
+> +
+>  from gi.repository import GObject
+>  import statusPage
+>  import booleansPage
+> @@ -66,8 +68,6 @@ except:
+>
+>  version =3D "1.0"
+>
+> -sys.path.append('/usr/share/system-config-selinux')
+> -
+>
+>  ##
+>  ## Pull in the Glade file
+> diff --git a/sandbox/sandbox b/sandbox/sandbox
+> index a2762a7d..fe631a92 100644
+> --- a/sandbox/sandbox
+> +++ b/sandbox/sandbox
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python3 -Es
+> +#!/usr/bin/python3 -EsI
+>  # Authors: Dan Walsh <dwalsh@redhat.com>
+>  # Authors: Thomas Liu <tliu@fedoraproject.org>
+>  # Authors: Josh Cogliati
+> diff --git a/sandbox/start b/sandbox/start
+> index 4ed3cb5c..3c1a1783 100644
+> --- a/sandbox/start
+> +++ b/sandbox/start
+> @@ -1,4 +1,4 @@
+> -#!/usr/bin/python3 -Es
+> +#!/usr/bin/python3 -EsI
+>  try:
+>      from subprocess import getstatusoutput
+>  except ImportError:
+> --
+> 2.41.0
+>
+>
