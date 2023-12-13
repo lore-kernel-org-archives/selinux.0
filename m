@@ -1,207 +1,377 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Oq4eUS5k"
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4BED41
-	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 03:23:46 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dsC/B4bw"
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0516410E
+	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 07:45:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702466625;
+	s=mimecast20190719; t=1702482323;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=7Y+yhg2kzKRracDkULVJwjSDml4IjcPt6n8GLCXMB3I=;
-	b=Oq4eUS5khUJ6ncRIO96T+lMeCjYVgK95GEHN1zIbzw8OQZDa3/aBnZCvuZvb9C718WmTDn
-	49oe+oYNUs9piwCbb18zFvMprtBbNXb6cpjxcs/jtIpPylSTvSUe17mIjIijY/y9NKqnwu
-	hgG53xCsPmvwaFM3SvaRmeuYhGzUiw4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-411-k2g5QuaDMYKUw_v-lTjg7Q-1; Wed, 13 Dec 2023 06:23:41 -0500
-X-MC-Unique: k2g5QuaDMYKUw_v-lTjg7Q-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=eePWO4o9lwHA+97pqaOL3nBPyvZb4tCW/nB+lqSeX/M=;
+	b=dsC/B4bwQwaVENj3hkOSyq1ONaEG6JKKFkdzPDwpRTQSMPmntZAqIYErGveRm7tmRvl5uH
+	4c5mgLbXtZGz9swNeK02OFMz1370PDTOTNy/SJlxSwHWRp466M8SZxfZs2/XCuuyI0ATtZ
+	wQWX4RdSdneRsDghUtBYhZWfKNvGAi4=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-310-y4NeJM76N7GvYz3lBlSnPQ-1; Wed,
+ 13 Dec 2023 10:45:21 -0500
+X-MC-Unique: y4NeJM76N7GvYz3lBlSnPQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 657DE837187;
-	Wed, 13 Dec 2023 11:23:40 +0000 (UTC)
-Received: from [10.39.208.4] (unknown [10.39.208.4])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 3D316492BC6;
-	Wed, 13 Dec 2023 11:23:37 +0000 (UTC)
-Message-ID: <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com>
-Date: Wed, 13 Dec 2023 12:23:35 +0100
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7772A1D6BEF5
+	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 15:45:20 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.214])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 153391121306
+	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 15:45:19 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: ANN: SELinux userspace 3.6-rc2 release 
+Date: Wed, 13 Dec 2023 16:45:19 +0100
+Message-ID: <87bkaurtrk.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/4] vduse: Temporarily disable control queue features
-Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
- jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-3-maxime.coquelin@redhat.com>
- <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-Hi Jason,
+Hello!
 
-On 12/13/23 05:52, Jason Wang wrote:
-> On Tue, Dec 12, 2023 at 9:17 PM Maxime Coquelin
-> <maxime.coquelin@redhat.com> wrote:
->>
->> Virtio-net driver control queue implementation is not safe
->> when used with VDUSE. If the VDUSE application does not
->> reply to control queue messages, it currently ends up
->> hanging the kernel thread sending this command.
->>
->> Some work is on-going to make the control queue
->> implementation robust with VDUSE. Until it is completed,
->> let's disable control virtqueue and features that depend on
->> it.
->>
->> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> 
-> I wonder if it's better to fail instead of a mask as a start.
+The 3.6 release for the SELinux userspace is now available at:
 
-I think it is better to use a mask and not fail, so that we can in the
-future use a recent VDUSE application with an older kernel.
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Why would it be better to fail than negotiating?
+Thanks to all the contributors, reviewers, testers and reporters!
 
-Thanks,
-Maxime
+User-visible changes
+--------------------
 
-> Thanks
-> 
->> ---
->>   drivers/vdpa/vdpa_user/vduse_dev.c | 37 ++++++++++++++++++++++++++++++
->>   1 file changed, 37 insertions(+)
->>
->> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
->> index 0486ff672408..fe4b5c8203fd 100644
->> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
->> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
->> @@ -28,6 +28,7 @@
->>   #include <uapi/linux/virtio_config.h>
->>   #include <uapi/linux/virtio_ids.h>
->>   #include <uapi/linux/virtio_blk.h>
->> +#include <uapi/linux/virtio_ring.h>
->>   #include <linux/mod_devicetable.h>
->>
->>   #include "iova_domain.h"
->> @@ -46,6 +47,30 @@
->>
->>   #define IRQ_UNBOUND -1
->>
->> +#define VDUSE_NET_VALID_FEATURES_MASK           \
->> +       (BIT_ULL(VIRTIO_NET_F_CSUM) |           \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_CSUM) |     \
->> +        BIT_ULL(VIRTIO_NET_F_MTU) |            \
->> +        BIT_ULL(VIRTIO_NET_F_MAC) |            \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_TSO4) |     \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_TSO6) |     \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_ECN) |      \
->> +        BIT_ULL(VIRTIO_NET_F_GUEST_UFO) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_TSO4) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_TSO6) |      \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_ECN) |       \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_UFO) |       \
->> +        BIT_ULL(VIRTIO_NET_F_MRG_RXBUF) |      \
->> +        BIT_ULL(VIRTIO_NET_F_STATUS) |         \
->> +        BIT_ULL(VIRTIO_NET_F_HOST_USO) |       \
->> +        BIT_ULL(VIRTIO_F_ANY_LAYOUT) |         \
->> +        BIT_ULL(VIRTIO_RING_F_INDIRECT_DESC) | \
->> +        BIT_ULL(VIRTIO_RING_F_EVENT_IDX) |          \
->> +        BIT_ULL(VIRTIO_F_VERSION_1) |          \
->> +        BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) |     \
->> +        BIT_ULL(VIRTIO_F_RING_PACKED) |        \
->> +        BIT_ULL(VIRTIO_F_IN_ORDER))
->> +
->>   struct vduse_virtqueue {
->>          u16 index;
->>          u16 num_max;
->> @@ -1782,6 +1807,16 @@ static struct attribute *vduse_dev_attrs[] = {
->>
->>   ATTRIBUTE_GROUPS(vduse_dev);
->>
->> +static void vduse_dev_features_filter(struct vduse_dev_config *config)
->> +{
->> +       /*
->> +        * Temporarily filter out virtio-net's control virtqueue and features
->> +        * that depend on it while CVQ is being made more robust for VDUSE.
->> +        */
->> +       if (config->device_id == VIRTIO_ID_NET)
->> +               config->features &= VDUSE_NET_VALID_FEATURES_MASK;
->> +}
->> +
->>   static int vduse_create_dev(struct vduse_dev_config *config,
->>                              void *config_buf, u64 api_version)
->>   {
->> @@ -1797,6 +1832,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
->>          if (!dev)
->>                  goto err;
->>
->> +       vduse_dev_features_filter(config);
->> +
->>          dev->api_version = api_version;
->>          dev->device_features = config->features;
->>          dev->device_id = config->device_id;
->> --
->> 2.43.0
->>
-> 
+* dispol: add option to display users, drop duplicate option to display boo=
+leans,
+  show number of entries before listing them
+
+* libsepol: struct cond_expr_t `bool` renamed to `boolean`
+  The change is indicated by COND_EXPR_T_RENAME_BOOL_BOOLEAN macro
+
+* cil: Allow IP address and mask values to be directly written
+
+* cil: Allow paths in filecon rules to be passed as arguments
+
+* Add not self support for neverallow rules
+
+* dispol: Add the ability to show booleans, classes, roles, types and type =
+attributes of policies
+
+* Improve man pages
+
+* libselinux: performance optimization for duplicate detection
+
+* dismod: add options: --actions ACTIONS, --help
+
+* dispol: add options: --actions ACTIONS, --help
+
+* checkpolicy: Add the command line argument -N, --disable-neverallow
+
+* Introduce getpolicyload - a helper binary to print the number of policy r=
+eloads on the running system
+
+* man pages: Remove the Russian translations
+
+* Add notself and other support to CIL
+
+* Add support for deny rules
+
+* Translations updated from
+  https://translate.fedoraproject.org/projects/selinux/
+
+* Bug fixes
+
+Development-relevant changes
+----------------------------
+
+* ci: bump Fedora to version 39
+
+* Drop LGTM.com and Travis CI configuration
+
+Shortlog of the changes since 3.5 release
+-----------------------------------------
+Bruno Victal (1):
+      secilc: Use versioned DocBook public identifier.
+
+Cameron Williams (1):
+      Add CPPFLAGS to Makefiles
+
+Cathy Hu (1):
+      sepolicy/manpage.py: make output deterministic
+
+Christian G=C3=B6ttsche (115):
+      libsepol: Add not self support for neverallow rules
+      checkpolicy: add not-self neverallow support
+      libsepol/tests: add tests for not self neverallow rules
+      libsepol/tests: add tests for minus self neverallow rules
+      libsepol: rename struct member
+      checkpolicy: update cond_expr_t struct member name
+      libsepol/tests: rename bool indentifiers
+      checkpolicy: rename bool identifiers
+      libsepol: rename bool identifiers
+      libsemanage/tests: rename bool identifiers
+      libsemanage: fix memory leak in semanage_user_roles
+      checkpolicy/dispol: add output functions
+      libselinux: set CFLAGS for pip installation
+      checkpolicy: drop unused token CLONE
+      checkpolicy: reject condition with bool and tunable in expression
+      checkpolicy: only set declared permission bits for wildcards
+      libsepol: dump non-mls validatetrans rules as such
+      libsepol: validate some object contexts
+      libsepol: validate old style range trans classes
+      libsepol: validate: check low category is not bigger than high
+      libsepol: validate: reject XEN policy with xperm rules
+      libsepol: expand: skip invalid cat
+      libsepol: drop message for uncommon error cases
+      libsepol: drop duplicate newline in sepol_log_err() calls
+      libsepol: replace sepol_log_err() by ERR()
+      libsepol: replace log_err() by ERR()
+      checkpolicy: add option to skip checking neverallow rules
+      checkpolicy/dismod: misc improvements
+      libsepol: free initial sid names
+      libsepol: check for overflow in put_entry()
+      libsepol/fuzz: more strict fuzzing of binary policies
+      setsebool: improve bash-completion script
+      setsebool: drop unnecessary linking against libsepol
+      semodule_expand: update
+      semodule_link: update
+      semodule_package: update
+      semodule_unpackage: update
+      libselinux/utils: introduce getpolicyload
+      libsepol: validate: use fixed sized integers
+      hashtab: update
+      libsepol: expand: use identical type to avoid implicit conversion
+      libsepol: expand: check for memory allocation failure
+      libsepol: ebitmap: avoid branches for iteration
+      libsemanage/tests: use strict prototypes
+      libsepol: update CIL generation for trivial not-self rules
+      libselinux/utils: update selabel_partial_match
+      libselinux: misc label cleanup
+      libselinux: drop obsolete optimization flag
+      libselinux: drop unnecessary warning overrides
+      setfiles: do not issue AUDIT_FS_RELABEL on dry run
+      libselinux: constify selabel_cmp(3) parameters
+      libselinux: simplify zeroing allocation
+      libselinux/utils: use type safe union assignment
+      libselinux: avoid regex serialization truncations
+      libselinux: parameter simplifications
+      libselinux/utils: use correct type for backend argument
+      libselinux: update string_to_mode()
+      libselinux: fix logic for building android backend
+      libselinux: avoid unused function
+      libselinux: check for stream rewind failures
+      libselinux: simplify internal selabel_validate prototype
+      libselinux/utils: drop include of internal header file
+      libselinux: free elements on read_spec_entries() failure
+      libselinux: set errno on label lookup failure
+      libsepol: reject avtab entries with invalid specifier
+      libsepol: avtab: check read counts for saturation
+      checkpolicy: add round-trip tests
+      libselinux/utils: update getdefaultcon
+      libselinux: cast to unsigned char for character handling function
+      libselinux: introduce reallocarray(3)
+      libsepol: validate default type of transition is not an attribute
+      libsepol: validate constraint depth
+      libsepol: more strict validation
+      libsepol: reject unsupported policy capabilities
+      libsepol: use str_read() where appropriate
+      libsepol: adjust type for saturation check
+      libsepol: enhance saturation check
+      libsepol: validate the identifier for initials SID is valid
+      Drop LGTM.com configuration
+      Drop Travis CI configuration
+      scripts: ignore unavailable interpreters
+      ci: bump Fedora to version 39
+      libselinux: update Python binding
+      Update Python installation on Debian
+      scripts: update run-scan-build
+      semodule_link: avoid NULL dereference on OOM
+      libsepol: set number of target names
+      libselinux: fix memory leak in customizable_init()
+      libsepol: avoid leak in OOM branch
+      libsepol: avoid memory corruption on realloc failure
+      libsepol: update policy capabilities array
+      github: bump action dependencies
+      libsepol: validate common classes have at least one permissions
+      libsepol: include length squared in hashtab_hash_eval()
+      libsepol: use DJB2a string hash function
+      libsepol/cil: use DJB2a string hash function
+      libselinux: use DJB2a string hash function
+      newrole: use DJB2a string hash function
+      libsepol: avoid fixed sized format buffer for xperms
+      libsepol: avoid fixed sized format buffer for xperms
+      libsepol: validate conditional type rules have a simple default type
+      libsepol: use correct type to avoid truncations
+      checkpolicy/dismod: avoid duplicate initialization and fix module lin=
+king
+      libsepol: reject invalid class datums
+      libsepol/fuzz: handle empty and non kernel policies
+      libsepol: reject linking modules with no avrules
+      libsepol: simplify string formatting
+      checkpolicy/dispol: misc updates
+      libsepol: constify tokenized input
+      libsepol: avoid integer overflow in add_i_to_a()
+      libsepol: extended permission formatting cleanup
+      libsepol: validate empty common classes in scope indices
+      libselinux: update const qualifier of parameters in man pages
+      libselinux: always set errno on context translation failure
+      libselinux: state setexecfilecon(3) sets errno on failure
+
+Dominick Grift (1):
+      secilc/docs: fixes filecon example
+
+Huaxin Lu (4):
+      libselinux: add check for calloc in check_booleans
+      restorecond: add check for strdup in strings_list_add
+      secilc: add check for malloc in secilc
+      libsepol: add check for category value before printing
+
+Huizhao Wang (1):
+      restorecond: compatible with the use of EUID
+
+James Carter (53):
+      Revert "libsepol/cil: add support for prefix/suffix filename transtio=
+ns to CIL"
+      Revert "checkpolicy,libsepol: add prefix/suffix support to module pol=
+icy"
+      Revert "checkpolicy,libsepol: add prefix/suffix support to kernel pol=
+icy"
+      Revert "libsepol: implement new module binary format of avrule"
+      Revert "libsepol: implement new kernel binary format for avtab"
+      Revert "checkpolicy,libsepol: move filename transition rules to avrul=
+e"
+      Revert "checkpolicy,libsepol: move filename transitions to avtab"
+      Revert "checkpolicy,libsepol: move transition to separate structure i=
+n avtab"
+      libsepol/cil: Fix class permission verification in CIL
+      python: Use isinstance() instead of type()
+      checkpolicy: Remove the Russian translations
+      gui: Remove the Russian translations
+      libselinux: Remove the Russian translations
+      libselinux: Remove the Russian translations
+      libsemanage: Remove the Russian translations
+      libsepol: Remove the Russian translations
+      mcstrans: Remove the Russian translations
+      policycoreutils: Remove the Russian translations
+      python: Remove the Russian translations
+      python: Remove the Russian translations
+      restorecond: Remove the Russian translations
+      sandbox: Remove the Russian translations
+      semodule-utils: Remove the Russian translations
+      Do not automatically install Russian translations
+      libsepol: Changes to ebitmap.h to fix compiler warnings
+      libsepol/cil: Do not call ebitmap_init twice for an ebitmap
+      libsepol/cil: Add notself and other support to CIL
+      libsepol: Use ERR() instead of log_err()
+      secilc/docs: Add notself and other keywords to CIL documentation
+      secilc/test: Add notself and other tests
+      libsepol/cil: Parse and add deny rule to AST, but do not process
+      libsepol/cil: Add cil_list_is_empty macro
+      libsepol/cil: Add cil_tree_node_remove function
+      libsepol/cil: Process deny rules
+      libsepol/cil: Add cil_write_post_ast function
+      libsepol: Export the cil_write_post_ast function
+      secilc/secil2tree: Add option to write CIL AST after post processing
+      secilc/test: Add deny rule tests
+      secilc/docs: Add deny rule to CIL documentation
+      checkpolicy: Remove support for role dominance rules
+      libsepol: Fix the version number for the latest exported function
+      libsepol/tests: Update the order of neverallow test results
+      libsepol/cil: Use struct cil_db * instead of void *
+      libsepol/cil: Refactor and improve handling of order rules
+      libsepol/cil: Allow IP address and mask values to be directly written
+      secilc/docs: Update syntax for IP addresses and nodecon
+      libsepol/cil: Refactor Named Type Transition Filename Creation
+      libsepol/cil: Allow paths in filecon rules to be passed as arguments
+      secilc/docs: Fix and update the documentation for macro parameters
+      libsepol/cil: Add pointers to datums to improve writing out AST
+      libsepol/cil: Give warning for name that has different flavor
+      libsepol/cil: Do not allow classpermissionset to use anonymous classp=
+ermission
+      libsepol/cil: Clear AST node after destroying bad filecon rule
+
+Jeffery To (1):
+      python/sepolicy: Fix get_os_version except clause
+
+Juraj Marcin (8):
+      checkpolicy,libsepol: move transition to separate structure in avtab
+      checkpolicy,libsepol: move filename transitions to avtab
+      checkpolicy,libsepol: move filename transition rules to avrule
+      libsepol: implement new kernel binary format for avtab
+      libsepol: implement new module binary format of avrule
+      checkpolicy,libsepol: add prefix/suffix support to kernel policy
+      checkpolicy,libsepol: add prefix/suffix support to module policy
+      libsepol/cil: add support for prefix/suffix filename transtions to CIL
+
+Masatake YAMATO (10):
+      dismod: add --help option
+      dismod: delete an unnecessary empty line
+      dismod: handle EOF in user interaction
+      dismod: add --actions option for non-interactive use
+      dispol: add --help option
+      dispol: delete an unnecessary empty line
+      dispol: handle EOF in user interaction
+      dispol: add --actions option for non-interactive use
+      dismod: print the policy version only in interactive mode
+      dismod, dispol: reduce the messages in batch mode
+
+Ondrej Mosnacek (4):
+      libsemanage: include more parameters in the module checksum
+      scripts/ci: install rdma-core-devel for selinux-testsuite
+      libsepol: stop translating deprecated intial SIDs to strings
+      libsepol: add support for the new "init" initial SID
+
+Petr Lautrbach (9):
+      python: improve format strings for proper localization
+      python: Drop hard formating from localized strings
+      semanage: Drop unnecessary import from seobject
+      python: update python.pot
+      Update translations
+      Update VERSIONs to 3.6-rc1 for release.
+      Update VERSIONs to 3.6-rc2 for release.
+      sepolicy: port to dnf4 python API
+      Update VERSIONs to 3.6 for release.
+
+Sergei Trofimovich (1):
+      libsemanage: fix src/genhomedircon.c build on `gcc-14` (`-Werror=3Dal=
+loc-size`)
+
+Stephen Smalley (2):
+      libselinux,policycoreutils,python,semodule-utils: de-brand SELinux
+      checkpolicy,libselinux,libsepol,policycoreutils,semodule-utils: updat=
+e my email
+
+Topi Miettinen (1):
+      sepolicy: clarify manual page of sepolicy interface
+
+Vit Mojzis (12):
+      python/chcat: Improve man pages
+      python/audit2allow: Add missing options to man page
+      python/semanage: Improve man pages
+      python/audit2allow: Remove unused "debug" option
+      policycoreutils: Add examples to man pages
+      python/sepolicy: Improve man pages
+      sandbox: Add examples to man pages
+      checkpolicy: Add examples to man pages
+      libselinux: Add examples to man pages
+      python/sepolicy: Fix template for confined user policy modules
+      python/sepolicy: Add/remove user even when SELinux is disabled
+      python: Harden more tools against "rogue" modules
+
+wanghuizhao (3):
+      libselinux: migrating hashtab from policycoreutils
+      libselinux: adapting hashtab to libselinux
+      libselinux: performance optimization for duplicate detection
+
 
