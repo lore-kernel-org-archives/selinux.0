@@ -1,332 +1,151 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="mEF85Lhw"
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1808191
-	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 08:14:17 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-9fa45e75ed9so827866366b.1
-        for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 08:14:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1702484056; x=1703088856; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=EKJklPt5dvwQzkUiIfAJUiT7Y+bLT341krw0xZUEn1I=;
-        b=mEF85LhwFgRnVHCVT5UJctLN0+Dch5NVPoNXgDiBnYQl5VpO4agiRtDHxtEk4i3+7+
-         6iueJtLrV/Y44kas26J+1xxh2TQO/cnhJJbrFA5YMsYI9TZGsKx3lu/5mHCHlUp1Xo/L
-         ruJ5NuVAcQjLgA/z3IpG3rQPER+FWtUIPTjCbTGaeqbfLZsZTgQaRLaQJX9BhKdihsvN
-         Z7wuaot8GEC4hnGgaRC1QE0m9y+JS4iAU981Hh1jPD+BRWxIF6OR+I3jUoImLm8PeclJ
-         ixJPG2k9VAXEJKrT1X5ncXKw7mZ3PMzVq/LHcp3dlPiRMVIl2ubj8DoVoro3ENhuuEFD
-         yl1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702484056; x=1703088856;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=EKJklPt5dvwQzkUiIfAJUiT7Y+bLT341krw0xZUEn1I=;
-        b=CRNMUeE1vVjxrZ73WoLQ8R5QrXMtDGuxz7E6r53QNTco8cLRXyvdP0cZKnZVXe9CUW
-         5xrMcYcNB7ArHlgPQXfVUg1pnaKYLNLqo44mzYkisRgha74nVfnPMzN3Ymcbz6kF5ei6
-         2F1DdWqUB5/7OsoUqYnDs0pdgyfuLfHSMjhVJ2bh6fupG2WwdZM5REBpqZo3g7y54+lo
-         BwfIq23Oq65+CEZyM1o9sXCZdew8Sm1OK2ooPnDmdT48C7DEl82H2eAxjHNmCh5P37Fw
-         B4Qxf40xTLxgt55FVlgJwFYGS/wYTYuudm7Av5YiNojmFguy15r9I6VyTUExO5fGmGVK
-         CKTg==
-X-Gm-Message-State: AOJu0YwhToxxtmnvYanKg0tvqNPZjIMx/ObC30ShKN7Vxepu/f6r2k1N
-	cg7DM0pqqBgF3q9avhvoJzcjnck6h8ZlR4JG
-X-Google-Smtp-Source: AGHT+IHXw/ybVlZESHJGwBe/66uhpo3y47BDlkC1habwpoxNnDNqDGx7dO19gh6+wUc9V7mn2vDHag==
-X-Received: by 2002:a17:906:51c2:b0:a23:45c:5ca with SMTP id v2-20020a17090651c200b00a23045c05camr419089ejk.0.1702484055871;
-        Wed, 13 Dec 2023 08:14:15 -0800 (PST)
-Received: from debian_development.DebianHome (dynamic-078-050-014-136.78.50.pool.telefonica.de. [78.50.14.136])
-        by smtp.gmail.com with ESMTPSA id ty8-20020a170907c70800b00a1e026ac542sm8139203ejc.10.2023.12.13.08.14.15
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Dec 2023 08:14:15 -0800 (PST)
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: selinux@vger.kernel.org
-Subject: [UTIL-LINUX PATCH] sulogin: relabel terminal according to SELinux policy
-Date: Wed, 13 Dec 2023 17:14:12 +0100
-Message-ID: <20231213161412.23022-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Q2GcCXjA"
+Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A6B1F2
+	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 10:08:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702490930; bh=Nwz1uIbomBE991r6kFnI9Xx0i9y6GbKeBjvJtumt8iE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Q2GcCXjATEzjSTSYXHKbXeurOv5yespsSz0ml7JCsSLZqxVHAfvFb/s9tzIt1evnQhz4XLu9bqJKAIA0uPqHtwBjEm4XnLk+vTgaltgUQOZV9b1W/MFTK19WwGySEVVSWxIinyGwjgcfn6rt6N1Prk04cDhYw59eTJ+j6WHqWYBW89gv9guNPRowISjp1KdTZK0yQQSOaN/ST6QuKOTUrS+dNe9wV9evHwRGEg8E3f/cnG21gzKQW1iFofjp2sNHQcon30MXNzf0cSDA0rRHmMleNNc8aVqghAMr5Wu1H7beuwg8EOVCRgGJTca1PQes/0qpj5l4+dRgEZVJr8Dd4w==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702490930; bh=+/TJOZ6srOEMVvhuufXWRh0/msMyFtSymbS2RoNkwdQ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=jb4TkrgIre+9ji4ewfMOvSl6OLiXVlIvDGCY4riHNE4MLKe9WNidkohEECUqi1Rj+Qb7ja4JfB+hQ40ROlFPoA8fvGkDMunhCHbDlqECIZqe8GSDuIRk7aiiUJr2lt24Ildhu6cfPmlG0xQaFKoBMU3d1eMhl4YbkeyYMarx51p/X154GQeYIUS0UYFGJ+itQukr9ZuIj9wSZwquwUhkkX57Z9zxapwJlT+CIq8zumYoL2AVtUI3C1OzYhHb+LO0BJUpi3iWPmjDvOtpwb+3RD3MejxooCgKRi5LKD51T+cIJGSdIazwoWLEXkSYTvyEk50NXe1ZWWeUO/rQULHZCg==
+X-YMail-OSG: ZY4uPfkVM1nL9XI0hibln_9cRAXR4K6ZlsvOdVR.ZIvGnWPklpsBsrntt6L3vuB
+ 8VdYwHE9wV80Ll.nAtMpE0Dt8RTxtsJz3u1gWV4nsZUCwDRbJ8VkqeK9UWIeymWBXAu21aTTGAJG
+ HT9hrQzNG4o0l0UTVb.HTb0EwxJ4ZoiWPfp.f9sXgrqtH_HPR.gPo8EQhfUG.moEDU299IyzYYt7
+ H2VJ4gba07t4nhBg0hwMpeCMVVdYbSiF.b5JQtZ341VBE3Z_RClBvv03hzVGL5RPVg28ocD1tWZW
+ qV8QkvM_DGUEgGH_7Ru7FhHBx6iH3dMwRvMjgsT12JGT5Liqqn2OkcxAOYm9eZ3ICnq4iC2WNqBE
+ hjX1EwtFmRbH4wjQ7dtex2xphhuRPR8DrwR2167If94s7MNdj7LDf0.H3FXWsVdWHkKf.Gv0vYWu
+ xhBt1kDDUTKBzbW0AAU4BylURMOtonvV1VLwhckz7CgtpkZ.7vdoMoCweN2aGa5lXotaRyseo8lC
+ EdfNFXhOSOuckRGSrm6L9QixTrvg.48xgMjI1T_csZMPenPYNwuMI_TOZNvDCFzPjQ4vEl76fYuB
+ CAgxOAvU80M8uHZQnLrXsGiLBUaANszyXIhM5zAlHQPVG8IBAJkKmqSR5Riy41WNhLHrMx1AxhaX
+ c3WAjD.XYT_2sOD6re0MlrPH_3bI01ZyQFUtulQHTy2u7.odLifj3hGDEbJU.5Z._j7_qV9Nz6eF
+ ijaFLsqsGe7Kwr0gXj1X20O1o5bkWa7rvy7rd9LFu2L_mrWOzJ.Mf6YQMdN5Tex7wFvZplvRQGTZ
+ d7hRb9arVcB.ijSL4IIGKv5UBUmqej2Iz.LmKZFGPDMMcqRRK_Z8a01tIDb0ZHeDR4jTjtin.xqH
+ zh_3sjv4rQ.rLL65jKk5YpQyZDSVRedQ8wrpFPuuQuFddHIunKuZoIHNTYHmDDnffbHzMgfzE6p2
+ 0csSu.Y_21KcZjcvn9ECmQgvLobMz3Vud_qM_6s0yeOaw4nhTx9oy6UvZyRB.IG8aMuypMWYgVcs
+ N13p6zGyc1pQK8XkxkXktpfNMU2.T6pu7bjZAIdFSXRAb3UFmmonKUr2PNf1I76HPdEKP.oRMCwC
+ 7_kaH1kaQwi2d.P1uP0hoAAERtrJ_O6XN.85qafgWLRls_CRTlzNKNlzBRIE.GvDvFRe_njUnjAJ
+ pof3DD3hOddOtKXQ721C59YmpyIetqf7dtAKPVAXhx6_dMur6n.PdX0AQzxFDlALEpKFdMIuIXsB
+ 70lDIeAeUc.FDPFUL3F8tTR6EeYSEkVzhU3O0uBm1JFolTLTa16FiY87G70txBJjXU0HZidBxBht
+ fzSugNDamX5gnlKPmb6zJeNBJWStv.j0GMv64EluNPOCWeVcH3cVTHAT1dFrDB7oXblC3Rum8j4v
+ s7uHPuWZVY5OIehsAUS1Mrwj1xjXM.uTX8klNWSSxeJn.4pJgNHCrdw2xp5fhN2jrWMTNTxGCVVB
+ YSyNVzm4wtWxaPLpUIclAPQ_Hur5.u3GQFVi9p4pKKM.8F12uF_sn166dxANn5LSuyF7LaCBEgPZ
+ nuFUb5a0XV5QzqAt29KHaKpzJaHr54l5N2_V_7ZPiXVOnr5BzGOGGi.EwGm4.V.UKEFkC.an4kpS
+ EwODjE3lu19jis0IwGrSZpQ_XP_H2oBdKNc1.XyNjfkKPduWiJOSGiixgDWenRKYnamM8kShG6YS
+ qJvWikUacPnSTDzcwrUZaapwLMSlSBAXcQ6zXPwO1zrl7fjGsJga3hQMCh9HTvGNRmTuEr6LNeY_
+ IO_eMH4VxsDi42uBI1W.33c6A4Kj1ZlwEfTC0V3yQeEKpYI4PNtMI3bI66EgCiawKiIffAXwauNe
+ gV8B1JA9dIA6O9aSaWqCP9U9bnNn4JN1bKtAqdxn95NMCSPOeXSOofRUOsISQkz9ad_g3.tBd0V.
+ 0JMpxvAN1olw2ZGSJWD4dVLRA2whVdwpIIxRisbaRSPB5bLiD2YtFx68SxJKwh8m8mf8ujQh5Y19
+ HW0..VY6s2cZSXBnXqIRLzXcdZHD1vT_gGAG5h9ZadaHnCUMcRhVNjerK_UP7kIDDeruOMTHFNKO
+ 17_iZeBREEot_D7mQh9g4RlApRvP6J0._dhqqVyBD4IjGrRsF0RqQe63FOe4dl1cOaME5zwmdNvd
+ LF6_A9TI9WOEHe7Tp_96mVtICBAGWoIOCVf3QqJ1qhrL50oadzN.9BMhtjt0WfskACGhiyemIPKc
+ 9qYreb0Lox2deMagqPuimHpY.9QOIyLBhw6nh1VyM_8MLPcf2OszolI2.YWdN
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 0351f85c-4cc1-41cd-b475-55877dfed226
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Dec 2023 18:08:50 +0000
+Received: by hermes--production-gq1-6949d6d8f9-k52jv (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 83a3aff6f9fe93ecbddc221ed9cc56f5;
+          Wed, 13 Dec 2023 18:08:48 +0000 (UTC)
+Message-ID: <9dc633d8-65a7-4b97-ab98-a21ada1d4ea5@schaufler-ca.com>
+Date: Wed, 13 Dec 2023 10:08:48 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
+ blob for integrity_iint_cache
+To: Roberto Sassu <roberto.sassu@huaweicloud.com>,
+ Paul Moore <paul@paul-moore.com>, viro@zeniv.linux.org.uk,
+ brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+ neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+ jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
+ dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
+ stephen.smalley.work@gmail.com, eparis@parisplace.org, mic@digikod.net
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+ selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
+ <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
+ <7c226242-2eda-41cd-9be8-c2c010f3fc49@huaweicloud.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <7c226242-2eda-41cd-9be8-c2c010f3fc49@huaweicloud.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.21952 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-The common SELinux practice is to have a distinct label for terminals in
-use by logged in users.  This allows to differentiate access on the
-associated terminal (e.g. user_tty_device_t) vs foreign ones (e.g.
-tty_device_t or sysadm_tty_device_t).  Therefore the application
-performing the user login and setting up the associated terminal should
-label that terminal according to the loaded SELinux policy.  Commonly
-this is done by pam_selinux(7).  Since sulogin(8) does not use pam(7)
-perform the necessary steps manually.
+On 12/13/2023 2:45 AM, Roberto Sassu wrote:
+> On 17.11.23 21:57, Paul Moore wrote:
+>> On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
+>>>
+>>> ...
+>>>
+>>> diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+>>> index 882fde2a2607..a5edd3c70784 100644
+>>> --- a/security/integrity/iint.c
+>>> +++ b/security/integrity/iint.c
+>>> @@ -231,6 +175,10 @@ static int __init integrity_lsm_init(void)
+>>>       return 0;
+>>>   }
+>>>   +struct lsm_blob_sizes integrity_blob_sizes __ro_after_init = {
+>>> +    .lbs_inode = sizeof(struct integrity_iint_cache *),
+>>> +};
+>>
+>> I'll admit that I'm likely missing an important detail, but is there
+>> a reason why you couldn't stash the integrity_iint_cache struct
+>> directly in the inode's security blob instead of the pointer?  For
+>> example:
+>>
+>>    struct lsm_blob_sizes ... = {
+>>      .lbs_inode = sizeof(struct integrity_iint_cache),
+>>    };
+>>
+>>    struct integrity_iint_cache *integrity_inode_get(inode)
+>>    {
+>>      if (unlikely(!inode->isecurity))
+>>        return NULL;
+>
+> Ok, this caught my attention...
+>
+> I see that selinux_inode() has it, but smack_inode() doesn't.
+>
+> Some Smack code assumes that the inode security blob is always non-NULL:
+>
+> static void init_inode_smack(struct inode *inode, struct smack_known
+> *skp)
+> {
+>     struct inode_smack *isp = smack_inode(inode);
+>
+>     isp->smk_inode = skp;
+>     isp->smk_flags = 0;
+> }
+>
+>
+> Is that intended? Should I add the check?
 
-Fixes: https://github.com/util-linux/util-linux/issues/1578
+Unless there's a case where inodes are created without calling
+security_inode_alloc() there should never be an inode without a
+security blob by the time you get to the Smack hook. That said,
+people seem inclined to take all sorts of shortcuts and create
+various "inodes" that aren't really inodes. I also see that SELinux
+doesn't check the blob for cred or file structures. And that I
+wrote the code in both cases.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-Upstream pull-request: https://github.com/util-linux/util-linux/pull/2650
----
- login-utils/sulogin-consoles.c |   4 +
- login-utils/sulogin-consoles.h |   4 +
- login-utils/sulogin.c          | 156 +++++++++++++++++++++++++++++----
- 3 files changed, 146 insertions(+), 18 deletions(-)
+Based on lack of bug reports for Smack on inodes and SELinux on
+creds or files, It appears that the check is unnecessary. On the
+other hand, it sure looks like good error detection hygiene. I
+would be inclined to include the check in new code, but not get
+in a panic about existing code.
 
-diff --git a/login-utils/sulogin-consoles.c b/login-utils/sulogin-consoles.c
-index 9ae525556..0dca949f4 100644
---- a/login-utils/sulogin-consoles.c
-+++ b/login-utils/sulogin-consoles.c
-@@ -341,6 +341,10 @@ int append_console(struct list_head *consoles, const char * const name)
- 	tail->id = last ? last->id + 1 : 0;
- 	tail->pid = -1;
- 	memset(&tail->tio, 0, sizeof(tail->tio));
-+#ifdef HAVE_LIBSELINUX
-+	tail->reset_tty_context = NULL;
-+	tail->user_tty_context = NULL;
-+#endif
- 
- 	return 0;
- }
-diff --git a/login-utils/sulogin-consoles.h b/login-utils/sulogin-consoles.h
-index 12032c997..608c4f84f 100644
---- a/login-utils/sulogin-consoles.h
-+++ b/login-utils/sulogin-consoles.h
-@@ -44,6 +44,10 @@ struct console {
- 	pid_t pid;
- 	struct chardata cp;
- 	struct termios tio;
-+#ifdef HAVE_LIBSELINUX
-+	char *reset_tty_context;
-+	char *user_tty_context;
-+#endif
- };
- 
- extern int detect_consoles(const char *device, int fallback,
-diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
-index 019f35092..2682c30fb 100644
---- a/login-utils/sulogin.c
-+++ b/login-utils/sulogin.c
-@@ -99,6 +99,81 @@ static int locked_account_password(const char * const passwd)
- 	return 0;
- }
- 
-+#ifdef HAVE_LIBSELINUX
-+/*
-+ * Cached check whether SELinux is enabled.
-+ */
-+static int is_selinux_enabled_cached(void)
-+{
-+	static int cache = -1;
-+
-+	if (cache == -1)
-+		cache = is_selinux_enabled();
-+
-+	return cache;
-+}
-+
-+/* Computed SELinux login context. */
-+static char *login_context;
-+
-+/*
-+ * Compute SELinux login context.
-+ */
-+static void compute_login_context(void)
-+{
-+	char *seuser = NULL;
-+	char *level = NULL;
-+
-+	if (is_selinux_enabled_cached() == 0)
-+		goto cleanup;
-+
-+	if (getseuserbyname("root", &seuser, &level) == -1) {
-+		warnx(_("failed to compute seuser"));
-+		goto cleanup;
-+	}
-+
-+	if (get_default_context_with_level(seuser, level, NULL, &login_context) == -1) {
-+		warnx(_("failed to compute default context"));
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	free(seuser);
-+	free(level);
-+}
-+
-+/*
-+ * Compute SELinux terminal context.
-+ */
-+static void tcinit_selinux(struct console *con)
-+{
-+	security_class_t tclass;
-+
-+	if (!login_context)
-+		return;
-+
-+	if (fgetfilecon(con->fd, &con->reset_tty_context) == -1) {
-+		warn(_("failed to get context of terminal %s"), con->tty);
-+		return;
-+	}
-+
-+	tclass = string_to_security_class("chr_file");
-+	if (tclass == 0) {
-+		warnx(_("security class chr_file not available"));
-+		freecon(con->reset_tty_context);
-+		con->reset_tty_context = NULL;
-+		return;
-+	}
-+
-+	if (security_compute_relabel(login_context, con->reset_tty_context, tclass, &con->user_tty_context) == -1) {
-+		warnx(_("failed to compute relabel context of terminal"));
-+		freecon(con->reset_tty_context);
-+		con->reset_tty_context = NULL;
-+		return;
-+	}
-+}
-+#endif
-+
- /*
-  * Fix the tty modes and set reasonable defaults.
-  */
-@@ -132,6 +207,10 @@ static void tcinit(struct console *con)
- 	errno = 0;
- #endif
- 
-+#ifdef HAVE_LIBSELINUX
-+	tcinit_selinux(con);
-+#endif
-+
- #ifdef TIOCGSERIAL
- 	if (ioctl(fd, TIOCGSERIAL,  &serinfo) >= 0)
- 		con->flags |= CON_SERIAL;
-@@ -785,7 +864,7 @@ out:
- /*
-  * Password was OK, execute a shell.
-  */
--static void sushell(struct passwd *pwd)
-+static void sushell(struct passwd *pwd, struct console *con)
- {
- 	char shell[PATH_MAX];
- 	char home[PATH_MAX];
-@@ -842,22 +921,21 @@ static void sushell(struct passwd *pwd)
- 	mask_signal(SIGHUP, SIG_DFL, NULL);
- 
- #ifdef HAVE_LIBSELINUX
--	if (is_selinux_enabled() > 0) {
--		char *scon = NULL;
--		char *seuser = NULL;
--		char *level = NULL;
--
--		if (getseuserbyname("root", &seuser, &level) == 0) {
--			if (get_default_context_with_level(seuser, level, 0, &scon) == 0) {
--				if (setexeccon(scon) != 0)
--					warnx(_("setexeccon failed"));
--				freecon(scon);
--			}
-+	if (is_selinux_enabled_cached() == 1) {
-+		if (con->user_tty_context) {
-+			if (fsetfilecon(con->fd, con->user_tty_context) == -1)
-+				warn(_("failed to set context to %s for terminal %s"), con->user_tty_context, con->tty);
-+		}
-+
-+		if (login_context) {
-+			if (setexeccon(login_context) == -1)
-+				warn(_("failed to set exec context to %s"), login_context);
- 		}
--		free(seuser);
--		free(level);
- 	}
-+#else
-+	(void)con;
- #endif
-+
- 	execl(su_shell, shell, (char *)NULL);
- 	warn(_("failed to execute %s"), su_shell);
- 
-@@ -866,6 +944,30 @@ static void sushell(struct passwd *pwd)
- 	warn(_("failed to execute %s"), "/bin/sh");
- }
- 
-+#ifdef HAVE_LIBSELINUX
-+static void tcreset_selinux(struct list_head *consoles) {
-+	struct list_head *ptr;
-+	struct console *con;
-+
-+	if (is_selinux_enabled_cached() == 0)
-+		return;
-+
-+	list_for_each(ptr, consoles) {
-+		con = list_entry(ptr, struct console, entry);
-+
-+		if (con->fd < 0)
-+			continue;
-+		if (!con->reset_tty_context)
-+			continue;
-+		if (fsetfilecon(con->fd, con->reset_tty_context) == -1)
-+			warn(_("failed to reset context to %s for terminal %s"), con->reset_tty_context, con->tty);
-+
-+		freecon(con->reset_tty_context);
-+		con->reset_tty_context = NULL;
-+	}
-+}
-+#endif
-+
- static void usage(void)
- {
- 	FILE *out = stdout;
-@@ -1015,6 +1117,10 @@ int main(int argc, char **argv)
- 		return EXIT_FAILURE;
- 	}
- 
-+#ifdef HAVE_LIBSELINUX
-+	compute_login_context();
-+#endif
-+
- 	/*
- 	 * Ask for the password on the consoles.
- 	 */
-@@ -1034,9 +1140,18 @@ int main(int argc, char **argv)
- 	}
- 	ptr = (&consoles)->next;
- 
--	if (ptr->next == &consoles) {
--		con = list_entry(ptr, struct console, entry);
--		goto nofork;
-+#ifdef HAVE_LIBSELINUX
-+	/*
-+	 * Always fork with SELinux enabled, so the parent can restore the
-+	 * terminal context afterwards.
-+	 */
-+	if (is_selinux_enabled_cached() == 0)
-+#endif
-+	{
-+		if (ptr->next == &consoles) {
-+			con = list_entry(ptr, struct console, entry);
-+			goto nofork;
-+		}
- 	}
- 
- 
-@@ -1087,7 +1202,7 @@ int main(int argc, char **argv)
- #endif
- 				if (doshell) {
- 					/* sushell() unmask signals */
--					sushell(pwd);
-+					sushell(pwd, con);
- 
- 					mask_signal(SIGQUIT, SIG_IGN, &saved_sigquit);
- 					mask_signal(SIGTSTP, SIG_IGN, &saved_sigtstp);
-@@ -1193,5 +1308,10 @@ int main(int argc, char **argv)
- 	} while (1);
- 
- 	mask_signal(SIGCHLD, SIG_DFL, NULL);
-+
-+#ifdef HAVE_LIBSELINUX
-+	tcreset_selinux(&consoles);
-+#endif
-+
- 	return EXIT_SUCCESS;
- }
--- 
-2.43.0
-
+>
+> Thanks
+>
+> Roberto
+>
+>>      return inode->i_security + integrity_blob_sizes.lbs_inode;
+>>    }
+>>
+>> -- 
+>> paul-moore.com
+>
+>
