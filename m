@@ -1,151 +1,224 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Q2GcCXjA"
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A6B1F2
-	for <selinux@vger.kernel.org>; Wed, 13 Dec 2023 10:08:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702490930; bh=Nwz1uIbomBE991r6kFnI9Xx0i9y6GbKeBjvJtumt8iE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Q2GcCXjATEzjSTSYXHKbXeurOv5yespsSz0ml7JCsSLZqxVHAfvFb/s9tzIt1evnQhz4XLu9bqJKAIA0uPqHtwBjEm4XnLk+vTgaltgUQOZV9b1W/MFTK19WwGySEVVSWxIinyGwjgcfn6rt6N1Prk04cDhYw59eTJ+j6WHqWYBW89gv9guNPRowISjp1KdTZK0yQQSOaN/ST6QuKOTUrS+dNe9wV9evHwRGEg8E3f/cnG21gzKQW1iFofjp2sNHQcon30MXNzf0cSDA0rRHmMleNNc8aVqghAMr5Wu1H7beuwg8EOVCRgGJTca1PQes/0qpj5l4+dRgEZVJr8Dd4w==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702490930; bh=+/TJOZ6srOEMVvhuufXWRh0/msMyFtSymbS2RoNkwdQ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=jb4TkrgIre+9ji4ewfMOvSl6OLiXVlIvDGCY4riHNE4MLKe9WNidkohEECUqi1Rj+Qb7ja4JfB+hQ40ROlFPoA8fvGkDMunhCHbDlqECIZqe8GSDuIRk7aiiUJr2lt24Ildhu6cfPmlG0xQaFKoBMU3d1eMhl4YbkeyYMarx51p/X154GQeYIUS0UYFGJ+itQukr9ZuIj9wSZwquwUhkkX57Z9zxapwJlT+CIq8zumYoL2AVtUI3C1OzYhHb+LO0BJUpi3iWPmjDvOtpwb+3RD3MejxooCgKRi5LKD51T+cIJGSdIazwoWLEXkSYTvyEk50NXe1ZWWeUO/rQULHZCg==
-X-YMail-OSG: ZY4uPfkVM1nL9XI0hibln_9cRAXR4K6ZlsvOdVR.ZIvGnWPklpsBsrntt6L3vuB
- 8VdYwHE9wV80Ll.nAtMpE0Dt8RTxtsJz3u1gWV4nsZUCwDRbJ8VkqeK9UWIeymWBXAu21aTTGAJG
- HT9hrQzNG4o0l0UTVb.HTb0EwxJ4ZoiWPfp.f9sXgrqtH_HPR.gPo8EQhfUG.moEDU299IyzYYt7
- H2VJ4gba07t4nhBg0hwMpeCMVVdYbSiF.b5JQtZ341VBE3Z_RClBvv03hzVGL5RPVg28ocD1tWZW
- qV8QkvM_DGUEgGH_7Ru7FhHBx6iH3dMwRvMjgsT12JGT5Liqqn2OkcxAOYm9eZ3ICnq4iC2WNqBE
- hjX1EwtFmRbH4wjQ7dtex2xphhuRPR8DrwR2167If94s7MNdj7LDf0.H3FXWsVdWHkKf.Gv0vYWu
- xhBt1kDDUTKBzbW0AAU4BylURMOtonvV1VLwhckz7CgtpkZ.7vdoMoCweN2aGa5lXotaRyseo8lC
- EdfNFXhOSOuckRGSrm6L9QixTrvg.48xgMjI1T_csZMPenPYNwuMI_TOZNvDCFzPjQ4vEl76fYuB
- CAgxOAvU80M8uHZQnLrXsGiLBUaANszyXIhM5zAlHQPVG8IBAJkKmqSR5Riy41WNhLHrMx1AxhaX
- c3WAjD.XYT_2sOD6re0MlrPH_3bI01ZyQFUtulQHTy2u7.odLifj3hGDEbJU.5Z._j7_qV9Nz6eF
- ijaFLsqsGe7Kwr0gXj1X20O1o5bkWa7rvy7rd9LFu2L_mrWOzJ.Mf6YQMdN5Tex7wFvZplvRQGTZ
- d7hRb9arVcB.ijSL4IIGKv5UBUmqej2Iz.LmKZFGPDMMcqRRK_Z8a01tIDb0ZHeDR4jTjtin.xqH
- zh_3sjv4rQ.rLL65jKk5YpQyZDSVRedQ8wrpFPuuQuFddHIunKuZoIHNTYHmDDnffbHzMgfzE6p2
- 0csSu.Y_21KcZjcvn9ECmQgvLobMz3Vud_qM_6s0yeOaw4nhTx9oy6UvZyRB.IG8aMuypMWYgVcs
- N13p6zGyc1pQK8XkxkXktpfNMU2.T6pu7bjZAIdFSXRAb3UFmmonKUr2PNf1I76HPdEKP.oRMCwC
- 7_kaH1kaQwi2d.P1uP0hoAAERtrJ_O6XN.85qafgWLRls_CRTlzNKNlzBRIE.GvDvFRe_njUnjAJ
- pof3DD3hOddOtKXQ721C59YmpyIetqf7dtAKPVAXhx6_dMur6n.PdX0AQzxFDlALEpKFdMIuIXsB
- 70lDIeAeUc.FDPFUL3F8tTR6EeYSEkVzhU3O0uBm1JFolTLTa16FiY87G70txBJjXU0HZidBxBht
- fzSugNDamX5gnlKPmb6zJeNBJWStv.j0GMv64EluNPOCWeVcH3cVTHAT1dFrDB7oXblC3Rum8j4v
- s7uHPuWZVY5OIehsAUS1Mrwj1xjXM.uTX8klNWSSxeJn.4pJgNHCrdw2xp5fhN2jrWMTNTxGCVVB
- YSyNVzm4wtWxaPLpUIclAPQ_Hur5.u3GQFVi9p4pKKM.8F12uF_sn166dxANn5LSuyF7LaCBEgPZ
- nuFUb5a0XV5QzqAt29KHaKpzJaHr54l5N2_V_7ZPiXVOnr5BzGOGGi.EwGm4.V.UKEFkC.an4kpS
- EwODjE3lu19jis0IwGrSZpQ_XP_H2oBdKNc1.XyNjfkKPduWiJOSGiixgDWenRKYnamM8kShG6YS
- qJvWikUacPnSTDzcwrUZaapwLMSlSBAXcQ6zXPwO1zrl7fjGsJga3hQMCh9HTvGNRmTuEr6LNeY_
- IO_eMH4VxsDi42uBI1W.33c6A4Kj1ZlwEfTC0V3yQeEKpYI4PNtMI3bI66EgCiawKiIffAXwauNe
- gV8B1JA9dIA6O9aSaWqCP9U9bnNn4JN1bKtAqdxn95NMCSPOeXSOofRUOsISQkz9ad_g3.tBd0V.
- 0JMpxvAN1olw2ZGSJWD4dVLRA2whVdwpIIxRisbaRSPB5bLiD2YtFx68SxJKwh8m8mf8ujQh5Y19
- HW0..VY6s2cZSXBnXqIRLzXcdZHD1vT_gGAG5h9ZadaHnCUMcRhVNjerK_UP7kIDDeruOMTHFNKO
- 17_iZeBREEot_D7mQh9g4RlApRvP6J0._dhqqVyBD4IjGrRsF0RqQe63FOe4dl1cOaME5zwmdNvd
- LF6_A9TI9WOEHe7Tp_96mVtICBAGWoIOCVf3QqJ1qhrL50oadzN.9BMhtjt0WfskACGhiyemIPKc
- 9qYreb0Lox2deMagqPuimHpY.9QOIyLBhw6nh1VyM_8MLPcf2OszolI2.YWdN
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 0351f85c-4cc1-41cd-b475-55877dfed226
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Dec 2023 18:08:50 +0000
-Received: by hermes--production-gq1-6949d6d8f9-k52jv (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 83a3aff6f9fe93ecbddc221ed9cc56f5;
-          Wed, 13 Dec 2023 18:08:48 +0000 (UTC)
-Message-ID: <9dc633d8-65a7-4b97-ab98-a21ada1d4ea5@schaufler-ca.com>
-Date: Wed, 13 Dec 2023 10:08:48 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VJEZ2/vx"
+Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C06135;
+	Thu, 14 Dec 2023 02:55:07 -0800 (PST)
+Received: by mail-il1-x12f.google.com with SMTP id e9e14a558f8ab-35f761ef078so5506535ab.2;
+        Thu, 14 Dec 2023 02:55:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1702551306; x=1703156106; darn=vger.kernel.org;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=w3ZNilpy3qZ2+L977W0bZZ4Uoj1rm+EIz9k16UCS2kM=;
+        b=VJEZ2/vxP6eTwrmPdDOaDT993XsaKUXugJUQMdidERwz5jps/qljtb6wbz8QyKFGDo
+         /y6ShOxUyw1slzVsBSFq8OCQOaMBTSNTPCS662WyHw5jSfJ9lyzU0ne1cQPTScxfedDn
+         8QpdAtvV8JgsT1NA516aUUzBKlJnuBGoSo4hPrT4HAQzf10rUsQ0ZBW1Z+qFtItkdh/r
+         j9XO94PT9sTVJFg5iOt98eOZbcxSZ71nYYp6yiodlWrRE8EtI49gpNWeZi4u4ZHkPaJo
+         cysn+7BwAOq7C+jbpZ1/PJxgzcnLpV0+iaLQYQdqOvg02a/D5wWMDT4DfZDwYkaUwdD6
+         fX0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702551306; x=1703156106;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=w3ZNilpy3qZ2+L977W0bZZ4Uoj1rm+EIz9k16UCS2kM=;
+        b=ISakdzfBCTWVT1Adj9O6Zku5J3CCHnPUaZ/1/Kx9o9/serUGNy9wYZUYCtezixFRU4
+         /dC2RJKO0e65DLKV8qGtI+xphGx4UqUJ+d8s49PNZZG6NeTb4je0GDjIuOli/Kqcs5it
+         oBjjfHwE5zIZuDEp7FzdU0hlpcv9oj6cXHX3VgTf9v9UItcKXcy6T8mgeg4nGth0Qsct
+         WE0gejuu8/9R0nl/iaNJQNrZLbdrtd3tBD4J1P6ufsjRALEXvdykETGLoAzwFQ0ONAkx
+         AZqemz8dLKfloWgoCeauLnB2GDi61OUUMfz96lCI4O7BYBTjDTfte50wZQpeA6u8oVpa
+         26Xw==
+X-Gm-Message-State: AOJu0Yyt5K4/NlcNqKtFniu9K6abSJLFm1oTY7KqgzsFcfLs7+T93xKq
+	o3icaIB/prxuf3J5I3voe3o=
+X-Google-Smtp-Source: AGHT+IH0L83LZBzlc1m00CwO9ZKzNgGcCdFcIb+HE2lidtSB3uGhCCP4kPqcsEZlAZ1OA+4Hd/ht4A==
+X-Received: by 2002:a05:6e02:164a:b0:35f:77a9:9cd4 with SMTP id v10-20020a056e02164a00b0035f77a99cd4mr2796467ilu.41.1702551306403;
+        Thu, 14 Dec 2023 02:55:06 -0800 (PST)
+Received: from archie.me ([103.131.18.64])
+        by smtp.gmail.com with ESMTPSA id o1-20020a170902d4c100b001cfcd4eca11sm12100650plg.114.2023.12.14.02.55.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Dec 2023 02:55:05 -0800 (PST)
+Received: by archie.me (Postfix, from userid 1000)
+	id 9BB5C102057E2; Thu, 14 Dec 2023 17:55:01 +0700 (WIB)
+Date: Thu, 14 Dec 2023 17:55:01 +0700
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: SELinux Mailing List <selinux@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>,
+	Paul Moore <paul@paul-moore.com>,
+	David Hildenbrand <david@redhat.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Eric Paris <eparis@parisplace.org>,
+	Ilija Tovilo <ilija.tovilo@me.com>
+Subject: Fwd: SELinux mprotect EACCES/execheap for memory segment directly
+ adjacent to heap
+Message-ID: <ZXrfBYLGiNXDKkJa@archie.me>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 23/23] integrity: Switch from rbtree to LSM-managed
- blob for integrity_iint_cache
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>,
- Paul Moore <paul@paul-moore.com>, viro@zeniv.linux.org.uk,
- brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
- neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
- jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com,
- dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
- stephen.smalley.work@gmail.com, eparis@parisplace.org, mic@digikod.net
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
- selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20231107134012.682009-24-roberto.sassu@huaweicloud.com>
- <17befa132379d37977fc854a8af25f6d.paul@paul-moore.com>
- <7c226242-2eda-41cd-9be8-c2c010f3fc49@huaweicloud.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <7c226242-2eda-41cd-9be8-c2c010f3fc49@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.21952 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="wAU0P7pifLBq4JoJ"
+Content-Disposition: inline
 
-On 12/13/2023 2:45 AM, Roberto Sassu wrote:
-> On 17.11.23 21:57, Paul Moore wrote:
->> On Nov  7, 2023 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
->>>
->>> ...
->>>
->>> diff --git a/security/integrity/iint.c b/security/integrity/iint.c
->>> index 882fde2a2607..a5edd3c70784 100644
->>> --- a/security/integrity/iint.c
->>> +++ b/security/integrity/iint.c
->>> @@ -231,6 +175,10 @@ static int __init integrity_lsm_init(void)
->>>       return 0;
->>>   }
->>>   +struct lsm_blob_sizes integrity_blob_sizes __ro_after_init = {
->>> +    .lbs_inode = sizeof(struct integrity_iint_cache *),
->>> +};
->>
->> I'll admit that I'm likely missing an important detail, but is there
->> a reason why you couldn't stash the integrity_iint_cache struct
->> directly in the inode's security blob instead of the pointer?  For
->> example:
->>
->>    struct lsm_blob_sizes ... = {
->>      .lbs_inode = sizeof(struct integrity_iint_cache),
->>    };
->>
->>    struct integrity_iint_cache *integrity_inode_get(inode)
->>    {
->>      if (unlikely(!inode->isecurity))
->>        return NULL;
->
-> Ok, this caught my attention...
->
-> I see that selinux_inode() has it, but smack_inode() doesn't.
->
-> Some Smack code assumes that the inode security blob is always non-NULL:
->
-> static void init_inode_smack(struct inode *inode, struct smack_known
-> *skp)
+
+--wAU0P7pifLBq4JoJ
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi all,
+
+I forward a Bugzilla report [1]. As you may know, many developers don't
+take a look on Bugzilla (especially linux-kernel@kernel-bugs.kernel.org
+as no one subscribes to the generic component).
+
+The original reporter (Ilija Tovilo) writes:
+
+> Hi! We're running into an issue with SELinux where mprotect will result i=
+n a EACCES due to the execheap policy since Kernel 6.6. This happens when t=
+he mmap-ed segment lies directly adjacent to the heap. I think this is caus=
+ed by the following patch:
+>=20
+> https://github.com/torvalds/linux/commit/68df1baf158fddc07b6f0333e4c81fe1=
+ccecd6ff
+>=20
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index d06e350fedee5f..ee8575540a8efc 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3762,13 +3762,10 @@ static int selinux_file_mprotect(struct vm_area_s=
+truct *vma,
+>  	if (default_noexec &&
+>  	    (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+>  		int rc =3D 0;
+> -		if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+> -		    vma->vm_end <=3D vma->vm_mm->brk) {
+> +		if (vma_is_initial_heap(vma)) {
+>  			rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>  					  PROCESS__EXECHEAP, NULL);
+> -		} else if (!vma->vm_file &&
+> -			   ((vma->vm_start <=3D vma->vm_mm->start_stack &&
+> -			     vma->vm_end >=3D vma->vm_mm->start_stack) ||
+> +		} else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
+>  			    vma_is_stack_for_current(vma))) {
+>  			rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>  					  PROCESS__EXECSTACK, NULL);
+>=20
+> Before this patch, selinux_file_mprotect would check whether the original=
+ start_brk and brk values lied within the vma segment. However, this does n=
+ot match the vma_is_initial_heap implementation.
+>=20
+> static inline bool vma_is_initial_heap(const struct vm_area_struct *vma)
 > {
->     struct inode_smack *isp = smack_inode(inode);
->
->     isp->smk_inode = skp;
->     isp->smk_flags = 0;
+>        return vma->vm_start <=3D vma->vm_mm->brk &&
+> 		vma->vm_end >=3D vma->vm_mm->start_brk;
 > }
->
->
-> Is that intended? Should I add the check?
+>=20
+> This function checks whether vma overlaps with start_brk/brk. However, si=
+nce the comparison includes equality this will also yield true if the segme=
+nt lies directly before or after the heap. It's possible that equality is h=
+andling cases where start_brk =3D=3D brk and start_brk =3D=3D vm_start, but=
+ I'm not sure. In that case, the following patch might work.
+>=20
+> static inline bool vma_is_initial_heap(const struct vm_area_struct *vma)
+> {
+>        return (vma->vm_start < vma->vm_mm->brk && vma->vm_end > vma->vm_m=
+m->start_brk)
+> 		|| vma->vm_start =3D=3D vma->vm_mm->start_brk;
+> }
 
-Unless there's a case where inodes are created without calling
-security_inode_alloc() there should never be an inode without a
-security blob by the time you get to the Smack hook. That said,
-people seem inclined to take all sorts of shortcuts and create
-various "inodes" that aren't really inodes. I also see that SELinux
-doesn't check the blob for cred or file structures. And that I
-wrote the code in both cases.
+Then he gives bug reproducers:
 
-Based on lack of bug reports for Smack on inodes and SELinux on
-creds or files, It appears that the check is unnecessary. On the
-other hand, it sure looks like good error detection hygiene. I
-would be inclined to include the check in new code, but not get
-in a panic about existing code.
+> Here's a small reproducer, which may be of help:
+>=20
+> int main(void)
+> {
+> 	const size_t size =3D 2 * 1024 * 1024;
+> 	void *brk =3D sbrk(0);
+> 	void *mem =3D mmap(brk, size, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONY=
+MOUS|MAP_FIXED, -1, 0);
+> 	if (mem =3D=3D MAP_FAILED) {
+> 		fprintf(stderr, "Address %p wasn't free, try again.\n", brk);
+> 		exit(1);
+> 	}
+> 	if (mprotect(mem, size, PROT_READ|PROT_EXEC) =3D=3D -1) {
+> 		fprintf(stderr, "mprotect() failed [%d] %s\n", errno, strerror(errno));
+> 		exit(1);
+> 	}
+> 	munmap(mem, size);
+> }
+>=20
+> Results in:
+>=20
+> mprotect() failed [13] Permission denied
+>=20
+> Adding some padding between the heap using `void *brk =3D sbrk(0) + size;=
+` solves the problem.
+>
+=20
+> For completion, the inverse also fails, as expected.
+>=20
+> #include <stdint.h>
+> #include <sys/mman.h>
+> #include <unistd.h>
+> #include <stdio.h>
+> #include <stdlib.h>
+> #include <errno.h>
+> #include <string.h>
+>=20
+> static void *find_start_brk(void)
+> {
+> 	uintptr_t start, end;
+> 	FILE *f;
+> 	char buffer[4096];
+> 	f =3D fopen("/proc/self/maps", "r");
+> 	while (fgets(buffer, 4096, f) && sscanf(buffer, "%lx-%lx", &start, &end)=
+ =3D=3D 2) {
+> 		if (strstr(buffer, "[heap]") !=3D NULL) {
+> 			return (void *)start;
+> 		}
+> 	}
+> 	fclose(f);
+>=20
+> 	return 0;
+> }
+>=20
+> int main(void)
+> {
+> 	const size_t size =3D 2 * 1024 * 1024;
+> 	void *start_brk =3D find_start_brk();
+> 	void *mem =3D mmap(start_brk - size, size, PROT_READ|PROT_WRITE, MAP_SHA=
+RED|MAP_ANONYMOUS|MAP_FIXED, -1, 0);
+> 	if (mem =3D=3D MAP_FAILED) {
+> 		fprintf(stderr, "Address %p wasn't free, try again.\n", brk);
+> 		exit(1);
+> 	}
+> 	if (mprotect(mem, size, PROT_READ|PROT_EXEC) =3D=3D -1) {
+> 		fprintf(stderr, "mprotect() failed [%d] %s\n", errno, strerror(errno));
+> 		exit(1);
+> 	}
+> 	munmap(mem, size);
+> }
 
->
-> Thanks
->
-> Roberto
->
->>      return inode->i_security + integrity_blob_sizes.lbs_inode;
->>    }
->>
->> -- 
->> paul-moore.com
->
->
+Thanks.
+
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=3D218258
+
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--wAU0P7pifLBq4JoJ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZXre/gAKCRD2uYlJVVFO
+oxEhAP9Kr/Z7UmqksA5rmebMV7HJVztmqoOBwzpBm2TSypAbrgEAnTJ1pJ3h/Psa
+AWTqOiH62l81q3kdX3sKmEH8qsopZAg=
+=iO6X
+-----END PGP SIGNATURE-----
+
+--wAU0P7pifLBq4JoJ--
