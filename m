@@ -1,414 +1,190 @@
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F39ED54;
-	Thu, 14 Dec 2023 09:16:44 -0800 (PST)
-Received: from mail.maildlp.com (unknown [172.18.186.29])
-	by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4SrdqY5mYQz9v7c2;
-	Fri, 15 Dec 2023 00:59:21 +0800 (CST)
-Received: from mail02.huawei.com (unknown [7.182.16.27])
-	by mail.maildlp.com (Postfix) with ESMTP id 302D4140803;
-	Fri, 15 Dec 2023 01:16:32 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.204.63.22])
-	by APP2 (Coremail) with SMTP id GxC2BwCnpV8uOHtlU7aDAg--.53464S6;
-	Thu, 14 Dec 2023 18:16:31 +0100 (CET)
-From: Roberto Sassu <roberto.sassu@huaweicloud.com>
-To: viro@zeniv.linux.org.uk,
-	brauner@kernel.org,
-	chuck.lever@oracle.com,
-	jlayton@kernel.org,
-	neilb@suse.de,
-	kolga@netapp.com,
-	Dai.Ngo@oracle.com,
-	tom@talpey.com,
-	paul@paul-moore.com,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	zohar@linux.ibm.com,
-	dmitry.kasatkin@gmail.com,
-	dhowells@redhat.com,
-	jarkko@kernel.org,
-	stephen.smalley.work@gmail.com,
-	eparis@parisplace.org,
-	casey@schaufler-ca.com,
-	shuah@kernel.org,
-	mic@digikod.net
-Cc: linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-integrity@vger.kernel.org,
-	keyrings@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	Roberto Sassu <roberto.sassu@huawei.com>
-Subject: [PATCH v8 24/24] integrity: Remove LSM
-Date: Thu, 14 Dec 2023 18:08:34 +0100
-Message-Id: <20231214170834.3324559-25-roberto.sassu@huaweicloud.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20231214170834.3324559-1-roberto.sassu@huaweicloud.com>
-References: <20231214170834.3324559-1-roberto.sassu@huaweicloud.com>
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com (sonic316-27.consmr.mail.ne1.yahoo.com [66.163.187.153])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 585F549F60
+	for <selinux@vger.kernel.org>; Fri, 15 Dec 2023 21:05:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Ht8Sm7ng"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702674338; bh=h6AWNHWJC/UC96v1b1QJxTRjmX7Dyfl7dMUYyHD71gM=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Ht8Sm7ngRGuDTpCUHdn6g5M8qokPmwa1SBwMuaysjZYsBDadGj4Sud+ie280xJAxXinfLOn2X1ib8qbJBkBq15DylOYVeEoZcJh3HJlRfS/jHwYBPNqnD/Rn8D8EFQKj6tOfbTYgeUQfFSqNH9d6Cuv3ovR5GqhBsUeqB8r134exTRZTi7DTO73ezdnrpVODNanVNixQw91rgbnTYSCoMyY2AjlEA/yyKhGwb3a78cgRK8QpEcAFX0B62ZLG2TfF4Pd8dLjIan96ezogv57rEu3FpUi9MiKTcfrl3v5sbmeJKYrxQ4hDgJQ1QRJBwKRVE/0G+Q8GqoC0/+l8SJvDVg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1702674338; bh=EUlOt7OQHRMUT+KZVBTz5PbUFR9CBQ+04YtOrI3iqOa=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=WjSpuUWijAhF0fDDuyvnVDWxvf2uTSrUKyfQhiw0r7x8AwDcQqoIHxGNi87OePA4hC7pu0Drj7fS3CxzlxlgBvy3jWI/l60PUt9qOH7kbAW0xdXKq0T/sz5XJCQKtV9h9lPWKHiqStUyZf5YQd2065+QBvSb8pRYTdoI7r5SZ077kO9a37sWsmN1QheuVMqGKflhLtUuIWFw5x8l9LdtBvZz0xlYpoyr/rCJWrlQ8021R/9XhVA893bvJZeIG0RnvEZXf5dfGbbN/oe3S22NG7s2lVs9vadkeNqbe+PyrLqhjJRSC4cKDvSpkQdVFN1VoujOwqe8YiDunj9cEFSRgg==
+X-YMail-OSG: 4YnanhgVM1mIt78sweK4QLBPomWSnrgMyiiyMf8yn97zT5Lb_1X6Z_T9DbzQj83
+ Ihcq91pwrI3Yrp7AJjzT_NS3rsPT0w_whOuzouvb0QkeFIL9chowJ9puN8vyr7KcppdyWF5ASgp3
+ akkxc0d7AVB7nccM.LJkySDy3_tjoLhnw5mPYR55Hoor5rZgTBEZrzT7T7BezoZy7rR864o82zK3
+ mtIVo0qZJ2fNmZ9rXK0RS49rT0BkHdbRGzirarSTh_YXsC8uYjPioL5AnK4qfJ8LsMPO5boHAo3o
+ 364QxyZiO6wnCwVn7kaL8IumWq58.9Z9n.SvbAkEAbo5LMB83p2EMwhZyLx9a8ri63gZHoXPnhTs
+ pFYUvUQBweBW8ZV_sOMH_EEysyLV9KhqcCyR_6OoUjSmj6C1irdlUDn7qzg1HNQ74RhjBmBIP6HJ
+ yWDRB0uU5rxBGkllNh3wbO9YqZfkI.PfyftBB.NmePSRA0X.U6ayoF3r1ddMhXOkJVK6NfEkVjX0
+ l2r1c7XxLA3nes8bQluLafy_cZ7Njxug9CBNguubL9ylPHiebxs7KRUmmOloAPCwT5yGARufFpQR
+ jrEZogQUJicAvRA1OdxkEHu_yNjPOs7GL_zuofC6h7Dt50PWRDonu8jK9oVRnWvFaWwTKQSroyNn
+ _nXTQHPkRJ_DIoNOfGjkO3PnhwBYvQC.fTH2lJ0nYJd53bf3R1SthoPjjcHDw8NJDxa9mTUYuhYx
+ ETXjNlmvV.zM049MOfFK8.hq21SMGfyWmYHTZaJ9bVZGex91NGvg7fQxjLg6dnZhOOChopVCnx6w
+ KRhdvZcxZzrcaDh.zsxNt5rDhRN.7.HnUmkcp44mxKMW5KDrYIzGUL5AtWaCovxXYrVA0xR9.Hh3
+ W_0plDNW43xXqtB927A9Rdqwl54UjaIPyX8yz5lQMImijEB1fxUw_gMOC_9WRWZ8phRU_.CNiPr2
+ lsHeG28WUl6Kb2S9i0JFo3XP1elEIi1uJiQLMCOZZK35UizAFcm.W3qupGT324XOXU82MLs3eANb
+ S_QEMw6I_eNX.GTgtfURkAlJFeMokjIyV6J7GTMoXch3H5Y.XpC6KHZCbDoFlwbuju5L2y5Nqgjz
+ S3pMB3Q.yZ.r.PMISXONAFlPV7KrFdPvGkyLB0qDT_gBFojBGu3hO1GY1lrBBGn5P8QHXkI2lMOZ
+ LeAJ.31.mnNLlvi6PYwAQa7w.CMEfF5v3oDTd6hXzwTkdXzE.UeuDDrMgYzypdWCKRhmVCWrFTTa
+ gl7YQpS7Fj9OntklKU6nluP2J7ASjcpEGhT7fHy6Z3DsCbDnKF7NmDSR0cBRw2Q6NLmNHwlv9QuT
+ 3I.8o1J4diCKR7kcF9hyjgcaMIg4cxf3IIgjJr5XK.6Fo40q3C70.4cVRLzop8rcwjyuZ4DmQULB
+ x0_SPFWM3IpwyHNiNicBbrywpCO1cg2LnVtCCQd2UNaDolLI3ItidG7ojuQB8c9HMmL5fAeJqCIK
+ 5OatDwWrNmNMk69YqCBrrs6V3EZF9bmCbCYr7tsbAvYG24hOqUr8xIQVY5ChysWuNgBkEheHevIp
+ Qdi0ova9924WWFlvyrwmYT0X9Q3HQjGVZHWlKNRMuCZA57BC2s92DzEmmERI1okI_JKrsKnf1oG4
+ Xv0WpckXDCPrd6zLqCVAinEiHhBGqYKgMmTILf_yxaF_03KhW2bk2J7IzUxydDNBrYByEl5BqgSr
+ SiebyFhl1nKrljqXq5nAuQ8ZqLdVH.o1zEd7WrMjMsPQsQWJQ2Ef02owsA87pzsIahu6N.RDmTFA
+ kzxokEhEKZ7DhLzncHlV1PRyC7wZ9w9_eu2pnX9Ty9oRwBoREv3VNAzNwEp7z8zIQD3xKBHLdPrF
+ eftjlG.lplp6byi_pw.Cw51c8AJlDXGEwNfxvt4V.MxWRpyyY21ugIT5utaOw4_gqUZ3DVJg1uvA
+ ExqWurPbfjvmWvtnH2CHRSVbXyBOLpsMyzd5N4B4f_2N_wAGDsFyeVfjDy6I24y1eavfUvaPMjea
+ pMETb8blI9q1iTOdHp_OxYa0JBgJfmkxUtxQFgR_wDZnQj3E8585I1Gh68uYyGAb4d1L7kvrQHLS
+ csPcKI9EUcvsLUDnG5o05dRtPSsX4RZj61iNmZHzdSnvWT2KJ5KaiBc67z1JT.i97Xvm8tEum9tR
+ B_qC24IdC0oxSOBv4WGDTtbKVzwlHkPL9vDjnJ87DqiHyqKZScKSw.LEFxcI4YutS_yGwEjtCEGX
+ sHIZmMqMCAHD7kif9lIWqFg9Q7Cs51VKhNcyI
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 4380ada8-d70d-4e4c-b8ec-d678c5b6a69a
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Fri, 15 Dec 2023 21:05:38 +0000
+Received: by hermes--production-gq1-6949d6d8f9-pmzmd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID de6033d21389d7246e7fe82deec412af;
+          Fri, 15 Dec 2023 21:05:34 +0000 (UTC)
+Message-ID: <a4493b56-503f-46c3-aa5f-400691b07367@schaufler-ca.com>
+Date: Fri, 15 Dec 2023 13:05:33 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:GxC2BwCnpV8uOHtlU7aDAg--.53464S6
-X-Coremail-Antispam: 1UD129KBjvJXoW3ZF43uFWxJw1fKr4xGF4kJFb_yoWDCF47pF
-	4UKayUJr4DAFW0kF4vyF15ur4fK34qgFWxW34Ykw1kAFyqvw1qqF4DAryj9F1rGrWFg34I
-	qrsxKr4UuF1Dt3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
-	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
-	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
-	AKxVWxJr0_GcWl84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAF
-	wI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7
-	xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Y
-	z7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2
-	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
-	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0x
-	vE2Ix0cI8IcVAFwI0_Xr0_Ar1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4UJVW0owCI42IY
-	6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aV
-	CY1x0267AKxVWxJr0_GcJvcSsGvfC2KfnxnUUI43ZEXa7IU1FfO7UUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQALBF1jj5enzAACsB
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v8 11/24] security: Introduce inode_post_removexattr hook
+To: Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk,
+ brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
+ neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
+ paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+ zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, dhowells@redhat.com,
+ jarkko@kernel.org, stephen.smalley.work@gmail.com, eparis@parisplace.org,
+ shuah@kernel.org, mic@digikod.net
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
+ selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ Roberto Sassu <roberto.sassu@huawei.com>,
+ Stefan Berger <stefanb@linux.ibm.com>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20231214170834.3324559-1-roberto.sassu@huaweicloud.com>
+ <20231214170834.3324559-12-roberto.sassu@huaweicloud.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20231214170834.3324559-12-roberto.sassu@huaweicloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.21952 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+On 12/14/2023 9:08 AM, Roberto Sassu wrote:
+> From: Roberto Sassu <roberto.sassu@huawei.com>
+>
+> In preparation for moving IMA and EVM to the LSM infrastructure, introduce
+> the inode_post_removexattr hook.
+>
+> At inode_removexattr hook, EVM verifies the file's existing HMAC value. At
+> inode_post_removexattr, EVM re-calculates the file's HMAC with the passed
+> xattr removed and other file metadata.
+>
+> Other LSMs could similarly take some action after successful xattr removal.
+>
+> The new hook cannot return an error and cannot cause the operation to be
+> reverted.
+>
+> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+> Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
-Since now IMA and EVM use their own integrity metadata, it is safe to
-remove the 'integrity' LSM, with its management of integrity metadata.
+Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
-Keep the iint.c file only for loading IMA and EVM keys at boot, and for
-creating the integrity directory in securityfs (we need to keep it for
-retrocompatibility reasons).
-
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
----
- include/linux/fs.h             |   2 -
- include/linux/integrity.h      |  14 ---
- security/integrity/iint.c      | 197 +--------------------------------
- security/integrity/integrity.h |  25 -----
- security/security.c            |   2 -
- 5 files changed, 2 insertions(+), 238 deletions(-)
-
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 98b7a7a8c42e..745c1faf6c5b 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2104,7 +2104,6 @@ struct super_operations {
- #define S_NOCMTIME	(1 << 7)  /* Do not update file c/mtime */
- #define S_SWAPFILE	(1 << 8)  /* Do not truncate: swapon got its bmaps */
- #define S_PRIVATE	(1 << 9)  /* Inode is fs-internal */
--#define S_IMA		(1 << 10) /* Inode has an associated IMA struct */
- #define S_AUTOMOUNT	(1 << 11) /* Automount/referral quasi-directory */
- #define S_NOSEC		(1 << 12) /* no suid or xattr security attributes */
- #ifdef CONFIG_FS_DAX
-@@ -2156,7 +2155,6 @@ static inline bool sb_rdonly(const struct super_block *sb) { return sb->s_flags
- #define IS_NOCMTIME(inode)	((inode)->i_flags & S_NOCMTIME)
- #define IS_SWAPFILE(inode)	((inode)->i_flags & S_SWAPFILE)
- #define IS_PRIVATE(inode)	((inode)->i_flags & S_PRIVATE)
--#define IS_IMA(inode)		((inode)->i_flags & S_IMA)
- #define IS_AUTOMOUNT(inode)	((inode)->i_flags & S_AUTOMOUNT)
- #define IS_NOSEC(inode)		((inode)->i_flags & S_NOSEC)
- #define IS_DAX(inode)		((inode)->i_flags & S_DAX)
-diff --git a/include/linux/integrity.h b/include/linux/integrity.h
-index ef0f63ef5ebc..459b79683783 100644
---- a/include/linux/integrity.h
-+++ b/include/linux/integrity.h
-@@ -19,24 +19,10 @@ enum integrity_status {
- 	INTEGRITY_UNKNOWN,
- };
- 
--/* List of EVM protected security xattrs */
- #ifdef CONFIG_INTEGRITY
--extern struct integrity_iint_cache *integrity_inode_get(struct inode *inode);
--extern void integrity_inode_free(struct inode *inode);
- extern void __init integrity_load_keys(void);
- 
- #else
--static inline struct integrity_iint_cache *
--				integrity_inode_get(struct inode *inode)
--{
--	return NULL;
--}
--
--static inline void integrity_inode_free(struct inode *inode)
--{
--	return;
--}
--
- static inline void integrity_load_keys(void)
- {
- }
-diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-index d4419a2a1e24..068ac6c2ae1e 100644
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -6,207 +6,14 @@
-  * Mimi Zohar <zohar@us.ibm.com>
-  *
-  * File: integrity_iint.c
-- *	- implements the integrity hooks: integrity_inode_alloc,
-- *	  integrity_inode_free
-- *	- cache integrity information associated with an inode
-- *	  using a rbtree tree.
-+ *	- initialize the integrity directory in securityfs
-+ *	- load IMA and EVM keys
-  */
--#include <linux/slab.h>
--#include <linux/init.h>
--#include <linux/spinlock.h>
--#include <linux/rbtree.h>
--#include <linux/file.h>
--#include <linux/uaccess.h>
- #include <linux/security.h>
--#include <linux/lsm_hooks.h>
- #include "integrity.h"
- 
--static struct rb_root integrity_iint_tree = RB_ROOT;
--static DEFINE_RWLOCK(integrity_iint_lock);
--static struct kmem_cache *iint_cache __ro_after_init;
--
- struct dentry *integrity_dir;
- 
--/*
-- * __integrity_iint_find - return the iint associated with an inode
-- */
--static struct integrity_iint_cache *__integrity_iint_find(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--	struct rb_node *n = integrity_iint_tree.rb_node;
--
--	while (n) {
--		iint = rb_entry(n, struct integrity_iint_cache, rb_node);
--
--		if (inode < iint->inode)
--			n = n->rb_left;
--		else if (inode > iint->inode)
--			n = n->rb_right;
--		else
--			return iint;
--	}
--
--	return NULL;
--}
--
--/*
-- * integrity_iint_find - return the iint associated with an inode
-- */
--struct integrity_iint_cache *integrity_iint_find(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--
--	if (!IS_IMA(inode))
--		return NULL;
--
--	read_lock(&integrity_iint_lock);
--	iint = __integrity_iint_find(inode);
--	read_unlock(&integrity_iint_lock);
--
--	return iint;
--}
--
--#define IMA_MAX_NESTING (FILESYSTEM_MAX_STACK_DEPTH+1)
--
--/*
-- * It is not clear that IMA should be nested at all, but as long is it measures
-- * files both on overlayfs and on underlying fs, we need to annotate the iint
-- * mutex to avoid lockdep false positives related to IMA + overlayfs.
-- * See ovl_lockdep_annotate_inode_mutex_key() for more details.
-- */
--static inline void iint_lockdep_annotate(struct integrity_iint_cache *iint,
--					 struct inode *inode)
--{
--#ifdef CONFIG_LOCKDEP
--	static struct lock_class_key iint_mutex_key[IMA_MAX_NESTING];
--
--	int depth = inode->i_sb->s_stack_depth;
--
--	if (WARN_ON_ONCE(depth < 0 || depth >= IMA_MAX_NESTING))
--		depth = 0;
--
--	lockdep_set_class(&iint->mutex, &iint_mutex_key[depth]);
--#endif
--}
--
--static void iint_init_always(struct integrity_iint_cache *iint,
--			     struct inode *inode)
--{
--	iint->ima_hash = NULL;
--	iint->version = 0;
--	iint->flags = 0UL;
--	iint->atomic_flags = 0UL;
--	iint->ima_file_status = INTEGRITY_UNKNOWN;
--	iint->ima_mmap_status = INTEGRITY_UNKNOWN;
--	iint->ima_bprm_status = INTEGRITY_UNKNOWN;
--	iint->ima_read_status = INTEGRITY_UNKNOWN;
--	iint->ima_creds_status = INTEGRITY_UNKNOWN;
--	iint->evm_status = INTEGRITY_UNKNOWN;
--	iint->measured_pcrs = 0;
--	mutex_init(&iint->mutex);
--	iint_lockdep_annotate(iint, inode);
--}
--
--static void iint_free(struct integrity_iint_cache *iint)
--{
--	kfree(iint->ima_hash);
--	mutex_destroy(&iint->mutex);
--	kmem_cache_free(iint_cache, iint);
--}
--
--/**
-- * integrity_inode_get - find or allocate an iint associated with an inode
-- * @inode: pointer to the inode
-- * @return: allocated iint
-- *
-- * Caller must lock i_mutex
-- */
--struct integrity_iint_cache *integrity_inode_get(struct inode *inode)
--{
--	struct rb_node **p;
--	struct rb_node *node, *parent = NULL;
--	struct integrity_iint_cache *iint, *test_iint;
--
--	iint = integrity_iint_find(inode);
--	if (iint)
--		return iint;
--
--	iint = kmem_cache_alloc(iint_cache, GFP_NOFS);
--	if (!iint)
--		return NULL;
--
--	iint_init_always(iint, inode);
--
--	write_lock(&integrity_iint_lock);
--
--	p = &integrity_iint_tree.rb_node;
--	while (*p) {
--		parent = *p;
--		test_iint = rb_entry(parent, struct integrity_iint_cache,
--				     rb_node);
--		if (inode < test_iint->inode) {
--			p = &(*p)->rb_left;
--		} else if (inode > test_iint->inode) {
--			p = &(*p)->rb_right;
--		} else {
--			write_unlock(&integrity_iint_lock);
--			kmem_cache_free(iint_cache, iint);
--			return test_iint;
--		}
--	}
--
--	iint->inode = inode;
--	node = &iint->rb_node;
--	inode->i_flags |= S_IMA;
--	rb_link_node(node, parent, p);
--	rb_insert_color(node, &integrity_iint_tree);
--
--	write_unlock(&integrity_iint_lock);
--	return iint;
--}
--
--/**
-- * integrity_inode_free - called on security_inode_free
-- * @inode: pointer to the inode
-- *
-- * Free the integrity information(iint) associated with an inode.
-- */
--void integrity_inode_free(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--
--	if (!IS_IMA(inode))
--		return;
--
--	write_lock(&integrity_iint_lock);
--	iint = __integrity_iint_find(inode);
--	rb_erase(&iint->rb_node, &integrity_iint_tree);
--	write_unlock(&integrity_iint_lock);
--
--	iint_free(iint);
--}
--
--static void iint_init_once(void *foo)
--{
--	struct integrity_iint_cache *iint = (struct integrity_iint_cache *) foo;
--
--	memset(iint, 0, sizeof(*iint));
--}
--
--static int __init integrity_iintcache_init(void)
--{
--	iint_cache =
--	    kmem_cache_create("iint_cache", sizeof(struct integrity_iint_cache),
--			      0, SLAB_PANIC, iint_init_once);
--	return 0;
--}
--DEFINE_LSM(integrity) = {
--	.name = "integrity",
--	.init = integrity_iintcache_init,
--	.order = LSM_ORDER_LAST,
--};
--
--
- /*
-  * integrity_kernel_read - read data from the file
-  *
-diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
-index 671fc50255f9..50d6f798e613 100644
---- a/security/integrity/integrity.h
-+++ b/security/integrity/integrity.h
-@@ -102,31 +102,6 @@ struct ima_file_id {
- 	__u8 hash[HASH_MAX_DIGESTSIZE];
- } __packed;
- 
--/* integrity data associated with an inode */
--struct integrity_iint_cache {
--	struct rb_node rb_node;	/* rooted in integrity_iint_tree */
--	struct mutex mutex;	/* protects: version, flags, digest */
--	struct inode *inode;	/* back pointer to inode in question */
--	u64 version;		/* track inode changes */
--	unsigned long flags;
--	unsigned long measured_pcrs;
--	unsigned long atomic_flags;
--	unsigned long real_ino;
--	dev_t real_dev;
--	enum integrity_status ima_file_status:4;
--	enum integrity_status ima_mmap_status:4;
--	enum integrity_status ima_bprm_status:4;
--	enum integrity_status ima_read_status:4;
--	enum integrity_status ima_creds_status:4;
--	enum integrity_status evm_status:4;
--	struct ima_digest_data *ima_hash;
--};
--
--/* rbtree tree calls to lookup, insert, delete
-- * integrity data associated with an inode.
-- */
--struct integrity_iint_cache *integrity_iint_find(struct inode *inode);
--
- int integrity_kernel_read(struct file *file, loff_t offset,
- 			  void *addr, unsigned long count);
- 
-diff --git a/security/security.c b/security/security.c
-index 7741d2d076c5..351a124b771c 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -19,7 +19,6 @@
- #include <linux/kernel.h>
- #include <linux/kernel_read_file.h>
- #include <linux/lsm_hooks.h>
--#include <linux/integrity.h>
- #include <linux/fsnotify.h>
- #include <linux/mman.h>
- #include <linux/mount.h>
-@@ -1597,7 +1596,6 @@ static void inode_free_by_rcu(struct rcu_head *head)
-  */
- void security_inode_free(struct inode *inode)
- {
--	integrity_inode_free(inode);
- 	call_void_hook(inode_free_security, inode);
- 	/*
- 	 * The inode may still be referenced in a path walk and
--- 
-2.34.1
-
+> ---
+>  fs/xattr.c                    |  9 +++++----
+>  include/linux/lsm_hook_defs.h |  2 ++
+>  include/linux/security.h      |  5 +++++
+>  security/security.c           | 14 ++++++++++++++
+>  4 files changed, 26 insertions(+), 4 deletions(-)
+>
+> diff --git a/fs/xattr.c b/fs/xattr.c
+> index 09d927603433..f891c260a971 100644
+> --- a/fs/xattr.c
+> +++ b/fs/xattr.c
+> @@ -552,11 +552,12 @@ __vfs_removexattr_locked(struct mnt_idmap *idmap,
+>  		goto out;
+>  
+>  	error = __vfs_removexattr(idmap, dentry, name);
+> +	if (error)
+> +		return error;
+>  
+> -	if (!error) {
+> -		fsnotify_xattr(dentry);
+> -		evm_inode_post_removexattr(dentry, name);
+> -	}
+> +	fsnotify_xattr(dentry);
+> +	security_inode_post_removexattr(dentry, name);
+> +	evm_inode_post_removexattr(dentry, name);
+>  
+>  out:
+>  	return error;
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+> index 091cddb4e6de..c3199bb69103 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -149,6 +149,8 @@ LSM_HOOK(int, 0, inode_getxattr, struct dentry *dentry, const char *name)
+>  LSM_HOOK(int, 0, inode_listxattr, struct dentry *dentry)
+>  LSM_HOOK(int, 0, inode_removexattr, struct mnt_idmap *idmap,
+>  	 struct dentry *dentry, const char *name)
+> +LSM_HOOK(void, LSM_RET_VOID, inode_post_removexattr, struct dentry *dentry,
+> +	 const char *name)
+>  LSM_HOOK(int, 0, inode_set_acl, struct mnt_idmap *idmap,
+>  	 struct dentry *dentry, const char *acl_name, struct posix_acl *kacl)
+>  LSM_HOOK(int, 0, inode_get_acl, struct mnt_idmap *idmap,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 664df46b22a9..922ea7709bae 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -380,6 +380,7 @@ int security_inode_getxattr(struct dentry *dentry, const char *name);
+>  int security_inode_listxattr(struct dentry *dentry);
+>  int security_inode_removexattr(struct mnt_idmap *idmap,
+>  			       struct dentry *dentry, const char *name);
+> +void security_inode_post_removexattr(struct dentry *dentry, const char *name);
+>  int security_inode_need_killpriv(struct dentry *dentry);
+>  int security_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
+>  int security_inode_getsecurity(struct mnt_idmap *idmap,
+> @@ -940,6 +941,10 @@ static inline int security_inode_removexattr(struct mnt_idmap *idmap,
+>  	return cap_inode_removexattr(idmap, dentry, name);
+>  }
+>  
+> +static inline void security_inode_post_removexattr(struct dentry *dentry,
+> +						   const char *name)
+> +{ }
+> +
+>  static inline int security_inode_need_killpriv(struct dentry *dentry)
+>  {
+>  	return cap_inode_need_killpriv(dentry);
+> diff --git a/security/security.c b/security/security.c
+> index ce3bc7642e18..8aa6e9f316dd 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2452,6 +2452,20 @@ int security_inode_removexattr(struct mnt_idmap *idmap,
+>  	return evm_inode_removexattr(idmap, dentry, name);
+>  }
+>  
+> +/**
+> + * security_inode_post_removexattr() - Update the inode after a removexattr op
+> + * @dentry: file
+> + * @name: xattr name
+> + *
+> + * Update the inode after a successful removexattr operation.
+> + */
+> +void security_inode_post_removexattr(struct dentry *dentry, const char *name)
+> +{
+> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> +		return;
+> +	call_void_hook(inode_post_removexattr, dentry, name);
+> +}
+> +
+>  /**
+>   * security_inode_need_killpriv() - Check if security_inode_killpriv() required
+>   * @dentry: associated dentry
