@@ -1,170 +1,264 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE44E12B61
-	for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 09:21:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3211E7EFC5
+	for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 12:43:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--alpic.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PhZay9RQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702891308;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=rZwDCgO8gEoCaElLjJ9XMxUFtV5ecpFh3LYKHxML9SI=;
-	b=PhZay9RQApgX6CEovX2M3y2meTZzpSJxIM6xXf/mw5wUuQzNdukC4/eAQj+xsbn/NJQE84
-	GSIcDjs+6Dt/gDIgCqJGmVcmXAUjIqFx4Aqp7t1Lpc4pSClLoRVrPgJM3DjL94DtROaqoC
-	ZbZLQkouJV7hEbk3lPeWL+qDlIWFS+U=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-423--yFZ_ISOOV-sMb4UZ24sbA-1; Mon, 18 Dec 2023 04:21:45 -0500
-X-MC-Unique: -yFZ_ISOOV-sMb4UZ24sbA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 859A485A58A;
-	Mon, 18 Dec 2023 09:21:44 +0000 (UTC)
-Received: from [10.39.208.26] (unknown [10.39.208.26])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 751C71121313;
-	Mon, 18 Dec 2023 09:21:40 +0000 (UTC)
-Message-ID: <b793a98c-dfde-4bf6-9057-6fa359cf4723@redhat.com>
-Date: Mon, 18 Dec 2023 10:21:38 +0100
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gglmYec9"
+Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-5e31a4a893bso34254827b3.1
+        for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 04:43:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1702903436; x=1703508236; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=SnWxA8lkTnP6794KoQ1RehtYycr6q6rCflxlfgb7k2M=;
+        b=gglmYec9omvD+nQgK6FSo5Ad1rPPV6dXrwNyXw+LjN+hLTYJIXau/617YamPWqcI42
+         AdeUav0I/ktkO42o7aMb4hK6fQNdCrf+JKzhYrPr8UUYan6yqfVY7zyARZRB2dudBh/u
+         PN+x5+JWKkWmqNd2cSeC1yhrx8s0S7MqzUC6wFUJIxVWDN0I3gkJVM/7pcxIguM6AEB/
+         VTPMBUe+Q6QBRwv9igCae7HqYEX2V/6ADFDZE81kAYmCUj9nrsKUmIJBcplurYHJ7kDV
+         /7CgPdtVtwMSS4X3VXspuXqfkHDTjBuRpxIPCyNCeyx3T58Q60r1dnzT/QJi4Mo6/Gk7
+         wvCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702903436; x=1703508236;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SnWxA8lkTnP6794KoQ1RehtYycr6q6rCflxlfgb7k2M=;
+        b=uUqC2E4EBoscuDDLcwOc0MjBSnGEKzes5vM8Yoz5hCUwNdAmDJIwJU7lukZXWqu1ye
+         wkDU2X6G+9zs6XWfeZL7Ju77NZCytYgojCnpH2QTeqq1g6uMh48QLGwpwkyYQxjyhfMk
+         8gMqI1Hi1rjM12EViH21xn09DLMXU48va4IjSuVW3K2tyiN19tEYZibV/HBm4H8Ej8w8
+         jmWub9ck4Zg/QU/zreQD9p9XX3X/5xlHsCYjN4ISugdJKWzpxcr+lgRrKNxgjR08UEL5
+         wY9jBVxccqsdiU9rW+5YbqnVBzj+UMxsuTt8tQSQaDbL+KVpguu7fkqwDBBWBh1de5bV
+         wQdw==
+X-Gm-Message-State: AOJu0YynN38idVDV1jaNgduwGjbSrwXkbfFKeLWCB3oCyzaWbcQtwbpJ
+	iYXCKknyJaEmbhO/u1mTQjcVvBjdZA==
+X-Google-Smtp-Source: AGHT+IGevKtw8rVm6Um9ZQIlJjJ6hmAdAMNjQH/Mm6/Whe39nb/b1rR8kS2aRNvGhj9+d1dBei22d2LfYg==
+X-Received: from alpic.c.googlers.com ([fda3:e722:ac3:cc00:28:9cb1:c0a8:1bf2])
+ (user=alpic job=sendgmr) by 2002:a05:6902:9:b0:db5:382f:3997 with SMTP id
+ l9-20020a056902000900b00db5382f3997mr1571712ybh.11.1702903436253; Mon, 18 Dec
+ 2023 04:43:56 -0800 (PST)
+Date: Mon, 18 Dec 2023 13:41:37 +0100
+In-Reply-To: <20230906102557.3432236-1-alpic@google.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/4] vduse: Temporarily disable control queue features
-Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
- jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-3-maxime.coquelin@redhat.com>
- <CACGkMEthp13a20TGashiFNDovK+b10mgfdX8L=3Xv05g5-eo0w@mail.gmail.com>
- <8afc44f7-cef5-4b4a-afac-85a4eb967d3e@redhat.com>
- <CACGkMEtNZyHDzo2e_N9SM9dw4CK8vpZHWBrk7TFFixD1T7cdjw@mail.gmail.com>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <CACGkMEtNZyHDzo2e_N9SM9dw4CK8vpZHWBrk7TFFixD1T7cdjw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
+Mime-Version: 1.0
+References: <20230906102557.3432236-1-alpic@google.com>
+X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
+Message-ID: <20231218124137.2476015-1-alpic@google.com>
+Subject: [PATCH] SELinux: Introduce security_file_ioctl_compat hook
+From: Alfred Piccioni <alpic@google.com>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Eric Paris <eparis@parisplace.org>
+Cc: stable@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Alfred Piccioni <alpic@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
+Some ioctl commands do not require ioctl permission, but are routed to
+other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
+done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
 
+However, if a 32-bit process is running on a 64-bit kernel, it emmits
+32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
+being checked erroneously, which leads to these ioctl operations being
+routed to the ioctl permission, rather than the correct file
+permissions.
 
-On 12/18/23 03:50, Jason Wang wrote:
-> On Wed, Dec 13, 2023 at 7:23 PM Maxime Coquelin
-> <maxime.coquelin@redhat.com> wrote:
->>
->> Hi Jason,
->>
->> On 12/13/23 05:52, Jason Wang wrote:
->>> On Tue, Dec 12, 2023 at 9:17 PM Maxime Coquelin
->>> <maxime.coquelin@redhat.com> wrote:
->>>>
->>>> Virtio-net driver control queue implementation is not safe
->>>> when used with VDUSE. If the VDUSE application does not
->>>> reply to control queue messages, it currently ends up
->>>> hanging the kernel thread sending this command.
->>>>
->>>> Some work is on-going to make the control queue
->>>> implementation robust with VDUSE. Until it is completed,
->>>> let's disable control virtqueue and features that depend on
->>>> it.
->>>>
->>>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
->>>
->>> I wonder if it's better to fail instead of a mask as a start.
->>
->> I think it is better to use a mask and not fail, so that we can in the
->> future use a recent VDUSE application with an older kernel.
-> 
-> It may confuse the userspace unless userspace can do post check after
-> CREATE_DEV.
-> 
-> And for blk we fail when WCE is set in feature_is_valid():
-> 
-> static bool features_is_valid(u64 features)
-> {
->          if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
->                  return false;
-> 
->          /* Now we only support read-only configuration space */
->          if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
->                  return false;
-> 
->          return true;
-> }
+This was also noted in a RED-PEN finding from a while back -
+"/* RED-PEN how should LSM module know it's handling 32bit? */".
 
-Ok, consistency with other devices types is indeed better.
+This patch introduces a new hook, security_file_ioctl_compat, that
+replaces security_file_ioctl if the CONFIG_COMPAT flag is on. All
+current LSMs have been changed to hook into the compat flag.
 
-But should I fail if any of the feature advertised by the application is
-not listed by the VDUSE driver, or just fail if control queue is being
-advertised by the application?
+Reviewing the three places where we are currently using
+security_file_ioctl, it appears that only SELinux needs a dedicated
+compat change; TOMOYO and SMACK appear to be functional without any
+change.
 
-Thanks,
-Maxime
+Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
+Signed-off-by: Alfred Piccioni <alpic@google.com>
+Cc: stable@vger.kernel.org
+---
+ fs/ioctl.c                    |  3 +--
+ fs/overlayfs/inode.c          |  4 ++++
+ include/linux/lsm_hook_defs.h |  2 ++
+ include/linux/security.h      |  7 +++++++
+ security/security.c           | 17 +++++++++++++++++
+ security/selinux/hooks.c      | 26 ++++++++++++++++++++++++++
+ security/smack/smack_lsm.c    |  1 +
+ security/tomoyo/tomoyo.c      |  1 +
+ 8 files changed, 59 insertions(+), 2 deletions(-)
 
-> Thanks
-> 
->>
->> Why would it be better to fail than negotiating?
->>
->> Thanks,
->> Maxime
->>
-> 
+diff --git a/fs/ioctl.c b/fs/ioctl.c
+index f5fd99d6b0d4..76cf22ac97d7 100644
+--- a/fs/ioctl.c
++++ b/fs/ioctl.c
+@@ -920,8 +920,7 @@ COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
+ 	if (!f.file)
+ 		return -EBADF;
+ 
+-	/* RED-PEN how should LSM module know it's handling 32bit? */
+-	error = security_file_ioctl(f.file, cmd, arg);
++	error = security_file_ioctl_compat(f.file, cmd, arg);
+ 	if (error)
+ 		goto out;
+ 
+diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+index 83ef66644c21..170687b5985b 100644
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -751,7 +751,11 @@ static int ovl_security_fileattr(const struct path *realpath, struct fileattr *f
+ 	else
+ 		cmd = fa->fsx_valid ? FS_IOC_FSGETXATTR : FS_IOC_GETFLAGS;
+ 
++#ifdef CONFIG_COMPAT
++	err = security_file_ioctl_compat(file, cmd, 0);
++# else
+ 	err = security_file_ioctl(file, cmd, 0);
++#endif
+ 	fput(file);
+ 
+ 	return err;
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index ac962c4cb44b..626aa8cf930d 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -171,6 +171,8 @@ LSM_HOOK(int, 0, file_alloc_security, struct file *file)
+ LSM_HOOK(void, LSM_RET_VOID, file_free_security, struct file *file)
+ LSM_HOOK(int, 0, file_ioctl, struct file *file, unsigned int cmd,
+ 	 unsigned long arg)
++LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
++	 unsigned long arg)
+ LSM_HOOK(int, 0, mmap_addr, unsigned long addr)
+ LSM_HOOK(int, 0, mmap_file, struct file *file, unsigned long reqprot,
+ 	 unsigned long prot, unsigned long flags)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 5f16eecde00b..22a82b7c59f1 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -389,6 +389,7 @@ int security_file_permission(struct file *file, int mask);
+ int security_file_alloc(struct file *file);
+ void security_file_free(struct file *file);
+ int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
++int security_file_ioctl_compat(struct file *file, unsigned int cmd, unsigned long arg);
+ int security_mmap_file(struct file *file, unsigned long prot,
+ 			unsigned long flags);
+ int security_mmap_addr(unsigned long addr);
+@@ -987,6 +988,12 @@ static inline int security_file_ioctl(struct file *file, unsigned int cmd,
+ 	return 0;
+ }
+ 
++static inline int security_file_ioctl_compat(struct file *file, unsigned int cmd,
++				      unsigned long arg)
++{
++	return 0;
++}
++
+ static inline int security_mmap_file(struct file *file, unsigned long prot,
+ 				     unsigned long flags)
+ {
+diff --git a/security/security.c b/security/security.c
+index 23b129d482a7..5c16ffc99b1e 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2648,6 +2648,23 @@ int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ }
+ EXPORT_SYMBOL_GPL(security_file_ioctl);
+ 
++/**
++ * security_file_ioctl_compat() - Check if an ioctl is allowed in 32-bit compat mode
++ * @file: associated file
++ * @cmd: ioctl cmd
++ * @arg: ioctl arguments
++ *
++ * Compat version of security_file_ioctl() that correctly handles 32-bit processes
++ * running on 64-bit kernels.
++ *
++ * Return: Returns 0 if permission is granted.
++ */
++int security_file_ioctl_compat(struct file *file, unsigned int cmd, unsigned long arg)
++{
++	return call_int_hook(file_ioctl_compat, 0, file, cmd, arg);
++}
++EXPORT_SYMBOL_GPL(security_file_ioctl_compat);
++
+ static inline unsigned long mmap_prot(struct file *file, unsigned long prot)
+ {
+ 	/*
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2aa0e219d721..de96d156e6ea 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3731,6 +3731,31 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+ 	return error;
+ }
+ 
++static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd,
++			      unsigned long arg)
++{
++	// If we are in a 64-bit kernel running 32-bit userspace, we need to make
++	// sure we don't compare 32-bit flags to 64-bit flags.
++	switch (cmd) {
++	case FS_IOC32_GETFLAGS:
++		cmd = FS_IOC_GETFLAGS;
++		break;
++	case FS_IOC32_SETFLAGS:
++		cmd = FS_IOC_GETFLAGS;
++		break;
++	case FS_IOC32_GETVERSION:
++		cmd = FS_IOC_GETVERSION;
++		break;
++	case FS_IOC32_SETVERSION:
++		cmd = FS_IOC_SETVERSION;
++		break;
++	default:
++		break;
++	}
++
++	return selinux_file_ioctl(file, cmd, arg);
++}
++
+ static int default_noexec __ro_after_init;
+ 
+ static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
+@@ -7036,6 +7061,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
+ 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
+ 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
++	LSM_HOOK_INIT(file_ioctl_compat, selinux_file_ioctl_compat),
+ 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
+ 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
+ 	LSM_HOOK_INIT(file_mprotect, selinux_file_mprotect),
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 65130a791f57..1f1ea8529421 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4973,6 +4973,7 @@ static struct security_hook_list smack_hooks[] __ro_after_init = {
+ 
+ 	LSM_HOOK_INIT(file_alloc_security, smack_file_alloc_security),
+ 	LSM_HOOK_INIT(file_ioctl, smack_file_ioctl),
++	LSM_HOOK_INIT(file_ioctl_compat, smack_file_ioctl),
+ 	LSM_HOOK_INIT(file_lock, smack_file_lock),
+ 	LSM_HOOK_INIT(file_fcntl, smack_file_fcntl),
+ 	LSM_HOOK_INIT(mmap_file, smack_mmap_file),
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index 25006fddc964..298d182759c2 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -568,6 +568,7 @@ static struct security_hook_list tomoyo_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(path_rename, tomoyo_path_rename),
+ 	LSM_HOOK_INIT(inode_getattr, tomoyo_inode_getattr),
+ 	LSM_HOOK_INIT(file_ioctl, tomoyo_file_ioctl),
++	LSM_HOOK_INIT(file_ioctl_compat, tomoyo_file_ioctl),
+ 	LSM_HOOK_INIT(path_chmod, tomoyo_path_chmod),
+ 	LSM_HOOK_INIT(path_chown, tomoyo_path_chown),
+ 	LSM_HOOK_INIT(path_chroot, tomoyo_path_chroot),
+
+base-commit: 196e95aa8305aecafc4e1857b7d3eff200d953b6
+-- 
+2.43.0.472.g3155946c3a-goog
 
