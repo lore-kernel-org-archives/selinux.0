@@ -1,43 +1,44 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08717129EF9
-	for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 14:23:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D100B4238B;
+	Mon, 18 Dec 2023 15:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gr0maGAL"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-40c60dfa5bfso37215035e9.0
-        for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 06:23:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JOC8Thm9"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-28b71490fbbso610517a91.0;
+        Mon, 18 Dec 2023 07:58:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702909408; x=1703514208; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=LzQc1yULZChaDLQ9G/ihl8REJbHZhov+DE7MK87TVb0=;
-        b=gr0maGALSR52Eyn6HZ0rH2WG9HnEzVFbQ2nQoUbJlErLmPLZrJ5rn+w8wH3L7hr5f1
-         uyeuM/Kqz2jJb9uVfttqB3VMiff1lJvGo88GJKTHjtj0cIgFsme++XIE422ZRZytO97F
-         T8CjJOoC3KyuZLAknDZ1/JRHefSV0HYfhF+UBtJkBCQJxSpJV7b4c8YJdDOLRTI+sM+E
-         +yIRReU4VzDux188nZBBepttBd1sYYfD+u8rD1FSLQwIfC+HnT7MN1u98fUhwS68U/HV
-         tBvfICpNi1I1WcrdbAEM9KL7HG9X/wWmq2vNj9900Xat8rbkx9s+QNiK1jCx3JHFYbJt
-         8bpA==
+        d=gmail.com; s=20230601; t=1702915125; x=1703519925; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C1L/ez+Wv4K7wUuse7sZYv4iNUdOB14MYq1qAXqEUGk=;
+        b=JOC8Thm9b0K6TK8vKxrKBwyahu+qXYYkjWEal1StL+jwTYm2Ibzq1LKR4J0e2j7TOz
+         ekX1uZWLVjMMp9mbrTrpRNywcwK1ayZhRKDxbO3dOzVRSJ0fWhZE7QPEsFzx3ETawglP
+         f8H9GrFvJ2dHRj8IdcrDZDbyMmCLOmiuA+KHeMA2x5w9+Y2rWVq3XhhmaC5qfnFNFdeE
+         Z06jOI83xbSB+BhqHbkgecoqHgw7TPljgJQ4AOafhIv4yYBB7P6Xvcjus5CiSAhnDmrx
+         ujOE1LAksJUEqKlGaE/5A2wGgWowrluQBbHJ29iq9AoEY3J6zziArLJk/+UJ/STCeHH4
+         g30g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702909408; x=1703514208;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=LzQc1yULZChaDLQ9G/ihl8REJbHZhov+DE7MK87TVb0=;
-        b=L5q0xaqcHwnt4EouR1zc0twZAfYi1FqYMTY5EFwxd+d9oO/o1kbyHuQUDw7hx+l5vd
-         ByIrHntW0FXrwO7ShQp+PFXZksRTX5P7Flk/8aPGRZBsEs+pYorpCqFLG4cOWmjeK3+B
-         j9w0J1YHLpJB6a6vvPPMUwiDryDKr7eX2AV+l7a/32AssfNP4RNYGVXn6AUJb/G2JCGT
-         iVA3bOBf2sYJ93MVw1KLfp82MR1V0+ZtUnM2uSuXQjtQdpoiuHObacdOKO8MVUjcxwru
-         RPletv07/BNa4ATXuZr1Ear8+osUIc1ZYp8FRm5S/OnjRP3yn6OBHD6NtHATbrFRdBPv
-         zt+w==
-X-Gm-Message-State: AOJu0Yxwth3IrpmpcTxIxMIMKVvz9q46h+AHTJar3Z/jbb7rgul2rF/j
-	Pu3gBBYtd5xf1KtyTKBgYchWHP/GLJ25hibN+G44BQ==
-X-Google-Smtp-Source: AGHT+IFjfzSrKy1VCxahCZN8bB8Pt2jUcoyta7zgHgxmTr6TUO/ufFtIA/WrJxi9JIIbR7og9rPgwtArG7ubGMx13Uk=
-X-Received: by 2002:a05:600c:4d0e:b0:40b:5e1e:cf1 with SMTP id
- u14-20020a05600c4d0e00b0040b5e1e0cf1mr7965342wmp.44.1702909408123; Mon, 18
- Dec 2023 06:23:28 -0800 (PST)
+        d=1e100.net; s=20230601; t=1702915125; x=1703519925;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=C1L/ez+Wv4K7wUuse7sZYv4iNUdOB14MYq1qAXqEUGk=;
+        b=WgV3cOBnlsold0GCGhJzscItSMfsMrA9hw116VcMamXr5X91l/UAl5bzoy7lCUBUQc
+         Mxf2ZX4k7u30Vyh9EbK3kPzpDRm5jnh+yUKzfqDebZ7VhclSl7FLIi2qboWvmay6hJ1v
+         G3dS7GEBTvTJHwsc6sikvOw53cB+oZrls3fEAPvhm9vYhhcGWthvVC8oxbO1hn/WhVrS
+         cfX0FwS7KJQ4+eysSd62INrCiPQUBHnWsxgoTpdNjFvZM1bXpyOG2nCkrGBr2rKq/Sun
+         af/aoJPGe4ajP+waI0y7Gt90LD69rcEaGPW62XXc29XG8fpkkAXED8QgR+Z3RU0soeCg
+         1EIw==
+X-Gm-Message-State: AOJu0YzangxHkMnskjW7N3CxCEcgdv18R1HL6u6lhgPcFweae9h4OTb3
+	5S9fkzDwnbeepZiGz/RgN/aEpqD0J1DgBwBIlRR8eQkk
+X-Google-Smtp-Source: AGHT+IEv8eavEuw5TO6YbqO0CIa9S1vZ+DhDRS8y8ZGHNH845ST2fOLkih/5tge64KbKJSQ6tdCnQ9BubUxOVUVWoHY=
+X-Received: by 2002:a17:90a:e657:b0:28b:95b0:d51b with SMTP id
+ ep23-20020a17090ae65700b0028b95b0d51bmr587205pjb.82.1702915124936; Mon, 18
+ Dec 2023 07:58:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -46,43 +47,94 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20231218141645.2548743-1-alpic@google.com>
 In-Reply-To: <20231218141645.2548743-1-alpic@google.com>
-From: Alfred Piccioni <alpic@google.com>
-Date: Mon, 18 Dec 2023 15:22:50 +0100
-Message-ID: <CALcwBGDoEjyfAnYHaCCqULa+dwRyw3spHijUXwJ_LAQp=oV-pg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 18 Dec 2023 10:58:33 -0500
+Message-ID: <CAEjxPJ40jPsBS5xZEgS1CCVYORDJhwNOrAj5Oepa3rK=Y1BnYg@mail.gmail.com>
 Subject: Re: [PATCH] SELinux: Introduce security_file_ioctl_compat hook
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Eric Paris <eparis@parisplace.org>
-Cc: stable@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+To: Alfred Piccioni <alpic@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>, stable@vger.kernel.org, 
+	SElinux list <selinux@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> s/emmits/emits/
+On Mon, Dec 18, 2023 at 9:17=E2=80=AFAM Alfred Piccioni <alpic@google.com> =
+wrote:
+>
+> Some ioctl commands do not require ioctl permission, but are routed to
+> other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
+> done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+>
+> However, if a 32-bit process is running on a 64-bit kernel, it emits
+> 32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
+> being checked erroneously, which leads to these ioctl operations being
+> routed to the ioctl permission, rather than the correct file
+> permissions.
+>
+> This was also noted in a RED-PEN finding from a while back -
+> "/* RED-PEN how should LSM module know it's handling 32bit? */".
+>
+> This patch introduces a new hook, security_file_ioctl_compat, that is
+> called from the compat ioctl syscal. All current LSMs have been changed
 
-Fixed.
+s/syscal/syscall/
+Might to consider checking using codespell to catch such things
+although it is imperfect.
 
-> It doesn't (or shouldn't) replace security_file_ioctl, and the hook
-> doesn't appear to be conditional on CONFIG_COMPAT per se.
-> It is a new hook that is called from the compat ioctl syscall. The old
-> hook continues to be used from the regular ioctl syscall and
-> elsewhere.
+> to support this hook.
+>
+> Reviewing the three places where we are currently using
+> security_file_ioctl, it appears that only SELinux needs a dedicated
+> compat change; TOMOYO and SMACK appear to be functional without any
+> change.
+>
+> Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
+> Signed-off-by: Alfred Piccioni <alpic@google.com>
+> Cc: stable@vger.kernel.org
+> ---
 
-Yup, reworded to be more correct. Partially lack of understanding on
-my part of how the ioctl syscalls were being made.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 2aa0e219d721..de96d156e6ea 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3731,6 +3731,31 @@ static int selinux_file_ioctl(struct file *file, u=
+nsigned int cmd,
+>         return error;
+>  }
+>
+> +static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd=
+,
+> +                             unsigned long arg)
+> +{
+> +       // If we are in a 64-bit kernel running 32-bit userspace, we need=
+ to make
+> +       // sure we don't compare 32-bit flags to 64-bit flags.
 
-> I don't understand why you made this change, possibly a leftover of an
-> earlier version of the patch that tried to replace
-> security_file_ioctl() everywhere?
+Paul doesn't like C++-style comments so rewrite using kernel coding
+style for multi-line comments or drop.
+I don't think kernel coding style strictly prohibits use for
+single-line comments and it isn't detected by checkpatch.pl but he has
+previously
+raised this on other patches. I actually like the C++-style comments
+for one-liners especially for comments at the end of a line of code
+but Paul is the maintainer so he gets the final word.
 
-Correct. Forgot to go back and remove it. Fixed.
+> +       switch (cmd) {
+> +       case FS_IOC32_GETFLAGS:
+> +               cmd =3D FS_IOC_GETFLAGS;
+> +               break;
+> +       case FS_IOC32_SETFLAGS:
+> +               cmd =3D FS_IOC_GETFLAGS;
 
-> By the way, for extra credit, you could augment the ioctl tests in the
-> selinux-testsuite to also exercise this new hook and confirm that it
-> works correctly. See
-> https://github.com/SELinuxProject/selinux-testsuite particularly
-> tests/ioctl and policy/test_ioctl.te. Feel free to ask for help on
-> that.
+Sorry, missed this the first time but cut-and-paste error above:
+s/GETFLAGS/SETFLAGS/
 
-I do like extra credit. I'll take a look and see if it's something I
-can tackle. I'm primarily doing ad hoc checks on Android devices, so
-I'm unsure how easy it will be for me to run the suite. I'll get back
-to you shortly on that.
+I didn't do an audit but does anything need to be updated for the BPF
+LSM or does it auto-magically pick up new hooks?
+
+Also, IIRC, Paul prefers putting a pair of parentheses after function
+names to distinguish them, so in the subject line
+and description it should be security_file_ioctl_compat() and
+security_file_ioctl(), and you should put a patch version
+in the [PATCH] prefix e.g. [PATCH v3] to make clear that it is a later
+version, and usually one doesn't capitalize SELinux
+or the leading verb in the subject line (just "selinux: introduce").
