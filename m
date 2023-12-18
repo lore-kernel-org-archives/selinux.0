@@ -1,57 +1,58 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD3F45A867;
-	Mon, 18 Dec 2023 17:21:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64C1A1E4BF;
+	Mon, 18 Dec 2023 17:33:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BfAB2A/H"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-28b4563a03aso927175a91.0;
-        Mon, 18 Dec 2023 09:21:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BxAf7ckF"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-6ceb2501f1bso3124281b3a.0;
+        Mon, 18 Dec 2023 09:33:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702920090; x=1703524890; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1702920824; x=1703525624; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IQ+d8lXK8t7tOQUPKwNZqHs+rv31L7RvHxCGty4EDjQ=;
-        b=BfAB2A/H2yDFX6dJgfiiISJ4I/auxguCWTmKfZI4t4s+TQD7foHIFtgoXapgbWJ+rQ
-         zxDYabstJyzK4lZaXKk1ena+9z5QRuKUpBddkKRqDtDdk35qUlcVxP29okMLZXe7TEs/
-         1jOOIJ5gFKqG1So7PJNiTE5vggbQuCR+JM17IYdjGncOw0AA3nXWIvol6L79OzeaFidr
-         ummEMXPw/ScrUbZ/mGFSGO7tQr5xatS2G6WwKWreaUTHGa9jCr1XzJG4yv5vq/ITz94p
-         9WByGpWEnYSXzhFWbZzG0r5fjkJrezeP3b2Z3qO6nBKJoyfGxkjalr6qMO6z0L/a65G1
-         31FA==
+        bh=vrrdb72hryOiQh+u7nxbNRimC+6/pwn0HNgKp0aqgVU=;
+        b=BxAf7ckFxtZ4xRObZAMnxTiRjsgMwwG38vCQk/ecdSs+Gz7X4R57uJVbF1YQB1kVsX
+         Ovh1XKTdVpmioOuWQ6GZK89/uB4BvUAZjkdCJ+cwQiiSzlo23kw+MVBGzG76QYMwKLMy
+         1qak+/arYLezUH3lTLEVS9j0a7yURLS47xkWL2CadmQ4zkpv6VjwctX/UWsCE08qF4+l
+         R3Vs84iVniY9QzUz+cPy1wNdOfA31xI073rAxQ4ysBQt8I3EIkcSV9/LHpZClt7TH1x1
+         uPdsCC0i/fc1EvmZJjOPmLoCorwSmrbLpE6Va73E3tP6AaUfP7+68J00+eCvOYpI8lCa
+         VXcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702920090; x=1703524890;
+        d=1e100.net; s=20230601; t=1702920825; x=1703525625;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IQ+d8lXK8t7tOQUPKwNZqHs+rv31L7RvHxCGty4EDjQ=;
-        b=asAVnCW5EuDmf33HylUkiD1sPyer0C1e0VIWaxtrVfcbJz6ulz/rcDA1b906A+oWc/
-         VAkCvV8Cj8B3AJds2JgtHxhd7WCMpzuG1KECzMFik9/3+DZu7mmIvL6ra6N99E5DCQWS
-         YSXj5l599jGet/NkA/YAwkHJFnT307aHzk9daiKFSIRduVJO22aqvf0pa0rdxgrQ8Kh0
-         IQsgjnn71vDFzo0hs90uN6wyCNehxuk3hhrRST2BSD0AWPYxS0NDH2iTP6zpMyL4sYDm
-         wVpn9FsjI2O1siqMuoWEPecZklL2KhHy+TZvsxglRJMtCIOLR2TINI3gjfqxyeLSkJOB
-         fKCg==
-X-Gm-Message-State: AOJu0YwmVP8JTzG/QTd/VOtA4il/YXrEhe78fLiD3qs4dIsUK5iTdspe
-	/P7ZozLnuPDamRk6H7RX6NQQyRP6Z/6fnIA0J8k=
-X-Google-Smtp-Source: AGHT+IGJW2/B2t4Qp6LNhtCnwLtLP+FY/akR5Dr+slxmOtIJLVsP964rNYKe6kurtd9STJLyyUO3NKHkMR6dwVBC5Jw=
-X-Received: by 2002:a17:90b:1495:b0:28b:4d97:e53c with SMTP id
- js21-20020a17090b149500b0028b4d97e53cmr978070pjb.99.1702920089836; Mon, 18
- Dec 2023 09:21:29 -0800 (PST)
+        bh=vrrdb72hryOiQh+u7nxbNRimC+6/pwn0HNgKp0aqgVU=;
+        b=sldS7+ZM8Ic83AYzHo6Bj+/Nk2TLvr9+zOhO1ZoxPU7UZsrF+QQKgjn9WbbmLebgrX
+         89hYXkZ/CraRr3XAOokMjvp841f7mL5goTR4l6YTfNyYFgw0rBF7Hor3lZMiorHltKyp
+         bz9+6P77cokWAl1ZtHoOiT12XDTgrory9HDkPh16130/jtSyBMGJFpdmb3/qWt39pAZK
+         +SmETHzxsC3nf6xhxRokCjjIS5lJgQuh4KeX3kSY0+JCwLHcoCsGJSAzU+uAF9B4MnWz
+         FJl+2RdHOHgJzrnuR/ZG6osQNCLQN9Cc1juTfn916eL5Ll+3NQ1hgW4qb7TaFDC90zcM
+         UmdQ==
+X-Gm-Message-State: AOJu0Yzu6dTk5Bdkz4GslQnxKDCn75vJrwqzx4tIqFK7i0z+dWfz/F6X
+	VimdZE2rQhFMwb68Gab1tm03VJEnrAMqn+32vnA=
+X-Google-Smtp-Source: AGHT+IEl/3podabf9JW3rwvs37X8Z3eFup1Qa1APK02q/QJjpYM5BqxkB+oCv9Hiphu4seWH9LCso07CPCn6vw8c/J4=
+X-Received: by 2002:a05:6a00:c81:b0:6cb:a2f4:8579 with SMTP id
+ a1-20020a056a000c8100b006cba2f48579mr19678291pfv.15.1702920824664; Mon, 18
+ Dec 2023 09:33:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com> <20231212131712.1816324-5-maxime.coquelin@redhat.com>
-In-Reply-To: <20231212131712.1816324-5-maxime.coquelin@redhat.com>
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-5-maxime.coquelin@redhat.com> <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 18 Dec 2023 12:21:18 -0500
-Message-ID: <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+Date: Mon, 18 Dec 2023 12:33:33 -0500
+Message-ID: <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
 Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
-To: Maxime Coquelin <maxime.coquelin@redhat.com>
+To: Maxime Coquelin <maxime.coquelin@redhat.com>, Ondrej Mosnacek <omosnace@redhat.com>
 Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
 	paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com, 
 	eparis@parisplace.org, xieyongji@bytedance.com, 
@@ -61,19 +62,39 @@ Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 12, 2023 at 8:17=E2=80=AFAM Maxime Coquelin
-<maxime.coquelin@redhat.com> wrote:
+On Mon, Dec 18, 2023 at 12:21=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> This patch introduces a LSM hook for devices creation,
-> destruction (ioctl()) and opening (open()) operations,
-> checking the application is allowed to perform these
-> operations for the Virtio device type.
+> On Tue, Dec 12, 2023 at 8:17=E2=80=AFAM Maxime Coquelin
+> <maxime.coquelin@redhat.com> wrote:
+> >
+> > This patch introduces a LSM hook for devices creation,
+> > destruction (ioctl()) and opening (open()) operations,
+> > checking the application is allowed to perform these
+> > operations for the Virtio device type.
+>
+> Can you explain why the existing LSM hooks and SELinux implementation
+> are not sufficient? We already control the ability to open device
+> nodes via selinux_inode_permission() and selinux_file_open(), and can
+> support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
+> And it should already be possible to label these nodes distinctly
+> through existing mechanisms (file_contexts if udev-created/labeled,
+> genfs_contexts if kernel-created). What exactly can't you do today
+> that this hook enables?
 
-Can you explain why the existing LSM hooks and SELinux implementation
-are not sufficient? We already control the ability to open device
-nodes via selinux_inode_permission() and selinux_file_open(), and can
-support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
-And it should already be possible to label these nodes distinctly
-through existing mechanisms (file_contexts if udev-created/labeled,
-genfs_contexts if kernel-created). What exactly can't you do today
-that this hook enables?
+(added Ondrej to the distribution; IMHO we should swap him into
+MAINTAINERS in place of Eric Paris since Eric has long-since moved on
+from SELinux and Ondrej serves in that capacity these days)
+
+Other items to consider:
+- If vduse devices are created using anonymous inodes, then SELinux
+grew a general facility for labeling and controlling the creation of
+those via selinux_inode_init_security_anon().
+- You can encode information about the device into its SELinux type
+that then allows you to distinguish things like net vs block based on
+the device's SELinux security context rather than encoding that in the
+permission bits.
+- If you truly need new LSM hooks (which you need to prove first),
+then you should pass some usable information about the object in
+question to allow SELinux to find a security context for it. Like an
+inode associated with the device, for example.
