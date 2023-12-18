@@ -1,264 +1,116 @@
-Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3211E7EFC5
-	for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 12:43:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--alpic.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8145A129EF7;
+	Mon, 18 Dec 2023 13:47:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gglmYec9"
-Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-5e31a4a893bso34254827b3.1
-        for <selinux@vger.kernel.org>; Mon, 18 Dec 2023 04:43:57 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="itDeCEwX"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-5cd86e3a9afso1056696a12.1;
+        Mon, 18 Dec 2023 05:47:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1702903436; x=1703508236; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=SnWxA8lkTnP6794KoQ1RehtYycr6q6rCflxlfgb7k2M=;
-        b=gglmYec9omvD+nQgK6FSo5Ad1rPPV6dXrwNyXw+LjN+hLTYJIXau/617YamPWqcI42
-         AdeUav0I/ktkO42o7aMb4hK6fQNdCrf+JKzhYrPr8UUYan6yqfVY7zyARZRB2dudBh/u
-         PN+x5+JWKkWmqNd2cSeC1yhrx8s0S7MqzUC6wFUJIxVWDN0I3gkJVM/7pcxIguM6AEB/
-         VTPMBUe+Q6QBRwv9igCae7HqYEX2V/6ADFDZE81kAYmCUj9nrsKUmIJBcplurYHJ7kDV
-         /7CgPdtVtwMSS4X3VXspuXqfkHDTjBuRpxIPCyNCeyx3T58Q60r1dnzT/QJi4Mo6/Gk7
-         wvCw==
+        d=gmail.com; s=20230601; t=1702907230; x=1703512030; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=h4k4Fh/TASWn1uJrItxeFdHWOjIQFIOHIcCI80h3IYQ=;
+        b=itDeCEwXhrSLykXNxA9lV5oC4zcQV1hHC28ibq9gUITlXIFkeI8Y523mo2HGlGPxRf
+         XsBlbNMhwOZxaA47RD7a9UJ/srIowUzKEm6lIzXyOAoudD2p7TJhDZXzlpBqRdlYB7P1
+         1jGNxLnJnXTWx6Xlp0QzjZHzMFkE+L/N1VrhpEPL+7GCQtLR6n71Md1Qnhcrn+nlbUCQ
+         zc3HPRNzty/Rs5LTznQb3eofz2RAqqURESogAUcj3AL18dttGa7n/TMEjgFg+FUOVTGf
+         AflqSAav7JT6jG81H/SZdKfgZRxzZnzvHzd5oe7P50a86gWoEwvfB+hZZSTbTwS8uXba
+         LQYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702903436; x=1703508236;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SnWxA8lkTnP6794KoQ1RehtYycr6q6rCflxlfgb7k2M=;
-        b=uUqC2E4EBoscuDDLcwOc0MjBSnGEKzes5vM8Yoz5hCUwNdAmDJIwJU7lukZXWqu1ye
-         wkDU2X6G+9zs6XWfeZL7Ju77NZCytYgojCnpH2QTeqq1g6uMh48QLGwpwkyYQxjyhfMk
-         8gMqI1Hi1rjM12EViH21xn09DLMXU48va4IjSuVW3K2tyiN19tEYZibV/HBm4H8Ej8w8
-         jmWub9ck4Zg/QU/zreQD9p9XX3X/5xlHsCYjN4ISugdJKWzpxcr+lgRrKNxgjR08UEL5
-         wY9jBVxccqsdiU9rW+5YbqnVBzj+UMxsuTt8tQSQaDbL+KVpguu7fkqwDBBWBh1de5bV
-         wQdw==
-X-Gm-Message-State: AOJu0YynN38idVDV1jaNgduwGjbSrwXkbfFKeLWCB3oCyzaWbcQtwbpJ
-	iYXCKknyJaEmbhO/u1mTQjcVvBjdZA==
-X-Google-Smtp-Source: AGHT+IGevKtw8rVm6Um9ZQIlJjJ6hmAdAMNjQH/Mm6/Whe39nb/b1rR8kS2aRNvGhj9+d1dBei22d2LfYg==
-X-Received: from alpic.c.googlers.com ([fda3:e722:ac3:cc00:28:9cb1:c0a8:1bf2])
- (user=alpic job=sendgmr) by 2002:a05:6902:9:b0:db5:382f:3997 with SMTP id
- l9-20020a056902000900b00db5382f3997mr1571712ybh.11.1702903436253; Mon, 18 Dec
- 2023 04:43:56 -0800 (PST)
-Date: Mon, 18 Dec 2023 13:41:37 +0100
-In-Reply-To: <20230906102557.3432236-1-alpic@google.com>
+        d=1e100.net; s=20230601; t=1702907230; x=1703512030;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=h4k4Fh/TASWn1uJrItxeFdHWOjIQFIOHIcCI80h3IYQ=;
+        b=LZz1YaR2keoMwHZPT5Ozlg77hG4rX+J5Bzd1knDHQ2j3FH81B6G5Tk+nEXjpJioDWz
+         k01gkPYGSjsP32mUzXYFz1kzvVLPJPgph+i9KDa+EeuddmDk+J2AIZrQ6SzDW1kjrPiw
+         UkqzAAIzOZ/hz/Rt9kVsia9LXlSVo76s8ehWQD2ksOyUFhA4/hsjwvk/G4fcFxRuI+Rz
+         lx/4OTjl8Cdnjd2FDlGA8M4zMEcz5/Vn7T5kkSzUNm4GJsvrtBNvGuvwTaTIm0bze/ra
+         B7vyE2OW4Cs58K71Nhy0v01kbUX1/zpYZUmirdQ6srbfmy/MviSpZOGMnjxcFnrDsHtQ
+         5y+w==
+X-Gm-Message-State: AOJu0YzLVdHO8m2q5Jz0hJU8UHrHudqB8xCJLH8yjZUyywvdlyFwEH+2
+	Ag1tmHtHAdZmNya3bFTNX/ObqIPa3LhC62suHqg=
+X-Google-Smtp-Source: AGHT+IGhl9l0lQahMBCLz8nW0EUJgHXkqNUVfWTa3Qroj7zWtlnZkSw49etJjZvFD67/3Xd38zGFkm/VAJIi1eYBap4=
+X-Received: by 2002:a05:6a20:65b0:b0:190:6d:1c5a with SMTP id
+ p48-20020a056a2065b000b00190006d1c5amr15311555pzh.56.1702907229671; Mon, 18
+ Dec 2023 05:47:09 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20230906102557.3432236-1-alpic@google.com>
-X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
-Message-ID: <20231218124137.2476015-1-alpic@google.com>
-Subject: [PATCH] SELinux: Introduce security_file_ioctl_compat hook
-From: Alfred Piccioni <alpic@google.com>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Eric Paris <eparis@parisplace.org>
-Cc: stable@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Alfred Piccioni <alpic@google.com>
+MIME-Version: 1.0
+References: <20230906102557.3432236-1-alpic@google.com> <20231218124137.2476015-1-alpic@google.com>
+In-Reply-To: <20231218124137.2476015-1-alpic@google.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 18 Dec 2023 08:46:58 -0500
+Message-ID: <CAEjxPJ6G7gHi=kLmgT3m1kDQeTpT1xLexDXbZRBMjJdiWrx=mw@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Introduce security_file_ioctl_compat hook
+To: Alfred Piccioni <alpic@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>, stable@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Some ioctl commands do not require ioctl permission, but are routed to
-other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
-done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+On Mon, Dec 18, 2023 at 7:43=E2=80=AFAM Alfred Piccioni <alpic@google.com> =
+wrote:
+>
+> Some ioctl commands do not require ioctl permission, but are routed to
+> other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
+> done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+>
+> However, if a 32-bit process is running on a 64-bit kernel, it emmits
 
-However, if a 32-bit process is running on a 64-bit kernel, it emmits
-32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
-being checked erroneously, which leads to these ioctl operations being
-routed to the ioctl permission, rather than the correct file
-permissions.
+s/emmits/emits/
 
-This was also noted in a RED-PEN finding from a while back -
-"/* RED-PEN how should LSM module know it's handling 32bit? */".
+> 32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
+> being checked erroneously, which leads to these ioctl operations being
+> routed to the ioctl permission, rather than the correct file
+> permissions.
+>
+> This was also noted in a RED-PEN finding from a while back -
+> "/* RED-PEN how should LSM module know it's handling 32bit? */".
+>
+> This patch introduces a new hook, security_file_ioctl_compat, that
+> replaces security_file_ioctl if the CONFIG_COMPAT flag is on. All
+> current LSMs have been changed to hook into the compat flag.
 
-This patch introduces a new hook, security_file_ioctl_compat, that
-replaces security_file_ioctl if the CONFIG_COMPAT flag is on. All
-current LSMs have been changed to hook into the compat flag.
+It doesn't (or shouldn't) replace security_file_ioctl, and the hook
+doesn't appear to be conditional on CONFIG_COMPAT per se.
+It is a new hook that is called from the compat ioctl syscall. The old
+hook continues to be used from the regular ioctl syscall and
+elsewhere.
 
-Reviewing the three places where we are currently using
-security_file_ioctl, it appears that only SELinux needs a dedicated
-compat change; TOMOYO and SMACK appear to be functional without any
-change.
+> Reviewing the three places where we are currently using
+> security_file_ioctl, it appears that only SELinux needs a dedicated
+> compat change; TOMOYO and SMACK appear to be functional without any
+> change.
+>
+> Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
+> Signed-off-by: Alfred Piccioni <alpic@google.com>
+> Cc: stable@vger.kernel.org
+> ---
+> diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+> index 83ef66644c21..170687b5985b 100644
+> --- a/fs/overlayfs/inode.c
+> +++ b/fs/overlayfs/inode.c
+> @@ -751,7 +751,11 @@ static int ovl_security_fileattr(const struct path *=
+realpath, struct fileattr *f
+>         else
+>                 cmd =3D fa->fsx_valid ? FS_IOC_FSGETXATTR : FS_IOC_GETFLA=
+GS;
+>
+> +#ifdef CONFIG_COMPAT
+> +       err =3D security_file_ioctl_compat(file, cmd, 0);
+> +# else
+>         err =3D security_file_ioctl(file, cmd, 0);
+> +#endif
 
-Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
-Signed-off-by: Alfred Piccioni <alpic@google.com>
-Cc: stable@vger.kernel.org
----
- fs/ioctl.c                    |  3 +--
- fs/overlayfs/inode.c          |  4 ++++
- include/linux/lsm_hook_defs.h |  2 ++
- include/linux/security.h      |  7 +++++++
- security/security.c           | 17 +++++++++++++++++
- security/selinux/hooks.c      | 26 ++++++++++++++++++++++++++
- security/smack/smack_lsm.c    |  1 +
- security/tomoyo/tomoyo.c      |  1 +
- 8 files changed, 59 insertions(+), 2 deletions(-)
-
-diff --git a/fs/ioctl.c b/fs/ioctl.c
-index f5fd99d6b0d4..76cf22ac97d7 100644
---- a/fs/ioctl.c
-+++ b/fs/ioctl.c
-@@ -920,8 +920,7 @@ COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
- 	if (!f.file)
- 		return -EBADF;
- 
--	/* RED-PEN how should LSM module know it's handling 32bit? */
--	error = security_file_ioctl(f.file, cmd, arg);
-+	error = security_file_ioctl_compat(f.file, cmd, arg);
- 	if (error)
- 		goto out;
- 
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 83ef66644c21..170687b5985b 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -751,7 +751,11 @@ static int ovl_security_fileattr(const struct path *realpath, struct fileattr *f
- 	else
- 		cmd = fa->fsx_valid ? FS_IOC_FSGETXATTR : FS_IOC_GETFLAGS;
- 
-+#ifdef CONFIG_COMPAT
-+	err = security_file_ioctl_compat(file, cmd, 0);
-+# else
- 	err = security_file_ioctl(file, cmd, 0);
-+#endif
- 	fput(file);
- 
- 	return err;
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index ac962c4cb44b..626aa8cf930d 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -171,6 +171,8 @@ LSM_HOOK(int, 0, file_alloc_security, struct file *file)
- LSM_HOOK(void, LSM_RET_VOID, file_free_security, struct file *file)
- LSM_HOOK(int, 0, file_ioctl, struct file *file, unsigned int cmd,
- 	 unsigned long arg)
-+LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
-+	 unsigned long arg)
- LSM_HOOK(int, 0, mmap_addr, unsigned long addr)
- LSM_HOOK(int, 0, mmap_file, struct file *file, unsigned long reqprot,
- 	 unsigned long prot, unsigned long flags)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 5f16eecde00b..22a82b7c59f1 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -389,6 +389,7 @@ int security_file_permission(struct file *file, int mask);
- int security_file_alloc(struct file *file);
- void security_file_free(struct file *file);
- int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
-+int security_file_ioctl_compat(struct file *file, unsigned int cmd, unsigned long arg);
- int security_mmap_file(struct file *file, unsigned long prot,
- 			unsigned long flags);
- int security_mmap_addr(unsigned long addr);
-@@ -987,6 +988,12 @@ static inline int security_file_ioctl(struct file *file, unsigned int cmd,
- 	return 0;
- }
- 
-+static inline int security_file_ioctl_compat(struct file *file, unsigned int cmd,
-+				      unsigned long arg)
-+{
-+	return 0;
-+}
-+
- static inline int security_mmap_file(struct file *file, unsigned long prot,
- 				     unsigned long flags)
- {
-diff --git a/security/security.c b/security/security.c
-index 23b129d482a7..5c16ffc99b1e 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2648,6 +2648,23 @@ int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- }
- EXPORT_SYMBOL_GPL(security_file_ioctl);
- 
-+/**
-+ * security_file_ioctl_compat() - Check if an ioctl is allowed in 32-bit compat mode
-+ * @file: associated file
-+ * @cmd: ioctl cmd
-+ * @arg: ioctl arguments
-+ *
-+ * Compat version of security_file_ioctl() that correctly handles 32-bit processes
-+ * running on 64-bit kernels.
-+ *
-+ * Return: Returns 0 if permission is granted.
-+ */
-+int security_file_ioctl_compat(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	return call_int_hook(file_ioctl_compat, 0, file, cmd, arg);
-+}
-+EXPORT_SYMBOL_GPL(security_file_ioctl_compat);
-+
- static inline unsigned long mmap_prot(struct file *file, unsigned long prot)
- {
- 	/*
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2aa0e219d721..de96d156e6ea 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3731,6 +3731,31 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
- 	return error;
- }
- 
-+static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd,
-+			      unsigned long arg)
-+{
-+	// If we are in a 64-bit kernel running 32-bit userspace, we need to make
-+	// sure we don't compare 32-bit flags to 64-bit flags.
-+	switch (cmd) {
-+	case FS_IOC32_GETFLAGS:
-+		cmd = FS_IOC_GETFLAGS;
-+		break;
-+	case FS_IOC32_SETFLAGS:
-+		cmd = FS_IOC_GETFLAGS;
-+		break;
-+	case FS_IOC32_GETVERSION:
-+		cmd = FS_IOC_GETVERSION;
-+		break;
-+	case FS_IOC32_SETVERSION:
-+		cmd = FS_IOC_SETVERSION;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return selinux_file_ioctl(file, cmd, arg);
-+}
-+
- static int default_noexec __ro_after_init;
- 
- static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
-@@ -7036,6 +7061,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
- 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
- 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
-+	LSM_HOOK_INIT(file_ioctl_compat, selinux_file_ioctl_compat),
- 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
- 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
- 	LSM_HOOK_INIT(file_mprotect, selinux_file_mprotect),
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 65130a791f57..1f1ea8529421 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4973,6 +4973,7 @@ static struct security_hook_list smack_hooks[] __ro_after_init = {
- 
- 	LSM_HOOK_INIT(file_alloc_security, smack_file_alloc_security),
- 	LSM_HOOK_INIT(file_ioctl, smack_file_ioctl),
-+	LSM_HOOK_INIT(file_ioctl_compat, smack_file_ioctl),
- 	LSM_HOOK_INIT(file_lock, smack_file_lock),
- 	LSM_HOOK_INIT(file_fcntl, smack_file_fcntl),
- 	LSM_HOOK_INIT(mmap_file, smack_mmap_file),
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index 25006fddc964..298d182759c2 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -568,6 +568,7 @@ static struct security_hook_list tomoyo_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(path_rename, tomoyo_path_rename),
- 	LSM_HOOK_INIT(inode_getattr, tomoyo_inode_getattr),
- 	LSM_HOOK_INIT(file_ioctl, tomoyo_file_ioctl),
-+	LSM_HOOK_INIT(file_ioctl_compat, tomoyo_file_ioctl),
- 	LSM_HOOK_INIT(path_chmod, tomoyo_path_chmod),
- 	LSM_HOOK_INIT(path_chown, tomoyo_path_chown),
- 	LSM_HOOK_INIT(path_chroot, tomoyo_path_chroot),
-
-base-commit: 196e95aa8305aecafc4e1857b7d3eff200d953b6
--- 
-2.43.0.472.g3155946c3a-goog
-
+I don't understand why you made this change, possibly a leftover of an
+earlier version of the patch that tried to replace
+security_file_ioctl() everywhere?
