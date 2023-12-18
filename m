@@ -1,100 +1,114 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64C1A1E4BF;
-	Mon, 18 Dec 2023 17:33:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 809AC498B4;
+	Mon, 18 Dec 2023 17:36:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BxAf7ckF"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-6ceb2501f1bso3124281b3a.0;
-        Mon, 18 Dec 2023 09:33:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AhAv2Xdc"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-6d728c75240so1305194b3a.1;
+        Mon, 18 Dec 2023 09:36:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702920824; x=1703525624; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1702921003; x=1703525803; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vrrdb72hryOiQh+u7nxbNRimC+6/pwn0HNgKp0aqgVU=;
-        b=BxAf7ckFxtZ4xRObZAMnxTiRjsgMwwG38vCQk/ecdSs+Gz7X4R57uJVbF1YQB1kVsX
-         Ovh1XKTdVpmioOuWQ6GZK89/uB4BvUAZjkdCJ+cwQiiSzlo23kw+MVBGzG76QYMwKLMy
-         1qak+/arYLezUH3lTLEVS9j0a7yURLS47xkWL2CadmQ4zkpv6VjwctX/UWsCE08qF4+l
-         R3Vs84iVniY9QzUz+cPy1wNdOfA31xI073rAxQ4ysBQt8I3EIkcSV9/LHpZClt7TH1x1
-         uPdsCC0i/fc1EvmZJjOPmLoCorwSmrbLpE6Va73E3tP6AaUfP7+68J00+eCvOYpI8lCa
-         VXcg==
+        bh=RGhfp7gmzYvPgDOx9Jk6h3Gpd+Z4OEn2fO5WRaWtC6k=;
+        b=AhAv2Xdc+RBU4LGn15IqaYkr78pCY8shKY1loH70HSN2htGPHkzleb8DtI9ogxwmbI
+         H6K7uqHI+24oUapebnv/y1JHdQ9haA6lUE87bmogoN0r5oto6xxvdGBADV7UysjvxnTM
+         wp5dJ4HKE/R2G0LlxFUj+ZOa7mVQpVDFJOduTCxqdaHuPBfHyTD2NcCK3vskACezUXwY
+         CZNCeBVZIL507bvCMmj4yFoGNck7W5t6z07XQ7x9MbURg+h5/mAF2kSgVKmf9x/3Te8K
+         b0lnJ7r9+zfUBwgbw6c1AsQxkP9Klwz8TwLAim5x7MoOAWzEqoYuJSCuNre4GWGjNb84
+         IKUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702920825; x=1703525625;
+        d=1e100.net; s=20230601; t=1702921003; x=1703525803;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vrrdb72hryOiQh+u7nxbNRimC+6/pwn0HNgKp0aqgVU=;
-        b=sldS7+ZM8Ic83AYzHo6Bj+/Nk2TLvr9+zOhO1ZoxPU7UZsrF+QQKgjn9WbbmLebgrX
-         89hYXkZ/CraRr3XAOokMjvp841f7mL5goTR4l6YTfNyYFgw0rBF7Hor3lZMiorHltKyp
-         bz9+6P77cokWAl1ZtHoOiT12XDTgrory9HDkPh16130/jtSyBMGJFpdmb3/qWt39pAZK
-         +SmETHzxsC3nf6xhxRokCjjIS5lJgQuh4KeX3kSY0+JCwLHcoCsGJSAzU+uAF9B4MnWz
-         FJl+2RdHOHgJzrnuR/ZG6osQNCLQN9Cc1juTfn916eL5Ll+3NQ1hgW4qb7TaFDC90zcM
-         UmdQ==
-X-Gm-Message-State: AOJu0Yzu6dTk5Bdkz4GslQnxKDCn75vJrwqzx4tIqFK7i0z+dWfz/F6X
-	VimdZE2rQhFMwb68Gab1tm03VJEnrAMqn+32vnA=
-X-Google-Smtp-Source: AGHT+IEl/3podabf9JW3rwvs37X8Z3eFup1Qa1APK02q/QJjpYM5BqxkB+oCv9Hiphu4seWH9LCso07CPCn6vw8c/J4=
-X-Received: by 2002:a05:6a00:c81:b0:6cb:a2f4:8579 with SMTP id
- a1-20020a056a000c8100b006cba2f48579mr19678291pfv.15.1702920824664; Mon, 18
- Dec 2023 09:33:44 -0800 (PST)
+        bh=RGhfp7gmzYvPgDOx9Jk6h3Gpd+Z4OEn2fO5WRaWtC6k=;
+        b=TjC0i01QuWnxJMkSamk3wgpUsEMUZOu7XmiySgJIHIXH3INDSHUT8Xtv77ukfMSxgK
+         UqrPV4RHmCVHxjuvCJtkVDJ0HtL/IbT/Qz30m/656Rmg4WmXjrxNOGvRuBVYQO3EJo7t
+         o7XDrSeTRoN1dhCE8dqdA1avXSTrq83dg7iSLhsyzbNhyixUUwzB+tJzN62Ya5eF9IrI
+         PDIb6GdVicbl+rPW5OwudRMmXyVas1A2uksDPP2csVseDt3w2fWdCLClnARApmk9eqe7
+         /gj05urTgY39HiXqzASvkGyTnWO4aBcdPAjpUUJlCADNFqw7kfnTt7NUdJoHPEXntWFp
+         Pwsw==
+X-Gm-Message-State: AOJu0Yw4GoGbmbErtAYrzbe6k+hDflxo0NdevkKszWPO4HwrtjGv2Rc5
+	iVf/PMCmtaV3csht3N5usAvYeFRP9fNXR+Jcgbk=
+X-Google-Smtp-Source: AGHT+IGFH6NC/VbWIOxGeQzth4/JK4wPgKzplt2ExS/F9myqeh5kM+roWD0j9O0HcbBzlhjNDDPTuJ+qyRy/ey3vUIg=
+X-Received: by 2002:a05:6a21:a58e:b0:194:967f:3213 with SMTP id
+ gd14-20020a056a21a58e00b00194967f3213mr47225pzc.73.1702921002664; Mon, 18 Dec
+ 2023 09:36:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-5-maxime.coquelin@redhat.com> <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+References: <20231218141645.2548743-1-alpic@google.com> <6dce3020-14f0-471b-9b6a-c9dc761cfa19@schaufler-ca.com>
+In-Reply-To: <6dce3020-14f0-471b-9b6a-c9dc761cfa19@schaufler-ca.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 18 Dec 2023 12:33:33 -0500
-Message-ID: <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
-Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
-To: Maxime Coquelin <maxime.coquelin@redhat.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com, 
-	eparis@parisplace.org, xieyongji@bytedance.com, 
-	virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	david.marchand@redhat.com, lulu@redhat.com, casey@schaufler-ca.com
+Date: Mon, 18 Dec 2023 12:36:31 -0500
+Message-ID: <CAEjxPJ4tZAvch50i7Ve_7dPYUzCXK8ckDtmhwq81vjCf7pweQw@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Introduce security_file_ioctl_compat hook
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Alfred Piccioni <alpic@google.com>, Paul Moore <paul@paul-moore.com>, 
+	Eric Paris <eparis@parisplace.org>, stable@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 18, 2023 at 12:21=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Dec 18, 2023 at 12:11=E2=80=AFPM Casey Schaufler <casey@schaufler-c=
+a.com> wrote:
 >
-> On Tue, Dec 12, 2023 at 8:17=E2=80=AFAM Maxime Coquelin
-> <maxime.coquelin@redhat.com> wrote:
+> On 12/18/2023 6:16 AM, Alfred Piccioni wrote:
+>
+> > Some ioctl commands do not require ioctl permission, but are routed to
+> > other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
+> > done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
 > >
-> > This patch introduces a LSM hook for devices creation,
-> > destruction (ioctl()) and opening (open()) operations,
-> > checking the application is allowed to perform these
-> > operations for the Virtio device type.
+> > However, if a 32-bit process is running on a 64-bit kernel, it emits
+> > 32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
+> > being checked erroneously, which leads to these ioctl operations being
+> > routed to the ioctl permission, rather than the correct file
+> > permissions.
+> >
+> > This was also noted in a RED-PEN finding from a while back -
+> > "/* RED-PEN how should LSM module know it's handling 32bit? */".
+> >
+> > This patch introduces a new hook, security_file_ioctl_compat, that is
+> > called from the compat ioctl syscal. All current LSMs have been changed
+> > to support this hook.
+> >
+> > Reviewing the three places where we are currently using
+> > security_file_ioctl, it appears that only SELinux needs a dedicated
+> > compat change; TOMOYO and SMACK appear to be functional without any
+> > change.
+> >
+> > Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
+> > Signed-off-by: Alfred Piccioni <alpic@google.com>
+> > Cc: stable@vger.kernel.org
 >
-> Can you explain why the existing LSM hooks and SELinux implementation
-> are not sufficient? We already control the ability to open device
-> nodes via selinux_inode_permission() and selinux_file_open(), and can
-> support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
-> And it should already be possible to label these nodes distinctly
-> through existing mechanisms (file_contexts if udev-created/labeled,
-> genfs_contexts if kernel-created). What exactly can't you do today
-> that this hook enables?
+> This *really* needs to go the the LSM email list:
+>         linux-security-module@vger.kernel.org
 
-(added Ondrej to the distribution; IMHO we should swap him into
-MAINTAINERS in place of Eric Paris since Eric has long-since moved on
-from SELinux and Ondrej serves in that capacity these days)
+Yep, pointed that out a little earlier in this thread.
 
-Other items to consider:
-- If vduse devices are created using anonymous inodes, then SELinux
-grew a general facility for labeling and controlling the creation of
-those via selinux_inode_init_security_anon().
-- You can encode information about the device into its SELinux type
-that then allows you to distinguish things like net vs block based on
-the device's SELinux security context rather than encoding that in the
-permission bits.
-- If you truly need new LSM hooks (which you need to prove first),
-then you should pass some usable information about the object in
-question to allow SELinux to find a security context for it. Like an
-inode associated with the device, for example.
+> > ---
+> > diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_def=
+s.h
+> > index ac962c4cb44b..626aa8cf930d 100644
+> > --- a/include/linux/lsm_hook_defs.h
+> > +++ b/include/linux/lsm_hook_defs.h
+> > @@ -171,6 +171,8 @@ LSM_HOOK(int, 0, file_alloc_security, struct file *=
+file)
+> >  LSM_HOOK(void, LSM_RET_VOID, file_free_security, struct file *file)
+> >  LSM_HOOK(int, 0, file_ioctl, struct file *file, unsigned int cmd,
+> >        unsigned long arg)
+> > +LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cm=
+d,
+> > +      unsigned long arg)
+>
+> Please add a flags parameter to file_ioctl() rather than a new hook.
+
+Paul told him the opposite earlier.
