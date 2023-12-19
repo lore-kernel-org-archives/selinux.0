@@ -1,53 +1,53 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C69261D13D
-	for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 16:10:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 038611D140
+	for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 16:10:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="T0CYrzPY"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a233a60f8feso357666566b.0
-        for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 08:10:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Nwmkxlad"
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-a236456fee1so251563766b.1
+        for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 08:10:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1703002214; x=1703607014; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1703002213; x=1703607013; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=akgUxFrDS2OEoiOfORLhSX66qaJZlbiwFJ71FzN57x0=;
-        b=T0CYrzPY2jVn66K6kvsW3mrbB6KWmAzH9IBka7+yjTkSCeAIGAdbKyQHgymMdNO1wO
-         3zFMrAa+OLxnj/UzJrHFeAcoppyYGIYjicXPgcnjU0hFLS2+HuZ3y7Y7OtQBRfDI655w
-         cuSUOZMj+9DUajYBKuNZBmI/yRoUAwec7mlX7KbBVaSbnsz49eYkldg1Snfx6C4KZucs
-         7EMJJKtCVSeOKIaFhj8z9GB5KrPAKnFn1pUQZ5ww1Dtf+xz+C/2TUQ6pjKWWUIPLGGDN
-         7c4jPVUti157ho7+ypeIDHO1KGYyV2O17gijvkdAfaWC4Ld9dUargyjq1msxIfHzMU2q
-         3Gog==
+        bh=altqZyX0zTQ2UMVZ0cwNTY7l34ou2n2ZoZAQGilpw/Y=;
+        b=Nwmkxlad/9axKXuGHYQLjS5UeWID9KGeKI/Vy20eR0fsyjQTAHA5yMRjF3ATpnEaar
+         W1+Q/QfLs6jh0deNkpczX73LGfGQNTzXSyVM5bcbE7juKlnckHl1S5EARuFxYfLab9kL
+         tq/oJNhyvNpsxFmXksUOmIdpw8W8u+RPiBTuxG68ZjON4a0Ykz9NzO0nGJF0V9sjnhx+
+         JZcPLB9CB3mZRK50EAWeVhUI4sCAAdhVCHIDWLzwr9kk6rde6zgJsohgfVocd6vOV0zf
+         4/vN6b9mi/CTi/Kry19pnv4DbFvUw3e0FIBEQRGO1BefFALuPxzkfFEQ3N5LNTgsuZd4
+         xphw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703002214; x=1703607014;
+        d=1e100.net; s=20230601; t=1703002213; x=1703607013;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=akgUxFrDS2OEoiOfORLhSX66qaJZlbiwFJ71FzN57x0=;
-        b=DERW5gACO2eUL1q4vGbZQUSuUjjqaGMG43r0OOS2FIBcM0hUsniiOYD+u0VZCeNhRw
-         8+HD1rfhzy7qt+dIsi078ISIjwRggnnG9o20loIpY2DTnY8qx71fUhxEu0FDKHH4DJ6f
-         YzROJJKabNDWAhdvFarGDn3nser7tLGNfI3O5Qx69+jhN2jz/Pap1pFncCmQPOUyFIw7
-         05stcrA/pokJsV/CXNROrK4RujbbTohNBnUimSq+fIv1QYXQnFtpHGSUDprd3LsIuacI
-         NQtk88ExTkcunZFsdWSsMmKNZV4n96FVZPE9R6urrKsaw+Bfv7qTg4FHayBGqTSg6RZH
-         foPw==
-X-Gm-Message-State: AOJu0Yy7kHdcBvvV0kgPvZ/CcZKmNVl/mX8L7fXc7msWqO24E5F9Did+
-	XpG3LwfCls/Kt5WeDkrQMTdoHLdv/R8=
-X-Google-Smtp-Source: AGHT+IGdxgMdv54MszGq0vn1OZikBRXL9Smkrw/FLGX2vhvrT0gPYZ3Cw4lKUIrChbkK3GRyzai3Rw==
-X-Received: by 2002:a17:907:3e13:b0:a26:8683:bd3b with SMTP id hp19-20020a1709073e1300b00a268683bd3bmr377124ejc.125.1703002214021;
-        Tue, 19 Dec 2023 08:10:14 -0800 (PST)
+        bh=altqZyX0zTQ2UMVZ0cwNTY7l34ou2n2ZoZAQGilpw/Y=;
+        b=Yv4ml2jyKmnuGX0+gy9oaWaDQsFp8SGXBSBZCfx9DB7oe21ROhbKY6XY9kPvjEFY2z
+         1KvWNXFNBsdQm+XFK0mEol32OUAfA33UFLXhvtrUqtlq88OVUlKdGxYntKrgG9K64woS
+         6mOTLfDnQAztq1348hfYPbdMSRmL6gbiF2+lpiC3a0jn5Ok0NUCIhNrBwBZZ+PAk3m2y
+         6hPtbTPOPkMdkSlANMVNIM/QD8c5A9tdNO1kWWn0VzKAZIOyp7Cq6KRt3g7j46NNMcx7
+         hB4+/mxn9uiDmlHxRoEZntxQOfcfmv2AsbwLp9jMvjvZ/OJg+KBkq/k6g2ru5hMtjWXz
+         krmg==
+X-Gm-Message-State: AOJu0YwhltZP4Ps15I9LIUHtZCZpTvkFwI+5k7wLolQ0dFYxNPkWb89d
+	MB+AgestyD7gFrdyuGHsVnRlYjnEgWw=
+X-Google-Smtp-Source: AGHT+IH6LSbo94AJ53G3JeJlA9kgg+fy5YsAB9WcjBlw163GKqGPozjT/L7+ei+VwmWeOi+GIPrROw==
+X-Received: by 2002:a17:907:c313:b0:a23:6dfa:f7ae with SMTP id tl19-20020a170907c31300b00a236dfaf7aemr2034519ejc.104.1703002213172;
+        Tue, 19 Dec 2023 08:10:13 -0800 (PST)
 Received: from debian_development.DebianHome (dynamic-077-010-185-155.77.10.pool.telefonica.de. [77.10.185.155])
-        by smtp.gmail.com with ESMTPSA id v19-20020a170906489300b00a236378a43fsm1936621ejq.62.2023.12.19.08.10.13
+        by smtp.gmail.com with ESMTPSA id v19-20020a170906489300b00a236378a43fsm1936621ejq.62.2023.12.19.08.10.12
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Dec 2023 08:10:13 -0800 (PST)
+        Tue, 19 Dec 2023 08:10:12 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 04/11] libselinux/utils: improve compute_av output
-Date: Tue, 19 Dec 2023 17:09:26 +0100
-Message-ID: <20231219160943.334370-4-cgzones@googlemail.com>
+Subject: [PATCH 03/11] libselinux/utils: free allocated resources
+Date: Tue, 19 Dec 2023 17:09:25 +0100
+Message-ID: <20231219160943.334370-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231219160943.334370-1-cgzones@googlemail.com>
 References: <20231219160943.334370-1-cgzones@googlemail.com>
@@ -60,59 +60,130 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Show the more interesting inverse of the auditdeny vector as dontaudit.
-
-Show the inverse of the decided vector, although since Linux v2.6.30
-f1c6381a6e33 ("SELinux: remove unused av.decided field") all permissions
-are always decided.
-
-    $ compute_av staff_u:staff_r:staff_t:s0 sysadm_u:sysadm_r:sysadm_t:s0 process
-    allowed= null
-    auditdeny= { fork transition sigchld sigkill sigstop signull ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit 0x80000000 }
-    dontaudit= { signal }
+Remove noise while running with sanitizers or under valgrind.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/utils/compute_av.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ libselinux/utils/getconlist.c     | 10 +++++++---
+ libselinux/utils/getdefaultcon.c  | 20 +++++++++++++++++---
+ libselinux/utils/selinuxexeccon.c |  1 +
+ 3 files changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/libselinux/utils/compute_av.c b/libselinux/utils/compute_av.c
-index cca407d6..09f574a0 100644
---- a/libselinux/utils/compute_av.c
-+++ b/libselinux/utils/compute_av.c
-@@ -44,10 +44,14 @@ int main(int argc, char **argv)
- 	print_access_vector(tclass, avd.allowed);
- 	printf("\n");
+diff --git a/libselinux/utils/getconlist.c b/libselinux/utils/getconlist.c
+index 92f6a793..1ff05209 100644
+--- a/libselinux/utils/getconlist.c
++++ b/libselinux/utils/getconlist.c
+@@ -19,8 +19,9 @@ static __attribute__ ((__noreturn__)) void usage(const char *name, const char *d
  
--	if (avd.decided != ~0U) {
-+	if (~avd.decided) {
- 		printf("decided=");
- 		print_access_vector(tclass, avd.decided);
- 		printf("\n");
-+
-+		printf("undecided=");
-+		print_access_vector(tclass, ~avd.decided);
-+		printf("\n");
+ int main(int argc, char **argv)
+ {
+-	char **list, *cur_context = NULL;
+-	char *user = NULL, *level = NULL;
++	char **list;
++	const char *cur_context, *user;
++	char *cur_con = NULL, *level = NULL;
+ 	int ret, i, opt;
+ 
+ 	while ((opt = getopt(argc, argv, "l:")) > 0) {
+@@ -54,11 +55,12 @@ int main(int argc, char **argv)
+ 
+ 	/* If a context wasn't passed, use the current context. */
+ 	if (((argc - optind) < 2)) {
+-		if (getcon(&cur_context) < 0) {
++		if (getcon(&cur_con) < 0) {
+ 			fprintf(stderr, "Couldn't get current context:  %s\n", strerror(errno));
+ 			free(level);
+ 			return 2;
+ 		}
++		cur_context = cur_con;
+ 	} else {
+ 		cur_context = argv[optind + 1];
+ 		if (security_check_context(cur_context) != 0) {
+@@ -82,10 +84,12 @@ int main(int argc, char **argv)
+ 	} else {
+ 		fprintf(stderr, "get_ordered_context_list%s failure: %d(%s)\n",
+ 			level ? "_with_level" : "", errno, strerror(errno));
++		free(cur_con);
+ 		free(level);
+ 		return 4;
  	}
  
- 	if (avd.auditallow) {
-@@ -56,10 +60,14 @@ int main(int argc, char **argv)
- 		printf("\n");
++	free(cur_con);
+ 	free(level);
+ 
+ 	return 0;
+diff --git a/libselinux/utils/getdefaultcon.c b/libselinux/utils/getdefaultcon.c
+index 50f1ea91..67c84f94 100644
+--- a/libselinux/utils/getdefaultcon.c
++++ b/libselinux/utils/getdefaultcon.c
+@@ -19,8 +19,9 @@ static __attribute__ ((__noreturn__)) void usage(const char *name, const char *d
+ 
+ int main(int argc, char **argv)
+ {
+-	char * usercon = NULL, *cur_context = NULL;
+-	char *user = NULL, *level = NULL, *role=NULL, *seuser=NULL, *dlevel=NULL;
++	const char *cur_context, *user;
++	char *usercon = NULL, *cur_con = NULL;
++	char *level = NULL, *role=NULL, *seuser=NULL, *dlevel=NULL;
+ 	char *service = NULL;
+ 	int ret, opt;
+ 	int verbose = 0;
+@@ -54,6 +55,9 @@ int main(int argc, char **argv)
+ 	if (!is_selinux_enabled()) {
+ 		fprintf(stderr,
+ 			"%s may be used only on a SELinux kernel.\n", argv[0]);
++		free(level);
++		free(role);
++		free(service);
+ 		return 1;
  	}
  
--	if (avd.auditdeny != ~0U) {
--		printf("auditdeny");
-+	if (~avd.auditdeny) {
-+		printf("auditdeny=");
- 		print_access_vector(tclass, avd.auditdeny);
- 		printf("\n");
-+
-+		printf("dontaudit=");
-+		print_access_vector(tclass, ~avd.auditdeny);
-+		printf("\n");
+@@ -61,15 +65,23 @@ int main(int argc, char **argv)
+ 
+ 	/* If a context wasn't passed, use the current context. */
+ 	if ((argc - optind) < 2) {
+-		if (getcon(&cur_context) < 0) {
++		if (getcon(&cur_con) < 0) {
+ 			fprintf(stderr, "%s:  couldn't get current context:  %s\n", argv[0], strerror(errno));
++			free(level);
++			free(role);
++			free(service);
+ 			return 2;
+ 		}
++		cur_context = cur_con;
+ 	} else
+ 		cur_context = argv[optind + 1];
+ 
+ 	if (security_check_context(cur_context)) {
+ 		fprintf(stderr, "%s:  invalid from context '%s'\n", argv[0], cur_context);
++		free(cur_con);
++		free(level);
++		free(role);
++		free(service);
+ 		return 3;
  	}
  
- 	exit(EXIT_SUCCESS);
+@@ -101,6 +113,8 @@ out:
+ 	if (level != dlevel) free(level);
+ 	free(dlevel);
+ 	free(usercon);
++	free(cur_con);
++	free(service);
+ 
+ 	return ret >= 0;
+ }
+diff --git a/libselinux/utils/selinuxexeccon.c b/libselinux/utils/selinuxexeccon.c
+index 66754b6a..463bf5aa 100644
+--- a/libselinux/utils/selinuxexeccon.c
++++ b/libselinux/utils/selinuxexeccon.c
+@@ -45,6 +45,7 @@ int main(int argc, char **argv)
+ 		con = strdup(argv[2]);
+ 		if (security_check_context(con)) {
+ 			fprintf(stderr, "%s:  invalid from context '%s'\n", argv[0], con);
++			free(con);
+ 			return -1;
+ 		}
+ 	}
 -- 
 2.43.0
 
