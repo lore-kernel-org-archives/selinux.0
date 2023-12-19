@@ -1,53 +1,53 @@
-Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83CAF1D521
-	for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 16:10:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31CA71D140
+	for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 16:10:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="dWEX0A4h"
-Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a2339262835so350744066b.3
-        for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 08:10:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="KBWhAT+5"
+Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a234139b725so365829466b.3
+        for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 08:10:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1703002215; x=1703607015; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1703002216; x=1703607016; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=BttxqXRGBCPrXk99eIkz9Fiyo5nhN/CXJX4ptKVVayQ=;
-        b=dWEX0A4hGGObaDSHs+Vygx8Wba97XbLomXXPOuZKarCDQzj8RrtVKZg39BWrNq2UDZ
-         fq00v0sT3vKY/lgm0DBe8HWz8PD0LXQnym0u7vkOUtAj2pyOsHw+FX/6SbLdgcq+Kno6
-         gp9tn1N3SFs6YYkI+Oz+i97rWyi+Y1f7MqI6qpwwrMTZuNnP72mGMzQjp5a5x93WBlJZ
-         mM3LPbKU304iVlmlPDWZzyA5jRrBZoEU++22aENZF3fHNIImxPCMT6MUFTSPpncKkQBZ
-         QjwE68mLveO1qF3WX1ajxruJ2rbBVwuiL6AM2I1E3XaH7FR5slpZRyK8B7rywVFwidM4
-         wTDw==
+        bh=Q3mQhCro7rIA//WgoTKoBpkiGulU0bbdLMCuyCwVh/8=;
+        b=KBWhAT+5d9yGvqNftUCP7N2R4N1W655wDCIuDttq92QS+S+pWSwkDkNUuD1w1pC9eP
+         Rv0FtyYxNG8FhpcdoHB95yR8z65v3Z0PLXe+rorOlexXaikKhqN1mNUsSx+1GsURXDNk
+         wFvT0FEbqYeCdyFEZJ6DBGZRHuOh7A/k9SQE7rwqhYXjLfVuAhavza+cW4wqPJa4YwXz
+         5c26CTeTJI8fyu6rGsNluU/TEOb7zULyStCQIfujKq/eMSiEcx274OPLF6XFzxX+Zl7S
+         J8fCCE784mUNzzPDknumhahQ4g0Q4oOM71DkOvmtnh9m4lLpy7As5DSBtoaAazKsq/Jb
+         uroQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703002215; x=1703607015;
+        d=1e100.net; s=20230601; t=1703002216; x=1703607016;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BttxqXRGBCPrXk99eIkz9Fiyo5nhN/CXJX4ptKVVayQ=;
-        b=FMMWBK0WjNZmn7FUvdy2DI8YXlNDPZmHgNRH+Xjl9wZBpK928PZBfHhozzDTXhhrUk
-         qVdVP9YDnwa3aSej0nN87xpOIdArNdMeqov9+YvgaTwe/yhdnVStfQmGBn9EUAGc2izE
-         EMVcj4Hj9Iqi5iZKJ9ntbIdmwvw6MALEBlfFNdMY1UGSgwnmPFAc+QiYEC/AHqrjTOHP
-         j/MGbOzVNLH7XIfnFbriD+wYpovnIA7KwwYXXD15kdPsutqJeT6swEfGMtltRbD79cez
-         UW+g1YNTCuLh5NI9vF7VdpdkNBpucXGu8AEOHYSQEZ5YU820KhMgJzd6ivK6tj1h4Kcc
-         i2wA==
-X-Gm-Message-State: AOJu0YzuMT0SHVtd/j9UQSSjDxrG0TAqELVfhLGNm+p0puxCwUbOtB3m
-	mSH4QOzX6me3Mc/yCjy3og1Wn8Coh0g=
-X-Google-Smtp-Source: AGHT+IHWjOXxMvTWPMUV8RcDVTe/dEldDKA+H3tFtLeyCDttlEFEuEHqPjYOe3SR/arRHCU7uq4W7g==
-X-Received: by 2002:a17:906:2803:b0:9fc:3a70:4430 with SMTP id r3-20020a170906280300b009fc3a704430mr8256192ejc.70.1703002214670;
-        Tue, 19 Dec 2023 08:10:14 -0800 (PST)
+        bh=Q3mQhCro7rIA//WgoTKoBpkiGulU0bbdLMCuyCwVh/8=;
+        b=QlxAOWU7gP54EAqFpCQwl43Bj/DGROz+EU4uyIjLQEMQvxF92K1fspBVsGsRC1lgKk
+         /jByO9qsx+R2qwekauyBN2oUpqHNaD3qwBt7CI90NE0+094AAcpnNTPuSUzd7kPX4fjr
+         fD9YWEdAGAwMTLBCqLrYSgfxov3tbQdudI3j5abG9lQ75DQQKiZ5PMqlWUu4p2k1Pe3j
+         lksC7tkMPui1GhDo7WVaV9IvAF/oUrPVeffMvgzvkQ5rxcKvuo3qzniy82GfomZSE5U+
+         BhXfijD4awKQWqNV8lzwOvQgM4g4tR1Hr0PzrxZk8nO7jwujDIcAfr/esKjBN+QAXD5g
+         U0Lg==
+X-Gm-Message-State: AOJu0YyTvlsLGprdTithDMXnVM9UdTqabQpAEUrrbEdLcoN+2/cbs/xA
+	xnEx4Qe1ISCixQpSSJqvs4X/W0TfLpk=
+X-Google-Smtp-Source: AGHT+IEHwSS8ZDrDxwxZ5Z5YCg1pgNsfKVkfZi4mHvlhtf+SoVSYAIzPnNFup+4nILrlqN1cPp8phw==
+X-Received: by 2002:a17:906:fa17:b0:a23:456b:bd79 with SMTP id lo23-20020a170906fa1700b00a23456bbd79mr1135937ejb.199.1703002216307;
+        Tue, 19 Dec 2023 08:10:16 -0800 (PST)
 Received: from debian_development.DebianHome (dynamic-077-010-185-155.77.10.pool.telefonica.de. [77.10.185.155])
-        by smtp.gmail.com with ESMTPSA id v19-20020a170906489300b00a236378a43fsm1936621ejq.62.2023.12.19.08.10.14
+        by smtp.gmail.com with ESMTPSA id v19-20020a170906489300b00a236378a43fsm1936621ejq.62.2023.12.19.08.10.15
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Dec 2023 08:10:14 -0800 (PST)
+        Tue, 19 Dec 2023 08:10:15 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 05/11] libselinux: align SELABEL_OPT_DIGEST usage with man page
-Date: Tue, 19 Dec 2023 17:09:27 +0100
-Message-ID: <20231219160943.334370-5-cgzones@googlemail.com>
+Subject: [PATCH 07/11] libselinux: use logging wrapper in getseuser(3) and get_default_context(3) family
+Date: Tue, 19 Dec 2023 17:09:29 +0100
+Message-ID: <20231219160943.334370-7-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231219160943.334370-1-cgzones@googlemail.com>
 References: <20231219160943.334370-1-cgzones@googlemail.com>
@@ -60,28 +60,92 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-According to selabel_opn(3) a non-null value for this option enables the
-generation of an SHA1 digest of the spec files loaded as described in
-selabel_digest(3).
+Instead of writing error messages directly to stderr use the wrapper
+selinux_log(), which by default writes to stderr.  This allows
+applications to redirect or silence messages via
+selinux_set_callback(3).
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libselinux/src/get_context_list.c | 10 ++++++----
+ libselinux/src/seusers.c          |  6 ++++--
+ 2 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 1ea9bdcd..4a7c6e6d 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -62,7 +62,7 @@ static inline struct selabel_digest *selabel_is_digest_set
+diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
+index 9dafa519..7e23be05 100644
+--- a/libselinux/src/get_context_list.c
++++ b/libselinux/src/get_context_list.c
+@@ -7,7 +7,9 @@
+ #include <string.h>
+ #include <ctype.h>
+ #include <pwd.h>
++
+ #include "selinux_internal.h"
++#include "callbacks.h"
+ #include "context_internal.h"
+ #include "get_context_list_internal.h"
  
- 	while (n--) {
- 		if (opts[n].type == SELABEL_OPT_DIGEST &&
--					    opts[n].value == (char *)1) {
-+					    !!opts[n].value) {
- 			digest = calloc(1, sizeof(*digest));
- 			if (!digest)
- 				goto err;
+@@ -224,7 +226,7 @@ static int get_context_user(FILE * fp,
+ 
+ 		/* Check whether a new context is valid */
+ 		if (SIZE_MAX - user_len < strlen(start) + 2) {
+-			fprintf(stderr, "%s: one of partial contexts is too big\n", __FUNCTION__);
++			selinux_log(SELINUX_ERROR, "%s: one of partial contexts is too big\n", __FUNCTION__);
+ 			errno = EINVAL;
+ 			rc = -1;
+ 			goto out;
+@@ -245,7 +247,7 @@ static int get_context_user(FILE * fp,
+ 				rc = -1;
+ 				goto out;
+ 			}
+-			fprintf(stderr,
++			selinux_log(SELINUX_ERROR,
+ 				"%s: can't create a context from %s, skipping\n",
+ 				__FUNCTION__, usercon_str);
+ 			free(usercon_str);
+@@ -439,7 +441,7 @@ int get_ordered_context_list(const char *user,
+ 
+ 		fclose(fp);
+ 		if (rc < 0 && errno != ENOENT) {
+-			fprintf(stderr,
++			selinux_log(SELINUX_ERROR,
+ 				"%s:  error in processing configuration file %s\n",
+ 				__FUNCTION__, fname);
+ 			/* Fall through, try global config */
+@@ -452,7 +454,7 @@ int get_ordered_context_list(const char *user,
+ 		rc = get_context_user(fp, fromcon, user, &reachable, &nreachable);
+ 		fclose(fp);
+ 		if (rc < 0 && errno != ENOENT) {
+-			fprintf(stderr,
++			selinux_log(SELINUX_ERROR,
+ 				"%s:  error in processing configuration file %s\n",
+ 				__FUNCTION__, selinux_default_context_path());
+ 			/* Fall through */
+diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
+index 6da8c318..e5cfd510 100644
+--- a/libselinux/src/seusers.c
++++ b/libselinux/src/seusers.c
+@@ -8,7 +8,9 @@
+ #include <errno.h>
+ #include <selinux/selinux.h>
+ #include <selinux/context.h>
++
+ #include "selinux_internal.h"
++#include "callbacks.h"
+ 
+ /* Process line from seusers.conf and split into its fields.
+    Returns 0 on success, -1 on comments, and -2 on error. */
+@@ -197,8 +199,8 @@ int getseuserbyname(const char *name, char **r_seuser, char **r_level)
+ 		if (rc == -1)
+ 			continue;	/* comment, skip */
+ 		if (rc == -2) {
+-			fprintf(stderr, "%s:  error on line %lu, skipping...\n",
+-				selinux_usersconf_path(), lineno);
++			selinux_log(SELINUX_ERROR, "%s:  error on line %lu, skipping...\n",
++						   selinux_usersconf_path(), lineno);
+ 			continue;
+ 		}
+ 
 -- 
 2.43.0
 
