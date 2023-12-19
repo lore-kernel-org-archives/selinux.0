@@ -1,53 +1,53 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 463EB1D133
-	for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 16:10:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83CAF1D521
+	for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 16:10:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="ll2J8TZi"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a235e394758so274121866b.1
-        for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 08:10:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="dWEX0A4h"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a2339262835so350744066b.3
+        for <selinux@vger.kernel.org>; Tue, 19 Dec 2023 08:10:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20230601; t=1703002215; x=1703607015; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=SlPBJRCJAiUl6SzcrSl5tuliJRJLnt898mkFfNL7oSQ=;
-        b=ll2J8TZiAV58USCix789cQZ4S+IANGn0OQiLUHHOMjaffdGAw02e5pIScos8Eci/Su
-         rxET3OexxOksGLsZquudw3K+4jBzRBQP8lsiQo8wUJOSIvWhdFym6eeER9D1E1GJtGBx
-         qfqCo4N062QcowcY+Is32PSxBhoJD/hiEJ6Tm42x5Z6IKFJSIfk7dji/wzjuChAZeoX0
-         ZhUB09qapIgjWP3MAnOq/3f8Ly52Lp/4UEXSOuhSTo4ZQqowrUAWoVWKMz3vclB7zYXh
-         Jh55L9EWQXBeWvMT9dS6OPFOypyh1akDJp6S/4hpmVL0NVqOZ1Vy9O2Otdjb4QHv/TpA
-         yR/w==
+        bh=BttxqXRGBCPrXk99eIkz9Fiyo5nhN/CXJX4ptKVVayQ=;
+        b=dWEX0A4hGGObaDSHs+Vygx8Wba97XbLomXXPOuZKarCDQzj8RrtVKZg39BWrNq2UDZ
+         fq00v0sT3vKY/lgm0DBe8HWz8PD0LXQnym0u7vkOUtAj2pyOsHw+FX/6SbLdgcq+Kno6
+         gp9tn1N3SFs6YYkI+Oz+i97rWyi+Y1f7MqI6qpwwrMTZuNnP72mGMzQjp5a5x93WBlJZ
+         mM3LPbKU304iVlmlPDWZzyA5jRrBZoEU++22aENZF3fHNIImxPCMT6MUFTSPpncKkQBZ
+         QjwE68mLveO1qF3WX1ajxruJ2rbBVwuiL6AM2I1E3XaH7FR5slpZRyK8B7rywVFwidM4
+         wTDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1703002215; x=1703607015;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SlPBJRCJAiUl6SzcrSl5tuliJRJLnt898mkFfNL7oSQ=;
-        b=VhUYCbOO47uK0nODYnUMqJKzyI7XD2lfAg/nXeXlX3nsJgygez2xM6zcjb+sXocelt
-         UGKCyFYqGz1vxtZ2U03L7jwafDdgioxG9/Ye5k7XfCsoqyXcqb2mU5tpOAg/r4wzfPlN
-         h4BFzwnrZW+rnL7PPaZrlS4b7VN4WsSagFdzmBNttlPWHZDwMP7u0qFz9nVcXrZTtxhm
-         MdfnHcs2BoHtbd2ALPOwU9c2UL9WxLMIwINvPMs1jkmxVM2FpxmDJxmCtTlsRk9x4/0v
-         f90mxw3ksjyG28HA+uVdlbzF4qhmdmQZOp5F3AfSo1juuuCe5qb6O1XYCD9yZ1s4aqOg
-         ezZA==
-X-Gm-Message-State: AOJu0YzCx8Znps3oNL7B3PH/M9TTw1CGV0+kOPxUxV4+uacuWnrOf6fE
-	+PE+z14doOz0w4tS6/wK3Gk3/0Fq2eQ=
-X-Google-Smtp-Source: AGHT+IHlkqFu6v8JmLi5mzK881Xnu7Dq4XjUME+ykQtecw+0+0xIImBNLS8DUdcKsGKQitef76tWfw==
-X-Received: by 2002:a17:906:a85a:b0:a23:5974:3cb2 with SMTP id dx26-20020a170906a85a00b00a2359743cb2mr1961427ejb.116.1703002215555;
-        Tue, 19 Dec 2023 08:10:15 -0800 (PST)
+        bh=BttxqXRGBCPrXk99eIkz9Fiyo5nhN/CXJX4ptKVVayQ=;
+        b=FMMWBK0WjNZmn7FUvdy2DI8YXlNDPZmHgNRH+Xjl9wZBpK928PZBfHhozzDTXhhrUk
+         qVdVP9YDnwa3aSej0nN87xpOIdArNdMeqov9+YvgaTwe/yhdnVStfQmGBn9EUAGc2izE
+         EMVcj4Hj9Iqi5iZKJ9ntbIdmwvw6MALEBlfFNdMY1UGSgwnmPFAc+QiYEC/AHqrjTOHP
+         j/MGbOzVNLH7XIfnFbriD+wYpovnIA7KwwYXXD15kdPsutqJeT6swEfGMtltRbD79cez
+         UW+g1YNTCuLh5NI9vF7VdpdkNBpucXGu8AEOHYSQEZ5YU820KhMgJzd6ivK6tj1h4Kcc
+         i2wA==
+X-Gm-Message-State: AOJu0YzuMT0SHVtd/j9UQSSjDxrG0TAqELVfhLGNm+p0puxCwUbOtB3m
+	mSH4QOzX6me3Mc/yCjy3og1Wn8Coh0g=
+X-Google-Smtp-Source: AGHT+IHWjOXxMvTWPMUV8RcDVTe/dEldDKA+H3tFtLeyCDttlEFEuEHqPjYOe3SR/arRHCU7uq4W7g==
+X-Received: by 2002:a17:906:2803:b0:9fc:3a70:4430 with SMTP id r3-20020a170906280300b009fc3a704430mr8256192ejc.70.1703002214670;
+        Tue, 19 Dec 2023 08:10:14 -0800 (PST)
 Received: from debian_development.DebianHome (dynamic-077-010-185-155.77.10.pool.telefonica.de. [77.10.185.155])
         by smtp.gmail.com with ESMTPSA id v19-20020a170906489300b00a236378a43fsm1936621ejq.62.2023.12.19.08.10.14
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Dec 2023 08:10:15 -0800 (PST)
+        Tue, 19 Dec 2023 08:10:14 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 06/11] libselinux: fail selabel_open(3) on invalid option
-Date: Tue, 19 Dec 2023 17:09:28 +0100
-Message-ID: <20231219160943.334370-6-cgzones@googlemail.com>
+Subject: [PATCH 05/11] libselinux: align SELABEL_OPT_DIGEST usage with man page
+Date: Tue, 19 Dec 2023 17:09:27 +0100
+Message-ID: <20231219160943.334370-5-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231219160943.334370-1-cgzones@googlemail.com>
 References: <20231219160943.334370-1-cgzones@googlemail.com>
@@ -60,109 +60,28 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Return an error on invalid selabel_open(3) options, e.g. an option for
-a different backend was used.
+According to selabel_opn(3) a non-null value for this option enables the
+generation of an SHA1 digest of the spec files loaded as described in
+selabel_digest(3).
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/label_backends_android.c | 7 +++++++
- libselinux/src/label_db.c               | 8 ++++++++
- libselinux/src/label_file.c             | 7 +++++++
- libselinux/src/label_media.c            | 7 +++++++
- libselinux/src/label_x.c                | 7 +++++++
- 5 files changed, 36 insertions(+)
+ libselinux/src/label.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
-index cd3875fc..7ddacdbe 100644
---- a/libselinux/src/label_backends_android.c
-+++ b/libselinux/src/label_backends_android.c
-@@ -157,6 +157,13 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 		case SELABEL_OPT_PATH:
- 			path = opts[n].value;
- 			break;
-+		case SELABEL_OPT_UNUSED:
-+		case SELABEL_OPT_VALIDATE:
-+		case SELABEL_OPT_DIGEST:
-+			break;
-+		default:
-+			errno = EINVAL;
-+			return -1;
- 		}
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 1ea9bdcd..4a7c6e6d 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -62,7 +62,7 @@ static inline struct selabel_digest *selabel_is_digest_set
  
- 	if (!path)
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index 3f803037..2daf1770 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -268,6 +268,14 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 		case SELABEL_OPT_PATH:
- 			path = opts[nopts].value;
- 			break;
-+		case SELABEL_OPT_UNUSED:
-+		case SELABEL_OPT_VALIDATE:
-+		case SELABEL_OPT_DIGEST:
-+			break;
-+		default:
-+			free(catalog);
-+			errno = EINVAL;
-+			return NULL;
- 		}
- 	}
- 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 4778f8f8..315298b3 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -812,6 +812,13 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 		case SELABEL_OPT_BASEONLY:
- 			baseonly = !!opts[n].value;
- 			break;
-+		case SELABEL_OPT_UNUSED:
-+		case SELABEL_OPT_VALIDATE:
-+		case SELABEL_OPT_DIGEST:
-+			break;
-+		default:
-+			errno = EINVAL;
-+			return -1;
- 		}
- 
- #if !defined(BUILD_HOST) && !defined(ANDROID)
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index b3443b47..4c987988 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -85,6 +85,13 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 		case SELABEL_OPT_PATH:
- 			path = opts[n].value;
- 			break;
-+		case SELABEL_OPT_UNUSED:
-+		case SELABEL_OPT_VALIDATE:
-+		case SELABEL_OPT_DIGEST:
-+			break;
-+		default:
-+			errno = EINVAL;
-+			return -1;
- 		}
- 
- 	/* Open the specification file. */
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index e15190ca..f332dcb6 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -112,6 +112,13 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 		case SELABEL_OPT_PATH:
- 			path = opts[n].value;
- 			break;
-+		case SELABEL_OPT_UNUSED:
-+		case SELABEL_OPT_VALIDATE:
-+		case SELABEL_OPT_DIGEST:
-+			break;
-+		default:
-+			errno = EINVAL;
-+			return -1;
- 		}
- 
- 	/* Open the specification file. */
+ 	while (n--) {
+ 		if (opts[n].type == SELABEL_OPT_DIGEST &&
+-					    opts[n].value == (char *)1) {
++					    !!opts[n].value) {
+ 			digest = calloc(1, sizeof(*digest));
+ 			if (!digest)
+ 				goto err;
 -- 
 2.43.0
 
