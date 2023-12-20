@@ -1,43 +1,44 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DD6B3D989
-	for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 14:39:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA2EF40BE8;
+	Wed, 20 Dec 2023 15:34:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OHQPpxYe"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3333b46f26aso4861880f8f.1
-        for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 06:39:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="enogq4AA"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-28bd09e35e8so493397a91.0;
+        Wed, 20 Dec 2023 07:34:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1703083147; x=1703687947; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=f2oUpPP2PLyXV8nPq8H1pk05VlePtZv14Y6rjtd2zCg=;
-        b=OHQPpxYeWLJGbaLz8p4BpvQ7NyjQlaTkaTUXBQAJmGat/HsrBblxEiurb1sc8sakWX
-         e3lNb0YVh3gmpab9htQuUvGKOeA6SJN6cKWFvn32zxzbh8c+WHYLhSQQVeOImlBf2vds
-         8WA/IlsZzb5KMh2e6A+jmmhwSz0J9bZOQSAehYkyBMkR/LgMpB5TLhwqnpjTzsPVkwrC
-         bfcXv7VWM/UEURiVSYwtiYkFJM7rQ6BhWcTMt+GYL6J69Xe6sRQNkNy+COYyqxckmB6o
-         8Ec5pE5aTqNXMNg4dj4Lo/w5H2Uyu8snvlJ9demvEMwQCDiL4w+x0mXPxYlYagZGuRTt
-         BPXQ==
+        d=gmail.com; s=20230601; t=1703086491; x=1703691291; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eKFnX4CJVbWZh50vYqLqudxSDwEYO4UT48j3QGNennM=;
+        b=enogq4AAbXXlnLcWN0UWih9GstGT6T7gC6RcebIlDYKy+mEUMpvKKjIYg3d4S8jLPp
+         RZGWNHO9n0HLxy2QIjxqmqbOrXo2GeIPa6PjwvN048MzC+jpVutDs9jrM5/2RqvHjbYw
+         h6OcE9Hyby5FbIrn1GShzlw9MXx+I8TFdeqo22WgUk/JyCb0HAhEa2RGzzxEzPO/68PE
+         nKOvOIV6aABAGXHcEQUjTiO9G0NSLer4Qs7yRArmFgz4iql4VTcFxVHdQzsdAhrBq+jV
+         Lnb4FsMnRlG6eHynxrnQq1foYOTAAvUp46ThnL0bu69nfEetr7fP5MDoE2YfdR+mejK/
+         3bRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703083147; x=1703687947;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=f2oUpPP2PLyXV8nPq8H1pk05VlePtZv14Y6rjtd2zCg=;
-        b=ox2P9fzf41HNaNbngdSpSGQf/GEUpWzQQtwhwiSHWQn3dbo8dT0Ti46EdYhpKEI/EV
-         JjzSwaP5Iy4u2lNgrS5hYEBNedHJ6fOUAIi+yEO9rWbGDnelI2k3loq6uRNhNgwPFM5A
-         bUlPvXd/W4cQbGV+cxbXclGvBVfaEU3vnEn8O3a9SSHch9rRoqFYESmrqYordQuuxxA7
-         c/dBPTp2A5qghaHz4NC0jbBYy7K99I499tUOlQ9MuCVYLi0VJfh1aOjPROyaasOfDkZ1
-         UqbyFVx/KuGhd4xkYZkm4fOlChT/OwAikTqgRIwYwDaz3tWbWP91RDvRzDHrKHrYBDHJ
-         5WRg==
-X-Gm-Message-State: AOJu0YzoHay16nqixGYtvpZ3luFSOymEaXzUJSB61iUGICT5Gi1q87p+
-	GlZC1tejgJODlMhHZ0OAbBFXCdUtPzHKlTWUiON34w==
-X-Google-Smtp-Source: AGHT+IF8K6EUmmfn1dSorG+bifQbkbItpBNPjm2gICGt2CYz8CKW5ogpaRIJFGwGAo1cEwXzCcejyo4bDjcnYdjSwOs=
-X-Received: by 2002:a5d:47c5:0:b0:336:5b5d:245f with SMTP id
- o5-20020a5d47c5000000b003365b5d245fmr5663984wrc.140.1703083147437; Wed, 20
- Dec 2023 06:39:07 -0800 (PST)
+        d=1e100.net; s=20230601; t=1703086491; x=1703691291;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eKFnX4CJVbWZh50vYqLqudxSDwEYO4UT48j3QGNennM=;
+        b=NLUhV9dmgpfwjzVsaUUSZgzeGhau7whaBviLXol/ZL+gssgvhiSvp49PlrZ3yMCeXv
+         09SEk2p+Lz+NKR+lk1xN8g8YouQd4b0Mzim8PTx0hqpAboLoAOrheauWURpjjSwIqBWu
+         087mRvWQqEesFgvoyYCh9bwcdS9PG7TdDG3jbh/ojbRL4hJBm5DC2V7qOUYsTna2D469
+         Diohu99BuidNnNIUqKqAbxbcrxfKGoLUWTSUcpU4XNUXv6utuIisjHFcGYTebBTWDGwl
+         VGCXVCAjbN5PP2Sf78QQuwNooWtfLWngViTXN74qBimy35pqRwqr100bb6eUux3gi+Wp
+         16fw==
+X-Gm-Message-State: AOJu0YzO+B+jLcXZHiNJr8/sc3vUHTf6MEt+bzUYH0jRE4PxQ6Ejz1TE
+	W1cxoQN8NPc+xKyNveRpJcPLtwpliJDf/guS5mjjoxxPaBg=
+X-Google-Smtp-Source: AGHT+IHD72x6lp5w65PvqqD7hpY3DZmaKFJFG3kRX0NfBAMXfvVyPVSUZunqqNiSyoH2/9WURpfCeJDQLmkLVtmv+hQ=
+X-Received: by 2002:a17:90a:1049:b0:286:e125:1a3f with SMTP id
+ y9-20020a17090a104900b00286e1251a3fmr8461526pjd.5.1703086490897; Wed, 20 Dec
+ 2023 07:34:50 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -47,29 +48,69 @@ MIME-Version: 1.0
 References: <20230906102557.3432236-1-alpic@google.com> <20231219090909.2827497-1-alpic@google.com>
  <CALcwBGC9LzzdJeq3SWy9F3g5A32s5uSvJZae4j+rwNQqqLHCKg@mail.gmail.com>
 In-Reply-To: <CALcwBGC9LzzdJeq3SWy9F3g5A32s5uSvJZae4j+rwNQqqLHCKg@mail.gmail.com>
-From: Alfred Piccioni <alpic@google.com>
-Date: Wed, 20 Dec 2023 15:38:31 +0100
-Message-ID: <CALcwBGD1hW4RJEpm6ABgEA--0RKkn1U9O5mBPL1g3B4Hw+0gWA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 20 Dec 2023 10:34:38 -0500
+Message-ID: <CAEjxPJ7kLwQAee+J1RJ_AvoVLkJR2L5dyZ0jFJHbazZANWgeyQ@mail.gmail.com>
 Subject: Re: [PATCH] security: new security_file_ioctl_compat() hook
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Eric Paris <eparis@parisplace.org>
-Cc: linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	stable@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alfred Piccioni <alpic@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>, 
+	LSM List <linux-security-module@vger.kernel.org>, 
+	Linux FS Devel <linux-fsdevel@vger.kernel.org>, stable@vger.kernel.org, 
+	SElinux list <selinux@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->> By the way, for extra credit, you could augment the ioctl tests in the
->> selinux-testsuite to also exercise this new hook and confirm that it
->> works correctly. See
->> https://github.com/SELinuxProject/selinux-testsuite particularly
->> tests/ioctl and policy/test_ioctl.te. Feel free to ask for help on
->> that.
+On Tue, Dec 19, 2023 at 4:11=E2=80=AFAM Alfred Piccioni <alpic@google.com> =
+wrote:
+>
+> Thanks for taking the time to review! Apologies for the number of
+> small mistakes.
 
-> I do like extra credit. I'll take a look and see if it's something I
-> can tackle. I'm primarily doing ad hoc checks on Android devices, so
-> I'm unsure how easy it will be for me to run the suite. I'll get back
-> to you shortly on that.
+NP.
 
-In response to myself, I unfortunately won't have time to do the
-testing updates this year. If someone else wants to help, that'd be
-great! Otherwise, I'll take a look next year after vacation and see if
-I can take a crack at it. Thanks!
+> > Also, IIRC, Paul prefers putting a pair of parentheses after function
+> > names to distinguish them, so in the subject line
+> > and description it should be security_file_ioctl_compat() and
+> > security_file_ioctl(), and you should put a patch version
+> > in the [PATCH] prefix e.g. [PATCH v3] to make clear that it is a later
+> > version, and usually one doesn't capitalize SELinux
+> > or the leading verb in the subject line (just "selinux: introduce").
+>
+> Changed title to lower-case, prefixed with security, changed slightly
+> to fit in summary with new parentheses. Added [PATCH V3] to the
+> subject.
+
+Patch description still doesn't include the parentheses after each
+function name but probably not worth re-spinning unless Paul says to
+do so. I don't see the v3 in the subject line. Seemingly that in
+combination with the fact that you replied to the original thread
+confuses the b4 tool (b4.docs.kernel.org) such that b4 mbox/am/shazam
+ends up selecting the v2 patch instead by default.
+
+> > Actually, since this spans more than just SELinux, the prefix likely
+> > needs to reflect that (e.g. security: introduce ...)
+> > and the patch should go to the linux-security-module mailing list too
+> > and perhaps linux-fsdevel for the ioctl change.
+>
+> Added cc 'selinux@vger.kernel.org' and cc
+> 'linux-kernel@vger.kernel.org'. Thanks!
+
+Just FYI, scripts/get_maintainer.pl /path/to/patch will provide an
+over-approximation of who to include on the distribution for patches
+based on MAINTAINERS and recent committers. That said, I generally
+prune the set it provides. More art than science.
+
+> > I didn't do an audit but does anything need to be updated for the BPF
+> > LSM or does it auto-magically pick up new hooks?
+>
+> I'm unsure. I looked through the BPF LSM and I can't see any way it's
+> picking up the file_ioctl hook to begin with. It appears to me
+> skimming through the code that it automagically picks it up, but I'm
+> not willing to bet the kernel on it.
+>
+> Do you know who would be a good person to ask about this to make sure?
+
+Looks like it inherited it via the lsm_hook_defs.h.
+$ nm security/bpf/hooks.o | grep ioctl
+                 U bpf_lsm_file_ioctl
+                 U bpf_lsm_file_ioctl_compat
