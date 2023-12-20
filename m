@@ -1,108 +1,136 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D29E4879E
-	for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 21:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UUuIHCR9"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dbdacafe012so134904276.1
-        for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 13:35:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1703108129; x=1703712929; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3AxAQvYhmhIfUqWH7duUzPZfIF+U7r5XIuQJtwq0N2w=;
-        b=UUuIHCR9Z6MCoqgm03X/+NY0c12KV932axShY7LJzuQ61B/Wq9ZQIX/W3uL2qSkVxO
-         ZjNQpLOkPi7Ey/6vonDqUWoojvw2SIPu3OAP8N+ZALeX7080SLndqanQwL4p/2LH2NT+
-         3Emwe21STK5jTTEQukhqzpLhfAJTftBEEbFfUVMTuCfc4l8Pa8720hTOhHh79EUNvos6
-         B82oYNhZH43S8dN/cDhLrnqYiUcpq6UBxqvYsNaX/Tx6Gjp6/Y9hGkyLyw+mBJKWeDa8
-         r5iR5laldT0f+qWBpZQ22ILA5T0kMeE9wsz4d0SH3eFlQ4qRj82eBtew1hySgpthEDjE
-         E0mA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703108129; x=1703712929;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3AxAQvYhmhIfUqWH7duUzPZfIF+U7r5XIuQJtwq0N2w=;
-        b=lzvoaKx3CvxHml5WpMRlRbtQhRDvaTURWIcwzXICE1/dGsuIIRjCtk/oEWZLFDB1Ir
-         LqUDS1HgJovor8TcX0uFTRqSj2/vSe7H9e7jmbsBAaV1q03A3VATqach5wGVohw1E2Du
-         DYjjA4JCoxH7QBZTSilcKtVuP28cvB6QJ34ybHPaf8a0YjfJ1tg2t5T809mdopPLh9T5
-         qWSyXlyS74MqKv5h8K0pEpq1Ucfbo2k5+yg42uTfMVplvZYHwAG7r8ho+FVMa1yuCnWT
-         IJxSglZ9fK9COAjZw6+17xkg5mZ1ssfXZHrNh0QsOiUbnaHvQlTCyLFn70mx67YPDaYv
-         OpRg==
-X-Gm-Message-State: AOJu0Yw/or9dC90gO99Zz7LAkUlvowFYC1hLDkH8OU5++P/ccW0Fa8Qw
-	eN9GDaSOxi16jKwmQFdpR5z4hnBcOZ9Mj357xh61
-X-Google-Smtp-Source: AGHT+IFosPpMjzCvih79hRO0tYrhLHSlPcFGCjYGSvXhZ46V32jgqWJ379mulOVwn3keNvIGmfCl8hZd1txiBkat8QI=
-X-Received: by 2002:a25:d6c4:0:b0:dbd:4aea:b098 with SMTP id
- n187-20020a25d6c4000000b00dbd4aeab098mr301577ybg.131.1703108129210; Wed, 20
- Dec 2023 13:35:29 -0800 (PST)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 754974AF64;
+	Wed, 20 Dec 2023 22:31:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 727DA2F4;
+	Wed, 20 Dec 2023 14:32:02 -0800 (PST)
+Received: from [10.57.4.161] (unknown [10.57.4.161])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 79D0A3F738;
+	Wed, 20 Dec 2023 14:31:16 -0800 (PST)
+Message-ID: <3717b995-5209-4db8-be77-c6303bb1c0db@arm.com>
+Date: Wed, 20 Dec 2023 22:31:15 +0000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87bkaurtrk.fsf@redhat.com> <878r5yrsnc.fsf@redhat.com>
- <bea94ac8b2feca19ef51ad271e56ff88617614e1.camel@suse.de> <87o7elxdxs.fsf@redhat.com>
-In-Reply-To: <87o7elxdxs.fsf@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 20 Dec 2023 16:35:18 -0500
-Message-ID: <CAHC9VhQf-gBppuYbfcnSomHFGVvYtUcUbG-p2jvt-0ZUDq=6SA@mail.gmail.com>
-Subject: Re: ANN: SELinux userspace 3.6
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: Cathy Hu <cahu@suse.de>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 3/3] lsm: consolidate buffer size handling into
+ lsm_fill_user_ctx()
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org
+Cc: selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
+ John Johansen <john.johansen@canonical.com>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8?=
+ =?UTF-8?Q?n?= <mic@digikod.net>, Mark Brown <broonie@kernel.org>
+References: <20231024213525.361332-4-paul@paul-moore.com>
+ <20231024213525.361332-7-paul@paul-moore.com>
+Content-Language: en-US
+From: Aishwarya TCV <aishwarya.tcv@arm.com>
+In-Reply-To: <20231024213525.361332-7-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 20, 2023 at 7:21=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
->
-> Cathy Hu <cahu@suse.de> writes:
->
-> > Hi,
-> >
-> > thanks for the new userspace release. I was just packaging it for
-> > opensuse when I saw that the signing key changed.
-> >
-> > Could someone confirm if that is correct? I am just a bit unsure since
-> > the new key has no signatures from people that I frequently see on this
-> > mailinglist.
-> >
-> > New key (almost no signatures):
-> > https://keyserver.ubuntu.com/pks/lookup?search=3D1BE2C0FF08949623102FD2=
-564695881C254508D1&fingerprint=3Don&op=3Dindex
-> >
-> > Old key (lots of signatures):
-> > https://keyserver.ubuntu.com/pks/lookup?search=3DE853C1848B0185CF42864D=
-F363A8AD4B982C4373&fingerprint=3Don&op=3Dindex
-> >
->
-> Thanks for checking signatures!
->
-> This is correct.
->
-> It's signed by me - Petr Lautrbach <lautrbach@redhat.com> known as
-> bachradsusi on github and the public key could be found at
->
-> https://github.com/bachradsusi.gpg
->
-> This key is signed by
-> E853C1848B0185CF42864DF363A8AD4B982C4373 Petr Lautrbach
-> <plautrba@redhat.com> which is signed by other guys ...
 
-Perhaps it makes sense to include some text in the README.md with
-information about what GPG fingerprints are valid for signing
-releases?  Adding it to the README.md not only means that it is front
-and center on the GitHub page, it also means that any fingerprints
-added to the file will be part of the signed release tarballs
-providing a history of authorized GPG identities (although that
-doesn't help us until we build up that history).
 
-As an example, here is what we do in libseccomp:
-https://github.com/seccomp/libseccomp#verifying-release-tarballs
+On 24/10/2023 22:35, Paul Moore wrote:
+> While we have a lsm_fill_user_ctx() helper function designed to make
+> life easier for LSMs which return lsm_ctx structs to userspace, we
+> didn't include all of the buffer length safety checks and buffer
+> padding adjustments in the helper.  This led to code duplication
+> across the different LSMs and the possibility for mistakes across the
+> different LSM subsystems.  In order to reduce code duplication and
+> decrease the chances of silly mistakes, we're consolidating all of
+> this code into the lsm_fill_user_ctx() helper.
+> 
+> The buffer padding is also modified from a fixed 8-byte alignment to
+> an alignment that matches the word length of the machine
+> (BITS_PER_LONG / 8).
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  include/linux/security.h   |  9 ++++---
+>  security/apparmor/lsm.c    | 15 +++--------
+>  security/security.c        | 55 +++++++++++++++++++++-----------------
+>  security/selinux/hooks.c   | 42 +++++++++++++++--------------
+>  security/smack/smack_lsm.c | 23 +++++-----------
+>  5 files changed, 67 insertions(+), 77 deletions(-)
+> 
 
---=20
-paul-moore.com
+Hi Paul,
+
+While building the kernel against next-master for arch arm64
+> security/security.c:810:2: warning: ‘memcpy’ offset 32 is out of the bounds [0, 0] [-Warray-bounds]
+warning is observed. On some other architectures like i386 and x86_64,
+an error is observed. > arch/x86/include/asm/string_32.h:150:25: error:
+‘__builtin_memcpy’ offset 32 is out of the bounds [0, 0]
+[-Werror=array-bounds]
+
+The links of the logs is listed below:
+https://storage.kernelci.org/next/master/next-20231220/arm64/defconfig/gcc-10/logs/build-warnings.log
+https://storage.kernelci.org/next/master/next-20231220/i386/i386_defconfig/gcc-10/logs/build-errors.log
+
+The logs of all the architecture built against next-master can be found
+here (select the 'All' category in the table to view):
+https://linux.kernelci.org/build/next/branch/master/kernel/next-20231220/
+
+
+Find this issue filed at KSPP/linux here:
+https://github.com/KSPP/linux/issues/347
+
+
+A bisect done by building kernel against next-master for arch arm64
+(full log below) identified this patch as introducing the failure.
+
+git bisect log:
+git bisect start
+# good: [b85ea95d086471afb4ad062012a4d73cd328fa86] Linux 6.7-rc1
+git bisect good b85ea95d086471afb4ad062012a4d73cd328fa86
+# bad: [5ba73bec5e7b0494da7fdca3e003d8b97fa932cd] Add linux-next
+specific files for 20231114
+git bisect bad 5ba73bec5e7b0494da7fdca3e003d8b97fa932cd
+# good: [a15c6466b909f03889150df57b227702a7bd6bd5] Merge branch
+'for-next' of
+git://git.kernel.org/pub/scm/linux/kernel/git/wireless/wireless-next.git
+git bisect good a15c6466b909f03889150df57b227702a7bd6bd5
+# good: [6a8b8b208098a27488a3649966d64894da948a02] Merge branch
+'for-next' of
+git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git
+git bisect good 6a8b8b208098a27488a3649966d64894da948a02
+# bad: [81105901f053f9684a111c0569eb35474b2a86f9] Merge branch 'next' of
+git://git.kernel.org/pub/scm/linux/kernel/git/coresight/linux.git
+git bisect bad 81105901f053f9684a111c0569eb35474b2a86f9
+# bad: [585a8722efb6f823e961f16bd9be818f994d4804] Merge branch
+'rcu/next' of
+git://git.kernel.org/pub/scm/linux/kernel/git/paulmck/linux-rcu.git
+git bisect bad 585a8722efb6f823e961f16bd9be818f994d4804
+# good: [c867caae623b3dd488a849df5538e79a59b0a47f] Merge branch into
+tip/master: 'x86/percpu'
+git bisect good c867caae623b3dd488a849df5538e79a59b0a47f
+# bad: [381a25d3e3d440ccc05de8ddd56a055423ac9fe5] Merge branch 'next' of
+git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/lsm.git
+git bisect bad 381a25d3e3d440ccc05de8ddd56a055423ac9fe5
+# good: [762c934317e6f4b576eb4aa75e5facf4968a4a8f] SELinux: Add selfattr
+hooks
+git bisect good 762c934317e6f4b576eb4aa75e5facf4968a4a8f
+# good: [fdcf699b60712ecd6e41d9fc09137279257a4bf8] lsm: correct error
+codes in security_getselfattr()
+git bisect good fdcf699b60712ecd6e41d9fc09137279257a4bf8
+# bad: [9ba8802c8b66fbde2ee32ab4c44cd418f9444486] lsm: convert
+security_setselfattr() to use memdup_user()
+git bisect bad 9ba8802c8b66fbde2ee32ab4c44cd418f9444486
+# bad: [41793202292fd2acf99fdc09eff8323cc27c80eb] lsm: align based on
+pointer length in lsm_fill_user_ctx()
+git bisect bad 41793202292fd2acf99fdc09eff8323cc27c80eb
+# bad: [d7cf3412a9f6c547e5ee443fa7644e08898aa3e2] lsm: consolidate
+buffer size handling into lsm_fill_user_ctx()
+git bisect bad d7cf3412a9f6c547e5ee443fa7644e08898aa3e2
+# first bad commit: [d7cf3412a9f6c547e5ee443fa7644e08898aa3e2] lsm:
+consolidate buffer size handling into lsm_fill_user_ctx()
+
+Thanks,
+Aishwarya
+
+
+
