@@ -1,99 +1,108 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 314AC1DA41
-	for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 20:54:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D29E4879E
+	for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 21:35:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FMdCAnqp"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-28bd8e76024so52485a91.2
-        for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 12:54:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UUuIHCR9"
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dbdacafe012so134904276.1
+        for <selinux@vger.kernel.org>; Wed, 20 Dec 2023 13:35:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1703105698; x=1703710498; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1703108129; x=1703712929; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WEQpRvKkFSX/GF0Fi8lqsvfM4WigS7Uf1dnpFJAbtuc=;
-        b=FMdCAnqpHcQ49g86F1XrRjVw9zeCzGthMmTOXs6OFceMlw+qpasc5fcHQ4PFxJxk26
-         skcFOmyheg1yl94ejp9Bpi7nps8LBgvU/B5Yl7MnRoPs9KrU40rqTGhlk7i6oX/dQC/p
-         oTsRU+y0Y04CWp9JsqvpL375vIWKLmBoGhcNdf+mqF11yxdCUQw1Oqa4D4OxEUV/CjW8
-         Ui+krscRHFNFu9YK7xEDWl7ST6aFLsohhI6UVx4mB1RnQanRCIqIDJp0sSAYrbsZ6ukc
-         dvehcp2JDuvmhrTyeRH6HLwSuA4i6Pbio2w+Uz4aUsA7hL6vcvReFME83E0wRfGV2yTx
-         tVdA==
+        bh=3AxAQvYhmhIfUqWH7duUzPZfIF+U7r5XIuQJtwq0N2w=;
+        b=UUuIHCR9Z6MCoqgm03X/+NY0c12KV932axShY7LJzuQ61B/Wq9ZQIX/W3uL2qSkVxO
+         ZjNQpLOkPi7Ey/6vonDqUWoojvw2SIPu3OAP8N+ZALeX7080SLndqanQwL4p/2LH2NT+
+         3Emwe21STK5jTTEQukhqzpLhfAJTftBEEbFfUVMTuCfc4l8Pa8720hTOhHh79EUNvos6
+         B82oYNhZH43S8dN/cDhLrnqYiUcpq6UBxqvYsNaX/Tx6Gjp6/Y9hGkyLyw+mBJKWeDa8
+         r5iR5laldT0f+qWBpZQ22ILA5T0kMeE9wsz4d0SH3eFlQ4qRj82eBtew1hySgpthEDjE
+         E0mA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703105698; x=1703710498;
+        d=1e100.net; s=20230601; t=1703108129; x=1703712929;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WEQpRvKkFSX/GF0Fi8lqsvfM4WigS7Uf1dnpFJAbtuc=;
-        b=C+pHRRpXAxZVw7hfg/EhvHj3WFsqed8Ze4jv+CEdTcDb7690x4NAS/XRRf/hExR2cT
-         ow4Aa6nuHR0jEbTRuJd+tF1GdD1kKOraDOveRbrvR6UlvbckzYJd55krWmEEEWYKQEss
-         0bdEiXE78T4j6KoSqByeD8DFXQGhAFREzuEfsR4fhDS6FrFAtcVZJuuDpOtZBVTRnM6w
-         RC1l3wf0t6Lo5fc9fdDXSUwCOj4Gtejgw9l6dIWMDQQYjN+6XkjEZoafB7gesDffdRM0
-         3ZOpJKiai6v5xtfnMvbpp2ZUD/vuERpr9nubxQZyv/Z0abXLk26DEP3ynCi9nWLkRwHo
-         P3hg==
-X-Gm-Message-State: AOJu0Ywxvw2Axj6VguAtOk0iwasRD7KwkKas02NiTzNITkLEeLPSfKFE
-	1+HLaC4xXfzLNni0+UfYpHwz9NySbQt34AmnS2yvji9m
-X-Google-Smtp-Source: AGHT+IEK+iGapRb3Eo4YGPG7BBOJHyrQ6oOpPDSt/Qd0dljPT2X9r5VNggYQDMu/WT+l4eciC0qgEpJm49kHCvPK+98=
-X-Received: by 2002:a17:90a:f0ce:b0:28b:cdf0:5be0 with SMTP id
- fa14-20020a17090af0ce00b0028bcdf05be0mr1319396pjb.89.1703105698373; Wed, 20
- Dec 2023 12:54:58 -0800 (PST)
+        bh=3AxAQvYhmhIfUqWH7duUzPZfIF+U7r5XIuQJtwq0N2w=;
+        b=lzvoaKx3CvxHml5WpMRlRbtQhRDvaTURWIcwzXICE1/dGsuIIRjCtk/oEWZLFDB1Ir
+         LqUDS1HgJovor8TcX0uFTRqSj2/vSe7H9e7jmbsBAaV1q03A3VATqach5wGVohw1E2Du
+         DYjjA4JCoxH7QBZTSilcKtVuP28cvB6QJ34ybHPaf8a0YjfJ1tg2t5T809mdopPLh9T5
+         qWSyXlyS74MqKv5h8K0pEpq1Ucfbo2k5+yg42uTfMVplvZYHwAG7r8ho+FVMa1yuCnWT
+         IJxSglZ9fK9COAjZw6+17xkg5mZ1ssfXZHrNh0QsOiUbnaHvQlTCyLFn70mx67YPDaYv
+         OpRg==
+X-Gm-Message-State: AOJu0Yw/or9dC90gO99Zz7LAkUlvowFYC1hLDkH8OU5++P/ccW0Fa8Qw
+	eN9GDaSOxi16jKwmQFdpR5z4hnBcOZ9Mj357xh61
+X-Google-Smtp-Source: AGHT+IFosPpMjzCvih79hRO0tYrhLHSlPcFGCjYGSvXhZ46V32jgqWJ379mulOVwn3keNvIGmfCl8hZd1txiBkat8QI=
+X-Received: by 2002:a25:d6c4:0:b0:dbd:4aea:b098 with SMTP id
+ n187-20020a25d6c4000000b00dbd4aeab098mr301577ybg.131.1703108129210; Wed, 20
+ Dec 2023 13:35:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231220165348.127587-2-paul@paul-moore.com>
-In-Reply-To: <20231220165348.127587-2-paul@paul-moore.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 20 Dec 2023 15:54:47 -0500
-Message-ID: <CAEjxPJ5W6w=Zi49_CWe7Bj9_zC8UPNW_z-4zwQooN4uXybLiCA@mail.gmail.com>
-Subject: Re: [PATCH] MAINTAINERS: drop Eric Paris from his SELinux role
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, Eric Paris <eparis@parisplace.org>
+References: <87bkaurtrk.fsf@redhat.com> <878r5yrsnc.fsf@redhat.com>
+ <bea94ac8b2feca19ef51ad271e56ff88617614e1.camel@suse.de> <87o7elxdxs.fsf@redhat.com>
+In-Reply-To: <87o7elxdxs.fsf@redhat.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 20 Dec 2023 16:35:18 -0500
+Message-ID: <CAHC9VhQf-gBppuYbfcnSomHFGVvYtUcUbG-p2jvt-0ZUDq=6SA@mail.gmail.com>
+Subject: Re: ANN: SELinux userspace 3.6
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: Cathy Hu <cahu@suse.de>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 20, 2023 at 11:54=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
+On Wed, Dec 20, 2023 at 7:21=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
 >
-> Eric Paris is an important part of SELinux history and we are all
-> thankful not only for his stint as maintainer, but his numerous
-> contributions over the years.  Unfortunately for us, Eric has moved
-> on to other things and hasn't contributed to the SELinux community in
-> several years (his last SELinux kernel commit was in 2013) so it's
-> time to officially drop Eric as a maintainer.
+> Cathy Hu <cahu@suse.de> writes:
 >
-> I also want to get ahead of any claims of impropriety and state that
-> this change has absolutely nothing to do with commit 2be4d74f2fd4 ;)
+> > Hi,
+> >
+> > thanks for the new userspace release. I was just packaging it for
+> > opensuse when I saw that the signing key changed.
+> >
+> > Could someone confirm if that is correct? I am just a bit unsure since
+> > the new key has no signatures from people that I frequently see on this
+> > mailinglist.
+> >
+> > New key (almost no signatures):
+> > https://keyserver.ubuntu.com/pks/lookup?search=3D1BE2C0FF08949623102FD2=
+564695881C254508D1&fingerprint=3Don&op=3Dindex
+> >
+> > Old key (lots of signatures):
+> > https://keyserver.ubuntu.com/pks/lookup?search=3DE853C1848B0185CF42864D=
+F363A8AD4B982C4373&fingerprint=3Don&op=3Dindex
+> >
 >
-> Thanks for all you've done Eric, you'll always be welcome back.
+> Thanks for checking signatures!
 >
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> This is correct.
+>
+> It's signed by me - Petr Lautrbach <lautrbach@redhat.com> known as
+> bachradsusi on github and the public key could be found at
+>
+> https://github.com/bachradsusi.gpg
+>
+> This key is signed by
+> E853C1848B0185CF42864DF363A8AD4B982C4373 Petr Lautrbach
+> <plautrba@redhat.com> which is signed by other guys ...
 
-Likewise, thank you Eric! So long and thanks for all the fish!
+Perhaps it makes sense to include some text in the README.md with
+information about what GPG fingerprints are valid for signing
+releases?  Adding it to the README.md not only means that it is front
+and center on the GitHub page, it also means that any fingerprints
+added to the file will be part of the signed release tarballs
+providing a history of authorized GPG identities (although that
+doesn't help us until we build up that history).
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+As an example, here is what we do in libseccomp:
+https://github.com/seccomp/libseccomp#verifying-release-tarballs
 
-> ---
->  MAINTAINERS | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 295939417dc0..1901468c32d7 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -19517,7 +19517,6 @@ X:      security/selinux/
->  SELINUX SECURITY MODULE
->  M:     Paul Moore <paul@paul-moore.com>
->  M:     Stephen Smalley <stephen.smalley.work@gmail.com>
-> -M:     Eric Paris <eparis@parisplace.org>
->  R:     Ondrej Mosnacek <omosnace@redhat.com>
->  L:     selinux@vger.kernel.org
->  S:     Supported
-> --
-> 2.43.0
->
->
+--=20
+paul-moore.com
