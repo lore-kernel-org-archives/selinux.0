@@ -1,53 +1,53 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FF3078E6F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F07B078E72
 	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="GJ30cUda"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-67f848f38c4so5372206d6.3
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="R3D4/D2/"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-4277ccd2728so7657971cf.0
         for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1703197573; x=1703802373; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1703197574; x=1703802374; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=TQuSDmWFxcLkod2Im+Of1w3BFGxT9hiMH4ndyJFlnjY=;
-        b=GJ30cUdaNoYcBz0Jjkh5kDh7NnMWa7hDTswS2JTUjuJOsh9LPN3U3bR6N2q6IjolKV
-         KwaW4nG5MFPCYxLNdhmfJ54UGWaK4g2PXKBN9W8hYnWKWscDFJpIbOZr4xa6iENZyc42
-         EJojQEiWnFVKb+XN8MXAHyFKG4pfXVjqIJFH0r+8yNPwCZ45WDxbT5Ua4TQHx+L/YlyR
-         ktDdi4bg5grtVgTukkFNIBo0nVgq8bQ/zzHRWAZ+B2oFt4Z4BQaW4SfRgAoAUj/Su8fO
-         wY7EN9+Ly2ynJKzZJuoh58jASQqlC6r6ish95q0c8Z4LKIWrVS477Dxwt+wSjFziHJaZ
-         3/qQ==
+        bh=3rIIJAO7tfe239M0dRHiAIkX6hPUd5tlluUmC4SbLe4=;
+        b=R3D4/D2/WmZHhSUloKZZ/+Hgdijy6WsDYd4G5r9G+w4ekiG7u0N17Z8NyJDxn6tzeu
+         rADCUm8oiS+hGXt6mJglDe9g9bM91G0/eBAkl/VHSqXW2v9hB36ItSlHLDg/nS4k59S0
+         zhEftl1R//o5KpUwJ/04SpMLPYrS4QlJmkbDS1Lk7MjIy2DVC6lmT95RKjukxW5/JPs8
+         TprUEgc25r43CjO90S/eBVTUtfw2mns2WKdIw+bzTXbL9xlPFAlD73Y8MgYOcW3UEzxI
+         KtYeBrArmHMo2FJqKnsAJBInqr1ESC4alOLm7z0NkzYFdRg1xYV0wNcmf3pwqnhXXgl/
+         4AFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703197573; x=1703802373;
+        d=1e100.net; s=20230601; t=1703197574; x=1703802374;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TQuSDmWFxcLkod2Im+Of1w3BFGxT9hiMH4ndyJFlnjY=;
-        b=VE/xHcC+PoQqcPjG9nra1lh0cOhqf1jXxZ+jDWH8z+HMmT3q1Y9Iv6p2skWJSYaPw0
-         o84oWlRUDQ9ckNr1/gqSk9+IyDb7qegSpYc/kIU1wXshxpoxJ4uxwIXjk364PyOIKzVp
-         1H8IeK/bELRUdf4ESyxKtm69JpxsS6TqVtIkVeJ1m55Z9b15EduxEA8sRa+s7v4aHhkb
-         ZoKqwhTJFro69nny/Y2+RbYWJj50Sdu5QRxKyejBT4Qq/SoEyoSYONtLGrAYqdxPylE2
-         jk/2ckxxyOSieokAYJNMmbL2YEYHMAhBArGfMnVGfXF4jdc+4BJxwqj6+V9GAIiLplHK
-         QG9g==
-X-Gm-Message-State: AOJu0YxIg/QXccfXzRq8iyAS4SXkFHlkGzJf+WgpO0JTyFnrzSPg8+c/
-	7vJR05+hcH9wB1JHO302+crm10B/gZNc7sgOxAA7Jgi/Aw==
-X-Google-Smtp-Source: AGHT+IEOxhonApYEvLK6mdwKFTnW2IVoV/MjHq/49xmr8EgypVg2HW6tQe1dkoUBnqmlxLx+3wUTsw==
-X-Received: by 2002:a05:6214:f05:b0:67f:31aa:284b with SMTP id gw5-20020a0562140f0500b0067f31aa284bmr636317qvb.1.1703197572897;
-        Thu, 21 Dec 2023 14:26:12 -0800 (PST)
+        bh=3rIIJAO7tfe239M0dRHiAIkX6hPUd5tlluUmC4SbLe4=;
+        b=a99QyO7pEuAsDP8rCzn42KKBUSU6aRQFNJKNf54fspBlJTwH8OHIF4fNXp5TZsjfNe
+         3XhkWxe13ycrEahnMplr3TQcwqAqVaY4ewakBZ6cVseya1QNmoXxyzA8qh35l0ptzFrx
+         S8oTEOkPp1+9npaCPcGev5NBl5ZAdLhh+Upl4NjNmwNmZLBdDckVU6YZvmxCdJQ+df8t
+         x3ZorT3SqppKzGrus1vP8p1vKgyRKODeNpFrI82ZUyJhC5sNI5BBEZ5FEJGgLba380B5
+         gUK51Vyu4EFhmVo+zltOAcFd7R2TMREP8XNR0bDv57JGJ8SLsCxLPIHJW0BeVTSXjZAO
+         M8uA==
+X-Gm-Message-State: AOJu0YwAqaTlDBEh1RGX/qtbDgar4C8uOHHC4utpbrqaiFzJ+cycgBMy
+	lmH/ft2qhW2J0Zhb2VJtEJRsFaxNfjN3pHrWgBz4f33j1g==
+X-Google-Smtp-Source: AGHT+IE2I9fxHS7eIt6EMUm0eiuqLBGQqFi+TEZtJffXduitKbSJrNJT6fznlot8n7BVu2Z2o+O1vQ==
+X-Received: by 2002:a05:622a:3ce:b0:423:9d2a:bc51 with SMTP id k14-20020a05622a03ce00b004239d2abc51mr586206qtx.28.1703197573647;
+        Thu, 21 Dec 2023 14:26:13 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id v13-20020a0cf90d000000b0067f19f17629sm921143qvn.82.2023.12.21.14.26.12
+        by smtp.gmail.com with ESMTPSA id hf7-20020a05622a608700b004278e7f122esm1197658qtb.25.2023.12.21.14.26.13
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Dec 2023 14:26:12 -0800 (PST)
+        Thu, 21 Dec 2023 14:26:13 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 13/15] selinux: fix style issues in security/selinux/include/security.h
-Date: Thu, 21 Dec 2023 17:18:56 -0500
-Message-ID: <20231221222342.334026-30-paul@paul-moore.com>
+Subject: [PATCH 14/15] selinux: fix style issues in security/selinux/include/xfrm.h
+Date: Thu, 21 Dec 2023 17:18:57 -0500
+Message-ID: <20231221222342.334026-31-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231221222342.334026-17-paul@paul-moore.com>
 References: <20231221222342.334026-17-paul@paul-moore.com>
@@ -57,7 +57,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=11069; i=paul@paul-moore.com; h=from:subject; bh=ImIhNkB7KITANA3+LXOsw7VHrQfXEJ7bfgD1Ywb4ozk=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtfkL60UA4EEZJcZ9VX8nWhNJn398Od++ncU N5sn+cbZyiJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7XwAKCRDqIPLalzeJ c2YGD/wNmt1mA5sElOoPVXzY4Xi1dFeM6IA1vxmGMsizXiYYoT0STGtSTwGx56wMcS2yzUerd2X 9FByFTVwDUTJ33DI/Vx5t+nwK6zhG+juMp1o9JCaO92BwLZJNmmOhgfjACN6gHSn9pu0MPOhH9p nUHJLWEWhlgnzGVI1cl+10X8ItFeZSckDfAO5whD1ZamTKjFXWcNWrLlAXhrkojTCj73UckyTW7 Th1KzAY/AQjWhRM6AyT0gasIo7Yd+qNVKDsJ10GCYW7+QS8lR/eOwAEBNcfNceOHgIO4emgDDyX +TDRdurXiQTWRLkpVohi2c9tFxKXI7ZzXmOGRRoyE1FIV5UncztFMBg7qWW2PsHuUlDzGxQribA s9Wizy5ptQIYX3vfETdp6b/CCRYhn53LHUpMnkutJMroX+DPJ1FFwpb2XWW4xObnY5oPyIv/rzq xOXN2V5yzE5uOdLcdN+uYbBatH5rr3RLGVprMqvigH/dIGBsLqerMS8xN6Zp3pgtVwjRdCualUn rZVvX0uuoU4PqMvPFvnELGJ+T3Uo4/dM2Al4DBk2uZPBTIaYcBLryIEBbwhG2kyEiYAZt9TWQQo RLIdg/eKD7i2PimraCw7n8BuiBeuaF+vh0RKSvCCs3Z5TAkt6yfH4x0gQHJ1am7CiBMN0pUpnWo tIFSQY28FcRmLGA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1407; i=paul@paul-moore.com; h=from:subject; bh=LAx/KMCiOwBf7fO1fY2yc9OgfV/1+bg6eUtPEtOfQUg=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtlT24flmldT66A1ta910TGhsktskxW189Jm /YENJy1BeOJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7ZQAKCRDqIPLalzeJ c0CKD/9D9aMWKdHaQaYaYNNW+tiOqGujz7Gf9m8yukQhaAgjxsovpRMhyuZ3eJFSUjKXEVTrdHE HlGJvaGw2ee2SwZpdDJL1uJAfzi01blQG7+nY4cxm67py2T/VUz8RnyuJGlDbsnpBo25UIUhOaz DoXLDVSAQ+9htlrs/m07IJgQv/N+KlaS0VZTHUP1aeXhz/JlRsd6Zy3iC63qRvSwv5EJRXATXML 80Ah6sZ9uyVguKCvGlYLn1r603YaMhNIOFIm8oSEX2XSkscEdImF2Nin3HA7LJq18N9Vh/gFQLJ v/E9zt4yp7Ys6y7hVni6KVuIDbHchjTJWgx9Ko59SoK4nXwTJ2uQIKMYypXWOKq8PR930N75Wef ZciH6UQqeoNtxRHRYJDjfszGkzwRog6bfmXt9DR6EyjTIkA2eXY/N1ID7/+jgpYLDX7Ph36+g7G 622PYEH7fLRbGwW37cx6BiJmtIYp1yZaJ0+kz4jRnGYNf+ln9qTo4He4ciSyVwpPcSez7U1/5iL USGVugToKybfXxWpUECLMPj3nFUZEhfmz7TDxIdb7B9X+Nvxd7ikGN5P9HXEWr+pczzfpLf3xIg TjmbQrvaa1E0rNmtcxKQbM91fgfW5aRG7Xklib7pW65mhJrkxF97cArlrnQkkCKukF9Bi9l/Jtk ytit/CtG4n0emiA==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -71,269 +71,31 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/include/security.h | 155 ++++++++++++++--------------
- 1 file changed, 75 insertions(+), 80 deletions(-)
+ security/selinux/include/xfrm.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 074d439fe9ad..289bf9233f71 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -21,57 +21,57 @@
- #include "flask.h"
- #include "policycap.h"
- 
--#define SECSID_NULL			0x00000000 /* unspecified SID */
--#define SECSID_WILD			0xffffffff /* wildcard SID */
--#define SECCLASS_NULL			0x0000 /* no class */
-+#define SECSID_NULL   0x00000000 /* unspecified SID */
-+#define SECSID_WILD   0xffffffff /* wildcard SID */
-+#define SECCLASS_NULL 0x0000 /* no class */
- 
- /* Identify specific policy version changes */
--#define POLICYDB_VERSION_BASE		15
--#define POLICYDB_VERSION_BOOL		16
--#define POLICYDB_VERSION_IPV6		17
--#define POLICYDB_VERSION_NLCLASS	18
--#define POLICYDB_VERSION_VALIDATETRANS	19
--#define POLICYDB_VERSION_MLS		19
--#define POLICYDB_VERSION_AVTAB		20
--#define POLICYDB_VERSION_RANGETRANS	21
--#define POLICYDB_VERSION_POLCAP		22
--#define POLICYDB_VERSION_PERMISSIVE	23
--#define POLICYDB_VERSION_BOUNDARY	24
--#define POLICYDB_VERSION_FILENAME_TRANS	25
--#define POLICYDB_VERSION_ROLETRANS	26
--#define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
--#define POLICYDB_VERSION_DEFAULT_TYPE	28
--#define POLICYDB_VERSION_CONSTRAINT_NAMES	29
--#define POLICYDB_VERSION_XPERMS_IOCTL	30
--#define POLICYDB_VERSION_INFINIBAND		31
--#define POLICYDB_VERSION_GLBLUB		32
--#define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
-+#define POLICYDB_VERSION_BASE		     15
-+#define POLICYDB_VERSION_BOOL		     16
-+#define POLICYDB_VERSION_IPV6		     17
-+#define POLICYDB_VERSION_NLCLASS	     18
-+#define POLICYDB_VERSION_VALIDATETRANS	     19
-+#define POLICYDB_VERSION_MLS		     19
-+#define POLICYDB_VERSION_AVTAB		     20
-+#define POLICYDB_VERSION_RANGETRANS	     21
-+#define POLICYDB_VERSION_POLCAP		     22
-+#define POLICYDB_VERSION_PERMISSIVE	     23
-+#define POLICYDB_VERSION_BOUNDARY	     24
-+#define POLICYDB_VERSION_FILENAME_TRANS	     25
-+#define POLICYDB_VERSION_ROLETRANS	     26
-+#define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS 27
-+#define POLICYDB_VERSION_DEFAULT_TYPE	     28
-+#define POLICYDB_VERSION_CONSTRAINT_NAMES    29
-+#define POLICYDB_VERSION_XPERMS_IOCTL	     30
-+#define POLICYDB_VERSION_INFINIBAND	     31
-+#define POLICYDB_VERSION_GLBLUB		     32
-+#define POLICYDB_VERSION_COMP_FTRANS	     33 /* compressed filename transitions */
- 
- /* Range of policy versions we understand*/
--#define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_COMP_FTRANS
-+#define POLICYDB_VERSION_MIN POLICYDB_VERSION_BASE
-+#define POLICYDB_VERSION_MAX POLICYDB_VERSION_COMP_FTRANS
- 
- /* Mask for just the mount related flags */
--#define SE_MNTMASK	0x0f
-+#define SE_MNTMASK 0x0f
- /* Super block security struct flags for mount options */
- /* BE CAREFUL, these need to be the low order bits for selinux_get_mnt_opts */
- #define CONTEXT_MNT	0x01
- #define FSCONTEXT_MNT	0x02
--#define ROOTCONTEXT_MNT	0x04
-+#define ROOTCONTEXT_MNT 0x04
- #define DEFCONTEXT_MNT	0x08
- #define SBLABEL_MNT	0x10
- /* Non-mount related flags */
--#define SE_SBINITIALIZED	0x0100
--#define SE_SBPROC		0x0200
--#define SE_SBGENFS		0x0400
--#define SE_SBGENFS_XATTR	0x0800
--#define SE_SBNATIVE		0x1000
-+#define SE_SBINITIALIZED 0x0100
-+#define SE_SBPROC	 0x0200
-+#define SE_SBGENFS	 0x0400
-+#define SE_SBGENFS_XATTR 0x0800
-+#define SE_SBNATIVE	 0x1000
- 
- #define CONTEXT_STR	"context"
- #define FSCONTEXT_STR	"fscontext"
--#define ROOTCONTEXT_STR	"rootcontext"
-+#define ROOTCONTEXT_STR "rootcontext"
- #define DEFCONTEXT_STR	"defcontext"
--#define SECLABEL_STR "seclabel"
-+#define SECLABEL_STR	"seclabel"
- 
- struct netlbl_lsm_secattr;
- 
-@@ -81,11 +81,11 @@ extern int selinux_enabled_boot;
-  * type_datum properties
-  * available at the kernel policy version >= POLICYDB_VERSION_BOUNDARY
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index c75839860200..de485556ae29 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -5,6 +5,7 @@
+  * Author : Trent Jaeger, <jaegert@us.ibm.com>
+  * Updated : Venkat Yekkirala, <vyekkirala@TrustedCS.com>
   */
--#define TYPEDATUM_PROPERTY_PRIMARY	0x0001
--#define TYPEDATUM_PROPERTY_ATTRIBUTE	0x0002
-+#define TYPEDATUM_PROPERTY_PRIMARY   0x0001
-+#define TYPEDATUM_PROPERTY_ATTRIBUTE 0x0002
++
+ #ifndef _SELINUX_XFRM_H_
+ #define _SELINUX_XFRM_H_
  
- /* limitation of boundary depth  */
--#define POLICYDB_BOUNDS_MAXDEPTH	4
-+#define POLICYDB_BOUNDS_MAXDEPTH 4
+@@ -13,8 +14,7 @@
+ #include <net/xfrm.h>
  
- struct selinux_policy;
- 
-@@ -220,12 +220,12 @@ struct av_decision {
- 	u32 flags;
- };
- 
--#define XPERMS_ALLOWED 1
-+#define XPERMS_ALLOWED	  1
- #define XPERMS_AUDITALLOW 2
--#define XPERMS_DONTAUDIT 4
-+#define XPERMS_DONTAUDIT  4
- 
--#define security_xperm_set(perms, x) ((perms)[(x) >> 5] |= 1 << ((x) & 0x1f))
--#define security_xperm_test(perms, x) (1 & ((perms)[(x) >> 5] >> ((x) & 0x1f)))
-+#define security_xperm_set(perms, x)  ((perms)[(x) >> 5] |= 1 << ((x)&0x1f))
-+#define security_xperm_test(perms, x) (1 & ((perms)[(x) >> 5] >> ((x)&0x1f)))
- struct extended_perms_data {
- 	u32 p[8];
- };
-@@ -239,23 +239,22 @@ struct extended_perms_decision {
- };
- 
- struct extended_perms {
--	u16 len;	/* length associated decision chain */
-+	u16 len; /* length associated decision chain */
- 	struct extended_perms_data drivers; /* flag drivers that are used */
- };
- 
- /* definitions of av_decision.flags */
--#define AVD_FLAGS_PERMISSIVE	0x0001
-+#define AVD_FLAGS_PERMISSIVE 0x0001
- 
--void security_compute_av(u32 ssid, u32 tsid,
--			 u16 tclass, struct av_decision *avd,
-+void security_compute_av(u32 ssid, u32 tsid, u16 tclass,
-+			 struct av_decision *avd,
- 			 struct extended_perms *xperms);
- 
--void security_compute_xperms_decision(u32 ssid, u32 tsid, u16 tclass,
--				      u8 driver,
-+void security_compute_xperms_decision(u32 ssid, u32 tsid, u16 tclass, u8 driver,
- 				      struct extended_perms_decision *xpermd);
- 
--void security_compute_av_user(u32 ssid, u32 tsid,
--			      u16 tclass, struct av_decision *avd);
-+void security_compute_av_user(u32 ssid, u32 tsid, u16 tclass,
-+			      struct av_decision *avd);
- 
- int security_transition_sid(u32 ssid, u32 tsid, u16 tclass,
- 			    const struct qstr *qstr, u32 *out_sid);
-@@ -294,8 +293,7 @@ int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid);
- 
- int security_netif_sid(char *name, u32 *if_sid);
- 
--int security_node_sid(u16 domain, void *addr, u32 addrlen,
--		      u32 *out_sid);
-+int security_node_sid(u16 domain, void *addr, u32 addrlen, u32 *out_sid);
- 
- int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 				 u16 tclass);
-@@ -307,50 +305,47 @@ int security_bounded_transition(u32 oldsid, u32 newsid);
- 
- int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
- 
--int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
--				 u32 xfrm_sid,
-+int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type, u32 xfrm_sid,
- 				 u32 *peer_sid);
- 
--int security_get_classes(struct selinux_policy *policy,
--			 char ***classes, u32 *nclasses);
--int security_get_permissions(struct selinux_policy *policy,
--			     const char *class, char ***perms, u32 *nperms);
-+int security_get_classes(struct selinux_policy *policy, char ***classes,
-+			 u32 *nclasses);
-+int security_get_permissions(struct selinux_policy *policy, const char *class,
-+			     char ***perms, u32 *nperms);
- int security_get_reject_unknown(void);
- int security_get_allow_unknown(void);
- 
--#define SECURITY_FS_USE_XATTR		1 /* use xattr */
--#define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
--#define SECURITY_FS_USE_TASK		3 /* use task SIDs, e.g. pipefs/sockfs */
--#define SECURITY_FS_USE_GENFS		4 /* use the genfs support */
--#define SECURITY_FS_USE_NONE		5 /* no labeling support */
--#define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
--#define SECURITY_FS_USE_NATIVE		7 /* use native label support */
--#define SECURITY_FS_USE_MAX		7 /* Highest SECURITY_FS_USE_XXX */
-+#define SECURITY_FS_USE_XATTR	 1 /* use xattr */
-+#define SECURITY_FS_USE_TRANS	 2 /* use transition SIDs, e.g. devpts/tmpfs */
-+#define SECURITY_FS_USE_TASK	 3 /* use task SIDs, e.g. pipefs/sockfs */
-+#define SECURITY_FS_USE_GENFS	 4 /* use the genfs support */
-+#define SECURITY_FS_USE_NONE	 5 /* no labeling support */
-+#define SECURITY_FS_USE_MNTPOINT 6 /* use mountpoint labeling */
-+#define SECURITY_FS_USE_NATIVE	 7 /* use native label support */
-+#define SECURITY_FS_USE_MAX	 7 /* Highest SECURITY_FS_USE_XXX */
- 
- int security_fs_use(struct super_block *sb);
- 
- int security_genfs_sid(const char *fstype, const char *path, u16 sclass,
- 		       u32 *sid);
- 
--int selinux_policy_genfs_sid(struct selinux_policy *policy,
--		       const char *fstype, const char *path, u16 sclass,
--		       u32 *sid);
-+int selinux_policy_genfs_sid(struct selinux_policy *policy, const char *fstype,
-+			     const char *path, u16 sclass, u32 *sid);
- 
- #ifdef CONFIG_NETLABEL
- int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 				   u32 *sid);
- 
--int security_netlbl_sid_to_secattr(u32 sid,
--				   struct netlbl_lsm_secattr *secattr);
-+int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr);
- #else
--static inline int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
--					    u32 *sid)
-+static inline int
-+security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr, u32 *sid)
- {
- 	return -EIDRM;
- }
- 
--static inline int security_netlbl_sid_to_secattr(u32 sid,
--					 struct netlbl_lsm_secattr *secattr)
-+static inline int
-+security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
- {
- 	return -ENOENT;
- }
-@@ -363,13 +358,13 @@ const char *security_get_initial_sid_context(u32 sid);
-  */
- extern struct page *selinux_kernel_status_page(void);
- 
--#define SELINUX_KERNEL_STATUS_VERSION	1
-+#define SELINUX_KERNEL_STATUS_VERSION 1
- struct selinux_kernel_status {
--	u32	version;	/* version number of the structure */
--	u32	sequence;	/* sequence number of seqlock logic */
--	u32	enforcing;	/* current setting of enforcing mode */
--	u32	policyload;	/* times of policy reloaded */
--	u32	deny_unknown;	/* current setting of deny_unknown */
-+	u32 version; /* version number of the structure */
-+	u32 sequence; /* sequence number of seqlock logic */
-+	u32 enforcing; /* current setting of enforcing mode */
-+	u32 policyload; /* times of policy reloaded */
-+	u32 deny_unknown; /* current setting of deny_unknown */
- 	/*
- 	 * The version > 0 supports above members.
- 	 */
+ int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
+-			      struct xfrm_user_sec_ctx *uctx,
+-			      gfp_t gfp);
++			      struct xfrm_user_sec_ctx *uctx, gfp_t gfp);
+ int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
+ 			      struct xfrm_sec_ctx **new_ctxp);
+ void selinux_xfrm_policy_free(struct xfrm_sec_ctx *ctx);
 -- 
 2.43.0
 
