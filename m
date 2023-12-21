@@ -1,99 +1,88 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3A74BAB7
-	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 09:13:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22FAA73170;
+	Thu, 21 Dec 2023 13:01:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UlyImJa9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1703150016;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EhXcjimbA+UHKFEnPBX4vXhMjgMxxyJ9M03URS/LJEo=;
-	b=UlyImJa9TdbPK0Yla9YPdSAVWQsPOCXnVVY9d08ewvAKUt2MHI2dfIWloyi8NWUXlgfoxT
-	/AIPMS28svGhUAF+2SBWBANGR0Wvdbu03sDhoHZ450saim/QmTMm/L8oAd04k9iPF43aRH
-	I8gy4jhc1w9/lGgOadggQp5hxV1Vz18=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-425-UP1abpRiNiW06n1dEnXsOg-1; Thu, 21 Dec 2023 04:13:34 -0500
-X-MC-Unique: UP1abpRiNiW06n1dEnXsOg-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-28bd843b040so324437a91.2
-        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 01:13:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703150013; x=1703754813;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EhXcjimbA+UHKFEnPBX4vXhMjgMxxyJ9M03URS/LJEo=;
-        b=C48Zs5swUZJyuVCBy79gPEN2usIHZCncORiu7SOP5pmbFR0oyEvwtUrvqAavi/8Cg1
-         ibov4jwnS+m6kgEMRq6YobuKePr7WP7QTVyVP6aUUM+SCrt/Mh9lQLcuJrExUotph5oj
-         wi0/wVoAKieyTU1esdDb02OjIe4J76isprjA6jF4qYYgf7MCJatXKTOrwMG1ZQVp2ACX
-         DKospF5i/iF2D8ii682va5Hh6azseon3HGyAKMZJcmkjaeXkAAQSkHaRQz6nvayAY2I4
-         0XGEo2wXvQt+Z85xLFj+H5Td4TuHjzkPX3XEWTvne6EyaRfAe2i1Vm/JeOnE56CokQQb
-         V9ow==
-X-Gm-Message-State: AOJu0YxUbBqz/OGs4rzXapr4xE4raXtSXDUQkGEmP1mbrMmuhHE/quFC
-	qq/uLZAeSteGUfcluTOx6CThVHQeeaKcIDBRIhsdh092FNIwxDwfVvTJZbuE1C37wZXbL7ZgOuY
-	/Qg1QKqHz7h/17h1FySUp717KfhHaxw2tOZfa3yIK+eyH
-X-Received: by 2002:a17:90b:3113:b0:28b:f30a:d659 with SMTP id gc19-20020a17090b311300b0028bf30ad659mr164786pjb.41.1703150013372;
-        Thu, 21 Dec 2023 01:13:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE+DZd/3rec37F+j0xjrkF+sD7zo454JG9PXq4V4ddSKDgFZsmBvQVRKGqx/LyBdB3/eaBLyb0a3qdt+p7FCaU=
-X-Received: by 2002:a17:90b:3113:b0:28b:f30a:d659 with SMTP id
- gc19-20020a17090b311300b0028bf30ad659mr164781pjb.41.1703150013088; Thu, 21
- Dec 2023 01:13:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dHLHFDF0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 128A8C433C7;
+	Thu, 21 Dec 2023 13:01:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1703163699;
+	bh=viF43QBY8qOaLt+Dw6Kyod+MsNmSZWTFM7djYD0jKJY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=dHLHFDF0ZRIm9EyaxRg/fkcqVbnRtqfwIpxukRVuQ1Oe4SUX54ul7Wqz24SD30tSW
+	 ch1xk0n3/kW+JEllSSpnezI2MnOyASQq1mZ5gAJMDBA/GKFJQHZ8iuwsvFCBI9v2TN
+	 12Z/NjakeatVHT0jfZkboyJJ23SlGocdCVRL5WkVv2cQEN5Mzv/Os0UWssLQx0/wNg
+	 AVEnYX2uJ+9tRbaJ8V3vYxvBSGnWSXETyBXLOWnKPxdW9vJVzOkAEE1g2PvXzqwuoO
+	 zoi8H/akuO5PvlXsL+HE30wsaL1L9TUwNsmyJNVQLSwiqoUqO9PRfUJ1puamZOD0y7
+	 v5x1HgYOeiaPQ==
+Date: Thu, 21 Dec 2023 13:01:35 +0000
+From: Mark Brown <broonie@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Aishwarya TCV <aishwarya.tcv@arm.com>,
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	John Johansen <john.johansen@canonical.com>,
+	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
+Subject: Re: [RFC PATCH 3/3] lsm: consolidate buffer size handling into
+ lsm_fill_user_ctx()
+Message-ID: <bbfee04e-d5a7-4537-a9ab-467eecb00940@sirena.org.uk>
+References: <20231024213525.361332-4-paul@paul-moore.com>
+ <20231024213525.361332-7-paul@paul-moore.com>
+ <3717b995-5209-4db8-be77-c6303bb1c0db@arm.com>
+ <CAHC9VhSABo8PO0q0EUSw7uh+r8CjPFTwK6DJk8Vs4oDcckPwHg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231220165244.126550-2-paul@paul-moore.com>
-In-Reply-To: <20231220165244.126550-2-paul@paul-moore.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Thu, 21 Dec 2023 10:13:21 +0100
-Message-ID: <CAFqZXNudh17nG1BonyQ+_UoxaX4GpOetW2L+Retci4rn5kdjNw@mail.gmail.com>
-Subject: Re: [PATCH] MAINTAINERS: add Ondrej Mosnacek as a SELinux reviewer
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ICe5OgUSFKA1hKIT"
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhSABo8PO0q0EUSw7uh+r8CjPFTwK6DJk8Vs4oDcckPwHg@mail.gmail.com>
+X-Cookie: Results are not typical.
 
-On Wed, Dec 20, 2023 at 5:52=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> Add Ondrej as a trusted SELinux reviewer.  Ondrej has a long history
-> of providing quality SELinux kernel patches and we're lucky to have
-> him as an official SELinux reviewer.
->
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 931c52cc8393..295939417dc0 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -19518,6 +19518,7 @@ SELINUX SECURITY MODULE
->  M:     Paul Moore <paul@paul-moore.com>
->  M:     Stephen Smalley <stephen.smalley.work@gmail.com>
->  M:     Eric Paris <eparis@parisplace.org>
-> +R:     Ondrej Mosnacek <omosnace@redhat.com>
->  L:     selinux@vger.kernel.org
->  S:     Supported
->  W:     https://github.com/SELinuxProject
-> --
-> 2.43.0
->
 
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+--ICe5OgUSFKA1hKIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+On Wed, Dec 20, 2023 at 08:40:24PM -0500, Paul Moore wrote:
 
+> Looking at the lsm_ctx definition in include/uapi/linux/lsm.h I see
+> the following:
+
+>   struct lsm_ctx {
+>     __u64 id;       /* offset:  0 */
+>     __u64 flags;    /* offset:  8 */
+>     __u64 len;      /* offset: 16 */
+>     __u64 ctx_len;  /* offset: 24 */
+>     __u8 ctx[];     /* offset: 32 */
+>   };
+
+> and given that the offending line of code is trying to do a memcpy
+> into the ctx field, an offset of 32 looks correct to me.
+
+> Suggestions on how to annotate the struct, or the code doing the
+> memcpy() are welcome.
+
+You're looking for a __counted_by() annotation here I think.
+
+--ICe5OgUSFKA1hKIT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmWENy4ACgkQJNaLcl1U
+h9ByfQf9FLlgjh9Qa0dMsLOAbqCLPl9tTRTCvabpFoyUmgM+XvqxZfmoUCpu0Ftk
+8DmRD0mh+wNfZ4EvO3JvE9oro9YKXvcPC+IhsCza6CVmOcIAeqGlTLD4cI8at3Dr
+JZsx8CL1XvQoM8fYErqVk/GkNrK8DigtlSIMp1rfpO4JnE8mxNgDxa2fjNCo06m2
++xxuO/9uk0M4L2rsd+gKFPaGJ6vJT+AUohXNxTqr3AcJ8R8dnsTN2JNu+fT7Q2x6
+28/mpjrHylkAfS0y88HtzQqm5H1PKfovlGIgkWl9nyGWKJeq8iViJwpJ7SiebAT2
+qkbszTlVRjsNMn0Ev7hql48UoeiBFA==
+=Vac5
+-----END PGP SIGNATURE-----
+
+--ICe5OgUSFKA1hKIT--
