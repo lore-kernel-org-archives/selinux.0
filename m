@@ -1,53 +1,53 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07E2078E60
-	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFCDA78E68
+	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QgZWKxVL"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7810827e54eso77852185a.2
-        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RlrtgdbW"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7811d1e68b0so81126585a.2
+        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore.com; s=google; t=1703197570; x=1703802370; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=c3jW3MoNnfjfkHjw95ZrPZI3q4R3FgMhO0U/voIpiS8=;
-        b=QgZWKxVLqjDGXXPtHXN9u6V2r3pJc+zxrvy4fqRDQClQRNPaO5gBky6LO8q0SlLbt5
-         wgsekQdJZ6Kikn0MQPxaBJiQu5+Sdp5vwBJHmT2J7ArQo8OUDrWRw7iRyoV4JW0W+kaY
-         jvreFIrMF0QLs8mPcqR8TG17vfvYi7DiYR+oEZlJxg9vO5iZEwnSx3kHzD7K9DLmIXnl
-         BR2kHgmhDGhmma6JUUZpKtOs90k7Zq7tGFwTU0ynj1HR+tITBpvtNjqnafqcIY3XTmo7
-         ZTekoNE+U2/bnR0l0caswxv6DC8KDjSW79fF3v7OQu7iqdOzlT8alKNa2ZaL4xXTxo1V
-         Jltg==
+        bh=d/zy4gq+2FQbNCqcjzKYFx9nwkWmqOWF1W6sZajYv8s=;
+        b=RlrtgdbWwByWFki0f8H0AKX/MxQxNp8qkpVPzgXofpIgY83EdyxgU0+N5jF6AKU0gh
+         4eUjRHkhP7ERCEnbNzwvf03rHfUTIOTY5crutyb7D5K+z9OnUa5D/yfv9XGWK7Krbva3
+         TYylA8LzRlaUl6rYKsu0GWDjIyF75onNHpT8vrO0guEDVzN8jVhx4AidD/q/EyUnpRjO
+         IbqUo4i3qE86BOe7wbi7E+DGehnrkHuGR5VFzdmBsiIoKrv5sdRCk2E2fMCto6I8Oxns
+         GSUfwkdDogvfG9JdfgVRbBRVvk00G4XK+D2WhD15Z4/LeB/Z3N+XQIs0l8y6npd2a4og
+         3wYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1703197570; x=1703802370;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=c3jW3MoNnfjfkHjw95ZrPZI3q4R3FgMhO0U/voIpiS8=;
-        b=s7kZun5UGaUKIRi/JkFYF68q1k7Lncu221m2Ck6ehYC6rnzn/1f4/3IW4YGiHww3v3
-         ZcDPOzZM/nfIKeuMGoF7+E8sjhnZqrtATR4jwThbqhHr4aOPs1TAI5xMNFtN11k48p8r
-         lwQRfCYcqOzYQmFruUeCJbnlcmac4oKjQ0mKy+iIIWrJfrreyojiAiFlB60+RULd3tpy
-         qm2ssY920rOajBd0Srb6Q9PJkxIE8rb1dtYwyez84w8s6Fp89Ipf3tmnJ7ZNsVFRlVoI
-         +T8AnhW4YZSLtgqr9GUCEBSuBJkRjgbPyuDEQdoSmk9Hpcv4t7eSGLA50hYUAxyYGFk4
-         OPkQ==
-X-Gm-Message-State: AOJu0YzvLxC+R7C9RweO9dzqs9AiMxP3PG0ba087xHmi+fkYpR0eIgHz
-	mHOkOBqbMwOz9yJTQkMvl0Y5EF3om8Kn8qD1vI6bGw/egQ==
-X-Google-Smtp-Source: AGHT+IEmgB5AZw/OKlxn6OLDcsFCncJlax+72eKyNu/KOoWeKg3XTQcEWtgsveBX0O207GiQSfwPxw==
-X-Received: by 2002:a05:620a:400a:b0:77e:fba3:9d04 with SMTP id h10-20020a05620a400a00b0077efba39d04mr668605qko.104.1703197569748;
-        Thu, 21 Dec 2023 14:26:09 -0800 (PST)
+        bh=d/zy4gq+2FQbNCqcjzKYFx9nwkWmqOWF1W6sZajYv8s=;
+        b=vAF1tuFGWlCAmJMyQP5P9nnrE2l5l+uT+7PWqnwxbzTz+ezfph4YpHLQIv/NftD72y
+         yLe5gM6lCKJszAdX2CtfK1JmA8f5q5UqQxLB2C2GJqzpMUzqMpHOd+2KMUP+jupV5Yr0
+         7bDA5QyuZ36NN4VsiIRcjgsz9W2AxKSL2mBKCv+38yMZI+7oQuMGzQsX1oZPvvwmHxYR
+         rqk6RpLUQLaRScFRgok4oC0QTRp+NsBNO6/gQrnB5zuX+6o7c5hyi4rmi4/6SbtAWbFu
+         2u6AimdfgTfX9GCozV9xHTAWutItz5/+rN3glyEFsFw0GtBkPUyqeKOQYqvbXPf9C16+
+         yluw==
+X-Gm-Message-State: AOJu0YzSW6MC/HDGoLqQx9it+cojcfhLabw4JZbVASUcB1D+mQuSO+KV
+	fkVtLl+6zFNdc1ZfFLKxICCXL+Bg2VV6bVB7Mc8xXTP5eg==
+X-Google-Smtp-Source: AGHT+IGPwF+R9NwwdtMoqcUzkFpZtFMA+rAZ2zfGoe/Veh6u1YkiFb3KkmcFPEuxwNZk5LHghj12Jw==
+X-Received: by 2002:a05:6214:f63:b0:67a:35e9:3a93 with SMTP id iy3-20020a0562140f6300b0067a35e93a93mr612950qvb.8.1703197570579;
+        Thu, 21 Dec 2023 14:26:10 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id c6-20020ae9e206000000b0077f103c8ad6sm942982qkc.82.2023.12.21.14.26.09
+        by smtp.gmail.com with ESMTPSA id ez9-20020ad45909000000b0067f53e25d1esm920079qvb.14.2023.12.21.14.26.10
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Dec 2023 14:26:09 -0800 (PST)
+        Thu, 21 Dec 2023 14:26:10 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 09/15] selinux: fix style issues with security/selinux/include/netlabel.h
-Date: Thu, 21 Dec 2023 17:18:52 -0500
-Message-ID: <20231221222342.334026-26-paul@paul-moore.com>
+Subject: [PATCH 10/15] selinux: fix style issues in security/selinux/include/objsec.h
+Date: Thu, 21 Dec 2023 17:18:53 -0500
+Message-ID: <20231221222342.334026-27-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231221222342.334026-17-paul@paul-moore.com>
 References: <20231221222342.334026-17-paul@paul-moore.com>
@@ -57,7 +57,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4741; i=paul@paul-moore.com; h=from:subject; bh=Fp4WwHqZ19wmjUkTCELEuDjk/zfZqa9XrsWcd4dEYio=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtHVhOlEE6EEnvkeVgbV+1nArccSj2e8DpX6 5uIBhs7U9GJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7RwAKCRDqIPLalzeJ c69VD/94hdWT5Bi5H021wKkZ7jkyy/bmj2HxfDWcxZ8OCW+8F/RbMOFzCMFcO7PdJpXthBD53ik qBKoZubnQWI7UfjOpBvl884ytpHszMWwe6Ba7F+671puAjxzQk5QuftpcKzSpZFRJzb8kC3TjHV HBVTnI4XIF1su7LzIb7SHKpzT4AhUHYPjoKDYXCYKcYkMH4WPGjwbUb5ebpK49Tr3/+pZrJSGux mXQTp7edJRUBZeYkGUtumcmBY5IkRtLrRHLeIQaWq5i8nnrIJ6/nQmQ0+RA5JVClAj+andET5GX bOT8Ensa0bcTobhKVy335FAvRfmoh1+nzW77E8CSV574wGuHn5Y/oHwW5f3TbcXWv1XIEIb0rMM bA+XBbwHJK+B9nwazClLld9FdOWelfgQ3haSJp6yqVAdl6YnlknBXVhqoeG4OSEZC65Q5zJlXzl fmoeH3f5ZxkVsh/MqPKp3Cd6gfscCY/zSEHIMNVfOBBC4Qgek/YcY76ZT9wVXCQiZTBY28gCFVb Fdel0hKzCdHcKPGy6Fm2ZqvMddOwQOR/yHFCKcla9eJ7s//CurxZROU1zMRcX2m2GcfQF8+ct0P 4RQYCxRURL5GxppQFYeAButUKFH0ITxPV3QVYNw9iW4y7G4QrnU+tmyiCQEWVjMaygjhmFrQZbf m5kHyIKO/pJcJ6A==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8230; i=paul@paul-moore.com; h=from:subject; bh=HInlRbIUms+h1mQSUOOtLOc/Hxv4K8KaCqHVZpITSDk=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtN25Ha4zksh8eq65P6OJjYSc5J2oSHbXdmh GmFpHIxkSKJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7TQAKCRDqIPLalzeJ cyuQEADZ/s068qw5Xm1G/mi0MwRcrzWQ812cymSuUcevItTd/0/M5VEv8kwpAROfyBlLyckFjSx Ecv48AZg2IzuPopuE0PDRwNuhSa9tHM0QKBlODNBkQPu4qptnqqg+aH48E8flfEZlFIA//KxaF/ xGYq4MhNkR82bLSkzlmwgRdg+691uwJFnC7vE4RwpyJBtRtEJuqOqhMa39KM+XejPaScCMz7ZKB DaPKd15Yln5RUEGqVNQWzHaM7/4p24uKLhs/J6aO1oTev36HhTy4sP/FLlKK265FMJLA9H6KXrz gGUBR6ckffXR1PMX9Jga8lRoVLkD0PwLnIhNX+C1baVWdCoQtje7y5HuHHY5dHkw0kutuJMdBok v+/PtIdMDutKR9g678gzdWpOoFDh4+PelTEMZkTDtQ2d/1NcBovO9XT9ScRzesGOCuxKQ8K5vQ1 AZ3usQFndTfUMtZEi+Av4EhxSc9Ze2pBC2j90hArHHmYcJPr8QIsXds7aem6KBGlNd9QQ9fGUMn QHwWPRId4D/bUK9bRdKYyDP8mYv6O9jUer2PWoOAUrcWRRN7NhDTHzbKHmgyNM/mET30pRwcBb4 EGV9Um5lxMrtiVErXrORioTqw95+ercYLo8jJ7ZBYME9S/ROTcwC4Ck4w7W8BVJVeB0NjmETz0l iFIYoYeixxJYdAg==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -71,125 +71,239 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/include/netlabel.h | 53 +++++++++++------------------
- 1 file changed, 20 insertions(+), 33 deletions(-)
+ security/selinux/include/objsec.h | 129 +++++++++++++++---------------
+ 1 file changed, 65 insertions(+), 64 deletions(-)
 
-diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-index 4d0456d3d459..5731c0dcd3e8 100644
---- a/security/selinux/include/netlabel.h
-+++ b/security/selinux/include/netlabel.h
-@@ -32,25 +32,19 @@ void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error,
- void selinux_netlbl_sk_security_free(struct sk_security_struct *sksec);
- void selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec);
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 8159fd53c3de..dea1d6f3ed2d 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -13,6 +13,7 @@
+  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+  *  Copyright (C) 2016 Mellanox Technologies
+  */
++
+ #ifndef _SELINUX_OBJSEC_H_
+ #define _SELINUX_OBJSEC_H_
  
--int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
--				 u16 family,
--				 u32 *type,
-+int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u16 family, u32 *type,
- 				 u32 *sid);
--int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
--				 u16 family,
--				 u32 sid);
-+int selinux_netlbl_skbuff_setsid(struct sk_buff *skb, u16 family, u32 sid);
- int selinux_netlbl_sctp_assoc_request(struct sctp_association *asoc,
--				     struct sk_buff *skb);
-+				      struct sk_buff *skb);
- int selinux_netlbl_inet_conn_request(struct request_sock *req, u16 family);
- void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family);
- void selinux_netlbl_sctp_sk_clone(struct sock *sk, struct sock *newsk);
- int selinux_netlbl_socket_post_create(struct sock *sk, u16 family);
- int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
--				struct sk_buff *skb,
--				u16 family,
-+				struct sk_buff *skb, u16 family,
- 				struct common_audit_data *ad);
--int selinux_netlbl_socket_setsockopt(struct socket *sock,
--				     int level,
-+int selinux_netlbl_socket_setsockopt(struct socket *sock, int level,
- 				     int optname);
- int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr);
- int selinux_netlbl_socket_connect_locked(struct sock *sk,
-@@ -62,44 +56,40 @@ static inline void selinux_netlbl_cache_invalidate(void)
- 	return;
+@@ -29,122 +30,122 @@
+ #include "avc.h"
+ 
+ struct task_security_struct {
+-	u32 osid;		/* SID prior to last execve */
+-	u32 sid;		/* current SID */
+-	u32 exec_sid;		/* exec SID */
+-	u32 create_sid;		/* fscreate SID */
+-	u32 keycreate_sid;	/* keycreate SID */
+-	u32 sockcreate_sid;	/* fscreate SID */
++	u32 osid; /* SID prior to last execve */
++	u32 sid; /* current SID */
++	u32 exec_sid; /* exec SID */
++	u32 create_sid; /* fscreate SID */
++	u32 keycreate_sid; /* keycreate SID */
++	u32 sockcreate_sid; /* fscreate SID */
+ } __randomize_layout;
+ 
+ enum label_initialized {
+-	LABEL_INVALID,		/* invalid or not initialized */
+-	LABEL_INITIALIZED,	/* initialized */
++	LABEL_INVALID, /* invalid or not initialized */
++	LABEL_INITIALIZED, /* initialized */
+ 	LABEL_PENDING
+ };
+ 
+ struct inode_security_struct {
+-	struct inode *inode;	/* back pointer to inode object */
+-	struct list_head list;	/* list of inode_security_struct */
+-	u32 task_sid;		/* SID of creating task */
+-	u32 sid;		/* SID of this object */
+-	u16 sclass;		/* security class of this object */
+-	unsigned char initialized;	/* initialization flag */
++	struct inode *inode; /* back pointer to inode object */
++	struct list_head list; /* list of inode_security_struct */
++	u32 task_sid; /* SID of creating task */
++	u32 sid; /* SID of this object */
++	u16 sclass; /* security class of this object */
++	unsigned char initialized; /* initialization flag */
+ 	spinlock_t lock;
+ };
+ 
+ struct file_security_struct {
+-	u32 sid;		/* SID of open file description */
+-	u32 fown_sid;		/* SID of file owner (for SIGIO) */
+-	u32 isid;		/* SID of inode at the time of file open */
+-	u32 pseqno;		/* Policy seqno at the time of file open */
++	u32 sid; /* SID of open file description */
++	u32 fown_sid; /* SID of file owner (for SIGIO) */
++	u32 isid; /* SID of inode at the time of file open */
++	u32 pseqno; /* Policy seqno at the time of file open */
+ };
+ 
+ struct superblock_security_struct {
+-	u32 sid;			/* SID of file system superblock */
+-	u32 def_sid;			/* default SID for labeling */
+-	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
+-	unsigned short behavior;	/* labeling behavior */
+-	unsigned short flags;		/* which mount options were specified */
++	u32 sid; /* SID of file system superblock */
++	u32 def_sid; /* default SID for labeling */
++	u32 mntpoint_sid; /* SECURITY_FS_USE_MNTPOINT context for files */
++	unsigned short behavior; /* labeling behavior */
++	unsigned short flags; /* which mount options were specified */
+ 	struct mutex lock;
+ 	struct list_head isec_head;
+ 	spinlock_t isec_lock;
+ };
+ 
+ struct msg_security_struct {
+-	u32 sid;	/* SID of message */
++	u32 sid; /* SID of message */
+ };
+ 
+ struct ipc_security_struct {
+-	u16 sclass;	/* security class of this object */
+-	u32 sid;	/* SID of IPC resource */
++	u16 sclass; /* security class of this object */
++	u32 sid; /* SID of IPC resource */
+ };
+ 
+ struct netif_security_struct {
+-	struct net *ns;			/* network namespace */
+-	int ifindex;			/* device index */
+-	u32 sid;			/* SID for this interface */
++	struct net *ns; /* network namespace */
++	int ifindex; /* device index */
++	u32 sid; /* SID for this interface */
+ };
+ 
+ struct netnode_security_struct {
+ 	union {
+-		__be32 ipv4;		/* IPv4 node address */
+-		struct in6_addr ipv6;	/* IPv6 node address */
++		__be32 ipv4; /* IPv4 node address */
++		struct in6_addr ipv6; /* IPv6 node address */
+ 	} addr;
+-	u32 sid;			/* SID for this node */
+-	u16 family;			/* address family */
++	u32 sid; /* SID for this node */
++	u16 family; /* address family */
+ };
+ 
+ struct netport_security_struct {
+-	u32 sid;			/* SID for this node */
+-	u16 port;			/* port number */
+-	u8 protocol;			/* transport protocol */
++	u32 sid; /* SID for this node */
++	u16 port; /* port number */
++	u8 protocol; /* transport protocol */
+ };
+ 
+ struct sk_security_struct {
+ #ifdef CONFIG_NETLABEL
+-	enum {				/* NetLabel state */
+-		NLBL_UNSET = 0,
+-		NLBL_REQUIRE,
+-		NLBL_LABELED,
+-		NLBL_REQSKB,
+-		NLBL_CONNLABELED,
++	enum { /* NetLabel state */
++	       NLBL_UNSET = 0,
++	       NLBL_REQUIRE,
++	       NLBL_LABELED,
++	       NLBL_REQSKB,
++	       NLBL_CONNLABELED,
+ 	} nlbl_state;
+ 	struct netlbl_lsm_secattr *nlbl_secattr; /* NetLabel sec attributes */
+ #endif
+-	u32 sid;			/* SID of this object */
+-	u32 peer_sid;			/* SID of peer */
+-	u16 sclass;			/* sock security class */
+-	enum {				/* SCTP association state */
+-		SCTP_ASSOC_UNSET = 0,
+-		SCTP_ASSOC_SET,
++	u32 sid; /* SID of this object */
++	u32 peer_sid; /* SID of peer */
++	u16 sclass; /* sock security class */
++	enum { /* SCTP association state */
++	       SCTP_ASSOC_UNSET = 0,
++	       SCTP_ASSOC_SET,
+ 	} sctp_assoc_state;
+ };
+ 
+ struct tun_security_struct {
+-	u32 sid;			/* SID for the tun device sockets */
++	u32 sid; /* SID for the tun device sockets */
+ };
+ 
+ struct key_security_struct {
+-	u32 sid;	/* SID of key */
++	u32 sid; /* SID of key */
+ };
+ 
+ struct ib_security_struct {
+-	u32 sid;        /* SID of the queue pair or MAD agent */
++	u32 sid; /* SID of the queue pair or MAD agent */
+ };
+ 
+ struct pkey_security_struct {
+-	u64	subnet_prefix; /* Port subnet prefix */
+-	u16	pkey;	/* PKey number */
+-	u32	sid;	/* SID of pkey */
++	u64 subnet_prefix; /* Port subnet prefix */
++	u16 pkey; /* PKey number */
++	u32 sid; /* SID of pkey */
+ };
+ 
+ struct bpf_security_struct {
+-	u32 sid;  /* SID of bpf obj creator */
++	u32 sid; /* SID of bpf obj creator */
+ };
+ 
+ struct perf_event_security_struct {
+-	u32 sid;  /* SID of perf_event obj creator */
++	u32 sid; /* SID of perf_event obj creator */
+ };
+ 
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+@@ -158,22 +159,22 @@ static inline struct file_security_struct *selinux_file(const struct file *file)
+ 	return file->f_security + selinux_blob_sizes.lbs_file;
  }
  
--static inline void selinux_netlbl_err(struct sk_buff *skb,
--				      u16 family,
--				      int error,
--				      int gateway)
-+static inline void selinux_netlbl_err(struct sk_buff *skb, u16 family,
-+				      int error, int gateway)
+-static inline struct inode_security_struct *selinux_inode(
+-						const struct inode *inode)
++static inline struct inode_security_struct *
++selinux_inode(const struct inode *inode)
  {
- 	return;
+ 	if (unlikely(!inode->i_security))
+ 		return NULL;
+ 	return inode->i_security + selinux_blob_sizes.lbs_inode;
  }
  
--static inline void selinux_netlbl_sk_security_free(
--					       struct sk_security_struct *sksec)
-+static inline void
-+selinux_netlbl_sk_security_free(struct sk_security_struct *sksec)
+-static inline struct msg_security_struct *selinux_msg_msg(
+-						const struct msg_msg *msg_msg)
++static inline struct msg_security_struct *
++selinux_msg_msg(const struct msg_msg *msg_msg)
  {
- 	return;
+ 	return msg_msg->security + selinux_blob_sizes.lbs_msg_msg;
  }
  
--static inline void selinux_netlbl_sk_security_reset(
--					       struct sk_security_struct *sksec)
-+static inline void
-+selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec)
+-static inline struct ipc_security_struct *selinux_ipc(
+-						const struct kern_ipc_perm *ipc)
++static inline struct ipc_security_struct *
++selinux_ipc(const struct kern_ipc_perm *ipc)
  {
- 	return;
+ 	return ipc->security + selinux_blob_sizes.lbs_ipc;
+ }
+@@ -188,8 +189,8 @@ static inline u32 current_sid(void)
+ 	return tsec->sid;
  }
  
--static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
--					       u16 family,
--					       u32 *type,
--					       u32 *sid)
-+static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u16 family,
-+					       u32 *type, u32 *sid)
+-static inline struct superblock_security_struct *selinux_superblock(
+-					const struct super_block *superblock)
++static inline struct superblock_security_struct *
++selinux_superblock(const struct super_block *superblock)
  {
- 	*type = NETLBL_NLTYPE_NONE;
- 	*sid = SECSID_NULL;
- 	return 0;
- }
--static inline int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
--					       u16 family,
-+static inline int selinux_netlbl_skbuff_setsid(struct sk_buff *skb, u16 family,
- 					       u32 sid)
- {
- 	return 0;
- }
- 
--static inline int selinux_netlbl_sctp_assoc_request(struct sctp_association *asoc,
--						    struct sk_buff *skb)
-+static inline int
-+selinux_netlbl_sctp_assoc_request(struct sctp_association *asoc,
-+				  struct sk_buff *skb)
- {
- 	return 0;
- }
-@@ -117,21 +107,18 @@ static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
- {
- 	return;
- }
--static inline int selinux_netlbl_socket_post_create(struct sock *sk,
--						    u16 family)
-+static inline int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
- {
- 	return 0;
- }
- static inline int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
--					      struct sk_buff *skb,
--					      u16 family,
-+					      struct sk_buff *skb, u16 family,
- 					      struct common_audit_data *ad)
- {
- 	return 0;
- }
- static inline int selinux_netlbl_socket_setsockopt(struct socket *sock,
--						   int level,
--						   int optname)
-+						   int level, int optname)
- {
- 	return 0;
+ 	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
  }
 -- 
 2.43.0
