@@ -1,53 +1,53 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC40577F2D
-	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6868177F34
+	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="bmXqeznF"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-67f33cf014cso7440886d6.0
-        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FU4WHzZI"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-78102c516a7so85728685a.2
+        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1703197571; x=1703802371; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1703197572; x=1703802372; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=RBferxyWAPFLFCuQsMDcst6Z0YHwQ8ySXsZa5V//CkI=;
-        b=bmXqeznFymCY4XZ/jZL7xv08gWE8rbf30OiGODS66UEEXyRYwY36gfq1sIT/iTlolJ
-         zWXugGKfxHZVVB2J9O9DoJxt5iWboc8geYUhUSwZgDaoZry7eTxXiKydu9E2dBYLyCUB
-         ECVaHcoXvKvnYmkX9YNLOUhNE2sF9rlKYWEGv4wk81MJ0uFIFAs6tulCbKmxR5ydDKjj
-         HEM8D/Akt6d8x80w6wsee3CQs75qTD6R0yWAD08KxWkzHjsMT4BFLloGodsi0w4j1RVH
-         yrpNM6qW/TgNog4P9i8KyB0W5se5r/qwNMPqcO/VkYkyGoBcbAlfNB9jbEhxzVdB6a7e
-         nssA==
+        bh=yWV9+Lulcfjl3KReqkcC0U4jekZ8oSg9IHMqPCEELZk=;
+        b=FU4WHzZI3+JI9KNkkAwoQt619FHxB7IiV/O0Sqt3+rtVqoGAuSv4cXvJUbfUMxpaok
+         IJMkXwhzvwaFw3pOF39c5Y5MR247iY229hI5SkJ3NEZOafEO1X9pR/kqPFQiV6weyfVX
+         PA72lcEOJ1CnvKZmgI2Nif2DlgCBqYViRTZLdzRfjZ1Uj/haWrf5XEkWVyNilP29WmeH
+         fNYM8NzFfxhsKYftKyNNDOX1mJbjqnYFrl+R0fUWiLvxt4QGU+ZFLyaB6gm6ygCt60xi
+         4OkngDfMGgBBCW+S3e5iepxbKKCOQVZ7llUP96fLHwUBInIT2M0KN2kAexbr9RgpXJQY
+         OPBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703197571; x=1703802371;
+        d=1e100.net; s=20230601; t=1703197572; x=1703802372;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=RBferxyWAPFLFCuQsMDcst6Z0YHwQ8ySXsZa5V//CkI=;
-        b=HWpy5VFc46pFhNE9ZquhO7q8e1HbltRAboGHbtcr6LontFTO0v2+vJ6aIee1GUc9MJ
-         nEcYqNs8iiY2r/uinaluW3fF1pMJDQ3t8YZ+1aAXIXde5wnX5QE32KV4Y5bALY9vfd9G
-         5H4AO2gOITBEWaGZal3a+lDbC2fDDbQ/hve4of6d8u7hNtBpk+LuErP3GLwjzG0+WVYD
-         3HKxcW8o/6txfJvFvdpLoEDthQt1r0bT8Com18cX/YY0+7sBbfhcjOyCRhYuvolSExX8
-         wer0Ux1yytybCTlUtnhrT3r0syfy3LSGCYmP73Q4D38aS8PFjty4KT/EUD/RQV9C25RJ
-         WykQ==
-X-Gm-Message-State: AOJu0Ywa3YjSthS528yeA5t0Q4uq/LmlMRJeTULgLFuQHUGdkgki/ELT
-	/UUv2HGf+PfWUmb7lnXcAozHe67LVakzfqRKa5GOuPGKOw==
-X-Google-Smtp-Source: AGHT+IE0IVMAQx266ZYtEhS2lqnKfVjRUQzPR8S89clgzjBc68Icy3S3DGErb2G46/kr4lHfCffsHg==
-X-Received: by 2002:a05:6214:d47:b0:67a:b65e:9960 with SMTP id 7-20020a0562140d4700b0067ab65e9960mr537267qvr.4.1703197571379;
-        Thu, 21 Dec 2023 14:26:11 -0800 (PST)
+        bh=yWV9+Lulcfjl3KReqkcC0U4jekZ8oSg9IHMqPCEELZk=;
+        b=T0ac099Oh5a12zTIpUiaVBd8mM6/2OdcxPFY6VBDcnQR+jxjZ6oON/k45Ljkm6tP6W
+         IvalTz9ZwPJ5XvBVwLVz4bVxRKtTGTabuTQfKzT3tdfnGp+g0KlHjBYIlqY6+VrwEQyM
+         s0QsVqzNqyAjmfssu7CKmma3nl7qvI5HnPuupuln8UrKpOSpIvpyERui+SmQz4G8GvwO
+         RHwDY1adK+N9oEDPW91YrMYC3SeKbTjqqreGZARjsw3ZVLi9rERzJzt3N+I1GScJ7Bxn
+         pZUn6VxHnhxESR6wqK4W/KwJbeTnQmemt0Ah4gvIaELccVBLgaMpkxfL9Ru+xAM2Yf87
+         GDug==
+X-Gm-Message-State: AOJu0YywZRl3rA1jximoGXSf96yHZST+RRrhZEzAaBZDgr5hsAsS2twB
+	HjXQo4syCnaxzv7B9Wm6ImTtkj5zmiANNNY1PLDpFLAz1A==
+X-Google-Smtp-Source: AGHT+IEvMZeUr6gjAHCW+a2Cll0VO+T3z7MWZTKxVEcEkGWEh5hxuERNy+KFOhRYIIk5D4ZutD8TTw==
+X-Received: by 2002:ad4:5c82:0:b0:67a:b622:60b8 with SMTP id o2-20020ad45c82000000b0067ab62260b8mr629783qvh.61.1703197572106;
+        Thu, 21 Dec 2023 14:26:12 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id p15-20020a0cfd8f000000b0067f76294d5esm916943qvr.118.2023.12.21.14.26.11
+        by smtp.gmail.com with ESMTPSA id o8-20020a0cecc8000000b0067f37d9196esm917456qvq.93.2023.12.21.14.26.11
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 21 Dec 2023 14:26:11 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 11/15] selinux: fix style issues in security/selinux/include/policycap.h
-Date: Thu, 21 Dec 2023 17:18:54 -0500
-Message-ID: <20231221222342.334026-28-paul@paul-moore.com>
+Subject: [PATCH 12/15] selinux: fix style issues with security/selinux/include/policycap_names.h
+Date: Thu, 21 Dec 2023 17:18:55 -0500
+Message-ID: <20231221222342.334026-29-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231221222342.334026-17-paul@paul-moore.com>
 References: <20231221222342.334026-17-paul@paul-moore.com>
@@ -57,7 +57,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=956; i=paul@paul-moore.com; h=from:subject; bh=j/bJtLQsxZELUfNgZwBEUUdSRWgtsaHGR5oQYxXQa/4=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtTilrQI6G+9ohyTm+qNrFD5HJb8vwBIkLpO tRuzQwrAjCJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7UwAKCRDqIPLalzeJ c57YEADJCNGNPgCMIfi0rucx1WDDBuB7U62wL1KCdaVF2IlaeO6A4RPrNIw4nhTF8sPWXN/pAD8 LaykIvEe2v7MHYPTxzUshjo1uwJfXi/QTkmMgHI3vGF+px10DqR5o0+N5hNAjDpSGOcXVXN9K5c sRD9z4kJDgIfSqz2DFpYat139XSF0iUTNN7S186WjJ5VZR3m5AFBJcfx/PFMNSyx/+/0SARbWw6 qvS/40/FO4CUZ/J2Cxvpg6J5IUNNjWrKWE9t2EXtvnUh5GwU/OkjoUzPGuBk+C2p6S8QAtD6Bel /d6L+mbw/h+4rswqesAmkmDRlCEszn92wuKb+MIPORrfBH3XlMH90ZiCJ0MxRqmvgHoC2uqe6hM EmUUuAO5cVoCVYVxTkDQfVQq2PvEbwaGXvDQ+iJuhdIDlflD79YidR4YiwfZQUTF4t1DxSA+TGS b4pvnokqRq+IPIi3SILTsH2ZSCJVSkcvnS7clpVTXCMe+1czjepQR1PdZ4jbGCqFQCJftr7cRVh 8GWp4ziRYlJEokSMqbhQz6TXpXaeYcH26tYDkHBA/p2tZafexm53Y1UmTdKce8jL6ZissDmR7zp RT9Zgo43FXA+2C3qWXzU1QwYtHwn26RHkqhA7RhBDGxL+0aNNxSOgkZvf8Yhy+SfIz/bTGHlaUs PLvWXf9Lyi6i2oA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1400; i=paul@paul-moore.com; h=from:subject; bh=bWuYEJpvR3lM0aYKwQZXbEyrexL3Xdhng7IWeW5NnE4=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtZ7rsEmNNl88IQaj7uZo2ylHdwTJOsMfPZ/ rVTENNZareJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7WQAKCRDqIPLalzeJ cweSD/4wnYkMEPNv2ndvOTTIdsP/MApb5V4O3FesiI9pLPiSUsL43c93JDqxzo90Y7Iln/ipxnD UzSakNe7bQFgOtRET6pirLWVGf2CMPj71AMC4GxqLyxcIARDrjBrkxyZJ2xwy4bw8GMnUvqP+Bs oUmho64OQ7+nhnKC6rgvpXctG3afU+q1QNutXy3ii3Eh0xoqrZ/wDa/IpNcvj/KcmK6zb6vbPLM ZjVgZi45QIN6To6ic6VHRcXxZw6oGLWKtR7xwSP+tQ8cv7rGp85pnEnCeZsXqemtLnBcb1ojIvd mChUblDk+4KY1vD1Y7plfG5tpFNgFM33K/A+4ERVplnKr56cs75/idv4Bqpf+4RkeRzrMdgtwHY AHc8lIuCMYN4pvs2vxEQw7tXFQMQzFu6QdH87UM9XkEUbzgwkintXxDsO1LthltBE74NJPxn3a0 iFKTPW9ale0P+xJz/wklFPM1PgRzHyL/9cGrPfgzOu0rkP3ZqanO+dgxrfWw3t5WaT5pQ3Y0LHd qTGerikc1AfEjMbb+YmIY7tq6jZ8FjQ76s0anBr5bNtimwfa2WOAOUkreUGA1WTBp/NshxBWi8i OEYVYnpavLLBdqlknpjra5PpFAhQTxsjUH0Xwx7tuwsd8Ui3HgqNErdt/AcN9d2GdulBX2aR8jx y/PpqOcVGrgc6Tw==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -71,19 +71,32 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/include/policycap.h | 1 +
- 1 file changed, 1 insertion(+)
+ security/selinux/include/policycap_names.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
-index c7373e6effe5..dc3674eb29c1 100644
---- a/security/selinux/include/policycap.h
-+++ b/security/selinux/include/policycap.h
-@@ -1,4 +1,5 @@
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index 28e4c9ee2399..2cffcc1ce851 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -1,9 +1,11 @@
  /* SPDX-License-Identifier: GPL-2.0 */
 +
- #ifndef _SELINUX_POLICYCAP_H_
- #define _SELINUX_POLICYCAP_H_
+ #ifndef _SELINUX_POLICYCAP_NAMES_H_
+ #define _SELINUX_POLICYCAP_NAMES_H_
  
+ #include "policycap.h"
+ 
++/* clang-format off */
+ /* Policy capability names */
+ const char *const selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+ 	"network_peer_controls",
+@@ -16,5 +18,6 @@ const char *const selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+ 	"ioctl_skip_cloexec",
+ 	"userspace_initial_context",
+ };
++/* clang-format on */
+ 
+ #endif /* _SELINUX_POLICYCAP_NAMES_H_ */
 -- 
 2.43.0
 
