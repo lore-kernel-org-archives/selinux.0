@@ -1,53 +1,53 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2280178E68
-	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07E2078E60
+	for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 22:26:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HPkHX68i"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-78101c35ad4so77011085a.2
-        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QgZWKxVL"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7810827e54eso77852185a.2
+        for <selinux@vger.kernel.org>; Thu, 21 Dec 2023 14:26:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1703197569; x=1703802369; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1703197570; x=1703802370; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Kv87OroEwvdXCg/dE3E+njIvxSH4FtKwDfJnoVPb35M=;
-        b=HPkHX68imQhvSopiIGEZbmthjoEj6CpKhchzTgj7beyLUGAxUoP7EhHauGOrkVt9nz
-         Of52IPjoGp1Vf8jaUgdcSEccKX41jCMeJDsYuwU0BFgmUO26ih7l1g62MNPg1MKIKu5z
-         Gt6doG6wtULOy8x91EQFJEzkY7d+l8YTjbFn8UIwwS+OKwnde7bejchCwTKhVHnsVHYm
-         LUFCdwlKDgt0nscpMTq/igY/xHVuOyGcrTcqezWY/zhHWfOuCzHojR64j12JRfbOFMIJ
-         XJcDvH0EsXHgv1XQZK36h0xMwYsDeDqICEM1db0U3zhVLMXNs29GwN1FkuZv2I+JfRoY
-         M93g==
+        bh=c3jW3MoNnfjfkHjw95ZrPZI3q4R3FgMhO0U/voIpiS8=;
+        b=QgZWKxVLqjDGXXPtHXN9u6V2r3pJc+zxrvy4fqRDQClQRNPaO5gBky6LO8q0SlLbt5
+         wgsekQdJZ6Kikn0MQPxaBJiQu5+Sdp5vwBJHmT2J7ArQo8OUDrWRw7iRyoV4JW0W+kaY
+         jvreFIrMF0QLs8mPcqR8TG17vfvYi7DiYR+oEZlJxg9vO5iZEwnSx3kHzD7K9DLmIXnl
+         BR2kHgmhDGhmma6JUUZpKtOs90k7Zq7tGFwTU0ynj1HR+tITBpvtNjqnafqcIY3XTmo7
+         ZTekoNE+U2/bnR0l0caswxv6DC8KDjSW79fF3v7OQu7iqdOzlT8alKNa2ZaL4xXTxo1V
+         Jltg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703197569; x=1703802369;
+        d=1e100.net; s=20230601; t=1703197570; x=1703802370;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Kv87OroEwvdXCg/dE3E+njIvxSH4FtKwDfJnoVPb35M=;
-        b=uPTBrehJCZORHdEPgd2FPIX7wHkSOtSI+aVBDHU7T0udfgdl7j9eKWxI0gW47t9q0k
-         RDC4Mbms7Dc5XDmp4OEbBbmgufxcThmnfc56uJ0rPC8282KHUKPXTDq+8O9GwM/yDSgN
-         kAeh2+/UDGRghTQFOiy9ot6g92S5WaDMn1gZ+4NPAA1f73DJ5NbfOKisre/QaewAD2nW
-         qq7dYtqgok9tTCBof2PfVJSi2mIzUzpxyTZyuB5nDvrDoY8ARAtX5Keuc+5EMqLl8kze
-         QNofyK1E/bU+byWRzegHe2G4HSHKZkuLC+rkJXYdF3qVD0+N4JHwlloF9BKa/24Qkicn
-         xcfQ==
-X-Gm-Message-State: AOJu0YwABAKpBqZyZ7w/RjmsPmBk/O+XQYywNFOtzYDFNDXu+rKNdxTG
-	30KH7n7COhhLwWknjXRS7rkPu9FQnIOeDEXSPGRa7UtgCw==
-X-Google-Smtp-Source: AGHT+IHa2wHi8ZxArIFVrwI6dYfKsaZDPfVpxii3Kqv9AV1E+C89I9WYcs1l0wlq/Uej0CANe7PhQA==
-X-Received: by 2002:a05:620a:22e6:b0:781:2a43:d2b0 with SMTP id p6-20020a05620a22e600b007812a43d2b0mr398243qki.123.1703197568914;
-        Thu, 21 Dec 2023 14:26:08 -0800 (PST)
+        bh=c3jW3MoNnfjfkHjw95ZrPZI3q4R3FgMhO0U/voIpiS8=;
+        b=s7kZun5UGaUKIRi/JkFYF68q1k7Lncu221m2Ck6ehYC6rnzn/1f4/3IW4YGiHww3v3
+         ZcDPOzZM/nfIKeuMGoF7+E8sjhnZqrtATR4jwThbqhHr4aOPs1TAI5xMNFtN11k48p8r
+         lwQRfCYcqOzYQmFruUeCJbnlcmac4oKjQ0mKy+iIIWrJfrreyojiAiFlB60+RULd3tpy
+         qm2ssY920rOajBd0Srb6Q9PJkxIE8rb1dtYwyez84w8s6Fp89Ipf3tmnJ7ZNsVFRlVoI
+         +T8AnhW4YZSLtgqr9GUCEBSuBJkRjgbPyuDEQdoSmk9Hpcv4t7eSGLA50hYUAxyYGFk4
+         OPkQ==
+X-Gm-Message-State: AOJu0YzvLxC+R7C9RweO9dzqs9AiMxP3PG0ba087xHmi+fkYpR0eIgHz
+	mHOkOBqbMwOz9yJTQkMvl0Y5EF3om8Kn8qD1vI6bGw/egQ==
+X-Google-Smtp-Source: AGHT+IEmgB5AZw/OKlxn6OLDcsFCncJlax+72eKyNu/KOoWeKg3XTQcEWtgsveBX0O207GiQSfwPxw==
+X-Received: by 2002:a05:620a:400a:b0:77e:fba3:9d04 with SMTP id h10-20020a05620a400a00b0077efba39d04mr668605qko.104.1703197569748;
+        Thu, 21 Dec 2023 14:26:09 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id b7-20020a05620a126700b0077703f31496sm952084qkl.92.2023.12.21.14.26.08
+        by smtp.gmail.com with ESMTPSA id c6-20020ae9e206000000b0077f103c8ad6sm942982qkc.82.2023.12.21.14.26.09
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Dec 2023 14:26:08 -0800 (PST)
+        Thu, 21 Dec 2023 14:26:09 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 08/15] selinux: fix style issues in security/selinux/include/netif.h
-Date: Thu, 21 Dec 2023 17:18:51 -0500
-Message-ID: <20231221222342.334026-25-paul@paul-moore.com>
+Subject: [PATCH 09/15] selinux: fix style issues with security/selinux/include/netlabel.h
+Date: Thu, 21 Dec 2023 17:18:52 -0500
+Message-ID: <20231221222342.334026-26-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231221222342.334026-17-paul@paul-moore.com>
 References: <20231221222342.334026-17-paul@paul-moore.com>
@@ -57,7 +57,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1220; i=paul@paul-moore.com; h=from:subject; bh=RkxNc4BWjitjeiF8+adeS37asZXmdnqWnznmfGhMplE=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtAGwORLbKAI8h/lJS3vd/VjMZ/8XMsidllP dx/th6R+ciJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7QAAKCRDqIPLalzeJ c1SxEACN34xrOtugTolo9SmENd94eZ+xkT/nkhVYxtq6Nb8JvAIC226LBc9xKrnGphG/hRLe8R3 dJHnK1niqK+iLKRHgVK/B88/56JFafNX/pu9NF8vX7oUqwT3hojmLOrZzmgfX0jhXwgo+P2rJcQ l0/l2/QlFa+yLWRrsDw4wpqQX4hWy4Hluk/IQG3NfT7WqCOIJ8eWv4Ip2s0YBnLF81rjgIKFa2x GK/uhc1KI5OznBJHPZGRbFCQvmyPSz+EkdRE20eeJ9173u49Ag25WpxPVilCt9VIoOMkqhJnk0T JIEITl4Ihxhol6NRNbpTXZogNFYPMa+xmEIm/mxQM8C5u6UJGPNMKmSKOwwSQCl5sqQ8AQU5PVQ +AZgN82WzLro40Vt+d8HG5YnT6/osTG3OlnfO8MeteQTvBCt6ViweJmIQTa2DkuHBXPwTIPREXf 2UsoUsIo3Ia2VG615iwy+wdeDX1YsCxk0sLatmSqd+t+9sgkTcS8aCELhvuYGGRQuWtfgX4DKjd Sav1OysWCw0ctRBhYjfA7nlMuYdVyMWLNz2P49s4Q2v26bG1MSKNDLyYLiRYjLPp7VK0ihw98al jgZ6oFg57IXSbwKIfnVQgex9sityhhZWRmtxpHacmv1ZZMtDTyFJhxkb4/ap91GvqwoVcfNaIrx ZQwPJNoCYDI9Waw==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4741; i=paul@paul-moore.com; h=from:subject; bh=Fp4WwHqZ19wmjUkTCELEuDjk/zfZqa9XrsWcd4dEYio=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlhLtHVhOlEE6EEnvkeVgbV+1nArccSj2e8DpX6 5uIBhs7U9GJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZYS7RwAKCRDqIPLalzeJ c69VD/94hdWT5Bi5H021wKkZ7jkyy/bmj2HxfDWcxZ8OCW+8F/RbMOFzCMFcO7PdJpXthBD53ik qBKoZubnQWI7UfjOpBvl884ytpHszMWwe6Ba7F+671puAjxzQk5QuftpcKzSpZFRJzb8kC3TjHV HBVTnI4XIF1su7LzIb7SHKpzT4AhUHYPjoKDYXCYKcYkMH4WPGjwbUb5ebpK49Tr3/+pZrJSGux mXQTp7edJRUBZeYkGUtumcmBY5IkRtLrRHLeIQaWq5i8nnrIJ6/nQmQ0+RA5JVClAj+andET5GX bOT8Ensa0bcTobhKVy335FAvRfmoh1+nzW77E8CSV574wGuHn5Y/oHwW5f3TbcXWv1XIEIb0rMM bA+XBbwHJK+B9nwazClLld9FdOWelfgQ3haSJp6yqVAdl6YnlknBXVhqoeG4OSEZC65Q5zJlXzl fmoeH3f5ZxkVsh/MqPKp3Cd6gfscCY/zSEHIMNVfOBBC4Qgek/YcY76ZT9wVXCQiZTBY28gCFVb Fdel0hKzCdHcKPGy6Fm2ZqvMddOwQOR/yHFCKcla9eJ7s//CurxZROU1zMRcX2m2GcfQF8+ct0P 4RQYCxRURL5GxppQFYeAButUKFH0ITxPV3QVYNw9iW4y7G4QrnU+tmyiCQEWVjMaygjhmFrQZbf m5kHyIKO/pJcJ6A==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -71,28 +71,126 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/include/netif.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/selinux/include/netlabel.h | 53 +++++++++++------------------
+ 1 file changed, 20 insertions(+), 33 deletions(-)
 
-diff --git a/security/selinux/include/netif.h b/security/selinux/include/netif.h
-index 85ec30d11144..2838bdc170dd 100644
---- a/security/selinux/include/netif.h
-+++ b/security/selinux/include/netif.h
-@@ -11,6 +11,7 @@
-  * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-  *                    Paul Moore <paul@paul-moore.com>
-  */
-+
- #ifndef _SELINUX_NETIF_H_
- #define _SELINUX_NETIF_H_
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 4d0456d3d459..5731c0dcd3e8 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -32,25 +32,19 @@ void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error,
+ void selinux_netlbl_sk_security_free(struct sk_security_struct *sksec);
+ void selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec);
  
-@@ -20,5 +21,4 @@ void sel_netif_flush(void);
+-int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+-				 u16 family,
+-				 u32 *type,
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u16 family, u32 *type,
+ 				 u32 *sid);
+-int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
+-				 u16 family,
+-				 u32 sid);
++int selinux_netlbl_skbuff_setsid(struct sk_buff *skb, u16 family, u32 sid);
+ int selinux_netlbl_sctp_assoc_request(struct sctp_association *asoc,
+-				     struct sk_buff *skb);
++				      struct sk_buff *skb);
+ int selinux_netlbl_inet_conn_request(struct request_sock *req, u16 family);
+ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family);
+ void selinux_netlbl_sctp_sk_clone(struct sock *sk, struct sock *newsk);
+ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family);
+ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+-				struct sk_buff *skb,
+-				u16 family,
++				struct sk_buff *skb, u16 family,
+ 				struct common_audit_data *ad);
+-int selinux_netlbl_socket_setsockopt(struct socket *sock,
+-				     int level,
++int selinux_netlbl_socket_setsockopt(struct socket *sock, int level,
+ 				     int optname);
+ int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr);
+ int selinux_netlbl_socket_connect_locked(struct sock *sk,
+@@ -62,44 +56,40 @@ static inline void selinux_netlbl_cache_invalidate(void)
+ 	return;
+ }
  
- int sel_netif_sid(struct net *ns, int ifindex, u32 *sid);
+-static inline void selinux_netlbl_err(struct sk_buff *skb,
+-				      u16 family,
+-				      int error,
+-				      int gateway)
++static inline void selinux_netlbl_err(struct sk_buff *skb, u16 family,
++				      int error, int gateway)
+ {
+ 	return;
+ }
  
--#endif	/* _SELINUX_NETIF_H_ */
--
-+#endif /* _SELINUX_NETIF_H_ */
+-static inline void selinux_netlbl_sk_security_free(
+-					       struct sk_security_struct *sksec)
++static inline void
++selinux_netlbl_sk_security_free(struct sk_security_struct *sksec)
+ {
+ 	return;
+ }
+ 
+-static inline void selinux_netlbl_sk_security_reset(
+-					       struct sk_security_struct *sksec)
++static inline void
++selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec)
+ {
+ 	return;
+ }
+ 
+-static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+-					       u16 family,
+-					       u32 *type,
+-					       u32 *sid)
++static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u16 family,
++					       u32 *type, u32 *sid)
+ {
+ 	*type = NETLBL_NLTYPE_NONE;
+ 	*sid = SECSID_NULL;
+ 	return 0;
+ }
+-static inline int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
+-					       u16 family,
++static inline int selinux_netlbl_skbuff_setsid(struct sk_buff *skb, u16 family,
+ 					       u32 sid)
+ {
+ 	return 0;
+ }
+ 
+-static inline int selinux_netlbl_sctp_assoc_request(struct sctp_association *asoc,
+-						    struct sk_buff *skb)
++static inline int
++selinux_netlbl_sctp_assoc_request(struct sctp_association *asoc,
++				  struct sk_buff *skb)
+ {
+ 	return 0;
+ }
+@@ -117,21 +107,18 @@ static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+ {
+ 	return;
+ }
+-static inline int selinux_netlbl_socket_post_create(struct sock *sk,
+-						    u16 family)
++static inline int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
+ {
+ 	return 0;
+ }
+ static inline int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+-					      struct sk_buff *skb,
+-					      u16 family,
++					      struct sk_buff *skb, u16 family,
+ 					      struct common_audit_data *ad)
+ {
+ 	return 0;
+ }
+ static inline int selinux_netlbl_socket_setsockopt(struct socket *sock,
+-						   int level,
+-						   int optname)
++						   int level, int optname)
+ {
+ 	return 0;
+ }
 -- 
 2.43.0
 
