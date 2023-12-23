@@ -1,75 +1,289 @@
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A046A33CD5
-	for <selinux@vger.kernel.org>; Fri, 22 Dec 2023 23:09:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8571ECF
+	for <selinux@vger.kernel.org>; Sat, 23 Dec 2023 01:23:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Gcau6H9j"
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-67f9fac086bso4377236d6.3
-        for <selinux@vger.kernel.org>; Fri, 22 Dec 2023 15:09:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AWF1qJFX"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-7811c16ce6cso155076685a.1
+        for <selinux@vger.kernel.org>; Fri, 22 Dec 2023 17:23:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1703286565; x=1703891365; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:to:from:message-id:date:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RGR0xmUolS+E89J2bGEq0f1NeitrM+VEG8SN5Q+WIIY=;
-        b=Gcau6H9jnRMlDi2b1aVNt0J2UtCpeFuag8IvBoQNYq/KdLSpd8d/BZ4rJhQi/M8Q8G
-         J76IpdPgQ9r70OsfvSq3i2Vu5I6sl8Zv5UonDc7OT1J6zXQM2ZTZ5rUft1LxaJh9XT+t
-         9k1EIb1coaXvHz0pBkrTYkjhA0YvSjWBI6galARYPl40WoWAuF+4TpgFXY4LPSAL45QO
-         B1Cbzvcdi9y+tVWPHL2d8BwH+r/AXcAWPaOI+e2mRj207bTz5qrTThqQbh3v7t1XnN+/
-         cSfsqsQd4d8X+9Zozqf5gUd6vWrtHQPlZ8JiN0O1d8CXioJIuExMLsbXOHuznCTqyEDY
-         NPUA==
+        d=paul-moore.com; s=google; t=1703294618; x=1703899418; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ol6F17s5HBzN1N/Ub4j2HKKOTRquCJcTyGe14n9oFhY=;
+        b=AWF1qJFXGGzkHdvxWZs3UNCxyQ760H2q64EQ5LXy8lm/4uvCeDI8eXBqQ2A6si96rq
+         K4BwQ3dbTCV3kAc1TGtZBCqgSwJWwBE38uA4vqoCeYYXZAt+k0eia92JI0T20LFPxl4p
+         ugJJp0oLi1t2IjCLqmiZuQeIrAOqHuYhq/6ScnM4ifpnh93SDJHreABg4tqqCJPFbQyk
+         FHwZGfYRaYioIDCA4Pr2vVbVCmHh2xYXpuDyP8H6Qbix+8nSTKNCXsCPWX5CYhPuFKYS
+         omqLfVgvdq4glfDCHflJFvIcEDLeMuZpmTNQ2Rr0IiM9wD6u0JAAzF5fuAYpXdEuhuUW
+         mqpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1703286565; x=1703891365;
-        h=in-reply-to:references:subject:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RGR0xmUolS+E89J2bGEq0f1NeitrM+VEG8SN5Q+WIIY=;
-        b=KXsfQpCzdcduFHqRnuKUFvpL5NrBEfeeK11WKoi+JlxwULbrgxtUBxEhW/MwB1VtsV
-         qVqL1JyTMmbfjnkGDVp6JjxzBdyrlaGI6ymxIYT7ix8fzPa+28D/a/Grtq2OfUFgzYYj
-         2Lpxjx43GS/2LL6sbhSwTzUyldf/SmQJg/quRDFB45oCmriXyeBhhDCz3/WowCbpkVHI
-         CuRg/ss4YjA0TVi5XM2E9GkniQBtBVkNJ2oeID8fa1exrZMIbEj22s359+0HpRIjXtCz
-         EprOyWmUEHdQAwJkftbHSC4Bho7SjEZJgzgqLZfFkJGKuGzUvwLsLwMroNeOzb7+SqDf
-         EQCw==
-X-Gm-Message-State: AOJu0YyHZ2AXr+Ive3eg+wKhrxjhM2gPNLyv8Bp53pGUkye5QF4kiL3A
-	29sZUxjOGgETgCkpfAUiaexvjfZkU+yOW8JpoYVC4+MR7g==
-X-Google-Smtp-Source: AGHT+IH1pdYrnW0qIb825wiQuJ2ElSNUwKmgvYtznaWticgzIMJ7jbZIUxO/dBBUGBNPZo8OS9o4Jg==
-X-Received: by 2002:a05:6214:e41:b0:67f:1965:c3f with SMTP id o1-20020a0562140e4100b0067f19650c3fmr2906299qvc.80.1703286565276;
-        Fri, 22 Dec 2023 15:09:25 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id x17-20020ad440d1000000b0067ec8702d1dsm1678405qvp.137.2023.12.22.15.09.24
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Dec 2023 15:09:24 -0800 (PST)
-Date: Fri, 22 Dec 2023 18:09:24 -0500
-Message-ID: <3efc373e078e41688534773e09c72e8a@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Subject: Re: [PATCH 1/15] selinux: fix style issues in  security/selinux/include/audit.h
-References: <20231221222342.334026-18-paul@paul-moore.com>
-In-Reply-To: <20231221222342.334026-18-paul@paul-moore.com>
+        d=1e100.net; s=20230601; t=1703294618; x=1703899418;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ol6F17s5HBzN1N/Ub4j2HKKOTRquCJcTyGe14n9oFhY=;
+        b=KDFc0OJrXqeckmzAWs4xFOI698BQPP5pjIXi+xTStk9HBg2FtrydX5QbLZiC5Ur8MJ
+         +/vjDmkAUijd8OTjQJVjN1kBPv0sw9Ap7EaK8E56esZSOsPeZ85We/36CgBJ3zbB0xth
+         gcI7fvsj/nMCd/xc85xfyHtLoGXODJzyPPQLTy2PPtAVWU3fxUajHCZg9/H8rpsGB8k3
+         OPc9kNAro1TfI/WuLe4QY5t/O2b76AYxB46+6VnHuhWYNHx06vrYdzJUn2a6H07Cjw8v
+         hW4Iglm2e8jEhTkIAZztgpVuZvYkq1rNkJRADTycxubh5b+C0rVVGJHx4/xmUCnPdKQ6
+         r0fA==
+X-Gm-Message-State: AOJu0YwqogZaQefSUnm748xVixCUySKo64eZ5aK4R5A/Gw1rqtx9nFU6
+	sbRGjYn0I5QmZGXbR9JnTkbxOrOiY2s1KnuL0UoI7LBifBjG
+X-Google-Smtp-Source: AGHT+IHdoEKOJBo1f1Wlnf+MZivYuOxAH1/fQuZG8OdFTEkDHqeJLkyY9PJXkiAt4IkOyFmswuc5cBn3ygqrr+R6kLI=
+X-Received: by 2002:a05:620a:c19:b0:781:27bc:d0b9 with SMTP id
+ l25-20020a05620a0c1900b0078127bcd0b9mr2435572qki.41.1703294617781; Fri, 22
+ Dec 2023 17:23:37 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20230906102557.3432236-1-alpic@google.com> <20231219090909.2827497-1-alpic@google.com>
+In-Reply-To: <20231219090909.2827497-1-alpic@google.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 22 Dec 2023 20:23:26 -0500
+Message-ID: <CAHC9VhTpc7SD0t-5AJ49+b-FMTx1svDBQcR7j6c1rmREUNW7gg@mail.gmail.com>
+Subject: Re: [PATCH] security: new security_file_ioctl_compat() hook
+To: Alfred Piccioni <alpic@google.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Eric Paris <eparis@parisplace.org>, 
+	linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	stable@vger.kernel.org, selinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Dec 21, 2023 Paul Moore <paul@paul-moore.com> wrote:
-> 
-> As part of on ongoing effort to perform more automated testing and
-> provide more tools for individual developers to validate their
-> patches before submitting, we are trying to make our code
-> "clang-format clean".  My hope is that once we have fixed all of our
-> style "quirks", developers will be able to run clang-format on their
-> patches to help avoid silly formatting problems and ensure their
-> changes fit in well with the rest of the SELinux kernel code.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Tue, Dec 19, 2023 at 4:09=E2=80=AFAM Alfred Piccioni <alpic@google.com> =
+wrote:
+>
+> Some ioctl commands do not require ioctl permission, but are routed to
+> other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
+> done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+>
+> However, if a 32-bit process is running on a 64-bit kernel, it emits
+> 32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
+> being checked erroneously, which leads to these ioctl operations being
+> routed to the ioctl permission, rather than the correct file
+> permissions.
+>
+> This was also noted in a RED-PEN finding from a while back -
+> "/* RED-PEN how should LSM module know it's handling 32bit? */".
+>
+> This patch introduces a new hook, security_file_ioctl_compat, that is
+> called from the compat ioctl syscall. All current LSMs have been changed
+> to support this hook.
+>
+> Reviewing the three places where we are currently using
+> security_file_ioctl, it appears that only SELinux needs a dedicated
+> compat change; TOMOYO and SMACK appear to be functional without any
+> change.
+>
+> Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
+> Signed-off-by: Alfred Piccioni <alpic@google.com>
+> Cc: stable@vger.kernel.org
 > ---
->  security/selinux/include/audit.h | 1 -
->  1 file changed, 1 deletion(-)
+>  fs/ioctl.c                    |  3 +--
+>  include/linux/lsm_hook_defs.h |  2 ++
+>  include/linux/security.h      |  7 +++++++
+>  security/security.c           | 17 +++++++++++++++++
+>  security/selinux/hooks.c      | 28 ++++++++++++++++++++++++++++
+>  security/smack/smack_lsm.c    |  1 +
+>  security/tomoyo/tomoyo.c      |  1 +
+>  7 files changed, 57 insertions(+), 2 deletions(-)
+>
+> diff --git a/fs/ioctl.c b/fs/ioctl.c
+> index f5fd99d6b0d4..76cf22ac97d7 100644
+> --- a/fs/ioctl.c
+> +++ b/fs/ioctl.c
+> @@ -920,8 +920,7 @@ COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsig=
+ned int, cmd,
+>         if (!f.file)
+>                 return -EBADF;
+>
+> -       /* RED-PEN how should LSM module know it's handling 32bit? */
+> -       error =3D security_file_ioctl(f.file, cmd, arg);
+> +       error =3D security_file_ioctl_compat(f.file, cmd, arg);
+>         if (error)
+>                 goto out;
 
-The entire patchset has been merged into selinux/dev.
+This is interesting ... if you look at the normal ioctl() syscall
+definition in the kernel you see 'ioctl(unsigned int fd, unsigned int
+cmd, unsigned long arg)' and if you look at the compat definition you
+see 'ioctl(unsigned int fd, unsigned int cmd, compat_ulong_t arg)'.  I
+was expecting the second parameter, @cmd, to be a long type in the
+normal definition, but it is an int type in both cases.  It looks like
+it has been that way long enough that it is correct, but I'm a little
+lost ...
 
---
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.=
+h
+> index ac962c4cb44b..626aa8cf930d 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -171,6 +171,8 @@ LSM_HOOK(int, 0, file_alloc_security, struct file *fi=
+le)
+>  LSM_HOOK(void, LSM_RET_VOID, file_free_security, struct file *file)
+>  LSM_HOOK(int, 0, file_ioctl, struct file *file, unsigned int cmd,
+>          unsigned long arg)
+> +LSM_HOOK(int, 0, file_ioctl_compat, struct file *file, unsigned int cmd,
+> +        unsigned long arg)
+>  LSM_HOOK(int, 0, mmap_addr, unsigned long addr)
+>  LSM_HOOK(int, 0, mmap_file, struct file *file, unsigned long reqprot,
+>          unsigned long prot, unsigned long flags)
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 5f16eecde00b..22a82b7c59f1 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -389,6 +389,7 @@ int security_file_permission(struct file *file, int m=
+ask);
+>  int security_file_alloc(struct file *file);
+>  void security_file_free(struct file *file);
+>  int security_file_ioctl(struct file *file, unsigned int cmd, unsigned lo=
+ng arg);
+> +int security_file_ioctl_compat(struct file *file, unsigned int cmd, unsi=
+gned long arg);
+>  int security_mmap_file(struct file *file, unsigned long prot,
+>                         unsigned long flags);
+>  int security_mmap_addr(unsigned long addr);
+> @@ -987,6 +988,12 @@ static inline int security_file_ioctl(struct file *f=
+ile, unsigned int cmd,
+>         return 0;
+>  }
+>
+> +static inline int security_file_ioctl_compat(struct file *file, unsigned=
+ int cmd,
+> +                                     unsigned long arg)
+> +{
+> +       return 0;
+> +}
+> +
+>  static inline int security_mmap_file(struct file *file, unsigned long pr=
+ot,
+>                                      unsigned long flags)
+>  {
+> diff --git a/security/security.c b/security/security.c
+> index 23b129d482a7..5c16ffc99b1e 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2648,6 +2648,23 @@ int security_file_ioctl(struct file *file, unsigne=
+d int cmd, unsigned long arg)
+>  }
+>  EXPORT_SYMBOL_GPL(security_file_ioctl);
+>
+> +/**
+> + * security_file_ioctl_compat() - Check if an ioctl is allowed in 32-bit=
+ compat mode
+> + * @file: associated file
+> + * @cmd: ioctl cmd
+> + * @arg: ioctl arguments
+> + *
+> + * Compat version of security_file_ioctl() that correctly handles 32-bit=
+ processes
+> + * running on 64-bit kernels.
+> + *
+> + * Return: Returns 0 if permission is granted.
+> + */
+> +int security_file_ioctl_compat(struct file *file, unsigned int cmd, unsi=
+gned long arg)
+> +{
+> +       return call_int_hook(file_ioctl_compat, 0, file, cmd, arg);
+> +}
+> +EXPORT_SYMBOL_GPL(security_file_ioctl_compat);
+> +
+>  static inline unsigned long mmap_prot(struct file *file, unsigned long p=
+rot)
+>  {
+>         /*
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 2aa0e219d721..c617ae21dba8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3731,6 +3731,33 @@ static int selinux_file_ioctl(struct file *file, u=
+nsigned int cmd,
+>         return error;
+>  }
+>
+> +static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd=
+,
+> +                             unsigned long arg)
+> +{
+> +       /*
+> +        * If we are in a 64-bit kernel running 32-bit userspace, we need=
+ to make
+> +        * sure we don't compare 32-bit flags to 64-bit flags.
+> +        */
+> +       switch (cmd) {
+> +       case FS_IOC32_GETFLAGS:
+> +               cmd =3D FS_IOC_GETFLAGS;
+> +               break;
+> +       case FS_IOC32_SETFLAGS:
+> +               cmd =3D FS_IOC_SETFLAGS;
+> +               break;
+> +       case FS_IOC32_GETVERSION:
+> +               cmd =3D FS_IOC_GETVERSION;
+> +               break;
+> +       case FS_IOC32_SETVERSION:
+> +               cmd =3D FS_IOC_SETVERSION;
+> +               break;
+> +       default:
+> +               break;
+> +       }
+> +
+> +       return selinux_file_ioctl(file, cmd, arg);
+> +}
+
+Is it considered valid for a native 64-bit task to use 32-bit
+FS_IO32_XXX flags?  If not, do we want to remove the FS_IO32_XXX flag
+checks in selinux_file_ioctl()?
+
+>  static int default_noexec __ro_after_init;
+>
+>  static int file_map_prot_check(struct file *file, unsigned long prot, in=
+t shared)
+> @@ -7036,6 +7063,7 @@ static struct security_hook_list selinux_hooks[] __=
+ro_after_init =3D {
+>         LSM_HOOK_INIT(file_permission, selinux_file_permission),
+>         LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
+>         LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
+> +       LSM_HOOK_INIT(file_ioctl_compat, selinux_file_ioctl_compat),
+>         LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
+>         LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
+>         LSM_HOOK_INIT(file_mprotect, selinux_file_mprotect),
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 65130a791f57..1f1ea8529421 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -4973,6 +4973,7 @@ static struct security_hook_list smack_hooks[] __ro=
+_after_init =3D {
+>
+>         LSM_HOOK_INIT(file_alloc_security, smack_file_alloc_security),
+>         LSM_HOOK_INIT(file_ioctl, smack_file_ioctl),
+> +       LSM_HOOK_INIT(file_ioctl_compat, smack_file_ioctl),
+>         LSM_HOOK_INIT(file_lock, smack_file_lock),
+>         LSM_HOOK_INIT(file_fcntl, smack_file_fcntl),
+>         LSM_HOOK_INIT(mmap_file, smack_mmap_file),
+> diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+> index 25006fddc964..298d182759c2 100644
+> --- a/security/tomoyo/tomoyo.c
+> +++ b/security/tomoyo/tomoyo.c
+> @@ -568,6 +568,7 @@ static struct security_hook_list tomoyo_hooks[] __ro_=
+after_init =3D {
+>         LSM_HOOK_INIT(path_rename, tomoyo_path_rename),
+>         LSM_HOOK_INIT(inode_getattr, tomoyo_inode_getattr),
+>         LSM_HOOK_INIT(file_ioctl, tomoyo_file_ioctl),
+> +       LSM_HOOK_INIT(file_ioctl_compat, tomoyo_file_ioctl),
+>         LSM_HOOK_INIT(path_chmod, tomoyo_path_chmod),
+>         LSM_HOOK_INIT(path_chown, tomoyo_path_chown),
+>         LSM_HOOK_INIT(path_chroot, tomoyo_path_chroot),
+
+I agree that it looks like Smack and TOMOYO should be fine, but I
+would like to hear from Casey and Tetsuo to confirm.
+
+--=20
 paul-moore.com
