@@ -1,52 +1,21 @@
-Received: from sonic302-28.consmr.mail.ne1.yahoo.com (sonic302-28.consmr.mail.ne1.yahoo.com [66.163.186.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C087147F48
-	for <selinux@vger.kernel.org>; Wed, 27 Dec 2023 20:20:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="eVRtI3eY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1703708411; bh=QeQB/luos8iTHtvu7slYFci+x7sNWDy25TvvSl1IpjQ=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=eVRtI3eYsVuWJIFv4qV1FPVdvzkpxg2gaBIHHizd6KWLuOxWTlhpR0V/CekUEV6V2NazRf6DlbnayERM/YBGjxpCMruIewjJnLUkT+qsqelpsV73ZxoC+z9Qz4wB03n9AAt5DZ6NhZvOiyEDj3Hd43FJ2ZtRfbMwaS/IV6JwChxZLCLWorH7uBlZZp2TV+YPgam09M3PLy/recnVNRtzFE/4GwBJfRtS8BH3vlZ87H9goG2UaavC0Z3SLrcdj4GLgbfEE7oypWN9QWodQTwpqEHS0r4eEAjj47A98xs5tKP4VTUMQoy9gmeqbBQO3RtGJfSX/rTWxs93jqrwno6U8g==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1703708411; bh=y7MitWxjXS0rdAixK1MI7RL720PRAOERok9cz8h1G+H=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=QfpWk3eUNDx0rmPnB1zsOxECCckjhIUy8O7ADcKL7eakK1rjmERl/b8DFBj7H1BR5+dKd4tUkB0CbK0Eg5Id+K4CSNpCBUoLLYrursCMhTK9jPYJ2GZPESC3XRfk9s/eK9yoKcS+axD5GwMfIepn1xE0OnwX5Vqx5/LCxIfGDMpVoAsad8J+iKpO9YjzYf9CxHiR7V8pXKsOpsy4xIAkl4PWgKzMPqaNxCKXfi8pExaQb2V1DNB1OHdSzVsdH4zKgRNAH2iSNFsGG7D5LS1gFddXnws1IzHy1QpMX5qgDsu0qer3OAppJ5/s8HcsHlX2jgqj9u6TCabYxZM4WEHCNQ==
-X-YMail-OSG: kvXxldoVM1nfcPSbpFC9tRcnDK.uvat_WN7fvXIQ8Egc_vy3AhambR9kKOUTJJK
- OYzwTr6AUHXBnJb7Yi8e2GWqnhkyoAAXEayygeazgjS.8QXgfGrp0zj8xE8hICveR2pzZzR5GjQd
- d_iinKK4Y7.Y3plAlH0M1Fq2PH.uS1XKHBGgcojtaTDWENlgGm0SU7lKXlm2.NCCuMDtN4VMNfVf
- 6oirfdzDfKf1BZqqD5WZlDLVB18nfJ_YneAzC8Cva6pEop2uYAgiqhRM_mtudEfPCM31X.bJYMxG
- rwbmbR7QJzyfPR4eIBSGlfCfsGZqSNWZTQvs6hmmnrECOFAta_YT8aDd94s.7g.Gjhm0tqmcXQH4
- 7PQdZiGP.c7rJFXuhOFXhX9BRiJRKF3HMu8j1oNny23cGu8ZxKQLamkiiDUE1BH.293dhUtyIj1L
- 0MsoQ4drrfEwpym0M2oJ0N4xDulmA1OnMSLofOOELXxN8wQ2bzcdbPC2hRveTYMMJKcO9KQYcKdE
- S_p7rHSptJNv8T6xC6Ao_cCBXk2XjQdhQp9ValcmMbIah5zoBYMc5byVYlhblYdjZ3SGTE9gKrJe
- lq7XKvjb3fgZLyXZ_9j9NqQWlRgidoFqpuzwyQamgDa0PYGxNbzaoQg8xoGN7OH19t988Wjx9RsQ
- 7CPz.D8J7a6m5Aymr_WNVmvMeHo4EsB0UNWlETLPL.dfUqGLgK23pb7a4QDs19yFSu3REq6tM79R
- 7lJb_egimT8Y5OPEizFv1abHlVc0__ypMJtxDt9zKTAdofrpOWxM6MorfDYBc6s_CSmYZfVFBI_2
- xlvYfcjOj88Qft.BbId2Fjx3uvZ9owneGvUPOyFzutX1SMQNs8EtktMkbufjekxCteLGc_woUkJT
- AF0cxRSDSivxo_DlrpAy42.aN6oYV3xRKlzDvFsR9v6YerFuAK.6pZv3wi1RM5rpNOJrVWT.ADv5
- u2w4KWLuLwI2bTJDOyDOJW1mIK8DqeWd61pOsuWK2iH7PtDARrikF2dQ1JvlV5PkMEGmOiB.RKgs
- erJb.XSAewpFiIGvpgxLhTeA9_WX57BwoXBgQuTz1Q3HR8XCrfqhwGKBXEkb.HTsIAr_DlyXHyhM
- K97D9UTSlTmkPR_kWilmzpuKbame24fCUtBNujy4s8X62mDO58rOrwgKVxzobfVcIEK1oZPp8xoj
- FMnozpfEonWJA0Xo1.Qubxs46wie4vswMqpeJ.WBwCsssenzj7VggBp6QhYvBIJ0GZJ9L0c4_U.d
- 2oqjxBMPMjEOZf1t5M0gWnoGpNHxYGSxfoLHLWsfnBuyI1LSgZnT7d7_TYUPMYQ.iqIhYnb4FWOY
- 3URFrw.7zi8myVYVg4s1CtTx4Mv0nV8ykfcFzv.kqYFRkCqX9akY79vpuBl4WxfNu4F9GPp2Xuhn
- hQ9_FuUAere3OwgniMeOo8cUf9lj.w0BoOeQ8_lKPvDJ9uOLyeGekiP6WWtH2D4h3OdpPgPC7_cL
- TSnoTumqh8vZ90nUCjnirt7T.Qfk7D.oDn8DBuzjp8y40Y7PpC_AhIgzyxJTZOyg61kYpNaXwxCx
- yaOqk_uX_VjZYZohmmfTl.WkI0DkBwSH8s7h00C1haWd5NhyYpAZilesD_5GZD6FY5CeDvRZ2duO
- FW.L1zfsA3trQpbd73KuEBklH1JefuR9YRdvvyRN8eqXzDUROfkxZs3.5pfV5NZcpi7R3n0b4DIT
- YuzMO0k.YV6v9Ys3fzQ.IOAfzL9lvJ_.6KSyffzTCBPVQ8_A3VHz3ASD79I3bNDoEclCqr63yRZZ
- FCC76KXwkrY7PeWsyQ2cZ4T5YjRMezIywxGPy5j4yBwXmYcUGItJs_TdVxEQ4NGJRrSqkz5aPemM
- u6BklRUFrxCBEn6nJIW0VB3pBcTCarEVzWBkxOQZgGZsc6peMm.qDoCx1OL2qMMTNwkTZTTTM9bj
- qCMQGvPL6s7XVcpEcD9C6PuMUInZ6S_fIhMl4bNITAkRaARemHgOGV5uh1M_ucgtbuNkjnJoJQ9Y
- a1JlDpBmXi420guL5fvoyFDClNScIcjAW8TkBY9oPlVGfu.Pq8khfOUFkSr1qFBaCgRZzATJrmcE
- k5zW4ycg5F4.WZbBpt735hBtbmSuallWcfn45TkfnwEXB4mIvgtTFlM94f9dhVB8NdqehWF1koSg
- Jtly92ARfdVPpaLxeRsNRSgnYzob3jWXUZ9_NMmVl9R0FKiefMQBoqJvYihgPBNgrxzoEjxMDeF9
- eni15FR1YV8Rg2rpJseSSILRrhhkMTdG4Tl_sLGreKtwjZ20id7zbaK4szHeQv0mFWeWB
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: f6d3f408-3d68-4663-aa3e-251ad529d9ef
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Wed, 27 Dec 2023 20:20:11 +0000
-Received: by hermes--production-gq1-6949d6d8f9-bvfr7 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 5923925b0f3382c245bc6a332ebdcb60;
-          Wed, 27 Dec 2023 20:20:06 +0000 (UTC)
-Message-ID: <94f41f09-e5d6-49c4-958e-6965ee161388@schaufler-ca.com>
-Date: Wed, 27 Dec 2023 12:20:04 -0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27CFFD507;
+	Tue,  2 Jan 2024 10:54:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.18.186.29])
+	by frasgout12.his.huawei.com (SkyGuard) with ESMTP id 4T48R00yTDz9xGZH;
+	Tue,  2 Jan 2024 18:36:28 +0800 (CST)
+Received: from mail02.huawei.com (unknown [7.182.16.27])
+	by mail.maildlp.com (Postfix) with ESMTP id 689EF140D05;
+	Tue,  2 Jan 2024 18:54:11 +0800 (CST)
+Received: from [10.48.129.192] (unknown [10.48.129.192])
+	by APP2 (Coremail) with SMTP id GxC2BwAnIlxD65NlVSetAw--.48730S2;
+	Tue, 02 Jan 2024 11:54:10 +0100 (CET)
+Message-ID: <997cfb2f-a493-4f02-9e75-6ebb525c8406@huaweicloud.com>
+Date: Tue, 2 Jan 2024 11:53:50 +0100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -54,87 +23,112 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 19/24] ima: Move to LSM infrastructure
-Content-Language: en-US
-To: Mimi Zohar <zohar@linux.ibm.com>,
- Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk,
+Subject: Re: [PATCH v8 23/24] ima: Make it independent from 'integrity' LSM
+To: Mimi Zohar <zohar@linux.ibm.com>, viro@zeniv.linux.org.uk,
  brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
  neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
  paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
  dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
- stephen.smalley.work@gmail.com, eparis@parisplace.org, shuah@kernel.org,
- mic@digikod.net
+ stephen.smalley.work@gmail.com, eparis@parisplace.org,
+ casey@schaufler-ca.com, shuah@kernel.org, mic@digikod.net
 Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
  selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
+ Roberto Sassu <roberto.sassu@huawei.com>
 References: <20231214170834.3324559-1-roberto.sassu@huaweicloud.com>
- <20231214170834.3324559-20-roberto.sassu@huaweicloud.com>
- <c6c2d413f340d858e43aa3837abdf80cb8be9d84.camel@linux.ibm.com>
- <42fcd014-733b-41b2-9c7b-658533cd01a3@schaufler-ca.com>
- <3bcc924ed59ecdc5fda5ab8aceeed9450a54c829.camel@linux.ibm.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <3bcc924ed59ecdc5fda5ab8aceeed9450a54c829.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+ <20231214170834.3324559-24-roberto.sassu@huaweicloud.com>
+ <5aa5986266c3a3f834114a835378455cbbff7b64.camel@linux.ibm.com>
+ <ff8e6341-1ff0-4163-b5c7-236a0e8bdc7c@huaweicloud.com>
+ <96f82924cd2fda95f0c89341215e128419bf77fd.camel@linux.ibm.com>
+Content-Language: en-US
+From: Roberto Sassu <roberto.sassu@huaweicloud.com>
+In-Reply-To: <96f82924cd2fda95f0c89341215e128419bf77fd.camel@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.21952 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+X-CM-TRANSID:GxC2BwAnIlxD65NlVSetAw--.48730S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxCF1xAF47CF1rZFWkGF4xXrb_yoW5AFWrpF
+	Z7Ka4UGr1DZry2kw4vya9xZrWfK395WFW7urn0kr1kAr1vvrn0qF40kr1UuFy5Gr1Ut3WI
+	qF4UG3sxZ3Wqy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkjb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+	AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+	64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+	8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MIIYrxkI7VAKI48JMIIF0xvE
+	2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42
+	xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+	c7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07UAkuxUUUUU=
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAKBF1jj5QiDQABsH
 
-On 12/27/2023 11:52 AM, Mimi Zohar wrote:
-> On Tue, 2023-12-26 at 12:14 -0800, Casey Schaufler wrote:
->> On 12/26/2023 10:14 AM, Mimi Zohar wrote:
+On 12/27/2023 8:21 PM, Mimi Zohar wrote:
+> On Wed, 2023-12-27 at 17:39 +0100, Roberto Sassu wrote:
+>> On 12/27/2023 2:22 PM, Mimi Zohar wrote:
 >>> On Thu, 2023-12-14 at 18:08 +0100, Roberto Sassu wrote:
 >>>> From: Roberto Sassu <roberto.sassu@huawei.com>
 >>>>
->>>> Move hardcoded IMA function calls (not appraisal-specific functions) from
->>>> various places in the kernel to the LSM infrastructure, by introducing a
->>>> new LSM named 'ima' (at the end of the LSM list and always enabled like
->>>> 'integrity').
+>>>> Make the 'ima' LSM independent from the 'integrity' LSM by introducing IMA
+>>>> own integrity metadata (ima_iint_cache structure, with IMA-specific fields
+>>>> from the integrity_iint_cache structure), and by managing it directly from
+>>>> the 'ima' LSM.
 >>>>
->>>> Having IMA before EVM in the Makefile is sufficient to preserve the
->>>> relative order of the new 'ima' LSM in respect to the upcoming 'evm' LSM,
->>>> and thus the order of IMA and EVM function calls as when they were
->>>> hardcoded.
+>>>> Move the remaining IMA-specific flags to security/integrity/ima/ima.h,
+>>>> since they are now unnecessary in the common integrity layer.
 >>>>
->>>> Make moved functions as static (except ima_post_key_create_or_update(),
->>>> which is not in ima_main.c), and register them as implementation of the
->>>> respective hooks in the new function init_ima_lsm().
+>>>> Replace integrity_iint_cache with ima_iint_cache in various places
+>>>> of the IMA code.
 >>>>
->>>> A slight difference is that IMA and EVM functions registered for the
->>>> inode_post_setattr, inode_post_removexattr, path_post_mknod,
->>>> inode_post_create_tmpfile, inode_post_set_acl and inode_post_remove_acl
->>>> won't be executed for private inodes. Since those inodes are supposed to be
->>>> fs-internal, they should not be of interest of IMA or EVM. The S_PRIVATE
->>>> flag is used for anonymous inodes, hugetlbfs, reiserfs xattrs, XFS scrub
->>>> and kernel-internal tmpfs files.
->>>>
->>>> Conditionally register ima_post_path_mknod() if CONFIG_SECURITY_PATH is
->>>> enabled, otherwise the path_post_mknod hook won't be available.
->>> Up to this point, enabling CONFIG_SECURITY_PATH was not required.  By
->>> making it conditional on CONFIG_SECURITY_PATH, anyone enabling IMA will
->>> also need to enable CONFIG_SECURITY_PATH.  Without it, new files will
->>> not be tagged as a "new" file.
+>>>> Then, reserve space in the security blob for the entire ima_iint_cache
+>>>> structure, so that it is available for all inodes having the security blob
+>>>> allocated (those for which security_inode_alloc() was called).  Adjust the
+>>>> IMA code accordingly, call ima_iint_inode() to retrieve the ima_iint_cache
+>>>> structure. Keep the non-NULL checks since there can be inodes without
+>>>> security blob.
 >>>
->>> Casey, Paul, how common is it today not to enable CONFIG_SECURITY_PATH?
->>> Will enabling it just for IMA be a problem?
->> Landlock, AppArmor and TOMOYO require it. Fedora enables Landlock and Ubuntu
->> enables AppArmor. I expect that, except for "minimal" distributions, you
->> won't get any push back. If a distribution is striving for minimal, it's not
->> going to use IMA.
+>>> Previously the 'iint' memory was only allocated for regular files in
+>>> policy and were tagged S_IMA.  This patch totally changes when and how
+>>> memory is being allocated.  Does it make sense to allocate memory at
+>>> security_inode_alloc()?  Is this change really necessary for making IMA
+>>> a full fledged LSM?
 >>
->> It makes me wonder if eliminating CONFIG_SECURITY_PATH might not be a
->> rational alternative.
-> Embedded systems were the first to use IMA for file signature
-> verification, not distros.               Could they have enabled
-> SELinux, lockdown, and IMA?
+>> Good question. I think it wouldn't be necessary, we can reuse the same
+>> approach as in the patch 'integrity: Switch from rbtree to LSM-managed
+>> blob for integrity_iint_cache'.
+> 
+> Going forward with the v8 proposed solution would require some real
+> memory usage analysis for different types of policies.
+> 
+> To me the "integrity: Switch from rbtree to LSM-managed blob for
+> integrity_iint_cache" makes a lot more sense.   Looking back at the
+> original thread, your reasons back then for not directly allocating the
+> integrity_iint_cache are still valid for the ima_iint_cache structure.
 
-Yes, they could have. I know some have used Smack and some SELinux.
-That's not really relevant, as neither of those use path hooks. My
-thought is that CONFIG_SECURITY_PATH adds more aggravation than value,
-but I can't quote numbers on either. I don't see a problem with IMA
-using path hooks. I also wouldn't see harm in moving the hook(s) you
-need for IMA out from that configuration option and into the general
-set. With the current rate of new hook additions I can't see moving
-an existing hook as a problem.
+Uhm, ok. It should not be too difficult to restore the old mechanism for 
+ima_iint_cache. Will do it in v9.
+
+Thanks
+
+Roberto
+
+> Mimi
+> 
+>>>
+>>>>
+>>>> Don't include the inode pointer as field in the ima_iint_cache structure,
+>>>> since the association with the inode is clear. Since the inode field is
+>>>> missing in ima_iint_cache, pass the extra inode parameter to
+>>>> ima_get_verity_digest().
+>>>>
+>>>> Finally, register ima_inode_alloc_security/ima_inode_free_security() to
+>>>> initialize/deinitialize the new ima_iint_cache structure (before this task
+>>>> was done by iint_init_always() and iint_free()). Also, duplicate
+>>>> iint_lockdep_annotate() for the ima_iint_cache structure, and name it
+>>>> ima_iint_lockdep_annotate().
+>>>>
+>>>> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+>>
+> 
 
