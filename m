@@ -1,184 +1,158 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1654D156EC;
-	Tue,  2 Jan 2024 17:45:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD32D20B03
+	for <selinux@vger.kernel.org>; Thu,  4 Jan 2024 10:14:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dgoP3kcJ"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 402HI09n019616;
-	Tue, 2 Jan 2024 17:44:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=y42mo2JnJSDN9WOIeW8Q048HnRpueulusig05FfdHSc=;
- b=dgoP3kcJoBgDCM9LrG2PGDCQO/22Bz5HCVjjcGaCW2HD1d78czChL9JN0t8UI/BTCRA6
- nQc7vUnm2EFfMkazXQ/6je+MhIFtH5XXoT6cIt5REwXEUrAsI1T/u6LhWPo1R9o2+1fq
- WR43NDCuqemyLlU9YWC8+9/pR/U1v5HQQFTMqRF1Lvxk7cHS/mCTPr56WOay9HDj3fCn
- V19+gZPAukXreGvyxZ07WKgq4LrTp45CCS6Cy9qpAIydAyuZJuy3PmxMIjeXl0hWdR92
- wnUUH4PSpI0t1p1yDjicQYtPocb4IT+hNdbDuEJfW33Bozg7zhfKHO1l0s4zuIaWpFsb 4Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcprx8hgq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 17:44:21 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 402HJEQj023759;
-	Tue, 2 Jan 2024 17:44:20 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3vcprx8hgc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 17:44:20 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 402Gn5st007335;
-	Tue, 2 Jan 2024 17:44:19 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3vaxhnxatc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 02 Jan 2024 17:44:19 +0000
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 402HiILQ3736236
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 2 Jan 2024 17:44:18 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5C62F58056;
-	Tue,  2 Jan 2024 17:44:18 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C239858052;
-	Tue,  2 Jan 2024 17:44:16 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.61.135.171])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  2 Jan 2024 17:44:16 +0000 (GMT)
-Message-ID: <08e90ff7754aad45785ab05576f308a7aaae3438.camel@linux.ibm.com>
-Subject: Re: [PATCH v8 21/24] evm: Move to LSM infrastructure
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk,
-        brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
-        neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
-        paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
-        dmitry.kasatkin@gmail.com, dhowells@redhat.com, jarkko@kernel.org,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        casey@schaufler-ca.com, shuah@kernel.org, mic@digikod.net
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Roberto Sassu
-	 <roberto.sassu@huawei.com>
-Date: Tue, 02 Jan 2024 12:44:16 -0500
-In-Reply-To: <42911719-547d-443a-b2f2-07b0cfb11f7a@huaweicloud.com>
-References: <20231214170834.3324559-1-roberto.sassu@huaweicloud.com>
-	 <20231214170834.3324559-22-roberto.sassu@huaweicloud.com>
-	 <b03e68e9fa1803d6b2cc7a2c0260f78a05a4d88e.camel@linux.ibm.com>
-	 <42911719-547d-443a-b2f2-07b0cfb11f7a@huaweicloud.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N3dPfXGI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1704363267;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=PWIZgkdEOSVSvpSxZ+udYcnfwuRlZRM5xhaqenz67Qg=;
+	b=N3dPfXGIbRPRyiAey0jwww0Bsd+5yfwWFYmH4lo+OAv9XDl5h6Ai3u6Qoqw0lxDBtgV1/4
+	9qdzcIDLKdVJHhT8YmhBe58dAg2g1MmU2c4zh/OWgt+ciuqAH+b9JeEpfydshIn8zRg+ne
+	LPwSHIaL9XvigCpVvCbk/JUSQw30wHk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-98-l3towWsLNQ2R-GPqFO4umA-1; Thu, 04 Jan 2024 05:14:23 -0500
+X-MC-Unique: l3towWsLNQ2R-GPqFO4umA-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 97A578350E1;
+	Thu,  4 Jan 2024 10:14:22 +0000 (UTC)
+Received: from [10.39.208.29] (unknown [10.39.208.29])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id D0C92492BC6;
+	Thu,  4 Jan 2024 10:14:18 +0000 (UTC)
+Message-ID: <89b2e124-a570-4bea-874b-d60e2d3cbf5a@redhat.com>
+Date: Thu, 4 Jan 2024 11:14:16 +0100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: VtIxUobX29if44MZAZlKTPViebn08Xdu
-X-Proofpoint-ORIG-GUID: 4wNfWCza0Tzp9fc5Zi2QfysG-XW8l4q-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-02_06,2024-01-02_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015
- priorityscore=1501 bulkscore=0 mlxlogscore=926 impostorscore=0
- lowpriorityscore=0 suspectscore=0 adultscore=0 phishscore=0 mlxscore=0
- spamscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401020133
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
+Content-Language: en-US
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
+ xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com,
+ casey@schaufler-ca.com
+References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
+ <20231212131712.1816324-5-maxime.coquelin@redhat.com>
+ <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
+ <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-On Tue, 2024-01-02 at 12:56 +0100, Roberto Sassu wrote:
-> On 12/26/2023 11:13 PM, Mimi Zohar wrote:
-> > On Thu, 2023-12-14 at 18:08 +0100, Roberto Sassu wrote:
-> >> From: Roberto Sassu <roberto.sassu@huawei.com>
-> >>
-> >> As for IMA, move hardcoded EVM function calls from various places in the
-> >> kernel to the LSM infrastructure, by introducing a new LSM named 'evm'
-> >> (last and always enabled like 'ima'). The order in the Makefile ensures
-> >> that 'evm' hooks are executed after 'ima' ones.
-> >>
-> >> Make EVM functions as static (except for evm_inode_init_security(), which
-> >> is exported), and register them as hook implementations in init_evm_lsm().
-> >>
-> >> Unlike before (see commit to move IMA to the LSM infrastructure),
-> >> evm_inode_post_setattr(), evm_inode_post_set_acl(),
-> >> evm_inode_post_remove_acl(), and evm_inode_post_removexattr() are not
-> >> executed for private inodes.
-> >>
-> > 
-> > Missing is a comment on moving the inline function definitions -
-> > evm_inode_remove_acl(), evm_inode_post_remove_acl(), and
-> > evm_inode_post_set_acl() - to evm_main.c.
-> 
-> Ok.
-> 
-> >> Finally, add the LSM_ID_EVM case in lsm_list_modules_test.c
-> >>
-> >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> >> ---
-> > 
-> > [...]
-> >> @@ -2307,9 +2299,7 @@ int security_inode_setxattr(struct mnt_idmap *idmap,
-> >>   
-> >>   	if (ret == 1)
-> >>   		ret = cap_inode_setxattr(dentry, name, value, size, flags);
-> >> -	if (ret)
-> >> -		return ret;
-> >> -	return evm_inode_setxattr(idmap, dentry, name, value, size, flags);
-> >> +	return ret;
-> >>   }
-> > 
-> > Even though capability will be called after EVM, it doesn't make a
-> > difference in this instance.
-> > 
-> > [...]
-> > 
-> >>   /**
-> >> @@ -2493,9 +2472,7 @@ int security_inode_removexattr(struct mnt_idmap *idmap,
-> >>   	ret = call_int_hook(inode_removexattr, 1, idmap, dentry, name);
-> >>   	if (ret == 1)
-> >>   		ret = cap_inode_removexattr(idmap, dentry, name);
-> >> -	if (ret)
-> >> -		return ret;
-> >> -	return evm_inode_removexattr(idmap, dentry, name);
-> >> +	return ret;
-> >>   }
-> > 
-> > 'security.capability' is one of the EVM protected xattrs.  As
-> > capability isn't an LSM, it will now be called after EVM, which is a
-> > problem.
-> 
-> Uhm, according to this comment in security_inode_removexattr() and 
-> security_inode_setxattr():
-> 
-> 	/*
-> 	 * SELinux and Smack integrate the cap call,
-> 	 * so assume that all LSMs supplying this call do so.
-> 	 */
-> 
-> We can add the call to IMA and EVM as well, to be compliant.
 
-SELinux and Smack are the only current LSMs that register the
-security_inode_removexattr hook.  Both enforce mandatory access
-control,
-so their calling capabilities to enforce DAC kind of makes sense.  I'm
-not sure it makes sense for IMA and EVM to call capability directly,
-just because of the comment.
 
-> However, I'm missing why the two cases are different. It seems 
-> cap_inode_set/removexattr() are doing just checks.
+On 12/18/23 18:33, Stephen Smalley wrote:
+> On Mon, Dec 18, 2023 at 12:21 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>>
+>> On Tue, Dec 12, 2023 at 8:17 AM Maxime Coquelin
+>> <maxime.coquelin@redhat.com> wrote:
+>>>
+>>> This patch introduces a LSM hook for devices creation,
+>>> destruction (ioctl()) and opening (open()) operations,
+>>> checking the application is allowed to perform these
+>>> operations for the Virtio device type.
+>>
+>> Can you explain why the existing LSM hooks and SELinux implementation
+>> are not sufficient? We already control the ability to open device
+>> nodes via selinux_inode_permission() and selinux_file_open(), and can
+>> support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
+>> And it should already be possible to label these nodes distinctly
+>> through existing mechanisms (file_contexts if udev-created/labeled,
+>> genfs_contexts if kernel-created). What exactly can't you do today
+>> that this hook enables?
+> 
+> (added Ondrej to the distribution; IMHO we should swap him into
+> MAINTAINERS in place of Eric Paris since Eric has long-since moved on
+> from SELinux and Ondrej serves in that capacity these days)
+> 
+> Other items to consider:
+> - If vduse devices are created using anonymous inodes, then SELinux
+> grew a general facility for labeling and controlling the creation of
+> those via selinux_inode_init_security_anon().
+> - You can encode information about the device into its SELinux type
+> that then allows you to distinguish things like net vs block based on
+> the device's SELinux security context rather than encoding that in the
+> permission bits.
 
-Both IMA and EVM require CAP_SYS_ADMIN to write/remove security.ima and
-security.evm respectively.  In addition, EVM must recalculate
-security.evm if any protected security xattrs are set or
-removed.   However, security.evm is updated on
-security_inode_post_setxattr, not security_inode_setxattr.
+Got it, that seems indeed more appropriate than using persmission bits
+for the device type.
 
-Mimi
+> - If you truly need new LSM hooks (which you need to prove first),
+> then you should pass some usable information about the object in
+> question to allow SELinux to find a security context for it. Like an
+> inode associated with the device, for example.
+
+Ok.
+
+> 
+
+Thanks for the insights, I'll try and see if I can follow your
+recommendations in a dedicated series.
+
+Maxime
 
