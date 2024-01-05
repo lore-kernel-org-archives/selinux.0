@@ -1,52 +1,56 @@
 Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A8236090
-	for <selinux@vger.kernel.org>; Fri,  5 Jan 2024 18:35:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66E7636091
+	for <selinux@vger.kernel.org>; Fri,  5 Jan 2024 18:35:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Lo2dIB4M"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-55569b59f81so2203241a12.1
-        for <selinux@vger.kernel.org>; Fri, 05 Jan 2024 10:35:42 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="hoMPPvb1"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-5537dd673e5so1531860a12.0
+        for <selinux@vger.kernel.org>; Fri, 05 Jan 2024 10:35:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1704479741; x=1705084541; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=KqXpYCRV97zce1n5LhK7SN0ZNlRYUAs9gjq5c5m87OE=;
-        b=Lo2dIB4MbxEPbeMAkQzr6uofFNSOoo9+tHk+VTcsSaRRY0mYxw6+ieSmdnHezG+RJo
-         wlF7q3l/+WyI941upy6TpQWRWymhJMJepzchJxOwnHbQ54T40+D6XcyI+8sO6jtKfBeg
-         AdXepGGsz5Ey9qK8UpbVnyPB6KxMOQVx/GMvX72i3xf9XGt5YarrD7jOuDRGAkkYzdzJ
-         XaLEqZexYB7cyn7PSm7fvBQbqOmdORMANwu2Fvf+QqJBiA61ZRsxiiUDv6VuQEtlX8ZM
-         EYRyc6AUFIfv9pEUXsm7QV4vcl6ZzjCwn4KExGViU0Y3FMyZao9c3MSP2glRKDt2KCBh
-         SM7Q==
+        d=googlemail.com; s=20230601; t=1704479742; x=1705084542; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kLq8xHrlukb8pJR5MZ8K7ODG/GqH21ZgCqj6e8tL8P4=;
+        b=hoMPPvb1T2e0wJv/PLnRkXN7xbjTV5kqwJFBxkn0pGhVU2cSzcFSbQaz6oPam/lMPE
+         I0MyWE5eD8fvBdeLIP7bTPBgf7/VnBZy5tg5SUHvxysrG+0TQ1xgC4Ft4YlreMxMcpmF
+         uLTlEzijEW+BD7aCOqOhQM1GOpK06sKk23RGUB0B3iJgiUHRiZtE0hwzPSmZ1z3OmANQ
+         NYJ4O2ug+wumsuMEtPd1djDf9DrIPue9FgocXxbq+/jPRCL24pvFJXsdo19oXiSolaWA
+         0juApZ8G5bW8sp5QEJCsYtZKxwDnOSAuZiBTn0VjLop1hAt+2c6zNTv73vhfZmvgiPJ+
+         HOHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704479741; x=1705084541;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=KqXpYCRV97zce1n5LhK7SN0ZNlRYUAs9gjq5c5m87OE=;
-        b=TCVnY7l1p4V13GZLLBGUMWkiEbb7TRKJdO+pdcPE1S2ShrHD8azu0N5AL/sAQhhz/r
-         aRGnWfGy1F4zoobkmxyMWQMsJKWOZt3vSUB8qJQNC1ihevHJNAz1py0D4PJtp7UvQ4YW
-         o3KM8Fti+1eU2mCnM+RZGIG+kxgUoGIhbJNeqo1FtX5BxJ7S77kfGC3g0piFGw8lann1
-         2ch6EKFMXEcY/wlmRxvDAH2od9cQFkaFdxbIVAqZm7dk9xH8YDMNszmhY/4sv7Hh0YUs
-         ZXEOgt0hckO/V/y22ZLrOEuQqqbwVaKHoLWV2qRyK8+gvWTAMoc8OxD+9PeZoQANXXpR
-         uv/A==
-X-Gm-Message-State: AOJu0YwSpVZX2U78dUdvNeGYT4X/zIvthiHsR8T12FOMMhvJOYrw1kme
-	P/Y3fafZQXbX1IBuUM5QDcnOsmYAJs0=
-X-Google-Smtp-Source: AGHT+IFdBbCrz/2zXwU0A8afpUYVUGYVWiakssxS0LbjnUFC4LOJWPMTeUsdU1Vua+4uLy8x1OXHkg==
-X-Received: by 2002:aa7:df03:0:b0:557:6a4:35f1 with SMTP id c3-20020aa7df03000000b0055706a435f1mr1579143edy.29.1704479741045;
-        Fri, 05 Jan 2024 10:35:41 -0800 (PST)
+        d=1e100.net; s=20230601; t=1704479742; x=1705084542;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=kLq8xHrlukb8pJR5MZ8K7ODG/GqH21ZgCqj6e8tL8P4=;
+        b=FSkfR9Il+ioCN6Gp+NxjUsR9jN5qQIN93sNJDLq4ye1LhqwxHzsJj9eEm37+VbRXYf
+         V8HqJbZk4aNoJGjKvRKUO/11Rcfskv33uRY5Vq27l6VvVvGA3kNrxU9Vj3IYCTuC2D9l
+         O/vEsOcqvgJ+4Pzq2VSBt+Aq8ocd+sErQxKWGFSIop1nkqOvJxHtLG7pMpqC6gK3UJlW
+         lgDsnJBx4YKiRc2IPEDaICdYcAW1detuGFmX5XWEsvp6dCNX4KVQOOeBxYwM1kvZUDor
+         wixdfhcSOyqXhv/T4ACEoyDRAE8yjIH4Yff9EWG4YtJPaJoCi9v++wfouVmmPL/v+L2u
+         eFTQ==
+X-Gm-Message-State: AOJu0YwCrQxmaFQETKZczV2ySMJ5h2EhD6FSFc+dbmKFb10vlQFftDxX
+	RJG4S95D/vyvX5h3sZW8ErwTD6k7ZkU=
+X-Google-Smtp-Source: AGHT+IGz4dKOQxDmToaCLCwcR4j22KWUZw7cxFCgw/6e8E+A4vB3IcZnS2jhGRthjFAL3tJACBPCgg==
+X-Received: by 2002:a50:871b:0:b0:557:34f5:2dd0 with SMTP id i27-20020a50871b000000b0055734f52dd0mr626561edb.36.1704479742355;
+        Fri, 05 Jan 2024 10:35:42 -0800 (PST)
 Received: from debian_development.DebianHome (dynamic-077-008-063-036.77.8.pool.telefonica.de. [77.8.63.36])
-        by smtp.gmail.com with ESMTPSA id ds9-20020a0564021cc900b0055267663784sm1231319edb.11.2024.01.05.10.35.39
+        by smtp.gmail.com with ESMTPSA id ds9-20020a0564021cc900b0055267663784sm1231319edb.11.2024.01.05.10.35.41
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jan 2024 10:35:39 -0800 (PST)
+        Fri, 05 Jan 2024 10:35:41 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 1/4] libsepol: reorder calloc(3) arguments
-Date: Fri,  5 Jan 2024 19:35:31 +0100
-Message-ID: <20240105183534.1110639-1-cgzones@googlemail.com>
+Subject: [PATCH 2/4] libselinux: reorder calloc(3) arguments
+Date: Fri,  5 Jan 2024 19:35:32 +0100
+Message-ID: <20240105183534.1110639-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240105183534.1110639-1-cgzones@googlemail.com>
+References: <20240105183534.1110639-1-cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -61,61 +65,28 @@ first and the size of each element second.
 
 Reported by GCC 14:
 
-    kernel_to_conf.c:814:47: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
-    kernel_to_conf.c:945:46: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
-    kernel_to_conf.c:2109:35: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
-    kernel_to_common.c:578:29: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
+    is_customizable_type.c:43:45: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/kernel_to_common.c | 2 +-
- libsepol/src/kernel_to_conf.c   | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ libselinux/src/is_customizable_type.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 4612eef3..2422eed0 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -575,7 +575,7 @@ static int sort_ocontext_data(struct ocontext **ocons, int (*cmp)(const void *,
- 		return 0;
+diff --git a/libselinux/src/is_customizable_type.c b/libselinux/src/is_customizable_type.c
+index da301c60..0ae92c8d 100644
+--- a/libselinux/src/is_customizable_type.c
++++ b/libselinux/src/is_customizable_type.c
+@@ -39,9 +39,7 @@ static void customizable_init(void)
  	}
  
--	data = calloc(sizeof(*data), num);
-+	data = calloc(num, sizeof(*data));
- 	if (!data) {
- 		ERR(NULL, "Out of memory");
- 		return -1;
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 83f46e0f..e6b449b4 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -811,7 +811,7 @@ static int write_sensitivity_rules_to_conf(FILE *out, struct policydb *pdb)
- 	num = strs_num_items(strs);
- 
- 	if (num > 0) {
--		sens_alias_map = calloc(sizeof(*sens_alias_map), pdb->p_levels.nprim);
-+		sens_alias_map = calloc(pdb->p_levels.nprim, sizeof(*sens_alias_map));
- 		if (!sens_alias_map) {
- 			rc = -1;
- 			goto exit;
-@@ -942,7 +942,7 @@ static int write_category_rules_to_conf(FILE *out, struct policydb *pdb)
- 	num = strs_num_items(strs);
- 
- 	if (num > 0) {
--		cat_alias_map = calloc(sizeof(*cat_alias_map), pdb->p_cats.nprim);
-+		cat_alias_map = calloc(pdb->p_cats.nprim, sizeof(*cat_alias_map));
- 		if (!cat_alias_map) {
- 			rc = -1;
- 			goto exit;
-@@ -2106,7 +2106,7 @@ static int write_cond_nodes_to_conf(FILE *out, struct policydb *pdb)
- 		return 0;
- 	}
- 
--	cond_data = calloc(sizeof(struct cond_data), num);
-+	cond_data = calloc(num, sizeof(struct cond_data));
- 	if (!cond_data) {
- 		rc = -1;
- 		goto exit;
+ 	if (ctr) {
+-		list =
+-		    (char **) calloc(sizeof(char *),
+-						  ctr + 1);
++		list = calloc(ctr + 1, sizeof(char *));
+ 		if (list) {
+ 			i = 0;
+ 			while (fgets_unlocked(buf, selinux_page_size, fp)
 -- 
 2.43.0
 
