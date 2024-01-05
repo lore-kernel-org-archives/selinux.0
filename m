@@ -1,147 +1,91 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E71436087
-	for <selinux@vger.kernel.org>; Fri,  5 Jan 2024 19:56:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D0FA36084
+	for <selinux@vger.kernel.org>; Fri,  5 Jan 2024 20:19:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UKzQCCAN"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2cd37c0b8e5so6915131fa.3
-        for <selinux@vger.kernel.org>; Fri, 05 Jan 2024 11:56:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LcgRPPFi"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-5e7bb1e0db8so17462137b3.0
+        for <selinux@vger.kernel.org>; Fri, 05 Jan 2024 12:19:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1704484575; x=1705089375; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jN28bXgrYRdAN66yVAKIHCh62DDa5n1ak0dhqkgOUl8=;
-        b=UKzQCCANykLQu4lPVdSkYkHw+I4FxMHkblviD0hewiewny5tUnNW7phd6Oc+AbxTMP
-         B6zu5/CCrkfK2AsFDBUbNi1Hn0SZCzl5x9Om3encKnx0vc3Ecm7FpXs4VHEaRdyIuAEO
-         7it/9tSHbZRebDVALgKPrgj2I4A1bu2HhCiL+xW5cwewmyV0l+Gv2bDi023XPo2r+1jZ
-         FkSKb1pYFGBau5zwOsV1AG/tRasf1kRPEpY4u+8bmOdlqW23WHs0ZNshbm8CsaRrK7j2
-         aPHe43BsNdqKUGJYAw3bb9311vXRpfvnvMs6dzMbTJJ9ogNHvep/tRAe7wvDfo8DyNmf
-         +aYg==
+        d=gmail.com; s=20230601; t=1704485961; x=1705090761; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lpFUo9OoZyTVJaazwDX/lJeOi/Exe5srA+eOGN9MI5M=;
+        b=LcgRPPFi2QIvPUi1ndiPhxZYjpRq+4TV+nWPPJ2we7Tjv34Mdd82pmsufjk7Hq7La/
+         c6Vtoe8oTJXOx9h7EA6RFLHY2dUm3M8cgZYCvgp2IO+tgBTL9jtDpwyJ2kpofqAI1drw
+         sRIporH6Ga6uaPdsX5kAd54ESBc3kwjYJoAJMhfVikX6q+LcMiGxhtyz3jptu/AQOxIc
+         Q7vCmtbIBkERzv2xnGG5kIYjpkFhltyn5Ny5ZeJLD1iznmchBPLZ4NV1yK4wVaEk31Kn
+         uWCAJlwB994019LExv0XMTt0PjB8Q8uaD+VImzIR1L1BmE2/RSae3zSafSKEr/aWDQaB
+         V3mQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1704484575; x=1705089375;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jN28bXgrYRdAN66yVAKIHCh62DDa5n1ak0dhqkgOUl8=;
-        b=KMxGZjl55N6N6zLFeSvitpgq2WgaEGfuUKovhWnQ6/XPDQ8cBlGGBGYh++uIAHaiOL
-         ZhVSVkwzhR0L1pUDcelCUH90/TvSyTsFkJeO0lrYeRPOhHnsoWOoU0L5ueNmy3+oZr7s
-         sMnBeGME9GGzRNndzznsCJ9TWjSplnAkjiqFG5DHmsCJexxJXZiZbt0mF49HcemRZfvz
-         3XWcUxjGkKIVKHCmJhXOAcZKs8G9fWki2ieCGjk1u6BfLGY0K6geVaRxNxSQHieRGISf
-         31b3GazAAbdDiz9dtTgTyhnbCWZXOP2knu2j2Ks1niMgGl80msdZvw3DfSvYE6CWp2+M
-         6KLA==
-X-Gm-Message-State: AOJu0Yxy6iYOxsqrK0GgWAWZBPyaw8XGFRe9LLDu9tOIFERO4WEq8IGX
-	jB65xNGKmtsne6nGp+uXjgrHJxL4vtNpds+Dwq3YFrwfWkg=
-X-Google-Smtp-Source: AGHT+IGYltwajjswX1h7zxKi92u8kfT8yPk4+YOJrLfmyqsKZDALtXVEa9BE65Tg3MpYGgKYWqe/1+o67JhmEY5XKsM=
-X-Received: by 2002:a05:651c:1988:b0:2cc:eb95:684d with SMTP id
- bx8-20020a05651c198800b002cceb95684dmr1683418ljb.76.1704484574972; Fri, 05
- Jan 2024 11:56:14 -0800 (PST)
+        d=1e100.net; s=20230601; t=1704485961; x=1705090761;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lpFUo9OoZyTVJaazwDX/lJeOi/Exe5srA+eOGN9MI5M=;
+        b=dDvPJuFa0cRqhCEVkJu6Iud+SBkwgJnM3I8LjyvgdGUF+V3DzHsl5Yge5uq66XD7g4
+         owhd3pnDovQKLoNg5D4OYkYD8KElHJnA4sikICtmG/rGZArt7qaouHLaB1faMV7o1s2k
+         cTS/l1tdJ1OTLbXqfXRtkcv/aJTYsVziiuAYUpaTTjZmgizHfR0jkGEuLj7i2ce0TlD6
+         iF170MzPx15DcTJh0/1+MRdw6t/Y8mFXLyDkSV38ZTCd9PEl9ovHdy5o/L4YID76JV0k
+         9wUoIPlbiLH86dcb+Sse/guO0PKxq6fqxoLugGAHoI5yoVwUe28WPPeT2V6OcyRE/K4b
+         ssGQ==
+X-Gm-Message-State: AOJu0YyMBoppAGZd1erHSwd9J/Z907i0yXMf8dDOEIiS9lSxLgPWoX39
+	GbJ4HMing7ooDORdJcWO6+9lmqlqMhg=
+X-Google-Smtp-Source: AGHT+IEa4TIdY0oYW8c9YbE/dML9xhSL2oan37gn3RNKEcdpZmILT8P0JT6MUr6v9t6hkXUBeRPMuA==
+X-Received: by 2002:a81:628a:0:b0:5ee:94:9be5 with SMTP id w132-20020a81628a000000b005ee00949be5mr34674ywb.34.1704485961481;
+        Fri, 05 Jan 2024 12:19:21 -0800 (PST)
+Received: from electric.. ([69.140.100.37])
+        by smtp.gmail.com with ESMTPSA id a13-20020a0ccdcd000000b0067f3a71ad96sm863300qvn.72.2024.01.05.12.19.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Jan 2024 12:19:21 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH] libselinux: Fix ordering of arguments to calloc
+Date: Fri,  5 Jan 2024 15:19:17 -0500
+Message-ID: <20240105201917.2286119-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240105183534.1110639-1-cgzones@googlemail.com>
-In-Reply-To: <20240105183534.1110639-1-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 5 Jan 2024 14:56:03 -0500
-Message-ID: <CAP+JOzSjf8zZCETt108K2nboKmsHNnhnKva+u_nw7xYashU_aA@mail.gmail.com>
-Subject: Re: [PATCH 1/4] libsepol: reorder calloc(3) arguments
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 5, 2024 at 1:36=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The canonical order of calloc(3) parameters is the number of elements
-> first and the size of each element second.
->
-> Reported by GCC 14:
->
->     kernel_to_conf.c:814:47: warning: 'calloc' sizes specified with 'size=
-of' in the earlier argument and not in the later argument [-Wcalloc-transpo=
-sed-args]
->     kernel_to_conf.c:945:46: warning: 'calloc' sizes specified with 'size=
-of' in the earlier argument and not in the later argument [-Wcalloc-transpo=
-sed-args]
->     kernel_to_conf.c:2109:35: warning: 'calloc' sizes specified with 'siz=
-eof' in the earlier argument and not in the later argument [-Wcalloc-transp=
-osed-args]
->     kernel_to_common.c:578:29: warning: 'calloc' sizes specified with 'si=
-zeof' in the earlier argument and not in the later argument [-Wcalloc-trans=
-posed-args]
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+The number of elements should be first and the size of the elements
+second.
 
-For these four patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libselinux/src/audit2why.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> ---
->  libsepol/src/kernel_to_common.c | 2 +-
->  libsepol/src/kernel_to_conf.c   | 6 +++---
->  2 files changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
-mon.c
-> index 4612eef3..2422eed0 100644
-> --- a/libsepol/src/kernel_to_common.c
-> +++ b/libsepol/src/kernel_to_common.c
-> @@ -575,7 +575,7 @@ static int sort_ocontext_data(struct ocontext **ocons=
-, int (*cmp)(const void *,
->                 return 0;
->         }
->
-> -       data =3D calloc(sizeof(*data), num);
-> +       data =3D calloc(num, sizeof(*data));
->         if (!data) {
->                 ERR(NULL, "Out of memory");
->                 return -1;
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index 83f46e0f..e6b449b4 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -811,7 +811,7 @@ static int write_sensitivity_rules_to_conf(FILE *out,=
- struct policydb *pdb)
->         num =3D strs_num_items(strs);
->
->         if (num > 0) {
-> -               sens_alias_map =3D calloc(sizeof(*sens_alias_map), pdb->p=
-_levels.nprim);
-> +               sens_alias_map =3D calloc(pdb->p_levels.nprim, sizeof(*se=
-ns_alias_map));
->                 if (!sens_alias_map) {
->                         rc =3D -1;
->                         goto exit;
-> @@ -942,7 +942,7 @@ static int write_category_rules_to_conf(FILE *out, st=
-ruct policydb *pdb)
->         num =3D strs_num_items(strs);
->
->         if (num > 0) {
-> -               cat_alias_map =3D calloc(sizeof(*cat_alias_map), pdb->p_c=
-ats.nprim);
-> +               cat_alias_map =3D calloc(pdb->p_cats.nprim, sizeof(*cat_a=
-lias_map));
->                 if (!cat_alias_map) {
->                         rc =3D -1;
->                         goto exit;
-> @@ -2106,7 +2106,7 @@ static int write_cond_nodes_to_conf(FILE *out, stru=
-ct policydb *pdb)
->                 return 0;
->         }
->
-> -       cond_data =3D calloc(sizeof(struct cond_data), num);
-> +       cond_data =3D calloc(num, sizeof(struct cond_data));
->         if (!cond_data) {
->                 rc =3D -1;
->                 goto exit;
-> --
-> 2.43.0
->
->
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 8c4c07d5..ad846cc3 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -148,7 +148,7 @@ static int check_booleans(struct boolean_t **bools)
+ 		sepol_bool_free(boolean);
+ 
+ 	if (fcnt > 0) {
+-		*bools = calloc(sizeof(struct boolean_t), fcnt + 1);
++		*bools = calloc(fcnt + 1, sizeof(struct boolean_t));
+ 		if (!*bools) {
+ 			PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
+ 			free(foundlist);
+@@ -226,7 +226,7 @@ static int __policy_init(const char *init_path)
+ 		return 1;
+ 	}
+ 
+-	avc = calloc(sizeof(struct avc_t), 1);
++	avc = calloc(1, sizeof(struct avc_t));
+ 	if (!avc) {
+ 		PyErr_SetString( PyExc_MemoryError, "Out of memory\n");
+ 		fclose(fp);
+-- 
+2.43.0
+
