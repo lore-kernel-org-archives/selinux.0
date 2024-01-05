@@ -1,158 +1,121 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD32D20B03
-	for <selinux@vger.kernel.org>; Thu,  4 Jan 2024 10:14:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A8236090
+	for <selinux@vger.kernel.org>; Fri,  5 Jan 2024 18:35:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N3dPfXGI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1704363267;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=PWIZgkdEOSVSvpSxZ+udYcnfwuRlZRM5xhaqenz67Qg=;
-	b=N3dPfXGIbRPRyiAey0jwww0Bsd+5yfwWFYmH4lo+OAv9XDl5h6Ai3u6Qoqw0lxDBtgV1/4
-	9qdzcIDLKdVJHhT8YmhBe58dAg2g1MmU2c4zh/OWgt+ciuqAH+b9JeEpfydshIn8zRg+ne
-	LPwSHIaL9XvigCpVvCbk/JUSQw30wHk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-98-l3towWsLNQ2R-GPqFO4umA-1; Thu, 04 Jan 2024 05:14:23 -0500
-X-MC-Unique: l3towWsLNQ2R-GPqFO4umA-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 97A578350E1;
-	Thu,  4 Jan 2024 10:14:22 +0000 (UTC)
-Received: from [10.39.208.29] (unknown [10.39.208.29])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id D0C92492BC6;
-	Thu,  4 Jan 2024 10:14:18 +0000 (UTC)
-Message-ID: <89b2e124-a570-4bea-874b-d60e2d3cbf5a@redhat.com>
-Date: Thu, 4 Jan 2024 11:14:16 +0100
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Lo2dIB4M"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-55569b59f81so2203241a12.1
+        for <selinux@vger.kernel.org>; Fri, 05 Jan 2024 10:35:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1704479741; x=1705084541; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=KqXpYCRV97zce1n5LhK7SN0ZNlRYUAs9gjq5c5m87OE=;
+        b=Lo2dIB4MbxEPbeMAkQzr6uofFNSOoo9+tHk+VTcsSaRRY0mYxw6+ieSmdnHezG+RJo
+         wlF7q3l/+WyI941upy6TpQWRWymhJMJepzchJxOwnHbQ54T40+D6XcyI+8sO6jtKfBeg
+         AdXepGGsz5Ey9qK8UpbVnyPB6KxMOQVx/GMvX72i3xf9XGt5YarrD7jOuDRGAkkYzdzJ
+         XaLEqZexYB7cyn7PSm7fvBQbqOmdORMANwu2Fvf+QqJBiA61ZRsxiiUDv6VuQEtlX8ZM
+         EYRyc6AUFIfv9pEUXsm7QV4vcl6ZzjCwn4KExGViU0Y3FMyZao9c3MSP2glRKDt2KCBh
+         SM7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1704479741; x=1705084541;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=KqXpYCRV97zce1n5LhK7SN0ZNlRYUAs9gjq5c5m87OE=;
+        b=TCVnY7l1p4V13GZLLBGUMWkiEbb7TRKJdO+pdcPE1S2ShrHD8azu0N5AL/sAQhhz/r
+         aRGnWfGy1F4zoobkmxyMWQMsJKWOZt3vSUB8qJQNC1ihevHJNAz1py0D4PJtp7UvQ4YW
+         o3KM8Fti+1eU2mCnM+RZGIG+kxgUoGIhbJNeqo1FtX5BxJ7S77kfGC3g0piFGw8lann1
+         2ch6EKFMXEcY/wlmRxvDAH2od9cQFkaFdxbIVAqZm7dk9xH8YDMNszmhY/4sv7Hh0YUs
+         ZXEOgt0hckO/V/y22ZLrOEuQqqbwVaKHoLWV2qRyK8+gvWTAMoc8OxD+9PeZoQANXXpR
+         uv/A==
+X-Gm-Message-State: AOJu0YwSpVZX2U78dUdvNeGYT4X/zIvthiHsR8T12FOMMhvJOYrw1kme
+	P/Y3fafZQXbX1IBuUM5QDcnOsmYAJs0=
+X-Google-Smtp-Source: AGHT+IFdBbCrz/2zXwU0A8afpUYVUGYVWiakssxS0LbjnUFC4LOJWPMTeUsdU1Vua+4uLy8x1OXHkg==
+X-Received: by 2002:aa7:df03:0:b0:557:6a4:35f1 with SMTP id c3-20020aa7df03000000b0055706a435f1mr1579143edy.29.1704479741045;
+        Fri, 05 Jan 2024 10:35:41 -0800 (PST)
+Received: from debian_development.DebianHome (dynamic-077-008-063-036.77.8.pool.telefonica.de. [77.8.63.36])
+        by smtp.gmail.com with ESMTPSA id ds9-20020a0564021cc900b0055267663784sm1231319edb.11.2024.01.05.10.35.39
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Jan 2024 10:35:39 -0800 (PST)
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH 1/4] libsepol: reorder calloc(3) arguments
+Date: Fri,  5 Jan 2024 19:35:31 +0100
+Message-ID: <20240105183534.1110639-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 4/4] vduse: Add LSM hook to check Virtio device type
-Content-Language: en-US
-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
- xieyongji@bytedance.com, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com,
- casey@schaufler-ca.com
-References: <20231212131712.1816324-1-maxime.coquelin@redhat.com>
- <20231212131712.1816324-5-maxime.coquelin@redhat.com>
- <CAEjxPJ6zMbM5jPkLC_wDHsXWXofWcDntHRDWQTS6hojECVJPTw@mail.gmail.com>
- <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
-From: Maxime Coquelin <maxime.coquelin@redhat.com>
-Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
- 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
- Mwqu3GQ=
-In-Reply-To: <CAEjxPJ77cdHUvxWqLzmYwjLqFiSJH4kwByx7vAvR7dLfqcLy0g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
+The canonical order of calloc(3) parameters is the number of elements
+first and the size of each element second.
 
+Reported by GCC 14:
 
-On 12/18/23 18:33, Stephen Smalley wrote:
-> On Mon, Dec 18, 2023 at 12:21 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->>
->> On Tue, Dec 12, 2023 at 8:17 AM Maxime Coquelin
->> <maxime.coquelin@redhat.com> wrote:
->>>
->>> This patch introduces a LSM hook for devices creation,
->>> destruction (ioctl()) and opening (open()) operations,
->>> checking the application is allowed to perform these
->>> operations for the Virtio device type.
->>
->> Can you explain why the existing LSM hooks and SELinux implementation
->> are not sufficient? We already control the ability to open device
->> nodes via selinux_inode_permission() and selinux_file_open(), and can
->> support fine-grained per-cmd ioctl checking via selinux_file_ioctl().
->> And it should already be possible to label these nodes distinctly
->> through existing mechanisms (file_contexts if udev-created/labeled,
->> genfs_contexts if kernel-created). What exactly can't you do today
->> that this hook enables?
-> 
-> (added Ondrej to the distribution; IMHO we should swap him into
-> MAINTAINERS in place of Eric Paris since Eric has long-since moved on
-> from SELinux and Ondrej serves in that capacity these days)
-> 
-> Other items to consider:
-> - If vduse devices are created using anonymous inodes, then SELinux
-> grew a general facility for labeling and controlling the creation of
-> those via selinux_inode_init_security_anon().
-> - You can encode information about the device into its SELinux type
-> that then allows you to distinguish things like net vs block based on
-> the device's SELinux security context rather than encoding that in the
-> permission bits.
+    kernel_to_conf.c:814:47: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
+    kernel_to_conf.c:945:46: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
+    kernel_to_conf.c:2109:35: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
+    kernel_to_common.c:578:29: warning: 'calloc' sizes specified with 'sizeof' in the earlier argument and not in the later argument [-Wcalloc-transposed-args]
 
-Got it, that seems indeed more appropriate than using persmission bits
-for the device type.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/kernel_to_common.c | 2 +-
+ libsepol/src/kernel_to_conf.c   | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-> - If you truly need new LSM hooks (which you need to prove first),
-> then you should pass some usable information about the object in
-> question to allow SELinux to find a security context for it. Like an
-> inode associated with the device, for example.
-
-Ok.
-
-> 
-
-Thanks for the insights, I'll try and see if I can follow your
-recommendations in a dedicated series.
-
-Maxime
+diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
+index 4612eef3..2422eed0 100644
+--- a/libsepol/src/kernel_to_common.c
++++ b/libsepol/src/kernel_to_common.c
+@@ -575,7 +575,7 @@ static int sort_ocontext_data(struct ocontext **ocons, int (*cmp)(const void *,
+ 		return 0;
+ 	}
+ 
+-	data = calloc(sizeof(*data), num);
++	data = calloc(num, sizeof(*data));
+ 	if (!data) {
+ 		ERR(NULL, "Out of memory");
+ 		return -1;
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 83f46e0f..e6b449b4 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -811,7 +811,7 @@ static int write_sensitivity_rules_to_conf(FILE *out, struct policydb *pdb)
+ 	num = strs_num_items(strs);
+ 
+ 	if (num > 0) {
+-		sens_alias_map = calloc(sizeof(*sens_alias_map), pdb->p_levels.nprim);
++		sens_alias_map = calloc(pdb->p_levels.nprim, sizeof(*sens_alias_map));
+ 		if (!sens_alias_map) {
+ 			rc = -1;
+ 			goto exit;
+@@ -942,7 +942,7 @@ static int write_category_rules_to_conf(FILE *out, struct policydb *pdb)
+ 	num = strs_num_items(strs);
+ 
+ 	if (num > 0) {
+-		cat_alias_map = calloc(sizeof(*cat_alias_map), pdb->p_cats.nprim);
++		cat_alias_map = calloc(pdb->p_cats.nprim, sizeof(*cat_alias_map));
+ 		if (!cat_alias_map) {
+ 			rc = -1;
+ 			goto exit;
+@@ -2106,7 +2106,7 @@ static int write_cond_nodes_to_conf(FILE *out, struct policydb *pdb)
+ 		return 0;
+ 	}
+ 
+-	cond_data = calloc(sizeof(struct cond_data), num);
++	cond_data = calloc(num, sizeof(struct cond_data));
+ 	if (!cond_data) {
+ 		rc = -1;
+ 		goto exit;
+-- 
+2.43.0
 
