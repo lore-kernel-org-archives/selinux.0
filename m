@@ -1,50 +1,55 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E6A343D574
-	for <selinux@vger.kernel.org>; Tue,  9 Jan 2024 20:19:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 134503DB8F;
+	Tue,  9 Jan 2024 21:40:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="VjL50jv8"
-Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 130B920B3CC1
-	for <selinux@vger.kernel.org>; Tue,  9 Jan 2024 12:19:33 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 130B920B3CC1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1704831574;
-	bh=lMoNIdSaIVi3p41jbQtluHBctPWsNNAYoXtAmLoBLwA=;
-	h=Date:To:From:Subject:From;
-	b=VjL50jv8Gn16+gX/NNnT3YKQAvgvQvvi1biOLhPdKmgyHY2/1LKTK3DJUyzGFP4ny
-	 27liDPquiRuLVsOXMOgWKgsDf14hESlE7zRPyYiL3zW7Drzu6AdCt37m3TaTZc0ZR8
-	 5DVPcQaf9IcPhWUA2z6NJFy0euuJwFqc5L+TLn1o=
-Message-ID: <85ce5cee-4af1-4443-b627-973d55388c08@linux.microsoft.com>
-Date: Tue, 9 Jan 2024 15:19:26 -0500
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u9lkYyb5"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id DDF51C433C7;
+	Tue,  9 Jan 2024 21:40:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1704836403;
+	bh=kvsBYNbFTCF3Dytux3XmCSv2ryK9gn9krpSU9O4MDlI=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=u9lkYyb5O/WE2pJ8VL3uMYw0xKfHWrGs2zsk/I0su0JVM6ZaRrLBwR6nwvEwLcpRX
+	 1ekuqbfmS+quxwq0Ls8xWRgOnYeU+5eiRHZ/Kc9vkvZp+/7qEd4IPwQvfEeIk1vefA
+	 O7K2tbqwQyDzL1RqfYHXD2YqCo3WKK0AYYFB6u0XTqUMCMfop6uMPnb8hna2pn3J5q
+	 woSTsKhtemuw1nQfj4GjxzeHij7b3D0+KuekzzaEZ8SkkUJOvaYW8mv1F+xdI4rYa7
+	 sRS3bkR9nNAjHiicm0kghnOrVjBeOwWGSpcu4VBdauQSqZmlsFpIqgQcMbhDWMVKRj
+	 xRJq0v3l3meZQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BA8BBD8C97D;
+	Tue,  9 Jan 2024 21:40:03 +0000 (UTC)
+Subject: Re: [GIT PULL] selinux/selinux-pr-20240105
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <7502247c0a4439b9bcf2c2ae315f2433@paul-moore.com>
+References: <7502247c0a4439b9bcf2c2ae315f2433@paul-moore.com>
+X-PR-Tracked-List-Id: <selinux.vger.kernel.org>
+X-PR-Tracked-Message-Id: <7502247c0a4439b9bcf2c2ae315f2433@paul-moore.com>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240105
+X-PR-Tracked-Commit-Id: bbf5a1d0e5d0fb3bdf90205aa872636122692a50
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 9f9310bf87348e36a98ffa09c4e285908c14f592
+Message-Id: <170483640372.1854.8716271357643713939.pr-tracker-bot@kernel.org>
+Date: Tue, 09 Jan 2024 21:40:03 +0000
+To: Paul Moore <paul@paul-moore.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: SElinux list <selinux@vger.kernel.org>
-From: Daniel Burgener <dburgener@linux.microsoft.com>
-Subject: ANN: SELint 1.5
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-The 1.5 version of SELint is now available at:
+The pull request you sent on Fri, 05 Jan 2024 18:21:08 -0500:
 
-https://github.com/SELinuxProject/selint/releases
+> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240105
 
-A big thank you to everyone who contributed to this release.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/9f9310bf87348e36a98ffa09c4e285908c14f592
 
-The major changes since 1.4 are:
+Thank you!
 
-### Changed
-- Checks about requires now support userspace classperm requires
-- Various CI improvements
-- Clearer message for W-011
-
-### Fixed
-- Support quoted genfscon paths
-- Compile with gcc 14
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
