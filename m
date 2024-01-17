@@ -1,410 +1,382 @@
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com (sonic316-26.consmr.mail.ne1.yahoo.com [66.163.187.152])
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19DD21D52B
-	for <selinux@vger.kernel.org>; Tue, 16 Jan 2024 19:41:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.187.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C82CF20DD1
+	for <selinux@vger.kernel.org>; Wed, 17 Jan 2024 14:50:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705434083; cv=none; b=Gm3/u0fVMHM4wSB054j4uQAloMAdk35WYSAp1oa0YruA2bhGokztRWbR+codEXJalQ9POSsS7OSMxMLNxFkwdJwdpQ51Sjx3/Imh/ikEzcDdeAeN5mGxf4vo+HL64S8oz3c7y0eV6CMXRA6tsPEuuRadBQTfiUHBusbb5g8VarA=
+	t=1705503043; cv=none; b=ZzIuNsPpLZ2bLyYqQRvMih6wJhxYuFCj/fSPRGxZCUAXXElVS82D/Hg8iPETdIWNiAdMkfHs+3MhfZW/hkcR3ApMwTEkxx5KTvgQTszx0mYAArgNHcJRN3awnkGf9KsBEIw1EHfeRa4/PUtqtzlNlJ6bv5KpoH46QftOjr2WGjU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705434083; c=relaxed/simple;
-	bh=1V09i445Vft8fre+PNOEpNMe6lQZDDd4eZkjeZxOl8E=;
-	h=DKIM-Signature:X-SONIC-DKIM-SIGN:X-YMail-OSG:X-Sonic-MF:
-	 X-Sonic-ID:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:Content-Language:To:Cc:References:From:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Mailer; b=NtfYPxnXf/QV4hudr4b8Ti3+TmhfZYRBm7MxGbHctvgyNpP/RmLvz8fAL9Z7XDgPscfm9rC/kKyib1cPo3ooSdultNj8IyhXUfnkyXVif4qGiS9G5uI4VL2l11yZTuf6XGiKH7ESWGIDLu2ugKeRDzTEPLv2gXeLVBXhKtDiMUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=RkTKvsn0; arc=none smtp.client-ip=66.163.187.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1705503043; c=relaxed/simple;
+	bh=tNG7gg7/XiGaKj0gcx9WxIF0KusbF5XMx6up3JkSs1M=;
+	h=Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Google-Smtp-Source:X-Received:MIME-Version:
+	 References:In-Reply-To:From:Date:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding; b=NpHnHRxfavl7oanCdmGG7z6WFA3cL0yhjuYpsDRYtVdPZCFFRbz63elTGfI/92OoCT0U/a+6gq2KNmLp4CrPVnRVM9kJDTv7M2QNbgQL7s79CqUV7EmJ0FisSzfcFyt9AOLF1cW+o6O+WIabckUmCi1fmvR+NVh3ZHexpuDY60A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=cOaBnNP5; arc=none smtp.client-ip=209.85.128.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RkTKvsn0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1705434080; bh=Pums67AQtIibuvWDgI/gKeaSxifYBmsbSPY3e2wEph8=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=RkTKvsn01hE9Vm4cWJ7c29sJDmLUNeipmuAxyJGttMDeAay+vD+zgmeNsmLMGv3GO+5GFsEKoV4JEYpOfUD8dY8enqzBotpzMgK9Hv0BbKxrZg7GPE5fRj6cycFIloF2T60A7tRZZ0l5N45yn3e6HC4EhyIjFhuP4kyo/rOJj1Y0FtmmsKqQWA5fbnqug/6s/thG9rpTYcyilLp89zeC4oBDE0oiJG0+8H1sFkE3HGn9iNuhsWmWOShYHee6g3LWfkd560VnbFYcMV/bXnyXuE5zrVIJ3OeGz5abjm7nBnaMKBa391PSttcrpLaPy3zHokLqe8ZMzXgMp/k3X19rGg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1705434080; bh=vtA9+wfAowU44kTIgSvJJkN6PAk9XwFib66hLHM40Uc=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=SefrzH5hJ/hqET9t7Mcq+kfNqjXokAK57K94thDSHK2Ai2eNuVg8/U02D24ks3026BFU/9dDXPdTymuWL0xiLG/VlRlZb+cxWM6Mnce8UqfnjGESCGoS7sBN3zn/1wic/S3lWUSLZstFhsQSwatw9K2hJydH+PSYDO+bYVRohLMZl6yNWmnEifpiCF7gUgiSv7t9P9lBMGj6Bfe3NDW35MFmkZY0VVnCIPkZc8q5lmA8UflZJ7lLiFwVB+posQeBVEeUDPBjvNtBrpfNexdIep55vdxxdnyyil4rTQ+rRrXltqt0ujIZU1Rf45MI9BBSDy/3cRwd2ESj2uAPNwNymw==
-X-YMail-OSG: REIZpNoVM1mUCR2YGnBrQMAi5V1umO3SzKm1_Fi30VKpNgGGj0k4m.8W0rtKJcB
- BpF9pIJOV7DTwsjuJ.UnUTF2i1NwmjwT78vnFQYYXpQa69wfr4cyMyDnU6DqKSlGyQNycukN7L46
- d_0kehWkOtCvRAdtOPpFFVBVfXbWu.fV1ZP6Wz4S1GQUsrXqWsFKVoY4yeqAI1eWGIA1LbWGnYJu
- m6r9w1W_K3yKdfKhIpLfZT5sJ_7x6n5_FtuSWSJJBa_TCTAFwFKZCUinGI8Xzn6_2TTkhFbnfgCb
- 52kiXjM5CsaZ5eE79otPC4uv_d0grQ.AGNj.XhW0I71jT8Deo8vTZkpdX3mS1L0RaRyk5YJpjPWJ
- Wz1tli8MVMYzM9yrxR3HdyUCEYHoq2C1yrtqda_9FqoWqAZ1ua2KyKrBAfLOvoTV6vLqysjpGABX
- lotne9gTU15yYiPL1m0ZKLCqLoxE1y0huk6IEvYHx84MdX7f7sffHYpBbg3tt.ZzABWR_XdpFI7y
- trFof51BWG9DNkj1unDeuZwFNH7sTWYge0WlWVRnDh00sZO4H8nzd9INOxDVN0FzlEjlwpmc.I3P
- yBtQMSK0jUifebyPs4rMNkpyDVcGSWQ.Z9cF.2b38uCyliaryDs5Gg3_E.zU7FXLlaDBWmFnr1Nx
- 6RwcxMd3vpKK0xDS8wbw5SnhidporqDuYvHkAoXRqaxaotj0yrnqhJvKX5idKIfjAsOZsXZHR7hb
- WWPRg3ofZsuuQ4tFq_eqq2uaVcZzH67wwOs528rOUapIdemlO3O_pRPh3SCShlFHBhPnw.AuZZkF
- XPVwVUd0oIlKUi_p5lQMceUx83Agti4ukk953fXFD7Lh_Y8PAKQkFYpxo_7HUAGLYbZb8TgKBcg5
- UGsnI.Cb5Oxj8lWevnoZopfBKi6rJwUdGM37TxkOInMx7s_xggjPkFa5i6mNpDtIzIdwqto4SLh.
- jrk1tukaafN1D0xrr.FXiNWxtD_P2OnuS0oqnOXf8h1w6PyutrOUgzNhAp_VWSOvYMCS2OpB_P51
- _zVbI9q404JeYik9gyIxuVGk_pFq21FkljmOoEeOBRwOIrVr0jc9y_ICJxQu3F2vSWs5K59ZusqA
- ztQ8NOFwPaqA2R._6UD_HlbXL4KHVV39TS1SUFAcdc60V1.NRMJ6co25iVJwqgLX7j4XU.5ZrTBu
- mvfwXQZVABjJ0saGG2lB2y4lHePUZbiQRYep2nFWIBQ_IHS_nGqOQjRuuBfGo8P354tC3Q7TM298
- m48nCUp02OuCBc9d3ltcsu84XbwPPK6khCgeSX_4D1QjcEdx6N.r7c9UWpKsXfuvkS4HFwYhm7.0
- 7WC6gPSLrxS39lNBo13LUXg62dsSjjilCOBfoD4k9sUi_8Upqx0ftxAwTlkwCPlB8XWz5BTlworQ
- qY7DPWeMfsHf_5s97bvNWKp4TPgApHMLkfjJc5N.BKDiLTQTR2vNzIlv0B9hVNoN5y.n1zYNOx4O
- M82fUltje.lURnjnHN9w8RamxM8Q.MMBJJSec1lJb0PzwNzHEsX8caWCFJkKZHvYRlB15KSYokhF
- woPMXxOuWEyifHtWOw1XaVB7jIBZAnJJQT6edfNMiy9lp6zjgq6BrMKJP.JtaXiKcH0mhN4hd3wU
- qXEgxhrbuiS0vD5wYBvoZg_YIOmw5uOcQbvZsyP9D77u.vL1q5oJuo7H43V.N5cx..WauYlLOOgA
- 1SeA9rEV3_CJ89zyeLC9vAAqHKKxWGnQhUjTcB3JYbwm1Pb5a.Wv_xbKiFzzRv6VXdwVuqwqVanP
- iUmClUlRKRrLT_L9KxX9BvAhoLMNhtgFz5.B_gc59gi7VyeCrtCQjC0.1thJ_siHQV2nQg895EhA
- yk5N52lSSJGfhdPff_oduVMatKKG989pSjUkPA1OMuDng.nvSxPqvUzLF7sgygBFj8DtVZgchmNq
- _GCeO4PdeZhtIvV22_d4oEX9K8Oq2Tz3m05aoq3bSXHGx_4VuHN84zmfLqSGVuukrNOWickeMs7F
- .pN2fN.ufwV5t1S08yZnfFAnhtuQ9bheXwnql2zyon7S57dI539XUebZu4dYrAUfpk1Lnm60_luW
- DzU3ZQ6KIWm6sWgqW5utBY1qABTxQrIOhfmaRZ9DEpXbypJNi0PQGpFoma1zpEBAv9BwRM6h9MEB
- HwMLMoiCDndhXBxXsFnnv2UhUAL5vZ0tSAwSFOHxSHXP5Oo9jDmdyqbKPXb0ZySRW0zBYFJTIhYA
- UvrP2czaqIVhxPXK8.r4bWWTLDKkBKHnhUjTNCCbVWNPJqNTLxv2_gw1qX2tFzAVr378QH8NK
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: c99b1a5b-187c-4209-a07c-8495901ac7fa
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 16 Jan 2024 19:41:20 +0000
-Received: by hermes--production-gq1-78d49cd6df-mnx8f (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 1214647a3ffbd90e25e7bcd21096381a;
-          Tue, 16 Jan 2024 19:41:15 +0000 (UTC)
-Message-ID: <3e2d5c73-0c77-4b46-a879-c92116eb5ad9@schaufler-ca.com>
-Date: Tue, 16 Jan 2024 11:41:12 -0800
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="cOaBnNP5"
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-5f00bef973aso114972797b3.0
+        for <selinux@vger.kernel.org>; Wed, 17 Jan 2024 06:50:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1705503040; x=1706107840; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ocmUAaNDQZ0wiOc6mbUbS0z1qhuSeTEd/a+UvLaxPkc=;
+        b=cOaBnNP5TIiZ2LKiDcT5+JqjGWKa0M4Hn3isnb2K4PR8kgfEzMWKQrXa2K7YqdDnpc
+         CZ8zpgVFjj8U9qeeWddbq5NV/TQHvz854m5iS9JBaAlulpbJmnAxRVYD3E7cwNcqmjh9
+         QC3r3ldPoW6Maowl+obrcRkq0coC96Qd5ff9ysSZuPxrqd9+tVaD82S7l0rWaOtdqao2
+         05jvVFJFQB3ad++1nvCnV4UTj+kQsPkGxtYaF7mrSFRDmQ6objJqEB7+cE2acG00WwFV
+         pbeRCWXg1OXTYvHvi5V/xPaziYfUQHtiKS8eLz2Dt7aYO1T1rjmBEamrmY6XNB1VndcB
+         WlSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705503040; x=1706107840;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ocmUAaNDQZ0wiOc6mbUbS0z1qhuSeTEd/a+UvLaxPkc=;
+        b=t4dNDHwT+DpR8sp3kbiyvw75RYbCCseW+ppAoy3zu5aaFBEAmzGkX2/FskiwUPStGb
+         YF7XFHhd+aociEbceJV+dFWSGYaO9YmLONSANOIKgkC21qkaikYYxI91TU1r88AelrT9
+         chlNAkYrICp7bzFYeimwkk4o8Dc3v0qIdPrEAeLeeXod/cqPMNqEB2Pm36lBJO4rw/ZF
+         8RYqz/RCsYOQOZWSU7d3SwlpsUjPe9gSO9DKkqOs6NrPCDh5d6f7jXLRKI7AXPZQ0Cks
+         YKNQsm/Aav2op2n6oV4iFX6ohH6iVtnMQrjzuJTGi9I/IVMX8Eooz+7fL/3VTky1rQsn
+         veTw==
+X-Gm-Message-State: AOJu0Yw1MeMNvuMnLYxMIIlnco/o5uoHSPN541TOvGXApuLTpph70YEj
+	3jM8hQQ4yXgYYFPwddh+tRrnWawvNLfgDZIO4zI=
+X-Google-Smtp-Source: AGHT+IHCkEtJP0+MKGyskSVdNTI51gvuKkg+/CwByu99OB5H4CL5LzyZBiz3d8BrhzVDU/IwqxB+lNGG43P1/7ie6P0=
+X-Received: by 2002:a0d:ea06:0:b0:5ff:5d87:efa5 with SMTP id
+ t6-20020a0dea06000000b005ff5d87efa5mr1791413ywe.40.1705503040551; Wed, 17 Jan
+ 2024 06:50:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 25/25] integrity: Remove LSM
-Content-Language: en-US
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk,
- brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org,
- neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com,
- paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
- zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com,
- dhowells@redhat.com, jarkko@kernel.org, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, shuah@kernel.org, mic@digikod.net
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, keyrings@vger.kernel.org,
- selinux@vger.kernel.org, linux-kselftest@vger.kernel.org,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
- <20240115181809.885385-26-roberto.sassu@huaweicloud.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20240115181809.885385-26-roberto.sassu@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.22010 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20231213161412.23022-1-cgzones@googlemail.com> <CAP+JOzTKn9pw6J5a-LaeAkS2hiOV6O52OZxqVWUC31K=iVoVoA@mail.gmail.com>
+In-Reply-To: <CAP+JOzTKn9pw6J5a-LaeAkS2hiOV6O52OZxqVWUC31K=iVoVoA@mail.gmail.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Wed, 17 Jan 2024 15:50:29 +0100
+Message-ID: <CAJ2a_DcuPYfVdfgdgNqr7ALZwA8B9n+iwKBWbW13OWCG=sX1Gg@mail.gmail.com>
+Subject: Re: [UTIL-LINUX PATCH] sulogin: relabel terminal according to SELinux policy
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 1/15/2024 10:18 AM, Roberto Sassu wrote:
-> From: Roberto Sassu <roberto.sassu@huawei.com>
+On Fri, 5 Jan 2024 at 20:15, James Carter <jwcart2@gmail.com> wrote:
 >
-> Since now IMA and EVM use their own integrity metadata, it is safe to
-> remove the 'integrity' LSM, with its management of integrity metadata.
+> On Wed, Dec 13, 2023 at 11:14=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > The common SELinux practice is to have a distinct label for terminals i=
+n
+> > use by logged in users.  This allows to differentiate access on the
+> > associated terminal (e.g. user_tty_device_t) vs foreign ones (e.g.
+> > tty_device_t or sysadm_tty_device_t).  Therefore the application
+> > performing the user login and setting up the associated terminal should
+> > label that terminal according to the loaded SELinux policy.  Commonly
+> > this is done by pam_selinux(7).  Since sulogin(8) does not use pam(7)
+> > perform the necessary steps manually.
+> >
+> > Fixes: https://github.com/util-linux/util-linux/issues/1578
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Keep the iint.c file only for loading IMA and EVM keys at boot, and for
-> creating the integrity directory in securityfs (we need to keep it for
-> retrocompatibility reasons).
->
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> The SELinux parts look ok to me.
+> Reviewed-by: James Carter <jwcart2@gmail.com>
 
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+Thanks for the review Jim.
+Applied via https://github.com/util-linux/util-linux/commit/eb02db62685cca3=
+0e5afc61652c8b6e9cd0774e9
 
-> ---
->  include/linux/integrity.h      |  14 ---
->  security/integrity/iint.c      | 197 +--------------------------------
->  security/integrity/integrity.h |  25 -----
->  security/security.c            |   2 -
->  4 files changed, 2 insertions(+), 236 deletions(-)
 >
-> diff --git a/include/linux/integrity.h b/include/linux/integrity.h
-> index ef0f63ef5ebc..459b79683783 100644
-> --- a/include/linux/integrity.h
-> +++ b/include/linux/integrity.h
-> @@ -19,24 +19,10 @@ enum integrity_status {
->  	INTEGRITY_UNKNOWN,
->  };
->  
-> -/* List of EVM protected security xattrs */
->  #ifdef CONFIG_INTEGRITY
-> -extern struct integrity_iint_cache *integrity_inode_get(struct inode *inode);
-> -extern void integrity_inode_free(struct inode *inode);
->  extern void __init integrity_load_keys(void);
->  
->  #else
-> -static inline struct integrity_iint_cache *
-> -				integrity_inode_get(struct inode *inode)
-> -{
-> -	return NULL;
-> -}
-> -
-> -static inline void integrity_inode_free(struct inode *inode)
-> -{
-> -	return;
-> -}
-> -
->  static inline void integrity_load_keys(void)
->  {
->  }
-> diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-> index d4419a2a1e24..068ac6c2ae1e 100644
-> --- a/security/integrity/iint.c
-> +++ b/security/integrity/iint.c
-> @@ -6,207 +6,14 @@
->   * Mimi Zohar <zohar@us.ibm.com>
->   *
->   * File: integrity_iint.c
-> - *	- implements the integrity hooks: integrity_inode_alloc,
-> - *	  integrity_inode_free
-> - *	- cache integrity information associated with an inode
-> - *	  using a rbtree tree.
-> + *	- initialize the integrity directory in securityfs
-> + *	- load IMA and EVM keys
->   */
-> -#include <linux/slab.h>
-> -#include <linux/init.h>
-> -#include <linux/spinlock.h>
-> -#include <linux/rbtree.h>
-> -#include <linux/file.h>
-> -#include <linux/uaccess.h>
->  #include <linux/security.h>
-> -#include <linux/lsm_hooks.h>
->  #include "integrity.h"
->  
-> -static struct rb_root integrity_iint_tree = RB_ROOT;
-> -static DEFINE_RWLOCK(integrity_iint_lock);
-> -static struct kmem_cache *iint_cache __ro_after_init;
-> -
->  struct dentry *integrity_dir;
->  
-> -/*
-> - * __integrity_iint_find - return the iint associated with an inode
-> - */
-> -static struct integrity_iint_cache *__integrity_iint_find(struct inode *inode)
-> -{
-> -	struct integrity_iint_cache *iint;
-> -	struct rb_node *n = integrity_iint_tree.rb_node;
-> -
-> -	while (n) {
-> -		iint = rb_entry(n, struct integrity_iint_cache, rb_node);
-> -
-> -		if (inode < iint->inode)
-> -			n = n->rb_left;
-> -		else if (inode > iint->inode)
-> -			n = n->rb_right;
-> -		else
-> -			return iint;
-> -	}
-> -
-> -	return NULL;
-> -}
-> -
-> -/*
-> - * integrity_iint_find - return the iint associated with an inode
-> - */
-> -struct integrity_iint_cache *integrity_iint_find(struct inode *inode)
-> -{
-> -	struct integrity_iint_cache *iint;
-> -
-> -	if (!IS_IMA(inode))
-> -		return NULL;
-> -
-> -	read_lock(&integrity_iint_lock);
-> -	iint = __integrity_iint_find(inode);
-> -	read_unlock(&integrity_iint_lock);
-> -
-> -	return iint;
-> -}
-> -
-> -#define IMA_MAX_NESTING (FILESYSTEM_MAX_STACK_DEPTH+1)
-> -
-> -/*
-> - * It is not clear that IMA should be nested at all, but as long is it measures
-> - * files both on overlayfs and on underlying fs, we need to annotate the iint
-> - * mutex to avoid lockdep false positives related to IMA + overlayfs.
-> - * See ovl_lockdep_annotate_inode_mutex_key() for more details.
-> - */
-> -static inline void iint_lockdep_annotate(struct integrity_iint_cache *iint,
-> -					 struct inode *inode)
-> -{
-> -#ifdef CONFIG_LOCKDEP
-> -	static struct lock_class_key iint_mutex_key[IMA_MAX_NESTING];
-> -
-> -	int depth = inode->i_sb->s_stack_depth;
-> -
-> -	if (WARN_ON_ONCE(depth < 0 || depth >= IMA_MAX_NESTING))
-> -		depth = 0;
-> -
-> -	lockdep_set_class(&iint->mutex, &iint_mutex_key[depth]);
-> -#endif
-> -}
-> -
-> -static void iint_init_always(struct integrity_iint_cache *iint,
-> -			     struct inode *inode)
-> -{
-> -	iint->ima_hash = NULL;
-> -	iint->version = 0;
-> -	iint->flags = 0UL;
-> -	iint->atomic_flags = 0UL;
-> -	iint->ima_file_status = INTEGRITY_UNKNOWN;
-> -	iint->ima_mmap_status = INTEGRITY_UNKNOWN;
-> -	iint->ima_bprm_status = INTEGRITY_UNKNOWN;
-> -	iint->ima_read_status = INTEGRITY_UNKNOWN;
-> -	iint->ima_creds_status = INTEGRITY_UNKNOWN;
-> -	iint->evm_status = INTEGRITY_UNKNOWN;
-> -	iint->measured_pcrs = 0;
-> -	mutex_init(&iint->mutex);
-> -	iint_lockdep_annotate(iint, inode);
-> -}
-> -
-> -static void iint_free(struct integrity_iint_cache *iint)
-> -{
-> -	kfree(iint->ima_hash);
-> -	mutex_destroy(&iint->mutex);
-> -	kmem_cache_free(iint_cache, iint);
-> -}
-> -
-> -/**
-> - * integrity_inode_get - find or allocate an iint associated with an inode
-> - * @inode: pointer to the inode
-> - * @return: allocated iint
-> - *
-> - * Caller must lock i_mutex
-> - */
-> -struct integrity_iint_cache *integrity_inode_get(struct inode *inode)
-> -{
-> -	struct rb_node **p;
-> -	struct rb_node *node, *parent = NULL;
-> -	struct integrity_iint_cache *iint, *test_iint;
-> -
-> -	iint = integrity_iint_find(inode);
-> -	if (iint)
-> -		return iint;
-> -
-> -	iint = kmem_cache_alloc(iint_cache, GFP_NOFS);
-> -	if (!iint)
-> -		return NULL;
-> -
-> -	iint_init_always(iint, inode);
-> -
-> -	write_lock(&integrity_iint_lock);
-> -
-> -	p = &integrity_iint_tree.rb_node;
-> -	while (*p) {
-> -		parent = *p;
-> -		test_iint = rb_entry(parent, struct integrity_iint_cache,
-> -				     rb_node);
-> -		if (inode < test_iint->inode) {
-> -			p = &(*p)->rb_left;
-> -		} else if (inode > test_iint->inode) {
-> -			p = &(*p)->rb_right;
-> -		} else {
-> -			write_unlock(&integrity_iint_lock);
-> -			kmem_cache_free(iint_cache, iint);
-> -			return test_iint;
-> -		}
-> -	}
-> -
-> -	iint->inode = inode;
-> -	node = &iint->rb_node;
-> -	inode->i_flags |= S_IMA;
-> -	rb_link_node(node, parent, p);
-> -	rb_insert_color(node, &integrity_iint_tree);
-> -
-> -	write_unlock(&integrity_iint_lock);
-> -	return iint;
-> -}
-> -
-> -/**
-> - * integrity_inode_free - called on security_inode_free
-> - * @inode: pointer to the inode
-> - *
-> - * Free the integrity information(iint) associated with an inode.
-> - */
-> -void integrity_inode_free(struct inode *inode)
-> -{
-> -	struct integrity_iint_cache *iint;
-> -
-> -	if (!IS_IMA(inode))
-> -		return;
-> -
-> -	write_lock(&integrity_iint_lock);
-> -	iint = __integrity_iint_find(inode);
-> -	rb_erase(&iint->rb_node, &integrity_iint_tree);
-> -	write_unlock(&integrity_iint_lock);
-> -
-> -	iint_free(iint);
-> -}
-> -
-> -static void iint_init_once(void *foo)
-> -{
-> -	struct integrity_iint_cache *iint = (struct integrity_iint_cache *) foo;
-> -
-> -	memset(iint, 0, sizeof(*iint));
-> -}
-> -
-> -static int __init integrity_iintcache_init(void)
-> -{
-> -	iint_cache =
-> -	    kmem_cache_create("iint_cache", sizeof(struct integrity_iint_cache),
-> -			      0, SLAB_PANIC, iint_init_once);
-> -	return 0;
-> -}
-> -DEFINE_LSM(integrity) = {
-> -	.name = "integrity",
-> -	.init = integrity_iintcache_init,
-> -	.order = LSM_ORDER_LAST,
-> -};
-> -
-> -
->  /*
->   * integrity_kernel_read - read data from the file
->   *
-> diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
-> index 671fc50255f9..50d6f798e613 100644
-> --- a/security/integrity/integrity.h
-> +++ b/security/integrity/integrity.h
-> @@ -102,31 +102,6 @@ struct ima_file_id {
->  	__u8 hash[HASH_MAX_DIGESTSIZE];
->  } __packed;
->  
-> -/* integrity data associated with an inode */
-> -struct integrity_iint_cache {
-> -	struct rb_node rb_node;	/* rooted in integrity_iint_tree */
-> -	struct mutex mutex;	/* protects: version, flags, digest */
-> -	struct inode *inode;	/* back pointer to inode in question */
-> -	u64 version;		/* track inode changes */
-> -	unsigned long flags;
-> -	unsigned long measured_pcrs;
-> -	unsigned long atomic_flags;
-> -	unsigned long real_ino;
-> -	dev_t real_dev;
-> -	enum integrity_status ima_file_status:4;
-> -	enum integrity_status ima_mmap_status:4;
-> -	enum integrity_status ima_bprm_status:4;
-> -	enum integrity_status ima_read_status:4;
-> -	enum integrity_status ima_creds_status:4;
-> -	enum integrity_status evm_status:4;
-> -	struct ima_digest_data *ima_hash;
-> -};
-> -
-> -/* rbtree tree calls to lookup, insert, delete
-> - * integrity data associated with an inode.
-> - */
-> -struct integrity_iint_cache *integrity_iint_find(struct inode *inode);
-> -
->  int integrity_kernel_read(struct file *file, loff_t offset,
->  			  void *addr, unsigned long count);
->  
-> diff --git a/security/security.c b/security/security.c
-> index f811cc376a7a..df87c0a7eaac 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -19,7 +19,6 @@
->  #include <linux/kernel.h>
->  #include <linux/kernel_read_file.h>
->  #include <linux/lsm_hooks.h>
-> -#include <linux/integrity.h>
->  #include <linux/fsnotify.h>
->  #include <linux/mman.h>
->  #include <linux/mount.h>
-> @@ -1597,7 +1596,6 @@ static void inode_free_by_rcu(struct rcu_head *head)
->   */
->  void security_inode_free(struct inode *inode)
->  {
-> -	integrity_inode_free(inode);
->  	call_void_hook(inode_free_security, inode);
->  	/*
->  	 * The inode may still be referenced in a path walk and
+> > ---
+> > Upstream pull-request: https://github.com/util-linux/util-linux/pull/26=
+50
+> > ---
+> >  login-utils/sulogin-consoles.c |   4 +
+> >  login-utils/sulogin-consoles.h |   4 +
+> >  login-utils/sulogin.c          | 156 +++++++++++++++++++++++++++++----
+> >  3 files changed, 146 insertions(+), 18 deletions(-)
+> >
+> > diff --git a/login-utils/sulogin-consoles.c b/login-utils/sulogin-conso=
+les.c
+> > index 9ae525556..0dca949f4 100644
+> > --- a/login-utils/sulogin-consoles.c
+> > +++ b/login-utils/sulogin-consoles.c
+> > @@ -341,6 +341,10 @@ int append_console(struct list_head *consoles, con=
+st char * const name)
+> >         tail->id =3D last ? last->id + 1 : 0;
+> >         tail->pid =3D -1;
+> >         memset(&tail->tio, 0, sizeof(tail->tio));
+> > +#ifdef HAVE_LIBSELINUX
+> > +       tail->reset_tty_context =3D NULL;
+> > +       tail->user_tty_context =3D NULL;
+> > +#endif
+> >
+> >         return 0;
+> >  }
+> > diff --git a/login-utils/sulogin-consoles.h b/login-utils/sulogin-conso=
+les.h
+> > index 12032c997..608c4f84f 100644
+> > --- a/login-utils/sulogin-consoles.h
+> > +++ b/login-utils/sulogin-consoles.h
+> > @@ -44,6 +44,10 @@ struct console {
+> >         pid_t pid;
+> >         struct chardata cp;
+> >         struct termios tio;
+> > +#ifdef HAVE_LIBSELINUX
+> > +       char *reset_tty_context;
+> > +       char *user_tty_context;
+> > +#endif
+> >  };
+> >
+> >  extern int detect_consoles(const char *device, int fallback,
+> > diff --git a/login-utils/sulogin.c b/login-utils/sulogin.c
+> > index 019f35092..2682c30fb 100644
+> > --- a/login-utils/sulogin.c
+> > +++ b/login-utils/sulogin.c
+> > @@ -99,6 +99,81 @@ static int locked_account_password(const char * cons=
+t passwd)
+> >         return 0;
+> >  }
+> >
+> > +#ifdef HAVE_LIBSELINUX
+> > +/*
+> > + * Cached check whether SELinux is enabled.
+> > + */
+> > +static int is_selinux_enabled_cached(void)
+> > +{
+> > +       static int cache =3D -1;
+> > +
+> > +       if (cache =3D=3D -1)
+> > +               cache =3D is_selinux_enabled();
+> > +
+> > +       return cache;
+> > +}
+> > +
+> > +/* Computed SELinux login context. */
+> > +static char *login_context;
+> > +
+> > +/*
+> > + * Compute SELinux login context.
+> > + */
+> > +static void compute_login_context(void)
+> > +{
+> > +       char *seuser =3D NULL;
+> > +       char *level =3D NULL;
+> > +
+> > +       if (is_selinux_enabled_cached() =3D=3D 0)
+> > +               goto cleanup;
+> > +
+> > +       if (getseuserbyname("root", &seuser, &level) =3D=3D -1) {
+> > +               warnx(_("failed to compute seuser"));
+> > +               goto cleanup;
+> > +       }
+> > +
+> > +       if (get_default_context_with_level(seuser, level, NULL, &login_=
+context) =3D=3D -1) {
+> > +               warnx(_("failed to compute default context"));
+> > +               goto cleanup;
+> > +       }
+> > +
+> > +cleanup:
+> > +       free(seuser);
+> > +       free(level);
+> > +}
+> > +
+> > +/*
+> > + * Compute SELinux terminal context.
+> > + */
+> > +static void tcinit_selinux(struct console *con)
+> > +{
+> > +       security_class_t tclass;
+> > +
+> > +       if (!login_context)
+> > +               return;
+> > +
+> > +       if (fgetfilecon(con->fd, &con->reset_tty_context) =3D=3D -1) {
+> > +               warn(_("failed to get context of terminal %s"), con->tt=
+y);
+> > +               return;
+> > +       }
+> > +
+> > +       tclass =3D string_to_security_class("chr_file");
+> > +       if (tclass =3D=3D 0) {
+> > +               warnx(_("security class chr_file not available"));
+> > +               freecon(con->reset_tty_context);
+> > +               con->reset_tty_context =3D NULL;
+> > +               return;
+> > +       }
+> > +
+> > +       if (security_compute_relabel(login_context, con->reset_tty_cont=
+ext, tclass, &con->user_tty_context) =3D=3D -1) {
+> > +               warnx(_("failed to compute relabel context of terminal"=
+));
+> > +               freecon(con->reset_tty_context);
+> > +               con->reset_tty_context =3D NULL;
+> > +               return;
+> > +       }
+> > +}
+> > +#endif
+> > +
+> >  /*
+> >   * Fix the tty modes and set reasonable defaults.
+> >   */
+> > @@ -132,6 +207,10 @@ static void tcinit(struct console *con)
+> >         errno =3D 0;
+> >  #endif
+> >
+> > +#ifdef HAVE_LIBSELINUX
+> > +       tcinit_selinux(con);
+> > +#endif
+> > +
+> >  #ifdef TIOCGSERIAL
+> >         if (ioctl(fd, TIOCGSERIAL,  &serinfo) >=3D 0)
+> >                 con->flags |=3D CON_SERIAL;
+> > @@ -785,7 +864,7 @@ out:
+> >  /*
+> >   * Password was OK, execute a shell.
+> >   */
+> > -static void sushell(struct passwd *pwd)
+> > +static void sushell(struct passwd *pwd, struct console *con)
+> >  {
+> >         char shell[PATH_MAX];
+> >         char home[PATH_MAX];
+> > @@ -842,22 +921,21 @@ static void sushell(struct passwd *pwd)
+> >         mask_signal(SIGHUP, SIG_DFL, NULL);
+> >
+> >  #ifdef HAVE_LIBSELINUX
+> > -       if (is_selinux_enabled() > 0) {
+> > -               char *scon =3D NULL;
+> > -               char *seuser =3D NULL;
+> > -               char *level =3D NULL;
+> > -
+> > -               if (getseuserbyname("root", &seuser, &level) =3D=3D 0) =
+{
+> > -                       if (get_default_context_with_level(seuser, leve=
+l, 0, &scon) =3D=3D 0) {
+> > -                               if (setexeccon(scon) !=3D 0)
+> > -                                       warnx(_("setexeccon failed"));
+> > -                               freecon(scon);
+> > -                       }
+> > +       if (is_selinux_enabled_cached() =3D=3D 1) {
+> > +               if (con->user_tty_context) {
+> > +                       if (fsetfilecon(con->fd, con->user_tty_context)=
+ =3D=3D -1)
+> > +                               warn(_("failed to set context to %s for=
+ terminal %s"), con->user_tty_context, con->tty);
+> > +               }
+> > +
+> > +               if (login_context) {
+> > +                       if (setexeccon(login_context) =3D=3D -1)
+> > +                               warn(_("failed to set exec context to %=
+s"), login_context);
+> >                 }
+> > -               free(seuser);
+> > -               free(level);
+> >         }
+> > +#else
+> > +       (void)con;
+> >  #endif
+> > +
+> >         execl(su_shell, shell, (char *)NULL);
+> >         warn(_("failed to execute %s"), su_shell);
+> >
+> > @@ -866,6 +944,30 @@ static void sushell(struct passwd *pwd)
+> >         warn(_("failed to execute %s"), "/bin/sh");
+> >  }
+> >
+> > +#ifdef HAVE_LIBSELINUX
+> > +static void tcreset_selinux(struct list_head *consoles) {
+> > +       struct list_head *ptr;
+> > +       struct console *con;
+> > +
+> > +       if (is_selinux_enabled_cached() =3D=3D 0)
+> > +               return;
+> > +
+> > +       list_for_each(ptr, consoles) {
+> > +               con =3D list_entry(ptr, struct console, entry);
+> > +
+> > +               if (con->fd < 0)
+> > +                       continue;
+> > +               if (!con->reset_tty_context)
+> > +                       continue;
+> > +               if (fsetfilecon(con->fd, con->reset_tty_context) =3D=3D=
+ -1)
+> > +                       warn(_("failed to reset context to %s for termi=
+nal %s"), con->reset_tty_context, con->tty);
+> > +
+> > +               freecon(con->reset_tty_context);
+> > +               con->reset_tty_context =3D NULL;
+> > +       }
+> > +}
+> > +#endif
+> > +
+> >  static void usage(void)
+> >  {
+> >         FILE *out =3D stdout;
+> > @@ -1015,6 +1117,10 @@ int main(int argc, char **argv)
+> >                 return EXIT_FAILURE;
+> >         }
+> >
+> > +#ifdef HAVE_LIBSELINUX
+> > +       compute_login_context();
+> > +#endif
+> > +
+> >         /*
+> >          * Ask for the password on the consoles.
+> >          */
+> > @@ -1034,9 +1140,18 @@ int main(int argc, char **argv)
+> >         }
+> >         ptr =3D (&consoles)->next;
+> >
+> > -       if (ptr->next =3D=3D &consoles) {
+> > -               con =3D list_entry(ptr, struct console, entry);
+> > -               goto nofork;
+> > +#ifdef HAVE_LIBSELINUX
+> > +       /*
+> > +        * Always fork with SELinux enabled, so the parent can restore =
+the
+> > +        * terminal context afterwards.
+> > +        */
+> > +       if (is_selinux_enabled_cached() =3D=3D 0)
+> > +#endif
+> > +       {
+> > +               if (ptr->next =3D=3D &consoles) {
+> > +                       con =3D list_entry(ptr, struct console, entry);
+> > +                       goto nofork;
+> > +               }
+> >         }
+> >
+> >
+> > @@ -1087,7 +1202,7 @@ int main(int argc, char **argv)
+> >  #endif
+> >                                 if (doshell) {
+> >                                         /* sushell() unmask signals */
+> > -                                       sushell(pwd);
+> > +                                       sushell(pwd, con);
+> >
+> >                                         mask_signal(SIGQUIT, SIG_IGN, &=
+saved_sigquit);
+> >                                         mask_signal(SIGTSTP, SIG_IGN, &=
+saved_sigtstp);
+> > @@ -1193,5 +1308,10 @@ int main(int argc, char **argv)
+> >         } while (1);
+> >
+> >         mask_signal(SIGCHLD, SIG_DFL, NULL);
+> > +
+> > +#ifdef HAVE_LIBSELINUX
+> > +       tcreset_selinux(&consoles);
+> > +#endif
+> > +
+> >         return EXIT_SUCCESS;
+> >  }
+> > --
+> > 2.43.0
+> >
+> >
