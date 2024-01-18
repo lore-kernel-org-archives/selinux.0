@@ -1,113 +1,108 @@
-Received: from mx0a-00364e01.pphosted.com (mx0a-00364e01.pphosted.com [148.163.135.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 875E128E3A
-	for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 16:27:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.135.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C54372C6A4
+	for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 17:02:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705595222; cv=none; b=ENSgGTwh8j51qQh4NXkvNCaSr7O9PujD7lMjJhF/OwI949JxTCVUIJYKIYEAzw2hU7YgEg4eWZyHO25ugtk8FTI4a5KhUKTQsZ1X8+kNsRKntdMCsoqffiB8rUwcwF/mIluw11tZ0CxaSaM6Q7qYK6uX/79UnIadAU2IK1AHBQs=
+	t=1705597351; cv=none; b=iH5uCYgn8O4Xq3k94cNsoEbouxaRLHOOtiZ6XOfdVUkb8Z7q0CHG17xcjHZe9RumYAn7Gb/XHM8xhu1NMeg+p2nqCy4pfh1tGNaj3z6MkDWcYIK72SeQCDTbAmzer9mC4htedBn9ZKGQxTIVT+hTDA4s7uSpB/5noLDw1rpuygY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705595222; c=relaxed/simple;
-	bh=riWqVhGTX5lGswri4oMRXxfHVfJlZeeI5vSmjfrDISI=;
-	h=Received:DKIM-Signature:Received:Received:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Received:X-Google-Smtp-Source:X-Received:
-	 MIME-Version:From:Date:Message-ID:Subject:To:Content-Type:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details; b=fg0V1ZCmhSJN2lE+xabfCdje7ZG/t0FoVaCj7ths1aRD/qsbN91M0vLzE6sZKKGmcQQyyTkGSWLChxG4reM0vcrA6qwSQdn6zwwoggiCDcjRcKhO22xmgvg3JGrg8VTwem03CNVqlt7R3uDmvukP+eUpMZiycfNnTEfSaeMwz+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cs.columbia.edu; spf=pass smtp.mailfrom=columbia.edu; dkim=pass (2048-bit key) header.d=columbia.edu header.i=@columbia.edu header.b=VQr9Sthh; arc=none smtp.client-ip=148.163.135.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cs.columbia.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=columbia.edu
+	s=arc-20240116; t=1705597351; c=relaxed/simple;
+	bh=uwPj3q9XGtTCZcmx+a3b/eWuPshZBtyULCjcQrjQv3s=;
+	h=Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Google-Smtp-Source:X-Received:MIME-Version:
+	 References:In-Reply-To:From:Date:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding; b=OyV8qpgJ8W+kh9bInNCBVksbIlpHDayCUZIQQYYJLkgqVZICb70VMlqwjCdLiGuTffiaaVcLpWcsXBQ/cRlhB+t23kfpM3QTBH87X4nqzcO9hbBo4klYrG2ZC2dzV1lSpqs0oU7m/3EYuPm29coaou7/QBVN2/VUzjdRLX8AIHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JIPWL51a; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=columbia.edu header.i=@columbia.edu header.b="VQr9Sthh"
-Received: from pps.filterd (m0167068.ppops.net [127.0.0.1])
-	by mx0a-00364e01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40IFjaon015465
-	for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 11:26:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=columbia.edu; h=mime-version : from
- : date : message-id : subject : to : content-type; s=pps01;
- bh=BF3zkj4zjXcLB36coxXU2fCYgjZnVcphVYy2qOdSDQs=;
- b=VQr9SthhlD6frUTtcTJuFUokFmauam1NWy0vsEDiQp/6jQXorL5q2STHWUq/cX+1pKlm
- ujiH5U8hxrUOoV7dZOC7Hz0kAmCsQ+aBczIIw+x0F4Pz6spPGeXCeRtRg0S/vz9EeO9Q
- EL7RcPxfATZCUSOJkoSv4CboxMRC8Wgcw8x9onOIJy9CpukTMHk4VYzecD2NnFJf60Sv
- OAec8EL4wJhdl96kTyh8DDPhPWh8LxZrLjh0vl9ynK1rB1oxKxJN8Hbp1atwDMx9VbRU
- RzVcrkjdY+p8ccRlpy859AH/8n/LFXT5vCmf5m4Az9gO27Q9e4m97iWqW9wq64vzPu43 4A== 
-Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com [209.85.160.71])
-	by mx0a-00364e01.pphosted.com (PPS) with ESMTPS id 3vknp39nke-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 11:26:59 -0500
-Received: by mail-oa1-f71.google.com with SMTP id 586e51a60fabf-203014900a9so15944141fac.3
-        for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 08:26:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JIPWL51a"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-28e79182570so2498178a91.2
+        for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 09:02:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1705597349; x=1706202149; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rqEZKCjZX82e5H7QVwlfiLN0oQSLx5I174o3fBkUq2w=;
+        b=JIPWL51agrjYgBTpX6tzUkudBgyCXUsYPRMK3Nzp9FHG4dts4Jk0ZJv+rteEf7oAaw
+         XpgBK/TAvPcqLhruMzxt/gyaNEMrcwYzmEs76dJVoI2kk3McHiRHt6L0dmd7qyx+TVNw
+         38vuyID+MDYtdnocGeDE6QC/IfdKnDdwW242DcOzi9W6R3sPIETfuT1ZtB5kg+XHBnyq
+         Jn6Jf23pcAuCqhtEjHVPEbmKqn3Q548gudMt32KY/pmj0joP0lJMSI+aA3X/DlP2y4dr
+         jGDyk9hoa1EJWM0YnKwPhZKyAI2xJi5KrgiUq8pTQoKeooxFmkYG0j1Da6GkZP7Vr+cm
+         9DxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705595218; x=1706200018;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BF3zkj4zjXcLB36coxXU2fCYgjZnVcphVYy2qOdSDQs=;
-        b=AM5DhaQDARqUFPvE4yU+b6HqHOaIK6EXuMsElnq3hfHWXotEthooBcrEmpRgBsUNgo
-         wEBFKOy0e6nHL2cpQgemM96GwKkC1AHPRey9dhoWOfcsZQ25gsknFTi9eCdkT0YQD83k
-         MF7qAd9KGzkKbFJXhPRwdBiC4dGZjcYdawytwICz6h+s9vAUs3DmaJ1Al3lOuqr2Niuz
-         06fll7bf3DilJWiMMZExotukpwpTus12JHXR7D1V2Ges9RrZoGqpSNyoP1+i++NGpy6B
-         UKMtwPsbrGZzWIBVQoLcUwgIrhJNoTCAcDGJLyAQjDkv5FhDdwYBKRwcLCtBM3V5soEJ
-         oyzA==
-X-Gm-Message-State: AOJu0Ywi67TzJ2rP1B/U9aeUGx+isk3cRvR2HGvuiEbBpJwsOzdZRY4M
-	tiKLaOgaTPdS7soqBs5eB7hpda+U2pCbrbRNBTkOa3yDKRMJJQMO2Mk0HXgy3UnwgJh1N3cQTaX
-	QCQYnphxoDDrJ0wvVrtv/Z4aJ6D8YFnK4edWpuKKPXAfJvut/SHgHA6FIRWgInNFqE5iyvfn/sY
-	kASbaPnw9oPeC4o9+mSwh2f2CbmqpkY42QpkKl
-X-Received: by 2002:a05:6871:7a12:b0:210:9b48:d0c2 with SMTP id pc18-20020a0568717a1200b002109b48d0c2mr1024467oac.68.1705595218412;
-        Thu, 18 Jan 2024 08:26:58 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEM1pnNiTE2QTyhvuVvcAQ0lD1rMXrV7PEvB29CKBpLRhyjFO39iDBcVnLdK1iCqWDvljQLo2Qc2KY6YN9H538=
-X-Received: by 2002:a05:6871:7a12:b0:210:9b48:d0c2 with SMTP id
- pc18-20020a0568717a1200b002109b48d0c2mr1024459oac.68.1705595218193; Thu, 18
- Jan 2024 08:26:58 -0800 (PST)
+        d=1e100.net; s=20230601; t=1705597349; x=1706202149;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rqEZKCjZX82e5H7QVwlfiLN0oQSLx5I174o3fBkUq2w=;
+        b=R18pcXrJ4JKRSLnyTRunoo1ZAWz1AFermJZto749KaVhxNPum2uXJ6gGtmCQAn+co+
+         DtOyKqtAgRAWKlKKW9nBfSNStfXutM71nLzi4zqMJLSDVFgCx3toD0ze4d+X6C6yycab
+         Tdz2zFqbz/VFFhRp8wvJS6G9ADyvk6F/mQbmGBY+kJ3GGSGqK4NfwDdcmsPcO8v8RN8L
+         K2vV6baqtNn91z0NWzhXrCYOkp8n53Afm1CABCV+1bevPEHz5ls42EulDnr5Wz6l3mhI
+         vByDVbdBRx4XNBa7U4lXzq0Oj3LY+JqwbO0GrxYA+i+2bUek/ETStZi6I2IZfNPqIUhR
+         fNIA==
+X-Gm-Message-State: AOJu0YyKxP6WKGgPTfKPkh0HlMef800nnDB8M2aQv4qRv3TbsKJ++6JE
+	QEl4tUXRx+bP13pbOrRTKb32ue94nFHisAjzWI4OkbjPBNq7drygjHtKvReOviHWSc1jJ+RIJnA
+	yXP69BVhvL45GjfzpJauFtuzWZEY=
+X-Google-Smtp-Source: AGHT+IGILXNhN+6GmvcRwRt4ktwCrSHNz3z6ChiyHQf4e0Aiv8JZVwhWnXb9kfhXjue/YBRvIO6Sy+2mPos8o+0xUxQ=
+X-Received: by 2002:a17:90b:11c3:b0:290:12af:745e with SMTP id
+ gv3-20020a17090b11c300b0029012af745emr947876pjb.31.1705597348877; Thu, 18 Jan
+ 2024 09:02:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Gabriel Ryan <gabe@cs.columbia.edu>
-Date: Thu, 18 Jan 2024 11:26:48 -0500
-Message-ID: <CALbthtcf4m5vPK7xLZhzk8W_7ETkNPeR3bnaM06BtzuQy8w-jQ@mail.gmail.com>
-Subject: Race in security/selinux/hooks.c on isec->sclass and isec->sid usage
-To: Paul Moore <paul@paul-moore.com>, stephen.smalley.work@gmail.com,
-        omosnace@redhat.com, selinux@vger.kernel.org
+References: <CALbthtcf4m5vPK7xLZhzk8W_7ETkNPeR3bnaM06BtzuQy8w-jQ@mail.gmail.com>
+In-Reply-To: <CALbthtcf4m5vPK7xLZhzk8W_7ETkNPeR3bnaM06BtzuQy8w-jQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 18 Jan 2024 12:02:17 -0500
+Message-ID: <CAEjxPJ7ZB3PtVjvJf9u-C7JGNpGv53O9TGu7o5EadMHy2hHE5w@mail.gmail.com>
+Subject: Re: Race in security/selinux/hooks.c on isec->sclass and isec->sid usage
+To: Gabriel Ryan <gabe@cs.columbia.edu>
+Cc: Paul Moore <paul@paul-moore.com>, omosnace@redhat.com, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Proofpoint-ORIG-GUID: -1SbBWqTlXMd72i73VJWyo96QF7vfMAG
-X-Proofpoint-GUID: -1SbBWqTlXMd72i73VJWyo96QF7vfMAG
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-18_08,2024-01-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=10
- bulkscore=10 suspectscore=0 phishscore=0 mlxscore=0 clxscore=1011
- mlxlogscore=785 priorityscore=1501 lowpriorityscore=10 malwarescore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2401180120
+Content-Transfer-Encoding: quoted-printable
 
-We found a race in selinux for kernel v6.6 using a prototype race
-testing tool based on modified KCSAN we are developing. We are
-reporting the race because it appears to be a potential bug. The race
-occurs on isec->sclass and isec->sid, which are set in
+On Thu, Jan 18, 2024 at 11:26=E2=80=AFAM Gabriel Ryan <gabe@cs.columbia.edu=
+> wrote:
+>
+> We found a race in selinux for kernel v6.6 using a prototype race
+> testing tool based on modified KCSAN we are developing. We are
+> reporting the race because it appears to be a potential bug. The race
+> occurs on isec->sclass and isec->sid, which are set in
+>
+> security/selinux/hooks.c:3329-3330 selinux_inode_post_setxattr
+>
+>         isec->sclass =3D inode_mode_to_security_class(inode->i_mode);
+>         isec->sid =3D newsid;
+>
+> Where isec->lock is held when isec->sclass and isec->sid are set above
+> but not held when they are read in the following 3 locations:
+>
+> security/selinux/hooks.c:1671 inode_has_perm
+> security/selinux/hooks.c:3125 selinux_inode_permission
+> security/selinux/hooks.c:3690 ioctl_has_perm
+>
+>
+> This seems like it could lead to undefined behavior if multiple
+> threads are reading the isec struct and updating it concurrently,
+> (e.g., reading an old isec->sid value but new isec->sclass value).
+>
+> In some other cases in security/selinux/hooks.c, isec->lock is held
+> when isec->sclass and isec->sid are accessed, such as in
+> security/selinux/hooks.c:4942-4945 selinux_socket_accept. Therefore,
+> extending the isec->lock to cover when sclass and sid are read from
+> the isec struct in these three locations might be a suitable fix.
 
-security/selinux/hooks.c:3329-3330 selinux_inode_post_setxattr
-
-        isec->sclass = inode_mode_to_security_class(inode->i_mode);
-        isec->sid = newsid;
-
-Where isec->lock is held when isec->sclass and isec->sid are set above
-but not held when they are read in the following 3 locations:
-
-security/selinux/hooks.c:1671 inode_has_perm
-security/selinux/hooks.c:3125 selinux_inode_permission
-security/selinux/hooks.c:3690 ioctl_has_perm
-
-
-This seems like it could lead to undefined behavior if multiple
-threads are reading the isec struct and updating it concurrently,
-(e.g., reading an old isec->sid value but new isec->sclass value).
-
-In some other cases in security/selinux/hooks.c, isec->lock is held
-when isec->sclass and isec->sid are accessed, such as in
-security/selinux/hooks.c:4942-4945 selinux_socket_accept. Therefore,
-extending the isec->lock to cover when sclass and sid are read from
-the isec struct in these three locations might be a suitable fix.
-
-Best,
-Gabe
+isec->sclass should only really need to be set once when isec is first
+initialized after mode format bits have been set.
+Not sure why it is getting assigned again in post_setxattr.
+In general, handling of isec->sid needs an overall cleanup but putting
+that within isec->lock would be a big hammer.
+Proper use of READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release
+may suffice.
