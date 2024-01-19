@@ -1,111 +1,172 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C0B63C0A
-	for <selinux@vger.kernel.org>; Fri, 19 Jan 2024 01:44:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CAFD54780
+	for <selinux@vger.kernel.org>; Fri, 19 Jan 2024 15:43:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705628672; cv=none; b=bGEaOq4A0sjHokQgjDGg+w73njcgWS6CVLvK3Fu7Gfz/gUbA5Cgpu+4XYiJppTEdkEPM/OUMwNG88DDlGZN4G+2xD6i2/xKt93rx1CYuCwU6koaGZAskCVFqIR5hWi2mOJkRBs24sPhwSO5DEeq1rAYVwiIQ3Dm6vPIPce7CZsU=
+	t=1705679031; cv=none; b=bF1indYSGoyKUbpUWySnyK6ODRBBZrkVK7XUGrOMS73XNfu3FSV9GuUHgLRoF1/Dxc6dvf0rght22KSKBO1swjDjlHypB81E5YdUmUDBHU+bgyRAmvjKZAf3dnajjArSyn1eqrWuiEIJurCnjF7W435373rb5t8Jv8DmZiAZJ6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705628672; c=relaxed/simple;
-	bh=dafkt+s6AyqOSGKObwrHu4csGb78zSxZ6FgYDMk7K3s=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=uE+haFB6LdjXHybrn6hNP73cYinQIzkXdi86VJ1+628ao/zvYCPjty+nRdWD/zd4EOr54ymZ290obtP22bVNiDMOAbqXW91cXihqqIsoBhjgzDMoKKQCIY1wRI37uhtv3Sjz99lV0iuqn0VEm7FouFRk0/4TJ0idS6ubIRe5agI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=cLuHSD1x; arc=none smtp.client-ip=209.85.222.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1705679031; c=relaxed/simple;
+	bh=PU8nXLhozoYam/WFYylHsc3J2wJDVzjyCAuJyErvDuY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tlk2Jk8AV78fca6am17gyfQT5IvRs0HbnbjQGUYshCZUYn1ORrjdt49MeYpfs9D6iO4zQF54uo5ymCWGVTalrLvBy1YCH/yd8kNM6bF0hTrWZOHPzimFj8ICpf8cZBx7WQjBpCZapgJX4uVCt64HBW4OxcjCVZHHedWCQ7xrLls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ivyVU42k; arc=none smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="cLuHSD1x"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-78315243c11so18076285a.3
-        for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 17:44:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ivyVU42k"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-53fbf2c42bfso680349a12.3
+        for <selinux@vger.kernel.org>; Fri, 19 Jan 2024 07:43:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1705628668; x=1706233468; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=J9xOnEKsKi/rbVPtxuwDnhYC79t5v2NLFauaiizHUlE=;
-        b=cLuHSD1xgii1WjbMyxxuowQJz6JcRzKbqpis9jnv5AQjISEz1gSmbDkXowQIxmzcOn
-         11C/h/9Gmxzlg9g/7d4C8SpTrKrI52oak9TXgCVNzqryQ7g3Y0GWBFFvN1yLJqsmGFjC
-         KJJJqv8UdqQYsF3XO01N4fiTkrwM5mpKkqKKiqBg1zfam6tAUd2HjYRQWY2gr//WEsaz
-         nXDbnvspLsCinXbEqP35x8u9I3E3j8luO9Smw+Bp3O+/Gjn6jLEMljIrIEXSxAOKZrk9
-         YzLvV9nN1M/DFp9WoQzBoT9QhdL2iyLwO86Hc+Os7+uhsFLS/vAil4yxh2UUkcSsogra
-         ljtw==
+        d=gmail.com; s=20230601; t=1705679029; x=1706283829; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xFzC0ekDKChVVtSTYn3lUoL099Z6MyLmhimbwezUNTg=;
+        b=ivyVU42kbuxRtjYfwiTOeMqJpeSmJ5LxNd6tOsFbDUi23ZdaWzXeRVgyvjnvv5eAuk
+         jyHMww2ZzMFnx6w5/VkbmDRlZj1D0LeLVuwr9JwgHFkBeG4AEsAjtfC6q7Dw21m9+K1z
+         0SqBg1gmQ5J299viyHqAwABTEyT1/cc+ON0K1Qj+ixYMjPdLbIwc7Sa1aPg3WVYuhOZg
+         Vv1LKJnd/hHS8+j0eMCDBZKlI4ggrIRyd63KdO4LFCDU1uyXr7nE0bo2DsszqZeMx/A9
+         37Fe8iLIohK9xfaij0SGbA/hTiWkTQe0tDgGqqvdLqh7D4dSAwZW0G5D8CW2gp73LowA
+         vxRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705628668; x=1706233468;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=J9xOnEKsKi/rbVPtxuwDnhYC79t5v2NLFauaiizHUlE=;
-        b=AbulMqj+O/oEhKDFnp6S1DDTxKp3OSPm1fQ+jRs4V485UdT3HlIqDPPBW/KtEB/fC+
-         kpU9nnk8OkBAUH8yceksgz5j2R20SA5ZWgLS0zUrE+FlVH3vnSs9VYn/I6R0krd+lwWB
-         ceLyGlu8PWKS54xkl+AGjUbQJTfnwYUPUYbojUggSOQrlnHIMwNgdFyrPJ631jNLC+G6
-         Tl9HqOSUSxQkbsTNFu5FQf1M+4FqjlGisDvo0GSBgjBRKnBiLR2nkkqNffoxO5dAdh+m
-         OpKNkbSGW75OMwjvcNTHQd5EO4rUBFrZfxqTYJpq3mfv51FGXnYQAx8UwYS6xt0WvCFe
-         tE2g==
-X-Gm-Message-State: AOJu0YyAAjtV0sGt0SS0w+4AY7TYQGTrLCvv8y42sbi/aiwKBc06F7QO
-	6oYAVBzO7PGEtvMTSI6hinpV5vT/QJPrpmbQ3ip6mskTGiAmsqfGCq7ojOSeBCWKN/6Bwa9loIU
-	=
-X-Google-Smtp-Source: AGHT+IER/63lMsBF5M9oNZp+D0y3iJrzlddrY3yftayB04+XnrcG4nLqfSYGEVF95YV9IoRxSsA+Vw==
-X-Received: by 2002:a05:6214:5013:b0:680:b44c:1a01 with SMTP id jo19-20020a056214501300b00680b44c1a01mr1705111qvb.116.1705628667841;
-        Thu, 18 Jan 2024 17:44:27 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id qq3-20020a0562142c0300b0068199548937sm590681qvb.28.2024.01.18.17.44.27
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jan 2024 17:44:27 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] selinux: reduce the object class calculations at inode init time
-Date: Thu, 18 Jan 2024 20:44:21 -0500
-Message-ID: <20240119014420.493814-2-paul@paul-moore.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1705679029; x=1706283829;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xFzC0ekDKChVVtSTYn3lUoL099Z6MyLmhimbwezUNTg=;
+        b=PZp44be+hWSVXMpdsN1Q6DT1xjdTXfAPPtjy4jpKyGBXXXCEoWDPWTLkhlo6DGuT3K
+         gGnTEXqsJS/82/yVC5DzwrIpchQzUmu7b75nlO/tWGEgRbFUMAyzkz+g3Nv59s7hH//R
+         f5XXwf2MCJEUrLfk1bVp94HYe5I/L8hn1fuZlzCZiOZGQ5wmJIKhGc5x6Nn4fCsUxq58
+         frlDwE/it2XL397H7v/aAXA5N9eUkdZSy0nFGb/u65jDVpn7j6lvmzz1MyKazawVnqrf
+         MXpvCxBwFCIuCKLoczc9HH/E/Tq6E71Zr5Eq3Q6JDEP60119syaOmHU4WZLfLRA+06bv
+         IDCw==
+X-Gm-Message-State: AOJu0Yx3fhRsKm3X03Xuh4Gpqc6SMa7MuBsTM2QjICFhjDiWAsUl7l+o
+	SYIGS2XqmWzTp/O7YMri37BFkQ8N8u+zR24Rb7WLiadaZ41qnAIREPirKQwSph00H5ZltshfGtG
+	AA0Py7QON10FchhWl5LPWdHKI/jY=
+X-Google-Smtp-Source: AGHT+IEPx8uRsig0Q52LYifhYMz3CLkBi6VAxmTPmmf8RgbHnGxMQAzVkgnWsOoQbrzWgyWyqBh04QzwQUTl+bLenqc=
+X-Received: by 2002:a17:90a:db50:b0:28f:fd7b:42b8 with SMTP id
+ u16-20020a17090adb5000b0028ffd7b42b8mr2116666pjx.76.1705679029389; Fri, 19
+ Jan 2024 07:43:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1409; i=paul@paul-moore.com; h=from:subject; bh=dafkt+s6AyqOSGKObwrHu4csGb78zSxZ6FgYDMk7K3s=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlqdP0gkaMbLMTM6zCBi1m7Ojl5uyLlzPlyRpBE 3wpu3RL+BaJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZanT9AAKCRDqIPLalzeJ c+QuD/41eqCFKyDCm5MswjrxrHBxdLTuduFmtRxkBbOIAfD3xC317nN4E28hExvHZb3z92D6pDo XQBR7E9dm2SbJnrANHuJ438DeebpUQnUncYCVLY7eizsbievks6NDCW+jn7sh9Np9oApnCfZLPp a2tpDetwailOh8fioS7KojLrlSUTm0Yo+vHLVkFuEBwAUaZI29/hiFW7xHG0dTcu80w5zR//+7r Iksq7NQ3eaLxyOCsDCrarEiix6IpWXhvqZ8wCFTSwJn54X+3jzS/A7NsU9g7eIRMKiWoQuVeHZN iiZ/Qhhioz1XS4D0Tq1W5KAwAuAYDitRGncDvFLTFKaYhzmeS6cuMJBF04teivw/k9GZZX1KZ1f xZDHnrPG+tc2LMhfMmQ2bXJV3vZ1Glp0rQIcmpCDwHKte3t0LfdDKFrKb3H79zdySjHv9MTNVBp Enj+kvszIBJl3BZKUb9FbtJtX9/OZSiOy1kKrGFM4poyGU9eR2roQdyruGXC9tIbqhJ798aD87P 7SF2JNzcYVHCdY2CcEAioTf36kqw8ZCmuqmtcPOe0nvp+lr0IJ2D+DWoiyduZSWlnItE78ZhrFj VfkFRuRaynHwqpJP4K4VYrXgIXPq0org+aqDl2Vcdt1Zwuek9KpjE0klDjb4lOxzS0HiIKICYjj TmUeI+/QRAGdD3A==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <CALbthtcf4m5vPK7xLZhzk8W_7ETkNPeR3bnaM06BtzuQy8w-jQ@mail.gmail.com>
+ <CAEjxPJ7ZB3PtVjvJf9u-C7JGNpGv53O9TGu7o5EadMHy2hHE5w@mail.gmail.com>
+ <CAHC9VhTpG=x-9Mm5b6xKtYoAswhtWA43FJqrwRHYbr3XwSPYeg@mail.gmail.com>
+ <CAEjxPJ4LOY5C3sd-oM8L_8fKC5QhrreBN7=GXR1uyYv_hphNVQ@mail.gmail.com> <CAHC9VhSnbU_0WEFVrgm2rakNg3aeCs2OE1of0BavgOTmJWwnAQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhSnbU_0WEFVrgm2rakNg3aeCs2OE1of0BavgOTmJWwnAQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 19 Jan 2024 10:43:38 -0500
+Message-ID: <CAEjxPJ5aFRC86k9vFE-TWO=3TQZxD+scaWo9F-cgRUoAnbK2Zg@mail.gmail.com>
+Subject: Re: Race in security/selinux/hooks.c on isec->sclass and isec->sid usage
+To: Paul Moore <paul@paul-moore.com>
+Cc: Gabriel Ryan <gabe@cs.columbia.edu>, omosnace@redhat.com, selinux@vger.kernel.org, 
+	dpquiql@davequigley.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-We only need to call inode_mode_to_security_class() once in
-selinux_inode_init_security().
+On Thu, Jan 18, 2024 at 4:52=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Thu, Jan 18, 2024 at 3:47=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Thu, Jan 18, 2024 at 3:19=E2=80=AFPM Paul Moore <paul@paul-moore.com=
+> wrote:
+> > > On Thu, Jan 18, 2024 at 12:02=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > On Thu, Jan 18, 2024 at 11:26=E2=80=AFAM Gabriel Ryan <gabe@cs.colu=
+mbia.edu> wrote:
+> > > > >
+> > > > > We found a race in selinux for kernel v6.6 using a prototype race
+> > > > > testing tool based on modified KCSAN we are developing. We are
+> > > > > reporting the race because it appears to be a potential bug. The =
+race
+> > > > > occurs on isec->sclass and isec->sid, which are set in
+> > > > >
+> > > > > security/selinux/hooks.c:3329-3330 selinux_inode_post_setxattr
+> > > > >
+> > > > >         isec->sclass =3D inode_mode_to_security_class(inode->i_mo=
+de);
+> > > > >         isec->sid =3D newsid;
+> > > > >
+> > > > > Where isec->lock is held when isec->sclass and isec->sid are set =
+above
+> > > > > but not held when they are read in the following 3 locations:
+> > > > >
+> > > > > security/selinux/hooks.c:1671 inode_has_perm
+> > > > > security/selinux/hooks.c:3125 selinux_inode_permission
+> > > > > security/selinux/hooks.c:3690 ioctl_has_perm
+> > > > >
+> > > > >
+> > > > > This seems like it could lead to undefined behavior if multiple
+> > > > > threads are reading the isec struct and updating it concurrently,
+> > > > > (e.g., reading an old isec->sid value but new isec->sclass value)=
+.
+> > > > >
+> > > > > In some other cases in security/selinux/hooks.c, isec->lock is he=
+ld
+> > > > > when isec->sclass and isec->sid are accessed, such as in
+> > > > > security/selinux/hooks.c:4942-4945 selinux_socket_accept. Therefo=
+re,
+> > > > > extending the isec->lock to cover when sclass and sid are read fr=
+om
+> > > > > the isec struct in these three locations might be a suitable fix.
+> > > >
+> > > > isec->sclass should only really need to be set once when isec is fi=
+rst
+> > > > initialized after mode format bits have been set.
+> > > > Not sure why it is getting assigned again in post_setxattr.
+> > >
+> > > There is similar odd behavior in selinux_inode_setsecurity().  Lookin=
+g
+> > > at the other places in hooks.c where we are setting isec->sclass, I'm
+> > > wondering if this is a copy-n-paste from one of the other places that
+> > > does have a need for it.  The pattern of "lock, set the sclass and
+> > > SID, mark the inode as initialized, unlock"  occurs in at least three
+> > > places that I can see in a quick search.
+> >
+> > git blame indicates that the setting of isec->sclass was added to
+> > inode_post_setxattr() and inode_setsecurity() by commit
+> > aa9c2669626ca7e5e5ba ("NFS: Client implementation of Labeled-NFS").
+> > Not sure why - do NFS inodes get initialized in some manner that skips
+> > the usual setting?
+>
+> I don't know, but I wouldn't be surprised, we've definitely had to do
+> some NFS-specific things over the years.
+>
+> > It's fine to set it in inode_doinit_with_dentry() when initializing
+> > the inode security blob for existing inodes and in
+> > selinux_inode_init_security() for newly created ones - no other thread
+> > can be reading it at that point.
+>
+> Yes, when I said "odd behavior" I was trying to get at the original
+> discussion that it doesn't make much sense there, regardless of the
+> safety.  I can potentially see a need for it as-is in
+> inode_doinit_with_dentry() but I haven't chased down all the call
+> chains as that would take a while, and like you say, it should be
+> safe.
+>
+> > selinux_task_to_inode() is a special case for /proc inodes.
+>
+> Yes, I believe that needs to stay.
+>
+> > selinux_socket_post_create() and
+> > selinux_socket_accept() should set it before the socket can be
+> > accessed by userspace or via an incoming packet.
+>
+> Agreed. (it looks okay there as-is)
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+Arguably setting it in post_setxattr and _setsecurity is a bug because
+it would replace a socket security class with a file security class on
+a socket inode if one performed a fsetxattr() on a socket. We don't
+really support that anyway since there is no way to propagate it down
+to the sock.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7c69ce62c106..9e59f9c80ca8 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2920,23 +2920,22 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	struct superblock_security_struct *sbsec;
- 	struct xattr *xattr = lsm_get_xattr_slot(xattrs, xattr_count);
- 	u32 newsid, clen;
-+	u16 newsclass;
- 	int rc;
- 	char *context;
- 
- 	sbsec = selinux_superblock(dir->i_sb);
- 
- 	newsid = tsec->create_sid;
--
--	rc = selinux_determine_inode_label(tsec, dir, qstr,
--		inode_mode_to_security_class(inode->i_mode),
--		&newsid);
-+	newsclass = inode_mode_to_security_class(inode->i_mode);
-+	rc = selinux_determine_inode_label(tsec, dir, qstr, newsclass, &newsid);
- 	if (rc)
- 		return rc;
- 
- 	/* Possibly defer initialization to selinux_complete_init. */
- 	if (sbsec->flags & SE_SBINITIALIZED) {
- 		struct inode_security_struct *isec = selinux_inode(inode);
--		isec->sclass = inode_mode_to_security_class(inode->i_mode);
-+		isec->sclass = newsclass;
- 		isec->sid = newsid;
- 		isec->initialized = LABEL_INITIALIZED;
- 	}
--- 
-2.43.0
-
+Tempting to remove from both and run the NFS tests (tools/nfs.sh) to
+check for regressions.
