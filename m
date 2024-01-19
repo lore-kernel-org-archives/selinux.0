@@ -1,114 +1,111 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D47061DDF6
-	for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 23:30:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C0B63C0A
+	for <selinux@vger.kernel.org>; Fri, 19 Jan 2024 01:44:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705620622; cv=none; b=oeKUPGFLw6qDnvSmCoOl52JP1jzzIa0q8dnoDyWaFjYlpLA4xBJ3USBOc1XRNMDy5tDgFxlSRKO1oNyzrGWf1ZZquD+DpQaP4wSoaeFEQYTBZVypRqMnn/RSyGqdfNn8Pnclc0Gpoh4hsPWJ0BKqLf2FDwMey5wnq9ryE1EwuEo=
+	t=1705628672; cv=none; b=bGEaOq4A0sjHokQgjDGg+w73njcgWS6CVLvK3Fu7Gfz/gUbA5Cgpu+4XYiJppTEdkEPM/OUMwNG88DDlGZN4G+2xD6i2/xKt93rx1CYuCwU6koaGZAskCVFqIR5hWi2mOJkRBs24sPhwSO5DEeq1rAYVwiIQ3Dm6vPIPce7CZsU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705620622; c=relaxed/simple;
-	bh=z5fPf7zN0RtXmSKi8h8UwIiB1VTg5/bPLOeaIMJh1hA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IOFVI21NdqP3+lUhWpIMG/nOMCkcW+Y5VBDlCOEGwTAId2SofsPqGDoy7D044uUQ6KMQVROtoKcaicCrptV7faKNZHXJYU9/J+a/9QTPWqMYHMkFI+WLc5mUocrF0E/I11n/PXXrGvs2SCQN5C+nTtWNmvimAtM0PU8eGrcA3CA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=b2USuHK8; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1705628672; c=relaxed/simple;
+	bh=dafkt+s6AyqOSGKObwrHu4csGb78zSxZ6FgYDMk7K3s=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=uE+haFB6LdjXHybrn6hNP73cYinQIzkXdi86VJ1+628ao/zvYCPjty+nRdWD/zd4EOr54ymZ290obtP22bVNiDMOAbqXW91cXihqqIsoBhjgzDMoKKQCIY1wRI37uhtv3Sjz99lV0iuqn0VEm7FouFRk0/4TJ0idS6ubIRe5agI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=cLuHSD1x; arc=none smtp.client-ip=209.85.222.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="b2USuHK8"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-3368abe1093so126220f8f.2
-        for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 15:30:20 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="cLuHSD1x"
+Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-78315243c11so18076285a.3
+        for <selinux@vger.kernel.org>; Thu, 18 Jan 2024 17:44:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1705620619; x=1706225419; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=z5fPf7zN0RtXmSKi8h8UwIiB1VTg5/bPLOeaIMJh1hA=;
-        b=b2USuHK8iK7DMZDGYMC+kPDshk32tuLAUEMRcaqF5D54H+Vbc4vaGk7eV+AgqfB3Av
-         58ZJqHTb+GHSopV6zWwRPyc64mrwwMNGw7HiUWN1+l0VP45wF9TQ0pLcs6g9U8jmrVfn
-         8IIEeQVSI69/tmAbqSg74cE9zNfODO443jdwV1lgJ3n1LdG5LktdhzUFfTEA6YTeDzLz
-         QqjJSYxh0Fc1PVWVJR45CCuLfOmx/FccDSrGhPueYbVYgyP8mIhUO0/z2Zi7EX3DSC78
-         9NCgFvkx4RVZpS+xCXc/xPS2/6nFE4GC6H6rlpu2hIMcBwpA57AtKoSYxc3x5p7PaJhT
-         9JWg==
+        d=paul-moore.com; s=google; t=1705628668; x=1706233468; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=J9xOnEKsKi/rbVPtxuwDnhYC79t5v2NLFauaiizHUlE=;
+        b=cLuHSD1xgii1WjbMyxxuowQJz6JcRzKbqpis9jnv5AQjISEz1gSmbDkXowQIxmzcOn
+         11C/h/9Gmxzlg9g/7d4C8SpTrKrI52oak9TXgCVNzqryQ7g3Y0GWBFFvN1yLJqsmGFjC
+         KJJJqv8UdqQYsF3XO01N4fiTkrwM5mpKkqKKiqBg1zfam6tAUd2HjYRQWY2gr//WEsaz
+         nXDbnvspLsCinXbEqP35x8u9I3E3j8luO9Smw+Bp3O+/Gjn6jLEMljIrIEXSxAOKZrk9
+         YzLvV9nN1M/DFp9WoQzBoT9QhdL2iyLwO86Hc+Os7+uhsFLS/vAil4yxh2UUkcSsogra
+         ljtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705620619; x=1706225419;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=z5fPf7zN0RtXmSKi8h8UwIiB1VTg5/bPLOeaIMJh1hA=;
-        b=GYUBGPxmFClnYBnXof7+RejU4/7UHb8Oqd4u6oEkR2y9eOhySsDIecApr7tjfAk/hp
-         BtxdnY9/d3ui56GlmH1tnpdSxQruCrAUZYSHT/Poic8Wg7yMYOftVZAuAhhDs8UhDAmb
-         uvQ3+VW1Y3jnt0cQUH95+ZlOmkmxk+1OayD0xbp/1U1yWPcMgXqZAppyKm+XF7aWQJdX
-         6oBFQ2a6yWjn0mWIdsfvZ3v+oi0moF3XYc6Z7NdyP5/2ROgcH3R+csPv1cxeAyDUAB/P
-         76lXBJJhYnoktOdXgjXQKx7zD6vRaEB4DCN8UtZ9M2OaXp5yhKsdbRMqDH6+Yf+2MUGj
-         z1YA==
-X-Gm-Message-State: AOJu0YwjjCB6ZuPr3hhlLUt0hrPCiE1qXCxLvacozfiVvRIdR2Os5+SI
-	gzRvx8UZgCXmdPd92wucJBPoeVYQ4V3yb3+DRIEkeLV8BqgJU92telSmYS25+5Dyi7IPE7MYPUc
-	DSM+bf8lg6yi4qldwiyM1HkqPz5IFg7V2uyk2
-X-Google-Smtp-Source: AGHT+IERBKIRZXhUEwT/FvY141cn7UHvj0sDW/KQK0D2C8nJKn7gUoNFHy2qzmo8U2RTdv+h1bRnz1oyiSScKyNcOhE=
-X-Received: by 2002:a5d:5092:0:b0:337:c117:10c with SMTP id
- a18-20020a5d5092000000b00337c117010cmr1049929wrt.113.1705620618937; Thu, 18
- Jan 2024 15:30:18 -0800 (PST)
+        d=1e100.net; s=20230601; t=1705628668; x=1706233468;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=J9xOnEKsKi/rbVPtxuwDnhYC79t5v2NLFauaiizHUlE=;
+        b=AbulMqj+O/oEhKDFnp6S1DDTxKp3OSPm1fQ+jRs4V485UdT3HlIqDPPBW/KtEB/fC+
+         kpU9nnk8OkBAUH8yceksgz5j2R20SA5ZWgLS0zUrE+FlVH3vnSs9VYn/I6R0krd+lwWB
+         ceLyGlu8PWKS54xkl+AGjUbQJTfnwYUPUYbojUggSOQrlnHIMwNgdFyrPJ631jNLC+G6
+         Tl9HqOSUSxQkbsTNFu5FQf1M+4FqjlGisDvo0GSBgjBRKnBiLR2nkkqNffoxO5dAdh+m
+         OpKNkbSGW75OMwjvcNTHQd5EO4rUBFrZfxqTYJpq3mfv51FGXnYQAx8UwYS6xt0WvCFe
+         tE2g==
+X-Gm-Message-State: AOJu0YyAAjtV0sGt0SS0w+4AY7TYQGTrLCvv8y42sbi/aiwKBc06F7QO
+	6oYAVBzO7PGEtvMTSI6hinpV5vT/QJPrpmbQ3ip6mskTGiAmsqfGCq7ojOSeBCWKN/6Bwa9loIU
+	=
+X-Google-Smtp-Source: AGHT+IER/63lMsBF5M9oNZp+D0y3iJrzlddrY3yftayB04+XnrcG4nLqfSYGEVF95YV9IoRxSsA+Vw==
+X-Received: by 2002:a05:6214:5013:b0:680:b44c:1a01 with SMTP id jo19-20020a056214501300b00680b44c1a01mr1705111qvb.116.1705628667841;
+        Thu, 18 Jan 2024 17:44:27 -0800 (PST)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id qq3-20020a0562142c0300b0068199548937sm590681qvb.28.2024.01.18.17.44.27
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jan 2024 17:44:27 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] selinux: reduce the object class calculations at inode init time
+Date: Thu, 18 Jan 2024 20:44:21 -0500
+Message-ID: <20240119014420.493814-2-paul@paul-moore.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240117223729.1444522-1-lokeshgidra@google.com> <20240118135941.c7795d52881f486aa21aeea8@linux-foundation.org>
-In-Reply-To: <20240118135941.c7795d52881f486aa21aeea8@linux-foundation.org>
-From: Axel Rasmussen <axelrasmussen@google.com>
-Date: Thu, 18 Jan 2024 15:29:42 -0800
-Message-ID: <CAJHvVcgcRVB75oevri-KH3=cayez7Wjn=G3nXkuO36r11Y98zQ@mail.gmail.com>
-Subject: Re: [PATCH] userfaultfd: fix mmap_changing checking in mfill_atomic_hugetlb
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Lokesh Gidra <lokeshgidra@google.com>, linux-fsdevel@vger.kernel.org, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, 
-	surenb@google.com, kernel-team@android.com, aarcange@redhat.com, 
-	peterx@redhat.com, david@redhat.com, bgeffon@google.com, willy@infradead.org, 
-	jannh@google.com, kaleshsingh@google.com, ngeoffray@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1409; i=paul@paul-moore.com; h=from:subject; bh=dafkt+s6AyqOSGKObwrHu4csGb78zSxZ6FgYDMk7K3s=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBlqdP0gkaMbLMTM6zCBi1m7Ojl5uyLlzPlyRpBE 3wpu3RL+BaJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZanT9AAKCRDqIPLalzeJ c+QuD/41eqCFKyDCm5MswjrxrHBxdLTuduFmtRxkBbOIAfD3xC317nN4E28hExvHZb3z92D6pDo XQBR7E9dm2SbJnrANHuJ438DeebpUQnUncYCVLY7eizsbievks6NDCW+jn7sh9Np9oApnCfZLPp a2tpDetwailOh8fioS7KojLrlSUTm0Yo+vHLVkFuEBwAUaZI29/hiFW7xHG0dTcu80w5zR//+7r Iksq7NQ3eaLxyOCsDCrarEiix6IpWXhvqZ8wCFTSwJn54X+3jzS/A7NsU9g7eIRMKiWoQuVeHZN iiZ/Qhhioz1XS4D0Tq1W5KAwAuAYDitRGncDvFLTFKaYhzmeS6cuMJBF04teivw/k9GZZX1KZ1f xZDHnrPG+tc2LMhfMmQ2bXJV3vZ1Glp0rQIcmpCDwHKte3t0LfdDKFrKb3H79zdySjHv9MTNVBp Enj+kvszIBJl3BZKUb9FbtJtX9/OZSiOy1kKrGFM4poyGU9eR2roQdyruGXC9tIbqhJ798aD87P 7SF2JNzcYVHCdY2CcEAioTf36kqw8ZCmuqmtcPOe0nvp+lr0IJ2D+DWoiyduZSWlnItE78ZhrFj VfkFRuRaynHwqpJP4K4VYrXgIXPq0org+aqDl2Vcdt1Zwuek9KpjE0klDjb4lOxzS0HiIKICYjj TmUeI+/QRAGdD3A==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 
-Apologies, I had forgotten to re-check the "send plaintext" checkbox
-in my e-mail client, so the mailing lists rejected my previous mail. I
-am duly ashamed. Allow me to try once more. :)
+We only need to call inode_mode_to_security_class() once in
+selinux_inode_init_security().
 
-On Thu, Jan 18, 2024 at 1:59=E2=80=AFPM Andrew Morton <akpm@linux-foundatio=
-n.org> wrote:
->
-> On Wed, 17 Jan 2024 14:37:29 -0800 Lokesh Gidra <lokeshgidra@google.com> =
-wrote:
->
-> > In mfill_atomic_hugetlb(), mmap_changing isn't being checked
-> > again if we drop mmap_lock and reacquire it. When the lock is not held,
-> > mmap_changing could have been incremented. This is also inconsistent
-> > with the behavior in mfill_atomic().
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-The change looks reasonable to me. I'm not sure I can conclusively say
-there isn't some other mechanism specific to hugetlbfs which means
-this isn't needed, though.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7c69ce62c106..9e59f9c80ca8 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2920,23 +2920,22 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	struct superblock_security_struct *sbsec;
+ 	struct xattr *xattr = lsm_get_xattr_slot(xattrs, xattr_count);
+ 	u32 newsid, clen;
++	u16 newsclass;
+ 	int rc;
+ 	char *context;
+ 
+ 	sbsec = selinux_superblock(dir->i_sb);
+ 
+ 	newsid = tsec->create_sid;
+-
+-	rc = selinux_determine_inode_label(tsec, dir, qstr,
+-		inode_mode_to_security_class(inode->i_mode),
+-		&newsid);
++	newsclass = inode_mode_to_security_class(inode->i_mode);
++	rc = selinux_determine_inode_label(tsec, dir, qstr, newsclass, &newsid);
+ 	if (rc)
+ 		return rc;
+ 
+ 	/* Possibly defer initialization to selinux_complete_init. */
+ 	if (sbsec->flags & SE_SBINITIALIZED) {
+ 		struct inode_security_struct *isec = selinux_inode(inode);
+-		isec->sclass = inode_mode_to_security_class(inode->i_mode);
++		isec->sclass = newsclass;
+ 		isec->sid = newsid;
+ 		isec->initialized = LABEL_INITIALIZED;
+ 	}
+-- 
+2.43.0
 
->
-> Thanks. Could you and reviewers please consider
->
-> - what might be the userspace-visible runtime effects?
->
-> - Should the fix be backported into earlier kernels?
->
-> - A suitable Fixes: target?
-
-Hmm, 60d4d2d2b40e4 added __mcopy_atomic_hugetlb without this. But, at
-that point in history, none of the other functions had mmap_changing
-either.
-
-So, I think the right Fixes: target is df2cc96e77011 ("userfaultfd:
-prevent non-cooperative events vs mcopy_atomic races") ? It seems to
-have missed the hugetlb path. This was introduced in 4.18.
-
-Based on that commit's message, essentially what can happen if the
-race "succeeds" is, memory can be accessed without userfaultfd being
-notified of this fact. Depending on what userfaultfd is being used
-for, from userspace's perspective this can appear like memory
-corruption for example. So, based on that it seems to me reasonable to
-backport this to stable kernels (4.19+).
