@@ -1,175 +1,153 @@
-Received: from mail-io1-f52.google.com (mail-io1-f52.google.com [209.85.166.52])
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A858955E52
-	for <selinux@vger.kernel.org>; Fri, 19 Jan 2024 18:00:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E6B83D39F
+	for <selinux@vger.kernel.org>; Mon, 22 Jan 2024 13:55:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705687250; cv=none; b=oBrG6urY4Xx2Ig2puxYl3EFUmedD1iS8k57m0NCo4dRP5bZVMUZh2ubqPXERVfPdocvFMFf66teKkQYdqPb9XLIxlJDjPAzGMkSZpYMjM0ia7Rk0aSnuB7gfkvIpugbUI3az6wbIZaDj5bTeedsmZKzEJbtKOuixt4S7SdCygGs=
+	t=1705931718; cv=none; b=Y2LnX2+vp0HksHzLBa1wo9gn8aLoh+G9LQJNXgN8Gm6FkW37lR0EuqRAjS3q8bQqaRdA9ji8xHtqc/sxVAcy5lO9rHUohwlCiMS7+Bgeg1r2gMFab0fWItnhBPvF43Q4Hsx+wqnjSv0ZOhR8e/qnz4oe+n5UO3AVrslIFmYXi2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705687250; c=relaxed/simple;
-	bh=m2hGWUK85EqTZx4B2cZSP9GdkXwmX1B8KkCFPDXfym0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HSEDkRjVXaHluXx95D30XdGwQBBp/9XY6kiuC7kCQlxWsexfjyZeeiBLwRBa0DMxkAwKD/crQtyUYnM28FMfc4xBv+dzF0ePZG6/L3zTiZoxz8iV710UrKVRM7KDzsysHssd/hO+MUxZ90cUqSgsTlSNdZFcll0QF+y9W04+GfY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=12OgKZ5h; arc=none smtp.client-ip=209.85.166.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1705931718; c=relaxed/simple;
+	bh=g5bS5O8nDZgC+4B69Jz59gWx4w5CFhsyQ17xC9pMZz8=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mH322IoGTiJGDIVojX3KyRkLQdaWkJppphlwK9749T8BsHRVJUyGOl8kFt2XeG6Oq27S+H/CiCs9vAaKfUGO42L6guYyAXyS96O7tFsKB7lCMTNW4yyKCAEPAP+uesqXlzOLgu/Nzi8SErcwOwBpz5mvV8uSJF9Ng0Q/kAe67tI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=RDajilaC; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="12OgKZ5h"
-Received: by mail-io1-f52.google.com with SMTP id ca18e2360f4ac-7beeeb1ba87so15243839f.0
-        for <selinux@vger.kernel.org>; Fri, 19 Jan 2024 10:00:48 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="RDajilaC"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a26f73732c5so341984466b.3
+        for <selinux@vger.kernel.org>; Mon, 22 Jan 2024 05:55:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1705687248; x=1706292048; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Gja6vm8AI1lwtvHUS5OLNBI4vAMtOEijM3nQ95ddsvw=;
-        b=12OgKZ5h5pdEiI+W97lDearDHRmczducDooHxBOjZXLpzopG7oUC+kTXFh6dHpsSbv
-         +OG7dialuxdcnUWgGyBg8NH2da1MVOSTlIaYM3zZqErB103XxsooRi8DiYth6F3AlvwV
-         P6gH3AkeYLcjAl4K+UE8YAjvuW0QI9LwYeuSHS+ksAE0YlNgQf05HdSaQaxxzHJjeZSR
-         Kj/SXTrrWUdP7ErP25fqU09wHZH/GS5HNXJU1So4yRYfFrT1QKGhRZ1Zf5ZwSNY2UtFe
-         SIkdlYZf4i1ldzRXFodjHQk16TybSN+CPWlhxtDZqY4HGPuwcUOnWiSDpFTTZznspP2Z
-         KLMg==
+        d=googlemail.com; s=20230601; t=1705931715; x=1706536515; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3BfD7AQWW5uqfrbDaVXA81e1O7GSVDmO7L0mBYslLEA=;
+        b=RDajilaCPqEenrAn39cPcRbOq6IUDOUmpKfLKl3GaT18uFrJC+/JcVBf00S2l8RjQI
+         XjtpwVXC7qY1LF1qfRkQTye3VNQLmXV4/COTlJ9KY7p2KAo1gsXsJOPtf3RATI+Qdct2
+         TyqeE5N9OKn0s0SG03hkbZeFG0h1jnYzdHWopNhtHMIYL+W0rjVGKv8i+RxyREG4BAAq
+         5YEmBiAGoaXYJBPaZVZrZD1A7bZjQ/IPp5+jPrcnq1Ut9eKItryGRPc/weadjQdXuj/m
+         8CTEPv2H3lvwYHgKx7KOzzR0LuBp6QzZGQliOiAtfftlYv8VeuHiQ0YV00ey5JGJhpvO
+         3YuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705687248; x=1706292048;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Gja6vm8AI1lwtvHUS5OLNBI4vAMtOEijM3nQ95ddsvw=;
-        b=xO3MvMMDFGaRSJobScmOl1L4nGhg1KvDAoGTDU/vyY3lftCFsrwicxyStByoIkMXj8
-         GQ3I0G3XcC+BXZI4e9TrOggo3i1RpeFJwL3jORh2BXjdYpM/udunXFUfSgyv3BEGXL6X
-         WFW2ZdfZf3jViNUhuUpLBr/yqfvjs5cNfsuFDnni3jaJFStGW+wSpVCF6R6CAcjM/GKg
-         Ma2XgFl+ch7iTB63z5zdEK699zGao30QbNejZ2BTQwQLMHSrHwcvQeEb878n+94AIdsF
-         Fm++ds+giZgNBGwKNIIXjJrfET+MzJeUkMir7SmhMQ5dyYQGvbgbY6QKeOI4lCS8u23k
-         lvQg==
-X-Gm-Message-State: AOJu0YzExHuAaOErKKZDKf+dZ2An7CGSC4Z45CdAx2Xo/y7nqicwuJF5
-	40KURvBRBMAk+7hrSdQHZnaZF7rUsCGeE+/e1J9pvMZ5HPKkstZWF7G8wlMMdzc=
-X-Google-Smtp-Source: AGHT+IHobiRenokZkDLDbBdoaWKvKBP1nUEcNp8Xs74UrNwujg29ABGmLrOl5LpWjL6jCycxL6uN+g==
-X-Received: by 2002:a5d:8e0b:0:b0:7bf:4758:2a12 with SMTP id e11-20020a5d8e0b000000b007bf47582a12mr186301iod.0.1705687247676;
-        Fri, 19 Jan 2024 10:00:47 -0800 (PST)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id h6-20020a056602130600b007bf84450287sm190440iov.21.2024.01.19.10.00.46
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Jan 2024 10:00:47 -0800 (PST)
-Message-ID: <71740ac0-5c4a-4d09-9ce1-9ef6182db1b1@kernel.dk>
-Date: Fri, 19 Jan 2024 11:00:46 -0700
+        d=1e100.net; s=20230601; t=1705931715; x=1706536515;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3BfD7AQWW5uqfrbDaVXA81e1O7GSVDmO7L0mBYslLEA=;
+        b=WPi+xZKK42x4KRydoF7CL+YxgRHfD4+kb46AH3lYtZML/TAYy0z/IqtZIE+1uhs8k2
+         NWb6S5EmAckAj+V4Xo00VrO0f9kfj7n4eGVPCzKBNUQroJ6SdoWhPIo6tOjlmgH0r5v/
+         0QR7fTn6VJM6E7qUnpYavM5Q12jOXO8oSi3sxM1U72UMampq1LNV64qdyeWT1B5vM9B8
+         qPB2NnBjDYVadl8M9UzVfGiw1XPrau78ldqGSoo5WphOOhcIYhIYvpSTOYBC3R+rkMlD
+         0uQi7cx1qqN9WtavU96/mliovidtOeg4HcA+AYzoK3nzjgLNyjYXPLprkLfradSte7gS
+         XzYQ==
+X-Gm-Message-State: AOJu0YwdpULGmGrZxodZFC+egpc2mbjtbq1XqtnCIMGrWDA6bhRNYgY/
+	ZxqjiLWL5ewbBrAUonR3KFjQmK+rAycCdtqREwqhzWqgrFMdvMwtFdMJ+j7R
+X-Google-Smtp-Source: AGHT+IErv1PMOP2h5PRpfgb/nlWLO151ktn7FbCPwyNnES/iKjnjQLMSB+LpSxQnQverCAwCK8vXkA==
+X-Received: by 2002:a17:907:1dcd:b0:a2f:1565:75d8 with SMTP id og13-20020a1709071dcd00b00a2f156575d8mr1871057ejc.114.1705931714584;
+        Mon, 22 Jan 2024 05:55:14 -0800 (PST)
+Received: from ddev.DebianHome (dynamic-077-003-088-202.77.3.pool.telefonica.de. [77.3.88.202])
+        by smtp.gmail.com with ESMTPSA id i16-20020a1709061cd000b00a28825e0a2bsm13340284ejh.22.2024.01.22.05.55.14
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jan 2024 05:55:14 -0800 (PST)
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH 02/15] checkpolicy: cleanup resources on parse error
+Date: Mon, 22 Jan 2024 14:54:54 +0100
+Message-ID: <20240122135507.63506-2-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240122135507.63506-1-cgzones@googlemail.com>
+References: <20240122135507.63506-1-cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: IORING_OP_FIXED_FD_INSTALL and audit/LSM interactions
-Content-Language: en-US
-To: Paul Moore <paul@paul-moore.com>
-Cc: Christian Brauner <brauner@kernel.org>, io-uring@vger.kernel.org,
- linux-security-module@vger.kernel.org, audit@vger.kernel.org,
- selinux@vger.kernel.org
-References: <CAHC9VhRBkW4bH0K_-PeQ5HA=5yMHSimFboiQgG9iDcwYVZcSFQ@mail.gmail.com>
- <80b76dac-6406-48c5-aa31-87a2595a023f@kernel.dk>
- <CAHC9VhQuM1+oYm-Y9ehfb6d7Yz2++pughEkUFNfFpsvinTGTpg@mail.gmail.com>
- <610f91a7-9b5a-4a07-9912-e336896fff0c@kernel.dk>
- <CAHC9VhSJn6Kd=M8N-pLgJMvo9bhtdB6bX_xK=8aPYj5qQ8aTvQ@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <CAHC9VhSJn6Kd=M8N-pLgJMvo9bhtdB6bX_xK=8aPYj5qQ8aTvQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 1/19/24 10:54 AM, Paul Moore wrote:
-> On Fri, Jan 19, 2024 at 12:41?PM Jens Axboe <axboe@kernel.dk> wrote:
->> On 1/19/24 10:20 AM, Paul Moore wrote:
->>> On Fri, Jan 19, 2024 at 12:02?PM Jens Axboe <axboe@kernel.dk> wrote:
->>>> On 1/19/24 9:33 AM, Paul Moore wrote:
->>>>> Hello all,
->>>>>
->>>>> I just noticed the recent addition of IORING_OP_FIXED_FD_INSTALL and I
->>>>> see that it is currently written to skip the io_uring auditing.
->>>>> Assuming I'm understanding the patch correctly, and I'll admit that
->>>>> I've only looked at it for a short time today, my gut feeling is that
->>>>> we want to audit the FIXED_FD_INSTALL opcode as it could make a
->>>>> previously io_uring-only fd generally accessible to userspace.
->>>>
->>>> We can certainly remove the audit skip, it was mostly done as we're
->>>> calling into the security parts anyway later on. But it's not like doing
->>>> the extra audit here would cause any concerns on the io_uring front.
->>>
->>> Great.  Do you want to put a patch together for that, or should I?
->>
->> Either way - I'd say if you have time to do it, please do!
-> 
-> Okay, will do.  Just a heads up that due to personal commitments this
-> weekend a proper, tested fix may not come until early next week.  With
-> this only appearing in Linus' tree during this merge window we've got
-> plenty of time to fix this before v6.8 is tagged.
+Close the input file and free all memory by the queue and lexer on a
+syntax or parse error.
 
-No worries on that, there's no rush as we are early in the cycle.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ checkpolicy/parse_util.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
->> FWIW, I'd add that in
->> io_uring/openclose.c:io_install_fixed_fd_prep() - just check for
->> REQ_F_CREDS in there and return -EPERM (I think that would be
->> appropriate?) and that should disallow any IORING_OP_FIXED_FD_INSTALL if
->> creds have been reassigned.
-> 
-> Yeah, easy enough.  I was originally thinking of masking out
-> REQ_F_CREDS there, but if you are okay with simply rejecting the
-> operation in this case it makes everything much easier (and more
-> predictable from a userspace perspective).
-
-It'd be too late to mask it out, as it may already have been assigned.
-And on top of that, it would introduce a weird scenario where the
-application thinks that creds have been assigned and it completes
-successfully, but in reality it didn't use the specified creds. For
-those cases we absolutely must fail the request, as it didn't do exactly
-what it was asked to.
-
->>>>> I'm also trying to determine how worried we should be about
->>>>> io_install_fixed_fd() potentially happening with the current task's
->>>>> credentials overridden by the io_uring's personality.  Given that this
->>>>> io_uring operation inserts a fd into the current process, I believe
->>>>> that we should be checking to see if the current task's credentials,
->>>>> and not the io_uring's credentials/personality, are allowed to receive
->>>>> the fd in receive_fd()/security_file_receive().  I don't see an
->>>>> obvious way to filter/block credential overrides on a per-opcode
->>>>> basis, but if we don't want to add a mask for io_kiocb::flags in
->>>>> io_issue_defs (or something similar), perhaps we can forcibly mask out
->>>>> REQ_F_CREDS in io_install_fixed_fd_prep()?  I'm very interested to
->>>>> hear what others think about this.
->>>>>
->>>>> Of course if I'm reading the commit or misunderstanding the
->>>>> IORING_OP_FIXED_FD_INSTALL operation, corrections are welcome :)
->>>>
->>>> I think if there are concerns for that, the easiest solution would be to
->>>> just fail IORING_OP_FIXED_INSTALL if REQ_F_CREDS is set. I don't really
->>>> see a good way to have the security side know about the old creds, as
->>>> the task itself is running with the assigned creds.
->>>
->>> The more I've been thinking about it, yes, I believe there are
->>> concerns around FIXED_FD_INSTALL and io_uring personalities for LSMs.
->>> Assuming an io_uring with stored credentials for task A, yet
->>> accessible via task B, task B could submit an IORING_OP_OPENAT command
->>> to open a file using task A's creds and then FIXED_FD_INSTALL that fd
->>> into its own (task B's) file descriptor table without a problem as the
->>> installer's creds (the io_uring creds, or task A) match the file's
->>> creds (also task A since the io_uring opened the file).  Following
->>> code paths in task B that end up going through
->>> security_file_permission() and similar hooks may very well end up
->>> catching the mismatch between the file's creds and task B (depending
->>> on the LSM), but arguably it is something that should have been caught
->>> at receive_fd() time.
->>
->> If there are any concerns, then I say let's just explicitly disable it
->> rather than rely on maybe something in the security checking catching
->> it. Especially because I don't think there's a valid use case for doing
->> this, other than perhaps trying to bypass checks you'd normally hit.
->> Better to err on the side of caution then.
-> 
-> Agreed.  I'll go ahead and make the change.  Thanks for the quick
-> responses and understanding of a very security-biased perspective :)
-
-It's always better to catch weirdness or ambiguities like this early, so
-much appreciated!
-
+diff --git a/checkpolicy/parse_util.c b/checkpolicy/parse_util.c
+index f2d1e04d..eda814e1 100644
+--- a/checkpolicy/parse_util.c
++++ b/checkpolicy/parse_util.c
+@@ -26,6 +26,7 @@ extern FILE *yyin;
+ extern void init_parser(int);
+ extern int yyparse(void);
+ extern void yyrestart(FILE *);
++extern int yylex_destroy(void);
+ extern queue_t id_queue;
+ extern unsigned int policydb_errors;
+ extern policydb_t *policydbp;
+@@ -34,6 +35,8 @@ extern void set_source_file(const char *name);
+ 
+ int read_source_policy(policydb_t * p, const char *file, const char *progname)
+ {
++	int rc = -1;
++
+ 	yyin = fopen(file, "r");
+ 	if (!yyin) {
+ 		fprintf(stderr, "%s:  unable to open %s:  %s\n", progname, file, strerror(errno));
+@@ -41,21 +44,26 @@ int read_source_policy(policydb_t * p, const char *file, const char *progname)
+ 	}
+ 	set_source_file(file);
+ 
+-	if ((id_queue = queue_create()) == NULL) {
++	id_queue = queue_create();
++	if (id_queue == NULL) {
+ 		fprintf(stderr, "%s: out of memory!\n", progname);
+-		return -1;
++		goto cleanup;
+ 	}
+ 
++	mlspol = p->mls;
+ 	policydbp = p;
+ 	policydbp->name = strdup(file);
+-	mlspol = p->mls;
++	if (!policydbp->name) {
++		fprintf(stderr, "%s: out of memory!\n", progname);
++		goto cleanup;
++	}
+ 
+ 	init_parser(1);
+ 	if (yyparse() || policydb_errors) {
+ 		fprintf(stderr,
+ 			"%s:  error(s) encountered while parsing configuration\n",
+ 			progname);
+-		return -1;
++		goto cleanup;
+ 	}
+ 	rewind(yyin);
+ 	init_parser(2);
+@@ -65,11 +73,15 @@ int read_source_policy(policydb_t * p, const char *file, const char *progname)
+ 		fprintf(stderr,
+ 			"%s:  error(s) encountered while parsing configuration\n",
+ 			progname);
+-		return -1;
++		goto cleanup;
+ 	}
+-	queue_destroy(id_queue);
+ 
++	rc = 0;
++
++cleanup:
++	queue_destroy(id_queue);
+ 	fclose(yyin);
++	yylex_destroy();
+ 
+-	return 0;
++	return rc;
+ }
 -- 
-Jens Axboe
+2.43.0
 
