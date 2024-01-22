@@ -1,51 +1,51 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F74A3D0D0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C52BE3D0D2
 	for <selinux@vger.kernel.org>; Mon, 22 Jan 2024 13:55:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705931721; cv=none; b=tjUCLBn/K4EvdjFd27DJMLxGUVD8csgIUwJf8cfWiTRKdOcUiZzuGykXTzvgJy4ra3m3YVhqli+7nFGeISOA2K/mUq8M08ur/iBcCC7484xrcdOENrG3FOuyRYe7ou4VggGzcppaO3rARy21Z24ipPs9FAmtDCpA+5yQk2PWIzA=
+	t=1705931722; cv=none; b=CeWumulWFDQqP3m0wGweQWl4CrRNjGMInqOA4hiA2SJmZN6WhEGCtnYzGngYY5oUL5PQrlpiAjIEo5i/YGFAIotmH4MIugM2mQanxQxFKzqqolCSOVyLjZGoMGxLS1mPfSJrTSlm381KMenFts//pZlc0OZIY7+miSS/iqKjjUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705931721; c=relaxed/simple;
-	bh=xaMPf4yjfuPUTL2FKWuE34UzsBs5M40hZxCu2eAZmns=;
+	s=arc-20240116; t=1705931722; c=relaxed/simple;
+	bh=nfczQJjs6fspy0YNjrp19+MwQac1ZEv/eYPqKQZONJQ=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=V5Cj5TCpI1D3+1utuHsBLgOUPDUbs3cXc+BAXZjXOwRU7ygxkNFk1S5ox3/YTMqnNwNnk63am5vpXBk7u4cvI45vEsKrVrndVproNh+rmIOXh0nyOFmZRsEB1UQS4kQR/yKbjxOxEolunFBfxeWzaxQ3AMFvPkYw9X6Op4OgR+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=ZK/4LjSn; arc=none smtp.client-ip=209.85.218.50
+	 MIME-Version:Content-Type; b=IG4u65jfqbB5umOXA4O0kkaJnkLHMtHE4LbFgzyxqBvy+VOStwHJ9xgn8/2hGgzt4DSaEd2d5fX1fG43Alq147hBc5TWAunjj1B4hrXikUNmVUvWqYMy+IcbWNIaG2t9YfuSL31CO9SL00se0UjPKO5LCZsxWm6ygnvgUBHAo2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=IAuB35Hv; arc=none smtp.client-ip=209.85.218.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="ZK/4LjSn"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a2cea0563cbso476181366b.3
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="IAuB35Hv"
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a3082d450adso61436466b.1
         for <selinux@vger.kernel.org>; Mon, 22 Jan 2024 05:55:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1705931718; x=1706536518; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1705931719; x=1706536519; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Gtpdxkm0LQhEWxmv59dgMhIwdQkqX63ar6GQrbQC7Xk=;
-        b=ZK/4LjSnBWzSwo3HRwnJgWkMfEczbrRO5LEUrpiTckC8KraZNX1rRlvKRyb9QPb/a5
-         IHneK9q0n3PwwELEx8wQ22C2rf9oleimuweadBoaYtEWZiqj6mFGgIjGHUnWl/wExeOa
-         YDfFu6K+k7DP7teS2FAlhN0rImZl09IQNkYrkLp6eDJv+jQoX4eM0uXoblQsvAIErxnW
-         BK10y4J+y9CfV61ptGnQCg7WbRNov6pQDA/IZPO5I4tE+Bw0oRNNU1ISV6IPw+yNKYXO
-         2ToKSmml4EqXkZd34WUnVWlWJRVwdJu4Jc1U0qy7KUB/pfYeKTsOaRNFt0fYkMqgufJv
-         a45A==
+        bh=dUGV6DRvgNfHE1+4P5R69sz1GbmB/SMciU+f+yUlYP0=;
+        b=IAuB35Hvo1K1QYpHtRwtlQZMvIpFS7QxgyJZs/zv7pqQ5ZxVKTZ+aEyyCNYE+mF3ZV
+         jeqw4W7zjQCmTIjP7+qj+spmwJ84/HVj9RwjWPwYgK/P9r/2znLUaZYowWo0tfFJL/aK
+         qzaXEIz9jzyL23Ns2O8fyn72QWmqkemCB0Uwx9Qk61VYdKgde6q1WIrhwCdTFowQs3Ev
+         IT/TOh491UMZR7ON6mX5KJZbQsMH9WcU2ep1mQm/0CuE2XgOgfHNjsideYwZ/ieoYASD
+         hlu6WHbEMVMk38Ds8SC+grIlDxRaoHAyeJfDGsvY78MEPN01a6cwH9ItQpUX+9Exv2DE
+         23Mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705931718; x=1706536518;
+        d=1e100.net; s=20230601; t=1705931719; x=1706536519;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Gtpdxkm0LQhEWxmv59dgMhIwdQkqX63ar6GQrbQC7Xk=;
-        b=sLSmfw4NP50kVvgqslUyqfhxW0e/zFfoxnt8fQjtR0RdJL4QFxUs73/1CFSo05SZ0a
-         ajF7Df2aBlnkfCIBhMaS3FK0+9Mnx1gFhP8PC4MFqD96/JNLElz8nKnxLWpdzrHTDRvZ
-         L24w8Njf9Ij+aPC12gMzrpgX9m3gES42ui59fe8nQrKwAbK9T+/kjuMjA5HbPdPzn2+A
-         tu7jGadTXKbLwtnXFFGZVWu4LGy+QjLMb2wsVHNespe978chXhXyhn2+g5EiD2C1yyPz
-         d2xIUAX7g71nljIXyfw4UiVsoxsP6PU5Tg05+/1jxAMXkYnGLGXAfItvtxn5RY0m6CUF
-         IZzQ==
-X-Gm-Message-State: AOJu0YzvoODMBTAtSghfTgSWsxdQAQO2oapHZsFZjp9XUrX0czShWvTu
-	cIYStHNA1LZ9Ptf2XcA2EorWJaHb1gTFOSbbXqYK8WfG56HktFC65sB2PePV
-X-Google-Smtp-Source: AGHT+IFBqZt+zMFzBUM1B/b5ADBTeq8wl7DHY76MNa+CcVOsHO9aXcw4/lLL85dxaBPti0XgxvS2cw==
-X-Received: by 2002:a17:907:8743:b0:a28:fb5a:4d9c with SMTP id qo3-20020a170907874300b00a28fb5a4d9cmr2199608ejc.108.1705931718427;
+        bh=dUGV6DRvgNfHE1+4P5R69sz1GbmB/SMciU+f+yUlYP0=;
+        b=wWVHfg/LhrpBf+rz9esS/UmoT6cWjV6wxlEqFpqowI/CAL8kvxfaJPPQ7zAf4Az6uQ
+         5c9x3ml3Pepb7VjqG5LCSeM7Ec1/ROPPJX0k6k5mFrKF8FIz4tRdhpeDKoVf0u74/e5n
+         ravA4l3Fkoswnn31RN44bTCfaC1IHJFBOwqkUO8gNF+AR38/S54q+U5rzfo0Frz91hhX
+         PsHp9mNEgPwoBbU8sWjJm8jAMHXhEuhLZ3zlh8i0ZSARjv5uChgU7Q2mC3gEfw3S80oT
+         qLyL74JsX0L2LlmNHyGP0MnZQfB603p0+5t0aVLKO3NbazHRLTwRpUVrGygUZ/7UqGdR
+         Es1g==
+X-Gm-Message-State: AOJu0YyRkFMMZo0NiXvRJfoR/1Sfz4TS8RojB5Jk4BdCjG3UADFv6RSM
+	kBToc8nBbMeCZPayklXB4kMhVWggoaaMZPzSEuytHRX5Hm9o/kMWYc+jHA9V
+X-Google-Smtp-Source: AGHT+IGJhd47QdG0DWHzEG3lOlB53GrCAwx60lPFP9zXUfTOTrnLkj/b2a76hrYTkijBm/NanJtm8g==
+X-Received: by 2002:a17:906:1787:b0:a29:4d7b:e707 with SMTP id t7-20020a170906178700b00a294d7be707mr1899100eje.82.1705931718937;
         Mon, 22 Jan 2024 05:55:18 -0800 (PST)
 Received: from ddev.DebianHome (dynamic-077-003-088-202.77.3.pool.telefonica.de. [77.3.88.202])
         by smtp.gmail.com with ESMTPSA id i16-20020a1709061cd000b00a28825e0a2bsm13340284ejh.22.2024.01.22.05.55.18
@@ -54,9 +54,9 @@ Received: from ddev.DebianHome (dynamic-077-003-088-202.77.3.pool.telefonica.de.
         Mon, 22 Jan 2024 05:55:18 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 09/15] libsepol: use typedef
-Date: Mon, 22 Jan 2024 14:55:01 +0100
-Message-ID: <20240122135507.63506-9-cgzones@googlemail.com>
+Subject: [PATCH 10/15] libsepol: add copy member to level_datum
+Date: Mon, 22 Jan 2024 14:55:02 +0100
+Message-ID: <20240122135507.63506-10-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240122135507.63506-1-cgzones@googlemail.com>
 References: <20240122135507.63506-1-cgzones@googlemail.com>
@@ -69,27 +69,63 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Convert the only usage of the raw type struct level_datum to use the
-typedef.  Simplifies refactorizations on the type.
+Add a new member to the struct level_datum to indicate whether the
+member `level` is owned by the current instance, and free it on cleanup
+only then.
+
+This helps to implement a fix for a use-after-free issue in the
+checkpolicy(8) compiler.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/module_to_cil.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/include/sepol/policydb/policydb.h | 1 +
+ libsepol/src/policydb.c                    | 6 ++++--
+ libsepol/src/policydb_validate.c           | 3 +++
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index ee22dbbd..417c5307 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -2390,7 +2390,7 @@ static int boolean_to_cil(int indent, struct policydb *UNUSED(pdb), struct avrul
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 6682069e..06231574 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -218,6 +218,7 @@ typedef struct level_datum {
+ 	mls_level_t *level;	/* sensitivity and associated categories */
+ 	unsigned char isalias;	/* is this sensitivity an alias for another? */
+ 	unsigned char defined;
++	unsigned char copy;	/* whether the level is a non-owned copy (compile time only) */
+ } level_datum_t;
  
- static int sens_to_cil(int indent, struct policydb *pdb, struct avrule_block *UNUSED(block), struct stack *UNUSED(decl_stack), char *key, void *datum, int scope)
- {
--	struct level_datum *level = datum;
-+	level_datum_t *level = datum;
+ /* Category attributes */
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index f10a8a95..322ab745 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
+ 	if (key)
+ 		free(key);
+ 	levdatum = (level_datum_t *) datum;
+-	mls_level_destroy(levdatum->level);
+-	free(levdatum->level);
++	if (!levdatum->copy) {
++		mls_level_destroy(levdatum->level);
++		free(levdatum->level);
++	}
+ 	level_datum_destroy(levdatum);
+ 	free(levdatum);
+ 	return 0;
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index d86f885e..e3af7ccd 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -623,6 +623,9 @@ static int validate_level_datum(__attribute__ ((unused)) hashtab_key_t k, hashta
+ 	level_datum_t *level = d;
+ 	validate_t *flavors = args;
  
- 	if (scope == SCOPE_DECL) {
- 		if (!level->isalias) {
++	if (level->copy)
++		return -1;
++
+ 	return validate_mls_level(level->level, &flavors[SYM_LEVELS], &flavors[SYM_CATS]);
+ }
+ 
 -- 
 2.43.0
 
