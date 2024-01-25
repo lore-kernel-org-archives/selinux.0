@@ -1,92 +1,130 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD1CF7C080
-	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 16:09:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C76D1339B2
+	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 19:55:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706198950; cv=none; b=nArOpQHy0nMBam9AF70hEJUQTy/DRu84/4Vze1hZ+q+9jZTF44HR4181y3FTDRjg/A2sy5l0OJFS/w2JbF04D7jkUZnsViazYp4mRU7JkNnY+PkvfU4EgdySxZYnPT7oju4Km7zVfBuaVlQAYLyvoD+qV1rosN+lXWfMQeTU7Xo=
+	t=1706212559; cv=none; b=KG1zhOdkGNGwScuWbN/QtWTni02OOeOXP1FQSBfI2ZnvdNOO3uVBUgLRGNSEnmLWRvBSfC1ipTlznTaL9+uTMzqDLTZ6qu1nTTQ3nj8mustgxthnQUNcdvV67b1yS0WUtQI6AuApYIaBSmDdhSgmiemhHlJa43nMHLhtReraLoU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706198950; c=relaxed/simple;
-	bh=s4Lz/7FGeBQQtJriVan7R/e0fU4M5YDFyrKWuZ0VGzk=;
+	s=arc-20240116; t=1706212559; c=relaxed/simple;
+	bh=NijhY9ju0elSx55fpS2xuTliCUNQMs40BmpTcuBIhrA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hdVZK2bxB/o76h8iA/6zAYC45Cffx8nnH8UtUndmHB4y48Xkj+TYCAr5ax6pFK/GRsqnK6v82pvIH3Y2Trh0un18DFfS4BmP9Yi7CrhzuN7Vy/GgkxX72er+8j+SyY+m1ZYwj12zjBSJglMPbItrsOe9utXGaqDdyuNWeXflVk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=EH2EQmNq; arc=none smtp.client-ip=209.85.219.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=AKIrZOK7rEcjmHKQ1iAOh4cCPvaLYJLkLl0OrXJHmx4ujg84nL+Zfm3JIOuGsqZ/VFWHLfVd5k8MGr8oWrmoxvGyz9WC8zzufjJVw96ajWzME+DMI6kNT7MqiIQUnowG7mET3R/35iTATEp5nU1dnr3REIDLfcXUYOJbdg+Ki14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GlHVP0P4; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="EH2EQmNq"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dc608c3718dso1946933276.1
-        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 08:09:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GlHVP0P4"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-51022133a84so604061e87.3
+        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 11:55:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1706198947; x=1706803747; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1706212556; x=1706817356; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iD/r0uWbNZgJgJ6cYKOc4BCZAT0s04XhH9xFaYpEDbk=;
-        b=EH2EQmNq3prhlBoZmtjkYy+dAnlclgzXxqrTt1cZkFxMTl+WH+GtS7iUov3c+05szI
-         aB3gE62MFU6V8F5CqF8vERrDmddAM0v4rt/o6GWx3KFT8vSNizT2pom26q1ebAyn4krj
-         6AiGfGAI3b29D6VKUQ1zbijqvW+aViLoDb+FJldtj/uS1POu1q5UJwDqZpufIN7MhdbA
-         QK8ZrlTPhRVtPG9GWOFcsSSrsCLNXa6zF/zJvibEQiHmLUPtllr8fEdqtqnvNEvZU4xn
-         EiHNQmKCiM5AB2RqPnf8D7jWkwej4A4nsMPPar0TOphh/gHPWMKccrl6PRJreeLqJYS0
-         7+wg==
+        bh=RRz3TRSM3G94aQTjYG1+cOOUds0sIjhl/03UWq3tlbI=;
+        b=GlHVP0P48NOWnDH6ZlarjKX37TpCRlsO2G9Q0xl2lsBoCJAmkl7mW1VXS9Q8ZYC771
+         FclwEyNPoxyT0xNdCGmYFITFz7LLD6kz4AKOOzcpw2dF/ZvDSAjjNtCg+lRn1FSDHyph
+         XK5Dftt3qPcd3aOAt/Z5oj2xiqLN8giT5zD3NIrETSVojAf6W7mWDn8wRpA6NMqrn8gM
+         pr+9Hy3bgZUNcG7BTKmKvf9/lFgBEMEO6nb6JOgLs7X1kgCI4OTJJFNyY4tXOsaWWzrX
+         r9XBEWtr0KkrRC/pT1JMbJecEmQjQcxTuCy5PBF4HmGqVAc5WXXwMAJN+XeXgW/MN++q
+         91rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706198947; x=1706803747;
+        d=1e100.net; s=20230601; t=1706212556; x=1706817356;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iD/r0uWbNZgJgJ6cYKOc4BCZAT0s04XhH9xFaYpEDbk=;
-        b=kZ+gDHm3OhPSyVz4LhvLIyDYjqjqXU7ascnKmXg1J3mZMfxWf958AHMZEPH3McvkTz
-         VSIKCyu1NJ4fU7rfzegNNO/A6e1rb1zAX5q9q65ArlPIKWf0IZL1ekzEa2moNtHTA+e/
-         tZ1xu3zqkoY3BJb626cm7SqL759YXxWnJlMP6hhfHYKWwfJmlpcb6TKzKuiL9eTUGnvE
-         XGJrEFj6j0Ctr+K6H1kzyy5JWCu7bH4U4AgccXGut0AgVhQ5PNnW6KOOzmApNnpdXkLU
-         KbuATGFZ6aSIdcgNbxOaQ/7OQF71J2OFrnXhzEjBBw6iAsXZCIBkOWY/XwGyOjObMFXz
-         Tdow==
-X-Gm-Message-State: AOJu0YwAxEluAqUgT6FJTEw5lQCPmJB/U1HS7ryAF7nqW8wlc7pBrNvy
-	UU+T/N4Oz6zPfD0PwT1SmXLPVYLcWz6t3gK7E9sm2lx7AwqGNoW2veb/rgBC7mvhcjbBZ3Ecyf8
-	SQwFwuwV+q1dJuhkzsOak3JSmVvow7si5lOjfrZlO/3llMkk=
-X-Google-Smtp-Source: AGHT+IGwkmlcT10pTLuPxc16LvADsNL+DsHH60D00tpYkTWkTyjtJEHHEdwSyV++1dT0nGVr3xpNFbPAdib47HFlCwU=
-X-Received: by 2002:a25:e04e:0:b0:dc3:18dc:71ed with SMTP id
- x75-20020a25e04e000000b00dc318dc71edmr27454ybg.103.1706198947659; Thu, 25 Jan
- 2024 08:09:07 -0800 (PST)
+        bh=RRz3TRSM3G94aQTjYG1+cOOUds0sIjhl/03UWq3tlbI=;
+        b=EsJzBL5OCtSVaz7IiP+0wdF/iEisYUcSXpvcKMsgv5F7I2D58Epo3V+YqjxCYCqtvV
+         Jk0oahUkXHfV1MZ0uzqJCn40RiR61qu/RpYuck6UVYWMFWLGMdja92PMcNt2E4sww7NA
+         SoPbhTexWZ6Jv91ITA1BzLM26lwG1rIoMYcPEW0ddsxjPWKzzv6sbomtRC06VDo6EsT+
+         WwE9sefx/5ZN/KMADqiSYjzXbNt1xWh4mbDMuOEY1tuyLlOcZQCtkTCDzh4VBn05rARv
+         C57rfjETGgXWvY67lDBP2Lc4xCzr5wuxjzjERyZiZWaM7f8XzM7m63UlYsgM0IC4Vlcp
+         jpqw==
+X-Gm-Message-State: AOJu0YxlKmRsuj7XBwzXakNmUJULSCe4pm/UKWsACuPNQeQ3AoHVopPz
+	Y6mMP0Glxg89XGTyo2cblW70WGM29w5/hwwAmEipuvOY9nQi5serks3g1twVz2nNfILLyrfzkOL
+	8gpd8wApx+HVY3S0XnV77OJwzVIavUmj3
+X-Google-Smtp-Source: AGHT+IHrBS4En6Ciw/CHRi3JD30ycWVaTiSlZQCiyu7WuZb3aKTJvWaksNT/9MrStIFNq98kAIfPd2NnA7BycNsU4L4=
+X-Received: by 2002:a19:3849:0:b0:510:b6f:bec6 with SMTP id
+ d9-20020a193849000000b005100b6fbec6mr350120lfj.39.1706212555931; Thu, 25 Jan
+ 2024 11:55:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
- <CAEjxPJ46kPOA3N7PAgqWs-z74siF7bMoGSU254dYReQwFCNoXA@mail.gmail.com>
- <CAHC9VhQKXtdA4YS7=fB9ffGTDnd7qPkCZVCTO3fvaQWjzwUT=Q@mail.gmail.com>
- <CAEjxPJ4czKz+4SfTo6g3s6ztSRbfyOv_GBkgp=k38nGDFssRiw@mail.gmail.com>
- <CAEjxPJ5_SQDmR9b-+0woBLg25omtERSLBKawTV9AqLpZAHFvcg@mail.gmail.com>
- <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com>
- <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
- <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com>
- <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com> <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 25 Jan 2024 11:08:56 -0500
-Message-ID: <CAHC9VhRTfUO_b+dfWRNtFBPUCnk5iRCkCfT4PcNBt+b856t-iw@mail.gmail.com>
-Subject: Re: selinux-testsuite nfs tests?
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, SElinux list <selinux@vger.kernel.org>
+References: <20231219160943.334370-1-cgzones@googlemail.com> <CAP+JOzQ3cCwAkrT4n1D694uoZkxh0RAuoN30tEtH7jX_PhxU6w@mail.gmail.com>
+In-Reply-To: <CAP+JOzQ3cCwAkrT4n1D694uoZkxh0RAuoN30tEtH7jX_PhxU6w@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 25 Jan 2024 14:55:44 -0500
+Message-ID: <CAP+JOzRZghhqe_k8vEac7YzZjQ0J9VJ_oJXw5UQBizRD-BrFWg@mail.gmail.com>
+Subject: Re: [PATCH 01/11] libselinux/man: mention errno for regex compilation failure
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 25, 2024 at 10:59=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> So as a side-bar is anyone running ./tools/nfs.sh on a regular basis
-> or has it been wired up into the automated testing by anyone? If not
-> and if we can get it back to a clean state, that would be good to do.
+On Fri, Jan 5, 2024 at 2:15=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
+>
+> On Tue, Dec 19, 2023 at 11:10=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Selabel lookups might fail with errno set to EINVAL in the unlikely cas=
+e
+> > a regular expression from the file context definition failed to compile=
+.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> For these 11 patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-I am not as part of my kernel-secnext testing, I should, but I haven't
-had the time to configure that as part of the test run.  Building and
-testing on Debian in addition to Fedora is still higher on my
-kernel-secnext todo list, and I haven't made much progress there.
+These 11 patches have been merged.
+Thanks,
+Jim
 
-I believe the IBM/RH folks are doing regular testing, perhaps they
-have something in place?
-
---=20
-paul-moore.com
+> > ---
+> >  libselinux/man/man3/selabel_lookup.3            | 3 ++-
+> >  libselinux/man/man3/selabel_lookup_best_match.3 | 3 ++-
+> >  2 files changed, 4 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libselinux/man/man3/selabel_lookup.3 b/libselinux/man/man3=
+/selabel_lookup.3
+> > index 4e47c3ec..e20345e6 100644
+> > --- a/libselinux/man/man3/selabel_lookup.3
+> > +++ b/libselinux/man/man3/selabel_lookup.3
+> > @@ -64,7 +64,8 @@ The
+> >  .I key
+> >  and/or
+> >  .I type
+> > -inputs are invalid, or the context being returned failed validation.
+> > +inputs are invalid, or the context being returned failed validation, o=
+r a
+> > +regular expression in the database failed to compile.
+> >  .TP
+> >  .B ENOMEM
+> >  An attempt to allocate memory failed.
+> > diff --git a/libselinux/man/man3/selabel_lookup_best_match.3 b/libselin=
+ux/man/man3/selabel_lookup_best_match.3
+> > index ef2efb4a..985a8600 100644
+> > --- a/libselinux/man/man3/selabel_lookup_best_match.3
+> > +++ b/libselinux/man/man3/selabel_lookup_best_match.3
+> > @@ -78,7 +78,8 @@ The
+> >  .I key
+> >  and/or
+> >  .I type
+> > -inputs are invalid, or the context being returned failed validation.
+> > +inputs are invalid, or the context being returned failed validation, o=
+r a
+> > +regular expression in the database failed to compile.
+> >  .TP
+> >  .B ENOMEM
+> >  An attempt to allocate memory failed.
+> > --
+> > 2.43.0
+> >
+> >
