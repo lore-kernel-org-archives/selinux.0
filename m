@@ -1,92 +1,115 @@
-Received: from mail-yb1-f169.google.com (mail-yb1-f169.google.com [209.85.219.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48681136665
-	for <selinux@vger.kernel.org>; Wed, 24 Jan 2024 23:59:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8EA51C6AD;
+	Thu, 25 Jan 2024 09:37:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706140787; cv=none; b=LGQNMm0fTn+wHTTP1wSrY6Mx94eqeCkS2FYVC+JruPupXuiIZLfrXkDcNOeRI0CzWQb9itvJrTaDbU1bDj/nSLgrkbDiRxa1phhCw7MN/hBSbY266q4x9kETNcoFEh2JFB8fJig1Nn7Xhp8xXWDT51eUMMtsd2YaL/dF1JwwR94=
+	t=1706175420; cv=none; b=LrEswRdT8IiqGwiNYOAaA/agmAxxJgpd8bF38RvlMQZh745Ex6N0ElPg/puuHeqCI2L5cD7QTN3Ff8AK3jHkUIwuCZw667aBGTuyli2q4p35zlaQbzjWMEho3PMVW2uGWxoraqrAJ0EiRUPKaafkhV1aW1CiCJR7H6dzuxO1gr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706140787; c=relaxed/simple;
-	bh=maL1nBVb3loVr4Vq+G0ZcfTdgHx15jI1TWoWEIy3O78=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P0jkgur+CggT6cTPL0w5x14EAygTHvq6IgJ4UzBHgeR5GjHvpVtSmu70RZe4qFBd6EAa0RCKXVLosEjq380B3iufLaVv9997B9efQOOhFZbPvdIifd+Ci+VuEToKe1298z9sdSLRzd5kGgbt80ijbDcGIcQBnrKlXVQTxRANGCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=fSb71e7l; arc=none smtp.client-ip=209.85.219.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1706175420; c=relaxed/simple;
+	bh=gr94+56P2kzJDDYJRH88M8lUAPhvUUKPfiyNI1RdoIA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MP/sdbi1cEO1HfYZS0GiH9A1z6YlOW/iSwqZi6spSAoXwNEbvwDVueEz4y9IhuyRcmToJMZ9WgVcS+IRIcT+qPFd4+Ts+PaxTw/xXJU55MStAiFJfFwieK4kK1Xqb3wDEWXll7TK0E096mysDtJk+E08vthH/q4TB9oW/EL4CCM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nwpki+gc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="fSb71e7l"
-Received: by mail-yb1-f169.google.com with SMTP id 3f1490d57ef6-dc223463ee4so5520244276.2
-        for <selinux@vger.kernel.org>; Wed, 24 Jan 2024 15:59:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1706140784; x=1706745584; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=A9ayzdpLCpwSEzgfqolvwUpx5pbrBH3JNBHTp6SFgHA=;
-        b=fSb71e7lgwImeiCGtLvNsd8CfbRV7wsZio6STyxf2qGYy43/oH5g3M2REWRHlmK0F6
-         T3tSV6ewP2OqdvpQRUDQSbtVONbCD6I09MGHYzy/t09Z2dQVOTA8FGlhypiseud3SB+g
-         T++015vX94xaBD5+eDQ1JDZUHU4UbpkKlTNj3qphFAFsT7wFPCA3/kRtQPm+zgP+CzlI
-         xad1HSwedTIzL6deEEpcgIZWPsxyhX3yfYc5Fdpru2L9EKfxlW4Q3ox9Ru8sC/C1VMTM
-         Cg1wVCDzs04aMqx7c35+DvLNU8ldynRyJyf1n4EJVMYoiLOTouDHNdBAqXNi3cQg7pqz
-         gOjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706140784; x=1706745584;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=A9ayzdpLCpwSEzgfqolvwUpx5pbrBH3JNBHTp6SFgHA=;
-        b=St/G0WTtjR+fZMAMtBGi/ASmvLnBvRLBTUXnXhsp/HlXO/0KTwPj6VwuSEEHvOIxAS
-         T/Vb5Wfk8gVUDlXk5DdDAX9by/yDiBPw0c0eI54LHInEXzF/SmhoI6niiovSm63GQvlG
-         doMQEElJlOZloyxQxiPP4CPNejrN6Z6PUzqK8Jmg4Ea5pJuQh+oSvclHxCVPBGMUSrXb
-         MsIApMioKIBwBdN3kL9tOD+M+H3yCvGaMg1qLlaE1CL1R2QwnyqY/MRDnbBnaxOnxv33
-         EgYti8QcG5e62dZUSvybr+zSVaf8fVc4hsOVN14IfXsLfE11tktwpK5RKhmnRyaWwYZh
-         hASg==
-X-Gm-Message-State: AOJu0YzcfhIW+6hcMDi2zYCHX7EAc0FWERUtBGM/NYk5Dp0qP9/lsqLg
-	8/mAYJa8hNgniI7pOT+YmeCVbEdvN5ZaNr4DsaVAznMxNNChWYCwouRTVNAqhuxCl/aWLj7QBE2
-	o3jZrjWS5lqJuiMZ8YAJ+hlYWhFfF59cHKJF7
-X-Google-Smtp-Source: AGHT+IFqkibhd4kfZNGMoX0cUhRT1hnJyuaqAH5vdwu2R5ItL23iLNhiLEi3Ud2W5qihL2/NDnFDB1YT4/GvJ9wSI6Q=
-X-Received: by 2002:a25:6608:0:b0:dc2:6600:4eac with SMTP id
- a8-20020a256608000000b00dc266004eacmr115099ybc.116.1706140784182; Wed, 24 Jan
- 2024 15:59:44 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nwpki+gc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2154C433C7;
+	Thu, 25 Jan 2024 09:36:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1706175420;
+	bh=gr94+56P2kzJDDYJRH88M8lUAPhvUUKPfiyNI1RdoIA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=nwpki+gcKqJKaqfmZgMJ7UFiFnVP1doqvD1NAyxkVsTKDmQLRRQarzW/fEuRkdAvi
+	 7NfCPwsIyhG1oOwHUUAU0c/faUk7GdbyfFPTU+VmUvyts+VhsCzV97cCgEFFN2cc8F
+	 iQY/oCgkaWWxZVSrXsD8JqUOdHEUAFXGCpS+21U5jD//uVrK4KNg6IhoAW8r/Sj1Fv
+	 8Ghl/QpvvIuLu6Hii4QqaN3dJ+95yJ2H+aggMBYLiE/5F7axNinkm6kiPiJn1ouHCa
+	 T8NPJchz0ua0P0SFQWufV2Cn5XDZ9AQaehvdJvrMdqoNU/bgeG7TjafSaLtZXbvdPa
+	 +B/iVsYKghDgQ==
+Date: Thu, 25 Jan 2024 11:36:32 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	Lokesh Gidra <lokeshgidra@google.com>,
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+	surenb@google.com, kernel-team@android.com, aarcange@redhat.com,
+	peterx@redhat.com, david@redhat.com, bgeffon@google.com,
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com,
+	ngeoffray@google.com
+Subject: Re: [PATCH] userfaultfd: fix mmap_changing checking in
+ mfill_atomic_hugetlb
+Message-ID: <ZbIroGI1kADrOTUB@kernel.org>
+References: <20240117223729.1444522-1-lokeshgidra@google.com>
+ <20240118135941.c7795d52881f486aa21aeea8@linux-foundation.org>
+ <CAJHvVcgTk3Cf2i-ONx=jH_-dz9GktVMv1Sdqv3cCk6nP2k++iA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
- <CAEjxPJ46kPOA3N7PAgqWs-z74siF7bMoGSU254dYReQwFCNoXA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ46kPOA3N7PAgqWs-z74siF7bMoGSU254dYReQwFCNoXA@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 24 Jan 2024 18:59:33 -0500
-Message-ID: <CAHC9VhQKXtdA4YS7=fB9ffGTDnd7qPkCZVCTO3fvaQWjzwUT=Q@mail.gmail.com>
-Subject: Re: selinux-testsuite nfs tests?
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJHvVcgTk3Cf2i-ONx=jH_-dz9GktVMv1Sdqv3cCk6nP2k++iA@mail.gmail.com>
 
-On Wed, Jan 24, 2024 at 3:13=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Jan 24, 2024 at 1:42=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > So the recent discussion regarding questionable setting of
-> > isec->sclass in inode_setxattr and inode_setsecurity that was
-> > introduced by the labeled NFS support patch made me wonder about the
-> > state of the selinux-testsuite nfs tests. Trying to run those on a
-> > current kernel fails even before getting to the tests themselves
-> > because the attempt to relabel the files to test_file_t fails with
-> > Operation not supported errors. Anyone know when this last worked?
->
-> Looks like this has been reported for Fedora kernels here,
-> https://bugzilla.redhat.com/show_bug.cgi?id=3D2257983
-> as a regression from 6.6.2 to 6.6.3 and later.
+On Thu, Jan 18, 2024 at 03:17:14PM -0800, Axel Rasmussen wrote:
+> 
+> On Thu, Jan 18, 2024 at 1:59 PM Andrew Morton <akpm@linux-foundation.org>
+> wrote:
+> 
+>     On Wed, 17 Jan 2024 14:37:29 -0800 Lokesh Gidra <lokeshgidra@google.com>
+>     wrote:
+> 
+>     > In mfill_atomic_hugetlb(), mmap_changing isn't being checked
+>     > again if we drop mmap_lock and reacquire it. When the lock is not held,
+>     > mmap_changing could have been incremented. This is also inconsistent
+>     > with the behavior in mfill_atomic().
+> 
+> 
+> The change looks reasonable to me. I'm not sure I can conclusively say there
+> isn't some other mechanism specific to hugetlbfs which means this isn't needed,
+> though.
+  
+There's nothing specific to hugetlb, if a non-cooperative uffdio_copy races
+with mremap/fork etc, the vma under it may change
+ 
+>     Thanks. Could you and reviewers please consider
+> 
+>     - what might be the userspace-visible runtime effects?
 
-Thanks for looking into this Stephen.  Unfortunately I can't seem to
-access that BZ right now (the FAS login page is hanging for me), has a
-root cause been identified?
+For users of non-cooperative uffd with hugetlb, this would fix crashes
+caused by races between uffd operations that update memory and the
+operations that change the VM layout. Pretty much the same fix as
+df2cc96e77011 ("userfaultfd: prevent non-cooperative events vs mcopy_atomic
+races") for !hugetlb memory.
 
---=20
-paul-moore.com
+I doubt such users exist, though...
+ 
+>     - Should the fix be backported into earlier kernels?
+>     - A suitable Fixes: target?
+> 
+> Hmm, 60d4d2d2b40e4 added __mcopy_atomic_hugetlb without this. But, at that
+> point in history, none of the other functions had mmap_changing either.
+> 
+> So, I think the right Fixes: target is df2cc96e77011 ("userfaultfd: prevent
+> non-cooperative events vs mcopy_atomic races") ? It seems to have missed the
+> hugetlb path. This was introduced in 4.18.
+> 
+> Based on that commit's message, essentially what can happen if the race
+> "succeeds" is, memory can be accessed without userfaultfd being notified of
+> this fact. Depending on what userfaultfd is being used for, from
+> userspace's perspective this can appear like memory corruption for example. So,
+> based on that it seems to me reasonable to backport this to stable kernels
+> (4.19+).
+
+I agree with Axel, 
+
+Fixes: df2cc96e77011 ("userfaultfd: prevent non-cooperative events vs mcopy_atomic races")
+
+seems appropriate.
+
+-- 
+Sincerely yours,
+Mike.
