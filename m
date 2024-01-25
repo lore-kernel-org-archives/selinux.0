@@ -1,60 +1,54 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f181.google.com (mail-il1-f181.google.com [209.85.166.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A47763417
-	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 15:15:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6DB86EB67
+	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 15:16:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706195708; cv=none; b=oBFSMD4EOUSE8ySJhKcWX1299UMtWGzBG20DrzrXj+2CTs+G6loR4QXf8l72yisvGw0rdvtgo8Dt580JCi/LSYWlA1tMxCdiNAKNlCJOpodgxjHl6nHG3sRZ/daQ5hqObRZR1rpVco41bC28lKGZxQQFUsI8RAYfeVk3iGwFWZo=
+	t=1706195821; cv=none; b=bmFVHl+9jY253oKbX/8Y/GUdVxbdit26totmbxa/+sW6mXhVE2HlTnTP/77zsDPKS/yiDU6QuJf8DW+i69eMbe+jmYx1PqDtqTxBkE0Fq1N7XVAExG//EI6K65GoFaYldrpyezBmamFTqBQFSmjRbTdHfTYMnLb4XUJTwvlv/AI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706195708; c=relaxed/simple;
-	bh=Ybx65MnTEZUWWw+mgkUY+7njv2BJTaZYzKubiJMykwU=;
+	s=arc-20240116; t=1706195821; c=relaxed/simple;
+	bh=Z4LvpRhYtCpFCxHDl6IrBz55DnvIdtDwnXS/Ri2X0mA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=l5vhvPpee3xzQEmvEjmTJpajMVjRuW+71BXuwNVcgSXtgViKMNIlvHVLx8SEobIKtQMxVRo0yJ6LArDkjY6cZXDQp48I5KGPDKvVLr5UZpqYE5rKuuz0opptAon/GRmolT+IWp/WFM3Thi9k5wQ8qro0x5i1mp0V5HIKfg+fV7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RM+MCfxR; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=pL8y8SZKUuRIeMrCnm2yJbTJe/Od2aYzE89BZMXNWW2ySo5bJCxplkiDpxQgbsXMkmhu+vyFvDmw5NWfTovLb2s4eQqUcbCzu3cwdaDeMFtAlhwD1h1XgaH5UIbz4A+r3ADOwFYTKc4N3zMeTPBuBgk5d+eaXWmSpJ68YTInXxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=J1Nt6SJR; arc=none smtp.client-ip=209.85.166.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RM+MCfxR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706195705;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ut52KKcTMMVsw1qT+/NcVtBJW8FfgJmMHIHNb9UkamU=;
-	b=RM+MCfxRFbgq5sxShlpW0qEQrtciLSgUml/bJXdTVgKie6KFPuZAkvAKYWke/lpLjLkJk8
-	b2oQ9O/vLO4uIJzY8o41N0XXK70i/PUMZtVaeRfORXDsXSg7uD5PYZpuY8kd39Lb1NXaIu
-	2Ykcl9veMgfGXpqZgB0vhQ0RRg6AG+M=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-497-De7LrKejN5qDbFs-o8Or7A-1; Thu, 25 Jan 2024 10:15:03 -0500
-X-MC-Unique: De7LrKejN5qDbFs-o8Or7A-1
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-5ca5b61c841so2879083a12.3
-        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 07:15:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="J1Nt6SJR"
+Received: by mail-il1-f181.google.com with SMTP id e9e14a558f8ab-362a24b136fso2079065ab.3
+        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 07:16:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1706195819; x=1706800619; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Z4LvpRhYtCpFCxHDl6IrBz55DnvIdtDwnXS/Ri2X0mA=;
+        b=J1Nt6SJRMLh0XvaaVOU6JZmhNCDabczWJr0hxyL628rsYQgSzuERXKWrdky4qp4IpN
+         BsSEYGJx2IGlUY4ebgG6236ojUDTmBLwFGgQzzVVb6nCmDi5MUIsLBUCZDfv3n3bNA2V
+         CPpHdy1LyyrIkEmFp/JEJVF/kGoIyCG7JpmJ4E3KSucGV8v3ZPELZRaod8VLY/SRgyph
+         yUlxInXqsxbwJUPIZI9cpLcba6JetnRWkCPxgThuV7ncXzBqRaAsSW6iEg1SZoW2Sh5r
+         SjYElgfWGiaxXVylAMoWBV4f3Y/rj0fBr2Ycrzodas3eZhJZRQZ9EDhoexD8dNqDZjkh
+         LMbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706195702; x=1706800502;
+        d=1e100.net; s=20230601; t=1706195819; x=1706800619;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ut52KKcTMMVsw1qT+/NcVtBJW8FfgJmMHIHNb9UkamU=;
-        b=qj0IkreSYBaPY3Cdr4osqoNio/2pmve4sQGkPSt6jDYKzzdfUL2v7nguCyU8VyLTc3
-         jD5OUAgXP8lshPNLGOq4rb79NvXXjV2CjuFU2O/pp6eCBNzXueLnbUxGGSwm63eU2IWM
-         mVR0VDdM617JlhidnWrbrkejKPAZCgkaSU+dAwjBQW9WGG+T4N6Uq/lG1b5cKFDLeiVw
-         GlrOSdgJ+W/QU30KR8GDjGPHctHixg+wlbt4bWOPzwFyhPoGmYVXlaxIK4SZESiWQyCs
-         QbsDI9hNQe/D6eRVRQszWHqVvLVdhjRHV+DmXb2bghWDEI+w8ZzYYADTdr3oVexFELG2
-         tvGg==
-X-Gm-Message-State: AOJu0Yx/pShp3+sr5su90X9wUBo+hoNccILXJ7kzMEAElm9pjaQbsK9Y
-	skV77cL3+T/HoY6mFrWb19FWIC2Lr1UCqGgrCcy43PsWaVYiTe9SQCJ9kOMfUBt8al6uDFS6afL
-	HUPYyi7p2aumXJfHYQ/o4oF0fqg9eFv5tfd5jJo12Zg0I4d9z+MfMQ8/u2Todec5lcQCsMHQmHo
-	7p8pu4mSb/rmm8XIUjBuFsMrEMP7ZmuVK2gfqLoIQT
-X-Received: by 2002:a17:90a:9f82:b0:28e:740b:6680 with SMTP id o2-20020a17090a9f8200b0028e740b6680mr861407pjp.61.1706195702254;
-        Thu, 25 Jan 2024 07:15:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHiESCT6CsRwn0tJgHbUadVBNggybS7IIFT0isYHEo67SU+Blxc1FCqYwpA47ZwJjN1Air2/Rjt2NKWl7F89go=
-X-Received: by 2002:a17:90a:9f82:b0:28e:740b:6680 with SMTP id
- o2-20020a17090a9f8200b0028e740b6680mr861393pjp.61.1706195701922; Thu, 25 Jan
- 2024 07:15:01 -0800 (PST)
+        bh=Z4LvpRhYtCpFCxHDl6IrBz55DnvIdtDwnXS/Ri2X0mA=;
+        b=PDqG8ZiLdus6qeQ8LXmqWoqzhy4hCz3n8LrUHKZ136wmPjR/OQRIR/kMqrLERnqhU2
+         J17yZLQPYbz0vuiBw38LYB2B+uWAl0j30/6lgTROThpJFd6szSq1zSOT7h00TbdwWxLB
+         WKo2HdcAKdt4ZEs9BtN+PfVFQgOhDfKMUkYVdQWdBaT2o3zoiTq2ypHtUVtysov8MXSH
+         PpiIOyrPaJyBkpa9XtrxUhr2C+6tnX+aVJU8ZiN1zQ28dRXtWT7N2Z3oRlm8+UPF1xp1
+         vChQG6a9QpqB1toPuuBcit8cUW9dyQCpX3sLou8Op7LonafJYtGIHBvktjrtaSLkiWek
+         0e6w==
+X-Gm-Message-State: AOJu0Yw5y/1C/v5uklv0urNg3vwu4X32LsZgtJULAP/kRp/M0Zun/fdM
+	o4v8XOBRSrIRor8ySLNKuB0XdaXcPhP5iyRfAPg708k1UJN4vZqt0ifHnvPBv/csA0iDkpkNxGk
+	XPChvHr6c0fYW69cDZrp9zHYxxpgkNyAGVY5xsY95JYU8yfA=
+X-Google-Smtp-Source: AGHT+IFuJ/H7AxMBKPvzz7e9afDPVRJKtL5sBarYJQN4sPmOxRMzCpc4nZjftzqsbJUUOfiLhG29Q/dT2jYGkkezams=
+X-Received: by 2002:a92:c150:0:b0:362:8232:b420 with SMTP id
+ b16-20020a92c150000000b003628232b420mr1356403ilh.27.1706195818886; Thu, 25
+ Jan 2024 07:16:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -65,117 +59,31 @@ References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
  <CAEjxPJ46kPOA3N7PAgqWs-z74siF7bMoGSU254dYReQwFCNoXA@mail.gmail.com>
  <CAHC9VhQKXtdA4YS7=fB9ffGTDnd7qPkCZVCTO3fvaQWjzwUT=Q@mail.gmail.com>
  <CAEjxPJ4czKz+4SfTo6g3s6ztSRbfyOv_GBkgp=k38nGDFssRiw@mail.gmail.com>
- <CAEjxPJ5_SQDmR9b-+0woBLg25omtERSLBKawTV9AqLpZAHFvcg@mail.gmail.com> <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Thu, 25 Jan 2024 16:14:50 +0100
-Message-ID: <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
+ <CAEjxPJ5_SQDmR9b-+0woBLg25omtERSLBKawTV9AqLpZAHFvcg@mail.gmail.com>
+ <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com> <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
+In-Reply-To: <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 25 Jan 2024 10:16:48 -0500
+Message-ID: <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com>
 Subject: Re: selinux-testsuite nfs tests?
-To: Paul Moore <paul@paul-moore.com>
+To: Ondrej Mosnacek <omosnace@redhat.com>
 Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 25, 2024 at 3:52=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Thu, Jan 25, 2024 at 9:25=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Thu, Jan 25, 2024 at 8:32=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Wed, Jan 24, 2024 at 6:59=E2=80=AFPM Paul Moore <paul@paul-moore.c=
+On Thu, Jan 25, 2024 at 10:15=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
 om> wrote:
-> > > >
-> > > > On Wed, Jan 24, 2024 at 3:13=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > On Wed, Jan 24, 2024 at 1:42=E2=80=AFPM Stephen Smalley
-> > > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > >
-> > > > > > So the recent discussion regarding questionable setting of
-> > > > > > isec->sclass in inode_setxattr and inode_setsecurity that was
-> > > > > > introduced by the labeled NFS support patch made me wonder abou=
-t the
-> > > > > > state of the selinux-testsuite nfs tests. Trying to run those o=
-n a
-> > > > > > current kernel fails even before getting to the tests themselve=
-s
-> > > > > > because the attempt to relabel the files to test_file_t fails w=
-ith
-> > > > > > Operation not supported errors. Anyone know when this last work=
-ed?
-> > > > >
-> > > > > Looks like this has been reported for Fedora kernels here,
-> > > > > https://bugzilla.redhat.com/show_bug.cgi?id=3D2257983
-> > > > > as a regression from 6.6.2 to 6.6.3 and later.
-> > > >
-> > > > Thanks for looking into this Stephen.  Unfortunately I can't seem t=
-o
-> > > > access that BZ right now (the FAS login page is hanging for me), ha=
-s a
-> > > > root cause been identified?
-> > >
-> > > So far the bug only contains info from the bug reporter, who narrowed
-> > > it to a change between the 6.6.2 and 6.6.3 kernels but isn't sure wha=
-t
-> > > changes would be relevant there. Looking at the ChangeLog, the one
-> > > that looks most likely to me is:
-> > >
-> > > commit 37dab33f754abd24b384d2b7b07349dc6611381b
-> > > Author: Ondrej Mosnacek <omosnace@redhat.com>
-> > > Date:   Tue Oct 31 13:32:07 2023 +0100
-> > >
-> > >     lsm: fix default return value for inode_getsecctx
-> > >
-> > >     commit b36995b8609a5a8fe5cf259a1ee768fcaed919f8 upstream.
-> > >
-> > >     -EOPNOTSUPP is the return value that implements a "no-op" hook, n=
-ot 0.
-> > >
-> > >     Without this fix having only the BPF LSM enabled (with no program=
-s
-> > >     attached) can cause uninitialized variable reads in
-> > >     nfsd4_encode_fattr(), because the BPF hook returns 0 without touc=
-hing
-> > >     the 'ctxlen' variable and the corresponding 'contextlen' variable=
- in
-> > >     nfsd4_encode_fattr() remains uninitialized, yet being treated as =
-valid
-> > >     based on the 0 return value.
-> > >
-> > >     Cc: stable@vger.kernel.org
-> > >     Fixes: 98e828a0650f ("security: Refactor declaration of LSM hooks=
-")
-> > >     Reported-by: Benjamin Coddington <bcodding@redhat.com>
-> > >     Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > >     Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > >
-> > > Could that be overriding the SELinux return value and thereby
-> > > preventing encoding of the SELinux context in the NFS fattr structure
-> > > returned by the server to the clients?
+> On Thu, Jan 25, 2024 at 3:52=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
 > >
-> > To answer my own question, yes that's exactly what is happening. In
-> > every other hook that returns a non-zero default value, we have
-> > special handling in the security_() wrapper, but
-> > security_inode_getsecctx() just calls call_int_hook(), which treats
-> > any non-zero return as failure. So in kernels that enable
-> > SELinux+BPF-LSM with no BPF program attached to that hook, it will
-> > always return -EOPNOTSUPP and NFS and any other callers won't use the
-> > SELinux-provided attribute.
+> > Ondrej, are you able to post a fix for this?
 >
-> Thanks Stephen.  I will admit that it is slightly amusing that a patch
-> intending to fix NFS ends up breaking NFS; clearly some additional
-> testing was needed here.
->
-> Ondrej, are you able to post a fix for this?
+> Yes, I'm on it. I already have a candidate fix, but my kernel building
+> infra is currently acting up, so it might take a while before I'm able
+> to test & post it.
 
-Yes, I'm on it. I already have a candidate fix, but my kernel building
-infra is currently acting up, so it might take a while before I'm able
-to test & post it.
+Great, no worries if it takes a little longer, I just wanted to see if
+you were able to put together a fix or if I needed to do it.
 
 --=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+paul-moore.com
