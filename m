@@ -1,54 +1,54 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87FDD7319E
-	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 15:58:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 461826E2DB
+	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 15:59:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706198328; cv=none; b=fDqHO9NF2c7svvc54UmN/UVnzcWP81b7jftx+5nN5Mphm5rAmZVtM8zNSpaKfdGKKHCVH9qXRoeH9kaXNJXG4M3DZtd0BDq9W51eFodurdYkuoQBl9FuDLkcwwdq3u3g6LCd6bPUcuKpeYGicpkysTpmHeHa07QNgpSxrgth7/I=
+	t=1706198370; cv=none; b=FQ8VlTWfWAmZW4OMNVcTwMyLVge6qEAZEoR322cZumQ270cxkvVlhYrkC00KqErJW/bq1HI1w+I9SxSH57Pg/0WB5YHy6tj3K82CTCengLAkP8+WJns8JHLyG5SrQMIYoPIacwey3QmpA5M4qym3lB8Zxp9BUSP1YuvQzyIBQdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706198328; c=relaxed/simple;
-	bh=BNyJMWhnmHoU0qD9gW8F38gVGWyTktThlbbM4C3BJ0o=;
+	s=arc-20240116; t=1706198370; c=relaxed/simple;
+	bh=JLYjQAW8uN3mo3cpDE3fT3XB64Zoal/PShd+3aJ5up0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=urBMuvM5Pswy2agvQSZEP4d8ZNvg4poihrExiMHL+qIwzXEWfEpuVmHQH3P/vya0NzF/Cf4keCvWKleOre++xo+gbOwJuZwXid6yy34NVnPEh3BGVhVFmkMXijrhyABWyIGxaHgXdUdh0iI6UniD3XEhf4rEM0GuTMZUddIRbUw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=WCU8ErCO; arc=none smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=gvfePTESdjh9kK+IlrS0z6fSEiczdyyRWE6uhLRJ/3CSvS7gxiRHdOvuORcHx13uahpk972dPcVlpcbiFRyRdQ6nGuEaz1xvWCF3mSZtshH5L4yoYFxr7dAjnfFMbxWdEPsPAbOe4vFCfDpu/gq2dS4Wa5l9bXdSKa+NDHjAwWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X2zxz+FJ; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="WCU8ErCO"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-5ff7dc53ce0so52313787b3.1
-        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 07:58:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X2zxz+FJ"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-5c66b093b86so638903a12.0
+        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 07:59:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1706198325; x=1706803125; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1706198368; x=1706803168; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BNyJMWhnmHoU0qD9gW8F38gVGWyTktThlbbM4C3BJ0o=;
-        b=WCU8ErCOa4NJw7xrzzEQywQYNwjLkRu319yqEU7QRUE6NzdmRwdfL+np1udGvtsQfL
-         oauhqKNBnMiuV4W/n7BO8I/bY9SZISGZ6UBhUxPlidVWNPDkm60ngBr5LghxiAeUmzII
-         MMprJWpSeEB2VSLBT1wjdueSOfJfZoKK5F5POSLNJajFkPvfcPFfQIPouMxU79tdPahD
-         M+O2QGTKfKZHDRPNa2ntxy72p5RKy4oXaSHmeJwAVX9orgvlHyfcdoENtdg5ojA3oeUD
-         ERrvwD1DiRqV8akWuWtt0WVj6OVhw7S7bsIfwVCEKbIsH/VZfu9qWzfjXjCjsw354Q1C
-         6BdQ==
+        bh=JLYjQAW8uN3mo3cpDE3fT3XB64Zoal/PShd+3aJ5up0=;
+        b=X2zxz+FJr5ZuRHuuhFlJE29+2BjH2QzlD4mJX9GBrnA1d4XsiTW/guP5UTF/crbNtd
+         hLdmf0Wpn3AGLIuVm+C5MOA6jLP30Gv0ddHZdoX2TIGWTV63/zHMQKR/CbaJVU1jcWW1
+         BLTdWo07ZLC5ZgOv475WglXn2cmWaiAC4MK0X+ZYkD3RBcTw2jQhGzPAa1QyW7aHapGe
+         ZrEGTE8SNF94ZwB6qWjRLPTm2B7z321fDAGfTteDyKM1XThbEAOJROQelKf2DIa3abas
+         STWbCUxrIMnDZ2eIc3TYSUggmkE5mLX5TnUCA6jYW10zkrI36wUbuVwml06y14nkPt5n
+         3SGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706198325; x=1706803125;
+        d=1e100.net; s=20230601; t=1706198368; x=1706803168;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BNyJMWhnmHoU0qD9gW8F38gVGWyTktThlbbM4C3BJ0o=;
-        b=BzxEpjl0Hwaw+Slfp5sP43OX5gyuxiqOVRiMO9RYS1Mii8udPDLY7/8WIJsqvJ2W8w
-         6eGrHKOzo8fViOt8l43lf6fMk6FUOUY63u1if9o+rQUiRrITzb0pYvJEbTXBjmski//X
-         92/OTda2Mo82tVLrHXBmdTp6+FDkOEluuu3v9sh3+PxjcJ8tDPO/rKD++Yb4gdYm0TWZ
-         Zd5CtlG/fYXrw7cp1COXrp6A8iHbuhu6V85FTo8SBG4i5DEr6jzZtFfa91R9QJN5Xjhu
-         EtMGg7vxj40i6B82sF6FWlJL2dv3kagRTyS8TombthR/t5Al4QH0FhvdYgqAIqVPjZzr
-         N8xQ==
-X-Gm-Message-State: AOJu0YyNgiF+vLiANe1mJskp+RhIQw5F432kn/yQFdB1UuCrXRPht796
-	EPP58d6NTG+eTbDhF0w7xPJFGpOOkX9OVwGhNJDWKe46MvDtZwdLOh6QyoK1zq/hxXvWs5pFCEd
-	fV0iMHf1sggZbD/7Yb2Gx2Tln5uG1Eu6COS5M
-X-Google-Smtp-Source: AGHT+IHi9xOcEw3umN0u1glNrPV4qYvVZkQz8kWFvq7aHgGCJV72NjIwpPeYoC+xt3CcmELwbIVVkJBUhKi9wtSWzd8=
-X-Received: by 2002:a25:268e:0:b0:dc6:551:84cd with SMTP id
- m136-20020a25268e000000b00dc6055184cdmr10004ybm.23.1706198325412; Thu, 25 Jan
- 2024 07:58:45 -0800 (PST)
+        bh=JLYjQAW8uN3mo3cpDE3fT3XB64Zoal/PShd+3aJ5up0=;
+        b=j2bs8Fbd/LE5FSUeDBWw4jFVSSKQUbdh+Xs7iix/LZp2UP3WvtycXGzT8elJbcOuNZ
+         dBxYDM1YEHNf46DkSiE2BKLE78kLONfIy0Bk8qOAwPjIPtdEQWLlITIfGRWf5+WR9sV/
+         LvP/H4sGzr/lDX3M6I3QNGkkg9e1U0u0gVwFdazakSMgkYR1CVgDkxvaIbHRcBmWo1qd
+         MXOe9JHI2dXXiJ/MXvrAsd756cU9KRcBn0ZXPKaA+lrbWnzcWCIK59R0TclGvlAhUTn/
+         xDmAGiTTXJJSwSgKd9Zit6nlhzsptfPjjtuV89cwx9dYdv+D1xvWe0VLDM9eHExjgMLl
+         a8pg==
+X-Gm-Message-State: AOJu0YxHObbr6tgcXjbnHohZO5HHhA5+fwA19WbBi1WZ5D8gkjxjvuSZ
+	cNiFly6B2W8pHjDRrfn8BhBYQjS3XSZ5GmXFwrikOeDG1uQm67gN4B7DSryqMxsbOXjizXO1uzw
+	RSku+ygHz9pbMpdHaQ9FrQebwR9I=
+X-Google-Smtp-Source: AGHT+IFJySUTftS4lzlC6sVBx0ColEZgj+iVh+H1+Ol5ZHRMac3h2rsO1+NRZV5aGD0Ne3fv/kBDBQfI9QvC875rxGQ=
+X-Received: by 2002:a05:6a20:7293:b0:19c:68c1:d580 with SMTP id
+ o19-20020a056a20729300b0019c68c1d580mr1538889pzk.45.1706198368603; Thu, 25
+ Jan 2024 07:59:28 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,19 +64,21 @@ References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
  <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
  <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com> <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
 In-Reply-To: <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 25 Jan 2024 10:58:34 -0500
-Message-ID: <CAHC9VhQaHCh7JsdRUD4285jGnGgG9URsq6ZD51QtyxFbH4zZwg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 25 Jan 2024 10:59:17 -0500
+Message-ID: <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
 Subject: Re: selinux-testsuite nfs tests?
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
 Cc: Ondrej Mosnacek <omosnace@redhat.com>, SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 25, 2024 at 10:50=E2=80=AFAM Stephen Smalley
+On Thu, Jan 25, 2024 at 10:49=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
+>
 > On Thu, Jan 25, 2024 at 10:16=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
  wrote:
+> >
 > > On Thu, Jan 25, 2024 at 10:15=E2=80=AFAM Ondrej Mosnacek <omosnace@redh=
 at.com> wrote:
 > > > On Thu, Jan 25, 2024 at 3:52=E2=80=AFPM Paul Moore <paul@paul-moore.c=
@@ -93,20 +95,10 @@ e
 > > Great, no worries if it takes a little longer, I just wanted to see if
 > > you were able to put together a fix or if I needed to do it.
 >
-> FYSA ...
-
-I'll admit to having to google that ;)
-
-> ... reverting that change does restore basic labeling of NFS files
+> FYSA, reverting that change does restore basic labeling of NFS files
 > but ./tools/nfs.sh is still failing later, or rather hanging during
 > the Unix socket tests on a NFS mount. Not sure why yet.
 
-Since we know what the problem is, and while we haven't seen it yet, I
-think we mostly know what Ondrej's patch is going to look like
-(assuming no testing surprises), I don't see a need to do a revert.
-
-Independent of that, we should figure out if we need to do any
-additional work to restore labeled NFS.
-
---=20
-paul-moore.com
+So as a side-bar is anyone running ./tools/nfs.sh on a regular basis
+or has it been wired up into the automated testing by anyone? If not
+and if we can get it back to a clean state, that would be good to do.
