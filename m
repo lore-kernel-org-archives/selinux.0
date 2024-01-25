@@ -1,109 +1,81 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9FDD1353F3
-	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 19:57:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FEF5131736
+	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 19:57:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706212654; cv=none; b=T7iAk2k1O4jdvUtk0msrLPx02zc0ti7AQKYvcOhs+DRcyIpcLHP4Lu8eB082T61iDRtkZW8DXcRudcju5cKGePfSqh3HMMDGIcOfy6s1HtBmQoHBvZYVWwfvkgvQgeRL4namfhTSS1Mws5q3BUASndlXeN1Goh67cDfHPQ72oYg=
+	t=1706212677; cv=none; b=uQPPDn06l1Ccl+3nS1Hg6t18PZLzHWnd8WqlWSeH3AMgASRGHIb63ayF6qJ0nTagb8tkHZoQZS37EvMoiFteKKAZhMq6FLouEJkBDoP9W9Da8iKcEbWsI6q/SX5vxyafqicrN1D12l/yDmOG7wMSL1bj6F0hl1PahAv3YhHzkn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706212654; c=relaxed/simple;
-	bh=FxJb54iQxB7PN4ve38b/JVcO83mexZB3naeALWn8Bn0=;
+	s=arc-20240116; t=1706212677; c=relaxed/simple;
+	bh=xJkCJUf0KyRYkfT/04lH+/86EJdWLBY4pQ9uWvbw+bs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=W+NZ8AlEkFGg9DP69GQEyGbCOsZT/5k1Q2rDc3MMZ8CQ0x5uB9ROmVMnMe9BR8w4OMMdPJws9fjuIcWngkV6gExmJhZodByfWAew55A67yriVNFTL9kKCoWTj5/iZNBgjHEwduMVaVbgXKw31aQFfq3tpQKJiqCcAJAUgq1aJrE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mH+wk9Mr; arc=none smtp.client-ip=209.85.167.52
+	 To:Cc:Content-Type; b=GtQx0K1Bv3kl9IO0qOZ7+HEEf1CcOSanjx/wq7t8Djtkq0Wt/gADOE1kC8p1cbBLH78XFLoLK7MwD4PyqXr74wd5Q+k19q3CBD86CTIJyZ83/5DQTonSeAydHkI+4jymvLFIEBz9BI2Pk6nb3FgiNXpZYvf+3ue6I21AaR8kKXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hDoml5vO; arc=none smtp.client-ip=209.85.167.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mH+wk9Mr"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-510221ab3ebso660726e87.1
-        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 11:57:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hDoml5vO"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5100cb238bcso4832060e87.3
+        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 11:57:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1706212651; x=1706817451; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1706212674; x=1706817474; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=x8lzCDlRia3Nqxze0QO6R7I3lsbeZy8VQVSPPoHSxNI=;
-        b=mH+wk9MrfLIXqpX/1kaI3yBZkwuH8+NlvM3blvrC3EGMUi1MFwoM3ouUhoexBwbV1H
-         KJNSQhQ/uUzZpw8rV0RrYLVOod+4BNWjAdcW7WfG6ihIfpxN89SJSr3Qml+nEZttjH5S
-         6eIU6cVq94mbUMhji8FeWkVB34CyVYfh/qEaucHEi2hBIwHb/XvTRSQ7CUnWZtdx5ncY
-         PeIvP9APz0Zq+aMxB2eT/lmgmfqVTDelJsetxWtO971EEXmr9QReYEaWlgzc36oqAv2Z
-         2Q2FrMLvRZ9XYYaraybhyNiXVd6ldf2ZPxopklrbEyN5XwhLPRSB+xy1t+Mfpp7Eb2m1
-         ve1w==
+        bh=rfu8a8DzE0lArxss2evvPzhmOLmBqb+oBoOXDJiGljM=;
+        b=hDoml5vO0ZXVsjFQsQMubGl9/jS1CghhwsGRL9vwVqqJgi4UJu2c0EQ1tGhx2MueJ/
+         NU5/yafs74g9LihJakZU7OwGigt6gOC12BcUkLxZZGlOYsOjonvJmGSao83+Y+UO3Qwn
+         +gkCFbVbCcCCTiD6dt1StzD1KgSJbNW93eYtQPmizuzeyf29lMiPgJBwRe75DjeBgzoR
+         3VES97OH/JJ0pWbA5EVz+eFBpjuOdVAALW5JsD3oDKRQzR21FCMB8AkN0g04Xyzrp5wV
+         x01+MfeOqYY2eGjWd55ee59mcofa118Pm53NTYJlxyZtDGc/hU/xx7WqQfG5TFE2JBXO
+         E4HQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706212651; x=1706817451;
+        d=1e100.net; s=20230601; t=1706212674; x=1706817474;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=x8lzCDlRia3Nqxze0QO6R7I3lsbeZy8VQVSPPoHSxNI=;
-        b=eXU7k94Ezvq5bq4F2EtPXOk2ZbL5VWiMSNCXPp79YseZVUaVMZSNf/qLod2YsDcj5A
-         +1Q8E+rEOAvTO5nQbf5oGnTZKrZUJ9Q0cW1LNNT9VaVFtLBmvqrS2QDbsVbi7N35pu6L
-         oSbK5asjIjhemqgxnnXhMpBwCpvX2ZkaYZi+yBVNg/Nub/YGgqMbl/y85w33dfazqnyP
-         ZyKaFEDhkoKn4sdB9fvp+JWzL8d89fYJ56ntcV/aHZhLfckmhMNOagjLWsLHsWjA7YFz
-         jtpCDDZQiMYckC77ghDTPYiRxWa4jOrSGBCI6KN5/BltsQmZycwFZtrz015+R8V4iIkG
-         K66A==
-X-Gm-Message-State: AOJu0Yzmt3nVXl36E5grd9498qdkYZepzqVbS82hVnI6fJdS+gMnUBRD
-	NHBn3IvdFT0BU+UTeRh+ZFlQel2kFIdh7yAU1VRSTIqG+b5PDQkFND5I5xNuZk6Eabqmaet1y5P
-	jY2jLSRt19YZHEgfli3oMZV6gpew=
-X-Google-Smtp-Source: AGHT+IFnTAyURirZdUOKv9GhgSe6uhYVQdQ0kk4vBJRSSKv7mIBhJbKYJaMv+ghtzRCH18Im6dIx2WauGhCg7+RaK8U=
-X-Received: by 2002:ac2:42c7:0:b0:50e:b1b1:430c with SMTP id
- n7-20020ac242c7000000b0050eb1b1430cmr190616lfl.116.1706212650666; Thu, 25 Jan
- 2024 11:57:30 -0800 (PST)
+        bh=rfu8a8DzE0lArxss2evvPzhmOLmBqb+oBoOXDJiGljM=;
+        b=dNHijaObxBLuUSZYIZaoFUdg7aOD+h25ajJqchr+v8Z5r9SAE6Efv5f7SLhGsOiQd+
+         eMDzRvxRL3f4FKl3c5DGIRHWthhnpZ4sFyUPdLwIL+novjRvU9PiyYy6nQshkXcdtz3R
+         W4ybs0FtUsIZMfVeYCvoEFvPhej27zeFE3qXaNpRiPQekQp79rPyq26k04b7tA4LSGI9
+         u7PK+p9gSPB2Jnd2AFyaJ1P5Krg/l5weUTJqzEOBZHMyVW7Otg+HDBIaVaAz0KRTBK0Y
+         jyWuyzYNCX1Fmi/Ejv/Z3LAgXM4CsvaeTlyyvxxDDfYVKeih0+M88jyBh8JwiPFhvNdc
+         olgw==
+X-Gm-Message-State: AOJu0YywwR7u3k5cxhxb0r8EetI7rqJjC1w/sb7JAYFDbqVz+nHA2v+h
+	05339gDWvesV68VoAE3nGeJccA1+GFv9XGab6iTV3ZGMmT8oimAx+G7cbpQENrPCvKIMWUsdZaT
+	wW3m4cMPmm5KfVv8+FlXEAAHFi8s=
+X-Google-Smtp-Source: AGHT+IE5+BMjMjIMzXDHU8mvKWzI8cZnEEKAGqidSLkzgCy3snRV8cT6p6f0DzC3vfz3igFprOJotU9gIHlyxDRIa14=
+X-Received: by 2002:a05:6512:3e9:b0:510:1487:bcb with SMTP id
+ n9-20020a05651203e900b0051014870bcbmr188961lfq.64.1706212674295; Thu, 25 Jan
+ 2024 11:57:54 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240108210314.339682-1-fontaine.fabrice@gmail.com> <CAP+JOzQ_UgiN=jxrMM+7wpprn+GrY=6yq_=6oN=KbVOX2-P9+A@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ_UgiN=jxrMM+7wpprn+GrY=6yq_=6oN=KbVOX2-P9+A@mail.gmail.com>
+References: <20240115133607.10783-1-cgzones@googlemail.com> <CAP+JOzR2ExEPR7U=PkKCzNVQ+w70oZYxD+21nz4u7p0AhH7hcw@mail.gmail.com>
+In-Reply-To: <CAP+JOzR2ExEPR7U=PkKCzNVQ+w70oZYxD+21nz4u7p0AhH7hcw@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Thu, 25 Jan 2024 14:57:18 -0500
-Message-ID: <CAP+JOzSwqBjWtw2+oFSZ-ywun+Ka7KkBf6xsOx4rtubzSuadKA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/src/Makefile: fix reallocarray detection
-To: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+Date: Thu, 25 Jan 2024 14:57:42 -0500
+Message-ID: <CAP+JOzQaaQF7WcK-AkHKfb_1AfBKr3-Otxnybfp2HqvfAiOWmA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: use reentrant strtok_r(3)
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 10, 2024 at 4:34=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Tue, Jan 16, 2024 at 12:35=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> On Mon, Jan 8, 2024 at 4:03=E2=80=AFPM Fabrice Fontaine
-> <fontaine.fabrice@gmail.com> wrote:
+> On Mon, Jan 15, 2024 at 8:45=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> > Pass LDFLAGS when checking for reallocarray to avoid the following
-> > static build failure with musl raised since version 3.4 and
-> > https://github.com/SELinuxProject/selinux/commit/f0a5f6e33084bd83d409bb=
-7c932256139f471e71
-> > because -static is not passed when checking for reallocarray:
+> > Use the reentrant version strtok_r(3) instead of strtok(3) to avoid
+> > potential data races with concurrent threads.
 > >
-> > /home/autobuild/autobuild/instance-9/output-1/host/bin/armeb-buildroot-=
-linux-musleabi-gcc -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET=
-_BITS=3D64  -O0 -g0  -static -I. -I../include -D_GNU_SOURCE -I../cil/includ=
-e -fPIC -c -o assertion.o assertion.c
-> > In file included from assertion.c:28:
-> > private.h:88:21: error: static declaration of 'reallocarray' follows no=
-n-static declaration
-> >    88 | static inline void* reallocarray(void *ptr, size_t nmemb, size_=
-t size) {
-> >       |                     ^~~~~~~~~~~~
-> > In file included from ../include/sepol/policydb/mls_types.h:35,
-> >                  from ../include/sepol/policydb/context.h:23,
-> >                  from ../include/sepol/policydb/policydb.h:62,
-> >                  from assertion.c:24:
-> > /home/autobuild/autobuild/instance-9/output-1/host/armeb-buildroot-linu=
-x-musleabi/sysroot/usr/include/stdlib.h:150:7: note: previous declaration o=
-f 'reallocarray' with type 'void *(void *, size_t,  size_t)' {aka 'void *(v=
-oid *, unsigned int,  unsigned int)'}
-> >   150 | void *reallocarray (void *, size_t, size_t);
-> >       |       ^~~~~~~~~~~~
-> >
-> > Fixes:
-> >  - http://autobuild.buildroot.org/results/0170032548a38e2c991d62dc58238=
-08458ad03b3
-> >
-> > Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
@@ -113,26 +85,60 @@ Thanks,
 Jim
 
 > > ---
-> >  libsepol/src/Makefile | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >  libselinux/src/selinux_restorecon.c | 12 +++++++-----
+> >  1 file changed, 7 insertions(+), 5 deletions(-)
 > >
-> > diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> > index d80a941f..16b9bd5e 100644
-> > --- a/libsepol/src/Makefile
-> > +++ b/libsepol/src/Makefile
-> > @@ -31,7 +31,7 @@ endif
+> > diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selin=
+ux_restorecon.c
+> > index 38f10f1c..acb729c8 100644
+> > --- a/libselinux/src/selinux_restorecon.c
+> > +++ b/libselinux/src/selinux_restorecon.c
+> > @@ -243,7 +243,7 @@ static uint64_t exclude_non_seclabel_mounts(void)
+> >         int index =3D 0, found =3D 0;
+> >         uint64_t nfile =3D 0;
+> >         char *mount_info[4];
+> > -       char *buf =3D NULL, *item;
+> > +       char *buf =3D NULL, *item, *saveptr;
 > >
-> >  # check for reallocarray(3) availability
-> >  H :=3D \#
-> > -ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.=
-h>\nint main(void){void*p=3Dreallocarray(NULL, 1, sizeof(char));return 0;}'=
- | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> > +ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.=
-h>\nint main(void){void*p=3Dreallocarray(NULL, 1, sizeof(char));return 0;}'=
- | $(CC) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> >  override CFLAGS +=3D -DHAVE_REALLOCARRAY
-> >  endif
+> >         /* Check to see if the kernel supports seclabel */
+> >         if (uname(&uts) =3D=3D 0 && strverscmp(uts.release, "2.6.30") <=
+ 0)
+> > @@ -258,13 +258,14 @@ static uint64_t exclude_non_seclabel_mounts(void)
+> >         while (getline(&buf, &len, fp) !=3D -1) {
+> >                 found =3D 0;
+> >                 index =3D 0;
+> > -               item =3D strtok(buf, " ");
+> > +               saveptr =3D NULL;
+> > +               item =3D strtok_r(buf, " ", &saveptr);
+> >                 while (item !=3D NULL) {
+> >                         mount_info[index] =3D item;
+> >                         index++;
+> >                         if (index =3D=3D 4)
+> >                                 break;
+> > -                       item =3D strtok(NULL, " ");
+> > +                       item =3D strtok_r(NULL, " ", &saveptr);
+> >                 }
+> >                 if (index < 4) {
+> >                         selinux_log(SELINUX_ERROR,
+> > @@ -276,14 +277,15 @@ static uint64_t exclude_non_seclabel_mounts(void)
+> >                 /* Remove pre-existing entry */
+> >                 remove_exclude(mount_info[1]);
 > >
+> > -               item =3D strtok(mount_info[3], ",");
+> > +               saveptr =3D NULL;
+> > +               item =3D strtok_r(mount_info[3], ",", &saveptr);
+> >                 while (item !=3D NULL) {
+> >                         if (strcmp(item, "seclabel") =3D=3D 0) {
+> >                                 found =3D 1;
+> >                                 nfile +=3D file_system_count(mount_info=
+[1]);
+> >                                 break;
+> >                         }
+> > -                       item =3D strtok(NULL, ",");
+> > +                       item =3D strtok_r(NULL, ",", &saveptr);
+> >                 }
+> >
+> >                 /* Exclude mount points without the seclabel option */
 > > --
 > > 2.43.0
 > >
