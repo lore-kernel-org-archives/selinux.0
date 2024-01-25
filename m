@@ -1,54 +1,54 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 461826E2DB
-	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 15:59:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD1CF7C080
+	for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 16:09:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706198370; cv=none; b=FQ8VlTWfWAmZW4OMNVcTwMyLVge6qEAZEoR322cZumQ270cxkvVlhYrkC00KqErJW/bq1HI1w+I9SxSH57Pg/0WB5YHy6tj3K82CTCengLAkP8+WJns8JHLyG5SrQMIYoPIacwey3QmpA5M4qym3lB8Zxp9BUSP1YuvQzyIBQdc=
+	t=1706198950; cv=none; b=nArOpQHy0nMBam9AF70hEJUQTy/DRu84/4Vze1hZ+q+9jZTF44HR4181y3FTDRjg/A2sy5l0OJFS/w2JbF04D7jkUZnsViazYp4mRU7JkNnY+PkvfU4EgdySxZYnPT7oju4Km7zVfBuaVlQAYLyvoD+qV1rosN+lXWfMQeTU7Xo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706198370; c=relaxed/simple;
-	bh=JLYjQAW8uN3mo3cpDE3fT3XB64Zoal/PShd+3aJ5up0=;
+	s=arc-20240116; t=1706198950; c=relaxed/simple;
+	bh=s4Lz/7FGeBQQtJriVan7R/e0fU4M5YDFyrKWuZ0VGzk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gvfePTESdjh9kK+IlrS0z6fSEiczdyyRWE6uhLRJ/3CSvS7gxiRHdOvuORcHx13uahpk972dPcVlpcbiFRyRdQ6nGuEaz1xvWCF3mSZtshH5L4yoYFxr7dAjnfFMbxWdEPsPAbOe4vFCfDpu/gq2dS4Wa5l9bXdSKa+NDHjAwWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X2zxz+FJ; arc=none smtp.client-ip=209.85.215.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=hdVZK2bxB/o76h8iA/6zAYC45Cffx8nnH8UtUndmHB4y48Xkj+TYCAr5ax6pFK/GRsqnK6v82pvIH3Y2Trh0un18DFfS4BmP9Yi7CrhzuN7Vy/GgkxX72er+8j+SyY+m1ZYwj12zjBSJglMPbItrsOe9utXGaqDdyuNWeXflVk4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=EH2EQmNq; arc=none smtp.client-ip=209.85.219.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X2zxz+FJ"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-5c66b093b86so638903a12.0
-        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 07:59:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="EH2EQmNq"
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dc608c3718dso1946933276.1
+        for <selinux@vger.kernel.org>; Thu, 25 Jan 2024 08:09:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1706198368; x=1706803168; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1706198947; x=1706803747; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JLYjQAW8uN3mo3cpDE3fT3XB64Zoal/PShd+3aJ5up0=;
-        b=X2zxz+FJr5ZuRHuuhFlJE29+2BjH2QzlD4mJX9GBrnA1d4XsiTW/guP5UTF/crbNtd
-         hLdmf0Wpn3AGLIuVm+C5MOA6jLP30Gv0ddHZdoX2TIGWTV63/zHMQKR/CbaJVU1jcWW1
-         BLTdWo07ZLC5ZgOv475WglXn2cmWaiAC4MK0X+ZYkD3RBcTw2jQhGzPAa1QyW7aHapGe
-         ZrEGTE8SNF94ZwB6qWjRLPTm2B7z321fDAGfTteDyKM1XThbEAOJROQelKf2DIa3abas
-         STWbCUxrIMnDZ2eIc3TYSUggmkE5mLX5TnUCA6jYW10zkrI36wUbuVwml06y14nkPt5n
-         3SGw==
+        bh=iD/r0uWbNZgJgJ6cYKOc4BCZAT0s04XhH9xFaYpEDbk=;
+        b=EH2EQmNq3prhlBoZmtjkYy+dAnlclgzXxqrTt1cZkFxMTl+WH+GtS7iUov3c+05szI
+         aB3gE62MFU6V8F5CqF8vERrDmddAM0v4rt/o6GWx3KFT8vSNizT2pom26q1ebAyn4krj
+         6AiGfGAI3b29D6VKUQ1zbijqvW+aViLoDb+FJldtj/uS1POu1q5UJwDqZpufIN7MhdbA
+         QK8ZrlTPhRVtPG9GWOFcsSSrsCLNXa6zF/zJvibEQiHmLUPtllr8fEdqtqnvNEvZU4xn
+         EiHNQmKCiM5AB2RqPnf8D7jWkwej4A4nsMPPar0TOphh/gHPWMKccrl6PRJreeLqJYS0
+         7+wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706198368; x=1706803168;
+        d=1e100.net; s=20230601; t=1706198947; x=1706803747;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JLYjQAW8uN3mo3cpDE3fT3XB64Zoal/PShd+3aJ5up0=;
-        b=j2bs8Fbd/LE5FSUeDBWw4jFVSSKQUbdh+Xs7iix/LZp2UP3WvtycXGzT8elJbcOuNZ
-         dBxYDM1YEHNf46DkSiE2BKLE78kLONfIy0Bk8qOAwPjIPtdEQWLlITIfGRWf5+WR9sV/
-         LvP/H4sGzr/lDX3M6I3QNGkkg9e1U0u0gVwFdazakSMgkYR1CVgDkxvaIbHRcBmWo1qd
-         MXOe9JHI2dXXiJ/MXvrAsd756cU9KRcBn0ZXPKaA+lrbWnzcWCIK59R0TclGvlAhUTn/
-         xDmAGiTTXJJSwSgKd9Zit6nlhzsptfPjjtuV89cwx9dYdv+D1xvWe0VLDM9eHExjgMLl
-         a8pg==
-X-Gm-Message-State: AOJu0YxHObbr6tgcXjbnHohZO5HHhA5+fwA19WbBi1WZ5D8gkjxjvuSZ
-	cNiFly6B2W8pHjDRrfn8BhBYQjS3XSZ5GmXFwrikOeDG1uQm67gN4B7DSryqMxsbOXjizXO1uzw
-	RSku+ygHz9pbMpdHaQ9FrQebwR9I=
-X-Google-Smtp-Source: AGHT+IFJySUTftS4lzlC6sVBx0ColEZgj+iVh+H1+Ol5ZHRMac3h2rsO1+NRZV5aGD0Ne3fv/kBDBQfI9QvC875rxGQ=
-X-Received: by 2002:a05:6a20:7293:b0:19c:68c1:d580 with SMTP id
- o19-20020a056a20729300b0019c68c1d580mr1538889pzk.45.1706198368603; Thu, 25
- Jan 2024 07:59:28 -0800 (PST)
+        bh=iD/r0uWbNZgJgJ6cYKOc4BCZAT0s04XhH9xFaYpEDbk=;
+        b=kZ+gDHm3OhPSyVz4LhvLIyDYjqjqXU7ascnKmXg1J3mZMfxWf958AHMZEPH3McvkTz
+         VSIKCyu1NJ4fU7rfzegNNO/A6e1rb1zAX5q9q65ArlPIKWf0IZL1ekzEa2moNtHTA+e/
+         tZ1xu3zqkoY3BJb626cm7SqL759YXxWnJlMP6hhfHYKWwfJmlpcb6TKzKuiL9eTUGnvE
+         XGJrEFj6j0Ctr+K6H1kzyy5JWCu7bH4U4AgccXGut0AgVhQ5PNnW6KOOzmApNnpdXkLU
+         KbuATGFZ6aSIdcgNbxOaQ/7OQF71J2OFrnXhzEjBBw6iAsXZCIBkOWY/XwGyOjObMFXz
+         Tdow==
+X-Gm-Message-State: AOJu0YwAxEluAqUgT6FJTEw5lQCPmJB/U1HS7ryAF7nqW8wlc7pBrNvy
+	UU+T/N4Oz6zPfD0PwT1SmXLPVYLcWz6t3gK7E9sm2lx7AwqGNoW2veb/rgBC7mvhcjbBZ3Ecyf8
+	SQwFwuwV+q1dJuhkzsOak3JSmVvow7si5lOjfrZlO/3llMkk=
+X-Google-Smtp-Source: AGHT+IGwkmlcT10pTLuPxc16LvADsNL+DsHH60D00tpYkTWkTyjtJEHHEdwSyV++1dT0nGVr3xpNFbPAdib47HFlCwU=
+X-Received: by 2002:a25:e04e:0:b0:dc3:18dc:71ed with SMTP id
+ x75-20020a25e04e000000b00dc318dc71edmr27454ybg.103.1706198947659; Thu, 25 Jan
+ 2024 08:09:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -62,43 +62,31 @@ References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
  <CAEjxPJ5_SQDmR9b-+0woBLg25omtERSLBKawTV9AqLpZAHFvcg@mail.gmail.com>
  <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com>
  <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
- <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com> <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 25 Jan 2024 10:59:17 -0500
-Message-ID: <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
+ <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com>
+ <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com> <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 25 Jan 2024 11:08:56 -0500
+Message-ID: <CAHC9VhRTfUO_b+dfWRNtFBPUCnk5iRCkCfT4PcNBt+b856t-iw@mail.gmail.com>
 Subject: Re: selinux-testsuite nfs tests?
-To: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: Ondrej Mosnacek <omosnace@redhat.com>, SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 25, 2024 at 10:49=E2=80=AFAM Stephen Smalley
+On Thu, Jan 25, 2024 at 10:59=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Jan 25, 2024 at 10:16=E2=80=AFAM Paul Moore <paul@paul-moore.com>=
- wrote:
-> >
-> > On Thu, Jan 25, 2024 at 10:15=E2=80=AFAM Ondrej Mosnacek <omosnace@redh=
-at.com> wrote:
-> > > On Thu, Jan 25, 2024 at 3:52=E2=80=AFPM Paul Moore <paul@paul-moore.c=
-om> wrote:
-> > > >
-> > > > Ondrej, are you able to post a fix for this?
-> > >
-> > > Yes, I'm on it. I already have a candidate fix, but my kernel buildin=
-g
-> > > infra is currently acting up, so it might take a while before I'm abl=
-e
-> > > to test & post it.
-> >
-> > Great, no worries if it takes a little longer, I just wanted to see if
-> > you were able to put together a fix or if I needed to do it.
->
-> FYSA, reverting that change does restore basic labeling of NFS files
-> but ./tools/nfs.sh is still failing later, or rather hanging during
-> the Unix socket tests on a NFS mount. Not sure why yet.
+> So as a side-bar is anyone running ./tools/nfs.sh on a regular basis
+> or has it been wired up into the automated testing by anyone? If not
+> and if we can get it back to a clean state, that would be good to do.
 
-So as a side-bar is anyone running ./tools/nfs.sh on a regular basis
-or has it been wired up into the automated testing by anyone? If not
-and if we can get it back to a clean state, that would be good to do.
+I am not as part of my kernel-secnext testing, I should, but I haven't
+had the time to configure that as part of the test run.  Building and
+testing on Debian in addition to Fedora is still higher on my
+kernel-secnext todo list, and I haven't made much progress there.
+
+I believe the IBM/RH folks are doing regular testing, perhaps they
+have something in place?
+
+--=20
+paul-moore.com
