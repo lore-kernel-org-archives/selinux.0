@@ -1,111 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22C4A1802A
-	for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 10:12:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCE2412B9B
+	for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 10:44:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706263929; cv=none; b=IiTQX1w2+MTYbbdxXoj4NZN73+3Wst0l878VlDvuZduXft0Ewn1azBrMRE7uKLt8TJ+dUYeM2CacBJ01du6CJTbZ2/maSDikj4KL3KWCDoanaXqBnKUEUEuCAC9HsRaxhwFtifN41e54PX1K0R109MwrCtz8CltgV94g9tGuRtE=
+	t=1706265864; cv=none; b=hiTm5w+nBBx6H72ZxIHWXLdRXYiHPriF8xGGL8DbXQhLDFy8LhKSyuZR+EnwK4RSvLKgsDx6ISiwNUsZepYyx5D04yjvx9yLecZQAJpO1RjehqPX4+sdT0luE23IiyCLfAXcdEcD/t93PwfSxi5Q9z0ernSLsx+eRzubLgImWCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706263929; c=relaxed/simple;
-	bh=rOhDAuXWPfvEqHD+8xwty+ywtK4foQm5Tilv/QiCRVo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MAIZjGAKi6mZqcomwjXkFrJlDN61scU8oFJhrgZXLhyHJKxvXYaa5YIYySZUi/YneSvDbl7k69zEjlgBNhISiQoSTuBNvPJfCxJpKR15gw5pZu9tEXadICxiUwLF7rAkGXbJjyb5cepHGDZgf3/c4TKfj1raZvjivahGvLVnIp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DI4rRR4j; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1706265864; c=relaxed/simple;
+	bh=KDwKvxjFBtCGcBHvMr/jFLU0CTemadUlZgy031SYquI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J3ykt2N/ctc8jOuWlkOeX6pvAgt7ivum+tSlSprWsGMQTLIVTE/UhsUBO2BiU/mO2CHlqLB8RnayT3ulGhL76h6tqQSTQEHWodh5J+mpRPYHALLxY1Ng7ZfnX8jI/q1YGHOr9PTzpzQ16IJgU+i8cHrLeRO+/PTKCI0PBhZPHjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VDa/Niud; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DI4rRR4j"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VDa/Niud"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706263925;
+	s=mimecast20190719; t=1706265855;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=N+ZcWiMYoKvFxgIikTkf/nODnFpcRPPlosghtgRXwFw=;
-	b=DI4rRR4jfPtjy2LawyBDHazhVgMiITHEwzbMoAorDip1f551CUlq5c4Eqhnh7jaKr//JjF
-	GmZgjVh1/+bqAM9cxvey+NwrHCMMAeqFNpcGGEunCLLTDdovJ5bt/rxQOJ4NtFoj231ava
-	M8+vUprQp0wTYWJvuYc+yJmnJOlycyU=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=fEWqYXcFpyH0h2J3JzWjNyw0EkIiJEepfjoSL7blk4o=;
+	b=VDa/NiudPX2J/KcbP8a1tvZ6Mq62L1qp0DDCqyTk+4BG0qxNObrgjufvyFs0fWqfF+4a5H
+	8jE2HRVezmMSV30OVXLVkR2kTew6zfgKFwgkJz+nrS7vbQZOGKaId8s5Ss4FG4M/s2QLi9
+	E32q/NuO70QOby5C9YTamIWUsXOpFWs=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-614-qHAV4fgTMraw76I50hjZvQ-1; Fri, 26 Jan 2024 05:12:03 -0500
-X-MC-Unique: qHAV4fgTMraw76I50hjZvQ-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6ddc1b3042eso376825b3a.0
-        for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 02:12:03 -0800 (PST)
+ us-mta-621-dC84CTaiOEyNyRb3Dhkhbw-1; Fri, 26 Jan 2024 05:44:10 -0500
+X-MC-Unique: dC84CTaiOEyNyRb3Dhkhbw-1
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-5101ebb72c8so196886e87.2
+        for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 02:44:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706263922; x=1706868722;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=N+ZcWiMYoKvFxgIikTkf/nODnFpcRPPlosghtgRXwFw=;
-        b=CN4jDmBfQPOfjYbKhpqpNuhxtRgF594BBZjG+/q5hKpnbjt8E4965Iai4N188GExl0
-         tQp3oPJVKXmmGayMn0SW2SDlhxVhUvkhQKse0TkUuCMTHG3OjG60fqDQlPN44P4is7S2
-         sQGFyzNWY9XybsqX7RwvzHl7Qul606KPioubidYX3rGFZXVfsH2KRnZIjSBsFu1H3q5R
-         0mjVjkOpw9yooLggw8jEgQxpFpnbehqRFQ3hfzhcJnuLEIENWO4K02caUdnH2OnpFUUS
-         FClBUvprN3QN0Ll4N+4Ht+52HcTShXrJ6Q9OBCh/1NcyZin8BD9uoS9KPyK84Xa4IYxI
-         IbkQ==
-X-Gm-Message-State: AOJu0YxKaXLYU/hvoXlR4kHewTOzcmv89F4PJcqIRfTvMQZwcYaoLqnd
-	VTOkXlbOYVvAeotLgbW/TyKZa++zVgptfcYfRGAzTjaFKzHkppzuD4LoZRp0uf+46FBPmvqm137
-	fGOvi9vC3P9iJ4XTzoB2NzWiA4gm5aJladKvzQo32n+w6v365y1OP14KBw9LosJu5G3N6FuQcBY
-	fJcIDcGIgOy8jFL9BeJO5pPwjZ7Oe3Vg==
-X-Received: by 2002:a05:6a20:3cac:b0:19a:602e:e491 with SMTP id b44-20020a056a203cac00b0019a602ee491mr1101945pzj.106.1706263922274;
-        Fri, 26 Jan 2024 02:12:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IH6GR/gvK+a0q+Ppsns7mWFUKWVvhbKkEmqtPKh5jrfASa1ijI6RWOSQw0hzKylDrGmnEf8VTZ/i+Qg8JVHwYU=
-X-Received: by 2002:a05:6a20:3cac:b0:19a:602e:e491 with SMTP id
- b44-20020a056a203cac00b0019a602ee491mr1101942pzj.106.1706263922009; Fri, 26
- Jan 2024 02:12:02 -0800 (PST)
+        d=1e100.net; s=20230601; t=1706265848; x=1706870648;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fEWqYXcFpyH0h2J3JzWjNyw0EkIiJEepfjoSL7blk4o=;
+        b=iebZTyrCgyF8GGXREB+utgrXVgXcTdYzY/ibAmJVT+QLPXUp6GI0xKmGmzyb8GDnuR
+         SjTK2Acjc74fqY97a9c1iDSd6KeesKgX9iQPIS8qlAHuZX3LQd2YgecDwXe+05akOzGF
+         QMANjl5a0ZdXw062kNGnwNM50jA8PU9CuWte7GcXG55CkxKpMPJMOJc0L4q1cXx25OcL
+         dt6+uYu3s6L4v20cuqG68x6WfhOWb0QXPWVdE5xWVga9DphRp6i+RHwCfmX7Xg1x9aci
+         jyiSeX5WtLLcN4WagFZYAI31MqgIXO0MdQSTV/SLF9owi3gZJ2OwdcOI0MYjbIV/vGL7
+         jxwA==
+X-Gm-Message-State: AOJu0YwexFzV/ELEDUQpKXl5hD7PFmGxqqbpSKieJlnt/75Vq5en3H+f
+	GqHe4lW2C0N0MjYD7iBc5QLn4yOwZyhx5V108uRyudrQEDyotW7PJMOqj/xTubjkRbFtb3o7nay
+	0ssOCagfDmpxeIfkMEtZ8aJTNv2G153tnQDhtq1rf1hoNwSGP0rtJvq1dsdX3ltM=
+X-Received: by 2002:ac2:4564:0:b0:510:1023:784d with SMTP id k4-20020ac24564000000b005101023784dmr574331lfm.81.1706265847911;
+        Fri, 26 Jan 2024 02:44:07 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFLz0ct9zFeeITjNYcc+4b79PuevNDGcLbg6XkBVWisv//4gW2d8624fgOAcbVF9MSADDq+dA==
+X-Received: by 2002:ac2:4564:0:b0:510:1023:784d with SMTP id k4-20020ac24564000000b005101023784dmr574307lfm.81.1706265846018;
+        Fri, 26 Jan 2024 02:44:06 -0800 (PST)
+Received: from localhost.localdomain ([2a02:8308:b104:2c00:7718:da55:8b6:8dcc])
+        by smtp.gmail.com with ESMTPSA id d19-20020ac24c93000000b0051025dcd3e0sm139616lfl.69.2024.01.26.02.44.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jan 2024 02:44:05 -0800 (PST)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH] security: fix the logic in security_inode_getsecctx()
+Date: Fri, 26 Jan 2024 11:44:03 +0100
+Message-ID: <20240126104403.1040692-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
- <CAEjxPJ46kPOA3N7PAgqWs-z74siF7bMoGSU254dYReQwFCNoXA@mail.gmail.com>
- <CAHC9VhQKXtdA4YS7=fB9ffGTDnd7qPkCZVCTO3fvaQWjzwUT=Q@mail.gmail.com>
- <CAEjxPJ4czKz+4SfTo6g3s6ztSRbfyOv_GBkgp=k38nGDFssRiw@mail.gmail.com>
- <CAEjxPJ5_SQDmR9b-+0woBLg25omtERSLBKawTV9AqLpZAHFvcg@mail.gmail.com>
- <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com>
- <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
- <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com>
- <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
- <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com> <CAHC9VhRTfUO_b+dfWRNtFBPUCnk5iRCkCfT4PcNBt+b856t-iw@mail.gmail.com>
-In-Reply-To: <CAHC9VhRTfUO_b+dfWRNtFBPUCnk5iRCkCfT4PcNBt+b856t-iw@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Fri, 26 Jan 2024 11:11:50 +0100
-Message-ID: <CAFqZXNuqHKAJUdZ-3VL64Be0hp8jPjztk2NaUv4+XFcgUe23CQ@mail.gmail.com>
-Subject: Re: selinux-testsuite nfs tests?
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 25, 2024 at 5:09=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Thu, Jan 25, 2024 at 10:59=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > So as a side-bar is anyone running ./tools/nfs.sh on a regular basis
-> > or has it been wired up into the automated testing by anyone? If not
-> > and if we can get it back to a clean state, that would be good to do.
->
-> I am not as part of my kernel-secnext testing, I should, but I haven't
-> had the time to configure that as part of the test run.  Building and
-> testing on Debian in addition to Fedora is still higher on my
-> kernel-secnext todo list, and I haven't made much progress there.
->
-> I believe the IBM/RH folks are doing regular testing, perhaps they
-> have something in place?
+The inode_getsecctx LSM hook has previously been corrected to have
+-EOPNOTSUPP instead of 0 as the default return value to fix BPF LSM
+behavior. However, the call_int_hook()-generated loop in
+security_inode_getsecctx() was left treating 0 as the neutral value, so
+after an LSM returns 0, the loop continues to try other LSMs, and if one
+of them returns a non-zero value, the function immediately returns with
+said value. So in a situation where SELinux and the BPF LSMs registered
+this hook, -EOPNOTSUPP would be incorrectly returned whenever SELinux
+returned 0.
 
-We don't currently run the NFS-backed selinux-testsuite,
-unfortunately. Looking at my unmerged branches, I can see I tried to
-add it over 2 years ago, but the note I had left for myself says
-"doesn't work yet due to NFS bug", so presumably it wasn't passing
-even back then.
+Fix this by open-coding the call_int_hook() loop and making it use the
+correct LSM_RET_DEFAULT() value as the neutral one, similar to what
+other hooks do.
 
---
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Link: https://lore.kernel.org/selinux/CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com/
+Fixes: b36995b8609a ("lsm: fix default return value for inode_getsecctx")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+
+I ran 'tools/nfs.sh' on the patch and even though it fixes the most
+serious issue that Stephen reported, some of the tests are still
+failing under NFS (but I will presume that these are pre-existing issues
+not caused by the patch).
+
+I can also see an opportunity to clean up the hook implementations in
+security/security.c - I plan to have a go at it and send it as a
+separate patch later.
+
+ security/security.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/security/security.c b/security/security.c
+index 0144a98d3712..6196ccaba433 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -4255,7 +4255,19 @@ EXPORT_SYMBOL(security_inode_setsecctx);
+  */
+ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
+ {
+-	return call_int_hook(inode_getsecctx, -EOPNOTSUPP, inode, ctx, ctxlen);
++	struct security_hook_list *hp;
++	int rc;
++
++	/*
++	 * Only one module will provide a security context.
++	 */
++	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecctx, list) {
++		rc = hp->hook.inode_getsecctx(inode, ctx, ctxlen);
++		if (rc != LSM_RET_DEFAULT(inode_getsecctx))
++			return rc;
++	}
++
++	return LSM_RET_DEFAULT(inode_getsecctx);
+ }
+ EXPORT_SYMBOL(security_inode_getsecctx);
+ 
+-- 
+2.43.0
 
