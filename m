@@ -1,444 +1,155 @@
-Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 275AA20DD4
-	for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 18:26:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8491420320
+	for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 18:45:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706293617; cv=none; b=tfnDoT4vY/u+yYlBxrjcHqNEkDnd7hCB69ZQLmaaTvvzIYPL9fz6tO46rc5jb5Fh0n+7SDIIXV9LczBsg84NZ6jdUd+tCRqyaulyXaDHfuUyB2STmiUNR2i7ooPgW0oABTC7BrUONEtfLEOs0r4OZra2vhpfhaqwFg7GVEIGNL0=
+	t=1706294739; cv=none; b=dASl61C5/NhA2Oxjd4q56zlKe4qSyKrqxtmPxwebZxvF0QjIJDUGbxU1WOSSZ8PU9AZgx1hwfzFxuF5ocJWLTUlUKiTv3UQxbzWn/yvosgAVz36ue9UKd4j+kXwleJ8MI9Byl+2X7vy6UBnF3HQEbLAQ4k7NmV9yvbE+2XgFjCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706293617; c=relaxed/simple;
-	bh=o3RxoKEoGAMsrFl/gj9m84T613VSvhnEZzjCZFnZK5o=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=p0LekUa7621oROPb2KxARiv+BcKCiHIyG+4ucoDH+I/3u5/DWe49YO4z8JDUQXkhqvxF5ZAE1P1gVLyVY17PFEq7AT1EAlVxx8LFLAGreqnHukrMm2ARfBwNXul4lXEoEMk4/LSFImGLMsJQnA1jQCTC7I92cBSxFGQUQCKWW2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QXfr0lCV; arc=none smtp.client-ip=209.85.128.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com
+	s=arc-20240116; t=1706294739; c=relaxed/simple;
+	bh=iugxUc//VB+4fCt5nF+twx71qeqd8rZVc3h9NZ/wDR0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gQr5l6z5vgaDILPIW1JftqH9YkCgVcI3m9BKsPLAHOuKs01nfPrKdINMzIval/Gcpx4Js4vtofMiPTdxbm8pR367GDBvYPS99dGprkt0LyXtM/LFYEtlYjeUgxm8vpmbsOWhqvkxTPpZ5Kt5HbmVI4X8wsJrqJ5z4dVlEo1QOos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hy+1RIWX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QXfr0lCV"
-Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-5f874219ff9so8686377b3.0
-        for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 10:26:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1706293614; x=1706898414; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=uLXJpcEgAvHLQ8+bquI5HaOs2SY4k/xeWqEkBYhbiw0=;
-        b=QXfr0lCVIA/VWR19QIkaqlJkq8DXwIi5BAHiN3i9TzKydxcpI9JpYzh3zE/OYgvhST
-         ekPXAzomBtsYWAQisdLWTb9ZL/DScyTu5farAiMxpNa/Q1R+0YGZTzEvPkpZFEaH0CnV
-         YGtRwOaeKDjcf2kPtuN++PGFa5Fg8hWPV4e3HCV8D99OKuwpobExWMrtb/YOhEXXT2jO
-         PCb+e/+jesiHRofWIFNF87/1azNVyhBZyJMIIauvvOoir5TfVRx1E2ruSz4dt5n8cBQg
-         d9WBI7b4FNDzrPqgs4kLbY0SeAcvaQDNSldkunF3XGbAAgIIyy0af2GxDPV6BQY8WfmT
-         WRBg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hy+1RIWX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706294736;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=zPwOkU9NQD3w9RIGp6Z8HeMeeH68hR451yY+m+zjj+c=;
+	b=hy+1RIWXOnupJM+qiZcsyBuJdNyfF6Qadprsj+KHYpVbPsVAY13w94ZXY03eq9x1KhjCZV
+	US9kZbBZN2lj4oSZuRV23sDSPnowPMp+Di8Bm8achhyepvWGAOEXTnY0tnVxS6eA1rDx2J
+	k97+WATTuqq9HvMv+wjX7zl9gfY3Yl0=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-189-Jc7J24L3M-mgLR1c0qtnDg-1; Fri, 26 Jan 2024 13:45:34 -0500
+X-MC-Unique: Jc7J24L3M-mgLR1c0qtnDg-1
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-3371263463fso693707f8f.0
+        for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 10:45:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706293614; x=1706898414;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uLXJpcEgAvHLQ8+bquI5HaOs2SY4k/xeWqEkBYhbiw0=;
-        b=HKCewcRaOX4iJeYxMTq1UXs+iwcPNa/muaIzA/QocQmdgxt6g36iCrrNQzwvlL7zkW
-         6h+E3nPPi/6Ue3UFvyqeid6gk65nEcRhA1czQG094LePl3/DH7/+QvZa+g7Na0O/k2Cg
-         NRuGfkiF5v5GNFmpxlSkS9/BKGYaPD65BcEaoS0xclIEXgp2Q6vss1oLXBWumP1vaFMQ
-         84CeqTfGvXJ75MImQAdwzY6l6FKMXAoLYae5FenqCYICwhpoSpt2R91H+YkbJVIqhEpw
-         +J5/0rmSyBEL6N2u4BHpn3CUoO8keh+oeAFlBNwT+ToJvgUOu8FeHxF8QGToMrp+9y/n
-         C96g==
-X-Gm-Message-State: AOJu0YzWal7IqwhCYFkBm108ATHHESgddOc5CaVzvh93u1kFpBM4ElzJ
-	9VKfG13JYA9/7R8+xo66qaNFvNDXd3witJjbe0fmwoFmZLxFeww5G+hpwgEEj4/FPS4p9mG0tX+
-	08VgnHdZZAdIrb0ZlFajzRQ==
-X-Google-Smtp-Source: AGHT+IGt2/BA8dj3t3+f3CDFRNY8WvXgtUOL2IcXoo5TOnIKymbSZPVcMF8fo+tUfgFLJ3Qz79dJcQPFBkAu0Cw8KQ==
-X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:cc8a:c6c9:a475:ebf])
- (user=lokeshgidra job=sendgmr) by 2002:a81:4cd3:0:b0:5fc:7f94:da64 with SMTP
- id z202-20020a814cd3000000b005fc7f94da64mr95373ywa.5.1706293614376; Fri, 26
- Jan 2024 10:26:54 -0800 (PST)
-Date: Fri, 26 Jan 2024 10:26:47 -0800
-In-Reply-To: <20240126182647.2748949-1-lokeshgidra@google.com>
+        d=1e100.net; s=20230601; t=1706294733; x=1706899533;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zPwOkU9NQD3w9RIGp6Z8HeMeeH68hR451yY+m+zjj+c=;
+        b=jvKZu2nG1fAbAIXsKflTZh4csB66hrs3Y7iIPpyKkwZzk7noBatYcDpx25lKW828xF
+         gaG2Nu/QuZ0eUfjD9qWIZjyiZT9FQJbRkhAMHCpCPZ/M2VADy1waoeYj4VE8CJhhOA1R
+         GjYJCzTzekdtR/GgH2Nc7lqiry6JHvG7xFSIiSp80OKVI2rNRXPt1Ig6CK+kz6nAsA2v
+         4pNRiNIm0xn/9btbrvSsG4mW6l8Z0KuC9LHkxNx48p4SYpFqwbqefFS+wVOzHQzkID+5
+         fiUkNoXLWaUcbdK6TmoOsn5OOuZ3lcpg77SNG4HWt1MyDxP6o6GOrDons2XZM7VZ4W6m
+         eLrA==
+X-Gm-Message-State: AOJu0YxXjPDjb7FUWulkOhBzZF72Rw7/r289/AQ4s4mV/u2LkBz4Rcrs
+	S/Zb1pYK+pl4gWnNfCijJheP8NqdJ+4yk2yZfDN0ZnFsPFjTdDDfA/RZ8GetTyEbmrCB4An+A1q
+	UqcDibEsHMbXFHRP7w6UFfunvJrbqPgzKYClPRKcJ88gQCPjxmuVDtOg=
+X-Received: by 2002:a7b:c414:0:b0:40e:c2da:1b2b with SMTP id k20-20020a7bc414000000b0040ec2da1b2bmr169547wmi.179.1706294733789;
+        Fri, 26 Jan 2024 10:45:33 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHtAsQqCCgt5cm+lp5q9fntCHG7c+2YFRMsZAKoY9e7KI2Wbom7URjQJ8wprLCN//3XcOVbeg==
+X-Received: by 2002:a7b:c414:0:b0:40e:c2da:1b2b with SMTP id k20-20020a7bc414000000b0040ec2da1b2bmr169542wmi.179.1706294733475;
+        Fri, 26 Jan 2024 10:45:33 -0800 (PST)
+Received: from localhost.localdomain ([2a02:8308:b104:2c00:7718:da55:8b6:8dcc])
+        by smtp.gmail.com with ESMTPSA id l1-20020a05600c4f0100b0040e549c77a1sm6607265wmq.32.2024.01.26.10.45.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jan 2024 10:45:32 -0800 (PST)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH] lsm: fix default return value of the socket_getpeersec_* hooks
+Date: Fri, 26 Jan 2024 19:45:31 +0100
+Message-ID: <20240126184531.1167999-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240126182647.2748949-1-lokeshgidra@google.com>
-X-Mailer: git-send-email 2.43.0.429.g432eaa2c6b-goog
-Message-ID: <20240126182647.2748949-3-lokeshgidra@google.com>
-Subject: [PATCH 3/3] userfaultfd: use per-vma locks in userfaultfd operations
-From: Lokesh Gidra <lokeshgidra@google.com>
-To: akpm@linux-foundation.org
-Cc: lokeshgidra@google.com, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Performing userfaultfd operations (like copy/move etc.) in critical
-section of mmap_lock (read-mode) has shown significant contention on the
-lock when operations requiring the lock in write-mode are taking place
-concurrently.
+For these hooks the true "neutral" value is -EOPNOTSUPP, which is
+currently what is returned when no LSM provides this hook and what LSMs
+return when there is no security context set on the socket. Correct the
+value in <linux/lsm_hooks.h> and adjust the dispatch functions in
+security/security.c to avoid issues when the BPF LSM is enabled.
 
-We can use per-vma locks instead to significantly reduce the contention
-issue. All userfaultfd operations, except write-protect, opportunistically
-use per-vma locks to lock vmas. Write-protect operation requires mmap_lock
-as it iterates over multiple vmas.
-
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+Fixes: 98e828a0650f ("security: Refactor declaration of LSM hooks")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- fs/userfaultfd.c |  14 +----
- mm/userfaultfd.c | 160 ++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 117 insertions(+), 57 deletions(-)
+ include/linux/lsm_hook_defs.h |  4 ++--
+ security/security.c           | 31 +++++++++++++++++++++++++++----
+ 2 files changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 5aaf248d3107..faa10ed3788f 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -2005,18 +2005,8 @@ static int userfaultfd_move(struct userfaultfd_ctx *ctx,
- 		return -EINVAL;
- 
- 	if (mmget_not_zero(mm)) {
--		mmap_read_lock(mm);
--
--		/* Re-check after taking map_changing_lock */
--		down_read(&ctx->map_changing_lock);
--		if (likely(!atomic_read(&ctx->mmap_changing)))
--			ret = move_pages(ctx, mm, uffdio_move.dst, uffdio_move.src,
--					 uffdio_move.len, uffdio_move.mode);
--		else
--			ret = -EINVAL;
--		up_read(&ctx->map_changing_lock);
--
--		mmap_read_unlock(mm);
-+		ret = move_pages(ctx, mm, uffdio_move.dst, uffdio_move.src,
-+				 uffdio_move.len, uffdio_move.mode);
- 		mmput(mm);
- 	} else {
- 		return -ESRCH;
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index a66b4d62a361..9be643308f05 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -19,20 +19,39 @@
- #include <asm/tlb.h>
- #include "internal.h"
- 
--static __always_inline
--struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
--				    unsigned long dst_start,
--				    unsigned long len)
-+void unpin_vma(struct mm_struct *mm, struct vm_area_struct *vma, bool *mmap_locked)
-+{
-+	BUG_ON(!vma && !*mmap_locked);
-+
-+	if (*mmap_locked) {
-+		mmap_read_unlock(mm);
-+		*mmap_locked = false;
-+	} else
-+		vma_end_read(vma);
-+}
-+
-+/*
-+ * Search for VMA and make sure it is stable either by locking it or taking
-+ * mmap_lock.
-+ */
-+struct vm_area_struct *find_and_pin_dst_vma(struct mm_struct *dst_mm,
-+					    unsigned long dst_start,
-+					    unsigned long len,
-+					    bool *mmap_locked)
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 185924c56378..76458b6d53da 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -315,9 +315,9 @@ LSM_HOOK(int, 0, socket_getsockopt, struct socket *sock, int level, int optname)
+ LSM_HOOK(int, 0, socket_setsockopt, struct socket *sock, int level, int optname)
+ LSM_HOOK(int, 0, socket_shutdown, struct socket *sock, int how)
+ LSM_HOOK(int, 0, socket_sock_rcv_skb, struct sock *sk, struct sk_buff *skb)
+-LSM_HOOK(int, 0, socket_getpeersec_stream, struct socket *sock,
++LSM_HOOK(int, -ENOPROTOOPT, socket_getpeersec_stream, struct socket *sock,
+ 	 sockptr_t optval, sockptr_t optlen, unsigned int len)
+-LSM_HOOK(int, 0, socket_getpeersec_dgram, struct socket *sock,
++LSM_HOOK(int, -ENOPROTOOPT, socket_getpeersec_dgram, struct socket *sock,
+ 	 struct sk_buff *skb, u32 *secid)
+ LSM_HOOK(int, 0, sk_alloc_security, struct sock *sk, int family, gfp_t priority)
+ LSM_HOOK(void, LSM_RET_VOID, sk_free_security, struct sock *sk)
+diff --git a/security/security.c b/security/security.c
+index 6196ccaba433..3aaad75c9ce8 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -4624,8 +4624,20 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
+ int security_socket_getpeersec_stream(struct socket *sock, sockptr_t optval,
+ 				      sockptr_t optlen, unsigned int len)
  {
-+	struct vm_area_struct *dst_vma = lock_vma_under_rcu(dst_mm, dst_start);
-+	if (!dst_vma) {
-+		mmap_read_lock(dst_mm);
-+		*mmap_locked = true;
-+		dst_vma = find_vma(dst_mm, dst_start);
+-	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
+-			     optval, optlen, len);
++	struct security_hook_list *hp;
++	int rc;
++
++	/*
++	 * Only one module will provide a security context.
++	 */
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_stream,
++			     list) {
++		rc = hp->hook.socket_getpeersec_stream(sock, optval, optlen,
++						       len);
++		if (rc != LSM_RET_DEFAULT(socket_getpeersec_stream))
++			return rc;
 +	}
-+
- 	/*
- 	 * Make sure that the dst range is both valid and fully within a
- 	 * single existing vma.
- 	 */
--	struct vm_area_struct *dst_vma;
--
--	dst_vma = find_vma(dst_mm, dst_start);
- 	if (!range_in_vma(dst_vma, dst_start, dst_start + len))
--		return NULL;
-+		goto unpin;
- 
- 	/*
- 	 * Check the vma is registered in uffd, this is required to
-@@ -40,9 +59,13 @@ struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
- 	 * time.
- 	 */
- 	if (!dst_vma->vm_userfaultfd_ctx.ctx)
--		return NULL;
-+		goto unpin;
- 
- 	return dst_vma;
-+
-+unpin:
-+	unpin_vma(dst_mm, dst_vma, mmap_locked);
-+	return NULL;
++	return LSM_RET_DEFAULT(socket_getpeersec_stream);
  }
  
- /* Check if dst_addr is outside of file's size. Must be called with ptl held. */
-@@ -350,7 +373,8 @@ static pmd_t *mm_alloc_pmd(struct mm_struct *mm, unsigned long address)
- #ifdef CONFIG_HUGETLB_PAGE
- /*
-  * mfill_atomic processing for HUGETLB vmas.  Note that this routine is
-- * called with mmap_lock held, it will release mmap_lock before returning.
-+ * called with either vma-lock or mmap_lock held, it will release the lock
-+ * before returning.
-  */
- static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      struct userfaultfd_ctx *ctx,
-@@ -358,7 +382,8 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      unsigned long dst_start,
- 					      unsigned long src_start,
- 					      unsigned long len,
--					      uffd_flags_t flags)
-+					      uffd_flags_t flags,
-+					      bool *mmap_locked)
+ /**
+@@ -4645,8 +4657,19 @@ int security_socket_getpeersec_stream(struct socket *sock, sockptr_t optval,
+ int security_socket_getpeersec_dgram(struct socket *sock,
+ 				     struct sk_buff *skb, u32 *secid)
  {
- 	struct mm_struct *dst_mm = dst_vma->vm_mm;
- 	int vm_shared = dst_vma->vm_flags & VM_SHARED;
-@@ -380,7 +405,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 */
- 	if (uffd_flags_mode_is(flags, MFILL_ATOMIC_ZEROPAGE)) {
- 		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(dst_mm);
-+		unpin_vma(dst_mm, dst_vma, mmap_locked);
- 		return -EINVAL;
- 	}
- 
-@@ -404,12 +429,25 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 */
- 	if (!dst_vma) {
- 		err = -ENOENT;
--		dst_vma = find_dst_vma(dst_mm, dst_start, len);
--		if (!dst_vma || !is_vm_hugetlb_page(dst_vma))
--			goto out_unlock;
-+		dst_vma = find_and_pin_dst_vma(dst_mm, dst_start,
-+					       len, mmap_locked);
-+		if (!dst_vma)
-+			goto out;
-+		if (!is_vm_hugetlb_page(dst_vma))
-+			goto out_unlock_vma;
- 
- 		err = -EINVAL;
- 		if (vma_hpagesize != vma_kernel_pagesize(dst_vma))
-+			goto out_unlock_vma;
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
++	struct security_hook_list *hp;
++	int rc;
 +
-+		/*
-+		 * If memory mappings are changing because of non-cooperative
-+		 * operation (e.g. mremap) running in parallel, bail out and
-+		 * request the user to retry later
-+		 */
-+		down_read(&ctx->map_changing_lock);
-+		err = -EAGAIN;
-+		if (atomic_read(&ctx->mmap_changing))
- 			goto out_unlock;
- 
- 		vm_shared = dst_vma->vm_flags & VM_SHARED;
-@@ -465,7 +503,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- 		if (unlikely(err == -ENOENT)) {
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			unpin_vma(dst_mm, dst_vma, mmap_locked);
- 			BUG_ON(!folio);
- 
- 			err = copy_folio_from_user(folio,
-@@ -474,8 +512,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 				err = -EFAULT;
- 				goto out;
- 			}
--			mmap_read_lock(dst_mm);
--			down_read(&ctx->map_changing_lock);
- 
- 			dst_vma = NULL;
- 			goto retry;
-@@ -496,7 +532,8 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+out_unlock_vma:
-+	unpin_vma(dst_mm, dst_vma, mmap_locked);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -512,7 +549,8 @@ extern ssize_t mfill_atomic_hugetlb(struct userfaultfd_ctx *ctx,
- 				    unsigned long dst_start,
- 				    unsigned long src_start,
- 				    unsigned long len,
--				    uffd_flags_t flags);
-+				    uffd_flags_t flags,
-+				    bool *mmap_locked);
- #endif /* CONFIG_HUGETLB_PAGE */
- 
- static __always_inline ssize_t mfill_atomic_pte(pmd_t *dst_pmd,
-@@ -572,6 +610,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	unsigned long src_addr, dst_addr;
- 	long copied;
- 	struct folio *folio;
-+	bool mmap_locked = false;
- 
- 	/*
- 	 * Sanitize the command parameters:
-@@ -588,7 +627,14 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	copied = 0;
- 	folio = NULL;
- retry:
--	mmap_read_lock(dst_mm);
 +	/*
-+	 * Make sure the vma is not shared, that the dst range is
-+	 * both valid and fully within a single existing vma.
++	 * Only one module will provide a security context.
 +	 */
-+	err = -ENOENT;
-+	dst_vma = find_and_pin_dst_vma(dst_mm, dst_start, len, &mmap_locked);
-+	if (!dst_vma)
-+		goto out;
- 
- 	/*
- 	 * If memory mappings are changing because of non-cooperative
-@@ -600,15 +646,6 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	if (atomic_read(&ctx->mmap_changing))
- 		goto out_unlock;
- 
--	/*
--	 * Make sure the vma is not shared, that the dst range is
--	 * both valid and fully within a single existing vma.
--	 */
--	err = -ENOENT;
--	dst_vma = find_dst_vma(dst_mm, dst_start, len);
--	if (!dst_vma)
--		goto out_unlock;
--
- 	err = -EINVAL;
- 	/*
- 	 * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_SHARED but
-@@ -629,8 +666,8 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	 * If this is a HUGETLB vma, pass off to appropriate routine
- 	 */
- 	if (is_vm_hugetlb_page(dst_vma))
--		return  mfill_atomic_hugetlb(ctx, dst_vma, dst_start,
--					     src_start, len, flags);
-+		return  mfill_atomic_hugetlb(ctx, dst_vma, dst_start, src_start
-+					     len, flags, &mmap_locked);
- 
- 	if (!vma_is_anonymous(dst_vma) && !vma_is_shmem(dst_vma))
- 		goto out_unlock;
-@@ -690,7 +727,8 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 			void *kaddr;
- 
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			unpin_vma(dst_mm, dst_vma, &mmap_locked);
-+
- 			BUG_ON(!folio);
- 
- 			kaddr = kmap_local_folio(folio, 0);
-@@ -721,7 +759,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+	unpin_vma(dst_mm, dst_vma, &mmap_locked);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -1243,8 +1281,6 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
-  * @len: length of the virtual memory range
-  * @mode: flags from uffdio_move.mode
-  *
-- * Must be called with mmap_lock held for read.
-- *
-  * move_pages() remaps arbitrary anonymous pages atomically in zero
-  * copy. It only works on non shared anonymous pages because those can
-  * be relocated without generating non linear anon_vmas in the rmap
-@@ -1320,6 +1356,7 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 	pmd_t *src_pmd, *dst_pmd;
- 	long err = -EINVAL;
- 	ssize_t moved = 0;
-+	bool mmap_locked = false;
- 
- 	/* Sanitize the command parameters. */
- 	if (WARN_ON_ONCE(src_start & ~PAGE_MASK) ||
-@@ -1332,28 +1369,52 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 	    WARN_ON_ONCE(dst_start + len <= dst_start))
- 		goto out;
- 
-+	dst_vma = NULL;
-+	src_vma = lock_vma_under_rcu(mm, src_start);
-+	if (src_vma) {
-+		dst_vma = lock_vma_under_rcu(mm, dst_start);
-+		if (!dst_vma)
-+			vma_end_read(src_vma);
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
++			     list) {
++		rc = hp->hook.socket_getpeersec_dgram(sock, skb, secid);
++		if (rc != LSM_RET_DEFAULT(socket_getpeersec_dgram))
++			return rc;
 +	}
-+
-+	/* If we failed to lock both VMAs, fall back to mmap_lock */
-+	if (!dst_vma) {
-+		mmap_read_lock(mm);
-+		mmap_locked = true;
-+		src_vma = find_vma(mm, src_start);
-+		if (!src_vma)
-+			goto out_unlock_mmap;
-+		dst_vma = find_vma(mm, dst_start);
-+		if (!dst_vma)
-+			goto out_unlock_mmap;
-+	}
-+
-+	/* Re-check after taking map_changing_lock */
-+	down_read(&ctx->map_changing_lock);
-+	if (likely(atomic_read(&ctx->mmap_changing))) {
-+		err = -EAGAIN;
-+		goto out_unlock;
-+	}
- 	/*
- 	 * Make sure the vma is not shared, that the src and dst remap
- 	 * ranges are both valid and fully within a single existing
- 	 * vma.
- 	 */
--	src_vma = find_vma(mm, src_start);
--	if (!src_vma || (src_vma->vm_flags & VM_SHARED))
--		goto out;
-+	if (src_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
- 	if (src_start < src_vma->vm_start ||
- 	    src_start + len > src_vma->vm_end)
--		goto out;
-+		goto out_unlock;
++	return LSM_RET_DEFAULT(socket_getpeersec_dgram);
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
  
--	dst_vma = find_vma(mm, dst_start);
--	if (!dst_vma || (dst_vma->vm_flags & VM_SHARED))
--		goto out;
-+	if (dst_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
- 	if (dst_start < dst_vma->vm_start ||
- 	    dst_start + len > dst_vma->vm_end)
--		goto out;
-+		goto out_unlock;
- 
- 	err = validate_move_areas(ctx, src_vma, dst_vma);
- 	if (err)
--		goto out;
-+		goto out_unlock;
- 
- 	for (src_addr = src_start, dst_addr = dst_start;
- 	     src_addr < src_start + len;) {
-@@ -1475,6 +1536,15 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 		moved += step_size;
- 	}
- 
-+out_unlock:
-+	up_read(&ctx->map_changing_lock);
-+out_unlock_mmap:
-+	if (mmap_locked)
-+		mmap_read_unlock(mm);
-+	else {
-+		vma_end_read(dst_vma);
-+		vma_end_read(src_vma);
-+	}
- out:
- 	VM_WARN_ON(moved < 0);
- 	VM_WARN_ON(err > 0);
 -- 
-2.43.0.429.g432eaa2c6b-goog
+2.43.0
 
