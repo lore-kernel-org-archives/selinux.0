@@ -1,140 +1,161 @@
-Received: from sonic315-26.consmr.mail.ne1.yahoo.com (sonic315-26.consmr.mail.ne1.yahoo.com [66.163.190.152])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C931D559
-	for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 16:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A750B210EF
+	for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 17:16:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706287025; cv=none; b=ED2d8wAdiDqm7/U+ZezgMGMGY3838gNQD2RuRgytPs7BNEBJeX1n1/b8bNdjSlxVHkG86MvJuTJIu+PFv4506L02eH7gZSRRjRVNSh85RXH1f1dQRr6KXfSw28H+BuGZ6l8tPLxXxd/yv3whziNgF1XSZsi1RU78nVwQwbOtER8=
+	t=1706289366; cv=none; b=lRjrCeZJdfkY+S4R6iKF9+LYf+2eX0I4K3n1mlOK0bqUIsvXXc57bSpADkOwxbEUoNTpqlTfGnbTfu6AA7fqgtCtrtqhVdBiyLLqFNvBdc+VX4TgWj9vOHXA7Q/9Y6wFeW7/+xEISWEQ4BuhHGT1+uWpnTKQU6s2xYryJbMt/Eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706287025; c=relaxed/simple;
-	bh=wSmrRfqfJYXAukkoC9bFymxs+Pb6XIHT5Xn0NB2N21E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IiSiag3nvcd5TCBFgYVsbgLKHGJQHjcJ592IUcmf3eruKjoAHEFDJ8LN/qJaxgL9lko0WSJdzVcotXuBBFfcGa/VrGrn3vdJsiOfNUgNYsrcDQXEi1l6Kn5U2bTuFL/5Phm1eSBU/bAlEV/O3i319EK5PBa0Z6rrzRtHsnO3Bxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=fNCd6Gfs; arc=none smtp.client-ip=66.163.190.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1706289366; c=relaxed/simple;
+	bh=VWYPT8g6Jd85tJW5Xy4JfiFcSB9nSNuj8foib8RsdEQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nP5O5b2T1l2qPF4AUYXDJPXmB8Ha8EcBAI6gb8t7Imyv9dort3SpzJJTRQcbM4wBLCUuGpkQ0rXBkl6osywHVwviU1qbRKZha59oqfMotoJbbDyVjNL4DIgeXFyig86+vtF81fmUhyHITI9/y6zcvdt7oHX0E4tIWRpT1Kmy2kY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UUNj7dRE; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fNCd6Gfs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1706287015; bh=TYSUJQEGWBvrlpg4P9k9g0mfK5sCeQ5uI18J3lbJD80=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=fNCd6GfsQFEBb7Pfo5NEAa+YWIrC+wnVTzmpD5oWhw0wL1R/OKq/UJPhAMvkkM2coSFEuw8sbM+8A3U9oPFOd3taDqjOqcmI6tkCkZLQCEIVFfKQ9aOswzSTrQ3DEIbTaqnqNpKK5UmYkvQwkbn2foasslcDcr3n4UPRW0x4qkdXjDBIDsX9Ccgdk5K/+M535qStB/qFgfxYKPPiieh1A6PuutlRRVTnsCFrpHIV9UOCWkFvxs5lIaiUnLsoxmQwLBd9vJF03prT/fFCF+cRdt440JaRlGk481j3UpivChUG2Eu8U5LcOXIrynZONpLSLGhOFVATNosNduxhzstOLg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1706287015; bh=a+kEE3L0srdY+7z6MZT7rV3uTx59301U3xwqbdu/SmY=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=unGQ6bgIRHYFDeSrD95pc33ZhIZoXkBxk5HxCSSVArfmeQ5dF0DgIuQaEFoeAXhNrgC9het5Kga62vynbLvHx/8lV3Cnr6O9VLphtY9c1vOVwRNRMJZMV0tgB3Np9ZgMbq9W8KIouuSySfqgxX2IXwPSAS66ohAOeyr+2uPopUqznW8O2IKKuiCXrkPpJkkeE24UI7tT1DnmTPngi5fMGRR9rXopKLXkrJrlr6StiMp7+GG80s60XhBbiaJeK4XBR2qNdTYs2w+XhLE3+Edl/iIRv1YhkclTKRro+17kV8nPdUz4YTojapWokZ7pq65cRjFjDiTHRgMEo/qJv640Tw==
-X-YMail-OSG: AW.HhQ0VM1mcTX3m9Iw0Ra9Q_q6ldJQ9qD3k_qmX4SGFk.8wdNxyltE4eTJiumB
- Xs2qEkliEvJ.bZX587_B1uq9fOB0MgmxSJUEwmJL.O9mNgNFX0o.fTVUezvYnYfXudeBE_5Kmbb9
- EoWZBJy9aMKxH3BuNuNQC0R3gb8zgO9exwpt1fNSiHM4AVS_jqErB.Qho9vyeiKrFvN02ISF.j6R
- 7v.zEmNOUlD2w7za1VvXqK.tb7F95jOnOZminfTj18W5WgcXNe0E.Oi9.t_35YGo3u4OJA_9p3CD
- fytumVLixR50njw3DPZlySWDKVddenCrjyEd1eOpe4R.X300nMswDg_vYfguqDg7.tJ7FANIlJR6
- .yjEQzGUEPg79Y1bPhn0oAAXgTVwKiKjOxEEW_7I_8yJDwPUVJE23.6nspz3TsM95_RqLhENViex
- 2cO6O9T4uVh9tMj8OwveR5iIaKC84nTHCmpftP_EC1QkCEAqmtlmGSBW.ZsSxh2yrlCZIn7QkTms
- iwlKiQRLpXwk2TWPPv07P7e0sBkviV3H3qQLXc.uNImb4q4z5AENMV.V9Y_0s3pfNdAnBiwezc27
- NRCUW5B0Pp5_82Avxgjx0AKYi8Qy2T6inQL1vC8O0kIAGBgUhuYaZVJXD1NByL8.S.KZFPsokzzS
- 6kjX5d.rJxeahOespa4MZCNHRgBork9uisArbaMpZtYS3FuoRLr1hQu6hrtsgjGv79etCp.nBFH3
- RdzhpoVCCNxdu48VL49mZ_Xzbm5cceiP2aU0Y01oSyOSCmBRdbWIQl1nGSuxDpymHkuzfAzrwOli
- Xqv_M5DOWpYQJ2LOonKd_bsArKomPyeY3huI3zcf86CePhEcIAjNh69CaChxQd1eO7qL5PTw4sHp
- aPKznNPi4vYonYnUuh.tWzdGgzL24ON7_go56XGZGiyHxC3AYBzmsxVT4nZlVghQm7P8Z1hk..Jn
- kZ9jKpL89KyxzmLVBo7ptWCKg1A5v9brYJXPyyR4CZDjAwUji26ISHojvaDyo4qIv.2jh3cEzCpP
- 8PW3a6WcGg3UecYvLcU0rKjGqZ4031xx4MW4D0B4sIRFeTtlfQPHo4y17l63BHA9w3b65i1DsqyI
- efxnsCd2LbNzxbtsCVBX0xyeTze6GS.qMPI0BFtKQaBFZQF3H.cYwkWXbC_p0IyUxjO4iZYJ3Juk
- VTrR84W7c3pMmRvllkX8lWTOWQJWjqt5U_t9h3nteEifh2dklVH3tfLKP1cNum.jXXqaWqTZuFht
- 3IZ0V578U6ItIvSjxCvPoEhLBawcPalOzV6UB9grggs2YHP1FbVuwxDBviSBfBoJS0oeY3giEXk.
- 2WMI1ehUp_UyYIHtE84R20vpeNtFYRk6ldMoKAIDF_9Gao7uYf8F3huu.TDj4wGmYmgHwsN39XEr
- pwTWeIIzYlq_XNWjB2MqG7kWzEEzjNSqIEA82PdfATvruwHns.RzwTL3aNp2cg59Mobsec9v0T2M
- RBsqzlJ3VMKDAf2HvREM9PtoG9ThTAUAN_QhyfFvBq_5tYXCxu2e_yCq3xzsax8HMVOA29sKaeFa
- 56c7Pxodt7ui_ODPMEpVBP6ZC3S9c8rFzToXi2SpdJsxGQ7FSNePLqyukYk9TJGbH510eEImhQGP
- 0g.KYaPyudmOfItQHx8QbvJGLjcoc2HBF1Ry_nhjPFon6F_KXOZz78TCPZQmY.CCuEr64G8pmzjL
- myKG90aU3keQXRIabu1Yt._l5wMQhEz5mOKFU8.bI6uUpHd9QjcONhstwSvEqePXxMnhCPFC.fsE
- NWPJfzcp5e28LAeUjS8.y02_jT5q2Dcqn_citzuYL84yNwmChsdc84VAEEFQrMHVJNQeD7dUf4vs
- stf_MlOrBhCEH.13H56mYs0q86OCyrPfnRaS5YaWXUSN1kxXpflFSHGuAkMSl05Qa2E7pYcqeVLs
- 2SuACQLZ8OoaPaTU4yoT852ZMbHJFkmWh_5WQ3gMCAz1JRZ6uz0xFl5kUPfL08ZIej9WVyR1QpWp
- BaDc_CRpJ3z250xNSC01uhlWd14SWhEkmTbSQuG55l6IIPQie6kAvAr.2L.MCW9wJU53BdEgwQzV
- 7BsNuE7SZPJxzznYQ3Y4fu8BeBy.KmBrQ88NbUhQB_j77pOdsxH4GfTzKzvtb3NZ57bRFRSvMbyC
- 3rcBCqlxDzy3X9wLmji8ln5b016M5vHBSK5WEByhyu4xAHyAv.UcirbsZQ3Mch200C47FYHNNwqp
- 6k0GKet8h0YLhbYnptKJkJm5YM8mzuqqHcpl8wqD3tfT_D_MeULz0OV63gY3TaGKA2I613MAHm0i
- EwNCwS4CF2KS5ug--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 8f6d3212-678a-48e8-9810-c399ab7475b9
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Fri, 26 Jan 2024 16:36:55 +0000
-Received: by hermes--production-gq1-78d49cd6df-mnx8f (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 3ed002f489920444cb2e810213f6b866;
-          Fri, 26 Jan 2024 16:36:52 +0000 (UTC)
-Message-ID: <86cca857-2d7d-4a9b-9191-185460fc9943@schaufler-ca.com>
-Date: Fri, 26 Jan 2024 08:36:51 -0800
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UUNj7dRE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1706289360;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zgot8gnXgaT/PXNWyINqw6zO/OV0dslkn5Z+0ObOBdo=;
+	b=UUNj7dRE+cggprO47dr3f9+9BW3umFlqfE0U9HIPniQdih3DVRo256DC/dH19FtfA90QEJ
+	LoTe+cjvtHO8eTEB8mCvMdjwCJkN7/FM2m3/OkkiFPMtP0p9AGVk6UTrk1zfcJVTOTLr/u
+	SyDHC3KxxKlxKSr/p1AUueOq8q9YHp8=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-393-RYkLRaVuM4mD80ZT6KNIog-1; Fri, 26 Jan 2024 12:15:58 -0500
+X-MC-Unique: RYkLRaVuM4mD80ZT6KNIog-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-290c6d7776eso509301a91.2
+        for <selinux@vger.kernel.org>; Fri, 26 Jan 2024 09:15:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706289357; x=1706894157;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zgot8gnXgaT/PXNWyINqw6zO/OV0dslkn5Z+0ObOBdo=;
+        b=H3fPFaRdSZuYhW3DR2kZaouxsKEM2oiSR0m+uODfyqBJz7KIjE1xLT/JFnjG7PYGWq
+         f70E5pI/pSZr5DuTIXJi9TG5k0jSyLLEWmhXA9GEa41m0M3RknjJDCr8LDqj11eeKiiX
+         5LLmXGJe6g/yS41rR/7N9FdXFpjaLio0xQnbWef4ibBFicVlaaPdx4u/hj3pkYEbahtE
+         zH6EKd+5J238Xx2YjNbiLYA+m12YKBT/SwsYwrJPLvzAbyZYLel8H10wthtFha2CGBI6
+         WMq40r4ahzey2pkXoN15IkqhmRdF4UaIxjHl/P60tAANxe8eDlPen4kJZrEuhRJ8xeTu
+         nlrQ==
+X-Gm-Message-State: AOJu0YzatF4HRh5yjQ7+CxWMb6aUpagM5yxDCxaoVbtj1Uc2AXacLU3l
+	XEtqcKKeJ4JMAg9ZAboNsO993+3ktVfcjQFolO6ScoHjGhUTGiYG1ydqZOscwR6OhKjKsvzRjX2
+	uFuK7e4JaWYa6CY/W+VUutmo4/GIJu+u4oN/0Nc3iTlmj7EN5/OhrM+WppXnwMrf13N4PrxYvnF
+	kyy19msxKI/mzW8P3/KGbuxIYY3tM3Jw==
+X-Received: by 2002:a17:90a:4089:b0:28b:9749:c5a4 with SMTP id l9-20020a17090a408900b0028b9749c5a4mr165971pjg.80.1706289356821;
+        Fri, 26 Jan 2024 09:15:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHewnI20Y5l1grIbvylQlE/FM5X1udcmBREJcp3l0x2EQqa4JWvew4t1fEOb0ARNHWpUO2FXI+0lWH2O5j/HGo=
+X-Received: by 2002:a17:90a:4089:b0:28b:9749:c5a4 with SMTP id
+ l9-20020a17090a408900b0028b9749c5a4mr165963pjg.80.1706289356585; Fri, 26 Jan
+ 2024 09:15:56 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20240126104403.1040692-1-omosnace@redhat.com> <CAEjxPJ7Sya+__8z5TQ78C_crqZoHuTrnqjaCzCtz9YVR24KNtw@mail.gmail.com>
+ <CAEjxPJ6Y4RazpOHabcv12HgMRHCqVe+k8v7f5tQ8fVT9f4QqnQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6Y4RazpOHabcv12HgMRHCqVe+k8v7f5tQ8fVT9f4QqnQ@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Fri, 26 Jan 2024 18:15:45 +0100
+Message-ID: <CAFqZXNvbm9OHvaY5rmO8fxxHCT5T+ne1kj1XiT3yTRMiff5d2A@mail.gmail.com>
 Subject: Re: [PATCH] security: fix the logic in security_inode_getsecctx()
-Content-Language: en-US
-To: Ondrej Mosnacek <omosnace@redhat.com>, Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20240126104403.1040692-1-omosnace@redhat.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20240126104403.1040692-1-omosnace@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.22046 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 1/26/2024 2:44 AM, Ondrej Mosnacek wrote:
-> The inode_getsecctx LSM hook has previously been corrected to have
-> -EOPNOTSUPP instead of 0 as the default return value to fix BPF LSM
-> behavior. However, the call_int_hook()-generated loop in
-> security_inode_getsecctx() was left treating 0 as the neutral value, so
-> after an LSM returns 0, the loop continues to try other LSMs, and if one
-> of them returns a non-zero value, the function immediately returns with
-> said value. So in a situation where SELinux and the BPF LSMs registered
-> this hook, -EOPNOTSUPP would be incorrectly returned whenever SELinux
-> returned 0.
+On Fri, Jan 26, 2024 at 5:04=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Fix this by open-coding the call_int_hook() loop and making it use the
-> correct LSM_RET_DEFAULT() value as the neutral one, similar to what
-> other hooks do.
+> On Fri, Jan 26, 2024 at 10:03=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Fri, Jan 26, 2024 at 5:44=E2=80=AFAM Ondrej Mosnacek <omosnace@redha=
+t.com> wrote:
+> > >
+> > > The inode_getsecctx LSM hook has previously been corrected to have
+> > > -EOPNOTSUPP instead of 0 as the default return value to fix BPF LSM
+> > > behavior. However, the call_int_hook()-generated loop in
+> > > security_inode_getsecctx() was left treating 0 as the neutral value, =
+so
+> > > after an LSM returns 0, the loop continues to try other LSMs, and if =
+one
+> > > of them returns a non-zero value, the function immediately returns wi=
+th
+> > > said value. So in a situation where SELinux and the BPF LSMs register=
+ed
+> > > this hook, -EOPNOTSUPP would be incorrectly returned whenever SELinux
+> > > returned 0.
+> > >
+> > > Fix this by open-coding the call_int_hook() loop and making it use th=
+e
+> > > correct LSM_RET_DEFAULT() value as the neutral one, similar to what
+> > > other hooks do.
+> > >
+> > > Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > Link: https://lore.kernel.org/selinux/CAEjxPJ4ev-pasUwGx48fDhnmjBnq_W=
+h90jYPwRQRAqXxmOKD4Q@mail.gmail.com/
+> > > Fixes: b36995b8609a ("lsm: fix default return value for inode_getsecc=
+tx")
+> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > ---
+> > >
+> > > I ran 'tools/nfs.sh' on the patch and even though it fixes the most
+> > > serious issue that Stephen reported, some of the tests are still
+> > > failing under NFS (but I will presume that these are pre-existing iss=
+ues
+> > > not caused by the patch).
+> >
+> > Do you have a list of the failing tests? For me, it was hanging on
+> > unix_socket and thus not getting to many of the tests. I would like to
+> > triage the still-failing ones to confirm that they are in fact
+> > known/expected failures for NFS.
 >
-> Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Link: https://lore.kernel.org/selinux/CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com/
-> Fixes: b36995b8609a ("lsm: fix default return value for inode_getsecctx")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Applying your patch and removing unix_socket from the tests to be run
+> (since it hangs), I get the following failures:
+> mac_admin/test            (Wstat: 0 Tests: 8 Failed: 2)
+>   Failed tests:  5-6
+> filesystem/ext4/test      (Wstat: 512 (exited 2) Tests: 76 Failed: 2)
+>   Failed tests:  1, 64
+>   Non-zero exit status: 2
+> filesystem/xfs/test       (Wstat: 512 (exited 2) Tests: 76 Failed: 2)
+>   Failed tests:  1, 64
+>   Non-zero exit status: 2
+> filesystem/jfs/test       (Wstat: 512 (exited 2) Tests: 83 Failed: 2)
+>   Failed tests:  1, 71
+>   Non-zero exit status: 2
+> filesystem/vfat/test      (Wstat: 512 (exited 2) Tests: 52 Failed: 2)
+>   Failed tests:  1, 46
+>   Non-zero exit status: 2
+> fs_filesystem/ext4/test   (Wstat: 512 (exited 2) Tests: 75 Failed: 2)
+>   Failed tests:  1, 63
+>   Non-zero exit status: 2
+> fs_filesystem/xfs/test    (Wstat: 512 (exited 2) Tests: 75 Failed: 2)
+>   Failed tests:  1, 63
+>   Non-zero exit status: 2
+> fs_filesystem/jfs/test    (Wstat: 512 (exited 2) Tests: 82 Failed: 2)
+>   Failed tests:  1, 70
+>   Non-zero exit status: 2
+> fs_filesystem/vfat/test   (Wstat: 512 (exited 2) Tests: 51 Failed: 2)
+>   Failed tests:  1, 45
+>   Non-zero exit status: 2
+> Files=3D77, Tests=3D1256, 308 wallclock secs ( 0.30 usr  0.10 sys +  6.84
+> cusr 21.78 csys =3D 29.02 CPU)
 
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+I got the same ones (I, too, removed unix_socket to allow the rest to run).
 
-> ---
->
-> I ran 'tools/nfs.sh' on the patch and even though it fixes the most
-> serious issue that Stephen reported, some of the tests are still
-> failing under NFS (but I will presume that these are pre-existing issues
-> not caused by the patch).
->
-> I can also see an opportunity to clean up the hook implementations in
-> security/security.c - I plan to have a go at it and send it as a
-> separate patch later.
->
->  security/security.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
->
-> diff --git a/security/security.c b/security/security.c
-> index 0144a98d3712..6196ccaba433 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -4255,7 +4255,19 @@ EXPORT_SYMBOL(security_inode_setsecctx);
->   */
->  int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
->  {
-> -	return call_int_hook(inode_getsecctx, -EOPNOTSUPP, inode, ctx, ctxlen);
-> +	struct security_hook_list *hp;
-> +	int rc;
-> +
-> +	/*
-> +	 * Only one module will provide a security context.
-> +	 */
-> +	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecctx, list) {
-> +		rc = hp->hook.inode_getsecctx(inode, ctx, ctxlen);
-> +		if (rc != LSM_RET_DEFAULT(inode_getsecctx))
-> +			return rc;
-> +	}
-> +
-> +	return LSM_RET_DEFAULT(inode_getsecctx);
->  }
->  EXPORT_SYMBOL(security_inode_getsecctx);
->  
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
