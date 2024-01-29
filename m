@@ -1,115 +1,124 @@
-Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4580E158D68
-	for <selinux@vger.kernel.org>; Mon, 29 Jan 2024 21:56:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB01153BC1
+	for <selinux@vger.kernel.org>; Mon, 29 Jan 2024 21:58:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706565363; cv=none; b=I+gFr7HeIYoVNF2JCiF7DuOLTudDjjVIolGIlyx+wqAiPYMNJ6m+iL5oqkE7ulU62XyaJDNKn7l6N7kjvDREx7oFghhH68d6w8IWT0bvkv7Mr7DzCjcTWFCBXOaZ8LymH9b1S65ROOJVfH86kHwdBIgk0cDwT+kBwv8ilgLR8O4=
+	t=1706565496; cv=none; b=oDAcCuE5kbZvPZZaww2nIFio6L2WmJ/UQDSaFd3VV7KtadHXkHPcI6Z+kFdMyQUu2iQSWGdGIy88LExnBbBc/u2ywSm5+SlCFCAmgiFw3EenuKv0gB45xTdVGJs2DUdqs81hUdb+yfgyQJBhLuzk5CQAV3CxCCbhcWE4s2DZj1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706565363; c=relaxed/simple;
-	bh=ZSZJK35l8EgwFmVZ8i8owr3cheq755BtsNinccw6QN4=;
+	s=arc-20240116; t=1706565496; c=relaxed/simple;
+	bh=yZyZ29p6yMC6LhYj5NL5f97FYixcVCB1YcfCBS49aMw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ArbwDV3ZBXnvm44GEvxPcF3/l6bnBbggNX3NqFqyBnnu8p9CxxFa/mWpPCiiLDvxJ7/4ny6YBS0PmdJcxQtxj9EIN3goqxRqT2IMm3GExd7Z6fsJiVeHvN7185gTldcWhvFKCU05YGuIG83mswRoGbSZaDjq4GDmI+WBz2lbiw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DpwbYrKn; arc=none smtp.client-ip=209.85.219.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Content-Type; b=nFb3KFousqIUWLjMPuY7t82VP2AH7SKfHP8Vfama5a3xu+/lv3QApUIGNFS71dVywOULVgyqzS2eFysERswHvubGhaEfIyAHoNanEThkg0F3jmX4/jGFzKeK64jmQdDs3vWJHefgr+NbK1/YKtYmAUe86G6yRZnY1Xnsafcjmp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ExZh8qvA; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DpwbYrKn"
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-dc608c3718dso2743556276.1
-        for <selinux@vger.kernel.org>; Mon, 29 Jan 2024 13:56:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ExZh8qvA"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-40ef6bbb61fso12483905e9.1
+        for <selinux@vger.kernel.org>; Mon, 29 Jan 2024 13:58:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1706565360; x=1707170160; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=google.com; s=20230601; t=1706565493; x=1707170293; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UV/iIRO0zfu5R/kLa/LTz7qDudbKFOHxBhGDjxapsKo=;
-        b=DpwbYrKnewJVloDgLdCCgId9G6zHLCpjrwt4IDRcETSqnrn8hfHc7rGGtTIalcgblx
-         EFKhYuDy8J6dekShhRyQqE2U/HfL1BTAbokQp2i+r4DyMEHy6fiQLTgum5WL0XIwGh2e
-         oHwXaFvwb76clXcz3MsAuPvprmKu4Hlx+Dab5khy2pAuTVtuXG0HXtMLr7hh8J9ngkCQ
-         B2AQhFdHeL9Je7o71+4oI4ku815/HneT0GLVt+XUmep+rRm/c/drA/xwFMjDCIiwCfq5
-         p4i4YV7E41Ixp2DMbfJdsb7B8rU5yJvHIiYuv7kSV7QtpW72tUqWVHLEH6HNJ/wTd9ve
-         1VTA==
+        bh=CUG0VAx6fB3sqRZQjRRGH6lMhLjFI7rY91Z4hSbS8UE=;
+        b=ExZh8qvAvRoPwP8AmR83NNRM72HpbFMUYcCHAaqEl9UsRSWGu79vyXO6XtWV7iv96n
+         y3GQeXo4qhwt/HwslQbPkbUw12VaMJ+nu7iKb34JyZgHlE78LLN8i7gRg8Ik65x3CHYt
+         t42mcbXvSUyUA8JaNNXVH9fhK4yjrL0H6zsvNdKZHdxRjvAkJM/e9gv6dUV3accM3Slc
+         HHnBQaOpY7mxmu5z3UVSpek3ep63KHjnjICmekrW7ghycb6su1FnkRIP5bKmm9s+jadH
+         ZNBOVgWhhoGv7VW2AWcnJc5V7xZKUkCCaI+RWzUu/YIcr6+LuCv7I2ig/fd1BS7uEcUS
+         T8eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706565360; x=1707170160;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1706565493; x=1707170293;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UV/iIRO0zfu5R/kLa/LTz7qDudbKFOHxBhGDjxapsKo=;
-        b=sdJf9JsJI6BfQGbPlQa28fMTtrCVn6Mwif5jZB2wURw30zBKTcS6EO+e4HiwNChOrl
-         evXoxHNdlkNJcfE5gyCYWPD78sSXKgudZ9ZRdNxag8C3rbofXU/BClhPKFwTZUlZXrb5
-         z4DWoVlCk1JqkzkdI39fZxPRiKsRx5TuK28Ndr2fXV2ArPd3S7+tftlrCRMwQ4wJxhcY
-         G1UaDpF7aKe69tqdXiqyB56h1Aeor5qG9QYvuANMuCpqFhS9oZRZmbZ+kKgS20Vgqgc9
-         ZiCo63YCmocz09c7C9mj3vwPTHTbdydrXR+TsKIOGXCU1hO9lOyk465Wyi4VDInCnZ84
-         YWHQ==
-X-Gm-Message-State: AOJu0Yx/d2mJJ1I6/wP05Rp0rEZ23+Kgl3/YLNb5bjCnORQ5XwF6slio
-	hsaIA20qtqJjEX+GpTAPM90tgvFglM6nPdygB9gf3GBvIvwMv2uXU4g5JwGHX616luPz32+6CV/
-	Rwn4Aw803RJy4UhLSCYvs5NG/MT9zte/EjEoC
-X-Google-Smtp-Source: AGHT+IELjEtx1N3ZgC2LPqFWtfYXYDiqNnPtrpXq39glkGRg2Im482C6q3xB9Js6LaNJcY1os+w4qyb3C+vPGPfqqyE=
-X-Received: by 2002:a5b:251:0:b0:dc3:6b86:f41 with SMTP id g17-20020a5b0251000000b00dc36b860f41mr4521462ybp.35.1706565360082;
- Mon, 29 Jan 2024 13:56:00 -0800 (PST)
+        bh=CUG0VAx6fB3sqRZQjRRGH6lMhLjFI7rY91Z4hSbS8UE=;
+        b=v9Fn9D9ohVZ15AnYdPHcDpwr3pUhoUEBjy0U2XrXiQfOZY4pHpzV5wI5WaDlrrxr1S
+         CCL4xJ6dTFtizuq3l7ZKF0tGiduy5tiN2WurXJSIatPNhMxi05WJbseFWuouZdblgghV
+         yNgJ8C9T00a+lLLJHMnl1IwtC7Bp5imuQP98ZqMdo98HsklEptrTraNcd8xw752GhRLO
+         fG/wVYMJDvUOr/6DtWnnr9MmfHlAqh2oS9iMNInXFf5RYGUiSG64emee6yz1gNG7q9bm
+         bO3QtglB59eVmbp1qhds2l+tOHAjLmWkbEQxA6wG7UQZknJc+Vy4h598Agf3P/oudgdW
+         y9nA==
+X-Gm-Message-State: AOJu0Yz8mmfXXp9dJSN8ZznnZ3gIqIkQnGLqI+/wwvLkgPdAaSiq4CGU
+	w9UmgNrYn4prS9y391u9rSPurDk+sua/upgS6li8KCg5uBv+9Bhuvz6/ZwaZUGJNAk3SfLXTeHh
+	tPN4jOrlGiVD2fPxBhtVvZ7IR0T8eZkVRE7HP
+X-Google-Smtp-Source: AGHT+IEEO9aGC7CpGPiSuiXN+SuE0N37YyaPf1+lp1ZQZTirO7MY/Cp5QyQH6Dgc3eP4RAbyZkoXfbiAF1yqBSVoK0s=
+X-Received: by 2002:adf:e44a:0:b0:33a:e5a8:eaed with SMTP id
+ t10-20020adfe44a000000b0033ae5a8eaedmr4230312wrm.14.1706565493189; Mon, 29
+ Jan 2024 13:58:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240126104403.1040692-1-omosnace@redhat.com> <CAEjxPJ7Sya+__8z5TQ78C_crqZoHuTrnqjaCzCtz9YVR24KNtw@mail.gmail.com>
- <CAEjxPJ6Y4RazpOHabcv12HgMRHCqVe+k8v7f5tQ8fVT9f4QqnQ@mail.gmail.com>
- <CAFqZXNvbm9OHvaY5rmO8fxxHCT5T+ne1kj1XiT3yTRMiff5d2A@mail.gmail.com> <CAEjxPJ7NeopFG+mgBfxNa0bBxgrEB7DzfG_NFdLDicS++fGe1A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7NeopFG+mgBfxNa0bBxgrEB7DzfG_NFdLDicS++fGe1A@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 29 Jan 2024 16:55:49 -0500
-Message-ID: <CAHC9VhSG14u5UUYiU6kUDt8jGMPkHAs67F_kc5Xt+w_P_zEovw@mail.gmail.com>
-Subject: Re: [PATCH] security: fix the logic in security_inode_getsecctx()
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org
+References: <20240129193512.123145-1-lokeshgidra@google.com> <20240129203904.7dcugltsjajldlea@revolver>
+In-Reply-To: <20240129203904.7dcugltsjajldlea@revolver>
+From: Lokesh Gidra <lokeshgidra@google.com>
+Date: Mon, 29 Jan 2024 13:58:00 -0800
+Message-ID: <CA+EESO5dNSg1d4L37hMbhuT-poD4R3ttBoEQdPvWEy7xHjD1oQ@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] per-vma locks in userfaultfd
+To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lokesh Gidra <lokeshgidra@google.com>, 
+	akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
+	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
+	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 29, 2024 at 2:49=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> unix_socket test is failing because type_transition rule is not being
-> applied to newly created server socket, leading to a denial when the
-> client tries to connect. I believe that once worked; will see if I can
-> find the last working kernel.
+On Mon, Jan 29, 2024 at 12:39=E2=80=AFPM Liam R. Howlett
+<Liam.Howlett@oracle.com> wrote:
+>
+> * Lokesh Gidra <lokeshgidra@google.com> [240129 14:35]:
+> > Performing userfaultfd operations (like copy/move etc.) in critical
+> > section of mmap_lock (read-mode) causes significant contention on the
+> > lock when operations requiring the lock in write-mode are taking place
+> > concurrently. We can use per-vma locks instead to significantly reduce
+> > the contention issue.
+>
+> Is this really an issue?  I'm surprised so much userfaultfd work is
+> happening to create contention.  Can you share some numbers and how your
+> patch set changes the performance?
+>
 
-If we had a socket type transition on new connections I think it would
-have been a *long* time ago.  I don't recall us supporting that, but
-it's possible I've simply forgotten.
+In Android we are using userfaultfd for Android Runtime's GC
+compaction. mmap-lock (write-mode) operations like mmap/munmap/mlock
+happening simultaneously elsewhere in the process caused significant
+contention. Of course, this doesn't happen during every compaction,
+but whenever it does it leads to a jittery experience for the user.
+During one such reproducible scenario, we observed the following
+improvements with this patch-set:
 
-That isn't to say I wouldn't support something like that, it could be
-interesting, but we would want to make sure it applies to all
-connection based sockets and not just AF_UNIX.  Although for the vast
-majority of users it would probably only be useful for AF_UNIX as you
-would need a valid peer label to do a meaningful transition.
+- Wall clock time of compaction phase came down from ~3s to less than 500ms
+- Uninterruptible sleep time (across all threads in the process) was
+~10ms (none was in mmap_lock) during compaction, instead of >20s
 
-I would need to chase down the code paths for AF_UNIX, but for
-AF_INET/AF_INET6 I expect you would need to augment
-selinux_inet_conn_request() with the security_transition_sid() call.
-Possibly something like this (completely untested, likely broken,
-etc.) ...
+I will add these numbers in the cover letter in the next version of
+this patchset.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a6bf90ace84c..1c6a92173596 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5524,7 +5524,10 @@ static int selinux_inet_conn_request(const struct so=
-ck *s
-k, struct sk_buff *skb,
-       err =3D selinux_conn_sid(sksec->sid, peersid, &connsid);
-       if (err)
-               return err;
--       req->secid =3D connsid;
-+       err =3D security_transition_sid(sksec->sid, connsid, sksec->sclass,=
- NULL,
-+                                     &req->secid);
-+       if (err)
-+               return err;
-       req->peer_secid =3D peersid;
-
-       return selinux_netlbl_inet_conn_request(req, family);
-
---=20
-paul-moore.com
+> >
+> > Changes since v1 [1]:
+> > - rebase patches on 'mm-unstable' branch
+> >
+> > [1] https://lore.kernel.org/all/20240126182647.2748949-1-lokeshgidra@go=
+ogle.com/
+> >
+> > Lokesh Gidra (3):
+> >   userfaultfd: move userfaultfd_ctx struct to header file
+> >   userfaultfd: protect mmap_changing with rw_sem in userfaulfd_ctx
+> >   userfaultfd: use per-vma locks in userfaultfd operations
+> >
+> >  fs/userfaultfd.c              |  86 ++++---------
+> >  include/linux/userfaultfd_k.h |  75 ++++++++---
+> >  mm/userfaultfd.c              | 229 ++++++++++++++++++++++------------
+> >  3 files changed, 229 insertions(+), 161 deletions(-)
+> >
+> > --
+> > 2.43.0.429.g432eaa2c6b-goog
+> >
+> >
