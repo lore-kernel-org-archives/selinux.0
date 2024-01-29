@@ -1,477 +1,161 @@
-Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7559B15698A
-	for <selinux@vger.kernel.org>; Mon, 29 Jan 2024 19:35:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4864D4C619;
+	Mon, 29 Jan 2024 19:49:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706556939; cv=none; b=EaQ2r6vGIW/VuNTB3CYFQ0oP8WfZsbTSjMc0J0eiUymRe2DhrWVIDKfJfKXV95t9dwzHVfqhE9+3IdF6HC4FjVAXaTz+/gUhApO8ndL54WEcby9ZS76TXn9qrelwRtPrMVv1QI3nqqG4Q3X4EdfUl/HgFyqPApMh9/Eprs8pY44=
+	t=1706557743; cv=none; b=uIgIxCEphLw4M/mhVIUGa9zT40MuUtn1hO4D/S+LMx0xZim05+zNpXJ0ps+HHUPlQbtI6aYFMp3KzCvJl5I/zxbVBfVbEkTkZJVNIEXsaZydMteH7+MAxKDgrg8ncXbqHTiBNT+rcrJYMfNlikjeTIKc2bA3x7iAwZuJ6Tmw2PU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706556939; c=relaxed/simple;
-	bh=+HdbbaQZa8+A0lATLROmSrWayDBc8cSfyhmoQJXBCs8=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=JZuwauSAC7ahUcdi1OiDYc94HN69pZjW1ZxbjK1251MNmJCn95gIm3aYBKF+4orVaoM12pKCYYOgV2B2MLLXjV1fjx6XiX1xpx4h6uwGoIIysmHcsaNqDcTlYMKZJFKNsVW63KqOvZcE4//iHeAbvTZuJZUvAaP3IN8VexTUpio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=xKqYfZQq; arc=none smtp.client-ip=209.85.219.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com
+	s=arc-20240116; t=1706557743; c=relaxed/simple;
+	bh=q1oYyTaOnEtBkdZ+ft0P/dxRbRChijF1B2H/lU2dKMQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QkgjLJjONo/Gj+RmxR1rlXynN94L09+HqWcXul0jTBLp0D+XHgLzOFyY/zNHDNylzFEFAZstBTIxvHGbyvDjk4Sx9NNuDwuxssEPR+9C44ZRWTykyB/AOBbjLTIEJH1Zpu6Pcj3cO0nYJJBpi1KF2OyctSlBDNzQmmdECAfq4C4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NnEzSJ0E; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="xKqYfZQq"
-Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-dc22f3426aeso5840157276.1
-        for <selinux@vger.kernel.org>; Mon, 29 Jan 2024 11:35:37 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NnEzSJ0E"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-6ddcfbc5a5fso2634363b3a.2;
+        Mon, 29 Jan 2024 11:49:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1706556936; x=1707161736; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/rTTdTkZrF1wexi3aiNZ7/0XWdKeqDeZCcom0yepX1o=;
-        b=xKqYfZQq1gwh+Hwvnyx8H8UOCQVCqg+uLZGLmvDznYQtjy6KAv1iQ4zydpQd/ucLUc
-         iEt7a6rGibfEbm/wAldZJcHq0M1qF6XjN8frVZAxLVLUGX4a6t439GrENNxxrlxCNRCL
-         5+YHF+i34KUUmaWxtObdkPcjaBHIPQxJ2WKeDreKZ4XgVMrYSIggqOrVDNKlt7T9fL5W
-         A0/MHsiPaktsqVoTCfDFKhUZVnbsEpqYSqkeU3Nxe6XfZWhVlli70K1a/qZbW4jw8cxh
-         R2Rl1Sxc8YAV6uy5aI9HQVQhPjG1Vf72Vj/e2iqNZTEFKGUGgoCA3EGXQ1QeTSh4D+I1
-         z8tQ==
+        d=gmail.com; s=20230601; t=1706557741; x=1707162541; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cJgZbrEe+QtSC3vgR2KYz6DDRm1jP2+EWwN55TIH0Nc=;
+        b=NnEzSJ0EY6iu//FoyC/WQyuBTnLFq/MbqN3JUzPTN4WXW/m8trz4BzBsZzMlTQa/Y7
+         i+t+FhxkGSQXB6KUfajyoPy9LlmX+urfiwVXwrrPhuCUNLoy2gfM0IwhB1XIet120eGq
+         aRI8qHy1La+toxKGc+ku0iuR2MKI+VXMr7coMoZSoejpnu0QqyF8pLkjcwW24USUSglM
+         ezT5g0+pG7bpY9ve8Y10Gcl2VyLpYL5hyRtjujhIM6tGOnUCO06hADJHUSyVyTvKeKC4
+         zzMDeQ4y16cJAVrTUgFQL7ampc24llNYFNnEHuPoE0pyLYmzAsle5r9S0dn0wTKyAQYp
+         2SZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706556936; x=1707161736;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/rTTdTkZrF1wexi3aiNZ7/0XWdKeqDeZCcom0yepX1o=;
-        b=j/yCXWjk6QETslpUrX8S4QlQt+eORBNz87NLD4tkyH7F+ijB+sr0JXk/MsvLBvWwBc
-         9p6rtOLpgxEtzfq4Z4XFuiEtbsznkjRSQz9TkR0M6AF3bKyPkvQasmU+ftO+Fuwi57jD
-         wM1RoQ9J3W3ImautKxiN+uiZP1K5CAjDNzGIGGTYFv2t2358Y6jNs1qkgJd47z1aBYCb
-         MGeUcdFCiyyfZIf9/5XoZbHJe7c/x95QmTqihJLC9ZY1fL3e5s9IpIivPddbPd7e5jqm
-         lt+vAV2wGwuAhmqEJi8oZ/+ts+XGpsDg45unaXPQV/nMlk0MTAblrUs69tNYEzdyKGX/
-         hqaA==
-X-Gm-Message-State: AOJu0YyN3MuZzMBOMgs7pcOEmgZAG3oR4Jcax6TLacx/0qeR0quD4rYc
-	6lKPpJVvgFVvUIDGEHaqjqwX/3D6vRtMpRe3I5AXFsndcItJUbenyWh0kzd8C2HiSSG15arZzuS
-	FrLHrSE9UDo3+HIEN/S1e5g==
-X-Google-Smtp-Source: AGHT+IHg5bBsWt55Rz1Rugqar6MZ+VAZSQCpoEjW8I0EHN+ywy05kgFpt3/w0bymXcr1SFJEZK7hul4bbbOZB2g6+g==
-X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:9b1d:f1ee:f750:93f1])
- (user=lokeshgidra job=sendgmr) by 2002:a05:6902:250b:b0:dbe:d0a9:2be3 with
- SMTP id dt11-20020a056902250b00b00dbed0a92be3mr2244340ybb.3.1706556936414;
- Mon, 29 Jan 2024 11:35:36 -0800 (PST)
-Date: Mon, 29 Jan 2024 11:35:12 -0800
-In-Reply-To: <20240129193512.123145-1-lokeshgidra@google.com>
+        d=1e100.net; s=20230601; t=1706557741; x=1707162541;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=cJgZbrEe+QtSC3vgR2KYz6DDRm1jP2+EWwN55TIH0Nc=;
+        b=Yu02b4b4h9hsmlxBoW+S7e+WTCKCZWdcjoJ24miTN3xrXOcb5rBhtM0GSzCXmHlexx
+         +Ec87rlfk4rnBOT7OMPu/vOz9zTQW1uLaZZETQ9RKOnNnEB0tRKwRUlBUSuteAfRL7a6
+         UatK6w11bBMkm4V0ovs7LuTSF419GZt8JA4/Cn6r2rpualc/Hd5jvttW9MgCrTEVRiQe
+         LO4Y05J1T59VJQ0VTCLRUs3r5gM7jMN1iI5BI6RFXl8TYD109mDLBJ6Hl6ApPhEH2iBt
+         jeJLS9US6VJqtYuK72gTqics/8XwAUfC4wrL0fMRLE8IHxfhESYoPEvJGPEQZ7/FOLcB
+         4tdg==
+X-Gm-Message-State: AOJu0YyqrB8pfMfCJaOAbcSYI+vwhVOINnOTSPiQTXcdWsRtQvtSvxrh
+	NZB4zkctz0lG7YwvZMWNv8te0Fwr+xQWk3tjyfdNVCWZYxI67wU2xiRgpaqLr9a+IO9/4cN5W7m
+	6LmVfHRQ52/QXCGUBEQ0b4t9+ZCapnnLk
+X-Google-Smtp-Source: AGHT+IFAP4kJ/kDxq0wCXcFiUzEiKxfCFhGf1tPQypkXEYmAgsXy8pTLNOu3n6rwCV0M5CK7/Zf4mQBvuQOKdQKXUtw=
+X-Received: by 2002:a05:6a00:dc:b0:6d9:f6a7:24de with SMTP id
+ e28-20020a056a0000dc00b006d9f6a724demr4435882pfj.17.1706557741387; Mon, 29
+ Jan 2024 11:49:01 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240129193512.123145-1-lokeshgidra@google.com>
-X-Mailer: git-send-email 2.43.0.429.g432eaa2c6b-goog
-Message-ID: <20240129193512.123145-4-lokeshgidra@google.com>
-Subject: [PATCH v2 3/3] userfaultfd: use per-vma locks in userfaultfd operations
-From: Lokesh Gidra <lokeshgidra@google.com>
-To: akpm@linux-foundation.org
-Cc: lokeshgidra@google.com, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
+MIME-Version: 1.0
+References: <20240126104403.1040692-1-omosnace@redhat.com> <CAEjxPJ7Sya+__8z5TQ78C_crqZoHuTrnqjaCzCtz9YVR24KNtw@mail.gmail.com>
+ <CAEjxPJ6Y4RazpOHabcv12HgMRHCqVe+k8v7f5tQ8fVT9f4QqnQ@mail.gmail.com> <CAFqZXNvbm9OHvaY5rmO8fxxHCT5T+ne1kj1XiT3yTRMiff5d2A@mail.gmail.com>
+In-Reply-To: <CAFqZXNvbm9OHvaY5rmO8fxxHCT5T+ne1kj1XiT3yTRMiff5d2A@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 29 Jan 2024 14:48:49 -0500
+Message-ID: <CAEjxPJ7NeopFG+mgBfxNa0bBxgrEB7DzfG_NFdLDicS++fGe1A@mail.gmail.com>
+Subject: Re: [PATCH] security: fix the logic in security_inode_getsecctx()
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-All userfaultfd operations, except write-protect, opportunistically use
-per-vma locks to lock vmas. If we fail then fall back to locking
-mmap-lock in read-mode.
+On Fri, Jan 26, 2024 at 12:15=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.c=
+om> wrote:
+>
+> On Fri, Jan 26, 2024 at 5:04=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Fri, Jan 26, 2024 at 10:03=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > On Fri, Jan 26, 2024 at 5:44=E2=80=AFAM Ondrej Mosnacek <omosnace@red=
+hat.com> wrote:
+> > > >
+> > > > The inode_getsecctx LSM hook has previously been corrected to have
+> > > > -EOPNOTSUPP instead of 0 as the default return value to fix BPF LSM
+> > > > behavior. However, the call_int_hook()-generated loop in
+> > > > security_inode_getsecctx() was left treating 0 as the neutral value=
+, so
+> > > > after an LSM returns 0, the loop continues to try other LSMs, and i=
+f one
+> > > > of them returns a non-zero value, the function immediately returns =
+with
+> > > > said value. So in a situation where SELinux and the BPF LSMs regist=
+ered
+> > > > this hook, -EOPNOTSUPP would be incorrectly returned whenever SELin=
+ux
+> > > > returned 0.
+> > > >
+> > > > Fix this by open-coding the call_int_hook() loop and making it use =
+the
+> > > > correct LSM_RET_DEFAULT() value as the neutral one, similar to what
+> > > > other hooks do.
+> > > >
+> > > > Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > Link: https://lore.kernel.org/selinux/CAEjxPJ4ev-pasUwGx48fDhnmjBnq=
+_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com/
+> > > > Fixes: b36995b8609a ("lsm: fix default return value for inode_getse=
+cctx")
+> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > > ---
+> > > >
+> > > > I ran 'tools/nfs.sh' on the patch and even though it fixes the most
+> > > > serious issue that Stephen reported, some of the tests are still
+> > > > failing under NFS (but I will presume that these are pre-existing i=
+ssues
+> > > > not caused by the patch).
+> > >
+> > > Do you have a list of the failing tests? For me, it was hanging on
+> > > unix_socket and thus not getting to many of the tests. I would like t=
+o
+> > > triage the still-failing ones to confirm that they are in fact
+> > > known/expected failures for NFS.
+> >
+> > Applying your patch and removing unix_socket from the tests to be run
+> > (since it hangs), I get the following failures:
+> > mac_admin/test            (Wstat: 0 Tests: 8 Failed: 2)
+> >   Failed tests:  5-6
+> > filesystem/ext4/test      (Wstat: 512 (exited 2) Tests: 76 Failed: 2)
+> >   Failed tests:  1, 64
+> >   Non-zero exit status: 2
+> > filesystem/xfs/test       (Wstat: 512 (exited 2) Tests: 76 Failed: 2)
+> >   Failed tests:  1, 64
+> >   Non-zero exit status: 2
+> > filesystem/jfs/test       (Wstat: 512 (exited 2) Tests: 83 Failed: 2)
+> >   Failed tests:  1, 71
+> >   Non-zero exit status: 2
+> > filesystem/vfat/test      (Wstat: 512 (exited 2) Tests: 52 Failed: 2)
+> >   Failed tests:  1, 46
+> >   Non-zero exit status: 2
+> > fs_filesystem/ext4/test   (Wstat: 512 (exited 2) Tests: 75 Failed: 2)
+> >   Failed tests:  1, 63
+> >   Non-zero exit status: 2
+> > fs_filesystem/xfs/test    (Wstat: 512 (exited 2) Tests: 75 Failed: 2)
+> >   Failed tests:  1, 63
+> >   Non-zero exit status: 2
+> > fs_filesystem/jfs/test    (Wstat: 512 (exited 2) Tests: 82 Failed: 2)
+> >   Failed tests:  1, 70
+> >   Non-zero exit status: 2
+> > fs_filesystem/vfat/test   (Wstat: 512 (exited 2) Tests: 51 Failed: 2)
+> >   Failed tests:  1, 45
+> >   Non-zero exit status: 2
+> > Files=3D77, Tests=3D1256, 308 wallclock secs ( 0.30 usr  0.10 sys +  6.=
+84
+> > cusr 21.78 csys =3D 29.02 CPU)
+>
+> I got the same ones (I, too, removed unix_socket to allow the rest to run=
+).
 
-Write-protect operation requires mmap_lock as it iterates over multiple vmas.
-
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
----
- fs/userfaultfd.c              |  13 +--
- include/linux/userfaultfd_k.h |   5 +-
- mm/userfaultfd.c              | 175 +++++++++++++++++++++++-----------
- 3 files changed, 122 insertions(+), 71 deletions(-)
-
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index c00a021bcce4..60dcfafdc11a 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -2005,17 +2005,8 @@ static int userfaultfd_move(struct userfaultfd_ctx *ctx,
- 		return -EINVAL;
- 
- 	if (mmget_not_zero(mm)) {
--		mmap_read_lock(mm);
--
--		/* Re-check after taking map_changing_lock */
--		down_read(&ctx->map_changing_lock);
--		if (likely(!atomic_read(&ctx->mmap_changing)))
--			ret = move_pages(ctx, mm, uffdio_move.dst, uffdio_move.src,
--					 uffdio_move.len, uffdio_move.mode);
--		else
--			ret = -EAGAIN;
--		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(mm);
-+		ret = move_pages(ctx, uffdio_move.dst, uffdio_move.src,
-+				 uffdio_move.len, uffdio_move.mode);
- 		mmput(mm);
- 	} else {
- 		return -ESRCH;
-diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index 3210c3552976..05d59f74fc88 100644
---- a/include/linux/userfaultfd_k.h
-+++ b/include/linux/userfaultfd_k.h
-@@ -138,9 +138,8 @@ extern long uffd_wp_range(struct vm_area_struct *vma,
- /* move_pages */
- void double_pt_lock(spinlock_t *ptl1, spinlock_t *ptl2);
- void double_pt_unlock(spinlock_t *ptl1, spinlock_t *ptl2);
--ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
--		   unsigned long dst_start, unsigned long src_start,
--		   unsigned long len, __u64 flags);
-+ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
-+		   unsigned long src_start, unsigned long len, __u64 flags);
- int move_pages_huge_pmd(struct mm_struct *mm, pmd_t *dst_pmd, pmd_t *src_pmd, pmd_t dst_pmdval,
- 			struct vm_area_struct *dst_vma,
- 			struct vm_area_struct *src_vma,
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 6e2ca04ab04d..d55bf18b80db 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -19,20 +19,39 @@
- #include <asm/tlb.h>
- #include "internal.h"
- 
--static __always_inline
--struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
--				    unsigned long dst_start,
--				    unsigned long len)
-+void unpin_vma(struct mm_struct *mm, struct vm_area_struct *vma, bool *mmap_locked)
-+{
-+	BUG_ON(!vma && !*mmap_locked);
-+
-+	if (*mmap_locked) {
-+		mmap_read_unlock(mm);
-+		*mmap_locked = false;
-+	} else
-+		vma_end_read(vma);
-+}
-+
-+/*
-+ * Search for VMA and make sure it is stable either by locking it or taking
-+ * mmap_lock.
-+ */
-+struct vm_area_struct *find_and_pin_dst_vma(struct mm_struct *dst_mm,
-+					    unsigned long dst_start,
-+					    unsigned long len,
-+					    bool *mmap_locked)
- {
-+	struct vm_area_struct *dst_vma = lock_vma_under_rcu(dst_mm, dst_start);
-+	if (!dst_vma) {
-+		mmap_read_lock(dst_mm);
-+		*mmap_locked = true;
-+		dst_vma = find_vma(dst_mm, dst_start);
-+	}
-+
- 	/*
- 	 * Make sure that the dst range is both valid and fully within a
- 	 * single existing vma.
- 	 */
--	struct vm_area_struct *dst_vma;
--
--	dst_vma = find_vma(dst_mm, dst_start);
- 	if (!range_in_vma(dst_vma, dst_start, dst_start + len))
--		return NULL;
-+		goto unpin;
- 
- 	/*
- 	 * Check the vma is registered in uffd, this is required to
-@@ -40,9 +59,13 @@ struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
- 	 * time.
- 	 */
- 	if (!dst_vma->vm_userfaultfd_ctx.ctx)
--		return NULL;
-+		goto unpin;
- 
- 	return dst_vma;
-+
-+unpin:
-+	unpin_vma(dst_mm, dst_vma, mmap_locked);
-+	return NULL;
- }
- 
- /* Check if dst_addr is outside of file's size. Must be called with ptl held. */
-@@ -350,7 +373,8 @@ static pmd_t *mm_alloc_pmd(struct mm_struct *mm, unsigned long address)
- #ifdef CONFIG_HUGETLB_PAGE
- /*
-  * mfill_atomic processing for HUGETLB vmas.  Note that this routine is
-- * called with mmap_lock held, it will release mmap_lock before returning.
-+ * called with either vma-lock or mmap_lock held, it will release the lock
-+ * before returning.
-  */
- static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      struct userfaultfd_ctx *ctx,
-@@ -358,7 +382,8 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      unsigned long dst_start,
- 					      unsigned long src_start,
- 					      unsigned long len,
--					      uffd_flags_t flags)
-+					      uffd_flags_t flags,
-+					      bool *mmap_locked)
- {
- 	struct mm_struct *dst_mm = dst_vma->vm_mm;
- 	int vm_shared = dst_vma->vm_flags & VM_SHARED;
-@@ -380,7 +405,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 */
- 	if (uffd_flags_mode_is(flags, MFILL_ATOMIC_ZEROPAGE)) {
- 		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(dst_mm);
-+		unpin_vma(dst_mm, dst_vma, mmap_locked);
- 		return -EINVAL;
- 	}
- 
-@@ -404,12 +429,25 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 */
- 	if (!dst_vma) {
- 		err = -ENOENT;
--		dst_vma = find_dst_vma(dst_mm, dst_start, len);
--		if (!dst_vma || !is_vm_hugetlb_page(dst_vma))
--			goto out_unlock;
-+		dst_vma = find_and_pin_dst_vma(dst_mm, dst_start,
-+					       len, mmap_locked);
-+		if (!dst_vma)
-+			goto out;
-+		if (!is_vm_hugetlb_page(dst_vma))
-+			goto out_unlock_vma;
- 
- 		err = -EINVAL;
- 		if (vma_hpagesize != vma_kernel_pagesize(dst_vma))
-+			goto out_unlock_vma;
-+
-+		/*
-+		 * If memory mappings are changing because of non-cooperative
-+		 * operation (e.g. mremap) running in parallel, bail out and
-+		 * request the user to retry later
-+		 */
-+		down_read(&ctx->map_changing_lock);
-+		err = -EAGAIN;
-+		if (atomic_read(&ctx->mmap_changing))
- 			goto out_unlock;
- 
- 		vm_shared = dst_vma->vm_flags & VM_SHARED;
-@@ -465,7 +503,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- 		if (unlikely(err == -ENOENT)) {
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			unpin_vma(dst_mm, dst_vma, mmap_locked);
- 			BUG_ON(!folio);
- 
- 			err = copy_folio_from_user(folio,
-@@ -474,17 +512,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 				err = -EFAULT;
- 				goto out;
- 			}
--			mmap_read_lock(dst_mm);
--			down_read(&ctx->map_changing_lock);
--			/*
--			 * If memory mappings are changing because of non-cooperative
--			 * operation (e.g. mremap) running in parallel, bail out and
--			 * request the user to retry later
--			 */
--			if (atomic_read(ctx->mmap_changing)) {
--				err = -EAGAIN;
--				break;
--			}
- 
- 			dst_vma = NULL;
- 			goto retry;
-@@ -505,7 +532,8 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+out_unlock_vma:
-+	unpin_vma(dst_mm, dst_vma, mmap_locked);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -521,7 +549,8 @@ extern ssize_t mfill_atomic_hugetlb(struct userfaultfd_ctx *ctx,
- 				    unsigned long dst_start,
- 				    unsigned long src_start,
- 				    unsigned long len,
--				    uffd_flags_t flags);
-+				    uffd_flags_t flags,
-+				    bool *mmap_locked);
- #endif /* CONFIG_HUGETLB_PAGE */
- 
- static __always_inline ssize_t mfill_atomic_pte(pmd_t *dst_pmd,
-@@ -581,6 +610,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	unsigned long src_addr, dst_addr;
- 	long copied;
- 	struct folio *folio;
-+	bool mmap_locked = false;
- 
- 	/*
- 	 * Sanitize the command parameters:
-@@ -597,7 +627,14 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	copied = 0;
- 	folio = NULL;
- retry:
--	mmap_read_lock(dst_mm);
-+	/*
-+	 * Make sure the vma is not shared, that the dst range is
-+	 * both valid and fully within a single existing vma.
-+	 */
-+	err = -ENOENT;
-+	dst_vma = find_and_pin_dst_vma(dst_mm, dst_start, len, &mmap_locked);
-+	if (!dst_vma)
-+		goto out;
- 
- 	/*
- 	 * If memory mappings are changing because of non-cooperative
-@@ -609,15 +646,6 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	if (atomic_read(&ctx->mmap_changing))
- 		goto out_unlock;
- 
--	/*
--	 * Make sure the vma is not shared, that the dst range is
--	 * both valid and fully within a single existing vma.
--	 */
--	err = -ENOENT;
--	dst_vma = find_dst_vma(dst_mm, dst_start, len);
--	if (!dst_vma)
--		goto out_unlock;
--
- 	err = -EINVAL;
- 	/*
- 	 * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_SHARED but
-@@ -638,8 +666,8 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	 * If this is a HUGETLB vma, pass off to appropriate routine
- 	 */
- 	if (is_vm_hugetlb_page(dst_vma))
--		return  mfill_atomic_hugetlb(ctx, dst_vma, dst_start,
--					     src_start, len, flags);
-+		return  mfill_atomic_hugetlb(ctx, dst_vma, dst_start, src_start
-+					     len, flags, &mmap_locked);
- 
- 	if (!vma_is_anonymous(dst_vma) && !vma_is_shmem(dst_vma))
- 		goto out_unlock;
-@@ -699,7 +727,8 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 			void *kaddr;
- 
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			unpin_vma(dst_mm, dst_vma, &mmap_locked);
-+
- 			BUG_ON(!folio);
- 
- 			kaddr = kmap_local_folio(folio, 0);
-@@ -730,7 +759,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+	unpin_vma(dst_mm, dst_vma, &mmap_locked);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -1285,8 +1314,6 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
-  * @len: length of the virtual memory range
-  * @mode: flags from uffdio_move.mode
-  *
-- * Must be called with mmap_lock held for read.
-- *
-  * move_pages() remaps arbitrary anonymous pages atomically in zero
-  * copy. It only works on non shared anonymous pages because those can
-  * be relocated without generating non linear anon_vmas in the rmap
-@@ -1353,15 +1380,16 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
-  * could be obtained. This is the only additional complexity added to
-  * the rmap code to provide this anonymous page remapping functionality.
-  */
--ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
--		   unsigned long dst_start, unsigned long src_start,
--		   unsigned long len, __u64 mode)
-+ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
-+		   unsigned long src_start, unsigned long len, __u64 mode)
- {
-+	struct mm_struct *mm = ctx->mm;
- 	struct vm_area_struct *src_vma, *dst_vma;
- 	unsigned long src_addr, dst_addr;
- 	pmd_t *src_pmd, *dst_pmd;
- 	long err = -EINVAL;
- 	ssize_t moved = 0;
-+	bool mmap_locked = false;
- 
- 	/* Sanitize the command parameters. */
- 	if (WARN_ON_ONCE(src_start & ~PAGE_MASK) ||
-@@ -1374,28 +1402,52 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 	    WARN_ON_ONCE(dst_start + len <= dst_start))
- 		goto out;
- 
-+	dst_vma = NULL;
-+	src_vma = lock_vma_under_rcu(mm, src_start);
-+	if (src_vma) {
-+		dst_vma = lock_vma_under_rcu(mm, dst_start);
-+		if (!dst_vma)
-+			vma_end_read(src_vma);
-+	}
-+
-+	/* If we failed to lock both VMAs, fall back to mmap_lock */
-+	if (!dst_vma) {
-+		mmap_read_lock(mm);
-+		mmap_locked = true;
-+		src_vma = find_vma(mm, src_start);
-+		if (!src_vma)
-+			goto out_unlock_mmap;
-+		dst_vma = find_vma(mm, dst_start);
-+		if (!dst_vma)
-+			goto out_unlock_mmap;
-+	}
-+
-+	/* Re-check after taking map_changing_lock */
-+	down_read(&ctx->map_changing_lock);
-+	if (likely(atomic_read(&ctx->mmap_changing))) {
-+		err = -EAGAIN;
-+		goto out_unlock;
-+	}
- 	/*
- 	 * Make sure the vma is not shared, that the src and dst remap
- 	 * ranges are both valid and fully within a single existing
- 	 * vma.
- 	 */
--	src_vma = find_vma(mm, src_start);
--	if (!src_vma || (src_vma->vm_flags & VM_SHARED))
--		goto out;
-+	if (src_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
- 	if (src_start < src_vma->vm_start ||
- 	    src_start + len > src_vma->vm_end)
--		goto out;
-+		goto out_unlock;
- 
--	dst_vma = find_vma(mm, dst_start);
--	if (!dst_vma || (dst_vma->vm_flags & VM_SHARED))
--		goto out;
-+	if (dst_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
- 	if (dst_start < dst_vma->vm_start ||
- 	    dst_start + len > dst_vma->vm_end)
--		goto out;
-+		goto out_unlock;
- 
- 	err = validate_move_areas(ctx, src_vma, dst_vma);
- 	if (err)
--		goto out;
-+		goto out_unlock;
- 
- 	for (src_addr = src_start, dst_addr = dst_start;
- 	     src_addr < src_start + len;) {
-@@ -1512,6 +1564,15 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 		moved += step_size;
- 	}
- 
-+out_unlock:
-+	up_read(&ctx->map_changing_lock);
-+out_unlock_mmap:
-+	if (mmap_locked)
-+		mmap_read_unlock(mm);
-+	else {
-+		vma_end_read(dst_vma);
-+		vma_end_read(src_vma);
-+	}
- out:
- 	VM_WARN_ON(moved < 0);
- 	VM_WARN_ON(err > 0);
--- 
-2.43.0.429.g432eaa2c6b-goog
-
+unix_socket test is failing because type_transition rule is not being
+applied to newly created server socket, leading to a denial when the
+client tries to connect. I believe that once worked; will see if I can
+find the last working kernel.
