@@ -1,195 +1,179 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3BFC3F9CE
-	for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 08:30:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4ED3838B;
+	Tue, 30 Jan 2024 08:55:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706603411; cv=none; b=ae4mqnYZ/+rO9fBJRzwtQqqktRH6FjhuBfVkBtTVXoTVO/MLuMncRJOg0IibPmKq47TrYPx0L7I2wcov1yir1FXPBXAZF3YG0KAb3wPFqvNHDZkJ1Ub94yZBGMvPG0VecyNMn0dqTP+bbtR+4Pdn80HzpQ9hcVlp5lhDcKiQxbI=
+	t=1706604936; cv=none; b=hLyCilkVqzH7nAiZwsnTqhdqKCV2vl79mEzwLYVqSlejmEeP+3KzPUf3hQr6ySIf3Ly/yl9G41V60yRfpcpnWMNjmxXXj06z0sYo9nSVbsYRgCEf6jcur9IvkeAkzEEQHxpsxvnS7rxBOk+HgzRxqndInx91v3JlvtgcZ/Vl4e8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706603411; c=relaxed/simple;
-	bh=LjR7Gsvrzq5Ewv00+x+riEY8MqHMvSKxj0MF/dqkZ+w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XBbe+IHNggvTPlwdVl8wH4b/cfOl4F3BwFT8j6fbfVq+MLxaripzh/XOqJoLZFFLZqhXYcymXOfpINy3J/4QiWWY7V31su4Ide0pL6PUGV//YGLlc6+luTbI+wTcLKT3e8EPvdvXo/keWEyyFxD1VH8J4ne2ftUMGo5MuzCqt0I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TBM8Y3P4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706604936; c=relaxed/simple;
+	bh=DYJUz9kKcGLJZ98tsI6Vy8dWSmkL5CVjrSjHuwrhBFc=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KWIv5cTZP9nUEKJfdBd0b8bQ+YUE310QMJExkXwq0N8pQ6hqH9ZD8Ad9x/o8LdcUkR8ftIo03KEbRV2UzYp93idT3lTM5qb3J3OXQr6XuHRfcaUygpKXfTbjwUTQWWNRb+HcOzYkm5ybIzhzuJUMl/ti0WsZNGSKoTIwN40osTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KiNieTQC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TBM8Y3P4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706603408;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=F7lkwTI3A7BzKPumUSTsEz3dMOctiT2kqnU7YgTQgYo=;
-	b=TBM8Y3P44MDfHD4I2oRrDMBIHdB/YWKy7LxZPliI2Gk1NReqMidEAyDLmm+nBL6MMsuZU6
-	mxx+lJprDwiAg/aNZryIEEvSdvtELsG0pt3PcpI7fAFTyUWhowHT6fihumxheLomMG1X0c
-	deyrWB6f1/NoUfvYkdQuKTr858EbSTw=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-280-bZj-dpqEM2CtpVsuxN0Z8w-1; Tue, 30 Jan 2024 03:30:06 -0500
-X-MC-Unique: bZj-dpqEM2CtpVsuxN0Z8w-1
-Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-6df2b37e6daso146204b3a.1
-        for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 00:30:06 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706603405; x=1707208205;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=F7lkwTI3A7BzKPumUSTsEz3dMOctiT2kqnU7YgTQgYo=;
-        b=MfJJ0gJAgqCgMcAAP4whrJVBT/S1Z1yFOv8zdSSA6/oWxivUxJhKpqgAb57XvfYsD0
-         u4RPCWB90ZwQWtIWTQxieyme63sXmQkD72t3ON+DJ07KIRTf6dJVONBB1w9cGA5uOgDV
-         wopkD67KUGWS1MH4lbBtDLDi40IVBgWfsbOhWiwnig+4faHFLb/4tJeyByMSQYplSm3M
-         E661RTPsYT/MLp3r0Q6dVcMCNizmp7/TZDDN64Ht46zM8ghAa339ST/Nq5a0sO1Jmuio
-         HKH26UjjFPFuwQzNOjtPz4avJ+CQzWZOLrtxB/UMtwbZEtPte2R11yoDcg5Gg+ypQvzE
-         5Qtw==
-X-Gm-Message-State: AOJu0YwBNz2Xjg8QIjwh+VB5t588f4IirnsWbkuHkd3ylFajM019ivRj
-	JLgYwWdoM3Z+t1cV16QsxQaDynq/kR5sJTV/5t4syOJJpIBvk/82JHqbITSCC9LbSsAbB/3fdgy
-	SKUc2c0QCjRstqnxwpLqP+cNjJG936OX144Kp0Zan0rXLPFyx0lJmSiLdOTZIN7910oIeoPC20j
-	NpfBO/3HIuh9zhka/V5LvGESpCFiTyUg==
-X-Received: by 2002:a05:6a00:22cb:b0:6dd:6caa:aecc with SMTP id f11-20020a056a0022cb00b006dd6caaaeccmr4469306pfj.31.1706603405385;
-        Tue, 30 Jan 2024 00:30:05 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEuvPhuqZi4o89CCeq59rapmp0fwpuiDh1GF6Cc1xFBi0IyyXGeloh0xS0UmqPHuvbEOaCUEZ2l/af9qQ6fMFQ=
-X-Received: by 2002:a05:6a00:22cb:b0:6dd:6caa:aecc with SMTP id
- f11-20020a056a0022cb00b006dd6caaaeccmr4469294pfj.31.1706603405053; Tue, 30
- Jan 2024 00:30:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KiNieTQC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E74A2C433C7;
+	Tue, 30 Jan 2024 08:55:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1706604935;
+	bh=DYJUz9kKcGLJZ98tsI6Vy8dWSmkL5CVjrSjHuwrhBFc=;
+	h=Date:From:To:Subject:References:In-Reply-To:From;
+	b=KiNieTQCpZmVleFrROUWQu0NDvzUVlu47fVYNoOPNVEfF0RaUAPUbFJ8ELRE9xEBl
+	 iRoWKAiUOKgCHz4ay+Sa350xqxXAh+L235WWsJfb6clIej45A7owi8nddPP4N72CoN
+	 ZAk9eZUy1TV75OZZc7SxSMGyasVnSj8SrxMDfqiRIK96IFxnoOFoA/pJWx9ST6tT27
+	 KuI3j0y5Jez8mpoPe5DrdudQaGJ30YQAI+jOIaSCkTpivdD1hEPfm2cZtGSX1apj9N
+	 BCOtGf1fIXrl0fhc/KMELNpqB4Y7iN7kPqi4eiu4VfzNpx/drxCnUEZo0dONjuNzRB
+	 gXOA3svyctVVQ==
+Date: Tue, 30 Jan 2024 10:55:09 +0200
+From: Mike Rapoport <rppt@kernel.org>
+To: "Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Lokesh Gidra <lokeshgidra@google.com>, akpm@linux-foundation.org,
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+	surenb@google.com, kernel-team@android.com, aarcange@redhat.com,
+	peterx@redhat.com, david@redhat.com, axelrasmussen@google.com,
+	bgeffon@google.com, willy@infradead.org, jannh@google.com,
+	kaleshsingh@google.com, ngeoffray@google.com, timmurray@google.com
+Subject: Re: [PATCH v2 2/3] userfaultfd: protect mmap_changing with rw_sem in
+ userfaulfd_ctx
+Message-ID: <Zbi5bZWI3JkktAMh@kernel.org>
+References: <20240129193512.123145-1-lokeshgidra@google.com>
+ <20240129193512.123145-3-lokeshgidra@google.com>
+ <20240129210014.troxejbr3mzorcvx@revolver>
+ <CA+EESO6XiPfbUBgU3FukGvi_NG5XpAQxWKu7vg534t=rtWmGXg@mail.gmail.com>
+ <20240130034627.4aupq27mksswisqg@revolver>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240126184531.1167999-1-omosnace@redhat.com> <CAHC9VhRy2uYmfoWYx57P6dRcZsJHmgCmdixi56hUoO=YvOqa5A@mail.gmail.com>
- <6e98ef30-ba98-4e99-bb03-9878c50e957b@schaufler-ca.com> <CAHC9VhRv260QHLe4RWYCD62DRv5-b7o-Davn_A9J_ZHJhMiJag@mail.gmail.com>
-In-Reply-To: <CAHC9VhRv260QHLe4RWYCD62DRv5-b7o-Davn_A9J_ZHJhMiJag@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Tue, 30 Jan 2024 09:29:53 +0100
-Message-ID: <CAFqZXNtLPM7vWDM5CMeG9r+8kB=HcaFfh0ZCqAQy0jfBnE_XDg@mail.gmail.com>
-Subject: Re: [PATCH] lsm: fix default return value of the socket_getpeersec_* hooks
-To: Paul Moore <paul@paul-moore.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20240130034627.4aupq27mksswisqg@revolver>
 
-On Tue, Jan 30, 2024 at 4:01=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Mon, Jan 29, 2024 at 6:25=E2=80=AFPM Casey Schaufler <casey@schaufler-=
-ca.com> wrote:
-> >
-> > On 1/29/2024 3:02 PM, Paul Moore wrote:
-> > > On Fri, Jan 26, 2024 at 1:45=E2=80=AFPM Ondrej Mosnacek <omosnace@red=
-hat.com> wrote:
-> > >> For these hooks the true "neutral" value is -EOPNOTSUPP, which is
-> > >> currently what is returned when no LSM provides this hook and what L=
-SMs
-> > >> return when there is no security context set on the socket. Correct =
-the
-> > >> value in <linux/lsm_hooks.h> and adjust the dispatch functions in
-> > >> security/security.c to avoid issues when the BPF LSM is enabled.
-> > >>
-> > >> Fixes: 98e828a0650f ("security: Refactor declaration of LSM hooks")
-> > >> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > >> ---
-> > >>  include/linux/lsm_hook_defs.h |  4 ++--
-> > >>  security/security.c           | 31 +++++++++++++++++++++++++++----
-> > >>  2 files changed, 29 insertions(+), 6 deletions(-)
-> > >>
-> > >> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_=
-defs.h
-> > >> index 185924c56378..76458b6d53da 100644
-> > >> --- a/include/linux/lsm_hook_defs.h
-> > >> +++ b/include/linux/lsm_hook_defs.h
-> > >> @@ -315,9 +315,9 @@ LSM_HOOK(int, 0, socket_getsockopt, struct socke=
-t *sock, int level, int optname)
-> > >>  LSM_HOOK(int, 0, socket_setsockopt, struct socket *sock, int level,=
- int optname)
-> > >>  LSM_HOOK(int, 0, socket_shutdown, struct socket *sock, int how)
-> > >>  LSM_HOOK(int, 0, socket_sock_rcv_skb, struct sock *sk, struct sk_bu=
-ff *skb)
-> > >> -LSM_HOOK(int, 0, socket_getpeersec_stream, struct socket *sock,
-> > >> +LSM_HOOK(int, -ENOPROTOOPT, socket_getpeersec_stream, struct socket=
- *sock,
-> > >>          sockptr_t optval, sockptr_t optlen, unsigned int len)
-> > >> -LSM_HOOK(int, 0, socket_getpeersec_dgram, struct socket *sock,
-> > >> +LSM_HOOK(int, -ENOPROTOOPT, socket_getpeersec_dgram, struct socket =
-*sock,
-> > >>          struct sk_buff *skb, u32 *secid)
-> > >>  LSM_HOOK(int, 0, sk_alloc_security, struct sock *sk, int family, gf=
-p_t priority)
-> > >>  LSM_HOOK(void, LSM_RET_VOID, sk_free_security, struct sock *sk)
-> > >> diff --git a/security/security.c b/security/security.c
-> > >> index 6196ccaba433..3aaad75c9ce8 100644
-> > >> --- a/security/security.c
-> > >> +++ b/security/security.c
-> > >> @@ -4624,8 +4624,20 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
-> > >>  int security_socket_getpeersec_stream(struct socket *sock, sockptr_=
-t optval,
-> > >>                                       sockptr_t optlen, unsigned int=
- len)
-> > >>  {
-> > >> -       return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT,=
- sock,
-> > >> -                            optval, optlen, len);
-> > >> +       struct security_hook_list *hp;
-> > >> +       int rc;
-> > >> +
-> > >> +       /*
-> > >> +        * Only one module will provide a security context.
-> > >> +        */
-> > >> +       hlist_for_each_entry(hp, &security_hook_heads.socket_getpeer=
-sec_stream,
-> > >> +                            list) {
-> > >> +               rc =3D hp->hook.socket_getpeersec_stream(sock, optva=
-l, optlen,
-> > >> +                                                      len);
-> > >> +               if (rc !=3D LSM_RET_DEFAULT(socket_getpeersec_stream=
-))
-> > >> +                       return rc;
-> > >> +       }
-> > >> +       return LSM_RET_DEFAULT(socket_getpeersec_stream);
-> > >>  }
+On Mon, Jan 29, 2024 at 10:46:27PM -0500, Liam R. Howlett wrote:
+> * Lokesh Gidra <lokeshgidra@google.com> [240129 17:35]:
+> > On Mon, Jan 29, 2024 at 1:00 PM Liam R. Howlett <Liam.Howlett@oracle.com> wrote:
 > > >
-> > > I'm beginning to wonder if we shouldn't update call_int_hook() so tha=
-t
-> > > it works for LSM_RET_DEFAULT() instead of assuming a zero/0 return
-> > > value.  Thoughts?
-> >
-> > call_int_hook() was intended to address the "normal" case, where all
-> > hooks registered would be called and the first error, if any, would
-> > result in an immediate failure return. Hooks that behaved in any other
-> > manner were expected to be open coded. The point of using the macros
-> > was to reduce so much code duplication. I really don't want to see
-> > call_int_hook() evolve into something hard to work with, or that has
-> > non-obvious side effects. I think we could probably integrate
-> > LSM_RET_DEFAULT() safely, but I'm wary of hiding these abnormal cases
-> > in the macro.
->
-> Yes, I'm not talking about modifying call_int_hook() to handle
-> something like security_vm_enough_memory_mm(), I'm just talking about
-> updating it use LSM_RET_DEFAULT() instead of zero.
->
-> While we are at it, we should probably get rid of the second parameter
-> too, @IRC, and just use the assigned LSM_RET_DEFAULT().  That always
-> struck me as a bug waiting to happen if/when those two fell out of
-> sync.
+> > > * Lokesh Gidra <lokeshgidra@google.com> [240129 14:35]:
+> > > > Increments and loads to mmap_changing are always in mmap_lock
+> > > > critical section.
+> > >
+> > > Read or write?
+> > >
+> > It's write-mode when incrementing (except in case of
+> > userfaultfd_remove() where it's done in read-mode) and loads are in
+> > mmap_lock (read-mode). I'll clarify this in the next version.
+> > >
+> > > > This ensures that if userspace requests event
+> > > > notification for non-cooperative operations (e.g. mremap), userfaultfd
+> > > > operations don't occur concurrently.
+> > > >
+> > > > This can be achieved by using a separate read-write semaphore in
+> > > > userfaultfd_ctx such that increments are done in write-mode and loads
+> > > > in read-mode, thereby eliminating the dependency on mmap_lock for this
+> > > > purpose.
+> > > >
+> > > > This is a preparatory step before we replace mmap_lock usage with
+> > > > per-vma locks in fill/move ioctls.
+> > > >
+> > > > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > > > ---
+> > > >  fs/userfaultfd.c              | 40 ++++++++++++----------
+> > > >  include/linux/userfaultfd_k.h | 31 ++++++++++--------
+> > > >  mm/userfaultfd.c              | 62 ++++++++++++++++++++---------------
+> > > >  3 files changed, 75 insertions(+), 58 deletions(-)
+> > > >
+> > > > diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+> > > > index 58331b83d648..c00a021bcce4 100644
+> > > > --- a/fs/userfaultfd.c
+> > > > +++ b/fs/userfaultfd.c
+> > > > @@ -685,12 +685,15 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
+> > > >               ctx->flags = octx->flags;
+> > > >               ctx->features = octx->features;
+> > > >               ctx->released = false;
+> > > > +             init_rwsem(&ctx->map_changing_lock);
+> > > >               atomic_set(&ctx->mmap_changing, 0);
+> > > >               ctx->mm = vma->vm_mm;
+> > > >               mmgrab(ctx->mm);
+> > > >
+> > > >               userfaultfd_ctx_get(octx);
+> > > > +             down_write(&octx->map_changing_lock);
+> > > >               atomic_inc(&octx->mmap_changing);
+> > > > +             up_write(&octx->map_changing_lock);
+> 
+> On init, I don't think taking the lock is strictly necessary - unless
+> there is a way to access it before this increment?  Not that it would
+> cost much.
 
-You're reading my mind :) I already started writing a patch that does
-exactly that after I posted the security_inode_getsecctx() patch.
-While working on it I gradually found two more pre-existing issues, so
-I wanted to post fixes for them before the refactor for better
-backportability. I should be able to post the patch today.
+It's fork, the lock is for the context of the parent process and there
+could be uffdio ops running in parallel on its VM.
+ 
+> > > You could use the first bit of the atomic_inc as indication of a write.
+> > > So if the mmap_changing is even, then there are no writers.  If it
+> > > didn't change and it's even then you know no modification has happened
+> > > (or it overflowed and hit the same number which would be rare, but
+> > > maybe okay?).
+> > 
+> > This is already achievable, right? If mmap_changing is >0 then we know
+> > there are writers. The problem is that we want writers (like mremap
+> > operations) to block as long as there is a userfaultfd operation (also
+> > reader of mmap_changing) going on. Please note that I'm inferring this
+> > from current implementation.
+> > 
+> > AFAIU, mmap_changing isn't required for correctness, because all
+> > operations are happening under the right mode of mmap_lock. It's used
+> > to ensure that while a non-cooperative operations is happening, if the
+> > user has asked it to be notified, then no other userfaultfd operations
+> > should take place until the user gets the event notification.
+> 
+> I think it is needed, mmap_changing is read before the mmap_lock is
+> taken, then compared after the mmap_lock is taken (both read mode) to
+> ensure nothing has changed.
 
-BTW, the IRC param removal means that a few of the existing
-call_int_hook() calls have to be open-coded, but even then the patch
-removes more LoC than it adds, so I think it's worth it.
+mmap_changing is required to ensure that no uffdio operation runs in
+parallel with operations that modify the memory map, like fork, mremap,
+munmap and some of madvise calls. 
+And we do need the writers to block if there is an uffdio operation going
+on, so I think an rwsem is the right way to protect mmap_chaniging.
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+> > > > @@ -783,7 +788,9 @@ bool userfaultfd_remove(struct vm_area_struct *vma,
+> > > >               return true;
+> > > >
+> > > >       userfaultfd_ctx_get(ctx);
+> > > > +     down_write(&ctx->map_changing_lock);
+> > > >       atomic_inc(&ctx->mmap_changing);
+> > > > +     up_write(&ctx->map_changing_lock);
+> > > >       mmap_read_unlock(mm);
+> > > >
+> > > >       msg_init(&ewq.msg);
+> 
+> If this happens in read mode, then why are you waiting for the readers
+> to leave?  Can't you just increment the atomic?  It's fine happening in
+> read mode today, so it should be fine with this new rwsem.
 
+It's been a while and the details are blurred now, but if I remember
+correctly, having this in read mode forced non-cooperative uffd monitor to
+be single threaded. If a monitor runs, say uffdio_copy, and in parallel a
+thread in the monitored process does MADV_DONTNEED, the latter will wait
+for userfaultfd_remove notification to be processed in the monitor and drop
+the VMA contents only afterwards. If a non-cooperative monitor would
+process notification in parallel with uffdio ops, MADV_DONTNEED could
+continue and race with uffdio_copy, so read mode wouldn't be enough.
+
+There was no much sense to make MADV_DONTNEED take mmap_lock in write mode
+just for this, but now taking the rwsem in write mode here sounds
+reasonable.
+ 
+> Thanks,
+> Liam
+> 
+> ...
+
+-- 
+Sincerely yours,
+Mike.
