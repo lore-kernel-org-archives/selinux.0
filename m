@@ -1,62 +1,62 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3CF279DD0
-	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 13:08:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69FCE3770D
+	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 13:08:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706706532; cv=none; b=Rwy5MFHfv3jNg+5R9JE27SW/ucQM0R/6N3jpZKykn3lCQtVkebtIzNpb0XK5AUepqDwGSLyOLHSWM3cexbK/oLNxq7ELkRy3gKLJrEGHhNzwWZe6vhKr43RlMDDuVLzsRSTascYezkHrukzKGPJQE1hWwwjO+uIHFZA/kY7KwJg=
+	t=1706706533; cv=none; b=M4S4t+5oGpVJTvNglKdSektnLgY20MPFUwYHbQyBCQHAFvM5n/Tzfci4r6WI7AHr7MCYJrBsvns4C/M0WX9DR9GWLI5GZyh8QZxiYfreYwOv/AtHHIvp3d7kMiQHJWzqCuLQFVeVFpUHTRlgXyo4bYmO1PUbswUkrpLX2hJrDOw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706706532; c=relaxed/simple;
-	bh=NIax8MHOUENkMtI9YzOIaUUqrDEBf0QxlpcOJo96GD4=;
+	s=arc-20240116; t=1706706533; c=relaxed/simple;
+	bh=Rko/Z9f9+8RoY7GaIKD/Ck/VhvpzZ3Q3vSoY2camtso=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UuYFZc8dLNzZfvofdXoCQ2U5VdsW9G9FYA/o0NKvQ+Ya99BYrKCNJUMtLpBgoeElz3z4mGiDYjllVAhFTeAI0hmvrLLUqvh5HkQEULLNbami9KefqIebxGcI+qjYNmGKIo5uP9BRqoFVOYnUMhgXUmbLAtWw5Vb2K/IoPiQpz8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=dSDMq12T; arc=none smtp.client-ip=209.85.218.44
+	 MIME-Version:Content-Type; b=npBbNFoAMEXrwWnQCq1jmSaZe6VvDqlKNi6wOSlTm/cdwZcvmoZo7HDb8rXg0teql6h1YmRTl2l/QlaSqa9DsuUqs++EegrLfZqP4WLL5OSX0deVxQEnanmgTgaVGP/cDLrDuSrQ8pKoS7y70pSReFUhFICZtVi2XCHgHqjlMkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=fPx5w8K+; arc=none smtp.client-ip=209.85.208.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="dSDMq12T"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-a35c0ed672cso449353166b.1
-        for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 05:08:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="fPx5w8K+"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-55c2cf644f3so5421210a12.1
+        for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 05:08:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20230601; t=1706706529; x=1707311329; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=AYnnqPvB2mVNPcwfm4wp8HiKFXrf2BHhOZeerXjPRko=;
-        b=dSDMq12Ty0+WM0SJzHLQF8bIxOTNBkIvNUX0hpIWK1qmJHQr5WHIiWofkdMNgFgJh1
-         wy83aGiR2h95GxFZFyUnYiuyOjadIqOwNal0kS//rC4jXbZFgCyG+d75MJjcMJkVBQOp
-         XqckCUGHDHDMlOVFYEGkoag+5s1z5bgyTuQ1dgY0NXAmoO2UgvvyER41aaFMIQsPC8hf
-         VWgCKZ28aPtNJN79+blaYscdNMZX9/FnIte9lNC3V57aDKgNwuE6+AzzkqNYIWL3azUM
-         8H+W8Wwaj7mcagOgq8QNVEw7ySKwUH+x21FtR+yXBNEVJXQ0ewOYMr2C2d2YMTnTSJfU
-         w6pw==
+        bh=ToK4XXgZ5kkZunydINKtvzubqHvkuDujxfP8g7u1RoU=;
+        b=fPx5w8K+uH9fGg8bG/54nPoEi+CD6l6vkcNizXbTcK3XplUEbz+CiTsOErAwqI04gN
+         Vj0fLbsI19JNHBfd37PfWj86kcOgqsJjavBG66qYmcSPLbgx9igXFVXi9zixojbdrflJ
+         mL+52qFGcZedYZnaX08IXlRjT99uuTUIJGR5NA9v2ueJxAlZdl91SOaz0pxOKyRfNndK
+         DBoP/9gUjrr7hhkus2Auz8iT0YPtStYHUGhEmOHKEvHEJpXgHzKeJlLdsAMRgXDWBVZv
+         weG6XEQx6PfgaiCtvsSPaiI+9+2aU6HfAQ+4phgsmgmcjo8mkAonyp8970WEBYB89CU/
+         Qp2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1706706529; x=1707311329;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AYnnqPvB2mVNPcwfm4wp8HiKFXrf2BHhOZeerXjPRko=;
-        b=HqmuEY5MOk71bxUuVDtUihoeqdnXMDm+qWWDxZMdLQWR5DoYg5WHZFldzeEi7olMnw
-         x2A3WAVkusGgVXHUdifk8T6m7UPY9G2KhL9Nz5M4aH6wIHcTs/l/5s4+EDKoxehDl+De
-         vwumtcUDC9QjJPtFVcG2rcdRcOhXFgRRu8E7qSEQn9gwhKj4DnX+Gt+EUCuH7x7zLJ87
-         erIMpt88pUlF2sEH4wNllqDk8Emoq1RqJjrGE80SGgcgfm6piYnjSTQgh82Wyj2mx1eS
-         arhHqzxT3QeJM8RNoa9hwn4XWZM1fXSaWxa4PNHem6zy5V++94hcG3dLRk6WDYeghxla
-         +ctw==
-X-Gm-Message-State: AOJu0YzdEVeFspcB2OzqRaiNnfpwlQVrxfIPeNtAnjNH/ceQJqEP8j6N
-	kDaUwwBrH5fc5Ten9efCS5CJP9YPPlgg17cQbD9G5GM8eqCfNojQXxcliaQG
-X-Google-Smtp-Source: AGHT+IHkJSpFlPU+43/vvB1EewkySMeyMOE7ck9wM2FUscuJXG49KdvX1FhU3KFvn0aBw3f0BRc67w==
-X-Received: by 2002:a17:906:bce7:b0:a27:6e73:a248 with SMTP id op7-20020a170906bce700b00a276e73a248mr1133507ejb.68.1706706528949;
-        Wed, 31 Jan 2024 05:08:48 -0800 (PST)
+        bh=ToK4XXgZ5kkZunydINKtvzubqHvkuDujxfP8g7u1RoU=;
+        b=CPuIn3qTAZ15lAPZbKpf+9zqBXM3EIqNgx7csRhrzH8+Cj+2vRzvQsECYhdMjJylh5
+         NsCnuZfR4bBtEAt5OWuZx2vb4M7hxXn/uoKmZpHf1O5hHQahchWjl0Qo2wzeJv8J10Xz
+         QJCOB7X4+JhrwThVKFS6VYTU5fHZQyfhyJH0Puavg0gAvyrxcrcqKDf7vl4iPbwmXJFh
+         IgnIkvd/PEu3VmB67nX7yenz6g9uhd2lFv6KTg+w+qSAdmQ15nPc1SWwufN+EczSIyON
+         pkXKSwBHV4nN3/a7b2i+qD1iYNFo8jnNc/hy919BSS1Uu3NtmvMw14oodPyc8uP7rTAa
+         r6SQ==
+X-Gm-Message-State: AOJu0YzwAoyCdh8ddiIH+bIPAonFoE/VrKY1VYV6CNEP/5PSI8/j09/R
+	eQSeG1KpRh24Sds8/4lbReK2hyAMU/l8cW7zfNaTiSsa58BUtp09u1x8Yek7
+X-Google-Smtp-Source: AGHT+IHaJdPWXzYR47nqrh7f/Yby3JbpiQN1Rh0WXirrrG5yLoUqcP1IP8E8/vSHlXsHbSAzZC3Fgg==
+X-Received: by 2002:a17:906:1152:b0:a31:1c94:3431 with SMTP id i18-20020a170906115200b00a311c943431mr1070341eja.46.1706706529554;
+        Wed, 31 Jan 2024 05:08:49 -0800 (PST)
 Received: from ddev.DebianHome (dynamic-078-050-045-093.78.50.pool.telefonica.de. [78.50.45.93])
-        by smtp.gmail.com with ESMTPSA id p14-20020a170906784e00b00a365c673251sm890351ejm.216.2024.01.31.05.08.48
+        by smtp.gmail.com with ESMTPSA id p14-20020a170906784e00b00a365c673251sm890351ejm.216.2024.01.31.05.08.49
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Jan 2024 05:08:48 -0800 (PST)
+        Wed, 31 Jan 2024 05:08:49 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [RFC PATCH v2 3/9] libselinux: use more appropriate types in sidtab
-Date: Wed, 31 Jan 2024 14:08:29 +0100
-Message-ID: <20240131130840.48155-4-cgzones@googlemail.com>
+Subject: [RFC PATCH v2 4/9] libselinux: add unique id to sidtab entries
+Date: Wed, 31 Jan 2024 14:08:30 +0100
+Message-ID: <20240131130840.48155-5-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240131130840.48155-1-cgzones@googlemail.com>
 References: <20240131130840.48155-1-cgzones@googlemail.com>
@@ -69,81 +69,68 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Use type unsigned for hash values, as returned by sidtab_hash().
-Use size_t for buffer length and counting variables.
-Constify stats parameter.
+Reinterpret the currently unused - and always initialized to 1 - member
+refcnt of the struct security_id to hold a unique number identifying
+the sidtab entry.  This identifier can be used instead of the full
+context string within other data structures to minimize memory usage.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
 v2:
   add patch
 ---
- libselinux/src/avc_sidtab.c | 16 +++++++++-------
- libselinux/src/avc_sidtab.h |  2 +-
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ libselinux/include/selinux/avc.h | 2 +-
+ libselinux/src/avc_sidtab.c      | 9 +++++++--
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
+diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
+index 4bbd2382..361c5611 100644
+--- a/libselinux/include/selinux/avc.h
++++ b/libselinux/include/selinux/avc.h
+@@ -20,7 +20,7 @@ extern "C" {
+  */
+ struct security_id {
+ 	char * ctx;
+-	unsigned int refcnt;
++	unsigned int id;
+ };
+ typedef struct security_id *security_id_t;
+ 
 diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
-index 3303537b..fce5bddf 100644
+index fce5bddf..9475dcb0 100644
 --- a/libselinux/src/avc_sidtab.c
 +++ b/libselinux/src/avc_sidtab.c
-@@ -45,7 +45,8 @@ int sidtab_init(struct sidtab *s)
- 
- int sidtab_insert(struct sidtab *s, const char * ctx)
- {
--	int hvalue, rc = 0;
-+	unsigned hvalue;
-+	int rc = 0;
+@@ -4,6 +4,7 @@
+  * Author : Eamon Walsh, <ewalsh@epoch.ncsc.mil>
+  */
+ #include <errno.h>
++#include <limits.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stdint.h>
+@@ -50,6 +51,11 @@ int sidtab_insert(struct sidtab *s, const char * ctx)
  	struct sidtab_node *newnode;
  	char * newctx;
  
-@@ -75,7 +76,8 @@ int
- sidtab_context_to_sid(struct sidtab *s,
- 		      const char * ctx, security_id_t * sid)
- {
--	int hvalue, rc = 0;
-+	unsigned hvalue;
-+	int rc = 0;
- 	struct sidtab_node *cur;
- 
- 	*sid = NULL;
-@@ -98,10 +100,10 @@ sidtab_context_to_sid(struct sidtab *s,
++	if (s->nel >= UINT_MAX - 1) {
++		rc = -1;
++		goto out;
++	}
++
+ 	newnode = (struct sidtab_node *)avc_malloc(sizeof(*newnode));
+ 	if (!newnode) {
+ 		rc = -1;
+@@ -65,9 +71,8 @@ int sidtab_insert(struct sidtab *s, const char * ctx)
+ 	hvalue = sidtab_hash(newctx);
+ 	newnode->next = s->htable[hvalue];
+ 	newnode->sid_s.ctx = newctx;
+-	newnode->sid_s.refcnt = 1;	/* unused */
++	newnode->sid_s.id = ++s->nel;
+ 	s->htable[hvalue] = newnode;
+-	s->nel++;
+       out:
  	return rc;
  }
- 
--void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen)
-+void sidtab_sid_stats(const struct sidtab *s, char *buf, size_t buflen)
- {
--	int i, chain_len, slots_used, max_chain_len;
--	struct sidtab_node *cur;
-+	size_t i, chain_len, slots_used, max_chain_len;
-+	const struct sidtab_node *cur;
- 
- 	slots_used = 0;
- 	max_chain_len = 0;
-@@ -121,8 +123,8 @@ void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen)
- 	}
- 
- 	snprintf(buf, buflen,
--		 "%s:  %u SID entries and %d/%d buckets used, longest "
--		 "chain length %d\n", avc_prefix, s->nel, slots_used,
-+		 "%s:  %u SID entries and %zu/%d buckets used, longest "
-+		 "chain length %zu\n", avc_prefix, s->nel, slots_used,
- 		 SIDTAB_SIZE, max_chain_len);
- }
- 
-diff --git a/libselinux/src/avc_sidtab.h b/libselinux/src/avc_sidtab.h
-index cc5abe35..e823e3f3 100644
---- a/libselinux/src/avc_sidtab.h
-+++ b/libselinux/src/avc_sidtab.h
-@@ -29,7 +29,7 @@ int sidtab_insert(struct sidtab *s, const char * ctx) ;
- int sidtab_context_to_sid(struct sidtab *s,
- 			  const char * ctx, security_id_t * sid) ;
- 
--void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen) ;
-+void sidtab_sid_stats(const struct sidtab *s, char *buf, size_t buflen) ;
- void sidtab_destroy(struct sidtab *s) ;
- 
- #endif				/* _SELINUX_AVC_SIDTAB_H_ */
 -- 
 2.43.0
 
