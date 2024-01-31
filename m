@@ -1,60 +1,65 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0E6E762DD
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C2778676
 	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 12:56:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706705794; cv=none; b=bbKTdpfqGJT/icZGhZS+pnAB9M1WtLTgBbkQCGmLo+uHw9jTwqJ/mXhN/vnMNzNV0hGfFrR4bnschGwlf/1+lVqi1NHXlREyAUFoXSVzrmmnByV9/q4acpZA1s9KKm8zGZx5cU5MvQRUqIkvNh4g+VsKvvBdlaLD8unOi9DUBoo=
+	t=1706705794; cv=none; b=lmBRDBaUMfaNzzzYH/rGCqZ+yk3bGafaKr3bTF3yjctwmEDNjbiSqipZ0LbiQaLQjHlaQEVj6jkOUj2LoAjYLUuEb6WfcOFyAhUUUC5mSyyGXqUUulMZYpDWafKbrUdoSWNM3+gMDJapS4ekUxp1Laf62WT0hDXHftYCPXpLbhw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1706705794; c=relaxed/simple;
-	bh=1DBPw6CFtuVlh5ARAUZc5scvfXmq4VKeDmhNySoyhDs=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=G2o4CLApxUgSw9NHBs3SVKkuFxDDA+DmFnUjE69pVmXzK9zK44HEgwQWzoVDXM89mspLE2zNHHNhMacoOcBlUn7EDLG+/N7Eb25JEW19fX9C0QxRekMQnQRRm7zNkLzaworRr/9UJQXCwmV+WtL6Qt0HUAW91uNrjOXfxQn+bWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=IDPJz8p7; arc=none smtp.client-ip=209.85.218.50
+	bh=9UlJw9pEFHYOKbSS8FxPOnAgi7cgsUzpsr5GK+nN9YE=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=IVtcCqOkKh2rWgNDSCzaORdtZeu24I5uHVXEscf0XaYeM34i5mgswPeHH0dGRz53iV1X1PQvECEmE55UY5+o1PwaI4eaca2uHMDHn1tfVBvBHE4W3uEkMZLAtF1c2VVXmPtn+oVLoYFrFpi1S6T4J2ltEVpEUdrA+XnZXXvNHU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=PvfvKDy5; arc=none smtp.client-ip=209.85.218.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="IDPJz8p7"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a354408e6bfso144015366b.1
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="PvfvKDy5"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a318ccfe412so478018966b.1
         for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 04:56:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20230601; t=1706705791; x=1707310591; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=F5mqWTFByb4l6hIEAJItQD4osy3qPYtkQsF+OoG6y/M=;
-        b=IDPJz8p7gy6zRT6qkaIKjTkE6o5tL1qeSO5CNPr4jpb5/hEBJHTqJj12OEI6kiF9bN
-         VX0jNL4wzVdqbRq9vUNF7gcicjk8PXFNgmJ+b9LKNwHOQZeqxnVKpzF8kEIm9i4+pJIF
-         ShRgjvTWrqS9huS4w9dpK5oBWroBNckUYbVthvSeP2PWPTICBcARvZ6kNurP+TDp04em
-         kGehRlIDEeRPq4hjLmzt/JhD1Sb7NfFsWi2Mb1cHsxWgoIQuhGVd+A74lPT08upnKilM
-         RCrTjWe50yRdAgT0VrLOnuBdJ8gY7bzSEyzrSZ9G3H7syUs4Y/IQPNtZ7GIdDAsxGJPg
-         Mrwg==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xhie0+7Hbsok8kASBVSMKzyXl8VXYFF1s7le8Z5fmKg=;
+        b=PvfvKDy5bEin1axbCS7h7pzf2rLPpuHoLZcfdzs3Bb5UJRJgwnIZjNzmXK0B5WaohN
+         XcTQ1qT4gJ6la8y2qvW2esQCbJcZXr2d7f+1SmH9NfDBA0/2rBcizI9gYcp0uAI8ncal
+         iOmCBZTfW1LGpcrvbRkJyIPHMtwHY+dSdgPYKxt57nADRqxt2GeZ6wuJUEojhHYyZvIp
+         pClTkZJp69MEmyoz8k3eWh6j/vncbSmSBc2JjmSh1ncU/WPC6SygxeEjLfpKERTCBxz8
+         8Nh0+/iiKCWjspLhlc7g5d45YcMCOG1IdbBp/yF5Z0qqWk12YZYRyUTHXUGYJaTCQFHJ
+         ksmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1706705791; x=1707310591;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=F5mqWTFByb4l6hIEAJItQD4osy3qPYtkQsF+OoG6y/M=;
-        b=GEyem8cM0bPgKqHfz07jsUeo8jelpi2wa2hoPtyT3AiWI3dUUNevZ7PN1J8wguq1Ud
-         o2Ru3UCijwayxpnNIVEziFFuNW8OeDP0MRX53iTB8p9nu/mLigaxJ9nR2cRLHsb6w7s/
-         stOaDQwJFueqxz8XxUIg72+0p2bxKtlz8i/obHlcf7f3k+WmFKFeVPF3jz3/z+C35vY/
-         hsa4uE+e2LC+xBNu3e3YSuIyE3unILKnzjHeEi39VrdGdbP/28MSLyV4XcXxO5HeSJd1
-         PKj70560C8xRQc2P3k5Bn+a5mV57r9UDw1NUlctf7pMlCowiyOFFYoOlEPLABQtM78mn
-         HU5g==
-X-Gm-Message-State: AOJu0YzTHqDcYhzfl/8oMuOC1piqYoUu2TV68+i+Z/Jgz1jpk7g5Q1DV
-	+Dn6xX30w1JpETc8fRpgRClXrAAOf9CLDUj0GVz7vyWRn4mJXIQPuQ6eNqJ6
-X-Google-Smtp-Source: AGHT+IHYrEF76pb3rzynxCwtRFSsNrQa6Ak4kGwvijrsWIroQYRotEiYPKBVcX3AvXaoZJkd29pSYQ==
-X-Received: by 2002:a17:907:6d14:b0:a31:6a03:d1aa with SMTP id sa20-20020a1709076d1400b00a316a03d1aamr4816356ejc.22.1706705790418;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xhie0+7Hbsok8kASBVSMKzyXl8VXYFF1s7le8Z5fmKg=;
+        b=Wk/zQKesKaVmls0ZB1q0QhkUwetRAWOmO4YmfBYbMOSOTwnc3cBpFzuMdXl/PIm68w
+         wUDxTNrCOv/tRbT8CmQOapSHKTl7ET/SZHmBESIVBe+gv8ARpCFiED1v5ZWLC3kydaeP
+         uIWhACLhGdAIVAJTcDThKLyXM063ImNPvSxZVp9a4SYf/gzISwYwKRMHRO45Usdppbvr
+         9O8i8dYE2NDqUEypoKtYpSlmCQe+yVZJTdwQrFpNLy2bLUubUaeDR8+5py5pAQh+F02B
+         wpuGOr2IAvAL0giRVcTRGcLDrrCqjF6BC+lF5txyByyJ8Mu4cr8dNEvD9Fk6T4oTfHtL
+         ZPhA==
+X-Gm-Message-State: AOJu0YzCnRBeIv+bwuCR0pHyiJhjrCHF58xKz0crskBzUZtWSDYVqHcJ
+	NfLOidzNDYrGxbbBM88qJY6K7Bo8NdjZ+rtL+ZKV8rxrmVkFhJF0wonLFQmz
+X-Google-Smtp-Source: AGHT+IHanbEYFLFwWWpkvjhZK40K+R4+xVZ0zeR5t5l3uncpjPfl2T2tFnHXjTO2vf3mDG411PvoJQ==
+X-Received: by 2002:a17:906:6d12:b0:a35:6c2f:f0e7 with SMTP id m18-20020a1709066d1200b00a356c2ff0e7mr1033610ejr.74.1706705790953;
         Wed, 31 Jan 2024 04:56:30 -0800 (PST)
 Received: from ddev.DebianHome (dynamic-078-050-045-093.78.50.pool.telefonica.de. [78.50.45.93])
-        by smtp.gmail.com with ESMTPSA id fx20-20020a170906b75400b00a34b15c5cedsm6248843ejb.170.2024.01.31.04.56.29
+        by smtp.gmail.com with ESMTPSA id fx20-20020a170906b75400b00a34b15c5cedsm6248843ejb.170.2024.01.31.04.56.30
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Wed, 31 Jan 2024 04:56:30 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 1/3] libsepol: ensure transitivity in compare functions
-Date: Wed, 31 Jan 2024 13:56:10 +0100
-Message-ID: <20240131125623.45758-1-cgzones@googlemail.com>
+Subject: [PATCH 2/3] libsepol/cil: ensure transitivity in compare functions
+Date: Wed, 31 Jan 2024 13:56:11 +0100
+Message-ID: <20240131125623.45758-2-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240131125623.45758-1-cgzones@googlemail.com>
+References: <20240131125623.45758-1-cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -72,36 +77,66 @@ in case of integer overflows.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/src/kernel_to_common.c | 2 +-
- libsepol/src/module_to_cil.c    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ libsepol/cil/src/cil_post.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 2422eed0..44f0be23 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -503,7 +503,7 @@ static int ibendport_data_cmp(const void *a, const void *b)
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index 7f45299a..ac99997f 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -52,6 +52,8 @@
+ #define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
+ #define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/src/module_to_cil.c */
+ 
++#define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
++
+ struct fc_data {
+ 	unsigned int meta;
+ 	size_t stem_len;
+@@ -263,8 +265,8 @@ int cil_post_ibpkeycon_compare(const void *a, const void *b)
  	if (rc)
  		return rc;
  
--	return (*aa)->u.ibendport.port - (*bb)->u.ibendport.port;
-+	return spaceship_cmp((*aa)->u.ibendport.port, (*bb)->u.ibendport.port);
- }
+-	rc = (aibpkeycon->pkey_high - aibpkeycon->pkey_low)
+-		- (bibpkeycon->pkey_high - bibpkeycon->pkey_low);
++	rc = spaceship_cmp(aibpkeycon->pkey_high - aibpkeycon->pkey_low,
++		bibpkeycon->pkey_high - bibpkeycon->pkey_low);
+ 	if (rc == 0) {
+ 		if (aibpkeycon->pkey_low < bibpkeycon->pkey_low)
+ 			rc = -1;
+@@ -281,8 +283,8 @@ int cil_post_portcon_compare(const void *a, const void *b)
+ 	struct cil_portcon *aportcon = *(struct cil_portcon**)a;
+ 	struct cil_portcon *bportcon = *(struct cil_portcon**)b;
  
- static int pirq_data_cmp(const void *a, const void *b)
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index ee22dbbd..c8dae562 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -1680,7 +1680,7 @@ static int class_perm_cmp(const void *a, const void *b)
- 	const struct class_perm_datum *aa = a;
- 	const struct class_perm_datum *bb = b;
+-	rc = (aportcon->port_high - aportcon->port_low) 
+-		- (bportcon->port_high - bportcon->port_low);
++	rc = spaceship_cmp(aportcon->port_high - aportcon->port_low,
++		bportcon->port_high - bportcon->port_low);
+ 	if (rc == 0) {
+ 		if (aportcon->port_low < bportcon->port_low) {
+ 			rc = -1;
+@@ -394,8 +396,8 @@ static int cil_post_iomemcon_compare(const void *a, const void *b)
+ 	struct cil_iomemcon *aiomemcon = *(struct cil_iomemcon**)a;
+ 	struct cil_iomemcon *biomemcon = *(struct cil_iomemcon**)b;
  
--	return aa->val - bb->val;
-+	return spaceship_cmp(aa->val, bb->val);
- }
+-	rc = (aiomemcon->iomem_high - aiomemcon->iomem_low) 
+-		- (biomemcon->iomem_high - biomemcon->iomem_low);
++	rc = spaceship_cmp(aiomemcon->iomem_high - aiomemcon->iomem_low,
++		biomemcon->iomem_high - biomemcon->iomem_low);
+ 	if (rc == 0) {
+ 		if (aiomemcon->iomem_low < biomemcon->iomem_low) {
+ 			rc = -1;
+@@ -413,8 +415,8 @@ static int cil_post_ioportcon_compare(const void *a, const void *b)
+ 	struct cil_ioportcon *aioportcon = *(struct cil_ioportcon**)a;
+ 	struct cil_ioportcon *bioportcon = *(struct cil_ioportcon**)b;
  
- static int common_to_cil(char *key, void *data, void *UNUSED(arg))
+-	rc = (aioportcon->ioport_high - aioportcon->ioport_low) 
+-		- (bioportcon->ioport_high - bioportcon->ioport_low);
++	rc = spaceship_cmp(aioportcon->ioport_high - aioportcon->ioport_low,
++		bioportcon->ioport_high - bioportcon->ioport_low);
+ 	if (rc == 0) {
+ 		if (aioportcon->ioport_low < bioportcon->ioport_low) {
+ 			rc = -1;
 -- 
 2.43.0
 
